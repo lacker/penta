@@ -1,26 +1,24 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityImplementationDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, CardArt, CardBehavior, CardKind, CardRules, CardSet,
-    EffectDef, EffectDurationDef, EffectRecipientDef, EvergreenAbility, ManaCost, ManaKindDef,
+    AddManaEffectDef, AppliedEffectDef, CardArt, CardBehavior, CardRules, CardSet, CardType,
+    EffectDef, EffectDurationDef, EffectRecipientDef, EvergreenAbilityDef, ManaCost, ManaKindDef,
     ObjectPredicateDef, PlayerRelation, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, cards,
 };
-use crate::ids::{AbilityId, TargetSlotId};
+use crate::ids::TargetSlotId;
 
 pub(in crate::card::sets) static ATOG: CardRecord = CardRecord::new(
     cards::ATOG,
     "Atog",
     CardArt::new("2249fc40-4412-48fd-800a-7ea3678aee3f", "Jesper Myrfors"),
     CardSet::Antiquities,
-    CardRules::new(CardKind::Creature, ManaCost::new(1, 1), "")
-        .creature(1, 2)
-        .with_subtypes(&["Atog"])
-        .with_abilities(&[AbilityDef::custom_partial(
-            AbilityId::PRIMARY,
+    CardRules::new_creature(ManaCost::new(1, 1), &["Atog"], 1, 2, "").with_abilities(&[
+        AbilityDef::custom_partial(
             "Sacrifice an artifact: This creature gets +2/+2 until end of turn.",
             CardBehavior::Atog,
             "The activated ability currently resolves immediately instead of using the stack.",
-        )]),
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static DETONATE: CardRecord = CardRecord::new(
@@ -31,9 +29,8 @@ pub(in crate::card::sets) static DETONATE: CardRecord = CardRecord::new(
         "Randy Asplund-Faith",
     ),
     CardSet::Antiquities,
-    CardRules::new(CardKind::Sorcery, ManaCost::with_x(1), "").with_abilities(&[
+    CardRules::new_sorcery(ManaCost::with_x(1), "").with_abilities(&[
         AbilityDef::custom_partial(
-            AbilityId::PRIMARY,
             "Destroy target artifact with mana value X. It can't be regenerated. Detonate deals X damage to that artifact's controller.",
             CardBehavior::Detonate,
             "Artifact destruction and damage are implemented by the legacy resolver, but the no-regeneration clause is not enforced.",
@@ -46,11 +43,8 @@ pub(in crate::card::sets) static SU_CHI: CardRecord = CardRecord::new(
     "Su-Chi",
     CardArt::new("a64d4f93-0c04-4078-aec0-7e9de92f260f", "Christopher Rush"),
     CardSet::Antiquities,
-    CardRules::new(CardKind::ArtifactCreature, ManaCost::new(4, 0), "")
-        .creature(4, 4)
-        .with_subtypes(&["Construct"])
-        .with_abilities(&[AbilityDef::triggered(
-            AbilityId::PRIMARY,
+    CardRules::new_artifact_creature(ManaCost::new(4, 0), &["Construct"], 4, 4, "").with_abilities(
+        &[AbilityDef::triggered(
             "When this creature dies, add {C}{C}{C}{C}.",
             TriggerEventDef::ZoneChanged {
                 object: ObjectPredicateDef::Source,
@@ -58,7 +52,8 @@ pub(in crate::card::sets) static SU_CHI: CardRecord = CardRecord::new(
                 to: Some(ZoneKind::Graveyard),
             },
             EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Colorless).with_amount(4)),
-        )]),
+        )],
+    ),
 );
 
 pub(in crate::card::sets) static MISHRA_S_FACTORY: CardRecord = CardRecord::new(
@@ -66,16 +61,14 @@ pub(in crate::card::sets) static MISHRA_S_FACTORY: CardRecord = CardRecord::new(
     "Mishra's Factory",
     CardArt::new("a696c5b6-f216-454d-8029-74e84bbd1428", "Kaja Foglio & Phil Foglio"),
     CardSet::Antiquities,
-    CardRules::new(CardKind::Land, ManaCost::new(0, 0), "")
+    CardRules::new_land(&[], "")
         .with_abilities(&[
             AbilityDef::activated_mana(
-                AbilityId::PRIMARY,
                 "{T}: Add {C}.",
                 &[AbilityCostDef::TapSource],
                 EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Colorless)),
             ),
             AbilityDef::activated(
-                AbilityId(1),
                 "{1}: This land becomes a 2/2 Assembly-Worker artifact creature until end of turn. It's still a land.",
                 &[AbilityCostDef::Mana(ManaCost::new(1, 0))],
                 EffectDef::Special("Animate this land as a 2/2 Assembly-Worker artifact creature"),
@@ -85,7 +78,6 @@ pub(in crate::card::sets) static MISHRA_S_FACTORY: CardRecord = CardRecord::new(
                 explanation: "The animation ability is implemented, but currently resolves immediately instead of using the stack.",
             }),
             AbilityDef::activated(
-                AbilityId(2),
                 "{T}: Target Assembly-Worker creature gets +1/+1 until end of turn.",
                 &[AbilityCostDef::TapSource],
                 EffectDef::Special("Give the target Assembly-Worker +1/+1 until end of turn"),
@@ -116,17 +108,14 @@ pub(in crate::card::sets) static ORCISH_MECHANICS: CardRecord = CardRecord::new(
     "Orcish Mechanics",
     CardArt::new("5e34fc6b-5f00-4a22-9ee2-afc1caf99961", "Pete Venters"),
     CardSet::Antiquities,
-    CardRules::new(CardKind::Creature, ManaCost::new(2, 1), "")
-        .creature(1, 1)
-        .with_subtypes(&["Orc"])
+    CardRules::new_creature(ManaCost::new(2, 1), &["Orc"], 1, 1, "")
         .with_abilities(&[
             AbilityDef::activated(
-                AbilityId::PRIMARY,
                 "{T}, Sacrifice an artifact: This creature deals 2 damage to any target.",
                 &[
                     AbilityCostDef::TapSource,
                     AbilityCostDef::SacrificePermanent {
-                        object: ObjectPredicateDef::Artifact,
+                        object: ObjectPredicateDef::HasType(CardType::Artifact),
                         controller: PlayerRelation::You,
                     },
                 ],
@@ -156,15 +145,13 @@ pub(in crate::card::sets) static STRIP_MINE: CardRecord = CardRecord::new(
     "Strip Mine",
     CardArt::new("e7880157-7f27-4f1b-9cdc-ab36a6252376", "Daniel Gelon"),
     CardSet::Antiquities,
-    CardRules::new(CardKind::Land, ManaCost::new(0, 0), "").with_abilities(&[
+    CardRules::new_land(&[], "").with_abilities(&[
         AbilityDef::activated_mana(
-            AbilityId::PRIMARY,
             "{T}: Add {C}.",
             &[AbilityCostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Colorless)),
         ),
         AbilityDef::activated(
-            AbilityId(1),
             "{T}, Sacrifice this land: Destroy target land.",
             &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
             EffectDef::Destroy {
@@ -176,7 +163,7 @@ pub(in crate::card::sets) static STRIP_MINE: CardRecord = CardRecord::new(
             TargetSlotId(0),
             "land",
             AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Land,
+                object: ObjectPredicateDef::HasType(CardType::Land),
                 zones: &[ZoneKind::Battlefield],
                 controller: None,
                 owner: None,
@@ -191,12 +178,9 @@ pub(in crate::card::sets) static TRISKELION: CardRecord = CardRecord::new(
     "Triskelion",
     CardArt::new("a79c99e1-722a-44b6-8fa3-2be3f0c193d8", "Douglas Shuler"),
     CardSet::Antiquities,
-    CardRules::new(CardKind::ArtifactCreature, ManaCost::new(6, 0), "")
-        .creature(1, 1)
-        .with_subtypes(&["Construct"])
+    CardRules::new_artifact_creature(ManaCost::new(6, 0), &["Construct"], 1, 1, "")
         .with_abilities(&[
             AbilityDef::replacement(
-                AbilityId::PRIMARY,
                 "This creature enters with three +1/+1 counters on it.",
                 EffectDef::Special("Enter with three +1/+1 counters"),
             )
@@ -205,7 +189,6 @@ pub(in crate::card::sets) static TRISKELION: CardRecord = CardRecord::new(
                 explanation: "The entry counters are applied when Triskelion resolves normally, but copied Triskelion rules do not apply them.",
             }),
             AbilityDef::activated(
-                AbilityId(1),
                 "Remove a +1/+1 counter from this creature: It deals 1 damage to any target.",
                 &[AbilityCostDef::Special(
                     "Remove a +1/+1 counter from this source",
@@ -236,9 +219,8 @@ pub(in crate::card::sets) static IVORY_TOWER: CardRecord = CardRecord::new(
         "Margaret Organ-Kean",
     ),
     CardSet::Antiquities,
-    CardRules::new(CardKind::Artifact, ManaCost::new(1, 0), "").with_abilities(&[
+    CardRules::new_artifact(ManaCost::new(1, 0), "").with_abilities(&[
         AbilityDef::triggered(
-            AbilityId::PRIMARY,
             "At the beginning of your upkeep, you gain X life, where X is the number of cards in your hand minus 4.",
             TriggerEventDef::StepBegins {
                 step: TurnStepDef::Upkeep,
@@ -260,9 +242,8 @@ pub(in crate::card::sets) static MISHRA_S_WORKSHOP: CardRecord = CardRecord::new
     "Mishra's Workshop",
     CardArt::new("135de5c7-6ac9-4b68-8f1a-97f120a4b125", "Kaja Foglio"),
     CardSet::Antiquities,
-    CardRules::new(CardKind::Land, ManaCost::new(0, 0), "").with_abilities(&[
+    CardRules::new_land(&[], "").with_abilities(&[
         AbilityDef::activated_mana(
-            AbilityId::PRIMARY,
             "{T}: Add {C}{C}{C}. Spend this mana only to cast artifact spells.",
             &[AbilityCostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Colorless).with_amount(3)),
@@ -279,15 +260,14 @@ pub(in crate::card::sets) static ARGOTHIAN_PIXIES: CardRecord = CardRecord::new(
     "Argothian Pixies",
     CardArt::new("5712e87a-2381-4f5b-a853-6973841f9bf1", "Amy Weber"),
     CardSet::Antiquities,
-    CardRules::new(
-        CardKind::Creature,
+    CardRules::new_creature(
         ManaCost::colored(1, 0, 0, 0, 0, 1),
+        &["Faerie"],
+        2,
+        1,
         "",
     )
-    .creature(2, 1)
-    .with_subtypes(&["Faerie"])
     .with_abilities(&[AbilityDef::custom_partial(
-        AbilityId::PRIMARY,
         "This creature can't be blocked by artifact creatures.\nPrevent all damage that would be dealt to this creature by artifact creatures.",
         CardBehavior::ArgothianPixies,
         "The artifact-creature blocking restriction works, but damage from artifact creatures is not prevented.",
@@ -299,9 +279,8 @@ pub(in crate::card::sets) static HURKYLS_RECALL: CardRecord = CardRecord::new(
     "Hurkyl's Recall",
     CardArt::new("f32373dd-06d8-45d1-8777-3b1411bcb30a", "NéNé Thomas"),
     CardSet::Antiquities,
-    CardRules::new(CardKind::Instant, ManaCost::colored(1, 0, 1, 0, 0, 0), "")
+    CardRules::new_instant(ManaCost::colored(1, 0, 1, 0, 0, 0), "")
         .with_abilities(&[AbilityDef::custom_partial(
-            AbilityId::PRIMARY,
             "Return all artifacts target player owns to their hand.",
             CardBehavior::HurkylsRecall,
             "The resolver currently returns artifacts the targeted player controls instead of artifacts they own.",
@@ -313,24 +292,27 @@ pub(in crate::card::sets) static SAGE_OF_LAT_NAM: CardRecord = CardRecord::new(
     "Sage of Lat-Nam",
     CardArt::new("b4ff60ce-073c-46b8-807c-8b40467b960c", "Pete Venters"),
     CardSet::Antiquities,
-    CardRules::new(CardKind::Creature, ManaCost::colored(1, 0, 1, 0, 0, 0), "")
-        .creature(1, 2)
-        .with_subtypes(&["Human", "Artificer"])
-        .with_abilities(&[AbilityDef::activated(
-            AbilityId::PRIMARY,
-            "{T}, Sacrifice an artifact: Draw a card.",
-            &[
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificePermanent {
-                    object: ObjectPredicateDef::Artifact,
-                    controller: PlayerRelation::You,
-                },
-            ],
-            EffectDef::DrawCards {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
+    CardRules::new_creature(
+        ManaCost::colored(1, 0, 1, 0, 0, 0),
+        &["Human", "Artificer"],
+        1,
+        2,
+        "",
+    )
+    .with_abilities(&[AbilityDef::activated(
+        "{T}, Sacrifice an artifact: Draw a card.",
+        &[
+            AbilityCostDef::TapSource,
+            AbilityCostDef::SacrificePermanent {
+                object: ObjectPredicateDef::HasType(CardType::Artifact),
+                controller: PlayerRelation::You,
             },
-        )]),
+        ],
+        EffectDef::DrawCards {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(1),
+        },
+    )]),
 );
 
 pub(in crate::card::sets) static TETRAVUS: CardRecord = CardRecord::new(
@@ -338,13 +320,10 @@ pub(in crate::card::sets) static TETRAVUS: CardRecord = CardRecord::new(
     "Tetravus",
     CardArt::new("23eb19f9-2e8f-4bf0-9bf8-868e6da70e2d", "Mark Tedin"),
     CardSet::Antiquities,
-    CardRules::new(CardKind::ArtifactCreature, ManaCost::new(6, 0), "")
-    .creature(1, 1)
-    .with_subtypes(&["Construct"])
+    CardRules::new_artifact_creature(ManaCost::new(6, 0), &["Construct"], 1, 1, "")
     .with_abilities(&[
-        AbilityDef::evergreen(AbilityId(1), "Flying", EvergreenAbility::Flying),
+        EvergreenAbilityDef::flying(),
         AbilityDef::replacement(
-            AbilityId::PRIMARY,
             "This creature enters with three +1/+1 counters on it.",
             EffectDef::Special("Enter with three +1/+1 counters"),
         )
@@ -353,12 +332,10 @@ pub(in crate::card::sets) static TETRAVUS: CardRecord = CardRecord::new(
             explanation: "The entry counters are applied by the legacy permanent-entry resolver.",
         }),
         AbilityDef::not_implemented(
-            AbilityId(2),
             "At the beginning of your upkeep, you may remove any number of +1/+1 counters from this creature. If you do, create that many 1/1 colorless Tetravite artifact creature tokens. They each have flying and \"This token can't be enchanted.\"",
             "Creating Tetravite tokens and choosing how many counters to remove are not implemented.",
         ),
         AbilityDef::not_implemented(
-            AbilityId(3),
             "At the beginning of your upkeep, you may exile any number of tokens created with this creature. If you do, put that many +1/+1 counters on this creature.",
             "Exiling linked Tetravite tokens and returning their counters are not implemented.",
         ),
@@ -366,7 +343,6 @@ pub(in crate::card::sets) static TETRAVUS: CardRecord = CardRecord::new(
 );
 
 static ENERGY_FLUX_GRANTED_ABILITY: AbilityDef = AbilityDef::triggered(
-    AbilityId::PRIMARY,
     "At the beginning of your upkeep, sacrifice this artifact unless you pay {2}.",
     TriggerEventDef::StepBegins {
         step: TurnStepDef::Upkeep,
@@ -383,17 +359,12 @@ pub(in crate::card::sets) static ENERGY_FLUX: CardRecord = CardRecord::new(
     "Energy Flux",
     CardArt::new("bd1f624b-e8f2-462f-838a-7cb9e8fda988", "Kaja Foglio"),
     CardSet::Antiquities,
-    CardRules::new(
-        CardKind::Enchantment,
-        ManaCost::colored(2, 0, 1, 0, 0, 0),
-        "",
-    )
+    CardRules::new_enchantment(ManaCost::colored(2, 0, 1, 0, 0, 0), "")
     .with_abilities(&[AbilityDef::static_ability(
-        AbilityId::PRIMARY,
         "All artifacts have \"At the beginning of your upkeep, sacrifice this artifact unless you pay {2}.\"",
         EffectDef::Apply {
             recipient: EffectRecipientDef::MatchingObjects {
-                object: ObjectPredicateDef::Artifact,
+                object: ObjectPredicateDef::HasType(CardType::Artifact),
                 zones: &[ZoneKind::Battlefield],
                 controller: PlayerRelation::Any,
             },

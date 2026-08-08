@@ -4,19 +4,15 @@ use crate::{
     AbilityTargetDef, AbilityTargetPredicate, AdditionalCostDef, AdditionalCostId,
     AlternativeCostDef, AlternativeCostId, CardComposition, CardDefinition, CardEffectStatus,
     CardInstanceId, CardPart, CardPartId, CardPrinting, CardRules, CardStructure, CastChoices,
-    DoubleFacedKind, LandEntry, ManaSpendEffectDef, ModeDef, ModeSetDef, PlayOptionDef,
-    PlayOptionId, PlayerRelation, SpellForm, StackObjectId, TargetPredicate, TargetSelection,
-    TargetSlotDef, TargetSlotId,
+    DoubleFacedKind, EvergreenAbilityDef, LandEntry, ManaSpendEffectDef, ModeDef, ModeSetDef,
+    PlayOptionDef, PlayOptionId, PlayerRelation, SpellForm, StackObjectId, TargetPredicate,
+    TargetSelection, TargetSlotDef, TargetSlotId,
 };
 
-static TEST_FLYING_ABILITY: [AbilityDef; 1] = [AbilityDef::evergreen(
-    AbilityId::PRIMARY,
-    "Flying",
-    EvergreenAbility::Flying,
-)];
+static TEST_FLYING_ABILITY: [AbilityDef; 1] = [EvergreenAbilityDef::flying()];
 static TEST_FLYING_TRAMPLE_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::evergreen(AbilityId::PRIMARY, "Flying", EvergreenAbility::Flying),
-    AbilityDef::evergreen(AbilityId(1), "Trample", EvergreenAbility::Trample),
+    EvergreenAbilityDef::flying(),
+    EvergreenAbilityDef::trample(),
 ];
 
 fn ready_game() -> Game {
@@ -343,7 +339,9 @@ fn ability_events_distinguish_the_stack_object_from_a_source_that_left_play() {
 
 #[test]
 fn recall_charges_two_generic_mana_for_each_x() {
-    let cost = CardBehavior::Recall.mana_cost();
+    let cost = CardBehavior::Recall
+        .mana_cost()
+        .expect("Recall has a printed mana cost");
     assert!(can_pay(
         ManaPool {
             blue: 1,
@@ -405,7 +403,6 @@ fn white_red_hybrid_symbols_accept_either_color_but_not_colorless() {
 #[test]
 fn declarative_mana_production_drives_generic_mana_sources() {
     static ABILITIES: [AbilityDef; 1] = [AbilityDef::activated_mana(
-        crate::AbilityId::PRIMARY,
         "{T}: Add {U} or {R}.",
         &[AbilityCostDef::TapSource],
         EffectDef::AddMana(AddManaEffectDef::choice(&[
@@ -421,8 +418,7 @@ fn declarative_mana_production_drives_generic_mana_sources() {
         false,
         CardBehavior::Unsupported,
     );
-    definition.rules =
-        CardRules::new(CardKind::Land, ManaCost::default(), "").with_abilities(&ABILITIES);
+    definition.rules = CardRules::new_land(&[], "").with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
 
     let mut game = ready_game();
@@ -461,9 +457,10 @@ fn declarative_land_entry_handles_check_tapped_and_shock_lands() {
         false,
         CardBehavior::Unsupported,
     );
-    check.rules = CardRules::new(CardKind::Land, ManaCost::default(), "").land_entry(
-        LandEntry::TappedUnlessControlsLandType([true, false, false, false, false]),
-    );
+    check.rules =
+        CardRules::new_land(&[], "").land_entry(LandEntry::TappedUnlessControlsLandType([
+            true, false, false, false, false,
+        ]));
     synchronize_single_part_definition(&mut check);
     let mut gate = CardDefinition::new(
         gate_id,
@@ -472,8 +469,7 @@ fn declarative_land_entry_handles_check_tapped_and_shock_lands() {
         false,
         CardBehavior::Unsupported,
     );
-    gate.rules =
-        CardRules::new(CardKind::Land, ManaCost::default(), "").land_entry(LandEntry::Tapped);
+    gate.rules = CardRules::new_land(&[], "").land_entry(LandEntry::Tapped);
     synchronize_single_part_definition(&mut gate);
     let mut shock = CardDefinition::new(
         shock_id,
@@ -482,9 +478,8 @@ fn declarative_land_entry_handles_check_tapped_and_shock_lands() {
         false,
         CardBehavior::Unsupported,
     );
-    shock.rules = CardRules::new(CardKind::Land, ManaCost::default(), "")
-        .with_subtypes(&["Plains", "Swamp"])
-        .land_entry(LandEntry::PayLifeOrTapped(2));
+    shock.rules =
+        CardRules::new_land(&["Plains", "Swamp"], "").land_entry(LandEntry::PayLifeOrTapped(2));
     synchronize_single_part_definition(&mut shock);
 
     let plains = CardDefinition::new(
@@ -522,9 +517,8 @@ fn a_land_play_option_locks_the_presented_part_on_the_permanent() {
     let definition_id = CardDefinitionId(10_100);
     let land_part = CardPartId(1);
     let land_option = PlayOptionId(1);
-    let front_rules = CardRules::new(CardKind::Sorcery, ManaCost::new(1, 0), "Test front");
-    let land_rules = CardRules::new(CardKind::Land, ManaCost::default(), "Test back")
-        .land_entry(LandEntry::Tapped);
+    let front_rules = CardRules::new_sorcery(ManaCost::new(1, 0), "Test front");
+    let land_rules = CardRules::new_land(&[], "Test back").land_entry(LandEntry::Tapped);
     let mut definition = CardDefinition::new(
         definition_id,
         "Test modal card",
@@ -535,7 +529,7 @@ fn a_land_play_option_locks_the_presented_part_on_the_permanent() {
     definition.rules = front_rules;
     definition.parts = vec![
         CardPart::new(CardPartId::PRIMARY, "Test front", front_rules),
-        CardPart::new(land_part, "Test back", land_rules).without_mana_cost(),
+        CardPart::new(land_part, "Test back", land_rules),
     ];
     definition.structure = CardStructure::DoubleFaced {
         front: CardPartId::PRIMARY,
@@ -547,7 +541,9 @@ fn a_land_play_option_locks_the_presented_part_on_the_permanent() {
             PlayOptionId::DEFAULT,
             "Cast Test front",
             SpellForm::Part(CardPartId::PRIMARY),
-            front_rules.mana_cost,
+            front_rules
+                .mana_cost()
+                .expect("the front has a printed mana cost"),
             CardEffectStatus::MetadataOnly,
         ),
         PlayOptionDef::play_land(
@@ -579,14 +575,10 @@ fn a_modal_spell_resolves_by_its_locked_part_instead_of_the_canonical_front() {
     let definition_id = CardDefinitionId(10_150);
     let creature_part = CardPartId(1);
     let creature_option = PlayOptionId(1);
-    let front_rules = CardRules::new(CardKind::Instant, ManaCost::new(1, 1), "Test front");
-    let creature_rules = CardRules::new(
-        CardKind::Creature,
-        ManaCost::new(0, 0),
-        "Test creature back",
-    )
-    .creature(3, 4)
-    .with_abilities(&TEST_FLYING_ABILITY);
+    let front_rules = CardRules::new_instant(ManaCost::new(1, 1), "Test front");
+    let creature_rules =
+        CardRules::new_creature(ManaCost::new(0, 0), &[], 3, 4, "Test creature back")
+            .with_abilities(&TEST_FLYING_ABILITY);
     let mut definition = CardDefinition::new(
         definition_id,
         "Test modal spell",
@@ -609,14 +601,18 @@ fn a_modal_spell_resolves_by_its_locked_part_instead_of_the_canonical_front() {
             PlayOptionId::DEFAULT,
             "Cast Test front",
             SpellForm::Part(CardPartId::PRIMARY),
-            front_rules.mana_cost,
+            front_rules
+                .mana_cost()
+                .expect("the front has a printed mana cost"),
             CardEffectStatus::MetadataOnly,
         ),
         PlayOptionDef::cast(
             creature_option,
             "Cast Test creature back",
             SpellForm::Part(creature_part),
-            creature_rules.mana_cost,
+            creature_rules
+                .mana_cost()
+                .expect("the modal back has a printed mana cost"),
             CardEffectStatus::Implemented,
         ),
     ];
@@ -649,10 +645,8 @@ fn a_modal_spell_resolves_by_its_locked_part_instead_of_the_canonical_front() {
 fn changing_a_permanents_presented_face_keeps_its_object_identity() {
     let definition_id = CardDefinitionId(10_101);
     let back = CardPartId(1);
-    let front_rules =
-        CardRules::new(CardKind::Creature, ManaCost::new(2, 0), "Front-face rules.").creature(2, 2);
-    let back_rules = CardRules::new(CardKind::Creature, ManaCost::default(), "")
-        .creature(4, 5)
+    let front_rules = CardRules::new_creature(ManaCost::new(2, 0), &[], 2, 2, "Front-face rules.");
+    let back_rules = CardRules::new_creature_without_mana_cost(&[], 4, 5, "")
         .with_abilities(&TEST_FLYING_TRAMPLE_ABILITIES);
     let mut definition = CardDefinition::new(
         definition_id,
@@ -664,7 +658,7 @@ fn changing_a_permanents_presented_face_keeps_its_object_identity() {
     definition.rules = front_rules;
     definition.parts = vec![
         CardPart::new(CardPartId::PRIMARY, "Test Werewolf", front_rules),
-        CardPart::new(back, "Test Ravager", back_rules).without_mana_cost(),
+        CardPart::new(back, "Test Ravager", back_rules),
     ];
     definition.structure = CardStructure::DoubleFaced {
         front: CardPartId::PRIMARY,
@@ -675,7 +669,9 @@ fn changing_a_permanents_presented_face_keeps_its_object_identity() {
         PlayOptionId::DEFAULT,
         "Cast Test Werewolf",
         SpellForm::Part(CardPartId::PRIMARY),
-        front_rules.mana_cost,
+        front_rules
+            .mana_cost()
+            .expect("the front has a printed mana cost"),
         CardEffectStatus::MetadataOnly,
     )];
 
@@ -836,7 +832,7 @@ fn cast_validation_rejects_unrecognized_structured_choices() {
         false,
         CardBehavior::LightningBolt,
     );
-    definition.rules = CardRules::new(CardKind::Instant, ManaCost::new(0, 1), "");
+    definition.rules = CardRules::new_instant(ManaCost::new(0, 1), "");
     synchronize_single_part_definition(&mut definition);
     let mut option = PlayOptionDef::cast(
         option_id,
@@ -1364,7 +1360,7 @@ fn targeted_trigger_chooses_public_targets_while_being_put_on_stack() {
         TargetSlotId(7),
         "target creature an opponent controls",
         AbilityTargetPredicate::Object {
-            object: ObjectPredicateDef::Creature,
+            object: ObjectPredicateDef::HasType(CardType::Creature),
             zones: &[ZoneKind::Battlefield],
             controller: Some(PlayerRelation::Opponent),
             owner: None,
@@ -1428,8 +1424,8 @@ fn targeted_trigger_chooses_public_targets_while_being_put_on_stack() {
 #[test]
 fn nonbattlefield_card_targets_are_zone_incarnations() {
     static INSTANT_OR_SORCERY: [ObjectPredicateDef; 2] = [
-        ObjectPredicateDef::CardKind(CardKind::Instant),
-        ObjectPredicateDef::CardKind(CardKind::Sorcery),
+        ObjectPredicateDef::HasType(CardType::Instant),
+        ObjectPredicateDef::HasType(CardType::Sorcery),
     ];
     let predicate = AbilityTargetPredicate::Object {
         object: ObjectPredicateDef::AnyOf(&INSTANT_OR_SORCERY),
@@ -1554,7 +1550,6 @@ fn workshop_mana_is_three_individual_values_without_an_unimplemented_restriction
 #[test]
 fn explicitly_tagged_triggered_mana_ability_resolves_without_the_stack() {
     static ABILITIES: [AbilityDef; 1] = [AbilityDef::triggered_mana(
-        crate::AbilityId::PRIMARY,
         "Whenever this becomes tapped, add {C}.",
         TriggerEventDef::BecomesTapped(ObjectPredicateDef::Source),
         EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Colorless)),
@@ -1567,12 +1562,7 @@ fn explicitly_tagged_triggered_mana_ability_resolves_without_the_stack() {
         false,
         CardBehavior::Unsupported,
     );
-    definition.rules = CardRules::new(
-        CardKind::Artifact,
-        ManaCost::new(0, 0),
-        "Whenever this becomes tapped, add {C}.",
-    )
-    .with_abilities(&ABILITIES);
+    definition.rules = CardRules::new_artifact(ManaCost::new(0, 0), "").with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
 
     let mut game = ready_game();
@@ -2838,6 +2828,124 @@ fn structured_target_predicates_are_rechecked_when_the_spell_resolves() {
 }
 
 #[test]
+fn combined_spell_trigger_characteristics_union_types_and_subtypes() {
+    let definition_id = CardDefinitionId(10_066);
+    let instant = CardRules::new_instant(ManaCost::default(), "").with_subtypes(&["Arcane"]);
+    let sorcery = CardRules::new_sorcery(ManaCost::default(), "").with_subtypes(&["Lesson"]);
+    let mut definition = CardDefinition::new(
+        definition_id,
+        "Instant Half // Sorcery Half",
+        CardSet::Magic2014,
+        false,
+        CardBehavior::Unsupported,
+    );
+    definition.rules = instant;
+    definition.parts = vec![
+        CardPart::new(CardPartId::PRIMARY, "Instant Half", instant),
+        CardPart::new(CardPartId(1), "Sorcery Half", sorcery),
+    ];
+    let combined = PlayOptionId(2);
+    let parts = vec![CardPartId::PRIMARY, CardPartId(1)];
+    definition.structure = CardStructure::Split {
+        parts: parts.clone(),
+        fused: Some(combined),
+    };
+    definition.play_options = vec![
+        PlayOptionDef::cast(
+            PlayOptionId::DEFAULT,
+            "Instant Half",
+            SpellForm::Part(CardPartId::PRIMARY),
+            ManaCost::default(),
+            CardEffectStatus::Implemented,
+        ),
+        PlayOptionDef::cast(
+            PlayOptionId(1),
+            "Sorcery Half",
+            SpellForm::Part(CardPartId(1)),
+            ManaCost::default(),
+            CardEffectStatus::Implemented,
+        ),
+        PlayOptionDef::cast(
+            combined,
+            "Fuse",
+            SpellForm::Combined(parts.clone()),
+            ManaCost::default(),
+            CardEffectStatus::Implemented,
+        ),
+    ];
+
+    let mut game = ready_game();
+    let mut definitions = game
+        .catalog
+        .definitions()
+        .into_iter()
+        .cloned()
+        .collect::<Vec<_>>();
+    definitions.push(definition);
+    game.catalog = CardCatalog::new(definitions).unwrap();
+    let mut object = spell(77, definition_id, PlayerId::One, 0);
+    object.signature = Some(CastSignature::from_validated_choices(
+        SpellForm::Combined(parts),
+        CastChoices::new(combined),
+    ));
+
+    let object = game
+        .stack_trigger_event_object(&object)
+        .expect("a fused spell has trigger characteristics");
+    assert!(object.types[CardType::Instant.index()]);
+    assert!(object.types[CardType::Sorcery.index()]);
+    assert_eq!(object.subtypes.as_ref(), &["Arcane", "Lesson"]);
+    let event = CommittedTriggerEvent::SpellCast { object };
+    for predicate in [
+        ObjectPredicateDef::HasType(CardType::Instant),
+        ObjectPredicateDef::HasType(CardType::Sorcery),
+        ObjectPredicateDef::Subtype("Arcane"),
+        ObjectPredicateDef::Subtype("Lesson"),
+    ] {
+        assert!(game.trigger_event_matches(
+            TriggerEventDef::SpellCast(predicate),
+            &event,
+            GameObjectId(99_999),
+        ));
+    }
+}
+
+#[test]
+fn animated_factory_keeps_types_and_last_known_stats_under_blood_moon() {
+    let mut game = ready_game();
+    game.catalog = crate::card::catalog().unwrap();
+    let mut factory = creature(10_000, cards::MISHRA_S_FACTORY, PlayerId::One);
+    factory.factory_animated = true;
+    let blood_moon = creature(10_001, cards::BLOOD_MOON, PlayerId::Two);
+    game.battlefield = vec![factory, blood_moon];
+
+    let snapshot = game.battlefield_exit_snapshot(&game.battlefield[0]);
+    assert_eq!(snapshot.last_known.power, Some(2));
+    assert_eq!(snapshot.last_known.toughness, Some(2));
+    assert_eq!(snapshot.object.subtypes.as_ref(), &["Mountain"]);
+    for card_type in [CardType::Land, CardType::Creature, CardType::Artifact] {
+        assert!(snapshot.object.types[card_type.index()]);
+    }
+
+    let event = CommittedTriggerEvent::ZoneChanged {
+        object: snapshot.object,
+        from: ZoneKind::Battlefield,
+        to: ZoneKind::Graveyard,
+    };
+    for card_type in [CardType::Land, CardType::Creature, CardType::Artifact] {
+        assert!(game.trigger_event_matches(
+            TriggerEventDef::ZoneChanged {
+                object: ObjectPredicateDef::HasType(card_type),
+                from: Some(ZoneKind::Battlefield),
+                to: Some(ZoneKind::Graveyard),
+            },
+            &event,
+            GameObjectId(99_999),
+        ));
+    }
+}
+
+#[test]
 fn black_lotus_sacrifices_for_three_red_mana() {
     let mut game = ready_game();
     let lotus = creature(10_000, cards::BLACK_LOTUS, PlayerId::One);
@@ -3019,13 +3127,11 @@ fn mana_preview_uses_existing_pool_before_tapping_sources() {
 fn mana_preview_uses_the_selected_declarative_activated_ability_cost() {
     static ABILITIES: [AbilityDef; 2] = [
         AbilityDef::activated_mana(
-            crate::AbilityId::PRIMARY,
             "{T}: Add {C}.",
             &[AbilityCostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Colorless)),
         ),
         AbilityDef::activated(
-            crate::AbilityId(1),
             "{1}, {T}: Draw a card.",
             &[
                 AbilityCostDef::Mana(ManaCost::new(1, 0)),
@@ -3069,8 +3175,7 @@ fn mana_preview_uses_the_selected_declarative_activated_ability_cost() {
         false,
         CardBehavior::Unsupported,
     );
-    definition.rules =
-        CardRules::new(CardKind::Artifact, ManaCost::new(0, 0), "").with_abilities(&ABILITIES);
+    definition.rules = CardRules::new_artifact(ManaCost::new(0, 0), "").with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
 
     let mut game = ready_game();
@@ -4312,10 +4417,9 @@ fn granted_activation_freezes_payload_before_sacrificing_grant_source() {
         AbilityTargetPredicate::AnyTarget,
     )];
     static GRANTED_ABILITY: AbilityDef = AbilityDef::activated(
-        crate::AbilityId(1),
         "Sacrifice an artifact: This creature deals 2 damage to any target.",
         &[AbilityCostDef::SacrificePermanent {
-            object: ObjectPredicateDef::Artifact,
+            object: ObjectPredicateDef::HasType(CardType::Artifact),
             controller: PlayerRelation::You,
         }],
         EffectDef::DealDamage {
@@ -4325,11 +4429,10 @@ fn granted_activation_freezes_payload_before_sacrificing_grant_source() {
     )
     .with_targets(&TARGETS);
     static GRANTOR_ABILITIES: [AbilityDef; 1] = [AbilityDef::static_ability(
-        crate::AbilityId::PRIMARY,
         "Creatures you control have the test ability.",
         EffectDef::Apply {
             recipient: EffectRecipientDef::MatchingObjects {
-                object: ObjectPredicateDef::Creature,
+                object: ObjectPredicateDef::HasType(CardType::Creature),
                 zones: &[ZoneKind::Battlefield],
                 controller: PlayerRelation::You,
             },
@@ -4345,8 +4448,8 @@ fn granted_activation_freezes_payload_before_sacrificing_grant_source() {
         false,
         CardBehavior::Unsupported,
     );
-    grantor_definition.rules = CardRules::new(CardKind::Artifact, ManaCost::new(0, 0), "")
-        .with_abilities(&GRANTOR_ABILITIES);
+    grantor_definition.rules =
+        CardRules::new_artifact(ManaCost::new(0, 0), "").with_abilities(&GRANTOR_ABILITIES);
     synchronize_single_part_definition(&mut grantor_definition);
 
     let mut game = ready_game();
@@ -4366,7 +4469,10 @@ fn granted_activation_freezes_payload_before_sacrificing_grant_source() {
     ]);
     let origin = AbilityOrigin::Granted {
         source: grantor,
-        ability: crate::AbilityId(1),
+        source_definition: grantor_definition_id,
+        source_part: CardPartId::PRIMARY,
+        source_ability: AbilityId::PRIMARY,
+        grant: GrantId::PRIMARY,
     };
     let activation = Action::ActivateAbility {
         source: receiver,
@@ -4409,6 +4515,234 @@ fn granted_activation_freezes_payload_before_sacrificing_grant_source() {
     );
 }
 
+#[test]
+fn separate_grant_sites_receive_distinct_structural_origins() {
+    static GRANTED_ABILITY: AbilityDef = EvergreenAbilityDef::flying();
+    static EFFECTS: [EffectDef; 2] = [
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Source,
+            effect: AppliedEffectDef::GrantAbility(&GRANTED_ABILITY),
+            duration: EffectDurationDef::WhileSourceRemainsInZone,
+        },
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Source,
+            effect: AppliedEffectDef::GrantAbility(&GRANTED_ABILITY),
+            duration: EffectDurationDef::WhileSourceRemainsInZone,
+        },
+    ];
+    static ABILITIES: [AbilityDef; 1] = [AbilityDef::static_ability(
+        "This permanent has flying.\nThis permanent has flying.",
+        EffectDef::Sequence(&EFFECTS),
+    )];
+    let definition_id = CardDefinitionId(10_063);
+    let mut definition = CardDefinition::new(
+        definition_id,
+        "Grant identity test card",
+        CardSet::Magic2014,
+        false,
+        CardBehavior::Unsupported,
+    );
+    definition.rules = CardRules::new_artifact(ManaCost::new(0, 0), "").with_abilities(&ABILITIES);
+    synchronize_single_part_definition(&mut definition);
+
+    let mut game = ready_game();
+    let mut definitions = game
+        .catalog
+        .definitions()
+        .into_iter()
+        .cloned()
+        .collect::<Vec<_>>();
+    definitions.push(definition);
+    game.catalog = CardCatalog::new(definitions).unwrap();
+    let source = CardInstanceId(10_000);
+    game.battlefield
+        .push(creature(source.0, definition_id, PlayerId::One));
+
+    let granted = game
+        .effective_abilities(&game.battlefield[0])
+        .into_iter()
+        .filter_map(|effective| match effective.origin {
+            AbilityOrigin::Granted { .. } => Some(effective.origin),
+            AbilityOrigin::Printed { .. } | AbilityOrigin::IntrinsicBasicLand(_) => None,
+        })
+        .collect::<Vec<_>>();
+
+    assert_eq!(
+        granted,
+        vec![
+            AbilityOrigin::Granted {
+                source,
+                source_definition: definition_id,
+                source_part: CardPartId::PRIMARY,
+                source_ability: AbilityId::PRIMARY,
+                grant: GrantId::PRIMARY,
+            },
+            AbilityOrigin::Granted {
+                source,
+                source_definition: definition_id,
+                source_part: CardPartId::PRIMARY,
+                source_ability: AbilityId::PRIMARY,
+                grant: GrantId(1),
+            },
+        ]
+    );
+}
+
+static COPY_GRANT_A: AbilityDef = AbilityDef::activated(
+    "Gain 1 life.",
+    &[],
+    EffectDef::GainLife {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::Constant(1),
+    },
+);
+static COPY_GRANT_B: AbilityDef = AbilityDef::activated(
+    "Lose 1 life.",
+    &[],
+    EffectDef::LoseLife {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::Constant(1),
+    },
+);
+static COPY_GRANT_SOURCE_A_ABILITIES: [AbilityDef; 1] = [AbilityDef::static_ability(
+    "Creatures you control have the first test ability.",
+    EffectDef::Apply {
+        recipient: EffectRecipientDef::MatchingObjects {
+            object: ObjectPredicateDef::HasType(CardType::Creature),
+            zones: &[ZoneKind::Battlefield],
+            controller: PlayerRelation::You,
+        },
+        effect: AppliedEffectDef::GrantAbility(&COPY_GRANT_A),
+        duration: EffectDurationDef::WhileSourceRemainsInZone,
+    },
+)];
+static COPY_GRANT_SOURCE_B_ABILITIES: [AbilityDef; 1] = [AbilityDef::static_ability(
+    "Creatures you control have the second test ability.",
+    EffectDef::Apply {
+        recipient: EffectRecipientDef::MatchingObjects {
+            object: ObjectPredicateDef::HasType(CardType::Creature),
+            zones: &[ZoneKind::Battlefield],
+            controller: PlayerRelation::You,
+        },
+        effect: AppliedEffectDef::GrantAbility(&COPY_GRANT_B),
+        duration: EffectDurationDef::WhileSourceRemainsInZone,
+    },
+)];
+
+fn copy_grant_source_definition(
+    id: CardDefinitionId,
+    name: &'static str,
+    abilities: &'static [AbilityDef],
+) -> CardDefinition {
+    let mut definition = CardDefinition::new(
+        id,
+        name,
+        CardSet::Magic2014,
+        false,
+        CardBehavior::Unsupported,
+    );
+    definition.rules = CardRules::new_artifact(ManaCost::default(), "").with_abilities(abilities);
+    synchronize_single_part_definition(&mut definition);
+    definition
+}
+
+fn copied_grant_source_game() -> (
+    Game,
+    CardInstanceId,
+    CardInstanceId,
+    CardDefinitionId,
+    CardDefinitionId,
+) {
+    let definition_a = CardDefinitionId(10_064);
+    let definition_b = CardDefinitionId(10_065);
+    let source_a = copy_grant_source_definition(
+        definition_a,
+        "First grant source",
+        &COPY_GRANT_SOURCE_A_ABILITIES,
+    );
+    let source_b = copy_grant_source_definition(
+        definition_b,
+        "Second grant source",
+        &COPY_GRANT_SOURCE_B_ABILITIES,
+    );
+    let mut game = ready_game();
+    let mut definitions = game
+        .catalog
+        .definitions()
+        .into_iter()
+        .cloned()
+        .collect::<Vec<_>>();
+    definitions.extend([source_a, source_b]);
+    game.catalog = CardCatalog::new(definitions).unwrap();
+    let grantor = CardInstanceId(10_000);
+    let receiver = CardInstanceId(10_001);
+    let mut copied_source = creature(grantor.0, cards::COPY_ARTIFACT, PlayerId::One);
+    copied_source.copied_from = Some((definition_a, CardPartId::PRIMARY));
+    game.battlefield.extend([
+        copied_source,
+        creature(receiver.0, cards::ATOG, PlayerId::One),
+    ]);
+    (game, grantor, receiver, definition_a, definition_b)
+}
+
+fn sole_granted_origin(game: &Game, receiver: CardInstanceId) -> AbilityOrigin {
+    let receiver = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.id == receiver)
+        .expect("the granted-ability receiver is on the battlefield");
+    game.effective_abilities(receiver)
+        .into_iter()
+        .find_map(|effective| match effective.origin {
+            AbilityOrigin::Granted { .. } => Some(effective.origin),
+            AbilityOrigin::Printed { .. } | AbilityOrigin::IntrinsicBasicLand(_) => None,
+        })
+        .expect("the copied source grants an ability")
+}
+
+const fn copied_grant_origin(
+    grantor: CardInstanceId,
+    definition: CardDefinitionId,
+) -> AbilityOrigin {
+    AbilityOrigin::Granted {
+        source: grantor,
+        source_definition: definition,
+        source_part: CardPartId::PRIMARY,
+        source_ability: AbilityId::PRIMARY,
+        grant: GrantId::PRIMARY,
+    }
+}
+
+#[test]
+fn copied_grant_source_definition_is_part_of_the_granted_ability_origin() {
+    let (mut game, grantor, receiver, definition_a, definition_b) = copied_grant_source_game();
+    let first_origin = sole_granted_origin(&game, receiver);
+    assert_eq!(first_origin, copied_grant_origin(grantor, definition_a));
+    let stale_action = Action::ActivateAbility {
+        source: receiver,
+        ability: first_origin,
+        targets: Vec::new(),
+        sacrifice: None,
+    };
+    assert!(game.legal_actions(PlayerId::One).contains(&stale_action));
+
+    game.battlefield[0].copied_from = Some((definition_b, CardPartId::PRIMARY));
+    let second_origin = sole_granted_origin(&game, receiver);
+    assert_eq!(second_origin, copied_grant_origin(grantor, definition_b));
+    assert_ne!(first_origin, second_origin);
+    let current_actions = game.legal_actions(PlayerId::One);
+    assert!(
+        !current_actions.contains(&stale_action),
+        "a stale action must not alias a same-position grant from different copied rules",
+    );
+    assert!(current_actions.contains(&Action::ActivateAbility {
+        source: receiver,
+        ability: second_origin,
+        targets: Vec::new(),
+        sacrifice: None,
+    }));
+}
+
 static MULTI_SLOT_ACTIVATION_TARGETS: [AbilityTargetDef; 2] = [
     AbilityTargetDef::exactly_one(
         TargetSlotId(3),
@@ -4419,7 +4753,7 @@ static MULTI_SLOT_ACTIVATION_TARGETS: [AbilityTargetDef; 2] = [
         TargetSlotId(7),
         "creature an opponent controls",
         AbilityTargetPredicate::Object {
-            object: ObjectPredicateDef::Creature,
+            object: ObjectPredicateDef::HasType(CardType::Creature),
             zones: &[ZoneKind::Battlefield],
             controller: Some(PlayerRelation::Opponent),
             owner: None,
@@ -4437,7 +4771,6 @@ static MULTI_SLOT_ACTIVATION_EFFECTS: [EffectDef; 2] = [
     },
 ];
 static MULTI_SLOT_ACTIVATION_ABILITIES: [AbilityDef; 1] = [AbilityDef::activated(
-    crate::AbilityId::PRIMARY,
     "Sacrifice this artifact: It deals 1 damage to target opponent and 1 damage to target creature that player controls.",
     &[AbilityCostDef::SacrificeSource],
     EffectDef::Sequence(&MULTI_SLOT_ACTIVATION_EFFECTS),
@@ -4454,7 +4787,7 @@ fn declarative_activation_preserves_multiple_slots_before_sacrificing_its_source
         false,
         CardBehavior::Unsupported,
     );
-    definition.rules = CardRules::new(CardKind::Artifact, ManaCost::new(0, 0), "")
+    definition.rules = CardRules::new_artifact(ManaCost::new(0, 0), "")
         .with_abilities(&MULTI_SLOT_ACTIVATION_ABILITIES);
     synchronize_single_part_definition(&mut definition);
 
@@ -4537,7 +4870,7 @@ fn one_ability_target_slot_resolves_for_every_selected_legal_target() {
         id: TargetSlotId(5),
         label: "up to two creatures an opponent controls",
         predicate: AbilityTargetPredicate::Object {
-            object: ObjectPredicateDef::Creature,
+            object: ObjectPredicateDef::HasType(CardType::Creature),
             zones: &[ZoneKind::Battlefield],
             controller: Some(PlayerRelation::Opponent),
             owner: None,
@@ -4546,7 +4879,6 @@ fn one_ability_target_slot_resolves_for_every_selected_legal_target() {
         maximum: 2,
     }];
     static ABILITIES: [AbilityDef; 1] = [AbilityDef::activated(
-        crate::AbilityId::PRIMARY,
         "Deal 1 damage to up to two target creatures an opponent controls.",
         &[],
         EffectDef::DealDamage {
@@ -4564,8 +4896,7 @@ fn one_ability_target_slot_resolves_for_every_selected_legal_target() {
         false,
         CardBehavior::Unsupported,
     );
-    definition.rules =
-        CardRules::new(CardKind::Artifact, ManaCost::new(0, 0), "").with_abilities(&ABILITIES);
+    definition.rules = CardRules::new_artifact(ManaCost::new(0, 0), "").with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
 
     let mut game = ready_game();
@@ -4626,7 +4957,6 @@ fn granted_ability_keeps_its_frozen_resolver_when_the_source_changes() {
         },
     )];
     static GRANTED_ABILITY: AbilityDef = AbilityDef::activated(
-        crate::AbilityId(1),
         "{T}: Tap target permanent.",
         &[AbilityCostDef::TapSource],
         EffectDef::Tap {
@@ -4639,7 +4969,6 @@ fn granted_ability_keeps_its_frozen_resolver_when_the_source_changes() {
         explanation: "The test intentionally grants a custom resolver.",
     });
     static SOURCE_ABILITIES: [AbilityDef; 1] = [AbilityDef::static_ability(
-        crate::AbilityId::PRIMARY,
         "This permanent has the test ability.",
         EffectDef::Apply {
             recipient: EffectRecipientDef::Source,
@@ -4655,8 +4984,8 @@ fn granted_ability_keeps_its_frozen_resolver_when_the_source_changes() {
         false,
         CardBehavior::Unsupported,
     );
-    definition.rules = CardRules::new(CardKind::Artifact, ManaCost::new(0, 0), "")
-        .with_abilities(&SOURCE_ABILITIES);
+    definition.rules =
+        CardRules::new_artifact(ManaCost::new(0, 0), "").with_abilities(&SOURCE_ABILITIES);
     synchronize_single_part_definition(&mut definition);
 
     let mut game = ready_game();
@@ -4677,7 +5006,10 @@ fn granted_ability_keeps_its_frozen_resolver_when_the_source_changes() {
     let source_card = game.battlefield[0].card.clone();
     let origin = AbilityOrigin::Granted {
         source,
-        ability: crate::AbilityId(1),
+        source_definition: definition_id,
+        source_part: CardPartId::PRIMARY,
+        source_ability: AbilityId::PRIMARY,
+        grant: GrantId::PRIMARY,
     };
     let frozen = game.freeze_activated_ability(&game.battlefield[0], origin);
 
@@ -4722,7 +5054,6 @@ fn declarative_clause_uses_its_own_resolver_on_a_card_with_custom_behavior() {
     )];
     static ABILITIES: [AbilityDef; 2] = [
         AbilityDef::activated(
-            crate::AbilityId::PRIMARY,
             "Deal 1 damage to any target.",
             &[],
             EffectDef::DealDamage {
@@ -4732,7 +5063,6 @@ fn declarative_clause_uses_its_own_resolver_on_a_card_with_custom_behavior() {
         )
         .with_targets(&TARGETS),
         AbilityDef::custom_full(
-            crate::AbilityId(1),
             "A separate custom clause.",
             CardBehavior::IcyManipulator,
             "The test keeps one explicitly custom clause beside the declarative clause.",
@@ -4746,8 +5076,7 @@ fn declarative_clause_uses_its_own_resolver_on_a_card_with_custom_behavior() {
         false,
         CardBehavior::Unsupported,
     );
-    definition.rules =
-        CardRules::new(CardKind::Artifact, ManaCost::new(0, 0), "").with_abilities(&ABILITIES);
+    definition.rules = CardRules::new_artifact(ManaCost::new(0, 0), "").with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
 
     let mut game = ready_game();
@@ -4791,7 +5120,7 @@ fn resolving_ability_masks_an_illegal_target_in_each_frozen_slot() {
             TargetSlotId(0),
             "first creature you control",
             AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Creature,
+                object: ObjectPredicateDef::HasType(CardType::Creature),
                 zones: &[ZoneKind::Battlefield],
                 controller: Some(PlayerRelation::You),
                 owner: None,
@@ -4801,7 +5130,7 @@ fn resolving_ability_masks_an_illegal_target_in_each_frozen_slot() {
             TargetSlotId(1),
             "second creature you control",
             AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Creature,
+                object: ObjectPredicateDef::HasType(CardType::Creature),
                 zones: &[ZoneKind::Battlefield],
                 controller: Some(PlayerRelation::You),
                 owner: None,
@@ -6233,7 +6562,7 @@ fn augur_of_bolas_digs_three_deep_when_it_enters() {
 
     assert_eq!(game.stack.len(), 1);
     assert_eq!(game.stack[0].kind, StackObjectKind::TriggeredAbility);
-    assert_eq!(game.stack[0].source, Some(augur.id));
+    assert_eq!(game.stack[0].source, Some(game.battlefield[0].card.id));
     assert!(game.observe(PlayerId::One).decision.is_none());
     pass_priority_pair(&mut game);
 
@@ -6288,10 +6617,8 @@ fn any_target_damage_can_remove_a_planeswalker() {
         false,
         CardBehavior::Unsupported,
     );
-    definition.rules = CardRules::new(CardKind::Planeswalker, ManaCost::default(), "")
-        .with_supertype(CardSupertype::Legendary)
-        .with_subtypes(&["Test"])
-        .planeswalker(3);
+    definition.rules = CardRules::new_planeswalker(ManaCost::default(), &["Test"], 3, "")
+        .with_supertype(CardSupertype::Legendary);
     synchronize_single_part_definition(&mut definition);
 
     let mut game = ready_game();
@@ -6361,7 +6688,7 @@ fn augur_of_bolas_may_decline_and_bottom_all_three() {
 
     assert_eq!(game.stack.len(), 1);
     assert_eq!(game.stack[0].kind, StackObjectKind::TriggeredAbility);
-    assert_eq!(game.stack[0].source, Some(augur.id));
+    assert_eq!(game.stack[0].source, Some(game.battlefield[0].card.id));
     assert!(game.observe(PlayerId::One).decision.is_none());
     pass_priority_pair(&mut game);
 
@@ -6397,7 +6724,9 @@ fn augur_of_bolas_may_decline_and_bottom_all_three() {
 fn declarative_destroy_spells_enforce_their_target_types_and_resolve() {
     for (spell_definition, target_definition, colored_mana) in [
         (cards::SHATTER, cards::BLACK_VISE, ManaColor::Red),
+        (cards::SHATTER, cards::JUGGERNAUT, ManaColor::Red),
         (cards::DISENCHANT, cards::ENERGY_FLUX, ManaColor::White),
+        (cards::DISENCHANT, cards::JUGGERNAUT, ManaColor::White),
         (cards::SINKHOLE, cards::MOUNTAIN, ManaColor::Black),
         (cards::STONE_RAIN, cards::MOUNTAIN, ManaColor::Red),
     ] {
@@ -6544,10 +6873,9 @@ fn state_based_actions_repeat_after_static_toughness_bonuses_disappear() {
 #[test]
 fn simultaneous_deaths_use_the_pre_exit_trigger_listener_snapshot() {
     static ABILITIES: [AbilityDef; 1] = [AbilityDef::triggered(
-        AbilityId::PRIMARY,
         "Whenever a creature dies, you gain 1 life.",
         TriggerEventDef::ZoneChanged {
-            object: ObjectPredicateDef::Creature,
+            object: ObjectPredicateDef::HasType(CardType::Creature),
             from: Some(ZoneKind::Battlefield),
             to: Some(ZoneKind::Graveyard),
         },
@@ -6564,9 +6892,8 @@ fn simultaneous_deaths_use_the_pre_exit_trigger_listener_snapshot() {
         false,
         CardBehavior::Unsupported,
     );
-    definition.rules = CardRules::new(CardKind::Creature, ManaCost::default(), "")
-        .creature(1, 1)
-        .with_abilities(&ABILITIES);
+    definition.rules =
+        CardRules::new_creature(ManaCost::default(), &[], 1, 1, "").with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
 
     let mut game = ready_game();
@@ -6593,7 +6920,6 @@ fn simultaneous_deaths_use_the_pre_exit_trigger_listener_snapshot() {
 #[test]
 fn simultaneous_exits_keep_pre_exit_characteristics_for_trigger_matching() {
     static ABILITIES: [AbilityDef; 1] = [AbilityDef::triggered(
-        AbilityId::PRIMARY,
         "Whenever a Mountain leaves the battlefield, you gain 1 life.",
         TriggerEventDef::ZoneChanged {
             object: ObjectPredicateDef::Subtype("Mountain"),
@@ -6613,9 +6939,8 @@ fn simultaneous_exits_keep_pre_exit_characteristics_for_trigger_matching() {
         false,
         CardBehavior::Unsupported,
     );
-    definition.rules = CardRules::new(CardKind::Creature, ManaCost::default(), "")
-        .creature(1, 1)
-        .with_abilities(&ABILITIES);
+    definition.rules =
+        CardRules::new_creature(ManaCost::default(), &[], 1, 1, "").with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
 
     let mut game = ready_game();

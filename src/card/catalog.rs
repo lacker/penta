@@ -8,8 +8,8 @@ use super::{
     CardStructure, DeclarativeAbilityDef, PlayActionKind, PlayOptionDef, SpellForm, TargetSlotDef,
 };
 use crate::{
-    AbilityId, AdditionalCostId, AlternativeCostId, CardDefinitionId, CardPartId, Format, ModeId,
-    PlayOptionId, TargetSlotId,
+    AbilityId, AdditionalCostId, AlternativeCostId, CardDefinitionId, CardPartId, Format, GrantId,
+    ModeId, PlayOptionId, TargetSlotId,
 };
 
 /// A catalog is immutable once built, and callers pass it around by value —
@@ -232,12 +232,27 @@ fn ascii_fold(lowered: char) -> Option<&'static str> {
 }
 
 fn validate_composition(definition: &CardDefinition) -> Result<(), CatalogError> {
+    if let Some(explanation) = definition.rules.coherence_error() {
+        return Err(CatalogError::IncoherentCardRules {
+            definition: definition.id,
+            part: definition.primary_part_id(),
+            explanation,
+        });
+    }
+
     let mut defined_parts = HashSet::new();
     for part in &definition.parts {
         if !defined_parts.insert(part.id) {
             return Err(CatalogError::DuplicatePartId {
                 definition: definition.id,
                 part: part.id,
+            });
+        }
+        if let Some(explanation) = part.rules.coherence_error() {
+            return Err(CatalogError::IncoherentCardRules {
+                definition: definition.id,
+                part: part.id,
+                explanation,
             });
         }
         validate_abilities(definition, part.id, part.rules.ability_clauses())?;
@@ -290,116 +305,286 @@ fn validate_abilities(
     part: CardPartId,
     abilities: &[AbilityDef],
 ) -> Result<(), CatalogError> {
-    let mut ids = HashSet::new();
-    for ability in abilities {
-        if !ids.insert(ability.id) {
-            return Err(CatalogError::DuplicateAbilityId {
-                definition: definition.id,
-                part,
-                ability: ability.id,
-            });
-        }
+    if abilities.len() > usize::from(u8::MAX) + 1 {
+        return Err(CatalogError::TooManyAbilities {
+            definition: definition.id,
+            part,
+            count: abilities.len(),
+        });
+    }
 
-        if ability.text.trim().is_empty() {
-            return Err(CatalogError::EmptyAbilityText {
-                definition: definition.id,
-                part,
-                ability: ability.id,
-            });
-        }
-        if ability
-            .implementation
-            .explanation()
-            .is_some_and(|explanation| explanation.trim().is_empty())
-        {
-            return Err(CatalogError::MissingImplementationExplanation {
-                definition: definition.id,
-                part,
-                ability: ability.id,
-            });
-        }
-        if ability.activation_text.is_some()
-            && !matches!(ability.definition, DeclarativeAbilityDef::Activated(_))
-        {
-            return Err(CatalogError::ActivationTextOnNonActivatedAbility {
-                definition: definition.id,
-                part,
-                ability: ability.id,
-            });
-        }
-
-        let (source_zones, targets, is_mana_ability) = match &ability.definition {
-            DeclarativeAbilityDef::Spell(spell) => (None, spell.targets, false),
-            DeclarativeAbilityDef::ActivatedMana(activated) => {
-                (Some(activated.source_zones), activated.targets, true)
-            }
-            DeclarativeAbilityDef::TriggeredMana(triggered) => {
-                (Some(triggered.source_zones), triggered.targets, true)
-            }
-            DeclarativeAbilityDef::Activated(activated) => {
-                (Some(activated.source_zones), activated.targets, false)
-            }
-            DeclarativeAbilityDef::Triggered(triggered) => {
-                (Some(triggered.source_zones), triggered.targets, false)
-            }
-            DeclarativeAbilityDef::Static(static_ability) => {
-                (Some(static_ability.source_zones), &[][..], false)
-            }
-            DeclarativeAbilityDef::Replacement(replacement) => {
-                (Some(replacement.source_zones), &[][..], false)
-            }
-            DeclarativeAbilityDef::SpecialAction(special_action) => {
-                (Some(special_action.source_zones), &[][..], false)
-            }
-            DeclarativeAbilityDef::Evergreen(_) | DeclarativeAbilityDef::Legacy => {
-                (None, &[][..], false)
-            }
-        };
-
-        if source_zones.is_some_and(<[super::ZoneKind]>::is_empty) {
-            return Err(CatalogError::AbilityHasNoSourceZone {
-                definition: definition.id,
-                part,
-                ability: ability.id,
-            });
-        }
-        if is_mana_ability && !targets.is_empty() {
-            return Err(CatalogError::ManaAbilityHasTargets {
-                definition: definition.id,
-                part,
-                ability: ability.id,
-            });
-        }
-        validate_ability_targets(definition, part, ability.id, targets)?;
+    for (index, ability) in abilities.iter().enumerate() {
+        let ability_id = AbilityId::from_index(index)
+            .expect("the ability count was validated before assigning positional IDs");
+        validate_attached_ability(definition, part, ability_id, ability)?;
     }
     Ok(())
 }
 
-fn validate_ability_targets(
+fn validate_attached_ability(
+    definition: &CardDefinition,
+    part: CardPartId,
+    ability_id: AbilityId,
+    ability: &AbilityDef,
+) -> Result<(), CatalogError> {
+    if let Err(problem) = validate_ability_definition(ability) {
+        return Err(top_level_ability_error(
+            definition, part, ability_id, &problem,
+        ));
+    }
+    validate_granted_abilities(
+        definition,
+        part,
+        ability_id,
+        ability.effect,
+        &mut Vec::new(),
+    )
+}
+
+fn validate_granted_abilities(
+    definition: &CardDefinition,
+    part: CardPartId,
+    outer_ability: AbilityId,
+    effect: super::EffectDef,
+    path: &mut Vec<GrantId>,
+) -> Result<(), CatalogError> {
+    let mut grants = Vec::new();
+    collect_ability_grants(effect, &mut grants);
+    for (index, granted) in grants.into_iter().enumerate() {
+        let grant = GrantId::from_index(index)
+            .expect("the containing ability's grant-site capacity was validated");
+        path.push(grant);
+        if let Err(problem) = validate_ability_definition(granted) {
+            return Err(CatalogError::InvalidGrantedAbility {
+                definition: definition.id,
+                part,
+                ability: outer_ability,
+                grant_path: path.clone(),
+                problem,
+            });
+        }
+        if granted.implementation.is_executable()
+            && matches!(granted.definition, DeclarativeAbilityDef::Static(_))
+        {
+            return Err(CatalogError::InvalidGrantedAbility {
+                definition: definition.id,
+                part,
+                ability: outer_ability,
+                grant_path: path.clone(),
+                problem: GrantedAbilityValidationError::ExecutableStaticAbility,
+            });
+        }
+        validate_granted_abilities(definition, part, outer_ability, granted.effect, path)?;
+        path.pop();
+    }
+    Ok(())
+}
+
+fn validate_ability_definition(ability: &AbilityDef) -> Result<(), GrantedAbilityValidationError> {
+    let grant_sites = ability_grant_sites(ability.effect);
+    if grant_sites > usize::from(u8::MAX) + 1 {
+        return Err(GrantedAbilityValidationError::TooManyGrantSites { count: grant_sites });
+    }
+    if ability.text.trim().is_empty() {
+        return Err(GrantedAbilityValidationError::EmptyText);
+    }
+    if ability
+        .implementation
+        .explanation()
+        .is_some_and(|explanation| explanation.trim().is_empty())
+    {
+        return Err(GrantedAbilityValidationError::MissingImplementationExplanation);
+    }
+    if ability.activation_text.is_some()
+        && !matches!(ability.definition, DeclarativeAbilityDef::Activated(_))
+    {
+        return Err(GrantedAbilityValidationError::ActivationTextOnNonActivatedAbility);
+    }
+
+    let (source_zones, targets, is_mana_ability) = match &ability.definition {
+        DeclarativeAbilityDef::Spell(spell) => (None, spell.targets, false),
+        DeclarativeAbilityDef::ActivatedMana(activated) => {
+            (Some(activated.source_zones), activated.targets, true)
+        }
+        DeclarativeAbilityDef::TriggeredMana(triggered) => {
+            (Some(triggered.source_zones), triggered.targets, true)
+        }
+        DeclarativeAbilityDef::Activated(activated) => {
+            (Some(activated.source_zones), activated.targets, false)
+        }
+        DeclarativeAbilityDef::Triggered(triggered) => {
+            (Some(triggered.source_zones), triggered.targets, false)
+        }
+        DeclarativeAbilityDef::Static(static_ability) => {
+            (Some(static_ability.source_zones), &[][..], false)
+        }
+        DeclarativeAbilityDef::Replacement(replacement) => {
+            (Some(replacement.source_zones), &[][..], false)
+        }
+        DeclarativeAbilityDef::SpecialAction(special_action) => {
+            (Some(special_action.source_zones), &[][..], false)
+        }
+        DeclarativeAbilityDef::Evergreen(_) | DeclarativeAbilityDef::Legacy => {
+            (None, &[][..], false)
+        }
+    };
+
+    if source_zones.is_some_and(<[super::ZoneKind]>::is_empty) {
+        return Err(GrantedAbilityValidationError::HasNoSourceZone);
+    }
+    if is_mana_ability && !targets.is_empty() {
+        return Err(GrantedAbilityValidationError::ManaAbilityHasTargets);
+    }
+    validate_ability_targets(targets)
+}
+
+fn top_level_ability_error(
     definition: &CardDefinition,
     part: CardPartId,
     ability: AbilityId,
-    targets: &[AbilityTargetDef],
-) -> Result<(), CatalogError> {
-    let mut ids = HashSet::new();
-    for target in targets {
-        if target.minimum > target.maximum {
-            return Err(CatalogError::InvalidAbilityTargetBounds {
+    problem: &GrantedAbilityValidationError,
+) -> CatalogError {
+    match problem {
+        GrantedAbilityValidationError::TooManyGrantSites { count } => {
+            CatalogError::TooManyAbilityGrantSites {
                 definition: definition.id,
                 part,
                 ability,
+                count: *count,
+            }
+        }
+        GrantedAbilityValidationError::EmptyText => CatalogError::EmptyAbilityText {
+            definition: definition.id,
+            part,
+            ability,
+        },
+        GrantedAbilityValidationError::MissingImplementationExplanation => {
+            CatalogError::MissingImplementationExplanation {
+                definition: definition.id,
+                part,
+                ability,
+            }
+        }
+        GrantedAbilityValidationError::ActivationTextOnNonActivatedAbility => {
+            CatalogError::ActivationTextOnNonActivatedAbility {
+                definition: definition.id,
+                part,
+                ability,
+            }
+        }
+        GrantedAbilityValidationError::HasNoSourceZone => CatalogError::AbilityHasNoSourceZone {
+            definition: definition.id,
+            part,
+            ability,
+        },
+        GrantedAbilityValidationError::ManaAbilityHasTargets => {
+            CatalogError::ManaAbilityHasTargets {
+                definition: definition.id,
+                part,
+                ability,
+            }
+        }
+        GrantedAbilityValidationError::InvalidTargetBounds {
+            target,
+            minimum,
+            maximum,
+        } => CatalogError::InvalidAbilityTargetBounds {
+            definition: definition.id,
+            part,
+            ability,
+            target: *target,
+            minimum: *minimum,
+            maximum: *maximum,
+        },
+        GrantedAbilityValidationError::DuplicateTargetId { target } => {
+            CatalogError::DuplicateAbilityTargetId {
+                definition: definition.id,
+                part,
+                ability,
+                target: *target,
+            }
+        }
+        GrantedAbilityValidationError::ExecutableStaticAbility => {
+            unreachable!("only granted static abilities are rejected")
+        }
+    }
+}
+
+fn collect_ability_grants(effect: super::EffectDef, grants: &mut Vec<&AbilityDef>) {
+    match effect {
+        super::EffectDef::Sequence(effects) => {
+            for effect in effects {
+                collect_ability_grants(*effect, grants);
+            }
+        }
+        super::EffectDef::OptionalManaPayment { effect, .. } => {
+            collect_ability_grants(*effect, grants);
+        }
+        super::EffectDef::Apply {
+            effect: super::AppliedEffectDef::GrantAbility(ability),
+            ..
+        } => grants.push(ability),
+        super::EffectDef::None
+        | super::EffectDef::AddMana(_)
+        | super::EffectDef::DealDamage { .. }
+        | super::EffectDef::GainLife { .. }
+        | super::EffectDef::DrawCards { .. }
+        | super::EffectDef::LoseLife { .. }
+        | super::EffectDef::Tap { .. }
+        | super::EffectDef::Destroy { .. }
+        | super::EffectDef::Sacrifice { .. }
+        | super::EffectDef::Counter { .. }
+        | super::EffectDef::AddPlusOneCounters { .. }
+        | super::EffectDef::EntersTapped
+        | super::EffectDef::MoveToZone { .. }
+        | super::EffectDef::Apply { .. }
+        | super::EffectDef::Special(_) => {}
+    }
+}
+
+fn ability_grant_sites(effect: super::EffectDef) -> usize {
+    match effect {
+        super::EffectDef::Sequence(effects) => effects
+            .iter()
+            .map(|effect| ability_grant_sites(*effect))
+            .fold(0, usize::saturating_add),
+        super::EffectDef::OptionalManaPayment { effect, .. } => ability_grant_sites(*effect),
+        super::EffectDef::Apply {
+            effect: super::AppliedEffectDef::GrantAbility(_),
+            ..
+        } => 1,
+        super::EffectDef::None
+        | super::EffectDef::AddMana(_)
+        | super::EffectDef::DealDamage { .. }
+        | super::EffectDef::GainLife { .. }
+        | super::EffectDef::DrawCards { .. }
+        | super::EffectDef::LoseLife { .. }
+        | super::EffectDef::Tap { .. }
+        | super::EffectDef::Destroy { .. }
+        | super::EffectDef::Sacrifice { .. }
+        | super::EffectDef::Counter { .. }
+        | super::EffectDef::AddPlusOneCounters { .. }
+        | super::EffectDef::EntersTapped
+        | super::EffectDef::MoveToZone { .. }
+        | super::EffectDef::Apply { .. }
+        | super::EffectDef::Special(_) => 0,
+    }
+}
+
+fn validate_ability_targets(
+    targets: &[AbilityTargetDef],
+) -> Result<(), GrantedAbilityValidationError> {
+    let mut ids = HashSet::new();
+    for target in targets {
+        if target.minimum > target.maximum {
+            return Err(GrantedAbilityValidationError::InvalidTargetBounds {
                 target: target.id,
                 minimum: target.minimum,
                 maximum: target.maximum,
             });
         }
         if !ids.insert(target.id) {
-            return Err(CatalogError::DuplicateAbilityTargetId {
-                definition: definition.id,
-                part,
-                ability,
-                target: target.id,
-            });
+            return Err(GrantedAbilityValidationError::DuplicateTargetId { target: target.id });
         }
     }
     Ok(())
@@ -682,6 +867,65 @@ fn validate_fused_option(definition: &CardDefinition) -> Result<(), CatalogError
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
+pub enum GrantedAbilityValidationError {
+    TooManyGrantSites {
+        count: usize,
+    },
+    EmptyText,
+    MissingImplementationExplanation,
+    ActivationTextOnNonActivatedAbility,
+    HasNoSourceZone,
+    ManaAbilityHasTargets,
+    InvalidTargetBounds {
+        target: TargetSlotId,
+        minimum: u8,
+        maximum: u8,
+    },
+    DuplicateTargetId {
+        target: TargetSlotId,
+    },
+    /// Runtime static-effect discovery currently starts from attached printed
+    /// or copied clauses. Reject an executable static ability granted by
+    /// another ability until continuous effects have guarded fixed-point
+    /// evaluation rather than silently claiming support.
+    ExecutableStaticAbility,
+}
+
+impl fmt::Display for GrantedAbilityValidationError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::TooManyGrantSites { count } => write!(
+                formatter,
+                "defines {count} grant sites, but grant IDs support at most 256"
+            ),
+            Self::EmptyText => formatter.write_str("has empty rules text"),
+            Self::MissingImplementationExplanation => formatter.write_str(
+                "has a non-declarative implementation without an explanation",
+            ),
+            Self::ActivationTextOnNonActivatedAbility => formatter.write_str(
+                "has activated-action text but is not an activated ability",
+            ),
+            Self::HasNoSourceZone => formatter.write_str("has no source zone"),
+            Self::ManaAbilityHasTargets => formatter.write_str("is a mana ability that declares targets"),
+            Self::InvalidTargetBounds {
+                target,
+                minimum,
+                maximum,
+            } => write!(
+                formatter,
+                "defines target {target:?} requiring at least {minimum} targets but allowing at most {maximum}",
+            ),
+            Self::DuplicateTargetId { target } => {
+                write!(formatter, "defines target {target:?} more than once")
+            }
+            Self::ExecutableStaticAbility => formatter.write_str(
+                "is an executable static ability, but granted static abilities are not evaluated yet",
+            ),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum CatalogError {
     DuplicateId(CardDefinitionId),
     DuplicateName(String),
@@ -710,10 +954,28 @@ pub enum CatalogError {
         definition: CardDefinitionId,
         part: CardPartId,
     },
-    DuplicateAbilityId {
+    IncoherentCardRules {
+        definition: CardDefinitionId,
+        part: CardPartId,
+        explanation: &'static str,
+    },
+    TooManyAbilities {
+        definition: CardDefinitionId,
+        part: CardPartId,
+        count: usize,
+    },
+    TooManyAbilityGrantSites {
         definition: CardDefinitionId,
         part: CardPartId,
         ability: AbilityId,
+        count: usize,
+    },
+    InvalidGrantedAbility {
+        definition: CardDefinitionId,
+        part: CardPartId,
+        ability: AbilityId,
+        grant_path: Vec<GrantId>,
+        problem: GrantedAbilityValidationError,
     },
     AbilityHasNoSourceZone {
         definition: CardDefinitionId,
@@ -893,13 +1155,40 @@ impl fmt::Display for CatalogError {
                 formatter,
                 "card definition {definition:?} defines part {part:?} more than once"
             ),
-            Self::DuplicateAbilityId {
+            Self::IncoherentCardRules {
+                definition,
+                part,
+                explanation,
+            } => write!(
+                formatter,
+                "part {part:?} of card definition {definition:?} has incoherent rules: {explanation}"
+            ),
+            Self::TooManyAbilities {
+                definition,
+                part,
+                count,
+            } => write!(
+                formatter,
+                "part {part:?} of card definition {definition:?} defines {count} abilities, but positional ability IDs support at most 256"
+            ),
+            Self::TooManyAbilityGrantSites {
                 definition,
                 part,
                 ability,
+                count,
             } => write!(
                 formatter,
-                "part {part:?} of card definition {definition:?} defines ability {ability:?} more than once"
+                "ability {ability:?} on part {part:?} of card definition {definition:?} defines {count} grant sites, but grant IDs support at most 256"
+            ),
+            Self::InvalidGrantedAbility {
+                definition,
+                part,
+                ability,
+                grant_path,
+                problem,
+            } => write!(
+                formatter,
+                "granted ability at path {grant_path:?} from ability {ability:?} on part {part:?} of card definition {definition:?} {problem}"
             ),
             Self::AbilityHasNoSourceZone {
                 definition,
@@ -1087,17 +1376,18 @@ impl Error for CatalogError {}
 
 #[cfg(test)]
 mod tests {
-    use super::{CardCatalog, CatalogError};
+    use super::{CardCatalog, CatalogError, GrantedAbilityValidationError};
     use crate::card::{
-        AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AdditionalCostDef,
-        AlternateSpellKind, AlternativeCostDef, CardBehavior, CardDefinition, CardEffectStatus,
-        CardPart, CardPrinting, CardPrintingId, CardSet, CardStructure, DoubleFacedKind, EffectDef,
-        ManaCost, ModeDef, ModeSetDef, PlayOptionDef, PlayerRelation, SpellForm, TargetPredicate,
-        TargetSlotDef,
+        AbilityCostDef, AbilityDef, AbilityImplementationDef, AbilityTargetDef,
+        AbilityTargetPredicate, AdditionalCostDef, AlternateSpellKind, AlternativeCostDef,
+        AppliedEffectDef, CardBehavior, CardDefinition, CardEffectStatus, CardPart, CardPrinting,
+        CardPrintingId, CardSet, CardStructure, DoubleFacedKind, EffectDef, EffectDurationDef,
+        EffectRecipientDef, ManaCost, ModeDef, ModeSetDef, PlayOptionDef, PlayerRelation,
+        PrintedManaCost, SpellForm, TargetPredicate, TargetSlotDef,
     };
     use crate::{
         AbilityId, AdditionalCostId, AlternativeCostId, CardDefinitionId, CardPartId, Format,
-        MeldRecipeId, ModeId, PlayOptionId, TargetSlotId,
+        GrantId, MeldRecipeId, ModeId, PlayOptionId, TargetSlotId,
     };
 
     fn definition(id: u16, name: &str, set: CardSet) -> CardDefinition {
@@ -1131,18 +1421,22 @@ mod tests {
 
     fn split_definition(fused: Option<PlayOptionId>) -> CardDefinition {
         let mut card = definition(1, "Left // Right", CardSet::Alpha);
+        let spell_rules = crate::CardRules::new_instant(ManaCost::default(), "");
+        card.rules = spell_rules;
+        card.parts[0].rules = spell_rules;
         card.parts
-            .push(CardPart::new(CardPartId(1), "Right", card.rules));
+            .push(CardPart::new(CardPartId(1), "Right", spell_rules));
         card.structure = CardStructure::Split {
             parts: vec![CardPartId::PRIMARY, CardPartId(1)],
             fused,
         };
         card.play_options[0].label = "Left".into();
+        card.play_options[0].mana_cost = Some(ManaCost::default());
         card.play_options.push(PlayOptionDef::cast(
             PlayOptionId(1),
             "Right",
             SpellForm::Part(CardPartId(1)),
-            card.rules.mana_cost,
+            ManaCost::default(),
             CardEffectStatus::Implemented,
         ));
         card
@@ -1150,6 +1444,23 @@ mod tests {
 
     fn error(card: CardDefinition) -> CatalogError {
         CardCatalog::new([card]).unwrap_err()
+    }
+
+    fn definition_granting(granted: &'static AbilityDef) -> CardDefinition {
+        let abilities = Box::leak(
+            vec![AbilityDef::static_ability(
+                "This object grants an ability.",
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::GrantAbility(granted),
+                    duration: EffectDurationDef::WhileSourceRemainsInZone,
+                },
+            )]
+            .into_boxed_slice(),
+        );
+        let mut card = definition(1, "Test Card", CardSet::Alpha);
+        card.parts[0].rules = card.parts[0].rules.with_abilities(abilities);
+        card
     }
 
     #[test]
@@ -1270,20 +1581,254 @@ mod tests {
     }
 
     #[test]
-    fn ability_ids_are_unique_within_each_card_part() {
+    fn incoherent_rules_cannot_enter_the_catalog() {
+        let invalid_rules = crate::CardRules::new_land(&[], "")
+            .with_printed_mana_cost_for_test(PrintedManaCost::Cost(ManaCost::default()));
+
+        let mut invalid_compatibility_view = definition(1, "Test Card", CardSet::Alpha);
+        invalid_compatibility_view.rules = invalid_rules;
+        assert_eq!(
+            error(invalid_compatibility_view),
+            CatalogError::IncoherentCardRules {
+                definition: CardDefinitionId(1),
+                part: CardPartId::PRIMARY,
+                explanation: "a land cannot have a printed mana cost",
+            }
+        );
+
+        let mut invalid_part = definition(1, "Test Card", CardSet::Alpha);
+        invalid_part.parts[0].rules = invalid_rules;
+        assert_eq!(
+            error(invalid_part),
+            CatalogError::IncoherentCardRules {
+                definition: CardDefinitionId(1),
+                part: CardPartId::PRIMARY,
+                explanation: "a land cannot have a printed mana cost",
+            }
+        );
+    }
+
+    #[test]
+    fn ability_ids_follow_clause_order_within_each_card_part() {
         static ABILITIES: [AbilityDef; 2] = [
-            AbilityDef::spell(AbilityId::PRIMARY, "first", EffectDef::None),
-            AbilityDef::spell(AbilityId::PRIMARY, "second", EffectDef::None),
+            AbilityDef::spell("first", EffectDef::None),
+            AbilityDef::spell("second", EffectDef::None),
         ];
         let mut card = definition(1, "Test Card", CardSet::Alpha);
         card.parts[0].rules = card.parts[0].rules.with_abilities(&ABILITIES);
 
+        let attached = card.parts[0].rules.indexed_abilities().collect::<Vec<_>>();
+        assert_eq!(attached[0].id, AbilityId(0));
+        assert_eq!(attached[1].id, AbilityId(1));
+        CardCatalog::new(vec![card]).expect("ordered clauses receive distinct positional IDs");
+    }
+
+    #[test]
+    fn positional_ability_ids_reject_more_than_their_address_space() {
+        let abilities = Box::leak(
+            vec![AbilityDef::spell("A spell ability.", EffectDef::None); 257].into_boxed_slice(),
+        );
+        let mut card = definition(1, "Test Card", CardSet::Alpha);
+        card.parts[0].rules = card.parts[0].rules.with_abilities(abilities);
+
         assert_eq!(
             error(card),
-            CatalogError::DuplicateAbilityId {
+            CatalogError::TooManyAbilities {
+                definition: CardDefinitionId(1),
+                part: CardPartId::PRIMARY,
+                count: 257,
+            }
+        );
+    }
+
+    #[test]
+    fn grant_ids_reject_more_than_their_structural_address_space() {
+        static GRANTED: AbilityDef = AbilityDef::not_implemented(
+            "A granted ability.",
+            "The test only needs a reusable definition.",
+        );
+        let effects = Box::leak(
+            vec![
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::GrantAbility(&GRANTED),
+                    duration: EffectDurationDef::WhileSourceRemainsInZone,
+                };
+                257
+            ]
+            .into_boxed_slice(),
+        );
+        let abilities = Box::leak(
+            vec![AbilityDef::static_ability(
+                "This object receives many abilities.",
+                EffectDef::Sequence(effects),
+            )]
+            .into_boxed_slice(),
+        );
+        let mut card = definition(1, "Test Card", CardSet::Alpha);
+        card.parts[0].rules = card.parts[0].rules.with_abilities(abilities);
+
+        assert_eq!(
+            error(card),
+            CatalogError::TooManyAbilityGrantSites {
                 definition: CardDefinitionId(1),
                 part: CardPartId::PRIMARY,
                 ability: AbilityId::PRIMARY,
+                count: 257,
+            }
+        );
+    }
+
+    #[test]
+    fn executable_granted_static_abilities_are_rejected_until_fixed_point_evaluation_exists() {
+        static GRANTED: AbilityDef =
+            AbilityDef::static_ability("This object gets +1/+1.", EffectDef::None);
+
+        assert_eq!(
+            error(definition_granting(&GRANTED)),
+            CatalogError::InvalidGrantedAbility {
+                definition: CardDefinitionId(1),
+                part: CardPartId::PRIMARY,
+                ability: AbilityId::PRIMARY,
+                grant_path: vec![GrantId::PRIMARY],
+                problem: GrantedAbilityValidationError::ExecutableStaticAbility,
+            }
+        );
+    }
+
+    #[test]
+    fn granted_ability_validation_reports_nested_structural_paths() {
+        static INVALID: AbilityDef = AbilityDef::spell("", EffectDef::None);
+        static CHILD: AbilityDef = AbilityDef::activated(
+            "This ability grants another ability.",
+            &[],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::GrantAbility(&INVALID),
+                duration: EffectDurationDef::UntilEndOfTurn,
+            },
+        );
+
+        assert_eq!(
+            error(definition_granting(&CHILD)),
+            CatalogError::InvalidGrantedAbility {
+                definition: CardDefinitionId(1),
+                part: CardPartId::PRIMARY,
+                ability: AbilityId::PRIMARY,
+                grant_path: vec![GrantId::PRIMARY, GrantId::PRIMARY],
+                problem: GrantedAbilityValidationError::EmptyText,
+            }
+        );
+    }
+
+    #[test]
+    fn granted_ability_validation_checks_zones_mana_targets_and_target_slots() {
+        static MANA_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+            TargetSlotId(4),
+            "a player",
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )];
+        static DUPLICATE_TARGETS: [AbilityTargetDef; 2] = [
+            AbilityTargetDef::exactly_one(
+                TargetSlotId(4),
+                "a player",
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            ),
+            AbilityTargetDef::exactly_one(
+                TargetSlotId(4),
+                "another player",
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            ),
+        ];
+        static NO_ZONES: AbilityDef =
+            AbilityDef::activated("An activated ability.", &[], EffectDef::None)
+                .with_source_zones(&[]);
+        static TARGETED_MANA: AbilityDef = AbilityDef::activated_mana(
+            "A targeted mana ability.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::None,
+        )
+        .with_targets(&MANA_TARGETS);
+        static DUPLICATE_TARGET_SLOTS: AbilityDef =
+            AbilityDef::activated("An activated ability.", &[], EffectDef::None)
+                .with_targets(&DUPLICATE_TARGETS);
+
+        let cases = [
+            (&NO_ZONES, GrantedAbilityValidationError::HasNoSourceZone),
+            (
+                &TARGETED_MANA,
+                GrantedAbilityValidationError::ManaAbilityHasTargets,
+            ),
+            (
+                &DUPLICATE_TARGET_SLOTS,
+                GrantedAbilityValidationError::DuplicateTargetId {
+                    target: TargetSlotId(4),
+                },
+            ),
+        ];
+        for (granted, problem) in cases {
+            assert_eq!(
+                error(definition_granting(granted)),
+                CatalogError::InvalidGrantedAbility {
+                    definition: CardDefinitionId(1),
+                    part: CardPartId::PRIMARY,
+                    ability: AbilityId::PRIMARY,
+                    grant_path: vec![GrantId::PRIMARY],
+                    problem,
+                }
+            );
+        }
+    }
+
+    #[test]
+    fn nested_grant_capacity_is_validated_per_granted_definition() {
+        static TERMINAL: AbilityDef = AbilityDef::not_implemented(
+            "A terminal granted ability.",
+            "The terminal ability is intentionally not executable.",
+        );
+        let effects = Box::leak(
+            vec![
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::GrantAbility(&TERMINAL),
+                    duration: EffectDurationDef::UntilEndOfTurn,
+                };
+                257
+            ]
+            .into_boxed_slice(),
+        );
+        let child = Box::leak(Box::new(AbilityDef::activated(
+            "This ability contains too many nested grant sites.",
+            &[],
+            EffectDef::Sequence(effects),
+        )));
+
+        assert_eq!(
+            error(definition_granting(child)),
+            CatalogError::InvalidGrantedAbility {
+                definition: CardDefinitionId(1),
+                part: CardPartId::PRIMARY,
+                ability: AbilityId::PRIMARY,
+                grant_path: vec![GrantId::PRIMARY],
+                problem: GrantedAbilityValidationError::TooManyGrantSites { count: 257 },
+            }
+        );
+    }
+
+    #[test]
+    fn granted_non_declarative_implementations_require_an_explanation() {
+        static GRANTED: AbilityDef =
+            AbilityDef::activated("An incompletely implemented ability.", &[], EffectDef::None)
+                .with_implementation(AbilityImplementationDef::NotImplemented { explanation: "" });
+
+        assert_eq!(
+            error(definition_granting(&GRANTED)),
+            CatalogError::InvalidGrantedAbility {
+                definition: CardDefinitionId(1),
+                part: CardPartId::PRIMARY,
+                ability: AbilityId::PRIMARY,
+                grant_path: vec![GrantId::PRIMARY],
+                problem: GrantedAbilityValidationError::MissingImplementationExplanation,
             }
         );
     }
@@ -1296,13 +1841,11 @@ mod tests {
             "target player",
             AbilityTargetPredicate::Player(PlayerRelation::Any),
         )];
-        static ABILITIES: [AbilityDef; 1] = [AbilityDef::activated_mana(
-            AbilityId::PRIMARY,
-            "Target player adds mana.",
-            &COSTS,
-            EffectDef::None,
-        )
-        .with_targets(&TARGETS)];
+        static ABILITIES: [AbilityDef; 1] =
+            [
+                AbilityDef::activated_mana("Target player adds mana.", &COSTS, EffectDef::None)
+                    .with_targets(&TARGETS),
+            ];
         let mut card = definition(1, "Test Card", CardSet::Alpha);
         card.parts[0].rules = card.parts[0].rules.with_abilities(&ABILITIES);
 
@@ -1319,10 +1862,8 @@ mod tests {
     #[test]
     fn activated_action_text_belongs_to_the_exact_activated_clause() {
         static ABILITIES: [AbilityDef; 1] =
-            [
-                AbilityDef::spell(AbilityId::PRIMARY, "A spell ability.", EffectDef::None)
-                    .with_activation_text("Target {}", "Choose a target"),
-            ];
+            [AbilityDef::spell("A spell ability.", EffectDef::None)
+                .with_activation_text("Target {}", "Choose a target")];
         let mut card = definition(1, "Test Card", CardSet::Alpha);
         card.parts[0].rules = card.parts[0].rules.with_abilities(&ABILITIES);
 

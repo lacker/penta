@@ -17,7 +17,14 @@ export type AbilityOriginMetadata =
       kind: "intrinsicBasicLand";
       landType: "plains" | "island" | "swamp" | "mountain" | "forest";
     }
-  | { kind: "granted"; source: number; abilityId: number };
+  | {
+      kind: "granted";
+      source: number;
+      sourceDefinition: number;
+      sourcePartId: number;
+      sourceAbilityId: number;
+      grantId: number;
+    };
 
 export type DecisionKind = "Choice" | "TriggerOrder" | "TriggerPlacement";
 
@@ -177,7 +184,7 @@ export type GameState = {
     cardId?: number;
     /** Historical source game-object ID for an ability. */
     sourceId?: number | null;
-    /** Stable identifier of the printed or granted ability that created this object. */
+    /** Stable positional identifier of the printed ability that created this object. */
     abilityId?: number | null;
     /** Full frozen origin, including copied card definition and intrinsic subtype. */
     ability?: AbilityOriginMetadata | null;

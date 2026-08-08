@@ -17,17 +17,50 @@ impl CardPartId {
     pub const PRIMARY: Self = Self(0);
 }
 
-/// Identity of one printed or granted ability within a card part.
+/// Positional identity of one ability attached to a card part.
 ///
 /// The same definition can create many independent ability objects during a
 /// game. Those objects receive [`GameObjectId`]s; this identifier continues to
-/// name the ability in the card's rules definition.
+/// name the ability in the card's ordered rules definition. Reusable ability
+/// definitions carry no identity of their own.
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct AbilityId(pub u8);
 
 impl AbilityId {
     /// The first ability in an ordinary single-ability card part.
     pub const PRIMARY: Self = Self(0);
+
+    #[must_use]
+    pub const fn index(self) -> usize {
+        self.0 as usize
+    }
+
+    #[must_use]
+    pub fn from_index(index: usize) -> Option<Self> {
+        u8::try_from(index).ok().map(Self)
+    }
+}
+
+/// Identity of one ability-granting effect within an attached source ability.
+///
+/// Unlike [`AbilityId`], this is local to the effect tree of a single ability
+/// clause. Keeping it separate lets a reusable, ID-free ability definition be
+/// granted from more than one structural site without conflating provenance.
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct GrantId(pub u8);
+
+impl GrantId {
+    pub const PRIMARY: Self = Self(0);
+
+    #[must_use]
+    pub const fn index(self) -> usize {
+        self.0 as usize
+    }
+
+    #[must_use]
+    pub fn from_index(index: usize) -> Option<Self> {
+        u8::try_from(index).ok().map(Self)
+    }
 }
 
 /// Identity of one legal way to play a card, local to its card definition.

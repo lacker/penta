@@ -84,11 +84,11 @@ pub fn applicable_part_ids(
                             definition: definition.id,
                             part: *presented,
                         })?;
-                if !part.rules.kind.is_permanent() {
+                if !part.rules.kind().is_permanent() {
                     return Err(CharacteristicError::NonpermanentPresentation {
                         definition: definition.id,
                         part: *presented,
-                        kind: part.rules.kind,
+                        kind: part.rules.kind(),
                     });
                 }
                 vec![*presented]
@@ -220,9 +220,8 @@ mod tests {
     use super::{CharacteristicContext, CharacteristicError, applicable_part_ids};
     use crate::card::{CardCatalog, cards};
     use crate::{
-        AlternateSpellKind, CardBehavior, CardDefinition, CardDefinitionId, CardKind, CardPart,
-        CardPartId, CardRules, CardSet, CardStructure, ManaCost, PlayOptionDef, PlayOptionId,
-        SpellForm,
+        AlternateSpellKind, CardBehavior, CardDefinition, CardDefinitionId, CardPart, CardPartId,
+        CardRules, CardSet, CardStructure, ManaCost, PlayOptionDef, PlayOptionId, SpellForm,
     };
 
     fn definition(catalog: &CardCatalog, id: CardDefinitionId) -> crate::CardDefinition {
@@ -381,10 +380,8 @@ mod tests {
     fn flip_and_alternate_spell_parts_follow_zone_context() {
         let normal = CardPartId::PRIMARY;
         let flipped = CardPartId(1);
-        let creature_rules =
-            CardRules::new(CardKind::Creature, ManaCost::new(2, 0), "").creature(2, 2);
-        let flipped_rules =
-            CardRules::new(CardKind::Creature, ManaCost::default(), "").creature(4, 4);
+        let creature_rules = CardRules::new_creature(ManaCost::new(2, 0), &[], 2, 2, "");
+        let flipped_rules = CardRules::new_creature_without_mana_cost(&[], 4, 4, "");
         let mut flip = CardDefinition::new(
             CardDefinitionId(20_000),
             "Test flip card",
@@ -394,14 +391,16 @@ mod tests {
         );
         flip.parts = vec![
             CardPart::new(normal, "Normal", creature_rules),
-            CardPart::new(flipped, "Flipped", flipped_rules).without_mana_cost(),
+            CardPart::new(flipped, "Flipped", flipped_rules),
         ];
         flip.structure = CardStructure::Flip { normal, flipped };
         flip.play_options = vec![PlayOptionDef::cast(
             PlayOptionId::DEFAULT,
             "Normal",
             SpellForm::Part(normal),
-            creature_rules.mana_cost,
+            creature_rules
+                .mana_cost()
+                .expect("the test creature has a printed mana cost"),
             crate::CardEffectStatus::MetadataOnly,
         )];
 
@@ -419,7 +418,7 @@ mod tests {
 
         let main = CardPartId::PRIMARY;
         let adventure = CardPartId(1);
-        let adventure_rules = CardRules::new(CardKind::Instant, ManaCost::new(1, 0), "");
+        let adventure_rules = CardRules::new_instant(ManaCost::new(1, 0), "");
         let mut alternate = CardDefinition::new(
             CardDefinitionId(20_001),
             "Test adventurer",
@@ -441,14 +440,18 @@ mod tests {
                 PlayOptionId::DEFAULT,
                 "Test adventurer",
                 SpellForm::Part(main),
-                creature_rules.mana_cost,
+                creature_rules
+                    .mana_cost()
+                    .expect("the test creature has a printed mana cost"),
                 crate::CardEffectStatus::MetadataOnly,
             ),
             PlayOptionDef::cast(
                 PlayOptionId(1),
                 "Test adventure",
                 SpellForm::Part(adventure),
-                adventure_rules.mana_cost,
+                adventure_rules
+                    .mana_cost()
+                    .expect("the test adventure has a printed mana cost"),
                 crate::CardEffectStatus::MetadataOnly,
             ),
         ];

@@ -131,7 +131,7 @@ mod tests {
         let catalog = catalog().unwrap();
         let card = catalog.get(cards::STONE_RAIN).unwrap();
 
-        assert_eq!(card.rules.mana_cost, ManaCost::new(2, 1));
+        assert_eq!(card.rules.mana_cost(), Some(ManaCost::new(2, 1)));
     }
 
     #[test]
@@ -140,7 +140,7 @@ mod tests {
         let card = catalog.get(cards::ORDER_OF_THE_EBON_HAND).unwrap();
 
         assert_eq!(
-            card.rules.creature_stats,
+            card.rules.creature_stats(),
             Some(CreatureStats {
                 power: 2,
                 toughness: 1,

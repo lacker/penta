@@ -3,7 +3,9 @@ use std::fmt;
 
 use crate::card::BasicLandType;
 use crate::casting::{CastChoices, TargetSelection};
-use crate::{AbilityId, CardDefinitionId, CardPartId, GameObjectId, PlayOptionId, PlayerId};
+use crate::{
+    AbilityId, CardDefinitionId, CardPartId, GameObjectId, GrantId, PlayOptionId, PlayerId,
+};
 
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum ManaColor {
@@ -31,10 +33,12 @@ pub enum Target {
 /// Printed IDs are local to one card part, so copied abilities freeze their
 /// effective card definition as well as the part and clause ID. Intrinsic land
 /// abilities are identified by the subtype that grants them. A granted origin
-/// records only the granting object and clause ID; it is provenance, not an
-/// executable definition. Stack objects separately freeze the effective text,
-/// target declarations, and resolver they received at creation. Pair this with
-/// the affected object's [`GameObjectId`] to identify one ability in a game.
+/// records the granting object, the effective card definition and part that
+/// supplied its positional source clause, and the grant site inside that
+/// clause; it is provenance, not an executable definition. Stack objects
+/// separately freeze the effective text, target declarations, and resolver
+/// they received at creation. Pair this with the affected object's
+/// [`GameObjectId`] to identify one ability in a game.
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum AbilityOrigin {
     Printed {
@@ -45,7 +49,10 @@ pub enum AbilityOrigin {
     IntrinsicBasicLand(BasicLandType),
     Granted {
         source: GameObjectId,
-        ability: AbilityId,
+        source_definition: CardDefinitionId,
+        source_part: CardPartId,
+        source_ability: AbilityId,
+        grant: GrantId,
     },
 }
 

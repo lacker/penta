@@ -960,8 +960,8 @@ impl WebGame {
                     .map(|part| &part.rules)
                     .or_else(|| card.map(|card| &card.rules));
                 let mana_cost = part.map_or_else(
-                    || card.map(|card| card.rules.mana_cost),
-                    |part| part.mana_cost,
+                    || card.and_then(|card| card.rules.mana_cost()),
+                    penta::CardPart::mana_cost,
                 );
                 let current_kind = rules.map_or("unknown".into(), |rules| {
                     if card.is_some_and(|card| {
@@ -970,7 +970,7 @@ impl WebGame {
                     {
                         "artifactcreature".into()
                     } else {
-                        format!("{:?}", rules.kind).to_ascii_lowercase()
+                        format!("{:?}", rules.kind()).to_ascii_lowercase()
                     }
                 });
                 json!({
@@ -986,7 +986,7 @@ impl WebGame {
                     "implementationStatus": rules.map_or("complete", |rules| {
                         implementation_status_name(rules.implementation_status())
                     }),
-                    "isLand": rules.is_some_and(|rules| rules.kind == penta::CardKind::Land),
+                    "isLand": rules.is_some_and(|rules| rules.kind() == penta::CardKind::Land),
                     "manaCost": mana_cost.map(|cost| json!({
                         "generic": cost.generic,
                         "white": cost.white,
@@ -1019,19 +1019,19 @@ impl WebGame {
             .map(|(id, definition)| {
                 let card = self.catalog.get(*definition);
                 let art = card.and_then(|card| card.art.as_ref());
-                let creature_stats = card.and_then(|card| card.rules.creature_stats);
+                let creature_stats = card.and_then(|card| card.rules.creature_stats());
                 json!({
                     "id": id.0,
                     "name": self.card_name(*definition),
                     "art": card_art_value(art),
                     "kind": card.map_or("unknown".into(), |card| {
-                        format!("{:?}", card.rules.kind).to_ascii_lowercase()
+                        format!("{:?}", card.rules.kind()).to_ascii_lowercase()
                     }),
                     "typeLine": card.map_or_else(String::new, |card| card.rules.type_line()),
                     "implementationStatus": card.map_or("complete", |card| {
                         implementation_status_name(card.implementation_status())
                     }),
-                    "isLand": card.is_some_and(|card| card.rules.kind == penta::CardKind::Land),
+                    "isLand": card.is_some_and(|card| card.rules.kind() == penta::CardKind::Land),
                     "manaCost": hand_mana_cost_value(card),
                     "rulesText": card.map_or_else(String::new, |card| {
                         card.rules.rules_text().into_owned()
@@ -1047,9 +1047,8 @@ impl WebGame {
             .rev()
             .map(|object| {
                 let ability_id = object.ability.and_then(|origin| match origin {
-                    AbilityOrigin::Printed { ability, .. }
-                    | AbilityOrigin::Granted { ability, .. } => Some(ability.0),
-                    AbilityOrigin::IntrinsicBasicLand(_) => None,
+                    AbilityOrigin::Printed { ability, .. } => Some(ability.0),
+                    AbilityOrigin::IntrinsicBasicLand(_) | AbilityOrigin::Granted { .. } => None,
                 });
                 // Enough card detail for the browser to draw a real card on
                 // the stack rather than a name tag.
@@ -1068,7 +1067,7 @@ impl WebGame {
                     "cardId": object.id.0,
                     "sourceId": object.source.map(|source| source.0),
                     "ability": object.ability.map(ability_origin_value),
-                    // Compatibility projection for clients that only know clause IDs.
+                    // Compatibility projection for clients that only know printed clause IDs.
                     "abilityId": ability_id,
                     "abilityText": object.ability_text,
                     "name": presentation.name,
@@ -1279,9 +1278,7 @@ impl WebGame {
         let card = self.catalog.get(definition)?;
         card.part(part)?
             .rules
-            .ability_clauses()
-            .iter()
-            .find(|candidate| candidate.id == ability)
+            .ability(ability)
             .and_then(|candidate| candidate.activation_text)
     }
 
@@ -1797,7 +1794,7 @@ fn card_art_value(art: Option<&penta::CardArt>) -> Value {
 
 fn hand_mana_cost_value(card: Option<&penta::CardDefinition>) -> Value {
     card.and_then(penta::CardDefinition::primary_part)
-        .and_then(|part| part.mana_cost)
+        .and_then(penta::CardPart::mana_cost)
         .map_or(Value::Null, |cost| {
             json!({
                 "generic": cost.generic,
@@ -1898,14 +1895,14 @@ impl StackCardPresentation {
     ) -> Self {
         Self {
             name,
-            kind: format!("{:?}", rules.kind).to_ascii_lowercase(),
+            kind: format!("{:?}", rules.kind()).to_ascii_lowercase(),
             type_line: rules.type_line(),
             implementation_status: rules.implementation_status(),
-            is_land: rules.kind == penta::CardKind::Land,
+            is_land: rules.kind() == penta::CardKind::Land,
             mana_cost,
             rules_text: rules.rules_text().into_owned(),
-            power: rules.creature_stats.map(|stats| stats.power),
-            toughness: rules.creature_stats.map(|stats| stats.toughness),
+            power: rules.creature_stats().map(|stats| stats.power),
+            toughness: rules.creature_stats().map(|stats| stats.toughness),
         }
     }
 }
@@ -1918,11 +1915,7 @@ fn stack_card_presentation(
         return StackCardPresentation::unknown();
     };
     let canonical = || {
-        StackCardPresentation::from_rules(
-            card.name.clone(),
-            &card.rules,
-            Some(card.rules.mana_cost),
-        )
+        StackCardPresentation::from_rules(card.name.clone(), &card.rules, card.rules.mana_cost())
     };
     let Some(signature) = signature else {
         return canonical();
@@ -1930,7 +1923,7 @@ fn stack_card_presentation(
 
     match signature.form() {
         penta::SpellForm::Part(part_id) => card.part(*part_id).map_or_else(canonical, |part| {
-            StackCardPresentation::from_rules(part.name.clone(), &part.rules, part.mana_cost)
+            StackCardPresentation::from_rules(part.name.clone(), &part.rules, part.mana_cost())
         }),
         penta::SpellForm::Combined(part_ids) => {
             let Some(parts) = part_ids
@@ -1952,7 +1945,7 @@ fn stack_card_presentation(
             let kind = join_distinct(
                 parts
                     .iter()
-                    .map(|part| format!("{:?}", part.rules.kind).to_ascii_lowercase()),
+                    .map(|part| format!("{:?}", part.rules.kind()).to_ascii_lowercase()),
             );
             let type_line = join_distinct(parts.iter().map(|part| part.rules.type_line()));
             let rules_text = parts
@@ -1962,7 +1955,7 @@ fn stack_card_presentation(
                 .join("\n\n");
             let stats = parts
                 .iter()
-                .filter_map(|part| part.rules.creature_stats)
+                .filter_map(|part| part.rules.creature_stats())
                 .collect::<Vec<_>>();
             let shared_stats = stats
                 .first()
@@ -1984,7 +1977,7 @@ fn stack_card_presentation(
                     .unwrap_or_default(),
                 is_land: parts
                     .iter()
-                    .any(|part| part.rules.kind == penta::CardKind::Land),
+                    .any(|part| part.rules.kind() == penta::CardKind::Land),
                 mana_cost,
                 rules_text,
                 power: shared_stats.map(|stats| stats.power),
@@ -2353,10 +2346,19 @@ fn ability_origin_value(origin: AbilityOrigin) -> Value {
             "kind": "intrinsicBasicLand",
             "landType": format!("{land_type:?}").to_ascii_lowercase(),
         }),
-        AbilityOrigin::Granted { source, ability } => json!({
+        AbilityOrigin::Granted {
+            source,
+            source_definition,
+            source_part,
+            source_ability,
+            grant,
+        } => json!({
             "kind": "granted",
             "source": source.0,
-            "abilityId": ability.0,
+            "sourceDefinition": source_definition.0,
+            "sourcePartId": source_part.0,
+            "sourceAbilityId": source_ability.0,
+            "grantId": grant.0,
         }),
     }
 }
@@ -2827,6 +2829,30 @@ mod tests {
             Some(json!({
                 "kind": "intrinsicBasicLand",
                 "landType": "mountain",
+            }))
+        );
+
+        let granted_action = Action::ActivateAbility {
+            source: CardInstanceId(10),
+            ability: penta::AbilityOrigin::Granted {
+                source: CardInstanceId(9),
+                source_definition: penta::CardDefinitionId(8),
+                source_part: penta::CardPartId(1),
+                source_ability: penta::AbilityId(2),
+                grant: penta::GrantId(3),
+            },
+            targets: Vec::new(),
+            sacrifice: None,
+        };
+        assert_eq!(
+            action_ability_origin(&granted_action),
+            Some(json!({
+                "kind": "granted",
+                "source": 9,
+                "sourceDefinition": 8,
+                "sourcePartId": 1,
+                "sourceAbilityId": 2,
+                "grantId": 3,
             }))
         );
     }

@@ -91,17 +91,14 @@ pub struct CardPart {
     pub id: CardPartId,
     pub name: String,
     pub rules: CardRules,
-    /// `None` distinguishes a face with no mana cost from a printed `{0}` cost.
-    /// `CardRules::mana_cost` remains available as a compatibility value.
-    pub mana_cost: Option<ManaCost>,
 }
 
 /// Whether a card part has a printed mana cost.
 ///
 /// `Cost(ManaCost::default())` represents a printed `{0}` cost. `None` means
 /// that no mana cost exists at all; it is not a cost that can ordinarily be
-/// paid. `CardPart::mana_cost` remains an `Option` for compatibility and is
-/// the stored, authoritative representation of this distinction.
+/// paid. This is stored directly in [`CardRules`] so a land or back face never
+/// needs a dummy zero cost.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum PrintedManaCost {
     None,
@@ -131,38 +128,21 @@ impl PrintedManaCost {
 impl CardPart {
     #[must_use]
     pub fn new(id: CardPartId, name: impl Into<String>, rules: CardRules) -> Self {
-        Self::with_printed_mana_cost(id, name, rules, PrintedManaCost::Cost(rules.mana_cost))
-    }
-
-    /// Creates a part with an explicit printed-cost characteristic.
-    #[must_use]
-    pub fn with_printed_mana_cost(
-        id: CardPartId,
-        name: impl Into<String>,
-        rules: CardRules,
-        printed_mana_cost: PrintedManaCost,
-    ) -> Self {
         Self {
             id,
             name: name.into(),
             rules,
-            mana_cost: printed_mana_cost.as_option(),
         }
     }
 
     #[must_use]
     pub const fn printed_mana_cost(&self) -> PrintedManaCost {
-        match self.mana_cost {
-            Some(cost) => PrintedManaCost::Cost(cost),
-            None => PrintedManaCost::None,
-        }
+        self.rules.printed_mana_cost
     }
 
-    /// Marks a back face or land part as having no printed mana cost.
     #[must_use]
-    pub const fn without_mana_cost(mut self) -> Self {
-        self.mana_cost = None;
-        self
+    pub const fn mana_cost(&self) -> Option<ManaCost> {
+        self.rules.printed_mana_cost.as_option()
     }
 }
 
@@ -330,17 +310,55 @@ impl ColorDef {
     }
 }
 
+/// One card type tested by membership rather than by an exact stored type-line
+/// shape. For example, an artifact creature has both `Artifact` and
+/// `Creature`, while [`CardKind::ArtifactCreature`] remains the compact current
+/// representation used by card records.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum CardType {
+    Land,
+    Creature,
+    Artifact,
+    Enchantment,
+    Planeswalker,
+    Instant,
+    Sorcery,
+}
+
+impl CardType {
+    pub const COUNT: usize = 7;
+    pub const ALL: [Self; Self::COUNT] = [
+        Self::Land,
+        Self::Creature,
+        Self::Artifact,
+        Self::Enchantment,
+        Self::Planeswalker,
+        Self::Instant,
+        Self::Sorcery,
+    ];
+
+    #[must_use]
+    pub const fn index(self) -> usize {
+        match self {
+            Self::Land => 0,
+            Self::Creature => 1,
+            Self::Artifact => 2,
+            Self::Enchantment => 3,
+            Self::Planeswalker => 4,
+            Self::Instant => 5,
+            Self::Sorcery => 6,
+        }
+    }
+}
+
 /// A composable predicate over a card or game object.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum ObjectPredicateDef {
     Any,
     Source,
-    Land,
-    Creature,
-    Artifact,
+    HasType(CardType),
     Spell,
     NoncreatureSpell,
-    CardKind(CardKind),
     Color(ColorDef),
     Subtype(&'static str),
     All(&'static [ObjectPredicateDef]),
@@ -909,9 +927,10 @@ pub enum EvergreenAbility {
     ProtectionFrom(ColorDef),
 }
 
-/// The rules category and structural procedure of an ability. Text, identity,
-/// and implementation coverage live on [`AbilityDef`] so every printed clause
-/// has one canonical text string regardless of how it executes.
+/// The rules category and structural procedure of an ability. Text and
+/// implementation coverage live on [`AbilityDef`] so every printed clause has
+/// one canonical text string regardless of how it executes. Identity is
+/// supplied only when a definition is attached.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum DeclarativeAbilityDef {
     Spell(SpellAbilityDef),
@@ -998,7 +1017,6 @@ impl AbilityImplementationDef {
 /// engine never infers stack behavior from costs, targets, or effects.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct AbilityDef {
-    pub id: AbilityId,
     pub text: &'static str,
     /// Optional action-menu wording for a targeted activated ability. This is
     /// presentation attached to the exact ability, not a second rules text.
@@ -1013,9 +1031,8 @@ impl AbilityDef {
         "Legacy aggregate rules text has not been assigned an implementation.";
 
     #[must_use]
-    pub const fn spell(id: AbilityId, text: &'static str, effect: EffectDef) -> Self {
+    pub const fn spell(text: &'static str, effect: EffectDef) -> Self {
         Self::defined(
-            id,
             text,
             DeclarativeAbilityDef::Spell(SpellAbilityDef::new()),
             effect,
@@ -1024,13 +1041,11 @@ impl AbilityDef {
 
     #[must_use]
     pub const fn activated_mana(
-        id: AbilityId,
         text: &'static str,
         costs: &'static [AbilityCostDef],
         effect: EffectDef,
     ) -> Self {
         Self::defined(
-            id,
             text,
             DeclarativeAbilityDef::ActivatedMana(ActivatedAbilityDef::new(costs)),
             effect,
@@ -1039,13 +1054,11 @@ impl AbilityDef {
 
     #[must_use]
     pub const fn triggered_mana(
-        id: AbilityId,
         text: &'static str,
         event: TriggerEventDef,
         effect: EffectDef,
     ) -> Self {
         Self::defined(
-            id,
             text,
             DeclarativeAbilityDef::TriggeredMana(TriggeredAbilityDef::new(event)),
             effect,
@@ -1054,13 +1067,11 @@ impl AbilityDef {
 
     #[must_use]
     pub const fn activated(
-        id: AbilityId,
         text: &'static str,
         costs: &'static [AbilityCostDef],
         effect: EffectDef,
     ) -> Self {
         Self::defined(
-            id,
             text,
             DeclarativeAbilityDef::Activated(ActivatedAbilityDef::new(costs)),
             effect,
@@ -1068,14 +1079,8 @@ impl AbilityDef {
     }
 
     #[must_use]
-    pub const fn triggered(
-        id: AbilityId,
-        text: &'static str,
-        event: TriggerEventDef,
-        effect: EffectDef,
-    ) -> Self {
+    pub const fn triggered(text: &'static str, event: TriggerEventDef, effect: EffectDef) -> Self {
         Self::defined(
-            id,
             text,
             DeclarativeAbilityDef::Triggered(TriggeredAbilityDef::new(event)),
             effect,
@@ -1083,9 +1088,8 @@ impl AbilityDef {
     }
 
     #[must_use]
-    pub const fn static_ability(id: AbilityId, text: &'static str, effect: EffectDef) -> Self {
+    pub const fn static_ability(text: &'static str, effect: EffectDef) -> Self {
         Self::defined(
-            id,
             text,
             DeclarativeAbilityDef::Static(StaticAbilityDef::new()),
             effect,
@@ -1093,9 +1097,8 @@ impl AbilityDef {
     }
 
     #[must_use]
-    pub const fn evergreen(id: AbilityId, text: &'static str, ability: EvergreenAbility) -> Self {
+    pub const fn evergreen(text: &'static str, ability: EvergreenAbility) -> Self {
         Self::defined(
-            id,
             text,
             DeclarativeAbilityDef::Evergreen(ability),
             EffectDef::None,
@@ -1103,9 +1106,8 @@ impl AbilityDef {
     }
 
     #[must_use]
-    pub const fn replacement(id: AbilityId, text: &'static str, effect: EffectDef) -> Self {
+    pub const fn replacement(text: &'static str, effect: EffectDef) -> Self {
         Self::defined(
-            id,
             text,
             DeclarativeAbilityDef::Replacement(ReplacementAbilityDef::new()),
             effect,
@@ -1114,14 +1116,12 @@ impl AbilityDef {
 
     #[must_use]
     pub const fn special_action(
-        id: AbilityId,
         text: &'static str,
         source_zones: &'static [ZoneKind],
         costs: &'static [AbilityCostDef],
         effect: EffectDef,
     ) -> Self {
         Self::defined(
-            id,
             text,
             DeclarativeAbilityDef::SpecialAction(SpecialActionDef::new(source_zones, costs)),
             effect,
@@ -1130,13 +1130,11 @@ impl AbilityDef {
 
     #[must_use]
     pub const fn defined(
-        id: AbilityId,
         text: &'static str,
         definition: DeclarativeAbilityDef,
         effect: EffectDef,
     ) -> Self {
         Self {
-            id,
             text,
             activation_text: None,
             definition,
@@ -1147,13 +1145,11 @@ impl AbilityDef {
 
     #[must_use]
     pub const fn custom_full(
-        id: AbilityId,
         text: &'static str,
         behavior: CardBehavior,
         explanation: &'static str,
     ) -> Self {
         Self {
-            id,
             text,
             activation_text: None,
             definition: DeclarativeAbilityDef::Legacy,
@@ -1166,9 +1162,8 @@ impl AbilityDef {
     }
 
     #[must_use]
-    pub const fn legacy(id: AbilityId, text: &'static str) -> Self {
+    pub const fn legacy(text: &'static str) -> Self {
         Self {
-            id,
             text,
             activation_text: None,
             definition: DeclarativeAbilityDef::Legacy,
@@ -1181,13 +1176,11 @@ impl AbilityDef {
 
     #[must_use]
     pub const fn custom_partial(
-        id: AbilityId,
         text: &'static str,
         behavior: CardBehavior,
         explanation: &'static str,
     ) -> Self {
         Self {
-            id,
             text,
             activation_text: None,
             definition: DeclarativeAbilityDef::Legacy,
@@ -1200,13 +1193,8 @@ impl AbilityDef {
     }
 
     #[must_use]
-    pub const fn not_implemented(
-        id: AbilityId,
-        text: &'static str,
-        explanation: &'static str,
-    ) -> Self {
+    pub const fn not_implemented(text: &'static str, explanation: &'static str) -> Self {
         Self {
-            id,
             text,
             activation_text: None,
             definition: DeclarativeAbilityDef::Legacy,
@@ -1218,6 +1206,15 @@ impl AbilityDef {
     #[must_use]
     pub const fn with_implementation(mut self, implementation: AbilityImplementationDef) -> Self {
         self.implementation = implementation;
+        self
+    }
+
+    /// Overrides the canonical text supplied by a common ability constructor.
+    /// This is reserved for Oracle clauses that include reminder text; the
+    /// underlying keyword or mana semantics remain shared.
+    #[must_use]
+    pub const fn with_text(mut self, text: &'static str) -> Self {
+        self.text = text;
         self
     }
 
@@ -1286,17 +1283,162 @@ impl AbilityDef {
     }
 }
 
-/// Returns the fully declarative mana ability intrinsically granted by one
-/// basic land subtype. Its runtime origin, rather than this local ID, is what
-/// distinguishes multiple intrinsic abilities on a dual land.
-#[must_use]
-pub const fn intrinsic_basic_land_mana_ability(land_type: BasicLandType) -> AbilityDef {
-    AbilityDef::activated_mana(
-        AbilityId::PRIMARY,
-        land_type.ability_text(),
-        &[AbilityCostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::one(land_type.mana_kind())),
-    )
+/// Const-friendly constructors for common, reusable ability definitions.
+///
+/// These definitions deliberately carry no [`AbilityId`]. A card part assigns
+/// identity from the definition's position in its ordered ability slice, while
+/// an intrinsic or granted ability receives identity from its attachment site.
+pub struct EvergreenAbilityDef;
+
+impl EvergreenAbilityDef {
+    const fn keyword(text: &'static str, keyword: EvergreenAbility) -> AbilityDef {
+        AbilityDef::evergreen(text, keyword)
+    }
+
+    const fn unsupported(
+        text: &'static str,
+        keyword: EvergreenAbility,
+        explanation: &'static str,
+    ) -> AbilityDef {
+        Self::keyword(text, keyword)
+            .with_implementation(AbilityImplementationDef::NotImplemented { explanation })
+    }
+
+    #[must_use]
+    pub const fn flying() -> AbilityDef {
+        Self::keyword("Flying", EvergreenAbility::Flying)
+    }
+
+    #[must_use]
+    pub const fn trample() -> AbilityDef {
+        Self::keyword("Trample", EvergreenAbility::Trample)
+    }
+
+    #[must_use]
+    pub const fn haste() -> AbilityDef {
+        Self::keyword("Haste", EvergreenAbility::Haste)
+    }
+
+    #[must_use]
+    pub const fn first_strike() -> AbilityDef {
+        Self::unsupported(
+            "First strike",
+            EvergreenAbility::FirstStrike,
+            "First-strike combat damage is not implemented.",
+        )
+    }
+
+    #[must_use]
+    pub const fn double_strike() -> AbilityDef {
+        Self::unsupported(
+            "Double strike",
+            EvergreenAbility::DoubleStrike,
+            "Double-strike combat damage is not implemented.",
+        )
+    }
+
+    #[must_use]
+    pub const fn banding() -> AbilityDef {
+        Self::unsupported(
+            "Banding",
+            EvergreenAbility::Banding,
+            "Band formation and combat damage assignment are not implemented.",
+        )
+    }
+
+    #[must_use]
+    pub const fn vigilance() -> AbilityDef {
+        Self::keyword("Vigilance", EvergreenAbility::Vigilance)
+    }
+
+    #[must_use]
+    pub const fn deathtouch() -> AbilityDef {
+        Self::keyword("Deathtouch", EvergreenAbility::Deathtouch)
+    }
+
+    #[must_use]
+    pub const fn lifelink() -> AbilityDef {
+        Self::keyword("Lifelink", EvergreenAbility::Lifelink)
+    }
+
+    #[must_use]
+    pub const fn reach() -> AbilityDef {
+        Self::keyword("Reach", EvergreenAbility::Reach)
+    }
+
+    #[must_use]
+    pub const fn flash() -> AbilityDef {
+        Self::keyword("Flash", EvergreenAbility::Flash)
+    }
+
+    #[must_use]
+    pub const fn hexproof() -> AbilityDef {
+        Self::keyword("Hexproof", EvergreenAbility::Hexproof)
+    }
+
+    #[must_use]
+    pub const fn intimidate() -> AbilityDef {
+        Self::keyword("Intimidate", EvergreenAbility::Intimidate)
+    }
+
+    #[must_use]
+    pub const fn undying() -> AbilityDef {
+        Self::keyword("Undying", EvergreenAbility::Undying)
+    }
+
+    #[must_use]
+    pub const fn mountainwalk() -> AbilityDef {
+        Self::keyword("Mountainwalk", EvergreenAbility::Mountainwalk)
+    }
+
+    #[must_use]
+    pub const fn protection_from(color: ColorDef) -> AbilityDef {
+        let text = match color {
+            ColorDef::White => "Protection from white",
+            ColorDef::Blue => "Protection from blue",
+            ColorDef::Black => "Protection from black",
+            ColorDef::Red => "Protection from red",
+            ColorDef::Green => "Protection from green",
+        };
+        Self::keyword(text, EvergreenAbility::ProtectionFrom(color))
+    }
+
+    /// The mana ability intrinsically associated with one basic land subtype.
+    /// Cards still attach it explicitly so their complete behavior remains
+    /// visible at the definition site.
+    #[must_use]
+    pub const fn basic_land_mana(land_type: BasicLandType) -> AbilityDef {
+        AbilityDef::activated_mana(
+            land_type.ability_text(),
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one(land_type.mana_kind())),
+        )
+    }
+
+    #[must_use]
+    pub const fn plains() -> AbilityDef {
+        Self::basic_land_mana(BasicLandType::Plains)
+    }
+
+    #[must_use]
+    pub const fn island() -> AbilityDef {
+        Self::basic_land_mana(BasicLandType::Island)
+    }
+
+    #[must_use]
+    pub const fn swamp() -> AbilityDef {
+        Self::basic_land_mana(BasicLandType::Swamp)
+    }
+
+    #[must_use]
+    pub const fn mountain() -> AbilityDef {
+        Self::basic_land_mana(BasicLandType::Mountain)
+    }
+
+    #[must_use]
+    pub const fn forest() -> AbilityDef {
+        Self::basic_land_mana(BasicLandType::Forest)
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -1484,23 +1626,7 @@ pub struct CardComposition {
 impl CardComposition {
     #[must_use]
     pub fn single(name: impl Into<String>, rules: CardRules) -> Self {
-        let printed_mana_cost = if rules.kind == CardKind::Land {
-            PrintedManaCost::None
-        } else {
-            PrintedManaCost::Cost(rules.mana_cost)
-        };
-        Self::single_with_printed_mana_cost(name, rules, printed_mana_cost)
-    }
-
-    /// Builds an ordinary card whose printed-cost characteristic is explicit.
-    /// This is required for nonland cards with no mana cost and keeps them
-    /// distinct from cards with a printed `{0}` cost.
-    #[must_use]
-    pub fn single_with_printed_mana_cost(
-        name: impl Into<String>,
-        rules: CardRules,
-        printed_mana_cost: PrintedManaCost,
-    ) -> Self {
+        let printed_mana_cost = rules.printed_mana_cost;
         let name = name.into();
         let is_land = rules.kind == CardKind::Land;
         let effect_status = match rules.implementation_status() {
@@ -1509,12 +1635,7 @@ impl CardComposition {
                 CardEffectStatus::Implemented
             }
         };
-        let part = CardPart::with_printed_mana_cost(
-            CardPartId::PRIMARY,
-            name.clone(),
-            rules,
-            printed_mana_cost,
-        );
+        let part = CardPart::new(CardPartId::PRIMARY, name.clone(), rules);
         let option = if is_land {
             PlayOptionDef::play_land(
                 PlayOptionId::DEFAULT,
@@ -1859,6 +1980,31 @@ impl CardKind {
     }
 
     #[must_use]
+    pub const fn has_type(self, card_type: CardType) -> bool {
+        match card_type {
+            CardType::Land => matches!(self, Self::Land),
+            CardType::Creature => self.is_creature(),
+            CardType::Artifact => self.is_artifact(),
+            CardType::Enchantment => matches!(self, Self::Enchantment),
+            CardType::Planeswalker => matches!(self, Self::Planeswalker),
+            CardType::Instant => matches!(self, Self::Instant),
+            CardType::Sorcery => matches!(self, Self::Sorcery),
+        }
+    }
+
+    #[must_use]
+    pub const fn types(self) -> [bool; CardType::COUNT] {
+        let mut types = [false; CardType::COUNT];
+        let mut index = 0;
+        while index < CardType::COUNT {
+            let card_type = CardType::ALL[index];
+            types[index] = self.has_type(card_type);
+            index += 1;
+        }
+        types
+    }
+
+    #[must_use]
     pub const fn is_permanent(self) -> bool {
         matches!(
             self,
@@ -2062,6 +2208,15 @@ pub enum CardAbilityList {
     Many(&'static [AbilityDef]),
 }
 
+/// One reusable ability definition attached to a card part at a stable
+/// position. The attachment supplies identity; [`AbilityDef`] supplies only
+/// rules text and semantics.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct AttachedAbilityDef {
+    pub id: AbilityId,
+    pub definition: AbilityDef,
+}
+
 impl CardAbilityList {
     #[must_use]
     pub fn as_slice(&self) -> &[AbilityDef] {
@@ -2077,29 +2232,32 @@ impl CardAbilityList {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[allow(clippy::struct_excessive_bools)]
 pub struct CardRules {
-    pub kind: CardKind,
-    pub supertypes: [bool; CardSupertype::COUNT],
-    pub subtypes: &'static [&'static str],
-    pub mana_cost: ManaCost,
-    pub alternate_mana_costs: &'static [AlternateManaCost],
-    pub land_entry: LandEntry,
-    pub starting_loyalty: Option<u16>,
-    pub creature_stats: Option<CreatureStats>,
+    kind: CardKind,
+    supertypes: [bool; CardSupertype::COUNT],
+    subtypes: &'static [&'static str],
+    printed_mana_cost: PrintedManaCost,
+    alternate_mana_costs: &'static [AlternateManaCost],
+    land_entry: LandEntry,
+    starting_loyalty: Option<u16>,
+    creature_stats: Option<CreatureStats>,
     /// Ordered printed rules clauses. Definitions repeat abilities granted by
     /// basic land subtypes so a card's behavior is visible in one place.
-    pub abilities: CardAbilityList,
+    abilities: CardAbilityList,
     /// Printed colors in `[white, blue, black, red, green]` order.
-    pub colors: [bool; 5],
+    colors: [bool; 5],
 }
 
 impl CardRules {
-    #[must_use]
-    pub const fn new(kind: CardKind, mana_cost: ManaCost, text: &'static str) -> Self {
+    const fn base(kind: CardKind, printed_mana_cost: PrintedManaCost, text: &'static str) -> Self {
+        let mana_cost = match printed_mana_cost {
+            PrintedManaCost::None => ManaCost::new(0, 0),
+            PrintedManaCost::Cost(cost) => cost,
+        };
         Self {
             kind,
             supertypes: [false; CardSupertype::COUNT],
             subtypes: &[],
-            mana_cost,
+            printed_mana_cost,
             alternate_mana_costs: &[],
             land_entry: LandEntry::Untapped,
             starting_loyalty: None,
@@ -2107,7 +2265,7 @@ impl CardRules {
             abilities: if text.is_empty() {
                 CardAbilityList::None
             } else {
-                CardAbilityList::One(AbilityDef::legacy(AbilityId::PRIMARY, text))
+                CardAbilityList::One(AbilityDef::legacy(text))
             },
             colors: [
                 mana_cost.white > 0 || mana_cost.white_red_hybrid > 0,
@@ -2119,6 +2277,219 @@ impl CardRules {
         }
     }
 
+    #[must_use]
+    pub const fn new_creature(
+        mana_cost: ManaCost,
+        subtypes: &'static [&'static str],
+        power: i16,
+        toughness: i16,
+        text: &'static str,
+    ) -> Self {
+        let mut rules = Self::base(CardKind::Creature, PrintedManaCost::Cost(mana_cost), text);
+        rules.subtypes = subtypes;
+        rules.creature_stats = Some(CreatureStats { power, toughness });
+        rules
+    }
+
+    #[must_use]
+    pub const fn new_creature_without_mana_cost(
+        subtypes: &'static [&'static str],
+        power: i16,
+        toughness: i16,
+        text: &'static str,
+    ) -> Self {
+        let mut rules = Self::base(CardKind::Creature, PrintedManaCost::None, text);
+        rules.subtypes = subtypes;
+        rules.creature_stats = Some(CreatureStats { power, toughness });
+        rules
+    }
+
+    #[must_use]
+    pub const fn new_artifact_creature(
+        mana_cost: ManaCost,
+        subtypes: &'static [&'static str],
+        power: i16,
+        toughness: i16,
+        text: &'static str,
+    ) -> Self {
+        let mut rules = Self::base(
+            CardKind::ArtifactCreature,
+            PrintedManaCost::Cost(mana_cost),
+            text,
+        );
+        rules.subtypes = subtypes;
+        rules.creature_stats = Some(CreatureStats { power, toughness });
+        rules
+    }
+
+    #[must_use]
+    pub const fn new_artifact_creature_without_mana_cost(
+        subtypes: &'static [&'static str],
+        power: i16,
+        toughness: i16,
+        text: &'static str,
+    ) -> Self {
+        let mut rules = Self::base(CardKind::ArtifactCreature, PrintedManaCost::None, text);
+        rules.subtypes = subtypes;
+        rules.creature_stats = Some(CreatureStats { power, toughness });
+        rules
+    }
+
+    #[must_use]
+    pub const fn new_land(subtypes: &'static [&'static str], text: &'static str) -> Self {
+        let mut rules = Self::base(CardKind::Land, PrintedManaCost::None, text);
+        rules.subtypes = subtypes;
+        rules
+    }
+
+    #[must_use]
+    pub const fn new_artifact(mana_cost: ManaCost, text: &'static str) -> Self {
+        Self::base(CardKind::Artifact, PrintedManaCost::Cost(mana_cost), text)
+    }
+
+    #[must_use]
+    pub const fn new_enchantment(mana_cost: ManaCost, text: &'static str) -> Self {
+        Self::base(
+            CardKind::Enchantment,
+            PrintedManaCost::Cost(mana_cost),
+            text,
+        )
+    }
+
+    #[must_use]
+    pub const fn new_instant(mana_cost: ManaCost, text: &'static str) -> Self {
+        Self::base(CardKind::Instant, PrintedManaCost::Cost(mana_cost), text)
+    }
+
+    #[must_use]
+    pub const fn new_instant_without_mana_cost(text: &'static str) -> Self {
+        Self::base(CardKind::Instant, PrintedManaCost::None, text)
+    }
+
+    #[must_use]
+    pub const fn new_sorcery(mana_cost: ManaCost, text: &'static str) -> Self {
+        Self::base(CardKind::Sorcery, PrintedManaCost::Cost(mana_cost), text)
+    }
+
+    #[must_use]
+    pub const fn new_sorcery_without_mana_cost(text: &'static str) -> Self {
+        Self::base(CardKind::Sorcery, PrintedManaCost::None, text)
+    }
+
+    #[must_use]
+    pub const fn new_planeswalker(
+        mana_cost: ManaCost,
+        subtypes: &'static [&'static str],
+        starting_loyalty: u16,
+        text: &'static str,
+    ) -> Self {
+        let mut rules = Self::base(
+            CardKind::Planeswalker,
+            PrintedManaCost::Cost(mana_cost),
+            text,
+        );
+        rules.subtypes = subtypes;
+        rules.starting_loyalty = Some(starting_loyalty);
+        rules
+    }
+
+    /// Creates a planeswalker back face, which has neither a printed mana cost
+    /// nor a printed starting-loyalty value.
+    #[must_use]
+    pub const fn new_planeswalker_without_mana_cost(
+        subtypes: &'static [&'static str],
+        text: &'static str,
+    ) -> Self {
+        let mut rules = Self::base(CardKind::Planeswalker, PrintedManaCost::None, text);
+        rules.subtypes = subtypes;
+        rules
+    }
+
+    #[must_use]
+    pub const fn kind(&self) -> CardKind {
+        self.kind
+    }
+
+    #[must_use]
+    pub const fn subtypes(&self) -> &'static [&'static str] {
+        self.subtypes
+    }
+
+    #[must_use]
+    pub const fn printed_mana_cost(&self) -> PrintedManaCost {
+        self.printed_mana_cost
+    }
+
+    #[must_use]
+    pub const fn mana_cost(&self) -> Option<ManaCost> {
+        self.printed_mana_cost.as_option()
+    }
+
+    #[must_use]
+    pub const fn alternate_mana_costs(&self) -> &'static [AlternateManaCost] {
+        self.alternate_mana_costs
+    }
+
+    #[must_use]
+    pub const fn land_entry_procedure(&self) -> LandEntry {
+        self.land_entry
+    }
+
+    #[must_use]
+    pub const fn starting_loyalty(&self) -> Option<u16> {
+        self.starting_loyalty
+    }
+
+    #[must_use]
+    pub const fn creature_stats(&self) -> Option<CreatureStats> {
+        self.creature_stats
+    }
+
+    #[must_use]
+    pub const fn colors(&self) -> [bool; 5] {
+        self.colors
+    }
+
+    /// Returns a concise explanation when internal or compatibility code has
+    /// bypassed the type-specific constructors and produced contradictory
+    /// characteristics.
+    #[must_use]
+    pub(super) const fn coherence_error(&self) -> Option<&'static str> {
+        if matches!(self.kind, CardKind::Land)
+            && !matches!(self.printed_mana_cost, PrintedManaCost::None)
+        {
+            return Some("a land cannot have a printed mana cost");
+        }
+        if self.kind.is_creature() && self.creature_stats.is_none() {
+            return Some("a creature must have power and toughness");
+        }
+        if !self.kind.is_creature() && self.creature_stats.is_some() {
+            return Some("a noncreature cannot have creature power and toughness");
+        }
+        if !matches!(self.kind, CardKind::Planeswalker) && self.starting_loyalty.is_some() {
+            return Some("a nonplaneswalker cannot have starting loyalty");
+        }
+        if matches!(self.kind, CardKind::Planeswalker)
+            && matches!(self.printed_mana_cost, PrintedManaCost::Cost(_))
+            && self.starting_loyalty.is_none()
+        {
+            return Some("a castable planeswalker face must have starting loyalty");
+        }
+        if !matches!(self.kind, CardKind::Land) && !matches!(self.land_entry, LandEntry::Untapped) {
+            return Some("nonland rules cannot declare a land-entry procedure");
+        }
+        None
+    }
+
+    #[cfg(test)]
+    pub(super) const fn with_printed_mana_cost_for_test(
+        mut self,
+        printed_mana_cost: PrintedManaCost,
+    ) -> Self {
+        self.printed_mana_cost = printed_mana_cost;
+        self
+    }
+
     /// Marks printed effects that are cataloged but not executed by the game
     /// engine yet. Lands can still use declarative entry/mana metadata and
     /// creatures can still be cast as their baseline bodies.
@@ -2126,7 +2497,7 @@ impl CardRules {
     /// # Panics
     ///
     /// Panics unless this rule set contains the one legacy aggregate clause
-    /// created from `CardRules::new` text. Explicit clause lists must declare
+    /// created from type-specific constructor text. Explicit clause lists must declare
     /// implementation coverage on each clause instead.
     #[must_use]
     pub const fn metadata_only(mut self) -> Self {
@@ -2195,7 +2566,7 @@ impl CardRules {
     /// # Panics
     ///
     /// Panics unless this rule set contains the one legacy aggregate clause
-    /// created from `CardRules::new` text. Explicit clause lists must declare
+    /// created from type-specific constructor text. Explicit clause lists must declare
     /// implementation coverage on each clause instead.
     #[must_use]
     pub const fn partial(mut self, explanation: &'static str) -> Self {
@@ -2219,6 +2590,32 @@ impl CardRules {
     #[must_use]
     pub fn ability_clauses(&self) -> &[AbilityDef] {
         self.abilities.as_slice()
+    }
+
+    /// Iterates the ordered ability definitions with the positional identity
+    /// they receive when attached to this card part.
+    ///
+    /// # Panics
+    ///
+    /// Panics when a rule set contains more than 256 clauses. Catalog
+    /// validation rejects such a definition before it can enter a game.
+    #[must_use]
+    pub fn indexed_abilities(&self) -> impl ExactSizeIterator<Item = AttachedAbilityDef> + '_ {
+        self.ability_clauses()
+            .iter()
+            .copied()
+            .enumerate()
+            .map(|(index, definition)| AttachedAbilityDef {
+                id: AbilityId::from_index(index)
+                    .expect("validated card parts contain at most 256 abilities"),
+                definition,
+            })
+    }
+
+    /// Looks up one attached ability by its positional identity.
+    #[must_use]
+    pub fn ability(&self, id: AbilityId) -> Option<&AbilityDef> {
+        self.ability_clauses().get(id.index())
     }
 
     /// Renders the ordered card text from the same clauses used by execution
@@ -2329,21 +2726,18 @@ impl CardRules {
         self
     }
 
+    /// Declares the procedure used when these land rules enter the battlefield.
+    ///
+    /// # Panics
+    ///
+    /// Panics when called on rules for a nonland card kind.
     #[must_use]
     pub const fn land_entry(mut self, land_entry: LandEntry) -> Self {
+        assert!(
+            matches!(self.kind, CardKind::Land),
+            "land_entry() is only valid for land rules"
+        );
         self.land_entry = land_entry;
-        self
-    }
-
-    #[must_use]
-    pub const fn planeswalker(mut self, starting_loyalty: u16) -> Self {
-        self.starting_loyalty = Some(starting_loyalty);
-        self
-    }
-
-    #[must_use]
-    pub const fn creature(mut self, power: i16, toughness: i16) -> Self {
-        self.creature_stats = Some(CreatureStats { power, toughness });
         self
     }
 
@@ -2356,14 +2750,12 @@ impl CardRules {
     }
 
     pub(super) const fn unsupported() -> Self {
-        let mut rules = Self::new(
+        Self::base(
             CardKind::Artifact,
-            ManaCost::new(u16::MAX, u16::MAX),
+            PrintedManaCost::None,
             "Rules text is not implemented.",
         )
-        .metadata_only();
-        rules.colors = [false; 5];
-        rules
+        .metadata_only()
     }
 }
 
@@ -2372,13 +2764,13 @@ mod tests {
     use super::{
         AbilityCostDef, AbilityDef, AddManaEffectDef, AlternateManaCost, CardBehavior,
         CardComposition, CardDefinition, CardEffectStatus, CardKind, CardPart, CardPrinting,
-        CardPrintingId, CardRules, CardSet, EffectDef, ImplementationStatus, ManaCost, ManaKindDef,
-        ManaRestrictionDef, ObjectPredicateDef, PrintedManaCost, TriggerEventDef,
+        CardPrintingId, CardRules, CardSet, CreatureStats, EffectDef, ImplementationStatus,
+        LandEntry, ManaCost, ManaKindDef, ManaRestrictionDef, ObjectPredicateDef, PrintedManaCost,
+        TriggerEventDef,
     };
     use crate::{AbilityId, CardDefinitionId, CardPartId};
 
     static DEFERRED_CLAUSE: [AbilityDef; 1] = [AbilityDef::not_implemented(
-        AbilityId::PRIMARY,
         "A deferred card-specific ability.",
         "The card-specific ability is not executed.",
     )];
@@ -2421,9 +2813,16 @@ mod tests {
     }
 
     #[test]
+    fn artifact_creatures_have_both_card_types() {
+        assert!(CardKind::ArtifactCreature.has_type(super::CardType::Artifact));
+        assert!(CardKind::ArtifactCreature.has_type(super::CardType::Creature));
+        assert!(!CardKind::ArtifactCreature.has_type(super::CardType::Enchantment));
+    }
+
+    #[test]
     fn white_red_hybrid_costs_have_both_printed_colors() {
-        let rules = CardRules::new(CardKind::Creature, ManaCost::white_red_hybrid(3), "");
-        assert_eq!(rules.colors, [true, false, false, true, false]);
+        let rules = CardRules::new_creature(ManaCost::white_red_hybrid(3), &[], 1, 1, "");
+        assert_eq!(rules.colors(), [true, false, false, true, false]);
     }
 
     #[test]
@@ -2432,14 +2831,14 @@ mod tests {
             AlternateManaCost::new("Burn", ManaCost::colored(1, 0, 0, 0, 1, 0)),
             AlternateManaCost::new("Fuse", ManaCost::colored(3, 0, 1, 0, 1, 0)),
         ];
-        let rules = CardRules::new(CardKind::Instant, ManaCost::colored(2, 0, 1, 0, 0, 0), "")
+        let rules = CardRules::new_instant(ManaCost::colored(2, 0, 1, 0, 0, 0), "")
             .alternate_costs(&ALTERNATES);
-        assert_eq!(rules.colors, [false, true, false, true, false]);
+        assert_eq!(rules.colors(), [false, true, false, true, false]);
     }
 
     #[test]
     fn clause_implementation_drives_the_ordinary_play_option_gate() {
-        let implemented = CardRules::new(CardKind::Instant, ManaCost::default(), "");
+        let implemented = CardRules::new_instant(ManaCost::default(), "");
         assert_eq!(
             ImplementationStatus::default(),
             ImplementationStatus::Complete
@@ -2449,8 +2848,7 @@ mod tests {
             CardEffectStatus::Implemented
         );
 
-        let uncategorized = CardRules::new(
-            CardKind::Instant,
+        let uncategorized = CardRules::new_instant(
             ManaCost::default(),
             "Legacy text with no assigned implementation.",
         );
@@ -2458,24 +2856,16 @@ mod tests {
             uncategorized.implementation_status(),
             ImplementationStatus::MetadataOnly
         );
-        let custom = CardRules::new(
-            CardKind::Instant,
-            ManaCost::default(),
-            "A card-local effect.",
-        )
-        .with_special_behavior(CardBehavior::LightningBolt);
+        let custom = CardRules::new_instant(ManaCost::default(), "A card-local effect.")
+            .with_special_behavior(CardBehavior::LightningBolt);
         assert_eq!(
             custom.implementation_status(),
             ImplementationStatus::Complete
         );
         assert_eq!(custom.special_behavior(), Some(CardBehavior::LightningBolt));
 
-        let metadata_only = CardRules::new(
-            CardKind::Instant,
-            ManaCost::default(),
-            "A deferred spell effect.",
-        )
-        .metadata_only();
+        let metadata_only =
+            CardRules::new_instant(ManaCost::default(), "A deferred spell effect.").metadata_only();
         assert_eq!(
             metadata_only.implementation_status(),
             ImplementationStatus::MetadataOnly
@@ -2496,8 +2886,7 @@ mod tests {
             ImplementationStatus::MetadataOnly
         );
 
-        let partial = CardRules::new(
-            CardKind::Enchantment,
+        let partial = CardRules::new_enchantment(
             ManaCost::default(),
             "A custom clause with one deferred rider.",
         )
@@ -2518,7 +2907,7 @@ mod tests {
 
     #[test]
     fn vanilla_creature_body_is_complete() {
-        let rules = CardRules::new(CardKind::Creature, ManaCost::default(), "").creature(2, 2);
+        let rules = CardRules::new_creature(ManaCost::default(), &[], 2, 2, "");
 
         assert_eq!(
             rules.implementation_status(),
@@ -2528,8 +2917,7 @@ mod tests {
 
     #[test]
     fn creature_body_with_an_unimplemented_clause_is_partial() {
-        let rules = CardRules::new(CardKind::Creature, ManaCost::default(), "")
-            .creature(2, 2)
+        let rules = CardRules::new_creature(ManaCost::default(), &[], 2, 2, "")
             .with_abilities(&DEFERRED_CLAUSE);
 
         assert_eq!(rules.implementation_status(), ImplementationStatus::Partial);
@@ -2541,8 +2929,8 @@ mod tests {
 
     #[test]
     fn noncreature_with_only_an_unimplemented_clause_is_metadata_only() {
-        let rules = CardRules::new(CardKind::Enchantment, ManaCost::default(), "")
-            .with_abilities(&DEFERRED_CLAUSE);
+        let rules =
+            CardRules::new_enchantment(ManaCost::default(), "").with_abilities(&DEFERRED_CLAUSE);
 
         assert_eq!(
             rules.implementation_status(),
@@ -2557,7 +2945,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "metadata_only() cannot follow with_abilities()")]
     fn metadata_only_rejects_explicit_clause_lists() {
-        let _ = CardRules::new(CardKind::Enchantment, ManaCost::default(), "")
+        let _ = CardRules::new_enchantment(ManaCost::default(), "")
             .with_abilities(&DEFERRED_CLAUSE)
             .metadata_only();
     }
@@ -2565,13 +2953,13 @@ mod tests {
     #[test]
     #[should_panic(expected = "metadata_only() requires legacy rules text")]
     fn metadata_only_rejects_missing_legacy_clause() {
-        let _ = CardRules::new(CardKind::Enchantment, ManaCost::default(), "").metadata_only();
+        let _ = CardRules::new_enchantment(ManaCost::default(), "").metadata_only();
     }
 
     #[test]
     #[should_panic(expected = "partial() cannot follow with_abilities()")]
     fn partial_rejects_explicit_clause_lists() {
-        let _ = CardRules::new(CardKind::Enchantment, ManaCost::default(), "")
+        let _ = CardRules::new_enchantment(ManaCost::default(), "")
             .with_abilities(&DEFERRED_CLAUSE)
             .partial("This explanation belongs on the clause.");
     }
@@ -2579,20 +2967,16 @@ mod tests {
     #[test]
     #[should_panic(expected = "partial() requires legacy rules text")]
     fn partial_rejects_missing_legacy_clause() {
-        let _ = CardRules::new(CardKind::Enchantment, ManaCost::default(), "")
+        let _ = CardRules::new_enchantment(ManaCost::default(), "")
             .partial("There is no clause to receive this explanation.");
     }
 
     #[test]
     fn no_mana_cost_is_distinct_from_a_printed_zero_cost() {
-        let rules = CardRules::new(CardKind::Sorcery, ManaCost::default(), "");
+        let rules = CardRules::new_sorcery(ManaCost::default(), "");
         let zero = CardPart::new(CardPartId::PRIMARY, "Zero", rules);
-        let none = CardPart::with_printed_mana_cost(
-            CardPartId::PRIMARY,
-            "None",
-            rules,
-            PrintedManaCost::None,
-        );
+        let no_cost_rules = CardRules::new_sorcery_without_mana_cost("");
+        let none = CardPart::new(CardPartId::PRIMARY, "None", no_cost_rules);
 
         assert_eq!(
             zero.printed_mana_cost(),
@@ -2602,23 +2986,95 @@ mod tests {
         assert_eq!(zero.printed_mana_cost().mana_value(), 0);
         assert_eq!(none.printed_mana_cost().mana_value(), 0);
 
-        let composition = CardComposition::single_with_printed_mana_cost(
-            "No-cost spell",
-            rules,
-            PrintedManaCost::None,
-        );
-        assert_eq!(composition.parts[0].mana_cost, None);
+        let composition = CardComposition::single("No-cost spell", no_cost_rules);
+        assert_eq!(composition.parts[0].mana_cost(), None);
         assert_eq!(composition.play_options[0].mana_cost, None);
+    }
+
+    #[test]
+    fn typed_rules_expose_coherent_kind_specific_characteristics() {
+        let creature =
+            CardRules::new_creature(ManaCost::colored(2, 0, 0, 0, 0, 1), &["Bear"], 2, 2, "");
+        assert_eq!(creature.kind(), CardKind::Creature);
+        assert_eq!(creature.subtypes(), &["Bear"]);
+        assert_eq!(
+            creature.creature_stats(),
+            Some(CreatureStats {
+                power: 2,
+                toughness: 2,
+            })
+        );
+        assert_eq!(creature.starting_loyalty(), None);
+        assert_eq!(creature.land_entry_procedure(), LandEntry::Untapped);
+        assert_eq!(creature.coherence_error(), None);
+
+        let land = CardRules::new_land(&["Forest"], "");
+        assert_eq!(land.kind(), CardKind::Land);
+        assert_eq!(land.printed_mana_cost(), PrintedManaCost::None);
+        assert_eq!(land.creature_stats(), None);
+        assert_eq!(land.coherence_error(), None);
+    }
+
+    #[test]
+    fn coherence_validation_covers_kind_specific_invariants() {
+        let mut creature_without_stats =
+            CardRules::new_creature(ManaCost::default(), &["Bear"], 2, 2, "");
+        creature_without_stats.creature_stats = None;
+
+        let mut instant_with_stats = CardRules::new_instant(ManaCost::default(), "");
+        instant_with_stats.creature_stats = Some(CreatureStats {
+            power: 1,
+            toughness: 1,
+        });
+
+        let mut instant_with_loyalty = CardRules::new_instant(ManaCost::default(), "");
+        instant_with_loyalty.starting_loyalty = Some(3);
+
+        let mut planeswalker_without_loyalty =
+            CardRules::new_planeswalker(ManaCost::default(), &["Test"], 3, "");
+        planeswalker_without_loyalty.starting_loyalty = None;
+
+        let mut instant_with_land_entry = CardRules::new_instant(ManaCost::default(), "");
+        instant_with_land_entry.land_entry = LandEntry::Tapped;
+
+        for (rules, expected) in [
+            (
+                creature_without_stats,
+                "a creature must have power and toughness",
+            ),
+            (
+                instant_with_stats,
+                "a noncreature cannot have creature power and toughness",
+            ),
+            (
+                instant_with_loyalty,
+                "a nonplaneswalker cannot have starting loyalty",
+            ),
+            (
+                planeswalker_without_loyalty,
+                "a castable planeswalker face must have starting loyalty",
+            ),
+            (
+                instant_with_land_entry,
+                "nonland rules cannot declare a land-entry procedure",
+            ),
+        ] {
+            assert_eq!(rules.coherence_error(), Some(expected));
+        }
+    }
+
+    #[test]
+    #[should_panic(expected = "land_entry() is only valid for land rules")]
+    fn nonlands_cannot_declare_a_land_entry_procedure() {
+        let _ = CardRules::new_instant(ManaCost::default(), "").land_entry(LandEntry::Tapped);
     }
 
     #[test]
     fn ability_category_is_explicit_and_not_inferred_from_effect() {
         const COSTS: &[AbilityCostDef] = &[AbilityCostDef::TapSource];
         const ADD_MANA: EffectDef = EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Green));
-        const MANA_ABILITY: AbilityDef =
-            AbilityDef::activated_mana(AbilityId::PRIMARY, "Add green.", COSTS, ADD_MANA);
+        const MANA_ABILITY: AbilityDef = AbilityDef::activated_mana("Add green.", COSTS, ADD_MANA);
         const ORDINARY_TRIGGER: AbilityDef = AbilityDef::triggered(
-            AbilityId(1),
             "Add green when this dies.",
             TriggerEventDef::ZoneChanged {
                 object: ObjectPredicateDef::Source,
@@ -2628,7 +3084,6 @@ mod tests {
             ADD_MANA,
         );
         const TURN_FACE_UP: AbilityDef = AbilityDef::special_action(
-            AbilityId(2),
             "Turn this face up.",
             &[super::ZoneKind::Battlefield],
             &[AbilityCostDef::Mana(ManaCost::new(3, 0))],
@@ -2641,16 +3096,18 @@ mod tests {
         assert!(!TURN_FACE_UP.uses_stack());
 
         let rules =
-            CardRules::new(CardKind::Creature, ManaCost::default(), "").with_abilities(&ABILITIES);
-        assert_eq!(rules.ability_clauses()[0].id, AbilityId::PRIMARY);
-        assert_eq!(rules.ability_clauses()[1].id, AbilityId(1));
-        assert_eq!(rules.ability_clauses()[2].id, AbilityId(2));
+            CardRules::new_creature(ManaCost::default(), &[], 1, 1, "").with_abilities(&ABILITIES);
+        let attached = rules.indexed_abilities().collect::<Vec<_>>();
+        assert_eq!(attached[0].id, AbilityId::PRIMARY);
+        assert_eq!(attached[1].id, AbilityId(1));
+        assert_eq!(attached[2].id, AbilityId(2));
     }
 
     #[test]
     fn mana_effects_keep_restrictions_attached_to_each_counted_unit() {
-        const RESTRICTIONS: &[ManaRestrictionDef] =
-            &[ManaRestrictionDef::CastSpell(ObjectPredicateDef::Artifact)];
+        const RESTRICTIONS: &[ManaRestrictionDef] = &[ManaRestrictionDef::CastSpell(
+            ObjectPredicateDef::HasType(super::CardType::Artifact),
+        )];
         let workshop_mana = AddManaEffectDef::one(ManaKindDef::Colorless)
             .with_amount(3)
             .with_restrictions(RESTRICTIONS);

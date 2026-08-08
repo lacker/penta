@@ -22,17 +22,17 @@ impl CardBehavior {
 
     #[must_use]
     pub const fn kind(self) -> CardKind {
-        self.rules().kind
+        self.rules().kind()
     }
 
     #[must_use]
-    pub const fn mana_cost(self) -> ManaCost {
-        self.rules().mana_cost
+    pub const fn mana_cost(self) -> Option<ManaCost> {
+        self.rules().mana_cost()
     }
 
     #[must_use]
     pub const fn creature_stats(self) -> Option<CreatureStats> {
-        self.rules().creature_stats
+        self.rules().creature_stats()
     }
 
     #[must_use]
@@ -53,32 +53,32 @@ impl CardBehavior {
     /// Returns the printed color flags in `[white, blue, black, red, green]` order.
     #[must_use]
     pub const fn color_identity(self) -> [bool; 5] {
-        self.rules().colors
+        self.rules().colors()
     }
 
     #[must_use]
     pub const fn is_red(self) -> bool {
-        self.rules().colors[3]
+        self.rules().colors()[3]
     }
 
     #[must_use]
     pub const fn is_blue(self) -> bool {
-        self.rules().colors[1]
+        self.rules().colors()[1]
     }
 
     #[must_use]
     pub const fn is_white(self) -> bool {
-        self.rules().colors[0]
+        self.rules().colors()[0]
     }
 
     #[must_use]
     pub const fn is_black(self) -> bool {
-        self.rules().colors[2]
+        self.rules().colors()[2]
     }
 
     #[must_use]
     pub const fn is_green(self) -> bool {
-        self.rules().colors[4]
+        self.rules().colors()[4]
     }
 
     #[must_use]

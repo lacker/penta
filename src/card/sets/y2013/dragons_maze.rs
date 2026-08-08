@@ -2,24 +2,24 @@
 
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityDef, CardArt, CardBehavior, CardComposition, CardEffectStatus, CardKind, CardPart,
-    CardRules, CardSet, CardStructure, CardSupertype, ColorDef, EvergreenAbility, ManaCost,
-    PlayOptionDef, SpellForm, TargetPredicate, TargetSlotDef, cards,
+    AbilityDef, CardArt, CardBehavior, CardComposition, CardEffectStatus, CardPart, CardRules,
+    CardSet, CardStructure, CardSupertype, ColorDef, EvergreenAbilityDef, ManaCost, PlayOptionDef,
+    SpellForm, TargetPredicate, TargetSlotDef, cards,
 };
-use crate::ids::{AbilityId, CardPartId, PlayOptionId, TargetSlotId};
+use crate::ids::{CardPartId, PlayOptionId, TargetSlotId};
 
 pub(in crate::card::sets) static AETHERLING: CardRecord = CardRecord::new(
     cards::AETHERLING,
     "Aetherling",
     CardArt::new("9c93313b-cf43-47e9-a911-717b4d14b0b5", "Tyler Jacobson"),
     CardSet::DragonsMaze,
-        CardRules::new(
-        CardKind::Creature,
+    CardRules::new_creature(
         ManaCost::colored(4, 0, 2, 0, 0, 0),
+        &["Shapeshifter"],
+        4,
+        5,
         "{U}: Exile this creature. Return it to the battlefield under its owner's control at the beginning of the next end step.\n{U}: This creature can't be blocked this turn.\n{1}: This creature gets +1/-1 until end of turn.\n{1}: This creature gets -1/+1 until end of turn.",
     )
-    .with_subtypes(&["Shapeshifter"])
-    .creature(4, 5)
     .metadata_only(),
 );
 
@@ -28,27 +28,18 @@ pub(in crate::card::sets) static BLOOD_BARON_OF_VIZKOPA: CardRecord = CardRecord
     "Blood Baron of Vizkopa",
     CardArt::new("e4edad09-bf7b-40e9-ac2a-100da8a43274", "Anthony Palumbo"),
     CardSet::DragonsMaze,
-        CardRules::new(
-        CardKind::Creature,
+    CardRules::new_creature(
         ManaCost::colored(3, 1, 0, 1, 0, 0),
+        &["Vampire"],
+        4,
+        4,
         "",
     )
-    .with_subtypes(&["Vampire"])
-    .creature(4, 4)
     .with_abilities(&[
-        AbilityDef::evergreen(AbilityId::PRIMARY, "Lifelink", EvergreenAbility::Lifelink),
-        AbilityDef::evergreen(
-            AbilityId(1),
-            "Protection from white",
-            EvergreenAbility::ProtectionFrom(ColorDef::White),
-        ),
-        AbilityDef::evergreen(
-            AbilityId(2),
-            "Protection from black",
-            EvergreenAbility::ProtectionFrom(ColorDef::Black),
-        ),
+        EvergreenAbilityDef::lifelink(),
+        EvergreenAbilityDef::protection_from(ColorDef::White),
+        EvergreenAbilityDef::protection_from(ColorDef::Black),
         AbilityDef::custom_full(
-            AbilityId(3),
             "As long as you have 30 or more life and an opponent has 10 or less life, this creature gets +6/+6 and has flying.",
             CardBehavior::BloodBaronOfVizkopa,
             "The conditional power, toughness, and flying effect is implemented by the card-local static-effect hook.",
@@ -61,8 +52,7 @@ pub(in crate::card::sets) static GAZE_OF_GRANITE: CardRecord = CardRecord::new(
     "Gaze of Granite",
     CardArt::new("96c9ac10-d114-4aa5-87ac-f1069cde8e40", "Nils Hamm"),
     CardSet::DragonsMaze,
-    CardRules::new(
-        CardKind::Sorcery,
+    CardRules::new_sorcery(
         ManaCost::variable(0, 0, 0, 2, 0, 1, 1),
         "Destroy each nonland permanent with mana value X or less.",
     )
@@ -74,8 +64,7 @@ pub(in crate::card::sets) static PUTREFY: CardRecord = CardRecord::new(
     "Putrefy",
     CardArt::new("0d43a0b6-2a5c-4959-96ee-6e570949dfed", "Igor Kieryluk"),
     CardSet::DragonsMaze,
-    CardRules::new(
-        CardKind::Instant,
+    CardRules::new_instant(
         ManaCost::colored(1, 0, 0, 1, 0, 1),
         "Destroy target artifact or creature. It can't be regenerated.",
     )
@@ -87,28 +76,22 @@ pub(in crate::card::sets) static RURIC_THAR_THE_UNBOWED: CardRecord = CardRecord
     "Ruric Thar, the Unbowed",
     CardArt::new("84dd3586-7c3b-4f9c-a1eb-7745b75339b0", "Tyler Jacobson"),
     CardSet::DragonsMaze,
-        CardRules::new(
-        CardKind::Creature,
+    CardRules::new_creature(
         ManaCost::colored(4, 0, 0, 0, 1, 1),
+        &["Ogre", "Warrior"],
+        6,
+        6,
         "",
     )
     .with_supertype(CardSupertype::Legendary)
-    .with_subtypes(&["Ogre", "Warrior"])
-    .creature(6, 6)
     .with_abilities(&[
-        AbilityDef::evergreen(
-            AbilityId::PRIMARY,
-            "Vigilance",
-            EvergreenAbility::Vigilance,
-        ),
-        AbilityDef::evergreen(AbilityId(1), "Reach", EvergreenAbility::Reach),
+        EvergreenAbilityDef::vigilance(),
+        EvergreenAbilityDef::reach(),
         AbilityDef::not_implemented(
-            AbilityId(2),
             "Ruric Thar attacks each combat if able.",
             "The attack requirement is not enforced.",
         ),
         AbilityDef::not_implemented(
-            AbilityId(3),
             "Whenever a player casts a noncreature spell, Ruric Thar deals 6 damage to that player.",
             "The spell-cast damage trigger is not executed.",
         ),
@@ -120,19 +103,18 @@ pub(in crate::card::sets) static SIN_COLLECTOR: CardRecord = CardRecord::new(
     "Sin Collector",
     CardArt::new("305a3feb-df49-486c-a3b4-ff2721d60019", "Mike Bierek"),
     CardSet::DragonsMaze,
-        CardRules::new(
-        CardKind::Creature,
+    CardRules::new_creature(
         ManaCost::colored(1, 1, 0, 1, 0, 0),
+        &["Human", "Cleric"],
+        2,
+        1,
         "When this creature enters, target opponent reveals their hand. You choose an instant or sorcery card from it and exile that card.",
     )
-    .with_subtypes(&["Human", "Cleric"])
-    .creature(2, 1)
     .metadata_only(),
 );
 
 const fn turn_rules() -> CardRules {
-    CardRules::new(
-        CardKind::Instant,
+    CardRules::new_instant(
         ManaCost::colored(2, 0, 1, 0, 0, 0),
         "Until end of turn, target creature loses all abilities and becomes a red Weird with base power and toughness 0/1.\nFuse (You may cast one or both halves of this card from your hand.)",
     )
@@ -141,8 +123,7 @@ const fn turn_rules() -> CardRules {
 
 fn turn_burn_composition() -> CardComposition {
     let turn = turn_rules();
-    let burn = CardRules::new(
-        CardKind::Instant,
+    let burn = CardRules::new_instant(
         ManaCost::colored(1, 0, 0, 0, 1, 0),
         "Burn deals 2 damage to any target.\nFuse (You may cast one or both halves of this card from your hand.)",
     )
@@ -175,7 +156,7 @@ fn turn_burn_composition() -> CardComposition {
                 PlayOptionId::DEFAULT,
                 "Turn",
                 SpellForm::Part(CardPartId::PRIMARY),
-                turn.mana_cost,
+                turn.mana_cost().expect("Turn has a printed mana cost"),
                 CardEffectStatus::MetadataOnly,
             )
             .with_targets(vec![turn_target()]),
@@ -183,7 +164,7 @@ fn turn_burn_composition() -> CardComposition {
                 PlayOptionId(1),
                 "Burn",
                 SpellForm::Part(CardPartId(1)),
-                burn.mana_cost,
+                burn.mana_cost().expect("Burn has a printed mana cost"),
                 CardEffectStatus::MetadataOnly,
             )
             .with_targets(vec![burn_target()]),
@@ -214,8 +195,7 @@ pub(in crate::card::sets) static UNFLINCHING_COURAGE: CardRecord = CardRecord::n
     "Unflinching Courage",
     CardArt::new("35952c24-d728-4ec6-b0d1-b8183a18554a", "Mike Bierek"),
     CardSet::DragonsMaze,
-        CardRules::new(
-        CardKind::Enchantment,
+    CardRules::new_enchantment(
         ManaCost::colored(1, 1, 0, 0, 0, 1),
         "Enchant creature\nEnchanted creature gets +2/+2 and has trample and lifelink. (Damage dealt by the creature also causes its controller to gain that much life.)",
     )
@@ -228,13 +208,13 @@ pub(in crate::card::sets) static VOICE_OF_RESURGENCE: CardRecord = CardRecord::n
     "Voice of Resurgence",
     CardArt::new("07246783-d475-4f61-99ac-e2b574072349", "Winona Nelson"),
     CardSet::DragonsMaze,
-        CardRules::new(
-        CardKind::Creature,
+    CardRules::new_creature(
         ManaCost::colored(0, 1, 0, 0, 0, 1),
+        &["Elemental"],
+        2,
+        2,
         "Whenever an opponent casts a spell during your turn and when this creature dies, create a green and white Elemental creature token with \"This token's power and toughness are each equal to the number of creatures you control.\"",
     )
-    .with_subtypes(&["Elemental"])
-    .creature(2, 2)
     .metadata_only(),
 );
 
@@ -243,8 +223,7 @@ pub(in crate::card::sets) static WARLEADERS_HELIX: CardRecord = CardRecord::new(
     "Warleader's Helix",
     CardArt::new("81e474ac-54f7-43f9-8af9-2f1adf258b15", "Greg Staples"),
     CardSet::DragonsMaze,
-    CardRules::new(
-        CardKind::Instant,
+    CardRules::new_instant(
         ManaCost::colored(2, 1, 0, 0, 1, 0),
         "Warleader's Helix deals 4 damage to any target and you gain 4 life.",
     )

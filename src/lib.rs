@@ -18,18 +18,18 @@ pub use action::{AbilityOrigin, Action, ActionError, CombatDamageAssignment, Man
 pub use card::{
     AbilityCostDef, AbilityDef, AbilityImplementationDef, AbilityTargetDef, AbilityTargetPredicate,
     ActivatedAbilityDef, ActivatedAbilityText, AddManaEffectDef, AdditionalCostDef,
-    AlternateManaCost, AlternateSpellKind, AlternativeCostDef, AppliedEffectDef, BasicLandType,
-    CardAbilityList, CardArt, CardBehavior, CardCatalog, CardComposition, CardDefinition,
-    CardEffectStatus, CardKind, CardPart, CardPrinting, CardPrintingId, CardRules, CardSet,
-    CardStructure, CardSupertype, CatalogError, CharacteristicContext, CharacteristicError,
-    ColorDef, CreatureStats, DeclarativeAbilityDef, DoubleFacedKind, EffectDef, EffectDurationDef,
-    EffectRecipientDef, EvergreenAbility, ImplementationStatus, LandEntry, ManaCost, ManaKindDef,
-    ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef, MeldComponentDef, MeldRecipeDef,
-    MeldResultDef, ModeDef, ModeSetDef, ObjectPredicateDef, PlayActionKind, PlayOptionDef,
-    PlayRestriction, PlayerRelation, PrintedManaCost, ReplacementAbilityDef, SpecialActionDef,
-    SpellAbilityDef, SpellForm, StaticAbilityDef, TargetPredicate, TargetSlotDef, TriggerEventDef,
-    TriggeredAbilityDef, TurnStepDef, ValueDef, ZoneKind, applicable_part_ids,
-    intrinsic_basic_land_mana_ability,
+    AlternateManaCost, AlternateSpellKind, AlternativeCostDef, AppliedEffectDef,
+    AttachedAbilityDef, BasicLandType, CardAbilityList, CardArt, CardBehavior, CardCatalog,
+    CardComposition, CardDefinition, CardEffectStatus, CardKind, CardPart, CardPrinting,
+    CardPrintingId, CardRules, CardSet, CardStructure, CardSupertype, CardType, CatalogError,
+    CharacteristicContext, CharacteristicError, ColorDef, CreatureStats, DeclarativeAbilityDef,
+    DoubleFacedKind, EffectDef, EffectDurationDef, EffectRecipientDef, EvergreenAbility,
+    EvergreenAbilityDef, GrantedAbilityValidationError, ImplementationStatus, LandEntry, ManaCost,
+    ManaKindDef, ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef, MeldComponentDef,
+    MeldRecipeDef, MeldResultDef, ModeDef, ModeSetDef, ObjectPredicateDef, PlayActionKind,
+    PlayOptionDef, PlayRestriction, PlayerRelation, PrintedManaCost, ReplacementAbilityDef,
+    SpecialActionDef, SpellAbilityDef, SpellForm, StaticAbilityDef, TargetPredicate, TargetSlotDef,
+    TriggerEventDef, TriggeredAbilityDef, TurnStepDef, ValueDef, ZoneKind, applicable_part_ids,
 };
 pub use casting::{
     CastChoices, CastSignature, CostConfiguration, TargetReplacementError, TargetSelection,
@@ -43,7 +43,7 @@ pub use game::{
 };
 pub use ids::{
     AbilityId, AdditionalCostId, AlternativeCostId, CardDefinitionId, CardInstanceId, CardPartId,
-    GameObjectId, MeldRecipeId, ModeId, PhysicalCardId, PlayOptionId, PlayerId, StackObjectId,
-    TargetSlotId,
+    GameObjectId, GrantId, MeldRecipeId, ModeId, PhysicalCardId, PlayOptionId, PlayerId,
+    StackObjectId, TargetSlotId,
 };
 pub use policy::{HandcraftedPolicy, PlayError, Policy, RandomPolicy, play_game};

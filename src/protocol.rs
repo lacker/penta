@@ -22,7 +22,7 @@ use crate::game::{DecisionKind, DecisionObservation, DecisionOrderSemantics, Sta
 use crate::ids::CardDefinitionId;
 use crate::policy::Policy;
 use crate::{
-    AbilityOrigin, Action, CardCatalog, Deck, Format, Game, GameObjectId, GameResult,
+    AbilityOrigin, Action, CardCatalog, CardPart, Deck, Format, Game, GameObjectId, GameResult,
     HandcraftedPolicy, ManaColor, PlayerId, PlayerObservation, RandomPolicy, StackObjectKind,
     Target, WinReason, decks, poc,
 };
@@ -39,7 +39,10 @@ use crate::{
 /// catalog JSON.
 /// Version 6 exposes clause-derived implementation coverage and stops exposing
 /// the compatibility execution gate as card metadata.
-pub const PROTOCOL_VERSION: u32 = 6;
+/// Version 7 distinguishes a granted ability's effective source definition,
+/// source clause, and grant site instead of presenting any of them as an ID on
+/// the affected object.
+pub const PROTOCOL_VERSION: u32 = 7;
 
 /// The engine crate version. Rules behavior is part of the contract too: a
 /// fix can change what a trained policy sees even when the shapes hold
@@ -334,10 +337,19 @@ fn ability_origin_json(origin: AbilityOrigin) -> Value {
             "kind": "intrinsicBasicLand",
             "landType": basic_land_type_name(land_type),
         }),
-        AbilityOrigin::Granted { source, ability } => json!({
+        AbilityOrigin::Granted {
+            source,
+            source_definition,
+            source_part,
+            source_ability,
+            grant,
+        } => json!({
             "kind": "granted",
             "source": source.0,
-            "abilityId": ability.0,
+            "sourceDefinition": source_definition.0,
+            "sourcePartId": source_part.0,
+            "sourceAbilityId": source_ability.0,
+            "grantId": grant.0,
         }),
     }
 }
@@ -732,10 +744,8 @@ pub fn observation_json_for_format(
 
 fn stack_object_json(catalog: &CardCatalog, object: &StackObservation) -> Value {
     let ability_id = object.ability.and_then(|origin| match origin {
-        AbilityOrigin::Printed { ability, .. } | AbilityOrigin::Granted { ability, .. } => {
-            Some(ability.0)
-        }
-        AbilityOrigin::IntrinsicBasicLand(_) => None,
+        AbilityOrigin::Printed { ability, .. } => Some(ability.0),
+        AbilityOrigin::IntrinsicBasicLand(_) | AbilityOrigin::Granted { .. } => None,
     });
     json!({
         "objectId": object.id.0,
@@ -745,7 +755,7 @@ fn stack_object_json(catalog: &CardCatalog, object: &StackObservation) -> Value 
         "sourceObjectId": object.source.map(|source| source.0),
         "source": object.source.map(|source| source.0),
         "ability": object.ability.map(ability_origin_json),
-        // Compatibility projection for clients that only know clause IDs.
+        // Compatibility projection for clients that only know printed clause IDs.
         "abilityId": ability_id,
         "abilityText": object.ability_text,
         "kind": match object.kind {
@@ -820,16 +830,16 @@ const fn card_set_slug(set: CardSet) -> &'static str {
 }
 
 fn rules_json(rules: &CardRules, mana_cost: Option<&ManaCost>) -> Value {
-    let stats = rules.creature_stats;
+    let stats = rules.creature_stats();
     json!({
-        "kind": format!("{:?}", rules.kind),
+        "kind": format!("{:?}", rules.kind()),
         "typeLine": rules.type_line(),
         "manaCost": mana_cost.map(mana_cost_json),
         "power": stats.map(|stats| stats.power),
         "toughness": stats.map(|stats| stats.toughness),
         "rulesText": rules.rules_text(),
         "implementationStatus": implementation_status_name(rules.implementation_status()),
-        "colors": rules.colors,
+        "colors": rules.colors(),
     })
 }
 
@@ -927,8 +937,8 @@ fn play_option_json(option: &PlayOptionDef) -> Value {
 
 fn definition_json(catalog: &CardCatalog, format: Format, card: &CardDefinition) -> Value {
     let rules = &card.rules;
-    let stats = rules.creature_stats;
-    let mana_cost = card.primary_part().and_then(|part| part.mana_cost.as_ref());
+    let stats = rules.creature_stats();
+    let mana_cost = card.primary_part().and_then(CardPart::mana_cost);
     let allowed = catalog.is_allowed_in(card.id, format);
     let banned = catalog.is_banned_in(card.id, format);
     let restricted = catalog.is_restricted_in(card.id, format);
@@ -936,9 +946,9 @@ fn definition_json(catalog: &CardCatalog, format: Format, card: &CardDefinition)
         // Compatibility fields retained from protocol v1.
         "definition": card.id.0,
         "name": card.name,
-        "kind": format!("{:?}", rules.kind),
+        "kind": format!("{:?}", rules.kind()),
         "isBasicLand": card.is_basic_land(),
-        "manaCost": mana_cost.map(mana_cost_json),
+        "manaCost": mana_cost.as_ref().map(mana_cost_json),
         "power": stats.map(|stats| stats.power),
         "toughness": stats.map(|stats| stats.toughness),
         "rulesText": rules.rules_text(),
@@ -951,7 +961,8 @@ fn definition_json(catalog: &CardCatalog, format: Format, card: &CardDefinition)
         "implementationStatus": implementation_status_name(card.implementation_status()),
         "structure": structure_json(&card.structure),
         "parts": card.parts.iter().map(|part| {
-            let mut value = rules_json(&part.rules, part.mana_cost.as_ref());
+            let mana_cost = part.mana_cost();
+            let mut value = rules_json(&part.rules, mana_cost.as_ref());
             let Value::Object(fields) = &mut value else {
                 unreachable!("rules JSON is always an object");
             };
@@ -1370,6 +1381,26 @@ mod tests {
             activated["targetSelections"][1]["targets"][0]["objectId"],
             11
         );
+
+        let granted = action_json(&Action::ActivateAbility {
+            source: GameObjectId(12),
+            ability: AbilityOrigin::Granted {
+                source: GameObjectId(9),
+                source_definition: crate::CardDefinitionId(8),
+                source_part: crate::CardPartId(1),
+                source_ability: crate::AbilityId(2),
+                grant: crate::GrantId(3),
+            },
+            targets: Vec::new(),
+            sacrifice: None,
+        });
+        assert_eq!(granted["ability"]["kind"], "granted");
+        assert_eq!(granted["ability"]["source"], 9);
+        assert_eq!(granted["ability"]["sourceDefinition"], 8);
+        assert_eq!(granted["ability"]["sourcePartId"], 1);
+        assert_eq!(granted["ability"]["sourceAbilityId"], 2);
+        assert_eq!(granted["ability"]["grantId"], 3);
+        assert!(granted["ability"].get("abilityId").is_none());
     }
 
     fn finish(mut game: BotGame, mut pick: impl FnMut(usize, &Value) -> usize) -> GameResult {
@@ -1593,7 +1624,7 @@ mod tests {
                     if !game
                         .catalog
                         .get(definition)
-                        .is_some_and(|card| card.rules.kind.is_permanent())
+                        .is_some_and(|card| card.rules.kind().is_permanent())
                     {
                         return None;
                     }

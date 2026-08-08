@@ -146,7 +146,7 @@ impl HandcraftedPolicy {
 
     fn declarative_mana_value(&self, definition: CardDefinitionId) -> Option<i32> {
         let card = self.catalog.get(definition)?;
-        if card.rules.kind == CardKind::Land {
+        if card.rules.kind() == CardKind::Land {
             return self.is_mana_source(definition).then_some(80);
         }
         card.rules
@@ -432,7 +432,7 @@ impl HandcraftedPolicy {
             Some(behavior) if behavior.kind().is_creature() => 65,
             Some(_) => 55,
             None => self.catalog.get(definition).map_or(0, |card| {
-                if card.rules.kind.is_creature() {
+                if card.rules.kind().is_creature() {
                     65
                 } else {
                     55
@@ -452,7 +452,7 @@ impl HandcraftedPolicy {
         let declarative = definition.and_then(|id| self.declarative_spell_profile(id, choices.x()));
         let kind = definition
             .and_then(|id| self.catalog.get(id))
-            .map(|card| card.rules.kind);
+            .map(|card| card.rules.kind());
         let x = choices.x();
         let damage = match behavior {
             Some(CardBehavior::LightningBolt | CardBehavior::ChainLightning) => Some(3),
@@ -639,9 +639,7 @@ impl HandcraftedPolicy {
             .get(definition)?
             .part(part)?
             .rules
-            .ability_clauses()
-            .iter()
-            .find(|candidate| candidate.id == ability)?;
+            .ability(ability)?;
         if !ability.implementation.is_executable()
             || !matches!(ability.definition, DeclarativeAbilityDef::Activated(_))
         {
@@ -680,7 +678,7 @@ impl HandcraftedPolicy {
                     && self
                         .catalog
                         .get(permanent.definition)
-                        .is_some_and(|card| card.rules.kind.is_artifact())
+                        .is_some_and(|card| card.rules.kind().is_artifact())
             })
             .count();
         let potential_power = atog

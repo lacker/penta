@@ -1,7 +1,8 @@
 use super::{CardRecord, PrintingRecord};
-use crate::card::{CardArt, CardBehavior, CardKind, CardRules, CardSet, ManaCost, cards};
+use crate::card::{
+    CardArt, CardBehavior, CardKind, CardRules, CardSet, ImplementationStatus, ManaCost, cards,
+};
 
-// Implementation status: complete — card rules are executed by the engine.
 pub(in crate::card::sets) static GOBLIN_GRENADE: CardRecord = CardRecord::new(
     cards::GOBLIN_GRENADE,
     "Goblin Grenade",
@@ -16,7 +17,6 @@ pub(in crate::card::sets) static GOBLIN_GRENADE: CardRecord = CardRecord::new(
     ),
 );
 
-// Implementation status: complete — card rules are executed by the engine.
 pub(in crate::card::sets) static HYMN_TO_TOURACH: CardRecord = CardRecord::new(
     cards::HYMN_TO_TOURACH,
     "Hymn to Tourach",
@@ -29,9 +29,11 @@ pub(in crate::card::sets) static HYMN_TO_TOURACH: CardRecord = CardRecord::new(
         ManaCost::colored(0, 0, 0, 2, 0, 0),
         "Target player discards two cards at random.",
     ),
-);
+)
+.with_implementation_status(ImplementationStatus::Partial {
+    explanation: "The spell always affects the opponent instead of selecting its target player.",
+});
 
-// Implementation status: complete — card rules are executed by the engine.
 pub(in crate::card::sets) static ICATIAN_JAVELINEERS: CardRecord = CardRecord::new(
     cards::ICATIAN_JAVELINEERS,
     "Icatian Javelineers",
@@ -49,9 +51,11 @@ pub(in crate::card::sets) static ICATIAN_JAVELINEERS: CardRecord = CardRecord::n
         "Deal 1 damage to {} with Icatian Javelineers",
         "Deal 1 damage",
     ),
-);
+)
+.with_implementation_status(ImplementationStatus::Partial {
+    explanation: "Target selection and damage resolution do not account for protection from white.",
+});
 
-// Implementation status: complete — card rules are executed by the engine.
 pub(in crate::card::sets) static ORDER_OF_LEITBUR: CardRecord = CardRecord::new(
     cards::ORDER_OF_LEITBUR,
     "Order of Leitbur",
@@ -68,7 +72,6 @@ pub(in crate::card::sets) static ORDER_OF_LEITBUR: CardRecord = CardRecord::new(
     .protection([false, false, true, false, false]),
 );
 
-// Implementation status: complete — card rules are executed by the engine.
 pub(in crate::card::sets) static ORDER_OF_THE_EBON_HAND: CardRecord = CardRecord::new(
     cards::ORDER_OF_THE_EBON_HAND,
     "Order of the Ebon Hand",

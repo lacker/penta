@@ -3,8 +3,8 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityImplementationDef, AddManaEffectDef, AppliedEffectDef,
-    CardArt, CardBehavior, CardRules, CardSet, CardSupertype, EffectDef, EvergreenAbilityDef,
-    LandEntry, ManaCost, ManaKindDef, ManaRestrictionDef, ManaSpendEffectDef, cards,
+    CardArt, CardBehavior, CardRules, CardSet, CardSupertype, EffectDef, LandEntry, ManaCost,
+    ManaKindDef, ManaRestrictionDef, ManaSpendEffectDef, abilities, cards,
 };
 
 pub(in crate::card::sets) static BONFIRE_OF_THE_DAMNED: CardRecord = CardRecord::new(
@@ -42,11 +42,7 @@ pub(in crate::card::sets) static CAVERN_OF_SOULS: CardRecord = CardRecord::new(
         .with_implementation(AbilityImplementationDef::NotImplemented {
             explanation: "The creature-type choice is represented but is not executed.",
         }),
-        AbilityDef::activated_mana(
-            "{T}: Add {C}.",
-            &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Colorless)),
-        ),
+        abilities::tap_for(ManaKindDef::Colorless),
         AbilityDef::activated_mana(
             "{T}: Add one mana of any color. Spend this mana only to cast a creature spell of the chosen type, and that spell can't be countered.",
             &[AbilityCostDef::TapSource],
@@ -105,8 +101,8 @@ pub(in crate::card::sets) static RESTORATION_ANGEL: CardRecord = CardRecord::new
         "",
     )
     .with_abilities(&[
-        EvergreenAbilityDef::flash(),
-        EvergreenAbilityDef::flying(),
+        abilities::flash(),
+        abilities::flying(),
         AbilityDef::not_implemented(
             "When this creature enters, you may exile target non-Angel creature you control, then return that card to the battlefield under your control.",
             "The enters-the-battlefield blink ability is not executed.",
@@ -128,8 +124,8 @@ pub(in crate::card::sets) static SIGARDA_HOST_OF_HERONS: CardRecord = CardRecord
     )
     .with_supertype(CardSupertype::Legendary)
     .with_abilities(&[
-        EvergreenAbilityDef::flying(),
-        EvergreenAbilityDef::hexproof(),
+        abilities::flying(),
+        abilities::hexproof(),
         AbilityDef::not_implemented(
             "Spells and abilities your opponents control can't cause you to sacrifice permanents.",
             "The sacrifice-prevention static ability is not executed.",
@@ -162,7 +158,7 @@ pub(in crate::card::sets) static ZEALOUS_CONSCRIPTS: CardRecord = CardRecord::ne
         "",
     )
     .with_abilities(&[
-        EvergreenAbilityDef::haste(),
+        abilities::haste(),
         AbilityDef::not_implemented(
             "When this creature enters, gain control of target permanent until end of turn. Untap that permanent. It gains haste until end of turn.",
             "The enters-the-battlefield control-changing ability is not executed.",

@@ -442,11 +442,12 @@ pub enum ManaKindDef {
 
 /// A basic land subtype used by type-changing effects and mana provenance.
 ///
-/// Card definitions intentionally list their printed mana abilities even when
-/// a basic land type would grant the same ability under the comprehensive
-/// rules. This keeps the catalog self-describing. The runtime only synthesizes
-/// an intrinsic ability when an effect such as Blood Moon changes a land's
-/// subtype without also supplying an explicit ability clause.
+/// Card definitions intentionally list an executable stand-in for the mana
+/// ability a basic land type grants under the comprehensive rules. That clause
+/// is marked partially implemented because it is not yet derived from the
+/// object's type. The runtime only synthesizes a truly intrinsic ability when
+/// an effect such as Blood Moon changes a land's subtype without also supplying
+/// an explicit ability clause.
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum BasicLandType {
     Plains,
@@ -484,17 +485,6 @@ impl BasicLandType {
             Self::Swamp => ManaKindDef::Black,
             Self::Mountain => ManaKindDef::Red,
             Self::Forest => ManaKindDef::Green,
-        }
-    }
-
-    #[must_use]
-    pub const fn ability_text(self) -> &'static str {
-        match self {
-            Self::Plains => "{T}: Add {W}.",
-            Self::Island => "{T}: Add {U}.",
-            Self::Swamp => "{T}: Add {B}.",
-            Self::Mountain => "{T}: Add {R}.",
-            Self::Forest => "{T}: Add {G}.",
         }
     }
 
@@ -908,7 +898,7 @@ impl Default for StaticAbilityDef {
 /// strike visible and accurately reflected in aggregate coverage without
 /// hiding them in card-level booleans.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum EvergreenAbility {
+pub enum KeywordAbility {
     Flying,
     Trample,
     Haste,
@@ -941,7 +931,7 @@ pub enum DeclarativeAbilityDef {
     Static(StaticAbilityDef),
     Replacement(ReplacementAbilityDef),
     SpecialAction(SpecialActionDef),
-    Evergreen(EvergreenAbility),
+    Keyword(KeywordAbility),
     /// Transitional structural marker for a clause still dispatched through
     /// the owning card's legacy custom behavior.
     Legacy,
@@ -1097,10 +1087,10 @@ impl AbilityDef {
     }
 
     #[must_use]
-    pub const fn evergreen(text: &'static str, ability: EvergreenAbility) -> Self {
+    pub const fn keyword(text: &'static str, ability: KeywordAbility) -> Self {
         Self::defined(
             text,
-            DeclarativeAbilityDef::Evergreen(ability),
+            DeclarativeAbilityDef::Keyword(ability),
             EffectDef::None,
         )
     }
@@ -1239,7 +1229,7 @@ impl AbilityDef {
             DeclarativeAbilityDef::Static(_)
             | DeclarativeAbilityDef::Replacement(_)
             | DeclarativeAbilityDef::SpecialAction(_)
-            | DeclarativeAbilityDef::Evergreen(_)
+            | DeclarativeAbilityDef::Keyword(_)
             | DeclarativeAbilityDef::Legacy => {}
         }
         self
@@ -1266,7 +1256,7 @@ impl AbilityDef {
                 definition.source_zones = source_zones;
             }
             DeclarativeAbilityDef::Spell(_)
-            | DeclarativeAbilityDef::Evergreen(_)
+            | DeclarativeAbilityDef::Keyword(_)
             | DeclarativeAbilityDef::Legacy => {}
         }
         self
@@ -1280,164 +1270,6 @@ impl AbilityDef {
                 | DeclarativeAbilityDef::Activated(_)
                 | DeclarativeAbilityDef::Triggered(_)
         )
-    }
-}
-
-/// Const-friendly constructors for common, reusable ability definitions.
-///
-/// These definitions deliberately carry no [`AbilityId`]. A card part assigns
-/// identity from the definition's position in its ordered ability slice, while
-/// an intrinsic or granted ability receives identity from its attachment site.
-pub struct EvergreenAbilityDef;
-
-impl EvergreenAbilityDef {
-    const fn keyword(text: &'static str, keyword: EvergreenAbility) -> AbilityDef {
-        AbilityDef::evergreen(text, keyword)
-    }
-
-    const fn unsupported(
-        text: &'static str,
-        keyword: EvergreenAbility,
-        explanation: &'static str,
-    ) -> AbilityDef {
-        Self::keyword(text, keyword)
-            .with_implementation(AbilityImplementationDef::NotImplemented { explanation })
-    }
-
-    #[must_use]
-    pub const fn flying() -> AbilityDef {
-        Self::keyword("Flying", EvergreenAbility::Flying)
-    }
-
-    #[must_use]
-    pub const fn trample() -> AbilityDef {
-        Self::keyword("Trample", EvergreenAbility::Trample)
-    }
-
-    #[must_use]
-    pub const fn haste() -> AbilityDef {
-        Self::keyword("Haste", EvergreenAbility::Haste)
-    }
-
-    #[must_use]
-    pub const fn first_strike() -> AbilityDef {
-        Self::unsupported(
-            "First strike",
-            EvergreenAbility::FirstStrike,
-            "First-strike combat damage is not implemented.",
-        )
-    }
-
-    #[must_use]
-    pub const fn double_strike() -> AbilityDef {
-        Self::unsupported(
-            "Double strike",
-            EvergreenAbility::DoubleStrike,
-            "Double-strike combat damage is not implemented.",
-        )
-    }
-
-    #[must_use]
-    pub const fn banding() -> AbilityDef {
-        Self::unsupported(
-            "Banding",
-            EvergreenAbility::Banding,
-            "Band formation and combat damage assignment are not implemented.",
-        )
-    }
-
-    #[must_use]
-    pub const fn vigilance() -> AbilityDef {
-        Self::keyword("Vigilance", EvergreenAbility::Vigilance)
-    }
-
-    #[must_use]
-    pub const fn deathtouch() -> AbilityDef {
-        Self::keyword("Deathtouch", EvergreenAbility::Deathtouch)
-    }
-
-    #[must_use]
-    pub const fn lifelink() -> AbilityDef {
-        Self::keyword("Lifelink", EvergreenAbility::Lifelink)
-    }
-
-    #[must_use]
-    pub const fn reach() -> AbilityDef {
-        Self::keyword("Reach", EvergreenAbility::Reach)
-    }
-
-    #[must_use]
-    pub const fn flash() -> AbilityDef {
-        Self::keyword("Flash", EvergreenAbility::Flash)
-    }
-
-    #[must_use]
-    pub const fn hexproof() -> AbilityDef {
-        Self::keyword("Hexproof", EvergreenAbility::Hexproof)
-    }
-
-    #[must_use]
-    pub const fn intimidate() -> AbilityDef {
-        Self::keyword("Intimidate", EvergreenAbility::Intimidate)
-    }
-
-    #[must_use]
-    pub const fn undying() -> AbilityDef {
-        Self::keyword("Undying", EvergreenAbility::Undying)
-    }
-
-    #[must_use]
-    pub const fn mountainwalk() -> AbilityDef {
-        Self::keyword("Mountainwalk", EvergreenAbility::Mountainwalk)
-    }
-
-    #[must_use]
-    pub const fn protection_from(color: ColorDef) -> AbilityDef {
-        let text = match color {
-            ColorDef::White => "Protection from white",
-            ColorDef::Blue => "Protection from blue",
-            ColorDef::Black => "Protection from black",
-            ColorDef::Red => "Protection from red",
-            ColorDef::Green => "Protection from green",
-        };
-        Self::keyword(text, EvergreenAbility::ProtectionFrom(color))
-    }
-
-    /// The mana ability intrinsically associated with one basic land subtype.
-    /// Cards still attach it explicitly so their complete behavior remains
-    /// visible at the definition site.
-    #[must_use]
-    pub const fn basic_land_mana(land_type: BasicLandType) -> AbilityDef {
-        AbilityDef::activated_mana(
-            land_type.ability_text(),
-            &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::one(land_type.mana_kind())),
-        )
-    }
-
-    #[must_use]
-    pub const fn plains() -> AbilityDef {
-        Self::basic_land_mana(BasicLandType::Plains)
-    }
-
-    #[must_use]
-    pub const fn island() -> AbilityDef {
-        Self::basic_land_mana(BasicLandType::Island)
-    }
-
-    #[must_use]
-    pub const fn swamp() -> AbilityDef {
-        Self::basic_land_mana(BasicLandType::Swamp)
-    }
-
-    #[must_use]
-    pub const fn mountain() -> AbilityDef {
-        Self::basic_land_mana(BasicLandType::Mountain)
-    }
-
-    #[must_use]
-    pub const fn forest() -> AbilityDef {
-        Self::basic_land_mana(BasicLandType::Forest)
     }
 }
 
@@ -2741,11 +2573,21 @@ impl CardRules {
         self
     }
 
+    /// Whether the printed clauses declare this keyword, regardless of its
+    /// current implementation coverage.
     #[must_use]
-    pub fn has_evergreen(&self, expected: EvergreenAbility) -> bool {
+    pub fn has_keyword(&self, expected: KeywordAbility) -> bool {
+        self.ability_clauses().iter().any(
+            |ability| matches!(ability.definition, DeclarativeAbilityDef::Keyword(actual) if actual == expected),
+        )
+    }
+
+    /// Whether the card declares this keyword and the engine executes it.
+    #[must_use]
+    pub fn has_executable_keyword(&self, expected: KeywordAbility) -> bool {
         self.ability_clauses().iter().any(|ability| {
             ability.implementation.is_executable()
-                && matches!(ability.definition, DeclarativeAbilityDef::Evergreen(actual) if actual == expected)
+                && matches!(ability.definition, DeclarativeAbilityDef::Keyword(actual) if actual == expected)
         })
     }
 

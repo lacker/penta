@@ -4,8 +4,8 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityImplementationDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, CardArt, CardBehavior, CardRules, CardSet, CardSupertype, EffectDef,
-    EffectRecipientDef, EvergreenAbilityDef, LandEntry, ManaCost, ManaKindDef, ObjectPredicateDef,
-    PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, cards,
+    EffectRecipientDef, LandEntry, ManaCost, ManaKindDef, ObjectPredicateDef, PlayerRelation,
+    TriggerEventDef, ValueDef, ZoneKind, abilities, cards,
 };
 use crate::ids::TargetSlotId;
 
@@ -213,7 +213,7 @@ pub(in crate::card::sets) static RHOX_FAITHMENDER: CardRecord = CardRecord::new(
         "",
     )
     .with_abilities(&[
-        EvergreenAbilityDef::lifelink().with_text(
+        abilities::lifelink().with_text(
             "Lifelink (Damage dealt by this creature also causes you to gain that much life.)",
         ),
         AbilityDef::not_implemented(
@@ -336,8 +336,8 @@ pub(in crate::card::sets) static THUNDERMAW_HELLKITE: CardRecord = CardRecord::n
         "",
     )
     .with_abilities(&[
-        EvergreenAbilityDef::flying(),
-        EvergreenAbilityDef::haste().with_text(
+        abilities::flying(),
+        abilities::haste().with_text(
             "Haste (This creature can attack and {T} as soon as it comes under your control.)",
         ),
         AbilityDef::not_implemented(
@@ -360,11 +360,11 @@ pub(in crate::card::sets) static VAMPIRE_NIGHTHAWK: CardRecord = CardRecord::new
         "",
     )
     .with_abilities(&[
-        EvergreenAbilityDef::flying(),
-        EvergreenAbilityDef::deathtouch().with_text(
+        abilities::flying(),
+        abilities::deathtouch().with_text(
             "Deathtouch (Any amount of damage this deals to a creature is enough to destroy it.)",
         ),
-        EvergreenAbilityDef::lifelink().with_text(
+        abilities::lifelink().with_text(
             "Lifelink (Damage dealt by this creature also causes you to gain that much life.)",
         ),
     ]),

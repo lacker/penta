@@ -1,5 +1,5 @@
 use super::{
-    CardBehavior, CardKind, CardRules, CardSupertype, CreatureStats, EvergreenAbility, ManaCost,
+    CardBehavior, CardKind, CardRules, CardSupertype, CreatureStats, KeywordAbility, ManaCost,
 };
 use crate::card::sets;
 
@@ -42,12 +42,13 @@ impl CardBehavior {
 
     #[must_use]
     pub fn has_flying(self) -> bool {
-        self.rules().has_evergreen(EvergreenAbility::Flying)
+        self.rules().has_executable_keyword(KeywordAbility::Flying)
     }
 
     #[must_use]
     pub fn has_mountainwalk(self) -> bool {
-        self.rules().has_evergreen(EvergreenAbility::Mountainwalk)
+        self.rules()
+            .has_executable_keyword(KeywordAbility::Mountainwalk)
     }
 
     /// Returns the printed color flags in `[white, blue, black, red, green]` order.
@@ -83,6 +84,7 @@ impl CardBehavior {
 
     #[must_use]
     pub fn has_vigilance(self) -> bool {
-        self.rules().has_evergreen(EvergreenAbility::Vigilance)
+        self.rules()
+            .has_executable_keyword(KeywordAbility::Vigilance)
     }
 }

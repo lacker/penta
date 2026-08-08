@@ -3,8 +3,8 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, CardArt, CardBehavior, CardComposition, CardEffectStatus, CardPart, CardRules,
-    CardSet, CardStructure, CardSupertype, ColorDef, EvergreenAbilityDef, ManaCost, PlayOptionDef,
-    SpellForm, TargetPredicate, TargetSlotDef, cards,
+    CardSet, CardStructure, CardSupertype, ColorDef, ManaCost, PlayOptionDef, SpellForm,
+    TargetPredicate, TargetSlotDef, abilities, cards,
 };
 use crate::ids::{CardPartId, PlayOptionId, TargetSlotId};
 
@@ -36,9 +36,9 @@ pub(in crate::card::sets) static BLOOD_BARON_OF_VIZKOPA: CardRecord = CardRecord
         "",
     )
     .with_abilities(&[
-        EvergreenAbilityDef::lifelink(),
-        EvergreenAbilityDef::protection_from(ColorDef::White),
-        EvergreenAbilityDef::protection_from(ColorDef::Black),
+        abilities::lifelink(),
+        abilities::protection_from(ColorDef::White),
+        abilities::protection_from(ColorDef::Black),
         AbilityDef::custom_full(
             "As long as you have 30 or more life and an opponent has 10 or less life, this creature gets +6/+6 and has flying.",
             CardBehavior::BloodBaronOfVizkopa,
@@ -85,8 +85,8 @@ pub(in crate::card::sets) static RURIC_THAR_THE_UNBOWED: CardRecord = CardRecord
     )
     .with_supertype(CardSupertype::Legendary)
     .with_abilities(&[
-        EvergreenAbilityDef::vigilance(),
-        EvergreenAbilityDef::reach(),
+        abilities::vigilance(),
+        abilities::reach(),
         AbilityDef::not_implemented(
             "Ruric Thar attacks each combat if able.",
             "The attack requirement is not enforced.",

@@ -12,10 +12,10 @@ use crate::card::{
     AddManaEffectDef, AppliedEffectDef, BasicLandType, CardBehavior, CardCatalog, CardDefinition,
     CardEffectStatus, CardKind, CardPart, CardRules, CardSet, CardSupertype, CardType,
     CharacteristicContext, ColorDef, DeclarativeAbilityDef, EffectDef, EffectDurationDef,
-    EffectRecipientDef, EvergreenAbility, EvergreenAbilityDef, LandEntry, ManaCost, ManaKindDef,
-    ManaSelectionDef, ManaSpendEffectDef, ObjectPredicateDef, PlayActionKind, PlayOptionDef,
-    PlayerRelation, TargetPredicate, TargetSlotDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, applicable_part_ids,
+    EffectRecipientDef, KeywordAbility, LandEntry, ManaCost, ManaKindDef, ManaSelectionDef,
+    ManaSpendEffectDef, ObjectPredicateDef, PlayActionKind, PlayOptionDef, PlayerRelation,
+    TargetPredicate, TargetSlotDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
+    applicable_part_ids,
 };
 use crate::casting::{CastChoices, CastSignature, CostConfiguration, TargetSelection};
 use crate::deck::{Deck, DeckError, ValidatedDeck};
@@ -109,7 +109,7 @@ struct Permanent {
     blocking: Option<GameObjectId>,
     chosen_player: Option<PlayerId>,
     destroy_at_end: bool,
-    temporary_evergreen: Vec<EvergreenAbility>,
+    temporary_keywords: Vec<KeywordAbility>,
     factory_animated: bool,
     dragon_whelp_activations: u8,
     plus_one_counters: u16,
@@ -155,7 +155,7 @@ enum RetiredObject {
         permanent: Permanent,
         power: Option<i16>,
         toughness: Option<i16>,
-        evergreen: Vec<EvergreenAbility>,
+        keywords: Vec<KeywordAbility>,
     },
     Stack(Box<StackObject>),
 }
@@ -494,7 +494,7 @@ struct StaticEffectTraversal<'a> {
 struct PermanentLastKnownInformation {
     power: Option<i16>,
     toughness: Option<i16>,
-    evergreen: Vec<EvergreenAbility>,
+    keywords: Vec<KeywordAbility>,
 }
 
 /// Characteristics and abilities frozen immediately before a permanent exits
@@ -907,7 +907,7 @@ impl Game {
                 permanent: permanent.clone(),
                 power: last_known.power,
                 toughness: last_known.toughness,
-                evergreen: last_known.evergreen.clone(),
+                keywords: last_known.keywords.clone(),
             },
         );
         permanent
@@ -1626,7 +1626,7 @@ impl Game {
                     | DeclarativeAbilityDef::Static(_)
                     | DeclarativeAbilityDef::Replacement(_)
                     | DeclarativeAbilityDef::SpecialAction(_)
-                    | DeclarativeAbilityDef::Evergreen(_)
+                    | DeclarativeAbilityDef::Keyword(_)
                     | DeclarativeAbilityDef::Legacy => continue,
                 };
                 if !definition.source_zones.contains(&ZoneKind::Battlefield) {
@@ -1791,7 +1791,7 @@ impl Game {
                 | DeclarativeAbilityDef::Static(_)
                 | DeclarativeAbilityDef::Replacement(_)
                 | DeclarativeAbilityDef::SpecialAction(_)
-                | DeclarativeAbilityDef::Evergreen(_)
+                | DeclarativeAbilityDef::Keyword(_)
                 | DeclarativeAbilityDef::Legacy => None,
             })
             .collect::<Vec<_>>();
@@ -1848,7 +1848,7 @@ impl Game {
                     | DeclarativeAbilityDef::Static(_)
                     | DeclarativeAbilityDef::Replacement(_)
                     | DeclarativeAbilityDef::SpecialAction(_)
-                    | DeclarativeAbilityDef::Evergreen(_)
+                    | DeclarativeAbilityDef::Keyword(_)
                     | DeclarativeAbilityDef::Legacy => &[],
                 };
                 (target_defs, Self::ability_resolver(&effective.ability))
@@ -3391,13 +3391,15 @@ impl Game {
                     continue;
                 }
                 let part_has_flash = match &option.form {
-                    crate::card::SpellForm::Part(part) => definition
-                        .part(*part)
-                        .is_some_and(|part| part.rules.has_evergreen(EvergreenAbility::Flash)),
+                    crate::card::SpellForm::Part(part) => {
+                        definition.part(*part).is_some_and(|part| {
+                            part.rules.has_executable_keyword(KeywordAbility::Flash)
+                        })
+                    }
                     crate::card::SpellForm::Combined(parts) => parts.iter().any(|part| {
-                        definition
-                            .part(*part)
-                            .is_some_and(|part| part.rules.has_evergreen(EvergreenAbility::Flash))
+                        definition.part(*part).is_some_and(|part| {
+                            part.rules.has_executable_keyword(KeywordAbility::Flash)
+                        })
                     }),
                 };
                 if kind != CardKind::Instant
@@ -4179,7 +4181,7 @@ impl Game {
                         | DeclarativeAbilityDef::Static(_)
                         | DeclarativeAbilityDef::Replacement(_)
                         | DeclarativeAbilityDef::SpecialAction(_)
-                        | DeclarativeAbilityDef::Evergreen(_)
+                        | DeclarativeAbilityDef::Keyword(_)
                         | DeclarativeAbilityDef::Legacy => None,
                     })
                     .unwrap_or(TargetSlotId(0))
@@ -4555,7 +4557,7 @@ impl Game {
             blocking: None,
             chosen_player: None,
             destroy_at_end: false,
-            temporary_evergreen: Vec::new(),
+            temporary_keywords: Vec::new(),
             factory_animated: false,
             dragon_whelp_activations: 0,
             plus_one_counters: 0,
@@ -5051,7 +5053,7 @@ impl Game {
                 blocking: None,
                 chosen_player,
                 destroy_at_end: false,
-                temporary_evergreen: Vec::new(),
+                temporary_keywords: Vec::new(),
                 factory_animated: false,
                 dragon_whelp_activations: 0,
                 plus_one_counters: match behavior {
@@ -5478,14 +5480,14 @@ impl Game {
                     }
                 }
                 AppliedEffectDef::GrantAbility(ability) => {
-                    if let DeclarativeAbilityDef::Evergreen(keyword) = ability.definition
+                    if let DeclarativeAbilityDef::Keyword(keyword) = ability.definition
                         && let Some(permanent) = self
                             .battlefield
                             .iter_mut()
                             .find(|permanent| permanent.card.id == target)
-                        && !permanent.temporary_evergreen.contains(&keyword)
+                        && !permanent.temporary_keywords.contains(&keyword)
                     {
-                        permanent.temporary_evergreen.push(keyword);
+                        permanent.temporary_keywords.push(keyword);
                     }
                 }
                 AppliedEffectDef::CannotBeCountered | AppliedEffectDef::Special(_) => {}
@@ -5833,12 +5835,10 @@ impl Game {
                     {
                         permanent.power_bonus += current_power;
                         if !permanent
-                            .temporary_evergreen
-                            .contains(&EvergreenAbility::Trample)
+                            .temporary_keywords
+                            .contains(&KeywordAbility::Trample)
                         {
-                            permanent
-                                .temporary_evergreen
-                                .push(EvergreenAbility::Trample);
+                            permanent.temporary_keywords.push(KeywordAbility::Trample);
                         }
                         permanent.berserked = true;
                     }
@@ -6312,10 +6312,10 @@ impl Game {
     ) {
         let source_colors = source.map_or([false; 5], |source| self.object_colors(source));
         let lifelink_controller = source.and_then(|source| {
-            self.source_controller_with_evergreen(source, EvergreenAbility::Lifelink)
+            self.source_controller_with_keyword(source, KeywordAbility::Lifelink)
         });
         let has_deathtouch = source.is_some_and(|source| {
-            self.source_controller_with_evergreen(source, EvergreenAbility::Deathtouch)
+            self.source_controller_with_keyword(source, KeywordAbility::Deathtouch)
                 .is_some()
         });
         let dealt_damage = match target {
@@ -6464,13 +6464,13 @@ impl Game {
 
     fn battlefield_exit_snapshot(&self, permanent: &Permanent) -> BattlefieldExitSnapshot {
         let abilities = self.effective_abilities(permanent);
-        let mut evergreen = permanent.temporary_evergreen.clone();
+        let mut keywords = permanent.temporary_keywords.clone();
         for effective in &abilities {
             if effective.ability.implementation.is_executable()
-                && let DeclarativeAbilityDef::Evergreen(ability) = effective.ability.definition
-                && !evergreen.contains(&ability)
+                && let DeclarativeAbilityDef::Keyword(ability) = effective.ability.definition
+                && !keywords.contains(&ability)
             {
-                evergreen.push(ability);
+                keywords.push(ability);
             }
         }
         BattlefieldExitSnapshot {
@@ -6479,7 +6479,7 @@ impl Game {
             last_known: PermanentLastKnownInformation {
                 power: self.power(permanent),
                 toughness: self.toughness(permanent),
-                evergreen,
+                keywords,
             },
         }
     }
@@ -6522,7 +6522,7 @@ impl Game {
         if blood_moon_applies {
             abilities.push(EffectiveAbility {
                 origin: AbilityOrigin::IntrinsicBasicLand(BasicLandType::Mountain),
-                ability: EvergreenAbilityDef::mountain(),
+                ability: abilities::tap_for(ManaKindDef::Red),
             });
         }
         abilities.extend(
@@ -6741,7 +6741,10 @@ impl Game {
         .into_iter()
         .any(|color| {
             source_colors[color.index()]
-                && self.permanent_has_evergreen(permanent, EvergreenAbility::ProtectionFrom(color))
+                && self.permanent_has_executable_keyword(
+                    permanent,
+                    KeywordAbility::ProtectionFrom(color),
+                )
         })
     }
 
@@ -6753,7 +6756,7 @@ impl Game {
     ) -> bool {
         !(self.is_protected_from_colors(permanent, self.object_colors(source))
             || permanent.controller != controller
-                && self.permanent_has_evergreen(permanent, EvergreenAbility::Hexproof))
+                && self.permanent_has_executable_keyword(permanent, KeywordAbility::Hexproof))
     }
 
     fn object_colors(&self, object: GameObjectId) -> [bool; 5] {
@@ -7134,7 +7137,7 @@ impl Game {
                         | DeclarativeAbilityDef::Static(_)
                         | DeclarativeAbilityDef::Replacement(_)
                         | DeclarativeAbilityDef::SpecialAction(_)
-                        | DeclarativeAbilityDef::Evergreen(_)
+                        | DeclarativeAbilityDef::Keyword(_)
                         | DeclarativeAbilityDef::Legacy => None,
                     })
                 {
@@ -7512,7 +7515,7 @@ impl Game {
     }
 
     fn has_flying(&self, permanent: &Permanent) -> bool {
-        self.permanent_has_evergreen(permanent, EvergreenAbility::Flying)
+        self.permanent_has_executable_keyword(permanent, KeywordAbility::Flying)
             || self.blood_baron_has_ascended(permanent)
     }
 
@@ -7526,23 +7529,27 @@ impl Game {
     }
 
     fn has_trample(&self, permanent: &Permanent) -> bool {
-        self.permanent_has_evergreen(permanent, EvergreenAbility::Trample)
+        self.permanent_has_executable_keyword(permanent, KeywordAbility::Trample)
     }
 
     fn has_undying(&self, permanent: &Permanent) -> bool {
-        self.permanent_has_evergreen(permanent, EvergreenAbility::Undying)
+        self.permanent_has_executable_keyword(permanent, KeywordAbility::Undying)
     }
 
     fn has_hexproof(&self, permanent: &Permanent) -> bool {
-        self.permanent_has_evergreen(permanent, EvergreenAbility::Hexproof)
+        self.permanent_has_executable_keyword(permanent, KeywordAbility::Hexproof)
     }
 
     fn has_mountainwalk(&self, permanent: &Permanent) -> bool {
-        self.permanent_has_evergreen(permanent, EvergreenAbility::Mountainwalk)
+        self.permanent_has_executable_keyword(permanent, KeywordAbility::Mountainwalk)
     }
 
-    fn permanent_has_evergreen(&self, permanent: &Permanent, expected: EvergreenAbility) -> bool {
-        permanent.temporary_evergreen.contains(&expected)
+    fn permanent_has_executable_keyword(
+        &self,
+        permanent: &Permanent,
+        expected: KeywordAbility,
+    ) -> bool {
+        permanent.temporary_keywords.contains(&expected)
             || self
                 .effective_abilities(permanent)
                 .into_iter()
@@ -7550,15 +7557,15 @@ impl Game {
                     effective.ability.implementation.is_executable()
                         && matches!(
                             effective.ability.definition,
-                            DeclarativeAbilityDef::Evergreen(actual) if actual == expected
+                            DeclarativeAbilityDef::Keyword(actual) if actual == expected
                         )
                 })
     }
 
-    fn source_controller_with_evergreen(
+    fn source_controller_with_keyword(
         &self,
         source: GameObjectId,
-        expected: EvergreenAbility,
+        expected: KeywordAbility,
     ) -> Option<PlayerId> {
         if let Some(permanent) = self
             .battlefield
@@ -7566,15 +7573,15 @@ impl Game {
             .find(|permanent| permanent.card.id == source)
         {
             return self
-                .permanent_has_evergreen(permanent, expected)
+                .permanent_has_executable_keyword(permanent, expected)
                 .then_some(permanent.controller);
         }
         match self.retired_objects.get(&source) {
             Some(RetiredObject::Permanent {
                 permanent,
-                evergreen,
+                keywords,
                 ..
-            }) if evergreen.contains(&expected) => Some(permanent.controller),
+            }) if keywords.contains(&expected) => Some(permanent.controller),
             Some(
                 RetiredObject::Permanent { .. } | RetiredObject::Card(_) | RetiredObject::Stack(_),
             )
@@ -7596,7 +7603,7 @@ impl Game {
 
     fn can_use_tap_ability(&self, permanent: &Permanent) -> bool {
         self.base_stats(permanent).is_none_or(|_| {
-            self.permanent_has_evergreen(permanent, EvergreenAbility::Haste)
+            self.permanent_has_executable_keyword(permanent, KeywordAbility::Haste)
                 || self.turns_started[permanent.controller.index()]
                     > permanent.entered_controller_turn
         })
@@ -7772,10 +7779,10 @@ impl Game {
                         .find(|permanent| permanent.card.id == target)
                 {
                     if !creature
-                        .temporary_evergreen
-                        .contains(&EvergreenAbility::Flying)
+                        .temporary_keywords
+                        .contains(&KeywordAbility::Flying)
                     {
-                        creature.temporary_evergreen.push(EvergreenAbility::Flying);
+                        creature.temporary_keywords.push(KeywordAbility::Flying);
                     }
                     creature.destroy_at_end = true;
                 }
@@ -7937,7 +7944,7 @@ impl Game {
             return false;
         }
         self.base_stats(permanent).is_some_and(|_| {
-            self.permanent_has_evergreen(permanent, EvergreenAbility::Haste)
+            self.permanent_has_executable_keyword(permanent, KeywordAbility::Haste)
                 || self.turns_started[permanent.controller.index()]
                     > permanent.entered_controller_turn
         })
@@ -7949,7 +7956,7 @@ impl Game {
             .iter()
             .find(|permanent| permanent.card.id == attacker)
             .is_some_and(|permanent| {
-                self.permanent_has_evergreen(permanent, EvergreenAbility::Vigilance)
+                self.permanent_has_executable_keyword(permanent, KeywordAbility::Vigilance)
             });
         if let Some(permanent) = self
             .battlefield
@@ -8019,7 +8026,8 @@ impl Game {
                     .find(|permanent| permanent.card.id == blocker)
                     .expect("blocker is on the battlefield");
                 let blocker_can_block_flying = self.has_flying(blocker_permanent)
-                    || self.permanent_has_evergreen(blocker_permanent, EvergreenAbility::Reach);
+                    || self
+                        .permanent_has_executable_keyword(blocker_permanent, KeywordAbility::Reach);
                 let ironclaw =
                     self.effective_behavior(blocker_permanent) == Some(CardBehavior::IronclawOrcs);
                 attackers
@@ -8038,9 +8046,9 @@ impl Game {
                                 self.effective_behavior(permanent)
                                     == Some(CardBehavior::ArgothianPixies)
                             });
-                        let intimidate = self.permanent_has_evergreen(
+                        let intimidate = self.permanent_has_executable_keyword(
                             attacker_permanent,
-                            EvergreenAbility::Intimidate,
+                            KeywordAbility::Intimidate,
                         );
                         let shares_color = self
                             .effective_rules(attacker_permanent)
@@ -8238,7 +8246,7 @@ impl Game {
         let ordinary = self.lethal_damage(permanent_id);
         if ordinary > 0
             && self
-                .source_controller_with_evergreen(source, EvergreenAbility::Deathtouch)
+                .source_controller_with_keyword(source, KeywordAbility::Deathtouch)
                 .is_some()
         {
             1
@@ -8550,7 +8558,7 @@ impl Game {
             blocking: None,
             chosen_player: None,
             destroy_at_end: false,
-            temporary_evergreen: Vec::new(),
+            temporary_keywords: Vec::new(),
             factory_animated: false,
             dragon_whelp_activations: 0,
             plus_one_counters: 1,
@@ -9154,7 +9162,7 @@ impl Game {
             permanent.deathtouch_damage = false;
             permanent.power_bonus = 0;
             permanent.toughness_bonus = 0;
-            permanent.temporary_evergreen.clear();
+            permanent.temporary_keywords.clear();
             permanent.destroy_at_end = false;
             permanent.factory_animated = false;
             permanent.dragon_whelp_activations = 0;

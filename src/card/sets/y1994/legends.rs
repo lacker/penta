@@ -1,9 +1,9 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityImplementationDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, CardArt, CardBehavior, CardRules, CardSet, CardSupertype, CardType, ColorDef,
-    EffectDef, EffectRecipientDef, EvergreenAbilityDef, ManaCost, ManaKindDef, ObjectPredicateDef,
-    ValueDef, ZoneKind, cards,
+    CardArt, CardBehavior, CardRules, CardSet, CardSupertype, CardType, ColorDef, EffectDef,
+    EffectRecipientDef, ManaCost, ManaKindDef, ObjectPredicateDef, ValueDef, ZoneKind, abilities,
+    cards,
 };
 use crate::ids::TargetSlotId;
 
@@ -101,10 +101,7 @@ pub(in crate::card::sets) static THUNDER_SPIRIT: CardRecord = CardRecord::new(
         2,
         "",
     )
-    .with_abilities(&[
-        EvergreenAbilityDef::flying(),
-        EvergreenAbilityDef::first_strike(),
-    ]),
+    .with_abilities(&[abilities::flying(), abilities::first_strike()]),
 );
 
 pub(in crate::card::sets) static WHIRLING_DERVISH: CardRecord = CardRecord::new(
@@ -114,7 +111,7 @@ pub(in crate::card::sets) static WHIRLING_DERVISH: CardRecord = CardRecord::new(
     CardSet::Legends,
     CardRules::new_creature(ManaCost::colored(0, 0, 0, 0, 0, 2), &["Human", "Monk"], 1, 1, "")
         .with_abilities(&[
-            EvergreenAbilityDef::protection_from(ColorDef::Black),
+            abilities::protection_from(ColorDef::Black),
             AbilityDef::custom_partial(
                 "At the beginning of each end step, if this creature dealt damage to an opponent this turn, put a +1/+1 counter on it.",
                 CardBehavior::WhirlingDervish,
@@ -145,11 +142,7 @@ pub(in crate::card::sets) static PENDELHAVEN: CardRecord = CardRecord::new(
     CardRules::new_land(&[], "")
     .with_supertype(CardSupertype::Legendary)
     .with_abilities(&[
-        AbilityDef::activated_mana(
-            "{T}: Add {G}.",
-            &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Green)),
-        ),
+        abilities::tap_for(ManaKindDef::Green),
         AbilityDef::activated(
             "{T}: Target 1/1 creature gets +1/+2 until end of turn.",
             &[AbilityCostDef::TapSource],

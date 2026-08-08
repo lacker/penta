@@ -2,8 +2,8 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityImplementationDef, AbilityTargetDef, AbilityTargetPredicate,
     AppliedEffectDef, CardArt, CardBehavior, CardRules, CardSet, EffectDef, EffectDurationDef,
-    EffectRecipientDef, EvergreenAbilityDef, ManaCost, ObjectPredicateDef, PlayerRelation,
-    TriggerEventDef, TurnStepDef, ZoneKind, cards,
+    EffectRecipientDef, ManaCost, ObjectPredicateDef, PlayerRelation, TriggerEventDef, TurnStepDef,
+    ZoneKind, abilities, cards,
 };
 use crate::ids::TargetSlotId;
 
@@ -14,10 +14,10 @@ pub(in crate::card::sets) static BALL_LIGHTNING: CardRecord = CardRecord::new(
     CardSet::TheDark,
     CardRules::new_creature(ManaCost::new(0, 3), &["Elemental"], 6, 1, "")
     .with_abilities(&[
-        EvergreenAbilityDef::trample().with_text(
+        abilities::trample().with_text(
             "Trample (This creature can deal excess combat damage to the player or planeswalker it's attacking.)",
         ),
-        EvergreenAbilityDef::haste().with_text(
+        abilities::haste().with_text(
             "Haste (This creature can attack and {T} as soon as it comes under your control.)",
         ),
         AbilityDef::triggered(
@@ -80,7 +80,7 @@ pub(in crate::card::sets) static GOBLINS_OF_THE_FLARG: CardRecord = CardRecord::
     CardSet::TheDark,
     CardRules::new_creature(ManaCost::new(0, 1), &["Goblin", "Warrior"], 1, 1, "")
         .with_abilities(&[
-            EvergreenAbilityDef::mountainwalk().with_text(
+            abilities::mountainwalk().with_text(
                 "Mountainwalk (This creature can't be blocked as long as defending player controls a Mountain.)",
             ),
             AbilityDef::not_implemented(

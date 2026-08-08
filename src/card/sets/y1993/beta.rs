@@ -1,7 +1,7 @@
 //! Limited Edition Beta card definitions and printings.
 
 use super::{CardRecord, PrintingRecord, alpha};
-use crate::card::{CardArt, CardRules, CardSet, EvergreenAbilityDef, cards};
+use crate::card::{BasicLandType, CardArt, CardRules, CardSet, abilities, cards};
 
 pub(in crate::card::sets) static VOLCANIC_ISLAND: CardRecord = CardRecord::new(
     cards::VOLCANIC_ISLAND,
@@ -9,8 +9,8 @@ pub(in crate::card::sets) static VOLCANIC_ISLAND: CardRecord = CardRecord::new(
     CardArt::new("0324641d-af55-4c53-b4dc-c8262e967da5", "Brian Snõddy"),
     CardSet::Beta,
     CardRules::new_land(&["Island", "Mountain"], "").with_abilities(&[
-        EvergreenAbilityDef::island(),
-        EvergreenAbilityDef::mountain(),
+        abilities::basic_land_type_mana(BasicLandType::Island),
+        abilities::basic_land_type_mana(BasicLandType::Mountain),
     ]),
 );
 

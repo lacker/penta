@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AddManaEffectDef, CardArt, CardComposition, CardEffectStatus,
-    CardPart, CardRules, CardSet, CardStructure, DoubleFacedKind, EffectDef, EvergreenAbilityDef,
-    LandEntry, ManaCost, ManaKindDef, PlayOptionDef, SpellForm, cards,
+    AbilityDef, CardArt, CardComposition, CardEffectStatus, CardPart, CardRules, CardSet,
+    CardStructure, DoubleFacedKind, LandEntry, ManaCost, ManaKindDef, PlayOptionDef, SpellForm,
+    abilities, cards,
 };
 use crate::ids::{CardPartId, PlayOptionId};
 
@@ -21,7 +21,7 @@ pub(in crate::card::sets) static HELLRIDER: CardRecord = CardRecord::new(
         "",
     )
     .with_abilities(&[
-        EvergreenAbilityDef::haste(),
+        abilities::haste(),
         AbilityDef::not_implemented(
             "Whenever a creature you control attacks, this creature deals 1 damage to the player or planeswalker it's attacking.",
             "The attack trigger is not executed.",
@@ -41,7 +41,7 @@ const fn huntmaster_front_rules() -> CardRules {
 }
 
 static HUNTMASTER_BACK_ABILITIES: [AbilityDef; 2] = [
-    EvergreenAbilityDef::trample(),
+    abilities::trample(),
     AbilityDef::not_implemented(
         "Whenever this creature transforms into Ravager of the Fells, it deals 2 damage to target opponent or planeswalker and 2 damage to up to one target creature that player or that planeswalker's controller controls.\nAt the beginning of each upkeep, if a player cast two or more spells last turn, transform this creature.",
         "The transform trigger, damage trigger, and transformation procedure are not executed.",
@@ -113,8 +113,8 @@ pub(in crate::card::sets) static STRANGLEROOT_GEIST: CardRecord = CardRecord::ne
         "",
     )
     .with_abilities(&[
-        EvergreenAbilityDef::haste(),
-        EvergreenAbilityDef::undying().with_text(
+        abilities::haste(),
+        abilities::undying().with_text(
             "Undying (When this creature dies, if it had no +1/+1 counters on it, return it to the battlefield under its owner's control with a +1/+1 counter on it.)",
         ),
     ]),
@@ -140,11 +140,7 @@ pub(in crate::card::sets) static VAULT_OF_THE_ARCHANGEL: CardRecord = CardRecord
     CardRules::new_land(&[], "")
     .land_entry(LandEntry::Untapped)
     .with_abilities(&[
-        AbilityDef::activated_mana(
-            "{T}: Add {C}.",
-            &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Colorless)),
-        ),
+        abilities::tap_for(ManaKindDef::Colorless),
         AbilityDef::not_implemented(
             "{2}{W}{B}, {T}: Creatures you control gain deathtouch and lifelink until end of turn.",
             "The deathtouch- and lifelink-granting activated ability is not executed.",

@@ -1,8 +1,8 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityImplementationDef, AbilityTargetDef, AbilityTargetPredicate,
-    CardArt, CardBehavior, CardRules, CardSet, ColorDef, EffectDef, EffectRecipientDef,
-    EvergreenAbilityDef, ManaCost, ValueDef, cards,
+    CardArt, CardBehavior, CardRules, CardSet, ColorDef, EffectDef, EffectRecipientDef, ManaCost,
+    ValueDef, abilities, cards,
 };
 use crate::ids::TargetSlotId;
 
@@ -95,7 +95,7 @@ pub(in crate::card::sets) static ORDER_OF_LEITBUR: CardRecord = CardRecord::new(
         "",
     )
     .with_abilities(&[
-        EvergreenAbilityDef::protection_from(ColorDef::Black),
+        abilities::protection_from(ColorDef::Black),
         AbilityDef::not_implemented(
             "{W}: This creature gains first strike until end of turn.",
             "Granting first strike until end of turn is not implemented.",
@@ -120,7 +120,7 @@ pub(in crate::card::sets) static ORDER_OF_THE_EBON_HAND: CardRecord = CardRecord
         "",
     )
     .with_abilities(&[
-        EvergreenAbilityDef::protection_from(ColorDef::White),
+        abilities::protection_from(ColorDef::White),
         AbilityDef::not_implemented(
             "{B}: This creature gains first strike until end of turn.",
             "Granting first strike until end of turn is not implemented.",

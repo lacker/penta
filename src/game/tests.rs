@@ -1,19 +1,17 @@
 use super::*;
+use crate::card::abilities;
 use crate::poc::{self, cards};
 use crate::{
     AbilityTargetDef, AbilityTargetPredicate, AdditionalCostDef, AdditionalCostId,
     AlternativeCostDef, AlternativeCostId, CardComposition, CardDefinition, CardEffectStatus,
     CardInstanceId, CardPart, CardPartId, CardPrinting, CardRules, CardStructure, CastChoices,
-    DoubleFacedKind, EvergreenAbilityDef, LandEntry, ManaSpendEffectDef, ModeDef, ModeSetDef,
-    PlayOptionDef, PlayOptionId, PlayerRelation, SpellForm, StackObjectId, TargetPredicate,
-    TargetSelection, TargetSlotDef, TargetSlotId,
+    DoubleFacedKind, LandEntry, ManaSpendEffectDef, ModeDef, ModeSetDef, PlayOptionDef,
+    PlayOptionId, PlayerRelation, SpellForm, StackObjectId, TargetPredicate, TargetSelection,
+    TargetSlotDef, TargetSlotId,
 };
 
-static TEST_FLYING_ABILITY: [AbilityDef; 1] = [EvergreenAbilityDef::flying()];
-static TEST_FLYING_TRAMPLE_ABILITIES: [AbilityDef; 2] = [
-    EvergreenAbilityDef::flying(),
-    EvergreenAbilityDef::trample(),
-];
+static TEST_FLYING_ABILITY: [AbilityDef; 1] = [abilities::flying()];
+static TEST_FLYING_TRAMPLE_ABILITIES: [AbilityDef; 2] = [abilities::flying(), abilities::trample()];
 
 fn ready_game() -> Game {
     let deck = poc::mono_red_atog();
@@ -62,7 +60,7 @@ fn creature(id: u32, definition: CardDefinitionId, controller: PlayerId) -> Perm
         blocking: None,
         chosen_player: None,
         destroy_at_end: false,
-        temporary_evergreen: Vec::new(),
+        temporary_keywords: Vec::new(),
         factory_animated: false,
         dragon_whelp_activations: 0,
         plus_one_counters: 0,
@@ -2435,7 +2433,7 @@ fn protection_prevents_damage_from_a_source_of_the_protected_color() {
 }
 
 #[test]
-fn vampire_nighthawk_deathtouch_and_lifelink_are_executable_evergreen_abilities() {
+fn vampire_nighthawk_deathtouch_and_lifelink_are_executable_keyword_abilities() {
     let mut game = ready_game();
     game.players[0].life = 10;
     let nighthawk = creature(10_000, cards::VAMPIRE_NIGHTHAWK, PlayerId::One);
@@ -4580,7 +4578,7 @@ fn granted_activation_freezes_payload_before_sacrificing_grant_source() {
 
 #[test]
 fn separate_grant_sites_receive_distinct_structural_origins() {
-    static GRANTED_ABILITY: AbilityDef = EvergreenAbilityDef::flying();
+    static GRANTED_ABILITY: AbilityDef = abilities::flying();
     static EFFECTS: [EffectDef; 2] = [
         EffectDef::Apply {
             recipient: EffectRecipientDef::Source,

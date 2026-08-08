@@ -1,8 +1,8 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityImplementationDef, AddManaEffectDef, CardArt, CardBehavior,
-    CardRules, CardSet, EffectDef, EffectRecipientDef, EvergreenAbilityDef, ManaCost, ManaKindDef,
-    ObjectPredicateDef, PlayerRelation, TriggerEventDef, TurnStepDef, ValueDef, cards,
+    CardRules, CardSet, EffectDef, EffectRecipientDef, ManaCost, ManaKindDef, ObjectPredicateDef,
+    PlayerRelation, TriggerEventDef, TurnStepDef, ValueDef, abilities, cards,
 };
 
 pub(in crate::card::sets) static CITY_OF_BRASS: CardRecord = CardRecord::new(
@@ -71,11 +71,7 @@ pub(in crate::card::sets) static LIBRARY_OF_ALEXANDRIA: CardRecord = CardRecord:
     CardArt::new("ee266113-34ce-4189-84e7-ee2c86a2722c", "Mark Poole"),
     CardSet::ArabianNights,
     CardRules::new_land(&[], "").with_abilities(&[
-        AbilityDef::activated_mana(
-            "{T}: Add {C}.",
-            &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Colorless)),
-        ),
+        abilities::tap_for(ManaKindDef::Colorless),
         AbilityDef::activated(
             "{T}: Draw a card. Activate only if you have exactly seven cards in hand.",
             &[AbilityCostDef::TapSource],
@@ -98,7 +94,7 @@ pub(in crate::card::sets) static SERENDIB_EFREET: CardRecord = CardRecord::new(
     CardSet::ArabianNights,
     CardRules::new_creature(ManaCost::colored(2, 0, 1, 0, 0, 0), &["Efreet"], 3, 4, "")
         .with_abilities(&[
-            EvergreenAbilityDef::flying(),
+            abilities::flying(),
             AbilityDef::triggered(
                 "At the beginning of your upkeep, this creature deals 1 damage to you.",
                 TriggerEventDef::StepBegins {

@@ -5,9 +5,9 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityImplementationDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, CardArt, CardBehavior, CardComposition, CardEffectStatus,
     CardPart, CardRules, CardSet, CardStructure, CardSupertype, CardType, DoubleFacedKind,
-    EffectDef, EffectDurationDef, EffectRecipientDef, EvergreenAbilityDef, LandEntry, ManaCost,
-    ManaKindDef, ObjectPredicateDef, PlayOptionDef, PlayerRelation, SpellForm, TriggerEventDef,
-    ZoneKind, cards,
+    EffectDef, EffectDurationDef, EffectRecipientDef, LandEntry, ManaCost, ManaKindDef,
+    ObjectPredicateDef, PlayOptionDef, PlayerRelation, SpellForm, TriggerEventDef, ZoneKind,
+    abilities, cards,
 };
 use crate::ids::{CardPartId, PlayOptionId, TargetSlotId};
 
@@ -26,11 +26,7 @@ pub(in crate::card::sets) static AVACYNS_PILGRIM: CardRecord = CardRecord::new(
         1,
         "",
     )
-    .with_abilities(&[AbilityDef::activated_mana(
-        "{T}: Add {W}.",
-        &[AbilityCostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::White)),
-    )]),
+    .with_abilities(&[abilities::tap_for(ManaKindDef::White)]),
 );
 
 pub(in crate::card::sets) static BLASPHEMOUS_ACT: CardRecord = CardRecord::new(
@@ -145,11 +141,7 @@ pub(in crate::card::sets) static GAVONY_TOWNSHIP: CardRecord = CardRecord::new(
     CardRules::new_land(&[], "")
         .land_entry(LandEntry::Untapped)
         .with_abilities(&[
-            AbilityDef::activated_mana(
-                "{T}: Add {C}.",
-                &[AbilityCostDef::TapSource],
-                EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Colorless)),
-            ),
+            abilities::tap_for(ManaKindDef::Colorless),
             AbilityDef::not_implemented(
                 "{2}{G}{W}, {T}: Put a +1/+1 counter on each creature you control.",
                 "The counter-placing activated ability is not executed.",
@@ -165,11 +157,7 @@ pub(in crate::card::sets) static GHOST_QUARTER: CardRecord = CardRecord::new(
     CardRules::new_land(&[], "")
     .land_entry(LandEntry::Untapped)
     .with_abilities(&[
-        AbilityDef::activated_mana(
-            "{T}: Add {C}.",
-            &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Colorless)),
-        ),
+        abilities::tap_for(ManaKindDef::Colorless),
         AbilityDef::not_implemented(
             "{T}, Sacrifice this land: Destroy target land. Its controller may search their library for a basic land card, put it onto the battlefield, then shuffle.",
             "The land-destruction activated ability and optional search are not executed.",
@@ -214,11 +202,7 @@ pub(in crate::card::sets) static KESSIG_WOLF_RUN: CardRecord = CardRecord::new(
     CardRules::new_land(&[], "")
         .land_entry(LandEntry::Untapped)
         .with_abilities(&[
-            AbilityDef::activated_mana(
-                "{T}: Add {C}.",
-                &[AbilityCostDef::TapSource],
-                EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Colorless)),
-            ),
+            abilities::tap_for(ManaKindDef::Colorless),
             AbilityDef::not_implemented(
                 "{X}{R}{G}, {T}: Target creature gets +X/+0 and gains trample until end of turn.",
                 "The targeted power and trample activated ability is not executed.",
@@ -249,11 +233,7 @@ pub(in crate::card::sets) static MOORLAND_HAUNT: CardRecord = CardRecord::new(
     CardRules::new_land(&[], "")
     .land_entry(LandEntry::Untapped)
     .with_abilities(&[
-        AbilityDef::activated_mana(
-            "{T}: Add {C}.",
-            &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Colorless)),
-        ),
+        abilities::tap_for(ManaKindDef::Colorless),
         AbilityDef::not_implemented(
             "{W}{U}, {T}, Exile a creature card from your graveyard: Create a 1/1 white Spirit creature token with flying.",
             "The graveyard cost and token-creating activated ability are not executed.",
@@ -302,7 +282,7 @@ pub(in crate::card::sets) static SNAPCASTER_MAGE: CardRecord = CardRecord::new(
         "",
     )
     .with_abilities(&[
-        EvergreenAbilityDef::flash(),
+        abilities::flash(),
         AbilityDef::triggered(
             "When this creature enters, target instant or sorcery card in your graveyard gains flashback until end of turn. The flashback cost is equal to its mana cost. (You may cast that card from your graveyard for its flashback cost. Then exile it.)",
             TriggerEventDef::ZoneChanged {

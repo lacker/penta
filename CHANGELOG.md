@@ -24,9 +24,12 @@ minor for breaking changes, per Cargo's 0.x convention.
   clauses. Card-level `Complete`, `Partial`, and `MetadataOnly` status is
   derived from those clauses, exposed as `implementationStatus`, and used by
   the browser's coverage messaging instead of the internal execution gate.
-- Basic land subtypes grant distinct intrinsic mana abilities. Other mana
-  producers declare their abilities beside the card, and each produced mana
-  value retains its restrictions and spell/ability riders.
+- Common keyword and fixed-mana clauses come from the reusable
+  `card::abilities` library. Printed lands with basic land types keep explicit,
+  executable mana clauses but are marked partial until those abilities are
+  derived intrinsically from the types; Blood Moon's synthesized Mountain
+  ability remains intrinsic. Each produced mana value retains its restrictions
+  and spell/ability riders.
 - Bespoke engine dispatch is now an optional `CardRules` hook. Declarative and
   metadata-only cards no longer require a `CardBehavior` identity.
 - Catalog and browser hand JSON now serialize cards with no mana cost as

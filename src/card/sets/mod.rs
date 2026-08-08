@@ -261,10 +261,10 @@ mod tests {
     use crate::card::{
         AbilityCostDef, AbilityDef, AbilityImplementationDef, AppliedEffectDef, BasicLandType,
         CardPrinting, CardPrintingId, CardStructure, CardSupertype, DeclarativeAbilityDef,
-        DoubleFacedKind, EffectDef, EffectDurationDef, EffectRecipientDef, EvergreenAbility,
-        EvergreenAbilityDef, ImplementationStatus, ManaKindDef, ManaRestrictionDef,
-        ManaSelectionDef, ManaSpendEffectDef, ObjectPredicateDef, PlayActionKind, PlayRestriction,
-        SpellForm, TargetPredicate, TriggerEventDef, ZoneKind, cards,
+        DoubleFacedKind, EffectDef, EffectDurationDef, EffectRecipientDef, ImplementationStatus,
+        KeywordAbility, ManaKindDef, ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef,
+        ObjectPredicateDef, PlayActionKind, PlayRestriction, SpellForm, TargetPredicate,
+        TriggerEventDef, ZoneKind, abilities, cards,
     };
     use crate::{AbilityId, CardDefinitionId, CardPartId, CardSet, Format, ModeId, PlayOptionId};
 
@@ -337,22 +337,22 @@ mod tests {
         }
     }
 
-    fn shared_evergreen(keyword: EvergreenAbility) -> bool {
+    fn shared_keyword(keyword: KeywordAbility) -> bool {
         matches!(
             keyword,
-            EvergreenAbility::Flying
-                | EvergreenAbility::Trample
-                | EvergreenAbility::Haste
-                | EvergreenAbility::Vigilance
-                | EvergreenAbility::Deathtouch
-                | EvergreenAbility::Lifelink
-                | EvergreenAbility::Reach
-                | EvergreenAbility::Flash
-                | EvergreenAbility::Hexproof
-                | EvergreenAbility::Intimidate
-                | EvergreenAbility::Undying
-                | EvergreenAbility::Mountainwalk
-                | EvergreenAbility::ProtectionFrom(_)
+            KeywordAbility::Flying
+                | KeywordAbility::Trample
+                | KeywordAbility::Haste
+                | KeywordAbility::Vigilance
+                | KeywordAbility::Deathtouch
+                | KeywordAbility::Lifelink
+                | KeywordAbility::Reach
+                | KeywordAbility::Flash
+                | KeywordAbility::Hexproof
+                | KeywordAbility::Intimidate
+                | KeywordAbility::Undying
+                | KeywordAbility::Mountainwalk
+                | KeywordAbility::ProtectionFrom(_)
         )
     }
 
@@ -384,7 +384,7 @@ mod tests {
             AppliedEffectDef::ModifyPowerToughness { .. } => true,
             AppliedEffectDef::GrantAbility(ability) => {
                 ability.implementation == AbilityImplementationDef::Definition
-                    && matches!(ability.definition, DeclarativeAbilityDef::Evergreen(keyword) if shared_evergreen(keyword))
+                    && matches!(ability.definition, DeclarativeAbilityDef::Keyword(keyword) if shared_keyword(keyword))
             }
             AppliedEffectDef::CannotBeCountered | AppliedEffectDef::Special(_) => false,
         }
@@ -598,7 +598,7 @@ mod tests {
                 battlefield_only(definition.source_zones)
                     && ability.effect == EffectDef::EntersTapped
             }
-            DeclarativeAbilityDef::Evergreen(keyword) => shared_evergreen(keyword),
+            DeclarativeAbilityDef::Keyword(keyword) => shared_keyword(keyword),
             DeclarativeAbilityDef::SpecialAction(_) | DeclarativeAbilityDef::Legacy => false,
         }
     }
@@ -830,7 +830,7 @@ mod tests {
         assert!(
             huntmaster.parts[1]
                 .rules
-                .has_evergreen(EvergreenAbility::Trample)
+                .has_executable_keyword(KeywordAbility::Trample)
         );
 
         let turn_burn = y2013::dragons_maze::TURN_BURN.definition();
@@ -991,7 +991,7 @@ mod tests {
                 land.name
             );
             for land_type in land_types {
-                let expected = EvergreenAbilityDef::basic_land_mana(land_type);
+                let expected = abilities::basic_land_type_mana(land_type);
                 assert!(
                     land.rules.ability_clauses().contains(&expected),
                     "{} has the {} subtype without its matching mana ability",
@@ -1000,6 +1000,61 @@ mod tests {
                 );
             }
         }
+    }
+
+    #[test]
+    fn basic_land_subtypes_use_the_common_executable_partial_mana_clause() {
+        let lands = SET_MODULES
+            .iter()
+            .flat_map(|module| module.cards.iter().copied())
+            .filter(|record| record.rules.kind() == crate::card::CardKind::Land)
+            .filter(|record| {
+                BasicLandType::ALL
+                    .into_iter()
+                    .any(|land_type| record.rules.has_subtype(land_type.subtype()))
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(lands.len(), 22);
+
+        let mut matching_clauses = 0;
+        for land in lands {
+            assert_eq!(
+                land.rules.implementation_status(),
+                ImplementationStatus::Partial,
+                "{} should be partial while its basic-land-type abilities are explicit stand-ins",
+                land.name,
+            );
+            for land_type in BasicLandType::ALL
+                .into_iter()
+                .filter(|land_type| land.rules.has_subtype(land_type.subtype()))
+            {
+                let expected = abilities::basic_land_type_mana(land_type);
+                let matches = land
+                    .rules
+                    .ability_clauses()
+                    .iter()
+                    .filter(|ability| **ability == expected)
+                    .collect::<Vec<_>>();
+                assert_eq!(
+                    matches.len(),
+                    1,
+                    "{} should have exactly one common {} mana clause",
+                    land.name,
+                    land_type.subtype(),
+                );
+                let ability = matches[0];
+                assert!(ability.implementation.is_executable());
+                assert!(matches!(
+                    ability.implementation,
+                    AbilityImplementationDef::CustomPartial {
+                        behavior: None,
+                        explanation,
+                    } if explanation == abilities::BASIC_LAND_TYPE_MANA_EXPLANATION
+                ));
+                matching_clauses += 1;
+            }
+        }
+        assert_eq!(matching_clauses, 39);
     }
 
     #[test]

@@ -2,8 +2,8 @@
 
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityDef, AbilityImplementationDef, CardArt, CardRules, CardSet, CardSupertype, EffectDef,
-    EvergreenAbilityDef, LandEntry, ManaCost, cards,
+    AbilityDef, AbilityImplementationDef, BasicLandType, CardArt, CardRules, CardSet,
+    CardSupertype, EffectDef, LandEntry, ManaCost, abilities, cards,
 };
 
 pub(in crate::card::sets) static ASSEMBLE_THE_LEGION: CardRecord = CardRecord::new(
@@ -44,9 +44,9 @@ pub(in crate::card::sets) static AURELIA_THE_WARLEADER: CardRecord = CardRecord:
     )
     .with_supertype(CardSupertype::Legendary)
     .with_abilities(&[
-        EvergreenAbilityDef::flying(),
-        EvergreenAbilityDef::vigilance(),
-        EvergreenAbilityDef::haste(),
+        abilities::flying(),
+        abilities::vigilance(),
+        abilities::haste(),
         AbilityDef::not_implemented(
             "Whenever Aurelia attacks for the first time each turn, untap all creatures you control. After this phase, there is an additional combat phase.",
             "The attack trigger and additional combat phase are not executed.",
@@ -121,7 +121,7 @@ pub(in crate::card::sets) static GHOR_CLAN_RAMPAGER: CardRecord = CardRecord::ne
         "",
     )
     .with_abilities(&[
-        EvergreenAbilityDef::trample(),
+        abilities::trample(),
         AbilityDef::not_implemented(
             "Bloodrush — {R}{G}, Discard this card: Target attacking creature gets +4/+4 and gains trample until end of turn.",
             "The bloodrush activated ability is not executed.",
@@ -146,8 +146,8 @@ pub(in crate::card::sets) static GODLESS_SHRINE: CardRecord = CardRecord::new(
             behavior: None,
             explanation: "The pay-life-or-tapped choice is implemented by the shared land-entry decision path.",
         }),
-        EvergreenAbilityDef::plains(),
-        EvergreenAbilityDef::swamp(),
+        abilities::basic_land_type_mana(BasicLandType::Plains),
+        abilities::basic_land_type_mana(BasicLandType::Swamp),
     ]),
 );
 
@@ -184,8 +184,8 @@ pub(in crate::card::sets) static SACRED_FOUNDRY: CardRecord = CardRecord::new(
             behavior: None,
             explanation: "The pay-life-or-tapped choice is implemented by the shared land-entry decision path.",
         }),
-        EvergreenAbilityDef::mountain(),
-        EvergreenAbilityDef::plains(),
+        abilities::basic_land_type_mana(BasicLandType::Mountain),
+        abilities::basic_land_type_mana(BasicLandType::Plains),
     ]),
 );
 
@@ -202,7 +202,7 @@ pub(in crate::card::sets) static SEPULCHRAL_PRIMORDIAL: CardRecord = CardRecord:
         "",
     )
     .with_abilities(&[
-        EvergreenAbilityDef::intimidate().with_text(
+        abilities::intimidate().with_text(
             "Intimidate (This creature can't be blocked except by artifact creatures and/or creatures that share a color with it.)",
         ),
         AbilityDef::not_implemented(
@@ -229,8 +229,8 @@ pub(in crate::card::sets) static STOMPING_GROUND: CardRecord = CardRecord::new(
             behavior: None,
             explanation: "The pay-life-or-tapped choice is implemented by the shared land-entry decision path.",
         }),
-        EvergreenAbilityDef::mountain(),
-        EvergreenAbilityDef::forest(),
+        abilities::basic_land_type_mana(BasicLandType::Mountain),
+        abilities::basic_land_type_mana(BasicLandType::Forest),
     ]),
 );
 

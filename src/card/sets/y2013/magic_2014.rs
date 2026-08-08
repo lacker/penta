@@ -2,8 +2,8 @@
 
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AddManaEffectDef, CardArt, CardBehavior, CardRules, CardSet,
-    EffectDef, EvergreenAbilityDef, LandEntry, ManaCost, ManaKindDef, cards,
+    AbilityDef, CardArt, CardBehavior, CardRules, CardSet, LandEntry, ManaCost, ManaKindDef,
+    abilities, cards,
 };
 
 pub(in crate::card::sets) static ARCHANGEL_OF_THUNE: CardRecord = CardRecord::new(
@@ -13,8 +13,8 @@ pub(in crate::card::sets) static ARCHANGEL_OF_THUNE: CardRecord = CardRecord::ne
     CardSet::Magic2014,
     CardRules::new_creature(ManaCost::colored(3, 2, 0, 0, 0, 0), &["Angel"], 3, 4, "")
         .with_abilities(&[
-            EvergreenAbilityDef::flying(),
-            EvergreenAbilityDef::lifelink().with_text(
+            abilities::flying(),
+            abilities::lifelink().with_text(
                 "Lifelink (Damage dealt by this creature also causes you to gain that much life.)",
             ),
             AbilityDef::not_implemented(
@@ -72,11 +72,7 @@ pub(in crate::card::sets) static ELVISH_MYSTIC: CardRecord = CardRecord::new(
         1,
         "",
     )
-    .with_abilities(&[AbilityDef::activated_mana(
-        "{T}: Add {G}.",
-        &[AbilityCostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Green)),
-    )]),
+    .with_abilities(&[abilities::tap_for(ManaKindDef::Green)]),
 );
 
 pub(in crate::card::sets) static ENCROACHING_WASTES: CardRecord = CardRecord::new(
@@ -87,11 +83,7 @@ pub(in crate::card::sets) static ENCROACHING_WASTES: CardRecord = CardRecord::ne
     CardRules::new_land(&[], "")
         .land_entry(LandEntry::Untapped)
         .with_abilities(&[
-            AbilityDef::activated_mana(
-                "{T}: Add {C}.",
-                &[AbilityCostDef::TapSource],
-                EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Colorless)),
-            ),
+            abilities::tap_for(ManaKindDef::Colorless),
             AbilityDef::not_implemented(
                 "{4}, {T}, Sacrifice this land: Destroy target nonbasic land.",
                 "The land-destruction activated ability is not executed.",
@@ -112,7 +104,7 @@ pub(in crate::card::sets) static LIFEBANE_ZOMBIE: CardRecord = CardRecord::new(
         "",
     )
     .with_abilities(&[
-        EvergreenAbilityDef::intimidate().with_text(
+        abilities::intimidate().with_text(
             "Intimidate (This creature can't be blocked except by artifact creatures and/or creatures that share a color with it.)",
         ),
         AbilityDef::not_implemented(
@@ -130,11 +122,7 @@ pub(in crate::card::sets) static MUTAVAULT: CardRecord = CardRecord::new(
     CardRules::new_land(&[], "")
     .land_entry(LandEntry::Untapped)
     .with_abilities(&[
-        AbilityDef::activated_mana(
-            "{T}: Add {C}.",
-            &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Colorless)),
-        ),
+        abilities::tap_for(ManaKindDef::Colorless),
         AbilityDef::not_implemented(
             "{1}: This land becomes a 2/2 creature with all creature types until end of turn. It's still a land.",
             "The animation activated ability is not executed.",
@@ -206,7 +194,7 @@ pub(in crate::card::sets) static SHADOWBORN_DEMON: CardRecord = CardRecord::new(
         "",
     )
     .with_abilities(&[
-        EvergreenAbilityDef::flying(),
+        abilities::flying(),
         AbilityDef::not_implemented(
             "When this creature enters, destroy target non-Demon creature.",
             "The enters-the-battlefield destruction trigger is not executed.",

@@ -1,10 +1,10 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityImplementationDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, CardArt, CardBehavior, CardRules, CardSet, CardSupertype,
-    CardType, ColorDef, EffectDef, EffectDurationDef, EffectRecipientDef, EvergreenAbilityDef,
-    ManaCost, ManaKindDef, ObjectPredicateDef, PlayerRelation, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, cards,
+    AddManaEffectDef, AppliedEffectDef, BasicLandType, CardArt, CardBehavior, CardRules, CardSet,
+    CardSupertype, CardType, ColorDef, EffectDef, EffectDurationDef, EffectRecipientDef, ManaCost,
+    ManaKindDef, ObjectPredicateDef, PlayerRelation, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, abilities, cards,
 };
 use crate::ids::TargetSlotId;
 
@@ -169,7 +169,7 @@ pub(in crate::card::sets) static MOUNTAIN: CardRecord = CardRecord::new(
     CardSet::Alpha,
     CardRules::new_land(&["Mountain"], "")
         .with_supertype(CardSupertype::Basic)
-        .with_abilities(&[EvergreenAbilityDef::mountain()]),
+        .with_abilities(&[abilities::basic_land_type_mana(BasicLandType::Mountain)]),
 );
 
 pub(in crate::card::sets) static RED_ELEMENTAL_BLAST: CardRecord = CardRecord::new(
@@ -332,7 +332,7 @@ pub(in crate::card::sets) static DRAGON_WHELP: CardRecord = CardRecord::new(
     CardSet::Alpha,
     CardRules::new_creature(ManaCost::new(2, 2), &["Dragon"], 2, 3, "")
         .with_abilities(&[
-            EvergreenAbilityDef::flying(),
+            abilities::flying(),
             AbilityDef::activated(
                 "{R}: This creature gets +1/+0 until end of turn. If this ability has been activated four or more times this turn, sacrifice this creature at the beginning of the next end step.",
                 &[AbilityCostDef::Mana(ManaCost::new(0, 1))],
@@ -358,7 +358,7 @@ pub(in crate::card::sets) static GOBLIN_BALLOON_BRIGADE: CardRecord = CardRecord
             &[AbilityCostDef::Mana(ManaCost::new(0, 1))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::GrantAbility(&EvergreenAbilityDef::flying()),
+                effect: AppliedEffectDef::GrantAbility(&abilities::flying()),
                 duration: EffectDurationDef::UntilEndOfTurn,
             },
         )],
@@ -398,7 +398,7 @@ pub(in crate::card::sets) static GOBLIN_KING: CardRecord = CardRecord::new(
                         zones: &[ZoneKind::Battlefield],
                         controller: PlayerRelation::Any,
                     },
-                    effect: AppliedEffectDef::GrantAbility(&EvergreenAbilityDef::mountainwalk()),
+                    effect: AppliedEffectDef::GrantAbility(&abilities::mountainwalk()),
                     duration: EffectDurationDef::WhileSourceRemainsInZone,
                 },
             ]),
@@ -412,7 +412,7 @@ pub(in crate::card::sets) static GRANITE_GARGOYLE: CardRecord = CardRecord::new(
     CardArt::new("f15bf2b2-6848-4fbd-b89a-8d8da8ae1cdc", "Christopher Rush"),
     CardSet::Alpha,
     CardRules::new_creature(ManaCost::new(2, 1), &["Gargoyle"], 2, 2, "").with_abilities(&[
-        EvergreenAbilityDef::flying(),
+        abilities::flying(),
         AbilityDef::activated(
             "{R}: This creature gets +0/+1 until end of turn.",
             &[AbilityCostDef::Mana(ManaCost::new(0, 1))],
@@ -447,11 +447,8 @@ pub(in crate::card::sets) static MOX_EMERALD: CardRecord = CardRecord::new(
     "Mox Emerald",
     CardArt::new("b0e1427c-05cd-465b-be59-97ed6e39f7ba", "Dan Frazier"),
     CardSet::Alpha,
-    CardRules::new_artifact(ManaCost::new(0, 0), "").with_abilities(&[AbilityDef::activated_mana(
-        "{T}: Add {G}.",
-        &[AbilityCostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Green)),
-    )]),
+    CardRules::new_artifact(ManaCost::new(0, 0), "")
+        .with_abilities(&[abilities::tap_for(ManaKindDef::Green)]),
 );
 
 pub(in crate::card::sets) static MOX_JET: CardRecord = CardRecord::new(
@@ -459,11 +456,8 @@ pub(in crate::card::sets) static MOX_JET: CardRecord = CardRecord::new(
     "Mox Jet",
     CardArt::new("92bcd1ce-19b1-4d78-8b09-95242ca08d76", "Dan Frazier"),
     CardSet::Alpha,
-    CardRules::new_artifact(ManaCost::new(0, 0), "").with_abilities(&[AbilityDef::activated_mana(
-        "{T}: Add {B}.",
-        &[AbilityCostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Black)),
-    )]),
+    CardRules::new_artifact(ManaCost::new(0, 0), "")
+        .with_abilities(&[abilities::tap_for(ManaKindDef::Black)]),
 );
 
 pub(in crate::card::sets) static MOX_PEARL: CardRecord = CardRecord::new(
@@ -471,11 +465,8 @@ pub(in crate::card::sets) static MOX_PEARL: CardRecord = CardRecord::new(
     "Mox Pearl",
     CardArt::new("8ebe4be7-e12a-4596-a899-fbd5b152e879", "Dan Frazier"),
     CardSet::Alpha,
-    CardRules::new_artifact(ManaCost::new(0, 0), "").with_abilities(&[AbilityDef::activated_mana(
-        "{T}: Add {W}.",
-        &[AbilityCostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::White)),
-    )]),
+    CardRules::new_artifact(ManaCost::new(0, 0), "")
+        .with_abilities(&[abilities::tap_for(ManaKindDef::White)]),
 );
 
 pub(in crate::card::sets) static MOX_RUBY: CardRecord = CardRecord::new(
@@ -483,11 +474,8 @@ pub(in crate::card::sets) static MOX_RUBY: CardRecord = CardRecord::new(
     "Mox Ruby",
     CardArt::new("8945585f-4773-493d-a0fe-d707db910b38", "Dan Frazier"),
     CardSet::Alpha,
-    CardRules::new_artifact(ManaCost::new(0, 0), "").with_abilities(&[AbilityDef::activated_mana(
-        "{T}: Add {R}.",
-        &[AbilityCostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Red)),
-    )]),
+    CardRules::new_artifact(ManaCost::new(0, 0), "")
+        .with_abilities(&[abilities::tap_for(ManaKindDef::Red)]),
 );
 
 pub(in crate::card::sets) static MOX_SAPPHIRE: CardRecord = CardRecord::new(
@@ -495,11 +483,8 @@ pub(in crate::card::sets) static MOX_SAPPHIRE: CardRecord = CardRecord::new(
     "Mox Sapphire",
     CardArt::new("82da0972-b17b-4600-9efd-e9430a0db04b", "Dan Frazier"),
     CardSet::Alpha,
-    CardRules::new_artifact(ManaCost::new(0, 0), "").with_abilities(&[AbilityDef::activated_mana(
-        "{T}: Add {U}.",
-        &[AbilityCostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Blue)),
-    )]),
+    CardRules::new_artifact(ManaCost::new(0, 0), "")
+        .with_abilities(&[abilities::tap_for(ManaKindDef::Blue)]),
 );
 
 pub(in crate::card::sets) static SOL_RING: CardRecord = CardRecord::new(
@@ -698,7 +683,7 @@ pub(in crate::card::sets) static ISLAND: CardRecord = CardRecord::new(
     CardSet::Alpha,
     CardRules::new_land(&["Island"], "")
         .with_supertype(CardSupertype::Basic)
-        .with_abilities(&[EvergreenAbilityDef::island()]),
+        .with_abilities(&[abilities::basic_land_type_mana(BasicLandType::Island)]),
 );
 
 pub(in crate::card::sets) static JAYEMDAE_TOME: CardRecord = CardRecord::new(
@@ -728,7 +713,7 @@ pub(in crate::card::sets) static PLAINS: CardRecord = CardRecord::new(
     CardSet::Alpha,
     CardRules::new_land(&["Plains"], "")
         .with_supertype(CardSupertype::Basic)
-        .with_abilities(&[EvergreenAbilityDef::plains()]),
+        .with_abilities(&[abilities::basic_land_type_mana(BasicLandType::Plains)]),
 );
 
 pub(in crate::card::sets) static SERRA_ANGEL: CardRecord = CardRecord::new(
@@ -738,8 +723,8 @@ pub(in crate::card::sets) static SERRA_ANGEL: CardRecord = CardRecord::new(
     CardSet::Alpha,
     CardRules::new_creature(ManaCost::colored(3, 2, 0, 0, 0, 0), &["Angel"], 4, 4, "")
         .with_abilities(&[
-            EvergreenAbilityDef::flying(),
-            EvergreenAbilityDef::vigilance()
+            abilities::flying(),
+            abilities::vigilance()
                 .with_text("Vigilance (Attacking doesn't cause this creature to tap.)"),
         ]),
 );
@@ -776,8 +761,10 @@ pub(in crate::card::sets) static TUNDRA: CardRecord = CardRecord::new(
     "Tundra",
     CardArt::new("a03e8c5b-f4ed-4fd7-ba05-db813ccc05eb", "Jesper Myrfors"),
     CardSet::Alpha,
-    CardRules::new_land(&["Plains", "Island"], "")
-        .with_abilities(&[EvergreenAbilityDef::plains(), EvergreenAbilityDef::island()]),
+    CardRules::new_land(&["Plains", "Island"], "").with_abilities(&[
+        abilities::basic_land_type_mana(BasicLandType::Plains),
+        abilities::basic_land_type_mana(BasicLandType::Island),
+    ]),
 );
 
 pub(in crate::card::sets) static ARMAGEDDON: CardRecord = CardRecord::new(
@@ -806,8 +793,8 @@ pub(in crate::card::sets) static BADLANDS: CardRecord = CardRecord::new(
     CardArt::new("717f6d10-9144-4ade-9ac6-a481cc66b875", "Rob Alexander"),
     CardSet::Alpha,
     CardRules::new_land(&["Swamp", "Mountain"], "").with_abilities(&[
-        EvergreenAbilityDef::swamp(),
-        EvergreenAbilityDef::mountain(),
+        abilities::basic_land_type_mana(BasicLandType::Swamp),
+        abilities::basic_land_type_mana(BasicLandType::Mountain),
     ]),
 );
 
@@ -829,8 +816,10 @@ pub(in crate::card::sets) static BAYOU: CardRecord = CardRecord::new(
     "Bayou",
     CardArt::new("412ceddd-2b9a-4551-a6bf-ae2830a2010a", "Jesper Myrfors"),
     CardSet::Alpha,
-    CardRules::new_land(&["Swamp", "Forest"], "")
-        .with_abilities(&[EvergreenAbilityDef::swamp(), EvergreenAbilityDef::forest()]),
+    CardRules::new_land(&["Swamp", "Forest"], "").with_abilities(&[
+        abilities::basic_land_type_mana(BasicLandType::Swamp),
+        abilities::basic_land_type_mana(BasicLandType::Forest),
+    ]),
 );
 
 pub(in crate::card::sets) static BLACK_KNIGHT: CardRecord = CardRecord::new(
@@ -846,10 +835,10 @@ pub(in crate::card::sets) static BLACK_KNIGHT: CardRecord = CardRecord::new(
         "",
     )
     .with_abilities(&[
-        EvergreenAbilityDef::first_strike().with_text(
+        abilities::first_strike().with_text(
             "First strike (This creature deals combat damage before creatures without first strike.)",
         ),
-        EvergreenAbilityDef::protection_from(ColorDef::White).with_text(
+        abilities::protection_from(ColorDef::White).with_text(
             "Protection from white (This creature can't be blocked, targeted, dealt damage, or enchanted by anything white.)",
         ),
     ]),
@@ -862,7 +851,7 @@ pub(in crate::card::sets) static BIRDS_OF_PARADISE: CardRecord = CardRecord::new
     CardSet::Alpha,
     CardRules::new_creature(ManaCost::colored(0, 0, 0, 0, 0, 1), &["Bird"], 0, 1, "")
         .with_abilities(&[
-            EvergreenAbilityDef::flying(),
+            abilities::flying(),
             AbilityDef::activated_mana(
                 "{T}: Add one mana of any color.",
                 &[AbilityCostDef::TapSource],
@@ -983,7 +972,7 @@ pub(in crate::card::sets) static FOREST: CardRecord = CardRecord::new(
     CardSet::Alpha,
     CardRules::new_land(&["Forest"], "")
         .with_supertype(CardSupertype::Basic)
-        .with_abilities(&[EvergreenAbilityDef::forest()]),
+        .with_abilities(&[abilities::basic_land_type_mana(BasicLandType::Forest)]),
 );
 
 pub(in crate::card::sets) static HYPNOTIC_SPECTER: CardRecord = CardRecord::new(
@@ -999,7 +988,7 @@ pub(in crate::card::sets) static HYPNOTIC_SPECTER: CardRecord = CardRecord::new(
         "",
     )
     .with_abilities(&[
-        EvergreenAbilityDef::flying(),
+        abilities::flying(),
         AbilityDef::custom_partial(
             "Whenever this creature deals damage to an opponent, that player discards a card at random.",
             CardBehavior::HypnoticSpecter,
@@ -1053,8 +1042,8 @@ pub(in crate::card::sets) static PLATEAU: CardRecord = CardRecord::new(
     CardArt::new("6eafa00b-c628-40f6-86eb-88e1361fc7a0", "Drew Tucker"),
     CardSet::Alpha,
     CardRules::new_land(&["Mountain", "Plains"], "").with_abilities(&[
-        EvergreenAbilityDef::mountain(),
-        EvergreenAbilityDef::plains(),
+        abilities::basic_land_type_mana(BasicLandType::Mountain),
+        abilities::basic_land_type_mana(BasicLandType::Plains),
     ]),
 );
 
@@ -1104,8 +1093,10 @@ pub(in crate::card::sets) static SAVANNAH: CardRecord = CardRecord::new(
     "Savannah",
     CardArt::new("94f7e24c-2546-41b6-81ad-5e920b07e64e", "Rob Alexander"),
     CardSet::Alpha,
-    CardRules::new_land(&["Forest", "Plains"], "")
-        .with_abilities(&[EvergreenAbilityDef::forest(), EvergreenAbilityDef::plains()]),
+    CardRules::new_land(&["Forest", "Plains"], "").with_abilities(&[
+        abilities::basic_land_type_mana(BasicLandType::Forest),
+        abilities::basic_land_type_mana(BasicLandType::Plains),
+    ]),
 );
 
 pub(in crate::card::sets) static SAVANNAH_LIONS: CardRecord = CardRecord::new(
@@ -1121,8 +1112,10 @@ pub(in crate::card::sets) static SCRUBLAND: CardRecord = CardRecord::new(
     "Scrubland",
     CardArt::new("bebe39d4-21fb-46a4-a1ec-b97102e46c15", "Jesper Myrfors"),
     CardSet::Alpha,
-    CardRules::new_land(&["Plains", "Swamp"], "")
-        .with_abilities(&[EvergreenAbilityDef::plains(), EvergreenAbilityDef::swamp()]),
+    CardRules::new_land(&["Plains", "Swamp"], "").with_abilities(&[
+        abilities::basic_land_type_mana(BasicLandType::Plains),
+        abilities::basic_land_type_mana(BasicLandType::Swamp),
+    ]),
 );
 
 pub(in crate::card::sets) static SENGIR_VAMPIRE: CardRecord = CardRecord::new(
@@ -1138,7 +1131,7 @@ pub(in crate::card::sets) static SENGIR_VAMPIRE: CardRecord = CardRecord::new(
         "",
     )
     .with_abilities(&[
-        EvergreenAbilityDef::flying().with_text(
+        abilities::flying().with_text(
             "Flying (This creature can't be blocked except by creatures with flying or reach.)",
         ),
         AbilityDef::triggered(
@@ -1185,7 +1178,7 @@ pub(in crate::card::sets) static SWAMP: CardRecord = CardRecord::new(
     CardSet::Alpha,
     CardRules::new_land(&["Swamp"], "")
         .with_supertype(CardSupertype::Basic)
-        .with_abilities(&[EvergreenAbilityDef::swamp()]),
+        .with_abilities(&[abilities::basic_land_type_mana(BasicLandType::Swamp)]),
 );
 
 pub(in crate::card::sets) static TAIGA: CardRecord = CardRecord::new(
@@ -1194,8 +1187,8 @@ pub(in crate::card::sets) static TAIGA: CardRecord = CardRecord::new(
     CardArt::new("60df6592-0b3b-4b87-aeb2-8fa94b4fb7be", "Rob Alexander"),
     CardSet::Alpha,
     CardRules::new_land(&["Forest", "Mountain"], "").with_abilities(&[
-        EvergreenAbilityDef::forest(),
-        EvergreenAbilityDef::mountain(),
+        abilities::basic_land_type_mana(BasicLandType::Forest),
+        abilities::basic_land_type_mana(BasicLandType::Mountain),
     ]),
 );
 
@@ -1269,8 +1262,10 @@ pub(in crate::card::sets) static TROPICAL_ISLAND: CardRecord = CardRecord::new(
     "Tropical Island",
     CardArt::new("a9c6c759-aabf-44e7-ba8c-33c5df232b56", "Jesper Myrfors"),
     CardSet::Alpha,
-    CardRules::new_land(&["Forest", "Island"], "")
-        .with_abilities(&[EvergreenAbilityDef::forest(), EvergreenAbilityDef::island()]),
+    CardRules::new_land(&["Forest", "Island"], "").with_abilities(&[
+        abilities::basic_land_type_mana(BasicLandType::Forest),
+        abilities::basic_land_type_mana(BasicLandType::Island),
+    ]),
 );
 
 pub(in crate::card::sets) static UNDERGROUND_SEA: CardRecord = CardRecord::new(
@@ -1278,8 +1273,10 @@ pub(in crate::card::sets) static UNDERGROUND_SEA: CardRecord = CardRecord::new(
     "Underground Sea",
     CardArt::new("ff76ac86-8a8a-47fe-9388-8950ca3e26c3", "Rob Alexander"),
     CardSet::Alpha,
-    CardRules::new_land(&["Island", "Swamp"], "")
-        .with_abilities(&[EvergreenAbilityDef::island(), EvergreenAbilityDef::swamp()]),
+    CardRules::new_land(&["Island", "Swamp"], "").with_abilities(&[
+        abilities::basic_land_type_mana(BasicLandType::Island),
+        abilities::basic_land_type_mana(BasicLandType::Swamp),
+    ]),
 );
 
 pub(in crate::card::sets) static WHITE_KNIGHT: CardRecord = CardRecord::new(
@@ -1295,10 +1292,10 @@ pub(in crate::card::sets) static WHITE_KNIGHT: CardRecord = CardRecord::new(
         "",
     )
     .with_abilities(&[
-        EvergreenAbilityDef::first_strike().with_text(
+        abilities::first_strike().with_text(
             "First strike (This creature deals combat damage before creatures without first strike.)",
         ),
-        EvergreenAbilityDef::protection_from(ColorDef::Black).with_text(
+        abilities::protection_from(ColorDef::Black).with_text(
             "Protection from black (This creature can't be blocked, targeted, dealt damage, or enchanted by anything black.)",
         ),
     ]),
@@ -1398,11 +1395,7 @@ pub(in crate::card::sets) static LLANOWAR_ELVES: CardRecord = CardRecord::new(
         1,
         "",
     )
-    .with_abilities(&[AbilityDef::activated_mana(
-        "{T}: Add {G}.",
-        &[AbilityCostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Green)),
-    )]),
+    .with_abilities(&[abilities::tap_for(ManaKindDef::Green)]),
 );
 
 pub(in crate::card::sets) static SCRYB_SPRITES: CardRecord = CardRecord::new(
@@ -1411,7 +1404,7 @@ pub(in crate::card::sets) static SCRYB_SPRITES: CardRecord = CardRecord::new(
     CardArt::new("6d929c38-91e6-457c-937a-d1884f4bba44", "Amy Weber"),
     CardSet::Alpha,
     CardRules::new_creature(ManaCost::colored(0, 0, 0, 0, 0, 1), &["Faerie"], 1, 1, "")
-        .with_abilities(&[EvergreenAbilityDef::flying()]),
+        .with_abilities(&[abilities::flying()]),
 );
 
 pub(in crate::card::sets) static STONE_RAIN: CardRecord = CardRecord::new(

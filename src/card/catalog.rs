@@ -435,9 +435,7 @@ fn validate_ability_definition(ability: &AbilityDef) -> Result<(), GrantedAbilit
         DeclarativeAbilityDef::SpecialAction(special_action) => {
             (Some(special_action.source_zones), &[][..], false)
         }
-        DeclarativeAbilityDef::Evergreen(_) | DeclarativeAbilityDef::Legacy => {
-            (None, &[][..], false)
-        }
+        DeclarativeAbilityDef::Keyword(_) | DeclarativeAbilityDef::Legacy => (None, &[][..], false),
     };
 
     if source_zones.is_some_and(<[super::ZoneKind]>::is_empty) {

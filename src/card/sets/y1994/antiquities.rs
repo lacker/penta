@@ -2,8 +2,8 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityImplementationDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, CardArt, CardBehavior, CardRules, CardSet, CardType,
-    EffectDef, EffectDurationDef, EffectRecipientDef, EvergreenAbilityDef, ManaCost, ManaKindDef,
-    ObjectPredicateDef, PlayerRelation, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, cards,
+    EffectDef, EffectDurationDef, EffectRecipientDef, ManaCost, ManaKindDef, ObjectPredicateDef,
+    PlayerRelation, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities, cards,
 };
 use crate::ids::TargetSlotId;
 
@@ -63,11 +63,7 @@ pub(in crate::card::sets) static MISHRA_S_FACTORY: CardRecord = CardRecord::new(
     CardSet::Antiquities,
     CardRules::new_land(&[], "")
         .with_abilities(&[
-            AbilityDef::activated_mana(
-                "{T}: Add {C}.",
-                &[AbilityCostDef::TapSource],
-                EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Colorless)),
-            ),
+            abilities::tap_for(ManaKindDef::Colorless),
             AbilityDef::activated(
                 "{1}: This land becomes a 2/2 Assembly-Worker artifact creature until end of turn. It's still a land.",
                 &[AbilityCostDef::Mana(ManaCost::new(1, 0))],
@@ -146,11 +142,7 @@ pub(in crate::card::sets) static STRIP_MINE: CardRecord = CardRecord::new(
     CardArt::new("e7880157-7f27-4f1b-9cdc-ab36a6252376", "Daniel Gelon"),
     CardSet::Antiquities,
     CardRules::new_land(&[], "").with_abilities(&[
-        AbilityDef::activated_mana(
-            "{T}: Add {C}.",
-            &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::one(ManaKindDef::Colorless)),
-        ),
+        abilities::tap_for(ManaKindDef::Colorless),
         AbilityDef::activated(
             "{T}, Sacrifice this land: Destroy target land.",
             &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
@@ -322,7 +314,7 @@ pub(in crate::card::sets) static TETRAVUS: CardRecord = CardRecord::new(
     CardSet::Antiquities,
     CardRules::new_artifact_creature(ManaCost::new(6, 0), &["Construct"], 1, 1, "")
     .with_abilities(&[
-        EvergreenAbilityDef::flying(),
+        abilities::flying(),
         AbilityDef::replacement(
             "This creature enters with three +1/+1 counters on it.",
             EffectDef::Special("Enter with three +1/+1 counters"),

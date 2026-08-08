@@ -2,10 +2,10 @@
 
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityImplementationDef, AddManaEffectDef, CardArt, CardBehavior,
-    CardComposition, CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype,
-    EffectDef, EvergreenAbilityDef, LandEntry, ManaCost, ManaKindDef, ModeDef, ModeSetDef,
-    PlayOptionDef, SpellForm, TargetPredicate, TargetSlotDef, cards,
+    AbilityCostDef, AbilityDef, AbilityImplementationDef, AddManaEffectDef, BasicLandType, CardArt,
+    CardBehavior, CardComposition, CardEffectStatus, CardPart, CardRules, CardSet, CardStructure,
+    CardSupertype, EffectDef, LandEntry, ManaCost, ManaKindDef, ModeDef, ModeSetDef, PlayOptionDef,
+    SpellForm, TargetPredicate, TargetSlotDef, abilities, cards,
 };
 use crate::ids::{CardPartId, ModeId, PlayOptionId, TargetSlotId};
 
@@ -34,7 +34,7 @@ pub(in crate::card::sets) static ANGEL_OF_SERENITY: CardRecord = CardRecord::new
         "",
     )
     .with_abilities(&[
-        EvergreenAbilityDef::flying(),
+        abilities::flying(),
         AbilityDef::not_implemented(
             "When this creature enters, you may exile up to three other target creatures from the battlefield and/or creature cards from graveyards.",
             "The enters-the-battlefield exile ability is not executed.",
@@ -83,7 +83,7 @@ pub(in crate::card::sets) static DESECRATION_DEMON: CardRecord = CardRecord::new
         "",
     )
     .with_abilities(&[
-        EvergreenAbilityDef::flying(),
+        abilities::flying(),
         AbilityDef::not_implemented(
             "At the beginning of each combat, any opponent may sacrifice a creature of their choice. If a player does, tap this creature and put a +1/+1 counter on it.",
             "The beginning-of-combat trigger and opponent choice are not executed.",
@@ -172,8 +172,8 @@ pub(in crate::card::sets) static HALLOWED_FOUNTAIN: CardRecord = CardRecord::new
             behavior: None,
             explanation: "The pay-life-or-tapped choice is implemented by the shared land-entry decision path.",
         }),
-        EvergreenAbilityDef::plains(),
-        EvergreenAbilityDef::island(),
+        abilities::basic_land_type_mana(BasicLandType::Plains),
+        abilities::basic_land_type_mana(BasicLandType::Island),
     ]),
 );
 
@@ -257,10 +257,10 @@ pub(in crate::card::sets) static IZZET_STATICASTER: CardRecord = CardRecord::new
         "",
     )
     .with_abilities(&[
-        EvergreenAbilityDef::flash().with_text(
+        abilities::flash().with_text(
             "Flash (You may cast this spell any time you could cast an instant.)",
         ),
-        EvergreenAbilityDef::haste(),
+        abilities::haste(),
         AbilityDef::not_implemented(
             "{T}: This creature deals 1 damage to target creature and each other creature with the same name as that creature.",
             "The targeted activated damage ability is not executed.",
@@ -327,8 +327,8 @@ pub(in crate::card::sets) static OVERGROWN_TOMB: CardRecord = CardRecord::new(
             behavior: None,
             explanation: "The pay-life-or-tapped choice is implemented by the shared land-entry decision path.",
         }),
-        EvergreenAbilityDef::swamp(),
-        EvergreenAbilityDef::forest(),
+        abilities::basic_land_type_mana(BasicLandType::Swamp),
+        abilities::basic_land_type_mana(BasicLandType::Forest),
     ]),
 );
 
@@ -397,8 +397,8 @@ pub(in crate::card::sets) static STEAM_VENTS: CardRecord = CardRecord::new(
             behavior: None,
             explanation: "The pay-life-or-tapped choice is implemented by the shared land-entry decision path.",
         }),
-        EvergreenAbilityDef::island(),
-        EvergreenAbilityDef::mountain(),
+        abilities::basic_land_type_mana(BasicLandType::Island),
+        abilities::basic_land_type_mana(BasicLandType::Mountain),
     ]),
 );
 
@@ -443,8 +443,8 @@ pub(in crate::card::sets) static TEMPLE_GARDEN: CardRecord = CardRecord::new(
             behavior: None,
             explanation: "The pay-life-or-tapped choice is implemented by the shared land-entry decision path.",
         }),
-        EvergreenAbilityDef::forest(),
-        EvergreenAbilityDef::plains(),
+        abilities::basic_land_type_mana(BasicLandType::Forest),
+        abilities::basic_land_type_mana(BasicLandType::Plains),
     ]),
 );
 

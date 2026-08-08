@@ -12,7 +12,7 @@ Two numbers matter to a bot, and they move independently:
 Pin both alongside trained weights. Until 1.0 the engine version bumps its
 minor for breaking changes, per Cargo's 0.x convention.
 
-## Unreleased — protocol 6
+## Unreleased — protocol 7
 
 ### Changed
 
@@ -37,6 +37,9 @@ Protocol 4 added the selected ability origin to activated-action JSON.
 Protocol 5 distinguishes no mana cost from a printed `{0}` cost.
 Protocol 6 replaces public `effectStatus` metadata with clause-derived
 `implementationStatus`; the former remains only an internal playability gate.
+Protocol 7 gives granted abilities structural provenance for their effective
+source definition, source clause, and grant site instead of treating those as
+an ability ID on the affected object.
 
 ## 0.5.0 — protocol 2
 

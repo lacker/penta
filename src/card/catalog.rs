@@ -276,6 +276,17 @@ fn validate_composition(definition: &CardDefinition) -> Result<(), CatalogError>
         }
     }
 
+    let primary_part = definition.primary_part_id();
+    if definition
+        .part(primary_part)
+        .is_some_and(|part| part.rules != definition.rules)
+    {
+        return Err(CatalogError::MismatchedPrimaryRules {
+            definition: definition.id,
+            part: primary_part,
+        });
+    }
+
     let mut play_options = HashSet::new();
     let mut modes = HashSet::new();
     let mut alternative_costs = HashSet::new();
@@ -959,6 +970,10 @@ pub enum CatalogError {
         part: CardPartId,
         explanation: &'static str,
     },
+    MismatchedPrimaryRules {
+        definition: CardDefinitionId,
+        part: CardPartId,
+    },
     TooManyAbilities {
         definition: CardDefinitionId,
         part: CardPartId,
@@ -1162,6 +1177,10 @@ impl fmt::Display for CatalogError {
             } => write!(
                 formatter,
                 "part {part:?} of card definition {definition:?} has incoherent rules: {explanation}"
+            ),
+            Self::MismatchedPrimaryRules { definition, part } => write!(
+                formatter,
+                "card definition {definition:?} has compatibility rules that differ from primary part {part:?}"
             ),
             Self::TooManyAbilities {
                 definition,
@@ -1446,6 +1465,16 @@ mod tests {
         CardCatalog::new([card]).unwrap_err()
     }
 
+    fn set_primary_rules(card: &mut CardDefinition, rules: &crate::CardRules) {
+        card.rules = *rules;
+        let primary = card.primary_part_id();
+        card.parts
+            .iter_mut()
+            .find(|part| part.id == primary)
+            .expect("the test definition has a primary part")
+            .rules = *rules;
+    }
+
     fn definition_granting(granted: &'static AbilityDef) -> CardDefinition {
         let abilities = Box::leak(
             vec![AbilityDef::static_ability(
@@ -1459,7 +1488,8 @@ mod tests {
             .into_boxed_slice(),
         );
         let mut card = definition(1, "Test Card", CardSet::Alpha);
-        card.parts[0].rules = card.parts[0].rules.with_abilities(abilities);
+        let rules = card.rules.with_abilities(abilities);
+        set_primary_rules(&mut card, &rules);
         card
     }
 
@@ -1609,13 +1639,28 @@ mod tests {
     }
 
     #[test]
+    fn compatibility_rules_must_match_the_primary_part() {
+        let mut card = definition(1, "Test Card", CardSet::Alpha);
+        card.rules = crate::CardRules::new_artifact(ManaCost::default(), "");
+
+        assert_eq!(
+            error(card),
+            CatalogError::MismatchedPrimaryRules {
+                definition: CardDefinitionId(1),
+                part: CardPartId::PRIMARY,
+            }
+        );
+    }
+
+    #[test]
     fn ability_ids_follow_clause_order_within_each_card_part() {
         static ABILITIES: [AbilityDef; 2] = [
             AbilityDef::spell("first", EffectDef::None),
             AbilityDef::spell("second", EffectDef::None),
         ];
         let mut card = definition(1, "Test Card", CardSet::Alpha);
-        card.parts[0].rules = card.parts[0].rules.with_abilities(&ABILITIES);
+        let rules = card.rules.with_abilities(&ABILITIES);
+        set_primary_rules(&mut card, &rules);
 
         let attached = card.parts[0].rules.indexed_abilities().collect::<Vec<_>>();
         assert_eq!(attached[0].id, AbilityId(0));
@@ -1629,7 +1674,8 @@ mod tests {
             vec![AbilityDef::spell("A spell ability.", EffectDef::None); 257].into_boxed_slice(),
         );
         let mut card = definition(1, "Test Card", CardSet::Alpha);
-        card.parts[0].rules = card.parts[0].rules.with_abilities(abilities);
+        let rules = card.rules.with_abilities(abilities);
+        set_primary_rules(&mut card, &rules);
 
         assert_eq!(
             error(card),
@@ -1666,7 +1712,8 @@ mod tests {
             .into_boxed_slice(),
         );
         let mut card = definition(1, "Test Card", CardSet::Alpha);
-        card.parts[0].rules = card.parts[0].rules.with_abilities(abilities);
+        let rules = card.rules.with_abilities(abilities);
+        set_primary_rules(&mut card, &rules);
 
         assert_eq!(
             error(card),
@@ -1847,7 +1894,8 @@ mod tests {
                     .with_targets(&TARGETS),
             ];
         let mut card = definition(1, "Test Card", CardSet::Alpha);
-        card.parts[0].rules = card.parts[0].rules.with_abilities(&ABILITIES);
+        let rules = card.rules.with_abilities(&ABILITIES);
+        set_primary_rules(&mut card, &rules);
 
         assert_eq!(
             error(card),
@@ -1865,7 +1913,8 @@ mod tests {
             [AbilityDef::spell("A spell ability.", EffectDef::None)
                 .with_activation_text("Target {}", "Choose a target")];
         let mut card = definition(1, "Test Card", CardSet::Alpha);
-        card.parts[0].rules = card.parts[0].rules.with_abilities(&ABILITIES);
+        let rules = card.rules.with_abilities(&ABILITIES);
+        set_primary_rules(&mut card, &rules);
 
         assert_eq!(
             error(card),

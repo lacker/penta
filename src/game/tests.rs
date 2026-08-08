@@ -2827,22 +2827,22 @@ fn structured_target_predicates_are_rechecked_when_the_spell_resolves() {
     assert!(game.spell_fizzles(&turn));
 }
 
-#[test]
-fn combined_spell_trigger_characteristics_union_types_and_subtypes() {
-    let definition_id = CardDefinitionId(10_066);
-    let instant = CardRules::new_instant(ManaCost::default(), "").with_subtypes(&["Arcane"]);
-    let sorcery = CardRules::new_sorcery(ManaCost::default(), "").with_subtypes(&["Lesson"]);
+fn game_with_test_fused_split(
+    definition_id: CardDefinitionId,
+    first: &CardRules,
+    second: &CardRules,
+) -> (Game, PlayOptionId, Vec<CardPartId>) {
     let mut definition = CardDefinition::new(
         definition_id,
-        "Instant Half // Sorcery Half",
+        "First Half // Second Half",
         CardSet::Magic2014,
         false,
         CardBehavior::Unsupported,
     );
-    definition.rules = instant;
+    definition.rules = *first;
     definition.parts = vec![
-        CardPart::new(CardPartId::PRIMARY, "Instant Half", instant),
-        CardPart::new(CardPartId(1), "Sorcery Half", sorcery),
+        CardPart::new(CardPartId::PRIMARY, "First Half", *first),
+        CardPart::new(CardPartId(1), "Second Half", *second),
     ];
     let combined = PlayOptionId(2);
     let parts = vec![CardPartId::PRIMARY, CardPartId(1)];
@@ -2853,14 +2853,14 @@ fn combined_spell_trigger_characteristics_union_types_and_subtypes() {
     definition.play_options = vec![
         PlayOptionDef::cast(
             PlayOptionId::DEFAULT,
-            "Instant Half",
+            "First Half",
             SpellForm::Part(CardPartId::PRIMARY),
             ManaCost::default(),
             CardEffectStatus::Implemented,
         ),
         PlayOptionDef::cast(
             PlayOptionId(1),
-            "Sorcery Half",
+            "Second Half",
             SpellForm::Part(CardPartId(1)),
             ManaCost::default(),
             CardEffectStatus::Implemented,
@@ -2883,19 +2883,30 @@ fn combined_spell_trigger_characteristics_union_types_and_subtypes() {
         .collect::<Vec<_>>();
     definitions.push(definition);
     game.catalog = CardCatalog::new(definitions).unwrap();
+    (game, combined, parts)
+}
+
+#[test]
+fn combined_spell_trigger_and_target_characteristics_union_parts() {
+    let definition_id = CardDefinitionId(10_066);
+    let instant = CardRules::new_instant(ManaCost::default(), "").with_subtypes(&["Arcane"]);
+    let sorcery = CardRules::new_sorcery(ManaCost::default(), "").with_subtypes(&["Lesson"]);
+    let (mut game, combined, parts) = game_with_test_fused_split(definition_id, &instant, &sorcery);
     let mut object = spell(77, definition_id, PlayerId::One, 0);
     object.signature = Some(CastSignature::from_validated_choices(
-        SpellForm::Combined(parts),
+        SpellForm::Combined(parts.clone()),
         CastChoices::new(combined),
     ));
 
-    let object = game
+    let trigger_object = game
         .stack_trigger_event_object(&object)
         .expect("a fused spell has trigger characteristics");
-    assert!(object.types[CardType::Instant.index()]);
-    assert!(object.types[CardType::Sorcery.index()]);
-    assert_eq!(object.subtypes.as_ref(), &["Arcane", "Lesson"]);
-    let event = CommittedTriggerEvent::SpellCast { object };
+    assert!(trigger_object.types[CardType::Instant.index()]);
+    assert!(trigger_object.types[CardType::Sorcery.index()]);
+    assert_eq!(trigger_object.subtypes.as_ref(), &["Arcane", "Lesson"]);
+    let event = CommittedTriggerEvent::SpellCast {
+        object: trigger_object,
+    };
     for predicate in [
         ObjectPredicateDef::HasType(CardType::Instant),
         ObjectPredicateDef::HasType(CardType::Sorcery),
@@ -2907,6 +2918,58 @@ fn combined_spell_trigger_characteristics_union_types_and_subtypes() {
             &event,
             GameObjectId(99_999),
         ));
+    }
+
+    game.stack.push(object);
+    for predicate in [
+        ObjectPredicateDef::HasType(CardType::Sorcery),
+        ObjectPredicateDef::Subtype("Lesson"),
+    ] {
+        assert_eq!(
+            game.ability_targets_matching(
+                AbilityTargetPredicate::Object {
+                    object: predicate,
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+                PlayerId::One,
+                GameObjectId(99_999),
+                TriggerContext::empty(),
+            ),
+            vec![Target::Spell(GameObjectId(77))],
+        );
+    }
+}
+
+#[test]
+fn split_card_target_characteristics_union_parts_outside_the_stack() {
+    let definition_id = CardDefinitionId(10_067);
+    let instant = CardRules::new_instant(ManaCost::default(), "").with_subtypes(&["Arcane"]);
+    let sorcery = CardRules::new_sorcery(ManaCost::default(), "").with_subtypes(&["Lesson"]);
+    let (mut game, _, _) = game_with_test_fused_split(definition_id, &instant, &sorcery);
+    game.players[0]
+        .graveyard
+        .push(card(78, definition_id, PlayerId::One));
+
+    for predicate in [
+        ObjectPredicateDef::HasType(CardType::Sorcery),
+        ObjectPredicateDef::Subtype("Lesson"),
+    ] {
+        assert_eq!(
+            game.ability_targets_matching(
+                AbilityTargetPredicate::Object {
+                    object: predicate,
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: None,
+                },
+                PlayerId::One,
+                GameObjectId(99_999),
+                TriggerContext::empty(),
+            ),
+            vec![Target::Card(GameObjectId(78))],
+        );
     }
 }
 

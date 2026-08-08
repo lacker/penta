@@ -129,7 +129,8 @@ pub(in crate::card::sets) static GHOR_CLAN_RAMPAGER: CardRecord = CardRecord::ne
     ]),
 );
 
-// Implementation status: complete — mana production and the pay-life-or-tapped choice both run.
+// Implementation status: partial — the pay-life choice and explicit mana abilities run, but
+// the mana abilities are not yet derived intrinsically from the basic land types.
 pub(in crate::card::sets) static GODLESS_SHRINE: CardRecord = CardRecord::new(
     cards::GODLESS_SHRINE,
     "Godless Shrine",
@@ -167,7 +168,8 @@ pub(in crate::card::sets) static OBZEDAT_GHOST_COUNCIL: CardRecord = CardRecord:
     .metadata_only(),
 );
 
-// Implementation status: complete — mana production and the pay-life-or-tapped choice both run.
+// Implementation status: partial — the pay-life choice and explicit mana abilities run, but
+// the mana abilities are not yet derived intrinsically from the basic land types.
 pub(in crate::card::sets) static SACRED_FOUNDRY: CardRecord = CardRecord::new(
     cards::SACRED_FOUNDRY,
     "Sacred Foundry",
@@ -212,7 +214,8 @@ pub(in crate::card::sets) static SEPULCHRAL_PRIMORDIAL: CardRecord = CardRecord:
     ]),
 );
 
-// Implementation status: complete — mana production and the pay-life-or-tapped choice both run.
+// Implementation status: partial — the pay-life choice and explicit mana abilities run, but
+// the mana abilities are not yet derived intrinsically from the basic land types.
 pub(in crate::card::sets) static STOMPING_GROUND: CardRecord = CardRecord::new(
     cards::STOMPING_GROUND,
     "Stomping Ground",

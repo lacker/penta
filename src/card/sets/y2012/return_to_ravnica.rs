@@ -155,7 +155,8 @@ pub(in crate::card::sets) static GRISLY_SALVAGE: CardRecord = CardRecord::new(
     .with_special_behavior(CardBehavior::GrislySalvage),
 );
 
-// Implementation status: complete — land types, mana production, and the pay-life-or-tapped choice all run.
+// Implementation status: partial — the pay-life choice and explicit mana abilities run, but
+// the mana abilities are not yet derived intrinsically from the basic land types.
 pub(in crate::card::sets) static HALLOWED_FOUNTAIN: CardRecord = CardRecord::new(
     cards::HALLOWED_FOUNTAIN,
     "Hallowed Fountain",
@@ -310,7 +311,8 @@ pub(in crate::card::sets) static MIZZIUM_MORTARS: CardRecord = CardRecord::new(
     .metadata_only(),
 );
 
-// Implementation status: complete — land types, mana production, and the pay-life-or-tapped choice all run.
+// Implementation status: partial — the pay-life choice and explicit mana abilities run, but
+// the mana abilities are not yet derived intrinsically from the basic land types.
 pub(in crate::card::sets) static OVERGROWN_TOMB: CardRecord = CardRecord::new(
     cards::OVERGROWN_TOMB,
     "Overgrown Tomb",
@@ -380,7 +382,8 @@ pub(in crate::card::sets) static SPHINXS_REVELATION: CardRecord = CardRecord::ne
     .with_special_behavior(CardBehavior::SphinxsRevelation),
 );
 
-// Implementation status: complete — land types, mana production, and the pay-life-or-tapped choice all run.
+// Implementation status: partial — the pay-life choice and explicit mana abilities run, but
+// the mana abilities are not yet derived intrinsically from the basic land types.
 pub(in crate::card::sets) static STEAM_VENTS: CardRecord = CardRecord::new(
     cards::STEAM_VENTS,
     "Steam Vents",
@@ -426,7 +429,8 @@ pub(in crate::card::sets) static SYNCOPATE: CardRecord = CardRecord::new(
     .metadata_only(),
 );
 
-// Implementation status: complete — land types, mana production, and the pay-life-or-tapped choice all run.
+// Implementation status: partial — the pay-life choice and explicit mana abilities run, but
+// the mana abilities are not yet derived intrinsically from the basic land types.
 pub(in crate::card::sets) static TEMPLE_GARDEN: CardRecord = CardRecord::new(
     cards::TEMPLE_GARDEN,
     "Temple Garden",

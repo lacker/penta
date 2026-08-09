@@ -1,5 +1,5 @@
 use std::borrow::Cow;
-use std::collections::{BTreeMap, HashSet};
+use std::collections::BTreeMap;
 use std::error::Error;
 use std::fmt;
 use std::ops::ControlFlow;
@@ -1477,8 +1477,6 @@ impl Game {
         self.add_land_actions(player, &mut actions);
         self.add_spell_actions(player, &mut actions);
         self.add_ability_actions(player, &mut actions);
-        let mut seen = HashSet::new();
-        actions.retain(|action| seen.insert(action.clone()));
         actions
     }
 
@@ -5221,11 +5219,21 @@ impl Game {
             let mut fallback_target_slot = TargetSlotId(0);
             let mut activated = [None; 2];
             let mut activated_count = 0;
+            let mut last_activated_origin = None;
             self.for_each_effective_ability(permanent, |effective| {
                 let ability = effective.ability;
                 let DeclarativeAbilityDef::Activated(definition) = ability.definition else {
                     return;
                 };
+                // Copy-process exceptions can retain an activated ability
+                // whose structural origin is already present in the copied
+                // values. Actions identify an ability by that origin, so a
+                // consecutive repeat is externally indistinguishable and
+                // would resolve through the first matching ability anyway.
+                if last_activated_origin == Some(effective.origin) {
+                    return;
+                }
+                last_activated_origin = Some(effective.origin);
                 let target_slot = definition
                     .targets
                     .first()
@@ -8258,9 +8266,10 @@ impl Game {
         permanent: &Permanent,
     ) -> Vec<(GameObjectId, LandTypeOperation)> {
         let mut operations = Vec::new();
+        let target_is_nonbasic = self.is_nonbasic_land(permanent);
+        let mut blood_moon_active = None;
         for source in &self.battlefield {
-            if self.copiable_behavior(source) == Some(CardBehavior::BloodMoon)
-                && self.is_nonbasic_land(permanent)
+            if target_is_nonbasic && self.copiable_behavior(source) == Some(CardBehavior::BloodMoon)
             {
                 operations.push((
                     source.card.id,
@@ -8268,7 +8277,15 @@ impl Game {
                 ));
             }
 
-            if self.is_nonbasic_land(source) && self.blood_moon_active() {
+            // The only modeled additive operation applies to the permanent
+            // this Aura is attached to. Avoid walking every unrelated
+            // permanent's static rules for every characteristic query.
+            if source.attached_to != Some(permanent.card.id) {
+                continue;
+            }
+            if self.is_nonbasic_land(source)
+                && *blood_moon_active.get_or_insert_with(|| self.blood_moon_active())
+            {
                 continue;
             }
             let Some(rules) = self.effective_rules(source) else {

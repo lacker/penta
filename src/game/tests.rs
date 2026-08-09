@@ -5302,6 +5302,21 @@ fn stage_copying_stage_does_not_duplicate_indistinguishable_legal_actions() {
     game.battlefield[0].tapped = false;
     game.players[0].mana_pool.colorless = 2;
 
+    assert_eq!(
+        game.effective_abilities(&game.battlefield[0])
+            .iter()
+            .filter(|effective| {
+                effective.origin == copy_ability
+                    && matches!(
+                        effective.ability.definition,
+                        DeclarativeAbilityDef::Activated(_)
+                    )
+            })
+            .count(),
+        2,
+        "both copiable Stage abilities remain part of the permanent",
+    );
+
     let copy_mountain = Action::ActivateAbility {
         source: copying_stage,
         ability: copy_ability,

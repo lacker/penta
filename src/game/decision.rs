@@ -28,6 +28,14 @@ pub enum DecisionVisibility {
 pub enum DecisionPreference {
     HigherCardValue,
     LowerCardValue,
+    /// Prefer opposing battlefield cards and cards in the chooser's own
+    /// graveyard. Linked-exile effects use this to separate removal and
+    /// recovery targets from cards whose eventual return would be harmful.
+    LinkedExileTargets,
+    /// Prefer one semantically distinguished option before applying the
+    /// ordinary minimum-selection rule. This remains an engine-policy hint;
+    /// option IDs and labels are still the complete public choice contract.
+    PreferOption(u32),
     Neutral,
 }
 

@@ -3073,6 +3073,20 @@ impl Game {
             .catalog
             .get(trigger.definition)
             .map_or("Triggered ability", |card| card.name.as_str());
+        let target_effect = match trigger.effect {
+            EffectDef::May(effect) => *effect,
+            effect => effect,
+        };
+        let preference = if matches!(
+            target_effect,
+            EffectDef::ExileLinkedToSource {
+                object: EffectRecipientDef::Target(slot),
+            } if slot == target.id
+        ) {
+            DecisionPreference::LinkedExileTargets
+        } else {
+            DecisionPreference::Neutral
+        };
         let id = self.next_decision_id;
         self.next_decision_id = self.next_decision_id.saturating_add(1);
         self.pending_decisions.insert(
@@ -3085,7 +3099,7 @@ impl Game {
                     order_semantics: None,
                     prompt: format!("{source_name}: choose {}", target.label),
                     visibility: DecisionVisibility::Public,
-                    preference: DecisionPreference::Neutral,
+                    preference,
                     minimum: usize::from(target.minimum),
                     maximum: usize::from(target.maximum).min(options.len()),
                     cancellable: false,
@@ -3343,7 +3357,7 @@ impl Game {
             player,
             object.ability_text().unwrap_or("Use this optional effect?"),
             DecisionVisibility::Public,
-            DecisionPreference::Neutral,
+            DecisionPreference::PreferOption(1),
             1..=1,
             false,
             vec![
@@ -6778,15 +6792,18 @@ impl Game {
             }
         }
         .expect("legal cast action references a card in its validated source zone");
-        // The grant is spent by the next sorcery whatever its timing, so it
-        // is consumed here rather than only when it was needed.
-        if self
+        // Every outstanding grant applies to the same next sorcery, whatever
+        // its timing, so consume them together based on the form actually cast.
+        let cast_is_sorcery = self
             .catalog
             .get(card.definition)
-            .is_some_and(|definition| definition.rules.has_type(CardType::Sorcery))
-        {
-            let grants = &mut self.sorcery_flash_grants[player.index()];
-            *grants = grants.saturating_sub(1);
+            .and_then(|definition| {
+                let option = definition.play_option(signature.play_option())?;
+                Self::play_option_types(definition, option)
+            })
+            .is_some_and(|types| types.contains(CardType::Sorcery));
+        if cast_is_sorcery {
+            self.sorcery_flash_grants[player.index()] = 0;
         }
         // A spell is first proposed on the stack, then mana abilities may be
         // activated and costs are paid. The operation cannot fail after the

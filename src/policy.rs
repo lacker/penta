@@ -9,8 +9,8 @@ use crate::card::{
     ObjectPredicateDef, PlayerRelation, SpellForm, ValueDef, ZoneKind,
 };
 use crate::game::{
-    DecisionObservation, DecisionPreference, Game, GameResult, PlayerObservation, StackObjectKind,
-    StackObservation, Step,
+    DecisionObservation, DecisionOption, DecisionPreference, DecisionZone, Game, GameResult,
+    PlayerObservation, StackObjectKind, StackObservation, Step,
 };
 use crate::{
     AbilityOrigin, Action, ActionError, CardDefinitionId, CastChoices, GameObjectId, PlayerId,
@@ -1045,6 +1045,9 @@ impl HandcraftedPolicy {
             EffectDef::Sequence(effects) => {
                 effects.iter().copied().find_map(Self::target_condition_in)
             }
+            EffectDef::OptionalManaPayment { effect, .. } | EffectDef::May(effect) => {
+                Self::target_condition_in(*effect)
+            }
             EffectDef::AddCounters { amount, .. } | EffectDef::GainLife { amount, .. } => {
                 match amount {
                     ValueDef::IfTargetMatches(condition) => Some(condition),
@@ -1394,7 +1397,14 @@ impl HandcraftedPolicy {
                 {
                     Some(crate::DecisionPreference::HigherCardValue) => 8_000 + selected_value,
                     Some(crate::DecisionPreference::LowerCardValue) => 8_000 - selected_value,
-                    Some(crate::DecisionPreference::Neutral) | None => 8_000,
+                    Some(crate::DecisionPreference::PreferOption(preferred)) => {
+                        8_000 + i32::from(options.contains(&preferred))
+                    }
+                    Some(
+                        crate::DecisionPreference::LinkedExileTargets
+                        | crate::DecisionPreference::Neutral,
+                    )
+                    | None => 8_000,
                 }
             }
             Action::CancelDecision { .. } => -1_000,
@@ -1425,7 +1435,53 @@ impl HandcraftedPolicy {
         }
     }
 
-    fn choose_decision(&self, decision: &DecisionObservation) -> Option<Action> {
+    fn linked_exile_target_score(
+        &self,
+        observation: &PlayerObservation,
+        decision: &DecisionObservation,
+        option: &DecisionOption,
+    ) -> i32 {
+        let Some((object, definition)) = option.card else {
+            return -10_000;
+        };
+        let value = self.card_value(definition).max(1);
+        match option.zone {
+            DecisionZone::Battlefield => observation
+                .battlefield
+                .iter()
+                .find(|permanent| permanent.id == object)
+                .map_or(-value, |permanent| {
+                    if permanent.controller == decision.player {
+                        -value
+                    } else {
+                        value
+                    }
+                }),
+            DecisionZone::Graveyard => {
+                if observation.graveyards[decision.player.index()]
+                    .iter()
+                    .any(|(card, _)| *card == object)
+                {
+                    value
+                } else {
+                    -value
+                }
+            }
+            DecisionZone::Hand
+            | DecisionZone::Stack
+            | DecisionZone::Library
+            | DecisionZone::Exile
+            | DecisionZone::Command
+            | DecisionZone::DrawnThisStep
+            | DecisionZone::None => -value,
+        }
+    }
+
+    fn choose_decision(
+        &self,
+        observation: &PlayerObservation,
+        decision: &DecisionObservation,
+    ) -> Option<Action> {
         if decision.options.len() < decision.minimum {
             return None;
         }
@@ -1437,6 +1493,10 @@ impl HandcraftedPolicy {
             match decision.preference {
                 DecisionPreference::HigherCardValue => -value,
                 DecisionPreference::LowerCardValue => value,
+                DecisionPreference::LinkedExileTargets => {
+                    -self.linked_exile_target_score(observation, decision, option)
+                }
+                DecisionPreference::PreferOption(preferred) => i32::from(option.id != preferred),
                 DecisionPreference::Neutral => 0,
             }
         });
@@ -1448,7 +1508,16 @@ impl HandcraftedPolicy {
         // minimum would tutor for nothing every time.
         let take = match decision.preference {
             DecisionPreference::HigherCardValue => decision.maximum.min(options.len()),
-            DecisionPreference::LowerCardValue | DecisionPreference::Neutral => decision.minimum,
+            DecisionPreference::LinkedExileTargets => options
+                .iter()
+                .filter(|option| self.linked_exile_target_score(observation, decision, option) > 0)
+                .count()
+                .max(decision.minimum)
+                .min(decision.maximum)
+                .min(options.len()),
+            DecisionPreference::LowerCardValue
+            | DecisionPreference::PreferOption(_)
+            | DecisionPreference::Neutral => decision.minimum,
         };
         Some(Action::ChooseDecision {
             decision: decision.id,
@@ -1464,7 +1533,7 @@ impl HandcraftedPolicy {
 impl Policy for HandcraftedPolicy {
     fn choose_action(&mut self, observation: &PlayerObservation) -> Option<Action> {
         if let Some(decision) = observation.decision.as_ref() {
-            return self.choose_decision(decision);
+            return self.choose_decision(observation, decision);
         }
         let action = observation
             .legal_actions
@@ -1477,6 +1546,44 @@ impl Policy for HandcraftedPolicy {
             self.mulligans_taken = 0;
         }
         action
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::HandcraftedPolicy;
+    use crate::TargetSlotId;
+    use crate::card::{
+        EffectDef, EffectRecipientDef, ManaCost, ObjectPredicateDef, TargetConditionDef, ValueDef,
+    };
+
+    static TARGET_CONDITION: TargetConditionDef = TargetConditionDef {
+        slot: TargetSlotId(0),
+        object: ObjectPredicateDef::Any,
+        then: ValueDef::Constant(1),
+        otherwise: ValueDef::Constant(0),
+    };
+    static CONDITIONAL_EFFECT: EffectDef = EffectDef::GainLife {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::IfTargetMatches(&TARGET_CONDITION),
+    };
+
+    #[test]
+    fn target_condition_search_descends_decision_effects() {
+        let may = EffectDef::May(&CONDITIONAL_EFFECT);
+        let optional_payment = EffectDef::OptionalManaPayment {
+            cost: ManaCost::new(1, 0),
+            effect: &CONDITIONAL_EFFECT,
+        };
+
+        assert_eq!(
+            HandcraftedPolicy::target_condition_in(may),
+            Some(&TARGET_CONDITION),
+        );
+        assert_eq!(
+            HandcraftedPolicy::target_condition_in(optional_payment),
+            Some(&TARGET_CONDITION),
+        );
     }
 }
 

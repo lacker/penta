@@ -14960,3 +14960,130 @@ fn an_intervening_if_is_checked_when_it_triggers_and_again_when_it_resolves() {
         "both checks held, so a creature was sacrificed"
     );
 }
+
+#[test]
+fn stacked_quickens_are_all_spent_by_the_same_next_sorcery() {
+    let mut game = ready_game();
+    let quickens = [
+        card(10_000, cards::QUICKEN, PlayerId::One),
+        card(10_001, cards::QUICKEN, PlayerId::One),
+    ];
+    let sorceries = [
+        card(10_002, cards::MIND_TWIST, PlayerId::One),
+        card(10_003, cards::MIND_TWIST, PlayerId::One),
+    ];
+    game.players[0].hand.extend(quickens.iter().cloned());
+    game.players[0].hand.extend(sorceries.iter().cloned());
+    game.players[0].mana_pool.blue = 2;
+    game.players[0].mana_pool.black = 4;
+    game.active_player = PlayerId::Two;
+    game.priority = PlayerId::One;
+    game.step = Step::PrecombatMain;
+
+    for quicken in &quickens {
+        game.apply(
+            PlayerId::One,
+            cast_action(quicken.id, Vec::new(), Vec::new(), 0),
+        )
+        .unwrap();
+        pass_priority_pair(&mut game);
+        game.priority = PlayerId::One;
+    }
+    assert_eq!(game.sorcery_flash_grants[0], 2);
+
+    let cast = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| matches!(action, Action::CastSpell { card, .. } if *card == sorceries[0].id))
+        .expect("both Quicken grants cover the same next sorcery");
+    game.apply(PlayerId::One, cast).unwrap();
+    game.priority = PlayerId::One;
+
+    assert_eq!(game.sorcery_flash_grants[0], 0);
+    assert!(
+        !game.legal_actions(PlayerId::One).iter().any(
+            |action| matches!(action, Action::CastSpell { card, .. } if *card == sorceries[1].id)
+        ),
+        "the second sorcery needs a new timing permission"
+    );
+}
+
+#[test]
+fn quicken_consumes_its_grant_for_the_selected_sorcery_part() {
+    let definition_id = CardDefinitionId(10_068);
+    let instant = CardRules::new_instant(ManaCost::default());
+    let sorcery = CardRules::new_sorcery(ManaCost::default());
+    let (mut game, _, _) = game_with_test_fused_split(definition_id, &instant, &sorcery);
+    let split = card(10_000, definition_id, PlayerId::One);
+    let next_sorcery = card(10_001, cards::MIND_TWIST, PlayerId::One);
+    game.players[0]
+        .hand
+        .extend([split.clone(), next_sorcery.clone()]);
+    game.players[0].mana_pool.black = 1;
+    game.active_player = PlayerId::Two;
+    game.priority = PlayerId::One;
+    game.step = Step::PrecombatMain;
+    game.sorcery_flash_grants[0] = 1;
+
+    let cast_second_part = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| {
+            matches!(
+                action,
+                Action::CastSpell { card, choices, .. }
+                    if *card == split.id && choices.play_option() == PlayOptionId(1)
+            )
+        })
+        .expect("Quicken makes the selected sorcery part castable now");
+    game.apply(PlayerId::One, cast_second_part).unwrap();
+    game.priority = PlayerId::One;
+
+    assert_eq!(game.sorcery_flash_grants[0], 0);
+    assert!(
+        !game.legal_actions(PlayerId::One).iter().any(
+            |action| matches!(action, Action::CastSpell { card, .. } if *card == next_sorcery.id)
+        ),
+        "consumption follows the selected part rather than the primary instant characteristics"
+    );
+}
+
+#[test]
+fn quicken_preserves_its_grant_for_the_selected_instant_part() {
+    let definition_id = CardDefinitionId(10_069);
+    let sorcery = CardRules::new_sorcery(ManaCost::default());
+    let instant = CardRules::new_instant(ManaCost::default());
+    let (mut game, _, _) = game_with_test_fused_split(definition_id, &sorcery, &instant);
+    let split = card(10_000, definition_id, PlayerId::One);
+    let next_sorcery = card(10_001, cards::MIND_TWIST, PlayerId::One);
+    game.players[0]
+        .hand
+        .extend([split.clone(), next_sorcery.clone()]);
+    game.players[0].mana_pool.black = 1;
+    game.active_player = PlayerId::Two;
+    game.priority = PlayerId::One;
+    game.step = Step::PrecombatMain;
+    game.sorcery_flash_grants[0] = 1;
+
+    let cast_second_part = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| {
+            matches!(
+                action,
+                Action::CastSpell { card, choices, .. }
+                    if *card == split.id && choices.play_option() == PlayOptionId(1)
+            )
+        })
+        .expect("the selected instant part is castable without using Quicken");
+    game.apply(PlayerId::One, cast_second_part).unwrap();
+    game.priority = PlayerId::One;
+
+    assert_eq!(game.sorcery_flash_grants[0], 1);
+    assert!(
+        game.legal_actions(PlayerId::One).iter().any(
+            |action| matches!(action, Action::CastSpell { card, .. } if *card == next_sorcery.id)
+        ),
+        "the grant remains available for the next sorcery"
+    );
+}

@@ -280,7 +280,8 @@ mod tests {
         EffectDurationDef, EffectRecipientDef, ImplementationStatus, KeywordAbility, ManaColor,
         ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef, ObjectPredicateDef,
         PlayActionKind, PlayRestriction, PlayerRelation, ReplacementEventDef, SpellForm,
-        TargetPredicate, TriggerConditionDef, TriggerEventDef, ZoneKind, ZoneMoveCauseDef, cards,
+        TargetPredicate, TriggerConditionDef, TriggerEventDef, TurnStepDef, ZoneKind,
+        ZoneMoveCauseDef, cards,
     };
     use crate::{
         AbilityId, CardDefinitionId, CardPartId, CardSet, Format, ManaCost, ModeId, PlayOptionId,
@@ -497,9 +498,21 @@ mod tests {
     }
 
     fn shared_stack_effect(effect: EffectDef) -> bool {
+        shared_stack_effect_at_position(effect, true)
+    }
+
+    /// A queued decision returns control to the decision procedure instead of
+    /// suspending its caller. It is therefore safe at the root of a resolving
+    /// effect (and may wrap a whole sequence), but not as one component of a
+    /// sequence whose remaining components would otherwise resolve first.
+    fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed: bool) -> bool {
         match effect {
             EffectDef::Sequence(effects) => {
-                !effects.is_empty() && effects.iter().copied().all(shared_stack_effect)
+                !effects.is_empty()
+                    && effects
+                        .iter()
+                        .copied()
+                        .all(|effect| shared_stack_effect_at_position(effect, false))
             }
             EffectDef::AddMana(_) => shared_mana_effect(effect, false),
             EffectDef::DealDamage { recipient, .. }
@@ -516,7 +529,9 @@ mod tests {
             EffectDef::ReturnLinkedExiles { zone, .. } => {
                 matches!(zone, ZoneKind::Battlefield | ZoneKind::Hand)
             }
-            EffectDef::May(inner) => shared_stack_effect(*inner),
+            EffectDef::May(inner) => {
+                deferred_decision_allowed && shared_stack_effect_at_position(*inner, true)
+            }
             EffectDef::Tap { object }
             | EffectDef::Untap { object }
             | EffectDef::Destroy { object, .. }
@@ -537,8 +552,13 @@ mod tests {
             // resolving object's controller, and the flash grant is about its
             // controller's next spell.
             EffectDef::CreateToken { .. } | EffectDef::GrantFlashToNextSorcery => true,
-            EffectDef::OptionalManaPayment { effect, .. }
-            | EffectDef::AtNextStep { effect, .. } => shared_stack_effect(*effect),
+            EffectDef::OptionalManaPayment { effect, .. } => {
+                deferred_decision_allowed && shared_stack_effect_at_position(*effect, true)
+            }
+            // Scheduling creates a fresh resolution boundary. A decision may
+            // therefore be the delayed effect's root even when scheduling it
+            // is itself one component of a sequence.
+            EffectDef::AtNextStep { effect, .. } => shared_stack_effect_at_position(*effect, true),
             EffectDef::Apply {
                 recipient,
                 effect,
@@ -905,7 +925,9 @@ mod tests {
                     assert_nested_definition_abilities(card_name, *effect);
                 }
             }
-            EffectDef::OptionalManaPayment { effect, .. } | EffectDef::May(effect) => {
+            EffectDef::OptionalManaPayment { effect, .. }
+            | EffectDef::May(effect)
+            | EffectDef::AtNextStep { effect, .. } => {
                 assert_nested_definition_abilities(card_name, *effect);
             }
             EffectDef::Apply { effect, .. } => {
@@ -936,7 +958,6 @@ mod tests {
             | EffectDef::ExileLinkedToSource { .. }
             | EffectDef::ReturnLinkedExiles { .. }
             | EffectDef::MakeUnblockableThisTurn { .. }
-            | EffectDef::AtNextStep { .. }
             | EffectDef::ReduceGenericCostBy(_)
             | EffectDef::MultiplyEventAmount(_)
             | EffectDef::MoveToZone { .. }
@@ -1611,6 +1632,44 @@ mod tests {
             &[ZoneKind::Battlefield],
             &[AbilityCostDef::DiscardSource],
         ));
+    }
+
+    #[test]
+    fn decision_effects_stay_at_the_stack_effect_root() {
+        static TAP: EffectDef = EffectDef::Tap {
+            object: EffectRecipientDef::Source,
+        };
+        static UNTAP: EffectDef = EffectDef::Untap {
+            object: EffectRecipientDef::Source,
+        };
+        static PLAIN_SEQUENCE_COMPONENTS: [EffectDef; 2] = [TAP, UNTAP];
+        static PLAIN_SEQUENCE: EffectDef = EffectDef::Sequence(&PLAIN_SEQUENCE_COMPONENTS);
+        static MAY_TAP: EffectDef = EffectDef::May(&TAP);
+        static OPTIONAL_TAP: EffectDef = EffectDef::OptionalManaPayment {
+            cost: ManaCost::new(1, 0),
+            effect: &TAP,
+        };
+        static DELAYED_MAY: EffectDef = EffectDef::AtNextStep {
+            step: TurnStepDef::End,
+            player: PlayerRelation::You,
+            effect: &MAY_TAP,
+        };
+        static SEQUENCE_WITH_MAY: [EffectDef; 2] = [MAY_TAP, UNTAP];
+        static SEQUENCE_WITH_PAYMENT: [EffectDef; 2] = [OPTIONAL_TAP, UNTAP];
+        static SEQUENCE_WITH_DELAYED_MAY: [EffectDef; 2] = [DELAYED_MAY, UNTAP];
+
+        assert!(shared_stack_effect(MAY_TAP));
+        assert!(shared_stack_effect(EffectDef::May(&PLAIN_SEQUENCE)));
+        assert!(shared_stack_effect(OPTIONAL_TAP));
+        assert!(!shared_stack_effect(EffectDef::Sequence(
+            &SEQUENCE_WITH_MAY,
+        )));
+        assert!(!shared_stack_effect(EffectDef::Sequence(
+            &SEQUENCE_WITH_PAYMENT,
+        )));
+        assert!(shared_stack_effect(EffectDef::Sequence(
+            &SEQUENCE_WITH_DELAYED_MAY,
+        )));
     }
 
     #[test]

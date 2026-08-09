@@ -133,6 +133,140 @@ fn random_policy_is_seeded_and_avoids_conceding() {
 }
 
 #[test]
+fn handcrafted_accepts_detention_spheres_optional_exile() {
+    let catalog = card::catalog().unwrap();
+    let mut game = Game::new(catalog.clone(), [poc::goblins(), poc::goblins()], 17).unwrap();
+    game.apply(PlayerId::One, Action::KeepHand).unwrap();
+    game.apply(PlayerId::Two, Action::KeepHand).unwrap();
+    let lion = game
+        .put_onto_battlefield(PlayerId::Two, cards::SAVANNAH_LIONS)
+        .unwrap();
+    game.put_onto_battlefield(PlayerId::One, cards::DETENTION_SPHERE)
+        .unwrap();
+    let mut policy = HandcraftedPolicy::new(catalog);
+
+    // Finish the setup procedure so the Sphere's ETB trigger asks for its
+    // target. Answer that rules choice directly; the behavior under test is
+    // the policy's later answer to the optional effect itself.
+    game.apply(PlayerId::One, Action::PassPriority).unwrap();
+    let target_observation = game.observe(PlayerId::One);
+    let target_decision = target_observation
+        .decision
+        .as_ref()
+        .expect("the ETB trigger asks for a target");
+    let lion_option = target_decision
+        .options
+        .iter()
+        .find(|option| option.card == Some((lion, cards::SAVANNAH_LIONS)))
+        .expect("the opposing Lion is a legal target")
+        .id;
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: target_decision.id,
+            options: vec![lion_option],
+        },
+    )
+    .unwrap();
+
+    let mut optional = None;
+    for _ in 0..4 {
+        let player = game.decision_player().expect("the game is still running");
+        let observation = game.observe(player);
+        if observation.decision.as_ref().is_some_and(|decision| {
+            decision
+                .options
+                .iter()
+                .any(|option| option.label == "Do it")
+        }) {
+            optional = Some((player, observation));
+            break;
+        }
+        assert!(
+            observation.decision.is_none(),
+            "only the optional-effect decision remains"
+        );
+        game.apply(player, Action::PassPriority).unwrap();
+    }
+
+    let (player, observation) = optional.expect("the ETB trigger offered its optional effect");
+    let decision = observation
+        .decision
+        .as_ref()
+        .expect("the optional effect is pending");
+    let action = policy
+        .choose_action(&observation)
+        .expect("the policy answers the optional effect");
+    assert_eq!(
+        action,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options: vec![1],
+        },
+    );
+    game.apply(player, action).unwrap();
+
+    let resolved = game.observe(PlayerId::One);
+    assert!(
+        !resolved
+            .battlefield
+            .iter()
+            .any(|permanent| permanent.id == lion),
+        "choosing Do it exiles the targeted Lion",
+    );
+}
+
+#[test]
+fn handcrafted_angel_of_serenity_selects_only_helpful_targets() {
+    let catalog = card::catalog().unwrap();
+    let mut game = Game::new(catalog.clone(), [poc::goblins(), poc::goblins()], 17).unwrap();
+    game.apply(PlayerId::One, Action::KeepHand).unwrap();
+    game.apply(PlayerId::Two, Action::KeepHand).unwrap();
+
+    let own_battlefield = game
+        .put_onto_battlefield(PlayerId::One, cards::SAVANNAH_LIONS)
+        .unwrap();
+    let opposing_battlefield = game
+        .put_onto_battlefield(PlayerId::Two, cards::SAVANNAH_LIONS)
+        .unwrap();
+    let own_graveyard = game
+        .put_into_graveyard(PlayerId::One, cards::SERRA_ANGEL)
+        .unwrap();
+    let opposing_graveyard = game
+        .put_into_graveyard(PlayerId::Two, cards::SERRA_ANGEL)
+        .unwrap();
+    game.put_onto_battlefield(PlayerId::One, cards::ANGEL_OF_SERENITY)
+        .unwrap();
+    game.apply(PlayerId::One, Action::PassPriority).unwrap();
+
+    let observation = game.observe(PlayerId::One);
+    let decision = observation
+        .decision
+        .as_ref()
+        .expect("Angel's ETB trigger asks for up to three targets");
+    let mut policy = HandcraftedPolicy::new(catalog);
+    let action = policy
+        .choose_action(&observation)
+        .expect("the policy places Angel's trigger");
+    let Action::ChooseDecision { options, .. } = action else {
+        panic!("expected target selection, got {action:?}");
+    };
+    let mut selected = decision
+        .options
+        .iter()
+        .filter(|option| options.contains(&option.id))
+        .filter_map(|option| option.card.map(|(card, _)| card))
+        .collect::<Vec<_>>();
+    selected.sort_unstable();
+    let mut expected = vec![opposing_battlefield, own_graveyard];
+    expected.sort_unstable();
+
+    assert_eq!(selected, expected);
+    assert!(!selected.contains(&own_battlefield));
+    assert!(!selected.contains(&opposing_graveyard));
+}
+
+#[test]
 fn handcrafted_does_not_float_unneeded_mana_in_its_main_phase() {
     let catalog = poc::catalog().unwrap();
     let mountain = permanent(1, poc::cards::MOUNTAIN, PlayerId::One, None, None);

@@ -4900,6 +4900,7 @@ fn magical_hack_on_stage_applies_to_land_types_that_stage_later_copies() {
             ability: activated_ability_for(&game, stage_id, 0),
             targets: activated_targets(Target::Permanent(arbor_id)),
             sacrifice: None,
+            x: 0,
         },
     )
     .unwrap();
@@ -5170,6 +5171,7 @@ fn stage_copies_dryad_arbors_copiable_values_but_not_hack_or_presence() {
             ability: copy_ability,
             targets: activated_targets(Target::Permanent(arbor_id)),
             sacrifice: None,
+            x: 0,
         },
     )
     .unwrap();
@@ -5250,6 +5252,7 @@ fn a_new_stage_can_copy_dryad_arbor_but_the_result_is_summoning_sick() {
         ability: copy_ability,
         targets: activated_targets(Target::Permanent(arbor_id)),
         sacrifice: None,
+        x: 0,
     };
     assert!(
         game.legal_actions(PlayerId::One).contains(&copy),
@@ -5295,6 +5298,7 @@ fn stage_copying_stage_does_not_duplicate_indistinguishable_legal_actions() {
             ability: copy_ability,
             targets: activated_targets(Target::Permanent(copied_stage)),
             sacrifice: None,
+            x: 0,
         },
     )
     .unwrap();
@@ -5322,6 +5326,7 @@ fn stage_copying_stage_does_not_duplicate_indistinguishable_legal_actions() {
         ability: copy_ability,
         targets: activated_targets(Target::Permanent(mountain)),
         sacrifice: None,
+        x: 0,
     };
     assert_eq!(
         game.legal_actions(PlayerId::One)
@@ -5355,6 +5360,7 @@ fn stage_keeps_a_resolved_factory_animation_after_copying_another_land() {
             ability: original_copy_ability,
             targets: activated_targets(Target::Permanent(factory_id)),
             sacrifice: None,
+            x: 0,
         },
     )
     .unwrap();
@@ -5366,6 +5372,7 @@ fn stage_keeps_a_resolved_factory_animation_after_copying_another_land() {
         ability: activated_ability_for(&game, stage_id, 0),
         targets: Vec::new(),
         sacrifice: None,
+        x: 0,
     };
     game.players[0].mana_pool.colorless = 1;
     assert!(
@@ -5384,6 +5391,7 @@ fn stage_keeps_a_resolved_factory_animation_after_copying_another_land() {
             ability: retained_copy_ability,
             targets: activated_targets(Target::Permanent(mountain_id)),
             sacrifice: None,
+            x: 0,
         },
     )
     .unwrap();
@@ -5405,6 +5413,7 @@ fn stage_keeps_a_resolved_factory_animation_after_copying_another_land() {
         ability: activated_ability_for(&game, factory_id, 1),
         targets: activated_targets(Target::Permanent(stage_id)),
         sacrifice: None,
+        x: 0,
     };
     assert!(
         game.legal_actions(PlayerId::One).contains(&pump),
@@ -5429,6 +5438,7 @@ fn stage_does_not_copy_a_land_that_leaves_before_the_ability_resolves() {
             ability: activated_ability_for(&game, stage_id, 0),
             targets: activated_targets(Target::Permanent(target_id)),
             sacrifice: None,
+            x: 0,
         },
     )
     .unwrap();

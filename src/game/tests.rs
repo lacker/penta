@@ -4577,6 +4577,43 @@ fn first_strike_kills_a_normal_blocker_before_it_can_hit_back() {
 }
 
 #[test]
+fn delayed_combat_damage_effect_queued_between_strike_waves_fires_once() {
+    const LOSE_ONE: EffectDef = EffectDef::LoseLife {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::Constant(1),
+    };
+
+    let mut game = ready_game();
+    game.step = Step::DeclareBlockers;
+    let mut attacker = creature(10_000, cards::BLACK_KNIGHT, PlayerId::One);
+    attacker.attacking = true;
+    game.battlefield.push(attacker);
+    game.advance_step();
+    assert!(
+        game.regular_combat_damage_pending(),
+        "the first-strike wave leaves an inter-wave priority window",
+    );
+
+    let life_before = game.players[0].life;
+    game.delayed_triggers.push(DelayedTrigger {
+        object: Box::new(spell(10_001, cards::LIGHTNING_BOLT, PlayerId::One, 0)),
+        step: TurnStepDef::CombatDamage,
+        player: PlayerRelation::Any,
+        effect: &LOSE_ONE,
+    });
+
+    pass_priority_pair(&mut game);
+
+    assert_eq!(game.step, Step::CombatDamage);
+    assert!(
+        !game.regular_combat_damage_pending(),
+        "the regular combat-damage step has begun",
+    );
+    assert_eq!(game.players[0].life, life_before - 1);
+    assert!(game.delayed_triggers.is_empty());
+}
+
+#[test]
 fn first_strike_blocker_kills_a_normal_attacker_before_it_deals_damage() {
     let mut game = ready_game();
     game.step = Step::DeclareBlockers;
@@ -14959,6 +14996,106 @@ fn an_intervening_if_is_checked_when_it_triggers_and_again_when_it_resolves() {
         1,
         "both checks held, so a creature was sacrificed"
     );
+}
+
+#[test]
+fn delayed_trigger_partition_preserves_order_and_waiting_capacity() {
+    const LOSE_ONE: EffectDef = EffectDef::LoseLife {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::Constant(1),
+    };
+    const LOSE_TWO: EffectDef = EffectDef::LoseLife {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::Constant(2),
+    };
+    const LOSE_THREE: EffectDef = EffectDef::LoseLife {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::Constant(3),
+    };
+    const LOSE_FOUR: EffectDef = EffectDef::LoseLife {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::Constant(4),
+    };
+    let delayed = |id: u32, step: TurnStepDef, effect: &'static EffectDef| DelayedTrigger {
+        object: Box::new(spell(id, cards::LIGHTNING_BOLT, PlayerId::One, 0)),
+        step,
+        player: PlayerRelation::Any,
+        effect,
+    };
+
+    let mut game = ready_game();
+    game.delayed_triggers = Vec::with_capacity(8);
+    game.delayed_triggers.extend([
+        delayed(10_000, TurnStepDef::End, &LOSE_ONE),
+        delayed(10_001, TurnStepDef::Draw, &LOSE_THREE),
+        delayed(10_002, TurnStepDef::End, &LOSE_TWO),
+        delayed(10_003, TurnStepDef::Draw, &LOSE_FOUR),
+    ]);
+    let waiting_capacity = game.delayed_triggers.capacity();
+    let event_start = game.events.len();
+
+    game.fire_delayed_triggers(TurnStepDef::End);
+
+    let lost = game.events[event_start..]
+        .iter()
+        .filter_map(|event| match event {
+            GameEvent::LifeLost {
+                player: PlayerId::One,
+                amount,
+            } => Some(*amount),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(lost, vec![1, 2], "due effects keep their queued order");
+    assert_eq!(
+        game.delayed_triggers
+            .iter()
+            .map(|delayed| delayed.object.id.0)
+            .collect::<Vec<_>>(),
+        vec![10_001, 10_003],
+        "waiting effects keep their queued order"
+    );
+    assert_eq!(
+        game.delayed_triggers.capacity(),
+        waiting_capacity,
+        "partitioning reuses the waiting queue allocation"
+    );
+}
+
+#[test]
+fn delayed_effect_enqueued_during_firing_waits_for_the_next_matching_step() {
+    const LOSE_ONE: EffectDef = EffectDef::LoseLife {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::Constant(1),
+    };
+    const ENQUEUE_LOSS: EffectDef = EffectDef::AtNextStep {
+        step: TurnStepDef::End,
+        player: PlayerRelation::Any,
+        effect: &LOSE_ONE,
+    };
+    let mut game = ready_game();
+    game.delayed_triggers = Vec::with_capacity(4);
+    game.delayed_triggers.push(DelayedTrigger {
+        object: Box::new(spell(10_000, cards::LIGHTNING_BOLT, PlayerId::One, 0)),
+        step: TurnStepDef::End,
+        player: PlayerRelation::Any,
+        effect: &ENQUEUE_LOSS,
+    });
+    let waiting_capacity = game.delayed_triggers.capacity();
+    let life_before = game.players[0].life;
+
+    game.fire_delayed_triggers(TurnStepDef::End);
+
+    assert_eq!(game.players[0].life, life_before);
+    assert_eq!(game.delayed_triggers.len(), 1);
+    assert_eq!(*game.delayed_triggers[0].effect, LOSE_ONE);
+    assert_eq!(game.delayed_triggers.capacity(), waiting_capacity);
+
+    game.fire_delayed_triggers(TurnStepDef::End);
+
+    assert_eq!(game.players[0].life, life_before - 1);
+    assert!(game.delayed_triggers.is_empty());
+    assert_eq!(game.delayed_triggers.capacity(), waiting_capacity);
 }
 
 #[test]

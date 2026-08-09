@@ -12447,22 +12447,22 @@ impl Game {
     /// apart, and keeps the queue from needing a listener of its own.
     fn fire_delayed_triggers(&mut self, step: TurnStepDef) {
         let active = self.active_player;
+        let mut waiting = std::mem::take(&mut self.delayed_triggers);
         let mut due = Vec::new();
-        let mut waiting = Vec::new();
-        for delayed in std::mem::take(&mut self.delayed_triggers) {
-            let is_due = delayed.step == step
+        for delayed in waiting.extract_if(.., |delayed| {
+            delayed.step == step
                 && self.player_relation_matches(
                     active,
                     delayed.player,
                     delayed.object.controller,
                     TriggerContext::empty(),
-                );
-            if is_due {
-                due.push(delayed);
-            } else {
-                waiting.push(delayed);
-            }
+                )
+        }) {
+            due.push(delayed);
         }
+        // Restore the waiting allocation before resolving. A due effect may
+        // enqueue another delayed effect, which belongs after every entry
+        // that was already waiting and must not fire in this batch.
         self.delayed_triggers = waiting;
         for delayed in due {
             self.resolve_effect_def(*delayed.effect, &delayed.object, TriggerContext::empty());

@@ -1045,9 +1045,9 @@ impl HandcraftedPolicy {
             EffectDef::Sequence(effects) => {
                 effects.iter().copied().find_map(Self::target_condition_in)
             }
-            EffectDef::OptionalManaPayment { effect, .. } | EffectDef::May(effect) => {
-                Self::target_condition_in(*effect)
-            }
+            EffectDef::OptionalManaPayment { effect, .. }
+            | EffectDef::May(effect)
+            | EffectDef::AtNextStep { effect, .. } => Self::target_condition_in(*effect),
             EffectDef::AddCounters { amount, .. } | EffectDef::GainLife { amount, .. } => {
                 match amount {
                     ValueDef::IfTargetMatches(condition) => Some(condition),
@@ -1554,7 +1554,8 @@ mod tests {
     use super::HandcraftedPolicy;
     use crate::TargetSlotId;
     use crate::card::{
-        EffectDef, EffectRecipientDef, ManaCost, ObjectPredicateDef, TargetConditionDef, ValueDef,
+        EffectDef, EffectRecipientDef, ManaCost, ObjectPredicateDef, PlayerRelation,
+        TargetConditionDef, TurnStepDef, ValueDef,
     };
 
     static TARGET_CONDITION: TargetConditionDef = TargetConditionDef {
@@ -1575,6 +1576,11 @@ mod tests {
             cost: ManaCost::new(1, 0),
             effect: &CONDITIONAL_EFFECT,
         };
+        let delayed = EffectDef::AtNextStep {
+            step: TurnStepDef::End,
+            player: PlayerRelation::You,
+            effect: &CONDITIONAL_EFFECT,
+        };
 
         assert_eq!(
             HandcraftedPolicy::target_condition_in(may),
@@ -1582,6 +1588,10 @@ mod tests {
         );
         assert_eq!(
             HandcraftedPolicy::target_condition_in(optional_payment),
+            Some(&TARGET_CONDITION),
+        );
+        assert_eq!(
+            HandcraftedPolicy::target_condition_in(delayed),
             Some(&TARGET_CONDITION),
         );
     }

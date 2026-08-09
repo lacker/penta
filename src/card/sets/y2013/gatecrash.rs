@@ -5,8 +5,8 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityImplementationDef, AbilityTargetDef, AbilityTargetPredicate,
     AppliedEffectDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType,
     CounterKind, EffectDef, EffectDurationDef, EffectRecipientDef, KeywordAbility, LandEntry,
-    ObjectPredicateDef, PlayerRelation, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    abilities, cards,
+    ManaColor, ObjectPredicateDef, PlayerRelation, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, abilities, cards,
 };
 use crate::ids::TargetSlotId;
 use crate::mana_cost;
@@ -203,8 +203,6 @@ pub(in crate::card::sets) static GHOR_CLAN_RAMPAGER: CardRecord = CardRecord::ne
     ]),
 );
 
-// Implementation status: partial — the pay-life choice and explicit mana abilities run, but
-// the mana abilities are not yet derived intrinsically from the basic land types.
 pub(in crate::card::sets) static GODLESS_SHRINE: CardRecord = CardRecord::new(
     cards::GODLESS_SHRINE,
     "Godless Shrine",
@@ -212,7 +210,7 @@ pub(in crate::card::sets) static GODLESS_SHRINE: CardRecord = CardRecord::new(
     CardSet::Gatecrash,
     CardRules::new_land(&["Plains", "Swamp"])
     .land_entry(LandEntry::PayLifeOrTapped(2))
-    .with_abilities(&[
+    .with_ability(
         AbilityDef::replacement(
             "As this land enters, you may pay 2 life. If you don't, it enters tapped.",
             EffectDef::Special("Choose whether to pay 2 life or have this land enter tapped"),
@@ -221,9 +219,7 @@ pub(in crate::card::sets) static GODLESS_SHRINE: CardRecord = CardRecord::new(
             behavior: None,
             explanation: "The pay-life-or-tapped choice is implemented by the shared land-entry decision path.",
         }),
-        abilities::basic_land_type_mana(BasicLandType::Plains),
-        abilities::basic_land_type_mana(BasicLandType::Swamp),
-    ]),
+    ),
 );
 
 pub(in crate::card::sets) static OBZEDAT_GHOST_COUNCIL: CardRecord = CardRecord::new(
@@ -288,8 +284,6 @@ pub(in crate::card::sets) static OBZEDAT_GHOST_COUNCIL: CardRecord = CardRecord:
     ]),
 );
 
-// Implementation status: partial — the pay-life choice and explicit mana abilities run, but
-// the mana abilities are not yet derived intrinsically from the basic land types.
 pub(in crate::card::sets) static SACRED_FOUNDRY: CardRecord = CardRecord::new(
     cards::SACRED_FOUNDRY,
     "Sacred Foundry",
@@ -297,7 +291,7 @@ pub(in crate::card::sets) static SACRED_FOUNDRY: CardRecord = CardRecord::new(
     CardSet::Gatecrash,
     CardRules::new_land(&["Mountain", "Plains"])
     .land_entry(LandEntry::PayLifeOrTapped(2))
-    .with_abilities(&[
+    .with_ability(
         AbilityDef::replacement(
             "As this land enters, you may pay 2 life. If you don't, it enters tapped.",
             EffectDef::Special("Choose whether to pay 2 life or have this land enter tapped"),
@@ -306,9 +300,7 @@ pub(in crate::card::sets) static SACRED_FOUNDRY: CardRecord = CardRecord::new(
             behavior: None,
             explanation: "The pay-life-or-tapped choice is implemented by the shared land-entry decision path.",
         }),
-        abilities::basic_land_type_mana(BasicLandType::Mountain),
-        abilities::basic_land_type_mana(BasicLandType::Plains),
-    ]),
+    ),
 );
 
 pub(in crate::card::sets) static SEPULCHRAL_PRIMORDIAL: CardRecord = CardRecord::new(
@@ -333,8 +325,6 @@ pub(in crate::card::sets) static SEPULCHRAL_PRIMORDIAL: CardRecord = CardRecord:
     ]),
 );
 
-// Implementation status: partial — the pay-life choice and explicit mana abilities run, but
-// the mana abilities are not yet derived intrinsically from the basic land types.
 pub(in crate::card::sets) static STOMPING_GROUND: CardRecord = CardRecord::new(
     cards::STOMPING_GROUND,
     "Stomping Ground",
@@ -342,7 +332,7 @@ pub(in crate::card::sets) static STOMPING_GROUND: CardRecord = CardRecord::new(
     CardSet::Gatecrash,
     CardRules::new_land(&["Mountain", "Forest"])
     .land_entry(LandEntry::PayLifeOrTapped(2))
-    .with_abilities(&[
+    .with_ability(
         AbilityDef::replacement(
             "As this land enters, you may pay 2 life. If you don't, it enters tapped.",
             EffectDef::Special("Choose whether to pay 2 life or have this land enter tapped"),
@@ -351,8 +341,37 @@ pub(in crate::card::sets) static STOMPING_GROUND: CardRecord = CardRecord::new(
             behavior: None,
             explanation: "The pay-life-or-tapped choice is implemented by the shared land-entry decision path.",
         }),
-        abilities::basic_land_type_mana(BasicLandType::Mountain),
-        abilities::basic_land_type_mana(BasicLandType::Forest),
+    ),
+);
+
+pub(in crate::card::sets) static THESPIANS_STAGE: CardRecord = CardRecord::new(
+    cards::THESPIANS_STAGE,
+    "Thespian's Stage",
+    CardArt::new("b6f27909-e5cd-44c0-91c4-21624f692fd9", "John Avon"),
+    CardSet::Gatecrash,
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated(
+            "{2}, {T}: This land becomes a copy of target land, except it has this ability.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::BecomeCopyOf {
+                object: EffectRecipientDef::Target(TargetSlotId(0)),
+                retain_source_ability: true,
+            },
+        )
+        .with_targets(&[AbilityTargetDef::exactly_one(
+            TargetSlotId(0),
+            "land",
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+        )]),
     ]),
 );
 
@@ -370,6 +389,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SACRED_FOUNDRY,
     &SEPULCHRAL_PRIMORDIAL,
     &STOMPING_GROUND,
+    &THESPIANS_STAGE,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

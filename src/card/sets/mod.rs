@@ -8,6 +8,7 @@
 mod tokens;
 mod y1993;
 mod y1994;
+mod y2007;
 mod y2011;
 mod y2012;
 mod y2013;
@@ -37,7 +38,7 @@ impl SetModule {
     }
 }
 
-/// Every supported set has one source module. `cards` contains definitions
+/// Every cataloged set has one source module. `cards` contains definitions
 /// introduced by that module; `additional_printings` contains reprints and
 /// further variants of definitions introduced elsewhere.
 const SET_MODULES: &[SetModule] = &[
@@ -103,6 +104,11 @@ const SET_MODULES: &[SetModule] = &[
         y1994::promo_1994::ADDITIONAL_PRINTINGS,
     ),
     SetModule::new(
+        CardSet::FutureSight,
+        y2007::future_sight::CARDS,
+        y2007::future_sight::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
         CardSet::Innistrad,
         y2011::innistrad::CARDS,
         y2011::innistrad::ADDITIONAL_PRINTINGS,
@@ -142,10 +148,15 @@ const SET_MODULES: &[SetModule] = &[
         y2013::magic_2014::CARDS,
         y2013::magic_2014::ADDITIONAL_PRINTINGS,
     ),
+    SetModule::new(
+        CardSet::Theros,
+        y2013::theros::CARDS,
+        y2013::theros::ADDITIONAL_PRINTINGS,
+    ),
 ];
 
 pub(super) fn definitions() -> Vec<CardDefinition> {
-    let mut definitions = Vec::with_capacity(244);
+    let mut definitions = Vec::with_capacity(253);
     for module in SET_MODULES {
         definitions.extend(module.cards.iter().map(|record| record.definition()));
     }
@@ -268,7 +279,7 @@ mod tests {
         DoubleFacedKind, EffectDef, EffectDurationDef, EffectRecipientDef, ImplementationStatus,
         KeywordAbility, ManaColor, ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef,
         ObjectPredicateDef, PlayActionKind, PlayRestriction, PlayerRelation, ReplacementEventDef,
-        SpellForm, TargetPredicate, TriggerEventDef, ZoneKind, ZoneMoveCauseDef, abilities, cards,
+        SpellForm, TargetPredicate, TriggerEventDef, ZoneKind, ZoneMoveCauseDef, cards,
     };
     use crate::{AbilityId, CardDefinitionId, CardPartId, CardSet, Format, ModeId, PlayOptionId};
 
@@ -444,6 +455,7 @@ mod tests {
             // rider a spell hands out.
             AppliedEffectDef::CannotBeCountered
             | AppliedEffectDef::CannotBeBlockedBy(_)
+            | AppliedEffectDef::AddLandTypes(_)
             | AppliedEffectDef::Special(_) => false,
         }
     }
@@ -477,7 +489,9 @@ mod tests {
             | EffectDef::ExileLinkedToSource { object }
             | EffectDef::MakeUnblockableThisTurn { object }
             | EffectDef::AddCounters { object, .. }
-            | EffectDef::Attach { object } => shared_effect_recipient(object),
+            | EffectDef::Attach { object }
+            | EffectDef::ChangeTextBasicLandType { object }
+            | EffectDef::BecomeCopyOf { object, .. } => shared_effect_recipient(object),
             // Only the two destinations counter_spell_into knows.
             EffectDef::CounterUnlessPaid { object, zone, .. } => {
                 matches!(zone, ZoneKind::Graveyard | ZoneKind::Exile)
@@ -628,6 +642,7 @@ mod tests {
                         };
                         supported(power) && supported(toughness)
                     }
+                    AppliedEffectDef::AddLandTypes(land_types) => !land_types.is_empty(),
                     AppliedEffectDef::GrantAbility(ability) => shared_definition_ability(ability),
                     AppliedEffectDef::CannotBeBlockedBy(predicate) => {
                         recipient == EffectRecipientDef::Source
@@ -673,6 +688,8 @@ mod tests {
             | EffectDef::Counter { .. }
             | EffectDef::CounterUnlessPaid { .. }
             | EffectDef::AddCounters { .. }
+            | EffectDef::ChangeTextBasicLandType { .. }
+            | EffectDef::BecomeCopyOf { .. }
             | EffectDef::OptionalManaPayment { .. }
             | EffectDef::EntersTapped
             | EffectDef::MultiplyEventAmount(_)
@@ -745,6 +762,8 @@ mod tests {
                         | EffectDef::Counter { .. }
                         | EffectDef::CounterUnlessPaid { .. }
                         | EffectDef::AddCounters { .. }
+                        | EffectDef::ChangeTextBasicLandType { .. }
+                        | EffectDef::BecomeCopyOf { .. }
                         | EffectDef::OptionalManaPayment { .. }
                         | EffectDef::EntersTapped
                         | EffectDef::CannotBeForcedToSacrifice
@@ -850,6 +869,8 @@ mod tests {
             | EffectDef::Counter { .. }
             | EffectDef::CounterUnlessPaid { .. }
             | EffectDef::AddCounters { .. }
+            | EffectDef::ChangeTextBasicLandType { .. }
+            | EffectDef::BecomeCopyOf { .. }
             | EffectDef::EntersTapped
             | EffectDef::CannotBeForcedToSacrifice
             | EffectDef::GrantFlashToNextSorcery
@@ -867,8 +888,8 @@ mod tests {
     }
 
     #[test]
-    fn every_supported_set_has_one_matching_module() {
-        let expected_sets = Format::OldSchool9394
+    fn every_cataloged_set_has_one_matching_module() {
+        let format_sets = Format::OldSchool9394
             .rules()
             .allowed_sets
             .iter()
@@ -890,15 +911,23 @@ mod tests {
             );
         }
 
-        assert_eq!(registered_sets, expected_sets);
-        assert_eq!(registered_sets.len(), 20);
+        assert!(
+            format_sets.iter().all(|set| registered_sets.contains(set)),
+            "every format-supported set must be cataloged",
+        );
+        for testbed_set in [CardSet::FutureSight, CardSet::Theros] {
+            assert!(registered_sets.contains(&testbed_set));
+            assert!(!Format::OldSchool9394.allows_set(testbed_set));
+            assert!(!Format::IsdRtrStandard.allows_set(testbed_set));
+        }
+        assert_eq!(registered_sets.len(), 22);
         assert_eq!(
             registered_sets
                 .iter()
                 .copied()
                 .collect::<HashSet<_>>()
                 .len(),
-            20
+            22
         );
 
         for module in SET_MODULES {
@@ -918,13 +947,13 @@ mod tests {
             .iter()
             .flat_map(|module| module.cards.iter().copied())
             .collect::<Vec<_>>();
-        assert_eq!(records.len(), 249);
+        assert_eq!(records.len(), 253);
 
         let mut ids = records.iter().map(|record| record.id).collect::<Vec<_>>();
         ids.sort_unstable();
         assert_eq!(
             ids.iter().map(|id| id.0).collect::<Vec<_>>(),
-            (1..=249).collect::<Vec<_>>()
+            (1..=253).collect::<Vec<_>>()
         );
         assert_eq!(
             records
@@ -939,11 +968,17 @@ mod tests {
     #[test]
     fn built_in_catalog_indexes_definitions_and_printings_separately() {
         let catalog = crate::card::catalog().unwrap();
-        let printing_count = (1..=244)
+        let printing_count = (1..=253)
+            .filter(|id| {
+                *id != cards::BEAST_TOKEN_3_3_GREEN.0
+                    && *id != cards::KNIGHT_TOKEN_2_2_WHITE.0
+                    && *id != cards::SOLDIER_TOKEN_1_1_RED_WHITE.0
+                    && *id != cards::DEMON_TOKEN_5_5_BLACK.0
+            })
             .map(|id| catalog.printings_for(CardDefinitionId(id)).len())
             .sum::<usize>();
 
-        assert_eq!(printing_count, 624);
+        assert_eq!(printing_count, 629);
         for variant in 0..3 {
             assert!(
                 catalog
@@ -964,7 +999,7 @@ mod tests {
             .iter()
             .flat_map(|module| module.cards.iter().copied())
             .collect::<Vec<_>>();
-        assert_eq!(records.len(), 249);
+        assert_eq!(records.len(), 253);
 
         for record in records {
             let definition = record.definition();
@@ -989,11 +1024,16 @@ mod tests {
     #[test]
     fn standard_records_cover_the_top_eight_pool_with_stable_unique_ids() {
         let records = standard_records();
-        assert_eq!(records.len(), 116);
+        assert_eq!(records.len(), 117);
+
+        let expected_ids = (129..=244).chain([251]).collect::<Vec<_>>();
+        assert_eq!(
+            records.iter().map(|record| record.id.0).collect::<Vec<_>>(),
+            expected_ids,
+        );
 
         let mut names = HashSet::new();
-        for (offset, record) in records.iter().enumerate() {
-            assert_eq!(usize::from(record.id.0), 129 + offset);
+        for record in records {
             assert!(names.insert(record.name));
             assert!(!record.rules.has_supertype(CardSupertype::Basic));
             assert!(Format::IsdRtrStandard.allows_set(record.debut_set));
@@ -1004,6 +1044,7 @@ mod tests {
 
         assert!(!names.contains("Celestial Purge"));
         assert!(names.contains("Celestial Flare"));
+        assert!(names.contains("Thespian's Stage"));
     }
 
     #[test]
@@ -1030,7 +1071,7 @@ mod tests {
             );
         }
 
-        assert_eq!(scryfall_ids.len(), 116);
+        assert_eq!(scryfall_ids.len(), 117);
     }
 
     #[test]
@@ -1184,58 +1225,33 @@ mod tests {
     }
 
     #[test]
-    fn every_builtin_land_prints_its_mana_ability_clauses() {
+    fn every_builtin_mana_land_has_a_printed_or_intrinsic_source() {
         let lands = SET_MODULES
             .iter()
             .flat_map(|module| module.cards.iter().copied())
             .filter(|record| record.rules.has_type(crate::card::CardType::Land))
             .collect::<Vec<_>>();
-        assert_eq!(lands.len(), 45);
+        assert_eq!(lands.len(), 47);
 
         let lands_without_mana = lands
             .iter()
             .filter(|record| {
-                !record.rules.ability_clauses().iter().any(|ability| {
-                    matches!(ability.definition, DeclarativeAbilityDef::ActivatedMana(_))
-                })
+                let has_intrinsic_source = BasicLandType::ALL
+                    .into_iter()
+                    .any(|land_type| record.rules.has_subtype(land_type.subtype()));
+                let has_printed_source = record.rules.ability_clauses().iter().any(|ability| {
+                    ability.implementation.is_executable()
+                        && matches!(ability.definition, DeclarativeAbilityDef::ActivatedMana(_))
+                });
+                !has_intrinsic_source && !has_printed_source
             })
             .map(|record| record.name)
             .collect::<Vec<_>>();
         assert_eq!(lands_without_mana, ["Maze of Ith"]);
-
-        for land in lands {
-            let land_types = BasicLandType::ALL
-                .into_iter()
-                .filter(|land_type| land.rules.has_subtype(land_type.subtype()))
-                .collect::<Vec<_>>();
-            let basic_subtypes = land_types.len();
-            let printed_mana_abilities = land
-                .rules
-                .ability_clauses()
-                .iter()
-                .filter(|ability| {
-                    matches!(ability.definition, DeclarativeAbilityDef::ActivatedMana(_))
-                })
-                .count();
-            assert!(
-                printed_mana_abilities >= basic_subtypes,
-                "{} has {basic_subtypes} basic land subtypes but only {printed_mana_abilities} printed mana abilities",
-                land.name
-            );
-            for land_type in land_types {
-                let expected = abilities::basic_land_type_mana(land_type);
-                assert!(
-                    land.rules.ability_clauses().contains(&expected),
-                    "{} has the {} subtype without its matching mana ability",
-                    land.name,
-                    land_type.subtype(),
-                );
-            }
-        }
     }
 
     #[test]
-    fn basic_land_subtypes_use_the_common_executable_partial_mana_clause() {
+    fn basic_land_subtypes_do_not_repeat_intrinsic_mana_as_printed_clauses() {
         let lands = SET_MODULES
             .iter()
             .flat_map(|module| module.cards.iter().copied())
@@ -1246,47 +1262,31 @@ mod tests {
                     .any(|land_type| record.rules.has_subtype(land_type.subtype()))
             })
             .collect::<Vec<_>>();
-        assert_eq!(lands.len(), 22);
+        assert_eq!(lands.len(), 23);
 
-        let mut matching_clauses = 0;
+        let mut intrinsic_types = 0;
         for land in lands {
             assert_eq!(
                 land.rules.implementation_status(),
-                ImplementationStatus::Partial,
-                "{} should be partial while its basic-land-type abilities are explicit stand-ins",
+                ImplementationStatus::Complete,
+                "{} should be complete once basic-land mana is derived intrinsically",
                 land.name,
             );
-            for land_type in BasicLandType::ALL
+            let land_types = BasicLandType::ALL
                 .into_iter()
                 .filter(|land_type| land.rules.has_subtype(land_type.subtype()))
-            {
-                let expected = abilities::basic_land_type_mana(land_type);
-                let matches = land
-                    .rules
-                    .ability_clauses()
-                    .iter()
-                    .filter(|ability| **ability == expected)
-                    .collect::<Vec<_>>();
-                assert_eq!(
-                    matches.len(),
-                    1,
-                    "{} should have exactly one common {} mana clause",
-                    land.name,
-                    land_type.subtype(),
-                );
-                let ability = matches[0];
-                assert!(ability.implementation.is_executable());
-                assert!(matches!(
-                    ability.implementation,
-                    AbilityImplementationDef::CustomPartial {
-                        behavior: None,
-                        explanation,
-                    } if explanation == abilities::BASIC_LAND_TYPE_MANA_EXPLANATION
-                ));
-                matching_clauses += 1;
-            }
+                .count();
+            intrinsic_types += land_types;
+            assert!(
+                !land.rules.ability_clauses().iter().any(|ability| matches!(
+                    ability.definition,
+                    DeclarativeAbilityDef::ActivatedMana(_)
+                )),
+                "{} should rely on its basic land subtypes for mana",
+                land.name,
+            );
         }
-        assert_eq!(matching_clauses, 39);
+        assert_eq!(intrinsic_types, 40);
     }
 
     #[test]
@@ -1470,7 +1470,7 @@ mod tests {
         ];
 
         let early_sets = [
-            (CardSet::Alpha, 84, 89, 2_u16),
+            (CardSet::Alpha, 85, 90, 2_u16),
             (CardSet::Beta, 84, 94, 3_u16),
             (CardSet::Unlimited, 84, 94, 3_u16),
             (CardSet::CollectorsEdition, 84, 94, 3_u16),

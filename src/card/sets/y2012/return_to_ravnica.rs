@@ -3,10 +3,10 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityImplementationDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, BasicLandType, CardArt, CardBehavior, CardRules, CardSet,
-    CardSupertype, CardType, EffectDef, EffectDurationDef, EffectRecipientDef, LandEntry,
-    ManaColor, ObjectPredicateDef, PlayerRelation, ReplacementEventDef, TriggerEventDef, ValueDef,
-    ZoneKind, ZoneMoveCauseDef, abilities, cards,
+    AddManaEffectDef, AppliedEffectDef, CardArt, CardBehavior, CardRules, CardSet, CardSupertype,
+    CardType, EffectDef, EffectDurationDef, EffectRecipientDef, LandEntry, ManaColor,
+    ObjectPredicateDef, PlayerRelation, ReplacementEventDef, TriggerEventDef, ValueDef, ZoneKind,
+    ZoneMoveCauseDef, abilities, cards,
 };
 use crate::ids::TargetSlotId;
 use crate::mana_cost;
@@ -299,8 +299,6 @@ pub(in crate::card::sets) static GRISLY_SALVAGE: CardRecord = CardRecord::new(
     ),
 );
 
-// Implementation status: partial — the pay-life choice and explicit mana abilities run, but
-// the mana abilities are not yet derived intrinsically from the basic land types.
 pub(in crate::card::sets) static HALLOWED_FOUNTAIN: CardRecord = CardRecord::new(
     cards::HALLOWED_FOUNTAIN,
     "Hallowed Fountain",
@@ -308,7 +306,7 @@ pub(in crate::card::sets) static HALLOWED_FOUNTAIN: CardRecord = CardRecord::new
     CardSet::ReturnToRavnica,
     CardRules::new_land(&["Plains", "Island"])
     .land_entry(LandEntry::PayLifeOrTapped(2))
-    .with_abilities(&[
+    .with_ability(
         AbilityDef::replacement(
             "As this land enters, you may pay 2 life. If you don't, it enters tapped.",
             EffectDef::Special("Choose whether to pay 2 life or have this land enter tapped"),
@@ -317,9 +315,7 @@ pub(in crate::card::sets) static HALLOWED_FOUNTAIN: CardRecord = CardRecord::new
             behavior: None,
             explanation: "The pay-life-or-tapped choice is implemented by the shared land-entry decision path.",
         }),
-        abilities::basic_land_type_mana(BasicLandType::Plains),
-        abilities::basic_land_type_mana(BasicLandType::Island),
-    ]),
+    ),
 );
 
 pub(in crate::card::sets) static IZZET_CHARM: CardRecord = CardRecord::new(
@@ -484,8 +480,6 @@ pub(in crate::card::sets) static MIZZIUM_MORTARS: CardRecord = CardRecord::new(
     ]),
 );
 
-// Implementation status: partial — the pay-life choice and explicit mana abilities run, but
-// the mana abilities are not yet derived intrinsically from the basic land types.
 pub(in crate::card::sets) static OVERGROWN_TOMB: CardRecord = CardRecord::new(
     cards::OVERGROWN_TOMB,
     "Overgrown Tomb",
@@ -493,7 +487,7 @@ pub(in crate::card::sets) static OVERGROWN_TOMB: CardRecord = CardRecord::new(
     CardSet::ReturnToRavnica,
     CardRules::new_land(&["Swamp", "Forest"])
     .land_entry(LandEntry::PayLifeOrTapped(2))
-    .with_abilities(&[
+    .with_ability(
         AbilityDef::replacement(
             "As this land enters, you may pay 2 life. If you don't, it enters tapped.",
             EffectDef::Special("Choose whether to pay 2 life or have this land enter tapped"),
@@ -502,9 +496,7 @@ pub(in crate::card::sets) static OVERGROWN_TOMB: CardRecord = CardRecord::new(
             behavior: None,
             explanation: "The pay-life-or-tapped choice is implemented by the shared land-entry decision path.",
         }),
-        abilities::basic_land_type_mana(BasicLandType::Swamp),
-        abilities::basic_land_type_mana(BasicLandType::Forest),
-    ]),
+    ),
 );
 
 pub(in crate::card::sets) static PITHING_NEEDLE: CardRecord = CardRecord::new(
@@ -618,8 +610,6 @@ pub(in crate::card::sets) static SPHINXS_REVELATION: CardRecord = CardRecord::ne
     )),
 );
 
-// Implementation status: partial — the pay-life choice and explicit mana abilities run, but
-// the mana abilities are not yet derived intrinsically from the basic land types.
 pub(in crate::card::sets) static STEAM_VENTS: CardRecord = CardRecord::new(
     cards::STEAM_VENTS,
     "Steam Vents",
@@ -627,7 +617,7 @@ pub(in crate::card::sets) static STEAM_VENTS: CardRecord = CardRecord::new(
     CardSet::ReturnToRavnica,
     CardRules::new_land(&["Island", "Mountain"])
     .land_entry(LandEntry::PayLifeOrTapped(2))
-    .with_abilities(&[
+    .with_ability(
         AbilityDef::replacement(
             "As this land enters, you may pay 2 life. If you don't, it enters tapped.",
             EffectDef::Special("Choose whether to pay 2 life or have this land enter tapped"),
@@ -636,9 +626,7 @@ pub(in crate::card::sets) static STEAM_VENTS: CardRecord = CardRecord::new(
             behavior: None,
             explanation: "The pay-life-or-tapped choice is implemented by the shared land-entry decision path.",
         }),
-        abilities::basic_land_type_mana(BasicLandType::Island),
-        abilities::basic_land_type_mana(BasicLandType::Mountain),
-    ]),
+    ),
 );
 
 pub(in crate::card::sets) static SUPREME_VERDICT: CardRecord = CardRecord::new(
@@ -689,8 +677,6 @@ pub(in crate::card::sets) static SYNCOPATE: CardRecord = CardRecord::new(
     ),
 );
 
-// Implementation status: partial — the pay-life choice and explicit mana abilities run, but
-// the mana abilities are not yet derived intrinsically from the basic land types.
 pub(in crate::card::sets) static TEMPLE_GARDEN: CardRecord = CardRecord::new(
     cards::TEMPLE_GARDEN,
     "Temple Garden",
@@ -698,7 +684,7 @@ pub(in crate::card::sets) static TEMPLE_GARDEN: CardRecord = CardRecord::new(
     CardSet::ReturnToRavnica,
     CardRules::new_land(&["Forest", "Plains"])
     .land_entry(LandEntry::PayLifeOrTapped(2))
-    .with_abilities(&[
+    .with_ability(
         AbilityDef::replacement(
             "As this land enters, you may pay 2 life. If you don't, it enters tapped.",
             EffectDef::Special("Choose whether to pay 2 life or have this land enter tapped"),
@@ -707,9 +693,7 @@ pub(in crate::card::sets) static TEMPLE_GARDEN: CardRecord = CardRecord::new(
             behavior: None,
             explanation: "The pay-life-or-tapped choice is implemented by the shared land-entry decision path.",
         }),
-        abilities::basic_land_type_mana(BasicLandType::Forest),
-        abilities::basic_land_type_mana(BasicLandType::Plains),
-    ]),
+    ),
 );
 
 pub(in crate::card::sets) static ULTIMATE_PRICE: CardRecord = CardRecord::new(

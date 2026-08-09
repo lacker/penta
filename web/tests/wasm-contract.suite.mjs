@@ -273,9 +273,11 @@ test("the packaged Rust engine plays through browser actions", async () => {
   );
   assert.ok(
     opening.human.hand.every(
-      (card) => typeof card.rulesText === "string" && card.rulesText.length > 0,
+      (card) =>
+        typeof card.rulesText === "string" &&
+        (card.kind.includes("land") || card.rulesText.length > 0),
     ),
-    "cards expose their rules text to the interface",
+    "cards expose rules text while ordinary lands may have an empty text box",
   );
   const openingCreature = opening.human.hand.find((card) =>
     card.kind.includes("creature"),

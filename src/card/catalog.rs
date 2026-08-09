@@ -669,6 +669,8 @@ fn collect_ability_grants(effect: super::EffectDef, grants: &mut Vec<&AbilityDef
         | super::EffectDef::Counter { .. }
         | super::EffectDef::CounterUnlessPaid { .. }
         | super::EffectDef::AddCounters { .. }
+        | super::EffectDef::ChangeTextBasicLandType { .. }
+        | super::EffectDef::BecomeCopyOf { .. }
         | super::EffectDef::EntersTapped
         | super::EffectDef::CannotBeForcedToSacrifice
         | super::EffectDef::GrantFlashToNextSorcery
@@ -714,6 +716,8 @@ fn ability_grant_sites(effect: super::EffectDef) -> usize {
         | super::EffectDef::Counter { .. }
         | super::EffectDef::CounterUnlessPaid { .. }
         | super::EffectDef::AddCounters { .. }
+        | super::EffectDef::ChangeTextBasicLandType { .. }
+        | super::EffectDef::BecomeCopyOf { .. }
         | super::EffectDef::EntersTapped
         | super::EffectDef::CannotBeForcedToSacrifice
         | super::EffectDef::GrantFlashToNextSorcery

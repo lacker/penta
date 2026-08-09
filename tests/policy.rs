@@ -195,6 +195,25 @@ fn handcrafted_scores_declarative_creature_sweepers_by_the_board_swing() {
 }
 
 #[test]
+fn handcrafted_counts_intrinsic_basic_land_mana_when_mulliganing() {
+    let catalog = poc::catalog().unwrap();
+    let mut observation =
+        policy_observation(Vec::new(), vec![Action::KeepHand, Action::TakeMulligan]);
+    observation.hand = vec![
+        (CardInstanceId(1), poc::cards::MOUNTAIN),
+        (CardInstanceId(2), poc::cards::MOUNTAIN),
+        (CardInstanceId(3), poc::cards::LIGHTNING_BOLT),
+        (CardInstanceId(4), poc::cards::LIGHTNING_BOLT),
+        (CardInstanceId(5), poc::cards::LIGHTNING_BOLT),
+        (CardInstanceId(6), poc::cards::LIGHTNING_BOLT),
+        (CardInstanceId(7), poc::cards::LIGHTNING_BOLT),
+    ];
+    let mut policy = HandcraftedPolicy::new(catalog);
+
+    assert_eq!(policy.choose_action(&observation), Some(Action::KeepHand));
+}
+
+#[test]
 fn handcrafted_does_not_feed_a_creature_to_a_superior_blocker() {
     let catalog = poc::catalog().unwrap();
     let attacker = permanent(

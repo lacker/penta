@@ -259,3 +259,7 @@ pub const SOLDIER_TOKEN_1_1_RED_WHITE: CardDefinitionId = CardDefinitionId(247);
 /// its set's block.
 pub const WALL_OF_STONE: CardDefinitionId = CardDefinitionId(248);
 pub const DEMON_TOKEN_5_5_BLACK: CardDefinitionId = CardDefinitionId(249);
+pub const MAGICAL_HACK: CardDefinitionId = CardDefinitionId(250);
+pub const THESPIANS_STAGE: CardDefinitionId = CardDefinitionId(251);
+pub const DRYAD_ARBOR: CardDefinitionId = CardDefinitionId(252);
+pub const NYLEAS_PRESENCE: CardDefinitionId = CardDefinitionId(253);

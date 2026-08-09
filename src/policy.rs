@@ -142,10 +142,14 @@ impl HandcraftedPolicy {
 
     fn is_mana_source(&self, definition: CardDefinitionId) -> bool {
         self.catalog.get(definition).is_some_and(|card| {
-            card.rules.ability_clauses().iter().any(|ability| {
-                ability.implementation.is_executable()
-                    && matches!(ability.definition, DeclarativeAbilityDef::ActivatedMana(_))
-            })
+            (card.rules.has_type(CardType::Land)
+                && BasicLandType::ALL
+                    .into_iter()
+                    .any(|land_type| card.rules.has_subtype(land_type.subtype())))
+                || card.rules.ability_clauses().iter().any(|ability| {
+                    ability.implementation.is_executable()
+                        && matches!(ability.definition, DeclarativeAbilityDef::ActivatedMana(_))
+                })
         })
     }
 
@@ -269,6 +273,8 @@ impl HandcraftedPolicy {
             | EffectDef::Sacrifice { .. }
             | EffectDef::SacrificeOfChoice { .. }
             | EffectDef::AddCounters { .. }
+            | EffectDef::ChangeTextBasicLandType { .. }
+            | EffectDef::BecomeCopyOf { .. }
             | EffectDef::OptionalManaPayment { .. }
             | EffectDef::EntersTapped
             | EffectDef::CannotBeForcedToSacrifice

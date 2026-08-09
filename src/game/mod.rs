@@ -1,5 +1,5 @@
 use std::borrow::Cow;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashSet};
 use std::error::Error;
 use std::fmt;
 use std::ops::ControlFlow;
@@ -90,6 +90,40 @@ struct CardInstance {
     characteristics: CharacteristicSource,
 }
 
+/// One indefinite text-changing effect in layer 3. These effects belong to
+/// the object, are applied in timestamp order, and are deliberately excluded
+/// from its copiable values.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+struct BasicLandTypeChange {
+    from: BasicLandType,
+    to: BasicLandType,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum LandTypeOperation {
+    SetTo(BasicLandType),
+    Add(&'static [BasicLandType]),
+}
+
+/// An ability added as an exception while copying an object. Unlike an
+/// ordinary granted ability, this becomes part of the resulting object's
+/// copiable values and can therefore be copied again.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+struct CopiableAbility {
+    origin: AbilityOrigin,
+    definition: AbilityDef,
+}
+
+/// The compact copiable-value snapshot needed by the copy effects currently
+/// supported by the engine. The catalog source supplies all ordinary printed
+/// characteristics; copy-process exceptions are frozen beside it.
+#[derive(Clone, Debug, Eq, PartialEq)]
+struct CopiableCharacteristics {
+    base: (CardDefinitionId, CardPartId),
+    added_types: CardTypeSet,
+    added_abilities: Vec<CopiableAbility>,
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[allow(clippy::struct_excessive_bools)]
 struct Permanent {
@@ -127,23 +161,24 @@ struct Permanent {
     /// own; the rest are markers the cards that place them interpret.
     counters: [u16; CounterKind::COUNT],
     /// What this Aura is attached to. `None` for everything that is not an
-    /// Aura, and for an Aura whose host has left -- state-based actions put
-    /// such an Aura into its owner's graveyard.
+    /// Aura. State-based actions put it into its owner's graveyard if the
+    /// referenced host leaves or stops being legal.
     attached_to: Option<GameObjectId>,
     /// Set by Pillar of Flame: if this creature would die this turn, it is
     /// exiled instead. The replacement outlives the damage itself, so it
     /// cannot be a property of the damage. Clears in cleanup.
     exile_instead_of_dying: bool,
     combat_damage_assignment: Vec<CombatDamageAssignment>,
-    /// A Copy Artifact remembers the printed behavior it copied when it
-    /// entered.  Keeping this on the permanent lets all of the normal rules
-    /// (mana, type checks, abilities, and continuous effects) see the copy as
-    /// the copied card rather than as the enchantment it started as.
-    /// Copiable characteristics may come from a different card part than the
-    /// physical permanent. Keeping that source independent of custom behavior
-    /// lets copies retain declarative abilities (for example, Sol Ring's mana
-    /// ability) even when the copied card has no legacy dispatch hook.
+    /// Values established by the most recent copy effect. This is a frozen
+    /// snapshot rather than a live pointer to the target, so later changes to
+    /// that object cannot leak through and copy chains preserve exceptions.
+    copy_effect: Option<CopiableCharacteristics>,
+    /// Whether this permanent entered as a copy. Transforming double-faced
+    /// cards use this to distinguish their own back face from a copied one
+    /// when determining mana value.
     copied_from: Option<(CardDefinitionId, CardPartId)>,
+    /// Indefinite text changes applied to this object in timestamp order.
+    text_changes: Vec<BasicLandTypeChange>,
     regeneration_shields: u8,
     berserked: bool,
     attacked_this_turn: bool,
@@ -193,7 +228,9 @@ impl Permanent {
             attached_to: None,
             exile_instead_of_dying: false,
             combat_damage_assignment: Vec::new(),
+            copy_effect: None,
             copied_from: None,
+            text_changes: Vec::new(),
             regeneration_shields: 0,
             berserked: false,
             attacked_this_turn: false,
@@ -241,7 +278,7 @@ struct DelayedTrigger {
 enum RetiredObject {
     Card(CardInstance),
     Permanent {
-        permanent: Permanent,
+        permanent: Box<Permanent>,
         power: Option<i16>,
         toughness: Option<i16>,
         keywords: Vec<KeywordAbility>,
@@ -269,6 +306,10 @@ struct StackObject {
     /// Effects carried by mana used to pay for this object. They are attached
     /// before the spell is finalized on the stack and retain their source.
     applied_effects: Vec<AppliedStackEffect>,
+    /// Indefinite text changes applied while this object is on the stack.
+    /// They transfer to a resolving permanent but are not copied by spell-copy
+    /// effects.
+    text_changes: Vec<BasicLandTypeChange>,
     is_copy: bool,
 }
 
@@ -279,6 +320,11 @@ struct StackObject {
 #[derive(Clone, Debug, Eq, PartialEq)]
 struct StackAbilityPayload {
     origin: AbilityOrigin,
+    /// The complete activated or spell ability as it existed when this object
+    /// was put on the stack. Copy effects that retain the resolving ability
+    /// need its costs and targets as copiable values, not only its resolver;
+    /// triggered payloads do not currently need this optional snapshot.
+    definition: Option<Box<AbilityDef>>,
     presentation_definition: CardDefinitionId,
     text: Option<&'static str>,
     target_defs: Vec<AbilityTargetDef>,
@@ -671,9 +717,10 @@ struct BattlefieldExitSnapshot {
     last_known: PermanentLastKnownInformation,
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 struct FrozenActivatedAbility {
     origin: AbilityOrigin,
+    definition: Option<Box<AbilityDef>>,
     presentation_definition: CardDefinitionId,
     text: Option<&'static str>,
     target_defs: &'static [AbilityTargetDef],
@@ -773,6 +820,9 @@ enum CounteredSpellZone {
 #[derive(Clone, Debug)]
 enum DecisionContinuation {
     Tutor,
+    BasicLandTypeTextChange {
+        target: Target,
+    },
     OptionalManaPayment {
         player: PlayerId,
         cost: ManaCost,
@@ -1146,7 +1196,7 @@ impl Game {
         self.retired_objects.insert(
             permanent.card.id,
             RetiredObject::Permanent {
-                permanent: permanent.clone(),
+                permanent: Box::new(permanent.clone()),
                 power: last_known.power,
                 toughness: last_known.toughness,
                 keywords: last_known.keywords.clone(),
@@ -1427,6 +1477,8 @@ impl Game {
         self.add_land_actions(player, &mut actions);
         self.add_spell_actions(player, &mut actions);
         self.add_ability_actions(player, &mut actions);
+        let mut seen = HashSet::new();
+        actions.retain(|action| seen.insert(action.clone()));
         actions
     }
 
@@ -2100,6 +2152,35 @@ impl Game {
         });
     }
 
+    fn queue_basic_land_type_text_change(&mut self, player: PlayerId, target: Target) {
+        let options = BasicLandType::ALL
+            .into_iter()
+            .flat_map(|from| {
+                BasicLandType::ALL
+                    .into_iter()
+                    .filter(move |to| from != *to)
+                    .map(move |to| DecisionOption {
+                        id: u32::try_from(from.index() * BasicLandType::ALL.len() + to.index())
+                            .expect("the basic-land-type choice id fits u32"),
+                        label: format!("{} → {}", from.subtype(), to.subtype()),
+                        card: None,
+                        ability_text: None,
+                        zone: DecisionZone::None,
+                    })
+            })
+            .collect();
+        self.queue_decision(
+            player,
+            "Replace one basic land type with another",
+            DecisionVisibility::Public,
+            DecisionPreference::Neutral,
+            1..=1,
+            false,
+            options,
+            DecisionContinuation::BasicLandTypeTextChange { target },
+        );
+    }
+
     /// Finishes an atomic rules procedure before a player can receive
     /// priority. Mana abilities invoked while casting resolve inside the
     /// procedure, while ordinary triggers collected by them wait here.
@@ -2309,6 +2390,8 @@ impl Game {
             | EffectDef::Counter { .. }
             | EffectDef::CounterUnlessPaid { .. }
             | EffectDef::AddCounters { .. }
+            | EffectDef::ChangeTextBasicLandType { .. }
+            | EffectDef::BecomeCopyOf { .. }
             | EffectDef::OptionalManaPayment { .. }
             | EffectDef::May(_)
             | EffectDef::EntersTapped
@@ -2408,6 +2491,7 @@ impl Game {
         let presentation_definition =
             Self::ability_presentation_definition(origin, fallback_definition);
         let text = effective.map(|effective| effective.ability.text);
+        let definition = effective.map(|effective| Box::new(effective.ability));
         let (target_defs, resolver) = effective.map_or(
             (&[][..], StackAbilityResolver::Declarative(EffectDef::None)),
             |effective| {
@@ -2428,6 +2512,7 @@ impl Game {
         );
         FrozenActivatedAbility {
             origin,
+            definition,
             presentation_definition,
             text,
             target_defs,
@@ -3029,6 +3114,7 @@ impl Game {
             source: Some(trigger.source.object),
             ability: Some(StackAbilityPayload {
                 origin: trigger.source.ability,
+                definition: None,
                 presentation_definition: trigger.definition,
                 text: Some(trigger.text),
                 target_defs: trigger.target_defs.to_vec(),
@@ -3042,6 +3128,7 @@ impl Game {
             signature: None,
             chosen_permanents: Vec::new(),
             applied_effects: Vec::new(),
+            text_changes: Vec::new(),
             is_copy: false,
         });
         self.events.push(GameEvent::TriggeredAbilityPutOnStack {
@@ -3521,6 +3608,8 @@ impl Game {
         // copiable values. The copy keeps printed static abilities through
         // its definition, but it was not paid for with that mana.
         spell.applied_effects.clear();
+        // Text-changing effects are not copiable values.
+        spell.text_changes.clear();
         spell.is_copy = true;
         self.stack.push(spell);
     }
@@ -3548,6 +3637,7 @@ impl Game {
             source: Some(source),
             ability: Some(StackAbilityPayload {
                 origin: frozen.origin,
+                definition: frozen.definition,
                 presentation_definition: frozen.presentation_definition,
                 text: frozen.text,
                 target_defs: frozen.target_defs.to_vec(),
@@ -3561,6 +3651,7 @@ impl Game {
             signature: None,
             chosen_permanents,
             applied_effects: Vec::new(),
+            text_changes: Vec::new(),
             is_copy: false,
         });
         self.events.push(GameEvent::AbilityActivated {
@@ -3850,6 +3941,46 @@ impl Game {
         let pending = self.pending_decisions.remove(0);
         debug_assert_eq!(pending.observation.id, decision);
         match pending.continuation {
+            DecisionContinuation::BasicLandTypeTextChange { target } => {
+                let Some(option) = options.first().copied() else {
+                    return;
+                };
+                let width = u32::try_from(BasicLandType::ALL.len())
+                    .expect("the basic-land-type count fits u32");
+                let Some(from) = usize::try_from(option / width)
+                    .ok()
+                    .and_then(BasicLandType::from_index)
+                else {
+                    return;
+                };
+                let Some(to) = usize::try_from(option % width)
+                    .ok()
+                    .and_then(BasicLandType::from_index)
+                else {
+                    return;
+                };
+                if from == to {
+                    return;
+                }
+                let change = BasicLandTypeChange { from, to };
+                match target {
+                    Target::Permanent(id) => {
+                        if let Some(permanent) = self
+                            .battlefield
+                            .iter_mut()
+                            .find(|permanent| permanent.card.id == id)
+                        {
+                            permanent.text_changes.push(change);
+                        }
+                    }
+                    Target::Spell(id) => {
+                        if let Some(index) = self.stack.iter().position(|spell| spell.id == id) {
+                            self.stack[index].text_changes.push(change);
+                        }
+                    }
+                    Target::Player(_) | Target::Card(_) => {}
+                }
+            }
             DecisionContinuation::ExileFromHand { victim } => {
                 let Some((card, _)) = pending
                     .observation
@@ -4578,6 +4709,7 @@ impl Game {
             .expect("validated modes select declared spell branches");
         Some(StackAbilityPayload {
             origin,
+            definition: Some(Box::new(ability)),
             presentation_definition: definition_id,
             text: Some(ability.text),
             target_defs,
@@ -5079,6 +5211,7 @@ impl Game {
             .filter(|permanent| permanent.controller == player)
         {
             let mut has_declarative_activation = false;
+            let mut has_custom_activation = false;
             let (definition, part) = Self::effective_rules_source(permanent);
             let fallback_origin = AbilityOrigin::Printed {
                 definition,
@@ -5105,6 +5238,11 @@ impl Game {
                         *slot = Some((effective.origin, target_slot));
                     }
                     activated_count += 1;
+                }
+                if ability.implementation.is_executable()
+                    && ability.implementation != AbilityImplementationDef::Definition
+                {
+                    has_custom_activation = true;
                 }
                 if ability.implementation != AbilityImplementationDef::Definition
                     || !definition.source_zones.contains(&ZoneKind::Battlefield)
@@ -5207,7 +5345,7 @@ impl Game {
                     }
                 }
             });
-            if has_declarative_activation {
+            if has_declarative_activation && !has_custom_activation {
                 continue;
             }
             let (ability, ability_target_slot) =
@@ -5346,10 +5484,7 @@ impl Game {
                             self.battlefield
                                 .iter()
                                 .filter(|candidate| {
-                                    candidate.controller == player
-                                        && candidate.factory_animated
-                                        && self.effective_behavior(candidate)
-                                            == Some(CardBehavior::MishrasFactory)
+                                    candidate.controller == player && candidate.factory_animated
                                 })
                                 .map(|candidate| Action::ActivateAbility {
                                     source: permanent.card.id,
@@ -5371,10 +5506,7 @@ impl Game {
                         self.battlefield
                             .iter()
                             .filter(|candidate| {
-                                candidate.controller == player
-                                    && candidate.factory_animated
-                                    && self.effective_behavior(candidate)
-                                        == Some(CardBehavior::MishrasFactory)
+                                candidate.controller == player && candidate.factory_animated
                             })
                             .map(|candidate| Action::ActivateAbility {
                                 source: permanent.card.id,
@@ -5630,7 +5762,9 @@ impl Game {
             attached_to: None,
             exile_instead_of_dying: false,
             combat_damage_assignment: Vec::new(),
+            copy_effect: None,
             copied_from: None,
+            text_changes: Vec::new(),
             regeneration_shields: 0,
             berserked: false,
             attacked_this_turn: false,
@@ -6154,6 +6288,7 @@ impl Game {
             signature: Some(signature),
             chosen_permanents: Vec::new(),
             applied_effects: Vec::new(),
+            text_changes: Vec::new(),
             is_copy: false,
         };
         let payment_purpose = ManaPaymentPurpose::Spell {
@@ -6244,7 +6379,10 @@ impl Game {
         let spell_types = self
             .stack_spell_types(&object)
             .unwrap_or_else(|| behavior.types());
-        if spell_types.is_permanent() {
+        let aura_host = self.aura_host_for(&object);
+        let aura_fizzles =
+            spell_types.is_permanent() && aura_host.is_some() && self.spell_fizzles(&object);
+        if spell_types.is_permanent() && !aura_fizzles {
             let chosen_player = match object.first_target() {
                 Some(Target::Player(player)) => Some(player),
                 // "Choose an opponent" has exactly one answer with two players,
@@ -6252,14 +6390,18 @@ impl Game {
                 _ if behavior == CardBehavior::BlackVise => Some(object.controller.opponent()),
                 _ => None,
             };
-            let copied_from = if behavior == CardBehavior::CopyArtifact {
+            let copy_effect = if behavior == CardBehavior::CopyArtifact {
                 object.first_target().and_then(|target| match target {
                     Target::Permanent(id) => self
                         .battlefield
                         .iter()
                         .find(|permanent| permanent.card.id == id)
                         .filter(|permanent| self.is_artifact_permanent(permanent))
-                        .map(Self::effective_rules_source),
+                        .map(|permanent| {
+                            let mut copy = Self::copiable_characteristics(permanent);
+                            copy.added_types = copy.added_types.with(CardType::Enchantment);
+                            copy
+                        }),
                     Target::Player(_) | Target::Card(_) | Target::Spell(_) => None,
                 })
             } else {
@@ -6314,7 +6456,9 @@ impl Game {
                 attached_to: None,
                 exile_instead_of_dying: false,
                 combat_damage_assignment: Vec::new(),
+                copy_effect: copy_effect.clone(),
                 copied_from: None,
+                text_changes: object.text_changes.clone(),
                 regeneration_shields: 0,
                 berserked: false,
                 attacked_this_turn: false,
@@ -6322,12 +6466,13 @@ impl Game {
                 damage_sources: Vec::new(),
                 deathtouch_damage: false,
             });
-            if let Some(copied_from) = copied_from {
+            if let Some(copy) = copy_effect {
                 let copied_behavior = self
                     .catalog
-                    .get(copied_from.0)
-                    .and_then(|definition| definition.part(copied_from.1))
+                    .get(copy.base.0)
+                    .and_then(|definition| definition.part(copy.base.1))
                     .and_then(|part| part.rules.special_behavior());
+                let copied_from = copy.base;
                 if let Some(permanent) = self.battlefield.last_mut() {
                     permanent.copied_from = Some(copied_from);
                     if copied_behavior == Some(CardBehavior::Tetravus) {
@@ -6338,7 +6483,7 @@ impl Game {
             // An Aura enters attached to what its spell targeted. This runs
             // before the entry event so anything watching sees it already
             // attached.
-            if let Some(host) = self.aura_host_for(&object)
+            if let Some(host) = aura_host
                 && let Some(permanent) = self.battlefield.last_mut()
             {
                 permanent.attached_to = Some(host);
@@ -6353,7 +6498,7 @@ impl Game {
                 from: ZoneKind::Stack,
                 to: ZoneKind::Battlefield,
             });
-        } else if self.spell_fizzles(&object) {
+        } else if aura_fizzles || self.spell_fizzles(&object) {
             // 608.2b: a spell whose targets are all illegal on resolution does
             // nothing at all — a second Counterspell aimed at the same target
             // arrives to find it gone and goes to the graveyard spent.
@@ -6367,7 +6512,7 @@ impl Game {
             self.resolve_spell_effect(&object, behavior);
         }
         let card_id = object.id;
-        if !spell_types.is_permanent() && !object.is_copy {
+        if (!spell_types.is_permanent() || aura_fizzles) && !object.is_copy {
             let owner = object.card.owner;
             // A flashback spell exiles itself instead of returning to the
             // graveyard it was cast from, which is what keeps it from being
@@ -6835,6 +6980,52 @@ impl Game {
                     }
                 }
             }
+            EffectDef::ChangeTextBasicLandType { object: recipient } => {
+                if let Some(target) = self
+                    .effect_recipients(recipient, object, context)
+                    .into_iter()
+                    .next()
+                {
+                    self.queue_basic_land_type_text_change(object.controller, target);
+                }
+            }
+            EffectDef::BecomeCopyOf {
+                object: recipient,
+                retain_source_ability,
+            } => {
+                let Some(Target::Permanent(target)) = self
+                    .effect_recipients(recipient, object, context)
+                    .into_iter()
+                    .next()
+                else {
+                    return;
+                };
+                let Some(mut copy) = self
+                    .battlefield
+                    .iter()
+                    .find(|permanent| permanent.card.id == target)
+                    .map(Self::copiable_characteristics)
+                else {
+                    return;
+                };
+                if retain_source_ability
+                    && let Some(payload) = &object.ability
+                    && let Some(definition) = payload.definition.as_deref()
+                {
+                    copy.added_abilities.push(CopiableAbility {
+                        origin: payload.origin,
+                        definition: *definition,
+                    });
+                }
+                if let Some(source) = object.source
+                    && let Some(permanent) = self
+                        .battlefield
+                        .iter_mut()
+                        .find(|permanent| permanent.card.id == source)
+                {
+                    permanent.copy_effect = Some(copy);
+                }
+            }
             EffectDef::OptionalManaPayment { cost, effect } => {
                 self.queue_optional_mana_payment(object.controller, cost, object, context, effect);
             }
@@ -7055,6 +7246,7 @@ impl Game {
                 }
                 AppliedEffectDef::CannotBeCountered
                 | AppliedEffectDef::CannotBeBlockedBy(_)
+                | AppliedEffectDef::AddLandTypes(_)
                 | AppliedEffectDef::Special(_) => {}
             }
         }
@@ -8029,9 +8221,11 @@ impl Game {
     }
 
     fn is_nonbasic_land(&self, permanent: &Permanent) -> bool {
-        self.effective_rules(permanent).is_some_and(|rules| {
-            rules.has_type(CardType::Land) && !rules.has_supertype(CardSupertype::Basic)
-        })
+        self.permanent_types(permanent)
+            .is_some_and(|types| types.contains(CardType::Land))
+            && self
+                .effective_rules(permanent)
+                .is_some_and(|rules| !rules.has_supertype(CardSupertype::Basic))
     }
 
     fn is_artifact_permanent(&self, permanent: &Permanent) -> bool {
@@ -8052,8 +8246,96 @@ impl Game {
 
     fn effective_rules_source(permanent: &Permanent) -> (CardDefinitionId, CardPartId) {
         permanent
-            .copied_from
-            .unwrap_or((permanent.card.definition, permanent.presented))
+            .copy_effect
+            .as_ref()
+            .map_or((permanent.card.definition, permanent.presented), |copy| {
+                copy.base
+            })
+    }
+
+    fn land_type_operations(
+        &self,
+        permanent: &Permanent,
+    ) -> Vec<(GameObjectId, LandTypeOperation)> {
+        let mut operations = Vec::new();
+        for source in &self.battlefield {
+            if self.copiable_behavior(source) == Some(CardBehavior::BloodMoon)
+                && self.is_nonbasic_land(permanent)
+            {
+                operations.push((
+                    source.card.id,
+                    LandTypeOperation::SetTo(BasicLandType::Mountain),
+                ));
+            }
+
+            if self.is_nonbasic_land(source) && self.blood_moon_active() {
+                continue;
+            }
+            let Some(rules) = self.effective_rules(source) else {
+                continue;
+            };
+            for ability in rules
+                .ability_clauses()
+                .iter()
+                .copied()
+                .chain(
+                    source
+                        .copy_effect
+                        .iter()
+                        .flat_map(|copy| copy.added_abilities.iter())
+                        .map(|ability| ability.definition),
+                )
+                .filter(|ability| {
+                    ability.implementation.is_executable()
+                        && matches!(ability.definition, DeclarativeAbilityDef::Static(_))
+                })
+            {
+                Self::collect_land_type_operations(
+                    ability.effect,
+                    source,
+                    permanent,
+                    &mut operations,
+                );
+            }
+        }
+        operations.sort_by_key(|(source, _)| *source);
+        operations
+    }
+
+    fn collect_land_type_operations(
+        effect: EffectDef,
+        source: &Permanent,
+        affected: &Permanent,
+        operations: &mut Vec<(GameObjectId, LandTypeOperation)>,
+    ) {
+        match effect {
+            EffectDef::Sequence(effects) => {
+                for effect in effects {
+                    Self::collect_land_type_operations(*effect, source, affected, operations);
+                }
+            }
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::AttachedPermanent,
+                effect: AppliedEffectDef::AddLandTypes(types),
+                duration:
+                    EffectDurationDef::WhileSourceRemainsInZone
+                    | EffectDurationDef::UntilSourceLeavesZone,
+            } if source.attached_to == Some(affected.card.id) => {
+                operations.push((source.card.id, LandTypeOperation::Add(types)));
+            }
+            _ => {}
+        }
+    }
+
+    fn copiable_characteristics(permanent: &Permanent) -> CopiableCharacteristics {
+        permanent
+            .copy_effect
+            .clone()
+            .unwrap_or_else(|| CopiableCharacteristics {
+                base: (permanent.card.definition, permanent.presented),
+                added_types: CardTypeSet::empty(),
+                added_abilities: Vec::new(),
+            })
     }
 
     fn copiable_behavior(&self, permanent: &Permanent) -> Option<CardBehavior> {
@@ -8065,7 +8347,6 @@ impl Game {
         let rules = self
             .effective_rules(permanent)
             .expect("a battlefield object has effective rules");
-        let blood_moon_applies = self.blood_moon_active() && self.is_nonbasic_land(permanent);
         TriggerEventObject {
             id: permanent.card.id,
             types: self
@@ -8074,11 +8355,7 @@ impl Game {
             controller: permanent.controller,
             attacking_or_blocking: permanent.attacking || permanent.blocking.is_some(),
             colors: rules.colors(),
-            subtypes: Cow::Borrowed(if blood_moon_applies {
-                &["Mountain"]
-            } else {
-                rules.subtypes()
-            }),
+            subtypes: self.effective_subtypes(permanent),
             mana_value: self.permanent_mana_value(permanent),
             power: self.power_ignoring_static_effects(permanent),
             keywords: Self::keyword_mask_ignoring_static_effects(permanent, rules),
@@ -8136,27 +8413,118 @@ impl Game {
         }
     }
 
-    /// Basic land subtypes after the continuous effects currently modeled by
-    /// the engine. Blood Moon replaces every land subtype of a nonbasic land
-    /// with Mountain before the rules grant intrinsic mana abilities.
-    fn effective_land_types(&self, permanent: &Permanent) -> [bool; 5] {
-        if self.is_nonbasic_land(permanent) && self.blood_moon_active() {
-            [false, false, false, true, false]
-        } else {
-            self.effective_rules(permanent).map_or([false; 5], |rules| {
-                let mut types = [false; 5];
-                for land_type in BasicLandType::ALL {
-                    types[land_type.index()] = rules.has_subtype(land_type.subtype());
-                }
-                types
-            })
+    /// Ordered subtypes after the continuous effects currently modeled by the
+    /// engine. Layer-3 text changes apply to the copied/printed line first;
+    /// timestamp-ordered layer-4 Set/Add operations then model Blood Moon and
+    /// Aura-granted basic land types. Nonland subtypes such as Dryad survive.
+    fn effective_subtypes(&self, permanent: &Permanent) -> Cow<'static, [&'static str]> {
+        fn is_land_subtype(subtype: &str) -> bool {
+            BasicLandType::from_subtype(subtype).is_some() || subtype == "Gate"
         }
+
+        let Some(rules) = self.effective_rules(permanent) else {
+            return Cow::Borrowed(&[]);
+        };
+        let operations = self.land_type_operations(permanent);
+        if permanent.text_changes.is_empty() && operations.is_empty() {
+            return Cow::Borrowed(rules.subtypes());
+        }
+
+        let mut subtypes = rules.subtypes().to_vec();
+        for change in &permanent.text_changes {
+            for subtype in &mut subtypes {
+                if BasicLandType::from_subtype(subtype) == Some(change.from) {
+                    *subtype = change.to.subtype();
+                }
+            }
+        }
+
+        let mut seen = [false; BasicLandType::ALL.len()];
+        subtypes.retain(|subtype| {
+            let Some(land_type) = BasicLandType::from_subtype(subtype) else {
+                return true;
+            };
+            let keep = !seen[land_type.index()];
+            seen[land_type.index()] = true;
+            keep
+        });
+
+        for (_, operation) in operations {
+            match operation {
+                LandTypeOperation::SetTo(land_type) => {
+                    let insertion = subtypes
+                        .iter()
+                        .position(|subtype| is_land_subtype(subtype))
+                        .unwrap_or(0);
+                    subtypes.retain(|subtype| !is_land_subtype(subtype));
+                    subtypes.insert(insertion.min(subtypes.len()), land_type.subtype());
+                }
+                LandTypeOperation::Add(types) => {
+                    let mut insertion = subtypes
+                        .iter()
+                        .position(|subtype| !is_land_subtype(subtype))
+                        .unwrap_or(subtypes.len());
+                    for land_type in types {
+                        if subtypes
+                            .iter()
+                            .any(|subtype| BasicLandType::from_subtype(subtype) == Some(*land_type))
+                        {
+                            continue;
+                        }
+                        subtypes.insert(insertion, land_type.subtype());
+                        insertion += 1;
+                    }
+                }
+            }
+        }
+        Cow::Owned(subtypes)
     }
 
-    /// Abilities the object currently has, preserving printed order. Printed
-    /// basic lands and dual lands explicitly list their mana abilities. Blood
-    /// Moon is the one currently modeled type-changing effect that must
-    /// synthesize an intrinsic ability because it removes the printed clauses.
+    /// Basic land subtypes in effective type-line order, with duplicate types
+    /// collapsed before the rules grant one intrinsic ability for each type.
+    fn visit_effective_basic_land_types(
+        &self,
+        permanent: &Permanent,
+        mut visitor: impl FnMut(BasicLandType) -> ControlFlow<()>,
+    ) -> ControlFlow<()> {
+        if !self
+            .permanent_types(permanent)
+            .is_some_and(|types| types.contains(CardType::Land))
+        {
+            return ControlFlow::Continue(());
+        }
+
+        let mut present = [false; BasicLandType::ALL.len()];
+        for subtype in self.effective_subtypes(permanent).iter() {
+            let Some(land_type) = BasicLandType::from_subtype(subtype) else {
+                continue;
+            };
+            if present[land_type.index()] {
+                continue;
+            }
+            present[land_type.index()] = true;
+            if visitor(land_type).is_break() {
+                return ControlFlow::Break(());
+            }
+        }
+        ControlFlow::Continue(())
+    }
+
+    /// Basic land subtypes after the continuous effects currently modeled by
+    /// the engine.
+    fn effective_land_types(&self, permanent: &Permanent) -> [bool; 5] {
+        let mut types = [false; 5];
+        let result = self.visit_effective_basic_land_types(permanent, |land_type| {
+            types[land_type.index()] = true;
+            ControlFlow::Continue(())
+        });
+        debug_assert!(result.is_continue());
+        types
+    }
+
+    /// Abilities the object currently has. Surviving printed abilities retain
+    /// printed order, followed by intrinsic basic-land-type abilities in
+    /// effective type-line order and then abilities granted by other objects.
     fn visit_effective_abilities(
         &self,
         permanent: &Permanent,
@@ -8179,11 +8547,26 @@ impl Game {
                     return ControlFlow::Break(());
                 }
             }
+            if let Some(copy) = &permanent.copy_effect {
+                for added in &copy.added_abilities {
+                    if visitor(EffectiveAbility {
+                        origin: added.origin,
+                        ability: added.definition,
+                    })
+                    .is_break()
+                    {
+                        return ControlFlow::Break(());
+                    }
+                }
+            }
         }
-        if blood_moon_applies
-            && visitor(EffectiveAbility {
-                origin: AbilityOrigin::IntrinsicBasicLand(BasicLandType::Mountain),
-                ability: abilities::tap_for(ManaColor::Red),
+
+        if self
+            .visit_effective_basic_land_types(permanent, |land_type| {
+                visitor(EffectiveAbility {
+                    origin: AbilityOrigin::IntrinsicBasicLand(land_type),
+                    ability: abilities::tap_for(land_type.mana_color()),
+                })
             })
             .is_break()
         {
@@ -8205,6 +8588,7 @@ impl Game {
             }),
             AppliedEffectDef::CannotBeCountered
             | AppliedEffectDef::CannotBeBlockedBy(_)
+            | AppliedEffectDef::AddLandTypes(_)
             | AppliedEffectDef::ModifyPowerToughness { .. }
             | AppliedEffectDef::Special(_) => ControlFlow::Continue(()),
         })
@@ -8353,6 +8737,16 @@ impl Game {
         }
     }
 
+    /// Whether this permanent has the shared Aura attachment spell effect.
+    fn is_aura_permanent(&self, permanent: &Permanent) -> bool {
+        self.effective_rules(permanent).is_some_and(|rules| {
+            rules.ability_clauses().iter().any(|ability| {
+                ability.implementation.is_executable()
+                    && matches!(ability.effect, EffectDef::Attach { .. })
+            })
+        })
+    }
+
     /// Whether an Aura may stay attached to `host`: the host has to still be
     /// on the battlefield and still satisfy what the Aura enchants.
     fn is_legal_aura_host(&self, aura: &Permanent, host: GameObjectId) -> bool {
@@ -8366,23 +8760,58 @@ impl Game {
         let Some(rules) = self.effective_rules(aura) else {
             return false;
         };
-        rules
+        let aura_colors = rules.colors();
+        let mut target_slots = rules
             .ability_clauses()
             .iter()
-            .filter(|ability| matches!(ability.effect, EffectDef::Attach { .. }))
+            .filter(|ability| {
+                ability.implementation.is_executable()
+                    && matches!(ability.effect, EffectDef::Attach { .. })
+            })
             .flat_map(|ability| match ability.definition {
                 DeclarativeAbilityDef::Spell(spell) => spell.targets(),
                 _ => &[],
             })
-            .all(|slot| match slot.predicate {
-                AbilityTargetPredicate::Object { object, .. } => self.trigger_object_matches(
-                    object,
-                    &self.trigger_event_object(host),
-                    aura.card.id,
-                    false,
-                ),
-                AbilityTargetPredicate::AnyTarget | AbilityTargetPredicate::Player(_) => false,
-            })
+            .peekable();
+        if target_slots.peek().is_none() {
+            return false;
+        }
+        target_slots.all(|slot| match slot.predicate {
+            AbilityTargetPredicate::Object {
+                object,
+                zones,
+                controller,
+                owner,
+            } => {
+                zones.contains(&ZoneKind::Battlefield)
+                        && controller.is_none_or(|relation| {
+                            self.player_relation_matches(
+                                host.controller,
+                                relation,
+                                aura.controller,
+                                TriggerContext::empty(),
+                            )
+                        })
+                        && owner.is_none_or(|relation| {
+                            self.player_relation_matches(
+                                host.card.owner,
+                                relation,
+                                aura.controller,
+                                TriggerContext::empty(),
+                            )
+                        })
+                        && self.trigger_object_matches(
+                            object,
+                            &self.trigger_event_object(host),
+                            aura.card.id,
+                            false,
+                        )
+                        // Hexproof only constrains targeting. Protection also
+                        // makes an existing attachment illegal.
+                        && !self.is_protected_from_colors(host, aura_colors)
+            }
+            AbilityTargetPredicate::AnyTarget | AbilityTargetPredicate::Player(_) => false,
+        })
     }
 
     /// The permanent an Aura spell targeted, read off its own spell clause.
@@ -8524,9 +8953,10 @@ impl Game {
 
     fn permanent_types(&self, permanent: &Permanent) -> Option<CardTypeSet> {
         let mut types = self.effective_rules(permanent)?.types();
-        if permanent.factory_animated
-            && self.copiable_behavior(permanent) == Some(CardBehavior::MishrasFactory)
-        {
+        if let Some(copy) = &permanent.copy_effect {
+            types = types.union(copy.added_types);
+        }
+        if permanent.factory_animated {
             types = types.with(CardType::Artifact).with(CardType::Creature);
         }
         Some(types)
@@ -8708,6 +9138,8 @@ impl Game {
                 | EffectDef::Counter { .. }
                 | EffectDef::CounterUnlessPaid { .. }
                 | EffectDef::AddCounters { .. }
+                | EffectDef::ChangeTextBasicLandType { .. }
+                | EffectDef::BecomeCopyOf { .. }
                 | EffectDef::OptionalManaPayment { .. }
                 | EffectDef::May(_)
                 | EffectDef::EntersTapped
@@ -8803,6 +9235,8 @@ impl Game {
                 | EffectDef::Counter { .. }
                 | EffectDef::CounterUnlessPaid { .. }
                 | EffectDef::AddCounters { .. }
+                | EffectDef::ChangeTextBasicLandType { .. }
+                | EffectDef::BecomeCopyOf { .. }
                 | EffectDef::OptionalManaPayment { .. }
                 | EffectDef::May(_)
                 | EffectDef::EntersTapped
@@ -9565,8 +9999,7 @@ impl Game {
         // abilities does not end the continuous animation effect. In
         // particular, Blood Moon changes its land subtype and abilities but
         // leaves the active artifact-creature types and 2/2 base stats intact.
-        let behavior = self.copiable_behavior(permanent);
-        if behavior == Some(CardBehavior::MishrasFactory) && permanent.factory_animated {
+        if permanent.factory_animated {
             Some(crate::CreatureStats {
                 power: 2,
                 toughness: 2,
@@ -10965,7 +11398,9 @@ impl Game {
             attached_to: None,
             exile_instead_of_dying: false,
             combat_damage_assignment: Vec::new(),
+            copy_effect: None,
             copied_from: None,
+            text_changes: Vec::new(),
             regeneration_shields: 0,
             berserked: false,
             attacked_this_turn: false,
@@ -11263,6 +11698,8 @@ impl Game {
             | EffectDef::Counter { .. }
             | EffectDef::CounterUnlessPaid { .. }
             | EffectDef::AddCounters { .. }
+            | EffectDef::ChangeTextBasicLandType { .. }
+            | EffectDef::BecomeCopyOf { .. }
             | EffectDef::OptionalManaPayment { .. }
             | EffectDef::May(_)
             | EffectDef::EntersTapped
@@ -11367,8 +11804,10 @@ impl Game {
             for permanent in &self.battlefield {
                 // 704.5m: an Aura attached to nothing, or to something that is
                 // no longer a legal host, is put into its owner's graveyard.
-                if let Some(host) = permanent.attached_to
-                    && !self.is_legal_aura_host(permanent, host)
+                if self.is_aura_permanent(permanent)
+                    && permanent
+                        .attached_to
+                        .is_none_or(|host| !self.is_legal_aura_host(permanent, host))
                 {
                     die.push(permanent.card.id);
                     continue;

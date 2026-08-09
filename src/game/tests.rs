@@ -46,37 +46,19 @@ fn card(id: u32, definition: CardDefinitionId, owner: PlayerId) -> CardInstance 
 }
 
 fn creature(id: u32, definition: CardDefinitionId, controller: PlayerId) -> Permanent {
-    Permanent {
-        card: card(id, definition, controller),
-        presented: CardPartId::PRIMARY,
+    Permanent::entering(
+        card(id, definition, controller),
+        CardPartId::PRIMARY,
         controller,
-        tapped: false,
-        entered_controller_turn: 0,
-        damage: 0,
-        loyalty: None,
-        power_bonus: 0,
-        toughness_bonus: 0,
-        attacking: false,
-        unblockable_this_turn: false,
-        blocked: false,
-        blocking: None,
-        chosen_player: None,
-        chosen_creature_type: None,
-        destroy_at_end: false,
-        temporary_keywords: Vec::new(),
-        factory_animated: false,
-        dragon_whelp_activations: 0,
-        counters: [0; CounterKind::COUNT],
-        attached_to: None,
-        exile_instead_of_dying: false,
-        combat_damage_assignment: Vec::new(),
-        copied_from: None,
-        regeneration_shields: 0,
-        berserked: false,
-        attacked_this_turn: false,
-        forestwalk_until_upkeep_of: None,
-        damage_sources: Vec::new(),
-        deathtouch_damage: false,
+        0,
+    )
+}
+
+fn copied_characteristics(definition: CardDefinitionId) -> CopiableCharacteristics {
+    CopiableCharacteristics {
+        base: (definition, CardPartId::PRIMARY),
+        added_types: CardTypeSet::empty(),
+        added_abilities: Vec::new(),
     }
 }
 
@@ -155,6 +137,7 @@ fn spell(id: u32, definition: CardDefinitionId, controller: PlayerId, x: u16) ->
         )),
         chosen_permanents: Vec::new(),
         applied_effects: Vec::new(),
+        text_changes: Vec::new(),
         is_copy: false,
     }
 }
@@ -178,6 +161,27 @@ fn pass_priority_pair(game: &mut Game) {
     let first = game.priority;
     game.apply(first, Action::PassPriority).unwrap();
     game.apply(first.opponent(), Action::PassPriority).unwrap();
+}
+
+fn choose_decision_by_label(game: &mut Game, player: PlayerId, label: &str) {
+    let decision = game
+        .observe(player)
+        .decision
+        .expect("the expected choice is pending");
+    let option = decision
+        .options
+        .iter()
+        .find(|option| option.label == label)
+        .unwrap_or_else(|| panic!("decision does not offer {label}"))
+        .id;
+    game.apply(
+        player,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options: vec![option],
+        },
+    )
+    .expect("the named decision option is legal");
 }
 
 #[test]
@@ -4536,26 +4540,37 @@ fn green_creatures_get_their_land_bonuses_and_llanowar_elves_make_green() {
 }
 
 #[test]
-fn lands_expose_their_distinct_printed_mana_abilities() {
+fn lands_derive_intrinsic_mana_in_effective_subtype_order() {
     let mut game = ready_game();
     game.battlefield.extend([
-        creature(10_000, cards::FOREST, PlayerId::One),
-        creature(10_001, cards::TAIGA, PlayerId::One),
+        creature(10_000, cards::PLAINS, PlayerId::One),
+        creature(10_001, cards::ISLAND, PlayerId::One),
+        creature(10_002, cards::SWAMP, PlayerId::One),
+        creature(10_003, cards::MOUNTAIN, PlayerId::One),
+        creature(10_004, cards::FOREST, PlayerId::One),
+        creature(10_005, cards::TAIGA, PlayerId::One),
     ]);
 
-    let forest = game.mana_ability_activations(&game.battlefield[0]);
-    assert_eq!(forest.len(), 1);
-    assert_eq!(forest[0].color, ManaColor::Green);
-    assert_eq!(
-        forest[0].ability,
-        AbilityOrigin::Printed {
-            definition: cards::FOREST,
-            part: CardPartId::PRIMARY,
-            ability: crate::AbilityId::PRIMARY,
-        }
-    );
+    for (index, (land_type, color)) in [
+        (BasicLandType::Plains, ManaColor::White),
+        (BasicLandType::Island, ManaColor::Blue),
+        (BasicLandType::Swamp, ManaColor::Black),
+        (BasicLandType::Mountain, ManaColor::Red),
+        (BasicLandType::Forest, ManaColor::Green),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let activations = game.mana_ability_activations(&game.battlefield[index]);
+        assert_eq!(activations.len(), 1);
+        assert_eq!(activations[0].color, color);
+        assert_eq!(
+            activations[0].ability,
+            AbilityOrigin::IntrinsicBasicLand(land_type)
+        );
+    }
 
-    let taiga = game.mana_ability_activations(&game.battlefield[1]);
+    let taiga = game.mana_ability_activations(&game.battlefield[5]);
     assert_eq!(
         taiga
             .iter()
@@ -4563,20 +4578,78 @@ fn lands_expose_their_distinct_printed_mana_abilities() {
             .collect::<Vec<_>>(),
         vec![
             (
+                AbilityOrigin::IntrinsicBasicLand(BasicLandType::Forest),
+                ManaColor::Green,
+            ),
+            (
+                AbilityOrigin::IntrinsicBasicLand(BasicLandType::Mountain),
+                ManaColor::Red,
+            ),
+        ]
+    );
+}
+
+#[test]
+fn a_basic_land_subtype_only_grants_mana_to_a_land() {
+    let definition_id = CardDefinitionId(10_000);
+    let mut definition = CardDefinition::new(
+        definition_id,
+        "Forest creature",
+        CardSet::Magic2014,
+        false,
+        CardBehavior::Unsupported,
+    );
+    definition.rules = CardRules::new_creature(ManaCost::default(), &["Forest"], 1, 1);
+    synchronize_single_part_definition(&mut definition);
+
+    let mut game = ready_game();
+    game.catalog = CardCatalog::new([definition]).unwrap();
+    game.battlefield
+        .push(creature(10_000, definition_id, PlayerId::One));
+
+    assert_eq!(game.effective_land_types(&game.battlefield[0]), [false; 5]);
+    assert!(
+        game.mana_ability_activations(&game.battlefield[0])
+            .is_empty()
+    );
+}
+
+#[test]
+fn printed_and_intrinsic_mana_abilities_coexist() {
+    static ABILITIES: [AbilityDef; 1] = [abilities::tap_for(ManaColor::Green)];
+    let definition_id = CardDefinitionId(10_000);
+    let mut definition = CardDefinition::new(
+        definition_id,
+        "Forest with printed mana",
+        CardSet::Magic2014,
+        false,
+        CardBehavior::Unsupported,
+    );
+    definition.rules = CardRules::new_land(&["Forest"]).with_abilities(&ABILITIES);
+    synchronize_single_part_definition(&mut definition);
+
+    let mut game = ready_game();
+    game.catalog = CardCatalog::new([definition]).unwrap();
+    game.battlefield
+        .push(creature(10_000, definition_id, PlayerId::One));
+
+    assert_eq!(
+        game.mana_ability_activations(&game.battlefield[0])
+            .into_iter()
+            .map(|activation| (activation.ability, activation.color))
+            .collect::<Vec<_>>(),
+        vec![
+            (
                 AbilityOrigin::Printed {
-                    definition: cards::TAIGA,
+                    definition: definition_id,
                     part: CardPartId::PRIMARY,
-                    ability: crate::AbilityId::PRIMARY,
+                    ability: AbilityId::PRIMARY,
                 },
                 ManaColor::Green,
             ),
             (
-                AbilityOrigin::Printed {
-                    definition: cards::TAIGA,
-                    part: CardPartId::PRIMARY,
-                    ability: crate::AbilityId(1),
-                },
-                ManaColor::Red,
+                AbilityOrigin::IntrinsicBasicLand(BasicLandType::Forest),
+                ManaColor::Green,
             ),
         ]
     );
@@ -4613,6 +4686,715 @@ fn blood_moon_replaces_nonbasic_land_abilities_with_intrinsic_red_mana() {
 }
 
 #[test]
+fn blood_moon_preserves_nonland_subtypes_on_a_land_creature() {
+    let definition_id = CardDefinitionId(10_000);
+    let mut definition = CardDefinition::new(
+        definition_id,
+        "Forest Dryad",
+        CardSet::Magic2014,
+        false,
+        CardBehavior::Unsupported,
+    );
+    definition.rules =
+        CardRules::new_creature_without_mana_cost(&["Forest", "Gate", "Dryad"], 1, 1)
+            .with_type(CardType::Land);
+    synchronize_single_part_definition(&mut definition);
+
+    let mut game = ready_game();
+    let blood_moon = game.catalog.get(cards::BLOOD_MOON).unwrap().clone();
+    game.catalog = CardCatalog::new([blood_moon, definition]).unwrap();
+    game.turns_started[PlayerId::One.index()] = 1;
+    game.battlefield.extend([
+        creature(10_000, cards::BLOOD_MOON, PlayerId::One),
+        creature(10_001, definition_id, PlayerId::One),
+    ]);
+
+    let permanent = &game.battlefield[1];
+    let event = game.trigger_event_object(permanent);
+    assert!(event.types.contains(CardType::Land));
+    assert!(event.types.contains(CardType::Creature));
+    assert_eq!(event.subtypes.as_ref(), &["Mountain", "Dryad"]);
+    assert_eq!(
+        game.mana_ability_activations(permanent)
+            .into_iter()
+            .map(|activation| (activation.ability, activation.color))
+            .collect::<Vec<_>>(),
+        vec![(
+            AbilityOrigin::IntrinsicBasicLand(BasicLandType::Mountain),
+            ManaColor::Red,
+        )]
+    );
+}
+
+#[test]
+fn dryad_arbor_is_a_green_land_creature_with_summoning_sick_intrinsic_mana() {
+    let mut game = ready_game();
+    game.turns_started[PlayerId::One.index()] = 0;
+    let arbor_id = CardInstanceId(10_000);
+    game.battlefield
+        .push(creature(arbor_id.0, cards::DRYAD_ARBOR, PlayerId::One));
+
+    let arbor = &game.battlefield[0];
+    let types = game.permanent_types(arbor).unwrap();
+    assert!(types.contains(CardType::Land));
+    assert!(types.contains(CardType::Creature));
+    assert_eq!(
+        game.effective_subtypes(arbor).as_ref(),
+        &["Forest", "Dryad"]
+    );
+    assert_eq!(
+        game.effective_rules(arbor).unwrap().colors(),
+        [false, false, false, false, true]
+    );
+    assert_eq!(
+        (game.power(arbor), game.toughness(arbor)),
+        (Some(1), Some(1))
+    );
+    assert!(
+        game.mana_ability_activations(arbor).is_empty(),
+        "Dryad Arbor's intrinsic tap ability observes summoning sickness",
+    );
+
+    game.turns_started[PlayerId::One.index()] = 1;
+    assert_eq!(
+        game.mana_ability_activations(&game.battlefield[0])
+            .into_iter()
+            .map(|activation| (activation.ability, activation.color))
+            .collect::<Vec<_>>(),
+        vec![(
+            AbilityOrigin::IntrinsicBasicLand(BasicLandType::Forest),
+            ManaColor::Green,
+        )],
+    );
+}
+
+#[test]
+fn magical_hack_changes_a_land_type_and_its_intrinsic_mana_but_preserves_dryad() {
+    let mut game = ready_game();
+    game.turns_started[PlayerId::One.index()] = 1;
+    let arbor_id = CardInstanceId(10_000);
+    game.battlefield
+        .push(creature(arbor_id.0, cards::DRYAD_ARBOR, PlayerId::One));
+    let hack = card(10_001, cards::MAGICAL_HACK, PlayerId::One);
+    game.players[0].hand.push(hack.clone());
+    game.players[0].mana_pool.blue = 1;
+
+    let cast = cast_action(hack.id, vec![Target::Permanent(arbor_id)], Vec::new(), 0);
+    assert!(game.legal_actions(PlayerId::One).contains(&cast));
+    game.apply(PlayerId::One, cast).unwrap();
+    pass_priority_pair(&mut game);
+    choose_decision_by_label(&mut game, PlayerId::One, "Forest → Island");
+
+    let arbor = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.id == arbor_id)
+        .unwrap();
+    assert_eq!(
+        game.effective_subtypes(arbor).as_ref(),
+        &["Island", "Dryad"]
+    );
+    assert_eq!(
+        game.mana_ability_activations(arbor)
+            .into_iter()
+            .map(|activation| (activation.ability, activation.color))
+            .collect::<Vec<_>>(),
+        vec![(
+            AbilityOrigin::IntrinsicBasicLand(BasicLandType::Island),
+            ManaColor::Blue,
+        )],
+    );
+}
+
+#[test]
+fn magical_hack_fizzles_without_a_choice_when_its_land_target_leaves() {
+    let mut game = ready_game();
+    let land_id = CardInstanceId(10_000);
+    game.battlefield
+        .push(creature(land_id.0, cards::MOUNTAIN, PlayerId::One));
+    let hack = card(10_001, cards::MAGICAL_HACK, PlayerId::One);
+    game.players[0].hand.push(hack.clone());
+    game.players[0].mana_pool.blue = 1;
+
+    game.apply(
+        PlayerId::One,
+        cast_action(hack.id, vec![Target::Permanent(land_id)], Vec::new(), 0),
+    )
+    .unwrap();
+    game.destroy_permanent(land_id);
+    pass_priority_pair(&mut game);
+
+    assert!(game.pending_decisions.is_empty());
+    assert!(
+        game.players[0]
+            .graveyard
+            .iter()
+            .any(|card| card.definition == cards::MAGICAL_HACK),
+    );
+}
+
+#[test]
+fn magical_hack_on_stage_applies_to_land_types_that_stage_later_copies() {
+    let mut game = ready_game();
+    game.turns_started[PlayerId::One.index()] = 1;
+    let stage_id = CardInstanceId(10_000);
+    let arbor_id = CardInstanceId(10_001);
+    game.battlefield.extend([
+        creature(stage_id.0, cards::THESPIANS_STAGE, PlayerId::One),
+        creature(arbor_id.0, cards::DRYAD_ARBOR, PlayerId::Two),
+    ]);
+    let hack = card(10_002, cards::MAGICAL_HACK, PlayerId::One);
+    game.players[0].hand.push(hack.clone());
+    game.players[0].mana_pool.blue = 1;
+    game.apply(
+        PlayerId::One,
+        cast_action(hack.id, vec![Target::Permanent(stage_id)], Vec::new(), 0),
+    )
+    .unwrap();
+    pass_priority_pair(&mut game);
+    choose_decision_by_label(&mut game, PlayerId::One, "Forest → Island");
+
+    game.players[0].mana_pool.colorless = 2;
+    game.apply(
+        PlayerId::One,
+        Action::ActivateAbility {
+            source: stage_id,
+            ability: activated_ability_for(&game, stage_id, 0),
+            targets: activated_targets(Target::Permanent(arbor_id)),
+            sacrifice: None,
+        },
+    )
+    .unwrap();
+    pass_priority_pair(&mut game);
+    game.battlefield[0].tapped = false;
+
+    let stage = &game.battlefield[0];
+    assert_eq!(
+        game.effective_subtypes(stage).as_ref(),
+        &["Island", "Dryad"]
+    );
+    assert_eq!(
+        game.mana_ability_activations(stage)
+            .into_iter()
+            .map(|activation| activation.color)
+            .collect::<Vec<_>>(),
+        vec![ManaColor::Blue],
+    );
+}
+
+#[test]
+fn magical_hack_does_not_rewrite_land_types_added_by_presence() {
+    let mut game = ready_game();
+    let land_id = CardInstanceId(10_000);
+    let mut land = creature(land_id.0, cards::MOUNTAIN, PlayerId::One);
+    land.text_changes.push(BasicLandTypeChange {
+        from: BasicLandType::Mountain,
+        to: BasicLandType::Island,
+    });
+    let mut presence = creature(10_001, cards::NYLEAS_PRESENCE, PlayerId::One);
+    presence.attached_to = Some(land_id);
+    game.battlefield.extend([land, presence]);
+
+    assert_eq!(game.effective_land_types(&game.battlefield[0]), [true; 5]);
+    let colors = game
+        .mana_ability_activations(&game.battlefield[0])
+        .into_iter()
+        .map(|activation| activation.color)
+        .collect::<Vec<_>>();
+    assert_eq!(colors.len(), 5);
+    for expected in [
+        ManaColor::White,
+        ManaColor::Blue,
+        ManaColor::Black,
+        ManaColor::Red,
+        ManaColor::Green,
+    ] {
+        assert!(colors.contains(&expected));
+    }
+}
+
+#[test]
+fn magical_hack_deduplicates_basic_types_and_intrinsic_mana() {
+    let mut game = ready_game();
+    let mut taiga = creature(10_000, cards::TAIGA, PlayerId::One);
+    taiga.text_changes.push(BasicLandTypeChange {
+        from: BasicLandType::Forest,
+        to: BasicLandType::Mountain,
+    });
+    game.battlefield.push(taiga);
+
+    assert_eq!(
+        game.effective_subtypes(&game.battlefield[0]).as_ref(),
+        &["Mountain"],
+    );
+    assert_eq!(
+        game.mana_ability_activations(&game.battlefield[0])
+            .into_iter()
+            .map(|activation| activation.color)
+            .collect::<Vec<_>>(),
+        vec![ManaColor::Red],
+    );
+}
+
+#[test]
+fn nyleas_presence_attaches_draws_and_adds_all_five_intrinsic_abilities() {
+    let mut game = ready_game();
+    let land_id = CardInstanceId(10_000);
+    game.battlefield
+        .push(creature(land_id.0, cards::THESPIANS_STAGE, PlayerId::One));
+    let presence = card(10_001, cards::NYLEAS_PRESENCE, PlayerId::One);
+    game.players[0].hand.push(presence.clone());
+    game.players[0].mana_pool.colorless = 1;
+    game.players[0].mana_pool.green = 1;
+    let library_before = game.players[0].library.len();
+
+    let cast = cast_action(presence.id, vec![Target::Permanent(land_id)], Vec::new(), 0);
+    assert!(game.legal_actions(PlayerId::One).contains(&cast));
+    game.apply(PlayerId::One, cast).unwrap();
+    pass_priority_pair(&mut game);
+
+    let aura_id = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.definition == cards::NYLEAS_PRESENCE)
+        .expect("Nylea's Presence entered")
+        .card
+        .id;
+    assert_eq!(
+        game.battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == aura_id)
+            .unwrap()
+            .attached_to,
+        Some(land_id),
+    );
+    assert_eq!(game.effective_land_types(&game.battlefield[0]), [true; 5]);
+    assert_eq!(
+        game.mana_ability_activations(&game.battlefield[0])
+            .into_iter()
+            .map(|activation| activation.color)
+            .collect::<Vec<_>>(),
+        vec![
+            ManaColor::Colorless,
+            ManaColor::White,
+            ManaColor::Blue,
+            ManaColor::Black,
+            ManaColor::Red,
+            ManaColor::Green,
+        ],
+    );
+
+    pass_priority_pair(&mut game);
+    assert_eq!(game.players[0].library.len(), library_before - 1);
+
+    game.destroy_permanent(aura_id);
+    assert_eq!(game.effective_land_types(&game.battlefield[0]), [false; 5]);
+    assert_eq!(
+        game.mana_ability_activations(&game.battlefield[0])
+            .into_iter()
+            .map(|activation| activation.color)
+            .collect::<Vec<_>>(),
+        vec![ManaColor::Colorless],
+    );
+}
+
+#[test]
+fn blood_moon_and_presence_apply_land_type_operations_in_timestamp_order() {
+    let target = CardInstanceId(10_001);
+
+    let mut moon_then_presence = ready_game();
+    let mut newer_presence = creature(10_002, cards::NYLEAS_PRESENCE, PlayerId::One);
+    newer_presence.attached_to = Some(target);
+    moon_then_presence.battlefield.extend([
+        creature(10_000, cards::BLOOD_MOON, PlayerId::One),
+        creature(target.0, cards::THESPIANS_STAGE, PlayerId::One),
+        newer_presence,
+    ]);
+    assert_eq!(
+        moon_then_presence.effective_land_types(&moon_then_presence.battlefield[1]),
+        [true; 5],
+        "a newer additive effect applies after Blood Moon's set effect",
+    );
+
+    let mut presence_then_moon = ready_game();
+    let mut older_presence = creature(10_000, cards::NYLEAS_PRESENCE, PlayerId::One);
+    older_presence.attached_to = Some(target);
+    presence_then_moon.battlefield.extend([
+        older_presence,
+        creature(target.0, cards::THESPIANS_STAGE, PlayerId::One),
+        creature(10_002, cards::BLOOD_MOON, PlayerId::One),
+    ]);
+    assert_eq!(
+        presence_then_moon.effective_land_types(&presence_then_moon.battlefield[1]),
+        [false, false, false, true, false],
+        "a newer Blood Moon set effect overwrites Presence's earlier additions",
+    );
+}
+
+#[test]
+fn an_aura_with_an_illegal_land_target_neither_enters_nor_draws() {
+    let mut game = ready_game();
+    let land_id = CardInstanceId(10_000);
+    game.battlefield
+        .push(creature(land_id.0, cards::MOUNTAIN, PlayerId::One));
+    let presence = card(10_001, cards::NYLEAS_PRESENCE, PlayerId::One);
+    game.players[0].hand.push(presence.clone());
+    game.players[0].mana_pool.colorless = 1;
+    game.players[0].mana_pool.green = 1;
+    let library_before = game.players[0].library.len();
+
+    game.apply(
+        PlayerId::One,
+        cast_action(presence.id, vec![Target::Permanent(land_id)], Vec::new(), 0),
+    )
+    .unwrap();
+    game.destroy_permanent(land_id);
+    pass_priority_pair(&mut game);
+
+    assert!(
+        game.battlefield
+            .iter()
+            .all(|permanent| permanent.card.definition != cards::NYLEAS_PRESENCE),
+    );
+    assert_eq!(game.players[0].library.len(), library_before);
+    assert!(
+        game.players[0]
+            .graveyard
+            .iter()
+            .any(|card| card.definition == cards::NYLEAS_PRESENCE),
+    );
+}
+
+#[test]
+fn presence_goes_to_the_graveyard_when_its_attached_land_leaves() {
+    let mut game = ready_game();
+    let land_id = CardInstanceId(10_000);
+    game.battlefield
+        .push(creature(land_id.0, cards::MOUNTAIN, PlayerId::One));
+    let presence = card(10_001, cards::NYLEAS_PRESENCE, PlayerId::One);
+    game.players[0].hand.push(presence.clone());
+    game.players[0].mana_pool.colorless = 1;
+    game.players[0].mana_pool.green = 1;
+    game.apply(
+        PlayerId::One,
+        cast_action(presence.id, vec![Target::Permanent(land_id)], Vec::new(), 0),
+    )
+    .unwrap();
+    pass_priority_pair(&mut game);
+
+    let aura_id = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.definition == cards::NYLEAS_PRESENCE)
+        .unwrap()
+        .card
+        .id;
+    game.destroy_permanent(land_id);
+    game.check_state_based_actions();
+
+    assert!(
+        game.battlefield
+            .iter()
+            .all(|permanent| permanent.card.id != aura_id),
+    );
+    assert!(
+        game.players[0]
+            .graveyard
+            .iter()
+            .any(|card| card.definition == cards::NYLEAS_PRESENCE),
+    );
+}
+
+#[test]
+fn stage_copies_dryad_arbors_copiable_values_but_not_hack_or_presence() {
+    let mut game = ready_game();
+    game.turns_started[PlayerId::One.index()] = 1;
+    let stage_id = CardInstanceId(10_000);
+    let arbor_id = CardInstanceId(10_001);
+    let aura_id = CardInstanceId(10_002);
+    let stage = creature(stage_id.0, cards::THESPIANS_STAGE, PlayerId::One);
+    let mut arbor = creature(arbor_id.0, cards::DRYAD_ARBOR, PlayerId::One);
+    arbor.text_changes.push(BasicLandTypeChange {
+        from: BasicLandType::Forest,
+        to: BasicLandType::Island,
+    });
+    let mut presence = creature(aura_id.0, cards::NYLEAS_PRESENCE, PlayerId::One);
+    presence.attached_to = Some(arbor_id);
+    game.battlefield.extend([stage, arbor, presence]);
+    assert_eq!(game.effective_land_types(&game.battlefield[1]), [true; 5]);
+
+    let copy_ability = activated_ability_for(&game, stage_id, 0);
+    game.players[0].mana_pool.colorless = 2;
+    game.apply(
+        PlayerId::One,
+        Action::ActivateAbility {
+            source: stage_id,
+            ability: copy_ability,
+            targets: activated_targets(Target::Permanent(arbor_id)),
+            sacrifice: None,
+        },
+    )
+    .unwrap();
+    pass_priority_pair(&mut game);
+
+    let stage = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.id == stage_id)
+        .unwrap();
+    let types = game.permanent_types(stage).unwrap();
+    assert!(types.contains(CardType::Land));
+    assert!(types.contains(CardType::Creature));
+    assert_eq!(
+        game.effective_subtypes(stage).as_ref(),
+        &["Forest", "Dryad"]
+    );
+    assert_eq!(
+        (game.power(stage), game.toughness(stage)),
+        (Some(1), Some(1))
+    );
+    assert_eq!(
+        game.effective_rules(stage).unwrap().colors(),
+        [false, false, false, false, true]
+    );
+    assert!(stage.tapped, "copying does not untap or reenter Stage");
+    assert_eq!(activated_ability_for(&game, stage_id, 0), copy_ability);
+
+    game.battlefield
+        .iter_mut()
+        .find(|permanent| permanent.card.id == stage_id)
+        .unwrap()
+        .tapped = false;
+    assert_eq!(
+        game.mana_ability_activations(
+            game.battlefield
+                .iter()
+                .find(|permanent| permanent.card.id == stage_id)
+                .unwrap(),
+        )
+        .into_iter()
+        .map(|activation| (activation.ability, activation.color))
+        .collect::<Vec<_>>(),
+        vec![(
+            AbilityOrigin::IntrinsicBasicLand(BasicLandType::Forest),
+            ManaColor::Green,
+        )],
+    );
+
+    game.destroy_permanent(aura_id);
+    let arbor = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.id == arbor_id)
+        .unwrap();
+    assert_eq!(
+        game.effective_subtypes(arbor).as_ref(),
+        &["Island", "Dryad"],
+        "removing Presence reveals the earlier text change",
+    );
+}
+
+#[test]
+fn a_new_stage_can_copy_dryad_arbor_but_the_result_is_summoning_sick() {
+    let mut game = ready_game();
+    game.turns_started[PlayerId::One.index()] = 0;
+    let stage_id = CardInstanceId(10_000);
+    let arbor_id = CardInstanceId(10_001);
+    game.battlefield.extend([
+        creature(stage_id.0, cards::THESPIANS_STAGE, PlayerId::One),
+        creature(arbor_id.0, cards::DRYAD_ARBOR, PlayerId::Two),
+    ]);
+    let copy_ability = activated_ability_for(&game, stage_id, 0);
+    game.players[0].mana_pool.colorless = 2;
+
+    let copy = Action::ActivateAbility {
+        source: stage_id,
+        ability: copy_ability,
+        targets: activated_targets(Target::Permanent(arbor_id)),
+        sacrifice: None,
+    };
+    assert!(
+        game.legal_actions(PlayerId::One).contains(&copy),
+        "Stage is not a creature while it pays the tap cost",
+    );
+    game.apply(PlayerId::One, copy).unwrap();
+    pass_priority_pair(&mut game);
+    game.battlefield[0].tapped = false;
+
+    assert!(
+        game.mana_ability_activations(&game.battlefield[0])
+            .is_empty(),
+        "the copied creature cannot use a tap ability in its controller's first turn",
+    );
+    game.turns_started[PlayerId::One.index()] = 1;
+    assert_eq!(
+        game.mana_ability_activations(&game.battlefield[0])
+            .into_iter()
+            .map(|activation| activation.color)
+            .collect::<Vec<_>>(),
+        vec![ManaColor::Green],
+    );
+}
+
+#[test]
+fn stage_copying_stage_does_not_duplicate_indistinguishable_legal_actions() {
+    let mut game = ready_game();
+    game.turns_started[PlayerId::One.index()] = 1;
+    let copying_stage = CardInstanceId(10_000);
+    let copied_stage = CardInstanceId(10_001);
+    let mountain = CardInstanceId(10_002);
+    game.battlefield.extend([
+        creature(copying_stage.0, cards::THESPIANS_STAGE, PlayerId::One),
+        creature(copied_stage.0, cards::THESPIANS_STAGE, PlayerId::Two),
+        creature(mountain.0, cards::MOUNTAIN, PlayerId::Two),
+    ]);
+    let copy_ability = activated_ability_for(&game, copying_stage, 0);
+    game.players[0].mana_pool.colorless = 2;
+    game.apply(
+        PlayerId::One,
+        Action::ActivateAbility {
+            source: copying_stage,
+            ability: copy_ability,
+            targets: activated_targets(Target::Permanent(copied_stage)),
+            sacrifice: None,
+        },
+    )
+    .unwrap();
+    pass_priority_pair(&mut game);
+    game.battlefield[0].tapped = false;
+    game.players[0].mana_pool.colorless = 2;
+
+    let copy_mountain = Action::ActivateAbility {
+        source: copying_stage,
+        ability: copy_ability,
+        targets: activated_targets(Target::Permanent(mountain)),
+        sacrifice: None,
+    };
+    assert_eq!(
+        game.legal_actions(PlayerId::One)
+            .iter()
+            .filter(|action| **action == copy_mountain)
+            .count(),
+        1,
+        "the two rules-identical Stage abilities produce one external action",
+    );
+}
+
+#[test]
+fn stage_keeps_a_resolved_factory_animation_after_copying_another_land() {
+    let mut game = ready_game();
+    game.turns_started[PlayerId::One.index()] = 1;
+    let stage_id = CardInstanceId(10_000);
+    let factory_id = CardInstanceId(10_001);
+    let mountain_id = CardInstanceId(10_002);
+    game.battlefield.extend([
+        creature(stage_id.0, cards::THESPIANS_STAGE, PlayerId::One),
+        creature(factory_id.0, cards::MISHRA_S_FACTORY, PlayerId::One),
+        creature(mountain_id.0, cards::MOUNTAIN, PlayerId::Two),
+    ]);
+
+    let original_copy_ability = activated_ability_for(&game, stage_id, 0);
+    game.players[0].mana_pool.colorless = 2;
+    game.apply(
+        PlayerId::One,
+        Action::ActivateAbility {
+            source: stage_id,
+            ability: original_copy_ability,
+            targets: activated_targets(Target::Permanent(factory_id)),
+            sacrifice: None,
+        },
+    )
+    .unwrap();
+    pass_priority_pair(&mut game);
+    game.battlefield[0].tapped = false;
+
+    let animate = Action::ActivateAbility {
+        source: stage_id,
+        ability: activated_ability_for(&game, stage_id, 0),
+        targets: Vec::new(),
+        sacrifice: None,
+    };
+    game.players[0].mana_pool.colorless = 1;
+    assert!(
+        game.legal_actions(PlayerId::One).contains(&animate),
+        "the copied Factory animation coexists with Stage's retained ability",
+    );
+    game.apply(PlayerId::One, animate).unwrap();
+    assert!(game.battlefield[0].factory_animated);
+
+    let retained_copy_ability = activated_ability_for(&game, stage_id, 2);
+    game.players[0].mana_pool.colorless = 2;
+    game.apply(
+        PlayerId::One,
+        Action::ActivateAbility {
+            source: stage_id,
+            ability: retained_copy_ability,
+            targets: activated_targets(Target::Permanent(mountain_id)),
+            sacrifice: None,
+        },
+    )
+    .unwrap();
+    pass_priority_pair(&mut game);
+
+    let stage = &game.battlefield[0];
+    let types = game.permanent_types(stage).unwrap();
+    assert!(types.contains(CardType::Land));
+    assert!(types.contains(CardType::Artifact));
+    assert!(types.contains(CardType::Creature));
+    assert_eq!(
+        (game.power(stage), game.toughness(stage)),
+        (Some(2), Some(2))
+    );
+    assert_eq!(game.effective_behavior(stage), None);
+
+    let pump = Action::ActivateAbility {
+        source: factory_id,
+        ability: activated_ability_for(&game, factory_id, 1),
+        targets: activated_targets(Target::Permanent(stage_id)),
+        sacrifice: None,
+    };
+    assert!(
+        game.legal_actions(PlayerId::One).contains(&pump),
+        "the still-animated object remains an Assembly-Worker pump target",
+    );
+}
+
+#[test]
+fn stage_does_not_copy_a_land_that_leaves_before_the_ability_resolves() {
+    let mut game = ready_game();
+    let stage_id = CardInstanceId(10_000);
+    let target_id = CardInstanceId(10_001);
+    game.battlefield.extend([
+        creature(stage_id.0, cards::THESPIANS_STAGE, PlayerId::One),
+        creature(target_id.0, cards::DRYAD_ARBOR, PlayerId::Two),
+    ]);
+    game.players[0].mana_pool.colorless = 2;
+    game.apply(
+        PlayerId::One,
+        Action::ActivateAbility {
+            source: stage_id,
+            ability: activated_ability_for(&game, stage_id, 0),
+            targets: activated_targets(Target::Permanent(target_id)),
+            sacrifice: None,
+        },
+    )
+    .unwrap();
+    game.destroy_permanent(target_id);
+    pass_priority_pair(&mut game);
+    game.battlefield[0].tapped = false;
+
+    let stage = &game.battlefield[0];
+    assert!(stage.copy_effect.is_none());
+    assert_eq!(
+        game.mana_ability_activations(stage)
+            .into_iter()
+            .map(|activation| activation.color)
+            .collect::<Vec<_>>(),
+        vec![ManaColor::Colorless],
+    );
+}
+
+#[test]
 fn copy_artifact_copies_an_artifact_creature() {
     let mut game = ready_game();
     let source = creature(10_000, cards::TETRAVUS, PlayerId::Two);
@@ -4643,6 +5425,13 @@ fn copy_artifact_copies_an_artifact_creature() {
     assert_eq!(
         game.effective_rules(copied),
         Some(CardBehavior::Tetravus.rules())
+    );
+    let copied_types = game.permanent_types(copied).unwrap();
+    assert!(copied_types.contains(CardType::Artifact));
+    assert!(copied_types.contains(CardType::Creature));
+    assert!(
+        copied_types.contains(CardType::Enchantment),
+        "Copy Artifact retains its copy-process type exception",
     );
     assert_eq!(game.power(copied), Some(4));
     assert!(game.has_flying(copied));
@@ -5058,7 +5847,7 @@ fn copied_grant_source_game() -> (
     let grantor = CardInstanceId(10_000);
     let receiver = CardInstanceId(10_001);
     let mut copied_source = creature(grantor.0, cards::COPY_ARTIFACT, PlayerId::One);
-    copied_source.copied_from = Some((definition_a, CardPartId::PRIMARY));
+    copied_source.copy_effect = Some(copied_characteristics(definition_a));
     game.battlefield.extend([
         copied_source,
         creature(receiver.0, cards::ATOG, PlayerId::One),
@@ -5108,7 +5897,7 @@ fn copied_grant_source_definition_is_part_of_the_granted_ability_origin() {
     };
     assert!(game.legal_actions(PlayerId::One).contains(&stale_action));
 
-    game.battlefield[0].copied_from = Some((definition_b, CardPartId::PRIMARY));
+    game.battlefield[0].copy_effect = Some(copied_characteristics(definition_b));
     let second_origin = sole_granted_origin(&game, receiver);
     assert_eq!(second_origin, copied_grant_origin(grantor, definition_b));
     assert_ne!(first_origin, second_origin);
@@ -5419,7 +6208,7 @@ fn granted_ability_keeps_its_frozen_resolver_when_the_source_changes() {
     // This models a continuous/copy effect changing the effective rules of a
     // source after activation. The origin remains provenance, while the stack
     // object's executable payload must remain the Icy Manipulator procedure.
-    game.battlefield[0].copied_from = Some((cards::JAYEMDAE_TOME, CardPartId::PRIMARY));
+    game.battlefield[0].copy_effect = Some(copied_characteristics(cards::JAYEMDAE_TOME));
     pass_priority_pair(&mut game);
 
     assert!(
@@ -5550,6 +6339,7 @@ fn resolving_ability_masks_an_illegal_target_in_each_frozen_slot() {
         source: Some(source),
         ability: Some(StackAbilityPayload {
             origin: primary_ability(cards::ANKH_OF_MISHRA),
+            definition: None,
             presentation_definition: cards::ANKH_OF_MISHRA,
             text: Some("Test two-slot trigger"),
             target_defs: TARGETS.to_vec(),
@@ -5571,6 +6361,7 @@ fn resolving_ability_masks_an_illegal_target_in_each_frozen_slot() {
         signature: None,
         chosen_permanents: Vec::new(),
         applied_effects: Vec::new(),
+        text_changes: Vec::new(),
         is_copy: false,
     });
 

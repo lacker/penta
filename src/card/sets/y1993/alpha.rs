@@ -1,10 +1,10 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityImplementationDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, BasicLandType, CardArt, CardBehavior, CardRules, CardSet,
-    CardSupertype, CardType, CounterKind, EffectDef, EffectDurationDef, EffectRecipientDef,
-    ManaColor, ObjectPredicateDef, PlayerRelation, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, abilities, cards,
+    AddManaEffectDef, AppliedEffectDef, CardArt, CardBehavior, CardRules, CardSet, CardSupertype,
+    CardType, CounterKind, EffectDef, EffectDurationDef, EffectRecipientDef, ManaColor,
+    ObjectPredicateDef, PlayerRelation, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    abilities, cards,
 };
 use crate::ids::TargetSlotId;
 use crate::mana_cost;
@@ -166,9 +166,7 @@ pub(in crate::card::sets) static MOUNTAIN: CardRecord = CardRecord::new(
     "Mountain",
     CardArt::new("eace2c85-976c-425e-9800-5a6ccbd91b56", "Douglas Shuler"),
     CardSet::Alpha,
-    CardRules::new_land(&["Mountain"])
-        .with_supertype(CardSupertype::Basic)
-        .with_abilities(&[abilities::basic_land_type_mana(BasicLandType::Mountain)]),
+    CardRules::new_land(&["Mountain"]).with_supertype(CardSupertype::Basic),
 );
 
 pub(in crate::card::sets) static RED_ELEMENTAL_BLAST: CardRecord = CardRecord::new(
@@ -702,9 +700,7 @@ pub(in crate::card::sets) static ISLAND: CardRecord = CardRecord::new(
     "Island",
     CardArt::new("90a57c0e-fa61-45ef-955d-d296403967d5", "Mark Poole"),
     CardSet::Alpha,
-    CardRules::new_land(&["Island"])
-        .with_supertype(CardSupertype::Basic)
-        .with_abilities(&[abilities::basic_land_type_mana(BasicLandType::Island)]),
+    CardRules::new_land(&["Island"]).with_supertype(CardSupertype::Basic),
 );
 
 pub(in crate::card::sets) static JAYEMDAE_TOME: CardRecord = CardRecord::new(
@@ -732,9 +728,7 @@ pub(in crate::card::sets) static PLAINS: CardRecord = CardRecord::new(
     "Plains",
     CardArt::new("b1623d57-4729-4796-b3f7-f1837a05c6ed", "Jesper Myrfors"),
     CardSet::Alpha,
-    CardRules::new_land(&["Plains"])
-        .with_supertype(CardSupertype::Basic)
-        .with_abilities(&[abilities::basic_land_type_mana(BasicLandType::Plains)]),
+    CardRules::new_land(&["Plains"]).with_supertype(CardSupertype::Basic),
 );
 
 pub(in crate::card::sets) static SERRA_ANGEL: CardRecord = CardRecord::new(
@@ -779,10 +773,7 @@ pub(in crate::card::sets) static TUNDRA: CardRecord = CardRecord::new(
     "Tundra",
     CardArt::new("a03e8c5b-f4ed-4fd7-ba05-db813ccc05eb", "Jesper Myrfors"),
     CardSet::Alpha,
-    CardRules::new_land(&["Plains", "Island"]).with_abilities(&[
-        abilities::basic_land_type_mana(BasicLandType::Plains),
-        abilities::basic_land_type_mana(BasicLandType::Island),
-    ]),
+    CardRules::new_land(&["Plains", "Island"]),
 );
 
 pub(in crate::card::sets) static ARMAGEDDON: CardRecord = CardRecord::new(
@@ -808,10 +799,7 @@ pub(in crate::card::sets) static BADLANDS: CardRecord = CardRecord::new(
     "Badlands",
     CardArt::new("717f6d10-9144-4ade-9ac6-a481cc66b875", "Rob Alexander"),
     CardSet::Alpha,
-    CardRules::new_land(&["Swamp", "Mountain"]).with_abilities(&[
-        abilities::basic_land_type_mana(BasicLandType::Swamp),
-        abilities::basic_land_type_mana(BasicLandType::Mountain),
-    ]),
+    CardRules::new_land(&["Swamp", "Mountain"]),
 );
 
 pub(in crate::card::sets) static BALANCE: CardRecord = CardRecord::new(
@@ -832,10 +820,7 @@ pub(in crate::card::sets) static BAYOU: CardRecord = CardRecord::new(
     "Bayou",
     CardArt::new("412ceddd-2b9a-4551-a6bf-ae2830a2010a", "Jesper Myrfors"),
     CardSet::Alpha,
-    CardRules::new_land(&["Swamp", "Forest"]).with_abilities(&[
-        abilities::basic_land_type_mana(BasicLandType::Swamp),
-        abilities::basic_land_type_mana(BasicLandType::Forest),
-    ]),
+    CardRules::new_land(&["Swamp", "Forest"]),
 );
 
 pub(in crate::card::sets) static BLACK_KNIGHT: CardRecord = CardRecord::new(
@@ -995,9 +980,7 @@ pub(in crate::card::sets) static FOREST: CardRecord = CardRecord::new(
     "Forest",
     CardArt::new("6f1c8cb0-38eb-408b-94e8-16db83999b3b", "Christopher Rush"),
     CardSet::Alpha,
-    CardRules::new_land(&["Forest"])
-        .with_supertype(CardSupertype::Basic)
-        .with_abilities(&[abilities::basic_land_type_mana(BasicLandType::Forest)]),
+    CardRules::new_land(&["Forest"]).with_supertype(CardSupertype::Basic),
 );
 
 pub(in crate::card::sets) static HYPNOTIC_SPECTER: CardRecord = CardRecord::new(
@@ -1061,10 +1044,7 @@ pub(in crate::card::sets) static PLATEAU: CardRecord = CardRecord::new(
     "Plateau",
     CardArt::new("6eafa00b-c628-40f6-86eb-88e1361fc7a0", "Drew Tucker"),
     CardSet::Alpha,
-    CardRules::new_land(&["Mountain", "Plains"]).with_abilities(&[
-        abilities::basic_land_type_mana(BasicLandType::Mountain),
-        abilities::basic_land_type_mana(BasicLandType::Plains),
-    ]),
+    CardRules::new_land(&["Mountain", "Plains"]),
 );
 
 pub(in crate::card::sets) static PSIONIC_BLAST: CardRecord = CardRecord::new(
@@ -1109,10 +1089,7 @@ pub(in crate::card::sets) static SAVANNAH: CardRecord = CardRecord::new(
     "Savannah",
     CardArt::new("94f7e24c-2546-41b6-81ad-5e920b07e64e", "Rob Alexander"),
     CardSet::Alpha,
-    CardRules::new_land(&["Forest", "Plains"]).with_abilities(&[
-        abilities::basic_land_type_mana(BasicLandType::Forest),
-        abilities::basic_land_type_mana(BasicLandType::Plains),
-    ]),
+    CardRules::new_land(&["Forest", "Plains"]),
 );
 
 pub(in crate::card::sets) static SAVANNAH_LIONS: CardRecord = CardRecord::new(
@@ -1128,10 +1105,7 @@ pub(in crate::card::sets) static SCRUBLAND: CardRecord = CardRecord::new(
     "Scrubland",
     CardArt::new("bebe39d4-21fb-46a4-a1ec-b97102e46c15", "Jesper Myrfors"),
     CardSet::Alpha,
-    CardRules::new_land(&["Plains", "Swamp"]).with_abilities(&[
-        abilities::basic_land_type_mana(BasicLandType::Plains),
-        abilities::basic_land_type_mana(BasicLandType::Swamp),
-    ]),
+    CardRules::new_land(&["Plains", "Swamp"]),
 );
 
 pub(in crate::card::sets) static SENGIR_VAMPIRE: CardRecord = CardRecord::new(
@@ -1190,9 +1164,7 @@ pub(in crate::card::sets) static SWAMP: CardRecord = CardRecord::new(
     "Swamp",
     CardArt::new("6176936d-72e2-4205-8871-4c5a4f1cb2d8", "Dan Frazier"),
     CardSet::Alpha,
-    CardRules::new_land(&["Swamp"])
-        .with_supertype(CardSupertype::Basic)
-        .with_abilities(&[abilities::basic_land_type_mana(BasicLandType::Swamp)]),
+    CardRules::new_land(&["Swamp"]).with_supertype(CardSupertype::Basic),
 );
 
 pub(in crate::card::sets) static TAIGA: CardRecord = CardRecord::new(
@@ -1200,10 +1172,7 @@ pub(in crate::card::sets) static TAIGA: CardRecord = CardRecord::new(
     "Taiga",
     CardArt::new("60df6592-0b3b-4b87-aeb2-8fa94b4fb7be", "Rob Alexander"),
     CardSet::Alpha,
-    CardRules::new_land(&["Forest", "Mountain"]).with_abilities(&[
-        abilities::basic_land_type_mana(BasicLandType::Forest),
-        abilities::basic_land_type_mana(BasicLandType::Mountain),
-    ]),
+    CardRules::new_land(&["Forest", "Mountain"]),
 );
 
 pub(in crate::card::sets) static TERROR: CardRecord = CardRecord::new(
@@ -1274,10 +1243,7 @@ pub(in crate::card::sets) static TROPICAL_ISLAND: CardRecord = CardRecord::new(
     "Tropical Island",
     CardArt::new("a9c6c759-aabf-44e7-ba8c-33c5df232b56", "Jesper Myrfors"),
     CardSet::Alpha,
-    CardRules::new_land(&["Forest", "Island"]).with_abilities(&[
-        abilities::basic_land_type_mana(BasicLandType::Forest),
-        abilities::basic_land_type_mana(BasicLandType::Island),
-    ]),
+    CardRules::new_land(&["Forest", "Island"]),
 );
 
 pub(in crate::card::sets) static UNDERGROUND_SEA: CardRecord = CardRecord::new(
@@ -1285,10 +1251,7 @@ pub(in crate::card::sets) static UNDERGROUND_SEA: CardRecord = CardRecord::new(
     "Underground Sea",
     CardArt::new("ff76ac86-8a8a-47fe-9388-8950ca3e26c3", "Rob Alexander"),
     CardSet::Alpha,
-    CardRules::new_land(&["Island", "Swamp"]).with_abilities(&[
-        abilities::basic_land_type_mana(BasicLandType::Island),
-        abilities::basic_land_type_mana(BasicLandType::Swamp),
-    ]),
+    CardRules::new_land(&["Island", "Swamp"]),
 );
 
 pub(in crate::card::sets) static WHITE_KNIGHT: CardRecord = CardRecord::new(
@@ -1480,6 +1443,35 @@ pub(in crate::card::sets) static WRATH_OF_GOD: CardRecord = CardRecord::new(
     )),
 );
 
+pub(in crate::card::sets) static MAGICAL_HACK: CardRecord = CardRecord::new(
+    cards::MAGICAL_HACK,
+    "Magical Hack",
+    CardArt::new("2bd4202c-0477-45aa-82fd-83c85d6d4bef", "Julie Baroh"),
+    CardSet::Alpha,
+    CardRules::new_instant(mana_cost!("{U}")).with_ability(
+        AbilityDef::spell(
+            "Change the text of target spell or permanent by replacing all instances of one basic land type with another. (For example, you may change \"swampwalk\" to \"plainswalk.\" This effect lasts indefinitely.)",
+            EffectDef::ChangeTextBasicLandType {
+                object: EffectRecipientDef::Target(TargetSlotId(0)),
+            },
+        )
+        .with_targets(&[AbilityTargetDef::exactly_one(
+            TargetSlotId(0),
+            "land",
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+        )])
+        .with_implementation(AbilityImplementationDef::CustomPartial {
+            behavior: None,
+            explanation: "Basic-land-type words on battlefield land type lines are changed. Spell targets and substitutions elsewhere in rules text remain deferred.",
+        }),
+    ),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ANKH_OF_MISHRA,
     &BLACK_VISE,
@@ -1565,6 +1557,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &STONE_RAIN,
     &SEDGE_TROLL,
     &WRATH_OF_GOD,
+    &MAGICAL_HACK,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[

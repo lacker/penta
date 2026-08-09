@@ -821,6 +821,7 @@ const fn card_set_slug(set: CardSet) -> &'static str {
         CardSet::TheDark => "the-dark",
         CardSet::FallenEmpires => "fallen-empires",
         CardSet::Promo1994 => "promo-1994",
+        CardSet::FutureSight => "future-sight",
         CardSet::Innistrad => "innistrad",
         CardSet::DarkAscension => "dark-ascension",
         CardSet::AvacynRestored => "avacyn-restored",
@@ -829,6 +830,7 @@ const fn card_set_slug(set: CardSet) -> &'static str {
         CardSet::Gatecrash => "gatecrash",
         CardSet::DragonsMaze => "dragons-maze",
         CardSet::Magic2014 => "magic-2014",
+        CardSet::Theros => "theros",
         CardSet::Token => "token",
     }
 }
@@ -2418,6 +2420,12 @@ mod tests {
             3
         );
         assert_eq!(find("Lightning Bolt")["legal"], false);
+        assert_eq!(find("Thespian's Stage")["debutSet"], "gatecrash");
+        assert_eq!(find("Thespian's Stage")["legal"], true);
+        assert_eq!(find("Dryad Arbor")["debutSet"], "future-sight");
+        assert_eq!(find("Dryad Arbor")["legal"], false);
+        assert_eq!(find("Nylea's Presence")["debutSet"], "theros");
+        assert_eq!(find("Nylea's Presence")["legal"], false);
         let old_bolt = old_school["cards"]
             .as_array()
             .expect("cards")

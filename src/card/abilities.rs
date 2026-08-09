@@ -5,16 +5,8 @@
 
 use super::model::{
     AbilityCostDef, AbilityDef, AbilityImplementationDef, AddManaEffectDef, AppliedEffectDef,
-    BasicLandType, EffectDef, EffectDurationDef, EffectRecipientDef, KeywordAbility, ManaColor,
-    ZoneKind,
+    EffectDef, EffectDurationDef, EffectRecipientDef, KeywordAbility, ManaColor, ZoneKind,
 };
-
-/// Why a printed basic-land-type mana clause is not yet fully modeled.
-pub const BASIC_LAND_TYPE_MANA_EXPLANATION: &str = concat!(
-    "Mana production is implemented, but printed lands model this as an explicit clause rather ",
-    "than deriving it intrinsically from their basic land subtype; intrinsic derivation is ",
-    "currently limited to Blood Moon.",
-);
 
 const fn keyword(text: &'static str, keyword: KeywordAbility) -> AbilityDef {
     AbilityDef::keyword(text, keyword)
@@ -174,23 +166,12 @@ pub const fn tap_for(mana: ManaColor) -> AbilityDef {
     )
 }
 
-/// The explicit stand-in for the intrinsic mana ability granted by one basic
-/// land type. It remains executable, but partial, until the runtime derives it
-/// from the object's current types instead of relying on a separate clause.
-#[must_use]
-pub const fn basic_land_type_mana(land_type: BasicLandType) -> AbilityDef {
-    tap_for(land_type.mana_color()).with_implementation(AbilityImplementationDef::CustomPartial {
-        behavior: None,
-        explanation: BASIC_LAND_TYPE_MANA_EXPLANATION,
-    })
-}
-
 #[cfg(test)]
 mod tests {
-    use super::{BASIC_LAND_TYPE_MANA_EXPLANATION, banding, basic_land_type_mana, flying, tap_for};
+    use super::{banding, flying, tap_for};
     use crate::card::{
-        AbilityCostDef, AbilityDef, AbilityImplementationDef, AddManaEffectDef, BasicLandType,
-        CardRules, DeclarativeAbilityDef, EffectDef, KeywordAbility, ManaColor, ManaCost,
+        AbilityCostDef, AbilityDef, AbilityImplementationDef, AddManaEffectDef, CardRules,
+        DeclarativeAbilityDef, EffectDef, KeywordAbility, ManaColor, ManaCost,
     };
 
     #[test]
@@ -218,26 +199,6 @@ mod tests {
                 ability.effect,
                 EffectDef::AddMana(AddManaEffectDef::one(mana))
             );
-        }
-    }
-
-    #[test]
-    fn basic_land_type_mana_is_an_executable_partial_wrapper() {
-        for land_type in BasicLandType::ALL {
-            let ability = basic_land_type_mana(land_type);
-            let complete = tap_for(land_type.mana_color());
-
-            assert_eq!(ability.text, complete.text);
-            assert_eq!(ability.definition, complete.definition);
-            assert_eq!(ability.effect, complete.effect);
-            assert!(ability.implementation.is_executable());
-            assert!(matches!(
-                ability.implementation,
-                AbilityImplementationDef::CustomPartial {
-                    behavior: None,
-                    explanation: BASIC_LAND_TYPE_MANA_EXPLANATION,
-                }
-            ));
         }
     }
 

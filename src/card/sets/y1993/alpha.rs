@@ -1457,9 +1457,9 @@ pub(in crate::card::sets) static MAGICAL_HACK: CardRecord = CardRecord::new(
         )
         .with_targets(&[AbilityTargetDef::exactly_one(
             TargetSlotId(0),
-            "land",
+            "permanent",
             AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::HasType(CardType::Land),
+                object: ObjectPredicateDef::Any,
                 zones: &[ZoneKind::Battlefield],
                 controller: None,
                 owner: None,
@@ -1467,7 +1467,7 @@ pub(in crate::card::sets) static MAGICAL_HACK: CardRecord = CardRecord::new(
         )])
         .with_implementation(AbilityImplementationDef::CustomPartial {
             behavior: None,
-            explanation: "Basic-land-type words on battlefield land type lines are changed. Spell targets and substitutions elsewhere in rules text remain deferred.",
+            explanation: "Every battlefield permanent is a legal target, including one with no basic-land-type words. Basic-land-type words on type lines are changed; spell targets and substitutions elsewhere in rules text remain deferred.",
         }),
     ),
 );

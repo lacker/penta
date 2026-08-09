@@ -4807,7 +4807,45 @@ fn magical_hack_changes_a_land_type_and_its_intrinsic_mana_but_preserves_dryad()
 }
 
 #[test]
-fn magical_hack_fizzles_without_a_choice_when_its_land_target_leaves() {
+fn magical_hack_can_target_a_nonland_permanent_without_basic_land_type_words() {
+    let mut game = ready_game();
+    let lotus_id = CardInstanceId(10_000);
+    game.battlefield
+        .push(creature(lotus_id.0, cards::BLACK_LOTUS, PlayerId::Two));
+    let hack = card(10_001, cards::MAGICAL_HACK, PlayerId::One);
+    game.players[0].hand.push(hack.clone());
+    game.players[0].mana_pool.blue = 1;
+
+    let cast = cast_action(hack.id, vec![Target::Permanent(lotus_id)], Vec::new(), 0);
+    assert!(
+        game.legal_actions(PlayerId::One).contains(&cast),
+        "a nonland permanent is a legal target even when it has no words to replace",
+    );
+    game.apply(PlayerId::One, cast).unwrap();
+    pass_priority_pair(&mut game);
+    choose_decision_by_label(&mut game, PlayerId::One, "Forest → Island");
+
+    let lotus = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.id == lotus_id)
+        .expect("the unchanged target remains on the battlefield");
+    assert_eq!(
+        lotus.text_changes,
+        vec![BasicLandTypeChange {
+            from: BasicLandType::Forest,
+            to: BasicLandType::Island,
+        }],
+    );
+    assert_eq!(
+        game.permanent_types(lotus),
+        Some(CardTypeSet::single(CardType::Artifact)),
+    );
+    assert!(game.effective_subtypes(lotus).is_empty());
+}
+
+#[test]
+fn magical_hack_fizzles_without_a_choice_when_its_permanent_target_leaves() {
     let mut game = ready_game();
     let land_id = CardInstanceId(10_000);
     game.battlefield

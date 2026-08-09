@@ -11406,10 +11406,24 @@ fn flinthoof_boar_grows_for_a_mountain_you_control_and_only_once() {
         .push(creature(10_002, cards::MOUNTAIN, PlayerId::One));
     assert_eq!(stats(&game), (Some(3), Some(3)));
 
+    game.battlefield[2].text_changes.push(BasicLandTypeChange {
+        from: BasicLandType::Mountain,
+        to: BasicLandType::Island,
+    });
+    assert_eq!(
+        stats(&game),
+        (Some(2), Some(2)),
+        "the condition reads the land's effective subtype",
+    );
+
+    game.battlefield
+        .push(creature(10_003, cards::MOUNTAIN, PlayerId::One));
+    assert_eq!(stats(&game), (Some(3), Some(3)));
+
     // "As long as you control a Mountain" is a condition, so a second one
     // adds nothing.
     game.battlefield
-        .push(creature(10_003, cards::MOUNTAIN, PlayerId::One));
+        .push(creature(10_004, cards::MOUNTAIN, PlayerId::One));
     assert_eq!(stats(&game), (Some(3), Some(3)));
 }
 

@@ -3,7 +3,7 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityImplementationDef, AbilityTargetDef, AbilityTargetPredicate,
-    AppliedEffectDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     CounterKind, EffectDef, EffectDurationDef, EffectRecipientDef, KeywordAbility, LandEntry,
     ManaColor, ObjectPredicateDef, PlayerRelation, TriggerEventDef, TurnStepDef, ValueDef,
     ZoneKind, abilities, cards,

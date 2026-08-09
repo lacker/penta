@@ -3602,6 +3602,22 @@ impl CardRules {
         self
     }
 
+    /// Supplies the printed power and toughness after a definition has been
+    /// assembled with the creature card type.
+    ///
+    /// # Panics
+    ///
+    /// Panics when called on rules without the creature card type.
+    #[must_use]
+    pub const fn with_creature_stats(mut self, stats: CreatureStats) -> Self {
+        assert!(
+            self.has_type(CardType::Creature),
+            "with_creature_stats() is only valid for creature rules"
+        );
+        self.creature_stats = Some(stats);
+        self
+    }
+
     /// Declares the procedure used when these land rules enter the battlefield.
     ///
     /// # Panics
@@ -3794,8 +3810,13 @@ mod tests {
         let artifact_land = CardRules::new_land(&[]).with_type(CardType::Artifact);
         assert_eq!(artifact_land.type_line(), "Artifact Land");
 
-        let land_creature = CardRules::new_creature_without_mana_cost(&["Forest", "Dryad"], 1, 1)
-            .with_type(CardType::Land);
+        let land_creature = CardRules::new_land(&[])
+            .with_type(CardType::Creature)
+            .with_subtypes(&["Forest", "Dryad"])
+            .with_creature_stats(CreatureStats {
+                power: 1,
+                toughness: 1,
+            });
         assert_eq!(land_creature.type_line(), "Land Creature — Forest Dryad");
         assert_eq!(
             CardComposition::single("Land creature", land_creature).play_options[0].action,
@@ -4052,6 +4073,15 @@ mod tests {
     #[should_panic(expected = "land_entry() is only valid for land rules")]
     fn nonlands_cannot_declare_a_land_entry_procedure() {
         let _ = CardRules::new_instant(ManaCost::default()).land_entry(LandEntry::Tapped);
+    }
+
+    #[test]
+    #[should_panic(expected = "with_creature_stats() is only valid for creature rules")]
+    fn noncreatures_cannot_declare_creature_stats() {
+        let _ = CardRules::new_land(&[]).with_creature_stats(CreatureStats {
+            power: 1,
+            toughness: 1,
+        });
     }
 
     #[test]

@@ -11178,13 +11178,13 @@ impl Game {
         })
     }
 
-    /// The printed name a permanent presents, for the cards that gather
+    /// The copiable name a permanent presents, for the cards that gather
     /// everything sharing a name.
     fn permanent_card_name(&self, id: GameObjectId) -> Option<&str> {
         self.battlefield
             .iter()
             .find(|permanent| permanent.card.id == id)
-            .and_then(|permanent| self.catalog.get(permanent.card.definition))
+            .and_then(|permanent| self.catalog.get(Self::effective_rules_source(permanent).0))
             .map(|card| card.name.as_str())
     }
 

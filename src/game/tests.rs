@@ -12319,6 +12319,58 @@ fn izzet_staticaster_hits_every_copy_of_the_creature_it_names() {
 }
 
 #[test]
+fn izzet_staticaster_reads_the_name_copied_by_thespians_stage() {
+    let mut game = ready_game();
+    game.battlefield.clear();
+    let stage = game
+        .put_onto_battlefield(PlayerId::One, cards::THESPIANS_STAGE)
+        .expect("cataloged");
+    let arbor = game
+        .put_onto_battlefield(PlayerId::One, cards::DRYAD_ARBOR)
+        .expect("cataloged");
+    game.players[0].mana_pool.colorless = 2;
+    game.apply(
+        PlayerId::One,
+        Action::ActivateAbility {
+            source: stage,
+            ability: activated_ability_for(&game, stage, 0),
+            targets: activated_targets(Target::Permanent(arbor)),
+            sacrifice: None,
+            x: 0,
+        },
+    )
+    .unwrap();
+    pass_priority_pair(&mut game);
+
+    let caster = game
+        .put_onto_battlefield(PlayerId::Two, cards::IZZET_STATICASTER)
+        .expect("cataloged");
+    game.priority = PlayerId::Two;
+    game.consecutive_passes = 0;
+    let zap = game
+        .legal_actions(PlayerId::Two)
+        .into_iter()
+        .find(|action| {
+            matches!(action, Action::ActivateAbility { source, targets, .. }
+            if *source == caster
+                && targets.iter().flat_map(TargetSelection::targets).any(|target| {
+                    *target == Target::Permanent(stage)
+                }))
+        })
+        .expect("the Stage presenting Dryad Arbor is a legal target");
+    game.apply(PlayerId::Two, zap).unwrap();
+    pass_priority_pair(&mut game);
+
+    assert!(
+        [stage, arbor].iter().all(|id| !game
+            .battlefield
+            .iter()
+            .any(|permanent| permanent.card.id == *id)),
+        "the copied and physical Dryad Arbors share a copiable name",
+    );
+}
+
+#[test]
 fn oblivion_ring_gives_back_exactly_what_it_took() {
     let mut game = ready_game();
     game.battlefield.clear();

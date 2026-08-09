@@ -3,10 +3,10 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityImplementationDef, AbilityTargetDef, AbilityTargetPredicate,
-    AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CounterKind, EffectDef, EffectDurationDef, EffectRecipientDef, KeywordAbility, LandEntry,
-    ManaColor, ObjectPredicateDef, PlayerRelation, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, abilities, cards,
+    AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CounterKind, EffectDef,
+    EffectDurationDef, EffectRecipientDef, KeywordAbility, LandEntry, ManaColor,
+    ObjectPredicateDef, PlayerRelation, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    abilities, cards,
 };
 use crate::ids::TargetSlotId;
 use crate::mana_cost;

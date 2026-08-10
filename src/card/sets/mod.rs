@@ -276,11 +276,11 @@ mod tests {
     use crate::card::{
         AbilityCostDef, AbilityDef, AbilityImplementationDef, AddManaEffectDef,
         AlternativeCastKindDef, AppliedEffectDef, BasicLandType, CardPrinting, CardPrintingId,
-        CardStructure, CardSupertype, DeclarativeAbilityDef, DoubleFacedKind, EffectDef,
-        EffectDurationDef, EffectRecipientDef, ImplementationStatus, KeywordAbility, ManaColor,
-        ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef, ObjectPredicateDef,
-        PlayActionKind, PlayRestriction, PlayerRelation, ReplacementEventDef, SpellForm,
-        TargetPredicate, TriggerConditionDef, TriggerEventDef, TurnStepDef, ZoneKind,
+        CardStructure, CardSupertype, ComparisonDef, DeclarativeAbilityDef, DoubleFacedKind,
+        EffectDef, EffectDurationDef, EffectRecipientDef, ImplementationStatus, KeywordAbility,
+        ManaColor, ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef, ObjectPredicateDef,
+        ObjectQueryDef, PlayActionKind, PlayRestriction, PlayerRelation, ReplacementEventDef,
+        SpellForm, TargetPredicate, TriggerConditionDef, TriggerEventDef, TurnStepDef, ZoneKind,
         ZoneMoveCauseDef, cards,
     };
     use crate::{
@@ -859,7 +859,8 @@ mod tests {
                         | EffectDef::Special(_) => false,
                     }
                 }
-                battlefield_only(definition.source_zones)
+                definition.condition.is_none()
+                    && battlefield_only(definition.source_zones)
                     && shared_trigger_event(definition.event)
                     && immediate_mana_effect(ability.effect)
             }
@@ -1632,6 +1633,35 @@ mod tests {
             &[ZoneKind::Battlefield],
             &[AbilityCostDef::DiscardSource],
         ));
+    }
+
+    #[test]
+    fn triggered_mana_conditions_stay_outside_the_shared_runtime_boundary() {
+        static CONDITION: TriggerConditionDef = TriggerConditionDef::ObjectCount {
+            query: ObjectQueryDef {
+                object: ObjectPredicateDef::Any,
+                zones: &[ZoneKind::Battlefield],
+                controller: PlayerRelation::You,
+            },
+            comparison: ComparisonDef::AtLeast,
+            amount: 1,
+        };
+        let ordinary = AbilityDef::triggered_mana(
+            "Whenever this becomes tapped, add {C}.",
+            TriggerEventDef::BecomesTapped(ObjectPredicateDef::Source),
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+        );
+        let DeclarativeAbilityDef::TriggeredMana(definition) = ordinary.definition else {
+            unreachable!("triggered_mana must construct a triggered mana definition");
+        };
+        let conditional = AbilityDef::defined(
+            "Whenever this becomes tapped, if you control a permanent, add {C}.",
+            DeclarativeAbilityDef::TriggeredMana(definition.with_condition(&CONDITION)),
+            ordinary.effect,
+        );
+
+        assert!(shared_definition_ability(&ordinary));
+        assert!(!shared_definition_ability(&conditional));
     }
 
     #[test]

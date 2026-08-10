@@ -2,13 +2,13 @@
 
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityImplementationDef, AbilityTargetDef, AbilityTargetPredicate,
+    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, BasicLandType, CardArt, CardBehavior, CardRules, CardSet,
-    CardSupertype, CardType, DividedTotal, EffectDef, EffectDurationDef, EffectRecipientDef,
-    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayerRelation,
-    ReplacementEventDef, TriggerEventDef, ValueDef, ZoneKind, abilities, cards,
+    CardSupertype, CardType, DividedTotal, EffectDef, EffectDurationDef, EffectExecutionDef,
+    EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef,
+    PlayerRelation, ReplacementEventDef, TriggerEventDef, ValueDef, ZoneKind, abilities, cards,
 };
-use crate::ids::TargetSlotId;
+use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 pub(in crate::card::sets) static ARBOR_ELF: CardRecord = CardRecord::new(
@@ -17,23 +17,21 @@ pub(in crate::card::sets) static ARBOR_ELF: CardRecord = CardRecord::new(
     CardArt::new("b7d6b117-0c14-4455-92fc-29555ee75d97", "rk post"),
     CardSet::Magic2013,
     CardRules::new_creature(mana_cost!("{G}"), &["Elf", "Druid"], 1, 1).with_abilities(&[
-        AbilityDef::activated(
+        AbilityDef::activated_with_targets(
             "{T}: Untap target Forest.",
             &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Subtype("Forest"),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
             EffectDef::Untap {
-                object: EffectRecipientDef::Target(TargetSlotId(0)),
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             },
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "Forest",
-            AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Subtype("Forest"),
-                zones: &[ZoneKind::Battlefield],
-                controller: None,
-                owner: None,
-            },
-        )]),
+        ),
     ]),
 );
 
@@ -58,10 +56,10 @@ pub(in crate::card::sets) static AUGUR_OF_BOLAS: CardRecord = CardRecord::new(
             },
             EffectDef::None,
         )
-        .with_implementation(AbilityImplementationDef::CustomFull {
-            behavior: Some(CardBehavior::AugurOfBolas),
-            explanation: "The trigger uses the shared stack and a card-local library-selection resolver.",
-        }),
+        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::AugurOfBolas))
+        .with_coverage(AbilityCoverageDef::explained_complete(
+            "The trigger uses the shared stack and a card-local library-selection resolver.",
+        )),
     ]),
 );
 
@@ -141,23 +139,21 @@ pub(in crate::card::sets) static FLAMES_OF_THE_FIREBRAND: CardRecord = CardRecor
     CardArt::new("aca215b1-7b98-49ce-afae-eeb61058125a", "Steve Argyle"),
     CardSet::Magic2013,
     CardRules::new_sorcery(mana_cost!("{2}{R}")).with_ability(
-        AbilityDef::spell(
+        AbilityDef::spell_with_targets(
             "Flames of the Firebrand deals 3 damage divided as you choose among one, two, or three targets.",
+            &[AbilityTargetDef {
+                predicate: AbilityTargetPredicate::AnyTarget,
+                // One, two, or three targets is not a separate rule: three damage
+                // split with every share at least one says the same thing.
+                minimum: 1,
+                maximum: 3,
+                divided_total: Some(DividedTotal::Fixed(3)),
+            }],
             EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetSlotId(0)),
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::DividedAmongTargets,
             },
-        )
-        .with_targets(&[AbilityTargetDef {
-            id: TargetSlotId(0),
-            label: "any target",
-            predicate: AbilityTargetPredicate::AnyTarget,
-            // One, two, or three targets is not a separate rule: three damage
-            // split with every share at least one says the same thing.
-            minimum: 1,
-            maximum: 3,
-            divided_total: Some(DividedTotal::Fixed(3)),
-        }]),
+        ),
     ),
 );
 
@@ -230,53 +226,47 @@ pub(in crate::card::sets) static JACE_MEMORY_ADEPT: CardRecord = CardRecord::new
     CardRules::new_planeswalker(mana_cost!("{3}{U}{U}"), &["Jace"], 4)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
-            AbilityDef::activated(
+            AbilityDef::activated_with_targets(
                 "+1: Draw a card. Target player mills a card.",
                 &[AbilityCostDef::Loyalty(1)],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                )],
                 EffectDef::Sequence(&[
                     EffectDef::DrawCards {
                         recipient: EffectRecipientDef::Controller,
                         amount: ValueDef::Constant(1),
                     },
                     EffectDef::Mill {
-                        player: EffectRecipientDef::Target(TargetSlotId(0)),
+                        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         amount: ValueDef::Constant(1),
                     },
                 ]),
-            )
-            .with_targets(&[AbilityTargetDef::exactly_one(
-                TargetSlotId(0),
-                "player",
-                AbilityTargetPredicate::Player(PlayerRelation::Any),
-            )]),
-            AbilityDef::activated(
+            ),
+            AbilityDef::activated_with_targets(
                 "0: Target player mills ten cards.",
                 &[AbilityCostDef::Loyalty(0)],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                )],
                 EffectDef::Mill {
-                    player: EffectRecipientDef::Target(TargetSlotId(0)),
+                    player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     amount: ValueDef::Constant(10),
                 },
-            )
-            .with_targets(&[AbilityTargetDef::exactly_one(
-                TargetSlotId(0),
-                "player",
-                AbilityTargetPredicate::Player(PlayerRelation::Any),
-            )]),
-            AbilityDef::activated(
+            ),
+            AbilityDef::activated_with_targets(
                 "−7: Any number of target players each draw twenty cards.",
                 &[AbilityCostDef::Loyalty(-7)],
+                // Two players means "any number" is up to two.
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                    2,
+                )],
                 EffectDef::DrawCards {
-                    recipient: EffectRecipientDef::Target(TargetSlotId(0)),
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     amount: ValueDef::Constant(20),
                 },
-            )
-            // Two players means "any number" is up to two.
-            .with_targets(&[AbilityTargetDef::up_to(
-                TargetSlotId(0),
-                "player",
-                AbilityTargetPredicate::Player(PlayerRelation::Any),
-                2,
-            )]),
+            ),
         ]),
 );
 
@@ -327,20 +317,11 @@ pub(in crate::card::sets) static OBLIVION_RING: CardRecord = CardRecord::new(
     CardArt::new("1e2a73ec-39be-4d23-8c25-17d7c174dcee", "Franz Vohwinkel"),
     CardSet::Magic2013,
     CardRules::new_enchantment(mana_cost!("{2}{W}")).with_abilities(&[
-        AbilityDef::triggered(
-            "When this enchantment enters, exile another target nonland permanent.",
-            TriggerEventDef::ZoneChanged {
+        AbilityDef::triggered_with_targets("When this enchantment enters, exile another target nonland permanent.", TriggerEventDef::ZoneChanged {
                 object: ObjectPredicateDef::Source,
                 from: None,
                 to: Some(ZoneKind::Battlefield),
-            },
-            EffectDef::ExileLinkedToSource {
-                object: EffectRecipientDef::Target(TargetSlotId(0)),
-            },
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "another nonland permanent",
+            }, &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
@@ -350,7 +331,9 @@ pub(in crate::card::sets) static OBLIVION_RING: CardRecord = CardRecord::new(
                 controller: None,
                 owner: None,
             },
-        )]),
+        )], EffectDef::ExileLinkedToSource {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            }),
         AbilityDef::triggered(
             "When this enchantment leaves the battlefield, return the exiled card to the battlefield under its owner's control.",
             TriggerEventDef::ZoneChanged {
@@ -372,9 +355,7 @@ pub(in crate::card::sets) static RHOX_FAITHMENDER: CardRecord = CardRecord::new(
     CardArt::new("85ea185a-7b38-49f3-be73-be8180fb6295", "Wesley Burt"),
     CardSet::Magic2013,
     CardRules::new_creature(mana_cost!("{3}{W}"), &["Rhino", "Monk"], 1, 5).with_abilities(&[
-        abilities::lifelink().with_text(
-            "Lifelink (Damage dealt by this creature also causes you to gain that much life.)",
-        ),
+        abilities::lifelink(),
         AbilityDef::replacement_for(
             "If you would gain life, you gain twice that much life instead.",
             ReplacementEventDef::WouldGainLife(PlayerRelation::You),
@@ -409,24 +390,22 @@ pub(in crate::card::sets) static SIGN_IN_BLOOD: CardRecord = CardRecord::new(
     "Sign in Blood",
     CardArt::new("64f6600b-36c4-43bd-8c01-cfbca402ecd6", "Howard Lyon"),
     CardSet::Magic2013,
-    CardRules::new_sorcery(mana_cost!("{B}{B}")).with_abilities(&[AbilityDef::spell(
+    CardRules::new_sorcery(mana_cost!("{B}{B}")).with_abilities(&[AbilityDef::spell_with_targets(
         "Target player draws two cards and loses 2 life.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
         EffectDef::Sequence(&[
             EffectDef::DrawCards {
-                recipient: EffectRecipientDef::Target(TargetSlotId(0)),
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(2),
             },
             EffectDef::LoseLife {
-                recipient: EffectRecipientDef::Target(TargetSlotId(0)),
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(2),
             },
         ]),
-    )
-    .with_targets(&[AbilityTargetDef::exactly_one(
-        TargetSlotId(0),
-        "player",
-        AbilityTargetPredicate::Player(PlayerRelation::Any),
-    )])]),
+    )]),
 );
 
 pub(in crate::card::sets) static SUNPETAL_GROVE: CardRecord = CardRecord::new(
@@ -503,9 +482,7 @@ pub(in crate::card::sets) static THUNDERMAW_HELLKITE: CardRecord = CardRecord::n
     )
     .with_abilities(&[
         abilities::flying(),
-        abilities::haste().with_text(
-            "Haste (This creature can attack and {T} as soon as it comes under your control.)",
-        ),
+        abilities::haste(),
         AbilityDef::triggered(
             "When this creature enters, it deals 1 damage to each creature with flying your opponents control. Tap those creatures.",
             TriggerEventDef::ZoneChanged {
@@ -539,16 +516,13 @@ pub(in crate::card::sets) static VAMPIRE_NIGHTHAWK: CardRecord = CardRecord::new
     "Vampire Nighthawk",
     CardArt::new("9ba96d96-8d9e-47c8-ab39-17479564aadf", "Jason Chan"),
     CardSet::Magic2013,
-    CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Vampire", "Shaman"], 2, 3)
-        .with_abilities(&[
-        abilities::flying(),
-        abilities::deathtouch().with_text(
-            "Deathtouch (Any amount of damage this deals to a creature is enough to destroy it.)",
-        ),
-        abilities::lifelink().with_text(
-            "Lifelink (Damage dealt by this creature also causes you to gain that much life.)",
-        ),
-    ]),
+    CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Vampire", "Shaman"], 2, 3).with_abilities(
+        &[
+            abilities::flying(),
+            abilities::deathtouch(),
+            abilities::lifelink(),
+        ],
+    ),
 );
 
 pub(in crate::card::sets) static VOLCANIC_STRENGTH: CardRecord = CardRecord::new(
@@ -559,22 +533,16 @@ pub(in crate::card::sets) static VOLCANIC_STRENGTH: CardRecord = CardRecord::new
     CardRules::new_enchantment(mana_cost!("{1}{R}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-        AbilityDef::spell(
-            "Enchant creature",
-            EffectDef::Attach {
-                object: EffectRecipientDef::Target(TargetSlotId(0)),
-            },
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "creature",
+        AbilityDef::spell_with_targets("Enchant creature", &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::HasType(CardType::Creature),
                 zones: &[ZoneKind::Battlefield],
                 controller: None,
                 owner: None,
             },
-        )]),
+        )], EffectDef::Attach {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            }),
         AbilityDef::static_ability(
             "Enchanted creature gets +2/+2 and has mountainwalk. (It can't be blocked as long as defending player controls a Mountain.)",
             EffectDef::Sequence(&[
@@ -602,33 +570,31 @@ pub(in crate::card::sets) static WAR_PRIEST_OF_THUNE: CardRecord = CardRecord::n
     CardArt::new("d28eb320-aea7-466e-8718-de8652a2b191", "Izzy"),
     CardSet::Magic2013,
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Cleric"], 2, 2).with_abilities(&[
-        AbilityDef::triggered(
+        AbilityDef::triggered_with_targets(
             "When this creature enters, you may destroy target enchantment.",
             TriggerEventDef::ZoneChanged {
                 object: ObjectPredicateDef::Source,
                 from: None,
                 to: Some(ZoneKind::Battlefield),
             },
+            &[AbilityTargetDef {
+                predicate: AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Enchantment),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                // "You may" is an optional target: declining to choose one is how the
+                // trigger does nothing, so the minimum is zero rather than one.
+                minimum: 0,
+                maximum: 1,
+                divided_total: None,
+            }],
             EffectDef::Destroy {
-                object: EffectRecipientDef::Target(TargetSlotId(0)),
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
             },
-        )
-        .with_targets(&[AbilityTargetDef {
-            id: TargetSlotId(0),
-            label: "enchantment",
-            predicate: AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::HasType(CardType::Enchantment),
-                zones: &[ZoneKind::Battlefield],
-                controller: None,
-                owner: None,
-            },
-            // "You may" is an optional target: declining to choose one is how the
-            // trigger does nothing, so the minimum is zero rather than one.
-            minimum: 0,
-            maximum: 1,
-            divided_total: None,
-        }]),
+        ),
     ]),
 );
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

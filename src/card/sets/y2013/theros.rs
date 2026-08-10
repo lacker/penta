@@ -6,7 +6,7 @@ use crate::card::{
     CardRules, CardSet, CardType, EffectDef, EffectDurationDef, EffectRecipientDef,
     ObjectPredicateDef, TriggerEventDef, ValueDef, ZoneKind, cards,
 };
-use crate::ids::TargetSlotId;
+use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 pub(in crate::card::sets) static NYLEAS_PRESENCE: CardRecord = CardRecord::new(
@@ -17,22 +17,20 @@ pub(in crate::card::sets) static NYLEAS_PRESENCE: CardRecord = CardRecord::new(
     CardRules::new_enchantment(mana_cost!("{1}{G}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            AbilityDef::spell(
+            AbilityDef::spell_with_targets(
                 "Enchant land",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Land),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
                 EffectDef::Attach {
-                    object: EffectRecipientDef::Target(TargetSlotId(0)),
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
-            )
-            .with_targets(&[AbilityTargetDef::exactly_one(
-                TargetSlotId(0),
-                "land",
-                AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::HasType(CardType::Land),
-                    zones: &[ZoneKind::Battlefield],
-                    controller: None,
-                    owner: None,
-                },
-            )]),
+            ),
             AbilityDef::triggered(
                 "When Nylea's Presence enters, draw a card.",
                 TriggerEventDef::ZoneChanged {

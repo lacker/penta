@@ -1085,11 +1085,6 @@ export function GameClient({
               action.targetStackId != null),
         ) ?? []);
   const actionMenuHasTargets = actionMenuTargetedActions.length > 0;
-  // "Choose a target" says nothing about what the target is for, so the menu
-  // reads back the ability whenever the engine can describe it.
-  const actionMenuTargetLabel =
-    actionMenuTargetedActions.find((action) => action.abilitySummary)?.abilitySummary ??
-    "Choose a target on the battlefield";
   const choosingTarget =
     !choosingFireballTargets &&
     selectedCard !== null &&
@@ -1104,9 +1099,6 @@ export function GameClient({
           action.targetPlayer != null ||
           action.targetStackId != null),
     ) ?? false);
-  const selectedAbilitySummary = state?.actions.find(
-    (action) => action.cardId === selectedCard && action.abilitySummary,
-  )?.abilitySummary;
   const selectedTarget = state?.battlefield.find(
     (card) => card.id === selectedTargetCard,
   );
@@ -1527,7 +1519,7 @@ export function GameClient({
                     setCardActionMenu(null);
                   }}
                 >
-                  <strong>{actionMenuTargetLabel}</strong>
+                  <strong>Choose a target</strong>
                   <i aria-hidden="true">→</i>
                 </button>
               )}
@@ -2179,7 +2171,7 @@ export function GameClient({
               )}
               {choosingTarget && (
                 <div className="target-prompt" role="status">
-                  <strong>{selectedAbilitySummary ?? "Choose a highlighted target"}</strong>
+                  <strong>Choose a highlighted target</strong>
                   <span>
                     Click a highlighted card, player, or spell for{" "}
                     {selectedSource?.name ?? "this action"}

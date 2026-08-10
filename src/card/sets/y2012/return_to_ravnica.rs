@@ -2,13 +2,13 @@
 
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityImplementationDef, AbilityTargetDef, AbilityTargetPredicate,
+    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, CardArt, CardBehavior, CardRules, CardSet, CardSupertype,
     CardType, CounterKind, EffectDef, EffectDurationDef, EffectRecipientDef, LibraryPlacement,
     ManaColor, ObjectPredicateDef, PlayerRelation, ReplacementEventDef, TriggerEventDef,
     TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef, abilities, cards,
 };
-use crate::ids::TargetSlotId;
+use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 pub(in crate::card::sets) static ABRUPT_DECAY: CardRecord = CardRecord::new(
@@ -18,26 +18,24 @@ pub(in crate::card::sets) static ABRUPT_DECAY: CardRecord = CardRecord::new(
     CardSet::ReturnToRavnica,
     CardRules::new_instant(mana_cost!("{B}{G}")).with_abilities(&[
         abilities::cannot_be_countered(),
-        AbilityDef::spell(
+        AbilityDef::spell_with_targets(
             "Destroy target nonland permanent with mana value 3 or less.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                        ObjectPredicateDef::ManaValueAtMost(3),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
             EffectDef::Destroy {
-                object: EffectRecipientDef::Target(TargetSlotId(0)),
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
             },
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "nonland permanent with mana value 3 or less",
-            AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-                    ObjectPredicateDef::ManaValueAtMost(3),
-                ]),
-                zones: &[ZoneKind::Battlefield],
-                controller: None,
-                owner: None,
-            },
-        )]),
+        ),
     ]),
 );
 
@@ -54,20 +52,11 @@ pub(in crate::card::sets) static ANGEL_OF_SERENITY: CardRecord = CardRecord::new
     )
     .with_abilities(&[
         abilities::flying(),
-        AbilityDef::triggered(
-            "When this creature enters, you may exile up to three other target creatures from the battlefield and/or creature cards from graveyards.",
-            TriggerEventDef::ZoneChanged {
+        AbilityDef::triggered_with_targets("When this creature enters, you may exile up to three other target creatures from the battlefield and/or creature cards from graveyards.", TriggerEventDef::ZoneChanged {
                 object: ObjectPredicateDef::Source,
                 from: None,
                 to: Some(ZoneKind::Battlefield),
-            },
-            EffectDef::May(&EffectDef::ExileLinkedToSource {
-                object: EffectRecipientDef::Target(TargetSlotId(0)),
-            }),
-        )
-        .with_targets(&[AbilityTargetDef::up_to(
-            TargetSlotId(0),
-            "other creature on the battlefield or creature card in a graveyard",
+            }, &[AbilityTargetDef::up_to(
             AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -78,7 +67,9 @@ pub(in crate::card::sets) static ANGEL_OF_SERENITY: CardRecord = CardRecord::new
                 owner: None,
             },
             3,
-        )]),
+        )], EffectDef::May(&EffectDef::ExileLinkedToSource {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            })),
         AbilityDef::triggered(
             "When this creature leaves the battlefield, return the exiled cards to their owners' hands.",
             TriggerEventDef::ZoneChanged {
@@ -121,23 +112,17 @@ pub(in crate::card::sets) static AZORIUS_CHARM: CardRecord = CardRecord::new(
                     amount: ValueDef::Constant(1),
                 },
             ),
-            AbilityDef::spell(
-                "Put an attacking or blocking creature on top of its owner's library",
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetSlotId(2)),
-                    zone: ZoneKind::Library,
-                    controller: None,
-                    placement: LibraryPlacement::Top,
-                },
-            )
-            .with_targets(&[AbilityTargetDef::exactly_one_permanent(
-                TargetSlotId(2),
-                "attacking or blocking creature",
+            AbilityDef::spell_with_targets("Put an attacking or blocking creature on top of its owner's library", &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
                     ObjectPredicateDef::AttackingOrBlocking,
                 ]),
-            )]),
+            )], EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Library,
+                    controller: None,
+                    placement: LibraryPlacement::Top,
+                }),
         ],
     )),
 );
@@ -149,22 +134,20 @@ pub(in crate::card::sets) static COUNTERFLUX: CardRecord = CardRecord::new(
     CardSet::ReturnToRavnica,
     CardRules::new_instant(mana_cost!("{U}{U}{R}")).with_abilities(&[
         abilities::cannot_be_countered(),
-        AbilityDef::spell(
+        AbilityDef::spell_with_targets(
             "Counter target spell you don't control.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Spell,
+                    zones: &[ZoneKind::Stack],
+                    controller: Some(PlayerRelation::NotYou),
+                    owner: None,
+                },
+            )],
             EffectDef::Counter {
-                object: EffectRecipientDef::Target(TargetSlotId(0)),
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             },
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "spell you don't control",
-            AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Spell,
-                zones: &[ZoneKind::Stack],
-                controller: Some(PlayerRelation::NotYou),
-                owner: None,
-            },
-        )]),
+        ),
         abilities::overload(
             mana_cost!("{1}{U}{U}{R}"),
             "Counter each spell you don't control.",
@@ -228,20 +211,11 @@ pub(in crate::card::sets) static DETENTION_SPHERE: CardRecord = CardRecord::new(
     CardArt::new("afee5464-83b7-4d7a-b407-9ee7de21535b", "Kev Walker"),
     CardSet::ReturnToRavnica,
     CardRules::new_enchantment(mana_cost!("{1}{W}{U}")).with_abilities(&[
-        AbilityDef::triggered(
-            "When this enchantment enters, you may exile target nonland permanent not named Detention Sphere and all other permanents with the same name as that permanent.",
-            TriggerEventDef::ZoneChanged {
+        AbilityDef::triggered_with_targets("When this enchantment enters, you may exile target nonland permanent not named Detention Sphere and all other permanents with the same name as that permanent.", TriggerEventDef::ZoneChanged {
                 object: ObjectPredicateDef::Source,
                 from: None,
                 to: Some(ZoneKind::Battlefield),
-            },
-            EffectDef::May(&EffectDef::ExileLinkedToSource {
-                object: EffectRecipientDef::ObjectsSharingNameWithTarget(TargetSlotId(0)),
-            }),
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "nonland permanent not named Detention Sphere",
+            }, &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
@@ -253,7 +227,9 @@ pub(in crate::card::sets) static DETENTION_SPHERE: CardRecord = CardRecord::new(
                 controller: None,
                 owner: None,
             },
-        )]),
+        )], EffectDef::May(&EffectDef::ExileLinkedToSource {
+                object: EffectRecipientDef::ObjectsSharingNameWithTarget(TargetIndex::PRIMARY),
+            })),
         AbilityDef::triggered(
             "When this enchantment leaves the battlefield, return the exiled cards to the battlefield under their owner's control.",
             TriggerEventDef::ZoneChanged {
@@ -330,31 +306,19 @@ pub(in crate::card::sets) static IZZET_CHARM: CardRecord = CardRecord::new(
         AbilityDef::choose_one_spell(
             "Choose one —\n• Counter target noncreature spell unless its controller pays {2}.\n• Izzet Charm deals 2 damage to target creature.\n• Draw two cards, then discard two cards.",
             &[
-                AbilityDef::spell(
-                    "Counter a noncreature spell unless its controller pays {2}",
-                    EffectDef::CounterUnlessPaid {
-                        object: EffectRecipientDef::Target(TargetSlotId(0)),
+                AbilityDef::spell_with_targets("Counter a noncreature spell unless its controller pays {2}", &[AbilityTargetDef::exactly_one_spell(
+                    ObjectPredicateDef::NoncreatureSpell,
+                )], EffectDef::CounterUnlessPaid {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         amount: ValueDef::Constant(2),
                         zone: ZoneKind::Graveyard,
-                    },
-                )
-                .with_targets(&[AbilityTargetDef::exactly_one_spell(
-                    TargetSlotId(0),
-                    "noncreature spell",
-                    ObjectPredicateDef::NoncreatureSpell,
-                )]),
-                AbilityDef::spell(
-                    "Deal 2 damage to a creature",
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetSlotId(1)),
-                        amount: ValueDef::Constant(2),
-                    },
-                )
-                .with_targets(&[AbilityTargetDef::exactly_one_permanent(
-                    TargetSlotId(1),
-                    "creature",
+                    }),
+                AbilityDef::spell_with_targets("Deal 2 damage to a creature", &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
-                )]),
+                )], EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(2),
+                    }),
                 AbilityDef::spell(
                     "Draw two cards, then discard two cards",
                     EffectDef::Sequence(&[
@@ -385,25 +349,16 @@ pub(in crate::card::sets) static IZZET_STATICASTER: CardRecord = CardRecord::new
         3,
     )
     .with_abilities(&[
-        abilities::flash().with_text(
-            "Flash (You may cast this spell any time you could cast an instant.)",
-        ),
+        abilities::flash(),
         abilities::haste(),
-        AbilityDef::activated(
-            "{T}: This creature deals 1 damage to target creature and each other creature with the same name as that creature.",
-            &[AbilityCostDef::TapSource],
-            // The target and every other creature sharing its name are one
+        AbilityDef::activated_with_targets("{T}: This creature deals 1 damage to target creature and each other creature with the same name as that creature.", &[AbilityCostDef::TapSource], &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )], // The target and every other creature sharing its name are one
             // set, so the two printed halves are a single sweep.
             EffectDef::DealDamage {
-                recipient: EffectRecipientDef::ObjectsSharingNameWithTarget(TargetSlotId(0)),
+                recipient: EffectRecipientDef::ObjectsSharingNameWithTarget(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(1),
-            },
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one_permanent(
-            TargetSlotId(0),
-            "creature",
-            ObjectPredicateDef::HasType(CardType::Creature),
-        )]),
+            }),
     ]),
 );
 
@@ -461,23 +416,21 @@ pub(in crate::card::sets) static MIZZIUM_MORTARS: CardRecord = CardRecord::new(
     CardArt::new("d4ded88d-2688-4f5e-a8b2-16216cf9c792", "Noah Bradley"),
     CardSet::ReturnToRavnica,
     CardRules::new_sorcery(mana_cost!("{1}{R}")).with_abilities(&[
-        AbilityDef::spell(
+        AbilityDef::spell_with_targets(
             "Mizzium Mortars deals 4 damage to target creature you don't control.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::NotYou),
+                    owner: None,
+                },
+            )],
             EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetSlotId(0)),
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(4),
             },
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "creature you don't control",
-            AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::HasType(CardType::Creature),
-                zones: &[ZoneKind::Battlefield],
-                controller: Some(PlayerRelation::NotYou),
-                owner: None,
-            },
-        )]),
+        ),
         abilities::overload(
             mana_cost!("{3}{R}{R}{R}"),
             "Mizzium Mortars deals 4 damage to each creature you don't control.",
@@ -519,10 +472,9 @@ pub(in crate::card::sets) static PITHING_NEEDLE: CardRecord = CardRecord::new(
             "Activated abilities of sources with the chosen name can't be activated unless they're mana abilities.",
             EffectDef::None,
         )
-        .with_implementation(AbilityImplementationDef::CustomFull {
-            behavior: None,
-            explanation: "The activation lock is enforced where activated abilities are offered.",
-        }),
+        .with_coverage(AbilityCoverageDef::explained_complete(
+            "The activation lock is enforced where activated abilities are offered.",
+        )),
     ]),
 );
 
@@ -573,10 +525,10 @@ pub(in crate::card::sets) static SELESNYA_CHARM: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{G}{W}")).with_ability(AbilityDef::choose_one_spell(
         "Choose one —\n• Target creature gets +2/+2 and gains trample until end of turn.\n• Exile target creature with power 5 or greater.\n• Create a 2/2 white Knight creature token with vigilance.",
         &[
-            AbilityDef::spell(
-                "Target creature gets +2/+2 and gains trample until end of turn",
-                EffectDef::Apply {
-                    recipient: EffectRecipientDef::Target(TargetSlotId(0)),
+            AbilityDef::spell_with_targets("Target creature gets +2/+2 and gains trample until end of turn", &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )], EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     effect: AppliedEffectDef::Composite(&[
                         AppliedEffectDef::ModifyPowerToughness {
                             power: ValueDef::Constant(2),
@@ -585,30 +537,18 @@ pub(in crate::card::sets) static SELESNYA_CHARM: CardRecord = CardRecord::new(
                         AppliedEffectDef::GrantAbility(&abilities::trample()),
                     ]),
                     duration: EffectDurationDef::UntilEndOfTurn,
-                },
-            )
-            .with_targets(&[AbilityTargetDef::exactly_one_permanent(
-                TargetSlotId(0),
-                "creature",
-                ObjectPredicateDef::HasType(CardType::Creature),
-            )]),
-            AbilityDef::spell(
-                "Exile a creature with power 5 or greater",
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetSlotId(1)),
-                    zone: ZoneKind::Exile,
-                    controller: None,
-                    placement: LibraryPlacement::Top,
-                },
-            )
-            .with_targets(&[AbilityTargetDef::exactly_one_permanent(
-                TargetSlotId(1),
-                "creature with power 5 or greater",
+                }),
+            AbilityDef::spell_with_targets("Exile a creature with power 5 or greater", &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
                     ObjectPredicateDef::PowerAtLeast(5),
                 ]),
-            )]),
+            )], EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Exile,
+                    controller: None,
+                    placement: LibraryPlacement::Top,
+                }),
             AbilityDef::spell(
                 "Create a 2/2 white Knight creature token with vigilance",
                 EffectDef::CreateToken {
@@ -667,24 +607,18 @@ pub(in crate::card::sets) static SYNCOPATE: CardRecord = CardRecord::new(
     CardArt::new("ba6f218f-83b0-4b68-a00f-0327cd79f32a", "Clint Cearley"),
     CardSet::ReturnToRavnica,
     CardRules::new_instant(mana_cost!("{X}{U}")).with_ability(
-        AbilityDef::spell(
-            "Counter target spell unless its controller pays {X}. If that spell is countered this way, exile it instead of putting it into its owner's graveyard.",
-            EffectDef::CounterUnlessPaid {
-                object: EffectRecipientDef::Target(TargetSlotId(0)),
-                amount: ValueDef::ChosenX,
-                zone: ZoneKind::Exile,
-            },
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "spell",
+        AbilityDef::spell_with_targets("Counter target spell unless its controller pays {X}. If that spell is countered this way, exile it instead of putting it into its owner's graveyard.", &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::Spell,
                 zones: &[ZoneKind::Stack],
                 controller: None,
                 owner: None,
             },
-        )]),
+        )], EffectDef::CounterUnlessPaid {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::ChosenX,
+                zone: ZoneKind::Exile,
+            }),
     ),
 );
 
@@ -725,22 +659,20 @@ pub(in crate::card::sets) static UNDERWORLD_CONNECTIONS: CardRecord = CardRecord
     CardRules::new_enchantment(mana_cost!("{1}{B}{B}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            AbilityDef::spell(
+            AbilityDef::spell_with_targets(
                 "Enchant land",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Land),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
                 EffectDef::Attach {
-                    object: EffectRecipientDef::Target(TargetSlotId(0)),
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
-            )
-            .with_targets(&[AbilityTargetDef::exactly_one(
-                TargetSlotId(0),
-                "land",
-                AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::HasType(CardType::Land),
-                    zones: &[ZoneKind::Battlefield],
-                    controller: None,
-                    owner: None,
-                },
-            )]),
+            ),
             AbilityDef::static_ability(
                 "Enchanted land has \"{T}, Pay 1 life: Draw a card.\"",
                 EffectDef::Apply {

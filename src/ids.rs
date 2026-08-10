@@ -88,10 +88,45 @@ impl ModeId {
     }
 }
 
-/// Identity of one independently chosen target slot, local to its card
-/// definition.
+/// Positional reference to a target within one authored ability clause.
+///
+/// This is definition-local: instantiating modal branches remaps it to the
+/// runtime [`TargetSlotId`] assigned to the resulting stack object. Split-card
+/// presentation forms flatten the same way; executable combined-spell payload
+/// composition is not yet supported.
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct TargetIndex(pub u8);
+
+impl TargetIndex {
+    pub const PRIMARY: Self = Self(0);
+
+    #[must_use]
+    pub const fn index(self) -> usize {
+        self.0 as usize
+    }
+
+    #[must_use]
+    pub fn from_index(index: usize) -> Option<Self> {
+        u8::try_from(index).ok().map(Self)
+    }
+}
+
+/// Identity of one independently chosen target slot on an instantiated spell
+/// or ability. Slots are assigned in flattened target-clause order.
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct TargetSlotId(pub u8);
+
+impl TargetSlotId {
+    #[must_use]
+    pub const fn index(self) -> usize {
+        self.0 as usize
+    }
+
+    #[must_use]
+    pub fn from_index(index: usize) -> Option<Self> {
+        u8::try_from(index).ok().map(Self)
+    }
+}
 
 /// Identity of an alternative cost choice, local to one play option.
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]

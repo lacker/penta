@@ -9,7 +9,7 @@ use crate::card::{
     ReplacementEffectDef, ReplacementEventDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
     abilities, cards,
 };
-use crate::ids::TargetSlotId;
+use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 pub(in crate::card::sets) static ASSEMBLE_THE_LEGION: CardRecord = CardRecord::new(
@@ -47,33 +47,31 @@ pub(in crate::card::sets) static AURELIAS_FURY: CardRecord = CardRecord::new(
     CardArt::new("1a3465b6-ee7f-4553-bbf1-85fae9734b67", "Tyler Jacobson"),
     CardSet::Gatecrash,
     CardRules::new_instant(mana_cost!("{X}{R}{W}")).with_ability(
-        AbilityDef::spell(
+        AbilityDef::spell_with_targets(
             "Aurelia's Fury deals X damage divided as you choose among any number of targets. Tap each creature dealt damage this way. Players dealt damage this way can't cast noncreature spells this turn.",
+            &[AbilityTargetDef {
+                predicate: AbilityTargetPredicate::AnyTarget,
+                // "Any number of targets" is however many shares X splits into.
+                minimum: 1,
+                maximum: u8::MAX,
+                divided_total: Some(DividedTotal::ChosenX),
+            }],
             // Everything chosen took damage, so the tap and the lock are the
             // same set of targets read again; each ignores what it cannot
             // apply to.
             EffectDef::Sequence(&[
                 EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetSlotId(0)),
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     amount: ValueDef::DividedAmongTargets,
                 },
                 EffectDef::Tap {
-                    object: EffectRecipientDef::Target(TargetSlotId(0)),
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
                 EffectDef::CannotCastNoncreatureSpellsThisTurn {
-                    player: EffectRecipientDef::Target(TargetSlotId(0)),
+                    player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
             ]),
-        )
-        .with_targets(&[AbilityTargetDef {
-            id: TargetSlotId(0),
-            label: "any target",
-            predicate: AbilityTargetPredicate::AnyTarget,
-            // "Any number of targets" is however many shares X splits into.
-            minimum: 1,
-            maximum: u8::MAX,
-            divided_total: Some(DividedTotal::ChosenX),
-        }]),
+        ),
     ),
 );
 
@@ -161,36 +159,24 @@ pub(in crate::card::sets) static BOROS_CHARM: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{R}{W}")).with_ability(AbilityDef::choose_one_spell(
         "Choose one —\n• Boros Charm deals 4 damage to target player or planeswalker.\n• Permanents you control gain indestructible until end of turn.\n• Target creature gains double strike until end of turn.",
         &[
-            AbilityDef::spell(
-                "Boros Charm deals 4 damage to target player or planeswalker",
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetSlotId(0)),
-                    amount: ValueDef::Constant(4),
-                },
-            )
-            .with_targets(&[AbilityTargetDef::exactly_one(
-                TargetSlotId(0),
-                "player",
+            AbilityDef::spell_with_targets("Boros Charm deals 4 damage to target player or planeswalker", &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Player(PlayerRelation::Any),
-            )]),
+            )], EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(4),
+                }),
             // Indestructible is not modeled.
             AbilityDef::unimplemented_spell(
                 "Permanents you control gain indestructible until end of turn",
                 "Printed mode is cataloged but is not executed by the engine.",
             ),
-            AbilityDef::spell(
-                "Target creature gains double strike until end of turn",
-                EffectDef::Apply {
-                    recipient: EffectRecipientDef::Target(TargetSlotId(1)),
+            AbilityDef::spell_with_targets("Target creature gains double strike until end of turn", &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )], EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     effect: AppliedEffectDef::GrantAbility(&abilities::double_strike()),
                     duration: EffectDurationDef::UntilEndOfTurn,
-                },
-            )
-            .with_targets(&[AbilityTargetDef::exactly_one_permanent(
-                TargetSlotId(1),
-                "creature",
-                ObjectPredicateDef::HasType(CardType::Creature),
-            )]),
+                }),
         ],
     )),
 );
@@ -202,22 +188,20 @@ pub(in crate::card::sets) static BOROS_RECKONER: CardRecord = CardRecord::new(
     CardSet::Gatecrash,
     CardRules::new_creature(mana_cost!("{R/W}{R/W}{R/W}"), &["Minotaur", "Wizard"], 3, 3)
         .with_abilities(&[
-            AbilityDef::triggered(
+            AbilityDef::triggered_with_targets(
                 "Whenever this creature is dealt damage, it deals that much damage to any target.",
                 TriggerEventDef::DamageDealt {
                     source: ObjectPredicateDef::Any,
                     recipient: EffectRecipientDef::Source,
                 },
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )],
                 EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetSlotId(0)),
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     amount: ValueDef::TriggerEventAmount,
                 },
-            )
-            .with_targets(&[AbilityTargetDef::exactly_one(
-                TargetSlotId(0),
-                "any target",
-                AbilityTargetPredicate::AnyTarget,
-            )]),
+            ),
             AbilityDef::activated(
                 "{R/W}: This creature gains first strike until end of turn.",
                 &[AbilityCostDef::Mana(mana_cost!("{R/W}"))],
@@ -263,8 +247,16 @@ pub(in crate::card::sets) static GHOR_CLAN_RAMPAGER: CardRecord = CardRecord::ne
         abilities::bloodrush(
             mana_cost!("{R}{G}"),
             "Bloodrush — {R}{G}, Discard this card: Target attacking creature gets +4/+4 and gains trample until end of turn.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Attacking,
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
             EffectDef::Apply {
-                recipient: EffectRecipientDef::Target(TargetSlotId(0)),
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 effect: AppliedEffectDef::Composite(&[
                     AppliedEffectDef::ModifyPowerToughness {
                         power: ValueDef::Constant(4),
@@ -274,17 +266,7 @@ pub(in crate::card::sets) static GHOR_CLAN_RAMPAGER: CardRecord = CardRecord::ne
                 ]),
                 duration: EffectDurationDef::UntilEndOfTurn,
             },
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "attacking creature",
-            AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Attacking,
-                zones: &[ZoneKind::Battlefield],
-                controller: None,
-                owner: None,
-            },
-        )]),
+        ),
     ]),
 );
 
@@ -309,29 +291,22 @@ pub(in crate::card::sets) static OBZEDAT_GHOST_COUNCIL: CardRecord = CardRecord:
     )
     .with_supertype(CardSupertype::Legendary)
     .with_abilities(&[
-        AbilityDef::triggered(
-            "When Obzedat enters, target opponent loses 2 life and you gain 2 life.",
-            TriggerEventDef::ZoneChanged {
+        AbilityDef::triggered_with_targets("When Obzedat enters, target opponent loses 2 life and you gain 2 life.", TriggerEventDef::ZoneChanged {
                 object: ObjectPredicateDef::Source,
                 from: None,
                 to: Some(ZoneKind::Battlefield),
-            },
-            EffectDef::Sequence(&[
+            }, &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+        )], EffectDef::Sequence(&[
                 EffectDef::LoseLife {
-                    recipient: EffectRecipientDef::Target(TargetSlotId(0)),
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     amount: ValueDef::Constant(2),
                 },
                 EffectDef::GainLife {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(2),
                 },
-            ]),
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "opponent",
-            AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-        )]),
+            ])),
         AbilityDef::triggered(
             "At the beginning of your end step, you may exile Obzedat. If you do, return it to the battlefield under its owner's control at the beginning of your next upkeep. It gains haste.",
             TriggerEventDef::StepBegins {
@@ -379,25 +354,11 @@ pub(in crate::card::sets) static SEPULCHRAL_PRIMORDIAL: CardRecord = CardRecord:
     )
     .with_abilities(&[
         abilities::intimidate(),
-        AbilityDef::triggered(
-            "When this creature enters, for each opponent, you may put up to one target creature card from that player's graveyard onto the battlefield under your control.",
-            TriggerEventDef::ZoneChanged {
+        AbilityDef::triggered_with_targets("When this creature enters, for each opponent, you may put up to one target creature card from that player's graveyard onto the battlefield under your control.", TriggerEventDef::ZoneChanged {
                 object: ObjectPredicateDef::Source,
                 from: None,
                 to: Some(ZoneKind::Battlefield),
-            },
-            // One opponent means one target here. Choosing none is already a
-            // legal target selection, so the printed "may" adds nothing.
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetSlotId(0)),
-                zone: ZoneKind::Battlefield,
-                controller: Some(PlayerRelation::You),
-                placement: LibraryPlacement::Top,
-            },
-        )
-        .with_targets(&[AbilityTargetDef::up_to(
-            TargetSlotId(0),
-            "creature card in an opponent's graveyard",
+            }, &[AbilityTargetDef::up_to(
             AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::HasType(CardType::Creature),
                 zones: &[ZoneKind::Graveyard],
@@ -405,7 +366,14 @@ pub(in crate::card::sets) static SEPULCHRAL_PRIMORDIAL: CardRecord = CardRecord:
                 owner: Some(PlayerRelation::Opponent),
             },
             1,
-        )]),
+        )], // One opponent means one target here. Choosing none is already a
+            // legal target selection, so the printed "may" adds nothing.
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Battlefield,
+                controller: Some(PlayerRelation::You),
+                placement: LibraryPlacement::Top,
+            }),
     ]),
 );
 
@@ -424,27 +392,25 @@ pub(in crate::card::sets) static THESPIANS_STAGE: CardRecord = CardRecord::new(
     CardSet::Gatecrash,
     CardRules::new_land(&[]).with_abilities(&[
         abilities::tap_for(ManaColor::Colorless),
-        AbilityDef::activated(
+        AbilityDef::activated_with_targets(
             "{2}, {T}: This land becomes a copy of target land, except it has this ability.",
             &[
                 AbilityCostDef::Mana(mana_cost!("{2}")),
                 AbilityCostDef::TapSource,
             ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Land),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
             EffectDef::BecomeCopyOf {
-                object: EffectRecipientDef::Target(TargetSlotId(0)),
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 retain_source_ability: true,
             },
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "land",
-            AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::HasType(CardType::Land),
-                zones: &[ZoneKind::Battlefield],
-                controller: None,
-                owner: None,
-            },
-        )]),
+        ),
     ]),
 );
 

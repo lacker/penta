@@ -4,8 +4,8 @@
 //! intrinsic rule, or grant site assigns identity when it attaches the clause.
 
 use super::model::{
-    AbilityCostDef, AbilityCostList, AbilityDef, AbilityImplementationDef, AddManaEffectDef,
-    AlternativeCastKindDef, AnimationDef, AppliedEffectDef, BasicLandType,
+    AbilityCostDef, AbilityCostList, AbilityCoverageDef, AbilityDef, AbilityTargetDef,
+    AddManaEffectDef, AlternativeCastKindDef, AnimationDef, AppliedEffectDef, BasicLandType,
     BattlefieldEntryModificationDef, CardType, CardTypeSet, ConditionDef, CostDef, EffectDef,
     EffectDurationDef, EffectRecipientDef, KeywordAbility, ManaColor, ManaCost, ObjectPredicateDef,
     ObjectQueryDef, PaymentDef, PlayerRelation, ReplacementEffectDef, ZoneKind,
@@ -38,8 +38,7 @@ const fn unsupported_keyword(
     ability: KeywordAbility,
     explanation: &'static str,
 ) -> AbilityDef {
-    keyword(text, ability)
-        .with_implementation(AbilityImplementationDef::NotImplemented { explanation })
+    keyword(text, ability).with_coverage(AbilityCoverageDef::metadata_only(explanation))
 }
 
 #[must_use]
@@ -113,10 +112,7 @@ pub const fn hexproof() -> AbilityDef {
 
 #[must_use]
 pub const fn intimidate() -> AbilityDef {
-    keyword(
-        "Intimidate (This creature can't be blocked except by artifact creatures and/or creatures that share a color with it.)",
-        KeywordAbility::Intimidate,
-    )
+    keyword("Intimidate", KeywordAbility::Intimidate)
 }
 
 #[must_use]
@@ -197,13 +193,19 @@ pub const fn overload(
 /// mechanic always discards that card in addition to paying its mana cost;
 /// the card supplies its exact rules text, target declaration, and effect.
 #[must_use]
-pub const fn bloodrush(mana_cost: ManaCost, text: &'static str, effect: EffectDef) -> AbilityDef {
-    AbilityDef::activated_with_cost_list(
+pub const fn bloodrush(
+    mana_cost: ManaCost,
+    text: &'static str,
+    targets: &'static [AbilityTargetDef],
+    effect: EffectDef,
+) -> AbilityDef {
+    AbilityDef::activated_with_cost_list_and_targets(
         text,
         AbilityCostList::two(
             AbilityCostDef::Mana(mana_cost),
             AbilityCostDef::DiscardSource,
         ),
+        targets,
         effect,
     )
     .with_source_zones(&[ZoneKind::Hand])
@@ -299,7 +301,7 @@ mod tests {
         flashback_for_card_mana_cost, flying, intimidate, overload, shock_land_enters, tap_for,
     };
     use crate::card::{
-        AbilityCostDef, AbilityCostList, AbilityDef, AbilityImplementationDef, AddManaEffectDef,
+        AbilityCostDef, AbilityCostList, AbilityCoverageDef, AbilityDef, AddManaEffectDef,
         AlternativeCastKindDef, AlternativeCastManaCostDef, BasicLandType, CardRules, ConditionDef,
         CostDef, DeclarativeAbilityDef, EffectDef, KeywordAbility, ManaColor, ManaCost,
         ObjectPredicateDef, PlayerRelation, ReplacementEffectDef, ZoneKind,
@@ -320,16 +322,16 @@ mod tests {
         for (mana, text) in cases {
             let ability = tap_for(mana);
             assert_eq!(ability.text, text);
-            assert_eq!(ability.implementation, AbilityImplementationDef::Definition);
-            assert!(ability.implementation.is_executable());
+            assert_eq!(ability.coverage, AbilityCoverageDef::complete());
+            assert!(ability.is_executable());
             assert!(matches!(
                 ability.definition,
                 DeclarativeAbilityDef::ActivatedMana(definition)
                     if definition.costs.as_slice() == [AbilityCostDef::TapSource]
             ));
             assert_eq!(
-                ability.effect,
-                EffectDef::AddMana(AddManaEffectDef::one(mana))
+                ability.declarative_effect(),
+                Some(EffectDef::AddMana(AddManaEffectDef::one(mana)))
             );
         }
     }
@@ -338,12 +340,12 @@ mod tests {
     fn common_land_entry_abilities_use_shared_conditions_and_costs() {
         let shock = shock_land_enters();
         assert!(matches!(
-            shock.effect,
-            EffectDef::Replacement(ReplacementEffectDef::OptionalPayment {
+            shock.declarative_effect(),
+            Some(EffectDef::Replacement(ReplacementEffectDef::OptionalPayment {
                 payment,
                 if_declined: [_],
                 ..
-            }) if payment.payer == PlayerRelation::You
+            })) if payment.payer == PlayerRelation::You
                 && payment.costs == [CostDef::PayLife(2)]
         ));
 
@@ -352,11 +354,11 @@ mod tests {
             &[BasicLandType::Mountain, BasicLandType::Plains],
         );
         assert!(matches!(
-            check.effect,
-            EffectDef::Replacement(ReplacementEffectDef::Conditional {
+            check.declarative_effect(),
+            Some(EffectDef::Replacement(ReplacementEffectDef::Conditional {
                 condition: ConditionDef::Exists(query),
                 ..
-            }) if query.controller == PlayerRelation::You
+            })) if query.controller == PlayerRelation::You
                 && matches!(
                     query.object,
                     ObjectPredicateDef::HasAnyBasicLandType(types)
@@ -386,14 +388,11 @@ mod tests {
         ];
 
         for (ability, expected) in cases {
-            assert_eq!(ability.implementation, AbilityImplementationDef::Definition);
-            assert!(ability.implementation.is_executable());
+            assert_eq!(ability.coverage, AbilityCoverageDef::complete());
+            assert!(ability.is_executable());
             assert_eq!(ability.definition, DeclarativeAbilityDef::Keyword(expected));
         }
-        assert_eq!(
-            intimidate().text,
-            "Intimidate (This creature can't be blocked except by artifact creatures and/or creatures that share a color with it.)"
-        );
+        assert_eq!(intimidate().text, "Intimidate");
     }
 
     #[test]
@@ -449,13 +448,12 @@ mod tests {
     fn bloodrush_owns_its_hand_zone_and_discard_procedure() {
         let effect = EffectDef::Special("Test Bloodrush effect");
         let text = "Bloodrush — {R}{G}, Discard this card: Test Bloodrush effect.";
-        let ability = bloodrush(mana_cost!("{R}{G}"), text, effect);
+        let ability = bloodrush(mana_cost!("{R}{G}"), text, &[], effect);
         let DeclarativeAbilityDef::Activated(definition) = ability.definition else {
             panic!("Bloodrush should be an activated ability")
         };
 
         assert_eq!(ability.text, text);
-        assert_eq!(ability.activation_text, None);
         assert_eq!(definition.source_zones, [ZoneKind::Hand]);
         assert_eq!(
             definition.costs,
@@ -472,6 +470,6 @@ mod tests {
                 AbilityCostDef::DiscardSource,
             ],
         );
-        assert_eq!(ability.effect, effect);
+        assert_eq!(ability.declarative_effect(), Some(effect));
     }
 }

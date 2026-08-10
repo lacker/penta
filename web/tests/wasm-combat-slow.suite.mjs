@@ -19,10 +19,10 @@ test("[slow] the bot animates its Factory to attack instead of tapping it to pum
         const state = JSON.parse(game.state_json());
         if (state.result) break;
         for (const beat of state.opponentActions ?? []) {
-          if (/Give Mishra's Factory \+1\/\+1 with Mishra's Factory/.test(beat.label)) {
+          if (/Activate Mishra's Factory → Mishra's Factory/.test(beat.label)) {
             selfPumps += 1;
           }
-          if (/Make Mishra's Factory a 2\/2/.test(beat.label)) animations += 1;
+          if (beat.label === "Activate Mishra's Factory") animations += 1;
           if (/^Attack with Mishra's Factory/.test(beat.label)) attacks += 1;
         }
         if (state.decision) {

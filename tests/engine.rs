@@ -694,6 +694,136 @@ fn choose_greedy_action(game: &Game, player: PlayerId) -> Option<Action> {
         .or_else(|| choose(&|action| matches!(action, Action::PassPriority)))
 }
 
+#[test]
+#[allow(clippy::too_many_lines)]
+fn aura_sequence_attaches_to_its_indexed_semantic_target() {
+    use penta::{
+        AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardComposition,
+        CardRules, CardType, EffectDef, EffectDurationDef, EffectRecipientDef, ManaCost,
+        ObjectPredicateDef, TargetIndex, ZoneKind,
+    };
+
+    const MOUNTAIN: CardDefinitionId = CardDefinitionId(1);
+    const CREATURE: CardDefinitionId = CardDefinitionId(6);
+    const AURA: CardDefinitionId = CardDefinitionId(7);
+    static ATTACH_SEQUENCE: [EffectDef; 1] = [EffectDef::Attach {
+        object: EffectRecipientDef::Target(TargetIndex(1)),
+    }];
+    static FLYING: AbilityDef = penta::card::abilities::flying();
+    static AURA_ABILITIES: [AbilityDef; 2] = [
+        AbilityDef::spell_with_targets(
+            "Enchant creature",
+            &[
+                AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Land),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                }),
+                AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                }),
+            ],
+            EffectDef::Sequence(&ATTACH_SEQUENCE),
+        ),
+        AbilityDef::static_ability(
+            "Enchanted creature has flying.",
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::AttachedPermanent,
+                effect: AppliedEffectDef::GrantAbility(&FLYING),
+                duration: EffectDurationDef::WhileSourceRemainsInZone,
+            },
+        ),
+    ];
+
+    fn definition_with_rules(
+        id: CardDefinitionId,
+        name: &str,
+        rules: &CardRules,
+    ) -> CardDefinition {
+        let composition = CardComposition::single(name, *rules);
+        CardDefinition {
+            id,
+            name: name.into(),
+            art: None,
+            debut_set: CardSet::Alpha,
+            printings: vec![CardPrinting::new(id, CardSet::Alpha)],
+            rules: *rules,
+            parts: composition.parts,
+            structure: composition.structure,
+            play_options: composition.play_options,
+        }
+    }
+
+    let creature = definition_with_rules(
+        CREATURE,
+        "Semantic Aura Host",
+        &CardRules::new_creature(ManaCost::new(0, 0), &["Bear"], 2, 2),
+    );
+    let aura = definition_with_rules(
+        AURA,
+        "Indexed Test Aura",
+        &CardRules::new_enchantment(ManaCost::new(0, 0))
+            .with_subtypes(&["Aura"])
+            .with_abilities(&AURA_ABILITIES),
+    );
+    let catalog = CardCatalog::new([
+        CardDefinition::new(
+            MOUNTAIN,
+            "Mountain",
+            CardSet::Alpha,
+            true,
+            CardBehavior::Mountain,
+        ),
+        creature,
+        aura,
+    ])
+    .unwrap();
+    let deck = Deck {
+        main: vec![MOUNTAIN; 60],
+        sideboard: Vec::new(),
+    };
+    let mut game = Game::new(catalog, [deck.clone(), deck], 0).unwrap();
+    keep_both(&mut game);
+    advance_to_first_main(&mut game);
+    game.set_hand(PlayerId::One, &[AURA]).unwrap();
+
+    let land = game.put_onto_battlefield(PlayerId::One, MOUNTAIN).unwrap();
+    let creature = game.put_onto_battlefield(PlayerId::One, CREATURE).unwrap();
+    let aura = game.hand(PlayerId::One)[0].object;
+    game.apply(
+        PlayerId::One,
+        Action::CastSpell {
+            card: aura,
+            choices: CastChoices::default().with_targets(vec![
+                TargetSelection::new(TargetSlotId(0), vec![Target::Permanent(land)]),
+                TargetSelection::new(TargetSlotId(1), vec![Target::Permanent(creature)]),
+            ]),
+            sacrifices: Vec::new(),
+        },
+    )
+    .unwrap();
+    pass_priority_pair(&mut game);
+
+    let battlefield = game.observe(PlayerId::One).battlefield;
+    assert!(
+        battlefield
+            .iter()
+            .any(|permanent| permanent.definition == AURA),
+        "the Aura remains attached because target 1 satisfies its enchant restriction"
+    );
+    assert!(
+        battlefield
+            .iter()
+            .find(|permanent| permanent.id == creature)
+            .is_some_and(|permanent| permanent.flying),
+        "the granted ability follows the indexed Attach target, not the first target"
+    );
+}
+
 /// The simulation surface: a caller who owns the process can read hidden state
 /// and state what it might have been instead. That is what determinized search
 /// needs, and the engine supplies no distribution for it.

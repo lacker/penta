@@ -2,14 +2,14 @@
 
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityImplementationDef, AbilityTargetDef, AbilityTargetPredicate,
+    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AnimationDef, AppliedEffectDef, CardArt, CardBehavior, CardComposition, CardEffectStatus,
     CardPart, CardRules, CardSet, CardStructure, CardSupertype, CardType, ColorSet, EffectDef,
-    EffectDurationDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayOptionDef,
-    PlayerRelation, SpellForm, TargetPredicate, TargetSlotDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities, cards,
+    EffectDurationDef, EffectExecutionDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    PlayOptionDef, PlayerRelation, SpellForm, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, abilities, cards,
 };
-use crate::ids::{CardPartId, PlayOptionId, TargetSlotId};
+use crate::ids::{CardPartId, PlayOptionId, TargetIndex};
 use crate::mana_cost;
 
 pub(in crate::card::sets) static AETHERLING: CardRecord = CardRecord::new(
@@ -173,24 +173,17 @@ pub(in crate::card::sets) static SIN_COLLECTOR: CardRecord = CardRecord::new(
         2,
         1,
     )
-    .with_abilities(&[AbilityDef::triggered(
-            "When this creature enters, target opponent reveals their hand. You choose an instant or sorcery card from it and exile that card.",
-            TriggerEventDef::ZoneChanged {
+    .with_abilities(&[AbilityDef::triggered_with_targets("When this creature enters, target opponent reveals their hand. You choose an instant or sorcery card from it and exile that card.", TriggerEventDef::ZoneChanged {
                 object: ObjectPredicateDef::Source,
                 from: None,
                 to: Some(ZoneKind::Battlefield),
-            },
-            EffectDef::None,
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "target opponent",
+            }, &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-        )])
-        .with_implementation(AbilityImplementationDef::CustomFull {
-            behavior: Some(CardBehavior::SinCollector),
-            explanation: "The targeted trigger uses the shared stack and a card-local hand-reveal and exile resolver.",
-        }),
+        )], EffectDef::None)
+        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::SinCollector))
+        .with_coverage(AbilityCoverageDef::explained_complete(
+            "The targeted trigger uses the shared stack and a card-local hand-reveal and exile resolver.",
+        )),
     ]),
 );
 
@@ -199,11 +192,24 @@ pub(in crate::card::sets) static SIN_COLLECTOR: CardRecord = CardRecord::new(
 static TURN_ANIMATION: AnimationDef =
     AnimationDef::new(0, 1).becoming(&["Weird"], ColorSet::from_colors(&[ManaColor::Red]));
 
+static TURN_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::HasType(CardType::Creature),
+        zones: &[ZoneKind::Battlefield],
+        controller: None,
+        owner: None,
+    },
+)];
+static BURN_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::AnyTarget,
+)];
+
 const fn turn_rules() -> CardRules {
-    CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell(
+    CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Until end of turn, target creature loses all abilities and becomes a red Weird with base power and toughness 0/1.\nFuse (You may cast one or both halves of this card from your hand.)",
+        &TURN_TARGETS,
         EffectDef::Apply {
-            recipient: EffectRecipientDef::Target(TargetSlotId(0)),
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             effect: AppliedEffectDef::Animate(&TURN_ANIMATION),
             duration: EffectDurationDef::UntilEndOfTurn,
         },
@@ -212,27 +218,16 @@ const fn turn_rules() -> CardRules {
 
 fn turn_burn_composition() -> CardComposition {
     let turn = turn_rules();
-    let burn = CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell(
-        "Burn deals 2 damage to any target.\nFuse (You may cast one or both halves of this card from your hand.)",
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetSlotId(1)),
-            amount: ValueDef::Constant(2),
-        },
-    ));
-    let turn_target = || {
-        TargetSlotDef::exactly_one(
-            TargetSlotId(0),
-            "creature for Turn",
-            TargetPredicate::CreaturePermanent,
-        )
-    };
-    let burn_target = || {
-        TargetSlotDef::exactly_one(
-            TargetSlotId(1),
-            "target for Burn",
-            TargetPredicate::AnyTarget,
-        )
-    };
+    let burn = CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Burn deals 2 damage to any target.\nFuse (You may cast one or both halves of this card from your hand.)",
+            &BURN_TARGETS,
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    );
     CardComposition {
         parts: vec![
             CardPart::new(CardPartId::PRIMARY, "Turn", turn),
@@ -249,16 +244,14 @@ fn turn_burn_composition() -> CardComposition {
                 SpellForm::Part(CardPartId::PRIMARY),
                 turn.mana_cost().expect("Turn has a printed mana cost"),
                 CardEffectStatus::MetadataOnly,
-            )
-            .with_targets(vec![turn_target()]),
+            ),
             PlayOptionDef::cast(
                 PlayOptionId(1),
                 "Burn",
                 SpellForm::Part(CardPartId(1)),
                 burn.mana_cost().expect("Burn has a printed mana cost"),
                 CardEffectStatus::MetadataOnly,
-            )
-            .with_targets(vec![burn_target()]),
+            ),
             PlayOptionDef::cast(
                 PlayOptionId(2),
                 "Turn // Burn",
@@ -266,10 +259,10 @@ fn turn_burn_composition() -> CardComposition {
                 mana_cost!("{3}{U}{R}"),
                 CardEffectStatus::MetadataOnly,
             )
-            .with_targets(vec![turn_target(), burn_target()])
             .restricted_to_hand(),
         ],
     }
+    .with_derived_spell_targets()
 }
 
 pub(in crate::card::sets) static TURN_BURN: CardRecord = CardRecord::new(
@@ -289,22 +282,16 @@ pub(in crate::card::sets) static UNFLINCHING_COURAGE: CardRecord = CardRecord::n
     CardRules::new_enchantment(mana_cost!("{1}{G}{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-        AbilityDef::spell(
-            "Enchant creature",
-            EffectDef::Attach {
-                object: EffectRecipientDef::Target(TargetSlotId(0)),
-            },
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "creature",
+        AbilityDef::spell_with_targets("Enchant creature", &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::HasType(CardType::Creature),
                 zones: &[ZoneKind::Battlefield],
                 controller: None,
                 owner: None,
             },
-        )]),
+        )], EffectDef::Attach {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            }),
         AbilityDef::static_ability(
             "Enchanted creature gets +2/+2 and has trample and lifelink. (Damage dealt by the creature also causes its controller to gain that much life.)",
             EffectDef::Sequence(&[

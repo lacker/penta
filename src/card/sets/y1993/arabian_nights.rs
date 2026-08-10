@@ -1,8 +1,8 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityImplementationDef, AddManaEffectDef, CardArt, CardBehavior,
-    CardRules, CardSet, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    PlayerRelation, TriggerEventDef, TurnStepDef, ValueDef, abilities, cards,
+    AbilityCostDef, AbilityCoverageDef, AbilityDef, AddManaEffectDef, CardArt, CardBehavior,
+    CardRules, CardSet, EffectDef, EffectExecutionDef, EffectRecipientDef, ManaColor,
+    ObjectPredicateDef, PlayerRelation, TriggerEventDef, TurnStepDef, ValueDef, abilities, cards,
 };
 use crate::mana_cost;
 
@@ -82,10 +82,11 @@ pub(in crate::card::sets) static LIBRARY_OF_ALEXANDRIA: CardRecord = CardRecord:
                 amount: ValueDef::Constant(1),
             },
         )
-        .with_implementation(AbilityImplementationDef::CustomFull {
-            behavior: Some(CardBehavior::LibraryOfAlexandria),
-            explanation: "The seven-card activation restriction and card draw are implemented by the card-local activated-action resolver.",
-        }),
+        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::LibraryOfAlexandria))
+        .with_coverage(AbilityCoverageDef::explained_complete(
+            "The seven-card activation restriction and card draw are implemented by the card-local activated-action resolver.",
+        ))
+        .with_legacy_procedure(),
     ]),
 );
 

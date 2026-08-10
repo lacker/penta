@@ -100,7 +100,6 @@ export type Action = {
   targetStackIds?: number[];
   targetCount?: number;
   ability?: AbilityOriginMetadata | null;
-  abilitySummary?: string | null;
   manaAbility?: boolean;
   spellAction?: boolean;
   playOptionId?: number | null;

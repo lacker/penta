@@ -2,14 +2,14 @@
 
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityImplementationDef, AbilityTargetDef, AbilityTargetPredicate,
+    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AppliedEffectDef, CardArt, CardComposition, CardEffectStatus, CardPart, CardRules, CardSet,
     CardStructure, CardType, ComparisonDef, ConditionalValueDef, DoubleFacedKind, EffectDef,
     EffectDurationDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayOptionDef,
     PlayerRelation, QuantifierDef, SpellForm, TriggerConditionDef, TriggerEventDef, TurnStepDef,
     ValueDef, ZoneKind, abilities, cards,
 };
-use crate::ids::{CardPartId, PlayOptionId, TargetSlotId};
+use crate::ids::{CardPartId, PlayOptionId, TargetIndex};
 use crate::mana_cost;
 
 pub(in crate::card::sets) static HELLRIDER: CardRecord = CardRecord::new(
@@ -106,21 +106,21 @@ static TWO_SPELLS_LAST_TURN: TriggerConditionDef = TriggerConditionDef::SpellsCa
 
 static HUNTMASTER_BACK_ABILITIES: [AbilityDef; 3] = [
     abilities::trample(),
-    AbilityDef::triggered(
+    AbilityDef::triggered_with_targets(
         "Whenever this creature transforms into Ravager of the Fells, it deals 2 damage to target opponent or planeswalker and 2 damage to up to one target creature that player or that planeswalker's controller controls.",
         TriggerEventDef::TransformsIntoThisFace,
+        &RAVAGER_TARGETS,
         EffectDef::Sequence(&[
             EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetSlotId(0)),
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(2),
             },
             EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetSlotId(1)),
+                recipient: EffectRecipientDef::Target(TargetIndex(1)),
                 amount: ValueDef::Constant(2),
             },
         ]),
-    )
-    .with_targets(&RAVAGER_TARGETS),
+    ),
     AbilityDef::triggered_if(
         "At the beginning of each upkeep, if a player cast two or more spells last turn, transform this creature.",
         TriggerEventDef::StepBegins {
@@ -137,17 +137,13 @@ static HUNTMASTER_BACK_ABILITIES: [AbilityDef; 3] = [
 /// The second slot reads the first: the creature has to belong to whoever the
 /// damage was aimed at.
 static RAVAGER_TARGETS: [AbilityTargetDef; 2] = [
-    AbilityTargetDef::exactly_one(
-        TargetSlotId(0),
-        "opponent or planeswalker",
-        AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Opponent),
-    ),
+    AbilityTargetDef::exactly_one(AbilityTargetPredicate::PlayerOrPlaneswalker(
+        PlayerRelation::Opponent,
+    )),
     AbilityTargetDef::up_to(
-        TargetSlotId(1),
-        "creature that player controls",
         AbilityTargetPredicate::ControlledByTargetOf {
             object: ObjectPredicateDef::HasType(CardType::Creature),
-            slot: TargetSlotId(0),
+            slot: TargetIndex::PRIMARY,
         },
         1,
     ),
@@ -199,23 +195,21 @@ pub(in crate::card::sets) static RAY_OF_REVELATION: CardRecord = CardRecord::new
     CardArt::new("d7e2c5a4-cf92-46bd-9033-8036436488cb", "Cliff Childs"),
     CardSet::DarkAscension,
     CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[
-        AbilityDef::spell(
+        AbilityDef::spell_with_targets(
             "Destroy target enchantment.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Enchantment),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
             EffectDef::Destroy {
-                object: EffectRecipientDef::Target(TargetSlotId(0)),
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
             },
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "enchantment",
-            AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::HasType(CardType::Enchantment),
-                zones: &[ZoneKind::Battlefield],
-                controller: None,
-                owner: None,
-            },
-        )]),
+        ),
         abilities::flashback(mana_cost!("{G}")),
     ]),
 );
@@ -225,18 +219,8 @@ pub(in crate::card::sets) static STRANGLEROOT_GEIST: CardRecord = CardRecord::ne
     "Strangleroot Geist",
     CardArt::new("bf1fb137-205c-480f-b6dc-dfa137793ae3", "Jason Chan"),
     CardSet::DarkAscension,
-    CardRules::new_creature(
-        mana_cost!("{G}{G}"),
-        &["Spirit"],
-        2,
-        1,
-    )
-    .with_abilities(&[
-        abilities::haste(),
-        abilities::undying().with_text(
-            "Undying (When this creature dies, if it had no +1/+1 counters on it, return it to the battlefield under its owner's control with a +1/+1 counter on it.)",
-        ),
-    ]),
+    CardRules::new_creature(mana_cost!("{G}{G}"), &["Spirit"], 2, 1)
+        .with_abilities(&[abilities::haste(), abilities::undying()]),
 );
 
 /// Morbid replaces the amount rather than adding a second effect, so both
@@ -252,35 +236,30 @@ pub(in crate::card::sets) static TRAGIC_SLIP: CardRecord = CardRecord::new(
     CardArt::new("09666671-601e-4fca-bdfb-fb288bf2672c", "Christopher Moeller"),
     CardSet::DarkAscension,
     CardRules::new_instant(mana_cost!("{B}")).with_abilities(&[
-        AbilityDef::spell(
-            "Target creature gets -1/-1 until end of turn.",
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Target(TargetSlotId(0)),
-                effect: AppliedEffectDef::ModifyPowerToughness {
-                    power: TRAGIC_SLIP_AMOUNT,
-                    toughness: TRAGIC_SLIP_AMOUNT,
-                },
-                duration: EffectDurationDef::UntilEndOfTurn,
-            },
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "creature",
+        AbilityDef::spell_with_targets("Target creature gets -1/-1 until end of turn.", &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::HasType(CardType::Creature),
                 zones: &[ZoneKind::Battlefield],
                 controller: None,
                 owner: None,
             },
-        )]),
+        )], EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::ModifyPowerToughness {
+                    power: TRAGIC_SLIP_AMOUNT,
+                    toughness: TRAGIC_SLIP_AMOUNT,
+                },
+                duration: EffectDurationDef::UntilEndOfTurn,
+            }),
         AbilityDef::static_ability(
             "Morbid — That creature gets -13/-13 until end of turn instead if a creature died this turn.",
-            EffectDef::Special("Apply -13/-13 instead if a creature died this turn"),
+            // The conditional value on the spell clause above already
+            // carries this modifier; this clause has no second effect to run.
+            EffectDef::None,
         )
-        .with_implementation(AbilityImplementationDef::CustomFull {
-            behavior: None,
-            explanation: "The morbid amount is chosen by the value on the preceding clause.",
-        }),
+        .with_coverage(AbilityCoverageDef::explained_complete(
+            "The morbid amount is chosen by the value on the preceding clause.",
+        )),
     ]),
 );
 

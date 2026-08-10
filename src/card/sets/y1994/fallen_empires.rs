@@ -1,11 +1,11 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityImplementationDef, AbilityTargetDef, AbilityTargetPredicate,
-    AppliedEffectDef, BattlefieldEntryModificationDef, CardArt, CardBehavior, CardRules, CardSet,
-    CounterKind, EffectDef, EffectDurationDef, EffectRecipientDef, ManaColor, ReplacementEffectDef,
-    ValueDef, abilities, cards,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
+    BattlefieldEntryModificationDef, CardArt, CardBehavior, CardRules, CardSet, CounterKind,
+    EffectDef, EffectDurationDef, EffectRecipientDef, ManaColor, ReplacementEffectDef, ValueDef,
+    abilities, cards,
 };
-use crate::ids::TargetSlotId;
+use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 pub(in crate::card::sets) static GOBLIN_GRENADE: CardRecord = CardRecord::new(
@@ -39,13 +39,7 @@ pub(in crate::card::sets) static ICATIAN_JAVELINEERS: CardRecord = CardRecord::n
     "Icatian Javelineers",
     CardArt::new("f04b8356-2384-4743-80dd-f15ca7ec65f7", "Melissa A. Benson"),
     CardSet::FallenEmpires,
-    CardRules::new_creature(
-        mana_cost!("{W}"),
-        &["Human", "Soldier"],
-        1,
-        1,
-    )
-    .with_abilities(&[
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Soldier"], 1, 1).with_abilities(&[
         AbilityDef::as_enters(
             "This creature enters with a javelin counter on it.",
             ReplacementEffectDef::ModifyBattlefieldEntry(
@@ -55,31 +49,23 @@ pub(in crate::card::sets) static ICATIAN_JAVELINEERS: CardRecord = CardRecord::n
                 },
             ),
         ),
-        AbilityDef::activated(
+        AbilityDef::activated_with_targets(
             "{T}, Remove a javelin counter from this creature: It deals 1 damage to any target.",
             &[
                 AbilityCostDef::TapSource,
-                AbilityCostDef::Special("Remove a javelin counter from this source"),
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::Javelin,
+                    amount: 1,
+                },
             ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
             EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetSlotId(0)),
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(1),
             },
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "any target",
-            AbilityTargetPredicate::AnyTarget,
-        )])
-        .with_activation_text(
-            "Deal 1 damage to {} with Icatian Javelineers",
-            "Deal 1 damage",
-        )
-        .with_implementation(AbilityImplementationDef::CustomPartial {
-            behavior: Some(CardBehavior::IcatianJavelineers),
-            explanation:
-                "Target selection and damage resolution do not account for protection from white.",
-        }),
+        ),
     ]),
 );
 

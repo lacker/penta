@@ -2,14 +2,14 @@
 
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityImplementationDef, AbilityTargetDef, AbilityTargetPredicate,
+    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AnimationDef, AppliedEffectDef, CardArt, CardBehavior, CardRules, CardSet, CardSupertype,
-    CardType, ComparisonDef, CounterKind, EffectDef, EffectDurationDef, EffectRecipientDef,
-    LibraryPlacement, ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayerRelation,
-    TargetConditionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    abilities, cards,
+    CardType, ComparisonDef, CounterKind, EffectDef, EffectDurationDef, EffectExecutionDef,
+    EffectRecipientDef, LibraryPlacement, ManaColor, ObjectPredicateDef, ObjectQueryDef,
+    PlayerRelation, TargetConditionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, abilities, cards,
 };
-use crate::ids::TargetSlotId;
+use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 pub(in crate::card::sets) static ARCHANGEL_OF_THUNE: CardRecord = CardRecord::new(
@@ -19,9 +19,7 @@ pub(in crate::card::sets) static ARCHANGEL_OF_THUNE: CardRecord = CardRecord::ne
     CardSet::Magic2014,
     CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Angel"], 3, 4).with_abilities(&[
         abilities::flying(),
-        abilities::lifelink().with_text(
-            "Lifelink (Damage dealt by this creature also causes you to gain that much life.)",
-        ),
+        abilities::lifelink(),
         AbilityDef::triggered(
             "Whenever you gain life, put a +1/+1 counter on each creature you control.",
             TriggerEventDef::LifeGained(PlayerRelation::You),
@@ -70,25 +68,21 @@ pub(in crate::card::sets) static CELESTIAL_FLARE: CardRecord = CardRecord::new(
     "Celestial Flare",
     CardArt::new("6c8d1320-0f1a-4c66-86c9-9f8da0f1d9ef", "Clint Cearley"),
     CardSet::Magic2014,
-    CardRules::new_instant(mana_cost!("{W}{W}")).with_ability(
-        AbilityDef::spell(
-            "Target player sacrifices an attacking or blocking creature of their choice.",
-            EffectDef::SacrificeOfChoice {
-                player: EffectRecipientDef::Target(TargetSlotId(0)),
-                object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::AttackingOrBlocking,
-                ]),
-                then: None,
-                optional: false,
-            },
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "player",
+    CardRules::new_instant(mana_cost!("{W}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Target player sacrifices an attacking or blocking creature of their choice.",
+        &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Player(PlayerRelation::Any),
-        )]),
-    ),
+        )],
+        EffectDef::SacrificeOfChoice {
+            player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::AttackingOrBlocking,
+            ]),
+            then: None,
+            optional: false,
+        },
+    )),
 );
 
 pub(in crate::card::sets) static DOOM_BLADE: CardRecord = CardRecord::new(
@@ -119,26 +113,24 @@ pub(in crate::card::sets) static ENCROACHING_WASTES: CardRecord = CardRecord::ne
     CardSet::Magic2014,
     CardRules::new_land(&[]).with_abilities(&[
         abilities::tap_for(ManaColor::Colorless),
-        AbilityDef::activated(
+        AbilityDef::activated_with_targets(
             "{4}, {T}, Sacrifice this land: Destroy target nonbasic land.",
             &[
                 AbilityCostDef::Mana(mana_cost!("{4}")),
                 AbilityCostDef::TapSource,
                 AbilityCostDef::SacrificeSource,
             ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Basic)),
+                ]),
+            )],
             EffectDef::Destroy {
-                object: EffectRecipientDef::Target(TargetSlotId(0)),
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
             },
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one_permanent(
-            TargetSlotId(0),
-            "nonbasic land",
-            ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Land),
-                ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Basic)),
-            ]),
-        )]),
+        ),
     ]),
 );
 
@@ -155,24 +147,17 @@ pub(in crate::card::sets) static LIFEBANE_ZOMBIE: CardRecord = CardRecord::new(
     )
     .with_abilities(&[
         abilities::intimidate(),
-        AbilityDef::triggered(
-            "When this creature enters, target opponent reveals their hand. You choose a green or white creature card from it and exile that card.",
-            TriggerEventDef::ZoneChanged {
+        AbilityDef::triggered_with_targets("When this creature enters, target opponent reveals their hand. You choose a green or white creature card from it and exile that card.", TriggerEventDef::ZoneChanged {
                 object: ObjectPredicateDef::Source,
                 from: None,
                 to: Some(ZoneKind::Battlefield),
-            },
-            EffectDef::None,
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "target opponent",
+            }, &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-        )])
-        .with_implementation(AbilityImplementationDef::CustomFull {
-            behavior: Some(CardBehavior::LifebaneZombie),
-            explanation: "The targeted trigger uses the shared stack and a card-local hand-reveal and exile resolver.",
-        }),
+        )], EffectDef::None)
+        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::LifebaneZombie))
+        .with_coverage(AbilityCoverageDef::explained_complete(
+            "The targeted trigger uses the shared stack and a card-local hand-reveal and exile resolver.",
+        )),
     ]),
 );
 
@@ -216,26 +201,19 @@ pub(in crate::card::sets) static PRIMEVAL_BOUNTY: CardRecord = CardRecord::new(
                 count: ValueDef::Constant(1),
             },
         ),
-        AbilityDef::triggered(
-            "Whenever you cast a noncreature spell, put three +1/+1 counters on target creature you control.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+        AbilityDef::triggered_with_targets("Whenever you cast a noncreature spell, put three +1/+1 counters on target creature you control.", TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::NoncreatureSpell,
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-            ])),
-            EffectDef::AddCounters {
-                kind: CounterKind::PlusOnePlusOne,
-                object: EffectRecipientDef::Target(TargetSlotId(0)),
-                amount: ValueDef::Constant(3),
-            },
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one_permanent(
-            TargetSlotId(0),
-            "creature you control",
+            ])), &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Creature),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ]),
-        )]),
+        )], EffectDef::AddCounters {
+                kind: CounterKind::PlusOnePlusOne,
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(3),
+            }),
         AbilityDef::triggered(
             "Landfall — Whenever a land you control enters, you gain 3 life.",
             TriggerEventDef::ZoneChanged {
@@ -312,7 +290,7 @@ pub(in crate::card::sets) static RATCHET_BOMB: CardRecord = CardRecord::new(
 
 /// One when the exiled card was a creature, nothing otherwise.
 static EXILED_A_CREATURE: TargetConditionDef = TargetConditionDef {
-    slot: TargetSlotId(0),
+    slot: TargetIndex::PRIMARY,
     object: ObjectPredicateDef::HasType(CardType::Creature),
     then: ValueDef::Constant(1),
     otherwise: ValueDef::Constant(0),
@@ -330,10 +308,14 @@ pub(in crate::card::sets) static SCAVENGING_OOZE: CardRecord = CardRecord::new(
         2,
     )
     .with_ability(
-        AbilityDef::activated(
-            "{G}: Exile target card from a graveyard. If it was a creature card, put a +1/+1 counter on this creature and you gain 1 life.",
-            &[AbilityCostDef::Mana(mana_cost!("{G}"))],
-            // The counter and the life come first so the card is still in the
+        AbilityDef::activated_with_targets("{G}: Exile target card from a graveyard. If it was a creature card, put a +1/+1 counter on this creature and you gain 1 life.", &[AbilityCostDef::Mana(mana_cost!("{G}"))], &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Any,
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: None,
+            },
+        )], // The counter and the life come first so the card is still in the
             // graveyard to be asked what it was. Exiling it first would leave
             // nothing to look at, and nothing here can observe the order.
             EffectDef::Sequence(&[
@@ -347,23 +329,12 @@ pub(in crate::card::sets) static SCAVENGING_OOZE: CardRecord = CardRecord::new(
                     amount: ValueDef::IfTargetMatches(&EXILED_A_CREATURE),
                 },
                 EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetSlotId(0)),
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Exile,
                     controller: None,
                     placement: LibraryPlacement::Top,
                 },
-            ]),
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "card in a graveyard",
-            AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Any,
-                zones: &[ZoneKind::Graveyard],
-                controller: None,
-                owner: None,
-            },
-        )]),
+            ])),
     ),
 );
 
@@ -380,26 +351,19 @@ pub(in crate::card::sets) static SHADOWBORN_DEMON: CardRecord = CardRecord::new(
     )
     .with_abilities(&[
         abilities::flying(),
-        AbilityDef::triggered(
-            "When this creature enters, destroy target non-Demon creature.",
-            TriggerEventDef::ZoneChanged {
+        AbilityDef::triggered_with_targets("When this creature enters, destroy target non-Demon creature.", TriggerEventDef::ZoneChanged {
                 object: ObjectPredicateDef::Source,
                 from: None,
                 to: Some(ZoneKind::Battlefield),
-            },
-            EffectDef::Destroy {
-                object: EffectRecipientDef::Target(TargetSlotId(0)),
-                can_regenerate: true,
-            },
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one_permanent(
-            TargetSlotId(0),
-            "non-Demon creature",
+            }, &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Creature),
                 ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Demon")),
             ]),
-        )]),
+        )], EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                can_regenerate: true,
+            }),
         AbilityDef::triggered_if(
             "At the beginning of your upkeep, if there are fewer than six creature cards in your graveyard, sacrifice a creature.",
             TriggerEventDef::StepBegins {

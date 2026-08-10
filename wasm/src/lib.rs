@@ -1,9 +1,9 @@
 use penta::card;
 use penta::game::{DecisionKind, DecisionOrderSemantics};
 use penta::{
-    AbilityOrigin, Action, ActivatedAbilityText, BattlefieldExit, CardCatalog, CardDefinitionId,
-    CardInstanceId, Format, Game, GameEvent, GameResult, HandcraftedPolicy, ModeId, PlayOptionId,
-    PlayerId, PlayerObservation, Policy, RandomPolicy, Step, Target,
+    AbilityOrigin, Action, BattlefieldExit, CardCatalog, CardDefinitionId, CardInstanceId, Format,
+    Game, GameEvent, GameResult, HandcraftedPolicy, ModeId, PlayOptionId, PlayerId,
+    PlayerObservation, Policy, RandomPolicy, Step, Target,
 };
 use serde_json::{Value, json};
 use std::fmt::Write as _;
@@ -965,17 +965,6 @@ impl WebGame {
                     "targetPlayers": action_target_players(action, self.human),
                     "targetStackIds": action_target_stacks(action),
                     "targetCount": action_targets(action).len(),
-                    // What the ability does, with no target picked yet, so the
-                    // card's menu can offer the effect by name.
-                    "abilitySummary": match action {
-                        Action::ActivateAbility { source, ability, targets, .. }
-                            if targets
-                                .iter()
-                                .any(|selection| !selection.targets().is_empty()) =>
-                            self.ability_text(&observation, *source, *ability)
-                                .map(|text| text.summary),
-                        _ => None,
-                    },
                     "ability": action_ability_origin(action),
                     "manaAbility": matches!(action, Action::ActivateManaAbility { .. }),
                     "spellAction": matches!(action, Action::CastSpell { .. }),
@@ -1343,33 +1332,6 @@ impl WebGame {
             "result": result,
             "events": events,
         })
-    }
-
-    /// Plain-language description of a permanent's targeted ability, so menus
-    /// can name the effect rather than the card that carries it.
-    fn ability_text(
-        &self,
-        observation: &PlayerObservation,
-        source: CardInstanceId,
-        origin: AbilityOrigin,
-    ) -> Option<ActivatedAbilityText> {
-        Self::instance_definition(observation, source)?;
-        let AbilityOrigin::Printed {
-            definition,
-            part,
-            ability,
-        } = origin
-        else {
-            // Intrinsic and granted abilities do not have card-local action
-            // presentation metadata. Their generic source/target label remains
-            // accurate until granted ability snapshots expose that metadata.
-            return None;
-        };
-        let card = self.catalog.get(definition)?;
-        card.part(part)?
-            .rules
-            .ability(ability)
-            .and_then(|candidate| candidate.activation_text)
     }
 
     fn card_name(&self, definition: CardDefinitionId) -> String {
@@ -1782,31 +1744,12 @@ impl WebGame {
             }
             Action::ActivateAbility {
                 source,
-                ability,
-                targets,
+                targets: target_selections,
                 cost_object,
                 ..
             } => {
                 let source_name = self.instance_name(observation, *source);
-                let target = targets
-                    .iter()
-                    .flat_map(penta::TargetSelection::targets)
-                    .next()
-                    .copied();
-                if source_name == "Mishra's Factory" && target.is_none() {
-                    return "Make Mishra's Factory a 2/2 creature".into();
-                }
-                // "Activate Strip Mine" says nothing about what the click does,
-                // so a described ability names its own effect instead.
-                let described = target
-                    .zip(self.ability_text(observation, *source, *ability))
-                    .map(|(target, text)| {
-                        text.targeted
-                            .replace("{}", &self.target_name(observation, target))
-                    });
-                let mut label = described
-                    .clone()
-                    .unwrap_or_else(|| format!("Activate {source_name}"));
+                let mut label = format!("Activate {source_name}");
                 if let Some(cost_object) = cost_object
                     && cost_object != source
                 {
@@ -1816,10 +1759,13 @@ impl WebGame {
                         self.instance_name(observation, *cost_object)
                     );
                 }
-                if let Some(target) = target
-                    && described.is_none()
-                {
-                    let _ = write!(label, " → {}", self.target_name(observation, target));
+                let values = target_selections
+                    .iter()
+                    .flat_map(penta::TargetSelection::targets)
+                    .copied()
+                    .collect::<Vec<_>>();
+                if !values.is_empty() {
+                    let _ = write!(label, " → {}", targets(&values));
                 }
                 label
             }
@@ -2811,41 +2757,6 @@ mod tests {
             game.action_label(&observation, &granted_flashback),
             "Cast Think Twice via Flashback {1}{U}"
         );
-    }
-
-    #[test]
-    fn hand_source_bloodrush_needs_no_custom_action_presentation() {
-        let game = WebGame::new(
-            "Briksza Naya Midrange",
-            "Greer G/R Aggro",
-            "Handcrafted",
-            true,
-            2,
-            Some("isd-rtr-standard".into()),
-        )
-        .unwrap();
-        let mut observation = game.game.observe(game.human);
-        let source = CardInstanceId(90_003);
-        observation
-            .hand
-            .push((source, penta::card::cards::GHOR_CLAN_RAMPAGER));
-        let definition = game
-            .catalog
-            .get(penta::card::cards::GHOR_CLAN_RAMPAGER)
-            .expect("Ghor-Clan Rampager is cataloged");
-        let ability = definition
-            .rules
-            .indexed_abilities()
-            .find(|ability| ability.definition.text.starts_with("Bloodrush"))
-            .expect("Bloodrush is a printed ability");
-        assert_eq!(ability.definition.activation_text, None);
-        let origin = AbilityOrigin::Printed {
-            definition: definition.id,
-            part: penta::CardPartId::PRIMARY,
-            ability: ability.id,
-        };
-
-        assert_eq!(game.ability_text(&observation, source, origin), None);
     }
 
     #[test]

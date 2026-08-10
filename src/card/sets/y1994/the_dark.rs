@@ -1,11 +1,11 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityImplementationDef, AbilityTargetDef, AbilityTargetPredicate,
+    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AppliedEffectDef, CardArt, CardBehavior, CardRules, CardSet, ComparisonDef, EffectDef,
-    EffectDurationDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, PlayerRelation,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ZoneKind, abilities, cards,
+    EffectDurationDef, EffectExecutionDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef,
+    PlayerRelation, TriggerConditionDef, TriggerEventDef, TurnStepDef, ZoneKind, abilities, cards,
 };
-use crate::ids::TargetSlotId;
+use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 pub(in crate::card::sets) static BALL_LIGHTNING: CardRecord = CardRecord::new(
@@ -13,14 +13,9 @@ pub(in crate::card::sets) static BALL_LIGHTNING: CardRecord = CardRecord::new(
     "Ball Lightning",
     CardArt::new("c1ba83ab-83f5-421d-bba1-0f925870b5c8", "Quinton Hoover"),
     CardSet::TheDark,
-    CardRules::new_creature(mana_cost!("{R}{R}{R}"), &["Elemental"], 6, 1)
-    .with_abilities(&[
-        abilities::trample().with_text(
-            "Trample (This creature can deal excess combat damage to the player or planeswalker it's attacking.)",
-        ),
-        abilities::haste().with_text(
-            "Haste (This creature can attack and {T} as soon as it comes under your control.)",
-        ),
+    CardRules::new_creature(mana_cost!("{R}{R}{R}"), &["Elemental"], 6, 1).with_abilities(&[
+        abilities::trample(),
+        abilities::haste(),
         AbilityDef::triggered(
             "At the beginning of the end step, sacrifice this creature.",
             TriggerEventDef::StepBegins {
@@ -54,10 +49,10 @@ pub(in crate::card::sets) static BLOOD_MOON: CardRecord = CardRecord::new(
                 duration: EffectDurationDef::WhileSourceRemainsInZone,
             },
         )
-        .with_implementation(AbilityImplementationDef::CustomPartial {
-            behavior: Some(CardBehavior::BloodMoon),
-            explanation: "The hard-coded transformation does not yet use the full land-type, ability-loss, and layer system.",
-        }),
+        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::BloodMoon))
+        .with_coverage(AbilityCoverageDef::partial(
+            "The hard-coded transformation does not yet use the full land-type, ability-loss, and layer system.",
+        )),
     ]),
 );
 
@@ -67,19 +62,17 @@ pub(in crate::card::sets) static GOBLIN_DIGGING_TEAM: CardRecord = CardRecord::n
     CardArt::new("8a538b9d-351e-40bb-be11-9ba08c16352b", "Ron Spencer"),
     CardSet::TheDark,
     CardRules::new_creature(mana_cost!("{R}"), &["Goblin"], 1, 1).with_abilities(&[
-        AbilityDef::activated(
+        AbilityDef::activated_with_targets(
             "{T}, Sacrifice this creature: Destroy target Wall.",
             &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Subtype("Wall"),
+            )],
             EffectDef::Destroy {
-                object: EffectRecipientDef::Target(TargetSlotId(0)),
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
             },
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one_permanent(
-            TargetSlotId(0),
-            "Wall",
-            ObjectPredicateDef::Subtype("Wall"),
-        )]),
+        ),
     ]),
 );
 
@@ -101,20 +94,17 @@ pub(in crate::card::sets) static GOBLINS_OF_THE_FLARG: CardRecord = CardRecord::
     "Goblins of the Flarg",
     CardArt::new("fd333b18-b896-4ab8-9c46-eed4efdd94f2", "Tom Wänerstrand"),
     CardSet::TheDark,
-    CardRules::new_creature(mana_cost!("{R}"), &["Goblin", "Warrior"], 1, 1)
-        .with_abilities(&[
-            abilities::mountainwalk().with_text(
-                "Mountainwalk (This creature can't be blocked as long as defending player controls a Mountain.)",
-            ),
-            AbilityDef::triggered_if(
-                "When you control a Dwarf, sacrifice this creature.",
-                TriggerEventDef::StateCondition,
-                &GOBLINS_OF_THE_FLARG_DWARF_CONDITION,
-                EffectDef::Sacrifice {
-                    object: EffectRecipientDef::Source,
-                },
-            ),
-        ]),
+    CardRules::new_creature(mana_cost!("{R}"), &["Goblin", "Warrior"], 1, 1).with_abilities(&[
+        abilities::mountainwalk(),
+        AbilityDef::triggered_if(
+            "When you control a Dwarf, sacrifice this creature.",
+            TriggerEventDef::StateCondition,
+            &GOBLINS_OF_THE_FLARG_DWARF_CONDITION,
+            EffectDef::Sacrifice {
+                object: EffectRecipientDef::Source,
+            },
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static FELLWAR_STONE: CardRecord = CardRecord::new(
@@ -127,10 +117,11 @@ pub(in crate::card::sets) static FELLWAR_STONE: CardRecord = CardRecord::new(
         &[AbilityCostDef::TapSource],
         EffectDef::Special("Add one mana of a color an opponent's land could produce"),
     )
-    .with_implementation(AbilityImplementationDef::CustomFull {
-        behavior: Some(CardBehavior::FellwarStone),
-        explanation: "The available colors are computed dynamically from an opponent's lands.",
-    })]),
+    .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::FellwarStone))
+    .with_coverage(AbilityCoverageDef::explained_complete(
+        "The available colors are computed dynamically from an opponent's lands.",
+    ))
+    .with_legacy_procedure()]),
 );
 
 pub(in crate::card::sets) static MAZE_OF_ITH: CardRecord = CardRecord::new(
@@ -140,31 +131,21 @@ pub(in crate::card::sets) static MAZE_OF_ITH: CardRecord = CardRecord::new(
     CardSet::TheDark,
     CardRules::new_land(&[])
         .with_abilities(&[
-            AbilityDef::activated(
-                "{T}: Untap target attacking creature. Prevent all combat damage that would be dealt to and dealt by that creature this turn.",
-                &[AbilityCostDef::TapSource],
-                EffectDef::Special(
-                    "Untap the target attacker and prevent its combat damage for the turn",
-                ),
-            )
-            .with_targets(&[AbilityTargetDef::exactly_one(
-                TargetSlotId(0),
-                "attacking creature",
+            AbilityDef::activated_with_targets("{T}: Untap target attacking creature. Prevent all combat damage that would be dealt to and dealt by that creature this turn.", &[AbilityCostDef::TapSource], &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::Special("attacking creature"),
                     zones: &[ZoneKind::Battlefield],
                     controller: None,
                     owner: None,
                 },
-            )])
-            .with_activation_text(
-                "Untap {} and take it out of combat",
-                "Take an attacker out of combat",
-            )
-            .with_implementation(AbilityImplementationDef::CustomPartial {
-                behavior: Some(CardBehavior::MazeOfIth),
-                explanation: "The implementation removes the attacker from combat instead of creating combat-damage prevention.",
-            }),
+            )], EffectDef::Special(
+                    "Untap the target attacker and prevent its combat damage for the turn",
+                ))
+            .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::MazeOfIth))
+            .with_coverage(AbilityCoverageDef::partial(
+                "The implementation removes the attacker from combat instead of creating combat-damage prevention.",
+            ))
+            .with_legacy_procedure(),
         ]),
 );
 

@@ -4,13 +4,14 @@ use std::fmt;
 use std::sync::Arc;
 
 use super::{
-    AbilityDef, AbilityImplementationDef, AbilityTargetDef, CardDefinition, CardEffectStatus,
-    CardPrinting, CardPrintingId, CardSet, CardStructure, DeclarativeAbilityDef, EffectDef,
-    ManaCost, ModeSetDef, PlayActionKind, PlayOptionDef, SpellForm, TargetSlotDef,
+    AbilityDef, AbilityProcedureDef, AbilityTargetDef, AppliedEffectDef, CardDefinition,
+    CardEffectStatus, CardPrinting, CardPrintingId, CardSet, CardStructure, DeclarativeAbilityDef,
+    EffectDef, EffectExecutionDef, EffectRecipientDef, ImplementationStatus, ManaCost, ModeSetDef,
+    PlayActionKind, PlayOptionDef, SpellForm, TargetSlotDef, ValueDef,
 };
 use crate::{
     AbilityId, AdditionalCostId, AlternativeCostId, CardDefinitionId, CardPartId, Format, GrantId,
-    ModeId, PlayOptionId, TargetSlotId,
+    ModeId, PlayOptionId, TargetIndex, TargetSlotId,
 };
 
 /// A catalog is immutable once built, and callers pass it around by value —
@@ -76,7 +77,7 @@ impl CardCatalog {
     /// Returns [`CatalogError`] when a definition ID, printing ID, or
     /// normalized card name is repeated; a printing belongs to another
     /// definition; or structured parts, forms, modes, costs, and target slots
-    /// are missing or ambiguous.
+    /// are missing, invalid, or non-positional.
     pub fn new(
         definitions: impl IntoIterator<Item = CardDefinition>,
     ) -> Result<Self, CatalogError> {
@@ -440,8 +441,9 @@ fn validate_attached_ability(
     if let DeclarativeAbilityDef::Spell(spell) = ability.definition
         && let Some(modal) = spell.modal()
     {
-        if ability.implementation != AbilityImplementationDef::Definition
-            || ability.effect != EffectDef::None
+        if ability.coverage.status != ImplementationStatus::Complete
+            || ability.effect.execution != EffectExecutionDef::Declarative
+            || ability.effect.definition != EffectDef::None
         {
             return Err(CatalogError::InvalidModalSpellParent {
                 definition: definition.id,
@@ -491,9 +493,7 @@ fn validate_attached_ability(
                     mode: mode_id,
                 });
             }
-            if mode.implementation.is_executable()
-                && mode.implementation != AbilityImplementationDef::Definition
-            {
+            if mode.is_executable() && mode.declarative_effect().is_none() {
                 return Err(CatalogError::CustomSpellModeImplementation {
                     definition: definition.id,
                     part,
@@ -537,8 +537,7 @@ fn validate_granted_abilities(
                 problem,
             });
         }
-        if granted.implementation.is_executable()
-            && matches!(granted.definition, DeclarativeAbilityDef::Static(_))
+        if granted.is_executable() && matches!(granted.definition, DeclarativeAbilityDef::Static(_))
         {
             return Err(CatalogError::InvalidGrantedAbility {
                 definition: definition.id,
@@ -558,25 +557,25 @@ fn validate_granted_abilities(
 /// branches are part of their parent clause's effect tree, so their sites
 /// continue the same [`GrantId`] sequence in printed mode order.
 fn collect_direct_ability_grants<'a>(ability: &'a AbilityDef, grants: &mut Vec<&'a AbilityDef>) {
-    collect_ability_grants(ability.effect, grants);
+    collect_ability_grants(ability.effect.definition, grants);
     if let DeclarativeAbilityDef::Spell(spell) = ability.definition
         && let Some(modal) = spell.modal()
     {
         for mode in modal.modes {
-            collect_ability_grants(mode.effect, grants);
+            collect_ability_grants(mode.effect.definition, grants);
         }
     }
 }
 
 fn validate_ability_definition(ability: &AbilityDef) -> Result<(), GrantedAbilityValidationError> {
-    let mut grant_sites = ability_grant_sites(ability.effect);
+    let mut grant_sites = ability_grant_sites(ability.effect.definition);
     if let DeclarativeAbilityDef::Spell(spell) = ability.definition
         && let Some(modal) = spell.modal()
     {
         grant_sites = modal
             .modes
             .iter()
-            .map(|mode| ability_grant_sites(mode.effect))
+            .map(|mode| ability_grant_sites(mode.effect.definition))
             .fold(grant_sites, usize::saturating_add);
     }
     if grant_sites > usize::from(u8::MAX) + 1 {
@@ -585,19 +584,38 @@ fn validate_ability_definition(ability: &AbilityDef) -> Result<(), GrantedAbilit
     if ability.text.trim().is_empty() {
         return Err(GrantedAbilityValidationError::EmptyText);
     }
-    if ability
-        .implementation
-        .explanation()
-        .is_some_and(|explanation| explanation.trim().is_empty())
+    let uses_legacy_procedure = match ability.definition {
+        DeclarativeAbilityDef::ActivatedMana(definition)
+        | DeclarativeAbilityDef::Activated(definition) => {
+            definition.procedure == AbilityProcedureDef::Legacy
+        }
+        DeclarativeAbilityDef::TriggeredMana(definition)
+        | DeclarativeAbilityDef::Triggered(definition) => {
+            definition.procedure == AbilityProcedureDef::Legacy
+        }
+        DeclarativeAbilityDef::Spell(_)
+        | DeclarativeAbilityDef::Static(_)
+        | DeclarativeAbilityDef::Replacement(_)
+        | DeclarativeAbilityDef::AlternativeCast(_)
+        | DeclarativeAbilityDef::SpecialAction(_)
+        | DeclarativeAbilityDef::Keyword(_)
+        | DeclarativeAbilityDef::Legacy => false,
+    };
+    if ability.is_executable()
+        && uses_legacy_procedure
+        && !matches!(ability.effect.execution, EffectExecutionDef::Custom(_))
+    {
+        return Err(GrantedAbilityValidationError::LegacyProcedureRequiresCustomExecution);
+    }
+    let explanation = ability.coverage.explanation;
+    let explanation_required = ability.coverage.status != ImplementationStatus::Complete
+        || ability.effect.execution != EffectExecutionDef::Declarative
+        || uses_legacy_procedure;
+    if explanation.is_some_and(|explanation| explanation.trim().is_empty())
+        || (explanation_required && explanation.is_none())
     {
         return Err(GrantedAbilityValidationError::MissingImplementationExplanation);
     }
-    if ability.activation_text.is_some()
-        && !matches!(ability.definition, DeclarativeAbilityDef::Activated(_))
-    {
-        return Err(GrantedAbilityValidationError::ActivationTextOnNonActivatedAbility);
-    }
-
     let (source_zones, targets, is_mana_ability) = match &ability.definition {
         DeclarativeAbilityDef::Spell(spell) => (None, spell.targets(), false),
         DeclarativeAbilityDef::ActivatedMana(activated) => {
@@ -632,7 +650,7 @@ fn validate_ability_definition(ability: &AbilityDef) -> Result<(), GrantedAbilit
     if is_mana_ability && !targets.is_empty() {
         return Err(GrantedAbilityValidationError::ManaAbilityHasTargets);
     }
-    validate_ability_targets(targets)?;
+    validate_ability_targets(targets, ability.effect.definition)?;
     Ok(())
 }
 
@@ -663,8 +681,8 @@ fn top_level_ability_error(
                 ability,
             }
         }
-        GrantedAbilityValidationError::ActivationTextOnNonActivatedAbility => {
-            CatalogError::ActivationTextOnNonActivatedAbility {
+        GrantedAbilityValidationError::LegacyProcedureRequiresCustomExecution => {
+            CatalogError::LegacyProcedureRequiresCustomExecution {
                 definition: definition.id,
                 part,
                 ability,
@@ -682,6 +700,14 @@ fn top_level_ability_error(
                 ability,
             }
         }
+        GrantedAbilityValidationError::TooManyTargets { count } => {
+            CatalogError::TooManyAbilityTargets {
+                definition: definition.id,
+                part,
+                ability,
+                count: *count,
+            }
+        }
         GrantedAbilityValidationError::InvalidTargetBounds {
             target,
             minimum,
@@ -694,14 +720,16 @@ fn top_level_ability_error(
             minimum: *minimum,
             maximum: *maximum,
         },
-        GrantedAbilityValidationError::DuplicateTargetId { target } => {
-            CatalogError::DuplicateAbilityTargetId {
-                definition: definition.id,
-                part,
-                ability,
-                target: *target,
-            }
-        }
+        GrantedAbilityValidationError::TargetReferenceOutOfBounds {
+            target,
+            target_count,
+        } => CatalogError::AbilityTargetReferenceOutOfBounds {
+            definition: definition.id,
+            part,
+            ability,
+            target: *target,
+            target_count: *target_count,
+        },
         GrantedAbilityValidationError::ExecutableStaticAbility => {
             unreachable!("only granted static abilities are rejected")
         }
@@ -720,6 +748,9 @@ fn collect_ability_grants(effect: super::EffectDef, grants: &mut Vec<&AbilityDef
         | super::EffectDef::AtNextStep { effect, .. } => {
             collect_ability_grants(*effect, grants);
         }
+        super::EffectDef::SacrificeOfChoice {
+            then: Some(effect), ..
+        } => collect_ability_grants(*effect, grants),
         super::EffectDef::Apply { effect, .. } => collect_applied_ability_grants(effect, grants),
         super::EffectDef::None
         | super::EffectDef::AddMana(_)
@@ -734,7 +765,7 @@ fn collect_ability_grants(effect: super::EffectDef, grants: &mut Vec<&AbilityDef
         | super::EffectDef::CreateToken { .. }
         | super::EffectDef::Destroy { .. }
         | super::EffectDef::Sacrifice { .. }
-        | super::EffectDef::SacrificeOfChoice { .. }
+        | super::EffectDef::SacrificeOfChoice { then: None, .. }
         | super::EffectDef::SplitPermanentsAndSacrificeAPile { .. }
         | super::EffectDef::Mill { .. }
         | super::EffectDef::SearchLibrary { .. }
@@ -787,7 +818,10 @@ fn ability_grant_sites(effect: super::EffectDef) -> usize {
             .fold(0, usize::saturating_add),
         super::EffectDef::OptionalManaPayment { effect, .. }
         | super::EffectDef::May(effect)
-        | super::EffectDef::AtNextStep { effect, .. } => ability_grant_sites(*effect),
+        | super::EffectDef::AtNextStep { effect, .. }
+        | super::EffectDef::SacrificeOfChoice {
+            then: Some(effect), ..
+        } => ability_grant_sites(*effect),
         super::EffectDef::Apply { effect, .. } => applied_ability_grant_sites(effect),
         super::EffectDef::None
         | super::EffectDef::AddMana(_)
@@ -802,7 +836,7 @@ fn ability_grant_sites(effect: super::EffectDef) -> usize {
         | super::EffectDef::CreateToken { .. }
         | super::EffectDef::Destroy { .. }
         | super::EffectDef::Sacrifice { .. }
-        | super::EffectDef::SacrificeOfChoice { .. }
+        | super::EffectDef::SacrificeOfChoice { then: None, .. }
         | super::EffectDef::SplitPermanentsAndSacrificeAPile { .. }
         | super::EffectDef::Mill { .. }
         | super::EffectDef::SearchLibrary { .. }
@@ -848,21 +882,210 @@ fn applied_ability_grant_sites(effect: super::AppliedEffectDef) -> usize {
 
 fn validate_ability_targets(
     targets: &[AbilityTargetDef],
+    effect: EffectDef,
 ) -> Result<(), GrantedAbilityValidationError> {
-    let mut ids = HashSet::new();
-    for target in targets {
-        if target.minimum > target.maximum {
+    if targets.len() > usize::from(u8::MAX) + 1 {
+        return Err(GrantedAbilityValidationError::TooManyTargets {
+            count: targets.len(),
+        });
+    }
+    for (position, definition) in targets.iter().enumerate() {
+        let target = TargetIndex::from_index(position)
+            .expect("the target count was validated before assigning positional indices");
+        if definition.minimum > definition.maximum {
             return Err(GrantedAbilityValidationError::InvalidTargetBounds {
-                target: target.id,
-                minimum: target.minimum,
-                maximum: target.maximum,
+                target,
+                minimum: definition.minimum,
+                maximum: definition.maximum,
             });
         }
-        if !ids.insert(target.id) {
-            return Err(GrantedAbilityValidationError::DuplicateTargetId { target: target.id });
-        }
     }
-    Ok(())
+    validate_effect_target_references(effect, targets.len())
+}
+
+fn validate_target_index(
+    target: TargetIndex,
+    target_count: usize,
+) -> Result<(), GrantedAbilityValidationError> {
+    if target.index() < target_count {
+        Ok(())
+    } else {
+        Err(GrantedAbilityValidationError::TargetReferenceOutOfBounds {
+            target,
+            target_count,
+        })
+    }
+}
+
+fn validate_recipient_target_references(
+    recipient: EffectRecipientDef,
+    target_count: usize,
+) -> Result<(), GrantedAbilityValidationError> {
+    match recipient {
+        EffectRecipientDef::ObjectsSharingNameWithTarget(target)
+        | EffectRecipientDef::Target(target)
+        | EffectRecipientDef::ControllerOfTarget(target) => {
+            validate_target_index(target, target_count)
+        }
+        EffectRecipientDef::ObjectsControlledByTarget { slot, .. } => {
+            validate_target_index(slot, target_count)
+        }
+        EffectRecipientDef::Source
+        | EffectRecipientDef::AttachedPermanent
+        | EffectRecipientDef::Controller
+        | EffectRecipientDef::Opponent
+        | EffectRecipientDef::TriggeringObject
+        | EffectRecipientDef::ControllerOfTriggeringObject
+        | EffectRecipientDef::EventPlayer
+        | EffectRecipientDef::MatchingObjects { .. } => Ok(()),
+    }
+}
+
+fn validate_value_target_references(
+    value: ValueDef,
+    target_count: usize,
+) -> Result<(), GrantedAbilityValidationError> {
+    match value {
+        ValueDef::Negate(value) => validate_value_target_references(*value, target_count),
+        ValueDef::IfCreatureDiedThisTurn(condition) => {
+            validate_value_target_references(condition.then, target_count)?;
+            validate_value_target_references(condition.otherwise, target_count)
+        }
+        ValueDef::IfTargetMatches(condition) => {
+            validate_target_index(condition.slot, target_count)?;
+            validate_value_target_references(condition.then, target_count)?;
+            validate_value_target_references(condition.otherwise, target_count)
+        }
+        ValueDef::IfMatchingObjectCount(condition) => {
+            validate_value_target_references(condition.then, target_count)?;
+            validate_value_target_references(condition.otherwise, target_count)
+        }
+        ValueDef::TargetPower(target) => validate_target_index(target, target_count),
+        ValueDef::Constant(_)
+        | ValueDef::ChosenX
+        | ValueDef::SourcePower
+        | ValueDef::SourceToughness
+        | ValueDef::TriggerEventAmount
+        | ValueDef::CardsInHandAbove { .. }
+        | ValueDef::CountMatchingObjects(_)
+        | ValueDef::AnyMatchingObject(_)
+        | ValueDef::CountersOnSource(_)
+        // This reads the share assigned to the target currently being
+        // affected; the surrounding recipient carries the slot reference.
+        | ValueDef::DividedAmongTargets => Ok(()),
+    }
+}
+
+fn validate_applied_effect_target_references(
+    effect: AppliedEffectDef,
+    target_count: usize,
+) -> Result<(), GrantedAbilityValidationError> {
+    match effect {
+        AppliedEffectDef::Composite(effects) => {
+            for effect in effects {
+                validate_applied_effect_target_references(*effect, target_count)?;
+            }
+            Ok(())
+        }
+        AppliedEffectDef::ModifyPowerToughness { power, toughness } => {
+            validate_value_target_references(power, target_count)?;
+            validate_value_target_references(toughness, target_count)
+        }
+        // A granted ability introduces its own target scope and is validated
+        // separately when the grant tree is traversed.
+        AppliedEffectDef::GrantAbility(_)
+        | AppliedEffectDef::CannotBeCountered
+        | AppliedEffectDef::CannotBeBlockedBy(_)
+        | AppliedEffectDef::AddLandTypes(_)
+        | AppliedEffectDef::Animate(_)
+        | AppliedEffectDef::Special(_) => Ok(()),
+    }
+}
+
+#[allow(clippy::too_many_lines)]
+fn validate_effect_target_references(
+    effect: EffectDef,
+    target_count: usize,
+) -> Result<(), GrantedAbilityValidationError> {
+    match effect {
+        EffectDef::Sequence(effects) => {
+            for effect in effects {
+                validate_effect_target_references(*effect, target_count)?;
+            }
+            Ok(())
+        }
+        EffectDef::DealDamage { recipient, amount }
+        | EffectDef::GainLife { recipient, amount }
+        | EffectDef::DrawCards { recipient, amount }
+        | EffectDef::DiscardCards { recipient, amount }
+        | EffectDef::LoseLife { recipient, amount } => {
+            validate_recipient_target_references(recipient, target_count)?;
+            validate_value_target_references(amount, target_count)
+        }
+        EffectDef::Tap { object }
+        | EffectDef::Untap { object }
+        | EffectDef::Attach { object }
+        | EffectDef::Destroy { object, .. }
+        | EffectDef::Sacrifice { object }
+        | EffectDef::ChangeTextBasicLandType { object }
+        | EffectDef::BecomeCopyOf { object, .. }
+        | EffectDef::ExileLinkedToSource { object }
+        | EffectDef::MakeUnblockableThisTurn { object }
+        | EffectDef::GainControlThisTurn { object }
+        | EffectDef::Transform { object }
+        | EffectDef::MoveToZone { object, .. }
+        | EffectDef::ChooseCardName { object }
+        | EffectDef::ChooseCreatureType { object } => {
+            validate_recipient_target_references(object, target_count)
+        }
+        EffectDef::CreateToken { count, .. } | EffectDef::ReduceGenericCostBy(count) => {
+            validate_value_target_references(count, target_count)
+        }
+        EffectDef::SacrificeOfChoice { player, then, .. } => {
+            validate_recipient_target_references(player, target_count)?;
+            if let Some(effect) = then {
+                validate_effect_target_references(*effect, target_count)?;
+            }
+            Ok(())
+        }
+        EffectDef::SplitPermanentsAndSacrificeAPile { player }
+        | EffectDef::CannotCastNoncreatureSpellsThisTurn { player } => {
+            validate_recipient_target_references(player, target_count)
+        }
+        EffectDef::Mill { player, amount } => {
+            validate_recipient_target_references(player, target_count)?;
+            validate_value_target_references(amount, target_count)
+        }
+        EffectDef::SearchLibrary { player, .. } => {
+            validate_recipient_target_references(player, target_count)
+        }
+        EffectDef::Counter { object } => validate_recipient_target_references(object, target_count),
+        EffectDef::CounterUnlessPaid { object, amount, .. }
+        | EffectDef::AddCounters { object, amount, .. } => {
+            validate_recipient_target_references(object, target_count)?;
+            validate_value_target_references(amount, target_count)
+        }
+        EffectDef::OptionalManaPayment { effect, .. }
+        | EffectDef::May(effect)
+        | EffectDef::AtNextStep { effect, .. } => {
+            validate_effect_target_references(*effect, target_count)
+        }
+        EffectDef::Apply {
+            recipient, effect, ..
+        } => {
+            validate_recipient_target_references(recipient, target_count)?;
+            validate_applied_effect_target_references(effect, target_count)
+        }
+        EffectDef::None
+        | EffectDef::AddMana(_)
+        | EffectDef::GrantFlashToNextSorcery
+        | EffectDef::ReturnLinkedExiles { .. }
+        | EffectDef::CannotBeForcedToSacrifice
+        | EffectDef::AdditionalCombatPhase
+        | EffectDef::MultiplyEventAmount(_)
+        | EffectDef::Replacement(_)
+        | EffectDef::Special(_) => Ok(()),
+    }
 }
 
 fn structure_parts(definition: &CardDefinition) -> Result<Vec<CardPartId>, CatalogError> {
@@ -978,15 +1201,13 @@ fn validate_modes_and_targets(
     definition: &CardDefinition,
     option: &PlayOptionDef,
 ) -> Result<(), CatalogError> {
-    let mut option_slots = HashMap::new();
-    validate_target_slots(definition, option, None, &option.targets, &mut option_slots)?;
+    validate_target_slots(definition, option, None, &option.targets)?;
 
     let Some(mode_set) = &option.modes else {
         return Ok(());
     };
     validate_mode_selection_bounds(definition, option, mode_set)?;
 
-    let modes_can_coexist = mode_set.maximum > 1;
     let mut option_modes = HashSet::new();
     for mode in &mode_set.modes {
         if !option_modes.insert(mode.id) {
@@ -998,7 +1219,6 @@ fn validate_modes_and_targets(
         }
     }
 
-    let mut coexisting_mode_slots = HashMap::new();
     for (index, mode) in mode_set.modes.iter().enumerate() {
         let expected = ModeId::from_index(index)
             .expect("validated mode sets cannot exceed the positional ID range");
@@ -1010,45 +1230,34 @@ fn validate_modes_and_targets(
                 actual: mode.id,
             });
         }
-        let mut mode_slots = HashMap::new();
-        validate_target_slots(
-            definition,
-            option,
-            Some(mode.id),
-            &mode.targets,
-            &mut mode_slots,
-        )?;
-        for slot in mode_slots.keys() {
-            if option_slots.contains_key(slot) {
-                return Err(CatalogError::AmbiguousTargetSlot {
-                    definition: definition.id,
-                    option: option.id,
-                    slot: *slot,
-                    first_mode: None,
-                    second_mode: Some(mode.id),
-                });
-            }
-        }
-        if mode_set.may_repeat && modes_can_coexist && !mode.targets.is_empty() {
-            return Err(CatalogError::RepeatableModeHasAmbiguousTargets {
-                definition: definition.id,
-                option: option.id,
-                mode: mode.id,
-            });
-        }
-        if modes_can_coexist {
-            for slot in mode_slots.keys() {
-                if let Some(first_mode) = coexisting_mode_slots.insert(*slot, mode.id) {
-                    return Err(CatalogError::AmbiguousTargetSlot {
-                        definition: definition.id,
-                        option: option.id,
-                        slot: *slot,
-                        first_mode: Some(first_mode),
-                        second_mode: Some(mode.id),
-                    });
-                }
-            }
-        }
+        validate_target_slots(definition, option, Some(mode.id), &mode.targets)?;
+    }
+
+    let mut mode_target_counts = mode_set
+        .modes
+        .iter()
+        .map(|mode| mode.targets.len())
+        .collect::<Vec<_>>();
+    let selected_target_count = if mode_set.may_repeat {
+        mode_target_counts
+            .into_iter()
+            .max()
+            .unwrap_or(0)
+            .saturating_mul(usize::from(mode_set.maximum))
+    } else {
+        mode_target_counts.sort_unstable_by(|left, right| right.cmp(left));
+        mode_target_counts
+            .into_iter()
+            .take(usize::from(mode_set.maximum))
+            .fold(0, usize::saturating_add)
+    };
+    let instantiated = option.targets.len().saturating_add(selected_target_count);
+    if instantiated > usize::from(u8::MAX) + 1 {
+        return Err(CatalogError::TooManyInstantiatedTargets {
+            definition: definition.id,
+            option: option.id,
+            count: instantiated,
+        });
     }
     Ok(())
 }
@@ -1104,8 +1313,47 @@ fn validate_semantic_spell_presentation(
     if option.action != PlayActionKind::CastSpell {
         return Ok(());
     }
+    if let SpellForm::Combined(parts) = &option.form {
+        let mut semantic_targets = Vec::new();
+        let mut any_executable = false;
+        for part_id in parts {
+            let Some(part) = definition.part(*part_id) else {
+                return Ok(());
+            };
+            let Some(ability) = part
+                .rules
+                .ability_clauses()
+                .iter()
+                .find(|ability| matches!(ability.definition, DeclarativeAbilityDef::Spell(_)))
+            else {
+                // A legacy combined form can continue to own its presentation
+                // targets until every constituent part has a semantic spell
+                // clause to derive them from.
+                return Ok(());
+            };
+            let DeclarativeAbilityDef::Spell(spell) = ability.definition else {
+                unreachable!("the selected ability was checked as a spell")
+            };
+            if spell.modal().is_some() {
+                return Err(CatalogError::CombinedModalSpellUnsupported {
+                    definition: definition.id,
+                    option: option.id,
+                    part: *part_id,
+                });
+            }
+            any_executable |= ability.is_executable();
+            semantic_targets.extend_from_slice(spell.targets());
+        }
+        if any_executable && option.modes.is_some() {
+            return Err(CatalogError::UnexpectedPresentationSpellModes {
+                definition: definition.id,
+                option: option.id,
+            });
+        }
+        return validate_nonmodal_spell_targets(definition, option, &semantic_targets);
+    }
     let SpellForm::Part(part_id) = &option.form else {
-        return Ok(());
+        unreachable!("combined spell forms returned above")
     };
     let Some(part) = definition.part(*part_id) else {
         return Ok(());
@@ -1122,13 +1370,13 @@ fn validate_semantic_spell_presentation(
         unreachable!("the selected ability was checked as a spell")
     };
     let Some(modal) = spell.modal() else {
-        if ability.implementation.is_executable() && option.modes.is_some() {
+        if ability.is_executable() && option.modes.is_some() {
             return Err(CatalogError::UnexpectedPresentationSpellModes {
                 definition: definition.id,
                 option: option.id,
             });
         }
-        return Ok(());
+        return validate_nonmodal_spell_targets(definition, option, spell.targets());
     };
     if !option.targets.is_empty() {
         return Err(CatalogError::UnexpectedModalSpellTargets {
@@ -1193,12 +1441,11 @@ fn validate_semantic_spell_presentation(
                 semantic: semantic.text,
             });
         }
-        let expected_status =
-            if ability.implementation.is_executable() && semantic.implementation.is_executable() {
-                CardEffectStatus::Implemented
-            } else {
-                CardEffectStatus::MetadataOnly
-            };
+        let expected_status = if ability.is_executable() && semantic.is_executable() {
+            CardEffectStatus::Implemented
+        } else {
+            CardEffectStatus::MetadataOnly
+        };
         if presentation.effect_status != expected_status {
             return Err(CatalogError::MismatchedSpellModeImplementation {
                 definition: definition.id,
@@ -1208,20 +1455,40 @@ fn validate_semantic_spell_presentation(
                 semantic: expected_status,
             });
         }
+        let mut projected = Vec::with_capacity(semantic_spell.targets().len());
+        let mut unpresentable = None;
+        for (position, semantic_target) in semantic_spell.targets().iter().enumerate() {
+            let target = TargetSlotId::from_index(position)
+                .expect("ability target validation limits positional target IDs");
+            let Some(expected) = semantic_target.presentation(target) else {
+                unpresentable = Some(target);
+                break;
+            };
+            projected.push(expected);
+        }
+        if let Some(target) = unpresentable {
+            if presentation.targets.is_empty() {
+                // Runtime mode targeting uses the richer semantic predicate.
+                // Keep the legacy projection empty instead of accepting an
+                // incomplete approximation.
+                continue;
+            }
+            return Err(CatalogError::UnpresentableSpellModeTarget {
+                definition: definition.id,
+                option: option.id,
+                mode: presentation.id,
+                target,
+            });
+        }
         for (position, (semantic_target, presentation_target)) in semantic_spell
             .targets()
             .iter()
             .zip(&presentation.targets)
             .enumerate()
         {
-            let Some(expected) = semantic_target.presentation() else {
-                return Err(CatalogError::UnpresentableSpellModeTarget {
-                    definition: definition.id,
-                    option: option.id,
-                    mode: presentation.id,
-                    target: semantic_target.id,
-                });
-            };
+            let target = TargetSlotId::from_index(position)
+                .expect("ability target validation limits positional target IDs");
+            let expected = &projected[position];
             if presentation_target.id != expected.id {
                 return Err(CatalogError::MismatchedSpellModeTargetPresentation {
                     definition: definition.id,
@@ -1229,7 +1496,7 @@ fn validate_semantic_spell_presentation(
                     mode: presentation.id,
                     position,
                     presentation: presentation_target.clone(),
-                    semantic: expected,
+                    semantic: expected.clone(),
                 });
             }
             if (presentation_target.minimum, presentation_target.maximum)
@@ -1239,7 +1506,7 @@ fn validate_semantic_spell_presentation(
                     definition: definition.id,
                     option: option.id,
                     mode: presentation.id,
-                    target: semantic_target.id,
+                    target,
                     presentation_minimum: presentation_target.minimum,
                     presentation_maximum: presentation_target.maximum,
                     semantic_minimum: semantic_target.minimum,
@@ -1257,16 +1524,22 @@ fn validate_semantic_spell_presentation(
                     mode: presentation.id,
                     position,
                     presentation: presentation_target.clone(),
-                    semantic: expected,
+                    semantic: expected.clone(),
                 });
             }
         }
-        if let Some(semantic_target) = semantic_spell.targets().get(presentation.targets.len()) {
+        if semantic_spell
+            .targets()
+            .get(presentation.targets.len())
+            .is_some()
+        {
+            let target = TargetSlotId::from_index(presentation.targets.len())
+                .expect("ability target validation limits positional target IDs");
             return Err(CatalogError::MissingPresentationSpellModeTarget {
                 definition: definition.id,
                 option: option.id,
                 mode: presentation.id,
-                target: semantic_target.id,
+                target,
             });
         }
         if let Some(presentation_target) = presentation.targets.get(semantic_spell.targets().len())
@@ -1282,14 +1555,112 @@ fn validate_semantic_spell_presentation(
     Ok(())
 }
 
+fn validate_nonmodal_spell_targets(
+    definition: &CardDefinition,
+    option: &PlayOptionDef,
+    semantic_targets: &[AbilityTargetDef],
+) -> Result<(), CatalogError> {
+    if semantic_targets.len() > usize::from(u8::MAX) + 1 {
+        return Err(CatalogError::TooManyInstantiatedTargets {
+            definition: definition.id,
+            option: option.id,
+            count: semantic_targets.len(),
+        });
+    }
+    let mut projected = Vec::with_capacity(semantic_targets.len());
+    for (position, semantic_target) in semantic_targets.iter().enumerate() {
+        let target = TargetSlotId::from_index(position)
+            .expect("semantic target validation limits positional target IDs");
+        let Some(expected) = semantic_target.presentation(target) else {
+            return if option.targets.is_empty() {
+                // Runtime target generation uses the richer semantic
+                // predicate directly. Keep the legacy presentation empty
+                // rather than accepting an approximation that can drift.
+                Ok(())
+            } else {
+                Err(CatalogError::UnpresentableSpellTarget {
+                    definition: definition.id,
+                    option: option.id,
+                    target,
+                })
+            };
+        };
+        projected.push(expected);
+    }
+    for (position, (semantic_target, presentation_target)) in
+        semantic_targets.iter().zip(&option.targets).enumerate()
+    {
+        let target = TargetSlotId::from_index(position)
+            .expect("semantic target validation limits positional target IDs");
+        let expected = &projected[position];
+        if (presentation_target.minimum, presentation_target.maximum)
+            != (semantic_target.minimum, semantic_target.maximum)
+        {
+            return Err(CatalogError::MismatchedSpellTargetCardinality {
+                definition: definition.id,
+                option: option.id,
+                target,
+                presentation_minimum: presentation_target.minimum,
+                presentation_maximum: presentation_target.maximum,
+                semantic_minimum: semantic_target.minimum,
+                semantic_maximum: semantic_target.maximum,
+            });
+        }
+        if presentation_target != expected {
+            return Err(CatalogError::MismatchedSpellTargetPresentation {
+                definition: definition.id,
+                option: option.id,
+                position,
+                presentation: presentation_target.clone(),
+                semantic: expected.clone(),
+            });
+        }
+    }
+    if semantic_targets.get(option.targets.len()).is_some() {
+        let target = TargetSlotId::from_index(option.targets.len())
+            .expect("semantic target validation limits positional target IDs");
+        return Err(CatalogError::MissingPresentationSpellTarget {
+            definition: definition.id,
+            option: option.id,
+            target,
+        });
+    }
+    if let Some(presentation_target) = option.targets.get(semantic_targets.len()) {
+        return Err(CatalogError::MissingSemanticSpellTarget {
+            definition: definition.id,
+            option: option.id,
+            target: presentation_target.id,
+        });
+    }
+    Ok(())
+}
+
 fn validate_target_slots(
     definition: &CardDefinition,
     option: &PlayOptionDef,
     mode: Option<ModeId>,
     slots: &[TargetSlotDef],
-    seen: &mut HashMap<TargetSlotId, Option<ModeId>>,
 ) -> Result<(), CatalogError> {
-    for slot in slots {
+    if slots.len() > usize::from(u8::MAX) + 1 {
+        return Err(CatalogError::TooManyTargetSlots {
+            definition: definition.id,
+            option: option.id,
+            mode,
+            count: slots.len(),
+        });
+    }
+    for (position, slot) in slots.iter().enumerate() {
+        let expected = TargetSlotId::from_index(position)
+            .expect("the target slot count was validated before assigning positional IDs");
+        if slot.id != expected {
+            return Err(CatalogError::NonPositionalTargetSlot {
+                definition: definition.id,
+                option: option.id,
+                mode,
+                expected,
+                actual: slot.id,
+            });
+        }
         if slot.minimum > slot.maximum {
             return Err(CatalogError::InvalidTargetBounds {
                 definition: definition.id,
@@ -1298,15 +1669,6 @@ fn validate_target_slots(
                 slot: slot.id,
                 minimum: slot.minimum,
                 maximum: slot.maximum,
-            });
-        }
-        if let Some(first_mode) = seen.insert(slot.id, mode) {
-            return Err(CatalogError::AmbiguousTargetSlot {
-                definition: definition.id,
-                option: option.id,
-                slot: slot.id,
-                first_mode,
-                second_mode: mode,
             });
         }
     }
@@ -1367,16 +1729,20 @@ pub enum GrantedAbilityValidationError {
     },
     EmptyText,
     MissingImplementationExplanation,
-    ActivationTextOnNonActivatedAbility,
+    LegacyProcedureRequiresCustomExecution,
     HasNoSourceZone,
     ManaAbilityHasTargets,
+    TooManyTargets {
+        count: usize,
+    },
     InvalidTargetBounds {
-        target: TargetSlotId,
+        target: TargetIndex,
         minimum: u8,
         maximum: u8,
     },
-    DuplicateTargetId {
-        target: TargetSlotId,
+    TargetReferenceOutOfBounds {
+        target: TargetIndex,
+        target_count: usize,
     },
     /// Runtime static-effect discovery currently starts from attached printed
     /// or copied clauses. Reject an executable static ability granted by
@@ -1396,11 +1762,15 @@ impl fmt::Display for GrantedAbilityValidationError {
             Self::MissingImplementationExplanation => formatter.write_str(
                 "has a non-declarative implementation without an explanation",
             ),
-            Self::ActivationTextOnNonActivatedAbility => formatter.write_str(
-                "has activated-action text but is not an activated ability",
+            Self::LegacyProcedureRequiresCustomExecution => formatter.write_str(
+                "uses the legacy rules procedure without a custom effect executor",
             ),
             Self::HasNoSourceZone => formatter.write_str("has no source zone"),
             Self::ManaAbilityHasTargets => formatter.write_str("is a mana ability that declares targets"),
+            Self::TooManyTargets { count } => write!(
+                formatter,
+                "defines {count} targets, but positional target indices support at most 256"
+            ),
             Self::InvalidTargetBounds {
                 target,
                 minimum,
@@ -1409,9 +1779,13 @@ impl fmt::Display for GrantedAbilityValidationError {
                 formatter,
                 "defines target {target:?} requiring at least {minimum} targets but allowing at most {maximum}",
             ),
-            Self::DuplicateTargetId { target } => {
-                write!(formatter, "defines target {target:?} more than once")
-            }
+            Self::TargetReferenceOutOfBounds {
+                target,
+                target_count,
+            } => write!(
+                formatter,
+                "references target {target:?}, but the clause defines only {target_count} target slots"
+            ),
             Self::ExecutableStaticAbility => formatter.write_str(
                 "is an executable static ability, but granted static abilities are not evaluated yet",
             ),
@@ -1439,7 +1813,7 @@ pub enum CatalogError {
         part: CardPartId,
         ability: AbilityId,
     },
-    ActivationTextOnNonActivatedAbility {
+    LegacyProcedureRequiresCustomExecution {
         definition: CardDefinitionId,
         part: CardPartId,
         ability: AbilityId,
@@ -1535,19 +1909,26 @@ pub enum CatalogError {
         part: CardPartId,
         ability: AbilityId,
     },
+    TooManyAbilityTargets {
+        definition: CardDefinitionId,
+        part: CardPartId,
+        ability: AbilityId,
+        count: usize,
+    },
     InvalidAbilityTargetBounds {
         definition: CardDefinitionId,
         part: CardPartId,
         ability: AbilityId,
-        target: TargetSlotId,
+        target: TargetIndex,
         minimum: u8,
         maximum: u8,
     },
-    DuplicateAbilityTargetId {
+    AbilityTargetReferenceOutOfBounds {
         definition: CardDefinitionId,
         part: CardPartId,
         ability: AbilityId,
-        target: TargetSlotId,
+        target: TargetIndex,
+        target_count: usize,
     },
     DuplicateStructurePart {
         definition: CardDefinitionId,
@@ -1603,6 +1984,11 @@ pub enum CatalogError {
         definition: CardDefinitionId,
         option: PlayOptionId,
     },
+    CombinedModalSpellUnsupported {
+        definition: CardDefinitionId,
+        option: PlayOptionId,
+        part: CardPartId,
+    },
     DuplicateModeId {
         definition: CardDefinitionId,
         option: PlayOptionId,
@@ -1642,6 +2028,37 @@ pub enum CatalogError {
     UnexpectedPresentationSpellModes {
         definition: CardDefinitionId,
         option: PlayOptionId,
+    },
+    MissingPresentationSpellTarget {
+        definition: CardDefinitionId,
+        option: PlayOptionId,
+        target: TargetSlotId,
+    },
+    MissingSemanticSpellTarget {
+        definition: CardDefinitionId,
+        option: PlayOptionId,
+        target: TargetSlotId,
+    },
+    MismatchedSpellTargetCardinality {
+        definition: CardDefinitionId,
+        option: PlayOptionId,
+        target: TargetSlotId,
+        presentation_minimum: u8,
+        presentation_maximum: u8,
+        semantic_minimum: u8,
+        semantic_maximum: u8,
+    },
+    UnpresentableSpellTarget {
+        definition: CardDefinitionId,
+        option: PlayOptionId,
+        target: TargetSlotId,
+    },
+    MismatchedSpellTargetPresentation {
+        definition: CardDefinitionId,
+        option: PlayOptionId,
+        position: usize,
+        presentation: TargetSlotDef,
+        semantic: TargetSlotDef,
     },
     UnexpectedModalSpellTargets {
         definition: CardDefinitionId,
@@ -1752,17 +2169,23 @@ pub enum CatalogError {
         minimum: u8,
         maximum: u8,
     },
-    AmbiguousTargetSlot {
+    TooManyTargetSlots {
         definition: CardDefinitionId,
         option: PlayOptionId,
-        slot: TargetSlotId,
-        first_mode: Option<ModeId>,
-        second_mode: Option<ModeId>,
+        mode: Option<ModeId>,
+        count: usize,
     },
-    RepeatableModeHasAmbiguousTargets {
+    NonPositionalTargetSlot {
         definition: CardDefinitionId,
         option: PlayOptionId,
-        mode: ModeId,
+        mode: Option<ModeId>,
+        expected: TargetSlotId,
+        actual: TargetSlotId,
+    },
+    TooManyInstantiatedTargets {
+        definition: CardDefinitionId,
+        option: PlayOptionId,
+        count: usize,
     },
 }
 
@@ -1800,13 +2223,13 @@ impl fmt::Display for CatalogError {
                 formatter,
                 "ability {ability:?} on part {part:?} of card definition {definition:?} has a non-declarative implementation without an explanation"
             ),
-            Self::ActivationTextOnNonActivatedAbility {
+            Self::LegacyProcedureRequiresCustomExecution {
                 definition,
                 part,
                 ability,
             } => write!(
                 formatter,
-                "ability {ability:?} on part {part:?} of card definition {definition:?} has activated-action text but is not an activated ability"
+                "ability {ability:?} on part {part:?} of card definition {definition:?} uses the legacy rules procedure without a custom effect executor"
             ),
             Self::DuplicatePartId { definition, part } => write!(
                 formatter,
@@ -1941,6 +2364,15 @@ impl fmt::Display for CatalogError {
                 formatter,
                 "mana ability {ability:?} on part {part:?} of card definition {definition:?} declares targets"
             ),
+            Self::TooManyAbilityTargets {
+                definition,
+                part,
+                ability,
+                count,
+            } => write!(
+                formatter,
+                "ability {ability:?} on part {part:?} of card definition {definition:?} defines {count} targets, but positional target indices support at most 256"
+            ),
             Self::InvalidAbilityTargetBounds {
                 definition,
                 part,
@@ -1952,14 +2384,15 @@ impl fmt::Display for CatalogError {
                 formatter,
                 "target {target:?} of ability {ability:?} on part {part:?} of card definition {definition:?} requires at least {minimum} targets but allows at most {maximum}"
             ),
-            Self::DuplicateAbilityTargetId {
+            Self::AbilityTargetReferenceOutOfBounds {
                 definition,
                 part,
                 ability,
                 target,
+                target_count,
             } => write!(
                 formatter,
-                "ability {ability:?} on part {part:?} of card definition {definition:?} defines target {target:?} more than once"
+                "ability {ability:?} on part {part:?} of card definition {definition:?} references target {target:?}, but defines only {target_count} target slots"
             ),
             Self::DuplicateStructurePart { definition, part } => write!(
                 formatter,
@@ -2027,6 +2460,14 @@ impl fmt::Display for CatalogError {
                 formatter,
                 "play option {option:?} of card definition {definition:?} has a combined spell form but is not its declared fused split option"
             ),
+            Self::CombinedModalSpellUnsupported {
+                definition,
+                option,
+                part,
+            } => write!(
+                formatter,
+                "combined play option {option:?} of card definition {definition:?} includes modal part {part:?}, but combined mode selections are not part-scoped"
+            ),
             Self::DuplicateModeId {
                 definition,
                 option,
@@ -2081,6 +2522,52 @@ impl fmt::Display for CatalogError {
             Self::UnexpectedPresentationSpellModes { definition, option } => write!(
                 formatter,
                 "play option {option:?} of card definition {definition:?} presents mode choices for an executable nonmodal spell"
+            ),
+            Self::MissingPresentationSpellTarget {
+                definition,
+                option,
+                target,
+            } => write!(
+                formatter,
+                "semantic target {target:?} has no presentation counterpart in play option {option:?} of card definition {definition:?}"
+            ),
+            Self::MissingSemanticSpellTarget {
+                definition,
+                option,
+                target,
+            } => write!(
+                formatter,
+                "presentation target {target:?} has no semantic counterpart in play option {option:?} of card definition {definition:?}"
+            ),
+            Self::MismatchedSpellTargetCardinality {
+                definition,
+                option,
+                target,
+                presentation_minimum,
+                presentation_maximum,
+                semantic_minimum,
+                semantic_maximum,
+            } => write!(
+                formatter,
+                "target {target:?} in play option {option:?} of card definition {definition:?} has presentation cardinality {presentation_minimum}..={presentation_maximum} but semantic cardinality {semantic_minimum}..={semantic_maximum}"
+            ),
+            Self::UnpresentableSpellTarget {
+                definition,
+                option,
+                target,
+            } => write!(
+                formatter,
+                "semantic target {target:?} in play option {option:?} of card definition {definition:?} cannot be represented by the presentation target vocabulary"
+            ),
+            Self::MismatchedSpellTargetPresentation {
+                definition,
+                option,
+                position,
+                presentation,
+                semantic,
+            } => write!(
+                formatter,
+                "target at position {position} in play option {option:?} of card definition {definition:?} presents {presentation:?} but its semantic target projects to {semantic:?}"
             ),
             Self::UnexpectedModalSpellTargets {
                 definition,
@@ -2245,23 +2732,32 @@ impl fmt::Display for CatalogError {
                     )
                 }
             }
-            Self::AmbiguousTargetSlot {
-                definition,
-                option,
-                slot,
-                first_mode,
-                second_mode,
-            } => write!(
-                formatter,
-                "target slot {slot:?} is ambiguous within one casting of play option {option:?} on card definition {definition:?} (origins {first_mode:?} and {second_mode:?})"
-            ),
-            Self::RepeatableModeHasAmbiguousTargets {
+            Self::TooManyTargetSlots {
                 definition,
                 option,
                 mode,
+                count,
             } => write!(
                 formatter,
-                "repeatable mode {mode:?} of play option {option:?} on card definition {definition:?} has target slots that cannot distinguish repeated selections"
+                "{count} target slots are declared for mode {mode:?} of play option {option:?} on card definition {definition:?}, but positional target IDs support at most 256"
+            ),
+            Self::NonPositionalTargetSlot {
+                definition,
+                option,
+                mode,
+                expected,
+                actual,
+            } => write!(
+                formatter,
+                "target position {expected:?} in mode {mode:?} of play option {option:?} on card definition {definition:?} uses ID {actual:?}; target slot IDs must match instantiated order"
+            ),
+            Self::TooManyInstantiatedTargets {
+                definition,
+                option,
+                count,
+            } => write!(
+                formatter,
+                "play option {option:?} of card definition {definition:?} can instantiate {count} targets, but runtime target slot IDs support at most 256"
             ),
         }
     }
@@ -2271,18 +2767,23 @@ impl Error for CatalogError {}
 
 #[cfg(test)]
 mod tests {
-    use super::{CardCatalog, CatalogError, GrantedAbilityValidationError};
+    use super::{
+        CardCatalog, CatalogError, GrantedAbilityValidationError,
+        validate_semantic_spell_presentation,
+    };
     use crate::card::{
-        AbilityCostDef, AbilityDef, AbilityImplementationDef, AbilityTargetDef,
-        AbilityTargetPredicate, AdditionalCostDef, AlternateSpellKind, AlternativeCastKindDef,
+        AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
+        ActivatedAbilityDef, AdditionalCostDef, AlternateSpellKind, AlternativeCastKindDef,
         AlternativeCostDef, AppliedEffectDef, CardBehavior, CardDefinition, CardEffectStatus,
-        CardPart, CardPrinting, CardPrintingId, CardSet, CardStructure, DoubleFacedKind, EffectDef,
-        EffectDurationDef, EffectRecipientDef, ManaCost, ModeDef, ModeSetDef, PlayOptionDef,
-        PlayerRelation, PrintedManaCost, SpellForm, TargetPredicate, TargetSlotDef, TurnStepDef,
+        CardPart, CardPrinting, CardPrintingId, CardSet, CardStructure, DeclarativeAbilityDef,
+        DoubleFacedKind, EffectDef, EffectDurationDef, EffectExecutionDef, EffectRecipientDef,
+        ManaCost, ModeDef, ModeSetDef, ObjectPredicateDef, PlayOptionDef, PlayerRelation,
+        PrintedManaCost, SpellForm, TargetConditionDef, TargetPredicate, TargetSlotDef,
+        TurnStepDef, ValueDef,
     };
     use crate::{
         AbilityId, AdditionalCostId, AlternativeCostId, CardDefinitionId, CardPartId, Format,
-        GrantId, MeldRecipeId, ModeId, PlayOptionId, TargetSlotId,
+        GrantId, MeldRecipeId, ModeId, PlayOptionId, TargetIndex, TargetSlotId,
     };
 
     fn definition(id: u16, name: &str, set: CardSet) -> CardDefinition {
@@ -2298,7 +2799,7 @@ mod tests {
     fn target(id: u8, minimum: u8, maximum: u8) -> TargetSlotDef {
         TargetSlotDef {
             id: TargetSlotId(id),
-            label: "target".into(),
+            label: "any target".into(),
             predicate: TargetPredicate::AnyTarget,
             minimum,
             maximum,
@@ -2315,10 +2816,8 @@ mod tests {
         }
     }
 
-    fn semantic_target(id: u8, minimum: u8, maximum: u8) -> AbilityTargetDef {
+    fn semantic_target(minimum: u8, maximum: u8) -> AbilityTargetDef {
         AbilityTargetDef {
-            id: TargetSlotId(id),
-            label: "target",
             predicate: AbilityTargetPredicate::AnyTarget,
             minimum,
             maximum,
@@ -2327,8 +2826,11 @@ mod tests {
     }
 
     fn semantic_mode(targets: Vec<AbilityTargetDef>) -> AbilityDef {
-        AbilityDef::spell("test mode", EffectDef::None)
-            .with_targets(Box::leak(targets.into_boxed_slice()))
+        AbilityDef::spell_with_targets(
+            "test mode",
+            Box::leak(targets.into_boxed_slice()),
+            EffectDef::None,
+        )
     }
 
     fn semantic_modal_definition(
@@ -2756,6 +3258,37 @@ mod tests {
     }
 
     #[test]
+    fn granted_ability_validation_follows_sacrifice_continuations() {
+        static INVALID: AbilityDef = AbilityDef::spell("", EffectDef::None);
+        static THEN: EffectDef = EffectDef::Apply {
+            recipient: EffectRecipientDef::Source,
+            effect: AppliedEffectDef::GrantAbility(&INVALID),
+            duration: EffectDurationDef::UntilEndOfTurn,
+        };
+        static CHILD: AbilityDef = AbilityDef::activated(
+            "Sacrifice a permanent, then grant an ability.",
+            &[],
+            EffectDef::SacrificeOfChoice {
+                player: EffectRecipientDef::Controller,
+                object: ObjectPredicateDef::Any,
+                then: Some(&THEN),
+                optional: false,
+            },
+        );
+
+        assert_eq!(
+            error(definition_granting(&CHILD)),
+            CatalogError::InvalidGrantedAbility {
+                definition: CardDefinitionId(1),
+                part: CardPartId::PRIMARY,
+                ability: AbilityId::PRIMARY,
+                grant_path: vec![GrantId::PRIMARY, GrantId::PRIMARY],
+                problem: GrantedAbilityValidationError::EmptyText,
+            }
+        );
+    }
+
+    #[test]
     fn granted_modal_branches_validate_nested_grants_in_printed_order() {
         static VALID: AbilityDef = AbilityDef::not_implemented(
             "A valid granted ability.",
@@ -2837,34 +3370,27 @@ mod tests {
     #[test]
     fn granted_ability_validation_checks_zones_mana_targets_and_target_slots() {
         static MANA_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-            TargetSlotId(4),
-            "a player",
             AbilityTargetPredicate::Player(PlayerRelation::Any),
         )];
-        static DUPLICATE_TARGETS: [AbilityTargetDef; 2] = [
-            AbilityTargetDef::exactly_one(
-                TargetSlotId(4),
-                "a player",
-                AbilityTargetPredicate::Player(PlayerRelation::Any),
-            ),
-            AbilityTargetDef::exactly_one(
-                TargetSlotId(4),
-                "another player",
-                AbilityTargetPredicate::Player(PlayerRelation::Any),
-            ),
-        ];
         static NO_ZONES: AbilityDef =
             AbilityDef::activated("An activated ability.", &[], EffectDef::None)
                 .with_source_zones(&[]);
-        static TARGETED_MANA: AbilityDef = AbilityDef::activated_mana(
+        static TARGETED_MANA: AbilityDef = AbilityDef::defined(
             "A targeted mana ability.",
-            &[AbilityCostDef::TapSource],
+            DeclarativeAbilityDef::ActivatedMana(
+                ActivatedAbilityDef::new(&[AbilityCostDef::TapSource]).with_targets(&MANA_TARGETS),
+            ),
             EffectDef::None,
-        )
-        .with_targets(&MANA_TARGETS);
-        static DUPLICATE_TARGET_SLOTS: AbilityDef =
-            AbilityDef::activated("An activated ability.", &[], EffectDef::None)
-                .with_targets(&DUPLICATE_TARGETS);
+        );
+        static OUT_OF_RANGE_TARGET: AbilityDef = AbilityDef::activated_with_targets(
+            "An activated ability.",
+            &[],
+            &MANA_TARGETS,
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex(1)),
+                amount: crate::ValueDef::Constant(1),
+            },
+        );
 
         let cases = [
             (&NO_ZONES, GrantedAbilityValidationError::HasNoSourceZone),
@@ -2873,9 +3399,10 @@ mod tests {
                 GrantedAbilityValidationError::ManaAbilityHasTargets,
             ),
             (
-                &DUPLICATE_TARGET_SLOTS,
-                GrantedAbilityValidationError::DuplicateTargetId {
-                    target: TargetSlotId(4),
+                &OUT_OF_RANGE_TARGET,
+                GrantedAbilityValidationError::TargetReferenceOutOfBounds {
+                    target: TargetIndex(1),
+                    target_count: 1,
                 },
             ),
         ];
@@ -2891,6 +3418,120 @@ mod tests {
                 }
             );
         }
+    }
+
+    #[test]
+    fn target_references_are_validated_through_nested_values() {
+        static TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )];
+        static CONDITION: TargetConditionDef = TargetConditionDef {
+            slot: TargetIndex(1),
+            object: crate::ObjectPredicateDef::Any,
+            then: ValueDef::Constant(1),
+            otherwise: ValueDef::Constant(0),
+        };
+        static ABILITIES: [AbilityDef; 1] = [AbilityDef::spell_with_targets(
+            "Use a nested value from the chosen target.",
+            &TARGETS,
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::IfTargetMatches(&CONDITION),
+            },
+        )];
+        let mut card = definition(1, "Test Card", CardSet::Alpha);
+        let rules = card.rules.with_abilities(&ABILITIES);
+        set_primary_rules(&mut card, &rules);
+
+        assert_eq!(
+            error(card),
+            CatalogError::AbilityTargetReferenceOutOfBounds {
+                definition: CardDefinitionId(1),
+                part: CardPartId::PRIMARY,
+                ability: AbilityId::PRIMARY,
+                target: TargetIndex(1),
+                target_count: 1,
+            }
+        );
+    }
+
+    #[test]
+    fn merged_effect_vocabulary_preserves_local_target_bounds() {
+        static TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )];
+        let out_of_range = TargetIndex(1);
+        let recipient = EffectRecipientDef::ControllerOfTarget(out_of_range);
+        let effects = [
+            EffectDef::Tap {
+                object: EffectRecipientDef::ObjectsControlledByTarget {
+                    object: ObjectPredicateDef::Any,
+                    slot: out_of_range,
+                },
+            },
+            EffectDef::SplitPermanentsAndSacrificeAPile { player: recipient },
+            EffectDef::Mill {
+                player: recipient,
+                amount: ValueDef::DividedAmongTargets,
+            },
+            EffectDef::CannotCastNoncreatureSpellsThisTurn { player: recipient },
+            EffectDef::ChooseCardName { object: recipient },
+        ];
+
+        for effect in effects {
+            assert_eq!(
+                super::validate_ability_targets(&TARGETS, effect),
+                Err(GrantedAbilityValidationError::TargetReferenceOutOfBounds {
+                    target: out_of_range,
+                    target_count: 1,
+                })
+            );
+        }
+
+        super::validate_ability_targets(
+            &TARGETS,
+            EffectDef::Sequence(&[
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::DividedAmongTargets,
+                },
+                EffectDef::AdditionalCombatPhase,
+            ]),
+        )
+        .expect("implicit divided values and target-free combat effects add no slot reference");
+    }
+
+    #[test]
+    fn authored_target_count_fits_the_positional_index_space() {
+        let targets = Box::leak(
+            vec![
+                AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(PlayerRelation::Any),);
+                257
+            ]
+            .into_boxed_slice(),
+        );
+        let abilities = Box::leak(
+            vec![AbilityDef::activated_with_targets(
+                "An ability with too many targets.",
+                &[],
+                targets,
+                EffectDef::None,
+            )]
+            .into_boxed_slice(),
+        );
+        let mut card = definition(1, "Test Card", CardSet::Alpha);
+        let rules = card.rules.with_abilities(abilities);
+        set_primary_rules(&mut card, &rules);
+
+        assert_eq!(
+            error(card),
+            CatalogError::TooManyAbilityTargets {
+                definition: CardDefinitionId(1),
+                part: CardPartId::PRIMARY,
+                ability: AbilityId::PRIMARY,
+                count: 257,
+            }
+        );
     }
 
     #[test]
@@ -2932,7 +3573,7 @@ mod tests {
     fn granted_non_declarative_implementations_require_an_explanation() {
         static GRANTED: AbilityDef =
             AbilityDef::activated("An incompletely implemented ability.", &[], EffectDef::None)
-                .with_implementation(AbilityImplementationDef::NotImplemented { explanation: "" });
+                .with_coverage(AbilityCoverageDef::metadata_only(""));
 
         assert_eq!(
             error(definition_granting(&GRANTED)),
@@ -2947,18 +3588,54 @@ mod tests {
     }
 
     #[test]
+    fn executable_legacy_procedures_require_custom_effect_execution() {
+        static LEGACY: AbilityDef = AbilityDef::activated(
+            "An ability routed through the legacy procedure.",
+            &[],
+            EffectDef::None,
+        )
+        .with_coverage(AbilityCoverageDef::explained_complete(
+            "The test supplies the required legacy-procedure explanation.",
+        ))
+        .with_legacy_procedure();
+
+        let mut top_level = definition(1, "Test Card", CardSet::Alpha);
+        let rules = top_level.rules.with_ability(LEGACY);
+        set_primary_rules(&mut top_level, &rules);
+        assert_eq!(
+            error(top_level),
+            CatalogError::LegacyProcedureRequiresCustomExecution {
+                definition: CardDefinitionId(1),
+                part: CardPartId::PRIMARY,
+                ability: AbilityId::PRIMARY,
+            }
+        );
+
+        assert_eq!(
+            error(definition_granting(&LEGACY)),
+            CatalogError::InvalidGrantedAbility {
+                definition: CardDefinitionId(1),
+                part: CardPartId::PRIMARY,
+                ability: AbilityId::PRIMARY,
+                grant_path: vec![GrantId::PRIMARY],
+                problem: GrantedAbilityValidationError::LegacyProcedureRequiresCustomExecution,
+            }
+        );
+    }
+
+    #[test]
     fn explicitly_tagged_mana_abilities_cannot_declare_targets() {
         static COSTS: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
         static TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-            TargetSlotId(1),
-            "target player",
             AbilityTargetPredicate::Player(PlayerRelation::Any),
         )];
-        static ABILITIES: [AbilityDef; 1] =
-            [
-                AbilityDef::activated_mana("Target player adds mana.", &COSTS, EffectDef::None)
-                    .with_targets(&TARGETS),
-            ];
+        static ABILITIES: [AbilityDef; 1] = [AbilityDef::defined(
+            "Target player adds mana.",
+            DeclarativeAbilityDef::ActivatedMana(
+                ActivatedAbilityDef::new(&COSTS).with_targets(&TARGETS),
+            ),
+            EffectDef::None,
+        )];
         let mut card = definition(1, "Test Card", CardSet::Alpha);
         let rules = card.rules.with_abilities(&ABILITIES);
         set_primary_rules(&mut card, &rules);
@@ -2966,25 +3643,6 @@ mod tests {
         assert_eq!(
             error(card),
             CatalogError::ManaAbilityHasTargets {
-                definition: CardDefinitionId(1),
-                part: CardPartId::PRIMARY,
-                ability: AbilityId::PRIMARY,
-            }
-        );
-    }
-
-    #[test]
-    fn activated_action_text_belongs_to_the_exact_activated_clause() {
-        static ABILITIES: [AbilityDef; 1] =
-            [AbilityDef::spell("A spell ability.", EffectDef::None)
-                .with_activation_text("Target {}", "Choose a target")];
-        let mut card = definition(1, "Test Card", CardSet::Alpha);
-        let rules = card.rules.with_abilities(&ABILITIES);
-        set_primary_rules(&mut card, &rules);
-
-        assert_eq!(
-            error(card),
-            CatalogError::ActivationTextOnNonActivatedAbility {
                 definition: CardDefinitionId(1),
                 part: CardPartId::PRIMARY,
                 ability: AbilityId::PRIMARY,
@@ -3307,9 +3965,9 @@ mod tests {
                     Some("Draw a card for each opponent."),
                     EffectDef::None,
                 )
-                .with_implementation(AbilityImplementationDef::NotImplemented {
-                    explanation: "Test-only incomplete overload.",
-                }),
+                .with_coverage(AbilityCoverageDef::metadata_only(
+                    "Test-only incomplete overload.",
+                )),
             ]
             .into_boxed_slice(),
         );
@@ -3335,7 +3993,6 @@ mod tests {
                 .rules
                 .ability(AbilityId(1))
                 .unwrap()
-                .implementation
                 .is_executable(),
         );
     }
@@ -3377,14 +4034,14 @@ mod tests {
         );
 
         let mut invalid_targets = definition(1, "Test Card", CardSet::Alpha);
-        invalid_targets.play_options[0].targets = vec![target(7, 2, 1)];
+        invalid_targets.play_options[0].targets = vec![target(0, 2, 1)];
         assert_eq!(
             error(invalid_targets),
             CatalogError::InvalidTargetBounds {
                 definition: CardDefinitionId(1),
                 option: PlayOptionId::DEFAULT,
                 mode: None,
-                slot: TargetSlotId(7),
+                slot: TargetSlotId(0),
                 minimum: 2,
                 maximum: 1,
             }
@@ -3464,12 +4121,134 @@ mod tests {
     }
 
     #[test]
+    fn nonmodal_spell_target_presentations_are_derived_positionally() {
+        let targets = Box::leak(vec![semantic_target(1, 1)].into_boxed_slice());
+        let ability = AbilityDef::spell_with_targets("Target something.", targets, EffectDef::None);
+        let missing = semantic_spell_definition(&ability, None);
+
+        assert_eq!(
+            error(missing),
+            CatalogError::MissingPresentationSpellTarget {
+                definition: CardDefinitionId(1),
+                option: PlayOptionId::DEFAULT,
+                target: TargetSlotId(0),
+            }
+        );
+
+        let mut valid = semantic_spell_definition(&ability, None);
+        valid.play_options[0].targets = vec![target(0, 1, 1)];
+        CardCatalog::new([valid.clone()]).expect("the positional projection matches");
+
+        let mut mismatched = valid;
+        mismatched.play_options[0].targets[0].predicate = TargetPredicate::Player;
+        assert!(matches!(
+            error(mismatched),
+            CatalogError::MismatchedSpellTargetPresentation {
+                definition: CardDefinitionId(1),
+                option: PlayOptionId::DEFAULT,
+                position: 0,
+                ..
+            }
+        ));
+    }
+
+    #[test]
+    fn unpresentable_nonmodal_targets_use_only_the_semantic_runtime_definition() {
+        let targets = Box::leak(
+            vec![AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[],
+                    controller: None,
+                    owner: None,
+                },
+            )]
+            .into_boxed_slice(),
+        );
+        let ability = AbilityDef::spell_with_targets("Target a card.", targets, EffectDef::None);
+        let semantic_only = semantic_spell_definition(&ability, None);
+        CardCatalog::new([semantic_only.clone()])
+            .expect("an empty presentation leaves semantic runtime targeting authoritative");
+
+        let mut approximated = semantic_only;
+        approximated.play_options[0].targets = vec![target(0, 1, 1)];
+        assert_eq!(
+            error(approximated),
+            CatalogError::UnpresentableSpellTarget {
+                definition: CardDefinitionId(1),
+                option: PlayOptionId::DEFAULT,
+                target: TargetSlotId(0),
+            }
+        );
+    }
+
+    #[test]
+    fn unpresentable_modal_targets_use_only_the_semantic_runtime_definition() {
+        let semantic = semantic_mode(vec![AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(crate::CardType::Creature),
+                zones: &[crate::ZoneKind::Graveyard],
+                controller: None,
+                owner: Some(PlayerRelation::You),
+            },
+        )]);
+        let presentation = ModeSetDef::choose_one(vec![mode(0, Vec::new())]);
+        let semantic_only = semantic_modal_definition(vec![semantic], Some(presentation));
+        CardCatalog::new([semantic_only.clone()])
+            .expect("an empty modal projection leaves semantic runtime targeting authoritative");
+
+        let mut approximated = semantic_only;
+        approximated.play_options[0]
+            .modes
+            .as_mut()
+            .expect("the test supplied modal presentation")
+            .modes[0]
+            .targets = vec![target(0, 1, 1)];
+        assert_eq!(
+            error(approximated),
+            CatalogError::UnpresentableSpellModeTarget {
+                definition: CardDefinitionId(1),
+                option: PlayOptionId::DEFAULT,
+                mode: ModeId(0),
+                target: TargetSlotId(0),
+            }
+        );
+    }
+
+    #[test]
+    fn combined_play_options_reject_modal_constituent_parts() {
+        static MODES: [AbilityDef; 1] = [AbilityDef::spell("Test mode.", EffectDef::None)];
+        static ABILITIES: [AbilityDef; 1] = [AbilityDef::choose_one_spell("Choose one.", &MODES)];
+        let modal_rules =
+            crate::CardRules::new_instant(ManaCost::default()).with_abilities(&ABILITIES);
+        let mut definition = split_definition(Some(PlayOptionId(2)));
+        definition.rules = modal_rules;
+        definition.parts[0].rules = modal_rules;
+        let option = PlayOptionDef::cast(
+            PlayOptionId(2),
+            "Left // Right",
+            SpellForm::Combined(vec![CardPartId::PRIMARY, CardPartId(1)]),
+            ManaCost::default(),
+            CardEffectStatus::MetadataOnly,
+        );
+
+        assert_eq!(
+            validate_semantic_spell_presentation(&definition, &option),
+            Err(CatalogError::CombinedModalSpellUnsupported {
+                definition: CardDefinitionId(1),
+                option: PlayOptionId(2),
+                part: CardPartId::PRIMARY,
+            })
+        );
+    }
+
+    #[test]
     fn semantic_modal_spells_keep_targets_on_their_branches() {
         let mut definition = semantic_modal_definition(
             vec![semantic_mode(Vec::new())],
             Some(ModeSetDef::choose_one(vec![mode(0, Vec::new())])),
         );
-        definition.play_options[0].targets = vec![target(7, 1, 1)];
+        definition.play_options[0].targets = vec![target(0, 1, 1)];
 
         assert_eq!(
             error(definition),
@@ -3510,12 +4289,9 @@ mod tests {
 
     #[test]
     fn executable_spell_mode_branches_are_declarative() {
-        let custom_mode = AbilityDef::spell("Custom mode", EffectDef::None).with_implementation(
-            AbilityImplementationDef::CustomFull {
-                behavior: Some(CardBehavior::LightningBolt),
-                explanation: "test custom branch",
-            },
-        );
+        let custom_mode = AbilityDef::spell("Custom mode", EffectDef::None)
+            .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::LightningBolt))
+            .with_coverage(AbilityCoverageDef::explained_complete("test custom branch"));
         let definition = semantic_modal_definition(
             vec![custom_mode],
             Some(ModeSetDef::choose_one(vec![mode(0, Vec::new())])),
@@ -3533,15 +4309,15 @@ mod tests {
     }
 
     #[test]
-    fn semantic_spell_mode_targets_require_matching_ids_and_cardinalities() {
+    fn semantic_spell_mode_targets_require_matching_positions_and_cardinalities() {
         let valid = semantic_modal_definition(
-            vec![semantic_mode(vec![semantic_target(7, 1, 1)])],
-            Some(ModeSetDef::choose_one(vec![mode(0, vec![target(7, 1, 1)])])),
+            vec![semantic_mode(vec![semantic_target(1, 1)])],
+            Some(ModeSetDef::choose_one(vec![mode(0, vec![target(0, 1, 1)])])),
         );
         CardCatalog::new([valid]).unwrap();
 
         let missing_presentation = semantic_modal_definition(
-            vec![semantic_mode(vec![semantic_target(7, 1, 1)])],
+            vec![semantic_mode(vec![semantic_target(1, 1)])],
             Some(ModeSetDef::choose_one(vec![mode(0, Vec::new())])),
         );
         assert_eq!(
@@ -3550,13 +4326,13 @@ mod tests {
                 definition: CardDefinitionId(1),
                 option: PlayOptionId::DEFAULT,
                 mode: ModeId(0),
-                target: TargetSlotId(7),
+                target: TargetSlotId(0),
             }
         );
 
         let missing_semantic = semantic_modal_definition(
             vec![semantic_mode(Vec::new())],
-            Some(ModeSetDef::choose_one(vec![mode(0, vec![target(7, 1, 1)])])),
+            Some(ModeSetDef::choose_one(vec![mode(0, vec![target(0, 1, 1)])])),
         );
         assert_eq!(
             error(missing_semantic),
@@ -3564,13 +4340,13 @@ mod tests {
                 definition: CardDefinitionId(1),
                 option: PlayOptionId::DEFAULT,
                 mode: ModeId(0),
-                target: TargetSlotId(7),
+                target: TargetSlotId(0),
             }
         );
 
         let mismatched_cardinality = semantic_modal_definition(
-            vec![semantic_mode(vec![semantic_target(7, 1, 1)])],
-            Some(ModeSetDef::choose_one(vec![mode(0, vec![target(7, 0, 1)])])),
+            vec![semantic_mode(vec![semantic_target(1, 1)])],
+            Some(ModeSetDef::choose_one(vec![mode(0, vec![target(0, 0, 1)])])),
         );
         assert_eq!(
             error(mismatched_cardinality),
@@ -3578,7 +4354,7 @@ mod tests {
                 definition: CardDefinitionId(1),
                 option: PlayOptionId::DEFAULT,
                 mode: ModeId(0),
-                target: TargetSlotId(7),
+                target: TargetSlotId(0),
                 presentation_minimum: 0,
                 presentation_maximum: 1,
                 semantic_minimum: 1,
@@ -3591,26 +4367,27 @@ mod tests {
     fn semantic_spell_mode_presentation_matches_branch_order_and_predicates() {
         let reordered = semantic_modal_definition(
             vec![semantic_mode(vec![
-                semantic_target(7, 1, 1),
-                semantic_target(8, 1, 1),
+                semantic_target(1, 1),
+                semantic_target(1, 1),
             ])],
             Some(ModeSetDef::choose_one(vec![mode(
                 0,
-                vec![target(8, 1, 1), target(7, 1, 1)],
+                vec![target(1, 1, 1), target(0, 1, 1)],
             )])),
         );
         assert!(matches!(
             error(reordered),
-            CatalogError::MismatchedSpellModeTargetPresentation {
-                mode: ModeId(0),
-                position: 0,
+            CatalogError::NonPositionalTargetSlot {
+                mode: Some(ModeId(0)),
+                expected: TargetSlotId(0),
+                actual: TargetSlotId(1),
                 ..
             }
         ));
 
         let mut wrong_predicate = semantic_modal_definition(
-            vec![semantic_mode(vec![semantic_target(7, 1, 1)])],
-            Some(ModeSetDef::choose_one(vec![mode(0, vec![target(7, 1, 1)])])),
+            vec![semantic_mode(vec![semantic_target(1, 1)])],
+            Some(ModeSetDef::choose_one(vec![mode(0, vec![target(0, 1, 1)])])),
         );
         wrong_predicate.play_options[0]
             .modes
@@ -3647,7 +4424,7 @@ mod tests {
     fn metadata_only_presentation_modes_do_not_require_semantic_modes() {
         let mut card = definition(1, "Metadata-Only Modal Spell", CardSet::Alpha);
         card.play_options[0].modes = Some(ModeSetDef::choose_one(vec![
-            mode(0, vec![target(7, 1, 1)]),
+            mode(0, vec![target(0, 1, 1)]),
             mode(1, Vec::new()),
         ]));
 
@@ -3655,10 +4432,31 @@ mod tests {
     }
 
     #[test]
-    fn target_slot_ids_only_repeat_when_modes_cannot_coexist() {
+    fn composed_target_count_fits_the_runtime_slot_space() {
+        let targets = || (0_u8..200).map(|id| target(id, 1, 1)).collect::<Vec<_>>();
+        let mut card = definition(1, "Test Card", CardSet::Alpha);
+        card.play_options[0].modes = Some(ModeSetDef {
+            minimum: 2,
+            maximum: 2,
+            may_repeat: false,
+            modes: vec![mode(0, targets()), mode(1, targets())],
+        });
+
+        assert_eq!(
+            error(card),
+            CatalogError::TooManyInstantiatedTargets {
+                definition: CardDefinitionId(1),
+                option: PlayOptionId::DEFAULT,
+                count: 400,
+            }
+        );
+    }
+
+    #[test]
+    fn modal_target_slots_are_local_to_each_selected_occurrence() {
         let mutually_exclusive = ModeSetDef::choose_one(vec![
-            mode(0, vec![target(7, 1, 1)]),
-            mode(1, vec![target(7, 1, 1)]),
+            mode(0, vec![target(0, 1, 1)]),
+            mode(1, vec![target(0, 1, 1)]),
         ]);
         let mut valid = definition(1, "Test Card", CardSet::Alpha);
         valid.play_options[0].modes = Some(mutually_exclusive);
@@ -3670,35 +4468,20 @@ mod tests {
             maximum: 2,
             may_repeat: false,
             modes: vec![
-                mode(0, vec![target(7, 1, 1)]),
-                mode(1, vec![target(7, 1, 1)]),
+                mode(0, vec![target(0, 1, 1)]),
+                mode(1, vec![target(0, 1, 1)]),
             ],
         });
-        assert!(matches!(
-            error(coexisting),
-            CatalogError::AmbiguousTargetSlot {
-                slot: TargetSlotId(7),
-                first_mode: Some(ModeId(0)),
-                second_mode: Some(ModeId(1)),
-                ..
-            }
-        ));
+        CardCatalog::new([coexisting]).unwrap();
 
         let mut repeatable = definition(1, "Test Card", CardSet::Alpha);
         repeatable.play_options[0].modes = Some(ModeSetDef {
             minimum: 2,
             maximum: 2,
             may_repeat: true,
-            modes: vec![mode(0, vec![target(8, 1, 1)])],
+            modes: vec![mode(0, vec![target(0, 1, 1)])],
         });
-        assert_eq!(
-            error(repeatable),
-            CatalogError::RepeatableModeHasAmbiguousTargets {
-                definition: CardDefinitionId(1),
-                option: PlayOptionId::DEFAULT,
-                mode: ModeId(0),
-            }
-        );
+        CardCatalog::new([repeatable]).unwrap();
     }
 }
 

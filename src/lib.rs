@@ -16,25 +16,25 @@ pub mod rules;
 
 pub use action::{AbilityOrigin, Action, ActionError, CombatDamageAssignment, ManaColor, Target};
 pub use card::{
-    AbilityCostDef, AbilityCostList, AbilityDef, AbilityImplementationDef, AbilityTargetDef,
-    AbilityTargetPredicate, ActivatedAbilityDef, ActivatedAbilityText, AddManaEffectDef,
-    AdditionalCostDef, AlternateSpellKind, AlternativeCastAbilityDef, AlternativeCastKindDef,
-    AlternativeCastManaCostDef, AlternativeCostDef, AppliedEffectDef, AttachedAbilityDef,
-    BasicLandType, BattlefieldEntryModificationDef, CREATURE_TYPES, CardAbilityList, CardArt,
-    CardBehavior, CardCatalog, CardComposition, CardDefinition, CardEffectStatus, CardPart,
-    CardPrinting, CardPrintingId, CardRules, CardSet, CardStructure, CardSupertype, CardType,
-    CardTypeSet, CatalogError, CharacteristicContext, CharacteristicError, ColorSet, ComparisonDef,
-    ConditionDef, ConditionalValueDef, CostDef, CountConditionDef, CounterKind, CreatureStats,
-    DeclarativeAbilityDef, DoubleFacedKind, EffectDef, EffectDurationDef, EffectRecipientDef,
-    GrantedAbilityValidationError, HybridPair, ImplementationStatus, KeywordAbility,
-    LibraryPlacement, ManaCost, ManaCostParseError, ManaCostParseErrorKind, ManaRestrictionDef,
-    ManaSelectionDef, ManaSpendEffectDef, MeldComponentDef, MeldRecipeDef, MeldResultDef,
-    ModalSpellDef, ModeDef, ModeSetDef, ObjectPredicateDef, ObjectQueryDef, PaymentDef,
-    PlayActionKind, PlayOptionDef, PlayRestriction, PlayerRelation, PrintedManaCost,
-    ReplacementAbilityDef, ReplacementEffectDef, ReplacementEventDef, SpecialActionDef,
-    SpellAbilityDef, SpellForm, StaticAbilityDef, TargetConditionDef, TargetPredicate,
-    TargetSlotDef, TriggerConditionDef, TriggerEventDef, TriggeredAbilityDef, TurnStepDef,
-    ValueDef, ZoneKind, ZoneMoveCauseDef, applicable_part_ids,
+    AbilityCostDef, AbilityCostList, AbilityCoverageDef, AbilityDef, AbilityEffectDef,
+    AbilityProcedureDef, AbilityTargetDef, AbilityTargetPredicate, ActivatedAbilityDef,
+    AddManaEffectDef, AdditionalCostDef, AlternateSpellKind, AlternativeCastAbilityDef,
+    AlternativeCastKindDef, AlternativeCastManaCostDef, AlternativeCostDef, AppliedEffectDef,
+    AttachedAbilityDef, BasicLandType, BattlefieldEntryModificationDef, CREATURE_TYPES,
+    CardAbilityList, CardArt, CardBehavior, CardCatalog, CardComposition, CardDefinition,
+    CardEffectStatus, CardPart, CardPrinting, CardPrintingId, CardRules, CardSet, CardStructure,
+    CardSupertype, CardType, CardTypeSet, CatalogError, CharacteristicContext, CharacteristicError,
+    ColorSet, ComparisonDef, ConditionDef, ConditionalValueDef, CostDef, CountConditionDef,
+    CounterKind, CreatureStats, DeclarativeAbilityDef, DividedTotal, DoubleFacedKind, EffectDef,
+    EffectDurationDef, EffectExecutionDef, EffectRecipientDef, GrantedAbilityValidationError,
+    HybridPair, ImplementationStatus, KeywordAbility, LibraryPlacement, ManaCost,
+    ManaCostParseError, ManaCostParseErrorKind, ManaRestrictionDef, ManaSelectionDef,
+    ManaSpendEffectDef, MeldComponentDef, MeldRecipeDef, MeldResultDef, ModalSpellDef, ModeDef,
+    ModeSetDef, ObjectPredicateDef, ObjectQueryDef, PaymentDef, PlayActionKind, PlayOptionDef,
+    PlayRestriction, PlayerRelation, PrintedManaCost, ReplacementAbilityDef, ReplacementEffectDef,
+    ReplacementEventDef, SpecialActionDef, SpellAbilityDef, SpellForm, StaticAbilityDef,
+    TargetConditionDef, TargetPredicate, TargetSlotDef, TriggerConditionDef, TriggerEventDef,
+    TriggeredAbilityDef, TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef, applicable_part_ids,
 };
 pub use casting::{
     CastChoices, CastSignature, CostConfiguration, TargetReplacementError, TargetSelection,
@@ -49,6 +49,6 @@ pub use game::{
 pub use ids::{
     AbilityId, AdditionalCostId, AlternativeCostId, CardDefinitionId, CardInstanceId, CardPartId,
     GameObjectId, GrantId, MeldRecipeId, ModeId, PhysicalCardId, PlayOptionId, PlayerId,
-    StackObjectId, TargetSlotId,
+    StackObjectId, TargetIndex, TargetSlotId,
 };
 pub use policy::{HandcraftedPolicy, PlayError, Policy, RandomPolicy, play_game};

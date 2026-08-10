@@ -1,11 +1,12 @@
 use std::borrow::Cow;
 use std::error::Error;
 use std::fmt;
+use std::fmt::Write as _;
 use std::str::FromStr;
 
 use crate::ids::{
     AbilityId, AdditionalCostId, AlternativeCostId, CardDefinitionId, CardPartId, MeldRecipeId,
-    ModeId, PlayOptionId, TargetSlotId,
+    ModeId, PlayOptionId, TargetIndex, TargetSlotId,
 };
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -649,7 +650,7 @@ pub enum AbilityTargetPredicate {
     /// for "that player or that planeswalker's controller controls".
     ControlledByTargetOf {
         object: ObjectPredicateDef,
-        slot: TargetSlotId,
+        slot: TargetIndex,
     },
     Player(PlayerRelation),
     Object {
@@ -666,8 +667,6 @@ pub enum AbilityTargetPredicate {
 /// A const-friendly target declaration kept beside a printed ability.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct AbilityTargetDef {
-    pub id: TargetSlotId,
-    pub label: &'static str,
     pub predicate: AbilityTargetPredicate,
     pub minimum: u8,
     pub maximum: u8,
@@ -688,14 +687,8 @@ pub enum DividedTotal {
 
 impl AbilityTargetDef {
     #[must_use]
-    pub const fn exactly_one(
-        id: TargetSlotId,
-        label: &'static str,
-        predicate: AbilityTargetPredicate,
-    ) -> Self {
+    pub const fn exactly_one(predicate: AbilityTargetPredicate) -> Self {
         Self {
-            id,
-            label,
             predicate,
             minimum: 1,
             maximum: 1,
@@ -706,15 +699,8 @@ impl AbilityTargetDef {
     /// Any number of targets up to a limit, for "up to three target ...".
     /// Choosing none is a legal choice.
     #[must_use]
-    pub const fn up_to(
-        id: TargetSlotId,
-        label: &'static str,
-        predicate: AbilityTargetPredicate,
-        maximum: u8,
-    ) -> Self {
+    pub const fn up_to(predicate: AbilityTargetPredicate, maximum: u8) -> Self {
         Self {
-            id,
-            label,
             predicate,
             minimum: 0,
             maximum,
@@ -726,41 +712,25 @@ impl AbilityTargetDef {
     /// object predicate. Stack object enumeration already excludes abilities,
     /// so callers only need to state the characteristic restriction.
     #[must_use]
-    pub const fn exactly_one_spell(
-        id: TargetSlotId,
-        label: &'static str,
-        object: ObjectPredicateDef,
-    ) -> Self {
-        Self::exactly_one(
-            id,
-            label,
-            AbilityTargetPredicate::Object {
-                object,
-                zones: &[ZoneKind::Stack],
-                controller: None,
-                owner: None,
-            },
-        )
+    pub const fn exactly_one_spell(object: ObjectPredicateDef) -> Self {
+        Self::exactly_one(AbilityTargetPredicate::Object {
+            object,
+            zones: &[ZoneKind::Stack],
+            controller: None,
+            owner: None,
+        })
     }
 
     /// One permanent target, optionally narrowed by color, type, or another
     /// object predicate.
     #[must_use]
-    pub const fn exactly_one_permanent(
-        id: TargetSlotId,
-        label: &'static str,
-        object: ObjectPredicateDef,
-    ) -> Self {
-        Self::exactly_one(
-            id,
-            label,
-            AbilityTargetPredicate::Object {
-                object,
-                zones: &[ZoneKind::Battlefield],
-                controller: None,
-                owner: None,
-            },
-        )
+    pub const fn exactly_one_permanent(object: ObjectPredicateDef) -> Self {
+        Self::exactly_one(AbilityTargetPredicate::Object {
+            object,
+            zones: &[ZoneKind::Battlefield],
+            controller: None,
+            owner: None,
+        })
     }
 }
 
@@ -772,6 +742,13 @@ pub enum CostDef {
     TapSource,
     UntapSource,
     SacrificeSource,
+    /// Remove counters from the permanent carrying this ability as the
+    /// ability is activated. The source must carry at least `amount`; paying
+    /// the cost removes them before the ability is put on the stack.
+    RemoveCountersFromSource {
+        kind: CounterKind,
+        amount: u16,
+    },
     /// Discard the card that carries this ability from its owner's hand.
     DiscardSource,
     PayLife(u16),
@@ -1036,7 +1013,7 @@ pub struct CountConditionDef {
 /// A conditional value that asks what the chosen target is.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct TargetConditionDef {
-    pub slot: TargetSlotId,
+    pub slot: TargetIndex,
     pub object: ObjectPredicateDef,
     pub then: ValueDef,
     pub otherwise: ValueDef,
@@ -1086,7 +1063,7 @@ pub enum ValueDef {
     DividedAmongTargets,
     /// The power of what a target slot points at, for "damage equal to its
     /// power".
-    TargetPower(TargetSlotId),
+    TargetPower(TargetIndex),
 }
 
 /// An object or player affected by an effect. Targets are chosen when a spell
@@ -1099,10 +1076,10 @@ pub enum EffectRecipientDef {
     /// Every battlefield permanent sharing a name with the chosen target,
     /// including the target itself. "And each other one with the same name"
     /// names the same set.
-    ObjectsSharingNameWithTarget(TargetSlotId),
+    ObjectsSharingNameWithTarget(TargetIndex),
     Controller,
     Opponent,
-    Target(TargetSlotId),
+    Target(TargetIndex),
     TriggeringObject,
     /// The triggering object's controller when this effect resolves, using
     /// last-known information if that object is no longer live.
@@ -1111,12 +1088,12 @@ pub enum EffectRecipientDef {
     /// controls a target slot, for "each creature that player controls".
     ObjectsControlledByTarget {
         object: ObjectPredicateDef,
-        slot: TargetSlotId,
+        slot: TargetIndex,
     },
     /// The controller of what a target slot points at, for "its controller".
     /// Read when the effect resolves, using last-known information if that
     /// object has already left the battlefield.
-    ControllerOfTarget(TargetSlotId),
+    ControllerOfTarget(TargetIndex),
     /// The player named directly by the event, such as the player whose
     /// upkeep began or who cast the triggering spell.
     EventPlayer,
@@ -1536,14 +1513,14 @@ pub enum EffectDef {
 
 impl EffectDef {
     #[must_use]
-    pub const fn counter_target(target: TargetSlotId) -> Self {
+    pub const fn counter_target(target: TargetIndex) -> Self {
         Self::Counter {
             object: EffectRecipientDef::Target(target),
         }
     }
 
     #[must_use]
-    pub const fn destroy_target(target: TargetSlotId, can_regenerate: bool) -> Self {
+    pub const fn destroy_target(target: TargetIndex, can_regenerate: bool) -> Self {
         Self::Destroy {
             object: EffectRecipientDef::Target(target),
             can_regenerate,
@@ -1716,10 +1693,22 @@ impl Default for SpellAbilityDef {
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum AbilityProcedureDef {
+    /// Costs, action generation, trigger capture, and stack handling use the
+    /// shared rules procedures for this ability category.
+    Shared,
+    /// Transitional compatibility path for an ability whose category is
+    /// known but whose surrounding rules procedure still lives in legacy
+    /// card behavior.
+    Legacy,
+}
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct ActivatedAbilityDef {
     pub source_zones: &'static [ZoneKind],
     pub costs: AbilityCostList,
     pub targets: &'static [AbilityTargetDef],
+    pub procedure: AbilityProcedureDef,
 }
 
 impl ActivatedAbilityDef {
@@ -1734,6 +1723,7 @@ impl ActivatedAbilityDef {
             source_zones: &[ZoneKind::Battlefield],
             costs,
             targets: &[],
+            procedure: AbilityProcedureDef::Shared,
         }
     }
 
@@ -1746,6 +1736,12 @@ impl ActivatedAbilityDef {
     #[must_use]
     pub const fn with_targets(mut self, targets: &'static [AbilityTargetDef]) -> Self {
         self.targets = targets;
+        self
+    }
+
+    #[must_use]
+    pub const fn with_procedure(mut self, procedure: AbilityProcedureDef) -> Self {
+        self.procedure = procedure;
         self
     }
 }
@@ -1802,6 +1798,7 @@ pub struct TriggeredAbilityDef {
     pub source_zones: &'static [ZoneKind],
     pub event: TriggerEventDef,
     pub targets: &'static [AbilityTargetDef],
+    pub procedure: AbilityProcedureDef,
     /// Held by reference so that this definition stays small enough to pass
     /// around by value alongside a captured trigger.
     pub condition: Option<&'static TriggerConditionDef>,
@@ -1814,6 +1811,7 @@ impl TriggeredAbilityDef {
             source_zones: &[ZoneKind::Battlefield],
             event,
             targets: &[],
+            procedure: AbilityProcedureDef::Shared,
             condition: None,
         }
     }
@@ -1833,6 +1831,12 @@ impl TriggeredAbilityDef {
     #[must_use]
     pub const fn with_targets(mut self, targets: &'static [AbilityTargetDef]) -> Self {
         self.targets = targets;
+        self
+    }
+
+    #[must_use]
+    pub const fn with_procedure(mut self, procedure: AbilityProcedureDef) -> Self {
+        self.procedure = procedure;
         self
     }
 }
@@ -2028,10 +2032,10 @@ impl Default for StaticAbilityDef {
 
 /// A keyword ability carried as an ordinary, ordered rules clause.
 ///
-/// The clause's [`AbilityImplementationDef`] says whether the engine currently
+/// The clause's [`AbilityCoverageDef`] says whether the engine currently
 /// executes the keyword. This keeps unimplemented keywords such as banding
-/// visible and accurately reflected in aggregate coverage without
-/// hiding them in card-level booleans.
+/// visible and accurately reflected in aggregate coverage without hiding them
+/// in card-level booleans.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum KeywordAbility {
     Flying,
@@ -2107,49 +2111,107 @@ pub enum DeclarativeAbilityDef {
     Legacy,
 }
 
-/// How completely one printed rules clause is implemented.
+/// How an ability's declared effect is executed.
 ///
-/// Fully declarative clauses need no explanation: their structure and effect
-/// are the implementation. Every other variant explains the custom
-/// implementation or remaining gap beside the clause that owns it.
+/// Coverage is deliberately not represented here: a custom effect can be
+/// complete or partial, and a declarative effect can likewise have a gap in
+/// its costs, targeting, timing, or another non-effect portion of the clause.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum AbilityImplementationDef {
-    Definition,
-    CustomFull {
-        behavior: Option<CardBehavior>,
-        explanation: &'static str,
-    },
-    CustomPartial {
-        behavior: Option<CardBehavior>,
-        explanation: &'static str,
-    },
-    NotImplemented {
-        explanation: &'static str,
-    },
+pub enum EffectExecutionDef {
+    Declarative,
+    Custom(CardBehavior),
 }
 
-impl AbilityImplementationDef {
+/// The structured effect and the resolver responsible for executing it.
+///
+/// Custom execution retains the structured definition as documentation and a
+/// migration target, but the shared resolver must not execute that definition
+/// until the execution kind becomes [`EffectExecutionDef::Declarative`].
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct AbilityEffectDef {
+    pub definition: EffectDef,
+    pub execution: EffectExecutionDef,
+}
+
+impl AbilityEffectDef {
     #[must_use]
-    pub const fn explanation(self) -> Option<&'static str> {
-        match self {
-            Self::Definition => None,
-            Self::CustomFull { explanation, .. }
-            | Self::CustomPartial { explanation, .. }
-            | Self::NotImplemented { explanation } => Some(explanation),
+    pub const fn declarative(definition: EffectDef) -> Self {
+        Self {
+            definition,
+            execution: EffectExecutionDef::Declarative,
+        }
+    }
+
+    #[must_use]
+    pub const fn with_execution(mut self, execution: EffectExecutionDef) -> Self {
+        self.execution = execution;
+        self
+    }
+
+    #[must_use]
+    pub const fn declarative_definition(self) -> Option<EffectDef> {
+        match self.execution {
+            EffectExecutionDef::Declarative => Some(self.definition),
+            EffectExecutionDef::Custom(_) => None,
         }
     }
 
     #[must_use]
     pub const fn custom_behavior(self) -> Option<CardBehavior> {
-        match self {
-            Self::CustomFull { behavior, .. } | Self::CustomPartial { behavior, .. } => behavior,
-            Self::Definition | Self::NotImplemented { .. } => None,
+        match self.execution {
+            EffectExecutionDef::Custom(behavior) => Some(behavior),
+            EffectExecutionDef::Declarative => None,
+        }
+    }
+}
+
+/// Clause-level implementation coverage, independent of effect dispatch.
+///
+/// An explanation is optional only for an ordinary complete declarative
+/// clause. Complete custom and compatibility clauses keep a note explaining
+/// their implementation; partial and metadata-only clauses explain the gap.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct AbilityCoverageDef {
+    pub status: ImplementationStatus,
+    pub explanation: Option<&'static str>,
+}
+
+impl AbilityCoverageDef {
+    #[must_use]
+    pub const fn complete() -> Self {
+        Self {
+            status: ImplementationStatus::Complete,
+            explanation: None,
+        }
+    }
+
+    #[must_use]
+    pub const fn explained_complete(explanation: &'static str) -> Self {
+        Self {
+            status: ImplementationStatus::Complete,
+            explanation: Some(explanation),
+        }
+    }
+
+    #[must_use]
+    pub const fn partial(explanation: &'static str) -> Self {
+        Self {
+            status: ImplementationStatus::Partial,
+            explanation: Some(explanation),
+        }
+    }
+
+    #[must_use]
+    pub const fn metadata_only(explanation: &'static str) -> Self {
+        Self {
+            status: ImplementationStatus::MetadataOnly,
+            explanation: Some(explanation),
         }
     }
 
     #[must_use]
     pub const fn is_executable(self) -> bool {
-        !matches!(self, Self::NotImplemented { .. })
+        !matches!(self.status, ImplementationStatus::MetadataOnly)
     }
 }
 
@@ -2163,20 +2225,26 @@ pub struct AbilityDef {
     /// whose full Oracle-style text is rendered from structured metadata.
     /// Use [`Self::rules_text`] when presenting a clause.
     pub text: &'static str,
-    /// Optional action-menu wording for a targeted activated ability. This is
-    /// presentation attached to the exact ability, not a second rules text.
-    pub activation_text: Option<ActivatedAbilityText>,
     pub definition: DeclarativeAbilityDef,
-    pub effect: EffectDef,
-    pub implementation: AbilityImplementationDef,
+    pub effect: AbilityEffectDef,
+    pub coverage: AbilityCoverageDef,
 }
 
 impl AbilityDef {
     #[must_use]
     pub const fn spell(text: &'static str, effect: EffectDef) -> Self {
+        Self::spell_with_targets(text, &[], effect)
+    }
+
+    #[must_use]
+    pub const fn spell_with_targets(
+        text: &'static str,
+        targets: &'static [AbilityTargetDef],
+        effect: EffectDef,
+    ) -> Self {
         Self::defined(
             text,
-            DeclarativeAbilityDef::Spell(SpellAbilityDef::new()),
+            DeclarativeAbilityDef::Spell(SpellAbilityDef::new().with_targets(targets)),
             effect,
         )
     }
@@ -2185,8 +2253,11 @@ impl AbilityDef {
     /// target declaration so the two cannot drift apart.
     #[must_use]
     pub const fn counter_target(text: &'static str, target: &'static AbilityTargetDef) -> Self {
-        Self::spell(text, EffectDef::counter_target(target.id))
-            .with_targets(core::slice::from_ref(target))
+        Self::spell_with_targets(
+            text,
+            core::slice::from_ref(target),
+            EffectDef::counter_target(TargetIndex::PRIMARY),
+        )
     }
 
     /// A one-target destroy spell. The effect recipient is derived from the
@@ -2197,14 +2268,17 @@ impl AbilityDef {
         target: &'static AbilityTargetDef,
         can_regenerate: bool,
     ) -> Self {
-        Self::spell(text, EffectDef::destroy_target(target.id, can_regenerate))
-            .with_targets(core::slice::from_ref(target))
+        Self::spell_with_targets(
+            text,
+            core::slice::from_ref(target),
+            EffectDef::destroy_target(TargetIndex::PRIMARY, can_regenerate),
+        )
     }
 
     #[must_use]
     pub const fn unimplemented_spell(text: &'static str, explanation: &'static str) -> Self {
         Self::spell(text, EffectDef::None)
-            .with_implementation(AbilityImplementationDef::NotImplemented { explanation })
+            .with_coverage(AbilityCoverageDef::metadata_only(explanation))
     }
 
     #[must_use]
@@ -2261,27 +2335,55 @@ impl AbilityDef {
         costs: &'static [AbilityCostDef],
         effect: EffectDef,
     ) -> Self {
-        Self::activated_with_cost_list(text, AbilityCostList::borrowed(costs), effect)
+        Self::activated_with_targets(text, costs, &[], effect)
     }
 
     #[must_use]
-    pub(crate) const fn activated_with_cost_list(
+    pub const fn activated_with_targets(
+        text: &'static str,
+        costs: &'static [AbilityCostDef],
+        targets: &'static [AbilityTargetDef],
+        effect: EffectDef,
+    ) -> Self {
+        Self::activated_with_cost_list_and_targets(
+            text,
+            AbilityCostList::borrowed(costs),
+            targets,
+            effect,
+        )
+    }
+
+    #[must_use]
+    pub(crate) const fn activated_with_cost_list_and_targets(
         text: &'static str,
         costs: AbilityCostList,
+        targets: &'static [AbilityTargetDef],
         effect: EffectDef,
     ) -> Self {
         Self::defined(
             text,
-            DeclarativeAbilityDef::Activated(ActivatedAbilityDef::with_costs(costs)),
+            DeclarativeAbilityDef::Activated(
+                ActivatedAbilityDef::with_costs(costs).with_targets(targets),
+            ),
             effect,
         )
     }
 
     #[must_use]
     pub const fn triggered(text: &'static str, event: TriggerEventDef, effect: EffectDef) -> Self {
+        Self::triggered_with_targets(text, event, &[], effect)
+    }
+
+    #[must_use]
+    pub const fn triggered_with_targets(
+        text: &'static str,
+        event: TriggerEventDef,
+        targets: &'static [AbilityTargetDef],
+        effect: EffectDef,
+    ) -> Self {
         Self::defined(
             text,
-            DeclarativeAbilityDef::Triggered(TriggeredAbilityDef::new(event)),
+            DeclarativeAbilityDef::Triggered(TriggeredAbilityDef::new(event).with_targets(targets)),
             effect,
         )
     }
@@ -2295,10 +2397,23 @@ impl AbilityDef {
         condition: &'static TriggerConditionDef,
         effect: EffectDef,
     ) -> Self {
+        Self::triggered_if_with_targets(text, event, condition, &[], effect)
+    }
+
+    #[must_use]
+    pub const fn triggered_if_with_targets(
+        text: &'static str,
+        event: TriggerEventDef,
+        condition: &'static TriggerConditionDef,
+        targets: &'static [AbilityTargetDef],
+        effect: EffectDef,
+    ) -> Self {
         Self::defined(
             text,
             DeclarativeAbilityDef::Triggered(
-                TriggeredAbilityDef::new(event).with_condition(condition),
+                TriggeredAbilityDef::new(event)
+                    .with_condition(condition)
+                    .with_targets(targets),
             ),
             effect,
         )
@@ -2415,10 +2530,9 @@ impl AbilityDef {
     ) -> Self {
         Self {
             text,
-            activation_text: None,
             definition,
-            effect,
-            implementation: AbilityImplementationDef::Definition,
+            effect: AbilityEffectDef::declarative(effect),
+            coverage: AbilityCoverageDef::complete(),
         }
     }
 
@@ -2430,13 +2544,10 @@ impl AbilityDef {
     ) -> Self {
         Self {
             text,
-            activation_text: None,
             definition: DeclarativeAbilityDef::Legacy,
-            effect: EffectDef::None,
-            implementation: AbilityImplementationDef::CustomFull {
-                behavior: Some(behavior),
-                explanation,
-            },
+            effect: AbilityEffectDef::declarative(EffectDef::None)
+                .with_execution(EffectExecutionDef::Custom(behavior)),
+            coverage: AbilityCoverageDef::explained_complete(explanation),
         }
     }
 
@@ -2448,13 +2559,10 @@ impl AbilityDef {
     ) -> Self {
         Self {
             text,
-            activation_text: None,
             definition: DeclarativeAbilityDef::Legacy,
-            effect: EffectDef::None,
-            implementation: AbilityImplementationDef::CustomPartial {
-                behavior: Some(behavior),
-                explanation,
-            },
+            effect: AbilityEffectDef::declarative(EffectDef::None)
+                .with_execution(EffectExecutionDef::Custom(behavior)),
+            coverage: AbilityCoverageDef::partial(explanation),
         }
     }
 
@@ -2462,26 +2570,74 @@ impl AbilityDef {
     pub const fn not_implemented(text: &'static str, explanation: &'static str) -> Self {
         Self {
             text,
-            activation_text: None,
             definition: DeclarativeAbilityDef::Legacy,
-            effect: EffectDef::None,
-            implementation: AbilityImplementationDef::NotImplemented { explanation },
+            effect: AbilityEffectDef::declarative(EffectDef::None),
+            coverage: AbilityCoverageDef::metadata_only(explanation),
         }
     }
 
     #[must_use]
-    pub const fn with_implementation(mut self, implementation: AbilityImplementationDef) -> Self {
-        self.implementation = implementation;
+    pub const fn with_effect_execution(mut self, execution: EffectExecutionDef) -> Self {
+        self.effect.execution = execution;
         self
     }
 
-    /// Overrides the canonical text supplied by a common ability constructor.
-    /// This is reserved for Oracle clauses that include reminder text; the
-    /// underlying keyword or mana semantics remain shared.
     #[must_use]
-    pub const fn with_text(mut self, text: &'static str) -> Self {
-        self.text = text;
+    pub const fn with_coverage(mut self, coverage: AbilityCoverageDef) -> Self {
+        self.coverage = coverage;
         self
+    }
+
+    #[must_use]
+    /// Selects the legacy procedure for an activated or triggered ability.
+    ///
+    /// # Panics
+    ///
+    /// Panics when called on an ability category that has no selectable procedure.
+    pub const fn with_legacy_procedure(mut self) -> Self {
+        match &mut self.definition {
+            DeclarativeAbilityDef::ActivatedMana(definition)
+            | DeclarativeAbilityDef::Activated(definition) => {
+                definition.procedure = AbilityProcedureDef::Legacy;
+            }
+            DeclarativeAbilityDef::TriggeredMana(definition)
+            | DeclarativeAbilityDef::Triggered(definition) => {
+                definition.procedure = AbilityProcedureDef::Legacy;
+            }
+            DeclarativeAbilityDef::Spell(_)
+            | DeclarativeAbilityDef::Static(_)
+            | DeclarativeAbilityDef::Replacement(_)
+            | DeclarativeAbilityDef::AlternativeCast(_)
+            | DeclarativeAbilityDef::SpecialAction(_)
+            | DeclarativeAbilityDef::Keyword(_)
+            | DeclarativeAbilityDef::Legacy => {
+                panic!("only activated and triggered abilities have a selectable procedure")
+            }
+        }
+        self
+    }
+
+    #[must_use]
+    pub const fn is_executable(self) -> bool {
+        self.coverage.is_executable()
+    }
+
+    #[must_use]
+    pub const fn custom_behavior(self) -> Option<CardBehavior> {
+        if self.is_executable() {
+            self.effect.custom_behavior()
+        } else {
+            None
+        }
+    }
+
+    #[must_use]
+    pub const fn declarative_effect(self) -> Option<EffectDef> {
+        if self.is_executable() {
+            self.effect.declarative_definition()
+        } else {
+            None
+        }
     }
 
     /// Renders the complete printed clause. Most abilities borrow their
@@ -2495,36 +2651,6 @@ impl AbilityDef {
             }
             _ => Cow::Borrowed(self.text),
         }
-    }
-
-    #[must_use]
-    pub const fn with_activation_text(
-        mut self,
-        targeted: &'static str,
-        summary: &'static str,
-    ) -> Self {
-        self.activation_text = Some(ActivatedAbilityText { targeted, summary });
-        self
-    }
-
-    #[must_use]
-    pub const fn with_targets(mut self, targets: &'static [AbilityTargetDef]) -> Self {
-        match &mut self.definition {
-            DeclarativeAbilityDef::Spell(definition) => {
-                *definition = definition.with_targets(targets);
-            }
-            DeclarativeAbilityDef::ActivatedMana(definition)
-            | DeclarativeAbilityDef::Activated(definition) => definition.targets = targets,
-            DeclarativeAbilityDef::TriggeredMana(definition)
-            | DeclarativeAbilityDef::Triggered(definition) => definition.targets = targets,
-            DeclarativeAbilityDef::Static(_)
-            | DeclarativeAbilityDef::Replacement(_)
-            | DeclarativeAbilityDef::AlternativeCast(_)
-            | DeclarativeAbilityDef::SpecialAction(_)
-            | DeclarativeAbilityDef::Keyword(_)
-            | DeclarativeAbilityDef::Legacy => {}
-        }
-        self
     }
 
     #[must_use]
@@ -2566,13 +2692,7 @@ impl AbilityDef {
     }
 
     fn own_implementation_status(self) -> ImplementationStatus {
-        match self.implementation {
-            AbilityImplementationDef::Definition | AbilityImplementationDef::CustomFull { .. } => {
-                ImplementationStatus::Complete
-            }
-            AbilityImplementationDef::CustomPartial { .. } => ImplementationStatus::Partial,
-            AbilityImplementationDef::NotImplemented { .. } => ImplementationStatus::MetadataOnly,
-        }
+        self.coverage.status
     }
 
     fn implementation_status(self) -> ImplementationStatus {
@@ -2583,7 +2703,7 @@ impl AbilityDef {
         let Some(modal) = spell.modal() else {
             return own;
         };
-        if !self.implementation.is_executable() {
+        if !self.is_executable() {
             return own;
         }
         let mut statuses = modal
@@ -2594,8 +2714,8 @@ impl AbilityDef {
         let modes = statuses.next().map_or(own, |first| {
             statuses.fold(first, ImplementationStatus::combine)
         });
-        if self.implementation == AbilityImplementationDef::Definition
-            && self.effect == EffectDef::None
+        if self.effect.execution == EffectExecutionDef::Declarative
+            && self.effect.definition == EffectDef::None
         {
             modes
         } else {
@@ -2692,45 +2812,518 @@ fn object_predicate_implies(predicate: ObjectPredicateDef, expected: ObjectPredi
     }
 }
 
-impl AbilityTargetDef {
-    pub(super) fn presentation(self) -> Option<TargetSlotDef> {
-        let predicate = match self.predicate {
-            // A client has no slot kind narrower than every damage target,
-            // which is closer for a player-or-planeswalker slot than offering
-            // only players would be.
-            AbilityTargetPredicate::AnyTarget | AbilityTargetPredicate::PlayerOrPlaneswalker(_) => {
-                TargetPredicate::AnyTarget
+fn predicate_color(predicate: ObjectPredicateDef) -> Option<ManaColor> {
+    match predicate {
+        ObjectPredicateDef::Color(color) => Some(color),
+        ObjectPredicateDef::All(predicates) => predicates.iter().copied().find_map(predicate_color),
+        ObjectPredicateDef::Any
+        | ObjectPredicateDef::Source
+        | ObjectPredicateDef::Attacking
+        | ObjectPredicateDef::HasType(_)
+        | ObjectPredicateDef::Spell
+        | ObjectPredicateDef::NoncreatureSpell
+        | ObjectPredicateDef::Subtype(_)
+        | ObjectPredicateDef::ManaValueAtMost(_)
+        | ObjectPredicateDef::ManaValueEqualTo(_)
+        | ObjectPredicateDef::ManaValueAtMostValue(_)
+        | ObjectPredicateDef::PowerAtLeast(_)
+        | ObjectPredicateDef::HasAnyBasicLandType(_)
+        | ObjectPredicateDef::ControlledBy(_)
+        | ObjectPredicateDef::Supertype(_)
+        | ObjectPredicateDef::SharesNameWithSource
+        | ObjectPredicateDef::AttackingOrBlocking
+        | ObjectPredicateDef::HasKeyword(_)
+        | ObjectPredicateDef::AnyOf(_)
+        | ObjectPredicateDef::Not(_)
+        | ObjectPredicateDef::Special(_) => None,
+    }
+}
+
+fn predicate_subtype(predicate: ObjectPredicateDef) -> Option<&'static str> {
+    match predicate {
+        ObjectPredicateDef::Subtype(subtype) => Some(subtype),
+        ObjectPredicateDef::All(predicates) => {
+            predicates.iter().copied().find_map(predicate_subtype)
+        }
+        ObjectPredicateDef::Any
+        | ObjectPredicateDef::Source
+        | ObjectPredicateDef::Attacking
+        | ObjectPredicateDef::HasType(_)
+        | ObjectPredicateDef::Spell
+        | ObjectPredicateDef::NoncreatureSpell
+        | ObjectPredicateDef::Color(_)
+        | ObjectPredicateDef::ManaValueAtMost(_)
+        | ObjectPredicateDef::ManaValueEqualTo(_)
+        | ObjectPredicateDef::ManaValueAtMostValue(_)
+        | ObjectPredicateDef::PowerAtLeast(_)
+        | ObjectPredicateDef::HasAnyBasicLandType(_)
+        | ObjectPredicateDef::ControlledBy(_)
+        | ObjectPredicateDef::Supertype(_)
+        | ObjectPredicateDef::SharesNameWithSource
+        | ObjectPredicateDef::AttackingOrBlocking
+        | ObjectPredicateDef::HasKeyword(_)
+        | ObjectPredicateDef::AnyOf(_)
+        | ObjectPredicateDef::Not(_)
+        | ObjectPredicateDef::Special(_) => None,
+    }
+}
+
+fn predicate_negated_subtype(predicate: ObjectPredicateDef) -> Option<&'static str> {
+    match predicate {
+        ObjectPredicateDef::Not(inner) => match *inner {
+            ObjectPredicateDef::Subtype(subtype) => Some(subtype),
+            _ => None,
+        },
+        ObjectPredicateDef::All(predicates) => predicates
+            .iter()
+            .copied()
+            .find_map(predicate_negated_subtype),
+        ObjectPredicateDef::Any
+        | ObjectPredicateDef::Source
+        | ObjectPredicateDef::Attacking
+        | ObjectPredicateDef::HasType(_)
+        | ObjectPredicateDef::Spell
+        | ObjectPredicateDef::NoncreatureSpell
+        | ObjectPredicateDef::Color(_)
+        | ObjectPredicateDef::Subtype(_)
+        | ObjectPredicateDef::ManaValueAtMost(_)
+        | ObjectPredicateDef::ManaValueEqualTo(_)
+        | ObjectPredicateDef::ManaValueAtMostValue(_)
+        | ObjectPredicateDef::PowerAtLeast(_)
+        | ObjectPredicateDef::HasAnyBasicLandType(_)
+        | ObjectPredicateDef::ControlledBy(_)
+        | ObjectPredicateDef::Supertype(_)
+        | ObjectPredicateDef::SharesNameWithSource
+        | ObjectPredicateDef::AttackingOrBlocking
+        | ObjectPredicateDef::HasKeyword(_)
+        | ObjectPredicateDef::AnyOf(_)
+        | ObjectPredicateDef::Special(_) => None,
+    }
+}
+
+fn predicate_power_at_least(predicate: ObjectPredicateDef) -> Option<i16> {
+    match predicate {
+        ObjectPredicateDef::PowerAtLeast(power) => Some(power),
+        ObjectPredicateDef::All(predicates) => predicates
+            .iter()
+            .copied()
+            .find_map(predicate_power_at_least),
+        ObjectPredicateDef::Any
+        | ObjectPredicateDef::Source
+        | ObjectPredicateDef::Attacking
+        | ObjectPredicateDef::HasType(_)
+        | ObjectPredicateDef::Spell
+        | ObjectPredicateDef::NoncreatureSpell
+        | ObjectPredicateDef::Color(_)
+        | ObjectPredicateDef::Subtype(_)
+        | ObjectPredicateDef::ManaValueAtMost(_)
+        | ObjectPredicateDef::ManaValueEqualTo(_)
+        | ObjectPredicateDef::ManaValueAtMostValue(_)
+        | ObjectPredicateDef::HasAnyBasicLandType(_)
+        | ObjectPredicateDef::ControlledBy(_)
+        | ObjectPredicateDef::Supertype(_)
+        | ObjectPredicateDef::SharesNameWithSource
+        | ObjectPredicateDef::AttackingOrBlocking
+        | ObjectPredicateDef::HasKeyword(_)
+        | ObjectPredicateDef::AnyOf(_)
+        | ObjectPredicateDef::Not(_)
+        | ObjectPredicateDef::Special(_) => None,
+    }
+}
+
+fn predicate_mana_value_at_most(predicate: ObjectPredicateDef) -> Option<u8> {
+    match predicate {
+        ObjectPredicateDef::ManaValueAtMost(value) => Some(value),
+        ObjectPredicateDef::All(predicates) => predicates
+            .iter()
+            .copied()
+            .find_map(predicate_mana_value_at_most),
+        ObjectPredicateDef::Any
+        | ObjectPredicateDef::Source
+        | ObjectPredicateDef::Attacking
+        | ObjectPredicateDef::HasType(_)
+        | ObjectPredicateDef::Spell
+        | ObjectPredicateDef::NoncreatureSpell
+        | ObjectPredicateDef::Color(_)
+        | ObjectPredicateDef::Subtype(_)
+        | ObjectPredicateDef::ManaValueEqualTo(_)
+        | ObjectPredicateDef::ManaValueAtMostValue(_)
+        | ObjectPredicateDef::PowerAtLeast(_)
+        | ObjectPredicateDef::HasAnyBasicLandType(_)
+        | ObjectPredicateDef::ControlledBy(_)
+        | ObjectPredicateDef::Supertype(_)
+        | ObjectPredicateDef::SharesNameWithSource
+        | ObjectPredicateDef::AttackingOrBlocking
+        | ObjectPredicateDef::HasKeyword(_)
+        | ObjectPredicateDef::AnyOf(_)
+        | ObjectPredicateDef::Not(_)
+        | ObjectPredicateDef::Special(_) => None,
+    }
+}
+
+fn predicate_controller(predicate: ObjectPredicateDef) -> Option<PlayerRelation> {
+    match predicate {
+        ObjectPredicateDef::ControlledBy(controller) => Some(controller),
+        ObjectPredicateDef::All(predicates) => {
+            predicates.iter().copied().find_map(predicate_controller)
+        }
+        ObjectPredicateDef::Any
+        | ObjectPredicateDef::Source
+        | ObjectPredicateDef::Attacking
+        | ObjectPredicateDef::HasType(_)
+        | ObjectPredicateDef::Spell
+        | ObjectPredicateDef::NoncreatureSpell
+        | ObjectPredicateDef::Color(_)
+        | ObjectPredicateDef::Subtype(_)
+        | ObjectPredicateDef::ManaValueAtMost(_)
+        | ObjectPredicateDef::ManaValueEqualTo(_)
+        | ObjectPredicateDef::ManaValueAtMostValue(_)
+        | ObjectPredicateDef::PowerAtLeast(_)
+        | ObjectPredicateDef::HasAnyBasicLandType(_)
+        | ObjectPredicateDef::Supertype(_)
+        | ObjectPredicateDef::SharesNameWithSource
+        | ObjectPredicateDef::AttackingOrBlocking
+        | ObjectPredicateDef::HasKeyword(_)
+        | ObjectPredicateDef::AnyOf(_)
+        | ObjectPredicateDef::Not(_)
+        | ObjectPredicateDef::Special(_) => None,
+    }
+}
+
+fn predicate_negates(predicate: ObjectPredicateDef, expected: ObjectPredicateDef) -> bool {
+    match predicate {
+        // Stay deliberately conservative: `not (red land)` does not imply
+        // "nonland," even though the inner conjunction implies `land`.
+        ObjectPredicateDef::Not(inner) => *inner == expected,
+        ObjectPredicateDef::All(predicates) => predicates
+            .iter()
+            .copied()
+            .any(|predicate| predicate_negates(predicate, expected)),
+        ObjectPredicateDef::Any
+        | ObjectPredicateDef::Source
+        | ObjectPredicateDef::Attacking
+        | ObjectPredicateDef::HasType(_)
+        | ObjectPredicateDef::Spell
+        | ObjectPredicateDef::NoncreatureSpell
+        | ObjectPredicateDef::Color(_)
+        | ObjectPredicateDef::Subtype(_)
+        | ObjectPredicateDef::ManaValueAtMost(_)
+        | ObjectPredicateDef::ManaValueEqualTo(_)
+        | ObjectPredicateDef::ManaValueAtMostValue(_)
+        | ObjectPredicateDef::PowerAtLeast(_)
+        | ObjectPredicateDef::HasAnyBasicLandType(_)
+        | ObjectPredicateDef::ControlledBy(_)
+        | ObjectPredicateDef::Supertype(_)
+        | ObjectPredicateDef::SharesNameWithSource
+        | ObjectPredicateDef::AttackingOrBlocking
+        | ObjectPredicateDef::HasKeyword(_)
+        | ObjectPredicateDef::AnyOf(_)
+        | ObjectPredicateDef::Special(_) => false,
+    }
+}
+
+const fn color_name(color: ManaColor) -> &'static str {
+    match color {
+        ManaColor::White => "white",
+        ManaColor::Blue => "blue",
+        ManaColor::Black => "black",
+        ManaColor::Red => "red",
+        ManaColor::Green => "green",
+        ManaColor::Colorless => "colorless",
+    }
+}
+
+const fn card_type_name(card_type: CardType) -> &'static str {
+    match card_type {
+        CardType::Artifact => "artifact",
+        CardType::Creature => "creature",
+        CardType::Enchantment => "enchantment",
+        CardType::Instant => "instant",
+        CardType::Land => "land",
+        CardType::Planeswalker => "planeswalker",
+        CardType::Sorcery => "sorcery",
+    }
+}
+
+fn simple_disjunction_subject(predicate: ObjectPredicateDef) -> Option<String> {
+    let ObjectPredicateDef::AnyOf(predicates) = predicate else {
+        return None;
+    };
+    let subjects = predicates
+        .iter()
+        .copied()
+        .map(|predicate| match predicate {
+            ObjectPredicateDef::HasType(card_type) => Some(card_type_name(card_type)),
+            ObjectPredicateDef::Subtype(subtype) => Some(subtype),
+            _ => None,
+        })
+        .collect::<Option<Vec<_>>>()?;
+    (!subjects.is_empty()).then(|| subjects.join(" or "))
+}
+
+fn object_target_subject(object: ObjectPredicateDef, predicate: TargetPredicate) -> String {
+    if let ObjectPredicateDef::Special(description) = object {
+        return description.into();
+    }
+    if object_predicate_implies(object, ObjectPredicateDef::Attacking) {
+        return "attacking creature".into();
+    }
+    match predicate {
+        TargetPredicate::AnyTarget => "target".into(),
+        TargetPredicate::Player => "player".into(),
+        TargetPredicate::NoncreatureSpell => predicate_color(object).map_or_else(
+            || "noncreature spell".into(),
+            |color| format!("{} noncreature spell", color_name(color)),
+        ),
+        TargetPredicate::Spell => predicate_color(object).map_or_else(
+            || "spell".into(),
+            |color| format!("{} spell", color_name(color)),
+        ),
+        TargetPredicate::CreaturePermanent => {
+            if object_predicate_implies(object, ObjectPredicateDef::AttackingOrBlocking) {
+                "attacking or blocking creature".into()
+            } else if object_predicate_implies(object, ObjectPredicateDef::Attacking) {
+                "attacking creature".into()
+            } else if let Some(subtype) = predicate_negated_subtype(object) {
+                format!("non-{subtype} creature")
+            } else if let Some(subtype) = predicate_subtype(object) {
+                format!("{subtype} creature")
+            } else if let Some(color) = predicate_color(object) {
+                format!("{} creature", color_name(color))
+            } else if let Some(power) = predicate_power_at_least(object) {
+                format!("creature with power {power} or greater")
+            } else {
+                "creature".into()
             }
-            // A client has no slot kind for "controlled by another slot's
-            // target" either, and every candidate is a permanent.
-            AbilityTargetPredicate::ControlledByTargetOf { .. } => TargetPredicate::Permanent,
-            AbilityTargetPredicate::Player(_) => TargetPredicate::Player,
-            AbilityTargetPredicate::Object { object, zones, .. } if zones == [ZoneKind::Stack] => {
-                if object_predicate_implies(object, ObjectPredicateDef::NoncreatureSpell) {
-                    TargetPredicate::NoncreatureSpell
-                } else {
-                    TargetPredicate::Spell
-                }
-            }
-            AbilityTargetPredicate::Object { object, zones, .. }
-                if zones == [ZoneKind::Battlefield] =>
+        }
+        TargetPredicate::Permanent => {
+            if let Some(subject) = simple_disjunction_subject(object) {
+                subject
+            } else if object_predicate_implies(object, ObjectPredicateDef::HasType(CardType::Land))
+                && predicate_negates(object, ObjectPredicateDef::Supertype(CardSupertype::Basic))
             {
-                if object_predicate_implies(object, ObjectPredicateDef::HasType(CardType::Creature))
-                {
-                    TargetPredicate::CreaturePermanent
-                } else {
-                    TargetPredicate::Permanent
+                "nonbasic land".into()
+            } else if predicate_negates(object, ObjectPredicateDef::HasType(CardType::Land)) {
+                let mut subject = "nonland permanent".to_string();
+                if let Some(value) = predicate_mana_value_at_most(object) {
+                    let _ = write!(subject, " with mana value {value} or less");
                 }
+                subject
+            } else if let Some(card_type) = CardType::DISPLAY_ORDER.into_iter().find(|card_type| {
+                object_predicate_implies(object, ObjectPredicateDef::HasType(*card_type))
+            }) {
+                card_type_name(card_type).into()
+            } else if let Some(subtype) = predicate_subtype(object) {
+                subtype.into()
+            } else if let Some(color) = predicate_color(object) {
+                format!("{} permanent", color_name(color))
+            } else {
+                "permanent".into()
             }
-            AbilityTargetPredicate::Object { .. } => return None,
+        }
+    }
+}
+
+fn semantic_card_subject(object: ObjectPredicateDef) -> String {
+    if let Some(subject) = simple_disjunction_subject(object) {
+        return format!("{subject} card");
+    }
+    if object_predicate_implies(object, ObjectPredicateDef::HasType(CardType::Creature)) {
+        "creature card".into()
+    } else if let Some(subtype) = predicate_subtype(object) {
+        format!("{subtype} card")
+    } else if let ObjectPredicateDef::Special(description) = object {
+        description.into()
+    } else {
+        "card".into()
+    }
+}
+
+fn semantic_object_target_subject(
+    object: ObjectPredicateDef,
+    zones: &'static [ZoneKind],
+    owner: Option<PlayerRelation>,
+) -> String {
+    if zones == [ZoneKind::Graveyard] {
+        let subject = semantic_card_subject(object);
+        let graveyard = match owner {
+            Some(PlayerRelation::You) => "your graveyard",
+            Some(PlayerRelation::Opponent) => "an opponent's graveyard",
+            Some(PlayerRelation::NotYou) => "a graveyard other than yours",
+            Some(PlayerRelation::ActivePlayer) => "the active player's graveyard",
+            Some(PlayerRelation::NonactivePlayer) => "the nonactive player's graveyard",
+            Some(PlayerRelation::EventPlayer) => "the event player's graveyard",
+            Some(PlayerRelation::Any) | None => "a graveyard",
         };
+        return format!("{subject} in {graveyard}");
+    }
+    if zones == [ZoneKind::Battlefield, ZoneKind::Graveyard]
+        && object_predicate_implies(object, ObjectPredicateDef::HasType(CardType::Creature))
+    {
+        return "creature on the battlefield or creature card in a graveyard".into();
+    }
+    let subject = semantic_card_subject(object);
+    match zones {
+        [ZoneKind::Hand] => format!("{subject} in a hand"),
+        [ZoneKind::Library] => format!("{subject} in a library"),
+        [ZoneKind::Exile] => format!("{subject} in exile"),
+        _ => subject,
+    }
+}
+
+const fn player_target_label(relation: PlayerRelation) -> &'static str {
+    match relation {
+        PlayerRelation::Any => "target player",
+        PlayerRelation::You => "yourself",
+        PlayerRelation::NotYou => "target player other than you",
+        PlayerRelation::Opponent => "target opponent",
+        PlayerRelation::ActivePlayer => "target active player",
+        PlayerRelation::NonactivePlayer => "target nonactive player",
+        PlayerRelation::EventPlayer => "target event player",
+    }
+}
+
+const fn player_or_planeswalker_target_label(relation: PlayerRelation) -> &'static str {
+    match relation {
+        PlayerRelation::Any => "target player or planeswalker",
+        PlayerRelation::You => "yourself or target planeswalker",
+        PlayerRelation::NotYou => "target player other than you or planeswalker",
+        PlayerRelation::Opponent => "target opponent or planeswalker",
+        PlayerRelation::ActivePlayer => "target active player or planeswalker",
+        PlayerRelation::NonactivePlayer => "target nonactive player or planeswalker",
+        PlayerRelation::EventPlayer => "target event player or planeswalker",
+    }
+}
+
+const fn controller_suffix(relation: PlayerRelation) -> &'static str {
+    match relation {
+        PlayerRelation::Any => "",
+        PlayerRelation::You => " you control",
+        PlayerRelation::NotYou => " you don't control",
+        PlayerRelation::Opponent => " an opponent controls",
+        PlayerRelation::ActivePlayer => " the active player controls",
+        PlayerRelation::NonactivePlayer => " the nonactive player controls",
+        PlayerRelation::EventPlayer => " the event player controls",
+    }
+}
+
+const fn owner_suffix(relation: PlayerRelation) -> &'static str {
+    match relation {
+        PlayerRelation::Any => "",
+        PlayerRelation::You => " you own",
+        PlayerRelation::NotYou => " you don't own",
+        PlayerRelation::Opponent => " an opponent owns",
+        PlayerRelation::ActivePlayer => " the active player owns",
+        PlayerRelation::NonactivePlayer => " the nonactive player owns",
+        PlayerRelation::EventPlayer => " the event player owns",
+    }
+}
+
+fn append_relation_suffix(label: &mut String, suffix: &'static str) {
+    if suffix.is_empty() {
+        return;
+    }
+    // Keep the relation next to its noun: "creature you control with ...",
+    // rather than making it appear to modify a later characteristic.
+    let position = label.find(" with ").unwrap_or(label.len());
+    label.insert_str(position, suffix);
+}
+
+fn presentation_target_predicate(predicate: AbilityTargetPredicate) -> Option<TargetPredicate> {
+    match predicate {
+        // A client has no slot kind narrower than every damage target, which
+        // is closer than presenting only the player half of this predicate.
+        AbilityTargetPredicate::AnyTarget | AbilityTargetPredicate::PlayerOrPlaneswalker(_) => {
+            Some(TargetPredicate::AnyTarget)
+        }
+        AbilityTargetPredicate::ControlledByTargetOf { object, .. } => {
+            if object_predicate_implies(object, ObjectPredicateDef::HasType(CardType::Creature)) {
+                Some(TargetPredicate::CreaturePermanent)
+            } else {
+                Some(TargetPredicate::Permanent)
+            }
+        }
+        AbilityTargetPredicate::Player(_) => Some(TargetPredicate::Player),
+        AbilityTargetPredicate::Object { object, zones, .. } if zones == [ZoneKind::Stack] => {
+            if object_predicate_implies(object, ObjectPredicateDef::NoncreatureSpell) {
+                Some(TargetPredicate::NoncreatureSpell)
+            } else {
+                Some(TargetPredicate::Spell)
+            }
+        }
+        AbilityTargetPredicate::Object { object, zones, .. }
+            if zones == [ZoneKind::Battlefield] =>
+        {
+            if object_predicate_implies(object, ObjectPredicateDef::HasType(CardType::Creature)) {
+                Some(TargetPredicate::CreaturePermanent)
+            } else {
+                Some(TargetPredicate::Permanent)
+            }
+        }
+        AbilityTargetPredicate::Object { .. } => None,
+    }
+}
+
+impl AbilityTargetDef {
+    /// Derives concise presentation text from the authoritative predicate.
+    ///
+    /// This is only a label: compound restrictions may be summarized, while
+    /// target enumeration and legality always use [`Self::predicate`]. The
+    /// renderer prefers a broader accurate noun phrase over guessing at
+    /// English for an unfamiliar predicate combination.
+    pub(crate) fn label(self) -> String {
+        match self.predicate {
+            AbilityTargetPredicate::AnyTarget => "any target".into(),
+            AbilityTargetPredicate::PlayerOrPlaneswalker(relation) => {
+                player_or_planeswalker_target_label(relation).into()
+            }
+            AbilityTargetPredicate::ControlledByTargetOf { object, .. } => {
+                let predicate = presentation_target_predicate(self.predicate)
+                    .expect("dependent targets always project to a permanent target");
+                let subject = object_target_subject(object, predicate);
+                format!("target {subject} that player or that planeswalker's controller controls")
+            }
+            AbilityTargetPredicate::Player(relation) => player_target_label(relation).into(),
+            AbilityTargetPredicate::Object {
+                object,
+                zones,
+                controller,
+                owner,
+            } => {
+                let predicate = presentation_target_predicate(self.predicate);
+                let subject = predicate.map_or_else(
+                    || semantic_object_target_subject(object, zones, owner),
+                    |predicate| object_target_subject(object, predicate),
+                );
+                let mut label = format!("target {subject}");
+                if predicate_negates(object, ObjectPredicateDef::Source) {
+                    label.insert_str("target ".len(), "another ");
+                }
+                if predicate_negates(object, ObjectPredicateDef::SharesNameWithSource) {
+                    label.push_str(" with a different name from this source");
+                }
+                let relation = controller.or_else(|| predicate_controller(object));
+                if let Some(relation) = relation {
+                    append_relation_suffix(&mut label, controller_suffix(relation));
+                } else if predicate.is_some()
+                    && let Some(relation) = owner
+                {
+                    append_relation_suffix(&mut label, owner_suffix(relation));
+                }
+                label
+            }
+        }
+    }
+
+    pub(super) fn presentation(self, id: TargetSlotId) -> Option<TargetSlotDef> {
+        let predicate = presentation_target_predicate(self.predicate)?;
         Some(TargetSlotDef {
-            divided_total: None,
-            id: self.id,
-            label: self.label.into(),
+            id,
+            label: self.label(),
             predicate,
             minimum: self.minimum,
             maximum: self.maximum,
+            divided_total: self.divided_total,
         })
     }
 }
@@ -2772,16 +3365,23 @@ impl AbilityDef {
         if spell.modal().is_some() {
             return None;
         }
+        let mut targets = Vec::with_capacity(spell.targets().len());
+        for (index, target) in spell.targets().iter().copied().enumerate() {
+            let id = TargetSlotId::from_index(index)?;
+            let Some(target) = target.presentation(id) else {
+                // The semantic target vocabulary is richer than the legacy
+                // presentation predicate. An empty projection keeps runtime
+                // targeting authoritative without publishing an approximation.
+                targets.clear();
+                break;
+            };
+            targets.push(target);
+        }
         Some(ModeDef {
             id,
             label: self.text.into(),
-            targets: spell
-                .targets()
-                .iter()
-                .copied()
-                .map(AbilityTargetDef::presentation)
-                .collect::<Option<Vec<_>>>()?,
-            effect_status: if outer_is_executable && self.implementation.is_executable() {
+            targets,
+            effect_status: if outer_is_executable && self.is_executable() {
                 CardEffectStatus::Implemented
             } else {
                 CardEffectStatus::MetadataOnly
@@ -2971,6 +3571,51 @@ impl CardComposition {
             },
             play_options: vec![option],
         }
+        .with_derived_spell_targets()
+    }
+
+    /// Derives nonmodal play-option target presentations from the spell
+    /// clauses of the option's parts. Combined forms flatten their parts in
+    /// printed order, assigning runtime slot IDs only after composition.
+    ///
+    /// A composition can still supply explicit presentation targets when it
+    /// has no semantic spell clause. When the semantic predicate vocabulary
+    /// is richer than the legacy presentation vocabulary, the projection is
+    /// left empty and runtime target generation uses the semantic definition.
+    #[must_use]
+    pub(crate) fn with_derived_spell_targets(mut self) -> Self {
+        for option in &mut self.play_options {
+            if option.action != PlayActionKind::CastSpell
+                || option.modes.is_some()
+                || !option.targets.is_empty()
+            {
+                continue;
+            }
+            let part_ids = match &option.form {
+                SpellForm::Part(part) => core::slice::from_ref(part),
+                SpellForm::Combined(parts) => parts.as_slice(),
+            };
+            let derived = part_ids
+                .iter()
+                .try_fold(Vec::new(), |mut targets, part_id| {
+                    let part = self.parts.iter().find(|part| part.id == *part_id)?;
+                    let spell = part.rules.ability_clauses().iter().find_map(|ability| {
+                        let DeclarativeAbilityDef::Spell(spell) = ability.definition else {
+                            return None;
+                        };
+                        spell.modal().is_none().then_some(spell)
+                    })?;
+                    for target in spell.targets() {
+                        let id = TargetSlotId::from_index(targets.len())?;
+                        targets.push(target.presentation(id)?);
+                    }
+                    Some(targets)
+                });
+            if let Some(derived) = derived {
+                option.targets = derived;
+            }
+        }
+        self
     }
 }
 
@@ -3149,7 +3794,6 @@ pub enum CardBehavior {
     HymnToTourach,
     HypnoticSpecter,
     IcyManipulator,
-    IcatianJavelineers,
     IronclawOrcs,
     KirdApe,
     LifebaneZombie,
@@ -3176,7 +3820,6 @@ pub enum CardBehavior {
     FellwarStone,
     LightningBolt,
     MishrasFactory,
-    OrcishMechanics,
     /// Legacy dispatch key retained for source compatibility; the card now
     /// uses a declarative choose-one spell definition.
     RedElementalBlast,
@@ -3188,7 +3831,6 @@ pub enum CardBehavior {
     SupremeVerdict,
     SwordsToPlowshares,
     TimeWalk,
-    Triskelion,
     Tetravus,
     TheAbyss,
     UltimatePrice,
@@ -3885,17 +4527,6 @@ pub struct CreatureStats {
     pub toughness: i16,
 }
 
-/// How a client should describe activating a permanent's targeted ability.
-///
-/// `targeted` is a template with `{}` where the target's name goes, so a menu
-/// can name the effect instead of the card; `summary` is the same effect with
-/// no particular target picked yet.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct ActivatedAbilityText {
-    pub targeted: &'static str,
-    pub summary: &'static str,
-}
-
 /// Const-friendly storage for the ordered rules clauses of one card part.
 ///
 /// A card with one clause stores it inline; cards with several clauses use a
@@ -4284,7 +4915,7 @@ impl CardRules {
     pub fn special_behavior(&self) -> Option<CardBehavior> {
         self.ability_clauses()
             .iter()
-            .find_map(|ability| ability.implementation.custom_behavior())
+            .find_map(|ability| ability.custom_behavior())
     }
 
     #[must_use]
@@ -4310,10 +4941,7 @@ impl CardRules {
             .copied()
             .enumerate()
             .map(|(index, mode)| {
-                mode.mode_presentation(
-                    ModeId::from_index(index)?,
-                    ability.implementation.is_executable(),
-                )
+                mode.mode_presentation(ModeId::from_index(index)?, ability.is_executable())
             })
             .collect::<Option<Vec<_>>>()?;
         Some(ModeSetDef {
@@ -4477,7 +5105,7 @@ impl CardRules {
     #[must_use]
     pub fn has_executable_keyword(&self, expected: KeywordAbility) -> bool {
         self.ability_clauses().iter().any(|ability| {
-            ability.implementation.is_executable()
+            ability.is_executable()
                 && matches!(ability.definition, DeclarativeAbilityDef::Keyword(actual) if actual == expected)
         })
     }
@@ -4497,17 +5125,17 @@ impl CardRules {
 #[cfg(test)]
 mod tests {
     use super::{
-        AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, AddManaEffectDef,
-        AlternativeCastKindDef, AlternativeCostDef, CardBehavior, CardComposition, CardDefinition,
-        CardEffectStatus, CardPart, CardPrinting, CardPrintingId, CardRules, CardSet, CardType,
-        CardTypeSet, CreatureStats, DeclarativeAbilityDef, EffectDef, EffectRecipientDef,
-        ImplementationStatus, ManaColor, ManaCost, ManaCostParseErrorKind, ManaRestrictionDef,
-        ObjectPredicateDef, PlayOptionDef, PrintedManaCost, SpellForm, TargetPredicate,
-        TriggerEventDef,
+        AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
+        AddManaEffectDef, AlternativeCastKindDef, AlternativeCostDef, CardBehavior,
+        CardComposition, CardDefinition, CardEffectStatus, CardPart, CardPrinting, CardPrintingId,
+        CardRules, CardSet, CardType, CardTypeSet, CreatureStats, DeclarativeAbilityDef, EffectDef,
+        EffectRecipientDef, ImplementationStatus, ManaColor, ManaCost, ManaCostParseErrorKind,
+        ManaRestrictionDef, ObjectPredicateDef, PlayOptionDef, PlayerRelation, PrintedManaCost,
+        SpellForm, TargetPredicate, TriggerEventDef, ZoneKind,
     };
     use crate::{
         AbilityId, AlternativeCostId, CardDefinitionId, CardPartId, ModeId, PlayOptionId,
-        TargetSlotId,
+        TargetIndex,
     };
 
     static DEFERRED_CLAUSE: [AbilityDef; 1] = [AbilityDef::not_implemented(
@@ -4546,20 +5174,28 @@ mod tests {
                 &[
                     AbilityDef::counter_target(
                         "Counter target blue spell",
-                        &AbilityTargetDef::exactly_one_spell(
-                            TargetSlotId(3),
-                            "blue spell",
-                            ObjectPredicateDef::Color(ManaColor::Blue),
-                        ),
+                        &AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Color(
+                            ManaColor::Blue,
+                        )),
                     ),
                     AbilityDef::destroy_target(
                         "Destroy target blue permanent",
-                        &AbilityTargetDef::exactly_one_permanent(
-                            TargetSlotId(4),
-                            "blue permanent",
-                            ObjectPredicateDef::Color(ManaColor::Blue),
-                        ),
+                        &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Color(
+                            ManaColor::Blue,
+                        )),
                         true,
+                    ),
+                    AbilityDef::spell_with_targets(
+                        "Return target creature card from your graveyard.",
+                        &[AbilityTargetDef::exactly_one(
+                            AbilityTargetPredicate::Object {
+                                object: ObjectPredicateDef::HasType(CardType::Creature),
+                                zones: &[ZoneKind::Graveyard],
+                                controller: None,
+                                owner: Some(PlayerRelation::You),
+                            },
+                        )],
+                        EffectDef::None,
                     ),
                 ],
             ),
@@ -4583,14 +5219,23 @@ mod tests {
             TargetPredicate::Permanent
         );
         assert_eq!(
+            modes.modes[2].label,
+            "Return target creature card from your graveyard."
+        );
+        assert!(
+            modes.modes[2].targets.is_empty(),
+            "semantic-only mode targets keep an empty legacy projection"
+        );
+        assert_eq!(
             match rules.ability_clauses()[0].definition {
                 DeclarativeAbilityDef::Spell(spell) => spell.mode(ModeId(0)),
                 _ => None,
             }
             .expect("first positional mode")
-            .effect,
+            .effect
+            .definition,
             EffectDef::Counter {
-                object: EffectRecipientDef::Target(TargetSlotId(3)),
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             }
         );
         assert_eq!(
@@ -4599,13 +5244,80 @@ mod tests {
                 _ => None,
             }
             .expect("second positional mode")
-            .effect,
+            .effect
+            .definition,
             EffectDef::Destroy {
-                object: EffectRecipientDef::Target(TargetSlotId(4)),
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
             }
         );
         assert_eq!(rules.rules_text(), "Choose one.");
+    }
+
+    #[test]
+    fn semantic_target_labels_are_derived_from_predicates() {
+        let opponent =
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(PlayerRelation::Opponent));
+        assert_eq!(opponent.label(), "target opponent");
+
+        let creature_you_control = AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::HasType(CardType::Creature),
+            zones: &[ZoneKind::Battlefield],
+            controller: Some(PlayerRelation::You),
+            owner: None,
+        });
+        assert_eq!(creature_you_control.label(), "target creature you control");
+
+        let constrained_creature = AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::Special(
+                "creature with toughness less than the source's power",
+            ),
+            zones: &[ZoneKind::Battlefield],
+            controller: Some(PlayerRelation::You),
+            owner: None,
+        });
+        assert_eq!(
+            constrained_creature.label(),
+            "target creature you control with toughness less than the source's power"
+        );
+
+        let non_demon = AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Demon")),
+        ]));
+        assert_eq!(non_demon.label(), "target non-Demon creature");
+
+        let not_red_land = AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Not(
+            &ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Land),
+                ObjectPredicateDef::Color(ManaColor::Red),
+            ]),
+        ));
+        assert_eq!(
+            not_red_land.label(),
+            "target permanent",
+            "a conservative label must not turn 'not a red land' into 'nonland'"
+        );
+
+        let graveyard = AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::HasType(CardType::Creature),
+            zones: &[ZoneKind::Graveyard],
+            controller: None,
+            owner: Some(PlayerRelation::You),
+        });
+        assert_eq!(graveyard.label(), "target creature card in your graveyard");
+        assert!(
+            graveyard.presentation(crate::TargetSlotId(0)).is_none(),
+            "semantic-only targets still have decision labels without a legacy projection",
+        );
+
+        let blue_spell =
+            AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Color(ManaColor::Blue));
+        let presentation = blue_spell
+            .presentation(crate::TargetSlotId(0))
+            .expect("a stack target has a presentation projection");
+        assert_eq!(blue_spell.label(), "target blue spell");
+        assert_eq!(presentation.label, blue_spell.label());
     }
 
     #[test]
@@ -4855,7 +5567,7 @@ mod tests {
             ),
         );
         assert_eq!(
-            partial.ability_clauses()[0].implementation.explanation(),
+            partial.ability_clauses()[0].coverage.explanation,
             Some("One rider is deferred.")
         );
         assert_eq!(
@@ -5036,6 +5748,12 @@ mod tests {
         assert_eq!(attached[0].id, AbilityId::PRIMARY);
         assert_eq!(attached[1].id, AbilityId(1));
         assert_eq!(attached[2].id, AbilityId(2));
+    }
+
+    #[test]
+    #[should_panic(expected = "only activated and triggered abilities have a selectable procedure")]
+    fn legacy_procedure_rejects_ability_categories_without_a_procedure() {
+        let _ = AbilityDef::spell("Draw a card.", EffectDef::None).with_legacy_procedure();
     }
 
     #[test]

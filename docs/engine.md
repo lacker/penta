@@ -200,9 +200,11 @@ rules:
 
 After validation, those choices form an immutable cast signature on the stack:
 the selected play option and spell form, chosen modes, cost choices, X, and
-target-slot assignments. Target slots are associated with their part or mode
-so a fused spell and a modal spell retain the target schema that was actually
-chosen rather than regenerating one from the canonical card definition.
+target-slot assignments. Authored effects refer to clause-local target
+positions; casting assigns runtime slots by flattening the selected parts and
+mode occurrences in order. The resolver carries each effect's offset into that
+flat list, so a modal spell retains the exact target schema that was chosen
+rather than regenerating one from the canonical card definition.
 
 Copying a spell creates a new game object with no physical backing and copies
 the cast signature. It therefore retains the selected split/MDFC/alternate
@@ -214,8 +216,8 @@ spell form.
 The catalog types and runtime now share this model. `Action::CastSpell` carries
 one authoritative `CastChoices` value rather than parallel mode/form/target/X
 fields, and a validated cast stores a `CastSignature` on its stack object.
-Existing single-faced cards receive a default play option and stable legacy
-target slot, so their behavior is unchanged while structured cards use their
+Existing single-faced cards receive a default play option and positional
+target slots, so their behavior is unchanged while structured cards use their
 declared options, modes, and target slots. Fork copies that signature and can
 replace only the target values in its existing slots. Sacrificed, discarded,
 or tapped objects remain payment records outside the signature because a copy

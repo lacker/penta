@@ -150,7 +150,7 @@ impl HandcraftedPolicy {
                     .into_iter()
                     .any(|land_type| card.rules.has_subtype(land_type.subtype())))
                 || card.rules.ability_clauses().iter().any(|ability| {
-                    ability.implementation.is_executable()
+                    ability.is_executable()
                         && matches!(ability.definition, DeclarativeAbilityDef::ActivatedMana(_))
                 })
         })
@@ -164,12 +164,12 @@ impl HandcraftedPolicy {
         card.rules
             .ability_clauses()
             .iter()
-            .filter(|ability| ability.implementation.is_executable())
+            .filter(|ability| ability.is_executable())
             .find_map(|ability| {
                 let DeclarativeAbilityDef::ActivatedMana(definition) = ability.definition else {
                     return None;
                 };
-                let EffectDef::AddMana(effect) = ability.effect else {
+                let EffectDef::AddMana(effect) = ability.declarative_effect()? else {
                     return None;
                 };
                 Some(
@@ -197,7 +197,7 @@ impl HandcraftedPolicy {
         let rules = &card.part(part)?.rules;
         if let Some(ability) = choices.costs().alternative().and_then(|alternative| {
             rules.indexed_abilities().find_map(|attached| {
-                (attached.definition.implementation.is_executable()
+                (attached.definition.is_executable()
                     && attached.alternative_cost_id() == Some(alternative)
                     && matches!(
                         attached.definition.definition,
@@ -211,27 +211,38 @@ impl HandcraftedPolicy {
                 return None;
             }
             let mut profile = DeclarativeSpellProfile::default();
-            Self::collect_spell_effect_profile(ability.effect, choices.x(), &mut profile);
+            Self::collect_spell_effect_profile(
+                ability.declarative_effect()?,
+                choices.x(),
+                &mut profile,
+            );
             return Some(profile);
         }
         let ability = rules.ability_clauses().iter().find(|ability| {
-            ability.implementation.is_executable()
-                && matches!(ability.definition, DeclarativeAbilityDef::Spell(_))
+            ability.is_executable() && matches!(ability.definition, DeclarativeAbilityDef::Spell(_))
         })?;
         let DeclarativeAbilityDef::Spell(spell) = ability.definition else {
             unreachable!("the selected ability is a spell ability")
         };
         let mut profile = DeclarativeSpellProfile::default();
-        Self::collect_spell_effect_profile(ability.effect, choices.x(), &mut profile);
+        Self::collect_spell_effect_profile(
+            ability.declarative_effect()?,
+            choices.x(),
+            &mut profile,
+        );
         if spell.modal().is_none() {
             return choices.modes().is_empty().then_some(profile);
         }
         for selected in choices.modes() {
             let mode = spell.mode(*selected)?;
-            if mode.implementation != crate::AbilityImplementationDef::Definition {
+            if !mode.is_executable() {
                 return None;
             }
-            Self::collect_spell_effect_profile(mode.effect, choices.x(), &mut profile);
+            Self::collect_spell_effect_profile(
+                mode.declarative_effect()?,
+                choices.x(),
+                &mut profile,
+            );
         }
         Some(profile)
     }
@@ -740,15 +751,8 @@ impl HandcraftedPolicy {
     fn activated_target_score(
         observation: &PlayerObservation,
         target: Target,
-        behavior: Option<CardBehavior>,
         declarative: Option<DeclarativeSpellProfile>,
     ) -> i32 {
-        if behavior == Some(CardBehavior::OrcishMechanics) {
-            return Self::damage_target_score(observation, target, 2);
-        }
-        if behavior == Some(CardBehavior::Triskelion) {
-            return Self::damage_target_score(observation, target, 1);
-        }
         if let Some(amount) = declarative.and_then(|profile| profile.damage) {
             return Self::damage_target_score(observation, target, amount);
         }
@@ -839,7 +843,7 @@ impl HandcraftedPolicy {
             .iter()
             .flat_map(crate::TargetSelection::targets)
             .copied()
-            .map(|value| Self::activated_target_score(observation, value, behavior, declarative))
+            .map(|value| Self::activated_target_score(observation, value, declarative))
             .sum::<i32>();
         let sacrifice_cost = sacrifice
             .filter(|card| *card != source)
@@ -847,7 +851,7 @@ impl HandcraftedPolicy {
             .map_or(0, |definition| self.card_value(definition));
         let discard_source_cost = self.discard_source_cost(source_definition, ability);
         let score = match behavior {
-            Some(CardBehavior::ChaosOrb | CardBehavior::OrcishMechanics) => 7_200 + target_score,
+            Some(CardBehavior::ChaosOrb) => 7_200 + target_score,
             // Animating a Factory that is already a creature does nothing but
             // spend mana, so only the +1/+1 mode stays repeatable.
             Some(CardBehavior::MishrasFactory)
@@ -894,6 +898,9 @@ impl HandcraftedPolicy {
             {
                 5_200 + target_score + i32::from(x) * 100
             }
+            None if declarative.is_some_and(|profile| profile.damage.is_some()) => {
+                7_200 + target_score
+            }
             None if declarative
                 .is_some_and(|profile| profile.has(DeclarativeSpellProfile::APPLIES)) =>
             {
@@ -902,9 +909,11 @@ impl HandcraftedPolicy {
             None if declarative.is_some() => 4_500 + target_score,
             None => -10_000,
         };
-        if behavior == Some(CardBehavior::OrcishMechanics)
+        if sacrifice.is_some()
+            && let Some(amount) = declarative.and_then(|profile| profile.damage)
             && matches!(target, Some(Target::Player(player)) if player == observation.viewer.opponent())
-            && observation.life_totals[observation.viewer.opponent().index()] > 2
+            && observation.life_totals[observation.viewer.opponent().index()]
+                > i16::try_from(amount).unwrap_or(i16::MAX)
         {
             return -1_000;
         }
@@ -988,12 +997,12 @@ impl HandcraftedPolicy {
             .and_then(|part| part.rules.ability(ability))
             .is_some_and(|ability| {
                 matches!(
-                    ability.effect,
-                    EffectDef::Apply {
+                    ability.declarative_effect(),
+                    Some(EffectDef::Apply {
                         recipient: EffectRecipientDef::Source,
                         effect: crate::card::AppliedEffectDef::Animate(_),
                         ..
-                    }
+                    })
                 )
             })
     }
@@ -1031,7 +1040,8 @@ impl HandcraftedPolicy {
             .get(definition)
             .and_then(|card| card.part(part))
             .and_then(|part| part.rules.ability(ability))
-            .is_some_and(|ability| Self::effect_is_a_wash(ability.effect))
+            .and_then(|ability| ability.declarative_effect())
+            .is_some_and(Self::effect_is_a_wash)
     }
 
     fn effect_is_a_wash(effect: EffectDef) -> bool {
@@ -1077,10 +1087,10 @@ impl HandcraftedPolicy {
             .and_then(|part| part.rules.ability(ability))
             .is_some_and(|ability| {
                 matches!(
-                    ability.effect,
-                    EffectDef::MakeUnblockableThisTurn {
+                    ability.declarative_effect(),
+                    Some(EffectDef::MakeUnblockableThisTurn {
                         object: EffectRecipientDef::Source
-                    }
+                    })
                 )
             })
     }
@@ -1119,7 +1129,9 @@ impl HandcraftedPolicy {
             .part(part)?
             .rules
             .ability(ability)?;
-        Self::target_condition_in(ability.effect)
+        ability
+            .declarative_effect()
+            .and_then(Self::target_condition_in)
     }
 
     /// The first target condition an effect hangs a value on.
@@ -1191,7 +1203,7 @@ impl HandcraftedPolicy {
             .part(part)?
             .rules
             .ability(ability)?;
-        if !ability.implementation.is_executable()
+        if !ability.is_executable()
             || !matches!(ability.definition, DeclarativeAbilityDef::Activated(_))
         {
             return None;
@@ -1200,7 +1212,7 @@ impl HandcraftedPolicy {
         if let DeclarativeAbilityDef::Activated(definition) = ability.definition {
             profile.taps_source = definition.costs.contains(&AbilityCostDef::TapSource);
         }
-        Self::collect_spell_effect_profile(ability.effect, 0, &mut profile);
+        Self::collect_spell_effect_profile(ability.declarative_effect()?, 0, &mut profile);
         Some(profile)
     }
 
@@ -1635,14 +1647,14 @@ impl Policy for HandcraftedPolicy {
 #[cfg(test)]
 mod tests {
     use super::HandcraftedPolicy;
-    use crate::TargetSlotId;
+    use crate::TargetIndex;
     use crate::card::{
         EffectDef, EffectRecipientDef, ManaCost, ObjectPredicateDef, PlayerRelation,
         TargetConditionDef, TurnStepDef, ValueDef,
     };
 
     static TARGET_CONDITION: TargetConditionDef = TargetConditionDef {
-        slot: TargetSlotId(0),
+        slot: TargetIndex::PRIMARY,
         object: ObjectPredicateDef::Any,
         then: ValueDef::Constant(1),
         otherwise: ValueDef::Constant(0),

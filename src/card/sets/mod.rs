@@ -200,11 +200,9 @@ pub(super) const fn rules(behavior: CardBehavior) -> &'static CardRules {
         CardBehavior::GoblinGrenade => &y1994::fallen_empires::GOBLIN_GRENADE.rules,
         CardBehavior::IronclawOrcs => &y1993::alpha::IRONCLAW_ORCS.rules,
         CardBehavior::MishrasFactory => &y1994::antiquities::MISHRA_S_FACTORY.rules,
-        CardBehavior::OrcishMechanics => &y1994::antiquities::ORCISH_MECHANICS.rules,
         CardBehavior::RedElementalBlast => &y1993::alpha::RED_ELEMENTAL_BLAST.rules,
         CardBehavior::WheelOfFortune => &y1993::alpha::WHEEL_OF_FORTUNE.rules,
         CardBehavior::ManaVault => &y1993::alpha::MANA_VAULT.rules,
-        CardBehavior::Triskelion => &y1994::antiquities::TRISKELION.rules,
         CardBehavior::FellwarStone => &y1994::the_dark::FELLWAR_STONE.rules,
         CardBehavior::SwordsToPlowshares => &y1993::alpha::SWORDS_TO_PLOWSHARES.rules,
         CardBehavior::TimeWalk => &y1993::alpha::TIME_WALK.rules,
@@ -223,7 +221,6 @@ pub(super) const fn rules(behavior: CardBehavior) -> &'static CardRules {
         CardBehavior::EssenceScatter => &y2012::magic_2013::ESSENCE_SCATTER.rules,
         CardBehavior::HymnToTourach => &y1994::fallen_empires::HYMN_TO_TOURACH.rules,
         CardBehavior::HypnoticSpecter => &y1993::alpha::HYPNOTIC_SPECTER.rules,
-        CardBehavior::IcatianJavelineers => &y1994::fallen_empires::ICATIAN_JAVELINEERS.rules,
         CardBehavior::LibraryOfAlexandria => &y1993::arabian_nights::LIBRARY_OF_ALEXANDRIA.rules,
         CardBehavior::LifebaneZombie => &y2013::magic_2014::LIFEBANE_ZOMBIE.rules,
         CardBehavior::ManaDrain => &y1994::legends::MANA_DRAIN.rules,
@@ -273,17 +270,17 @@ mod tests {
 
     use super::{CardRecord, SET_MODULES, y1993, y1994, y2011, y2012, y2013};
     use crate::card::{
-        AbilityCostDef, AbilityDef, AbilityImplementationDef, AddManaEffectDef,
-        AlternativeCastKindDef, AppliedEffectDef, BasicLandType, CardPrinting, CardPrintingId,
-        CardStructure, CardSupertype, ComparisonDef, ConditionDef, DeclarativeAbilityDef,
-        DoubleFacedKind, EffectDef, EffectDurationDef, EffectRecipientDef, ImplementationStatus,
+        AbilityCostDef, AbilityDef, AbilityProcedureDef, AddManaEffectDef, AlternativeCastKindDef,
+        AppliedEffectDef, BasicLandType, CardPrinting, CardPrintingId, CardStructure,
+        CardSupertype, ComparisonDef, ConditionDef, DeclarativeAbilityDef, DoubleFacedKind,
+        EffectDef, EffectDurationDef, EffectExecutionDef, EffectRecipientDef, ImplementationStatus,
         KeywordAbility, LibraryPlacement, ManaColor, ManaRestrictionDef, ManaSelectionDef,
         ManaSpendEffectDef, ObjectPredicateDef, ObjectQueryDef, PlayActionKind, PlayRestriction,
         PlayerRelation, ReplacementEffectDef, ReplacementEventDef, SpellForm, TargetPredicate,
         TriggerConditionDef, TriggerEventDef, TurnStepDef, ZoneKind, ZoneMoveCauseDef, cards,
     };
     use crate::{
-        AbilityId, CardDefinitionId, CardPartId, CardSet, Format, ManaCost, ModeId, PlayOptionId,
+        CardDefinitionId, CardPartId, CardSet, Format, ManaCost, ModeId, PlayOptionId, TargetSlotId,
     };
 
     fn standard_records() -> Vec<&'static CardRecord> {
@@ -488,12 +485,12 @@ mod tests {
             // the whole creature off the definition.
             AppliedEffectDef::Animate(_) | AppliedEffectDef::ModifyPowerToughness { .. } => true,
             AppliedEffectDef::GrantAbility(ability) => {
-                ability.implementation == AbilityImplementationDef::Definition
+                ability.declarative_effect().is_some()
                     && match ability.definition {
                         DeclarativeAbilityDef::Keyword(keyword) => shared_keyword(keyword),
                         DeclarativeAbilityDef::AlternativeCast(definition) => {
                             definition.kind == AlternativeCastKindDef::Flashback
-                                && ability.effect == EffectDef::None
+                                && ability.declarative_effect() == Some(EffectDef::None)
                         }
                         _ => false,
                     }
@@ -695,6 +692,7 @@ mod tests {
                 }
                 AbilityCostDef::TapSource
                 | AbilityCostDef::SacrificeSource
+                | AbilityCostDef::RemoveCountersFromSource { .. }
                 | AbilityCostDef::PayLife(_)
                 | AbilityCostDef::Loyalty(_) => battlefield,
                 AbilityCostDef::DiscardSource => hand,
@@ -914,37 +912,33 @@ mod tests {
 
     #[allow(clippy::too_many_lines)]
     fn shared_definition_ability(ability: &AbilityDef) -> bool {
-        if ability.implementation != AbilityImplementationDef::Definition {
+        let Some(effect) = ability.declarative_effect() else {
             return false;
-        }
+        };
         match ability.definition {
             DeclarativeAbilityDef::Spell(definition) => {
                 if let Some(modal) = definition.modal() {
                     modal.modes.iter().all(|mode| {
-                        mode.implementation != AbilityImplementationDef::Definition
-                            || shared_definition_ability(mode)
+                        mode.declarative_effect().is_none() || shared_definition_ability(mode)
                     })
                 } else {
-                    shared_stack_effect(ability.effect)
+                    shared_stack_effect(effect)
                 }
             }
             DeclarativeAbilityDef::ActivatedMana(definition) => {
                 battlefield_only(definition.source_zones)
-                    && definition.costs.iter().any(|cost| {
-                        matches!(
-                            cost,
-                            AbilityCostDef::TapSource | AbilityCostDef::SacrificeSource
-                        )
-                    })
+                    && definition.procedure == AbilityProcedureDef::Shared
+                    && !definition.costs.as_slice().is_empty()
                     && definition.costs.iter().all(|cost| {
                         matches!(
                             cost,
                             AbilityCostDef::TapSource
                                 | AbilityCostDef::SacrificeSource
+                                | AbilityCostDef::RemoveCountersFromSource { .. }
                                 | AbilityCostDef::PayLife(_)
                         )
                     })
-                    && shared_mana_effect(ability.effect, true)
+                    && shared_mana_effect(effect, true)
             }
             DeclarativeAbilityDef::TriggeredMana(definition) => {
                 fn immediate_mana_effect(effect: EffectDef) -> bool {
@@ -998,15 +992,17 @@ mod tests {
                     }
                 }
                 definition.condition.is_none()
+                    && definition.procedure == AbilityProcedureDef::Shared
                     && battlefield_only(definition.source_zones)
                     && shared_trigger_event(definition.event)
-                    && immediate_mana_effect(ability.effect)
+                    && immediate_mana_effect(effect)
             }
             DeclarativeAbilityDef::Activated(definition) => {
                 matches!(
                     definition.source_zones,
                     [ZoneKind::Battlefield | ZoneKind::Hand]
-                ) && shared_activated_costs(definition.source_zones, definition.costs.as_slice())
+                ) && definition.procedure == AbilityProcedureDef::Shared
+                    && shared_activated_costs(definition.source_zones, definition.costs.as_slice())
                     // An activation enumerates its targets once for every
                     // affordable X, so a slot dividing X has no enumeration
                     // to live in yet.
@@ -1014,7 +1010,7 @@ mod tests {
                         .targets
                         .iter()
                         .all(|slot| slot.divided_total.is_none())
-                    && shared_stack_effect(ability.effect)
+                    && shared_stack_effect(effect)
             }
             DeclarativeAbilityDef::Triggered(definition) => {
                 // A state trigger is nothing but its condition: without one it
@@ -1022,27 +1018,31 @@ mod tests {
                 let condition_is_required = definition.event != TriggerEventDef::StateCondition
                     || definition.condition.is_some();
                 battlefield_only(definition.source_zones)
+                    && definition.procedure == AbilityProcedureDef::Shared
                     && shared_trigger_event(definition.event)
                     && condition_is_required
                     && definition
                         .condition
                         .is_none_or(|condition| shared_trigger_condition(*condition))
-                    && shared_stack_effect(ability.effect)
+                    && shared_stack_effect(effect)
             }
             DeclarativeAbilityDef::Static(definition) => {
-                shared_static_effect(definition.source_zones, ability.effect)
+                (effect == EffectDef::None
+                    && ability.coverage.status == ImplementationStatus::Complete
+                    && ability.coverage.explanation.is_some())
+                    || shared_static_effect(definition.source_zones, effect)
             }
             DeclarativeAbilityDef::Replacement(definition) => match definition.event {
                 ReplacementEventDef::SourceEntersBattlefield
                 | ReplacementEventDef::ObjectEntersBattlefield { .. } => {
                     battlefield_only(definition.source_zones)
                         && shared_replacement_event(definition.event)
-                        && matches!(ability.effect, EffectDef::Replacement(effect) if shared_replacement_effect(effect))
+                        && matches!(effect, EffectDef::Replacement(effect) if shared_replacement_effect(effect))
                 }
                 ReplacementEventDef::EntersBattlefield => {
                     battlefield_only(definition.source_zones)
                         && matches!(
-                            ability.effect,
+                            effect,
                             EffectDef::ChooseCreatureType {
                                 object: EffectRecipientDef::Source,
                             } | EffectDef::ChooseCardName {
@@ -1055,7 +1055,7 @@ mod tests {
                         && from == ZoneKind::Hand
                         && to == ZoneKind::Graveyard
                         && shared_zone_move_cause(cause)
-                        && ability.effect
+                        && effect
                             == EffectDef::MoveToZone {
                                 object: EffectRecipientDef::Source,
                                 zone: ZoneKind::Battlefield,
@@ -1066,7 +1066,7 @@ mod tests {
                 ReplacementEventDef::AnyObjectWouldMove { .. } => {
                     battlefield_only(definition.source_zones)
                         && shared_replacement_event(definition.event)
-                        && ability.effect
+                        && effect
                             == EffectDef::MoveToZone {
                                 object: EffectRecipientDef::Source,
                                 zone: ZoneKind::Exile,
@@ -1076,7 +1076,7 @@ mod tests {
                 }
                 ReplacementEventDef::WouldGainLife(_) => {
                     battlefield_only(definition.source_zones)
-                        && matches!(ability.effect, EffectDef::MultiplyEventAmount(_))
+                        && matches!(effect, EffectDef::MultiplyEventAmount(_))
                 }
                 ReplacementEventDef::Special(_) => false,
             },
@@ -1084,9 +1084,9 @@ mod tests {
                 // Both are permission to cast rather than effects of their
                 // own; the card's spell clause does the work.
                 AlternativeCastKindDef::Flashback | AlternativeCastKindDef::Miracle => {
-                    ability.effect == EffectDef::None
+                    effect == EffectDef::None
                 }
-                AlternativeCastKindDef::Overload => shared_stack_effect(ability.effect),
+                AlternativeCastKindDef::Overload => shared_stack_effect(effect),
             },
             DeclarativeAbilityDef::Keyword(keyword) => shared_keyword(keyword),
             DeclarativeAbilityDef::SpecialAction(_) | DeclarativeAbilityDef::Legacy => false,
@@ -1157,13 +1157,13 @@ mod tests {
                 }
             }
             AppliedEffectDef::GrantAbility(ability) => {
-                if ability.implementation == AbilityImplementationDef::Definition {
+                if ability.declarative_effect().is_some() {
                     assert!(
                         shared_definition_ability(ability),
-                        "{card_name} contains a nested Definition ability outside the shared runtime boundary: {ability:?}",
+                        "{card_name} contains a nested shared declarative ability outside the shared runtime boundary: {ability:?}",
                     );
                 }
-                assert_nested_definition_abilities(card_name, ability.effect);
+                assert_nested_definition_abilities(card_name, ability.effect.definition);
             }
             AppliedEffectDef::CannotBeCountered
             | AppliedEffectDef::CannotBeBlockedBy(_)
@@ -1302,11 +1302,13 @@ mod tests {
             let definition = record.definition();
             for part in &definition.parts {
                 for ability in part.rules.ability_clauses() {
-                    if !matches!(ability.implementation, AbilityImplementationDef::Definition) {
+                    if ability.effect.execution != EffectExecutionDef::Declarative
+                        || ability.coverage.status != ImplementationStatus::Complete
+                    {
                         assert!(
                             ability
-                                .implementation
-                                .explanation()
+                                .coverage
+                                .explanation
                                 .is_some_and(|explanation| !explanation.trim().is_empty()),
                             "{} has a non-declarative clause without an explanation: {}",
                             record.name,
@@ -1430,7 +1432,11 @@ mod tests {
             turn_burn.play_options[2].restriction,
             PlayRestriction::FromHandOnly
         );
+        assert_eq!(turn_burn.play_options[0].targets[0].id, TargetSlotId(0));
+        assert_eq!(turn_burn.play_options[1].targets[0].id, TargetSlotId(0));
         assert_eq!(turn_burn.play_options[2].targets.len(), 2);
+        assert_eq!(turn_burn.play_options[2].targets[0].id, TargetSlotId(0));
+        assert_eq!(turn_burn.play_options[2].targets[1].id, TargetSlotId(1));
 
         let charm = y2012::return_to_ravnica::IZZET_CHARM.definition();
         assert_eq!(charm.parts.len(), 1);
@@ -1490,7 +1496,7 @@ mod tests {
             DeclarativeAbilityDef::ActivatedMana(_)
         ));
         assert!(matches!(
-            abilities[1].effect,
+            abilities[1].effect.definition,
             EffectDef::AddMana(mana)
                 if mana.mana == ManaSelectionDef::One(ManaColor::Colorless)
                     && mana.amount == 1
@@ -1502,7 +1508,7 @@ mod tests {
             DeclarativeAbilityDef::ActivatedMana(_)
         ));
         assert!(matches!(
-            abilities[2].effect,
+            abilities[2].effect.definition,
             EffectDef::AddMana(mana)
                 if mana.mana == ManaSelectionDef::Choice(&[
                     ManaColor::White,
@@ -1537,7 +1543,7 @@ mod tests {
                     .into_iter()
                     .any(|land_type| record.rules.has_subtype(land_type.subtype()));
                 let has_printed_source = record.rules.ability_clauses().iter().any(|ability| {
-                    ability.implementation.is_executable()
+                    ability.is_executable()
                         && matches!(ability.definition, DeclarativeAbilityDef::ActivatedMana(_))
                 });
                 !has_intrinsic_source && !has_printed_source
@@ -1616,113 +1622,12 @@ mod tests {
     }
 
     #[test]
-    fn activation_presentation_lives_on_the_exact_activated_clause() {
-        let cases = [
-            (
-                &y1993::alpha::GLASSES_OF_URZA,
-                AbilityId::PRIMARY,
-                "Look at {}'s hand with Glasses of Urza",
-                "Look at a player's hand",
-            ),
-            (
-                &y1993::alpha::STONE_GIANT,
-                AbilityId::PRIMARY,
-                "Give {} flying with Stone Giant",
-                "Give a smaller creature flying",
-            ),
-            (
-                &y1993::alpha::CHAOS_ORB,
-                AbilityId::PRIMARY,
-                "Flip Chaos Orb onto {}",
-                "Flip Chaos Orb onto a permanent",
-            ),
-            (
-                &y1993::alpha::ICY_MANIPULATOR,
-                AbilityId::PRIMARY,
-                "Tap {} with Icy Manipulator",
-                "Tap an artifact, creature, or land",
-            ),
-            (
-                &y1994::antiquities::MISHRA_S_FACTORY,
-                AbilityId(2),
-                "Give {} +1/+1 with Mishra's Factory",
-                "Give an Assembly-Worker +1/+1",
-            ),
-            (
-                &y1994::antiquities::ORCISH_MECHANICS,
-                AbilityId::PRIMARY,
-                "Deal 2 damage to {} with Orcish Mechanics",
-                "Deal 2 damage",
-            ),
-            (
-                &y1994::antiquities::STRIP_MINE,
-                AbilityId(1),
-                "Destroy {} with Strip Mine",
-                "Destroy a land",
-            ),
-            (
-                &y1994::antiquities::TRISKELION,
-                AbilityId(1),
-                "Deal 1 damage to {} with Triskelion",
-                "Deal 1 damage",
-            ),
-            (
-                &y1994::fallen_empires::ICATIAN_JAVELINEERS,
-                AbilityId(1),
-                "Deal 1 damage to {} with Icatian Javelineers",
-                "Deal 1 damage",
-            ),
-            (
-                &y1994::legends::PENDELHAVEN,
-                AbilityId(1),
-                "Give {} +1/+2 with Pendelhaven",
-                "Give a 1/1 creature +1/+2",
-            ),
-            (
-                &y1994::legends::RELIC_BARRIER,
-                AbilityId::PRIMARY,
-                "Tap {} with Relic Barrier",
-                "Tap an artifact",
-            ),
-            (
-                &y1994::the_dark::MAZE_OF_ITH,
-                AbilityId::PRIMARY,
-                "Untap {} and take it out of combat",
-                "Take an attacker out of combat",
-            ),
-        ];
-
-        for (record, ability_id, targeted, summary) in cases {
-            let ability = record
-                .rules
-                .ability(ability_id)
-                .unwrap_or_else(|| panic!("{} is missing ability {ability_id:?}", record.name));
-            assert!(matches!(
-                ability.definition,
-                DeclarativeAbilityDef::Activated(_)
-            ));
-            let presentation = ability.activation_text.unwrap();
-            assert_eq!(presentation.targeted, targeted);
-            assert_eq!(presentation.summary, summary);
-        }
-
-        let presentation_count = SET_MODULES
-            .iter()
-            .flat_map(|module| module.cards.iter())
-            .flat_map(|record| record.rules.ability_clauses())
-            .filter(|ability| ability.activation_text.is_some())
-            .count();
-        assert_eq!(presentation_count, cases.len());
-    }
-
-    #[test]
     fn migrated_activated_cards_preserve_their_derived_implementation_status() {
         let partial = [
             &y1993::alpha::GLASSES_OF_URZA,
             &y1993::alpha::STONE_GIANT,
             &y1993::alpha::CHAOS_ORB,
             &y1994::antiquities::MISHRA_S_FACTORY,
-            &y1994::fallen_empires::ICATIAN_JAVELINEERS,
             &y1994::legends::PENDELHAVEN,
             &y1994::the_dark::MAZE_OF_ITH,
         ];
@@ -1731,6 +1636,7 @@ mod tests {
             &y1994::antiquities::ORCISH_MECHANICS,
             &y1994::antiquities::STRIP_MINE,
             &y1994::antiquities::TRISKELION,
+            &y1994::fallen_empires::ICATIAN_JAVELINEERS,
             &y1994::legends::RELIC_BARRIER,
         ];
 
@@ -1850,7 +1756,7 @@ mod tests {
         let conditional = AbilityDef::defined(
             "Whenever this becomes tapped, if you control a permanent, add {C}.",
             DeclarativeAbilityDef::TriggeredMana(definition.with_condition(&CONDITION)),
-            ordinary.effect,
+            ordinary.effect.definition,
         );
 
         assert!(shared_definition_ability(&ordinary));
@@ -1953,42 +1859,41 @@ mod tests {
                     let ability_id = attached.id;
                     let ability = attached.definition;
                     assert!(
-                        !matches!(
-                            (ability.definition, ability.implementation),
-                            (
-                                DeclarativeAbilityDef::Legacy,
-                                AbilityImplementationDef::CustomFull { behavior: None, .. }
-                            )
-                        ),
+                        !matches!(ability.definition, DeclarativeAbilityDef::Legacy)
+                            || !ability.is_executable()
+                            || ability.custom_behavior().is_some(),
                         "{} {:?} ability {:?} is legacy text claiming full implementation without an executable behavior: {ability:?}",
                         definition.name,
                         part.id,
                         ability_id,
                     );
-                    if ability.implementation == AbilityImplementationDef::Definition {
+                    if ability.declarative_effect().is_some() {
                         assert!(
                             shared_definition_ability(&ability),
-                            "{} {:?} ability {:?} claims Definition outside the shared runtime boundary: {ability:?}",
+                            "{} {:?} ability {:?} claims shared declarative execution outside the shared runtime boundary: {ability:?}",
                             definition.name,
                             part.id,
                             ability_id,
                         );
                     }
-                    assert_nested_definition_abilities(&definition.name, ability.effect);
+                    assert_nested_definition_abilities(&definition.name, ability.effect.definition);
                     if let DeclarativeAbilityDef::Spell(spell) = ability.definition
                         && let Some(modal) = spell.modal()
                     {
                         for mode in modal.modes {
-                            if mode.implementation == AbilityImplementationDef::Definition {
+                            if mode.declarative_effect().is_some() {
                                 assert!(
                                     shared_definition_ability(mode),
-                                    "{} {:?} ability {:?} contains a modal Definition branch outside the shared runtime boundary: {mode:?}",
+                                    "{} {:?} ability {:?} contains a shared declarative modal branch outside the shared runtime boundary: {mode:?}",
                                     definition.name,
                                     part.id,
                                     ability_id,
                                 );
                             }
-                            assert_nested_definition_abilities(&definition.name, mode.effect);
+                            assert_nested_definition_abilities(
+                                &definition.name,
+                                mode.effect.definition,
+                            );
                         }
                     }
                 }

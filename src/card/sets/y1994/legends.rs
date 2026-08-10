@@ -1,10 +1,11 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityImplementationDef, AbilityTargetDef, AbilityTargetPredicate,
+    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     CardArt, CardBehavior, CardRules, CardSet, CardSupertype, CardType, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ValueDef, ZoneKind, abilities, cards,
+    EffectExecutionDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ValueDef, ZoneKind,
+    abilities, cards,
 };
-use crate::ids::TargetSlotId;
+use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 pub(in crate::card::sets) static CHAIN_LIGHTNING: CardRecord = CardRecord::new(
@@ -13,18 +14,12 @@ pub(in crate::card::sets) static CHAIN_LIGHTNING: CardRecord = CardRecord::new(
     CardArt::new("b5883762-ca0a-4932-8d2a-41a45796a5f8", "Sandra Everingham"),
     CardSet::Legends,
     CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[
-        AbilityDef::spell(
-            "Chain Lightning deals 3 damage to any target.",
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetSlotId(0)),
-                amount: ValueDef::Constant(3),
-            },
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "any target",
+        AbilityDef::spell_with_targets("Chain Lightning deals 3 damage to any target.", &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::AnyTarget,
-        )]),
+        )], EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(3),
+            }),
         AbilityDef::custom_full(
             "Then that player or that permanent's controller may pay {R}{R}. If the player does, they may copy this spell and may choose a new target for that copy.",
             CardBehavior::ChainLightning,
@@ -133,29 +128,19 @@ pub(in crate::card::sets) static PENDELHAVEN: CardRecord = CardRecord::new(
     .with_supertype(CardSupertype::Legendary)
     .with_abilities(&[
         abilities::tap_for(ManaColor::Green),
-        AbilityDef::activated(
-            "{T}: Target 1/1 creature gets +1/+2 until end of turn.",
-            &[AbilityCostDef::TapSource],
-            EffectDef::Special("Give the target 1/1 creature +1/+2 until end of turn"),
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "1/1 creature",
+        AbilityDef::activated_with_targets("{T}: Target 1/1 creature gets +1/+2 until end of turn.", &[AbilityCostDef::TapSource], &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::Special("creature with power 1 and toughness 1"),
                 zones: &[ZoneKind::Battlefield],
                 controller: None,
                 owner: None,
             },
-        )])
-        .with_implementation(AbilityImplementationDef::CustomPartial {
-            behavior: Some(CardBehavior::Pendelhaven),
-            explanation: "The 1/1 target restriction is checked on activation but is not rechecked when the ability resolves.",
-        })
-        .with_activation_text(
-            "Give {} +1/+2 with Pendelhaven",
-            "Give a 1/1 creature +1/+2",
-        ),
+        )], EffectDef::Special("Give the target 1/1 creature +1/+2 until end of turn"))
+        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::Pendelhaven))
+        .with_coverage(AbilityCoverageDef::partial(
+            "The 1/1 target restriction is checked on activation but is not rechecked when the ability resolves.",
+        ))
+        .with_legacy_procedure(),
     ]),
 );
 
@@ -164,24 +149,23 @@ pub(in crate::card::sets) static RELIC_BARRIER: CardRecord = CardRecord::new(
     "Relic Barrier",
     CardArt::new("c062cbae-ce5e-43be-9932-c81a0a3622e8", "Harold McNeill"),
     CardSet::Legends,
-    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[AbilityDef::activated(
-        "{T}: Tap target artifact.",
-        &[AbilityCostDef::TapSource],
-        EffectDef::Tap {
-            object: EffectRecipientDef::Target(TargetSlotId(0)),
-        },
-    )
-    .with_targets(&[AbilityTargetDef::exactly_one(
-        TargetSlotId(0),
-        "artifact",
-        AbilityTargetPredicate::Object {
-            object: ObjectPredicateDef::HasType(CardType::Artifact),
-            zones: &[ZoneKind::Battlefield],
-            controller: None,
-            owner: None,
-        },
-    )])
-    .with_activation_text("Tap {} with Relic Barrier", "Tap an artifact")]),
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "{T}: Tap target artifact.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::Tap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static THE_ABYSS: CardRecord = CardRecord::new(

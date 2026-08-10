@@ -161,9 +161,7 @@ test("targeted permanent actions identify their clickable battlefield target", a
   assert.ok(stripMana, "Strip Mine remains available as a colorless mana source");
   assert.equal(stripMana.manaAbility, true);
   const stripAction = state.actions.find((action) => {
-    // The label describes the effect, not the card: "Destroy Plains with Strip Mine".
-    if (!/^Destroy .* with Strip Mine$/.test(action.label)) return false;
-    assert.equal(action.abilitySummary, "Destroy a land");
+    if (!/^Activate Strip Mine → /.test(action.label)) return false;
     return state.battlefield.some(
       (card) => card.id === action.targetCardId && card.owner === "opponent",
     );
@@ -205,10 +203,9 @@ test("a usable battlefield ability holds second main open", async () => {
     "no spell or land play can otherwise hold the next priority window open",
   );
   const destroy = state.actions.find(
-    (action) => action.label === "Destroy Mountain with Strip Mine",
+    (action) => action.label === "Activate Strip Mine → Mountain",
   );
   assert.ok(destroy, "Strip Mine has a legal non-mana activation");
-  assert.equal(destroy.abilitySummary, "Destroy a land");
   assert.equal(destroy.manaAbility, false);
   assert.equal(state.passLabel, "Go to second main");
 
@@ -222,7 +219,7 @@ test("a usable battlefield ability holds second main open", async () => {
   assert.equal(state.passLabel, "End turn");
   assert.ok(
     state.actions.some(
-      (action) => action.label === "Destroy Mountain with Strip Mine",
+      (action) => action.label === "Activate Strip Mine → Mountain",
     ),
     "the usable battlefield ability holds second-main priority open",
   );
@@ -266,7 +263,7 @@ test("Mishra's Factory offers both modes and manual mana can be undone", async (
     factoryActions.map((action) => action.label),
     [
       "Tap Mishra's Factory for Colorless mana",
-      "Make Mishra's Factory a 2/2 creature",
+      "Activate Mishra's Factory",
     ],
   );
   assert.deepEqual(
@@ -294,7 +291,7 @@ test("Mishra's Factory offers both modes and manual mana can be undone", async (
   assert.equal(state.human.mana.colorless, 0);
 
   const animate = state.actions.find(
-    (action) => action.label === "Make Mishra's Factory a 2/2 creature",
+    (action) => action.label === "Activate Mishra's Factory",
   );
   game.set_phase_stop("Main 1", true);
   game.act(animate.index);

@@ -45,8 +45,9 @@ use crate::{
 /// Version 6 adds one activation action per affordable value of X. Version 7
 /// exposes the priority window between first-strike and regular combat damage
 /// and adds newly executable keyword and alternative-casting actions to
-/// legal-action lists.
-pub const PROTOCOL_VERSION: u32 = 10;
+/// legal-action lists. Version 11 assigns instantiated spell and ability target
+/// slots positionally, including flattened target ranges for selected modes.
+pub const PROTOCOL_VERSION: u32 = 11;
 
 /// The engine crate version. Rules behavior is part of the contract too: a
 /// fix can change what a trained policy sees even when the shapes hold

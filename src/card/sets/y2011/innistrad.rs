@@ -9,7 +9,7 @@ use crate::card::{
     LibraryPlacement, ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayOptionDef, PlayerRelation,
     SpellForm, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities, cards,
 };
-use crate::ids::{CardPartId, PlayOptionId, TargetSlotId};
+use crate::ids::{CardPartId, PlayOptionId, TargetIndex};
 use crate::mana_cost;
 
 pub(in crate::card::sets) static AVACYNS_PILGRIM: CardRecord = CardRecord::new(
@@ -92,44 +92,42 @@ pub(in crate::card::sets) static DISSIPATE: CardRecord = CardRecord::new(
 );
 
 static GARRUK_FRONT_ABILITIES: [AbilityDef; 3] = [
-        AbilityDef::triggered_if(
-            "When Garruk has two or fewer loyalty counters on him, transform him.",
-            TriggerEventDef::StateCondition,
-            &GARRUK_LOW_LOYALTY,
-            EffectDef::Transform {
-                object: EffectRecipientDef::Source,
-            },
-        ),
-        AbilityDef::activated(
-            "0: Garruk deals 3 damage to target creature. That creature deals damage equal to its power to him.",
-            &[AbilityCostDef::Loyalty(0)],
-            // The creature hits back with the power it had when the ability
-            // resolved, which is why the loyalty it costs Garruk is read off
-            // the target rather than printed.
-            EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetSlotId(0)),
-                    amount: ValueDef::Constant(3),
-                },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Source,
-                    amount: ValueDef::TargetPower(TargetSlotId(0)),
-                },
-            ]),
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one_permanent(
-            TargetSlotId(0),
-            "creature",
+    AbilityDef::triggered_if(
+        "When Garruk has two or fewer loyalty counters on him, transform him.",
+        TriggerEventDef::StateCondition,
+        &GARRUK_LOW_LOYALTY,
+        EffectDef::Transform {
+            object: EffectRecipientDef::Source,
+        },
+    ),
+    AbilityDef::activated_with_targets(
+        "0: Garruk deals 3 damage to target creature. That creature deals damage equal to its power to him.",
+        &[AbilityCostDef::Loyalty(0)],
+        &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Creature),
-        )]),
-        AbilityDef::activated(
-            "0: Create a 2/2 green Wolf creature token.",
-            &[AbilityCostDef::Loyalty(0)],
-            EffectDef::CreateToken {
-                token: cards::WOLF_TOKEN_2_2_GREEN,
-                count: ValueDef::Constant(1),
+        )],
+        // The creature hits back with the power it had when the ability
+        // resolved, which is why the loyalty it costs Garruk is read off
+        // the target rather than printed.
+        EffectDef::Sequence(&[
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(3),
             },
-        ),
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Source,
+                amount: ValueDef::TargetPower(TargetIndex::PRIMARY),
+            },
+        ]),
+    ),
+    AbilityDef::activated(
+        "0: Create a 2/2 green Wolf creature token.",
+        &[AbilityCostDef::Loyalty(0)],
+        EffectDef::CreateToken {
+            token: cards::WOLF_TOKEN_2_2_GREEN,
+            count: ValueDef::Constant(1),
+        },
+    ),
 ];
 
 const fn garruk_front_rules() -> CardRules {
@@ -275,12 +273,11 @@ pub(in crate::card::sets) static GHOST_QUARTER: CardRecord = CardRecord::new(
     CardSet::Innistrad,
     CardRules::new_land(&[]).with_abilities(&[
         abilities::tap_for(ManaColor::Colorless),
-        AbilityDef::activated(
-            "{T}, Sacrifice this land: Destroy target land. Its controller may search their library for a basic land card, put it onto the battlefield, then shuffle.",
-            &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
-            EffectDef::Sequence(&[
+        AbilityDef::activated_with_targets("{T}, Sacrifice this land: Destroy target land. Its controller may search their library for a basic land card, put it onto the battlefield, then shuffle.", &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource], &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Land),
+        )], EffectDef::Sequence(&[
                 EffectDef::Destroy {
-                    object: EffectRecipientDef::Target(TargetSlotId(0)),
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     can_regenerate: true,
                 },
                 // The printed "may" adds nothing: a search of a hidden zone
@@ -288,20 +285,14 @@ pub(in crate::card::sets) static GHOST_QUARTER: CardRecord = CardRecord::new(
                 // one of the choices. The controller is read after the
                 // destruction from last-known information.
                 EffectDef::SearchLibrary {
-                    player: EffectRecipientDef::ControllerOfTarget(TargetSlotId(0)),
+                    player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Land),
                         ObjectPredicateDef::Supertype(CardSupertype::Basic),
                     ]),
                     destination: ZoneKind::Battlefield,
                 },
-            ]),
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one_permanent(
-            TargetSlotId(0),
-            "land",
-            ObjectPredicateDef::HasType(CardType::Land),
-        )]),
+            ])),
     ]),
 );
 
@@ -333,15 +324,18 @@ pub(in crate::card::sets) static KESSIG_WOLF_RUN: CardRecord = CardRecord::new(
     CardSet::Innistrad,
     CardRules::new_land(&[]).with_abilities(&[
         abilities::tap_for(ManaColor::Colorless),
-        AbilityDef::activated(
+        AbilityDef::activated_with_targets(
             "{X}{R}{G}, {T}: Target creature gets +X/+0 and gains trample until end of turn.",
             &[
                 AbilityCostDef::Mana(mana_cost!("{X}{R}{G}")),
                 AbilityCostDef::TapSource,
             ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
             EffectDef::Sequence(&[
                 EffectDef::Apply {
-                    recipient: EffectRecipientDef::Target(TargetSlotId(0)),
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     effect: AppliedEffectDef::ModifyPowerToughness {
                         power: ValueDef::ChosenX,
                         toughness: ValueDef::Constant(0),
@@ -349,17 +343,12 @@ pub(in crate::card::sets) static KESSIG_WOLF_RUN: CardRecord = CardRecord::new(
                     duration: EffectDurationDef::UntilEndOfTurn,
                 },
                 EffectDef::Apply {
-                    recipient: EffectRecipientDef::Target(TargetSlotId(0)),
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     effect: AppliedEffectDef::GrantAbility(&abilities::trample()),
                     duration: EffectDurationDef::UntilEndOfTurn,
                 },
             ]),
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one_permanent(
-            TargetSlotId(0),
-            "creature",
-            ObjectPredicateDef::HasType(CardType::Creature),
-        )]),
+        ),
     ]),
 );
 
@@ -391,33 +380,29 @@ pub(in crate::card::sets) static LILIANA_OF_THE_VEIL: CardRecord = CardRecord::n
                 },
             ]),
         ),
-        AbilityDef::activated(
+        AbilityDef::activated_with_targets(
             "−2: Target player sacrifices a creature.",
             &[AbilityCostDef::Loyalty(-2)],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
             EffectDef::SacrificeOfChoice {
-                player: EffectRecipientDef::Target(TargetSlotId(0)),
+                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 object: ObjectPredicateDef::HasType(CardType::Creature),
                 then: None,
                 optional: false,
             },
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "player",
-            AbilityTargetPredicate::Player(PlayerRelation::Any),
-        )]),
-        AbilityDef::activated(
+        ),
+        AbilityDef::activated_with_targets(
             "−6: Separate all permanents target player controls into two piles. That player sacrifices all permanents in the pile of their choice.",
             &[AbilityCostDef::Loyalty(-6)],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
             EffectDef::SplitPermanentsAndSacrificeAPile {
-                player: EffectRecipientDef::Target(TargetSlotId(0)),
+                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             },
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "player",
-            AbilityTargetPredicate::Player(PlayerRelation::Any),
-        )]),
+        ),
     ]),
 );
 
@@ -472,24 +457,11 @@ pub(in crate::card::sets) static SNAPCASTER_MAGE: CardRecord = CardRecord::new(
     )
     .with_abilities(&[
         abilities::flash(),
-        AbilityDef::triggered(
-            "When this creature enters, target instant or sorcery card in your graveyard gains flashback until end of turn. The flashback cost is equal to its mana cost. (You may cast that card from your graveyard for its flashback cost. Then exile it.)",
-            TriggerEventDef::ZoneChanged {
+        AbilityDef::triggered_with_targets("When this creature enters, target instant or sorcery card in your graveyard gains flashback until end of turn. The flashback cost is equal to its mana cost. (You may cast that card from your graveyard for its flashback cost. Then exile it.)", TriggerEventDef::ZoneChanged {
                 object: ObjectPredicateDef::Source,
                 from: None,
                 to: Some(ZoneKind::Battlefield),
-            },
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Target(TargetSlotId(0)),
-                effect: AppliedEffectDef::GrantAbility(
-                    &abilities::flashback_for_card_mana_cost(),
-                ),
-                duration: EffectDurationDef::UntilEndOfTurn,
-            },
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "instant or sorcery card in your graveyard",
+            }, &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::HasType(CardType::Instant),
@@ -499,7 +471,13 @@ pub(in crate::card::sets) static SNAPCASTER_MAGE: CardRecord = CardRecord::new(
                 controller: None,
                 owner: Some(PlayerRelation::You),
             },
-        )]),
+        )], EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::GrantAbility(
+                    &abilities::flashback_for_card_mana_cost(),
+                ),
+                duration: EffectDurationDef::UntilEndOfTurn,
+            }),
     ]),
 );
 
@@ -544,25 +522,23 @@ pub(in crate::card::sets) static UNBURIAL_RITES: CardRecord = CardRecord::new(
     CardArt::new("2794c82b-e5ce-4369-894e-bf56c6402ae1", "Ryan Pancoast"),
     CardSet::Innistrad,
     CardRules::new_sorcery(mana_cost!("{4}{B}")).with_abilities(&[
-        AbilityDef::spell(
+        AbilityDef::spell_with_targets(
             "Return target creature card from your graveyard to the battlefield.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
             EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetSlotId(0)),
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Battlefield,
                 controller: None,
                 placement: LibraryPlacement::Top,
             },
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "creature card in your graveyard",
-            AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::HasType(CardType::Creature),
-                zones: &[ZoneKind::Graveyard],
-                controller: None,
-                owner: Some(PlayerRelation::You),
-            },
-        )]),
+        ),
         abilities::flashback(mana_cost!("{3}{W}")),
     ]),
 );
@@ -572,26 +548,24 @@ pub(in crate::card::sets) static URGENT_EXORCISM: CardRecord = CardRecord::new(
     "Urgent Exorcism",
     CardArt::new("516a437c-a2ee-43c6-876c-1a63a455c97c", "Svetlin Velinov"),
     CardSet::Innistrad,
-    CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[AbilityDef::spell(
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[AbilityDef::spell_with_targets(
         "Destroy target Spirit or enchantment.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::Subtype("Spirit"),
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                ]),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+        )],
         EffectDef::Destroy {
-            object: EffectRecipientDef::Target(TargetSlotId(0)),
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: true,
         },
-    )
-    .with_targets(&[AbilityTargetDef::exactly_one(
-        TargetSlotId(0),
-        "Spirit or enchantment",
-        AbilityTargetPredicate::Object {
-            object: ObjectPredicateDef::AnyOf(&[
-                ObjectPredicateDef::Subtype("Spirit"),
-                ObjectPredicateDef::HasType(CardType::Enchantment),
-            ]),
-            zones: &[ZoneKind::Battlefield],
-            controller: None,
-            owner: None,
-        },
-    )])]),
+    )]),
 );
 
 pub(in crate::card::sets) static WOODLAND_CEMETERY: CardRecord = CardRecord::new(

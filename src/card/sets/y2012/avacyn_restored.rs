@@ -8,7 +8,7 @@ use crate::card::{
     ManaColor, ManaRestrictionDef, ManaSpendEffectDef, ObjectPredicateDef, ObjectQueryDef,
     PlayerRelation, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities, cards,
 };
-use crate::{TargetSlotId, mana_cost};
+use crate::{TargetIndex, mana_cost};
 
 pub(in crate::card::sets) static BONFIRE_OF_THE_DAMNED: CardRecord = CardRecord::new(
     cards::BONFIRE_OF_THE_DAMNED,
@@ -16,27 +16,25 @@ pub(in crate::card::sets) static BONFIRE_OF_THE_DAMNED: CardRecord = CardRecord:
     CardArt::new("e60610fe-891d-46de-b556-d03b637dccec", "James Paick"),
     CardSet::AvacynRestored,
     CardRules::new_sorcery(mana_cost!("{X}{X}{R}")).with_abilities(&[
-        AbilityDef::spell(
+        AbilityDef::spell_with_targets(
             "Bonfire of the Damned deals X damage to target player or planeswalker and each creature that player or that planeswalker's controller controls.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
+            )],
             EffectDef::Sequence(&[
                 EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetSlotId(0)),
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     amount: ValueDef::ChosenX,
                 },
                 EffectDef::DealDamage {
                     recipient: EffectRecipientDef::ObjectsControlledByTarget {
                         object: ObjectPredicateDef::HasType(CardType::Creature),
-                        slot: TargetSlotId(0),
+                        slot: TargetIndex::PRIMARY,
                     },
                     amount: ValueDef::ChosenX,
                 },
             ]),
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "player or planeswalker",
-            AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
-        )]),
+        ),
         abilities::miracle(mana_cost!("{X}{R}")),
     ]),
 );
@@ -142,31 +140,11 @@ pub(in crate::card::sets) static RESTORATION_ANGEL: CardRecord = CardRecord::new
     .with_abilities(&[
         abilities::flash(),
         abilities::flying(),
-        AbilityDef::triggered(
-            "When this creature enters, you may exile target non-Angel creature you control, then return that card to the battlefield under your control.",
-            TriggerEventDef::ZoneChanged {
+        AbilityDef::triggered_with_targets("When this creature enters, you may exile target non-Angel creature you control, then return that card to the battlefield under your control.", TriggerEventDef::ZoneChanged {
                 object: ObjectPredicateDef::Source,
                 from: None,
                 to: Some(ZoneKind::Battlefield),
-            },
-            // The exile links the card to this Angel and the return drains
-            // that link immediately, so the creature blinks within one
-            // resolution. The card comes back under its owner's control,
-            // which is the printed controller for every creature this can
-            // legally target unless control of it was already stolen.
-            EffectDef::May(&EffectDef::Sequence(&[
-                EffectDef::ExileLinkedToSource {
-                    object: EffectRecipientDef::Target(TargetSlotId(0)),
-                },
-                EffectDef::ReturnLinkedExiles {
-                    zone: ZoneKind::Battlefield,
-                    grant: None,
-                },
-            ])),
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one(
-            TargetSlotId(0),
-            "non-Angel creature you control",
+            }, &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -176,7 +154,20 @@ pub(in crate::card::sets) static RESTORATION_ANGEL: CardRecord = CardRecord::new
                 controller: Some(PlayerRelation::You),
                 owner: None,
             },
-        )]),
+        )], // The exile links the card to this Angel and the return drains
+            // that link immediately, so the creature blinks within one
+            // resolution. The card comes back under its owner's control,
+            // which is the printed controller for every creature this can
+            // legally target unless control of it was already stolen.
+            EffectDef::May(&EffectDef::Sequence(&[
+                EffectDef::ExileLinkedToSource {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+                EffectDef::ReturnLinkedExiles {
+                    zone: ZoneKind::Battlefield,
+                    grant: None,
+                },
+            ]))),
     ]),
 );
 
@@ -242,34 +233,27 @@ pub(in crate::card::sets) static ZEALOUS_CONSCRIPTS: CardRecord = CardRecord::ne
     )
     .with_abilities(&[
         abilities::haste(),
-        AbilityDef::triggered(
-            "When this creature enters, gain control of target permanent until end of turn. Untap that permanent. It gains haste until end of turn.",
-            TriggerEventDef::ZoneChanged {
+        AbilityDef::triggered_with_targets("When this creature enters, gain control of target permanent until end of turn. Untap that permanent. It gains haste until end of turn.", TriggerEventDef::ZoneChanged {
                 object: ObjectPredicateDef::Source,
                 from: None,
                 to: Some(ZoneKind::Battlefield),
-            },
-            // Control first: the untap and the haste are worth having only
+            }, &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::Any,
+        )], // Control first: the untap and the haste are worth having only
             // on a permanent that is already yours to use.
             EffectDef::Sequence(&[
                 EffectDef::GainControlThisTurn {
-                    object: EffectRecipientDef::Target(TargetSlotId(0)),
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
                 EffectDef::Untap {
-                    object: EffectRecipientDef::Target(TargetSlotId(0)),
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
                 EffectDef::Apply {
-                    recipient: EffectRecipientDef::Target(TargetSlotId(0)),
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     effect: AppliedEffectDef::GrantAbility(&HASTE_GRANT),
                     duration: EffectDurationDef::UntilEndOfTurn,
                 },
-            ]),
-        )
-        .with_targets(&[AbilityTargetDef::exactly_one_permanent(
-            TargetSlotId(0),
-            "permanent",
-            ObjectPredicateDef::Any,
-        )]),
+            ])),
     ]),
 );
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

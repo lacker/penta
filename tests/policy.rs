@@ -604,6 +604,45 @@ fn handcrafted_only_uses_orcish_mechanics_on_a_player_for_lethal() {
 }
 
 #[test]
+fn handcrafted_scores_triskelion_from_its_declarative_damage_effect() {
+    let catalog = poc::catalog().unwrap();
+    let triskelion = CardInstanceId(1);
+    let target = CardInstanceId(2);
+    let ability = AbilityOrigin::Printed {
+        definition: cards::TRISKELION,
+        part: CardPartId::PRIMARY,
+        ability: AbilityId(1),
+    };
+    let hit_creature = Action::ActivateAbility {
+        source: triskelion,
+        ability,
+        targets: activated_targets(Target::Permanent(target)),
+        sacrifice: None,
+        x: 0,
+    };
+    let observation = policy_observation(
+        vec![
+            permanent(1, cards::TRISKELION, PlayerId::One, Some(2), Some(2)),
+            permanent(2, cards::SAVANNAH_LIONS, PlayerId::Two, Some(2), Some(1)),
+        ],
+        vec![
+            Action::PassPriority,
+            Action::ActivateAbility {
+                source: triskelion,
+                ability,
+                targets: activated_targets(Target::Player(PlayerId::Two)),
+                sacrifice: None,
+                x: 0,
+            },
+            hit_creature.clone(),
+        ],
+    );
+    let mut policy = HandcraftedPolicy::new(catalog);
+
+    assert_eq!(policy.choose_action(&observation), Some(hit_creature));
+}
+
+#[test]
 fn handcrafted_sacrifices_artifacts_to_atog_for_an_unblocked_lethal_attack() {
     let catalog = poc::catalog().unwrap();
     let atog = CardInstanceId(1);

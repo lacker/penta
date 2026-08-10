@@ -617,7 +617,7 @@ fn handcrafted_scores_triskelion_from_its_declarative_damage_effect() {
         source: triskelion,
         ability,
         targets: activated_targets(Target::Permanent(target)),
-        sacrifice: None,
+        cost_object: None,
         x: 0,
     };
     let observation = policy_observation(
@@ -631,7 +631,7 @@ fn handcrafted_scores_triskelion_from_its_declarative_damage_effect() {
                 source: triskelion,
                 ability,
                 targets: activated_targets(Target::Player(PlayerId::Two)),
-                sacrifice: None,
+                cost_object: None,
                 x: 0,
             },
             hit_creature.clone(),

@@ -266,6 +266,11 @@ test("Mishra's Factory offers both modes and manual mana can be undone", async (
       "Activate Mishra's Factory",
     ],
   );
+  assert.equal(
+    factoryActions.find((action) => !action.manaAbility).abilityLabel,
+    "Activate Mishra's Factory",
+    "ordinary activations expose their target-independent chooser label",
+  );
   assert.deepEqual(
     factoryActions.find((action) => !action.manaAbility).manaSourceIds,
     [mox.id],

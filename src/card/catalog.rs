@@ -1049,15 +1049,13 @@ fn validate_effect_target_references(
             Ok(())
         }
         EffectDef::SplitPermanentsAndSacrificeAPile { player }
-        | EffectDef::CannotCastNoncreatureSpellsThisTurn { player } => {
+        | EffectDef::CannotCastNoncreatureSpellsThisTurn { player }
+        | EffectDef::SearchLibrary { player, .. } => {
             validate_recipient_target_references(player, target_count)
         }
         EffectDef::Mill { player, amount } => {
             validate_recipient_target_references(player, target_count)?;
             validate_value_target_references(amount, target_count)
-        }
-        EffectDef::SearchLibrary { player, .. } => {
-            validate_recipient_target_references(player, target_count)
         }
         EffectDef::Counter { object } => validate_recipient_target_references(object, target_count),
         EffectDef::CounterUnlessPaid { object, amount, .. }

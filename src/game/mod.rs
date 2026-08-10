@@ -2112,6 +2112,39 @@ impl Game {
         }
     }
 
+    /// Returns the exact ability currently represented by `origin` on
+    /// `source`, including copied, intrinsic, and continuously granted
+    /// battlefield abilities. Printed abilities activated from another zone
+    /// are resolved in that zone's characteristic context.
+    #[must_use]
+    pub fn ability_for_origin(
+        &self,
+        source: GameObjectId,
+        origin: AbilityOrigin,
+    ) -> Option<AbilityDef> {
+        if let Some(permanent) = self
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == source)
+        {
+            return self
+                .find_effective_ability(permanent, |effective| effective.origin == origin)
+                .map(|effective| effective.ability);
+        }
+
+        let (zone, card) = self.card_in_nonbattlefield_zone(source)?;
+        let context = match zone {
+            ZoneKind::Library => CharacteristicContext::Library,
+            ZoneKind::Hand => CharacteristicContext::Hand,
+            ZoneKind::Graveyard => CharacteristicContext::Graveyard,
+            ZoneKind::Exile => CharacteristicContext::Exile,
+            ZoneKind::Command => CharacteristicContext::Command,
+            ZoneKind::Battlefield | ZoneKind::Stack => return None,
+        };
+        self.find_printed_card_ability(card, &context, |effective| effective.origin == origin)
+            .map(|effective| effective.ability)
+    }
+
     fn add_mana_actions(&self, player: PlayerId, actions: &mut Vec<Action>) {
         for permanent in self
             .battlefield

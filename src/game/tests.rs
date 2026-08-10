@@ -7644,6 +7644,11 @@ fn copied_grant_source_definition_is_part_of_the_granted_ability_origin() {
     let (mut game, grantor, receiver, definition_a, definition_b) = copied_grant_source_game();
     let first_origin = sole_granted_origin(&game, receiver);
     assert_eq!(first_origin, copied_grant_origin(grantor, definition_a));
+    assert_eq!(
+        game.ability_for_origin(receiver, first_origin)
+            .map(|ability| ability.text),
+        Some("Gain 1 life."),
+    );
     let stale_action = Action::ActivateAbility {
         source: receiver,
         ability: first_origin,
@@ -7657,6 +7662,12 @@ fn copied_grant_source_definition_is_part_of_the_granted_ability_origin() {
     let second_origin = sole_granted_origin(&game, receiver);
     assert_eq!(second_origin, copied_grant_origin(grantor, definition_b));
     assert_ne!(first_origin, second_origin);
+    assert_eq!(game.ability_for_origin(receiver, first_origin), None);
+    assert_eq!(
+        game.ability_for_origin(receiver, second_origin)
+            .map(|ability| ability.text),
+        Some("Lose 1 life."),
+    );
     let current_actions = game.legal_actions(PlayerId::One);
     assert!(
         !current_actions.contains(&stale_action),

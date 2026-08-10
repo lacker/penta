@@ -966,6 +966,7 @@ impl WebGame {
                     "targetStackIds": action_target_stacks(action),
                     "targetCount": action_targets(action).len(),
                     "ability": action_ability_origin(action),
+                    "abilityLabel": self.action_ability_label(&observation, action),
                     "manaAbility": matches!(action, Action::ActivateManaAbility { .. }),
                     "spellAction": matches!(action, Action::CastSpell { .. }),
                     "sacrificeCardIds": action_sacrifices(action),
@@ -1424,6 +1425,63 @@ impl WebGame {
             .collect()
     }
 
+    /// Target- and X-independent label for one ordinary activation. A source
+    /// with a single currently legal ability keeps the compact menu label;
+    /// when several distinct exact origins are legal, their current rules
+    /// text keeps actions and opponent beats distinguishable without authored
+    /// UI copy.
+    fn activation_label(
+        &self,
+        observation: &PlayerObservation,
+        source: CardInstanceId,
+        ability: AbilityOrigin,
+    ) -> String {
+        let source_name = self.instance_name(observation, source);
+        if source_has_multiple_activated_abilities(observation, source)
+            && let Some(text) = self.ability_rules_text(source, ability)
+        {
+            format!("{source_name} — {text}")
+        } else {
+            format!("Activate {source_name}")
+        }
+    }
+
+    fn action_ability_label(
+        &self,
+        observation: &PlayerObservation,
+        action: &Action,
+    ) -> Option<String> {
+        match action {
+            Action::ActivateAbility {
+                source, ability, ..
+            } => Some(self.activation_label(observation, *source, *ability)),
+            Action::KeepHand
+            | Action::TakeMulligan
+            | Action::BottomCards { .. }
+            | Action::DiscardCards { .. }
+            | Action::ChooseDecision { .. }
+            | Action::CancelDecision { .. }
+            | Action::ChooseUntap { .. }
+            | Action::PassPriority
+            | Action::PlayLand { .. }
+            | Action::ActivateManaAbility { .. }
+            | Action::PayLifeForMana
+            | Action::CastSpell { .. }
+            | Action::DeclareAttacker { .. }
+            | Action::FinishDeclaringAttackers
+            | Action::DeclareBlocker { .. }
+            | Action::FinishDeclaringBlockers
+            | Action::AssignCombatDamage { .. }
+            | Action::Concede => None,
+        }
+    }
+
+    fn ability_rules_text(&self, source: CardInstanceId, origin: AbilityOrigin) -> Option<String> {
+        self.game
+            .ability_for_origin(source, origin)
+            .map(|ability| ability.rules_text().into_owned())
+    }
+
     fn target_name(&self, observation: &PlayerObservation, target: Target) -> String {
         match target {
             Target::Player(player) if player == self.human => "you".into(),
@@ -1744,12 +1802,15 @@ impl WebGame {
             }
             Action::ActivateAbility {
                 source,
+                ability,
                 targets: target_selections,
                 cost_object,
-                ..
+                x,
             } => {
-                let source_name = self.instance_name(observation, *source);
-                let mut label = format!("Activate {source_name}");
+                let mut label = self.activation_label(observation, *source, *ability);
+                if source_ability_has_multiple_x_values(observation, *source, *ability) {
+                    let _ = write!(label, " (X={x})");
+                }
                 if let Some(cost_object) = cost_object
                     && cost_object != source
                 {
@@ -2433,6 +2494,60 @@ fn action_ability_origin(action: &Action) -> Option<Value> {
     Some(ability_origin_value(origin))
 }
 
+fn source_has_multiple_activated_abilities(
+    observation: &PlayerObservation,
+    source: CardInstanceId,
+) -> bool {
+    let mut first = None;
+    for action in &observation.legal_actions {
+        let Action::ActivateAbility {
+            source: candidate,
+            ability,
+            ..
+        } = action
+        else {
+            continue;
+        };
+        if *candidate != source {
+            continue;
+        }
+        match first {
+            None => first = Some(*ability),
+            Some(first) if first != *ability => return true,
+            Some(_) => {}
+        }
+    }
+    false
+}
+
+fn source_ability_has_multiple_x_values(
+    observation: &PlayerObservation,
+    source: CardInstanceId,
+    ability: AbilityOrigin,
+) -> bool {
+    let mut first = None;
+    for action in &observation.legal_actions {
+        let Action::ActivateAbility {
+            source: candidate,
+            ability: candidate_ability,
+            x,
+            ..
+        } = action
+        else {
+            continue;
+        };
+        if *candidate != source || *candidate_ability != ability {
+            continue;
+        }
+        match first {
+            None => first = Some(*x),
+            Some(first) if first != *x => return true,
+            Some(_) => {}
+        }
+    }
+    false
+}
+
 fn ability_origin_value(origin: AbilityOrigin) -> Value {
     match origin {
         AbilityOrigin::Printed {
@@ -2756,6 +2871,155 @@ mod tests {
         assert_eq!(
             game.action_label(&observation, &granted_flashback),
             "Cast Think Twice via Flashback {1}{U}"
+        );
+    }
+
+    #[test]
+    fn activated_action_labels_distinguish_exact_ability_origins() {
+        let mut game = WebGame::new(
+            "The Deck",
+            "Robots",
+            "Handcrafted",
+            true,
+            2,
+            Some("old-school-93-94".into()),
+        )
+        .unwrap();
+        let source = game
+            .game
+            .put_onto_battlefield(game.human, penta::card::cards::MISHRA_S_FACTORY)
+            .expect("Mishra's Factory enters the test battlefield");
+        let mut observation = game.game.observe(game.human);
+        assert!(
+            observation
+                .battlefield
+                .iter()
+                .any(|permanent| permanent.id == source),
+            "the formatter resolves the ability from the real game object",
+        );
+        let animate = Action::ActivateAbility {
+            source,
+            ability: AbilityOrigin::Printed {
+                definition: penta::card::cards::MISHRA_S_FACTORY,
+                part: penta::CardPartId::PRIMARY,
+                ability: penta::AbilityId(1),
+            },
+            targets: Vec::new(),
+            cost_object: None,
+            x: 0,
+        };
+        let pump = Action::ActivateAbility {
+            source,
+            ability: AbilityOrigin::Printed {
+                definition: penta::card::cards::MISHRA_S_FACTORY,
+                part: penta::CardPartId::PRIMARY,
+                ability: penta::AbilityId(2),
+            },
+            targets: vec![penta::TargetSelection::single(
+                penta::TargetSlotId(0),
+                Target::Permanent(source),
+            )],
+            cost_object: None,
+            x: 0,
+        };
+
+        // Multiple target/X/sacrifice variants of one origin remain one
+        // relevant ability and retain the compact source-only label.
+        observation.legal_actions = vec![animate.clone(), animate.clone()];
+        assert_eq!(
+            game.action_ability_label(&observation, &animate),
+            Some("Activate Mishra's Factory".into()),
+        );
+
+        observation.legal_actions = vec![animate.clone(), pump.clone()];
+        let animate_label = "Mishra's Factory — {1}: This land becomes a 2/2 Assembly-Worker artifact creature until end of turn. It's still a land.";
+        let pump_label =
+            "Mishra's Factory — {T}: Target Assembly-Worker creature gets +1/+1 until end of turn.";
+        assert_eq!(
+            game.action_ability_label(&observation, &animate),
+            Some(animate_label.into()),
+        );
+        assert_eq!(
+            game.action_ability_label(&observation, &pump),
+            Some(pump_label.into()),
+        );
+        assert_eq!(game.action_label(&observation, &animate), animate_label);
+        assert_eq!(
+            game.opponent_action_label(&observation, &pump),
+            format!("{pump_label} → Mishra's Factory"),
+        );
+        assert_eq!(
+            game.action_ability_label(&observation, &Action::PassPriority),
+            None,
+        );
+    }
+
+    #[test]
+    fn activated_action_labels_show_distinct_x_and_every_selected_target() {
+        let mut game = WebGame::new(
+            "Briksza Naya Midrange",
+            "Greer G/R Aggro",
+            "Handcrafted",
+            true,
+            2,
+            Some("isd-rtr-standard".into()),
+        )
+        .unwrap();
+        let source = game
+            .game
+            .put_onto_battlefield(game.human, penta::card::cards::KESSIG_WOLF_RUN)
+            .expect("Kessig Wolf Run enters the test battlefield");
+        let pilgrim = game
+            .game
+            .put_onto_battlefield(game.human, penta::card::cards::AVACYNS_PILGRIM)
+            .expect("Avacyn's Pilgrim enters the test battlefield");
+        let thragtusk = game
+            .game
+            .put_onto_battlefield(game.human, penta::card::cards::THRAGTUSK)
+            .expect("Thragtusk enters the test battlefield");
+        let ability = AbilityOrigin::Printed {
+            definition: penta::card::cards::KESSIG_WOLF_RUN,
+            part: penta::CardPartId::PRIMARY,
+            ability: penta::AbilityId(1),
+        };
+        let action = |x| Action::ActivateAbility {
+            source,
+            ability,
+            targets: vec![penta::TargetSelection::new(
+                penta::TargetSlotId(0),
+                vec![Target::Permanent(pilgrim), Target::Permanent(thragtusk)],
+            )],
+            cost_object: None,
+            x,
+        };
+        let zero = action(0);
+        let two = action(2);
+        let mut observation = game.game.observe(game.human);
+        observation.legal_actions = vec![zero.clone(), two.clone()];
+
+        assert_eq!(
+            game.action_ability_label(&observation, &zero),
+            Some("Activate Kessig Wolf Run".into()),
+            "the grouping label is independent of X and targets",
+        );
+        assert_eq!(
+            game.action_ability_label(&observation, &two),
+            game.action_ability_label(&observation, &zero),
+        );
+        assert_eq!(
+            game.action_label(&observation, &zero),
+            "Activate Kessig Wolf Run (X=0) → Avacyn's Pilgrim, Thragtusk",
+        );
+        assert_eq!(
+            game.action_label(&observation, &two),
+            "Activate Kessig Wolf Run (X=2) → Avacyn's Pilgrim, Thragtusk",
+        );
+
+        observation.legal_actions = vec![two.clone()];
+        assert_eq!(
+            game.action_label(&observation, &two),
+            "Activate Kessig Wolf Run → Avacyn's Pilgrim, Thragtusk",
+            "a sole legal X value needs no disambiguating suffix",
         );
     }
 

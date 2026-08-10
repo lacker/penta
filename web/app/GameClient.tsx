@@ -42,6 +42,10 @@ import {
   resolveMulliganBottomAction,
   toggleMulliganBottomCard,
 } from "./mulligan-actions.mjs";
+import {
+  actionMatchesTargetedOrigin,
+  groupTargetedActionsByOrigin,
+} from "./targeted-action-groups.mjs";
 
 const randomSeed = () => crypto.getRandomValues(new Uint32Array(1))[0];
 
@@ -174,6 +178,7 @@ export function GameClient({
   const [selectedTargetCard, setSelectedTargetCard] = useState<number | null>(null);
   const [selectedTargetPlayer, setSelectedTargetPlayer] = useState<Owner | null>(null);
   const [selectedTargetStackId, setSelectedTargetStackId] = useState<number | null>(null);
+  const [selectedTargetActionGroup, setSelectedTargetActionGroup] = useState<string | null>(null);
   const [selectedX, setSelectedX] = useState<number | null>(null);
   const [xPickerCard, setXPickerCard] = useState<number | null>(null);
   const [fireballTargets, setFireballTargets] = useState<string[]>([]);
@@ -337,6 +342,7 @@ export function GameClient({
     setSelectedTargetCard(null);
     setSelectedTargetPlayer(null);
     setSelectedTargetStackId(null);
+    setSelectedTargetActionGroup(null);
     setSelectedX(null);
     setXPickerCard(null);
     setFireballTargets([]);
@@ -740,9 +746,11 @@ export function GameClient({
         !action.manaAbility &&
         !hasActionTargets(action),
     );
+    const targetedGroups = groupTargetedActionsByOrigin(targeted);
     dragDropped.current = false;
     if (
       targeted.length > 0 &&
+      targetedGroups.length === 1 &&
       playable.length === 0 &&
       new Set(targeted.map((action) => action.x ?? null)).size === 1
     ) {
@@ -790,6 +798,19 @@ export function GameClient({
       selectedX === null || action.cardId !== selectedCard || action.x === selectedX,
     [selectedCard, selectedX],
   );
+  const actionMatchesSelectedTargetGroup = useCallback(
+    (action: Action) => actionMatchesTargetedOrigin(
+      action,
+      selectedCard,
+      selectedTargetActionGroup,
+    ),
+    [selectedCard, selectedTargetActionGroup],
+  );
+  const actionMatchesTargetSelection = useCallback(
+    (action: Action) =>
+      actionMatchesSelectedX(action) && actionMatchesSelectedTargetGroup(action),
+    [actionMatchesSelectedTargetGroup, actionMatchesSelectedX],
+  );
   const selectedHandCard = state?.human.hand.find((card) => card.id === selectedCard);
   const choosingFireballTargets =
     selectedHandCard?.name === "Fireball" && selectedX !== null;
@@ -836,7 +857,7 @@ export function GameClient({
   const panelActions = (() => {
     if (!state) return [];
     const sourceActions = state.actions.filter(
-      (action) => action.cardId === selectedCard && actionMatchesSelectedX(action),
+      (action) => action.cardId === selectedCard && actionMatchesTargetSelection(action),
     );
     const sourceHasTargets = sourceActions.some(
       (action) =>
@@ -848,7 +869,7 @@ export function GameClient({
       if (action.kind === "danger") return false;
       if (mulliganBottomPicker?.actions.includes(action)) return false;
       if (state.decision && action.decisionId === state.decision.id) return false;
-      if (!actionMatchesSelectedX(action)) return false;
+      if (!actionMatchesTargetSelection(action)) return false;
       // Splitting damage is the only thing the game is waiting for, so it is
       // listed outright rather than hidden behind selecting the attacker.
       if (action.combatDamageAttacker != null) return true;
@@ -940,7 +961,7 @@ export function GameClient({
             action.cardId === id ||
             (action.cardId === selectedCard &&
               ((action.targetCardIds ?? []).includes(id) || action.targetCardId === id) &&
-              actionMatchesSelectedX(action)) ||
+              actionMatchesTargetSelection(action)) ||
             (action.cardId === selectedBlocker && action.targetCardId === id),
         ).length ?? 0;
   };
@@ -1005,9 +1026,13 @@ export function GameClient({
         !hasActionTargets(action),
     );
     const targetedActions = dragTargetActionsForCard(id);
+    const targetedGroups = groupTargetedActionsByOrigin(targetedActions);
     const hasSingleXValue = new Set(targetedActions.map((action) => action.x ?? null)).size <= 1;
     return (directActions.length === 1 && targetedActions.length === 0) ||
-      (directActions.length === 0 && targetedActions.length > 0 && hasSingleXValue);
+      (directActions.length === 0 &&
+        targetedActions.length > 0 &&
+        targetedGroups.length === 1 &&
+        hasSingleXValue);
   };
 
   const isTargetable = (id: number) =>
@@ -1025,7 +1050,7 @@ export function GameClient({
           (action) =>
             action.cardId === selectedCard &&
             action.targetCardId === id &&
-            actionMatchesSelectedX(action),
+            actionMatchesTargetSelection(action),
         ) ?? false)));
 
   const isPlayerTargetable = (owner: Owner) =>
@@ -1037,7 +1062,7 @@ export function GameClient({
         (action) =>
           action.cardId === selectedCard &&
           action.targetPlayer === owner &&
-          actionMatchesSelectedX(action),
+          actionMatchesTargetSelection(action),
       ) ?? false));
 
   const isStackTargetable = (id: number) =>
@@ -1048,7 +1073,7 @@ export function GameClient({
         (action) =>
           action.cardId === selectedCard &&
           action.targetStackId === id &&
-          actionMatchesSelectedX(action),
+          actionMatchesTargetSelection(action),
       ) ?? false));
 
   const selectedSource = state?.battlefield
@@ -1070,9 +1095,7 @@ export function GameClient({
     state?.actions.filter(
       (action) =>
         action.cardId === cardActionMenu &&
-        action.targetCardId == null &&
-        action.targetPlayer == null &&
-        action.targetStackId == null,
+        !hasActionTargets(action),
     ) ?? [];
   const actionMenuTargetedActions =
     cardActionMenu === null
@@ -1080,11 +1103,9 @@ export function GameClient({
       : (state?.actions.filter(
           (action) =>
             action.cardId === cardActionMenu &&
-            (action.targetCardId != null ||
-              action.targetPlayer != null ||
-              action.targetStackId != null),
+            hasActionTargets(action),
         ) ?? []);
-  const actionMenuHasTargets = actionMenuTargetedActions.length > 0;
+  const actionMenuTargetedGroups = groupTargetedActionsByOrigin(actionMenuTargetedActions);
   const choosingTarget =
     !choosingFireballTargets &&
     selectedCard !== null &&
@@ -1094,7 +1115,7 @@ export function GameClient({
     (state?.actions.some(
       (action) =>
         action.cardId === selectedCard &&
-        actionMatchesSelectedX(action) &&
+        actionMatchesTargetSelection(action) &&
         (action.targetCardId != null ||
           action.targetPlayer != null ||
           action.targetStackId != null),
@@ -1109,10 +1130,20 @@ export function GameClient({
     setSelectedTargetCard(null);
     setSelectedTargetPlayer(null);
     setSelectedTargetStackId(null);
+    setSelectedTargetActionGroup(null);
     setCardActionMenu(null);
     setSelectedX(null);
     setXPickerCard(null);
     setFireballTargets([]);
+  };
+
+  const selectTargetedActionGroup = (source: number, group: string) => {
+    setSelectedCard(source);
+    setSelectedTargetCard(null);
+    setSelectedTargetPlayer(null);
+    setSelectedTargetStackId(null);
+    setSelectedTargetActionGroup(group);
+    setCardActionMenu(null);
   };
 
   const selectPlayer = (owner: Owner) => {
@@ -1126,7 +1157,7 @@ export function GameClient({
         (action) =>
           action.cardId === selectedCard &&
           action.targetPlayer === owner &&
-          actionMatchesSelectedX(action),
+          actionMatchesTargetSelection(action),
       ) ?? [];
     if (matching.length === 1) {
       prepareAction(matching[0]);
@@ -1144,7 +1175,7 @@ export function GameClient({
         (action) =>
           action.cardId === selectedCard &&
           action.targetStackId === id &&
-          actionMatchesSelectedX(action),
+          actionMatchesTargetSelection(action),
       ) ?? [];
     if (matching.length === 1) {
       prepareAction(matching[0]);
@@ -1200,7 +1231,7 @@ export function GameClient({
           (action) =>
             action.cardId === selectedCard &&
             action.targetCardId === id &&
-            actionMatchesSelectedX(action),
+            actionMatchesTargetSelection(action),
         ) ?? [];
       if (targeted.length === 1) {
         prepareAction(targeted[0]);
@@ -1221,6 +1252,7 @@ export function GameClient({
     const matching =
       state?.actions.filter((action) => action.cardId === id) ?? [];
     if (selectedCard !== null && selectedCard !== id) {
+      setSelectedTargetActionGroup(null);
       setSelectedX(null);
       setXPickerCard(null);
       setFireballTargets([]);
@@ -1238,23 +1270,16 @@ export function GameClient({
       setSelectedTargetCard(null);
       setSelectedTargetPlayer(null);
       setSelectedTargetStackId(null);
+      setSelectedTargetActionGroup(null);
       setSelectedX(null);
       setXPickerCard(id);
       setFireballTargets([]);
       return;
     }
-    const untargeted = matching.filter(
-      (action) =>
-        action.targetCardId == null &&
-        action.targetPlayer == null &&
-        action.targetStackId == null,
-    );
-    const hasTargetedAction = matching.some(
-      (action) =>
-        action.targetCardId != null ||
-        action.targetPlayer != null ||
-        action.targetStackId != null,
-    );
+    const untargeted = matching.filter((action) => !hasActionTargets(action));
+    const targetedActions = matching.filter(hasActionTargets);
+    const targetedGroups = groupTargetedActionsByOrigin(targetedActions);
+    const hasTargetedAction = targetedActions.length > 0;
     // Destroying one of your own permanents is never something a single click
     // should decide for you, even when there is only one thing it could take.
     const costsSacrifice = matching.some(
@@ -1263,12 +1288,14 @@ export function GameClient({
     if (
       untargeted.length > 1 ||
       (untargeted.length > 0 && hasTargetedAction) ||
+      targetedGroups.length > 1 ||
       (costsSacrifice && !hasTargetedAction)
     ) {
       setSelectedCard(null);
       setSelectedTargetCard(null);
       setSelectedTargetPlayer(null);
       setSelectedTargetStackId(null);
+      setSelectedTargetActionGroup(null);
       setCardActionMenu(id);
       return;
     }
@@ -1279,6 +1306,7 @@ export function GameClient({
       setSelectedTargetCard(null);
       setSelectedTargetPlayer(null);
       setSelectedTargetStackId(null);
+      setSelectedTargetActionGroup(targetedGroups[0]?.key ?? null);
       return;
     }
     if (matching.length === 1) {
@@ -1291,6 +1319,7 @@ export function GameClient({
         setSelectedTargetCard(null);
         setSelectedTargetPlayer(null);
         setSelectedTargetStackId(null);
+        setSelectedTargetActionGroup(null);
       }
     }
   };
@@ -1512,17 +1541,15 @@ export function GameClient({
                   <i aria-hidden="true">→</i>
                 </button>
               ))}
-              {actionMenuHasTargets && (
+              {actionMenuTargetedGroups.map((group) => (
                 <button
-                  onClick={() => {
-                    setSelectedCard(cardActionMenu);
-                    setCardActionMenu(null);
-                  }}
+                  key={group.key}
+                  onClick={() => selectTargetedActionGroup(cardActionMenu, group.key)}
                 >
-                  <strong>Choose a target</strong>
+                  <strong>{group.label}</strong>
                   <i aria-hidden="true">→</i>
                 </button>
-              )}
+              ))}
             </div>
             <button className="card-action-cancel" onClick={clearCardSelection}>
               Cancel

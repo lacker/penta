@@ -286,6 +286,8 @@ struct DelayedTrigger {
     /// The object that queued this, kept whole so the effect resolves with
     /// the same source and controller it would have had at the time.
     object: Box<StackObject>,
+    /// Trigger-event information captured when the effect was scheduled.
+    context: TriggerContext,
     step: TurnStepDef,
     player: PlayerRelation,
     effect: &'static EffectDef,
@@ -7492,6 +7494,7 @@ impl Game {
             } => {
                 self.delayed_triggers.push(DelayedTrigger {
                     object: Box::new(object.clone()),
+                    context,
                     step,
                     player,
                     effect,
@@ -8975,14 +8978,36 @@ impl Game {
             }
             EffectDef::Apply {
                 recipient: EffectRecipientDef::AttachedPermanent,
-                effect: AppliedEffectDef::AddLandTypes(types),
+                effect,
                 duration:
                     EffectDurationDef::WhileSourceRemainsInZone
                     | EffectDurationDef::UntilSourceLeavesZone,
             } if source.attached_to == Some(affected.card.id) => {
-                operations.push((source.card.id, LandTypeOperation::Add(types)));
+                Self::collect_applied_land_type_operations(effect, source.card.id, operations);
             }
             _ => {}
+        }
+    }
+
+    fn collect_applied_land_type_operations(
+        effect: AppliedEffectDef,
+        source: GameObjectId,
+        operations: &mut Vec<(GameObjectId, LandTypeOperation)>,
+    ) {
+        match effect {
+            AppliedEffectDef::Composite(effects) => {
+                for effect in effects {
+                    Self::collect_applied_land_type_operations(*effect, source, operations);
+                }
+            }
+            AppliedEffectDef::AddLandTypes(types) => {
+                operations.push((source, LandTypeOperation::Add(types)));
+            }
+            AppliedEffectDef::CannotBeCountered
+            | AppliedEffectDef::CannotBeBlockedBy(_)
+            | AppliedEffectDef::ModifyPowerToughness { .. }
+            | AppliedEffectDef::GrantAbility(_)
+            | AppliedEffectDef::Special(_) => {}
         }
     }
 
@@ -12455,7 +12480,7 @@ impl Game {
                     active,
                     delayed.player,
                     delayed.object.controller,
-                    TriggerContext::empty(),
+                    delayed.context,
                 )
         }) {
             due.push(delayed);
@@ -12465,7 +12490,7 @@ impl Game {
         // that was already waiting and must not fire in this batch.
         self.delayed_triggers = waiting;
         for delayed in due {
-            self.resolve_effect_def(*delayed.effect, &delayed.object, TriggerContext::empty());
+            self.resolve_effect_def(*delayed.effect, &delayed.object, delayed.context);
         }
     }
 

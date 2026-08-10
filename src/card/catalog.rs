@@ -770,9 +770,9 @@ fn ability_grant_sites(effect: super::EffectDef) -> usize {
             .iter()
             .map(|effect| ability_grant_sites(*effect))
             .fold(0, usize::saturating_add),
-        super::EffectDef::OptionalManaPayment { effect, .. } | super::EffectDef::May(effect) => {
-            ability_grant_sites(*effect)
-        }
+        super::EffectDef::OptionalManaPayment { effect, .. }
+        | super::EffectDef::May(effect)
+        | super::EffectDef::AtNextStep { effect, .. } => ability_grant_sites(*effect),
         super::EffectDef::Apply { effect, .. } => applied_ability_grant_sites(effect),
         super::EffectDef::None
         | super::EffectDef::AddMana(_)
@@ -801,7 +801,6 @@ fn ability_grant_sites(effect: super::EffectDef) -> usize {
         | super::EffectDef::MakeUnblockableThisTurn { .. }
         | super::EffectDef::ReduceGenericCostBy(_)
         | super::EffectDef::MultiplyEventAmount(_)
-        | super::EffectDef::AtNextStep { .. }
         | super::EffectDef::MoveToZone { .. }
         | super::EffectDef::ChooseCreatureType { .. }
         | super::EffectDef::Special(_) => 0,
@@ -2255,7 +2254,7 @@ mod tests {
         AlternativeCostDef, AppliedEffectDef, CardBehavior, CardDefinition, CardEffectStatus,
         CardPart, CardPrinting, CardPrintingId, CardSet, CardStructure, DoubleFacedKind, EffectDef,
         EffectDurationDef, EffectRecipientDef, ManaCost, ModeDef, ModeSetDef, PlayOptionDef,
-        PlayerRelation, PrintedManaCost, SpellForm, TargetPredicate, TargetSlotDef,
+        PlayerRelation, PrintedManaCost, SpellForm, TargetPredicate, TargetSlotDef, TurnStepDef,
     };
     use crate::{
         AbilityId, AdditionalCostId, AlternativeCostId, CardDefinitionId, CardPartId, Format,
@@ -2630,6 +2629,45 @@ mod tests {
         let abilities = Box::leak(
             vec![AbilityDef::static_ability(
                 "This object receives many abilities.",
+                EffectDef::Sequence(effects),
+            )]
+            .into_boxed_slice(),
+        );
+        let mut card = definition(1, "Test Card", CardSet::Alpha);
+        let rules = card.rules.with_abilities(abilities);
+        set_primary_rules(&mut card, &rules);
+
+        assert_eq!(
+            error(card),
+            CatalogError::TooManyAbilityGrantSites {
+                definition: CardDefinitionId(1),
+                part: CardPartId::PRIMARY,
+                ability: AbilityId::PRIMARY,
+                count: 257,
+            }
+        );
+    }
+
+    #[test]
+    fn delayed_grants_count_toward_the_structural_address_space() {
+        static GRANTED: AbilityDef = AbilityDef::not_implemented(
+            "A granted ability.",
+            "The test only needs a reusable definition.",
+        );
+        static GRANT: EffectDef = EffectDef::Apply {
+            recipient: EffectRecipientDef::Source,
+            effect: AppliedEffectDef::GrantAbility(&GRANTED),
+            duration: EffectDurationDef::WhileSourceRemainsInZone,
+        };
+        static DELAYED_GRANT: EffectDef = EffectDef::AtNextStep {
+            step: TurnStepDef::End,
+            player: PlayerRelation::You,
+            effect: &GRANT,
+        };
+        let effects = Box::leak(vec![DELAYED_GRANT; 257].into_boxed_slice());
+        let abilities = Box::leak(
+            vec![AbilityDef::static_ability(
+                "This object schedules many granted abilities.",
                 EffectDef::Sequence(effects),
             )]
             .into_boxed_slice(),

@@ -4597,6 +4597,7 @@ fn delayed_combat_damage_effect_queued_between_strike_waves_fires_once() {
     let life_before = game.players[0].life;
     game.delayed_triggers.push(DelayedTrigger {
         object: Box::new(spell(10_001, cards::LIGHTNING_BOLT, PlayerId::One, 0)),
+        context: TriggerContext::empty(),
         step: TurnStepDef::CombatDamage,
         player: PlayerRelation::Any,
         effect: &LOSE_ONE,
@@ -5177,6 +5178,82 @@ fn printed_and_intrinsic_mana_abilities_coexist() {
                 ManaColor::Green,
             ),
         ]
+    );
+}
+
+#[test]
+fn direct_and_composite_land_type_effects_grant_intrinsic_mana_in_order() {
+    static DIRECT_TYPES: [BasicLandType; 1] = [BasicLandType::Mountain];
+    static FIRST_COMPOSITE_TYPES: [BasicLandType; 1] = [BasicLandType::Forest];
+    static SECOND_COMPOSITE_TYPES: [BasicLandType; 1] = [BasicLandType::Island];
+    static COMPONENTS: [AppliedEffectDef; 2] = [
+        AppliedEffectDef::AddLandTypes(&FIRST_COMPOSITE_TYPES),
+        AppliedEffectDef::AddLandTypes(&SECOND_COMPOSITE_TYPES),
+    ];
+    static EFFECTS: [EffectDef; 2] = [
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::AttachedPermanent,
+            effect: AppliedEffectDef::AddLandTypes(&DIRECT_TYPES),
+            duration: EffectDurationDef::WhileSourceRemainsInZone,
+        },
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::AttachedPermanent,
+            effect: AppliedEffectDef::Composite(&COMPONENTS),
+            duration: EffectDurationDef::WhileSourceRemainsInZone,
+        },
+    ];
+    static ABILITIES: [AbilityDef; 1] = [AbilityDef::static_ability(
+        "Enchanted land is a Mountain, Forest, and Island in addition to its other types.",
+        EffectDef::Sequence(&EFFECTS),
+    )];
+
+    let definition_id = CardDefinitionId(10_081);
+    let mut definition = CardDefinition::new(
+        definition_id,
+        "Composite land-type test Aura",
+        CardSet::Magic2014,
+        false,
+        CardBehavior::Unsupported,
+    );
+    definition.rules = CardRules::new_enchantment(ManaCost::new(0, 0)).with_abilities(&ABILITIES);
+    synchronize_single_part_definition(&mut definition);
+
+    let mut game = ready_game();
+    let mut definitions = game
+        .catalog
+        .definitions()
+        .into_iter()
+        .cloned()
+        .collect::<Vec<_>>();
+    definitions.push(definition);
+    game.catalog = CardCatalog::new(definitions).unwrap();
+    let land_id = CardInstanceId(10_000);
+    let mut aura = creature(10_001, definition_id, PlayerId::One);
+    aura.attached_to = Some(land_id);
+    game.battlefield.extend([
+        creature(land_id.0, cards::THESPIANS_STAGE, PlayerId::One),
+        aura,
+    ]);
+
+    assert_eq!(
+        game.effective_subtypes(&game.battlefield[0]).as_ref(),
+        &["Mountain", "Forest", "Island"],
+    );
+    assert_eq!(
+        game.mana_ability_activations(&game.battlefield[0])
+            .into_iter()
+            .filter_map(|activation| match activation.ability {
+                AbilityOrigin::IntrinsicBasicLand(land_type) => {
+                    Some((land_type, activation.color))
+                }
+                AbilityOrigin::Printed { .. } | AbilityOrigin::Granted { .. } => None,
+            })
+            .collect::<Vec<_>>(),
+        vec![
+            (BasicLandType::Mountain, ManaColor::Red),
+            (BasicLandType::Forest, ManaColor::Green),
+            (BasicLandType::Island, ManaColor::Blue),
+        ],
     );
 }
 
@@ -15018,6 +15095,7 @@ fn delayed_trigger_partition_preserves_order_and_waiting_capacity() {
     };
     let delayed = |id: u32, step: TurnStepDef, effect: &'static EffectDef| DelayedTrigger {
         object: Box::new(spell(id, cards::LIGHTNING_BOLT, PlayerId::One, 0)),
+        context: TriggerContext::empty(),
         step,
         player: PlayerRelation::Any,
         effect,
@@ -15063,6 +15141,50 @@ fn delayed_trigger_partition_preserves_order_and_waiting_capacity() {
 }
 
 #[test]
+fn delayed_effect_preserves_its_trigger_context() {
+    static TAP_TRIGGERING_OBJECT: EffectDef = EffectDef::Tap {
+        object: EffectRecipientDef::TriggeringObject,
+    };
+    static LOSE_TRIGGER_AMOUNT: EffectDef = EffectDef::LoseLife {
+        recipient: EffectRecipientDef::EventPlayer,
+        amount: ValueDef::TriggerEventAmount,
+    };
+    static DELAYED_EFFECTS: [EffectDef; 2] = [TAP_TRIGGERING_OBJECT, LOSE_TRIGGER_AMOUNT];
+    static DELAYED: EffectDef = EffectDef::AtNextStep {
+        step: TurnStepDef::End,
+        player: PlayerRelation::EventPlayer,
+        effect: &EffectDef::Sequence(&DELAYED_EFFECTS),
+    };
+
+    let mut game = ready_game();
+    game.active_player = PlayerId::Two;
+    game.priority = PlayerId::Two;
+    let triggering = creature(10_000, cards::SAVANNAH_LIONS, PlayerId::Two);
+    let triggering_id = triggering.card.id;
+    game.battlefield.push(triggering);
+    let source = spell(10_001, cards::LIGHTNING_BOLT, PlayerId::One, 0);
+    let context = TriggerContext {
+        object: Some(triggering_id),
+        object_controller: Some(PlayerId::Two),
+        event_player: Some(PlayerId::Two),
+        amount: Some(3),
+    };
+    let life_before = game.players[PlayerId::Two.index()].life;
+
+    game.resolve_effect_def(DELAYED, &source, context);
+
+    assert_eq!(game.delayed_triggers.len(), 1);
+    assert!(!game.battlefield[0].tapped);
+    assert_eq!(game.players[PlayerId::Two.index()].life, life_before);
+
+    game.fire_delayed_triggers(TurnStepDef::End);
+
+    assert!(game.delayed_triggers.is_empty());
+    assert!(game.battlefield[0].tapped);
+    assert_eq!(game.players[PlayerId::Two.index()].life, life_before - 3);
+}
+
+#[test]
 fn delayed_effect_enqueued_during_firing_waits_for_the_next_matching_step() {
     const LOSE_ONE: EffectDef = EffectDef::LoseLife {
         recipient: EffectRecipientDef::Controller,
@@ -15077,6 +15199,7 @@ fn delayed_effect_enqueued_during_firing_waits_for_the_next_matching_step() {
     game.delayed_triggers = Vec::with_capacity(4);
     game.delayed_triggers.push(DelayedTrigger {
         object: Box::new(spell(10_000, cards::LIGHTNING_BOLT, PlayerId::One, 0)),
+        context: TriggerContext::empty(),
         step: TurnStepDef::End,
         player: PlayerRelation::Any,
         effect: &ENQUEUE_LOSS,

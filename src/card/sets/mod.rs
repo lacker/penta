@@ -12,6 +12,7 @@ mod y2007;
 mod y2011;
 mod y2012;
 mod y2013;
+mod y2021;
 
 use super::record::{CardAbilityBinding, CardRecord, PrintingRecord};
 use crate::AbilityOrigin;
@@ -105,6 +106,11 @@ const SET_MODULES: &[SetModule] = &[
         y1994::promo_1994::ADDITIONAL_PRINTINGS,
     ),
     SetModule::new(
+        CardSet::PlanarChaos,
+        y2007::planar_chaos::CARDS,
+        y2007::planar_chaos::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
         CardSet::FutureSight,
         y2007::future_sight::CARDS,
         y2007::future_sight::ADDITIONAL_PRINTINGS,
@@ -154,10 +160,15 @@ const SET_MODULES: &[SetModule] = &[
         y2013::theros::CARDS,
         y2013::theros::ADDITIONAL_PRINTINGS,
     ),
+    SetModule::new(
+        CardSet::ModernHorizons2,
+        y2021::modern_horizons_2::CARDS,
+        y2021::modern_horizons_2::ADDITIONAL_PRINTINGS,
+    ),
 ];
 
 pub(super) fn definitions() -> Vec<CardDefinition> {
-    let mut definitions = Vec::with_capacity(258);
+    let mut definitions = Vec::with_capacity(262);
     for module in SET_MODULES {
         definitions.extend(module.cards.iter().map(|record| record.definition()));
     }
@@ -298,14 +309,15 @@ mod tests {
 
     use super::{CardRecord, SET_MODULES, y1993, y1994, y2011, y2012, y2013};
     use crate::card::{
-        AbilityCostDef, AbilityDef, AbilityProcedureDef, AddManaEffectDef, AlternativeCastKindDef,
-        AppliedEffectDef, BasicLandType, CardPrinting, CardPrintingId, CardStructure,
-        CardSupertype, ComparisonDef, ConditionDef, DeclarativeAbilityDef, DoubleFacedKind,
-        EffectDef, EffectDurationDef, EffectExecutionDef, EffectRecipientDef, ImplementationStatus,
-        KeywordAbility, LibraryPlacement, ManaColor, ManaRestrictionDef, ManaSelectionDef,
-        ManaSpendEffectDef, ObjectPredicateDef, ObjectQueryDef, PlayActionKind, PlayRestriction,
-        PlayerRelation, ReplacementEffectDef, ReplacementEventDef, SpellForm, TargetPredicate,
-        TriggerConditionDef, TriggerEventDef, TurnStepDef, ZoneKind, ZoneMoveCauseDef, cards,
+        AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityProcedureDef, AddManaEffectDef,
+        AlternativeCastKindDef, AppliedEffectDef, BasicLandType, CardPrinting, CardPrintingId,
+        CardStructure, CardSupertype, CardType, ComparisonDef, ConditionDef, DeclarativeAbilityDef,
+        DoubleFacedKind, EffectDef, EffectDurationDef, EffectExecutionDef, EffectRecipientDef,
+        ImplementationStatus, KeywordAbility, LibraryPlacement, ManaColor, ManaRestrictionDef,
+        ManaSelectionDef, ManaSpendEffectDef, ObjectPredicateDef, ObjectQueryDef, PlayActionKind,
+        PlayRestriction, PlayerRelation, ReplacementEffectDef, ReplacementEventDef, SpellForm,
+        TargetPredicate, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+        ZoneMoveCauseDef, cards,
     };
     use crate::{
         CardDefinitionId, CardPartId, CardSet, Format, ManaCost, ModeId, PlayOptionId, TargetSlotId,
@@ -467,6 +479,8 @@ mod tests {
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)
             | AppliedEffectDef::AddLandTypes(_)
+            | AppliedEffectDef::SetLandTypes(_)
+            | AppliedEffectDef::RemoveAbilities(_)
             | AppliedEffectDef::Animate(_)
             | AppliedEffectDef::GrantAbility(_)
             | AppliedEffectDef::Special(_) => false,
@@ -507,26 +521,41 @@ mod tests {
         effect: AppliedEffectDef,
         duration: EffectDurationDef,
     ) -> bool {
-        // A grant that outlives cleanup is carried two ways: a keyword rides
-        // in the keyword lists, and any other ability becomes a temporary
-        // grant with its own expiry. Every other applied effect ends with the
-        // turn.
-        let grant_outliving_cleanup = matches!(effect, AppliedEffectDef::GrantAbility(_));
+        // Resolved ability additions and removals share one duration-aware
+        // operation path. Other applied effects still end with the turn.
+        let ability_change = resolving_effect_is_only_ability_changes(effect);
         let duration_is_supported = duration == EffectDurationDef::UntilEndOfTurn
-            || duration == EffectDurationDef::UntilYourNextUpkeep
-                && matches!(
-                    effect,
-                    AppliedEffectDef::GrantAbility(ability)
-                        if matches!(ability.definition, DeclarativeAbilityDef::Keyword(_))
-                )
+            || duration == EffectDurationDef::UntilYourNextUpkeep && ability_change
             || matches!(
                 duration,
                 EffectDurationDef::UntilYourNextTurn | EffectDurationDef::Permanent
-            ) && grant_outliving_cleanup;
+            ) && ability_change;
         if !duration_is_supported || !shared_effect_recipient(recipient) {
             return false;
         }
         shared_resolving_applied_effect(effect)
+    }
+
+    fn resolving_effect_is_only_ability_changes(effect: AppliedEffectDef) -> bool {
+        match effect {
+            AppliedEffectDef::Composite(effects) => {
+                !effects.is_empty()
+                    && effects
+                        .iter()
+                        .copied()
+                        .all(resolving_effect_is_only_ability_changes)
+            }
+            AppliedEffectDef::GrantAbility(_) | AppliedEffectDef::RemoveAbilities(_) => true,
+            AppliedEffectDef::CannotBeCountered
+            | AppliedEffectDef::CannotBeEnchanted
+            | AppliedEffectDef::CannotBeBlockedBy(_)
+            | AppliedEffectDef::PreventDamageFrom(_)
+            | AppliedEffectDef::AddLandTypes(_)
+            | AppliedEffectDef::SetLandTypes(_)
+            | AppliedEffectDef::Animate(_)
+            | AppliedEffectDef::ModifyPowerToughness { .. }
+            | AppliedEffectDef::Special(_) => false,
+        }
     }
 
     fn shared_resolving_applied_effect(effect: AppliedEffectDef) -> bool {
@@ -534,30 +563,29 @@ mod tests {
             AppliedEffectDef::Composite(effects) => {
                 !effects.is_empty() && effects.iter().copied().all(shared_resolving_applied_effect)
             }
-            // Animation is executed by the shared apply path, which reads
-            // the whole creature off the definition.
-            AppliedEffectDef::Animate(_) | AppliedEffectDef::ModifyPowerToughness { .. } => true,
-            AppliedEffectDef::GrantAbility(ability) => {
-                ability.declarative_effect().is_some()
-                    && match ability.definition {
-                        DeclarativeAbilityDef::Keyword(keyword) => shared_keyword(keyword),
-                        DeclarativeAbilityDef::AlternativeCast(definition) => {
-                            definition.kind == AlternativeCastKindDef::Flashback
-                                && ability.declarative_effect() == Some(EffectDef::None)
-                        }
-                        // A granted trigger is a real ability on the host: it
-                        // listens and resolves through the shared stack like
-                        // any printed one.
-                        DeclarativeAbilityDef::Triggered(definition) => {
-                            shared_trigger_event(definition.event)
-                                && definition.targets.is_empty()
-                                && ability
-                                    .declarative_effect()
-                                    .is_some_and(shared_stack_effect)
-                        }
-                        _ => false,
-                    }
-            }
+            // These operations are executed directly by the shared apply
+            // path; animation reads the whole creature off the definition.
+            AppliedEffectDef::Animate(_)
+            | AppliedEffectDef::ModifyPowerToughness { .. }
+            | AppliedEffectDef::RemoveAbilities(_) => true,
+            AppliedEffectDef::GrantAbility(ability) => match ability.definition {
+                DeclarativeAbilityDef::ActivatedMana(definition)
+                | DeclarativeAbilityDef::Activated(definition) => {
+                    battlefield_only(definition.source_zones) && shared_definition_ability(ability)
+                }
+                DeclarativeAbilityDef::TriggeredMana(_)
+                | DeclarativeAbilityDef::Triggered(_)
+                | DeclarativeAbilityDef::Replacement(_)
+                | DeclarativeAbilityDef::Keyword(_) => shared_definition_ability(ability),
+                DeclarativeAbilityDef::AlternativeCast(definition) => {
+                    definition.kind == AlternativeCastKindDef::Flashback
+                        && ability.declarative_effect() == Some(EffectDef::None)
+                }
+                DeclarativeAbilityDef::Spell(_)
+                | DeclarativeAbilityDef::Static(_)
+                | DeclarativeAbilityDef::SpecialAction(_)
+                | DeclarativeAbilityDef::Legacy => false,
+            },
             // A blocking restriction is continuous, not an until-end-of-turn
             // rider a spell hands out.
             AppliedEffectDef::CannotBeCountered
@@ -565,6 +593,7 @@ mod tests {
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)
             | AppliedEffectDef::AddLandTypes(_)
+            | AppliedEffectDef::SetLandTypes(_)
             | AppliedEffectDef::Special(_) => false,
         }
     }
@@ -973,13 +1002,16 @@ mod tests {
                 };
                 supported(power) && supported(toughness)
             }
-            AppliedEffectDef::AddLandTypes(land_types) => !land_types.is_empty(),
+            AppliedEffectDef::AddLandTypes(land_types)
+            | AppliedEffectDef::SetLandTypes(land_types) => !land_types.is_empty(),
             AppliedEffectDef::GrantAbility(ability) => shared_definition_ability(ability),
             AppliedEffectDef::CannotBeBlockedBy(predicate)
             | AppliedEffectDef::PreventDamageFrom(predicate) => {
                 recipient == EffectRecipientDef::Source && shared_object_predicate(predicate)
             }
-            AppliedEffectDef::CannotBeCountered | AppliedEffectDef::CannotBeEnchanted => true,
+            AppliedEffectDef::RemoveAbilities(_)
+            | AppliedEffectDef::CannotBeCountered
+            | AppliedEffectDef::CannotBeEnchanted => true,
             // Only a resolving animation is supported; nothing reads one off
             // a static ability.
             AppliedEffectDef::Animate(_) | AppliedEffectDef::Special(_) => false,
@@ -1365,6 +1397,8 @@ mod tests {
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)
             | AppliedEffectDef::AddLandTypes(_)
+            | AppliedEffectDef::SetLandTypes(_)
+            | AppliedEffectDef::RemoveAbilities(_)
             | AppliedEffectDef::Animate(_)
             | AppliedEffectDef::ModifyPowerToughness { .. }
             | AppliedEffectDef::Special(_) => {}
@@ -1399,19 +1433,24 @@ mod tests {
             format_sets.iter().all(|set| registered_sets.contains(set)),
             "every format-supported set must be cataloged",
         );
-        for testbed_set in [CardSet::FutureSight, CardSet::Theros] {
+        for testbed_set in [
+            CardSet::PlanarChaos,
+            CardSet::FutureSight,
+            CardSet::Theros,
+            CardSet::ModernHorizons2,
+        ] {
             assert!(registered_sets.contains(&testbed_set));
             assert!(!Format::OldSchool9394.allows_set(testbed_set));
             assert!(!Format::IsdRtrStandard.allows_set(testbed_set));
         }
-        assert_eq!(registered_sets.len(), 22);
+        assert_eq!(registered_sets.len(), 24);
         assert_eq!(
             registered_sets
                 .iter()
                 .copied()
                 .collect::<HashSet<_>>()
                 .len(),
-            22
+            24
         );
 
         for module in SET_MODULES {
@@ -1431,13 +1470,13 @@ mod tests {
             .iter()
             .flat_map(|module| module.cards.iter().copied())
             .collect::<Vec<_>>();
-        assert_eq!(records.len(), 260);
+        assert_eq!(records.len(), 262);
 
         let mut ids = records.iter().map(|record| record.id).collect::<Vec<_>>();
         ids.sort_unstable();
         assert_eq!(
             ids.iter().map(|id| id.0).collect::<Vec<_>>(),
-            (1..=260).collect::<Vec<_>>()
+            (1..=262).collect::<Vec<_>>()
         );
         // Names identify the cards a decklist can name. Tokens are not among
         // them, and Magic prints several that share a name.
@@ -1458,7 +1497,7 @@ mod tests {
     #[test]
     fn built_in_catalog_indexes_definitions_and_printings_separately() {
         let catalog = crate::card::catalog().unwrap();
-        let printing_count = (1..=260)
+        let printing_count = (1..=262)
             .filter(|id| {
                 *id != cards::BEAST_TOKEN_3_3_GREEN.0
                     && *id != cards::KNIGHT_TOKEN_2_2_WHITE.0
@@ -1475,7 +1514,7 @@ mod tests {
             .map(|id| catalog.printings_for(CardDefinitionId(id)).len())
             .sum::<usize>();
 
-        assert_eq!(printing_count, 629);
+        assert_eq!(printing_count, 631);
         for variant in 0..3 {
             assert!(
                 catalog
@@ -1496,7 +1535,7 @@ mod tests {
             .iter()
             .flat_map(|module| module.cards.iter().copied())
             .collect::<Vec<_>>();
-        assert_eq!(records.len(), 260);
+        assert_eq!(records.len(), 262);
 
         for record in records {
             let definition = record.definition();
@@ -1734,7 +1773,7 @@ mod tests {
             .flat_map(|module| module.cards.iter().copied())
             .filter(|record| record.rules.has_type(crate::card::CardType::Land))
             .collect::<Vec<_>>();
-        assert_eq!(lands.len(), 47);
+        assert_eq!(lands.len(), 49);
 
         let lands_without_mana = lands
             .iter()
@@ -1746,7 +1785,20 @@ mod tests {
                     ability.is_executable()
                         && matches!(ability.definition, DeclarativeAbilityDef::ActivatedMana(_))
                 });
-                !has_intrinsic_source && !has_printed_source
+                let has_static_land_type_source =
+                    record.rules.ability_clauses().iter().any(|ability| {
+                        ability.is_executable()
+                            && matches!(ability.definition, DeclarativeAbilityDef::Static(_))
+                            && matches!(
+                                ability.declarative_effect(),
+                                Some(EffectDef::Apply {
+                                    effect: AppliedEffectDef::AddLandTypes(types),
+                                    duration: EffectDurationDef::WhileSourceRemainsInZone,
+                                    ..
+                                }) if !types.is_empty()
+                            )
+                    });
+                !has_intrinsic_source && !has_printed_source && !has_static_land_type_source
             })
             .map(|record| record.name)
             .collect::<Vec<_>>();
@@ -2141,5 +2193,32 @@ mod tests {
                 }
             }
         }
+    }
+
+    #[test]
+    fn long_lived_composite_ability_changes_accept_shared_activated_grants() {
+        static ACTIVATED: AbilityDef = AbilityDef::activated(
+            "Draw a card.",
+            &[],
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        );
+        static CHANGES: [AppliedEffectDef; 2] = [
+            AppliedEffectDef::RemoveAbilities(AbilityPredicateDef::Any),
+            AppliedEffectDef::GrantAbility(&ACTIVATED),
+        ];
+        let recipient = EffectRecipientDef::MatchingObjects {
+            object: ObjectPredicateDef::HasType(CardType::Creature),
+            zones: &[ZoneKind::Battlefield],
+            controller: PlayerRelation::Any,
+        };
+
+        assert!(shared_resolving_apply(
+            recipient,
+            AppliedEffectDef::Composite(&CHANGES),
+            EffectDurationDef::Permanent,
+        ));
     }
 }

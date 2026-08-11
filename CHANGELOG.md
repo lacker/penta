@@ -33,6 +33,21 @@ snapshots.
   divide its damage, where before the engine assigned lethal to the blocker
   and spilled the rest automatically. Both remain legal (CR 510.1c); the
   choice is simply offered rather than made for the player.
+- Continuous effects can now add or remove abilities with permanent or
+  turn-bounded durations, and static ability changes are evaluated in
+  timestamp order. Land-type setters separately implement the CR 305.7
+  removal of rules-text and copiable abilities, so Blood Moon is declarative
+  and its catalog coverage advances from `partial` to `complete` without
+  suppressing the Mountain mana ability or independently granted abilities.
+  This is a focused layer slice: static-source dependencies within the ability
+  layer still await guarded fixed-point evaluation.
+- The unfiltered catalog appends `Urborg, Tomb of Yawgmoth` as definition 261
+  with debut set `planar-chaos`, and `Yavimaya, Cradle of Growth` as definition
+  262 with debut set `modern-horizons-2`. They are cross-format interaction
+  fixtures and report `allowed: false` and `legal: false` in both supported
+  formats. Existing definition IDs, JSON shapes, and supported-format legal
+  actions are unchanged, so this is a compatible protocol-15 expansion rather
+  than a protocol-version boundary.
 
 - Every catalog `manaCost` object now reports its nonzero two-color hybrid
   symbols as `"hybrid": [{"symbol": "R/W", "count": 3}]`. This replaces the

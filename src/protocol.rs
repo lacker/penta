@@ -873,6 +873,7 @@ const fn card_set_slug(set: CardSet) -> &'static str {
         CardSet::TheDark => "the-dark",
         CardSet::FallenEmpires => "fallen-empires",
         CardSet::Promo1994 => "promo-1994",
+        CardSet::PlanarChaos => "planar-chaos",
         CardSet::FutureSight => "future-sight",
         CardSet::Innistrad => "innistrad",
         CardSet::DarkAscension => "dark-ascension",
@@ -883,6 +884,7 @@ const fn card_set_slug(set: CardSet) -> &'static str {
         CardSet::DragonsMaze => "dragons-maze",
         CardSet::Magic2014 => "magic-2014",
         CardSet::Theros => "theros",
+        CardSet::ModernHorizons2 => "modern-horizons-2",
         CardSet::Token => "token",
     }
 }
@@ -2044,6 +2046,9 @@ mod tests {
         let needle = find("Pithing Needle");
         assert_eq!(needle["implementationStatus"], "complete");
         assert_eq!(needle["parts"][0]["implementationStatus"], "complete");
+        let blood_moon = find("Blood Moon");
+        assert_eq!(blood_moon["implementationStatus"], "complete");
+        assert_eq!(blood_moon["parts"][0]["implementationStatus"], "complete");
 
         assert!(cards.iter().all(|card| {
             card["playOptions"].as_array().is_some_and(|options| {
@@ -2506,6 +2511,13 @@ mod tests {
         assert_eq!(find("Dryad Arbor")["legal"], false);
         assert_eq!(find("Nylea's Presence")["debutSet"], "theros");
         assert_eq!(find("Nylea's Presence")["legal"], false);
+        assert_eq!(find("Urborg, Tomb of Yawgmoth")["debutSet"], "planar-chaos");
+        assert_eq!(find("Urborg, Tomb of Yawgmoth")["legal"], false);
+        assert_eq!(
+            find("Yavimaya, Cradle of Growth")["debutSet"],
+            "modern-horizons-2"
+        );
+        assert_eq!(find("Yavimaya, Cradle of Growth")["legal"], false);
         let old_bolt = old_school["cards"]
             .as_array()
             .expect("cards")

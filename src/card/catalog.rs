@@ -824,6 +824,8 @@ fn collect_applied_ability_grants(effect: super::AppliedEffectDef, grants: &mut 
         | super::AppliedEffectDef::CannotBeBlockedBy(_)
         | super::AppliedEffectDef::PreventDamageFrom(_)
         | super::AppliedEffectDef::AddLandTypes(_)
+        | super::AppliedEffectDef::SetLandTypes(_)
+        | super::AppliedEffectDef::RemoveAbilities(_)
         | super::AppliedEffectDef::Animate(_)
         | super::AppliedEffectDef::ModifyPowerToughness { .. }
         | super::AppliedEffectDef::Special(_) => {}
@@ -914,6 +916,8 @@ fn applied_ability_grant_sites(effect: super::AppliedEffectDef) -> usize {
         | super::AppliedEffectDef::CannotBeBlockedBy(_)
         | super::AppliedEffectDef::PreventDamageFrom(_)
         | super::AppliedEffectDef::AddLandTypes(_)
+        | super::AppliedEffectDef::SetLandTypes(_)
+        | super::AppliedEffectDef::RemoveAbilities(_)
         | super::AppliedEffectDef::Animate(_)
         | super::AppliedEffectDef::ModifyPowerToughness { .. }
         | super::AppliedEffectDef::Special(_) => 0,
@@ -1042,6 +1046,8 @@ fn validate_applied_effect_target_references(
         | AppliedEffectDef::CannotBeBlockedBy(_)
         | AppliedEffectDef::PreventDamageFrom(_)
         | AppliedEffectDef::AddLandTypes(_)
+        | AppliedEffectDef::SetLandTypes(_)
+        | AppliedEffectDef::RemoveAbilities(_)
         | AppliedEffectDef::Animate(_)
         | AppliedEffectDef::Special(_) => Ok(()),
     }

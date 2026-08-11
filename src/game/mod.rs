@@ -8,18 +8,19 @@ use crate::action::{
     AbilityOrigin, Action, ActionError, CombatDamageAssignment, ManaColor, Target,
 };
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityProcedureDef, AbilityTargetDef, AbilityTargetPredicate,
-    ActivatedAbilityDef, AddManaEffectDef, AlternativeCastAbilityDef, AlternativeCastKindDef,
-    AnimationDef, AppliedEffectDef, BasicLandType, BattlefieldEntryModificationDef, CREATURE_TYPES,
-    CardBehavior, CardCatalog, CardDefinition, CardEffectStatus, CardPart, CardRules, CardSet,
-    CardStructure, CardSupertype, CardType, CardTypeSet, CharacteristicContext, ColorSet,
-    ComparisonDef, ConditionDef, CostDef, CounterKind, DeclarativeAbilityDef, DividedTotal,
-    DoubleFacedKind, EffectDef, EffectDurationDef, EffectRecipientDef, HybridPair, KeywordAbility,
-    LibraryPlacement, ManaCost, ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef,
-    ObjectPredicateDef, ObjectQueryDef, PaymentDef, PlayActionKind, PlayOptionDef, PlayRestriction,
-    PlayerRelation, QuantifierDef, ReplacementEffectDef, ReplacementEventDef, SpellForm,
-    TargetPredicate, TargetSlotDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZoneMoveCauseDef, abilities, applicable_part_ids,
+    AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityProcedureDef, AbilityTargetDef,
+    AbilityTargetPredicate, ActivatedAbilityDef, AddManaEffectDef, AlternativeCastAbilityDef,
+    AlternativeCastKindDef, AnimationDef, AppliedEffectDef, BasicLandType,
+    BattlefieldEntryModificationDef, CREATURE_TYPES, CardBehavior, CardCatalog, CardDefinition,
+    CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype, CardType,
+    CardTypeSet, CharacteristicContext, ColorSet, ComparisonDef, ConditionDef, CostDef,
+    CounterKind, DeclarativeAbilityDef, DividedTotal, DoubleFacedKind, EffectDef,
+    EffectDurationDef, EffectRecipientDef, HybridPair, KeywordAbility, LibraryPlacement, ManaCost,
+    ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef, ObjectPredicateDef, ObjectQueryDef,
+    PaymentDef, PlayActionKind, PlayOptionDef, PlayRestriction, PlayerRelation, QuantifierDef,
+    ReplacementEffectDef, ReplacementEventDef, SpellForm, TargetPredicate, TargetSlotDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef,
+    abilities, applicable_part_ids,
 };
 use crate::casting::{CastChoices, CastSignature, CostConfiguration, TargetSelection};
 use crate::deck::{Deck, DeckError, ValidatedDeck};
@@ -50,6 +51,30 @@ pub use observation::{
 };
 
 use observation::{LastSeenHand, PublicCard};
+
+/// Land subtype vocabulary from CR 205.3i. Type-setting effects must remove
+/// every land subtype while preserving subtypes belonging to the object's
+/// other card types.
+const LAND_SUBTYPES: &[&str] = &[
+    "Cave",
+    "Desert",
+    "Forest",
+    "Gate",
+    "Island",
+    "Lair",
+    "Locus",
+    "Mine",
+    "Mountain",
+    "Plains",
+    "Planet",
+    "Power-Plant",
+    "Sphere",
+    "Swamp",
+    "Tower",
+    "Town",
+    "Urza's",
+    "Urza’s",
+];
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 struct PhysicalCard {
@@ -122,6 +147,22 @@ struct BasicLandTypeChange {
     to: BasicLandType,
 }
 
+/// Timestamp shared by the continuous-effect slices currently modeled. Static
+/// effects use their source permanent's battlefield timestamp; resolving
+/// effects receive a fresh timestamp as they are created. Keeping this
+/// independent from object identity lets a later layer evaluator preserve the
+/// same ordering contract.
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+struct ContinuousEffectTimestamp(u64);
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum AbilityEffectExpiration {
+    EndOfTurn,
+    UpkeepOf(PlayerId),
+    TurnOf { player: PlayerId, turn: u32 },
+    Never,
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 struct TemporaryGrantedAbility {
     ability: &'static AbilityDef,
@@ -130,13 +171,22 @@ struct TemporaryGrantedAbility {
     source_part: CardPartId,
     source_ability: AbilityId,
     grant: GrantId,
-    /// The ability stops existing as the named player's indicated turn begins.
-    expires_at_turn: Option<(PlayerId, u32)>,
+    timestamp: ContinuousEffectTimestamp,
+    order: u16,
+    expiration: AbilityEffectExpiration,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+struct TemporaryRemovedAbilities {
+    predicate: AbilityPredicateDef,
+    timestamp: ContinuousEffectTimestamp,
+    order: u16,
+    expiration: AbilityEffectExpiration,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum LandTypeOperation {
-    SetTo(BasicLandType),
+    SetTo(&'static [BasicLandType]),
     Add(&'static [BasicLandType]),
 }
 
@@ -163,6 +213,7 @@ struct CopiableCharacteristics {
 #[allow(clippy::struct_excessive_bools)]
 struct Permanent {
     card: CardInstance,
+    timestamp: ContinuousEffectTimestamp,
     /// The logical part currently supplying this permanent's printed
     /// characteristics. Transforming changes this without changing object ID.
     presented: CardPartId,
@@ -201,6 +252,7 @@ struct Permanent {
     destroy_at_end: bool,
     temporary_keywords: Vec<KeywordAbility>,
     temporary_granted_abilities: Vec<TemporaryGrantedAbility>,
+    temporary_removed_abilities: Vec<TemporaryRemovedAbilities>,
     /// The creature this permanent has become for the turn, if a manland's
     /// animation ability has resolved.
     animation: Option<&'static AnimationDef>,
@@ -273,6 +325,7 @@ impl Permanent {
         entered_controller_turn: u32,
     ) -> Self {
         Self {
+            timestamp: ContinuousEffectTimestamp(u64::from(card.id.0)),
             card,
             presented,
             controller,
@@ -296,6 +349,7 @@ impl Permanent {
             destroy_at_end: false,
             temporary_keywords: Vec::new(),
             temporary_granted_abilities: Vec::new(),
+            temporary_removed_abilities: Vec::new(),
             animation: None,
             activations_this_turn: Vec::new(),
             counters: [0; CounterKind::COUNT],
@@ -1012,6 +1066,31 @@ struct EffectiveAbility {
     ability: AbilityDef,
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum AbilityLayerOperationKind {
+    Add {
+        origin: AbilityOrigin,
+        ability: &'static AbilityDef,
+    },
+    Remove(AbilityPredicateDef),
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+struct AbilityLayerOperation {
+    timestamp: ContinuousEffectTimestamp,
+    order: u16,
+    kind: AbilityLayerOperationKind,
+}
+
+#[derive(Clone, Copy)]
+struct ResolvedAppliedEffect<'a> {
+    duration: EffectDurationDef,
+    timestamp: ContinuousEffectTimestamp,
+    object: &'a StackObject,
+    context: TriggerContext,
+    scoped: ScopedEffect,
+}
+
 /// An ability granted to one non-battlefield object until cleanup. The object
 /// identity naturally makes the grant end if that card changes zones.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -1102,6 +1181,7 @@ struct PendingEvent {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 struct StaticAppliedEffect {
     source: GameObjectId,
+    timestamp: ContinuousEffectTimestamp,
     source_definition: CardDefinitionId,
     source_part: CardPartId,
     source_ability: AbilityId,
@@ -1111,6 +1191,7 @@ struct StaticAppliedEffect {
 
 struct StaticEffectTraversal<'a> {
     source: &'a Permanent,
+    source_timestamp: ContinuousEffectTimestamp,
     source_definition: CardDefinitionId,
     source_part: CardPartId,
     source_ability: AbilityId,
@@ -1470,6 +1551,7 @@ pub struct Game {
     /// Abilities granted to non-battlefield object incarnations until cleanup.
     temporary_ability_grants: Vec<TemporaryAbilityGrant>,
     next_object_id: u32,
+    next_continuous_effect_timestamp: u64,
     turn: u32,
     turns_started: [u32; 2],
     active_player: PlayerId,
@@ -1720,6 +1802,7 @@ impl Game {
             retired_objects: BTreeMap::new(),
             temporary_ability_grants: Vec::new(),
             next_object_id,
+            next_continuous_effect_timestamp: u64::from(next_object_id),
             turn: 1,
             turns_started: [1, 0],
             active_player: PlayerId::One,
@@ -1805,6 +1888,36 @@ impl Game {
             .checked_add(1)
             .expect("game object IDs exhausted");
         id
+    }
+
+    fn allocate_continuous_effect_timestamp(&mut self) -> ContinuousEffectTimestamp {
+        let observed_next = self
+            .battlefield
+            .iter()
+            .chain(self.emblems.iter())
+            .map(|permanent| permanent.timestamp.0)
+            .chain(self.battlefield.iter().flat_map(|permanent| {
+                permanent
+                    .temporary_granted_abilities
+                    .iter()
+                    .map(|effect| effect.timestamp.0)
+                    .chain(
+                        permanent
+                            .temporary_removed_abilities
+                            .iter()
+                            .map(|effect| effect.timestamp.0),
+                    )
+            }))
+            .max()
+            .map_or(0, |timestamp| timestamp.saturating_add(1));
+        self.next_continuous_effect_timestamp =
+            self.next_continuous_effect_timestamp.max(observed_next);
+        let timestamp = ContinuousEffectTimestamp(self.next_continuous_effect_timestamp);
+        self.next_continuous_effect_timestamp = self
+            .next_continuous_effect_timestamp
+            .checked_add(1)
+            .expect("continuous-effect timestamps exhausted");
+        timestamp
     }
 
     fn zone_change_card(&mut self, mut card: CardInstance) -> (CardInstance, ZoneChangeOutcome) {
@@ -3413,6 +3526,8 @@ impl Game {
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)
             | AppliedEffectDef::AddLandTypes(_)
+            | AppliedEffectDef::SetLandTypes(_)
+            | AppliedEffectDef::RemoveAbilities(_)
             | AppliedEffectDef::Animate(_)
             | AppliedEffectDef::ModifyPowerToughness { .. }
             | AppliedEffectDef::Special(_) => (false, false),
@@ -3679,6 +3794,7 @@ impl Game {
             let (card, _zone_change) = self.zone_change_card(entry.permanent.card);
             entry.permanent.card = card;
         }
+        entry.permanent.timestamp = self.allocate_continuous_effect_timestamp();
         let permanent_id = entry.permanent.card.id;
         let definition = entry.permanent.card.definition;
         self.battlefield.push(entry.permanent);
@@ -10226,6 +10342,7 @@ impl Game {
                     controller,
                     self.turns_started[controller.index()],
                 );
+                emblem.timestamp = self.allocate_continuous_effect_timestamp();
                 emblem.emblem_source = object.ability_origin();
                 self.emblems.push(emblem);
             }
@@ -10785,8 +10902,16 @@ impl Game {
         context: TriggerContext,
         scoped: ScopedEffect,
     ) {
+        let timestamp = self.allocate_continuous_effect_timestamp();
+        let resolution = ResolvedAppliedEffect {
+            duration,
+            timestamp,
+            object,
+            context,
+            scoped,
+        };
         for target in self.effect_recipients(recipient, object, context, scoped) {
-            self.apply_applied_effect_component(target, effect, duration, object, context, scoped);
+            self.apply_applied_effect_component(target, effect, resolution);
         }
         // Everything else lasts until cleanup. Keeping the duration explicit
         // here makes unsupported permanent/granted effects visible rather
@@ -10800,14 +10925,15 @@ impl Game {
         ));
     }
 
-    /// Where a granted ability lands: a card in another zone keeps a
-    /// temporary grant, a permanent takes a keyword into one of the keyword
-    /// lists or a full ability into its own grant list.
+    /// Where a granted ability lands: the supported nonbattlefield flashback
+    /// case keeps its cleanup-bounded card grant, while a permanent records an
+    /// ordered, duration-aware layer operation for every ability category.
     fn apply_granted_ability(
         &mut self,
         target: Target,
         ability: &'static AbilityDef,
         duration: EffectDurationDef,
+        timestamp: ContinuousEffectTimestamp,
         object: &StackObject,
     ) {
         match target {
@@ -10823,70 +10949,67 @@ impl Game {
                 }
             }
             Target::Permanent(target) => {
-                // A keyword grant lands in one of the keyword lists,
-                // whose durations the cleanup and upkeep steps read. Any
-                // other ability is a real grant carrying its own
-                // provenance, and only the two long durations take one.
-                let until_upkeep_of = (duration == EffectDurationDef::UntilYourNextUpkeep)
-                    .then_some(object.controller);
-                if let DeclarativeAbilityDef::Keyword(keyword) = ability.definition
-                    && let Some(permanent) = self
-                        .battlefield
-                        .iter_mut()
-                        .find(|permanent| permanent.card.id == target)
-                {
-                    if let Some(player) = until_upkeep_of {
-                        if !permanent
-                            .keywords_until_upkeep_of
-                            .contains(&(player, keyword))
-                        {
-                            permanent.keywords_until_upkeep_of.push((player, keyword));
-                        }
-                    } else if !permanent.temporary_keywords.contains(&keyword) {
-                        permanent.temporary_keywords.push(keyword);
-                    }
-                } else if matches!(
+                let source = object.source.unwrap_or(object.id);
+                let origin = object.ability_origin().unwrap_or(AbilityOrigin::Printed {
+                    definition: object.presentation_definition(),
+                    part: CardPartId::PRIMARY,
+                    ability: AbilityId::PRIMARY,
+                });
+                let (source_definition, source_part, source_ability) =
+                    Self::ability_origin_components(origin, object.presentation_definition());
+                let expiration = Self::ability_effect_expiration(
                     duration,
-                    EffectDurationDef::UntilYourNextTurn | EffectDurationDef::Permanent
-                ) {
-                    let source = object.source.unwrap_or(object.id);
-                    let origin = object.ability_origin().unwrap_or(AbilityOrigin::Printed {
-                        definition: object.presentation_definition(),
-                        part: CardPartId::PRIMARY,
-                        ability: AbilityId::PRIMARY,
-                    });
-                    let (source_definition, source_part, source_ability) =
-                        Self::ability_origin_components(origin, object.presentation_definition());
-                    let expires_at_turn =
-                        (duration == EffectDurationDef::UntilYourNextTurn).then(|| {
-                            (
-                                object.controller,
-                                self.turns_started[object.controller.index()].saturating_add(1),
-                            )
+                    object.controller,
+                    self.turns_started[object.controller.index()],
+                );
+                if let Some(permanent) = self
+                    .battlefield
+                    .iter_mut()
+                    .find(|permanent| permanent.card.id == target)
+                {
+                    let order = u16::try_from(
+                        permanent.temporary_granted_abilities.len()
+                            + permanent.temporary_removed_abilities.len(),
+                    )
+                    .expect("one resolved effect creates at most 65,536 ability operations");
+                    let grant = GrantId::from_index(permanent.temporary_granted_abilities.len())
+                        .expect("one permanent has at most 256 resolved grants");
+                    permanent
+                        .temporary_granted_abilities
+                        .push(TemporaryGrantedAbility {
+                            ability,
+                            source,
+                            source_definition,
+                            source_part,
+                            source_ability,
+                            grant,
+                            timestamp,
+                            order,
+                            expiration,
                         });
-                    if let Some(permanent) = self
-                        .battlefield
-                        .iter_mut()
-                        .find(|permanent| permanent.card.id == target)
-                    {
-                        let grant =
-                            GrantId::from_index(permanent.temporary_granted_abilities.len())
-                                .expect("one permanent has at most 256 temporary grants");
-                        permanent
-                            .temporary_granted_abilities
-                            .push(TemporaryGrantedAbility {
-                                ability,
-                                source,
-                                source_definition,
-                                source_part,
-                                source_ability,
-                                grant,
-                                expires_at_turn,
-                            });
-                    }
                 }
             }
             Target::Player(_) | Target::Spell(_) => {}
+        }
+    }
+
+    fn ability_effect_expiration(
+        duration: EffectDurationDef,
+        controller: PlayerId,
+        turns_started: u32,
+    ) -> AbilityEffectExpiration {
+        match duration {
+            EffectDurationDef::UntilEndOfTurn => AbilityEffectExpiration::EndOfTurn,
+            EffectDurationDef::UntilYourNextUpkeep => AbilityEffectExpiration::UpkeepOf(controller),
+            EffectDurationDef::UntilYourNextTurn => AbilityEffectExpiration::TurnOf {
+                player: controller,
+                turn: turns_started.saturating_add(1),
+            },
+            EffectDurationDef::Permanent => AbilityEffectExpiration::Never,
+            EffectDurationDef::WhileSourceRemainsInZone
+            | EffectDurationDef::UntilSourceLeavesZone => {
+                unreachable!("a resolving effect cannot have a static duration")
+            }
         }
     }
 
@@ -10894,21 +11017,50 @@ impl Game {
         &mut self,
         target: Target,
         effect: AppliedEffectDef,
-        duration: EffectDurationDef,
-        object: &StackObject,
-        context: TriggerContext,
-        scoped: ScopedEffect,
+        resolution: ResolvedAppliedEffect<'_>,
     ) {
         match effect {
             AppliedEffectDef::Composite(effects) => {
                 for effect in effects {
-                    self.apply_applied_effect_component(
-                        target, *effect, duration, object, context, scoped,
-                    );
+                    self.apply_applied_effect_component(target, *effect, resolution);
                 }
             }
             AppliedEffectDef::GrantAbility(ability) => {
-                self.apply_granted_ability(target, ability, duration, object);
+                self.apply_granted_ability(
+                    target,
+                    ability,
+                    resolution.duration,
+                    resolution.timestamp,
+                    resolution.object,
+                );
+            }
+            AppliedEffectDef::RemoveAbilities(predicate) => {
+                if let Target::Permanent(target) = target {
+                    let expiration = Self::ability_effect_expiration(
+                        resolution.duration,
+                        resolution.object.controller,
+                        self.turns_started[resolution.object.controller.index()],
+                    );
+                    if let Some(permanent) = self
+                        .battlefield
+                        .iter_mut()
+                        .find(|permanent| permanent.card.id == target)
+                    {
+                        let order = u16::try_from(
+                            permanent.temporary_granted_abilities.len()
+                                + permanent.temporary_removed_abilities.len(),
+                        )
+                        .expect("one resolved effect creates at most 65,536 ability operations");
+                        permanent
+                            .temporary_removed_abilities
+                            .push(TemporaryRemovedAbilities {
+                                predicate,
+                                timestamp: resolution.timestamp,
+                                order,
+                                expiration,
+                            });
+                    }
+                }
             }
             AppliedEffectDef::Animate(animation) => {
                 if let Target::Permanent(target) = target
@@ -10927,13 +11079,23 @@ impl Game {
                     return;
                 };
                 let power = i16::try_from(
-                    self.effect_value(power, object, context, scoped)
-                        .clamp(i32::from(i16::MIN), i32::from(i16::MAX)),
+                    self.effect_value(
+                        power,
+                        resolution.object,
+                        resolution.context,
+                        resolution.scoped,
+                    )
+                    .clamp(i32::from(i16::MIN), i32::from(i16::MAX)),
                 )
                 .expect("the effect value was clamped to i16");
                 let toughness = i16::try_from(
-                    self.effect_value(toughness, object, context, scoped)
-                        .clamp(i32::from(i16::MIN), i32::from(i16::MAX)),
+                    self.effect_value(
+                        toughness,
+                        resolution.object,
+                        resolution.context,
+                        resolution.scoped,
+                    )
+                    .clamp(i32::from(i16::MIN), i32::from(i16::MAX)),
                 )
                 .expect("the effect value was clamped to i16");
                 if let Some(permanent) = self
@@ -10950,6 +11112,7 @@ impl Game {
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)
             | AppliedEffectDef::AddLandTypes(_)
+            | AppliedEffectDef::SetLandTypes(_)
             | AppliedEffectDef::Special(_) => {}
         }
     }
@@ -12256,31 +12419,13 @@ impl Game {
     }
 
     fn count_behavior(&self, behavior: CardBehavior) -> u16 {
-        let blood_moon_active = self.blood_moon_active();
         u16::try_from(
             self.battlefield
                 .iter()
-                .filter(|permanent| {
-                    self.effective_behavior_with_blood_moon(permanent, blood_moon_active)
-                        == Some(behavior)
-                })
+                .filter(|permanent| self.effective_behavior(permanent) == Some(behavior))
                 .count(),
         )
         .unwrap_or(u16::MAX)
-    }
-
-    fn blood_moon_active(&self) -> bool {
-        self.battlefield
-            .iter()
-            .any(|permanent| self.copiable_behavior(permanent) == Some(CardBehavior::BloodMoon))
-    }
-
-    fn is_nonbasic_land(&self, permanent: &Permanent) -> bool {
-        self.permanent_types(permanent)
-            .is_some_and(|types| types.contains(CardType::Land))
-            && self
-                .effective_rules(permanent)
-                .is_some_and(|rules| !rules.has_supertype(CardSupertype::Basic))
     }
 
     fn is_artifact_permanent(&self, permanent: &Permanent) -> bool {
@@ -12331,35 +12476,90 @@ impl Game {
     fn land_type_operations(
         &self,
         permanent: &Permanent,
-    ) -> Vec<(GameObjectId, LandTypeOperation)> {
-        let mut operations = Vec::new();
-        let target_is_nonbasic = self.is_nonbasic_land(permanent);
-        let mut blood_moon_active = None;
-        for source in &self.battlefield {
-            if target_is_nonbasic && self.copiable_behavior(source) == Some(CardBehavior::BloodMoon)
-            {
-                operations.push((
-                    source.card.id,
-                    LandTypeOperation::SetTo(BasicLandType::Mountain),
-                ));
-            }
+    ) -> Vec<(ContinuousEffectTimestamp, LandTypeOperation)> {
+        self.land_type_operations_from_sources(permanent, None)
+    }
 
-            // The modeled additive operations affect either their own source
-            // or the permanent that source is attached to. Avoid walking
-            // every unrelated permanent's static rules for every query.
-            if source.card.id != permanent.card.id && source.attached_to != Some(permanent.card.id)
-            {
+    fn land_type_operations_with_prospective(
+        &self,
+        permanent: &Permanent,
+        prospective: &Permanent,
+    ) -> Vec<(ContinuousEffectTimestamp, LandTypeOperation)> {
+        if prospective.card.id != permanent.card.id {
+            return self.land_type_operations(permanent);
+        }
+        self.land_type_operations_from_sources(permanent, Some(prospective))
+    }
+
+    fn prospective_continuous_effect_timestamp(&self) -> ContinuousEffectTimestamp {
+        ContinuousEffectTimestamp(
+            self.battlefield
+                .iter()
+                .chain(self.emblems.iter())
+                .map(|permanent| permanent.timestamp.0.saturating_add(1))
+                .max()
+                .unwrap_or(self.next_continuous_effect_timestamp)
+                .max(self.next_continuous_effect_timestamp),
+        )
+    }
+
+    /// Collects the layer-4 land-type slice without asking for an effective
+    /// subtype or effective ability. That separation prevents the recursive
+    /// characteristic query that a future full layer evaluator will replace.
+    ///
+    /// A Set operation removes rules-text/copy abilities under CR 305.7. When
+    /// that hits the source of another land-type effect, the Set effect is
+    /// applied first as a dependency regardless of timestamp. This guarded
+    /// one-pass dependency rule is sufficient for Blood Moon versus Urborg,
+    /// Yavimaya, and copies of them; granted static abilities remain rejected
+    /// by catalog validation until the general fixed-point evaluator exists.
+    fn land_type_operations_from_sources(
+        &self,
+        affected: &Permanent,
+        prospective: Option<&Permanent>,
+    ) -> Vec<(ContinuousEffectTimestamp, LandTypeOperation)> {
+        let sources = self.land_type_effect_sources(prospective);
+
+        let mut operations = Vec::new();
+        for (source, timestamp) in &sources {
+            if self.raw_land_type_set_applies(source, &sources) {
                 continue;
             }
-            if self.is_nonbasic_land(source)
-                && *blood_moon_active.get_or_insert_with(|| self.blood_moon_active())
-            {
-                continue;
-            }
-            let Some(rules) = self.effective_rules(source) else {
-                continue;
-            };
-            for ability in rules
+            self.collect_land_type_operations_from_source(
+                source,
+                affected,
+                *timestamp,
+                &mut operations,
+            );
+        }
+        operations.sort_by_key(|(timestamp, _)| *timestamp);
+        operations
+    }
+
+    fn land_type_effect_sources<'a>(
+        &'a self,
+        prospective: Option<&'a Permanent>,
+    ) -> Vec<(&'a Permanent, ContinuousEffectTimestamp)> {
+        let mut sources = self
+            .battlefield
+            .iter()
+            .filter(|source| self.supplies_land_type_effect(source))
+            .map(|source| (source, source.timestamp))
+            .collect::<Vec<_>>();
+        if let Some(prospective) = prospective
+            && self.supplies_land_type_effect(prospective)
+            && !sources
+                .iter()
+                .any(|(source, _)| source.card.id == prospective.card.id)
+        {
+            sources.push((prospective, self.prospective_continuous_effect_timestamp()));
+        }
+        sources
+    }
+
+    fn supplies_land_type_effect(&self, source: &Permanent) -> bool {
+        self.effective_rules(source).is_some_and(|rules| {
+            rules
                 .ability_clauses()
                 .iter()
                 .copied()
@@ -12370,94 +12570,160 @@ impl Game {
                         .flat_map(|copy| copy.added_abilities.iter())
                         .map(|ability| ability.definition),
                 )
-                .filter(|ability| {
+                .any(|ability| {
                     ability.is_executable()
                         && matches!(ability.definition, DeclarativeAbilityDef::Static(_))
-                        && ability.declarative_effect().is_some()
+                        && ability
+                            .declarative_effect()
+                            .is_some_and(Self::effect_contains_land_type_operation)
                 })
-            {
-                Self::collect_land_type_operations(
-                    ability
-                        .declarative_effect()
-                        .expect("filtered to declarative effects"),
-                    source,
-                    permanent,
-                    source.card.id,
-                    &mut operations,
-                );
-            }
-        }
-        operations.sort_by_key(|(source, _)| *source);
-        operations
+        })
     }
 
-    fn land_type_operations_with_prospective(
-        &self,
-        permanent: &Permanent,
-        prospective: &Permanent,
-    ) -> Vec<(GameObjectId, LandTypeOperation)> {
-        let mut operations = self.land_type_operations(permanent);
-        if prospective.card.id != permanent.card.id {
-            return operations;
-        }
-
-        let source_timestamp = GameObjectId(self.next_object_id);
-        if self.is_nonbasic_land(permanent)
-            && self.copiable_behavior(prospective) == Some(CardBehavior::BloodMoon)
-        {
-            operations.push((
-                source_timestamp,
-                LandTypeOperation::SetTo(BasicLandType::Mountain),
-            ));
-        }
-        if self.is_nonbasic_land(prospective) && self.blood_moon_active() {
-            operations.sort_by_key(|(source, _)| *source);
-            return operations;
-        }
-        if let Some(rules) = self.effective_rules(prospective) {
-            for ability in rules
-                .ability_clauses()
+    fn effect_contains_land_type_operation(effect: EffectDef) -> bool {
+        match effect {
+            EffectDef::Sequence(effects) => effects
                 .iter()
                 .copied()
-                .chain(
-                    prospective
-                        .copy_effect
-                        .iter()
-                        .flat_map(|copy| copy.added_abilities.iter())
-                        .map(|ability| ability.definition),
-                )
-                .filter(|ability| {
-                    ability.is_executable()
-                        && matches!(ability.definition, DeclarativeAbilityDef::Static(_))
-                        && ability.declarative_effect().is_some()
-                })
-            {
-                Self::collect_land_type_operations(
-                    ability
-                        .declarative_effect()
-                        .expect("filtered to declarative effects"),
-                    prospective,
-                    permanent,
-                    source_timestamp,
-                    &mut operations,
-                );
-            }
+                .any(Self::effect_contains_land_type_operation),
+            EffectDef::Apply {
+                effect,
+                duration:
+                    EffectDurationDef::WhileSourceRemainsInZone
+                    | EffectDurationDef::UntilSourceLeavesZone,
+                ..
+            } => Self::applied_effect_contains_land_type_operation(effect),
+            _ => false,
         }
-        operations.sort_by_key(|(source, _)| *source);
-        operations
     }
 
-    fn collect_land_type_operations(
+    fn applied_effect_contains_land_type_operation(effect: AppliedEffectDef) -> bool {
+        match effect {
+            AppliedEffectDef::Composite(effects) => effects
+                .iter()
+                .copied()
+                .any(Self::applied_effect_contains_land_type_operation),
+            AppliedEffectDef::AddLandTypes(_) | AppliedEffectDef::SetLandTypes(_) => true,
+            AppliedEffectDef::CannotBeCountered
+            | AppliedEffectDef::CannotBeEnchanted
+            | AppliedEffectDef::CannotBeBlockedBy(_)
+            | AppliedEffectDef::PreventDamageFrom(_)
+            | AppliedEffectDef::ModifyPowerToughness { .. }
+            | AppliedEffectDef::GrantAbility(_)
+            | AppliedEffectDef::RemoveAbilities(_)
+            | AppliedEffectDef::Animate(_)
+            | AppliedEffectDef::Special(_) => false,
+        }
+    }
+
+    /// Whether any candidate setter targets `affected`, before suppressing a
+    /// candidate whose own rules text another setter removes.
+    fn raw_land_type_set_applies(
+        &self,
+        affected: &Permanent,
+        sources: &[(&Permanent, ContinuousEffectTimestamp)],
+    ) -> bool {
+        sources.iter().any(|(source, timestamp)| {
+            let mut operations = Vec::new();
+            self.collect_land_type_operations_from_source(
+                source,
+                affected,
+                *timestamp,
+                &mut operations,
+            );
+            operations
+                .iter()
+                .any(|(_, operation)| matches!(operation, LandTypeOperation::SetTo(_)))
+        })
+    }
+
+    fn rules_text_abilities_removed(&self, affected: &Permanent) -> bool {
+        let sources = self.land_type_effect_sources(None);
+        self.rules_text_abilities_removed_from_sources(affected, &sources)
+    }
+
+    fn rules_text_abilities_removed_with_prospective(
+        &self,
+        affected: &Permanent,
+        prospective: &Permanent,
+    ) -> bool {
+        let sources = self.land_type_effect_sources(Some(prospective));
+        self.rules_text_abilities_removed_from_sources(affected, &sources)
+    }
+
+    fn rules_text_abilities_removed_from_sources(
+        &self,
+        affected: &Permanent,
+        sources: &[(&Permanent, ContinuousEffectTimestamp)],
+    ) -> bool {
+        sources.iter().any(|(source, timestamp)| {
+            if self.raw_land_type_set_applies(source, sources) {
+                return false;
+            }
+            let mut operations = Vec::new();
+            self.collect_land_type_operations_from_source(
+                source,
+                affected,
+                *timestamp,
+                &mut operations,
+            );
+            operations
+                .iter()
+                .any(|(_, operation)| matches!(operation, LandTypeOperation::SetTo(_)))
+        })
+    }
+
+    fn collect_land_type_operations_from_source(
+        &self,
+        source: &Permanent,
+        affected: &Permanent,
+        source_timestamp: ContinuousEffectTimestamp,
+        operations: &mut Vec<(ContinuousEffectTimestamp, LandTypeOperation)>,
+    ) {
+        let Some(rules) = self.effective_rules(source) else {
+            return;
+        };
+        for ability in rules
+            .ability_clauses()
+            .iter()
+            .copied()
+            .chain(
+                source
+                    .copy_effect
+                    .iter()
+                    .flat_map(|copy| copy.added_abilities.iter())
+                    .map(|ability| ability.definition),
+            )
+            .filter(|ability| {
+                ability.is_executable()
+                    && matches!(ability.definition, DeclarativeAbilityDef::Static(_))
+                    && ability.declarative_effect().is_some()
+            })
+        {
+            self.collect_land_type_operations_from_effect(
+                ability
+                    .declarative_effect()
+                    .expect("filtered to declarative effects"),
+                source,
+                affected,
+                source_timestamp,
+                operations,
+            );
+        }
+    }
+
+    fn collect_land_type_operations_from_effect(
+        &self,
         effect: EffectDef,
         source: &Permanent,
         affected: &Permanent,
-        source_timestamp: GameObjectId,
-        operations: &mut Vec<(GameObjectId, LandTypeOperation)>,
+        source_timestamp: ContinuousEffectTimestamp,
+        operations: &mut Vec<(ContinuousEffectTimestamp, LandTypeOperation)>,
     ) {
         match effect {
             EffectDef::Sequence(effects) => {
                 for effect in effects {
-                    Self::collect_land_type_operations(
+                    self.collect_land_type_operations_from_effect(
                         *effect,
                         source,
                         affected,
@@ -12467,21 +12733,12 @@ impl Game {
                 }
             }
             EffectDef::Apply {
-                recipient: EffectRecipientDef::AttachedPermanent,
+                recipient,
                 effect,
                 duration:
                     EffectDurationDef::WhileSourceRemainsInZone
                     | EffectDurationDef::UntilSourceLeavesZone,
-            } if source.attached_to == Some(affected.card.id) => {
-                Self::collect_applied_land_type_operations(effect, source_timestamp, operations);
-            }
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect,
-                duration:
-                    EffectDurationDef::WhileSourceRemainsInZone
-                    | EffectDurationDef::UntilSourceLeavesZone,
-            } if source.card.id == affected.card.id => {
+            } if self.land_type_recipient_matches(recipient, source, affected) => {
                 Self::collect_applied_land_type_operations(effect, source_timestamp, operations);
             }
             _ => {}
@@ -12490,8 +12747,8 @@ impl Game {
 
     fn collect_applied_land_type_operations(
         effect: AppliedEffectDef,
-        source: GameObjectId,
-        operations: &mut Vec<(GameObjectId, LandTypeOperation)>,
+        source: ContinuousEffectTimestamp,
+        operations: &mut Vec<(ContinuousEffectTimestamp, LandTypeOperation)>,
     ) {
         match effect {
             AppliedEffectDef::Composite(effects) => {
@@ -12502,6 +12759,9 @@ impl Game {
             AppliedEffectDef::AddLandTypes(types) => {
                 operations.push((source, LandTypeOperation::Add(types)));
             }
+            AppliedEffectDef::SetLandTypes(types) => {
+                operations.push((source, LandTypeOperation::SetTo(types)));
+            }
             // Animation adds creature types, never land types, so it leaves
             // the land-type operations alone.
             AppliedEffectDef::CannotBeCountered
@@ -12511,7 +12771,95 @@ impl Game {
             | AppliedEffectDef::Animate(_)
             | AppliedEffectDef::ModifyPowerToughness { .. }
             | AppliedEffectDef::GrantAbility(_)
+            | AppliedEffectDef::RemoveAbilities(_)
             | AppliedEffectDef::Special(_) => {}
+        }
+    }
+
+    fn land_type_recipient_matches(
+        &self,
+        recipient: EffectRecipientDef,
+        source: &Permanent,
+        affected: &Permanent,
+    ) -> bool {
+        match recipient {
+            EffectRecipientDef::Source => source.card.id == affected.card.id,
+            EffectRecipientDef::AttachedPermanent => source.attached_to == Some(affected.card.id),
+            EffectRecipientDef::MatchingObjects {
+                object,
+                zones,
+                controller,
+            } => {
+                zones.contains(&ZoneKind::Battlefield)
+                    && self.player_relation_matches(
+                        affected.controller,
+                        controller,
+                        source.controller,
+                        TriggerContext::empty(),
+                    )
+                    && self.land_type_object_predicate_matches(object, source, affected)
+            }
+            EffectRecipientDef::ControllerOfTarget(_)
+            | EffectRecipientDef::ObjectsControlledByTarget { .. }
+            | EffectRecipientDef::ObjectsOwnedByTarget { .. }
+            | EffectRecipientDef::Controller
+            | EffectRecipientDef::Opponent
+            | EffectRecipientDef::EachPlayer
+            | EffectRecipientDef::Target(_)
+            | EffectRecipientDef::ObjectsSharingNameWithTarget(_)
+            | EffectRecipientDef::TriggeringObject
+            | EffectRecipientDef::ControllerOfTriggeringObject
+            | EffectRecipientDef::EventPlayer => false,
+        }
+    }
+
+    fn land_type_object_predicate_matches(
+        &self,
+        predicate: ObjectPredicateDef,
+        source: &Permanent,
+        affected: &Permanent,
+    ) -> bool {
+        match predicate {
+            ObjectPredicateDef::Any => true,
+            ObjectPredicateDef::Source => source.card.id == affected.card.id,
+            ObjectPredicateDef::HasType(card_type) => self
+                .permanent_types(affected)
+                .is_some_and(|types| types.contains(card_type)),
+            ObjectPredicateDef::Supertype(supertype) => self
+                .effective_rules(affected)
+                .is_some_and(|rules| rules.has_supertype(supertype)),
+            ObjectPredicateDef::All(predicates) => predicates.iter().all(|predicate| {
+                self.land_type_object_predicate_matches(*predicate, source, affected)
+            }),
+            ObjectPredicateDef::AnyOf(predicates) => predicates.iter().any(|predicate| {
+                self.land_type_object_predicate_matches(*predicate, source, affected)
+            }),
+            ObjectPredicateDef::Not(predicate) => {
+                !self.land_type_object_predicate_matches(*predicate, source, affected)
+            }
+            // Land-type effects in the built-in catalog deliberately use the
+            // layer-safe vocabulary above. Returning false here is safer than
+            // recursively asking for effective subtypes or abilities.
+            ObjectPredicateDef::HasAnyBasicLandType(_)
+            | ObjectPredicateDef::Spell
+            | ObjectPredicateDef::NoncreatureSpell
+            | ObjectPredicateDef::Color(_)
+            | ObjectPredicateDef::Subtype(_)
+            | ObjectPredicateDef::ManaValueAtMost(_)
+            | ObjectPredicateDef::ManaValueEqualTo(_)
+            | ObjectPredicateDef::ManaValueAtMostValue(_)
+            | ObjectPredicateDef::PowerAtLeast(_)
+            | ObjectPredicateDef::PowerExactly(_)
+            | ObjectPredicateDef::ToughnessExactly(_)
+            | ObjectPredicateDef::ToughnessLessThan(_)
+            | ObjectPredicateDef::ControlledBy(_)
+            | ObjectPredicateDef::DebutSet(_)
+            | ObjectPredicateDef::SharesNameWithSource
+            | ObjectPredicateDef::AttackingOrBlocking
+            | ObjectPredicateDef::HasKeyword(_)
+            | ObjectPredicateDef::Attacking
+            | ObjectPredicateDef::AttackedThisTurn
+            | ObjectPredicateDef::Special(_) => false,
         }
     }
 
@@ -12524,11 +12872,6 @@ impl Game {
                 added_types: CardTypeSet::empty(),
                 added_abilities: Vec::new(),
             })
-    }
-
-    fn copiable_behavior(&self, permanent: &Permanent) -> Option<CardBehavior> {
-        self.effective_rules(permanent)
-            .and_then(CardRules::special_behavior)
     }
 
     fn trigger_event_object(&self, permanent: &Permanent) -> TriggerEventObject {
@@ -12547,7 +12890,7 @@ impl Game {
             mana_value: self.permanent_mana_value(permanent),
             power: self.power_ignoring_static_effects(permanent),
             toughness: self.toughness_ignoring_static_effects(permanent),
-            keywords: Self::keyword_mask_ignoring_static_effects(permanent, rules),
+            keywords: self.keyword_mask_ignoring_static_effects(permanent, None),
             supertypes: {
                 let mut supertypes = [false; CardSupertype::COUNT];
                 for supertype in CardSupertype::ALL {
@@ -12580,7 +12923,7 @@ impl Game {
             mana_value: self.permanent_mana_value(permanent),
             power: self.power_ignoring_static_effects(permanent),
             toughness: self.toughness_ignoring_static_effects(permanent),
-            keywords: Self::keyword_mask_ignoring_static_effects(permanent, rules),
+            keywords: self.keyword_mask_ignoring_static_effects(permanent, Some(prospective)),
             supertypes: {
                 let mut supertypes = [false; CardSupertype::COUNT];
                 for supertype in CardSupertype::ALL {
@@ -12593,21 +12936,29 @@ impl Game {
         }
     }
 
-    /// The keywords an object presents without consulting static effects. See
-    /// [`TriggerEventObject::keywords`] for why granted ones stay out.
-    fn keyword_mask_ignoring_static_effects(permanent: &Permanent, rules: &CardRules) -> u32 {
+    /// The keywords an object presents without consulting ability-layer
+    /// operations from static sources. Resolved additions and removals are
+    /// safe to apply here because they cannot recurse through recipient
+    /// matching; granted static abilities remain outside this boundary until
+    /// fixed-point evaluation exists.
+    fn keyword_mask_ignoring_static_effects(
+        &self,
+        permanent: &Permanent,
+        prospective: Option<&Permanent>,
+    ) -> u32 {
+        let mut abilities = self.collect_base_effective_abilities(permanent, prospective);
+        for operation in Self::resolved_ability_layer_operations(permanent) {
+            Self::apply_ability_layer_operation(&mut abilities, operation);
+        }
         let mut mask = 0;
         let mut set = |keyword: KeywordAbility| {
             if let Some(index) = keyword.simple_index() {
                 mask |= 1 << index;
             }
         };
-        for keyword in &permanent.temporary_keywords {
-            set(*keyword);
-        }
-        for ability in rules.ability_clauses() {
-            if ability.is_executable()
-                && let DeclarativeAbilityDef::Keyword(keyword) = ability.definition
+        for effective in abilities {
+            if effective.ability.is_executable()
+                && let DeclarativeAbilityDef::Keyword(keyword) = effective.ability.definition
             {
                 set(keyword);
             }
@@ -12617,7 +12968,7 @@ impl Game {
 
     fn battlefield_exit_snapshot(&self, permanent: &Permanent) -> BattlefieldExitSnapshot {
         let abilities = self.effective_abilities(permanent);
-        let mut keywords = permanent.temporary_keywords.clone();
+        let mut keywords = Vec::new();
         for effective in &abilities {
             if effective.ability.is_executable()
                 && let DeclarativeAbilityDef::Keyword(ability) = effective.ability.definition
@@ -12658,10 +13009,10 @@ impl Game {
     fn effective_subtypes_with_operations(
         &self,
         permanent: &Permanent,
-        operations: Vec<(GameObjectId, LandTypeOperation)>,
+        operations: Vec<(ContinuousEffectTimestamp, LandTypeOperation)>,
     ) -> Cow<'static, [&'static str]> {
         fn is_land_subtype(subtype: &str) -> bool {
-            BasicLandType::from_subtype(subtype).is_some() || subtype == "Gate"
+            LAND_SUBTYPES.contains(&subtype)
         }
 
         let Some(rules) = self.effective_rules(permanent) else {
@@ -12695,13 +13046,23 @@ impl Game {
 
         for (_, operation) in operations {
             match operation {
-                LandTypeOperation::SetTo(land_type) => {
-                    let insertion = subtypes
+                LandTypeOperation::SetTo(types) => {
+                    let mut insertion = subtypes
                         .iter()
                         .position(|subtype| is_land_subtype(subtype))
                         .unwrap_or(0);
                     subtypes.retain(|subtype| !is_land_subtype(subtype));
-                    subtypes.insert(insertion.min(subtypes.len()), land_type.subtype());
+                    insertion = insertion.min(subtypes.len());
+                    for land_type in types {
+                        if subtypes
+                            .iter()
+                            .any(|subtype| BasicLandType::from_subtype(subtype) == Some(*land_type))
+                        {
+                            continue;
+                        }
+                        subtypes.insert(insertion, land_type.subtype());
+                        insertion += 1;
+                    }
                 }
                 LandTypeOperation::Add(types) => {
                     let mut insertion = subtypes
@@ -12779,81 +13140,204 @@ impl Game {
         types
     }
 
-    /// Abilities the object currently has. Surviving printed abilities retain
-    /// printed order, followed by intrinsic basic-land-type abilities in
-    /// effective type-line order and then abilities granted by other objects.
+    /// Abilities the object currently has after the modeled layer-4 subtype
+    /// setters and ordered layer-6 add/remove operations.
     fn visit_effective_abilities(
         &self,
         permanent: &Permanent,
         mut visitor: impl FnMut(EffectiveAbility) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
-        let blood_moon_applies = self.is_nonbasic_land(permanent) && self.blood_moon_active();
-        // An animation that repaints the permanent takes its printed
-        // abilities with it, the same way Blood Moon does.
+        for effective in self.collect_effective_abilities(permanent, None) {
+            if visitor(effective).is_break() {
+                return ControlFlow::Break(());
+            }
+        }
+        ControlFlow::Continue(())
+    }
+
+    fn collect_effective_abilities(
+        &self,
+        permanent: &Permanent,
+        prospective: Option<&Permanent>,
+    ) -> Vec<EffectiveAbility> {
+        let mut abilities = self.collect_base_effective_abilities(permanent, prospective);
+        for operation in self.collect_ability_layer_operations(permanent, prospective) {
+            Self::apply_ability_layer_operation(&mut abilities, operation);
+        }
+        abilities
+    }
+
+    fn collect_base_effective_abilities(
+        &self,
+        permanent: &Permanent,
+        prospective: Option<&Permanent>,
+    ) -> Vec<EffectiveAbility> {
+        let characteristics = prospective.unwrap_or(permanent);
+        let rules_text_removed = prospective.map_or_else(
+            || self.rules_text_abilities_removed(permanent),
+            |prospective| {
+                self.rules_text_abilities_removed_with_prospective(permanent, prospective)
+            },
+        );
         let animation_removes_abilities = permanent
             .animation
             .is_some_and(|animation| animation.loses_abilities);
-        if !blood_moon_applies
+        let mut abilities = Vec::new();
+        if !rules_text_removed
             && !animation_removes_abilities
-            && let Some(rules) = self.effective_rules(permanent)
+            && let Some(rules) = self.effective_rules(characteristics)
         {
-            let (definition, part) = Self::effective_rules_source(permanent);
+            let (definition, part) = Self::effective_rules_source(characteristics);
             for attached in rules.indexed_abilities() {
-                if visitor(EffectiveAbility {
+                abilities.push(EffectiveAbility {
                     origin: AbilityOrigin::Printed {
                         definition,
                         part,
                         ability: attached.id,
                     },
                     ability: attached.definition,
-                })
-                .is_break()
-                {
-                    return ControlFlow::Break(());
-                }
+                });
             }
-            if let Some(copy) = &permanent.copy_effect {
+            if let Some(copy) = &characteristics.copy_effect {
                 for added in &copy.added_abilities {
-                    if visitor(EffectiveAbility {
+                    abilities.push(EffectiveAbility {
                         origin: added.origin,
                         ability: added.definition,
-                    })
-                    .is_break()
-                    {
-                        return ControlFlow::Break(());
-                    }
+                    });
                 }
             }
         }
+
+        let subtypes = prospective.map_or_else(
+            || self.effective_subtypes(permanent),
+            |prospective| self.effective_subtypes_with_prospective(permanent, prospective),
+        );
         if self
-            .visit_effective_basic_land_types(permanent, |land_type| {
-                visitor(EffectiveAbility {
-                    origin: AbilityOrigin::IntrinsicBasicLand(land_type),
-                    ability: abilities::tap_for(land_type.mana_color()),
-                })
-            })
-            .is_break()
+            .permanent_types(characteristics)
+            .is_some_and(|types| types.contains(CardType::Land))
         {
-            return ControlFlow::Break(());
-        }
-        for granted in &permanent.temporary_granted_abilities {
-            if visitor(EffectiveAbility {
-                origin: AbilityOrigin::Granted {
-                    source: granted.source,
-                    source_definition: granted.source_definition,
-                    source_part: granted.source_part,
-                    source_ability: granted.source_ability,
-                    grant: granted.grant,
-                },
-                ability: *granted.ability,
-            })
-            .is_break()
-            {
-                return ControlFlow::Break(());
+            let mut present = [false; BasicLandType::ALL.len()];
+            for subtype in subtypes.iter() {
+                let Some(land_type) = BasicLandType::from_subtype(subtype) else {
+                    continue;
+                };
+                if !present[land_type.index()] {
+                    present[land_type.index()] = true;
+                    abilities.push(EffectiveAbility {
+                        origin: AbilityOrigin::IntrinsicBasicLand(land_type),
+                        ability: abilities::tap_for(land_type.mana_color()),
+                    });
+                }
             }
         }
-        self.visit_static_applied_effects(permanent, |applied| match applied.effect {
-            AppliedEffectDef::GrantAbility(ability) => visitor(EffectiveAbility {
+
+        // A few legacy setup paths still write keyword markers directly. Seed
+        // them before ordered operations so generalized removal affects them
+        // just like an ordinary granted ability.
+        let (definition, part) = Self::effective_rules_source(characteristics);
+        for keyword in permanent.temporary_keywords.iter().copied().chain(
+            permanent
+                .keywords_until_upkeep_of
+                .iter()
+                .map(|(_, keyword)| *keyword),
+        ) {
+            abilities.push(EffectiveAbility {
+                origin: AbilityOrigin::Printed {
+                    definition,
+                    part,
+                    ability: AbilityId::PRIMARY,
+                },
+                ability: AbilityDef::keyword("Granted keyword ability", keyword),
+            });
+        }
+        abilities
+    }
+
+    /// Builds the ordered layer-6 slice from resolved effects and static
+    /// abilities that survive the modeled layer-4 setters. It deliberately
+    /// does not feed layer-6 removals back into the set of static sources;
+    /// dependencies where one static ability removes its own or another
+    /// source's static ability still require the future fixed-point evaluator.
+    fn collect_ability_layer_operations(
+        &self,
+        permanent: &Permanent,
+        prospective: Option<&Permanent>,
+    ) -> Vec<AbilityLayerOperation> {
+        let mut operations = Self::resolved_ability_layer_operations(permanent);
+        let mut visit_static = |applied: StaticAppliedEffect| {
+            let order = u16::try_from(operations.len()).unwrap_or(u16::MAX);
+            if let Some(operation) = Self::static_ability_layer_operation(applied, order) {
+                operations.push(operation);
+            }
+            ControlFlow::Continue(())
+        };
+        let result = if let Some(prospective) = prospective {
+            self.visit_static_applied_effects_with_prospective(
+                permanent,
+                prospective,
+                &mut visit_static,
+            )
+        } else {
+            self.visit_static_applied_effects(permanent, &mut visit_static)
+        };
+        debug_assert!(result.is_continue());
+
+        operations.sort_by_key(|operation| (operation.timestamp, operation.order));
+        operations
+    }
+
+    fn resolved_ability_layer_operations(permanent: &Permanent) -> Vec<AbilityLayerOperation> {
+        let mut operations = Vec::new();
+        for granted in &permanent.temporary_granted_abilities {
+            operations.push(AbilityLayerOperation {
+                timestamp: granted.timestamp,
+                order: granted.order,
+                kind: AbilityLayerOperationKind::Add {
+                    origin: AbilityOrigin::Granted {
+                        source: granted.source,
+                        source_definition: granted.source_definition,
+                        source_part: granted.source_part,
+                        source_ability: granted.source_ability,
+                        grant: granted.grant,
+                    },
+                    ability: granted.ability,
+                },
+            });
+        }
+        for removal in &permanent.temporary_removed_abilities {
+            operations.push(AbilityLayerOperation {
+                timestamp: removal.timestamp,
+                order: removal.order,
+                kind: AbilityLayerOperationKind::Remove(removal.predicate),
+            });
+        }
+        operations.sort_by_key(|operation| (operation.timestamp, operation.order));
+        operations
+    }
+
+    fn apply_ability_layer_operation(
+        abilities: &mut Vec<EffectiveAbility>,
+        operation: AbilityLayerOperation,
+    ) {
+        match operation.kind {
+            AbilityLayerOperationKind::Add { origin, ability } => {
+                abilities.push(EffectiveAbility {
+                    origin,
+                    ability: *ability,
+                });
+            }
+            AbilityLayerOperationKind::Remove(predicate) => {
+                abilities.retain(|ability| !Self::ability_predicate_matches(predicate, ability));
+            }
+        }
+    }
+
+    fn static_ability_layer_operation(
+        applied: StaticAppliedEffect,
+        order: u16,
+    ) -> Option<AbilityLayerOperation> {
+        let kind = match applied.effect {
+            AppliedEffectDef::GrantAbility(ability) => AbilityLayerOperationKind::Add {
                 origin: AbilityOrigin::Granted {
                     source: applied.source,
                     source_definition: applied.source_definition,
@@ -12863,102 +13347,58 @@ impl Game {
                         .grant
                         .expect("a granted ability has a structural grant identity"),
                 },
-                ability: *ability,
-            }),
+                ability,
+            },
+            AppliedEffectDef::RemoveAbilities(predicate) => {
+                AbilityLayerOperationKind::Remove(predicate)
+            }
             AppliedEffectDef::CannotBeCountered
             | AppliedEffectDef::CannotBeEnchanted
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)
             | AppliedEffectDef::AddLandTypes(_)
+            | AppliedEffectDef::SetLandTypes(_)
             | AppliedEffectDef::Animate(_)
             | AppliedEffectDef::Composite(_)
             | AppliedEffectDef::ModifyPowerToughness { .. }
-            | AppliedEffectDef::Special(_) => ControlFlow::Continue(()),
+            | AppliedEffectDef::Special(_) => return None,
+        };
+        Some(AbilityLayerOperation {
+            timestamp: applied.timestamp,
+            order,
+            kind,
         })
     }
 
-    /// Replacement discovery does not need intrinsic basic-land mana
-    /// abilities. Visiting only printed, copied, and statically granted
-    /// replacement abilities avoids subtype work and temporary vectors on
-    /// every battlefield entry while preserving their relative order.
+    fn ability_predicate_matches(
+        predicate: AbilityPredicateDef,
+        ability: &EffectiveAbility,
+    ) -> bool {
+        match predicate {
+            AbilityPredicateDef::Any => true,
+            AbilityPredicateDef::Keyword(expected) => matches!(
+                ability.ability.definition,
+                DeclarativeAbilityDef::Keyword(actual) if actual == expected
+            ),
+        }
+    }
+
     fn visit_effective_replacement_abilities_with_prospective(
         &self,
         permanent: &Permanent,
         prospective: Option<&Permanent>,
         mut visitor: impl FnMut(EffectiveAbility) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
-        let blood_moon_applies = self.is_nonbasic_land(permanent) && self.blood_moon_active();
-        if !blood_moon_applies && let Some(rules) = self.effective_rules(permanent) {
-            let (definition, part) = Self::effective_rules_source(permanent);
-            for attached in rules.indexed_abilities() {
-                if !matches!(
-                    attached.definition.definition,
-                    DeclarativeAbilityDef::Replacement(_)
-                ) {
-                    continue;
-                }
-                if visitor(EffectiveAbility {
-                    origin: AbilityOrigin::Printed {
-                        definition,
-                        part,
-                        ability: attached.id,
-                    },
-                    ability: attached.definition,
-                })
-                .is_break()
-                {
-                    return ControlFlow::Break(());
-                }
-            }
-            if let Some(copy) = &permanent.copy_effect {
-                for added in &copy.added_abilities {
-                    if !matches!(
-                        added.definition.definition,
-                        DeclarativeAbilityDef::Replacement(_)
-                    ) {
-                        continue;
-                    }
-                    if visitor(EffectiveAbility {
-                        origin: added.origin,
-                        ability: added.definition,
-                    })
-                    .is_break()
-                    {
-                        return ControlFlow::Break(());
-                    }
-                }
+        for effective in self.collect_effective_abilities(permanent, prospective) {
+            if matches!(
+                effective.ability.definition,
+                DeclarativeAbilityDef::Replacement(_)
+            ) && visitor(effective).is_break()
+            {
+                return ControlFlow::Break(());
             }
         }
-
-        let mut visit_granted_replacement = |applied: StaticAppliedEffect| {
-            let AppliedEffectDef::GrantAbility(ability) = applied.effect else {
-                return ControlFlow::Continue(());
-            };
-            if !matches!(ability.definition, DeclarativeAbilityDef::Replacement(_)) {
-                return ControlFlow::Continue(());
-            }
-            visitor(EffectiveAbility {
-                origin: AbilityOrigin::Granted {
-                    source: applied.source,
-                    source_definition: applied.source_definition,
-                    source_part: applied.source_part,
-                    source_ability: applied.source_ability,
-                    grant: applied
-                        .grant
-                        .expect("a granted ability has a structural grant identity"),
-                },
-                ability: *ability,
-            })
-        };
-        if let Some(prospective) = prospective {
-            self.visit_static_applied_effects_with_prospective(
-                permanent,
-                prospective,
-                &mut visit_granted_replacement,
-            )
-        } else {
-            self.visit_static_applied_effects(permanent, &mut visit_granted_replacement)
-        }
+        ControlFlow::Continue(())
     }
 
     fn for_each_effective_ability(
@@ -13001,9 +13441,9 @@ impl Game {
         affected: &Permanent,
         mut visitor: impl FnMut(StaticAppliedEffect) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
-        let mut blood_moon_active = None;
         // Emblems sit outside every zone but their abilities apply, so they
         // are walked alongside the battlefield and nowhere else.
+        let land_type_sources = self.land_type_effect_sources(None);
         for source in self.battlefield.iter().chain(self.emblems.iter()) {
             let Some(rules) = self.effective_rules(source) else {
                 continue;
@@ -13017,10 +13457,7 @@ impl Game {
             if !supplies_static_effect {
                 continue;
             }
-            if rules.has_type(CardType::Land)
-                && !rules.has_supertype(CardSupertype::Basic)
-                && *blood_moon_active.get_or_insert_with(|| self.blood_moon_active())
-            {
+            if self.rules_text_abilities_removed_from_sources(source, &land_type_sources) {
                 continue;
             }
             for attached in rules.indexed_abilities() {
@@ -13037,6 +13474,7 @@ impl Game {
                 };
                 let mut traversal = StaticEffectTraversal {
                     source,
+                    source_timestamp: source.timestamp,
                     source_definition,
                     source_part,
                     source_ability: attached.id,
@@ -13061,8 +13499,8 @@ impl Game {
         prospective: &Permanent,
         mut visitor: impl FnMut(StaticAppliedEffect) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
-        let mut blood_moon_active = None;
         let prospective_source = (prospective.card.id == affected.card.id).then_some(prospective);
+        let land_type_sources = self.land_type_effect_sources(prospective_source);
         for source in self.battlefield.iter().chain(prospective_source) {
             let Some(rules) = self.effective_rules(source) else {
                 continue;
@@ -13076,10 +13514,9 @@ impl Game {
             if !supplies_static_effect {
                 continue;
             }
-            if rules.has_type(CardType::Land)
-                && !rules.has_supertype(CardSupertype::Basic)
-                && *blood_moon_active.get_or_insert_with(|| self.blood_moon_active())
-            {
+            let rules_text_removed =
+                self.rules_text_abilities_removed_from_sources(source, &land_type_sources);
+            if rules_text_removed {
                 continue;
             }
             for attached in rules.indexed_abilities() {
@@ -13096,6 +13533,13 @@ impl Game {
                 };
                 let mut traversal = StaticEffectTraversal {
                     source,
+                    source_timestamp: if prospective_source
+                        .is_some_and(|prospective| std::ptr::eq(source, prospective))
+                    {
+                        self.prospective_continuous_effect_timestamp()
+                    } else {
+                        source.timestamp
+                    },
                     source_definition,
                     source_part,
                     source_ability: attached.id,
@@ -13189,9 +13633,11 @@ impl Game {
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)
             | AppliedEffectDef::AddLandTypes(_)
+            | AppliedEffectDef::SetLandTypes(_)
             | AppliedEffectDef::Animate(_)
             | AppliedEffectDef::ModifyPowerToughness { .. }
             | AppliedEffectDef::GrantAbility(_)
+            | AppliedEffectDef::RemoveAbilities(_)
             | AppliedEffectDef::Special(_) => {
                 let grant = if matches!(effect, AppliedEffectDef::GrantAbility(_)) {
                     let grant = GrantId::from_index(traversal.next_grant)
@@ -13204,6 +13650,7 @@ impl Game {
                 if include_effect {
                     visitor(StaticAppliedEffect {
                         source: traversal.source.card.id,
+                        timestamp: traversal.source_timestamp,
                         source_definition: traversal.source_definition,
                         source_part: traversal.source_part,
                         source_ability: traversal.source_ability,
@@ -13552,23 +13999,13 @@ impl Game {
     }
 
     fn effective_behavior(&self, permanent: &Permanent) -> Option<CardBehavior> {
-        if self.is_nonbasic_land(permanent) && self.blood_moon_active() {
-            None
-        } else {
-            self.copiable_behavior(permanent)
+        let mut abilities = self.collect_base_effective_abilities(permanent, None);
+        for operation in Self::resolved_ability_layer_operations(permanent) {
+            Self::apply_ability_layer_operation(&mut abilities, operation);
         }
-    }
-
-    fn effective_behavior_with_blood_moon(
-        &self,
-        permanent: &Permanent,
-        blood_moon_active: bool,
-    ) -> Option<CardBehavior> {
-        if blood_moon_active && self.is_nonbasic_land(permanent) {
-            None
-        } else {
-            self.copiable_behavior(permanent)
-        }
+        abilities
+            .into_iter()
+            .find_map(|effective| effective.ability.custom_behavior())
     }
 
     /// The colours a permanent actually is. An animation that repaints it
@@ -15198,20 +15635,14 @@ impl Game {
         permanent: &Permanent,
         expected: KeywordAbility,
     ) -> bool {
-        permanent.temporary_keywords.contains(&expected)
-            || permanent
-                .keywords_until_upkeep_of
-                .iter()
-                .any(|(_, keyword)| *keyword == expected)
-            || self
-                .find_effective_ability(permanent, |effective| {
-                    effective.ability.is_executable()
-                        && matches!(
-                            effective.ability.definition,
-                            DeclarativeAbilityDef::Keyword(actual) if actual == expected
-                        )
-                })
-                .is_some()
+        self.find_effective_ability(permanent, |effective| {
+            effective.ability.is_executable()
+                && matches!(
+                    effective.ability.definition,
+                    DeclarativeAbilityDef::Keyword(actual) if actual == expected
+                )
+        })
+        .is_some()
     }
 
     fn source_controller_with_keyword(
@@ -17416,11 +17847,24 @@ impl Game {
         self.turns_started[self.active_player.index()] += 1;
         let turns_started = self.turns_started;
         for permanent in &mut self.battlefield {
-            permanent.temporary_granted_abilities.retain(|grant| {
-                grant
-                    .expires_at_turn
-                    .is_none_or(|(player, turn)| turns_started[player.index()] < turn)
-            });
+            permanent
+                .temporary_granted_abilities
+                .retain(|grant| match grant.expiration {
+                    AbilityEffectExpiration::UpkeepOf(player) => player != self.active_player,
+                    AbilityEffectExpiration::TurnOf { player, turn } => {
+                        turns_started[player.index()] < turn
+                    }
+                    AbilityEffectExpiration::EndOfTurn | AbilityEffectExpiration::Never => true,
+                });
+            permanent
+                .temporary_removed_abilities
+                .retain(|removal| match removal.expiration {
+                    AbilityEffectExpiration::UpkeepOf(player) => player != self.active_player,
+                    AbilityEffectExpiration::TurnOf { player, turn } => {
+                        turns_started[player.index()] < turn
+                    }
+                    AbilityEffectExpiration::EndOfTurn | AbilityEffectExpiration::Never => true,
+                });
         }
         self.creature_died_this_turn = false;
         self.sorcery_flash_grants = [0; 2];
@@ -17542,6 +17986,12 @@ impl Game {
             permanent.power_bonus = 0;
             permanent.toughness_bonus = 0;
             permanent.temporary_keywords.clear();
+            permanent
+                .temporary_granted_abilities
+                .retain(|grant| grant.expiration != AbilityEffectExpiration::EndOfTurn);
+            permanent
+                .temporary_removed_abilities
+                .retain(|removal| removal.expiration != AbilityEffectExpiration::EndOfTurn);
             if let Some(owner) = permanent.control_reverts_to.take() {
                 permanent.controller = owner;
             }

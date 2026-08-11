@@ -393,6 +393,14 @@ tokens and definitions outside the selected format as well as playable cards.
 their structure, parts, play options, legality, printings, and clause-derived
 implementation status.
 
+Catalog contents may grow compatibly within one protocol version because
+definition IDs are append-only. The out-of-format interaction fixtures
+`Urborg, Tomb of Yawgmoth` (definition 261, debut set `planar-chaos`) and
+`Yavimaya, Cradle of Growth` (definition 262, debut set
+`modern-horizons-2`) appear in every unfiltered catalog but have `allowed` and
+`legal` set to `false` for both supported formats. They therefore add no legal
+actions to an ordinary supported-format game.
+
 Cards and parts expose `implementationStatus` as `complete`, `partial`, or
 `metadataOnly`; the old execution gate is not public coverage metadata.
 Definition, part, play-option, mode, and cost IDs join directly. Target-slot

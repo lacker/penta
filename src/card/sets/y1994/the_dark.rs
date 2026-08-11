@@ -35,26 +35,23 @@ pub(in crate::card::sets) static BLOOD_MOON: CardRecord = CardRecord::new(
     "Blood Moon",
     CardArt::new("78373616-e2d6-4ccf-998f-09f02bea45b4", "Tom Wänerstrand"),
     CardSet::TheDark,
-    CardRules::new_enchantment(mana_cost!("{2}{R}")).with_abilities(&[
-        AbilityDef::static_ability(
-            "Nonbasic lands are Mountains.",
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::MatchingObjects {
-                    object: ObjectPredicateDef::Special("nonbasic land"),
-                    zones: &[ZoneKind::Battlefield],
-                    controller: PlayerRelation::Any,
-                },
-                effect: AppliedEffectDef::Special(
-                    "Set land subtypes to Mountain and apply the intrinsic Mountain mana ability",
-                ),
-                duration: EffectDurationDef::WhileSourceRemainsInZone,
+    CardRules::new_enchantment(mana_cost!("{2}{R}")).with_abilities(&[AbilityDef::static_ability(
+        "Nonbasic lands are Mountains.",
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::MatchingObjects {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
+                        crate::card::CardSupertype::Basic,
+                    )),
+                ]),
+                zones: &[ZoneKind::Battlefield],
+                controller: PlayerRelation::Any,
             },
-        )
-        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::BloodMoon))
-        .with_coverage(AbilityCoverageDef::partial(
-            "The hard-coded transformation does not yet use the full land-type, ability-loss, and layer system.",
-        )),
-    ]),
+            effect: AppliedEffectDef::SetLandTypes(&[crate::card::BasicLandType::Mountain]),
+            duration: EffectDurationDef::WhileSourceRemainsInZone,
+        },
+    )]),
 );
 
 pub(in crate::card::sets) static GOBLIN_DIGGING_TEAM: CardRecord = CardRecord::new(

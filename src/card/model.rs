@@ -23,6 +23,7 @@ pub enum CardSet {
     TheDark,
     FallenEmpires,
     Promo1994,
+    PlanarChaos,
     FutureSight,
     Innistrad,
     DarkAscension,
@@ -33,6 +34,7 @@ pub enum CardSet {
     DragonsMaze,
     Magic2014,
     Theros,
+    ModernHorizons2,
     /// Tokens are game objects rather than printed cards. They live in the
     /// catalog so a client can look one up by definition, and belong to no
     /// set a format allows, so they are never deck-legal.
@@ -1185,6 +1187,10 @@ pub enum AppliedEffectDef {
     PreventDamageFrom(ObjectPredicateDef),
     /// Adds land subtypes without removing the object's existing subtypes.
     AddLandTypes(&'static [BasicLandType]),
+    /// Sets the object's land subtypes, removing its existing land subtypes and
+    /// abilities supplied by its rules text or copiable values under CR 305.7.
+    /// Independently granted abilities are not part of that removal.
+    SetLandTypes(&'static [BasicLandType]),
     ModifyPowerToughness {
         power: ValueDef,
         toughness: ValueDef,
@@ -1192,10 +1198,25 @@ pub enum AppliedEffectDef {
     /// Give the affected object an ordinary ability. The granted definition
     /// carries its own keyword, activation, or alternative-casting procedure.
     GrantAbility(&'static AbilityDef),
+    /// Remove each ability matching the predicate. Unlike
+    /// [`Self::SetLandTypes`], this is an ordinary ability-layer operation and
+    /// can remove intrinsic or independently granted abilities.
+    RemoveAbilities(AbilityPredicateDef),
     /// Turn the affected permanent into a creature. This is what a manland's
     /// activated ability does, and it keeps the permanent's other types.
     Animate(&'static AnimationDef),
     Special(&'static str),
+}
+
+/// A reusable selector for ability-removing continuous effects.
+///
+/// `Any` supports ordinary "loses all abilities" effects. The keyword form is
+/// also the seam needed by text-changing cards that replace one landwalk
+/// ability with another without treating the whole rules box as opaque text.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum AbilityPredicateDef {
+    Any,
+    Keyword(KeywordAbility),
 }
 
 /// The creature a permanent becomes while an animation effect is active. A

@@ -418,6 +418,17 @@ not identity or a complete rules predicate. A richer semantic target can lack
 that legacy projection while still producing targeted legal actions; use the
 concrete action as the authority.
 
+As a compatible protocol-15 catalog enrichment, Doom Blade, Swords to
+Plowshares, Divine Offering, Dispel, Dissipate, Putrefy, Ultimate Price, and
+Warleader's Helix now expose the one target slot derived from their declarative
+spell definitions. Their legacy definitions left `playOptions[].targets`
+empty even though concrete cast actions already carried the target. The legal
+action and target-slot encodings are unchanged, and clients should continue to
+use each supplied concrete action as the authority. The shared target
+machinery now evaluates effective characteristics consistently and rechecks
+legality on resolution; continuous effects can therefore change which casts
+are offered, and a spell whose targets are all illegal correctly fizzles.
+
 Since protocol 8, every non-null mana-cost object has this shape:
 
 ```json

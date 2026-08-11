@@ -370,6 +370,7 @@ mod tests {
             | ObjectPredicateDef::Spell
             | ObjectPredicateDef::NoncreatureSpell
             | ObjectPredicateDef::Color(_)
+            | ObjectPredicateDef::ColorCount(_)
             | ObjectPredicateDef::Subtype(_)
             | ObjectPredicateDef::ManaValueAtMost(_)
             | ObjectPredicateDef::ManaValueEqualTo(_)
@@ -699,7 +700,6 @@ mod tests {
             | EffectDef::PreventCombatDamageThisTurn { object }
             | EffectDef::Destroy { object, .. }
             | EffectDef::Sacrifice { object }
-            | EffectDef::Counter { object }
             | EffectDef::ExileLinkedToSource { object }
             | EffectDef::MakeUnblockableThisTurn { object }
             | EffectDef::GainControlThisTurn { object }
@@ -708,7 +708,8 @@ mod tests {
             | EffectDef::ChangeTextBasicLandType { object }
             | EffectDef::BecomeCopyOf { object, .. } => shared_effect_recipient(object),
             // Only the two destinations counter_spell_into knows.
-            EffectDef::CounterUnlessPaid { object, zone, .. } => {
+            EffectDef::Counter { object, zone }
+            | EffectDef::CounterUnlessPaid { object, zone, .. } => {
                 matches!(zone, ZoneKind::Graveyard | ZoneKind::Exile)
                     && shared_effect_recipient(object)
             }

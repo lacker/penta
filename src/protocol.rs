@@ -2060,6 +2060,50 @@ mod tests {
     }
 
     #[test]
+    fn migrated_spells_enrich_protocol_15_catalog_targets_compatibly() {
+        let catalog = poc::catalog().expect("catalog builds");
+        let value = catalog_json_for_format(&catalog, Format::IsdRtrStandard);
+        assert_eq!(PROTOCOL_VERSION, 15);
+        assert_eq!(value["protocolVersion"], 15);
+
+        let cards = value["cards"].as_array().expect("cards array");
+        let expected = [
+            ("Doom Blade", "CreaturePermanent"),
+            ("Swords to Plowshares", "CreaturePermanent"),
+            ("Divine Offering", "Permanent"),
+            ("Dispel", "Spell"),
+            ("Dissipate", "Spell"),
+            ("Putrefy", "Permanent"),
+            ("Ultimate Price", "CreaturePermanent"),
+            ("Warleader's Helix", "AnyTarget"),
+        ];
+
+        for (name, predicate) in expected {
+            let card = cards
+                .iter()
+                .find(|card| card["name"] == name)
+                .unwrap_or_else(|| panic!("{name} is cataloged"));
+            let targets = card["playOptions"][0]["targets"]
+                .as_array()
+                .unwrap_or_else(|| panic!("{name} exposes target metadata"));
+            assert_eq!(targets.len(), 1, "{name} has one target slot");
+            assert_eq!(targets[0]["id"], 0, "{name} uses the primary slot");
+            assert_eq!(
+                targets[0]["predicate"], predicate,
+                "{name} exposes its simplified target kind",
+            );
+            assert_eq!(targets[0]["minimum"], 1, "{name} requires its target");
+            assert_eq!(targets[0]["maximum"], 1, "{name} takes one target");
+            assert!(
+                targets[0]["label"]
+                    .as_str()
+                    .is_some_and(|label| !label.is_empty()),
+                "{name} exposes a presentation label",
+            );
+        }
+    }
+
+    #[test]
     fn deck_names_all_resolve() {
         for name in deck_names() {
             assert!(deck_by_name(name).is_some(), "{name} resolves");

@@ -413,6 +413,7 @@ enum RetiredObject {
         permanent: Box<Permanent>,
         power: Option<i16>,
         toughness: Option<i16>,
+        mana_value: u16,
         keywords: Vec<KeywordAbility>,
     },
     Stack(Box<StackObject>),
@@ -1204,6 +1205,7 @@ struct StaticEffectTraversal<'a> {
 struct PermanentLastKnownInformation {
     power: Option<i16>,
     toughness: Option<i16>,
+    mana_value: u16,
     keywords: Vec<KeywordAbility>,
 }
 
@@ -1942,6 +1944,7 @@ impl Game {
                 permanent: Box::new(permanent.clone()),
                 power: last_known.power,
                 toughness: last_known.toughness,
+                mana_value: last_known.mana_value,
                 keywords: last_known.keywords.clone(),
             },
         );
@@ -4501,6 +4504,9 @@ impl Game {
             ObjectPredicateDef::Color(color) => color
                 .color_index()
                 .is_some_and(|index| object.colors[index]),
+            ObjectPredicateDef::ColorCount(count) => {
+                object.colors.iter().filter(|present| **present).count() == usize::from(count)
+            }
             ObjectPredicateDef::Subtype(subtype) => object.subtypes.contains(&subtype),
             ObjectPredicateDef::ManaValueAtMost(limit) => object.mana_value <= u16::from(limit),
             ObjectPredicateDef::ManaValueEqualTo(value) => self
@@ -8301,8 +8307,7 @@ impl Game {
             CardBehavior::LightningBolt
             | CardBehavior::ChainLightning
             | CardBehavior::PillarOfFlame
-            | CardBehavior::GoblinGrenade
-            | CardBehavior::WarleadersHelix => self
+            | CardBehavior::GoblinGrenade => self
                 .damage_targets()
                 .into_iter()
                 .map(|target| vec![target])
@@ -8317,12 +8322,6 @@ impl Game {
                     .flat_map(|count| target_combinations(&targets, count))
                     .collect()
             }
-            CardBehavior::DivineOffering => self
-                .battlefield
-                .iter()
-                .filter(|permanent| self.is_artifact_permanent(permanent))
-                .map(|permanent| vec![Target::Permanent(permanent.card.id)])
-                .collect(),
             CardBehavior::DustToDust => {
                 let artifacts: Vec<_> = self
                     .battlefield
@@ -8332,42 +8331,6 @@ impl Game {
                     .collect();
                 target_combinations(&artifacts, 2)
             }
-            CardBehavior::SwordsToPlowshares => self
-                .battlefield
-                .iter()
-                .filter(|permanent| self.power(permanent).is_some())
-                .map(|permanent| vec![Target::Permanent(permanent.card.id)])
-                .collect(),
-            CardBehavior::Putrefy => self
-                .battlefield
-                .iter()
-                .filter(|permanent| {
-                    self.power(permanent).is_some() || self.is_artifact_permanent(permanent)
-                })
-                .map(|permanent| vec![Target::Permanent(permanent.card.id)])
-                .collect(),
-            CardBehavior::UltimatePrice => self
-                .battlefield
-                .iter()
-                .filter(|permanent| {
-                    self.power(permanent).is_some()
-                        && self.effective_rules(permanent).is_some_and(|rules| {
-                            rules.colors().iter().filter(|on| **on).count() == 1
-                        })
-                })
-                .map(|permanent| vec![Target::Permanent(permanent.card.id)])
-                .collect(),
-            CardBehavior::DoomBlade => self
-                .battlefield
-                .iter()
-                .filter(|permanent| {
-                    self.power(permanent).is_some()
-                        && !self
-                            .effective_rules(permanent)
-                            .is_some_and(|rules| rules.colors()[2])
-                })
-                .map(|permanent| vec![Target::Permanent(permanent.card.id)])
-                .collect(),
             CardBehavior::Fork => self
                 .stack
                 .iter()
@@ -8381,7 +8344,7 @@ impl Game {
                 .collect(),
             // Both read the spell's kind off its chosen play option, so a
             // split or modal card counts as whatever it was actually cast as.
-            CardBehavior::Negate | CardBehavior::EssenceScatter | CardBehavior::Dispel => self
+            CardBehavior::Negate | CardBehavior::EssenceScatter => self
                 .stack
                 .iter()
                 .filter(|object| {
@@ -8390,16 +8353,9 @@ impl Game {
                             .stack_spell_types(object)
                             .is_some_and(|types| match behavior {
                                 CardBehavior::EssenceScatter => types.is_creature(),
-                                CardBehavior::Dispel => types.contains(CardType::Instant),
                                 _ => !types.is_creature(),
                             })
                 })
-                .map(|object| vec![Target::Spell(object.id)])
-                .collect(),
-            CardBehavior::Dissipate => self
-                .stack
-                .iter()
-                .filter(|object| object.kind == StackObjectKind::Spell)
                 .map(|object| vec![Target::Spell(object.id)])
                 .collect(),
             _ => vec![Vec::new()],
@@ -8886,15 +8842,23 @@ impl Game {
             .map_or(0, |rules| rules.printed_mana_cost().mana_value())
     }
 
-    /// A spell's mana value, still readable after it has left the stack so a
-    /// delayed effect can measure what it countered.
-    fn current_or_last_known_spell_mana_value(&self, id: GameObjectId) -> Option<u16> {
+    /// A permanent or spell's mana value, still readable after it has left
+    /// its zone so a later effect in the same sequence can measure it.
+    fn current_or_last_known_mana_value(&self, id: GameObjectId) -> Option<u16> {
+        if let Some(permanent) = self
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == id)
+        {
+            return Some(self.permanent_mana_value(permanent));
+        }
         if let Some(object) = self.stack.iter().find(|object| object.id == id) {
             return Some(self.stack_spell_mana_value(object));
         }
         match self.retired_objects.get(&id) {
+            Some(RetiredObject::Permanent { mana_value, .. }) => Some(*mana_value),
             Some(RetiredObject::Stack(object)) => Some(self.stack_spell_mana_value(object)),
-            _ => None,
+            Some(RetiredObject::Card(_)) | None => None,
         }
     }
 
@@ -10526,10 +10490,18 @@ impl Game {
                     .unwrap_or(u16::MAX);
                 self.add_unrestricted_mana(object.controller, color, amount);
             }
-            EffectDef::Counter { object: recipient } => {
+            EffectDef::Counter {
+                object: recipient,
+                zone,
+            } => {
+                let zone = if zone == ZoneKind::Exile {
+                    CounteredSpellZone::Exile
+                } else {
+                    CounteredSpellZone::Graveyard
+                };
                 for target in self.effect_recipients(recipient, object, context, scoped) {
                     if let Target::Spell(spell) = target {
-                        self.counter_spell(spell);
+                        self.counter_spell_into(spell, zone);
                     }
                 }
             }
@@ -10733,8 +10705,10 @@ impl Game {
             ValueDef::TargetManaValue(target) => {
                 Self::chosen_targets(object, scoped.target_slot(target))
                     .find_map(|target| match target {
-                        Target::Spell(id) => self.current_or_last_known_spell_mana_value(id),
-                        Target::Permanent(_) | Target::Player(_) | Target::Card(_) => None,
+                        Target::Permanent(id) | Target::Spell(id) => {
+                            self.current_or_last_known_mana_value(id)
+                        }
+                        Target::Player(_) | Target::Card(_) => None,
                     })
                     .map_or(0, i32::from)
             }
@@ -11667,6 +11641,7 @@ impl Game {
             | ObjectPredicateDef::Spell
             | ObjectPredicateDef::NoncreatureSpell
             | ObjectPredicateDef::Color(_)
+            | ObjectPredicateDef::ColorCount(_)
             | ObjectPredicateDef::Subtype(_)
             | ObjectPredicateDef::ManaValueAtMost(_)
             | ObjectPredicateDef::ManaValueEqualTo(_)
@@ -11769,10 +11744,6 @@ impl Game {
                     permanent.exile_instead_of_dying = true;
                 }
             }
-            CardBehavior::WarleadersHelix => {
-                self.damage_target(object.first_target(), 4);
-                self.gain_life(object.controller, 4);
-            }
             CardBehavior::GoblinGrenade => {
                 self.damage_target(object.first_target(), 5);
             }
@@ -11810,18 +11781,6 @@ impl Game {
                     self.damage_target(Some(Target::Permanent(target)), object.x());
                 }
             }
-            // Doom Blade belongs here rather than with Terror: it says
-            // nothing about regeneration, so the ordinary destroy applies.
-            CardBehavior::DoomBlade | CardBehavior::UltimatePrice => {
-                if let Some(Target::Permanent(target)) = object.first_target() {
-                    self.destroy_permanent(target);
-                }
-            }
-            CardBehavior::Putrefy => {
-                if let Some(Target::Permanent(target)) = object.first_target() {
-                    self.destroy_permanent_without_regeneration(target);
-                }
-            }
             CardBehavior::DustToDust => {
                 for target in object.iter_targets().filter_map(|target| match target {
                     Target::Permanent(id) => Some(*id),
@@ -11830,39 +11789,9 @@ impl Game {
                     self.exile_permanent(target);
                 }
             }
-            CardBehavior::DivineOffering => {
-                if let Some(Target::Permanent(target)) = object.first_target()
-                    && let Some(permanent) = self
-                        .battlefield
-                        .iter()
-                        .find(|permanent| permanent.card.id == target)
-                {
-                    let life = self.permanent_mana_value(permanent);
-                    self.destroy_permanent(target);
-                    self.gain_life(object.controller, life);
-                }
-            }
-            CardBehavior::SwordsToPlowshares => {
-                if let Some(Target::Permanent(target)) = object.first_target()
-                    && let Some(index) = self.battlefield.iter().position(|permanent| {
-                        permanent.card.id == target
-                            && !self.is_protected_from_colors(permanent, behavior.rules().colors())
-                    })
-                {
-                    let controller = self.battlefield[index].controller;
-                    let life = self.power(&self.battlefield[index]).unwrap_or(0).max(0);
-                    self.exile_permanent(target);
-                    self.players[controller.index()].life += life;
-                }
-            }
-            CardBehavior::Negate | CardBehavior::EssenceScatter | CardBehavior::Dispel => {
+            CardBehavior::Negate | CardBehavior::EssenceScatter => {
                 if let Some(Target::Spell(target)) = object.first_target() {
                     self.counter_spell(target);
-                }
-            }
-            CardBehavior::Dissipate => {
-                if let Some(Target::Spell(target)) = object.first_target() {
-                    self.counter_spell_into(target, CounteredSpellZone::Exile);
                 }
             }
             CardBehavior::Fork => {
@@ -12844,6 +12773,7 @@ impl Game {
             | ObjectPredicateDef::Spell
             | ObjectPredicateDef::NoncreatureSpell
             | ObjectPredicateDef::Color(_)
+            | ObjectPredicateDef::ColorCount(_)
             | ObjectPredicateDef::Subtype(_)
             | ObjectPredicateDef::ManaValueAtMost(_)
             | ObjectPredicateDef::ManaValueEqualTo(_)
@@ -12981,8 +12911,9 @@ impl Game {
             object: self.trigger_event_object(permanent),
             abilities,
             last_known: PermanentLastKnownInformation {
-                power: self.power_ignoring_static_effects(permanent),
+                power: self.power(permanent),
                 toughness: self.toughness(permanent),
+                mana_value: self.permanent_mana_value(permanent),
                 keywords,
             },
         }

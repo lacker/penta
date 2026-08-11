@@ -146,6 +146,7 @@ pub(in crate::card::sets) static COUNTERFLUX: CardRecord = CardRecord::new(
             )],
             EffectDef::Counter {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Graveyard,
             },
         ),
         abilities::overload(
@@ -157,6 +158,7 @@ pub(in crate::card::sets) static COUNTERFLUX: CardRecord = CardRecord::new(
                     zones: &[ZoneKind::Stack],
                     controller: PlayerRelation::NotYou,
                 },
+                zone: ZoneKind::Graveyard,
             },
         ),
     ]),
@@ -250,10 +252,9 @@ pub(in crate::card::sets) static DISPEL: CardRecord = CardRecord::new(
     "Dispel",
     CardArt::new("08d4a8d7-c136-472f-8146-a1100701ca4f", "Chase Stone"),
     CardSet::ReturnToRavnica,
-    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::custom_full(
+    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::counter_target(
         "Counter target instant spell.",
-        CardBehavior::Dispel,
-        "Implemented by the named card-local special behavior.",
+        &AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::HasType(CardType::Instant)),
     )),
 );
 
@@ -669,10 +670,13 @@ pub(in crate::card::sets) static ULTIMATE_PRICE: CardRecord = CardRecord::new(
     "Ultimate Price",
     CardArt::new("d2b4912a-83a2-4870-8fac-81fa79da2830", "Karl Kopinski"),
     CardSet::ReturnToRavnica,
-    CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(AbilityDef::custom_full(
+    CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(AbilityDef::destroy_target(
         "Destroy target monocolored creature.",
-        CardBehavior::UltimatePrice,
-        "Implemented by the named card-local special behavior.",
+        &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::ColorCount(1),
+        ])),
+        true,
     )),
 );
 

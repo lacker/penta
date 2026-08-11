@@ -1089,6 +1089,7 @@ fn validate_effect_target_references(
         | EffectDef::GainControlThisTurn { object }
         | EffectDef::Transform { object }
         | EffectDef::MoveToZone { object, .. }
+        | EffectDef::Counter { object, .. }
         | EffectDef::ChooseCardName { object }
         | EffectDef::ChooseCreatureType { object } => {
             validate_recipient_target_references(object, target_count)
@@ -1119,7 +1120,6 @@ fn validate_effect_target_references(
             validate_recipient_target_references(player, target_count)?;
             validate_value_target_references(amount, target_count)
         }
-        EffectDef::Counter { object } => validate_recipient_target_references(object, target_count),
         EffectDef::CounterUnlessPaid { object, amount, .. }
         | EffectDef::AddCounters { object, amount, .. } => {
             validate_recipient_target_references(object, target_count)?;

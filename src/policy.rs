@@ -4,9 +4,10 @@ use std::error::Error;
 use std::fmt;
 
 use crate::card::{
-    AbilityCostDef, AlternativeCastKindDef, BasicLandType, CardBehavior, CardCatalog,
-    CardSupertype, CardType, CardTypeSet, DeclarativeAbilityDef, EffectDef, EffectRecipientDef,
-    ObjectPredicateDef, PlayerRelation, SpellForm, ValueDef, ZoneKind,
+    AbilityCostDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
+    BasicLandType, CardBehavior, CardCatalog, CardSupertype, CardType, CardTypeSet,
+    DeclarativeAbilityDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
+    SpellForm, ValueDef, ZoneKind,
 };
 use crate::game::{
     DecisionObservation, DecisionOption, DecisionPreference, DecisionZone, Game, GameResult,
@@ -214,6 +215,7 @@ impl HandcraftedPolicy {
             Self::collect_spell_effect_profile(
                 ability.declarative_effect()?,
                 choices.x(),
+                &[],
                 &mut profile,
             );
             return Some(profile);
@@ -228,6 +230,7 @@ impl HandcraftedPolicy {
         Self::collect_spell_effect_profile(
             ability.declarative_effect()?,
             choices.x(),
+            spell.targets(),
             &mut profile,
         );
         if spell.modal().is_none() {
@@ -241,6 +244,10 @@ impl HandcraftedPolicy {
             Self::collect_spell_effect_profile(
                 mode.declarative_effect()?,
                 choices.x(),
+                match mode.definition {
+                    DeclarativeAbilityDef::Spell(spell) => spell.targets(),
+                    _ => &[],
+                },
                 &mut profile,
             );
         }
@@ -277,19 +284,32 @@ impl HandcraftedPolicy {
         }
     }
 
+    fn target_slot_is_on_battlefield(targets: &[AbilityTargetDef], index: usize) -> bool {
+        targets.get(index).is_some_and(|definition| {
+            matches!(
+                definition.predicate,
+                AbilityTargetPredicate::Object { zones, .. }
+                    if zones.contains(&ZoneKind::Battlefield)
+            )
+        })
+    }
+
     fn collect_spell_effect_profile(
         effect: EffectDef,
         x: u16,
+        targets: &[AbilityTargetDef],
         profile: &mut DeclarativeSpellProfile,
     ) {
         match effect {
             EffectDef::Sequence(effects) => {
                 for effect in effects {
-                    Self::collect_spell_effect_profile(*effect, x, profile);
+                    Self::collect_spell_effect_profile(*effect, x, targets, profile);
                 }
             }
             // An optional effect is worth what it would do if taken.
-            EffectDef::May(inner) => Self::collect_spell_effect_profile(*inner, x, profile),
+            EffectDef::May(inner) => {
+                Self::collect_spell_effect_profile(*inner, x, targets, profile);
+            }
             EffectDef::DealDamage { recipient, amount }
             | EffectDef::DrainLife { recipient, amount } => {
                 profile.damage = Self::policy_value(amount, x);
@@ -306,7 +326,7 @@ impl HandcraftedPolicy {
                         Some(drawn.saturating_sub(Self::policy_value(amount, x).unwrap_or(0)));
                 }
             }
-            EffectDef::Counter { object } => {
+            EffectDef::Counter { object, .. } => {
                 profile.mark(DeclarativeSpellProfile::COUNTERS);
                 profile.opponent_spell_sweep |= matches!(
                     object,
@@ -321,6 +341,13 @@ impl HandcraftedPolicy {
                 profile.mark(DeclarativeSpellProfile::COUNTERS);
             }
             EffectDef::Destroy { object, .. } => Self::collect_destroy_profile(object, profile),
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(target),
+                zone: ZoneKind::Exile,
+                ..
+            } if Self::target_slot_is_on_battlefield(targets, target.index()) => {
+                profile.mark(DeclarativeSpellProfile::REMOVES);
+            }
             EffectDef::Tap { .. }
             | EffectDef::Untap { .. }
             | EffectDef::PreventCombatDamageThisTurn { .. } => {
@@ -546,14 +573,7 @@ impl HandcraftedPolicy {
     }
 
     fn is_hostile_removal(behavior: Option<CardBehavior>) -> bool {
-        matches!(
-            behavior,
-            Some(
-                CardBehavior::SwordsToPlowshares
-                    | CardBehavior::DivineOffering
-                    | CardBehavior::DustToDust
-            )
-        )
+        matches!(behavior, Some(CardBehavior::DustToDust))
     }
 
     /// Removal aimed at your own board is never worth its base score, so the
@@ -751,7 +771,6 @@ impl HandcraftedPolicy {
         )
         .unwrap_or(i32::MAX);
         let base = match behavior {
-            Some(CardBehavior::SwordsToPlowshares) => 8_400,
             Some(CardBehavior::TimeWalk) => 8_300,
             Some(CardBehavior::GoblinGrenade) => 8_500,
             Some(CardBehavior::ChainLightning) => 8_000,
@@ -1608,10 +1627,13 @@ impl HandcraftedPolicy {
             return None;
         }
         let mut profile = DeclarativeSpellProfile::default();
-        if let DeclarativeAbilityDef::Activated(definition) = ability.definition {
+        let targets = if let DeclarativeAbilityDef::Activated(definition) = ability.definition {
             profile.taps_source = definition.costs.contains(&AbilityCostDef::TapSource);
-        }
-        Self::collect_spell_effect_profile(ability.declarative_effect()?, 0, &mut profile);
+            definition.targets
+        } else {
+            &[]
+        };
+        Self::collect_spell_effect_profile(ability.declarative_effect()?, 0, targets, &mut profile);
         Some(profile)
     }
 

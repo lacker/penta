@@ -85,10 +85,13 @@ pub(in crate::card::sets) static DISSIPATE: CardRecord = CardRecord::new(
     CardArt::new("5d778082-bcdb-423a-b16f-57ac0d4dace7", "Tomasz Jedruszek"),
     CardSet::Innistrad,
     CardRules::new_instant(mana_cost!("{1}{U}{U}")).with_ability(
-        AbilityDef::custom_full(
+        AbilityDef::spell_with_targets(
             "Counter target spell. If that spell is countered this way, exile it instead of putting it into its owner's graveyard.",
-            CardBehavior::Dissipate,
-            "Implemented by the named card-local special behavior.",
+            &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+            EffectDef::Counter {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Exile,
+            },
         ),
     ),
 );

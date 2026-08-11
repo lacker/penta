@@ -34,10 +34,21 @@ pub(in crate::card::sets) static DIVINE_OFFERING: CardRecord = CardRecord::new(
     "Divine Offering",
     CardArt::new("9c78c2f3-2f40-48ad-9dc4-55d1fa399a56", "Jeff A. Menges"),
     CardSet::Legends,
-    CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[AbilityDef::custom_full(
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[AbilityDef::spell_with_targets(
         "Destroy target artifact. You gain life equal to its mana value.",
-        CardBehavior::DivineOffering,
-        "Artifact destruction and life gain are implemented by the legacy spell resolver.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Artifact),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                can_regenerate: true,
+            },
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::TargetManaValue(TargetIndex::PRIMARY),
+            },
+        ]),
     )]),
 );
 
@@ -46,6 +57,7 @@ pub(in crate::card::sets) static DIVINE_OFFERING: CardRecord = CardRecord::new(
 static MANA_DRAIN_EFFECT: [EffectDef; 2] = [
     EffectDef::Counter {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        zone: ZoneKind::Graveyard,
     },
     EffectDef::AtNextStep {
         step: TurnStepDef::PrecombatMain,

@@ -1087,6 +1087,35 @@ fn handcrafted_still_spends_removal_on_the_opponent() {
 }
 
 #[test]
+fn handcrafted_scavenging_ooze_exiles_an_opponents_graveyard_card() {
+    let catalog = card::catalog().unwrap();
+    let ooze = CardInstanceId(1);
+    let food = CardInstanceId(2);
+    let eat = Action::ActivateAbility {
+        source: ooze,
+        ability: printed_ability(cards::SCAVENGING_OOZE, 0),
+        targets: activated_targets(Target::Card(food)),
+        cost_object: None,
+        x: 0,
+    };
+    let mut observation = policy_observation(
+        vec![permanent(
+            ooze.0,
+            cards::SCAVENGING_OOZE,
+            PlayerId::One,
+            Some(2),
+            Some(2),
+        )],
+        vec![Action::PassPriority, eat.clone()],
+    );
+    observation.mana_pools[PlayerId::One.index()].green = 1;
+    observation.graveyards[PlayerId::Two.index()].push((food, cards::SAVANNAH_LIONS));
+    let mut policy = HandcraftedPolicy::new(catalog);
+
+    assert_eq!(policy.choose_action(&observation), Some(eat));
+}
+
+#[test]
 fn handcrafted_animates_a_factory_once_rather_than_every_priority() {
     let catalog = poc::catalog().unwrap();
     // The animation is the Factory's second clause; the first taps for mana.

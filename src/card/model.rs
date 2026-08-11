@@ -621,6 +621,9 @@ pub enum ObjectPredicateDef {
     Spell,
     NoncreatureSpell,
     Color(ManaColor),
+    /// Has exactly this many colors. Zero matches colorless objects and one
+    /// matches monocolored objects.
+    ColorCount(u8),
     Subtype(&'static str),
     /// Mana value at most this much, for "with mana value N or less".
     ManaValueAtMost(u8),
@@ -1098,8 +1101,7 @@ pub enum ValueDef {
     /// power".
     TargetPower(TargetIndex),
     /// The mana value of what a target slot points at, read from last-known
-    /// information so a countered spell can still be measured after it has
-    /// left the stack.
+    /// information after a permanent or spell has left its zone.
     TargetManaValue(TargetIndex),
 }
 
@@ -1524,8 +1526,11 @@ pub enum EffectDef {
         object: ObjectPredicateDef,
         destination: ZoneKind,
     },
+    /// Counter a spell and put its card into `zone`. Ordinary counters use
+    /// the graveyard; replacement-style counters such as Dissipate use exile.
     Counter {
         object: EffectRecipientDef,
+        zone: ZoneKind,
     },
     /// Deals damage and gains its controller that much life, but no more
     /// than the recipient had to give: a player's life total, a
@@ -1710,6 +1715,7 @@ impl EffectDef {
     pub const fn counter_target(target: TargetIndex) -> Self {
         Self::Counter {
             object: EffectRecipientDef::Target(target),
+            zone: ZoneKind::Graveyard,
         }
     }
 
@@ -3050,6 +3056,7 @@ fn object_predicate_implies(predicate: ObjectPredicateDef, expected: ObjectPredi
         | ObjectPredicateDef::Spell
         | ObjectPredicateDef::NoncreatureSpell
         | ObjectPredicateDef::Color(_)
+        | ObjectPredicateDef::ColorCount(_)
         | ObjectPredicateDef::Subtype(_)
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::ManaValueEqualTo(_)
@@ -3081,6 +3088,42 @@ fn predicate_color(predicate: ObjectPredicateDef) -> Option<ManaColor> {
         | ObjectPredicateDef::HasType(_)
         | ObjectPredicateDef::Spell
         | ObjectPredicateDef::NoncreatureSpell
+        | ObjectPredicateDef::ColorCount(_)
+        | ObjectPredicateDef::Subtype(_)
+        | ObjectPredicateDef::ManaValueAtMost(_)
+        | ObjectPredicateDef::ManaValueEqualTo(_)
+        | ObjectPredicateDef::ManaValueAtMostValue(_)
+        | ObjectPredicateDef::PowerAtLeast(_)
+        | ObjectPredicateDef::PowerExactly(_)
+        | ObjectPredicateDef::ToughnessExactly(_)
+        | ObjectPredicateDef::ToughnessLessThan(_)
+        | ObjectPredicateDef::HasAnyBasicLandType(_)
+        | ObjectPredicateDef::ControlledBy(_)
+        | ObjectPredicateDef::Supertype(_)
+        | ObjectPredicateDef::DebutSet(_)
+        | ObjectPredicateDef::SharesNameWithSource
+        | ObjectPredicateDef::AttackingOrBlocking
+        | ObjectPredicateDef::HasKeyword(_)
+        | ObjectPredicateDef::AnyOf(_)
+        | ObjectPredicateDef::Not(_)
+        | ObjectPredicateDef::Special(_) => None,
+    }
+}
+
+fn predicate_color_count(predicate: ObjectPredicateDef) -> Option<u8> {
+    match predicate {
+        ObjectPredicateDef::ColorCount(count) => Some(count),
+        ObjectPredicateDef::All(predicates) => {
+            predicates.iter().copied().find_map(predicate_color_count)
+        }
+        ObjectPredicateDef::Any
+        | ObjectPredicateDef::Source
+        | ObjectPredicateDef::Attacking
+        | ObjectPredicateDef::AttackedThisTurn
+        | ObjectPredicateDef::HasType(_)
+        | ObjectPredicateDef::Spell
+        | ObjectPredicateDef::NoncreatureSpell
+        | ObjectPredicateDef::Color(_)
         | ObjectPredicateDef::Subtype(_)
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::ManaValueEqualTo(_)
@@ -3116,6 +3159,7 @@ fn predicate_subtype(predicate: ObjectPredicateDef) -> Option<&'static str> {
         | ObjectPredicateDef::Spell
         | ObjectPredicateDef::NoncreatureSpell
         | ObjectPredicateDef::Color(_)
+        | ObjectPredicateDef::ColorCount(_)
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::ManaValueEqualTo(_)
         | ObjectPredicateDef::ManaValueAtMostValue(_)
@@ -3154,6 +3198,7 @@ fn predicate_negated_subtype(predicate: ObjectPredicateDef) -> Option<&'static s
         | ObjectPredicateDef::Spell
         | ObjectPredicateDef::NoncreatureSpell
         | ObjectPredicateDef::Color(_)
+        | ObjectPredicateDef::ColorCount(_)
         | ObjectPredicateDef::Subtype(_)
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::ManaValueEqualTo(_)
@@ -3194,6 +3239,7 @@ fn predicate_power_at_least(predicate: ObjectPredicateDef) -> Option<i16> {
         | ObjectPredicateDef::Spell
         | ObjectPredicateDef::NoncreatureSpell
         | ObjectPredicateDef::Color(_)
+        | ObjectPredicateDef::ColorCount(_)
         | ObjectPredicateDef::Subtype(_)
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::ManaValueEqualTo(_)
@@ -3226,6 +3272,7 @@ fn predicate_mana_value_at_most(predicate: ObjectPredicateDef) -> Option<u8> {
         | ObjectPredicateDef::Spell
         | ObjectPredicateDef::NoncreatureSpell
         | ObjectPredicateDef::Color(_)
+        | ObjectPredicateDef::ColorCount(_)
         | ObjectPredicateDef::Subtype(_)
         | ObjectPredicateDef::ManaValueEqualTo(_)
         | ObjectPredicateDef::ManaValueAtMostValue(_)
@@ -3260,6 +3307,7 @@ fn predicate_controller(predicate: ObjectPredicateDef) -> Option<PlayerRelation>
         | ObjectPredicateDef::Spell
         | ObjectPredicateDef::NoncreatureSpell
         | ObjectPredicateDef::Color(_)
+        | ObjectPredicateDef::ColorCount(_)
         | ObjectPredicateDef::Subtype(_)
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::ManaValueEqualTo(_)
@@ -3297,6 +3345,7 @@ fn predicate_negates(predicate: ObjectPredicateDef, expected: ObjectPredicateDef
         | ObjectPredicateDef::Spell
         | ObjectPredicateDef::NoncreatureSpell
         | ObjectPredicateDef::Color(_)
+        | ObjectPredicateDef::ColorCount(_)
         | ObjectPredicateDef::Subtype(_)
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::ManaValueEqualTo(_)
@@ -3384,6 +3433,12 @@ fn object_target_subject(object: ObjectPredicateDef, predicate: TargetPredicate)
                 format!("non-{subtype} creature")
             } else if let Some(subtype) = predicate_subtype(object) {
                 format!("{subtype} creature")
+            } else if let Some(count) = predicate_color_count(object) {
+                match count {
+                    0 => "colorless creature".into(),
+                    1 => "monocolored creature".into(),
+                    _ => format!("creature with exactly {count} colors"),
+                }
             } else if let Some(color) = predicate_color(object) {
                 format!("{} creature", color_name(color))
             } else if let Some(power) = predicate_power_at_least(object) {
@@ -3411,6 +3466,12 @@ fn object_target_subject(object: ObjectPredicateDef, predicate: TargetPredicate)
                 card_type_name(card_type).into()
             } else if let Some(subtype) = predicate_subtype(object) {
                 subtype.into()
+            } else if let Some(count) = predicate_color_count(object) {
+                match count {
+                    0 => "colorless permanent".into(),
+                    1 => "monocolored permanent".into(),
+                    _ => format!("permanent with exactly {count} colors"),
+                }
             } else if let Some(color) = predicate_color(object) {
                 format!("{} permanent", color_name(color))
             } else {
@@ -4091,9 +4152,17 @@ pub enum CardBehavior {
     /// Legacy dispatch key retained for source compatibility; the card now
     /// uses a declarative predicate, destroy, and damage.
     Detonate,
+    /// Legacy dispatch key retained for source compatibility; the card now
+    /// destroys and reads last-known mana value declaratively.
     DivineOffering,
+    /// Legacy dispatch key retained for source compatibility; the card now
+    /// targets and counters instant spells declaratively.
     Dispel,
+    /// Legacy dispatch key retained for source compatibility; the card now
+    /// uses the shared counter-to-exile effect.
     Dissipate,
+    /// Legacy dispatch key retained for source compatibility; the card now
+    /// uses a declarative nonblack-creature predicate and destroy.
     DoomBlade,
     /// Legacy dispatch key retained for source compatibility; the card now
     /// uses a declarative drain that respects the life-gain cap, and a
@@ -4148,6 +4217,8 @@ pub enum CardBehavior {
     NevinyrralsDisk,
     Pendelhaven,
     PillarOfFlame,
+    /// Legacy dispatch key retained for source compatibility; the card now
+    /// uses a declarative artifact-or-creature predicate and destroy.
     Putrefy,
     Recall,
     /// Legacy dispatch key retained for source compatibility; the card now
@@ -4175,6 +4246,8 @@ pub enum CardBehavior {
     /// Legacy dispatch key retained for source compatibility; the card now
     /// uses a declarative creature-sweeper definition.
     SupremeVerdict,
+    /// Legacy dispatch key retained for source compatibility; the card now
+    /// exiles and reads last-known power declaratively.
     SwordsToPlowshares,
     TimeWalk,
     Tetravus,
@@ -4186,7 +4259,11 @@ pub enum CardBehavior {
     /// Legacy dispatch key retained for source compatibility; the card now
     /// uses a declarative upkeep trigger with a chosen destruction.
     TheAbyss,
+    /// Legacy dispatch key retained for source compatibility; the card now
+    /// uses the shared exact-color-count predicate and destroy.
     UltimatePrice,
+    /// Legacy dispatch key retained for source compatibility; the card now
+    /// sequences shared damage and life-gain effects.
     WarleadersHelix,
     WheelOfFortune,
     /// Legacy dispatch key retained for source compatibility; the card now
@@ -5651,6 +5728,7 @@ mod tests {
             .definition,
             EffectDef::Counter {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Graveyard,
             }
         );
         assert_eq!(

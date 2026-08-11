@@ -677,6 +677,7 @@ pub(in crate::card::sets) static COUNTERSPELL: CardRecord = CardRecord::new(
         )],
         EffectDef::Counter {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            zone: ZoneKind::Graveyard,
         },
     )]),
 );
@@ -756,11 +757,23 @@ pub(in crate::card::sets) static SWORDS_TO_PLOWSHARES: CardRecord = CardRecord::
     "Swords to Plowshares",
     CardArt::new("386ea9eb-abc1-4862-aa2d-8fb808d79490", "Jeff A. Menges"),
     CardSet::Alpha,
-    CardRules::new_instant(mana_cost!("{W}"))
-    .with_abilities(&[AbilityDef::custom_full(
+    CardRules::new_instant(mana_cost!("{W}")).with_abilities(&[AbilityDef::spell_with_targets(
         "Exile target creature. Its controller gains life equal to its power.",
-        CardBehavior::SwordsToPlowshares,
-        "The exile and last-known-power life gain are implemented by the card-local spell resolver.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Exile,
+                placement: LibraryPlacement::Top,
+                controller: None,
+            },
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                amount: ValueDef::TargetPower(TargetIndex::PRIMARY),
+            },
+        ]),
     )]),
 );
 

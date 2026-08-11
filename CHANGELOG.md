@@ -41,6 +41,16 @@ snapshots.
   suppressing the Mountain mana ability or independently granted abilities.
   This is a focused layer slice: static-source dependencies within the ability
   layer still await guarded fixed-point evaluation.
+- Doom Blade, Swords to Plowshares, Divine Offering, Dispel, Dissipate,
+  Putrefy, Ultimate Price, and Warleader's Helix now use shared declarative
+  target and effect definitions instead of named custom spell dispatch. Their
+  existing play options consequently expose one derived target slot in catalog
+  JSON where the legacy definitions exposed none. The existing target-slot
+  shape and cast-action encoding make this a compatible protocol-15 catalog
+  enrichment. As a rules correction, casting now reads effective
+  characteristics consistently and resolution rechecks the declared target
+  predicate, including protection and hexproof, so an all-illegal spell
+  correctly fizzles instead of applying a card-local partial effect.
 - The unfiltered catalog appends `Urborg, Tomb of Yawgmoth` as definition 261
   with debut set `planar-chaos`, and `Yavimaya, Cradle of Growth` as definition
   262 with debut set `modern-horizons-2`. They are cross-format interaction

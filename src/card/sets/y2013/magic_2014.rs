@@ -90,10 +90,13 @@ pub(in crate::card::sets) static DOOM_BLADE: CardRecord = CardRecord::new(
     "Doom Blade",
     CardArt::new("75d96a37-bdbe-46ae-926f-8742699a0b20", "Chippy"),
     CardSet::Magic2014,
-    CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(AbilityDef::custom_full(
+    CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(AbilityDef::destroy_target(
         "Destroy target nonblack creature.",
-        CardBehavior::DoomBlade,
-        "Implemented by the named card-local special behavior.",
+        &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+        ])),
+        true,
     )),
 );
 

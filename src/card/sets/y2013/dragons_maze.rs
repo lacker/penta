@@ -126,10 +126,13 @@ pub(in crate::card::sets) static PUTREFY: CardRecord = CardRecord::new(
     "Putrefy",
     CardArt::new("0d43a0b6-2a5c-4959-96ee-6e570949dfed", "Igor Kieryluk"),
     CardSet::DragonsMaze,
-    CardRules::new_instant(mana_cost!("{1}{B}{G}")).with_ability(AbilityDef::custom_full(
+    CardRules::new_instant(mana_cost!("{1}{B}{G}")).with_ability(AbilityDef::destroy_target(
         "Destroy target artifact or creature. It can't be regenerated.",
-        CardBehavior::Putrefy,
-        "Implemented by the named card-local special behavior.",
+        &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::AnyOf(&[
+            ObjectPredicateDef::HasType(CardType::Artifact),
+            ObjectPredicateDef::HasType(CardType::Creature),
+        ])),
+        false,
     )),
 );
 
@@ -363,10 +366,21 @@ pub(in crate::card::sets) static WARLEADERS_HELIX: CardRecord = CardRecord::new(
     "Warleader's Helix",
     CardArt::new("81e474ac-54f7-43f9-8af9-2f1adf258b15", "Greg Staples"),
     CardSet::DragonsMaze,
-    CardRules::new_instant(mana_cost!("{2}{R}{W}")).with_ability(AbilityDef::custom_full(
+    CardRules::new_instant(mana_cost!("{2}{R}{W}")).with_ability(AbilityDef::spell_with_targets(
         "Warleader's Helix deals 4 damage to any target and you gain 4 life.",
-        CardBehavior::WarleadersHelix,
-        "Implemented by the named card-local special behavior.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::AnyTarget,
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(4),
+            },
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(4),
+            },
+        ]),
     )),
 );
 

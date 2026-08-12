@@ -10,122 +10,7 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
-pub(in crate::card::sets) static BONFIRE_OF_THE_DAMNED: CardRecord = CardRecord::new(
-    cards::BONFIRE_OF_THE_DAMNED,
-    "Bonfire of the Damned",
-    CardArt::new("e60610fe-891d-46de-b556-d03b637dccec", "James Paick"),
-    CardSet::AvacynRestored,
-    CardRules::new_sorcery(mana_cost!("{X}{X}{R}")).with_abilities(&[
-        AbilityDef::spell_with_targets(
-            "Bonfire of the Damned deals X damage to target player or planeswalker and each creature that player or that planeswalker's controller controls.",
-            &[AbilityTargetDef::exactly_one(
-                AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
-            )],
-            EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::ChosenX,
-                },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::ObjectsControlledByTarget {
-                        object: ObjectPredicateDef::HasType(CardType::Creature),
-                        slot: TargetIndex::PRIMARY,
-                    },
-                    amount: ValueDef::ChosenX,
-                },
-            ]),
-        ),
-        abilities::miracle(mana_cost!("{X}{R}")),
-    ]),
-);
-
-static CAVERN_COLORED_MANA_RESTRICTIONS: [ManaRestrictionDef; 1] =
-    [ManaRestrictionDef::CastCreatureSpellOfChosenType];
-
-static CAVERN_COLORED_MANA_SPEND_EFFECTS: [ManaSpendEffectDef; 1] =
-    [ManaSpendEffectDef::ApplyToPaidSpell(
-        AppliedEffectDef::CannotBeCountered,
-    )];
-
-pub(in crate::card::sets) static CAVERN_OF_SOULS: CardRecord = CardRecord::new(
-    cards::CAVERN_OF_SOULS,
-    "Cavern of Souls",
-    CardArt::new("1381c8f1-a292-4bdf-b20c-a5c2a169ee84", "Cliff Childs"),
-    CardSet::AvacynRestored,
-    CardRules::new_land(&[]).with_abilities(&[
-        AbilityDef::replacement(
-            "As this land enters, choose a creature type.",
-            EffectDef::ChooseCreatureType {
-                object: EffectRecipientDef::Source,
-            },
-        ),
-        abilities::tap_for(ManaColor::Colorless),
-        AbilityDef::activated_mana(
-            "{T}: Add one mana of any color. Spend this mana only to cast a creature spell of the chosen type, and that spell can't be countered.",
-            &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(
-                AddManaEffectDef::choice(&[
-                    ManaColor::White,
-                    ManaColor::Blue,
-                    ManaColor::Black,
-                    ManaColor::Red,
-                    ManaColor::Green,
-                ])
-                .with_restrictions(&CAVERN_COLORED_MANA_RESTRICTIONS)
-                .with_spend_effects(&CAVERN_COLORED_MANA_SPEND_EFFECTS),
-            ),
-        ),
-    ]),
-);
-
-/// One Demon when its controller has exactly one creature, none otherwise.
-static EXACTLY_ONE_CREATURE: CountConditionDef = CountConditionDef {
-    query: ObjectQueryDef {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: PlayerRelation::You,
-    },
-    equals: 1,
-    then: ValueDef::Constant(1),
-    otherwise: ValueDef::Constant(0),
-};
-
-pub(in crate::card::sets) static DEMONIC_RISING: CardRecord = CardRecord::new(
-    cards::DEMONIC_RISING,
-    "Demonic Rising",
-    CardArt::new("a2136a82-b535-47f6-9eee-5b7585ac5cf1", "Trevor Claxton"),
-    CardSet::AvacynRestored,
-    CardRules::new_enchantment(mana_cost!("{3}{B}{B}")).with_ability(
-        AbilityDef::triggered(
-            "At the beginning of your end step, if you control exactly one creature, create a 5/5 black Demon creature token with flying.",
-            TriggerEventDef::StepBegins {
-                step: TurnStepDef::End,
-                player: PlayerRelation::You,
-            },
-            // The intervening if becomes a count: one Demon when the
-            // condition holds, none when it does not.
-            EffectDef::CreateToken {
-                token: cards::DEMON_TOKEN_5_5_BLACK,
-                count: ValueDef::IfMatchingObjectCount(&EXACTLY_ONE_CREATURE),
-            },
-        ),
-    ),
-);
-
-pub(in crate::card::sets) static PILLAR_OF_FLAME: CardRecord = CardRecord::new(
-    cards::PILLAR_OF_FLAME,
-    "Pillar of Flame",
-    CardArt::new("c983e879-d9d2-47cc-9958-506711ca80cd", "Karl Kopinski"),
-    CardSet::AvacynRestored,
-    CardRules::new_sorcery(mana_cost!("{R}")).with_ability(
-        AbilityDef::custom_full(
-            "Pillar of Flame deals 2 damage to any target. If a creature dealt damage this way would die this turn, exile it instead.",
-            CardBehavior::PillarOfFlame,
-            "Implemented by the named card-local special behavior.",
-        ),
-    ),
-);
-
+// AVR 32 — Restoration Angel
 pub(in crate::card::sets) static RESTORATION_ANGEL: CardRecord = CardRecord::new(
     cards::RESTORATION_ANGEL,
     "Restoration Angel",
@@ -171,28 +56,7 @@ pub(in crate::card::sets) static RESTORATION_ANGEL: CardRecord = CardRecord::new
     ]),
 );
 
-pub(in crate::card::sets) static SIGARDA_HOST_OF_HERONS: CardRecord = CardRecord::new(
-    cards::SIGARDA_HOST_OF_HERONS,
-    "Sigarda, Host of Herons",
-    CardArt::new("feccd0e2-fae6-4ced-acdf-4252ed5c56e7", "Chris Rahn"),
-    CardSet::AvacynRestored,
-    CardRules::new_creature(
-        mana_cost!("{2}{G}{W}{W}"),
-        &["Angel"],
-        5,
-        5,
-    )
-    .with_supertype(CardSupertype::Legendary)
-    .with_abilities(&[
-        abilities::flying(),
-        abilities::hexproof(),
-        AbilityDef::static_ability(
-            "Spells and abilities your opponents control can't cause you to sacrifice permanents.",
-            EffectDef::CannotBeForcedToSacrifice,
-        ),
-    ]),
-);
-
+// AVR 38 — Terminus
 pub(in crate::card::sets) static TERMINUS: CardRecord = CardRecord::new(
     cards::TERMINUS,
     "Terminus",
@@ -216,10 +80,91 @@ pub(in crate::card::sets) static TERMINUS: CardRecord = CardRecord::new(
     ]),
 );
 
+/// One Demon when its controller has exactly one creature, none otherwise.
+static EXACTLY_ONE_CREATURE: CountConditionDef = CountConditionDef {
+    query: ObjectQueryDef {
+        object: ObjectPredicateDef::HasType(CardType::Creature),
+        zones: &[ZoneKind::Battlefield],
+        controller: PlayerRelation::You,
+    },
+    equals: 1,
+    then: ValueDef::Constant(1),
+    otherwise: ValueDef::Constant(0),
+};
+
+// AVR 94 — Demonic Rising
+pub(in crate::card::sets) static DEMONIC_RISING: CardRecord = CardRecord::new(
+    cards::DEMONIC_RISING,
+    "Demonic Rising",
+    CardArt::new("a2136a82-b535-47f6-9eee-5b7585ac5cf1", "Trevor Claxton"),
+    CardSet::AvacynRestored,
+    CardRules::new_enchantment(mana_cost!("{3}{B}{B}")).with_ability(
+        AbilityDef::triggered(
+            "At the beginning of your end step, if you control exactly one creature, create a 5/5 black Demon creature token with flying.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::End,
+                player: PlayerRelation::You,
+            },
+            // The intervening if becomes a count: one Demon when the
+            // condition holds, none when it does not.
+            EffectDef::CreateToken {
+                token: cards::DEMON_TOKEN_5_5_BLACK,
+                count: ValueDef::IfMatchingObjectCount(&EXACTLY_ONE_CREATURE),
+            },
+        ),
+    ),
+);
+
+// AVR 129 — Bonfire of the Damned
+pub(in crate::card::sets) static BONFIRE_OF_THE_DAMNED: CardRecord = CardRecord::new(
+    cards::BONFIRE_OF_THE_DAMNED,
+    "Bonfire of the Damned",
+    CardArt::new("e60610fe-891d-46de-b556-d03b637dccec", "James Paick"),
+    CardSet::AvacynRestored,
+    CardRules::new_sorcery(mana_cost!("{X}{X}{R}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Bonfire of the Damned deals X damage to target player or planeswalker and each creature that player or that planeswalker's controller controls.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::ChosenX,
+                },
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::ObjectsControlledByTarget {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        slot: TargetIndex::PRIMARY,
+                    },
+                    amount: ValueDef::ChosenX,
+                },
+            ]),
+        ),
+        abilities::miracle(mana_cost!("{X}{R}")),
+    ]),
+);
+
+// AVR 149 — Pillar of Flame
+pub(in crate::card::sets) static PILLAR_OF_FLAME: CardRecord = CardRecord::new(
+    cards::PILLAR_OF_FLAME,
+    "Pillar of Flame",
+    CardArt::new("c983e879-d9d2-47cc-9958-506711ca80cd", "Karl Kopinski"),
+    CardSet::AvacynRestored,
+    CardRules::new_sorcery(mana_cost!("{R}")).with_ability(
+        AbilityDef::custom_full(
+            "Pillar of Flame deals 2 damage to any target. If a creature dealt damage this way would die this turn, exile it instead.",
+            CardBehavior::PillarOfFlame,
+            "Implemented by the named card-local special behavior.",
+        ),
+    ),
+);
+
 /// Haste matters here because the permanent has not been under its new
 /// controller's control since the turn began.
 static HASTE_GRANT: AbilityDef = abilities::haste();
 
+// AVR 166 — Zealous Conscripts
 pub(in crate::card::sets) static ZEALOUS_CONSCRIPTS: CardRecord = CardRecord::new(
     cards::ZEALOUS_CONSCRIPTS,
     "Zealous Conscripts",
@@ -256,15 +201,78 @@ pub(in crate::card::sets) static ZEALOUS_CONSCRIPTS: CardRecord = CardRecord::ne
             ])),
     ]),
 );
+// AVR 210 — Sigarda, Host of Herons
+pub(in crate::card::sets) static SIGARDA_HOST_OF_HERONS: CardRecord = CardRecord::new(
+    cards::SIGARDA_HOST_OF_HERONS,
+    "Sigarda, Host of Herons",
+    CardArt::new("feccd0e2-fae6-4ced-acdf-4252ed5c56e7", "Chris Rahn"),
+    CardSet::AvacynRestored,
+    CardRules::new_creature(
+        mana_cost!("{2}{G}{W}{W}"),
+        &["Angel"],
+        5,
+        5,
+    )
+    .with_supertype(CardSupertype::Legendary)
+    .with_abilities(&[
+        abilities::flying(),
+        abilities::hexproof(),
+        AbilityDef::static_ability(
+            "Spells and abilities your opponents control can't cause you to sacrifice permanents.",
+            EffectDef::CannotBeForcedToSacrifice,
+        ),
+    ]),
+);
+
+static CAVERN_COLORED_MANA_RESTRICTIONS: [ManaRestrictionDef; 1] =
+    [ManaRestrictionDef::CastCreatureSpellOfChosenType];
+
+static CAVERN_COLORED_MANA_SPEND_EFFECTS: [ManaSpendEffectDef; 1] =
+    [ManaSpendEffectDef::ApplyToPaidSpell(
+        AppliedEffectDef::CannotBeCountered,
+    )];
+
+// AVR 226 — Cavern of Souls
+pub(in crate::card::sets) static CAVERN_OF_SOULS: CardRecord = CardRecord::new(
+    cards::CAVERN_OF_SOULS,
+    "Cavern of Souls",
+    CardArt::new("1381c8f1-a292-4bdf-b20c-a5c2a169ee84", "Cliff Childs"),
+    CardSet::AvacynRestored,
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::replacement(
+            "As this land enters, choose a creature type.",
+            EffectDef::ChooseCreatureType {
+                object: EffectRecipientDef::Source,
+            },
+        ),
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_mana(
+            "{T}: Add one mana of any color. Spend this mana only to cast a creature spell of the chosen type, and that spell can't be countered.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(
+                AddManaEffectDef::choice(&[
+                    ManaColor::White,
+                    ManaColor::Blue,
+                    ManaColor::Black,
+                    ManaColor::Red,
+                    ManaColor::Green,
+                ])
+                .with_restrictions(&CAVERN_COLORED_MANA_RESTRICTIONS)
+                .with_spend_effects(&CAVERN_COLORED_MANA_SPEND_EFFECTS),
+            ),
+        ),
+    ]),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &BONFIRE_OF_THE_DAMNED,
-    &CAVERN_OF_SOULS,
-    &DEMONIC_RISING,
-    &PILLAR_OF_FLAME,
     &RESTORATION_ANGEL,
-    &SIGARDA_HOST_OF_HERONS,
     &TERMINUS,
+    &DEMONIC_RISING,
+    &BONFIRE_OF_THE_DAMNED,
+    &PILLAR_OF_FLAME,
     &ZEALOUS_CONSCRIPTS,
+    &SIGARDA_HOST_OF_HERONS,
+    &CAVERN_OF_SOULS,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -8,37 +8,7 @@ use crate::card::{
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
-pub(in crate::card::sets) static GOBLIN_GRENADE: CardRecord = CardRecord::new(
-    cards::GOBLIN_GRENADE,
-    "Goblin Grenade",
-    CardArt::new("8837eaba-9602-4f63-9897-85583fcdcf51", "Ron Spencer"),
-    CardSet::FallenEmpires,
-    CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[
-        AbilityDef::custom_full(
-            "As an additional cost to cast this spell, sacrifice a Goblin.\nGoblin Grenade deals 5 damage to any target.",
-            CardBehavior::GoblinGrenade,
-            "The additional cost, target selection, and damage are implemented by the legacy spell resolver.",
-        ),
-    ]),
-);
-
-pub(in crate::card::sets) static HYMN_TO_TOURACH: CardRecord = CardRecord::new(
-    cards::HYMN_TO_TOURACH,
-    "Hymn to Tourach",
-    CardArt::new("eb9273ea-9a41-42e3-8c9c-0d50b127a818", "Susan Van Camp"),
-    CardSet::FallenEmpires,
-    CardRules::new_sorcery(mana_cost!("{B}{B}")).with_abilities(&[AbilityDef::spell_with_targets(
-        "Target player discards two cards at random.",
-        &[AbilityTargetDef::exactly_one(
-            AbilityTargetPredicate::Player(PlayerRelation::Any),
-        )],
-        EffectDef::DiscardAtRandom {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(2),
-        },
-    )]),
-);
-
+// FEM 8a — Icatian Javelineers
 pub(in crate::card::sets) static ICATIAN_JAVELINEERS: CardRecord = CardRecord::new(
     cards::ICATIAN_JAVELINEERS,
     "Icatian Javelineers",
@@ -74,6 +44,7 @@ pub(in crate::card::sets) static ICATIAN_JAVELINEERS: CardRecord = CardRecord::n
     ]),
 );
 
+// FEM 16a — Order of Leitbur
 pub(in crate::card::sets) static ORDER_OF_LEITBUR: CardRecord = CardRecord::new(
     cards::ORDER_OF_LEITBUR,
     "Order of Leitbur",
@@ -106,6 +77,25 @@ pub(in crate::card::sets) static ORDER_OF_LEITBUR: CardRecord = CardRecord::new(
         ]),
 );
 
+// FEM 38a — Hymn to Tourach
+pub(in crate::card::sets) static HYMN_TO_TOURACH: CardRecord = CardRecord::new(
+    cards::HYMN_TO_TOURACH,
+    "Hymn to Tourach",
+    CardArt::new("eb9273ea-9a41-42e3-8c9c-0d50b127a818", "Susan Van Camp"),
+    CardSet::FallenEmpires,
+    CardRules::new_sorcery(mana_cost!("{B}{B}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target player discards two cards at random.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        EffectDef::DiscardAtRandom {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::Constant(2),
+        },
+    )]),
+);
+
+// FEM 42a — Order of the Ebon Hand
 pub(in crate::card::sets) static ORDER_OF_THE_EBON_HAND: CardRecord = CardRecord::new(
     cards::ORDER_OF_THE_EBON_HAND,
     "Order of the Ebon Hand",
@@ -137,12 +127,27 @@ pub(in crate::card::sets) static ORDER_OF_THE_EBON_HAND: CardRecord = CardRecord
     ]),
 );
 
+// FEM 56a — Goblin Grenade
+pub(in crate::card::sets) static GOBLIN_GRENADE: CardRecord = CardRecord::new(
+    cards::GOBLIN_GRENADE,
+    "Goblin Grenade",
+    CardArt::new("8837eaba-9602-4f63-9897-85583fcdcf51", "Ron Spencer"),
+    CardSet::FallenEmpires,
+    CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[
+        AbilityDef::custom_full(
+            "As an additional cost to cast this spell, sacrifice a Goblin.\nGoblin Grenade deals 5 damage to any target.",
+            CardBehavior::GoblinGrenade,
+            "The additional cost, target selection, and damage are implemented by the legacy spell resolver.",
+        ),
+    ]),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &GOBLIN_GRENADE,
-    &HYMN_TO_TOURACH,
     &ICATIAN_JAVELINEERS,
     &ORDER_OF_LEITBUR,
+    &HYMN_TO_TOURACH,
     &ORDER_OF_THE_EBON_HAND,
+    &GOBLIN_GRENADE,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

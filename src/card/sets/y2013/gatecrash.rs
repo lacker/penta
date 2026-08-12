@@ -12,6 +12,88 @@ use crate::card::{
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
+/// One opponent means one life, so "that much" is the same constant on both
+/// halves.
+static EXTORT_DRAIN: EffectDef = EffectDef::Sequence(&[
+    EffectDef::LoseLife {
+        recipient: EffectRecipientDef::Opponent,
+        amount: ValueDef::Constant(1),
+    },
+    EffectDef::GainLife {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::Constant(1),
+    },
+]);
+
+// GTC 6 — Blind Obedience
+pub(in crate::card::sets) static BLIND_OBEDIENCE: CardRecord = CardRecord::new(
+    cards::BLIND_OBEDIENCE,
+    "Blind Obedience",
+    CardArt::new("07c3e78d-d917-4552-842f-feff99c059e0", "Seb McKinnon"),
+    CardSet::Gatecrash,
+    CardRules::new_enchantment(mana_cost!("{1}{W}")).with_abilities(&[
+        AbilityDef::triggered(
+            "Extort (Whenever you cast a spell, you may pay {W/B}. If you do, each opponent loses 1 life and you gain that much life.)",
+            TriggerEventDef::SpellCast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
+            EffectDef::OptionalManaPayment {
+                cost: ManaCost::hybrid_pair(HybridPair::WhiteBlack, 1),
+                effect: &EXTORT_DRAIN,
+            },
+        ),
+        AbilityDef::replacement_for(
+            "Artifacts and creatures your opponents control enter tapped.",
+            ReplacementEventDef::ObjectEntersBattlefield {
+                object: ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                ]),
+                controller: PlayerRelation::Opponent,
+            },
+            EffectDef::Replacement(ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::Tapped,
+            )),
+        ),
+    ]),
+);
+
+// GTC 75 — Sepulchral Primordial
+pub(in crate::card::sets) static SEPULCHRAL_PRIMORDIAL: CardRecord = CardRecord::new(
+    cards::SEPULCHRAL_PRIMORDIAL,
+    "Sepulchral Primordial",
+    CardArt::new("eb0865cd-d9b4-43ea-87d2-ad5c65fc0459", "Stephan Martiniere"),
+    CardSet::Gatecrash,
+    CardRules::new_creature(
+        mana_cost!("{5}{B}{B}"),
+        &["Avatar"],
+        5,
+        4,
+    )
+    .with_abilities(&[
+        abilities::intimidate(),
+        AbilityDef::triggered_with_targets("When this creature enters, for each opponent, you may put up to one target creature card from that player's graveyard onto the battlefield under your control.", TriggerEventDef::ZoneChanged {
+                object: ObjectPredicateDef::Source,
+                from: None,
+                to: Some(ZoneKind::Battlefield),
+            }, &[AbilityTargetDef::up_to(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: Some(PlayerRelation::Opponent),
+            },
+            1,
+        )], // One opponent means one target here. Choosing none is already a
+            // legal target selection, so the printed "may" adds nothing.
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Battlefield,
+                controller: Some(PlayerRelation::You),
+                placement: LibraryPlacement::Top,
+            }),
+    ]),
+);
+
+// GTC 142 — Assemble the Legion
 pub(in crate::card::sets) static ASSEMBLE_THE_LEGION: CardRecord = CardRecord::new(
     cards::ASSEMBLE_THE_LEGION,
     "Assemble the Legion",
@@ -41,6 +123,41 @@ pub(in crate::card::sets) static ASSEMBLE_THE_LEGION: CardRecord = CardRecord::n
     ),
 );
 
+// GTC 143 — Aurelia, the Warleader
+pub(in crate::card::sets) static AURELIA_THE_WARLEADER: CardRecord = CardRecord::new(
+    cards::AURELIA_THE_WARLEADER,
+    "Aurelia, the Warleader",
+    CardArt::new("4ec18e35-05e4-4bfc-b32b-c3e71c95a71d", "Slawomir Maniak"),
+    CardSet::Gatecrash,
+    CardRules::new_creature(
+        mana_cost!("{2}{R}{R}{W}{W}"),
+        &["Angel"],
+        3,
+        4,
+    )
+    .with_supertype(CardSupertype::Legendary)
+    .with_abilities(&[
+        abilities::flying(),
+        abilities::vigilance(),
+        abilities::haste(),
+        AbilityDef::triggered(
+            "Whenever Aurelia attacks for the first time each turn, untap all creatures you control. After this phase, there is an additional combat phase.",
+            TriggerEventDef::AttacksFirstTimeThisTurn(ObjectPredicateDef::Source),
+            EffectDef::Sequence(&[
+                EffectDef::Untap {
+                    object: EffectRecipientDef::MatchingObjects {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: PlayerRelation::You,
+                    },
+                },
+                EffectDef::AdditionalCombatPhase,
+            ]),
+        ),
+    ]),
+);
+
+// GTC 144 — Aurelia's Fury
 pub(in crate::card::sets) static AURELIAS_FURY: CardRecord = CardRecord::new(
     cards::AURELIAS_FURY,
     "Aurelia's Fury",
@@ -75,82 +192,7 @@ pub(in crate::card::sets) static AURELIAS_FURY: CardRecord = CardRecord::new(
     ),
 );
 
-pub(in crate::card::sets) static AURELIA_THE_WARLEADER: CardRecord = CardRecord::new(
-    cards::AURELIA_THE_WARLEADER,
-    "Aurelia, the Warleader",
-    CardArt::new("4ec18e35-05e4-4bfc-b32b-c3e71c95a71d", "Slawomir Maniak"),
-    CardSet::Gatecrash,
-    CardRules::new_creature(
-        mana_cost!("{2}{R}{R}{W}{W}"),
-        &["Angel"],
-        3,
-        4,
-    )
-    .with_supertype(CardSupertype::Legendary)
-    .with_abilities(&[
-        abilities::flying(),
-        abilities::vigilance(),
-        abilities::haste(),
-        AbilityDef::triggered(
-            "Whenever Aurelia attacks for the first time each turn, untap all creatures you control. After this phase, there is an additional combat phase.",
-            TriggerEventDef::AttacksFirstTimeThisTurn(ObjectPredicateDef::Source),
-            EffectDef::Sequence(&[
-                EffectDef::Untap {
-                    object: EffectRecipientDef::MatchingObjects {
-                        object: ObjectPredicateDef::HasType(CardType::Creature),
-                        zones: &[ZoneKind::Battlefield],
-                        controller: PlayerRelation::You,
-                    },
-                },
-                EffectDef::AdditionalCombatPhase,
-            ]),
-        ),
-    ]),
-);
-
-/// One opponent means one life, so "that much" is the same constant on both
-/// halves.
-static EXTORT_DRAIN: EffectDef = EffectDef::Sequence(&[
-    EffectDef::LoseLife {
-        recipient: EffectRecipientDef::Opponent,
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::GainLife {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    },
-]);
-
-pub(in crate::card::sets) static BLIND_OBEDIENCE: CardRecord = CardRecord::new(
-    cards::BLIND_OBEDIENCE,
-    "Blind Obedience",
-    CardArt::new("07c3e78d-d917-4552-842f-feff99c059e0", "Seb McKinnon"),
-    CardSet::Gatecrash,
-    CardRules::new_enchantment(mana_cost!("{1}{W}")).with_abilities(&[
-        AbilityDef::triggered(
-            "Extort (Whenever you cast a spell, you may pay {W/B}. If you do, each opponent loses 1 life and you gain that much life.)",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
-            EffectDef::OptionalManaPayment {
-                cost: ManaCost::hybrid_pair(HybridPair::WhiteBlack, 1),
-                effect: &EXTORT_DRAIN,
-            },
-        ),
-        AbilityDef::replacement_for(
-            "Artifacts and creatures your opponents control enter tapped.",
-            ReplacementEventDef::ObjectEntersBattlefield {
-                object: ObjectPredicateDef::AnyOf(&[
-                    ObjectPredicateDef::HasType(CardType::Artifact),
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                ]),
-                controller: PlayerRelation::Opponent,
-            },
-            EffectDef::Replacement(ReplacementEffectDef::ModifyBattlefieldEntry(
-                BattlefieldEntryModificationDef::Tapped,
-            )),
-        ),
-    ]),
-);
-
+// GTC 148 — Boros Charm
 pub(in crate::card::sets) static BOROS_CHARM: CardRecord = CardRecord::new(
     cards::BOROS_CHARM,
     "Boros Charm",
@@ -186,49 +228,6 @@ pub(in crate::card::sets) static BOROS_CHARM: CardRecord = CardRecord::new(
                 }),
         ],
     )),
-);
-
-pub(in crate::card::sets) static BOROS_RECKONER: CardRecord = CardRecord::new(
-    cards::BOROS_RECKONER,
-    "Boros Reckoner",
-    CardArt::new("82a18b07-38b8-4854-9735-3cfe83b11bf1", "Howard Lyon"),
-    CardSet::Gatecrash,
-    CardRules::new_creature(mana_cost!("{R/W}{R/W}{R/W}"), &["Minotaur", "Wizard"], 3, 3)
-        .with_abilities(&[
-            AbilityDef::triggered_with_targets(
-                "Whenever this creature is dealt damage, it deals that much damage to any target.",
-                TriggerEventDef::DamageDealt {
-                    source: ObjectPredicateDef::Any,
-                    recipient: EffectRecipientDef::Source,
-                },
-                &[AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::AnyTarget,
-                )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::TriggerEventAmount,
-                },
-            ),
-            AbilityDef::activated(
-                "{R/W}: This creature gains first strike until end of turn.",
-                &[AbilityCostDef::Mana(mana_cost!("{R/W}"))],
-                EffectDef::Apply {
-                    recipient: EffectRecipientDef::Source,
-                    effect: AppliedEffectDef::GrantAbility(&abilities::first_strike()),
-                    duration: EffectDurationDef::UntilEndOfTurn,
-                },
-            ),
-        ]),
-);
-
-pub(in crate::card::sets) static DOMRI_RADE: CardRecord = CardRecord::new(
-    cards::DOMRI_RADE,
-    "Domri Rade",
-    CardArt::new("21b48170-99dd-440f-9954-fc229d6094d3", "Tyler Jacobson"),
-    CardSet::Gatecrash,
-    CardRules::new_planeswalker(mana_cost!("{1}{R}{G}"), &["Domri"], 3)
-        .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&DOMRI_ABILITIES),
 );
 
 /// A fight is each creature dealing damage equal to its power to the other,
@@ -281,6 +280,18 @@ static DOMRI_FIGHT_TARGETS: [AbilityTargetDef; 2] = [
     }),
 ];
 
+// GTC 156 — Domri Rade
+pub(in crate::card::sets) static DOMRI_RADE: CardRecord = CardRecord::new(
+    cards::DOMRI_RADE,
+    "Domri Rade",
+    CardArt::new("21b48170-99dd-440f-9954-fc229d6094d3", "Tyler Jacobson"),
+    CardSet::Gatecrash,
+    CardRules::new_planeswalker(mana_cost!("{1}{R}{G}"), &["Domri"], 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&DOMRI_ABILITIES),
+);
+
+// GTC 167 — Ghor-Clan Rampager
 pub(in crate::card::sets) static GHOR_CLAN_RAMPAGER: CardRecord = CardRecord::new(
     cards::GHOR_CLAN_RAMPAGER,
     "Ghor-Clan Rampager",
@@ -320,14 +331,7 @@ pub(in crate::card::sets) static GHOR_CLAN_RAMPAGER: CardRecord = CardRecord::ne
     ]),
 );
 
-pub(in crate::card::sets) static GODLESS_SHRINE: CardRecord = CardRecord::new(
-    cards::GODLESS_SHRINE,
-    "Godless Shrine",
-    CardArt::new("6fd672bb-18cf-44e3-8dda-5310b1e0fffe", "Cliff Childs"),
-    CardSet::Gatecrash,
-    CardRules::new_land(&["Plains", "Swamp"]).with_ability(abilities::shock_land_enters()),
-);
-
+// GTC 182 — Obzedat, Ghost Council
 pub(in crate::card::sets) static OBZEDAT_GHOST_COUNCIL: CardRecord = CardRecord::new(
     cards::OBZEDAT_GHOST_COUNCIL,
     "Obzedat, Ghost Council",
@@ -383,6 +387,50 @@ pub(in crate::card::sets) static OBZEDAT_GHOST_COUNCIL: CardRecord = CardRecord:
     ]),
 );
 
+// GTC 215 — Boros Reckoner
+pub(in crate::card::sets) static BOROS_RECKONER: CardRecord = CardRecord::new(
+    cards::BOROS_RECKONER,
+    "Boros Reckoner",
+    CardArt::new("82a18b07-38b8-4854-9735-3cfe83b11bf1", "Howard Lyon"),
+    CardSet::Gatecrash,
+    CardRules::new_creature(mana_cost!("{R/W}{R/W}{R/W}"), &["Minotaur", "Wizard"], 3, 3)
+        .with_abilities(&[
+            AbilityDef::triggered_with_targets(
+                "Whenever this creature is dealt damage, it deals that much damage to any target.",
+                TriggerEventDef::DamageDealt {
+                    source: ObjectPredicateDef::Any,
+                    recipient: EffectRecipientDef::Source,
+                },
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )],
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::TriggerEventAmount,
+                },
+            ),
+            AbilityDef::activated(
+                "{R/W}: This creature gains first strike until end of turn.",
+                &[AbilityCostDef::Mana(mana_cost!("{R/W}"))],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::GrantAbility(&abilities::first_strike()),
+                    duration: EffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
+);
+
+// GTC 242 — Godless Shrine
+pub(in crate::card::sets) static GODLESS_SHRINE: CardRecord = CardRecord::new(
+    cards::GODLESS_SHRINE,
+    "Godless Shrine",
+    CardArt::new("6fd672bb-18cf-44e3-8dda-5310b1e0fffe", "Cliff Childs"),
+    CardSet::Gatecrash,
+    CardRules::new_land(&["Plains", "Swamp"]).with_ability(abilities::shock_land_enters()),
+);
+
+// GTC 245 — Sacred Foundry
 pub(in crate::card::sets) static SACRED_FOUNDRY: CardRecord = CardRecord::new(
     cards::SACRED_FOUNDRY,
     "Sacred Foundry",
@@ -391,42 +439,7 @@ pub(in crate::card::sets) static SACRED_FOUNDRY: CardRecord = CardRecord::new(
     CardRules::new_land(&["Mountain", "Plains"]).with_ability(abilities::shock_land_enters()),
 );
 
-pub(in crate::card::sets) static SEPULCHRAL_PRIMORDIAL: CardRecord = CardRecord::new(
-    cards::SEPULCHRAL_PRIMORDIAL,
-    "Sepulchral Primordial",
-    CardArt::new("eb0865cd-d9b4-43ea-87d2-ad5c65fc0459", "Stephan Martiniere"),
-    CardSet::Gatecrash,
-    CardRules::new_creature(
-        mana_cost!("{5}{B}{B}"),
-        &["Avatar"],
-        5,
-        4,
-    )
-    .with_abilities(&[
-        abilities::intimidate(),
-        AbilityDef::triggered_with_targets("When this creature enters, for each opponent, you may put up to one target creature card from that player's graveyard onto the battlefield under your control.", TriggerEventDef::ZoneChanged {
-                object: ObjectPredicateDef::Source,
-                from: None,
-                to: Some(ZoneKind::Battlefield),
-            }, &[AbilityTargetDef::up_to(
-            AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::HasType(CardType::Creature),
-                zones: &[ZoneKind::Graveyard],
-                controller: None,
-                owner: Some(PlayerRelation::Opponent),
-            },
-            1,
-        )], // One opponent means one target here. Choosing none is already a
-            // legal target selection, so the printed "may" adds nothing.
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Battlefield,
-                controller: Some(PlayerRelation::You),
-                placement: LibraryPlacement::Top,
-            }),
-    ]),
-);
-
+// GTC 247 — Stomping Ground
 pub(in crate::card::sets) static STOMPING_GROUND: CardRecord = CardRecord::new(
     cards::STOMPING_GROUND,
     "Stomping Ground",
@@ -435,6 +448,7 @@ pub(in crate::card::sets) static STOMPING_GROUND: CardRecord = CardRecord::new(
     CardRules::new_land(&["Mountain", "Forest"]).with_ability(abilities::shock_land_enters()),
 );
 
+// GTC 248 — Thespian's Stage
 pub(in crate::card::sets) static THESPIANS_STAGE: CardRecord = CardRecord::new(
     cards::THESPIANS_STAGE,
     "Thespian's Stage",
@@ -465,18 +479,18 @@ pub(in crate::card::sets) static THESPIANS_STAGE: CardRecord = CardRecord::new(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &ASSEMBLE_THE_LEGION,
-    &AURELIAS_FURY,
-    &AURELIA_THE_WARLEADER,
     &BLIND_OBEDIENCE,
+    &SEPULCHRAL_PRIMORDIAL,
+    &ASSEMBLE_THE_LEGION,
+    &AURELIA_THE_WARLEADER,
+    &AURELIAS_FURY,
     &BOROS_CHARM,
-    &BOROS_RECKONER,
     &DOMRI_RADE,
     &GHOR_CLAN_RAMPAGER,
-    &GODLESS_SHRINE,
     &OBZEDAT_GHOST_COUNCIL,
+    &BOROS_RECKONER,
+    &GODLESS_SHRINE,
     &SACRED_FOUNDRY,
-    &SEPULCHRAL_PRIMORDIAL,
     &STOMPING_GROUND,
     &THESPIANS_STAGE,
 ];

@@ -7,6 +7,7 @@ use crate::card::{
     ZoneKind, cards,
 };
 
+// PLC 165 — Urborg, Tomb of Yawgmoth
 pub(in crate::card::sets) static URBORG_TOMB_OF_YAWGMOTH: CardRecord = CardRecord::new(
     cards::URBORG_TOMB_OF_YAWGMOTH,
     "Urborg, Tomb of Yawgmoth",

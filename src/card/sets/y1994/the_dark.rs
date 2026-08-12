@@ -9,6 +9,20 @@ use crate::card::{
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
+// DRK 5 — Dust to Dust
+pub(in crate::card::sets) static DUST_TO_DUST: CardRecord = CardRecord::new(
+    cards::DUST_TO_DUST,
+    "Dust to Dust",
+    CardArt::new("ade075fd-73ee-4d12-a2da-48e5938043af", "Drew Tucker"),
+    CardSet::TheDark,
+    CardRules::new_sorcery(mana_cost!("{1}{W}{W}")).with_abilities(&[AbilityDef::custom_full(
+        "Exile two target artifacts.",
+        CardBehavior::DustToDust,
+        "Artifact targeting and exile are implemented by the legacy spell resolver.",
+    )]),
+);
+
+// DRK 57 — Ball Lightning
 pub(in crate::card::sets) static BALL_LIGHTNING: CardRecord = CardRecord::new(
     cards::BALL_LIGHTNING,
     "Ball Lightning",
@@ -30,6 +44,7 @@ pub(in crate::card::sets) static BALL_LIGHTNING: CardRecord = CardRecord::new(
     ]),
 );
 
+// DRK 58 — Blood Moon
 pub(in crate::card::sets) static BLOOD_MOON: CardRecord = CardRecord::new(
     cards::BLOOD_MOON,
     "Blood Moon",
@@ -54,6 +69,7 @@ pub(in crate::card::sets) static BLOOD_MOON: CardRecord = CardRecord::new(
     )]),
 );
 
+// DRK 65 — Goblin Digging Team
 pub(in crate::card::sets) static GOBLIN_DIGGING_TEAM: CardRecord = CardRecord::new(
     cards::GOBLIN_DIGGING_TEAM,
     "Goblin Digging Team",
@@ -87,6 +103,7 @@ static GOBLINS_OF_THE_FLARG_DWARF_CONDITION: TriggerConditionDef =
         amount: 1,
     };
 
+// DRK 70 — Goblins of the Flarg
 pub(in crate::card::sets) static GOBLINS_OF_THE_FLARG: CardRecord = CardRecord::new(
     cards::GOBLINS_OF_THE_FLARG,
     "Goblins of the Flarg",
@@ -105,6 +122,7 @@ pub(in crate::card::sets) static GOBLINS_OF_THE_FLARG: CardRecord = CardRecord::
     ]),
 );
 
+// DRK 102 — Fellwar Stone
 pub(in crate::card::sets) static FELLWAR_STONE: CardRecord = CardRecord::new(
     cards::FELLWAR_STONE,
     "Fellwar Stone",
@@ -145,6 +163,7 @@ static MAZE_OF_ITH_EFFECT: [EffectDef; 2] = [
     },
 ];
 
+// DRK 117 — Maze of Ith
 pub(in crate::card::sets) static MAZE_OF_ITH: CardRecord = CardRecord::new(
     cards::MAZE_OF_ITH,
     "Maze of Ith",
@@ -158,26 +177,14 @@ pub(in crate::card::sets) static MAZE_OF_ITH: CardRecord = CardRecord::new(
     )]),
 );
 
-pub(in crate::card::sets) static DUST_TO_DUST: CardRecord = CardRecord::new(
-    cards::DUST_TO_DUST,
-    "Dust to Dust",
-    CardArt::new("ade075fd-73ee-4d12-a2da-48e5938043af", "Drew Tucker"),
-    CardSet::TheDark,
-    CardRules::new_sorcery(mana_cost!("{1}{W}{W}")).with_abilities(&[AbilityDef::custom_full(
-        "Exile two target artifacts.",
-        CardBehavior::DustToDust,
-        "Artifact targeting and exile are implemented by the legacy spell resolver.",
-    )]),
-);
-
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &DUST_TO_DUST,
     &BALL_LIGHTNING,
     &BLOOD_MOON,
     &GOBLIN_DIGGING_TEAM,
     &GOBLINS_OF_THE_FLARG,
     &FELLWAR_STONE,
     &MAZE_OF_ITH,
-    &DUST_TO_DUST,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

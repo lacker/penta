@@ -9,26 +9,7 @@ use crate::card::{
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
-pub(in crate::card::sets) static CHAIN_LIGHTNING: CardRecord = CardRecord::new(
-    cards::CHAIN_LIGHTNING,
-    "Chain Lightning",
-    CardArt::new("b5883762-ca0a-4932-8d2a-41a45796a5f8", "Sandra Everingham"),
-    CardSet::Legends,
-    CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[
-        AbilityDef::spell_with_targets("Chain Lightning deals 3 damage to any target.", &[AbilityTargetDef::exactly_one(
-            AbilityTargetPredicate::AnyTarget,
-        )], EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(3),
-            }),
-        AbilityDef::custom_full(
-            "Then that player or that permanent's controller may pay {R}{R}. If the player does, they may copy this spell and may choose a new target for that copy.",
-            CardBehavior::ChainLightning,
-            "The optional payment and spell-copy procedure are implemented by the card-local follow-up resolver.",
-        ),
-    ]),
-);
-
+// LEG 9 — Divine Offering
 pub(in crate::card::sets) static DIVINE_OFFERING: CardRecord = CardRecord::new(
     cards::DIVINE_OFFERING,
     "Divine Offering",
@@ -52,6 +33,32 @@ pub(in crate::card::sets) static DIVINE_OFFERING: CardRecord = CardRecord::new(
     )]),
 );
 
+// LEG 28 — Moat
+pub(in crate::card::sets) static MOAT: CardRecord = CardRecord::new(
+    cards::MOAT,
+    "Moat",
+    CardArt::new("952ba126-0915-47f0-9b6a-a0a6dcd22c6f", "Jeff A. Menges"),
+    CardSet::Legends,
+    CardRules::new_enchantment(mana_cost!("{2}{W}{W}")).with_abilities(&[AbilityDef::custom_full(
+        "Creatures without flying can't attack.",
+        CardBehavior::Moat,
+        "The attack restriction is implemented by the legacy combat legality check.",
+    )]),
+);
+
+// LEG 39 — Thunder Spirit
+pub(in crate::card::sets) static THUNDER_SPIRIT: CardRecord = CardRecord::new(
+    cards::THUNDER_SPIRIT,
+    "Thunder Spirit",
+    CardArt::new(
+        "61a59775-b1cd-4ed0-8abf-c2b37f7be0d5",
+        "Randy Asplund-Faith",
+    ),
+    CardSet::Legends,
+    CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Elemental", "Spirit"], 2, 2)
+        .with_abilities(&[abilities::flying(), abilities::first_strike()]),
+);
+
 /// The mana arrives later, so the amount is read from what the countered
 /// spell was rather than from anything still on the stack.
 static MANA_DRAIN_EFFECT: [EffectDef; 2] = [
@@ -69,6 +76,7 @@ static MANA_DRAIN_EFFECT: [EffectDef; 2] = [
     },
 ];
 
+// LEG 65 — Mana Drain
 pub(in crate::card::sets) static MANA_DRAIN: CardRecord = CardRecord::new(
     cards::MANA_DRAIN,
     "Mana Drain",
@@ -87,6 +95,7 @@ pub(in crate::card::sets) static MANA_DRAIN: CardRecord = CardRecord::new(
         )]),
 );
 
+// LEG 70 — Recall
 pub(in crate::card::sets) static RECALL: CardRecord = CardRecord::new(
     cards::RECALL,
     "Recall",
@@ -100,6 +109,53 @@ pub(in crate::card::sets) static RECALL: CardRecord = CardRecord::new(
     )]),
 );
 
+// LEG 120 — The Abyss
+pub(in crate::card::sets) static THE_ABYSS: CardRecord = CardRecord::new(
+    cards::THE_ABYSS,
+    "The Abyss",
+    CardArt::new("86a27d68-3e58-4ade-976d-36381beed451", "Pete Venters"),
+    CardSet::Legends,
+    CardRules::new_enchantment(mana_cost!("{3}{B}"))
+        .with_supertype(CardSupertype::World)
+        .with_abilities(&[AbilityDef::triggered(
+            "At the beginning of each player's upkeep, destroy target nonartifact creature that player controls of their choice. It can't be regenerated.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::Any,
+            },
+            EffectDef::DestroyOfChoice {
+                player: EffectRecipientDef::EventPlayer,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Artifact)),
+                ]),
+                can_regenerate: false,
+            },
+        )]),
+);
+
+// LEG 137 — Chain Lightning
+pub(in crate::card::sets) static CHAIN_LIGHTNING: CardRecord = CardRecord::new(
+    cards::CHAIN_LIGHTNING,
+    "Chain Lightning",
+    CardArt::new("b5883762-ca0a-4932-8d2a-41a45796a5f8", "Sandra Everingham"),
+    CardSet::Legends,
+    CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[
+        AbilityDef::spell_with_targets("Chain Lightning deals 3 damage to any target.", &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::AnyTarget,
+        )], EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(3),
+            }),
+        AbilityDef::custom_full(
+            "Then that player or that permanent's controller may pay {R}{R}. If the player does, they may copy this spell and may choose a new target for that copy.",
+            CardBehavior::ChainLightning,
+            "The optional payment and spell-copy procedure are implemented by the card-local follow-up resolver.",
+        ),
+    ]),
+);
+
+// LEG 207 — Sylvan Library
 pub(in crate::card::sets) static SYLVAN_LIBRARY: CardRecord = CardRecord::new(
     cards::SYLVAN_LIBRARY,
     "Sylvan Library",
@@ -120,21 +176,10 @@ pub(in crate::card::sets) static SYLVAN_LIBRARY: CardRecord = CardRecord::new(
     ))]),
 );
 
-pub(in crate::card::sets) static THUNDER_SPIRIT: CardRecord = CardRecord::new(
-    cards::THUNDER_SPIRIT,
-    "Thunder Spirit",
-    CardArt::new(
-        "61a59775-b1cd-4ed0-8abf-c2b37f7be0d5",
-        "Randy Asplund-Faith",
-    ),
-    CardSet::Legends,
-    CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Elemental", "Spirit"], 2, 2)
-        .with_abilities(&[abilities::flying(), abilities::first_strike()]),
-);
-
 static DERVISH_DREW_BLOOD: TriggerConditionDef =
     TriggerConditionDef::SourceDealtDamageToOpponentThisTurn;
 
+// LEG 211 — Whirling Dervish
 pub(in crate::card::sets) static WHIRLING_DERVISH: CardRecord = CardRecord::new(
     cards::WHIRLING_DERVISH,
     "Whirling Dervish",
@@ -159,16 +204,29 @@ pub(in crate::card::sets) static WHIRLING_DERVISH: CardRecord = CardRecord::new(
         ]),
 );
 
-pub(in crate::card::sets) static MOAT: CardRecord = CardRecord::new(
-    cards::MOAT,
-    "Moat",
-    CardArt::new("952ba126-0915-47f0-9b6a-a0a6dcd22c6f", "Jeff A. Menges"),
+// LEG 292 — Relic Barrier
+pub(in crate::card::sets) static RELIC_BARRIER: CardRecord = CardRecord::new(
+    cards::RELIC_BARRIER,
+    "Relic Barrier",
+    CardArt::new("c062cbae-ce5e-43be-9932-c81a0a3622e8", "Harold McNeill"),
     CardSet::Legends,
-    CardRules::new_enchantment(mana_cost!("{2}{W}{W}")).with_abilities(&[AbilityDef::custom_full(
-        "Creatures without flying can't attack.",
-        CardBehavior::Moat,
-        "The attack restriction is implemented by the legacy combat legality check.",
-    )]),
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "{T}: Tap target artifact.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::Tap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ]),
 );
 
 /// "Target 1/1 creature" is read as the creature is now, so a creature that
@@ -187,6 +245,7 @@ static PENDELHAVEN_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_on
     },
 )];
 
+// LEG 305 — Pendelhaven
 pub(in crate::card::sets) static PENDELHAVEN: CardRecord = CardRecord::new(
     cards::PENDELHAVEN,
     "Pendelhaven",
@@ -212,66 +271,18 @@ pub(in crate::card::sets) static PENDELHAVEN: CardRecord = CardRecord::new(
         ]),
 );
 
-pub(in crate::card::sets) static RELIC_BARRIER: CardRecord = CardRecord::new(
-    cards::RELIC_BARRIER,
-    "Relic Barrier",
-    CardArt::new("c062cbae-ce5e-43be-9932-c81a0a3622e8", "Harold McNeill"),
-    CardSet::Legends,
-    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
-        AbilityDef::activated_with_targets(
-            "{T}: Tap target artifact.",
-            &[AbilityCostDef::TapSource],
-            &[AbilityTargetDef::exactly_one(
-                AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::HasType(CardType::Artifact),
-                    zones: &[ZoneKind::Battlefield],
-                    controller: None,
-                    owner: None,
-                },
-            )],
-            EffectDef::Tap {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            },
-        ),
-    ]),
-);
-
-pub(in crate::card::sets) static THE_ABYSS: CardRecord = CardRecord::new(
-    cards::THE_ABYSS,
-    "The Abyss",
-    CardArt::new("86a27d68-3e58-4ade-976d-36381beed451", "Pete Venters"),
-    CardSet::Legends,
-    CardRules::new_enchantment(mana_cost!("{3}{B}"))
-        .with_supertype(CardSupertype::World)
-        .with_abilities(&[AbilityDef::triggered(
-            "At the beginning of each player's upkeep, destroy target nonartifact creature that player controls of their choice. It can't be regenerated.",
-            TriggerEventDef::StepBegins {
-                step: TurnStepDef::Upkeep,
-                player: PlayerRelation::Any,
-            },
-            EffectDef::DestroyOfChoice {
-                player: EffectRecipientDef::EventPlayer,
-                object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Artifact)),
-                ]),
-                can_regenerate: false,
-            },
-        )]),
-);
-
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &CHAIN_LIGHTNING,
     &DIVINE_OFFERING,
+    &MOAT,
+    &THUNDER_SPIRIT,
     &MANA_DRAIN,
     &RECALL,
-    &SYLVAN_LIBRARY,
-    &THUNDER_SPIRIT,
-    &WHIRLING_DERVISH,
-    &MOAT,
-    &PENDELHAVEN,
-    &RELIC_BARRIER,
     &THE_ABYSS,
+    &CHAIN_LIGHTNING,
+    &SYLVAN_LIBRARY,
+    &WHIRLING_DERVISH,
+    &RELIC_BARRIER,
+    &PENDELHAVEN,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

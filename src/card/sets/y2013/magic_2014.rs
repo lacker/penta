@@ -12,6 +12,7 @@ use crate::card::{
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
+// M14 5 — Archangel of Thune
 pub(in crate::card::sets) static ARCHANGEL_OF_THUNE: CardRecord = CardRecord::new(
     cards::ARCHANGEL_OF_THUNE,
     "Archangel of Thune",
@@ -41,28 +42,7 @@ pub(in crate::card::sets) static ARCHANGEL_OF_THUNE: CardRecord = CardRecord::ne
     ]),
 );
 
-pub(in crate::card::sets) static BURNING_EARTH: CardRecord = CardRecord::new(
-    cards::BURNING_EARTH,
-    "Burning Earth",
-    CardArt::new("1df3a7c9-5c8d-438c-a5ad-3c9754c6ea5d", "rk post"),
-    CardSet::Magic2014,
-    CardRules::new_enchantment(mana_cost!("{3}{R}")).with_ability(
-        AbilityDef::triggered(
-            "Whenever a player taps a nonbasic land for mana, this enchantment deals 1 damage to that player.",
-            TriggerEventDef::TappedForMana(ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Land),
-                ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Basic)),
-            ])),
-            EffectDef::DealDamage {
-                // Whoever tapped it, which includes this enchantment's own
-                // controller.
-                recipient: EffectRecipientDef::ControllerOfTriggeringObject,
-                amount: ValueDef::Constant(1),
-            },
-        ),
-    ),
-);
-
+// M14 12 — Celestial Flare
 pub(in crate::card::sets) static CELESTIAL_FLARE: CardRecord = CardRecord::new(
     cards::CELESTIAL_FLARE,
     "Celestial Flare",
@@ -85,6 +65,27 @@ pub(in crate::card::sets) static CELESTIAL_FLARE: CardRecord = CardRecord::new(
     )),
 );
 
+// M14 68 — Quicken
+pub(in crate::card::sets) static QUICKEN: CardRecord = CardRecord::new(
+    cards::QUICKEN,
+    "Quicken",
+    CardArt::new("066bef3d-c785-4b25-9b91-8f676aa9906f", "Aleksi Briclot"),
+    CardSet::Magic2014,
+    // One spell ability per part, so the card's two sentences are one clause
+    // with a sequence rather than two spell clauses.
+    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell(
+        "The next sorcery spell you cast this turn can be cast as though it had flash. (It can be cast any time you could cast an instant.)\nDraw a card.",
+        EffectDef::Sequence(&[
+            EffectDef::GrantFlashToNextSorcery,
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
+    )),
+);
+
+// M14 96 — Doom Blade
 pub(in crate::card::sets) static DOOM_BLADE: CardRecord = CardRecord::new(
     cards::DOOM_BLADE,
     "Doom Blade",
@@ -100,43 +101,7 @@ pub(in crate::card::sets) static DOOM_BLADE: CardRecord = CardRecord::new(
     )),
 );
 
-pub(in crate::card::sets) static ELVISH_MYSTIC: CardRecord = CardRecord::new(
-    cards::ELVISH_MYSTIC,
-    "Elvish Mystic",
-    CardArt::new("60d0e6a6-629a-45a7-bfcb-25ba7156788b", "Wesley Burt"),
-    CardSet::Magic2014,
-    CardRules::new_creature(mana_cost!("{G}"), &["Elf", "Druid"], 1, 1)
-        .with_abilities(&[abilities::tap_for(ManaColor::Green)]),
-);
-
-pub(in crate::card::sets) static ENCROACHING_WASTES: CardRecord = CardRecord::new(
-    cards::ENCROACHING_WASTES,
-    "Encroaching Wastes",
-    CardArt::new("1ad5a84b-ae9b-4ed1-a4de-b91bbf8ed0a5", "Noah Bradley"),
-    CardSet::Magic2014,
-    CardRules::new_land(&[]).with_abilities(&[
-        abilities::tap_for(ManaColor::Colorless),
-        AbilityDef::activated_with_targets(
-            "{4}, {T}, Sacrifice this land: Destroy target nonbasic land.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{4}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificeSource,
-            ],
-            &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Land),
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Basic)),
-                ]),
-            )],
-            EffectDef::Destroy {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
-            },
-        ),
-    ]),
-);
-
+// M14 101 — Lifebane Zombie
 pub(in crate::card::sets) static LIFEBANE_ZOMBIE: CardRecord = CardRecord::new(
     cards::LIFEBANE_ZOMBIE,
     "Lifebane Zombie",
@@ -164,29 +129,97 @@ pub(in crate::card::sets) static LIFEBANE_ZOMBIE: CardRecord = CardRecord::new(
     ]),
 );
 
-/// The animation keeps the land types Mutavault is printed with, so the
-/// creature types are added rather than replacing anything.
-static MUTAVAULT_ANIMATION: AnimationDef = AnimationDef::new(2, 2).with_all_creature_types();
+/// Fewer than six is at most five. The count is of creature cards in your
+/// own graveyard, which the Demon feeds on and which is why it stops eating
+/// your board once the graveyard is full enough.
+static SHADOWBORN_DEMON_UPKEEP_CONDITION: TriggerConditionDef = TriggerConditionDef::ObjectCount {
+    query: ObjectQueryDef {
+        object: ObjectPredicateDef::HasType(CardType::Creature),
+        zones: &[ZoneKind::Graveyard],
+        controller: PlayerRelation::You,
+    },
+    comparison: ComparisonDef::AtMost,
+    amount: 5,
+};
 
-pub(in crate::card::sets) static MUTAVAULT: CardRecord = CardRecord::new(
-    cards::MUTAVAULT,
-    "Mutavault",
-    CardArt::new("927ed667-c228-4b96-a9f6-7cbadade8134", "Fred Fields"),
+// M14 115 — Shadowborn Demon
+pub(in crate::card::sets) static SHADOWBORN_DEMON: CardRecord = CardRecord::new(
+    cards::SHADOWBORN_DEMON,
+    "Shadowborn Demon",
+    CardArt::new("3884c05b-c10e-4f1d-a8bd-8b5118657972", "Lucas Graciano"),
     CardSet::Magic2014,
-    CardRules::new_land(&[]).with_abilities(&[
-        abilities::tap_for(ManaColor::Colorless),
-        AbilityDef::activated(
-            "{1}: This land becomes a 2/2 creature with all creature types until end of turn. It's still a land.",
-            &[AbilityCostDef::Mana(mana_cost!("{1}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Animate(&MUTAVAULT_ANIMATION),
-                duration: EffectDurationDef::UntilEndOfTurn,
+    CardRules::new_creature(
+        mana_cost!("{3}{B}{B}"),
+        &["Demon"],
+        5,
+        6,
+    )
+    .with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered_with_targets("When this creature enters, destroy target non-Demon creature.", TriggerEventDef::ZoneChanged {
+                object: ObjectPredicateDef::Source,
+                from: None,
+                to: Some(ZoneKind::Battlefield),
+            }, &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Demon")),
+            ]),
+        )], EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                can_regenerate: true,
+            }),
+        AbilityDef::triggered_if(
+            "At the beginning of your upkeep, if there are fewer than six creature cards in your graveyard, sacrifice a creature.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            &SHADOWBORN_DEMON_UPKEEP_CONDITION,
+            EffectDef::SacrificeOfChoice {
+                player: EffectRecipientDef::Controller,
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                then: None,
+                optional: false,
             },
         ),
     ]),
 );
 
+// M14 130 — Burning Earth
+pub(in crate::card::sets) static BURNING_EARTH: CardRecord = CardRecord::new(
+    cards::BURNING_EARTH,
+    "Burning Earth",
+    CardArt::new("1df3a7c9-5c8d-438c-a5ad-3c9754c6ea5d", "rk post"),
+    CardSet::Magic2014,
+    CardRules::new_enchantment(mana_cost!("{3}{R}")).with_ability(
+        AbilityDef::triggered(
+            "Whenever a player taps a nonbasic land for mana, this enchantment deals 1 damage to that player.",
+            TriggerEventDef::TappedForMana(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Land),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Basic)),
+            ])),
+            EffectDef::DealDamage {
+                // Whoever tapped it, which includes this enchantment's own
+                // controller.
+                recipient: EffectRecipientDef::ControllerOfTriggeringObject,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
+);
+
+// M14 169 — Elvish Mystic
+pub(in crate::card::sets) static ELVISH_MYSTIC: CardRecord = CardRecord::new(
+    cards::ELVISH_MYSTIC,
+    "Elvish Mystic",
+    CardArt::new("60d0e6a6-629a-45a7-bfcb-25ba7156788b", "Wesley Burt"),
+    CardSet::Magic2014,
+    CardRules::new_creature(mana_cost!("{G}"), &["Elf", "Druid"], 1, 1)
+        .with_abilities(&[abilities::tap_for(ManaColor::Green)]),
+);
+
+// M14 190 — Primeval Bounty
 pub(in crate::card::sets) static PRIMEVAL_BOUNTY: CardRecord = CardRecord::new(
     cards::PRIMEVAL_BOUNTY,
     "Primeval Bounty",
@@ -235,62 +268,6 @@ pub(in crate::card::sets) static PRIMEVAL_BOUNTY: CardRecord = CardRecord::new(
     ]),
 );
 
-pub(in crate::card::sets) static QUICKEN: CardRecord = CardRecord::new(
-    cards::QUICKEN,
-    "Quicken",
-    CardArt::new("066bef3d-c785-4b25-9b91-8f676aa9906f", "Aleksi Briclot"),
-    CardSet::Magic2014,
-    // One spell ability per part, so the card's two sentences are one clause
-    // with a sequence rather than two spell clauses.
-    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell(
-        "The next sorcery spell you cast this turn can be cast as though it had flash. (It can be cast any time you could cast an instant.)\nDraw a card.",
-        EffectDef::Sequence(&[
-            EffectDef::GrantFlashToNextSorcery,
-            EffectDef::DrawCards {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
-            },
-        ]),
-    )),
-);
-
-pub(in crate::card::sets) static RATCHET_BOMB: CardRecord = CardRecord::new(
-    cards::RATCHET_BOMB,
-    "Ratchet Bomb",
-    CardArt::new("3e9045df-3eff-4236-9bbb-77537b302e27", "Austin Hsu"),
-    CardSet::Magic2014,
-    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
-        AbilityDef::activated(
-            "{T}: Put a charge counter on this artifact.",
-            &[AbilityCostDef::TapSource],
-            EffectDef::AddCounters {
-                object: EffectRecipientDef::Source,
-                kind: CounterKind::Charge,
-                amount: ValueDef::Constant(1),
-            },
-        ),
-        AbilityDef::activated(
-            "{T}, Sacrifice this artifact: Destroy each nonland permanent with mana value equal to the number of charge counters on this artifact.",
-            &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
-            EffectDef::Destroy {
-                object: EffectRecipientDef::MatchingObjects {
-                    object: ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-                        // The Bomb is already gone by the time this resolves,
-                        // so the count comes from last-known information.
-                        ObjectPredicateDef::ManaValueEqualTo(ValueDef::CountersOnSource(
-                            CounterKind::Charge,
-                        )),
-                    ]),
-                    zones: &[ZoneKind::Battlefield],
-                    controller: PlayerRelation::Any,
-                },
-                can_regenerate: true,
-            },
-        ),
-    ]),
-);
-
 /// One when the exiled card was a creature, nothing otherwise.
 static EXILED_A_CREATURE: TargetConditionDef = TargetConditionDef {
     slot: TargetIndex::PRIMARY,
@@ -299,6 +276,7 @@ static EXILED_A_CREATURE: TargetConditionDef = TargetConditionDef {
     otherwise: ValueDef::Constant(0),
 };
 
+// M14 195 — Scavenging Ooze
 pub(in crate::card::sets) static SCAVENGING_OOZE: CardRecord = CardRecord::new(
     cards::SCAVENGING_OOZE,
     "Scavenging Ooze",
@@ -341,76 +319,111 @@ pub(in crate::card::sets) static SCAVENGING_OOZE: CardRecord = CardRecord::new(
     ),
 );
 
-pub(in crate::card::sets) static SHADOWBORN_DEMON: CardRecord = CardRecord::new(
-    cards::SHADOWBORN_DEMON,
-    "Shadowborn Demon",
-    CardArt::new("3884c05b-c10e-4f1d-a8bd-8b5118657972", "Lucas Graciano"),
+// M14 215 — Ratchet Bomb
+pub(in crate::card::sets) static RATCHET_BOMB: CardRecord = CardRecord::new(
+    cards::RATCHET_BOMB,
+    "Ratchet Bomb",
+    CardArt::new("3e9045df-3eff-4236-9bbb-77537b302e27", "Austin Hsu"),
     CardSet::Magic2014,
-    CardRules::new_creature(
-        mana_cost!("{3}{B}{B}"),
-        &["Demon"],
-        5,
-        6,
-    )
-    .with_abilities(&[
-        abilities::flying(),
-        AbilityDef::triggered_with_targets("When this creature enters, destroy target non-Demon creature.", TriggerEventDef::ZoneChanged {
-                object: ObjectPredicateDef::Source,
-                from: None,
-                to: Some(ZoneKind::Battlefield),
-            }, &[AbilityTargetDef::exactly_one_permanent(
-            ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Demon")),
-            ]),
-        )], EffectDef::Destroy {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
-            }),
-        AbilityDef::triggered_if(
-            "At the beginning of your upkeep, if there are fewer than six creature cards in your graveyard, sacrifice a creature.",
-            TriggerEventDef::StepBegins {
-                step: TurnStepDef::Upkeep,
-                player: PlayerRelation::You,
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        AbilityDef::activated(
+            "{T}: Put a charge counter on this artifact.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::Charge,
+                amount: ValueDef::Constant(1),
             },
-            &SHADOWBORN_DEMON_UPKEEP_CONDITION,
-            EffectDef::SacrificeOfChoice {
-                player: EffectRecipientDef::Controller,
-                object: ObjectPredicateDef::HasType(CardType::Creature),
-                then: None,
-                optional: false,
+        ),
+        AbilityDef::activated(
+            "{T}, Sacrifice this artifact: Destroy each nonland permanent with mana value equal to the number of charge counters on this artifact.",
+            &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::MatchingObjects {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                        // The Bomb is already gone by the time this resolves,
+                        // so the count comes from last-known information.
+                        ObjectPredicateDef::ManaValueEqualTo(ValueDef::CountersOnSource(
+                            CounterKind::Charge,
+                        )),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: PlayerRelation::Any,
+                },
+                can_regenerate: true,
             },
         ),
     ]),
 );
 
-/// Fewer than six is at most five. The count is of creature cards in your
-/// own graveyard, which the Demon feeds on and which is why it stops eating
-/// your board once the graveyard is full enough.
-static SHADOWBORN_DEMON_UPKEEP_CONDITION: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: ObjectQueryDef {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Graveyard],
-        controller: PlayerRelation::You,
-    },
-    comparison: ComparisonDef::AtMost,
-    amount: 5,
-};
+// M14 227 — Encroaching Wastes
+pub(in crate::card::sets) static ENCROACHING_WASTES: CardRecord = CardRecord::new(
+    cards::ENCROACHING_WASTES,
+    "Encroaching Wastes",
+    CardArt::new("1ad5a84b-ae9b-4ed1-a4de-b91bbf8ed0a5", "Noah Bradley"),
+    CardSet::Magic2014,
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_with_targets(
+            "{4}, {T}, Sacrifice this land: Destroy target nonbasic land.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{4}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::SacrificeSource,
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Basic)),
+                ]),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                can_regenerate: true,
+            },
+        ),
+    ]),
+);
+
+/// The animation keeps the land types Mutavault is printed with, so the
+/// creature types are added rather than replacing anything.
+static MUTAVAULT_ANIMATION: AnimationDef = AnimationDef::new(2, 2).with_all_creature_types();
+
+// M14 228 — Mutavault
+pub(in crate::card::sets) static MUTAVAULT: CardRecord = CardRecord::new(
+    cards::MUTAVAULT,
+    "Mutavault",
+    CardArt::new("927ed667-c228-4b96-a9f6-7cbadade8134", "Fred Fields"),
+    CardSet::Magic2014,
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated(
+            "{1}: This land becomes a 2/2 creature with all creature types until end of turn. It's still a land.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Animate(&MUTAVAULT_ANIMATION),
+                duration: EffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
+);
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ARCHANGEL_OF_THUNE,
-    &BURNING_EARTH,
     &CELESTIAL_FLARE,
-    &DOOM_BLADE,
-    &ELVISH_MYSTIC,
-    &ENCROACHING_WASTES,
-    &LIFEBANE_ZOMBIE,
-    &MUTAVAULT,
-    &PRIMEVAL_BOUNTY,
     &QUICKEN,
-    &RATCHET_BOMB,
-    &SCAVENGING_OOZE,
+    &DOOM_BLADE,
+    &LIFEBANE_ZOMBIE,
     &SHADOWBORN_DEMON,
+    &BURNING_EARTH,
+    &ELVISH_MYSTIC,
+    &PRIMEVAL_BOUNTY,
+    &SCAVENGING_OOZE,
+    &RATCHET_BOMB,
+    &ENCROACHING_WASTES,
+    &MUTAVAULT,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -7,6 +7,7 @@ use crate::card::{
 };
 use crate::mana_cost;
 
+// DST 112 — Darksteel Ingot
 pub(in crate::card::sets) static DARKSTEEL_INGOT: CardRecord = CardRecord::new(
     cards::DARKSTEEL_INGOT,
     "Darksteel Ingot",

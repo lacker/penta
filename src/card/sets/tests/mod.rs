@@ -53,3 +53,4 @@ mod metadata_composition_mana;
 mod registry_integrity;
 mod runtime_boundary;
 mod runtime_support;
+mod source_organization;

@@ -3,6 +3,7 @@
 use super::{CardRecord, PrintingRecord, alpha};
 use crate::card::{CardArt, CardRules, CardSet, cards};
 
+// LEB 287 — Volcanic Island
 pub(in crate::card::sets) static VOLCANIC_ISLAND: CardRecord = CardRecord::new(
     cards::VOLCANIC_ISLAND,
     "Volcanic Island",
@@ -14,97 +15,97 @@ pub(in crate::card::sets) static VOLCANIC_ISLAND: CardRecord = CardRecord::new(
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&VOLCANIC_ISLAND];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
-    PrintingRecord::reprint(&alpha::ANKH_OF_MISHRA),
-    PrintingRecord::reprint(&alpha::BLACK_VISE),
-    PrintingRecord::reprint(&alpha::COPPER_TABLET),
-    PrintingRecord::reprint(&alpha::FIREBALL),
-    PrintingRecord::reprint(&alpha::FORK),
-    PrintingRecord::reprint(&alpha::GLASSES_OF_URZA),
-    PrintingRecord::reprint(&alpha::IRON_STAR),
-    PrintingRecord::reprint(&alpha::LIGHTNING_BOLT),
-    PrintingRecord::reprint(&alpha::MOUNTAIN),
-    PrintingRecord::reprint(&alpha::RED_ELEMENTAL_BLAST),
-    PrintingRecord::reprint(&alpha::SHATTER),
-    PrintingRecord::reprint(&alpha::SMOKE),
-    PrintingRecord::reprint(&alpha::STONE_GIANT),
-    PrintingRecord::reprint(&alpha::WINTER_ORB),
-    PrintingRecord::reprint(&alpha::BLACK_LOTUS),
-    PrintingRecord::reprint(&alpha::CHAOS_ORB),
-    PrintingRecord::reprint(&alpha::DRAGON_WHELP),
-    PrintingRecord::reprint(&alpha::GOBLIN_BALLOON_BRIGADE),
-    PrintingRecord::reprint(&alpha::GOBLIN_KING),
-    PrintingRecord::reprint(&alpha::GRANITE_GARGOYLE),
-    PrintingRecord::reprint(&alpha::IRONCLAW_ORCS),
-    PrintingRecord::reprint(&alpha::MOX_EMERALD),
-    PrintingRecord::reprint(&alpha::MOX_JET),
-    PrintingRecord::reprint(&alpha::MOX_PEARL),
-    PrintingRecord::reprint(&alpha::MOX_RUBY),
-    PrintingRecord::reprint(&alpha::MOX_SAPPHIRE),
-    PrintingRecord::reprint(&alpha::SOL_RING),
-    PrintingRecord::reprint(&alpha::WHEEL_OF_FORTUNE),
-    PrintingRecord::reprint(&alpha::JUGGERNAUT),
-    PrintingRecord::reprint(&alpha::MANA_VAULT),
-    PrintingRecord::reprint(&alpha::ANCESTRAL_RECALL),
-    PrintingRecord::reprint(&alpha::BRAINGEYSER),
-    PrintingRecord::reprint(&alpha::COUNTERSPELL),
-    PrintingRecord::reprint(&alpha::DISENCHANT),
-    PrintingRecord::reprint(&alpha::ISLAND),
-    PrintingRecord::reprint(&alpha::JAYEMDAE_TOME),
-    PrintingRecord::reprint(&alpha::PLAINS),
-    PrintingRecord::reprint(&alpha::SERRA_ANGEL),
-    PrintingRecord::reprint(&alpha::SWORDS_TO_PLOWSHARES),
-    PrintingRecord::reprint(&alpha::TIME_WALK),
-    PrintingRecord::reprint(&alpha::TUNDRA),
-    PrintingRecord::reprint(&alpha::SEDGE_TROLL),
-    PrintingRecord::reprint(&alpha::ARMAGEDDON),
-    PrintingRecord::reprint(&alpha::BADLANDS),
-    PrintingRecord::reprint(&alpha::BALANCE),
-    PrintingRecord::reprint(&alpha::BAYOU),
-    PrintingRecord::reprint(&alpha::BLACK_KNIGHT),
-    PrintingRecord::reprint(&alpha::BIRDS_OF_PARADISE),
-    PrintingRecord::reprint(&alpha::BLUE_ELEMENTAL_BLAST),
-    PrintingRecord::reprint(&alpha::CHANNEL),
-    PrintingRecord::reprint(&alpha::CRUSADE),
-    PrintingRecord::reprint(&alpha::DARK_RITUAL),
-    PrintingRecord::reprint(&alpha::DEMONIC_TUTOR),
-    PrintingRecord::reprint(&alpha::DRAIN_LIFE),
-    PrintingRecord::reprint(&alpha::EARTHQUAKE),
-    PrintingRecord::reprint(&alpha::FOREST),
-    PrintingRecord::reprint(&alpha::HYPNOTIC_SPECTER),
-    PrintingRecord::reprint(&alpha::MIND_TWIST),
-    PrintingRecord::reprint(&alpha::NEVINYRRALS_DISK),
-    PrintingRecord::reprint(&alpha::PLATEAU),
-    PrintingRecord::reprint(&alpha::PSIONIC_BLAST),
-    PrintingRecord::reprint(&alpha::REGROWTH),
-    PrintingRecord::reprint(&alpha::SAVANNAH),
-    PrintingRecord::reprint(&alpha::SAVANNAH_LIONS),
-    PrintingRecord::reprint(&alpha::SCRUBLAND),
-    PrintingRecord::reprint(&alpha::SENGIR_VAMPIRE),
-    PrintingRecord::reprint(&alpha::SINKHOLE),
-    PrintingRecord::reprint(&alpha::SWAMP),
-    PrintingRecord::reprint(&alpha::TAIGA),
-    PrintingRecord::reprint(&alpha::TERROR),
-    PrintingRecord::reprint(&alpha::TIME_VAULT),
-    PrintingRecord::reprint(&alpha::TIMETWISTER),
-    PrintingRecord::reprint(&alpha::TROPICAL_ISLAND),
-    PrintingRecord::reprint(&alpha::UNDERGROUND_SEA),
-    PrintingRecord::reprint(&alpha::WHITE_KNIGHT),
-    PrintingRecord::reprint(&alpha::BERSERK),
-    PrintingRecord::reprint(&alpha::COPY_ARTIFACT),
-    PrintingRecord::reprint(&alpha::GIANT_GROWTH),
-    PrintingRecord::reprint(&alpha::ICY_MANIPULATOR),
-    PrintingRecord::reprint(&alpha::LLANOWAR_ELVES),
-    PrintingRecord::reprint(&alpha::SCRYB_SPRITES),
-    PrintingRecord::reprint(&alpha::STONE_RAIN),
-    PrintingRecord::reprint(&alpha::WRATH_OF_GOD),
-    PrintingRecord::alternate(&alpha::PLAINS, 1),
-    PrintingRecord::alternate(&alpha::PLAINS, 2),
-    PrintingRecord::alternate(&alpha::ISLAND, 1),
-    PrintingRecord::alternate(&alpha::ISLAND, 2),
-    PrintingRecord::alternate(&alpha::SWAMP, 1),
-    PrintingRecord::alternate(&alpha::SWAMP, 2),
-    PrintingRecord::alternate(&alpha::MOUNTAIN, 1),
-    PrintingRecord::alternate(&alpha::MOUNTAIN, 2),
-    PrintingRecord::alternate(&alpha::FOREST, 1),
-    PrintingRecord::alternate(&alpha::FOREST, 2),
+    PrintingRecord::reprint(&alpha::ARMAGEDDON),     // LEB 2
+    PrintingRecord::reprint(&alpha::BALANCE),        // LEB 3
+    PrintingRecord::reprint(&alpha::CRUSADE),        // LEB 17
+    PrintingRecord::reprint(&alpha::DISENCHANT),     // LEB 19
+    PrintingRecord::reprint(&alpha::SAVANNAH_LIONS), // LEB 39
+    PrintingRecord::reprint(&alpha::SERRA_ANGEL),    // LEB 40
+    PrintingRecord::reprint(&alpha::SWORDS_TO_PLOWSHARES), // LEB 41
+    PrintingRecord::reprint(&alpha::WHITE_KNIGHT),   // LEB 44
+    PrintingRecord::reprint(&alpha::WRATH_OF_GOD),   // LEB 46
+    PrintingRecord::reprint(&alpha::ANCESTRAL_RECALL), // LEB 48
+    PrintingRecord::reprint(&alpha::BLUE_ELEMENTAL_BLAST), // LEB 50
+    PrintingRecord::reprint(&alpha::BRAINGEYSER),    // LEB 51
+    PrintingRecord::reprint(&alpha::COPY_ARTIFACT),  // LEB 54
+    PrintingRecord::reprint(&alpha::COUNTERSPELL),   // LEB 55
+    PrintingRecord::reprint(&alpha::PSIONIC_BLAST),  // LEB 75
+    PrintingRecord::reprint(&alpha::TIME_WALK),      // LEB 84
+    PrintingRecord::reprint(&alpha::TIMETWISTER),    // LEB 85
+    PrintingRecord::reprint(&alpha::BLACK_KNIGHT),   // LEB 95
+    PrintingRecord::reprint(&alpha::DARK_RITUAL),    // LEB 99
+    PrintingRecord::reprint(&alpha::DEMONIC_TUTOR),  // LEB 105
+    PrintingRecord::reprint(&alpha::DRAIN_LIFE),     // LEB 106
+    PrintingRecord::reprint(&alpha::HYPNOTIC_SPECTER), // LEB 113
+    PrintingRecord::reprint(&alpha::MIND_TWIST),     // LEB 116
+    PrintingRecord::reprint(&alpha::SENGIR_VAMPIRE), // LEB 128
+    PrintingRecord::reprint(&alpha::SINKHOLE),       // LEB 130
+    PrintingRecord::reprint(&alpha::TERROR),         // LEB 131
+    PrintingRecord::reprint(&alpha::DRAGON_WHELP),   // LEB 142
+    PrintingRecord::reprint(&alpha::EARTHQUAKE),     // LEB 147
+    PrintingRecord::reprint(&alpha::FIREBALL),       // LEB 150
+    PrintingRecord::reprint(&alpha::FORK),           // LEB 153
+    PrintingRecord::reprint(&alpha::GOBLIN_BALLOON_BRIGADE), // LEB 154
+    PrintingRecord::reprint(&alpha::GOBLIN_KING),    // LEB 155
+    PrintingRecord::reprint(&alpha::GRANITE_GARGOYLE), // LEB 156
+    PrintingRecord::reprint(&alpha::IRONCLAW_ORCS),  // LEB 160
+    PrintingRecord::reprint(&alpha::LIGHTNING_BOLT), // LEB 162
+    PrintingRecord::reprint(&alpha::RED_ELEMENTAL_BLAST), // LEB 170
+    PrintingRecord::reprint(&alpha::SEDGE_TROLL),    // LEB 173
+    PrintingRecord::reprint(&alpha::SHATTER),        // LEB 174
+    PrintingRecord::reprint(&alpha::SMOKE),          // LEB 176
+    PrintingRecord::reprint(&alpha::STONE_GIANT),    // LEB 177
+    PrintingRecord::reprint(&alpha::STONE_RAIN),     // LEB 178
+    PrintingRecord::reprint(&alpha::WHEEL_OF_FORTUNE), // LEB 184
+    PrintingRecord::reprint(&alpha::BERSERK),        // LEB 186
+    PrintingRecord::reprint(&alpha::BIRDS_OF_PARADISE), // LEB 187
+    PrintingRecord::reprint(&alpha::CHANNEL),        // LEB 189
+    PrintingRecord::reprint(&alpha::GIANT_GROWTH),   // LEB 198
+    PrintingRecord::reprint(&alpha::LLANOWAR_ELVES), // LEB 211
+    PrintingRecord::reprint(&alpha::REGROWTH),       // LEB 215
+    PrintingRecord::reprint(&alpha::SCRYB_SPRITES),  // LEB 216
+    PrintingRecord::reprint(&alpha::ANKH_OF_MISHRA), // LEB 231
+    PrintingRecord::reprint(&alpha::BLACK_LOTUS),    // LEB 233
+    PrintingRecord::reprint(&alpha::BLACK_VISE),     // LEB 234
+    PrintingRecord::reprint(&alpha::CHAOS_ORB),      // LEB 236
+    PrintingRecord::reprint(&alpha::COPPER_TABLET),  // LEB 239
+    PrintingRecord::reprint(&alpha::GLASSES_OF_URZA), // LEB 246
+    PrintingRecord::reprint(&alpha::ICY_MANIPULATOR), // LEB 249
+    PrintingRecord::reprint(&alpha::IRON_STAR),      // LEB 251
+    PrintingRecord::reprint(&alpha::JAYEMDAE_TOME),  // LEB 255
+    PrintingRecord::reprint(&alpha::JUGGERNAUT),     // LEB 256
+    PrintingRecord::reprint(&alpha::MANA_VAULT),     // LEB 260
+    PrintingRecord::reprint(&alpha::MOX_EMERALD),    // LEB 262
+    PrintingRecord::reprint(&alpha::MOX_JET),        // LEB 263
+    PrintingRecord::reprint(&alpha::MOX_PEARL),      // LEB 264
+    PrintingRecord::reprint(&alpha::MOX_RUBY),       // LEB 265
+    PrintingRecord::reprint(&alpha::MOX_SAPPHIRE),   // LEB 266
+    PrintingRecord::reprint(&alpha::NEVINYRRALS_DISK), // LEB 267
+    PrintingRecord::reprint(&alpha::SOL_RING),       // LEB 270
+    PrintingRecord::reprint(&alpha::TIME_VAULT),     // LEB 275
+    PrintingRecord::reprint(&alpha::WINTER_ORB),     // LEB 276
+    PrintingRecord::reprint(&alpha::BADLANDS),       // LEB 278
+    PrintingRecord::reprint(&alpha::BAYOU),          // LEB 279
+    PrintingRecord::reprint(&alpha::PLATEAU),        // LEB 280
+    PrintingRecord::reprint(&alpha::SAVANNAH),       // LEB 281
+    PrintingRecord::reprint(&alpha::SCRUBLAND),      // LEB 282
+    PrintingRecord::reprint(&alpha::TAIGA),          // LEB 283
+    PrintingRecord::reprint(&alpha::TROPICAL_ISLAND), // LEB 284
+    PrintingRecord::reprint(&alpha::TUNDRA),         // LEB 285
+    PrintingRecord::reprint(&alpha::UNDERGROUND_SEA), // LEB 286
+    PrintingRecord::reprint(&alpha::PLAINS),         // LEB 288
+    PrintingRecord::alternate(&alpha::PLAINS, 1),    // LEB 289
+    PrintingRecord::alternate(&alpha::PLAINS, 2),    // LEB 290
+    PrintingRecord::reprint(&alpha::ISLAND),         // LEB 291
+    PrintingRecord::alternate(&alpha::ISLAND, 1),    // LEB 292
+    PrintingRecord::alternate(&alpha::ISLAND, 2),    // LEB 293
+    PrintingRecord::reprint(&alpha::SWAMP),          // LEB 294
+    PrintingRecord::alternate(&alpha::SWAMP, 1),     // LEB 295
+    PrintingRecord::alternate(&alpha::SWAMP, 2),     // LEB 296
+    PrintingRecord::reprint(&alpha::MOUNTAIN),       // LEB 297
+    PrintingRecord::alternate(&alpha::MOUNTAIN, 1),  // LEB 298
+    PrintingRecord::alternate(&alpha::MOUNTAIN, 2),  // LEB 299
+    PrintingRecord::reprint(&alpha::FOREST),         // LEB 300
+    PrintingRecord::alternate(&alpha::FOREST, 1),    // LEB 301
+    PrintingRecord::alternate(&alpha::FOREST, 2),    // LEB 302
 ];

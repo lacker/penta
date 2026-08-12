@@ -12,6 +12,7 @@ use crate::card::{
 use crate::ids::{CardPartId, PlayOptionId, TargetIndex};
 use crate::mana_cost;
 
+// DGM 11 — Aetherling
 pub(in crate::card::sets) static AETHERLING: CardRecord = CardRecord::new(
     cards::AETHERLING,
     "Aetherling",
@@ -77,6 +78,7 @@ pub(in crate::card::sets) static AETHERLING: CardRecord = CardRecord::new(
     ]),
 );
 
+// DGM 57 — Blood Baron of Vizkopa
 pub(in crate::card::sets) static BLOOD_BARON_OF_VIZKOPA: CardRecord = CardRecord::new(
     cards::BLOOD_BARON_OF_VIZKOPA,
     "Blood Baron of Vizkopa",
@@ -100,6 +102,7 @@ pub(in crate::card::sets) static BLOOD_BARON_OF_VIZKOPA: CardRecord = CardRecord
     ]),
 );
 
+// DGM 72 — Gaze of Granite
 pub(in crate::card::sets) static GAZE_OF_GRANITE: CardRecord = CardRecord::new(
     cards::GAZE_OF_GRANITE,
     "Gaze of Granite",
@@ -121,6 +124,7 @@ pub(in crate::card::sets) static GAZE_OF_GRANITE: CardRecord = CardRecord::new(
     )),
 );
 
+// DGM 93 — Putrefy
 pub(in crate::card::sets) static PUTREFY: CardRecord = CardRecord::new(
     cards::PUTREFY,
     "Putrefy",
@@ -136,6 +140,7 @@ pub(in crate::card::sets) static PUTREFY: CardRecord = CardRecord::new(
     )),
 );
 
+// DGM 99 — Ruric Thar, the Unbowed
 pub(in crate::card::sets) static RURIC_THAR_THE_UNBOWED: CardRecord = CardRecord::new(
     cards::RURIC_THAR_THE_UNBOWED,
     "Ruric Thar, the Unbowed",
@@ -165,6 +170,7 @@ pub(in crate::card::sets) static RURIC_THAR_THE_UNBOWED: CardRecord = CardRecord
     ]),
 );
 
+// DGM 103 — Sin Collector
 pub(in crate::card::sets) static SIN_COLLECTOR: CardRecord = CardRecord::new(
     cards::SIN_COLLECTOR,
     "Sin Collector",
@@ -188,6 +194,116 @@ pub(in crate::card::sets) static SIN_COLLECTOR: CardRecord = CardRecord::new(
             "The targeted trigger uses the shared stack and a card-local hand-reveal and exile resolver.",
         )),
     ]),
+);
+
+// DGM 111 — Unflinching Courage
+pub(in crate::card::sets) static UNFLINCHING_COURAGE: CardRecord = CardRecord::new(
+    cards::UNFLINCHING_COURAGE,
+    "Unflinching Courage",
+    CardArt::new("35952c24-d728-4ec6-b0d1-b8183a18554a", "Mike Bierek"),
+    CardSet::DragonsMaze,
+    CardRules::new_enchantment(mana_cost!("{1}{G}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+        AbilityDef::spell_with_targets("Enchant creature", &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+        )], EffectDef::Attach {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            }),
+        AbilityDef::static_ability(
+            "Enchanted creature gets +2/+2 and has trample and lifelink. (Damage dealt by the creature also causes its controller to gain that much life.)",
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::ModifyPowerToughness {
+                        power: ValueDef::Constant(2),
+                        toughness: ValueDef::Constant(2),
+                    },
+                    duration: EffectDurationDef::WhileSourceRemainsInZone,
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::GrantAbility(&abilities::trample()),
+                    duration: EffectDurationDef::WhileSourceRemainsInZone,
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::GrantAbility(&abilities::lifelink()),
+                    duration: EffectDurationDef::WhileSourceRemainsInZone,
+                },
+            ]),
+        ),
+    ]),
+);
+
+static VOICE_OF_RESURGENCE_DURING_YOUR_TURN: TriggerConditionDef =
+    TriggerConditionDef::ActivePlayer(PlayerRelation::You);
+
+static VOICE_OF_RESURGENCE_TOKEN: EffectDef = EffectDef::CreateToken {
+    token: cards::ELEMENTAL_TOKEN_GREEN_WHITE,
+    count: ValueDef::Constant(1),
+};
+
+// DGM 114 — Voice of Resurgence
+pub(in crate::card::sets) static VOICE_OF_RESURGENCE: CardRecord = CardRecord::new(
+    cards::VOICE_OF_RESURGENCE,
+    "Voice of Resurgence",
+    CardArt::new("07246783-d475-4f61-99ac-e2b574072349", "Winona Nelson"),
+    CardSet::DragonsMaze,
+    CardRules::new_creature(
+        mana_cost!("{G}{W}"),
+        &["Elemental"],
+        2,
+        2,
+    )
+    // One printed sentence, two separate triggers: the cast one only during
+    // your turn, and the death one whenever it happens.
+    .with_abilities(&[
+        AbilityDef::triggered_if(
+            "Whenever an opponent casts a spell during your turn, create a green and white Elemental creature token with \"This token's power and toughness are each equal to the number of creatures you control.\"",
+            TriggerEventDef::SpellCast(ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)),
+            &VOICE_OF_RESURGENCE_DURING_YOUR_TURN,
+            VOICE_OF_RESURGENCE_TOKEN,
+        ),
+        AbilityDef::triggered(
+            "When this creature dies, create a green and white Elemental creature token with \"This token's power and toughness are each equal to the number of creatures you control.\"",
+            TriggerEventDef::ZoneChanged {
+                object: ObjectPredicateDef::Source,
+                from: Some(ZoneKind::Battlefield),
+                to: Some(ZoneKind::Graveyard),
+            },
+            VOICE_OF_RESURGENCE_TOKEN,
+        ),
+    ]),
+);
+
+// DGM 116 — Warleader's Helix
+pub(in crate::card::sets) static WARLEADERS_HELIX: CardRecord = CardRecord::new(
+    cards::WARLEADERS_HELIX,
+    "Warleader's Helix",
+    CardArt::new("81e474ac-54f7-43f9-8af9-2f1adf258b15", "Greg Staples"),
+    CardSet::DragonsMaze,
+    CardRules::new_instant(mana_cost!("{2}{R}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Warleader's Helix deals 4 damage to any target and you gain 4 life.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::AnyTarget,
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(4),
+            },
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(4),
+            },
+        ]),
+    )),
 );
 
 /// Turn repaints its target rather than adding to it: the printed subtypes,
@@ -268,6 +384,7 @@ fn turn_burn_composition() -> CardComposition {
     .with_derived_spell_targets()
 }
 
+// DGM 134 — Turn // Burn
 pub(in crate::card::sets) static TURN_BURN: CardRecord = CardRecord::new(
     cards::TURN_BURN,
     "Turn // Burn",
@@ -277,113 +394,6 @@ pub(in crate::card::sets) static TURN_BURN: CardRecord = CardRecord::new(
 )
 .with_composition(turn_burn_composition);
 
-pub(in crate::card::sets) static UNFLINCHING_COURAGE: CardRecord = CardRecord::new(
-    cards::UNFLINCHING_COURAGE,
-    "Unflinching Courage",
-    CardArt::new("35952c24-d728-4ec6-b0d1-b8183a18554a", "Mike Bierek"),
-    CardSet::DragonsMaze,
-    CardRules::new_enchantment(mana_cost!("{1}{G}{W}"))
-        .with_subtypes(&["Aura"])
-        .with_abilities(&[
-        AbilityDef::spell_with_targets("Enchant creature", &[AbilityTargetDef::exactly_one(
-            AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::HasType(CardType::Creature),
-                zones: &[ZoneKind::Battlefield],
-                controller: None,
-                owner: None,
-            },
-        )], EffectDef::Attach {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            }),
-        AbilityDef::static_ability(
-            "Enchanted creature gets +2/+2 and has trample and lifelink. (Damage dealt by the creature also causes its controller to gain that much life.)",
-            EffectDef::Sequence(&[
-                EffectDef::Apply {
-                    recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::ModifyPowerToughness {
-                        power: ValueDef::Constant(2),
-                        toughness: ValueDef::Constant(2),
-                    },
-                    duration: EffectDurationDef::WhileSourceRemainsInZone,
-                },
-                EffectDef::Apply {
-                    recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::GrantAbility(&abilities::trample()),
-                    duration: EffectDurationDef::WhileSourceRemainsInZone,
-                },
-                EffectDef::Apply {
-                    recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::GrantAbility(&abilities::lifelink()),
-                    duration: EffectDurationDef::WhileSourceRemainsInZone,
-                },
-            ]),
-        ),
-    ]),
-);
-
-pub(in crate::card::sets) static VOICE_OF_RESURGENCE: CardRecord = CardRecord::new(
-    cards::VOICE_OF_RESURGENCE,
-    "Voice of Resurgence",
-    CardArt::new("07246783-d475-4f61-99ac-e2b574072349", "Winona Nelson"),
-    CardSet::DragonsMaze,
-    CardRules::new_creature(
-        mana_cost!("{G}{W}"),
-        &["Elemental"],
-        2,
-        2,
-    )
-    // One printed sentence, two separate triggers: the cast one only during
-    // your turn, and the death one whenever it happens.
-    .with_abilities(&[
-        AbilityDef::triggered_if(
-            "Whenever an opponent casts a spell during your turn, create a green and white Elemental creature token with \"This token's power and toughness are each equal to the number of creatures you control.\"",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)),
-            &VOICE_OF_RESURGENCE_DURING_YOUR_TURN,
-            VOICE_OF_RESURGENCE_TOKEN,
-        ),
-        AbilityDef::triggered(
-            "When this creature dies, create a green and white Elemental creature token with \"This token's power and toughness are each equal to the number of creatures you control.\"",
-            TriggerEventDef::ZoneChanged {
-                object: ObjectPredicateDef::Source,
-                from: Some(ZoneKind::Battlefield),
-                to: Some(ZoneKind::Graveyard),
-            },
-            VOICE_OF_RESURGENCE_TOKEN,
-        ),
-    ]),
-);
-
-static VOICE_OF_RESURGENCE_DURING_YOUR_TURN: TriggerConditionDef =
-    TriggerConditionDef::ActivePlayer(PlayerRelation::You);
-
-static VOICE_OF_RESURGENCE_TOKEN: EffectDef = EffectDef::CreateToken {
-    token: cards::ELEMENTAL_TOKEN_GREEN_WHITE,
-    count: ValueDef::Constant(1),
-};
-
-pub(in crate::card::sets) static WARLEADERS_HELIX: CardRecord = CardRecord::new(
-    cards::WARLEADERS_HELIX,
-    "Warleader's Helix",
-    CardArt::new("81e474ac-54f7-43f9-8af9-2f1adf258b15", "Greg Staples"),
-    CardSet::DragonsMaze,
-    CardRules::new_instant(mana_cost!("{2}{R}{W}")).with_ability(AbilityDef::spell_with_targets(
-        "Warleader's Helix deals 4 damage to any target and you gain 4 life.",
-        &[AbilityTargetDef::exactly_one(
-            AbilityTargetPredicate::AnyTarget,
-        )],
-        EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(4),
-            },
-            EffectDef::GainLife {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(4),
-            },
-        ]),
-    )),
-);
-
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AETHERLING,
     &BLOOD_BARON_OF_VIZKOPA,
@@ -391,10 +401,10 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PUTREFY,
     &RURIC_THAR_THE_UNBOWED,
     &SIN_COLLECTOR,
-    &TURN_BURN,
     &UNFLINCHING_COURAGE,
     &VOICE_OF_RESURGENCE,
     &WARLEADERS_HELIX,
+    &TURN_BURN,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

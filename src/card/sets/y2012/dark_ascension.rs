@@ -12,6 +12,74 @@ use crate::card::{
 use crate::ids::{CardPartId, PlayOptionId, TargetIndex};
 use crate::mana_cost;
 
+// DKA 17 — Ray of Revelation
+pub(in crate::card::sets) static RAY_OF_REVELATION: CardRecord = CardRecord::new(
+    cards::RAY_OF_REVELATION,
+    "Ray of Revelation",
+    CardArt::new("d7e2c5a4-cf92-46bd-9033-8036436488cb", "Cliff Childs"),
+    CardSet::DarkAscension,
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Destroy target enchantment.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Enchantment),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                can_regenerate: true,
+            },
+        ),
+        abilities::flashback(mana_cost!("{G}")),
+    ]),
+);
+
+/// Morbid replaces the amount rather than adding a second effect, so both
+/// printed clauses come down to which number this picks.
+const TRAGIC_SLIP_AMOUNT: ValueDef = ValueDef::IfCreatureDiedThisTurn(&ConditionalValueDef {
+    then: ValueDef::Constant(-13),
+    otherwise: ValueDef::Constant(-1),
+});
+
+// DKA 76 — Tragic Slip
+pub(in crate::card::sets) static TRAGIC_SLIP: CardRecord = CardRecord::new(
+    cards::TRAGIC_SLIP,
+    "Tragic Slip",
+    CardArt::new("09666671-601e-4fca-bdfb-fb288bf2672c", "Christopher Moeller"),
+    CardSet::DarkAscension,
+    CardRules::new_instant(mana_cost!("{B}")).with_abilities(&[
+        AbilityDef::spell_with_targets("Target creature gets -1/-1 until end of turn.", &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+        )], EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::ModifyPowerToughness {
+                    power: TRAGIC_SLIP_AMOUNT,
+                    toughness: TRAGIC_SLIP_AMOUNT,
+                },
+                duration: EffectDurationDef::UntilEndOfTurn,
+            }),
+        AbilityDef::static_ability(
+            "Morbid — That creature gets -13/-13 until end of turn instead if a creature died this turn.",
+            // The conditional value on the spell clause above already
+            // carries this modifier; this clause has no second effect to run.
+            EffectDef::None,
+        )
+        .with_coverage(AbilityCoverageDef::explained_complete(
+            "The morbid amount is chosen by the value on the preceding clause.",
+        )),
+    ]),
+);
+
+// DKA 93 — Hellrider
 pub(in crate::card::sets) static HELLRIDER: CardRecord = CardRecord::new(
     cards::HELLRIDER,
     "Hellrider",
@@ -39,6 +107,16 @@ pub(in crate::card::sets) static HELLRIDER: CardRecord = CardRecord::new(
             },
         ),
     ]),
+);
+
+// DKA 127 — Strangleroot Geist
+pub(in crate::card::sets) static STRANGLEROOT_GEIST: CardRecord = CardRecord::new(
+    cards::STRANGLEROOT_GEIST,
+    "Strangleroot Geist",
+    CardArt::new("bf1fb137-205c-480f-b6dc-dfa137793ae3", "Jason Chan"),
+    CardSet::DarkAscension,
+    CardRules::new_creature(mana_cost!("{G}{G}"), &["Spirit"], 2, 1)
+        .with_abilities(&[abilities::haste(), abilities::undying()]),
 );
 
 const fn huntmaster_front_rules() -> CardRules {
@@ -180,6 +258,7 @@ fn huntmaster_composition() -> CardComposition {
     }
 }
 
+// DKA 140 — Huntmaster of the Fells
 pub(in crate::card::sets) static HUNTMASTER_OF_THE_FELLS: CardRecord = CardRecord::new(
     cards::HUNTMASTER_OF_THE_FELLS,
     "Huntmaster of the Fells",
@@ -189,80 +268,7 @@ pub(in crate::card::sets) static HUNTMASTER_OF_THE_FELLS: CardRecord = CardRecor
 )
 .with_composition(huntmaster_composition);
 
-pub(in crate::card::sets) static RAY_OF_REVELATION: CardRecord = CardRecord::new(
-    cards::RAY_OF_REVELATION,
-    "Ray of Revelation",
-    CardArt::new("d7e2c5a4-cf92-46bd-9033-8036436488cb", "Cliff Childs"),
-    CardSet::DarkAscension,
-    CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[
-        AbilityDef::spell_with_targets(
-            "Destroy target enchantment.",
-            &[AbilityTargetDef::exactly_one(
-                AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::HasType(CardType::Enchantment),
-                    zones: &[ZoneKind::Battlefield],
-                    controller: None,
-                    owner: None,
-                },
-            )],
-            EffectDef::Destroy {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
-            },
-        ),
-        abilities::flashback(mana_cost!("{G}")),
-    ]),
-);
-
-pub(in crate::card::sets) static STRANGLEROOT_GEIST: CardRecord = CardRecord::new(
-    cards::STRANGLEROOT_GEIST,
-    "Strangleroot Geist",
-    CardArt::new("bf1fb137-205c-480f-b6dc-dfa137793ae3", "Jason Chan"),
-    CardSet::DarkAscension,
-    CardRules::new_creature(mana_cost!("{G}{G}"), &["Spirit"], 2, 1)
-        .with_abilities(&[abilities::haste(), abilities::undying()]),
-);
-
-/// Morbid replaces the amount rather than adding a second effect, so both
-/// printed clauses come down to which number this picks.
-const TRAGIC_SLIP_AMOUNT: ValueDef = ValueDef::IfCreatureDiedThisTurn(&ConditionalValueDef {
-    then: ValueDef::Constant(-13),
-    otherwise: ValueDef::Constant(-1),
-});
-
-pub(in crate::card::sets) static TRAGIC_SLIP: CardRecord = CardRecord::new(
-    cards::TRAGIC_SLIP,
-    "Tragic Slip",
-    CardArt::new("09666671-601e-4fca-bdfb-fb288bf2672c", "Christopher Moeller"),
-    CardSet::DarkAscension,
-    CardRules::new_instant(mana_cost!("{B}")).with_abilities(&[
-        AbilityDef::spell_with_targets("Target creature gets -1/-1 until end of turn.", &[AbilityTargetDef::exactly_one(
-            AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::HasType(CardType::Creature),
-                zones: &[ZoneKind::Battlefield],
-                controller: None,
-                owner: None,
-            },
-        )], EffectDef::Apply {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::ModifyPowerToughness {
-                    power: TRAGIC_SLIP_AMOUNT,
-                    toughness: TRAGIC_SLIP_AMOUNT,
-                },
-                duration: EffectDurationDef::UntilEndOfTurn,
-            }),
-        AbilityDef::static_ability(
-            "Morbid — That creature gets -13/-13 until end of turn instead if a creature died this turn.",
-            // The conditional value on the spell clause above already
-            // carries this modifier; this clause has no second effect to run.
-            EffectDef::None,
-        )
-        .with_coverage(AbilityCoverageDef::explained_complete(
-            "The morbid amount is chosen by the value on the preceding clause.",
-        )),
-    ]),
-);
-
+// DKA 158 — Vault of the Archangel
 pub(in crate::card::sets) static VAULT_OF_THE_ARCHANGEL: CardRecord = CardRecord::new(
     cards::VAULT_OF_THE_ARCHANGEL,
     "Vault of the Archangel",
@@ -306,11 +312,11 @@ pub(in crate::card::sets) static VAULT_OF_THE_ARCHANGEL: CardRecord = CardRecord
     ]),
 );
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &HELLRIDER,
-    &HUNTMASTER_OF_THE_FELLS,
     &RAY_OF_REVELATION,
-    &STRANGLEROOT_GEIST,
     &TRAGIC_SLIP,
+    &HELLRIDER,
+    &STRANGLEROOT_GEIST,
+    &HUNTMASTER_OF_THE_FELLS,
     &VAULT_OF_THE_ARCHANGEL,
 ];
 

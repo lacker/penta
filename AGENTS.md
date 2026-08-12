@@ -45,6 +45,29 @@ gates. When a task benefits from a different boundary, keep the supported
 behavior correct, the coverage honest, the exception contained, and the
 tradeoff explicit.
 
+## Card-set source organization
+
+In each printed set module under `src/card/sets/y<year>/`, keep canonical
+`CardRecord` declarations in natural collector-number order and keep `CARDS`
+in exactly the same order. Keep `ADDITIONAL_PRINTINGS` in natural order by the
+collector number of each printing in that module's set, including in
+reprint-only modules whose `CARDS` registry is empty. Compare numeric portions
+numerically (`8`, `8a`, `8b`, `16`), not lexicographically.
+
+Immediately before every declaration, use an ordinary one-line comment in the
+exact form `// LEA 230 — Ankh of Mishra`: uppercase set code, collector number
+verbatim, an em dash, and the canonical `CardRecord` name. Put every nonempty
+`ADDITIONAL_PRINTINGS` entry on its own line and end it with a comment in the
+exact form `// LEB 233`: the target printing's uppercase set code and collector
+number, with no card name. Empty additional-printing registries need no
+comments.
+
+The comment identifies the canonical printing in that module's set, even when
+the chosen presentation art intentionally comes from another printing. Move
+card-local helpers with the definition they support. This convention does not
+apply to `src/card/sets/tokens.rs`, whose synthetic objects have no single
+printed set or collector number.
+
 ## Performance awareness
 
 Follow the [performance guide](docs/performance.md). Treat performance as

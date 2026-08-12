@@ -3,6 +3,7 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{CardArt, CardRules, CardSet, CardType, CreatureStats, ManaColor, cards};
 
+// FUT 174 — Dryad Arbor
 pub(in crate::card::sets) static DRYAD_ARBOR: CardRecord = CardRecord::new(
     cards::DRYAD_ARBOR,
     "Dryad Arbor",

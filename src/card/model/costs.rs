@@ -236,6 +236,11 @@ impl AddManaEffectDef {
     }
 
     #[must_use]
+    pub const fn any_color() -> Self {
+        Self::choice(&ManaColor::COLORS)
+    }
+
+    #[must_use]
     pub const fn with_amount(mut self, amount: u16) -> Self {
         self.amount = amount;
         self

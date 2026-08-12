@@ -1007,13 +1007,7 @@ pub(in crate::card::sets) static BIRDS_OF_PARADISE: CardRecord = CardRecord::new
         AbilityDef::activated_mana(
             "{T}: Add one mana of any color.",
             &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::choice(&[
-                ManaColor::White,
-                ManaColor::Blue,
-                ManaColor::Black,
-                ManaColor::Red,
-                ManaColor::Green,
-            ])),
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
         ),
     ]),
 );
@@ -1132,16 +1126,7 @@ pub(in crate::card::sets) static BLACK_LOTUS: CardRecord = CardRecord::new(
     CardRules::new_artifact(mana_cost!("{0}")).with_abilities(&[AbilityDef::activated_mana(
         "{T}, Sacrifice this artifact: Add three mana of any one color.",
         &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
-        EffectDef::AddMana(
-            AddManaEffectDef::choice(&[
-                ManaColor::White,
-                ManaColor::Blue,
-                ManaColor::Black,
-                ManaColor::Red,
-                ManaColor::Green,
-            ])
-            .with_amount(3),
-        ),
+        EffectDef::AddMana(AddManaEffectDef::any_color().with_amount(3)),
     )]),
 );
 

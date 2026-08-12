@@ -4,8 +4,8 @@ use super::{
     CardDefinition, CardEffectStatus, CardPart, CardPrinting, CardPrintingId, CardRules, CardSet,
     CardType, CardTypeSet, CreatureStats, DeclarativeAbilityDef, EffectDef, EffectRecipientDef,
     ImplementationStatus, ManaColor, ManaCost, ManaCostParseErrorKind, ManaRestrictionDef,
-    ObjectPredicateDef, PlayOptionDef, PlayerRelation, PrintedManaCost, SpellForm, TargetPredicate,
-    TriggerEventDef, ZoneKind,
+    ManaSelectionDef, ObjectPredicateDef, PlayOptionDef, PlayerRelation, PrintedManaCost,
+    SpellForm, TargetPredicate, TriggerEventDef, ZoneKind,
 };
 use crate::{
     AbilityId, AlternativeCostId, CardDefinitionId, CardPartId, ModeId, PlayOptionId, TargetIndex,
@@ -634,4 +634,14 @@ fn mana_effects_keep_restrictions_attached_to_each_counted_unit() {
 
     assert_eq!(workshop_mana.amount, 3);
     assert_eq!(workshop_mana.restrictions, RESTRICTIONS);
+}
+
+#[test]
+fn any_color_mana_effect_chooses_from_the_five_colors() {
+    let mana = AddManaEffectDef::any_color();
+
+    assert_eq!(mana.mana, ManaSelectionDef::Choice(&ManaColor::COLORS));
+    assert_eq!(mana.amount, 1);
+    assert!(mana.restrictions.is_empty());
+    assert!(mana.spend_effects.is_empty());
 }

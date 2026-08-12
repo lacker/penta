@@ -250,13 +250,7 @@ pub(in crate::card::sets) static CAVERN_OF_SOULS: CardRecord = CardRecord::new(
             "{T}: Add one mana of any color. Spend this mana only to cast a creature spell of the chosen type, and that spell can't be countered.",
             &[AbilityCostDef::TapSource],
             EffectDef::AddMana(
-                AddManaEffectDef::choice(&[
-                    ManaColor::White,
-                    ManaColor::Blue,
-                    ManaColor::Black,
-                    ManaColor::Red,
-                    ManaColor::Green,
-                ])
+                AddManaEffectDef::any_color()
                 .with_restrictions(&CAVERN_COLORED_MANA_RESTRICTIONS)
                 .with_spend_effects(&CAVERN_COLORED_MANA_SPEND_EFFECTS),
             ),

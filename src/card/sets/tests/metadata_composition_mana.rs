@@ -164,13 +164,7 @@ fn cavern_records_both_mana_abilities_and_the_colored_mana_riders() {
     assert!(matches!(
         abilities[2].effect.definition,
         EffectDef::AddMana(mana)
-            if mana.mana == ManaSelectionDef::Choice(&[
-                ManaColor::White,
-                ManaColor::Blue,
-                ManaColor::Black,
-                ManaColor::Red,
-                ManaColor::Green,
-            ])
+            if mana.mana == ManaSelectionDef::Choice(&ManaColor::COLORS)
                 && mana.amount == 1
                 && mana.restrictions
                     == [ManaRestrictionDef::CastCreatureSpellOfChosenType]

@@ -169,13 +169,7 @@ pub(in crate::card::sets) static CITY_OF_BRASS: CardRecord = CardRecord::new(
         AbilityDef::activated_mana(
             "{T}: Add one mana of any color.",
             &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::choice(&[
-                ManaColor::White,
-                ManaColor::Blue,
-                ManaColor::Black,
-                ManaColor::Red,
-                ManaColor::Green,
-            ])),
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
         ),
     ]),
 );

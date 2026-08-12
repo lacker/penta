@@ -3,7 +3,7 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AddManaEffectDef, CardArt, CardRules, CardSet, EffectDef,
-    ManaColor, abilities, cards,
+    abilities, cards,
 };
 use crate::mana_cost;
 
@@ -18,13 +18,7 @@ pub(in crate::card::sets) static DARKSTEEL_INGOT: CardRecord = CardRecord::new(
         AbilityDef::activated_mana(
             "{T}: Add one mana of any color.",
             &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::choice(&[
-                ManaColor::White,
-                ManaColor::Blue,
-                ManaColor::Black,
-                ManaColor::Red,
-                ManaColor::Green,
-            ])),
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
         ),
     ]),
 );

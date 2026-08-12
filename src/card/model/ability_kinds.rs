@@ -170,9 +170,11 @@ pub enum QuantifierDef {
 /// How a counted amount is compared against a printed number.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum ComparisonDef {
-    AtLeast,
-    AtMost,
-    Exactly,
+    Less,
+    LessOrEqual,
+    Equal,
+    GreaterOrEqual,
+    Greater,
 }
 
 /// An intervening-if condition, the "if ..." clause a trigger reads before it

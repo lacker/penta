@@ -533,7 +533,7 @@ static DRAGON_WHELP_PUMP: [EffectDef; 2] = [
     },
     EffectDef::IfCondition {
         condition: &TriggerConditionDef::SourceActivationsThisTurn {
-            comparison: ComparisonDef::AtLeast,
+            comparison: ComparisonDef::GreaterOrEqual,
             amount: 4,
         },
         then: &EffectDef::AtNextStep {

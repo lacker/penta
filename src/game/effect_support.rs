@@ -837,8 +837,31 @@ impl Game {
 /// One comparison, so a condition reads the same however it is counted.
 pub(super) fn compare<T: Ord>(left: &T, comparison: ComparisonDef, right: &T) -> bool {
     match comparison {
-        ComparisonDef::AtLeast => left >= right,
-        ComparisonDef::AtMost => left <= right,
-        ComparisonDef::Exactly => left == right,
+        ComparisonDef::Less => left < right,
+        ComparisonDef::LessOrEqual => left <= right,
+        ComparisonDef::Equal => left == right,
+        ComparisonDef::GreaterOrEqual => left >= right,
+        ComparisonDef::Greater => left > right,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::compare;
+    use crate::ComparisonDef;
+
+    #[test]
+    fn comparisons_follow_their_ordering_semantics() {
+        assert!(compare(&1, ComparisonDef::Less, &2));
+        assert!(compare(&2, ComparisonDef::LessOrEqual, &2));
+        assert!(compare(&2, ComparisonDef::Equal, &2));
+        assert!(compare(&2, ComparisonDef::GreaterOrEqual, &2));
+        assert!(compare(&3, ComparisonDef::Greater, &2));
+
+        assert!(!compare(&2, ComparisonDef::Less, &2));
+        assert!(!compare(&3, ComparisonDef::LessOrEqual, &2));
+        assert!(!compare(&3, ComparisonDef::Equal, &2));
+        assert!(!compare(&1, ComparisonDef::GreaterOrEqual, &2));
+        assert!(!compare(&2, ComparisonDef::Greater, &2));
     }
 }

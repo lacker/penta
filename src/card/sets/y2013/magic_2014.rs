@@ -138,7 +138,7 @@ static SHADOWBORN_DEMON_UPKEEP_CONDITION: TriggerConditionDef = TriggerCondition
         zones: &[ZoneKind::Graveyard],
         controller: PlayerRelation::You,
     },
-    comparison: ComparisonDef::AtMost,
+    comparison: ComparisonDef::LessOrEqual,
     amount: 5,
 };
 

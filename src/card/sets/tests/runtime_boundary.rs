@@ -30,7 +30,7 @@ fn triggered_mana_conditions_stay_outside_the_shared_runtime_boundary() {
             zones: &[ZoneKind::Battlefield],
             controller: PlayerRelation::You,
         },
-        comparison: ComparisonDef::AtLeast,
+        comparison: ComparisonDef::GreaterOrEqual,
         amount: 1,
     };
     let ordinary = AbilityDef::triggered_mana(

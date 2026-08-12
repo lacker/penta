@@ -169,7 +169,7 @@ static HUNTMASTER_WOLF_AND_LIFE: EffectDef = EffectDef::Sequence(&[
 static NO_SPELLS_LAST_TURN: TriggerConditionDef = TriggerConditionDef::SpellsCastLastTurn {
     quantifier: QuantifierDef::Every,
     player: PlayerRelation::Any,
-    comparison: ComparisonDef::AtMost,
+    comparison: ComparisonDef::LessOrEqual,
     amount: 0,
 };
 
@@ -178,7 +178,7 @@ static NO_SPELLS_LAST_TURN: TriggerConditionDef = TriggerConditionDef::SpellsCas
 static TWO_SPELLS_LAST_TURN: TriggerConditionDef = TriggerConditionDef::SpellsCastLastTurn {
     quantifier: QuantifierDef::Any,
     player: PlayerRelation::Any,
-    comparison: ComparisonDef::AtLeast,
+    comparison: ComparisonDef::GreaterOrEqual,
     amount: 2,
 };
 

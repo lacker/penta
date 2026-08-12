@@ -20,6 +20,11 @@ snapshots.
 
 ### Changed
 
+- `ComparisonDef` now names the five ordering relations directly: `Less`,
+  `LessOrEqual`, `Equal`, `GreaterOrEqual`, and `Greater`. Rust card definitions
+  should migrate `AtMost` to `LessOrEqual`, `Exactly` to `Equal`, and `AtLeast`
+  to `GreaterOrEqual`. This definition-only API change does not alter protocol
+  JSON or rules behavior.
 - Indestructible now stops destroy effects, including those that disallow
   regeneration, and destruction from lethal or deathtouch damage. Sacrifice,
   zero toughness, the legend rule, and other non-destroy graveyard moves remain

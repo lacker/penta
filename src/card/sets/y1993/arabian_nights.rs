@@ -121,7 +121,7 @@ static BOTTLED_PERMANENTS_EXIST: TriggerConditionDef = TriggerConditionDef::Obje
         zones: &[ZoneKind::Battlefield],
         controller: PlayerRelation::Any,
     },
-    comparison: ComparisonDef::AtLeast,
+    comparison: ComparisonDef::GreaterOrEqual,
     amount: 1,
 };
 

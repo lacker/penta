@@ -99,7 +99,7 @@ static GOBLINS_OF_THE_FLARG_DWARF_CONDITION: TriggerConditionDef =
             zones: &[ZoneKind::Battlefield],
             controller: PlayerRelation::You,
         },
-        comparison: ComparisonDef::AtLeast,
+        comparison: ComparisonDef::GreaterOrEqual,
         amount: 1,
     };
 

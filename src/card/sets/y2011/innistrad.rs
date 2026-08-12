@@ -332,7 +332,7 @@ const fn garruk_front_rules() -> CardRules {
 /// Two or fewer is at most two, checked as a state trigger so it turns the
 /// moment the damage lands rather than waiting for anything.
 static GARRUK_LOW_LOYALTY: TriggerConditionDef = TriggerConditionDef::SourceLoyalty {
-    comparison: ComparisonDef::AtMost,
+    comparison: ComparisonDef::LessOrEqual,
     amount: 2,
 };
 

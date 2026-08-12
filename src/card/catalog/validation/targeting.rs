@@ -22,7 +22,7 @@ pub(in crate::card::catalog) fn validate_ability_targets(
             });
         }
     }
-    validate_effect_target_references(effect, targets.len())
+    validate_effect_references(effect, targets.len(), 0)
 }
 
 fn validate_target_index(
@@ -42,6 +42,7 @@ fn validate_target_index(
 fn validate_recipient_target_references(
     recipient: EffectRecipientDef,
     target_count: usize,
+    choices_in_scope: u8,
 ) -> Result<(), GrantedAbilityValidationError> {
     match recipient {
         EffectRecipientDef::ObjectsSharingNameWithTarget(target)
@@ -53,6 +54,13 @@ fn validate_recipient_target_references(
         | EffectRecipientDef::ObjectsOwnedByTarget { slot, .. }
         | EffectRecipientDef::CardsOwnedByTarget { slot, .. } => {
             validate_target_index(slot, target_count)
+        }
+        EffectRecipientDef::ChosenPermanent(choice) => {
+            if choices_in_scope & (1 << choice.index()) != 0 {
+                Ok(())
+            } else {
+                Err(GrantedAbilityValidationError::ChoiceReferenceOutOfScope { choice })
+            }
         }
         EffectRecipientDef::Source
         | EffectRecipientDef::AttachedPermanent
@@ -123,6 +131,8 @@ fn validate_applied_effect_target_references(
         | AppliedEffectDef::CannotBeCountered
         | AppliedEffectDef::DoesNotUntapDuringUntapStep
         | AppliedEffectDef::CannotBeEnchanted
+        | AppliedEffectDef::CannotBecomeEnchanted
+        | AppliedEffectDef::CannotChangeController
         | AppliedEffectDef::CannotBeBlockedBy(_)
         | AppliedEffectDef::PreventDamageFrom(_)
         | AppliedEffectDef::AddLandTypes(_)
@@ -134,16 +144,38 @@ fn validate_applied_effect_target_references(
 }
 
 #[allow(clippy::too_many_lines)]
-fn validate_effect_target_references(
+fn validate_effect_references(
     effect: EffectDef,
     target_count: usize,
+    choices_in_scope: u8,
 ) -> Result<(), GrantedAbilityValidationError> {
     match effect {
         EffectDef::Sequence(effects) => {
             for effect in effects {
-                validate_effect_target_references(*effect, target_count)?;
+                validate_effect_references(*effect, target_count, choices_in_scope)?;
             }
             Ok(())
+        }
+        EffectDef::Randomized {
+            on_success,
+            on_failure,
+            ..
+        } => {
+            validate_effect_references(*on_success, target_count, choices_in_scope)?;
+            validate_effect_references(*on_failure, target_count, choices_in_scope)
+        }
+        EffectDef::ChoosePermanent {
+            choice,
+            chooser,
+            then,
+            ..
+        } => {
+            validate_recipient_target_references(chooser, target_count, choices_in_scope)?;
+            let bit = 1 << choice.index();
+            if choices_in_scope & bit != 0 {
+                return Err(GrantedAbilityValidationError::ChoiceBindingAlreadyInScope { choice });
+            }
+            validate_effect_references(*then, target_count, choices_in_scope | bit)
         }
         EffectDef::DealDamage { recipient, amount }
         | EffectDef::DrainLife { recipient, amount }
@@ -153,7 +185,7 @@ fn validate_effect_target_references(
             recipient, amount, ..
         }
         | EffectDef::LoseLife { recipient, amount } => {
-            validate_recipient_target_references(recipient, target_count)?;
+            validate_recipient_target_references(recipient, target_count, choices_in_scope)?;
             validate_value_target_references(amount, target_count)
         }
         EffectDef::LoseTheGame { player: object }
@@ -176,7 +208,7 @@ fn validate_effect_target_references(
         | EffectDef::Counter { object, .. }
         | EffectDef::ChooseCardName { object }
         | EffectDef::ChooseCreatureType { object } => {
-            validate_recipient_target_references(object, target_count)
+            validate_recipient_target_references(object, target_count, choices_in_scope)
         }
         // A reveal always comes off the resolving object's controller's own
         // library, so its count is the only part that could name a target.
@@ -186,9 +218,9 @@ fn validate_effect_target_references(
             validate_value_target_references(count, target_count)
         }
         EffectDef::SacrificeOfChoice { player, then, .. } => {
-            validate_recipient_target_references(player, target_count)?;
+            validate_recipient_target_references(player, target_count, choices_in_scope)?;
             if let Some(effect) = then {
-                validate_effect_target_references(*effect, target_count)?;
+                validate_effect_references(*effect, target_count, choices_in_scope)?;
             }
             Ok(())
         }
@@ -198,23 +230,23 @@ fn validate_effect_target_references(
         | EffectDef::SearchLibrary { player, .. }
         | EffectDef::LookAtHand { player }
         | EffectDef::LookAtTopAndMayTake { player, .. } => {
-            validate_recipient_target_references(player, target_count)
+            validate_recipient_target_references(player, target_count, choices_in_scope)
         }
         EffectDef::LookAtTopAndSelect { player, selection } => {
-            validate_recipient_target_references(player, target_count)?;
+            validate_recipient_target_references(player, target_count, choices_in_scope)?;
             validate_value_target_references(selection.count, target_count)?;
             if let Some(effect) = selection.then {
-                validate_effect_target_references(*effect, target_count)?;
+                validate_effect_references(*effect, target_count, choices_in_scope)?;
             }
             Ok(())
         }
         EffectDef::Mill { player, amount } => {
-            validate_recipient_target_references(player, target_count)?;
+            validate_recipient_target_references(player, target_count, choices_in_scope)?;
             validate_value_target_references(amount, target_count)
         }
         EffectDef::CounterUnlessPaid { object, amount, .. }
         | EffectDef::AddCounters { object, amount, .. } => {
-            validate_recipient_target_references(object, target_count)?;
+            validate_recipient_target_references(object, target_count, choices_in_scope)?;
             validate_value_target_references(amount, target_count)
         }
         EffectDef::OptionalPayment {
@@ -226,12 +258,12 @@ fn validate_effect_target_references(
         | EffectDef::May(effect)
         | EffectDef::IfCondition { then: effect, .. }
         | EffectDef::AtNextStep { effect, .. } => {
-            validate_effect_target_references(*effect, target_count)
+            validate_effect_references(*effect, target_count, choices_in_scope)
         }
         EffectDef::Apply {
             recipient, effect, ..
         } => {
-            validate_recipient_target_references(recipient, target_count)?;
+            validate_recipient_target_references(recipient, target_count, choices_in_scope)?;
             validate_applied_effect_target_references(effect, target_count)
         }
         // An installed ability chooses its own targets when it triggers, so

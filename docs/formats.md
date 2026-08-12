@@ -126,11 +126,23 @@ list][atog-list], the [TC Decks Artifact Aggro aggregate][robots-data], and the
 [TC Decks The Deck aggregate][the-deck-data]. The corpus follows cards used by
 real archetypes rather than every card technically legal in the format.
 
-Chaos Orb normally requires physical dexterity. The headless engine instead
-models a deterministic successful flip against the selected permanent. Its
-activation uses the stack; removing the source before resolution leaves the
-ability object in place but causes the card-specific source-presence check to
-nullify the flip.
+Chaos Orb uses Eternal Central's format-specific wording: its controller
+chooses one nontoken permanent during resolution, rather than targeting one
+during activation. Hexproof, shroud, protection, and target-fizzle rules
+therefore do not constrain the choice. The headless engine replaces the
+physical flip with one replay-stable seeded trial whose success likelihood is
+`0.9`. Removing
+the original Orb before resolution leaves the independent ability object on
+the stack but prevents the trial; either random branch still attempts to
+destroy the Orb when the original remains.
+
+Guardian Beast is also executable in the Old School pool. While it is
+untapped, it dynamically protects its controller's noncreature artifacts: they
+cannot become enchanted, they have indestructible, and opponents cannot gain
+control of them. Existing Auras stay attached. This includes the expected
+Chaos Orb interaction: Guardian Beast can prevent the Orb's final destruction,
+but destroying the Beast with a successful flip removes that protection before
+the Orb's next instruction.
 
 ### ISD–RTR Standard
 

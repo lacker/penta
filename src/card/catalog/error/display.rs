@@ -208,6 +208,24 @@ impl fmt::Display for CatalogError {
                 formatter,
                 "ability {ability:?} on part {part:?} of card definition {definition:?} references target {target:?}, but defines only {target_count} target slots"
             ),
+            Self::AbilityChoiceReferenceOutOfScope {
+                definition,
+                part,
+                ability,
+                choice,
+            } => write!(
+                formatter,
+                "ability {ability:?} on part {part:?} of card definition {definition:?} references choice {choice:?} outside its binding scope"
+            ),
+            Self::AbilityChoiceBindingAlreadyInScope {
+                definition,
+                part,
+                ability,
+                choice,
+            } => write!(
+                formatter,
+                "ability {ability:?} on part {part:?} of card definition {definition:?} binds choice {choice:?} more than once in the same scope"
+            ),
             Self::DuplicateStructurePart { definition, part } => write!(
                 formatter,
                 "card definition {definition:?}'s structure references part {part:?} more than once"

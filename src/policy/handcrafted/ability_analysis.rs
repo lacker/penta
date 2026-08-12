@@ -267,6 +267,12 @@ impl HandcraftedPolicy {
     pub(super) fn effect_is_a_wash(effect: EffectDef) -> bool {
         match effect {
             EffectDef::Sequence(effects) => effects.iter().copied().any(Self::effect_is_a_wash),
+            EffectDef::Randomized {
+                on_success,
+                on_failure,
+                ..
+            } => Self::effect_is_a_wash(*on_success) || Self::effect_is_a_wash(*on_failure),
+            EffectDef::ChoosePermanent { then, .. } => Self::effect_is_a_wash(*then),
             EffectDef::ExileLinkedToSource {
                 object: EffectRecipientDef::Source,
             } => true,
@@ -362,10 +368,17 @@ impl HandcraftedPolicy {
             EffectDef::Sequence(effects) => {
                 effects.iter().copied().find_map(Self::target_condition_in)
             }
+            EffectDef::Randomized {
+                on_success,
+                on_failure,
+                ..
+            } => Self::target_condition_in(*on_success)
+                .or_else(|| Self::target_condition_in(*on_failure)),
             EffectDef::OptionalPayment {
                 if_paid: effect, ..
             }
             | EffectDef::May(effect)
+            | EffectDef::ChoosePermanent { then: effect, .. }
             | EffectDef::IfCondition { then: effect, .. }
             | EffectDef::AtNextStep { effect, .. } => Self::target_condition_in(*effect),
             EffectDef::AddCounters { amount, .. } | EffectDef::GainLife { amount, .. } => {

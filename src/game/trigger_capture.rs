@@ -246,6 +246,8 @@ impl Game {
                 }
             }
             EffectDef::None
+            | EffectDef::Randomized { .. }
+            | EffectDef::ChoosePermanent { .. }
             | EffectDef::AddMana(AddManaEffectDef {
                 mana: ManaSelectionDef::Choice(_),
                 ..
@@ -655,6 +657,7 @@ impl Game {
         match predicate {
             ObjectPredicateDef::Any => true,
             ObjectPredicateDef::Source => object.id == source,
+            ObjectPredicateDef::Token => object.token,
             ObjectPredicateDef::HasType(card_type) => object.types.contains(card_type),
             ObjectPredicateDef::HasAnyBasicLandType(land_types) => {
                 object.types.contains(CardType::Land)

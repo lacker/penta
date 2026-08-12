@@ -148,7 +148,6 @@ impl Game {
 
         let behavior = self.effective_behavior(permanent)?;
         let cost = match behavior {
-            CardBehavior::ChaosOrb => ManaCost::new(1, 0),
             CardBehavior::SedgeTroll => ManaCost::colored(0, 0, 0, 1, 0, 0),
             _ => return None,
         };
@@ -174,6 +173,17 @@ impl Game {
             Some(EffectDef::Sequence(effects)) => effects
                 .iter()
                 .any(|effect| Self::effect_animates_source(Some(*effect))),
+            Some(EffectDef::Randomized {
+                on_success,
+                on_failure,
+                ..
+            }) => {
+                Self::effect_animates_source(Some(*on_success))
+                    || Self::effect_animates_source(Some(*on_failure))
+            }
+            Some(EffectDef::ChoosePermanent { then, .. }) => {
+                Self::effect_animates_source(Some(*then))
+            }
             _ => false,
         }
     }

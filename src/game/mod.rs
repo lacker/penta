@@ -25,8 +25,9 @@ use crate::card::{
 use crate::casting::{CastChoices, CastSignature, CostConfiguration, TargetSelection};
 use crate::deck::{Deck, ValidatedDeck};
 use crate::ids::{
-    AbilityId, AdditionalCostId, AlternativeCostId, CardDefinitionId, CardPartId, GameObjectId,
-    GrantId, ModeId, PhysicalCardId, PlayOptionId, PlayerId, TargetIndex, TargetSlotId,
+    AbilityId, AdditionalCostId, AlternativeCostId, CardDefinitionId, CardPartId, ChoiceIndex,
+    GameObjectId, GrantId, ModeId, PhysicalCardId, PlayOptionId, PlayerId, TargetIndex,
+    TargetSlotId,
 };
 use crate::rng::ReplayRng;
 #[cfg(test)]
@@ -53,6 +54,7 @@ mod creature_characteristics;
 mod damage;
 mod decision;
 mod decision_offers;
+mod decision_permanent_choice;
 mod decision_piles;
 mod decision_resolution;
 mod decision_state;

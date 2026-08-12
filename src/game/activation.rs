@@ -126,11 +126,6 @@ impl Game {
         // generated legal action. Freeze both their slot identity and values
         // before any activation cost can move or change the source.
         let frozen_targets = targets;
-        let target = frozen_targets
-            .iter()
-            .flat_map(TargetSelection::targets)
-            .next()
-            .copied();
         let selected_ability = self
             .find_effective_ability(source_permanent, |effective| effective.origin == ability)
             .map(|effective| effective.ability);
@@ -303,28 +298,6 @@ impl Game {
                     frozen_ability,
                     Vec::new(),
                     Vec::new(),
-                );
-            }
-            Some(CardBehavior::ChaosOrb) => {
-                let cost = ManaCost::new(1, 0);
-                self.activate_mana_for_cost(player, cost, 0);
-                let _ = self.pay_player_cost(player, cost, 0);
-                let card = self
-                    .tap_permanent(source)
-                    .expect("legal Chaos Orb activation has a source");
-                let chosen_permanents = match target {
-                    Some(Target::Permanent(chosen)) => vec![chosen],
-                    Some(Target::Player(_) | Target::Card(_) | Target::Spell(_)) | None => {
-                        Vec::new()
-                    }
-                };
-                self.push_activated_ability(
-                    source,
-                    &card,
-                    player,
-                    frozen_ability,
-                    frozen_targets,
-                    chosen_permanents,
                 );
             }
             Some(CardBehavior::LibraryOfAlexandria | CardBehavior::TimeVault) => {

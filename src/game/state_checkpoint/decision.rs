@@ -89,6 +89,7 @@ fn continuation_json(continuation: &DecisionContinuation) -> Option<Value> {
         | DecisionContinuation::ChainLightning { .. }
         | DecisionContinuation::Fork { .. }
         | DecisionContinuation::OptionalEffect { .. }
+        | DecisionContinuation::ChoosePermanentForEffect { .. }
         | DecisionContinuation::RevealedPileSplit { .. }
         | DecisionContinuation::RevealedPileChoice { .. }
         | DecisionContinuation::SeparateIntoPiles { .. }
@@ -264,6 +265,7 @@ fn preference_json(preference: DecisionPreference) -> Value {
         DecisionPreference::LowerCardValue => Value::from("lowerCardValue"),
         DecisionPreference::BalancedPartition => Value::from("balancedPartition"),
         DecisionPreference::LinkedExileTargets => Value::from("linkedExileTargets"),
+        DecisionPreference::RemovalChoice => Value::from("removalChoice"),
         DecisionPreference::PreferOption(option) => json!({"preferOption": option}),
         DecisionPreference::Neutral => Value::from("neutral"),
     }
@@ -275,6 +277,7 @@ fn parse_preference(value: &Value) -> Result<DecisionPreference, String> {
         Some("lowerCardValue") => Ok(DecisionPreference::LowerCardValue),
         Some("balancedPartition") => Ok(DecisionPreference::BalancedPartition),
         Some("linkedExileTargets") => Ok(DecisionPreference::LinkedExileTargets),
+        Some("removalChoice") => Ok(DecisionPreference::RemovalChoice),
         Some("neutral") => Ok(DecisionPreference::Neutral),
         Some(other) => Err(format!("unknown decision preference {other}")),
         None => Ok(DecisionPreference::PreferOption(u32_field(

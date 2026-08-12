@@ -58,6 +58,8 @@ impl Game {
                 duration: actual_duration,
             } => Self::applied_effect_contains(effect, expected) && actual_duration == duration,
             EffectDef::None
+            | EffectDef::Randomized { .. }
+            | EffectDef::ChoosePermanent { .. }
             | EffectDef::AddMana(_)
             | EffectDef::AddManaEqualTo { .. }
             | EffectDef::DealDamage { .. }

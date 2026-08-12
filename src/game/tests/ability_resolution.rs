@@ -256,7 +256,7 @@ fn granted_ability_keeps_its_frozen_resolver_when_the_source_changes() {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         },
     )
-    .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::ChaosOrb))
+    .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::SedgeTroll))
     .with_coverage(AbilityCoverageDef::explained_complete(
         "The test intentionally grants a custom resolver.",
     ));
@@ -291,7 +291,7 @@ fn granted_ability_keeps_its_frozen_resolver_when_the_source_changes() {
     game.catalog = CardCatalog::new(definitions).unwrap();
     game.battlefield.extend([
         creature(10_000, definition_id, PlayerId::One),
-        creature(10_001, cards::MOUNTAIN, PlayerId::Two),
+        creature(10_001, cards::SAVANNAH_LIONS, PlayerId::Two),
     ]);
     let source = CardInstanceId(10_000);
     let target = CardInstanceId(10_001);
@@ -319,19 +319,17 @@ fn granted_ability_keeps_its_frozen_resolver_when_the_source_changes() {
             .ability
             .as_ref()
             .map(|ability| ability.resolver),
-        Some(StackAbilityResolver::Custom(CardBehavior::ChaosOrb))
+        Some(StackAbilityResolver::Custom(CardBehavior::SedgeTroll))
     ));
 
     // This models a continuous/copy effect changing the effective rules of a
     // source after activation. The origin remains provenance, while the stack
-    // object's executable payload must remain the Chaos Orb procedure.
+    // object's executable payload must remain the Sedge Troll procedure.
     game.battlefield[0].copy_effect = Some(copied_characteristics(cards::JAYEMDAE_TOME));
     pass_priority_pair(&mut game);
 
-    assert!(
-        game.battlefield
-            .iter()
-            .all(|permanent| permanent.card.id != target),
+    assert_eq!(
+        game.battlefield[0].regeneration_shields, 1,
         "resolution must not rediscover a different handler from the changed source",
     );
 }
@@ -706,6 +704,7 @@ fn resolving_ability_masks_an_illegal_target_in_each_frozen_slot() {
             ],
             context: TriggerContext {
                 object: None,
+                chosen_objects: [None; 8],
                 object_controller: None,
                 event_player: None,
                 amount: None,

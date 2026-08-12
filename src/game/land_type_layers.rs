@@ -163,6 +163,8 @@ impl Game {
             AppliedEffectDef::CannotBeCountered
             | AppliedEffectDef::DoesNotUntapDuringUntapStep
             | AppliedEffectDef::CannotBeEnchanted
+            | AppliedEffectDef::CannotBecomeEnchanted
+            | AppliedEffectDef::CannotChangeController
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)
             | AppliedEffectDef::ModifyPowerToughness { .. }
@@ -322,6 +324,8 @@ impl Game {
             AppliedEffectDef::CannotBeCountered
             | AppliedEffectDef::DoesNotUntapDuringUntapStep
             | AppliedEffectDef::CannotBeEnchanted
+            | AppliedEffectDef::CannotBecomeEnchanted
+            | AppliedEffectDef::CannotChangeController
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)
             | AppliedEffectDef::Animate(_)
@@ -355,7 +359,8 @@ impl Game {
                     )
                     && self.land_type_object_predicate_matches(object, source, affected)
             }
-            EffectRecipientDef::ControllerOfTarget(_)
+            EffectRecipientDef::ChosenPermanent(_)
+            | EffectRecipientDef::ControllerOfTarget(_)
             | EffectRecipientDef::ObjectsControlledByTarget { .. }
             | EffectRecipientDef::ObjectsOwnedByTarget { .. }
             | EffectRecipientDef::CardsOwnedByTarget { .. }
@@ -379,6 +384,7 @@ impl Game {
         match predicate {
             ObjectPredicateDef::Any => true,
             ObjectPredicateDef::Source => source.card.id == affected.card.id,
+            ObjectPredicateDef::Token => self.is_token(affected.card.definition),
             ObjectPredicateDef::HasType(card_type) => self
                 .permanent_types(affected)
                 .is_some_and(|types| types.contains(card_type)),

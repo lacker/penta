@@ -20,6 +20,9 @@ impl HandcraftedPolicy {
                 DecisionPreference::LinkedExileTargets => {
                     -self.linked_exile_target_score(observation, decision, option)
                 }
+                DecisionPreference::RemovalChoice => {
+                    -self.battlefield_removal_choice_score(observation, decision, option)
+                }
                 DecisionPreference::PreferOption(preferred) => i32::from(option.id != preferred),
                 DecisionPreference::BalancedPartition | DecisionPreference::Neutral => 0,
             }
@@ -45,6 +48,7 @@ impl HandcraftedPolicy {
                 .max(decision.minimum)
                 .min(decision.maximum)
                 .min(options.len()),
+            DecisionPreference::RemovalChoice => 1.min(options.len()),
             DecisionPreference::LowerCardValue
             | DecisionPreference::BalancedPartition
             | DecisionPreference::PreferOption(_)

@@ -113,7 +113,6 @@ impl HandcraftedPolicy {
             Some(CardBehavior::ChainLightning) => 8_000,
             Some(CardBehavior::PillarOfFlame) => 7_800,
             Some(CardBehavior::Fireball) => 7_900 + i32::from(x) * 20,
-            Some(CardBehavior::ChaosOrb) => 7_400,
             Some(CardBehavior::Fork) => 7_300,
             Some(behavior) if behavior.types().is_permanent() => 6_800,
             _ if sweeps_creatures => Self::sweeper_score(observation),

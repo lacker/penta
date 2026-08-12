@@ -36,7 +36,7 @@ pub use model::{
     ConditionalValueDef, CostDef, CountConditionDef, CounterKind, CreatureStats,
     DeclarativeAbilityDef, DiscardSelectionDef, DividedTotal, DoubleFacedKind, EffectDef,
     EffectDurationDef, EffectExecutionDef, EffectRecipientDef, HybridPair, ImplementationStatus,
-    KeywordAbility, ManaColor, ManaCost, ManaCostParseError, ManaCostParseErrorKind,
+    KeywordAbility, LikelihoodDef, ManaColor, ManaCost, ManaCostParseError, ManaCostParseErrorKind,
     ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef, MeldComponentDef, MeldRecipeDef,
     MeldResultDef, ModalSpellDef, ModeDef, ModeSetDef, ObjectPredicateDef, ObjectQueryDef,
     PaymentDef, PlayActionKind, PlayOptionDef, PlayRestriction, PlayerRelation, PrintedManaCost,

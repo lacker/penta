@@ -334,6 +334,22 @@ impl Game {
                     self.resolve_effect_def(effect, &object, context);
                 }
             }
+            DecisionContinuation::ChoosePermanentForEffect {
+                choice,
+                object,
+                mut context,
+                effect,
+            } => {
+                let chosen = pending
+                    .observation
+                    .options
+                    .iter()
+                    .find(|option| options.contains(&option.id))
+                    .and_then(|option| option.card)
+                    .map(|(object, _)| object);
+                context.bind_choice(choice, chosen);
+                self.resolve_effect_def(effect, &object, context);
+            }
             DecisionContinuation::MiracleReveal { card } => {
                 if options.contains(&1) {
                     self.miracle_window = Some(card);

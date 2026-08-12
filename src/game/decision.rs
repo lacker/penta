@@ -36,6 +36,10 @@ pub enum DecisionPreference {
     /// graveyard. Linked-exile effects use this to separate removal and
     /// recovery targets from cards whose eventual return would be harmful.
     LinkedExileTargets,
+    /// Prefer a valuable opposing battlefield permanent and avoid the
+    /// chooser's own permanents. Used for non-targeting removal choices made
+    /// during resolution.
+    RemovalChoice,
     /// Prefer one semantically distinguished option before applying the
     /// ordinary minimum-selection rule. This remains an engine-policy hint;
     /// option IDs and labels are still the complete public choice contract.

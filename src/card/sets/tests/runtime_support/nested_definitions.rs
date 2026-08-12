@@ -1,11 +1,77 @@
 use super::*;
 
+pub(in super::super) fn shared_trigger_event(event: TriggerEventDef) -> bool {
+    match event {
+        TriggerEventDef::ZoneChanged { object, from, to } => {
+            const COMMITTED_TRANSITIONS: [(ZoneKind, ZoneKind); 5] = [
+                (ZoneKind::Hand, ZoneKind::Battlefield),
+                (ZoneKind::Stack, ZoneKind::Battlefield),
+                (ZoneKind::Battlefield, ZoneKind::Graveyard),
+                (ZoneKind::Battlefield, ZoneKind::Exile),
+                (ZoneKind::Battlefield, ZoneKind::Hand),
+            ];
+            shared_object_predicate(object)
+                && COMMITTED_TRANSITIONS
+                    .iter()
+                    .any(|(actual_from, actual_to)| {
+                        from.is_none_or(|expected| expected == *actual_from)
+                            && to.is_none_or(|expected| expected == *actual_to)
+                    })
+        }
+        TriggerEventDef::BecomesTapped(object)
+        | TriggerEventDef::Attacks(object)
+        | TriggerEventDef::AttacksFirstTimeThisTurn(object)
+        | TriggerEventDef::TappedForMana(object)
+        | TriggerEventDef::SpellCast(object) => shared_object_predicate(object),
+        TriggerEventDef::StepBegins { .. }
+        | TriggerEventDef::LifeGained(_)
+        | TriggerEventDef::StateCondition
+        | TriggerEventDef::TransformsIntoThisFace
+        | TriggerEventDef::DamagedCreatureDied => true,
+        // Only "whenever this creature is dealt damage" is committed; a
+        // wider recipient has no event behind it yet.
+        TriggerEventDef::DamageDealt { source, recipient } => {
+            recipient == EffectRecipientDef::Source && source == ObjectPredicateDef::Any
+        }
+        TriggerEventDef::CombatDamageDealtToPlayer { source }
+        | TriggerEventDef::CombatDamageDealtToSource { source }
+        | TriggerEventDef::DamageDealtToPlayer { source, .. } => shared_object_predicate(source),
+        TriggerEventDef::AbilityActivated(_)
+        | TriggerEventDef::ManaAdded(_)
+        | TriggerEventDef::Special(_) => false,
+    }
+}
+
+pub(in super::super) fn shared_replacement_event(event: ReplacementEventDef) -> bool {
+    match event {
+        ReplacementEventDef::SourceEntersBattlefield
+        | ReplacementEventDef::WouldGainLife(_)
+        | ReplacementEventDef::EntersBattlefield => true,
+        ReplacementEventDef::ObjectEntersBattlefield { object, .. } => {
+            shared_object_predicate(object)
+        }
+        ReplacementEventDef::WouldMove { cause, .. } => shared_zone_move_cause(cause),
+        // Only graveyard placement funnels through one procedure the
+        // replacement can sit in front of.
+        ReplacementEventDef::AnyObjectWouldMove { to } => to == ZoneKind::Graveyard,
+        ReplacementEventDef::Special(_) => false,
+    }
+}
+
 pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effect: EffectDef) {
     match effect {
         EffectDef::Sequence(effects) => {
             for effect in effects {
                 assert_nested_definition_abilities(card_name, *effect);
             }
+        }
+        EffectDef::Randomized {
+            on_success,
+            on_failure,
+            ..
+        } => {
+            assert_nested_definition_abilities(card_name, *on_success);
+            assert_nested_definition_abilities(card_name, *on_failure);
         }
         EffectDef::OptionalPayment {
             if_paid: effect, ..
@@ -14,6 +80,7 @@ pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effe
             otherwise: effect, ..
         }
         | EffectDef::May(effect)
+        | EffectDef::ChoosePermanent { then: effect, .. }
         | EffectDef::IfCondition { then: effect, .. }
         | EffectDef::AtNextStep { effect, .. } => {
             assert_nested_definition_abilities(card_name, *effect);
@@ -111,6 +178,8 @@ pub(in super::super) fn assert_nested_definition_applied_effect(
         AppliedEffectDef::CannotBeCountered
         | AppliedEffectDef::DoesNotUntapDuringUntapStep
         | AppliedEffectDef::CannotBeEnchanted
+        | AppliedEffectDef::CannotBecomeEnchanted
+        | AppliedEffectDef::CannotChangeController
         | AppliedEffectDef::CannotBeBlockedBy(_)
         | AppliedEffectDef::PreventDamageFrom(_)
         | AppliedEffectDef::AddLandTypes(_)

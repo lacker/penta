@@ -157,6 +157,7 @@ impl HandcraftedPolicy {
                     Some(
                         crate::DecisionPreference::BalancedPartition
                         | crate::DecisionPreference::LinkedExileTargets
+                        | crate::DecisionPreference::RemovalChoice
                         | crate::DecisionPreference::Neutral,
                     )
                     | None => 8_000,
@@ -233,5 +234,28 @@ impl HandcraftedPolicy {
             | DecisionZone::DrawnThisStep
             | DecisionZone::None => -value,
         }
+    }
+
+    pub(super) fn battlefield_removal_choice_score(
+        &self,
+        observation: &PlayerObservation,
+        decision: &DecisionObservation,
+        option: &DecisionOption,
+    ) -> i32 {
+        let Some((object, definition)) = option.card else {
+            return -10_000;
+        };
+        let value = self.card_value(definition).max(1);
+        observation
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.id == object)
+            .map_or(-value, |permanent| {
+                if permanent.controller == decision.player {
+                    -value
+                } else {
+                    value
+                }
+            })
     }
 }

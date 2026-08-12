@@ -192,6 +192,7 @@ fn delayed_effect_preserves_its_trigger_context() {
     let source = spell(10_001, cards::LIGHTNING_BOLT, PlayerId::One, 0);
     let context = TriggerContext {
         object: Some(triggering_id),
+        chosen_objects: [None; 8],
         object_controller: Some(PlayerId::Two),
         event_player: Some(PlayerId::Two),
         amount: Some(3),

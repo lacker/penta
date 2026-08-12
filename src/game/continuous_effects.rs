@@ -138,17 +138,39 @@ impl Game {
         traversal: &mut StaticEffectTraversal<'_>,
         visitor: &mut impl FnMut(StaticAppliedEffect) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
+        self.visit_static_effect_if(effect, traversal, true, visitor)
+    }
+
+    fn visit_static_effect_if(
+        &self,
+        effect: EffectDef,
+        traversal: &mut StaticEffectTraversal<'_>,
+        enabled: bool,
+        visitor: &mut impl FnMut(StaticAppliedEffect) -> ControlFlow<()>,
+    ) -> ControlFlow<()> {
         match effect {
             EffectDef::Sequence(effects) => {
                 for effect in effects {
                     if self
-                        .visit_static_effect(*effect, traversal, visitor)
+                        .visit_static_effect_if(*effect, traversal, enabled, visitor)
                         .is_break()
                     {
                         return ControlFlow::Break(());
                     }
                 }
                 ControlFlow::Continue(())
+            }
+            EffectDef::IfCondition { condition, then } => {
+                let condition_holds = enabled
+                    && self.trigger_condition_holds(
+                        condition,
+                        traversal.source.card.id,
+                        traversal.source.controller,
+                        TriggerContext::empty(),
+                        None,
+                        None,
+                    );
+                self.visit_static_effect_if(*then, traversal, condition_holds, visitor)
             }
             EffectDef::Apply {
                 recipient,
@@ -159,16 +181,18 @@ impl Game {
                 // recipient does not match. Grant IDs identify structural
                 // grant sites, so later grants must not be renumbered by
                 // which permanent happens to be queried.
-                let include_effect = matches!(
-                    duration,
-                    EffectDurationDef::WhileSourceRemainsInZone
-                        | EffectDurationDef::UntilSourceLeavesZone
-                ) && self.static_recipient_matches(
-                    recipient,
-                    traversal.source,
-                    traversal.affected,
-                    traversal.prospective,
-                );
+                let include_effect = enabled
+                    && matches!(
+                        duration,
+                        EffectDurationDef::WhileSourceRemainsInZone
+                            | EffectDurationDef::UntilSourceLeavesZone
+                    )
+                    && self.static_recipient_matches(
+                        recipient,
+                        traversal.source,
+                        traversal.affected,
+                        traversal.prospective,
+                    );
                 Self::visit_static_applied_effect_components(
                     effect,
                     traversal,
@@ -205,6 +229,8 @@ impl Game {
             AppliedEffectDef::CannotBeCountered
             | AppliedEffectDef::DoesNotUntapDuringUntapStep
             | AppliedEffectDef::CannotBeEnchanted
+            | AppliedEffectDef::CannotBecomeEnchanted
+            | AppliedEffectDef::CannotChangeController
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)
             | AppliedEffectDef::AddLandTypes(_)
@@ -264,6 +290,8 @@ impl Game {
                 .iter()
                 .find_map(|effect| Self::immediate_attachment_target(*effect)),
             EffectDef::None
+            | EffectDef::Randomized { .. }
+            | EffectDef::ChoosePermanent { .. }
             | EffectDef::AddMana(_)
             | EffectDef::AddManaEqualTo { .. }
             | EffectDef::DealDamage { .. }
@@ -400,6 +428,43 @@ impl Game {
             } => Self::applied_effect_contains(effect, expected),
             _ => false,
         }
+    }
+
+    /// Whether a new Aura may attach to this permanent. The narrower
+    /// Guardian Beast prohibition joins the general one here, while
+    /// `cannot_be_enchanted` remains the state-based check for Auras that are
+    /// already attached.
+    pub(super) fn cannot_become_enchanted(&self, permanent: &Permanent) -> bool {
+        self.visit_static_applied_effects(permanent, |applied| {
+            if Self::applied_effect_contains(applied.effect, AppliedEffectDef::CannotBeEnchanted)
+                || Self::applied_effect_contains(
+                    applied.effect,
+                    AppliedEffectDef::CannotBecomeEnchanted,
+                )
+            {
+                ControlFlow::Break(())
+            } else {
+                ControlFlow::Continue(())
+            }
+        })
+        .is_break()
+    }
+
+    /// Whether a continuous effect stops another player from taking this
+    /// permanent. Callers still allow a no-op assignment to its current
+    /// controller.
+    pub(super) fn cannot_change_controller(&self, permanent: &Permanent) -> bool {
+        self.visit_static_applied_effects(permanent, |applied| {
+            if Self::applied_effect_contains(
+                applied.effect,
+                AppliedEffectDef::CannotChangeController,
+            ) {
+                ControlFlow::Break(())
+            } else {
+                ControlFlow::Continue(())
+            }
+        })
+        .is_break()
     }
 
     /// Whether an Aura may stay attached to `host`: the host has to still be
@@ -582,7 +647,8 @@ impl Game {
             }
             // None of these name a permanent a static effect could apply to;
             // a static effect has no chosen target either.
-            EffectRecipientDef::ControllerOfTarget(_)
+            EffectRecipientDef::ChosenPermanent(_)
+            | EffectRecipientDef::ControllerOfTarget(_)
             | EffectRecipientDef::ObjectsControlledByTarget { .. }
             | EffectRecipientDef::ObjectsOwnedByTarget { .. }
             | EffectRecipientDef::CardsOwnedByTarget { .. }
@@ -685,7 +751,7 @@ impl Game {
             || self.permanent_has_executable_keyword(permanent, KeywordAbility::Shroud)
             || permanent.controller != controller
                 && self.permanent_has_executable_keyword(permanent, KeywordAbility::Hexproof)
-            || self.cannot_be_enchanted(permanent) && self.source_attaches_itself(source))
+            || self.cannot_become_enchanted(permanent) && self.source_attaches_itself(source))
     }
 
     /// Whether the object doing the targeting is an Aura spell: one whose

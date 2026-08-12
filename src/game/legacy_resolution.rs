@@ -11,17 +11,6 @@ impl Game {
         behavior: CardBehavior,
     ) {
         match behavior {
-            CardBehavior::ChaosOrb
-                if self
-                    .battlefield
-                    .iter()
-                    .any(|permanent| Some(permanent.card.id) == object.source) =>
-            {
-                if let Some(chosen) = object.chosen_permanents.first().copied() {
-                    self.destroy_permanent(chosen);
-                }
-                self.destroy_permanent(object.source.expect("ability has a source"));
-            }
             CardBehavior::SedgeTroll => {
                 if let Some(permanent) = self
                     .battlefield

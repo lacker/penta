@@ -99,16 +99,23 @@ fn decision_effects_stay_at_the_stack_effect_root() {
         ),
         if_paid: &TAP,
     };
+    static SOURCE_PRESENT: TriggerConditionDef = TriggerConditionDef::SourceOnBattlefield;
+    static CONDITIONAL_MAY: EffectDef = EffectDef::IfCondition {
+        condition: &SOURCE_PRESENT,
+        then: &MAY_TAP,
+    };
     static DELAYED_MAY: EffectDef = EffectDef::AtNextStep {
         step: TurnStepDef::End,
         player: PlayerRelation::You,
         effect: &MAY_TAP,
     };
     static SEQUENCE_WITH_MAY: [EffectDef; 2] = [MAY_TAP, UNTAP];
+    static SEQUENCE_WITH_CONDITIONAL_MAY: [EffectDef; 2] = [CONDITIONAL_MAY, UNTAP];
     static SEQUENCE_WITH_PAYMENT: [EffectDef; 2] = [OPTIONAL_TAP, UNTAP];
     static SEQUENCE_WITH_DELAYED_MAY: [EffectDef; 2] = [DELAYED_MAY, UNTAP];
 
     assert!(shared_stack_effect(MAY_TAP));
+    assert!(shared_stack_effect(CONDITIONAL_MAY));
     assert!(shared_stack_effect(EffectDef::May(&PLAIN_SEQUENCE)));
     assert!(shared_stack_effect(OPTIONAL_TAP));
     assert!(!shared_stack_effect(ANY_PAYER_OPTIONAL_TAP));
@@ -120,11 +127,43 @@ fn decision_effects_stay_at_the_stack_effect_root() {
         &SEQUENCE_WITH_MAY,
     )));
     assert!(!shared_stack_effect(EffectDef::Sequence(
+        &SEQUENCE_WITH_CONDITIONAL_MAY,
+    )));
+    assert!(!shared_stack_effect(EffectDef::Sequence(
         &SEQUENCE_WITH_PAYMENT,
     )));
     assert!(shared_stack_effect(EffectDef::Sequence(
         &SEQUENCE_WITH_DELAYED_MAY,
     )));
+}
+
+#[test]
+fn static_conditions_require_only_source_battlefield_state() {
+    static APPLIED: EffectDef = EffectDef::Apply {
+        recipient: EffectRecipientDef::Source,
+        effect: AppliedEffectDef::CannotBeEnchanted,
+        duration: EffectDurationDef::WhileSourceRemainsInZone,
+    };
+    static SOURCE_UNTAPPED: TriggerConditionDef = TriggerConditionDef::SourceUntapped;
+    static TARGET_MATCHES: TriggerConditionDef = TriggerConditionDef::TargetMatches {
+        slot: crate::TargetIndex::PRIMARY,
+        object: ObjectPredicateDef::Any,
+    };
+
+    assert!(shared_static_effect(
+        &[ZoneKind::Battlefield],
+        EffectDef::IfCondition {
+            condition: &SOURCE_UNTAPPED,
+            then: &APPLIED,
+        },
+    ));
+    assert!(!shared_static_effect(
+        &[ZoneKind::Battlefield],
+        EffectDef::IfCondition {
+            condition: &TARGET_MATCHES,
+            then: &APPLIED,
+        },
+    ));
 }
 
 #[test]

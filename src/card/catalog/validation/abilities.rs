@@ -406,6 +406,22 @@ fn top_level_ability_error(
             target: *target,
             target_count: *target_count,
         },
+        GrantedAbilityValidationError::ChoiceReferenceOutOfScope { choice } => {
+            CatalogError::AbilityChoiceReferenceOutOfScope {
+                definition: definition.id,
+                part,
+                ability,
+                choice: *choice,
+            }
+        }
+        GrantedAbilityValidationError::ChoiceBindingAlreadyInScope { choice } => {
+            CatalogError::AbilityChoiceBindingAlreadyInScope {
+                definition: definition.id,
+                part,
+                ability,
+                choice: *choice,
+            }
+        }
         GrantedAbilityValidationError::ExecutableStaticAbility => {
             unreachable!("only granted static abilities are rejected")
         }
@@ -419,6 +435,14 @@ fn collect_ability_grants(effect: EffectDef, grants: &mut Vec<&AbilityDef>) {
                 collect_ability_grants(*effect, grants);
             }
         }
+        EffectDef::Randomized {
+            on_success,
+            on_failure,
+            ..
+        } => {
+            collect_ability_grants(*on_success, grants);
+            collect_ability_grants(*on_failure, grants);
+        }
         EffectDef::OptionalPayment {
             if_paid: effect, ..
         }
@@ -426,6 +450,7 @@ fn collect_ability_grants(effect: EffectDef, grants: &mut Vec<&AbilityDef>) {
             otherwise: effect, ..
         }
         | EffectDef::May(effect)
+        | EffectDef::ChoosePermanent { then: effect, .. }
         | EffectDef::IfCondition { then: effect, .. }
         | EffectDef::AtNextStep { effect, .. } => {
             collect_ability_grants(*effect, grants);
@@ -507,6 +532,8 @@ fn collect_applied_ability_grants(effect: AppliedEffectDef, grants: &mut Vec<&Ab
         AppliedEffectDef::CannotBeCountered
         | AppliedEffectDef::DoesNotUntapDuringUntapStep
         | AppliedEffectDef::CannotBeEnchanted
+        | AppliedEffectDef::CannotBecomeEnchanted
+        | AppliedEffectDef::CannotChangeController
         | AppliedEffectDef::CannotBeBlockedBy(_)
         | AppliedEffectDef::PreventDamageFrom(_)
         | AppliedEffectDef::AddLandTypes(_)
@@ -524,6 +551,11 @@ fn ability_grant_sites(effect: EffectDef) -> usize {
             .iter()
             .map(|effect| ability_grant_sites(*effect))
             .fold(0, usize::saturating_add),
+        EffectDef::Randomized {
+            on_success,
+            on_failure,
+            ..
+        } => ability_grant_sites(*on_success).saturating_add(ability_grant_sites(*on_failure)),
         EffectDef::OptionalPayment {
             if_paid: effect, ..
         }
@@ -531,6 +563,7 @@ fn ability_grant_sites(effect: EffectDef) -> usize {
             otherwise: effect, ..
         }
         | EffectDef::May(effect)
+        | EffectDef::ChoosePermanent { then: effect, .. }
         | EffectDef::IfCondition { then: effect, .. }
         | EffectDef::AtNextStep { effect, .. }
         | EffectDef::SacrificeOfChoice {
@@ -607,6 +640,8 @@ fn applied_ability_grant_sites(effect: AppliedEffectDef) -> usize {
         AppliedEffectDef::CannotBeCountered
         | AppliedEffectDef::DoesNotUntapDuringUntapStep
         | AppliedEffectDef::CannotBeEnchanted
+        | AppliedEffectDef::CannotBecomeEnchanted
+        | AppliedEffectDef::CannotChangeController
         | AppliedEffectDef::CannotBeBlockedBy(_)
         | AppliedEffectDef::PreventDamageFrom(_)
         | AppliedEffectDef::AddLandTypes(_)

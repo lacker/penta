@@ -12,9 +12,9 @@ Two numbers matter to a bot, and they move independently:
 Pin both alongside trained weights. Until 1.0 the engine version bumps its
 minor for breaking changes, per Cargo's 0.x convention.
 
-## Unreleased — protocol 19
+## Unreleased — protocol 20
 
-The current development checkout reports engine 0.6.0 and protocol 19. Pin
+The current development checkout reports engine 0.6.0 and protocol 20. Pin
 both; the engine version alone does not distinguish it from earlier 0.6.0
 snapshots.
 
@@ -41,11 +41,12 @@ snapshots.
   controller, catalog definition, timestamp, and creating ability provenance.
 
 - The catalog appends definitions 315 through 605: 286 Eternal Central Old
-  School 93/94 card identities and five supporting tokens. The Old School pool
-  now exposes 420 legal identities: 386 complete, 32 partial, and two
+  School 93/94 card identities and five supporting tokens. With Guardian Beast
+  below, the Old School pool now exposes 421 legal identities: 388 complete,
+  31 partial, and two
   metadata-only. An identity-complete audit, kept inline at each identity's
   collector position in the printed set modules, names the concrete engine gap
-  for those 34 cataloged incomplete cards and the other 561 legal identities
+  for those 33 cataloged incomplete cards and the other 560 legal identities
   that remain blocked. Definition IDs remain append-only and the catalog JSON
   shape is unchanged, so this is compatible protocol-19 catalog growth.
 
@@ -108,6 +109,25 @@ surface; no observation, action, or decision shape changed, so the protocol
 version is unmoved.
 
 ### Changed
+
+- Chaos Orb now uses shared declarative effects and Eternal Central's 93/94
+  non-targeting timing. Its controller activates it without a target, chooses a
+  nontoken permanent during resolution, and then gets one seeded trial with a
+  `0.9` likelihood to destroy that permanent before the Orb attempts to destroy
+  itself.
+  Hexproof, shroud, protection, and target-fizzle rules do not constrain this
+  choice.
+  The change from per-permanent activation actions to a resolution-time
+  decision introduces protocol 20.
+- Added Guardian Beast (definition `606`) to the Old School pool. While
+  untapped, it declaratively prevents new Auras on its controller's noncreature
+  artifacts, grants them indestructible, and prevents opponents gaining control
+  of them; already-attached Auras remain. The card exposes the intended Chaos
+  Orb interaction without a card-specific resolver.
+- `EffectDef` now supports floating-point `Randomized` branches driven by the
+  replay-stable seeded RNG and a reusable resolution-time `ChoosePermanent`
+  continuation. `ChosenPermanent` is deliberately distinct from a target and
+  never passes through target legality or fizzle machinery.
 
 - `ComparisonDef` now names the five ordering relations directly: `Less`,
   `LessOrEqual`, `Equal`, `GreaterOrEqual`, and `Greater`. Rust card definitions

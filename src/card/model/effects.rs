@@ -1,4 +1,4 @@
-use crate::ids::{CardDefinitionId, TargetIndex};
+use crate::ids::{CardDefinitionId, ChoiceIndex, TargetIndex};
 
 use super::{
     AbilityDef, AddManaEffectDef, BasicLandType, CardType, CardTypeSet, ColorSet, CostDef,
@@ -91,6 +91,10 @@ pub enum ValueDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum EffectRecipientDef {
     Source,
+    /// The permanent selected by a resolving [`EffectDef::ChoosePermanent`].
+    /// This is a choice, not a target: hexproof and protection do not apply,
+    /// and no target-legality check is repeated when the inner effect runs.
+    ChosenPermanent(ChoiceIndex),
     /// What this permanent is attached to, for an Aura's own static clauses.
     AttachedPermanent,
     /// Every battlefield permanent sharing a name with the chosen target,
@@ -174,6 +178,11 @@ pub enum AppliedEffectDef {
     /// Aura spell's targeting and whether an existing attachment stays legal,
     /// so an Aura already on the permanent falls off.
     CannotBeEnchanted,
+    /// No new Aura may attach to the affected permanent, but an Aura already
+    /// attached remains legal. Guardian Beast needs this narrower prohibition.
+    CannotBecomeEnchanted,
+    /// Another player cannot gain control of the affected permanent.
+    CannotChangeController,
     /// A creature matching this predicate cannot block the affected creature.
     CannotBeBlockedBy(ObjectPredicateDef),
     /// Damage from a source matching this predicate is prevented before it
@@ -201,6 +210,52 @@ pub enum AppliedEffectDef {
     /// activated ability does, and it keeps the permanent's other types.
     Animate(&'static AnimationDef),
     Special(&'static str),
+}
+
+/// A floating-point chance used by seeded randomized effects.
+///
+/// The value is finite and inclusive between `0.0` and `1.0`. The wrapper
+/// keeps effect definitions const-friendly while giving their floating-point
+/// likelihood a well-defined `Eq`/`Hash` contract.
+#[derive(Clone, Copy, Debug)]
+pub struct LikelihoodDef(f64);
+
+impl LikelihoodDef {
+    /// # Panics
+    ///
+    /// Panics when `likelihood` is not finite or is outside `0.0..=1.0`.
+    #[must_use]
+    pub const fn new(likelihood: f64) -> Self {
+        assert!(
+            likelihood >= 0.0 && likelihood <= 1.0,
+            "likelihood must be finite and between 0.0 and 1.0"
+        );
+        let canonical = if likelihood.to_bits() == (-0.0_f64).to_bits() {
+            0.0
+        } else {
+            likelihood
+        };
+        Self(canonical)
+    }
+
+    #[must_use]
+    pub const fn value(self) -> f64 {
+        self.0
+    }
+}
+
+impl PartialEq for LikelihoodDef {
+    fn eq(&self, other: &Self) -> bool {
+        self.0.to_bits() == other.0.to_bits()
+    }
+}
+
+impl Eq for LikelihoodDef {}
+
+impl std::hash::Hash for LikelihoodDef {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.0.to_bits().hash(state);
+    }
 }
 
 /// A reusable selector for ability-removing continuous effects.
@@ -411,6 +466,22 @@ pub struct TopCardSelectionDef {
 pub enum EffectDef {
     None,
     Sequence(&'static [EffectDef]),
+    /// Select one branch using the game's replay-stable seeded RNG.
+    Randomized {
+        likelihood: LikelihoodDef,
+        on_success: &'static EffectDef,
+        on_failure: &'static EffectDef,
+    },
+    /// A mandatory non-targeting permanent choice made while this effect
+    /// resolves. The selected object is available to `then` through
+    /// [`EffectRecipientDef::ChosenPermanent`].
+    ChoosePermanent {
+        choice: ChoiceIndex,
+        chooser: EffectRecipientDef,
+        object: ObjectPredicateDef,
+        controller: PlayerRelation,
+        then: &'static EffectDef,
+    },
     AddMana(AddManaEffectDef),
     DealDamage {
         recipient: EffectRecipientDef,

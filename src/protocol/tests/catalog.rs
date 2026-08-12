@@ -84,20 +84,18 @@ fn catalog_exposes_derived_implementation_coverage_not_the_play_gate() {
     assert!(pilgrim.get("effectStatus").is_none());
     assert!(pilgrim["parts"][0].get("effectStatus").is_none());
 
+    let chaos_orb = find("Chaos Orb");
+    assert_eq!(chaos_orb["implementationStatus"], "complete");
+    assert_eq!(chaos_orb["parts"][0]["implementationStatus"], "complete");
+
     // Any card with a mix of executable and pending clauses will do here.
-    // Chaos Orb's tap ability works, but the flip itself is a
-    // deterministic approximation; repoint this if that changes.
-    let partial = find("Chaos Orb");
+    let partial = find("Jace, Architect of Thought");
     assert_eq!(partial["implementationStatus"], "partial");
     assert_eq!(partial["parts"][0]["implementationStatus"], "partial");
 
-    // A card whose gap is a whole clause rather than a detail reports the
-    // same way: Jace's ultimate is cataloged and does nothing, and his
-    // other two play. Vraska used to be the example here, until attack
+    // Jace's ultimate is cataloged and does nothing, while his other two
+    // abilities play. Vraska used to be the example here, until attack
     // defenders made her retaliation reachable and she went complete.
-    let jace = find("Jace, Architect of Thought");
-    assert_eq!(jace["implementationStatus"], "partial");
-    assert_eq!(jace["parts"][0]["implementationStatus"], "partial");
     let vraska = find("Vraska the Unseen");
     assert_eq!(vraska["implementationStatus"], "complete");
     let prism = find("Celestial Prism");
@@ -129,8 +127,8 @@ fn migrated_spells_do_not_require_an_additional_protocol_bump() {
     let catalog = poc::catalog().expect("catalog builds");
     let value = catalog_json_for_format(&catalog, Format::IsdRtrStandard);
     assert_eq!(
-        PROTOCOL_VERSION, 19,
-        "the reconstructible checkpoint owns this branch's bump"
+        PROTOCOL_VERSION, 20,
+        "reconstructible checkpoints own protocol 19; Chaos Orb owns protocol 20"
     );
     assert_eq!(value["protocolVersion"], PROTOCOL_VERSION);
 

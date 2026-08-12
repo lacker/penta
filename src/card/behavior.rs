@@ -5,7 +5,6 @@ pub enum CardBehavior {
     BloodBaronOfVizkopa,
     ChainLightning,
     Channel,
-    ChaosOrb,
     DemonicTutor,
     DustToDust,
     Duress,

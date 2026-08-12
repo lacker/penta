@@ -2,11 +2,45 @@ use super::{
     CardDefinitionId, CardInstance, CardPartId, CharacteristicContext, CharacteristicSource,
     DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EntryCompletion, Game, GameEvent,
     GameObjectId, KeywordAbility, ObjectBacking, PendingBattlefieldEntry, Permanent, PlayerId,
-    PublicCard, ReplacementEventDef, TriggerContext, ZoneCard, ZoneError, ZoneKind, ZoneMoveCause,
-    ZoneMoveCauseDef, applicable_part_ids,
+    PublicCard, ReplacementEventDef, Target, TriggerContext, ZoneCard, ZoneError, ZoneKind,
+    ZoneMoveCause, ZoneMoveCauseDef, ZonePlacement, applicable_part_ids,
 };
 
 impl Game {
+    /// Moves one object to a zone. Only the moves a supported card actually
+    /// makes are handled; the rest stay seams rather than guesses.
+    pub(super) fn move_target_to_zone(
+        &mut self,
+        target: Target,
+        zone: ZoneKind,
+        cause: ZoneMoveCause,
+        arriving_controller: Option<PlayerId>,
+        placement: ZonePlacement,
+    ) {
+        if let Target::Permanent(id) = target {
+            // Leaving the battlefield has its own procedure: last-known
+            // information, exit events, and the triggers watching for them.
+            match zone {
+                ZoneKind::Exile => self.exile_permanent(id),
+                ZoneKind::Hand => self.return_permanent_to_hand(id),
+                ZoneKind::Graveyard => self.move_permanents_to_graveyard(&[id]),
+                ZoneKind::Library => self.return_permanent_to_library(id, placement),
+                ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => {}
+            }
+            return;
+        }
+        let Target::Card(id) = target else {
+            return;
+        };
+        let Some(from) = self
+            .card_in_nonbattlefield_zone(id)
+            .map(|(from, _card)| from)
+        else {
+            return;
+        };
+        let _ = self.move_card_from_nonbattlefield_zone(id, from, zone, cause, arriving_controller);
+    }
+
     /// One card in a hand or library, as a simulation sees it.
     ///
     /// This is not redacted. [`Self::observe`] is the redacted view, and it is

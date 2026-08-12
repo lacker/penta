@@ -71,8 +71,10 @@ use observation_json::{card_part_name, decision_json, stack_object_json};
 /// it is untapped, adding that decision to supported-format legal actions.
 /// Version 18 adds host-enforced timeout as a game-result reason. Version 19
 /// adds the hidden-safe `checkpoint` object and observation reconstruction
-/// entry points used for local determinizations.
-pub const PROTOCOL_VERSION: u32 = 19;
+/// entry points used for local determinizations. Version 20 makes Chaos Orb's
+/// Old School activation untargeted and moves its nontoken-permanent choice
+/// into resolution.
+pub const PROTOCOL_VERSION: u32 = 20;
 
 /// The engine crate version. Rules behavior is part of the contract too: a
 /// fix can change what a trained policy sees even when the shapes hold

@@ -5,7 +5,7 @@ ships Eternal Central Old School 93/94 and the final pre-Theros ISD–RTR
 Standard format. This guide is for writing a program that plays it: from
 Python, C, C++, or Rust, against the included bots or against itself.
 
-This guide describes the current development wire contract, **protocol 19**.
+This guide describes the current development wire contract, **protocol 20**.
 Query `protocol_version()` and `engine_version()` through the selected binding
 and reject or migrate versions your client does not understand; pin both
 alongside trained weights. Old School remains the default for compatibility;
@@ -466,11 +466,12 @@ the selected card, shuffles the remaining library, and puts that card on top.
 
 The protocol-19 catalog appends definitions 315 through 605 for the expanded
 Old School implementation: 286 legal card identities and five supporting
-tokens. The format now has 420 cataloged legal identities, of which 386 are
-`complete`, 32 are `partial`, and two are `metadataOnly`. The
+tokens. With Guardian Beast below, the format now has 421 cataloged legal
+identities, of which 388 are `complete`, 31 are `partial`, and two are
+`metadataOnly`. The
 identity-complete audit is kept inline at each identity's collector position in
 the printed set modules. It records the concrete engine limitation for those
-34 incomplete definitions and all 561 other legal identities that remain
+33 incomplete definitions and all 560 other legal identities that remain
 blocked. This is an additive catalog-content change, not a JSON-shape
 change; consumers must not assume the older catalog length or that definition
 314 is the maximum ID.
@@ -489,6 +490,19 @@ current permanents Indestructible until cleanup, and mode 2 targets a creature.
 The catalog's simplified projection presents the first mode as `AnyTarget`, but
 its concrete legal actions never offer creatures; those actions are the
 authority for the semantic restriction.
+
+Protocol 20 changes Chaos Orb from a targeted activation-time approximation to
+Eternal Central's non-targeting resolution-time choice. Its Old School action
+space now offers one `ActivateAbility` with an empty `targets` list instead of
+one action for each permanent. Once that ability resolves with more than one
+eligible permanent, its controller sees a public `Choice` decision containing
+the nontoken permanents then on the battlefield. Zero- and one-candidate
+choices complete automatically. The choice ignores hexproof, shroud, and
+protection and is not recorded as a stack target or `chosenPermanents` entry.
+Answer an offered choice with the existing `ChooseDecision` action. A seeded
+`0.9` random trial decides whether the chosen permanent is destroyed. Guardian
+Beast (definition `606`) is also added compatibly to the unfiltered catalog and
+is legal only where Arabian Nights is allowed.
 
 A play option's `restriction` is `normal`, `fromHandOnly`, or
 `beforeCombatDamage`. Read the tag rather than assuming every otherwise valid
@@ -532,6 +546,25 @@ protocol 7's one-off numeric `whiteRedHybrid` field with this general array.
 The shape is used everywhere the catalog reports a cost, including parts,
 play options, alternative costs, and additional costs.
 
+### Migrating from protocol 19
+
+Chaos Orb's Old School activation no longer selects a permanent in its
+`targets` list. Activate it with the empty list the engine supplies, then, when
+more than one eligible permanent exists, answer the public resolution-time
+`Choice` with `ChooseDecision`. Zero- and one-candidate choices complete
+automatically. The choice is not a target, so hexproof, shroud, and protection
+do not constrain it.
+
+### Migrating from protocol 18
+
+Protocol 19 adds the hidden-safe `checkpoint` object to every observation and
+the observation-reconstruction entry points described above. Clients with
+closed observation decoders must accept the checkpoint and the semantic state
+now carried by reconstructible stack objects and pending decisions. Clients
+that ignore unknown observation fields can otherwise keep selecting from the
+indexed `legalActions` list, but should still reject protocol versions they
+have not explicitly accepted.
+
 ### Migrating from protocol 17
 
 `result.reason` gained `OpponentRanOutOfTime`, for a seat that lost to a
@@ -544,7 +577,8 @@ in-process through the bindings will never see this reason.
 
 ### Migrating from protocol 7
 
-Protocols 8 through 17 introduced ten compatibility changes:
+Protocols 8 through 17 introduced ten compatibility changes. Then apply the
+protocol 18, 19, and 20 migration sections above after these:
 
 - Protocol 8 replaced `manaCost.whiteRedHybrid` with the sparse `hybrid`
   array described above.

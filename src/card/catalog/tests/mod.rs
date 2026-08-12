@@ -12,8 +12,8 @@ use crate::card::{
     TargetConditionDef, TargetPredicate, TargetSlotDef, TurnStepDef, ValueDef,
 };
 use crate::{
-    AbilityId, AdditionalCostId, AlternativeCostId, CardDefinitionId, CardPartId, Format, GrantId,
-    MeldRecipeId, ModeId, PlayOptionId, TargetIndex, TargetSlotId,
+    AbilityId, AdditionalCostId, AlternativeCostId, CardDefinitionId, CardPartId, ChoiceIndex,
+    Format, GrantId, MeldRecipeId, ModeId, PlayOptionId, TargetIndex, TargetSlotId,
 };
 
 fn definition(id: u16, name: &str, set: CardSet) -> CardDefinition {

@@ -89,6 +89,14 @@ fn collect_effect_abilities(effect: EffectDef, abilities: &mut Vec<&'static Abil
                 collect_effect_abilities(*effect, abilities);
             }
         }
+        EffectDef::Randomized {
+            on_success,
+            on_failure,
+            ..
+        } => {
+            collect_effect_abilities(*on_success, abilities);
+            collect_effect_abilities(*on_failure, abilities);
+        }
         EffectDef::OptionalPayment {
             if_paid: effect, ..
         }
@@ -98,6 +106,7 @@ fn collect_effect_abilities(effect: EffectDef, abilities: &mut Vec<&'static Abil
         | EffectDef::May(effect)
         | EffectDef::IfCondition { then: effect, .. }
         | EffectDef::AtNextStep { effect, .. }
+        | EffectDef::ChoosePermanent { then: effect, .. }
         | EffectDef::SacrificeOfChoice {
             then: Some(effect), ..
         } => collect_effect_abilities(*effect, abilities),
@@ -175,6 +184,8 @@ fn collect_applied_abilities(effect: AppliedEffectDef, abilities: &mut Vec<&'sta
         AppliedEffectDef::CannotBeCountered
         | AppliedEffectDef::DoesNotUntapDuringUntapStep
         | AppliedEffectDef::CannotBeEnchanted
+        | AppliedEffectDef::CannotBecomeEnchanted
+        | AppliedEffectDef::CannotChangeController
         | AppliedEffectDef::CannotBeBlockedBy(_)
         | AppliedEffectDef::PreventDamageFrom(_)
         | AppliedEffectDef::AddLandTypes(_)

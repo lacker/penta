@@ -229,6 +229,7 @@ fn parse_trigger_context(value: &Value) -> Result<TriggerContext, String> {
                     .ok_or_else(|| "trigger amount must be an i32".to_owned())
             })
             .transpose()?,
+        chosen_objects: [None; crate::ChoiceIndex::COUNT],
     })
 }
 

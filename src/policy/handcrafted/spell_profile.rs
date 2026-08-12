@@ -246,6 +246,17 @@ impl HandcraftedPolicy {
                     Self::collect_spell_effect_profile(*effect, x, targets, profile);
                 }
             }
+            EffectDef::Randomized {
+                on_success,
+                on_failure,
+                ..
+            } => {
+                Self::collect_spell_effect_profile(*on_success, x, targets, profile);
+                Self::collect_spell_effect_profile(*on_failure, x, targets, profile);
+            }
+            EffectDef::ChoosePermanent { then, .. } => {
+                Self::collect_spell_effect_profile(*then, x, targets, profile);
+            }
             // An optional effect is worth what it would do if taken.
             EffectDef::May(inner) => {
                 Self::collect_spell_effect_profile(*inner, x, targets, profile);

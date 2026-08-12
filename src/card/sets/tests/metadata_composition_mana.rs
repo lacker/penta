@@ -301,12 +301,9 @@ fn every_nonland_mana_permanent_has_an_activated_mana_clause() {
 
 #[test]
 fn migrated_activated_cards_preserve_their_derived_implementation_status() {
-    let partial = [
-        &y1993::alpha::CHAOS_ORB,
-        &y1993::alpha::STONE_GIANT,
-        &y1994::legends::PENDELHAVEN,
-    ];
+    let partial = [&y1993::alpha::STONE_GIANT, &y1994::legends::PENDELHAVEN];
     let complete = [
+        &y1993::alpha::CHAOS_ORB,
         &y1993::alpha::GLASSES_OF_URZA,
         &y1993::alpha::ICY_MANIPULATOR,
         &y1994::antiquities::MISHRA_S_FACTORY,
@@ -326,6 +323,7 @@ fn migrated_activated_cards_preserve_their_derived_implementation_status() {
             record.name
         );
     }
+
     for record in complete {
         assert_eq!(
             record.rules.implementation_status(),

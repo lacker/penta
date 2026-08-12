@@ -416,54 +416,6 @@ fn javelineers_on_the_stack_retain_the_sources_last_known_color() {
 }
 
 #[test]
-fn removing_chaos_orb_in_response_nullifies_its_flip() {
-    let mut game = ready_game();
-    let orb = creature(10_000, cards::CHAOS_ORB, PlayerId::One);
-    let target = creature(10_001, cards::BLACK_VISE, PlayerId::Two);
-    let shatter = card(10_002, cards::SHATTER, PlayerId::Two);
-    let orb_id = orb.card.id;
-    let target_id = target.card.id;
-    game.battlefield = vec![orb, target];
-    game.players[0].mana_pool.colorless = 1;
-    game.players[1].hand.push(shatter.clone());
-    game.players[1].mana_pool.red = 2;
-
-    game.apply(
-        PlayerId::One,
-        Action::ActivateAbility {
-            source: orb_id,
-            ability: activated_ability_for(&game, orb_id, 0),
-            targets: activated_targets(Target::Permanent(target_id)),
-            cost_object: None,
-            x: 0,
-        },
-    )
-    .unwrap();
-    game.apply(PlayerId::One, Action::PassPriority).unwrap();
-    game.apply(
-        PlayerId::Two,
-        cast_action(shatter.id, vec![Target::Permanent(orb_id)], Vec::new(), 0),
-    )
-    .unwrap();
-    pass_priority_pair(&mut game);
-    assert_eq!(game.stack.len(), 1);
-    assert!(
-        game.battlefield
-            .iter()
-            .all(|permanent| permanent.card.id != orb_id)
-    );
-
-    pass_priority_pair(&mut game);
-
-    assert!(game.stack.is_empty());
-    assert!(
-        game.battlefield
-            .iter()
-            .any(|permanent| permanent.card.id == target_id)
-    );
-}
-
-#[test]
 fn goblin_king_buffs_other_goblins_and_grants_mountainwalk() {
     let mut game = ready_game();
     let king = creature(10_000, cards::GOBLIN_KING, PlayerId::One);

@@ -112,6 +112,7 @@ impl Game {
         }
         Some(TriggerEventObject {
             id,
+            token: self.is_token(definition.id),
             types,
             controller,
             colors,

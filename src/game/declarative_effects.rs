@@ -3,8 +3,7 @@ use super::{
     CounteredSpellZone, DeclarativeAbilityDef, DelayedTrigger, DiscardSelectionDef, EffectDef,
     EffectRecipientDef, FloatingTrigger, Game, GameResult, Mana, ManaPool, ManaSelectionDef,
     ManaSource, Permanent, PlayerId, SacrificeFollowup, ScopedEffect, StackObject, Target,
-    TriggerCapture, TriggerContext, ValueDef, WinReason, ZoneKind, ZoneMoveCause, ZonePlacement,
-    public_cards,
+    TriggerCapture, TriggerContext, ValueDef, WinReason, ZoneKind, ZoneMoveCause, public_cards,
 };
 
 impl Game {
@@ -19,6 +18,40 @@ impl Game {
             EffectDef::Sequence(effects) => {
                 for effect in effects {
                     self.resolve_effect_def(scoped.with_effect(*effect), object, context);
+                }
+            }
+            EffectDef::Randomized {
+                likelihood,
+                on_success,
+                on_failure,
+            } => {
+                let branch = if self.rng.sample_probability(likelihood.value()) {
+                    on_success
+                } else {
+                    on_failure
+                };
+                self.resolve_effect_def(scoped.with_effect(*branch), object, context);
+            }
+            EffectDef::ChoosePermanent {
+                choice,
+                chooser,
+                object: predicate,
+                controller,
+                then,
+            } => {
+                let choosers = self.effect_recipients(chooser, object, context, scoped);
+                for chooser in choosers {
+                    if let Target::Player(chooser) = chooser {
+                        self.queue_permanent_effect_choice(
+                            choice,
+                            chooser,
+                            predicate,
+                            controller,
+                            object,
+                            context,
+                            scoped.with_effect(*then),
+                        );
+                    }
                 }
             }
             EffectDef::AddMana(AddManaEffectDef {
@@ -491,16 +524,19 @@ impl Game {
                     let Target::Permanent(id) = target else {
                         continue;
                     };
-                    let Some(permanent) = self
+                    let Some(index) = self
                         .battlefield
-                        .iter_mut()
-                        .find(|permanent| permanent.card.id == id)
+                        .iter()
+                        .position(|permanent| permanent.card.id == id)
                     else {
                         continue;
                     };
-                    if permanent.controller == controller {
+                    if self.battlefield[index].controller == controller
+                        || self.cannot_change_controller(&self.battlefield[index])
+                    {
                         continue;
                     }
+                    let permanent = &mut self.battlefield[index];
                     // Only the first change records where control came from,
                     // so passing a permanent around and back still returns it
                     // to whoever had it before the turn started.
@@ -935,39 +971,5 @@ impl Game {
             // The caller only routes conditional values here.
             _ => 0,
         }
-    }
-
-    /// Moves one object to a zone. Only the moves a supported card actually
-    /// makes are handled; the rest stay seams rather than guesses.
-    pub(super) fn move_target_to_zone(
-        &mut self,
-        target: Target,
-        zone: ZoneKind,
-        cause: ZoneMoveCause,
-        arriving_controller: Option<PlayerId>,
-        placement: ZonePlacement,
-    ) {
-        if let Target::Permanent(id) = target {
-            // Leaving the battlefield has its own procedure: last-known
-            // information, exit events, and the triggers watching for them.
-            match zone {
-                ZoneKind::Exile => self.exile_permanent(id),
-                ZoneKind::Hand => self.return_permanent_to_hand(id),
-                ZoneKind::Graveyard => self.move_permanents_to_graveyard(&[id]),
-                ZoneKind::Library => self.return_permanent_to_library(id, placement),
-                ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => {}
-            }
-            return;
-        }
-        let Target::Card(id) = target else {
-            return;
-        };
-        let Some(from) = self
-            .card_in_nonbattlefield_zone(id)
-            .map(|(from, _card)| from)
-        else {
-            return;
-        };
-        let _ = self.move_card_from_nonbattlefield_zone(id, from, zone, cause, arriving_controller);
     }
 }

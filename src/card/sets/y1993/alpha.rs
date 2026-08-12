@@ -4,11 +4,11 @@ use crate::card::{
     AddManaEffectDef, AppliedEffectDef, BasicLandType, CardArt, CardBehavior, CardRules, CardSet,
     CardSupertype, CardType, CardTypeSet, ComparisonDef, CostDef, CounterKind, DiscardSelectionDef,
     EffectDef, EffectDurationDef, EffectExecutionDef, EffectRecipientDef, KeywordAbility,
-    ManaColor, ObjectPredicateDef, ObjectQueryDef, PaymentDef, PlayerRelation, ReplacementEventDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities, cards,
+    LikelihoodDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, PaymentDef, PlayerRelation,
+    ReplacementEventDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities, cards,
 };
-use crate::ids::TargetIndex;
+use crate::ids::{ChoiceIndex, TargetIndex};
 use crate::mana_cost;
 
 static ENCHANT_CREATURE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
@@ -3131,8 +3131,31 @@ pub(in crate::card::sets) static CELESTIAL_PRISM: CardRecord = CardRecord::new(
     )]),
 );
 
+static CHAOS_ORB_FLIP_SUCCESS: EffectDef = EffectDef::Destroy {
+    object: EffectRecipientDef::ChosenPermanent(ChoiceIndex::PRIMARY),
+    can_regenerate: true,
+};
+
+static CHAOS_ORB_FLIP: EffectDef = EffectDef::Randomized {
+    likelihood: LikelihoodDef::new(0.9),
+    on_success: &CHAOS_ORB_FLIP_SUCCESS,
+    on_failure: &EffectDef::None,
+};
+
+static CHAOS_ORB_PRESENT_RESOLUTION: EffectDef = EffectDef::Sequence(&[
+    CHAOS_ORB_FLIP,
+    EffectDef::Destroy {
+        object: EffectRecipientDef::Source,
+        can_regenerate: true,
+    },
+]);
+
+static CHAOS_ORB_IF_PRESENT: EffectDef = EffectDef::IfCondition {
+    condition: &TriggerConditionDef::SourceOnBattlefield,
+    then: &CHAOS_ORB_PRESENT_RESOLUTION,
+};
+
 // LEA 235 — Chaos Orb
-// Audit: partial — The engine deterministically destroys one chosen permanent; it cannot perform or evaluate the EC physical flip-and-touch procedure.
 pub(in crate::card::sets) static CHAOS_ORB: CardRecord = CardRecord::new(
     cards::CHAOS_ORB,
     "Chaos Orb",
@@ -3140,22 +3163,20 @@ pub(in crate::card::sets) static CHAOS_ORB: CardRecord = CardRecord::new(
     CardSet::Alpha,
     CardRules::new_artifact(mana_cost!("{2}"))
         .with_abilities(&[
-            AbilityDef::activated_with_targets("{1}, {T}: If this artifact is on the battlefield, flip it onto the battlefield from a height of at least one foot. If this artifact turns over completely at least once during the flip, destroy all nontoken permanents it touches. Then destroy this artifact.", &[
+            AbilityDef::activated("{1}, {T}: Choose a nontoken permanent on the battlefield. If Chaos Orb is on the battlefield, flip Chaos Orb onto the battlefield from a height of at least one foot. If Chaos Orb turns over completely at least 360 degrees during the flip, and lands resting on the chosen permanent, destroy that permanent. Then destroy Chaos Orb.", &[
                     AbilityCostDef::Mana(mana_cost!("{1}")),
                     AbilityCostDef::TapSource,
-                ], &[AbilityTargetDef::exactly_one(
-                AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::Any,
-                    zones: &[ZoneKind::Battlefield],
-                    controller: None,
-                    owner: None,
+                ], EffectDef::ChoosePermanent {
+                    choice: ChoiceIndex::PRIMARY,
+                    chooser: EffectRecipientDef::Controller,
+                    object: ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                    controller: PlayerRelation::Any,
+                    then: &CHAOS_ORB_IF_PRESENT,
                 },
-            )], EffectDef::Special("Resolve the deterministic Chaos Orb approximation"))
-            .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::ChaosOrb))
-            .with_coverage(AbilityCoverageDef::partial(
-                "The engine uses a deterministic chosen-permanent approximation rather than the physical flip procedure.",
-            ))
-            .with_legacy_procedure(),
+            )
+            .with_coverage(AbilityCoverageDef::explained_complete(
+                "For reproducible headless 93/94 play, the physical flip is represented by one seeded random trial with a 0.9 success likelihood.",
+            )),
         ]),
 );
 

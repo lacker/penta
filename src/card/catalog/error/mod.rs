@@ -6,8 +6,8 @@ use crate::card::{
     CardEffectStatus, CardPrintingId, ManaCost, PlayActionKind, SpellForm, TargetSlotDef,
 };
 use crate::{
-    AbilityId, AdditionalCostId, AlternativeCostId, CardDefinitionId, CardPartId, GrantId, ModeId,
-    PlayOptionId, TargetIndex, TargetSlotId,
+    AbilityId, AdditionalCostId, AlternativeCostId, CardDefinitionId, CardPartId, ChoiceIndex,
+    GrantId, ModeId, PlayOptionId, TargetIndex, TargetSlotId,
 };
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -31,6 +31,12 @@ pub enum GrantedAbilityValidationError {
     TargetReferenceOutOfBounds {
         target: TargetIndex,
         target_count: usize,
+    },
+    ChoiceReferenceOutOfScope {
+        choice: ChoiceIndex,
+    },
+    ChoiceBindingAlreadyInScope {
+        choice: ChoiceIndex,
     },
     /// Runtime static-effect discovery currently starts from attached printed
     /// or copied clauses. Reject an executable static ability granted by
@@ -73,6 +79,13 @@ impl fmt::Display for GrantedAbilityValidationError {
             } => write!(
                 formatter,
                 "references target {target:?}, but the clause defines only {target_count} target slots"
+            ),
+            Self::ChoiceReferenceOutOfScope { choice } => {
+                write!(formatter, "references choice {choice:?} outside its binding scope")
+            }
+            Self::ChoiceBindingAlreadyInScope { choice } => write!(
+                formatter,
+                "binds choice {choice:?}, but that choice is already bound in this scope"
             ),
             Self::ExecutableStaticAbility => formatter.write_str(
                 "is an executable static ability, but granted static abilities are not evaluated yet",
@@ -217,6 +230,18 @@ pub enum CatalogError {
         ability: AbilityId,
         target: TargetIndex,
         target_count: usize,
+    },
+    AbilityChoiceReferenceOutOfScope {
+        definition: CardDefinitionId,
+        part: CardPartId,
+        ability: AbilityId,
+        choice: ChoiceIndex,
+    },
+    AbilityChoiceBindingAlreadyInScope {
+        definition: CardDefinitionId,
+        part: CardPartId,
+        ability: AbilityId,
+        choice: ChoiceIndex,
     },
     DuplicateStructurePart {
         definition: CardDefinitionId,

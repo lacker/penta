@@ -246,6 +246,7 @@ impl Game {
             object_controller: Some(entry.permanent.controller),
             event_player: Some(entry.permanent.controller),
             amount: None,
+            chosen_objects: [None; 8],
         }
     }
 
@@ -464,6 +465,8 @@ impl Game {
             AppliedEffectDef::CannotBeCountered
             | AppliedEffectDef::DoesNotUntapDuringUntapStep
             | AppliedEffectDef::CannotBeEnchanted
+            | AppliedEffectDef::CannotBecomeEnchanted
+            | AppliedEffectDef::CannotChangeController
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)
             | AppliedEffectDef::AddLandTypes(_)

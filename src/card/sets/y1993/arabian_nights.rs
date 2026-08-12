@@ -189,8 +189,41 @@ pub(in crate::card::sets) static SERENDIB_EFREET: CardRecord = CardRecord::new(
 // ARN 25 — Erg Raiders
 // Audit: blocked — Needs duration-aware control-changing continuous effects for “At the beginning of your end step, if this creature didn't attack this turn, it deals 2 damage to you unless it came under your control this turn”.
 
+static GUARDIAN_BEAST_ARTIFACTS: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::HasType(CardType::Artifact),
+    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+]);
+
+static GUARDIAN_BEAST_PROTECTION: EffectDef = EffectDef::Apply {
+    recipient: EffectRecipientDef::MatchingObjects {
+        object: GUARDIAN_BEAST_ARTIFACTS,
+        zones: &[ZoneKind::Battlefield],
+        controller: PlayerRelation::You,
+    },
+    effect: AppliedEffectDef::Composite(&[
+        AppliedEffectDef::CannotBecomeEnchanted,
+        AppliedEffectDef::GrantAbility(&abilities::indestructible()),
+        AppliedEffectDef::CannotChangeController,
+    ]),
+    duration: EffectDurationDef::WhileSourceRemainsInZone,
+};
+
 // ARN 26 — Guardian Beast
-// Audit: blocked — Needs this compound indestructibility and attachment-legality effect for “As long as this creature is untapped, noncreature artifacts you control can't be enchanted, they have indestructible, and other players can't gain control of them. This effect doesn't…”.
+pub(in crate::card::sets) static GUARDIAN_BEAST: CardRecord = CardRecord::new(
+    cards::GUARDIAN_BEAST,
+    "Guardian Beast",
+    CardArt::new("9941f83b-2903-4eab-ac6d-5313e3978fa3", "Ken Meyer, Jr."),
+    CardSet::ArabianNights,
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Beast"], 2, 4).with_abilities(&[
+        AbilityDef::static_ability(
+            "As long as this creature is untapped, noncreature artifacts you control can't be enchanted, they have indestructible, and other players can't gain control of them. This effect doesn't remove Auras already attached to those artifacts.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::SourceUntapped,
+                then: &GUARDIAN_BEAST_PROTECTION,
+            },
+        ),
+    ]),
+);
 
 // ARN 27 — Hasran Ogress
 pub(in crate::card::sets) static HASRAN_OGRESS: CardRecord = CardRecord::new(
@@ -835,6 +868,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &REPENTANT_BLACKSMITH,
     &FLYING_MEN,
     &SERENDIB_EFREET,
+    &GUARDIAN_BEAST,
     &HASRAN_OGRESS,
     &JUNUN_EFREET,
     &JUZAM_DJINN,

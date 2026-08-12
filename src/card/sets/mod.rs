@@ -257,7 +257,7 @@ const SET_MODULES: &[SetModule] = &[
 ];
 
 pub(super) fn definitions() -> Vec<CardDefinition> {
-    let mut definitions = Vec::with_capacity(605);
+    let mut definitions = Vec::with_capacity(606);
     for module in SET_MODULES {
         definitions.extend(module.cards.iter().map(|record| record.definition()));
     }
@@ -310,7 +310,6 @@ pub(super) const fn rules(behavior: CardBehavior) -> &'static CardRules {
         CardBehavior::Fork => &y1993::alpha::FORK.rules,
         CardBehavior::Smoke => &y1993::alpha::SMOKE.rules,
         CardBehavior::WinterOrb => &y1993::alpha::WINTER_ORB.rules,
-        CardBehavior::ChaosOrb => &y1993::alpha::CHAOS_ORB.rules,
         CardBehavior::GoblinGrenade => &y1994::fallen_empires::GOBLIN_GRENADE.rules,
         CardBehavior::IronclawOrcs => &y1993::alpha::IRONCLAW_ORCS.rules,
         CardBehavior::FellwarStone => &y1994::the_dark::FELLWAR_STONE.rules,

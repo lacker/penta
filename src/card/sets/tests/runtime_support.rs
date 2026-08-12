@@ -14,6 +14,7 @@ pub(super) fn shared_object_predicate(predicate: ObjectPredicateDef) -> bool {
         ObjectPredicateDef::Special(_) => false,
         ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
+        | ObjectPredicateDef::Token
         | ObjectPredicateDef::HasType(_)
         | ObjectPredicateDef::HasAnyBasicLandType(_)
         | ObjectPredicateDef::Spell
@@ -76,6 +77,7 @@ pub(super) fn shared_effect_recipient(recipient: EffectRecipientDef) -> bool {
         }
         EffectRecipientDef::ObjectsSharingNameWithTarget(_)
         | EffectRecipientDef::Source
+        | EffectRecipientDef::ChosenPermanent(_)
         | EffectRecipientDef::AttachedPermanent
         | EffectRecipientDef::Controller
         | EffectRecipientDef::Opponent
@@ -140,6 +142,8 @@ pub(super) fn shared_cannot_be_countered_effect(effect: AppliedEffectDef) -> boo
         AppliedEffectDef::CannotBeCountered | AppliedEffectDef::CannotBeEnchanted => true,
         AppliedEffectDef::ModifyPowerToughness { .. }
         | AppliedEffectDef::DoesNotUntapDuringUntapStep
+        | AppliedEffectDef::CannotBecomeEnchanted
+        | AppliedEffectDef::CannotChangeController
         | AppliedEffectDef::CannotBeBlockedBy(_)
         | AppliedEffectDef::PreventDamageFrom(_)
         | AppliedEffectDef::AddLandTypes(_)
@@ -211,6 +215,8 @@ fn resolving_effect_is_only_ability_changes(effect: AppliedEffectDef) -> bool {
         AppliedEffectDef::CannotBeCountered
         | AppliedEffectDef::DoesNotUntapDuringUntapStep
         | AppliedEffectDef::CannotBeEnchanted
+        | AppliedEffectDef::CannotBecomeEnchanted
+        | AppliedEffectDef::CannotChangeController
         | AppliedEffectDef::CannotBeBlockedBy(_)
         | AppliedEffectDef::PreventDamageFrom(_)
         | AppliedEffectDef::AddLandTypes(_)
@@ -254,6 +260,8 @@ pub(super) fn shared_resolving_applied_effect(effect: AppliedEffectDef) -> bool 
         AppliedEffectDef::CannotBeCountered
         | AppliedEffectDef::DoesNotUntapDuringUntapStep
         | AppliedEffectDef::CannotBeEnchanted
+        | AppliedEffectDef::CannotBecomeEnchanted
+        | AppliedEffectDef::CannotChangeController
         | AppliedEffectDef::CannotBeBlockedBy(_)
         | AppliedEffectDef::PreventDamageFrom(_)
         | AppliedEffectDef::AddLandTypes(_)
@@ -310,6 +318,9 @@ pub(super) fn shared_decision_effect(effect: EffectDef) -> bool {
                     .then
                     .is_none_or(|effect| shared_stack_effect_at_position(*effect, true))
         }
+        EffectDef::ChoosePermanent {
+            chooser, object, ..
+        } => shared_effect_recipient(chooser) && shared_object_predicate(object),
         _ => false,
     }
 }
@@ -345,6 +356,22 @@ pub(super) fn shared_stack_effect_at_position(
                     .iter()
                     .copied()
                     .all(|effect| shared_stack_effect_at_position(effect, false))
+        }
+        EffectDef::Randomized {
+            on_success,
+            on_failure,
+            ..
+        } => {
+            let branch_is_shared = |branch: EffectDef| {
+                branch == EffectDef::None
+                    || shared_stack_effect_at_position(branch, deferred_decision_allowed)
+            };
+            branch_is_shared(*on_success) && branch_is_shared(*on_failure)
+        }
+        EffectDef::ChoosePermanent { then, .. } => {
+            deferred_decision_allowed
+                && shared_decision_effect(effect)
+                && shared_stack_effect_at_position(*then, true)
         }
         EffectDef::AddMana(_) => shared_mana_effect(effect, false),
         EffectDef::DealDamage { recipient, .. }
@@ -426,9 +453,10 @@ pub(super) fn shared_stack_effect_at_position(
         // Scheduling creates a fresh resolution boundary. A decision may
         // therefore be the delayed effect's root even when scheduling it
         // is itself one component of a sequence.
-        EffectDef::IfCondition { then: effect, .. } | EffectDef::AtNextStep { effect, .. } => {
-            shared_stack_effect_at_position(*effect, true)
+        EffectDef::IfCondition { then: effect, .. } => {
+            shared_stack_effect_at_position(*effect, deferred_decision_allowed)
         }
+        EffectDef::AtNextStep { effect, .. } => shared_stack_effect_at_position(*effect, true),
         // Installing an ability is a resolution like any other; what it
         // installs has to be an ability the shared runtime can fire.
         EffectDef::TriggerUntilYourNextTurn { ability } => shared_definition_ability(ability),
@@ -460,48 +488,6 @@ pub(super) fn shared_stack_effect_at_position(
         | EffectDef::CopyPermanentAsItEnters { .. }
         | EffectDef::ChooseCreatureType { .. }
         | EffectDef::Special(_) => false,
-    }
-}
-
-pub(super) fn shared_trigger_event(event: TriggerEventDef) -> bool {
-    match event {
-        TriggerEventDef::ZoneChanged { object, from, to } => {
-            const COMMITTED_TRANSITIONS: [(ZoneKind, ZoneKind); 5] = [
-                (ZoneKind::Hand, ZoneKind::Battlefield),
-                (ZoneKind::Stack, ZoneKind::Battlefield),
-                (ZoneKind::Battlefield, ZoneKind::Graveyard),
-                (ZoneKind::Battlefield, ZoneKind::Exile),
-                (ZoneKind::Battlefield, ZoneKind::Hand),
-            ];
-            shared_object_predicate(object)
-                && COMMITTED_TRANSITIONS
-                    .iter()
-                    .any(|(actual_from, actual_to)| {
-                        from.is_none_or(|expected| expected == *actual_from)
-                            && to.is_none_or(|expected| expected == *actual_to)
-                    })
-        }
-        TriggerEventDef::BecomesTapped(object)
-        | TriggerEventDef::Attacks(object)
-        | TriggerEventDef::AttacksFirstTimeThisTurn(object)
-        | TriggerEventDef::TappedForMana(object)
-        | TriggerEventDef::SpellCast(object) => shared_object_predicate(object),
-        TriggerEventDef::StepBegins { .. }
-        | TriggerEventDef::LifeGained(_)
-        | TriggerEventDef::StateCondition
-        | TriggerEventDef::TransformsIntoThisFace
-        | TriggerEventDef::DamagedCreatureDied => true,
-        // Only "whenever this creature is dealt damage" is committed; a
-        // wider recipient has no event behind it yet.
-        TriggerEventDef::DamageDealt { source, recipient } => {
-            recipient == EffectRecipientDef::Source && source == ObjectPredicateDef::Any
-        }
-        TriggerEventDef::CombatDamageDealtToPlayer { source }
-        | TriggerEventDef::CombatDamageDealtToSource { source }
-        | TriggerEventDef::DamageDealtToPlayer { source, .. } => shared_object_predicate(source),
-        TriggerEventDef::AbilityActivated(_)
-        | TriggerEventDef::ManaAdded(_)
-        | TriggerEventDef::Special(_) => false,
     }
 }
 
@@ -587,6 +573,7 @@ pub(super) fn shared_static_effect(source_zones: &[ZoneKind], effect: EffectDef)
                 EffectRecipientDef::Controller
                 | EffectRecipientDef::Opponent
                 | EffectRecipientDef::EachPlayer
+                | EffectRecipientDef::ChosenPermanent(_)
                 | EffectRecipientDef::Target(_)
                 | EffectRecipientDef::ControllerOfTarget(_)
                 | EffectRecipientDef::ObjectsControlledByTarget { .. }
@@ -612,15 +599,21 @@ pub(super) fn shared_static_effect(source_zones: &[ZoneKind], effect: EffectDef)
                 && duration == EffectDurationDef::WhileSourceRemainsInZone;
             battlefield_effect || stack_source_effect
         }
+        EffectDef::IfCondition { condition, then } => {
+            battlefield_only(source_zones)
+                && shared_static_trigger_condition(*condition)
+                && shared_static_effect(source_zones, *then)
+        }
         // None of these is a static ability; all execute from the stack.
         EffectDef::GrantFlashToNextSorcery
+        | EffectDef::Randomized { .. }
+        | EffectDef::ChoosePermanent { .. }
         | EffectDef::May(_)
         | EffectDef::ExileLinkedToSource { .. }
         | EffectDef::ReturnLinkedExiles { .. }
         | EffectDef::MakeUnblockableThisTurn { .. }
         | EffectDef::GainControlThisTurn { .. }
         | EffectDef::AtNextStep { .. }
-        | EffectDef::IfCondition { .. }
         | EffectDef::TriggerUntilYourNextTurn { .. }
         | EffectDef::None
         | EffectDef::AddMana(_)
@@ -710,7 +703,9 @@ pub(super) fn shared_static_applied_effect(
         AppliedEffectDef::DoesNotUntapDuringUntapStep
         | AppliedEffectDef::RemoveAbilities(_)
         | AppliedEffectDef::CannotBeCountered
-        | AppliedEffectDef::CannotBeEnchanted => true,
+        | AppliedEffectDef::CannotBeEnchanted
+        | AppliedEffectDef::CannotBecomeEnchanted
+        | AppliedEffectDef::CannotChangeController => true,
         // Only a resolving animation is supported; nothing reads one off
         // a static ability.
         AppliedEffectDef::Animate(_) | AppliedEffectDef::Special(_) => false,
@@ -721,13 +716,25 @@ pub(super) fn shared_trigger_condition(condition: TriggerConditionDef) -> bool {
     match condition {
         TriggerConditionDef::ObjectCount { query, .. } => shared_object_predicate(query.object),
         TriggerConditionDef::TargetMatches { object, .. } => shared_object_predicate(object),
-        TriggerConditionDef::ActivePlayer(_)
+        TriggerConditionDef::SourceOnBattlefield
+        | TriggerConditionDef::SourceUntapped
+        | TriggerConditionDef::ActivePlayer(_)
         | TriggerConditionDef::SourceLoyalty { .. }
         | TriggerConditionDef::SourceActivationsThisTurn { .. }
         | TriggerConditionDef::SourceDealtDamageToOpponentThisTurn
         | TriggerConditionDef::SourceIsTapped
         | TriggerConditionDef::SpellsCastLastTurn { .. } => true,
     }
+}
+
+/// Static effects have a battlefield source but no captured trigger event,
+/// resolving ability, or stack-target scope. Keep their condition boundary to
+/// the source-state predicates that can be evaluated from exactly that input.
+fn shared_static_trigger_condition(condition: TriggerConditionDef) -> bool {
+    matches!(
+        condition,
+        TriggerConditionDef::SourceOnBattlefield | TriggerConditionDef::SourceUntapped
+    )
 }
 
 pub(super) fn shared_replacement_effect(effect: ReplacementEffectDef) -> bool {
@@ -767,22 +774,6 @@ pub(super) fn shared_replacement_effect(effect: ReplacementEffectDef) -> bool {
                 && if_paid.iter().copied().all(shared_replacement_effect)
                 && if_declined.iter().copied().all(shared_replacement_effect)
         }
-    }
-}
-
-pub(super) fn shared_replacement_event(event: ReplacementEventDef) -> bool {
-    match event {
-        ReplacementEventDef::SourceEntersBattlefield
-        | ReplacementEventDef::WouldGainLife(_)
-        | ReplacementEventDef::EntersBattlefield => true,
-        ReplacementEventDef::ObjectEntersBattlefield { object, .. } => {
-            shared_object_predicate(object)
-        }
-        ReplacementEventDef::WouldMove { cause, .. } => shared_zone_move_cause(cause),
-        // Only graveyard placement funnels through one procedure the
-        // replacement can sit in front of.
-        ReplacementEventDef::AnyObjectWouldMove { to } => to == ZoneKind::Graveyard,
-        ReplacementEventDef::Special(_) => false,
     }
 }
 
@@ -830,6 +821,8 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     // A mana ability's amount has to be knowable without
                     // resolving it, which this one is not.
                     EffectDef::AddManaEqualTo { .. }
+                    | EffectDef::Randomized { .. }
+                    | EffectDef::ChoosePermanent { .. }
                     | EffectDef::May(_)
                     | EffectDef::None
                     | EffectDef::DealDamage { .. }

@@ -3,8 +3,8 @@ use super::{
     CardInstance, CardPart, CardStructure, CharacteristicContext, CharacteristicSource,
     ControlFlow, DeclarativeAbilityDef, DoubleFacedKind, EffectiveAbility, FrozenActivatedAbility,
     Game, GameEvent, GameObjectId, ManaCost, ManaPaymentPurpose, Permanent, PlayerId,
-    RetiredObject, StackAbilityPayload, StackObject, StackObjectKind, Target, TargetSelection,
-    TargetSlotId, TriggerContext, ZoneKind, add_mana_cost, applicable_part_ids, mana_cost_value,
+    RetiredObject, StackAbilityPayload, StackObject, StackObjectKind, TargetSelection,
+    TriggerContext, ZoneKind, add_mana_cost, applicable_part_ids, mana_cost_value,
 };
 
 impl Game {
@@ -283,7 +283,6 @@ impl Game {
         behavior: CardBehavior,
         actions: &mut Vec<Action>,
     ) {
-        let ability_target_slot = TargetSlotId(0);
         match behavior {
             CardBehavior::SedgeTroll
                 if self.can_pay_cost(player, ManaCost::colored(0, 0, 0, 1, 0, 0), 0) =>
@@ -295,25 +294,6 @@ impl Game {
                     cost_object: None,
                     x: 0,
                 });
-            }
-            CardBehavior::ChaosOrb
-                if !permanent.tapped && self.can_pay_cost(player, ManaCost::new(1, 0), 0) =>
-            {
-                actions.extend(
-                    self.battlefield
-                        .iter()
-                        .filter(|candidate| candidate.card.id != permanent.card.id)
-                        .map(|candidate| Action::ActivateAbility {
-                            source: permanent.card.id,
-                            ability,
-                            targets: vec![TargetSelection::single(
-                                ability_target_slot,
-                                Target::Permanent(candidate.card.id),
-                            )],
-                            cost_object: None,
-                            x: 0,
-                        }),
-                );
             }
             CardBehavior::LibraryOfAlexandria
                 if !permanent.tapped

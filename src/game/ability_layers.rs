@@ -241,6 +241,8 @@ impl Game {
             AppliedEffectDef::CannotBeCountered
             | AppliedEffectDef::DoesNotUntapDuringUntapStep
             | AppliedEffectDef::CannotBeEnchanted
+            | AppliedEffectDef::CannotBecomeEnchanted
+            | AppliedEffectDef::CannotChangeController
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)
             | AppliedEffectDef::AddLandTypes(_)

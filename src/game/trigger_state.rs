@@ -6,7 +6,7 @@ use crate::card::{
     TriggerEventDef, TurnStepDef, ZoneKind,
 };
 use crate::casting::TargetSelection;
-use crate::ids::{CardDefinitionId, GameObjectId, PlayerId};
+use crate::ids::{CardDefinitionId, ChoiceIndex, GameObjectId, PlayerId};
 
 use super::{ScopedEffect, StackAbilityResolver, StackObject};
 
@@ -30,6 +30,9 @@ pub(super) struct TriggerContext {
     pub(super) object_controller: Option<PlayerId>,
     pub(super) event_player: Option<PlayerId>,
     pub(super) amount: Option<i32>,
+    /// Non-targeting object choices made during this resolution, indexed in
+    /// the authored effect tree rather than stored on the stack as targets.
+    pub(super) chosen_objects: [Option<GameObjectId>; ChoiceIndex::COUNT],
 }
 
 impl TriggerContext {
@@ -39,13 +42,24 @@ impl TriggerContext {
             object_controller: None,
             event_player: None,
             amount: None,
+            chosen_objects: [None; ChoiceIndex::COUNT],
         }
+    }
+
+    pub(super) const fn chosen_object(self, choice: ChoiceIndex) -> Option<GameObjectId> {
+        self.chosen_objects[choice.index()]
+    }
+
+    pub(super) fn bind_choice(&mut self, choice: ChoiceIndex, object: Option<GameObjectId>) {
+        self.chosen_objects[choice.index()] = object;
     }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[allow(clippy::struct_excessive_bools)]
 pub(super) struct TriggerEventObject {
     pub(super) id: GameObjectId,
+    pub(super) token: bool,
     pub(super) types: CardTypeSet,
     pub(super) controller: PlayerId,
     pub(super) colors: [bool; 5],
@@ -140,6 +154,7 @@ impl CommittedTriggerEvent {
                 object_controller: Some(object.controller),
                 event_player: None,
                 amount: None,
+                chosen_objects: [None; ChoiceIndex::COUNT],
             },
             Self::DamageDealt {
                 source,
@@ -154,6 +169,7 @@ impl CommittedTriggerEvent {
                     Target::Card(_) | Target::Permanent(_) | Target::Spell(_) => None,
                 },
                 amount: Some(i32::from(*amount)),
+                chosen_objects: [None; ChoiceIndex::COUNT],
             },
             Self::CombatDamageDealtToPlayer {
                 object,
@@ -169,12 +185,14 @@ impl CommittedTriggerEvent {
                 object_controller: Some(object.controller),
                 event_player: Some(*player),
                 amount: Some(i32::from(*amount)),
+                chosen_objects: [None; ChoiceIndex::COUNT],
             },
             Self::LifeGained { player, amount } => TriggerContext {
                 object: None,
                 object_controller: None,
                 event_player: Some(*player),
                 amount: Some(i32::from(*amount)),
+                chosen_objects: [None; ChoiceIndex::COUNT],
             },
             // The player who tapped a permanent for mana is its controller,
             // which is the same shape a cast spell has.
@@ -183,12 +201,14 @@ impl CommittedTriggerEvent {
                 object_controller: Some(object.controller),
                 event_player: Some(object.controller),
                 amount: None,
+                chosen_objects: [None; ChoiceIndex::COUNT],
             },
             Self::StepBegins { player, .. } => TriggerContext {
                 object: None,
                 object_controller: None,
                 event_player: Some(*player),
                 amount: None,
+                chosen_objects: [None; ChoiceIndex::COUNT],
             },
         }
     }

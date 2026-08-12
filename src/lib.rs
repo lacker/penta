@@ -30,7 +30,7 @@ pub use card::{
     ConditionDef, ConditionalValueDef, CostDef, CountConditionDef, CounterKind, CreatureStats,
     DeclarativeAbilityDef, DiscardSelectionDef, DividedTotal, DoubleFacedKind, EffectDef,
     EffectDurationDef, EffectExecutionDef, EffectRecipientDef, GrantedAbilityValidationError,
-    HybridPair, ImplementationStatus, KeywordAbility, ManaCost, ManaCostParseError,
+    HybridPair, ImplementationStatus, KeywordAbility, LikelihoodDef, ManaCost, ManaCostParseError,
     ManaCostParseErrorKind, ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef,
     MeldComponentDef, MeldRecipeDef, MeldResultDef, ModalSpellDef, ModeDef, ModeSetDef,
     ObjectPredicateDef, ObjectQueryDef, PaymentDef, PlayActionKind, PlayOptionDef, PlayRestriction,
@@ -53,7 +53,7 @@ pub use game::{
 };
 pub use ids::{
     AbilityId, AdditionalCostId, AlternativeCostId, CardDefinitionId, CardInstanceId, CardPartId,
-    GameObjectId, GrantId, MeldRecipeId, ModeId, PhysicalCardId, PlayOptionId, PlayerId,
-    StackObjectId, TargetIndex, TargetSlotId,
+    ChoiceIndex, GameObjectId, GrantId, MeldRecipeId, ModeId, PhysicalCardId, PlayOptionId,
+    PlayerId, StackObjectId, TargetIndex, TargetSlotId,
 };
 pub use policy::{HandcraftedPolicy, PlayError, Policy, RandomPolicy, play_game};

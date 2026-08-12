@@ -77,6 +77,7 @@ impl Game {
             .expect("a battlefield object has effective rules");
         TriggerEventObject {
             id: permanent.card.id,
+            token: self.is_token(permanent.card.definition),
             types: self
                 .permanent_types(permanent)
                 .expect("a battlefield object has effective types"),
@@ -110,6 +111,7 @@ impl Game {
             .expect("a battlefield object has effective rules");
         TriggerEventObject {
             id: permanent.card.id,
+            token: self.is_token(permanent.card.definition),
             types: self
                 .permanent_types(permanent)
                 .expect("a battlefield object has effective types"),

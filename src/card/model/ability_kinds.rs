@@ -182,6 +182,10 @@ pub enum ComparisonDef {
 /// ability would go on the stack, and again as it resolves.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum TriggerConditionDef {
+    /// Whether the original source object is still on the battlefield.
+    SourceOnBattlefield,
+    /// Whether the source permanent is currently untapped.
+    SourceUntapped,
     /// How many objects the query matches, against a printed number.
     ObjectCount {
         query: ObjectQueryDef,

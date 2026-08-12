@@ -3,7 +3,7 @@ use crate::card::{
     CardTypeSet, ColorSet, ManaCost, PaymentDef, ReplacementEffectDef, ZoneKind, ZonePlacement,
 };
 use crate::casting::TargetSelection;
-use crate::ids::{GameObjectId, PlayerId};
+use crate::ids::{ChoiceIndex, GameObjectId, PlayerId};
 
 use super::{
     ApplicableReplacement, CardInstance, DecisionObservation, DecisionOption, DecisionZone,
@@ -144,6 +144,14 @@ pub(super) enum DecisionContinuation {
     },
     /// An effect the controller was offered and may decline.
     OptionalEffect {
+        object: Box<StackObject>,
+        context: TriggerContext,
+        effect: ScopedEffect,
+    },
+    /// Resume a declarative effect after its controller chooses a permanent
+    /// during resolution. The choice is not a target.
+    ChoosePermanentForEffect {
+        choice: ChoiceIndex,
         object: Box<StackObject>,
         context: TriggerContext,
         effect: ScopedEffect,

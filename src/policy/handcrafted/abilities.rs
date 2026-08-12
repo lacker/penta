@@ -1,5 +1,5 @@
 use super::{
-    AbilityCostDef, AbilityOrigin, CardBehavior, CardDefinitionId, CardTypeSet, DecisionOption,
+    AbilityCostDef, AbilityOrigin, CardDefinitionId, CardTypeSet, DecisionOption,
     DeclarativeAbilityDef, DeclarativeSpellProfile, GameObjectId, HandcraftedPolicy,
     PlayerObservation, Step, Target,
 };
@@ -333,7 +333,6 @@ impl HandcraftedPolicy {
                 - discard_source_cost;
         }
         let score = match behavior {
-            Some(CardBehavior::ChaosOrb) => 7_200 + target_score,
             Some(_) => 4_500 + target_score,
             None if !global_destroy_types.is_empty() => {
                 self.global_destroy_score(observation, global_destroy_types)

@@ -3,9 +3,9 @@ use super::{
     AddManaEffectDef, AlternativeCastKindDef, AlternativeCostDef, CardBehavior, CardComposition,
     CardDefinition, CardEffectStatus, CardPart, CardPrinting, CardPrintingId, CardRules, CardSet,
     CardType, CardTypeSet, CreatureStats, DeclarativeAbilityDef, EffectDef, EffectRecipientDef,
-    ImplementationStatus, ManaColor, ManaCost, ManaCostParseErrorKind, ManaRestrictionDef,
-    ManaSelectionDef, ObjectPredicateDef, PlayOptionDef, PlayerRelation, PrintedManaCost,
-    SpellForm, TargetPredicate, TriggerEventDef, ZoneKind,
+    ImplementationStatus, LikelihoodDef, ManaColor, ManaCost, ManaCostParseErrorKind,
+    ManaRestrictionDef, ManaSelectionDef, ObjectPredicateDef, PlayOptionDef, PlayerRelation,
+    PrintedManaCost, SpellForm, TargetPredicate, TriggerEventDef, ZoneKind,
 };
 use crate::{
     AbilityId, AlternativeCostId, CardDefinitionId, CardPartId, ModeId, PlayOptionId, TargetIndex,
@@ -15,6 +15,55 @@ static DEFERRED_CLAUSE: [AbilityDef; 1] = [AbilityDef::not_implemented(
     "A deferred card-specific ability.",
     "The card-specific ability is not executed.",
 )];
+
+#[test]
+fn likelihood_def_preserves_a_valid_floating_point_value() {
+    const LIKELIHOOD: LikelihoodDef = LikelihoodDef::new(0.9);
+
+    assert_eq!(LIKELIHOOD.value().to_bits(), 0.9_f64.to_bits());
+}
+
+#[test]
+fn likelihood_def_canonicalizes_negative_zero_for_equality_and_hashing() {
+    use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
+
+    let positive = LikelihoodDef::new(0.0);
+    let negative = LikelihoodDef::new(-0.0);
+    let hash = |likelihood: LikelihoodDef| {
+        let mut hasher = DefaultHasher::new();
+        likelihood.hash(&mut hasher);
+        hasher.finish()
+    };
+
+    assert_eq!(negative, positive);
+    assert_eq!(negative.value().to_bits(), 0.0_f64.to_bits());
+    assert_eq!(hash(negative), hash(positive));
+}
+
+#[test]
+#[should_panic(expected = "likelihood must be finite and between 0.0 and 1.0")]
+fn likelihood_def_rejects_nan() {
+    let _ = LikelihoodDef::new(f64::NAN);
+}
+
+#[test]
+#[should_panic(expected = "likelihood must be finite and between 0.0 and 1.0")]
+fn likelihood_def_rejects_infinity() {
+    let _ = LikelihoodDef::new(f64::INFINITY);
+}
+
+#[test]
+#[should_panic(expected = "likelihood must be finite and between 0.0 and 1.0")]
+fn likelihood_def_rejects_values_below_zero() {
+    let _ = LikelihoodDef::new(-0.1);
+}
+
+#[test]
+#[should_panic(expected = "likelihood must be finite and between 0.0 and 1.0")]
+fn likelihood_def_rejects_values_above_one() {
+    let _ = LikelihoodDef::new(1.1);
+}
 
 #[test]
 fn ability_cost_list_equality_and_hash_ignore_storage_representation() {

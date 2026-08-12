@@ -235,6 +235,8 @@ impl Game {
             AppliedEffectDef::CannotBeCountered
             | AppliedEffectDef::DoesNotUntapDuringUntapStep
             | AppliedEffectDef::CannotBeEnchanted
+            | AppliedEffectDef::CannotBecomeEnchanted
+            | AppliedEffectDef::CannotChangeController
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)
             | AppliedEffectDef::AddLandTypes(_)
@@ -357,6 +359,14 @@ impl Game {
                 .collect();
         }
 
+        if let EffectRecipientDef::ChosenPermanent(choice) = recipient {
+            return context
+                .chosen_object(choice)
+                .map(Target::Permanent)
+                .into_iter()
+                .collect();
+        }
+
         // "Its controller" is read after the rest of the effect has already
         // run, by which point the target is often gone -- Ghost Quarter
         // destroys the land before its owner searches. So this reads the
@@ -416,6 +426,9 @@ impl Game {
         else {
             return match recipient {
                 EffectRecipientDef::Source => object.source.map(Target::Permanent),
+                EffectRecipientDef::ChosenPermanent(_) => {
+                    unreachable!("chosen permanent returned above")
+                }
                 EffectRecipientDef::AttachedPermanent => object
                     .source
                     .and_then(|source| self.attached_host(source))
@@ -480,6 +493,7 @@ impl Game {
             .map_or(0, |(_, count)| *count)
     }
 
+    #[allow(clippy::too_many_lines)]
     pub(super) fn trigger_condition_holds(
         &self,
         condition: &TriggerConditionDef,
@@ -496,6 +510,15 @@ impl Game {
         } = condition
         else {
             return match condition {
+                TriggerConditionDef::SourceOnBattlefield => self
+                    .battlefield
+                    .iter()
+                    .any(|permanent| permanent.card.id == source),
+                TriggerConditionDef::SourceUntapped => self
+                    .battlefield
+                    .iter()
+                    .find(|permanent| permanent.card.id == source)
+                    .is_some_and(|permanent| !permanent.tapped),
                 TriggerConditionDef::ActivePlayer(relation) => {
                     self.player_relation_matches(self.active_player, *relation, controller, context)
                 }
@@ -844,6 +867,7 @@ impl Game {
             }
             ObjectPredicateDef::Any
             | ObjectPredicateDef::Source
+            | ObjectPredicateDef::Token
             | ObjectPredicateDef::HasType(_)
             | ObjectPredicateDef::HasAnyBasicLandType(_)
             | ObjectPredicateDef::Spell

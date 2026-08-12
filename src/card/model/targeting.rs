@@ -10,6 +10,9 @@ use super::{
 pub enum ObjectPredicateDef {
     Any,
     Source,
+    /// Whether the object is a token rather than a card represented by a
+    /// physical printing. Negate this for the common "nontoken" qualifier.
+    Token,
     HasType(CardType),
     /// A land with at least one of the listed effective basic land subtypes.
     ///

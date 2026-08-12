@@ -96,6 +96,7 @@ impl Game {
 
     /// The concrete activations one mana ability offers, which is one per
     /// colour it can produce.
+    #[allow(clippy::too_many_lines)]
     pub(super) fn mana_activations_for(
         &self,
         permanent: &Permanent,
@@ -143,6 +144,8 @@ impl Game {
             | EffectDef::AddManaEqualTo { .. }
             | EffectDef::None
             | EffectDef::Sequence(_)
+            | EffectDef::Randomized { .. }
+            | EffectDef::ChoosePermanent { .. }
             | EffectDef::DealDamage { .. }
             | EffectDef::DrainLife { .. }
             | EffectDef::GainLife { .. }
@@ -295,6 +298,8 @@ impl Game {
                 | EffectDef::AddManaEqualTo { .. }
                 | EffectDef::None
                 | EffectDef::Sequence(_)
+                | EffectDef::Randomized { .. }
+                | EffectDef::ChoosePermanent { .. }
                 | EffectDef::DealDamage { .. }
                 | EffectDef::DrainLife { .. }
                 | EffectDef::GainLife { .. }

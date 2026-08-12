@@ -373,6 +373,52 @@ fn target_references_are_validated_through_nested_values() {
 }
 
 #[test]
+fn non_targeting_choice_references_are_lexically_scoped() {
+    let choice = ChoiceIndex::PRIMARY;
+    let chosen = EffectRecipientDef::ChosenPermanent(choice);
+    let destroy_chosen = Box::leak(Box::new(EffectDef::Destroy {
+        object: chosen,
+        can_regenerate: true,
+    }));
+
+    assert_eq!(
+        super::validate_ability_targets(&[], *destroy_chosen,),
+        Err(GrantedAbilityValidationError::ChoiceReferenceOutOfScope { choice }),
+    );
+
+    let rebound = Box::leak(Box::new(EffectDef::ChoosePermanent {
+        choice,
+        chooser: EffectRecipientDef::Controller,
+        object: ObjectPredicateDef::Any,
+        controller: PlayerRelation::Any,
+        then: destroy_chosen,
+    }));
+    let nested_rebinding = EffectDef::ChoosePermanent {
+        choice,
+        chooser: EffectRecipientDef::Controller,
+        object: ObjectPredicateDef::Any,
+        controller: PlayerRelation::Any,
+        then: rebound,
+    };
+    assert_eq!(
+        super::validate_ability_targets(&[], nested_rebinding),
+        Err(GrantedAbilityValidationError::ChoiceBindingAlreadyInScope { choice }),
+    );
+
+    super::validate_ability_targets(
+        &[],
+        EffectDef::ChoosePermanent {
+            choice,
+            chooser: EffectRecipientDef::Controller,
+            object: ObjectPredicateDef::Any,
+            controller: PlayerRelation::Any,
+            then: destroy_chosen,
+        },
+    )
+    .expect("the binding is visible only inside its continuation");
+}
+
+#[test]
 fn merged_effect_vocabulary_preserves_local_target_bounds() {
     static TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
         AbilityTargetPredicate::Player(PlayerRelation::Any),

@@ -111,6 +111,54 @@ impl TargetIndex {
     }
 }
 
+/// Positional identity of one non-targeting choice bound while an effect
+/// resolves.
+///
+/// Unlike a [`TargetIndex`], a choice is not part of the spell or ability's
+/// stack payload: it is made only when the corresponding effect instruction
+/// resolves and is not subject to targeting restrictions or legality checks.
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct ChoiceIndex(u8);
+
+impl ChoiceIndex {
+    /// The first choice binding in an ordinary single-choice effect.
+    pub const PRIMARY: Self = Self(0);
+
+    /// The number of independent choice bindings one resolving effect can
+    /// retain. Keeping this compact lets [`crate::game::TriggerContext`] stay
+    /// copyable while still supporting nested effects that refer to more than
+    /// one earlier choice.
+    pub(crate) const COUNT: usize = 8;
+
+    /// Creates an authored choice index within the supported binding space.
+    ///
+    /// # Panics
+    ///
+    /// Panics when `index` is not less than eight.
+    #[must_use]
+    pub const fn new(index: u8) -> Self {
+        assert!(
+            (index as usize) < Self::COUNT,
+            "choice index must be less than eight"
+        );
+        Self(index)
+    }
+
+    #[must_use]
+    pub const fn index(self) -> usize {
+        self.0 as usize
+    }
+
+    #[must_use]
+    pub fn from_index(index: usize) -> Option<Self> {
+        if index < Self::COUNT {
+            u8::try_from(index).ok().map(Self)
+        } else {
+            None
+        }
+    }
+}
+
 /// Identity of one independently chosen target slot on an instantiated spell
 /// or ability. Slots are assigned in flattened target-clause order.
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]

@@ -615,3 +615,4 @@ pub const WASP_TOKEN_1_1_COLORLESS: CardDefinitionId = CardDefinitionId(602);
 pub const MINOR_DEMON_TOKEN_1_1_BLACK_RED: CardDefinitionId = CardDefinitionId(603);
 pub const THE_HIVE: CardDefinitionId = CardDefinitionId(604);
 pub const BORIS_DEVILBOON: CardDefinitionId = CardDefinitionId(605);
+pub const GUARDIAN_BEAST: CardDefinitionId = CardDefinitionId(606);

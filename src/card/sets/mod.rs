@@ -238,7 +238,6 @@ pub(super) const fn rules(behavior: CardBehavior) -> &'static CardRules {
         CardBehavior::TimeWalk => &y1993::alpha::TIME_WALK.rules,
         CardBehavior::Balance => &y1993::alpha::BALANCE.rules,
         CardBehavior::Channel => &y1993::alpha::CHANNEL.rules,
-        CardBehavior::Crusade => &y1993::alpha::CRUSADE.rules,
         CardBehavior::DemonicTutor => &y1993::alpha::DEMONIC_TUTOR.rules,
         CardBehavior::Duress => &y2012::magic_2013::DURESS.rules,
         CardBehavior::Earthquake => &y1993::alpha::EARTHQUAKE.rules,

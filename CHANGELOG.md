@@ -60,7 +60,7 @@ snapshots.
   characteristics consistently and resolution rechecks the declared target
   predicate, including protection and hexproof, so an all-illegal spell
   correctly fizzles instead of applying a card-local partial effect.
-- `CardBehavior` no longer exposes the 40 retired selectors whose built-in
+- `CardBehavior` no longer exposes the 41 retired selectors whose built-in
   cards are declarative. The Rust enum now contains live custom-effect
   selectors plus the three documented `CardDefinition::new` compatibility
   keys; downstream Rust code naming a removed variant must use the card's

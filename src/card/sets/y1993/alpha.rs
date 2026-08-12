@@ -49,11 +49,23 @@ pub(in crate::card::sets) static CRUSADE: CardRecord = CardRecord::new(
     "Crusade",
     CardArt::new("057986c7-20c0-4157-b4df-beae4ef5c66d", "Mark Poole"),
     CardSet::Alpha,
-    CardRules::new_enchantment(mana_cost!("{W}{W}"))
-    .with_abilities(&[AbilityDef::custom_full(
+    CardRules::new_enchantment(mana_cost!("{W}{W}")).with_abilities(&[AbilityDef::static_ability(
         "White creatures get +1/+1.",
-        CardBehavior::Crusade,
-        "The continuous power/toughness bonus is implemented by the legacy characteristic evaluator.",
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::MatchingObjects {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Color(ManaColor::White),
+                ]),
+                zones: &[ZoneKind::Battlefield],
+                controller: PlayerRelation::Any,
+            },
+            effect: AppliedEffectDef::ModifyPowerToughness {
+                power: ValueDef::Constant(1),
+                toughness: ValueDef::Constant(1),
+            },
+            duration: EffectDurationDef::WhileSourceRemainsInZone,
+        },
     )]),
 );
 

@@ -6,7 +6,6 @@ pub enum CardBehavior {
     ChainLightning,
     Channel,
     ChaosOrb,
-    Crusade,
     DemonicTutor,
     DustToDust,
     Duress,

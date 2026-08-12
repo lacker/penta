@@ -28,16 +28,6 @@ impl Game {
         })
     }
 
-    pub(super) fn crusade_bonus(&self, permanent: &Permanent) -> i16 {
-        if !self
-            .effective_rules(permanent)
-            .is_some_and(|rules| rules.colors()[0])
-        {
-            return 0;
-        }
-        i16::try_from(self.count_behavior(CardBehavior::Crusade)).unwrap_or(i16::MAX)
-    }
-
     pub(super) fn plus_one_counter_bonus(permanent: &Permanent) -> i16 {
         i16::try_from(permanent.counters(CounterKind::PlusOnePlusOne)).unwrap_or(i16::MAX)
     }
@@ -151,7 +141,6 @@ impl Game {
             stats.power
                 + ascended
                 + permanent.power_bonus
-                + self.crusade_bonus(permanent)
                 + static_power
                 + conditional_bonus
                 + Self::plus_one_counter_bonus(permanent)
@@ -194,7 +183,6 @@ impl Game {
             stats.toughness
                 + ascended
                 + permanent.toughness_bonus
-                + self.crusade_bonus(permanent)
                 + static_toughness
                 + conditional_bonus
                 + Self::plus_one_counter_bonus(permanent)

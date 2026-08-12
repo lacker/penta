@@ -1,15 +1,56 @@
 use super::*;
 
 #[test]
-fn crusade_buffs_white_creatures() {
+fn crusade_declaratively_buffs_every_white_creature() {
     let mut game = ready_game();
-    game.battlefield
-        .push(creature(10_000, cards::CRUSADE, PlayerId::One));
-    game.battlefield
-        .push(creature(10_001, cards::SAVANNAH_LIONS, PlayerId::One));
+    game.battlefield = vec![
+        creature(10_000, cards::CRUSADE, PlayerId::One),
+        creature(10_001, cards::SAVANNAH_LIONS, PlayerId::One),
+        creature(10_002, cards::SAVANNAH_LIONS, PlayerId::Two),
+        creature(10_003, cards::LOXODON_SMITER, PlayerId::Two),
+        creature(10_004, cards::ARBOR_ELF, PlayerId::One),
+    ];
 
-    assert_eq!(game.power(&game.battlefield[1]), Some(3));
-    assert_eq!(game.toughness(&game.battlefield[1]), Some(2));
+    assert_eq!(
+        game.catalog
+            .get(cards::CRUSADE)
+            .unwrap()
+            .rules
+            .special_behavior(),
+        None
+    );
+    assert_eq!(
+        (
+            game.power(&game.battlefield[1]),
+            game.toughness(&game.battlefield[1])
+        ),
+        (Some(3), Some(2)),
+        "a white creature controlled by Crusade's controller gets +1/+1",
+    );
+    assert_eq!(
+        (
+            game.power(&game.battlefield[2]),
+            game.toughness(&game.battlefield[2])
+        ),
+        (Some(3), Some(2)),
+        "an opponent's white creature gets +1/+1 too",
+    );
+    assert_eq!(
+        (
+            game.power(&game.battlefield[3]),
+            game.toughness(&game.battlefield[3])
+        ),
+        (Some(5), Some(5)),
+        "a multicolored white creature qualifies",
+    );
+    assert_eq!(
+        (
+            game.power(&game.battlefield[4]),
+            game.toughness(&game.battlefield[4])
+        ),
+        (Some(1), Some(1)),
+        "a nonwhite creature is unchanged",
+    );
 }
 
 #[test]

@@ -256,7 +256,7 @@ fn granted_ability_keeps_its_frozen_resolver_when_the_source_changes() {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         },
     )
-    .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::IcyManipulator))
+    .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::ChaosOrb))
     .with_coverage(AbilityCoverageDef::explained_complete(
         "The test intentionally grants a custom resolver.",
     ));
@@ -311,7 +311,7 @@ fn granted_ability_keeps_its_frozen_resolver_when_the_source_changes() {
         PlayerId::One,
         frozen,
         activated_targets(Target::Permanent(target)),
-        Vec::new(),
+        vec![target],
     );
     assert_eq!(game.stack[0].ability_origin(), Some(origin));
     assert!(matches!(
@@ -319,20 +319,19 @@ fn granted_ability_keeps_its_frozen_resolver_when_the_source_changes() {
             .ability
             .as_ref()
             .map(|ability| ability.resolver),
-        Some(StackAbilityResolver::Custom(CardBehavior::IcyManipulator))
+        Some(StackAbilityResolver::Custom(CardBehavior::ChaosOrb))
     ));
 
     // This models a continuous/copy effect changing the effective rules of a
     // source after activation. The origin remains provenance, while the stack
-    // object's executable payload must remain the Icy Manipulator procedure.
+    // object's executable payload must remain the Chaos Orb procedure.
     game.battlefield[0].copy_effect = Some(copied_characteristics(cards::JAYEMDAE_TOME));
     pass_priority_pair(&mut game);
 
     assert!(
         game.battlefield
             .iter()
-            .find(|permanent| permanent.card.id == target)
-            .is_some_and(|permanent| permanent.tapped),
+            .all(|permanent| permanent.card.id != target),
         "resolution must not rediscover a different handler from the changed source",
     );
 }
@@ -354,7 +353,7 @@ fn declarative_clause_uses_its_own_resolver_on_a_card_with_custom_behavior() {
         ),
         AbilityDef::custom_full(
             "A separate custom clause.",
-            CardBehavior::IcyManipulator,
+            CardBehavior::Fireball,
             "The test keeps one explicitly custom clause beside the declarative clause.",
         ),
     ];
@@ -400,37 +399,38 @@ fn declarative_clause_uses_its_own_resolver_on_a_card_with_custom_behavior() {
     pass_priority_pair(&mut game);
     assert_eq!(
         game.players[1].life, 19,
-        "the selected definition must not dispatch through Icy's unrelated hook",
+        "the selected definition must not dispatch through Fireball's unrelated hook",
     );
 }
 
 #[test]
 fn legacy_activated_clauses_dispatch_from_their_own_effect_execution() {
-    static PLAYER_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-        AbilityTargetPredicate::Player(PlayerRelation::Any),
-    )];
-    static GLASSES_COSTS: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
-    static DRAGON_COSTS: [AbilityCostDef; 1] = [AbilityCostDef::Mana(ManaCost::new(0, 1))];
+    static REGENERATION_COSTS: [AbilityCostDef; 1] =
+        [AbilityCostDef::Mana(ManaCost::colored(0, 0, 0, 1, 0, 0))];
     static ABILITIES: [AbilityDef; 2] = [
-        AbilityDef::activated_with_targets(
-            "{T}: Look at target player's hand.",
-            &GLASSES_COSTS,
-            &PLAYER_TARGETS,
-            EffectDef::Special("Look at the target player's hand"),
+        AbilityDef::activated(
+            "{T}: Draw a card. Activate only if you have exactly seven cards in hand.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
         )
-        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::GlassesOfUrza))
+        .with_effect_execution(EffectExecutionDef::Custom(
+            CardBehavior::LibraryOfAlexandria,
+        ))
         .with_coverage(AbilityCoverageDef::explained_complete(
-            "The test uses the legacy hand-viewing resolver.",
+            "The test uses the Library of Alexandria resolver.",
         ))
         .with_legacy_procedure(),
         AbilityDef::activated(
-            "{R}: This creature gets +1/+0 until end of turn.",
-            &DRAGON_COSTS,
-            EffectDef::Special("Give the source +1/+0 until end of turn"),
+            "{B}: Regenerate this permanent.",
+            &REGENERATION_COSTS,
+            EffectDef::Special("Regenerate the source permanent"),
         )
-        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::DragonWhelp))
+        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::SedgeTroll))
         .with_coverage(AbilityCoverageDef::explained_complete(
-            "The test uses the legacy Dragon Whelp pump resolver.",
+            "The test uses the Sedge Troll regeneration resolver.",
         ))
         .with_legacy_procedure(),
     ];
@@ -442,8 +442,7 @@ fn legacy_activated_clauses_dispatch_from_their_own_effect_execution() {
         false,
         CardBehavior::Unsupported,
     );
-    definition.rules =
-        CardRules::new_creature(ManaCost::default(), &[], 1, 1).with_abilities(&ABILITIES);
+    definition.rules = CardRules::new_artifact(ManaCost::default()).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
 
     let mut game = ready_game();
@@ -458,49 +457,63 @@ fn legacy_activated_clauses_dispatch_from_their_own_effect_execution() {
     let source = CardInstanceId(10_000);
     game.battlefield
         .push(creature(source.0, definition_id, PlayerId::One));
-    game.players[PlayerId::One.index()].mana_pool.red = 1;
-    game.players[PlayerId::Two.index()]
+    game.players[PlayerId::One.index()].mana_pool.black = 1;
+    game.players[PlayerId::One.index()]
         .hand
-        .push(card(10_001, cards::MOUNTAIN, PlayerId::Two));
-    let glasses_origin = activated_ability_for(&game, source, 0);
-    let dragon_origin = activated_ability_for(&game, source, 1);
-    let glasses = Action::ActivateAbility {
+        .extend((0..7).map(|offset| card(10_001 + offset, cards::MOUNTAIN, PlayerId::One)));
+    let library_origin = activated_ability_for(&game, source, 0);
+    let regeneration_origin = activated_ability_for(&game, source, 1);
+    let library = Action::ActivateAbility {
         source,
-        ability: glasses_origin,
-        targets: activated_targets(Target::Player(PlayerId::Two)),
+        ability: library_origin,
+        targets: Vec::new(),
         cost_object: None,
         x: 0,
     };
-    let dragon = Action::ActivateAbility {
+    let regeneration = Action::ActivateAbility {
         source,
-        ability: dragon_origin,
+        ability: regeneration_origin,
         targets: Vec::new(),
         cost_object: None,
         x: 0,
     };
     let actions = game.legal_actions(PlayerId::One);
-    assert!(actions.contains(&glasses));
-    assert!(actions.contains(&dragon));
-    assert_ne!(glasses_origin, dragon_origin);
+    assert!(actions.contains(&library));
+    assert!(actions.contains(&regeneration));
+    assert_ne!(library_origin, regeneration_origin);
 
-    game.apply(PlayerId::One, dragon).unwrap();
-    assert_eq!(game.battlefield[0].power_bonus, 1);
-    assert!(!game.battlefield[0].tapped);
-
-    game.apply(PlayerId::One, glasses).unwrap();
-    assert!(game.battlefield[0].tapped);
+    game.apply(PlayerId::One, regeneration).unwrap();
+    assert_eq!(game.stack[0].ability_origin(), Some(regeneration_origin));
     assert_eq!(
-        game.last_seen_hands[PlayerId::One.index()],
-        Some((
-            PlayerId::Two,
-            vec![(CardInstanceId(10_001), cards::MOUNTAIN)],
+        game.stack[0]
+            .ability
+            .as_ref()
+            .map(|ability| ability.resolver),
+        Some(StackAbilityResolver::Custom(CardBehavior::SedgeTroll)),
+    );
+    pass_priority_pair(&mut game);
+    assert_eq!(game.battlefield[0].regeneration_shields, 1);
+
+    game.apply(PlayerId::One, library).unwrap();
+    assert!(game.battlefield[0].tapped);
+    assert_eq!(game.stack[0].ability_origin(), Some(library_origin));
+    assert_eq!(
+        game.stack[0]
+            .ability
+            .as_ref()
+            .map(|ability| ability.resolver),
+        Some(StackAbilityResolver::Custom(
+            CardBehavior::LibraryOfAlexandria,
         )),
     );
+    pass_priority_pair(&mut game);
+    assert_eq!(game.players[PlayerId::One.index()].hand.len(), 8);
 }
 
 #[test]
 fn a_legacy_activation_after_a_shared_clause_keeps_its_own_origin() {
-    static DRAGON_COSTS: [AbilityCostDef; 1] = [AbilityCostDef::Mana(ManaCost::new(0, 1))];
+    static REGENERATION_COSTS: [AbilityCostDef; 1] =
+        [AbilityCostDef::Mana(ManaCost::colored(0, 0, 0, 1, 0, 0))];
     static ABILITIES: [AbilityDef; 2] = [
         AbilityDef::activated(
             "You gain 1 life.",
@@ -511,13 +524,13 @@ fn a_legacy_activation_after_a_shared_clause_keeps_its_own_origin() {
             },
         ),
         AbilityDef::activated(
-            "{R}: This creature gets +1/+0 until end of turn.",
-            &DRAGON_COSTS,
-            EffectDef::Special("Give the source +1/+0 until end of turn"),
+            "{B}: Regenerate this creature.",
+            &REGENERATION_COSTS,
+            EffectDef::Special("Regenerate the source creature"),
         )
-        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::DragonWhelp))
+        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::SedgeTroll))
         .with_coverage(AbilityCoverageDef::explained_complete(
-            "The test uses the legacy Dragon Whelp pump resolver.",
+            "The test uses the Sedge Troll regeneration resolver.",
         ))
         .with_legacy_procedure(),
     ];
@@ -545,7 +558,7 @@ fn a_legacy_activation_after_a_shared_clause_keeps_its_own_origin() {
     let source = CardInstanceId(10_000);
     game.battlefield
         .push(creature(source.0, definition_id, PlayerId::One));
-    game.players[PlayerId::One.index()].mana_pool.red = 1;
+    game.players[PlayerId::One.index()].mana_pool.black = 1;
     let legacy_origin = activated_ability_for(&game, source, 1);
     let action = Action::ActivateAbility {
         source,
@@ -557,8 +570,17 @@ fn a_legacy_activation_after_a_shared_clause_keeps_its_own_origin() {
 
     assert!(game.legal_actions(PlayerId::One).contains(&action));
     game.apply(PlayerId::One, action).unwrap();
-    assert_eq!(game.battlefield[0].power_bonus, 1);
+    assert_eq!(game.stack[0].ability_origin(), Some(legacy_origin));
+    assert_eq!(
+        game.stack[0]
+            .ability
+            .as_ref()
+            .map(|ability| ability.resolver),
+        Some(StackAbilityResolver::Custom(CardBehavior::SedgeTroll)),
+    );
     assert_eq!(game.players[PlayerId::One.index()].life, 20);
+    pass_priority_pair(&mut game);
+    assert_eq!(game.battlefield[0].regeneration_shields, 1);
     assert!(game.stack.is_empty());
 }
 
@@ -568,7 +590,7 @@ fn fellwar_mana_and_nested_color_queries_use_their_typed_legacy_clauses() {
     static ABILITIES: [AbilityDef; 2] = [
         AbilityDef::custom_full(
             "An unrelated custom clause.",
-            CardBehavior::LightningBolt,
+            CardBehavior::Fireball,
             "The test puts a different custom execution first.",
         ),
         AbilityDef::activated_mana(

@@ -1,155 +1,52 @@
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum CardBehavior {
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// uses a declarative blocking restriction and damage prevention.
-    ArgothianPixies,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// uses a declarative sacrifice cost and pump.
-    Atog,
     AugurOfBolas,
     Balance,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// pumps declaratively and schedules its own delayed destruction.
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// uses a declarative spell clause and a play-time cast restriction.
-    Berserk,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// records its chosen opponent and triggers on the shared stack.
-    BlackVise,
     BloodBaronOfVizkopa,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// uses a declarative choose-one spell definition.
-    BlueElementalBlast,
-    BloodMoon,
     ChainLightning,
     Channel,
     ChaosOrb,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// uses a declarative state trigger.
-    CityInABottle,
-    CopyArtifact,
     Crusade,
     DemonicTutor,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// uses a declarative predicate, destroy, and damage.
-    Detonate,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// destroys and reads last-known mana value declaratively.
-    DivineOffering,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// targets and counters instant spells declaratively.
-    Dispel,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// uses the shared counter-to-exile effect.
-    Dissipate,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// uses a declarative nonblack-creature predicate and destroy.
-    DoomBlade,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// uses a declarative drain that respects the life-gain cap, and a
-    /// cost-level restriction on which mana may pay for X.
-    DrainLife,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// uses a declarative pump and a conditional delayed sacrifice.
-    DragonWhelp,
     DustToDust,
     Duress,
     Earthquake,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// uses a declarative targeted upkeep trigger.
-    ErhnamDjinn,
     EssenceScatter,
     Fireball,
     Fork,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// uses a declarative until-end-of-turn pump.
-    GiantGrowth,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// uses a declarative look-at-hand ability.
-    GlassesOfUrza,
     GoblinGrenade,
     GrislySalvage,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// sweeps by ownership declaratively.
-    HurkylsRecall,
-    HymnToTourach,
-    HypnoticSpecter,
-    IcyManipulator,
     IronclawOrcs,
     KirdApe,
     LifebaneZombie,
     LibraryOfAlexandria,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// counters declaratively and schedules its own mana.
-    ManaDrain,
     ManaVault,
     /// Mana Vault's upkeep trigger, keyed apart from the untap restriction so
     /// the two clauses resolve as the separate abilities they are.
     ManaVaultUntap,
     /// Mana Vault's draw-step damage trigger.
     ManaVaultDamage,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// uses declarative untap and combat-damage prevention.
-    MazeOfIth,
-    MindTwist,
     Moat,
     Mulch,
     Negate,
     NevinyrralsDisk,
-    Pendelhaven,
     PillarOfFlame,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// uses a declarative artifact-or-creature predicate and destroy.
-    Putrefy,
     Recall,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// targets the graveyard card it returns.
-    Regrowth,
     SedgeTroll,
     SinCollector,
     SylvanLibrary,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// uses a declarative predicate and a no-regeneration destroy.
-    Terror,
     TimeVault,
     Timetwister,
     FellwarStone,
-    LightningBolt,
-    MishrasFactory,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// uses a declarative choose-one spell definition.
-    RedElementalBlast,
     Smoke,
     SphinxsRevelation,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// uses a declarative grant and a delayed destruction.
-    StoneGiant,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// uses a declarative creature-sweeper definition.
-    SupremeVerdict,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// exiles and reads last-known power declaratively.
-    SwordsToPlowshares,
     TimeWalk,
-    Tetravus,
     /// Tetravus's first upkeep trigger: trade +1/+1 counters for Tetravites.
     TetravusDetach,
     /// Tetravus's second upkeep trigger: exile its own Tetravites to take the
     /// counters back.
     TetravusAssemble,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// uses a declarative upkeep trigger with a chosen destruction.
-    TheAbyss,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// uses the shared exact-color-count predicate and destroy.
-    UltimatePrice,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// sequences shared damage and life-gain effects.
-    WarleadersHelix,
     WheelOfFortune,
-    /// Legacy dispatch key retained for source compatibility; the card now
-    /// uses a declarative end-step trigger with an intervening-if.
-    WhirlingDervish,
     WinterOrb,
     // Compatibility rules keys retained while CardDefinition::new still
     // accepts CardBehavior instead of CardRules directly.

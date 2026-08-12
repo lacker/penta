@@ -148,9 +148,7 @@ impl Game {
 
         let behavior = self.effective_behavior(permanent)?;
         let cost = match behavior {
-            CardBehavior::ChaosOrb
-            | CardBehavior::NevinyrralsDisk
-            | CardBehavior::IcyManipulator => ManaCost::new(1, 0),
+            CardBehavior::ChaosOrb | CardBehavior::NevinyrralsDisk => ManaCost::new(1, 0),
             CardBehavior::SedgeTroll => ManaCost::colored(0, 0, 0, 1, 0, 0),
             _ => return None,
         };

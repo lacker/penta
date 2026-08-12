@@ -1,8 +1,7 @@
 use super::{
     AbilityCostDef, AbilityOrigin, AbilityProcedureDef, CardBehavior, CharacteristicContext,
     CounterKind, DeclarativeAbilityDef, FrozenActivatedAbility, Game, GameEvent, GameObjectId,
-    ManaCost, ManaPaymentPurpose, PlayerId, Target, TargetSelection, ZoneKind, public_cards,
-    remove_card,
+    ManaCost, ManaPaymentPurpose, PlayerId, Target, TargetSelection, ZoneKind, remove_card,
 };
 
 impl Game {
@@ -287,29 +286,6 @@ impl Game {
             return;
         }
         match behavior {
-            Some(CardBehavior::GlassesOfUrza) => {
-                let _ = self.tap_permanent(source);
-                if let Some(Target::Player(target)) = target {
-                    self.last_seen_hands[player.index()] =
-                        Some((target, public_cards(&self.players[target.index()].hand)));
-                }
-            }
-            Some(CardBehavior::IcyManipulator) => {
-                let cost = ManaCost::new(1, 0);
-                self.activate_mana_for_cost(player, cost, 0);
-                let _ = self.pay_player_cost(player, cost, 0);
-                let card = self
-                    .tap_permanent(source)
-                    .expect("legal tap ability has a source");
-                self.push_activated_ability(
-                    source,
-                    &card,
-                    player,
-                    frozen_ability,
-                    frozen_targets,
-                    Vec::new(),
-                );
-            }
             Some(CardBehavior::SedgeTroll) => {
                 let cost = ManaCost::colored(0, 0, 0, 1, 0, 0);
                 self.activate_mana_for_cost(player, cost, 0);
@@ -328,21 +304,6 @@ impl Game {
                     Vec::new(),
                     Vec::new(),
                 );
-            }
-            // Dragon Whelp itself is declarative now; this is the legacy
-            // activated dispatch path, still reached by the clauses that
-            // name this key.
-            Some(CardBehavior::DragonWhelp) => {
-                let cost = ManaCost::new(0, 1);
-                self.activate_mana_for_cost(player, cost, 0);
-                let _ = self.pay_player_cost(player, cost, 0);
-                if let Some(permanent) = self
-                    .battlefield
-                    .iter_mut()
-                    .find(|permanent| permanent.card.id == source)
-                {
-                    permanent.power_bonus += 1;
-                }
             }
             Some(CardBehavior::ChaosOrb) => {
                 let cost = ManaCost::new(1, 0);

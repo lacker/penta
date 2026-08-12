@@ -96,7 +96,7 @@ fn cast_validation_rejects_unrecognized_structured_choices() {
         "Structured Bolt",
         CardSet::Alpha,
         false,
-        CardBehavior::LightningBolt,
+        CardBehavior::Unsupported,
     );
     definition.rules = CardRules::new_instant(ManaCost::new(0, 1));
     synchronize_single_part_definition(&mut definition);

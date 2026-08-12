@@ -60,6 +60,12 @@ snapshots.
   characteristics consistently and resolution rechecks the declared target
   predicate, including protection and hexproof, so an all-illegal spell
   correctly fizzles instead of applying a card-local partial effect.
+- `CardBehavior` no longer exposes the 40 retired selectors whose built-in
+  cards are declarative. The Rust enum now contains live custom-effect
+  selectors plus the three documented `CardDefinition::new` compatibility
+  keys; downstream Rust code naming a removed variant must use the card's
+  declarative rules or catalog definition instead. This source-API cleanup
+  does not change protocol JSON or legal actions.
 - The unfiltered catalog appends `Urborg, Tomb of Yawgmoth` as definition 261
   with debut set `planar-chaos`, and `Yavimaya, Cradle of Growth` as definition
   262 with debut set `modern-horizons-2`. They are cross-format interaction

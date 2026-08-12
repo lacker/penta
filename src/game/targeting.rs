@@ -188,8 +188,7 @@ impl Game {
     ) -> Vec<Vec<Target>> {
         match behavior {
             CardBehavior::Duress => vec![vec![Target::Player(player.opponent())]],
-            CardBehavior::LightningBolt
-            | CardBehavior::ChainLightning
+            CardBehavior::ChainLightning
             | CardBehavior::PillarOfFlame
             | CardBehavior::GoblinGrenade => self
                 .damage_targets()

@@ -396,14 +396,14 @@ fn clause_implementation_drives_the_ordinary_play_option_gate() {
     );
     let custom = CardRules::new_instant(ManaCost::default()).with_ability(AbilityDef::custom_full(
         "A card-local effect.",
-        CardBehavior::LightningBolt,
+        CardBehavior::Fireball,
         "Implemented by the named card-local special behavior.",
     ));
     assert_eq!(
         custom.implementation_status(),
         ImplementationStatus::Complete
     );
-    assert_eq!(custom.special_behavior(), Some(CardBehavior::LightningBolt));
+    assert_eq!(custom.special_behavior(), Some(CardBehavior::Fireball));
 
     let metadata_only =
         CardRules::new_instant(ManaCost::default()).with_ability(AbilityDef::not_implemented(
@@ -433,7 +433,7 @@ fn clause_implementation_drives_the_ordinary_play_option_gate() {
     let partial =
         CardRules::new_enchantment(ManaCost::default()).with_ability(AbilityDef::custom_partial(
             "A custom clause with one deferred rider.",
-            CardBehavior::LightningBolt,
+            CardBehavior::Fireball,
             "One rider is deferred.",
         ));
     assert_eq!(

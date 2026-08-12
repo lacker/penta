@@ -285,52 +285,9 @@ impl Game {
     ) {
         let ability_target_slot = TargetSlotId(0);
         match behavior {
-            CardBehavior::GlassesOfUrza if !permanent.tapped => {
-                for target in [PlayerId::One, PlayerId::Two] {
-                    actions.push(Action::ActivateAbility {
-                        source: permanent.card.id,
-                        ability,
-                        targets: vec![TargetSelection::single(
-                            ability_target_slot,
-                            Target::Player(target),
-                        )],
-                        cost_object: None,
-                        x: 0,
-                    });
-                }
-            }
-            CardBehavior::IcyManipulator
-                if !permanent.tapped
-                    && self.can_use_tap_ability(permanent)
-                    && self.can_pay_cost(player, ManaCost::new(1, 0), 0) =>
-            {
-                actions.extend(
-                    self.battlefield
-                        .iter()
-                        .map(|candidate| Action::ActivateAbility {
-                            source: permanent.card.id,
-                            ability,
-                            targets: vec![TargetSelection::single(
-                                ability_target_slot,
-                                Target::Permanent(candidate.card.id),
-                            )],
-                            cost_object: None,
-                            x: 0,
-                        }),
-                );
-            }
             CardBehavior::SedgeTroll
                 if self.can_pay_cost(player, ManaCost::colored(0, 0, 0, 1, 0, 0), 0) =>
             {
-                actions.push(Action::ActivateAbility {
-                    source: permanent.card.id,
-                    ability,
-                    targets: Vec::new(),
-                    cost_object: None,
-                    x: 0,
-                });
-            }
-            CardBehavior::DragonWhelp if self.can_pay_cost(player, ManaCost::new(0, 1), 0) => {
                 actions.push(Action::ActivateAbility {
                     source: permanent.card.id,
                     ability,

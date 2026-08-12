@@ -292,7 +292,7 @@ fn a_modal_spell_resolves_by_its_locked_part_instead_of_the_canonical_front() {
         "Test modal spell",
         CardSet::Magic2014,
         false,
-        CardBehavior::LightningBolt,
+        CardBehavior::Unsupported,
     );
     definition.rules = front_rules;
     definition.parts = vec![

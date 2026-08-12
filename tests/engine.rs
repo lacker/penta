@@ -7,6 +7,17 @@ use penta::{
     PlayerId, Step, Target, TargetSelection, TargetSlotId,
 };
 
+fn lightning_bolt(id: CardDefinitionId) -> CardDefinition {
+    let catalog = poc::catalog().expect("the built-in catalog is valid");
+    let mut definition = catalog
+        .get(poc::cards::LIGHTNING_BOLT)
+        .expect("the built-in catalog contains Lightning Bolt")
+        .clone();
+    definition.id = id;
+    definition.printings = vec![CardPrinting::new(id, CardSet::Alpha)];
+    definition
+}
+
 fn catalog() -> CardCatalog {
     CardCatalog::new([
         CardDefinition::new(
@@ -16,13 +27,7 @@ fn catalog() -> CardCatalog {
             true,
             CardBehavior::Mountain,
         ),
-        CardDefinition::new(
-            CardDefinitionId(2),
-            "Lightning Bolt",
-            CardSet::Alpha,
-            false,
-            CardBehavior::LightningBolt,
-        ),
+        lightning_bolt(CardDefinitionId(2)),
         CardDefinition::new(
             CardDefinitionId(3),
             "Black Lotus",
@@ -227,13 +232,7 @@ fn deck_validation_uses_reprints_without_splitting_copy_identity() {
         true,
         CardBehavior::Mountain,
     );
-    let bolt = CardDefinition::new(
-        CardDefinitionId(2),
-        "Lightning Bolt",
-        CardSet::Alpha,
-        false,
-        CardBehavior::LightningBolt,
-    );
+    let bolt = lightning_bolt(CardDefinitionId(2));
     let catalog = CardCatalog::with_additional_printings(
         [mountain, bolt],
         [

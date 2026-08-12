@@ -639,7 +639,7 @@ fn semantic_spell_mode_selection_rules_cannot_drift_from_presentation() {
 #[test]
 fn executable_spell_mode_branches_are_declarative() {
     let custom_mode = AbilityDef::spell("Custom mode", EffectDef::None)
-        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::LightningBolt))
+        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::Fireball))
         .with_coverage(AbilityCoverageDef::explained_complete("test custom branch"));
     let definition = semantic_modal_definition(
         vec![custom_mode],

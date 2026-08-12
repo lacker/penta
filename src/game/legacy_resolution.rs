@@ -22,11 +22,6 @@ impl Game {
                 }
                 self.destroy_permanent(object.source.expect("ability has a source"));
             }
-            CardBehavior::IcyManipulator => {
-                if let Some(Target::Permanent(target)) = self.first_legal_ability_target(object) {
-                    let _ = self.tap_permanent(target);
-                }
-            }
             CardBehavior::SedgeTroll => {
                 if let Some(permanent) = self
                     .battlefield
@@ -67,9 +62,6 @@ impl Game {
                 let player = object.controller;
                 self.gain_life(player, object.x());
                 self.draw_cards(player, object.x());
-            }
-            CardBehavior::LightningBolt => {
-                self.damage_target(object.first_target(), 3);
             }
             CardBehavior::PillarOfFlame => {
                 self.damage_target(object.first_target(), 2);
@@ -249,22 +241,6 @@ impl Game {
                     false,
                     options,
                     DecisionContinuation::GrislySalvage { player, revealed },
-                );
-            }
-            CardBehavior::HymnToTourach => self.discard_random(
-                object.controller.opponent(),
-                2,
-                ZoneMoveCause::Effect {
-                    controller: object.controller,
-                },
-            ),
-            CardBehavior::MindTwist => {
-                self.discard_random(
-                    object.controller.opponent(),
-                    object.x(),
-                    ZoneMoveCause::Effect {
-                        controller: object.controller,
-                    },
                 );
             }
             CardBehavior::Balance => self.resolve_balance(object.controller),

@@ -306,6 +306,22 @@ impl Game {
             )
     }
 
+    /// Whether an object is tapped, using its last existence on the
+    /// battlefield after it has left. Intervening-if conditions re-read this
+    /// information as their abilities resolve.
+    pub(super) fn current_or_last_known_tapped(&self, object: GameObjectId) -> bool {
+        self.battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == object)
+            .map_or_else(
+                || match self.retired_objects.get(&object) {
+                    Some(RetiredObject::Permanent { permanent, .. }) => permanent.tapped,
+                    Some(RetiredObject::Card(_) | RetiredObject::Stack(_)) | None => false,
+                },
+                |permanent| permanent.tapped,
+            )
+    }
+
     /// The values a predicate can read while matching, where the only context
     /// is the ability's source. Anything wider stays outside the boundary.
     pub(super) fn value_from_source(&self, value: ValueDef, source: GameObjectId) -> Option<i32> {

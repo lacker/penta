@@ -453,6 +453,7 @@ impl Game {
                 Self::is_external_entry_replacement(ability),
             ),
             AppliedEffectDef::CannotBeCountered
+            | AppliedEffectDef::DoesNotUntapDuringUntapStep
             | AppliedEffectDef::CannotBeEnchanted
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)

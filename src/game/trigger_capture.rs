@@ -117,9 +117,8 @@ impl Game {
                     | DeclarativeAbilityDef::Keyword(_)
                     | DeclarativeAbilityDef::Legacy => return,
                 };
-                // Compatibility procedures execute elsewhere (Mana Vault
-                // today), so admitting them here would manufacture a
-                // duplicate trigger.
+                // Compatibility procedures execute elsewhere, so admitting
+                // them here would manufacture a duplicate trigger.
                 if definition.procedure != AbilityProcedureDef::Shared {
                     return;
                 }

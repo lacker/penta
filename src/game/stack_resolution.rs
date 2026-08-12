@@ -409,31 +409,6 @@ impl Game {
         object: &StackObject,
         behavior: CardBehavior,
     ) {
-        if behavior == CardBehavior::ManaVaultUntap {
-            let source = object.source.expect("a triggered ability has a source");
-            if self
-                .battlefield
-                .iter()
-                .any(|permanent| permanent.card.id == source && permanent.tapped)
-            {
-                self.queue_mana_vault_decision(object.controller, source);
-            }
-            return;
-        }
-        if behavior == CardBehavior::ManaVaultDamage {
-            let source = object.source.expect("a triggered ability has a source");
-            // "If this artifact is tapped" is re-read here, so paying to untap
-            // in upkeep is what saves the point of damage.
-            if self
-                .battlefield
-                .iter()
-                .any(|permanent| permanent.card.id == source && permanent.tapped)
-            {
-                self.deal_damage(object.controller, 1);
-                self.check_life_totals();
-            }
-            return;
-        }
         if behavior == CardBehavior::SylvanLibrary {
             self.queue_sylvan_offer(object.controller);
             return;

@@ -19,12 +19,6 @@ pub enum CardBehavior {
     KirdApe,
     LifebaneZombie,
     LibraryOfAlexandria,
-    ManaVault,
-    /// Mana Vault's upkeep trigger, keyed apart from the untap restriction so
-    /// the two clauses resolve as the separate abilities they are.
-    ManaVaultUntap,
-    /// Mana Vault's draw-step damage trigger.
-    ManaVaultDamage,
     Moat,
     Mulch,
     Negate,

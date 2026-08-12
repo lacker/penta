@@ -203,6 +203,7 @@ impl Game {
                 ControlFlow::Continue(())
             }
             AppliedEffectDef::CannotBeCountered
+            | AppliedEffectDef::DoesNotUntapDuringUntapStep
             | AppliedEffectDef::CannotBeEnchanted
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)
@@ -335,6 +336,49 @@ impl Game {
             }
         })
         .is_break()
+    }
+
+    /// Whether the permanent's own effective static abilities keep the
+    /// turn-based untap action from untapping it. This does not affect an
+    /// explicit untap effect.
+    pub(super) fn does_not_untap_during_untap_step(&self, permanent: &Permanent) -> bool {
+        self.find_effective_ability(permanent, |effective| {
+            effective.ability.is_executable()
+                && matches!(
+                    effective.ability.definition,
+                    DeclarativeAbilityDef::Static(_)
+                )
+                && effective
+                    .ability
+                    .declarative_effect()
+                    .is_some_and(|effect| {
+                        Self::static_effect_contains_applied_effect(
+                            effect,
+                            AppliedEffectDef::DoesNotUntapDuringUntapStep,
+                        )
+                    })
+        })
+        .is_some()
+    }
+
+    fn static_effect_contains_applied_effect(
+        effect: EffectDef,
+        expected: AppliedEffectDef,
+    ) -> bool {
+        match effect {
+            EffectDef::Sequence(effects) => effects
+                .iter()
+                .copied()
+                .any(|effect| Self::static_effect_contains_applied_effect(effect, expected)),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect,
+                duration:
+                    EffectDurationDef::WhileSourceRemainsInZone
+                    | EffectDurationDef::UntilSourceLeavesZone,
+            } => Self::applied_effect_contains(effect, expected),
+            _ => false,
+        }
     }
 
     /// Whether an Aura may stay attached to `host`: the host has to still be

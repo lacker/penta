@@ -126,6 +126,7 @@ pub(super) fn shared_cannot_be_countered_effect(effect: AppliedEffectDef) -> boo
         }
         AppliedEffectDef::CannotBeCountered | AppliedEffectDef::CannotBeEnchanted => true,
         AppliedEffectDef::ModifyPowerToughness { .. }
+        | AppliedEffectDef::DoesNotUntapDuringUntapStep
         | AppliedEffectDef::CannotBeBlockedBy(_)
         | AppliedEffectDef::PreventDamageFrom(_)
         | AppliedEffectDef::AddLandTypes(_)
@@ -195,6 +196,7 @@ fn resolving_effect_is_only_ability_changes(effect: AppliedEffectDef) -> bool {
         }
         AppliedEffectDef::GrantAbility(_) | AppliedEffectDef::RemoveAbilities(_) => true,
         AppliedEffectDef::CannotBeCountered
+        | AppliedEffectDef::DoesNotUntapDuringUntapStep
         | AppliedEffectDef::CannotBeEnchanted
         | AppliedEffectDef::CannotBeBlockedBy(_)
         | AppliedEffectDef::PreventDamageFrom(_)
@@ -237,6 +239,7 @@ pub(super) fn shared_resolving_applied_effect(effect: AppliedEffectDef) -> bool 
         // A blocking restriction is continuous, not an until-end-of-turn
         // rider a spell hands out.
         AppliedEffectDef::CannotBeCountered
+        | AppliedEffectDef::DoesNotUntapDuringUntapStep
         | AppliedEffectDef::CannotBeEnchanted
         | AppliedEffectDef::CannotBeBlockedBy(_)
         | AppliedEffectDef::PreventDamageFrom(_)
@@ -654,6 +657,7 @@ pub(super) fn shared_static_applied_effect(
         | AppliedEffectDef::PreventDamageFrom(predicate) => {
             recipient == EffectRecipientDef::Source && shared_object_predicate(predicate)
         }
+        AppliedEffectDef::DoesNotUntapDuringUntapStep => recipient == EffectRecipientDef::Source,
         AppliedEffectDef::RemoveAbilities(_)
         | AppliedEffectDef::CannotBeCountered
         | AppliedEffectDef::CannotBeEnchanted => true,
@@ -671,6 +675,7 @@ pub(super) fn shared_trigger_condition(condition: TriggerConditionDef) -> bool {
         | TriggerConditionDef::SourceLoyalty { .. }
         | TriggerConditionDef::SourceActivationsThisTurn { .. }
         | TriggerConditionDef::SourceDealtDamageToOpponentThisTurn
+        | TriggerConditionDef::SourceIsTapped
         | TriggerConditionDef::SpellsCastLastTurn { .. } => true,
     }
 }

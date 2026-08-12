@@ -158,6 +158,10 @@ pub enum AppliedEffectDef {
     /// continuous effect.
     Composite(&'static [AppliedEffectDef]),
     CannotBeCountered,
+    /// The affected permanent is skipped by its controller's ordinary
+    /// turn-based untap procedure. Other spells and abilities can still
+    /// untap it.
+    DoesNotUntapDuringUntapStep,
     /// No Aura may attach to the affected permanent. This restricts both the
     /// Aura spell's targeting and whether an existing attachment stays legal,
     /// so an Aura already on the permanent falls off.

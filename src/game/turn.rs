@@ -7,6 +7,11 @@ use super::{
 };
 
 impl Game {
+    fn skips_turn_based_untap(&self, permanent: &super::Permanent) -> bool {
+        self.does_not_untap_during_untap_step(permanent)
+            || self.effective_behavior(permanent) == Some(CardBehavior::TimeVault)
+    }
+
     pub(super) fn untap_actions(&self, player: PlayerId) -> Vec<Action> {
         let lands: Vec<_> = self
             .battlefield
@@ -14,6 +19,7 @@ impl Game {
             .filter(|permanent| {
                 permanent.controller == player
                     && permanent.tapped
+                    && !self.skips_turn_based_untap(permanent)
                     && self
                         .permanent_types(permanent)
                         .is_some_and(|types| types.contains(CardType::Land))
@@ -26,6 +32,7 @@ impl Game {
             .filter(|permanent| {
                 permanent.controller == player
                     && permanent.tapped
+                    && !self.skips_turn_based_untap(permanent)
                     && self.power(permanent).is_some()
             })
             .map(|permanent| permanent.card.id)
@@ -54,8 +61,16 @@ impl Game {
     }
 
     pub(super) fn choose_untap(&mut self, player: PlayerId, selected: &[GameObjectId]) {
+        let eligible = self
+            .battlefield
+            .iter()
+            .filter(|permanent| {
+                permanent.controller == player && !self.skips_turn_based_untap(permanent)
+            })
+            .map(|permanent| permanent.card.id)
+            .collect::<Vec<_>>();
         for permanent in &mut self.battlefield {
-            if permanent.controller == player && selected.contains(&permanent.card.id) {
+            if eligible.contains(&permanent.card.id) && selected.contains(&permanent.card.id) {
                 permanent.tapped = false;
             }
         }
@@ -305,15 +320,10 @@ impl Game {
             .filter(|permanent| self.power(permanent).is_some())
             .map(|permanent| permanent.card.id)
             .collect();
-        let mana_vaults: Vec<_> = self
+        let untap_restricted: Vec<_> = self
             .battlefield
             .iter()
-            .filter(|permanent| {
-                matches!(
-                    self.effective_behavior(permanent),
-                    Some(CardBehavior::ManaVault | CardBehavior::TimeVault)
-                )
-            })
+            .filter(|permanent| self.skips_turn_based_untap(permanent))
             .map(|permanent| permanent.card.id)
             .collect();
         self.untap_pending = false;
@@ -321,9 +331,10 @@ impl Game {
             if permanent.controller == self.active_player {
                 let restricted = (winter_orb && restricted_lands.contains(&permanent.card.id))
                     || (smoke && restricted_creatures.contains(&permanent.card.id));
-                if restricted && permanent.tapped {
+                if restricted && permanent.tapped && !untap_restricted.contains(&permanent.card.id)
+                {
                     self.untap_pending = true;
-                } else if !mana_vaults.contains(&permanent.card.id) {
+                } else if !untap_restricted.contains(&permanent.card.id) {
                     permanent.tapped = false;
                 }
             }

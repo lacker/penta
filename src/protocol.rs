@@ -67,7 +67,9 @@ use observation_json::{card_part_name, decision_json, stack_object_json};
 /// planeswalkers, and the loyalty state a client needs to render them.
 /// Version 16 completes Boros Charm, adding its target-free Indestructible mode
 /// and planeswalker targets for its damage mode to supported-format actions.
-pub const PROTOCOL_VERSION: u32 = 16;
+/// Version 17 makes Mana Vault's optional upkeep payment available even while
+/// it is untapped, adding that decision to supported-format legal actions.
+pub const PROTOCOL_VERSION: u32 = 17;
 
 /// The engine crate version. Rules behavior is part of the contract too: a
 /// fix can change what a trained policy sees even when the shapes hold

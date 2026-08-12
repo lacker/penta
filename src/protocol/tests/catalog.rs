@@ -133,7 +133,10 @@ fn catalog_exposes_derived_implementation_coverage_not_the_play_gate() {
 fn migrated_spells_do_not_require_an_additional_protocol_bump() {
     let catalog = poc::catalog().expect("catalog builds");
     let value = catalog_json_for_format(&catalog, Format::IsdRtrStandard);
-    assert_eq!(PROTOCOL_VERSION, 16, "Boros Charm owns this branch's bump");
+    assert_eq!(
+        PROTOCOL_VERSION, 17,
+        "Mana Vault's corrected upkeep decision owns this branch's bump"
+    );
     assert_eq!(value["protocolVersion"], PROTOCOL_VERSION);
 
     let cards = value["cards"].as_array().expect("cards array");

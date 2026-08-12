@@ -120,6 +120,7 @@ fn validate_applied_effect_target_references(
         // separately when the grant tree is traversed.
         AppliedEffectDef::GrantAbility(_)
         | AppliedEffectDef::CannotBeCountered
+        | AppliedEffectDef::DoesNotUntapDuringUntapStep
         | AppliedEffectDef::CannotBeEnchanted
         | AppliedEffectDef::CannotBeBlockedBy(_)
         | AppliedEffectDef::PreventDamageFrom(_)

@@ -216,6 +216,9 @@ pub enum TriggerConditionDef {
     /// Whether this ability's own source has dealt damage to an opponent of
     /// its controller at any point this turn, by any means.
     SourceDealtDamageToOpponentThisTurn,
+    /// Whether the ability's own source is tapped, using last-known
+    /// information if it has left the battlefield.
+    SourceIsTapped,
     /// Whether what a target slot points at still matches. Read when the
     /// condition is checked, so a delayed effect can ask about the target as
     /// it is then rather than as it was.

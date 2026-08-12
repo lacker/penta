@@ -1323,36 +1323,37 @@ pub(in crate::card::sets) static MANA_VAULT: CardRecord = CardRecord::new(
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
         AbilityDef::static_ability(
             "This artifact doesn't untap during your untap step.",
-            EffectDef::Special("Keep this permanent tapped during its controller's untap step"),
-        )
-        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::ManaVault))
-        .with_coverage(AbilityCoverageDef::explained_complete(
-            "The untap restriction is implemented by the shared untap procedure.",
-        )),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::DoesNotUntapDuringUntapStep,
+                duration: EffectDurationDef::WhileSourceRemainsInZone,
+            },
+        ),
         AbilityDef::triggered(
             "At the beginning of your upkeep, you may pay {4}. If you do, untap this artifact.",
             TriggerEventDef::StepBegins {
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::Special("Choose whether to pay 4 to untap this permanent"),
-        )
-        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::ManaVaultUntap))
-        .with_coverage(AbilityCoverageDef::explained_complete(
-            "The trigger uses the shared stack; the card-local resolver offers the payment as it resolves.",
-        )),
-        AbilityDef::triggered(
+            EffectDef::OptionalManaPayment {
+                cost: mana_cost!("{4}"),
+                effect: &EffectDef::Untap {
+                    object: EffectRecipientDef::Source,
+                },
+            },
+        ),
+        AbilityDef::triggered_if(
             "At the beginning of your draw step, if this artifact is tapped, it deals 1 damage to you.",
             TriggerEventDef::StepBegins {
                 step: TurnStepDef::Draw,
                 player: PlayerRelation::You,
             },
-            EffectDef::Special("If this permanent is tapped, deal 1 damage to its controller"),
-        )
-        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::ManaVaultDamage))
-        .with_coverage(AbilityCoverageDef::explained_complete(
-            "The trigger uses the shared stack; the card-local resolver re-reads whether the artifact is still tapped as it resolves.",
-        )),
+            &TriggerConditionDef::SourceIsTapped,
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
         AbilityDef::activated_mana(
             "{T}: Add {C}{C}{C}.",
             &[AbilityCostDef::TapSource],

@@ -5,7 +5,7 @@ ships Eternal Central Old School 93/94 and the final pre-Theros ISD–RTR
 Standard format. This guide is for writing a program that plays it: from
 Python, C, C++, or Rust, against the included bots or against itself.
 
-This guide describes the current development wire contract, **protocol 16**.
+This guide describes the current development wire contract, **protocol 17**.
 Query `protocol_version()` and `engine_version()` through the selected binding
 and reject or migrate versions your client does not understand; pin both
 alongside trained weights. Old School remains the default for compatibility;
@@ -382,6 +382,12 @@ selection you'd prefer. Submit option IDs, not option-array offsets, within
 the reported bounds. When `cancellable` is true, `CancelDecision` is a
 distinct legal action; cancelling is not the same as choosing zero options.
 
+Decision prompts and option labels are presentation text, not stable protocol
+identifiers. They can become more precise when a rules procedure moves to a
+shared implementation without changing the decision shape or option IDs. Read
+them for display, but submit the IDs from the current observation and use the
+structured decision fields and legal actions for control flow.
+
 ### Catalog and mana costs
 
 `penta.catalog(format)` carries the same `protocolVersion`, `engineVersion`,
@@ -463,7 +469,7 @@ play options, alternative costs, and additional costs.
 
 ### Migrating from protocol 7
 
-Protocols 8 through 16 introduced nine compatibility changes:
+Protocols 8 through 17 introduced ten compatibility changes:
 
 - Protocol 8 replaced `manaCost.whiteRedHybrid` with the sparse `hybrid`
   array described above.
@@ -496,6 +502,10 @@ Protocols 8 through 16 introduced nine compatibility changes:
   its catalog coverage advances from `partial` to `complete`. No action JSON
   field was added; clients must still consume the complete indexed action list
   rather than assuming which modal casts exist.
+- Protocol 17 makes Mana Vault's optional upkeep payment decision available
+  even when the artifact is untapped. The decision uses the shared
+  optional-payment prompt and option labels; consume the indexed actions and
+  option IDs rather than matching those presentation strings.
 
 ## Hosted games over WebSocket
 

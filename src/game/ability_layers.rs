@@ -220,6 +220,7 @@ impl Game {
                 AbilityLayerOperationKind::Remove(predicate)
             }
             AppliedEffectDef::CannotBeCountered
+            | AppliedEffectDef::DoesNotUntapDuringUntapStep
             | AppliedEffectDef::CannotBeEnchanted
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)

@@ -476,37 +476,6 @@ impl Game {
         choices
     }
 
-    pub(super) fn queue_mana_vault_decision(&mut self, player: PlayerId, permanent: GameObjectId) {
-        let mut options = vec![DecisionOption {
-            id: 0,
-            label: "Leave Mana Vault tapped".into(),
-            card: None,
-            members: Vec::new(),
-            ability_text: None,
-            zone: DecisionZone::None,
-        }];
-        if self.can_pay_cost(player, ManaCost::new(4, 0), 0) {
-            options.push(DecisionOption {
-                id: 1,
-                label: "Pay 4 to untap Mana Vault".into(),
-                card: None,
-                members: Vec::new(),
-                ability_text: None,
-                zone: DecisionZone::None,
-            });
-        }
-        self.queue_decision(
-            player,
-            "Mana Vault would remain tapped",
-            DecisionVisibility::Private,
-            DecisionPreference::Neutral,
-            1..=1,
-            false,
-            options,
-            DecisionContinuation::ManaVault { player, permanent },
-        );
-    }
-
     pub(super) fn push_copy(
         &mut self,
         spell: StackObject,

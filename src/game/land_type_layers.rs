@@ -161,6 +161,7 @@ impl Game {
                 .any(Self::applied_effect_contains_land_type_operation),
             AppliedEffectDef::AddLandTypes(_) | AppliedEffectDef::SetLandTypes(_) => true,
             AppliedEffectDef::CannotBeCountered
+            | AppliedEffectDef::DoesNotUntapDuringUntapStep
             | AppliedEffectDef::CannotBeEnchanted
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)
@@ -319,6 +320,7 @@ impl Game {
                 operations.push((source, LandTypeOperation::SetTo(types)));
             }
             AppliedEffectDef::CannotBeCountered
+            | AppliedEffectDef::DoesNotUntapDuringUntapStep
             | AppliedEffectDef::CannotBeEnchanted
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)

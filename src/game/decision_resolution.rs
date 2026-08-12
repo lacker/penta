@@ -271,23 +271,6 @@ impl Game {
                     );
                 }
             }
-            DecisionContinuation::ManaVault { player, permanent } => {
-                let cost = ManaCost::new(4, 0);
-                // Multiple tapped Mana Vaults queue their upkeep decisions at
-                // once.  Paying for an earlier vault can make a later
-                // decision's previously-offered payment option stale.
-                if options.contains(&1) && self.can_pay_cost(player, cost, 0) {
-                    self.activate_mana_for_cost(player, cost, 0);
-                    let _ = self.pay_player_cost(player, cost, 0);
-                    if let Some(vault) = self
-                        .battlefield
-                        .iter_mut()
-                        .find(|candidate| candidate.card.id == permanent)
-                    {
-                        vault.tapped = false;
-                    }
-                }
-            }
             DecisionContinuation::GrislySalvage { player, revealed } => {
                 let kept = pending
                     .observation

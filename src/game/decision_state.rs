@@ -130,10 +130,6 @@ pub(super) enum DecisionContinuation {
         spell: StackObject,
         target_lists: Vec<Vec<TargetSelection>>,
     },
-    ManaVault {
-        player: PlayerId,
-        permanent: GameObjectId,
-    },
     RecallDiscard {
         player: PlayerId,
     },

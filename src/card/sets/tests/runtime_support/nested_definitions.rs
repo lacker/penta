@@ -100,6 +100,7 @@ pub(in super::super) fn assert_nested_definition_applied_effect(
             assert_nested_definition_abilities(card_name, ability.effect.definition);
         }
         AppliedEffectDef::CannotBeCountered
+        | AppliedEffectDef::DoesNotUntapDuringUntapStep
         | AppliedEffectDef::CannotBeEnchanted
         | AppliedEffectDef::CannotBeBlockedBy(_)
         | AppliedEffectDef::PreventDamageFrom(_)

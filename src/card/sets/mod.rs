@@ -231,9 +231,6 @@ pub(super) const fn rules(behavior: CardBehavior) -> &'static CardRules {
         CardBehavior::GoblinGrenade => &y1994::fallen_empires::GOBLIN_GRENADE.rules,
         CardBehavior::IronclawOrcs => &y1993::alpha::IRONCLAW_ORCS.rules,
         CardBehavior::WheelOfFortune => &y1993::alpha::WHEEL_OF_FORTUNE.rules,
-        CardBehavior::ManaVault | CardBehavior::ManaVaultUntap | CardBehavior::ManaVaultDamage => {
-            &y1993::alpha::MANA_VAULT.rules
-        }
         CardBehavior::FellwarStone => &y1994::the_dark::FELLWAR_STONE.rules,
         CardBehavior::TimeWalk => &y1993::alpha::TIME_WALK.rules,
         CardBehavior::Balance => &y1993::alpha::BALANCE.rules,

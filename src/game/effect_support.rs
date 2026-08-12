@@ -233,6 +233,7 @@ impl Game {
                 }
             }
             AppliedEffectDef::CannotBeCountered
+            | AppliedEffectDef::DoesNotUntapDuringUntapStep
             | AppliedEffectDef::CannotBeEnchanted
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)
@@ -524,6 +525,7 @@ impl Game {
                     .iter()
                     .find(|permanent| permanent.card.id == source)
                     .is_some_and(|permanent| permanent.dealt_damage_to_opponent_this_turn),
+                TriggerConditionDef::SourceIsTapped => self.current_or_last_known_tapped(source),
                 TriggerConditionDef::ObjectCount { .. } => {
                     unreachable!("the object-count arm is destructured above")
                 }

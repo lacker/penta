@@ -12,9 +12,9 @@ Two numbers matter to a bot, and they move independently:
 Pin both alongside trained weights. Until 1.0 the engine version bumps its
 minor for breaking changes, per Cargo's 0.x convention.
 
-## Unreleased — protocol 16
+## Unreleased — protocol 17
 
-The current development checkout reports engine 0.6.0 and protocol 16. Pin
+The current development checkout reports engine 0.6.0 and protocol 17. Pin
 both; the engine version alone does not distinguish it from earlier 0.6.0
 snapshots.
 
@@ -28,6 +28,18 @@ snapshots.
 - The public Rust type `LibraryPlacement` is now `ZonePlacement`. Downstream
   Rust callers must update their imports and constructors; the wire protocol
   is unchanged.
+- Mana Vault now uses shared declarative constructs for all four abilities:
+  an effective static untap restriction, an optional upkeep mana payment, an
+  intervening-if draw-step trigger, and its existing mana ability. This also
+  corrects two rules edges: the upkeep payment is offered even while the Vault
+  is untapped, and the draw trigger checks tapped status both when it triggers
+  and on resolution, using last-known information if the Vault has left the
+  battlefield. The upkeep choice now uses the shared optional-payment prompt
+  and labels. It can now appear while the Vault is untapped, adding a
+  supported-format decision state and introducing protocol 17; the strings
+  remain presentation text rather than stable identifiers. The retired
+  `CardBehavior::ManaVault`, `CardBehavior::ManaVaultUntap`, and
+  `CardBehavior::ManaVaultDamage` Rust selectors have also been removed.
 - Indestructible now stops destroy effects, including those that disallow
   regeneration, and destruction from lethal or deathtouch damage. Sacrifice,
   zero toughness, the legend rule, and other non-destroy graveyard moves remain

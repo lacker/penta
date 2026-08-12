@@ -5,7 +5,7 @@ use super::{
 };
 
 impl Game {
-    pub(super) fn attacker_actions(&self, player: PlayerId) -> Vec<Action> {
+    pub(super) fn attacker_actions(&self, player: PlayerId, moat_active: bool) -> Vec<Action> {
         let mut defenders = vec![AttackDefender::Player(player.opponent())];
         defenders.extend(
             self.battlefield
@@ -24,8 +24,7 @@ impl Game {
                 permanent.controller == player
                     && !permanent.tapped
                     && !permanent.attacking
-                    && self.power(permanent).is_some()
-                    && self.can_attack(permanent)
+                    && self.can_attack_with_moat(permanent, moat_active)
             })
             .flat_map(|permanent| {
                 defenders
@@ -39,18 +38,34 @@ impl Game {
             .collect()
     }
 
+    #[cfg(test)]
     pub(super) fn can_attack(&self, permanent: &Permanent) -> bool {
+        let moat_active = self.count_behavior(CardBehavior::Moat) > 0;
+        self.can_attack_with_moat(permanent, moat_active)
+    }
+
+    pub(super) fn can_attack_with_moat(&self, permanent: &Permanent, moat_active: bool) -> bool {
+        if self.base_stats(permanent).is_none() {
+            return false;
+        }
+        let flying = moat_active && self.has_flying(permanent);
+        self.can_attack_creature(permanent, moat_active, flying)
+    }
+
+    pub(super) fn can_attack_creature(
+        &self,
+        permanent: &Permanent,
+        moat_active: bool,
+        flying: bool,
+    ) -> bool {
         if self.permanent_has_executable_keyword(permanent, KeywordAbility::Defender) {
             return false;
         }
-        if self.count_behavior(CardBehavior::Moat) > 0 && !self.has_flying(permanent) {
+        if moat_active && !flying {
             return false;
         }
-        self.base_stats(permanent).is_some_and(|_| {
-            self.permanent_has_executable_keyword(permanent, KeywordAbility::Haste)
-                || self.turns_started[permanent.controller.index()]
-                    > permanent.entered_controller_turn
-        })
+        self.permanent_has_executable_keyword(permanent, KeywordAbility::Haste)
+            || self.turns_started[permanent.controller.index()] > permanent.entered_controller_turn
     }
 
     pub(super) fn declare_attacker(&mut self, attacker: GameObjectId, defender: AttackDefender) {

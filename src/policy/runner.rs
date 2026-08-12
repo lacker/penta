@@ -63,9 +63,47 @@ pub fn play_game(
             PlayerId::Two => player_two.choose_action(&observation),
         }
         .ok_or(PlayError::PolicyReturnedNoAction(player))?;
-        game.apply(player, action)
+        game.apply_observed_action(&observation, action)
             .map_err(|error| PlayError::IllegalAction(Box::new(error)))?;
     }
     game.result()
         .ok_or(PlayError::ActionLimitExceeded(action_limit))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{Action, PlayerObservation, poc};
+
+    struct IllegalPolicy;
+
+    impl Policy for IllegalPolicy {
+        fn choose_action(&mut self, _observation: &PlayerObservation) -> Option<Action> {
+            Some(Action::PassPriority)
+        }
+    }
+
+    #[test]
+    fn rejects_an_action_absent_from_the_fresh_observation() {
+        let catalog = poc::catalog().expect("catalog builds");
+        let deck = poc::goblins();
+        let mut game = Game::new(catalog, [deck.clone(), deck], 1).expect("game starts");
+        let mut first = IllegalPolicy;
+        let mut second = IllegalPolicy;
+
+        let error = play_game(&mut game, &mut first, &mut second, 1)
+            .expect_err("passing priority during the opening mulligan is illegal");
+
+        assert!(matches!(
+            error,
+            PlayError::IllegalAction(error)
+                if matches!(
+                    error.as_ref(),
+                    ActionError::NotLegal {
+                        player: PlayerId::One,
+                        action: Action::PassPriority,
+                    }
+                )
+        ));
+    }
 }

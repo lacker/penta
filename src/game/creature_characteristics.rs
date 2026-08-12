@@ -110,83 +110,72 @@ impl Game {
     /// this computation forever. A `PowerAtLeast` predicate therefore sees
     /// counters and until-end-of-turn pumps but not a Crusade-style static.
     pub(super) fn power_ignoring_static_effects(&self, permanent: &Permanent) -> Option<i16> {
-        self.power_parts(permanent, 0)
+        let base = self.base_stats(permanent)?;
+        Some(self.creature_stats_parts(permanent, base, (0, 0)).power)
     }
 
     pub(super) fn power(&self, permanent: &Permanent) -> Option<i16> {
-        let (static_power, _) = self.static_power_toughness_bonus(permanent);
-        self.power_parts(permanent, static_power)
+        self.creature_stats(permanent).map(|stats| stats.power)
     }
 
-    pub(super) fn power_parts(&self, permanent: &Permanent, static_power: i16) -> Option<i16> {
-        self.base_stats(permanent).map(|stats| {
-            let conditional_bonus = match self.effective_behavior(permanent) {
-                Some(CardBehavior::KirdApe)
-                    if self.controls_land_type(permanent.controller, BasicLandType::Forest) =>
-                {
-                    1
-                }
-                Some(CardBehavior::SedgeTroll)
-                    if self.controls_land_type(permanent.controller, BasicLandType::Swamp) =>
-                {
-                    1
-                }
-                _ => 0,
-            };
-            let ascended = if self.blood_baron_has_ascended(permanent) {
-                6
-            } else {
-                0
-            };
-            stats.power
-                + ascended
-                + permanent.power_bonus
-                + static_power
-                + conditional_bonus
-                + Self::plus_one_counter_bonus(permanent)
-        })
+    pub(super) fn creature_stats(&self, permanent: &Permanent) -> Option<crate::CreatureStats> {
+        let base = self.base_stats(permanent)?;
+        let static_bonus = self.static_power_toughness_bonus(permanent);
+        Some(self.creature_stats_parts(permanent, base, static_bonus))
     }
 
     pub(super) fn toughness_ignoring_static_effects(&self, permanent: &Permanent) -> Option<i16> {
-        self.toughness_parts(permanent, 0)
+        let base = self.base_stats(permanent)?;
+        Some(self.creature_stats_parts(permanent, base, (0, 0)).toughness)
     }
 
     pub(super) fn toughness(&self, permanent: &Permanent) -> Option<i16> {
-        let (_, static_toughness) = self.static_power_toughness_bonus(permanent);
-        self.toughness_parts(permanent, static_toughness)
+        self.creature_stats(permanent).map(|stats| stats.toughness)
     }
 
-    pub(super) fn toughness_parts(
+    fn creature_stats_parts(
         &self,
         permanent: &Permanent,
-        static_toughness: i16,
-    ) -> Option<i16> {
-        self.base_stats(permanent).map(|stats| {
-            let conditional_bonus = match self.effective_behavior(permanent) {
-                Some(CardBehavior::KirdApe)
-                    if self.controls_land_type(permanent.controller, BasicLandType::Forest) =>
-                {
-                    2
-                }
-                Some(CardBehavior::SedgeTroll)
-                    if self.controls_land_type(permanent.controller, BasicLandType::Swamp) =>
-                {
-                    1
-                }
-                _ => 0,
-            };
-            let ascended = if self.blood_baron_has_ascended(permanent) {
-                6
-            } else {
-                0
-            };
-            stats.toughness
+        base: crate::CreatureStats,
+        static_bonus: (i16, i16),
+    ) -> crate::CreatureStats {
+        let behavior = self.effective_behavior(permanent);
+        let conditional_bonus = match behavior {
+            Some(CardBehavior::KirdApe)
+                if self.controls_land_type(permanent.controller, BasicLandType::Forest) =>
+            {
+                (1, 2)
+            }
+            Some(CardBehavior::SedgeTroll)
+                if self.controls_land_type(permanent.controller, BasicLandType::Swamp) =>
+            {
+                (1, 1)
+            }
+            _ => (0, 0),
+        };
+        let ascended = if behavior == Some(CardBehavior::BloodBaronOfVizkopa)
+            && self.players[permanent.controller.index()].life >= 30
+            && self.players[permanent.controller.opponent().index()].life <= 10
+        {
+            6
+        } else {
+            0
+        };
+        let counter_bonus = Self::plus_one_counter_bonus(permanent);
+        crate::CreatureStats {
+            power: base.power
+                + ascended
+                + permanent.power_bonus
+                + static_bonus.0
+                + conditional_bonus.0
+                + counter_bonus,
+            toughness: base.toughness
                 + ascended
                 + permanent.toughness_bonus
-                + static_toughness
-                + conditional_bonus
-                + Self::plus_one_counter_bonus(permanent)
-        })
+                + static_bonus.1
+                + conditional_bonus.1
+                + counter_bonus,
+        }
     }
 
     pub(super) fn has_flying(&self, permanent: &Permanent) -> bool {

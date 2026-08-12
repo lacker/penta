@@ -1,9 +1,9 @@
 use super::{
-    AbilityDef, AbilityId, AbilityOrigin, Action, ActionError, CardType, CharacteristicContext,
-    CombatDamageStage, CounterKind, DecisionVisibility, EmblemObservation, Game, GameEvent,
-    GameObjectId, GameResult, KeywordAbility, ManaColor, PermanentObservation, PlayerId,
-    PlayerObservation, Pregame, StackObservation, Step, WinReason, ZoneKind, combinations,
-    public_cards,
+    AbilityDef, AbilityId, AbilityOrigin, Action, ActionError, CardBehavior, CardType,
+    CharacteristicContext, CombatDamageStage, CounterKind, DecisionVisibility, EmblemObservation,
+    Game, GameEvent, GameObjectId, GameResult, KeywordAbility, ManaColor, PermanentObservation,
+    PlayerId, PlayerObservation, Pregame, StackObservation, Step, WinReason, ZoneKind,
+    combinations, public_cards,
 };
 
 impl Game {
@@ -203,6 +203,7 @@ impl Game {
         }
         if self.step == Step::DeclareAttackers && !self.attackers_declared {
             if player == self.active_player {
+                let moat_active = self.count_behavior(CardBehavior::Moat) > 0;
                 // A creature that attacks each combat if able is only
                 // required to when it actually can, so the same conditions
                 // that offer it as an attacker are what make it compulsory.
@@ -210,7 +211,7 @@ impl Game {
                     permanent.controller == player
                         && !permanent.tapped
                         && !permanent.attacking
-                        && self.can_attack(permanent)
+                        && self.can_attack_with_moat(permanent, moat_active)
                         && self.permanent_has_executable_keyword(
                             permanent,
                             KeywordAbility::AttacksEachCombatIfAble,
@@ -219,7 +220,7 @@ impl Game {
                 if !a_creature_must_attack {
                     actions.push(Action::FinishDeclaringAttackers);
                 }
-                actions.extend(self.attacker_actions(player));
+                actions.extend(self.attacker_actions(player, moat_active));
             }
             return actions;
         }
@@ -259,6 +260,42 @@ impl Game {
             return Err(ActionError::NotLegal { player, action });
         }
 
+        self.apply_legal_action(player, action);
+        Ok(())
+    }
+
+    /// Applies an action chosen from an observation made immediately before
+    /// this call. Synchronous engine runners can reuse that observation's
+    /// enumerated actions instead of regenerating them in [`Self::apply`].
+    ///
+    /// This stays crate-private because its validity depends on the caller not
+    /// mutating the game between observing it and submitting the action.
+    pub(crate) fn apply_observed_action(
+        &mut self,
+        observation: &PlayerObservation,
+        action: Action,
+    ) -> Result<(), ActionError> {
+        if self.result.is_some() {
+            return Err(ActionError::GameAlreadyFinished);
+        }
+        let player = observation.viewer;
+        let legal = if matches!(action, Action::ChooseDecision { .. }) {
+            // Decision observations expose a bounded selection schema rather
+            // than every combination, so the submitted options still need
+            // direct validation against the current pending decision.
+            self.is_legal_action(player, &action)
+        } else {
+            observation.legal_actions.contains(&action)
+        };
+        if !legal {
+            return Err(ActionError::NotLegal { player, action });
+        }
+
+        self.apply_legal_action(player, action);
+        Ok(())
+    }
+
+    fn apply_legal_action(&mut self, player: PlayerId, action: Action) {
         match action {
             Action::KeepHand => self.keep_hand(player),
             Action::TakeMulligan => self.take_mulligan(player),
@@ -315,7 +352,6 @@ impl Game {
         if self.result.is_none() {
             self.finish_rules_procedure();
         }
-        Ok(())
     }
 
     /// Validates an action against the current state without mutating the game.
@@ -385,6 +421,7 @@ impl Game {
     pub fn observe(&self, viewer: PlayerId) -> PlayerObservation {
         let player = &self.players[viewer.index()];
         let opponent = &self.players[viewer.opponent().index()];
+        let moat_active = self.count_behavior(CardBehavior::Moat) > 0;
         PlayerObservation {
             viewer,
             turn: self.turn,
@@ -414,31 +451,39 @@ impl Game {
             battlefield: self
                 .battlefield
                 .iter()
-                .map(|permanent| PermanentObservation {
-                    id: permanent.card.id,
-                    definition: permanent.card.definition,
-                    presented: permanent.presented,
-                    controller: permanent.controller,
-                    types: self.permanent_types(permanent).unwrap_or_default(),
-                    chosen_creature_type: permanent.chosen_creature_type.clone(),
-                    chosen_card_name: permanent.chosen_card_name.clone(),
-                    tapped: permanent.tapped,
-                    power: self.power(permanent),
-                    toughness: self.toughness(permanent),
-                    damage: permanent.damage,
-                    loyalty: self
-                        .permanent_types(permanent)
-                        .is_some_and(|types| types.contains(CardType::Planeswalker))
-                        .then(|| permanent.counters(CounterKind::Loyalty)),
-                    loyalty_ability_used_this_turn: permanent.activated_loyalty_this_turn,
-                    attack_defender: permanent.attack_defender,
-                    attacking: permanent.attacking,
-                    blocked_this_combat: permanent.blocked,
-                    blocking: permanent.blocking,
-                    flying: self.has_flying(permanent),
-                    can_attack: self.can_attack(permanent),
-                    entered_this_turn: self.turns_started[permanent.controller.index()]
-                        == permanent.entered_controller_turn,
+                .map(|permanent| {
+                    let types = self.permanent_types(permanent).unwrap_or_default();
+                    let stats = self.creature_stats(permanent);
+                    let (power, toughness) = stats.map_or((None, None), |stats| {
+                        (Some(stats.power), Some(stats.toughness))
+                    });
+                    let flying = self.has_flying(permanent);
+                    PermanentObservation {
+                        id: permanent.card.id,
+                        definition: permanent.card.definition,
+                        presented: permanent.presented,
+                        controller: permanent.controller,
+                        types,
+                        chosen_creature_type: permanent.chosen_creature_type.clone(),
+                        chosen_card_name: permanent.chosen_card_name.clone(),
+                        tapped: permanent.tapped,
+                        power,
+                        toughness,
+                        damage: permanent.damage,
+                        loyalty: types
+                            .contains(CardType::Planeswalker)
+                            .then(|| permanent.counters(CounterKind::Loyalty)),
+                        loyalty_ability_used_this_turn: permanent.activated_loyalty_this_turn,
+                        attack_defender: permanent.attack_defender,
+                        attacking: permanent.attacking,
+                        blocked_this_combat: permanent.blocked,
+                        blocking: permanent.blocking,
+                        flying,
+                        can_attack: stats.is_some()
+                            && self.can_attack_creature(permanent, moat_active, flying),
+                        entered_this_turn: self.turns_started[permanent.controller.index()]
+                            == permanent.entered_controller_turn,
+                    }
                 })
                 .collect(),
             emblems: self.observed_emblems(),

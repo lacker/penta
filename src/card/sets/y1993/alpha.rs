@@ -641,35 +641,24 @@ pub(in crate::card::sets) static GOBLIN_KING: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{R}{R}"), &["Goblin"], 2, 2).with_abilities(&[
         AbilityDef::static_ability(
             "Other Goblins get +1/+1 and have mountainwalk.",
-            EffectDef::Sequence(&[
-                EffectDef::Apply {
-                    recipient: EffectRecipientDef::MatchingObjects {
-                        object: ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::Subtype("Goblin"),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                        ]),
-                        zones: &[ZoneKind::Battlefield],
-                        controller: PlayerRelation::Any,
-                    },
-                    effect: AppliedEffectDef::ModifyPowerToughness {
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::MatchingObjects {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Subtype("Goblin"),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: PlayerRelation::Any,
+                },
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::ModifyPowerToughness {
                         power: ValueDef::Constant(1),
                         toughness: ValueDef::Constant(1),
                     },
-                    duration: EffectDurationDef::WhileSourceRemainsInZone,
-                },
-                EffectDef::Apply {
-                    recipient: EffectRecipientDef::MatchingObjects {
-                        object: ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::Subtype("Goblin"),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                        ]),
-                        zones: &[ZoneKind::Battlefield],
-                        controller: PlayerRelation::Any,
-                    },
-                    effect: AppliedEffectDef::GrantAbility(&abilities::mountainwalk()),
-                    duration: EffectDurationDef::WhileSourceRemainsInZone,
-                },
-            ]),
+                    AppliedEffectDef::GrantAbility(&abilities::mountainwalk()),
+                ]),
+                duration: EffectDurationDef::WhileSourceRemainsInZone,
+            },
         ),
     ]),
 );
@@ -1723,3 +1712,42 @@ pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
     PrintingRecord::alternate(&MOUNTAIN, 1), // LEA 293
     PrintingRecord::alternate(&FOREST, 1),   // LEA 295
 ];
+
+#[cfg(test)]
+mod tests {
+    use super::GOBLIN_KING;
+    use crate::card::{
+        AppliedEffectDef, DeclarativeAbilityDef, EffectDef, EffectDurationDef, ValueDef, abilities,
+    };
+
+    #[test]
+    fn goblin_king_models_one_static_effect_with_two_components() {
+        let definition = GOBLIN_KING.definition();
+        let clauses = definition.rules.ability_clauses();
+        assert_eq!(clauses.len(), 1);
+        assert!(matches!(
+            clauses[0].definition,
+            DeclarativeAbilityDef::Static(_)
+        ));
+        let EffectDef::Apply {
+            effect: AppliedEffectDef::Composite(effects),
+            duration: EffectDurationDef::WhileSourceRemainsInZone,
+            ..
+        } = clauses[0].effect.definition
+        else {
+            panic!("Goblin King's one static ability must apply one composite effect");
+        };
+        assert_eq!(effects.len(), 2);
+        assert_eq!(
+            effects[0],
+            AppliedEffectDef::ModifyPowerToughness {
+                power: ValueDef::Constant(1),
+                toughness: ValueDef::Constant(1),
+            }
+        );
+        assert!(matches!(
+            effects[1],
+            AppliedEffectDef::GrantAbility(ability) if *ability == abilities::mountainwalk()
+        ));
+    }
+}

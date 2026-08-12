@@ -1,9 +1,9 @@
 use super::{
     AbilitySourceRef, AddManaEffectDef, CardPartId, CharacteristicSource, CopiableAbility,
-    CounteredSpellZone, DeclarativeAbilityDef, DelayedTrigger, EffectDef, EffectRecipientDef,
-    FloatingTrigger, Game, GameResult, Mana, ManaSelectionDef, ManaSource, Permanent, PlayerId,
-    SacrificeFollowup, ScopedEffect, StackObject, Target, TriggerCapture, TriggerContext, ValueDef,
-    WinReason, ZoneKind, ZoneMoveCause, ZonePlacement, public_cards,
+    CounteredSpellZone, DeclarativeAbilityDef, DelayedTrigger, DiscardSelectionDef, EffectDef,
+    EffectRecipientDef, FloatingTrigger, Game, GameResult, Mana, ManaSelectionDef, ManaSource,
+    Permanent, PlayerId, SacrificeFollowup, ScopedEffect, StackObject, Target, TriggerCapture,
+    TriggerContext, ValueDef, WinReason, ZoneKind, ZoneMoveCause, ZonePlacement, public_cards,
 };
 
 impl Game {
@@ -112,7 +112,11 @@ impl Game {
                     }
                 }
             }
-            EffectDef::DiscardCards { recipient, amount } => {
+            EffectDef::Discard {
+                recipient,
+                amount,
+                selection: DiscardSelectionDef::RecipientChooses,
+            } => {
                 let amount = self.effect_value(amount, object, context, scoped).max(0);
                 let cause = ZoneMoveCause::Effect {
                     controller: object.controller,
@@ -127,7 +131,11 @@ impl Game {
                     .collect();
                 self.queue_effect_discards(players, amount, cause);
             }
-            EffectDef::DiscardAtRandom { recipient, amount } => {
+            EffectDef::Discard {
+                recipient,
+                amount,
+                selection: DiscardSelectionDef::Random,
+            } => {
                 let amount = self
                     .effect_value(amount, object, context, scoped)
                     .max(0)

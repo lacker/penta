@@ -2,10 +2,10 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, CardArt, CardBehavior, CardRules, CardSet, CardSupertype,
-    CardType, CardTypeSet, ComparisonDef, CounterKind, EffectDef, EffectDurationDef,
-    EffectExecutionDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation,
-    ReplacementEventDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities, cards,
+    CardType, CardTypeSet, ComparisonDef, CounterKind, DiscardSelectionDef, EffectDef,
+    EffectDurationDef, EffectExecutionDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    PlayerRelation, ReplacementEventDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities, cards,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -428,9 +428,10 @@ pub(in crate::card::sets) static HYPNOTIC_SPECTER: CardRecord = CardRecord::new(
                 source: ObjectPredicateDef::Source,
                 player: PlayerRelation::Opponent,
             },
-            EffectDef::DiscardAtRandom {
+            EffectDef::Discard {
                 recipient: EffectRecipientDef::EventPlayer,
                 amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::Random,
             },
         ),
     ]),
@@ -449,9 +450,10 @@ pub(in crate::card::sets) static MIND_TWIST: CardRecord = CardRecord::new(
     CardRules::new_sorcery(mana_cost!("{X}{B}")).with_abilities(&[AbilityDef::spell_with_targets(
         "Target player discards X cards at random.",
         &TARGET_PLAYER,
-        EffectDef::DiscardAtRandom {
+        EffectDef::Discard {
             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             amount: ValueDef::ChosenX,
+            selection: DiscardSelectionDef::Random,
         },
     )]),
 );

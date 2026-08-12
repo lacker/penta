@@ -2,8 +2,8 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
     BattlefieldEntryModificationDef, CardArt, CardBehavior, CardRules, CardSet, CounterKind,
-    EffectDef, EffectDurationDef, EffectRecipientDef, ManaColor, PlayerRelation,
-    ReplacementEffectDef, ValueDef, abilities, cards,
+    DiscardSelectionDef, EffectDef, EffectDurationDef, EffectRecipientDef, ManaColor,
+    PlayerRelation, ReplacementEffectDef, ValueDef, abilities, cards,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -88,9 +88,10 @@ pub(in crate::card::sets) static HYMN_TO_TOURACH: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Player(PlayerRelation::Any),
         )],
-        EffectDef::DiscardAtRandom {
+        EffectDef::Discard {
             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             amount: ValueDef::Constant(2),
+            selection: DiscardSelectionDef::Random,
         },
     )]),
 );

@@ -64,8 +64,7 @@ impl Game {
             | EffectDef::DrainLife { .. }
             | EffectDef::GainLife { .. }
             | EffectDef::DrawCards { .. }
-            | EffectDef::DiscardCards { .. }
-            | EffectDef::DiscardAtRandom { .. }
+            | EffectDef::Discard { .. }
             | EffectDef::LoseLife { .. }
             | EffectDef::LoseTheGame { .. }
             | EffectDef::Tap { .. }

@@ -4,9 +4,9 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, CardArt, CardBehavior, CardRules, CardSet, CardSupertype,
-    CardType, CounterKind, EffectDef, EffectDurationDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, PlayerRelation, ReplacementEventDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities, cards,
+    CardType, CounterKind, DiscardSelectionDef, EffectDef, EffectDurationDef, EffectRecipientDef,
+    ManaColor, ObjectPredicateDef, PlayerRelation, ReplacementEventDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities, cards,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -520,9 +520,10 @@ pub(in crate::card::sets) static IZZET_CHARM: CardRecord = CardRecord::new(
                             recipient: EffectRecipientDef::Controller,
                             amount: ValueDef::Constant(2),
                         },
-                        EffectDef::DiscardCards {
+                        EffectDef::Discard {
                             recipient: EffectRecipientDef::Controller,
                             amount: ValueDef::Constant(2),
+                            selection: DiscardSelectionDef::RecipientChooses,
                         },
                     ]),
                 ),

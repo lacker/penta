@@ -366,6 +366,15 @@ pub enum ReplacementEffectDef {
     },
 }
 
+/// How cards are selected for a discard effect.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum DiscardSelectionDef {
+    /// Each affected player chooses cards from their own hand.
+    RecipientChooses,
+    /// The engine selects cards using the recorded random seed.
+    Random,
+}
+
 /// Declarative effect primitives interpreted by the rules engine.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum EffectDef {
@@ -384,17 +393,12 @@ pub enum EffectDef {
         recipient: EffectRecipientDef,
         amount: ValueDef,
     },
-    /// Each recipient chooses that many cards from their own hand and
-    /// discards them. A player holding fewer cards discards their whole hand.
-    DiscardCards {
+    /// Each recipient discards that many cards selected in the specified way.
+    /// A player holding fewer cards discards their whole hand.
+    Discard {
         recipient: EffectRecipientDef,
         amount: ValueDef,
-    },
-    /// The recipients discard at random rather than choosing. Nobody is asked
-    /// anything, so unlike [`Self::DiscardCards`] this needs no decision.
-    DiscardAtRandom {
-        recipient: EffectRecipientDef,
-        amount: ValueDef,
+        selection: DiscardSelectionDef,
     },
     LoseLife {
         recipient: EffectRecipientDef,

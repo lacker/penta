@@ -80,6 +80,11 @@ snapshots.
   `CardBehavior::NevinyrralsDisk` Rust selector has been removed, and the
   handcrafted policy scores the full sweep from the board swing. Protocol JSON
   and legal actions are unchanged.
+- `EffectDef::DiscardCards` and `EffectDef::DiscardAtRandom` are now one
+  `EffectDef::Discard` operation whose `DiscardSelectionDef` attribute is
+  `RecipientChooses` or `Random`. Downstream Rust card definitions must migrate
+  to the unified shape. The chosen and seeded-random resolution paths are
+  unchanged, as are protocol JSON and legal actions.
 - The unfiltered catalog appends `Urborg, Tomb of Yawgmoth` as definition 261
   with debut set `planar-chaos`, and `Yavimaya, Cradle of Growth` as definition
   262 with debut set `modern-horizons-2`. They are cross-format interaction

@@ -5,10 +5,10 @@ use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityPolicyHint, AbilityTargetDef,
     AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef, BasicLandType, CardAbilityBinding,
     CardArt, CardBehavior, CardComposition, CardEffectStatus, CardPart, CardRules, CardSet,
-    CardStructure, CardSupertype, CardType, ComparisonDef, CounterKind, DoubleFacedKind, EffectDef,
-    EffectDurationDef, EffectExecutionDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    ObjectQueryDef, PlayOptionDef, PlayerRelation, SpellForm, TriggerConditionDef, TriggerEventDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities, cards,
+    CardStructure, CardSupertype, CardType, ComparisonDef, CounterKind, DiscardSelectionDef,
+    DoubleFacedKind, EffectDef, EffectDurationDef, EffectExecutionDef, EffectRecipientDef,
+    ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayOptionDef, PlayerRelation, SpellForm,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, cards,
 };
 use crate::game::{CardAbilityResolver, CardRuntime, PileChoice, PileSplit, ResolvedAbility};
 use crate::ids::{AbilityId, CardPartId, PlayOptionId, TargetIndex, TargetSlotId};
@@ -188,9 +188,10 @@ pub(in crate::card::sets) static LILIANA_OF_THE_VEIL: CardRecord = CardRecord::n
             AbilityDef::activated(
                 "+1: Each player discards a card.",
                 &[AbilityCostDef::Loyalty(1)],
-                EffectDef::DiscardCards {
+                EffectDef::Discard {
                     recipient: EffectRecipientDef::EachPlayer,
                     amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RecipientChooses,
                 },
             ),
             AbilityDef::activated_with_targets(

@@ -39,7 +39,12 @@ fn a_random_discard_spell_hits_the_player_it_targets() {
     );
 
     game.apply(PlayerId::One, at_self).unwrap();
-    drain_pending(&mut game);
+    pass_priority_pair(&mut game);
+
+    assert!(
+        game.pending_decisions.is_empty(),
+        "random discard resolves without asking the targeted player to choose"
+    );
 
     assert_eq!(
         game.players[0].hand.len(),

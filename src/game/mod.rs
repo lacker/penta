@@ -14,13 +14,13 @@ use crate::card::{
     AnimationDef, AppliedEffectDef, BasicLandType, BattlefieldEntryModificationDef, CREATURE_TYPES,
     CardBehavior, CardCatalog, CardDefinition, CardEffectStatus, CardPart, CardRules, CardSet,
     CardStructure, CardSupertype, CardType, CardTypeSet, CharacteristicContext, ColorSet,
-    ComparisonDef, ConditionDef, CostDef, CounterKind, DeclarativeAbilityDef, DividedTotal,
-    DoubleFacedKind, EffectDef, EffectDurationDef, EffectRecipientDef, HybridPair, KeywordAbility,
-    ManaCost, ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef, ObjectPredicateDef,
-    ObjectQueryDef, PaymentDef, PlayActionKind, PlayOptionDef, PlayRestriction, PlayerRelation,
-    QuantifierDef, ReplacementEffectDef, ReplacementEventDef, TargetPredicate, TargetSlotDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef,
-    ZonePlacement, abilities, applicable_part_ids,
+    ComparisonDef, ConditionDef, CostDef, CounterKind, DeclarativeAbilityDef, DiscardSelectionDef,
+    DividedTotal, DoubleFacedKind, EffectDef, EffectDurationDef, EffectRecipientDef, HybridPair,
+    KeywordAbility, ManaCost, ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef,
+    ObjectPredicateDef, ObjectQueryDef, PaymentDef, PlayActionKind, PlayOptionDef, PlayRestriction,
+    PlayerRelation, QuantifierDef, ReplacementEffectDef, ReplacementEventDef, TargetPredicate,
+    TargetSlotDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZoneMoveCauseDef, ZonePlacement, abilities, applicable_part_ids,
 };
 use crate::casting::{CastChoices, CastSignature, CostConfiguration, TargetSelection};
 use crate::deck::{Deck, ValidatedDeck};

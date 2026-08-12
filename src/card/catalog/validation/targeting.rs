@@ -147,8 +147,9 @@ fn validate_effect_target_references(
         | EffectDef::DrainLife { recipient, amount }
         | EffectDef::GainLife { recipient, amount }
         | EffectDef::DrawCards { recipient, amount }
-        | EffectDef::DiscardCards { recipient, amount }
-        | EffectDef::DiscardAtRandom { recipient, amount }
+        | EffectDef::Discard {
+            recipient, amount, ..
+        }
         | EffectDef::LoseLife { recipient, amount } => {
             validate_recipient_target_references(recipient, target_count)?;
             validate_value_target_references(amount, target_count)

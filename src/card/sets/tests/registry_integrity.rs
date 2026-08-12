@@ -48,20 +48,21 @@ fn every_cataloged_set_has_one_matching_module() {
         CardSet::PlanarChaos,
         CardSet::FutureSight,
         CardSet::Theros,
+        CardSet::KhansOfTarkir,
         CardSet::ModernHorizons2,
     ] {
         assert!(registered_sets.contains(&testbed_set));
         assert!(!Format::OldSchool9394.allows_set(testbed_set));
         assert!(!Format::IsdRtrStandard.allows_set(testbed_set));
     }
-    assert_eq!(registered_sets.len(), 40);
+    assert_eq!(registered_sets.len(), 41);
     assert_eq!(
         registered_sets
             .iter()
             .copied()
             .collect::<HashSet<_>>()
             .len(),
-        40
+        41
     );
 
     for module in SET_MODULES {
@@ -81,11 +82,11 @@ fn built_in_records_keep_stable_dense_ids_and_unique_identity() {
         .iter()
         .flat_map(|module| module.cards.iter().copied())
         .collect::<Vec<_>>();
-    assert_eq!(records.len(), 1_367);
+    assert_eq!(records.len(), 1_368);
 
     let mut ids = records.iter().map(|record| record.id).collect::<Vec<_>>();
     ids.sort_unstable();
-    assert_eq!(ids, (1..=1_367).map(CardDefinitionId).collect::<Vec<_>>());
+    assert_eq!(ids, (1..=1_368).map(CardDefinitionId).collect::<Vec<_>>());
     // Names identify the cards a decklist can name. Tokens are not among
     // them, and Magic prints several that share a name.
     let deck_legal = records
@@ -114,7 +115,7 @@ fn built_in_catalog_indexes_definitions_and_printings_separately() {
         .partition(|record| record.debut_set == CardSet::Token);
 
     assert_eq!(token_records.len(), 35);
-    assert_eq!(printed_records.len(), 1_332);
+    assert_eq!(printed_records.len(), 1_333);
     assert_eq!(
         SET_MODULES
             .iter()
@@ -134,7 +135,7 @@ fn built_in_catalog_indexes_definitions_and_printings_separately() {
         .map(|record| catalog.printings_for(record.id).len())
         .sum::<usize>();
 
-    assert_eq!(printing_count, 1_890);
+    assert_eq!(printing_count, 1_891);
     for variant in 0..3 {
         assert!(
             catalog
@@ -331,7 +332,7 @@ fn every_non_declarative_clause_explains_its_implementation() {
         .iter()
         .flat_map(|module| module.cards.iter().copied())
         .collect::<Vec<_>>();
-    assert_eq!(records.len(), 1_367);
+    assert_eq!(records.len(), 1_368);
 
     for record in records {
         let definition = record.definition();

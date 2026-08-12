@@ -18,10 +18,10 @@ use crate::card::{
     DiscardSelectionDef, DividedTotal, DoubleFacedKind, EffectDef, EffectDurationDef,
     EffectRecipientDef, HybridPair, KeywordAbility, ManaCost, ManaRestrictionDef, ManaSelectionDef,
     ManaSpendEffectDef, ObjectPredicateDef, ObjectQueryDef, PaymentDef, PlayActionKind,
-    PlayOptionDef, PlayRestriction, PlayerRelation, QuantifierDef, ReplacementEffectDef,
-    ReplacementEventDef, TargetPredicate, TargetSlotDef, TopCardSelectionDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
-    applicable_part_ids,
+    PlayOptionDef, PlayRestriction, PlayerRelation, QuantifierDef, ReplacementConditionDef,
+    ReplacementEffectDef, ReplacementEventDef, TargetPredicate, TargetSlotDef, TopCardSelectionDef,
+    TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnStepDef, ValueDef, ZoneKind,
+    ZoneMoveCauseDef, ZonePlacement, abilities, applicable_part_ids,
 };
 use crate::casting::{CastChoices, CastSignature, CostConfiguration, TargetSelection};
 use crate::deck::Deck;
@@ -119,8 +119,9 @@ use continuous_state::{
     TemporaryGrantedAbility, TemporaryRemovedAbilities,
 };
 use decision_state::{
-    BalanceAction, BalancePhase, BalanceTask, CounteredSpellZone, DecisionContinuation,
-    FORK_COPY_COLOR, PendingDecision, Pregame, SacrificeFollowup, ZoneMoveCause,
+    ApplicableBeginTurnReplacement, BalanceAction, BalancePhase, BalanceTask, CounteredSpellZone,
+    DecisionContinuation, DeferredBeginTurnEffect, FORK_COPY_COLOR, PendingDecision, Pregame,
+    SacrificeFollowup, ZoneMoveCause,
 };
 use mana_state::{
     AppliedStackEffect, FlexibleManaSource, ManaAbilityActivation, ManaPaymentPurpose,
@@ -128,9 +129,10 @@ use mana_state::{
 };
 use procedure_state::{DrawReplacement, PendingProcedure};
 use replacement_state::{
-    ApplicableReplacement, BattlefieldEntryReplacementEffect, EntryCompletion,
-    PendingBattlefieldEntry, PendingEvent, PendingReplacementEffect, ReplaceableEvent,
-    ReplacementEffectContext,
+    ApplicableReplacement, ApplicableZoneMoveReplacement, BattlefieldEntryReplacementEffect,
+    BattlefieldExitCompletion, EntryCompletion, FrozenZoneMoveReplacement, PendingBattlefieldEntry,
+    PendingBattlefieldExitBatch, PendingBattlefieldExitMove, PendingEvent,
+    PendingReplacementEffect, ReplaceableEvent, ReplacementEffectContext,
 };
 use trigger_state::{
     AbilitySourceRef, BattlefieldTriggerListener, CommittedTriggerEvent, DelayedTrigger,
@@ -704,9 +706,11 @@ pub struct Game {
     pending_combat_attackers: Vec<GameObjectId>,
     combat_damage_stage: CombatDamageStage,
     combat_blocked_attackers: Vec<GameObjectId>,
+    /// The next ordinary turn in the two-player rotation. Extra turns sit in
+    /// front of this anchor without changing it.
+    next_regular_player: PlayerId,
     extra_turns: Vec<PlayerId>,
     channel_active: [bool; 2],
-    skipped_turns: [u16; 2],
     result: Option<GameResult>,
     events: Vec<GameEvent>,
 }

@@ -107,6 +107,7 @@ impl Game {
             | EffectDef::CreateEmblem { .. }
             | EffectDef::Transform { .. }
             | EffectDef::AdditionalCombatPhase
+            | EffectDef::TakeExtraTurn { .. }
             | EffectDef::CannotCastNoncreatureSpellsThisTurn { .. }
             | EffectDef::GrantFlashToNextSorcery
             | EffectDef::ExileLinkedToSource { .. }

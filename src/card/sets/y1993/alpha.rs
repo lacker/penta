@@ -2,11 +2,12 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, BasicLandType, CardArt, CardBehavior, CardRules, CardSet,
-    CardSupertype, CardType, CardTypeSet, ComparisonDef, CostDef, CounterKind, DiscardSelectionDef,
-    EffectDef, EffectDurationDef, EffectExecutionDef, EffectRecipientDef, KeywordAbility,
-    LikelihoodDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, PaymentDef, PlayerRelation,
-    ReplacementEventDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities, cards,
+    CardSupertype, CardType, CardTypeSet, ComparisonDef, CostDef, CounterKind,
+    DeclarativeAbilityDef, DiscardSelectionDef, EffectDef, EffectDurationDef, EffectExecutionDef,
+    EffectRecipientDef, KeywordAbility, LikelihoodDef, ManaColor, ObjectPredicateDef,
+    ObjectQueryDef, PaymentDef, PlayerRelation, ReplacementAbilityDef, ReplacementConditionDef,
+    ReplacementEffectDef, ReplacementEventDef, TriggerConditionDef, TriggerEventDef, TurnKindDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, cards,
 };
 use crate::ids::{ChoiceIndex, TargetIndex};
 use crate::mana_cost;
@@ -1034,10 +1035,11 @@ pub(in crate::card::sets) static TIME_WALK: CardRecord = CardRecord::new(
     "Time Walk",
     CardArt::new("e0139f60-d48e-46fb-9f5a-1e3d7558c834", "Amy Weber"),
     CardSet::Alpha,
-    CardRules::new_sorcery(mana_cost!("{1}{U}")).with_abilities(&[AbilityDef::custom_full(
+    CardRules::new_sorcery(mana_cost!("{1}{U}")).with_abilities(&[AbilityDef::spell(
         "Take an extra turn after this one.",
-        CardBehavior::TimeWalk,
-        "The extra turn is implemented by the card-local spell resolver.",
+        EffectDef::TakeExtraTurn {
+            player: EffectRecipientDef::Controller,
+        },
     )]),
 );
 
@@ -3676,9 +3678,15 @@ pub(in crate::card::sets) static THRONE_OF_BONE: CardRecord = CardRecord::new(
         },
     )]),
 );
+static TIME_VAULT_UNTAP: EffectDef = EffectDef::Untap {
+    object: EffectRecipientDef::Source,
+};
+static TIME_VAULT_TURN_REPLACEMENT: [ReplacementEffectDef; 2] = [
+    ReplacementEffectDef::ReplaceEventWithNothing,
+    ReplacementEffectDef::Perform(&TIME_VAULT_UNTAP),
+];
 
 // LEA 274 — Time Vault
-// Audit: partial — Its skip-turn replacement is offered after the turn begins and banks a skip for the controller's next turn instead of replacing the current turn.
 pub(in crate::card::sets) static TIME_VAULT: CardRecord = CardRecord::new(
     cards::TIME_VAULT,
     "Time Vault",
@@ -3688,31 +3696,34 @@ pub(in crate::card::sets) static TIME_VAULT: CardRecord = CardRecord::new(
         abilities::enters_tapped("This artifact enters tapped."),
         AbilityDef::static_ability(
             "This artifact doesn't untap during your untap step.",
-            EffectDef::Special("Keep this artifact tapped during its controller's untap step"),
-        )
-        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::TimeVault))
-        .with_coverage(AbilityCoverageDef::explained_complete(
-            "The untap restriction is implemented by the shared untap procedure.",
-        )),
-        AbilityDef::replacement_for(
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::DoesNotUntapDuringUntapStep,
+                duration: EffectDurationDef::WhileSourceRemainsInZone,
+            },
+        ),
+        AbilityDef::defined(
             "If you would begin your turn while this artifact is tapped, you may skip that turn instead. If you do, untap this artifact.",
-            ReplacementEventDef::Special("begin your turn while this artifact is tapped"),
-            EffectDef::Special("Optionally skip the turn to untap this artifact"),
-        )
-        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::TimeVault))
-        .with_coverage(AbilityCoverageDef::partial(
-            "The wrong turn is skipped. The replacement should apply to the turn that is beginning, but the offer is made during the untap step, after that turn has already started, and accepting banks a skip that is spent on the controller's next turn instead. So the controller keeps the turn the artifact should have cost them.",
-        )),
+            DeclarativeAbilityDef::Replacement(
+                ReplacementAbilityDef::new()
+                    .with_event(ReplacementEventDef::WouldBeginTurn {
+                        player: PlayerRelation::You,
+                        kind: TurnKindDef::Any,
+                    })
+                    .with_condition(ReplacementConditionDef::SourceTapped)
+                    .optional(),
+            ),
+            EffectDef::Replacement(ReplacementEffectDef::Sequence(
+                &TIME_VAULT_TURN_REPLACEMENT,
+            )),
+        ),
         AbilityDef::activated(
             "{T}: Take an extra turn after this one.",
             &[AbilityCostDef::TapSource],
-            EffectDef::Special("Give this ability's controller an extra turn"),
-        )
-        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::TimeVault))
-        .with_coverage(AbilityCoverageDef::explained_complete(
-            "The extra turn is implemented by the card-local activated-ability resolver.",
-        ))
-        .with_legacy_procedure(),
+            EffectDef::TakeExtraTurn {
+                player: EffectRecipientDef::Controller,
+            },
+        ),
     ]),
 );
 

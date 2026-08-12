@@ -320,15 +320,6 @@ impl Game {
                     x: 0,
                 });
             }
-            CardBehavior::TimeVault if !permanent.tapped && self.can_use_tap_ability(permanent) => {
-                actions.push(Action::ActivateAbility {
-                    source: permanent.card.id,
-                    ability,
-                    targets: Vec::new(),
-                    cost_object: None,
-                    x: 0,
-                });
-            }
             _ => {}
         }
     }

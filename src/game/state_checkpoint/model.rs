@@ -38,8 +38,8 @@ pub(super) struct GameSnapshot {
     pub(super) pending_combat_attackers: Vec<u32>,
     pub(super) combat_blocked_attackers: Vec<u32>,
     pub(super) extra_turns: Vec<usize>,
+    pub(super) next_regular_player: usize,
     pub(super) channel_active: [bool; 2],
-    pub(super) skipped_turns: [u16; 2],
     pub(super) pregame: Option<PregameSnapshot>,
     pub(super) combat_damage_stage: CombatDamageStageSnapshot,
     pub(super) battlefield: Vec<PermanentSnapshot>,
@@ -619,6 +619,30 @@ pub(super) enum DecisionPreferenceSnapshot {
     },
 }
 
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) enum TurnKindSnapshot {
+    Any,
+    Regular,
+    Extra,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct ApplicableBeginTurnReplacementSnapshot {
+    pub(super) source: AbilitySourceSnapshot,
+    pub(super) controller: usize,
+    pub(super) definition: u16,
+    pub(super) effect: ReplacementEffectLocator,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct DeferredBeginTurnEffectSnapshot {
+    pub(super) replacement: ApplicableBeginTurnReplacementSnapshot,
+    pub(super) effect: ScopedEffectSnapshot,
+}
+
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(
     tag = "kind",
@@ -626,6 +650,13 @@ pub(super) enum DecisionPreferenceSnapshot {
     rename_all_fields = "camelCase"
 )]
 pub(super) enum DecisionContinuationSnapshot {
+    BeginTurn {
+        player: usize,
+        turn_kind: TurnKindSnapshot,
+        applied: Vec<AbilitySourceSnapshot>,
+        replacements: Vec<ApplicableBeginTurnReplacementSnapshot>,
+        deferred: Vec<DeferredBeginTurnEffectSnapshot>,
+    },
     SearchZone {
         controller: usize,
         source: ZoneKindSnapshot,
@@ -798,10 +829,6 @@ pub(super) enum DecisionContinuationSnapshot {
         phase: BalancePhaseSnapshot,
         task: BalanceTaskSnapshot,
         remaining: Vec<BalanceTaskSnapshot>,
-    },
-    TimeVault {
-        permanent: u32,
-        remaining: Vec<u32>,
     },
     SylvanOffer {
         player: usize,

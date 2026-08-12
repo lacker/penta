@@ -196,9 +196,9 @@ impl Game {
             pending_combat_attackers: Vec::new(),
             combat_damage_stage: CombatDamageStage::NotStarted,
             combat_blocked_attackers: Vec::new(),
+            next_regular_player: PlayerId::Two,
             extra_turns: Vec::new(),
             channel_active: [false, false],
-            skipped_turns: [0, 0],
             result: None,
             events: vec![GameEvent::GameStarted { seed }],
         })

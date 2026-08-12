@@ -1,10 +1,10 @@
 use super::{
-    BalancePhase, BalanceTask, CardBehavior, CardInstance, CardRuntime, CommittedTriggerEvent,
-    CounterKind, DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility,
-    DecisionZone, DeclarativeAbilityDef, EffectDef, Game, GameObjectId, ObjectPredicateDef,
-    Permanent, PileChoice, PileChosen, PileSplit, PilesSeparated, PlayerId, SacrificeFollowup,
-    ScopedEffect, StackObject, Step, TopCardSelectionDef, TriggerContext, ZoneKind, ZoneMoveCause,
-    ZonePlacement,
+    BalancePhase, BalanceTask, BattlefieldExitCompletion, CardInstance, CardRuntime,
+    CommittedTriggerEvent, CounterKind, DecisionContinuation, DecisionOption, DecisionPreference,
+    DecisionVisibility, DecisionZone, DeclarativeAbilityDef, EffectDef, Game, GameObjectId,
+    ObjectPredicateDef, Permanent, PileChoice, PileChosen, PileSplit, PilesSeparated, PlayerId,
+    SacrificeFollowup, ScopedEffect, StackObject, Step, TopCardSelectionDef, TriggerContext,
+    ZoneKind, ZoneMoveCause, ZonePlacement,
 };
 
 impl Game {
@@ -647,11 +647,16 @@ impl Game {
         // candidate has only one answer, so it happens without asking.
         if !optional && candidates.len() <= 1 {
             let sacrificed = candidates.first().map(|only| only.id);
-            if let Some(sacrificed) = sacrificed {
-                self.move_permanents_to_graveyard(&[sacrificed]);
-            }
             if let Some(followup) = followup {
-                self.resolve_sacrifice_followup(&followup, sacrificed);
+                self.move_permanents_to_graveyard_then(
+                    sacrificed.as_slice(),
+                    Some(BattlefieldExitCompletion::SacrificeFollowup {
+                        followup,
+                        sacrificed,
+                    }),
+                );
+            } else if let Some(sacrificed) = sacrificed {
+                self.move_permanents_to_graveyard(&[sacrificed]);
             }
             return;
         }
@@ -695,67 +700,6 @@ impl Game {
             ..followup.context
         };
         self.resolve_effect_def(followup.effect, &followup.object, context);
-    }
-
-    pub(super) fn queue_time_vault_decision(
-        &mut self,
-        permanent: GameObjectId,
-        remaining: Vec<GameObjectId>,
-    ) {
-        let card = self
-            .battlefield
-            .iter()
-            .find(|candidate| candidate.card.id == permanent)
-            .map(|permanent| (permanent.card.id, permanent.card.definition));
-        self.queue_decision(
-            self.active_player,
-            "Time Vault would remain tapped",
-            DecisionVisibility::Public,
-            DecisionPreference::Neutral,
-            1..=1,
-            false,
-            vec![
-                DecisionOption {
-                    id: 0,
-                    label: "Leave Time Vault tapped".into(),
-                    card,
-                    members: Vec::new(),
-                    ability_text: None,
-                    zone: DecisionZone::Battlefield,
-                },
-                DecisionOption {
-                    id: 1,
-                    label: "Untap Time Vault and skip your next turn".into(),
-                    card,
-                    members: Vec::new(),
-                    ability_text: None,
-                    zone: DecisionZone::Battlefield,
-                },
-            ],
-            DecisionContinuation::TimeVault {
-                permanent,
-                remaining,
-            },
-        );
-    }
-
-    pub(super) fn finish_untap_choices(&mut self) {
-        let mut vaults = self
-            .battlefield
-            .iter()
-            .filter(|permanent| {
-                permanent.controller == self.active_player
-                    && permanent.tapped
-                    && self.effective_behavior(permanent) == Some(CardBehavior::TimeVault)
-            })
-            .map(|permanent| permanent.card.id)
-            .collect::<Vec<_>>();
-        if vaults.is_empty() {
-            self.handle_upkeep_triggers();
-        } else {
-            let first = vaults.remove(0);
-            self.queue_time_vault_decision(first, vaults);
-        }
     }
 
     pub(super) fn queue_sylvan_select(

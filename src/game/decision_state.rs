@@ -1,13 +1,15 @@
 use crate::action::{ManaColor, Target};
 use crate::card::{
-    CardTypeSet, ColorSet, ManaCost, PaymentDef, ReplacementEffectDef, ZoneKind, ZonePlacement,
+    CardTypeSet, ColorSet, EffectDef, ManaCost, PaymentDef, ReplacementEffectDef, TurnKindDef,
+    ZoneKind, ZonePlacement,
 };
 use crate::casting::TargetSelection;
-use crate::ids::{ChoiceIndex, GameObjectId, PlayerId};
+use crate::ids::{CardDefinitionId, ChoiceIndex, GameObjectId, PlayerId};
 
 use super::{
-    ApplicableReplacement, CardInstance, DecisionObservation, DecisionOption, DecisionZone,
-    DrawReplacement, PendingTrigger, PileChosen, PileSplit, PilesSeparated,
+    AbilitySourceRef, ApplicableReplacement, ApplicableZoneMoveReplacement, CardInstance,
+    DecisionObservation, DecisionOption, DecisionZone, DrawReplacement,
+    PendingBattlefieldExitBatch, PendingTrigger, PileChosen, PileSplit, PilesSeparated,
     ReplacementEffectContext, ScopedEffect, StackObject, TriggerContext, TriggerPlacementBatch,
 };
 
@@ -34,6 +36,29 @@ pub(super) enum Pregame {
 pub(super) struct PendingDecision {
     pub(super) observation: DecisionObservation,
     pub(super) continuation: DecisionContinuation,
+}
+
+/// One optional replacement that can consume a prospective turn before it
+/// begins. The effective ability identity is frozen with its public
+/// presentation so copied, granted, and ability-removed sources participate
+/// through the same scheduler procedure.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(super) struct ApplicableBeginTurnReplacement {
+    pub(super) source: AbilitySourceRef,
+    pub(super) controller: PlayerId,
+    pub(super) definition: CardDefinitionId,
+    pub(super) text: &'static str,
+    pub(super) optional: bool,
+    pub(super) effect: ReplacementEffectDef,
+}
+
+/// An action appended to a skipped prospective turn. CR 614.10b carries it
+/// forward until a turn actually begins, when it happens before the turn's
+/// ordinary turn-based actions.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(super) struct DeferredBeginTurnEffect {
+    pub(super) replacement: ApplicableBeginTurnReplacement,
+    pub(super) effect: EffectDef,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -85,6 +110,17 @@ pub(super) enum CounteredSpellZone {
 
 #[derive(Clone, Debug)]
 pub(super) enum DecisionContinuation {
+    /// A prospective turn is suspended before any part of it is committed.
+    /// When every replacement is optional, option zero begins it. Every other
+    /// option applies one replacement; replacing the event asks the scheduler
+    /// for the next proposal, while modifying it resumes this same proposal.
+    BeginTurn {
+        player: PlayerId,
+        kind: TurnKindDef,
+        applied: Vec<AbilitySourceRef>,
+        replacements: Vec<ApplicableBeginTurnReplacement>,
+        deferred: Vec<DeferredBeginTurnEffect>,
+    },
     /// One of several players choosing cards for an effect before any chosen
     /// card changes zones.
     DiscardForEffect {
@@ -240,10 +276,6 @@ pub(super) enum DecisionContinuation {
         task: BalanceTask,
         remaining: Vec<BalanceTask>,
     },
-    TimeVault {
-        permanent: GameObjectId,
-        remaining: Vec<GameObjectId>,
-    },
     SylvanOffer {
         player: PlayerId,
     },
@@ -293,6 +325,12 @@ pub(super) enum DecisionContinuation {
     /// replacement effect to apply next.
     BattlefieldEntryReplacement {
         candidates: Vec<ApplicableReplacement>,
+    },
+    /// A simultaneous battlefield-exit batch suspended while the affected
+    /// object's controller orders two or more applicable replacement effects.
+    BattlefieldExitReplacement {
+        batch: PendingBattlefieldExitBatch,
+        candidates: Vec<ApplicableZoneMoveReplacement>,
     },
     /// A replacement effect suspended while its controller chooses whether to
     /// pay. The prospective event itself remains at the front of the queue.

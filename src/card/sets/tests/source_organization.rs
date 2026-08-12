@@ -96,7 +96,7 @@ fn printed_set_sources_follow_collector_number_order() {
     }
 
     assert_eq!(
-        definition_count, 1_332,
+        definition_count, 1_333,
         "the organization guard must cover every printed card definition"
     );
     assert_eq!(
@@ -170,6 +170,7 @@ fn set_code_for_file(path: &Path) -> &'static str {
         Some("gatecrash.rs") => "GTC",
         Some("magic_2014.rs") => "M14",
         Some("theros.rs") => "THS",
+        Some("khans_of_tarkir.rs") => "KTK",
         Some("modern_horizons_2.rs") => "MH2",
         Some(name) => panic!(
             "{}: add {name} to the official set-code map",

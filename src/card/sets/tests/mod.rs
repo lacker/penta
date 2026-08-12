@@ -9,8 +9,8 @@ use crate::card::{
     EffectRecipientDef, ImplementationStatus, KeywordAbility, ManaColor, ManaRestrictionDef,
     ManaSelectionDef, ManaSpendEffectDef, ObjectPredicateDef, ObjectQueryDef, PlayActionKind,
     PlayRestriction, PlayerRelation, ReplacementEffectDef, ReplacementEventDef, SpellForm,
-    TargetPredicate, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZoneMoveCauseDef, ZonePlacement, cards,
+    TargetPredicate, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement, cards,
 };
 use crate::{
     CardDefinitionId, CardPartId, CardSet, Format, ManaCost, ModeId, PlayOptionId, TargetSlotId,

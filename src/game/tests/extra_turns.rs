@@ -1,0 +1,766 @@
+use super::*;
+use crate::ReplacementAbilityDef;
+
+const TIME_VAULT_TURN_REPLACEMENT_TEXT: &str = "If you would begin your turn while this artifact is tapped, you may skip that turn instead. If you do, untap this artifact.";
+static EXPECTED_TIME_VAULT_UNTAP: EffectDef = EffectDef::Untap {
+    object: EffectRecipientDef::Source,
+};
+static EXPECTED_TIME_VAULT_TURN_REPLACEMENT: [ReplacementEffectDef; 2] = [
+    ReplacementEffectDef::ReplaceEventWithNothing,
+    ReplacementEffectDef::Perform(&EXPECTED_TIME_VAULT_UNTAP),
+];
+static TEST_EXTRA_TURN_REPLACEMENT_ABILITIES: [AbilityDef; 1] = [AbilityDef::defined(
+    "If a player would begin an extra turn, that player skips that turn instead.",
+    DeclarativeAbilityDef::Replacement(ReplacementAbilityDef::new().with_event(
+        ReplacementEventDef::WouldBeginTurn {
+            player: PlayerRelation::Any,
+            kind: TurnKindDef::Extra,
+        },
+    )),
+    EffectDef::Replacement(ReplacementEffectDef::ReplaceEventWithNothing),
+)];
+
+fn install_extra_turn_replacement(game: &mut Game, id: u32) -> GameObjectId {
+    let definition_id = CardDefinitionId(10_064);
+    let mut definition = CardDefinition::new(
+        definition_id,
+        "Extra Turn Suppressor",
+        CardSet::Magic2014,
+        false,
+        CardBehavior::Unsupported,
+    );
+    definition.rules = CardRules::new_artifact(ManaCost::new(0, 0))
+        .with_abilities(&TEST_EXTRA_TURN_REPLACEMENT_ABILITIES);
+    synchronize_single_part_definition(&mut definition);
+    let mut definitions = game
+        .catalog
+        .definitions()
+        .into_iter()
+        .cloned()
+        .collect::<Vec<_>>();
+    definitions.push(definition);
+    game.catalog = CardCatalog::new(definitions).unwrap();
+    let source = creature(id, definition_id, PlayerId::One);
+    let source_id = source.card.id;
+    game.battlefield.push(source);
+    source_id
+}
+
+fn tapped_time_vault(id: u32, controller: PlayerId) -> Permanent {
+    let mut vault = creature(id, cards::TIME_VAULT, controller);
+    vault.tapped = true;
+    vault
+}
+
+fn assert_time_vault_begin_turn_decision(
+    game: &Game,
+    player: PlayerId,
+    vaults: &[GameObjectId],
+) -> DecisionObservation {
+    let decision = game
+        .observe(player)
+        .decision
+        .expect("the prospective player chooses whether to skip the turn");
+    assert_eq!(decision.player, player);
+    assert_eq!(decision.kind, DecisionKind::Choice);
+    assert_eq!(decision.order_semantics, None);
+    assert_eq!(decision.prompt, "A turn would begin");
+    assert_eq!(decision.visibility, DecisionVisibility::Public);
+    assert_eq!(decision.preference, DecisionPreference::PreferOption(0));
+    assert_eq!((decision.minimum, decision.maximum), (1, 1));
+    assert!(!decision.cancellable);
+    assert_eq!(decision.options.len(), vaults.len() + 1);
+
+    let begin = &decision.options[0];
+    assert_eq!(begin.id, 0);
+    assert_eq!(begin.label, "Begin the turn");
+    assert_eq!(begin.card, None);
+    assert!(begin.members.is_empty());
+    assert_eq!(begin.ability_text, None);
+    assert_eq!(begin.zone, DecisionZone::None);
+
+    for (index, (option, vault)) in decision.options[1..].iter().zip(vaults).enumerate() {
+        assert_eq!(option.id, u32::try_from(index + 1).unwrap());
+        assert_eq!(option.label, "Apply Time Vault's replacement effect");
+        assert_eq!(option.card, Some((*vault, cards::TIME_VAULT)));
+        assert!(option.members.is_empty());
+        assert_eq!(
+            option.ability_text.as_deref(),
+            Some(TIME_VAULT_TURN_REPLACEMENT_TEXT)
+        );
+        assert_eq!(option.zone, DecisionZone::Battlefield);
+    }
+
+    assert_eq!(
+        game.observe(player.opponent()).decision,
+        Some(decision.clone()),
+        "the prospective-turn choice is public"
+    );
+    decision
+}
+
+fn choose_begin_turn_option(game: &mut Game, player: PlayerId, option: u32) {
+    let decision = game
+        .observe(player)
+        .decision
+        .expect("a begin-turn decision is pending");
+    game.apply(
+        player,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options: vec![option],
+        },
+    )
+    .expect("the begin-turn choice is legal");
+}
+
+fn choose_begin_turn_source(game: &mut Game, player: PlayerId, source: GameObjectId) {
+    let decision = game
+        .observe(player)
+        .decision
+        .expect("a begin-turn decision is pending");
+    let option = decision
+        .options
+        .iter()
+        .find(|option| option.card.is_some_and(|(object, _)| object == source))
+        .expect("the replacement source is offered")
+        .id;
+    choose_begin_turn_option(game, player, option);
+}
+
+fn step_changed_count(game: &Game) -> usize {
+    game.events
+        .iter()
+        .filter(|event| matches!(event, GameEvent::StepChanged { .. }))
+        .count()
+}
+
+#[test]
+fn time_walk_uses_the_shared_effect_and_queues_an_extra_turn() {
+    let mut game = ready_game();
+    let rules = &game
+        .catalog
+        .get(cards::TIME_WALK)
+        .expect("Time Walk is cataloged")
+        .rules;
+    assert_eq!(rules.special_behavior(), None);
+    let [ability] = rules.ability_clauses() else {
+        panic!("Time Walk has one spell ability")
+    };
+    assert!(matches!(
+        ability.definition,
+        DeclarativeAbilityDef::Spell(_)
+    ));
+    assert_eq!(
+        ability.declarative_effect(),
+        Some(EffectDef::TakeExtraTurn {
+            player: EffectRecipientDef::Controller,
+        })
+    );
+    assert_eq!(ability.effect.execution, EffectExecutionDef::Declarative);
+
+    let time_walk = card(10_000, cards::TIME_WALK, PlayerId::One);
+    game.players[0].hand.push(time_walk.clone());
+    game.players[0].mana_pool.blue = 1;
+    game.players[0].mana_pool.colorless = 1;
+    game.apply(
+        PlayerId::One,
+        cast_action(time_walk.id, Vec::new(), Vec::new(), 0),
+    )
+    .unwrap();
+    assert!(
+        game.extra_turns.is_empty(),
+        "the spell still uses the stack"
+    );
+    pass_priority_pair(&mut game);
+    assert_eq!(game.extra_turns, vec![PlayerId::One]);
+
+    game.start_next_turn();
+    assert_eq!(game.active_player, PlayerId::One);
+    assert_eq!(game.observe(PlayerId::One).active_turn, 2);
+    game.start_next_turn();
+    assert_eq!(game.active_player, PlayerId::Two);
+    assert_eq!(game.observe(PlayerId::Two).active_turn, 1);
+}
+
+#[test]
+fn time_vault_has_four_complete_declarative_abilities() {
+    let game = ready_game();
+    let rules = &game
+        .catalog
+        .get(cards::TIME_VAULT)
+        .expect("Time Vault is cataloged")
+        .rules;
+    assert_eq!(rules.special_behavior(), None);
+    assert_eq!(
+        rules.implementation_status(),
+        crate::ImplementationStatus::Complete
+    );
+    let [
+        enters_tapped,
+        untap_restriction,
+        turn_replacement,
+        activation,
+    ] = rules.ability_clauses()
+    else {
+        panic!("Time Vault has four printed abilities")
+    };
+    assert!(
+        rules
+            .ability_clauses()
+            .iter()
+            .all(
+                |ability| ability.effect.execution == EffectExecutionDef::Declarative
+                    && ability.custom_behavior().is_none()
+                    && ability.coverage.status == crate::ImplementationStatus::Complete
+            )
+    );
+    assert_eq!(
+        enters_tapped.declarative_effect(),
+        Some(EffectDef::Replacement(
+            ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::Tapped,),
+        ))
+    );
+    assert_eq!(
+        untap_restriction.declarative_effect(),
+        Some(EffectDef::Apply {
+            recipient: EffectRecipientDef::Source,
+            effect: AppliedEffectDef::DoesNotUntapDuringUntapStep,
+            duration: EffectDurationDef::WhileSourceRemainsInZone,
+        })
+    );
+    assert_eq!(
+        untap_restriction.effect.execution,
+        EffectExecutionDef::Declarative,
+    );
+    let DeclarativeAbilityDef::Replacement(replacement) = turn_replacement.definition else {
+        panic!("Time Vault's third clause is a replacement ability")
+    };
+    assert_eq!(
+        replacement.event,
+        ReplacementEventDef::WouldBeginTurn {
+            player: PlayerRelation::You,
+            kind: TurnKindDef::Any,
+        }
+    );
+    assert_eq!(
+        replacement.condition,
+        Some(crate::ReplacementConditionDef::SourceTapped)
+    );
+    assert!(replacement.optional);
+    assert_eq!(
+        turn_replacement.declarative_effect(),
+        Some(EffectDef::Replacement(ReplacementEffectDef::Sequence(
+            &EXPECTED_TIME_VAULT_TURN_REPLACEMENT
+        ),))
+    );
+    let DeclarativeAbilityDef::Activated(definition) = activation.definition else {
+        panic!("Time Vault's fourth clause is an activated ability")
+    };
+    assert_eq!(definition.procedure, AbilityProcedureDef::Shared);
+    assert_eq!(definition.costs.as_slice(), &[AbilityCostDef::TapSource]);
+    assert_eq!(
+        activation.declarative_effect(),
+        Some(EffectDef::TakeExtraTurn {
+            player: EffectRecipientDef::Controller,
+        })
+    );
+}
+
+#[test]
+fn time_vault_decline_is_offered_before_the_turn_is_committed() {
+    let mut game = ready_game();
+    game.step = Step::Cleanup;
+    let vault = tapped_time_vault(10_000, PlayerId::Two);
+    let vault_id = vault.card.id;
+    game.battlefield.push(vault);
+    let turn_before = game.turn;
+    let turns_started_before = game.turns_started;
+    let step_changes_before = step_changed_count(&game);
+
+    game.start_next_turn();
+
+    for viewer in [PlayerId::One, PlayerId::Two] {
+        let observation = game.observe(viewer);
+        assert_eq!(observation.turn, turn_before);
+        assert_eq!(observation.active_player, PlayerId::One);
+        assert_eq!(observation.step, Step::Cleanup);
+    }
+    assert_eq!(game.turns_started, turns_started_before);
+    assert_eq!(step_changed_count(&game), step_changes_before);
+    assert!(game.battlefield[0].tapped);
+    assert_time_vault_begin_turn_decision(&game, PlayerId::Two, &[vault_id]);
+    let checkpoint = game.checkpoint_json(PlayerId::Two);
+    assert!(!checkpoint["decisionState"].is_null());
+    assert_eq!(
+        checkpoint["hasDeferredState"], false,
+        "the typed prospective-turn continuation should reconstruct"
+    );
+
+    choose_begin_turn_option(&mut game, PlayerId::Two, 0);
+
+    assert_eq!(game.turn, turn_before + 1);
+    assert_eq!(game.active_player, PlayerId::Two);
+    assert_eq!(game.step, Step::Upkeep);
+    assert_eq!(
+        game.turns_started,
+        [turns_started_before[0], turns_started_before[1] + 1]
+    );
+    assert!(
+        game.battlefield[0].tapped,
+        "declining does not untap Time Vault, including during the ordinary untap procedure"
+    );
+    assert_eq!(step_changed_count(&game), step_changes_before + 1);
+    assert!(game.pending_decisions.is_empty());
+}
+
+#[test]
+fn cleanup_discard_suspends_before_the_next_turn_and_resumes_once() {
+    let mut game = ready_game();
+    game.step = Step::End;
+    let vault = tapped_time_vault(10_000, PlayerId::Two);
+    let vault_id = vault.card.id;
+    game.battlefield.push(vault);
+    for id in 10_001..10_009 {
+        game.players[0]
+            .hand
+            .push(card(id, cards::MOUNTAIN, PlayerId::One));
+    }
+
+    pass_priority_pair(&mut game);
+    assert!(game.cleanup_pending);
+    assert_eq!(game.step, Step::Cleanup);
+    let cleanup_step_changes = step_changed_count(&game);
+    let discard = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| matches!(action, Action::DiscardCards { .. }))
+        .expect("cleanup offers the required discard");
+    game.apply(PlayerId::One, discard).unwrap();
+
+    assert!(!game.cleanup_pending);
+    assert_eq!(game.turn, 1);
+    assert_eq!(game.active_player, PlayerId::One);
+    assert_eq!(game.step, Step::Cleanup);
+    assert_eq!(step_changed_count(&game), cleanup_step_changes);
+    assert_time_vault_begin_turn_decision(&game, PlayerId::Two, &[vault_id]);
+
+    choose_begin_turn_option(&mut game, PlayerId::Two, 0);
+
+    assert_eq!(game.turn, 2);
+    assert_eq!(game.active_player, PlayerId::Two);
+    assert_eq!(game.step, Step::Upkeep);
+    assert_eq!(step_changed_count(&game), cleanup_step_changes + 1);
+}
+
+#[test]
+fn accepting_time_vault_skips_the_regular_proposal_and_untaps_only_the_source() {
+    let mut game = ready_game();
+    game.step = Step::Cleanup;
+    let vault = tapped_time_vault(10_000, PlayerId::Two);
+    let vault_id = vault.card.id;
+    game.battlefield.push(vault);
+    game.battlefield
+        .push(creature(10_001, cards::MANA_VAULT, PlayerId::Two));
+    game.spells_cast_this_turn = [2, 3];
+    let turn_before = game.turn;
+    let turns_started_before = game.turns_started;
+
+    game.start_next_turn();
+    assert_time_vault_begin_turn_decision(&game, PlayerId::Two, &[vault_id]);
+    choose_begin_turn_option(&mut game, PlayerId::Two, 1);
+
+    assert_eq!(game.turn, turn_before + 1, "a skipped turn never began");
+    assert_eq!(
+        game.turns_started,
+        [turns_started_before[0] + 1, turns_started_before[1]],
+        "Player Two's skipped turn is not counted; Player One begins the following turn"
+    );
+    assert_eq!(game.active_player, PlayerId::One);
+    assert_eq!(game.step, Step::Upkeep);
+    assert!(!game.battlefield[0].tapped);
+    assert_eq!(
+        game.spells_cast_last_turn,
+        [2, 3],
+        "per-turn state rolls over once for the turn that actually begins"
+    );
+    assert_eq!(game.spells_cast_this_turn, [0, 0]);
+    assert!(
+        game.pending_triggers.is_empty(),
+        "the skipped Player Two upkeep never triggers Mana Vault"
+    );
+    assert!(game.pending_decisions.is_empty());
+}
+
+#[test]
+fn time_vault_untap_waits_for_the_next_turn_that_actually_begins() {
+    let mut game = ready_game();
+    game.step = Step::Cleanup;
+    let vault = tapped_time_vault(10_000, PlayerId::Two);
+    let vault_id = vault.card.id;
+    game.battlefield.push(vault);
+    game.extra_turns = vec![PlayerId::Two, PlayerId::Two];
+    let turn_before = game.turn;
+
+    game.start_next_turn();
+    assert_time_vault_begin_turn_decision(&game, PlayerId::Two, &[vault_id]);
+    choose_begin_turn_source(&mut game, PlayerId::Two, vault_id);
+
+    assert_eq!(game.turn, turn_before, "the first extra turn was skipped");
+    assert!(
+        game.battlefield[0].tapped,
+        "CR 614.10b defers the untap while another turn is only prospective"
+    );
+    assert_time_vault_begin_turn_decision(&game, PlayerId::Two, &[vault_id]);
+    choose_begin_turn_source(&mut game, PlayerId::Two, vault_id);
+
+    assert_eq!(game.turn, turn_before, "the second extra turn was skipped");
+    assert!(
+        game.battlefield[0].tapped,
+        "both deferred untaps wait through the regular-turn proposal"
+    );
+    assert_time_vault_begin_turn_decision(&game, PlayerId::Two, &[vault_id]);
+    choose_begin_turn_option(&mut game, PlayerId::Two, 0);
+
+    assert_eq!(game.turn, turn_before + 1);
+    assert_eq!(game.active_player, PlayerId::Two);
+    assert!(!game.battlefield[0].tapped);
+    assert!(game.extra_turns.is_empty());
+    assert!(game.pending_decisions.is_empty());
+}
+
+#[test]
+fn ugins_nexus_skips_each_queued_extra_turn_but_not_the_regular_turn() {
+    let mut game = ready_game();
+    game.step = Step::Cleanup;
+    game.put_onto_battlefield(PlayerId::One, cards::UGINS_NEXUS)
+        .expect("Ugin's Nexus is cataloged");
+    game.extra_turns = vec![PlayerId::One, PlayerId::Two, PlayerId::One];
+    let turn_before = game.turn;
+    let turns_started_before = game.turns_started;
+
+    game.start_next_turn();
+
+    assert!(game.extra_turns.is_empty());
+    assert!(game.pending_decisions.is_empty());
+    assert_eq!(game.turn, turn_before + 1);
+    assert_eq!(game.active_player, PlayerId::Two);
+    assert_eq!(
+        game.turns_started,
+        [turns_started_before[0], turns_started_before[1] + 1],
+        "none of the three skipped extra turns began"
+    );
+    assert_eq!(game.next_regular_player, PlayerId::One);
+}
+
+#[test]
+fn an_extra_turn_still_occurs_if_ugins_nexus_leaves_before_it_begins() {
+    let mut game = ready_game();
+    game.step = Step::Cleanup;
+    let nexus = game
+        .put_onto_battlefield(PlayerId::Two, cards::UGINS_NEXUS)
+        .expect("Ugin's Nexus is cataloged");
+    game.extra_turns.push(PlayerId::One);
+    game.exile_permanent(nexus);
+    let regular_anchor = game.next_regular_player;
+
+    game.start_next_turn();
+
+    assert_eq!(game.active_player, PlayerId::One);
+    assert_eq!(game.next_regular_player, regular_anchor);
+    assert!(game.extra_turns.is_empty());
+    assert!(game.pending_decisions.is_empty());
+}
+
+#[test]
+fn surviving_ugins_nexus_skips_the_extra_turn_created_by_the_legend_rule() {
+    let mut game = ready_game();
+    game.step = Step::Cleanup;
+    game.put_onto_battlefield(PlayerId::One, cards::UGINS_NEXUS)
+        .expect("Ugin's Nexus is cataloged");
+    game.put_onto_battlefield(PlayerId::One, cards::UGINS_NEXUS)
+        .expect("a second Ugin's Nexus is cataloged");
+
+    game.check_state_based_actions();
+
+    assert_eq!(
+        game.battlefield
+            .iter()
+            .filter(|permanent| permanent.card.definition == cards::UGINS_NEXUS)
+            .count(),
+        1
+    );
+    assert_eq!(game.extra_turns, vec![PlayerId::One]);
+    assert_eq!(game.players[0].exile.len(), 1);
+
+    game.start_next_turn();
+
+    assert!(game.extra_turns.is_empty());
+    assert_eq!(game.active_player, PlayerId::Two);
+    assert!(game.pending_decisions.is_empty());
+}
+
+#[test]
+fn nexus_can_skip_an_extra_proposal_before_vault_skips_the_regular_one() {
+    let mut game = ready_game();
+    game.step = Step::Cleanup;
+    let nexus = game
+        .put_onto_battlefield(PlayerId::One, cards::UGINS_NEXUS)
+        .expect("Ugin's Nexus is cataloged");
+    let vault = tapped_time_vault(10_000, PlayerId::Two);
+    let vault_id = vault.card.id;
+    game.battlefield.push(vault);
+    game.extra_turns.push(PlayerId::Two);
+    let turn_before = game.turn;
+
+    game.start_next_turn();
+
+    let extra_choice = game
+        .observe(PlayerId::Two)
+        .decision
+        .expect("the affected player orders Nexus and Vault");
+    assert_eq!(extra_choice.preference, DecisionPreference::Neutral);
+    assert!(extra_choice.options.iter().all(|option| option.id != 0));
+    assert_eq!(extra_choice.options.len(), 2);
+    choose_begin_turn_source(&mut game, PlayerId::Two, nexus);
+
+    assert_eq!(game.turn, turn_before, "Nexus skipped the extra turn");
+    assert!(
+        game.battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == vault_id)
+            .expect("Time Vault remains on the battlefield")
+            .tapped
+    );
+    assert_time_vault_begin_turn_decision(&game, PlayerId::Two, &[vault_id]);
+    choose_begin_turn_source(&mut game, PlayerId::Two, vault_id);
+
+    assert_eq!(game.turn, turn_before + 1);
+    assert_eq!(game.active_player, PlayerId::One);
+    assert!(
+        !game
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == vault_id)
+            .expect("Time Vault remains on the battlefield")
+            .tapped
+    );
+    assert!(game.pending_decisions.is_empty());
+}
+
+#[test]
+fn skipping_an_extra_turn_preserves_the_ordinary_turn_anchor() {
+    let mut game = ready_game();
+
+    let vault = creature(10_000, cards::TIME_VAULT, PlayerId::Two);
+    let vault_id = vault.card.id;
+    game.battlefield.push(vault);
+    game.apply(PlayerId::One, Action::PassPriority).unwrap();
+    let activation = game
+        .legal_actions(PlayerId::Two)
+        .into_iter()
+        .find(|action| {
+            matches!(
+                action,
+                Action::ActivateAbility { source, .. } if *source == vault_id
+            )
+        })
+        .expect("the untapped Vault can be activated");
+    game.apply(PlayerId::Two, activation).unwrap();
+
+    assert!(game.battlefield[0].tapped, "tapping is an activation cost");
+    assert!(
+        game.extra_turns.is_empty(),
+        "the effect still uses the stack"
+    );
+    pass_priority_pair(&mut game);
+    assert_eq!(game.extra_turns, vec![PlayerId::Two]);
+
+    game.step = Step::Cleanup;
+    let turn_before = game.turn;
+    let turns_started_before = game.turns_started;
+    game.start_next_turn();
+    assert_time_vault_begin_turn_decision(&game, PlayerId::Two, &[vault_id]);
+    choose_begin_turn_option(&mut game, PlayerId::Two, 1);
+
+    assert!(
+        game.battlefield[0].tapped,
+        "the ordinary turn is still only prospective while Vault may replace it again"
+    );
+    assert_time_vault_begin_turn_decision(&game, PlayerId::Two, &[vault_id]);
+    choose_begin_turn_option(&mut game, PlayerId::Two, 0);
+
+    assert!(!game.battlefield[0].tapped);
+    assert_eq!(
+        game.turn,
+        turn_before + 1,
+        "the skipped extra turn never began"
+    );
+    assert_eq!(
+        game.turns_started,
+        [turns_started_before[0], turns_started_before[1] + 1]
+    );
+    assert_eq!(
+        game.active_player,
+        PlayerId::Two,
+        "skipping the extra turn leaves Player Two's ordinary turn next",
+    );
+    assert_eq!(game.next_regular_player, PlayerId::One);
+    assert_eq!(game.step, Step::Upkeep);
+    assert!(game.pending_decisions.is_empty());
+}
+
+#[test]
+fn a_mandatory_extra_turn_replacement_skips_only_the_extra_proposal() {
+    let mut game = ready_game();
+    install_extra_turn_replacement(&mut game, 10_000);
+    game.extra_turns.push(PlayerId::Two);
+    game.step = Step::Cleanup;
+    let turn_before = game.turn;
+    let turns_started_before = game.turns_started;
+
+    game.start_next_turn();
+
+    assert!(game.extra_turns.is_empty());
+    assert!(game.pending_decisions.is_empty());
+    assert_eq!(game.turn, turn_before + 1);
+    assert_eq!(game.active_player, PlayerId::Two);
+    assert_eq!(
+        game.turns_started,
+        [turns_started_before[0], turns_started_before[1] + 1]
+    );
+    assert_eq!(
+        game.next_regular_player,
+        PlayerId::One,
+        "skipping an extra turn preserves and then consumes the ordinary turn anchor",
+    );
+}
+
+#[test]
+fn affected_player_may_apply_time_vault_before_a_mandatory_extra_turn_replacement() {
+    let mut game = ready_game();
+    let mandatory = install_extra_turn_replacement(&mut game, 10_000);
+    let vault = tapped_time_vault(10_001, PlayerId::Two);
+    let vault_id = vault.card.id;
+    game.battlefield.push(vault);
+    game.extra_turns.push(PlayerId::Two);
+    game.step = Step::Cleanup;
+
+    game.start_next_turn();
+
+    let decision = game
+        .observe(PlayerId::Two)
+        .decision
+        .expect("the affected player orders the applicable replacements");
+    assert_eq!(decision.preference, DecisionPreference::Neutral);
+    assert_eq!(decision.options.len(), 2);
+    assert!(decision.options.iter().all(|option| option.id != 0));
+    assert_eq!(
+        decision.options[0].card,
+        Some((mandatory, CardDefinitionId(10_064)))
+    );
+    assert_eq!(
+        decision.options[1].card,
+        Some((vault_id, cards::TIME_VAULT))
+    );
+
+    choose_begin_turn_option(&mut game, PlayerId::Two, 2);
+
+    assert!(
+        game.battlefield[1].tapped,
+        "Vault remains applicable to the following regular proposal"
+    );
+    assert_time_vault_begin_turn_decision(&game, PlayerId::Two, &[vault_id]);
+    choose_begin_turn_option(&mut game, PlayerId::Two, 0);
+
+    assert!(!game.battlefield[1].tapped);
+    assert_eq!(game.active_player, PlayerId::Two);
+    assert_eq!(game.step, Step::Upkeep);
+    assert!(game.extra_turns.is_empty());
+    assert!(game.pending_decisions.is_empty());
+}
+
+#[test]
+fn multiple_time_vaults_share_one_choice_and_only_one_replaces_each_turn() {
+    let mut game = ready_game();
+    game.step = Step::Cleanup;
+    let first = tapped_time_vault(10_000, PlayerId::Two);
+    let first_id = first.card.id;
+    let second = tapped_time_vault(10_001, PlayerId::Two);
+    let second_id = second.card.id;
+    game.battlefield.extend([first, second]);
+
+    game.start_next_turn();
+    assert_time_vault_begin_turn_decision(&game, PlayerId::Two, &[first_id, second_id]);
+    choose_begin_turn_option(&mut game, PlayerId::Two, 1);
+
+    assert!(!game.battlefield[0].tapped);
+    assert!(game.battlefield[1].tapped);
+    assert_eq!(game.active_player, PlayerId::One);
+    assert!(
+        game.pending_decisions.is_empty(),
+        "the other Vault cannot also replace the turn that was already skipped"
+    );
+
+    game.step = Step::Cleanup;
+    game.start_next_turn();
+    let decision = assert_time_vault_begin_turn_decision(&game, PlayerId::Two, &[second_id]);
+    assert_eq!(
+        decision.options[1].card,
+        Some((second_id, cards::TIME_VAULT)),
+        "the still-tapped Vault is offered on a later prospective turn"
+    );
+    choose_begin_turn_option(&mut game, PlayerId::Two, 0);
+}
+
+#[test]
+fn removing_time_vaults_abilities_removes_the_begin_turn_replacement() {
+    let mut game = ready_game();
+    game.step = Step::Cleanup;
+    let mut vault = tapped_time_vault(10_000, PlayerId::Two);
+    vault
+        .temporary_removed_abilities
+        .push(TemporaryRemovedAbilities {
+            predicate: AbilityPredicateDef::Any,
+            timestamp: ContinuousEffectTimestamp(1),
+            order: 0,
+            expiration: AbilityEffectExpiration::Never,
+        });
+    game.battlefield.push(vault);
+    assert!(game.effective_abilities(&game.battlefield[0]).is_empty());
+
+    game.start_next_turn();
+
+    assert!(game.pending_decisions.is_empty());
+    assert_eq!(game.active_player, PlayerId::Two);
+    assert_eq!(game.step, Step::Upkeep);
+    assert!(
+        !game.battlefield[0].tapped,
+        "removing all abilities also removes the static untap restriction"
+    );
+}
+
+#[test]
+fn extra_turn_effect_schedules_multiple_recipients_in_apnap_order() {
+    let mut game = ready_game();
+    let effect = EffectDef::TakeExtraTurn {
+        player: EffectRecipientDef::EachPlayer,
+    };
+    let object = spell(10_000, cards::TIME_WALK, PlayerId::Two, 0);
+
+    game.resolve_effect_def(
+        ScopedEffect::primary(effect),
+        &object,
+        TriggerContext::empty(),
+    );
+
+    assert_eq!(
+        game.extra_turns,
+        vec![PlayerId::One, PlayerId::Two],
+        "turns created together are added APNAP and consumed newest-first",
+    );
+    game.start_next_turn();
+    assert_eq!(game.active_player, PlayerId::Two);
+    game.start_next_turn();
+    assert_eq!(game.active_player, PlayerId::One);
+}

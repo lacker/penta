@@ -2,12 +2,19 @@
 
 use super::super::procedure::draw_replacement_referenced_object_ids;
 use super::*;
+use crate::game::{ApplicableZoneMoveReplacement, PendingBattlefieldExitBatch};
 
 pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
     continuation: &DecisionContinuation,
 ) -> Vec<GameObjectId> {
     let mut ids = Vec::new();
     match continuation {
+        DecisionContinuation::BeginTurn {
+            applied,
+            replacements,
+            deferred,
+            ..
+        } => extend_begin_turn_ids(&mut ids, applied, replacements, deferred),
         DecisionContinuation::OptionalManaPayment {
             object, context, ..
         }
@@ -49,6 +56,9 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
                     .flat_map(draw_replacement_referenced_object_ids),
             );
         }
+        DecisionContinuation::BattlefieldExitReplacement { batch, candidates } => {
+            extend_battlefield_exit_ids(&mut ids, batch, candidates);
+        }
         DecisionContinuation::TriggerOrder { batch, remaining } => {
             extend_trigger_batch_ids(&mut ids, batch);
             for batch in remaining {
@@ -60,15 +70,7 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
             pending,
             remaining,
             ..
-        } => {
-            extend_pending_trigger_ids(&mut ids, trigger);
-            for trigger in pending {
-                extend_pending_trigger_ids(&mut ids, trigger);
-            }
-            for batch in remaining {
-                extend_trigger_batch_ids(&mut ids, batch);
-            }
-        }
+        } => extend_trigger_placement_ids(&mut ids, trigger, pending, remaining),
         DecisionContinuation::SearchZone { .. }
         | DecisionContinuation::ChooseCards { .. }
         | DecisionContinuation::DiscardForEffect { .. }
@@ -88,7 +90,6 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
         | DecisionContinuation::CounterUnlessPaid { .. }
         | DecisionContinuation::GrislySalvage { .. }
         | DecisionContinuation::Balance { .. }
-        | DecisionContinuation::TimeVault { .. }
         | DecisionContinuation::SylvanOffer { .. }
         | DecisionContinuation::SylvanSelect { .. }
         | DecisionContinuation::SylvanMode { .. }
@@ -102,6 +103,59 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
         | DecisionContinuation::BattlefieldEntryCreatureType { .. } => {}
     }
     ids
+}
+
+fn extend_begin_turn_ids(
+    ids: &mut Vec<GameObjectId>,
+    applied: &[AbilitySourceRef],
+    replacements: &[ApplicableBeginTurnReplacement],
+    deferred: &[DeferredBeginTurnEffect],
+) {
+    ids.extend(applied.iter().map(|source| source.object));
+    ids.extend(
+        replacements
+            .iter()
+            .map(|replacement| replacement.source.object),
+    );
+    ids.extend(
+        deferred
+            .iter()
+            .map(|effect| effect.replacement.source.object),
+    );
+}
+
+fn extend_trigger_placement_ids(
+    ids: &mut Vec<GameObjectId>,
+    trigger: &PendingTrigger,
+    pending: &[PendingTrigger],
+    remaining: &[TriggerPlacementBatch],
+) {
+    extend_pending_trigger_ids(ids, trigger);
+    for trigger in pending {
+        extend_pending_trigger_ids(ids, trigger);
+    }
+    for batch in remaining {
+        extend_trigger_batch_ids(ids, batch);
+    }
+}
+
+fn extend_battlefield_exit_ids(
+    ids: &mut Vec<GameObjectId>,
+    batch: &PendingBattlefieldExitBatch,
+    candidates: &[ApplicableZoneMoveReplacement],
+) {
+    ids.extend(batch.moves.iter().map(|proposed| proposed.object));
+    ids.extend(
+        batch
+            .replacements
+            .iter()
+            .map(|replacement| replacement.source.object),
+    );
+    ids.extend(
+        candidates
+            .iter()
+            .map(|candidate| candidate.context.source.object),
+    );
 }
 
 fn extend_stack_continuation_ids(

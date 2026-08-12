@@ -623,3 +623,4 @@ pub const RING_OF_MARUF: CardDefinitionId = CardDefinitionId(1362);
 pub const BLOODSTAINED_MIRE: CardDefinitionId = CardDefinitionId(1363);
 pub const POLLUTED_DELTA: CardDefinitionId = CardDefinitionId(1364);
 pub const WINDSWEPT_HEATH: CardDefinitionId = CardDefinitionId(1365);
+pub const UGINS_NEXUS: CardDefinitionId = CardDefinitionId(1368);

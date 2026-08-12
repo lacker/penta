@@ -1,7 +1,8 @@
 use super::{
-    AbilityCostDef, AbilityOrigin, AbilityProcedureDef, CardBehavior, CharacteristicContext,
-    CounterKind, DeclarativeAbilityDef, FrozenActivatedAbility, Game, GameEvent, GameObjectId,
-    ManaCost, ManaPaymentPurpose, PlayerId, Target, TargetSelection, ZoneKind, remove_card,
+    AbilityCostDef, AbilityOrigin, AbilityProcedureDef, BattlefieldExitCompletion, CardBehavior,
+    CardInstance, CharacteristicContext, CounterKind, DeclarativeAbilityDef,
+    FrozenActivatedAbility, Game, GameEvent, GameObjectId, ManaCost, ManaPaymentPurpose, PlayerId,
+    Target, TargetSelection, ZoneKind, remove_card,
 };
 
 impl Game {
@@ -252,18 +253,19 @@ impl Game {
                     }
                 }
             }
+            let mut remaining_sacrifices = Vec::new();
             if has_generic_sacrifice
                 && let Some(sacrificed) = cost_object
                 && sacrificed != source
             {
-                self.sacrifice_permanent(sacrificed);
+                remaining_sacrifices.push(sacrificed);
             }
             if definition.costs.contains(&AbilityCostDef::ExileSource) {
                 self.exile_permanent(source);
             } else if definition.costs.contains(&AbilityCostDef::SacrificeSource)
                 || sacrifice_choice_is_source
             {
-                self.sacrifice_permanent(source);
+                remaining_sacrifices.push(source);
             }
             let mut chosen_permanents = frozen_targets
                 .iter()
@@ -278,16 +280,15 @@ impl Game {
             {
                 chosen_permanents.push(sacrificed);
             }
-            self.push_activated_ability(
+            self.continue_activated_ability_costs(
                 source,
-                &source_card,
+                source_card,
                 player,
                 frozen_ability,
                 frozen_targets,
                 chosen_permanents,
+                remaining_sacrifices,
             );
-            self.consecutive_passes = 0;
-            self.check_state_based_actions();
             return;
         }
         match behavior {
@@ -310,7 +311,7 @@ impl Game {
                     Vec::new(),
                 );
             }
-            Some(CardBehavior::LibraryOfAlexandria | CardBehavior::TimeVault) => {
+            Some(CardBehavior::LibraryOfAlexandria) => {
                 let card = self
                     .tap_permanent(source)
                     .expect("legal activation has a source");
@@ -325,6 +326,46 @@ impl Game {
             }
             _ => {}
         }
+        self.consecutive_passes = 0;
+        self.check_state_based_actions();
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub(super) fn continue_activated_ability_costs(
+        &mut self,
+        source: GameObjectId,
+        source_card: CardInstance,
+        controller: PlayerId,
+        frozen: FrozenActivatedAbility,
+        targets: Vec<TargetSelection>,
+        chosen_permanents: Vec<GameObjectId>,
+        mut remaining_sacrifices: Vec<GameObjectId>,
+    ) {
+        if !remaining_sacrifices.is_empty() {
+            let sacrificed = remaining_sacrifices.remove(0);
+            self.move_permanents_to_graveyard_then(
+                &[sacrificed],
+                Some(BattlefieldExitCompletion::CompleteActivatedAbility {
+                    source,
+                    source_card,
+                    controller,
+                    frozen,
+                    targets,
+                    chosen_permanents,
+                    remaining_sacrifices,
+                }),
+            );
+            return;
+        }
+
+        self.push_activated_ability(
+            source,
+            &source_card,
+            controller,
+            frozen,
+            targets,
+            chosen_permanents,
+        );
         self.consecutive_passes = 0;
         self.check_state_based_actions();
     }

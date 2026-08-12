@@ -106,6 +106,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::Discard { recipient, .. }
         | EffectDef::ShuffleLibrary { player: recipient }
         | EffectDef::EmptyManaPool { player: recipient }
+        | EffectDef::TakeExtraTurn { player: recipient }
         | EffectDef::LoseLife { recipient, .. }
         | EffectDef::Mill {
             player: recipient, ..

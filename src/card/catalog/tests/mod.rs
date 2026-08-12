@@ -8,8 +8,9 @@ use crate::card::{
     AlternativeCostDef, AppliedEffectDef, CardBehavior, CardDefinition, CardEffectStatus, CardPart,
     CardPrinting, CardPrintingId, CardSet, CardStructure, DeclarativeAbilityDef, DoubleFacedKind,
     EffectDef, EffectDurationDef, EffectExecutionDef, EffectRecipientDef, ManaCost, ModeDef,
-    ModeSetDef, ObjectPredicateDef, PlayOptionDef, PlayerRelation, PrintedManaCost, SpellForm,
-    TargetConditionDef, TargetPredicate, TargetSlotDef, TurnStepDef, ValueDef,
+    ModeSetDef, ObjectPredicateDef, PlayOptionDef, PlayerRelation, PrintedManaCost,
+    ReplacementEffectDef, SpellForm, TargetConditionDef, TargetPredicate, TargetSlotDef,
+    TurnStepDef, ValueDef, ZoneKind,
 };
 use crate::{
     AbilityId, AdditionalCostId, AlternativeCostId, CardDefinitionId, CardPartId, ChoiceIndex,

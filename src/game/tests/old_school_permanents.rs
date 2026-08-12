@@ -745,6 +745,7 @@ fn dragon_whelps_activation_count_resets_with_the_turn() {
     game.finish_cleanup();
     game.start_next_turn();
     game.step = Step::PrecombatMain;
+    game.apply(PlayerId::Two, Action::PassPriority).unwrap();
     game.players[0].mana_pool.red = 1;
     let action = Action::ActivateAbility {
         source: GameObjectId(10_000),

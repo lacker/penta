@@ -1,6 +1,51 @@
 use super::*;
 
 #[test]
+fn handcrafted_begins_the_turn_by_default_for_time_vaults_choice() {
+    let catalog = poc::catalog().unwrap();
+    let mut observation = policy_observation(Vec::new(), Vec::new());
+    observation.decision = Some(DecisionObservation {
+        id: 40,
+        player: PlayerId::One,
+        kind: DecisionKind::Choice,
+        order_semantics: None,
+        prompt: "A turn would begin".to_owned(),
+        visibility: DecisionVisibility::Public,
+        preference: DecisionPreference::PreferOption(0),
+        minimum: 1,
+        maximum: 1,
+        cancellable: false,
+        options: vec![
+            DecisionOption {
+                id: 0,
+                label: "Begin the turn".to_owned(),
+                card: None,
+                members: Vec::new(),
+                ability_text: None,
+                zone: DecisionZone::None,
+            },
+            DecisionOption {
+                id: 1,
+                label: "Apply Time Vault's replacement effect".to_owned(),
+                card: Some((CardInstanceId(10), cards::TIME_VAULT)),
+                members: Vec::new(),
+                ability_text: None,
+                zone: DecisionZone::Battlefield,
+            },
+        ],
+    });
+    let mut policy = HandcraftedPolicy::new(catalog);
+
+    assert_eq!(
+        policy.choose_action(&observation),
+        Some(Action::ChooseDecision {
+            decision: 40,
+            options: vec![0],
+        })
+    );
+}
+
+#[test]
 fn handcrafted_balanced_partition_is_deterministic_nonempty_and_near_balanced() {
     let catalog = poc::catalog().unwrap();
     let decision = DecisionObservation {

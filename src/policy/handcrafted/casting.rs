@@ -75,6 +75,8 @@ impl HandcraftedPolicy {
             || Self::is_hostile_removal(behavior);
         let sweeps_creatures = declarative
             .is_some_and(|profile| profile.has(DeclarativeSpellProfile::SWEEPS_CREATURES));
+        let extra_turn =
+            declarative.is_some_and(|profile| profile.has(DeclarativeSpellProfile::EXTRA_TURN));
         let target_score: i32 = choices
             .iter_targets()
             .map(|target| {
@@ -108,13 +110,13 @@ impl HandcraftedPolicy {
         )
         .unwrap_or(i32::MAX);
         let base = match behavior {
-            Some(CardBehavior::TimeWalk) => 8_300,
             Some(CardBehavior::GoblinGrenade) => 8_500,
             Some(CardBehavior::ChainLightning) => 8_000,
             Some(CardBehavior::PillarOfFlame) => 7_800,
             Some(CardBehavior::Fireball) => 7_900 + i32::from(x) * 20,
             Some(CardBehavior::Fork) => 7_300,
             Some(behavior) if behavior.types().is_permanent() => 6_800,
+            _ if extra_turn => 8_300,
             _ if sweeps_creatures => Self::sweeper_score(observation),
             _ if declarative.is_some_and(|profile| profile.opponent_creature_sweep) => {
                 if opponent_creatures == 0 {

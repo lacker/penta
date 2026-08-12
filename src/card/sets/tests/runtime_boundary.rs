@@ -254,6 +254,44 @@ fn static_conditions_require_only_source_battlefield_state() {
 }
 
 #[test]
+fn replacement_perform_stays_coupled_to_its_prospective_event() {
+    static UNTAP_SOURCE: EffectDef = EffectDef::Untap {
+        object: EffectRecipientDef::Source,
+    };
+    static TAKE_EXTRA_TURN: EffectDef = EffectDef::TakeExtraTurn {
+        player: EffectRecipientDef::Controller,
+    };
+
+    let untap = ReplacementEffectDef::Perform(&UNTAP_SOURCE);
+    assert!(shared_begin_turn_replacement_effect(untap));
+    assert!(!shared_battlefield_exit_replacement_effect(untap));
+
+    let extra_turn = ReplacementEffectDef::Perform(&TAKE_EXTRA_TURN);
+    assert!(!shared_begin_turn_replacement_effect(extra_turn));
+    assert!(shared_battlefield_exit_replacement_effect(extra_turn));
+}
+
+#[test]
+#[should_panic(expected = "nested shared declarative ability outside the shared runtime boundary")]
+fn nested_definition_assertions_descend_replacement_programs() {
+    static UNSUPPORTED: AbilityDef = AbilityDef::static_ability(
+        "This nested ability is intentionally outside the boundary.",
+        EffectDef::Special("unsupported nested effect"),
+    );
+    static GRANT: EffectDef = EffectDef::Apply {
+        recipient: EffectRecipientDef::Source,
+        effect: AppliedEffectDef::GrantAbility(&UNSUPPORTED),
+        duration: EffectDurationDef::WhileSourceRemainsInZone,
+    };
+    static PROGRAM: [ReplacementEffectDef; 1] = [ReplacementEffectDef::Perform(&GRANT)];
+
+    assert_nested_definition_abilities(
+        "Replacement fixture",
+        EffectDef::Replacement(ReplacementEffectDef::Sequence(&PROGRAM)),
+    );
+}
+
+#[test]
 fn composite_uncounterability_stays_within_the_shared_runtime_boundary() {
     static CANNOT_BE_COUNTERED: [AppliedEffectDef; 1] = [AppliedEffectDef::CannotBeCountered];
     static MIXED: [AppliedEffectDef; 2] = [

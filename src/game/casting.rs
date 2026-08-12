@@ -1,13 +1,13 @@
 use super::{
     AbilityCostDef, AbilityOrigin, AbilityTargetDef, AlternativeCastKindDef, BTreeMap,
-    CREATURE_TYPES, CardBehavior, CardEffectStatus, CardType, CardTypeSet, CastChoices,
-    CastSignature, CastSourceZone, CommittedTriggerEvent, ControlFlow, DecisionContinuation,
-    DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone, DeclarativeAbilityDef,
-    EntryCompletion, Game, GameEvent, GameObjectId, ManaColor, ManaCost, ManaPaymentPurpose,
-    PendingBattlefieldEntry, Permanent, PlayActionKind, PlayOptionDef, PlayOptionId,
-    PlayRestriction, PlayerId, StackObject, StackObjectKind, Target, TargetPredicate,
-    TargetSlotDef, TargetSlotId, TriggerContext, ZoneKind, add_generic, extra_target_cost,
-    reduce_generic, remove_card,
+    BattlefieldExitCompletion, CREATURE_TYPES, CardBehavior, CardEffectStatus, CardType,
+    CardTypeSet, CastChoices, CastSignature, CastSourceZone, CommittedTriggerEvent, ControlFlow,
+    DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
+    DeclarativeAbilityDef, EntryCompletion, Game, GameEvent, GameObjectId, Mana, ManaColor,
+    ManaCost, ManaPaymentPurpose, PendingBattlefieldEntry, Permanent, PlayActionKind,
+    PlayOptionDef, PlayOptionId, PlayRestriction, PlayerId, StackObject, StackObjectKind, Target,
+    TargetPredicate, TargetSlotDef, TargetSlotId, TriggerContext, ZoneKind, add_generic,
+    extra_target_cost, reduce_generic, remove_card,
 };
 
 impl Game {
@@ -272,18 +272,38 @@ impl Game {
         if activation.costs.contains(&AbilityCostDef::ExileSource) {
             self.exile_permanent(source);
         } else if activation.costs.contains(&AbilityCostDef::SacrificeSource) {
-            self.sacrifice_permanent(source);
+            self.move_permanents_to_graveyard_then(
+                &[source],
+                Some(BattlefieldExitCompletion::CompleteManaAbility {
+                    player,
+                    activation,
+                    produced_mana,
+                }),
+            );
+            return;
         }
+        self.complete_mana_ability(player, activation, produced_mana);
+    }
+
+    pub(super) fn complete_mana_ability(
+        &mut self,
+        player: PlayerId,
+        activation: super::ManaAbilityActivation,
+        produced_mana: Vec<Mana>,
+    ) {
         self.add_mana(player, produced_mana);
         if activation.effect.damage_to_controller > 0 {
             self.damage_target_from(
-                Some(source),
+                Some(activation.source),
                 Some(Target::Player(player)),
                 activation.effect.damage_to_controller,
             );
         }
         self.consecutive_passes = 0;
-        self.events.push(GameEvent::ManaAdded { player, source });
+        self.events.push(GameEvent::ManaAdded {
+            player,
+            source: activation.source,
+        });
     }
 
     /// Whether the chosen modes suit the play option: the right number, in
@@ -591,9 +611,31 @@ impl Game {
         self.activate_mana_for_cost_avoiding_for(player, cost, x, None, &payment_purpose);
         let spent_mana = self.pay_player_cost_for(player, cost, x, &payment_purpose);
         Self::apply_spent_mana_to_spell(&mut stack_object, &spent_mana);
-        for sacrificed in sacrifices {
-            self.sacrifice_permanent(*sacrificed);
+        self.continue_spell_cast(stack_object, targets, sacrifices.to_vec());
+    }
+
+    pub(super) fn continue_spell_cast(
+        &mut self,
+        stack_object: StackObject,
+        targets: Vec<Target>,
+        mut remaining_sacrifices: Vec<GameObjectId>,
+    ) {
+        if !remaining_sacrifices.is_empty() {
+            let sacrificed = remaining_sacrifices.remove(0);
+            self.move_permanents_to_graveyard_then(
+                &[sacrificed],
+                Some(BattlefieldExitCompletion::CompleteSpellCast {
+                    object: Box::new(stack_object),
+                    targets,
+                    remaining_sacrifices,
+                }),
+            );
+            return;
         }
+
+        let player = stack_object.controller;
+        let stack_id = stack_object.id;
+        let definition = stack_object.card.definition;
         let cast_event = self
             .stack_trigger_event_object(&stack_object)
             .expect("a cast spell has locked characteristics");

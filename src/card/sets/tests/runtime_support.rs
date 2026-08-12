@@ -4,6 +4,8 @@ mod stack_effects;
 pub(super) use nested_definitions::*;
 pub(super) use stack_effects::shared_stack_effect;
 
+use crate::card::ReplacementConditionDef;
+
 use super::*;
 
 pub(super) fn shared_object_predicate(predicate: ObjectPredicateDef) -> bool {
@@ -454,6 +456,7 @@ pub(super) fn shared_static_effect(source_zones: &[ZoneKind], effect: EffectDef)
         | EffectDef::CreateEmblem { .. }
         | EffectDef::Transform { .. }
         | EffectDef::AdditionalCombatPhase
+        | EffectDef::TakeExtraTurn { .. }
         | EffectDef::CannotCastNoncreatureSpellsThisTurn { .. }
         | EffectDef::Special(_) => false,
     }
@@ -528,46 +531,6 @@ fn shared_static_trigger_condition(condition: TriggerConditionDef) -> bool {
         condition,
         TriggerConditionDef::SourceOnBattlefield | TriggerConditionDef::SourceUntapped
     )
-}
-
-pub(super) fn shared_replacement_effect(effect: ReplacementEffectDef) -> bool {
-    match effect {
-        ReplacementEffectDef::None | ReplacementEffectDef::ModifyBattlefieldEntry(_) => true,
-        ReplacementEffectDef::Sequence(effects) => {
-            !effects.is_empty() && effects.iter().copied().all(shared_replacement_effect)
-        }
-        ReplacementEffectDef::Conditional {
-            condition,
-            if_true,
-            if_false,
-        } => {
-            let condition_is_supported = match condition {
-                ConditionDef::Exists(query) => {
-                    query.zones == [ZoneKind::Battlefield] && shared_object_predicate(query.object)
-                }
-            };
-            condition_is_supported
-                && if_true.iter().copied().all(shared_replacement_effect)
-                && if_false.iter().copied().all(shared_replacement_effect)
-        }
-        ReplacementEffectDef::OptionalPayment {
-            payment,
-            if_paid,
-            if_declined,
-        } => {
-            let payable_life = payment.costs.iter().try_fold(0_u32, |total, cost| {
-                let AbilityCostDef::PayLife(amount) = cost else {
-                    return None;
-                };
-                total.checked_add(u32::from(*amount))
-            });
-            payment.payer != PlayerRelation::Any
-                && !payment.costs.is_empty()
-                && payable_life.is_some_and(|amount| amount > 0 && i16::try_from(amount).is_ok())
-                && if_paid.iter().copied().all(shared_replacement_effect)
-                && if_declined.iter().copied().all(shared_replacement_effect)
-        }
-    }
 }
 
 pub(super) fn battlefield_only(zones: &[ZoneKind]) -> bool {
@@ -670,6 +633,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::CreateEmblem { .. }
                     | EffectDef::Transform { .. }
                     | EffectDef::AdditionalCombatPhase
+                    | EffectDef::TakeExtraTurn { .. }
                     | EffectDef::CannotCastNoncreatureSpellsThisTurn { .. }
                     | EffectDef::GrantFlashToNextSorcery
                     | EffectDef::ExileLinkedToSource { .. }
@@ -736,12 +700,16 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
         DeclarativeAbilityDef::Replacement(definition) => match definition.event {
             ReplacementEventDef::SourceEntersBattlefield
             | ReplacementEventDef::ObjectEntersBattlefield { .. } => {
-                battlefield_only(definition.source_zones)
+                !definition.optional
+                    && definition.condition.is_none()
+                    && battlefield_only(definition.source_zones)
                     && shared_replacement_event(definition.event)
-                    && matches!(effect, EffectDef::Replacement(effect) if shared_replacement_effect(effect))
+                    && matches!(effect, EffectDef::Replacement(effect) if shared_entry_replacement_effect(effect))
             }
             ReplacementEventDef::EntersBattlefield => {
-                battlefield_only(definition.source_zones)
+                !definition.optional
+                    && definition.condition.is_none()
+                    && battlefield_only(definition.source_zones)
                     && matches!(
                         effect,
                         EffectDef::ChooseCreatureType {
@@ -755,20 +723,32 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     )
             }
             ReplacementEventDef::WouldMove { from, to, cause } => {
-                definition.source_zones == [from]
-                    && from == ZoneKind::Hand
-                    && to == ZoneKind::Graveyard
-                    && shared_zone_move_cause(cause)
-                    && effect
-                        == EffectDef::MoveToZone {
-                            object: EffectRecipientDef::Source,
-                            zone: ZoneKind::Battlefield,
-                            controller: None,
-                            placement: ZonePlacement::Top,
-                        }
+                !definition.optional
+                    && definition.condition.is_none()
+                    && definition.source_zones == [from]
+                    && ((from == ZoneKind::Hand
+                        && to == ZoneKind::Graveyard
+                        && shared_zone_move_cause(cause)
+                        && effect
+                            == EffectDef::MoveToZone {
+                                object: EffectRecipientDef::Source,
+                                zone: ZoneKind::Battlefield,
+                                controller: None,
+                                placement: ZonePlacement::Top,
+                            })
+                        || (from == ZoneKind::Battlefield
+                            && to == ZoneKind::Graveyard
+                            && cause == ZoneMoveCauseDef::Any
+                            && matches!(
+                                effect,
+                                EffectDef::Replacement(effect)
+                                    if shared_battlefield_exit_replacement_effect(effect)
+                            )))
             }
             ReplacementEventDef::AnyObjectWouldMove { .. } => {
-                battlefield_only(definition.source_zones)
+                !definition.optional
+                    && definition.condition.is_none()
+                    && battlefield_only(definition.source_zones)
                     && shared_replacement_event(definition.event)
                     && effect
                         == EffectDef::MoveToZone {
@@ -779,8 +759,21 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                         }
             }
             ReplacementEventDef::WouldGainLife(_) => {
-                battlefield_only(definition.source_zones)
+                !definition.optional
+                    && definition.condition.is_none()
+                    && battlefield_only(definition.source_zones)
                     && matches!(effect, EffectDef::MultiplyEventAmount(_))
+            }
+            ReplacementEventDef::WouldBeginTurn { .. } => {
+                definition
+                    .condition
+                    .is_none_or(|condition| condition == ReplacementConditionDef::SourceTapped)
+                    && battlefield_only(definition.source_zones)
+                    && matches!(
+                        effect,
+                        EffectDef::Replacement(effect)
+                            if shared_begin_turn_replacement_effect(effect)
+                    )
             }
             ReplacementEventDef::Special(_) => false,
         },

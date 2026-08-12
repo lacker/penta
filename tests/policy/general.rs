@@ -335,6 +335,21 @@ fn handcrafted_fires_nevinyrrals_disk_for_noncreature_permanents() {
 }
 
 #[test]
+fn handcrafted_prioritizes_declarative_time_walk() {
+    let time_walk = CardInstanceId(10);
+    let cast = Action::CastSpell {
+        card: time_walk,
+        choices: CastChoices::default(),
+        sacrifices: Vec::new(),
+    };
+    let mut observation = policy_observation(Vec::new(), vec![Action::PassPriority, cast.clone()]);
+    observation.hand = vec![(time_walk, cards::TIME_WALK)];
+    let mut policy = HandcraftedPolicy::new(card::catalog().unwrap());
+
+    assert_eq!(policy.choose_action(&observation), Some(cast));
+}
+
+#[test]
 fn handcrafted_counts_intrinsic_basic_land_mana_when_mulliganing() {
     let catalog = poc::catalog().unwrap();
     let mut observation =

@@ -551,6 +551,16 @@ impl Game {
             EffectDef::AdditionalCombatPhase => {
                 self.additional_combat_phases = self.additional_combat_phases.saturating_add(1);
             }
+            EffectDef::TakeExtraTurn { player: recipient } => {
+                let players = self
+                    .effect_recipients(recipient, object, context, scoped)
+                    .into_iter()
+                    .filter_map(|target| match target {
+                        Target::Player(player) => Some(player),
+                        Target::Card(_) | Target::Permanent(_) | Target::Spell(_) => None,
+                    });
+                self.schedule_extra_turns(players);
+            }
             EffectDef::CannotCastNoncreatureSpellsThisTurn { player: recipient } => {
                 for target in self.effect_recipients(recipient, object, context, scoped) {
                     if let Target::Player(player) = target {

@@ -712,3 +712,45 @@ fn true_hidden_hypothesis(game: &Game, viewer: PlayerId) -> Value {
         },
     })
 }
+
+#[test]
+fn checkpoint_round_trips_extra_turns_and_the_regular_turn_anchor() {
+    let mut game = crate::game::tests::ready_game();
+    game.extra_turns = vec![PlayerId::One];
+    game.next_regular_player = PlayerId::Two;
+    let viewer = PlayerId::One;
+    let observation = game.observe(viewer);
+    let observation = crate::protocol::observation_json_for_format(
+        &game.catalog,
+        game.format,
+        &observation,
+        false,
+        &game.legal_actions(viewer),
+    );
+    let hidden = json!({
+        "hands": {"p2": []},
+        "libraries": {
+            "p1": game.players[0].library.iter().map(|card| card.definition.0).collect::<Vec<_>>(),
+            "p2": game.players[1].library.iter().map(|card| card.definition.0).collect::<Vec<_>>(),
+        },
+        "outsideGame": {"p1": [], "p2": []},
+    });
+
+    let mut rebuilt = Game::from_observation_checkpoint(
+        game.catalog.clone(),
+        game.format,
+        &observation,
+        &hidden,
+        91,
+    )
+    .expect("scheduler checkpoint reconstructs");
+
+    assert_eq!(rebuilt.extra_turns, vec![PlayerId::One]);
+    assert_eq!(rebuilt.next_regular_player, PlayerId::Two);
+    rebuilt.start_next_turn();
+    assert_eq!(rebuilt.active_player, PlayerId::One);
+    assert_eq!(rebuilt.next_regular_player, PlayerId::Two);
+    rebuilt.start_next_turn();
+    assert_eq!(rebuilt.active_player, PlayerId::Two);
+    assert_eq!(rebuilt.next_regular_player, PlayerId::One);
+}

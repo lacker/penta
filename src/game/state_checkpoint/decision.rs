@@ -1,26 +1,31 @@
 use serde_json::Value;
 
-use crate::card::{CardType, CardTypeSet, ZonePlacement};
+use crate::card::{
+    CardType, CardTypeSet, EffectDef, ReplacementEventDef, TurnKindDef, ZonePlacement,
+};
 use crate::{CardDefinitionId, ChoiceIndex, GameObjectId, ManaCost, PlayerId};
 
 use super::super::{
-    BalanceAction, BalancePhase, BalanceTask, CounteredSpellZone, DecisionContinuation,
-    DecisionKind, DecisionObservation, DecisionOption, DecisionOrderSemantics, DecisionPreference,
-    DecisionVisibility, DecisionZone, PendingDecision, PendingTrigger, PileSplit,
-    SacrificeFollowup, TriggerPlacementBatch,
+    AbilitySourceRef, ApplicableBeginTurnReplacement, BalanceAction, BalancePhase, BalanceTask,
+    CounteredSpellZone, DecisionContinuation, DecisionKind, DecisionObservation, DecisionOption,
+    DecisionOrderSemantics, DecisionPreference, DecisionVisibility, DecisionZone,
+    DeferredBeginTurnEffect, PendingDecision, PendingTrigger, PileSplit, SacrificeFollowup,
+    ScopedEffect, TriggerPlacementBatch,
 };
 use super::model::{
-    AbilitySourceSnapshot, BalanceActionSnapshot, BalancePhaseSnapshot, BalanceTaskSnapshot,
-    CounteredSpellZoneSnapshot, DecisionCardSnapshot, DecisionContinuationSnapshot,
-    DecisionOptionSnapshot, DecisionPreferenceSnapshot, DecisionStateSnapshot,
-    DecisionZoneSnapshot, DetachedCardSnapshot, DiscardChoiceSnapshot, EffectContinuationSnapshot,
-    ManaCostSnapshot, PendingTriggerSnapshot, PileSplitSnapshot, ReplacementEffectContextSnapshot,
-    TriggerPlacementBatchSnapshot, ZoneMoveCauseSnapshot, ZonePlacementSnapshot,
+    AbilitySourceSnapshot, ApplicableBeginTurnReplacementSnapshot, BalanceActionSnapshot,
+    BalancePhaseSnapshot, BalanceTaskSnapshot, CounteredSpellZoneSnapshot, DecisionCardSnapshot,
+    DecisionContinuationSnapshot, DecisionOptionSnapshot, DecisionPreferenceSnapshot,
+    DecisionStateSnapshot, DecisionZoneSnapshot, DeferredBeginTurnEffectSnapshot,
+    DetachedCardSnapshot, DiscardChoiceSnapshot, EffectContinuationSnapshot, ManaCostSnapshot,
+    PendingTriggerSnapshot, PileSplitSnapshot, ReplacementEffectContextSnapshot,
+    ReplacementEffectLocator, TriggerPlacementBatchSnapshot, TurnKindSnapshot,
+    ZoneMoveCauseSnapshot, ZonePlacementSnapshot,
 };
 use super::procedure::{draw_replacement_snapshot, parse_draw_replacement};
 use super::semantics::{
     ability_locator, catalog_ability, catalog_replacement_effect, catalog_scoped_effect,
-    replacement_effect_locator, scoped_effect_snapshot,
+    replacement_effect_locator, replacement_effects, scoped_effect_snapshot,
 };
 use super::stack::{
     detached_stack_snapshot, parse_detached_stack, parse_target, parse_target_selection,
@@ -52,6 +57,29 @@ fn continuation_snapshot(
     continuation: &DecisionContinuation,
 ) -> Option<DecisionContinuationSnapshot> {
     let value = match continuation {
+        DecisionContinuation::BeginTurn {
+            player,
+            kind,
+            applied,
+            replacements,
+            deferred,
+        } => DecisionContinuationSnapshot::BeginTurn {
+            player: player.index(),
+            turn_kind: turn_kind_snapshot(*kind),
+            applied: applied
+                .iter()
+                .copied()
+                .map(ability_source_snapshot)
+                .collect(),
+            replacements: replacements
+                .iter()
+                .map(|replacement| begin_turn_replacement_snapshot(game, *replacement))
+                .collect::<Option<Vec<_>>>()?,
+            deferred: deferred
+                .iter()
+                .map(|effect| deferred_begin_turn_effect_snapshot(game, *effect))
+                .collect::<Option<Vec<_>>>()?,
+        },
         DecisionContinuation::SearchZone {
             controller,
             source,
@@ -407,13 +435,6 @@ fn continuation_snapshot(
                 .map(|task| balance_task_snapshot(viewer, task))
                 .collect(),
         },
-        DecisionContinuation::TimeVault {
-            permanent,
-            remaining,
-        } => DecisionContinuationSnapshot::TimeVault {
-            permanent: permanent.0,
-            remaining: ids(remaining),
-        },
         DecisionContinuation::SylvanOffer { player } => DecisionContinuationSnapshot::SylvanOffer {
             player: player.index(),
         },
@@ -443,6 +464,7 @@ fn continuation_snapshot(
         DecisionContinuation::TetravusAssemble { source } => {
             DecisionContinuationSnapshot::TetravusAssemble { source: source.0 }
         }
+        DecisionContinuation::BattlefieldExitReplacement { .. } => return None,
     };
     Some(value)
 }
@@ -541,6 +563,25 @@ fn parse_continuation(
     game: &Game,
 ) -> Result<DecisionContinuation, String> {
     Ok(match value {
+        DecisionContinuationSnapshot::BeginTurn {
+            player: prospective_player,
+            turn_kind,
+            applied,
+            replacements,
+            deferred,
+        } => DecisionContinuation::BeginTurn {
+            player: player(*prospective_player)?,
+            kind: parse_turn_kind(*turn_kind),
+            applied: applied.iter().copied().map(parse_ability_source).collect(),
+            replacements: replacements
+                .iter()
+                .map(|replacement| parse_begin_turn_replacement(replacement, game))
+                .collect::<Result<Vec<_>, _>>()?,
+            deferred: deferred
+                .iter()
+                .map(|effect| parse_deferred_begin_turn_effect(effect, game))
+                .collect::<Result<Vec<_>, _>>()?,
+        },
         DecisionContinuationSnapshot::SearchZone {
             controller,
             source,
@@ -909,13 +950,6 @@ fn parse_continuation(
                 .map(|task| parse_balance_task(task, game))
                 .collect::<Result<Vec<_>, _>>()?,
         },
-        DecisionContinuationSnapshot::TimeVault {
-            permanent,
-            remaining,
-        } => DecisionContinuation::TimeVault {
-            permanent: GameObjectId(*permanent),
-            remaining: game_ids(remaining),
-        },
         DecisionContinuationSnapshot::SylvanOffer { player: owner } => {
             DecisionContinuation::SylvanOffer {
                 player: player(*owner)?,
@@ -954,8 +988,11 @@ fn parse_continuation(
     })
 }
 
+mod begin_turn;
 mod support;
 
+#[allow(clippy::wildcard_imports)]
+use begin_turn::*;
 pub(super) use support::decision_referenced_object_ids;
 #[allow(clippy::wildcard_imports)]
 use support::*;

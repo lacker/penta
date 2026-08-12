@@ -181,6 +181,9 @@ impl Game {
                 return;
             };
             self.move_permanents_to_graveyard(&[extra]);
+            if !self.pending_decisions.is_empty() || !self.pending_events.is_empty() {
+                return;
+            }
         }
     }
 }

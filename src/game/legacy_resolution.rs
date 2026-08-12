@@ -24,7 +24,6 @@ impl Game {
             CardBehavior::LibraryOfAlexandria => {
                 self.draw_cards(object.controller, 1);
             }
-            CardBehavior::TimeVault => self.extra_turns.push(object.controller),
             _ => {}
         }
     }
@@ -90,7 +89,6 @@ impl Game {
                     self.queue_fork_decision(object.controller, original);
                 }
             }
-            CardBehavior::TimeWalk => self.extra_turns.push(object.controller),
             CardBehavior::Channel => self.channel_active[object.controller.index()] = true,
             CardBehavior::Duress => {
                 if let Some(Target::Player(victim)) = object.first_target() {

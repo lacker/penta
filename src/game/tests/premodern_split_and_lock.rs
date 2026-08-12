@@ -152,6 +152,7 @@ fn tsabos_web_draws_and_keeps_only_utility_lands_tapped() {
     let plains_id = plains.card.id;
     game.battlefield.extend([wasteland, plains]);
     game.active_player = PlayerId::Two;
+    game.next_regular_player = PlayerId::One;
     game.start_next_turn();
 
     assert!(

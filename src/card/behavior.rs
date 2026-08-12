@@ -24,11 +24,9 @@ pub enum CardBehavior {
     SedgeTroll,
     SinCollector,
     SylvanLibrary,
-    TimeVault,
     FellwarStone,
     Smoke,
     SphinxsRevelation,
-    TimeWalk,
     /// Tetravus's first upkeep trigger: trade +1/+1 counters for Tetravites.
     TetravusDetach,
     /// Tetravus's second upkeep trigger: exile its own Tetravites to take the

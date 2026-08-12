@@ -236,7 +236,11 @@ fn collect_replacement_effects(
                 collect_replacement_effects(*effect, found);
             }
         }
-        ReplacementEffectDef::None | ReplacementEffectDef::ModifyBattlefieldEntry(_) => {}
+        ReplacementEffectDef::None
+        | ReplacementEffectDef::ReplaceEventWithNothing
+        | ReplacementEffectDef::MoveToZone(_)
+        | ReplacementEffectDef::Perform(_)
+        | ReplacementEffectDef::ModifyBattlefieldEntry(_) => {}
     }
 }
 
@@ -288,7 +292,38 @@ pub(super) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         EffectDef::LookAtTopAndSelect { selection, .. } => {
             selection.then.into_iter().copied().collect()
         }
+        EffectDef::Replacement(effect) => replacement_child_effects(effect),
         _ => Vec::new(),
+    }
+}
+
+fn replacement_child_effects(effect: ReplacementEffectDef) -> Vec<EffectDef> {
+    match effect {
+        ReplacementEffectDef::Sequence(effects) => effects
+            .iter()
+            .flat_map(|effect| replacement_child_effects(*effect))
+            .collect(),
+        ReplacementEffectDef::Perform(effect) => vec![*effect],
+        ReplacementEffectDef::Conditional {
+            if_true, if_false, ..
+        } => if_true
+            .iter()
+            .chain(if_false.iter())
+            .flat_map(|effect| replacement_child_effects(*effect))
+            .collect(),
+        ReplacementEffectDef::OptionalPayment {
+            if_paid,
+            if_declined,
+            ..
+        } => if_paid
+            .iter()
+            .chain(if_declined.iter())
+            .flat_map(|effect| replacement_child_effects(*effect))
+            .collect(),
+        ReplacementEffectDef::None
+        | ReplacementEffectDef::ReplaceEventWithNothing
+        | ReplacementEffectDef::MoveToZone(_)
+        | ReplacementEffectDef::ModifyBattlefieldEntry(_) => Vec::new(),
     }
 }
 
@@ -421,6 +456,9 @@ fn collect_effect_abilities(effect: EffectDef, abilities: &mut Vec<&'static Abil
         }
         EffectDef::Apply { effect, .. } => collect_applied_abilities(effect, abilities),
         EffectDef::TriggerUntilYourNextTurn { ability } => abilities.push(ability),
+        EffectDef::Replacement(effect) => {
+            collect_replacement_effect_abilities(effect, abilities);
+        }
         EffectDef::None
         | EffectDef::AddMana(_)
         | EffectDef::AddManaEqualTo { .. }
@@ -459,6 +497,7 @@ fn collect_effect_abilities(effect: EffectDef, abilities: &mut Vec<&'static Abil
         | EffectDef::CreateEmblem { .. }
         | EffectDef::Transform { .. }
         | EffectDef::AdditionalCombatPhase
+        | EffectDef::TakeExtraTurn { .. }
         | EffectDef::CannotCastNoncreatureSpellsThisTurn { .. }
         | EffectDef::GrantFlashToNextSorcery
         | EffectDef::ExileLinkedToSource { .. }
@@ -468,7 +507,6 @@ fn collect_effect_abilities(effect: EffectDef, abilities: &mut Vec<&'static Abil
         | EffectDef::ReduceGenericCostBy(_)
         | EffectDef::PlayersCantPlay(_)
         | EffectDef::MultiplyEventAmount(_)
-        | EffectDef::Replacement(_)
         | EffectDef::MoveToZone { .. }
         | EffectDef::ChooseCardName { .. }
         | EffectDef::ChoosePlayer { .. }
@@ -478,6 +516,39 @@ fn collect_effect_abilities(effect: EffectDef, abilities: &mut Vec<&'static Abil
     }
 }
 
+fn collect_replacement_effect_abilities(
+    effect: ReplacementEffectDef,
+    abilities: &mut Vec<&'static AbilityDef>,
+) {
+    match effect {
+        ReplacementEffectDef::Sequence(effects) => {
+            for effect in effects {
+                collect_replacement_effect_abilities(*effect, abilities);
+            }
+        }
+        ReplacementEffectDef::Perform(effect) => collect_effect_abilities(*effect, abilities),
+        ReplacementEffectDef::Conditional {
+            if_true, if_false, ..
+        } => {
+            for effect in if_true.iter().chain(if_false.iter()) {
+                collect_replacement_effect_abilities(*effect, abilities);
+            }
+        }
+        ReplacementEffectDef::OptionalPayment {
+            if_paid,
+            if_declined,
+            ..
+        } => {
+            for effect in if_paid.iter().chain(if_declined.iter()) {
+                collect_replacement_effect_abilities(*effect, abilities);
+            }
+        }
+        ReplacementEffectDef::None
+        | ReplacementEffectDef::ReplaceEventWithNothing
+        | ReplacementEffectDef::MoveToZone(_)
+        | ReplacementEffectDef::ModifyBattlefieldEntry(_) => {}
+    }
+}
 fn collect_applied_abilities(effect: AppliedEffectDef, abilities: &mut Vec<&'static AbilityDef>) {
     match effect {
         AppliedEffectDef::Composite(effects) => {
@@ -645,7 +716,38 @@ fn animation_in_effect(
         } => animation_in_effect(*then, key).or_else(|| animation_in_effect(*otherwise, key)),
         EffectDef::TriggerUntilYourNextTurn { ability } => animation_in_ability(ability, key),
         EffectDef::Apply { effect, .. } => animation_in_applied(effect, key),
+        EffectDef::Replacement(effect) => animation_in_replacement_effect(effect, key),
         _ => None,
+    }
+}
+
+fn animation_in_replacement_effect(
+    effect: ReplacementEffectDef,
+    key: &AnimationSnapshot,
+) -> Option<&'static AnimationDef> {
+    match effect {
+        ReplacementEffectDef::Sequence(effects) => effects
+            .iter()
+            .find_map(|effect| animation_in_replacement_effect(*effect, key)),
+        ReplacementEffectDef::Perform(effect) => animation_in_effect(*effect, key),
+        ReplacementEffectDef::Conditional {
+            if_true, if_false, ..
+        } => if_true
+            .iter()
+            .chain(if_false.iter())
+            .find_map(|effect| animation_in_replacement_effect(*effect, key)),
+        ReplacementEffectDef::OptionalPayment {
+            if_paid,
+            if_declined,
+            ..
+        } => if_paid
+            .iter()
+            .chain(if_declined.iter())
+            .find_map(|effect| animation_in_replacement_effect(*effect, key)),
+        ReplacementEffectDef::None
+        | ReplacementEffectDef::ReplaceEventWithNothing
+        | ReplacementEffectDef::MoveToZone(_)
+        | ReplacementEffectDef::ModifyBattlefieldEntry(_) => None,
     }
 }
 
@@ -662,5 +764,41 @@ fn animation_in_applied(
             .find_map(|effect| animation_in_applied(*effect, key)),
         AppliedEffectDef::GrantAbility(ability) => animation_in_ability(ability, key),
         _ => None,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::card::{EffectDurationDef, EffectRecipientDef};
+
+    static ANIMATION: AnimationDef = AnimationDef::new(3, 3);
+    static GRANTED: AbilityDef = AbilityDef::not_implemented(
+        "A nested ability.",
+        "Only structural checkpoint traversal matters in this fixture.",
+    );
+    static APPLIED: [AppliedEffectDef; 2] = [
+        AppliedEffectDef::GrantAbility(&GRANTED),
+        AppliedEffectDef::Animate(&ANIMATION),
+    ];
+    static PERFORM: EffectDef = EffectDef::Apply {
+        recipient: EffectRecipientDef::Source,
+        effect: AppliedEffectDef::Composite(&APPLIED),
+        duration: EffectDurationDef::UntilEndOfTurn,
+    };
+    static PROGRAM: [ReplacementEffectDef; 1] = [ReplacementEffectDef::Perform(&PERFORM)];
+    static OUTER: AbilityDef = AbilityDef::replacement(
+        "Perform nested definitions while replacing an event.",
+        EffectDef::Replacement(ReplacementEffectDef::Sequence(&PROGRAM)),
+    );
+
+    #[test]
+    fn checkpoint_semantic_walkers_descend_replacement_programs() {
+        assert_eq!(child_abilities(&OUTER), vec![&GRANTED]);
+        let key = animation_snapshot(&ANIMATION);
+        assert_eq!(
+            animation_in_effect(OUTER.effect.definition, &key),
+            Some(&ANIMATION),
+        );
     }
 }

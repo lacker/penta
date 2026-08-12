@@ -164,6 +164,7 @@ fn stasis_stops_both_players_untaps_and_dies_when_its_upkeep_is_unpaid() {
     mountain.tapped = true;
     game.battlefield.extend([island, mountain]);
     game.active_player = PlayerId::Two;
+    game.next_regular_player = PlayerId::One;
 
     game.start_next_turn();
     assert_eq!(game.active_player, PlayerId::One);

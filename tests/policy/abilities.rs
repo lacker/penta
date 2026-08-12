@@ -146,6 +146,36 @@ fn handcrafted_does_not_overload_counterflux_into_an_empty_stack() {
 }
 
 #[test]
+fn handcrafted_prioritizes_time_vaults_declarative_extra_turn() {
+    let source = CardInstanceId(100);
+    let tome = CardInstanceId(101);
+    let activate = Action::ActivateAbility {
+        source,
+        ability: printed_ability(cards::TIME_VAULT, 3),
+        targets: Vec::new(),
+        cost_object: None,
+        x: 0,
+    };
+    let draw = Action::ActivateAbility {
+        source: tome,
+        ability: printed_ability(cards::JAYEMDAE_TOME, 0),
+        targets: Vec::new(),
+        cost_object: None,
+        x: 0,
+    };
+    let observation = policy_observation(
+        vec![
+            permanent(source.0, cards::TIME_VAULT, PlayerId::One, None, None),
+            permanent(tome.0, cards::JAYEMDAE_TOME, PlayerId::One, None, None),
+        ],
+        vec![Action::PassPriority, draw, activate.clone()],
+    );
+    let mut policy = HandcraftedPolicy::new(card::catalog().unwrap());
+
+    assert_eq!(policy.choose_action(&observation), Some(activate));
+}
+
+#[test]
 fn handcrafted_does_not_counter_an_observed_uncounterable_spell() {
     let source = CardInstanceId(100);
     let threat = CardInstanceId(200);

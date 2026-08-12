@@ -91,35 +91,6 @@ fn blind_obedience_competes_with_a_permanents_own_entry_replacement() {
 }
 
 #[test]
-fn time_vault_currently_untaps_by_banking_a_skip_for_a_later_turn() {
-    // This pins what the engine does, which is not what the card says. The
-    // replacement is worded against the turn that is beginning: skipping it
-    // is the cost of untapping. Here the offer arrives during the untap step,
-    // so that turn is already under way and is played out in full, and the
-    // skip is spent on the controller's next turn instead. Fixing it means
-    // moving the choice ahead of untap and ending the turn on acceptance,
-    // which is turn-flow work rather than a card-local change.
-    let mut game = ready_game();
-    let mut vault = creature(10_000, cards::TIME_VAULT, PlayerId::Two);
-    vault.tapped = true;
-    game.battlefield.push(vault);
-
-    game.start_next_turn();
-    let decision = game.observe(PlayerId::Two).decision.unwrap();
-    let untap = Action::ChooseDecision {
-        decision: decision.id,
-        options: vec![1],
-    };
-    game.apply(PlayerId::Two, untap).unwrap();
-    assert!(!game.battlefield[0].tapped);
-
-    game.start_next_turn();
-    assert_eq!(game.active_player, PlayerId::One);
-    game.start_next_turn();
-    assert_eq!(game.active_player, PlayerId::One);
-}
-
-#[test]
 fn sylvan_library_triggers_onto_the_stack_and_may_be_declined() {
     let mut game = ready_game();
     game.turn = 2;
@@ -614,7 +585,7 @@ fn vampire_nighthawk_deathtouch_and_lifelink_are_executable_keyword_abilities() 
 }
 
 #[test]
-fn ancestral_recall_draws_three_and_time_walk_queues_an_extra_turn() {
+fn ancestral_recall_draws_three() {
     let mut game = ready_game();
     let ancestral = card(10_000, cards::ANCESTRAL_RECALL, PlayerId::One);
     game.players[0].hand.push(ancestral.clone());
@@ -632,20 +603,6 @@ fn ancestral_recall_draws_three_and_time_walk_queues_an_extra_turn() {
     .unwrap();
     pass_priority_pair(&mut game);
     assert_eq!(game.players[0].hand.len(), hand_before - 1 + 3);
-
-    let time_walk = card(10_001, cards::TIME_WALK, PlayerId::One);
-    game.players[0].hand.push(time_walk.clone());
-    game.players[0].mana_pool.blue = 1;
-    game.players[0].mana_pool.colorless = 1;
-    game.apply(
-        PlayerId::One,
-        cast_action(time_walk.id, Vec::new(), Vec::new(), 0),
-    )
-    .unwrap();
-    pass_priority_pair(&mut game);
-    game.start_next_turn();
-    assert_eq!(game.active_player, PlayerId::One);
-    assert_eq!(game.observe(PlayerId::One).active_turn, 2);
 }
 
 #[test]

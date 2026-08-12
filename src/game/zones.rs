@@ -215,14 +215,6 @@ impl Game {
         self.discard_cards_with_cause(player, cards, ZoneMoveCause::Rules);
         self.cleanup_pending = false;
         self.complete_cleanup();
-        if self.result.is_none() {
-            self.priority = self.active_player;
-            self.events.push(GameEvent::StepChanged {
-                turn: self.turn,
-                active_player: self.active_player,
-                step: self.step,
-            });
-        }
     }
 
     /// Where a card headed for one zone actually goes, when a permanent on the

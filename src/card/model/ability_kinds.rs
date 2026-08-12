@@ -3,7 +3,8 @@ use crate::ids::{AbilityId, AlternativeCostId, ModeId, TargetIndex};
 use super::{
     AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, AlternativeCostDef,
     CardBehavior, EffectDef, ImplementationStatus, ManaColor, ManaCost, ObjectPredicateDef,
-    ObjectQueryDef, PlayerRelation, ReplacementEventDef, TriggerEventDef, ZoneKind,
+    ObjectQueryDef, PlayerRelation, ReplacementConditionDef, ReplacementEventDef, TriggerEventDef,
+    ZoneKind,
 };
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -398,6 +399,9 @@ impl AlternativeCastAbilityDef {
 pub struct ReplacementAbilityDef {
     pub source_zones: &'static [ZoneKind],
     pub event: ReplacementEventDef,
+    pub condition: Option<ReplacementConditionDef>,
+    /// Whether the affected player may decline to apply this replacement.
+    pub optional: bool,
 }
 
 impl ReplacementAbilityDef {
@@ -406,12 +410,26 @@ impl ReplacementAbilityDef {
         Self {
             source_zones: &[ZoneKind::Battlefield],
             event: ReplacementEventDef::EntersBattlefield,
+            condition: None,
+            optional: false,
         }
     }
 
     #[must_use]
     pub const fn with_event(mut self, event: ReplacementEventDef) -> Self {
         self.event = event;
+        self
+    }
+
+    #[must_use]
+    pub const fn with_condition(mut self, condition: ReplacementConditionDef) -> Self {
+        self.condition = Some(condition);
+        self
+    }
+
+    #[must_use]
+    pub const fn optional(mut self) -> Self {
+        self.optional = true;
         self
     }
 

@@ -2,7 +2,7 @@ use super::targeting::validate_ability_targets;
 use crate::card::catalog::{CatalogError, GrantedAbilityValidationError};
 use crate::card::{
     AbilityDef, AbilityProcedureDef, AppliedEffectDef, CardDefinition, DeclarativeAbilityDef,
-    EffectDef, EffectExecutionDef, ImplementationStatus, SpellForm, ZoneKind,
+    EffectDef, EffectExecutionDef, ImplementationStatus, ReplacementEffectDef, SpellForm, ZoneKind,
 };
 use crate::{AbilityId, AlternativeCostId, CardPartId, GrantId, ModeId};
 
@@ -471,6 +471,7 @@ fn collect_ability_grants(effect: EffectDef, grants: &mut Vec<&AbilityDef>) {
             }
         }
         EffectDef::Apply { effect, .. } => collect_applied_ability_grants(effect, grants),
+        EffectDef::Replacement(effect) => collect_replacement_ability_grants(effect, grants),
         EffectDef::TriggerUntilYourNextTurn { .. }
         | EffectDef::None
         | EffectDef::AddMana(_)
@@ -510,6 +511,7 @@ fn collect_ability_grants(effect: EffectDef, grants: &mut Vec<&AbilityDef>) {
         | EffectDef::CreateEmblem { .. }
         | EffectDef::Transform { .. }
         | EffectDef::AdditionalCombatPhase
+        | EffectDef::TakeExtraTurn { .. }
         | EffectDef::CannotCastNoncreatureSpellsThisTurn { .. }
         | EffectDef::GrantFlashToNextSorcery
         | EffectDef::ExileLinkedToSource { .. }
@@ -519,13 +521,43 @@ fn collect_ability_grants(effect: EffectDef, grants: &mut Vec<&AbilityDef>) {
         | EffectDef::ReduceGenericCostBy(_)
         | EffectDef::PlayersCantPlay(_)
         | EffectDef::MultiplyEventAmount(_)
-        | EffectDef::Replacement(_)
         | EffectDef::MoveToZone { .. }
         | EffectDef::ChooseCardName { .. }
         | EffectDef::ChoosePlayer { .. }
         | EffectDef::CopyPermanentAsItEnters { .. }
         | EffectDef::ChooseCreatureType { .. }
         | EffectDef::Special(_) => {}
+    }
+}
+
+fn collect_replacement_ability_grants(effect: ReplacementEffectDef, grants: &mut Vec<&AbilityDef>) {
+    match effect {
+        ReplacementEffectDef::Sequence(effects) => {
+            for effect in effects {
+                collect_replacement_ability_grants(*effect, grants);
+            }
+        }
+        ReplacementEffectDef::Perform(effect) => collect_ability_grants(*effect, grants),
+        ReplacementEffectDef::Conditional {
+            if_true, if_false, ..
+        } => {
+            for effect in if_true.iter().chain(if_false.iter()) {
+                collect_replacement_ability_grants(*effect, grants);
+            }
+        }
+        ReplacementEffectDef::OptionalPayment {
+            if_paid,
+            if_declined,
+            ..
+        } => {
+            for effect in if_paid.iter().chain(if_declined.iter()) {
+                collect_replacement_ability_grants(*effect, grants);
+            }
+        }
+        ReplacementEffectDef::None
+        | ReplacementEffectDef::ReplaceEventWithNothing
+        | ReplacementEffectDef::MoveToZone(_)
+        | ReplacementEffectDef::ModifyBattlefieldEntry(_) => {}
     }
 }
 
@@ -585,6 +617,7 @@ fn ability_grant_sites(effect: EffectDef) -> usize {
             then, otherwise, ..
         } => ability_grant_sites(*then).max(ability_grant_sites(*otherwise)),
         EffectDef::Apply { effect, .. } => applied_ability_grant_sites(effect),
+        EffectDef::Replacement(effect) => replacement_ability_grant_sites(effect),
         EffectDef::TriggerUntilYourNextTurn { .. }
         | EffectDef::None
         | EffectDef::AddMana(_)
@@ -624,6 +657,7 @@ fn ability_grant_sites(effect: EffectDef) -> usize {
         | EffectDef::CreateEmblem { .. }
         | EffectDef::Transform { .. }
         | EffectDef::AdditionalCombatPhase
+        | EffectDef::TakeExtraTurn { .. }
         | EffectDef::CannotCastNoncreatureSpellsThisTurn { .. }
         | EffectDef::GrantFlashToNextSorcery
         | EffectDef::ExileLinkedToSource { .. }
@@ -633,13 +667,42 @@ fn ability_grant_sites(effect: EffectDef) -> usize {
         | EffectDef::ReduceGenericCostBy(_)
         | EffectDef::PlayersCantPlay(_)
         | EffectDef::MultiplyEventAmount(_)
-        | EffectDef::Replacement(_)
         | EffectDef::MoveToZone { .. }
         | EffectDef::ChooseCardName { .. }
         | EffectDef::ChoosePlayer { .. }
         | EffectDef::CopyPermanentAsItEnters { .. }
         | EffectDef::ChooseCreatureType { .. }
         | EffectDef::Special(_) => 0,
+    }
+}
+
+fn replacement_ability_grant_sites(effect: ReplacementEffectDef) -> usize {
+    match effect {
+        ReplacementEffectDef::Sequence(effects) => effects
+            .iter()
+            .map(|effect| replacement_ability_grant_sites(*effect))
+            .fold(0, usize::saturating_add),
+        ReplacementEffectDef::Perform(effect) => ability_grant_sites(*effect),
+        ReplacementEffectDef::Conditional {
+            if_true, if_false, ..
+        } => if_true
+            .iter()
+            .chain(if_false.iter())
+            .map(|effect| replacement_ability_grant_sites(*effect))
+            .fold(0, usize::saturating_add),
+        ReplacementEffectDef::OptionalPayment {
+            if_paid,
+            if_declined,
+            ..
+        } => if_paid
+            .iter()
+            .chain(if_declined.iter())
+            .map(|effect| replacement_ability_grant_sites(*effect))
+            .fold(0, usize::saturating_add),
+        ReplacementEffectDef::None
+        | ReplacementEffectDef::ReplaceEventWithNothing
+        | ReplacementEffectDef::MoveToZone(_)
+        | ReplacementEffectDef::ModifyBattlefieldEntry(_) => 0,
     }
 }
 

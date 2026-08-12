@@ -377,6 +377,7 @@ mod decisions_and_effects;
 mod delayed_triggers;
 mod entry_replacements;
 mod exile_source_costs;
+mod extra_turns;
 mod guardian_beast;
 mod identity_and_mana;
 mod land_and_ability_layers;
@@ -404,6 +405,7 @@ mod triggers_and_stack;
 mod turn_and_loyalty;
 mod tutors_and_fetch_lands;
 mod zone_effects;
+mod zone_move_replacements;
 
 use copy_effects::{
     copied_grant_origin, copied_grant_source_game, resolve_copy_artifact, sole_granted_origin,

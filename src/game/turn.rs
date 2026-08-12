@@ -1,15 +1,17 @@
 use super::{
     AbilityEffectExpiration, Action, AlternativeCastKindDef, CardBehavior, CardDefinitionId,
     CardType, CombatDamageStage, CommittedTriggerEvent, DecisionContinuation, DecisionOption,
-    DecisionPreference, DecisionVisibility, DecisionZone, DeclarativeAbilityDef, EffectDef, Game,
-    GameEvent, GameObjectId, GameResult, ManaPool, PendingProcedure, PlayerId, ReplacementEventDef,
-    Step, TriggerContext, TurnStepDef, one_or_none,
+    DecisionPreference, DecisionVisibility, DecisionZone, DeclarativeAbilityDef,
+    DeferredBeginTurnEffect, EffectDef, Game, GameEvent, GameObjectId, GameResult, ManaPool,
+    PendingProcedure, PlayerId, ReplacementEventDef, Step, TriggerContext, TurnStepDef,
+    one_or_none,
 };
+
+mod begin_turn;
 
 impl Game {
     fn skips_turn_based_untap(&self, permanent: &super::Permanent) -> bool {
         self.does_not_untap_during_untap_step(permanent)
-            || self.effective_behavior(permanent) == Some(CardBehavior::TimeVault)
     }
 
     pub(super) fn untap_actions(&self, player: PlayerId) -> Vec<Action> {
@@ -76,7 +78,7 @@ impl Game {
         }
         self.untap_pending = false;
         self.priority = self.active_player;
-        self.finish_untap_choices();
+        self.handle_upkeep_triggers();
     }
 
     /// Commits every life gain in one place so replacement and triggered
@@ -223,8 +225,14 @@ impl Game {
             Step::End => {
                 self.step = Step::Cleanup;
                 self.cleanup();
+                if !self.cleanup_pending {
+                    return;
+                }
             }
-            Step::Cleanup => self.start_next_turn(),
+            Step::Cleanup => {
+                self.start_next_turn();
+                return;
+            }
         }
 
         self.finish_step_advance();
@@ -253,17 +261,12 @@ impl Game {
         }
     }
 
-    pub(super) fn start_next_turn(&mut self) {
+    fn commit_next_turn(&mut self, next_player: PlayerId, deferred: Vec<DeferredBeginTurnEffect>) {
+        // CR 614.10b: an action coupled to a skipped turn is the first thing
+        // that happens in the next turn that actually occurs. Do not expose it
+        // while another prospective turn can still be replaced.
+        self.perform_deferred_begin_turn_effects(next_player, deferred);
         self.turn += 1;
-        let mut next_player = self
-            .extra_turns
-            .pop()
-            .unwrap_or_else(|| self.active_player.opponent());
-        while self.skipped_turns[next_player.index()] > 0 {
-            self.skipped_turns[next_player.index()] -= 1;
-            let skipped = next_player;
-            next_player = self.extra_turns.pop().unwrap_or_else(|| skipped.opponent());
-        }
         self.active_player = next_player;
         self.turns_started[self.active_player.index()] += 1;
         let turns_started = self.turns_started;
@@ -349,7 +352,15 @@ impl Game {
             }
         }
         if !self.untap_pending {
-            self.finish_untap_choices();
+            self.handle_upkeep_triggers();
+        }
+        if self.result.is_none() {
+            self.priority = self.active_player;
+            self.events.push(GameEvent::StepChanged {
+                turn: self.turn,
+                active_player: self.active_player,
+                step: self.step,
+            });
         }
     }
 

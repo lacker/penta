@@ -216,7 +216,7 @@ A clone forks the *true* state, hidden zones included. That is right for
 self-play but wrong for a search bot in a hosted match: its rollouts must use
 worlds consistent with its observation, not cards only the host knows.
 
-The optional `reconstruction.checkpoint.v1` capability advertises a hidden-safe
+The optional `reconstruction.checkpoint.v2` capability advertises a hidden-safe
 current-state checkpoint in each observation. The checkpoint was introduced in
 protocol 19, expanded in protocol 21 into the complete typed snapshot described
 below, and given its own nested format version in protocol 22. Supply a
@@ -291,18 +291,24 @@ same open-world schema before building a `Game`. Catalog-owned executable data
 is represented by semantic locators, while hidden-zone identities are supplied
 only by the separate hypothesis above.
 
-The protocol-21 snapshot covers every ordinary action boundary emitted by the
+Checkpoint format 2 covers every ordinary action boundary emitted by the
 hosted formats: pregame and turn/combat progression; complete permanent,
 emblem, stack, and combat state; restricted/source-specific mana; copied and
 temporarily modified characteristics; retired-object last-known information;
 pending battlefield-entry replacement programs; delayed, floating, and
-pending triggers; and every pending decision continuation. Stack payloads
+pending triggers; and every pending decision continuation emitted by the hosted
+formats, including prospective begin-turn replacement choices. Stack payloads
 retain target-slot groupings, divided amounts, modes, X, trigger context,
 flashback/copy state, text and color changes, and mana-carried effects.
 Card-owned pile callbacks use stable registry keys rather than serialized
 function pointers. Public object IDs remain unchanged, including those needed
 by suspended continuations, while hypothesized private cards are rebound to
 fresh local IDs.
+
+The off-format Ugin's Nexus interaction can suspend a battlefield-exit
+replacement-order choice. That continuation currently reports
+`hasDeferredState: true`, and reconstruction fails closed until the prospective
+exit batch and the work that follows it have a stable typed encoding.
 
 A rebuilt world is not just correct at the instant you build it; it stays in
 step as you play it. Feed the reconstruction and the host game the same
@@ -336,7 +342,7 @@ world it can search.
 | field | meaning |
 | --- | --- |
 | `protocolVersion` | the breaking bot-wire epoch; protocol 22 objects are open-world, but an epoch mismatch requires migration |
-| `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v1`; ignore unknown entries |
+| `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v2`; ignore unknown entries |
 | `simulationFingerprint` | a conservative identity of simulation source and build requirements; pin it for training and require it for reconstruction |
 | `engineVersion` | package-release provenance; it is not an exact simulation identity |
 | `format` | the rules/deck profile slug, such as `"old-school-93-94"` or `"isd-rtr-standard"` |
@@ -513,6 +519,19 @@ shared implementation without changing the decision shape or option IDs. Read
 them for display, but submit the IDs from the current observation and use the
 structured decision fields and legal actions for control flow.
 
+Begin-turn replacements are offered immediately before a proposed turn begins.
+While that decision is pending, the observation still reports the previous
+turn's active player and `Cleanup` step; the decision's `seat` is the player
+whose turn would begin, so it need not match the active seat. Option ID `0`
+appears only when every applicable replacement is optional; choosing it
+declines them and begins the proposed turn. Each card-backed option applies
+that source's own replacement. Time Vault skips the turn; its untap is deferred
+until it is the first thing that happens in the next turn that actually begins.
+Ugin's Nexus skips only an extra turn. Multiple applicable sources
+appear together because only one can replace a given prospective turn. Read
+the current options and card identities rather than assuming a fixed option
+count or effect.
+
 ### Catalog and mana costs
 
 `penta.catalog(format)` carries the same `protocolVersion`,
@@ -550,11 +569,11 @@ the selected card, shuffles the remaining library, and puts that card on top.
 The protocol-19 catalog appends definitions 315 through 605 for the expanded
 Old School implementation: 286 legal card identities and five supporting
 tokens. With Guardian Beast below, the format now has 421 cataloged legal
-identities, of which 388 are `complete`, 31 are `partial`, and two are
+identities, of which 389 are `complete`, 30 are `partial`, and two are
 `metadataOnly`. The
 identity-complete audit is kept inline at each identity's collector position in
 the printed set modules. It records the concrete engine limitation for those
-33 incomplete definitions and all 560 other legal identities that remain
+32 incomplete definitions and all 560 other legal identities that remain
 blocked, and also covers all seven banned identities in the same sets. This is
 an additive catalog-content change, not a JSON-shape change; consumers must not
 assume the older catalog length or that definition 314 is the maximum ID.
@@ -619,6 +638,9 @@ without selecting a card. These cards and choices use the existing catalog,
 `Choice`, and `ChooseDecision` shapes, so they change the simulation fingerprint
 rather than the bot-wire epoch.
 
+`Ugin's Nexus` (definition `1368`, debut set `khans-of-tarkir`) follows as an
+off-format interaction fixture and remains illegal in both shipped formats.
+
 A play option's `restriction` is `normal`, `fromHandOnly`, or
 `beforeCombatDamage`. Read the tag rather than assuming every otherwise valid
 option is available from any zone or at every casting window.
@@ -661,6 +683,19 @@ protocol 7's one-off numeric `whiteRedHybrid` field with this general array.
 The shape is used everywhere the catalog reports a cost, including parts,
 play options, alternative costs, and additional costs.
 
+### Migrating checkpoint format 1 to 2
+
+This rules change does not move protocol 22. Checkpoint format 2 replaces the
+per-player `skippedTurns` debt with the zero-based `nextRegularPlayer` seat,
+which preserves ordinary-turn order around the newest-first extra-turn queue.
+It also gives pending prospective begin-turn replacements a typed continuation,
+so a Time Vault choice can reconstruct before the proposed turn commits.
+Consumers of reconstruction should require
+`reconstruction.checkpoint.v2` and continue checking both the nested checkpoint
+version and exact simulation fingerprint. A pending battlefield-exit
+replacement-order choice remains explicitly deferred and fails reconstruction
+closed as described above.
+
 ### Migrating from protocol 21
 
 Protocol 22 splits wire compatibility from conservative source identity:
@@ -688,7 +723,7 @@ Protocol 22 splits wire compatibility from conservative source identity:
   `requiredSimulationFingerprint` to refuse a different simulation before it
   is listed or assigned.
 
-The current optional capability is `reconstruction.checkpoint.v1`. An ordinary
+The current optional capability is `reconstruction.checkpoint.v2`. An ordinary
 hosted bot that only reads `legalActions` should declare an empty capability
 list; do not copy the server's advertised capabilities without implementing
 them.

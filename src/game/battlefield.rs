@@ -1,7 +1,13 @@
 use super::{
-    BattlefieldExit, CardInstance, CardPartId, CommittedTriggerEvent, CounterKind, EntryCompletion,
-    Game, GameEvent, GameObjectId, KeywordAbility, PendingBattlefieldEntry, Permanent, PlayerId,
-    StackObject, Step, Target, TargetSlotId, TurnStepDef, ZoneKind, ZonePlacement, remove_card,
+    AbilitySourceRef, ApplicableZoneMoveReplacement, BattlefieldExit, BattlefieldExitCompletion,
+    CardInstance, CardPartId, CommittedTriggerEvent, CounterKind, DecisionContinuation,
+    DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone, DeclarativeAbilityDef,
+    EffectDef, EffectRecipientDef, EntryCompletion, FrozenZoneMoveReplacement, Game, GameEvent,
+    GameObjectId, KeywordAbility, PendingBattlefieldEntry, PendingBattlefieldExitBatch,
+    PendingBattlefieldExitMove, Permanent, PlayerId, ReplacementConditionDef,
+    ReplacementEffectContext, ReplacementEffectDef, ReplacementEventDef, ScopedEffect, StackObject,
+    StackObjectKind, Step, Target, TargetSlotId, TriggerContext, TurnStepDef, ZoneKind,
+    ZoneMoveCauseDef, ZonePlacement, remove_card,
 };
 
 impl Game {
@@ -99,11 +105,21 @@ impl Game {
         self.destroy_permanents(&[id], false);
     }
 
+    #[cfg(test)]
     pub(super) fn sacrifice_permanent(&mut self, id: GameObjectId) {
         self.move_permanents_to_graveyard(&[id]);
     }
 
     pub(super) fn destroy_permanents(&mut self, ids: &[GameObjectId], can_regenerate: bool) {
+        self.destroy_permanents_then(ids, can_regenerate, None);
+    }
+
+    pub(super) fn destroy_permanents_then(
+        &mut self,
+        ids: &[GameObjectId],
+        can_regenerate: bool,
+        completion: Option<BattlefieldExitCompletion>,
+    ) {
         let mut seen = Vec::new();
         let mut doomed = Vec::new();
         for &id in ids {
@@ -127,7 +143,7 @@ impl Game {
                 doomed.push(id);
             }
         }
-        self.move_permanents_to_graveyard(&doomed);
+        self.move_permanents_to_graveyard_then(&doomed, completion);
     }
 
     pub(super) fn regenerate_permanent(&mut self, id: GameObjectId) {
@@ -157,14 +173,21 @@ impl Game {
         }
     }
 
-    /// Moves one simultaneous batch to graveyards. Listener declarations and
-    /// last-known characteristics are frozen before any member leaves, then all
-    /// old object incarnations are retired before the individual zone-change
-    /// events are published.
+    /// Proposes one simultaneous batch of battlefield-to-graveyard moves. All
+    /// effective replacement abilities are frozen before any member leaves;
+    /// if CR 616 requires the affected object's controller to order two or
+    /// more effects, the entire batch remains prospective behind that choice.
     pub(super) fn move_permanents_to_graveyard(&mut self, ids: &[GameObjectId]) {
-        let listeners = self.battlefield_trigger_listeners();
+        self.move_permanents_to_graveyard_then(ids, None);
+    }
+
+    pub(super) fn move_permanents_to_graveyard_then(
+        &mut self,
+        ids: &[GameObjectId],
+        completion: Option<BattlefieldExitCompletion>,
+    ) {
         let mut seen = Vec::new();
-        let exits = ids
+        let mut moves = ids
             .iter()
             .filter_map(|id| {
                 if seen.contains(id) {
@@ -174,12 +197,355 @@ impl Game {
                 self.battlefield
                     .iter()
                     .find(|permanent| permanent.card.id == *id)
+                    .map(|permanent| PendingBattlefieldExitMove {
+                        object: *id,
+                        controller: permanent.controller,
+                        destination: if permanent.exile_instead_of_dying {
+                            ZoneKind::Exile
+                        } else {
+                            ZoneKind::Graveyard
+                        },
+                        replaced_with_nothing: false,
+                        applied: Vec::new(),
+                    })
+            })
+            .collect::<Vec<_>>();
+        if moves.is_empty() {
+            if let Some(completion) = completion {
+                self.resume_battlefield_exit_completion(completion);
+            }
+            return;
+        }
+
+        // CR 616.1: when multiple players must make replacement choices for
+        // simultaneous events, the active player chooses first, followed by
+        // the nonactive player. Keep each player's original batch order.
+        moves.sort_by_key(|proposed| proposed.controller != self.active_player);
+
+        // CR 400.6: determine the simultaneous zone-change event, apply its
+        // replacement effects, then move its objects. Rest in Peace therefore
+        // replaces its own exit, and every member of the one event sees every
+        // continuous replacement that existed as the event was proposed.
+        let replacements = self.frozen_battlefield_zone_move_replacements();
+        self.continue_battlefield_exit_replacements(PendingBattlefieldExitBatch {
+            moves,
+            replacements,
+            completion: completion.map(Box::new),
+        });
+    }
+
+    /// Adds work to the exit choice created since `pending_before`. Effect
+    /// sequences use this after interpreting one clause so they can leave the
+    /// ordinary effect matcher intact while still suspending their tail.
+    pub(super) fn defer_after_battlefield_exit(
+        &mut self,
+        pending_before: usize,
+        completion: BattlefieldExitCompletion,
+    ) -> bool {
+        let Some(pending) = self.pending_decisions.get_mut(pending_before..) else {
+            return false;
+        };
+        for pending in pending.iter_mut().rev() {
+            let DecisionContinuation::BattlefieldExitReplacement { batch, .. } =
+                &mut pending.continuation
+            else {
+                continue;
+            };
+            batch.completion = Some(Box::new(match batch.completion.take() {
+                None => completion,
+                Some(earlier) => BattlefieldExitCompletion::Completions(vec![*earlier, completion]),
+            }));
+            return true;
+        }
+        false
+    }
+
+    fn frozen_battlefield_zone_move_replacements(&self) -> Vec<FrozenZoneMoveReplacement> {
+        let mut replacements = Vec::new();
+        for permanent in &self.battlefield {
+            self.for_each_effective_ability(permanent, |effective| {
+                let ability = effective.ability;
+                let DeclarativeAbilityDef::Replacement(replacement) = ability.definition else {
+                    return;
+                };
+                if !ability.is_executable()
+                    || !replacement.source_zones.contains(&ZoneKind::Battlefield)
+                {
+                    return;
+                }
+                let Some(effect) = ability.declarative_effect() else {
+                    return;
+                };
+                replacements.push(FrozenZoneMoveReplacement {
+                    source: AbilitySourceRef {
+                        object: permanent.card.id,
+                        ability: effective.origin,
+                    },
+                    controller: permanent.controller,
+                    definition: Self::ability_presentation_definition(
+                        effective.origin,
+                        Self::effective_rules_source(permanent).0,
+                    ),
+                    text: ability.text,
+                    replacement,
+                    effect,
+                });
+            });
+        }
+        replacements
+    }
+
+    pub(super) fn continue_battlefield_exit_replacements(
+        &mut self,
+        mut batch: PendingBattlefieldExitBatch,
+    ) {
+        loop {
+            let mut progressed = false;
+            for move_index in 0..batch.moves.len() {
+                let candidates = self.applicable_battlefield_exit_replacements(&batch, move_index);
+                match candidates.as_slice() {
+                    [] => {}
+                    [candidate] => {
+                        self.apply_battlefield_exit_replacement(&mut batch, *candidate);
+                        progressed = true;
+                        break;
+                    }
+                    _ => {
+                        self.queue_battlefield_exit_replacement_choice(batch, candidates);
+                        return;
+                    }
+                }
+            }
+            if !progressed {
+                break;
+            }
+        }
+        self.commit_battlefield_exit_batch(batch);
+    }
+
+    fn applicable_battlefield_exit_replacements(
+        &self,
+        batch: &PendingBattlefieldExitBatch,
+        move_index: usize,
+    ) -> Vec<ApplicableZoneMoveReplacement> {
+        let proposed = &batch.moves[move_index];
+        if proposed.replaced_with_nothing {
+            return Vec::new();
+        }
+        batch
+            .replacements
+            .iter()
+            .filter(|replacement| !proposed.applied.contains(&replacement.source))
+            .filter(|replacement| {
+                if let Some(condition) = replacement.replacement.condition {
+                    match condition {
+                        ReplacementConditionDef::SourceTapped => self
+                            .battlefield
+                            .iter()
+                            .find(|permanent| permanent.card.id == replacement.source.object)
+                            .is_some_and(|permanent| permanent.tapped),
+                    }
+                } else {
+                    true
+                }
+            })
+            .filter(|replacement| match replacement.replacement.event {
+                ReplacementEventDef::WouldMove {
+                    from: ZoneKind::Battlefield,
+                    to,
+                    cause: ZoneMoveCauseDef::Any,
+                } => replacement.source.object == proposed.object && to == proposed.destination,
+                ReplacementEventDef::AnyObjectWouldMove { to } => to == proposed.destination,
+                _ => false,
+            })
+            .map(|replacement| ApplicableZoneMoveReplacement {
+                move_index,
+                context: ReplacementEffectContext {
+                    source: replacement.source,
+                    controller: replacement.controller,
+                },
+                definition: replacement.definition,
+                text: replacement.text,
+                effect: replacement.effect,
+            })
+            .collect()
+    }
+
+    fn queue_battlefield_exit_replacement_choice(
+        &mut self,
+        batch: PendingBattlefieldExitBatch,
+        candidates: Vec<ApplicableZoneMoveReplacement>,
+    ) {
+        let move_index = candidates
+            .first()
+            .map_or(0, |candidate| candidate.move_index);
+        let proposed = &batch.moves[move_index];
+        let name = self
+            .object_card_name(proposed.object)
+            .unwrap_or("this permanent")
+            .to_string();
+        let options = candidates
+            .iter()
+            .enumerate()
+            .filter_map(|(index, candidate)| {
+                Some(DecisionOption {
+                    id: u32::try_from(index).ok()?,
+                    label: candidate.text.to_string(),
+                    card: Some((candidate.context.source.object, candidate.definition)),
+                    members: Vec::new(),
+                    ability_text: Some(candidate.text.to_string()),
+                    zone: DecisionZone::Battlefield,
+                })
+            })
+            .collect();
+        self.queue_decision(
+            proposed.controller,
+            format!("Choose a replacement effect for {name}"),
+            DecisionVisibility::Public,
+            DecisionPreference::Neutral,
+            1..=1,
+            false,
+            options,
+            DecisionContinuation::BattlefieldExitReplacement { batch, candidates },
+        );
+    }
+
+    pub(super) fn apply_battlefield_exit_replacement(
+        &mut self,
+        batch: &mut PendingBattlefieldExitBatch,
+        replacement: ApplicableZoneMoveReplacement,
+    ) {
+        batch.moves[replacement.move_index]
+            .applied
+            .push(replacement.context.source);
+        self.apply_battlefield_exit_effect(
+            batch,
+            replacement.move_index,
+            replacement.context,
+            replacement.effect,
+        );
+    }
+
+    fn apply_battlefield_exit_effect(
+        &mut self,
+        batch: &mut PendingBattlefieldExitBatch,
+        move_index: usize,
+        context: ReplacementEffectContext,
+        effect: EffectDef,
+    ) {
+        match effect {
+            // Compatibility for already-authored replacements such as Rest in
+            // Peace. Source names the prospective moving object here, so this
+            // changes its event rather than moving the replacement source.
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Source,
+                zone,
+                ..
+            } => batch.moves[move_index].destination = zone,
+            EffectDef::Replacement(effect) => {
+                self.apply_battlefield_exit_replacement_program(batch, move_index, context, effect);
+            }
+            EffectDef::Sequence(effects) => {
+                for effect in effects {
+                    self.apply_battlefield_exit_effect(batch, move_index, context, *effect);
+                }
+            }
+            // An ordinary operation authored directly in an older replacement
+            // clause is still performed in the frozen source context.
+            effect => self.perform_battlefield_exit_replacement_effect(context, effect),
+        }
+    }
+
+    fn apply_battlefield_exit_replacement_program(
+        &mut self,
+        batch: &mut PendingBattlefieldExitBatch,
+        move_index: usize,
+        context: ReplacementEffectContext,
+        effect: ReplacementEffectDef,
+    ) {
+        match effect {
+            ReplacementEffectDef::Sequence(effects) => {
+                for effect in effects {
+                    self.apply_battlefield_exit_replacement_program(
+                        batch, move_index, context, *effect,
+                    );
+                }
+            }
+            ReplacementEffectDef::ReplaceEventWithNothing => {
+                batch.moves[move_index].replaced_with_nothing = true;
+            }
+            ReplacementEffectDef::MoveToZone(zone) => {
+                batch.moves[move_index].destination = zone;
+            }
+            ReplacementEffectDef::Perform(effect) => {
+                self.perform_battlefield_exit_replacement_effect(context, *effect);
+            }
+            ReplacementEffectDef::None
+            | ReplacementEffectDef::ModifyBattlefieldEntry(_)
+            | ReplacementEffectDef::Conditional { .. }
+            | ReplacementEffectDef::OptionalPayment { .. } => {}
+        }
+    }
+
+    fn perform_battlefield_exit_replacement_effect(
+        &mut self,
+        context: ReplacementEffectContext,
+        effect: EffectDef,
+    ) {
+        let Some(permanent) = self
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == context.source.object)
+        else {
+            return;
+        };
+        let object = StackObject {
+            id: permanent.card.id,
+            kind: StackObjectKind::TriggeredAbility,
+            card: permanent.card.clone(),
+            source: Some(permanent.card.id),
+            ability: None,
+            controller: context.controller,
+            signature: None,
+            chosen_permanents: Vec::new(),
+            applied_effects: Vec::new(),
+            text_changes: Vec::new(),
+            colors: None,
+            cast_via_flashback: false,
+            is_copy: false,
+        };
+        self.resolve_effect_def(
+            ScopedEffect::primary(effect),
+            &object,
+            TriggerContext {
+                object: Some(context.source.object),
+                object_controller: Some(context.controller),
+                ..TriggerContext::empty()
+            },
+        );
+    }
+
+    /// Commits a simultaneous batch after every replacement choice has
+    /// reached a final event. Listener declarations and last-known
+    /// characteristics are frozen before any member leaves, then all old
+    /// object incarnations are retired before zone-change events are published.
+    fn commit_battlefield_exit_batch(&mut self, batch: PendingBattlefieldExitBatch) {
+        let completion = batch.completion;
+        let listeners = self.battlefield_trigger_listeners();
+        let exits = batch
+            .moves
+            .into_iter()
+            .filter(|proposed| !proposed.replaced_with_nothing)
+            .filter_map(|proposed| {
+                self.battlefield
+                    .iter()
+                    .find(|permanent| permanent.card.id == proposed.object)
                     .map(|permanent| {
                         (
-                            *id,
+                            proposed.object,
                             self.battlefield_exit_snapshot(permanent),
                             permanent.damage_sources.clone(),
-                            permanent.exile_instead_of_dying,
+                            proposed.destination,
                             self.has_undying(permanent)
                                 && permanent.counters(CounterKind::PlusOnePlusOne) == 0,
                             permanent.presented,
@@ -188,17 +554,11 @@ impl Game {
             })
             .collect::<Vec<_>>();
 
-        // CR 614.12: a replacement effect that applies as a permanent leaves
-        // the battlefield reads the state before the event, so a Rest in
-        // Peace that is itself dying still replaces its own placement.
-        let graveyard_replacement = self.external_zone_move_replacement(ZoneKind::Graveyard);
-
-        self.creature_died_this_turn |=
-            exits.iter().any(|(_, snapshot, _, exile_instead, _, _)| {
-                !exile_instead && snapshot.object.types.is_creature()
-            });
-        for (_, snapshot, damage_sources, exile_instead, _, _) in &exits {
-            if *exile_instead {
+        self.creature_died_this_turn |= exits.iter().any(|(_, snapshot, _, destination, _, _)| {
+            *destination == ZoneKind::Graveyard && snapshot.object.types.is_creature()
+        });
+        for (_, snapshot, damage_sources, destination, _, _) in &exits {
+            if *destination != ZoneKind::Graveyard {
                 continue;
             }
             for &source in damage_sources {
@@ -213,21 +573,25 @@ impl Game {
         }
 
         let mut removed = Vec::new();
-        for (id, snapshot, _, exile_instead, undying, presented) in exits {
+        for (id, snapshot, _, destination, undying, presented) in exits {
             let index = self
                 .battlefield
                 .iter()
                 .position(|permanent| permanent.card.id == id)
                 .expect("a snapshotted battlefield object remains until its batch exits");
             let permanent = self.remove_battlefield_object(index, &snapshot.last_known);
-            removed.push((permanent, snapshot, exile_instead, undying, presented));
+            removed.push((permanent, snapshot, destination, undying, presented));
         }
 
-        for (permanent, snapshot, exile_instead, undying, presented) in removed {
-            let (to, destination) = if exile_instead {
-                (ZoneKind::Exile, BattlefieldExit::Exile)
-            } else {
-                (ZoneKind::Graveyard, BattlefieldExit::Graveyard)
+        for (permanent, snapshot, to, undying, presented) in removed {
+            let exit = match to {
+                ZoneKind::Exile => BattlefieldExit::Exile,
+                ZoneKind::Graveyard => BattlefieldExit::Graveyard,
+                ZoneKind::Hand => BattlefieldExit::Hand,
+                ZoneKind::Library => BattlefieldExit::LibraryTop,
+                ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => {
+                    unreachable!("unsupported battlefield-exit replacement destination")
+                }
             };
             let event = CommittedTriggerEvent::ZoneChanged {
                 object: snapshot.object,
@@ -236,7 +600,7 @@ impl Game {
             };
             self.capture_battlefield_triggers_from_snapshot(&listeners, &event);
             self.capture_custom_source_triggers(&permanent, &snapshot.abilities, &event);
-            self.record_battlefield_exit(&permanent, destination);
+            self.record_battlefield_exit(&permanent, exit);
             // 111.7: a token that leaves the battlefield ceases to exist. The
             // exit and everything watching for it still happened.
             if self.is_token(permanent.card.definition) {
@@ -244,17 +608,97 @@ impl Game {
             }
             let owner = permanent.card.owner;
             let (card, _zone_change) = self.zone_change_card(permanent.card);
-            if exile_instead || graveyard_replacement == Some(ZoneKind::Exile) {
-                self.players[owner.index()].exile.push(card);
-                continue;
+            match to {
+                ZoneKind::Exile => self.players[owner.index()].exile.push(card),
+                ZoneKind::Graveyard => self.players[owner.index()].graveyard.push(card),
+                ZoneKind::Hand => self.players[owner.index()].hand.push(card),
+                ZoneKind::Library => self.players[owner.index()].library.push(card),
+                ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => {
+                    unreachable!("unsupported battlefield-exit replacement destination")
+                }
             }
-            self.put_card_into_graveyard(owner, card);
 
             // Undying observes the creature as it died, then returns the card
             // from the graveyard as a fresh object under its owner's control.
-            if undying {
+            if to == ZoneKind::Graveyard && undying {
                 self.return_top_graveyard_card_with_undying(owner, presented);
             }
+        }
+
+        if let Some(completion) = completion {
+            self.resume_battlefield_exit_completion(*completion);
+        }
+    }
+
+    fn resume_battlefield_exit_completion(&mut self, completion: BattlefieldExitCompletion) {
+        match completion {
+            BattlefieldExitCompletion::Completions(completions) => {
+                let mut completions = completions.into_iter();
+                while let Some(completion) = completions.next() {
+                    let pending_before = self.pending_decisions.len();
+                    self.resume_battlefield_exit_completion(completion);
+                    let remaining = completions.as_slice();
+                    if !remaining.is_empty()
+                        && self.defer_after_battlefield_exit(
+                            pending_before,
+                            BattlefieldExitCompletion::Completions(remaining.to_vec()),
+                        )
+                    {
+                        return;
+                    }
+                }
+            }
+            BattlefieldExitCompletion::ResolveEffects {
+                object,
+                context,
+                effects,
+            } => self.resolve_effect_defs(effects, &object, context),
+            BattlefieldExitCompletion::FinishStackResolution { object, resolved } => {
+                self.finish_stack_resolution(*object, resolved);
+            }
+            BattlefieldExitCompletion::SacrificeFollowup {
+                followup,
+                sacrificed,
+            } => self.resolve_sacrifice_followup(&followup, sacrificed),
+            BattlefieldExitCompletion::Balance {
+                controller,
+                phase,
+                mut remaining,
+            } => {
+                if !remaining.is_empty() {
+                    let next = remaining.remove(0);
+                    self.queue_balance_task(controller, phase, next, remaining);
+                } else if let Some(next) = phase.next() {
+                    self.queue_balance_phase(controller, next);
+                }
+            }
+            BattlefieldExitCompletion::CompleteSpellCast {
+                object,
+                targets,
+                remaining_sacrifices,
+            } => self.continue_spell_cast(*object, targets, remaining_sacrifices),
+            BattlefieldExitCompletion::CompleteActivatedAbility {
+                source,
+                source_card,
+                controller,
+                frozen,
+                targets,
+                chosen_permanents,
+                remaining_sacrifices,
+            } => self.continue_activated_ability_costs(
+                source,
+                source_card,
+                controller,
+                frozen,
+                targets,
+                chosen_permanents,
+                remaining_sacrifices,
+            ),
+            BattlefieldExitCompletion::CompleteManaAbility {
+                player,
+                activation,
+                produced_mana,
+            } => self.complete_mana_ability(player, activation, produced_mana),
         }
     }
 

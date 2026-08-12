@@ -134,6 +134,41 @@ fn delayed_grants_count_toward_the_structural_address_space() {
 }
 
 #[test]
+fn replacement_program_grants_count_toward_the_structural_address_space() {
+    static GRANTED: AbilityDef = AbilityDef::not_implemented(
+        "A granted ability.",
+        "The test only needs a reusable definition.",
+    );
+    static GRANT: EffectDef = EffectDef::Apply {
+        recipient: EffectRecipientDef::Source,
+        effect: AppliedEffectDef::GrantAbility(&GRANTED),
+        duration: EffectDurationDef::WhileSourceRemainsInZone,
+    };
+    let replacement_effects =
+        Box::leak(vec![ReplacementEffectDef::Perform(&GRANT); 257].into_boxed_slice());
+    let abilities = Box::leak(
+        vec![AbilityDef::replacement(
+            "This replacement performs many ability grants.",
+            EffectDef::Replacement(ReplacementEffectDef::Sequence(replacement_effects)),
+        )]
+        .into_boxed_slice(),
+    );
+    let mut card = definition(1, "Test Card", CardSet::Alpha);
+    let rules = card.rules.with_abilities(abilities);
+    set_primary_rules(&mut card, &rules);
+
+    assert_eq!(
+        error(card),
+        CatalogError::TooManyAbilityGrantSites {
+            definition: CardDefinitionId(1),
+            part: CardPartId::PRIMARY,
+            ability: AbilityId::PRIMARY,
+            count: 257,
+        }
+    );
+}
+
+#[test]
 fn executable_granted_static_abilities_are_rejected_until_fixed_point_evaluation_exists() {
     static GRANTED: AbilityDef =
         AbilityDef::static_ability("This object gets +1/+1.", EffectDef::None);
@@ -201,6 +236,38 @@ fn granted_ability_validation_follows_sacrifice_continuations() {
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
             grant_path: vec![GrantId::PRIMARY, GrantId::PRIMARY],
+            problem: GrantedAbilityValidationError::EmptyText,
+        }
+    );
+}
+
+#[test]
+fn granted_ability_validation_follows_replacement_programs() {
+    static INVALID: AbilityDef = AbilityDef::spell("", EffectDef::None);
+    static GRANT: EffectDef = EffectDef::Apply {
+        recipient: EffectRecipientDef::Source,
+        effect: AppliedEffectDef::GrantAbility(&INVALID),
+        duration: EffectDurationDef::UntilEndOfTurn,
+    };
+    static PROGRAM: [ReplacementEffectDef; 2] = [
+        ReplacementEffectDef::MoveToZone(ZoneKind::Exile),
+        ReplacementEffectDef::Perform(&GRANT),
+    ];
+    static ABILITIES: [AbilityDef; 1] = [AbilityDef::replacement(
+        "Replace an event, then grant an ability.",
+        EffectDef::Replacement(ReplacementEffectDef::Sequence(&PROGRAM)),
+    )];
+    let mut card = definition(1, "Test Card", CardSet::Alpha);
+    let rules = card.rules.with_abilities(&ABILITIES);
+    set_primary_rules(&mut card, &rules);
+
+    assert_eq!(
+        error(card),
+        CatalogError::InvalidGrantedAbility {
+            definition: CardDefinitionId(1),
+            part: CardPartId::PRIMARY,
+            ability: AbilityId::PRIMARY,
+            grant_path: vec![GrantId::PRIMARY],
             problem: GrantedAbilityValidationError::EmptyText,
         }
     );
@@ -416,6 +483,28 @@ fn non_targeting_choice_references_are_lexically_scoped() {
         },
     )
     .expect("the binding is visible only inside its continuation");
+}
+
+#[test]
+fn target_references_are_validated_through_replacement_programs() {
+    static TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+        AbilityTargetPredicate::Player(PlayerRelation::Any),
+    )];
+    static TARGET_EFFECT: EffectDef = EffectDef::Untap {
+        object: EffectRecipientDef::Target(TargetIndex(1)),
+    };
+    static PROGRAM: [ReplacementEffectDef; 1] = [ReplacementEffectDef::Perform(&TARGET_EFFECT)];
+
+    assert_eq!(
+        super::validate_ability_targets(
+            &TARGETS,
+            EffectDef::Replacement(ReplacementEffectDef::Sequence(&PROGRAM)),
+        ),
+        Err(GrantedAbilityValidationError::TargetReferenceOutOfBounds {
+            target: TargetIndex(1),
+            target_count: 1,
+        })
+    );
 }
 
 #[test]

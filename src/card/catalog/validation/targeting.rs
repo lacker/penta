@@ -1,6 +1,9 @@
 use crate::TargetIndex;
 use crate::card::catalog::GrantedAbilityValidationError;
-use crate::card::{AbilityTargetDef, AppliedEffectDef, EffectDef, EffectRecipientDef, ValueDef};
+use crate::card::{
+    AbilityTargetDef, AppliedEffectDef, EffectDef, EffectRecipientDef, ReplacementEffectDef,
+    ValueDef,
+};
 
 pub(in crate::card::catalog) fn validate_ability_targets(
     targets: &[AbilityTargetDef],
@@ -229,6 +232,7 @@ fn validate_effect_references(
         | EffectDef::CannotCastNoncreatureSpellsThisTurn { player }
         | EffectDef::SearchZone { player, .. }
         | EffectDef::ChooseCards { player, .. }
+        | EffectDef::TakeExtraTurn { player }
         | EffectDef::LookAtHand { player }
         | EffectDef::LookAtTopAndMayTake { player, .. } => {
             validate_recipient_target_references(player, target_count, choices_in_scope)
@@ -295,7 +299,61 @@ fn validate_effect_references(
         | EffectDef::CannotBeForcedToSacrifice
         | EffectDef::AdditionalCombatPhase
         | EffectDef::MultiplyEventAmount(_)
-        | EffectDef::Replacement(_)
         | EffectDef::Special(_) => Ok(()),
+        EffectDef::Replacement(effect) => {
+            validate_replacement_effect_target_references(effect, target_count, choices_in_scope)
+        }
+    }
+}
+
+fn validate_replacement_effect_target_references(
+    effect: ReplacementEffectDef,
+    target_count: usize,
+    choices_in_scope: u8,
+) -> Result<(), GrantedAbilityValidationError> {
+    match effect {
+        ReplacementEffectDef::Sequence(effects) => {
+            for effect in effects {
+                validate_replacement_effect_target_references(
+                    *effect,
+                    target_count,
+                    choices_in_scope,
+                )?;
+            }
+            Ok(())
+        }
+        ReplacementEffectDef::Conditional {
+            if_true, if_false, ..
+        } => {
+            for effect in if_true.iter().chain(if_false.iter()) {
+                validate_replacement_effect_target_references(
+                    *effect,
+                    target_count,
+                    choices_in_scope,
+                )?;
+            }
+            Ok(())
+        }
+        ReplacementEffectDef::OptionalPayment {
+            if_paid,
+            if_declined,
+            ..
+        } => {
+            for effect in if_paid.iter().chain(if_declined.iter()) {
+                validate_replacement_effect_target_references(
+                    *effect,
+                    target_count,
+                    choices_in_scope,
+                )?;
+            }
+            Ok(())
+        }
+        ReplacementEffectDef::Perform(effect) => {
+            validate_effect_references(*effect, target_count, choices_in_scope)
+        }
+        ReplacementEffectDef::None
+        | ReplacementEffectDef::ReplaceEventWithNothing
+        | ReplacementEffectDef::MoveToZone(_)
+        | ReplacementEffectDef::ModifyBattlefieldEntry(_) => Ok(()),
     }
 }

@@ -1,6 +1,6 @@
 use super::{
-    BalanceAction, BasicLandType, BasicLandTypeChange, CardRuntime, CounterKind,
-    DecisionContinuation, DecisionOption, FORK_COPY_COLOR, Game, GameEvent, ManaCost,
+    BalanceAction, BasicLandType, BasicLandTypeChange, BattlefieldExitCompletion, CardRuntime,
+    CounterKind, DecisionContinuation, DecisionOption, FORK_COPY_COLOR, Game, GameEvent, ManaCost,
     PendingProcedure, PendingReplacementEffect, PileChoice, PileSplit, PlayerId, ReplaceableEvent,
     Target, TargetSelection, TargetSlotId, ZoneKind, ZoneMoveCause, ZonePlacement, remove_card,
 };
@@ -11,6 +11,17 @@ impl Game {
         let pending = self.pending_decisions.remove(0);
         debug_assert_eq!(pending.observation.id, decision);
         match pending.continuation {
+            DecisionContinuation::BeginTurn {
+                player,
+                kind,
+                applied,
+                replacements,
+                deferred,
+            } => {
+                if let Some(option) = options.first().copied() {
+                    self.choose_begin_turn(player, kind, applied, &replacements, deferred, option);
+                }
+            }
             DecisionContinuation::DiscardForEffect {
                 player,
                 amount,
@@ -150,6 +161,20 @@ impl Game {
                     });
                     self.pending_events.push_front(pending);
                     self.continue_pending_events();
+                }
+            }
+            DecisionContinuation::BattlefieldExitReplacement {
+                mut batch,
+                candidates,
+            } => {
+                let selected = options
+                    .first()
+                    .and_then(|option| usize::try_from(*option).ok())
+                    .and_then(|index| candidates.get(index))
+                    .copied();
+                if let Some(selected) = selected {
+                    self.apply_battlefield_exit_replacement(&mut batch, selected);
+                    self.continue_battlefield_exit_replacements(batch);
                 }
             }
             DecisionContinuation::BattlefieldEntryPayment {
@@ -497,13 +522,20 @@ impl Game {
                     .filter_map(|option| option.card.map(|(card, _)| card))
                     .collect::<Vec<_>>();
                 let chosen = sacrificed.first().copied();
-                self.move_permanents_to_graveyard(&sacrificed);
                 // "If a player does" -- declining an optional sacrifice earns
                 // nothing, while a compulsory one pays out even for nothing.
                 if let Some(followup) = followup
                     && (chosen.is_some() || !optional)
                 {
-                    self.resolve_sacrifice_followup(&followup, chosen);
+                    self.move_permanents_to_graveyard_then(
+                        &sacrificed,
+                        Some(BattlefieldExitCompletion::SacrificeFollowup {
+                            followup,
+                            sacrificed: chosen,
+                        }),
+                    );
+                } else {
+                    self.move_permanents_to_graveyard(&sacrificed);
                 }
             }
             DecisionContinuation::Duress { victim, cause } => {
@@ -781,35 +813,24 @@ impl Game {
                         BalanceAction::Discard => discards.push(card),
                     }
                 }
-                self.move_permanents_to_graveyard(&sacrifices);
-                self.discard_cards_with_cause(task.player, &discards, task.cause);
-                if !remaining.is_empty() {
-                    let next = remaining.remove(0);
-                    self.queue_balance_task(controller, phase, next, remaining);
-                } else if let Some(next) = phase.next() {
-                    self.queue_balance_phase(controller, next);
-                }
-            }
-            DecisionContinuation::TimeVault {
-                permanent,
-                mut remaining,
-            } => {
-                if options.contains(&1) {
-                    if let Some(vault) = self
-                        .battlefield
-                        .iter_mut()
-                        .find(|candidate| candidate.card.id == permanent)
-                    {
-                        vault.tapped = false;
+                if sacrifices.is_empty() {
+                    self.discard_cards_with_cause(task.player, &discards, task.cause);
+                    if !remaining.is_empty() {
+                        let next = remaining.remove(0);
+                        self.queue_balance_task(controller, phase, next, remaining);
+                    } else if let Some(next) = phase.next() {
+                        self.queue_balance_phase(controller, next);
                     }
-                    self.skipped_turns[player.index()] =
-                        self.skipped_turns[player.index()].saturating_add(1);
-                }
-                if remaining.is_empty() {
-                    self.handle_upkeep_triggers();
                 } else {
-                    let next = remaining.remove(0);
-                    self.queue_time_vault_decision(next, remaining);
+                    debug_assert!(discards.is_empty(), "a Balance task uses one zone action");
+                    self.move_permanents_to_graveyard_then(
+                        &sacrifices,
+                        Some(BattlefieldExitCompletion::Balance {
+                            controller,
+                            phase,
+                            remaining,
+                        }),
+                    );
                 }
             }
             DecisionContinuation::SylvanOffer { player } => {

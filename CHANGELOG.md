@@ -31,11 +31,13 @@ distinguishes snapshots of the covered source and build inputs.
   fixes, and different legal-action membership through existing action shapes
   change the automatic `simulationFingerprint` instead. Observations and
   catalogs advertise `protocolCapabilities`; the first optional facility is
-  `reconstruction.checkpoint.v1`. Stable wire tags are now explicit mappings
+  now `reconstruction.checkpoint.v2`. Stable wire tags are explicit mappings
   rather than Rust `Debug` output. Protocol 22 is the one-time transition from
   the former all-purpose counter to this breaking-only epoch.
-- Reconstruction checkpoints now carry their own `version: 1` and simulation
-  fingerprint, independent of the bot-wire epoch.
+- Reconstruction checkpoints now carry their own version and simulation
+  fingerprint, independent of the bot-wire epoch. Format 2 replaces the old
+  skipped-turn debt with an explicit ordinary-turn anchor and can reconstruct
+  a prospective begin-turn replacement choice.
 - Replay journals carry `replayVersion: 1` and the simulation fingerprint. Web
   replays, durable rooms, and observation reconstruction reject the exact
   artifact boundary they consume while treating `engineVersion` as package
@@ -88,11 +90,11 @@ distinguishes snapshots of the covered source and build inputs.
 
 - The catalog appends definitions 315 through 605: 286 Eternal Central Old
   School 93/94 card identities and five supporting tokens. With Guardian Beast
-  below, the Old School pool now exposes 421 legal identities: 388 complete,
-  31 partial, and two
+  below, the Old School pool now exposes 421 legal identities: 389 complete,
+  30 partial, and two
   metadata-only. An identity-complete audit, kept inline at each identity's
   collector position in the printed set modules, names the concrete engine gap
-  for those 33 cataloged incomplete cards and the other 560 legal identities
+  for those 32 cataloged incomplete cards and the other 560 legal identities
   that remain blocked, as well as all seven banned identities in those sets.
   Definition IDs remain append-only and the catalog JSON shape is unchanged,
   so this is compatible protocol-19 catalog growth.
@@ -119,6 +121,10 @@ distinguishes snapshots of the covered source and build inputs.
   append-only definitions 313 and 314. The shared library search can now
   reveal a selected card, shuffle the rest, and put the selection on top;
   both tutors remain off-format in the currently shipped profiles.
+- `Ugin's Nexus` joins the unfiltered catalog as append-only definition 1368,
+  with the `khans-of-tarkir` debut-set slug. It remains off-format in the
+  currently shipped profiles while exercising shared extra-turn and zone-move
+  replacement effects.
 - Hosted rooms are no longer open to whoever knows their id. Starting a room
   mints a token per seat and returns both; every route then requires the
   token for the seat it speaks for, so a room id names a room without
@@ -187,6 +193,24 @@ version is unmoved.
   continuation. `ChosenPermanent` is deliberately distinct from a target and
   never passes through target legality or fizzle machinery.
 
+- Extra turns are now a shared declarative effect used by Time Walk, Time
+  Vault, and Ugin's Nexus. The scheduler keeps ordinary turns anchored
+  separately from its newest-first extra-turn queue, including across
+  checkpoint reconstruction. Time Vault's four clauses are declarative: its
+  optional replacement is offered before the prospective turn begins and is
+  composed from the generic operations to replace an event with nothing and
+  perform an ordinary untap effect. Under CR 614.10b that untap is deferred
+  until it is the first action of the next turn that actually begins. Ugin's
+  Nexus uses the same vocabulary to skip extra turns, and its
+  battlefield-to-graveyard replacement competes correctly with Rest in
+  Peace before exiling the Nexus and scheduling its controller's extra turn.
+  These rules and append-only catalog changes use existing bot-wire vocabulary,
+  so protocol remains 22 and the automatic simulation fingerprint identifies
+  the new behavior. Checkpoint format 2 replaces `skippedTurns` with
+  `nextRegularPlayer` and reconstructs pending begin-turn choices. A checkpoint
+  taken during a battlefield-exit replacement-order choice still reports
+  deferred state and reconstruction fails closed until that suspended batch
+  and its completion have a stable typed encoding.
 - `ComparisonDef` now names the five ordering relations directly: `Less`,
   `LessOrEqual`, `Equal`, `GreaterOrEqual`, and `Greater`. Rust card definitions
   should migrate `AtMost` to `LessOrEqual`, `Exactly` to `Equal`, and `AtLeast`
@@ -276,7 +300,7 @@ version is unmoved.
   characteristics consistently and resolution rechecks the declared target
   predicate, including protection and hexproof, so an all-illegal spell
   correctly fizzles instead of applying a card-local partial effect.
-- `CardBehavior` no longer exposes the 41 retired selectors whose built-in
+- `CardBehavior` no longer exposes the 43 retired selectors whose built-in
   cards are declarative. The Rust enum now contains live custom-effect
   selectors plus the three documented `CardDefinition::new` compatibility
   keys; downstream Rust code naming a removed variant must use the card's

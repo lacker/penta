@@ -327,8 +327,8 @@ impl Game {
                 .iter()
                 .map(|player| player.index())
                 .collect(),
+            next_regular_player: self.next_regular_player.index(),
             channel_active: self.channel_active,
-            skipped_turns: self.skipped_turns,
             pregame: self.pregame.map(|pregame| match pregame {
                 Pregame::Mulligan(player) => PregameSnapshot::Mulligan {
                     seat: player.index(),
@@ -415,7 +415,7 @@ impl Game {
         }
     }
 
-    /// Projection for checkpoint format 1. The checkpoint has one typed schema
+    /// Projection for the current checkpoint format. The checkpoint has one typed schema
     /// internally; only this boundary turns it into JSON.
     pub(super) fn checkpoint_json(&self, viewer: PlayerId) -> Value {
         serde_json::to_value(self.snapshot(viewer)).expect("GameSnapshot is serializable")
@@ -624,8 +624,8 @@ impl Game {
                 .copied()
                 .map(player_from_index)
                 .collect::<Result<Vec<_>, _>>()?,
+            next_regular_player: player_from_index(checkpoint.next_regular_player)?,
             channel_active: checkpoint.channel_active,
-            skipped_turns: checkpoint.skipped_turns,
             result: None,
             events: vec![GameEvent::GameStarted { seed: rollout_seed }],
         };

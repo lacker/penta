@@ -335,6 +335,7 @@ impl Game {
             | EffectDef::UnlessPaid { .. }
             | EffectDef::May { .. }
             | EffectDef::AdditionalCombatPhase
+            | EffectDef::TakeExtraTurn { .. }
             | EffectDef::CannotCastNoncreatureSpellsThisTurn { .. }
             | EffectDef::GrantFlashToNextSorcery
             | EffectDef::ExileLinkedToSource { .. }

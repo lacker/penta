@@ -333,6 +333,11 @@ impl HandcraftedPolicy {
                 - discard_source_cost;
         }
         let score = match behavior {
+            _ if declarative
+                .is_some_and(|profile| profile.has(DeclarativeSpellProfile::EXTRA_TURN)) =>
+            {
+                8_300
+            }
             Some(_) => 4_500 + target_score,
             None if !global_destroy_types.is_empty() => {
                 self.global_destroy_score(observation, global_destroy_types)

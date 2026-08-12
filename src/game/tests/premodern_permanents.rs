@@ -87,6 +87,7 @@ fn goblin_sharpshooter_stays_tapped_during_its_controllers_untap_step() {
     sharpshooter.tapped = true;
     game.battlefield.push(sharpshooter);
     game.active_player = PlayerId::Two;
+    game.next_regular_player = PlayerId::One;
 
     game.start_next_turn();
 

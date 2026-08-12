@@ -163,7 +163,12 @@ impl Game {
                 Some(pending)
             }
             BattlefieldEntryReplacementEffect::Declarative(effect) => match effect {
-                ReplacementEffectDef::None => Some(pending),
+                ReplacementEffectDef::None
+                // These primitives belong to other prospective-event
+                // procedures and cannot alter a battlefield-entry event.
+                | ReplacementEffectDef::ReplaceEventWithNothing
+                | ReplacementEffectDef::MoveToZone(_)
+                | ReplacementEffectDef::Perform(_) => Some(pending),
                 ReplacementEffectDef::Sequence(effects) => {
                     Self::push_replacement_effects(&mut pending, context, effects);
                     Some(pending)

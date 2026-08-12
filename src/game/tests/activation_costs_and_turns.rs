@@ -779,6 +779,65 @@ fn a_seats_event_stream_withholds_the_seed() {
 }
 
 #[test]
+fn extra_turn_scheduler_preserves_a_nonactive_players_regular_turn() {
+    let mut game = ready_game();
+    let first_turn = game.turn;
+
+    game.schedule_extra_turns([PlayerId::Two]);
+    game.start_next_turn();
+
+    assert_eq!(game.active_player, PlayerId::Two);
+    assert_eq!(game.next_regular_player, PlayerId::Two);
+    assert_eq!(game.turn, first_turn + 1);
+
+    game.start_next_turn();
+
+    assert_eq!(game.active_player, PlayerId::Two);
+    assert_eq!(game.next_regular_player, PlayerId::One);
+    assert_eq!(game.turn, first_turn + 2);
+}
+
+#[test]
+fn extra_turn_scheduler_takes_multiple_extra_turns_lifo() {
+    let mut game = ready_game();
+
+    game.schedule_extra_turns([PlayerId::One]);
+    game.schedule_extra_turns([PlayerId::Two]);
+
+    game.start_next_turn();
+    assert_eq!(game.active_player, PlayerId::Two);
+    assert_eq!(game.next_regular_player, PlayerId::Two);
+
+    game.start_next_turn();
+    assert_eq!(game.active_player, PlayerId::One);
+    assert_eq!(game.next_regular_player, PlayerId::Two);
+
+    game.start_next_turn();
+    assert_eq!(game.active_player, PlayerId::Two);
+    assert_eq!(game.next_regular_player, PlayerId::One);
+}
+
+#[test]
+fn extra_turn_scheduler_deduplicates_simultaneous_recipients_in_apnap_order() {
+    let mut game = ready_game();
+
+    game.schedule_extra_turns([PlayerId::Two, PlayerId::One, PlayerId::Two]);
+    assert_eq!(game.extra_turns, vec![PlayerId::One, PlayerId::Two]);
+
+    game.start_next_turn();
+    assert_eq!(game.active_player, PlayerId::Two);
+    assert_eq!(game.next_regular_player, PlayerId::Two);
+
+    game.start_next_turn();
+    assert_eq!(game.active_player, PlayerId::One);
+    assert_eq!(game.next_regular_player, PlayerId::Two);
+
+    game.start_next_turn();
+    assert_eq!(game.active_player, PlayerId::Two);
+    assert_eq!(game.next_regular_player, PlayerId::One);
+}
+
+#[test]
 fn cleanup_without_a_discard_advances_without_priority() {
     let mut game = ready_game();
     game.step = Step::End;

@@ -30,6 +30,7 @@ impl DeclarativeSpellProfile {
     pub(super) const TAPS: u8 = 1 << 2;
     pub(super) const APPLIES: u8 = 1 << 3;
     pub(super) const SWEEPS_CREATURES: u8 = 1 << 4;
+    pub(super) const EXTRA_TURN: u8 = 1 << 5;
 
     pub(super) fn mark(&mut self, effect_kind: u8) {
         self.effect_kinds |= effect_kind;
@@ -210,6 +211,16 @@ impl HandcraftedPolicy {
         }
     }
 
+    fn collect_damage_profile(
+        recipient: EffectRecipientDef,
+        amount: ValueDef,
+        x: u16,
+        profile: &mut DeclarativeSpellProfile,
+    ) {
+        profile.damage = Self::policy_value(amount, x);
+        profile.opponent_creature_sweep |= Self::hits_every_opposing_creature(recipient);
+    }
+
     fn target_slot_is_on_battlefield(targets: &[AbilityTargetDef], index: usize) -> bool {
         targets.get(index).is_some_and(|definition| {
             matches!(
@@ -263,8 +274,7 @@ impl HandcraftedPolicy {
             }
             EffectDef::DealDamage { recipient, amount }
             | EffectDef::DrainLife { recipient, amount } => {
-                profile.damage = Self::policy_value(amount, x);
-                profile.opponent_creature_sweep |= Self::hits_every_opposing_creature(recipient);
+                Self::collect_damage_profile(recipient, amount, x, profile);
             }
             EffectDef::DrawCards { recipient, amount } => {
                 Self::collect_draw_profile(recipient, amount, x, profile);
@@ -306,6 +316,9 @@ impl HandcraftedPolicy {
                 profile.mark(DeclarativeSpellProfile::TAPS);
             }
             EffectDef::Apply { .. } => profile.mark(DeclarativeSpellProfile::APPLIES),
+            EffectDef::TakeExtraTurn {
+                player: EffectRecipientDef::Controller,
+            } => profile.mark(DeclarativeSpellProfile::EXTRA_TURN),
             // Nothing outranks winning, so it needs no profile of its own.
             EffectDef::LoseTheGame { .. }
             | EffectDef::None
@@ -337,6 +350,7 @@ impl HandcraftedPolicy {
             | EffectDef::CreateEmblem { .. }
             | EffectDef::Transform { .. }
             | EffectDef::AdditionalCombatPhase
+            | EffectDef::TakeExtraTurn { .. }
             | EffectDef::CannotCastNoncreatureSpellsThisTurn { .. }
             | EffectDef::GrantFlashToNextSorcery
             | EffectDef::ExileLinkedToSource { .. }

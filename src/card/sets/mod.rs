@@ -21,6 +21,7 @@ mod y2007;
 mod y2011;
 mod y2012;
 mod y2013;
+mod y2014;
 mod y2021;
 
 use super::record::{CardAbilityBinding, CardRecord, PrintingRecord};
@@ -251,6 +252,11 @@ const SET_MODULES: &[SetModule] = &[
         y2013::theros::ADDITIONAL_PRINTINGS,
     ),
     SetModule::new(
+        CardSet::KhansOfTarkir,
+        y2014::khans_of_tarkir::CARDS,
+        y2014::khans_of_tarkir::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
         CardSet::ModernHorizons2,
         y2021::modern_horizons_2::CARDS,
         y2021::modern_horizons_2::ADDITIONAL_PRINTINGS,
@@ -315,7 +321,6 @@ pub(super) const fn rules(behavior: CardBehavior) -> &'static CardRules {
         CardBehavior::GoblinGrenade => &y1994::fallen_empires::GOBLIN_GRENADE.rules,
         CardBehavior::IronclawOrcs => &y1993::alpha::IRONCLAW_ORCS.rules,
         CardBehavior::FellwarStone => &y1994::the_dark::FELLWAR_STONE.rules,
-        CardBehavior::TimeWalk => &y1993::alpha::TIME_WALK.rules,
         CardBehavior::Balance => &y1993::alpha::BALANCE.rules,
         CardBehavior::Channel => &y1993::alpha::CHANNEL.rules,
         CardBehavior::Duress => &y2012::magic_2013::DURESS.rules,
@@ -324,7 +329,6 @@ pub(super) const fn rules(behavior: CardBehavior) -> &'static CardRules {
         CardBehavior::LifebaneZombie => &y2013::magic_2014::LIFEBANE_ZOMBIE.rules,
         CardBehavior::Recall => &y1994::legends::RECALL.rules,
         CardBehavior::SylvanLibrary => &y1994::legends::SYLVAN_LIBRARY.rules,
-        CardBehavior::TimeVault => &y1993::alpha::TIME_VAULT.rules,
         CardBehavior::DustToDust => &y1994::the_dark::DUST_TO_DUST.rules,
         CardBehavior::GrislySalvage => &y2012::return_to_ravnica::GRISLY_SALVAGE.rules,
         CardBehavior::KirdApe => &y1993::arabian_nights::KIRD_APE.rules,

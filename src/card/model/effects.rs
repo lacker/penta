@@ -1,3 +1,7 @@
+mod values;
+
+pub use values::*;
+
 use crate::Format;
 use crate::ids::{CardDefinitionId, ChoiceIndex, TargetIndex};
 
@@ -6,86 +10,6 @@ use super::{
     CounterKind, KeywordAbility, ManaColor, ManaCost, ObjectPredicateDef, PlayerRelation,
     TriggerConditionDef, ZoneKind, ZonePlacement,
 };
-
-/// A value evaluated from the resolving spell or ability and its captured
-/// event. `SourcePower` and `SourceToughness` deliberately leave current-versus
-/// last-known-information selection to the runtime source reference.
-/// A set of objects described the way [`EffectRecipientDef::MatchingObjects`]
-/// describes one, so a count and a sweep name their subject identically.
-/// The two branches of a conditional value.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct ConditionalValueDef {
-    pub then: ValueDef,
-    pub otherwise: ValueDef,
-}
-
-/// A conditional value that asks how many objects match.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct CountConditionDef {
-    pub query: ObjectQueryDef,
-    pub equals: u8,
-    pub then: ValueDef,
-    pub otherwise: ValueDef,
-}
-
-/// A conditional value that asks what the chosen target is.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct TargetConditionDef {
-    pub slot: TargetIndex,
-    pub object: ObjectPredicateDef,
-    pub then: ValueDef,
-    pub otherwise: ValueDef,
-}
-
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct ObjectQueryDef {
-    pub object: ObjectPredicateDef,
-    pub zones: &'static [ZoneKind],
-    pub controller: PlayerRelation,
-}
-
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum ValueDef {
-    Constant(i32),
-    ChosenX,
-    SourcePower,
-    SourceToughness,
-    TriggerEventAmount,
-    CardsInHandAbove {
-        player: PlayerRelation,
-        threshold: u8,
-    },
-    /// How many objects match, for the "for each" clauses. Held by reference
-    /// so that `ValueDef` stays small enough to embed freely.
-    CountMatchingObjects(&'static ObjectQueryDef),
-    /// One when at least one object matches, zero otherwise. "As long as you
-    /// control a Mountain" is a condition rather than a count, so counting
-    /// matches would pay a second Mountain twice.
-    AnyMatchingObject(&'static ObjectQueryDef),
-    /// The negation of another value, so a "for each" penalty can reuse the
-    /// same count a bonus would.
-    Negate(&'static ValueDef),
-    /// How many counters of one kind sit on the ability's own source.
-    CountersOnSource(CounterKind),
-    /// The morbid condition. Held by reference so that `ValueDef` stays one
-    /// word wide; a second inline value would grow everything embedding it.
-    IfCreatureDiedThisTurn(&'static ConditionalValueDef),
-    /// One value when the chosen target matches, another when it does not.
-    /// Held by reference for the same reason.
-    IfTargetMatches(&'static TargetConditionDef),
-    /// One value when exactly that many objects match, another otherwise.
-    /// This is how an intervening-if condition becomes an amount.
-    IfMatchingObjectCount(&'static CountConditionDef),
-    /// How much of a divided total the target being affected takes. Only
-    /// meaningful for an effect aimed at a slot the card divides.
-    DividedAmongTargets,
-    /// The power of what a target slot points at, for "damage equal to its
-    /// power".
-    TargetPower(TargetIndex),
-    /// The mana value of what a target slot points at, read from last-known
-    /// information after a permanent or spell has left its zone.
-    TargetManaValue(TargetIndex),
-}
 
 /// An object or player affected by an effect. Targets are chosen when a spell
 /// or stack ability is formed; triggering subjects come from captured events.
@@ -345,6 +269,26 @@ impl AnimationDef {
 /// happened, while replacement abilities inspect and modify prospective
 /// events.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum TurnKindDef {
+    /// Match a regular or extra turn.
+    Any,
+    /// Match only the next turn in the ordinary turn order.
+    Regular,
+    /// Match only a turn created by a spell or ability.
+    Extra,
+}
+
+impl TurnKindDef {
+    #[must_use]
+    pub const fn matches(self, turn: Self) -> bool {
+        matches!(
+            (self, turn),
+            (Self::Any, _) | (Self::Regular, Self::Regular) | (Self::Extra, Self::Extra)
+        )
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum ReplacementEventDef {
     /// The object carrying this ability would enter the battlefield.
     SourceEntersBattlefield,
@@ -363,6 +307,13 @@ pub enum ReplacementEventDef {
     /// A player would gain life, matched relative to the replacement
     /// ability's controller.
     WouldGainLife(PlayerRelation),
+    /// A matching player would begin a turn. The turn is still prospective:
+    /// none of its turn-based actions, counters, or beginning-of-turn events
+    /// have happened yet.
+    WouldBeginTurn {
+        player: PlayerRelation,
+        kind: TurnKindDef,
+    },
     /// Any object anywhere would be put into this zone. Unlike
     /// [`Self::WouldMove`] this does not describe the moving object's own
     /// ability: the replacement source watches from the battlefield.
@@ -418,6 +369,14 @@ pub enum ConditionDef {
     Exists(ObjectQueryDef),
 }
 
+/// A condition checked while deciding whether a replacement ability applies
+/// to its prospective event.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum ReplacementConditionDef {
+    /// The permanent carrying the replacement ability is currently tapped.
+    SourceTapped,
+}
+
 /// A typed modification to the permanent an object would become as it enters
 /// the battlefield.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -435,6 +394,14 @@ pub enum BattlefieldEntryModificationDef {
 pub enum ReplacementEffectDef {
     None,
     Sequence(&'static [ReplacementEffectDef]),
+    /// Consume the prospective event without committing it.
+    ReplaceEventWithNothing,
+    /// Change the destination of a prospective zone move. The source object
+    /// has not left its current zone while this operation is interpreted.
+    MoveToZone(ZoneKind),
+    /// Perform an ordinary declarative effect as part of replacing the event.
+    /// The replacement source and controller provide the effect context.
+    Perform(&'static EffectDef),
     ModifyBattlefieldEntry(BattlefieldEntryModificationDef),
     Conditional {
         condition: ConditionDef,
@@ -809,6 +776,12 @@ pub enum EffectDef {
     PlayersCantPlay(&'static ObjectPredicateDef),
     /// Adds a combat phase after the one now ending.
     AdditionalCombatPhase,
+    /// Gives each affected player an extra turn after the current one. Extra
+    /// turns are queued by the turn engine, so a later-created turn happens
+    /// before an earlier-created one.
+    TakeExtraTurn {
+        player: EffectRecipientDef,
+    },
     /// Gives its controller an emblem, an object that sits outside every
     /// zone and does nothing but carry its abilities.
     CreateEmblem {

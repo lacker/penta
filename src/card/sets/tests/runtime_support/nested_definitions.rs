@@ -42,10 +42,116 @@ pub(in super::super) fn shared_trigger_event(event: TriggerEventDef) -> bool {
     }
 }
 
-pub(in super::super) fn shared_replacement_event(event: ReplacementEventDef) -> bool {
+pub(super) fn shared_entry_replacement_effect(effect: ReplacementEffectDef) -> bool {
+    match effect {
+        ReplacementEffectDef::None | ReplacementEffectDef::ModifyBattlefieldEntry(_) => true,
+        ReplacementEffectDef::Sequence(effects) => {
+            !effects.is_empty() && effects.iter().copied().all(shared_entry_replacement_effect)
+        }
+        ReplacementEffectDef::Conditional {
+            condition,
+            if_true,
+            if_false,
+        } => {
+            let condition_is_supported = match condition {
+                ConditionDef::Exists(query) => {
+                    query.zones == [ZoneKind::Battlefield] && shared_object_predicate(query.object)
+                }
+            };
+            condition_is_supported
+                && if_true.iter().copied().all(shared_entry_replacement_effect)
+                && if_false
+                    .iter()
+                    .copied()
+                    .all(shared_entry_replacement_effect)
+        }
+        ReplacementEffectDef::OptionalPayment {
+            payment,
+            if_paid,
+            if_declined,
+        } => {
+            let payable_life = payment.costs.iter().try_fold(0_u32, |total, cost| {
+                let AbilityCostDef::PayLife(amount) = cost else {
+                    return None;
+                };
+                total.checked_add(u32::from(*amount))
+            });
+            payment.payer != PlayerRelation::Any
+                && !payment.costs.is_empty()
+                && payable_life.is_some_and(|amount| amount > 0 && i16::try_from(amount).is_ok())
+                && if_paid.iter().copied().all(shared_entry_replacement_effect)
+                && if_declined
+                    .iter()
+                    .copied()
+                    .all(shared_entry_replacement_effect)
+        }
+        ReplacementEffectDef::ReplaceEventWithNothing
+        | ReplacementEffectDef::MoveToZone(_)
+        | ReplacementEffectDef::Perform(_) => false,
+    }
+}
+
+pub(in super::super) fn shared_begin_turn_replacement_effect(effect: ReplacementEffectDef) -> bool {
+    match effect {
+        ReplacementEffectDef::ReplaceEventWithNothing => true,
+        ReplacementEffectDef::Perform(effect) => matches!(
+            *effect,
+            EffectDef::Untap {
+                object: EffectRecipientDef::Source,
+            }
+        ),
+        ReplacementEffectDef::Sequence(effects) => {
+            !effects.is_empty()
+                && effects
+                    .iter()
+                    .copied()
+                    .all(shared_begin_turn_replacement_effect)
+                && effects
+                    .iter()
+                    .any(|effect| matches!(effect, ReplacementEffectDef::ReplaceEventWithNothing))
+        }
+        ReplacementEffectDef::None
+        | ReplacementEffectDef::MoveToZone(_)
+        | ReplacementEffectDef::ModifyBattlefieldEntry(_)
+        | ReplacementEffectDef::Conditional { .. }
+        | ReplacementEffectDef::OptionalPayment { .. } => false,
+    }
+}
+
+pub(in super::super) fn shared_battlefield_exit_replacement_effect(
+    effect: ReplacementEffectDef,
+) -> bool {
+    match effect {
+        ReplacementEffectDef::MoveToZone(zone) => zone == ZoneKind::Exile,
+        ReplacementEffectDef::Perform(effect) => matches!(
+            *effect,
+            EffectDef::TakeExtraTurn {
+                player: EffectRecipientDef::Controller,
+            }
+        ),
+        ReplacementEffectDef::Sequence(effects) => {
+            !effects.is_empty()
+                && effects
+                    .iter()
+                    .copied()
+                    .all(shared_battlefield_exit_replacement_effect)
+                && effects
+                    .iter()
+                    .any(|effect| matches!(effect, ReplacementEffectDef::MoveToZone(_)))
+        }
+        ReplacementEffectDef::None
+        | ReplacementEffectDef::ReplaceEventWithNothing
+        | ReplacementEffectDef::ModifyBattlefieldEntry(_)
+        | ReplacementEffectDef::Conditional { .. }
+        | ReplacementEffectDef::OptionalPayment { .. } => false,
+    }
+}
+
+pub(super) fn shared_replacement_event(event: ReplacementEventDef) -> bool {
     match event {
         ReplacementEventDef::SourceEntersBattlefield
         | ReplacementEventDef::WouldGainLife(_)
+        | ReplacementEventDef::WouldBeginTurn { .. }
         | ReplacementEventDef::EntersBattlefield => true,
         ReplacementEventDef::ObjectEntersBattlefield { object, .. } => {
             shared_object_predicate(object)
@@ -106,10 +212,11 @@ pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effe
         EffectDef::Apply { effect, .. } => {
             assert_nested_definition_applied_effect(card_name, effect);
         }
+        EffectDef::Replacement(effect) => {
+            assert_nested_replacement_definition_abilities(card_name, effect);
+        }
         EffectDef::LookAtTopAndSelect { selection, .. } => {
-            if let Some(effect) = selection.then {
-                assert_nested_definition_abilities(card_name, *effect);
-            }
+            assert_nested_selection_abilities(card_name, *selection);
         }
         EffectDef::None
         | EffectDef::AddMana(_)
@@ -149,6 +256,7 @@ pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effe
         | EffectDef::CreateEmblem { .. }
         | EffectDef::Transform { .. }
         | EffectDef::AdditionalCombatPhase
+        | EffectDef::TakeExtraTurn { .. }
         | EffectDef::CannotCastNoncreatureSpellsThisTurn { .. }
         | EffectDef::GrantFlashToNextSorcery
         | EffectDef::ExileLinkedToSource { .. }
@@ -158,13 +266,51 @@ pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effe
         | EffectDef::ReduceGenericCostBy(_)
         | EffectDef::PlayersCantPlay(_)
         | EffectDef::MultiplyEventAmount(_)
-        | EffectDef::Replacement(_)
         | EffectDef::MoveToZone { .. }
         | EffectDef::ChooseCardName { .. }
         | EffectDef::ChoosePlayer { .. }
         | EffectDef::CopyPermanentAsItEnters { .. }
         | EffectDef::ChooseCreatureType { .. }
         | EffectDef::Special(_) => {}
+    }
+}
+
+fn assert_nested_selection_abilities(card_name: &str, selection: TopCardSelectionDef) {
+    if let Some(effect) = selection.then {
+        assert_nested_definition_abilities(card_name, *effect);
+    }
+}
+
+fn assert_nested_replacement_definition_abilities(card_name: &str, effect: ReplacementEffectDef) {
+    match effect {
+        ReplacementEffectDef::Sequence(effects) => {
+            for effect in effects {
+                assert_nested_replacement_definition_abilities(card_name, *effect);
+            }
+        }
+        ReplacementEffectDef::Perform(effect) => {
+            assert_nested_definition_abilities(card_name, *effect);
+        }
+        ReplacementEffectDef::Conditional {
+            if_true, if_false, ..
+        } => {
+            for effect in if_true.iter().chain(if_false.iter()) {
+                assert_nested_replacement_definition_abilities(card_name, *effect);
+            }
+        }
+        ReplacementEffectDef::OptionalPayment {
+            if_paid,
+            if_declined,
+            ..
+        } => {
+            for effect in if_paid.iter().chain(if_declined.iter()) {
+                assert_nested_replacement_definition_abilities(card_name, *effect);
+            }
+        }
+        ReplacementEffectDef::None
+        | ReplacementEffectDef::ReplaceEventWithNothing
+        | ReplacementEffectDef::MoveToZone(_)
+        | ReplacementEffectDef::ModifyBattlefieldEntry(_) => {}
     }
 }
 

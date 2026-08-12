@@ -73,6 +73,29 @@ fn assert_reconstructs(game: &Game, label: &str) {
     }
 }
 
+fn rebuild_from_truth(game: &Game, seed: u64) -> Game {
+    let viewer = game
+        .decision_player()
+        .expect("the position must await an action");
+    let observation = game.observe(viewer);
+    let actions = crate::protocol::protocol_actions(&observation);
+    let wire = crate::protocol::observation_json_for_format(
+        &game.catalog,
+        game.format,
+        &observation,
+        game.in_pregame(),
+        &actions,
+    );
+    Game::from_observation_checkpoint(
+        game.catalog.clone(),
+        game.format,
+        &wire,
+        &true_hidden_hypothesis(game, viewer),
+        seed,
+    )
+    .expect("the typed decision state reconstructs")
+}
+
 /// `ready_game` clears the board and hands but keeps both libraries stocked,
 /// which is what these positions want: a known board and real hidden zones to
 /// hypothesize about.
@@ -87,6 +110,124 @@ fn staged_modern_game() -> Game {
     let mut game = ready_game();
     game.format = crate::Format::IsdRtrStandard;
     game
+}
+
+#[test]
+fn a_begin_turn_replacement_with_a_deferred_effect_reconstructs_and_resumes() {
+    let mut game = staged_game();
+    game.step = crate::Step::Cleanup;
+    game.extra_turns = vec![PlayerId::Two, PlayerId::Two];
+    let mut vault = creature(10_000, crate::card::cards::TIME_VAULT, PlayerId::Two);
+    vault.tapped = true;
+    let vault_id = vault.card.id;
+    game.battlefield.push(vault);
+
+    game.start_next_turn();
+    let pending = game
+        .pending_decisions
+        .first()
+        .expect("Time Vault asks whether to replace the first extra turn");
+    let replacement = pending
+        .observation
+        .options
+        .iter()
+        .find(|option| option.card.is_some_and(|(object, _)| object == vault_id))
+        .expect("the Vault replacement is offered")
+        .id;
+    game.apply(
+        PlayerId::Two,
+        Action::ChooseDecision {
+            decision: pending.observation.id,
+            options: vec![replacement],
+        },
+    )
+    .expect("the first extra turn is skipped");
+
+    assert!(matches!(
+        game.pending_decisions
+            .first()
+            .map(|pending| &pending.continuation),
+        Some(DecisionContinuation::BeginTurn { deferred, .. }) if deferred.len() == 1
+    ));
+    assert_reconstructs(
+        &game,
+        "a prospective turn carrying Time Vault's deferred untap",
+    );
+    let mut rebuilt = rebuild_from_truth(&game, 4_243);
+
+    for candidate in [&mut game, &mut rebuilt] {
+        let pending = candidate
+            .pending_decisions
+            .first()
+            .expect("the reconstructed turn choice remains pending");
+        candidate
+            .apply(
+                PlayerId::Two,
+                Action::ChooseDecision {
+                    decision: pending.observation.id,
+                    options: vec![0],
+                },
+            )
+            .expect("the next extra turn begins");
+    }
+
+    assert_eq!(rebuilt.observe(PlayerId::One), game.observe(PlayerId::One));
+    assert_eq!(rebuilt.observe(PlayerId::Two), game.observe(PlayerId::Two));
+    assert_eq!(game.active_player, PlayerId::Two);
+    assert!(
+        !game
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == vault_id)
+            .expect("Time Vault remains on the battlefield")
+            .tapped,
+        "the carried effect untaps Time Vault before the accepted turn begins",
+    );
+}
+
+#[test]
+fn a_battlefield_exit_replacement_choice_explicitly_fails_closed() {
+    let mut game = staged_game();
+    game.battlefield.clear();
+    game.put_onto_battlefield(PlayerId::Two, crate::card::cards::REST_IN_PEACE)
+        .expect("Rest in Peace is cataloged");
+    let nexus = game
+        .put_onto_battlefield(PlayerId::One, crate::card::cards::UGINS_NEXUS)
+        .expect("Ugin's Nexus is cataloged");
+    game.pending_triggers.clear();
+    game.move_permanents_to_graveyard(&[nexus]);
+
+    assert!(matches!(
+        game.pending_decisions
+            .first()
+            .map(|pending| &pending.continuation),
+        Some(DecisionContinuation::BattlefieldExitReplacement { .. })
+    ));
+    let viewer = game
+        .decision_player()
+        .expect("the affected player orders the replacements");
+    let observation = game.observe(viewer);
+    let actions = crate::protocol::protocol_actions(&observation);
+    let wire = crate::protocol::observation_json_for_format(
+        &game.catalog,
+        game.format,
+        &observation,
+        game.in_pregame(),
+        &actions,
+    );
+    assert_eq!(wire["checkpoint"]["hasDeferredState"], Value::Bool(true));
+    let error = Game::from_observation_checkpoint(
+        game.catalog.clone(),
+        game.format,
+        &wire,
+        &true_hidden_hypothesis(&game, viewer),
+        4_244,
+    )
+    .expect_err("the unencoded battlefield-exit completion graph must fail closed");
+    assert!(
+        error.contains("without stable catalog semantics"),
+        "unexpected reconstruction error: {error}",
+    );
 }
 
 /// Adds mana the way the engine does, so the itemized units and the public

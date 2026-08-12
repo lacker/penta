@@ -1,8 +1,9 @@
 use super::{
-    CardBehavior, CardPartId, CardRuntime, CardType, CounterKind, DecisionContinuation,
-    DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone, EntryCompletion, Game,
-    GameEvent, GameObjectId, PendingBattlefieldEntry, Permanent, PlayerId, ResolvedAbility,
-    StackAbilityResolver, StackObject, StackObjectKind, Target, ZoneKind, public_cards,
+    BattlefieldExitCompletion, CardBehavior, CardPartId, CardRuntime, CardType, CounterKind,
+    DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
+    EntryCompletion, Game, GameEvent, GameObjectId, PendingBattlefieldEntry, Permanent, PlayerId,
+    ResolvedAbility, StackAbilityResolver, StackObject, StackObjectKind, Target, ZoneKind,
+    public_cards,
 };
 
 impl Game {
@@ -31,50 +32,19 @@ impl Game {
             .pop()
             .expect("resolution is requested only for a nonempty stack");
         self.retire_stack_object(&object);
-        let definition = object.card.definition;
         match object.kind {
-            StackObjectKind::ActivatedAbility => {
-                let source = object
-                    .source
-                    .expect("activated abilities remember their source");
-                let event = if self.resolve_stack_ability(&object) {
-                    GameEvent::AbilityResolved {
-                        object: object.id,
-                        source,
-                        definition,
-                    }
-                } else {
-                    GameEvent::AbilityFizzled {
-                        object: object.id,
-                        source,
-                        definition,
-                    }
-                };
-                self.events.push(event);
-                return;
-            }
-            StackObjectKind::TriggeredAbility => {
-                let source = object
-                    .source
-                    .expect("triggered abilities remember their source");
-                let event = if self.resolve_stack_ability(&object) {
-                    GameEvent::TriggeredAbilityResolved {
-                        object: object.id,
-                        source,
-                        definition,
-                    }
-                } else {
-                    GameEvent::TriggeredAbilityFizzled {
-                        object: object.id,
-                        source,
-                        definition,
-                    }
-                };
-                self.events.push(event);
+            StackObjectKind::ActivatedAbility | StackObjectKind::TriggeredAbility => {
+                let pending_before = self.pending_decisions.len();
+                let resolved = self.resolve_stack_ability(&object);
+                if self.defer_stack_resolution(pending_before, &object, resolved) {
+                    return;
+                }
+                self.finish_stack_resolution(object, resolved);
                 return;
             }
             StackObjectKind::Spell => {}
         }
+        let definition = object.card.definition;
         let behavior = self
             .behavior(definition)
             .unwrap_or(CardBehavior::Unsupported);
@@ -125,10 +95,76 @@ impl Game {
                 definition,
             });
         } else if object.ability.is_some() {
+            let pending_before = self.pending_decisions.len();
             let _ = self.resolve_stack_ability(&object);
+            if self.defer_stack_resolution(pending_before, &object, true) {
+                return;
+            }
         } else {
+            let pending_before = self.pending_decisions.len();
             self.resolve_spell_effect(&object, behavior);
+            if self.defer_stack_resolution(pending_before, &object, true) {
+                return;
+            }
         }
+        self.finish_stack_resolution(object, true);
+    }
+
+    pub(super) fn finish_stack_resolution(&mut self, object: StackObject, resolved: bool) {
+        let definition = object.card.definition;
+        match object.kind {
+            StackObjectKind::ActivatedAbility => {
+                let source = object
+                    .source
+                    .expect("activated abilities remember their source");
+                let event = if resolved {
+                    GameEvent::AbilityResolved {
+                        object: object.id,
+                        source,
+                        definition,
+                    }
+                } else {
+                    GameEvent::AbilityFizzled {
+                        object: object.id,
+                        source,
+                        definition,
+                    }
+                };
+                self.events.push(event);
+                return;
+            }
+            StackObjectKind::TriggeredAbility => {
+                let source = object
+                    .source
+                    .expect("triggered abilities remember their source");
+                let event = if resolved {
+                    GameEvent::TriggeredAbilityResolved {
+                        object: object.id,
+                        source,
+                        definition,
+                    }
+                } else {
+                    GameEvent::TriggeredAbilityFizzled {
+                        object: object.id,
+                        source,
+                        definition,
+                    }
+                };
+                self.events.push(event);
+                return;
+            }
+            StackObjectKind::Spell => {}
+        }
+
+        let behavior = self
+            .behavior(definition)
+            .unwrap_or(CardBehavior::Unsupported);
+        let spell_types = self
+            .stack_spell_types(&object)
+            .unwrap_or_else(|| behavior.types());
+        let aura_fizzles = spell_types.is_permanent()
+            && Self::aura_host_for(&object).is_some()
+            && self.spell_fizzles(&object);
         let card_id = object.id;
         if (!spell_types.is_permanent() || aura_fizzles) && !object.is_copy {
             let owner = object.card.owner;
@@ -146,6 +182,24 @@ impl Game {
             card: card_id,
             definition,
         });
+    }
+
+    fn defer_stack_resolution(
+        &mut self,
+        pending_before: usize,
+        object: &StackObject,
+        resolved: bool,
+    ) -> bool {
+        if self.defer_after_battlefield_exit(
+            pending_before,
+            BattlefieldExitCompletion::FinishStackResolution {
+                object: Box::new(object.clone()),
+                resolved,
+            },
+        ) {
+            return true;
+        }
+        false
     }
 
     /// Sin Collector and Lifebane Zombie reveal the targeted player's hand,

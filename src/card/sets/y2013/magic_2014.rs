@@ -5,9 +5,9 @@ use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AnimationDef, AppliedEffectDef, CardArt, CardBehavior, CardRules, CardSet, CardSupertype,
     CardType, ComparisonDef, CounterKind, EffectDef, EffectDurationDef, EffectExecutionDef,
-    EffectRecipientDef, LibraryPlacement, ManaColor, ObjectPredicateDef, ObjectQueryDef,
-    PlayerRelation, TargetConditionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, abilities, cards,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayerRelation,
+    TargetConditionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities, cards,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -313,7 +313,7 @@ pub(in crate::card::sets) static SCAVENGING_OOZE: CardRecord = CardRecord::new(
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Exile,
                     controller: None,
-                    placement: LibraryPlacement::Top,
+                    placement: ZonePlacement::Top,
                 },
             ])),
     ),

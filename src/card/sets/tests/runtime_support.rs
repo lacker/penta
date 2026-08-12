@@ -905,7 +905,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                             object: EffectRecipientDef::Source,
                             zone: ZoneKind::Battlefield,
                             controller: None,
-                            placement: LibraryPlacement::Top,
+                            placement: ZonePlacement::Top,
                         }
             }
             ReplacementEventDef::AnyObjectWouldMove { .. } => {
@@ -916,7 +916,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                             object: EffectRecipientDef::Source,
                             zone: ZoneKind::Exile,
                             controller: None,
-                            placement: LibraryPlacement::Top,
+                            placement: ZonePlacement::Top,
                         }
             }
             ReplacementEventDef::WouldGainLife(_) => {

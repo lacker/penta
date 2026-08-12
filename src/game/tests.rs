@@ -7,10 +7,10 @@ use crate::{
     AdditionalCostId, AlternativeCastManaCostDef, AlternativeCostDef, AlternativeCostId,
     BattlefieldEntryModificationDef, CardComposition, CardDefinition, CardEffectStatus,
     CardInstanceId, CardPart, CardPartId, CardPrinting, CardRules, CardStructure, CastChoices,
-    DoubleFacedKind, EffectExecutionDef, LibraryPlacement, ManaSpendEffectDef, ModeDef, ModeSetDef,
-    PlayOptionDef, PlayOptionId, PlayerRelation, ReplacementEffectDef, ReplacementEventDef,
-    SpellForm, StackObjectId, TargetIndex, TargetPredicate, TargetSelection, TargetSlotDef,
-    TargetSlotId,
+    DoubleFacedKind, EffectExecutionDef, ManaSpendEffectDef, ModeDef, ModeSetDef, PlayOptionDef,
+    PlayOptionId, PlayerRelation, ReplacementEffectDef, ReplacementEventDef, SpellForm,
+    StackObjectId, TargetIndex, TargetPredicate, TargetSelection, TargetSlotDef, TargetSlotId,
+    ZonePlacement,
 };
 
 static TEST_FLYING_ABILITY: [AbilityDef; 1] = [abilities::flying()];

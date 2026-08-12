@@ -1,9 +1,9 @@
 use super::{
     BalancePhase, BalanceTask, CardBehavior, CardInstance, CardRuntime, CommittedTriggerEvent,
     CounterKind, DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility,
-    DecisionZone, DeclarativeAbilityDef, EffectDef, Game, GameObjectId, LibraryPlacement,
-    ObjectPredicateDef, Permanent, PileChoice, PileChosen, PileSplit, PilesSeparated, PlayerId,
-    SacrificeFollowup, Step, TriggerContext, ZoneKind, ZoneMoveCause,
+    DecisionZone, DeclarativeAbilityDef, EffectDef, Game, GameObjectId, ObjectPredicateDef,
+    Permanent, PileChoice, PileChosen, PileSplit, PilesSeparated, PlayerId, SacrificeFollowup,
+    Step, TriggerContext, ZoneKind, ZoneMoveCause, ZonePlacement,
 };
 
 impl Game {
@@ -444,7 +444,7 @@ impl Game {
         player: PlayerId,
         count: usize,
         rest: ZoneKind,
-        placement: LibraryPlacement,
+        placement: ZonePlacement,
     ) {
         let revealed = self.take_top_of_library(player, count);
         if revealed.is_empty() {
@@ -476,7 +476,7 @@ impl Game {
         first: Vec<CardInstance>,
         second: Vec<CardInstance>,
         rest: ZoneKind,
-        placement: LibraryPlacement,
+        placement: ZonePlacement,
     ) {
         let describe = |game: &Self, pile: &[CardInstance]| {
             if pile.is_empty() {

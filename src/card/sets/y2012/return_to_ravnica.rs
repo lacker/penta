@@ -4,9 +4,9 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, CardArt, CardBehavior, CardRules, CardSet, CardSupertype,
-    CardType, CounterKind, EffectDef, EffectDurationDef, EffectRecipientDef, LibraryPlacement,
-    ManaColor, ObjectPredicateDef, PlayerRelation, ReplacementEventDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef, abilities, cards,
+    CardType, CounterKind, EffectDef, EffectDurationDef, EffectRecipientDef, ManaColor,
+    ObjectPredicateDef, PlayerRelation, ReplacementEventDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities, cards,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -80,7 +80,7 @@ pub(in crate::card::sets) static REST_IN_PEACE: CardRecord = CardRecord::new(
                 },
                 zone: ZoneKind::Exile,
                 controller: None,
-                placement: LibraryPlacement::Top,
+                placement: ZonePlacement::Top,
             },
         ),
         AbilityDef::replacement_for(
@@ -92,7 +92,7 @@ pub(in crate::card::sets) static REST_IN_PEACE: CardRecord = CardRecord::new(
                 object: EffectRecipientDef::Source,
                 zone: ZoneKind::Exile,
                 controller: None,
-                placement: LibraryPlacement::Top,
+                placement: ZonePlacement::Top,
             },
         ),
     ]),
@@ -142,7 +142,7 @@ static JACE_ARCHITECT_ABILITIES: [AbilityDef; 3] = [
         EffectDef::RevealAndSplitIntoPiles {
             count: ValueDef::Constant(3),
             rest: ZoneKind::Library,
-            placement: LibraryPlacement::Bottom,
+            placement: ZonePlacement::Bottom,
         },
     ),
     AbilityDef::not_implemented(
@@ -390,7 +390,7 @@ pub(in crate::card::sets) static AZORIUS_CHARM: CardRecord = CardRecord::new(
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Library,
                     controller: None,
-                    placement: LibraryPlacement::Top,
+                    placement: ZonePlacement::Top,
                 }),
         ],
     )),
@@ -582,7 +582,7 @@ pub(in crate::card::sets) static LOXODON_SMITER: CardRecord = CardRecord::new(
                 object: EffectRecipientDef::Source,
                 zone: ZoneKind::Battlefield,
                 controller: None,
-                placement: LibraryPlacement::Top,
+                placement: ZonePlacement::Top,
             },
         )
         .with_source_zones(&[ZoneKind::Hand]),
@@ -620,7 +620,7 @@ pub(in crate::card::sets) static SELESNYA_CHARM: CardRecord = CardRecord::new(
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Exile,
                     controller: None,
-                    placement: LibraryPlacement::Top,
+                    placement: ZonePlacement::Top,
                 }),
             AbilityDef::spell(
                 "Create a 2/2 white Knight creature token with vigilance",

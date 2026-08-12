@@ -1,9 +1,9 @@
 use super::{
     AbilitySourceRef, AddManaEffectDef, CardPartId, CharacteristicSource, CopiableAbility,
     CounteredSpellZone, DeclarativeAbilityDef, DelayedTrigger, EffectDef, EffectRecipientDef,
-    FloatingTrigger, Game, GameResult, LibraryPlacement, Mana, ManaSelectionDef, ManaSource,
-    Permanent, PlayerId, SacrificeFollowup, ScopedEffect, StackObject, Target, TriggerCapture,
-    TriggerContext, ValueDef, WinReason, ZoneKind, ZoneMoveCause, public_cards,
+    FloatingTrigger, Game, GameResult, Mana, ManaSelectionDef, ManaSource, Permanent, PlayerId,
+    SacrificeFollowup, ScopedEffect, StackObject, Target, TriggerCapture, TriggerContext, ValueDef,
+    WinReason, ZoneKind, ZoneMoveCause, ZonePlacement, public_cards,
 };
 
 impl Game {
@@ -867,7 +867,7 @@ impl Game {
         zone: ZoneKind,
         cause: ZoneMoveCause,
         arriving_controller: Option<PlayerId>,
-        placement: LibraryPlacement,
+        placement: ZonePlacement,
     ) {
         if let Target::Permanent(id) = target {
             // Leaving the battlefield has its own procedure: last-known

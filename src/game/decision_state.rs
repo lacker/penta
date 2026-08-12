@@ -1,6 +1,6 @@
 use crate::action::{ManaColor, Target};
 use crate::card::{
-    CardTypeSet, ColorSet, LibraryPlacement, ManaCost, PaymentDef, ReplacementEffectDef, ZoneKind,
+    CardTypeSet, ColorSet, ManaCost, PaymentDef, ReplacementEffectDef, ZoneKind, ZonePlacement,
 };
 use crate::casting::TargetSelection;
 use crate::ids::{GameObjectId, PlayerId};
@@ -164,7 +164,7 @@ pub(super) enum DecisionContinuation {
         player: PlayerId,
         revealed: Vec<CardInstance>,
         rest: ZoneKind,
-        placement: LibraryPlacement,
+        placement: ZonePlacement,
     },
     /// The revealed piles, offered to whoever gets to keep one.
     RevealedPileChoice {
@@ -172,7 +172,7 @@ pub(super) enum DecisionContinuation {
         first: Vec<CardInstance>,
         second: Vec<CardInstance>,
         rest: ZoneKind,
-        placement: LibraryPlacement,
+        placement: ZonePlacement,
     },
     /// The split piles, offered to whoever must give one up.
     PileChoice {

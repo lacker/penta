@@ -492,7 +492,7 @@ fn loxodon_smiter_replaces_an_opponent_caused_hand_to_graveyard_move() {
             object: EffectRecipientDef::Source,
             zone: ZoneKind::Battlefield,
             controller: None,
-            placement: LibraryPlacement::Top,
+            placement: ZonePlacement::Top,
         }
     );
 }
@@ -558,7 +558,7 @@ fn general_effect_zone_moves_consult_would_move_replacements() {
             controller: PlayerId::Two,
         },
         None,
-        LibraryPlacement::Top,
+        ZonePlacement::Top,
     );
 
     assert!(game.players[0].graveyard.is_empty());

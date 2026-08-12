@@ -3,9 +3,9 @@ use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, CardArt, CardBehavior, CardRules, CardSet, CardSupertype,
     CardType, CardTypeSet, ComparisonDef, CounterKind, EffectDef, EffectDurationDef,
-    EffectExecutionDef, EffectRecipientDef, LibraryPlacement, ManaColor, ObjectPredicateDef,
-    PlayerRelation, ReplacementEventDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, abilities, cards,
+    EffectExecutionDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation,
+    ReplacementEventDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities, cards,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -117,7 +117,7 @@ pub(in crate::card::sets) static SWORDS_TO_PLOWSHARES: CardRecord = CardRecord::
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Exile,
-                placement: LibraryPlacement::Top,
+                placement: ZonePlacement::Top,
                 controller: None,
             },
             EffectDef::GainLife {
@@ -1057,7 +1057,7 @@ pub(in crate::card::sets) static REGROWTH: CardRecord = CardRecord::new(
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Hand,
             controller: None,
-            placement: LibraryPlacement::Top,
+            placement: ZonePlacement::Top,
         },
     )]),
 );

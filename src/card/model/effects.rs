@@ -2,8 +2,8 @@ use crate::ids::{CardDefinitionId, TargetIndex};
 
 use super::{
     AbilityDef, AddManaEffectDef, BasicLandType, CardType, CardTypeSet, ColorSet, CostDef,
-    CounterKind, KeywordAbility, LibraryPlacement, ManaColor, ManaCost, ObjectPredicateDef,
-    PlayerRelation, TriggerConditionDef, ZoneKind,
+    CounterKind, KeywordAbility, ManaColor, ManaCost, ObjectPredicateDef, PlayerRelation,
+    TriggerConditionDef, ZoneKind, ZonePlacement,
 };
 
 /// A value evaluated from the resolving spell or ability and its captured
@@ -485,7 +485,7 @@ pub enum EffectDef {
     RevealAndSplitIntoPiles {
         count: ValueDef,
         rest: ZoneKind,
-        placement: LibraryPlacement,
+        placement: ZonePlacement,
     },
     /// One player looks at another's hand. Nothing changes zones and no
     /// decision follows; the looking player simply knows.
@@ -649,7 +649,7 @@ pub enum EffectDef {
         zone: ZoneKind,
         /// Which end of a library the card lands on. Meaningless for every
         /// other destination.
-        placement: LibraryPlacement,
+        placement: ZonePlacement,
         /// Who controls the permanent when the destination is the
         /// battlefield. `None` is the ordinary case, where a card arrives
         /// under its owner's control; reanimation that steals names a

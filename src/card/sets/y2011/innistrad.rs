@@ -6,9 +6,9 @@ use crate::card::{
     AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef, BasicLandType, CardAbilityBinding,
     CardArt, CardBehavior, CardComposition, CardEffectStatus, CardPart, CardRules, CardSet,
     CardStructure, CardSupertype, CardType, ComparisonDef, CounterKind, DoubleFacedKind, EffectDef,
-    EffectDurationDef, EffectExecutionDef, EffectRecipientDef, LibraryPlacement, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, PlayOptionDef, PlayerRelation, SpellForm,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities, cards,
+    EffectDurationDef, EffectExecutionDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    ObjectQueryDef, PlayOptionDef, PlayerRelation, SpellForm, TriggerConditionDef, TriggerEventDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities, cards,
 };
 use crate::game::{CardAbilityResolver, CardRuntime, PileChoice, PileSplit, ResolvedAbility};
 use crate::ids::{AbilityId, CardPartId, PlayOptionId, TargetIndex, TargetSlotId};
@@ -232,7 +232,7 @@ pub(in crate::card::sets) static UNBURIAL_RITES: CardRecord = CardRecord::new(
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Battlefield,
                 controller: None,
-                placement: LibraryPlacement::Top,
+                placement: ZonePlacement::Top,
             },
         ),
         abilities::flashback(mana_cost!("{3}{W}")),

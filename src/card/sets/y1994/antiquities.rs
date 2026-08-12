@@ -3,9 +3,9 @@ use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AnimationDef, AppliedEffectDef, BattlefieldEntryModificationDef, CardArt,
     CardBehavior, CardRules, CardSet, CardType, CardTypeSet, CounterKind, EffectDef,
-    EffectDurationDef, EffectExecutionDef, EffectRecipientDef, LibraryPlacement, ManaColor,
-    ManaRestrictionDef, ObjectPredicateDef, PlayerRelation, ReplacementEffectDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, abilities, cards,
+    EffectDurationDef, EffectExecutionDef, EffectRecipientDef, ManaColor, ManaRestrictionDef,
+    ObjectPredicateDef, PlayerRelation, ReplacementEffectDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities, cards,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -63,7 +63,7 @@ pub(in crate::card::sets) static HURKYLS_RECALL: CardRecord = CardRecord::new(
             },
             zone: ZoneKind::Hand,
             controller: None,
-            placement: LibraryPlacement::Top,
+            placement: ZonePlacement::Top,
         },
     )]),
 );

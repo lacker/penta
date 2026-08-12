@@ -4,9 +4,9 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, CardArt, CardBehavior, CardRules, CardSet, CardSupertype, CardType,
-    CountConditionDef, EffectDef, EffectDurationDef, EffectRecipientDef, LibraryPlacement,
-    ManaColor, ManaRestrictionDef, ManaSpendEffectDef, ObjectPredicateDef, ObjectQueryDef,
-    PlayerRelation, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities, cards,
+    CountConditionDef, EffectDef, EffectDurationDef, EffectRecipientDef, ManaColor,
+    ManaRestrictionDef, ManaSpendEffectDef, ObjectPredicateDef, ObjectQueryDef, PlayerRelation,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, cards,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -73,7 +73,7 @@ pub(in crate::card::sets) static TERMINUS: CardRecord = CardRecord::new(
                 },
                 zone: ZoneKind::Library,
                 controller: None,
-                placement: LibraryPlacement::Bottom,
+                placement: ZonePlacement::Bottom,
             },
         ),
         abilities::miracle(mana_cost!("{W}")),

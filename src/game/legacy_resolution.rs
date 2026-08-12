@@ -1,7 +1,7 @@
 use super::{
     BalanceAction, BalancePhase, BalanceTask, CardBehavior, CardInstance, CardType,
     DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
-    Game, LibraryPlacement, PlayerId, StackObject, Target, ZoneKind, ZoneMoveCause,
+    Game, PlayerId, StackObject, Target, ZoneKind, ZoneMoveCause, ZonePlacement,
 };
 
 impl Game {
@@ -322,15 +322,15 @@ impl Game {
         player: PlayerId,
         cards: Vec<CardInstance>,
         zone: ZoneKind,
-        placement: LibraryPlacement,
+        placement: ZonePlacement,
     ) {
         match zone {
             ZoneKind::Library => {
                 for card in cards {
                     let (card, _zone_change) = self.zone_change_card(card);
                     match placement {
-                        LibraryPlacement::Top => self.players[player.index()].library.push(card),
-                        LibraryPlacement::Bottom => {
+                        ZonePlacement::Top => self.players[player.index()].library.push(card),
+                        ZonePlacement::Bottom => {
                             self.players[player.index()].library.insert(0, card);
                         }
                     }

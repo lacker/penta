@@ -124,7 +124,7 @@ pub enum CardEffectStatus {
 
 /// Which end of a library a card is put on.
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
-pub enum LibraryPlacement {
+pub enum ZonePlacement {
     #[default]
     Top,
     Bottom,

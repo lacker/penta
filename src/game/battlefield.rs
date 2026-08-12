@@ -1,8 +1,7 @@
 use super::{
     BattlefieldExit, CardInstance, CardPartId, CommittedTriggerEvent, CounterKind, EntryCompletion,
-    Game, GameEvent, GameObjectId, KeywordAbility, LibraryPlacement, PendingBattlefieldEntry,
-    Permanent, PlayerId, StackObject, Step, Target, TargetSlotId, TurnStepDef, ZoneKind,
-    remove_card,
+    Game, GameEvent, GameObjectId, KeywordAbility, PendingBattlefieldEntry, Permanent, PlayerId,
+    StackObject, Step, Target, TargetSlotId, TurnStepDef, ZoneKind, ZonePlacement, remove_card,
 };
 
 impl Game {
@@ -465,7 +464,7 @@ impl Game {
     pub(super) fn return_permanent_to_library(
         &mut self,
         id: GameObjectId,
-        placement: LibraryPlacement,
+        placement: ZonePlacement,
     ) {
         let listeners = self.battlefield_trigger_listeners();
         let Some(index) = self
@@ -491,8 +490,8 @@ impl Game {
         let owner = permanent.card.owner;
         let (card, _zone_change) = self.zone_change_card(permanent.card);
         match placement {
-            LibraryPlacement::Top => self.players[owner.index()].library.push(card),
-            LibraryPlacement::Bottom => self.players[owner.index()].library.insert(0, card),
+            ZonePlacement::Top => self.players[owner.index()].library.push(card),
+            ZonePlacement::Bottom => self.players[owner.index()].library.insert(0, card),
         }
     }
 }

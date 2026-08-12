@@ -636,7 +636,6 @@ impl Game {
             } => {
                 if options.contains(&1) {
                     self.players[player.index()].life -= 4;
-                    self.check_life_totals();
                 } else if let Some(card) = remove_card(&mut self.players[player.index()].hand, card)
                 {
                     let (card, _zone_change) = self.zone_change_card(card);

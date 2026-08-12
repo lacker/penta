@@ -262,6 +262,14 @@ simulating in their own process, where there is nobody to hide from.
 | `result` | null while running, else `{winner, reason}`; `reason` is `OpponentConceded`, `OpponentLostAllLife`, `OpponentTriedToDrawFromEmptyLibrary`, or `OpponentLostToAnEffect` |
 | `legalActions` | what you can do, each with an `index` |
 
+An attempted draw from an empty library does not end resolution immediately.
+The engine records it until the next state-based action check, when it settles
+that condition together with both players' life totals; if both remaining
+players lose in that check, `result` is a draw. When one effect instructs both
+players to draw, the active player completes all of their individual draws
+before the nonactive player begins theirs. This is visible in resulting hand
+sizes and game events but adds no observation field or legal-action shape.
+
 Cards are referenced two ways: the object ID identifies one rules object in
 its current zone, while `definition` identifies the canonical card kind and is
 the key into `penta.catalog(format)`. A true zone change creates a new object

@@ -3,7 +3,7 @@ use super::{
     CardType, CombatDamageStage, CommittedTriggerEvent, DecisionContinuation, DecisionOption,
     DecisionPreference, DecisionVisibility, DecisionZone, DeclarativeAbilityDef, EffectDef, Game,
     GameEvent, GameObjectId, GameResult, ManaPool, PlayerId, ReplacementEventDef, Step,
-    TriggerContext, TurnStepDef, WinReason, one_or_none,
+    TriggerContext, TurnStepDef, one_or_none,
 };
 
 impl Game {
@@ -352,7 +352,6 @@ impl Game {
             player,
         });
         self.fire_delayed_triggers(TurnStepDef::Upkeep);
-        self.check_life_totals();
     }
 
     pub(super) fn handle_end_step(&mut self) {
@@ -435,10 +434,7 @@ impl Game {
 
     pub(super) fn draw_card(&mut self, player: PlayerId) -> Option<GameObjectId> {
         let Some(card) = self.players[player.index()].library.pop() else {
-            self.tried_to_draw_from_empty[player.index()] = true;
-            if !self.defer_empty_library_loss {
-                self.check_empty_libraries();
-            }
+            self.players[player.index()].tried_to_draw_from_empty_library = true;
             return None;
         };
         let (card, _zone_change) = self.zone_change_card(card);
@@ -537,54 +533,7 @@ impl Game {
                 self.events.push(GameEvent::ManaBurn { player, amount });
             }
         }
-        self.check_life_totals();
-    }
-
-    /// One spell can deck both players. CR 104.3c settles that as a draw,
-    /// because the losses are checked together rather than the moment either
-    /// player runs out, so the effect has to finish before anyone loses.
-    pub(super) fn with_simultaneous_draws(&mut self, body: impl FnOnce(&mut Self)) {
-        let was_deferred = self.defer_empty_library_loss;
-        self.defer_empty_library_loss = true;
-        body(self);
-        self.defer_empty_library_loss = was_deferred;
-        if !was_deferred {
-            self.check_empty_libraries();
-        }
-    }
-
-    pub(super) fn check_empty_libraries(&mut self) {
-        let [one, two] = self.tried_to_draw_from_empty;
-        self.tried_to_draw_from_empty = [false; 2];
-        match (one, two) {
-            (true, true) => self.finish(GameResult::Draw),
-            (true, false) => self.finish(GameResult::Winner {
-                winner: PlayerId::Two,
-                reason: WinReason::OpponentTriedToDrawFromEmptyLibrary,
-            }),
-            (false, true) => self.finish(GameResult::Winner {
-                winner: PlayerId::One,
-                reason: WinReason::OpponentTriedToDrawFromEmptyLibrary,
-            }),
-            (false, false) => {}
-        }
-    }
-
-    pub(super) fn check_life_totals(&mut self) {
-        let one_lost = self.players[0].life <= 0;
-        let two_lost = self.players[1].life <= 0;
-        match (one_lost, two_lost) {
-            (true, true) => self.finish(GameResult::Draw),
-            (true, false) => self.finish(GameResult::Winner {
-                winner: PlayerId::Two,
-                reason: WinReason::OpponentLostAllLife,
-            }),
-            (false, true) => self.finish(GameResult::Winner {
-                winner: PlayerId::One,
-                reason: WinReason::OpponentLostAllLife,
-            }),
-            (false, false) => {}
-        }
+        self.check_state_based_actions();
     }
 
     pub(super) fn finish(&mut self, result: GameResult) {

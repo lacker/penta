@@ -315,6 +315,7 @@ pub(super) fn shared_stack_effect_at_position(
         | EffectDef::GainLife { recipient, .. }
         | EffectDef::DrawCards { recipient, .. }
         | EffectDef::Discard { recipient, .. }
+        | EffectDef::ShuffleLibrary { player: recipient }
         | EffectDef::LoseLife { recipient, .. }
         | EffectDef::Mill {
             player: recipient, ..
@@ -585,6 +586,7 @@ pub(super) fn shared_static_effect(source_zones: &[ZoneKind], effect: EffectDef)
         | EffectDef::GainLife { .. }
         | EffectDef::DrawCards { .. }
         | EffectDef::Discard { .. }
+        | EffectDef::ShuffleLibrary { .. }
         | EffectDef::LoseLife { .. }
         | EffectDef::LoseTheGame { .. }
         | EffectDef::Tap { .. }
@@ -785,6 +787,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::GainLife { .. }
                     | EffectDef::DrawCards { .. }
                     | EffectDef::Discard { .. }
+                    | EffectDef::ShuffleLibrary { .. }
                     | EffectDef::LoseLife { .. }
                     | EffectDef::LoseTheGame { .. }
                     | EffectDef::Tap { .. }

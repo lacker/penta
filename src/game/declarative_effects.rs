@@ -106,10 +106,35 @@ impl Game {
                     .max(0)
                     .try_into()
                     .unwrap_or(u16::MAX);
-                for target in self.effect_recipients(recipient, object, context, scoped) {
-                    if let Target::Player(player) = target {
-                        self.draw_cards(player, amount);
-                    }
+                let mut players = self
+                    .effect_recipients(recipient, object, context, scoped)
+                    .into_iter()
+                    .filter_map(|target| match target {
+                        Target::Player(player) => Some(player),
+                        Target::Card(_) | Target::Permanent(_) | Target::Spell(_) => None,
+                    })
+                    .collect::<Vec<_>>();
+                // CR 121.2c: when multiple players draw, the active player
+                // performs every individual draw first, followed by the
+                // nonactive player. This order belongs to drawing rather than
+                // to the general `EachPlayer` recipient.
+                players.sort_by_key(|player| (*player != self.active_player, player.index()));
+                for player in players {
+                    self.draw_cards(player, amount);
+                }
+            }
+            EffectDef::ShuffleLibrary { player: recipient } => {
+                let mut players = self
+                    .effect_recipients(recipient, object, context, scoped)
+                    .into_iter()
+                    .filter_map(|target| match target {
+                        Target::Player(player) => Some(player),
+                        Target::Card(_) | Target::Permanent(_) | Target::Spell(_) => None,
+                    })
+                    .collect::<Vec<_>>();
+                players.sort_by_key(|player| (*player != self.active_player, player.index()));
+                for player in players {
+                    self.rng.shuffle(&mut self.players[player.index()].library);
                 }
             }
             EffectDef::Discard {

@@ -115,7 +115,6 @@ impl HandcraftedPolicy {
             Some(CardBehavior::Fireball) => 7_900 + i32::from(x) * 20,
             Some(CardBehavior::ChaosOrb) => 7_400,
             Some(CardBehavior::Fork) => 7_300,
-            Some(CardBehavior::WheelOfFortune) => 6_600,
             Some(behavior) if behavior.types().is_permanent() => 6_800,
             _ if sweeps_creatures => Self::sweeper_score(observation),
             _ if declarative.is_some_and(|profile| profile.opponent_creature_sweep) => {
@@ -133,6 +132,12 @@ impl HandcraftedPolicy {
                 } else {
                     8_900 + opponent_spells * 2_000
                 }
+            }
+            _ if declarative.is_some_and(|profile| {
+                profile.cards_drawn_by_each_player.is_some_and(|n| n >= 3)
+            }) =>
+            {
+                6_600
             }
             _ if cards_drawn.is_some_and(|amount| amount >= 3) => 9_200,
             _ if counters => 8_900,

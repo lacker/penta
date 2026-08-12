@@ -397,6 +397,12 @@ pub enum EffectDef {
         recipient: EffectRecipientDef,
         amount: ValueDef,
     },
+    /// Randomizes each recipient player's library. Effects that shuffle
+    /// cards from other zones into a library first express those zone moves
+    /// with [`Self::MoveToZone`], then use this shared operation.
+    ShuffleLibrary {
+        player: EffectRecipientDef,
+    },
     /// Each recipient discards that many cards selected in the specified way.
     /// A player holding fewer cards discards their whole hand.
     Discard {

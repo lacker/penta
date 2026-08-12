@@ -1,8 +1,14 @@
-use super::{CardSupertype, CardType, CounterKind, Game, GameObjectId, TriggerEventDef};
+use super::{
+    CardSupertype, CardType, CounterKind, Game, GameObjectId, GameResult, PlayerId,
+    TriggerEventDef, WinReason,
+};
 
 impl Game {
     pub(super) fn check_state_based_actions(&mut self) {
         self.close_stale_miracle_window();
+        if self.check_player_loss_conditions() {
+            return;
+        }
         loop {
             let battlefield_len = self.battlefield.len();
             let mut regenerate = Vec::new();
@@ -58,7 +64,47 @@ impl Game {
             }
         }
         self.capture_state_triggers();
-        self.check_life_totals();
+    }
+
+    /// CR 704.5a-b: zero life and trying to draw from an empty library are
+    /// state-based loss conditions. Read both players and both conditions in
+    /// one pass so simultaneous losses end the two-player game in a draw.
+    fn check_player_loss_conditions(&mut self) -> bool {
+        let tried_to_draw_from_empty = self
+            .players
+            .each_mut()
+            .map(|player| std::mem::take(&mut player.tried_to_draw_from_empty_library));
+        let lost = [
+            self.players[0].life <= 0 || tried_to_draw_from_empty[0],
+            self.players[1].life <= 0 || tried_to_draw_from_empty[1],
+        ];
+
+        let result = match lost {
+            [true, true] => Some(GameResult::Draw),
+            [true, false] => Some(GameResult::Winner {
+                winner: PlayerId::Two,
+                reason: if tried_to_draw_from_empty[0] {
+                    WinReason::OpponentTriedToDrawFromEmptyLibrary
+                } else {
+                    WinReason::OpponentLostAllLife
+                },
+            }),
+            [false, true] => Some(GameResult::Winner {
+                winner: PlayerId::One,
+                reason: if tried_to_draw_from_empty[1] {
+                    WinReason::OpponentTriedToDrawFromEmptyLibrary
+                } else {
+                    WinReason::OpponentLostAllLife
+                },
+            }),
+            [false, false] => None,
+        };
+        if let Some(result) = result {
+            self.finish(result);
+            true
+        } else {
+            false
+        }
     }
 
     /// CR 603.8: a state trigger triggers whenever its condition is true, and

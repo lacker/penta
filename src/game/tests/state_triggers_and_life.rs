@@ -4,6 +4,63 @@ static MUTAVAULT_TEST_ANIMATION: crate::card::AnimationDef =
     crate::card::AnimationDef::new(2, 2).with_all_creature_types();
 
 #[test]
+fn an_empty_library_draw_waits_for_state_based_actions_and_resolution_continues() {
+    static EFFECTS: [EffectDef; 2] = [
+        EffectDef::DrawCards {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(1),
+        },
+        EffectDef::GainLife {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(3),
+        },
+    ];
+
+    let mut game = ready_game();
+    game.players[0].library.clear();
+    game.players[0].life = 10;
+    let source = spell(10_000, cards::LIGHTNING_BOLT, PlayerId::One, 0);
+
+    game.resolve_effect_def(
+        ScopedEffect::primary(EffectDef::Sequence(&EFFECTS)),
+        &source,
+        TriggerContext::empty(),
+    );
+
+    assert_eq!(
+        game.players[0].life, 13,
+        "the rest of the resolving effect happened after the failed draw"
+    );
+    assert_eq!(
+        game.result, None,
+        "a failed draw does not end the game itself"
+    );
+
+    game.check_state_based_actions();
+    assert_eq!(
+        game.result,
+        Some(GameResult::Winner {
+            winner: PlayerId::Two,
+            reason: WinReason::OpponentTriedToDrawFromEmptyLibrary,
+        })
+    );
+}
+
+#[test]
+fn simultaneous_player_loss_conditions_with_different_causes_make_a_draw() {
+    let mut game = ready_game();
+    game.players[0].library.clear();
+
+    assert_eq!(game.draw_card(PlayerId::One), None);
+    game.players[1].life = 0;
+    assert_eq!(game.result, None);
+
+    game.check_state_based_actions();
+
+    assert_eq!(game.result, Some(GameResult::Draw));
+}
+
+#[test]
 fn a_state_trigger_fires_when_its_condition_becomes_true_and_only_once() {
     let mut game = ready_game();
     game.battlefield.clear();

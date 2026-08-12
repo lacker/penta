@@ -101,8 +101,6 @@ impl Game {
                     self.queue_fork_decision(object.controller, original);
                 }
             }
-            CardBehavior::WheelOfFortune => self.resolve_wheel_of_fortune(object.controller),
-            CardBehavior::Timetwister => self.resolve_timetwister(),
             CardBehavior::TimeWalk => self.extra_turns.push(object.controller),
             CardBehavior::Channel => self.channel_active[object.controller.index()] = true,
             CardBehavior::DemonicTutor => {
@@ -433,38 +431,5 @@ impl Game {
             }
         }
         tasks
-    }
-
-    pub(super) fn resolve_timetwister(&mut self) {
-        for player in [PlayerId::One, PlayerId::Two] {
-            let hand = std::mem::take(&mut self.players[player.index()].hand);
-            let graveyard = std::mem::take(&mut self.players[player.index()].graveyard);
-            for card in hand.into_iter().chain(graveyard) {
-                let (card, _zone_change) = self.zone_change_card(card);
-                self.players[player.index()].library.push(card);
-            }
-            self.rng.shuffle(&mut self.players[player.index()].library);
-        }
-        self.with_simultaneous_draws(|game| {
-            for player in [PlayerId::One, PlayerId::Two] {
-                game.draw_cards(player, 7);
-            }
-        });
-    }
-
-    pub(super) fn resolve_wheel_of_fortune(&mut self, controller: PlayerId) {
-        for player in [PlayerId::One, PlayerId::Two] {
-            let hand = self.players[player.index()]
-                .hand
-                .iter()
-                .map(|card| card.id)
-                .collect::<Vec<_>>();
-            self.discard_cards_with_cause(player, &hand, ZoneMoveCause::Effect { controller });
-        }
-        self.with_simultaneous_draws(|game| {
-            for player in [PlayerId::One, PlayerId::Two] {
-                game.draw_cards(player, 7);
-            }
-        });
     }
 }

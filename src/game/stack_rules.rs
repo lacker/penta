@@ -65,6 +65,7 @@ impl Game {
             | EffectDef::GainLife { .. }
             | EffectDef::DrawCards { .. }
             | EffectDef::Discard { .. }
+            | EffectDef::ShuffleLibrary { .. }
             | EffectDef::LoseLife { .. }
             | EffectDef::LoseTheGame { .. }
             | EffectDef::Tap { .. }

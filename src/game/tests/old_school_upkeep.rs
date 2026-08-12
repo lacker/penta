@@ -165,6 +165,30 @@ fn sylvan_library_triggers_onto_the_stack_and_may_be_declined() {
 }
 
 #[test]
+fn sylvan_library_may_draw_from_an_empty_library_before_state_based_actions() {
+    let mut game = ready_game();
+    game.players[0].library.clear();
+    game.queue_sylvan_offer(PlayerId::One);
+
+    let offer = game.observe(PlayerId::One).decision.unwrap();
+    assert_eq!(offer.prompt, "Draw two additional cards?");
+    game.choose_decision(PlayerId::One, offer.id, &[1]);
+
+    assert_eq!(
+        game.result, None,
+        "choosing the draw only records the failed attempts during resolution"
+    );
+    game.finish_rules_procedure();
+    assert_eq!(
+        game.result,
+        Some(GameResult::Winner {
+            winner: PlayerId::Two,
+            reason: WinReason::OpponentTriedToDrawFromEmptyLibrary,
+        })
+    );
+}
+
+#[test]
 fn sylvan_library_pays_life_or_puts_each_chosen_card_back() {
     let mut game = ready_game();
     game.turn = 2;

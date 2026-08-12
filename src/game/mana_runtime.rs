@@ -148,6 +148,7 @@ impl Game {
             | EffectDef::GainLife { .. }
             | EffectDef::DrawCards { .. }
             | EffectDef::Discard { .. }
+            | EffectDef::ShuffleLibrary { .. }
             | EffectDef::LoseLife { .. }
             | EffectDef::Tap { .. }
             | EffectDef::Untap { .. }
@@ -296,6 +297,7 @@ impl Game {
                 | EffectDef::GainLife { .. }
                 | EffectDef::DrawCards { .. }
                 | EffectDef::Discard { .. }
+                | EffectDef::ShuffleLibrary { .. }
                 | EffectDef::LoseLife { .. }
                 | EffectDef::Tap { .. }
                 | EffectDef::Untap { .. }

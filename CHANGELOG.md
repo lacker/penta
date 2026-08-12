@@ -40,6 +40,16 @@ snapshots.
   remain presentation text rather than stable identifiers. The retired
   `CardBehavior::ManaVault`, `CardBehavior::ManaVaultUntap`, and
   `CardBehavior::ManaVaultDamage` Rust selectors have also been removed.
+- Wheel of Fortune and Timetwister now resolve through shared declarative
+  zone-move, shuffle, draw, and recipient-chosen discard effects rather than
+  named card handlers. Their retired `CardBehavior::WheelOfFortune` and
+  `CardBehavior::Timetwister` Rust selectors have been removed. Multi-player
+  draws run active player first, and an
+  attempted draw from an empty library remains pending until the next
+  state-based action check, so resolution finishes and simultaneous
+  empty-library or life-total losses settle together. The existing legal
+  actions and protocol JSON shapes are unchanged, so this needs no further
+  bump beyond protocol 17.
 - Indestructible now stops destroy effects, including those that disallow
   regeneration, and destruction from lethal or deathtouch damage. Sacrifice,
   zero toughness, the legend rule, and other non-destroy graveyard moves remain

@@ -94,6 +94,7 @@ impl Game {
                 Ok(PlayerState {
                     life: i16::from(format_rules.starting_life),
                     library,
+                    tried_to_draw_from_empty_library: false,
                     hand,
                     graveyard: Vec::new(),
                     exile: Vec::new(),
@@ -138,8 +139,6 @@ impl Game {
             spells_cast_last_turn: [0; 2],
             cards_drawn_this_turn: [0; 2],
             drawn_this_turn: [Vec::new(), Vec::new()],
-            defer_empty_library_loss: false,
-            tried_to_draw_from_empty: [false; 2],
             miracle_window: None,
             delayed_triggers: Vec::new(),
             floating_triggers: Vec::new(),

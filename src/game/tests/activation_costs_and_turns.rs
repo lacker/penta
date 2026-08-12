@@ -585,6 +585,84 @@ fn wheel_discards_both_hands_and_draws_seven() {
 }
 
 #[test]
+fn wheel_and_timetwister_resolve_as_shared_declarative_spells() {
+    let game = ready_game();
+    for definition in [cards::WHEEL_OF_FORTUNE, cards::TIMETWISTER] {
+        let card = game
+            .catalog
+            .get(definition)
+            .expect("card is in the catalog");
+        let [ability] = card.rules.ability_clauses() else {
+            panic!("the spell has one printed clause")
+        };
+        assert!(matches!(
+            ability.definition,
+            DeclarativeAbilityDef::Spell(_)
+        ));
+        assert_eq!(ability.effect.execution, EffectExecutionDef::Declarative);
+        assert!(matches!(
+            ability.declarative_effect(),
+            Some(EffectDef::Sequence(_))
+        ));
+        assert_eq!(ability.custom_behavior(), None);
+    }
+
+    let wheel = game
+        .catalog
+        .get(cards::WHEEL_OF_FORTUNE)
+        .expect("Wheel is in the catalog");
+    let [ability] = wheel.rules.ability_clauses() else {
+        panic!("Wheel has one printed clause")
+    };
+    assert!(matches!(
+        ability.declarative_effect(),
+        Some(EffectDef::Sequence([
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::EachPlayer,
+                amount: ValueDef::Constant(i32::MAX),
+                selection: DiscardSelectionDef::RecipientChooses,
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::EachPlayer,
+                amount: ValueDef::Constant(7),
+            },
+        ]))
+    ));
+}
+
+#[test]
+fn wheel_draws_in_active_player_order_when_cast_by_the_nonactive_player() {
+    let mut game = ready_game();
+    let wheel = card(10_000, cards::WHEEL_OF_FORTUNE, PlayerId::One);
+    game.players[0].hand.push(wheel.clone());
+    game.players[0].mana_pool.red = 3;
+    game.active_player = PlayerId::Two;
+    game.priority = PlayerId::One;
+    game.sorcery_flash_grants[0] = 1;
+    let event_start = game.events.len();
+
+    game.apply(
+        PlayerId::One,
+        cast_action(wheel.id, Vec::new(), Vec::new(), 0),
+    )
+    .unwrap();
+    pass_priority_pair(&mut game);
+
+    let draw_order = game.events[event_start..]
+        .iter()
+        .filter_map(|event| match event {
+            GameEvent::CardDrawn { player, .. } => Some(*player),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(
+        draw_order,
+        [[PlayerId::Two; 7].as_slice(), [PlayerId::One; 7].as_slice(),].concat(),
+        "CR 121.2c makes the active player complete all seven draws first"
+    );
+}
+
+#[test]
 fn a_wheel_that_decks_only_one_player_still_deals_the_other_a_full_hand() {
     // The loser draws what is left before losing, and the survivor still gets
     // all seven. The old shortcut checked library sizes first and dealt
@@ -658,6 +736,66 @@ fn a_timetwister_that_decks_both_players_is_a_draw() {
     pass_priority_pair(&mut game);
 
     assert_eq!(game.result, Some(GameResult::Draw));
+}
+
+#[test]
+fn timetwister_shuffles_hands_and_graveyards_but_not_itself_then_draws_seven() {
+    let mut game = ready_game();
+    let twister = card(10_000, cards::TIMETWISTER, PlayerId::One);
+    let one_hand = card(10_001, cards::MOUNTAIN, PlayerId::One);
+    let one_graveyard = card(10_002, cards::MOUNTAIN, PlayerId::One);
+    let two_hand = card(10_003, cards::MOUNTAIN, PlayerId::Two);
+    let two_graveyard = card(10_004, cards::MOUNTAIN, PlayerId::Two);
+    game.players[0].hand.extend([twister.clone(), one_hand]);
+    game.players[0].graveyard.push(one_graveyard);
+    game.players[1].hand.push(two_hand);
+    game.players[1].graveyard.push(two_graveyard);
+    game.players[0].mana_pool.blue = 1;
+    game.players[0].mana_pool.colorless = 2;
+
+    game.apply(
+        PlayerId::One,
+        cast_action(twister.id, Vec::new(), Vec::new(), 0),
+    )
+    .unwrap();
+    pass_priority_pair(&mut game);
+
+    assert_eq!(game.players[0].hand.len(), 7);
+    assert_eq!(game.players[1].hand.len(), 7);
+    assert_eq!(
+        game.players[0]
+            .graveyard
+            .iter()
+            .flat_map(|card| backing_cards(&card.backing))
+            .collect::<Vec<_>>(),
+        vec![PhysicalCardId(10_000)],
+        "Timetwister stays on the stack during its effect and goes to the graveyard afterward"
+    );
+    assert!(game.players[1].graveyard.is_empty());
+
+    for (player, returned) in [
+        (
+            PlayerId::One,
+            [PhysicalCardId(10_001), PhysicalCardId(10_002)],
+        ),
+        (
+            PlayerId::Two,
+            [PhysicalCardId(10_003), PhysicalCardId(10_004)],
+        ),
+    ] {
+        let shuffled = game.players[player.index()]
+            .hand
+            .iter()
+            .chain(&game.players[player.index()].library)
+            .flat_map(|card| backing_cards(&card.backing))
+            .collect::<Vec<_>>();
+        for card in returned {
+            assert!(
+                shuffled.contains(&card),
+                "the player's former hand and graveyard are in their shuffled library or new hand"
+            );
+        }
+    }
 }
 
 #[test]

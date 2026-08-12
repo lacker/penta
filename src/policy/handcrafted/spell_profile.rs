@@ -9,6 +9,9 @@ use super::{
 pub(super) struct DeclarativeSpellProfile {
     pub(super) damage: Option<u16>,
     pub(super) cards_drawn: Option<u16>,
+    /// Cards every player draws. This is not ordinary card advantage for the
+    /// caster, so the casting policy scores it separately.
+    pub(super) cards_drawn_by_each_player: Option<u16>,
     pub(super) effect_kinds: u8,
     /// Permanent types swept by untargeted global destruction. This is the
     /// guaranteed subset of a matching predicate, so an `AnyOf` can record
@@ -217,6 +220,19 @@ impl HandcraftedPolicy {
         })
     }
 
+    fn collect_draw_profile(
+        recipient: EffectRecipientDef,
+        amount: ValueDef,
+        x: u16,
+        profile: &mut DeclarativeSpellProfile,
+    ) {
+        if recipient == EffectRecipientDef::EachPlayer {
+            profile.cards_drawn_by_each_player = Self::policy_value(amount, x);
+        } else {
+            profile.cards_drawn = Self::policy_value(amount, x);
+        }
+    }
+
     pub(super) fn collect_spell_effect_profile(
         effect: EffectDef,
         x: u16,
@@ -238,8 +254,8 @@ impl HandcraftedPolicy {
                 profile.damage = Self::policy_value(amount, x);
                 profile.opponent_creature_sweep |= Self::hits_every_opposing_creature(recipient);
             }
-            EffectDef::DrawCards { amount, .. } => {
-                profile.cards_drawn = Self::policy_value(amount, x);
+            EffectDef::DrawCards { recipient, amount } => {
+                Self::collect_draw_profile(recipient, amount, x, profile);
             }
             // Looting is card selection, not card advantage, so the discard
             // cancels out the draw the policy would otherwise reward.
@@ -282,6 +298,7 @@ impl HandcraftedPolicy {
             | EffectDef::None
             | EffectDef::AddMana(_)
             | EffectDef::AddManaEqualTo { .. }
+            | EffectDef::ShuffleLibrary { .. }
             | EffectDef::GainLife { .. }
             | EffectDef::LoseLife { .. }
             | EffectDef::Sacrifice { .. }

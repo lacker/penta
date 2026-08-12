@@ -357,9 +357,6 @@ impl Game {
     /// your hand drawn this turn..." The offer comes first because declining
     /// it skips the rest of the ability entirely.
     pub(super) fn queue_sylvan_offer(&mut self, player: PlayerId) {
-        if self.players[player.index()].library.is_empty() {
-            return;
-        }
         self.queue_decision(
             player,
             "Draw two additional cards?",

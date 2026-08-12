@@ -592,6 +592,9 @@ impl StackObject {
 struct PlayerState {
     life: i16,
     library: Vec<CardInstance>,
+    /// Whether this player has tried to draw from an empty library since
+    /// state-based actions were last checked.
+    tried_to_draw_from_empty_library: bool,
     hand: Vec<CardInstance>,
     graveyard: Vec<CardInstance>,
     exile: Vec<CardInstance>,
@@ -655,11 +658,6 @@ pub struct Game {
     /// The cards each player drew this turn, in draw order. Sylvan Library
     /// chooses among them, and only a card still in hand can be chosen.
     drawn_this_turn: [Vec<GameObjectId>; 2],
-    /// Set while an effect makes both players draw at once, so that decking
-    /// is settled after every draw rather than by whoever ran out first.
-    defer_empty_library_loss: bool,
-    /// Who has tried to draw from an empty library during the deferral.
-    tried_to_draw_from_empty: [bool; 2],
     /// The revealed card a miracle cost may currently be paid for. The window
     /// belongs to one card and closes as soon as its controller does anything
     /// else.

@@ -336,11 +336,27 @@ pub(in crate::card::sets) static TIMETWISTER: CardRecord = CardRecord::new(
     "Timetwister",
     CardArt::new("9a49dc44-616e-4bdd-8220-0bb71eccc512", "Mark Tedin"),
     CardSet::Alpha,
-    CardRules::new_sorcery(mana_cost!("{2}{U}"))
-    .with_abilities(&[AbilityDef::custom_full(
+    CardRules::new_sorcery(mana_cost!("{2}{U}")).with_abilities(&[AbilityDef::spell(
         "Each player shuffles their hand and graveyard into their library, then draws seven cards. (Then put Timetwister into its owner's graveyard.)",
-        CardBehavior::Timetwister,
-        "The card-local resolver shuffles both players back and then draws with empty-library losses settled together, so one spell decking both players is a draw.",
+        EffectDef::Sequence(&[
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::MatchingObjects {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[ZoneKind::Hand, ZoneKind::Graveyard],
+                    controller: PlayerRelation::Any,
+                },
+                zone: ZoneKind::Library,
+                placement: ZonePlacement::Top,
+                controller: None,
+            },
+            EffectDef::ShuffleLibrary {
+                player: EffectRecipientDef::EachPlayer,
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::EachPlayer,
+                amount: ValueDef::Constant(7),
+            },
+        ]),
     )]),
 );
 
@@ -922,19 +938,31 @@ pub(in crate::card::sets) static WALL_OF_STONE: CardRecord = CardRecord::new(
         .with_abilities(&[abilities::defender()]),
 );
 
+/// `Discard` saturates at the recipient's hand size. Using the largest
+/// declarative amount therefore says "their hand" while retaining the shared
+/// recipient-chosen discard procedure.
+const ENTIRE_HAND: ValueDef = ValueDef::Constant(i32::MAX);
+
 // LEA 183 — Wheel of Fortune
 pub(in crate::card::sets) static WHEEL_OF_FORTUNE: CardRecord = CardRecord::new(
     cards::WHEEL_OF_FORTUNE,
     "Wheel of Fortune",
     CardArt::new("67b369c4-faa8-45c8-a1b9-98f228b69682", "Daniel Gelon"),
     CardSet::Alpha,
-    CardRules::new_sorcery(mana_cost!("{2}{R}")).with_abilities(&[
-        AbilityDef::custom_full(
-            "Each player discards their hand, then draws seven cards.",
-            CardBehavior::WheelOfFortune,
-            "The card-local resolver discards both hands and then draws with empty-library losses settled together, so one spell decking both players is a draw.",
-        ),
-    ]),
+    CardRules::new_sorcery(mana_cost!("{2}{R}")).with_abilities(&[AbilityDef::spell(
+        "Each player discards their hand, then draws seven cards.",
+        EffectDef::Sequence(&[
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::EachPlayer,
+                amount: ENTIRE_HAND,
+                selection: DiscardSelectionDef::RecipientChooses,
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::EachPlayer,
+                amount: ValueDef::Constant(7),
+            },
+        ]),
+    )]),
 );
 
 /// The doubling reads the creature's power as Berserk resolves, and the

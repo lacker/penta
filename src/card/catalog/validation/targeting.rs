@@ -156,6 +156,7 @@ fn validate_effect_target_references(
             validate_value_target_references(amount, target_count)
         }
         EffectDef::LoseTheGame { player: object }
+        | EffectDef::ShuffleLibrary { player: object }
         | EffectDef::Tap { object }
         | EffectDef::Untap { object }
         | EffectDef::PreventCombatDamageThisTurn { object }

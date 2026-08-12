@@ -27,7 +27,6 @@ pub enum CardBehavior {
     SinCollector,
     SylvanLibrary,
     TimeVault,
-    Timetwister,
     FellwarStone,
     Smoke,
     SphinxsRevelation,
@@ -37,7 +36,6 @@ pub enum CardBehavior {
     /// Tetravus's second upkeep trigger: exile its own Tetravites to take the
     /// counters back.
     TetravusAssemble,
-    WheelOfFortune,
     WinterOrb,
     // Compatibility rules keys retained while CardDefinition::new still
     // accepts CardBehavior instead of CardRules directly.

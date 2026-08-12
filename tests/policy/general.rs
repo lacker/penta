@@ -244,6 +244,97 @@ fn handcrafted_scores_declarative_creature_sweepers_by_the_board_swing() {
 }
 
 #[test]
+fn handcrafted_scores_declarative_nevinyrrals_disk_by_the_board_swing() {
+    let catalog = poc::catalog().unwrap();
+    let disk = CardInstanceId(10);
+    let activate = Action::ActivateAbility {
+        source: disk,
+        ability: printed_ability(poc::cards::NEVINYRRALS_DISK, 1),
+        targets: Vec::new(),
+        cost_object: None,
+        x: 0,
+    };
+
+    let behind = policy_observation(
+        vec![
+            permanent(
+                disk.0,
+                poc::cards::NEVINYRRALS_DISK,
+                PlayerId::One,
+                None,
+                None,
+            ),
+            permanent(
+                1,
+                poc::cards::SAVANNAH_LIONS,
+                PlayerId::One,
+                Some(2),
+                Some(1),
+            ),
+            permanent(2, poc::cards::ATOG, PlayerId::Two, Some(1), Some(2)),
+            permanent(3, poc::cards::SU_CHI, PlayerId::Two, Some(4), Some(4)),
+        ],
+        vec![Action::PassPriority, activate.clone()],
+    );
+    let mut policy = HandcraftedPolicy::new(catalog.clone());
+    assert_eq!(policy.choose_action(&behind), Some(activate.clone()));
+
+    let ahead = policy_observation(
+        vec![
+            permanent(
+                disk.0,
+                poc::cards::NEVINYRRALS_DISK,
+                PlayerId::One,
+                None,
+                None,
+            ),
+            permanent(
+                4,
+                poc::cards::SAVANNAH_LIONS,
+                PlayerId::One,
+                Some(2),
+                Some(1),
+            ),
+            permanent(5, poc::cards::SU_CHI, PlayerId::One, Some(4), Some(4)),
+            permanent(6, poc::cards::ATOG, PlayerId::Two, Some(1), Some(2)),
+        ],
+        vec![Action::PassPriority, activate],
+    );
+    let mut policy = HandcraftedPolicy::new(catalog);
+    assert_eq!(policy.choose_action(&ahead), Some(Action::PassPriority));
+}
+
+#[test]
+fn handcrafted_fires_nevinyrrals_disk_for_noncreature_permanents() {
+    let catalog = poc::catalog().unwrap();
+    let disk = CardInstanceId(10);
+    let activate = Action::ActivateAbility {
+        source: disk,
+        ability: printed_ability(poc::cards::NEVINYRRALS_DISK, 1),
+        targets: Vec::new(),
+        cost_object: None,
+        x: 0,
+    };
+    let observation = policy_observation(
+        vec![
+            permanent(
+                disk.0,
+                poc::cards::NEVINYRRALS_DISK,
+                PlayerId::One,
+                None,
+                None,
+            ),
+            permanent(1, poc::cards::MOX_RUBY, PlayerId::Two, None, None),
+            permanent(2, poc::cards::MOAT, PlayerId::Two, None, None),
+        ],
+        vec![Action::PassPriority, activate.clone()],
+    );
+    let mut policy = HandcraftedPolicy::new(catalog);
+
+    assert_eq!(policy.choose_action(&observation), Some(activate));
+}
+
+#[test]
 fn handcrafted_counts_intrinsic_basic_land_mana_when_mulliganing() {
     let catalog = poc::catalog().unwrap();
     let mut observation =

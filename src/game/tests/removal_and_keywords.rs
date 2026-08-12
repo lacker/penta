@@ -65,6 +65,123 @@ fn wrath_and_supreme_verdict_use_equivalent_declarative_creature_sweepers() {
 }
 
 #[test]
+fn nevinyrrals_disk_declares_shared_costs_and_a_global_destroy_effect() {
+    let game = ready_game();
+    let definition = game
+        .catalog
+        .get(cards::NEVINYRRALS_DISK)
+        .expect("Nevinyrral's Disk is in the catalog");
+    assert_eq!(definition.rules.special_behavior(), None);
+
+    let ability = definition
+        .rules
+        .ability_clauses()
+        .iter()
+        .find(|ability| matches!(ability.definition, DeclarativeAbilityDef::Activated(_)))
+        .expect("the Disk has an activated ability");
+    let DeclarativeAbilityDef::Activated(activated) = ability.definition else {
+        unreachable!("the selected ability is activated")
+    };
+    assert_eq!(activated.procedure, AbilityProcedureDef::Shared);
+    assert_eq!(
+        activated.costs.as_slice(),
+        &[
+            AbilityCostDef::Mana(mana_cost!("{1}")),
+            AbilityCostDef::TapSource,
+        ]
+    );
+
+    let EffectDef::Destroy {
+        object:
+            EffectRecipientDef::MatchingObjects {
+                object,
+                zones,
+                controller,
+            },
+        can_regenerate,
+    } = ability.effect.definition
+    else {
+        panic!("the Disk uses the shared global destruction effect")
+    };
+    assert_eq!(
+        object,
+        ObjectPredicateDef::AnyOf(&[
+            ObjectPredicateDef::HasType(CardType::Artifact),
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::HasType(CardType::Enchantment),
+        ])
+    );
+    assert_eq!(zones, [ZoneKind::Battlefield]);
+    assert_eq!(controller, PlayerRelation::Any);
+    assert!(can_regenerate);
+}
+
+#[test]
+fn nevinyrrals_disk_uses_the_shared_stack_and_destroys_every_named_type() {
+    let mut game = ready_game();
+    let disk = creature(10_000, cards::NEVINYRRALS_DISK, PlayerId::One);
+    let disk_id = disk.card.id;
+    let mox = creature(10_001, cards::MOX_RUBY, PlayerId::One);
+    let lions = creature(10_002, cards::SAVANNAH_LIONS, PlayerId::Two);
+    let moat = creature(10_003, cards::MOAT, PlayerId::Two);
+    let mountain = creature(10_004, cards::MOUNTAIN, PlayerId::Two);
+    let mountain_id = mountain.card.id;
+    let mut troll = creature(10_005, cards::SEDGE_TROLL, PlayerId::One);
+    let troll_id = troll.card.id;
+    troll.regeneration_shields = 1;
+    game.battlefield
+        .extend([disk, mox, lions, moat, mountain, troll]);
+    game.players[PlayerId::One.index()].mana_pool.colorless = 1;
+
+    let activation = Action::ActivateAbility {
+        source: disk_id,
+        ability: activated_ability_for(&game, disk_id, 0),
+        targets: Vec::new(),
+        cost_object: None,
+        x: 0,
+    };
+    assert!(game.legal_actions(PlayerId::One).contains(&activation));
+    game.apply(PlayerId::One, activation).unwrap();
+
+    assert_eq!(
+        game.players[PlayerId::One.index()].mana_pool,
+        ManaPool::default()
+    );
+    assert!(
+        game.battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == disk_id)
+            .is_some_and(|permanent| permanent.tapped),
+        "the Disk taps but remains on the battlefield while its ability is on the stack"
+    );
+    assert!(matches!(
+        game.stack
+            .last()
+            .and_then(|object| object.ability.as_ref())
+            .map(|ability| ability.resolver),
+        Some(StackAbilityResolver::Declarative(_))
+    ));
+
+    pass_priority_pair(&mut game);
+
+    assert_eq!(
+        game.battlefield
+            .iter()
+            .map(|permanent| permanent.card.id)
+            .collect::<Vec<_>>(),
+        vec![mountain_id, troll_id],
+        "the land and regenerated creature are the only survivors"
+    );
+    let troll = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.id == troll_id)
+        .expect("the Troll regenerated");
+    assert!(troll.tapped);
+    assert_eq!(troll.regeneration_shields, 0);
+}
+
+#[test]
 fn regeneration_shields_stop_destroy_but_not_wrath() {
     let mut game = ready_game();
     let mut troll = creature(10_000, cards::SEDGE_TROLL, PlayerId::One);

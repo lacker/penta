@@ -245,7 +245,6 @@ pub(super) const fn rules(behavior: CardBehavior) -> &'static CardRules {
         CardBehavior::EssenceScatter => &y2012::magic_2013::ESSENCE_SCATTER.rules,
         CardBehavior::LibraryOfAlexandria => &y1993::arabian_nights::LIBRARY_OF_ALEXANDRIA.rules,
         CardBehavior::LifebaneZombie => &y2013::magic_2014::LIFEBANE_ZOMBIE.rules,
-        CardBehavior::NevinyrralsDisk => &y1993::alpha::NEVINYRRALS_DISK.rules,
         CardBehavior::Recall => &y1994::legends::RECALL.rules,
         CardBehavior::SylvanLibrary => &y1994::legends::SYLVAN_LIBRARY.rules,
         CardBehavior::TimeVault => &y1993::alpha::TIME_VAULT.rules,

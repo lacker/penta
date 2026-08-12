@@ -1426,13 +1426,19 @@ pub(in crate::card::sets) static NEVINYRRALS_DISK: CardRecord = CardRecord::new(
                 AbilityCostDef::Mana(mana_cost!("{1}")),
                 AbilityCostDef::TapSource,
             ],
-            EffectDef::Special("Destroy all artifacts, creatures, and enchantments"),
-        )
-        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::NevinyrralsDisk))
-        .with_coverage(AbilityCoverageDef::explained_complete(
-            "The global destruction procedure is implemented by the card-local resolver.",
-        ))
-        .with_legacy_procedure(),
+            EffectDef::Destroy {
+                object: EffectRecipientDef::MatchingObjects {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: PlayerRelation::Any,
+                },
+                can_regenerate: true,
+            },
+        ),
     ]),
 );
 

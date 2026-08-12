@@ -1,5 +1,5 @@
 use super::{
-    AbilityCostDef, AbilityOrigin, CardBehavior, CardDefinitionId, DecisionOption,
+    AbilityCostDef, AbilityOrigin, CardBehavior, CardDefinitionId, CardTypeSet, DecisionOption,
     DeclarativeAbilityDef, DeclarativeSpellProfile, GameObjectId, HandcraftedPolicy,
     PlayerObservation, Step, Target,
 };
@@ -301,6 +301,8 @@ impl HandcraftedPolicy {
         let behavior = source_definition.and_then(|id| self.behavior(id));
         let declarative = source_definition
             .and_then(|definition| self.declarative_activated_profile(definition, ability));
+        let global_destroy_types =
+            declarative.map_or_else(CardTypeSet::empty, |profile| profile.global_destroy_types);
         let target = targets
             .iter()
             .flat_map(crate::TargetSelection::targets)
@@ -333,6 +335,9 @@ impl HandcraftedPolicy {
         let score = match behavior {
             Some(CardBehavior::ChaosOrb) => 7_200 + target_score,
             Some(_) => 4_500 + target_score,
+            None if !global_destroy_types.is_empty() => {
+                self.global_destroy_score(observation, global_destroy_types)
+            }
             None if declarative.is_some_and(|profile| {
                 profile.has(DeclarativeSpellProfile::REMOVES | DeclarativeSpellProfile::TAPS)
             }) =>

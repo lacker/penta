@@ -35,21 +35,6 @@ impl Game {
             CardBehavior::LibraryOfAlexandria => {
                 self.draw_cards(object.controller, 1);
             }
-            CardBehavior::NevinyrralsDisk => {
-                let doomed = self
-                    .battlefield
-                    .iter()
-                    .filter(|permanent| {
-                        self.permanent_types(permanent).is_some_and(|types| {
-                            types.contains(CardType::Creature)
-                                || types.contains(CardType::Artifact)
-                                || types.contains(CardType::Enchantment)
-                        })
-                    })
-                    .map(|permanent| permanent.card.id)
-                    .collect::<Vec<_>>();
-                self.destroy_permanents(&doomed, true);
-            }
             CardBehavior::TimeVault => self.extra_turns.push(object.controller),
             _ => {}
         }

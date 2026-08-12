@@ -1,6 +1,6 @@
 use super::{
-    AbilityOrigin, CardBehavior, CardDefinitionId, CardType, GameObjectId, HandcraftedPolicy,
-    PlayerId, PlayerObservation, StackObjectKind, StackObservation, Target,
+    AbilityOrigin, CardBehavior, CardDefinitionId, CardType, CardTypeSet, GameObjectId,
+    HandcraftedPolicy, PlayerId, PlayerObservation, StackObjectKind, StackObservation, Target,
 };
 
 impl HandcraftedPolicy {
@@ -153,6 +153,43 @@ impl HandcraftedPolicy {
             -10_000
         } else {
             6_500 + swing * 500
+        }
+    }
+
+    /// Scores an activated global destroy by the value of every permanent
+    /// type it actually sweeps. Unlike a creature-only wrath, Disk can be
+    /// worth firing for artifacts or enchantments, and its own destruction
+    /// belongs on the controller's side of the exchange.
+    pub(super) fn global_destroy_score(
+        &self,
+        observation: &PlayerObservation,
+        destroyed_types: CardTypeSet,
+    ) -> i32 {
+        let value = |controller: PlayerId| {
+            observation
+                .battlefield
+                .iter()
+                .filter(|permanent| {
+                    if permanent.controller != controller {
+                        return false;
+                    }
+                    let types = if permanent.types.is_empty() {
+                        self.catalog
+                            .get(permanent.definition)
+                            .map_or_else(CardTypeSet::empty, |card| card.rules.types())
+                    } else {
+                        permanent.types
+                    };
+                    types.intersects(destroyed_types)
+                })
+                .map(|permanent| self.card_value(permanent.definition))
+                .sum::<i32>()
+        };
+        let swing = value(observation.viewer.opponent()) - value(observation.viewer);
+        if swing <= 0 {
+            -10_000
+        } else {
+            6_500_i32.saturating_add(swing.saturating_mul(10))
         }
     }
 

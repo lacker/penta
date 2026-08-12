@@ -1,8 +1,8 @@
 use super::{
     AbilityCostDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
-    BasicLandType, CardBehavior, CardDefinitionId, CardType, CastChoices, DeclarativeAbilityDef,
-    EffectDef, EffectRecipientDef, HandcraftedPolicy, ObjectPredicateDef, PlayerRelation,
-    SpellForm, ValueDef, ZoneKind,
+    BasicLandType, CardBehavior, CardDefinitionId, CardType, CardTypeSet, CastChoices,
+    DeclarativeAbilityDef, EffectDef, EffectRecipientDef, HandcraftedPolicy, ObjectPredicateDef,
+    PlayerRelation, SpellForm, ValueDef, ZoneKind,
 };
 
 #[derive(Clone, Copy, Debug, Default)]
@@ -10,6 +10,10 @@ pub(super) struct DeclarativeSpellProfile {
     pub(super) damage: Option<u16>,
     pub(super) cards_drawn: Option<u16>,
     pub(super) effect_kinds: u8,
+    /// Permanent types swept by untargeted global destruction. This is the
+    /// guaranteed subset of a matching predicate, so an `AnyOf` can record
+    /// each type it names without guessing at narrower predicates.
+    pub(super) global_destroy_types: CardTypeSet,
     /// Whether the activation taps its own source. A land that taps to pump
     /// is spending the mana it could have made.
     pub(super) taps_source: bool,
@@ -175,11 +179,31 @@ impl HandcraftedPolicy {
             zones,
             controller,
         } = object
-            && object == ObjectPredicateDef::HasType(CardType::Creature)
             && zones == [ZoneKind::Battlefield]
             && controller == PlayerRelation::Any
         {
-            profile.mark(DeclarativeSpellProfile::SWEEPS_CREATURES);
+            let destroyed_types = Self::globally_destroyed_types(object);
+            profile.global_destroy_types = profile.global_destroy_types.union(destroyed_types);
+            if destroyed_types.contains(CardType::Creature) {
+                profile.mark(DeclarativeSpellProfile::SWEEPS_CREATURES);
+            }
+        }
+    }
+
+    /// Types that a global predicate necessarily destroys in full. An
+    /// `AnyOf` contributes the union of those guarantees; an `All`, `Not`, or
+    /// narrower predicate contributes none because some permanents of the
+    /// named type can fail it.
+    fn globally_destroyed_types(object: ObjectPredicateDef) -> CardTypeSet {
+        match object {
+            ObjectPredicateDef::HasType(card_type) => CardTypeSet::single(card_type),
+            ObjectPredicateDef::AnyOf(predicates) => predicates
+                .iter()
+                .copied()
+                .fold(CardTypeSet::empty(), |types, predicate| {
+                    types.union(Self::globally_destroyed_types(predicate))
+                }),
+            _ => CardTypeSet::empty(),
         }
     }
 

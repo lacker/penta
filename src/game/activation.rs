@@ -327,16 +327,7 @@ impl Game {
                     chosen_permanents,
                 );
             }
-            Some(
-                behavior @ (CardBehavior::LibraryOfAlexandria
-                | CardBehavior::NevinyrralsDisk
-                | CardBehavior::TimeVault),
-            ) => {
-                if behavior == CardBehavior::NevinyrralsDisk {
-                    let cost = ManaCost::new(1, 0);
-                    self.activate_mana_for_cost(player, cost, 0);
-                    let _ = self.pay_player_cost(player, cost, 0);
-                }
+            Some(CardBehavior::LibraryOfAlexandria | CardBehavior::TimeVault) => {
                 let card = self
                     .tap_permanent(source)
                     .expect("legal activation has a source");

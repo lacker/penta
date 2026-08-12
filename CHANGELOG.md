@@ -217,6 +217,25 @@ version is unmoved.
   empty-library or life-total losses settle together. The existing legal
   actions and protocol JSON shapes are unchanged, so this needs no further
   bump beyond protocol 17.
+- Library and other card-zone searches now use one declarative procedure with
+  explicit selection bounds, reveal behavior, destination placement, and
+  shuffle semantics. Demonic Tutor is no longer custom and correctly requires
+  a card when a nonempty library can supply one; qualified searches may still
+  fail to find. The catalog adds Ring of Ma'rûf (`1362`, Arabian Nights) and
+  the remaining Onslaught fetch lands: Bloodstained Mire (`1363`), Polluted
+  Delta (`1364`), and Windswept Heath (`1365`). Alongside the already-cataloged
+  Enlightened Tutor (`313`), Flooded Strand (`283`), and Wooded Foothills
+  (`284`), all five fetch lands now have complete shared abilities. Liliana's
+  Shade (`1366`) and Seek the Horizon (`1367`) also move from the ISD–RTR audit
+  into the executable catalog using the same search procedure. Standard now
+  exposes 880 legal identities: 841 complete, 39 partial, and 806 blocked; the
+  inline audit covers the remaining 845 incomplete identities. Ring retains
+  sideboards as private outside-game cards, replaces the next draw, and follows
+  Eternal Central's exile-or-sideboard wording in Old School while using its
+  Oracle outside-game-only wording elsewhere. Its supported-format activation,
+  the new `OutsideGame` decision-option provenance value, and Demonic Tutor's
+  mandatory choice bounds are compatible protocol-22 simulation growth. They
+  change the generated simulation fingerprint rather than the bot-wire epoch.
 - Indestructible now stops destroy effects, including those that disallow
   regeneration, and destruction from lethal or deathtouch damage. Sacrifice,
   zero toughness, the legend rule, and other non-destroy graveyard moves remain

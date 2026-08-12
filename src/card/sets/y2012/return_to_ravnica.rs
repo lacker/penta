@@ -84,9 +84,12 @@ pub(in crate::card::sets) static ANGEL_OF_SERENITY: CardRecord = CardRecord::new
                 owner: None,
             },
             3,
-        )], EffectDef::May(&EffectDef::ExileLinkedToSource {
+        )], EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::ExileLinkedToSource {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            })),
+                },
+            }),
         AbilityDef::triggered(
             "When this creature leaves the battlefield, return the exiled cards to their owners' hands.",
             TriggerEventDef::ZoneChanged {
@@ -957,7 +960,10 @@ pub(in crate::card::sets) static VOIDWIELDER: CardRecord = CardRecord::new(
                     owner: None,
                 },
             )],
-            EffectDef::May(&VOIDWIELDER_RETURN),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &VOIDWIELDER_RETURN,
+            },
         ),
     ),
 );
@@ -1399,7 +1405,10 @@ pub(in crate::card::sets) static BATTERHORN: CardRecord = CardRecord::new(
                     owner: None,
                 },
             )],
-            EffectDef::May(&BATTERHORN_DESTROY),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &BATTERHORN_DESTROY,
+            },
         ),
     ),
 );
@@ -2085,16 +2094,25 @@ pub(in crate::card::sets) static GATECREEPER_VINE: CardRecord = CardRecord::new(
                 from: None,
                 to: Some(ZoneKind::Battlefield),
             },
-            EffectDef::SearchLibrary {
+            EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                object: ObjectPredicateDef::AnyOf(&[
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Land),
-                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                effect: &EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                        ]),
+                        ObjectPredicateDef::Subtype("Gate"),
                     ]),
-                    ObjectPredicateDef::Subtype("Gate"),
-                ]),
-                destination: ZoneKind::Hand,
+                    minimum: 0,
+                    maximum: 1,
+                    reveal: true,
+                    destination: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                },
             },
         ),
     ]),
@@ -2184,7 +2202,32 @@ pub(in crate::card::sets) static SAVAGE_SURGE: CardRecord = CardRecord::new(
 );
 
 // RTR 134 — Seek the Horizon
-// Audit: blocked — SearchLibrary can select only one card, not up to three basic land cards.
+pub(in crate::card::sets) static SEEK_THE_HORIZON: CardRecord = CardRecord::new(
+    cards::SEEK_THE_HORIZON,
+    "Seek the Horizon",
+    CardArt::new(
+        "b6f52ac7-933f-4b31-8576-338f5dcf4285",
+        "Howard Lyon",
+    ),
+    CardSet::ReturnToRavnica,
+    CardRules::new_sorcery(mana_cost!("{3}{G}")).with_ability(AbilityDef::spell(
+        "Search your library for up to three basic land cards, reveal them, put them into your hand, then shuffle.",
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Land),
+                ObjectPredicateDef::Supertype(CardSupertype::Basic),
+            ]),
+            minimum: 0,
+            maximum: 3,
+            reveal: true,
+            destination: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+        },
+    )),
+);
 
 // RTR 135 — Slime Molding
 // Audit: blocked — Token creation cannot produce a token whose power and toughness are the chosen X value.
@@ -2567,9 +2610,12 @@ pub(in crate::card::sets) static DETENTION_SPHERE: CardRecord = CardRecord::new(
                 controller: None,
                 owner: None,
             },
-        )], EffectDef::May(&EffectDef::ExileLinkedToSource {
+        )], EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::ExileLinkedToSource {
                 object: EffectRecipientDef::ObjectsSharingNameWithTarget(TargetIndex::PRIMARY),
-            })),
+                },
+            }),
         AbilityDef::triggered(
             "When this enchantment leaves the battlefield, return the exiled cards to the battlefield under their owner's control.",
             TriggerEventDef::ZoneChanged {
@@ -2761,10 +2807,13 @@ pub(in crate::card::sets) static ISPERIA_SUPREME_JUDGE: CardRecord = CardRecord:
                 TriggerEventDef::Attacks(ObjectPredicateDef::ControlledBy(
                     PlayerRelation::Opponent,
                 )),
-                EffectDef::May(&EffectDef::DrawCards {
-                    recipient: EffectRecipientDef::Controller,
-                    amount: ValueDef::Constant(1),
-                }),
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                },
             ),
         ]),
 );
@@ -2909,10 +2958,13 @@ pub(in crate::card::sets) static NIV_MIZZET_DRACOGENIUS: CardRecord = CardRecord
                     source: ObjectPredicateDef::Source,
                     player: PlayerRelation::Any,
                 },
-                EffectDef::May(&EffectDef::DrawCards {
-                    recipient: EffectRecipientDef::Controller,
-                    amount: ValueDef::Constant(1),
-                }),
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                },
             ),
             AbilityDef::activated_with_targets(
                 "{U}{R}: Niv-Mizzet deals 1 damage to any target.",
@@ -3074,7 +3126,10 @@ pub(in crate::card::sets) static SKYMARK_ROC: CardRecord = CardRecord::new(
                     owner: None,
                 },
             )],
-            EffectDef::May(&SKYMARK_ROC_RETURN),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &SKYMARK_ROC_RETURN,
+            },
         )
         .with_coverage(AbilityCoverageDef::partial(
             "ToughnessLessThan reads resolved power/toughness changes but not changes supplied by static continuous effects.",
@@ -3711,7 +3766,10 @@ static IZZET_KEYRUNE_COMBAT: AbilityDef = AbilityDef::triggered(
     TriggerEventDef::CombatDamageDealtToPlayer {
         source: ObjectPredicateDef::Source,
     },
-    EffectDef::May(&IZZET_KEYRUNE_LOOT),
+    EffectDef::May {
+        player: EffectRecipientDef::Controller,
+        effect: &IZZET_KEYRUNE_LOOT,
+    },
 );
 
 static IZZET_KEYRUNE_ANIMATION: AnimationDef = AnimationDef {
@@ -4141,6 +4199,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GOBBLING_OOZE,
     &RUBBLEBACK_RHINO,
     &SAVAGE_SURGE,
+    &SEEK_THE_HORIZON,
     &STONEFARE_CROCODILE,
     &TOWERING_INDRIK,
     &ABRUPT_DECAY,

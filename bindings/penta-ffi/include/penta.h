@@ -65,8 +65,9 @@ char *penta_deck_names_for_format_json(const char *format);
 PentaGame *penta_new(const char *config_json);
 
 /* Builds a local rollout world from a redacted observation and a separate
- * hidden-zone hypothesis. rollout_seed controls only future local random
- * choices; it is not the host game's private seed. */
+ * hidden-zone hypothesis containing both libraries and both outsideGame
+ * lists. rollout_seed controls only future local random choices; it is not
+ * the host game's private seed. */
 PentaGame *penta_from_observation(const char *observation_json,
                                   const char *hidden_json,
                                   uint64_t rollout_seed);

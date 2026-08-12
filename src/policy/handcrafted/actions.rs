@@ -231,6 +231,7 @@ impl HandcraftedPolicy {
             | DecisionZone::Library
             | DecisionZone::Exile
             | DecisionZone::Command
+            | DecisionZone::OutsideGame
             | DecisionZone::DrawnThisStep
             | DecisionZone::None => -value,
         }

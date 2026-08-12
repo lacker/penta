@@ -237,17 +237,16 @@ impl Game {
             .expect("ability stack objects freeze their complete payload");
         match resolver {
             StackAbilityResolver::Declarative(effect) => {
-                self.resolve_effect_def(effect, object, context);
-                for effect in mode_effects {
-                    self.resolve_effect_def(*effect, object, context);
-                }
+                let mut effects = Vec::with_capacity(mode_effects.len() + 1);
+                effects.push(effect);
+                effects.extend_from_slice(mode_effects);
+                self.resolve_effects_in_order(effects, object, context, None);
             }
             StackAbilityResolver::DeclarativeWithCustomFollowup { effect, behavior } => {
-                self.resolve_effect_def(effect, object, context);
-                for effect in mode_effects {
-                    self.resolve_effect_def(*effect, object, context);
-                }
-                self.resolve_custom_spell_followup(object, behavior);
+                let mut effects = Vec::with_capacity(mode_effects.len() + 1);
+                effects.push(effect);
+                effects.extend_from_slice(mode_effects);
+                self.resolve_effects_in_order(effects, object, context, Some(behavior));
             }
             StackAbilityResolver::Custom(behavior) => match object.kind {
                 StackObjectKind::Spell => self.resolve_spell_effect(object, behavior),

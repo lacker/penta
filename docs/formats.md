@@ -38,7 +38,10 @@ International Collector's Edition, Arabian Nights, Antiquities, Revised,
 Legends, The Dark, Fallen Empires, and the three 1994 promotional cards. It
 uses the Eternal Central banned and restricted list and current Magic rules
 except where [Eternal Central's 93/94 rules][ec-rules] differ, notably mana
-burn. Paper-only reprint policies have no meaning in the simulator.
+burn. Ring of Ma'rûf follows Eternal Central's card-specific wording here: its
+next-draw replacement may choose an owned card from exile or the sideboard,
+instead of Oracle's outside-the-game-only source. Paper-only reprint policies
+have no meaning in the simulator.
 
 ### ISD–RTR Standard
 
@@ -71,7 +74,7 @@ The engine currently supports:
   and a collector-ordered, named engine-capability gap for every incomplete
   identity in the 93/94 set corpus, including banned cards;
 - an identity-complete ISD–RTR Standard implementation audit inline in its
-  eight printed set modules, with 839 complete, 39 partial, and 808 blocked
+  eight printed set modules, with 841 complete, 39 partial, and 806 blocked
   identities, and a concrete engine-capability gap for every
   incomplete identity; and
 - twenty-three fixed 60-card decks with 15-card sideboards across both formats.
@@ -165,9 +168,9 @@ was not legal in this Standard pool. The built-in list uses Celestial Flare as
 the likely transcription correction and records that inference in the deck
 source comments.
 
-Across the eight sets, 878 of the 1,686 legal card identities have catalog
-definitions: 839 are complete and 39 are partial. The other 808 remain blocked.
-Every one of the 847 incomplete identities has a
+Across the eight sets, 880 of the 1,686 legal card identities have catalog
+definitions: 841 are complete and 39 are partial. The other 806 remain blocked.
+Every one of the 845 incomplete identities has a
 collector-ordered inline audit comment naming its concrete missing engine
 capability. Card previews expose the cataloged cards' implementation status so
 bot and UI consumers can distinguish supported behavior from metadata.

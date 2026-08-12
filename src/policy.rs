@@ -38,7 +38,10 @@ mod tests {
 
     #[test]
     fn target_condition_search_descends_decision_effects() {
-        let may = EffectDef::May(&CONDITIONAL_EFFECT);
+        let may = EffectDef::May {
+            player: EffectRecipientDef::Controller,
+            effect: &CONDITIONAL_EFFECT,
+        };
         let optional_payment = EffectDef::OptionalPayment {
             payment: PaymentDef::new(PlayerRelation::You, &OPTIONAL_PAYMENT_COST),
             if_paid: &CONDITIONAL_EFFECT,

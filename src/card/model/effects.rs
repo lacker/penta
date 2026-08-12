@@ -1,3 +1,4 @@
+use crate::Format;
 use crate::ids::{CardDefinitionId, ChoiceIndex, TargetIndex};
 
 use super::{
@@ -392,6 +393,17 @@ pub struct PaymentDef {
     pub costs: &'static [CostDef],
 }
 
+/// One place an effect may choose an owned card from.
+///
+/// Outside the game is deliberately not a [`ZoneKind`]: Magic's zones include
+/// exile, while a tournament sideboard remains outside the game until an
+/// effect brings one of its cards in.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum CardChoiceSourceDef {
+    Zone(ZoneKind),
+    OutsideGame,
+}
+
 impl PaymentDef {
     #[must_use]
     pub const fn new(payer: PlayerRelation, costs: &'static [CostDef]) -> Self {
@@ -629,14 +641,48 @@ pub enum EffectDef {
         player: EffectRecipientDef,
         selection: &'static TopCardSelectionDef,
     },
-    /// Search a library for one matching card and put it somewhere. The
-    /// library is shuffled after other destinations, or before a card whose
-    /// destination is the top of that same library. Searching a hidden zone
-    /// never obliges the searcher to find, so a printed "may" adds nothing.
-    SearchLibrary {
+    /// Search one player's card zone for matching cards and move the chosen
+    /// cards. `minimum` and `maximum` model the stated quantity independently
+    /// from whether the predicate describes a quality: a search for simply
+    /// "a card" is compulsory when one exists, while a qualified hidden-zone
+    /// search may legally fail to find and therefore uses a minimum of zero.
+    SearchZone {
         player: EffectRecipientDef,
+        source: ZoneKind,
         object: ObjectPredicateDef,
+        minimum: usize,
+        maximum: usize,
+        reveal: bool,
         destination: ZoneKind,
+        placement: ZonePlacement,
+        shuffle: bool,
+    },
+    /// Choose owned cards from one or more places without performing the
+    /// keyword action "search." Ring of Ma'rûf uses this for outside-game
+    /// cards, and Old School expands the same choice to exile.
+    ChooseCards {
+        player: EffectRecipientDef,
+        sources: &'static [CardChoiceSourceDef],
+        object: ObjectPredicateDef,
+        minimum: usize,
+        maximum: usize,
+        reveal: bool,
+        destination: ZoneKind,
+        placement: ZonePlacement,
+    },
+    /// Replace the named player's next draw this turn with another effect.
+    /// The replacement is frozen with the resolving object and consumed even
+    /// when its instructions cannot move a card.
+    ReplaceNextDrawThisTurn {
+        player: EffectRecipientDef,
+        effect: &'static EffectDef,
+    },
+    /// Resolve one branch under a particular per-game format profile. Card
+    /// definitions remain format-neutral; only the rules procedure varies.
+    IfFormat {
+        format: Format,
+        then: &'static EffectDef,
+        otherwise: &'static EffectDef,
     },
     /// Counter a spell and put its card into `zone`. Ordinary counters use
     /// the graveyard; replacement-style counters such as Dissipate use exile.
@@ -704,9 +750,12 @@ pub enum EffectDef {
     /// Lets the next sorcery its controller casts this turn be cast as
     /// though it had flash.
     GrantFlashToNextSorcery,
-    /// An effect its controller may decline. Held by reference so that
+    /// An effect the named player may decline. Held by reference so that
     /// `EffectDef` does not grow a recursive inline copy of itself.
-    May(&'static EffectDef),
+    May {
+        player: EffectRecipientDef,
+        effect: &'static EffectDef,
+    },
     /// Exiles, remembering which object sent it there so a later clause can
     /// bring it back. This is the Oblivion Ring shape.
     ExileLinkedToSource {

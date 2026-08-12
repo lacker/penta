@@ -1,5 +1,6 @@
 #![allow(clippy::wildcard_imports)]
 
+use super::super::procedure::draw_replacement_referenced_object_ids;
 use super::*;
 
 pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
@@ -41,6 +42,13 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
                     .map(|candidate| candidate.context.source.object),
             );
         }
+        DecisionContinuation::DrawReplacement { replacements, .. } => {
+            ids.extend(
+                replacements
+                    .iter()
+                    .flat_map(draw_replacement_referenced_object_ids),
+            );
+        }
         DecisionContinuation::TriggerOrder { batch, remaining } => {
             extend_trigger_batch_ids(&mut ids, batch);
             for batch in remaining {
@@ -61,9 +69,9 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
                 extend_trigger_batch_ids(&mut ids, batch);
             }
         }
-        DecisionContinuation::Tutor
+        DecisionContinuation::SearchZone { .. }
+        | DecisionContinuation::ChooseCards { .. }
         | DecisionContinuation::DiscardForEffect { .. }
-        | DecisionContinuation::LibrarySearch { .. }
         | DecisionContinuation::BasicLandTypeTextChange { .. }
         | DecisionContinuation::RecallDiscard { .. }
         | DecisionContinuation::RecallReturn { .. }
@@ -292,6 +300,7 @@ pub(super) fn parse_decision_zone(value: &str) -> Result<DecisionZone, String> {
         "Stack" => Ok(DecisionZone::Stack),
         "Library" => Ok(DecisionZone::Library),
         "Exile" => Ok(DecisionZone::Exile),
+        "OutsideGame" => Ok(DecisionZone::OutsideGame),
         "Command" => Ok(DecisionZone::Command),
         "DrawnThisStep" => Ok(DecisionZone::DrawnThisStep),
         "None" => Ok(DecisionZone::None),
@@ -465,6 +474,7 @@ pub(super) const fn decision_zone_snapshot(zone: DecisionZone) -> DecisionZoneSn
         DecisionZone::Stack => DecisionZoneSnapshot::Stack,
         DecisionZone::Library => DecisionZoneSnapshot::Library,
         DecisionZone::Exile => DecisionZoneSnapshot::Exile,
+        DecisionZone::OutsideGame => DecisionZoneSnapshot::OutsideGame,
         DecisionZone::Command => DecisionZoneSnapshot::Command,
         DecisionZone::DrawnThisStep => DecisionZoneSnapshot::DrawnThisStep,
         DecisionZone::None => DecisionZoneSnapshot::None,
@@ -479,6 +489,7 @@ pub(super) const fn parse_decision_zone_snapshot(zone: DecisionZoneSnapshot) -> 
         DecisionZoneSnapshot::Stack => DecisionZone::Stack,
         DecisionZoneSnapshot::Library => DecisionZone::Library,
         DecisionZoneSnapshot::Exile => DecisionZone::Exile,
+        DecisionZoneSnapshot::OutsideGame => DecisionZone::OutsideGame,
         DecisionZoneSnapshot::Command => DecisionZone::Command,
         DecisionZoneSnapshot::DrawnThisStep => DecisionZone::DrawnThisStep,
         DecisionZoneSnapshot::None => DecisionZone::None,

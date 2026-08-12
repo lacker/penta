@@ -27,6 +27,11 @@ pub(super) enum ManaPaymentPurpose {
         /// does, that source cannot also be tapped for mana, so it is barred
         /// from the payment rather than merely deprioritised.
         taps_source: bool,
+        /// Whether the source must still be on the battlefield after mana is
+        /// raised so it can be sacrificed or exiled for the main ability.
+        /// Mana abilities of that same source which leave the battlefield are
+        /// not legal ways to pay this cost.
+        leaves_source: bool,
     },
     Other,
 }

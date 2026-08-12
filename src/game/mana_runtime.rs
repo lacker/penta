@@ -19,7 +19,12 @@ impl Game {
             && definition
                 .costs
                 .iter()
-                .filter(|cost| matches!(cost, AbilityCostDef::SacrificeSource))
+                .filter(|cost| {
+                    matches!(
+                        cost,
+                        AbilityCostDef::SacrificeSource | AbilityCostDef::ExileSource
+                    )
+                })
                 .count()
                 <= 1
             && !(taps_source && (permanent.tapped || !self.can_use_tap_ability(permanent)))
@@ -28,6 +33,7 @@ impl Game {
                     cost,
                     AbilityCostDef::TapSource
                         | AbilityCostDef::SacrificeSource
+                        | AbilityCostDef::ExileSource
                         | AbilityCostDef::RemoveCountersFromSource { .. }
                         | AbilityCostDef::PayLife(_)
                 )
@@ -94,9 +100,32 @@ impl Game {
         activations
     }
 
+    fn shared_add_mana_effect(
+        definition: ActivatedAbilityDef,
+        ability: &AbilityDef,
+    ) -> Option<AddManaEffectDef> {
+        if definition.procedure != AbilityProcedureDef::Shared
+            || ability.declarative_effect().is_none()
+        {
+            return None;
+        }
+        let EffectDef::AddMana(effect) = ability.effect.definition else {
+            return None;
+        };
+        Some(effect)
+    }
+
+    fn is_legacy_fellwar_stone_mana_ability(
+        definition: ActivatedAbilityDef,
+        ability: &AbilityDef,
+    ) -> bool {
+        definition.procedure == AbilityProcedureDef::Legacy
+            && matches!(ability.effect.definition, EffectDef::Special(_))
+            && ability.custom_behavior() == Some(CardBehavior::FellwarStone)
+    }
+
     /// The concrete activations one mana ability offers, which is one per
     /// colour it can produce.
-    #[allow(clippy::too_many_lines)]
     pub(super) fn mana_activations_for(
         &self,
         permanent: &Permanent,
@@ -105,105 +134,26 @@ impl Game {
         ability: &AbilityDef,
     ) -> Vec<ManaAbilityActivation> {
         let mut activations = Vec::new();
-        match ability.effect.definition {
-            EffectDef::AddMana(effect)
-                if definition.procedure == AbilityProcedureDef::Shared
-                    && ability.declarative_effect().is_some() =>
-            {
-                let mut add_activation = |color| {
-                    activations.push(ManaAbilityActivation {
-                        source: permanent.card.id,
-                        ability: origin,
-                        color,
-                        costs: definition.costs,
-                        effect,
-                    });
-                };
-                match effect.mana {
-                    ManaSelectionDef::One(color) => {
-                        add_activation(color);
-                    }
-                    ManaSelectionDef::Choice(colors) => {
-                        for color in colors {
-                            add_activation(*color);
-                        }
+        if let Some(effect) = Self::shared_add_mana_effect(definition, ability) {
+            let mut add_activation = |color| {
+                activations.push(ManaAbilityActivation {
+                    source: permanent.card.id,
+                    ability: origin,
+                    color,
+                    costs: definition.costs,
+                    effect,
+                });
+            };
+            match effect.mana {
+                ManaSelectionDef::One(color) => add_activation(color),
+                ManaSelectionDef::Choice(colors) => {
+                    for color in colors {
+                        add_activation(*color);
                     }
                 }
             }
-            EffectDef::Special(_)
-                if definition.procedure == AbilityProcedureDef::Legacy
-                    && ability.custom_behavior() == Some(CardBehavior::FellwarStone) =>
-            {
-                activations.extend(self.fellwar_stone_activations(
-                    permanent,
-                    origin,
-                    definition.costs,
-                ));
-            }
-            EffectDef::AddMana(_)
-            | EffectDef::AddManaEqualTo { .. }
-            | EffectDef::None
-            | EffectDef::Sequence(_)
-            | EffectDef::Randomized { .. }
-            | EffectDef::ChoosePermanent { .. }
-            | EffectDef::DealDamage { .. }
-            | EffectDef::DrainLife { .. }
-            | EffectDef::GainLife { .. }
-            | EffectDef::DrawCards { .. }
-            | EffectDef::Discard { .. }
-            | EffectDef::ShuffleLibrary { .. }
-            | EffectDef::EmptyManaPool { .. }
-            | EffectDef::LoseLife { .. }
-            | EffectDef::Tap { .. }
-            | EffectDef::Untap { .. }
-            | EffectDef::PreventCombatDamageThisTurn { .. }
-            | EffectDef::PreventCombatDamageDealtByThisTurn { .. }
-            | EffectDef::Attach { .. }
-            | EffectDef::CreateToken { .. }
-            | EffectDef::Destroy { .. }
-            | EffectDef::Sacrifice { .. }
-            | EffectDef::SacrificeOfChoice { .. }
-            | EffectDef::DestroyOfChoice { .. }
-            | EffectDef::SplitPermanentsAndSacrificeAPile { .. }
-            | EffectDef::RevealAndSplitIntoPiles { .. }
-            | EffectDef::LoseTheGame { .. }
-            | EffectDef::Mill { .. }
-            | EffectDef::LookAtTopAndMayTake { .. }
-            | EffectDef::LookAtTopAndSelect { .. }
-            | EffectDef::LookAtHand { .. }
-            | EffectDef::SearchLibrary { .. }
-            | EffectDef::Counter { .. }
-            | EffectDef::CounterUnlessPaid { .. }
-            | EffectDef::AddCounters { .. }
-            | EffectDef::ChangeTextBasicLandType { .. }
-            | EffectDef::BecomeCopyOf { .. }
-            | EffectDef::OptionalPayment { .. }
-            | EffectDef::UnlessPaid { .. }
-            | EffectDef::May(_)
-            | EffectDef::CannotBeForcedToSacrifice
-            | EffectDef::CreateEmblem { .. }
-            | EffectDef::Transform { .. }
-            | EffectDef::AdditionalCombatPhase
-            | EffectDef::CannotCastNoncreatureSpellsThisTurn { .. }
-            | EffectDef::GrantFlashToNextSorcery
-            | EffectDef::ExileLinkedToSource { .. }
-            | EffectDef::ReturnLinkedExiles { .. }
-            | EffectDef::MakeUnblockableThisTurn { .. }
-            | EffectDef::GainControlThisTurn { .. }
-            | EffectDef::AtNextStep { .. }
-            | EffectDef::IfCondition { .. }
-            | EffectDef::TriggerUntilYourNextTurn { .. }
-            | EffectDef::ReduceGenericCostBy(_)
-            | EffectDef::PlayersCantPlay(_)
-            | EffectDef::MultiplyEventAmount(_)
-            | EffectDef::Replacement(_)
-            | EffectDef::MoveToZone { .. }
-            | EffectDef::ChooseCardName { .. }
-            | EffectDef::ChoosePlayer { .. }
-            | EffectDef::CopyPermanentAsItEnters { .. }
-            | EffectDef::ChooseCreatureType { .. }
-            | EffectDef::Apply { .. }
-            | EffectDef::Special(_) => {}
+        } else if Self::is_legacy_fellwar_stone_mana_ability(definition, ability) {
+            activations.extend(self.fellwar_stone_activations(permanent, origin, definition.costs));
         }
 
         activations
@@ -275,89 +225,13 @@ impl Game {
             else {
                 return;
             };
-            match effective.ability.effect.definition {
-                EffectDef::AddMana(effect)
-                    if definition.procedure == AbilityProcedureDef::Shared
-                        && effective.ability.declarative_effect().is_some() =>
-                {
-                    match effect.mana {
-                        ManaSelectionDef::One(kind) => colors.push(kind),
-                        ManaSelectionDef::Choice(kinds) => {
-                            colors.extend_from_slice(kinds);
-                        }
-                    }
+            if let Some(effect) = Self::shared_add_mana_effect(definition, &effective.ability) {
+                match effect.mana {
+                    ManaSelectionDef::One(kind) => colors.push(kind),
+                    ManaSelectionDef::Choice(kinds) => colors.extend_from_slice(kinds),
                 }
-                EffectDef::Special(_)
-                    if definition.procedure == AbilityProcedureDef::Legacy
-                        && effective.ability.custom_behavior()
-                            == Some(CardBehavior::FellwarStone) =>
-                {
-                    colors.extend(self.fellwar_stone_colors(permanent, visiting));
-                }
-                EffectDef::AddMana(_)
-                | EffectDef::AddManaEqualTo { .. }
-                | EffectDef::None
-                | EffectDef::Sequence(_)
-                | EffectDef::Randomized { .. }
-                | EffectDef::ChoosePermanent { .. }
-                | EffectDef::DealDamage { .. }
-                | EffectDef::DrainLife { .. }
-                | EffectDef::GainLife { .. }
-                | EffectDef::DrawCards { .. }
-                | EffectDef::Discard { .. }
-                | EffectDef::ShuffleLibrary { .. }
-                | EffectDef::EmptyManaPool { .. }
-                | EffectDef::LoseLife { .. }
-                | EffectDef::Tap { .. }
-                | EffectDef::Untap { .. }
-                | EffectDef::PreventCombatDamageThisTurn { .. }
-                | EffectDef::PreventCombatDamageDealtByThisTurn { .. }
-                | EffectDef::Attach { .. }
-                | EffectDef::CreateToken { .. }
-                | EffectDef::Destroy { .. }
-                | EffectDef::Sacrifice { .. }
-                | EffectDef::SacrificeOfChoice { .. }
-                | EffectDef::DestroyOfChoice { .. }
-                | EffectDef::SplitPermanentsAndSacrificeAPile { .. }
-                | EffectDef::RevealAndSplitIntoPiles { .. }
-                | EffectDef::LoseTheGame { .. }
-                | EffectDef::Mill { .. }
-                | EffectDef::LookAtTopAndMayTake { .. }
-                | EffectDef::LookAtTopAndSelect { .. }
-                | EffectDef::LookAtHand { .. }
-                | EffectDef::SearchLibrary { .. }
-                | EffectDef::Counter { .. }
-                | EffectDef::CounterUnlessPaid { .. }
-                | EffectDef::AddCounters { .. }
-                | EffectDef::ChangeTextBasicLandType { .. }
-                | EffectDef::BecomeCopyOf { .. }
-                | EffectDef::OptionalPayment { .. }
-                | EffectDef::UnlessPaid { .. }
-                | EffectDef::May(_)
-                | EffectDef::CannotBeForcedToSacrifice
-                | EffectDef::CreateEmblem { .. }
-                | EffectDef::Transform { .. }
-                | EffectDef::AdditionalCombatPhase
-                | EffectDef::CannotCastNoncreatureSpellsThisTurn { .. }
-                | EffectDef::GrantFlashToNextSorcery
-                | EffectDef::ExileLinkedToSource { .. }
-                | EffectDef::ReturnLinkedExiles { .. }
-                | EffectDef::MakeUnblockableThisTurn { .. }
-                | EffectDef::GainControlThisTurn { .. }
-                | EffectDef::AtNextStep { .. }
-                | EffectDef::IfCondition { .. }
-                | EffectDef::TriggerUntilYourNextTurn { .. }
-                | EffectDef::ReduceGenericCostBy(_)
-                | EffectDef::PlayersCantPlay(_)
-                | EffectDef::MultiplyEventAmount(_)
-                | EffectDef::Replacement(_)
-                | EffectDef::MoveToZone { .. }
-                | EffectDef::ChooseCardName { .. }
-                | EffectDef::ChoosePlayer { .. }
-                | EffectDef::CopyPermanentAsItEnters { .. }
-                | EffectDef::ChooseCreatureType { .. }
-                | EffectDef::Apply { .. }
-                | EffectDef::Special(_) => {}
+            } else if Self::is_legacy_fellwar_stone_mana_ability(definition, &effective.ability) {
+                colors.extend(self.fellwar_stone_colors(permanent, visiting));
             }
         });
         colors.sort_unstable();

@@ -4,7 +4,8 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
     BasicLandType, CardArt, CardRules, CardSet, CardType, EffectDef, EffectDurationDef,
-    EffectRecipientDef, ObjectPredicateDef, TriggerEventDef, ValueDef, ZoneKind, cards,
+    EffectRecipientDef, ObjectPredicateDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
+    cards,
 };
 use crate::{PlayerRelation, TargetIndex, TurnStepDef, mana_cost};
 
@@ -115,6 +116,40 @@ pub(in crate::card::sets) static NATURALIZE: CardRecord = CardRecord::new(
     )),
 );
 
+const fn fetch_land(text: &'static str, land_types: &'static [BasicLandType]) -> CardRules {
+    CardRules::new_land(&[]).with_ability(AbilityDef::activated(
+        text,
+        &[
+            AbilityCostDef::TapSource,
+            AbilityCostDef::PayLife(1),
+            AbilityCostDef::SacrificeSource,
+        ],
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::HasAnyBasicLandType(land_types),
+            minimum: 0,
+            maximum: 1,
+            reveal: false,
+            destination: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+        },
+    ))
+}
+
+// ONS 313 — Bloodstained Mire
+pub(in crate::card::sets) static BLOODSTAINED_MIRE: CardRecord = CardRecord::new(
+    cards::BLOODSTAINED_MIRE,
+    "Bloodstained Mire",
+    CardArt::new("68c72226-6f52-4322-8b14-18737293dfa0", "Rob Alexander"),
+    CardSet::Onslaught,
+    fetch_land(
+        "{T}, Pay 1 life, Sacrifice this land: Search your library for a Swamp or Mountain card, put it onto the battlefield, then shuffle.",
+        &[BasicLandType::Swamp, BasicLandType::Mountain],
+    ),
+);
+
 // ONS 316 — Flooded Strand
 pub(in crate::card::sets) static FLOODED_STRAND: CardRecord = CardRecord::new(
     cards::FLOODED_STRAND,
@@ -124,6 +159,30 @@ pub(in crate::card::sets) static FLOODED_STRAND: CardRecord = CardRecord::new(
     fetch_land(
         "{T}, Pay 1 life, Sacrifice this land: Search your library for a Plains or Island card, put it onto the battlefield, then shuffle.",
         &[BasicLandType::Plains, BasicLandType::Island],
+    ),
+);
+
+// ONS 321 — Polluted Delta
+pub(in crate::card::sets) static POLLUTED_DELTA: CardRecord = CardRecord::new(
+    cards::POLLUTED_DELTA,
+    "Polluted Delta",
+    CardArt::new("0f7585c8-9e21-4eef-afc1-2852de23db2f", "Rob Alexander"),
+    CardSet::Onslaught,
+    fetch_land(
+        "{T}, Pay 1 life, Sacrifice this land: Search your library for an Island or Swamp card, put it onto the battlefield, then shuffle.",
+        &[BasicLandType::Island, BasicLandType::Swamp],
+    ),
+);
+
+// ONS 328 — Windswept Heath
+pub(in crate::card::sets) static WINDSWEPT_HEATH: CardRecord = CardRecord::new(
+    cards::WINDSWEPT_HEATH,
+    "Windswept Heath",
+    CardArt::new("7a7c5941-9c8a-4a40-9efb-a84f05c58e53", "Anthony S. Waters"),
+    CardSet::Onslaught,
+    fetch_land(
+        "{T}, Pay 1 life, Sacrifice this land: Search your library for a Forest or Plains card, put it onto the battlefield, then shuffle.",
+        &[BasicLandType::Forest, BasicLandType::Plains],
     ),
 );
 
@@ -139,27 +198,14 @@ pub(in crate::card::sets) static WOODED_FOOTHILLS: CardRecord = CardRecord::new(
     ),
 );
 
-const fn fetch_land(text: &'static str, land_types: &'static [BasicLandType]) -> CardRules {
-    CardRules::new_land(&[]).with_ability(AbilityDef::activated(
-        text,
-        &[
-            AbilityCostDef::TapSource,
-            AbilityCostDef::PayLife(1),
-            AbilityCostDef::SacrificeSource,
-        ],
-        EffectDef::SearchLibrary {
-            player: EffectRecipientDef::Controller,
-            object: ObjectPredicateDef::HasAnyBasicLandType(land_types),
-            destination: ZoneKind::Battlefield,
-        },
-    ))
-}
-
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GOBLIN_PYROMANCER,
     &GOBLIN_SHARPSHOOTER,
     &NATURALIZE,
+    &BLOODSTAINED_MIRE,
     &FLOODED_STRAND,
+    &POLLUTED_DELTA,
+    &WINDSWEPT_HEATH,
     &WOODED_FOOTHILLS,
 ];
 

@@ -3,7 +3,7 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, CardArt, CardRules, CardSet, CardType, EffectDef, EffectRecipientDef,
-    ObjectPredicateDef, PlayerRelation, ZoneKind, cards,
+    ObjectPredicateDef, PlayerRelation, ZoneKind, ZonePlacement, cards,
 };
 use crate::mana_cost;
 
@@ -15,13 +15,19 @@ pub(in crate::card::sets) static ENLIGHTENED_TUTOR: CardRecord = CardRecord::new
     CardSet::Mirage,
     CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spell(
         "Search your library for an artifact or enchantment card, reveal it, then shuffle and put that card on top.",
-        EffectDef::SearchLibrary {
+        EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
             object: ObjectPredicateDef::AnyOf(&[
                 ObjectPredicateDef::HasType(CardType::Artifact),
                 ObjectPredicateDef::HasType(CardType::Enchantment),
             ]),
+            minimum: 0,
+            maximum: 1,
+            reveal: true,
             destination: ZoneKind::Library,
+            placement: ZonePlacement::Top,
+            shuffle: true,
         },
     )),
 );
@@ -59,10 +65,16 @@ pub(in crate::card::sets) static WORLDLY_TUTOR: CardRecord = CardRecord::new(
     CardSet::Mirage,
     CardRules::new_instant(mana_cost!("{G}")).with_ability(AbilityDef::spell(
         "Search your library for a creature card, reveal it, then shuffle and put the card on top.",
-        EffectDef::SearchLibrary {
+        EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
             object: ObjectPredicateDef::HasType(CardType::Creature),
+            minimum: 0,
+            maximum: 1,
+            reveal: true,
             destination: ZoneKind::Library,
+            placement: ZonePlacement::Top,
+            shuffle: true,
         },
     )),
 );

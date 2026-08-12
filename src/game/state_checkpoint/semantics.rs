@@ -264,7 +264,12 @@ pub(super) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         } => vec![*on_success, *on_failure],
         EffectDef::OptionalPayment { if_paid, .. } => vec![*if_paid],
         EffectDef::UnlessPaid { otherwise, .. }
-        | EffectDef::May(otherwise)
+        | EffectDef::May {
+            effect: otherwise, ..
+        }
+        | EffectDef::ReplaceNextDrawThisTurn {
+            effect: otherwise, ..
+        }
         | EffectDef::IfCondition {
             then: otherwise, ..
         }
@@ -274,6 +279,9 @@ pub(super) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::ChoosePermanent {
             then: otherwise, ..
         } => vec![*otherwise],
+        EffectDef::IfFormat {
+            then, otherwise, ..
+        } => vec![*then, *otherwise],
         EffectDef::SacrificeOfChoice {
             then: Some(effect), ..
         } => vec![*effect],
@@ -321,13 +329,20 @@ fn collect_mana_effects(effect: EffectDef, found: &mut Vec<AddManaEffectDef>) {
         | EffectDef::UnlessPaid {
             otherwise: effect, ..
         }
-        | EffectDef::May(effect)
+        | EffectDef::May { effect, .. }
+        | EffectDef::ReplaceNextDrawThisTurn { effect, .. }
         | EffectDef::IfCondition { then: effect, .. }
         | EffectDef::AtNextStep { effect, .. }
         | EffectDef::ChoosePermanent { then: effect, .. }
         | EffectDef::SacrificeOfChoice {
             then: Some(effect), ..
         } => collect_mana_effects(*effect, found),
+        EffectDef::IfFormat {
+            then, otherwise, ..
+        } => {
+            collect_mana_effects(*then, found);
+            collect_mana_effects(*otherwise, found);
+        }
         EffectDef::LookAtTopAndSelect { selection, .. } => {
             if let Some(effect) = selection.then {
                 collect_mana_effects(*effect, found);
@@ -385,7 +400,8 @@ fn collect_effect_abilities(effect: EffectDef, abilities: &mut Vec<&'static Abil
         | EffectDef::UnlessPaid {
             otherwise: effect, ..
         }
-        | EffectDef::May(effect)
+        | EffectDef::May { effect, .. }
+        | EffectDef::ReplaceNextDrawThisTurn { effect, .. }
         | EffectDef::IfCondition { then: effect, .. }
         | EffectDef::AtNextStep { effect, .. }
         | EffectDef::ChoosePermanent { then: effect, .. }
@@ -396,6 +412,12 @@ fn collect_effect_abilities(effect: EffectDef, abilities: &mut Vec<&'static Abil
             if let Some(effect) = selection.then {
                 collect_effect_abilities(*effect, abilities);
             }
+        }
+        EffectDef::IfFormat {
+            then, otherwise, ..
+        } => {
+            collect_effect_abilities(*then, abilities);
+            collect_effect_abilities(*otherwise, abilities);
         }
         EffectDef::Apply { effect, .. } => collect_applied_abilities(effect, abilities),
         EffectDef::TriggerUntilYourNextTurn { ability } => abilities.push(ability),
@@ -426,7 +448,8 @@ fn collect_effect_abilities(effect: EffectDef, abilities: &mut Vec<&'static Abil
         | EffectDef::Mill { .. }
         | EffectDef::LookAtTopAndMayTake { .. }
         | EffectDef::LookAtHand { .. }
-        | EffectDef::SearchLibrary { .. }
+        | EffectDef::SearchZone { .. }
+        | EffectDef::ChooseCards { .. }
         | EffectDef::Counter { .. }
         | EffectDef::CounterUnlessPaid { .. }
         | EffectDef::AddCounters { .. }
@@ -605,13 +628,21 @@ fn animation_in_effect(
             .and_then(|effect| animation_in_effect(*effect, key)),
         EffectDef::OptionalPayment { if_paid, .. } => animation_in_effect(*if_paid, key),
         EffectDef::UnlessPaid { otherwise, .. }
-        | EffectDef::May(otherwise)
+        | EffectDef::May {
+            effect: otherwise, ..
+        }
+        | EffectDef::ReplaceNextDrawThisTurn {
+            effect: otherwise, ..
+        }
         | EffectDef::IfCondition {
             then: otherwise, ..
         }
         | EffectDef::AtNextStep {
             effect: otherwise, ..
         } => animation_in_effect(*otherwise, key),
+        EffectDef::IfFormat {
+            then, otherwise, ..
+        } => animation_in_effect(*then, key).or_else(|| animation_in_effect(*otherwise, key)),
         EffectDef::TriggerUntilYourNextTurn { ability } => animation_in_ability(ability, key),
         EffectDef::Apply { effect, .. } => animation_in_applied(effect, key),
         _ => None,

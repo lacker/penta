@@ -227,7 +227,8 @@ fn validate_effect_references(
         EffectDef::DestroyOfChoice { player, .. }
         | EffectDef::SplitPermanentsAndSacrificeAPile { player }
         | EffectDef::CannotCastNoncreatureSpellsThisTurn { player }
-        | EffectDef::SearchLibrary { player, .. }
+        | EffectDef::SearchZone { player, .. }
+        | EffectDef::ChooseCards { player, .. }
         | EffectDef::LookAtHand { player }
         | EffectDef::LookAtTopAndMayTake { player, .. } => {
             validate_recipient_target_references(player, target_count, choices_in_scope)
@@ -239,6 +240,11 @@ fn validate_effect_references(
                 validate_effect_references(*effect, target_count, choices_in_scope)?;
             }
             Ok(())
+        }
+        EffectDef::May { player, effect }
+        | EffectDef::ReplaceNextDrawThisTurn { player, effect } => {
+            validate_recipient_target_references(player, target_count, choices_in_scope)?;
+            validate_effect_references(*effect, target_count, choices_in_scope)
         }
         EffectDef::Mill { player, amount } => {
             validate_recipient_target_references(player, target_count, choices_in_scope)?;
@@ -255,10 +261,15 @@ fn validate_effect_references(
         | EffectDef::UnlessPaid {
             otherwise: effect, ..
         }
-        | EffectDef::May(effect)
         | EffectDef::IfCondition { then: effect, .. }
         | EffectDef::AtNextStep { effect, .. } => {
             validate_effect_references(*effect, target_count, choices_in_scope)
+        }
+        EffectDef::IfFormat {
+            then, otherwise, ..
+        } => {
+            validate_effect_references(*then, target_count, choices_in_scope)?;
+            validate_effect_references(*otherwise, target_count, choices_in_scope)
         }
         EffectDef::Apply {
             recipient, effect, ..

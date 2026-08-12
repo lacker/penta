@@ -262,3 +262,31 @@ fn a_loss_on_time_is_named_on_the_wire_and_is_not_a_concession() {
     assert_eq!(json["result"]["winner"], "p1");
     assert_eq!(json["result"]["reason"], "OpponentRanOutOfTime");
 }
+
+#[test]
+fn decision_json_names_outside_game_card_provenance() {
+    let catalog = poc::catalog().expect("catalog builds");
+    let decision = DecisionObservation {
+        id: 17,
+        player: PlayerId::One,
+        kind: DecisionKind::Choice,
+        order_semantics: None,
+        prompt: "Choose a sideboard card".into(),
+        visibility: crate::game::DecisionVisibility::Private,
+        preference: crate::game::DecisionPreference::Neutral,
+        minimum: 1,
+        maximum: 1,
+        cancellable: false,
+        options: vec![crate::game::DecisionOption {
+            id: 0,
+            label: "Black Lotus".into(),
+            card: Some((GameObjectId(99), crate::card::cards::BLACK_LOTUS)),
+            members: Vec::new(),
+            ability_text: None,
+            zone: crate::game::DecisionZone::OutsideGame,
+        }],
+    };
+
+    let value = decision_json(&catalog, &decision);
+    assert_eq!(value["options"][0]["zone"], "OutsideGame");
+}

@@ -499,6 +499,26 @@ fn ghost_quarter_destroys_a_land_and_lets_its_owner_replace_it() {
         .map(|pending| pending.observation.clone())
         .expect("the destroyed land's controller searches");
     assert_eq!(decision.player, PlayerId::Two);
+    let accept = decision
+        .options
+        .iter()
+        .find(|option| option.label == "Do it")
+        .expect("the land's controller may accept the search")
+        .id;
+    game.apply(
+        PlayerId::Two,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options: vec![accept],
+        },
+    )
+    .unwrap();
+
+    let decision = game
+        .pending_decisions
+        .first()
+        .map(|pending| pending.observation.clone())
+        .expect("accepting offers the qualified library search");
     let offered = decision
         .options
         .iter()
@@ -527,6 +547,74 @@ fn ghost_quarter_destroys_a_land_and_lets_its_owner_replace_it() {
         "the basic land arrived under its owner's control"
     );
     assert!(game.players[1].library.len() == 1, "and left the library");
+}
+
+#[test]
+fn ghost_quarters_controller_may_decline_without_searching_or_shuffling() {
+    let mut game = ready_game();
+    game.battlefield.clear();
+    let quarter = game
+        .put_onto_battlefield(PlayerId::One, cards::GHOST_QUARTER)
+        .expect("cataloged");
+    let victim = game
+        .put_onto_battlefield(PlayerId::Two, cards::TROPICAL_ISLAND)
+        .expect("cataloged");
+    game.players[1].library = (10_060..10_068)
+        .map(|id| card(id, cards::FOREST, PlayerId::Two))
+        .collect();
+    let before = game.players[1]
+        .library
+        .iter()
+        .map(|card| card.id)
+        .collect::<Vec<_>>();
+
+    let activate = game
+        .observe(PlayerId::One)
+        .legal_actions
+        .into_iter()
+        .find(|action| {
+            matches!(
+                action,
+                Action::ActivateAbility { source, targets, .. }
+                    if *source == quarter
+                        && targets.iter().any(|selection| {
+                            selection.targets().contains(&Target::Permanent(victim))
+                        })
+            )
+        })
+        .expect("the sacrifice ability is offered");
+    game.apply(PlayerId::One, activate).unwrap();
+    while !game.stack.is_empty() && game.pending_decisions.is_empty() {
+        let player = game.priority;
+        game.apply(player, Action::PassPriority).unwrap();
+    }
+
+    let decision = game.observe(PlayerId::Two).decision.unwrap();
+    let decline = decision
+        .options
+        .iter()
+        .find(|option| option.label == "Decline")
+        .expect("the printed may can be declined")
+        .id;
+    game.apply(
+        PlayerId::Two,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options: vec![decline],
+        },
+    )
+    .unwrap();
+
+    assert!(game.pending_decisions.is_empty());
+    assert_eq!(
+        game.players[1]
+            .library
+            .iter()
+            .map(|card| card.id)
+            .collect::<Vec<_>>(),
+        before,
+        "declining skips the entire search-and-shuffle procedure"
+    );
 }
 
 #[test]

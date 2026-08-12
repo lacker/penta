@@ -8,10 +8,10 @@ const SET_IDENTITY_COUNT: usize = 1_686;
 // The catalog names transforming identities by their front face, while the
 // reference inventory names the same identities with both face names.
 const SET_IDENTITY_FINGERPRINT: u64 = 17_770_363_390_521_155_439;
-const COMPLETE_IDENTITY_COUNT: usize = 839;
+const COMPLETE_IDENTITY_COUNT: usize = 841;
 const PARTIAL_IDENTITY_COUNT: usize = 39;
 const METADATA_ONLY_IDENTITY_COUNT: usize = 0;
-const BLOCKED_IDENTITY_COUNT: usize = 808;
+const BLOCKED_IDENTITY_COUNT: usize = 806;
 const STANDARD_SET_CODES: &[&str] = &["ISD", "DKA", "AVR", "M13", "RTR", "GTC", "DGM", "M14"];
 
 fn identity_fingerprint(names: &BTreeSet<String>) -> u64 {

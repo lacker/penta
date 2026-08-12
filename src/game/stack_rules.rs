@@ -57,6 +57,12 @@ impl Game {
                 effect,
                 duration: actual_duration,
             } => Self::applied_effect_contains(effect, expected) && actual_duration == duration,
+            EffectDef::IfFormat {
+                then, otherwise, ..
+            } => {
+                Self::effect_applies_to_source(*then, expected, duration)
+                    || Self::effect_applies_to_source(*otherwise, expected, duration)
+            }
             EffectDef::None
             | EffectDef::Randomized { .. }
             | EffectDef::ChoosePermanent { .. }
@@ -86,7 +92,9 @@ impl Game {
             | EffectDef::LookAtTopAndMayTake { .. }
             | EffectDef::LookAtTopAndSelect { .. }
             | EffectDef::LookAtHand { .. }
-            | EffectDef::SearchLibrary { .. }
+            | EffectDef::SearchZone { .. }
+            | EffectDef::ChooseCards { .. }
+            | EffectDef::ReplaceNextDrawThisTurn { .. }
             | EffectDef::Counter { .. }
             | EffectDef::CounterUnlessPaid { .. }
             | EffectDef::AddCounters { .. }
@@ -94,7 +102,7 @@ impl Game {
             | EffectDef::BecomeCopyOf { .. }
             | EffectDef::OptionalPayment { .. }
             | EffectDef::UnlessPaid { .. }
-            | EffectDef::May(_)
+            | EffectDef::May { .. }
             | EffectDef::CannotBeForcedToSacrifice
             | EffectDef::CreateEmblem { .. }
             | EffectDef::Transform { .. }

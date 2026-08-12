@@ -144,11 +144,156 @@ fn checkpoint_json_is_a_projection_of_one_typed_snapshot_schema() {
 }
 
 #[test]
+fn checkpoint_encodes_draw_replacement_and_procedure_state() {
+    let mut game = crate::game::tests::ready_game();
+    game.pending_procedures
+        .push_back(crate::game::PendingProcedure::FinishStepAdvance);
+    game.defer_empty_library_loss = true;
+    let viewer = game.decision_player().expect("the game awaits an action");
+    let observation = game.observe(viewer);
+    let actions = crate::protocol::protocol_actions(&observation);
+    let wire = crate::protocol::observation_json_for_format(
+        &game.catalog,
+        game.format,
+        &observation,
+        game.in_pregame(),
+        &actions,
+    );
+    assert_eq!(wire["checkpoint"]["hasDeferredState"], false);
+    assert_eq!(wire["checkpoint"]["deferEmptyLibraryLoss"], true);
+    assert_eq!(
+        wire["checkpoint"]["pendingProcedures"][0]["kind"],
+        "finishStepAdvance"
+    );
+    let rebuilt = Game::from_observation_checkpoint(
+        game.catalog.clone(),
+        game.format,
+        &wire,
+        &true_hidden_hypothesis(&game, viewer),
+        4_243,
+    )
+    .expect("procedure state reconstructs");
+    assert!(rebuilt.defer_empty_library_loss);
+    assert!(matches!(
+        rebuilt.pending_procedures.front(),
+        Some(crate::game::PendingProcedure::FinishStepAdvance)
+    ));
+}
+
+#[test]
+fn ring_replacement_and_outside_game_choice_reconstruct_and_resume() {
+    let mut game = crate::game::tests::ready_game();
+    game.players[PlayerId::One.index()].outside_game = game
+        .build_zone(PlayerId::One, &[crate::card::cards::SERRA_ANGEL])
+        .expect("outside-game card builds");
+    let ring = game
+        .put_onto_battlefield(PlayerId::One, crate::card::cards::RING_OF_MARUF)
+        .expect("Ring enters");
+    game.players[PlayerId::One.index()].mana_pool.colorless = 5;
+    let activation = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| {
+            matches!(
+                action,
+                crate::Action::ActivateAbility { source, .. } if *source == ring
+            )
+        })
+        .expect("Ring activation is legal");
+    game.apply(PlayerId::One, activation)
+        .expect("Ring activates");
+    for _ in 0..2 {
+        let priority = game.priority;
+        game.apply(priority, crate::Action::PassPriority)
+            .expect("priority passes");
+    }
+    assert_eq!(game.draw_replacements[0].len(), 1);
+
+    let replacement_boundary = checkpoint_wire(&game);
+    assert_eq!(
+        replacement_boundary.1["checkpoint"]["hasDeferredState"],
+        false
+    );
+    let rebuilt = Game::from_observation_checkpoint(
+        game.catalog.clone(),
+        game.format,
+        &replacement_boundary.1,
+        &true_hidden_hypothesis(&game, replacement_boundary.0),
+        4_244,
+    )
+    .expect("active Ring replacement reconstructs");
+    assert_eq!(rebuilt.draw_replacements[0].len(), 1);
+
+    game.draw_cards(PlayerId::One, 2);
+    assert!(matches!(
+        game.pending_procedures.front(),
+        Some(crate::game::PendingProcedure::DrawCards {
+            player: PlayerId::One,
+            remaining: 1
+        })
+    ));
+    let (viewer, wire) = checkpoint_wire(&game);
+    let actions = crate::protocol::protocol_actions(&game.observe(viewer));
+    let mut rebuilt = Game::from_observation_checkpoint(
+        game.catalog.clone(),
+        game.format,
+        &wire,
+        &true_hidden_hypothesis(&game, viewer),
+        4_245,
+    )
+    .expect("Ring choice and interrupted draw reconstruct");
+    assert_eq!(
+        crate::protocol::protocol_actions(&rebuilt.observe(viewer)),
+        actions
+    );
+    let decision = rebuilt
+        .observe(viewer)
+        .decision
+        .expect("Ring choice remains");
+    let outside = decision
+        .options
+        .iter()
+        .find(|option| option.zone == crate::game::DecisionZone::OutsideGame)
+        .expect("outside-game option is rebound");
+    rebuilt
+        .apply(
+            viewer,
+            crate::Action::ChooseDecision {
+                decision: decision.id,
+                options: vec![outside.id],
+            },
+        )
+        .expect("rebuilt Ring choice resumes");
+    assert!(rebuilt.players[0].outside_game.is_empty());
+    assert!(
+        rebuilt.players[0]
+            .hand
+            .iter()
+            .any(|card| card.definition == crate::card::cards::SERRA_ANGEL)
+    );
+    assert!(rebuilt.pending_procedures.is_empty());
+}
+
+fn checkpoint_wire(game: &Game) -> (PlayerId, Value) {
+    let viewer = game.decision_player().expect("the game awaits an action");
+    let observation = game.observe(viewer);
+    let actions = crate::protocol::protocol_actions(&observation);
+    let wire = crate::protocol::observation_json_for_format(
+        &game.catalog,
+        game.format,
+        &observation,
+        game.in_pregame(),
+        &actions,
+    );
+    (viewer, wire)
+}
+
+#[test]
 fn a_supported_pending_decision_rebuilds_and_resumes() {
     let catalog = crate::poc::catalog().expect("catalog builds");
     let deck = crate::Deck {
         main: vec![crate::card::cards::MOUNTAIN; 60],
-        sideboard: Vec::new(),
+        sideboard: vec![crate::card::cards::FOREST],
     };
     let mut game = Game::new(catalog.clone(), [deck.clone(), deck], 43).expect("game starts");
     let player = PlayerId::One;
@@ -178,12 +323,44 @@ fn a_supported_pending_decision_rebuilds_and_resumes() {
             "p1": definitions(&game.players[PlayerId::One.index()].library),
             "p2": definitions(&game.players[PlayerId::Two.index()].library),
         },
+        "outsideGame": {
+            "p1": definitions(&game.players[PlayerId::One.index()].outside_game),
+            "p2": definitions(&game.players[PlayerId::Two.index()].outside_game),
+        },
     });
 
     assert_eq!(observation_json["checkpoint"]["hasDeferredState"], false);
+    let mut missing_outside_game = hidden.clone();
+    missing_outside_game
+        .as_object_mut()
+        .expect("hidden hypothesis is an object")
+        .remove("outsideGame");
+    let error = Game::from_observation_checkpoint(
+        catalog.clone(),
+        game.format,
+        &observation_json,
+        &missing_outside_game,
+        1_007,
+    )
+    .expect_err("outside-game contents cannot be discarded during reconstruction");
+    assert!(error.contains("outsideGame"));
     let mut rebuilt =
         Game::from_observation_checkpoint(catalog, game.format, &observation_json, &hidden, 1_007)
             .expect("supported decision reconstructs");
+    assert_eq!(
+        std::array::from_fn::<_, 2, _>(|index| {
+            rebuilt.players[index]
+                .outside_game
+                .iter()
+                .map(|card| card.definition)
+                .collect::<Vec<_>>()
+        }),
+        [
+            vec![crate::card::cards::FOREST],
+            vec![crate::card::cards::FOREST]
+        ],
+        "outside-game hypotheses survive as Ring choices"
+    );
     assert_eq!(rebuilt.pending_decisions.len(), 1);
     let rebuilt_observation = rebuilt.observe(player);
     assert_eq!(
@@ -198,6 +375,78 @@ fn a_supported_pending_decision_rebuilds_and_resumes() {
     let decision = rebuilt.pending_decisions[0].observation.id;
     rebuilt.choose_decision(player, decision, &[1]);
     assert_eq!(rebuilt.miracle_window, Some(card));
+}
+
+#[test]
+fn a_hand_search_checkpoint_preserves_duplicate_card_object_ids() {
+    let catalog = crate::poc::catalog().expect("catalog builds");
+    let deck = crate::Deck {
+        main: vec![crate::card::cards::MOUNTAIN; 60],
+        sideboard: Vec::new(),
+    };
+    let mut game = Game::new(catalog.clone(), [deck.clone(), deck], 44).expect("game starts");
+    let player = PlayerId::One;
+    let original_ids = game.players[player.index()]
+        .hand
+        .iter()
+        .map(|card| card.id)
+        .collect::<Vec<_>>();
+    assert!(
+        original_ids.len() > 1,
+        "the hand contains duplicate Mountains"
+    );
+    game.queue_zone_search(
+        player,
+        ZoneKind::Hand,
+        crate::card::ObjectPredicateDef::Any,
+        0,
+        1,
+        false,
+        ZoneKind::Graveyard,
+        crate::card::ZonePlacement::Top,
+        false,
+        original_ids[0],
+        player,
+    );
+
+    let (viewer, wire) = checkpoint_wire(&game);
+    let original_options = game
+        .observe(viewer)
+        .decision
+        .expect("the hand search is offered")
+        .options
+        .iter()
+        .filter_map(|option| option.card.map(|(id, _)| id))
+        .collect::<Vec<_>>();
+    let rebuilt = Game::from_observation_checkpoint(
+        catalog,
+        game.format,
+        &wire,
+        &true_hidden_hypothesis(&game, viewer),
+        1_008,
+    )
+    .expect("the duplicate-card hand search reconstructs");
+
+    assert_eq!(
+        rebuilt.players[player.index()]
+            .hand
+            .iter()
+            .map(|card| card.id)
+            .collect::<Vec<_>>(),
+        original_ids,
+        "a public hand already has exact object identities and must not be rebound by definition"
+    );
+    assert_eq!(
+        rebuilt
+            .observe(viewer)
+            .decision
+            .expect("the rebuilt hand search is offered")
+            .options
+            .iter()
+            .filter_map(|option| option.card.map(|(id, _)| id))
+            .collect::<Vec<_>>(),
+        original_options
+    );
 }
 
 #[test]
@@ -274,6 +523,10 @@ fn an_emblem_rebuilds_with_identity_and_source_provenance() {
         "libraries": {
             "p1": definitions(&game.players[PlayerId::One.index()].library),
             "p2": definitions(&game.players[PlayerId::Two.index()].library),
+        },
+        "outsideGame": {
+            "p1": definitions(&game.players[PlayerId::One.index()].outside_game),
+            "p2": definitions(&game.players[PlayerId::Two.index()].outside_game),
         },
     });
     assert_eq!(observation_json["checkpoint"]["hasDeferredState"], false);
@@ -445,6 +698,10 @@ fn true_hidden_hypothesis(game: &Game, viewer: PlayerId) -> Value {
         "libraries": {
             "p1": definitions(&game.players[PlayerId::One.index()].library),
             "p2": definitions(&game.players[PlayerId::Two.index()].library),
+        },
+        "outsideGame": {
+            "p1": definitions(&game.players[PlayerId::One.index()].outside_game),
+            "p2": definitions(&game.players[PlayerId::Two.index()].outside_game),
         },
         "drawnThisTurn": {
             (seat_label(opponent)): drawn_indices,

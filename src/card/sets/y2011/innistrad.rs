@@ -137,9 +137,12 @@ const fn cloistered_youth_front_rules() -> CardRules {
                 step: crate::card::TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::May(&EffectDef::Transform {
-                object: EffectRecipientDef::Source,
-            }),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::Transform {
+                    object: EffectRecipientDef::Source,
+                },
+            },
         ),
     )
 }
@@ -710,9 +713,12 @@ static THRABEN_SENTRY_FRONT_ABILITIES: [AbilityDef; 2] = [
             from: Some(ZoneKind::Battlefield),
             to: Some(ZoneKind::Graveyard),
         },
-        EffectDef::May(&EffectDef::Transform {
-            object: EffectRecipientDef::Source,
-        }),
+        EffectDef::May {
+            player: EffectRecipientDef::Controller,
+            effect: &EffectDef::Transform {
+                object: EffectRecipientDef::Source,
+            },
+        },
     ),
 ];
 
@@ -956,10 +962,13 @@ static CURIOSITY_GRANTED_ABILITY: AbilityDef = AbilityDef::triggered(
         source: ObjectPredicateDef::Source,
         player: PlayerRelation::Opponent,
     },
-    EffectDef::May(&EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    }),
+    EffectDef::May {
+        player: EffectRecipientDef::Controller,
+        effect: &EffectDef::DrawCards {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(1),
+        },
+    },
 );
 
 // ISD 49 — Curiosity
@@ -1241,17 +1250,20 @@ pub(in crate::card::sets) static MURDER_OF_CROWS: CardRecord = CardRecord::new(
                 from: Some(ZoneKind::Battlefield),
                 to: Some(ZoneKind::Graveyard),
             },
-            EffectDef::May(&EffectDef::Sequence(&[
-                EffectDef::DrawCards {
-                    recipient: EffectRecipientDef::Controller,
-                    amount: ValueDef::Constant(1),
-                },
-                EffectDef::Discard {
-                    recipient: EffectRecipientDef::Controller,
-                    amount: ValueDef::Constant(1),
-                    selection: DiscardSelectionDef::RecipientChooses,
-                },
-            ])),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::Sequence(&[
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::Discard {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                        selection: DiscardSelectionDef::RecipientChooses,
+                    },
+                ]),
+            },
         ),
     ]),
 );
@@ -3329,10 +3341,16 @@ static GARRUK_LOW_LOYALTY: TriggerConditionDef = TriggerConditionDef::SourceLoya
     amount: 2,
 };
 
-static GARRUK_TUTOR: EffectDef = EffectDef::SearchLibrary {
+static GARRUK_TUTOR: EffectDef = EffectDef::SearchZone {
     player: EffectRecipientDef::Controller,
+    source: ZoneKind::Library,
     object: ObjectPredicateDef::HasType(CardType::Creature),
+    minimum: 0,
+    maximum: 1,
+    reveal: true,
     destination: ZoneKind::Hand,
+    placement: ZonePlacement::Top,
+    shuffle: true,
 };
 
 static GARRUK_TRAMPLE: AbilityDef = abilities::trample();
@@ -4184,13 +4202,19 @@ pub(in crate::card::sets) static TRAVELERS_AMULET: CardRecord = CardRecord::new(
             AbilityCostDef::Mana(mana_cost!("{1}")),
             AbilityCostDef::SacrificeSource,
         ],
-        EffectDef::SearchLibrary {
+        EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
             object: ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Land),
                 ObjectPredicateDef::Supertype(CardSupertype::Basic),
             ]),
+            minimum: 0,
+            maximum: 1,
+            reveal: true,
             destination: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            shuffle: true,
         },
     )),
 );
@@ -4271,17 +4295,26 @@ pub(in crate::card::sets) static GHOST_QUARTER: CardRecord = CardRecord::new(
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     can_regenerate: true,
                 },
-                // The printed "may" adds nothing: a search of a hidden zone
-                // never obliges the searcher to find, so declining is already
-                // one of the choices. The controller is read after the
+                // Declining the printed "may" skips the entire search, including
+                // its shuffle. If accepted, the qualified hidden-zone search
+                // may still legally fail to find. The controller is read after
                 // destruction from last-known information.
-                EffectDef::SearchLibrary {
+                EffectDef::May {
                     player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                    effect: &EffectDef::SearchZone {
+                    player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                    source: ZoneKind::Library,
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Land),
                         ObjectPredicateDef::Supertype(CardSupertype::Basic),
                     ]),
+                    minimum: 0,
+                    maximum: 1,
+                    reveal: false,
                     destination: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    },
                 },
             ])),
     ]),

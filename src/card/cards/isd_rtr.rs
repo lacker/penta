@@ -757,3 +757,5 @@ pub const WITS_END: CardDefinitionId = CardDefinitionId(1358);
 pub const ARMS_DEALER: CardDefinitionId = CardDefinitionId(1359);
 pub const AKROMAS_MEMORIAL: CardDefinitionId = CardDefinitionId(1360);
 pub const SANDS_OF_DELIRIUM: CardDefinitionId = CardDefinitionId(1361);
+pub const LILIANAS_SHADE: CardDefinitionId = CardDefinitionId(1366);
+pub const SEEK_THE_HORIZON: CardDefinitionId = CardDefinitionId(1367);

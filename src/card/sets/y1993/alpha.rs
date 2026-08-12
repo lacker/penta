@@ -1280,10 +1280,19 @@ pub(in crate::card::sets) static DEMONIC_TUTOR: CardRecord = CardRecord::new(
     "Demonic Tutor",
     CardArt::new("711d4d54-5520-4de8-9b93-79902ed8e562", "Douglas Shuler"),
     CardSet::Alpha,
-    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_abilities(&[AbilityDef::custom_full(
+    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_abilities(&[AbilityDef::spell(
         "Search your library for a card, put that card into your hand, then shuffle.",
-        CardBehavior::DemonicTutor,
-        "The search choice and shuffle are implemented by the card-local resolution procedure.",
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::Any,
+            minimum: 1,
+            maximum: 1,
+            reveal: false,
+            destination: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+        },
     )]),
 );
 
@@ -2959,10 +2968,13 @@ pub(in crate::card::sets) static VERDURAN_ENCHANTRESS: CardRecord = CardRecord::
                 ObjectPredicateDef::HasType(CardType::Enchantment),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
-            EffectDef::May(&EffectDef::DrawCards {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
-            }),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            },
         ),
     ]),
 );

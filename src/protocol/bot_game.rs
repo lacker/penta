@@ -35,9 +35,10 @@ fn contains_rebuilt_value(supplied: &Value, rebuilt: &Value) -> bool {
 
 impl BotGame {
     /// Constructs a local determinization from a redacted observation and a
-    /// separate hidden-zone hypothesis. `rollout_seed` initializes only the
-    /// reconstructed game's future randomness; observations never carry the
-    /// host game's seed or RNG state.
+    /// separate hidden-zone hypothesis. The hypothesis includes both players'
+    /// libraries and outside-game cards, even when those latter lists are empty.
+    /// `rollout_seed` initializes only the reconstructed game's future
+    /// randomness; observations never carry the host game's seed or RNG state.
     ///
     /// # Errors
     ///

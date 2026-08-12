@@ -289,6 +289,10 @@ impl Game {
             EffectDef::Sequence(effects) => effects
                 .iter()
                 .find_map(|effect| Self::immediate_attachment_target(*effect)),
+            EffectDef::IfFormat {
+                then, otherwise, ..
+            } => Self::immediate_attachment_target(*then)
+                .or_else(|| Self::immediate_attachment_target(*otherwise)),
             EffectDef::None
             | EffectDef::Randomized { .. }
             | EffectDef::ChoosePermanent { .. }
@@ -317,7 +321,9 @@ impl Game {
             | EffectDef::LookAtTopAndMayTake { .. }
             | EffectDef::LookAtTopAndSelect { .. }
             | EffectDef::LookAtHand { .. }
-            | EffectDef::SearchLibrary { .. }
+            | EffectDef::SearchZone { .. }
+            | EffectDef::ChooseCards { .. }
+            | EffectDef::ReplaceNextDrawThisTurn { .. }
             | EffectDef::CreateEmblem { .. }
             | EffectDef::Transform { .. }
             | EffectDef::Counter { .. }
@@ -327,7 +333,7 @@ impl Game {
             | EffectDef::BecomeCopyOf { .. }
             | EffectDef::OptionalPayment { .. }
             | EffectDef::UnlessPaid { .. }
-            | EffectDef::May(_)
+            | EffectDef::May { .. }
             | EffectDef::AdditionalCombatPhase
             | EffectDef::CannotCastNoncreatureSpellsThisTurn { .. }
             | EffectDef::GrantFlashToNextSorcery
@@ -780,7 +786,7 @@ impl Game {
         match effect {
             EffectDef::Attach { .. } => true,
             EffectDef::Sequence(effects) => effects.iter().copied().any(Self::effect_attaches),
-            EffectDef::May(inner) => Self::effect_attaches(*inner),
+            EffectDef::May { effect, .. } => Self::effect_attaches(*effect),
             _ => false,
         }
     }
@@ -800,6 +806,13 @@ impl Game {
             .or_else(|| {
                 self.card_in_nonbattlefield_zone(object)
                     .map(|(_, card)| card.definition)
+            })
+            .or_else(|| {
+                self.players
+                    .iter()
+                    .flat_map(|player| player.outside_game.iter())
+                    .find(|card| card.id == object)
+                    .map(|card| card.definition)
             })
     }
 
@@ -845,6 +858,12 @@ impl Game {
         }
         self.card_in_nonbattlefield_zone(object)
             .map(|(_, card)| card)
+            .or_else(|| {
+                self.players
+                    .iter()
+                    .flat_map(|player| player.outside_game.iter())
+                    .find(|card| card.id == object)
+            })
             .and_then(|card| self.catalog.get(card.definition))
             .map_or([false; 5], |definition| definition.rules.colors())
     }

@@ -434,15 +434,19 @@ pub(in crate::card::sets) static RESTORATION_ANGEL: CardRecord = CardRecord::new
             // resolution. The card comes back under its owner's control,
             // which is the printed controller for every creature this can
             // legally target unless control of it was already stolen.
-            EffectDef::May(&EffectDef::Sequence(&[
-                EffectDef::ExileLinkedToSource {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                },
-                EffectDef::ReturnLinkedExiles {
-                    zone: ZoneKind::Battlefield,
-                    grant: None,
-                },
-            ])))
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::Sequence(&[
+                    EffectDef::ExileLinkedToSource {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    },
+                    EffectDef::ReturnLinkedExiles {
+                        zone: ZoneKind::Battlefield,
+                        grant: None,
+                    },
+                ]),
+            },
+        )
             .with_coverage(AbilityCoverageDef::partial(
                 "Linked exile returns a stolen target under its owner rather than this ability's controller.",
             )),
@@ -1466,14 +1470,17 @@ pub(in crate::card::sets) static UNDEAD_EXECUTIONER: CardRecord = CardRecord::ne
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            EffectDef::May(&EffectDef::Apply {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::ModifyPowerToughness {
-                    power: ValueDef::Constant(-2),
-                    toughness: ValueDef::Constant(-2),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::ModifyPowerToughness {
+                        power: ValueDef::Constant(-2),
+                        toughness: ValueDef::Constant(-2),
+                    },
+                    duration: EffectDurationDef::UntilEndOfTurn,
                 },
-                duration: EffectDurationDef::UntilEndOfTurn,
-            }),
+            },
         ),
     ),
 );
@@ -2208,13 +2215,22 @@ pub(in crate::card::sets) static BORDERLAND_RANGER: CardRecord = CardRecord::new
             from: None,
             to: Some(ZoneKind::Battlefield),
         },
-        EffectDef::SearchLibrary {
+        EffectDef::May {
             player: EffectRecipientDef::Controller,
-            object: ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Land),
-                ObjectPredicateDef::Supertype(CardSupertype::Basic),
-            ]),
-            destination: ZoneKind::Hand,
+            effect: &EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                ]),
+                minimum: 0,
+                maximum: 1,
+                reveal: true,
+                destination: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+            },
         },
     )),
 );

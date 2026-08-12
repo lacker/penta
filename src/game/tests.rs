@@ -110,6 +110,7 @@ pub(super) fn ready_game() -> Game {
         player.hand.clear();
         player.graveyard.clear();
         player.exile.clear();
+        player.outside_game.clear();
         player.life = i16::from(rules::STARTING_LIFE);
         player.mana_pool = ManaPool::default();
         player.mana.clear();
@@ -375,6 +376,7 @@ mod countering_and_mana;
 mod decisions_and_effects;
 mod delayed_triggers;
 mod entry_replacements;
+mod exile_source_costs;
 mod guardian_beast;
 mod identity_and_mana;
 mod land_and_ability_layers;
@@ -394,11 +396,13 @@ mod premodern_split_and_lock;
 mod premodern_zone_and_denial;
 mod removal_and_keywords;
 mod replacements_and_presentation;
+mod ring_of_maruf;
 mod search_and_reveal;
 mod state_triggers_and_life;
 mod targeted_answers;
 mod triggers_and_stack;
 mod turn_and_loyalty;
+mod tutors_and_fetch_lands;
 mod zone_effects;
 
 use copy_effects::{

@@ -1,7 +1,7 @@
 use super::{
     BalanceAction, BalancePhase, BalanceTask, CardBehavior, CardInstance, CardType,
-    DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
-    Game, PlayerId, StackObject, Target, ZoneKind, ZoneMoveCause, ZonePlacement,
+    DecisionContinuation, DecisionPreference, DecisionVisibility, DecisionZone, Game, PlayerId,
+    StackObject, Target, ZoneKind, ZoneMoveCause, ZonePlacement,
 };
 
 impl Game {
@@ -92,39 +92,6 @@ impl Game {
             }
             CardBehavior::TimeWalk => self.extra_turns.push(object.controller),
             CardBehavior::Channel => self.channel_active[object.controller.index()] = true,
-            CardBehavior::DemonicTutor => {
-                let options = self.players[object.controller.index()]
-                    .library
-                    .iter()
-                    .enumerate()
-                    .map(|(index, card)| DecisionOption {
-                        id: u32::try_from(index).unwrap_or(u32::MAX),
-                        label: self
-                            .catalog
-                            .get(card.definition)
-                            .map_or_else(|| "Unknown card".into(), |card| card.name.clone()),
-                        card: Some((card.id, card.definition)),
-                        members: Vec::new(),
-                        ability_text: None,
-                        zone: DecisionZone::Library,
-                    })
-                    .collect();
-                self.queue_decision(
-                    object.controller,
-                    "Choose a card to put into your hand, or fail to find",
-                    DecisionVisibility::Private,
-                    DecisionPreference::HigherCardValue,
-                    // Searching a hidden zone never obliges the searcher to
-                    // find (CR 701.19c), so the minimum is zero even with a
-                    // full library. Failing to find is not cancelling: the
-                    // spell resolved and the search happened, which is why
-                    // the shuffle below runs either way.
-                    0..=1,
-                    false,
-                    options,
-                    DecisionContinuation::Tutor,
-                );
-            }
             CardBehavior::Duress => {
                 if let Some(Target::Player(victim)) = object.first_target() {
                     let eligible = self.players[victim.index()]

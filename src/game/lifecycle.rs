@@ -3,7 +3,7 @@ use super::{
     ContinuousEffectTimestamp, CounterKind, Deck, Format, Game, GameError, GameEvent, GameObjectId,
     GameStack, ManaPool, ObjectBacking, Permanent, PermanentLastKnownInformation, PhysicalCard,
     PhysicalCardId, PlayerId, PlayerState, Pregame, ReplayRng, RetiredObject, StackObject, Step,
-    ValidatedDeck, ValueDef, VecDeque, ZoneChangeOutcome, remove_card,
+    ValueDef, VecDeque, ZoneChangeOutcome, remove_card,
 };
 
 impl Game {
@@ -52,12 +52,15 @@ impl Game {
                 player: PlayerId::Two,
                 error,
             })?;
+        let (deck_one_main, deck_one_sideboard) = deck_one.into_parts();
+        let (deck_two_main, deck_two_sideboard) = deck_two.into_parts();
 
         let format_rules = format.rules();
 
-        let mut build_player =
-            |player: PlayerId, deck: ValidatedDeck| -> Result<PlayerState, GameError> {
-                let definitions = deck.into_main();
+        let mut players = {
+            let mut build_player = |player: PlayerId,
+                                    definitions: Vec<CardDefinitionId>|
+             -> Result<PlayerState, GameError> {
                 let mut library = Vec::with_capacity(definitions.len());
                 for definition in definitions {
                     let physical_id = PhysicalCardId(next_physical_id);
@@ -98,16 +101,50 @@ impl Game {
                     hand,
                     graveyard: Vec::new(),
                     exile: Vec::new(),
+                    outside_game: Vec::new(),
                     mana_pool: ManaPool::default(),
                     mana: Vec::new(),
                     land_played_this_turn: false,
                 })
             };
 
-        let players = [
-            build_player(PlayerId::One, deck_one)?,
-            build_player(PlayerId::Two, deck_two)?,
-        ];
+            [
+                build_player(PlayerId::One, deck_one_main)?,
+                build_player(PlayerId::Two, deck_two_main)?,
+            ]
+        };
+
+        // Sideboards are owned cards outside the game, rather than a game
+        // zone. Allocate their backing and runtime identities only after both
+        // main decks and opening hands so adding a sideboard cannot perturb
+        // the identities of cards that began the game in either main deck.
+        for (player, definitions) in [
+            (PlayerId::One, deck_one_sideboard),
+            (PlayerId::Two, deck_two_sideboard),
+        ] {
+            for definition in definitions {
+                let physical_id = PhysicalCardId(next_physical_id);
+                next_physical_id = next_physical_id
+                    .checked_add(1)
+                    .ok_or(GameError::TooManyCards)?;
+                let object_id = GameObjectId(next_object_id);
+                next_object_id = next_object_id
+                    .checked_add(1)
+                    .ok_or(GameError::TooManyCards)?;
+                physical_cards.push(PhysicalCard {
+                    id: physical_id,
+                    definition,
+                    owner: player,
+                });
+                players[player.index()].outside_game.push(CardInstance {
+                    id: object_id,
+                    definition,
+                    owner: player,
+                    backing: ObjectBacking::Cards(vec![physical_id]),
+                    characteristics: CharacteristicSource::Card(definition),
+                });
+            }
+        }
 
         Ok(Self {
             format,
@@ -139,6 +176,8 @@ impl Game {
             spells_cast_last_turn: [0; 2],
             cards_drawn_this_turn: [0; 2],
             drawn_this_turn: [Vec::new(), Vec::new()],
+            defer_empty_library_loss: false,
+            draw_replacements: std::array::from_fn(|_| VecDeque::new()),
             miracle_window: None,
             delayed_triggers: Vec::new(),
             floating_triggers: Vec::new(),
@@ -150,6 +189,7 @@ impl Game {
             pending_decisions: Vec::new(),
             next_decision_id: 0,
             pending_events: VecDeque::new(),
+            pending_procedures: VecDeque::new(),
             pending_triggers: Vec::new(),
             next_trigger_id: 0,
             last_seen_hands: [None, None],

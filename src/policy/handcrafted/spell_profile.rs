@@ -258,8 +258,8 @@ impl HandcraftedPolicy {
                 Self::collect_spell_effect_profile(*then, x, targets, profile);
             }
             // An optional effect is worth what it would do if taken.
-            EffectDef::May(inner) => {
-                Self::collect_spell_effect_profile(*inner, x, targets, profile);
+            EffectDef::May { effect, .. } => {
+                Self::collect_spell_effect_profile(*effect, x, targets, profile);
             }
             EffectDef::DealDamage { recipient, amount }
             | EffectDef::DrainLife { recipient, amount } => {
@@ -324,7 +324,10 @@ impl HandcraftedPolicy {
             | EffectDef::LookAtTopAndMayTake { .. }
             | EffectDef::LookAtTopAndSelect { .. }
             | EffectDef::LookAtHand { .. }
-            | EffectDef::SearchLibrary { .. }
+            | EffectDef::SearchZone { .. }
+            | EffectDef::ChooseCards { .. }
+            | EffectDef::ReplaceNextDrawThisTurn { .. }
+            | EffectDef::IfFormat { .. }
             | EffectDef::AddCounters { .. }
             | EffectDef::ChangeTextBasicLandType { .. }
             | EffectDef::BecomeCopyOf { .. }

@@ -449,11 +449,18 @@ fn collect_ability_grants(effect: EffectDef, grants: &mut Vec<&AbilityDef>) {
         | EffectDef::UnlessPaid {
             otherwise: effect, ..
         }
-        | EffectDef::May(effect)
+        | EffectDef::May { effect, .. }
         | EffectDef::ChoosePermanent { then: effect, .. }
         | EffectDef::IfCondition { then: effect, .. }
-        | EffectDef::AtNextStep { effect, .. } => {
+        | EffectDef::AtNextStep { effect, .. }
+        | EffectDef::ReplaceNextDrawThisTurn { effect, .. } => {
             collect_ability_grants(*effect, grants);
+        }
+        EffectDef::IfFormat {
+            then, otherwise, ..
+        } => {
+            collect_ability_grants(*then, grants);
+            collect_ability_grants(*otherwise, grants);
         }
         EffectDef::SacrificeOfChoice {
             then: Some(effect), ..
@@ -492,7 +499,8 @@ fn collect_ability_grants(effect: EffectDef, grants: &mut Vec<&AbilityDef>) {
         | EffectDef::Mill { .. }
         | EffectDef::LookAtTopAndMayTake { .. }
         | EffectDef::LookAtHand { .. }
-        | EffectDef::SearchLibrary { .. }
+        | EffectDef::SearchZone { .. }
+        | EffectDef::ChooseCards { .. }
         | EffectDef::Counter { .. }
         | EffectDef::CounterUnlessPaid { .. }
         | EffectDef::AddCounters { .. }
@@ -562,16 +570,20 @@ fn ability_grant_sites(effect: EffectDef) -> usize {
         | EffectDef::UnlessPaid {
             otherwise: effect, ..
         }
-        | EffectDef::May(effect)
+        | EffectDef::May { effect, .. }
         | EffectDef::ChoosePermanent { then: effect, .. }
         | EffectDef::IfCondition { then: effect, .. }
         | EffectDef::AtNextStep { effect, .. }
+        | EffectDef::ReplaceNextDrawThisTurn { effect, .. }
         | EffectDef::SacrificeOfChoice {
             then: Some(effect), ..
         } => ability_grant_sites(*effect),
         EffectDef::LookAtTopAndSelect { selection, .. } => selection
             .then
             .map_or(0, |effect| ability_grant_sites(*effect)),
+        EffectDef::IfFormat {
+            then, otherwise, ..
+        } => ability_grant_sites(*then).max(ability_grant_sites(*otherwise)),
         EffectDef::Apply { effect, .. } => applied_ability_grant_sites(effect),
         EffectDef::TriggerUntilYourNextTurn { .. }
         | EffectDef::None
@@ -601,7 +613,8 @@ fn ability_grant_sites(effect: EffectDef) -> usize {
         | EffectDef::Mill { .. }
         | EffectDef::LookAtTopAndMayTake { .. }
         | EffectDef::LookAtHand { .. }
-        | EffectDef::SearchLibrary { .. }
+        | EffectDef::SearchZone { .. }
+        | EffectDef::ChooseCards { .. }
         | EffectDef::Counter { .. }
         | EffectDef::CounterUnlessPaid { .. }
         | EffectDef::AddCounters { .. }

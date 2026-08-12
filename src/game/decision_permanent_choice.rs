@@ -31,7 +31,7 @@ impl Game {
                 Self::effect_removes_chosen_permanent(*on_success, choice)
                     || Self::effect_removes_chosen_permanent(*on_failure, choice)
             }
-            EffectDef::May(effect)
+            EffectDef::May { effect, .. }
             | EffectDef::OptionalPayment {
                 if_paid: effect, ..
             }

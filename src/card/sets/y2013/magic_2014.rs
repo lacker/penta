@@ -78,12 +78,15 @@ pub(in crate::card::sets) static AURAMANCER: CardRecord = CardRecord::new(
                 controller: None,
                 owner: Some(PlayerRelation::You),
             })],
-            EffectDef::May(&EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                controller: None,
-                placement: ZonePlacement::Top,
-            }),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Hand,
+                    controller: None,
+                    placement: ZonePlacement::Top,
+                },
+            },
         ),
     ),
 );
@@ -828,10 +831,13 @@ pub(in crate::card::sets) static WINDREADER_SPHINX: CardRecord = CardRecord::new
                 ObjectPredicateDef::HasType(CardType::Creature),
                 ObjectPredicateDef::HasKeyword(crate::card::KeywordAbility::Flying),
             ])),
-            EffectDef::May(&EffectDef::DrawCards {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
-            }),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            },
         )
         .with_coverage(AbilityCoverageDef::partial(
             "The flying event predicate does not yet account for flying granted or removed by static continuous effects.",
@@ -890,14 +896,17 @@ pub(in crate::card::sets) static BLIGHTCASTER: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            EffectDef::May(&EffectDef::Apply {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::ModifyPowerToughness {
-                    power: ValueDef::Constant(-2),
-                    toughness: ValueDef::Constant(-2),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::ModifyPowerToughness {
+                        power: ValueDef::Constant(-2),
+                        toughness: ValueDef::Constant(-2),
+                    },
+                    duration: EffectDurationDef::UntilEndOfTurn,
                 },
-                duration: EffectDurationDef::UntilEndOfTurn,
-            }),
+            },
         ),
     ),
 );
@@ -931,7 +940,7 @@ pub(in crate::card::sets) static BLOOD_BAIRN: CardRecord = CardRecord::new(
 );
 
 // M14 88 — Bogbrew Witch
-// Audit: blocked — SearchLibrary cannot match either of two exact names and make the selected permanent enter tapped.
+// Audit: blocked — SearchZone cannot match either exact printed name or make the selected permanent enter tapped.
 
 // M14 89 — Child of Night
 pub(in crate::card::sets) static CHILD_OF_NIGHT: CardRecord = CardRecord::new(
@@ -1022,10 +1031,16 @@ pub(in crate::card::sets) static DIABOLIC_TUTOR: CardRecord = CardRecord::new(
     CardSet::Magic2014,
     CardRules::new_sorcery(mana_cost!("{2}{B}{B}")).with_ability(AbilityDef::spell(
         "Search your library for a card, put that card into your hand, then shuffle.",
-        EffectDef::SearchLibrary {
+        EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
             object: ObjectPredicateDef::Any,
+            minimum: 1,
+            maximum: 1,
+            reveal: false,
             destination: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            shuffle: true,
         },
     )),
 );
@@ -1586,10 +1601,13 @@ pub(in crate::card::sets) static FLESHPULPER_GIANT: CardRecord = CardRecord::new
                 ObjectPredicateDef::HasType(CardType::Creature),
                 ObjectPredicateDef::ToughnessLessThan(ValueDef::Constant(3)),
             ]))],
-            EffectDef::May(&EffectDef::Destroy {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
-            }),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    can_regenerate: true,
+                },
+            },
         )
         .with_coverage(AbilityCoverageDef::partial(
             "The toughness target predicate does not yet account for continuous static power/toughness effects.",
@@ -2086,13 +2104,19 @@ pub(in crate::card::sets) static LAY_OF_THE_LAND: CardRecord = CardRecord::new(
     CardSet::Magic2014,
     CardRules::new_sorcery(mana_cost!("{G}")).with_ability(AbilityDef::spell(
         "Search your library for a basic land card, reveal it, put it into your hand, then shuffle.",
-        EffectDef::SearchLibrary {
+        EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
             object: ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Land),
                 ObjectPredicateDef::Supertype(CardSupertype::Basic),
             ]),
+            minimum: 0,
+            maximum: 1,
+            reveal: true,
             destination: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            shuffle: true,
         },
     )),
 );
@@ -2176,11 +2200,14 @@ pub(in crate::card::sets) static OATH_OF_THE_ANCIENT_WOOD: CardRecord = CardReco
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            EffectDef::May(&EffectDef::AddCounters {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                kind: CounterKind::PlusOnePlusOne,
-                amount: ValueDef::Constant(1),
-            }),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            },
         ),
     ),
 );

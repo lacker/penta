@@ -33,7 +33,14 @@ impl Game {
     pub(super) fn object_card_name(&self, id: GameObjectId) -> Option<&str> {
         self.permanent_card_name(id).or_else(|| {
             self.card_in_nonbattlefield_zone(id)
-                .and_then(|(_, card)| self.catalog.get(card.definition))
+                .map(|(_, card)| card)
+                .or_else(|| {
+                    self.players
+                        .iter()
+                        .flat_map(|player| player.outside_game.iter())
+                        .find(|card| card.id == id)
+                })
+                .and_then(|card| self.catalog.get(card.definition))
                 .map(|card| card.name.as_str())
         })
     }

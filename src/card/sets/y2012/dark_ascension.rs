@@ -176,9 +176,12 @@ pub(in crate::card::sets) static NIBLIS_OF_THE_MIST: CardRecord = CardRecord::ne
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            EffectDef::May(&EffectDef::Tap {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            }),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::Tap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            },
         ),
     ]),
 );
@@ -197,9 +200,12 @@ pub(in crate::card::sets) static NIBLIS_OF_THE_URN: CardRecord = CardRecord::new
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            EffectDef::May(&EffectDef::Tap {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            }),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::Tap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            },
         ),
     ]),
 );
@@ -1553,7 +1559,7 @@ pub(in crate::card::sets) static CRUSHING_VINES: CardRecord = CardRecord::new(
 );
 
 // DKA 111 — Dawntreader Elk
-// Audit: blocked — SearchLibrary cannot make the selected basic land enter tapped while preserving the selected card through the search continuation.
+// Audit: blocked — SearchZone cannot make the selected basic land enter tapped.
 
 // DKA 112 — Deranged Outcast
 pub(in crate::card::sets) static DERANGED_OUTCAST: CardRecord = CardRecord::new(
@@ -2230,7 +2236,7 @@ pub(in crate::card::sets) static HELVAULT: CardRecord = CardRecord::new(
 // Audit: blocked — Needs equipment attachment/equip actions and two distinct tap abilities granted to the equipped creature.
 
 // DKA 155 — Evolving Wilds
-// Audit: blocked — SearchLibrary cannot make the selected basic land enter tapped while preserving the selected card through the search continuation.
+// Audit: blocked — SearchZone cannot make the selected basic land enter tapped.
 
 // DKA 156 — Grim Backwoods
 pub(in crate::card::sets) static GRIM_BACKWOODS: CardRecord = CardRecord::new(

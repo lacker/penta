@@ -134,7 +134,8 @@ print("self-play:", game.result(), "in", steps, "decisions")
 
 # A hosted observation can become a live local determinization without the
 # host seed. Here the hypotheses happen to use a local game's true hidden
-# zones only so the smoke test can obtain correctly sized lists cheaply.
+# hand and libraries only so the smoke test can obtain correctly sized lists
+# cheaply. Outside-game lists are explicit hypotheses and may be empty.
 game = penta.Game("Sligh", "The Deck", opponent="external", seed=31)
 view_json = game.observe("p1")
 view = json.loads(view_json)
@@ -145,6 +146,7 @@ hidden = {
         "p1": zone_definitions(game.library("p1")),
         "p2": zone_definitions(game.library("p2")),
     },
+    "outsideGame": {"p1": [], "p2": []},
 }
 world = penta.Game.from_observation(view_json, json.dumps(hidden), rollout_seed=999)
 rebuilt = json.loads(world.observe("p1"))

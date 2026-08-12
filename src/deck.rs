@@ -94,8 +94,8 @@ impl Deck {
 pub struct ValidatedDeck(Deck);
 
 impl ValidatedDeck {
-    pub(crate) fn into_main(self) -> Vec<CardDefinitionId> {
-        self.0.main
+    pub(crate) fn into_parts(self) -> (Vec<CardDefinitionId>, Vec<CardDefinitionId>) {
+        (self.0.main, self.0.sideboard)
     }
 }
 

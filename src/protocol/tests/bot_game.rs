@@ -145,6 +145,7 @@ fn an_observation_rebuilds_with_separate_hidden_hypotheses_and_fresh_rng() {
             "p1": definitions(game.library_json(PlayerId::One)),
             "p2": definitions(game.library_json(PlayerId::Two)),
         },
+        "outsideGame": {"p1": [], "p2": []},
     });
 
     let before: Value = serde_json::from_str(&observation).expect("observation JSON");
@@ -275,6 +276,7 @@ fn an_ordinary_spell_on_the_stack_rebuilds_as_a_response_window() {
             "p1": zone_definitions(game.library_json(PlayerId::One)),
             "p2": zone_definitions(game.library_json(PlayerId::Two)),
         },
+        "outsideGame": {"p1": [], "p2": []},
     });
     let rebuilt =
         BotGame::from_observation_json(&observation.to_string(), &hidden.to_string(), 123)
@@ -426,6 +428,7 @@ fn hidden_hypothesis(game: &BotGame, viewer: PlayerId) -> Value {
             "p1": definitions(game.library_json(PlayerId::One)),
             "p2": definitions(game.library_json(PlayerId::Two)),
         },
+        "outsideGame": {"p1": [], "p2": []},
     })
 }
 

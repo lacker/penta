@@ -619,3 +619,7 @@ pub const MINOR_DEMON_TOKEN_1_1_BLACK_RED: CardDefinitionId = CardDefinitionId(6
 pub const THE_HIVE: CardDefinitionId = CardDefinitionId(604);
 pub const BORIS_DEVILBOON: CardDefinitionId = CardDefinitionId(605);
 pub const GUARDIAN_BEAST: CardDefinitionId = CardDefinitionId(606);
+pub const RING_OF_MARUF: CardDefinitionId = CardDefinitionId(1362);
+pub const BLOODSTAINED_MIRE: CardDefinitionId = CardDefinitionId(1363);
+pub const POLLUTED_DELTA: CardDefinitionId = CardDefinitionId(1364);
+pub const WINDSWEPT_HEATH: CardDefinitionId = CardDefinitionId(1365);

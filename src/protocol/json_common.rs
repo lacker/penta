@@ -53,6 +53,7 @@ pub(super) const fn decision_zone_name(zone: DecisionZone) -> &'static str {
         DecisionZone::Stack => "Stack",
         DecisionZone::Library => "Library",
         DecisionZone::Exile => "Exile",
+        DecisionZone::OutsideGame => "OutsideGame",
         DecisionZone::Command => "Command",
         DecisionZone::DrawnThisStep => "DrawnThisStep",
         DecisionZone::None => "None",

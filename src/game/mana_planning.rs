@@ -100,6 +100,7 @@ impl Game {
                     ManaPaymentPurpose::Ability {
                         source,
                         taps_source: false,
+                        leaves_source: false,
                     },
                 )
             });
@@ -130,6 +131,12 @@ impl Game {
         {
             let cost = Self::activated_ability_mana_cost(definition);
             let taps_source = definition.costs.contains(&AbilityCostDef::TapSource);
+            let leaves_source = definition.costs.iter().any(|cost| {
+                matches!(
+                    cost,
+                    AbilityCostDef::SacrificeSource | AbilityCostDef::ExileSource
+                )
+            });
             return cost.map(|cost| {
                 (
                     cost,
@@ -141,6 +148,7 @@ impl Game {
                     ManaPaymentPurpose::Ability {
                         source,
                         taps_source,
+                        leaves_source,
                     },
                 )
             });
@@ -158,6 +166,7 @@ impl Game {
             ManaPaymentPurpose::Ability {
                 source,
                 taps_source: false,
+                leaves_source: false,
             },
         ))
     }
@@ -268,6 +277,7 @@ impl Game {
             ManaPaymentPurpose::Ability {
                 source,
                 taps_source: true,
+                ..
             } => Some(*source),
             _ => None,
         };
@@ -282,9 +292,23 @@ impl Game {
                 .mana_ability_activations(permanent)
                 .into_iter()
                 .filter(|activation| {
+                    let preserves_required_source = !matches!(
+                        purpose,
+                        ManaPaymentPurpose::Ability {
+                            source,
+                            leaves_source: true,
+                            ..
+                        } if *source == activation.source
+                    ) || !activation.costs.iter().any(|cost| {
+                        matches!(
+                            cost,
+                            AbilityCostDef::SacrificeSource | AbilityCostDef::ExileSource
+                        )
+                    });
                     Self::mana_for_activation(*activation)
                         .first()
                         .is_some_and(|mana| self.mana_can_pay_for(*mana, purpose))
+                        && preserves_required_source
                 })
                 .collect::<Vec<_>>();
             // When several outputs are legal, prefer one whose spend rider

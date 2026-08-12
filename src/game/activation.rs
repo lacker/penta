@@ -52,6 +52,7 @@ impl Game {
             let payment_purpose = ManaPaymentPurpose::Ability {
                 source,
                 taps_source: false,
+                leaves_source: false,
             };
             for cost in definition.costs.as_slice() {
                 match cost {
@@ -160,6 +161,12 @@ impl Game {
                 unreachable!("the declarative activation filter checked its category")
             };
             let taps_source = definition.costs.contains(&AbilityCostDef::TapSource);
+            let leaves_source = definition.costs.iter().any(|cost| {
+                matches!(
+                    cost,
+                    AbilityCostDef::SacrificeSource | AbilityCostDef::ExileSource
+                )
+            });
             let animates_source = Self::effect_animates_source(ability_def.declarative_effect());
             let has_generic_sacrifice = definition
                 .costs
@@ -180,6 +187,7 @@ impl Game {
                             &ManaPaymentPurpose::Ability {
                                 source,
                                 taps_source,
+                                leaves_source,
                             },
                         );
                         let _ = self.pay_player_cost(player, *cost, x);
@@ -187,7 +195,9 @@ impl Game {
                     AbilityCostDef::TapSource => {
                         let _ = self.tap_permanent(source);
                     }
-                    AbilityCostDef::SacrificeSource | AbilityCostDef::SacrificePermanent { .. } => {
+                    AbilityCostDef::SacrificeSource
+                    | AbilityCostDef::ExileSource
+                    | AbilityCostDef::SacrificePermanent { .. } => {
                         // Deferred until mana and source-dependent costs have
                         // been paid. A chosen permanent may itself produce
                         // mana first, and the source may still owe a tap or
@@ -204,8 +214,7 @@ impl Game {
                         unreachable!("a battlefield source cannot discard itself")
                     }
                     AbilityCostDef::PayLife(amount) => {
-                        self.players[player.index()].life -=
-                            i16::try_from(*amount).unwrap_or(i16::MAX);
+                        self.lose_life(player, *amount);
                     }
                     AbilityCostDef::ExileCardFromGraveyard(_) => {
                         let chosen = cost_object.expect("a legal activation chose the exiled card");
@@ -238,7 +247,6 @@ impl Game {
                     }
                     AbilityCostDef::UntapSource
                     | AbilityCostDef::DiscardCards(_)
-                    | AbilityCostDef::ExileSource
                     | AbilityCostDef::Special(_) => {
                         unreachable!("unsupported costs are not offered as legal actions")
                     }
@@ -250,7 +258,9 @@ impl Game {
             {
                 self.sacrifice_permanent(sacrificed);
             }
-            if definition.costs.contains(&AbilityCostDef::SacrificeSource)
+            if definition.costs.contains(&AbilityCostDef::ExileSource) {
+                self.exile_permanent(source);
+            } else if definition.costs.contains(&AbilityCostDef::SacrificeSource)
                 || sacrifice_choice_is_source
             {
                 self.sacrifice_permanent(source);

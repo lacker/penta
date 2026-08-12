@@ -58,7 +58,7 @@ test("card coverage comes from ability definitions rather than play gates", asyn
 
   game.free();
 });
-test("staged engine decisions are serialized as generic private choices", async () => {
+test("mandatory library searches are serialized as generic private choices", async () => {
   await initializeWasm();
 
   const game = new WebGame("The Deck", "Goblins", "Random", true, 214);
@@ -73,14 +73,14 @@ test("staged engine decisions are serialized as generic private choices", async 
   assert.equal(state.decision.kind, "Choice");
   assert.equal(state.decision.orderSemantics, undefined);
   assert.equal(state.decision.visibility, "Private");
-  // A search never obliges the searcher to find, so the minimum is zero even
-  // with a full library. The client relies on this to offer "Choose none".
-  assert.equal(state.decision.minimum, 0);
+  // Demonic Tutor asks for an unrestricted card, so it must find one while the
+  // library is nonempty. Qualified hidden-zone searches may still use zero.
+  assert.equal(state.decision.minimum, 1);
   assert.equal(state.decision.maximum, 1);
   assert.equal(
     state.decision.cancellable,
     false,
-    "failing to find resolves the spell rather than backing out of it",
+    "the search resolves rather than backing out of the spell",
   );
   assert.ok(state.decision.options.length > 40);
   const choice = state.decision.options[0];
@@ -138,7 +138,7 @@ test("concurrent triggers expose resolution ordering and frozen stack ability me
   game.free();
 });
 
-test("a search can be resolved by failing to find", async () => {
+test("an unrestricted search cannot fail to find from a nonempty library", async () => {
   await initializeWasm();
 
   const game = new WebGame("The Deck", "Goblins", "Random", true, 214);
@@ -153,13 +153,23 @@ test("a search can be resolved by failing to find", async () => {
   const handBeforeSearch = state.human.hand.length;
   const libraryBeforeSearch = state.human.library;
 
-  // An empty selection is the wire form of failing to find.
-  game.choose_decision(state.decision.id, JSON.stringify([]));
+  assert.throws(
+    () => game.choose_decision(state.decision.id, JSON.stringify([])),
+    /is not legal/,
+    "Demonic Tutor rejects an empty selection while a card is available",
+  );
+  state = JSON.parse(game.state_json());
+  assert.equal(state.decision.minimum, 1, "the mandatory search remains pending");
+
+  game.choose_decision(
+    state.decision.id,
+    JSON.stringify([state.decision.options[0].id]),
+  );
   state = JSON.parse(game.state_json());
 
   assert.equal(state.decision, null, "the search resolved");
-  assert.equal(state.human.hand.length, handBeforeSearch, "no card was found");
-  assert.equal(state.human.library, libraryBeforeSearch, "and none left the library");
+  assert.equal(state.human.hand.length, handBeforeSearch + 1, "one card was found");
+  assert.equal(state.human.library, libraryBeforeSearch - 1, "one card left the library");
 
   game.free();
 });

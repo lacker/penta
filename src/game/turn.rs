@@ -2,8 +2,8 @@ use super::{
     AbilityEffectExpiration, Action, AlternativeCastKindDef, CardBehavior, CardDefinitionId,
     CardType, CombatDamageStage, CommittedTriggerEvent, DecisionContinuation, DecisionOption,
     DecisionPreference, DecisionVisibility, DecisionZone, DeclarativeAbilityDef, EffectDef, Game,
-    GameEvent, GameObjectId, GameResult, ManaPool, PlayerId, ReplacementEventDef, Step,
-    TriggerContext, TurnStepDef, one_or_none,
+    GameEvent, GameObjectId, GameResult, ManaPool, PendingProcedure, PlayerId, ReplacementEventDef,
+    Step, TriggerContext, TurnStepDef, one_or_none,
 };
 
 impl Game {
@@ -183,6 +183,11 @@ impl Game {
                 self.step = Step::Draw;
                 if !(self.turn == 1 && self.active_player == PlayerId::One) {
                     let _ = self.draw_card(self.active_player);
+                    if !self.pending_decisions.is_empty() || !self.pending_events.is_empty() {
+                        self.pending_procedures
+                            .push_back(PendingProcedure::FinishStepAdvance);
+                        return;
+                    }
                 }
             }
             Step::Draw => self.step = Step::PrecombatMain,
@@ -222,6 +227,10 @@ impl Game {
             Step::Cleanup => self.start_next_turn(),
         }
 
+        self.finish_step_advance();
+    }
+
+    fn finish_step_advance(&mut self) {
         if self.result.is_none() {
             self.begin_step_triggers();
             self.priority = self.active_player;
@@ -385,6 +394,9 @@ impl Game {
 
     pub(super) fn finish_cleanup(&mut self) {
         self.temporary_ability_grants.clear();
+        for replacements in &mut self.draw_replacements {
+            replacements.clear();
+        }
         for permanent in &mut self.battlefield {
             permanent.damage = 0;
             permanent.exile_instead_of_dying = false;
@@ -434,6 +446,14 @@ impl Game {
     }
 
     pub(super) fn draw_card(&mut self, player: PlayerId) -> Option<GameObjectId> {
+        if self.draw_replacements[player.index()].len() > 1 {
+            self.queue_draw_replacement_choice(player);
+            return None;
+        }
+        if let Some(replacement) = self.draw_replacements[player.index()].pop_front() {
+            self.resolve_effect_def(replacement.effect, &replacement.object, replacement.context);
+            return None;
+        }
         let Some(card) = self.players[player.index()].library.pop() else {
             self.players[player.index()].tried_to_draw_from_empty_library = true;
             return None;
@@ -453,6 +473,47 @@ impl Game {
             self.queue_miracle_reveal(player, card_id);
         }
         Some(card_id)
+    }
+
+    fn queue_draw_replacement_choice(&mut self, player: PlayerId) {
+        let replacements = self.draw_replacements[player.index()]
+            .drain(..)
+            .collect::<Vec<_>>();
+        let options = replacements
+            .iter()
+            .enumerate()
+            .map(|(index, replacement)| {
+                let definition = replacement.object.presentation_definition();
+                let name = self
+                    .catalog
+                    .get(definition)
+                    .map_or("Draw replacement", |card| card.name.as_str());
+                DecisionOption {
+                    id: u32::try_from(index).unwrap_or(u32::MAX),
+                    label: replacement
+                        .object
+                        .ability_text()
+                        .map_or_else(|| name.to_string(), |text| format!("{name} — {text}")),
+                    card: None,
+                    members: Vec::new(),
+                    ability_text: replacement.object.ability_text().map(str::to_owned),
+                    zone: DecisionZone::None,
+                }
+            })
+            .collect();
+        self.queue_decision(
+            player,
+            "Choose which effect replaces this draw",
+            DecisionVisibility::Public,
+            DecisionPreference::Neutral,
+            1..=1,
+            false,
+            options,
+            DecisionContinuation::DrawReplacement {
+                player,
+                replacements,
+            },
+        );
     }
 
     /// Whether a card offers a miracle cost at all.
@@ -514,12 +575,115 @@ impl Game {
     }
 
     pub(super) fn draw_cards(&mut self, player: PlayerId, count: u16) {
-        for _ in 0..count {
+        if count == 0 {
+            return;
+        }
+        if !self.pending_decisions.is_empty()
+            || !self.pending_events.is_empty()
+            || !self.pending_procedures.is_empty()
+        {
+            self.pending_procedures
+                .push_back(PendingProcedure::DrawCards {
+                    player,
+                    remaining: count,
+                });
+            return;
+        }
+        let mut remaining = count;
+        while remaining > 0 {
             if self.result.is_some() {
                 break;
             }
+            remaining -= 1;
             let _ = self.draw_card(player);
+            if !self.pending_decisions.is_empty()
+                || !self.pending_events.is_empty()
+                || !self.pending_procedures.is_empty()
+            {
+                if remaining > 0 {
+                    self.pending_procedures
+                        .push_back(PendingProcedure::DrawCards { player, remaining });
+                }
+                break;
+            }
         }
+    }
+
+    /// Resumes rules procedures in the order their interrupted operations
+    /// require. Nothing here grants priority; the caller drains this queue
+    /// before state-based actions and trigger placement.
+    pub(super) fn continue_pending_procedures(&mut self) {
+        while self.result.is_none()
+            && self.pending_decisions.is_empty()
+            && self.pending_events.is_empty()
+        {
+            let Some(procedure) = self.pending_procedures.pop_front() else {
+                return;
+            };
+            let mut later_procedures = std::mem::take(&mut self.pending_procedures);
+            match procedure {
+                PendingProcedure::DrawCards { player, remaining } => {
+                    self.draw_cards(player, remaining);
+                }
+                PendingProcedure::ResolveEffects {
+                    effects,
+                    object,
+                    context,
+                    custom_followup,
+                } => self.resolve_effects_in_order(effects, &object, context, custom_followup),
+                PendingProcedure::SylvanAfterDraw { player } => {
+                    let candidates = self.sylvan_candidates(player);
+                    let choices = candidates.len().min(2);
+                    if choices > 0 {
+                        self.queue_sylvan_select(player, candidates, choices);
+                    }
+                }
+                PendingProcedure::SimultaneousDraws {
+                    remaining,
+                    next,
+                    was_deferred,
+                } => self.continue_simultaneous_draws(remaining, next, was_deferred),
+                PendingProcedure::ShuffleLibrary { player } => {
+                    self.rng.shuffle(&mut self.players[player.index()].library);
+                }
+                PendingProcedure::FinishStepAdvance => self.finish_step_advance(),
+            }
+            self.pending_procedures.append(&mut later_procedures);
+        }
+    }
+
+    pub(super) fn resolve_effects_in_order(
+        &mut self,
+        mut effects: Vec<super::ScopedEffect>,
+        object: &super::StackObject,
+        context: TriggerContext,
+        custom_followup: Option<CardBehavior>,
+    ) {
+        let mut later_procedures = std::mem::take(&mut self.pending_procedures);
+        while !effects.is_empty() {
+            let effect = effects.remove(0);
+            self.resolve_effect_def(effect, object, context);
+            if !self.pending_decisions.is_empty()
+                || !self.pending_events.is_empty()
+                || !self.pending_procedures.is_empty()
+            {
+                if !effects.is_empty() || custom_followup.is_some() {
+                    self.pending_procedures
+                        .push_back(PendingProcedure::ResolveEffects {
+                            effects,
+                            object: Box::new(object.clone()),
+                            context,
+                            custom_followup,
+                        });
+                }
+                self.pending_procedures.append(&mut later_procedures);
+                return;
+            }
+        }
+        if let Some(behavior) = custom_followup {
+            self.resolve_custom_spell_followup(object, behavior);
+        }
+        self.pending_procedures.append(&mut later_procedures);
     }
 
     pub(super) fn empty_mana_pools(&mut self) {
@@ -535,6 +699,52 @@ impl Game {
             }
         }
         self.check_state_based_actions();
+    }
+
+    /// Draws every card for the active player first, then every card for the
+    /// other player. Each player's draws still happen one at a time so draw
+    /// replacements can suspend the instruction. One spell can deck both
+    /// players, so empty-library losses remain deferred until the complete
+    /// simultaneous instruction finishes. Empty-library loss is recorded on
+    /// each player and settled at the next state-based-action check.
+    #[cfg(test)]
+    pub(super) fn draw_cards_simultaneously(&mut self, counts: [u16; 2]) {
+        let was_deferred = self.defer_empty_library_loss;
+        self.defer_empty_library_loss = true;
+        self.continue_simultaneous_draws(counts, self.active_player, was_deferred);
+    }
+
+    fn continue_simultaneous_draws(
+        &mut self,
+        mut remaining: [u16; 2],
+        mut next: PlayerId,
+        was_deferred: bool,
+    ) {
+        while remaining.iter().any(|count| *count > 0) && self.result.is_none() {
+            let player = next;
+            if remaining[player.index()] == 0 {
+                next = player.opponent();
+                continue;
+            }
+            remaining[player.index()] -= 1;
+            let _ = self.draw_card(player);
+            if remaining[player.index()] == 0 {
+                next = player.opponent();
+            }
+            if !self.pending_decisions.is_empty()
+                || !self.pending_events.is_empty()
+                || !self.pending_procedures.is_empty()
+            {
+                self.pending_procedures
+                    .push_back(PendingProcedure::SimultaneousDraws {
+                        remaining,
+                        next,
+                        was_deferred,
+                    });
+                return;
+            }
+        }
+        self.defer_empty_library_loss = was_deferred;
     }
 
     pub(super) fn finish(&mut self, result: GameResult) {

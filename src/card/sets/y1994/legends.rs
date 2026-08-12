@@ -1902,13 +1902,19 @@ pub(in crate::card::sets) static UNTAMED_WILDS: CardRecord = CardRecord::new(
     CardSet::Legends,
     CardRules::new_sorcery(mana_cost!("{2}{G}")).with_ability(AbilityDef::spell(
         "Search your library for a basic land card, put that card onto the battlefield, then shuffle.",
-        EffectDef::SearchLibrary {
+        EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
             object: ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Land),
                 ObjectPredicateDef::Supertype(CardSupertype::Basic),
             ]),
+            minimum: 0,
+            maximum: 1,
+            reveal: false,
             destination: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+            shuffle: true,
         },
     )),
 );

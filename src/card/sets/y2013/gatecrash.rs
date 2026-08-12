@@ -2091,7 +2091,7 @@ pub(in crate::card::sets) static FOUNDRY_CHAMPION: CardRecord = CardRecord::new(
 );
 
 // GTC 166 — Frenzied Tilling
-// Audit: blocked — Library search cannot put the found basic land onto the battlefield tapped.
+// Audit: blocked — SearchZone cannot make the found basic land enter tapped.
 
 // GTC 167 — Ghor-Clan Rampager
 pub(in crate::card::sets) static GHOR_CLAN_RAMPAGER: CardRecord = CardRecord::new(
@@ -2179,10 +2179,13 @@ pub(in crate::card::sets) static HIGH_PRIEST_OF_PENANCE: CardRecord = CardRecord
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
             )],
-            EffectDef::May(&EffectDef::Destroy {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
-            }),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    can_regenerate: true,
+                },
+            },
         ),
     ),
 );
@@ -2317,7 +2320,9 @@ pub(in crate::card::sets) static OBZEDAT_GHOST_COUNCIL: CardRecord = CardRecord:
                 step: TurnStepDef::End,
                 player: PlayerRelation::You,
             },
-            EffectDef::May(&EffectDef::Sequence(&[
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::Sequence(&[
                 EffectDef::ExileLinkedToSource {
                     object: EffectRecipientDef::Source,
                 },
@@ -2332,7 +2337,8 @@ pub(in crate::card::sets) static OBZEDAT_GHOST_COUNCIL: CardRecord = CardRecord:
                         grant: Some(KeywordAbility::Haste),
                     },
                 },
-            ])),
+                ]),
+            },
         ),
     ]),
 );
@@ -2581,12 +2587,15 @@ pub(in crate::card::sets) static TREASURY_THRULL: CardRecord = CardRecord::new(
                 controller: None,
                 owner: Some(PlayerRelation::You),
             })],
-            EffectDef::May(&EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-                controller: None,
-            }),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    controller: None,
+                },
+            },
         ),
     ]),
 );

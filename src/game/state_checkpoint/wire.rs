@@ -146,84 +146,12 @@ pub(super) fn max_public_object_id(observation: &Value) -> Option<u32> {
         "emblems",
         "stack",
         "decision",
+        "checkpoint",
     ]
     .into_iter()
     .filter_map(|name| observation.get(name))
     .flat_map(walk_object_ids)
     .max()
-}
-
-pub(super) fn rebind_visible_decision_cards(
-    observation: &Value,
-    state: Option<&model::DecisionStateSnapshot>,
-    viewer: PlayerId,
-    hands: &mut [Vec<CardInstance>; 2],
-    libraries: &mut [Vec<CardInstance>; 2],
-) -> Result<(), String> {
-    let Some(decision) = observation.get("decision").filter(|value| !value.is_null()) else {
-        return Ok(());
-    };
-    if seat_value(field(decision, "seat")?)? != viewer {
-        return Ok(());
-    }
-    let hand_owner = state.and_then(|state| match state.continuation {
-        model::DecisionContinuationSnapshot::ExileFromHand { victim }
-        | model::DecisionContinuationSnapshot::Duress { victim, .. } => {
-            player_from_index(victim).ok()
-        }
-        _ => None,
-    });
-    let cards_remain_in_library = !state.is_some_and(|state| {
-        matches!(
-            state.continuation,
-            model::DecisionContinuationSnapshot::GrislySalvage { .. }
-                | model::DecisionContinuationSnapshot::AugurOfBolas { .. }
-                | model::DecisionContinuationSnapshot::TopCardSelection { .. }
-                | model::DecisionContinuationSnapshot::RevealedPileSplit { .. }
-                | model::DecisionContinuationSnapshot::RevealedPileChoice { .. }
-        )
-    });
-    let mut rebound_hands = [BTreeSet::new(), BTreeSet::new()];
-    let mut rebound_libraries = [BTreeSet::new(), BTreeSet::new()];
-    for option in array(field(decision, "options")?)? {
-        let zone = str_field(option, "zone")?;
-        let Some(card_value) = option.get("card").filter(|value| !value.is_null()) else {
-            continue;
-        };
-        let object = GameObjectId(u32_field(card_value, "objectId")?);
-        let definition = CardDefinitionId(
-            u16::try_from(usize_field(card_value, "definition")?)
-                .map_err(|_| "decision card definition is too large")?,
-        );
-        let (cards, rebound, description) = match zone {
-            "Library" if cards_remain_in_library => (
-                &mut libraries[viewer.index()],
-                &mut rebound_libraries[viewer.index()],
-                "library",
-            ),
-            "Hand" if hand_owner.is_some() => {
-                let owner = hand_owner.expect("the guard proved a hand owner exists");
-                (
-                    &mut hands[owner.index()],
-                    &mut rebound_hands[owner.index()],
-                    "hand",
-                )
-            }
-            _ => continue,
-        };
-        let index = cards
-            .iter()
-            .enumerate()
-            .rev()
-            .find(|(index, card)| card.definition == definition && !rebound.contains(index))
-            .map(|(index, _)| index)
-            .ok_or_else(|| {
-                format!("visible decision card is absent from the hidden {description} hypothesis")
-            })?;
-        cards[index].id = object;
-        rebound.insert(index);
-    }
-    Ok(())
 }
 
 pub(super) fn walk_object_ids(value: &Value) -> Box<dyn Iterator<Item = u32> + '_> {

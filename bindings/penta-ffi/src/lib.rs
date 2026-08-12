@@ -196,7 +196,8 @@ pub unsafe extern "C" fn penta_new(config_json: *const c_char) -> *mut BotGame {
 }
 
 /// Reconstructs a local rollout world from one observation and a separate
-/// hidden-zone hypothesis. Returns null on error.
+/// hidden-zone hypothesis containing both libraries and both outside-game
+/// lists. Returns null on error.
 ///
 /// # Safety
 ///

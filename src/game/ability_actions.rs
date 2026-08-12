@@ -125,12 +125,19 @@ impl Game {
                     return;
                 }
                 let taps_source = definition.costs.contains(&AbilityCostDef::TapSource);
+                let leaves_source = definition.costs.iter().any(|cost| {
+                    matches!(
+                        cost,
+                        AbilityCostDef::SacrificeSource | AbilityCostDef::ExileSource
+                    )
+                });
                 // The same purpose the payment will use, so an ability that
                 // taps its own source is never offered on mana only that
                 // source could have made.
                 let payment_purpose = ManaPaymentPurpose::Ability {
                     source: permanent.card.id,
                     taps_source,
+                    leaves_source,
                 };
                 if (taps_source && (permanent.tapped || !self.can_use_tap_ability(permanent)))
                     || !Self::source_counter_costs_are_payable(
@@ -153,6 +160,7 @@ impl Game {
                         AbilityCostDef::RemoveCountersFromSource { .. }
                         | AbilityCostDef::TapSource
                         | AbilityCostDef::SacrificeSource
+                        | AbilityCostDef::ExileSource
                         | AbilityCostDef::SacrificePermanent { .. }
                         // Payability is decided by whether any card qualifies,
                         // which the choice list below answers.
@@ -160,18 +168,22 @@ impl Game {
                         AbilityCostDef::UntapSource
                         | AbilityCostDef::DiscardSource
                         | AbilityCostDef::DiscardCards(_)
-                        | AbilityCostDef::ExileSource
                         | AbilityCostDef::Special(_) => true,
                     })
                 {
                     return;
                 }
-                let sacrifice_source_costs = definition
+                let source_exit_costs = definition
                     .costs
                     .iter()
-                    .filter(|cost| matches!(cost, AbilityCostDef::SacrificeSource))
+                    .filter(|cost| {
+                        matches!(
+                            cost,
+                            AbilityCostDef::SacrificeSource | AbilityCostDef::ExileSource
+                        )
+                    })
                     .count();
-                if sacrifice_source_costs > 1 {
+                if source_exit_costs > 1 {
                     return;
                 }
                 // At most one cost names an object, so one activation per
@@ -193,7 +205,7 @@ impl Game {
                         .battlefield
                         .iter()
                         .filter(|candidate| {
-                            !(sacrifice_source_costs == 1 && candidate.card.id == permanent.card.id)
+                            !(source_exit_costs == 1 && candidate.card.id == permanent.card.id)
                                 && self.player_relation_matches(
                                     candidate.controller,
                                     *controller,
@@ -423,6 +435,7 @@ impl Game {
                 let payment_purpose = ManaPaymentPurpose::Ability {
                     source: card.id,
                     taps_source: false,
+                    leaves_source: false,
                 };
                 if !supported || !self.can_pay_cost_for(player, mana_cost, 0, &payment_purpose) {
                     return;

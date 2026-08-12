@@ -20,17 +20,24 @@ impl Game {
         // lethal damage by Chain Lightning can still activate a mana ability
         // when its controller is asked whether to pay for the copy. Drain the
         // continuation chain before reaching either priority-boundary check.
-        if self.pending_decisions.is_empty() && !self.pending_events.is_empty() {
-            self.continue_pending_events();
-        }
-        if !self.pending_decisions.is_empty() || !self.pending_events.is_empty() {
-            return;
+        loop {
+            if self.pending_decisions.is_empty() && !self.pending_events.is_empty() {
+                self.continue_pending_events();
+            }
+            if !self.pending_decisions.is_empty() || !self.pending_events.is_empty() {
+                return;
+            }
+            if self.pending_procedures.is_empty() {
+                break;
+            }
+            self.continue_pending_procedures();
         }
 
         self.check_state_based_actions();
         if self.result.is_none()
             && self.pending_decisions.is_empty()
             && self.pending_events.is_empty()
+            && self.pending_procedures.is_empty()
         {
             self.begin_trigger_placement();
         }
@@ -220,38 +227,12 @@ impl Game {
                     self.resolve_triggered_mana_effect(source, controller, *effect);
                 }
             }
-            EffectDef::AddMana(AddManaEffectDef {
-                mana: ManaSelectionDef::One(kind),
-                amount,
-                restrictions,
-                spend_effects,
-                damage_to_controller,
-            }) => {
-                let mana = Mana::from_ability(
-                    kind,
-                    ManaSource {
-                        object: source.object,
-                        ability: source.ability,
-                    },
-                    restrictions,
-                    spend_effects,
-                );
-                self.add_mana(controller, std::iter::repeat_n(mana, usize::from(amount)));
-                if damage_to_controller > 0 {
-                    self.damage_target_from(
-                        Some(source.object),
-                        Some(Target::Player(controller)),
-                        damage_to_controller,
-                    );
-                }
+            EffectDef::AddMana(effect) => {
+                self.resolve_triggered_add_mana_effect(source, controller, effect);
             }
             EffectDef::None
             | EffectDef::Randomized { .. }
             | EffectDef::ChoosePermanent { .. }
-            | EffectDef::AddMana(AddManaEffectDef {
-                mana: ManaSelectionDef::Choice(_),
-                ..
-            })
             | EffectDef::DealDamage { .. }
             | EffectDef::DrainLife { .. }
             | EffectDef::GainLife { .. }
@@ -276,7 +257,10 @@ impl Game {
             | EffectDef::LookAtTopAndMayTake { .. }
             | EffectDef::LookAtTopAndSelect { .. }
             | EffectDef::LookAtHand { .. }
-            | EffectDef::SearchLibrary { .. }
+            | EffectDef::SearchZone { .. }
+            | EffectDef::ChooseCards { .. }
+            | EffectDef::ReplaceNextDrawThisTurn { .. }
+            | EffectDef::IfFormat { .. }
             | EffectDef::Counter { .. }
             | EffectDef::CounterUnlessPaid { .. }
             | EffectDef::AddCounters { .. }
@@ -284,7 +268,7 @@ impl Game {
             | EffectDef::BecomeCopyOf { .. }
             | EffectDef::OptionalPayment { .. }
             | EffectDef::UnlessPaid { .. }
-            | EffectDef::May(_)
+            | EffectDef::May { .. }
             | EffectDef::CannotBeForcedToSacrifice
             | EffectDef::CreateEmblem { .. }
             | EffectDef::Transform { .. }
@@ -314,6 +298,41 @@ impl Game {
                 // Choice-bearing and non-mana primitives need a dedicated
                 // immediate procedure before a supported card can use them.
             }
+        }
+    }
+
+    fn resolve_triggered_add_mana_effect(
+        &mut self,
+        source: AbilitySourceRef,
+        controller: PlayerId,
+        effect: AddManaEffectDef,
+    ) {
+        let AddManaEffectDef {
+            mana: ManaSelectionDef::One(kind),
+            amount,
+            restrictions,
+            spend_effects,
+            damage_to_controller,
+        } = effect
+        else {
+            return;
+        };
+        let mana = Mana::from_ability(
+            kind,
+            ManaSource {
+                object: source.object,
+                ability: source.ability,
+            },
+            restrictions,
+            spend_effects,
+        );
+        self.add_mana(controller, std::iter::repeat_n(mana, usize::from(amount)));
+        if damage_to_controller > 0 {
+            self.damage_target_from(
+                Some(source.object),
+                Some(Target::Player(controller)),
+                damage_to_controller,
+            );
         }
     }
 

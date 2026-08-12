@@ -56,6 +56,9 @@ pub enum DecisionZone {
     Library,
     Exile,
     Command,
+    /// A card the player brought in their sideboard. This is a decision
+    /// provenance marker, not a Magic zone.
+    OutsideGame,
     DrawnThisStep,
     None,
 }

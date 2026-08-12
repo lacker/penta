@@ -17,6 +17,7 @@ use super::model::{
     ManaCostSnapshot, PendingTriggerSnapshot, PileSplitSnapshot, ReplacementEffectContextSnapshot,
     TriggerPlacementBatchSnapshot, ZoneMoveCauseSnapshot, ZonePlacementSnapshot,
 };
+use super::procedure::{draw_replacement_snapshot, parse_draw_replacement};
 use super::semantics::{
     ability_locator, catalog_ability, catalog_replacement_effect, catalog_scoped_effect,
     replacement_effect_locator, scoped_effect_snapshot,
@@ -51,7 +52,42 @@ fn continuation_snapshot(
     continuation: &DecisionContinuation,
 ) -> Option<DecisionContinuationSnapshot> {
     let value = match continuation {
-        DecisionContinuation::Tutor => DecisionContinuationSnapshot::Tutor,
+        DecisionContinuation::SearchZone {
+            controller,
+            source,
+            destination,
+            placement,
+            reveal,
+            shuffle,
+        } => DecisionContinuationSnapshot::SearchZone {
+            controller: controller.index(),
+            source: zone_kind_snapshot(*source),
+            destination: zone_kind_snapshot(*destination),
+            placement: zone_placement_snapshot(*placement),
+            reveal: *reveal,
+            shuffle: *shuffle,
+        },
+        DecisionContinuation::ChooseCards {
+            controller,
+            destination,
+            placement,
+            reveal,
+        } => DecisionContinuationSnapshot::ChooseCards {
+            controller: controller.index(),
+            destination: zone_kind_snapshot(*destination),
+            placement: zone_placement_snapshot(*placement),
+            reveal: *reveal,
+        },
+        DecisionContinuation::DrawReplacement {
+            player,
+            replacements,
+        } => DecisionContinuationSnapshot::DrawReplacement {
+            player: player.index(),
+            replacements: replacements
+                .iter()
+                .map(|replacement| draw_replacement_snapshot(game, replacement))
+                .collect::<Option<Vec<_>>>()?,
+        },
         DecisionContinuation::DiscardForEffect {
             player,
             amount,
@@ -77,13 +113,6 @@ fn continuation_snapshot(
                 target: target_snapshot(*target),
             }
         }
-        DecisionContinuation::LibrarySearch {
-            destination,
-            shuffle,
-        } => DecisionContinuationSnapshot::LibrarySearch {
-            destination: zone_kind_snapshot(*destination),
-            shuffle: *shuffle,
-        },
         DecisionContinuation::ExileFromHand { victim } => {
             DecisionContinuationSnapshot::ExileFromHand {
                 victim: victim.index(),
@@ -512,7 +541,42 @@ fn parse_continuation(
     game: &Game,
 ) -> Result<DecisionContinuation, String> {
     Ok(match value {
-        DecisionContinuationSnapshot::Tutor => DecisionContinuation::Tutor,
+        DecisionContinuationSnapshot::SearchZone {
+            controller,
+            source,
+            destination,
+            placement,
+            reveal,
+            shuffle,
+        } => DecisionContinuation::SearchZone {
+            controller: player(*controller)?,
+            source: parse_zone_kind(*source),
+            destination: parse_zone_kind(*destination),
+            placement: parse_zone_placement(*placement),
+            reveal: *reveal,
+            shuffle: *shuffle,
+        },
+        DecisionContinuationSnapshot::ChooseCards {
+            controller,
+            destination,
+            placement,
+            reveal,
+        } => DecisionContinuation::ChooseCards {
+            controller: player(*controller)?,
+            destination: parse_zone_kind(*destination),
+            placement: parse_zone_placement(*placement),
+            reveal: *reveal,
+        },
+        DecisionContinuationSnapshot::DrawReplacement {
+            player: owner,
+            replacements,
+        } => DecisionContinuation::DrawReplacement {
+            player: player(*owner)?,
+            replacements: replacements
+                .iter()
+                .map(|replacement| parse_draw_replacement(replacement, game))
+                .collect::<Result<Vec<_>, _>>()?,
+        },
         DecisionContinuationSnapshot::DiscardForEffect {
             player: current,
             amount,
@@ -545,13 +609,6 @@ fn parse_continuation(
                 target: parse_target(*target),
             }
         }
-        DecisionContinuationSnapshot::LibrarySearch {
-            destination,
-            shuffle,
-        } => DecisionContinuation::LibrarySearch {
-            destination: parse_zone_kind(*destination),
-            shuffle: *shuffle,
-        },
         DecisionContinuationSnapshot::ExileFromHand { victim } => {
             DecisionContinuation::ExileFromHand {
                 victim: player(*victim)?,

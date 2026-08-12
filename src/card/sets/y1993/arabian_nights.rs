@@ -1,10 +1,12 @@
 use super::{CardRecord, PrintingRecord};
+use crate::Format;
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AnimationDef, AppliedEffectDef, CardArt, CardBehavior, CardRules, CardSet,
-    CardType, ComparisonDef, DiscardSelectionDef, EffectDef, EffectDurationDef, EffectExecutionDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, PaymentDef, PlayerRelation,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities, cards,
+    AddManaEffectDef, AnimationDef, AppliedEffectDef, CardArt, CardBehavior, CardChoiceSourceDef,
+    CardRules, CardSet, CardType, ComparisonDef, DiscardSelectionDef, EffectDef, EffectDurationDef,
+    EffectExecutionDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef,
+    PaymentDef, PlayerRelation, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities, cards,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -772,8 +774,56 @@ pub(in crate::card::sets) static JANDORS_SADDLEBAGS: CardRecord = CardRecord::ne
 // ARN 67 — Pyramids
 // Audit: blocked — Needs a duration-scoped replacement/prevention effect for “• The next time target land would be destroyed this turn, remove all damage marked on it instead”.
 
+static RING_ORACLE_SOURCES: [CardChoiceSourceDef; 1] = [CardChoiceSourceDef::OutsideGame];
+static RING_OLD_SCHOOL_SOURCES: [CardChoiceSourceDef; 2] = [
+    CardChoiceSourceDef::Zone(ZoneKind::Exile),
+    CardChoiceSourceDef::OutsideGame,
+];
+static RING_ORACLE_CHOICE: EffectDef = EffectDef::ChooseCards {
+    player: EffectRecipientDef::Controller,
+    sources: &RING_ORACLE_SOURCES,
+    object: ObjectPredicateDef::Any,
+    minimum: 1,
+    maximum: 1,
+    reveal: false,
+    destination: ZoneKind::Hand,
+    placement: ZonePlacement::Top,
+};
+static RING_OLD_SCHOOL_CHOICE: EffectDef = EffectDef::ChooseCards {
+    player: EffectRecipientDef::Controller,
+    sources: &RING_OLD_SCHOOL_SOURCES,
+    object: ObjectPredicateDef::Any,
+    minimum: 1,
+    maximum: 1,
+    reveal: false,
+    destination: ZoneKind::Hand,
+    placement: ZonePlacement::Top,
+};
+static RING_FORMAT_CHOICE: EffectDef = EffectDef::IfFormat {
+    format: Format::OldSchool9394,
+    then: &RING_OLD_SCHOOL_CHOICE,
+    otherwise: &RING_ORACLE_CHOICE,
+};
+
 // ARN 68 — Ring of Ma'rûf
-// Audit: blocked — Needs a draw replacement that can choose an owned card from exile or the Old School sideboard while preserving outside-game provenance.
+pub(in crate::card::sets) static RING_OF_MARUF: CardRecord = CardRecord::new(
+    cards::RING_OF_MARUF,
+    "Ring of Ma'rûf",
+    CardArt::new("fcc1004f-7cee-420a-9f0e-2986ed3ab852", "Dan Frazier"),
+    CardSet::ArabianNights,
+    CardRules::new_artifact(mana_cost!("{5}")).with_ability(AbilityDef::activated(
+        "{5}, {T}, Exile this artifact: The next time you would draw a card this turn, instead put a card you own from outside the game into your hand.",
+        &[
+            AbilityCostDef::Mana(mana_cost!("{5}")),
+            AbilityCostDef::TapSource,
+            AbilityCostDef::ExileSource,
+        ],
+        EffectDef::ReplaceNextDrawThisTurn {
+            player: EffectRecipientDef::Controller,
+            effect: &RING_FORMAT_CHOICE,
+        },
+    )),
+);
 
 // ARN 69 — Sandals of Abdallah
 // Audit: blocked — Needs the printed landwalk variant and its defending-player land/blocking semantics for “{2}, {T}: Target creature gains islandwalk until end of turn. When that creature dies this turn, destroy this artifact”.
@@ -892,6 +942,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &EBONY_HORSE,
     &FLYING_CARPET,
     &JANDORS_SADDLEBAGS,
+    &RING_OF_MARUF,
     &BAZAAR_OF_BAGHDAD,
     &CITY_OF_BRASS,
     &LIBRARY_OF_ALEXANDRIA,

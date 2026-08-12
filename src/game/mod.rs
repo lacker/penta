@@ -12,18 +12,19 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityProcedureDef, AbilityTargetDef, AbilityTargetPredicate,
     ActivatedAbilityDef, AddManaEffectDef, AlternativeCastAbilityDef, AlternativeCastKindDef,
     AnimationDef, AppliedEffectDef, BasicLandType, BattlefieldEntryModificationDef, CREATURE_TYPES,
-    CardBehavior, CardCatalog, CardDefinition, CardEffectStatus, CardPart, CardRules, CardSet,
-    CardStructure, CardSupertype, CardType, CardTypeSet, CharacteristicContext, ColorSet,
-    ComparisonDef, ConditionDef, CostDef, CounterKind, DeclarativeAbilityDef, DiscardSelectionDef,
-    DividedTotal, DoubleFacedKind, EffectDef, EffectDurationDef, EffectRecipientDef, HybridPair,
-    KeywordAbility, ManaCost, ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef,
-    ObjectPredicateDef, ObjectQueryDef, PaymentDef, PlayActionKind, PlayOptionDef, PlayRestriction,
-    PlayerRelation, QuantifierDef, ReplacementEffectDef, ReplacementEventDef, TargetPredicate,
-    TargetSlotDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities, applicable_part_ids,
+    CardBehavior, CardCatalog, CardChoiceSourceDef, CardDefinition, CardEffectStatus, CardPart,
+    CardRules, CardSet, CardStructure, CardSupertype, CardType, CardTypeSet, CharacteristicContext,
+    ColorSet, ComparisonDef, ConditionDef, CostDef, CounterKind, DeclarativeAbilityDef,
+    DiscardSelectionDef, DividedTotal, DoubleFacedKind, EffectDef, EffectDurationDef,
+    EffectRecipientDef, HybridPair, KeywordAbility, ManaCost, ManaRestrictionDef, ManaSelectionDef,
+    ManaSpendEffectDef, ObjectPredicateDef, ObjectQueryDef, PaymentDef, PlayActionKind,
+    PlayOptionDef, PlayRestriction, PlayerRelation, QuantifierDef, ReplacementEffectDef,
+    ReplacementEventDef, TargetPredicate, TargetSlotDef, TopCardSelectionDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
+    applicable_part_ids,
 };
 use crate::casting::{CastChoices, CastSignature, CostConfiguration, TargetSelection};
-use crate::deck::{Deck, ValidatedDeck};
+use crate::deck::Deck;
 use crate::ids::{
     AbilityId, AdditionalCostId, AlternativeCostId, CardDefinitionId, CardPartId, ChoiceIndex,
     GameObjectId, GrantId, ModeId, PhysicalCardId, PlayOptionId, PlayerId, TargetIndex,
@@ -57,9 +58,11 @@ mod decision_offers;
 mod decision_permanent_choice;
 mod decision_piles;
 mod decision_resolution;
+mod decision_search;
 mod decision_state;
 mod declarative_effects;
 mod effect_support;
+mod effect_values;
 mod entry_replacements;
 mod error;
 mod event;
@@ -71,6 +74,7 @@ mod mana_planning;
 mod mana_runtime;
 mod mana_state;
 mod observation;
+mod procedure_state;
 mod replacement_state;
 mod stack_resolution;
 mod stack_rules;
@@ -122,6 +126,7 @@ use mana_state::{
     AppliedStackEffect, FlexibleManaSource, ManaAbilityActivation, ManaPaymentPurpose,
     PlannedManaActivation,
 };
+use procedure_state::{DrawReplacement, PendingProcedure};
 use replacement_state::{
     ApplicableReplacement, BattlefieldEntryReplacementEffect, EntryCompletion,
     PendingBattlefieldEntry, PendingEvent, PendingReplacementEffect, ReplaceableEvent,
@@ -605,6 +610,10 @@ struct PlayerState {
     hand: Vec<CardInstance>,
     graveyard: Vec<CardInstance>,
     exile: Vec<CardInstance>,
+    /// Cards the player brought in their sideboard. Outside the game is not
+    /// a zone, so ordinary zone queries and observations never walk this
+    /// collection.
+    outside_game: Vec<CardInstance>,
     mana_pool: ManaPool,
     mana: Vec<Mana>,
     land_played_this_turn: bool,
@@ -665,6 +674,12 @@ pub struct Game {
     /// The cards each player drew this turn, in draw order. Sylvan Library
     /// chooses among them, and only a card still in hand can be chosen.
     drawn_this_turn: [Vec<GameObjectId>; 2],
+    /// Set while a resumable all-player draw instruction is in progress.
+    /// Empty-library loss itself is settled at the next state-based-action
+    /// check using the flags stored on each player.
+    defer_empty_library_loss: bool,
+    /// One-shot draw replacements, in creation order for each player.
+    draw_replacements: [VecDeque<DrawReplacement>; 2],
     /// The revealed card a miracle cost may currently be paid for. The window
     /// belongs to one card and closes as soon as its controller does anything
     /// else.
@@ -682,6 +697,7 @@ pub struct Game {
     pending_decisions: Vec<PendingDecision>,
     next_decision_id: u32,
     pending_events: VecDeque<PendingEvent>,
+    pending_procedures: VecDeque<PendingProcedure>,
     pending_triggers: Vec<PendingTrigger>,
     next_trigger_id: u32,
     last_seen_hands: [LastSeenHand; 2],

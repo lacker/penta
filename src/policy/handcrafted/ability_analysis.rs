@@ -377,7 +377,7 @@ impl HandcraftedPolicy {
             EffectDef::OptionalPayment {
                 if_paid: effect, ..
             }
-            | EffectDef::May(effect)
+            | EffectDef::May { effect, .. }
             | EffectDef::ChoosePermanent { then: effect, .. }
             | EffectDef::IfCondition { then: effect, .. }
             | EffectDef::AtNextStep { effect, .. } => Self::target_condition_in(*effect),

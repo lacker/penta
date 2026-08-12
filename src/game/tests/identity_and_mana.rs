@@ -60,6 +60,64 @@ fn physical_card_metadata_is_separate_from_live_objects() {
 }
 
 #[test]
+fn validated_sideboards_are_retained_outside_the_game_without_perturbing_main_ids() {
+    let deck_with_sideboard = poc::mono_red_atog();
+    assert!(!deck_with_sideboard.sideboard.is_empty());
+    let sideboard_definitions = deck_with_sideboard.sideboard.clone();
+    let mut deck_without_sideboard = deck_with_sideboard.clone();
+    deck_without_sideboard.sideboard.clear();
+
+    let with_sideboards = Game::new(
+        poc::catalog().unwrap(),
+        [deck_with_sideboard.clone(), deck_with_sideboard],
+        17,
+    )
+    .unwrap();
+    let without_sideboards = Game::new(
+        poc::catalog().unwrap(),
+        [deck_without_sideboard.clone(), deck_without_sideboard],
+        17,
+    )
+    .unwrap();
+
+    for player in [PlayerId::One, PlayerId::Two] {
+        let main_objects = |game: &Game| {
+            game.players[player.index()]
+                .library
+                .iter()
+                .chain(&game.players[player.index()].hand)
+                .map(|card| (card.id, card.definition, card.backing.clone()))
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(
+            main_objects(&with_sideboards),
+            main_objects(&without_sideboards)
+        );
+
+        let outside = &with_sideboards.players[player.index()].outside_game;
+        assert_eq!(
+            outside
+                .iter()
+                .map(|card| card.definition)
+                .collect::<Vec<_>>(),
+            sideboard_definitions
+        );
+        for card in outside {
+            assert_eq!(card.owner, player);
+            let backing = backing_cards(&card.backing);
+            let [physical] = backing.as_slice() else {
+                panic!("an outside-game card must have exactly one physical backing card")
+            };
+            assert_eq!(
+                with_sideboards.physical_card_definition(*physical),
+                Some(card.definition)
+            );
+            assert_eq!(with_sideboards.physical_card_owner(*physical), Some(player));
+        }
+    }
+}
+
+#[test]
 fn spell_events_keep_stack_identity_and_definition_after_the_card_moves() {
     let mut game = ready_game();
     let bolt = card(10_000, cards::LIGHTNING_BOLT, PlayerId::One);

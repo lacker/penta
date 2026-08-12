@@ -24,7 +24,7 @@ fn standard_records_have_complete_unique_scryfall_metadata() {
         );
     }
 
-    assert_eq!(scryfall_ids.len(), 853);
+    assert_eq!(scryfall_ids.len(), 855);
 }
 
 #[test]
@@ -176,13 +176,13 @@ fn cavern_records_both_mana_abilities_and_the_colored_mana_riders() {
 }
 
 #[test]
-fn every_builtin_mana_land_has_a_printed_or_intrinsic_source() {
+fn every_builtin_land_without_mana_is_named_explicitly() {
     let lands = SET_MODULES
         .iter()
         .flat_map(|module| module.cards.iter().copied())
         .filter(|record| record.rules.has_type(crate::card::CardType::Land))
         .collect::<Vec<_>>();
-    assert_eq!(lands.len(), 95);
+    assert_eq!(lands.len(), 98);
 
     let lands_without_mana = lands
         .iter()
@@ -218,7 +218,10 @@ fn every_builtin_mana_land_has_a_printed_or_intrinsic_source() {
             "The Tabernacle at Pendrell Vale",
             "Maze of Ith",
             "Safe Haven",
+            "Bloodstained Mire",
             "Flooded Strand",
+            "Polluted Delta",
+            "Windswept Heath",
             "Wooded Foothills",
         ]
     );

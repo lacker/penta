@@ -246,7 +246,7 @@ impl Game {
                         self.capture_battlefield_triggers(&event);
                     }
                 }
-                AbilityCostDef::SacrificeSource => {}
+                AbilityCostDef::SacrificeSource | AbilityCostDef::ExileSource => {}
                 AbilityCostDef::RemoveCountersFromSource { kind, amount } => {
                     self.battlefield
                         .iter_mut()
@@ -255,7 +255,7 @@ impl Game {
                         .remove_counters(*kind, *amount);
                 }
                 AbilityCostDef::PayLife(amount) => {
-                    self.players[player.index()].life -= i16::try_from(*amount).unwrap_or(i16::MAX);
+                    self.lose_life(player, *amount);
                 }
                 AbilityCostDef::Mana(_)
                 | AbilityCostDef::DiscardSource
@@ -264,13 +264,14 @@ impl Game {
                 | AbilityCostDef::ExileCardFromGraveyard(_)
                 | AbilityCostDef::DiscardCards(_)
                 | AbilityCostDef::SacrificePermanent { .. }
-                | AbilityCostDef::ExileSource
                 | AbilityCostDef::Special(_) => {
                     unreachable!("unsupported mana-ability costs are not enumerated")
                 }
             }
         }
-        if activation.costs.contains(&AbilityCostDef::SacrificeSource) {
+        if activation.costs.contains(&AbilityCostDef::ExileSource) {
+            self.exile_permanent(source);
+        } else if activation.costs.contains(&AbilityCostDef::SacrificeSource) {
             self.sacrifice_permanent(source);
         }
         self.add_mana(player, produced_mana);

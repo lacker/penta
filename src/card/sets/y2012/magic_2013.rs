@@ -1283,7 +1283,7 @@ pub(in crate::card::sets) static DARK_FAVOR: CardRecord = CardRecord::new(
 );
 
 // M13 87 — Diabolic Revelation
-// Audit: blocked — Library search supports one matching card, not up to X unrestricted cards.
+// Audit: blocked — SearchZone has a static maximum and cannot select up to the chosen X cards.
 
 // M13 88 — Disciple of Bolas
 pub(in crate::card::sets) static DISCIPLE_OF_BOLAS: CardRecord = CardRecord::new(
@@ -1448,7 +1448,51 @@ pub(in crate::card::sets) static HARBOR_BANDIT: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a choice between dynamic Swamp-count pump or shrink and an emblem that multiplies mana from Swamps.
 
 // M13 98 — Liliana's Shade
-// Audit: blocked — SearchLibrary can enforce the Swamp choice and shuffle, but a hand-bound result is not publicly revealed.
+pub(in crate::card::sets) static LILIANAS_SHADE: CardRecord = CardRecord::new(
+    cards::LILIANAS_SHADE,
+    "Liliana's Shade",
+    CardArt::new(
+        "1cf0c01d-a4a0-43fb-970d-e428e9ac63d7",
+        "Eric Deschamps",
+    ),
+    CardSet::Magic2013,
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Shade"], 1, 1).with_abilities(&[
+        AbilityDef::triggered(
+            "When this creature enters, you may search your library for a Swamp card, reveal it, put it into your hand, then shuffle.",
+            TriggerEventDef::ZoneChanged {
+                object: ObjectPredicateDef::Source,
+                from: None,
+                to: Some(ZoneKind::Battlefield),
+            },
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
+                    minimum: 0,
+                    maximum: 1,
+                    reveal: true,
+                    destination: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                },
+            },
+        ),
+        AbilityDef::activated(
+            "{B}: This creature gets +1/+1 until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::ModifyPowerToughness {
+                    power: ValueDef::Constant(1),
+                    toughness: ValueDef::Constant(1),
+                },
+                duration: EffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
+);
 
 // M13 99 — Mark of the Vampire
 pub(in crate::card::sets) static MARK_OF_THE_VAMPIRE: CardRecord = CardRecord::new(
@@ -1926,10 +1970,13 @@ pub(in crate::card::sets) static GOBLIN_ARSONIST: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::May(&EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            }),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(1),
+                },
+            },
         ),
     ),
 );
@@ -2344,7 +2391,7 @@ pub(in crate::card::sets) static BOND_BEETLE: CardRecord = CardRecord::new(
 );
 
 // M13 162 — Boundless Realms
-// Audit: blocked — Library search cannot repeat a number of times derived from the controller's land count or put the lands in tapped.
+// Audit: blocked — SearchZone has a static maximum and cannot make the selected lands enter tapped.
 
 static BOUNTIFUL_HARVEST_LANDS: ObjectQueryDef = ObjectQueryDef {
     object: ObjectPredicateDef::HasType(CardType::Land),
@@ -2501,7 +2548,7 @@ pub(in crate::card::sets) static PRIMAL_HUNTBEAST: CardRecord = CardRecord::new(
 // Audit: blocked — A leave-the-battlefield trigger cannot address its source card after it becomes a new graveyard object.
 
 // M13 186 — Ranger's Path
-// Audit: blocked — Library search cannot find up to two Forests and put them onto the battlefield tapped.
+// Audit: blocked — Multi-card battlefield searches and tapped entry are outside SearchZone's current runtime boundary.
 
 // M13 187 — Revive
 pub(in crate::card::sets) static REVIVE: CardRecord = CardRecord::new(
@@ -3070,6 +3117,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ESSENCE_DRAIN,
     &GIANT_SCORPION,
     &HARBOR_BANDIT,
+    &LILIANAS_SHADE,
     &MARK_OF_THE_VAMPIRE,
     &MIND_ROT,
     &MURDER,

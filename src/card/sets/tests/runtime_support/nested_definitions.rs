@@ -58,6 +58,14 @@ pub(in super::super) fn shared_replacement_event(event: ReplacementEventDef) -> 
     }
 }
 
+fn assert_nested_installed_ability(card_name: &str, ability: &AbilityDef) {
+    assert!(
+        shared_definition_ability(ability),
+        "{card_name} installs a triggered ability outside the shared runtime boundary: {ability:?}",
+    );
+    assert_nested_definition_abilities(card_name, ability.effect.definition);
+}
+
 pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effect: EffectDef) {
     match effect {
         EffectDef::Sequence(effects) => {
@@ -79,18 +87,21 @@ pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effe
         | EffectDef::UnlessPaid {
             otherwise: effect, ..
         }
-        | EffectDef::May(effect)
+        | EffectDef::May { effect, .. }
         | EffectDef::ChoosePermanent { then: effect, .. }
         | EffectDef::IfCondition { then: effect, .. }
-        | EffectDef::AtNextStep { effect, .. } => {
+        | EffectDef::AtNextStep { effect, .. }
+        | EffectDef::ReplaceNextDrawThisTurn { effect, .. } => {
             assert_nested_definition_abilities(card_name, *effect);
         }
+        EffectDef::IfFormat {
+            then, otherwise, ..
+        } => {
+            assert_nested_definition_abilities(card_name, *then);
+            assert_nested_definition_abilities(card_name, *otherwise);
+        }
         EffectDef::TriggerUntilYourNextTurn { ability } => {
-            assert!(
-                shared_definition_ability(ability),
-                "{card_name} installs a triggered ability outside the shared runtime boundary: {ability:?}",
-            );
-            assert_nested_definition_abilities(card_name, ability.effect.definition);
+            assert_nested_installed_ability(card_name, ability);
         }
         EffectDef::Apply { effect, .. } => {
             assert_nested_definition_applied_effect(card_name, effect);
@@ -127,7 +138,8 @@ pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effe
         | EffectDef::Mill { .. }
         | EffectDef::LookAtTopAndMayTake { .. }
         | EffectDef::LookAtHand { .. }
-        | EffectDef::SearchLibrary { .. }
+        | EffectDef::SearchZone { .. }
+        | EffectDef::ChooseCards { .. }
         | EffectDef::Counter { .. }
         | EffectDef::CounterUnlessPaid { .. }
         | EffectDef::AddCounters { .. }

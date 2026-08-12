@@ -42,8 +42,8 @@ struct Game {
 impl Game {
     /// Builds a local rollout world from one hosted observation. `hidden`
     /// supplies card-definition arrays for `hands.p1`/`hands.p2` where hidden
-    /// and both `libraries`; `rollout_seed` controls only future local random
-    /// choices and is unrelated to the host's private seed.
+    /// and both `libraries` and `outsideGame` lists; `rollout_seed` controls
+    /// only future local random choices and is unrelated to the host's private seed.
     #[staticmethod]
     #[pyo3(signature = (observation, hidden, rollout_seed=0))]
     fn from_observation(observation: &str, hidden: &str, rollout_seed: u64) -> PyResult<Self> {

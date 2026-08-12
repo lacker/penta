@@ -1,5 +1,21 @@
 use super::*;
 
+fn resolve_demonic_tutor(game: &mut Game, tutor: &StackObject) {
+    let effect = game
+        .catalog
+        .get(cards::DEMONIC_TUTOR)
+        .expect("Demonic Tutor is cataloged")
+        .rules
+        .ability_clauses()[0]
+        .effect
+        .definition;
+    game.resolve_effect_def(
+        ScopedEffect::primary(effect),
+        tutor,
+        TriggerContext::empty(),
+    );
+}
+
 #[test]
 fn crusade_declaratively_buffs_every_white_creature() {
     let mut game = ready_game();
@@ -61,8 +77,10 @@ fn demonic_tutor_exposes_a_library_choice_then_shuffles() {
         .push(card(10_001, cards::JUZAM_DJINN, PlayerId::One));
     let tutor = spell(10_000, cards::DEMONIC_TUTOR, PlayerId::One, 0);
 
-    game.resolve_spell_effect(&tutor, CardBehavior::DemonicTutor);
+    resolve_demonic_tutor(&mut game, &tutor);
     let decision = game.observe(PlayerId::One).decision.unwrap();
+    assert_eq!(decision.minimum, 1);
+    assert_eq!(decision.maximum, 1);
     let option = decision
         .options
         .iter()
@@ -79,10 +97,9 @@ fn demonic_tutor_exposes_a_library_choice_then_shuffles() {
 }
 
 #[test]
-fn a_search_may_fail_to_find_even_with_a_full_library() {
-    // CR 701.19c: searching a hidden zone never obliges the searcher to find.
-    // This is not cancelling the spell -- Demonic Tutor resolved, the search
-    // happened, and it turned up nothing on purpose.
+fn demonic_tutor_must_find_a_card_when_the_library_is_not_empty() {
+    // CR 701.23d: because Demonic Tutor asks simply for "a card", rather than
+    // a card with a stated quality, it must find one whenever one is present.
     let mut game = ready_game();
     for (index, definition) in [cards::JUZAM_DJINN, cards::BLACK_LOTUS]
         .into_iter()
@@ -94,40 +111,31 @@ fn a_search_may_fail_to_find_even_with_a_full_library() {
             .push(card(id, definition, PlayerId::One));
     }
     let tutor = spell(10_000, cards::DEMONIC_TUTOR, PlayerId::One, 0);
-    game.resolve_spell_effect(&tutor, CardBehavior::DemonicTutor);
+    resolve_demonic_tutor(&mut game, &tutor);
 
     let decision = game.observe(PlayerId::One).decision.unwrap();
-    assert_eq!(decision.minimum, 0, "a search is never compulsory");
+    assert_eq!(decision.minimum, 1, "an unqualified search is compulsory");
     assert_eq!(decision.maximum, 1);
     assert!(
         !decision.cancellable,
         "failing to find is a resolution, not a way out of the spell"
     );
 
-    let library_before = game.players[0].library.len();
-    game.apply(
-        PlayerId::One,
-        Action::ChooseDecision {
-            decision: decision.id,
-            options: Vec::new(),
-        },
-    )
-    .expect("failing to find is a legal resolution");
-
-    assert!(game.players[0].hand.is_empty(), "nothing was found");
-    assert_eq!(
-        game.players[0].library.len(),
-        library_before,
-        "and nothing left the library"
+    assert!(
+        game.apply(
+            PlayerId::One,
+            Action::ChooseDecision {
+                decision: decision.id,
+                options: Vec::new(),
+            },
+        )
+        .is_err(),
+        "choosing no card is not a legal Demonic Tutor resolution"
     );
-    assert!(game.pending_decisions.is_empty(), "the search is over");
 }
 
 #[test]
-fn the_handcrafted_policy_still_finds_when_it_may_decline() {
-    // Failing to find became legal, and the policy takes `minimum` options by
-    // default -- which is now zero. Left alone it would tutor for nothing
-    // every single time, quietly turning Demonic Tutor into a blank.
+fn the_handcrafted_policy_finds_for_demonic_tutor() {
     use crate::{HandcraftedPolicy, Policy};
 
     let mut game = ready_game();
@@ -135,7 +143,7 @@ fn the_handcrafted_policy_still_finds_when_it_may_decline() {
         .library
         .push(card(10_001, cards::BLACK_LOTUS, PlayerId::One));
     let tutor = spell(10_000, cards::DEMONIC_TUTOR, PlayerId::One, 0);
-    game.resolve_spell_effect(&tutor, CardBehavior::DemonicTutor);
+    resolve_demonic_tutor(&mut game, &tutor);
 
     let mut policy = HandcraftedPolicy::new(poc::catalog().unwrap());
     let action = policy
@@ -151,9 +159,7 @@ fn the_handcrafted_policy_still_finds_when_it_may_decline() {
 }
 
 #[test]
-fn a_search_shuffles_even_when_it_finds_nothing() {
-    // Otherwise a player learns their own library order for free: tutor, fail
-    // to find, and the top of the deck is whatever it already was.
+fn demonic_tutor_shuffles_the_remaining_library() {
     let mut game = ready_game();
     let before: Vec<_> = game.players[0].library.iter().map(|card| card.id).collect();
     assert!(
@@ -162,26 +168,28 @@ fn a_search_shuffles_even_when_it_finds_nothing() {
     );
 
     let tutor = spell(10_000, cards::DEMONIC_TUTOR, PlayerId::One, 0);
-    game.resolve_spell_effect(&tutor, CardBehavior::DemonicTutor);
+    resolve_demonic_tutor(&mut game, &tutor);
     let decision = game.observe(PlayerId::One).decision.unwrap();
+    let chosen = decision.options[0].clone();
+    let chosen_card = chosen.card.expect("a library card").0;
     game.apply(
         PlayerId::One,
         Action::ChooseDecision {
             decision: decision.id,
-            options: Vec::new(),
+            options: vec![chosen.id],
         },
     )
-    .expect("failing to find is legal");
+    .expect("the mandatory search resolves");
 
     let after: Vec<_> = game.players[0].library.iter().map(|card| card.id).collect();
-    assert_eq!(
-        before.len(),
-        after.len(),
-        "a failed search moves no cards, it only shuffles"
-    );
+    assert_eq!(before.len() - 1, after.len(), "one card left the library");
+    let before_without_chosen = before
+        .into_iter()
+        .filter(|card| *card != chosen_card)
+        .collect::<Vec<_>>();
     assert_ne!(
-        before, after,
-        "the library was shuffled despite finding nothing"
+        before_without_chosen, after,
+        "the remaining library was shuffled"
     );
 }
 
@@ -195,25 +203,58 @@ fn a_tutor_with_nothing_to_find_leaves_a_legal_action() {
     game.players[0].library.clear();
     let tutor = spell(10_000, cards::DEMONIC_TUTOR, PlayerId::One, 0);
 
-    game.resolve_spell_effect(&tutor, CardBehavior::DemonicTutor);
+    resolve_demonic_tutor(&mut game, &tutor);
 
     let observation = game.observe(PlayerId::One);
-    if let Some(decision) = observation.decision.as_ref() {
-        assert!(
-            decision.minimum <= decision.options.len(),
-            "a decision must never ask for more than it offers: \
-             minimum={} options={}",
-            decision.minimum,
-            decision.options.len(),
-        );
-    }
+    assert!(
+        observation.decision.is_none(),
+        "an impossible search finishes without an empty decision"
+    );
     assert!(
         !observation.legal_actions.is_empty(),
         "an empty library must still leave the player something to do"
     );
 
-    // The player resolves it by finding nothing, and the game moves on.
-    let decision = observation.decision.expect("the tutor still asks");
+    assert!(game.pending_decisions.is_empty());
+    assert!(game.players[0].hand.is_empty(), "nothing was found");
+}
+
+#[test]
+fn a_qualified_hidden_zone_search_may_fail_to_find() {
+    let mut game = ready_game();
+    game.players[0].library.clear();
+    game.players[0].library.extend([
+        card(10_001, cards::BLACK_LOTUS, PlayerId::One),
+        card(10_002, cards::JUZAM_DJINN, PlayerId::One),
+        card(10_003, cards::SAVANNAH_LIONS, PlayerId::One),
+        card(10_004, cards::LIGHTNING_BOLT, PlayerId::One),
+        card(10_005, cards::MOUNTAIN, PlayerId::One),
+    ]);
+    let before = game.players[0]
+        .library
+        .iter()
+        .map(|card| card.id)
+        .collect::<Vec<_>>();
+    let source = spell(10_000, cards::DEMONIC_TUTOR, PlayerId::One, 0);
+    game.resolve_effect_def(
+        ScopedEffect::primary(EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::HasType(CardType::Artifact),
+            minimum: 0,
+            maximum: 1,
+            reveal: false,
+            destination: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+        }),
+        &source,
+        TriggerContext::empty(),
+    );
+
+    let decision = game.observe(PlayerId::One).decision.unwrap();
+    assert_eq!(decision.minimum, 0);
+    assert!(game.observe(PlayerId::Two).decision.is_none());
     game.apply(
         PlayerId::One,
         Action::ChooseDecision {
@@ -221,10 +262,263 @@ fn a_tutor_with_nothing_to_find_leaves_a_legal_action() {
             options: Vec::new(),
         },
     )
-    .expect("choosing nothing from nothing is legal");
+    .expect("a qualified hidden-zone search may find nothing");
 
-    assert!(game.pending_decisions.is_empty());
-    assert!(game.players[0].hand.is_empty(), "nothing was found");
+    assert!(game.players[0].hand.is_empty());
+    let after = game.players[0]
+        .library
+        .iter()
+        .map(|card| card.id)
+        .collect::<Vec<_>>();
+    assert_eq!(after.len(), before.len());
+    assert_ne!(after, before, "a failed library search still shuffles");
+}
+
+#[test]
+fn search_zone_moves_multiple_selected_cards_in_one_resolution() {
+    let mut game = ready_game();
+    game.players[0].library.clear();
+    game.players[0].library.extend([
+        card(10_001, cards::MOUNTAIN, PlayerId::One),
+        card(10_002, cards::PLAINS, PlayerId::One),
+        card(10_003, cards::FOREST, PlayerId::One),
+        card(10_004, cards::LIGHTNING_BOLT, PlayerId::One),
+    ]);
+    let source = spell(10_000, cards::DEMONIC_TUTOR, PlayerId::One, 0);
+    game.resolve_effect_def(
+        ScopedEffect::primary(EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::Any,
+            minimum: 0,
+            maximum: 3,
+            reveal: true,
+            destination: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+        }),
+        &source,
+        TriggerContext::empty(),
+    );
+
+    let decision = game.observe(PlayerId::One).decision.unwrap();
+    assert_eq!((decision.minimum, decision.maximum), (0, 3));
+    let selected = decision.options[..3]
+        .iter()
+        .map(|option| option.id)
+        .collect::<Vec<_>>();
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options: selected,
+        },
+    )
+    .unwrap();
+
+    assert_eq!(game.players[0].hand.len(), 3);
+    assert_eq!(game.players[0].library.len(), 1);
+    assert_eq!(
+        game.events
+            .iter()
+            .filter(|event| matches!(event, GameEvent::CardRevealed { .. }))
+            .count(),
+        3
+    );
+}
+
+#[test]
+fn searching_to_library_top_reveals_and_preserves_the_card_object() {
+    let mut game = ready_game();
+    game.players[0].library.clear();
+    game.players[0].library.extend([
+        card(10_001, cards::JUZAM_DJINN, PlayerId::One),
+        card(10_002, cards::BLACK_LOTUS, PlayerId::One),
+        card(10_003, cards::SAVANNAH_LIONS, PlayerId::One),
+        card(10_004, cards::LIGHTNING_BOLT, PlayerId::One),
+        card(10_005, cards::MOUNTAIN, PlayerId::One),
+        card(10_006, cards::SERRA_ANGEL, PlayerId::One),
+    ]);
+    let remainder_before = game.players[0]
+        .library
+        .iter()
+        .filter(|card| card.id != CardInstanceId(10_002))
+        .map(|card| card.id)
+        .collect::<Vec<_>>();
+    let source = spell(10_000, cards::DEMONIC_TUTOR, PlayerId::One, 0);
+    game.resolve_effect_def(
+        ScopedEffect::primary(EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::HasType(CardType::Artifact),
+            minimum: 0,
+            maximum: 1,
+            reveal: true,
+            destination: ZoneKind::Library,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+        }),
+        &source,
+        TriggerContext::empty(),
+    );
+
+    let decision = game.observe(PlayerId::One).decision.unwrap();
+    let lotus = decision
+        .options
+        .iter()
+        .find(|option| option.card == Some((CardInstanceId(10_002), cards::BLACK_LOTUS)))
+        .expect("Black Lotus matches the search");
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options: vec![lotus.id],
+        },
+    )
+    .unwrap();
+
+    let top = game.players[0].library.last().expect("a top card");
+    assert_eq!(top.id, CardInstanceId(10_002));
+    assert_eq!(top.definition, cards::BLACK_LOTUS);
+    let remainder_after = game.players[0].library[..game.players[0].library.len() - 1]
+        .iter()
+        .map(|card| card.id)
+        .collect::<Vec<_>>();
+    assert_ne!(
+        remainder_after, remainder_before,
+        "the found card is excluded while the remaining library is shuffled"
+    );
+    assert!(game.events.iter().any(|event| {
+        matches!(
+            event,
+            GameEvent::CardRevealed {
+                player: PlayerId::One,
+                card: CardInstanceId(10_002),
+                definition,
+            } if *definition == cards::BLACK_LOTUS
+        )
+    }));
+}
+
+#[test]
+fn search_zone_can_move_a_public_graveyard_card_to_hand() {
+    let mut game = ready_game();
+    game.players[0].graveyard.clear();
+    game.players[0]
+        .graveyard
+        .push(card(10_001, cards::LIGHTNING_BOLT, PlayerId::One));
+    let source = spell(10_000, cards::DEMONIC_TUTOR, PlayerId::One, 0);
+    game.resolve_effect_def(
+        ScopedEffect::primary(EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Graveyard,
+            object: ObjectPredicateDef::Any,
+            minimum: 1,
+            maximum: 1,
+            reveal: false,
+            destination: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            shuffle: false,
+        }),
+        &source,
+        TriggerContext::empty(),
+    );
+
+    let decision = game
+        .observe(PlayerId::Two)
+        .decision
+        .expect("a public-zone search is publicly observable");
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options: vec![decision.options[0].id],
+        },
+    )
+    .unwrap();
+
+    assert!(game.players[0].graveyard.is_empty());
+    let moved = game.players[0].hand.last().expect("the searched-for card");
+    assert_eq!(moved.definition, cards::LIGHTNING_BOLT);
+    assert_ne!(moved.id, CardInstanceId(10_001));
+}
+
+#[test]
+fn search_zone_supports_private_hands_and_public_exile() {
+    let source = spell(10_000, cards::DEMONIC_TUTOR, PlayerId::One, 0);
+
+    let mut hand_game = ready_game();
+    hand_game.players[0].hand.clear();
+    hand_game.players[0]
+        .hand
+        .push(card(10_101, cards::LIGHTNING_BOLT, PlayerId::One));
+    hand_game.resolve_effect_def(
+        ScopedEffect::primary(EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Hand,
+            object: ObjectPredicateDef::Any,
+            minimum: 1,
+            maximum: 1,
+            reveal: false,
+            destination: ZoneKind::Graveyard,
+            placement: ZonePlacement::Top,
+            shuffle: false,
+        }),
+        &source,
+        TriggerContext::empty(),
+    );
+    let decision = hand_game.observe(PlayerId::One).decision.unwrap();
+    assert_eq!(decision.visibility, DecisionVisibility::Private);
+    assert!(hand_game.observe(PlayerId::Two).decision.is_none());
+    hand_game
+        .apply(
+            PlayerId::One,
+            Action::ChooseDecision {
+                decision: decision.id,
+                options: vec![decision.options[0].id],
+            },
+        )
+        .unwrap();
+    let moved = hand_game.players[0].graveyard.last().unwrap();
+    assert_eq!(moved.definition, cards::LIGHTNING_BOLT);
+    assert_ne!(moved.id, GameObjectId(10_101));
+
+    let mut exile_game = ready_game();
+    exile_game.players[0]
+        .exile
+        .push(card(10_102, cards::SERRA_ANGEL, PlayerId::One));
+    exile_game.resolve_effect_def(
+        ScopedEffect::primary(EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Exile,
+            object: ObjectPredicateDef::Any,
+            minimum: 1,
+            maximum: 1,
+            reveal: false,
+            destination: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            shuffle: false,
+        }),
+        &source,
+        TriggerContext::empty(),
+    );
+    let decision = exile_game
+        .observe(PlayerId::Two)
+        .decision
+        .expect("an exile search is public");
+    assert_eq!(decision.visibility, DecisionVisibility::Public);
+    exile_game
+        .apply(
+            PlayerId::One,
+            Action::ChooseDecision {
+                decision: decision.id,
+                options: vec![decision.options[0].id],
+            },
+        )
+        .unwrap();
+    let moved = exile_game.players[0].hand.last().unwrap();
+    assert_eq!(moved.definition, cards::SERRA_ANGEL);
+    assert_ne!(moved.id, GameObjectId(10_102));
 }
 
 #[test]

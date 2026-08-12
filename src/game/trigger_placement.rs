@@ -122,7 +122,7 @@ impl Game {
             .get(trigger.definition)
             .map_or("Triggered ability", |card| card.name.as_str());
         let target_effect = match trigger.effect {
-            EffectDef::May(effect) => *effect,
+            EffectDef::May { effect, .. } => *effect,
             effect => effect,
         };
         let preference = if matches!(

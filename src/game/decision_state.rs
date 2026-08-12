@@ -7,8 +7,8 @@ use crate::ids::{ChoiceIndex, GameObjectId, PlayerId};
 
 use super::{
     ApplicableReplacement, CardInstance, DecisionObservation, DecisionOption, DecisionZone,
-    PendingTrigger, PileChosen, PileSplit, PilesSeparated, ReplacementEffectContext, ScopedEffect,
-    StackObject, TriggerContext, TriggerPlacementBatch,
+    DrawReplacement, PendingTrigger, PileChosen, PileSplit, PilesSeparated,
+    ReplacementEffectContext, ScopedEffect, StackObject, TriggerContext, TriggerPlacementBatch,
 };
 
 /// Fork repaints its copy, so the copy is red and nothing else.
@@ -94,14 +94,27 @@ pub(super) enum DecisionContinuation {
         chosen: Vec<(PlayerId, Vec<GameObjectId>)>,
         cause: ZoneMoveCause,
     },
-    Tutor,
-    LibrarySearch {
-        /// `Library` means reveal the selection, shuffle the other cards, and
-        /// then put the selection on top.
+    SearchZone {
+        controller: PlayerId,
+        source: ZoneKind,
         destination: ZoneKind,
+        placement: ZonePlacement,
+        reveal: bool,
         /// A search shuffles whether or not it found anything. Looking at the
         /// top card does not: the rest of the library was never disturbed.
         shuffle: bool,
+    },
+    ChooseCards {
+        controller: PlayerId,
+        destination: ZoneKind,
+        placement: ZonePlacement,
+        reveal: bool,
+    },
+    /// The affected player chooses which of several applicable next-draw
+    /// replacements consumes this draw. Unchosen replacements remain live.
+    DrawReplacement {
+        player: PlayerId,
+        replacements: Vec<DrawReplacement>,
     },
     BasicLandTypeTextChange {
         target: Target,

@@ -55,7 +55,10 @@ impl Game {
                 self.regenerate_permanent(id);
             }
             self.move_permanents_to_graveyard(&die);
-            if !self.pending_decisions.is_empty() || !self.pending_events.is_empty() {
+            if !self.pending_decisions.is_empty()
+                || !self.pending_events.is_empty()
+                || !self.pending_procedures.is_empty()
+            {
                 return;
             }
             self.apply_legend_rule();

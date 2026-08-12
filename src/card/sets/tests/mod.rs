@@ -1,16 +1,16 @@
 use std::collections::HashSet;
 
-use super::{CardRecord, SET_MODULES, y1993, y1994, y2004, y2011, y2012, y2013};
+use super::{CardRecord, SET_MODULES, y1993, y1994, y1996, y2002, y2004, y2011, y2012, y2013};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityProcedureDef, AddManaEffectDef,
-    AlternativeCastKindDef, AppliedEffectDef, BasicLandType, CardPrinting, CardPrintingId,
-    CardStructure, CardSupertype, CardType, ComparisonDef, ConditionDef, DeclarativeAbilityDef,
-    DoubleFacedKind, EffectDef, EffectDurationDef, EffectExecutionDef, EffectRecipientDef,
-    ImplementationStatus, KeywordAbility, ManaColor, ManaRestrictionDef, ManaSelectionDef,
-    ManaSpendEffectDef, ObjectPredicateDef, ObjectQueryDef, PlayActionKind, PlayRestriction,
-    PlayerRelation, ReplacementEffectDef, ReplacementEventDef, SpellForm, TargetPredicate,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef,
-    ZonePlacement, cards,
+    AlternativeCastKindDef, AppliedEffectDef, BasicLandType, CardChoiceSourceDef, CardPrinting,
+    CardPrintingId, CardStructure, CardSupertype, CardType, ComparisonDef, ConditionDef,
+    DeclarativeAbilityDef, DoubleFacedKind, EffectDef, EffectDurationDef, EffectExecutionDef,
+    EffectRecipientDef, ImplementationStatus, KeywordAbility, ManaColor, ManaRestrictionDef,
+    ManaSelectionDef, ManaSpendEffectDef, ObjectPredicateDef, ObjectQueryDef, PlayActionKind,
+    PlayRestriction, PlayerRelation, ReplacementEffectDef, ReplacementEventDef, SpellForm,
+    TargetPredicate, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZoneMoveCauseDef, ZonePlacement, cards,
 };
 use crate::{
     CardDefinitionId, CardPartId, CardSet, Format, ManaCost, ModeId, PlayOptionId, TargetSlotId,

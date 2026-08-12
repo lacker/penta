@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use super::model_animation::{AnimationSnapshot, UpkeepKeywordSnapshot};
+use super::model_procedure::{DrawReplacementSnapshot, PendingProcedureSnapshot};
 use super::model_trigger::{DelayedTriggerSnapshot, FloatingTriggerSnapshot};
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
@@ -31,6 +32,8 @@ pub(super) struct GameSnapshot {
     pub(super) spells_cast_last_turn: [u16; 2],
     pub(super) cards_drawn_this_turn: [u16; 2],
     pub(super) drawn_this_turn: [Vec<u32>; 2],
+    pub(super) defer_empty_library_loss: bool,
+    pub(super) draw_replacements: [Vec<DrawReplacementSnapshot>; 2],
     pub(super) miracle_window: Option<u32>,
     pub(super) pending_combat_attackers: Vec<u32>,
     pub(super) combat_blocked_attackers: Vec<u32>,
@@ -48,6 +51,7 @@ pub(super) struct GameSnapshot {
     pub(super) delayed_triggers: Vec<DelayedTriggerSnapshot>,
     pub(super) floating_triggers: Vec<FloatingTriggerSnapshot>,
     pub(super) pending_triggers: Vec<PendingTriggerSnapshot>,
+    pub(super) pending_procedures: Vec<PendingProcedureSnapshot>,
     pub(super) decision_state: Option<DecisionStateSnapshot>,
     pub(super) has_deferred_state: bool,
     pub(super) viewer: usize,
@@ -622,13 +626,26 @@ pub(super) enum DecisionPreferenceSnapshot {
     rename_all_fields = "camelCase"
 )]
 pub(super) enum DecisionContinuationSnapshot {
-    Tutor,
+    SearchZone {
+        controller: usize,
+        source: ZoneKindSnapshot,
+        destination: ZoneKindSnapshot,
+        placement: ZonePlacementSnapshot,
+        reveal: bool,
+        shuffle: bool,
+    },
+    ChooseCards {
+        controller: usize,
+        destination: ZoneKindSnapshot,
+        placement: ZonePlacementSnapshot,
+        reveal: bool,
+    },
+    DrawReplacement {
+        player: usize,
+        replacements: Vec<DrawReplacementSnapshot>,
+    },
     BasicLandTypeTextChange {
         target: TargetSnapshot,
-    },
-    LibrarySearch {
-        destination: ZoneKindSnapshot,
-        shuffle: bool,
     },
     ExileFromHand {
         victim: usize,
@@ -871,6 +888,7 @@ pub(super) enum DecisionZoneSnapshot {
     Stack,
     Library,
     Exile,
+    OutsideGame,
     Command,
     DrawnThisStep,
     None,

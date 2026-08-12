@@ -237,6 +237,12 @@ hidden = {
         "p1": my_library_hypothesis,
         "p2": their_library_hypothesis,
     },
+    "outsideGame": {
+        # Both lists are required, even when empty. They are cards currently
+        # owned outside the game, such as each player's sideboard.
+        "p1": my_outside_game_hypothesis,
+        "p2": their_outside_game_hypothesis,
+    },
 }
 world = penta.Game.from_observation(
     view_json,
@@ -245,11 +251,13 @@ world = penta.Game.from_observation(
 )
 ```
 
-The observation preserves every public object ID. Hypothesized hidden cards
-receive fresh IDs, so private identities cannot collide with or disclose the
-host's objects. `rollout_seed` controls random choices made *after* local
-construction; it is not the host seed, and neither host seed nor RNG state is
-ever present in `checkpoint`.
+The observation preserves every public object ID. Hypothesized hidden cards,
+including outside-game cards, receive fresh IDs, so private identities cannot
+collide with or disclose the host's objects. Outside-game contents are never
+silently assumed empty: both `outsideGame` arrays must be present even when the
+hypothesized world has none. `rollout_seed` controls random choices made
+*after* local construction; it is not the host seed, and neither host seed nor
+RNG state is ever present in `checkpoint`.
 
 When opposing hand identity matters to a rule, the hypothesis can additionally
 carry `drawnThisTurn: {"p2": [0, 2]}` using indexes into that hypothesized hand,
@@ -483,6 +491,8 @@ pick-several decision, `legalActions` carries one default selection (the first
 selection you'd prefer. Submit option IDs, not option-array offsets, within
 the reported bounds. When `cancellable` is true, `CancelDecision` is a
 distinct legal action; cancelling is not the same as choosing zero options.
+`OutsideGame` is a provenance value used for a privately offered sideboard
+card; it is not a Magic zone and sideboards are not added to observations.
 
 Decision prompts and option labels are presentation text, not stable protocol
 identifiers. They can become more precise when a rules procedure moves to a
@@ -498,8 +508,10 @@ as observations, plus `formatName` and the canonical `cards` array. The array is
 ordered by `definition` and is not filtered: it contains tokens and definitions
 outside the selected format as well as playable cards.
 That includes off-format rules test cases such as Darksteel Ingot (definition
-`263`, debut set `darksteel`), whose indestructible ability is executable even
-though the card is not legal in either shipped format.
+`263`, debut set `darksteel`), Enlightened Tutor (`313`, `mirage`), and the five
+Onslaught fetch lands (definitions `283`, `284`, and `1363` through `1365`,
+`onslaught`). Their abilities are
+executable even though the cards are not legal in either shipped format.
 `allowed` means the definition belongs to the format's card pool; `legal` is
 `allowed && !banned`, so a restricted card is still legal. Definitions include
 their structure, parts, play options, legality, printings, and clause-derived
@@ -573,6 +585,26 @@ Answer an offered choice with the existing `ChooseDecision` action. A seeded
 `0.9` random trial decides whether the chosen permanent is destroyed. Guardian
 Beast (definition `606`) is also added compatibly to the unfiltered catalog and
 is legal only where Arabian Nights is allowed.
+
+As compatible protocol-22 simulation growth, definitions `1362` through `1367`
+append Ring of Ma'rûf, the three remaining Onslaught fetch lands, Liliana's
+Shade, and Seek the Horizon. Standard now exposes 880 legal identities: 841
+`complete`, 39 `partial`, and 806 blocked; its inline audit covers the remaining
+845 incomplete identities. Ring is executable in Old School. Its activation can
+create a private choice whose option `zone` is `OutsideGame`; under the Eternal
+Central profile the same choice can also contain cards from `Exile`. Clients
+must treat the option list as authoritative and must not infer that every
+card-backed decision refers to an observed zone. If more than one next-draw
+replacement is applicable, the affected player gets a public one-option
+`Choice`; the unchosen effects remain available for later draws that turn.
+
+The same compatible simulation update corrects Demonic Tutor's unrestricted
+library search: with a nonempty library its `Choice` has `minimum: 1` and
+`maximum: 1`, so an empty `ChooseDecision` selection is no longer legal.
+Qualified hidden-zone searches can still expose `minimum: 0` and be resolved
+without selecting a card. These cards and choices use the existing catalog,
+`Choice`, and `ChooseDecision` shapes, so they change the simulation fingerprint
+rather than the bot-wire epoch.
 
 A play option's `restriction` is `normal`, `fromHandOnly`, or
 `beforeCombatDamage`. Read the tag rather than assuming every otherwise valid
@@ -733,6 +765,12 @@ protocol 18, 19, 20, 21, and 22 migration sections above after these:
   even when the artifact is untapped. The decision uses the shared
   optional-payment prompt and option labels; consume the indexed actions and
   option IDs rather than matching those presentation strings.
+- Protocol 18 adds `OpponentRanOutOfTime` to `result.reason` for a seat that
+  loses to a host-enforced clock rather than by concession.
+- Protocol 19 adds the hidden-safe `checkpoint` object and observation
+  reconstruction entry points used for local determinizations.
+- Protocol 20 makes Chaos Orb's Old School activation untargeted and moves its
+  nontoken-permanent choice into resolution.
 
 ## Putting your bot online
 

@@ -21,6 +21,18 @@ fn activated_cost_boundary_is_specific_to_the_source_zone() {
         &[ZoneKind::Battlefield],
         &[AbilityCostDef::DiscardSource],
     ));
+    assert!(shared_activated_costs(
+        &[ZoneKind::Battlefield],
+        &[AbilityCostDef::ExileSource],
+    ));
+    assert!(!shared_activated_costs(
+        &[ZoneKind::Hand],
+        &[AbilityCostDef::ExileSource],
+    ));
+    assert!(!shared_activated_costs(
+        &[ZoneKind::Battlefield],
+        &[AbilityCostDef::SacrificeSource, AbilityCostDef::ExileSource,],
+    ));
 }
 
 #[test]
@@ -52,8 +64,55 @@ fn triggered_mana_conditions_stay_outside_the_shared_runtime_boundary() {
     assert!(!shared_definition_ability(&conditional));
 }
 
+fn assert_stack_effect_support(effects: &[EffectDef], expected: bool) {
+    for effect in effects {
+        assert_eq!(shared_stack_effect(*effect), expected, "{effect:?}");
+    }
+}
+
+fn assert_unsupported_optional_payments(tap: &'static EffectDef) {
+    static ONE_MANA: [CostDef; 1] = [CostDef::Mana(ManaCost::new(1, 0))];
+    static ONE_LIFE: [CostDef; 1] = [CostDef::PayLife(1)];
+    static TWO_MANA_PAYMENTS: [CostDef; 2] = [
+        CostDef::Mana(ManaCost::new(1, 0)),
+        CostDef::Mana(ManaCost::new(1, 0)),
+    ];
+
+    let any_payer = EffectDef::OptionalPayment {
+        payment: PaymentDef::new(PlayerRelation::Any, &ONE_MANA),
+        if_paid: tap,
+    };
+    let chosen_payer = EffectDef::OptionalPayment {
+        payment: PaymentDef::new(PlayerRelation::ChosenPlayer, &ONE_MANA),
+        if_paid: tap,
+    };
+    let event_payer = EffectDef::OptionalPayment {
+        payment: PaymentDef::new(PlayerRelation::EventPlayer, &ONE_MANA),
+        if_paid: tap,
+    };
+    let life_payment = EffectDef::OptionalPayment {
+        payment: PaymentDef::new(PlayerRelation::You, &ONE_LIFE),
+        if_paid: tap,
+    };
+    let multiple_mana_payments = EffectDef::OptionalPayment {
+        payment: PaymentDef::new(PlayerRelation::You, &TWO_MANA_PAYMENTS),
+        if_paid: tap,
+    };
+
+    assert_stack_effect_support(
+        &[
+            any_payer,
+            chosen_payer,
+            event_payer,
+            life_payment,
+            multiple_mana_payments,
+        ],
+        false,
+    );
+}
+
 #[test]
-fn decision_effects_stay_at_the_stack_effect_root() {
+fn decision_effects_suspend_inside_shared_stack_sequences() {
     static TAP: EffectDef = EffectDef::Tap {
         object: EffectRecipientDef::Source,
     };
@@ -62,41 +121,12 @@ fn decision_effects_stay_at_the_stack_effect_root() {
     };
     static PLAIN_SEQUENCE_COMPONENTS: [EffectDef; 2] = [TAP, UNTAP];
     static PLAIN_SEQUENCE: EffectDef = EffectDef::Sequence(&PLAIN_SEQUENCE_COMPONENTS);
-    static MAY_TAP: EffectDef = EffectDef::May(&TAP);
+    static MAY_TAP: EffectDef = EffectDef::May {
+        player: EffectRecipientDef::Controller,
+        effect: &TAP,
+    };
     static OPTIONAL_TAP: EffectDef = EffectDef::OptionalPayment {
         payment: PaymentDef::new(PlayerRelation::You, &[CostDef::Mana(ManaCost::new(1, 0))]),
-        if_paid: &TAP,
-    };
-    static ANY_PAYER_OPTIONAL_TAP: EffectDef = EffectDef::OptionalPayment {
-        payment: PaymentDef::new(PlayerRelation::Any, &[CostDef::Mana(ManaCost::new(1, 0))]),
-        if_paid: &TAP,
-    };
-    static CHOSEN_PAYER_OPTIONAL_TAP: EffectDef = EffectDef::OptionalPayment {
-        payment: PaymentDef::new(
-            PlayerRelation::ChosenPlayer,
-            &[CostDef::Mana(ManaCost::new(1, 0))],
-        ),
-        if_paid: &TAP,
-    };
-    static EVENT_PAYER_OPTIONAL_TAP: EffectDef = EffectDef::OptionalPayment {
-        payment: PaymentDef::new(
-            PlayerRelation::EventPlayer,
-            &[CostDef::Mana(ManaCost::new(1, 0))],
-        ),
-        if_paid: &TAP,
-    };
-    static LIFE_PAYMENT_TAP: EffectDef = EffectDef::OptionalPayment {
-        payment: PaymentDef::new(PlayerRelation::You, &[CostDef::PayLife(1)]),
-        if_paid: &TAP,
-    };
-    static MULTIPLE_MANA_PAYMENTS_TAP: EffectDef = EffectDef::OptionalPayment {
-        payment: PaymentDef::new(
-            PlayerRelation::You,
-            &[
-                CostDef::Mana(ManaCost::new(1, 0)),
-                CostDef::Mana(ManaCost::new(1, 0)),
-            ],
-        ),
         if_paid: &TAP,
     };
     static SOURCE_PRESENT: TriggerConditionDef = TriggerConditionDef::SourceOnBattlefield;
@@ -113,27 +143,84 @@ fn decision_effects_stay_at_the_stack_effect_root() {
     static SEQUENCE_WITH_CONDITIONAL_MAY: [EffectDef; 2] = [CONDITIONAL_MAY, UNTAP];
     static SEQUENCE_WITH_PAYMENT: [EffectDef; 2] = [OPTIONAL_TAP, UNTAP];
     static SEQUENCE_WITH_DELAYED_MAY: [EffectDef; 2] = [DELAYED_MAY, UNTAP];
+    static SEARCH: EffectDef = EffectDef::SearchZone {
+        player: EffectRecipientDef::Controller,
+        source: ZoneKind::Library,
+        object: ObjectPredicateDef::Any,
+        minimum: 1,
+        maximum: 1,
+        reveal: false,
+        destination: ZoneKind::Hand,
+        placement: ZonePlacement::Top,
+        shuffle: true,
+    };
+    static SEQUENCE_WITH_EARLY_SEARCH: [EffectDef; 2] = [SEARCH, UNTAP];
+    static SEQUENCE_WITH_TERMINAL_SEARCH: [EffectDef; 2] = [TAP, SEARCH];
 
-    assert!(shared_stack_effect(MAY_TAP));
-    assert!(shared_stack_effect(CONDITIONAL_MAY));
-    assert!(shared_stack_effect(EffectDef::May(&PLAIN_SEQUENCE)));
-    assert!(shared_stack_effect(OPTIONAL_TAP));
-    assert!(!shared_stack_effect(ANY_PAYER_OPTIONAL_TAP));
-    assert!(!shared_stack_effect(CHOSEN_PAYER_OPTIONAL_TAP));
-    assert!(!shared_stack_effect(EVENT_PAYER_OPTIONAL_TAP));
-    assert!(!shared_stack_effect(LIFE_PAYMENT_TAP));
-    assert!(!shared_stack_effect(MULTIPLE_MANA_PAYMENTS_TAP));
-    assert!(!shared_stack_effect(EffectDef::Sequence(
-        &SEQUENCE_WITH_MAY,
+    assert_stack_effect_support(
+        &[
+            MAY_TAP,
+            CONDITIONAL_MAY,
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &PLAIN_SEQUENCE,
+            },
+            OPTIONAL_TAP,
+            EffectDef::Sequence(&SEQUENCE_WITH_MAY),
+            EffectDef::Sequence(&SEQUENCE_WITH_CONDITIONAL_MAY),
+            EffectDef::Sequence(&SEQUENCE_WITH_PAYMENT),
+            EffectDef::Sequence(&SEQUENCE_WITH_DELAYED_MAY),
+            EffectDef::Sequence(&SEQUENCE_WITH_EARLY_SEARCH),
+            EffectDef::Sequence(&SEQUENCE_WITH_TERMINAL_SEARCH),
+        ],
+        true,
+    );
+    assert_unsupported_optional_payments(&TAP);
+}
+
+#[test]
+fn zone_search_boundary_rejects_ambiguous_or_incoherent_shapes() {
+    let search = |source, destination, maximum, shuffle| EffectDef::SearchZone {
+        player: EffectRecipientDef::Controller,
+        source,
+        object: ObjectPredicateDef::Any,
+        minimum: 0,
+        maximum,
+        reveal: false,
+        destination,
+        placement: ZonePlacement::Top,
+        shuffle,
+    };
+
+    assert!(shared_stack_effect(search(
+        ZoneKind::Library,
+        ZoneKind::Hand,
+        2,
+        true,
     )));
-    assert!(!shared_stack_effect(EffectDef::Sequence(
-        &SEQUENCE_WITH_CONDITIONAL_MAY,
+    assert!(shared_stack_effect(search(
+        ZoneKind::Library,
+        ZoneKind::Battlefield,
+        1,
+        true,
     )));
-    assert!(!shared_stack_effect(EffectDef::Sequence(
-        &SEQUENCE_WITH_PAYMENT,
+    assert!(!shared_stack_effect(search(
+        ZoneKind::Library,
+        ZoneKind::Battlefield,
+        2,
+        true,
     )));
-    assert!(shared_stack_effect(EffectDef::Sequence(
-        &SEQUENCE_WITH_DELAYED_MAY,
+    assert!(!shared_stack_effect(search(
+        ZoneKind::Library,
+        ZoneKind::Library,
+        2,
+        true,
+    )));
+    assert!(!shared_stack_effect(search(
+        ZoneKind::Graveyard,
+        ZoneKind::Hand,
+        1,
+        true,
     )));
 }
 

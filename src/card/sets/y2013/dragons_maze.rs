@@ -316,10 +316,13 @@ pub(in crate::card::sets) static OPAL_LAKE_GATEKEEPERS: CardRecord = CardRecord:
                 to: Some(ZoneKind::Battlefield),
             },
             &TWO_GATES_CONDITION,
-            EffectDef::May(&EffectDef::DrawCards {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
-            }),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            },
         ),
     ),
 );
@@ -987,12 +990,15 @@ pub(in crate::card::sets) static DEPUTY_OF_ACQUITTALS: CardRecord = CardRecord::
                     owner: None,
                 },
             )],
-            EffectDef::May(&EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-                controller: None,
-            }),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    controller: None,
+                },
+            },
         ),
     ]),
 );

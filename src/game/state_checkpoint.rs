@@ -26,20 +26,31 @@ use crate::{
 
 mod decision;
 mod emblem;
+mod event;
 mod model;
 mod model_animation;
+mod model_procedure;
 mod model_trigger;
 mod permanent;
+mod procedure;
 mod semantics;
 mod stack;
 mod trigger;
 mod wire;
+mod wire_decision;
 
 use decision::{
     decision_referenced_object_ids, decision_snapshot, parse_pending_decision,
     parse_pending_trigger, pending_trigger_snapshot,
 };
 use emblem::{emblem_snapshot, parse_emblems};
+#[cfg(test)]
+use event::entry_replacement_locator;
+use event::{
+    applicable_replacement_snapshot, entry_replacement_effect, parse_applicable_replacement,
+    parse_replacement_context_snapshot, pending_event_referenced_object_ids,
+    pending_event_snapshot,
+};
 use model::{
     AbilityActivationSnapshot, AbilityEffectExpirationSnapshot, AbilityOriginSnapshot,
     AbilitySourceSnapshot, ApplicableReplacementSnapshot, AttackDefenderSnapshot,
@@ -54,6 +65,10 @@ use model::{
 };
 use model_animation::UpkeepKeywordSnapshot;
 use permanent::{detached_permanent_snapshot, permanent_snapshot};
+use procedure::{
+    draw_replacement_referenced_object_ids, draw_replacement_snapshot, parse_draw_replacement,
+    parse_pending_procedure, pending_procedure_referenced_object_ids, pending_procedure_snapshot,
+};
 use semantics::{
     ability_locator, animation_snapshot, applied_effect_locator, catalog_ability,
     catalog_animation, catalog_applied_effect, catalog_mana_payload, keyword_snapshot,
@@ -70,6 +85,7 @@ use trigger::{
 };
 #[allow(clippy::wildcard_imports)]
 use wire::*;
+use wire_decision::rebind_visible_decision_cards;
 
 impl Game {
     /// Hidden-safe rules bookkeeping needed to use an observation as a
@@ -152,6 +168,17 @@ impl Game {
                     .iter()
                     .flat_map(|pending| decision_referenced_object_ids(&pending.continuation)),
             )
+            .chain(
+                self.draw_replacements
+                    .iter()
+                    .flatten()
+                    .flat_map(draw_replacement_referenced_object_ids),
+            )
+            .chain(
+                self.pending_procedures
+                    .iter()
+                    .flat_map(pending_procedure_referenced_object_ids),
+            )
             .filter(|id| self.retired_objects.contains_key(id))
             .collect::<BTreeSet<_>>();
         let retired_objects = retired_ids
@@ -221,6 +248,24 @@ impl Game {
             .filter_map(|trigger| pending_trigger_snapshot(self, trigger))
             .collect::<Vec<_>>();
         let has_unlocated_pending_trigger = pending_triggers.len() != self.pending_triggers.len();
+        let draw_replacements = [PlayerId::One, PlayerId::Two].map(|player| {
+            self.draw_replacements[player.index()]
+                .iter()
+                .filter_map(|replacement| draw_replacement_snapshot(self, replacement))
+                .collect::<Vec<_>>()
+        });
+        let has_unlocated_draw_replacement =
+            [PlayerId::One, PlayerId::Two].into_iter().any(|player| {
+                draw_replacements[player.index()].len()
+                    != self.draw_replacements[player.index()].len()
+            });
+        let pending_procedures = self
+            .pending_procedures
+            .iter()
+            .filter_map(|procedure| pending_procedure_snapshot(self, procedure))
+            .collect::<Vec<_>>();
+        let has_unlocated_pending_procedure =
+            pending_procedures.len() != self.pending_procedures.len();
         GameSnapshot {
             version: crate::protocol::CHECKPOINT_VERSION,
             simulation_fingerprint: crate::protocol::SIMULATION_FINGERPRINT.to_owned(),
@@ -256,6 +301,8 @@ impl Game {
             spells_cast_last_turn: self.spells_cast_last_turn,
             cards_drawn_this_turn: self.cards_drawn_this_turn,
             drawn_this_turn: visible_drawn_this_turn,
+            defer_empty_library_loss: self.defer_empty_library_loss,
+            draw_replacements,
             miracle_window: self
                 .miracle_window
                 .filter(|id| {
@@ -350,6 +397,7 @@ impl Game {
             delayed_triggers,
             floating_triggers,
             pending_triggers,
+            pending_procedures,
             decision_state,
             has_deferred_state: has_unlocated_temporary_ability_grant
                 || has_unlocated_delayed_trigger
@@ -358,7 +406,9 @@ impl Game {
                 || has_unsupported_event
                 || has_unlocated_pending_trigger
                 || has_unlocated_retired_object
-                || has_unlocated_mana,
+                || has_unlocated_mana
+                || has_unlocated_draw_replacement
+                || has_unlocated_pending_procedure,
             // Makes accidental reuse with another seat fail closed in the
             // importer without revealing anything about that other seat.
             viewer: viewer.index(),
@@ -442,6 +492,13 @@ impl Game {
         let [library_one, library_two] = libraries;
         let library_one = library_one?;
         let library_two = library_two?;
+        let outside_game = [PlayerId::One, PlayerId::Two].map(|player| {
+            hidden_definitions(hidden, "outsideGame", player).and_then(|definitions| {
+                mint_cards(&definitions, player, &catalog, &mut next_object_id)
+            })
+        });
+        let [outside_one, outside_two] = outside_game;
+        let mut outside_game = [outside_one?, outside_two?];
 
         let graveyards = parse_two_public_zones(field(observation, "graveyards")?, &catalog)?;
         let exiles = parse_two_public_zones(field(observation, "exiles")?, &catalog)?;
@@ -458,6 +515,7 @@ impl Game {
             viewer,
             &mut checkpoint_hands,
             &mut libraries,
+            &mut outside_game,
         )?;
         let land_played = checkpoint.land_played_this_turn;
         let tried_empty = checkpoint.tried_to_draw_from_empty_library;
@@ -488,6 +546,7 @@ impl Game {
             hand: checkpoint_hands[player.index()].clone(),
             graveyard: graveyards[player.index()].clone(),
             exile: exiles[player.index()].clone(),
+            outside_game: outside_game[player.index()].clone(),
             mana_pool: mana_pools[player.index()],
             mana: mana[player.index()].clone(),
             land_played_this_turn: land_played[player.index()],
@@ -539,6 +598,8 @@ impl Game {
             spells_cast_last_turn: checkpoint.spells_cast_last_turn,
             cards_drawn_this_turn: checkpoint.cards_drawn_this_turn,
             drawn_this_turn: parse_drawn_this_turn(&checkpoint, hidden, viewer, &checkpoint_hands)?,
+            defer_empty_library_loss: checkpoint.defer_empty_library_loss,
+            draw_replacements: std::array::from_fn(|_| VecDeque::new()),
             miracle_window: parse_miracle_window(&checkpoint, hidden, viewer, &checkpoint_hands)?,
             delayed_triggers: Vec::new(),
             floating_triggers: Vec::new(),
@@ -550,6 +611,7 @@ impl Game {
             pending_decisions: Vec::new(),
             next_decision_id: checkpoint.next_decision_id,
             pending_events: VecDeque::new(),
+            pending_procedures: VecDeque::new(),
             pending_triggers: Vec::new(),
             next_trigger_id: checkpoint.next_trigger_id,
             last_seen_hands: [None, None],
@@ -587,6 +649,19 @@ impl Game {
             .iter()
             .map(|trigger| parse_pending_trigger(trigger, &game))
             .collect::<Result<Vec<_>, _>>()?;
+        let draw_replacements = [PlayerId::One, PlayerId::Two].map(|player| {
+            checkpoint.draw_replacements[player.index()]
+                .iter()
+                .map(|replacement| parse_draw_replacement(replacement, &game))
+                .collect::<Result<VecDeque<_>, _>>()
+        });
+        let [replacements_one, replacements_two] = draw_replacements;
+        game.draw_replacements = [replacements_one?, replacements_two?];
+        game.pending_procedures = checkpoint
+            .pending_procedures
+            .iter()
+            .map(|procedure| parse_pending_procedure(procedure, &game))
+            .collect::<Result<VecDeque<_>, _>>()?;
         game.pending_decisions = parse_pending_decision(
             observation,
             checkpoint.decision_state.as_ref(),
@@ -610,176 +685,6 @@ impl Game {
             return Err("checkpoint next trigger id does not follow its pending triggers".into());
         }
         Ok(game)
-    }
-}
-
-fn pending_event_referenced_object_ids(pending: &PendingEvent) -> Vec<GameObjectId> {
-    let mut ids = pending
-        .applied
-        .iter()
-        .map(|source| source.object)
-        .chain(
-            pending
-                .effects
-                .iter()
-                .map(|effect| effect.context.source.object),
-        )
-        .collect::<Vec<_>>();
-    let ReplaceableEvent::BattlefieldEntry(entry) = &pending.event;
-    ids.extend(entry.permanent.created_by);
-    ids.extend(entry.permanent.attached_to);
-    ids.extend(entry.permanent.blocking);
-    ids.extend(entry.permanent.damage_sources.iter().copied());
-    ids.extend(
-        entry
-            .permanent
-            .temporary_granted_abilities
-            .iter()
-            .map(|grant| grant.source),
-    );
-    ids
-}
-
-fn pending_event_snapshot(
-    catalog: &CardCatalog,
-    pending: &PendingEvent,
-) -> Option<PendingEventSnapshot> {
-    let ReplaceableEvent::BattlefieldEntry(entry) = &pending.event;
-    Some(PendingEventSnapshot {
-        entry: PendingBattlefieldEntrySnapshot {
-            permanent: detached_permanent_snapshot(catalog, &entry.permanent),
-            from: zone_kind_snapshot(entry.from),
-            completion: completion_snapshot(entry.completion),
-        },
-        applied: pending
-            .applied
-            .iter()
-            .copied()
-            .map(ability_source_snapshot)
-            .collect(),
-        effects: pending
-            .effects
-            .iter()
-            .map(|effect| pending_replacement_effect_snapshot(catalog, effect))
-            .collect::<Option<Vec<_>>>()?,
-    })
-}
-
-fn pending_replacement_effect_snapshot(
-    catalog: &CardCatalog,
-    pending: &PendingReplacementEffect,
-) -> Option<PendingReplacementEffectSnapshot> {
-    Some(PendingReplacementEffectSnapshot {
-        context: replacement_context_snapshot(pending.context),
-        effect: entry_replacement_locator(catalog, pending.effect)?,
-    })
-}
-
-fn applicable_replacement_snapshot(
-    catalog: &CardCatalog,
-    replacement: &ApplicableReplacement,
-) -> Option<ApplicableReplacementSnapshot> {
-    Some(ApplicableReplacementSnapshot {
-        context: replacement_context_snapshot(replacement.context),
-        effect: entry_replacement_locator(catalog, replacement.effect)?,
-        definition: replacement.definition.0,
-    })
-}
-
-fn parse_applicable_replacement(
-    snapshot: &ApplicableReplacementSnapshot,
-    catalog: &CardCatalog,
-) -> Result<ApplicableReplacement, String> {
-    let ability = catalog_ability(catalog, &snapshot.effect.ability)
-        .ok_or("entry replacement ability locator is absent from this catalog")?;
-    Ok(ApplicableReplacement {
-        context: parse_replacement_context_snapshot(snapshot.context)?,
-        definition: CardDefinitionId(snapshot.definition),
-        text: ability.text,
-        effect: entry_replacement_effect(&ability)
-            .ok_or("entry replacement locator does not identify an entry replacement")?,
-    })
-}
-
-fn entry_replacement_locator(
-    catalog: &CardCatalog,
-    expected: BattlefieldEntryReplacementEffect,
-) -> Option<EntryReplacementLocator> {
-    Some(EntryReplacementLocator {
-        ability: ability_locator(catalog, |ability| {
-            entry_replacement_effect(ability) == Some(expected)
-        })?,
-    })
-}
-
-fn entry_replacement_effect(
-    ability: &crate::card::AbilityDef,
-) -> Option<BattlefieldEntryReplacementEffect> {
-    let DeclarativeAbilityDef::Replacement(definition) = ability.definition else {
-        return None;
-    };
-    match (definition.event, ability.declarative_effect()?) {
-        (_, EffectDef::Replacement(effect)) => {
-            Some(BattlefieldEntryReplacementEffect::Declarative(effect))
-        }
-        (
-            ReplacementEventDef::EntersBattlefield,
-            EffectDef::ChooseCreatureType {
-                object: EffectRecipientDef::Source,
-            },
-        ) => Some(BattlefieldEntryReplacementEffect::ChooseCreatureType),
-        (
-            ReplacementEventDef::EntersBattlefield,
-            EffectDef::ChooseCardName {
-                object: EffectRecipientDef::Source,
-            },
-        ) => Some(BattlefieldEntryReplacementEffect::ChooseCardName),
-        (
-            ReplacementEventDef::EntersBattlefield,
-            EffectDef::ChoosePlayer {
-                object: EffectRecipientDef::Source,
-                relation,
-            },
-        ) => Some(BattlefieldEntryReplacementEffect::ChoosePlayer(relation)),
-        (
-            ReplacementEventDef::EntersBattlefield,
-            EffectDef::CopyPermanentAsItEnters {
-                object,
-                added_types,
-            },
-        ) => Some(BattlefieldEntryReplacementEffect::CopyAsItEnters {
-            object,
-            added_types,
-        }),
-        _ => None,
-    }
-}
-
-const fn replacement_context_snapshot(
-    context: ReplacementEffectContext,
-) -> ReplacementEffectContextSnapshot {
-    ReplacementEffectContextSnapshot {
-        source: ability_source_snapshot(context.source),
-        controller: context.controller.index(),
-    }
-}
-
-fn parse_replacement_context_snapshot(
-    context: ReplacementEffectContextSnapshot,
-) -> Result<ReplacementEffectContext, String> {
-    Ok(ReplacementEffectContext {
-        source: AbilitySourceRef {
-            object: GameObjectId(context.source.object),
-            ability: ability_origin_from_snapshot(context.source.ability),
-        },
-        controller: player_from_index(context.controller)?,
-    })
-}
-
-const fn ability_source_snapshot(source: AbilitySourceRef) -> AbilitySourceSnapshot {
-    AbilitySourceSnapshot {
-        object: source.object.0,
-        ability: ability_origin_snapshot(source.ability),
     }
 }
 

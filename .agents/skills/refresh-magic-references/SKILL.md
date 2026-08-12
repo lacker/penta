@@ -45,7 +45,7 @@ justifies refresh only when it matters to the current task; otherwise use the
 cached version with its limitation or consult an authoritative online source.
 
 Default status checks source freshness and the current schema's
-`scryfall-index`. The database's status is relative to cached `oracle-cards`
+`scryfall-index`. The database's status is relative to cached `default-cards`
 and `rulings` checksums; source freshness is reported separately.
 
 The Scryfall cache uses a seven-day gameplay-data freshness window by default.
@@ -91,7 +91,8 @@ The default set contains:
 
 - `comprehensive-rules`: the current official Wizards TXT document
 - `eternal-central-rules`: the canonical EC 93/94 page as searchable text
-- `oracle-cards`: one representative Scryfall object per Oracle ID
+- `default-cards`: every Scryfall printing in English, or in its printed
+  language when that printing exists in only one language
 - `rulings`: Scryfall's card-ruling objects
 
 After fetching or validating the default Scryfall inputs, the command builds
@@ -99,18 +100,33 @@ or repairs the current schema-versioned SQLite index when an input checksum or
 database schema changed. Other schema versions remain available to worktrees
 that need them.
 
-Request named resources when a narrower or larger corpus is appropriate:
+When only the index inputs need repair or a schema upgrade needs a new input,
+fetch them explicitly. This also builds the current index once both inputs are
+available:
+
+```sh
+python3 .agents/skills/refresh-magic-references/scripts/reference_material.py status default-cards rulings scryfall-index
+python3 .agents/skills/refresh-magic-references/scripts/reference_material.py lock-status
+# After explicit human approval:
+python3 .agents/skills/refresh-magic-references/scripts/reference_material.py fetch default-cards rulings --approve-shared-write
+python3 .agents/skills/refresh-magic-references/scripts/reference_material.py status scryfall-index
+```
+
+Request other named resources when a narrower or larger corpus is appropriate:
 
 ```sh
 python3 .agents/skills/refresh-magic-references/scripts/reference_material.py fetch comprehensive-rules eternal-central-rules --approve-shared-write
-python3 .agents/skills/refresh-magic-references/scripts/reference_material.py fetch default-cards --approve-shared-write
+python3 .agents/skills/refresh-magic-references/scripts/reference_material.py fetch oracle-cards --approve-shared-write
 python3 .agents/skills/refresh-magic-references/scripts/reference_material.py fetch all-cards --approve-shared-write
 ```
 
-Use `default-cards` only when printing, set, language-default, or collector
-metadata matters. Use `all-cards` only when every language and printing is
-actually needed; it is substantially larger. Use `--force` after a known set
-release or when explicitly asked to replace an otherwise-fresh snapshot.
+`default-cards` is the index input that supplies exact printing UUIDs, set and
+collector metadata, and one default-language object per printing.
+`oracle-cards` remains an optional compact raw source with one representative
+object per Oracle ID, but it is not an index input. Use `all-cards` only when
+every localized printing object is actually needed; it is substantially
+larger and is not indexed. Use `--force` after a known set release or when
+explicitly asked to replace an otherwise-fresh snapshot.
 
 Build or repair the database from intact cached inputs without networking:
 
@@ -118,9 +134,11 @@ Build or repair the database from intact cached inputs without networking:
 python3 .agents/skills/refresh-magic-references/scripts/reference_material.py index --approve-shared-write
 ```
 
-Use `index --force` only to diagnose or replace an otherwise-current database.
-The builder streams compressed inputs, records checksums and row counts,
-validates SQLite integrity, and atomically replaces the old database.
+This writes a new schema-versioned path and leaves databases for other schema
+versions intact. Use `index --force` only to diagnose or replace an
+otherwise-current database. The builder streams compressed inputs, records
+checksums and row counts, validates SQLite integrity and foreign keys, and
+atomically replaces the current schema's database.
 
 Migrate an intact legacy worktree cache only when the shared cache has not
 already been populated:
@@ -147,7 +165,9 @@ unmodeled fields; do not load an entire bulk file into model context.
 
 Treat the references as evidence, not executable engine definitions. This
 repository intentionally adapts some card text and format behavior, so never
-overwrite card implementations mechanically from bulk data.
+overwrite card implementations mechanically from bulk data. Collector numbers
+are stored verbatim as opaque text, and default-language printing rows without
+an Oracle ID remain useful printing records rather than being discarded.
 
 ## Fall back safely
 

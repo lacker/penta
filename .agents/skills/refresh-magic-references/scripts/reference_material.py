@@ -21,7 +21,7 @@ import time
 import unicodedata
 import uuid
 from collections.abc import Iterable, Iterator
-from contextlib import contextmanager
+from contextlib import closing, contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from html.parser import HTMLParser
@@ -52,12 +52,14 @@ SCHEMA_VERSION = 1
 DATABASE_NAME = "scryfall.sqlite"
 DATABASE_RESOURCE_NAME = "scryfall-index"
 # Bump this whenever tables, columns, indexes, or indexed semantics change.
-DATABASE_SCHEMA_VERSION = 1
+DATABASE_SCHEMA_VERSION = 2
 DATABASE_MANIFEST_KEY = f"{DATABASE_RESOURCE_NAME}-schema-v{DATABASE_SCHEMA_VERSION}"
 DATABASE_RELATIVE_PATH = f"indexes/schema-v{DATABASE_SCHEMA_VERSION}/{DATABASE_NAME}"
-DATABASE_INPUTS = ("oracle-cards", "rulings")
+DATABASE_INPUTS = ("default-cards", "rulings")
+DATABASE_REPRESENTATIVE_POLICY = "prefer-english-then-minimum-scryfall-id-binary"
 DATABASE_TABLES = (
     "cards",
+    "printings",
     "card_faces",
     "card_names",
     "card_keywords",
@@ -75,7 +77,7 @@ MAX_GZIP_EXPANSION_RATIO = 50
 DEFAULT_RESOURCES = (
     "comprehensive-rules",
     "eternal-central-rules",
-    "oracle-cards",
+    "default-cards",
     "rulings",
 )
 
@@ -1285,6 +1287,35 @@ def database_input_records(
     return records
 
 
+def representative_policy_violations(database: sqlite3.Connection) -> int:
+    """Count Oracle rows whose representative violates the declared policy."""
+
+    return database.execute(
+        """
+        SELECT count(*)
+        FROM cards AS c
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM printings AS representative
+            WHERE representative.card_id = c.card_id
+              AND representative.scryfall_id = c.representative_scryfall_id
+              AND representative.lang = c.representative_lang
+        ) OR EXISTS (
+            SELECT 1
+            FROM printings AS candidate
+            WHERE candidate.card_id = c.card_id
+              AND (
+                (candidate.lang = 'en' AND c.representative_lang != 'en')
+                OR (
+                    (candidate.lang = 'en') = (c.representative_lang = 'en')
+                    AND candidate.scryfall_id < c.representative_scryfall_id
+                )
+              )
+        )
+        """
+    ).fetchone()[0]
+
+
 def inspect_scryfall_database(
     reference_dir: Path, manifest: dict[str, Any]
 ) -> ResourceStatus:
@@ -1326,6 +1357,15 @@ def inspect_scryfall_database(
             "stale",
             relative_path,
             "database schema version has changed",
+            built_at,
+            None,
+        )
+    if record.get("representative_policy") != DATABASE_REPRESENTATIVE_POLICY:
+        return ResourceStatus(
+            DATABASE_RESOURCE_NAME,
+            "stale",
+            relative_path,
+            "database representative-card policy has changed",
             built_at,
             None,
         )
@@ -1409,8 +1449,8 @@ def inspect_scryfall_database(
         )
 
     try:
-        with sqlite3.connect(
-            f"{path.resolve().as_uri()}?mode=ro", uri=True
+        with closing(
+            sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro", uri=True)
         ) as database:
             database.execute("PRAGMA query_only = ON")
             user_version = database.execute("PRAGMA user_version").fetchone()[0]
@@ -1422,6 +1462,13 @@ def inspect_scryfall_database(
             metadata = dict(database.execute("SELECT key, value FROM metadata"))
             if metadata.get("database_schema_version") != str(DATABASE_SCHEMA_VERSION):
                 raise ReferenceError("database metadata has the wrong schema version")
+            if (
+                metadata.get("indexed.cards.representative_policy")
+                != DATABASE_REPRESENTATIVE_POLICY
+            ):
+                raise ReferenceError(
+                    "database metadata has the wrong representative-card policy"
+                )
             if metadata.get("fts5") != str(int(manifest_fts5)):
                 raise ReferenceError("database metadata has the wrong FTS5 flag")
             for name in DATABASE_INPUTS:
@@ -1449,6 +1496,49 @@ def inspect_scryfall_database(
                     raise ReferenceError(
                         f"database metadata has the wrong {table} row count"
                     )
+            expected_printings = inputs["default-cards"].get("record_count")
+            if actual_table_counts["printings"] != expected_printings:
+                raise ReferenceError(
+                    "printing row count does not match the default-cards input"
+                )
+            printing_link_counts = {
+                "indexed.printings.without_oracle_id": database.execute(
+                    "SELECT count(*) FROM printings WHERE oracle_id IS NULL"
+                ).fetchone()[0],
+                "indexed.printings.unlinked": database.execute(
+                    """
+                    SELECT count(*) FROM printings
+                    WHERE oracle_id IS NOT NULL AND card_id IS NULL
+                    """
+                ).fetchone()[0],
+                "indexed.printings.oracle_id_mismatches": database.execute(
+                    """
+                    SELECT count(*)
+                    FROM printings AS p JOIN cards AS c USING (card_id)
+                    WHERE p.oracle_id IS NOT c.oracle_id
+                    """
+                ).fetchone()[0],
+            }
+            for key, actual_count in printing_link_counts.items():
+                if metadata.get(key) != str(actual_count):
+                    raise ReferenceError(f"database metadata has the wrong {key}")
+            if printing_link_counts["indexed.printings.unlinked"] or (
+                printing_link_counts["indexed.printings.oracle_id_mismatches"]
+            ):
+                raise ReferenceError("database has inconsistent printing links")
+            policy_violations = representative_policy_violations(database)
+            if metadata.get("indexed.cards.representative_policy_violations") != str(
+                policy_violations
+            ):
+                raise ReferenceError(
+                    "database metadata has the wrong representative-policy "
+                    "violation count"
+                )
+            if policy_violations:
+                raise ReferenceError(
+                    f"database has {policy_violations} representative-policy "
+                    "violations"
+                )
             fts_table_names = {
                 row[0]
                 for row in database.execute(
@@ -1494,6 +1584,7 @@ def inspect_scryfall_database(
             if quick_check != ("ok",):
                 raise ReferenceError(f"SQLite quick_check failed: {quick_check!r}")
             cards = actual_table_counts["cards"]
+            printings = actual_table_counts["printings"]
             rulings = actual_table_counts["rulings"]
     except (sqlite3.Error, ReferenceError) as error:
         return ResourceStatus(
@@ -1510,7 +1601,8 @@ def inspect_scryfall_database(
         DATABASE_RESOURCE_NAME,
         "current",
         relative_path,
-        f"indexes {cards} cards and {rulings} unique rulings {fts_detail}",
+        f"indexes {cards} Oracle identities, {printings} printings, and "
+        f"{rulings} unique rulings {fts_detail}",
         built_at,
         None,
     )
@@ -1527,7 +1619,8 @@ def create_database_schema(database: sqlite3.Connection) -> None:
         CREATE TABLE cards (
             card_id INTEGER PRIMARY KEY,
             oracle_id TEXT NOT NULL UNIQUE,
-            scryfall_id TEXT NOT NULL UNIQUE,
+            representative_scryfall_id TEXT NOT NULL UNIQUE,
+            representative_lang TEXT NOT NULL,
             name TEXT NOT NULL,
             normalized_name TEXT NOT NULL,
             layout TEXT,
@@ -1546,15 +1639,40 @@ def create_database_schema(database: sqlite3.Connection) -> None:
             legalities_json TEXT NOT NULL,
             games_json TEXT NOT NULL,
             reserved INTEGER NOT NULL,
-            digital INTEGER NOT NULL,
+            representative_digital INTEGER NOT NULL,
             game_changer INTEGER NOT NULL,
-            released_at TEXT,
+            representative_released_at TEXT,
             representative_set_code TEXT,
             representative_set_name TEXT,
             representative_collector_number TEXT,
             representative_rarity TEXT,
-            scryfall_uri TEXT,
+            representative_scryfall_uri TEXT,
             rulings_uri TEXT,
+            representative_image_uri TEXT
+        );
+
+        CREATE TABLE printings (
+            printing_id INTEGER PRIMARY KEY,
+            card_id INTEGER REFERENCES cards(card_id),
+            oracle_id TEXT,
+            scryfall_id TEXT NOT NULL,
+            name TEXT NOT NULL,
+            normalized_name TEXT NOT NULL,
+            lang TEXT NOT NULL,
+            layout TEXT,
+            released_at TEXT,
+            set_code TEXT NOT NULL,
+            set_name TEXT NOT NULL,
+            collector_number TEXT NOT NULL,
+            rarity TEXT,
+            digital INTEGER NOT NULL,
+            promo INTEGER NOT NULL,
+            reprint INTEGER NOT NULL,
+            variation INTEGER NOT NULL,
+            games_json TEXT NOT NULL,
+            finishes_json TEXT NOT NULL,
+            artist TEXT,
+            scryfall_uri TEXT,
             image_uri TEXT
         );
 
@@ -1620,166 +1738,328 @@ def create_database_schema(database: sqlite3.Connection) -> None:
     )
 
 
-def insert_card(database: sqlite3.Connection, item: dict[str, Any], line: int) -> None:
-    context = f"oracle-cards line {line}"
-    oracle_id = required_text(item, "oracle_id", context=context)
+def insert_default_card(
+    database: sqlite3.Connection, item: dict[str, Any], line: int
+) -> None:
+    """Index one Default Cards printing and its Oracle identity, when present."""
+
+    context = f"default-cards line {line}"
     scryfall_id = required_text(item, "id", context=context)
     name = required_text(item, "name", context=context)
-    mana_value = item.get("cmc")
-    if isinstance(mana_value, bool) or not isinstance(mana_value, (int, float)):
-        mana_value = None
-    elif not math.isfinite(float(mana_value)):
-        raise ReferenceError(f"{context} has a non-finite mana value")
+    oracle_value = item.get("oracle_id")
+    if oracle_value is None:
+        oracle_id = None
+    elif isinstance(oracle_value, str) and oracle_value:
+        oracle_id = oracle_value
+    else:
+        raise ReferenceError(f"{context} has an invalid oracle_id")
 
-    colors = item.get("colors") if isinstance(item.get("colors"), list) else []
-    identity = (
-        item.get("color_identity")
-        if isinstance(item.get("color_identity"), list)
-        else []
-    )
-    produced = (
-        item.get("produced_mana") if isinstance(item.get("produced_mana"), list) else []
-    )
-    keywords = item.get("keywords") if isinstance(item.get("keywords"), list) else []
-    legalities = (
-        item.get("legalities") if isinstance(item.get("legalities"), dict) else {}
-    )
-    games = item.get("games") if isinstance(item.get("games"), list) else []
-    card_values = {
-        "oracle_id": oracle_id,
-        "scryfall_id": scryfall_id,
-        "name": name,
-        "normalized_name": normalized_card_name(name),
-        "layout": optional_text(item, "layout"),
-        "mana_cost": optional_text(item, "mana_cost"),
-        "mana_value": mana_value,
-        "type_line": optional_text(item, "type_line"),
-        "oracle_text": optional_text(item, "oracle_text"),
-        "power": optional_text(item, "power"),
-        "toughness": optional_text(item, "toughness"),
-        "loyalty": optional_text(item, "loyalty"),
-        "defense": optional_text(item, "defense"),
-        "colors_json": compact_json(colors),
-        "color_identity_json": compact_json(identity),
-        "produced_mana_json": compact_json(produced),
-        "keywords_json": compact_json(keywords),
-        "legalities_json": compact_json(legalities),
-        "games_json": compact_json(games),
-        "reserved": int(item.get("reserved") is True),
-        "digital": int(item.get("digital") is True),
-        "game_changer": int(item.get("game_changer") is True),
-        "released_at": optional_text(item, "released_at"),
-        "representative_set_code": optional_text(item, "set"),
-        "representative_set_name": optional_text(item, "set_name"),
-        "representative_collector_number": optional_text(item, "collector_number"),
-        "representative_rarity": optional_text(item, "rarity"),
-        "scryfall_uri": optional_text(item, "scryfall_uri"),
-        "rulings_uri": optional_text(item, "rulings_uri"),
-        "image_uri": nested_text(item, "image_uris", "normal"),
-    }
-    cursor = database.execute(
-        """
-        INSERT INTO cards (
-            oracle_id, scryfall_id, name, normalized_name, layout, mana_cost,
-            mana_value, type_line, oracle_text, power, toughness, loyalty,
-            defense, colors_json, color_identity_json, produced_mana_json,
-            keywords_json, legalities_json, games_json, reserved, digital,
-            game_changer, released_at, representative_set_code,
-            representative_set_name, representative_collector_number,
-            representative_rarity, scryfall_uri, rulings_uri, image_uri
-        ) VALUES (
-            :oracle_id, :scryfall_id, :name, :normalized_name, :layout, :mana_cost,
-            :mana_value, :type_line, :oracle_text, :power, :toughness, :loyalty,
-            :defense, :colors_json, :color_identity_json, :produced_mana_json,
-            :keywords_json, :legalities_json, :games_json, :reserved, :digital,
-            :game_changer, :released_at, :representative_set_code,
-            :representative_set_name, :representative_collector_number,
-            :representative_rarity, :scryfall_uri, :rulings_uri, :image_uri
-        )
-        """,
-        card_values,
-    )
-    card_id = cursor.lastrowid
-    if card_id is None:
-        raise ReferenceError(f"failed to index {context}")
-    database.execute(
-        "INSERT INTO card_names VALUES (?, -1, 'card', ?, ?)",
-        (card_id, name, normalized_card_name(name)),
-    )
-
-    faces = item.get("card_faces") if isinstance(item.get("card_faces"), list) else []
-    for face_index, face in enumerate(faces):
-        if not isinstance(face, dict):
-            raise ReferenceError(f"{context} has an invalid card face")
-        face_name = required_text(face, "name", context=f"{context} face {face_index}")
-        face_colors = face.get("colors") if isinstance(face.get("colors"), list) else []
-        database.execute(
-            """
-            INSERT INTO card_faces (
-                card_id, face_index, name, normalized_name, mana_cost, type_line,
-                oracle_text, power, toughness, loyalty, defense, colors_json,
-                image_uri
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                card_id,
-                face_index,
-                face_name,
-                normalized_card_name(face_name),
-                optional_text(face, "mana_cost"),
-                optional_text(face, "type_line"),
-                optional_text(face, "oracle_text"),
-                optional_text(face, "power"),
-                optional_text(face, "toughness"),
-                optional_text(face, "loyalty"),
-                optional_text(face, "defense"),
-                compact_json(face_colors),
-                nested_text(face, "image_uris", "normal"),
-            ),
-        )
-        database.execute(
-            "INSERT INTO card_names VALUES (?, ?, 'face', ?, ?)",
-            (card_id, face_index, face_name, normalized_card_name(face_name)),
-        )
-
-    for keyword in dict.fromkeys(
-        value for value in keywords if isinstance(value, str) and value
-    ):
-        database.execute("INSERT INTO card_keywords VALUES (?, ?)", (card_id, keyword))
-    for kind, values in (
-        ("color", colors),
-        ("identity", identity),
-        ("produced", produced),
-    ):
-        for color in dict.fromkeys(
-            value for value in values if isinstance(value, str) and value
+    card_id: int | None = None
+    if oracle_id is not None:
+        mana_value = item.get("cmc")
+        if isinstance(mana_value, bool) or not isinstance(
+            mana_value, (int, float)
         ):
+            mana_value = None
+        elif not math.isfinite(float(mana_value)):
+            raise ReferenceError(f"{context} has a non-finite mana value")
+
+        colors = item.get("colors") if isinstance(item.get("colors"), list) else []
+        identity = (
+            item.get("color_identity")
+            if isinstance(item.get("color_identity"), list)
+            else []
+        )
+        produced = (
+            item.get("produced_mana")
+            if isinstance(item.get("produced_mana"), list)
+            else []
+        )
+        keywords = (
+            item.get("keywords") if isinstance(item.get("keywords"), list) else []
+        )
+        legalities = (
+            item.get("legalities")
+            if isinstance(item.get("legalities"), dict)
+            else {}
+        )
+        games = item.get("games") if isinstance(item.get("games"), list) else []
+        card_values = {
+            "oracle_id": oracle_id,
+            "representative_scryfall_id": scryfall_id,
+            "representative_lang": required_text(item, "lang", context=context),
+            "name": name,
+            "normalized_name": normalized_card_name(name),
+            "layout": optional_text(item, "layout"),
+            "mana_cost": optional_text(item, "mana_cost"),
+            "mana_value": mana_value,
+            "type_line": optional_text(item, "type_line"),
+            "oracle_text": optional_text(item, "oracle_text"),
+            "power": optional_text(item, "power"),
+            "toughness": optional_text(item, "toughness"),
+            "loyalty": optional_text(item, "loyalty"),
+            "defense": optional_text(item, "defense"),
+            "colors_json": compact_json(colors),
+            "color_identity_json": compact_json(identity),
+            "produced_mana_json": compact_json(produced),
+            "keywords_json": compact_json(keywords),
+            "legalities_json": compact_json(legalities),
+            "games_json": compact_json(games),
+            "reserved": int(item.get("reserved") is True),
+            "representative_digital": int(item.get("digital") is True),
+            "game_changer": int(item.get("game_changer") is True),
+            "representative_released_at": optional_text(item, "released_at"),
+            "representative_set_code": optional_text(item, "set"),
+            "representative_set_name": optional_text(item, "set_name"),
+            "representative_collector_number": optional_text(
+                item, "collector_number"
+            ),
+            "representative_rarity": optional_text(item, "rarity"),
+            "representative_scryfall_uri": optional_text(item, "scryfall_uri"),
+            "rulings_uri": optional_text(item, "rulings_uri"),
+            "representative_image_uri": nested_text(item, "image_uris", "normal"),
+        }
+        existing = database.execute(
+            """
+            SELECT card_id, representative_lang, representative_scryfall_id
+            FROM cards WHERE oracle_id = ?
+            """,
+            (oracle_id,),
+        ).fetchone()
+        if existing is None:
+            cursor = database.execute(
+                """
+                INSERT INTO cards (
+                    oracle_id, representative_scryfall_id, representative_lang,
+                    name, normalized_name, layout, mana_cost, mana_value,
+                    type_line, oracle_text, power, toughness, loyalty, defense,
+                    colors_json, color_identity_json, produced_mana_json,
+                    keywords_json, legalities_json, games_json, reserved,
+                    representative_digital, game_changer,
+                    representative_released_at, representative_set_code,
+                    representative_set_name, representative_collector_number,
+                    representative_rarity, representative_scryfall_uri,
+                    rulings_uri, representative_image_uri
+                ) VALUES (
+                    :oracle_id, :representative_scryfall_id,
+                    :representative_lang, :name, :normalized_name, :layout,
+                    :mana_cost, :mana_value, :type_line, :oracle_text, :power,
+                    :toughness, :loyalty, :defense, :colors_json,
+                    :color_identity_json, :produced_mana_json, :keywords_json,
+                    :legalities_json, :games_json, :reserved,
+                    :representative_digital, :game_changer,
+                    :representative_released_at, :representative_set_code,
+                    :representative_set_name,
+                    :representative_collector_number, :representative_rarity,
+                    :representative_scryfall_uri, :rulings_uri,
+                    :representative_image_uri
+                )
+                """,
+                card_values,
+            )
+            card_id = cursor.lastrowid
+            refresh_card = True
+        else:
+            card_id = existing[0]
+            old_key = (existing[1] != "en", existing[2])
+            new_key = (
+                card_values["representative_lang"] != "en",
+                card_values["representative_scryfall_id"],
+            )
+            refresh_card = new_key < old_key
+            if refresh_card:
+                database.execute(
+                    """
+                    UPDATE cards SET
+                        representative_scryfall_id = :representative_scryfall_id,
+                        representative_lang = :representative_lang,
+                        name = :name,
+                        normalized_name = :normalized_name,
+                        layout = :layout,
+                        mana_cost = :mana_cost,
+                        mana_value = :mana_value,
+                        type_line = :type_line,
+                        oracle_text = :oracle_text,
+                        power = :power,
+                        toughness = :toughness,
+                        loyalty = :loyalty,
+                        defense = :defense,
+                        colors_json = :colors_json,
+                        color_identity_json = :color_identity_json,
+                        produced_mana_json = :produced_mana_json,
+                        keywords_json = :keywords_json,
+                        legalities_json = :legalities_json,
+                        games_json = :games_json,
+                        reserved = :reserved,
+                        representative_digital = :representative_digital,
+                        game_changer = :game_changer,
+                        representative_released_at = :representative_released_at,
+                        representative_set_code = :representative_set_code,
+                        representative_set_name = :representative_set_name,
+                        representative_collector_number =
+                            :representative_collector_number,
+                        representative_rarity = :representative_rarity,
+                        representative_scryfall_uri =
+                            :representative_scryfall_uri,
+                        rulings_uri = :rulings_uri,
+                        representative_image_uri = :representative_image_uri
+                    WHERE card_id = :card_id
+                    """,
+                    {**card_values, "card_id": card_id},
+                )
+        if card_id is None:
+            raise ReferenceError(f"failed to index the Oracle identity for {context}")
+
+        if refresh_card:
+            for table in (
+                "card_faces",
+                "card_names",
+                "card_keywords",
+                "card_colors",
+                "card_parts",
+            ):
+                database.execute(
+                    f"DELETE FROM {table} WHERE card_id = ?", (card_id,)
+                )
             database.execute(
-                "INSERT INTO card_colors VALUES (?, ?, ?)",
-                (card_id, kind, color),
+                "INSERT INTO card_names VALUES (?, -1, 'card', ?, ?)",
+                (card_id, name, normalized_card_name(name)),
             )
 
-    parts = item.get("all_parts") if isinstance(item.get("all_parts"), list) else []
-    for part_index, part in enumerate(parts):
-        if not isinstance(part, dict):
-            continue
-        database.execute(
-            """
-            INSERT INTO card_parts (
-                card_id, part_index, component, related_scryfall_id, name,
-                type_line, uri
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                card_id,
-                part_index,
-                optional_text(part, "component"),
-                optional_text(part, "id"),
-                optional_text(part, "name"),
-                optional_text(part, "type_line"),
-                optional_text(part, "uri"),
-            ),
-        )
+            faces = (
+                item.get("card_faces")
+                if isinstance(item.get("card_faces"), list)
+                else []
+            )
+            for face_index, face in enumerate(faces):
+                if not isinstance(face, dict):
+                    raise ReferenceError(f"{context} has an invalid card face")
+                face_name = required_text(
+                    face, "name", context=f"{context} face {face_index}"
+                )
+                face_colors = (
+                    face.get("colors")
+                    if isinstance(face.get("colors"), list)
+                    else []
+                )
+                database.execute(
+                    """
+                    INSERT INTO card_faces (
+                        card_id, face_index, name, normalized_name, mana_cost,
+                        type_line, oracle_text, power, toughness, loyalty,
+                        defense, colors_json, image_uri
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        card_id,
+                        face_index,
+                        face_name,
+                        normalized_card_name(face_name),
+                        optional_text(face, "mana_cost"),
+                        optional_text(face, "type_line"),
+                        optional_text(face, "oracle_text"),
+                        optional_text(face, "power"),
+                        optional_text(face, "toughness"),
+                        optional_text(face, "loyalty"),
+                        optional_text(face, "defense"),
+                        compact_json(face_colors),
+                        nested_text(face, "image_uris", "normal"),
+                    ),
+                )
+                database.execute(
+                    "INSERT INTO card_names VALUES (?, ?, 'face', ?, ?)",
+                    (
+                        card_id,
+                        face_index,
+                        face_name,
+                        normalized_card_name(face_name),
+                    ),
+                )
+
+            for keyword in dict.fromkeys(
+                value for value in keywords if isinstance(value, str) and value
+            ):
+                database.execute(
+                    "INSERT INTO card_keywords VALUES (?, ?)", (card_id, keyword)
+                )
+            for kind, values in (
+                ("color", colors),
+                ("identity", identity),
+                ("produced", produced),
+            ):
+                for color in dict.fromkeys(
+                    value for value in values if isinstance(value, str) and value
+                ):
+                    database.execute(
+                        "INSERT INTO card_colors VALUES (?, ?, ?)",
+                        (card_id, kind, color),
+                    )
+
+            parts = (
+                item.get("all_parts")
+                if isinstance(item.get("all_parts"), list)
+                else []
+            )
+            for part_index, part in enumerate(parts):
+                if not isinstance(part, dict):
+                    continue
+                database.execute(
+                    """
+                    INSERT INTO card_parts (
+                        card_id, part_index, component, related_scryfall_id,
+                        name, type_line, uri
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        card_id,
+                        part_index,
+                        optional_text(part, "component"),
+                        optional_text(part, "id"),
+                        optional_text(part, "name"),
+                        optional_text(part, "type_line"),
+                        optional_text(part, "uri"),
+                    ),
+                )
+
+    printing_games = (
+        item.get("games") if isinstance(item.get("games"), list) else []
+    )
+    finishes = (
+        item.get("finishes") if isinstance(item.get("finishes"), list) else []
+    )
+    database.execute(
+        """
+        INSERT INTO printings (
+            card_id, oracle_id, scryfall_id, name, normalized_name, lang,
+            layout, released_at, set_code, set_name, collector_number, rarity,
+            digital, promo, reprint, variation, games_json, finishes_json,
+            artist, scryfall_uri, image_uri
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            card_id,
+            oracle_id,
+            scryfall_id,
+            name,
+            normalized_card_name(name),
+            required_text(item, "lang", context=context),
+            optional_text(item, "layout"),
+            optional_text(item, "released_at"),
+            required_text(item, "set", context=context),
+            required_text(item, "set_name", context=context),
+            required_text(item, "collector_number", context=context),
+            optional_text(item, "rarity"),
+            int(item.get("digital") is True),
+            int(item.get("promo") is True),
+            int(item.get("reprint") is True),
+            int(item.get("variation") is True),
+            compact_json(printing_games),
+            compact_json(finishes),
+            optional_text(item, "artist"),
+            optional_text(item, "scryfall_uri"),
+            nested_text(item, "image_uris", "normal"),
+        ),
+    )
 
 
 def insert_ruling(
@@ -1810,6 +2090,10 @@ def create_database_indexes(database: sqlite3.Connection) -> None:
         "CREATE INDEX idx_cards_normalized_name ON cards(normalized_name, layout)",
         "CREATE INDEX idx_cards_mana_value ON cards(mana_value, card_id)",
         "CREATE INDEX idx_cards_representative_set ON cards(representative_set_code, card_id)",
+        "CREATE UNIQUE INDEX idx_printings_scryfall_id ON printings(scryfall_id)",
+        "CREATE INDEX idx_printings_set_collector ON printings(set_code, collector_number, printing_id)",
+        "CREATE INDEX idx_printings_normalized_name_set ON printings(normalized_name, set_code, printing_id)",
+        "CREATE INDEX idx_printings_card_set_collector ON printings(card_id, set_code, collector_number, printing_id)",
         "CREATE INDEX idx_card_faces_normalized_name ON card_faces(normalized_name, card_id)",
         "CREATE INDEX idx_card_names_normalized_name ON card_names(normalized_name, card_id)",
         "CREATE INDEX idx_card_keywords_keyword ON card_keywords(keyword, card_id)",
@@ -1902,17 +2186,17 @@ def atomic_build_scryfall_database(
             create_database_schema(database)
             database.execute("BEGIN")
 
-            oracle_path = reference_dir / RESOURCE_FILES["oracle-cards"]
+            cards_path = reference_dir / RESOURCE_FILES["default-cards"]
             for line, item in enumerate(
                 iter_scryfall_records(
-                    oracle_path,
-                    "oracle-cards",
-                    compressed_size=input_records["oracle-cards"]["size"],
+                    cards_path,
+                    "default-cards",
+                    compressed_size=input_records["default-cards"]["size"],
                 ),
                 start=1,
             ):
-                insert_card(database, item, line)
-                source_counts["oracle-cards"] += 1
+                insert_default_card(database, item, line)
+                source_counts["default-cards"] += 1
 
             rulings_path = reference_dir / RESOURCE_FILES["rulings"]
             for line, item in enumerate(
@@ -1939,6 +2223,11 @@ def atomic_build_scryfall_database(
                 table: database.execute(f"SELECT count(*) FROM {table}").fetchone()[0]
                 for table in DATABASE_TABLES
             }
+            if table_counts["printings"] != source_counts["default-cards"]:
+                raise ReferenceError(
+                    "the printing index does not contain exactly one row per "
+                    "default-cards record"
+                )
             if fts5:
                 table_counts.update(
                     {
@@ -1955,13 +2244,54 @@ def atomic_build_scryfall_database(
                 WHERE cards.card_id IS NULL
                 """
             ).fetchone()[0]
+            printings_without_oracle_id = database.execute(
+                "SELECT count(*) FROM printings WHERE oracle_id IS NULL"
+            ).fetchone()[0]
+            unlinked_printings = database.execute(
+                """
+                SELECT count(*) FROM printings
+                WHERE oracle_id IS NOT NULL AND card_id IS NULL
+                """
+            ).fetchone()[0]
+            mismatched_printings = database.execute(
+                """
+                SELECT count(*)
+                FROM printings AS p JOIN cards AS c USING (card_id)
+                WHERE p.oracle_id IS NOT c.oracle_id
+                """
+            ).fetchone()[0]
+            if unlinked_printings or mismatched_printings:
+                raise ReferenceError(
+                    "printing-to-Oracle links are inconsistent: "
+                    f"{unlinked_printings} unlinked and "
+                    f"{mismatched_printings} mismatched"
+                )
+            policy_violations = representative_policy_violations(database)
+            if policy_violations:
+                raise ReferenceError(
+                    f"{policy_violations} Oracle rows violate the representative "
+                    "policy"
+                )
             metadata = {
                 "database_schema_version": str(DATABASE_SCHEMA_VERSION),
                 "built_at": built_at,
                 "sqlite_version": sqlite3.sqlite_version,
                 "fts5": str(int(fts5)),
-                "source.oracle-cards.records": str(source_counts["oracle-cards"]),
+                "source.default-cards.records": str(source_counts["default-cards"]),
                 "source.rulings.records": str(source_counts["rulings"]),
+                "indexed.cards.representative_policy": (
+                    DATABASE_REPRESENTATIVE_POLICY
+                ),
+                "indexed.cards.representative_policy_violations": str(
+                    policy_violations
+                ),
+                "indexed.printings.without_oracle_id": str(
+                    printings_without_oracle_id
+                ),
+                "indexed.printings.unlinked": str(unlinked_printings),
+                "indexed.printings.oracle_id_mismatches": str(
+                    mismatched_printings
+                ),
                 "indexed.rulings.duplicates_removed": str(
                     source_counts["rulings"] - unique_rulings
                 ),
@@ -2007,6 +2337,7 @@ def atomic_build_scryfall_database(
             "path": DATABASE_RELATIVE_PATH,
             "format": "application/vnd.sqlite3",
             "schema_version": DATABASE_SCHEMA_VERSION,
+            "representative_policy": DATABASE_REPRESENTATIVE_POLICY,
             "built_at": built_at,
             "size": size,
             "sha256": digest,
@@ -2024,6 +2355,10 @@ def atomic_build_scryfall_database(
             "table_counts": table_counts,
             "duplicate_rulings_removed": source_counts["rulings"] - unique_rulings,
             "orphan_rulings": orphan_rulings,
+            "printings_without_oracle_id": printings_without_oracle_id,
+            "unlinked_printings": unlinked_printings,
+            "mismatched_printings": mismatched_printings,
+            "representative_policy_violations": policy_violations,
         }
     except (sqlite3.Error, UnicodeError, ValueError) as error:
         raise ReferenceError(f"cannot build {DATABASE_NAME}: {error}") from error
@@ -2516,8 +2851,8 @@ def validate_database_artifact(
 ) -> None:
     validate_recorded_file(path, record, label=label)
     try:
-        with sqlite3.connect(
-            f"{path.resolve().as_uri()}?mode=ro", uri=True
+        with closing(
+            sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro", uri=True)
         ) as database:
             database.execute("PRAGMA query_only = ON")
             user_version = database.execute("PRAGMA user_version").fetchone()[0]

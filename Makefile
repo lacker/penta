@@ -1,5 +1,6 @@
 FILTER ?=
 PATTERN ?=
+WEB_TEST_CONCURRENCY ?=
 PROFILE_GAMES ?= 4000
 PROFILE_SEED ?= 1
 PROFILE_OUTPUT ?=
@@ -28,15 +29,21 @@ WEB_WASM_PACING_SUITE := tests/wasm-pacing.suite.mjs
 WEB_WASM_STATE_SUITE := tests/wasm-state.suite.mjs
 WEB_WASM_FAST_SUITES := $(WEB_WASM_CONTRACT_SUITE) $(WEB_WASM_CASTING_SUITE) \
 	$(WEB_WASM_COMBAT_SUITE) $(WEB_WASM_PACING_SUITE) $(WEB_WASM_STATE_SUITE)
-WEB_WASM_SLOW_SUITES := tests/wasm-combat-slow.suite.mjs tests/wasm-pacing-slow.suite.mjs
+# Node parallelizes test files, while the synchronous WASM sweeps within each
+# file stay serial. Keep the longest pacing group first so it starts promptly.
+WEB_WASM_SLOW_SUITES := tests/wasm-pacing-handover-slow.suite.mjs \
+	tests/wasm-pacing-actions-slow.suite.mjs \
+	tests/wasm-pacing-replay-slow.suite.mjs \
+	tests/wasm-combat-slow.suite.mjs
 WEB_ROOT_TESTS := $(patsubst web/%,%,$(filter-out web/tests/wasm-game.test.mjs,$(wildcard web/tests/*.test.mjs)))
 WEB_FAST_ROOT_TESTS := $(filter-out tests/rendered-html.test.mjs,$(WEB_ROOT_TESTS))
+WEB_TEST_CONCURRENCY_ARG = $(if $(strip $(WEB_TEST_CONCURRENCY)),--test-concurrency=$(WEB_TEST_CONCURRENCY))
 
 define run_web_tests
 	cd web && if [ -n "$$TEST_PATTERN" ]; then \
-		CI=true node --test --test-name-pattern="$$TEST_PATTERN" $(1); \
+		CI=true node --test $(WEB_TEST_CONCURRENCY_ARG) --test-name-pattern="$$TEST_PATTERN" $(1); \
 	else \
-		CI=true node --test $(1); \
+		CI=true node --test $(WEB_TEST_CONCURRENCY_ARG) $(1); \
 	fi
 endef
 
@@ -69,6 +76,7 @@ help: ## List the available validation and build targets.
 	@printf '\nOptional filters:\n'
 	@printf '  FILTER=<substring>           Narrow a Rust test target.\n'
 	@printf '  PATTERN=<regular-expression> Narrow a browser/WASM test target.\n'
+	@printf '  WEB_TEST_CONCURRENCY=<count> Cap concurrent Node test-file processes.\n'
 	@printf '\nEngine performance options:\n'
 	@printf '  PROFILE_GAMES=<count>        Number of deterministic games to run.\n'
 	@printf '  PROFILE_SEED=<number>        First deterministic game seed.\n'
@@ -205,7 +213,7 @@ test-web-wasm-slow: build-wasm ## Run only slow browser-facing WASM sweeps.
 	$(call run_web_tests,$(WEB_WASM_SLOW_SUITES))
 
 test-web-wasm-full: build-wasm ## Run every browser-facing WASM test unfiltered.
-	cd web && CI=true node --test $(WEB_WASM_FAST_SUITES) $(WEB_WASM_SLOW_SUITES)
+	cd web && CI=true node --test $(WEB_TEST_CONCURRENCY_ARG) $(WEB_WASM_FAST_SUITES) $(WEB_WASM_SLOW_SUITES)
 
 typecheck-web: build-wasm ## Type-check the web client without writing compiler state.
 	cd web && CI=true pnpm exec tsc --noEmit --incremental false --pretty false
@@ -214,11 +222,11 @@ build-web: build-wasm ## Build the production web application.
 	cd web && CI=true pnpm run build:app
 
 test-web-render: build-web ## Test the built server-rendered application shell.
-	cd web && CI=true node --test tests/rendered-html.test.mjs
+	cd web && CI=true node --test $(WEB_TEST_CONCURRENCY_ARG) tests/rendered-html.test.mjs
 
 test-web-unit: ## Run fast standalone Node tests outside the WASM suites.
 	@if [ -n "$(strip $(WEB_FAST_ROOT_TESTS))" ]; then \
-		cd web && CI=true node --test $(WEB_FAST_ROOT_TESTS); \
+		cd web && CI=true node --test $(WEB_TEST_CONCURRENCY_ARG) $(WEB_FAST_ROOT_TESTS); \
 	else \
 		echo "No standalone fast web tests discovered"; \
 	fi
@@ -228,7 +236,7 @@ test-web-fast: test-web-unit test-web-wasm ## Run every fast web test without a 
 test-web: test-web-fast test-web-render ## Run the normal web tests.
 
 test-web-full: build-web ## Run every discovered web test unfiltered.
-	cd web && CI=true node --test $(WEB_ROOT_TESTS) $(WEB_WASM_FAST_SUITES) $(WEB_WASM_SLOW_SUITES)
+	cd web && CI=true node --test $(WEB_TEST_CONCURRENCY_ARG) $(WEB_ROOT_TESTS) $(WEB_WASM_FAST_SUITES) $(WEB_WASM_SLOW_SUITES)
 
 test: test-rust test-profile-attribution test-magic-references test-web ## Run normal Rust, tooling, and web tests.
 

@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
-import test from "node:test";
 
 import { initializeWasm, WebGame } from "./wasm-test-support.mjs";
 
-test("[slow] the pass button label matches where the click actually lands", async () => {
+// Suite files group these CPU-heavy scenarios by observed duration. Keeping
+// the bodies here makes future rebalancing a registration-only change.
+
+export async function passButtonLabelMatchesDestination() {
   await initializeWasm();
 
   // gameTurn is the global counter. `turn` is per-player and changes meaning
@@ -158,9 +160,9 @@ test("[slow] the pass button label matches where the click actually lands", asyn
       `"Go to their attack" landed in their combat ${attack.hit}/${attack.used} times`,
     );
   }
-});
+}
 
-test("[slow] creatureless second mains wait exactly for usable card actions", async () => {
+export async function creaturelessSecondMainsWaitForUsableActions() {
   await initializeWasm();
 
   const decks = ["Goblins", "Sligh", "White Weenie", "GR Aggro", "The Deck"];
@@ -277,9 +279,9 @@ test("[slow] creatureless second mains wait exactly for usable card actions", as
     blockedBeforeDamage,
     "passing into declared blockers always names the damage it causes",
   );
-});
+}
 
-test("[slow] opponent-action snapshots never contain your next draw", async () => {
+export async function opponentActionSnapshotsExcludeNextDraw() {
   await initializeWasm();
 
   // Each animation frame carries the state right after its own action, so the
@@ -345,9 +347,9 @@ test("[slow] opponent-action snapshots never contain your next draw", async () =
   assert.ok(turnsChecked >= 3, `checked ${turnsChecked} turns with draws`);
 
   game.free();
-});
+}
 
-test("[slow] your own spell resolving is not a beat you have to sit through", async () => {
+export async function ownSpellResolutionIsNotOpponentBeat() {
   await initializeWasm();
 
   // The yield that resolves your own spell is automatic, so replaying it puts
@@ -400,9 +402,9 @@ test("[slow] your own spell resolving is not a beat you have to sit through", as
   }
   assert.ok(casts >= 100, `exercised enough casts, got ${casts}`);
   assert.ok(theirResolutions > 0, "their spells still resolve on their own beat");
-});
+}
 
-test("[slow] your own play is on the board before the turn it ended is announced", async () => {
+export async function ownPlaySettlesBeforeTurnHandover() {
   await initializeWasm();
 
   // The client replays a turn from the board your click left behind, not from
@@ -512,4 +514,4 @@ test("[slow] your own play is on the board before the turn it ended is announced
   }
   assert.ok(banners >= 10, `saw your play land before the banner ${banners} times`);
   assert.ok(handovers >= 100, `exercised enough handovers, saw ${handovers}`);
-});
+}

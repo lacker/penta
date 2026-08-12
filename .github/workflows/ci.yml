@@ -97,7 +97,10 @@ jobs:
         working-directory: web
 
       - name: Check web
-        run: make check-web
+        # The slow WASM sweeps are CPU-bound. Three test processes match
+        # Node's effective capacity on the four-core public runner, while
+        # Make can overlap lint/build and typecheck/production-build work.
+        run: make -j3 WEB_TEST_CONCURRENCY=3 check-web
 
   check-bindings:
     name: bot bindings

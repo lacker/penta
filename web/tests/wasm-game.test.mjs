@@ -5,5 +5,7 @@ import "./wasm-combat.suite.mjs";
 import "./wasm-combat-slow.suite.mjs";
 import "./wasm-contract.suite.mjs";
 import "./wasm-pacing.suite.mjs";
-import "./wasm-pacing-slow.suite.mjs";
+import "./wasm-pacing-actions-slow.suite.mjs";
+import "./wasm-pacing-handover-slow.suite.mjs";
+import "./wasm-pacing-replay-slow.suite.mjs";
 import "./wasm-state.suite.mjs";

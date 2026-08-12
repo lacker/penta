@@ -9,7 +9,6 @@ pub enum CardBehavior {
     DemonicTutor,
     DustToDust,
     Duress,
-    Earthquake,
     EssenceScatter,
     Fireball,
     Fork,

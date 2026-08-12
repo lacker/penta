@@ -80,22 +80,6 @@ impl Game {
                     self.damage_target(Some(target), amount);
                 }
             }
-            CardBehavior::Earthquake => {
-                for player in [PlayerId::One, PlayerId::Two] {
-                    self.deal_damage(player, object.x());
-                }
-                let targets = self
-                    .battlefield
-                    .iter()
-                    .filter(|permanent| {
-                        self.power(permanent).is_some() && !self.has_flying(permanent)
-                    })
-                    .map(|permanent| permanent.card.id)
-                    .collect::<Vec<_>>();
-                for target in targets {
-                    self.damage_target(Some(Target::Permanent(target)), object.x());
-                }
-            }
             CardBehavior::DustToDust => {
                 for target in object.iter_targets().filter_map(|target| match target {
                     Target::Permanent(id) => Some(*id),

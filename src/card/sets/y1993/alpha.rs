@@ -3,9 +3,9 @@ use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, CardArt, CardBehavior, CardRules, CardSet, CardSupertype,
     CardType, CardTypeSet, ComparisonDef, CounterKind, DiscardSelectionDef, EffectDef,
-    EffectDurationDef, EffectExecutionDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    PlayerRelation, ReplacementEventDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities, cards,
+    EffectDurationDef, EffectExecutionDef, EffectRecipientDef, KeywordAbility, ManaColor,
+    ObjectPredicateDef, PlayerRelation, ReplacementEventDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, cards,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -583,10 +583,27 @@ pub(in crate::card::sets) static EARTHQUAKE: CardRecord = CardRecord::new(
     "Earthquake",
     CardArt::new("e68ac362-6cdc-48a6-bdd3-4f8ea32add64", "Dan Frazier"),
     CardSet::Alpha,
-    CardRules::new_sorcery(mana_cost!("{X}{R}")).with_abilities(&[AbilityDef::custom_full(
+    CardRules::new_sorcery(mana_cost!("{X}{R}")).with_abilities(&[AbilityDef::spell(
         "Earthquake deals X damage to each creature without flying and each player.",
-        CardBehavior::Earthquake,
-        "The global damage effect is implemented by the card-local spell resolver.",
+        EffectDef::Sequence(&[
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::MatchingObjects {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                            KeywordAbility::Flying,
+                        )),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: PlayerRelation::Any,
+                },
+                amount: ValueDef::ChosenX,
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::EachPlayer,
+                amount: ValueDef::ChosenX,
+            },
+        ]),
     )]),
 );
 

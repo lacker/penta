@@ -1,6 +1,88 @@
 use super::*;
 
 #[test]
+fn earthquake_is_declarative_and_checks_flying_on_resolution() {
+    let mut game = ready_game();
+    let definition = game.catalog.get(cards::EARTHQUAKE).unwrap();
+    assert_eq!(definition.rules.special_behavior(), None);
+    assert!(
+        definition
+            .rules
+            .ability_clauses()
+            .iter()
+            .all(|ability| ability.declarative_effect().is_some())
+    );
+
+    let earthquake = card(10_000, cards::EARTHQUAKE, PlayerId::One);
+    let ground_creature = creature(10_001, cards::SU_CHI, PlayerId::Two);
+    let granted_flying = creature(10_002, cards::SAVANNAH_LIONS, PlayerId::One);
+    let printed_flying = creature(10_003, cards::SERRA_ANGEL, PlayerId::Two);
+    let noncreature = creature(10_004, cards::SOL_RING, PlayerId::Two);
+    let doomed_creature = creature(10_005, cards::SAVANNAH_LIONS, PlayerId::Two);
+    game.players[0].hand.push(earthquake.clone());
+    game.players[0].mana_pool.red = 4;
+    game.battlefield.extend([
+        ground_creature,
+        granted_flying,
+        printed_flying,
+        noncreature,
+        doomed_creature,
+    ]);
+
+    let cast = cast_action(earthquake.id, Vec::new(), Vec::new(), 3);
+    assert!(game.legal_actions(PlayerId::One).contains(&cast));
+    game.apply(PlayerId::One, cast).unwrap();
+    game.battlefield
+        .iter_mut()
+        .find(|permanent| permanent.card.id == CardInstanceId(10_002))
+        .unwrap()
+        .temporary_keywords
+        .push(KeywordAbility::Flying);
+    pass_priority_pair(&mut game);
+
+    assert_eq!(game.players[0].life, 17);
+    assert_eq!(game.players[1].life, 17);
+    let damage = |id| {
+        game.battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == CardInstanceId(id))
+            .map(|permanent| permanent.damage)
+    };
+    assert_eq!(damage(10_001), Some(3), "a ground creature takes X");
+    assert_eq!(
+        damage(10_002),
+        Some(0),
+        "flying gained before resolution excludes the creature"
+    );
+    assert_eq!(damage(10_003), Some(0), "a printed flier is excluded");
+    assert_eq!(damage(10_004), Some(0), "a noncreature is excluded");
+    assert_eq!(
+        damage(10_005),
+        None,
+        "lethal damage destroys a ground creature"
+    );
+}
+
+#[test]
+fn earthquake_that_is_lethal_to_each_player_draws_the_game() {
+    let mut game = ready_game();
+    let earthquake = card(10_000, cards::EARTHQUAKE, PlayerId::One);
+    game.players[0].hand.push(earthquake.clone());
+    game.players[0].mana_pool.red = 4;
+    game.players[0].life = 3;
+    game.players[1].life = 3;
+
+    game.apply(
+        PlayerId::One,
+        cast_action(earthquake.id, Vec::new(), Vec::new(), 3),
+    )
+    .unwrap();
+    pass_priority_pair(&mut game);
+
+    assert_eq!(game.result, Some(GameResult::Draw));
+}
+
+#[test]
 fn fireball_pays_for_multiple_targets_and_divides_x_evenly() {
     let mut game = ready_game();
     let fireball = card(10_000, cards::FIREBALL, PlayerId::One);

@@ -263,12 +263,21 @@ impl Game {
         context: ReplacementEffectContext,
         payment: PaymentDef,
     ) -> Option<PlayerId> {
+        let event_context = Self::pending_event_context(pending);
+        self.payment_player(context.controller, event_context, payment)
+    }
+
+    pub(super) fn payment_player(
+        &self,
+        controller: PlayerId,
+        context: TriggerContext,
+        payment: PaymentDef,
+    ) -> Option<PlayerId> {
         if payment.payer == PlayerRelation::Any {
             return None;
         }
-        let event_context = Self::pending_event_context(pending);
         [PlayerId::One, PlayerId::Two].into_iter().find(|player| {
-            self.player_relation_matches(*player, payment.payer, context.controller, event_context)
+            self.player_relation_matches(*player, payment.payer, controller, context)
         })
     }
 

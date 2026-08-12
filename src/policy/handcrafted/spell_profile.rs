@@ -296,7 +296,7 @@ impl HandcraftedPolicy {
             | EffectDef::AddCounters { .. }
             | EffectDef::ChangeTextBasicLandType { .. }
             | EffectDef::BecomeCopyOf { .. }
-            | EffectDef::OptionalManaPayment { .. }
+            | EffectDef::OptionalPayment { .. }
             | EffectDef::UnlessPaid { .. }
             | EffectDef::CannotBeForcedToSacrifice
             | EffectDef::CreateEmblem { .. }

@@ -2,10 +2,10 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, CardArt, CardBehavior, CardRules, CardSet, CardSupertype,
-    CardType, CardTypeSet, ComparisonDef, CounterKind, DiscardSelectionDef, EffectDef,
+    CardType, CardTypeSet, ComparisonDef, CostDef, CounterKind, DiscardSelectionDef, EffectDef,
     EffectDurationDef, EffectExecutionDef, EffectRecipientDef, KeywordAbility, ManaColor,
-    ObjectPredicateDef, PlayerRelation, ReplacementEventDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, cards,
+    ObjectPredicateDef, PaymentDef, PlayerRelation, ReplacementEventDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, cards,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -1268,9 +1268,9 @@ pub(in crate::card::sets) static IRON_STAR: CardRecord = CardRecord::new(
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[AbilityDef::triggered(
         "Whenever a player casts a red spell, you may pay {1}. If you do, you gain 1 life.",
         TriggerEventDef::SpellCast(ObjectPredicateDef::Color(ManaColor::Red)),
-        EffectDef::OptionalManaPayment {
-            cost: mana_cost!("{1}"),
-            effect: &EffectDef::GainLife {
+        EffectDef::OptionalPayment {
+            payment: PaymentDef::new(PlayerRelation::You, &[CostDef::Mana(mana_cost!("{1}"))]),
+            if_paid: &EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
             },
@@ -1339,9 +1339,12 @@ pub(in crate::card::sets) static MANA_VAULT: CardRecord = CardRecord::new(
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::OptionalManaPayment {
-                cost: mana_cost!("{4}"),
-                effect: &EffectDef::Untap {
+            EffectDef::OptionalPayment {
+                payment: PaymentDef::new(
+                    PlayerRelation::You,
+                    &[CostDef::Mana(mana_cost!("{4}"))],
+                ),
+                if_paid: &EffectDef::Untap {
                     object: EffectRecipientDef::Source,
                 },
             },

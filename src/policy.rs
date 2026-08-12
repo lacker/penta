@@ -20,8 +20,8 @@ mod tests {
     use super::HandcraftedPolicy;
     use crate::TargetIndex;
     use crate::card::{
-        EffectDef, EffectRecipientDef, ManaCost, ObjectPredicateDef, PlayerRelation,
-        TargetConditionDef, TurnStepDef, ValueDef,
+        CostDef, EffectDef, EffectRecipientDef, ManaCost, ObjectPredicateDef, PaymentDef,
+        PlayerRelation, TargetConditionDef, TurnStepDef, ValueDef,
     };
 
     static TARGET_CONDITION: TargetConditionDef = TargetConditionDef {
@@ -34,13 +34,14 @@ mod tests {
         recipient: EffectRecipientDef::Controller,
         amount: ValueDef::IfTargetMatches(&TARGET_CONDITION),
     };
+    static OPTIONAL_PAYMENT_COST: [CostDef; 1] = [CostDef::Mana(ManaCost::new(1, 0))];
 
     #[test]
     fn target_condition_search_descends_decision_effects() {
         let may = EffectDef::May(&CONDITIONAL_EFFECT);
-        let optional_payment = EffectDef::OptionalManaPayment {
-            cost: ManaCost::new(1, 0),
-            effect: &CONDITIONAL_EFFECT,
+        let optional_payment = EffectDef::OptionalPayment {
+            payment: PaymentDef::new(PlayerRelation::You, &OPTIONAL_PAYMENT_COST),
+            if_paid: &CONDITIONAL_EFFECT,
         };
         let delayed = EffectDef::AtNextStep {
             step: TurnStepDef::End,

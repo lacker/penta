@@ -205,7 +205,9 @@ fn validate_effect_target_references(
             validate_recipient_target_references(object, target_count)?;
             validate_value_target_references(amount, target_count)
         }
-        EffectDef::OptionalManaPayment { effect, .. }
+        EffectDef::OptionalPayment {
+            if_paid: effect, ..
+        }
         | EffectDef::UnlessPaid {
             otherwise: effect, ..
         }

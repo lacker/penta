@@ -319,7 +319,10 @@ pub enum ZoneMoveCauseDef {
     EffectControlledBy(PlayerRelation),
 }
 
-/// Costs a player may pay while a replacement effect is modifying an event.
+/// A player and the costs that player may choose to pay.
+///
+/// The rules procedure interpreting the surrounding effect decides which
+/// cost atoms it can offer and how a successful payment resumes that effect.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct PaymentDef {
     pub payer: PlayerRelation,
@@ -562,11 +565,11 @@ pub enum EffectDef {
         object: EffectRecipientDef,
         retain_source_ability: bool,
     },
-    OptionalManaPayment {
-        cost: ManaCost,
-        effect: &'static EffectDef,
+    OptionalPayment {
+        payment: PaymentDef,
+        if_paid: &'static EffectDef,
     },
-    /// The inverse of [`Self::OptionalManaPayment`]: `otherwise` happens
+    /// The inverse of [`Self::OptionalPayment`]: `otherwise` happens
     /// unless the resolving object's controller pays. A controller who cannot
     /// pay is not asked, because there is nothing to decide.
     UnlessPaid {

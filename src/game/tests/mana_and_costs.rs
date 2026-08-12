@@ -217,6 +217,50 @@ fn iron_star_payment_can_use_untapped_mana_sources() {
 }
 
 #[test]
+fn optional_payment_uses_its_declared_payer() {
+    static COSTS: [CostDef; 1] = [CostDef::Mana(ManaCost::new(1, 0))];
+    static IF_PAID: EffectDef = EffectDef::GainLife {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::Constant(1),
+    };
+    let mut game = ready_game();
+    let mountain = creature(10_000, cards::MOUNTAIN, PlayerId::Two);
+    let mountain_id = mountain.card.id;
+    game.battlefield.push(mountain);
+    let source = spell(10_001, cards::LIGHTNING_BOLT, PlayerId::One, 0);
+    let effect = EffectDef::OptionalPayment {
+        payment: PaymentDef::new(PlayerRelation::Opponent, &COSTS),
+        if_paid: &IF_PAID,
+    };
+
+    game.resolve_effect_def(
+        ScopedEffect::primary(effect),
+        &source,
+        TriggerContext::empty(),
+    );
+    let decision = game
+        .observe(PlayerId::Two)
+        .decision
+        .expect("the declared payer receives the choice");
+    game.apply(
+        PlayerId::Two,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options: vec![1],
+        },
+    )
+    .unwrap();
+
+    assert_eq!(game.players[0].life, 21);
+    assert!(
+        game.battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == mountain_id)
+            .is_some_and(|permanent| permanent.tapped)
+    );
+}
+
+#[test]
 fn chain_lightning_copy_payment_can_use_untapped_mountains() {
     let mut game = ready_game();
     let first = creature(10_000, cards::MOUNTAIN, PlayerId::Two);

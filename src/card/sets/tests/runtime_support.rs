@@ -3,6 +3,7 @@ mod nested_definitions;
 pub(super) use nested_definitions::*;
 
 use super::*;
+use crate::{CostDef, PaymentDef};
 
 pub(super) fn shared_object_predicate(predicate: ObjectPredicateDef) -> bool {
     match predicate {
@@ -253,6 +254,14 @@ pub(super) fn shared_stack_effect(effect: EffectDef) -> bool {
     shared_stack_effect_at_position(effect, true)
 }
 
+fn shared_optional_payment(payment: PaymentDef, if_paid: &'static EffectDef) -> bool {
+    !matches!(
+        payment.payer,
+        PlayerRelation::Any | PlayerRelation::ChosenPlayer | PlayerRelation::EventPlayer
+    ) && matches!(payment.costs, [CostDef::Mana(_)])
+        && shared_stack_effect_at_position(*if_paid, true)
+}
+
 /// A queued decision returns control to the decision procedure instead of
 /// suspending its caller. It is therefore safe at the root of a resolving
 /// effect (and may wrap a whole sequence), but not as one component of a
@@ -376,10 +385,12 @@ pub(super) fn shared_stack_effect_at_position(
         // so the question has to be allowed here and the answer has to be
         // something the shared procedure can carry out.
         EffectDef::May(effect)
-        | EffectDef::OptionalManaPayment { effect, .. }
         | EffectDef::UnlessPaid {
             otherwise: effect, ..
         } => deferred_decision_allowed && shared_stack_effect_at_position(*effect, true),
+        EffectDef::OptionalPayment { payment, if_paid } => {
+            deferred_decision_allowed && shared_optional_payment(payment, if_paid)
+        }
         // Scheduling creates a fresh resolution boundary. A decision may
         // therefore be the delayed effect's root even when scheduling it
         // is itself one component of a sequence.
@@ -607,7 +618,7 @@ pub(super) fn shared_static_effect(source_zones: &[ZoneKind], effect: EffectDef)
         | EffectDef::AddCounters { .. }
         | EffectDef::ChangeTextBasicLandType { .. }
         | EffectDef::BecomeCopyOf { .. }
-        | EffectDef::OptionalManaPayment { .. }
+        | EffectDef::OptionalPayment { .. }
         | EffectDef::UnlessPaid { .. }
         | EffectDef::MultiplyEventAmount(_)
         | EffectDef::Replacement(_)
@@ -807,7 +818,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::AddCounters { .. }
                     | EffectDef::ChangeTextBasicLandType { .. }
                     | EffectDef::BecomeCopyOf { .. }
-                    | EffectDef::OptionalManaPayment { .. }
+                    | EffectDef::OptionalPayment { .. }
                     | EffectDef::UnlessPaid { .. }
                     | EffectDef::CannotBeForcedToSacrifice
                     | EffectDef::CreateEmblem { .. }

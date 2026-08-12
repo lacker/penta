@@ -1,5 +1,5 @@
 use super::{
-    AbilitySourceRef, AddManaEffectDef, CardPartId, CharacteristicSource, CopiableAbility,
+    AbilitySourceRef, AddManaEffectDef, CardPartId, CharacteristicSource, CopiableAbility, CostDef,
     CounteredSpellZone, DeclarativeAbilityDef, DelayedTrigger, DiscardSelectionDef, EffectDef,
     EffectRecipientDef, FloatingTrigger, Game, GameResult, Mana, ManaSelectionDef, ManaSource,
     Permanent, PlayerId, SacrificeFollowup, ScopedEffect, StackObject, Target, TriggerCapture,
@@ -627,13 +627,19 @@ impl Game {
                     permanent.copy_effect = Some(copy);
                 }
             }
-            EffectDef::OptionalManaPayment { cost, effect } => {
+            EffectDef::OptionalPayment { payment, if_paid } => {
+                let Some(player) = self.payment_player(object.controller, context, payment) else {
+                    return;
+                };
+                let [CostDef::Mana(cost)] = payment.costs else {
+                    return;
+                };
                 self.queue_optional_mana_payment(
-                    object.controller,
-                    cost,
+                    player,
+                    *cost,
                     object,
                     context,
-                    scoped.with_effect(*effect),
+                    scoped.with_effect(*if_paid),
                 );
             }
             EffectDef::UnlessPaid { cost, otherwise } => {

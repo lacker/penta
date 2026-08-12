@@ -97,6 +97,10 @@ snapshots.
   `RecipientChooses` or `Random`. Downstream Rust card definitions must migrate
   to the unified shape. The chosen and seeded-random resolution paths are
   unchanged, as are protocol JSON and legal actions.
+- `EffectDef::OptionalManaPayment` is now `EffectDef::OptionalPayment`, using
+  the same `PaymentDef` vocabulary as replacement effects. Rust card definitions
+  should express a mana payment as one `CostDef::Mana` atom and name its payer;
+  protocol JSON and rules behavior are unchanged.
 - The unfiltered catalog appends `Urborg, Tomb of Yawgmoth` as definition 261
   with debut set `planar-chaos`, and `Yavimaya, Cradle of Growth` as definition
   262 with debut set `modern-horizons-2`. They are cross-format interaction

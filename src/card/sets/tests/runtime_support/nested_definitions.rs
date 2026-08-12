@@ -7,7 +7,9 @@ pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effe
                 assert_nested_definition_abilities(card_name, *effect);
             }
         }
-        EffectDef::OptionalManaPayment { effect, .. }
+        EffectDef::OptionalPayment {
+            if_paid: effect, ..
+        }
         | EffectDef::UnlessPaid {
             otherwise: effect, ..
         }

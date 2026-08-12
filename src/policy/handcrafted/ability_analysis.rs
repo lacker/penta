@@ -362,7 +362,9 @@ impl HandcraftedPolicy {
             EffectDef::Sequence(effects) => {
                 effects.iter().copied().find_map(Self::target_condition_in)
             }
-            EffectDef::OptionalManaPayment { effect, .. }
+            EffectDef::OptionalPayment {
+                if_paid: effect, ..
+            }
             | EffectDef::May(effect)
             | EffectDef::IfCondition { then: effect, .. }
             | EffectDef::AtNextStep { effect, .. } => Self::target_condition_in(*effect),

@@ -228,12 +228,13 @@ fn uses_declarative_ability_constructs() {
     ));
     assert!(matches!(
         abilities[1].declarative_effect(),
-        Some(EffectDef::OptionalManaPayment {
-            cost,
-            effect: &EffectDef::Untap {
+        Some(EffectDef::OptionalPayment {
+            payment,
+            if_paid: &EffectDef::Untap {
                 object: EffectRecipientDef::Source,
             },
-        }) if cost == ManaCost::new(4, 0)
+        }) if payment.payer == PlayerRelation::You
+            && payment.costs == [CostDef::Mana(ManaCost::new(4, 0))]
     ));
     let DeclarativeAbilityDef::Triggered(draw) = abilities[2].definition else {
         panic!("the draw-step clause is a trigger");

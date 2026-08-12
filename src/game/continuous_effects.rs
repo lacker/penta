@@ -293,7 +293,7 @@ impl Game {
             | EffectDef::AddCounters { .. }
             | EffectDef::ChangeTextBasicLandType { .. }
             | EffectDef::BecomeCopyOf { .. }
-            | EffectDef::OptionalManaPayment { .. }
+            | EffectDef::OptionalPayment { .. }
             | EffectDef::UnlessPaid { .. }
             | EffectDef::May(_)
             | EffectDef::AdditionalCombatPhase

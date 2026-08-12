@@ -1,5 +1,6 @@
 use super::runtime_support::*;
 use super::*;
+use crate::{CostDef, PaymentDef};
 
 #[test]
 fn activated_cost_boundary_is_specific_to_the_source_zone() {
@@ -62,9 +63,41 @@ fn decision_effects_stay_at_the_stack_effect_root() {
     static PLAIN_SEQUENCE_COMPONENTS: [EffectDef; 2] = [TAP, UNTAP];
     static PLAIN_SEQUENCE: EffectDef = EffectDef::Sequence(&PLAIN_SEQUENCE_COMPONENTS);
     static MAY_TAP: EffectDef = EffectDef::May(&TAP);
-    static OPTIONAL_TAP: EffectDef = EffectDef::OptionalManaPayment {
-        cost: ManaCost::new(1, 0),
-        effect: &TAP,
+    static OPTIONAL_TAP: EffectDef = EffectDef::OptionalPayment {
+        payment: PaymentDef::new(PlayerRelation::You, &[CostDef::Mana(ManaCost::new(1, 0))]),
+        if_paid: &TAP,
+    };
+    static ANY_PAYER_OPTIONAL_TAP: EffectDef = EffectDef::OptionalPayment {
+        payment: PaymentDef::new(PlayerRelation::Any, &[CostDef::Mana(ManaCost::new(1, 0))]),
+        if_paid: &TAP,
+    };
+    static CHOSEN_PAYER_OPTIONAL_TAP: EffectDef = EffectDef::OptionalPayment {
+        payment: PaymentDef::new(
+            PlayerRelation::ChosenPlayer,
+            &[CostDef::Mana(ManaCost::new(1, 0))],
+        ),
+        if_paid: &TAP,
+    };
+    static EVENT_PAYER_OPTIONAL_TAP: EffectDef = EffectDef::OptionalPayment {
+        payment: PaymentDef::new(
+            PlayerRelation::EventPlayer,
+            &[CostDef::Mana(ManaCost::new(1, 0))],
+        ),
+        if_paid: &TAP,
+    };
+    static LIFE_PAYMENT_TAP: EffectDef = EffectDef::OptionalPayment {
+        payment: PaymentDef::new(PlayerRelation::You, &[CostDef::PayLife(1)]),
+        if_paid: &TAP,
+    };
+    static MULTIPLE_MANA_PAYMENTS_TAP: EffectDef = EffectDef::OptionalPayment {
+        payment: PaymentDef::new(
+            PlayerRelation::You,
+            &[
+                CostDef::Mana(ManaCost::new(1, 0)),
+                CostDef::Mana(ManaCost::new(1, 0)),
+            ],
+        ),
+        if_paid: &TAP,
     };
     static DELAYED_MAY: EffectDef = EffectDef::AtNextStep {
         step: TurnStepDef::End,
@@ -78,6 +111,11 @@ fn decision_effects_stay_at_the_stack_effect_root() {
     assert!(shared_stack_effect(MAY_TAP));
     assert!(shared_stack_effect(EffectDef::May(&PLAIN_SEQUENCE)));
     assert!(shared_stack_effect(OPTIONAL_TAP));
+    assert!(!shared_stack_effect(ANY_PAYER_OPTIONAL_TAP));
+    assert!(!shared_stack_effect(CHOSEN_PAYER_OPTIONAL_TAP));
+    assert!(!shared_stack_effect(EVENT_PAYER_OPTIONAL_TAP));
+    assert!(!shared_stack_effect(LIFE_PAYMENT_TAP));
+    assert!(!shared_stack_effect(MULTIPLE_MANA_PAYMENTS_TAP));
     assert!(!shared_stack_effect(EffectDef::Sequence(
         &SEQUENCE_WITH_MAY,
     )));

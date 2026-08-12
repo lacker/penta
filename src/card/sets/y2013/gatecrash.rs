@@ -3,11 +3,11 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
-    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CostDef,
     CounterKind, DividedTotal, EffectDef, EffectDurationDef, EffectRecipientDef, HybridPair,
-    KeywordAbility, ManaColor, ManaCost, ObjectPredicateDef, PlayerRelation, ReplacementEffectDef,
-    ReplacementEventDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities, cards,
+    KeywordAbility, ManaColor, ManaCost, ObjectPredicateDef, PaymentDef, PlayerRelation,
+    ReplacementEffectDef, ReplacementEventDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities, cards,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -35,9 +35,15 @@ pub(in crate::card::sets) static BLIND_OBEDIENCE: CardRecord = CardRecord::new(
         AbilityDef::triggered(
             "Extort (Whenever you cast a spell, you may pay {W/B}. If you do, each opponent loses 1 life and you gain that much life.)",
             TriggerEventDef::SpellCast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
-            EffectDef::OptionalManaPayment {
-                cost: ManaCost::hybrid_pair(HybridPair::WhiteBlack, 1),
-                effect: &EXTORT_DRAIN,
+            EffectDef::OptionalPayment {
+                payment: PaymentDef::new(
+                    PlayerRelation::You,
+                    &[CostDef::Mana(ManaCost::hybrid_pair(
+                        HybridPair::WhiteBlack,
+                        1,
+                    ))],
+                ),
+                if_paid: &EXTORT_DRAIN,
             },
         ),
         AbilityDef::replacement_for(

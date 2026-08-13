@@ -41,7 +41,7 @@ native-engine workflow.
 
 ## Quick start: Python
 
-Requires Python 3.9+ and [rustup](https://rustup.rs), which installs the
+Requires Python 3.13+ and [rustup](https://rustup.rs), which installs the
 repository's pinned Rust version automatically. From the repository root:
 
 ```bash

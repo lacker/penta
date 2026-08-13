@@ -108,10 +108,10 @@ if [[ -n "$bindgen_binary" ]]; then
 fi
 
 if command -v python3 >/dev/null 2>&1; then
-    if python3 -c 'import sys; raise SystemExit(sys.version_info < (3, 9))'; then
+    if python3 -c 'import sys; raise SystemExit(sys.version_info < (3, 13))'; then
         pass "Python: $(python3 --version 2>&1)"
     else
-        fail "$(python3 --version 2>&1) does not satisfy >=3.9"
+        fail "$(python3 --version 2>&1) does not satisfy >=3.13"
     fi
 fi
 

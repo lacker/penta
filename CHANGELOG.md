@@ -210,6 +210,9 @@ version is unmoved.
 
 ### Changed
 
+- The Python binding and repository tooling now require Python 3.13 or newer.
+  Its stable-ABI extension targets `abi3-py313`, and CI exercises Python 3.13
+  as the supported floor rather than retaining compatibility with EOL releases.
 - Chaos Orb now uses shared declarative effects and Eternal Central's 93/94
   non-targeting timing. Its controller activates it without a target, chooses a
   nontoken permanent during resolution, and then gets one seeded trial with a

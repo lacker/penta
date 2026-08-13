@@ -7,7 +7,7 @@ name = "penta"
 version = "0.7.0"
 description = "A deterministic multi-format Magic engine for writing AI bots"
 license = { text = "Apache-2.0" }
-requires-python = ">=3.9"
+requires-python = ">=3.13"
 
 [tool.maturin]
 features = ["pyo3/extension-module"]

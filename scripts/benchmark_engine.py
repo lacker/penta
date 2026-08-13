@@ -388,10 +388,7 @@ def extract_git_archive(archive_path: Path, destination: Path) -> None:
                 raise BenchmarkError(
                     f"main snapshot contains an unsupported special file: {member.name}"
                 )
-        if sys.version_info >= (3, 12):
-            archive.extractall(destination, members=members, filter="fully_trusted")
-        else:
-            archive.extractall(destination, members=members)
+        archive.extractall(destination, members=members, filter="fully_trusted")
 
 
 @contextlib.contextmanager

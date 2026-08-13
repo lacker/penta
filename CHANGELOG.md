@@ -56,6 +56,17 @@ snapshots.
   Definition IDs remain append-only and the catalog JSON shape is unchanged,
   so this is compatible protocol-19 catalog growth.
 
+- The catalog appends definitions 607 through 1361: 736 card identities used
+  by ISD–RTR Standard and nineteen supporting tokens. Together with in-format
+  printings of existing definitions, Standard now exposes 878 legal identities:
+  839 complete and 39 partial. Its identity-complete audit
+  covers all 1,686 identities from Innistrad through Magic 2014 and keeps a
+  concrete capability gap inline at the collector position of every one of the
+  847 incomplete identities, including the 808 that remain blocked. Definition
+  IDs remain append-only and no catalog, observation, action, or decision JSON
+  shape changes, so this is compatible protocol-20 catalog growth and does not
+  bump the protocol.
+
 - The unfiltered catalog appends the off-format Premodern cards `Impulse`,
   `Sleight of Hand`, and `Opt` as definitions 310 through 312, and recognizes
   the `visions` debut-set slug. Their shared private top-of-library selection

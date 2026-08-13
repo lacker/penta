@@ -325,7 +325,7 @@ fn catalog_json_is_structured_and_legality_is_format_specific() {
     assert_eq!(find("Thespian's Stage")["debutSet"], "gatecrash");
     assert_eq!(find("Thespian's Stage")["legal"], true);
     assert_eq!(find("Darksteel Ingot")["debutSet"], "darksteel");
-    assert_eq!(find("Darksteel Ingot")["legal"], false);
+    assert_eq!(find("Darksteel Ingot")["legal"], true);
     assert_eq!(find("Dryad Arbor")["debutSet"], "future-sight");
     assert_eq!(find("Dryad Arbor")["legal"], false);
     assert_eq!(find("Nylea's Presence")["debutSet"], "theros");

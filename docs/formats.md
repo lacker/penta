@@ -70,8 +70,10 @@ The engine currently supports:
   set modules, with executable declarative records for the supported tranche
   and a collector-ordered, named engine-capability gap for every incomplete
   identity in the 93/94 set corpus, including banned cards;
-- declarative records for every additional card in the Standard Top 8 decks;
-  and
+- an identity-complete ISD–RTR Standard implementation audit inline in its
+  eight printed set modules, with 839 complete, 39 partial, and 808 blocked
+  identities, and a concrete engine-capability gap for every
+  incomplete identity; and
 - twenty-three fixed 60-card decks with 15-card sideboards across both formats.
 
 The engine is playable end to end but is not a general implementation of the
@@ -163,10 +165,12 @@ was not legal in this Standard pool. The built-in list uses Celestial Flare as
 the likely transcription correction and records that inference in the deck
 source comments.
 
-Ordinary mana sources and creatures are playable. Specialized effects are
-being added incrementally through shared rules primitives or card-scoped
-execution. Card previews expose staged implementation coverage so bot and UI
-consumers can distinguish supported behavior from metadata.
+Across the eight sets, 878 of the 1,686 legal card identities have catalog
+definitions: 839 are complete and 39 are partial. The other 808 remain blocked.
+Every one of the 847 incomplete identities has a
+collector-ordered inline audit comment naming its concrete missing engine
+capability. Card previews expose the cataloged cards' implementation status so
+bot and UI consumers can distinguish supported behavior from metadata.
 
 [ec-rules]: https://www.eternalcentral.com/9394rules/
 [goblins-data]: https://www.tcdecks.net/archetype.php?archetype=Goblins&format=Old+School&src=all

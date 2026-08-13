@@ -81,14 +81,11 @@ fn built_in_records_keep_stable_dense_ids_and_unique_identity() {
         .iter()
         .flat_map(|module| module.cards.iter().copied())
         .collect::<Vec<_>>();
-    assert_eq!(records.len(), 606);
+    assert_eq!(records.len(), 1_361);
 
     let mut ids = records.iter().map(|record| record.id).collect::<Vec<_>>();
     ids.sort_unstable();
-    assert_eq!(
-        ids.iter().map(|id| id.0).collect::<Vec<_>>(),
-        (1..=606).collect::<Vec<_>>()
-    );
+    assert_eq!(ids, (1..=1_361).map(CardDefinitionId).collect::<Vec<_>>());
     // Names identify the cards a decklist can name. Tokens are not among
     // them, and Magic prints several that share a name.
     let deck_legal = records
@@ -108,29 +105,36 @@ fn built_in_records_keep_stable_dense_ids_and_unique_identity() {
 #[test]
 fn built_in_catalog_indexes_definitions_and_printings_separately() {
     let catalog = crate::card::catalog().unwrap();
-    let printing_count = (1..=606)
-        .filter(|id| {
-            *id != cards::BEAST_TOKEN_3_3_GREEN.0
-                && *id != cards::KNIGHT_TOKEN_2_2_WHITE.0
-                && *id != cards::SOLDIER_TOKEN_1_1_RED_WHITE.0
-                && *id != cards::DEMON_TOKEN_5_5_BLACK.0
-                && *id != cards::ELEMENTAL_TOKEN_GREEN_WHITE.0
-                && *id != cards::SPIRIT_TOKEN_1_1_WHITE.0
-                && *id != cards::WOLF_TOKEN_2_2_GREEN.0
-                && *id != cards::WOLF_TOKEN_1_1_BLACK.0
-                && *id != cards::DOMRI_RADE_EMBLEM.0
-                && *id != cards::TETRAVITE_TOKEN.0
-                && *id != cards::ASSASSIN_TOKEN_1_1_BLACK.0
-                && *id != cards::BIRD_TOKEN_4_4_RED.0
-                && *id != cards::CITIZEN_TOKEN_1_1_WHITE.0
-                && *id != cards::THRULL_TOKEN_0_1_BLACK.0
-                && *id != cards::WASP_TOKEN_1_1_COLORLESS.0
-                && *id != cards::MINOR_DEMON_TOKEN_1_1_BLACK_RED.0
-        })
-        .map(|id| catalog.printings_for(CardDefinitionId(id)).len())
+    let records = SET_MODULES
+        .iter()
+        .flat_map(|module| module.cards.iter().copied())
+        .collect::<Vec<_>>();
+    let (token_records, printed_records): (Vec<_>, Vec<_>) = records
+        .into_iter()
+        .partition(|record| record.debut_set == CardSet::Token);
+
+    assert_eq!(token_records.len(), 35);
+    assert_eq!(printed_records.len(), 1_326);
+    assert_eq!(
+        SET_MODULES
+            .iter()
+            .map(|module| module.additional_printings.len())
+            .sum::<usize>(),
+        558
+    );
+
+    for record in token_records {
+        let printings = catalog.printings_for(record.id);
+        assert_eq!(printings.len(), 1, "{} should be synthetic", record.name);
+        assert_eq!(printings[0].id.set, CardSet::Token);
+    }
+
+    let printing_count = printed_records
+        .iter()
+        .map(|record| catalog.printings_for(record.id).len())
         .sum::<usize>();
 
-    assert_eq!(printing_count, 978);
+    assert_eq!(printing_count, 1_884);
     for variant in 0..3 {
         assert!(
             catalog
@@ -151,7 +155,7 @@ fn every_non_declarative_clause_explains_its_implementation() {
         .iter()
         .flat_map(|module| module.cards.iter().copied())
         .collect::<Vec<_>>();
-    assert_eq!(records.len(), 606);
+    assert_eq!(records.len(), 1_361);
 
     for record in records {
         let definition = record.definition();
@@ -178,11 +182,24 @@ fn every_non_declarative_clause_explains_its_implementation() {
 #[test]
 fn standard_records_cover_the_top_eight_pool_with_stable_unique_ids() {
     let records = standard_records();
-    assert_eq!(records.len(), 117);
+    assert_eq!(records.len(), 853);
 
-    let expected_ids = (129..=244).chain([251]).collect::<Vec<_>>();
+    let token_ids = SET_MODULES
+        .iter()
+        .find(|module| module.set == CardSet::Token)
+        .unwrap()
+        .cards
+        .iter()
+        .map(|record| record.id)
+        .collect::<HashSet<_>>();
+    let expected_ids = (129..=244)
+        .chain([251])
+        .chain(607..=1_361)
+        .map(CardDefinitionId)
+        .filter(|id| !token_ids.contains(id))
+        .collect::<Vec<_>>();
     assert_eq!(
-        records.iter().map(|record| record.id.0).collect::<Vec<_>>(),
+        records.iter().map(|record| record.id).collect::<Vec<_>>(),
         expected_ids,
     );
 

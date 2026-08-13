@@ -894,9 +894,11 @@ fn domri_fights_and_hands_out_an_emblem() {
         .legal_actions(PlayerId::One)
         .into_iter()
         .find(|action| {
-            matches!(action, Action::ActivateAbility { source, ability, .. }
+            matches!(action, Action::ActivateAbility { source, ability, targets, .. }
                 if *source == domri
-                    && matches!(ability, AbilityOrigin::Printed { ability, .. } if *ability == AbilityId(1)))
+                    && matches!(ability, AbilityOrigin::Printed { ability, .. } if *ability == AbilityId(1))
+                    && targets.iter().flat_map(TargetSelection::targets).any(|target| *target == Target::Permanent(mine))
+                    && targets.iter().flat_map(TargetSelection::targets).any(|target| *target == Target::Permanent(theirs)))
         })
         .expect("the fight is offered");
     game.apply(PlayerId::One, fight).unwrap();

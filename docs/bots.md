@@ -484,6 +484,18 @@ blocked, and also covers all seven banned identities in the same sets. This is
 an additive catalog-content change, not a JSON-shape change; consumers must not
 assume the older catalog length or that definition 314 is the maximum ID.
 
+Definitions 607 through 1361 extend the compatible protocol-20 catalog growth
+with 736 card identities used by ISD–RTR Standard and nineteen supporting
+tokens. Together with in-format printings of existing definitions, Standard
+now exposes 878 legal identities: 839 `complete` and 39 `partial`. The inline
+audit partitions all 1,686 identities in its eight sets and records a concrete
+engine-capability gap for every one of the 847 incomplete identities, including
+808 blocked cards that have no catalog
+definition yet. The definition IDs are append-only and the catalog,
+observation, action, and decision JSON shapes are unchanged, so this does not
+bump protocol 20. Consumers must not assume definition 606 remains the maximum
+ID.
+
 Cards and parts expose `implementationStatus` as `complete`, `partial`, or
 `metadataOnly`; the old execution gate is not public coverage metadata.
 Definition, part, play-option, mode, and cost IDs join directly. Target-slot

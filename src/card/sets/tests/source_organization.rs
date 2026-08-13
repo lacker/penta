@@ -3,7 +3,6 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 const DECLARATION_PREFIX: &str = "pub(in crate::card::sets) static ";
-const DECLARATION_SUFFIX: &str = ": CardRecord = CardRecord::new(";
 const HEADER_PREFIX: &str = "// ";
 const HEADER_SEPARATOR: &str = " — ";
 const AUDIT_PREFIX: &str = "// Audit: ";
@@ -26,6 +25,7 @@ pub(super) enum AuditStatus {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) struct SourceAudit {
+    pub(super) set_code: String,
     pub(super) name: String,
     pub(super) status: AuditStatus,
     pub(super) gap: String,
@@ -96,11 +96,11 @@ fn printed_set_sources_follow_collector_number_order() {
     }
 
     assert_eq!(
-        definition_count, 590,
+        definition_count, 1_326,
         "the organization guard must cover every printed card definition"
     );
     assert_eq!(
-        additional_printing_count, 388,
+        additional_printing_count, 558,
         "the organization guard must cover every additional printing"
     );
 }
@@ -180,16 +180,35 @@ fn set_code_for_file(path: &Path) -> &'static str {
 }
 
 pub(super) fn old_school_source_audits(root: &Path) -> Vec<SourceAudit> {
+    source_audits_for_set_codes(
+        root,
+        &["LEA", "LEB", "ARN", "ATQ", "LEG", "DRK", "FEM", "P94"],
+    )
+}
+
+pub(super) fn all_source_audits(root: &Path) -> Vec<SourceAudit> {
+    let mut files = printed_set_files(&root.join("src/card/sets"));
+    files.sort();
+    files
+        .into_iter()
+        .flat_map(|path| {
+            let set_code = set_code_for_file(&path);
+            let source = fs::read_to_string(&path).expect("a printed set source file is readable");
+            source_entries(&source, set_code, &path)
+                .into_iter()
+                .filter_map(|entry| entry.audit)
+        })
+        .collect()
+}
+
+fn source_audits_for_set_codes(root: &Path, set_codes: &[&str]) -> Vec<SourceAudit> {
     let mut files = printed_set_files(&root.join("src/card/sets"));
     files.sort();
 
     let mut audits = Vec::new();
     for path in files {
         let set_code = set_code_for_file(&path);
-        if !matches!(
-            set_code,
-            "LEA" | "LEB" | "ARN" | "ATQ" | "LEG" | "DRK" | "FEM" | "P94"
-        ) {
+        if !set_codes.contains(&set_code) {
             continue;
         }
         let source = fs::read_to_string(&path).expect("a printed set source file is readable");
@@ -278,6 +297,7 @@ fn source_entries(source: &str, expected_set_code: &str, path: &Path) -> Vec<Sou
                 (
                     declaration.map(str::to_string),
                     Some(SourceAudit {
+                        set_code: expected_set_code.to_string(),
                         name: header.2.to_string(),
                         status,
                         gap: gap.to_string(),
@@ -302,8 +322,9 @@ fn source_entries(source: &str, expected_set_code: &str, path: &Path) -> Vec<Sou
 }
 
 fn declaration_symbol(line: &str) -> Option<&str> {
-    line.strip_prefix(DECLARATION_PREFIX)
-        .and_then(|line| line.strip_suffix(DECLARATION_SUFFIX))
+    let declaration = line.strip_prefix(DECLARATION_PREFIX)?;
+    let (symbol, initializer) = declaration.split_once(": CardRecord = ")?;
+    initializer.ends_with('(').then_some(symbol)
 }
 
 fn validate_declaration(

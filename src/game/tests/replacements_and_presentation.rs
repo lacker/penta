@@ -511,7 +511,7 @@ fn city_in_a_bottle_uses_canonical_origin_even_when_a_reprint_exists() {
 }
 
 #[test]
-fn metadata_only_noncreature_spells_are_hidden_but_baseline_cards_remain_playable() {
+fn baseline_and_supported_split_card_play_options_are_offered() {
     let mut game = ready_game();
     game.catalog = crate::card::catalog().unwrap();
     game.players[0].hand.extend([
@@ -543,15 +543,17 @@ fn metadata_only_noncreature_spells_are_hidden_but_baseline_cards_remain_playabl
 
     // Izzet Charm is only partial, and the play gate follows the modes that
     // do work: its loot mode needs no target and is castable on an empty board.
-    // Doom Blade has no creature to target, while Turn // Burn remains
-    // metadata only.
+    // Doom Blade has no creature to target. Turn // Burn is now executable;
+    // its separately castable forms contribute two legal play options here.
     assert_eq!(
         cast_cards,
         vec![
             CardInstanceId(10_001),
             CardInstanceId(10_002),
             CardInstanceId(10_003),
-            CardInstanceId(10_005)
+            CardInstanceId(10_005),
+            CardInstanceId(10_006),
+            CardInstanceId(10_006),
         ]
     );
     assert!(actions.contains(&Action::PlayLand {

@@ -49,6 +49,7 @@ fn printings_for_set(set: CardSet) -> Vec<CardPrinting> {
         .collect()
 }
 
+mod isd_rtr_coverage;
 mod metadata_composition_mana;
 mod old_school_coverage;
 mod registry_integrity;

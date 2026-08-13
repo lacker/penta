@@ -202,6 +202,196 @@ pub(in crate::card::sets) static MINOR_DEMON_TOKEN_1_1_BLACK_RED: CardRecord = C
         .printed_colors(&[ManaColor::Black, ManaColor::Red]),
 );
 
+pub(in crate::card::sets) static WURM_TOKEN_5_5_GREEN: CardRecord = CardRecord::new(
+    cards::WURM_TOKEN_5_5_GREEN,
+    "Wurm",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Wurm"], 5, 5)
+        .printed_colors(&[ManaColor::Green])
+        .with_ability(abilities::trample()),
+);
+
+pub(in crate::card::sets) static CENTAUR_TOKEN_3_3_GREEN: CardRecord = CardRecord::new(
+    cards::CENTAUR_TOKEN_3_3_GREEN,
+    "Centaur",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Centaur"], 3, 3)
+        .printed_colors(&[ManaColor::Green]),
+);
+
+pub(in crate::card::sets) static RHINO_TOKEN_4_4_GREEN: CardRecord = CardRecord::new(
+    cards::RHINO_TOKEN_4_4_GREEN,
+    "Rhino",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Rhino"], 4, 4)
+        .printed_colors(&[ManaColor::Green])
+        .with_ability(abilities::trample()),
+);
+
+pub(in crate::card::sets) static ZOMBIE_TOKEN_2_2_BLACK: CardRecord = CardRecord::new(
+    cards::ZOMBIE_TOKEN_2_2_BLACK,
+    "Zombie",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Zombie"], 2, 2)
+        .printed_colors(&[ManaColor::Black]),
+);
+
+pub(in crate::card::sets) static HUMAN_TOKEN_1_1_WHITE: CardRecord = CardRecord::new(
+    cards::HUMAN_TOKEN_1_1_WHITE,
+    "Human",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Human"], 1, 1).printed_colors(&[ManaColor::White]),
+);
+
+pub(in crate::card::sets) static ANGEL_TOKEN_4_4_WHITE: CardRecord = CardRecord::new(
+    cards::ANGEL_TOKEN_4_4_WHITE,
+    "Angel",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Angel"], 4, 4)
+        .printed_colors(&[ManaColor::White])
+        .with_ability(abilities::flying()),
+);
+
+pub(in crate::card::sets) static SPIRIT_TOKEN_1_1_BLUE: CardRecord = CardRecord::new(
+    cards::SPIRIT_TOKEN_1_1_BLUE,
+    "Spirit",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Spirit"], 1, 1)
+        .printed_colors(&[ManaColor::Blue])
+        .with_ability(abilities::flying()),
+);
+
+pub(in crate::card::sets) static HOMUNCULUS_TOKEN_2_2_BLUE: CardRecord = CardRecord::new(
+    cards::HOMUNCULUS_TOKEN_2_2_BLUE,
+    "Homunculus",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Homunculus"], 2, 2)
+        .printed_colors(&[ManaColor::Blue]),
+);
+
+pub(in crate::card::sets) static SPIDER_TOKEN_1_2_GREEN: CardRecord = CardRecord::new(
+    cards::SPIDER_TOKEN_1_2_GREEN,
+    "Spider",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Spider"], 1, 2)
+        .printed_colors(&[ManaColor::Green])
+        .with_ability(abilities::reach()),
+);
+
+pub(in crate::card::sets) static SOLDIER_TOKEN_1_1_WHITE: CardRecord = CardRecord::new(
+    cards::SOLDIER_TOKEN_1_1_WHITE,
+    "Soldier",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Soldier"], 1, 1)
+        .printed_colors(&[ManaColor::White]),
+);
+
+pub(in crate::card::sets) static DRAKE_TOKEN_2_2_BLUE: CardRecord = CardRecord::new(
+    cards::DRAKE_TOKEN_2_2_BLUE,
+    "Drake",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Drake"], 2, 2)
+        .printed_colors(&[ManaColor::Blue])
+        .with_ability(abilities::flying()),
+);
+
+pub(in crate::card::sets) static GOBLIN_TOKEN_1_1_RED: CardRecord = CardRecord::new(
+    cards::GOBLIN_TOKEN_1_1_RED,
+    "Goblin",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Goblin"], 1, 1).printed_colors(&[ManaColor::Red]),
+);
+
+pub(in crate::card::sets) static SPIRIT_TOKEN_1_1_WHITE_BLACK: CardRecord = CardRecord::new(
+    cards::SPIRIT_TOKEN_1_1_WHITE_BLACK,
+    "Spirit",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Spirit"], 1, 1)
+        .printed_colors(&[ManaColor::White, ManaColor::Black])
+        .with_ability(abilities::flying()),
+);
+
+pub(in crate::card::sets) static SLIVER_TOKEN_1_1_COLORLESS: CardRecord = CardRecord::new(
+    cards::SLIVER_TOKEN_1_1_COLORLESS,
+    "Sliver",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Sliver"], 1, 1),
+);
+
+pub(in crate::card::sets) static DRAGON_TOKEN_2_2_RED: CardRecord = CardRecord::new(
+    cards::DRAGON_TOKEN_2_2_RED,
+    "Dragon",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Dragon"], 2, 2)
+        .printed_colors(&[ManaColor::Red])
+        .with_ability(abilities::flying())
+        .with_ability(AbilityDef::activated(
+            "{R}: This creature gets +1/+0 until end of turn.",
+            &[crate::card::AbilityCostDef::Mana(crate::mana_cost!("{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::ModifyPowerToughness {
+                    power: ValueDef::Constant(1),
+                    toughness: ValueDef::Constant(0),
+                },
+                duration: EffectDurationDef::UntilEndOfTurn,
+            },
+        )),
+);
+
+pub(in crate::card::sets) static ELEMENTAL_TOKEN_1_1_RED: CardRecord = CardRecord::new(
+    cards::ELEMENTAL_TOKEN_1_1_RED,
+    "Elemental",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Elemental"], 1, 1)
+        .printed_colors(&[ManaColor::Red]),
+);
+
+pub(in crate::card::sets) static SAPROLING_TOKEN_1_1_GREEN: CardRecord = CardRecord::new(
+    cards::SAPROLING_TOKEN_1_1_GREEN,
+    "Saproling",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Saproling"], 1, 1)
+        .printed_colors(&[ManaColor::Green]),
+);
+
+pub(in crate::card::sets) static BIRD_TOKEN_1_1_WHITE: CardRecord = CardRecord::new(
+    cards::BIRD_TOKEN_1_1_WHITE,
+    "Bird",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Bird"], 1, 1)
+        .printed_colors(&[ManaColor::White])
+        .with_ability(abilities::flying()),
+);
+
+pub(in crate::card::sets) static DRAGON_TOKEN_6_6_RED: CardRecord = CardRecord::new(
+    cards::DRAGON_TOKEN_6_6_RED,
+    "Dragon",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Dragon"], 6, 6)
+        .printed_colors(&[ManaColor::Red])
+        .with_ability(abilities::flying()),
+);
+
 /// Domri's emblem. An emblem is an object with abilities and no other
 /// characteristics, so it is cataloged like a token and lives in its own
 /// list rather than on the battlefield.
@@ -253,6 +443,25 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &THRULL_TOKEN_0_1_BLACK,
     &WASP_TOKEN_1_1_COLORLESS,
     &MINOR_DEMON_TOKEN_1_1_BLACK_RED,
+    &WURM_TOKEN_5_5_GREEN,
+    &CENTAUR_TOKEN_3_3_GREEN,
+    &RHINO_TOKEN_4_4_GREEN,
+    &ZOMBIE_TOKEN_2_2_BLACK,
+    &HUMAN_TOKEN_1_1_WHITE,
+    &ANGEL_TOKEN_4_4_WHITE,
+    &SPIRIT_TOKEN_1_1_BLUE,
+    &HOMUNCULUS_TOKEN_2_2_BLUE,
+    &SPIDER_TOKEN_1_2_GREEN,
+    &SOLDIER_TOKEN_1_1_WHITE,
+    &DRAKE_TOKEN_2_2_BLUE,
+    &GOBLIN_TOKEN_1_1_RED,
+    &SPIRIT_TOKEN_1_1_WHITE_BLACK,
+    &SLIVER_TOKEN_1_1_COLORLESS,
+    &DRAGON_TOKEN_2_2_RED,
+    &ELEMENTAL_TOKEN_1_1_RED,
+    &SAPROLING_TOKEN_1_1_GREEN,
+    &BIRD_TOKEN_1_1_WHITE,
+    &DRAGON_TOKEN_6_6_RED,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

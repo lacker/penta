@@ -2,6 +2,9 @@
 
 use crate::CardDefinitionId;
 
+mod isd_rtr;
+pub use isd_rtr::*;
+
 pub const ANKH_OF_MISHRA: CardDefinitionId = CardDefinitionId(1);
 pub const ATOG: CardDefinitionId = CardDefinitionId(2);
 pub const BALL_LIGHTNING: CardDefinitionId = CardDefinitionId(3);

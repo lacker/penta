@@ -24,7 +24,7 @@ fn standard_records_have_complete_unique_scryfall_metadata() {
         );
     }
 
-    assert_eq!(scryfall_ids.len(), 117);
+    assert_eq!(scryfall_ids.len(), 853);
 }
 
 #[test]
@@ -182,7 +182,7 @@ fn every_builtin_mana_land_has_a_printed_or_intrinsic_source() {
         .flat_map(|module| module.cards.iter().copied())
         .filter(|record| record.rules.has_type(crate::card::CardType::Land))
         .collect::<Vec<_>>();
-    assert_eq!(lands.len(), 72);
+    assert_eq!(lands.len(), 95);
 
     let lands_without_mana = lands
         .iter()
@@ -236,7 +236,7 @@ fn basic_land_subtypes_do_not_repeat_intrinsic_mana_as_printed_clauses() {
                 .any(|land_type| record.rules.has_subtype(land_type.subtype()))
         })
         .collect::<Vec<_>>();
-    assert_eq!(lands.len(), 23);
+    assert_eq!(lands.len(), 26);
 
     let mut intrinsic_types = 0;
     for land in lands {
@@ -260,7 +260,7 @@ fn basic_land_subtypes_do_not_repeat_intrinsic_mana_as_printed_clauses() {
             land.name,
         );
     }
-    assert_eq!(intrinsic_types, 40);
+    assert_eq!(intrinsic_types, 46);
 }
 
 #[test]

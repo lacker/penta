@@ -455,6 +455,17 @@ the additive catalog entries do not add legal actions to those games.
 follow as off-format catalog additions; a successful search publicly reveals
 the selected card, shuffles the remaining library, and puts that card on top.
 
+The protocol-19 catalog appends definitions 315 through 605 for the expanded
+Old School implementation: 286 legal card identities and five supporting
+tokens. The format now has 420 cataloged legal identities, of which 386 are
+`complete`, 32 are `partial`, and two are `metadataOnly`. The
+identity-complete audit is kept inline at each identity's collector position in
+the printed set modules. It records the concrete engine limitation for those
+34 incomplete definitions and all 561 other legal identities that remain
+blocked. This is an additive catalog-content change, not a JSON-shape
+change; consumers must not assume the older catalog length or that definition
+314 is the maximum ID.
+
 Cards and parts expose `implementationStatus` as `complete`, `partial`, or
 `metadataOnly`; the old execution gate is not public coverage metadata.
 Definition, part, play-option, mode, and cost IDs join directly. Target-slot

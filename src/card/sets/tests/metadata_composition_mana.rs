@@ -182,7 +182,7 @@ fn every_builtin_mana_land_has_a_printed_or_intrinsic_source() {
         .flat_map(|module| module.cards.iter().copied())
         .filter(|record| record.rules.has_type(crate::card::CardType::Land))
         .collect::<Vec<_>>();
-    assert_eq!(lands.len(), 63);
+    assert_eq!(lands.len(), 72);
 
     let lands_without_mana = lands
         .iter()
@@ -213,7 +213,14 @@ fn every_builtin_mana_land_has_a_printed_or_intrinsic_source() {
         .collect::<Vec<_>>();
     assert_eq!(
         lands_without_mana,
-        ["Maze of Ith", "Flooded Strand", "Wooded Foothills"]
+        [
+            "Bazaar of Baghdad",
+            "The Tabernacle at Pendrell Vale",
+            "Maze of Ith",
+            "Safe Haven",
+            "Flooded Strand",
+            "Wooded Foothills",
+        ]
     );
 }
 
@@ -267,14 +274,20 @@ fn every_nonland_mana_permanent_has_an_activated_mana_clause() {
         &y1993::alpha::MOX_SAPPHIRE,
         &y1993::alpha::SOL_RING,
         &y1993::alpha::MANA_VAULT,
+        &y1993::alpha::BASALT_MONOLITH,
         &y1993::alpha::BIRDS_OF_PARADISE,
         &y1993::alpha::LLANOWAR_ELVES,
+        &y1994::legends::PRINCESS_LUCREZIA,
+        &y1994::legends::RIVEN_TURNBULL,
+        &y1994::legends::SUNASTIAN_FALCONER,
+        &y1994::the_dark::SISTERS_OF_THE_FLAME,
+        &y1994::fallen_empires::BASAL_THRULL,
         &y1994::the_dark::FELLWAR_STONE,
         &y2004::darksteel::DARKSTEEL_INGOT,
         &y2011::innistrad::AVACYNS_PILGRIM,
         &y2013::magic_2014::ELVISH_MYSTIC,
     ];
-    assert_eq!(records.len(), 14);
+    assert_eq!(records.len(), 20);
     for record in records {
         assert!(
             record.rules.ability_clauses().iter().any(|ability| {
@@ -288,17 +301,19 @@ fn every_nonland_mana_permanent_has_an_activated_mana_clause() {
 
 #[test]
 fn migrated_activated_cards_preserve_their_derived_implementation_status() {
-    let partial = [&y1993::alpha::CHAOS_ORB];
+    let partial = [
+        &y1993::alpha::CHAOS_ORB,
+        &y1993::alpha::STONE_GIANT,
+        &y1994::legends::PENDELHAVEN,
+    ];
     let complete = [
         &y1993::alpha::GLASSES_OF_URZA,
         &y1993::alpha::ICY_MANIPULATOR,
-        &y1993::alpha::STONE_GIANT,
         &y1994::antiquities::MISHRA_S_FACTORY,
         &y1994::antiquities::ORCISH_MECHANICS,
         &y1994::antiquities::STRIP_MINE,
         &y1994::antiquities::TRISKELION,
         &y1994::fallen_empires::ICATIAN_JAVELINEERS,
-        &y1994::legends::PENDELHAVEN,
         &y1994::legends::RELIC_BARRIER,
         &y1994::the_dark::MAZE_OF_ITH,
     ];
@@ -336,7 +351,7 @@ fn early_core_sets_reuse_definitions_without_duplicating_identity() {
     ];
 
     let early_sets = [
-        (CardSet::Alpha, 87, 92, 2_u16),
+        (CardSet::Alpha, 176, 181, 2_u16),
         (CardSet::Beta, 86, 96, 3_u16),
         (CardSet::Unlimited, 86, 96, 3_u16),
         (CardSet::CollectorsEdition, 86, 96, 3_u16),

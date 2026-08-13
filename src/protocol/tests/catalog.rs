@@ -94,20 +94,15 @@ fn catalog_exposes_derived_implementation_coverage_not_the_play_gate() {
     // A card whose gap is a whole clause rather than a detail reports the
     // same way: Jace's ultimate is cataloged and does nothing, and his
     // other two play. Vraska used to be the example here, until attack
-    // defenders made her retaliation reachable and she went complete. No
-    // card in the catalog is metadata-only through and through any more,
-    // so that status has no example left to name.
+    // defenders made her retaliation reachable and she went complete.
     let jace = find("Jace, Architect of Thought");
     assert_eq!(jace["implementationStatus"], "partial");
     assert_eq!(jace["parts"][0]["implementationStatus"], "partial");
     let vraska = find("Vraska the Unseen");
     assert_eq!(vraska["implementationStatus"], "complete");
-    assert!(
-        cards
-            .iter()
-            .all(|card| card["implementationStatus"] != "metadataOnly"),
-        "every card in this format executes at least one clause"
-    );
+    let prism = find("Celestial Prism");
+    assert_eq!(prism["implementationStatus"], "metadataOnly");
+    assert_eq!(prism["parts"][0]["implementationStatus"], "metadataOnly");
     // Pithing Needle is now complete; this keeps the coverage assertion
     // aligned with its newly executable card-name choice.
     let needle = find("Pithing Needle");

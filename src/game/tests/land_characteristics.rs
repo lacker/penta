@@ -457,6 +457,48 @@ fn magical_hack_can_target_a_nonland_permanent_without_basic_land_type_words() {
 }
 
 #[test]
+fn magical_hack_can_change_a_permanent_spell_and_the_change_survives_resolution() {
+    let mut game = ready_game();
+    let lotus_id = StackObjectId(10_000);
+    game.stack
+        .push(spell(lotus_id.0, cards::BLACK_LOTUS, PlayerId::One, 0));
+    let hack = card(10_001, cards::MAGICAL_HACK, PlayerId::One);
+    game.players[0].hand.push(hack.clone());
+    game.players[0].mana_pool.blue = 1;
+
+    let cast = cast_action(hack.id, vec![Target::Spell(lotus_id)], Vec::new(), 0);
+    assert!(game.legal_actions(PlayerId::One).contains(&cast));
+    game.apply(PlayerId::One, cast).unwrap();
+    pass_priority_pair(&mut game);
+    choose_decision_by_label(&mut game, PlayerId::One, "Forest → Island");
+
+    assert_eq!(
+        game.stack
+            .iter()
+            .find(|object| object.id == lotus_id)
+            .expect("the permanent spell remains on the stack")
+            .text_changes,
+        vec![BasicLandTypeChange {
+            from: BasicLandType::Forest,
+            to: BasicLandType::Island,
+        }],
+    );
+
+    pass_priority_pair(&mut game);
+    assert_eq!(
+        game.battlefield
+            .iter()
+            .find(|permanent| permanent.card.definition == cards::BLACK_LOTUS)
+            .expect("the permanent spell resolved")
+            .text_changes,
+        vec![BasicLandTypeChange {
+            from: BasicLandType::Forest,
+            to: BasicLandType::Island,
+        }],
+    );
+}
+
+#[test]
 fn magical_hack_fizzles_without_a_choice_when_its_permanent_target_leaves() {
     let mut game = ready_game();
     let land_id = CardInstanceId(10_000);

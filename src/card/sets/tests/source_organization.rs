@@ -6,13 +6,29 @@ const DECLARATION_PREFIX: &str = "pub(in crate::card::sets) static ";
 const DECLARATION_SUFFIX: &str = ": CardRecord = CardRecord::new(";
 const HEADER_PREFIX: &str = "// ";
 const HEADER_SEPARATOR: &str = " — ";
+const AUDIT_PREFIX: &str = "// Audit: ";
 const ADDITIONAL_REGISTRY_PREFIX: &str =
     "pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[";
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-struct SourceCard {
-    symbol: String,
+struct SourceEntry {
+    symbol: Option<String>,
     collector_number: String,
+    audit: Option<SourceAudit>,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(super) enum AuditStatus {
+    Partial,
+    MetadataOnly,
+    Blocked,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub(super) struct SourceAudit {
+    pub(super) name: String,
+    pub(super) status: AuditStatus,
+    pub(super) gap: String,
 }
 
 #[test]
@@ -25,13 +41,13 @@ fn printed_set_sources_follow_collector_number_order() {
     let mut additional_printing_count = 0;
     for path in files {
         let source = fs::read_to_string(&path).expect("a printed set source file is readable");
-        let declarations = source
-            .contains(DECLARATION_SUFFIX)
-            .then(|| declarations(&source, set_code_for_file(&path), &path));
-        let declarations = declarations.unwrap_or_default();
-        definition_count += declarations.len();
+        let entries = source_entries(&source, set_code_for_file(&path), &path);
+        definition_count += entries
+            .iter()
+            .filter(|entry| entry.symbol.is_some())
+            .count();
 
-        for cards in declarations.windows(2) {
+        for cards in entries.windows(2) {
             assert_eq!(
                 natural_collector_cmp(&cards[0].collector_number, &cards[1].collector_number),
                 Ordering::Less,
@@ -43,9 +59,9 @@ fn printed_set_sources_follow_collector_number_order() {
         }
 
         let registry = registry_symbols(&source, &path);
-        let declaration_symbols = declarations
+        let declaration_symbols = entries
             .iter()
-            .map(|card| card.symbol.as_str())
+            .filter_map(|card| card.symbol.as_deref())
             .collect::<Vec<_>>();
         assert_eq!(
             registry,
@@ -80,7 +96,7 @@ fn printed_set_sources_follow_collector_number_order() {
     }
 
     assert_eq!(
-        definition_count, 303,
+        definition_count, 589,
         "the organization guard must cover every printed card definition"
     );
     assert_eq!(
@@ -125,6 +141,7 @@ fn set_code_for_file(path: &Path) -> &'static str {
         Some("revised.rs") => "3ED",
         Some("fallen_empires.rs") => "FEM",
         Some("legends.rs") => "LEG",
+        Some("promo_1994.rs") => "P94",
         Some("the_dark.rs") => "DRK",
         Some("ice_age.rs") => "ICE",
         Some("mirage.rs") => "MIR",
@@ -162,80 +179,169 @@ fn set_code_for_file(path: &Path) -> &'static str {
     }
 }
 
-fn declarations(source: &str, expected_set_code: &str, path: &Path) -> Vec<SourceCard> {
+pub(super) fn old_school_source_audits(root: &Path) -> Vec<SourceAudit> {
+    let mut files = printed_set_files(&root.join("src/card/sets"));
+    files.sort();
+
+    let mut audits = Vec::new();
+    for path in files {
+        let set_code = set_code_for_file(&path);
+        if !matches!(
+            set_code,
+            "LEA" | "LEB" | "ARN" | "ATQ" | "LEG" | "DRK" | "FEM" | "P94"
+        ) {
+            continue;
+        }
+        let source = fs::read_to_string(&path).expect("a printed set source file is readable");
+        audits.extend(
+            source_entries(&source, set_code, &path)
+                .into_iter()
+                .filter_map(|entry| entry.audit),
+        );
+    }
+    audits
+}
+
+fn source_entries(source: &str, expected_set_code: &str, path: &Path) -> Vec<SourceEntry> {
     let lines = source.lines().collect::<Vec<_>>();
     for (index, line) in lines.iter().enumerate() {
-        if parse_header(line).is_some() {
+        if line.starts_with(AUDIT_PREFIX) {
             assert!(
-                lines
-                    .get(index + 1)
-                    .is_some_and(|line| line.starts_with(DECLARATION_PREFIX)),
-                "{}:{}: an organization header must immediately precede a CardRecord declaration",
+                parse_audit(line).is_some(),
+                "{}:{}: expected exact `// Audit: blocked|partial|metadata-only — GAP` comment",
+                path.display(),
+                index + 1
+            );
+            assert!(
+                index > 0 && parse_header(lines[index - 1]).is_some(),
+                "{}:{}: an Audit comment must immediately follow a card header",
+                path.display(),
+                index + 1
+            );
+        }
+        if let Some(symbol) = declaration_symbol(line) {
+            let directly_headered = index > 0 && parse_header(lines[index - 1]).is_some();
+            let audited_header = index > 1
+                && parse_audit(lines[index - 1])
+                    .is_some_and(|(status, _)| status != AuditStatus::Blocked)
+                && parse_header(lines[index - 2]).is_some();
+            assert!(
+                directly_headered || audited_header,
+                "{}:{}: expected a card header, optionally followed by a partial or metadata-only Audit comment, immediately before {symbol}",
                 path.display(),
                 index + 1
             );
         }
     }
 
-    let mut cards = Vec::new();
+    let mut entries = Vec::new();
     for (index, line) in lines.iter().enumerate() {
-        let Some(symbol) = line
-            .strip_prefix(DECLARATION_PREFIX)
-            .and_then(|line| line.strip_suffix(DECLARATION_SUFFIX))
-        else {
+        let Some(header) = parse_header(line) else {
             continue;
         };
-        assert!(index > 0, "{}: declaration has no header", path.display());
-        let header = parse_header(lines[index - 1]).unwrap_or_else(|| {
-            panic!(
-                "{}:{}: expected `// SET NUMBER — Name` immediately before {symbol}",
-                path.display(),
-                index + 1
-            )
-        });
         assert_eq!(
             header.0,
             expected_set_code,
-            "{}:{}: wrong set code for {symbol}",
-            path.display(),
-            index
-        );
-
-        let id_line = lines
-            .get(index + 1)
-            .and_then(|line| line.trim().strip_prefix("cards::"))
-            .and_then(|line| line.strip_suffix(','));
-        assert_eq!(
-            id_line,
-            Some(symbol),
-            "{}:{}: declaration symbol and card ID must match",
+            "{}:{}: wrong set code in card header",
             path.display(),
             index + 1
         );
-        let name = lines
-            .get(index + 2)
-            .and_then(|line| line.trim().strip_prefix('"'))
-            .and_then(|line| line.strip_suffix("\","))
-            .unwrap_or_else(|| {
-                panic!(
-                    "{}:{}: expected a one-line canonical card name",
-                    path.display(),
-                    index + 3
+
+        let (symbol, audit) = match lines.get(index + 1).copied() {
+            Some(next) if declaration_symbol(next).is_some() => {
+                let symbol = declaration_symbol(next).expect("the declaration was recognized");
+                validate_declaration(&lines, index + 1, symbol, header.2, path);
+                (Some(symbol.to_string()), None)
+            }
+            Some(next) if parse_audit(next).is_some() => {
+                let (status, gap) = parse_audit(next).expect("the Audit comment was recognized");
+                let declaration = lines
+                    .get(index + 2)
+                    .and_then(|line| declaration_symbol(line));
+                match status {
+                    AuditStatus::Blocked => assert!(
+                        declaration.is_none(),
+                        "{}:{}: a blocked Audit entry cannot have a CardRecord declaration",
+                        path.display(),
+                        index + 1
+                    ),
+                    AuditStatus::Partial | AuditStatus::MetadataOnly => assert!(
+                        declaration.is_some(),
+                        "{}:{}: a partial or metadata-only Audit entry must immediately precede a CardRecord declaration",
+                        path.display(),
+                        index + 1
+                    ),
+                }
+                if let Some(symbol) = declaration {
+                    validate_declaration(&lines, index + 2, symbol, header.2, path);
+                }
+                (
+                    declaration.map(str::to_string),
+                    Some(SourceAudit {
+                        name: header.2.to_string(),
+                        status,
+                        gap: gap.to_string(),
+                    }),
                 )
-            });
-        assert_eq!(
-            header.2,
-            name,
-            "{}:{}: header name must match CardRecord name",
-            path.display(),
-            index
-        );
-        cards.push(SourceCard {
-            symbol: symbol.to_string(),
+            }
+            _ => {
+                panic!(
+                    "{}:{}: a card header must immediately precede either a CardRecord declaration or an Audit comment",
+                    path.display(),
+                    index + 1
+                )
+            }
+        };
+        entries.push(SourceEntry {
+            symbol,
             collector_number: header.1.to_string(),
+            audit,
         });
     }
-    cards
+    entries
+}
+
+fn declaration_symbol(line: &str) -> Option<&str> {
+    line.strip_prefix(DECLARATION_PREFIX)
+        .and_then(|line| line.strip_suffix(DECLARATION_SUFFIX))
+}
+
+fn validate_declaration(
+    lines: &[&str],
+    index: usize,
+    symbol: &str,
+    header_name: &str,
+    path: &Path,
+) {
+    let id_line = lines
+        .get(index + 1)
+        .and_then(|line| line.trim().strip_prefix("cards::"))
+        .and_then(|line| line.strip_suffix(','));
+    assert_eq!(
+        id_line,
+        Some(symbol),
+        "{}:{}: declaration symbol and card ID must match",
+        path.display(),
+        index + 1
+    );
+    let name = lines
+        .get(index + 2)
+        .and_then(|line| line.trim().strip_prefix('"'))
+        .and_then(|line| line.strip_suffix("\","))
+        .unwrap_or_else(|| {
+            panic!(
+                "{}:{}: expected a one-line canonical card name",
+                path.display(),
+                index + 3
+            )
+        });
+    assert_eq!(
+        header_name,
+        name,
+        "{}:{}: header name must match CardRecord name",
+        path.display(),
+        index + 1
+    );
 }
 
 fn parse_header(line: &str) -> Option<(&str, &str, &str)> {
@@ -253,6 +359,21 @@ fn parse_header(line: &str) -> Option<(&str, &str, &str)> {
         return None;
     }
     Some((set_code, collector_number, name))
+}
+
+fn parse_audit(line: &str) -> Option<(AuditStatus, &str)> {
+    let body = line.strip_prefix(AUDIT_PREFIX)?;
+    let (status, gap) = body.split_once(HEADER_SEPARATOR)?;
+    if gap.is_empty() {
+        return None;
+    }
+    let status = match status {
+        "blocked" => AuditStatus::Blocked,
+        "partial" => AuditStatus::Partial,
+        "metadata-only" => AuditStatus::MetadataOnly,
+        _ => return None,
+    };
+    Some((status, gap))
 }
 
 fn registry_symbols<'a>(source: &'a str, path: &Path) -> Vec<&'a str> {

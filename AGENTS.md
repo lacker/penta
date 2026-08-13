@@ -65,13 +65,19 @@ collector number of each printing in that module's set, including in
 reprint-only modules whose `CARDS` registry is empty. Compare numeric portions
 numerically (`8`, `8a`, `8b`, `16`), not lexicographically.
 
-Immediately before every declaration, use an ordinary one-line comment in the
-exact form `// LEA 230 — Ankh of Mishra`: uppercase set code, collector number
-verbatim, an em dash, and the canonical `CardRecord` name. Put every nonempty
-`ADDITIONAL_PRINTINGS` entry on its own line and end it with a comment in the
-exact form `// LEB 233`: the target printing's uppercase set code and collector
-number, with no card name. Empty additional-printing registries need no
-comments.
+Introduce every declaration with an ordinary one-line comment in the exact
+form `// LEA 230 — Ankh of Mishra`: uppercase set code, collector number
+verbatim, an em dash, and the canonical `CardRecord` name. Ordinarily the
+header immediately precedes the declaration. For an identity in the inline Old
+School audit, put its explanation on the next line in the exact form
+`// Audit: blocked — Needs ...`, using `partial` or `metadata-only` instead when
+applicable. A partial or metadata-only audit line immediately precedes its
+declaration; a blocked header and audit line stand alone at that identity's
+collector position. Keep all identity headers in natural collector order. Put
+every nonempty `ADDITIONAL_PRINTINGS` entry on its own line and end it with a
+comment in the exact form `// LEB 233`: the target printing's uppercase set
+code and collector number, with no card name. Empty additional-printing
+registries need no comments.
 
 The comment identifies the canonical printing in that module's set, even when
 the chosen presentation art intentionally comes from another printing. Move

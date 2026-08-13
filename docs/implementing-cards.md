@@ -13,9 +13,15 @@ ability clauses can all be understood at the declaration.
 
 Within a printed set module, keep declarations and the `CARDS` registry in
 natural collector-number order, with `CARDS` exactly mirroring declaration
-order. Put an identifying comment immediately before each declaration in the
-form `// LEA 230 — Ankh of Mishra`, using the canonical printing's uppercase
-set code, collector number, and card name.
+order. Introduce each declaration with an identifying comment in the form
+`// LEA 230 — Ankh of Mishra`, using the canonical printing's uppercase set
+code, collector number, and card name. Ordinarily the header immediately
+precedes the declaration. In the inline Old School audit, an incomplete
+identity puts `// Audit: blocked — Needs ...` on the next line, using `partial`
+or `metadata-only` when applicable. Partial and metadata-only audit lines
+immediately precede their declarations; blocked header-and-audit pairs stand
+alone at the identity's collector position. Keep every identity header in
+natural collector order.
 
 Keep `ADDITIONAL_PRINTINGS` in natural order by the collector number in that
 module's set, including for reprint-only modules with an empty `CARDS`

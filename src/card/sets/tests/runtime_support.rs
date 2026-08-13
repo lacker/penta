@@ -702,7 +702,10 @@ pub(super) fn shared_static_applied_effect(
         AppliedEffectDef::GrantAbility(ability) => shared_definition_ability(ability),
         AppliedEffectDef::CannotBeBlockedBy(predicate)
         | AppliedEffectDef::PreventDamageFrom(predicate) => {
-            recipient == EffectRecipientDef::Source && shared_object_predicate(predicate)
+            matches!(
+                recipient,
+                EffectRecipientDef::Source | EffectRecipientDef::AttachedPermanent
+            ) && shared_object_predicate(predicate)
         }
         AppliedEffectDef::DoesNotUntapDuringUntapStep
         | AppliedEffectDef::RemoveAbilities(_)

@@ -81,13 +81,13 @@ fn built_in_records_keep_stable_dense_ids_and_unique_identity() {
         .iter()
         .flat_map(|module| module.cards.iter().copied())
         .collect::<Vec<_>>();
-    assert_eq!(records.len(), 314);
+    assert_eq!(records.len(), 605);
 
     let mut ids = records.iter().map(|record| record.id).collect::<Vec<_>>();
     ids.sort_unstable();
     assert_eq!(
         ids.iter().map(|id| id.0).collect::<Vec<_>>(),
-        (1..=314).collect::<Vec<_>>()
+        (1..=605).collect::<Vec<_>>()
     );
     // Names identify the cards a decklist can name. Tokens are not among
     // them, and Magic prints several that share a name.
@@ -108,7 +108,7 @@ fn built_in_records_keep_stable_dense_ids_and_unique_identity() {
 #[test]
 fn built_in_catalog_indexes_definitions_and_printings_separately() {
     let catalog = crate::card::catalog().unwrap();
-    let printing_count = (1..=314)
+    let printing_count = (1..=605)
         .filter(|id| {
             *id != cards::BEAST_TOKEN_3_3_GREEN.0
                 && *id != cards::KNIGHT_TOKEN_2_2_WHITE.0
@@ -121,11 +121,16 @@ fn built_in_catalog_indexes_definitions_and_printings_separately() {
                 && *id != cards::DOMRI_RADE_EMBLEM.0
                 && *id != cards::TETRAVITE_TOKEN.0
                 && *id != cards::ASSASSIN_TOKEN_1_1_BLACK.0
+                && *id != cards::BIRD_TOKEN_4_4_RED.0
+                && *id != cards::CITIZEN_TOKEN_1_1_WHITE.0
+                && *id != cards::THRULL_TOKEN_0_1_BLACK.0
+                && *id != cards::WASP_TOKEN_1_1_COLORLESS.0
+                && *id != cards::MINOR_DEMON_TOKEN_1_1_BLACK_RED.0
         })
         .map(|id| catalog.printings_for(CardDefinitionId(id)).len())
         .sum::<usize>();
 
-    assert_eq!(printing_count, 691);
+    assert_eq!(printing_count, 977);
     for variant in 0..3 {
         assert!(
             catalog
@@ -146,7 +151,7 @@ fn every_non_declarative_clause_explains_its_implementation() {
         .iter()
         .flat_map(|module| module.cards.iter().copied())
         .collect::<Vec<_>>();
-    assert_eq!(records.len(), 314);
+    assert_eq!(records.len(), 605);
 
     for record in records {
         let definition = record.definition();

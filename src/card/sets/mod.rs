@@ -257,7 +257,7 @@ const SET_MODULES: &[SetModule] = &[
 ];
 
 pub(super) fn definitions() -> Vec<CardDefinition> {
-    let mut definitions = Vec::with_capacity(300);
+    let mut definitions = Vec::with_capacity(605);
     for module in SET_MODULES {
         definitions.extend(module.cards.iter().map(|record| record.definition()));
     }

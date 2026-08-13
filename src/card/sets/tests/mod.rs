@@ -50,6 +50,7 @@ fn printings_for_set(set: CardSet) -> Vec<CardPrinting> {
 }
 
 mod metadata_composition_mana;
+mod old_school_coverage;
 mod registry_integrity;
 mod runtime_boundary;
 mod runtime_support;

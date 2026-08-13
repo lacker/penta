@@ -36,6 +36,15 @@ snapshots.
   reconstruct too when resolution does not require retired-object
   last-known information.
 
+- The catalog appends definitions 315 through 605: 286 Eternal Central Old
+  School 93/94 card identities and five supporting tokens. The Old School pool
+  now exposes 420 legal identities: 386 complete, 32 partial, and two
+  metadata-only. An identity-complete audit, kept inline at each identity's
+  collector position in the printed set modules, names the concrete engine gap
+  for those 34 cataloged incomplete cards and the other 561 legal identities
+  that remain blocked. Definition IDs remain append-only and the catalog JSON
+  shape is unchanged, so this is compatible protocol-19 catalog growth.
+
 - The unfiltered catalog appends the off-format Premodern cards `Impulse`,
   `Sleight of Hand`, and `Opt` as definitions 310 through 312, and recognizes
   the `visions` debut-set slug. Their shared private top-of-library selection

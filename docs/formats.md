@@ -66,8 +66,12 @@ The engine currently supports:
 - summoning sickness, haste, temporary modifiers, marked damage, and death;
 - multi-target spells, copy retargeting, activated and triggered choices,
   restricted untaps, and structured decisions;
-- functional behavior for the original Old School corpus and declarative
-  records for every additional card in the Standard Top 8 decks; and
+- an identity-complete Old School implementation audit inline in the printed
+  set modules, with executable declarative records for the supported tranche
+  and a collector-ordered, named engine-capability gap for every incomplete
+  legal card;
+- declarative records for every additional card in the Standard Top 8 decks;
+  and
 - twenty-three fixed 60-card decks with 15-card sideboards across both formats.
 
 The engine is playable end to end but is not a general implementation of the

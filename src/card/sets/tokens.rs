@@ -155,6 +155,53 @@ pub(in crate::card::sets) static ASSASSIN_TOKEN_1_1_BLACK: CardRecord = CardReco
         )),
 );
 
+pub(in crate::card::sets) static BIRD_TOKEN_4_4_RED: CardRecord = CardRecord::new(
+    cards::BIRD_TOKEN_4_4_RED,
+    "Bird",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Bird"], 4, 4)
+        .printed_colors(&[ManaColor::Red])
+        .with_abilities(&[abilities::flying()]),
+);
+
+pub(in crate::card::sets) static CITIZEN_TOKEN_1_1_WHITE: CardRecord = CardRecord::new(
+    cards::CITIZEN_TOKEN_1_1_WHITE,
+    "Citizen",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Citizen"], 1, 1)
+        .printed_colors(&[ManaColor::White]),
+);
+
+pub(in crate::card::sets) static THRULL_TOKEN_0_1_BLACK: CardRecord = CardRecord::new(
+    cards::THRULL_TOKEN_0_1_BLACK,
+    "Thrull",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Thrull"], 0, 1)
+        .printed_colors(&[ManaColor::Black]),
+);
+
+pub(in crate::card::sets) static WASP_TOKEN_1_1_COLORLESS: CardRecord = CardRecord::new(
+    cards::WASP_TOKEN_1_1_COLORLESS,
+    "Wasp",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Insect"], 1, 1)
+        .with_type(CardType::Artifact)
+        .with_ability(abilities::flying()),
+);
+
+pub(in crate::card::sets) static MINOR_DEMON_TOKEN_1_1_BLACK_RED: CardRecord = CardRecord::new(
+    cards::MINOR_DEMON_TOKEN_1_1_BLACK_RED,
+    "Minor Demon",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Demon"], 1, 1)
+        .printed_colors(&[ManaColor::Black, ManaColor::Red]),
+);
+
 /// Domri's emblem. An emblem is an object with abilities and no other
 /// characteristics, so it is cataloged like a token and lives in its own
 /// list rather than on the battlefield.
@@ -201,6 +248,11 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DOMRI_RADE_EMBLEM,
     &TETRAVITE_TOKEN,
     &ASSASSIN_TOKEN_1_1_BLACK,
+    &BIRD_TOKEN_4_4_RED,
+    &CITIZEN_TOKEN_1_1_WHITE,
+    &THRULL_TOKEN_0_1_BLACK,
+    &WASP_TOKEN_1_1_COLORLESS,
+    &MINOR_DEMON_TOKEN_1_1_BLACK_RED,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

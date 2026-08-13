@@ -5,12 +5,19 @@ ships Eternal Central Old School 93/94 and the final pre-Theros ISD–RTR
 Standard format. This guide is for writing a program that plays it: from
 Python, C, C++, or Rust, against the included bots or against itself.
 
-This guide describes the current development wire contract, **protocol 21**.
-Query `protocol_version()` and `engine_version()` through the selected binding
-and reject or migrate versions your client does not understand; pin both
-alongside trained weights. Old School remains the default for compatibility;
-new integrations should record and pass an explicit format slug with each
-game.
+This guide describes the current development wire contract, **protocol 22**,
+the first open-world epoch. Ignore JSON object members your bot does not use;
+the epoch changes only when an existing field or tag is removed, renamed,
+retyped, or reinterpreted. Additive fields and different legal actions expressed
+through the existing indexed-action vocabulary do not move it.
+
+`protocolCapabilities` advertises optional, named facilities. Ignore unknown
+capabilities, and require one only when your implementation consumes it. Query
+`protocol_version()`, `simulation_fingerprint()`, and `engine_version()` through
+the selected binding. Pin the simulation fingerprint, rather than the package
+version or wire epoch, alongside trained weights. Old School remains the default
+for compatibility; new integrations should record and pass an explicit format
+slug with each game.
 
 A bot is a function from an **observation** (your seat's view of the game,
 as JSON) to an **action index** (a position in that observation's
@@ -41,7 +48,7 @@ repository's pinned Rust version automatically. From the repository root:
 cd bindings/penta-py
 cargo build --release
 cp target/release/libpenta.dylib penta.so   # Linux: cp target/release/libpenta.so penta.so
-python3 -c "import penta; print(penta.engine_version())"
+python3 -c "import penta; print(penta.engine_version(), penta.protocol_version(), penta.simulation_fingerprint())"
 ```
 
 (With [maturin](https://maturin.rs) installed, `maturin develop --release`
@@ -96,7 +103,9 @@ The module surface:
 | `game.result()` | `None`, `"p1"`, `"p2"`, or `"draw"` |
 | `penta.catalog(format=)` | every canonical definition annotated with legality for the selected format, as JSON |
 | `penta.deck_names(format=)` | the selected format's built-in decks |
-| `penta.engine_version()`, `penta.protocol_version()` | pin these with your trained weights |
+| `penta.protocol_version()` | the breaking bot-wire epoch |
+| `penta.simulation_fingerprint()` | the conservative simulation-source identity; pin this with trained weights |
+| `penta.engine_version()` | the package release version, for provenance |
 
 ## Quick start: C and C++
 
@@ -120,9 +129,11 @@ observation; and `penta_act` takes an index. The original catalog and deck-name
 functions remain Old School-compatible. New callers can use
 `penta_catalog_json_for_format` and `penta_deck_names_for_format_json`.
 `penta_legal_action_count` lets a minimal client act without parsing JSON at
-all. From C++, wrap the header and parse observations with any JSON library
-(e.g. nlohmann/json). Anything else with a C FFI — Julia, Go, C# — can consume
-the same library.
+all. `penta_protocol_version`, `penta_simulation_fingerprint`, and
+`penta_engine_version` expose the same three identifiers as Python. From C++,
+wrap the header and parse observations with any JSON library (e.g.
+nlohmann/json). Anything else with a C FFI — Julia, Go, C# — can consume the
+same library.
 
 ## Quick start: Rust
 
@@ -205,9 +216,12 @@ A clone forks the *true* state, hidden zones included. That is right for
 self-play but wrong for a search bot in a hosted match: its rollouts must use
 worlds consistent with its observation, not cards only the host knows.
 
-Protocol 21 observations are current-state checkpoints. Supply a hypothesis
-for the zones the observation intentionally redacts, then construct a live
-local game:
+The optional `reconstruction.checkpoint.v1` capability advertises a hidden-safe
+current-state checkpoint in each observation. The checkpoint was introduced in
+protocol 19, expanded in protocol 21 into the complete typed snapshot described
+below, and given its own nested format version in protocol 22. Supply a
+hypothesis for the zones the observation intentionally redacts, then construct a
+live local game:
 
 ```python
 view_json = hosted_observation
@@ -258,14 +272,16 @@ hidden["decision"] = {
 The constructor asks for this only when the current continuation actually
 contains such a hidden choice, and validates the number and range of indexes.
 
-Construction fails closed when versions differ, a hypothesized zone has the
-wrong size, a card definition is unknown, executable state lacks a stable
-catalog locator, or the rebuilt legal actions or public observation differ.
-It never quietly creates an approximate game. Internally, the engine creates
-one typed `GameSnapshot` and serializes it at the protocol boundary;
-reconstruction deserializes that same schema before building a `Game`.
-Catalog-owned executable data is represented by semantic locators, while
-hidden-zone identities are supplied only by the separate hypothesis above.
+Construction fails closed when the bot-wire epoch, conservative simulation
+fingerprint, or checkpoint `version` differs; when a hypothesized zone has the
+wrong size; when a card definition is unknown; when executable state lacks a
+stable catalog locator; or when the rebuilt legal actions or public observation
+differ. Unknown additive object members are ignored. It never quietly creates
+an approximate game. Internally, the engine creates one typed `GameSnapshot`
+and serializes it at the protocol boundary; reconstruction deserializes that
+same open-world schema before building a `Game`. Catalog-owned executable data
+is represented by semantic locators, while hidden-zone identities are supplied
+only by the separate hypothesis above.
 
 The protocol-21 snapshot covers every ordinary action boundary emitted by the
 hosted formats: pregame and turn/combat progression; complete permanent,
@@ -311,7 +327,10 @@ world it can search.
 
 | field | meaning |
 | --- | --- |
-| `protocolVersion`, `engineVersion` | the wire and rules versions that produced this observation; verify both before acting |
+| `protocolVersion` | the breaking bot-wire epoch; protocol 22 objects are open-world, but an epoch mismatch requires migration |
+| `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v1`; ignore unknown entries |
+| `simulationFingerprint` | a conservative identity of simulation source and build requirements; pin it for training and require it for reconstruction |
+| `engineVersion` | package-release provenance; it is not an exact simulation identity |
 | `format` | the rules/deck profile slug, such as `"old-school-93-94"` or `"isd-rtr-standard"` |
 | `seat` | whose view this is: `"p1"` or `"p2"` |
 | `pregame` | true while mulligans are being settled |
@@ -322,13 +341,20 @@ world it can search.
 | `opponentHandSize` | their current hidden hand as a count; learned snapshots are reported separately in `lastSeenHand` |
 | `lastSeenHand` | null or the most recently revealed hand snapshot as `{seat, cards}`; it records known information and can outlive later hand changes |
 | `battlefield` | every permanent, including its current-zone object ID, canonical definition, and presented card-part ID; a planeswalker also reports `loyalty` and `loyaltyAbilityUsedThisTurn` |
-| `checkpoint` | the hidden-safe typed rules snapshot used by `Game.from_observation`, including deferred execution, dynamic objects, exact mana units, and reachable LKI; it never contains host RNG state or hidden-zone card identities |
+| `checkpoint` | the hidden-safe typed rules snapshot used by `Game.from_observation`, including its independent `version` and `simulationFingerprint`, deferred execution, dynamic objects, exact mana units, and reachable LKI; it never contains host RNG state or hidden-zone card identities |
 | `emblems` | command-zone emblems, each with its controller, name, granting ability, and clause texts |
 | `stack` | pending spells, activated abilities, and triggered abilities, bottom to top; entries expose the source object ID, creating definition and ability origin/text, controller, counterability, targets, chosen permanents, X, and a locked cast signature when applicable |
 | `graveyards`, `exiles` | public zones, both players |
 | `decision` | a pending choice (see below), or null |
 | `result` | null while running, else `{winner, reason}`; `reason` is `OpponentConceded`, `OpponentLostAllLife`, `OpponentTriedToDrawFromEmptyLibrary`, `OpponentLostToAnEffect`, or `OpponentRanOutOfTime` |
 | `legalActions` | what you can do, each with an `index` |
+
+Every protocol-22 JSON object is open-world: ignore members you do not use
+rather than rejecting the whole observation or catalog. Treat documented
+presentation strings as opaque. Where a string vocabulary has a safe fallback,
+use it: for example, an unknown non-null `result.reason` still means the game
+ended even if the client cannot give that ending a more specific label. An
+unknown capability is harmless unless the host explicitly lists it as required.
 
 An attempted draw from an empty library does not end resolution immediately.
 The engine records it until the next state-based action check, when it settles
@@ -466,10 +492,11 @@ structured decision fields and legal actions for control flow.
 
 ### Catalog and mana costs
 
-`penta.catalog(format)` carries the same `protocolVersion`, `engineVersion`,
-and `format` as observations, plus `formatName` and the canonical `cards`
-array. The array is ordered by `definition` and is not filtered: it contains
-tokens and definitions outside the selected format as well as playable cards.
+`penta.catalog(format)` carries the same `protocolVersion`,
+`protocolCapabilities`, `simulationFingerprint`, `engineVersion`, and `format`
+as observations, plus `formatName` and the canonical `cards` array. The array is
+ordered by `definition` and is not filtered: it contains tokens and definitions
+outside the selected format as well as playable cards.
 That includes off-format rules test cases such as Darksteel Ingot (definition
 `263`, debut set `darksteel`), whose indestructible ability is executable even
 though the card is not legal in either shipped format.
@@ -589,13 +616,48 @@ protocol 7's one-off numeric `whiteRedHybrid` field with this general array.
 The shape is used everywhere the catalog reports a cost, including parts,
 play options, alternative costs, and additional costs.
 
+### Migrating from protocol 21
+
+Protocol 22 splits wire compatibility from conservative source identity:
+
+- `protocolVersion` is now the breaking bot-wire epoch. Ignore unknown members
+  in every JSON object. Additional cards, fields, result reasons with a safe
+  fallback, and legal actions using existing vocabulary do not by themselves
+  move the epoch.
+- Observations and catalogs add `protocolCapabilities` and
+  `simulationFingerprint`. Capabilities are optional facilities, not another
+  exact version vector. The fingerprint is a conservative identity to pin with
+  trained weights: equal values identify the same covered inputs, while unequal
+  values can also result from a non-behavioral source or build-requirement edit.
+- The typed reconstruction `checkpoint` carries its own `version` and repeats
+  the simulation fingerprint. The browser command journal similarly carries an
+  independent `replayVersion`. Importers require the relevant format version
+  and exact fingerprint rather than treating `engineVersion` as a rules hash.
+- `engineVersion` now means package-release provenance. It can still be useful
+  in diagnostics, but it does not distinguish every development simulation.
+- Hosted bots declare `{protocolVersion, capabilities, requiredCapabilities}`
+  inside `compatibility` at registration and heartbeat. The server accepts the
+  same epoch when each side satisfies the other's required capability subset
+  and returns its own compatibility manifest, including its simulation
+  fingerprint, in each response. A trained bot may additionally send
+  `requiredSimulationFingerprint` to refuse a different simulation before it
+  is listed or assigned.
+
+The current optional capability is `reconstruction.checkpoint.v1`. An ordinary
+hosted bot that only reads `legalActions` should declare an empty capability
+list; do not copy the server's advertised capabilities without implementing
+them.
+
 ### Migrating from protocol 20
 
-Protocol 21 expands the hidden-safe `checkpoint` into the complete typed
-decision-boundary snapshot described above. Closed decoders must accept its
-new nested fields. Code that only reads documented observation fields and
-selects an index from `legalActions` needs no action-space change, but should
-still reject protocol versions it has not explicitly accepted.
+Protocol 21 expands the hidden-safe
+`checkpoint` into the complete typed decision-boundary snapshot described
+above. Closed protocol-20 decoders must accept its new nested fields. Code that
+only reads documented observation fields and selects an index from
+`legalActions` needs no action-space change, but should still reject protocol
+versions it has not explicitly accepted. Under protocol 22's compatibility
+model, future incompatible checkpoint encodings move `checkpoint.version`, not
+the bot-wire epoch.
 
 `Game.from_observation` can now resume ordinary hosted observations that carry
 deferred triggers, pending replacement events or decisions, restricted mana,
@@ -634,7 +696,7 @@ in-process through the bindings will never see this reason.
 ### Migrating from protocol 7
 
 Protocols 8 through 17 introduced ten compatibility changes. Then apply the
-protocol 18, 19, 20, and 21 migration sections above after these:
+protocol 18, 19, 20, 21, and 22 migration sections above after these:
 
 - Protocol 8 replaced `manaCost.whiteRedHybrid` with the sparse `hybrid`
   array described above.
@@ -676,7 +738,9 @@ protocol 18, 19, 20, and 21 migration sections above after these:
 
 Everything above runs a bot in your own process. To let other people play it,
 put it in the registry: register once, then heartbeat. Heartbeating is what
-"online" means, and the heartbeat's reply is where games arrive.
+"online" means, and the heartbeat's reply is where games arrive. Both requests
+declare the bot's wire epoch and the optional capabilities it actually
+supports, so an incompatible bot is refused before a game is assigned.
 
 **If your bot searches, read [Rolling out against worlds you cannot
 see](#rolling-out-against-worlds-you-cannot-see) before you port it.** A local
@@ -710,17 +774,41 @@ import time, requests
 
 # Local while building; the public deployment when you are ready.
 SERVER = "http://localhost:3000"
+# This bot consumes the protocol-22 indexed-action vocabulary and no optional
+# facilities. Do not echo capabilities from the server unless you implement them.
+COMPATIBILITY = {
+    "protocolVersion": 22,
+    "capabilities": [],
+    "requiredCapabilities": [],
+    # Trained bots may require the exact server artifact they target:
+    # "requiredSimulationFingerprint": "sha256-...",
+}
 
-me = requests.post(
-    f"{SERVER}/_bots/register", json={"name": "Fizzbot", "deck": "Sligh"}
-).json()
+registration = requests.post(
+    f"{SERVER}/_bots/register",
+    json={
+        "name": "Fizzbot",
+        "deck": "Sligh",
+        "compatibility": COMPATIBILITY,
+    },
+)
+registration.raise_for_status()
+me = registration.json()
 
 finished = []
 while True:
-    reply = requests.post(
+    response = requests.post(
         f"{SERVER}/_bots/{me['id']}/heartbeat",
-        json={"token": me["token"], "done": finished},
-    ).json()
+        json={
+            "token": me["token"],
+            "done": finished,
+            "compatibility": COMPATIBILITY,
+        },
+    )
+    if response.status_code == 409:
+        raise RuntimeError(f"bot is incompatible with this server: {response.text}")
+    response.raise_for_status()
+    reply = response.json()
     finished = []
     for invite in reply["invites"]:
         play(invite["room"], invite["token"])   # see below
@@ -728,6 +816,18 @@ while True:
     if not finished:
         time.sleep(10)
 ```
+
+Registration and heartbeat responses include the server's `compatibility`
+manifest: `{protocolVersion, capabilities, requiredCapabilities,
+simulationFingerprint}`. Compatibility
+means the epochs are equal, every vocabulary capability the server requires is
+in the bot's `capabilities`, and every facility the bot lists in its own
+`requiredCapabilities` is in the server's advertised `capabilities`. Unknown
+extras are harmless. If a bot sends `requiredSimulationFingerprint`, it must
+also equal the server fingerprint. A well-formed mismatch returns HTTP 409 with code
+`incompatible_bot`; malformed declarations return 400. The registry also hides
+registrations that no longer match and rechecks immediately before issuing an
+invitation.
 
 A game is two ordinary requests in a loop. `opponent` says whether your seat
 holds the decision and hands back the observation this guide describes;
@@ -803,9 +903,9 @@ Two consequences worth designing for:
 
 | Call | Meaning |
 | --- | --- |
-| `POST /_bots/register {name, deck}` | Once, ever. Returns `{id, token}`; keep the token. |
-| `POST /_bots/<id>/heartbeat {token, done}` | Renews presence, returns `{invites}`. |
-| `GET /_bots` | Who is online now, with `busy`. |
+| `POST /_bots/register {name, deck, compatibility: {protocolVersion, capabilities, requiredCapabilities, requiredSimulationFingerprint?}}` | Once per registration. Returns `{id, token, deck, compatibility}`; keep the token. An incompatible declaration returns 409. |
+| `POST /_bots/<id>/heartbeat {token, done, compatibility}` | Renews presence and compatibility, returning `{invites, deck, compatibility}`. An incompatible declaration returns 409 before presence is renewed. |
+| `GET /_bots` | Returns `{compatibility, bots}` for compatible bots that are online now, with `busy`. |
 | `POST /_bots/<id>/challenge {room, token}` | Asks an idle bot to play a started room. `token` is that room's bot-seat token, which only whoever started the room has, so nobody can park your bot in a room of theirs. The web client does this when someone picks you. |
 
 Presence is a lease, not a connection. Heartbeat at least every 15 seconds;
@@ -819,7 +919,10 @@ yourself for the next challenger; an invitation you never pick up expires
 after ten minutes, so a bot that dies mid-game unsticks itself.
 
 The deck you register is what you play when a scheduler pairs you, and what
-the web client offers as your side of the matchup.
+the web client offers as your side of the matchup. An omitted compatibility
+declaration identifies a pre-negotiation protocol-21 bot. Protocol 22 therefore
+requires an explicit declaration: this is how a bot opts into open-world
+objects rather than being assumed to tolerate them.
 
 ## Hosted games over WebSocket
 
@@ -863,21 +966,36 @@ id lets you name a room and nothing else.
 
 ## Determinism and versioning
 
-The same engine and protocol versions, format, ordered decks, seed, opponent
-configuration, and submitted action/decision sequence produce the identical
-game, byte for byte. Record all of them for reproducible replays and training
-episodes.
+A `simulationFingerprint` is the engine's conservative guard for a format,
+ordered decks, seed, opponent configuration, and submitted action/decision
+sequence. Record it with training episodes and control the target/build inputs
+documented below when byte-for-byte reproducibility matters. Portable browser
+replays stamp the fingerprint together with the independent `replayVersion` of
+their command-journal envelope.
 
-Two numbers describe what you trained against, and both are worth pinning
-alongside your weights:
+The identifiers answer different questions:
 
-- `protocol_version()` covers versioned consumer-facing shapes and the action
-  space they describe. It bumps when an older integration could misread
-  current output — including changes to `legalActions`, shared observations,
-  events, or browser state — even when canonical bot JSON otherwise holds.
-- `engine_version()` covers rules behavior, which is part of the contract
-  too: a rules fix can change what a trained policy sees even when the
-  shapes hold still.
+- `protocol_version()` / `protocolVersion` is the breaking bot-wire epoch. It
+  changes when an existing JSON field, tag, identifier, or meaning can no longer
+  be consumed safely. Protocol-22 objects are open-world, so optional fields,
+  catalog growth, and new action instances using existing vocabulary do not
+  require a bump.
+- `protocolCapabilities` advertises optional facilities within that epoch.
+  Ordinary consumers ignore unknown entries. Hosted compatibility requires an
+  equal epoch, the server-required subset of bot-supported vocabulary, and the
+  bot-required subset of server-advertised facilities.
+- `simulation_fingerprint()` / `simulationFingerprint` is a conservative
+  identity over production engine source, resolved core dependency closure,
+  repository deck data, and the pinned toolchain. Equal values identify the
+  same covered inputs; unequal values can also result from a source or
+  package-metadata edit that does not change play. Pin it alongside trained
+  weights and exact artifacts.
+- `engine_version()` / `engineVersion` is ordinary package-release provenance.
+  It does not uniquely identify a development simulation and is not an exact
+  replay guard.
+- `checkpoint.version` and replay `replayVersion` version those independently
+  consumed encodings. Reconstruction and replay require the appropriate format
+  version plus the same conservative simulation fingerprint.
 
 [CHANGELOG.md](../CHANGELOG.md) records what moved between versions and what a
 bot has to do about it. Before 1.0, expect the action space to keep
@@ -900,4 +1018,5 @@ first-class there rather than structurally disadvantaged, which is what
 [`Game.from_observation`](#rolling-out-against-worlds-you-cannot-see) is for:
 a seat that can only see its own observation can still build worlds consistent
 with it and search them. The wire contract is still evolving before 1.0, so
-version-check at startup and use the changelog to migrate.
+check the breaking epoch, negotiate required capabilities, and use the
+changelog to migrate.

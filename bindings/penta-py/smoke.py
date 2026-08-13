@@ -8,15 +8,29 @@ import json
 
 import penta
 
-print("engine", penta.engine_version(), "protocol", penta.protocol_version())
+fingerprint = penta.simulation_fingerprint()
+assert fingerprint.startswith("sha256-")
+assert len(fingerprint) == 71
+assert all(character in "0123456789abcdef" for character in fingerprint[7:])
+print(
+    "engine",
+    penta.engine_version(),
+    "protocol",
+    penta.protocol_version(),
+    "simulation",
+    fingerprint,
+)
 assert "Sligh" in penta.deck_names()
-catalog = {c["definition"]: c for c in json.loads(penta.catalog())["cards"]}
+catalog_payload = json.loads(penta.catalog())
+assert catalog_payload["simulationFingerprint"] == fingerprint
+catalog = {c["definition"]: c for c in catalog_payload["cards"]}
 assert any(c["name"] == "Lightning Bolt" for c in catalog.values())
 
 standard_decks = penta.deck_names(format="isd-rtr-standard")
 assert "Briksza Naya Midrange" in standard_decks
 standard_catalog_payload = json.loads(penta.catalog(format="isd-rtr-standard"))
 assert standard_catalog_payload["format"] == "isd-rtr-standard"
+assert standard_catalog_payload["simulationFingerprint"] == fingerprint
 assert any(
     card["name"] == "Huntmaster of the Fells"
     for card in standard_catalog_payload["cards"]
@@ -31,6 +45,7 @@ standard_game = penta.Game(
 )
 standard_observation = json.loads(standard_game.observe())
 assert standard_observation["format"] == "isd-rtr-standard"
+assert standard_observation["simulationFingerprint"] == fingerprint
 
 try:
     penta.deck_names(format="not-a-format")

@@ -13,7 +13,10 @@
 //! stores engine state, so nothing here has to migrate it.
 
 use penta::PlayerId;
-use penta::protocol::{BotGame, Opponent, PROTOCOL_VERSION, parse_format_slug};
+use penta::protocol::{
+    BotGame, ENGINE_VERSION, LEGACY_UNDECLARED_PROTOCOL_VERSION, Opponent, PROTOCOL_CAPABILITIES,
+    PROTOCOL_VERSION, REQUIRED_BOT_CAPABILITIES, SIMULATION_FINGERPRINT, parse_format_slug,
+};
 use wasm_bindgen::prelude::*;
 
 fn js_error(message: impl Into<String>) -> JsValue {
@@ -78,7 +81,7 @@ impl HostedGame {
     /// # Errors
     ///
     /// Returns a JavaScript error when the game cannot be started or an action
-    /// no longer applies, which is what a mismatched engine version looks like.
+    /// no longer applies under the selected simulation.
     pub fn replay(
         format: &str,
         p1_deck: &str,
@@ -159,18 +162,44 @@ impl HostedGame {
         })
     }
 
-    /// The versions stored state has to match to be replayable. An engine
-    /// change can make a recorded action illegal, so a host compares these
-    /// before rehydrating rather than discovering it mid-replay.
+    /// Package-release provenance retained alongside stored state.
     #[wasm_bindgen(js_name = engineVersion)]
     #[must_use]
     pub fn engine_version() -> String {
-        env!("CARGO_PKG_VERSION").to_owned()
+        ENGINE_VERSION.to_owned()
     }
 
     #[wasm_bindgen(js_name = protocolVersion)]
     #[must_use]
     pub fn protocol_version() -> u32 {
         PROTOCOL_VERSION
+    }
+
+    /// Conservative identity used to guard deterministic replays and stored games.
+    #[wasm_bindgen(js_name = simulationFingerprint)]
+    #[must_use]
+    pub fn simulation_fingerprint() -> String {
+        SIMULATION_FINGERPRINT.to_owned()
+    }
+
+    /// The command-journal envelope version, independent of the bot wire.
+    #[wasm_bindgen(js_name = replayVersion)]
+    #[must_use]
+    pub fn replay_version() -> u32 {
+        crate::REPLAY_VERSION
+    }
+
+    /// The authoritative compatibility manifest for hosted bot negotiation.
+    #[wasm_bindgen(js_name = botCompatibilityJson)]
+    #[must_use]
+    pub fn bot_compatibility_json() -> String {
+        serde_json::json!({
+            "protocolVersion": PROTOCOL_VERSION,
+            "capabilities": PROTOCOL_CAPABILITIES,
+            "requiredCapabilities": REQUIRED_BOT_CAPABILITIES,
+            "simulationFingerprint": SIMULATION_FINGERPRINT,
+            "legacyUndeclaredProtocolVersion": LEGACY_UNDECLARED_PROTOCOL_VERSION,
+        })
+        .to_string()
     }
 }

@@ -23,6 +23,43 @@ import {
   publicBot,
   worthKeeping,
 } from "./bot-presence.mjs";
+import {
+  incompatibility,
+  incompatibilityBody,
+  parseBotCompatibility,
+  parseServerCompatibility,
+  publicServerCompatibility,
+} from "./bot-compatibility.mjs";
+import { engine } from "./engine";
+
+interface BotCompatibility {
+  protocolVersion: number;
+  capabilities: string[];
+  requiredCapabilities: string[];
+  requiredSimulationFingerprint?: string;
+}
+
+interface ServerCompatibility extends BotCompatibility {
+  requiredCapabilities: string[];
+  simulationFingerprint: string;
+  legacyUndeclaredProtocolVersion: number;
+}
+
+let compatibilityReady: Promise<ServerCompatibility> | null = null;
+function serverCompatibility(): Promise<ServerCompatibility> {
+  compatibilityReady ??= engine().then(({ HostedGame }) =>
+    parseServerCompatibility(JSON.parse(HostedGame.botCompatibilityJson())),
+  );
+  return compatibilityReady;
+}
+
+function incompatibleResponse(
+  server: ServerCompatibility,
+  bot: BotCompatibility,
+  exposeBot = false,
+): Response {
+  return Response.json(incompatibilityBody(server, bot, exposeBot), { status: 409 });
+}
 
 interface DurableStorage {
   get<T>(key: string): Promise<T | undefined>;
@@ -69,6 +106,8 @@ interface RegisteredBot {
   /** When it last heartbeated. Presence is this, and nothing else. */
   lastSeen: number;
   invites: Invite[];
+  /** Absent only on registrations stored before compatibility negotiation. */
+  compatibility?: BotCompatibility;
 }
 
 /** What a bot looks like from outside: no token, presence resolved. */
@@ -83,6 +122,21 @@ interface PublicBot {
 const PREFIX = "bot:";
 /** A display field, not an identifier; long names are simply cut. */
 const MAX_NAME = 40;
+
+function requestObject(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error("request body must be an object");
+  }
+  return value as Record<string, unknown>;
+}
+
+function stringArray(value: unknown, field: string): string[] {
+  if (value === undefined) return [];
+  if (!Array.isArray(value) || value.some((item) => typeof item !== "string")) {
+    throw new Error(`${field} must be an array of strings`);
+  }
+  return value;
+}
 
 function mintToken(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(24));
@@ -111,26 +165,16 @@ export class BotRegistry {
     try {
       if (!first) return await this.#list();
       if (first === "register" && request.method === "POST") {
-        return await this.#register((await request.json()) as Partial<RegisteredBot>);
+        return await this.#register(requestObject(await request.json()));
       }
       if (second === "heartbeat" && request.method === "POST") {
         return await this.#heartbeat(
           first,
-          (await request.json().catch(() => ({}))) as {
-            token?: string;
-            done?: string[];
-          },
+          requestObject(await request.json().catch(() => ({}))),
         );
       }
       if (second === "challenge" && request.method === "POST") {
-        return await this.#challenge(
-          first,
-          (await request.json()) as {
-            room?: string;
-            reason?: Invite["reason"];
-            token?: string;
-          },
-        );
+        return await this.#challenge(first, requestObject(await request.json()));
       }
       return Response.json({ error: `unknown route ${url.pathname}` }, { status: 404 });
     } catch (cause) {
@@ -138,9 +182,16 @@ export class BotRegistry {
     }
   }
 
-  async #register(body: Partial<RegisteredBot>): Promise<Response> {
-    const name = (body.name ?? "").trim().slice(0, MAX_NAME);
+  async #register(body: Record<string, unknown>): Promise<Response> {
+    const name = (typeof body.name === "string" ? body.name : "")
+      .trim()
+      .slice(0, MAX_NAME);
     if (!name) return Response.json({ error: "a bot needs a name" }, { status: 400 });
+    const server = await serverCompatibility();
+    const compatibility = parseBotCompatibility(body.compatibility, server);
+    if (!incompatibility(server, compatibility).compatible) {
+      return incompatibleResponse(server, compatibility, true);
+    }
     // Sweeping first means the cap counts bots anyone could actually play,
     // not every name ever registered.
     const remaining = await this.#evictStale();
@@ -154,14 +205,20 @@ export class BotRegistry {
       id: identifier(),
       token: mintToken(),
       name,
-      deck: (body.deck ?? "").trim() || "Sligh",
+      deck: (typeof body.deck === "string" ? body.deck : "").trim() || "Sligh",
       registeredAt: new Date().toISOString(),
       // Registering is not being online: the first heartbeat is.
       lastSeen: 0,
       invites: [],
+      compatibility,
     };
     await this.#state.storage.put(PREFIX + bot.id, bot);
-    return Response.json({ id: bot.id, token: bot.token, deck: bot.deck });
+    return Response.json({
+      id: bot.id,
+      token: bot.token,
+      deck: bot.deck,
+      compatibility: publicServerCompatibility(server),
+    });
   }
 
   /**
@@ -171,39 +228,63 @@ export class BotRegistry {
    */
   async #heartbeat(
     id: string,
-    body: { token?: string; done?: string[] },
+    body: Record<string, unknown>,
   ): Promise<Response> {
+    const existing = await this.#state.storage.get<RegisteredBot>(PREFIX + id);
+    if (!existing) return Response.json({ error: `no bot ${id}` }, { status: 404 });
+    if (body.token !== existing.token) {
+      return Response.json({ error: "wrong token" }, { status: 403 });
+    }
+    const server = await serverCompatibility();
+    // The first lazy WASM load can yield. Re-read after it so a concurrent
+    // challenge or heartbeat cannot be overwritten from a stale snapshot.
     const bot = await this.#state.storage.get<RegisteredBot>(PREFIX + id);
     if (!bot) return Response.json({ error: `no bot ${id}` }, { status: 404 });
     if (body.token !== bot.token) {
       return Response.json({ error: "wrong token" }, { status: 403 });
     }
+    const compatibility = parseBotCompatibility(
+      Object.hasOwn(body, "compatibility") ? body.compatibility : bot.compatibility,
+      server,
+    );
+    if (!incompatibility(server, compatibility).compatible) {
+      return incompatibleResponse(server, compatibility, true);
+    }
     const now = Date.now();
-    const done = new Set(body.done ?? []);
+    const done = new Set(stringArray(body.done, "done"));
     bot.lastSeen = now;
     bot.invites = liveInvites(bot.invites, now).filter(
       (invite) => !done.has(invite.room),
     );
+    bot.compatibility = compatibility;
     await this.#state.storage.put(PREFIX + id, bot);
-    return Response.json({ invites: bot.invites, deck: bot.deck });
+    return Response.json({
+      invites: bot.invites,
+      deck: bot.deck,
+      compatibility: publicServerCompatibility(server),
+    });
   }
 
   /** Asks an online, idle bot to play a room that has already been started. */
   async #challenge(
     id: string,
-    body: { room?: string; reason?: Invite["reason"]; token?: string },
+    body: Record<string, unknown>,
   ): Promise<Response> {
-    const room = (body.room ?? "").trim();
+    const room = (typeof body.room === "string" ? body.room : "").trim();
     if (!room) return Response.json({ error: "a challenge needs a room" }, { status: 400 });
-    const token = (body.token ?? "").trim();
+    const token = (typeof body.token === "string" ? body.token : "").trim();
     if (!token) {
       return Response.json(
         { error: "a challenge needs the room's bot token" },
         { status: 400 },
       );
     }
-    const bot = await this.#state.storage.get<RegisteredBot>(PREFIX + id);
-    if (!bot) return Response.json({ error: `no bot ${id}` }, { status: 404 });
+    const reason = body.reason ?? "challenge";
+    if (reason !== "challenge" && reason !== "event") {
+      return Response.json({ error: "unknown challenge reason" }, { status: 400 });
+    }
+    const existing = await this.#state.storage.get<RegisteredBot>(PREFIX + id);
+    if (!existing) return Response.json({ error: `no bot ${id}` }, { status: 404 });
     // The room is the only thing that knows its own token, so ask it. A
     // challenger who cannot produce it did not start the room, and pointing
     // bots at rooms you do not own is how you would keep every bot busy.
@@ -214,6 +295,16 @@ export class BotRegistry {
       );
     }
     const now = Date.now();
+    const server = await serverCompatibility();
+    // Verifying the room calls another Durable Object and can yield. Reload
+    // so a heartbeat declaration or another challenge that landed meanwhile
+    // cannot be overwritten from the stale pre-verification snapshot.
+    const bot = await this.#state.storage.get<RegisteredBot>(PREFIX + id);
+    if (!bot) return Response.json({ error: `no bot ${id}` }, { status: 404 });
+    const compatibility = parseBotCompatibility(bot.compatibility, server);
+    if (!incompatibility(server, compatibility).compatible) {
+      return incompatibleResponse(server, compatibility);
+    }
     bot.invites = liveInvites(bot.invites, now);
     if (!isOnline(bot.lastSeen, now)) {
       return Response.json({ error: `${bot.name} is offline` }, { status: 409 });
@@ -221,7 +312,7 @@ export class BotRegistry {
     if (bot.invites.length > 0) {
       return Response.json({ error: `${bot.name} is already playing` }, { status: 409 });
     }
-    bot.invites.push({ room, reason: body.reason ?? "challenge", at: now, token });
+    bot.invites.push({ room, reason, at: now, token });
     await this.#state.storage.put(PREFIX + id, bot);
     // Someone is now waiting on this bot, so start watching whether it is
     // still here. Nothing else in the registry runs on its own.
@@ -322,14 +413,17 @@ export class BotRegistry {
   async #list(): Promise<Response> {
     const stored = await this.#state.storage.list<RegisteredBot>({ prefix: PREFIX });
     const now = Date.now();
+    const server = await serverCompatibility();
     const bots: PublicBot[] = [];
     for (const bot of stored.values()) {
       // An offline bot is not worth listing: nobody can play it, and its
       // registration is a private detail of whoever runs it.
       if (!isOnline(bot.lastSeen, now)) continue;
+      const compatibility = parseBotCompatibility(bot.compatibility, server);
+      if (!incompatibility(server, compatibility).compatible) continue;
       bots.push(publicBot(bot, now));
     }
     bots.sort((left, right) => left.name.localeCompare(right.name));
-    return Response.json({ bots });
+    return Response.json({ compatibility: publicServerCompatibility(server), bots });
   }
 }

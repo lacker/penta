@@ -2,9 +2,10 @@ use serde_json::{Value, json};
 
 use super::action_json::action_json;
 use super::json_common::{
-    ability_origin_json, cast_signature_json, defender_json, seat_name, target_json,
+    ability_origin_json, cast_signature_json, decision_visibility_name, decision_zone_name,
+    defender_json, seat_name, step_name, target_json,
 };
-use super::{ENGINE_VERSION, PROTOCOL_VERSION};
+use super::{ENGINE_VERSION, PROTOCOL_CAPABILITIES, PROTOCOL_VERSION, SIMULATION_FINGERPRINT};
 use crate::card::SpellForm;
 use crate::casting::CastSignature;
 use crate::game::{DecisionKind, DecisionObservation, DecisionOrderSemantics, StackObservation};
@@ -96,7 +97,7 @@ pub(super) fn decision_json(catalog: &CardCatalog, decision: &DecisionObservatio
             DecisionKind::TriggerPlacement => "TriggerPlacement",
         },
         "prompt": decision.prompt,
-        "visibility": format!("{:?}", decision.visibility),
+        "visibility": decision_visibility_name(decision.visibility),
         "minimum": decision.minimum,
         "maximum": decision.maximum,
         "cancellable": decision.cancellable,
@@ -112,7 +113,7 @@ pub(super) fn decision_json(catalog: &CardCatalog, decision: &DecisionObservatio
             })),
             "members": card_list_json(catalog, &option.members),
             "abilityText": option.ability_text,
-            "zone": format!("{:?}", option.zone),
+            "zone": decision_zone_name(option.zone),
         })).collect::<Vec<_>>(),
     });
     if let Some(order_semantics) = decision.order_semantics {
@@ -213,7 +214,9 @@ pub fn observation_json_for_format(
 ) -> Value {
     json!({
         "protocolVersion": PROTOCOL_VERSION,
+        "protocolCapabilities": PROTOCOL_CAPABILITIES,
         "engineVersion": ENGINE_VERSION,
+        "simulationFingerprint": SIMULATION_FINGERPRINT,
         "format": format.slug(),
         "seat": seat_name(observation.viewer),
         "pregame": pregame,
@@ -221,7 +224,7 @@ pub fn observation_json_for_format(
         "activeTurn": observation.active_turn,
         "activeSeat": seat_name(observation.active_player),
         "prioritySeat": seat_name(observation.priority),
-        "step": format!("{:?}", observation.step),
+        "step": step_name(observation.step),
         "regularCombatDamagePending": observation.regular_combat_damage_pending,
         "life": observation.life_totals,
         "manaPools": [

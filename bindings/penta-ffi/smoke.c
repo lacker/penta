@@ -47,7 +47,9 @@ static int play_one(const char *config, int check_json) {
         if (!observation) return fail("penta_observe_json");
         if (!strstr(observation, "\"legalActions\"") ||
             !strstr(observation, "\"seat\"") ||
-            !strstr(observation, "\"protocolVersion\"")) {
+            !strstr(observation, "\"protocolVersion\"") ||
+            !strstr(observation, "\"simulationFingerprint\"") ||
+            !strstr(observation, penta_simulation_fingerprint())) {
             fprintf(stderr, "FAIL: observation missing protocol fields\n");
             return 1;
         }
@@ -186,8 +188,12 @@ static int check_clone(const char *config) {
 }
 
 int main(void) {
-    printf("engine %s, protocol %u\n", penta_engine_version(),
-           penta_protocol_version());
+    const char *fingerprint = penta_simulation_fingerprint();
+    if (!fingerprint || strncmp(fingerprint, "sha256-", 7) != 0 ||
+        strlen(fingerprint) != 71)
+        return fail("penta_simulation_fingerprint");
+    printf("engine %s, protocol %u, simulation %s\n", penta_engine_version(),
+           penta_protocol_version(), fingerprint);
 
     char *decks = penta_deck_names_json();
     if (!decks || !strstr(decks, "Sligh")) return fail("penta_deck_names_json");
@@ -200,7 +206,8 @@ int main(void) {
     penta_string_free(standard_decks);
 
     char *catalog = penta_catalog_json();
-    if (!catalog || !strstr(catalog, "Lightning Bolt"))
+    if (!catalog || !strstr(catalog, "Lightning Bolt") ||
+        !strstr(catalog, fingerprint))
         return fail("penta_catalog_json");
     penta_string_free(catalog);
 

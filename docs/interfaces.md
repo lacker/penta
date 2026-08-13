@@ -55,7 +55,34 @@ options and are submitted through the same checked state-machine boundary.
 - `wasm/` exposes the engine to the browser. The web client selects from engine
   actions and decisions rather than reconstructing rules in TypeScript.
 
-Protocol shapes and rules behavior are versioned independently. Query
-`protocol_version()` and `engine_version()` through the relevant binding and
-pin both alongside trained policies or recorded integrations. Release history
-and migration notes live in the [changelog](../CHANGELOG.md).
+## Compatibility boundaries
+
+The adapters expose several identifiers because compatibility is directional,
+not one exact-version comparison:
+
+- `protocolVersion` is the breaking epoch for canonical bot observation,
+  action, and catalog JSON. Protocol 22 objects are open-world: consumers ignore
+  members they do not use. The epoch changes when an existing field or tag is
+  removed, renamed, retyped, or reinterpreted, not when an optional field or a
+  legal action expressed through existing vocabulary is added.
+- `protocolCapabilities` advertises named, additive facilities such as
+  `reconstruction.checkpoint.v1`. A consumer may ignore capabilities it does
+  not use. Hosted bots declare both supported vocabulary and facilities they
+  require; compatibility needs an equal `protocolVersion` and each side's
+  required subset to be supplied by the other.
+- `simulationFingerprint` conservatively identifies the production engine
+  source, resolved core dependency closure, repository deck data, and pinned
+  toolchain. Equal values identify the same covered inputs; an unequal value can
+  also come from a source or package-metadata edit that does not change play.
+  Pin it with trained policies and require it for deterministic reconstruction
+  and replay.
+- `engineVersion` is the package release version. It is useful provenance and
+  follows Cargo SemVer, but it is not an exact simulation identity.
+- The nested checkpoint payload and browser command journal have independent
+  `version` and `replayVersion` fields. Their encodings can therefore move
+  without changing the ordinary bot wire epoch.
+
+Query `protocol_version()`, `simulation_fingerprint()`, and `engine_version()`
+through the relevant binding. Release history and migration notes live in the
+[changelog](../CHANGELOG.md); the precise JSON and hosted negotiation contract
+lives in the [bot guide](bots.md).

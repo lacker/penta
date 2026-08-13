@@ -3,9 +3,9 @@
 //! Reads a bug report (or a bare replay) as JSON on stdin, replays it through
 //! the same `WebGame` facade the browser runs, and prints where it landed:
 //! the final human-visible snapshot on stdout, progress and failures on
-//! stderr. A command that no longer applies stops the replay at its position,
-//! which is itself diagnostic -- it names the moment this engine diverged
-//! from the one the bug was reported against.
+//! stderr. Compatibility metadata is checked before reconstruction; a command
+//! that no longer applies then stops replay at its position and names the
+//! moment the command journal diverged.
 //!
 //!     curl -s http://localhost:<port>/_bugs/<id> | cargo run -p penta-wasm --example replay_bug
 

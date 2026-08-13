@@ -225,16 +225,22 @@ fn deck_names(format: &str) -> PyResult<Vec<&'static str>> {
     Ok(deck_names_for_format(format_from_slug(format)?))
 }
 
-/// The engine crate version, for pinning trained bots to rules behavior.
+/// The engine package version. Use `simulation_fingerprint` for source identity.
 #[pyfunction]
 fn engine_version() -> &'static str {
     engine::protocol::ENGINE_VERSION
 }
 
-/// The protocol version the JSON shapes follow.
+/// The breaking bot-wire epoch the JSON shapes follow.
 #[pyfunction]
 fn protocol_version() -> u32 {
     engine::protocol::PROTOCOL_VERSION
+}
+
+/// The conservative simulation-source identity for replay and model provenance.
+#[pyfunction]
+fn simulation_fingerprint() -> &'static str {
+    engine::protocol::SIMULATION_FINGERPRINT
 }
 
 #[pymodule]
@@ -244,5 +250,6 @@ fn penta(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(deck_names, module)?)?;
     module.add_function(wrap_pyfunction!(engine_version, module)?)?;
     module.add_function(wrap_pyfunction!(protocol_version, module)?)?;
+    module.add_function(wrap_pyfunction!(simulation_fingerprint, module)?)?;
     Ok(())
 }

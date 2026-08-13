@@ -62,9 +62,10 @@ Bots choose an index from the engine's hidden-information-safe legal-action
 list. Python, C, C++, and Rust integrations share the same deterministic game
 and protocol semantics. Start with the [bot guide](docs/bots.md).
 
-Query the engine and protocol versions through the selected binding and pin
-both alongside trained weights or recorded integrations. Compatibility history
-and migration notes are in the [changelog](CHANGELOG.md).
+Query the breaking protocol epoch, conservative simulation fingerprint, and
+package engine version through the selected binding. Pin the simulation
+fingerprint alongside trained weights; compatibility history and migration
+notes are in the [changelog](CHANGELOG.md).
 
 ## Documentation
 

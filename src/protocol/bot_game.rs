@@ -10,6 +10,29 @@ use crate::ids::CardDefinitionId;
 use crate::policy::Policy;
 use crate::{Action, Format, Game, GameResult, HandcraftedPolicy, PlayerId, RandomPolicy, poc};
 
+/// Returns whether a supplied open-world value contains the complete value
+/// rebuilt by this engine. Objects may add members; arrays and scalar values
+/// retain their exact meaning.
+fn contains_rebuilt_value(supplied: &Value, rebuilt: &Value) -> bool {
+    match (supplied, rebuilt) {
+        (Value::Object(supplied), Value::Object(rebuilt)) => {
+            rebuilt.iter().all(|(field, value)| {
+                supplied
+                    .get(field)
+                    .is_some_and(|supplied| contains_rebuilt_value(supplied, value))
+            })
+        }
+        (Value::Array(supplied), Value::Array(rebuilt)) => {
+            supplied.len() == rebuilt.len()
+                && supplied
+                    .iter()
+                    .zip(rebuilt)
+                    .all(|(supplied, rebuilt)| contains_rebuilt_value(supplied, rebuilt))
+        }
+        _ => supplied == rebuilt,
+    }
+}
+
 impl BotGame {
     /// Constructs a local determinization from a redacted observation and a
     /// separate hidden-zone hypothesis. `rollout_seed` initializes only the
@@ -36,10 +59,10 @@ impl BotGame {
                 super::PROTOCOL_VERSION
             ));
         }
-        if observation["engineVersion"].as_str() != Some(super::ENGINE_VERSION) {
+        if observation["simulationFingerprint"].as_str() != Some(super::SIMULATION_FINGERPRINT) {
             return Err(format!(
-                "observation engine version does not match {}",
-                super::ENGINE_VERSION
+                "observation simulation fingerprint does not match {}",
+                super::SIMULATION_FINGERPRINT
             ));
         }
         let format = parse_format_slug(
@@ -70,14 +93,23 @@ impl BotGame {
         };
         let rebuilt_observation: Value = serde_json::from_str(&rebuilt.observe_json(viewer))
             .map_err(|error| format!("rebuilt observation was invalid: {error}"))?;
-        if rebuilt_observation["legalActions"] != observation["legalActions"] {
+        if !contains_rebuilt_value(
+            &observation["legalActions"],
+            &rebuilt_observation["legalActions"],
+        ) {
             return Err("checkpoint rebuilt a different legal-action list".into());
         }
         let rebuilt_fields = rebuilt_observation
             .as_object()
             .ok_or("rebuilt observation must be an object")?;
         for (field, rebuilt_value) in rebuilt_fields {
-            if observation.get(field) != Some(rebuilt_value) {
+            if matches!(field.as_str(), "engineVersion" | "protocolCapabilities") {
+                continue;
+            }
+            if !observation
+                .get(field)
+                .is_some_and(|supplied| contains_rebuilt_value(supplied, rebuilt_value))
+            {
                 return Err(format!(
                     "checkpoint rebuilt a different public observation field: {field}"
                 ));

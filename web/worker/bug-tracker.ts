@@ -22,7 +22,7 @@ interface BugReport {
   reportedAt: string;
   status: "open" | "resolved";
   description: string;
-  /** `WebGame::replay_json` output: config, commands, engine versions. */
+  /** `WebGame::replay_json` output: config, commands, format, and simulation identity. */
   replay: unknown;
   /** Where it happened: page URL, hosted room if any. */
   context?: Record<string, unknown>;

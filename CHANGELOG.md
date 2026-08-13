@@ -1,38 +1,69 @@
 # Changelog
 
-Two numbers matter to a bot, and they move independently:
+Three identifiers now have deliberately different jobs:
 
 - **Protocol version** (`penta.protocol_version()`, `penta_protocol_version()`)
-  covers consumer-facing shapes and the action space they describe. It bumps
-  when a client written against the old number could misread the new output.
-- **Engine version** (`penta.engine_version()`, the crate version) covers
-  rules behavior. It bumps for anything that changes what a policy sees,
-  including rules fixes that leave the shapes alone.
+  is the breaking bot-wire epoch. It moves only when an old consumer could
+  misinterpret an existing field, tag, identifier, or index.
+- **Simulation fingerprint** (`penta.simulation_fingerprint()`,
+  `penta_simulation_fingerprint()`) is generated from the production engine
+  source, resolved core dependency closure, repository deck data, and pinned
+  toolchain. It is a conservative identity: equal values identify the same
+  covered inputs, but non-behavioral source edits can also change it. Pin it
+  with trained weights and replays.
+- **Engine version** (`penta.engine_version()`, the crate version) is ordinary
+  package SemVer for releases and native APIs, not an exact ruleset identity.
 
-Pin both alongside trained weights. Until 1.0 the engine version bumps its
-minor for breaking changes, per Cargo's 0.x convention.
+Observations and catalogs also advertise named additive capabilities. Replay
+and reconstruction payloads carry their own format versions instead of moving
+the bot-wire epoch.
 
-## Unreleased — protocol 21
+## 0.7.0 — protocol 22
 
-The current development checkout reports engine 0.6.0 and protocol 21. Pin
-both; the engine version alone does not distinguish it from earlier 0.6.0
-snapshots.
+This release reports engine 0.7.0 and protocol 22. The simulation fingerprint
+distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **Protocol 22 establishes the durable compatibility model.** JSON objects are
+  open-world, so consumers ignore members they do not use. `protocolVersion`
+  now moves only for incompatible interpretation changes; new cards, rules
+  fixes, and different legal-action membership through existing action shapes
+  change the automatic `simulationFingerprint` instead. Observations and
+  catalogs advertise `protocolCapabilities`; the first optional facility is
+  `reconstruction.checkpoint.v1`. Stable wire tags are now explicit mappings
+  rather than Rust `Debug` output. Protocol 22 is the one-time transition from
+  the former all-purpose counter to this breaking-only epoch.
+- Reconstruction checkpoints now carry their own `version: 1` and simulation
+  fingerprint, independent of the bot-wire epoch.
+- Replay journals carry `replayVersion: 1` and the simulation fingerprint. Web
+  replays, durable rooms, and observation reconstruction reject the exact
+  artifact boundary they consume while treating `engineVersion` as package
+  provenance. Existing engine/package and protocol metadata remain present for
+  diagnostics and compatibility.
+- Python adds `penta.simulation_fingerprint()` and C adds
+  `penta_simulation_fingerprint()`. Both return the same SHA-256 identity
+  advertised in protocol JSON and exported to the WASM host.
+- Hosted bots declare `{protocolVersion, capabilities, requiredCapabilities}`
+  at registration and heartbeat. The registry compares both required subsets
+  before listing or assigning a bot, advertises the server fingerprint in its
+  manifest, honors an optional bot `requiredSimulationFingerprint`, and returns
+  `409 incompatible_bot` for a mismatch. Registrations without a declaration
+  remain protocol-21 clients and are refused by protocol 22 until they opt into
+  the open-world contract explicitly.
+
 - **Protocol 21.** Game reconstruction now has one typed `GameSnapshot` serde
-  schema behind the observation `checkpoint`. Encoding and decoding share that
-  schema, replacing the parallel hand-written JSON constructors and parsers.
-  The snapshot now carries every ordinary hosted action-boundary continuation:
-  pending decisions and entry events, delayed/floating/pending triggers,
-  restricted and source-specific mana, retired-object last-known information,
-  combat assignments, dynamic/copy characteristics, temporary abilities, and
-  stack copies or runtime modifications. Catalog executable data is addressed
-  by semantic locators rather than serialized code or mutating `set_*` calls.
+  schema behind `checkpoint`. Encoding and decoding share that schema, replacing
+  the parallel hand-written JSON constructors and field parsers. The snapshot
+  carries every ordinary hosted action-boundary continuation: pending decisions
+  and entry events, delayed/floating/pending triggers, restricted and
+  source-specific mana, retired-object last-known information, combat
+  assignments, dynamic/copy characteristics, temporary abilities, and stack
+  copies or runtime modifications. Catalog executable data is addressed by
+  semantic locators rather than serialized code or mutating `set_*` calls.
   Construction verifies both the legal-action list and every engine-owned
   public observation field; malformed, inconsistent, or unlocatable state
-  continues to fail explicitly. This expands the checkpoint JSON shape and is
-  therefore an incompatible protocol change.
+  continues to fail explicitly.
 
 - **Protocol 19.** Every observation now includes a hidden-safe `checkpoint`
   object with turn counters, combat progression, once-per-turn flags, delayed
@@ -43,8 +74,9 @@ snapshots.
   `BotGame::from_observation_json` in Rust, and `penta_from_observation` in C
   build a live local determinization while preserving public object IDs and
   minting fresh IDs for hypothesized hidden cards. The constructor validates
-  protocol and engine versions, hidden-zone sizes, and the rebuilt legal-action
-  list instead of accepting an approximate world. Activated and triggered
+  protocol, checkpoint, and simulation versions, hidden-zone sizes, and the
+  rebuilt legal-action list instead of accepting an approximate world.
+  Activated and triggered
   stack objects now carry catalog-relative semantic ability locators, complete
   target selections, and captured trigger context, so their response windows
   reconstruct too when resolution does not require retired-object

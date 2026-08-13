@@ -25,24 +25,13 @@
  *
  * Nothing stores engine state. A game at rest is its configuration plus
  * every command applied -- human and bot alike -- and is rebuilt by replay,
- * refused loudly across an engine version change.
+ * refused loudly across a replay-format or exact-simulation change.
  */
 
-type EngineModule = typeof import("../app/wasm/penta_wasm.js");
-type WebGame = InstanceType<EngineModule["WebGame"]>;
+import { type EngineModule, engine } from "./engine";
+import { replayCompatibilityError } from "./replay-compatibility.mjs";
 
-let engineReady: Promise<EngineModule> | null = null;
-function engine(): Promise<EngineModule> {
-  engineReady ??= (async () => {
-    const [module, wasm] = await Promise.all([
-      import("../app/wasm/penta_wasm.js"),
-      import("../app/wasm/penta_wasm_bg.wasm"),
-    ]);
-    await module.default({ module_or_path: wasm.default });
-    return module;
-  })();
-  return engineReady;
-}
+type WebGame = InstanceType<EngineModule["WebGame"]>;
 
 interface GameConfig {
   humanDeck: string;
@@ -72,6 +61,10 @@ const BOT_COMMANDS = new Set(["botAct"]);
 interface StoredGame {
   config: GameConfig;
   commands: Command[];
+  /** Optional only for rooms stored before exact replay metadata existed. */
+  replayVersion?: number;
+  simulationFingerprint?: string;
+  /** Package and bot-wire metadata retained for diagnostics, not replay gates. */
   engineVersion: string;
   protocolVersion: number;
   /**
@@ -358,6 +351,8 @@ export class GameRoom {
     const stored: StoredGame = {
       config,
       commands: [],
+      replayVersion: HostedGame.replayVersion(),
+      simulationFingerprint: HostedGame.simulationFingerprint(),
       engineVersion: HostedGame.engineVersion(),
       protocolVersion: HostedGame.protocolVersion(),
       // A restart re-mints, so a token handed out for the previous game does
@@ -388,19 +383,13 @@ export class GameRoom {
       const stored = await this.#state.storage.get<StoredGame>(STORED);
       if (!stored) return {};
       const { WebGame, HostedGame } = await engine();
-      const engineVersion = HostedGame.engineVersion();
-      const protocolVersion = HostedGame.protocolVersion();
-      if (
-        stored.protocolVersion !== protocolVersion ||
-        stored.engineVersion !== engineVersion
-      ) {
-        return {
-          refused:
-            `game was recorded on engine ${stored.engineVersion} protocol ` +
-            `${stored.protocolVersion}, this is ${engineVersion} ` +
-            `protocol ${protocolVersion}`,
-        };
-      }
+      const replayVersion = HostedGame.replayVersion();
+      const simulationFingerprint = HostedGame.simulationFingerprint();
+      const refused = replayCompatibilityError(stored, {
+        replayVersion,
+        simulationFingerprint,
+      });
+      if (refused) return { refused };
       const game = new WebGame(
         stored.config.humanDeck,
         stored.config.botDeck,

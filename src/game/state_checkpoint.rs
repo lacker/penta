@@ -222,6 +222,8 @@ impl Game {
             .collect::<Vec<_>>();
         let has_unlocated_pending_trigger = pending_triggers.len() != self.pending_triggers.len();
         GameSnapshot {
+            version: crate::protocol::CHECKPOINT_VERSION,
+            simulation_fingerprint: crate::protocol::SIMULATION_FINGERPRINT.to_owned(),
             turns_started: self.turns_started,
             next_decision_id: self.next_decision_id,
             next_trigger_id: self.next_trigger_id,
@@ -363,8 +365,8 @@ impl Game {
         }
     }
 
-    /// Compatibility projection for protocol 21. The checkpoint has one
-    /// typed schema internally; only this boundary turns it into JSON.
+    /// Projection for checkpoint format 1. The checkpoint has one typed schema
+    /// internally; only this boundary turns it into JSON.
     pub(super) fn checkpoint_json(&self, viewer: PlayerId) -> Value {
         serde_json::to_value(self.snapshot(viewer)).expect("GameSnapshot is serializable")
     }
@@ -379,9 +381,25 @@ impl Game {
         hidden: &Value,
         rollout_seed: u64,
     ) -> Result<Self, String> {
-        let checkpoint: GameSnapshot =
-            serde_json::from_value(field(observation, "checkpoint")?.clone())
-                .map_err(|error| format!("invalid game snapshot: {error}"))?;
+        let checkpoint_value = field(observation, "checkpoint")?;
+        let version = u32_field(checkpoint_value, "version")
+            .map_err(|error| format!("invalid game snapshot: {error}"))?;
+        if version != crate::protocol::CHECKPOINT_VERSION {
+            return Err(format!(
+                "checkpoint version {version} does not match {}",
+                crate::protocol::CHECKPOINT_VERSION
+            ));
+        }
+        let fingerprint = str_field(checkpoint_value, "simulationFingerprint")
+            .map_err(|error| format!("invalid game snapshot: {error}"))?;
+        if fingerprint != crate::protocol::SIMULATION_FINGERPRINT {
+            return Err(format!(
+                "checkpoint simulation fingerprint {fingerprint:?} does not match {}",
+                crate::protocol::SIMULATION_FINGERPRINT
+            ));
+        }
+        let checkpoint: GameSnapshot = serde_json::from_value(checkpoint_value.clone())
+            .map_err(|error| format!("invalid game snapshot: {error}"))?;
         if checkpoint.has_deferred_state {
             return Err(
                 "checkpoint contains executable rules state without stable catalog semantics"

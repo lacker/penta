@@ -1,8 +1,11 @@
 use serde_json::{Value, json};
 
-use crate::card::{BasicLandType, SpellForm};
+use crate::card::{AlternateSpellKind, BasicLandType, DoubleFacedKind, SpellForm, TargetPredicate};
 use crate::casting::{CastChoices, CastSignature};
-use crate::{AbilityOrigin, AttackDefender, GameObjectId, ManaColor, PlayerId, Target};
+use crate::{
+    AbilityOrigin, AttackDefender, DecisionVisibility, DecisionZone, GameObjectId, ManaColor,
+    PlayerId, Step, Target,
+};
 
 pub(super) fn seat_name(player: PlayerId) -> &'static str {
     match player {
@@ -16,6 +19,68 @@ pub(super) fn seat_by_name(name: &str) -> Option<PlayerId> {
         "p1" => Some(PlayerId::One),
         "p2" => Some(PlayerId::Two),
         _ => None,
+    }
+}
+
+pub(super) const fn step_name(step: Step) -> &'static str {
+    match step {
+        Step::Upkeep => "Upkeep",
+        Step::Draw => "Draw",
+        Step::PrecombatMain => "PrecombatMain",
+        Step::BeginningOfCombat => "BeginningOfCombat",
+        Step::DeclareAttackers => "DeclareAttackers",
+        Step::DeclareBlockers => "DeclareBlockers",
+        Step::CombatDamage => "CombatDamage",
+        Step::EndOfCombat => "EndOfCombat",
+        Step::PostcombatMain => "PostcombatMain",
+        Step::End => "End",
+        Step::Cleanup => "Cleanup",
+    }
+}
+
+pub(super) const fn decision_visibility_name(visibility: DecisionVisibility) -> &'static str {
+    match visibility {
+        DecisionVisibility::Public => "Public",
+        DecisionVisibility::Private => "Private",
+    }
+}
+
+pub(super) const fn decision_zone_name(zone: DecisionZone) -> &'static str {
+    match zone {
+        DecisionZone::Hand => "Hand",
+        DecisionZone::Graveyard => "Graveyard",
+        DecisionZone::Battlefield => "Battlefield",
+        DecisionZone::Stack => "Stack",
+        DecisionZone::Library => "Library",
+        DecisionZone::Exile => "Exile",
+        DecisionZone::Command => "Command",
+        DecisionZone::DrawnThisStep => "DrawnThisStep",
+        DecisionZone::None => "None",
+    }
+}
+
+pub(super) const fn double_faced_kind_name(kind: DoubleFacedKind) -> &'static str {
+    match kind {
+        DoubleFacedKind::Transforming => "Transforming",
+        DoubleFacedKind::Modal => "Modal",
+    }
+}
+
+pub(super) const fn alternate_spell_kind_name(kind: AlternateSpellKind) -> &'static str {
+    match kind {
+        AlternateSpellKind::Adventure => "Adventure",
+        AlternateSpellKind::Omen => "Omen",
+    }
+}
+
+pub(super) const fn target_predicate_name(predicate: TargetPredicate) -> &'static str {
+    match predicate {
+        TargetPredicate::AnyTarget => "AnyTarget",
+        TargetPredicate::Player => "Player",
+        TargetPredicate::Permanent => "Permanent",
+        TargetPredicate::CreaturePermanent => "CreaturePermanent",
+        TargetPredicate::Spell => "Spell",
+        TargetPredicate::NoncreatureSpell => "NoncreatureSpell",
     }
 }
 

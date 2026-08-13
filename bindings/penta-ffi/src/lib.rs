@@ -88,17 +88,23 @@ const fn seat_from_code(code: i32) -> Option<PlayerId> {
     }
 }
 
-/// The engine crate version as a static string. Never freed.
+/// The engine package version as a static string. Never freed.
 #[unsafe(no_mangle)]
 pub extern "C" fn penta_engine_version() -> *const c_char {
     static VERSION: &str = concat!(env!("CARGO_PKG_VERSION"), "\0");
     VERSION.as_ptr().cast()
 }
 
-/// The protocol version the JSON shapes follow.
+/// The breaking bot-wire epoch the JSON shapes follow.
 #[unsafe(no_mangle)]
 pub extern "C" fn penta_protocol_version() -> u32 {
     penta::protocol::PROTOCOL_VERSION
+}
+
+/// The conservative simulation-source fingerprint as a static string. Never freed.
+#[unsafe(no_mangle)]
+pub extern "C" fn penta_simulation_fingerprint() -> *const c_char {
+    penta::protocol::SIMULATION_FINGERPRINT_NUL.as_ptr().cast()
 }
 
 /// The most recent error on this thread, as a borrowed string. Empty until
@@ -398,8 +404,27 @@ pub unsafe extern "C" fn penta_free(game: *mut BotGame) {
 
 #[cfg(test)]
 mod tests {
+    use std::ffi::CStr;
+
+    use super::penta_simulation_fingerprint;
+
     #[test]
     fn ffi_package_version_matches_engine_version() {
         assert_eq!(env!("CARGO_PKG_VERSION"), penta::protocol::ENGINE_VERSION);
+    }
+
+    #[test]
+    fn simulation_fingerprint_is_the_engine_value_as_a_static_c_string() {
+        let pointer = penta_simulation_fingerprint();
+        assert!(!pointer.is_null());
+        let fingerprint = unsafe { CStr::from_ptr(pointer) }
+            .to_str()
+            .expect("fingerprint is UTF-8");
+        assert_eq!(fingerprint, penta::protocol::SIMULATION_FINGERPRINT);
+        let digest = fingerprint
+            .strip_prefix("sha256-")
+            .expect("fingerprint names its algorithm");
+        assert_eq!(digest.len(), 64);
+        assert!(digest.bytes().all(|byte| byte.is_ascii_hexdigit()));
     }
 }

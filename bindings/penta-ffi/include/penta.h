@@ -26,11 +26,15 @@ extern "C" {
 /* An in-progress game. Opaque. */
 typedef struct PentaGame PentaGame;
 
-/* The engine crate version, e.g. "0.6.0". Static; never free. */
+/* The engine crate version, e.g. "0.7.0". Static; never free. */
 const char *penta_engine_version(void);
 
-/* The protocol version the JSON shapes follow. */
+/* The breaking bot-wire epoch the JSON shapes follow. */
 uint32_t penta_protocol_version(void);
+
+/* Conservative simulation-source identity for replay and model provenance.
+ * Static; never free. */
+const char *penta_simulation_fingerprint(void);
 
 /* The most recent error on this thread. Empty string until something
  * fails; valid until the next failing call. Never free. */

@@ -96,18 +96,33 @@ routine check into an open-ended optimization task.
 
 ## Protocol versioning
 
-A branch or pull request containing one or more incompatible protocol changes
-must set the protocol version to exactly one greater than the target branch's
-version. Do not bump it again for additional incompatible changes or
-intermediate commits in the same branch or pull request. After rebasing,
-re-check the target branch's protocol version and adjust if it changed.
+`protocolVersion` is the breaking epoch for canonical bot observation, action,
+and catalog JSON. Bump it once relative to the target branch only when an old
+consumer could misinterpret existing wire data: removing, renaming, or changing
+the type or meaning of a key, tag, identifier, or index; or adding mandatory
+vocabulary without a negotiated fallback. After rebasing such a branch,
+re-check the target version and adjust it if necessary.
 
-Treat the [bot guide](docs/bots.md) and [changelog](CHANGELOG.md) as part of
-the protocol contract. A change to observation or catalog JSON, legal-action
-contents or meaning, decision shapes, a bot binding, or version semantics must
-update both documents in the same branch or pull request. Check the guide's
-examples against every affected binding rather than deferring documentation to
-a follow-up. Keep the root `BOTS.md` compatibility symlink pointed at
+JSON objects are open-world. Do not bump the epoch for an optional member, a
+documented open-enum value with a safe fallback, append-only catalog growth,
+different legal-action membership expressed through existing shapes, a rules
+fix, presentation text, browser state, a Rust API or event, or replay/checkpoint
+encoding. Use named capabilities for additive facilities, the automatically
+generated simulation fingerprint as a conservative rules/artifact guard,
+Cargo SemVer for native APIs, and the dedicated replay or checkpoint format
+version for those artifacts. Bump the replay format when the command journal's
+envelope, commands, configuration, or interpretation changes; bump the
+checkpoint format when its imported bookkeeping changes incompatibly. Classify
+new string-enum values as open with a safe fallback or closed/capability-gated;
+an unclassified mandatory value is a breaking change. Never derive stable wire
+tags with Rust `Debug` formatting.
+
+Treat the [bot guide](docs/bots.md) and [changelog](CHANGELOG.md) as part of the
+contract. Update them when a bot wire contract, capability, exact-artifact
+format, or versioning rule changes; ordinary card/rules changes need only the
+appropriate behavioral documentation. Check examples against every affected
+binding. Never add a test that hard-codes the current epoch or names a branch as
+its owner. Keep the root `BOTS.md` compatibility symlink pointed at
 `docs/bots.md`.
 
 ## Bug reports

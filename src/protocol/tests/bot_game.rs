@@ -147,9 +147,74 @@ fn an_observation_rebuilds_with_separate_hidden_hypotheses_and_fresh_rng() {
         },
     });
 
+    let before: Value = serde_json::from_str(&observation).expect("observation JSON");
+    assert_eq!(before["checkpoint"]["version"], CHECKPOINT_VERSION);
+    assert_eq!(
+        before["checkpoint"]["simulationFingerprint"],
+        SIMULATION_FINGERPRINT
+    );
+
+    let mut additive = before.clone();
+    additive["futureTopLevel"] = json!({ "ignored": true });
+    additive["checkpoint"]["futureBookkeeping"] = json!([1, 2, 3]);
+    additive["legalActions"][0]["futureActionMetadata"] = json!({ "ignored": true });
+    additive["protocolCapabilities"]
+        .as_array_mut()
+        .expect("capabilities array")
+        .push(json!("future.optional.v9"));
+    additive["engineVersion"] = json!("99.0.0-diagnostic-only");
+    BotGame::from_observation_json(&additive.to_string(), &hidden.to_string(), 998)
+        .expect("open objects and package provenance do not block reconstruction");
+
+    let mut inconsistent = before.clone();
+    inconsistent["activeTurn"] = json!(99);
+    let public_error =
+        BotGame::from_observation_json(&inconsistent.to_string(), &hidden.to_string(), 992)
+            .err()
+            .expect("known public state must still match the checkpoint");
+    assert!(public_error.contains("public observation field: activeTurn"));
+
+    let mut wrong_fingerprint = before.clone();
+    wrong_fingerprint["simulationFingerprint"] = json!("sha256-wrong");
+    let fingerprint_error =
+        BotGame::from_observation_json(&wrong_fingerprint.to_string(), &hidden.to_string(), 997)
+            .err()
+            .expect("wrong simulation identity");
+    assert!(fingerprint_error.contains("simulation fingerprint"));
+
+    let mut wrong_protocol = before.clone();
+    wrong_protocol["protocolVersion"] = json!(PROTOCOL_VERSION + 1);
+    let protocol_error =
+        BotGame::from_observation_json(&wrong_protocol.to_string(), &hidden.to_string(), 994)
+            .err()
+            .expect("wrong bot-wire epoch");
+    assert!(protocol_error.contains("protocol version"));
+
+    let mut wrong_checkpoint = before.clone();
+    wrong_checkpoint["checkpoint"]["version"] = json!(CHECKPOINT_VERSION + 1);
+    wrong_checkpoint["checkpoint"]
+        .as_object_mut()
+        .expect("checkpoint object")
+        .remove("turnsStarted");
+    let checkpoint_error =
+        BotGame::from_observation_json(&wrong_checkpoint.to_string(), &hidden.to_string(), 996)
+            .err()
+            .expect("wrong checkpoint format");
+    assert!(checkpoint_error.contains("checkpoint version"));
+
+    let mut wrong_checkpoint_fingerprint = before.clone();
+    wrong_checkpoint_fingerprint["checkpoint"]["simulationFingerprint"] = json!("sha256-wrong");
+    let checkpoint_fingerprint_error = BotGame::from_observation_json(
+        &wrong_checkpoint_fingerprint.to_string(),
+        &hidden.to_string(),
+        993,
+    )
+    .err()
+    .expect("wrong checkpoint simulation identity");
+    assert!(checkpoint_fingerprint_error.contains("checkpoint simulation fingerprint"));
+
     let mut rebuilt = BotGame::from_observation_json(&observation, &hidden.to_string(), 999)
         .expect("checkpoint reconstructs");
-    let before: Value = serde_json::from_str(&observation).expect("observation JSON");
     let after: Value = serde_json::from_str(&rebuilt.observe_json(seat)).expect("rebuilt JSON");
     assert_eq!(
         after, before,

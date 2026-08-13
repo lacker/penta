@@ -4,9 +4,11 @@ use super::model_animation::{AnimationSnapshot, UpkeepKeywordSnapshot};
 use super::model_trigger::{DelayedTriggerSnapshot, FloatingTriggerSnapshot};
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[serde(rename_all = "camelCase")]
 #[allow(clippy::struct_excessive_bools)]
 pub(super) struct GameSnapshot {
+    pub(super) version: u32,
+    pub(super) simulation_fingerprint: String,
     pub(super) turns_started: [u32; 2],
     pub(super) next_decision_id: u32,
     pub(super) next_trigger_id: u32,

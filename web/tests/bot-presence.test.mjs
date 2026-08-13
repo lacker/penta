@@ -48,9 +48,20 @@ test("an invitation nobody picked up expires, freeing the bot for the next chall
 });
 
 test("the public view carries no token, whatever else the record holds", () => {
-  const view = publicBot(bot({ token: "secret" }), NOW);
+  const view = publicBot(
+    bot({
+      token: "secret",
+      compatibility: {
+        protocolVersion: 7,
+        capabilities: ["private.claim.v1"],
+        requiredCapabilities: [],
+      },
+    }),
+    NOW,
+  );
   assert.deepEqual(Object.keys(view).sort(), ["busy", "deck", "id", "name", "online"]);
   assert.equal(JSON.stringify(view).includes("secret"), false);
+  assert.equal(JSON.stringify(view).includes("private.claim.v1"), false);
 });
 
 test("a bot's move clock is far shorter than a person's", () => {

@@ -225,11 +225,25 @@ cards. The future design is recorded separately in
 
 ## Determinism and replay
 
-All random choices use the engine-owned, versioned PRNG. A dependency upgrade
-therefore cannot change the meaning of an existing seed. A replay can be
-reconstructed from the engine version, format, decks, seed, and submitted
-action sequence. Events provide a convenient derived trace for debugging and
-UI use.
+All random choices use the engine-owned PRNG. A build-time
+`simulationFingerprint` hashes the production engine source and dependency
+resolution, card catalog, repository deck data, and pinned toolchain. It is a
+conservative guard for artifacts built from those inputs: non-behavioral edits
+can change it, and build provenance outside those covered inputs must still be
+controlled when exact reproducibility matters.
+
+The browser command journal carries an independent `replayVersion`. Replay
+acceptance requires that format version and the same simulation fingerprint;
+the bot-wire `protocolVersion` and package `engineVersion` are recorded as
+provenance but do not decide whether the commands can be replayed. This keeps a
+wire-compatible rules change from replaying under silently different semantics
+and lets a package release move without inventing a bot-wire break.
+
+Observation reconstruction follows the same split. Its nested `checkpoint`
+object has its own format `version` and repeats the simulation
+fingerprint. Changing checkpoint bookkeeping moves that version or capability,
+not the ordinary bot protocol epoch. Events remain a convenient derived trace
+for debugging and UI use.
 
 ## Card model and behavior
 

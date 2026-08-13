@@ -9,7 +9,9 @@ checkout's `.wrangler` directory in development.
 ## Filing
 
 The game menu's form attaches the replay automatically -- a local game's
-journal via `WebGame::replayJson`, a hosted game's room record. Nothing else
+journal via `WebGame::replayJson`, a hosted game's room record. The replay
+stamps its independent `replayVersion` and `simulationFingerprint`, with
+the engine package and bot-wire versions retained as provenance. Nothing else
 is collected beyond the page URL.
 
 ## The agent workflow
@@ -29,9 +31,10 @@ is collected beyond the page URL.
    ```
 
    From there it is ordinary debugging: the game is native, deterministic,
-   and at the moment the player saw the problem. A replay that fails midway
-   is diagnostic too -- the engine has changed since the report, and the
-   failing position names where.
+   and at the moment the player saw the problem. A replay-format or simulation
+   mismatch is refused before commands run. A replay that passes those guards
+   but fails midway is diagnostic too -- the failing position names where the
+   recorded command no longer applies.
 4. Fix, test, and resolve with a note:
 
    ```sh
@@ -40,9 +43,11 @@ is collected beyond the page URL.
      -d '{"resolution": "fixed in <commit>: <what was wrong>"}'
    ```
 
-A replay is only guaranteed against the engine and protocol versions stamped
-inside it; `replay_bug` refuses a mismatch by name. When the engine has moved
-on, check out the stamped version to reproduce, then verify the fix by
+A replay is only guaranteed when its `replayVersion` is understood and its
+`simulationFingerprint` matches; `replay_bug` refuses either mismatch by name.
+`engineVersion` and `protocolVersion` remain useful provenance, but neither is
+the exact replay guard. When the simulation has moved on, use a checkout whose
+computed fingerprint matches the report to reproduce, then verify the fix by
 playing the same commands as far as they still apply.
 
 ## Routes

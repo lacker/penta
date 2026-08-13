@@ -1,7 +1,9 @@
 use serde_json::{Value, json};
 
-use super::json_common::spell_form_json;
-use super::{ENGINE_VERSION, PROTOCOL_VERSION};
+use super::json_common::{
+    alternate_spell_kind_name, double_faced_kind_name, spell_form_json, target_predicate_name,
+};
+use super::{ENGINE_VERSION, PROTOCOL_CAPABILITIES, PROTOCOL_VERSION, SIMULATION_FINGERPRINT};
 use crate::card::{
     CardDefinition, CardRules, CardSet, CardStructure, HybridPair, ImplementationStatus, ManaCost,
     ModeDef, PlayActionKind, PlayOptionDef, PlayRestriction, TargetSlotDef,
@@ -116,7 +118,7 @@ fn structure_json(structure: &CardStructure) -> Value {
             "kind": "doubleFaced",
             "frontPartId": front.0,
             "backPartId": back.0,
-            "doubleFacedKind": format!("{kind:?}"),
+            "doubleFacedKind": double_faced_kind_name(*kind),
         }),
         CardStructure::AlternateSpell {
             main,
@@ -126,7 +128,7 @@ fn structure_json(structure: &CardStructure) -> Value {
             "kind": "alternateSpell",
             "mainPartId": main.0,
             "alternatePartId": alternate.0,
-            "alternateSpellKind": format!("{kind:?}"),
+            "alternateSpellKind": alternate_spell_kind_name(*kind),
         }),
         CardStructure::MeldPart { front, recipe } => json!({
             "kind": "meldPart",
@@ -140,7 +142,7 @@ fn target_slot_json(slot: &TargetSlotDef) -> Value {
     json!({
         "id": slot.id.0,
         "label": slot.label,
-        "predicate": format!("{:?}", slot.predicate),
+        "predicate": target_predicate_name(slot.predicate),
         "minimum": slot.minimum,
         "maximum": slot.maximum,
     })
@@ -245,7 +247,9 @@ pub fn catalog_json(catalog: &CardCatalog) -> Value {
 pub fn catalog_json_for_format(catalog: &CardCatalog, format: Format) -> Value {
     json!({
         "protocolVersion": PROTOCOL_VERSION,
+        "protocolCapabilities": PROTOCOL_CAPABILITIES,
         "engineVersion": ENGINE_VERSION,
+        "simulationFingerprint": SIMULATION_FINGERPRINT,
         "format": format.slug(),
         "formatName": format.display_name(),
         "cards": catalog

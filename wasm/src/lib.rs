@@ -37,6 +37,113 @@ use presentation::{
 
 const BOT_ACTION_LIMIT: usize = 50_000;
 
+/// Version of the browser/host command-journal envelope. Changes to command
+/// encoding or interpretation move this independently from the bot wire and
+/// core simulation fingerprint.
+const REPLAY_VERSION: u32 = 1;
+
+fn required_json_field<'a>(
+    object: &'a serde_json::Map<String, Value>,
+    context: &str,
+    name: &str,
+) -> Result<&'a Value, JsValue> {
+    object
+        .get(name)
+        .ok_or_else(|| js_error(format!("{context}.{name} is required")))
+}
+
+fn required_json_object<'a>(
+    object: &'a serde_json::Map<String, Value>,
+    context: &str,
+    name: &str,
+) -> Result<&'a serde_json::Map<String, Value>, JsValue> {
+    required_json_field(object, context, name)?
+        .as_object()
+        .ok_or_else(|| js_error(format!("{context}.{name} must be an object")))
+}
+
+fn required_json_string<'a>(
+    object: &'a serde_json::Map<String, Value>,
+    context: &str,
+    name: &str,
+) -> Result<&'a str, JsValue> {
+    required_json_field(object, context, name)?
+        .as_str()
+        .ok_or_else(|| js_error(format!("{context}.{name} must be a string")))
+}
+
+fn required_json_bool(
+    object: &serde_json::Map<String, Value>,
+    context: &str,
+    name: &str,
+) -> Result<bool, JsValue> {
+    required_json_field(object, context, name)?
+        .as_bool()
+        .ok_or_else(|| js_error(format!("{context}.{name} must be boolean")))
+}
+
+fn required_json_u32(
+    object: &serde_json::Map<String, Value>,
+    context: &str,
+    name: &str,
+) -> Result<u32, JsValue> {
+    required_json_field(object, context, name)?
+        .as_u64()
+        .and_then(|value| u32::try_from(value).ok())
+        .ok_or_else(|| {
+            js_error(format!(
+                "{context}.{name} must be an unsigned 32-bit integer"
+            ))
+        })
+}
+
+fn required_json_usize(
+    object: &serde_json::Map<String, Value>,
+    context: &str,
+    name: &str,
+) -> Result<usize, JsValue> {
+    required_json_field(object, context, name)?
+        .as_u64()
+        .and_then(|value| usize::try_from(value).ok())
+        .ok_or_else(|| {
+            js_error(format!(
+                "{context}.{name} must be an unsigned integer index"
+            ))
+        })
+}
+
+fn required_json_array<'a>(
+    object: &'a serde_json::Map<String, Value>,
+    context: &str,
+    name: &str,
+) -> Result<&'a [Value], JsValue> {
+    required_json_field(object, context, name)?
+        .as_array()
+        .map(Vec::as_slice)
+        .ok_or_else(|| js_error(format!("{context}.{name} must be an array")))
+}
+
+fn required_json_u32_array(
+    object: &serde_json::Map<String, Value>,
+    context: &str,
+    name: &str,
+) -> Result<Vec<u32>, JsValue> {
+    required_json_array(object, context, name)?
+        .iter()
+        .enumerate()
+        .map(|(index, value)| {
+            value
+                .as_u64()
+                .and_then(|value| u32::try_from(value).ok())
+                .ok_or_else(|| {
+                    js_error(format!(
+                        "{context}.{name}[{index}] must be an unsigned 32-bit integer"
+                    ))
+                })
+        })
+        .collect()
+}
+
 enum BotPolicy {
     Random(RandomPolicy),
     Handcrafted(HandcraftedPolicy),
@@ -531,9 +638,13 @@ impl WebGame {
     /// already over.
     #[wasm_bindgen(js_name = loseOnTime)]
     pub fn lose_on_time(&mut self, seat: &str) -> Result<(), JsValue> {
-        let player = match seat {
-            "human" => self.human,
-            "bot" | "opponent" => self.human.opponent(),
+        self.lose_on_time_with_reason(seat, "ran out of time")
+    }
+
+    fn lose_on_time_with_reason(&mut self, seat: &str, reason: &str) -> Result<(), JsValue> {
+        let (player, replay_seat) = match seat {
+            "human" => (self.human, "human"),
+            "bot" | "opponent" => (self.human.opponent(), "bot"),
             other => return Err(js_error(format!("unknown seat {other:?}"))),
         };
         if self.session.result().is_some() {
@@ -545,8 +656,11 @@ impl WebGame {
         // The ending is the whole remaining story, so the human sees it as a
         // beat rather than as a board that silently stopped.
         self.human_action_state = None;
-        self.journal
-            .push(json!({ "t": "loseOnTime", "seat": seat }));
+        self.journal.push(json!({
+            "t": "loseOnTime",
+            "seat": replay_seat,
+            "reason": reason,
+        }));
         Ok(())
     }
 
@@ -560,15 +674,16 @@ impl WebGame {
         json!({
             "config": self.replay_config,
             "commands": self.journal,
-            "engineVersion": env!("CARGO_PKG_VERSION"),
+            "replayVersion": REPLAY_VERSION,
+            "simulationFingerprint": penta::protocol::SIMULATION_FINGERPRINT,
+            "engineVersion": penta::protocol::ENGINE_VERSION,
             "protocolVersion": penta::protocol::PROTOCOL_VERSION,
         })
         .to_string()
     }
 
-    /// Rebuilds a game from [`Self::replay_json`] output, refusing an engine
-    /// or protocol mismatch by name rather than replaying into a quietly
-    /// different game.
+    /// Rebuilds a game from [`Self::replay_json`] output, refusing an unknown
+    /// journal format or simulation fingerprint before replaying commands.
     ///
     /// # Errors
     ///
@@ -577,36 +692,50 @@ impl WebGame {
     #[wasm_bindgen(js_name = fromReplayJson)]
     pub fn from_replay_json(replay: &str) -> Result<WebGame, JsValue> {
         let replay: Value = serde_json::from_str(replay).map_err(js_error)?;
-        let engine = replay["engineVersion"].as_str().unwrap_or_default();
-        let protocol = replay["protocolVersion"].as_u64().unwrap_or_default();
-        if engine != env!("CARGO_PKG_VERSION")
-            || protocol != u64::from(penta::protocol::PROTOCOL_VERSION)
-        {
+        let envelope = replay
+            .as_object()
+            .ok_or_else(|| js_error("replay must be an object"))?;
+        let version = required_json_u32(envelope, "replay", "replayVersion")?;
+        if version != REPLAY_VERSION {
             return Err(js_error(format!(
-                "replay is from engine {engine} protocol {protocol}, this is {} protocol {}",
-                env!("CARGO_PKG_VERSION"),
-                penta::protocol::PROTOCOL_VERSION,
+                "replay version {version} does not match {REPLAY_VERSION}",
             )));
         }
-        let config = &replay["config"];
-        let text = |key: &str| config[key].as_str().unwrap_or_default().to_owned();
+        let fingerprint = required_json_string(envelope, "replay", "simulationFingerprint")?;
+        if fingerprint != penta::protocol::SIMULATION_FINGERPRINT {
+            return Err(js_error(format!(
+                "replay simulation fingerprint {fingerprint:?} does not match {}",
+                penta::protocol::SIMULATION_FINGERPRINT,
+            )));
+        }
+        // These are diagnostic provenance rather than replay gates, but a v1
+        // envelope always carries them and malformed values must not pass as a
+        // valid artifact.
+        let _engine_version = required_json_string(envelope, "replay", "engineVersion")?;
+        let _protocol_version = required_json_u32(envelope, "replay", "protocolVersion")?;
+        let config = required_json_object(envelope, "replay", "config")?;
+        let format = required_json_string(config, "replay.config", "format")?;
+        let human_deck = required_json_string(config, "replay.config", "humanDeck")?;
+        let bot_deck = required_json_string(config, "replay.config", "botDeck")?;
+        let bot_policy = required_json_string(config, "replay.config", "botPolicy")?;
+        let human_first = required_json_bool(config, "replay.config", "humanFirst")?;
+        let seed = required_json_u32(config, "replay.config", "seed")?;
+        let commands = required_json_array(envelope, "replay", "commands")?;
         let mut game = Self::new(
-            &text("humanDeck"),
-            &text("botDeck"),
-            &text("botPolicy"),
-            config["humanFirst"].as_bool().unwrap_or(true),
-            u32::try_from(config["seed"].as_u64().unwrap_or_default())
-                .map_err(|_| js_error("seed does not fit"))?,
-            Some(text("format")),
+            human_deck,
+            bot_deck,
+            bot_policy,
+            human_first,
+            seed,
+            Some(format.to_owned()),
         )?;
-        let commands = replay["commands"].as_array().cloned().unwrap_or_default();
         let total = commands.len();
-        for (position, command) in commands.into_iter().enumerate() {
-            game.apply_replay_command(&command).map_err(|error| {
+        for (position, command) in commands.iter().enumerate() {
+            game.apply_replay_command(command).map_err(|error| {
                 js_error(format!(
                     "command {position} of {total} ({}) no longer applies: {}",
                     command["t"].as_str().unwrap_or("?"),
-                    error.as_string().unwrap_or_default(),
+                    js_value_message(&error),
                 ))
             })?;
         }
@@ -617,31 +746,42 @@ impl WebGame {
     /// that took effect, so an error here means the replay does not match
     /// this engine.
     fn apply_replay_command(&mut self, command: &Value) -> Result<(), JsValue> {
-        let index_of = |value: &Value| {
-            usize::try_from(value.as_u64().unwrap_or(u64::MAX))
-                .map_err(|_| js_error("index does not fit"))
-        };
-        match command["t"].as_str().unwrap_or_default() {
-            "act" => self.act(index_of(&command["index"])?),
-            "choose" => self.choose_decision(
-                u32::try_from(command["decision"].as_u64().unwrap_or_default())
-                    .map_err(|_| js_error("decision does not fit"))?,
-                &command["options"].to_string(),
-            ),
+        let command = command
+            .as_object()
+            .ok_or_else(|| js_error("command must be an object"))?;
+        let tag = required_json_string(command, "command", "t")?;
+        match tag {
+            "act" => self.act(required_json_usize(command, "command", "index")?),
+            "choose" => {
+                let decision = required_json_u32(command, "command", "decision")?;
+                let options = required_json_u32_array(command, "command", "options")?;
+                self.choose_decision(
+                    decision,
+                    &serde_json::to_string(&options).map_err(js_error)?,
+                )
+            }
             "attackAll" => self.attack_all(),
             "cancelAttackers" => self.cancel_attackers(),
-            "blocks" => self.finalize_blocks(command["assignments"].as_str().unwrap_or("[]")),
+            "blocks" => {
+                self.finalize_blocks(required_json_string(command, "command", "assignments")?)
+            }
             "undoMana" => self.undo_mana(),
             "phaseStop" => self.set_phase_stop(
-                command["phase"].as_str().unwrap_or_default(),
-                command["enabled"].as_bool().unwrap_or_default(),
+                required_json_string(command, "command", "phase")?,
+                required_json_bool(command, "command", "enabled")?,
             ),
-            "autopass" => self.set_autopass(command["enabled"].as_bool().unwrap_or_default()),
-            "botAct" => self.opponent_act(
-                u32::try_from(command["index"].as_u64().unwrap_or_default())
-                    .map_err(|_| js_error("index does not fit"))?,
-            ),
-            "loseOnTime" => self.lose_on_time(command["seat"].as_str().unwrap_or_default()),
+            "autopass" => self.set_autopass(required_json_bool(command, "command", "enabled")?),
+            "botAct" => self.opponent_act(required_json_u32(command, "command", "index")?),
+            "loseOnTime" => {
+                let seat = required_json_string(command, "command", "seat")?;
+                if !matches!(seat, "human" | "bot") {
+                    return Err(js_error(format!(
+                        "command.seat must be \"human\" or \"bot\", got {seat:?}"
+                    )));
+                }
+                let reason = required_json_string(command, "command", "reason")?;
+                self.lose_on_time_with_reason(seat, reason)
+            }
             other => Err(js_error(format!("unknown journal command {other:?}"))),
         }
     }
@@ -739,6 +879,18 @@ fn js_error(error: impl std::fmt::Display) -> JsValue {
         // carrier; intentional-error tests just say what they meant to.
         eprintln!("engine error: {error}");
         JsValue::NULL
+    }
+}
+
+fn js_value_message(error: &JsValue) -> String {
+    #[cfg(target_arch = "wasm32")]
+    {
+        error.as_string().unwrap_or_default()
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        let _ = error;
+        String::new()
     }
 }
 

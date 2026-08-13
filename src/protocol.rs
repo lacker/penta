@@ -3,8 +3,9 @@
 //! Everything a bot ever sees crosses this boundary as JSON produced here:
 //! the Python bindings, the C FFI, and any future tournament server all call
 //! these functions, so a bot trained locally and a bot competing remotely
-//! read byte-identical observations. Treat any change to the shapes below as
-//! a protocol version bump.
+//! read byte-identical observations. The wire version changes only when an old
+//! consumer could misinterpret an existing field or tag; additive fields and
+//! ruleset changes are identified separately.
 //!
 //! Seats are named `"p1"` ([`PlayerId::One`]) and `"p2"` ([`PlayerId::Two`]).
 //! A bot acts by sending back the `index` of one of its observation's
@@ -44,11 +45,13 @@ pub use observation_json::{observation_json, observation_json_for_format};
 #[cfg(test)]
 use observation_json::{card_part_name, decision_json, stack_object_json};
 
-/// The wire contract: the JSON shapes here and the action space they
-/// describe. Bumped whenever a bot written against the old number could
-/// misread the new output — a renamed field, or a change to what appears in
-/// `legalActions`. Version 1 dropped conceding from the bot's actions. Version
-/// 2 added formats, game-object identity, and structured casting choices.
+/// The breaking bot-wire epoch. Bumped when an old consumer could misread an
+/// existing field or tag: removal, rename, type change, or changed meaning.
+/// Adding an optional field or offering different actions through the existing
+/// vocabulary does not move this number; use [`SIMULATION_FINGERPRINT`] to pin
+/// a conservative simulation identity instead. Version 1 dropped conceding
+/// from the bot's actions. Version 2 added formats, game-object identity, and
+/// structured casting choices.
 /// Version 3 identifies trigger procedures and triggered stack objects; names
 /// the exact printed, intrinsic, or granted ability selected by an activation;
 /// distinguishes no mana cost from a printed `{0}`; exposes clause-derived
@@ -75,13 +78,80 @@ use observation_json::{card_part_name, decision_json, stack_object_json};
 /// Old School activation untargeted and moves its nontoken-permanent choice
 /// into resolution. Version 21 makes that checkpoint a complete typed
 /// decision-boundary snapshot, including deferred execution, dynamic object
-/// state, restricted mana, and retired-object last-known information.
-pub const PROTOCOL_VERSION: u32 = 21;
+/// state, restricted mana, and retired-object last-known information. Version
+/// 22 establishes open-world JSON objects, advertises
+/// named capabilities and a simulation fingerprint, and separates
+/// checkpoint/replay formats from the bot wire.
+pub const PROTOCOL_VERSION: u32 = 22;
 
-/// The engine crate version. Rules behavior is part of the contract too: a
-/// fix can change what a trained policy sees even when the shapes hold
-/// still, so pin this alongside any trained weights.
+/// The engine package release. This is ordinary Cargo `SemVer`, not an exact
+/// ruleset identity; use [`SIMULATION_FINGERPRINT`] for replay and model
+/// provenance.
 pub const ENGINE_VERSION: &str = env!("CARGO_PKG_VERSION");
+
+/// A deterministic identity for the production engine source, resolved core
+/// dependency closure, repository deck data, and pinned toolchain that define
+/// simulation behavior in this repository.
+///
+/// It is generated at build time, so parallel branches never edit a shared
+/// successor value. Exact replays, reconstructed checkpoints, and trained
+/// weights should pin this rather than the package release.
+pub const SIMULATION_FINGERPRINT: &str = env!("PENTA_SIMULATION_FINGERPRINT");
+
+/// The same fingerprint with a C terminator for borrowed FFI access.
+pub const SIMULATION_FINGERPRINT_NUL: &str = concat!(env!("PENTA_SIMULATION_FINGERPRINT"), "\0");
+
+/// Named additive facilities emitted by this wire epoch. Consumers may ignore
+/// capabilities they do not use; hosted bots may require the subset they use.
+pub const PROTOCOL_CAPABILITIES: &[&str] = &["reconstruction.checkpoint.v1"];
+
+/// Capabilities every bot must understand before a host may assign it a game.
+/// The base indexed-action contract currently needs no optional facility.
+pub const REQUIRED_BOT_CAPABILITIES: &[&str] = &[];
+
+/// Version of the hidden-safe reconstruction payload nested at `checkpoint`.
+pub const CHECKPOINT_VERSION: u32 = 1;
+
+/// Undeclared hosted bots predate negotiation and therefore belong to the last
+/// wire epoch that could not make an explicit declaration. They do not
+/// silently opt into protocol 22's open-world contract.
+pub const LEGACY_UNDECLARED_PROTOCOL_VERSION: u32 = 21;
+
+/// Checks whether a hosted bot and this engine can consume each other's
+/// compatibility declarations. Unknown extra capabilities are harmless.
+///
+/// # Errors
+///
+/// Returns a stable explanatory message for an epoch mismatch, the first
+/// missing capability on either side, or a required simulation mismatch.
+pub fn check_bot_compatibility(
+    protocol_version: u32,
+    supported_capabilities: &[&str],
+    required_capabilities: &[&str],
+    required_simulation_fingerprint: Option<&str>,
+) -> Result<(), String> {
+    if protocol_version != PROTOCOL_VERSION {
+        return Err(format!(
+            "bot protocol {protocol_version} does not match {PROTOCOL_VERSION}"
+        ));
+    }
+    if let Some(missing) = REQUIRED_BOT_CAPABILITIES
+        .iter()
+        .find(|required| !supported_capabilities.contains(required))
+    {
+        return Err(format!("bot is missing required capability {missing}"));
+    }
+    if let Some(missing) = required_capabilities
+        .iter()
+        .find(|required| !PROTOCOL_CAPABILITIES.contains(required))
+    {
+        return Err(format!("server is missing required capability {missing}"));
+    }
+    if required_simulation_fingerprint.is_some_and(|required| required != SIMULATION_FINGERPRINT) {
+        return Err("server simulation fingerprint does not match bot requirement".into());
+    }
+    Ok(())
+}
 
 /// One shy of the engine's own replay guard, so a runaway game fails here
 /// with a protocol error instead of an engine panic.

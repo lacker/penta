@@ -125,6 +125,11 @@ fn checkpoint_json_is_a_projection_of_one_typed_snapshot_schema() {
         json
     );
 
+    let mut additive = json.clone();
+    additive["futureBookkeeping"] = json!({ "ignored": true });
+    serde_json::from_value::<GameSnapshot>(additive)
+        .expect("typed snapshots ignore unknown additive object members");
+
     let mut malformed = json;
     malformed
         .as_object_mut()

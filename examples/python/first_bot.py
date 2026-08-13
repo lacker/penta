@@ -84,7 +84,10 @@ def play_one(opponent, seed):
 
 
 def main():
-    print(f"penta engine {penta.engine_version()}, protocol {penta.protocol_version()}")
+    print(
+        f"penta engine {penta.engine_version()}, protocol {penta.protocol_version()}, "
+        f"simulation {penta.simulation_fingerprint()}"
+    )
     for opponent in ("random", "handcrafted"):
         wins = sum(play_one(opponent, seed) for seed in range(100))
         print(f"vs {opponent}: won {wins}/100")

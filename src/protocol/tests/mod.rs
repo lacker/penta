@@ -3,6 +3,7 @@ use super::*;
 mod actions;
 mod bot_game;
 mod catalog;
+mod compatibility;
 mod observations;
 
 fn structured_choices() -> CastChoices {

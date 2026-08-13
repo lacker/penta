@@ -28,6 +28,16 @@ import requests
 HEARTBEAT_SECONDS = 10
 # How long to wait between polls while it is the opponent's turn to move.
 POLL_SECONDS = 0.25
+# This bot consumes the protocol-22 indexed-action vocabulary, requires no
+# optional server facilities, and implements no optional server-required
+# vocabulary. Never copy the server's claims without implementing them.
+COMPATIBILITY = {
+    "protocolVersion": 22,
+    "capabilities": [],
+    "requiredCapabilities": [],
+    # A trained bot can set this to the simulationFingerprint it requires:
+    # "requiredSimulationFingerprint": "sha256-...",
+}
 
 
 def choose(observation):
@@ -94,11 +104,20 @@ def main():
     arguments = parser.parse_args()
     server = arguments.server.rstrip("/")
 
-    registration = requests.post(
+    registration_reply = requests.post(
         f"{server}/_bots/register",
-        json={"name": arguments.name, "deck": arguments.deck},
+        json={
+            "name": arguments.name,
+            "deck": arguments.deck,
+            "compatibility": COMPATIBILITY,
+        },
         timeout=30,
-    ).json()
+    )
+    if registration_reply.status_code == 409:
+        print(f"server rejected this bot's compatibility: {registration_reply.text}")
+        return
+    registration_reply.raise_for_status()
+    registration = registration_reply.json()
     identifier, token = registration["id"], registration["token"]
     print(f"registered as {arguments.name} ({identifier}) playing {arguments.deck}")
     print("waiting for a challenger…")
@@ -109,11 +128,20 @@ def main():
         # one bad reply. Missing a heartbeat costs at most a spell out of the
         # list; crashing costs the whole bot, so the loop rides it out.
         try:
-            reply = requests.post(
+            response = requests.post(
                 f"{server}/_bots/{identifier}/heartbeat",
-                json={"token": token, "done": finished},
+                json={
+                    "token": token,
+                    "done": finished,
+                    "compatibility": COMPATIBILITY,
+                },
                 timeout=30,
-            ).json()
+            )
+            if response.status_code == 409:
+                print(f"server rejected this bot's compatibility: {response.text}")
+                return
+            response.raise_for_status()
+            reply = response.json()
         except (requests.RequestException, ValueError) as problem:
             print(f"heartbeat failed ({problem}); retrying")
             time.sleep(HEARTBEAT_SECONDS)

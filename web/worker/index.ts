@@ -1,23 +1,5 @@
 /** Cloudflare Worker entry point for the vinext-starter template. */
-type EngineModule = typeof import("../app/wasm/penta_wasm.js");
-
-// Loaded on first use, not at module scope: a request that never touches the
-// engine should not pay for it, and the server-render test evaluates this
-// module under Node, where a `.wasm` import is not a compiled module.
-let engineReady: Promise<EngineModule> | null = null;
-function engine(): Promise<EngineModule> {
-  engineReady ??= (async () => {
-    const [module, wasm] = await Promise.all([
-      import("../app/wasm/penta_wasm.js"),
-      // Workers have no `fetch` for local files, so the compiled module is
-      // handed to wasm-bindgen rather than fetched by URL.
-      import("../app/wasm/penta_wasm_bg.wasm"),
-    ]);
-    await module.default({ module_or_path: wasm.default });
-    return module;
-  })();
-  return engineReady;
-}
+import { engine } from "./engine";
 
 /** Plays a game to its end inside the Worker and reports what happened. */
 async function selfCheck(): Promise<Response> {
@@ -47,6 +29,8 @@ async function selfCheck(): Promise<Response> {
   return Response.json({
     engineVersion: HostedGame.engineVersion(),
     protocolVersion: HostedGame.protocolVersion(),
+    simulationFingerprint: HostedGame.simulationFingerprint(),
+    replayVersion: HostedGame.replayVersion(),
     actions: history.length,
     result: game.resultJson() ? JSON.parse(game.resultJson()!) : null,
     replayMatches: rebuilt.historyJson() === game.historyJson()

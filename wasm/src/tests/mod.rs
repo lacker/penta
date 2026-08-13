@@ -1,4 +1,5 @@
 use super::*;
+use crate::hosted::HostedGame;
 
 mod actions;
 mod autopass;
@@ -16,6 +17,37 @@ fn assert_nested_card_art(card: &Value) {
             .as_str()
             .is_some_and(|artist| !artist.is_empty())
     );
+}
+
+#[test]
+fn hosted_exports_one_authoritative_compatibility_manifest() {
+    let manifest: Value = serde_json::from_str(&HostedGame::bot_compatibility_json())
+        .expect("hosted compatibility manifest is JSON");
+    assert_eq!(
+        manifest["protocolVersion"],
+        penta::protocol::PROTOCOL_VERSION
+    );
+    assert_eq!(
+        manifest["capabilities"],
+        serde_json::json!(penta::protocol::PROTOCOL_CAPABILITIES)
+    );
+    assert_eq!(
+        manifest["requiredCapabilities"],
+        serde_json::json!(penta::protocol::REQUIRED_BOT_CAPABILITIES)
+    );
+    assert_eq!(
+        manifest["simulationFingerprint"],
+        penta::protocol::SIMULATION_FINGERPRINT
+    );
+    assert_eq!(
+        manifest["legacyUndeclaredProtocolVersion"],
+        penta::protocol::LEGACY_UNDECLARED_PROTOCOL_VERSION
+    );
+    assert_eq!(
+        HostedGame::simulation_fingerprint(),
+        penta::protocol::SIMULATION_FINGERPRINT
+    );
+    assert_eq!(HostedGame::replay_version(), REPLAY_VERSION);
 }
 
 fn act_matching(game: &mut WebGame, predicate: impl Fn(&Action) -> bool) {
@@ -215,6 +247,13 @@ fn an_external_game_never_prints_the_seed() {
 mod replay_journal {
     use super::*;
 
+    fn assert_replay_is_rejected(replay: &Value, reason: &str) {
+        assert!(
+            WebGame::from_replay_json(&replay.to_string()).is_err(),
+            "{reason}: {replay}"
+        );
+    }
+
     /// Plays a stretch of real game through the public surface, then rebuilds
     /// from the journal and expects the same board to the byte. This is the
     /// property a bug report's attachment depends on.
@@ -276,15 +315,268 @@ mod replay_journal {
     }
 
     #[test]
-    fn a_replay_from_another_engine_version_is_refused() {
+    fn replay_format_and_simulation_identity_are_independent_guards() {
         let game =
             WebGame::new("Sligh", "Goblins", "Handcrafted", true, 7, None).expect("game starts");
-        let mut replay: serde_json::Value =
+        let replay: serde_json::Value =
             serde_json::from_str(&game.replay_json()).expect("replay is JSON");
-        replay["protocolVersion"] = serde_json::json!(1);
+        assert_eq!(replay["replayVersion"], REPLAY_VERSION);
+        assert_eq!(
+            replay["simulationFingerprint"],
+            penta::protocol::SIMULATION_FINGERPRINT
+        );
+
+        let mut wrong_format = replay.clone();
+        wrong_format["replayVersion"] = serde_json::json!(REPLAY_VERSION + 1);
         assert!(
-            WebGame::from_replay_json(&replay.to_string()).is_err(),
-            "a protocol mismatch is refused rather than replayed into"
+            WebGame::from_replay_json(&wrong_format.to_string()).is_err(),
+            "an unknown journal format is refused"
+        );
+
+        let mut wrong_simulation = replay.clone();
+        wrong_simulation["simulationFingerprint"] = serde_json::json!("sha256-wrong");
+        assert!(
+            WebGame::from_replay_json(&wrong_simulation.to_string()).is_err(),
+            "different rules are refused before commands apply"
+        );
+
+        let mut diagnostic_changes = replay;
+        diagnostic_changes["engineVersion"] = serde_json::json!("99.0.0");
+        diagnostic_changes["protocolVersion"] = serde_json::json!(1);
+        diagnostic_changes["futureEnvelopeField"] = serde_json::json!(true);
+        diagnostic_changes["config"]["futureConfigField"] = serde_json::json!([1, 2, 3]);
+        WebGame::from_replay_json(&diagnostic_changes.to_string())
+            .expect("package, bot-wire, and additive metadata do not gate replay");
+    }
+
+    #[test]
+    fn replay_v1_requires_its_envelope_and_config_fields_with_their_declared_types() {
+        let game =
+            WebGame::new("Sligh", "Goblins", "Handcrafted", true, 11, None).expect("game starts");
+        let replay: Value = serde_json::from_str(&game.replay_json()).expect("replay is JSON");
+
+        assert_replay_is_rejected(&serde_json::json!([]), "the envelope must be an object");
+
+        for field in [
+            "replayVersion",
+            "simulationFingerprint",
+            "engineVersion",
+            "protocolVersion",
+            "config",
+            "commands",
+        ] {
+            let mut malformed = replay.clone();
+            malformed
+                .as_object_mut()
+                .expect("fixture is an object")
+                .remove(field);
+            assert_replay_is_rejected(&malformed, &format!("missing top-level field {field}"));
+        }
+
+        for (field, wrong_type) in [
+            ("replayVersion", serde_json::json!("1")),
+            ("simulationFingerprint", serde_json::json!(1)),
+            ("engineVersion", serde_json::json!(1)),
+            ("protocolVersion", serde_json::json!("21")),
+            ("config", serde_json::json!([])),
+            ("commands", serde_json::json!({})),
+        ] {
+            let mut malformed = replay.clone();
+            malformed[field] = wrong_type;
+            assert_replay_is_rejected(&malformed, &format!("wrong type for {field}"));
+        }
+
+        for field in [
+            "format",
+            "humanDeck",
+            "botDeck",
+            "botPolicy",
+            "humanFirst",
+            "seed",
+        ] {
+            let mut malformed = replay.clone();
+            malformed["config"]
+                .as_object_mut()
+                .expect("fixture config is an object")
+                .remove(field);
+            assert_replay_is_rejected(&malformed, &format!("missing config field {field}"));
+        }
+
+        for (field, wrong_type) in [
+            ("format", serde_json::json!(false)),
+            ("humanDeck", serde_json::json!(false)),
+            ("botDeck", serde_json::json!(false)),
+            ("botPolicy", serde_json::json!(false)),
+            ("humanFirst", serde_json::json!("true")),
+            ("seed", serde_json::json!("11")),
+        ] {
+            let mut malformed = replay.clone();
+            malformed["config"][field] = wrong_type;
+            assert_replay_is_rejected(&malformed, &format!("wrong type for config.{field}"));
+        }
+
+        let mut oversized_seed = replay;
+        oversized_seed["config"]["seed"] = serde_json::json!(u64::from(u32::MAX) + 1);
+        assert_replay_is_rejected(&oversized_seed, "the seed must fit the replay-v1 type");
+    }
+
+    #[test]
+    #[allow(clippy::too_many_lines)] // One table documents every replay-v1 command field.
+    fn replay_v1_commands_require_the_fields_and_types_declared_by_their_tag() {
+        let game =
+            WebGame::new("Sligh", "Goblins", "Handcrafted", true, 12, None).expect("game starts");
+        let replay: Value = serde_json::from_str(&game.replay_json()).expect("replay is JSON");
+
+        for (reason, command) in [
+            ("a command must be an object", serde_json::json!("autopass")),
+            ("a command needs a tag", serde_json::json!({})),
+            (
+                "a command tag must be a string",
+                serde_json::json!({ "t": false }),
+            ),
+            ("act needs an index", serde_json::json!({ "t": "act" })),
+            (
+                "an act index must be an integer",
+                serde_json::json!({ "t": "act", "index": "0" }),
+            ),
+            (
+                "choose needs a decision",
+                serde_json::json!({ "t": "choose", "options": [] }),
+            ),
+            (
+                "a decision must be an integer",
+                serde_json::json!({ "t": "choose", "decision": "0", "options": [] }),
+            ),
+            (
+                "a decision must fit u32",
+                serde_json::json!({
+                    "t": "choose",
+                    "decision": u64::from(u32::MAX) + 1,
+                    "options": [],
+                }),
+            ),
+            (
+                "choose needs options",
+                serde_json::json!({ "t": "choose", "decision": 0 }),
+            ),
+            (
+                "choose options must be an array",
+                serde_json::json!({ "t": "choose", "decision": 0, "options": {} }),
+            ),
+            (
+                "each choose option must be an integer",
+                serde_json::json!({ "t": "choose", "decision": 0, "options": ["1"] }),
+            ),
+            (
+                "each choose option must fit u32",
+                serde_json::json!({
+                    "t": "choose",
+                    "decision": 0,
+                    "options": [u64::from(u32::MAX) + 1],
+                }),
+            ),
+            (
+                "blocks needs assignments",
+                serde_json::json!({ "t": "blocks" }),
+            ),
+            (
+                "block assignments must be a string",
+                serde_json::json!({ "t": "blocks", "assignments": [] }),
+            ),
+            (
+                "phaseStop needs a phase",
+                serde_json::json!({ "t": "phaseStop", "enabled": true }),
+            ),
+            (
+                "a phase must be a string",
+                serde_json::json!({ "t": "phaseStop", "phase": 1, "enabled": true }),
+            ),
+            (
+                "phaseStop needs enabled",
+                serde_json::json!({ "t": "phaseStop", "phase": "Combat" }),
+            ),
+            (
+                "phaseStop enabled must be boolean",
+                serde_json::json!({ "t": "phaseStop", "phase": "Combat", "enabled": 0 }),
+            ),
+            (
+                "autopass needs enabled",
+                serde_json::json!({ "t": "autopass" }),
+            ),
+            (
+                "autopass enabled must be boolean",
+                serde_json::json!({ "t": "autopass", "enabled": 0 }),
+            ),
+            (
+                "botAct needs an index",
+                serde_json::json!({ "t": "botAct" }),
+            ),
+            (
+                "a botAct index must be an integer",
+                serde_json::json!({ "t": "botAct", "index": "0" }),
+            ),
+            (
+                "a botAct index must fit u32",
+                serde_json::json!({ "t": "botAct", "index": u64::from(u32::MAX) + 1 }),
+            ),
+            (
+                "loseOnTime needs a seat",
+                serde_json::json!({ "t": "loseOnTime", "reason": "clock expired" }),
+            ),
+            (
+                "a timeout seat must be a string",
+                serde_json::json!({ "t": "loseOnTime", "seat": 1, "reason": "clock expired" }),
+            ),
+            (
+                "a timeout seat must use the canonical vocabulary",
+                serde_json::json!({
+                    "t": "loseOnTime",
+                    "seat": "opponent",
+                    "reason": "clock expired",
+                }),
+            ),
+            (
+                "loseOnTime needs a reason",
+                serde_json::json!({ "t": "loseOnTime", "seat": "bot" }),
+            ),
+            (
+                "a timeout reason must be a string",
+                serde_json::json!({ "t": "loseOnTime", "seat": "bot", "reason": 1 }),
+            ),
+            (
+                "unknown command tags remain invalid",
+                serde_json::json!({ "t": "futureCommand" }),
+            ),
+        ] {
+            let mut malformed = replay.clone();
+            malformed["commands"] = serde_json::json!([command]);
+            assert_replay_is_rejected(&malformed, reason);
+        }
+    }
+
+    #[test]
+    fn replay_v1_ignores_unknown_command_members_and_preserves_timeout_reason() {
+        let game =
+            WebGame::new("Sligh", "Goblins", "Handcrafted", true, 13, None).expect("game starts");
+        let mut replay: Value = serde_json::from_str(&game.replay_json()).expect("replay is JSON");
+        replay["commands"] = serde_json::json!([
+            { "t": "autopass", "enabled": false, "future": [1, 2, 3] },
+            { "t": "phaseStop", "phase": "Combat", "enabled": true, "future": {} },
+            {
+                "t": "loseOnTime",
+                "seat": "bot",
+                "reason": "the remote clock expired",
+                "future": true,
+            },
+        ]);
+
+        let rebuilt =
+            WebGame::from_replay_json(&replay.to_string()).expect("additive members are ignored");
+        let rebuilt_replay: Value =
+            serde_json::from_str(&rebuilt.replay_json()).expect("rebuilt replay is JSON");
+        assert_eq!(
+            rebuilt_replay["commands"][2]["reason"], "the remote clock expired",
+            "diagnostic timeout text survives a replay round trip"
         );
     }
 }
@@ -366,6 +658,18 @@ mod lose_on_time {
             parsed(&game.state_json())["result"].is_null(),
             "a refused timeout leaves the game alone"
         );
+    }
+
+    #[test]
+    fn the_timeout_journal_uses_the_canonical_v1_seat_and_reason() {
+        let mut game =
+            WebGame::new("Sligh", "Goblins", "External", true, 9, None).expect("game starts");
+        game.lose_on_time("opponent")
+            .expect("the public alias remains accepted");
+
+        let replay = parsed(&game.replay_json());
+        assert_eq!(replay["commands"][0]["seat"], "bot");
+        assert_eq!(replay["commands"][0]["reason"], "ran out of time");
     }
 
     #[test]

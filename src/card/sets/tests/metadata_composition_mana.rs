@@ -23,8 +23,6 @@ fn standard_records_have_complete_unique_scryfall_metadata() {
             record.name
         );
     }
-
-    assert_eq!(scryfall_ids.len(), 860);
 }
 
 #[test]
@@ -182,8 +180,6 @@ fn every_builtin_land_without_mana_is_named_explicitly() {
         .flat_map(|module| module.cards.iter().copied())
         .filter(|record| record.rules.has_type(crate::card::CardType::Land))
         .collect::<Vec<_>>();
-    assert_eq!(lands.len(), 100);
-
     let lands_without_mana = lands
         .iter()
         .filter(|record| {
@@ -240,9 +236,6 @@ fn basic_land_subtypes_do_not_repeat_intrinsic_mana_as_printed_clauses() {
                 .any(|land_type| record.rules.has_subtype(land_type.subtype()))
         })
         .collect::<Vec<_>>();
-    assert_eq!(lands.len(), 26);
-
-    let mut intrinsic_types = 0;
     for land in lands {
         assert_eq!(
             land.rules.implementation_status(),
@@ -250,11 +243,6 @@ fn basic_land_subtypes_do_not_repeat_intrinsic_mana_as_printed_clauses() {
             "{} should be complete once basic-land mana is derived intrinsically",
             land.name,
         );
-        let land_types = BasicLandType::ALL
-            .into_iter()
-            .filter(|land_type| land.rules.has_subtype(land_type.subtype()))
-            .count();
-        intrinsic_types += land_types;
         assert!(
             !land.rules.ability_clauses().iter().any(|ability| matches!(
                 ability.definition,
@@ -264,7 +252,6 @@ fn basic_land_subtypes_do_not_repeat_intrinsic_mana_as_printed_clauses() {
             land.name,
         );
     }
-    assert_eq!(intrinsic_types, 46);
 }
 
 #[test]
@@ -291,7 +278,6 @@ fn every_nonland_mana_permanent_has_an_activated_mana_clause() {
         &y2011::innistrad::AVACYNS_PILGRIM,
         &y2013::magic_2014::ELVISH_MYSTIC,
     ];
-    assert_eq!(records.len(), 20);
     for record in records {
         assert!(
             record.rules.ability_clauses().iter().any(|ability| {
@@ -353,25 +339,16 @@ fn early_core_sets_reuse_definitions_without_duplicating_identity() {
     ];
 
     let early_sets = [
-        (CardSet::Alpha, 201, 206, 2_u16),
-        (CardSet::Beta, 87, 97, 3_u16),
-        (CardSet::Unlimited, 86, 96, 3_u16),
-        (CardSet::CollectorsEdition, 86, 96, 3_u16),
-        (CardSet::InternationalCollectorsEdition, 86, 96, 3_u16),
+        (CardSet::Alpha, 2_u16),
+        (CardSet::Beta, 3_u16),
+        (CardSet::Unlimited, 3_u16),
+        (CardSet::CollectorsEdition, 3_u16),
+        (CardSet::InternationalCollectorsEdition, 3_u16),
     ];
 
     let mut printing_ids = HashSet::new();
-    for (set, expected_cards, expected_printings, expected_basic_variants) in early_sets {
+    for (set, expected_basic_variants) in early_sets {
         let printings = printings_for_set(set);
-        assert_eq!(printings.len(), expected_printings);
-        assert_eq!(
-            printings
-                .iter()
-                .map(|printing| printing.id.definition)
-                .collect::<HashSet<_>>()
-                .len(),
-            expected_cards
-        );
 
         for printing in &printings {
             assert!(all_definition_ids.contains(&printing.id.definition));

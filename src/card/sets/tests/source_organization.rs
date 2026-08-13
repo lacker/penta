@@ -1,6 +1,11 @@
 use std::cmp::Ordering;
+use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
+
+use super::SET_MODULES;
+use crate::card::CardCatalog;
+use crate::{CardSet, Format};
 
 const DECLARATION_PREFIX: &str = "pub(in crate::card::sets) static ";
 const HEADER_PREFIX: &str = "// ";
@@ -25,7 +30,7 @@ pub(super) enum AuditStatus {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) struct SourceAudit {
-    pub(super) set_code: String,
+    pub(super) set: CardSet,
     pub(super) name: String,
     pub(super) status: AuditStatus,
     pub(super) gap: String,
@@ -36,13 +41,24 @@ fn printed_set_sources_follow_collector_number_order() {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let mut files = printed_set_files(&root.join("src/card/sets"));
     files.sort();
+    assert!(
+        !files.is_empty(),
+        "at least one printed set source must exist"
+    );
 
-    let mut definition_count = 0;
-    let mut additional_printing_count = 0;
+    let mut source_sets = HashSet::new();
+    let mut source_definitions = 0;
+    let mut source_additional_printings = 0;
     for path in files {
+        let set_source = set_source_for_file(&path);
+        assert!(
+            source_sets.insert(set_source.set),
+            "{:?} has more than one printed set source",
+            set_source.set
+        );
         let source = fs::read_to_string(&path).expect("a printed set source file is readable");
-        let entries = source_entries(&source, set_code_for_file(&path), &path);
-        definition_count += entries
+        let entries = source_entries(&source, set_source, &path);
+        source_definitions += entries
             .iter()
             .filter(|entry| entry.symbol.is_some())
             .count();
@@ -71,12 +87,12 @@ fn printed_set_sources_follow_collector_number_order() {
         );
 
         let additional_printings = additional_printings(&source, &path);
+        source_additional_printings += additional_printings.len();
         if !additional_printings.is_empty() {
-            let expected_set_code = set_code_for_file(&path);
             for printing in &additional_printings {
                 assert_eq!(
                     printing.0,
-                    expected_set_code,
+                    set_source.code,
                     "{}: wrong set code on an ADDITIONAL_PRINTINGS entry",
                     path.display()
                 );
@@ -92,16 +108,35 @@ fn printed_set_sources_follow_collector_number_order() {
                 );
             }
         }
-        additional_printing_count += additional_printings.len();
     }
 
+    let registered_printed_modules = SET_MODULES
+        .iter()
+        .filter(|module| module.set != CardSet::Token)
+        .collect::<Vec<_>>();
     assert_eq!(
-        definition_count, 1_436,
-        "the organization guard must cover every printed card definition"
+        source_sets,
+        registered_printed_modules
+            .iter()
+            .map(|module| module.set)
+            .collect(),
+        "printed source files and registered set modules must correspond",
     );
     assert_eq!(
-        additional_printing_count, 559,
-        "the organization guard must cover every additional printing"
+        source_definitions,
+        registered_printed_modules
+            .iter()
+            .map(|module| module.cards.len())
+            .sum::<usize>(),
+        "source declarations and registered definitions must correspond",
+    );
+    assert_eq!(
+        source_additional_printings,
+        registered_printed_modules
+            .iter()
+            .map(|module| module.additional_printings.len())
+            .sum::<usize>(),
+        "source and registered additional printings must correspond",
     );
 }
 
@@ -129,49 +164,58 @@ fn printed_set_files(sets: &Path) -> Vec<PathBuf> {
     files
 }
 
-fn set_code_for_file(path: &Path) -> &'static str {
+#[derive(Clone, Copy)]
+struct SetSource {
+    set: CardSet,
+    code: &'static str,
+}
+
+fn set_source_for_file(path: &Path) -> SetSource {
+    let source = |set, code| SetSource { set, code };
     match path.file_name().and_then(|name| name.to_str()) {
-        Some("alpha.rs") => "LEA",
-        Some("arabian_nights.rs") => "ARN",
-        Some("beta.rs") => "LEB",
-        Some("unlimited.rs") => "2ED",
-        Some("collectors_edition.rs") => "CED",
-        Some("international_collectors_edition.rs") => "CEI",
-        Some("antiquities.rs") => "ATQ",
-        Some("revised.rs") => "3ED",
-        Some("fallen_empires.rs") => "FEM",
-        Some("legends.rs") => "LEG",
-        Some("promo_1994.rs") => "P94",
-        Some("the_dark.rs") => "DRK",
-        Some("ice_age.rs") => "ICE",
-        Some("mirage.rs") => "MIR",
-        Some("visions.rs") => "VIS",
-        Some("tempest.rs") => "TMP",
-        Some("stronghold.rs") => "STH",
-        Some("portal_second_age.rs") => "P02",
-        Some("urzas_saga.rs") => "USG",
-        Some("mercadian_masques.rs") => "MMQ",
-        Some("nemesis.rs") => "NEM",
-        Some("invasion.rs") => "INV",
-        Some("planeshift.rs") => "PLS",
-        Some("apocalypse.rs") => "APC",
-        Some("odyssey.rs") => "ODY",
-        Some("judgment.rs") => "JUD",
-        Some("onslaught.rs") => "ONS",
-        Some("darksteel.rs") => "DST",
-        Some("future_sight.rs") => "FUT",
-        Some("planar_chaos.rs") => "PLC",
-        Some("innistrad.rs") => "ISD",
-        Some("avacyn_restored.rs") => "AVR",
-        Some("dark_ascension.rs") => "DKA",
-        Some("magic_2013.rs") => "M13",
-        Some("return_to_ravnica.rs") => "RTR",
-        Some("dragons_maze.rs") => "DGM",
-        Some("gatecrash.rs") => "GTC",
-        Some("magic_2014.rs") => "M14",
-        Some("theros.rs") => "THS",
-        Some("khans_of_tarkir.rs") => "KTK",
-        Some("modern_horizons_2.rs") => "MH2",
+        Some("alpha.rs") => source(CardSet::Alpha, "LEA"),
+        Some("arabian_nights.rs") => source(CardSet::ArabianNights, "ARN"),
+        Some("beta.rs") => source(CardSet::Beta, "LEB"),
+        Some("unlimited.rs") => source(CardSet::Unlimited, "2ED"),
+        Some("collectors_edition.rs") => source(CardSet::CollectorsEdition, "CED"),
+        Some("international_collectors_edition.rs") => {
+            source(CardSet::InternationalCollectorsEdition, "CEI")
+        }
+        Some("antiquities.rs") => source(CardSet::Antiquities, "ATQ"),
+        Some("revised.rs") => source(CardSet::Revised, "3ED"),
+        Some("fallen_empires.rs") => source(CardSet::FallenEmpires, "FEM"),
+        Some("legends.rs") => source(CardSet::Legends, "LEG"),
+        Some("promo_1994.rs") => source(CardSet::Promo1994, "P94"),
+        Some("the_dark.rs") => source(CardSet::TheDark, "DRK"),
+        Some("ice_age.rs") => source(CardSet::IceAge, "ICE"),
+        Some("mirage.rs") => source(CardSet::Mirage, "MIR"),
+        Some("visions.rs") => source(CardSet::Visions, "VIS"),
+        Some("tempest.rs") => source(CardSet::Tempest, "TMP"),
+        Some("stronghold.rs") => source(CardSet::Stronghold, "STH"),
+        Some("portal_second_age.rs") => source(CardSet::PortalSecondAge, "P02"),
+        Some("urzas_saga.rs") => source(CardSet::UrzasSaga, "USG"),
+        Some("mercadian_masques.rs") => source(CardSet::MercadianMasques, "MMQ"),
+        Some("nemesis.rs") => source(CardSet::Nemesis, "NEM"),
+        Some("invasion.rs") => source(CardSet::Invasion, "INV"),
+        Some("planeshift.rs") => source(CardSet::Planeshift, "PLS"),
+        Some("apocalypse.rs") => source(CardSet::Apocalypse, "APC"),
+        Some("odyssey.rs") => source(CardSet::Odyssey, "ODY"),
+        Some("judgment.rs") => source(CardSet::Judgment, "JUD"),
+        Some("onslaught.rs") => source(CardSet::Onslaught, "ONS"),
+        Some("darksteel.rs") => source(CardSet::Darksteel, "DST"),
+        Some("future_sight.rs") => source(CardSet::FutureSight, "FUT"),
+        Some("planar_chaos.rs") => source(CardSet::PlanarChaos, "PLC"),
+        Some("innistrad.rs") => source(CardSet::Innistrad, "ISD"),
+        Some("avacyn_restored.rs") => source(CardSet::AvacynRestored, "AVR"),
+        Some("dark_ascension.rs") => source(CardSet::DarkAscension, "DKA"),
+        Some("magic_2013.rs") => source(CardSet::Magic2013, "M13"),
+        Some("return_to_ravnica.rs") => source(CardSet::ReturnToRavnica, "RTR"),
+        Some("dragons_maze.rs") => source(CardSet::DragonsMaze, "DGM"),
+        Some("gatecrash.rs") => source(CardSet::Gatecrash, "GTC"),
+        Some("magic_2014.rs") => source(CardSet::Magic2014, "M14"),
+        Some("theros.rs") => source(CardSet::Theros, "THS"),
+        Some("khans_of_tarkir.rs") => source(CardSet::KhansOfTarkir, "KTK"),
+        Some("modern_horizons_2.rs") => source(CardSet::ModernHorizons2, "MH2"),
         Some(name) => panic!(
             "{}: add {name} to the official set-code map",
             path.display()
@@ -180,49 +224,38 @@ fn set_code_for_file(path: &Path) -> &'static str {
     }
 }
 
-pub(super) fn old_school_source_audits(root: &Path) -> Vec<SourceAudit> {
-    source_audits_for_set_codes(
-        root,
-        &["LEA", "LEB", "ARN", "ATQ", "LEG", "DRK", "FEM", "P94"],
-    )
-}
-
 pub(super) fn all_source_audits(root: &Path) -> Vec<SourceAudit> {
     let mut files = printed_set_files(&root.join("src/card/sets"));
     files.sort();
     files
         .into_iter()
         .flat_map(|path| {
-            let set_code = set_code_for_file(&path);
+            let set_source = set_source_for_file(&path);
             let source = fs::read_to_string(&path).expect("a printed set source file is readable");
-            source_entries(&source, set_code, &path)
+            source_entries(&source, set_source, &path)
                 .into_iter()
                 .filter_map(|entry| entry.audit)
         })
         .collect()
 }
 
-fn source_audits_for_set_codes(root: &Path, set_codes: &[&str]) -> Vec<SourceAudit> {
-    let mut files = printed_set_files(&root.join("src/card/sets"));
-    files.sort();
-
-    let mut audits = Vec::new();
-    for path in files {
-        let set_code = set_code_for_file(&path);
-        if !set_codes.contains(&set_code) {
-            continue;
-        }
-        let source = fs::read_to_string(&path).expect("a printed set source file is readable");
-        audits.extend(
-            source_entries(&source, set_code, &path)
-                .into_iter()
-                .filter_map(|entry| entry.audit),
-        );
-    }
-    audits
+pub(super) fn source_audits_for_format(
+    root: &Path,
+    catalog: &CardCatalog,
+    format: Format,
+) -> Vec<SourceAudit> {
+    all_source_audits(root)
+        .into_iter()
+        .filter(|audit| {
+            format.allows_set(audit.set)
+                || catalog
+                    .find_by_name(&audit.name)
+                    .is_some_and(|id| catalog.is_allowed_in(id, format))
+        })
+        .collect()
 }
 
-fn source_entries(source: &str, expected_set_code: &str, path: &Path) -> Vec<SourceEntry> {
+fn source_entries(source: &str, set_source: SetSource, path: &Path) -> Vec<SourceEntry> {
     let lines = source.lines().collect::<Vec<_>>();
     for (index, line) in lines.iter().enumerate() {
         if line.starts_with(AUDIT_PREFIX) {
@@ -261,7 +294,7 @@ fn source_entries(source: &str, expected_set_code: &str, path: &Path) -> Vec<Sou
         };
         assert_eq!(
             header.0,
-            expected_set_code,
+            set_source.code,
             "{}:{}: wrong set code in card header",
             path.display(),
             index + 1
@@ -298,7 +331,7 @@ fn source_entries(source: &str, expected_set_code: &str, path: &Path) -> Vec<Sou
                 (
                     declaration.map(str::to_string),
                     Some(SourceAudit {
-                        set_code: expected_set_code.to_string(),
+                        set: set_source.set,
                         name: header.2.to_string(),
                         status,
                         gap: gap.to_string(),

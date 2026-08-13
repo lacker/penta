@@ -194,47 +194,28 @@ fn contains_name(names: &[&str], candidate: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashSet;
+
     use super::Format;
     use crate::CardDefinitionId;
     use crate::card::{CardBehavior, CardDefinition, CardPrinting, CardSet};
 
     #[test]
-    fn each_format_has_its_complete_set_window() {
-        let old_school_sets = [
-            CardSet::Alpha,
-            CardSet::Beta,
-            CardSet::Unlimited,
-            CardSet::CollectorsEdition,
-            CardSet::InternationalCollectorsEdition,
-            CardSet::ArabianNights,
-            CardSet::Antiquities,
-            CardSet::Revised,
-            CardSet::Legends,
-            CardSet::TheDark,
-            CardSet::FallenEmpires,
-            CardSet::Promo1994,
-        ];
-        let standard_sets = [
-            CardSet::Innistrad,
-            CardSet::DarkAscension,
-            CardSet::AvacynRestored,
-            CardSet::Magic2013,
-            CardSet::ReturnToRavnica,
-            CardSet::Gatecrash,
-            CardSet::DragonsMaze,
-            CardSet::Magic2014,
-        ];
+    fn format_set_windows_are_nonempty_unique_and_exclude_tokens() {
+        for format in [Format::OldSchool9394, Format::IsdRtrStandard] {
+            let sets = format.rules().allowed_sets;
+            assert!(!sets.is_empty(), "{format} needs an allowed set window");
+            assert!(
+                !sets.contains(&CardSet::Token),
+                "tokens are never printable"
+            );
 
-        assert_eq!(Format::OldSchool9394.rules().allowed_sets, &old_school_sets);
-        assert_eq!(Format::IsdRtrStandard.rules().allowed_sets, &standard_sets);
-
-        for set in old_school_sets {
-            assert!(Format::OldSchool9394.allows_set(set));
-            assert!(!Format::IsdRtrStandard.allows_set(set));
-        }
-        for set in standard_sets {
-            assert!(Format::IsdRtrStandard.allows_set(set));
-            assert!(!Format::OldSchool9394.allows_set(set));
+            let unique = sets.iter().copied().collect::<HashSet<_>>();
+            assert_eq!(
+                unique.len(),
+                sets.len(),
+                "{format} repeats a set in its allowed window"
+            );
         }
     }
 

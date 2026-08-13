@@ -120,6 +120,22 @@ agreement, hidden hand sizes, unique legal actions, decision ownership, and
 completed-game behavior. Pass a different seed count as the final argument for
 a longer soak run.
 
+## Catalog coverage
+
+Print the current implementation and inline capability-gap totals with:
+
+```sh
+make catalog-report
+```
+
+The report derives repository-wide complete, partial, and metadata-only
+definitions from the built-in catalog. It also gives a mutually exclusive
+complete/partial/metadata-only/blocked partition for each supported set corpus,
+using the inline `// Audit:` rows to identify cards that are not yet cataloged.
+Its output is intentionally not checked in: the source declarations remain
+authoritative, so adding a card does not require updating a second copy of the
+totals.
+
 ## Performance work
 
 Performance investigation has its own reproducibility and evidence rules. Use

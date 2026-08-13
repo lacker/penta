@@ -12,10 +12,7 @@ correctly.
 - 8 complete submitted main decks and 15-card sideboards captured (seven have
   60 cards; Drew Glauberg's Stasis list has 61)
 - 145 distinct cards across the tranche
-- 71 cards present in Penta's catalog
-- 74 cards still need catalog records
-- 51 cards have completed their Premodern interaction audit; the other 94
-  still need one even when an older format already exercises the card
+- per-card catalog and interaction-audit status tracked in the inventory below
 
 The eight staged decks, in finish order, are Neal Sacks's Sligh, Daniel
 Sondike's GAT, Bryan Gulotta's Replenish, Drew Glauberg's Stasis, Chris Danis's
@@ -30,9 +27,8 @@ Marvin's Angry Hermit.
   implementation time.
 - Add the missing printed-set modules and canonical printings. Definition IDs
   remain append-only even when a card belongs to an older set.
-- Add accurate characteristics and Oracle clauses for the 74 uncataloged
-  cards. Unsupported clauses must be metadata-only rather than executable
-  no-ops.
+- Add accurate characteristics and Oracle clauses for uncataloged cards.
+  Unsupported clauses must be metadata-only rather than executable no-ops.
 - Implement reusable mechanics before card-local behavior: cycling and
   landcycling, flashback, threshold, fading, echo, alternative costs, split
   cards, graveyard replacement/reanimation, named-card choices, tutors,
@@ -46,9 +42,8 @@ Marvin's Angry Hermit.
 
 ## Card inventory
 
-Already cataloged (71; the fifty-one marked below were audited in the first
-ten implementation tranches, while the older definitions still require an
-audit):
+Already cataloged (status annotations record the completed interaction audits;
+older unannotated definitions still require one):
 
 - `Adarkar Wastes` — complete
 - `Ancient Tomb` — complete
@@ -122,7 +117,7 @@ audit):
 - `Wrath of God`
 - `Yavimaya Coast` — complete
 
-Not yet cataloged (74):
+Not yet cataloged:
 
 - [ ] `Abeyance`
 - [ ] `Akroma's Vengeance`

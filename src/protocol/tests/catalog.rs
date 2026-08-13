@@ -5,7 +5,6 @@ fn the_catalog_lists_every_card_with_names_and_costs() {
     let catalog = poc::catalog().expect("catalog builds");
     let value = catalog_json(&catalog);
     let cards = value["cards"].as_array().expect("cards array");
-    assert!(cards.len() > 100, "the pool is substantial");
     assert!(cards.iter().all(|card| card["name"].is_string()));
     assert!(
         cards
@@ -175,8 +174,6 @@ fn deck_names_all_resolve() {
 #[test]
 fn both_format_deck_registries_resolve_without_cross_format_leakage() {
     assert_eq!(deck_names(), deck_names_for_format(Format::OldSchool9394));
-    assert_eq!(deck_names_for_format(Format::OldSchool9394).len(), 15);
-    assert_eq!(deck_names_for_format(Format::IsdRtrStandard).len(), 8);
 
     for format in [Format::OldSchool9394, Format::IsdRtrStandard] {
         for name in deck_names_for_format(format) {

@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn every_cataloged_set_has_one_matching_module() {
+fn format_sets_and_card_records_have_catalog_modules() {
     let format_sets = Format::OldSchool9394
         .rules()
         .allowed_sets
@@ -12,9 +12,24 @@ fn every_cataloged_set_has_one_matching_module() {
     // Tokens are registered like a set so a client can resolve one by
     // definition, but they are deliberately in no format's card pool, so
     // they are not part of this correspondence.
-    let registered_sets = SET_MODULES
+    let all_registered_sets = SET_MODULES
         .iter()
         .map(|module| module.set)
+        .collect::<Vec<_>>();
+    assert_eq!(
+        all_registered_sets
+            .iter()
+            .copied()
+            .collect::<HashSet<_>>()
+            .len(),
+        all_registered_sets.len(),
+        "each set must have exactly one catalog module",
+    );
+    assert!(all_registered_sets.contains(&CardSet::Token));
+
+    let registered_sets = all_registered_sets
+        .iter()
+        .copied()
         .filter(|set| *set != CardSet::Token)
         .collect::<Vec<_>>();
     for format in [Format::OldSchool9394, Format::IsdRtrStandard] {
@@ -28,43 +43,6 @@ fn every_cataloged_set_has_one_matching_module() {
         format_sets.iter().all(|set| registered_sets.contains(set)),
         "every format-supported set must be cataloged",
     );
-    for testbed_set in [
-        CardSet::IceAge,
-        CardSet::Mirage,
-        CardSet::Visions,
-        CardSet::Tempest,
-        CardSet::Stronghold,
-        CardSet::PortalSecondAge,
-        CardSet::UrzasSaga,
-        CardSet::MercadianMasques,
-        CardSet::Nemesis,
-        CardSet::Invasion,
-        CardSet::Planeshift,
-        CardSet::Apocalypse,
-        CardSet::Odyssey,
-        CardSet::Judgment,
-        CardSet::Onslaught,
-        CardSet::Darksteel,
-        CardSet::PlanarChaos,
-        CardSet::FutureSight,
-        CardSet::Theros,
-        CardSet::KhansOfTarkir,
-        CardSet::ModernHorizons2,
-    ] {
-        assert!(registered_sets.contains(&testbed_set));
-        assert!(!Format::OldSchool9394.allows_set(testbed_set));
-        assert!(!Format::IsdRtrStandard.allows_set(testbed_set));
-    }
-    assert_eq!(registered_sets.len(), 41);
-    assert_eq!(
-        registered_sets
-            .iter()
-            .copied()
-            .collect::<HashSet<_>>()
-            .len(),
-        41
-    );
-
     for module in SET_MODULES {
         for record in module.cards {
             assert_eq!(
@@ -77,16 +55,24 @@ fn every_cataloged_set_has_one_matching_module() {
 }
 
 #[test]
-fn built_in_records_keep_stable_dense_ids_and_unique_identity() {
+fn built_in_records_have_unique_identity() {
     let records = SET_MODULES
         .iter()
         .flat_map(|module| module.cards.iter().copied())
         .collect::<Vec<_>>();
-    assert_eq!(records.len(), 1_471);
-
     let mut ids = records.iter().map(|record| record.id).collect::<Vec<_>>();
     ids.sort_unstable();
-    assert_eq!(ids, (1..=1_471).map(CardDefinitionId).collect::<Vec<_>>());
+    let expected = (1..=records.len())
+        .map(|raw| {
+            CardDefinitionId(
+                u16::try_from(raw).expect("the built-in catalog must fit its definition ID type"),
+            )
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(
+        ids, expected,
+        "definition IDs must remain dense until deterministic IDs replace them",
+    );
     // Names identify the cards a decklist can name. Tokens are not among
     // them, and Magic prints several that share a name.
     let deck_legal = records
@@ -110,32 +96,43 @@ fn built_in_catalog_indexes_definitions_and_printings_separately() {
         .iter()
         .flat_map(|module| module.cards.iter().copied())
         .collect::<Vec<_>>();
-    let (token_records, printed_records): (Vec<_>, Vec<_>) = records
-        .into_iter()
-        .partition(|record| record.debut_set == CardSet::Token);
-
-    assert_eq!(token_records.len(), 35);
-    assert_eq!(printed_records.len(), 1_436);
     assert_eq!(
-        SET_MODULES
-            .iter()
-            .map(|module| module.additional_printings.len())
-            .sum::<usize>(),
-        559
+        catalog.definitions().len(),
+        records.len(),
+        "every registered record must become one catalog definition",
     );
 
-    for record in token_records {
-        let printings = catalog.printings_for(record.id);
-        assert_eq!(printings.len(), 1, "{} should be synthetic", record.name);
-        assert_eq!(printings[0].id.set, CardSet::Token);
+    for record in records {
+        let definition = catalog
+            .get(record.id)
+            .unwrap_or_else(|| panic!("{} is missing from the catalog", record.name));
+        assert_eq!(definition.name, record.name);
+        assert!(
+            catalog
+                .get_printing(CardPrintingId::new(record.id, record.debut_set))
+                .is_some(),
+            "{} is missing its debut printing",
+            record.name,
+        );
+        if record.debut_set == CardSet::Token {
+            let printings = catalog.printings_for(record.id);
+            assert_eq!(printings.len(), 1, "{} should be synthetic", record.name);
+            assert_eq!(printings[0].id.set, CardSet::Token);
+        }
     }
 
-    let printing_count = printed_records
-        .iter()
-        .map(|record| catalog.printings_for(record.id).len())
-        .sum::<usize>();
-
-    assert_eq!(printing_count, 1_995);
+    for module in SET_MODULES {
+        for record in module.additional_printings {
+            assert!(
+                catalog
+                    .get_printing(record.printing(module.set).id)
+                    .is_some(),
+                "{} is missing an additional {:?} printing",
+                record.card.name,
+                module.set,
+            );
+        }
+    }
     for variant in 0..3 {
         assert!(
             catalog
@@ -332,8 +329,6 @@ fn every_non_declarative_clause_explains_its_implementation() {
         .iter()
         .flat_map(|module| module.cards.iter().copied())
         .collect::<Vec<_>>();
-    assert_eq!(records.len(), 1_471);
-
     for record in records {
         let definition = record.definition();
         for part in &definition.parts {
@@ -357,30 +352,16 @@ fn every_non_declarative_clause_explains_its_implementation() {
 }
 
 #[test]
-fn standard_records_cover_the_top_eight_pool_with_stable_unique_ids() {
+fn standard_records_are_unique_and_format_legal() {
     let records = standard_records();
-    assert_eq!(records.len(), 860);
-
-    let token_ids = SET_MODULES
-        .iter()
-        .find(|module| module.set == CardSet::Token)
-        .unwrap()
-        .cards
-        .iter()
-        .map(|record| record.id)
-        .collect::<HashSet<_>>();
-    let expected_ids = (129..=244)
-        .chain([251])
-        .chain(607..=1_361)
-        .chain(1_366..=1_367)
-        .chain(1_432..=1_435)
-        .chain([1_463])
-        .map(CardDefinitionId)
-        .filter(|id| !token_ids.contains(id))
-        .collect::<Vec<_>>();
     assert_eq!(
-        records.iter().map(|record| record.id).collect::<Vec<_>>(),
-        expected_ids,
+        records
+            .iter()
+            .map(|record| record.id)
+            .collect::<HashSet<_>>()
+            .len(),
+        records.len(),
+        "Standard records must have unique definitions",
     );
 
     let mut names = HashSet::new();

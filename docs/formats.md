@@ -74,10 +74,10 @@ The engine currently supports:
   and a collector-ordered, named engine-capability gap for every incomplete
   identity in the 93/94 set corpus, including banned cards;
 - an identity-complete ISD–RTR Standard implementation audit inline in its
-  eight printed set modules, with 841 complete, 39 partial, and 806 blocked
-  identities, and a concrete engine-capability gap for every
+  eight printed set modules, with a concrete engine-capability gap for every
   incomplete identity; and
-- twenty-three fixed 60-card decks with 15-card sideboards across both formats.
+- fixed source-faithful decks with complete main-deck and sideboard lists
+  across both formats.
 
 The engine is playable end to end but is not a general implementation of the
 Comprehensive Rules. Interactions are implemented to the depth required by the
@@ -168,12 +168,12 @@ was not legal in this Standard pool. The built-in list uses Celestial Flare as
 the likely transcription correction and records that inference in the deck
 source comments.
 
-Across the eight sets, 880 of the 1,686 legal card identities have catalog
-definitions: 841 are complete and 39 are partial. The other 806 remain blocked.
-Every one of the 845 incomplete identities has a
-collector-ordered inline audit comment naming its concrete missing engine
-capability. Card previews expose the cataloged cards' implementation status so
-bot and UI consumers can distinguish supported behavior from metadata.
+The fixed eight-set identity inventory is covered by a collector-ordered
+implementation audit that names the concrete missing engine capability for
+every incomplete identity. Card previews expose each cataloged card's
+implementation status so bot and UI consumers can distinguish supported
+behavior from metadata. Run `make catalog-report` for current aggregate
+catalog and coverage counts.
 
 [ec-rules]: https://www.eternalcentral.com/9394rules/
 [goblins-data]: https://www.tcdecks.net/archetype.php?archetype=Goblins&format=Old+School&src=all

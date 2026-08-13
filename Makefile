@@ -60,6 +60,7 @@ endef
 	test test-rust test-rust-full test-rust-slow \
 	test-engine test-engine-unit test-engine-integration test-policy test-wasm-rust \
 	test-profile-attribution test-magic-references test-rust-budget test-source-file-sizes \
+	catalog-report \
 	build-profile-engine benchmark-engine benchmark-engine-baseline benchmark-engine-compare \
 	profile-engine profile-engine-all profile-engine-open \
 	build-wasm build-web \
@@ -140,6 +141,10 @@ test-rust-full: ## Run every normal and slow Rust test in one pass.
 
 test-source-file-sizes: ## Enforce the repository-wide Rust source-file size limit.
 	cargo test --locked --profile quick-test --test source_file_sizes
+
+catalog-report: ## Print catalog and inline-audit coverage derived from source.
+	cargo test --locked --profile quick-test -p penta --lib \
+		card::sets::tests::catalog_report::print_catalog_report -- --exact --nocapture
 
 # Seconds the Rust suite may spend *running*. Compilation is excluded: it is
 # bounded by the job timeout and says nothing about whether a test got slow.

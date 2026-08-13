@@ -1,19 +1,13 @@
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::path::PathBuf;
 
-use super::source_organization::{AuditStatus, SourceAudit, all_source_audits};
+use super::source_organization::{AuditStatus, SourceAudit, source_audits_for_format};
 use super::*;
 
 const SET_IDENTITY_COUNT: usize = 1_686;
 // The catalog names transforming identities by their front face, while the
 // reference inventory names the same identities with both face names.
 const SET_IDENTITY_FINGERPRINT: u64 = 17_770_363_390_521_155_439;
-const COMPLETE_IDENTITY_COUNT: usize = 860;
-const PARTIAL_IDENTITY_COUNT: usize = 26;
-const METADATA_ONLY_IDENTITY_COUNT: usize = 0;
-const BLOCKED_IDENTITY_COUNT: usize = 800;
-const STANDARD_SET_CODES: &[&str] = &["ISD", "DKA", "AVR", "M13", "RTR", "GTC", "DGM", "M14"];
-
 fn identity_fingerprint(names: &BTreeSet<String>) -> u64 {
     const FNV_OFFSET_BASIS: u64 = 14_695_981_039_346_656_037;
     const FNV_PRIME: u64 = 1_099_511_628_211;
@@ -37,18 +31,9 @@ fn every_incomplete_isd_rtr_identity_has_one_audited_capability_gap() {
 
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     for SourceAudit {
-        set_code,
-        name,
-        status,
-        gap,
-    } in all_source_audits(&root)
+        name, status, gap, ..
+    } in source_audits_for_format(&root, &catalog, Format::IsdRtrStandard)
     {
-        let cataloged_legal_reprint = catalog
-            .find_by_name(&name)
-            .is_some_and(|id| catalog.is_allowed_in(id, Format::IsdRtrStandard));
-        if !STANDARD_SET_CODES.contains(&set_code.as_str()) && !cataloged_legal_reprint {
-            continue;
-        }
         assert!(!gap.is_empty(), "{name} has no capability-gap explanation");
         assert!(
             audited
@@ -111,28 +96,6 @@ fn every_incomplete_isd_rtr_identity_has_one_audited_capability_gap() {
         }
     }
 
-    assert_eq!(complete, COMPLETE_IDENTITY_COUNT);
-    assert_eq!(
-        audited
-            .values()
-            .filter(|(_, status)| *status == AuditStatus::Partial)
-            .count(),
-        PARTIAL_IDENTITY_COUNT
-    );
-    assert_eq!(
-        audited
-            .values()
-            .filter(|(_, status)| *status == AuditStatus::MetadataOnly)
-            .count(),
-        METADATA_ONLY_IDENTITY_COUNT
-    );
-    assert_eq!(
-        audited
-            .values()
-            .filter(|(_, status)| *status == AuditStatus::Blocked)
-            .count(),
-        BLOCKED_IDENTITY_COUNT
-    );
     assert_eq!(
         complete + audited.len(),
         SET_IDENTITY_COUNT,

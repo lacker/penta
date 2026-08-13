@@ -1,7 +1,7 @@
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::path::PathBuf;
 
-use super::source_organization::{AuditStatus, SourceAudit, old_school_source_audits};
+use super::source_organization::{AuditStatus, SourceAudit, source_audits_for_format};
 use super::*;
 
 const SET_IDENTITY_COUNT: usize = 988;
@@ -38,7 +38,7 @@ fn every_incomplete_old_school_set_identity_has_one_audited_capability_gap() {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     for SourceAudit {
         name, status, gap, ..
-    } in old_school_source_audits(&root)
+    } in source_audits_for_format(&root, &catalog, Format::OldSchool9394)
     {
         assert!(!gap.is_empty(), "{name} has no capability-gap explanation");
         assert!(

@@ -309,23 +309,23 @@ distinguishes snapshots of the covered source and build inputs.
   controller, catalog definition, timestamp, and creating ability provenance.
 
 - The catalog appends definitions 315 through 605: 286 Eternal Central Old
-  School 93/94 card identities and five supporting tokens. With Guardian Beast
-  below, the Old School pool now exposes 421 legal identities: 389 complete,
+  School 93/94 card identities and five supporting tokens. At that protocol
+  transition, the Old School pool exposed 421 legal identities: 389 complete,
   30 partial, and two
   metadata-only. An identity-complete audit, kept inline at each identity's
-  collector position in the printed set modules, names the concrete engine gap
+  collector position in the printed set modules, named the concrete engine gap
   for those 32 cataloged incomplete cards and the other 560 legal identities
-  that remain blocked, as well as all seven banned identities in those sets.
+  that were blocked, as well as all seven banned identities in those sets.
   Definition IDs remain append-only and the catalog JSON shape is unchanged,
   so this is compatible protocol-19 catalog growth.
 
 - The catalog appends definitions 607 through 1361: 736 card identities used
   by ISD–RTR Standard and nineteen supporting tokens. Together with in-format
-  printings of existing definitions, Standard now exposes 878 legal identities:
-  839 complete and 39 partial. Its identity-complete audit
-  covers all 1,686 identities from Innistrad through Magic 2014 and keeps a
+  printings of existing definitions, Standard then exposed 878 legal
+  identities: 839 complete and 39 partial. Its identity-complete audit
+  covered all 1,686 identities from Innistrad through Magic 2014 and kept a
   concrete capability gap inline at the collector position of every one of the
-  847 incomplete identities, including the 808 that remain blocked. Definition
+  847 incomplete identities, including the 808 that were blocked. Definition
   IDs remain append-only and no catalog, observation, action, or decision JSON
   shape changes, so this is compatible protocol-20 catalog growth and does not
   bump the protocol.
@@ -397,6 +397,12 @@ version is unmoved.
 - The Python binding and repository tooling now require Python 3.13 or newer.
   Its stable-ABI extension targets `abi3-py313`, and CI exercises Python 3.13
   as the supported floor rather than retaining compatibility with EOL releases.
+
+- Catalog coverage tests now enforce structural invariants without pinning
+  mutable repository totals. `make catalog-report` derives current catalog and
+  implementation-coverage counts when a snapshot is useful, so ordinary card
+  additions no longer require synchronized count edits across tests and docs.
+
 - Chaos Orb now uses shared declarative effects and Eternal Central's 93/94
   non-targeting timing. Its controller activates it without a target, chooses a
   nontoken permanent during resolution, and then gets one seeded trial with a
@@ -474,9 +480,7 @@ version is unmoved.
   Enlightened Tutor (`313`), Flooded Strand (`283`), and Wooded Foothills
   (`284`), all five fetch lands now have complete shared abilities. Liliana's
   Shade (`1366`) and Seek the Horizon (`1367`) also move from the ISD–RTR audit
-  into the executable catalog using the same search procedure. Standard now
-  exposes 880 legal identities: 841 complete, 39 partial, and 806 blocked; the
-  inline audit covers the remaining 845 incomplete identities. Ring retains
+  into the executable catalog using the same search procedure. Ring retains
   sideboards as private outside-game cards, replaces the next draw, and follows
   Eternal Central's exile-or-sideboard wording in Old School while using its
   Oracle outside-game-only wording elsewhere. Its supported-format activation,

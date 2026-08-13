@@ -566,26 +566,25 @@ the additive catalog entries do not add legal actions to those games.
 follow as off-format catalog additions; a successful search publicly reveals
 the selected card, shuffles the remaining library, and puts that card on top.
 
-The protocol-19 catalog appends definitions 315 through 605 for the expanded
+The protocol-19 catalog appended definitions 315 through 605 for the expanded
 Old School implementation: 286 legal card identities and five supporting
-tokens. With Guardian Beast below, the format now has 421 cataloged legal
-identities, of which 389 are `complete`, 30 are `partial`, and two are
-`metadataOnly`. The
-identity-complete audit is kept inline at each identity's collector position in
-the printed set modules. It records the concrete engine limitation for those
-32 incomplete definitions and all 560 other legal identities that remain
-blocked, and also covers all seven banned identities in the same sets. This is
+tokens. At that transition, the format had 421 cataloged legal identities, of
+which 389 were `complete`, 30 were `partial`, and two were `metadataOnly`. The
+identity-complete audit was kept inline at each identity's collector position in
+the printed set modules. It recorded the concrete engine limitation for those
+32 incomplete definitions and all 560 other legal identities that were
+blocked, and also covered all seven banned identities in the same sets. This is
 an additive catalog-content change, not a JSON-shape change; consumers must not
 assume the older catalog length or that definition 314 is the maximum ID.
 
-Definitions 607 through 1361 extend the compatible protocol-20 catalog growth
+Definitions 607 through 1361 extended the compatible protocol-20 catalog growth
 with 736 card identities used by ISD–RTR Standard and nineteen supporting
 tokens. Together with in-format printings of existing definitions, Standard
-now exposes 878 legal identities: 839 `complete` and 39 `partial`. The inline
-audit partitions all 1,686 identities in its eight sets and records a concrete
+then exposed 878 legal identities: 839 `complete` and 39 `partial`. The inline
+audit partitioned all 1,686 identities in its eight sets and recorded a concrete
 engine-capability gap for every one of the 847 incomplete identities, including
-808 blocked cards that have no catalog
-definition yet. The definition IDs are append-only and the catalog,
+808 blocked cards that had no catalog definition. The definition IDs are
+append-only and the catalog,
 observation, action, and decision JSON shapes are unchanged, so this does not
 bump protocol 20. Consumers must not assume definition 606 remains the maximum
 ID.
@@ -620,13 +619,12 @@ is legal only where Arabian Nights is allowed.
 
 As compatible protocol-22 simulation growth, definitions `1362` through `1367`
 append Ring of Ma'rûf, the three remaining Onslaught fetch lands, Liliana's
-Shade, and Seek the Horizon. Standard now exposes 880 legal identities: 841
-`complete`, 39 `partial`, and 806 blocked; its inline audit covers the remaining
-845 incomplete identities. Ring is executable in Old School. Its activation can
-create a private choice whose option `zone` is `OutsideGame`; under the Eternal
-Central profile the same choice can also contain cards from `Exile`. Clients
-must treat the option list as authoritative and must not infer that every
-card-backed decision refers to an observed zone. If more than one next-draw
+Shade, and Seek the Horizon, moving the latter two from Standard's inline audit
+into the executable catalog. Ring is executable in Old School. Its activation
+can create a private choice whose option `zone` is `OutsideGame`; under the
+Eternal Central profile the same choice can also contain cards from `Exile`.
+Clients must treat the option list as authoritative and must not infer that
+every card-backed decision refers to an observed zone. If more than one next-draw
 replacement is applicable, the affected player gets a public one-option
 `Choice`; the unchosen effects remain available for later draws that turn.
 
@@ -1093,7 +1091,8 @@ nothing now and survives those changes.
 See [formats and current scope](formats.md) for supported formats, built-in
 decks, rules deviations, and known limitations. `penta.catalog(format)` is the
 authoritative machine-readable description of the selected format's card
-legality and implementation coverage.
+legality and implementation coverage. Run `make catalog-report` for current
+aggregate catalog and coverage counts.
 
 ## Where this is going
 

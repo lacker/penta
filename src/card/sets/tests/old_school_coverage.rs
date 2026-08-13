@@ -4,8 +4,8 @@ use std::path::PathBuf;
 use super::source_organization::{AuditStatus, SourceAudit, old_school_source_audits};
 use super::*;
 
-const LEGAL_IDENTITY_COUNT: usize = 981;
-const LEGAL_IDENTITY_FINGERPRINT: u64 = 15_397_783_499_410_747_938;
+const SET_IDENTITY_COUNT: usize = 988;
+const SET_IDENTITY_FINGERPRINT: u64 = 587_596_519_181_014_230;
 
 fn identity_fingerprint(names: &BTreeSet<String>) -> u64 {
     const FNV_OFFSET_BASIS: u64 = 14_695_981_039_346_656_037;
@@ -21,19 +21,19 @@ fn identity_fingerprint(names: &BTreeSet<String>) -> u64 {
     fingerprint
 }
 
-fn assert_exact_legal_identity_inventory(names: &BTreeSet<String>) {
+fn assert_exact_set_identity_inventory(names: &BTreeSet<String>) {
     assert_eq!(
         identity_fingerprint(names),
-        LEGAL_IDENTITY_FINGERPRINT,
-        "the exact EC 93/94 legal identity inventory changed"
+        SET_IDENTITY_FINGERPRINT,
+        "the exact 93/94 set identity inventory changed"
     );
 }
 
 #[test]
-fn every_incomplete_old_school_identity_has_one_audited_capability_gap() {
+fn every_incomplete_old_school_set_identity_has_one_audited_capability_gap() {
     let catalog = crate::card::catalog().expect("built-in catalog");
     let mut audited = HashMap::new();
-    let mut legal_names = BTreeSet::new();
+    let mut set_names = BTreeSet::new();
 
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     for SourceAudit { name, status, gap } in old_school_source_audits(&root) {
@@ -44,23 +44,17 @@ fn every_incomplete_old_school_identity_has_one_audited_capability_gap() {
                 .is_none(),
             "{name} appears more than once in the Old School audit"
         );
-        legal_names.insert(name.clone());
-        assert!(
-            !Format::OldSchool9394.is_banned(&name),
-            "banned card {name} must not appear in the legal-card audit"
-        );
+        set_names.insert(name.clone());
     }
 
     let mut complete = 0;
     let mut cataloged_incomplete = HashSet::new();
     for definition in catalog.definitions() {
-        if !catalog.is_allowed_in(definition.id, Format::OldSchool9394)
-            || catalog.is_banned_in(definition.id, Format::OldSchool9394)
-        {
+        if !catalog.is_allowed_in(definition.id, Format::OldSchool9394) {
             continue;
         }
         let key = definition.name.to_lowercase();
-        legal_names.insert(definition.name.clone());
+        set_names.insert(definition.name.clone());
         match definition.implementation_status() {
             ImplementationStatus::Complete => {
                 complete += 1;
@@ -107,8 +101,8 @@ fn every_incomplete_old_school_identity_has_one_audited_capability_gap() {
 
     assert_eq!(
         complete + audited.len(),
-        LEGAL_IDENTITY_COUNT,
-        "the completed catalog and incomplete audit must partition the EC 93/94 legal identity pool"
+        SET_IDENTITY_COUNT,
+        "the completed catalog and incomplete audit must partition every identity in the 93/94 sets"
     );
-    assert_exact_legal_identity_inventory(&legal_names);
+    assert_exact_set_identity_inventory(&set_names);
 }

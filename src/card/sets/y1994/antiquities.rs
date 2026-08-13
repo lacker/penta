@@ -437,6 +437,9 @@ pub(in crate::card::sets) static CRUMBLE: CardRecord = CardRecord::new(
 // ATQ 41 — Battering Ram
 // Audit: blocked — Needs a combat declaration or damage-assignment constraint for “Whenever this creature becomes blocked by a Wall, destroy that Wall at end of combat”.
 
+// ATQ 42 — Bronze Tablet
+// Audit: blocked — Needs permanent card-ownership changes plus the opponent's life-payment choice after the linked cards are exiled.
+
 // ATQ 43 — Candelabra of Tawnos
 // Audit: blocked — Needs a persistent tap/untap restriction or event relation for “{X}, {T}: Untap X target lands”.
 

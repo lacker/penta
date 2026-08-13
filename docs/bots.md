@@ -480,9 +480,9 @@ identities, of which 388 are `complete`, 31 are `partial`, and two are
 identity-complete audit is kept inline at each identity's collector position in
 the printed set modules. It records the concrete engine limitation for those
 33 incomplete definitions and all 560 other legal identities that remain
-blocked. This is an additive catalog-content change, not a JSON-shape
-change; consumers must not assume the older catalog length or that definition
-314 is the maximum ID.
+blocked, and also covers all seven banned identities in the same sets. This is
+an additive catalog-content change, not a JSON-shape change; consumers must not
+assume the older catalog length or that definition 314 is the maximum ID.
 
 Cards and parts expose `implementationStatus` as `complete`, `partial`, or
 `metadataOnly`; the old execution gate is not public coverage metadata.

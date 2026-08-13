@@ -1507,6 +1507,9 @@ pub(in crate::card::sets) static SPINAL_VILLAIN: CardRecord = CardRecord::new(
 // LEG 165 — Storm World
 // Audit: blocked — Needs damage-history/source tracking or card-specific damage processing for “At the beginning of each player's upkeep, this enchantment deals X damage to that player, where X is 4 minus the number of cards in their hand”.
 
+// LEG 166 — Tempest Efreet
+// Audit: blocked — Needs random hand reveal, an opponent life-payment choice, and a permanent ownership exchange between cards in different zones.
+
 // LEG 167 — The Brute
 // Audit: blocked — Needs regeneration shields and their destroy-event replacement procedure for “{R}{R}{R}: Regenerate enchanted creature”.
 
@@ -1824,6 +1827,9 @@ pub(in crate::card::sets) static RADJAN_SPIRIT: CardRecord = CardRecord::new(
         ),
     ),
 );
+
+// LEG 200 — Rebirth
+// Audit: blocked — Needs a separate optional ante choice for each player and a conditional life-total-setting continuation for each player who antes.
 
 // LEG 201 — Reincarnation
 // Audit: blocked — Needs duration-aware control-changing continuous effects for “Choose target creature. When that creature dies this turn, return a creature card from its owner's graveyard to the battlefield under the control of that creature's owner”.

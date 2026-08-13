@@ -766,6 +766,9 @@ pub(in crate::card::sets) static JANDORS_SADDLEBAGS: CardRecord = CardRecord::ne
     ]),
 );
 
+// ARN 66 — Jeweled Bird
+// Audit: blocked — Needs an ante zone, ante ownership queries, and the source-moving ante procedure for “Ante this artifact. If you do, put all other cards you own from the ante into your graveyard, then draw a card”.
+
 // ARN 67 — Pyramids
 // Audit: blocked — Needs a duration-scoped replacement/prevention effect for “• The next time target land would be destroyed this turn, remove all damage marked on it instead”.
 

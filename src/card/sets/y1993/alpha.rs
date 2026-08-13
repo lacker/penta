@@ -1223,6 +1223,9 @@ pub(in crate::card::sets) static BLACK_KNIGHT: CardRecord = CardRecord::new(
 // LEA 95 — Bog Wraith
 // Audit: blocked — Needs the printed landwalk variant and its defending-player land/blocking semantics for “Swampwalk”.
 
+// LEA 96 — Contract from Below
+// Audit: blocked — Needs ante-zone and deck-construction handling for “Discard your hand, ante the top card of your library, then draw seven cards”.
+
 // LEA 97 — Cursed Land
 // Audit: blocked — Needs an upkeep trigger whose event player is derived from the attached permanent's current controller for “At the beginning of the upkeep of enchanted land's controller, this Aura deals 1 damage to that player”.
 
@@ -1237,6 +1240,9 @@ pub(in crate::card::sets) static DARK_RITUAL: CardRecord = CardRecord::new(
         EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Black).with_amount(3)),
     )]),
 );
+
+// LEA 99 — Darkpact
+// Audit: blocked — Needs an ante zone plus a permanent ownership exchange between a chosen ante card and the top card of a library.
 
 // LEA 100 — Deathgrip
 pub(in crate::card::sets) static DEATHGRIP: CardRecord = CardRecord::new(
@@ -1261,6 +1267,9 @@ pub(in crate::card::sets) static DEATHGRIP: CardRecord = CardRecord::new(
 
 // LEA 101 — Deathlace
 // Audit: blocked — Needs a duration-aware color-setting characteristic-layer effect for “Target spell or permanent becomes black”.
+
+// LEA 102 — Demonic Attorney
+// Audit: blocked — Needs the ante procedure and its associated deck-construction handling for “Each player antes the top card of their library”.
 
 // LEA 103 — Demonic Hordes
 // Audit: blocked — Needs a persistent tap/untap restriction or event relation for “At the beginning of your upkeep, unless you pay {B}{B}{B}, tap this creature and sacrifice a land of an opponent's choice”.

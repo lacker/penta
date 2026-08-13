@@ -52,8 +52,9 @@ snapshots.
   metadata-only. An identity-complete audit, kept inline at each identity's
   collector position in the printed set modules, names the concrete engine gap
   for those 33 cataloged incomplete cards and the other 560 legal identities
-  that remain blocked. Definition IDs remain append-only and the catalog JSON
-  shape is unchanged, so this is compatible protocol-19 catalog growth.
+  that remain blocked, as well as all seven banned identities in those sets.
+  Definition IDs remain append-only and the catalog JSON shape is unchanged,
+  so this is compatible protocol-19 catalog growth.
 
 - The unfiltered catalog appends the off-format Premodern cards `Impulse`,
   `Sleight of Hand`, and `Opt` as definitions 310 through 312, and recognizes

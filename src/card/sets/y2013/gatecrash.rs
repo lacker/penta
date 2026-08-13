@@ -1,4 +1,4 @@
-//! Gatecrash card records used by the built-in ISD–RTR Standard decks.
+//! Gatecrash card records used by the built-in ISD–DGM Standard decks.
 
 use super::{CardRecord, PrintingRecord};
 use crate::card::{

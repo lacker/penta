@@ -61,7 +61,7 @@ The adapters expose several identifiers because compatibility is directional,
 not one exact-version comparison:
 
 - `protocolVersion` is the breaking epoch for canonical bot observation,
-  action, and catalog JSON. Protocol 22 objects are open-world: consumers ignore
+  action, and catalog JSON. Protocol 23 objects are open-world: consumers ignore
   members they do not use. The epoch changes when an existing field or tag is
   removed, renamed, retyped, or reinterpreted, not when an optional field or a
   legal action expressed through existing vocabulary is added.

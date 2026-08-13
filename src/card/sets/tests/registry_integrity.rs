@@ -6,7 +6,7 @@ fn format_sets_and_card_records_have_catalog_modules() {
         .rules()
         .allowed_sets
         .iter()
-        .chain(Format::IsdRtrStandard.rules().allowed_sets)
+        .chain(Format::IsdDgmStandard.rules().allowed_sets)
         .copied()
         .collect::<Vec<_>>();
     // Tokens are registered like a set so a client can resolve one by
@@ -32,7 +32,7 @@ fn format_sets_and_card_records_have_catalog_modules() {
         .copied()
         .filter(|set| *set != CardSet::Token)
         .collect::<Vec<_>>();
-    for format in [Format::OldSchool9394, Format::IsdRtrStandard] {
+    for format in [Format::OldSchool9394, Format::IsdDgmStandard] {
         assert!(
             !format.rules().allowed_sets.contains(&CardSet::Token),
             "no format may allow the token set"
@@ -270,6 +270,45 @@ fn standard_search_cards_preserve_may_reveal_and_cardinality_semantics() {
             enters_tapped: false,
         })
     );
+
+    let farseek = y2012::magic_2013::FARSEEK.rules.ability_clauses()[0];
+    assert_eq!(
+        farseek.declarative_effect(),
+        Some(EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::HasAnyBasicLandType(&[
+                BasicLandType::Plains,
+                BasicLandType::Island,
+                BasicLandType::Swamp,
+                BasicLandType::Mountain,
+            ]),
+            minimum: 0,
+            maximum: 1,
+            reveal: false,
+            destination: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: true,
+        })
+    );
+
+    let rangers_path = y2012::magic_2013::RANGERS_PATH.rules.ability_clauses()[0];
+    assert_eq!(
+        rangers_path.declarative_effect(),
+        Some(EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+            minimum: 0,
+            maximum: 2,
+            reveal: false,
+            destination: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: true,
+        })
+    );
 }
 
 #[test]
@@ -373,7 +412,7 @@ fn standard_records_are_unique_and_format_legal() {
     for record in records {
         assert!(names.insert(record.name));
         assert!(!record.rules.has_supertype(CardSupertype::Basic));
-        assert!(Format::IsdRtrStandard.allows_set(record.debut_set));
+        assert!(Format::IsdDgmStandard.allows_set(record.debut_set));
         if let Some(behavior) = record.rules.special_behavior() {
             assert_eq!(behavior.rules(), &record.rules);
         }

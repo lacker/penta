@@ -1,0 +1,26 @@
+# Naya Midrange — Brian Braun-Duin test deck (Standard, 2013-01-02).
+# Source: https://articles.starcitygames.com/articles/todd-vs-bbd-omnidoor-thragfire-vs-naya-midrange/
+main:
+  Avacyn's Pilgrim: 4
+  Huntmaster of the Fells: 4
+  Restoration Angel: 4
+  Thragtusk: 4
+  Thundermaw Hellkite: 4
+  Loxodon Smiter: 4
+  Forest: 4
+  Mountain: 3
+  Temple Garden: 4
+  Rootbound Crag: 4
+  Clifftop Retreat: 3
+  Kessig Wolf Run: 2
+  Cavern of Souls: 4
+  Farseek: 4
+  Bonfire of the Damned: 4
+  Selesnya Charm: 4
+sideboard:
+  Garruk, Primal Hunter: 2
+  Garruk Relentless: 2
+  Zealous Conscripts: 2
+  Pillar of Flame: 4
+  Angel of Serenity: 3
+  Rest in Peace: 2

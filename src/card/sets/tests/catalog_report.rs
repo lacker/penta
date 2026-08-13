@@ -111,7 +111,7 @@ fn render_report(
         Some("including banned identities"),
         old_school,
     );
-    write_format_coverage(&mut report, Format::IsdRtrStandard, None, standard);
+    write_format_coverage(&mut report, Format::IsdDgmStandard, None, standard);
     report
 }
 
@@ -121,7 +121,7 @@ fn repository_report() -> String {
     render_report(
         CatalogCoverage::from_definitions(catalog.definitions()),
         FormatCoverage::from_repository(root, &catalog, Format::OldSchool9394),
-        FormatCoverage::from_repository(root, &catalog, Format::IsdRtrStandard),
+        FormatCoverage::from_repository(root, &catalog, Format::IsdDgmStandard),
     )
 }
 
@@ -170,7 +170,7 @@ fn report_layout_names_repository_and_format_coverage() {
             "    metadata-only       1\n",
             "    blocked            20\n",
             "    total              30\n",
-            "  ISD-RTR Standard\n",
+            "  ISD-DGM Standard\n",
             "    complete            5\n",
             "    partial             1\n",
             "    metadata-only       0\n",

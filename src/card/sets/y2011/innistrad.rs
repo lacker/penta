@@ -1,4 +1,4 @@
-//! Innistrad card records used by the built-in ISD–RTR Standard deck tranche.
+//! Innistrad card records used by the built-in ISD–DGM Standard deck tranche.
 
 use super::{CardRecord, PrintingRecord};
 use crate::card::sets::{y1993::alpha, y2002::onslaught};

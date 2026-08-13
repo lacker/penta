@@ -397,6 +397,14 @@ pub(in crate::card::sets) static DRAGON_TOKEN_6_6_RED: CardRecord = CardRecord::
         .with_ability(abilities::flying()),
 );
 
+pub(in crate::card::sets) static WURM_TOKEN_6_6_GREEN: CardRecord = CardRecord::new(
+    cards::WURM_TOKEN_6_6_GREEN,
+    "Wurm",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Wurm"], 6, 6).printed_colors(&[ManaColor::Green]),
+);
+
 /// Domri's emblem. An emblem is an object with abilities and no other
 /// characteristics, so it is cataloged like a token and lives in its own
 /// list rather than on the battlefield.
@@ -483,6 +491,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BIRD_TOKEN_1_1_WHITE,
     &DRAGON_TOKEN_6_6_RED,
     &SNAKE_TOKEN_1_1_POISONOUS,
+    &WURM_TOKEN_6_6_GREEN,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

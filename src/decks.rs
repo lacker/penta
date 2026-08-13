@@ -247,56 +247,74 @@ pub mod old_school_93_94 {
     }
 }
 
-/// Built-in decks from the September 2013 ISD–RTR Standard card pool.
-pub mod isd_rtr_standard {
+/// Built-in decks from the final pre-Theros ISD–DGM Standard card pool.
+pub mod isd_dgm_standard {
     deck!(
         naya_midrange_rudy_briksza,
-        "isd_rtr_standard",
+        "isd_dgm_standard",
         "naya_midrange_rudy_briksza.yaml",
         "Returns Rudy Briksza's first-place Naya Midrange deck from SCG Open Atlanta."
     );
     deck!(
         gr_aggro_joseph_greer,
-        "isd_rtr_standard",
+        "isd_dgm_standard",
         "gr_aggro_joseph_greer.yaml",
         "Returns Joseph Greer's second-place G/R Aggro deck from SCG Open Atlanta."
     );
     deck!(
         bg_midrange_mike_fyrberg,
-        "isd_rtr_standard",
+        "isd_dgm_standard",
         "bg_midrange_mike_fyrberg.yaml",
         "Returns Mike Fyrberg's third-place B/G Midrange deck from SCG Open Atlanta."
     );
     deck!(
         naya_midrange_jimmie_smith,
-        "isd_rtr_standard",
+        "isd_dgm_standard",
         "naya_midrange_jimmie_smith.yaml",
         "Returns Jimmie Smith's fourth-place Naya Midrange deck from SCG Open Atlanta."
     );
     deck!(
         uwr_flash_korey_mcduffie,
-        "isd_rtr_standard",
+        "isd_dgm_standard",
         "uwr_flash_korey_mcduffie.yaml",
         "Returns the fifth-place U/W/R Flash deck piloted by Korey `McDuffie` at SCG Open Atlanta."
     );
     deck!(
         uw_flash_phillip_lorren,
-        "isd_rtr_standard",
+        "isd_dgm_standard",
         "uw_flash_phillip_lorren.yaml",
         "Returns Phillip Lorren's sixth-place U/W Flash deck from SCG Open Atlanta."
     );
     deck!(
         uw_flash_clayton_arch,
-        "isd_rtr_standard",
+        "isd_dgm_standard",
         "uw_flash_clayton_arch.yaml",
         "Returns a legality-corrected version of Clayton Arch's seventh-place U/W Flash deck from SCG Open Atlanta."
     );
     deck!(
         junk_reanimator_drew_kuenzinger,
-        "isd_rtr_standard",
+        "isd_dgm_standard",
         "junk_reanimator_drew_kuenzinger.yaml",
         "Returns Drew Kuenzinger's eighth-place Junk Reanimator deck from SCG Open Atlanta."
     );
+    deck!(
+        omnidoor_thragfire_todd_anderson,
+        "isd_dgm_standard",
+        "omnidoor_thragfire_todd_anderson.yaml",
+        "Returns Todd Anderson's Omnidoor Thragfire test deck from January 2013."
+    );
+    deck!(
+        naya_midrange_brian_braun_duin,
+        "isd_dgm_standard",
+        "naya_midrange_brian_braun_duin.yaml",
+        "Returns Brian Braun-Duin's Naya Midrange test deck from January 2013."
+    );
+}
+
+/// Source-compatible alias for the former format module name.
+#[deprecated(note = "use decks::isd_dgm_standard")]
+pub mod isd_rtr_standard {
+    pub use super::isd_dgm_standard::*;
 }
 
 macro_rules! old_school_compatibility_wrapper {
@@ -376,7 +394,7 @@ mod tests {
 
     use super::{
         BuiltinDeckError, artifacts, bwr_aggro, counterburn, erhnamgeddon, goblins, gr_aggro,
-        isd_rtr_standard, jeskai_aggro, lions_dib, lions_dib_bolt, mono_black, mono_red_atog,
+        isd_dgm_standard, jeskai_aggro, lions_dib, lions_dib_bolt, mono_black, mono_red_atog,
         old_school_93_94, parse, robots, sligh, the_deck, troll_disk, white_weenie,
     };
     use crate::card;
@@ -512,21 +530,23 @@ mod tests {
     fn standard_decks_parse_from_the_union_catalog_and_are_legal() {
         let catalog = card::catalog().unwrap();
         let builders: &[fn() -> Deck] = &[
-            isd_rtr_standard::naya_midrange_rudy_briksza,
-            isd_rtr_standard::gr_aggro_joseph_greer,
-            isd_rtr_standard::bg_midrange_mike_fyrberg,
-            isd_rtr_standard::naya_midrange_jimmie_smith,
-            isd_rtr_standard::uwr_flash_korey_mcduffie,
-            isd_rtr_standard::uw_flash_phillip_lorren,
-            isd_rtr_standard::uw_flash_clayton_arch,
-            isd_rtr_standard::junk_reanimator_drew_kuenzinger,
+            isd_dgm_standard::naya_midrange_rudy_briksza,
+            isd_dgm_standard::gr_aggro_joseph_greer,
+            isd_dgm_standard::bg_midrange_mike_fyrberg,
+            isd_dgm_standard::naya_midrange_jimmie_smith,
+            isd_dgm_standard::uwr_flash_korey_mcduffie,
+            isd_dgm_standard::uw_flash_phillip_lorren,
+            isd_dgm_standard::uw_flash_clayton_arch,
+            isd_dgm_standard::junk_reanimator_drew_kuenzinger,
+            isd_dgm_standard::omnidoor_thragfire_todd_anderson,
+            isd_dgm_standard::naya_midrange_brian_braun_duin,
         ];
 
         for build in builders {
             let deck = build();
             assert_eq!(deck.main.len(), 60);
             assert_eq!(deck.sideboard.len(), 15);
-            deck.validate_for_format(&catalog, Format::IsdRtrStandard)
+            deck.validate_for_format(&catalog, Format::IsdDgmStandard)
                 .unwrap();
         }
     }

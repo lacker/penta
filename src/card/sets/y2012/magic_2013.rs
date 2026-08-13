@@ -1,4 +1,4 @@
-//! Magic 2013 card records used by the built-in ISD–RTR Standard deck tranche.
+//! Magic 2013 card records used by the built-in ISD–DGM Standard deck tranche.
 
 use super::{CardRecord, PrintingRecord, avacyn_restored, dark_ascension};
 use crate::card::sets::{
@@ -967,7 +967,24 @@ static DISCIPLE_OF_BOLAS_PAYOFF: EffectDef = EffectDef::Sequence(&[
 ]);
 
 // M13 63 — Omniscience
-// Audit: blocked — No static permission waives mana costs for spells cast from hand.
+// Audit: metadata-only — No static permission waives mana costs for spells cast from hand.
+pub(in crate::card::sets) static OMNISCIENCE: CardRecord = CardRecord::new(
+    cards::OMNISCIENCE,
+    "Omniscience",
+    CardArt::new("1088f33e-cb5f-4248-ae8e-280c4e41f291", "Jason Chan"),
+    CardSet::Magic2013,
+    CardRules::new_enchantment(mana_cost!("{7}{U}{U}{U}")).with_ability(
+        AbilityDef::static_ability(
+            "You may cast spells from your hand without paying their mana costs.",
+            EffectDef::Special(
+                "Allow spells from your hand to be cast without paying their mana costs",
+            ),
+        )
+        .with_coverage(AbilityCoverageDef::metadata_only(
+            "Casting spells without paying their mana costs is not an available alternative cost.",
+        )),
+    ),
+);
 
 // M13 64 — Redirect
 // Audit: blocked — No effect can retarget a spell on the stack.
@@ -2439,7 +2456,19 @@ pub(in crate::card::sets) static WILD_GUESS: CardRecord = CardRecord::new(
 );
 
 // M13 158 — Worldfire
-// Audit: blocked — Needs simultaneous mass exile across zones plus a life-total setter.
+// Audit: metadata-only — Needs simultaneous mass exile across zones plus a life-total setter.
+pub(in crate::card::sets) static WORLDFIRE: CardRecord = CardRecord::new(
+    cards::WORLDFIRE,
+    "Worldfire",
+    CardArt::new("2ef3d4b5-0453-4bf0-b018-23b0c3b9ae11", "Izzy"),
+    CardSet::Magic2013,
+    CardRules::new_sorcery(mana_cost!("{6}{R}{R}{R}")).with_ability(
+        AbilityDef::unimplemented_spell(
+            "Exile all permanents. Exile all cards from all hands and graveyards. Each player's life total becomes 1.",
+            "Simultaneous mass exile across zones and setting every player's life total to a fixed value are not available declaratively.",
+        ),
+    ),
+);
 
 // M13 159 — Acidic Slime
 pub(in crate::card::sets) static ACIDIC_SLIME: CardRecord = CardRecord::new(
@@ -2615,7 +2644,32 @@ pub(in crate::card::sets) static ELVISH_VISIONARY: CardRecord = CardRecord::new(
 );
 
 // M13 170 — Farseek
-// Audit: blocked — Search-to-battlefield cannot make the found land enter tapped.
+pub(in crate::card::sets) static FARSEEK: CardRecord = CardRecord::new(
+    cards::FARSEEK,
+    "Farseek",
+    CardArt::new("f9b69d33-96dd-4844-aefa-27a885cb2ffc", "Martina Pilcerova"),
+    CardSet::Magic2013,
+    CardRules::new_sorcery(mana_cost!("{1}{G}")).with_ability(AbilityDef::spell(
+        "Search your library for a Plains, Island, Swamp, or Mountain card, put it onto the battlefield tapped, then shuffle.",
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::HasAnyBasicLandType(&[
+                BasicLandType::Plains,
+                BasicLandType::Island,
+                BasicLandType::Swamp,
+                BasicLandType::Mountain,
+            ]),
+            minimum: 0,
+            maximum: 1,
+            reveal: false,
+            destination: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: true,
+        },
+    )),
+);
 
 // M13 171 — Flinthoof Boar
 pub(in crate::card::sets) static FLINTHOOF_BOAR: CardRecord = CardRecord::new(
@@ -2649,8 +2703,55 @@ pub(in crate::card::sets) static FLINTHOOF_BOAR: CardRecord = CardRecord::new(
 // M13 173 — Fungal Sprouting
 // Audit: blocked — No value expression computes the greatest power among creatures the controller controls.
 
+static LANDS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::HasType(CardType::Land),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::You,
+);
+
 // M13 174 — Garruk, Primal Hunter
-// Audit: blocked — Needs greatest-power evaluation and a token count derived from that value.
+// Audit: partial — Needs greatest-power evaluation for its draw ability.
+pub(in crate::card::sets) static GARRUK_PRIMAL_HUNTER: CardRecord = CardRecord::new(
+    cards::GARRUK_PRIMAL_HUNTER,
+    "Garruk, Primal Hunter",
+    CardArt::new(
+        "9945307b-d49d-4d21-bba0-2aebba68d57a",
+        "D. Alexander Gregory",
+    ),
+    CardSet::Magic2013,
+    CardRules::new_planeswalker(mana_cost!("{2}{G}{G}{G}"), &["Garruk"], 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::activated(
+                "+1: Create a 3/3 green Beast creature token.",
+                &[AbilityCostDef::Loyalty(1)],
+                EffectDef::CreateToken {
+                    token: cards::BEAST_TOKEN_3_3_GREEN,
+                    count: ValueDef::Constant(1),
+                    tapped: false,
+                },
+            ),
+            AbilityDef::activated(
+                "−3: Draw cards equal to the greatest power among creatures you control.",
+                &[AbilityCostDef::Loyalty(-3)],
+                EffectDef::Special(
+                    "Draw cards equal to the greatest power among creatures you control",
+                ),
+            )
+            .with_coverage(AbilityCoverageDef::metadata_only(
+                "The greatest power among a set of creatures is not an available value.",
+            )),
+            AbilityDef::activated(
+                "−6: Create a 6/6 green Wurm creature token for each land you control.",
+                &[AbilityCostDef::Loyalty(-6)],
+                EffectDef::CreateToken {
+                    token: cards::WURM_TOKEN_6_6_GREEN,
+                    count: ValueDef::CountMatchingObjects(&LANDS_YOU_CONTROL),
+                    tapped: false,
+                },
+            ),
+        ]),
+);
 
 // M13 175 — Garruk's Packleader
 // Audit: blocked — Power predicates omit continuous static bonuses, so the entry trigger cannot test full current power.
@@ -2737,7 +2838,27 @@ pub(in crate::card::sets) static PRIMAL_HUNTBEAST: CardRecord = CardRecord::new(
 // Audit: blocked — A leave-the-battlefield trigger cannot address its source card after it becomes a new graveyard object.
 
 // M13 186 — Ranger's Path
-// Audit: blocked — Multi-card battlefield searches and tapped entry are outside SearchZone's current runtime boundary.
+pub(in crate::card::sets) static RANGERS_PATH: CardRecord = CardRecord::new(
+    cards::RANGERS_PATH,
+    "Ranger's Path",
+    CardArt::new("26858a53-1054-407a-b2a2-34a7c4ae0f10", "Tomasz Jedruszek"),
+    CardSet::Magic2013,
+    CardRules::new_sorcery(mana_cost!("{3}{G}")).with_ability(AbilityDef::spell(
+        "Search your library for up to two Forest cards, put them onto the battlefield tapped, then shuffle.",
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+            minimum: 0,
+            maximum: 2,
+            reveal: false,
+            destination: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: true,
+        },
+    )),
+);
 
 // M13 187 — Revive
 pub(in crate::card::sets) static REVIVE: CardRecord = CardRecord::new(
@@ -2961,7 +3082,49 @@ pub(in crate::card::sets) static YEVAS_FORCEMAGE: CardRecord = CardRecord::new(
 );
 
 // M13 199 — Nicol Bolas, Planeswalker
-// Audit: blocked — Needs indefinite control change plus linked seven-card discard and seven-permanent sacrifice choices.
+// Audit: partial — Needs indefinite control change plus linked seven-card discard and seven-permanent sacrifice choices.
+pub(in crate::card::sets) static NICOL_BOLAS_PLANESWALKER: CardRecord = CardRecord::new(
+    cards::NICOL_BOLAS_PLANESWALKER,
+    "Nicol Bolas, Planeswalker",
+    CardArt::new("0e3b1fea-5c2c-4848-8109-548f56b99d49", "D. Alexander Gregory"),
+    CardSet::Magic2013,
+    CardRules::new_planeswalker(mana_cost!("{4}{U}{B}{B}{R}"), &["Bolas"], 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::activated_with_targets(
+                "+3: Destroy target noncreature permanent.",
+                &[AbilityCostDef::Loyalty(3)],
+                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                })],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    can_regenerate: true,
+                },
+            ),
+            AbilityDef::activated_with_targets(
+                "−2: Gain control of target creature.",
+                &[AbilityCostDef::Loyalty(-2)],
+                &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))],
+                EffectDef::Special("Gain control of target creature"),
+            )
+            .with_coverage(AbilityCoverageDef::metadata_only(
+                "A permanent-control-changing effect is not available declaratively.",
+            )),
+            AbilityDef::activated_with_targets(
+                "−9: Nicol Bolas deals 7 damage to target player or planeswalker. That player or that planeswalker's controller discards seven cards, then sacrifices seven permanents of their choice.",
+                &[AbilityCostDef::Loyalty(-9)],
+                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any))],
+                EffectDef::Special("Deal 7 damage to the target, then its player discards seven cards and sacrifices seven permanents"),
+            )
+            .with_coverage(AbilityCoverageDef::metadata_only(
+                "Choosing and sacrificing seven permanents simultaneously is not available declaratively.",
+            )),
+        ]),
+);
 
 // M13 200 — Akroma's Memorial
 pub(in crate::card::sets) static AKROMAS_MEMORIAL: CardRecord = CardRecord::new(
@@ -3513,6 +3676,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &KRAKEN_HATCHLING,
     &MIND_SCULPT,
     &NEGATE,
+    &OMNISCIENCE,
     &SCROLL_THIEF,
     &SPHINX_OF_UTHUUN,
     &TALRAND_SKY_SUMMONER,
@@ -3572,6 +3736,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &VOLCANIC_GEYSER,
     &VOLCANIC_STRENGTH,
     &WILD_GUESS,
+    &WORLDFIRE,
     &ACIDIC_SLIME,
     &ARBOR_ELF,
     &BOND_BEETLE,
@@ -3580,10 +3745,13 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DEADLY_RECLUSE,
     &DUSKDALE_WURM,
     &ELVISH_VISIONARY,
+    &FARSEEK,
     &FLINTHOOF_BOAR,
+    &GARRUK_PRIMAL_HUNTER,
     &MWONVULI_BEAST_TRACKER,
     &PLUMMET,
     &PRIMAL_HUNTBEAST,
+    &RANGERS_PATH,
     &REVIVE,
     &SENTINEL_SPIDER,
     &SERPENTS_GIFT,
@@ -3594,6 +3762,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &TITANIC_GROWTH,
     &VASTWOOD_GORGER,
     &YEVAS_FORCEMAGE,
+    &NICOL_BOLAS_PLANESWALKER,
     &AKROMAS_MEMORIAL,
     &CHRONOMATON,
     &DOOR_TO_NOTHINGNESS,

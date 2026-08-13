@@ -57,7 +57,7 @@ fn every_sampled_game_decision_reconstructs_from_its_observation() {
     let mut audited = 0_usize;
     let mut census: BTreeMap<&'static str, usize> = BTreeMap::new();
 
-    for format in [crate::Format::OldSchool9394, crate::Format::IsdRtrStandard] {
+    for format in [crate::Format::OldSchool9394, crate::Format::IsdDgmStandard] {
         let decks = crate::protocol::deck_names_for_format(format);
         for (index, name) in decks.iter().enumerate() {
             // Every built-in deck plays both seats across the pass, so a card

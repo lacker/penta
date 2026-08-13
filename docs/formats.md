@@ -11,10 +11,10 @@ Penta currently ships two explicit format profiles:
 
 - **Eternal Central Old School 93/94**: the original card pool, EC banned and
   restricted lists, phase-boundary mana burn, and fifteen powered archetypes.
-- **ISD–RTR Standard (final pre-Theros snapshot)**: Innistrad, Dark Ascension,
+- **ISD–DGM Standard (final pre-Theros snapshot)**: Innistrad, Dark Ascension,
   Avacyn Restored, Magic 2013, Return to Ravnica, Gatecrash, Dragon's Maze,
   and Magic 2014; no banned or restricted cards; modern mana-pool emptying with
-  no mana burn; and the eight decks from SCG Open Atlanta in September 2013.
+  no mana burn; and ten built-in decks from SCG events and testing in 2013.
 
 Both use 20 starting life, 60-card minimum decks, sideboards of up to 15 cards,
 and a four-copy limit except for basic lands. Both currently use London
@@ -43,7 +43,7 @@ next-draw replacement may choose an owned card from exile or the sideboard,
 instead of Oracle's outside-the-game-only source. Paper-only reprint policies
 have no meaning in the simulator.
 
-### ISD–RTR Standard
+### ISD–DGM Standard
 
 The profile represents the final Standard environment before Theros. It uses
 its eight-set legality snapshot, empties mana after each step and phase, and has
@@ -73,7 +73,7 @@ The engine currently supports:
   set modules, with executable declarative records for the supported tranche
   and a collector-ordered, named engine-capability gap for every incomplete
   identity in the 93/94 set corpus, including banned cards;
-- an identity-complete ISD–RTR Standard implementation audit inline in its
+- an identity-complete ISD–DGM Standard implementation audit inline in its
   eight printed set modules, with a concrete engine-capability gap for every
   incomplete identity; and
 - fixed source-faithful decks with complete main-deck and sideboard lists
@@ -149,7 +149,7 @@ Chaos Orb interaction: Guardian Beast can prevent the Orb's final destruction,
 but destroying the Beast with a successful flip removes that protection before
 the Orb's next instruction.
 
-### ISD–RTR Standard
+### ISD–DGM Standard
 
 The profile contains the complete main deck and sideboard for each member of
 the [SCG Open Atlanta Top 8][scg-atlanta]:
@@ -162,6 +162,12 @@ the [SCG Open Atlanta Top 8][scg-atlanta]:
 - Phillip Lorren — U/W Flash
 - Clayton Arch — U/W Flash
 - Drew Kuenzinger — Junk Reanimator
+
+It also contains both complete lists from the January 2013
+[Todd Anderson vs. Brian Braun-Duin matchup][scg-matchup]:
+
+- Todd Anderson — Omnidoor Thragfire
+- Brian Braun-Duin — Naya Midrange
 
 The published Clayton Arch list contains three copies of Celestial Purge, which
 was not legal in this Standard pool. The built-in list uses Celestial Flare as
@@ -182,3 +188,4 @@ catalog and coverage counts.
 [robots-data]: https://www.tcdecks.net/archetype.php?archetype=Artifact+Aggro&format=Old+School&src=all
 [the-deck-data]: https://www.tcdecks.net/archetype.php?archetype=The+Deck&format=Old+School&src=all
 [scg-atlanta]: https://www.mtgtop8.com/event?e=5640&f=ST
+[scg-matchup]: https://articles.starcitygames.com/articles/todd-vs-bbd-omnidoor-thragfire-vs-naya-midrange/

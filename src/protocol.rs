@@ -81,8 +81,10 @@ use observation_json::{card_part_name, decision_json, stack_object_json};
 /// state, restricted mana, and retired-object last-known information. Version
 /// 22 establishes open-world JSON objects, advertises
 /// named capabilities and a simulation fingerprint, and separates
-/// checkpoint/replay formats from the bot wire.
-pub const PROTOCOL_VERSION: u32 = 22;
+/// checkpoint/replay formats from the bot wire. Version 23 renames the
+/// canonical final pre-Theros format slug from `isd-rtr-standard` to
+/// `isd-dgm-standard`.
+pub const PROTOCOL_VERSION: u32 = 23;
 
 /// The engine package release. This is ordinary Cargo `SemVer`, not an exact
 /// ruleset identity; use [`SIMULATION_FINGERPRINT`] for replay and model

@@ -26,10 +26,11 @@ assert catalog_payload["simulationFingerprint"] == fingerprint
 catalog = {c["definition"]: c for c in catalog_payload["cards"]}
 assert any(c["name"] == "Lightning Bolt" for c in catalog.values())
 
-standard_decks = penta.deck_names(format="isd-rtr-standard")
+standard_decks = penta.deck_names(format="isd-dgm-standard")
 assert "Briksza Naya Midrange" in standard_decks
-standard_catalog_payload = json.loads(penta.catalog(format="isd-rtr-standard"))
-assert standard_catalog_payload["format"] == "isd-rtr-standard"
+assert penta.deck_names(format="isd-rtr-standard") == standard_decks
+standard_catalog_payload = json.loads(penta.catalog(format="isd-dgm-standard"))
+assert standard_catalog_payload["format"] == "isd-dgm-standard"
 assert standard_catalog_payload["simulationFingerprint"] == fingerprint
 assert any(
     card["name"] == "Huntmaster of the Fells"
@@ -40,11 +41,11 @@ standard_game = penta.Game(
     "Briksza Naya Midrange",
     "Greer G/R Aggro",
     opponent="external",
-    format="isd-rtr-standard",
+    format="isd-dgm-standard",
     seed=17,
 )
 standard_observation = json.loads(standard_game.observe())
-assert standard_observation["format"] == "isd-rtr-standard"
+assert standard_observation["format"] == "isd-dgm-standard"
 assert standard_observation["simulationFingerprint"] == fingerprint
 
 try:

@@ -1,4 +1,4 @@
-//! Return to Ravnica card records used by the built-in ISD–RTR Standard deck tranche.
+//! Return to Ravnica card records used by the built-in ISD–DGM Standard deck tranche.
 
 use super::{CardRecord, PrintingRecord};
 use crate::card::sets::{y1993::alpha, y2012::magic_2013};

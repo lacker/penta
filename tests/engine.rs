@@ -204,7 +204,7 @@ fn deck_validation_uses_the_selected_formats_card_pool() {
         }
     );
     standard_deck
-        .validate_for_format(&catalog, Format::IsdRtrStandard)
+        .validate_for_format(&catalog, Format::IsdDgmStandard)
         .unwrap();
 
     let mut main = vec![CardDefinitionId(1); 59];
@@ -214,11 +214,11 @@ fn deck_validation_uses_the_selected_formats_card_pool() {
             main,
             sideboard: Vec::new(),
         }
-        .validate_for_format(&catalog, Format::IsdRtrStandard)
+        .validate_for_format(&catalog, Format::IsdDgmStandard)
         .unwrap_err(),
         DeckError::CardNotAllowed {
             card: "Lightning Bolt".into(),
-            format: Format::IsdRtrStandard,
+            format: Format::IsdDgmStandard,
         }
     );
 }
@@ -247,7 +247,7 @@ fn deck_validation_uses_reprints_without_splitting_copy_identity() {
         sideboard: Vec::new(),
     };
     legal
-        .validate_for_format(&catalog, Format::IsdRtrStandard)
+        .validate_for_format(&catalog, Format::IsdDgmStandard)
         .unwrap();
 
     let too_many = Deck {
@@ -256,7 +256,7 @@ fn deck_validation_uses_reprints_without_splitting_copy_identity() {
     };
     assert_eq!(
         too_many
-            .validate_for_format(&catalog, Format::IsdRtrStandard)
+            .validate_for_format(&catalog, Format::IsdDgmStandard)
             .unwrap_err(),
         DeckError::TooManyCopies {
             card: "Lightning Bolt".into(),
@@ -511,7 +511,7 @@ fn mana_emptying_and_burn_follow_the_games_format() {
         sideboard: Vec::new(),
     };
 
-    for (format, expected_mana) in [(Format::OldSchool9394, 1), (Format::IsdRtrStandard, 0)] {
+    for (format, expected_mana) in [(Format::OldSchool9394, 1), (Format::IsdDgmStandard, 0)] {
         let mut game =
             Game::new_with_format(format, catalog.clone(), [deck.clone(), deck.clone()], 0)
                 .unwrap();

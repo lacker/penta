@@ -112,7 +112,7 @@ fn staged_game() -> Game {
 /// from the same observation it reads everything else from.
 fn staged_modern_game() -> Game {
     let mut game = ready_game();
-    game.format = crate::Format::IsdRtrStandard;
+    game.format = crate::Format::IsdDgmStandard;
     game
 }
 

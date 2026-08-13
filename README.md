@@ -11,8 +11,9 @@ Penta currently ships two explicit format profiles:
 
 - **Eternal Central Old School 93/94**, including mana burn and fifteen
   built-in archetypes.
-- **ISD–RTR Standard**, using the final pre-Theros legality snapshot and the
-  eight SCG Open Atlanta Top 8 decks.
+- **ISD–DGM Standard**, using the final pre-Theros legality snapshot and ten
+  built-in decks: the eight SCG Open Atlanta Top 8 lists plus two January 2013
+  SCG matchup decks.
 
 The project is growing incrementally toward a full Magic engine. It is playable
 end to end, but it does not yet implement the complete Comprehensive Rules or

@@ -14,7 +14,7 @@ pub enum Format {
     #[default]
     OldSchool9394,
     /// The final pre-Theros Standard pool, from Innistrad through Magic 2014.
-    IsdRtrStandard,
+    IsdDgmStandard,
 }
 
 /// The construction and game-start values shared by every game in a format.
@@ -84,9 +84,9 @@ pub const OLD_SCHOOL_RESTRICTED_CARDS: &[&str] = &[
     "Wheel of Fortune",
 ];
 
-pub const ISD_RTR_STANDARD_BANNED_CARDS: &[&str] = &[];
-pub const ISD_RTR_STANDARD_RESTRICTED_CARDS: &[&str] = &[];
-pub const ISD_RTR_STANDARD_ALLOWED_SETS: &[CardSet] = &[
+pub const ISD_DGM_STANDARD_BANNED_CARDS: &[&str] = &[];
+pub const ISD_DGM_STANDARD_RESTRICTED_CARDS: &[&str] = &[];
+pub const ISD_DGM_STANDARD_ALLOWED_SETS: &[CardSet] = &[
     CardSet::Innistrad,
     CardSet::DarkAscension,
     CardSet::AvacynRestored,
@@ -110,25 +110,37 @@ const OLD_SCHOOL_RULES: FormatRules = FormatRules {
     restricted_cards: OLD_SCHOOL_RESTRICTED_CARDS,
 };
 
-const ISD_RTR_STANDARD_RULES: FormatRules = FormatRules {
+#[deprecated(note = "use ISD_DGM_STANDARD_BANNED_CARDS")]
+pub const ISD_RTR_STANDARD_BANNED_CARDS: &[&str] = ISD_DGM_STANDARD_BANNED_CARDS;
+#[deprecated(note = "use ISD_DGM_STANDARD_RESTRICTED_CARDS")]
+pub const ISD_RTR_STANDARD_RESTRICTED_CARDS: &[&str] = ISD_DGM_STANDARD_RESTRICTED_CARDS;
+#[deprecated(note = "use ISD_DGM_STANDARD_ALLOWED_SETS")]
+pub const ISD_RTR_STANDARD_ALLOWED_SETS: &[CardSet] = ISD_DGM_STANDARD_ALLOWED_SETS;
+
+const ISD_DGM_STANDARD_RULES: FormatRules = FormatRules {
     starting_life: 20,
     opening_hand_size: 7,
     minimum_main_deck_size: 60,
     maximum_sideboard_size: 15,
     maximum_copies: 4,
-    allowed_sets: ISD_RTR_STANDARD_ALLOWED_SETS,
+    allowed_sets: ISD_DGM_STANDARD_ALLOWED_SETS,
     mana_empties_at_end_of_step: true,
     mana_burn: false,
-    banned_cards: ISD_RTR_STANDARD_BANNED_CARDS,
-    restricted_cards: ISD_RTR_STANDARD_RESTRICTED_CARDS,
+    banned_cards: ISD_DGM_STANDARD_BANNED_CARDS,
+    restricted_cards: ISD_DGM_STANDARD_RESTRICTED_CARDS,
 };
 
 impl Format {
+    /// Source-compatible alias for the former format name.
+    #[allow(non_upper_case_globals)]
+    #[deprecated(note = "use Format::IsdDgmStandard")]
+    pub const IsdRtrStandard: Self = Self::IsdDgmStandard;
+
     #[must_use]
     pub const fn rules(self) -> &'static FormatRules {
         match self {
             Self::OldSchool9394 => &OLD_SCHOOL_RULES,
-            Self::IsdRtrStandard => &ISD_RTR_STANDARD_RULES,
+            Self::IsdDgmStandard => &ISD_DGM_STANDARD_RULES,
         }
     }
 
@@ -136,7 +148,7 @@ impl Format {
     pub const fn slug(self) -> &'static str {
         match self {
             Self::OldSchool9394 => "old-school-93-94",
-            Self::IsdRtrStandard => "isd-rtr-standard",
+            Self::IsdDgmStandard => "isd-dgm-standard",
         }
     }
 
@@ -144,7 +156,7 @@ impl Format {
     pub const fn display_name(self) -> &'static str {
         match self {
             Self::OldSchool9394 => "Old School 93/94",
-            Self::IsdRtrStandard => "ISD-RTR Standard",
+            Self::IsdDgmStandard => "ISD-DGM Standard",
         }
     }
 
@@ -202,7 +214,7 @@ mod tests {
 
     #[test]
     fn format_set_windows_are_nonempty_unique_and_exclude_tokens() {
-        for format in [Format::OldSchool9394, Format::IsdRtrStandard] {
+        for format in [Format::OldSchool9394, Format::IsdDgmStandard] {
             let sets = format.rules().allowed_sets;
             assert!(!sets.is_empty(), "{format} needs an allowed set window");
             assert!(
@@ -245,9 +257,9 @@ mod tests {
 
         assert!(Format::OldSchool9394.allows_card(&old_spell));
         assert!(!Format::OldSchool9394.allows_card(&standard_spell));
-        assert!(Format::IsdRtrStandard.allows_card(&standard_spell));
-        assert!(!Format::IsdRtrStandard.allows_card(&old_spell));
-        assert!(Format::IsdRtrStandard.allows_card(&old_printing_of_a_basic));
+        assert!(Format::IsdDgmStandard.allows_card(&standard_spell));
+        assert!(!Format::IsdDgmStandard.allows_card(&old_spell));
+        assert!(Format::IsdDgmStandard.allows_card(&old_printing_of_a_basic));
         assert!(Format::OldSchool9394.allows_card(&old_printing_of_a_basic));
     }
 
@@ -266,7 +278,7 @@ mod tests {
             .push(CardPrinting::new(id, CardSet::Magic2014));
 
         assert!(Format::OldSchool9394.allows_card(&reprinted_spell));
-        assert!(Format::IsdRtrStandard.allows_card(&reprinted_spell));
+        assert!(Format::IsdDgmStandard.allows_card(&reprinted_spell));
     }
 
     #[test]
@@ -276,9 +288,9 @@ mod tests {
         assert!(Format::OldSchool9394.is_restricted(" black lotus "));
         assert!(Format::OldSchool9394.is_banned("CONTRACT FROM BELOW"));
 
-        assert!(!Format::IsdRtrStandard.rules().mana_burn);
-        assert!(Format::IsdRtrStandard.rules().mana_empties_at_end_of_step);
-        assert!(!Format::IsdRtrStandard.is_restricted("Black Lotus"));
-        assert!(!Format::IsdRtrStandard.is_banned("Contract from Below"));
+        assert!(!Format::IsdDgmStandard.rules().mana_burn);
+        assert!(Format::IsdDgmStandard.rules().mana_empties_at_end_of_step);
+        assert!(!Format::IsdDgmStandard.is_restricted("Black Lotus"));
+        assert!(!Format::IsdDgmStandard.is_banned("Contract from Below"));
     }
 }

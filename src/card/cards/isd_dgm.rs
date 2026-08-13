@@ -1,4 +1,4 @@
-//! Stable definition IDs appended by the ISD–RTR identity audit.
+//! Stable definition IDs appended by the ISD–DGM identity audit.
 
 use crate::CardDefinitionId;
 
@@ -759,3 +759,13 @@ pub const AKROMAS_MEMORIAL: CardDefinitionId = CardDefinitionId(1360);
 pub const SANDS_OF_DELIRIUM: CardDefinitionId = CardDefinitionId(1361);
 pub const LILIANAS_SHADE: CardDefinitionId = CardDefinitionId(1366);
 pub const SEEK_THE_HORIZON: CardDefinitionId = CardDefinitionId(1367);
+pub const INCREASING_AMBITION: CardDefinitionId = CardDefinitionId(1692);
+pub const TEMPORAL_MASTERY: CardDefinitionId = CardDefinitionId(1693);
+pub const ALCHEMISTS_REFUGE: CardDefinitionId = CardDefinitionId(1694);
+pub const OMNISCIENCE: CardDefinitionId = CardDefinitionId(1695);
+pub const WORLDFIRE: CardDefinitionId = CardDefinitionId(1696);
+pub const FARSEEK: CardDefinitionId = CardDefinitionId(1697);
+pub const GARRUK_PRIMAL_HUNTER: CardDefinitionId = CardDefinitionId(1698);
+pub const RANGERS_PATH: CardDefinitionId = CardDefinitionId(1699);
+pub const NICOL_BOLAS_PLANESWALKER: CardDefinitionId = CardDefinitionId(1700);
+pub const WURM_TOKEN_6_6_GREEN: CardDefinitionId = CardDefinitionId(1701);

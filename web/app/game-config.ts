@@ -1,4 +1,4 @@
-export type FormatId = "old-school-93-94" | "isd-rtr-standard";
+export type FormatId = "old-school-93-94" | "isd-dgm-standard";
 
 type FormatConfig = {
   name: string;
@@ -32,11 +32,11 @@ export const formatConfigs: Record<FormatId, FormatConfig> = {
       "Jeskai Aggro": "Blue-white-red tempo · Burn and permission",
     },
   },
-  "isd-rtr-standard": {
-    name: "ISD–RTR Standard",
-    shortName: "ISD–RTR STANDARD · 2013",
+  "isd-dgm-standard": {
+    name: "ISD–DGM Standard",
+    shortName: "ISD–DGM STANDARD · 2013",
     cardBackMark: "13",
-    description: "Final pre-Theros pool · no mana burn · SCG Atlanta Top 8 · staged card effects",
+    description: "Final pre-Theros pool · no mana burn · tournament and test decks · staged card effects",
     deckNotes: {
       "Briksza Naya Midrange": "1st · Rudy Briksza · Naya midrange",
       "Greer G/R Aggro": "2nd · Joseph Greer · G/R aggro",
@@ -46,11 +46,13 @@ export const formatConfigs: Record<FormatId, FormatConfig> = {
       "Lorren U/W Flash": "6th · Phillip Lorren · U/W flash",
       "Arch U/W Flash": "7th · Clayton Arch · U/W flash",
       "Kuenzinger Junk Reanimator": "8th · Drew Kuenzinger · Junk reanimator",
+      "Anderson Omnidoor Thragfire": "Todd Anderson · Five-color ramp-combo",
+      "Braun-Duin Naya Midrange": "Brian Braun-Duin · Naya midrange",
     },
   },
 };
 
-export const formatIds: FormatId[] = ["old-school-93-94", "isd-rtr-standard"];
+export const formatIds: FormatId[] = ["old-school-93-94", "isd-dgm-standard"];
 
 export const defaultFormat: FormatId = "old-school-93-94";
 

@@ -33,7 +33,7 @@ test("card coverage comes from ability definitions rather than play gates", asyn
     "Handcrafted",
     true,
     2,
-    "isd-rtr-standard",
+    "isd-dgm-standard",
   );
   const opening = JSON.parse(game.state_json());
   const pilgrim = opening.human.hand.find(
@@ -355,10 +355,11 @@ test("every deck the picker offers is one the engine can build", async () => {
       "White Weenie", "Erhnamgeddon", "Counterburn", "Lions DIB",
       "Lion Dib Bolt", "BWR Aggro", "GR Aggro", "Troll Disk", "Jeskai Aggro",
     ],
-    "isd-rtr-standard": [
+    "isd-dgm-standard": [
       "Briksza Naya Midrange", "Greer G/R Aggro", "Fyrberg B/G Midrange",
       "Smith Naya Midrange", "McDuffie U/W/R Flash", "Lorren U/W Flash",
       "Arch U/W Flash", "Kuenzinger Junk Reanimator",
+      "Anderson Omnidoor Thragfire", "Braun-Duin Naya Midrange",
     ],
   };
 
@@ -373,7 +374,7 @@ test("every deck the picker offers is one the engine can build", async () => {
   }
 
   assert.throws(
-    () => new WebGame("Goblins", "Goblins", "Handcrafted", true, 1, "isd-rtr-standard"),
+    () => new WebGame("Goblins", "Goblins", "Handcrafted", true, 1, "isd-dgm-standard"),
     /unknown deck for format/,
     "a deck from another format cannot leak into Standard",
   );

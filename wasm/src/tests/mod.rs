@@ -350,7 +350,7 @@ mod replay_journal {
     }
 
     #[test]
-    fn replay_v1_requires_its_envelope_and_config_fields_with_their_declared_types() {
+    fn replay_v2_requires_its_envelope_and_config_fields_with_their_declared_types() {
         let game =
             WebGame::new("Sligh", "Goblins", "Handcrafted", true, 11, None).expect("game starts");
         let replay: Value = serde_json::from_str(&game.replay_json()).expect("replay is JSON");
@@ -417,12 +417,12 @@ mod replay_journal {
 
         let mut oversized_seed = replay;
         oversized_seed["config"]["seed"] = serde_json::json!(u64::from(u32::MAX) + 1);
-        assert_replay_is_rejected(&oversized_seed, "the seed must fit the replay-v1 type");
+        assert_replay_is_rejected(&oversized_seed, "the seed must fit the replay-v2 type");
     }
 
     #[test]
-    #[allow(clippy::too_many_lines)] // One table documents every replay-v1 command field.
-    fn replay_v1_commands_require_the_fields_and_types_declared_by_their_tag() {
+    #[allow(clippy::too_many_lines)] // One table documents every replay-v2 command field.
+    fn replay_v2_commands_require_the_fields_and_types_declared_by_their_tag() {
         let game =
             WebGame::new("Sligh", "Goblins", "Handcrafted", true, 12, None).expect("game starts");
         let replay: Value = serde_json::from_str(&game.replay_json()).expect("replay is JSON");
@@ -555,7 +555,7 @@ mod replay_journal {
     }
 
     #[test]
-    fn replay_v1_ignores_unknown_command_members_and_preserves_timeout_reason() {
+    fn replay_v2_ignores_unknown_command_members_and_preserves_timeout_reason() {
         let game =
             WebGame::new("Sligh", "Goblins", "Handcrafted", true, 13, None).expect("game starts");
         let mut replay: Value = serde_json::from_str(&game.replay_json()).expect("replay is JSON");

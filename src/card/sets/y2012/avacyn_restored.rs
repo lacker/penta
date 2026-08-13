@@ -1,4 +1,4 @@
-//! Avacyn Restored card records used by the built-in ISD–RTR Standard deck tranche.
+//! Avacyn Restored card records used by the built-in ISD–DGM Standard deck tranche.
 
 use super::{CardRecord, PrintingRecord};
 use crate::card::sets::y1993::alpha;
@@ -1057,7 +1057,25 @@ pub(in crate::card::sets) static SCRAPSKIN_DRAKE: CardRecord = CardRecord::new(
 // Audit: blocked — Needs soulbond pairing state, paired-object identity, and a damage trigger granted to both paired creatures.
 
 // AVR 81 — Temporal Mastery
-// Audit: blocked — Needs declarative extra-turn scheduling.
+// Audit: partial — The extra turn and miracle cost are executable, but the resolving source spell cannot move itself from the stack to exile.
+pub(in crate::card::sets) static TEMPORAL_MASTERY: CardRecord = CardRecord::new(
+    cards::TEMPORAL_MASTERY,
+    "Temporal Mastery",
+    CardArt::new("266e5267-2288-4bb0-8c54-0c556521cec3", "Franz Vohwinkel"),
+    CardSet::AvacynRestored,
+    CardRules::new_sorcery(mana_cost!("{5}{U}{U}")).with_abilities(&[
+        AbilityDef::spell(
+            "Take an extra turn after this one. Exile Temporal Mastery.",
+            EffectDef::TakeExtraTurn {
+                player: EffectRecipientDef::Controller,
+            },
+        )
+        .with_coverage(AbilityCoverageDef::partial(
+            "The extra turn is executable, but MoveToZone cannot move the resolving source spell from the stack to exile.",
+        )),
+        abilities::miracle(mana_cost!("{1}{U}")),
+    ]),
+);
 
 // AVR 82 — Vanishment
 pub(in crate::card::sets) static VANISHMENT: CardRecord = CardRecord::new(
@@ -3026,7 +3044,30 @@ pub(in crate::card::sets) static VESSEL_OF_ENDLESS_REST: CardRecord = CardRecord
 );
 
 // AVR 225 — Alchemist's Refuge
-// Audit: blocked — Needs a turn-scoped permission allowing every spell you cast to be cast as though it had flash.
+// Audit: partial — Needs a turn-scoped permission allowing every spell you cast to be cast as though it had flash.
+pub(in crate::card::sets) static ALCHEMISTS_REFUGE: CardRecord = CardRecord::new(
+    cards::ALCHEMISTS_REFUGE,
+    "Alchemist's Refuge",
+    CardArt::new(
+        "c767a897-52e3-4401-8104-930157bb2b02",
+        "Dan Murayama Scott",
+    ),
+    CardSet::AvacynRestored,
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated(
+            "{G}{U}, {T}: You may cast spells this turn as though they had flash.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{G}{U}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::Special("Grant flash to every spell cast this turn"),
+        )
+        .with_coverage(AbilityCoverageDef::metadata_only(
+            "The available flash grant applies only to the next sorcery spell, not every spell cast this turn.",
+        )),
+    ]),
+);
 
 static CAVERN_COLORED_MANA_RESTRICTIONS: [ManaRestrictionDef; 1] =
     [ManaRestrictionDef::CastCreatureSpellOfChosenType];
@@ -3196,6 +3237,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &MIST_RAVEN,
     &PEEL_FROM_REALITY,
     &ROTCROWN_GHOUL,
+    &TEMPORAL_MASTERY,
     &SCRAPSKIN_DRAKE,
     &VANISHMENT,
     &BLOOD_ARTIST,
@@ -3268,6 +3310,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &OTHERWORLD_ATLAS,
     &SCROLL_OF_AVACYN,
     &VESSEL_OF_ENDLESS_REST,
+    &ALCHEMISTS_REFUGE,
     &CAVERN_OF_SOULS,
     &DESOLATE_LIGHTHOUSE,
     &SERAPH_SANCTUARY,

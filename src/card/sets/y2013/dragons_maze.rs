@@ -1,4 +1,4 @@
-//! Dragon's Maze card records used by the built-in ISD–RTR Standard decks.
+//! Dragon's Maze card records used by the built-in ISD–DGM Standard decks.
 
 use super::{CardRecord, PrintingRecord, gatecrash};
 use crate::ManaCost;

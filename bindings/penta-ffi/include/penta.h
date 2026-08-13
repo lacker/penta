@@ -44,7 +44,7 @@ const char *penta_last_error(void);
 char *penta_catalog_json(void);
 
 /* Every card definition with legality for format, as protocol JSON.
- * format is "old-school-93-94" or "isd-rtr-standard". */
+ * format is "old-school-93-94" or "isd-dgm-standard". */
 char *penta_catalog_json_for_format(const char *format);
 
 /* The Old School built-in deck names, as a JSON array of strings. */

@@ -18,10 +18,19 @@ Observations and catalogs also advertise named additive capabilities. Replay
 and reconstruction payloads carry their own format versions instead of moving
 the bot-wire epoch.
 
-## 0.7.0 — protocol 22
+## 0.7.0 — protocol 23
 
-This release reports engine 0.7.0 and protocol 22. The simulation fingerprint
+This release reports engine 0.7.0 and protocol 23. The simulation fingerprint
 distinguishes snapshots of the covered source and build inputs.
+
+### Changed
+
+- **Protocol 23 canonicalizes the final pre-Theros format as ISD–DGM.**
+  Catalogs and observations now emit `isd-dgm-standard` rather than
+  `isd-rtr-standard`; parsers retain both former spellings as input-only
+  aliases. Replay journals move to version 2 because their configuration stores
+  the slug. Checkpoint format 3 and `reconstruction.checkpoint.v3` are
+  unchanged.
 
 ### Fixed
 
@@ -53,6 +62,15 @@ distinguishes snapshots of the covered source and build inputs.
   step, which no game does, and so passed either way.
 
 ### Added
+
+- **Two ISD–DGM Standard decks and their remaining catalog coverage.** Todd
+  Anderson's Omnidoor Thragfire and Brian Braun-Duin's Naya Midrange January
+  2013 Star City Games lists are built in at 60 cards plus 15-card sideboards.
+  Their previously missing identities use current shared declarative effects
+  where exact, including hand-only Increasing Ambition searches, Temporal
+  Mastery's extra turn and miracle, and tapped battlefield searches for Farseek
+  and Ranger's Path; unsupported clauses remain explicitly partial or
+  metadata-only.
 
 - **Protocol 22 establishes the durable compatibility model.** JSON objects are
   open-world, so consumers ignore members they do not use. `protocolVersion`

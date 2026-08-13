@@ -1,12 +1,12 @@
 # Writing an AI bot for Penta
 
 penta is a deterministic engine for two-player constructed Magic. It currently
-ships Eternal Central Old School 93/94 and the final pre-Theros ISD–RTR
+ships Eternal Central Old School 93/94 and the final pre-Theros ISD–DGM
 Standard format. This guide is for writing a program that plays it: from
 Python, C, C++, or Rust, against the included bots or against itself.
 
-This guide describes the current development wire contract, **protocol 22**,
-the first open-world epoch. Ignore JSON object members your bot does not use;
+This guide describes the current development wire contract, **protocol 23**,
+which retains protocol 22's open-world model. Ignore JSON object members your bot does not use;
 the epoch changes only when an existing field or tag is removed, renamed,
 retyped, or reinterpreted. Additive fields and different legal actions expressed
 through the existing indexed-action vocabulary do not move it.
@@ -77,7 +77,7 @@ game = penta.Game(
     "Briksza Naya Midrange",
     "Greer G/R Aggro",
     opponent="external",
-    format="isd-rtr-standard",
+    format="isd-dgm-standard",
     seed=42,
 )
 ```
@@ -146,7 +146,7 @@ use penta::{Format, PlayerId};
 
 fn main() -> Result<(), String> {
     let mut game = BotGame::new_with_format(
-        Format::IsdRtrStandard,
+        Format::IsdDgmStandard,
         "Briksza Naya Midrange",
         "Greer G/R Aggro",
         Opponent::Handcrafted,
@@ -353,11 +353,11 @@ world it can search.
 
 | field | meaning |
 | --- | --- |
-| `protocolVersion` | the breaking bot-wire epoch; protocol 22 objects are open-world, but an epoch mismatch requires migration |
+| `protocolVersion` | the breaking bot-wire epoch; protocol 23 objects are open-world, but an epoch mismatch requires migration |
 | `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v3`; ignore unknown entries |
 | `simulationFingerprint` | a conservative identity of simulation source and build requirements; pin it for training and require it for reconstruction |
 | `engineVersion` | package-release provenance; it is not an exact simulation identity |
-| `format` | the rules/deck profile slug, such as `"old-school-93-94"` or `"isd-rtr-standard"` |
+| `format` | the rules/deck profile slug, such as `"old-school-93-94"` or `"isd-dgm-standard"` |
 | `seat` | whose view this is: `"p1"` or `"p2"` |
 | `pregame` | true while mulligans are being settled |
 | `turn`, `activeTurn`, `activeSeat`, `prioritySeat`, `step` | where the game is; `activeTurn` counts turns started by the active player, including extra turns, and `step` is one of `Upkeep`, `Draw`, `PrecombatMain`, `BeginningOfCombat`, `DeclareAttackers`, `DeclareBlockers`, `CombatDamage`, `EndOfCombat`, `PostcombatMain`, `End`, `Cleanup` |
@@ -375,7 +375,7 @@ world it can search.
 | `result` | null while running, else `{winner, reason}`; `reason` is `OpponentConceded`, `OpponentLostAllLife`, `OpponentTriedToDrawFromEmptyLibrary`, `OpponentLostToAnEffect`, `OpponentRanOutOfTime`, or `OpponentPoisoned` |
 | `legalActions` | what you can do, each with an `index` |
 
-Every protocol-22 JSON object is open-world: ignore members you do not use
+Every protocol-23 JSON object is open-world: ignore members you do not use
 rather than rejecting the whole observation or catalog. Treat documented
 presentation strings as opaque. Where a string vocabulary has a safe fallback,
 use it: for example, an unknown non-null `result.reason` still means the game
@@ -693,6 +693,21 @@ protocol 7's one-off numeric `whiteRedHybrid` field with this general array.
 The shape is used everywhere the catalog reports a cost, including parts,
 play options, alternative costs, and additional costs.
 
+### Migrating from protocol 22
+
+Protocol 23 renames the final pre-Theros format's canonical wire identifier
+from `isd-rtr-standard` to `isd-dgm-standard`, naming the Innistrad and Return
+to Ravnica block endpoints while retaining the M13 and M14 core sets. Catalogs
+and observations always emit the new slug. Game configuration continues to
+accept `isd-rtr-standard` and `isd_rtr_standard` as input-only compatibility
+aliases; persist the canonical slug from output when rewriting configuration.
+Browser replay journals carrying the renamed configuration use replay version
+2. Checkpoint format 3 and `reconstruction.checkpoint.v3` are unchanged.
+
+The accompanying cards and built-in decks are append-only catalog and
+simulation changes. They do not move the wire epoch independently and are
+identified by the generated `simulationFingerprint`.
+
 ### Migrating checkpoint format 1 to 2
 
 This rules change does not move protocol 22. Checkpoint format 2 replaces the
@@ -914,10 +929,10 @@ import time, requests
 
 # Local while building; the public deployment when you are ready.
 SERVER = "http://localhost:3000"
-# This bot consumes the protocol-22 indexed-action vocabulary and no optional
+# This bot consumes the protocol-23 indexed-action vocabulary and no optional
 # facilities. Do not echo capabilities from the server unless you implement them.
 COMPATIBILITY = {
-    "protocolVersion": 22,
+    "protocolVersion": 23,
     "capabilities": [],
     "requiredCapabilities": [],
     # Trained bots may require the exact server artifact they target:
@@ -1060,7 +1075,7 @@ after ten minutes, so a bot that dies mid-game unsticks itself.
 
 The deck you register is what you play when a scheduler pairs you, and what
 the web client offers as your side of the matchup. An omitted compatibility
-declaration identifies a pre-negotiation protocol-21 bot. Protocol 22 therefore
+declaration identifies a pre-negotiation protocol-21 bot. Protocol 23 therefore
 requires an explicit declaration: this is how a bot opts into open-world
 objects rather than being assumed to tolerate them.
 
@@ -1117,7 +1132,7 @@ The identifiers answer different questions:
 
 - `protocol_version()` / `protocolVersion` is the breaking bot-wire epoch. It
   changes when an existing JSON field, tag, identifier, or meaning can no longer
-  be consumed safely. Protocol-22 objects are open-world, so optional fields,
+  be consumed safely. Protocol-23 objects are open-world, so optional fields,
   catalog growth, and new action instances using existing vocabulary do not
   require a bump.
 - `protocolCapabilities` advertises optional facilities within that epoch.

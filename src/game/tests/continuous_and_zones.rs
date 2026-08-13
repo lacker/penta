@@ -79,6 +79,39 @@ fn kessig_wolf_run_offers_only_the_x_it_can_actually_pay() {
 }
 
 #[test]
+fn kessig_wolf_run_scales_across_many_chromatic_lantern_lands() {
+    let mut game = ready_game();
+    game.catalog = crate::card::catalog().unwrap();
+    game.battlefield.clear();
+    let run = game
+        .put_onto_battlefield(PlayerId::One, cards::KESSIG_WOLF_RUN)
+        .expect("Kessig Wolf Run is cataloged");
+    game.put_onto_battlefield(PlayerId::One, cards::CHROMATIC_LANTERN)
+        .expect("Chromatic Lantern is cataloged");
+    for _ in 0..16 {
+        game.put_onto_battlefield(PlayerId::One, cards::FOREST)
+            .expect("Forest is cataloged");
+    }
+    game.put_onto_battlefield(PlayerId::One, cards::SAVANNAH_LIONS)
+        .expect("the target creature is cataloged");
+
+    let mut offered = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .filter_map(|action| match action {
+            Action::ActivateAbility { source, x, .. } if source == run => Some(x),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    offered.sort_unstable();
+    assert_eq!(
+        offered,
+        (0..=15).collect::<Vec<_>>(),
+        "seventeen usable sources pay red, green, and X while the Run taps"
+    );
+}
+
+#[test]
 fn gaze_of_granite_sweeps_up_to_the_x_it_was_cast_for() {
     let mut game = ready_game();
     game.battlefield.clear();

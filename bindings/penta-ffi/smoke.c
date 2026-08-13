@@ -76,7 +76,7 @@ static int play_one(const char *config, int check_json) {
 
 static int check_standard_game(void) {
     PentaGame *game = penta_new(
-        "{\"format\":\"isd-rtr-standard\","
+        "{\"format\":\"isd-dgm-standard\","
         "\"p1Deck\":\"Briksza Naya Midrange\","
         "\"p2Deck\":\"Greer G/R Aggro\","
         "\"opponent\":\"external\",\"seed\":17}");
@@ -88,7 +88,7 @@ static int check_standard_game(void) {
         penta_free(game);
         return fail("penta_observe_json Standard");
     }
-    int valid = strstr(observation, "\"format\":\"isd-rtr-standard\"") != NULL;
+    int valid = strstr(observation, "\"format\":\"isd-dgm-standard\"") != NULL;
     penta_string_free(observation);
     penta_free(game);
     if (!valid) {
@@ -200,10 +200,17 @@ int main(void) {
     penta_string_free(decks);
 
     char *standard_decks =
-        penta_deck_names_for_format_json("isd-rtr-standard");
+        penta_deck_names_for_format_json("isd-dgm-standard");
     if (!standard_decks || !strstr(standard_decks, "Briksza Naya Midrange"))
         return fail("penta_deck_names_for_format_json");
     penta_string_free(standard_decks);
+
+    char *legacy_standard_decks =
+        penta_deck_names_for_format_json("isd-rtr-standard");
+    if (!legacy_standard_decks ||
+        !strstr(legacy_standard_decks, "Braun-Duin Naya Midrange"))
+        return fail("legacy Standard format alias");
+    penta_string_free(legacy_standard_decks);
 
     char *catalog = penta_catalog_json();
     if (!catalog || !strstr(catalog, "Lightning Bolt") ||
@@ -212,9 +219,9 @@ int main(void) {
     penta_string_free(catalog);
 
     char *standard_catalog =
-        penta_catalog_json_for_format("isd-rtr-standard");
+        penta_catalog_json_for_format("isd-dgm-standard");
     if (!standard_catalog ||
-        !strstr(standard_catalog, "\"format\":\"isd-rtr-standard\"") ||
+        !strstr(standard_catalog, "\"format\":\"isd-dgm-standard\"") ||
         !strstr(standard_catalog, "Huntmaster of the Fells"))
         return fail("penta_catalog_json_for_format");
     penta_string_free(standard_catalog);

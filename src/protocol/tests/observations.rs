@@ -51,7 +51,7 @@ fn observation_json_carries_interwave_state_and_presented_card_part() {
     };
 
     let value =
-        observation_json_for_format(&catalog, Format::IsdRtrStandard, &observation, false, &[]);
+        observation_json_for_format(&catalog, Format::IsdDgmStandard, &observation, false, &[]);
     assert_eq!(value["regularCombatDamagePending"], true);
     assert_eq!(value["battlefield"][0]["objectId"], 30);
     assert_eq!(value["battlefield"][0]["presentedPartId"], 1);

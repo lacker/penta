@@ -23,7 +23,7 @@ use crate::{
 fn standard_records() -> Vec<&'static CardRecord> {
     let mut records = SET_MODULES
         .iter()
-        .filter(|module| Format::IsdRtrStandard.allows_set(module.set))
+        .filter(|module| Format::IsdDgmStandard.allows_set(module.set))
         .flat_map(|module| module.cards.iter().copied())
         .collect::<Vec<_>>();
     records.sort_unstable_by_key(|record| record.id);
@@ -54,7 +54,7 @@ fn printings_for_set(set: CardSet) -> Vec<CardPrinting> {
 }
 
 mod catalog_report;
-mod isd_rtr_coverage;
+mod isd_dgm_coverage;
 mod metadata_composition_mana;
 mod old_school_coverage;
 mod registry_integrity;

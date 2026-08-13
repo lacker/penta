@@ -1,4 +1,4 @@
-//! Dark Ascension card records used by the built-in ISD–RTR Standard deck tranche.
+//! Dark Ascension card records used by the built-in ISD–DGM Standard deck tranche.
 
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
@@ -980,8 +980,53 @@ pub(in crate::card::sets) static HIGHBORN_GHOUL: CardRecord = CardRecord::new(
         .with_ability(abilities::intimidate()),
 );
 
+static INCREASING_AMBITION_ABILITIES: [AbilityDef; 2] = [
+    AbilityDef::spell(
+            "Search your library for a card and put that card into your hand. If this spell was cast from a graveyard, instead search your library for two cards and put those cards into your hand. Then shuffle.",
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::Any,
+                minimum: 1,
+                maximum: 1,
+                reveal: false,
+                destination: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+            },
+        )
+        .with_coverage(AbilityCoverageDef::partial(
+            "The one-card search is executable from hand, but the effect cannot replace it with a two-card search based on the spell's cast origin.",
+        )),
+    abilities::flashback(mana_cost!("{7}{B}")).with_coverage(AbilityCoverageDef::metadata_only(
+        "Flashback is withheld because the two-card replacement search is not executable.",
+    )),
+];
+
+const fn increasing_ambition_rules() -> CardRules {
+    CardRules::new_sorcery(mana_cost!("{4}{B}")).with_abilities(&INCREASING_AMBITION_ABILITIES)
+}
+
+fn increasing_ambition_composition() -> CardComposition {
+    let mut composition =
+        CardComposition::single("Increasing Ambition", increasing_ambition_rules());
+    // A runtime-granted flashback permission must not bypass the missing
+    // cast-origin branch and resolve the ordinary one-card search.
+    composition.play_options[0] = composition.play_options[0].clone().restricted_to_hand();
+    composition
+}
+
 // DKA 69 — Increasing Ambition
-// Audit: blocked — Needs a cast-from-graveyard condition to select two unrestricted library cards instead of one.
+// Audit: partial — The one-card hand-cast search is executable; the two-card replacement cannot branch on the spell's cast origin.
+pub(in crate::card::sets) static INCREASING_AMBITION: CardRecord = CardRecord::new(
+    cards::INCREASING_AMBITION,
+    "Increasing Ambition",
+    CardArt::new("c8f508dc-7c7d-47e8-a4ef-0e8fd99cbd74", "Volkan Baǵa"),
+    CardSet::DarkAscension,
+    increasing_ambition_rules(),
+)
+.with_composition(increasing_ambition_composition);
 
 // DKA 70 — Mikaeus, the Unhallowed
 // Audit: blocked — Needs a damage trigger keyed to Human sources plus a continuous effect that both excludes Humans and grants undying to other creatures.
@@ -2473,6 +2518,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GERALFS_MESSENGER,
     &HARROWING_JOURNEY,
     &HIGHBORN_GHOUL,
+    &INCREASING_AMBITION,
     &REAP_THE_SEAGRAF,
     &SIGHTLESS_GHOUL,
     &SKIRSDAG_FLAYER,

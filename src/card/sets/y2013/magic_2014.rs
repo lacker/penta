@@ -1,4 +1,4 @@
-//! Magic 2014 card records used by the built-in ISD–RTR Standard decks.
+//! Magic 2014 card records used by the built-in ISD–DGM Standard decks.
 
 use super::{CardRecord, PrintingRecord, gatecrash};
 use crate::card::sets::{

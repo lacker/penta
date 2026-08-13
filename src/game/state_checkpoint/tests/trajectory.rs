@@ -45,7 +45,7 @@ fn a_reconstructed_game_stays_in_step_with_the_host_as_both_play_forward() {
     let mut trajectories = 0_usize;
     let mut steps = 0_usize;
 
-    for format in [crate::Format::OldSchool9394, crate::Format::IsdRtrStandard] {
+    for format in [crate::Format::OldSchool9394, crate::Format::IsdDgmStandard] {
         let decks = crate::protocol::deck_names_for_format(format);
         for (index, name) in decks.iter().enumerate() {
             let opposing = decks[(index * 5 + 2) % decks.len()];

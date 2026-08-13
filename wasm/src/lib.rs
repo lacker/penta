@@ -40,7 +40,7 @@ const BOT_ACTION_LIMIT: usize = 50_000;
 /// Version of the browser/host command-journal envelope. Changes to command
 /// encoding or interpretation move this independently from the bot wire and
 /// core simulation fingerprint.
-const REPLAY_VERSION: u32 = 1;
+const REPLAY_VERSION: u32 = 2;
 
 fn required_json_field<'a>(
     object: &'a serde_json::Map<String, Value>,
@@ -708,7 +708,7 @@ impl WebGame {
                 penta::protocol::SIMULATION_FINGERPRINT,
             )));
         }
-        // These are diagnostic provenance rather than replay gates, but a v1
+        // These are diagnostic provenance rather than replay gates, but a v2
         // envelope always carries them and malformed values must not pass as a
         // valid artifact.
         let _engine_version = required_json_string(envelope, "replay", "engineVersion")?;

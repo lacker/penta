@@ -743,6 +743,27 @@ pub(super) fn assign_flexible_mana_outputs(
     x: u16,
     assignment: &mut Vec<PlannedManaActivation>,
 ) -> bool {
+    // A colour assignment cannot make up a total-mana shortfall. Prune before
+    // branching over every output of every remaining source; otherwise a
+    // large group of flexible sources can make an impossible high-X probe
+    // exponential even though their combined production is already too low.
+    let maximum_total = sources[index..]
+        .iter()
+        .filter_map(|source| {
+            source
+                .outputs
+                .iter()
+                .map(|(_, _, output, _)| output.total())
+                .max()
+        })
+        .fold(pool.total(), u16::saturating_add);
+    let required_total = colored_cost_total(cost)
+        .saturating_add(cost.generic)
+        .saturating_add(x.saturating_mul(cost.x_multiplier));
+    if maximum_total < required_total {
+        return false;
+    }
+
     let Some(source) = sources.get(index) else {
         return can_pay(pool, cost, x);
     };

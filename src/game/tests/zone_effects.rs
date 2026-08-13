@@ -882,7 +882,7 @@ fn a_token_ceases_to_exist_rather_than_reaching_a_graveyard() {
 #[test]
 fn a_token_is_never_deck_legal() {
     let catalog = poc::catalog().expect("catalog builds");
-    for format in [Format::OldSchool9394, Format::IsdRtrStandard] {
+    for format in [Format::OldSchool9394, Format::IsdDgmStandard] {
         assert!(
             !catalog.is_allowed_in(cards::BEAST_TOKEN_3_3_GREEN, format),
             "a token belongs to no format's card pool"

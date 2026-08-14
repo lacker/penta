@@ -159,7 +159,6 @@ fn validate_effect_target_shapes(
         EffectDef::CreateToken { count, .. }
         | EffectDef::ReduceGenericCostBy(count)
         | EffectDef::AddManaEqualTo { amount: count, .. } => validate_value_shape(count, targets),
-        EffectDef::CreateAttachedToken { .. } => Ok(()),
         EffectDef::IfCondition { condition, then } => {
             validate_trigger_condition_shape(*condition, targets)?;
             validate_effect_target_shapes(*then, targets, triggering_object_zone)
@@ -231,6 +230,7 @@ fn validate_effect_target_shapes(
         | EffectDef::LandwalkCanBeBlocked(_)
         | EffectDef::ScheduleTurnPhases(_)
         | EffectDef::CreateEmblem { .. }
+        | EffectDef::CreateAttachedToken { .. }
         | EffectDef::Special(_) => Ok(()),
     }
 }

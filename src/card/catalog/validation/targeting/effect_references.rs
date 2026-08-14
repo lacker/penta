@@ -129,7 +129,6 @@ fn validate_effect_references(
         EffectDef::CreateToken { count, .. } | EffectDef::ReduceGenericCostBy(count) => {
             validate_value_target_references(count, target_count, scope)
         }
-        EffectDef::CreateAttachedToken { .. } => Ok(()),
         EffectDef::SacrificeOfChoice { player, then, .. } => {
             validate_recipient_target_references(player, target_count, scope)?;
             if let Some(effect) = then {
@@ -223,6 +222,7 @@ fn validate_effect_references(
         | EffectDef::ReturnLinkedExiles { .. }
         | EffectDef::CannotBeForcedToSacrifice
         | EffectDef::ScheduleTurnPhases(_)
+        | EffectDef::CreateAttachedToken { .. }
         | EffectDef::Special(_) => Ok(()),
     }
 }

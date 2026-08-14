@@ -607,13 +607,6 @@ impl Game {
         })
     }
 
-    /// CR 301.5. Equipment attaches through its equip ability rather than as
-    /// it enters, and coming loose leaves it on the battlefield.
-    pub(super) fn is_equipment_permanent(&self, permanent: &Permanent) -> bool {
-        self.effective_rules(permanent)
-            .is_some_and(|rules| rules.subtypes().contains(&"Equipment"))
-    }
-
     /// Finds the target an Aura attaches to as part of its spell procedure.
     /// A sequence remains one immediate resolution procedure, so an Attach
     /// nested in one keeps the clause's target scope.

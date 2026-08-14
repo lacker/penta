@@ -4,6 +4,7 @@ use crate::CardDefinitionId;
 
 mod activation_timing;
 mod additional_costs;
+mod attachments;
 mod attack_restrictions;
 mod aura_death;
 mod aura_upkeep;
@@ -60,6 +61,7 @@ mod untap_skips;
 mod wards;
 pub use activation_timing::*;
 pub use additional_costs::*;
+pub use attachments::*;
 pub use attack_restrictions::*;
 pub use aura_death::*;
 pub use aura_upkeep::*;

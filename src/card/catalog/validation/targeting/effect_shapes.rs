@@ -135,6 +135,7 @@ fn validate_effect_target_shapes(
         | EffectDef::RemoveFromCombat { object }
         | EffectDef::Untap { object }
         | EffectDef::Attach { object }
+        | EffectDef::Reconfigure { object }
         | EffectDef::Destroy { object, .. }
         | EffectDef::DestroyAtEndOfCombat { object }
         | EffectDef::Detain { object }
@@ -158,6 +159,7 @@ fn validate_effect_target_shapes(
         EffectDef::CreateToken { count, .. }
         | EffectDef::ReduceGenericCostBy(count)
         | EffectDef::AddManaEqualTo { amount: count, .. } => validate_value_shape(count, targets),
+        EffectDef::CreateAttachedToken { .. } => Ok(()),
         EffectDef::IfCondition { condition, then } => {
             validate_trigger_condition_shape(*condition, targets)?;
             validate_effect_target_shapes(*then, targets, triggering_object_zone)

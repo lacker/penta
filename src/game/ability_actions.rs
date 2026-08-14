@@ -300,6 +300,16 @@ impl Game {
                     // that loop. The boundary test rejects one until it is.
                     0,
                 ) {
+                    if ability
+                        .declarative_effect()
+                        .is_some_and(Self::effect_is_reconfigure)
+                        && permanent.attached_to.is_none()
+                        && selections
+                            .iter()
+                            .all(|selection| selection.targets().is_empty())
+                    {
+                        continue;
+                    }
                     for cost_object in &cost_object_choices {
                         for x in 0..=max_x {
                             actions.push(Action::ActivateAbility {

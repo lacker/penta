@@ -49,6 +49,13 @@ impl Game {
                 _ => None,
             })
             .collect::<Vec<_>>();
+        if let Some(timestamp) = permanent.reconfigured_timestamp {
+            operations.push((
+                timestamp,
+                u16::MAX,
+                SetOperationDef::Remove(CardTypeSet::single(CardType::Creature)),
+            ));
+        }
         if let Some(_pass) = StaticSetCharacteristicLayerGuard::enter() {
             let result = self.visit_static_applied_effects(permanent, |applied| {
                 if let AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(

@@ -23,6 +23,8 @@ mod y2012;
 mod y2013;
 mod y2014;
 mod y2021;
+mod y2022;
+mod y2024;
 
 use super::record::{CardAbilityBinding, CardRecord, PrintingRecord};
 use crate::AbilityOrigin;
@@ -207,6 +209,11 @@ const SET_MODULES: &[SetModule] = &[
         y2007::future_sight::ADDITIONAL_PRINTINGS,
     ),
     SetModule::new(
+        CardSet::MirrodinBesieged,
+        y2011::mirrodin_besieged::CARDS,
+        y2011::mirrodin_besieged::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
         CardSet::Innistrad,
         y2011::innistrad::CARDS,
         y2011::innistrad::ADDITIONAL_PRINTINGS,
@@ -260,6 +267,16 @@ const SET_MODULES: &[SetModule] = &[
         CardSet::ModernHorizons2,
         y2021::modern_horizons_2::CARDS,
         y2021::modern_horizons_2::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::KamigawaNeonDynasty,
+        y2022::kamigawa_neon_dynasty::CARDS,
+        y2022::kamigawa_neon_dynasty::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::ModernHorizons3,
+        y2024::modern_horizons_3::CARDS,
+        y2024::modern_horizons_3::ADDITIONAL_PRINTINGS,
     ),
 ];
 

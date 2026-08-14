@@ -333,6 +333,11 @@ impl Game {
                     self.create_token_arriving(object.controller, token, None, tapped);
                 }
             }
+            EffectDef::CreateAttachedToken { token } => {
+                if let Some(source) = object.source {
+                    self.create_attached_token(object.controller, token, source);
+                }
+            }
             EffectDef::CreateTokenCopyOf { object: recipient } => {
                 let copies = self
                     .effect_recipients(recipient, object, &context, scoped)
@@ -873,15 +878,25 @@ impl Game {
                         Target::Permanent(id) => Some(id),
                         _ => None,
                     });
-                if host.is_none() {
-                    return;
+                if let Some(host) = host {
+                    self.try_attach(source, host);
                 }
-                if let Some(permanent) = self
-                    .battlefield
-                    .iter_mut()
-                    .find(|permanent| permanent.card.id == source)
-                {
-                    permanent.attached_to = host;
+            }
+            EffectDef::Reconfigure { object: recipient } => {
+                let Some(source) = object.source else {
+                    return;
+                };
+                let host = self
+                    .effect_recipients(recipient, object, &context, scoped)
+                    .into_iter()
+                    .find_map(|target| match target {
+                        Target::Permanent(id) => Some(id),
+                        _ => None,
+                    });
+                if let Some(host) = host {
+                    self.try_attach(source, host);
+                } else {
+                    self.unattach(source);
                 }
             }
             EffectDef::None

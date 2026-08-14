@@ -45,6 +45,7 @@ mod ability_targeting;
 mod activation;
 mod activation_state;
 mod api;
+mod attachments;
 mod battlefield;
 mod card_runtime;
 mod casting;
@@ -264,6 +265,10 @@ struct Permanent {
     /// Aura. State-based actions put it into its owner's graveyard if the
     /// referenced host leaves or stops being legal.
     attached_to: Option<GameObjectId>,
+    /// The timestamped layer-4 operation created by reconfigure. It lasts
+    /// only for this attachment incarnation and therefore clears whenever
+    /// the Equipment becomes unattached.
+    reconfigured_timestamp: Option<ContinuousEffectTimestamp>,
     /// Set by Pillar of Flame: if this creature would die this turn, it is
     /// exiled instead. The replacement outlives the damage itself, so it
     /// cannot be a property of the damage. Clears in cleanup.
@@ -349,6 +354,7 @@ impl Permanent {
             activations_this_turn: Vec::new(),
             counters: [0; CounterKind::COUNT],
             attached_to: None,
+            reconfigured_timestamp: None,
             exile_instead_of_dying: false,
             combat_damage_assignment: Vec::new(),
             copy_effect: None,

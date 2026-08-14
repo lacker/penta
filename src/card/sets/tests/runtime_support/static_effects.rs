@@ -139,7 +139,9 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::RemoveAllCounters { .. }
         | EffectDef::Untap { .. }
         | EffectDef::Attach { .. }
+        | EffectDef::Reconfigure { .. }
         | EffectDef::CreateToken { .. }
+        | EffectDef::CreateAttachedToken { .. }
         | EffectDef::CreateTokenCopyOf { .. }
         | EffectDef::Destroy { .. }
         | EffectDef::Sacrifice { .. }

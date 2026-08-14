@@ -774,6 +774,10 @@ impl Game {
         let definition = entry.permanent.card.definition;
         self.battlefield.push(entry.permanent);
 
+        if let EntryCompletion::AttachSource { source } = entry.completion {
+            self.try_attach(source, permanent_id);
+        }
+
         if let EntryCompletion::LandPlayed { player } = entry.completion {
             self.events.push(GameEvent::LandPlayed {
                 player,

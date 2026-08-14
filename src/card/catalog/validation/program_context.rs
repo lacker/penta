@@ -381,8 +381,10 @@ fn validate_resolving_effect(
         | EffectDef::RemoveFromCombat { .. }
         | EffectDef::Untap { .. }
         | EffectDef::CreateToken { .. }
+        | EffectDef::CreateAttachedToken { .. }
         | EffectDef::CreateTokenCopyOf { .. }
         | EffectDef::Attach { .. }
+        | EffectDef::Reconfigure { .. }
         | EffectDef::Destroy { .. }
         | EffectDef::DestroyAtEndOfCombat { .. }
         | EffectDef::Detain { .. }
@@ -677,8 +679,10 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::RemoveFromCombat { .. } => "RemoveFromCombat",
         EffectDef::Untap { .. } => "Untap",
         EffectDef::CreateToken { .. } => "CreateToken",
+        EffectDef::CreateAttachedToken { .. } => "CreateAttachedToken",
         EffectDef::CreateTokenCopyOf { .. } => "CreateTokenCopyOf",
         EffectDef::Attach { .. } => "Attach",
+        EffectDef::Reconfigure { .. } => "Reconfigure",
         EffectDef::Destroy { .. } => "Destroy",
         EffectDef::DestroyAtEndOfCombat { .. } => "DestroyAtEndOfCombat",
         EffectDef::Detain { .. } => "Detain",

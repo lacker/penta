@@ -380,7 +380,9 @@ impl HandcraftedPolicy {
             | EffectDef::CannotAttackUnless(_)
             | EffectDef::MoveToZone { .. }
             | EffectDef::Attach { .. }
+            | EffectDef::Reconfigure { .. }
             | EffectDef::CreateToken { .. }
+            | EffectDef::CreateAttachedToken { .. }
             | EffectDef::CreateTokenCopyOf { .. }
             | EffectDef::Special(_) => {}
         }

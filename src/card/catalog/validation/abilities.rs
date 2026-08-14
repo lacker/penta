@@ -703,7 +703,9 @@ fn collect_ability_grants(effect: EffectDef, grants: &mut Vec<&AbilityDef>) {
         | EffectDef::Untap { .. }
         | EffectDef::PreventDamage { .. }
         | EffectDef::Attach { .. }
+        | EffectDef::Reconfigure { .. }
         | EffectDef::CreateToken { .. }
+        | EffectDef::CreateAttachedToken { .. }
         | EffectDef::CreateTokenCopyOf { .. }
         | EffectDef::Destroy { .. }
         | EffectDef::Sacrifice { .. }
@@ -851,7 +853,9 @@ fn ability_grant_sites(effect: EffectDef) -> usize {
         | EffectDef::Untap { .. }
         | EffectDef::PreventDamage { .. }
         | EffectDef::Attach { .. }
+        | EffectDef::Reconfigure { .. }
         | EffectDef::CreateToken { .. }
+        | EffectDef::CreateAttachedToken { .. }
         | EffectDef::CreateTokenCopyOf { .. }
         | EffectDef::Destroy { .. }
         | EffectDef::Sacrifice { .. }

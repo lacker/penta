@@ -528,6 +528,9 @@ fn parse_permanent(
         .transpose()?;
     permanent.control_source = state.control_source.map(GameObjectId);
     permanent.control_requires_source_tapped = state.control_requires_source_tapped;
+    permanent.reconfigured_timestamp = state
+        .reconfigured_timestamp
+        .map(super::super::ContinuousEffectTimestamp);
     permanent.chosen_player = state.chosen_player.map(player_from_index).transpose()?;
     permanent.chosen_creature_type = shown.chosen_creature_type;
     permanent.chosen_card_name = shown.chosen_card_name;
@@ -872,6 +875,9 @@ pub(super) fn parse_completion(
                 definition: CardDefinitionId(definition),
             })
         }
+        EntryCompletionSnapshot::AttachSource { source } => Ok(EntryCompletion::AttachSource {
+            source: GameObjectId(source),
+        }),
         EntryCompletionSnapshot::Setup => Ok(EntryCompletion::Setup),
         EntryCompletionSnapshot::None => Ok(EntryCompletion::None),
     }

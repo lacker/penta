@@ -536,7 +536,9 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::RemoveAllCounters { .. }
                     | EffectDef::Untap { .. }
                     | EffectDef::Attach { .. }
+                    | EffectDef::Reconfigure { .. }
                     | EffectDef::CreateToken { .. }
+                    | EffectDef::CreateAttachedToken { .. }
                     | EffectDef::CreateTokenCopyOf { .. }
                     | EffectDef::Destroy { .. }
                     | EffectDef::Sacrifice { .. }

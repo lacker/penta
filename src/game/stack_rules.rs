@@ -91,6 +91,7 @@ impl Game {
             | EffectDef::RemoveAllCounters { .. }
             | EffectDef::Untap { .. }
             | EffectDef::Attach { .. }
+            | EffectDef::Reconfigure { .. }
             | EffectDef::Destroy { .. }
             | EffectDef::Sacrifice { .. }
             | EffectDef::SacrificeOfChoice { .. }
@@ -122,6 +123,7 @@ impl Game {
             | EffectDef::CannotAttackUnless(_)
             | EffectDef::MoveToZone { .. }
             | EffectDef::CreateToken { .. }
+            | EffectDef::CreateAttachedToken { .. }
             | EffectDef::CreateTokenCopyOf { .. }
             | EffectDef::StaticApply { .. }
             | EffectDef::Apply { .. }

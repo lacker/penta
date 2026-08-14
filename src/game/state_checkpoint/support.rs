@@ -21,6 +21,9 @@ const fn completion_snapshot(completion: EntryCompletion) -> EntryCompletionSnap
                 definition: definition.0,
             }
         }
+        EntryCompletion::AttachSource { source } => EntryCompletionSnapshot::AttachSource {
+            source: source.0,
+        },
         EntryCompletion::Setup => EntryCompletionSnapshot::Setup,
         EntryCompletion::None => EntryCompletionSnapshot::None,
     }

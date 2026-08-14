@@ -587,6 +587,11 @@ pub enum EffectDef {
     Attach {
         object: EffectRecipientDef,
     },
+    /// Reconfigure's paired attach/unattach procedure. A selected creature
+    /// becomes the new host; selecting none ends this attachment incarnation.
+    Reconfigure {
+        object: EffectRecipientDef,
+    },
     /// Replaces the source permanent's copiable values with the target's.
     /// Some copy effects, such as Thespian's Stage, retain the resolving
     /// ability as an exception to the copied values.
@@ -639,6 +644,13 @@ pub enum EffectDef {
         count: ValueDef,
         /// Whether the created token arrives tapped.
         tapped: bool,
+    },
+    /// Creates one token, then attaches the resolving permanent to that
+    /// exact battlefield incarnation before state-based actions run. This is
+    /// the common living-weapon shape; the delayed entry completion keeps it
+    /// correct through replacement effects and zone-change identity.
+    CreateAttachedToken {
+        token: CardDefinitionId,
     },
     /// Creates a token copying the recipient's copiable values. Populate uses
     /// this after its generic choice has selected a creature token.

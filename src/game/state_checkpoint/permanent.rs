@@ -56,6 +56,9 @@ pub(super) fn permanent_snapshot(
         destroy_at_end: permanent.destroy_at_end,
         counters: permanent.counters.to_vec(),
         attached_to: permanent.attached_to.map(|id| id.0),
+        reconfigured_timestamp: permanent
+            .reconfigured_timestamp
+            .map(|timestamp| timestamp.0),
         exile_instead_of_dying: permanent.exile_instead_of_dying,
         combat_damage_assignment: permanent
             .combat_damage_assignment

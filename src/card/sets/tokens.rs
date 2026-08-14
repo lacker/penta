@@ -17,6 +17,15 @@ use crate::card::{
     cards,
 };
 
+pub(in crate::card::sets) static GERM_TOKEN_0_0_BLACK: CardRecord = CardRecord::new(
+    cards::GERM_TOKEN_0_0_BLACK,
+    "Phyrexian Germ",
+    CardArt::new("", ""),
+    CardSet::Token,
+    CardRules::new_creature_without_mana_cost(&["Phyrexian", "Germ"], 0, 0)
+        .printed_colors(&[ManaColor::Black]),
+);
+
 pub(in crate::card::sets) static BEAST_TOKEN_3_3_GREEN: CardRecord = CardRecord::new(
     cards::BEAST_TOKEN_3_3_GREEN,
     "Beast",
@@ -446,6 +455,7 @@ pub(in crate::card::sets) static SNAKE_TOKEN_1_1_POISONOUS: CardRecord = CardRec
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &GERM_TOKEN_0_0_BLACK,
     &BEAST_TOKEN_3_3_GREEN,
     &KNIGHT_TOKEN_2_2_WHITE,
     &SOLDIER_TOKEN_1_1_RED_WHITE,

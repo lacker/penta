@@ -167,6 +167,9 @@ pub(super) enum EntryCompletion {
         card: GameObjectId,
         definition: CardDefinitionId,
     },
+    AttachSource {
+        source: GameObjectId,
+    },
     /// The development setup surface minted this object's battlefield
     /// identity directly, so committing it must not reincarnate it again.
     Setup,

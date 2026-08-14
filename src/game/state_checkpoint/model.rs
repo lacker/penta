@@ -219,6 +219,7 @@ pub(super) struct PermanentSnapshot {
     pub(super) destroy_at_end: bool,
     pub(super) counters: Vec<u16>,
     pub(super) attached_to: Option<u32>,
+    pub(super) reconfigured_timestamp: Option<u64>,
     pub(super) exile_instead_of_dying: bool,
     pub(super) combat_damage_assignment: Vec<CombatDamageAssignmentSnapshot>,
     pub(super) regeneration_shields: u8,
@@ -470,6 +471,7 @@ pub(super) struct AbilitySourceSnapshot {
 pub(super) enum EntryCompletionSnapshot {
     LandPlayed { seat: usize },
     SpellResolved { card: u32, definition: u16 },
+    AttachSource { source: u32 },
     Setup,
     None,
 }

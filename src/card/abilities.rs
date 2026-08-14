@@ -434,6 +434,31 @@ static EQUIP_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     },
 )];
 
+/// The target a fortify ability chooses: a land its controller controls.
+static FORTIFY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::HasType(CardType::Land),
+        zones: &[ZoneKind::Battlefield],
+        controller: Some(PlayerRelation::You),
+        owner: None,
+    },
+)];
+
+/// The optional target in a reconfigure activation. Choosing none is the
+/// unattach branch, which the action generator offers only while attached.
+static RECONFIGURE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
+    AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+        ]),
+        zones: &[ZoneKind::Battlefield],
+        controller: Some(PlayerRelation::You),
+        owner: None,
+    },
+    1,
+)];
+
 /// Equip. Attaching is what the ability does, and it is sorcery-speed, which
 /// is the whole difference between this and an Aura arriving from the stack.
 /// Reminder text carries the cost, so each card supplies its own literal.
@@ -444,6 +469,52 @@ pub const fn equip(mana_cost: ManaCost, text: &'static str) -> AbilityDef {
         AbilityCostList::one(AbilityCostDef::Mana(mana_cost)),
         &EQUIP_TARGET,
         EffectDef::Attach {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        },
+    )
+    .with_activation_timing(ActivationTimingDef::SorcerySpeed)
+}
+
+/// Fortify. Like equip, this is a sorcery-speed attachment activation; the
+/// shared attachment relation supplies Fortification's distinct land-host
+/// legality and state-based unattach behavior.
+#[must_use]
+pub const fn fortify(mana_cost: ManaCost, text: &'static str) -> AbilityDef {
+    AbilityDef::activated_with_cost_list_and_targets(
+        text,
+        AbilityCostList::one(AbilityCostDef::Mana(mana_cost)),
+        &FORTIFY_TARGET,
+        EffectDef::Attach {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        },
+    )
+    .with_activation_timing(ActivationTimingDef::SorcerySpeed)
+}
+
+/// Living weapon's enter-the-battlefield trigger. The effect's entry
+/// continuation attaches the Equipment to the token's exact resulting
+/// permanent before state-based actions are checked.
+#[must_use]
+pub const fn living_weapon(token: crate::CardDefinitionId) -> AbilityDef {
+    AbilityDef::triggered(
+        "Living weapon (When this Equipment enters, create a 0/0 black Phyrexian Germ creature token, then attach this to it.)",
+        TriggerEventDef::zone_changed(
+            ObjectPredicateDef::Source,
+            None,
+            Some(ZoneKind::Battlefield),
+        ),
+        EffectDef::CreateAttachedToken { token },
+    )
+}
+
+/// Reconfigure's paired sorcery-speed attachment procedures.
+#[must_use]
+pub const fn reconfigure(mana_cost: ManaCost, text: &'static str) -> AbilityDef {
+    AbilityDef::activated_with_cost_list_and_targets(
+        text,
+        AbilityCostList::one(AbilityCostDef::Mana(mana_cost)),
+        &RECONFIGURE_TARGET,
+        EffectDef::Reconfigure {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         },
     )

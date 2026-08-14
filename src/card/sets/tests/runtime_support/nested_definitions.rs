@@ -348,7 +348,9 @@ pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effe
         | EffectDef::Untap { .. }
         | EffectDef::PreventDamage { .. }
         | EffectDef::Attach { .. }
+        | EffectDef::Reconfigure { .. }
         | EffectDef::CreateToken { .. }
+        | EffectDef::CreateAttachedToken { .. }
         | EffectDef::CreateTokenCopyOf { .. }
         | EffectDef::Destroy { .. }
         | EffectDef::Sacrifice { .. }

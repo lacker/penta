@@ -39,6 +39,34 @@ impl Game {
         self.create_token_arriving(controller, token, creator, false);
     }
 
+    /// Creates one token whose committed battlefield incarnation becomes the
+    /// host of `source`. The binding sits on the entry event rather than this
+    /// resolving instruction because replacement effects can replace or
+    /// otherwise delay the prospective token entry.
+    pub(super) fn create_attached_token(
+        &mut self,
+        controller: PlayerId,
+        token: CardDefinitionId,
+        source: GameObjectId,
+    ) {
+        let Some(definition) = self.catalog.get(token) else {
+            return;
+        };
+        let presented = definition.primary_part_id();
+        let card = self.unbacked_object(token, controller, CharacteristicSource::Card(token));
+        let permanent = Permanent::entering(
+            card,
+            presented,
+            controller,
+            self.turns_started[controller.index()],
+        );
+        self.enqueue_battlefield_entry(PendingBattlefieldEntry {
+            permanent,
+            from: ZoneKind::Stack,
+            completion: EntryCompletion::AttachSource { source },
+        });
+    }
+
     /// The same, for a token whose card says it arrives tapped.
     pub(super) fn create_token_arriving(
         &mut self,

@@ -15,7 +15,7 @@ impl Game {
             return;
         }
         self.annihilate_opposing_counters();
-        self.unattach_illegal_equipment();
+        self.unattach_illegal_non_aura_attachments();
         loop {
             let battlefield_len = self.battlefield.len();
             let mut regenerate = Vec::new();
@@ -80,30 +80,27 @@ impl Game {
         self.capture_state_triggers();
     }
 
-    /// CR 704.5p: Equipment attached to something that is no longer a
-    /// creature becomes unattached. Unlike an Aura it stays on the
-    /// battlefield, which is the whole difference between the two.
-    fn unattach_illegal_equipment(&mut self) {
+    /// CR 704.5p: an Equipment on a noncreature and CR 704.5q: a
+    /// Fortification on a nonland become unattached. Unlike an Aura they stay
+    /// on the battlefield, so this is deliberately separate from the Aura
+    /// state-based move to the graveyard below.
+    fn unattach_illegal_non_aura_attachments(&mut self) {
         let loose = self
             .battlefield
             .iter()
             .filter(|permanent| {
-                permanent.attached_to.is_some_and(|host| {
-                    !self.battlefield.iter().any(|candidate| {
-                        candidate.card.id == host && self.power(candidate).is_some()
+                permanent.attached_to.is_some()
+                    && self.attachment_kind(permanent).is_some_and(|kind| {
+                        !matches!(kind, super::attachments::AttachmentKind::Aura)
                     })
-                }) && self.is_equipment_permanent(permanent)
+                    && permanent
+                        .attached_to
+                        .is_some_and(|host| !self.is_legal_attachment_host(permanent, host))
             })
             .map(|permanent| permanent.card.id)
             .collect::<Vec<_>>();
         for id in loose {
-            if let Some(permanent) = self
-                .battlefield
-                .iter_mut()
-                .find(|permanent| permanent.card.id == id)
-            {
-                permanent.attached_to = None;
-            }
+            self.unattach(id);
         }
     }
 

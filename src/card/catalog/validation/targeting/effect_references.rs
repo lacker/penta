@@ -111,6 +111,7 @@ fn validate_effect_references(
         | EffectDef::RemoveAllCounters { object, .. }
         | EffectDef::Untap { object }
         | EffectDef::Attach { object }
+        | EffectDef::Reconfigure { object }
         | EffectDef::Destroy { object, .. }
         | EffectDef::Sacrifice { object }
         | EffectDef::DiscardCards { object }
@@ -128,6 +129,7 @@ fn validate_effect_references(
         EffectDef::CreateToken { count, .. } | EffectDef::ReduceGenericCostBy(count) => {
             validate_value_target_references(count, target_count, scope)
         }
+        EffectDef::CreateAttachedToken { .. } => Ok(()),
         EffectDef::SacrificeOfChoice { player, then, .. } => {
             validate_recipient_target_references(player, target_count, scope)?;
             if let Some(effect) = then {

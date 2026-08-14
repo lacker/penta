@@ -57,15 +57,40 @@ make typecheck-web
 make lint-web
 ```
 
-Use `make check-fast` for a broad checkpoint without the production web build
-or simulation-heavy sweeps. Once a change is stable and ready for a push or PR,
-`make check` runs the complete engine and web gate.
+Use the same focused checks before handoff. In particular, card definitions,
+game rules, decks, and policy changes stay in native Rust validation unless
+they also change the WASM adapter, the shape or meaning of a browser-consumed
+contract, or web code. Ordinary card/catalog/fingerprint changes carried by
+existing shapes do not cross that boundary. Browser-visible format/deck
+registries and replay/protocol/capability values instead use the one closest
+contract or replay test. Compiling the engine to WASM does not by itself make
+the full web gate a local prerequisite.
+
+PR CI runs the complete Rust, web, tooling, and binding gates. `make check-fast`,
+`make check`, and `make ci` remain available when explicitly requested, for
+changes spanning most validation surfaces, and for aggregate-orchestration
+failures; PR readiness alone is not a reason to run them locally. Reproduce an
+individual CI failure with its focused child target. Exercise changed validation
+targets directly instead of automatically running every aggregate that contains
+them. In a mixed change, validate each part in its owning lane rather than
+broadening every part to every affected language.
+
+For a rebase, fetch the target branch once, record that commit, and treat it as
+the snapshot for the request. After resolving conflicts, rerun only checks
+affected by the resolutions or overlapping upstream changes, then push without
+refetching the target branch merely to chase a newer snapshot. Continue to use
+remote feature-branch inspection and `--force-with-lease` safety after a
+rewrite. Do not chase target-branch movement during local validation or CI. A
+newer base SHA, `BEHIND` label, or pending CI is not by itself a reason to
+rebase again; do so only when requested or when an actual conflict or merge
+requirement blocks the PR. Passing checks attach to tested contents, so
+metadata-only rewrites, content-equivalent rebases, and PR metadata edits do
+not invalidate them.
 
 Binding changes can use `make check-bindings-c` or
-`make check-bindings-python` while iterating, followed by strict
-`make check-bindings`. `make check-bindings-available` is the explicit
-best-effort local variant when Python is unavailable; `make ci` never skips a
-repository gate.
+`make check-bindings-python`; run both only when shared binding behavior
+changes. `make check-bindings-available` is the explicit best-effort local
+variant when Python is unavailable; `make ci` never skips a repository gate.
 
 All Cargo validation uses committed lockfiles. Clippy runs pedantic with
 `-D warnings`, so the pinned toolchain makes lint changes deliberate rather

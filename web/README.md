@@ -48,8 +48,11 @@ do not build the production application. Run the simulation-heavy sweeps with
 `make test-web-wasm-slow`, or use `make test-web-full` for every web test.
 `PATTERN` can narrow any domain or aggregate target by test name.
 
-`make check-fast` is the broad development checkpoint, while `make check` is
-the complete engine and web gate for stable, PR-ready work.
+Use these focused web targets when the WASM adapter, a browser-consumed
+contract, or web code changes. Native card and game-rule changes do not need a
+local web suite merely because the engine also compiles to WASM; the complete
+web gate runs in PR CI. `make check-fast` and `make check` remain available for
+intentional aggregate validation rather than as automatic PR prerequisites.
 
 From this directory, `pnpm run test:fast`, `pnpm run test:wasm`,
 `pnpm run test:wasm:slow`, and `pnpm run test:render` provide targeted aliases.

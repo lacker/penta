@@ -82,8 +82,9 @@ notes are in the [changelog](CHANGELOG.md).
 ## Validation
 
 The root `Makefile` is the canonical task catalog. `make help` lists focused
-targets, `make check-fast` is the broad development checkpoint, and
-`make check` runs the complete engine and web gate. See the
+targets; local validation normally follows the changed behavior, while PR CI
+runs the complete repository gates. `make check-fast`, `make check`, and
+`make ci` remain available for intentional aggregate validation. See the
 [development guide](docs/development.md) for the contributor workflow.
 
 ## License

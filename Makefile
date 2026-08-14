@@ -69,7 +69,7 @@ endef
 	test-web-wasm-contract test-web-wasm-casting test-web-wasm-combat \
 	test-web-wasm-pacing test-web-wasm-state typecheck-web \
 	test-web-render test-slow \
-	check-fast check check-rust check-web \
+	check-fast check check-rust check-web check-tooling \
 	check-bindings check-bindings-available check-bindings-c check-bindings-python ci
 
 help: ## List the available validation and build targets.
@@ -253,7 +253,9 @@ check-rust: fmt-rust lint-rust test-rust-budget ## Run the complete root Rust wo
 
 check-web: lint-web typecheck-web test-web-full ## Run the complete web gate.
 
-check: check-rust check-web lint-infra-available test-profile-attribution test-magic-references ## Run the complete engine, web, and tooling gate.
+check-tooling: lint-infra test-profile-attribution test-magic-references ## Run the strict infrastructure and repository-tooling gate.
+
+check: check-rust check-web lint-infra-available test-profile-attribution test-magic-references ## Run the broad local engine, web, and available-tooling aggregate.
 
 check-bindings-c: test-source-file-sizes ## Build and smoke-test only the C ABI.
 	./scripts/check-bindings.sh c
@@ -267,4 +269,4 @@ check-bindings: fmt-python-binding lint-python-binding test-source-file-sizes ##
 check-bindings-available: test-source-file-sizes ## Smoke-test bindings available on this machine.
 	./scripts/check-bindings.sh available
 
-ci: check check-bindings ## Run every repository gate.
+ci: check-rust check-web check-tooling check-bindings ## Run every repository gate.

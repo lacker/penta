@@ -45,7 +45,7 @@ jobs:
           printf '%s\n' "$install_dir" >> "$GITHUB_PATH"
 
       - name: Check repository tooling
-        run: make lint-infra
+        run: make check-tooling
 
   check-rust:
     name: rust

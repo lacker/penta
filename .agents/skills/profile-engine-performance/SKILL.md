@@ -189,7 +189,8 @@ Once measurement has identified a worthwhile optimization and the
 implementation is stable enough to compare, change one well-supported hotspot
 at a time. Preserve observable ordering, identity, deterministic outcomes, and
 other semantics covered by the path. Run the narrowest relevant tests during
-implementation, then the gate required by `AGENTS.md` before handoff.
+implementation, then the focused validation required by `AGENTS.md` before
+handoff.
 
 Capture the same CPU workload after the change and optionally compare it
 headlessly:

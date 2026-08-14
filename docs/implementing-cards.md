@@ -83,7 +83,9 @@ logic through unrelated engine paths.
    ladder above.
 4. Test the shared rule behavior and the card's exceptional result at the
    narrowest useful level.
-5. Run the broader gate appropriate to the changed paths before handoff.
+5. Run final focused native checks for the changed behavior before handoff.
+   Add browser validation only when the card work also changes a browser-facing
+   contract or web code; leave aggregate integration coverage to PR CI.
 
 The [development guide](development.md) maps repository paths to validation
 workflows. Current format and card coverage is described in

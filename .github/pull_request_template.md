@@ -4,7 +4,11 @@
 
 ## Validation
 
-<!-- List the checks you ran and any relevant manual verification. -->
+<!--
+List the focused local checks chosen for the changed behavior and any relevant
+manual verification. The complete repository matrix runs in PR CI; do not
+duplicate it locally solely because the change is ready for review.
+-->
 
 ## Performance context (optional)
 

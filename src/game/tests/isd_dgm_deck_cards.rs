@@ -426,3 +426,54 @@ fn supported_searches_and_metadata_only_spells_have_the_right_cast_availability(
         "Ranger's Path uses the shared multi-card tapped search"
     );
 }
+
+#[test]
+fn rangers_path_puts_two_forest_cards_onto_the_battlefield_tapped() {
+    let mut game = isd_dgm_game();
+    let path = card(24_400, cards::RANGERS_PATH, PlayerId::One);
+    game.players[0].hand.push(path.clone());
+    game.players[0].library.extend([
+        card(24_401, cards::FOREST, PlayerId::One),
+        card(24_402, cards::FOREST, PlayerId::One),
+        card(24_403, cards::MOUNTAIN, PlayerId::One),
+    ]);
+    game.players[0].mana_pool.green = 1;
+    game.players[0].mana_pool.colorless = 3;
+
+    game.apply(
+        PlayerId::One,
+        cast_action(path.id, Vec::new(), Vec::new(), 0),
+    )
+    .unwrap();
+    pass_priority_pair(&mut game);
+
+    let decision = game.observe(PlayerId::One).decision.unwrap();
+    assert_eq!((decision.minimum, decision.maximum), (0, 2));
+    let forests = decision
+        .options
+        .iter()
+        .filter(|option| {
+            option
+                .card
+                .is_some_and(|(_, definition)| definition == cards::FOREST)
+        })
+        .map(|option| option.id)
+        .collect::<Vec<_>>();
+    assert_eq!(forests.len(), 2);
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options: forests,
+        },
+    )
+    .unwrap();
+
+    let forests = game
+        .battlefield
+        .iter()
+        .filter(|permanent| permanent.card.definition == cards::FOREST)
+        .collect::<Vec<_>>();
+    assert_eq!(forests.len(), 2);
+    assert!(forests.iter().all(|forest| forest.tapped));
+}

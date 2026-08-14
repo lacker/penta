@@ -203,7 +203,6 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                 && shared_object_predicate(object)
                 && minimum <= maximum
                 && (destination != ZoneKind::Library || maximum <= 1)
-                && (destination != ZoneKind::Battlefield || maximum <= 1)
                 && (!shuffle || source == ZoneKind::Library)
                 && matches!(
                     source,

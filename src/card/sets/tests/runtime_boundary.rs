@@ -334,7 +334,7 @@ fn zone_search_boundary_rejects_ambiguous_or_incoherent_shapes() {
         1,
         true,
     )));
-    assert!(!shared_stack_effect(search(
+    assert!(shared_stack_effect(search(
         ZoneKind::Library,
         ZoneKind::Battlefield,
         2,

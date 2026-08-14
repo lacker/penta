@@ -8,10 +8,10 @@ use super::{
     CombatDamageStage, ContinuousEffectTimestamp, CopiableAbility, CopiableCharacteristics,
     CounterKind, EntryCompletion, Game, GameEvent, GameObjectId, GameStack, Mana, ManaSource,
     ObjectBacking, PendingBattlefieldEntry, PendingEvent, PendingReplacementEffect, Permanent,
-    PlayerId, PlayerState, Pregame, PreventionShield, ReplaceableEvent, ReplacementEffectContext,
-    ReplayRng, RetiredObject, ScopedEffect, ShieldCoverageDef, StackAbilityPayload, StackObject,
-    StackObjectKind, Step, TemporaryAbilityGrant, TemporaryGrantedAbility,
-    TemporaryRemovedAbilities, TriggerContext, ZoneMoveCause,
+    PlayerId, PlayerState, Pregame, PreventionShield, RelationalDamagePrevention, ReplaceableEvent,
+    ReplacementEffectContext, ReplayRng, RetiredObject, ScopedEffect, ShieldCoverageDef,
+    StackAbilityPayload, StackObject, StackObjectKind, Step, TemporaryAbilityGrant,
+    TemporaryGrantedAbility, TemporaryRemovedAbilities, TriggerContext, ZoneMoveCause,
 };
 use crate::card::{
     AppliedEffectDef, BasicLandType, CardType, CardTypeSet, DeclarativeAbilityDef, EffectDef,
@@ -30,6 +30,7 @@ mod event;
 mod model;
 mod model_animation;
 mod model_keyword;
+mod model_prevention;
 mod model_procedure;
 mod model_trigger;
 mod permanent;
@@ -60,8 +61,9 @@ use model::{
     DetachedCardSnapshot, DetachedPermanentSnapshot, EntryCompletionSnapshot,
     EntryReplacementLocator, GameSnapshot, ManaColorSnapshot, ManaSnapshot, ManaSourceSnapshot,
     PendingBattlefieldEntrySnapshot, PendingEventSnapshot, PendingReplacementEffectSnapshot,
-    PermanentSnapshot, PregameSnapshot, ReplacementEffectContextSnapshot, RetiredObjectSnapshot,
-    StackSnapshot, TemporaryAbilityGrantSnapshot, TemporaryGrantedAbilitySnapshot,
+    PermanentSnapshot, PregameSnapshot, RelationalDamagePreventionSnapshot,
+    ReplacementEffectContextSnapshot, RetiredObjectSnapshot, StackSnapshot,
+    TemporaryAbilityGrantSnapshot, TemporaryGrantedAbilitySnapshot,
     TemporaryRemovedAbilitySnapshot, ZoneKindSnapshot,
 };
 use model_animation::UpkeepKeywordSnapshot;
@@ -340,6 +342,20 @@ impl Game {
                     source: shield.source.map(|source| source.0),
                     half_rounded_down: shield.coverage == ShieldCoverageDef::HalfRoundedDown,
                     gain_life: shield.gain_life,
+                })
+                .collect(),
+            relational_damage_preventions: self
+                .relational_damage_preventions
+                .iter()
+                .map(|effect| match effect {
+                    RelationalDamagePrevention::ToPlayerAndControlledCreatures(player) => {
+                        RelationalDamagePreventionSnapshot::ToPlayerAndControlledCreatures {
+                            player: player.index(),
+                        }
+                    }
+                    RelationalDamagePrevention::FromAllExcept(source) => {
+                        RelationalDamagePreventionSnapshot::FromAllExcept { source: source.0 }
+                    }
                 })
                 .collect(),
             pregame: self.pregame.map(|pregame| match pregame {
@@ -655,6 +671,20 @@ impl Game {
                     gain_life: shield.gain_life,
                 })
                 .collect(),
+            relational_damage_preventions: checkpoint
+                .relational_damage_preventions
+                .iter()
+                .map(|effect| match *effect {
+                    RelationalDamagePreventionSnapshot::ToPlayerAndControlledCreatures {
+                        player,
+                    } => Ok(RelationalDamagePrevention::ToPlayerAndControlledCreatures(
+                        player_from_index(player)?,
+                    )),
+                    RelationalDamagePreventionSnapshot::FromAllExcept { source } => Ok(
+                        RelationalDamagePrevention::FromAllExcept(GameObjectId(source)),
+                    ),
+                })
+                .collect::<Result<Vec<_>, String>>()?,
             result: None,
             events: vec![GameEvent::GameStarted { seed: rollout_seed }],
         };

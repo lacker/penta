@@ -77,6 +77,7 @@ mod mana_planning;
 mod mana_runtime;
 mod mana_state;
 mod observation;
+mod prevention_state;
 mod procedure_state;
 mod replacement_state;
 mod stack_resolution;
@@ -89,6 +90,8 @@ mod trigger_placement;
 mod trigger_state;
 mod turn;
 mod zones;
+
+use prevention_state::RelationalDamagePrevention;
 
 pub use decision::{
     DecisionKind, DecisionObservation, DecisionOption, DecisionOrderSemantics, DecisionPreference,
@@ -222,12 +225,12 @@ struct Permanent {
     /// Who controls this permanent again once the turn ends, set while a
     /// control-changing effect holds it. Cleanup restores it.
     control_reverts_to: Option<PlayerId>,
-    /// The permanent whose continued presence is holding this one's control
-    /// change. When it leaves the battlefield or changes hands, control goes
-    /// back to `control_reverts_to`.
     /// Whether a "can't be regenerated" effect is covering this permanent
     /// for the rest of the turn.
     cannot_regenerate_this_turn: bool,
+    /// The permanent whose continued presence is holding this one's control
+    /// change. When it leaves the battlefield or changes hands, control goes
+    /// back to `control_reverts_to`.
     control_source: Option<GameObjectId>,
     /// Whether that holder also has to stay tapped to keep the change.
     control_requires_source_tapped: bool,
@@ -697,6 +700,9 @@ pub struct Game {
     defer_empty_library_loss: bool,
     /// One-shot draw replacements, in creation order for each player.
     draw_replacements: [VecDeque<DrawReplacement>; 2],
+    /// Prevention rules that inspect control or source identity when damage
+    /// would be dealt rather than freezing a set of permanents at resolution.
+    relational_damage_preventions: Vec<RelationalDamagePrevention>,
     /// The revealed card a miracle cost may currently be paid for. The window
     /// belongs to one card and closes as soon as its controller does anything
     /// else.

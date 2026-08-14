@@ -178,6 +178,7 @@ impl Game {
             drawn_this_turn: [Vec::new(), Vec::new()],
             defer_empty_library_loss: false,
             draw_replacements: std::array::from_fn(|_| VecDeque::new()),
+            relational_damage_preventions: Vec::new(),
             miracle_window: None,
             delayed_triggers: Vec::new(),
             floating_triggers: Vec::new(),
@@ -323,6 +324,21 @@ impl Game {
             .and_then(|permanent| self.power(permanent))
             .or_else(|| match self.retired_objects.get(&object) {
                 Some(RetiredObject::Permanent { power, .. }) => *power,
+                Some(RetiredObject::Card(_) | RetiredObject::Stack(_)) | None => None,
+            })
+    }
+
+    /// The object an Aura was attached to immediately before it left the
+    /// battlefield. Activated abilities are independent of their source once
+    /// on the stack, so sacrificing the Aura as a cost or removing it in
+    /// response must not erase what "enchanted permanent" means.
+    pub(super) fn current_or_last_known_attached_host(
+        &self,
+        object: GameObjectId,
+    ) -> Option<GameObjectId> {
+        self.attached_host(object)
+            .or_else(|| match self.retired_objects.get(&object) {
+                Some(RetiredObject::Permanent { permanent, .. }) => permanent.attached_to,
                 Some(RetiredObject::Card(_) | RetiredObject::Stack(_)) | None => None,
             })
     }

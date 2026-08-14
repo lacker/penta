@@ -5,8 +5,8 @@ use super::{
 };
 
 impl Game {
-    pub(super) fn damage_target(&mut self, target: Option<Target>, amount: u16) {
-        self.damage_target_from(None, target, amount);
+    pub(super) fn damage_target(&mut self, target: Option<Target>, amount: u16) -> u16 {
+        self.damage_target_from(None, target, amount)
     }
 
     /// Whether a static prevention on this permanent stops damage from this
@@ -102,13 +102,44 @@ impl Game {
         (left > 0).then_some(left)
     }
 
+    fn relational_damage_is_prevented(
+        &self,
+        source: Option<GameObjectId>,
+        target: Option<Target>,
+        combat: bool,
+    ) -> bool {
+        self.relational_damage_preventions
+            .iter()
+            .any(|effect| match effect {
+                super::RelationalDamagePrevention::ToPlayerAndControlledCreatures(player) => {
+                    match target {
+                        Some(Target::Player(recipient)) => recipient == *player,
+                        Some(Target::Permanent(id)) => self
+                            .battlefield
+                            .iter()
+                            .find(|permanent| permanent.card.id == id)
+                            .is_some_and(|permanent| {
+                                permanent.controller == *player
+                                    && self
+                                        .permanent_types(permanent)
+                                        .is_some_and(|types| types.contains(CardType::Creature))
+                            }),
+                        Some(Target::Card(_) | Target::Spell(_)) | None => false,
+                    }
+                }
+                super::RelationalDamagePrevention::FromAllExcept(exception) => {
+                    combat && source != Some(*exception)
+                }
+            })
+    }
+
     pub(super) fn damage_target_from(
         &mut self,
         source: Option<GameObjectId>,
         target: Option<Target>,
         amount: u16,
-    ) {
-        self.damage_target_from_kind(source, target, amount, false);
+    ) -> u16 {
+        self.damage_target_from_kind(source, target, amount, false)
     }
 
     pub(super) fn damage_target_from_kind(
@@ -117,11 +148,26 @@ impl Game {
         target: Option<Target>,
         amount: u16,
         combat: bool,
-    ) {
+    ) -> u16 {
         let Some(amount) = self.spend_prevention_shields(target, amount, source) else {
-            return;
+            return 0;
         };
         let source_colors = source.map_or([false; 5], |source| self.object_colors(source));
+        if self.relational_damage_is_prevented(source, target, combat)
+            || target.is_some_and(|target| match target {
+                Target::Permanent(id) => self
+                    .battlefield
+                    .iter()
+                    .find(|permanent| permanent.card.id == id)
+                    .is_some_and(|permanent| {
+                        self.is_protected_from_colors(permanent, source_colors)
+                            || self.damage_is_prevented_from(permanent, source)
+                    }),
+                Target::Player(_) | Target::Card(_) | Target::Spell(_) => false,
+            })
+        {
+            return 0;
+        }
         let lifelink_controller = source.and_then(|source| {
             self.source_controller_with_keyword(source, KeywordAbility::Lifelink)
         });
@@ -151,11 +197,6 @@ impl Game {
                     .iter()
                     .position(|permanent| permanent.card.id == id)
                 {
-                    if self.is_protected_from_colors(&self.battlefield[index], source_colors)
-                        || self.damage_is_prevented_from(&self.battlefield[index], source)
-                    {
-                        return;
-                    }
                     if self
                         .permanent_types(&self.battlefield[index])
                         .is_some_and(|types| types.contains(CardType::Planeswalker))
@@ -204,6 +245,7 @@ impl Game {
             };
             self.capture_battlefield_triggers(&event);
         }
+        if dealt_damage { amount } else { 0 }
     }
 
     pub(super) fn damage_source_event_object(

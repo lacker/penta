@@ -2040,7 +2040,38 @@ pub(in crate::card::sets) static SEVER_THE_BLOODLINE: CardRecord = CardRecord::n
 );
 
 // ISD 116 — Skeletal Grimace
-// Audit: blocked — Needs regeneration as an executable ability granted by an Aura.
+pub(in crate::card::sets) static SKELETAL_GRIMACE: CardRecord = CardRecord::new(
+    cards::SKELETAL_GRIMACE,
+    "Skeletal Grimace",
+    CardArt::new("b9b28f37-d6b8-4d35-95e9-9533aea0a071", "Eric Deschamps"),
+    CardSet::Innistrad,
+    CardRules::new_enchantment(mana_cost!("{1}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+1 and has \"{B}: Regenerate this creature.\"",
+                EffectDef::Sequence(&[
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::AttachedPermanent,
+                        effect: AppliedEffectDef::ModifyPowerToughness {
+                            power: ValueDef::Constant(1),
+                            toughness: ValueDef::Constant(1),
+                        },
+                        duration: EffectDurationDef::WhileSourceRemainsInZone,
+                    },
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::AttachedPermanent,
+                        effect: AppliedEffectDef::GrantAbility(&abilities::regenerate_self(
+                            "{B}: Regenerate this creature.",
+                            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+                        )),
+                        duration: EffectDurationDef::WhileSourceRemainsInZone,
+                    },
+                ]),
+            ),
+        ]),
+);
 
 // ISD 117 — Skirsdag High Priest
 // Audit: blocked — Needs tapping two separately chosen other creatures as an activation cost and a morbid activation restriction.
@@ -3312,7 +3343,60 @@ pub(in crate::card::sets) static ELDER_OF_LAURELS: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a morbid-aware enters-with-two-counters replacement.
 
 // ISD 180 — Full Moon's Rise
-// Audit: blocked — Needs regeneration shields for all Werewolves after the enchantment is sacrificed.
+pub(in crate::card::sets) static FULL_MOONS_RISE: CardRecord = CardRecord::new(
+    cards::FULL_MOONS_RISE,
+    "Full Moon's Rise",
+    CardArt::new("02a35eac-b962-466e-a4da-a4010c68ef16", "Terese Nielsen"),
+    CardSet::Innistrad,
+    CardRules::new_enchantment(mana_cost!("{1}{G}")).with_abilities(&[
+        AbilityDef::static_ability(
+            "Werewolf creatures you control get +1/+0 and have trample.",
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::MatchingObjects {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype("Werewolf"),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: PlayerRelation::You,
+                    },
+                    effect: AppliedEffectDef::ModifyPowerToughness {
+                        power: ValueDef::Constant(1),
+                        toughness: ValueDef::Constant(0),
+                    },
+                    duration: EffectDurationDef::WhileSourceRemainsInZone,
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::MatchingObjects {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype("Werewolf"),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: PlayerRelation::You,
+                    },
+                    effect: AppliedEffectDef::GrantAbility(&abilities::trample()),
+                    duration: EffectDurationDef::WhileSourceRemainsInZone,
+                },
+            ]),
+        ),
+        AbilityDef::activated(
+            "Sacrifice this enchantment: Regenerate all Werewolf creatures you control.",
+            &[AbilityCostDef::SacrificeSource],
+            EffectDef::Regenerate {
+                object: EffectRecipientDef::MatchingObjects {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Werewolf"),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: PlayerRelation::You,
+                },
+            },
+        ),
+    ]),
+);
 
 static GARRUK_FRONT_ABILITIES: [AbilityDef; 3] = [
     AbilityDef::triggered_if(
@@ -3954,8 +4038,49 @@ pub(in crate::card::sets) static TRAVEL_PREPARATIONS: CardRecord = CardRecord::n
 // ISD 207 — Tree of Redemption
 // Audit: blocked — Needs exchanging the controller's life total with the source's current toughness.
 
+const fn ulvenwald_mystics_front_rules() -> CardRules {
+    CardRules::new_creature(
+        mana_cost!("{2}{G}{G}"),
+        &["Human", "Shaman", "Werewolf"],
+        3,
+        3,
+    )
+    .with_ability(WEREWOLF_FRONT_TRANSFORM)
+}
+
+static ULVENWALD_PRIMORDIALS_ABILITIES: [AbilityDef; 2] = [
+    abilities::regenerate_self(
+        "{G}: Regenerate this creature.",
+        &[AbilityCostDef::Mana(mana_cost!("{G}"))],
+    ),
+    WEREWOLF_BACK_TRANSFORM,
+];
+
+const fn ulvenwald_primordials_rules() -> CardRules {
+    CardRules::new_creature_without_mana_cost(&["Werewolf"], 5, 5)
+        .printed_colors(&[ManaColor::Green])
+        .with_abilities(&ULVENWALD_PRIMORDIALS_ABILITIES)
+}
+
+fn ulvenwald_mystics_composition() -> CardComposition {
+    two_face_creature_composition(
+        "Ulvenwald Mystics",
+        "Ulvenwald Primordials",
+        ulvenwald_mystics_front_rules(),
+        ulvenwald_primordials_rules(),
+        mana_cost!("{2}{G}{G}"),
+    )
+}
+
 // ISD 208 — Ulvenwald Mystics
-// Audit: blocked — Needs regeneration on the back face of an otherwise supported werewolf transform card.
+pub(in crate::card::sets) static ULVENWALD_MYSTICS: CardRecord = CardRecord::new(
+    cards::ULVENWALD_MYSTICS,
+    "Ulvenwald Mystics",
+    CardArt::new("8325c570-4d74-4e65-891c-3e153abf4bf9", "Dan Murayama Scott"),
+    CardSet::Innistrad,
+    ulvenwald_mystics_front_rules(),
+)
+.with_composition(ulvenwald_mystics_composition);
 
 const fn villagers_of_estwald_front_rules() -> CardRules {
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Human", "Werewolf"], 2, 3)
@@ -4597,6 +4722,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ROTTING_FENSNAKE,
     &SCREECHING_BAT,
     &SEVER_THE_BLOODLINE,
+    &SKELETAL_GRIMACE,
     &STROMKIRK_PATROL,
     &TYPHOID_RATS,
     &UNBURIAL_RITES,
@@ -4639,6 +4765,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DARKTHICKET_WOLF,
     &DAYBREAK_RANGER,
     &ELDER_OF_LAURELS,
+    &FULL_MOONS_RISE,
     &GARRUK_RELENTLESS,
     &GATSTAF_SHEPHERD,
     &GRIZZLED_OUTCASTS,
@@ -4653,6 +4780,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SPIDERY_GRASP,
     &SPLINTERFRIGHT,
     &TRAVEL_PREPARATIONS,
+    &ULVENWALD_MYSTICS,
     &VILLAGERS_OF_ESTWALD,
     &WREATH_OF_GEISTS,
     &GALVANIC_JUGGERNAUT,

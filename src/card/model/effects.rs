@@ -491,6 +491,17 @@ pub enum EffectDef {
     PreventCombatDamageDealtByThisTurn {
         object: EffectRecipientDef,
     },
+    /// Prevent all damage to one player and to creatures they control for the
+    /// rest of the turn. This modifies the rules rather than a fixed object
+    /// set, so it also covers creatures that enter later (CR 611.2c).
+    PreventDamageToPlayerAndControlledCreaturesThisTurn {
+        player: EffectRecipientDef,
+    },
+    /// Prevent all combat damage from every source other than the resolved
+    /// object for the rest of the turn.
+    PreventAllCombatDamageExceptSourceThisTurn {
+        source: EffectRecipientDef,
+    },
     /// Puts token copies of `token` onto the battlefield under the resolving
     /// object's controller.
     CreateToken {
@@ -717,25 +728,25 @@ pub enum EffectDef {
     MakeUnblockableThisTurn {
         object: EffectRecipientDef,
     },
-    /// Gain control of a permanent for the rest of the turn. Control reverts
-    /// in cleanup, so nothing needs to remember which effect took it.
+    /// The recipient cannot be regenerated for the rest of the turn. CR
+    /// 701.19c: regeneration shields are not removed and resolving effects may
+    /// still create them, but they cannot apply while the prohibition holds.
+    CannotRegenerateThisTurn {
+        object: EffectRecipientDef,
+    },
     /// Gain control of the recipient for as long as the ability's source
     /// stays on the battlefield under the same controller. Unlike
     /// [`Self::GainControlThisTurn`] this outlives the turn and ends when the
     /// source does, which is the "for as long as you control this creature"
     /// that several printed cards use.
-    /// The recipient cannot be regenerated for the rest of the turn. CR
-    /// 701.15: shields already armed are not removed, they simply stop
-    /// applying, and no new one can be armed either.
-    CannotRegenerateThisTurn {
-        object: EffectRecipientDef,
-    },
     GainControlWhileSourceRemains {
         object: EffectRecipientDef,
         /// Whether the source also has to stay tapped, for the cards that
         /// pair this with an optional untap so the choice is a real cost.
         while_tapped: bool,
     },
+    /// Gain control of a permanent for the rest of the turn. Control reverts
+    /// in cleanup, so nothing needs to remember which effect took it.
     GainControlThisTurn {
         object: EffectRecipientDef,
     },

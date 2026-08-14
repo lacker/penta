@@ -159,11 +159,9 @@ impl Game {
             .iter_mut()
             .find(|permanent| permanent.card.id == id)
         {
-            // CR 701.15: an effect saying the permanent cannot be
-            // regenerated stops a shield being armed at all.
-            if !permanent.cannot_regenerate_this_turn {
-                permanent.regeneration_shields = permanent.regeneration_shields.saturating_add(1);
-            }
+            // CR 701.19c: a prohibition stops the shield from applying, not
+            // the resolving effect from creating it.
+            permanent.regeneration_shields = permanent.regeneration_shields.saturating_add(1);
         }
     }
 
@@ -179,7 +177,6 @@ impl Game {
             let permanent = &mut self.battlefield[index];
             permanent.regeneration_shields -= 1;
             permanent.damage = 0;
-            permanent.damage_sources.clear();
             permanent.deathtouch_damage = false;
             permanent.attacking = false;
             permanent.blocked = false;

@@ -350,8 +350,32 @@ pub(in crate::card::sets) static HOLY_JUSTICIAR: CardRecord = CardRecord::new(
     ),
 );
 
+static LEAP_OF_FAITH_FLYING: AbilityDef = abilities::flying();
+static LEAP_OF_FAITH_EFFECTS: [EffectDef; 2] = [
+    EffectDef::Apply {
+        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        effect: AppliedEffectDef::GrantAbility(&LEAP_OF_FAITH_FLYING),
+        duration: EffectDurationDef::UntilEndOfTurn,
+    },
+    EffectDef::PreventAllDamageThisTurn {
+        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+    },
+];
+
 // AVR 26 — Leap of Faith
-// Audit: blocked — Needs a duration-scoped prevention effect for all damage to the target, not only combat damage.
+pub(in crate::card::sets) static LEAP_OF_FAITH: CardRecord = CardRecord::new(
+    cards::LEAP_OF_FAITH,
+    "Leap of Faith",
+    CardArt::new("7ba52aed-440c-4b32-8f25-0c5364441712", "Gabor Szikszai"),
+    CardSet::AvacynRestored,
+    CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature gains flying until end of turn. Prevent all damage that would be dealt to that creature this turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&LEAP_OF_FAITH_EFFECTS),
+    )),
+);
 
 // AVR 27 — Midnight Duelist
 // Audit: blocked — Needs protection from the Vampire creature subtype rather than from a color.
@@ -2561,7 +2585,21 @@ pub(in crate::card::sets) static SOMBERWALD_SAGE: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a token-status object predicate so the entry trigger can exclude token creatures exactly.
 
 // AVR 196 — Terrifying Presence
-// Audit: blocked — Needs a recipient set for every creature other than the targeted creature while retaining that target identity through prevention.
+pub(in crate::card::sets) static TERRIFYING_PRESENCE: CardRecord = CardRecord::new(
+    cards::TERRIFYING_PRESENCE,
+    "Terrifying Presence",
+    CardArt::new("2e8d0a22-f31b-45c0-85c7-0101aa63c77b", "Jaime Jones"),
+    CardSet::AvacynRestored,
+    CardRules::new_instant(mana_cost!("{1}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Prevent all combat damage that would be dealt by creatures other than target creature this turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::PreventAllCombatDamageExceptSourceThisTurn {
+            source: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        },
+    )),
+);
 
 // AVR 197 — Timberland Guide
 pub(in crate::card::sets) static TIMBERLAND_GUIDE: CardRecord = CardRecord::new(
@@ -2996,6 +3034,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ENTREAT_THE_ANGELS,
     &GOLDNIGHT_COMMANDER,
     &HOLY_JUSTICIAR,
+    &LEAP_OF_FAITH,
     &MOONLIGHT_GEIST,
     &MOORLAND_INQUISITOR,
     &RESTORATION_ANGEL,
@@ -3071,6 +3110,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &RAIN_OF_THORNS,
     &SNARE_THE_SKIES,
     &SOMBERWALD_SAGE,
+    &TERRIFYING_PRESENCE,
     &TIMBERLAND_GUIDE,
     &VORSTCLAW,
     &WOLFIR_AVENGER,

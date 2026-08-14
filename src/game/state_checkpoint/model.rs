@@ -4,6 +4,7 @@ mod triggers;
 pub(in crate::game::state_checkpoint) use triggers::*;
 
 use super::model_keyword::KeywordSnapshot;
+pub(super) use super::model_prevention::*;
 
 use super::model_animation::{AnimationSnapshot, UpkeepKeywordSnapshot};
 use super::model_procedure::{DrawReplacementSnapshot, PendingProcedureSnapshot};
@@ -54,6 +55,10 @@ pub(super) struct GameSnapshot {
     /// reason the Fog flag is.
     #[serde(default)]
     pub(super) prevention_shields: Vec<PreventionShieldSnapshot>,
+    /// Turn-scoped prevention rules whose covered objects are determined when
+    /// damage would be dealt instead of when the effect resolves.
+    #[serde(default)]
+    pub(super) relational_damage_preventions: Vec<RelationalDamagePreventionSnapshot>,
     pub(super) pregame: Option<PregameSnapshot>,
     pub(super) combat_damage_stage: CombatDamageStageSnapshot,
     pub(super) battlefield: Vec<PermanentSnapshot>,
@@ -180,12 +185,12 @@ pub(super) struct PermanentSnapshot {
     pub(super) combat_damage_prevented: bool,
     pub(super) combat_damage_dealt_by_prevented: bool,
     pub(super) control_reverts_to: Option<usize>,
-    /// The permanent sustaining a duration-scoped control change, absent for
-    /// the turn-scoped form and for everything untouched.
     /// Whether a "can't be regenerated" effect covers this permanent for the
     /// rest of the turn.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub(super) cannot_regenerate_this_turn: bool,
+    /// The permanent sustaining a duration-scoped control change, absent for
+    /// the turn-scoped form and for everything untouched.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(super) control_source: Option<u32>,
     /// Whether that holder also has to stay tapped.
@@ -970,23 +975,4 @@ pub(super) enum ZoneMoveCauseSnapshot {
 pub(super) struct ReplacementEffectContextSnapshot {
     pub(super) source: AbilitySourceSnapshot,
     pub(super) controller: usize,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub(super) struct PreventionShieldSnapshot {
-    pub(super) recipient: TargetSnapshot,
-    /// Absent for the "prevent all damage" form, which is never spent.
-    pub(super) remaining: Option<u16>,
-    /// The one source this shield answers, for "a source of your choice".
-    /// Absent for every shield that answers any source, which is why this is
-    /// an additive member an older consumer can ignore.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub(super) source: Option<u32>,
-    /// Whether this shield stops only half of a covered hit, rounded down.
-    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
-    pub(super) half_rounded_down: bool,
-    /// Whether spending this shield gains its recipient that much life.
-    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
-    pub(super) gain_life: bool,
 }

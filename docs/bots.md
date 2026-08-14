@@ -297,7 +297,9 @@ emblem, stack, and combat state; restricted/source-specific mana; copied and
 temporarily modified characteristics; retired-object last-known information;
 pending battlefield-entry replacement programs; delayed, floating, and
 pending triggers; and every pending decision continuation emitted by the hosted
-formats, including prospective begin-turn replacement choices. Stack payloads
+formats, including prospective begin-turn replacement choices. Active
+turn-scoped relational damage prevention is an additive checkpoint-v2 member
+and defaults to empty when reading an earlier payload. Stack payloads
 retain target-slot groupings, divided amounts, modes, X, trigger context,
 flashback/copy state, text and color changes, and mana-carried effects.
 Card-owned pile callbacks use stable registry keys rather than serialized

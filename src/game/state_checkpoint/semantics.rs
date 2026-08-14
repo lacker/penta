@@ -490,6 +490,8 @@ fn collect_effect_abilities(effect: EffectDef, abilities: &mut Vec<&'static Abil
         | EffectDef::PreventNextDamageFromSource { .. }
         | EffectDef::PreventCombatDamageThisTurn { .. }
         | EffectDef::PreventCombatDamageDealtByThisTurn { .. }
+        | EffectDef::PreventDamageToPlayerAndControlledCreaturesThisTurn { .. }
+        | EffectDef::PreventAllCombatDamageExceptSourceThisTurn { .. }
         | EffectDef::Attach { .. }
         | EffectDef::CreateToken { .. }
         | EffectDef::Destroy { .. }

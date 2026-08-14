@@ -330,7 +330,18 @@ pub(in crate::card::sets) static REST_IN_PEACE: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a turn-long “prevent the next 1 damage” shield granted as a land activation.
 
 // RTR 21 — Selesnya Sentry
-// Audit: blocked — Regeneration shields are not available declaratively.
+pub(in crate::card::sets) static SELESNYA_SENTRY: CardRecord = CardRecord::new(
+    cards::SELESNYA_SENTRY,
+    "Selesnya Sentry",
+    CardArt::new("9c34c1f5-d509-4c66-ba41-c7958ef5ee44", "Wesley Burt"),
+    CardSet::ReturnToRavnica,
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Elephant", "Soldier"], 3, 2).with_ability(
+        abilities::regenerate_self(
+            "{5}{G}: Regenerate this creature.",
+            &[AbilityCostDef::Mana(mana_cost!("{5}{G}"))],
+        ),
+    ),
+);
 
 // RTR 22 — Seller of Songbirds
 pub(in crate::card::sets) static SELLER_OF_SONGBIRDS: CardRecord = CardRecord::new(
@@ -2728,7 +2739,49 @@ pub(in crate::card::sets) static FALL_OF_THE_GAVEL: CardRecord = CardRecord::new
 // Audit: blocked — Needs a battlefield-wide generic-cost reduction for instant and sorcery spells you cast.
 
 // RTR 164 — Golgari Charm
-// Audit: blocked — One modal branch needs a regeneration shield for every creature you control.
+pub(in crate::card::sets) static GOLGARI_CHARM: CardRecord = CardRecord::new(
+    cards::GOLGARI_CHARM,
+    "Golgari Charm",
+    CardArt::new("48fce388-eefc-4234-8dd9-1260c1ba97eb", "Zoltan Boros"),
+    CardSet::ReturnToRavnica,
+    CardRules::new_instant(mana_cost!("{B}{G}")).with_ability(AbilityDef::choose_one_spell(
+        "Choose one —\n• All creatures get -1/-1 until end of turn.\n• Destroy target enchantment.\n• Regenerate each creature you control.",
+        &[
+            AbilityDef::spell(
+                "All creatures get -1/-1 until end of turn",
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::MatchingObjects {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: PlayerRelation::Any,
+                    },
+                    effect: AppliedEffectDef::ModifyPowerToughness {
+                        power: ValueDef::Constant(-1),
+                        toughness: ValueDef::Constant(-1),
+                    },
+                    duration: EffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            AbilityDef::destroy_target(
+                "Destroy target enchantment",
+                &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                    CardType::Enchantment,
+                )),
+                true,
+            ),
+            AbilityDef::spell(
+                "Regenerate each creature you control",
+                EffectDef::Regenerate {
+                    object: EffectRecipientDef::MatchingObjects {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: PlayerRelation::You,
+                    },
+                },
+            ),
+        ],
+    )),
+);
 
 // RTR 165 — Grisly Salvage
 pub(in crate::card::sets) static GRISLY_SALVAGE: CardRecord = CardRecord::new(
@@ -2984,7 +3037,36 @@ pub(in crate::card::sets) static RAKDOS_RAGEMUTT: CardRecord = CardRecord::new(
 );
 
 // RTR 186 — Rakdos Ringleader
-// Audit: blocked — Its combat trigger is expressible, but regeneration shields are not available for the whole card.
+pub(in crate::card::sets) static RAKDOS_RINGLEADER: CardRecord = CardRecord::new(
+    cards::RAKDOS_RINGLEADER,
+    "Rakdos Ringleader",
+    CardArt::new("6b54fbe8-324a-4066-bed1-dda1dca319fc", "Jason Felix"),
+    CardSet::ReturnToRavnica,
+    CardRules::new_creature(
+        mana_cost!("{4}{B}{R}"),
+        &["Skeleton", "Warrior"],
+        3,
+        1,
+    )
+    .with_abilities(&[
+        abilities::first_strike(),
+        AbilityDef::triggered(
+            "Whenever this creature deals combat damage to a player, that player discards a card at random.",
+            TriggerEventDef::CombatDamageDealtToPlayer {
+                source: ObjectPredicateDef::Source,
+            },
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::EventPlayer,
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::Random,
+            },
+        ),
+        abilities::regenerate_self(
+            "{B}: Regenerate this creature.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+        ),
+    ]),
+);
 
 // RTR 187 — Rakdos, Lord of Riots
 // Audit: blocked — Needs a life-lost-this-turn cast restriction and a global creature-spell cost reduction derived from opponents' life loss.
@@ -3290,7 +3372,20 @@ pub(in crate::card::sets) static TREASURED_FIND: CardRecord = CardRecord::new(
 );
 
 // RTR 205 — Trestle Troll
-// Audit: blocked — Defender and reach are expressible, but regeneration shields are not available for the whole card.
+pub(in crate::card::sets) static TRESTLE_TROLL: CardRecord = CardRecord::new(
+    cards::TRESTLE_TROLL,
+    "Trestle Troll",
+    CardArt::new("6d224279-83f3-4a29-9fd9-86b72407b87a", "Peter Mohrbacher"),
+    CardSet::ReturnToRavnica,
+    CardRules::new_creature(mana_cost!("{1}{B}{G}"), &["Troll"], 1, 4).with_abilities(&[
+        abilities::defender(),
+        abilities::reach(),
+        abilities::regenerate_self(
+            "{1}{B}{G}: Regenerate this creature.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}{B}{G}"))],
+        ),
+    ]),
+);
 
 // RTR 206 — Trostani, Selesnya's Voice
 // Audit: blocked — Needs the entering creature's toughness as trigger-event data and populate's chosen token-copy procedure.
@@ -4123,6 +4218,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &KNIGHTLY_VALOR,
     &PRECINCT_CAPTAIN,
     &REST_IN_PEACE,
+    &SELESNYA_SENTRY,
     &SELLER_OF_SONGBIRDS,
     &SUNSPIRE_GRIFFIN,
     &SWIFT_JUSTICE,
@@ -4207,6 +4303,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DREADBORE,
     &ESSENCE_BACKLASH,
     &FALL_OF_THE_GAVEL,
+    &GOLGARI_CHARM,
     &GRISLY_SALVAGE,
     &HEROES_REUNION,
     &HUSSAR_PATROL,
@@ -4216,6 +4313,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &LOXODON_SMITER,
     &NIV_MIZZET_DRACOGENIUS,
     &RAKDOS_RAGEMUTT,
+    &RAKDOS_RINGLEADER,
     &RISEN_SANCTUARY,
     &SELESNYA_CHARM,
     &SKULL_REND,
@@ -4225,6 +4323,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &TELEPORTAL,
     &THOUGHTFLARE,
     &TREASURED_FIND,
+    &TRESTLE_TROLL,
     &VRASKA_THE_UNSEEN,
     &BLISTERCOIL_WEIRD,
     &DEATHRITE_SHAMAN,

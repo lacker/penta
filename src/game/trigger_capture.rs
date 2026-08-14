@@ -252,6 +252,8 @@ impl Game {
             | EffectDef::PreventAllDamageThisTurn { .. }
             | EffectDef::PreventCombatDamageThisTurn { .. }
             | EffectDef::PreventCombatDamageDealtByThisTurn { .. }
+            | EffectDef::PreventDamageToPlayerAndControlledCreaturesThisTurn { .. }
+            | EffectDef::PreventAllCombatDamageExceptSourceThisTurn { .. }
             | EffectDef::Destroy { .. }
             | EffectDef::Sacrifice { .. }
             | EffectDef::SacrificeOfChoice { .. }

@@ -216,7 +216,18 @@ pub(in crate::card::sets) static DEBTORS_PULPIT: CardRecord = CardRecord::new(
 );
 
 // GTC 11 — Dutiful Thrull
-// Audit: blocked — Regeneration shields and the destroy replacement they create are not declarative effects.
+pub(in crate::card::sets) static DUTIFUL_THRULL: CardRecord = CardRecord::new(
+    cards::DUTIFUL_THRULL,
+    "Dutiful Thrull",
+    CardArt::new("8d586143-fac0-463f-96ec-c6b9fd582194", "Daarken"),
+    CardSet::Gatecrash,
+    CardRules::new_creature(mana_cost!("{W}"), &["Thrull"], 1, 1).with_ability(
+        abilities::regenerate_self(
+            "{B}: Regenerate this creature.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+        ),
+    ),
+);
 
 // GTC 12 — Frontline Medic
 // Audit: blocked — Battalion needs a trigger-time-only condition, and no target predicate recognizes a spell with X in its mana cost.
@@ -363,7 +374,21 @@ pub(in crate::card::sets) static RIGHTEOUS_CHARGE: CardRecord = CardRecord::new(
 );
 
 // GTC 24 — Shielded Passage
-// Audit: blocked — The prevention primitives cover combat damage or damage from a matching permanent, not all damage to one creature this turn.
+pub(in crate::card::sets) static SHIELDED_PASSAGE: CardRecord = CardRecord::new(
+    cards::SHIELDED_PASSAGE,
+    "Shielded Passage",
+    CardArt::new("6546b6c4-73b2-41b3-9ff9-316e9ce916e5", "Raymond Swanland"),
+    CardSet::Gatecrash,
+    CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Prevent all damage that would be dealt to target creature this turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::PreventAllDamageThisTurn {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        },
+    )),
+);
 
 // GTC 25 — Smite
 // Audit: blocked — Target predicates can recognize attacking or blocking creatures, but not a creature that is currently blocked.
@@ -3157,11 +3182,13 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BLIND_OBEDIENCE,
     &COURT_STREET_DENIZEN,
     &DEBTORS_PULPIT,
+    &DUTIFUL_THRULL,
     &HOLD_THE_GATES,
     &KNIGHT_OF_OBLIGATION,
     &KNIGHT_WATCH,
     &LUMINATE_PRIMORDIAL,
     &RIGHTEOUS_CHARGE,
+    &SHIELDED_PASSAGE,
     &SYNDIC_OF_TITHES,
     &URBIS_PROTECTOR,
     &ZARICHI_TIGER,

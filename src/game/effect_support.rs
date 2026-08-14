@@ -118,7 +118,7 @@ impl Game {
         }
     }
 
-    fn ability_effect_expiration(
+    pub(super) fn ability_effect_expiration(
         duration: EffectDurationDef,
         controller: PlayerId,
         turns_started: u32,
@@ -433,7 +433,7 @@ impl Game {
                 }
                 EffectRecipientDef::AttachedPermanent => object
                     .source
-                    .and_then(|source| self.attached_host(source))
+                    .and_then(|source| self.current_or_last_known_attached_host(source))
                     .map(Target::Permanent),
                 EffectRecipientDef::Controller => Some(Target::Player(object.controller)),
                 EffectRecipientDef::Opponent => Some(Target::Player(object.controller.opponent())),

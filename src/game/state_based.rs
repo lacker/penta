@@ -46,7 +46,7 @@ impl Game {
                 if !lethal_damage || self.has_indestructible(permanent) {
                     continue;
                 }
-                if permanent.regeneration_shields > 0 {
+                if permanent.regeneration_shields > 0 && !permanent.cannot_regenerate_this_turn {
                     regenerate.push(permanent.card.id);
                 } else {
                     die.push(permanent.card.id);

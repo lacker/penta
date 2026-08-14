@@ -256,6 +256,140 @@ fn every_newly_unblocked_regenerator_reports_complete_coverage() {
     }
 }
 
+#[test]
+fn expanded_regeneration_forms_report_complete_coverage() {
+    let catalog = poc::catalog().expect("catalog builds");
+    for definition in [
+        cards::SKELETAL_GRIMACE,
+        cards::FULL_MOONS_RISE,
+        cards::ULVENWALD_MYSTICS,
+        cards::CRIMSON_MUCKWADER,
+        cards::SELESNYA_SENTRY,
+        cards::GOLGARI_CHARM,
+        cards::RAKDOS_RINGLEADER,
+        cards::TRESTLE_TROLL,
+        cards::DUTIFUL_THRULL,
+        cards::MENDING_TOUCH,
+        cards::BLESSING,
+        cards::HOLY_ARMOR,
+        cards::FIREBREATHING,
+        cards::AXELROD_GUNNARSON,
+    ] {
+        let card = catalog.get(definition).expect("the card is cataloged");
+        assert_eq!(
+            card.rules.implementation_status(),
+            ImplementationStatus::Complete,
+            "{} should be fully executable",
+            card.name,
+        );
+    }
+}
+
+fn attached_aura(
+    id: u32,
+    definition: CardDefinitionId,
+    controller: PlayerId,
+    host: GameObjectId,
+) -> Permanent {
+    let mut aura = creature(id, definition, controller);
+    aura.attached_to = Some(host);
+    aura
+}
+
+#[test]
+fn sacrificing_an_aura_as_the_cost_still_regenerates_its_former_host() {
+    let mut game = ready_game();
+    let host = creature(10_000, cards::SERRA_ANGEL, PlayerId::One);
+    let host_id = host.card.id;
+    let aura = attached_aura(10_001, cards::THRULL_RETAINER, PlayerId::One, host_id);
+    let aura_id = aura.card.id;
+    game.battlefield.extend([host, aura]);
+
+    arm_shield(&mut game, aura_id);
+
+    assert!(
+        game.battlefield
+            .iter()
+            .all(|permanent| permanent.card.id != aura_id),
+        "Thrull Retainer was sacrificed as the activation cost",
+    );
+    assert_eq!(
+        troll(&game, host_id)
+            .expect("the enchanted creature remains")
+            .regeneration_shields,
+        1,
+        "the stack ability uses the Aura's last-known attachment",
+    );
+    game.destroy_permanent(host_id);
+    assert!(troll(&game, host_id).is_some());
+}
+
+#[test]
+fn removing_an_aura_in_response_does_not_erase_its_activated_abilitys_host() {
+    let mut game = ready_game();
+    let host = creature(10_000, cards::SERRA_ANGEL, PlayerId::One);
+    let host_id = host.card.id;
+    let aura = attached_aura(10_001, cards::REGENERATION, PlayerId::One, host_id);
+    let aura_id = aura.card.id;
+    game.battlefield.extend([host, aura]);
+    game.players[PlayerId::One.index()].mana_pool.green = 1;
+
+    let action = regenerate_actions(&game, aura_id)
+        .into_iter()
+        .next()
+        .expect("Regeneration's activation is legal");
+    game.apply(PlayerId::One, action)
+        .expect("the Aura's ability activates");
+    game.destroy_permanent(aura_id);
+    pass_priority_pair(&mut game);
+
+    assert_eq!(
+        troll(&game, host_id)
+            .expect("the former enchanted creature remains")
+            .regeneration_shields,
+        1,
+    );
+}
+
+#[test]
+fn regeneration_preserves_damage_source_history_for_later_death_triggers() {
+    let mut game = ready_game();
+    let axelrod = creature(10_000, cards::AXELROD_GUNNARSON, PlayerId::One);
+    let axelrod_id = axelrod.card.id;
+    let victim = creature(10_001, cards::SERRA_ANGEL, PlayerId::Two);
+    let victim_id = victim.card.id;
+    game.battlefield.extend([axelrod, victim]);
+
+    assert_eq!(
+        game.damage_target_from(Some(axelrod_id), Some(Target::Permanent(victim_id)), 1),
+        1,
+    );
+    game.add_regeneration_shield(victim_id);
+    game.destroy_permanent(victim_id);
+    assert!(
+        troll(&game, victim_id)
+            .expect("the first destruction was regenerated")
+            .damage_sources
+            .contains(&axelrod_id),
+        "regeneration removes marked damage but not the fact it was dealt",
+    );
+
+    game.destroy_permanent(victim_id);
+    assert!(game.pending_triggers.iter().any(|trigger| {
+        trigger.source.object == axelrod_id
+            && trigger
+                .text
+                .starts_with("Whenever a creature dealt damage by Axelrod")
+    }));
+}
+
+fn retired_regeneration_shields(game: &Game, id: GameObjectId) -> Option<u8> {
+    match game.retired_objects.get(&id) {
+        Some(RetiredObject::Permanent { permanent, .. }) => Some(permanent.regeneration_shields),
+        Some(RetiredObject::Card(_) | RetiredObject::Stack(_)) | None => None,
+    }
+}
+
 /// Regeneration takes any recipient, so "regenerate target creature" and
 /// "regenerate enchanted creature" were expressible from the moment the
 /// effect existed. These cards were blocked on an audit line rather than on
@@ -545,8 +679,8 @@ mod follow_up {
 }
 
 /// "Can't be regenerated" as a standalone effect rather than a property of a
-/// destroy. CR 701.15: shields already armed are not removed, they stop
-/// applying, and no new one can be armed while it holds.
+/// destroy. CR 701.19c: shields are not removed, they stop applying, and
+/// resolving regeneration effects may still create them.
 mod cannot_be_regenerated {
     use super::*;
 
@@ -586,7 +720,7 @@ mod cannot_be_regenerated {
     }
 
     #[test]
-    fn a_shield_armed_afterwards_does_not_save_the_creature() {
+    fn a_shield_armed_afterwards_is_kept_but_does_not_apply() {
         let (mut game, jackal_id, troll_id) = jackal_game();
         point_at(&mut game, jackal_id, troll_id);
 
@@ -597,8 +731,8 @@ mod cannot_be_regenerated {
                 .find(|permanent| permanent.card.id == troll_id)
                 .expect("still there")
                 .regeneration_shields,
-            0,
-            "no shield can be armed while the prohibition holds"
+            1,
+            "the prohibition stops application, not shield creation"
         );
 
         game.destroy_permanent(troll_id);
@@ -608,10 +742,15 @@ mod cannot_be_regenerated {
                 .iter()
                 .any(|permanent| permanent.card.id == troll_id),
         );
+        assert_eq!(
+            retired_regeneration_shields(&game, troll_id),
+            Some(1),
+            "the prohibited shield was not consumed",
+        );
     }
 
     /// A shield armed *before* the prohibition is not removed by it -- it
-    /// simply stops applying, which is the distinction CR 701.15 draws.
+    /// simply stops applying, which is the distinction CR 701.19c draws.
     #[test]
     fn a_shield_armed_beforehand_is_kept_but_does_not_apply() {
         let (mut game, jackal_id, troll_id) = jackal_game();
@@ -636,6 +775,29 @@ mod cannot_be_regenerated {
                 .any(|permanent| permanent.card.id == troll_id),
             "and it did not save the creature"
         );
+    }
+
+    #[test]
+    fn lethal_damage_cannot_apply_a_shield_while_the_prohibition_holds() {
+        let (mut game, jackal_id, troll_id) = jackal_game();
+        game.add_regeneration_shield(troll_id);
+        point_at(&mut game, jackal_id, troll_id);
+        game.battlefield
+            .iter_mut()
+            .find(|permanent| permanent.card.id == troll_id)
+            .expect("the Troll is still there")
+            .damage = 2;
+
+        game.check_state_based_actions();
+
+        assert!(
+            !game
+                .battlefield
+                .iter()
+                .any(|permanent| permanent.card.id == troll_id),
+            "lethal damage uses the same prohibition as explicit destruction",
+        );
+        assert_eq!(retired_regeneration_shields(&game, troll_id), Some(1));
     }
 
     /// The prohibition is for the turn, so a creature pointed at survives the

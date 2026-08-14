@@ -633,7 +633,7 @@ fn trample_requires_lethal_assignment_before_player_damage() {
 }
 
 #[test]
-fn damage_cannot_be_dribbled_across_several_blockers_at_once() {
+fn damage_can_be_divided_freely_across_several_blockers() {
     let mut game = ready_game();
     let mut attacker = creature(10_000, cards::SU_CHI, PlayerId::One);
     attacker.attacking = true;
@@ -668,8 +668,25 @@ fn damage_cannot_be_dribbled_across_several_blockers_at_once() {
         actions.contains(&assignment([2, 2, 0])),
         "killing two blockers outright is legal",
     );
+    let divided = assignment([1, 1, 2]);
     assert!(
-        !actions.contains(&assignment([1, 1, 2])),
-        "only the blocker at the front of the order may be left short of lethal",
+        actions.contains(&divided),
+        "current CR 510.1c permits any division among several blockers",
+    );
+    game.apply(PlayerId::One, divided).unwrap();
+
+    for id in &ids[..2] {
+        let blocker = game
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == *id)
+            .unwrap();
+        assert_eq!(blocker.damage, 1);
+    }
+    assert!(
+        game.battlefield
+            .iter()
+            .all(|permanent| permanent.card.id != ids[2]),
+        "the blocker assigned lethal damage dies",
     );
 }

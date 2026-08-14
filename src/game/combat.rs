@@ -453,20 +453,9 @@ impl Game {
                             Target::Player(_) | Target::Card(_) | Target::Spell(_) => None,
                         })
                 };
-                // 510.1c: damage is assigned in an order, and a blocker only
-                // gets any once every blocker ahead of it has lethal. Whatever
-                // order the player picks, that leaves at most one blocker
-                // holding a non-lethal share.
-                if blockers()
-                    .filter(|(id, amount)| {
-                        *amount > 0 && *amount < self.lethal_damage_from(*id, attacker_id)
-                    })
-                    .count()
-                    > 1
-                {
-                    return false;
-                }
-                // 510.1d: trample only spills once every blocker has lethal.
+                // CR 702.19b: trample only spills once every blocker has
+                // lethal damage assigned. Without defender damage, current
+                // CR 510.1c permits any division among the blockers.
                 let defender_damage = defender_index
                     .and_then(|index| amounts.get(index))
                     .copied()
@@ -694,8 +683,13 @@ impl Game {
         player: PlayerId,
         amount: u16,
     ) {
-        self.damage_target_from(Some(attacker), Some(Target::Player(player)), amount);
-        if amount == 0 {
+        let dealt = self.damage_target_from_kind(
+            Some(attacker),
+            Some(Target::Player(player)),
+            amount,
+            true,
+        );
+        if dealt == 0 {
             return;
         }
         let Some(source) = self
@@ -708,7 +702,7 @@ impl Game {
         let event = CommittedTriggerEvent::CombatDamageDealtToPlayer {
             object: self.trigger_event_object(source),
             player,
-            amount,
+            amount: dealt,
         };
         self.capture_battlefield_triggers(&event);
     }
@@ -743,7 +737,7 @@ impl Game {
                 if let Target::Player(player) = recipient {
                     self.deal_combat_damage_to_player(attacker_id, player, amount);
                 } else {
-                    self.damage_target_from(Some(attacker_id), Some(recipient), amount);
+                    self.damage_target_from_kind(Some(attacker_id), Some(recipient), amount, true);
                 }
             }
         }
@@ -765,7 +759,12 @@ impl Game {
             })
             .collect::<Vec<_>>();
         for (blocker, amount) in return_damage {
-            self.damage_target_from(Some(blocker), Some(Target::Permanent(attacker_id)), amount);
+            self.damage_target_from_kind(
+                Some(blocker),
+                Some(Target::Permanent(attacker_id)),
+                amount,
+                true,
+            );
         }
     }
 

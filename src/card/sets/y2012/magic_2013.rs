@@ -510,7 +510,21 @@ pub(in crate::card::sets) static RHOX_FAITHMENDER: CardRecord = CardRecord::new(
 );
 
 // M13 30 — Safe Passage
-// Audit: blocked — The prevention vocabulary cannot cover all damage to a player and every creature they control for the turn.
+pub(in crate::card::sets) static SAFE_PASSAGE: CardRecord = CardRecord::new(
+    cards::SAFE_PASSAGE,
+    "Safe Passage",
+    CardArt::new(
+        "9fc65c3f-ad29-4368-bf45-8345a7ec6f31",
+        "Christopher Moeller",
+    ),
+    CardSet::Magic2013,
+    CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(AbilityDef::spell(
+        "Prevent all damage that would be dealt to you and creatures you control this turn.",
+        EffectDef::PreventDamageToPlayerAndControlledCreaturesThisTurn {
+            player: EffectRecipientDef::Controller,
+        },
+    )),
+);
 
 // M13 32 — Serra Avatar
 // Audit: blocked — Needs a life-total characteristic value in all zones and a self graveyard-to-library replacement.
@@ -1849,8 +1863,36 @@ pub(in crate::card::sets) static CRATERIZE: CardRecord = CardRecord::new(
     )),
 );
 
+static CRIMSON_MUCKWADER_SWAMPS: ObjectQueryDef = ObjectQueryDef {
+    object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
+    zones: &[ZoneKind::Battlefield],
+    controller: PlayerRelation::You,
+};
+
 // M13 127 — Crimson Muckwader
-// Audit: blocked — No resolving effect performs regeneration.
+pub(in crate::card::sets) static CRIMSON_MUCKWADER: CardRecord = CardRecord::new(
+    cards::CRIMSON_MUCKWADER,
+    "Crimson Muckwader",
+    CardArt::new("a0811f91-ed92-4a8e-badd-ae5054e7707d", "Steven Belledin"),
+    CardSet::Magic2013,
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Lizard"], 2, 1).with_abilities(&[
+        AbilityDef::static_ability(
+            "This creature gets +1/+1 as long as you control a Swamp.",
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::ModifyPowerToughness {
+                    power: ValueDef::AnyMatchingObject(&CRIMSON_MUCKWADER_SWAMPS),
+                    toughness: ValueDef::AnyMatchingObject(&CRIMSON_MUCKWADER_SWAMPS),
+                },
+                duration: EffectDurationDef::WhileSourceRemainsInZone,
+            },
+        ),
+        abilities::regenerate_self(
+            "{2}{B}: Regenerate this creature.",
+            &[AbilityCostDef::Mana(mana_cost!("{2}{B}"))],
+        ),
+    ]),
+);
 
 // M13 128 — Dragon Hatchling
 pub(in crate::card::sets) static DRAGON_HATCHLING: CardRecord = CardRecord::new(
@@ -3075,6 +3117,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PRIZED_ELEPHANT,
     &RAIN_OF_BLADES,
     &RHOX_FAITHMENDER,
+    &SAFE_PASSAGE,
     &SHOW_OF_VALOR,
     &SILVERCOAT_LION,
     &WAR_PRIEST_OF_THUNE,
@@ -3127,6 +3170,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CHANDRAS_FURY,
     &CLEAVER_RIOT,
     &CRATERIZE,
+    &CRIMSON_MUCKWADER,
     &DRAGON_HATCHLING,
     &FERVOR,
     &FLAMES_OF_THE_FIREBRAND,

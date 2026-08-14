@@ -99,6 +99,12 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         EffectDef::PreventNextDamageFromSource { object, source, .. } => {
             shared_effect_recipient(object) && shared_effect_recipient(source)
         }
+        EffectDef::PreventDamageToPlayerAndControlledCreaturesThisTurn { player } => {
+            shared_effect_recipient(player)
+        }
+        EffectDef::PreventAllCombatDamageExceptSourceThisTurn { source } => {
+            shared_effect_recipient(source)
+        }
         EffectDef::ChooseDamageSource { then, .. } | EffectDef::ChoosePermanent { then, .. } => {
             deferred_decision_allowed
                 && shared_decision_effect(effect)

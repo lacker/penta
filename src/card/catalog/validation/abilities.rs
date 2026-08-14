@@ -498,6 +498,8 @@ fn collect_ability_grants(effect: EffectDef, grants: &mut Vec<&AbilityDef>) {
         | EffectDef::PreventNextDamageFromSource { .. }
         | EffectDef::PreventCombatDamageThisTurn { .. }
         | EffectDef::PreventCombatDamageDealtByThisTurn { .. }
+        | EffectDef::PreventDamageToPlayerAndControlledCreaturesThisTurn { .. }
+        | EffectDef::PreventAllCombatDamageExceptSourceThisTurn { .. }
         | EffectDef::Attach { .. }
         | EffectDef::CreateToken { .. }
         | EffectDef::Destroy { .. }
@@ -656,6 +658,8 @@ fn ability_grant_sites(effect: EffectDef) -> usize {
         | EffectDef::PreventNextDamageFromSource { .. }
         | EffectDef::PreventCombatDamageThisTurn { .. }
         | EffectDef::PreventCombatDamageDealtByThisTurn { .. }
+        | EffectDef::PreventDamageToPlayerAndControlledCreaturesThisTurn { .. }
+        | EffectDef::PreventAllCombatDamageExceptSourceThisTurn { .. }
         | EffectDef::Attach { .. }
         | EffectDef::CreateToken { .. }
         | EffectDef::Destroy { .. }

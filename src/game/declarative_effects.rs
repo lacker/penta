@@ -2,10 +2,12 @@ use super::{
     AbilitySourceRef, AddManaEffectDef, CardPartId, CharacteristicSource, CopiableAbility, CostDef,
     CounteredSpellZone, DeclarativeAbilityDef, DelayedTrigger, DiscardSelectionDef,
     DrawReplacement, EffectDef, EffectRecipientDef, FloatingTrigger, Game, GameResult, Mana,
-    ManaPool, ManaSelectionDef, ManaSource, Permanent, PreventionShield, SacrificeFollowup,
-    ScopedEffect, ShieldCoverageDef, StackObject, Target, TriggerCapture, TriggerContext, ValueDef,
-    WinReason, ZoneKind, ZoneMoveCause, public_cards,
+    ManaPool, ManaSelectionDef, ManaSource, Permanent, SacrificeFollowup, ScopedEffect,
+    StackObject, Target, TriggerCapture, TriggerContext, ValueDef, WinReason, ZoneKind,
+    ZoneMoveCause, public_cards,
 };
+
+mod prevention;
 
 impl Game {
     #[allow(clippy::too_many_lines)]
@@ -99,8 +101,8 @@ impl Game {
                     .unwrap_or(u16::MAX);
                 for target in self.effect_recipients(recipient, object, context, scoped) {
                     let available = self.drainable_from(target);
-                    self.damage_target_from(Some(object.id), Some(target), amount);
-                    self.gain_life(object.controller, amount.min(available));
+                    let dealt = self.damage_target_from(Some(object.id), Some(target), amount);
+                    self.gain_life(object.controller, dealt.min(available));
                 }
             }
             EffectDef::DealDamage { recipient, amount } => {
@@ -275,109 +277,16 @@ impl Game {
                     }
                 }
             }
-            EffectDef::PreventNextDamage {
-                object: recipient,
-                amount,
-            } => {
-                let amount = self
-                    .effect_value(amount, object, context, scoped)
-                    .max(0)
-                    .try_into()
-                    .unwrap_or(u16::MAX);
-                for target in self.effect_recipients(recipient, object, context, scoped) {
-                    self.prevention_shields.push(PreventionShield {
-                        recipient: target,
-                        remaining: Some(amount),
-                        source: None,
-                        coverage: ShieldCoverageDef::All,
-                        gain_life: false,
-                    });
-                }
-            }
-            EffectDef::ChooseDamageSource {
-                choice,
-                chooser,
-                object: predicate,
-                then,
-            } => {
-                let choosers = self.effect_recipients(chooser, object, context, scoped);
-                for chooser in choosers {
-                    if let Target::Player(chooser) = chooser {
-                        self.queue_damage_source_choice(
-                            choice,
-                            chooser,
-                            predicate,
-                            object,
-                            context,
-                            scoped.with_effect(*then),
-                        );
-                    }
-                }
-            }
-            EffectDef::PreventNextDamageFromSource {
-                object: recipient,
-                source,
-                coverage,
-                gain_life,
-            } => {
-                // No chosen source means nothing matched, and a shield that
-                // answers nothing is not worth carrying.
-                let named = self
-                    .effect_recipients(source, object, context, scoped)
-                    .into_iter()
-                    .find_map(|target| match target {
-                        Target::Permanent(id) | Target::Spell(id) | Target::Card(id) => Some(id),
-                        Target::Player(_) => None,
-                    });
-                if let Some(named) = named {
-                    for target in self.effect_recipients(recipient, object, context, scoped) {
-                        self.prevention_shields.push(PreventionShield {
-                            recipient: target,
-                            remaining: None,
-                            source: Some(named),
-                            coverage,
-                            gain_life,
-                        });
-                    }
-                }
-            }
-            EffectDef::PreventAllDamageThisTurn { object: recipient } => {
-                for target in self.effect_recipients(recipient, object, context, scoped) {
-                    self.prevention_shields.push(PreventionShield {
-                        recipient: target,
-                        remaining: None,
-                        source: None,
-                        coverage: ShieldCoverageDef::All,
-                        gain_life: false,
-                    });
-                }
-            }
-            EffectDef::PreventAllCombatDamageThisTurn => {
-                self.all_combat_damage_prevented = true;
-            }
-            EffectDef::PreventCombatDamageThisTurn { object: recipient } => {
-                for target in self.effect_recipients(recipient, object, context, scoped) {
-                    if let Target::Permanent(id) = target
-                        && let Some(permanent) = self
-                            .battlefield
-                            .iter_mut()
-                            .find(|permanent| permanent.card.id == id)
-                    {
-                        permanent.combat_damage_prevented = true;
-                    }
-                }
-            }
-            EffectDef::PreventCombatDamageDealtByThisTurn { object: recipient } => {
-                for target in self.effect_recipients(recipient, object, context, scoped) {
-                    if let Target::Permanent(id) = target
-                        && let Some(permanent) = self
-                            .battlefield
-                            .iter_mut()
-                            .find(|permanent| permanent.card.id == id)
-                    {
-                        permanent.combat_damage_dealt_by_prevented = true;
-                    }
-                }
+            EffectDef::PreventNextDamage { .. }
+            | EffectDef::ChooseDamageSource { .. }
+            | EffectDef::PreventNextDamageFromSource { .. }
+            | EffectDef::PreventAllDamageThisTurn { .. }
+            | EffectDef::PreventAllCombatDamageThisTurn
+            | EffectDef::PreventCombatDamageThisTurn { .. }
+            | EffectDef::PreventCombatDamageDealtByThisTurn { .. }
+            | EffectDef::PreventDamageToPlayerAndControlledCreaturesThisTurn { .. }
+            | EffectDef::PreventAllCombatDamageExceptSourceThisTurn { .. } => {
+                self.resolve_prevention_effect(scoped, object, context);
             }
             EffectDef::Destroy {
                 object: recipient,

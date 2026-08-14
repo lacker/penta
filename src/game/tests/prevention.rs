@@ -241,6 +241,209 @@ fn every_newly_unblocked_prevention_card_reports_complete_coverage() {
     }
 }
 
+fn resolving_prevention_object(controller: PlayerId) -> StackObject {
+    spell(20_000, cards::LIGHTNING_BOLT, controller, 0)
+}
+
+#[test]
+fn remaining_duration_prevention_cards_report_complete_coverage() {
+    let catalog = poc::catalog().expect("catalog builds");
+    for definition in [
+        cards::LEAP_OF_FAITH,
+        cards::SHIELDED_PASSAGE,
+        cards::SAFE_PASSAGE,
+        cards::RIOT_CONTROL,
+        cards::TERRIFYING_PRESENCE,
+    ] {
+        let card = catalog.get(definition).expect("the card is cataloged");
+        assert_eq!(
+            card.rules.implementation_status(),
+            crate::ImplementationStatus::Complete,
+            "{} should be fully executable",
+            card.name,
+        );
+    }
+}
+
+#[test]
+fn safe_passage_tracks_later_controlled_creatures_but_not_planeswalkers() {
+    let mut game = ready_game();
+    let object = resolving_prevention_object(PlayerId::One);
+    game.resolve_effect_def(
+        ScopedEffect::primary(
+            EffectDef::PreventDamageToPlayerAndControlledCreaturesThisTurn {
+                player: EffectRecipientDef::Controller,
+            },
+        ),
+        &object,
+        TriggerContext::empty(),
+    );
+
+    let protected = creature(10_001, cards::SERRA_ANGEL, PlayerId::One);
+    let protected_id = protected.card.id;
+    let unprotected = creature(10_002, cards::SERRA_ANGEL, PlayerId::Two);
+    let unprotected_id = unprotected.card.id;
+    let planeswalker = creature(10_003, cards::VRASKA_THE_UNSEEN, PlayerId::One);
+    let planeswalker_id = planeswalker.card.id;
+    game.battlefield
+        .extend([protected, unprotected, planeswalker]);
+
+    assert_eq!(
+        game.damage_target_from(None, Some(Target::Player(PlayerId::One)), 2),
+        0,
+    );
+    assert_eq!(
+        game.damage_target_from(None, Some(Target::Permanent(protected_id)), 2),
+        0,
+        "a creature entering after resolution is protected",
+    );
+    assert_eq!(
+        game.damage_target_from(None, Some(Target::Permanent(unprotected_id)), 2),
+        2,
+    );
+    assert_eq!(
+        game.damage_target_from(None, Some(Target::Permanent(planeswalker_id)), 2),
+        2,
+        "the player-wide wording does not include their planeswalkers",
+    );
+}
+
+#[test]
+fn terrifying_presence_preserves_only_the_chosen_sources_combat_damage() {
+    let mut game = ready_game();
+    let chosen = creature(10_001, cards::SERRA_ANGEL, PlayerId::One);
+    let chosen_id = chosen.card.id;
+    let other = creature(10_002, cards::SERRA_ANGEL, PlayerId::One);
+    let other_id = other.card.id;
+    game.battlefield.extend([chosen, other]);
+
+    let mut object = resolving_prevention_object(PlayerId::One);
+    object.signature = Some(CastSignature::from_validated_choices(
+        SpellForm::Part(CardPartId::PRIMARY),
+        cast_choices(vec![Target::Permanent(chosen_id)], 0),
+    ));
+    game.resolve_effect_def(
+        ScopedEffect::primary(EffectDef::PreventAllCombatDamageExceptSourceThisTurn {
+            source: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        }),
+        &object,
+        TriggerContext::empty(),
+    );
+
+    assert_eq!(
+        game.damage_target_from_kind(
+            Some(chosen_id),
+            Some(Target::Player(PlayerId::Two)),
+            3,
+            true,
+        ),
+        3,
+    );
+    assert_eq!(
+        game.damage_target_from_kind(Some(other_id), Some(Target::Player(PlayerId::Two)), 3, true,),
+        0,
+    );
+    assert_eq!(
+        game.damage_target_from(Some(other_id), Some(Target::Player(PlayerId::Two)), 1),
+        1,
+        "the effect applies only to combat damage",
+    );
+}
+
+#[test]
+fn drain_life_gains_only_the_damage_left_after_prevention() {
+    let mut game = ready_game();
+    game.players[PlayerId::One.index()].life = 10;
+    game.prevention_shields.push(PreventionShield {
+        recipient: Target::Player(PlayerId::Two),
+        remaining: Some(2),
+        source: None,
+        coverage: ShieldCoverageDef::All,
+        gain_life: false,
+    });
+    let object = resolving_prevention_object(PlayerId::One);
+    game.resolve_effect_def(
+        ScopedEffect::primary(EffectDef::DrainLife {
+            recipient: EffectRecipientDef::Opponent,
+            amount: ValueDef::Constant(3),
+        }),
+        &object,
+        TriggerContext::empty(),
+    );
+
+    assert_eq!(game.players[PlayerId::One.index()].life, 11);
+    assert_eq!(game.players[PlayerId::Two.index()].life, 19);
+}
+
+#[test]
+fn a_life_gain_shield_precedes_overlapping_relational_prevention() {
+    let mut game = ready_game();
+    let source = creature(10_001, cards::DRAGON_WHELP, PlayerId::Two);
+    let source_id = source.card.id;
+    game.battlefield.push(source);
+    game.relational_damage_preventions.push(
+        RelationalDamagePrevention::ToPlayerAndControlledCreatures(PlayerId::One),
+    );
+    game.prevention_shields.push(PreventionShield {
+        recipient: Target::Player(PlayerId::One),
+        remaining: None,
+        source: Some(source_id),
+        coverage: ShieldCoverageDef::All,
+        gain_life: true,
+    });
+    let starting_life = game.players[PlayerId::One.index()].life;
+
+    assert_eq!(
+        game.damage_target_from(Some(source_id), Some(Target::Player(PlayerId::One)), 3),
+        0,
+    );
+    assert_eq!(
+        game.players[PlayerId::One.index()].life,
+        starting_life + 3,
+        "the existing Reverse Damage-style shield keeps its prevention rider",
+    );
+    assert!(game.prevention_shields.is_empty());
+}
+
+#[test]
+fn combat_player_trigger_uses_only_damage_left_after_prevention() {
+    let mut game = ready_game();
+    let courier = creature(10_001, cards::CROSSTOWN_COURIER, PlayerId::One);
+    let courier_id = courier.card.id;
+    game.battlefield.push(courier);
+    let starting_life = game.players[PlayerId::Two.index()].life;
+
+    game.prevention_shields.push(PreventionShield {
+        recipient: Target::Player(PlayerId::Two),
+        remaining: Some(2),
+        source: None,
+        coverage: ShieldCoverageDef::All,
+        gain_life: false,
+    });
+    game.deal_combat_damage_to_player(courier_id, PlayerId::Two, 2);
+    assert!(
+        game.pending_triggers.is_empty(),
+        "fully prevented combat damage does not trigger the Courier",
+    );
+    assert_eq!(game.players[PlayerId::Two.index()].life, starting_life);
+
+    game.prevention_shields.push(PreventionShield {
+        recipient: Target::Player(PlayerId::Two),
+        remaining: Some(1),
+        source: None,
+        coverage: ShieldCoverageDef::All,
+        gain_life: false,
+    });
+    game.deal_combat_damage_to_player(courier_id, PlayerId::Two, 2);
+    let trigger = game
+        .pending_triggers
+        .iter()
+        .find(|trigger| trigger.source.object == courier_id)
+        .expect("the Courier sees the one point actually dealt");
+    assert_eq!(trigger.context.amount, Some(1));
+    assert_eq!(game.players[PlayerId::Two.index()].life, starting_life - 1);
+}
+
 /// A second sweep, prompted by the shields having outlived their audit lines.
 /// Seven identities were blocked on "a duration-scoped replacement/prevention
 /// effect" that had already been built; the two shapes below are the ones the

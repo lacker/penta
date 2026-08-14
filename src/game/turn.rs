@@ -448,6 +448,7 @@ impl Game {
         self.temporary_ability_grants.clear();
         self.all_combat_damage_prevented = false;
         self.prevention_shields.clear();
+        self.relational_damage_preventions.clear();
         for replacements in &mut self.draw_replacements {
             replacements.clear();
         }

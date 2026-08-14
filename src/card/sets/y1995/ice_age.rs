@@ -50,7 +50,7 @@ pub(in crate::card::sets) static INCINERATE: CardRecord = CardRecord::new(
             },
         )
         .with_coverage(AbilityCoverageDef::partial(
-            "The damage is implemented; preventing regeneration for the rest of the turn is not yet modeled.",
+            "The prohibition exists, but applying it only when this spell actually dealt damage to a creature needs damage-result linkage.",
         )),
     ),
 );

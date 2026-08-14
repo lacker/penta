@@ -213,6 +213,8 @@ fn validate_effect_references(
         | EffectDef::PreventNextDamageFromSource { object, .. }
         | EffectDef::PreventCombatDamageThisTurn { object }
         | EffectDef::PreventCombatDamageDealtByThisTurn { object }
+        | EffectDef::PreventDamageToPlayerAndControlledCreaturesThisTurn { player: object }
+        | EffectDef::PreventAllCombatDamageExceptSourceThisTurn { source: object }
         | EffectDef::Attach { object }
         | EffectDef::Destroy { object, .. }
         | EffectDef::Sacrifice { object }

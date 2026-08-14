@@ -25,6 +25,17 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Fixed
 
+- **Combat damage could not be divided freely among three or more blockers.**
+  The assignment enumerator still enforced the former ordered-blocker rule and
+  rejected a legal split such as 1, 1, and 2 damage from a 4-power attacker.
+  Current CR 510.1c now permits that division, while trample still requires
+  lethal damage on every blocker before any damage can spill to the defender.
+- **Damage prevention leaked the proposed amount into downstream effects.**
+  Drain Life gained life from damage that had been prevented, and a combat
+  damage trigger could report the assigned amount instead of the amount that
+  reached the player. Damage application now returns the amount actually
+  dealt, suppressing zero-damage triggers and carrying partial prevention into
+  both life gain and trigger context.
 - **Target legality read power and toughness without continuous static
   effects.** Trigger capture and static resolution share a characteristics view
   that deliberately leaves statics out, because it is used while those effects
@@ -79,9 +90,10 @@ distinguishes snapshots of the covered source and build inputs.
   than itself. El-Hajjâj and Spirit Link are now executable, and Spirit Link is
   not lifelink: the life goes to the Aura's controller, not the creature's.
 - **"Can't be regenerated" as a standalone effect**, rather than only a
-  property of a destroy. CR 701.15 draws a distinction the implementation
-  keeps: a shield already armed is not removed, it stops applying, and no new
-  one can be armed while the prohibition holds. Hurr Jackal is now executable.
+  property of a destroy. CR 701.19c draws a distinction the implementation
+  keeps: a shield is not removed and regeneration effects can still create
+  one, but the shield cannot apply while the prohibition holds. Hurr Jackal is
+  now executable.
   Elves of Deep Shadow joins it with no engine change -- its audit line blamed
   the mana runtime for an ability whose cost has no mana in it, and Ancient
   Tomb has printed the same damage-to-controller mana clause for a while.
@@ -288,6 +300,18 @@ distinguishes snapshots of the covered source and build inputs.
   Skeletons, Wall of Bone, Will-o'-the-Wisp, Uthden Troll, Wall of Brambles,
   Living Wall, Clay Statue, Drowned, Ghost Ship, Diabolic Machine, and Walking
   Dead. New cards move the simulation fingerprint, not the protocol epoch.
+- **The remaining shared regeneration and turn-scoped prevention forms.** Aura
+  activations now retain their formerly enchanted permanent through source
+  last-known information, including when the Aura is sacrificed as the cost.
+  Regeneration no longer erases damage-source history, and the shared
+  turn-scoped prohibition now also stops a shield from applying to lethal
+  damage without preventing its creation or consuming it. Dynamic prevention
+  rules cover a player and creatures they control, including later entrants,
+  or every combat damage source except one chosen creature. Fifteen audited
+  ISD–RTR Standard identities become executable, while Blessing, Holy Armor,
+  Firebreathing, and Axelrod Gunnarson lose their final partial gap. The new
+  relational checkpoint-v2 member is additive and defaults empty, so neither
+  the checkpoint format nor the protocol epoch moves.
 
 - Reconstruction checkpoints now carry their own version and simulation
   fingerprint, independent of the bot-wire epoch. Format 2 replaces the old

@@ -140,8 +140,31 @@ pub(in crate::card::sets) static RENOUNCE_THE_GUILDS: CardRecord = CardRecord::n
     )),
 );
 
+static RIOT_CONTROL_OPPONENT_CREATURES: ObjectQueryDef = ObjectQueryDef {
+    object: ObjectPredicateDef::HasType(CardType::Creature),
+    zones: &[ZoneKind::Battlefield],
+    controller: PlayerRelation::Opponent,
+};
+
 // DGM 6 — Riot Control
-// Audit: blocked — Needs a turn-long prevention shield for all damage that would be dealt to the resolving spell's controller.
+pub(in crate::card::sets) static RIOT_CONTROL: CardRecord = CardRecord::new(
+    cards::RIOT_CONTROL,
+    "Riot Control",
+    CardArt::new("d7886607-86db-4221-8752-296104aaaef2", "Slawomir Maniak"),
+    CardSet::DragonsMaze,
+    CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(AbilityDef::spell(
+        "You gain 1 life for each creature your opponents control. Prevent all damage that would be dealt to you this turn.",
+        EffectDef::Sequence(&[
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::CountMatchingObjects(&RIOT_CONTROL_OPPONENT_CREATURES),
+            },
+            EffectDef::PreventAllDamageThisTurn {
+                object: EffectRecipientDef::Controller,
+            },
+        ]),
+    )),
+);
 
 // DGM 7 — Scion of Vitu-Ghazi
 // Audit: blocked — Needs an enters-trigger condition that remembers whether the permanent was cast from hand, plus populate's token-copy choice.
@@ -773,7 +796,21 @@ pub(in crate::card::sets) static MAZE_BEHEMOTH: CardRecord = CardRecord::new(
 );
 
 // DGM 44 — Mending Touch
-// Audit: blocked — Needs a regeneration shield and its destroy-event replacement procedure.
+pub(in crate::card::sets) static MENDING_TOUCH: CardRecord = CardRecord::new(
+    cards::MENDING_TOUCH,
+    "Mending Touch",
+    CardArt::new("c042c7ee-0e74-4ca5-bbb9-2898b0576f0a", "Karla Ortiz"),
+    CardSet::DragonsMaze,
+    CardRules::new_instant(mana_cost!("{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Regenerate target creature.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Regenerate {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        },
+    )),
+);
 
 // DGM 45 — Mutant's Prey
 // Audit: blocked — Needs a target predicate for a +1/+1 counter and the simultaneous fight damage procedure.
@@ -2444,6 +2481,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &HAAZDA_SNARE_SQUAD,
     &MAZE_SENTINEL,
     &RENOUNCE_THE_GUILDS,
+    &RIOT_CONTROL,
     &STEEPLE_ROC,
     &SUNSPIRE_GATEKEEPERS,
     &AETHERLING,
@@ -2466,6 +2504,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &WEAPON_SURGE,
     &KRAUL_WARRIOR,
     &MAZE_BEHEMOTH,
+    &MENDING_TOUCH,
     &PHYTOBURST,
     &SARULI_GATEKEEPERS,
     &SKYLASHER,

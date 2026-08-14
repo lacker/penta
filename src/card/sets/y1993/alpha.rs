@@ -96,7 +96,6 @@ pub(in crate::card::sets) static BALANCE: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a combat declaration or damage-assignment constraint for “Target creature defending player controls can block any number of creatures this turn. It blocks each attacking creature this turn if able”.
 
 // LEA 7 — Blessing
-// Audit: partial — If the Aura leaves before resolution, the former enchanted creature is not retained through source last-known information.
 pub(in crate::card::sets) static BLESSING: CardRecord = CardRecord::new(
     cards::BLESSING,
     "Blessing",
@@ -117,10 +116,7 @@ pub(in crate::card::sets) static BLESSING: CardRecord = CardRecord::new(
                     },
                     duration: EffectDurationDef::UntilEndOfTurn,
                 },
-            )
-            .with_coverage(AbilityCoverageDef::partial(
-                "If the Aura leaves before resolution, the former enchanted creature is not retained through source last-known information.",
-            )),
+            ),
         ]),
 );
 
@@ -341,7 +337,6 @@ pub(in crate::card::sets) static FARMSTEAD: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a duration-scoped replacement/prevention effect for “• Prevent the next 3 damage that would be dealt to any target this turn”.
 
 // LEA 23 — Holy Armor
-// Audit: partial — If the Aura leaves before resolution, the former enchanted creature is not retained through source last-known information.
 pub(in crate::card::sets) static HOLY_ARMOR: CardRecord = CardRecord::new(
     cards::HOLY_ARMOR,
     "Holy Armor",
@@ -373,10 +368,7 @@ pub(in crate::card::sets) static HOLY_ARMOR: CardRecord = CardRecord::new(
                     },
                     duration: EffectDurationDef::UntilEndOfTurn,
                 },
-            )
-            .with_coverage(AbilityCoverageDef::partial(
-                "If the Aura leaves before resolution, the former enchanted creature is not retained through source last-known information.",
-            )),
+            ),
         ]),
 );
 
@@ -2241,7 +2233,6 @@ pub(in crate::card::sets) static FIREBALL: CardRecord = CardRecord::new(
 );
 
 // LEA 150 — Firebreathing
-// Audit: partial — If the Aura leaves before resolution, the former enchanted creature is not retained through source last-known information.
 pub(in crate::card::sets) static FIREBREATHING: CardRecord = CardRecord::new(
     cards::FIREBREATHING,
     "Firebreathing",
@@ -2262,10 +2253,7 @@ pub(in crate::card::sets) static FIREBREATHING: CardRecord = CardRecord::new(
                     },
                     duration: EffectDurationDef::UntilEndOfTurn,
                 },
-            )
-            .with_coverage(AbilityCoverageDef::partial(
-                "If the Aura leaves before resolution, the former enchanted creature is not retained through source last-known information.",
-            )),
+            ),
         ]),
 );
 

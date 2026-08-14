@@ -2320,7 +2320,6 @@ pub(in crate::card::sets) static ADUN_OAKENSHIELD: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a combat declaration or damage-assignment constraint for “Each untapped creature you control gets +0/+2 as long as it's not attacking”.
 
 // LEG 219 — Axelrod Gunnarson
-// Audit: partial — Regeneration clears the damage-source record that should persist for the rest of the turn.
 pub(in crate::card::sets) static AXELROD_GUNNARSON: CardRecord = CardRecord::new(
     cards::AXELROD_GUNNARSON,
     "Axelrod Gunnarson",
@@ -2351,10 +2350,7 @@ pub(in crate::card::sets) static AXELROD_GUNNARSON: CardRecord = CardRecord::new
                     amount: ValueDef::Constant(1),
                 },
             ]),
-        )
-        .with_coverage(AbilityCoverageDef::partial(
-            "Regeneration clears the runtime's damage-source record, although the card must remember damage dealt earlier in the turn.",
-        )),
+        ),
     ]),
 );
 

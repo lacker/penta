@@ -180,6 +180,97 @@ fn checkpoint_encodes_draw_replacement_and_procedure_state() {
 }
 
 #[test]
+fn relational_prevention_and_regeneration_prohibition_survive_checkpoint_round_trip() {
+    let mut game = crate::game::tests::ready_game();
+    let source = game
+        .put_onto_battlefield(PlayerId::One, crate::card::cards::SAVANNAH_LIONS)
+        .expect("prevention source enters");
+    let prohibited = game
+        .put_onto_battlefield(PlayerId::Two, crate::card::cards::ATOG)
+        .expect("prohibited creature enters");
+    game.battlefield
+        .iter_mut()
+        .find(|permanent| permanent.card.id == prohibited)
+        .expect("the prohibited creature is present")
+        .cannot_regenerate_this_turn = true;
+    game.relational_damage_preventions = vec![
+        RelationalDamagePrevention::ToPlayerAndControlledCreatures(PlayerId::One),
+        RelationalDamagePrevention::FromAllExcept(source),
+    ];
+
+    let viewer = game.decision_player().expect("the game awaits an action");
+    let observation = game.observe(viewer);
+    let actions = crate::protocol::protocol_actions(&observation);
+    let wire = crate::protocol::observation_json_for_format(
+        &game.catalog,
+        game.format,
+        &observation,
+        game.in_pregame(),
+        &actions,
+    );
+    let mut rebuilt = Game::from_observation_checkpoint(
+        game.catalog.clone(),
+        game.format,
+        &wire,
+        &true_hidden_hypothesis(&game, viewer),
+        4_244,
+    )
+    .expect("duration-scoped prevention state reconstructs");
+    assert_eq!(
+        rebuilt.relational_damage_preventions,
+        game.relational_damage_preventions
+    );
+    assert!(
+        rebuilt
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == prohibited)
+            .expect("the prohibited creature reconstructs")
+            .cannot_regenerate_this_turn
+    );
+    rebuilt.finish_cleanup();
+    assert!(rebuilt.relational_damage_preventions.is_empty());
+    assert!(
+        !rebuilt
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == prohibited)
+            .expect("the creature survives cleanup")
+            .cannot_regenerate_this_turn
+    );
+
+    let mut prior_v2 = wire;
+    let checkpoint = prior_v2["checkpoint"]
+        .as_object_mut()
+        .expect("checkpoint is an object");
+    checkpoint.remove("relationalDamagePreventions");
+    for permanent in checkpoint["battlefield"]
+        .as_array_mut()
+        .expect("battlefield is an array")
+    {
+        permanent
+            .as_object_mut()
+            .expect("permanent is an object")
+            .remove("cannotRegenerateThisTurn");
+    }
+    let rebuilt_prior = Game::from_observation_checkpoint(
+        game.catalog.clone(),
+        game.format,
+        &prior_v2,
+        &true_hidden_hypothesis(&game, viewer),
+        4_245,
+    )
+    .expect("an earlier additive checkpoint-v2 payload still reconstructs");
+    assert!(rebuilt_prior.relational_damage_preventions.is_empty());
+    assert!(
+        rebuilt_prior
+            .battlefield
+            .iter()
+            .all(|permanent| !permanent.cannot_regenerate_this_turn)
+    );
+}
+
+#[test]
 fn ring_replacement_and_outside_game_choice_reconstruct_and_resume() {
     let mut game = crate::game::tests::ready_game();
     game.players[PlayerId::One.index()].outside_game = game

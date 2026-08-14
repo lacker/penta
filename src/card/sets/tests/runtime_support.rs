@@ -453,6 +453,8 @@ pub(super) fn shared_static_effect(source_zones: &[ZoneKind], effect: EffectDef)
         | EffectDef::PreventAllDamageThisTurn { .. }
         | EffectDef::PreventCombatDamageThisTurn { .. }
         | EffectDef::PreventCombatDamageDealtByThisTurn { .. }
+        | EffectDef::PreventDamageToPlayerAndControlledCreaturesThisTurn { .. }
+        | EffectDef::PreventAllCombatDamageExceptSourceThisTurn { .. }
         | EffectDef::Attach { .. }
         | EffectDef::CreateToken { .. }
         | EffectDef::Destroy { .. }
@@ -649,6 +651,8 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::PreventAllDamageThisTurn { .. }
                     | EffectDef::PreventCombatDamageThisTurn { .. }
                     | EffectDef::PreventCombatDamageDealtByThisTurn { .. }
+                    | EffectDef::PreventDamageToPlayerAndControlledCreaturesThisTurn { .. }
+                    | EffectDef::PreventAllCombatDamageExceptSourceThisTurn { .. }
                     | EffectDef::Attach { .. }
                     | EffectDef::CreateToken { .. }
                     | EffectDef::Destroy { .. }

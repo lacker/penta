@@ -66,6 +66,39 @@ fn activated_actions_serialize_their_exact_ability_origin() {
 }
 
 #[test]
+fn special_actions_serialize_their_source_and_exact_ability_origin() {
+    let ordinary = action_json(&Action::TakeSpecialAction {
+        source: GameObjectId(22),
+        ability: AbilityOrigin::Printed {
+            definition: crate::CardDefinitionId(17),
+            part: crate::CardPartId(2),
+            ability: crate::AbilityId(4),
+        },
+        effect_id: None,
+    });
+    let effect_scoped = action_json(&Action::TakeSpecialAction {
+        source: GameObjectId(23),
+        ability: AbilityOrigin::Printed {
+            definition: crate::CardDefinitionId(17),
+            part: crate::CardPartId(2),
+            ability: crate::AbilityId(4),
+        },
+        effect_id: Some(91),
+    });
+
+    assert_eq!(ordinary["type"], "TakeSpecialAction");
+    assert_eq!(ordinary["source"], 22);
+    assert_eq!(ordinary["ability"]["kind"], "printed");
+    assert_eq!(ordinary["ability"]["definition"], 17);
+    assert_eq!(ordinary["ability"]["partId"], 2);
+    assert_eq!(ordinary["ability"]["abilityId"], 4);
+    assert!(ordinary["effectId"].is_null());
+
+    assert_eq!(effect_scoped["source"], 23);
+    assert_eq!(effect_scoped["effectId"], 91);
+}
+
+#[test]
 fn action_json_locks_play_option_modes_costs_x_and_target_slots() {
     let land = action_json(&Action::PlayLand {
         card: GameObjectId(10),

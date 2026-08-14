@@ -1,13 +1,20 @@
 #[cfg(test)]
 use super::{AbilityId, AbilityOrigin};
 use super::{
-    AbilityTargetPredicate, AppliedEffectDef, CardDefinitionId, CardRules, CardSet, CardTypeSet,
-    CharacteristicSource, ColorSet, ControlFlow, DeclarativeAbilityDef, EffectDef,
-    EffectDurationDef, EffectRecipientDef, EntryCompletion, Game, GameObjectId, GrantId,
+    AlternativeCastKindDef, AppliedEffectDef, AttachmentForm, CardDefinitionId, CardRules, CardSet,
+    CardType, CardTypeSet, CharacteristicSource, ColorSet, ControlFlow, DeclarativeAbilityDef,
+    EffectDef, EffectDurationDef, EffectRecipientDef, EntryCompletion, Game, GameObjectId, GrantId,
     KeywordAbility, ManaColor, PendingBattlefieldEntry, Permanent, PlayerId, RetiredObject,
     StackAbilityResolver, StackObject, StaticAppliedEffect, StaticEffectTraversal, Target,
     TargetIndex, TriggerContext, ZoneKind,
 };
+
+#[derive(Clone, Copy)]
+enum CardTypeOperation {
+    Add(CardTypeSet),
+    Set(CardTypeSet),
+    Remove(CardType),
+}
 
 impl Game {
     pub(super) fn visit_static_applied_effects(
@@ -235,6 +242,7 @@ impl Game {
             | AppliedEffectDef::CannotBecomeEnchanted
             | AppliedEffectDef::CannotChangeController
             | AppliedEffectDef::RemainsAttachedThroughProtection
+            | AppliedEffectDef::ControlBySourceController
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)
             | AppliedEffectDef::PreventCombatDamage
@@ -270,19 +278,6 @@ impl Game {
         }
     }
 
-    /// Whether this permanent has the shared Aura attachment spell effect.
-    pub(super) fn is_aura_permanent(&self, permanent: &Permanent) -> bool {
-        self.effective_rules(permanent).is_some_and(|rules| {
-            rules.ability_clauses().iter().any(|ability| {
-                ability.is_executable()
-                    && ability
-                        .declarative_effect()
-                        .and_then(Self::immediate_attachment_target)
-                        .is_some()
-            })
-        })
-    }
-
     /// Finds the target an Aura attaches to as part of its spell procedure.
     /// A sequence remains one immediate resolution procedure, so an Attach
     /// nested in one keeps the clause's target scope.
@@ -306,6 +301,7 @@ impl Game {
             | EffectDef::AddMana(_)
             | EffectDef::AddManaEqualTo { .. }
             | EffectDef::DealDamage { .. }
+            | EffectDef::DealDamageFrom { .. }
             | EffectDef::DrainLife { .. }
             | EffectDef::GainLife { .. }
             | EffectDef::DrawCards { .. }
@@ -370,6 +366,13 @@ impl Game {
             | EffectDef::Replacement(_)
             | EffectDef::MoveToZone { .. }
             | EffectDef::Attach { .. }
+            | EffectDef::Unattach { .. }
+            | EffectDef::Reconfigure { .. }
+            | EffectDef::BecomeAuraAndAttach { .. }
+            | EffectDef::EndAuraEffect
+            | EffectDef::ReturnToBattlefieldAttached { .. }
+            | EffectDef::CreateAttachedToken { .. }
+            | EffectDef::FlashWithCleanupSacrifice { .. }
             | EffectDef::CreateToken { .. }
             | EffectDef::ChooseCardName { .. }
             | EffectDef::ChoosePlayer { .. }
@@ -380,9 +383,6 @@ impl Game {
         }
     }
 
-    /// Whether a static effect forbids Auras on this permanent. This is not a
-    /// targeting restriction like hexproof: it also makes an Aura that somehow
-    /// arrived anyway fall off.
     /// Whether this Aura prints the exception that keeps it attached through
     /// protection. Only an Aura granting protection needs it, and it exempts
     /// that Aura alone rather than weakening the protection itself.
@@ -400,6 +400,9 @@ impl Game {
         .is_break()
     }
 
+    /// Whether a static effect forbids Auras on this permanent. This is not a
+    /// targeting restriction like hexproof: it also makes an Aura that somehow
+    /// arrived anyway fall off.
     pub(super) fn cannot_be_enchanted(&self, permanent: &Permanent) -> bool {
         self.visit_static_applied_effects(permanent, |applied| {
             if Self::applied_effect_contains(applied.effect, AppliedEffectDef::CannotBeEnchanted) {
@@ -546,75 +549,9 @@ impl Game {
         .is_break()
     }
 
-    /// Whether an Aura may stay attached to `host`: the host has to still be
-    /// on the battlefield and still satisfy what the Aura enchants.
+    #[cfg(test)]
     pub(super) fn is_legal_aura_host(&self, aura: &Permanent, host: GameObjectId) -> bool {
-        let Some(host) = self
-            .battlefield
-            .iter()
-            .find(|permanent| permanent.card.id == host)
-        else {
-            return false;
-        };
-        if self.cannot_be_enchanted(host) {
-            return false;
-        }
-        let Some(rules) = self.effective_rules(aura) else {
-            return false;
-        };
-        let aura_colors = rules.colors();
-        let Some(target) = rules.ability_clauses().iter().find_map(|ability| {
-            let target = Self::immediate_attachment_target(ability.declarative_effect()?)?;
-            let DeclarativeAbilityDef::Spell(spell) = ability.definition else {
-                return None;
-            };
-            spell.targets().get(target.index())
-        }) else {
-            return false;
-        };
-        match target.predicate {
-            AbilityTargetPredicate::Object {
-                object,
-                zones,
-                controller,
-                owner,
-            } => {
-                zones.contains(&ZoneKind::Battlefield)
-                        && controller.is_none_or(|relation| {
-                            self.player_relation_matches(
-                                host.controller,
-                                relation,
-                                aura.controller,
-                                TriggerContext::empty(),
-                            )
-                        })
-                        && owner.is_none_or(|relation| {
-                            self.player_relation_matches(
-                                host.card.owner,
-                                relation,
-                                aura.controller,
-                                TriggerContext::empty(),
-                            )
-                        })
-                        && self.trigger_object_matches(
-                            object,
-                            &self.trigger_event_object(host),
-                            aura.card.id,
-                            false,
-                        )
-                        // Hexproof only constrains targeting. Protection also
-                        // makes an existing attachment illegal, unless this
-                        // Aura is the one printing the exception -- which is
-                        // what an Aura granting protection from its own color
-                        // has to do to survive its own effect.
-                        && (self.remains_attached_through_protection(aura)
-                            || !self.is_protected_from_colors(host, aura_colors))
-            }
-            AbilityTargetPredicate::AnyTarget
-            | AbilityTargetPredicate::PlayerOrPlaneswalker(_)
-            | AbilityTargetPredicate::ControlledByTargetOf { .. }
-            | AbilityTargetPredicate::Player(_) => false,
-        }
+        self.is_legal_attachment_host(aura, host, false)
     }
 
     /// The permanent an Aura spell targeted, read off its own spell clause.
@@ -632,8 +569,8 @@ impl Game {
                 let target = Self::immediate_attachment_target(scoped.effect)?;
                 Self::chosen_targets(object, scoped.target_slot(target)).find_map(|target| {
                     match target {
-                        Target::Permanent(id) => Some(id),
-                        _ => None,
+                        Target::Card(id) | Target::Permanent(id) => Some(id),
+                        Target::Player(_) | Target::Spell(_) => None,
                     }
                 })
             })
@@ -664,6 +601,16 @@ impl Game {
         token: CardDefinitionId,
         creator: Option<GameObjectId>,
     ) {
+        self.create_token_from_with_completion(controller, token, creator, EntryCompletion::None);
+    }
+
+    pub(super) fn create_token_from_with_completion(
+        &mut self,
+        controller: PlayerId,
+        token: CardDefinitionId,
+        creator: Option<GameObjectId>,
+        completion: EntryCompletion,
+    ) {
         let Some(definition) = self.catalog.get(token) else {
             return;
         };
@@ -681,15 +628,15 @@ impl Game {
         self.enqueue_battlefield_entry(PendingBattlefieldEntry {
             permanent,
             from: ZoneKind::Stack,
-            completion: EntryCompletion::None,
+            completion,
         });
     }
 
-    /// What an Aura is attached to, if it is on the battlefield and attached.
-    pub(super) fn attached_host(&self, aura: GameObjectId) -> Option<GameObjectId> {
+    /// What an attachment is attached to, if it is on the battlefield.
+    pub(super) fn attached_host(&self, attachment: GameObjectId) -> Option<GameObjectId> {
         self.battlefield
             .iter()
-            .find(|permanent| permanent.card.id == aura)
+            .find(|permanent| permanent.card.id == attachment)
             .and_then(|permanent| permanent.attached_to)
     }
 
@@ -703,7 +650,6 @@ impl Game {
         match recipient {
             EffectRecipientDef::Source => source.card.id == affected.card.id,
             EffectRecipientDef::AttachedPermanent => source.attached_to == Some(affected.card.id),
-
             EffectRecipientDef::MatchingObjects {
                 object,
                 zones,
@@ -730,7 +676,8 @@ impl Game {
             }
             // None of these name a permanent a static effect could apply to;
             // a static effect has no chosen target either.
-            EffectRecipientDef::ChosenPermanent(_)
+            EffectRecipientDef::LinkedPermanent
+            | EffectRecipientDef::ChosenPermanent(_)
             | EffectRecipientDef::ControllerOfTarget(_)
             | EffectRecipientDef::ObjectsControlledByTarget { .. }
             | EffectRecipientDef::ObjectsOwnedByTarget { .. }
@@ -785,8 +732,42 @@ impl Game {
         if let Some(copy) = &permanent.copy_effect {
             types = types.union(copy.added_types);
         }
+
+        let mut operations = Vec::new();
         if let Some(animation) = permanent.animation {
-            types = types.union(animation.types);
+            operations.push((
+                animation.timestamp,
+                0_u8,
+                CardTypeOperation::Add(animation.definition.types),
+            ));
+        }
+        match permanent.attachment_form {
+            Some(AttachmentForm::Bestowed { timestamp }) => operations.push((
+                timestamp,
+                0,
+                CardTypeOperation::Set(CardTypeSet::single(CardType::Enchantment)),
+            )),
+            Some(AttachmentForm::Reconfigured { timestamp }) => {
+                operations.push((timestamp, 0, CardTypeOperation::Remove(CardType::Creature)));
+            }
+            Some(AttachmentForm::Licid) => {
+                operations.extend(permanent.licid_effects.iter().map(|effect| {
+                    (
+                        effect.id,
+                        0,
+                        CardTypeOperation::Set(CardTypeSet::single(CardType::Enchantment)),
+                    )
+                }));
+            }
+            None => {}
+        }
+        operations.sort_by_key(|(timestamp, order, _)| (*timestamp, *order));
+        for (_, _, operation) in operations {
+            types = match operation {
+                CardTypeOperation::Add(added) => types.union(added),
+                CardTypeOperation::Set(replacement) => replacement,
+                CardTypeOperation::Remove(removed) => types.without(removed),
+            };
         }
         Some(types)
     }
@@ -796,7 +777,7 @@ impl Game {
     pub(super) fn effective_colors(permanent: &Permanent, rules: &CardRules) -> [bool; 5] {
         permanent
             .animation
-            .and_then(|animation| animation.colors)
+            .and_then(|animation| animation.definition.colors)
             .map_or_else(|| rules.colors(), ColorSet::to_flags)
     }
 
@@ -851,7 +832,16 @@ impl Game {
         definition.parts.iter().any(|part| {
             part.rules.ability_clauses().iter().any(|ability| {
                 ability.is_executable()
-                    && matches!(ability.definition, DeclarativeAbilityDef::Spell(_))
+                    && matches!(
+                        ability.definition,
+                        DeclarativeAbilityDef::Spell(_)
+                            | DeclarativeAbilityDef::AlternativeCast(
+                                crate::card::AlternativeCastAbilityDef {
+                                    kind: AlternativeCastKindDef::Bestow,
+                                    ..
+                                },
+                            )
+                    )
                     && ability
                         .declarative_effect()
                         .is_some_and(Self::effect_attaches)
@@ -908,7 +898,7 @@ impl Game {
         {
             return self
                 .effective_rules(permanent)
-                .map_or([false; 5], CardRules::colors);
+                .map_or([false; 5], |rules| Self::effective_colors(permanent, rules));
         }
         if let Some(stack) = self.stack.iter().find(|stack| stack.id == object) {
             return stack.colors.map_or_else(
@@ -923,7 +913,7 @@ impl Game {
             return match retired {
                 RetiredObject::Permanent { permanent, .. } => self
                     .effective_rules(permanent)
-                    .map_or([false; 5], CardRules::colors),
+                    .map_or([false; 5], |rules| Self::effective_colors(permanent, rules)),
                 RetiredObject::Stack(stack) => self
                     .stack_trigger_event_object(stack)
                     .map_or([false; 5], |event| event.colors),

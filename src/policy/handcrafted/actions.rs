@@ -178,6 +178,9 @@ impl HandcraftedPolicy {
                 cost_object,
                 x,
             } => self.score_ability(observation, *source, *ability, targets, *cost_object, *x),
+            // Ending an Aura-form Licid is optional and usually gives up its
+            // current effect. Without tactical evidence, keep it in place.
+            Action::TakeSpecialAction { .. } => -100,
             Action::DeclareAttacker { attacker, defender } => {
                 self.score_attack(observation, *attacker)
                     + Self::defender_preference(observation, *attacker, *defender)

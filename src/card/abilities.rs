@@ -5,12 +5,12 @@
 
 use super::model::{
     AbilityCostDef, AbilityCostList, AbilityCoverageDef, AbilityDef, AbilityTargetDef,
-    ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef, AnimationDef, AppliedEffectDef,
-    BasicLandType, BattlefieldEntryModificationDef, CardType, CardTypeSet, ConditionDef, CostDef,
-    CounterKind, DeclarativeAbilityDef, EffectDef, EffectDurationDef, EffectRecipientDef,
-    KeywordAbility, ManaColor, ManaCost, ObjectPredicateDef, ObjectQueryDef, PaymentDef,
-    PlayerRelation, ReplacementAbilityDef, ReplacementEffectDef, ReplacementEventDef,
-    ScaledValueDef, ShieldCoverageDef, TriggerEventDef, ValueDef, ZoneKind,
+    AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef,
+    AnimationDef, AppliedEffectDef, BasicLandType, BattlefieldEntryModificationDef, CardType,
+    CardTypeSet, ConditionDef, CostDef, CounterKind, DeclarativeAbilityDef, EffectDef,
+    EffectDurationDef, EffectRecipientDef, KeywordAbility, ManaColor, ManaCost, ObjectPredicateDef,
+    ObjectQueryDef, PaymentDef, PlayerRelation, ReplacementAbilityDef, ReplacementEffectDef,
+    ReplacementEventDef, ScaledValueDef, ShieldCoverageDef, TriggerEventDef, ValueDef, ZoneKind,
 };
 use crate::ids::{ChoiceIndex, TargetIndex};
 
@@ -25,17 +25,122 @@ pub static ENCHANT_LAND_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exact
     ObjectPredicateDef::HasType(CardType::Land),
 )];
 
+static NOT_SOURCE: ObjectPredicateDef = ObjectPredicateDef::Not(&ObjectPredicateDef::Source);
+static CREATURE_YOU_CONTROL: [ObjectPredicateDef; 2] = [
+    ObjectPredicateDef::HasType(CardType::Creature),
+    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+];
+static LAND_YOU_CONTROL: [ObjectPredicateDef; 2] = [
+    ObjectPredicateDef::HasType(CardType::Land),
+    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+];
+static OTHER_CREATURE_YOU_CONTROL: [ObjectPredicateDef; 3] = [
+    ObjectPredicateDef::HasType(CardType::Creature),
+    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+    NOT_SOURCE,
+];
+
+pub static ATTACH_CREATURE_YOU_CONTROL_TARGET: [AbilityTargetDef; 1] =
+    [AbilityTargetDef::exactly_one_permanent(
+        ObjectPredicateDef::All(&CREATURE_YOU_CONTROL),
+    )];
+
+static RECONFIGURE_CREATURE_YOU_CONTROL_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
+    AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::All(&OTHER_CREATURE_YOU_CONTROL),
+        zones: &[ZoneKind::Battlefield],
+        controller: None,
+        owner: None,
+    },
+    1,
+)];
+
+pub static ATTACH_LAND_YOU_CONTROL_TARGET: [AbilityTargetDef; 1] =
+    [AbilityTargetDef::exactly_one_permanent(
+        ObjectPredicateDef::All(&LAND_YOU_CONTROL),
+    )];
+
 /// An Aura's own spell clause: it targets what it will enchant, and attaching
 /// is what the spell does when it resolves. Every Aura prints one, so it
 /// belongs here rather than once per set module.
 #[must_use]
 pub const fn aura_spell(text: &'static str, targets: &'static [AbilityTargetDef]) -> AbilityDef {
-    AbilityDef::spell_with_targets(
+    AbilityDef::aura_spell(
         text,
         targets,
         EffectDef::Attach {
             object: EffectRecipientDef::Target(crate::ids::TargetIndex::PRIMARY),
         },
+    )
+}
+
+/// Bestow changes the spell into an Aura only for this alternative cast.
+#[must_use]
+pub const fn bestow(mana_cost: ManaCost) -> AbilityDef {
+    AbilityDef::alternative_cast_with_targets(
+        mana_cost,
+        AlternativeCastKindDef::Bestow,
+        &ENCHANT_CREATURE_TARGET,
+        EffectDef::Attach {
+            object: EffectRecipientDef::Target(crate::ids::TargetIndex::PRIMARY),
+        },
+    )
+}
+
+/// The shared equip activation. Attachment legality is rechecked when the
+/// ability resolves, independently of its target legality.
+#[must_use]
+pub const fn equip(mana_cost: ManaCost, text: &'static str) -> AbilityDef {
+    AbilityDef::activated_with_cost_list_and_targets(
+        text,
+        AbilityCostList::one(AbilityCostDef::Mana(mana_cost)),
+        &ATTACH_CREATURE_YOU_CONTROL_TARGET,
+        EffectDef::Attach {
+            object: EffectRecipientDef::Target(crate::ids::TargetIndex::PRIMARY),
+        },
+    )
+    .with_activation_timing(ActivationTimingDef::SorcerySpeed)
+}
+
+#[must_use]
+pub const fn fortify(mana_cost: ManaCost, text: &'static str) -> AbilityDef {
+    AbilityDef::activated_with_cost_list_and_targets(
+        text,
+        AbilityCostList::one(AbilityCostDef::Mana(mana_cost)),
+        &ATTACH_LAND_YOU_CONTROL_TARGET,
+        EffectDef::Attach {
+            object: EffectRecipientDef::Target(crate::ids::TargetIndex::PRIMARY),
+        },
+    )
+    .with_activation_timing(ActivationTimingDef::SorcerySpeed)
+}
+
+/// Reconfigure is deliberately not equip. Its one printed clause offers the
+/// targeted attach move and the targetless unattach move from the same action
+/// origin, and changes the source's characteristics while attached.
+#[must_use]
+pub const fn reconfigure(mana_cost: ManaCost, text: &'static str) -> AbilityDef {
+    AbilityDef::activated_with_cost_list_and_targets(
+        text,
+        AbilityCostList::one(AbilityCostDef::Mana(mana_cost)),
+        &RECONFIGURE_CREATURE_YOU_CONTROL_TARGET,
+        EffectDef::Reconfigure {
+            object: EffectRecipientDef::Target(crate::ids::TargetIndex::PRIMARY),
+        },
+    )
+    .with_activation_timing(ActivationTimingDef::SorcerySpeed)
+}
+
+#[must_use]
+pub const fn living_weapon(token: crate::CardDefinitionId) -> AbilityDef {
+    AbilityDef::triggered(
+        "Living weapon (When this Equipment enters, create a 0/0 black Phyrexian Germ creature token, then attach this to it.)",
+        TriggerEventDef::ZoneChanged {
+            object: ObjectPredicateDef::Source,
+            from: None,
+            to: Some(ZoneKind::Battlefield),
+        },
+        EffectDef::CreateAttachedToken { token },
     )
 }
 

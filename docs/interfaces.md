@@ -61,12 +61,12 @@ The adapters expose several identifiers because compatibility is directional,
 not one exact-version comparison:
 
 - `protocolVersion` is the breaking epoch for canonical bot observation,
-  action, and catalog JSON. Protocol 22 objects are open-world: consumers ignore
+  action, and catalog JSON. Protocol 23 objects are open-world: consumers ignore
   members they do not use. The epoch changes when an existing field or tag is
   removed, renamed, retyped, or reinterpreted, not when an optional field or a
   legal action expressed through existing vocabulary is added.
 - `protocolCapabilities` advertises named, additive facilities such as
-  `reconstruction.checkpoint.v2`. A consumer may ignore capabilities it does
+  `reconstruction.checkpoint.v3`. A consumer may ignore capabilities it does
   not use. Hosted bots declare both supported vocabulary and facilities they
   require; compatibility needs an equal `protocolVersion` and each side's
   required subset to be supplied by the other.

@@ -429,6 +429,7 @@ fn selected_modal_effects_resolve_distinct_and_deferred_flattened_targets() {
             text_changes: Vec::new(),
             colors: None,
             cast_via_flashback: false,
+            schedule_on_entry: None,
             is_copy: false,
         }
     };

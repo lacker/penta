@@ -24,12 +24,30 @@ pub(super) struct DelayedTrigger {
     pub(super) effect: ScopedEffect,
 }
 
+/// A frozen triggered ability listening for one future committed event.
+///
+/// Unlike [`DelayedTrigger`], this is a real trigger: the matching event only
+/// moves its capture into the pending-trigger queue. Ordinary APNAP ordering,
+/// target selection, countering, and priority then apply. The listener is
+/// removed after its first matching event even if an intervening-if condition
+/// keeps the ability from triggering.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(super) struct ScheduledTrigger {
+    pub(super) id: u32,
+    pub(super) event: TriggerEventDef,
+    pub(super) capture: TriggerCapture,
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) struct TriggerContext {
     pub(super) object: Option<GameObjectId>,
     pub(super) object_controller: Option<PlayerId>,
     pub(super) event_player: Option<PlayerId>,
     pub(super) amount: Option<i32>,
+    /// The host and mechanic link captured from the triggered ability's own
+    /// source. These are source LKI, not properties of the triggering event.
+    pub(super) source_attachment: Option<GameObjectId>,
+    pub(super) source_linked: Option<GameObjectId>,
     /// Non-targeting object choices made during this resolution, indexed in
     /// the authored effect tree rather than stored on the stack as targets.
     pub(super) chosen_objects: [Option<GameObjectId>; ChoiceIndex::COUNT],
@@ -42,6 +60,8 @@ impl TriggerContext {
             object_controller: None,
             event_player: None,
             amount: None,
+            source_attachment: None,
+            source_linked: None,
             chosen_objects: [None; ChoiceIndex::COUNT],
         }
     }
@@ -117,6 +137,7 @@ pub(super) enum CommittedTriggerEvent {
     },
     BecomesBlocked {
         object: TriggerEventObject,
+        defending_player: PlayerId,
         /// Blockers beyond the first, so a clause reading the trigger amount
         /// gets the quantity it is printed against without recounting.
         blockers_beyond_first: u16,
@@ -169,7 +190,7 @@ impl CommittedTriggerEvent {
                 object_controller: Some(object.controller),
                 event_player: None,
                 amount: None,
-                chosen_objects: [None; ChoiceIndex::COUNT],
+                ..TriggerContext::empty()
             },
             Self::DamageDealt {
                 source,
@@ -184,7 +205,7 @@ impl CommittedTriggerEvent {
                     Target::Card(_) | Target::Permanent(_) | Target::Spell(_) => None,
                 },
                 amount: Some(i32::from(*amount)),
-                chosen_objects: [None; ChoiceIndex::COUNT],
+                ..TriggerContext::empty()
             },
             Self::CombatDamageDealtToPlayer {
                 object,
@@ -200,24 +221,25 @@ impl CommittedTriggerEvent {
                 object_controller: Some(object.controller),
                 event_player: Some(*player),
                 amount: Some(i32::from(*amount)),
-                chosen_objects: [None; ChoiceIndex::COUNT],
+                ..TriggerContext::empty()
             },
             Self::BecomesBlocked {
                 object,
+                defending_player,
                 blockers_beyond_first,
             } => TriggerContext {
                 object: Some(object.id),
                 object_controller: Some(object.controller),
-                event_player: None,
+                event_player: Some(*defending_player),
                 amount: Some(i32::from(*blockers_beyond_first)),
-                chosen_objects: [None; ChoiceIndex::COUNT],
+                ..TriggerContext::empty()
             },
             Self::LifeGained { player, amount } => TriggerContext {
                 object: None,
                 object_controller: None,
                 event_player: Some(*player),
                 amount: Some(i32::from(*amount)),
-                chosen_objects: [None; ChoiceIndex::COUNT],
+                ..TriggerContext::empty()
             },
             // The player who tapped a permanent for mana is its controller,
             // which is the same shape a cast spell has.
@@ -226,14 +248,14 @@ impl CommittedTriggerEvent {
                 object_controller: Some(object.controller),
                 event_player: Some(object.controller),
                 amount: None,
-                chosen_objects: [None; ChoiceIndex::COUNT],
+                ..TriggerContext::empty()
             },
             Self::StepBegins { player, .. } => TriggerContext {
                 object: None,
                 object_controller: None,
                 event_player: Some(*player),
                 amount: None,
-                chosen_objects: [None; ChoiceIndex::COUNT],
+                ..TriggerContext::empty()
             },
         }
     }

@@ -53,6 +53,7 @@ pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
     PrintingRecord::reprint(&alpha::STASIS),         // LEB 81
     PrintingRecord::reprint(&alpha::TIME_WALK),      // LEB 84
     PrintingRecord::reprint(&alpha::TIMETWISTER),    // LEB 85
+    PrintingRecord::reprint(&alpha::ANIMATE_DEAD),   // LEB 93
     PrintingRecord::reprint(&alpha::BLACK_KNIGHT),   // LEB 95
     PrintingRecord::reprint(&alpha::DARK_RITUAL),    // LEB 99
     PrintingRecord::reprint(&alpha::DEMONIC_TUTOR),  // LEB 105

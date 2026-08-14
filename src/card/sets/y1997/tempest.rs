@@ -3,12 +3,54 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation,
-    ReplacementEffectDef, ReplacementEventDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities, cards,
+    AppliedEffectDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype,
+    CardType, EffectDef, EffectDurationDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    PlayerRelation, ReplacementEffectDef, ReplacementEventDef, TriggerEventDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities, cards,
 };
 use crate::{TargetIndex, mana_cost};
+
+static QUICKENING_LICID_END: AbilityDef = AbilityDef::special_action(
+    "You may pay {W} to end this effect.",
+    &[ZoneKind::Battlefield],
+    &[AbilityCostDef::Mana(mana_cost!("{W}"))],
+    EffectDef::EndAuraEffect,
+);
+
+// TMP 36 — Quickening Licid
+pub(in crate::card::sets) static QUICKENING_LICID: CardRecord = CardRecord::new(
+    cards::QUICKENING_LICID,
+    "Quickening Licid",
+    CardArt::new(
+        "e6e91f3d-5a23-4df1-a879-d18a3af92a28",
+        "Andrew Robinson",
+    ),
+    CardSet::Tempest,
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Licid"], 1, 1).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "{1}{W}, {T}: This creature loses this ability and becomes an Aura enchantment with enchant creature. Attach it to target creature. You may pay {W} to end this effect.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}{W}")),
+                AbilityCostDef::TapSource,
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::BecomeAuraAndAttach {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                end: &QUICKENING_LICID_END,
+            },
+        ),
+        AbilityDef::static_ability(
+            "Enchanted creature has first strike.",
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::AttachedPermanent,
+                effect: AppliedEffectDef::GrantAbility(&abilities::first_strike()),
+                duration: EffectDurationDef::WhileSourceRemainsInZone,
+            },
+        ),
+    ]),
+);
 
 // TMP 51 — Warmth
 pub(in crate::card::sets) static WARMTH: CardRecord = CardRecord::new(
@@ -174,6 +216,7 @@ pub(in crate::card::sets) static WASTELAND: CardRecord = CardRecord::new(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &QUICKENING_LICID,
     &WARMTH,
     &REANIMATE,
     &JACKAL_PUP,

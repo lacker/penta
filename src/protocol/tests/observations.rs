@@ -25,6 +25,7 @@ fn observation_json_carries_interwave_state_and_presented_card_part() {
             definition: crate::card::cards::HUNTMASTER_OF_THE_FELLS,
             presented: crate::CardPartId(1),
             controller: PlayerId::One,
+            attached_to: Some(GameObjectId(29)),
             types: crate::CardTypeSet::single(crate::CardType::Creature),
             chosen_creature_type: Some("Werewolf".into()),
             chosen_card_name: None,
@@ -55,6 +56,7 @@ fn observation_json_carries_interwave_state_and_presented_card_part() {
     assert_eq!(value["battlefield"][0]["objectId"], 30);
     assert_eq!(value["battlefield"][0]["presentedPartId"], 1);
     assert_eq!(value["battlefield"][0]["name"], "Ravager of the Fells");
+    assert_eq!(value["battlefield"][0]["attachedTo"], 29);
     assert_eq!(value["battlefield"][0]["chosenCreatureType"], "Werewolf");
     assert_eq!(
         card_part_name(

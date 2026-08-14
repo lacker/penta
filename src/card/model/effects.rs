@@ -1,7 +1,9 @@
+mod events;
 mod likelihood;
 mod replacements;
 mod values;
 
+pub use events::*;
 pub use likelihood::*;
 pub use replacements::*;
 pub use values::*;
@@ -26,6 +28,10 @@ pub enum EffectRecipientDef {
     ChosenPermanent(ChoiceIndex),
     /// What this permanent is attached to, for an Aura's own static clauses.
     AttachedPermanent,
+    /// The exact permanent linked by a reanimation attachment procedure. It
+    /// remains available from source LKI even when the attachment failed or
+    /// the Aura has left the battlefield.
+    LinkedPermanent,
     /// Every battlefield permanent sharing a name with the chosen target,
     /// including the target itself. "And each other one with the same name"
     /// names the same set.
@@ -140,6 +146,10 @@ pub enum AppliedEffectDef {
     /// touches the affected permanent. Only a permanent can be the source
     /// today, which is all "damage from artifact creatures" needs.
     PreventDamageFrom(ObjectPredicateDef),
+    /// The affected permanent is controlled by the controller of this static
+    /// effect's source while the effect applies. Attachment timestamps order
+    /// competing effects in layer 2.
+    ControlBySourceController,
     /// Adds land subtypes without removing the object's existing subtypes.
     AddLandTypes(&'static [BasicLandType]),
     /// Sets the object's land subtypes, removing its existing land subtypes and
@@ -172,6 +182,18 @@ pub enum AppliedEffectDef {
 pub enum AbilityPredicateDef {
     Any,
     Keyword(KeywordAbility),
+}
+
+/// How a reanimation attachment effect changes its source's Aura subtype.
+///
+/// Animate Dead is already an Aura and only replaces its graveyard enchant
+/// restriction. Necromancy instead creates a layer-4 Aura-subtype effect; it
+/// does not force the source to remain an enchantment if copied
+/// characteristics make that subtype inapplicable.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum ReanimationAuraDef {
+    Retain,
+    AddAuraSubtype,
 }
 
 /// The creature a permanent becomes while an animation effect is active. A
@@ -388,6 +410,15 @@ pub enum EffectDef {
         recipient: EffectRecipientDef,
         amount: ValueDef,
     },
+    /// Damage whose source is named by the effect rather than implicitly by
+    /// the spell or ability object. This covers relational triggers such as
+    /// "this creature or equipped creature ... it deals" without a
+    /// card-local resolver.
+    DealDamageFrom {
+        source: EffectRecipientDef,
+        recipient: EffectRecipientDef,
+        amount: ValueDef,
+    },
     GainLife {
         recipient: EffectRecipientDef,
         amount: ValueDef,
@@ -482,6 +513,54 @@ pub enum EffectDef {
     /// clause of an Aura.
     Attach {
         object: EffectRecipientDef,
+    },
+    /// Detaches each attachment recipient from its current host. Equipment
+    /// and Fortifications remain on the battlefield; bestow and reconfigure
+    /// restore their creature characteristics as applicable.
+    Unattach {
+        object: EffectRecipientDef,
+    },
+    /// Reconfigure's paired sorcery-speed procedures: a chosen target is an
+    /// attach move, while choosing no target unattaches the source.
+    Reconfigure {
+        object: EffectRecipientDef,
+    },
+    /// A Licid becomes an Aura enchantment, loses its creature form and the
+    /// activating ability, and attaches to the chosen creature.
+    BecomeAuraAndAttach {
+        object: EffectRecipientDef,
+        /// The special action created by this particular resolving effect.
+        /// Nesting it here makes copied and granted Licid abilities carry the
+        /// complete permission without rediscovering a sibling card clause.
+        end: &'static AbilityDef,
+    },
+    /// Ends the continuous Licid form created by
+    /// [`Self::BecomeAuraAndAttach`]. This is executed by a special action,
+    /// not through the stack.
+    EndAuraEffect,
+    /// Returns a creature card to the battlefield under this effect's
+    /// controller, links the new object to the source, turns the source into
+    /// the appropriate reanimation Aura, and attaches it to that object.
+    ReturnToBattlefieldAttached {
+        card: EffectRecipientDef,
+        aura: ReanimationAuraDef,
+        /// The one-shot leave trigger created by this resolving ETB ability.
+        /// It is frozen independently of the source's later abilities and
+        /// copy effects, then bound to the exact returned object on entry.
+        leave: &'static AbilityDef,
+    },
+    /// Creates one token and attaches the ability source to the committed
+    /// battlefield object before state-based actions are checked.
+    CreateAttachedToken {
+        token: CardDefinitionId,
+    },
+    /// A static casting permission that acts like flash and schedules the
+    /// nested one-shot trigger for the resulting permanent only when this
+    /// permission was needed to cast it. Keeping the delayed ability nested
+    /// in the declaration gives its frozen stack payload a stable catalog
+    /// locator after the spell and its hand incarnation are gone.
+    FlashWithCleanupSacrifice {
+        trigger: &'static AbilityDef,
     },
     Destroy {
         object: EffectRecipientDef,
@@ -852,116 +931,4 @@ impl EffectDef {
             can_regenerate,
         }
     }
-}
-
-/// Turn structure used by beginning/end-of-step trigger declarations.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum TurnStepDef {
-    Untap,
-    Upkeep,
-    Draw,
-    PrecombatMain,
-    BeginningOfCombat,
-    DeclareAttackers,
-    DeclareBlockers,
-    CombatDamage,
-    EndOfCombat,
-    PostcombatMain,
-    End,
-    Cleanup,
-}
-
-/// The committed event observed by a triggered ability.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum TriggerEventDef {
-    ZoneChanged {
-        object: ObjectPredicateDef,
-        from: Option<ZoneKind>,
-        to: Option<ZoneKind>,
-    },
-    BecomesTapped(ObjectPredicateDef),
-    /// A permanent was tapped to pay for one of its own mana abilities. This
-    /// is narrower than [`Self::BecomesTapped`]: attacking or a tap effect
-    /// does not produce mana and does not fire this.
-    TappedForMana(ObjectPredicateDef),
-    /// A creature was declared as an attacker. Every matching attacker in one
-    /// declaration triggers separately, as CR 508.2 has them all attack at
-    /// once rather than one at a time.
-    Attacks(ObjectPredicateDef),
-    /// CR 509.1h: the attacker became blocked. The event carries how many
-    /// creatures are blocking it beyond the first, which is the quantity
-    /// every rampage-style clause is written against.
-    BecomesBlocked(ObjectPredicateDef),
-    /// The first time a matching creature attacks in a turn. An extra combat
-    /// phase is the only way a creature attacks twice, which is exactly what
-    /// the cards carrying this wording tend to grant.
-    AttacksFirstTimeThisTurn(ObjectPredicateDef),
-    SpellCast(ObjectPredicateDef),
-    AbilityActivated(ObjectPredicateDef),
-    StepBegins {
-        step: TurnStepDef,
-        player: PlayerRelation,
-    },
-    DamageDealt {
-        source: ObjectPredicateDef,
-        recipient: EffectRecipientDef,
-    },
-    /// A matching object dealt damage to anything at all. The amount is
-    /// available as [`ValueDef::TriggerEventAmount`]. This is the other
-    /// direction from [`Self::DamageDealt`], which only watches damage
-    /// arriving at the ability's own source.
-    DamageDealtBy {
-        source: ObjectPredicateDef,
-    },
-    /// A matching creature was declared as an attacker in a declaration of a
-    /// given size. The attacker is the triggering object, so an ability
-    /// watching this can reach it with
-    /// [`EffectRecipientDef::TriggeringObject`], and the ability need not be
-    /// on a creature.
-    ///
-    /// The size is known only at declaration, which is why this is its own
-    /// event rather than a condition rechecked later. Exalted asks for
-    /// exactly one; battalion asks for three or more.
-    AttacksInGroup {
-        attacker: ObjectPredicateDef,
-        minimum_total: u8,
-        /// An upper bound, for "attacks alone". `None` means no maximum.
-        maximum_total: Option<u8>,
-    },
-    /// A creature matching `source` dealt combat damage to a player. The
-    /// damaged player is the event player and the amount is available as
-    /// [`ValueDef::TriggerEventAmount`]. Only damage dealt in a combat damage
-    /// step counts, which is what separates this from [`Self::DamageDealt`].
-    CombatDamageDealtToPlayer {
-        source: ObjectPredicateDef,
-    },
-    /// A permanent matching `source` dealt combat damage to this ability's own
-    /// source. The player-facing variants cannot express this: a planeswalker
-    /// is dealt combat damage as a permanent, and Vraska's retaliation is
-    /// about damage arriving at her rather than at anyone's life total.
-    CombatDamageDealtToSource {
-        source: ObjectPredicateDef,
-    },
-    /// An object matching `source` dealt damage to a player by any means. The
-    /// combat variant is the narrower case; this one also sees an ability's
-    /// damage. `player` is read against the source's controller, so
-    /// "an opponent" excludes damage the source deals to its own side.
-    DamageDealtToPlayer {
-        source: ObjectPredicateDef,
-        player: PlayerRelation,
-    },
-    ManaAdded(PlayerRelation),
-    /// A state trigger (CR 603.8). It has no event at all: it triggers
-    /// whenever its ability's condition is true, and does not trigger again
-    /// while it is already waiting or on the stack.
-    StateCondition,
-    /// This permanent turned over to the face carrying this ability, which is
-    /// what "whenever this transforms into ..." names.
-    TransformsIntoThisFace,
-    /// A player gained life. The amount is available as
-    /// [`ValueDef::TriggerEventAmount`].
-    LifeGained(PlayerRelation),
-    /// A creature dealt damage by this ability's source this turn died.
-    DamagedCreatureDied,
-    Special(&'static str),
 }

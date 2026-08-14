@@ -310,6 +310,8 @@ fn targeted_trigger_chooses_public_targets_while_being_put_on_stack() {
             object_controller: None,
             event_player: None,
             amount: None,
+            source_attachment: None,
+            source_linked: None,
         },
         condition: None,
     });
@@ -428,6 +430,8 @@ fn su_chi_mana_and_source_power_use_ordinary_stack_and_lki() {
             object_controller: Some(PlayerId::One),
             event_player: Some(PlayerId::One),
             amount: None,
+            source_attachment: None,
+            source_linked: None,
         },
         condition: None,
     });

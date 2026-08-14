@@ -315,9 +315,8 @@ fn validate_ability_definition(ability: &AbilityDef) -> Result<(), GrantedAbilit
         DeclarativeAbilityDef::SpecialAction(special_action) => {
             (Some(special_action.source_zones), &[][..], false)
         }
-        DeclarativeAbilityDef::AlternativeCast(_)
-        | DeclarativeAbilityDef::Keyword(_)
-        | DeclarativeAbilityDef::Legacy => (None, &[][..], false),
+        DeclarativeAbilityDef::AlternativeCast(alternative) => (None, alternative.targets, false),
+        DeclarativeAbilityDef::Keyword(_) | DeclarativeAbilityDef::Legacy => (None, &[][..], false),
     };
 
     if source_zones.is_some_and(<[ZoneKind]>::is_empty) {
@@ -481,6 +480,7 @@ fn collect_ability_grants(effect: EffectDef, grants: &mut Vec<&AbilityDef>) {
         | EffectDef::AddMana(_)
         | EffectDef::AddManaEqualTo { .. }
         | EffectDef::DealDamage { .. }
+        | EffectDef::DealDamageFrom { .. }
         | EffectDef::DrainLife { .. }
         | EffectDef::GainLife { .. }
         | EffectDef::DrawCards { .. }
@@ -501,6 +501,13 @@ fn collect_ability_grants(effect: EffectDef, grants: &mut Vec<&AbilityDef>) {
         | EffectDef::PreventDamageToPlayerAndControlledCreaturesThisTurn { .. }
         | EffectDef::PreventAllCombatDamageExceptSourceThisTurn { .. }
         | EffectDef::Attach { .. }
+        | EffectDef::Unattach { .. }
+        | EffectDef::Reconfigure { .. }
+        | EffectDef::BecomeAuraAndAttach { .. }
+        | EffectDef::EndAuraEffect
+        | EffectDef::ReturnToBattlefieldAttached { .. }
+        | EffectDef::CreateAttachedToken { .. }
+        | EffectDef::FlashWithCleanupSacrifice { .. }
         | EffectDef::CreateToken { .. }
         | EffectDef::Destroy { .. }
         | EffectDef::Sacrifice { .. }
@@ -594,6 +601,7 @@ fn collect_applied_ability_grants(effect: AppliedEffectDef, grants: &mut Vec<&Ab
         | AppliedEffectDef::CannotBecomeEnchanted
         | AppliedEffectDef::CannotChangeController
         | AppliedEffectDef::RemainsAttachedThroughProtection
+        | AppliedEffectDef::ControlBySourceController
         | AppliedEffectDef::CannotBeBlockedBy(_)
         | AppliedEffectDef::PreventDamageFrom(_)
         | AppliedEffectDef::PreventCombatDamage
@@ -610,16 +618,24 @@ fn collect_applied_ability_grants(effect: AppliedEffectDef, grants: &mut Vec<&Ab
 // vocabulary is, not because the function does much.
 #[allow(clippy::too_many_lines)]
 fn ability_grant_sites(effect: EffectDef) -> usize {
+    recursive_ability_grant_sites(effect).unwrap_or_else(|| terminal_ability_grant_sites(effect))
+}
+
+fn recursive_ability_grant_sites(effect: EffectDef) -> Option<usize> {
     match effect {
-        EffectDef::Sequence(effects) => effects
-            .iter()
-            .map(|effect| ability_grant_sites(*effect))
-            .fold(0, usize::saturating_add),
+        EffectDef::Sequence(effects) => Some(
+            effects
+                .iter()
+                .map(|effect| ability_grant_sites(*effect))
+                .fold(0, usize::saturating_add),
+        ),
         EffectDef::Randomized {
             on_success,
             on_failure,
             ..
-        } => ability_grant_sites(*on_success).saturating_add(ability_grant_sites(*on_failure)),
+        } => {
+            Some(ability_grant_sites(*on_success).saturating_add(ability_grant_sites(*on_failure)))
+        }
         EffectDef::OptionalPayment {
             if_paid: effect, ..
         }
@@ -634,20 +650,29 @@ fn ability_grant_sites(effect: EffectDef) -> usize {
         | EffectDef::ReplaceNextDrawThisTurn { effect, .. }
         | EffectDef::SacrificeOfChoice {
             then: Some(effect), ..
-        } => ability_grant_sites(*effect),
-        EffectDef::LookAtTopAndSelect { selection, .. } => selection
-            .then
-            .map_or(0, |effect| ability_grant_sites(*effect)),
+        } => Some(ability_grant_sites(*effect)),
+        EffectDef::LookAtTopAndSelect { selection, .. } => Some(
+            selection
+                .then
+                .map_or(0, |effect| ability_grant_sites(*effect)),
+        ),
         EffectDef::IfFormat {
             then, otherwise, ..
-        } => ability_grant_sites(*then).max(ability_grant_sites(*otherwise)),
-        EffectDef::Apply { effect, .. } => applied_ability_grant_sites(effect),
-        EffectDef::Replacement(effect) => replacement_ability_grant_sites(effect),
+        } => Some(ability_grant_sites(*then).max(ability_grant_sites(*otherwise))),
+        EffectDef::Apply { effect, .. } => Some(applied_ability_grant_sites(effect)),
+        EffectDef::Replacement(effect) => Some(replacement_ability_grant_sites(effect)),
+        _ => None,
+    }
+}
+
+fn terminal_ability_grant_sites(effect: EffectDef) -> usize {
+    match effect {
         EffectDef::TriggerUntilYourNextTurn { .. }
         | EffectDef::None
         | EffectDef::AddMana(_)
         | EffectDef::AddManaEqualTo { .. }
         | EffectDef::DealDamage { .. }
+        | EffectDef::DealDamageFrom { .. }
         | EffectDef::DrainLife { .. }
         | EffectDef::GainLife { .. }
         | EffectDef::DrawCards { .. }
@@ -668,6 +693,13 @@ fn ability_grant_sites(effect: EffectDef) -> usize {
         | EffectDef::PreventDamageToPlayerAndControlledCreaturesThisTurn { .. }
         | EffectDef::PreventAllCombatDamageExceptSourceThisTurn { .. }
         | EffectDef::Attach { .. }
+        | EffectDef::Unattach { .. }
+        | EffectDef::Reconfigure { .. }
+        | EffectDef::BecomeAuraAndAttach { .. }
+        | EffectDef::EndAuraEffect
+        | EffectDef::ReturnToBattlefieldAttached { .. }
+        | EffectDef::CreateAttachedToken { .. }
+        | EffectDef::FlashWithCleanupSacrifice { .. }
         | EffectDef::CreateToken { .. }
         | EffectDef::Destroy { .. }
         | EffectDef::Sacrifice { .. }
@@ -710,6 +742,21 @@ fn ability_grant_sites(effect: EffectDef) -> usize {
         | EffectDef::CopyPermanentAsItEnters { .. }
         | EffectDef::ChooseCreatureType { .. }
         | EffectDef::Special(_) => 0,
+        EffectDef::Sequence(_)
+        | EffectDef::Randomized { .. }
+        | EffectDef::OptionalPayment { .. }
+        | EffectDef::UnlessPaid { .. }
+        | EffectDef::May { .. }
+        | EffectDef::ChoosePermanent { .. }
+        | EffectDef::ChooseDamageSource { .. }
+        | EffectDef::IfCondition { .. }
+        | EffectDef::AtNextStep { .. }
+        | EffectDef::ReplaceNextDrawThisTurn { .. }
+        | EffectDef::SacrificeOfChoice { then: Some(_), .. }
+        | EffectDef::LookAtTopAndSelect { .. }
+        | EffectDef::IfFormat { .. }
+        | EffectDef::Apply { .. }
+        | EffectDef::Replacement(_) => unreachable!("recursive effects were handled above"),
     }
 }
 
@@ -759,6 +806,7 @@ fn applied_ability_grant_sites(effect: AppliedEffectDef) -> usize {
         | AppliedEffectDef::CannotBecomeEnchanted
         | AppliedEffectDef::CannotChangeController
         | AppliedEffectDef::RemainsAttachedThroughProtection
+        | AppliedEffectDef::ControlBySourceController
         | AppliedEffectDef::CannotBeBlockedBy(_)
         | AppliedEffectDef::PreventDamageFrom(_)
         | AppliedEffectDef::PreventCombatDamage

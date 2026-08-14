@@ -1,7 +1,8 @@
 use super::{
-    AppliedEffectDef, BasicLandType, CREATURE_TYPES, CardType, ContinuousEffectTimestamp,
-    ControlFlow, Cow, DeclarativeAbilityDef, EffectDef, EffectDurationDef, EffectRecipientDef,
-    Game, LandTypeOperation, ObjectPredicateDef, Permanent, TriggerContext, ZoneKind,
+    AppliedEffectDef, AttachmentForm, BasicLandType, CREATURE_TYPES, CardType,
+    ContinuousEffectTimestamp, ControlFlow, Cow, DeclarativeAbilityDef, EffectDef,
+    EffectDurationDef, EffectRecipientDef, Game, LandTypeOperation, ObjectPredicateDef, Permanent,
+    ReanimationAuraDef, TriggerContext, ZoneKind,
 };
 
 /// Land subtype vocabulary from CR 205.3i. Type-setting effects must remove
@@ -27,6 +28,19 @@ const LAND_SUBTYPES: &[&str] = &[
     "Urza's",
     "Urza’s",
 ];
+
+#[derive(Clone, Copy)]
+enum SubtypeOperation {
+    Land(LandTypeOperation),
+    RemoveCreatureSubtypes,
+    SetAuraSubtype,
+    AddAuraSubtype,
+    Animate(&'static crate::card::AnimationDef),
+}
+
+fn is_land_subtype(subtype: &str) -> bool {
+    LAND_SUBTYPES.contains(&subtype)
+}
 
 impl Game {
     fn land_type_operations(
@@ -169,6 +183,7 @@ impl Game {
             | AppliedEffectDef::CannotBecomeEnchanted
             | AppliedEffectDef::CannotChangeController
             | AppliedEffectDef::RemainsAttachedThroughProtection
+            | AppliedEffectDef::ControlBySourceController
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)
             | AppliedEffectDef::PreventCombatDamage
@@ -335,6 +350,7 @@ impl Game {
             | AppliedEffectDef::CannotBecomeEnchanted
             | AppliedEffectDef::CannotChangeController
             | AppliedEffectDef::RemainsAttachedThroughProtection
+            | AppliedEffectDef::ControlBySourceController
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)
             | AppliedEffectDef::PreventCombatDamage
@@ -369,7 +385,8 @@ impl Game {
                     )
                     && self.land_type_object_predicate_matches(object, source, affected)
             }
-            EffectRecipientDef::ChosenPermanent(_)
+            EffectRecipientDef::LinkedPermanent
+            | EffectRecipientDef::ChosenPermanent(_)
             | EffectRecipientDef::ControllerOfTarget(_)
             | EffectRecipientDef::ObjectsControlledByTarget { .. }
             | EffectRecipientDef::ObjectsOwnedByTarget { .. }
@@ -394,6 +411,7 @@ impl Game {
         match predicate {
             ObjectPredicateDef::Any => true,
             ObjectPredicateDef::Source => source.card.id == affected.card.id,
+            ObjectPredicateDef::AttachedToSource => source.attached_to == Some(affected.card.id),
             ObjectPredicateDef::Token => self.is_token(affected.card.definition),
             ObjectPredicateDef::HasType(card_type) => self
                 .permanent_types(affected)
@@ -433,7 +451,6 @@ impl Game {
             | ObjectPredicateDef::Tapped
             | ObjectPredicateDef::Attacking
             | ObjectPredicateDef::Blocking
-            | ObjectPredicateDef::AttachedToSource
             | ObjectPredicateDef::AttackedThisTurn
             | ObjectPredicateDef::HasNonManaActivatedAbility
             | ObjectPredicateDef::Special(_) => false,
@@ -463,21 +480,61 @@ impl Game {
         permanent: &Permanent,
         operations: Vec<(ContinuousEffectTimestamp, LandTypeOperation)>,
     ) -> Cow<'static, [&'static str]> {
-        fn is_land_subtype(subtype: &str) -> bool {
-            LAND_SUBTYPES.contains(&subtype)
-        }
-
-        let Some(rules) = self.effective_rules(permanent) else {
+        let Some(mut subtypes) = self.initial_effective_subtypes(permanent) else {
             return Cow::Borrowed(&[]);
         };
-        let animation = permanent
-            .animation
-            .filter(|animation| animation.all_creature_types || !animation.subtypes.is_empty());
-        if permanent.text_changes.is_empty() && operations.is_empty() && animation.is_none() {
-            return Cow::Borrowed(rules.subtypes());
+
+        let mut ordered = operations
+            .into_iter()
+            .map(|(timestamp, operation)| (timestamp, 0_u8, SubtypeOperation::Land(operation)))
+            .collect::<Vec<_>>();
+        if let Some(animation) = permanent.animation {
+            ordered.push((
+                animation.timestamp,
+                0,
+                SubtypeOperation::Animate(animation.definition),
+            ));
+        }
+        match permanent.attachment_form {
+            Some(AttachmentForm::Bestowed { timestamp }) => {
+                ordered.push((timestamp, 0, SubtypeOperation::SetAuraSubtype));
+            }
+            Some(AttachmentForm::Reconfigured { timestamp }) => {
+                ordered.push((timestamp, 0, SubtypeOperation::RemoveCreatureSubtypes));
+            }
+            Some(AttachmentForm::Licid) => {
+                ordered.extend(
+                    permanent
+                        .licid_effects
+                        .iter()
+                        .map(|effect| (effect.id, 0, SubtypeOperation::SetAuraSubtype)),
+                );
+            }
+            None => {}
+        }
+        if let Some(effect) = permanent.reanimation_effect
+            && effect.aura == ReanimationAuraDef::AddAuraSubtype
+        {
+            ordered.push((effect.timestamp, 0, SubtypeOperation::AddAuraSubtype));
+        }
+        ordered.sort_by_key(|(timestamp, order, _)| (*timestamp, *order));
+
+        for (_, _, operation) in ordered {
+            Self::apply_subtype_operation(&mut subtypes, operation);
         }
 
-        let mut subtypes = rules.subtypes().to_vec();
+        let types = self.permanent_types(permanent);
+        if !types.is_some_and(|types| types.contains(CardType::Enchantment)) {
+            subtypes.retain(|subtype| *subtype != "Aura");
+        }
+        if !types.is_some_and(|types| types.contains(CardType::Creature)) {
+            subtypes.retain(|subtype| !CREATURE_TYPES.contains(subtype));
+        }
+        Cow::Owned(subtypes)
+    }
+
+    fn initial_effective_subtypes(&self, permanent: &Permanent) -> Option<Vec<&'static str>> {
+        let mut subtypes = self.effective_rules(permanent)?.subtypes().to_vec();
         for change in &permanent.text_changes {
             for subtype in &mut subtypes {
                 if BasicLandType::from_subtype(subtype) == Some(change.from) {
@@ -495,59 +552,71 @@ impl Game {
             seen[land_type.index()] = true;
             keep
         });
+        Some(subtypes)
+    }
 
-        for (_, operation) in operations {
-            match operation {
-                LandTypeOperation::SetTo(types) => {
-                    let mut insertion = subtypes
+    fn apply_subtype_operation(subtypes: &mut Vec<&'static str>, operation: SubtypeOperation) {
+        match operation {
+            SubtypeOperation::Land(LandTypeOperation::SetTo(types)) => {
+                let mut insertion = subtypes
+                    .iter()
+                    .position(|subtype| is_land_subtype(subtype))
+                    .unwrap_or(0);
+                subtypes.retain(|subtype| !is_land_subtype(subtype));
+                insertion = insertion.min(subtypes.len());
+                for land_type in types {
+                    if subtypes
                         .iter()
-                        .position(|subtype| is_land_subtype(subtype))
-                        .unwrap_or(0);
-                    subtypes.retain(|subtype| !is_land_subtype(subtype));
-                    insertion = insertion.min(subtypes.len());
-                    for land_type in types {
-                        if subtypes
-                            .iter()
-                            .any(|subtype| BasicLandType::from_subtype(subtype) == Some(*land_type))
-                        {
-                            continue;
-                        }
-                        subtypes.insert(insertion, land_type.subtype());
-                        insertion += 1;
+                        .any(|subtype| BasicLandType::from_subtype(subtype) == Some(*land_type))
+                    {
+                        continue;
                     }
-                }
-                LandTypeOperation::Add(types) => {
-                    let mut insertion = subtypes
-                        .iter()
-                        .position(|subtype| !is_land_subtype(subtype))
-                        .unwrap_or(subtypes.len());
-                    for land_type in types {
-                        if subtypes
-                            .iter()
-                            .any(|subtype| BasicLandType::from_subtype(subtype) == Some(*land_type))
-                        {
-                            continue;
-                        }
-                        subtypes.insert(insertion, land_type.subtype());
-                        insertion += 1;
-                    }
+                    subtypes.insert(insertion, land_type.subtype());
+                    insertion += 1;
                 }
             }
-        }
-        if let Some(animation) = animation {
-            if animation.replaces_subtypes {
+            SubtypeOperation::Land(LandTypeOperation::Add(types)) => {
+                let mut insertion = subtypes
+                    .iter()
+                    .position(|subtype| !is_land_subtype(subtype))
+                    .unwrap_or(subtypes.len());
+                for land_type in types {
+                    if subtypes
+                        .iter()
+                        .any(|subtype| BasicLandType::from_subtype(subtype) == Some(*land_type))
+                    {
+                        continue;
+                    }
+                    subtypes.insert(insertion, land_type.subtype());
+                    insertion += 1;
+                }
+            }
+            SubtypeOperation::RemoveCreatureSubtypes => {
+                subtypes.retain(|subtype| !CREATURE_TYPES.contains(subtype));
+            }
+            SubtypeOperation::SetAuraSubtype => {
                 subtypes.clear();
+                subtypes.push("Aura");
             }
-            if animation.all_creature_types {
-                subtypes.extend(CREATURE_TYPES.iter().copied());
+            SubtypeOperation::AddAuraSubtype => {
+                if !subtypes.contains(&"Aura") {
+                    subtypes.push("Aura");
+                }
             }
-            for subtype in animation.subtypes {
-                if !subtypes.contains(subtype) {
-                    subtypes.push(subtype);
+            SubtypeOperation::Animate(animation) => {
+                if animation.replaces_subtypes {
+                    subtypes.clear();
+                }
+                if animation.all_creature_types {
+                    subtypes.extend(CREATURE_TYPES.iter().copied());
+                }
+                for subtype in animation.subtypes {
+                    if !subtypes.contains(subtype) {
+                        subtypes.push(subtype);
+                    }
                 }
             }
         }
-        Cow::Owned(subtypes)
     }
 
     /// Basic land subtypes in effective type-line order, with duplicate types

@@ -2,11 +2,13 @@ use super::{
     AbilityDef, AbilityEffectExpiration, AbilityId, AbilityOrigin, AbilityTargetPredicate,
     AppliedEffectDef, CardPartId, CastSignature, ComparisonDef, ContinuousEffectTimestamp,
     ControlFlow, CounterKind, EffectDurationDef, EffectRecipientDef, Game, GameObjectId, GrantId,
-    ObjectPredicateDef, ObjectQueryDef, Permanent, PlayerId, QuantifierDef, ScopedEffect,
-    StackObject, StackObjectKind, Target, TargetIndex, TargetSelection, TargetSlotId,
+    ObjectPredicateDef, ObjectQueryDef, Permanent, PlayerId, QuantifierDef, ResolvedAnimation,
+    ScopedEffect, StackObject, StackObjectKind, Target, TargetIndex, TargetSelection, TargetSlotId,
     TemporaryAbilityGrant, TemporaryGrantedAbility, TemporaryRemovedAbilities, TriggerConditionDef,
     TriggerContext, ZoneKind,
 };
+
+mod recipients;
 
 #[derive(Clone, Copy)]
 struct ResolvedAppliedEffect<'a> {
@@ -38,6 +40,10 @@ impl Game {
         for target in self.effect_recipients(recipient, object, context, scoped) {
             self.apply_applied_effect_component(target, effect, resolution);
         }
+        // Ability additions and removals can start or end an attachment's
+        // layer-2 control effect. Re-derive it before a later instruction in
+        // the same resolving sequence observes a controller.
+        self.reconcile_all_control_layers();
         // Everything else lasts until cleanup. Keeping the duration explicit
         // here makes unsupported permanent/granted effects visible rather
         // than silently changing their lifetime.
@@ -219,9 +225,13 @@ impl Game {
                         .iter_mut()
                         .find(|permanent| permanent.card.id == target)
                 {
-                    // A second animation overwrites the first, which is what
-                    // the later timestamp does.
-                    permanent.animation = Some(animation);
+                    // A second animation overwrites the first. Its timestamp
+                    // still orders the retained operation against dynamic
+                    // attachment forms in layer 4.
+                    permanent.animation = Some(ResolvedAnimation {
+                        definition: animation,
+                        timestamp: resolution.timestamp,
+                    });
                 }
             }
             AppliedEffectDef::ModifyPowerToughness { power, toughness } => {
@@ -267,6 +277,7 @@ impl Game {
             | AppliedEffectDef::CannotBecomeEnchanted
             | AppliedEffectDef::CannotChangeController
             | AppliedEffectDef::RemainsAttachedThroughProtection
+            | AppliedEffectDef::ControlBySourceController
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)
             | AppliedEffectDef::PreventCombatDamage
@@ -455,39 +466,7 @@ impl Game {
             controller,
         } = recipient
         else {
-            return match recipient {
-                EffectRecipientDef::Source => object.source.map(Target::Permanent),
-                EffectRecipientDef::ChosenPermanent(_) => {
-                    unreachable!("chosen permanent returned above")
-                }
-                EffectRecipientDef::AttachedPermanent => object
-                    .source
-                    .and_then(|source| self.current_or_last_known_attached_host(source))
-                    .map(Target::Permanent),
-                EffectRecipientDef::Controller => Some(Target::Player(object.controller)),
-                EffectRecipientDef::Opponent => Some(Target::Player(object.controller.opponent())),
-                EffectRecipientDef::EachPlayer => unreachable!("each player returned above"),
-                EffectRecipientDef::TriggeringObject => context
-                    .object
-                    .and_then(|object| self.live_object_target(object)),
-                EffectRecipientDef::ControllerOfTriggeringObject => context
-                    .object
-                    .and_then(|object| self.current_or_last_known_controller(object))
-                    .or(context.object_controller)
-                    .map(Target::Player),
-                EffectRecipientDef::EventPlayer => context.event_player.map(Target::Player),
-                EffectRecipientDef::Target(_)
-                | EffectRecipientDef::ControllerOfTarget(_)
-                | EffectRecipientDef::ObjectsControlledByTarget { .. }
-                | EffectRecipientDef::ObjectsOwnedByTarget { .. }
-                | EffectRecipientDef::CardsOwnedByTarget { .. }
-                | EffectRecipientDef::MatchingObjects { .. }
-                | EffectRecipientDef::ObjectsSharingNameWithTarget(_) => {
-                    unreachable!("target, matching, and shared-name recipients returned above")
-                }
-            }
-            .into_iter()
-            .collect();
+            return self.direct_effect_recipients(recipient, object, context);
         };
 
         self.objects_matching_query(
@@ -898,6 +877,7 @@ impl Game {
             }
             ObjectPredicateDef::Any
             | ObjectPredicateDef::Source
+            | ObjectPredicateDef::AttachedToSource
             | ObjectPredicateDef::Token
             | ObjectPredicateDef::HasType(_)
             | ObjectPredicateDef::HasAnyBasicLandType(_)
@@ -923,7 +903,6 @@ impl Game {
             | ObjectPredicateDef::Tapped
             | ObjectPredicateDef::Attacking
             | ObjectPredicateDef::Blocking
-            | ObjectPredicateDef::AttachedToSource
             | ObjectPredicateDef::AttackedThisTurn
             | ObjectPredicateDef::HasKeyword(_)
             | ObjectPredicateDef::HasNonManaActivatedAbility => false,

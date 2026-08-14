@@ -52,7 +52,9 @@ impl WebGame {
             } else if should_animate_action(&action) {
                 let mana_sources = if matches!(
                     action,
-                    Action::CastSpell { .. } | Action::ActivateAbility { .. }
+                    Action::CastSpell { .. }
+                        | Action::ActivateAbility { .. }
+                        | Action::TakeSpecialAction { .. }
                 ) {
                     std::mem::take(&mut self.pending_opponent_mana)
                 } else {

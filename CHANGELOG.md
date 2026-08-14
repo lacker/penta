@@ -18,9 +18,9 @@ Observations and catalogs also advertise named additive capabilities. Replay
 and reconstruction payloads carry their own format versions instead of moving
 the bot-wire epoch.
 
-## 0.7.0 — protocol 22
+## 0.7.0 — protocol 23
 
-This release reports engine 0.7.0 and protocol 22. The simulation fingerprint
+This release reports engine 0.7.0 and protocol 23. The simulation fingerprint
 distinguishes snapshots of the covered source and build inputs.
 
 ### Fixed
@@ -54,13 +54,28 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **Protocol 23 adds rules-defined special actions.** Legal actions may now
+  contain `TakeSpecialAction` with an exact battlefield `source`, `ability`
+  origin, and nullable `effectId` distinguishing independently active rules
+  effects. Its mana cost is paid immediately and its effect does not use the
+  stack. Because action `type` is mandatory closed vocabulary for consumers,
+  the new tag advances the bot-wire epoch.
+- **Reconstruction checkpoint format 3 preserves attachment execution state.**
+  It records dynamic bestow, reconfigure, Licid, and reanimation forms;
+  independently active Licid end permissions; overlapping timestamped layer-2
+  control bookkeeping; scheduled one-shot triggers such as Necromancy's
+  off-timing cleanup instruction;
+  attachment and linked-permanent last-known information in trigger contexts;
+  and pending entry completions that attach a source. Reconstruction consumers
+  must require `reconstruction.checkpoint.v3` and continue checking the nested
+  checkpoint version and exact simulation fingerprint.
 - **Protocol 22 establishes the durable compatibility model.** JSON objects are
   open-world, so consumers ignore members they do not use. `protocolVersion`
   now moves only for incompatible interpretation changes; new cards, rules
   fixes, and different legal-action membership through existing action shapes
   change the automatic `simulationFingerprint` instead. Observations and
-  catalogs advertise `protocolCapabilities`; the first optional facility is
-  now `reconstruction.checkpoint.v2`. Stable wire tags are explicit mappings
+  catalogs advertise `protocolCapabilities`; the current optional facility is
+  `reconstruction.checkpoint.v3`. Stable wire tags are explicit mappings
   rather than Rust `Debug` output. Protocol 22 is the one-time transition from
   the former all-purpose counter to this breaking-only epoch.
 - **Banding, in part.** CR 702.22 gives banding two separate jobs, and the
@@ -553,9 +568,10 @@ version is unmoved.
   Nexus uses the same vocabulary to skip extra turns, and its
   battlefield-to-graveyard replacement competes correctly with Rest in
   Peace before exiling the Nexus and scheduling its controller's extra turn.
-  These rules and append-only catalog changes use existing bot-wire vocabulary,
-  so protocol remains 22 and the automatic simulation fingerprint identifies
-  the new behavior. Checkpoint format 2 replaces `skippedTurns` with
+  These rules and append-only catalog changes used existing bot-wire
+  vocabulary, so they did not themselves require a bump beyond protocol 22;
+  the automatic simulation fingerprint identifies the new behavior.
+  Checkpoint format 2 replaces `skippedTurns` with
   `nextRegularPlayer` and reconstructs pending begin-turn choices. A checkpoint
   taken during a battlefield-exit replacement-order choice still reports
   deferred state and reconstruction fails closed until that suspended batch

@@ -84,6 +84,7 @@ pub(super) fn detached_stack_snapshot(
             .collect(),
         colors: object.colors.map(ColorSet::to_flags),
         cast_via_flashback: object.cast_via_flashback,
+        schedule_on_entry: object.schedule_on_entry,
         is_copy: object.is_copy,
     })
 }
@@ -178,6 +179,8 @@ pub(super) fn referenced_object_ids(object: &StackObject) -> impl Iterator<Item 
     );
     if let Some(payload) = &object.ability {
         ids.extend(payload.context.object);
+        ids.extend(payload.context.source_attachment);
+        ids.extend(payload.context.source_linked);
         ids.extend(payload.context.chosen_objects.iter().flatten().copied());
         ids.extend(payload.targets.iter().flat_map(|selection| {
             selection
@@ -253,6 +256,8 @@ pub(super) fn trigger_context_snapshot(context: TriggerContext) -> TriggerContex
         object_controller: context.object_controller.map(PlayerId::index),
         event_player: context.event_player.map(PlayerId::index),
         amount: context.amount,
+        source_attachment: context.source_attachment.map(|id| id.0),
+        source_linked: context.source_linked.map(|id| id.0),
         chosen_objects: context.chosen_objects.map(|object| object.map(|id| id.0)),
     }
 }
@@ -397,6 +402,7 @@ pub(super) fn parse_stack(
             text_changes: parse_text_changes(&state.text_changes),
             colors: state.colors.map(color_set_from_flags),
             cast_via_flashback: state.cast_via_flashback,
+            schedule_on_entry: state.schedule_on_entry,
             is_copy: state.is_copy,
         });
     }
@@ -458,6 +464,7 @@ pub(super) fn parse_detached_stack(
         text_changes: parse_text_changes(&state.text_changes),
         colors: state.colors.map(color_set_from_flags),
         cast_via_flashback: state.cast_via_flashback,
+        schedule_on_entry: state.schedule_on_entry,
         is_copy: state.is_copy,
     })
 }
@@ -574,6 +581,8 @@ pub(super) fn parse_trigger_context(
         object_controller: value.object_controller.map(seat_index_value).transpose()?,
         event_player: value.event_player.map(seat_index_value).transpose()?,
         amount: value.amount,
+        source_attachment: value.source_attachment.map(GameObjectId),
+        source_linked: value.source_linked.map(GameObjectId),
         chosen_objects: value.chosen_objects.map(|object| object.map(GameObjectId)),
     })
 }

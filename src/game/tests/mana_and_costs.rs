@@ -642,7 +642,10 @@ fn an_animated_untapped_mishras_factory_can_block() {
     attacker.attacking = true;
     let attacker_id = attacker.card.id;
     let mut factory = creature(10_001, cards::MISHRA_S_FACTORY, PlayerId::Two);
-    factory.animation = Some(&abilities::MISHRAS_FACTORY_ANIMATION);
+    factory.animation = Some(ResolvedAnimation {
+        definition: &abilities::MISHRAS_FACTORY_ANIMATION,
+        timestamp: factory.timestamp,
+    });
     let factory_id = factory.card.id;
     game.battlefield = vec![attacker, factory];
     game.active_player = PlayerId::One;

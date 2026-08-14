@@ -1,13 +1,13 @@
 use super::{
-    AbilityDef, AbilitySourceRef, ApplicableReplacement, AppliedEffectDef, BasicLandType,
-    BattlefieldEntryModificationDef, BattlefieldEntryReplacementEffect, CardTypeSet,
+    AbilityDef, AbilitySourceRef, ApplicableReplacement, AppliedEffectDef, AttachmentForm,
+    BasicLandType, BattlefieldEntryModificationDef, BattlefieldEntryReplacementEffect, CardTypeSet,
     CommittedTriggerEvent, ConditionDef, ControlFlow, CostDef, DecisionContinuation,
     DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone, DeclarativeAbilityDef,
     EffectDef, EffectDurationDef, EffectRecipientDef, EntryCompletion, Game, GameEvent,
     ObjectPredicateDef, PaymentDef, PendingBattlefieldEntry, PendingEvent,
     PendingReplacementEffect, Permanent, PlayerId, PlayerRelation, ReplaceableEvent,
-    ReplacementEffectContext, ReplacementEffectDef, ReplacementEventDef, Target, TriggerContext,
-    ZoneKind,
+    ReplacementEffectContext, ReplacementEffectDef, ReplacementEventDef, RetiredObject, Target,
+    TriggerContext, ZoneKind,
 };
 
 impl Game {
@@ -343,6 +343,8 @@ impl Game {
             event_player: Some(entry.permanent.controller),
             amount: None,
             chosen_objects: [None; 8],
+            source_attachment: None,
+            source_linked: None,
         }
     }
 
@@ -567,6 +569,7 @@ impl Game {
             | AppliedEffectDef::CannotBecomeEnchanted
             | AppliedEffectDef::CannotChangeController
             | AppliedEffectDef::RemainsAttachedThroughProtection
+            | AppliedEffectDef::ControlBySourceController
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)
             | AppliedEffectDef::PreventCombatDamage
@@ -846,14 +849,71 @@ impl Game {
     }
 
     pub(super) fn commit_battlefield_entry(&mut self, mut entry: PendingBattlefieldEntry) {
+        let schedule_on_entry = match entry.completion {
+            EntryCompletion::SpellResolved { card, .. } => self
+                .retired_objects
+                .get(&card)
+                .and_then(|retired| match retired {
+                    RetiredObject::Stack(object) => object.schedule_on_entry,
+                    RetiredObject::Card(_) | RetiredObject::Permanent { .. } => None,
+                }),
+            EntryCompletion::LandPlayed { .. }
+            | EntryCompletion::AttachSource { .. }
+            | EntryCompletion::Setup
+            | EntryCompletion::None => None,
+        };
         if entry.completion != EntryCompletion::Setup {
             let (card, _zone_change) = self.zone_change_card(entry.permanent.card);
             entry.permanent.card = card;
         }
         entry.permanent.timestamp = self.allocate_continuous_effect_timestamp();
+        if matches!(
+            entry.permanent.attachment_form,
+            Some(AttachmentForm::Bestowed { .. })
+        ) {
+            entry.permanent.attachment_form = Some(AttachmentForm::Bestowed {
+                timestamp: entry.permanent.timestamp,
+            });
+        }
         let permanent_id = entry.permanent.card.id;
         let definition = entry.permanent.card.definition;
         self.battlefield.push(entry.permanent);
+        if let Some(trigger) = schedule_on_entry {
+            self.bind_scheduled_trigger_to_permanent(trigger, permanent_id);
+        }
+
+        // An instruction can attach something to the new object after it has
+        // entered but before state-based actions. Capture the entry event and
+        // its listeners first: living weapon's Germ entered as a 0/0, and an
+        // ability granted by the subsequent attachment did not exist when
+        // that event happened.
+        let entered = self
+            .battlefield
+            .last()
+            .expect("a committed battlefield entry is present");
+        let entered_event = self.trigger_event_object(entered);
+        let entry_listeners = self.battlefield_trigger_listeners();
+
+        if let EntryCompletion::AttachSource {
+            source,
+            reanimation,
+            scheduled_trigger,
+        } = entry.completion
+        {
+            if let Some(effect) = reanimation
+                && let Some(attachment) = self
+                    .battlefield
+                    .iter_mut()
+                    .find(|permanent| permanent.card.id == source)
+            {
+                attachment.reanimation_linked = Some(permanent_id);
+                attachment.reanimation_effect = Some(effect);
+            }
+            if let Some(trigger) = scheduled_trigger {
+                self.bind_scheduled_trigger_to_permanent(trigger, permanent_id);
+            }
+            self.try_attach(source, permanent_id);
+        }
 
         if let EntryCompletion::LandPlayed { player } = entry.completion {
             self.events.push(GameEvent::LandPlayed {
@@ -863,16 +923,14 @@ impl Game {
             });
         }
 
-        let entered = self
-            .battlefield
-            .last()
-            .expect("a committed battlefield entry is present");
-        let entered_event = self.trigger_event_object(entered);
-        self.capture_battlefield_triggers(&CommittedTriggerEvent::ZoneChanged {
-            object: entered_event,
-            from: entry.from,
-            to: ZoneKind::Battlefield,
-        });
+        self.capture_battlefield_triggers_from_snapshot(
+            &entry_listeners,
+            &CommittedTriggerEvent::ZoneChanged {
+                object: entered_event,
+                from: entry.from,
+                to: ZoneKind::Battlefield,
+            },
+        );
         self.apply_legend_rule();
 
         if let EntryCompletion::SpellResolved { card, definition } = entry.completion {

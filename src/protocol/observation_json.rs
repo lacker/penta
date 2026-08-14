@@ -152,6 +152,7 @@ fn permanent_observation_json(
         "presentedPartId": permanent.presented.0,
         "name": card_part_name(catalog, permanent.definition, permanent.presented),
         "controller": seat_name(permanent.controller),
+        "attachedTo": permanent.attached_to.map(|id| id.0),
         "chosenCardName": permanent.chosen_card_name.as_deref(),
         "chosenCreatureType": permanent.chosen_creature_type.as_deref(),
         "tapped": permanent.tapped,

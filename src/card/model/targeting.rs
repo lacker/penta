@@ -10,6 +10,8 @@ use super::{
 pub enum ObjectPredicateDef {
     Any,
     Source,
+    /// The object this ability's source is currently attached to.
+    AttachedToSource,
     /// Whether the object is a token rather than a card represented by a
     /// physical printing. Negate this for the common "nontoken" qualifier.
     Token,
@@ -84,9 +86,6 @@ pub enum ObjectPredicateDef {
     HasNonManaActivatedAbility,
     /// A creature currently declared as an attacker in combat.
     Attacking,
-    /// The permanent the ability's source is attached to, for an Aura whose
-    /// trigger watches its own host rather than itself.
-    AttachedToSource,
     /// A creature currently blocking one. This is the other half of
     /// [`Self::AttackingOrBlocking`], which neither of the single-sided
     /// predicates could express on its own.

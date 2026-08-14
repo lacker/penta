@@ -342,7 +342,10 @@ fn is_routine_window(context: &AutoPassContext, actions: &[Action]) -> bool {
     let has_second_main_action = actions.iter().any(|action| {
         matches!(
             action,
-            Action::CastSpell { .. } | Action::PlayLand { .. } | Action::ActivateAbility { .. }
+            Action::CastSpell { .. }
+                | Action::PlayLand { .. }
+                | Action::ActivateAbility { .. }
+                | Action::TakeSpecialAction { .. }
         )
     });
     // Damage ordinarily lands on the way into the damage step, so by the time
@@ -430,9 +433,12 @@ pub(super) fn automatic_human_action_for_context(
                 | Action::FinishDeclaringBlockers
         )
     });
-    let has_combat_ability = actions
-        .iter()
-        .any(|action| matches!(action, Action::ActivateAbility { .. }));
+    let has_combat_ability = actions.iter().any(|action| {
+        matches!(
+            action,
+            Action::ActivateAbility { .. } | Action::TakeSpecialAction { .. }
+        )
+    });
     let auto_yield_step = is_routine_window(&context, actions);
     // A combat ability is worth pausing for while it can still change the
     // outcome. Once damage is dealt, pumping a creature decides nothing.

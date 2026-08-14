@@ -1,5 +1,5 @@
 use super::{
-    AbilitySourceRef, AddManaEffectDef, CardPartId, CharacteristicSource, CopiableAbility, CostDef,
+    AbilitySourceRef, AddManaEffectDef, CardPartId, CharacteristicSource, CostDef,
     CounteredSpellZone, DeclarativeAbilityDef, DelayedTrigger, DiscardSelectionDef,
     DrawReplacement, EffectDef, EffectRecipientDef, FloatingTrigger, Game, GameResult, Mana,
     ManaPool, ManaSelectionDef, ManaSource, Permanent, SacrificeFollowup, ScopedEffect,
@@ -7,6 +7,7 @@ use super::{
     ZoneMoveCause, public_cards,
 };
 
+mod permanent_effects;
 mod prevention;
 
 impl Game {
@@ -139,6 +140,37 @@ impl Game {
                     );
                 }
             }
+            EffectDef::DealDamageFrom {
+                source,
+                recipient,
+                amount,
+            } => {
+                // A triggering object may have left its zone before this
+                // trigger resolves. Damage still comes from that object's
+                // last known incarnation, which the retired-object table
+                // keeps addressable by ID even though it is no longer a live
+                // effect recipient.
+                let source = if source == EffectRecipientDef::TriggeringObject {
+                    context.object
+                } else {
+                    self.effect_recipients(source, object, context, scoped)
+                        .into_iter()
+                        .find_map(|target| match target {
+                            Target::Card(id) | Target::Permanent(id) | Target::Spell(id) => {
+                                Some(id)
+                            }
+                            Target::Player(_) => None,
+                        })
+                };
+                let amount = self
+                    .effect_value(amount, object, context, scoped)
+                    .max(0)
+                    .try_into()
+                    .unwrap_or(u16::MAX);
+                for target in self.effect_recipients(recipient, object, context, scoped) {
+                    self.damage_target_from(source, Some(target), amount);
+                }
+            }
             EffectDef::GainLife { recipient, amount } => {
                 let amount = self
                     .effect_value(amount, object, context, scoped)
@@ -264,6 +296,17 @@ impl Game {
                 for _ in 0..self.effect_value(count, object, context, scoped).max(0) {
                     self.create_token(object.controller, token);
                 }
+            }
+            EffectDef::CreateAttachedToken { .. }
+            | EffectDef::BecomeCopyOf { .. }
+            | EffectDef::MoveToZone { .. }
+            | EffectDef::Attach { .. }
+            | EffectDef::Unattach { .. }
+            | EffectDef::Reconfigure { .. }
+            | EffectDef::BecomeAuraAndAttach { .. }
+            | EffectDef::EndAuraEffect
+            | EffectDef::ReturnToBattlefieldAttached { .. } => {
+                self.resolve_permanent_effect_def(scoped, object, context);
             }
             EffectDef::Untap { object: recipient } => {
                 for target in self.effect_recipients(recipient, object, context, scoped) {
@@ -624,7 +667,15 @@ impl Game {
                 );
             }
             EffectDef::GainControlThisTurn { object: recipient } => {
-                self.take_control_of(recipient, object, context, scoped, None);
+                let targets = self
+                    .effect_recipients(recipient, object, context, scoped)
+                    .into_iter()
+                    .filter_map(|target| match target {
+                        Target::Permanent(id) => Some(id),
+                        Target::Card(_) | Target::Player(_) | Target::Spell(_) => None,
+                    })
+                    .collect::<Vec<_>>();
+                self.gain_control_until_end_of_turn(&targets, object.controller);
             }
             EffectDef::Detain { object: recipient } => {
                 let controller = object.controller;
@@ -791,43 +842,6 @@ impl Game {
                     self.queue_basic_land_type_text_change(object.controller, target);
                 }
             }
-            EffectDef::BecomeCopyOf {
-                object: recipient,
-                retain_source_ability,
-            } => {
-                let Some(Target::Permanent(target)) = self
-                    .effect_recipients(recipient, object, context, scoped)
-                    .into_iter()
-                    .next()
-                else {
-                    return;
-                };
-                let Some(mut copy) = self
-                    .battlefield
-                    .iter()
-                    .find(|permanent| permanent.card.id == target)
-                    .map(Self::copiable_characteristics)
-                else {
-                    return;
-                };
-                if retain_source_ability
-                    && let Some(payload) = &object.ability
-                    && let Some(definition) = payload.definition.as_deref()
-                {
-                    copy.added_abilities.push(CopiableAbility {
-                        origin: payload.origin,
-                        definition: *definition,
-                    });
-                }
-                if let Some(source) = object.source
-                    && let Some(permanent) = self
-                        .battlefield
-                        .iter_mut()
-                        .find(|permanent| permanent.card.id == source)
-                {
-                    permanent.copy_effect = Some(copy);
-                }
-            }
             EffectDef::OptionalPayment { payment, if_paid } => {
                 let Some(player) = self.payment_player(object.controller, context, payment) else {
                     return;
@@ -857,40 +871,7 @@ impl Game {
                 effect,
                 duration,
             } => self.resolve_applied_effect(recipient, effect, duration, object, context, scoped),
-            EffectDef::MoveToZone {
-                object: recipient,
-                zone,
-                controller,
-                placement,
-            } => {
-                let arriving_controller = controller.map(|relation| {
-                    if self.player_relation_matches(
-                        object.controller,
-                        relation,
-                        object.controller,
-                        context,
-                    ) {
-                        object.controller
-                    } else {
-                        object.controller.opponent()
-                    }
-                });
-                for target in self.effect_recipients(recipient, object, context, scoped) {
-                    self.move_target_to_zone(
-                        target,
-                        zone,
-                        ZoneMoveCause::Effect {
-                            controller: object.controller,
-                        },
-                        arriving_controller,
-                        placement,
-                    );
-                }
-            }
-            // An Aura attaches as its spell becomes a permanent, which is
-            // handled where the permanent enters rather than here.
-            EffectDef::Attach { .. }
-            | EffectDef::None
+            EffectDef::None
             | EffectDef::Replacement(_)
             | EffectDef::AddMana(AddManaEffectDef {
                 mana: ManaSelectionDef::Choice(_),
@@ -906,6 +887,7 @@ impl Game {
             | EffectDef::ChoosePlayer { .. }
             | EffectDef::CopyPermanentAsItEnters { .. }
             | EffectDef::ChooseCreatureType { .. }
+            | EffectDef::FlashWithCleanupSacrifice { .. }
             | EffectDef::Special(_) => {
                 // Choice-bearing mana and the remaining declarative effect
                 // families are execution seams until a supported card needs

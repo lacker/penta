@@ -515,6 +515,10 @@ impl Game {
         spell.applied_effects.clear();
         // Text-changing effects are not copiable values.
         spell.text_changes.clear();
+        // A cast-created delayed ability belongs to the original spell, not
+        // to a copy of that spell. Permanent-spell copies must not bind the
+        // original listener when they enter the battlefield.
+        spell.schedule_on_entry = None;
         spell.is_copy = true;
         self.stack.push(spell);
     }

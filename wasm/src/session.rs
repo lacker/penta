@@ -115,6 +115,14 @@ impl LocalSession {
         self.game.ability_for_origin(source, origin)
     }
 
+    pub fn special_action_for_effect(
+        &self,
+        source: penta::GameObjectId,
+        effect_id: u64,
+    ) -> Option<penta::card::AbilityDef> {
+        self.game.special_action_for_effect(source, effect_id)
+    }
+
     /// A throwaway copy for the pass preview to walk forward. Only a session
     /// that holds the engine can offer this; a remote one would ask its
     /// server for the destination instead.

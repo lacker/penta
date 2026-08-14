@@ -72,6 +72,7 @@ fn permanent(
         definition,
         presented: CardPartId::PRIMARY,
         controller,
+        attached_to: None,
         types: penta::CardTypeSet::empty(),
         chosen_creature_type: None,
         chosen_card_name: None,

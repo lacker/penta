@@ -218,6 +218,12 @@ impl CardTypeSet {
     }
 
     #[must_use]
+    pub const fn without(mut self, card_type: CardType) -> Self {
+        self.0 &= !(1 << card_type.index());
+        self
+    }
+
+    #[must_use]
     pub const fn union(self, other: Self) -> Self {
         Self(self.0 | other.0)
     }

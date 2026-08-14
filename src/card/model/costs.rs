@@ -51,6 +51,7 @@ pub struct AbilityCostList(AbilityCostStorage);
 #[derive(Clone, Copy, Debug)]
 enum AbilityCostStorage {
     Borrowed(&'static [AbilityCostDef]),
+    One([AbilityCostDef; 1]),
     Two([AbilityCostDef; 2]),
 }
 
@@ -80,9 +81,15 @@ impl AbilityCostList {
     }
 
     #[must_use]
+    pub(crate) const fn one(cost: AbilityCostDef) -> Self {
+        Self(AbilityCostStorage::One([cost]))
+    }
+
+    #[must_use]
     pub const fn as_slice(&self) -> &[AbilityCostDef] {
         match &self.0 {
             AbilityCostStorage::Borrowed(costs) => costs,
+            AbilityCostStorage::One(costs) => costs,
             AbilityCostStorage::Two(costs) => costs,
         }
     }

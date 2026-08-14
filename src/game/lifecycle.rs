@@ -181,6 +181,8 @@ impl Game {
             relational_damage_preventions: Vec::new(),
             miracle_window: None,
             delayed_triggers: Vec::new(),
+            scheduled_triggers: Vec::new(),
+            next_scheduled_trigger_id: 0,
             floating_triggers: Vec::new(),
             blockers_declared: false,
             untap_pending: false,
@@ -267,6 +269,19 @@ impl Game {
                             .iter()
                             .map(|effect| effect.timestamp.0),
                     )
+                    .chain(
+                        permanent
+                            .control_until_end_of_turn
+                            .iter()
+                            .map(|effect| effect.timestamp.0),
+                    )
+                    .chain(
+                        permanent
+                            .control_while_source_remains
+                            .iter()
+                            .map(|effect| effect.timestamp.0),
+                    )
+                    .chain(permanent.licid_effects.iter().map(|effect| effect.id.0))
             }))
             .max()
             .map_or(0, |timestamp| timestamp.saturating_add(1));
@@ -309,6 +324,11 @@ impl Game {
                 keywords: last_known.keywords.clone(),
             },
         );
+        // Removing an attachment source ends its continuous control effect
+        // immediately. Later instructions in the same resolving sequence
+        // must see the host's newly derived controller rather than wait for
+        // the next state-based-action pass.
+        self.reconcile_all_control_layers();
         permanent
     }
 
@@ -342,10 +362,10 @@ impl Game {
             .map(|stats| stats.power)
     }
 
-    /// The object an Aura was attached to immediately before it left the
+    /// The object an attachment named immediately before its source left the
     /// battlefield. Activated abilities are independent of their source once
-    /// on the stack, so sacrificing the Aura as a cost or removing it in
-    /// response must not erase what "enchanted permanent" means.
+    /// on the stack, so paying a sacrifice cost must not erase what
+    /// "enchanted permanent" means.
     pub(super) fn current_or_last_known_attached_host(
         &self,
         object: GameObjectId,

@@ -466,6 +466,9 @@ fn collect_effect_abilities(effect: EffectDef, abilities: &mut Vec<&'static Abil
         }
         EffectDef::Apply { effect, .. } => collect_applied_abilities(effect, abilities),
         EffectDef::TriggerUntilYourNextTurn { ability } => abilities.push(ability),
+        EffectDef::BecomeAuraAndAttach { end, .. } => abilities.push(end),
+        EffectDef::ReturnToBattlefieldAttached { leave, .. } => abilities.push(leave),
+        EffectDef::FlashWithCleanupSacrifice { trigger } => abilities.push(trigger),
         EffectDef::Replacement(effect) => {
             collect_replacement_effect_abilities(effect, abilities);
         }
@@ -473,6 +476,7 @@ fn collect_effect_abilities(effect: EffectDef, abilities: &mut Vec<&'static Abil
         | EffectDef::AddMana(_)
         | EffectDef::AddManaEqualTo { .. }
         | EffectDef::DealDamage { .. }
+        | EffectDef::DealDamageFrom { .. }
         | EffectDef::DrainLife { .. }
         | EffectDef::GainLife { .. }
         | EffectDef::DrawCards { .. }
@@ -493,6 +497,10 @@ fn collect_effect_abilities(effect: EffectDef, abilities: &mut Vec<&'static Abil
         | EffectDef::PreventDamageToPlayerAndControlledCreaturesThisTurn { .. }
         | EffectDef::PreventAllCombatDamageExceptSourceThisTurn { .. }
         | EffectDef::Attach { .. }
+        | EffectDef::Unattach { .. }
+        | EffectDef::Reconfigure { .. }
+        | EffectDef::EndAuraEffect
+        | EffectDef::CreateAttachedToken { .. }
         | EffectDef::CreateToken { .. }
         | EffectDef::Destroy { .. }
         | EffectDef::Sacrifice { .. }
@@ -588,6 +596,7 @@ fn collect_applied_abilities(effect: AppliedEffectDef, abilities: &mut Vec<&'sta
         | AppliedEffectDef::CannotBecomeEnchanted
         | AppliedEffectDef::CannotChangeController
         | AppliedEffectDef::RemainsAttachedThroughProtection
+        | AppliedEffectDef::ControlBySourceController
         | AppliedEffectDef::CannotBeBlockedBy(_)
         | AppliedEffectDef::PreventDamageFrom(_)
         | AppliedEffectDef::PreventCombatDamage

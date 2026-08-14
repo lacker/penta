@@ -1,5 +1,7 @@
 use crate::action::AbilityOrigin;
-use crate::card::{AbilityDef, AbilityPredicateDef, AppliedEffectDef};
+use crate::card::{
+    AbilityDef, AbilityPredicateDef, AnimationDef, AppliedEffectDef, ReanimationAuraDef,
+};
 use crate::ids::{AbilityId, CardDefinitionId, CardPartId, GameObjectId, GrantId, PlayerId};
 
 use super::Permanent;
@@ -11,6 +13,26 @@ use super::Permanent;
 /// same ordering contract.
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub(super) struct ContinuousEffectTimestamp(pub(super) u64);
+
+/// One resolved animation together with the timestamp at which its
+/// characteristic-changing effect began. Attachment forms participate in the
+/// same layer-4 ordering, so retaining this timestamp is observable when a
+/// later effect removes or restores the permanent's creature type.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(super) struct ResolvedAnimation {
+    pub(super) definition: &'static AnimationDef,
+    pub(super) timestamp: ContinuousEffectTimestamp,
+}
+
+/// The persistent part of Animate Dead/Necromancy's resolved reanimation
+/// instruction. The exact returned object is stored separately on
+/// `Permanent`; this value only supplies the timestamped enchant ability and,
+/// for Necromancy, the subtype operation.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(super) struct ReanimationAttachmentEffect {
+    pub(super) timestamp: ContinuousEffectTimestamp,
+    pub(super) aura: ReanimationAuraDef,
+}
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) enum AbilityEffectExpiration {
@@ -51,6 +73,8 @@ pub(super) enum AbilityLayerOperationKind {
         ability: AbilityDef,
     },
     Remove(AbilityPredicateDef),
+    RemoveOrigin(AbilityOrigin),
+    RemoveGraveyardEnchant,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

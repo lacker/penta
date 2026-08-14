@@ -1,12 +1,13 @@
 use super::*;
 use crate::ManaColor;
-use crate::card::KeywordAbility;
-use crate::game::DecisionContinuation;
+use crate::card::{KeywordAbility, TurnStepDef};
+use crate::game::{CommittedTriggerEvent, DecisionContinuation, TriggerCapture};
 use serde_json::json;
 
 mod adversarial;
 mod broad_audit;
 mod rare_states;
+mod scheduled_triggers;
 mod semantics_coverage;
 mod trajectory;
 
@@ -16,6 +17,81 @@ fn catalog_semantics_rehydrate_an_animation_without_a_card_name_switch() {
     let key = animation_snapshot(&crate::card::abilities::MISHRAS_FACTORY_ANIMATION);
     let rebuilt = catalog_animation(&catalog, &key).expect("animation is cataloged");
     assert_eq!(*rebuilt, crate::card::abilities::MISHRAS_FACTORY_ANIMATION);
+}
+
+#[test]
+fn timestamped_attachment_layer_state_round_trips() {
+    let mut game = crate::game::tests::ready_game();
+    let battery_id = GameObjectId(10_020);
+    let host_id = GameObjectId(10_021);
+    let necromancy_id = GameObjectId(10_022);
+    let mut battery = crate::game::tests::creature(
+        battery_id.0,
+        crate::card::cards::RABBIT_BATTERY,
+        PlayerId::One,
+    );
+    battery.animation = Some(ResolvedAnimation {
+        definition: &crate::card::abilities::MISHRAS_FACTORY_ANIMATION,
+        timestamp: game.allocate_continuous_effect_timestamp(),
+    });
+    game.battlefield.extend([
+        battery,
+        crate::game::tests::creature(host_id.0, crate::card::cards::SAVANNAH_LIONS, PlayerId::One),
+    ]);
+    assert!(game.try_attach(battery_id, host_id));
+
+    let mut necromancy = crate::game::tests::creature(
+        necromancy_id.0,
+        crate::card::cards::NECROMANCY,
+        PlayerId::One,
+    );
+    necromancy.reanimation_linked = Some(host_id);
+    necromancy.reanimation_effect = Some(ReanimationAttachmentEffect {
+        timestamp: game.allocate_continuous_effect_timestamp(),
+        aura: ReanimationAuraDef::AddAuraSubtype,
+    });
+    game.battlefield.push(necromancy);
+
+    let (viewer, wire) = checkpoint_wire(&game);
+    let rebuilt = Game::from_observation_checkpoint(
+        game.catalog.clone(),
+        game.format,
+        &wire,
+        &true_hidden_hypothesis(&game, viewer),
+        1_013,
+    )
+    .expect("timestamped attachment state reconstructs");
+
+    let original_battery = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.id == battery_id)
+        .expect("Battery is present");
+    let rebuilt_battery = rebuilt
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.id == battery_id)
+        .expect("Battery reconstructs");
+    assert_eq!(rebuilt_battery.animation, original_battery.animation);
+    assert_eq!(
+        rebuilt_battery.attachment_form,
+        original_battery.attachment_form
+    );
+
+    let rebuilt_necromancy = rebuilt
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.id == necromancy_id)
+        .expect("Necromancy reconstructs");
+    assert_eq!(rebuilt_necromancy.reanimation_linked, Some(host_id));
+    assert_eq!(
+        rebuilt_necromancy.reanimation_effect,
+        game.battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == necromancy_id)
+            .expect("Necromancy is present")
+            .reanimation_effect,
+    );
 }
 
 #[test]
@@ -42,6 +118,17 @@ fn catalog_semantics_rehydrate_top_level_and_nested_abilities() {
     assert!(
         !locator.nested.is_empty(),
         "the granted clause is addressed beneath its printed source"
+    );
+
+    let reanimation_leave =
+        "When this Aura leaves the battlefield, that creature's controller sacrifices it.";
+    let locator = ability_locator(&catalog, |candidate| candidate.text == reanimation_leave)
+        .expect("Animate Dead's frozen leave trigger has a locator");
+    let rebuilt = catalog_ability(&catalog, &locator).expect("nested leave locator resolves");
+    assert_eq!(rebuilt.text, reanimation_leave);
+    assert!(
+        !locator.nested.is_empty(),
+        "the delayed leave clause is nested in Animate Dead's ETB effect",
     );
 }
 

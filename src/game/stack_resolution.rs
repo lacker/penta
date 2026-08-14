@@ -1,9 +1,9 @@
 use super::{
-    BattlefieldExitCompletion, CardBehavior, CardPartId, CardRuntime, CardType, CounterKind,
-    DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
-    EntryCompletion, Game, GameEvent, GameObjectId, PendingBattlefieldEntry, Permanent, PlayerId,
-    ResolvedAbility, StackAbilityResolver, StackObject, StackObjectKind, Target, ZoneKind,
-    public_cards,
+    AlternativeCastKindDef, AttachmentForm, BattlefieldExitCompletion, CardBehavior, CardPartId,
+    CardRuntime, CardType, CounterKind, DecisionContinuation, DecisionOption, DecisionPreference,
+    DecisionVisibility, DecisionZone, EntryCompletion, Game, GameEvent, GameObjectId,
+    PendingBattlefieldEntry, Permanent, PlayerId, ResolvedAbility, StackAbilityResolver,
+    StackObject, StackObjectKind, Target, ZoneKind, public_cards,
 };
 
 impl Game {
@@ -51,9 +51,17 @@ impl Game {
         let spell_types = self
             .stack_spell_types(&object)
             .unwrap_or_else(|| behavior.types());
-        let aura_host = Self::aura_host_for(&object);
+        let bestowed = object.signature.as_ref().and_then(|signature| {
+            let definition = self.catalog.get(definition)?;
+            let option = definition.play_option(signature.play_option())?;
+            self.selected_alternative_kind(definition, option, object.id, signature.costs())
+        }) == Some(AlternativeCastKindDef::Bestow);
+        let targets_illegal = self.spell_fizzles(&object);
+        let aura_host = (!bestowed || !targets_illegal)
+            .then(|| Self::aura_host_for(&object))
+            .flatten();
         let aura_fizzles =
-            spell_types.is_permanent() && aura_host.is_some() && self.spell_fizzles(&object);
+            spell_types.is_permanent() && aura_host.is_some() && targets_illegal && !bestowed;
         if spell_types.is_permanent() && !aura_fizzles {
             let chosen_player = match object.first_target() {
                 Some(Target::Player(player)) => Some(player),
@@ -77,6 +85,11 @@ impl Game {
             permanent.chosen_player = chosen_player;
             permanent.text_changes = object.text_changes;
             permanent.attached_to = aura_host;
+            if bestowed && aura_host.is_some() {
+                permanent.attachment_form = Some(AttachmentForm::Bestowed {
+                    timestamp: permanent.timestamp,
+                });
+            }
             self.enqueue_battlefield_entry(PendingBattlefieldEntry {
                 permanent,
                 from: ZoneKind::Stack,

@@ -3,6 +3,7 @@
 use crate::CardDefinitionId;
 
 mod activation_timing;
+mod attachments;
 mod attack_restrictions;
 mod battalion;
 mod cannot_block;
@@ -35,6 +36,7 @@ mod targeted_regeneration;
 mod unleash;
 mod wards;
 pub use activation_timing::*;
+pub use attachments::*;
 pub use attack_restrictions::*;
 pub use battalion::*;
 pub use cannot_block::*;

@@ -4,18 +4,21 @@ use serde_json::Value;
 
 use super::{
     AbilityEffectExpiration, AbilitySourceRef, ApplicableReplacement, AppliedStackEffect,
-    BasicLandTypeChange, BattlefieldEntryReplacementEffect, CardInstance, CharacteristicSource,
-    CombatDamageStage, ContinuousEffectTimestamp, CopiableAbility, CopiableCharacteristics,
-    CounterKind, EntryCompletion, Game, GameEvent, GameObjectId, GameStack, Mana, ManaSource,
-    ObjectBacking, PendingBattlefieldEntry, PendingEvent, PendingReplacementEffect, Permanent,
-    PlayerId, PlayerState, Pregame, PreventionShield, RelationalDamagePrevention, ReplaceableEvent,
-    ReplacementEffectContext, ReplayRng, RetiredObject, ScopedEffect, ShieldCoverageDef,
-    StackAbilityPayload, StackObject, StackObjectKind, Step, TemporaryAbilityGrant,
-    TemporaryGrantedAbility, TemporaryRemovedAbilities, TriggerContext, ZoneMoveCause,
+    AttachmentForm, BasicLandTypeChange, BattlefieldEntryReplacementEffect, CardInstance,
+    CharacteristicSource, CombatDamageStage, ContinuousEffectTimestamp, CopiableAbility,
+    CopiableCharacteristics, CounterKind, EntryCompletion, Game, GameEvent, GameObjectId,
+    GameStack, LicidEffect, Mana, ManaSource, ObjectBacking, PendingBattlefieldEntry, PendingEvent,
+    PendingReplacementEffect, Permanent, PlayerId, PlayerState, Pregame, PreventionShield,
+    ReanimationAttachmentEffect, RelationalDamagePrevention, ReplaceableEvent,
+    ReplacementEffectContext, ReplayRng, ResolvedAnimation, RetiredObject, ScopedEffect,
+    ShieldCoverageDef, StackAbilityPayload, StackObject, StackObjectKind, Step,
+    TemporaryAbilityGrant, TemporaryGrantedAbility, TemporaryRemovedAbilities, TriggerContext,
+    UntilEndOfTurnControl, WhileSourceControl, ZoneMoveCause,
 };
 use crate::card::{
     AppliedEffectDef, BasicLandType, CardType, CardTypeSet, DeclarativeAbilityDef, EffectDef,
-    EffectRecipientDef, ReplacementEffectDef, ReplacementEventDef, SpellForm, ZoneKind,
+    EffectRecipientDef, ReanimationAuraDef, ReplacementEffectDef, ReplacementEventDef, SpellForm,
+    ZoneKind,
 };
 use crate::casting::{CastChoices, CastSignature, CostConfiguration, TargetSelection};
 use crate::{
@@ -29,6 +32,7 @@ mod emblem;
 mod event;
 mod model;
 mod model_animation;
+mod model_decision;
 mod model_keyword;
 mod model_prevention;
 mod model_procedure;
@@ -55,16 +59,18 @@ use event::{
 };
 use model::{
     AbilityActivationSnapshot, AbilityEffectExpirationSnapshot, AbilityOriginSnapshot,
-    AbilitySourceSnapshot, ApplicableReplacementSnapshot, AttackDefenderSnapshot,
-    BasicLandTypeSnapshot, CombatDamageAssignmentSnapshot, CombatDamageStageSnapshot,
-    CopiableAbilitySnapshot, CopiableCharacteristicsSnapshot, CopiedFromSnapshot,
-    DetachedCardSnapshot, DetachedPermanentSnapshot, EntryCompletionSnapshot,
-    EntryReplacementLocator, GameSnapshot, ManaColorSnapshot, ManaSnapshot, ManaSourceSnapshot,
-    PendingBattlefieldEntrySnapshot, PendingEventSnapshot, PendingReplacementEffectSnapshot,
-    PermanentSnapshot, PregameSnapshot, RelationalDamagePreventionSnapshot,
-    ReplacementEffectContextSnapshot, RetiredObjectSnapshot, StackSnapshot,
-    TemporaryAbilityGrantSnapshot, TemporaryGrantedAbilitySnapshot,
-    TemporaryRemovedAbilitySnapshot, ZoneKindSnapshot,
+    AbilitySourceSnapshot, ApplicableReplacementSnapshot, AttachmentFormSnapshot,
+    AttackDefenderSnapshot, BasicLandTypeSnapshot, CombatDamageAssignmentSnapshot,
+    CombatDamageStageSnapshot, CopiableAbilitySnapshot, CopiableCharacteristicsSnapshot,
+    CopiedFromSnapshot, DetachedCardSnapshot, DetachedPermanentSnapshot, EntryCompletionSnapshot,
+    EntryReplacementLocator, GameSnapshot, LicidEffectSnapshot, ManaColorSnapshot, ManaSnapshot,
+    ManaSourceSnapshot, PendingBattlefieldEntrySnapshot, PendingEventSnapshot,
+    PendingReplacementEffectSnapshot, PermanentSnapshot, PregameSnapshot,
+    ReanimationAttachmentEffectSnapshot, ReanimationAuraSnapshot,
+    RelationalDamagePreventionSnapshot, ReplacementEffectContextSnapshot, RetiredObjectSnapshot,
+    StackSnapshot, TemporaryAbilityGrantSnapshot, TemporaryGrantedAbilitySnapshot,
+    TemporaryRemovedAbilitySnapshot, UntilEndOfTurnControlSnapshot, WhileSourceControlSnapshot,
+    ZoneKindSnapshot,
 };
 use model_animation::UpkeepKeywordSnapshot;
 use permanent::{detached_permanent_snapshot, permanent_snapshot};
@@ -84,17 +90,15 @@ use stack::{
 };
 use trigger::{
     delayed_trigger_snapshot, floating_trigger_snapshot, parse_delayed_trigger,
-    parse_floating_trigger,
+    parse_floating_trigger, parse_scheduled_trigger, scheduled_trigger_snapshot,
 };
 #[allow(clippy::wildcard_imports)]
 use wire::*;
 use wire_decision::rebind_visible_decision_cards;
 
 impl Game {
-    /// Hidden-safe rules bookkeeping needed to use an observation as a
-    /// current-state checkpoint. Presentation fields stay in the ordinary
-    /// observation; this object carries the state which cannot be inferred
-    /// reliably from them.
+    /// Hidden-safe rules bookkeeping for using an observation as a current-state checkpoint.
+    /// Presentation fields remain in the observation; this carries the non-inferable state.
     #[allow(clippy::too_many_lines)]
     fn snapshot(&self, viewer: PlayerId) -> GameSnapshot {
         let decision_state = (self.pending_decisions.len() == 1)
@@ -138,13 +142,33 @@ impl Game {
             .chain(self.delayed_triggers.iter().flat_map(|trigger| {
                 referenced_object_ids(&trigger.object)
                     .chain(trigger.context.object)
+                    .chain(trigger.context.source_attachment)
+                    .chain(trigger.context.source_linked)
                     .chain(trigger.context.chosen_objects.iter().flatten().copied())
                     .collect::<Vec<_>>()
+            }))
+            .chain(self.scheduled_triggers.iter().flat_map(|trigger| {
+                [trigger.capture.source.object]
+                    .into_iter()
+                    .chain(trigger.capture.context.object)
+                    .chain(trigger.capture.context.source_attachment)
+                    .chain(trigger.capture.context.source_linked)
+                    .chain(
+                        trigger
+                            .capture
+                            .context
+                            .chosen_objects
+                            .iter()
+                            .flatten()
+                            .copied(),
+                    )
             }))
             .chain(self.floating_triggers.iter().flat_map(|trigger| {
                 [trigger.capture.source.object]
                     .into_iter()
                     .chain(trigger.capture.context.object)
+                    .chain(trigger.capture.context.source_attachment)
+                    .chain(trigger.capture.context.source_linked)
                     .chain(
                         trigger
                             .capture
@@ -159,6 +183,8 @@ impl Game {
                 [trigger.source.object]
                     .into_iter()
                     .chain(trigger.context.object)
+                    .chain(trigger.context.source_attachment)
+                    .chain(trigger.context.source_linked)
                     .chain(trigger.context.chosen_objects.iter().flatten().copied())
             }))
             .chain(
@@ -195,7 +221,7 @@ impl Game {
                     mana_value,
                     keywords,
                 } => Some(RetiredObjectSnapshot::Permanent {
-                    permanent: detached_permanent_snapshot(&self.catalog, permanent),
+                    permanent: Box::new(detached_permanent_snapshot(&self.catalog, permanent)),
                     power: *power,
                     toughness: *toughness,
                     mana_value: *mana_value,
@@ -209,7 +235,7 @@ impl Game {
                     },
                 }),
                 RetiredObject::Stack(object) => Some(RetiredObjectSnapshot::Stack {
-                    object: detached_stack_snapshot(self, object)?,
+                    object: Box::new(detached_stack_snapshot(self, object)?),
                 }),
             })
             .collect::<Vec<_>>();
@@ -238,6 +264,13 @@ impl Game {
             .filter_map(|trigger| delayed_trigger_snapshot(self, trigger))
             .collect::<Vec<_>>();
         let has_unlocated_delayed_trigger = delayed_triggers.len() != self.delayed_triggers.len();
+        let scheduled_triggers = self
+            .scheduled_triggers
+            .iter()
+            .filter_map(|trigger| scheduled_trigger_snapshot(self, trigger))
+            .collect::<Vec<_>>();
+        let has_unlocated_scheduled_trigger =
+            scheduled_triggers.len() != self.scheduled_triggers.len();
         let floating_triggers = self
             .floating_triggers
             .iter()
@@ -416,6 +449,7 @@ impl Game {
                             .collect(),
                         colors: object.colors.map(crate::card::ColorSet::to_flags),
                         cast_via_flashback: object.cast_via_flashback,
+                        schedule_on_entry: object.schedule_on_entry,
                         is_copy: object.is_copy,
                     }
                 })
@@ -424,12 +458,15 @@ impl Game {
             pending_events,
             temporary_ability_grants,
             delayed_triggers,
+            scheduled_triggers,
+            next_scheduled_trigger_id: self.next_scheduled_trigger_id,
             floating_triggers,
             pending_triggers,
             pending_procedures,
             decision_state,
             has_deferred_state: has_unlocated_temporary_ability_grant
                 || has_unlocated_delayed_trigger
+                || has_unlocated_scheduled_trigger
                 || has_unlocated_floating_trigger
                 || has_unsupported_decision
                 || has_unsupported_event
@@ -444,14 +481,12 @@ impl Game {
         }
     }
 
-    /// Projection for the current checkpoint format. The checkpoint has one typed schema
-    /// internally; only this boundary turns it into JSON.
+    /// Projects the checkpoint's single typed schema into its current JSON format.
     pub(super) fn checkpoint_json(&self, viewer: PlayerId) -> Value {
         serde_json::to_value(self.snapshot(viewer)).expect("GameSnapshot is serializable")
     }
 
-    /// Rebuilds a decision-boundary state from its seat checkpoint and
-    /// separately supplied hidden-zone hypothesis.
+    /// Rebuilds a decision boundary from its seat checkpoint and hidden-zone hypothesis.
     #[allow(clippy::too_many_lines)]
     pub(crate) fn from_observation_checkpoint(
         catalog: CardCatalog,
@@ -631,6 +666,8 @@ impl Game {
             draw_replacements: std::array::from_fn(|_| VecDeque::new()),
             miracle_window: parse_miracle_window(&checkpoint, hidden, viewer, &checkpoint_hands)?,
             delayed_triggers: Vec::new(),
+            scheduled_triggers: Vec::new(),
+            next_scheduled_trigger_id: checkpoint.next_scheduled_trigger_id,
             floating_triggers: Vec::new(),
             blockers_declared: checkpoint.blockers_declared,
             untap_pending: checkpoint.untap_pending,
@@ -698,6 +735,11 @@ impl Game {
             .iter()
             .map(|trigger| parse_delayed_trigger(trigger, &game))
             .collect::<Result<Vec<_>, _>>()?;
+        game.scheduled_triggers = checkpoint
+            .scheduled_triggers
+            .iter()
+            .map(|trigger| parse_scheduled_trigger(trigger, &game))
+            .collect::<Result<Vec<_>, _>>()?;
         game.floating_triggers = checkpoint
             .floating_triggers
             .iter()
@@ -743,6 +785,14 @@ impl Game {
         {
             return Err("checkpoint next trigger id does not follow its pending triggers".into());
         }
+        if game.scheduled_triggers.iter().any(|trigger| {
+            trigger.id >= game.next_scheduled_trigger_id
+                && game.next_scheduled_trigger_id != u32::MAX
+        }) {
+            return Err(
+                "checkpoint next scheduled-trigger id does not follow its listeners".into(),
+            );
+        }
         Ok(game)
     }
 }
@@ -770,8 +820,30 @@ const fn completion_snapshot(completion: EntryCompletion) -> EntryCompletionSnap
                 definition: definition.0,
             }
         }
+        EntryCompletion::AttachSource {
+            source,
+            reanimation,
+            scheduled_trigger,
+        } => EntryCompletionSnapshot::AttachSource {
+            source: source.0,
+            reanimation: match reanimation {
+                Some(effect) => Some(ReanimationAttachmentEffectSnapshot {
+                    timestamp: effect.timestamp.0,
+                    aura: reanimation_aura_snapshot(effect.aura),
+                }),
+                None => None,
+            },
+            scheduled_trigger,
+        },
         EntryCompletion::Setup => EntryCompletionSnapshot::Setup,
         EntryCompletion::None => EntryCompletionSnapshot::None,
+    }
+}
+
+const fn reanimation_aura_snapshot(aura: ReanimationAuraDef) -> ReanimationAuraSnapshot {
+    match aura {
+        ReanimationAuraDef::Retain => ReanimationAuraSnapshot::Retain,
+        ReanimationAuraDef::AddAuraSubtype => ReanimationAuraSnapshot::AddAuraSubtype,
     }
 }
 

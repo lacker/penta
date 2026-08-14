@@ -18,6 +18,18 @@ pub(super) struct DelayedTriggerSnapshot {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub(super) struct ScheduledTriggerSnapshot {
+    pub(super) id: u32,
+    pub(super) source: AbilitySourceSnapshot,
+    pub(super) ability: AbilityLocator,
+    pub(super) definition: u16,
+    pub(super) owner: usize,
+    pub(super) controller: usize,
+    pub(super) context: TriggerContextSnapshot,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub(super) struct FloatingTriggerSnapshot {
     pub(super) source: AbilitySourceSnapshot,
     pub(super) ability: AbilityLocator,

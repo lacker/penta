@@ -356,16 +356,26 @@ impl Game {
         attackers.dedup();
         for attacker in attackers {
             let blockers = blocked.iter().filter(|id| **id == attacker).count();
-            let Some(object) = self
+            let Some((object, defending_player)) = self
                 .battlefield
                 .iter()
                 .find(|permanent| permanent.card.id == attacker)
-                .map(|permanent| self.trigger_event_object(permanent))
+                .map(|permanent| {
+                    let defending_player = match permanent.attack_defender {
+                        Some(crate::AttackDefender::Player(player)) => player,
+                        Some(crate::AttackDefender::Planeswalker(planeswalker)) => self
+                            .controller_of_object(planeswalker)
+                            .unwrap_or(self.active_player.opponent()),
+                        None => self.active_player.opponent(),
+                    };
+                    (self.trigger_event_object(permanent), defending_player)
+                })
             else {
                 continue;
             };
             self.capture_battlefield_triggers(&CommittedTriggerEvent::BecomesBlocked {
                 object,
+                defending_player,
                 blockers_beyond_first: u16::try_from(blockers.saturating_sub(1))
                     .unwrap_or(u16::MAX),
             });

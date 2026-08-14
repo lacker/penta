@@ -17,6 +17,14 @@ pub(super) fn pending_event_referenced_object_ids(pending: &PendingEvent) -> Vec
     let ReplaceableEvent::BattlefieldEntry(entry) = &pending.event;
     ids.extend(entry.permanent.created_by);
     ids.extend(entry.permanent.attached_to);
+    if let Some(linked) = entry.permanent.reanimation_linked {
+        ids.push(linked);
+    }
+    match entry.completion {
+        EntryCompletion::SpellResolved { card, .. } => ids.push(card),
+        EntryCompletion::AttachSource { source, .. } => ids.push(source),
+        EntryCompletion::LandPlayed { .. } | EntryCompletion::Setup | EntryCompletion::None => {}
+    }
     ids.extend(entry.permanent.blocking);
     ids.extend(entry.permanent.damage_sources.iter().copied());
     ids.extend(

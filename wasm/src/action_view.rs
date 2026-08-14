@@ -108,9 +108,9 @@ pub(super) fn action_kind(action: &Action) -> &'static str {
 pub(super) fn action_card(action: &Action) -> Option<CardInstanceId> {
     match action {
         Action::PlayLand { card, .. } | Action::CastSpell { card, .. } => Some(*card),
-        Action::ActivateManaAbility { source, .. } | Action::ActivateAbility { source, .. } => {
-            Some(*source)
-        }
+        Action::ActivateManaAbility { source, .. }
+        | Action::ActivateAbility { source, .. }
+        | Action::TakeSpecialAction { source, .. } => Some(*source),
         Action::DeclareAttacker { attacker, .. } | Action::AssignCombatDamage { attacker, .. } => {
             Some(*attacker)
         }
@@ -121,9 +121,9 @@ pub(super) fn action_card(action: &Action) -> Option<CardInstanceId> {
 
 pub(super) fn action_ability_origin(action: &Action) -> Option<Value> {
     let origin = match action {
-        Action::ActivateManaAbility { ability, .. } | Action::ActivateAbility { ability, .. } => {
-            *ability
-        }
+        Action::ActivateManaAbility { ability, .. }
+        | Action::ActivateAbility { ability, .. }
+        | Action::TakeSpecialAction { ability, .. } => *ability,
         _ => return None,
     };
     Some(ability_origin_value(origin))
@@ -349,7 +349,7 @@ pub(super) fn animated_action_kind(action: &Action) -> &'static str {
     match action {
         Action::PlayLand { .. } => "land",
         Action::CastSpell { .. } => "spell",
-        Action::ActivateAbility { .. } => "ability",
+        Action::ActivateAbility { .. } | Action::TakeSpecialAction { .. } => "ability",
         Action::DeclareAttacker { .. }
         | Action::DeclareBlocker { .. }
         | Action::AssignCombatDamage { .. } => "combat",

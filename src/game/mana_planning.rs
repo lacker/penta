@@ -56,8 +56,41 @@ impl Game {
             Action::ActivateAbility {
                 source, ability, x, ..
             } => self.ability_mana_requirement(player, *source, *ability, *x),
+            Action::TakeSpecialAction {
+                source,
+                ability,
+                effect_id,
+            } => self.special_action_mana_requirement(player, *source, *ability, *effect_id),
             _ => None,
         }
+    }
+
+    fn special_action_mana_requirement(
+        &self,
+        player: PlayerId,
+        source: GameObjectId,
+        ability: AbilityOrigin,
+        effect_id: Option<u64>,
+    ) -> Option<(ManaCost, u16, Option<GameObjectId>, ManaPaymentPurpose)> {
+        let permanent = self
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == source)?;
+        let ability_def = self.special_action_ability(permanent, ability, effect_id)?;
+        let DeclarativeAbilityDef::SpecialAction(definition) = ability_def.definition else {
+            return None;
+        };
+        let effect = ability_def.declarative_effect()?;
+        if !ability_def.is_executable()
+            || !definition.source_zones.contains(&ZoneKind::Battlefield)
+            || !Self::special_action_effect_is_available(
+                player, permanent, ability, effect_id, effect,
+            )
+        {
+            return None;
+        }
+        let cost = Self::special_action_mana_cost(definition)?;
+        Some((cost, 0, None, ManaPaymentPurpose::Other))
     }
 
     /// The mana half of an activation cost, and how the payment should treat

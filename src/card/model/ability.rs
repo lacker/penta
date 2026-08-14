@@ -46,6 +46,19 @@ impl AbilityDef {
         )
     }
 
+    #[must_use]
+    pub const fn aura_spell(
+        text: &'static str,
+        targets: &'static [AbilityTargetDef],
+        effect: EffectDef,
+    ) -> Self {
+        Self::defined(
+            text,
+            DeclarativeAbilityDef::Spell(SpellAbilityDef::aura(targets)),
+            effect,
+        )
+    }
+
     /// A one-target counterspell. The effect recipient is derived from the
     /// target declaration so the two cannot drift apart.
     #[must_use]
@@ -293,6 +306,7 @@ impl AbilityDef {
             DeclarativeAbilityDef::AlternativeCast(AlternativeCastAbilityDef {
                 mana_cost: AlternativeCastManaCostDef::Fixed(mana_cost),
                 kind,
+                targets: &[],
                 stack_text,
             }),
             effect,
@@ -313,7 +327,29 @@ impl AbilityDef {
             DeclarativeAbilityDef::AlternativeCast(AlternativeCastAbilityDef {
                 mana_cost: AlternativeCastManaCostDef::ThisCardManaCost,
                 kind,
+                targets: &[],
                 stack_text,
+            }),
+            effect,
+        )
+    }
+
+    /// Builds an alternative casting procedure whose spell characteristics
+    /// supply their own target declaration, as bestow does.
+    #[must_use]
+    pub const fn alternative_cast_with_targets(
+        mana_cost: ManaCost,
+        kind: AlternativeCastKindDef,
+        targets: &'static [AbilityTargetDef],
+        effect: EffectDef,
+    ) -> Self {
+        Self::defined(
+            kind.label(),
+            DeclarativeAbilityDef::AlternativeCast(AlternativeCastAbilityDef {
+                mana_cost: AlternativeCastManaCostDef::Fixed(mana_cost),
+                kind,
+                targets,
+                stack_text: None,
             }),
             effect,
         )

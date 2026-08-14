@@ -26,7 +26,7 @@ pub(super) enum PendingProcedureSnapshot {
         effects: Vec<ScopedEffectSnapshot>,
         object: Box<DetachedStackSnapshot>,
         ability: AbilityLocator,
-        context: TriggerContextSnapshot,
+        context: Box<TriggerContextSnapshot>,
         custom_followup: Option<AbilityLocator>,
     },
     SylvanAfterDraw {

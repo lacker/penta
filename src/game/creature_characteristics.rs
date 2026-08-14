@@ -7,14 +7,25 @@ use super::{
 
 impl Game {
     pub(super) fn base_stats(&self, permanent: &Permanent) -> Option<crate::CreatureStats> {
+        // Printed power and toughness are ignored while a permanent is not a
+        // creature. This matters for type-changing attachment procedures:
+        // a bestowed creature, a Licid in Aura form, or a reconfigured
+        // Equipment must not keep taking creature state-based actions merely
+        // because its card still prints a power/toughness box.
+        if !self
+            .permanent_types(permanent)?
+            .contains(CardType::Creature)
+        {
+            return None;
+        }
         // Once Factory's animation ability resolves, removing its printed
         // abilities does not end the continuous animation effect. In
         // particular, Blood Moon changes its land subtype and abilities but
         // leaves the active artifact-creature types and 2/2 base stats intact.
         if let Some(animation) = permanent.animation {
             Some(crate::CreatureStats {
-                power: animation.power,
-                toughness: animation.toughness,
+                power: animation.definition.power,
+                toughness: animation.definition.toughness,
             })
         } else {
             self.effective_rules(permanent)

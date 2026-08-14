@@ -1,4 +1,5 @@
 use super::*;
+use crate::card::AnimationDef;
 
 static MANA_VAULT_ANIMATION: AnimationDef = AnimationDef::new(2, 2);
 
@@ -280,7 +281,10 @@ fn untap_restriction_wins_over_smokes_choice_procedure() {
     let mut game = ready_game();
     let mut vault = creature(10_000, cards::MANA_VAULT, PlayerId::One);
     vault.tapped = true;
-    vault.animation = Some(&MANA_VAULT_ANIMATION);
+    vault.animation = Some(ResolvedAnimation {
+        definition: &MANA_VAULT_ANIMATION,
+        timestamp: vault.timestamp,
+    });
     game.battlefield.push(vault);
     game.battlefield
         .push(creature(10_001, cards::SMOKE, PlayerId::One));

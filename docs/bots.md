@@ -5,8 +5,9 @@ ships Eternal Central Old School 93/94 and the final pre-Theros ISD–RTR
 Standard format. This guide is for writing a program that plays it: from
 Python, C, C++, or Rust, against the included bots or against itself.
 
-This guide describes the current development wire contract, **protocol 22**,
-the first open-world epoch. Ignore JSON object members your bot does not use;
+This guide describes the current development wire contract, **protocol 23**,
+which retains protocol 22's open-world object model. Ignore JSON object members
+your bot does not use;
 the epoch changes only when an existing field or tag is removed, renamed,
 retyped, or reinterpreted. Additive fields and different legal actions expressed
 through the existing indexed-action vocabulary do not move it.
@@ -216,12 +217,13 @@ A clone forks the *true* state, hidden zones included. That is right for
 self-play but wrong for a search bot in a hosted match: its rollouts must use
 worlds consistent with its observation, not cards only the host knows.
 
-The optional `reconstruction.checkpoint.v2` capability advertises a hidden-safe
+The optional `reconstruction.checkpoint.v3` capability advertises a hidden-safe
 current-state checkpoint in each observation. The checkpoint was introduced in
 protocol 19, expanded in protocol 21 into the complete typed snapshot described
-below, and given its own nested format version in protocol 22. Supply a
-hypothesis for the zones the observation intentionally redacts, then construct a
-live local game:
+below, given its own nested format version in protocol 22, and advanced to
+format 3 with the attachment state added alongside protocol 23. Supply a
+hypothesis for the zones the observation intentionally redacts, then construct
+a live local game:
 
 ```python
 view_json = hosted_observation
@@ -291,16 +293,17 @@ same open-world schema before building a `Game`. Catalog-owned executable data
 is represented by semantic locators, while hidden-zone identities are supplied
 only by the separate hypothesis above.
 
-Checkpoint format 2 covers every ordinary action boundary emitted by the
+Checkpoint format 3 covers every ordinary action boundary emitted by the
 hosted formats: pregame and turn/combat progression; complete permanent,
 emblem, stack, and combat state; restricted/source-specific mana; copied and
-temporarily modified characteristics; retired-object last-known information;
-pending battlefield-entry replacement programs; delayed, floating, and
-pending triggers; and every pending decision continuation emitted by the hosted
-formats, including prospective begin-turn replacement choices. Active
+temporarily modified characteristics; dynamic attachment forms and timestamped
+control effects; retired-object last-known information; pending
+battlefield-entry replacement programs; delayed, scheduled one-shot, floating,
+and pending triggers; and every pending decision continuation emitted by the
+hosted formats, including prospective begin-turn replacement choices. Active
 turn-scoped relational damage prevention is an additive checkpoint-v2 member
-and defaults to empty when reading an earlier payload. Stack payloads
-retain target-slot groupings, divided amounts, modes, X, trigger context,
+and defaults to empty when reading an earlier payload. Stack payloads retain
+target-slot groupings, divided amounts, modes, X, trigger context,
 flashback/copy state, text and color changes, and mana-carried effects.
 Card-owned pile callbacks use stable registry keys rather than serialized
 function pointers. Public object IDs remain unchanged, including those needed
@@ -343,8 +346,8 @@ world it can search.
 
 | field | meaning |
 | --- | --- |
-| `protocolVersion` | the breaking bot-wire epoch; protocol 22 objects are open-world, but an epoch mismatch requires migration |
-| `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v2`; ignore unknown entries |
+| `protocolVersion` | the breaking bot-wire epoch; protocol 23 objects are open-world, but an epoch mismatch requires migration |
+| `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v3`; ignore unknown entries |
 | `simulationFingerprint` | a conservative identity of simulation source and build requirements; pin it for training and require it for reconstruction |
 | `engineVersion` | package-release provenance; it is not an exact simulation identity |
 | `format` | the rules/deck profile slug, such as `"old-school-93-94"` or `"isd-rtr-standard"` |
@@ -356,7 +359,7 @@ world it can search.
 | `hand` | your cards: `{objectId, instance, definition, name}`; `instance` is a compatibility alias for `objectId` |
 | `opponentHandSize` | their current hidden hand as a count; learned snapshots are reported separately in `lastSeenHand` |
 | `lastSeenHand` | null or the most recently revealed hand snapshot as `{seat, cards}`; it records known information and can outlive later hand changes |
-| `battlefield` | every permanent, including its current-zone object ID, canonical definition, and presented card-part ID; a planeswalker also reports `loyalty` and `loyaltyAbilityUsedThisTurn` |
+| `battlefield` | every permanent, including its current-zone object ID, canonical definition, presented card-part ID, and `attachedTo` object ID (or null); a planeswalker also reports `loyalty` and `loyaltyAbilityUsedThisTurn` |
 | `checkpoint` | the hidden-safe typed rules snapshot used by `Game.from_observation`, including its independent `version` and `simulationFingerprint`, deferred execution, dynamic objects, exact mana units, and reachable LKI; it never contains host RNG state or hidden-zone card identities |
 | `emblems` | command-zone emblems, each with its controller, name, granting ability, and clause texts |
 | `stack` | pending spells, activated abilities, and triggered abilities, bottom to top; entries expose the source object ID, creating definition and ability origin/text, controller, counterability, targets, chosen permanents, X, and a locked cast signature when applicable |
@@ -365,7 +368,7 @@ world it can search.
 | `result` | null while running, else `{winner, reason}`; `reason` is `OpponentConceded`, `OpponentLostAllLife`, `OpponentTriedToDrawFromEmptyLibrary`, `OpponentLostToAnEffect`, or `OpponentRanOutOfTime` |
 | `legalActions` | what you can do, each with an `index` |
 
-Every protocol-22 JSON object is open-world: ignore members you do not use
+Every protocol-23 JSON object is open-world: ignore members you do not use
 rather than rejecting the whole observation or catalog. Treat documented
 presentation strings as opaque. Where a string vocabulary has a safe fallback,
 use it: for example, an unknown non-null `result.reason` still means the game
@@ -389,6 +392,11 @@ do not create a new object. Physical-card lineage is private engine state and
 never appears in a player's observation. Fetch the format's catalog once at
 startup.
 
+`attachedTo` uses those same current-zone object IDs. It ordinarily names a
+battlefield permanent, but may name a public card in another zone while the
+rules allow that relation, such as the graveyard creature card enchanted by
+Animate Dead.
+
 ### Actions
 
 Every entry in `legalActions` has an `index` (what you pass to `act`) and a
@@ -397,7 +405,8 @@ Every entry in `legalActions` has an `index` (what you pass to `act`) and a
 `KeepHand`, `TakeMulligan`, `BottomCards`, `PlayLand` (with `card` and
 `playOptionId`), `CastSpell` (with the play option, ordered modes, cost
 configuration, target slots, sacrifices, and X already filled in — one entry
-per legal casting choice), `ActivateAbility`, `ActivateManaAbility`, `PayLifeForMana`,
+per legal casting choice), `ActivateAbility`, `ActivateManaAbility`,
+`TakeSpecialAction`, `PayLifeForMana`,
 `DeclareAttacker`, `FinishDeclaringAttackers`, `DeclareBlocker`,
 `FinishDeclaringBlockers`, `AssignCombatDamage`, `DiscardCards`,
 `ChooseUntap`, `ChooseDecision`, `CancelDecision`, `PassPriority`.
@@ -449,6 +458,16 @@ uses the same source and origin vocabulary, adds the selected `color`, and
 resolves immediately because mana abilities never use the stack. The engine
 does not infer that classification merely because an effect happens to produce
 mana.
+
+`TakeSpecialAction` carries the same exact `source` and `ability` provenance,
+plus a nullable `effectId`, but no targets or X. `effectId` distinguishes
+independently active rules effects that grant otherwise identical actions,
+such as two resolving Licid effects; ordinary special actions use `null`. The
+ability origin on an effect-scoped action identifies the exact ability that
+created that effect; the checkpoint freezes its nested special-action
+definition. The engine pays its declared mana cost and performs the selected
+effect immediately without creating a stack object. It is a distinct rules
+action, not an `ActivateAbility` synonym.
 
 Targets are tagged objects: a player is `{type: "player", seat}`, a card or
 permanent has an `objectId`, and a spell has its stack `objectId`. Legacy
@@ -619,7 +638,7 @@ Answer an offered choice with the existing `ChooseDecision` action. A seeded
 Beast (definition `606`) is also added compatibly to the unfiltered catalog and
 is legal only where Arabian Nights is allowed.
 
-As compatible protocol-22 simulation growth, definitions `1362` through `1367`
+As compatible protocol-23 simulation growth, definitions `1362` through `1367`
 append Ring of Ma'rûf, the three remaining Onslaught fetch lands, Liliana's
 Shade, and Seek the Horizon, moving the latter two from Standard's inline audit
 into the executable catalog. Ring is executable in Old School. Its activation
@@ -685,16 +704,39 @@ play options, alternative costs, and additional costs.
 
 ### Migrating checkpoint format 1 to 2
 
-This rules change does not move protocol 22. Checkpoint format 2 replaces the
+This rules change did not move protocol 22. Checkpoint format 2 replaces the
 per-player `skippedTurns` debt with the zero-based `nextRegularPlayer` seat,
 which preserves ordinary-turn order around the newest-first extra-turn queue.
 It also gives pending prospective begin-turn replacements a typed continuation,
 so a Time Vault choice can reconstruct before the proposed turn commits.
-Consumers of reconstruction should require
-`reconstruction.checkpoint.v2` and continue checking both the nested checkpoint
-version and exact simulation fingerprint. A pending battlefield-exit
-replacement-order choice remains explicitly deferred and fails reconstruction
-closed as described above.
+At that format boundary, consumers required `reconstruction.checkpoint.v2` and
+continued checking both the nested checkpoint version and exact simulation
+fingerprint. A pending battlefield-exit replacement-order choice remains
+explicitly deferred and fails reconstruction closed as described above.
+
+### Migrating checkpoint format 2 to 3
+
+Checkpoint format 3 preserves attachment state that format 2 could not
+reconstruct: bestow, reconfigure, Licid, and reanimation forms; independently
+active Licid effects and their nested end permissions; the base and timestamped
+effects needed to reconstruct overlapping layer-2 control; and scheduled
+one-shot triggers, including Necromancy's off-timing cleanup instruction.
+Trigger contexts retain the source's former attachment and linked permanent for
+last-known-information resolution, while pending battlefield entries retain
+the completion that attaches a source after the new object commits. Stack and
+entry snapshots retain the frozen state needed to schedule that instruction on
+the exact permanent the spell becomes. Reconstruction consumers must require
+`reconstruction.checkpoint.v3` and still reject a nested checkpoint version or
+exact simulation fingerprint they do not implement.
+
+### Migrating from protocol 22
+
+Protocol 23 adds the mandatory action tag `TakeSpecialAction`. Closed action
+decoders must accept its `source` object ID, exact `ability` origin, and
+nullable `effectId`. It pays its cost and resolves immediately without the
+stack; do not model it as an activated ability. This new closed vocabulary is
+the only reason for the epoch change, and protocol 23 otherwise retains
+protocol 22's open-world object and capability model.
 
 ### Migrating from protocol 21
 
@@ -723,7 +765,7 @@ Protocol 22 splits wire compatibility from conservative source identity:
   `requiredSimulationFingerprint` to refuse a different simulation before it
   is listed or assigned.
 
-The current optional capability is `reconstruction.checkpoint.v2`. An ordinary
+The current optional capability is `reconstruction.checkpoint.v3`. An ordinary
 hosted bot that only reads `legalActions` should declare an empty capability
 list; do not copy the server's advertised capabilities without implementing
 them.
@@ -776,7 +818,7 @@ in-process through the bindings will never see this reason.
 ### Migrating from protocol 7
 
 Protocols 8 through 17 introduced ten compatibility changes. Then apply the
-protocol 18, 19, 20, 21, and 22 migration sections above after these:
+protocol 18, 19, 20, 21, 22, and 23 migration sections above after these:
 
 - Protocol 8 replaced `manaCost.whiteRedHybrid` with the sparse `hybrid`
   array described above.
@@ -860,10 +902,10 @@ import time, requests
 
 # Local while building; the public deployment when you are ready.
 SERVER = "http://localhost:3000"
-# This bot consumes the protocol-22 indexed-action vocabulary and no optional
+# This bot consumes the protocol-23 indexed-action vocabulary and no optional
 # facilities. Do not echo capabilities from the server unless you implement them.
 COMPATIBILITY = {
-    "protocolVersion": 22,
+    "protocolVersion": 23,
     "capabilities": [],
     "requiredCapabilities": [],
     # Trained bots may require the exact server artifact they target:
@@ -1063,7 +1105,7 @@ The identifiers answer different questions:
 
 - `protocol_version()` / `protocolVersion` is the breaking bot-wire epoch. It
   changes when an existing JSON field, tag, identifier, or meaning can no longer
-  be consumed safely. Protocol-22 objects are open-world, so optional fields,
+  be consumed safely. Protocol-23 objects are open-world, so optional fields,
   catalog growth, and new action instances using existing vocabulary do not
   require a bump.
 - `protocolCapabilities` advertises optional facilities within that epoch.

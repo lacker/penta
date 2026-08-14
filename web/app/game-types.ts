@@ -89,6 +89,8 @@ export type Card = {
     x: boolean;
   } | null;
   owner?: Owner;
+  /** Current-zone object ID this battlefield permanent is attached to, or null. */
+  attachedTo?: number | null;
   chosenCardName?: string | null;
   chosenCreatureType?: string | null;
   tapped?: boolean;
@@ -123,6 +125,8 @@ export type Action = {
   targetSelections?: TargetSelectionMetadata[];
   attackDefender?: AttackDefenderMetadata | null;
   ability?: AbilityOriginMetadata | null;
+  /** Stable identity of an independently active rules effect granting a special action. */
+  effectId?: number | null;
   /** Target-independent activation label; includes exact ability text when disambiguation is needed. */
   abilityLabel?: string | null;
   manaAbility?: boolean;

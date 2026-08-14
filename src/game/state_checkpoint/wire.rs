@@ -504,24 +504,47 @@ fn parse_permanent(
         .transpose()?;
     permanent.combat_damage_prevented = state.combat_damage_prevented;
     permanent.combat_damage_dealt_by_prevented = state.combat_damage_dealt_by_prevented;
-    permanent.control_reverts_to = state
-        .control_reverts_to
+    permanent.cannot_regenerate_this_turn = state.cannot_regenerate_this_turn;
+    permanent.control_layer_base = state
+        .control_layer_base
         .map(player_from_index)
         .transpose()?;
-    permanent.cannot_regenerate_this_turn = state.cannot_regenerate_this_turn;
-    permanent.control_source = state.control_source.map(GameObjectId);
-    permanent.control_requires_source_tapped = state.control_requires_source_tapped;
+    permanent.control_until_end_of_turn = state
+        .control_until_end_of_turn
+        .iter()
+        .map(|effect| {
+            Ok(UntilEndOfTurnControl {
+                timestamp: ContinuousEffectTimestamp(effect.timestamp),
+                controller: player_from_index(effect.controller)?,
+            })
+        })
+        .collect::<Result<Vec<_>, String>>()?;
+    permanent.control_while_source_remains = state
+        .control_while_source_remains
+        .iter()
+        .map(|effect| {
+            Ok(WhileSourceControl {
+                timestamp: ContinuousEffectTimestamp(effect.timestamp),
+                controller: player_from_index(effect.controller)?,
+                source: GameObjectId(effect.source),
+                requires_source_tapped: effect.requires_source_tapped,
+            })
+        })
+        .collect::<Result<Vec<_>, String>>()?;
     permanent.chosen_player = state.chosen_player.map(player_from_index).transpose()?;
     permanent.chosen_creature_type = shown.chosen_creature_type;
     permanent.chosen_card_name = shown.chosen_card_name;
-    permanent.animation = state
-        .animation
-        .as_ref()
-        .map(|value| {
-            catalog_animation(catalog, value)
-                .ok_or_else(|| "checkpoint animation is absent from this catalog".to_owned())
-        })
-        .transpose()?;
+    permanent.animation = match (&state.animation, state.animation_timestamp) {
+        (None, None) => None,
+        (Some(value), Some(timestamp)) => Some(ResolvedAnimation {
+            definition: catalog_animation(catalog, value)
+                .ok_or_else(|| "checkpoint animation is absent from this catalog".to_owned())?,
+            timestamp: ContinuousEffectTimestamp(timestamp),
+        }),
+        (None, Some(_)) | (Some(_), None) => {
+            return Err("checkpoint animation and timestamp disagree".into());
+        }
+    };
     permanent.temporary_keywords = state
         .temporary_keywords
         .iter()
@@ -611,6 +634,48 @@ fn parse_permanent(
     permanent.destroy_at_end = state.destroy_at_end;
     permanent.counters = counters;
     permanent.attached_to = state.attached_to.map(GameObjectId);
+    permanent.attachment_form = match state.attachment_form {
+        None => None,
+        Some(AttachmentFormSnapshot::Bestowed { timestamp }) => Some(AttachmentForm::Bestowed {
+            timestamp: ContinuousEffectTimestamp(timestamp),
+        }),
+        Some(AttachmentFormSnapshot::Reconfigured { timestamp }) => {
+            Some(AttachmentForm::Reconfigured {
+                timestamp: ContinuousEffectTimestamp(timestamp),
+            })
+        }
+        Some(AttachmentFormSnapshot::Licid) => Some(AttachmentForm::Licid),
+    };
+    permanent.licid_effects = state
+        .licid_effects
+        .iter()
+        .map(|effect| {
+            Ok(LicidEffect {
+                id: ContinuousEffectTimestamp(effect.effect_id),
+                ender: player_from_index(effect.ender)?,
+                transform_action: ability_origin_from_snapshot(effect.transform_action),
+                end: catalog_ability(catalog, &effect.end).ok_or_else(|| {
+                    "checkpoint Licid end action locator is absent from this catalog".to_owned()
+                })?,
+            })
+        })
+        .collect::<Result<Vec<_>, String>>()?;
+    if (permanent.attachment_form == Some(AttachmentForm::Licid))
+        == permanent.licid_effects.is_empty()
+    {
+        return Err("checkpoint Licid form and active effects disagree".into());
+    }
+    permanent.reanimation_linked = state.reanimation_linked.map(GameObjectId);
+    permanent.reanimation_effect =
+        state
+            .reanimation_effect
+            .map(|effect| ReanimationAttachmentEffect {
+                timestamp: ContinuousEffectTimestamp(effect.timestamp),
+                aura: parse_reanimation_aura(effect.aura),
+            });
+    if permanent.reanimation_linked.is_some() != permanent.reanimation_effect.is_some() {
+        return Err("checkpoint reanimation link and effect disagree".into());
+    }
     permanent.exile_instead_of_dying = state.exile_instead_of_dying;
     permanent.regeneration_shields = state.regeneration_shields;
     permanent.attacked_this_turn = state.attacked_this_turn;
@@ -779,8 +844,27 @@ pub(super) fn parse_completion(
                 definition: CardDefinitionId(definition),
             })
         }
+        EntryCompletionSnapshot::AttachSource {
+            source,
+            reanimation,
+            scheduled_trigger,
+        } => Ok(EntryCompletion::AttachSource {
+            source: GameObjectId(source),
+            reanimation: reanimation.map(|effect| ReanimationAttachmentEffect {
+                timestamp: ContinuousEffectTimestamp(effect.timestamp),
+                aura: parse_reanimation_aura(effect.aura),
+            }),
+            scheduled_trigger,
+        }),
         EntryCompletionSnapshot::Setup => Ok(EntryCompletion::Setup),
         EntryCompletionSnapshot::None => Ok(EntryCompletion::None),
+    }
+}
+
+const fn parse_reanimation_aura(aura: ReanimationAuraSnapshot) -> ReanimationAuraDef {
+    match aura {
+        ReanimationAuraSnapshot::Retain => ReanimationAuraDef::Retain,
+        ReanimationAuraSnapshot::AddAuraSubtype => ReanimationAuraDef::AddAuraSubtype,
     }
 }
 

@@ -1,5 +1,6 @@
+use super::attachments::AttachmentKind;
 use super::{
-    CardSupertype, CardType, CounterKind, Game, GameObjectId, GameResult, PlayerId,
+    AttachmentForm, CardSupertype, CardType, CounterKind, Game, GameObjectId, GameResult, PlayerId,
     TriggerEventDef, WinReason,
 };
 
@@ -11,19 +12,54 @@ impl Game {
             return;
         }
         loop {
+            self.reconcile_all_attachment_control();
             let battlefield_len = self.battlefield.len();
             let mut regenerate = Vec::new();
             let mut die = Vec::new();
+            let mut detach = Vec::new();
             for permanent in &self.battlefield {
-                // 704.5m: an Aura attached to nothing, or to something that is
-                // no longer a legal host, is put into its owner's graveyard.
-                if self.is_aura_permanent(permanent)
-                    && permanent
-                        .attached_to
-                        .is_none_or(|host| !self.is_legal_aura_host(permanent, host))
-                {
-                    die.push(permanent.card.id);
-                    continue;
+                let attachment_kind = self.attachment_kind(permanent);
+                let attached_wrong_kind = permanent.attached_to.is_some()
+                    && (attachment_kind.is_none()
+                        || self
+                            .permanent_types(permanent)
+                            .is_some_and(|types| types.contains(CardType::Creature)));
+                if attached_wrong_kind {
+                    // 704.5p: a creature, or any other permanent that is not
+                    // an Aura, Equipment, or Fortification, cannot stay
+                    // attached. Reconfigure's type change has already removed
+                    // Creature before this check.
+                    detach.push(permanent.card.id);
+                } else {
+                    match attachment_kind {
+                        Some(AttachmentKind::Aura)
+                            if permanent.attached_to.is_none_or(|host| {
+                                !self.is_legal_attachment_host(permanent, host, false)
+                            }) =>
+                        {
+                            if matches!(
+                                permanent.attachment_form,
+                                Some(AttachmentForm::Bestowed { .. })
+                            ) {
+                                detach.push(permanent.card.id);
+                            } else {
+                                // 704.5m: an Aura attached to nothing, or to
+                                // an illegal host, goes to its owner's graveyard.
+                                die.push(permanent.card.id);
+                                continue;
+                            }
+                        }
+                        Some(AttachmentKind::Equipment | AttachmentKind::Fortification)
+                            if permanent.attached_to.is_some_and(|host| {
+                                !self.is_legal_attachment_host(permanent, host, false)
+                            }) =>
+                        {
+                            // 704.5n: Equipment and Fortifications merely
+                            // become unattached when their host is illegal.
+                            detach.push(permanent.card.id);
+                        }
+                        _ => {}
+                    }
                 }
                 if self
                     .permanent_types(permanent)
@@ -55,6 +91,10 @@ impl Game {
             for id in regenerate {
                 self.regenerate_permanent(id);
             }
+            let detached = !detach.is_empty();
+            for id in detach {
+                self.unattach(id);
+            }
             self.move_permanents_to_graveyard(&die);
             if !self.pending_decisions.is_empty()
                 || !self.pending_events.is_empty()
@@ -63,7 +103,7 @@ impl Game {
                 return;
             }
             self.apply_legend_rule();
-            if self.battlefield.len() == battlefield_len {
+            if self.battlefield.len() == battlefield_len && !detached {
                 break;
             }
         }
@@ -191,36 +231,27 @@ impl Game {
     /// true: the holder leaving the battlefield, or passing to someone else,
     /// both return the stolen permanent to whoever had it before.
     fn end_expired_control_changes(&mut self) {
-        let expired = self
+        let sources = self
             .battlefield
             .iter()
-            .filter_map(|permanent| {
-                let holder = permanent.control_source?;
-                let held = self
-                    .battlefield
-                    .iter()
-                    .find(|candidate| candidate.card.id == holder)
-                    .is_some_and(|candidate| {
-                        candidate.controller == permanent.controller
-                            && (!permanent.control_requires_source_tapped || candidate.tapped)
-                    });
-                (!held).then_some(permanent.card.id)
-            })
+            .map(|permanent| (permanent.card.id, permanent.controller, permanent.tapped))
             .collect::<Vec<_>>();
-        for id in expired {
-            let Some(permanent) = self
-                .battlefield
-                .iter_mut()
-                .find(|permanent| permanent.card.id == id)
-            else {
-                continue;
-            };
-            permanent.control_source = None;
-            permanent.control_requires_source_tapped = false;
-            if let Some(owner) = permanent.control_reverts_to.take() {
-                permanent.controller = owner;
-                permanent.entered_controller_turn = self.turns_started[owner.index()];
-            }
+        let mut changed = false;
+        for permanent in &mut self.battlefield {
+            let before = permanent.control_while_source_remains.len();
+            permanent.control_while_source_remains.retain(|effect| {
+                sources
+                    .iter()
+                    .find(|(id, _, _)| *id == effect.source)
+                    .is_some_and(|(_, controller, tapped)| {
+                        *controller == effect.controller
+                            && (!effect.requires_source_tapped || *tapped)
+                    })
+            });
+            changed |= permanent.control_while_source_remains.len() != before;
+        }
+        if changed {
+            self.reconcile_all_control_layers();
         }
     }
 }

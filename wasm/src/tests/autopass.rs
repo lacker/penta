@@ -71,7 +71,7 @@ fn a_real_game_action_still_stops_auto_pass() {
 }
 
 #[test]
-fn second_main_waits_for_spells_lands_and_non_mana_abilities() {
+fn second_main_waits_for_spells_lands_and_rules_actions() {
     let context = AutoPassContext {
         step: Step::PostcombatMain,
         regular_combat_damage_pending: false,
@@ -105,6 +105,15 @@ fn second_main_waits_for_spells_lands_and_non_mana_abilities() {
             cost_object: None,
             x: 0,
         },
+        Action::TakeSpecialAction {
+            source: CardInstanceId(10),
+            ability: penta::AbilityOrigin::Printed {
+                definition: penta::CardDefinitionId(1),
+                part: penta::CardPartId::PRIMARY,
+                ability: penta::AbilityId::PRIMARY,
+            },
+            effect_id: Some(11),
+        },
     ];
 
     for useful_action in useful_actions {
@@ -112,14 +121,14 @@ fn second_main_waits_for_spells_lands_and_non_mana_abilities() {
         assert_eq!(
             automatic_human_action_for_context(context, &actions),
             None,
-            "a legal spell, land play, or non-mana ability must keep second-main priority",
+            "a legal spell, land play, activated ability, or special action must keep second-main priority",
         );
     }
 
     let actionless = [
         Action::Concede,
         Action::ActivateManaAbility {
-            source: CardInstanceId(10),
+            source: CardInstanceId(12),
             ability: penta::AbilityOrigin::IntrinsicBasicLand(penta::BasicLandType::Mountain),
             color: penta::ManaColor::Red,
         },
@@ -369,6 +378,53 @@ fn a_pump_ability_holds_combat_open_only_while_it_matters() {
         ),
         Some(Action::PassPriority),
         "but damage is already dealt by the time priority comes back",
+    );
+}
+
+#[test]
+fn a_special_action_holds_combat_open_like_an_activated_ability() {
+    let actions = [
+        Action::Concede,
+        Action::TakeSpecialAction {
+            source: CardInstanceId(8),
+            ability: penta::AbilityOrigin::Printed {
+                definition: penta::CardDefinitionId(1),
+                part: penta::CardPartId::PRIMARY,
+                ability: penta::AbilityId::PRIMARY,
+            },
+            effect_id: Some(9),
+        },
+        Action::PassPriority,
+    ];
+    assert_eq!(
+        automatic_human_action(
+            Step::DeclareAttackers,
+            true,
+            true,
+            true,
+            false,
+            true,
+            false,
+            false,
+            &actions,
+        ),
+        None,
+        "a special action is not auto-passed while it could change combat",
+    );
+    assert_eq!(
+        automatic_human_action(
+            Step::CombatDamage,
+            true,
+            true,
+            true,
+            false,
+            true,
+            false,
+            false,
+            &actions,
+        ),
+        Some(Action::PassPriority),
+        "post-damage priority remains routine",
     );
 }
 

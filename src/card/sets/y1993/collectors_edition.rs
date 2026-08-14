@@ -26,6 +26,7 @@ pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
     PrintingRecord::reprint(&alpha::STASIS),         // CED 81
     PrintingRecord::reprint(&alpha::TIME_WALK),      // CED 84
     PrintingRecord::reprint(&alpha::TIMETWISTER),    // CED 85
+    PrintingRecord::reprint(&alpha::ANIMATE_DEAD),   // CED 93
     PrintingRecord::reprint(&alpha::BLACK_KNIGHT),   // CED 95
     PrintingRecord::reprint(&alpha::DARK_RITUAL),    // CED 99
     PrintingRecord::reprint(&alpha::DEMONIC_TUTOR),  // CED 105

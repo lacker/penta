@@ -60,6 +60,10 @@ pub struct PermanentObservation {
     /// characteristics. Changing faces does not change `id`.
     pub presented: CardPartId,
     pub controller: PlayerId,
+    /// The object this Aura, Equipment, or Fortification is attached to. The
+    /// field can name a public nonbattlefield card, as Animate Dead does while
+    /// attached to a creature card in a graveyard.
+    pub attached_to: Option<GameObjectId>,
     /// The card types this permanent presents right now. An animated land
     /// reports the creature types its animation added, which is what the
     /// printed rules alone cannot say.

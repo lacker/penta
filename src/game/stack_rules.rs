@@ -63,6 +63,15 @@ impl Game {
                 Self::effect_applies_to_source(*then, expected, duration)
                     || Self::effect_applies_to_source(*otherwise, expected, duration)
             }
+            other => Self::nonrecursive_effect_applies_to_source(other),
+        }
+    }
+
+    /// Exhaustively classifies leaf effects so adding a new effect still
+    /// requires an explicit source-applicability decision without making the
+    /// recursive walker exceed the repository's function-size limit.
+    fn nonrecursive_effect_applies_to_source(effect: EffectDef) -> bool {
+        match effect {
             EffectDef::None
             | EffectDef::Randomized { .. }
             | EffectDef::ChoosePermanent { .. }
@@ -71,6 +80,7 @@ impl Game {
             | EffectDef::AddMana(_)
             | EffectDef::AddManaEqualTo { .. }
             | EffectDef::DealDamage { .. }
+            | EffectDef::DealDamageFrom { .. }
             | EffectDef::DrainLife { .. }
             | EffectDef::GainLife { .. }
             | EffectDef::DrawCards { .. }
@@ -136,12 +146,22 @@ impl Game {
             | EffectDef::Replacement(_)
             | EffectDef::MoveToZone { .. }
             | EffectDef::CreateToken { .. }
+            | EffectDef::Unattach { .. }
+            | EffectDef::Reconfigure { .. }
+            | EffectDef::BecomeAuraAndAttach { .. }
+            | EffectDef::EndAuraEffect
+            | EffectDef::ReturnToBattlefieldAttached { .. }
+            | EffectDef::CreateAttachedToken { .. }
+            | EffectDef::FlashWithCleanupSacrifice { .. }
             | EffectDef::ChooseCardName { .. }
             | EffectDef::ChoosePlayer { .. }
             | EffectDef::CopyPermanentAsItEnters { .. }
             | EffectDef::ChooseCreatureType { .. }
             | EffectDef::Apply { .. }
             | EffectDef::Special(_) => false,
+            EffectDef::Sequence(_) | EffectDef::IfFormat { .. } => {
+                unreachable!("recursive effects are handled by the caller")
+            }
         }
     }
 

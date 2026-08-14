@@ -1,18 +1,17 @@
-//! Taking control of a permanent, for a turn or for as long as something
-//! holds it.
+//! Control changes sustained by a permanent.
 //!
-//! Both printed forms share a body; they differ only in what ends them, which
-//! is recorded on the permanent and checked elsewhere -- cleanup for the
-//! turn-scoped form, state-based actions for the held one.
+//! Turn-scoped theft lives in the shared layer-2 attachment machinery too.
+//! This module records the source-sustained duration used by Aladdin, Thrull
+//! Champion, Rubinia Soulsinger, and Willow Satyr.
 
 use super::{
     EffectRecipientDef, Game, GameObjectId, ScopedEffect, StackObject, Target, TriggerContext,
+    WhileSourceControl,
 };
 
 impl Game {
-    /// The shared body of both control-change effects. `holder` is the
-    /// permanent whose presence sustains the change and whether it also has
-    /// to stay tapped, or `None` for the turn-scoped form cleanup ends.
+    /// Records a timestamped control effect for as long as `holder` remains
+    /// under the resolving ability's controller, and optionally stays tapped.
     pub(super) fn take_control_of(
         &mut self,
         recipient: EffectRecipientDef,
@@ -21,7 +20,20 @@ impl Game {
         scoped: ScopedEffect,
         holder: Option<(GameObjectId, bool)>,
     ) {
+        let Some((source, requires_source_tapped)) = holder else {
+            let targets = self
+                .effect_recipients(recipient, object, context, scoped)
+                .into_iter()
+                .filter_map(|target| match target {
+                    Target::Permanent(id) => Some(id),
+                    Target::Card(_) | Target::Player(_) | Target::Spell(_) => None,
+                })
+                .collect::<Vec<_>>();
+            self.gain_control_until_end_of_turn(&targets, object.controller);
+            return;
+        };
         let controller = object.controller;
+        let mut eligible = Vec::new();
         for target in self.effect_recipients(recipient, object, context, scoped) {
             let Target::Permanent(id) = target else {
                 continue;
@@ -33,26 +45,36 @@ impl Game {
             else {
                 continue;
             };
-            if self.battlefield[index].controller == controller
-                || self.cannot_change_controller(&self.battlefield[index])
+            // A redundant control effect still gets its own timestamp. It can
+            // become visible after a newer effect ends, so discard it only
+            // when it would actually change control and that change is
+            // prohibited.
+            if self.battlefield[index].controller != controller
+                && self.cannot_change_controller(&self.battlefield[index])
             {
                 continue;
             }
-            let permanent = &mut self.battlefield[index];
-            // Only the first change records where control came from, so
-            // passing a permanent around and back still returns it to whoever
-            // had it before the turn started.
-            permanent
-                .control_reverts_to
-                .get_or_insert(permanent.controller);
-            permanent.controller = controller;
-            permanent.control_source = holder.map(|(id, _)| id);
-            permanent.control_requires_source_tapped = holder.is_some_and(|(_, tapped)| tapped);
-            // It has not been under its new controller's control since their
-            // turn began, so it is summoning sick unless something grants
-            // haste. This is why the cards that steal a creature almost always
-            // grant it too.
-            permanent.entered_controller_turn = self.turns_started[controller.index()];
+            if !eligible.contains(&id) {
+                eligible.push(id);
+            }
         }
+        if eligible.is_empty() {
+            return;
+        }
+        let timestamp = self.allocate_continuous_effect_timestamp();
+        for target in eligible {
+            self.battlefield
+                .iter_mut()
+                .find(|permanent| permanent.card.id == target)
+                .expect("an eligible control target remains on the battlefield")
+                .control_while_source_remains
+                .push(WhileSourceControl {
+                    timestamp,
+                    controller,
+                    source,
+                    requires_source_tapped,
+                });
+        }
+        self.reconcile_all_control_layers();
     }
 }

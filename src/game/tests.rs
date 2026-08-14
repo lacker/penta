@@ -233,6 +233,7 @@ fn spell(id: u32, definition: CardDefinitionId, controller: PlayerId, x: u16) ->
         text_changes: Vec::new(),
         colors: None,
         cast_via_flashback: false,
+        schedule_on_entry: None,
         is_copy: false,
     }
 }
@@ -371,6 +372,7 @@ mod ability_resolution;
 mod activation_costs_and_turns;
 mod activation_timing;
 mod alternative_costs;
+mod attachments;
 mod attack_restrictions;
 mod banding;
 mod cannot_block;
@@ -383,6 +385,7 @@ mod combat_and_life;
 mod combat_keywords;
 mod continuous_and_zones;
 mod control_duration;
+mod control_layers;
 mod copy_effects;
 mod counted_bodies;
 mod countering_and_mana;
@@ -421,6 +424,7 @@ mod replacements_and_presentation;
 mod ring_of_maruf;
 mod scavenge;
 mod search_and_reveal;
+mod special_actions;
 mod spore;
 mod state_triggers_and_life;
 mod targeted_answers;

@@ -233,6 +233,125 @@ fn battlefield_and_stack_include_nested_scryfall_metadata() {
     }));
 }
 
+fn start_empty_human_main_phase(game: &mut WebGame) {
+    while game.session.engine_mut().in_pregame() {
+        apply_engine_action(game.session.engine_mut(), |action| {
+            matches!(action, Action::KeepHand)
+        });
+    }
+    let human = game.human;
+    game.session
+        .engine_mut()
+        .set_hand(human, &[])
+        .expect("an empty hand is valid");
+    game.session
+        .engine_mut()
+        .set_hand(human.opponent(), &[])
+        .expect("an empty hand is valid");
+    advance_engine_quietly_until(game.session.engine_mut(), |observation| {
+        observation.active_player == human && observation.step == Step::PrecombatMain
+    });
+}
+
+fn put_human_permanent(game: &mut WebGame, definition: CardDefinitionId) -> penta::GameObjectId {
+    let human = game.human;
+    game.session
+        .engine_mut()
+        .put_onto_battlefield(human, definition)
+        .expect("the test permanent enters the battlefield")
+}
+
+#[test]
+fn attachments_and_effect_scoped_special_actions_reach_the_browser_snapshot() {
+    let mut game = WebGame::new("Goblins", "Sligh", "Handcrafted", true, 19_098, None).unwrap();
+    start_empty_human_main_phase(&mut game);
+
+    let licid = put_human_permanent(&mut game, penta::card::cards::QUICKENING_LICID);
+    let host = put_human_permanent(&mut game, penta::card::cards::SAVANNAH_LIONS);
+    let plains = [
+        put_human_permanent(&mut game, penta::card::cards::PLAINS),
+        put_human_permanent(&mut game, penta::card::cards::PLAINS),
+        put_human_permanent(&mut game, penta::card::cards::PLAINS),
+    ];
+    let entered_turn = game.session.engine_mut().observe(game.human).active_turn;
+    advance_engine_quietly_until(game.session.engine_mut(), |observation| {
+        observation.active_player == game.human
+            && observation.active_turn > entered_turn
+            && observation.step == Step::PrecombatMain
+    });
+
+    for source in &plains[..2] {
+        apply_engine_action(game.session.engine_mut(), |action| {
+            matches!(
+                action,
+                Action::ActivateManaAbility {
+                    source: candidate,
+                    color: penta::ManaColor::White,
+                    ..
+                } if candidate == source
+            )
+        });
+    }
+    apply_engine_action(game.session.engine_mut(), |action| {
+        matches!(
+            action,
+            Action::ActivateAbility {
+                source,
+                targets,
+                ..
+            } if *source == licid
+                && targets.iter().any(|selection| {
+                    selection
+                        .targets()
+                        .contains(&Target::Permanent(host))
+                })
+        )
+    });
+    advance_engine_quietly_until(game.session.engine_mut(), |observation| {
+        observation.stack.is_empty()
+            && observation.active_player == game.human
+            && observation.step == Step::PrecombatMain
+    });
+
+    let snapshot = game.snapshot_value(false);
+    let battlefield = snapshot["battlefield"]
+        .as_array()
+        .expect("battlefield array");
+    let licid_card = battlefield
+        .iter()
+        .find(|card| card["id"] == licid.0)
+        .expect("the Licid is visible");
+    assert_eq!(licid_card["attachedTo"], host.0);
+    let host_card = battlefield
+        .iter()
+        .find(|card| card["id"] == host.0)
+        .expect("the enchanted creature is visible");
+    assert!(host_card["attachedTo"].is_null());
+
+    let action = snapshot["actions"]
+        .as_array()
+        .expect("actions array")
+        .iter()
+        .find(|action| action["cardId"] == licid.0 && action["effectId"].is_number())
+        .expect("the Licid end action is browser-visible");
+    assert_eq!(
+        action["label"],
+        "Quickening Licid — You may pay {W} to end this effect."
+    );
+    assert_eq!(action["abilityLabel"], action["label"]);
+    assert_eq!(action["ability"]["kind"], "printed");
+    assert_eq!(
+        action["ability"]["definition"],
+        penta::card::cards::QUICKENING_LICID.0
+    );
+    assert_eq!(action["ability"]["partId"], 0);
+    assert_eq!(action["ability"]["abilityId"], 0);
+    assert_eq!(action["kind"], "primary");
+    assert_eq!(action["paymentAction"], true);
+    assert_eq!(action["spellAction"], false);
+    assert_eq!(action["manaSourceIds"], json!([plains[2].0]));
+}
+
 #[test]
 fn standard_visible_cards_include_nested_scryfall_metadata() {
     let game = WebGame::new(

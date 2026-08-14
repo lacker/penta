@@ -5,9 +5,10 @@ use crate::card::{
     CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ComparisonDef, CostDef, CounterKind,
     DeclarativeAbilityDef, DiscardSelectionDef, EffectDef, EffectDurationDef, EffectExecutionDef,
     EffectRecipientDef, KeywordAbility, LikelihoodDef, ManaColor, ObjectPredicateDef,
-    ObjectQueryDef, PaymentDef, PlayerRelation, ReplacementAbilityDef, ReplacementConditionDef,
-    ReplacementEffectDef, ReplacementEventDef, ShieldCoverageDef, TriggerConditionDef,
-    TriggerEventDef, TurnKindDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, cards,
+    ObjectQueryDef, PaymentDef, PlayerRelation, ReanimationAuraDef, ReplacementAbilityDef,
+    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ShieldCoverageDef,
+    TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities, cards,
 };
 use crate::ids::{ChoiceIndex, TargetIndex};
 use crate::mana_cost;
@@ -1440,8 +1441,63 @@ pub(in crate::card::sets) static WATER_ELEMENTAL: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{3}{U}{U}"), &["Elemental"], 5, 4),
 );
 
+static ANIMATE_DEAD_LEAVE_TRIGGER: AbilityDef = AbilityDef::triggered(
+    "When this Aura leaves the battlefield, that creature's controller sacrifices it.",
+    TriggerEventDef::ZoneChanged {
+        object: ObjectPredicateDef::Source,
+        from: Some(ZoneKind::Battlefield),
+        to: None,
+    },
+    EffectDef::Sacrifice {
+        object: EffectRecipientDef::LinkedPermanent,
+    },
+);
+
 // LEA 92 — Animate Dead
-// Audit: blocked — Needs a zone-object query and identity-preserving continuation for “When this Aura enters, if it's on the battlefield, it loses "enchant creature card in a graveyard" and gains "enchant creature put onto the battlefield with this Aura." Return enchanted…”.
+pub(in crate::card::sets) static ANIMATE_DEAD: CardRecord = CardRecord::new(
+    cards::ANIMATE_DEAD,
+    "Animate Dead",
+    CardArt::new("8fd7861d-925f-4b4c-a4ab-60be6f43d50b", "Anson Maddocks"),
+    CardSet::Alpha,
+    CardRules::new_enchantment(mana_cost!("{1}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            aura_spell(
+                "Enchant creature card in a graveyard",
+                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: None,
+                })],
+            ),
+            AbilityDef::triggered_if(
+                "When this Aura enters, if it's on the battlefield, it loses \"enchant creature card in a graveyard\" and gains \"enchant creature put onto the battlefield with this Aura.\" Return enchanted creature card to the battlefield under your control and attach this Aura to it. When this Aura leaves the battlefield, that creature's controller sacrifices it.",
+                TriggerEventDef::ZoneChanged {
+                    object: ObjectPredicateDef::Source,
+                    from: None,
+                    to: Some(ZoneKind::Battlefield),
+                },
+                &TriggerConditionDef::SourceOnBattlefield,
+                EffectDef::ReturnToBattlefieldAttached {
+                    card: EffectRecipientDef::AttachedPermanent,
+                    aura: ReanimationAuraDef::Retain,
+                    leave: &ANIMATE_DEAD_LEAVE_TRIGGER,
+                },
+            ),
+            AbilityDef::static_ability(
+                "Enchanted creature gets -1/-0.",
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::ModifyPowerToughness {
+                        power: ValueDef::Constant(-1),
+                        toughness: ValueDef::Constant(0),
+                    },
+                    duration: EffectDurationDef::WhileSourceRemainsInZone,
+                },
+            ),
+        ]),
+);
 
 // LEA 93 — Bad Moon
 pub(in crate::card::sets) static BAD_MOON: CardRecord = CardRecord::new(
@@ -4452,6 +4508,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &WALL_OF_AIR,
     &WALL_OF_WATER,
     &WATER_ELEMENTAL,
+    &ANIMATE_DEAD,
     &BAD_MOON,
     &BLACK_KNIGHT,
     &BOG_WRAITH,

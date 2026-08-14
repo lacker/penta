@@ -66,7 +66,7 @@ pub(super) fn pending_procedure_snapshot(
                 effects,
                 object: Box::new(detached_stack_snapshot(game, object)?),
                 ability,
-                context: trigger_context_snapshot(*context),
+                context: Box::new(trigger_context_snapshot(*context)),
                 custom_followup,
             }
         }
@@ -135,7 +135,7 @@ pub(super) fn parse_pending_procedure(
             super::super::PendingProcedure::ResolveEffects {
                 effects,
                 object: Box::new(parse_detached_stack(object, game)?),
-                context: parse_trigger_context(*context)?,
+                context: parse_trigger_context(**context)?,
                 custom_followup,
             }
         }
@@ -219,6 +219,8 @@ fn continuation_referenced_object_ids(
 ) -> Vec<GameObjectId> {
     referenced_object_ids(object)
         .chain(context.object)
+        .chain(context.source_attachment)
+        .chain(context.source_linked)
         .chain(context.chosen_objects.iter().flatten().copied())
         .collect()
 }

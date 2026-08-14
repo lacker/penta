@@ -196,6 +196,8 @@ fn delayed_effect_preserves_its_trigger_context() {
         object_controller: Some(PlayerId::Two),
         event_player: Some(PlayerId::Two),
         amount: Some(3),
+        source_attachment: None,
+        source_linked: None,
     };
     let life_before = game.players[PlayerId::Two.index()].life;
 

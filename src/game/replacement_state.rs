@@ -6,8 +6,8 @@ use crate::ids::{CardDefinitionId, GameObjectId, PlayerId};
 
 use super::{
     AbilitySourceRef, BalancePhase, BalanceTask, CardInstance, FrozenActivatedAbility, Game, Mana,
-    ManaAbilityActivation, Permanent, SacrificeFollowup, ScopedEffect, StackObject, Target,
-    TargetSelection, TriggerContext,
+    ManaAbilityActivation, Permanent, ReanimationAttachmentEffect, SacrificeFollowup, ScopedEffect,
+    StackObject, Target, TargetSelection, TriggerContext,
 };
 
 /// One replacement effect that currently applies to a prospective event.
@@ -185,6 +185,16 @@ pub(super) enum EntryCompletion {
     SpellResolved {
         card: GameObjectId,
         definition: CardDefinitionId,
+    },
+    /// After the entering object receives its new battlefield identity,
+    /// attach this source to it. Reanimation additionally changes and links
+    /// the source's Aura form before the attachment move.
+    AttachSource {
+        source: GameObjectId,
+        reanimation: Option<ReanimationAttachmentEffect>,
+        /// A frozen one-shot listener waiting for the entering object's exact
+        /// battlefield identity before it can bind its linked recipient.
+        scheduled_trigger: Option<u32>,
     },
     /// The development setup surface minted this object's battlefield
     /// identity directly, so committing it must not reincarnate it again.

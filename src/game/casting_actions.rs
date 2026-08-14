@@ -1,14 +1,15 @@
+mod targets;
+
 use super::{
-    AbilityDef, AbilityId, AbilityOrigin, AbilityTargetDef, AbilityTargetPredicate, Action,
-    AdditionalCostId, AlternativeCastAbilityDef, AlternativeCastKindDef, AlternativeCostId,
-    CardBehavior, CardDefinition, CardDefinitionId, CardEffectStatus, CardPartId, CardType,
-    CardTypeSet, CastChoices, CastSignature, CastSourceZone, ControlFlow, CostConfiguration,
-    DeclarativeAbilityDef, DividedTotal, Game, GameObjectId, KeywordAbility, ManaCost,
-    ManaPaymentPurpose, ModeId, PlayActionKind, PlayOptionDef, PlayOptionId, PlayRestriction,
-    PlayerId, ScopedEffect, SelectedSpellPlan, StackAbilityPayload, StackAbilityResolver, Target,
-    TargetSelection, TargetSlotDef, TargetSlotId, TriggerContext, add_generic, add_mana_cost,
-    configured_mana_cost, extra_target_cost, mode_id_selections, positive_compositions,
-    reduce_generic, target_combinations,
+    AbilityDef, AbilityId, AbilityOrigin, Action, AdditionalCostId, AlternativeCastAbilityDef,
+    AlternativeCastKindDef, AlternativeCostId, CardBehavior, CardDefinition, CardDefinitionId,
+    CardEffectStatus, CardPartId, CardType, CardTypeSet, CastChoices, CastSignature,
+    CastSourceZone, ControlFlow, CostConfiguration, DeclarativeAbilityDef, EffectDef, Game,
+    GameObjectId, KeywordAbility, ManaCost, ManaPaymentPurpose, ModeId, PlayActionKind,
+    PlayOptionDef, PlayOptionId, PlayRestriction, PlayerId, ScopedEffect, SelectedSpellPlan,
+    StackAbilityPayload, StackAbilityResolver, TargetSlotDef, TargetSlotId, TriggerContext,
+    add_generic, add_mana_cost, configured_mana_cost, extra_target_cost, mode_id_selections,
+    reduce_generic,
 };
 
 impl Game {
@@ -99,18 +100,8 @@ impl Game {
                 if self.noncreature_casts_locked[player.index()] && !types.is_creature() {
                     continue;
                 }
-                let part_has_flash = match &option.form {
-                    crate::card::SpellForm::Part(part) => {
-                        definition.part(*part).is_some_and(|part| {
-                            part.rules.has_executable_keyword(KeywordAbility::Flash)
-                        })
-                    }
-                    crate::card::SpellForm::Combined(parts) => parts.iter().any(|part| {
-                        definition.part(*part).is_some_and(|part| {
-                            part.rules.has_executable_keyword(KeywordAbility::Flash)
-                        })
-                    }),
-                };
+                let part_has_flash = Self::play_option_has_keyword_flash(definition, option)
+                    || Self::play_option_has_cleanup_flash(definition, option);
                 // A granted flash covers the next sorcery whenever it is
                 // cast, so it only matters when the timing would refuse.
                 let granted_flash = types.contains(CardType::Sorcery)
@@ -161,6 +152,29 @@ impl Game {
                                     == Some(AlternativeCastKindDef::Overload)
                                 {
                                     vec![Vec::new()]
+                                } else if alternative_kind == Some(AlternativeCastKindDef::Bestow) {
+                                    let Some(selected) = costs.alternative() else {
+                                        return ControlFlow::Continue(());
+                                    };
+                                    let Some((_, ability, _)) = Self::alternative_cast_ability(
+                                        definition, option, selected,
+                                    ) else {
+                                        return ControlFlow::Continue(());
+                                    };
+                                    let DeclarativeAbilityDef::AlternativeCast(alternative) =
+                                        ability.definition
+                                    else {
+                                        unreachable!(
+                                            "the selected bestow clause is alternative casting"
+                                        )
+                                    };
+                                    self.legal_ability_target_selections(
+                                        alternative.targets,
+                                        player,
+                                        card.id,
+                                        TriggerContext::empty(),
+                                        x,
+                                    )
                                 } else if let Some((_, ability)) =
                                     Self::spell_ability(definition, option)
                                 {
@@ -258,6 +272,77 @@ impl Game {
                 }
                 found.then_some(combined)
             }
+        }
+    }
+
+    fn play_option_parts(option: &PlayOptionDef) -> &[CardPartId] {
+        match &option.form {
+            crate::card::SpellForm::Part(part) => std::slice::from_ref(part),
+            crate::card::SpellForm::Combined(parts) => parts,
+        }
+    }
+
+    pub(super) fn play_option_has_keyword_flash(
+        definition: &CardDefinition,
+        option: &PlayOptionDef,
+    ) -> bool {
+        Self::play_option_parts(option).iter().any(|part| {
+            definition
+                .part(*part)
+                .is_some_and(|part| part.rules.has_executable_keyword(KeywordAbility::Flash))
+        })
+    }
+
+    pub(super) fn play_option_has_cleanup_flash(
+        definition: &CardDefinition,
+        option: &PlayOptionDef,
+    ) -> bool {
+        Self::play_option_cleanup_flash_trigger(definition, option).is_some()
+    }
+
+    /// The printed casting-permission origin and nested delayed ability. The
+    /// outer origin remains the provenance of the permission used from hand;
+    /// the nested definition is the complete ability that will later trigger.
+    pub(super) fn play_option_cleanup_flash_trigger(
+        definition: &CardDefinition,
+        option: &PlayOptionDef,
+    ) -> Option<(AbilityOrigin, AbilityDef)> {
+        for part_id in Self::play_option_parts(option) {
+            let part = definition.part(*part_id)?;
+            for attached in part.rules.indexed_abilities() {
+                let ability = attached.definition;
+                if !ability.is_executable()
+                    || !matches!(ability.definition, DeclarativeAbilityDef::Static(_))
+                {
+                    continue;
+                }
+                let Some(trigger) = ability
+                    .declarative_effect()
+                    .and_then(Self::cleanup_flash_trigger)
+                else {
+                    continue;
+                };
+                return Some((
+                    AbilityOrigin::Printed {
+                        definition: definition.id,
+                        part: *part_id,
+                        ability: attached.id,
+                    },
+                    *trigger,
+                ));
+            }
+        }
+        None
+    }
+
+    fn cleanup_flash_trigger(effect: EffectDef) -> Option<&'static AbilityDef> {
+        match effect {
+            EffectDef::FlashWithCleanupSacrifice { trigger } => Some(trigger),
+            EffectDef::Sequence(effects) => effects
+                .iter()
+                .copied()
+                .find_map(Self::cleanup_flash_trigger),
+            _ => None,
         }
     }
 
@@ -465,19 +550,27 @@ impl Game {
         let definition = self.catalog.get(definition_id)?;
         let option = definition.play_option(signature.play_option())?;
         if let Some(selected) = signature.costs().alternative()
-            && let Some((origin, ability, AlternativeCastKindDef::Overload)) =
-                Self::alternative_cast_ability(definition, option, selected)
+            && let Some((
+                origin,
+                ability,
+                kind @ (AlternativeCastKindDef::Overload | AlternativeCastKindDef::Bestow),
+            )) = Self::alternative_cast_ability(definition, option, selected)
         {
             let DeclarativeAbilityDef::AlternativeCast(alternative_cast) = ability.definition
             else {
                 unreachable!("alternative_cast_ability returns an alternative-cast clause")
+            };
+            let target_defs = if kind == AlternativeCastKindDef::Bestow {
+                alternative_cast.targets.to_vec()
+            } else {
+                Vec::new()
             };
             return Some(StackAbilityPayload {
                 origin,
                 definition: Some(Box::new(ability)),
                 presentation_definition: definition_id,
                 text: alternative_cast.stack_text.or(Some(ability.text)),
-                target_defs: Vec::new(),
+                target_defs,
                 targets: signature.targets().to_vec(),
                 context: TriggerContext::empty(),
                 resolver: Self::ability_resolver(origin, &ability),
@@ -611,9 +704,17 @@ impl Game {
                 (CastSourceZone::Hand, Some(AlternativeCastKindDef::Flashback))
                 | (
                     CastSourceZone::Graveyard,
-                    Some(AlternativeCastKindDef::Overload | AlternativeCastKindDef::Miracle) | None,
+                    Some(
+                        AlternativeCastKindDef::Overload
+                        | AlternativeCastKindDef::Miracle
+                        | AlternativeCastKindDef::Bestow,
+                    )
+                    | None,
                 ) => false,
-                (CastSourceZone::Hand, Some(AlternativeCastKindDef::Overload) | None)
+                (
+                    CastSourceZone::Hand,
+                    Some(AlternativeCastKindDef::Overload | AlternativeCastKindDef::Bestow) | None,
+                )
                 | (CastSourceZone::Graveyard, Some(AlternativeCastKindDef::Flashback)) => true,
                 // Only in the window the draw opened, and only for the card
                 // that was drawn.
@@ -717,188 +818,5 @@ impl Game {
             }
         }
         Some(cost)
-    }
-
-    pub(super) fn legacy_target_selections(
-        &self,
-        behavior: CardBehavior,
-        player: PlayerId,
-    ) -> Vec<Vec<TargetSelection>> {
-        self.legal_target_lists(behavior, player, None)
-            .into_iter()
-            .map(|targets| {
-                if targets.is_empty() {
-                    Vec::new()
-                } else {
-                    vec![TargetSelection::new(TargetSlotId(0), targets)]
-                }
-            })
-            .collect()
-    }
-
-    pub(super) fn legal_target_selections(
-        &self,
-        slots: &[TargetSlotDef],
-        x: u16,
-    ) -> Vec<Vec<TargetSelection>> {
-        let mut selections = vec![Vec::new()];
-        for slot in slots {
-            let candidates = self.targets_matching(slot.predicate);
-            let mut choices = Vec::new();
-            if let Some(total) = slot.divided_total {
-                let total = match total {
-                    DividedTotal::Fixed(total) => total,
-                    DividedTotal::ChosenX => u8::try_from(x).unwrap_or(u8::MAX),
-                };
-                // Every chosen target takes at least one, so the number of
-                // targets follows from how the total is split.
-                for count in 1..=usize::from(total).min(candidates.len()) {
-                    for targets in target_combinations(&candidates, count) {
-                        for amounts in positive_compositions(total, count) {
-                            choices.push(TargetSelection::divided(
-                                slot.id,
-                                targets.clone(),
-                                amounts,
-                            ));
-                        }
-                    }
-                }
-                let mut combined = Vec::new();
-                for prefix in &selections {
-                    for choice in &choices {
-                        let mut selected = prefix.clone();
-                        selected.push(choice.clone());
-                        combined.push(selected);
-                    }
-                }
-                selections = combined;
-                continue;
-            }
-            for count in slot.minimum..=slot.maximum {
-                choices.extend(
-                    target_combinations(&candidates, usize::from(count))
-                        .into_iter()
-                        .map(|targets| TargetSelection::new(slot.id, targets)),
-                );
-            }
-            let mut combined = Vec::new();
-            for prefix in &selections {
-                for choice in &choices {
-                    let mut selected = prefix.clone();
-                    selected.push(choice.clone());
-                    combined.push(selected);
-                }
-            }
-            selections = combined;
-        }
-        selections
-    }
-
-    pub(super) fn legal_ability_target_selections(
-        &self,
-        slots: &[AbilityTargetDef],
-        controller: PlayerId,
-        source: GameObjectId,
-        context: TriggerContext,
-        x: u16,
-    ) -> Vec<Vec<TargetSelection>> {
-        let mut selections = vec![Vec::new()];
-        for (index, slot) in slots.iter().enumerate() {
-            let id = TargetSlotId::from_index(index)
-                .expect("validated ability targets fit the runtime slot space");
-            // A slot that reads an earlier slot's choice has to be enumerated
-            // once per prefix, because its candidates are different for each.
-            if let AbilityTargetPredicate::ControlledByTargetOf {
-                object,
-                slot: other,
-            } = slot.predicate
-            {
-                let other = TargetSlotId::from_index(other.index())
-                    .expect("validated dependent target fits the runtime slot space");
-                let mut combined = Vec::new();
-                for prefix in &selections {
-                    let candidates = prefix
-                        .iter()
-                        .find(|selection: &&TargetSelection| selection.slot() == other)
-                        .and_then(|selection| selection.targets().first().copied())
-                        .and_then(|target| match target {
-                            Target::Player(player) => Some(player),
-                            Target::Permanent(id) | Target::Card(id) | Target::Spell(id) => {
-                                self.current_or_last_known_controller(id)
-                            }
-                        })
-                        .map_or_else(Vec::new, |owner| {
-                            self.battlefield
-                                .iter()
-                                .filter(|permanent| permanent.controller == owner)
-                                .filter(|permanent| {
-                                    self.trigger_object_matches(
-                                        object,
-                                        &self.trigger_event_object(permanent),
-                                        source,
-                                        false,
-                                    ) && self
-                                        .permanent_can_be_targeted_by(permanent, controller, source)
-                                })
-                                .map(|permanent| Target::Permanent(permanent.card.id))
-                                .collect::<Vec<_>>()
-                        });
-                    for count in slot.minimum..=slot.maximum {
-                        for targets in target_combinations(&candidates, usize::from(count)) {
-                            let mut selected = prefix.clone();
-                            selected.push(TargetSelection::new(id, targets));
-                            combined.push(selected);
-                        }
-                    }
-                }
-                selections = combined;
-                continue;
-            }
-            let candidates =
-                self.ability_targets_matching(slot.predicate, controller, source, context);
-            let mut choices = Vec::new();
-            if let Some(total) = slot.divided_total {
-                let total = match total {
-                    DividedTotal::Fixed(total) => total,
-                    DividedTotal::ChosenX => u8::try_from(x).unwrap_or(u8::MAX),
-                };
-                // Every chosen target takes at least one, so the number of
-                // targets follows from how the total is split.
-                for count in 1..=usize::from(total).min(candidates.len()) {
-                    for targets in target_combinations(&candidates, count) {
-                        for amounts in positive_compositions(total, count) {
-                            choices.push(TargetSelection::divided(id, targets.clone(), amounts));
-                        }
-                    }
-                }
-                let mut combined = Vec::new();
-                for prefix in &selections {
-                    for choice in &choices {
-                        let mut selected = prefix.clone();
-                        selected.push(choice.clone());
-                        combined.push(selected);
-                    }
-                }
-                selections = combined;
-                continue;
-            }
-            for count in slot.minimum..=slot.maximum {
-                choices.extend(
-                    target_combinations(&candidates, usize::from(count))
-                        .into_iter()
-                        .map(|targets| TargetSelection::new(id, targets)),
-                );
-            }
-            let mut combined = Vec::new();
-            for prefix in &selections {
-                for choice in &choices {
-                    let mut selected = prefix.clone();
-                    selected.push(choice.clone());
-                    combined.push(selected);
-                }
-            }
-            selections = combined;
-        }
-        selections
     }
 }

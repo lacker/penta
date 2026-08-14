@@ -166,12 +166,16 @@ fn extend_stack_continuation_ids(
 ) {
     ids.extend(referenced_object_ids(object));
     ids.extend(context.object);
+    ids.extend(context.source_attachment);
+    ids.extend(context.source_linked);
     ids.extend(context.chosen_objects.iter().flatten().copied());
 }
 
 fn extend_pending_trigger_ids(ids: &mut Vec<GameObjectId>, trigger: &PendingTrigger) {
     ids.push(trigger.source.object);
     ids.extend(trigger.context.object);
+    ids.extend(trigger.context.source_attachment);
+    ids.extend(trigger.context.source_linked);
     ids.extend(trigger.context.chosen_objects.iter().flatten().copied());
 }
 

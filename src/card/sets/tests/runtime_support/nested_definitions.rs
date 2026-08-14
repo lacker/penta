@@ -218,6 +218,15 @@ pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effe
         EffectDef::TriggerUntilYourNextTurn { ability } => {
             assert_nested_installed_ability(card_name, ability);
         }
+        EffectDef::BecomeAuraAndAttach { end, .. } => {
+            assert_nested_installed_ability(card_name, end);
+        }
+        EffectDef::ReturnToBattlefieldAttached { leave, .. } => {
+            assert_nested_installed_ability(card_name, leave);
+        }
+        EffectDef::FlashWithCleanupSacrifice { trigger } => {
+            assert_nested_installed_ability(card_name, trigger);
+        }
         EffectDef::Apply { effect, .. } => {
             assert_nested_definition_applied_effect(card_name, effect);
         }
@@ -231,6 +240,7 @@ pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effe
         | EffectDef::AddMana(_)
         | EffectDef::AddManaEqualTo { .. }
         | EffectDef::DealDamage { .. }
+        | EffectDef::DealDamageFrom { .. }
         | EffectDef::DrainLife { .. }
         | EffectDef::GainLife { .. }
         | EffectDef::DrawCards { .. }
@@ -251,6 +261,10 @@ pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effe
         | EffectDef::PreventDamageToPlayerAndControlledCreaturesThisTurn { .. }
         | EffectDef::PreventAllCombatDamageExceptSourceThisTurn { .. }
         | EffectDef::Attach { .. }
+        | EffectDef::Unattach { .. }
+        | EffectDef::Reconfigure { .. }
+        | EffectDef::EndAuraEffect
+        | EffectDef::CreateAttachedToken { .. }
         | EffectDef::CreateToken { .. }
         | EffectDef::Destroy { .. }
         | EffectDef::Sacrifice { .. }
@@ -355,6 +369,7 @@ pub(in super::super) fn assert_nested_definition_applied_effect(
             assert_nested_definition_abilities(card_name, ability.effect.definition);
         }
         AppliedEffectDef::CannotBeCountered
+        | AppliedEffectDef::ControlBySourceController
         | AppliedEffectDef::DoesNotUntapDuringUntapStep
         | AppliedEffectDef::MayChooseNotToUntap
         | AppliedEffectDef::CannotBlock

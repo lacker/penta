@@ -88,7 +88,10 @@ fn a_state_trigger_fires_when_its_condition_becomes_true_and_only_once() {
         .iter_mut()
         .find(|permanent| permanent.card.id == vault)
     {
-        permanent.animation = Some(&MUTAVAULT_TEST_ANIMATION);
+        permanent.animation = Some(ResolvedAnimation {
+            definition: &MUTAVAULT_TEST_ANIMATION,
+            timestamp: permanent.timestamp,
+        });
     }
     game.check_state_based_actions();
     assert_eq!(

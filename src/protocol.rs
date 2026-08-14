@@ -81,8 +81,10 @@ use observation_json::{card_part_name, decision_json, stack_object_json};
 /// state, restricted mana, and retired-object last-known information. Version
 /// 22 establishes open-world JSON objects, advertises
 /// named capabilities and a simulation fingerprint, and separates
-/// checkpoint/replay formats from the bot wire.
-pub const PROTOCOL_VERSION: u32 = 22;
+/// checkpoint/replay formats from the bot wire. Version 23 adds the mandatory
+/// `TakeSpecialAction` action tag for rules-defined actions that do not use the
+/// stack.
+pub const PROTOCOL_VERSION: u32 = 23;
 
 /// The engine package release. This is ordinary Cargo `SemVer`, not an exact
 /// ruleset identity; use [`SIMULATION_FINGERPRINT`] for replay and model
@@ -103,14 +105,14 @@ pub const SIMULATION_FINGERPRINT_NUL: &str = concat!(env!("PENTA_SIMULATION_FING
 
 /// Named additive facilities emitted by this wire epoch. Consumers may ignore
 /// capabilities they do not use; hosted bots may require the subset they use.
-pub const PROTOCOL_CAPABILITIES: &[&str] = &["reconstruction.checkpoint.v2"];
+pub const PROTOCOL_CAPABILITIES: &[&str] = &["reconstruction.checkpoint.v3"];
 
 /// Capabilities every bot must understand before a host may assign it a game.
 /// The base indexed-action contract currently needs no optional facility.
 pub const REQUIRED_BOT_CAPABILITIES: &[&str] = &[];
 
 /// Version of the hidden-safe reconstruction payload nested at `checkpoint`.
-pub const CHECKPOINT_VERSION: u32 = 2;
+pub const CHECKPOINT_VERSION: u32 = 3;
 
 /// Undeclared hosted bots predate negotiation and therefore belong to the last
 /// wire epoch that could not make an explicit declaration. They do not

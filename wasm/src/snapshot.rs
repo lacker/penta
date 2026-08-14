@@ -52,6 +52,10 @@ impl WebGame {
                     "targetStackIds": action_target_stacks(action),
                     "targetCount": action_targets(action).len(),
                     "ability": action_ability_origin(action),
+                    "effectId": match action {
+                        Action::TakeSpecialAction { effect_id, .. } => *effect_id,
+                        _ => None,
+                    },
                     "abilityLabel": self.action_ability_label(&observation, action),
                     "manaAbility": matches!(action, Action::ActivateManaAbility { .. }),
                     "spellAction": matches!(action, Action::CastSpell { .. }),
@@ -76,7 +80,7 @@ impl WebGame {
                         ),
                         _ => None,
                     },
-                    "paymentAction": matches!(action, Action::CastSpell { .. } | Action::ActivateAbility { .. }),
+                    "paymentAction": matches!(action, Action::CastSpell { .. } | Action::ActivateAbility { .. } | Action::TakeSpecialAction { .. }),
                     "manaSourceIds": self.automatic_mana_sources(action),
                     "decisionId": match action {
                         Action::ChooseDecision { decision, .. }
@@ -164,6 +168,7 @@ impl WebGame {
                         rules.rules_text().into_owned()
                     }),
                     "owner": if permanent.controller == self.human { "human" } else { "opponent" },
+                    "attachedTo": permanent.attached_to.map(|id| id.0),
                     "chosenCardName": permanent.chosen_card_name.as_deref(),
                     "chosenCreatureType": permanent.chosen_creature_type.as_deref(),
                     "tapped": permanent.tapped,

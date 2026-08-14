@@ -26,6 +26,7 @@ pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
     PrintingRecord::reprint(&alpha::STASIS),         // 2ED 81
     PrintingRecord::reprint(&alpha::TIME_WALK),      // 2ED 84
     PrintingRecord::reprint(&alpha::TIMETWISTER),    // 2ED 85
+    PrintingRecord::reprint(&alpha::ANIMATE_DEAD),   // 2ED 93
     PrintingRecord::reprint(&alpha::BLACK_KNIGHT),   // 2ED 95
     PrintingRecord::reprint(&alpha::DARK_RITUAL),    // 2ED 99
     PrintingRecord::reprint(&alpha::DEMONIC_TUTOR),  // 2ED 105

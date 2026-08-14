@@ -111,6 +111,9 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                 && shared_stack_effect_at_position(*then, true)
         }
         EffectDef::AddMana(_) => shared_mana_effect(effect, false),
+        EffectDef::DealDamageFrom {
+            source, recipient, ..
+        } => shared_effect_recipient(source) && shared_effect_recipient(recipient),
         EffectDef::DealDamage { recipient, .. }
         | EffectDef::DrainLife { recipient, .. }
         | EffectDef::GainLife { recipient, .. }
@@ -220,6 +223,9 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::GainControlThisTurn { object }
         | EffectDef::AddCounters { object, .. }
         | EffectDef::Attach { object }
+        | EffectDef::Unattach { object }
+        | EffectDef::Reconfigure { object }
+        | EffectDef::ReturnToBattlefieldAttached { card: object, .. }
         | EffectDef::ChangeTextBasicLandType { object }
         | EffectDef::BecomeCopyOf { object, .. } => shared_effect_recipient(object),
         EffectDef::Counter { object, zone } | EffectDef::CounterUnlessPaid { object, zone, .. } => {
@@ -230,11 +236,13 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         // to read it ahead of time the way a mana ability does.
         EffectDef::AddManaEqualTo { .. }
         | EffectDef::CreateToken { .. }
+        | EffectDef::CreateAttachedToken { .. }
         | EffectDef::CreateEmblem { .. }
         | EffectDef::Transform { .. }
         | EffectDef::AdditionalCombatPhase
         | EffectDef::PreventAllCombatDamageThisTurn
-        | EffectDef::GrantFlashToNextSorcery => true,
+        | EffectDef::GrantFlashToNextSorcery
+        | EffectDef::EndAuraEffect => true,
         // Each of these asks a question and then runs an inner effect,
         // so the question has to be allowed here and the answer has to be
         // something the shared procedure can carry out.
@@ -259,6 +267,9 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         // Installing an ability is a resolution like any other; what it
         // installs has to be an ability the shared runtime can fire.
         EffectDef::TriggerUntilYourNextTurn { ability } => shared_definition_ability(ability),
+        EffectDef::BecomeAuraAndAttach { object, end } => {
+            shared_effect_recipient(object) && shared_definition_ability(end)
+        }
         EffectDef::Apply {
             recipient,
             effect,
@@ -288,6 +299,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::ChoosePlayer { .. }
         | EffectDef::CopyPermanentAsItEnters { .. }
         | EffectDef::ChooseCreatureType { .. }
+        | EffectDef::FlashWithCleanupSacrifice { .. }
         | EffectDef::Special(_) => false,
     }
 }

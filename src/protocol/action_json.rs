@@ -4,7 +4,36 @@ use super::json_common::{
     ability_origin_json, cast_choices_json, defender_json, instances_json, target_json,
     target_selections_json,
 };
-use crate::{Action, PlayerObservation};
+use crate::{AbilityOrigin, Action, GameObjectId, PlayerObservation, TargetSelection};
+
+fn activated_ability_json(
+    source: GameObjectId,
+    ability: AbilityOrigin,
+    targets: &[TargetSelection],
+    cost_object: Option<GameObjectId>,
+    x: u16,
+) -> Value {
+    json!({
+        "type": "ActivateAbility",
+        "x": x,
+        "source": source.0,
+        "ability": ability_origin_json(ability),
+        "target": targets
+            .iter()
+            .flat_map(TargetSelection::targets)
+            .next()
+            .copied()
+            .map(target_json),
+        "targets": targets
+            .iter()
+            .flat_map(TargetSelection::targets)
+            .copied()
+            .map(target_json)
+            .collect::<Vec<_>>(),
+        "targetSelections": target_selections_json(targets),
+        "costObject": cost_object.map(|card| card.0),
+    })
+}
 
 /// Serializes one legal action. The `type` tag names the engine's action
 /// variant; the remaining fields identify what it operates on.
@@ -65,25 +94,16 @@ pub fn action_json(action: &Action) -> Value {
             targets,
             cost_object,
             x,
+        } => activated_ability_json(*source, *ability, targets, *cost_object, *x),
+        Action::TakeSpecialAction {
+            source,
+            ability,
+            effect_id,
         } => json!({
-            "type": "ActivateAbility",
-            "x": x,
+            "type": "TakeSpecialAction",
             "source": source.0,
             "ability": ability_origin_json(*ability),
-            "target": targets
-                .iter()
-                .flat_map(crate::TargetSelection::targets)
-                .next()
-                .copied()
-                .map(target_json),
-            "targets": targets
-                .iter()
-                .flat_map(crate::TargetSelection::targets)
-                .copied()
-                .map(target_json)
-                .collect::<Vec<_>>(),
-            "targetSelections": target_selections_json(targets),
-            "costObject": cost_object.map(|card| card.0),
+            "effectId": effect_id,
         }),
         Action::DeclareAttacker { attacker, defender } => {
             json!({ "type": "DeclareAttacker", "attacker": attacker.0, "defender": defender_json(*defender) })

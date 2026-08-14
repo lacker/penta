@@ -11,18 +11,18 @@ use crate::card::AbilityPredicateDef;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityProcedureDef, AbilityTargetDef, AbilityTargetPredicate,
     ActivatedAbilityDef, ActivationTimingDef, AddManaEffectDef, AlternativeCastAbilityDef,
-    AlternativeCastKindDef, AnimationDef, AppliedEffectDef, BasicLandType,
-    BattlefieldEntryModificationDef, CREATURE_TYPES, CardBehavior, CardCatalog,
-    CardChoiceSourceDef, CardDefinition, CardEffectStatus, CardPart, CardRules, CardSet,
-    CardStructure, CardSupertype, CardType, CardTypeSet, CharacteristicContext, ColorSet,
-    ComparisonDef, ConditionDef, CostDef, CounterKind, DeclarativeAbilityDef, DiscardSelectionDef,
-    DividedTotal, DoubleFacedKind, EffectDef, EffectDurationDef, EffectRecipientDef, HybridPair,
-    KeywordAbility, ManaCost, ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef,
-    ObjectPredicateDef, ObjectQueryDef, PaymentDef, PlayActionKind, PlayOptionDef, PlayRestriction,
-    PlayerRelation, QuantifierDef, ReplacementConditionDef, ReplacementEffectDef,
-    ReplacementEventDef, ShieldCoverageDef, TargetPredicate, TargetSlotDef, TopCardSelectionDef,
-    TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnStepDef, ValueDef, ZoneKind,
-    ZoneMoveCauseDef, ZonePlacement, abilities, applicable_part_ids,
+    AlternativeCastKindDef, AppliedEffectDef, BasicLandType, BattlefieldEntryModificationDef,
+    CREATURE_TYPES, CardBehavior, CardCatalog, CardChoiceSourceDef, CardDefinition,
+    CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype, CardType,
+    CardTypeSet, CharacteristicContext, ColorSet, ComparisonDef, ConditionDef, CostDef,
+    CounterKind, DeclarativeAbilityDef, DiscardSelectionDef, DividedTotal, DoubleFacedKind,
+    EffectDef, EffectDurationDef, EffectRecipientDef, HybridPair, KeywordAbility, ManaCost,
+    ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef, ObjectPredicateDef, ObjectQueryDef,
+    PaymentDef, PlayActionKind, PlayOptionDef, PlayRestriction, PlayerRelation, QuantifierDef,
+    ReanimationAuraDef, ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef,
+    ShieldCoverageDef, TargetPredicate, TargetSlotDef, TopCardSelectionDef, TriggerConditionDef,
+    TriggerEventDef, TurnKindDef, TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement,
+    abilities, applicable_part_ids,
 };
 use crate::casting::{CastChoices, CastSignature, CostConfiguration, TargetSelection};
 use crate::deck::Deck;
@@ -42,6 +42,7 @@ mod ability_targeting;
 mod activation;
 mod activation_state;
 mod api;
+mod attachments;
 mod battlefield;
 mod card_runtime;
 mod casting;
@@ -121,8 +122,9 @@ use characteristic_state::{
 use combat_state::CombatDamageStage;
 use continuous_state::{
     AbilityEffectExpiration, AbilityLayerOperation, AbilityLayerOperationKind,
-    ContinuousEffectTimestamp, StaticAppliedEffect, StaticEffectTraversal, TemporaryAbilityGrant,
-    TemporaryGrantedAbility, TemporaryRemovedAbilities,
+    ContinuousEffectTimestamp, ReanimationAttachmentEffect, ResolvedAnimation, StaticAppliedEffect,
+    StaticEffectTraversal, TemporaryAbilityGrant, TemporaryGrantedAbility,
+    TemporaryRemovedAbilities,
 };
 use decision_state::{
     ApplicableBeginTurnReplacement, BalanceAction, BalancePhase, BalanceTask, CounteredSpellZone,
@@ -142,8 +144,8 @@ use replacement_state::{
 };
 use trigger_state::{
     AbilitySourceRef, BattlefieldTriggerListener, CommittedTriggerEvent, DelayedTrigger,
-    FloatingTrigger, PendingTrigger, TriggerCapture, TriggerContext, TriggerEventObject,
-    TriggerPlacementBatch,
+    FloatingTrigger, PendingTrigger, ScheduledTrigger, TriggerCapture, TriggerContext,
+    TriggerEventObject, TriggerPlacementBatch,
 };
 
 #[cfg(test)]
@@ -191,6 +193,61 @@ struct CardInstance {
     characteristics: CharacteristicSource,
 }
 
+/// A rules procedure that changes how an attachment presents on the
+/// battlefield. Ordinary printed Auras need no marker; their Aura subtype and
+/// structural Aura spell definition are enough.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum AttachmentForm {
+    Bestowed {
+        timestamp: ContinuousEffectTimestamp,
+    },
+    Reconfigured {
+        timestamp: ContinuousEffectTimestamp,
+    },
+    Licid,
+}
+
+/// One independently resolving Licid type-changing effect. A single
+/// permanent can have several of these after its transforming ability is
+/// activated more than once before either copy resolves.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+struct LicidEffect {
+    /// Stable identity used by the special action that ends this exact effect.
+    id: ContinuousEffectTimestamp,
+    ender: PlayerId,
+    /// Only the transforming ability that created this effect is lost.
+    transform_action: AbilityOrigin,
+    /// The nested special action frozen from the resolving activated ability.
+    /// Copying or granting that ability therefore carries the permission too.
+    end: AbilityDef,
+}
+
+/// One fixed-controller layer-2 effect that lasts through the current turn.
+///
+/// Attachment-scoped control effects are derived from their live sources, but
+/// effects such as Act of Treason freeze both their controller and timestamp
+/// when they resolve. Keeping them beside the affected permanent lets the
+/// shared control reconciliation order both kinds together.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+struct UntilEndOfTurnControl {
+    timestamp: ContinuousEffectTimestamp,
+    controller: PlayerId,
+}
+
+/// One fixed-controller layer-2 effect sustained by a particular permanent.
+///
+/// Aladdin, Thrull Champion, Rubinia Soulsinger, and Willow Satyr all use this
+/// duration. Keeping each resolved effect independently timestamped lets it
+/// compose with temporary theft and attachment-based control instead of
+/// overwriting a single restoration slot.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+struct WhileSourceControl {
+    timestamp: ContinuousEffectTimestamp,
+    controller: PlayerId,
+    source: GameObjectId,
+    requires_source_tapped: bool,
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[allow(clippy::struct_excessive_bools)]
 struct Permanent {
@@ -229,18 +286,18 @@ struct Permanent {
     /// Whether combat damage from this permanent is prevented without also
     /// preventing combat damage to it. Kor Haven uses this narrower marker.
     combat_damage_dealt_by_prevented: bool,
-    /// Who controls this permanent again once the turn ends, set while a
-    /// control-changing effect holds it. Cleanup restores it.
-    control_reverts_to: Option<PlayerId>,
     /// Whether a "can't be regenerated" effect is covering this permanent
     /// for the rest of the turn.
     cannot_regenerate_this_turn: bool,
-    /// The permanent whose continued presence is holding this one's control
-    /// change. When it leaves the battlefield or changes hands, control goes
-    /// back to `control_reverts_to`.
-    control_source: Option<GameObjectId>,
-    /// Whether that holder also has to stay tapped to keep the change.
-    control_requires_source_tapped: bool,
+    /// The controller beneath every currently active layer-2 control effect.
+    /// It is populated when the first such effect starts and cleared only when
+    /// the last one ends, so overlapping effects cannot overwrite one
+    /// another's restoration state.
+    control_layer_base: Option<PlayerId>,
+    /// Timestamped fixed-controller effects that expire during cleanup.
+    control_until_end_of_turn: Vec<UntilEndOfTurnControl>,
+    /// Timestamped fixed-controller effects sustained by a live source.
+    control_while_source_remains: Vec<WhileSourceControl>,
     /// Whether this attacker was blocked. A blocked creature stays blocked
     /// even if every blocker leaves, so this cannot be recomputed from the
     /// blockers still on the battlefield.
@@ -256,7 +313,7 @@ struct Permanent {
     temporary_removed_abilities: Vec<TemporaryRemovedAbilities>,
     /// The creature this permanent has become for the turn, if a manland's
     /// animation ability has resolved.
-    animation: Option<&'static AnimationDef>,
+    animation: Option<ResolvedAnimation>,
     /// How many times each of this permanent's activated abilities has been
     /// activated this turn, for the cards that count their own activations.
     /// Cleared with the rest of the once-a-turn state.
@@ -265,10 +322,23 @@ struct Permanent {
     /// [`CounterKind::index`]. Only +1/+1 counters have rules meaning on their
     /// own; the rest are markers the cards that place them interpret.
     counters: [u16; CounterKind::COUNT],
-    /// What this Aura is attached to. `None` for everything that is not an
-    /// Aura. State-based actions put it into its owner's graveyard if the
-    /// referenced host leaves or stops being legal.
+    /// What this Aura, Equipment, or Fortification is attached to. An Aura
+    /// may temporarily name a card in a graveyard (Animate Dead); the object
+    /// incarnation keeps that relation distinct from whatever it later
+    /// becomes on the battlefield.
     attached_to: Option<GameObjectId>,
+    /// Dynamic bestow, Licid, and reanimation-Aura characteristics.
+    attachment_form: Option<AttachmentForm>,
+    /// Independently active Licid effects. `AttachmentForm::Licid` is present
+    /// exactly while this collection is nonempty.
+    licid_effects: Vec<LicidEffect>,
+    /// The exact new battlefield object returned by Animate Dead or
+    /// Necromancy. This link is independent of whether the source is or can
+    /// become an Aura, and persists until that source changes zones.
+    reanimation_linked: Option<GameObjectId>,
+    /// Timestamped enchant grant and optional Aura-subtype operation created
+    /// by the resolved reanimation instruction.
+    reanimation_effect: Option<ReanimationAttachmentEffect>,
     /// Set by Pillar of Flame: if this creature would die this turn, it is
     /// exiled instead. The replacement outlives the damage itself, so it
     /// cannot be a property of the damage. Clears in cleanup.
@@ -344,10 +414,10 @@ impl Permanent {
             detained_until_turn_of: None,
             combat_damage_prevented: false,
             combat_damage_dealt_by_prevented: false,
-            control_reverts_to: None,
             cannot_regenerate_this_turn: false,
-            control_source: None,
-            control_requires_source_tapped: false,
+            control_layer_base: None,
+            control_until_end_of_turn: Vec::new(),
+            control_while_source_remains: Vec::new(),
             blocked: false,
             blocking: None,
             chosen_player: None,
@@ -361,6 +431,10 @@ impl Permanent {
             activations_this_turn: Vec::new(),
             counters: [0; CounterKind::COUNT],
             attached_to: None,
+            attachment_form: None,
+            licid_effects: Vec::new(),
+            reanimation_linked: None,
+            reanimation_effect: None,
             exile_instead_of_dying: false,
             combat_damage_assignment: Vec::new(),
             copy_effect: None,
@@ -444,6 +518,10 @@ struct StackObject {
     /// leaving the stack. This is frozen at cast time because the permission
     /// lived on the previous graveyard object.
     cast_via_flashback: bool,
+    /// A one-shot trigger whose source and controller were frozen while this
+    /// spell was still a card. If the spell resolves as a permanent, entry
+    /// completion binds that exact new object and installs the listener.
+    schedule_on_entry: Option<u32>,
     is_copy: bool,
 }
 
@@ -718,6 +796,10 @@ pub struct Game {
     miracle_window: Option<GameObjectId>,
     /// Effects waiting for a step to begin. Obzedat's return is one.
     delayed_triggers: Vec<DelayedTrigger>,
+    /// Frozen one-shot abilities listening for a future committed event.
+    /// Matching listeners enter the normal pending-trigger/stack procedure.
+    scheduled_triggers: Vec<ScheduledTrigger>,
+    next_scheduled_trigger_id: u32,
     /// Triggered abilities listening from nowhere until their controller's
     /// next turn. Jace's first ability installs one.
     floating_triggers: Vec<FloatingTrigger>,

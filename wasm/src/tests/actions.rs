@@ -391,6 +391,11 @@ fn blocker_actions_expose_the_attacker_as_their_board_target() {
     assert_eq!(action_target_card(&action), Some(attacker));
 }
 
+fn assert_animated_as_ability(action: &Action) {
+    assert!(should_animate_action(action));
+    assert_eq!(crate::action_view::animated_action_kind(action), "ability");
+}
+
 #[test]
 fn ability_actions_expose_their_stable_origins() {
     let action = Action::ActivateAbility {
@@ -472,4 +477,25 @@ fn ability_actions_expose_their_stable_origins() {
             "grantId": 3,
         }))
     );
+
+    let special_action = Action::TakeSpecialAction {
+        source: CardInstanceId(13),
+        ability: penta::AbilityOrigin::Printed {
+            definition: penta::CardDefinitionId(14),
+            part: penta::CardPartId::PRIMARY,
+            ability: penta::AbilityId(2),
+        },
+        effect_id: Some(12),
+    };
+    assert_eq!(action_card(&special_action), Some(CardInstanceId(13)));
+    assert_eq!(
+        action_ability_origin(&special_action),
+        Some(json!({
+            "kind": "printed",
+            "definition": 14,
+            "partId": 0,
+            "abilityId": 2,
+        }))
+    );
+    assert_animated_as_ability(&special_action);
 }

@@ -1,8 +1,8 @@
 use super::{
-    CardBehavior, CardDefinition, CardDefinitionId, CardSupertype, CardType, CardTypeSet,
-    CharacteristicContext, Cow, DeclarativeAbilityDef, Game, GameObjectId, ManaCost, ModeId,
-    PlayRestriction, PlayerId, StackObject, StackObjectKind, Step, Target, TargetPredicate,
-    TargetSelection, TriggerEventObject, applicable_part_ids,
+    AlternativeCastKindDef, CardBehavior, CardDefinition, CardDefinitionId, CardSupertype,
+    CardType, CardTypeSet, CharacteristicContext, Cow, DeclarativeAbilityDef, Game, GameObjectId,
+    ManaCost, ModeId, PlayRestriction, PlayerId, StackObject, StackObjectKind, Step, Target,
+    TargetPredicate, TargetSelection, TriggerEventObject, applicable_part_ids,
 };
 
 impl Game {
@@ -47,7 +47,18 @@ impl Game {
         let definition = self.catalog.get(object.card.definition)?;
         let signature = object.signature.as_ref()?;
         let option = definition.play_option(signature.play_option())?;
-        Self::play_option_types(definition, option)
+        let types = Self::play_option_types(definition, option)?;
+        if self.selected_alternative_kind(definition, option, object.id, signature.costs())
+            == Some(AlternativeCastKindDef::Bestow)
+        {
+            Some(
+                types
+                    .without(CardType::Creature)
+                    .with(CardType::Enchantment),
+            )
+        } else {
+            Some(types)
+        }
     }
 
     pub(super) fn stack_trigger_event_object(
@@ -55,14 +66,28 @@ impl Game {
         object: &StackObject,
     ) -> Option<TriggerEventObject> {
         let signature = object.signature.as_ref()?;
-        self.printed_trigger_event_object(
+        let mut event = self.printed_trigger_event_object(
             object.id,
             object.card.definition,
             object.controller,
             &CharacteristicContext::Stack {
                 form: signature.form().clone(),
             },
-        )
+        )?;
+        let definition = self.catalog.get(object.card.definition)?;
+        let option = definition.play_option(signature.play_option())?;
+        if self.selected_alternative_kind(definition, option, object.id, signature.costs())
+            == Some(AlternativeCastKindDef::Bestow)
+        {
+            event.types = event
+                .types
+                .without(CardType::Creature)
+                .with(CardType::Enchantment);
+            event.subtypes = Cow::Borrowed(&["Aura"]);
+            event.power = None;
+            event.toughness = None;
+        }
+        Some(event)
     }
 
     pub(super) fn printed_trigger_event_object(

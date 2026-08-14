@@ -3,8 +3,8 @@ use super::{
     BattlefieldTriggerListener, CardDefinitionId, CardPartId, CardType, CommittedTriggerEvent,
     DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EffectiveAbility, FrozenActivatedAbility,
     Game, GameEvent, GameObjectId, Mana, ManaSelectionDef, ManaSource, ObjectPredicateDef,
-    PendingTrigger, Permanent, PlayerId, PlayerRelation, RetiredObject, ScopedEffect,
-    StackAbilityResolver, Target, TriggerCapture, TriggerContext, TriggerEventDef,
+    PendingTrigger, Permanent, PlayerId, PlayerRelation, RetiredObject, ScheduledTrigger,
+    ScopedEffect, StackAbilityResolver, Target, TriggerCapture, TriggerContext, TriggerEventDef,
     TriggerEventObject, ZoneKind,
 };
 
@@ -82,6 +82,66 @@ impl Game {
         });
     }
 
+    /// Installs one frozen ability for the first future event matching
+    /// `event`. The listener does not need a battlefield object to survive,
+    /// which is what delayed abilities and source-leaves followups require.
+    pub(super) fn schedule_one_shot_event_trigger(
+        &mut self,
+        event: TriggerEventDef,
+        capture: &TriggerCapture,
+    ) -> u32 {
+        let id = self.next_scheduled_trigger_id;
+        self.next_scheduled_trigger_id = self.next_scheduled_trigger_id.saturating_add(1);
+        self.scheduled_triggers.push(ScheduledTrigger {
+            id,
+            event,
+            capture: *capture,
+        });
+        id
+    }
+
+    /// Binds a scheduled ability to one exact object incarnation. If its
+    /// creating spell was countered there is no object to bind, so the
+    /// listener deliberately remains and later resolves as a no-op.
+    pub(super) fn bind_scheduled_trigger_to_permanent(
+        &mut self,
+        trigger: u32,
+        permanent: GameObjectId,
+    ) {
+        if let Some(scheduled) = self
+            .scheduled_triggers
+            .iter_mut()
+            .find(|scheduled| scheduled.id == trigger)
+        {
+            scheduled.capture.context.source_linked = Some(permanent);
+        }
+    }
+
+    /// Moves every one-shot listener matching this committed event into the
+    /// ordinary pending-trigger queue. Restore the waiting allocation before
+    /// capture so an effect that schedules another listener cannot join the
+    /// event already in progress.
+    pub(super) fn capture_scheduled_triggers(&mut self, event: &CommittedTriggerEvent) {
+        let mut waiting = std::mem::take(&mut self.scheduled_triggers);
+        let mut due = Vec::new();
+        for scheduled in waiting.extract_if(.., |scheduled| {
+            self.trigger_event_matches(scheduled.event, event, scheduled.capture.source.object)
+        }) {
+            due.push(scheduled);
+        }
+        self.scheduled_triggers = waiting;
+        for scheduled in due {
+            let mut context = event.context();
+            context.source_attachment = scheduled.capture.context.source_attachment;
+            context.source_linked = scheduled.capture.context.source_linked;
+            context.chosen_objects = scheduled.capture.context.chosen_objects;
+            self.capture_trigger(&TriggerCapture {
+                context,
+                ..scheduled.capture
+            });
+        }
+    }
+
     pub(super) const fn ability_presentation_definition(
         origin: AbilityOrigin,
         fallback: CardDefinitionId,
@@ -150,7 +210,11 @@ impl Game {
                         target_defs: definition.targets,
                         effect: ability.effect.definition,
                         resolver: Self::ability_resolver(effective.origin, &ability),
-                        context: TriggerContext::empty(),
+                        context: TriggerContext {
+                            source_attachment: permanent.attached_to,
+                            source_linked: permanent.reanimation_linked,
+                            ..TriggerContext::empty()
+                        },
                         condition: definition.condition,
                     },
                 });
@@ -207,11 +271,15 @@ impl Game {
             })
             .collect::<Vec<_>>();
         for listener in stack_triggers {
+            let mut event_context = event.context();
+            event_context.source_attachment = listener.capture.context.source_attachment;
+            event_context.source_linked = listener.capture.context.source_linked;
             self.capture_trigger(&TriggerCapture {
-                context: event.context(),
+                context: event_context,
                 ..listener.capture
             });
         }
+        self.capture_scheduled_triggers(event);
     }
 
     pub(super) fn resolve_triggered_mana_effect(
@@ -235,6 +303,7 @@ impl Game {
             | EffectDef::ChooseDamageSource { .. }
             | EffectDef::PreventNextDamageFromSource { .. }
             | EffectDef::DealDamage { .. }
+            | EffectDef::DealDamageFrom { .. }
             | EffectDef::DrainLife { .. }
             | EffectDef::GainLife { .. }
             | EffectDef::DrawCards { .. }
@@ -301,6 +370,13 @@ impl Game {
             | EffectDef::Replacement(_)
             | EffectDef::MoveToZone { .. }
             | EffectDef::Attach { .. }
+            | EffectDef::Unattach { .. }
+            | EffectDef::Reconfigure { .. }
+            | EffectDef::BecomeAuraAndAttach { .. }
+            | EffectDef::EndAuraEffect
+            | EffectDef::ReturnToBattlefieldAttached { .. }
+            | EffectDef::CreateAttachedToken { .. }
+            | EffectDef::FlashWithCleanupSacrifice { .. }
             | EffectDef::CreateToken { .. }
             | EffectDef::ChooseCardName { .. }
             | EffectDef::ChoosePlayer { .. }
@@ -737,6 +813,7 @@ impl Game {
         match predicate {
             ObjectPredicateDef::Any => true,
             ObjectPredicateDef::Source => object.id == source,
+            ObjectPredicateDef::AttachedToSource => self.attached_host(source) == Some(object.id),
             ObjectPredicateDef::Token => object.token,
             ObjectPredicateDef::HasType(card_type) => object.types.contains(card_type),
             ObjectPredicateDef::HasAnyBasicLandType(land_types) => {
@@ -811,12 +888,6 @@ impl Game {
             ObjectPredicateDef::AttackedThisTurn => {
                 object.types.contains(CardType::Creature) && object.attacked_this_turn
             }
-            ObjectPredicateDef::AttachedToSource => self
-                .battlefield
-                .iter()
-                .find(|permanent| permanent.card.id == source)
-                .and_then(|permanent| permanent.attached_to)
-                .is_some_and(|host| host == object.id),
             ObjectPredicateDef::Blocking => {
                 object.types.contains(CardType::Creature)
                     && object.attacking_or_blocking

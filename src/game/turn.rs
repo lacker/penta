@@ -266,12 +266,20 @@ impl Game {
             Step::End => {
                 self.step = Step::Cleanup;
                 self.cleanup();
-                if !self.cleanup_pending {
-                    return;
+                if self.cleanup_pending && self.result.is_none() {
+                    self.priority = self.active_player;
+                    self.events.push(GameEvent::StepChanged {
+                        turn: self.turn,
+                        active_player: self.active_player,
+                        step: self.step,
+                    });
                 }
+                return;
             }
             Step::Cleanup => {
-                self.start_next_turn();
+                // CR 514.3a: if anything generated priority in cleanup, a
+                // fresh cleanup step begins after the empty stack is passed.
+                self.cleanup();
                 return;
             }
         }
@@ -450,11 +458,34 @@ impl Game {
 
     pub(super) fn complete_cleanup(&mut self) {
         self.channel_active[self.active_player.index()] = false;
+        // "At the beginning of the cleanup step" abilities trigger before
+        // the turn-based actions, but wait to be stacked until those actions
+        // and the resulting state-based actions are complete.
+        self.capture_battlefield_triggers(&CommittedTriggerEvent::StepBegins {
+            step: TurnStepDef::Cleanup,
+            player: self.active_player,
+        });
         self.finish_cleanup();
         self.empty_mana_pools();
-        if self.result.is_none() {
-            self.start_next_turn();
+        if self.result.is_some() {
+            return;
         }
+        let battlefield_before_sba = self.battlefield.clone();
+        self.check_state_based_actions();
+        if self.result.is_some() {
+            return;
+        }
+        let state_based_action_performed = self.battlefield != battlefield_before_sba;
+        let trigger_waited = !self.pending_triggers.is_empty();
+        let procedure_waiting = !self.pending_decisions.is_empty()
+            || !self.pending_events.is_empty()
+            || !self.pending_procedures.is_empty();
+        if state_based_action_performed || trigger_waited || procedure_waiting {
+            self.priority = self.active_player;
+            self.consecutive_passes = 0;
+            return;
+        }
+        self.start_next_turn();
     }
 
     pub(super) fn finish_cleanup(&mut self) {
@@ -479,13 +510,7 @@ impl Game {
             permanent
                 .temporary_removed_abilities
                 .retain(|removal| removal.expiration != AbilityEffectExpiration::EndOfTurn);
-            // A control change held by a permanent outlives the turn; only
-            // the turn-scoped form is ended here.
-            if permanent.control_source.is_none()
-                && let Some(owner) = permanent.control_reverts_to.take()
-            {
-                permanent.controller = owner;
-            }
+            permanent.control_until_end_of_turn.clear();
             permanent.unblockable_this_turn = false;
             permanent.cannot_block_this_turn = false;
             permanent.combat_damage_prevented = false;
@@ -499,6 +524,7 @@ impl Game {
             permanent.attacked_this_turn = false;
             permanent.attacks_this_turn = 0;
         }
+        self.reconcile_all_control_layers();
     }
 
     pub(super) fn clear_combat(&mut self) {

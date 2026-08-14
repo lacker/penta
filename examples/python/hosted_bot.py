@@ -28,11 +28,11 @@ import requests
 HEARTBEAT_SECONDS = 10
 # How long to wait between polls while it is the opponent's turn to move.
 POLL_SECONDS = 0.25
-# This bot consumes the protocol-22 indexed-action vocabulary, requires no
+# This bot consumes the protocol-23 indexed-action vocabulary, requires no
 # optional server facilities, and implements no optional server-required
 # vocabulary. Never copy the server's claims without implementing them.
 COMPATIBILITY = {
-    "protocolVersion": 22,
+    "protocolVersion": 23,
     "capabilities": [],
     "requiredCapabilities": [],
     # A trained bot can set this to the simulationFingerprint it requires:
@@ -48,7 +48,13 @@ def choose(observation):
             return index
     # Anything that develops the board beats passing, and passing beats
     # conceding -- which is legal at every priority and would end the game.
-    for wanted in ("PlayLand", "CastSpell", "DeclareAttacker", "ActivateAbility"):
+    for wanted in (
+        "PlayLand",
+        "CastSpell",
+        "DeclareAttacker",
+        "ActivateAbility",
+        "TakeSpecialAction",
+    ):
         for index, action in enumerate(actions):
             if action["type"] == wanted:
                 return index

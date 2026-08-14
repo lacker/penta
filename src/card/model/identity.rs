@@ -21,6 +21,7 @@ pub enum CardSet {
     Visions,
     Tempest,
     Stronghold,
+    Exodus,
     PortalSecondAge,
     UrzasSaga,
     MercadianMasques,
@@ -34,6 +35,7 @@ pub enum CardSet {
     Darksteel,
     PlanarChaos,
     FutureSight,
+    MirrodinBesieged,
     Innistrad,
     DarkAscension,
     AvacynRestored,
@@ -45,6 +47,8 @@ pub enum CardSet {
     Theros,
     KhansOfTarkir,
     ModernHorizons2,
+    KamigawaNeonDynasty,
+    ModernHorizons3,
     /// Tokens are game objects rather than printed cards. They live in the
     /// catalog so a client can look one up by definition, and belong to no
     /// set a format allows, so they are never deck-legal.

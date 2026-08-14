@@ -43,6 +43,19 @@ pub(super) fn permanent_snapshot(
         .collect::<Vec<_>>();
     let has_unlocated_removal =
         temporary_removed_abilities.len() != permanent.temporary_removed_abilities.len();
+    let licid_effects = permanent
+        .licid_effects
+        .iter()
+        .filter_map(|effect| {
+            Some(LicidEffectSnapshot {
+                effect_id: effect.id.0,
+                ender: effect.ender.index(),
+                transform_action: ability_origin_snapshot(effect.transform_action),
+                end: ability_locator(catalog, |candidate| *candidate == effect.end)?,
+            })
+        })
+        .collect::<Vec<_>>();
+    let has_unlocated_licid_effect = licid_effects.len() != permanent.licid_effects.len();
     let copy_effect = permanent.copy_effect.as_ref().map(|copy| {
         let added_abilities = copy
             .added_abilities
@@ -82,14 +95,47 @@ pub(super) fn permanent_snapshot(
             .map(|(player, turns)| (player.index(), turns)),
         combat_damage_prevented: permanent.combat_damage_prevented,
         combat_damage_dealt_by_prevented: permanent.combat_damage_dealt_by_prevented,
-        control_reverts_to: permanent.control_reverts_to.map(PlayerId::index),
         cannot_regenerate_this_turn: permanent.cannot_regenerate_this_turn,
-        control_source: permanent.control_source.map(|id| id.0),
-        control_requires_source_tapped: permanent.control_requires_source_tapped,
+        control_layer_base: permanent.control_layer_base.map(PlayerId::index),
+        control_until_end_of_turn: permanent
+            .control_until_end_of_turn
+            .iter()
+            .map(|effect| UntilEndOfTurnControlSnapshot {
+                timestamp: effect.timestamp.0,
+                controller: effect.controller.index(),
+            })
+            .collect(),
+        control_while_source_remains: permanent
+            .control_while_source_remains
+            .iter()
+            .map(|effect| WhileSourceControlSnapshot {
+                timestamp: effect.timestamp.0,
+                controller: effect.controller.index(),
+                source: effect.source.0,
+                requires_source_tapped: effect.requires_source_tapped,
+            })
+            .collect(),
         chosen_player: permanent.chosen_player.map(PlayerId::index),
         destroy_at_end: permanent.destroy_at_end,
         counters: permanent.counters.to_vec(),
         attached_to: permanent.attached_to.map(|id| id.0),
+        attachment_form: permanent.attachment_form.map(|form| match form {
+            AttachmentForm::Bestowed { timestamp } => AttachmentFormSnapshot::Bestowed {
+                timestamp: timestamp.0,
+            },
+            AttachmentForm::Reconfigured { timestamp } => AttachmentFormSnapshot::Reconfigured {
+                timestamp: timestamp.0,
+            },
+            AttachmentForm::Licid => AttachmentFormSnapshot::Licid,
+        }),
+        licid_effects,
+        reanimation_linked: permanent.reanimation_linked.map(|linked| linked.0),
+        reanimation_effect: permanent.reanimation_effect.map(|effect| {
+            ReanimationAttachmentEffectSnapshot {
+                timestamp: effect.timestamp.0,
+                aura: reanimation_aura_snapshot(effect.aura),
+            }
+        }),
         exile_instead_of_dying: permanent.exile_instead_of_dying,
         combat_damage_assignment: permanent
             .combat_damage_assignment
@@ -106,7 +152,10 @@ pub(super) fn permanent_snapshot(
         dealt_damage_to_opponent_this_turn: permanent.dealt_damage_to_opponent_this_turn,
         deathtouch_damage: permanent.deathtouch_damage,
         created_by: permanent.created_by.map(|id| id.0),
-        animation: permanent.animation.map(animation_snapshot),
+        animation: permanent
+            .animation
+            .map(|animation| animation_snapshot(animation.definition)),
+        animation_timestamp: permanent.animation.map(|animation| animation.timestamp.0),
         temporary_keywords: permanent
             .temporary_keywords
             .iter()
@@ -148,7 +197,8 @@ pub(super) fn permanent_snapshot(
             .collect(),
         has_dynamic_characteristics: has_unlocated_grant
             || has_unlocated_removal
-            || has_unlocated_copy_ability,
+            || has_unlocated_copy_ability
+            || has_unlocated_licid_effect,
     }
 }
 

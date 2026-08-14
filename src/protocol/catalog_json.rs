@@ -57,6 +57,7 @@ const fn card_set_slug(set: CardSet) -> &'static str {
         CardSet::Visions => "visions",
         CardSet::Tempest => "tempest",
         CardSet::Stronghold => "stronghold",
+        CardSet::Exodus => "exodus",
         CardSet::PortalSecondAge => "portal-second-age",
         CardSet::UrzasSaga => "urzas-saga",
         CardSet::MercadianMasques => "mercadian-masques",
@@ -70,6 +71,7 @@ const fn card_set_slug(set: CardSet) -> &'static str {
         CardSet::Darksteel => "darksteel",
         CardSet::PlanarChaos => "planar-chaos",
         CardSet::FutureSight => "future-sight",
+        CardSet::MirrodinBesieged => "mirrodin-besieged",
         CardSet::Innistrad => "innistrad",
         CardSet::DarkAscension => "dark-ascension",
         CardSet::AvacynRestored => "avacyn-restored",
@@ -81,6 +83,8 @@ const fn card_set_slug(set: CardSet) -> &'static str {
         CardSet::Theros => "theros",
         CardSet::KhansOfTarkir => "khans-of-tarkir",
         CardSet::ModernHorizons2 => "modern-horizons-2",
+        CardSet::KamigawaNeonDynasty => "kamigawa-neon-dynasty",
+        CardSet::ModernHorizons3 => "modern-horizons-3",
         CardSet::Token => "token",
     }
 }

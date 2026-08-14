@@ -12,6 +12,12 @@ pub enum SpellAbilityDef {
     Nonmodal {
         targets: &'static [AbilityTargetDef],
     },
+    /// An Aura spell's rules-defined targeting and attachment procedure.
+    /// Keeping this structural avoids inferring the Aura subtype from an
+    /// arbitrary executable `Attach` effect.
+    Aura {
+        targets: &'static [AbilityTargetDef],
+    },
     Modal(ModalSpellDef),
 }
 
@@ -63,8 +69,15 @@ impl SpellAbilityDef {
     pub const fn with_targets(self, targets: &'static [AbilityTargetDef]) -> Self {
         match self {
             Self::Nonmodal { .. } => Self::Nonmodal { targets },
-            Self::Modal(_) => panic!("targets belong on modal spell branches"),
+            Self::Aura { .. } | Self::Modal(_) => {
+                panic!("targets are fixed by this spell procedure")
+            }
         }
+    }
+
+    #[must_use]
+    pub const fn aura(targets: &'static [AbilityTargetDef]) -> Self {
+        Self::Aura { targets }
     }
 
     #[must_use]
@@ -82,7 +95,7 @@ impl SpellAbilityDef {
     #[must_use]
     pub const fn targets(self) -> &'static [AbilityTargetDef] {
         match self {
-            Self::Nonmodal { targets } => targets,
+            Self::Nonmodal { targets } | Self::Aura { targets } => targets,
             Self::Modal(_) => &[],
         }
     }
@@ -90,9 +103,14 @@ impl SpellAbilityDef {
     #[must_use]
     pub const fn modal(self) -> Option<ModalSpellDef> {
         match self {
-            Self::Nonmodal { .. } => None,
+            Self::Nonmodal { .. } | Self::Aura { .. } => None,
             Self::Modal(modal) => Some(modal),
         }
+    }
+
+    #[must_use]
+    pub const fn is_aura(self) -> bool {
+        matches!(self, Self::Aura { .. })
     }
 
     #[must_use]
@@ -334,6 +352,10 @@ pub struct StaticAbilityDef {
 pub struct AlternativeCastAbilityDef {
     pub mana_cost: AlternativeCastManaCostDef,
     pub kind: AlternativeCastKindDef,
+    /// Targets supplied by this alternative spell procedure. Most
+    /// alternative costs leave the ordinary spell text alone; bestow is an
+    /// Aura spell only while this alternative is selected.
+    pub targets: &'static [AbilityTargetDef],
     /// Rules text for the spell as modified by this alternative, when the
     /// procedure changes its visible instructions (as overload does).
     pub stack_text: Option<&'static str>,
@@ -346,6 +368,7 @@ pub enum AlternativeCastKindDef {
     /// Cast from hand only in the window opened by drawing the card, as the
     /// first card drawn that turn.
     Miracle,
+    Bestow,
 }
 
 /// How an alternative-casting ability determines the cost it supplies.
@@ -376,6 +399,7 @@ impl AlternativeCastKindDef {
             Self::Flashback => "Flashback",
             Self::Overload => "Overload",
             Self::Miracle => "Miracle",
+            Self::Bestow => "Bestow",
         }
     }
 }
@@ -411,6 +435,15 @@ impl AlternativeCastAbilityDef {
                 AlternativeCastKindDef::Miracle,
                 AlternativeCastManaCostDef::ThisCardManaCost,
             ) => "Miracle—the miracle cost is equal to this card's mana cost. (You may cast this card for its miracle cost when you draw it if it's the first card you drew this turn.)".into(),
+            (AlternativeCastKindDef::Bestow, AlternativeCastManaCostDef::Fixed(mana_cost)) => {
+                format!(
+                    "Bestow {mana_cost} (If you cast this card for its bestow cost, it's an Aura spell with enchant creature. It becomes a creature again if it's not attached.)",
+                )
+            }
+            (
+                AlternativeCastKindDef::Bestow,
+                AlternativeCastManaCostDef::ThisCardManaCost,
+            ) => "Bestow—the bestow cost is equal to this card's mana cost. (If you cast this card for its bestow cost, it's an Aura spell with enchant creature. It becomes a creature again if it's not attached.)".into(),
         }
     }
 

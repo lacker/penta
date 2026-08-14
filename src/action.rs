@@ -114,6 +114,17 @@ pub enum Action {
         /// has no X.
         x: u16,
     },
+    /// Takes a rules-defined special action from a battlefield object.
+    ///
+    /// Special actions pay their costs and happen immediately; unlike an
+    /// activated ability, they never create a stack object.
+    TakeSpecialAction {
+        source: GameObjectId,
+        ability: AbilityOrigin,
+        /// Stable identity of the rules effect that granted this action.
+        /// Ordinary special actions are not effect-scoped and use `None`.
+        effect_id: Option<u64>,
+    },
     DeclareAttacker {
         attacker: GameObjectId,
         defender: AttackDefender,

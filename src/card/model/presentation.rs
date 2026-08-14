@@ -75,11 +75,11 @@ fn object_predicate_implies(predicate: ObjectPredicateDef, expected: ObjectPredi
         }
         ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
+        | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::Token
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::Attacking
         | ObjectPredicateDef::Blocking
-        | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::AttackedThisTurn
         | ObjectPredicateDef::HasType(_)
         | ObjectPredicateDef::Spell
@@ -115,11 +115,11 @@ fn predicate_color(predicate: ObjectPredicateDef) -> Option<ManaColor> {
         ObjectPredicateDef::All(predicates) => predicates.iter().copied().find_map(predicate_color),
         ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
+        | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::Token
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::Attacking
         | ObjectPredicateDef::Blocking
-        | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::AttackedThisTurn
         | ObjectPredicateDef::HasType(_)
         | ObjectPredicateDef::Spell
@@ -157,11 +157,11 @@ fn predicate_color_count(predicate: ObjectPredicateDef) -> Option<u8> {
         }
         ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
+        | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::Token
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::Attacking
         | ObjectPredicateDef::Blocking
-        | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::AttackedThisTurn
         | ObjectPredicateDef::HasType(_)
         | ObjectPredicateDef::Spell
@@ -199,11 +199,11 @@ fn predicate_subtype(predicate: ObjectPredicateDef) -> Option<&'static str> {
         }
         ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
+        | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::Token
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::Attacking
         | ObjectPredicateDef::Blocking
-        | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::AttackedThisTurn
         | ObjectPredicateDef::HasType(_)
         | ObjectPredicateDef::Spell
@@ -245,11 +245,11 @@ fn predicate_negated_subtype(predicate: ObjectPredicateDef) -> Option<&'static s
             .find_map(predicate_negated_subtype),
         ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
+        | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::Token
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::Attacking
         | ObjectPredicateDef::Blocking
-        | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::AttackedThisTurn
         | ObjectPredicateDef::HasType(_)
         | ObjectPredicateDef::Spell
@@ -295,11 +295,11 @@ fn predicate_power_at_least(predicate: ObjectPredicateDef) -> Option<i16> {
         | ObjectPredicateDef::ToughnessGreaterThan(_)
         | ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
+        | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::Token
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::Attacking
         | ObjectPredicateDef::Blocking
-        | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::AttackedThisTurn
         | ObjectPredicateDef::HasType(_)
         | ObjectPredicateDef::Spell
@@ -333,11 +333,11 @@ fn predicate_mana_value_at_most(predicate: ObjectPredicateDef) -> Option<u8> {
             .find_map(predicate_mana_value_at_most),
         ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
+        | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::Token
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::Attacking
         | ObjectPredicateDef::Blocking
-        | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::AttackedThisTurn
         | ObjectPredicateDef::HasType(_)
         | ObjectPredicateDef::Spell
@@ -375,11 +375,11 @@ fn predicate_controller(predicate: ObjectPredicateDef) -> Option<PlayerRelation>
         }
         ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
+        | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::Token
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::Attacking
         | ObjectPredicateDef::Blocking
-        | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::AttackedThisTurn
         | ObjectPredicateDef::HasType(_)
         | ObjectPredicateDef::Spell
@@ -420,11 +420,11 @@ fn predicate_negates(predicate: ObjectPredicateDef, expected: ObjectPredicateDef
             .any(|predicate| predicate_negates(predicate, expected)),
         ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
+        | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::Token
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::Attacking
         | ObjectPredicateDef::Blocking
-        | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::AttackedThisTurn
         | ObjectPredicateDef::HasType(_)
         | ObjectPredicateDef::Spell

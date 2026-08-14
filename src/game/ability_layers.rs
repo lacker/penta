@@ -4,9 +4,13 @@ use crate::card::AbilityPredicateDef;
 
 use super::{
     AbilityDef, AbilityId, AbilityLayerOperation, AbilityLayerOperationKind, AbilityOrigin,
-    AppliedEffectDef, BasicLandType, CardBehavior, CardType, ControlFlow, DeclarativeAbilityDef,
-    EffectiveAbility, Game, KeywordAbility, Permanent, StaticAppliedEffect, abilities,
+    AppliedEffectDef, AttachmentForm, BasicLandType, CardBehavior, CardType, ControlFlow,
+    DeclarativeAbilityDef, EffectiveAbility, Game, KeywordAbility, Permanent, ReanimationAuraDef,
+    StaticAppliedEffect, ZoneKind, abilities,
 };
+
+static RUNTIME_ENCHANT_CREATURE: AbilityDef =
+    abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET);
 
 thread_local! {
     /// Set while a layer-6 gathering pass is running on this thread.
@@ -96,14 +100,8 @@ impl Game {
                 self.rules_text_abilities_removed_with_prospective(permanent, prospective)
             },
         );
-        let animation_removes_abilities = permanent
-            .animation
-            .is_some_and(|animation| animation.loses_abilities);
         let mut abilities = Vec::new();
-        if !rules_text_removed
-            && !animation_removes_abilities
-            && let Some(rules) = self.effective_rules(characteristics)
-        {
+        if !rules_text_removed && let Some(rules) = self.effective_rules(characteristics) {
             let (definition, part) = Self::effective_rules_source(characteristics);
             for attached in rules.indexed_abilities() {
                 abilities.push(EffectiveAbility {
@@ -242,6 +240,62 @@ impl Game {
                 kind: AbilityLayerOperationKind::Remove(removal.predicate),
             });
         }
+        let runtime_origin = AbilityOrigin::Printed {
+            definition: permanent.card.definition,
+            part: permanent.presented,
+            ability: AbilityId::PRIMARY,
+        };
+        if let Some(animation) = permanent.animation
+            && animation.definition.loses_abilities
+        {
+            operations.push(AbilityLayerOperation {
+                timestamp: animation.timestamp,
+                order: 0,
+                kind: AbilityLayerOperationKind::Remove(AbilityPredicateDef::Any),
+            });
+        }
+        if let Some(AttachmentForm::Bestowed { timestamp }) = permanent.attachment_form {
+            operations.push(AbilityLayerOperation {
+                timestamp,
+                order: 0,
+                kind: AbilityLayerOperationKind::Add {
+                    origin: runtime_origin,
+                    ability: RUNTIME_ENCHANT_CREATURE,
+                },
+            });
+        }
+        for effect in &permanent.licid_effects {
+            operations.push(AbilityLayerOperation {
+                timestamp: effect.id,
+                order: 0,
+                kind: AbilityLayerOperationKind::RemoveOrigin(effect.transform_action),
+            });
+            operations.push(AbilityLayerOperation {
+                timestamp: effect.id,
+                order: 1,
+                kind: AbilityLayerOperationKind::Add {
+                    origin: effect.transform_action,
+                    ability: RUNTIME_ENCHANT_CREATURE,
+                },
+            });
+        }
+        if let Some(effect) = permanent.reanimation_effect {
+            if effect.aura == ReanimationAuraDef::Retain {
+                operations.push(AbilityLayerOperation {
+                    timestamp: effect.timestamp,
+                    order: 0,
+                    kind: AbilityLayerOperationKind::RemoveGraveyardEnchant,
+                });
+            }
+            operations.push(AbilityLayerOperation {
+                timestamp: effect.timestamp,
+                order: 1,
+                kind: AbilityLayerOperationKind::Add {
+                    origin: runtime_origin,
+                    ability: RUNTIME_ENCHANT_CREATURE,
+                },
+            });
+        }
         operations.sort_by_key(|operation| (operation.timestamp, operation.order));
         operations
     }
@@ -257,7 +311,34 @@ impl Game {
             AbilityLayerOperationKind::Remove(predicate) => {
                 abilities.retain(|ability| !Self::ability_predicate_matches(predicate, ability));
             }
+            AbilityLayerOperationKind::RemoveOrigin(origin) => {
+                abilities.retain(|ability| ability.origin != origin);
+            }
+            AbilityLayerOperationKind::RemoveGraveyardEnchant => {
+                abilities.retain(|ability| !Self::is_graveyard_enchant_ability(ability));
+            }
         }
+    }
+
+    fn is_graveyard_enchant_ability(effective: &EffectiveAbility) -> bool {
+        let DeclarativeAbilityDef::Spell(spell) = effective.ability.definition else {
+            return false;
+        };
+        if !spell.is_aura()
+            && !effective
+                .ability
+                .declarative_effect()
+                .is_some_and(Self::effect_attaches)
+        {
+            return false;
+        }
+        spell.targets().iter().any(|target| {
+            matches!(
+                target.predicate,
+                crate::card::AbilityTargetPredicate::Object { zones, .. }
+                    if zones.contains(&ZoneKind::Graveyard)
+            )
+        })
     }
 
     fn static_ability_layer_operation(
@@ -289,6 +370,7 @@ impl Game {
             | AppliedEffectDef::CannotBecomeEnchanted
             | AppliedEffectDef::CannotChangeController
             | AppliedEffectDef::RemainsAttachedThroughProtection
+            | AppliedEffectDef::ControlBySourceController
             | AppliedEffectDef::CannotBeBlockedBy(_)
             | AppliedEffectDef::PreventDamageFrom(_)
             | AppliedEffectDef::PreventCombatDamage

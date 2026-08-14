@@ -708,6 +708,8 @@ fn resolving_ability_masks_an_illegal_target_in_each_frozen_slot() {
                 object_controller: None,
                 event_player: None,
                 amount: None,
+                source_attachment: None,
+                source_linked: None,
             },
             resolver: StackAbilityResolver::Declarative(ScopedEffect::primary(
                 EffectDef::Sequence(&EFFECTS),
@@ -723,6 +725,7 @@ fn resolving_ability_masks_an_illegal_target_in_each_frozen_slot() {
         text_changes: Vec::new(),
         colors: None,
         cast_via_flashback: false,
+        schedule_on_entry: None,
         is_copy: false,
     });
 

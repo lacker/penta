@@ -17,6 +17,7 @@ pub(super) fn shared_object_predicate(predicate: ObjectPredicateDef) -> bool {
         ObjectPredicateDef::Special(_) => false,
         ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
+        | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::Token
         | ObjectPredicateDef::HasType(_)
         | ObjectPredicateDef::HasAnyBasicLandType(_)
@@ -44,7 +45,6 @@ pub(super) fn shared_object_predicate(predicate: ObjectPredicateDef) -> bool {
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::Attacking
         | ObjectPredicateDef::Blocking
-        | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::AttackedThisTurn => true,
     }
 }
@@ -87,6 +87,7 @@ pub(super) fn shared_effect_recipient(recipient: EffectRecipientDef) -> bool {
         | EffectRecipientDef::Source
         | EffectRecipientDef::ChosenPermanent(_)
         | EffectRecipientDef::AttachedPermanent
+        | EffectRecipientDef::LinkedPermanent
         | EffectRecipientDef::Controller
         | EffectRecipientDef::Opponent
         | EffectRecipientDef::EachPlayer
@@ -150,6 +151,7 @@ pub(super) fn shared_cannot_be_countered_effect(effect: AppliedEffectDef) -> boo
         }
         AppliedEffectDef::CannotBeCountered | AppliedEffectDef::CannotBeEnchanted => true,
         AppliedEffectDef::ModifyPowerToughness { .. }
+        | AppliedEffectDef::ControlBySourceController
         | AppliedEffectDef::DoesNotUntapDuringUntapStep
         | AppliedEffectDef::MayChooseNotToUntap
         | AppliedEffectDef::CannotBlock
@@ -227,6 +229,7 @@ fn resolving_effect_is_only_ability_changes(effect: AppliedEffectDef) -> bool {
         }
         AppliedEffectDef::GrantAbility(_) | AppliedEffectDef::RemoveAbilities(_) => true,
         AppliedEffectDef::CannotBeCountered
+        | AppliedEffectDef::ControlBySourceController
         | AppliedEffectDef::DoesNotUntapDuringUntapStep
         | AppliedEffectDef::MayChooseNotToUntap
         | AppliedEffectDef::CannotBlock
@@ -281,6 +284,7 @@ pub(super) fn shared_resolving_applied_effect(effect: AppliedEffectDef) -> bool 
         // The rest are continuous, not an until-end-of-turn rider a spell
         // hands out.
         AppliedEffectDef::CannotBeCountered
+        | AppliedEffectDef::ControlBySourceController
         | AppliedEffectDef::DoesNotUntapDuringUntapStep
         | AppliedEffectDef::MayChooseNotToUntap
         | AppliedEffectDef::CannotBeEnchanted
@@ -397,7 +401,9 @@ pub(super) fn shared_static_effect(source_zones: &[ZoneKind], effect: EffectDef)
             duration,
         } => {
             let battlefield_recipient_is_supported = match recipient {
-                EffectRecipientDef::Source | EffectRecipientDef::AttachedPermanent => true,
+                EffectRecipientDef::Source
+                | EffectRecipientDef::AttachedPermanent
+                | EffectRecipientDef::LinkedPermanent => true,
                 EffectRecipientDef::MatchingObjects { object, zones, .. } => {
                     zones == [ZoneKind::Battlefield] && shared_object_predicate(object)
                 }
@@ -435,6 +441,7 @@ pub(super) fn shared_static_effect(source_zones: &[ZoneKind], effect: EffectDef)
                 && shared_static_trigger_condition(*condition)
                 && shared_static_effect(source_zones, *then)
         }
+        EffectDef::FlashWithCleanupSacrifice { .. } => source_zones == [ZoneKind::Hand],
         // None of these is a static ability; all execute from the stack.
         EffectDef::GrantFlashToNextSorcery
         | EffectDef::Randomized { .. }
@@ -455,6 +462,7 @@ pub(super) fn shared_static_effect(source_zones: &[ZoneKind], effect: EffectDef)
         | EffectDef::AddMana(_)
         | EffectDef::AddManaEqualTo { .. }
         | EffectDef::DealDamage { .. }
+        | EffectDef::DealDamageFrom { .. }
         | EffectDef::DrainLife { .. }
         | EffectDef::GainLife { .. }
         | EffectDef::DrawCards { .. }
@@ -474,6 +482,12 @@ pub(super) fn shared_static_effect(source_zones: &[ZoneKind], effect: EffectDef)
         | EffectDef::PreventDamageToPlayerAndControlledCreaturesThisTurn { .. }
         | EffectDef::PreventAllCombatDamageExceptSourceThisTurn { .. }
         | EffectDef::Attach { .. }
+        | EffectDef::Unattach { .. }
+        | EffectDef::Reconfigure { .. }
+        | EffectDef::BecomeAuraAndAttach { .. }
+        | EffectDef::EndAuraEffect
+        | EffectDef::ReturnToBattlefieldAttached { .. }
+        | EffectDef::CreateAttachedToken { .. }
         | EffectDef::CreateToken { .. }
         | EffectDef::Destroy { .. }
         | EffectDef::Sacrifice { .. }
@@ -561,6 +575,7 @@ pub(super) fn shared_static_applied_effect(
         | AppliedEffectDef::MayChooseNotToUntap
         | AppliedEffectDef::CannotBlock
         | AppliedEffectDef::CannotBeBlocked
+        | AppliedEffectDef::ControlBySourceController
         | AppliedEffectDef::RemoveAbilities(_)
         | AppliedEffectDef::CannotBeCountered
         | AppliedEffectDef::CannotBeEnchanted
@@ -660,6 +675,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::May { .. }
                     | EffectDef::None
                     | EffectDef::DealDamage { .. }
+                    | EffectDef::DealDamageFrom { .. }
                     | EffectDef::DrainLife { .. }
                     | EffectDef::GainLife { .. }
                     | EffectDef::DrawCards { .. }
@@ -679,6 +695,12 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::PreventDamageToPlayerAndControlledCreaturesThisTurn { .. }
                     | EffectDef::PreventAllCombatDamageExceptSourceThisTurn { .. }
                     | EffectDef::Attach { .. }
+                    | EffectDef::Unattach { .. }
+                    | EffectDef::Reconfigure { .. }
+                    | EffectDef::BecomeAuraAndAttach { .. }
+                    | EffectDef::EndAuraEffect
+                    | EffectDef::ReturnToBattlefieldAttached { .. }
+                    | EffectDef::CreateAttachedToken { .. }
                     | EffectDef::CreateToken { .. }
                     | EffectDef::Destroy { .. }
                     | EffectDef::Sacrifice { .. }
@@ -708,6 +730,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::TakeExtraTurn { .. }
                     | EffectDef::CannotCastNoncreatureSpellsThisTurn { .. }
                     | EffectDef::GrantFlashToNextSorcery
+                    | EffectDef::FlashWithCleanupSacrifice { .. }
                     | EffectDef::ExileLinkedToSource { .. }
                     | EffectDef::ReturnLinkedExiles { .. }
                     | EffectDef::Detain { .. }
@@ -869,8 +892,24 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                 effect == EffectDef::None
             }
             AlternativeCastKindDef::Overload => shared_stack_effect(effect),
+            AlternativeCastKindDef::Bestow => {
+                !definition.targets.is_empty()
+                    && definition
+                        .targets
+                        .iter()
+                        .all(|target| target.divided_total.is_none())
+                    && shared_stack_effect(effect)
+            }
         },
         DeclarativeAbilityDef::Keyword(keyword) => shared_keyword(keyword),
-        DeclarativeAbilityDef::SpecialAction(_) | DeclarativeAbilityDef::Legacy => false,
+        DeclarativeAbilityDef::SpecialAction(definition) => {
+            battlefield_only(definition.source_zones)
+                && definition
+                    .costs
+                    .iter()
+                    .all(|cost| matches!(cost, AbilityCostDef::Mana(mana) if !mana.variable_x))
+                && shared_stack_effect(effect)
+        }
+        DeclarativeAbilityDef::Legacy => false,
     }
 }

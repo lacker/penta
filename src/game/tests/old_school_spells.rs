@@ -484,7 +484,10 @@ fn structured_target_predicates_are_rechecked_when_the_spell_resolves() {
     let mut game = ready_game();
     game.catalog = crate::card::catalog().unwrap();
     let mut factory = creature(10_000, cards::MISHRA_S_FACTORY, PlayerId::Two);
-    factory.animation = Some(&abilities::MISHRAS_FACTORY_ANIMATION);
+    factory.animation = Some(ResolvedAnimation {
+        definition: &abilities::MISHRAS_FACTORY_ANIMATION,
+        timestamp: factory.timestamp,
+    });
     let factory_id = factory.card.id;
     game.battlefield.push(factory);
     let mut turn = spell(77, crate::card::cards::TURN_BURN, PlayerId::One, 0);
@@ -652,7 +655,10 @@ fn animated_factory_keeps_types_and_last_known_stats_under_blood_moon() {
     let mut game = ready_game();
     game.catalog = crate::card::catalog().unwrap();
     let mut factory = creature(10_000, cards::MISHRA_S_FACTORY, PlayerId::One);
-    factory.animation = Some(&abilities::MISHRAS_FACTORY_ANIMATION);
+    factory.animation = Some(ResolvedAnimation {
+        definition: &abilities::MISHRAS_FACTORY_ANIMATION,
+        timestamp: factory.timestamp,
+    });
     let blood_moon = creature(10_001, cards::BLOOD_MOON, PlayerId::Two);
     game.battlefield = vec![factory, blood_moon];
 

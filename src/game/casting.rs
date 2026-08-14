@@ -1,13 +1,13 @@
 use super::{
-    AbilityCostDef, AbilityOrigin, AbilityTargetDef, AlternativeCastKindDef, BTreeMap,
-    BattlefieldExitCompletion, CREATURE_TYPES, CardBehavior, CardEffectStatus, CardType,
+    AbilityCostDef, AbilityOrigin, AbilitySourceRef, AbilityTargetDef, AlternativeCastKindDef,
+    BTreeMap, BattlefieldExitCompletion, CREATURE_TYPES, CardBehavior, CardEffectStatus, CardType,
     CardTypeSet, CastChoices, CastSignature, CastSourceZone, CommittedTriggerEvent, ControlFlow,
     DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
     DeclarativeAbilityDef, EntryCompletion, Game, GameEvent, GameObjectId, Mana, ManaColor,
     ManaCost, ManaPaymentPurpose, PendingBattlefieldEntry, Permanent, PlayActionKind,
     PlayOptionDef, PlayOptionId, PlayRestriction, PlayerId, StackObject, StackObjectKind, Target,
-    TargetPredicate, TargetSlotDef, TargetSlotId, TriggerContext, ZoneKind, add_generic,
-    extra_target_cost, reduce_generic, remove_card,
+    TargetPredicate, TargetSlotDef, TargetSlotId, TriggerCapture, TriggerContext, ZoneKind,
+    add_generic, extra_target_cost, reduce_generic, remove_card,
 };
 
 impl Game {
@@ -469,6 +469,22 @@ impl Game {
             if !choices.targets().is_empty() {
                 return None;
             }
+        } else if alternative_kind == Some(AlternativeCastKindDef::Bestow) {
+            let selected = choices.costs().alternative()?;
+            let (_, ability, _) = Self::alternative_cast_ability(definition, option, selected)?;
+            let DeclarativeAbilityDef::AlternativeCast(alternative) = ability.definition else {
+                return None;
+            };
+            if alternative.targets.len() != choices.targets().len()
+                || !self.spell_target_selection_is_valid(
+                    alternative.targets,
+                    choices,
+                    player,
+                    card_id,
+                )
+            {
+                return None;
+            }
         } else if let Some((_, ability)) = Self::spell_ability(definition, option) {
             let DeclarativeAbilityDef::Spell(spell) = ability.definition else {
                 unreachable!("spell_ability returns a spell clause")
@@ -526,6 +542,53 @@ impl Game {
         self.targets_matching(predicate).contains(&target)
     }
 
+    fn schedule_cleanup_trigger_for_cast(
+        &mut self,
+        player: PlayerId,
+        card_id: GameObjectId,
+        signature: &CastSignature,
+    ) -> Option<u32> {
+        let cleanup_permission = self.players[player.index()]
+            .hand
+            .iter()
+            .chain(&self.players[player.index()].graveyard)
+            .find(|card| card.id == card_id)
+            .and_then(|card| {
+                let definition = self.catalog.get(card.definition)?;
+                let option = definition.play_option(signature.play_option())?;
+                let off_timing =
+                    player != self.active_player || !self.step.is_main() || !self.stack.is_empty();
+                if !off_timing || Self::play_option_has_keyword_flash(definition, option) {
+                    return None;
+                }
+                let (origin, trigger) =
+                    Self::play_option_cleanup_flash_trigger(definition, option)?;
+                Some((card.owner, definition.id, origin, trigger))
+            });
+
+        cleanup_permission.and_then(|(owner, presentation_definition, origin, trigger)| {
+            let DeclarativeAbilityDef::Triggered(definition) = trigger.definition else {
+                return None;
+            };
+            let capture = TriggerCapture {
+                source: AbilitySourceRef {
+                    object: card_id,
+                    ability: origin,
+                },
+                definition: presentation_definition,
+                owner,
+                controller: player,
+                text: trigger.text,
+                target_defs: definition.targets,
+                effect: trigger.effect.definition,
+                resolver: Self::ability_resolver(origin, &trigger),
+                context: TriggerContext::empty(),
+                condition: definition.condition,
+            };
+            Some(self.schedule_one_shot_event_trigger(definition.event, &capture))
+        })
+    }
+
     pub(super) fn cast_spell(
         &mut self,
         player: PlayerId,
@@ -553,6 +616,11 @@ impl Game {
                 self.selected_alternative_kind(definition, option, card_id, signature.costs())
             })
             == Some(AlternativeCastKindDef::Flashback);
+        // The delayed ability is created by casting with the permission, not
+        // by the spell resolving. A countered spell therefore leaves an
+        // unbound listener that will trigger and resolve harmlessly. Entry
+        // completion fills in the exact resulting permanent only on success.
+        let schedule_on_entry = self.schedule_cleanup_trigger_for_cast(player, card_id, &signature);
         let card = match source_zone {
             CastSourceZone::Hand => remove_card(&mut self.players[player.index()].hand, card_id),
             CastSourceZone::Graveyard => {
@@ -595,6 +663,7 @@ impl Game {
             text_changes: Vec::new(),
             colors: None,
             cast_via_flashback,
+            schedule_on_entry,
             is_copy: false,
         };
         let payment_purpose = ManaPaymentPurpose::Spell {

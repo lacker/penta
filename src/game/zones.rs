@@ -332,6 +332,23 @@ impl Game {
         controller: PlayerId,
         grant: Option<KeywordAbility>,
     ) -> CardInstance {
+        self.put_card_onto_battlefield_from_with_completion(
+            card,
+            from,
+            controller,
+            grant,
+            EntryCompletion::None,
+        )
+    }
+
+    pub(super) fn put_card_onto_battlefield_from_with_completion(
+        &mut self,
+        card: CardInstance,
+        from: ZoneKind,
+        controller: PlayerId,
+        grant: Option<KeywordAbility>,
+        completion: EntryCompletion,
+    ) -> CardInstance {
         let definition = self
             .catalog
             .get(card.definition)
@@ -354,7 +371,7 @@ impl Game {
         self.enqueue_battlefield_entry(PendingBattlefieldEntry {
             permanent,
             from,
-            completion: EntryCompletion::None,
+            completion,
         });
         entered_card
     }
@@ -373,6 +390,25 @@ impl Game {
         // Reanimation that steals names a player; everything else leaves this
         // empty and the card arrives under its owner's control.
         arriving_controller: Option<PlayerId>,
+    ) -> Option<(CardInstance, ZoneKind)> {
+        self.move_card_from_nonbattlefield_zone_with_completion(
+            id,
+            expected_from,
+            requested_to,
+            cause,
+            arriving_controller,
+            EntryCompletion::None,
+        )
+    }
+
+    pub(super) fn move_card_from_nonbattlefield_zone_with_completion(
+        &mut self,
+        id: GameObjectId,
+        expected_from: ZoneKind,
+        requested_to: ZoneKind,
+        cause: ZoneMoveCause,
+        arriving_controller: Option<PlayerId>,
+        completion: EntryCompletion,
     ) -> Option<(CardInstance, ZoneKind)> {
         let (from, card) = self
             .card_in_nonbattlefield_zone(id)
@@ -397,11 +433,12 @@ impl Game {
         };
         let card = remove_card(cards, id)?;
         let card = if destination == ZoneKind::Battlefield {
-            self.put_card_onto_battlefield_from(
+            self.put_card_onto_battlefield_from_with_completion(
                 card,
                 from,
                 arriving_controller.unwrap_or(owner),
                 None,
+                completion,
             )
         } else {
             let (card, _zone_change) = self.zone_change_card(card);

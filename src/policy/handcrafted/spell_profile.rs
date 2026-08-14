@@ -277,6 +277,9 @@ impl HandcraftedPolicy {
             | EffectDef::DrainLife { recipient, amount } => {
                 Self::collect_damage_profile(recipient, amount, x, profile);
             }
+            EffectDef::DealDamageFrom {
+                recipient, amount, ..
+            } => Self::collect_damage_profile(recipient, amount, x, profile),
             EffectDef::DrawCards { recipient, amount } => {
                 Self::collect_draw_profile(recipient, amount, x, profile);
             }
@@ -379,6 +382,13 @@ impl HandcraftedPolicy {
             | EffectDef::Replacement(_)
             | EffectDef::MoveToZone { .. }
             | EffectDef::Attach { .. }
+            | EffectDef::Unattach { .. }
+            | EffectDef::Reconfigure { .. }
+            | EffectDef::BecomeAuraAndAttach { .. }
+            | EffectDef::EndAuraEffect
+            | EffectDef::ReturnToBattlefieldAttached { .. }
+            | EffectDef::CreateAttachedToken { .. }
+            | EffectDef::FlashWithCleanupSacrifice { .. }
             | EffectDef::CreateToken { .. }
             | EffectDef::ChooseCardName { .. }
             | EffectDef::ChoosePlayer { .. }

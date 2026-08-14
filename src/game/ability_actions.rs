@@ -1,11 +1,12 @@
 use super::{
     AbilityCostDef, AbilityOrigin, AbilityProcedureDef, Action, CardBehavior, CardDefinitionId,
     CardInstance, CardPart, CardStructure, CharacteristicContext, CharacteristicSource,
-    ControlFlow, DeclarativeAbilityDef, DoubleFacedKind, EffectiveAbility, FrozenActivatedAbility,
-    Game, GameEvent, GameObjectId, ManaCost, ManaPaymentPurpose, Permanent, PlayerId,
-    RetiredObject, StackAbilityPayload, StackObject, StackObjectKind, TargetSelection,
-    TriggerContext, ZoneKind, add_mana_cost, applicable_part_ids, mana_cost_value,
+    ControlFlow, DeclarativeAbilityDef, DoubleFacedKind, EffectDef, EffectiveAbility,
+    FrozenActivatedAbility, Game, GameEvent, GameObjectId, ManaCost, ManaPaymentPurpose, Permanent,
+    PlayerId, RetiredObject, ScopedEffect, StackAbilityPayload, StackObject, StackObjectKind,
+    TargetSelection, TriggerContext, ZoneKind, add_mana_cost, applicable_part_ids, mana_cost_value,
 };
+use crate::SpecialActionDef;
 
 impl Game {
     pub(super) fn push_activated_ability(
@@ -38,6 +39,7 @@ impl Game {
             CharacteristicSource::Ability(frozen.presentation_definition),
         );
         let id = card.id;
+        let source_attachment = self.current_or_last_known_attached_host(source);
         self.stack.push(StackObject {
             id,
             kind: StackObjectKind::ActivatedAbility,
@@ -50,7 +52,10 @@ impl Game {
                 text: frozen.text,
                 target_defs: frozen.target_defs.to_vec(),
                 targets,
-                context: TriggerContext::empty(),
+                context: TriggerContext {
+                    source_attachment,
+                    ..TriggerContext::empty()
+                },
                 resolver: frozen.resolver,
                 // Only a triggered ability carries an intervening-if.
                 condition: None,
@@ -64,6 +69,7 @@ impl Game {
             text_changes: Vec::new(),
             colors: None,
             cast_via_flashback: false,
+            schedule_on_entry: None,
             is_copy: false,
         });
         self.events.push(GameEvent::AbilityActivated {
@@ -78,6 +84,9 @@ impl Game {
 
     #[allow(clippy::too_many_lines)]
     pub(super) fn add_ability_actions(&self, player: PlayerId, actions: &mut Vec<Action>) {
+        for permanent in &self.battlefield {
+            self.add_special_action_actions(player, permanent, actions);
+        }
         for permanent in self
             .battlefield
             .iter()
@@ -275,6 +284,19 @@ impl Game {
                     // that loop. The boundary test rejects one until it is.
                     0,
                 ) {
+                    if ability
+                        .declarative_effect()
+                        .is_some_and(|effect| matches!(effect, EffectDef::Reconfigure { .. }))
+                        && selections
+                            .iter()
+                            .all(|selection| selection.targets().is_empty())
+                        && permanent.attached_to.is_none()
+                    {
+                        // The targetless half says to unattach this object;
+                        // it is an available reconfigure action only while an
+                        // attachment relation actually exists.
+                        continue;
+                    }
                     for cost_object in &cost_object_choices {
                         for x in 0..=max_x {
                             actions.push(Action::ActivateAbility {
@@ -297,6 +319,246 @@ impl Game {
         }
         self.add_hand_ability_actions(player, actions);
         self.add_graveyard_ability_actions(player, actions);
+    }
+
+    fn add_special_action_actions(
+        &self,
+        player: PlayerId,
+        permanent: &Permanent,
+        actions: &mut Vec<Action>,
+    ) {
+        let mut last_origin = None;
+        self.for_each_effective_ability(permanent, |effective| {
+            let ability = effective.ability;
+            let DeclarativeAbilityDef::SpecialAction(definition) = ability.definition else {
+                return;
+            };
+            if last_origin == Some(effective.origin) {
+                return;
+            }
+            last_origin = Some(effective.origin);
+            let Some(effect) = ability.declarative_effect() else {
+                return;
+            };
+            // Licid end permissions belong to independently resolving type-
+            // changing effects, not to the object's current layer-6 ability
+            // set. They are advertised from `licid_effects` below.
+            if matches!(effect, EffectDef::EndAuraEffect) {
+                return;
+            }
+            let Some(cost) = Self::special_action_mana_cost(definition) else {
+                return;
+            };
+            if !ability.is_executable()
+                || !definition.source_zones.contains(&ZoneKind::Battlefield)
+                || !Self::special_action_effect_is_available(
+                    player,
+                    permanent,
+                    effective.origin,
+                    None,
+                    effect,
+                )
+                || !self.can_pay_cost(player, cost, 0)
+            {
+                return;
+            }
+            actions.push(Action::TakeSpecialAction {
+                source: permanent.card.id,
+                ability: effective.origin,
+                effect_id: None,
+            });
+        });
+        for licid_effect in &permanent.licid_effects {
+            let origin = licid_effect.transform_action;
+            let ability = licid_effect.end;
+            let DeclarativeAbilityDef::SpecialAction(definition) = ability.definition else {
+                continue;
+            };
+            let Some(effect) = ability.declarative_effect() else {
+                continue;
+            };
+            let Some(cost) = Self::special_action_mana_cost(definition) else {
+                continue;
+            };
+            let effect_id = Some(licid_effect.id.0);
+            if !ability.is_executable()
+                || !definition.source_zones.contains(&ZoneKind::Battlefield)
+                || !Self::special_action_effect_is_available(
+                    player, permanent, origin, effect_id, effect,
+                )
+                || !self.can_pay_cost(player, cost, 0)
+            {
+                continue;
+            }
+            actions.push(Action::TakeSpecialAction {
+                source: permanent.card.id,
+                ability: origin,
+                effect_id,
+            });
+        }
+    }
+
+    /// Freezes provenance and the nested end permission from the exact
+    /// activated ability on the stack. A copied or granted Licid ability is
+    /// therefore self-contained and needs no sibling card clause.
+    pub(super) fn licid_form_actions_for_resolution(
+        &self,
+        object: &StackObject,
+        source: GameObjectId,
+    ) -> Option<(AbilityOrigin, super::AbilityDef)> {
+        if let Some(payload) = object.ability.as_ref()
+            && let Some(ability) = payload.definition.as_deref()
+            && let Some(EffectDef::BecomeAuraAndAttach { end, .. }) = ability.declarative_effect()
+        {
+            return Some((payload.origin, *end));
+        }
+        let permanent = self
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == source)?;
+        let effective = self.find_effective_ability(permanent, |effective| {
+            effective
+                .ability
+                .declarative_effect()
+                .is_some_and(|effect| matches!(effect, EffectDef::BecomeAuraAndAttach { .. }))
+        })?;
+        let EffectDef::BecomeAuraAndAttach { end, .. } = effective.ability.declarative_effect()?
+        else {
+            return None;
+        };
+        Some((effective.origin, *end))
+    }
+
+    pub(super) fn special_action_ability(
+        &self,
+        permanent: &Permanent,
+        origin: AbilityOrigin,
+        effect_id: Option<u64>,
+    ) -> Option<super::AbilityDef> {
+        if let Some(effect_id) = effect_id {
+            return permanent
+                .licid_effects
+                .iter()
+                .find(|effect| effect.id.0 == effect_id && effect.transform_action == origin)
+                .map(|effect| effect.end);
+        }
+        self.find_effective_ability(permanent, |effective| effective.origin == origin)
+            .map(|effective| effective.ability)
+    }
+
+    pub(super) fn special_action_mana_cost(definition: SpecialActionDef) -> Option<ManaCost> {
+        let mut cost = ManaCost::default();
+        for ability_cost in definition.costs {
+            let AbilityCostDef::Mana(mana) = ability_cost else {
+                // No non-mana special-action cost has a shared payment
+                // procedure yet. Do not advertise an action the runtime
+                // would only partially pay.
+                return None;
+            };
+            if mana.variable_x {
+                // TakeSpecialAction carries no X choice, so a variable cost
+                // would otherwise be advertised only at an implicit zero.
+                return None;
+            }
+            cost = add_mana_cost(cost, *mana);
+        }
+        Some(cost)
+    }
+
+    pub(super) fn special_action_effect_is_available(
+        player: PlayerId,
+        permanent: &Permanent,
+        origin: AbilityOrigin,
+        effect_id: Option<u64>,
+        effect: EffectDef,
+    ) -> bool {
+        match effect {
+            EffectDef::EndAuraEffect => effect_id.is_some_and(|effect_id| {
+                permanent.licid_effects.iter().any(|effect| {
+                    effect.id.0 == effect_id
+                        && effect.ender == player
+                        && effect.transform_action == origin
+                })
+            }),
+            _ => effect_id.is_none() && permanent.controller == player,
+        }
+    }
+
+    pub(super) fn take_special_action(
+        &mut self,
+        player: PlayerId,
+        source: GameObjectId,
+        origin: AbilityOrigin,
+        effect_id: Option<u64>,
+    ) {
+        let Some((source_card, effect, cost)) = self
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == source)
+            .and_then(|permanent| {
+                self.special_action_ability(permanent, origin, effect_id)
+                    .and_then(|ability| {
+                        let DeclarativeAbilityDef::SpecialAction(definition) = ability.definition
+                        else {
+                            return None;
+                        };
+                        let effect = ability.declarative_effect()?;
+                        if !ability.is_executable()
+                            || !definition.source_zones.contains(&ZoneKind::Battlefield)
+                            || !Self::special_action_effect_is_available(
+                                player, permanent, origin, effect_id, effect,
+                            )
+                        {
+                            return None;
+                        }
+                        Some((
+                            permanent.card.clone(),
+                            effect,
+                            Self::special_action_mana_cost(definition)?,
+                        ))
+                    })
+            })
+        else {
+            return;
+        };
+        if !self.can_pay_cost(player, cost, 0) {
+            return;
+        }
+
+        self.activate_mana_for_cost(player, cost, 0);
+        self.pay_player_cost(player, cost, 0);
+        self.consecutive_passes = 0;
+
+        if matches!(effect, EffectDef::EndAuraEffect) {
+            if let Some(effect_id) = effect_id {
+                self.end_licid_effect(source, effect_id);
+            }
+            return;
+        }
+
+        // Effect resolution expects a source-bearing object, but a special
+        // action never puts that carrier on the stack.
+        let object = StackObject {
+            id: source,
+            kind: StackObjectKind::ActivatedAbility,
+            card: source_card,
+            source: Some(source),
+            ability: None,
+            controller: player,
+            signature: None,
+            chosen_permanents: Vec::new(),
+            applied_effects: Vec::new(),
+            text_changes: Vec::new(),
+            colors: None,
+            cast_via_flashback: false,
+            schedule_on_entry: None,
+            is_copy: false,
+        };
+        self.resolve_effect_def(
+            ScopedEffect::primary(effect),
+            &object,
+            TriggerContext::empty(),
+        );
     }
 
     #[allow(clippy::too_many_lines)]

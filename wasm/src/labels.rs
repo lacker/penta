@@ -125,6 +125,24 @@ impl WebGame {
         }
     }
 
+    fn special_action_label(
+        &self,
+        observation: &PlayerObservation,
+        source: CardInstanceId,
+        ability: AbilityOrigin,
+        effect_id: Option<u64>,
+    ) -> String {
+        let source_name = self.instance_name(observation, source);
+        effect_id
+            .and_then(|effect_id| self.session.special_action_for_effect(source, effect_id))
+            .map(|ability| ability.rules_text().into_owned())
+            .or_else(|| self.ability_rules_text(source, ability))
+            .map_or_else(
+                || format!("Use {source_name}"),
+                |text| format!("{source_name} — {text}"),
+            )
+    }
+
     pub(super) fn action_ability_label(
         &self,
         observation: &PlayerObservation,
@@ -134,6 +152,11 @@ impl WebGame {
             Action::ActivateAbility {
                 source, ability, ..
             } => Some(self.activation_label(observation, *source, *ability)),
+            Action::TakeSpecialAction {
+                source,
+                ability,
+                effect_id,
+            } => Some(self.special_action_label(observation, *source, *ability, *effect_id)),
             Action::KeepHand
             | Action::TakeMulligan
             | Action::BottomCards { .. }
@@ -514,6 +537,11 @@ impl WebGame {
                 }
                 label
             }
+            Action::TakeSpecialAction {
+                source,
+                ability,
+                effect_id,
+            } => self.special_action_label(observation, *source, *ability, *effect_id),
             Action::DeclareAttacker { attacker, .. } => {
                 format!("Attack with {}", self.instance_name(observation, *attacker))
             }

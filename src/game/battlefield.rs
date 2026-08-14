@@ -530,6 +530,7 @@ impl Game {
             text_changes: Vec::new(),
             colors: None,
             cast_via_flashback: false,
+            schedule_on_entry: None,
             is_copy: false,
         };
         self.resolve_effect_def(

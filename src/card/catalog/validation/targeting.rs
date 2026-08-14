@@ -67,6 +67,7 @@ fn validate_recipient_target_references(
         }
         EffectRecipientDef::Source
         | EffectRecipientDef::AttachedPermanent
+        | EffectRecipientDef::LinkedPermanent
         | EffectRecipientDef::Controller
         | EffectRecipientDef::Opponent
         | EffectRecipientDef::TriggeringObject
@@ -143,6 +144,7 @@ fn validate_applied_effect_target_references(
         | AppliedEffectDef::CannotBecomeEnchanted
         | AppliedEffectDef::CannotChangeController
         | AppliedEffectDef::RemainsAttachedThroughProtection
+        | AppliedEffectDef::ControlBySourceController
         | AppliedEffectDef::CannotBeBlockedBy(_)
         | AppliedEffectDef::PreventDamageFrom(_)
         | AppliedEffectDef::PreventCombatDamage
@@ -205,6 +207,15 @@ fn validate_effect_references(
             validate_recipient_target_references(recipient, target_count, choices_in_scope)?;
             validate_value_target_references(amount, target_count)
         }
+        EffectDef::DealDamageFrom {
+            source,
+            recipient,
+            amount,
+        } => {
+            validate_recipient_target_references(source, target_count, choices_in_scope)?;
+            validate_recipient_target_references(recipient, target_count, choices_in_scope)?;
+            validate_value_target_references(amount, target_count)
+        }
         EffectDef::LoseTheGame { player: object }
         | EffectDef::ShuffleLibrary { player: object }
         | EffectDef::EmptyManaPool { player: object }
@@ -219,6 +230,10 @@ fn validate_effect_references(
         | EffectDef::PreventDamageToPlayerAndControlledCreaturesThisTurn { player: object }
         | EffectDef::PreventAllCombatDamageExceptSourceThisTurn { source: object }
         | EffectDef::Attach { object }
+        | EffectDef::Unattach { object }
+        | EffectDef::Reconfigure { object }
+        | EffectDef::BecomeAuraAndAttach { object, .. }
+        | EffectDef::ReturnToBattlefieldAttached { card: object, .. }
         | EffectDef::Destroy { object, .. }
         | EffectDef::Sacrifice { object }
         | EffectDef::ChangeTextBasicLandType { object }
@@ -320,6 +335,9 @@ fn validate_effect_references(
         | EffectDef::AddManaEqualTo { .. }
         | EffectDef::CreateEmblem { .. }
         | EffectDef::GrantFlashToNextSorcery
+        | EffectDef::EndAuraEffect
+        | EffectDef::CreateAttachedToken { .. }
+        | EffectDef::FlashWithCleanupSacrifice { .. }
         | EffectDef::ReturnLinkedExiles { .. }
         | EffectDef::CannotBeForcedToSacrifice
         | EffectDef::AdditionalCombatPhase

@@ -32,7 +32,8 @@ fn a_physical_card_gets_new_object_identity_in_each_cast_zone() {
 #[test]
 fn a_forked_spell_has_new_identity_and_no_physical_backing() {
     let mut game = ready_game();
-    let original = spell(77, cards::LIGHTNING_BOLT, PlayerId::Two, 0);
+    let mut original = spell(77, cards::LIGHTNING_BOLT, PlayerId::Two, 0);
+    original.schedule_on_entry = Some(9);
     let original_id = original.id;
 
     game.push_copy(original, PlayerId::One, Vec::new());
@@ -45,6 +46,7 @@ fn a_forked_spell_has_new_identity_and_no_physical_backing() {
         CharacteristicSource::Copy(cards::LIGHTNING_BOLT)
     );
     assert_eq!(copied.card.owner, PlayerId::One);
+    assert_eq!(copied.schedule_on_entry, None);
     assert!(copied.is_copy);
 }
 

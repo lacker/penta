@@ -332,6 +332,13 @@ impl Game {
                 cost_object,
                 x,
             } => self.activate_ability(player, source, ability, targets, cost_object, x),
+            Action::TakeSpecialAction {
+                source,
+                ability,
+                effect_id,
+            } => {
+                self.take_special_action(player, source, ability, effect_id);
+            }
             Action::DeclareAttacker { attacker, defender } => {
                 self.declare_attacker(attacker, defender);
             }
@@ -479,6 +486,7 @@ impl Game {
                         definition: permanent.card.definition,
                         presented: permanent.presented,
                         controller: permanent.controller,
+                        attached_to: permanent.attached_to,
                         types,
                         chosen_creature_type: permanent.chosen_creature_type.clone(),
                         chosen_card_name: permanent.chosen_card_name.clone(),
@@ -563,5 +571,23 @@ impl Game {
         };
         self.find_printed_card_ability(card, &context, |effective| effective.origin == origin)
             .map(|effective| effective.ability)
+    }
+
+    /// Returns the special action frozen into one independently active rules
+    /// effect. Its public action origin identifies the transforming ability,
+    /// so presentation reads the nested definition through the effect ID.
+    #[must_use]
+    pub fn special_action_for_effect(
+        &self,
+        source: GameObjectId,
+        effect_id: u64,
+    ) -> Option<AbilityDef> {
+        self.battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == source)?
+            .licid_effects
+            .iter()
+            .find(|effect| effect.id.0 == effect_id)
+            .map(|effect| effect.end)
     }
 }

@@ -205,6 +205,7 @@ fn set_source_for_file(path: &Path) -> SetSource {
         Some("darksteel.rs") => source(CardSet::Darksteel, "DST"),
         Some("future_sight.rs") => source(CardSet::FutureSight, "FUT"),
         Some("planar_chaos.rs") => source(CardSet::PlanarChaos, "PLC"),
+        Some("mirrodin_besieged.rs") => source(CardSet::MirrodinBesieged, "MBS"),
         Some("innistrad.rs") => source(CardSet::Innistrad, "ISD"),
         Some("avacyn_restored.rs") => source(CardSet::AvacynRestored, "AVR"),
         Some("dark_ascension.rs") => source(CardSet::DarkAscension, "DKA"),
@@ -216,6 +217,8 @@ fn set_source_for_file(path: &Path) -> SetSource {
         Some("theros.rs") => source(CardSet::Theros, "THS"),
         Some("khans_of_tarkir.rs") => source(CardSet::KhansOfTarkir, "KTK"),
         Some("modern_horizons_2.rs") => source(CardSet::ModernHorizons2, "MH2"),
+        Some("kamigawa_neon_dynasty.rs") => source(CardSet::KamigawaNeonDynasty, "NEO"),
+        Some("modern_horizons_3.rs") => source(CardSet::ModernHorizons3, "MH3"),
         Some(name) => panic!(
             "{}: add {name} to the official set-code map",
             path.display()

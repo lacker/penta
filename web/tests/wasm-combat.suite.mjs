@@ -194,7 +194,10 @@ test("combat damage is only asked about when it is a real choice", async () => {
   solo.free();
 
   // Splitting between several blockers is a real decision and stays asked.
-  const split = new WebGame("GR Aggro", "Robots", "Handcrafted", true, 1);
+  // The seed only has to reach that combat: both decks run X spells, so a
+  // change to how the handcrafted opponent scores them can move the line and
+  // this needs a new seed rather than a weaker assertion.
+  const split = new WebGame("GR Aggro", "Robots", "Handcrafted", true, 6);
   const ask = advance(split, (state) => {
     const asks = state.actions.filter((action) => action.combatDamageAttacker != null);
     return asks.length ? { asks, state } : null;

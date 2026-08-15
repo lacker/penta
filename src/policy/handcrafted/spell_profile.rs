@@ -23,6 +23,11 @@ pub(super) struct DeclarativeSpellProfile {
     pub(super) taps_source: bool,
     pub(super) opponent_creature_sweep: bool,
     pub(super) opponent_spell_sweep: bool,
+    /// Whether every effect this cast would resolve scales with the chosen X,
+    /// so casting for X=0 resolves to nothing at all. `None` until an effect
+    /// has been collected, which keeps a profile that recognized nothing from
+    /// claiming that the spell is empty.
+    pub(super) empty_without_x: Option<bool>,
 }
 
 impl DeclarativeSpellProfile {
@@ -47,6 +52,28 @@ impl HandcraftedPolicy {
         self.catalog
             .get(definition)
             .and_then(|card| card.rules.special_behavior())
+    }
+
+    /// Whether casting this spell for X=0 resolves to nothing at all, so the
+    /// card is spent to draw, deal, or discard nothing. The policy only ever
+    /// sees an X=0 cast when the bot has exactly the base cost and no more,
+    /// which is precisely when it should wait, so a true answer here means
+    /// hold the card. Restricted to spells that really do pay into an X.
+    /// Fireball is named rather than inspected because its card-local damage
+    /// selector leaves it no declarative effect to read.
+    pub(super) fn is_empty_at_zero_x(
+        &self,
+        definition: CardDefinitionId,
+        declarative: Option<DeclarativeSpellProfile>,
+    ) -> bool {
+        let Some(card) = self.catalog.get(definition) else {
+            return false;
+        };
+        if !card.rules.mana_cost().is_some_and(|cost| cost.variable_x) {
+            return false;
+        }
+        matches!(card.rules.special_behavior(), Some(CardBehavior::Fireball))
+            || declarative.is_some_and(|profile| profile.empty_without_x == Some(true))
     }
 
     pub(super) fn is_mana_source(&self, definition: CardDefinitionId) -> bool {
@@ -117,7 +144,7 @@ impl HandcraftedPolicy {
                 return None;
             }
             let mut profile = DeclarativeSpellProfile::default();
-            Self::collect_spell_effect_profile(
+            Self::collect_spell_effect(
                 ability.declarative_effect()?,
                 choices.x(),
                 &[],
@@ -132,7 +159,7 @@ impl HandcraftedPolicy {
             unreachable!("the selected ability is a spell ability")
         };
         let mut profile = DeclarativeSpellProfile::default();
-        Self::collect_spell_effect_profile(
+        Self::collect_spell_effect(
             ability.declarative_effect()?,
             choices.x(),
             spell.targets(),
@@ -146,7 +173,7 @@ impl HandcraftedPolicy {
             if !mode.is_executable() {
                 return None;
             }
-            Self::collect_spell_effect_profile(
+            Self::collect_spell_effect(
                 mode.declarative_effect()?,
                 choices.x(),
                 match mode.definition {
@@ -244,6 +271,46 @@ impl HandcraftedPolicy {
             profile.cards_drawn_by_each_player = Self::policy_value(amount, x);
         } else {
             profile.cards_drawn = Self::policy_value(amount, x);
+        }
+    }
+
+    /// Collects one whole effect a cast would resolve. Every effect reaches
+    /// the profile through here rather than through the recursive collector,
+    /// so `empty_without_x` sees each top-level effect exactly once.
+    fn collect_spell_effect(
+        effect: EffectDef,
+        x: u16,
+        targets: &[AbilityTargetDef],
+        profile: &mut DeclarativeSpellProfile,
+    ) {
+        Self::collect_spell_effect_profile(effect, x, targets, profile);
+        let empty = Self::is_empty_without_x(effect);
+        profile.empty_without_x = Some(profile.empty_without_x.unwrap_or(true) && empty);
+    }
+
+    /// Whether an effect does nothing whatsoever when the spell's X is zero,
+    /// because every amount it resolves is that X. A spell built only from
+    /// such effects — Braingeyser's draw, Earthquake's damage, Mind Twist's
+    /// discard — is a wasted card at X=0. Detonate is not one: its destroy
+    /// still kills a zero-cost artifact, so this reports false for it, as it
+    /// does for any effect whose behavior at X=0 is not obviously nothing.
+    fn is_empty_without_x(effect: EffectDef) -> bool {
+        match effect {
+            EffectDef::Sequence(effects) => {
+                !effects.is_empty()
+                    && effects
+                        .iter()
+                        .all(|effect| Self::is_empty_without_x(*effect))
+            }
+            EffectDef::May { effect, .. } => Self::is_empty_without_x(*effect),
+            EffectDef::DealDamage { amount, .. }
+            | EffectDef::DrainLife { amount, .. }
+            | EffectDef::DrawCards { amount, .. }
+            | EffectDef::Discard { amount, .. }
+            | EffectDef::Mill { amount, .. }
+            | EffectDef::GainLife { amount, .. }
+            | EffectDef::LoseLife { amount, .. } => amount == ValueDef::ChosenX,
+            _ => false,
         }
     }
 

@@ -43,6 +43,22 @@ impl HandcraftedPolicy {
         )
     }
 
+    /// How many creatures the opponent has on the battlefield, which is the
+    /// size of the swing a one-sided sweeper is being scored for.
+    fn opposing_creature_count(observation: &PlayerObservation) -> i32 {
+        i32::try_from(
+            observation
+                .battlefield
+                .iter()
+                .filter(|permanent| {
+                    permanent.controller == observation.viewer.opponent()
+                        && permanent.power.is_some()
+                })
+                .count(),
+        )
+        .unwrap_or(i32::MAX)
+    }
+
     pub(super) fn score_cast(
         &self,
         observation: &PlayerObservation,
@@ -57,6 +73,10 @@ impl HandcraftedPolicy {
             .and_then(|id| self.catalog.get(id))
             .map(|card| card.rules.types());
         let x = choices.x();
+        // Passing scores 0, so anything below it means hold the card instead.
+        if x == 0 && definition.is_some_and(|id| self.is_empty_at_zero_x(id, declarative)) {
+            return -10_000;
+        }
         let damage = match behavior {
             Some(CardBehavior::ChainLightning) => Some(3),
             Some(CardBehavior::PillarOfFlame) => Some(2),
@@ -90,17 +110,7 @@ impl HandcraftedPolicy {
                 )
             })
             .sum();
-        let opponent_creatures = i32::try_from(
-            observation
-                .battlefield
-                .iter()
-                .filter(|permanent| {
-                    permanent.controller == observation.viewer.opponent()
-                        && permanent.power.is_some()
-                })
-                .count(),
-        )
-        .unwrap_or(i32::MAX);
+        let opponent_creatures = Self::opposing_creature_count(observation);
         let opponent_spells = i32::try_from(
             observation
                 .stack

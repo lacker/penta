@@ -40,6 +40,14 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Fixed
 
+- **The bundled handcrafted policy cast X spells for X=0.** With exactly the
+  base cost available and nothing to pay into X, the only enumerated cast is
+  the X=0 one, and the policy scored it far above passing — so it spent
+  Braingeyser to draw no cards. A cast whose every effect scales with the
+  chosen X now scores below passing, and the bot holds the card until it can
+  pay into X. Detonate is not such a spell: only its damage scales with X, so
+  an X=0 cast still destroys a zero-cost artifact and is still made.
+
 - **"Until your next upkeep" ended before the untap step rather than at the
   upkeep.** Continuous effects expired as the turn began, which is one step
   early: the untap step comes first, so an untap prohibition written this way

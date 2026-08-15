@@ -367,3 +367,67 @@ fn handcrafted_counts_intrinsic_basic_land_mana_when_mulliganing() {
 
     assert_eq!(policy.choose_action(&observation), Some(Action::KeepHand));
 }
+
+#[test]
+fn handcrafted_holds_an_x_draw_spell_rather_than_casting_it_for_zero() {
+    let catalog = poc::catalog().unwrap();
+    let geyser = CardInstanceId(1);
+    // With only enough mana for the base UU, the sole legal Braingeyser cast is
+    // X=0, which draws nobody any cards. Passing is strictly better.
+    let cast_for_zero = Action::CastSpell {
+        card: geyser,
+        choices: CastChoices::default()
+            .with_x(0)
+            .with_targets(vec![TargetSelection::new(
+                TargetSlotId(0),
+                vec![Target::Player(PlayerId::One)],
+            )]),
+        sacrifices: Vec::new(),
+    };
+    let mut observation = policy_observation(Vec::new(), vec![Action::PassPriority, cast_for_zero]);
+    observation.hand = vec![(geyser, poc::cards::BRAINGEYSER)];
+    let mut policy = HandcraftedPolicy::new(catalog);
+
+    assert_eq!(
+        policy.choose_action(&observation),
+        Some(Action::PassPriority),
+        "an X-draw spell for X=0 draws nothing, so the bot should hold it",
+    );
+}
+
+#[test]
+fn handcrafted_still_casts_detonate_for_zero_to_destroy_a_mox() {
+    let catalog = poc::catalog().unwrap();
+    let detonate = CardInstanceId(1);
+    let mox = CardInstanceId(2);
+    // Detonate is the counterexample: only its damage scales with X, so an X=0
+    // cast still destroys a zero-cost artifact and is worth the card.
+    let cast_for_zero = Action::CastSpell {
+        card: detonate,
+        choices: CastChoices::default()
+            .with_x(0)
+            .with_targets(vec![TargetSelection::new(
+                TargetSlotId(0),
+                vec![Target::Permanent(mox)],
+            )]),
+        sacrifices: Vec::new(),
+    };
+    let mut observation = policy_observation(
+        vec![permanent(
+            2,
+            poc::cards::MOX_RUBY,
+            PlayerId::Two,
+            None,
+            None,
+        )],
+        vec![Action::PassPriority, cast_for_zero.clone()],
+    );
+    observation.hand = vec![(detonate, poc::cards::DETONATE)];
+    let mut policy = HandcraftedPolicy::new(catalog);
+
+    assert_eq!(
+        policy.choose_action(&observation),
+        Some(cast_for_zero),
+        "Detonate for X=0 still destroys a zero-cost artifact",
+    );
+}

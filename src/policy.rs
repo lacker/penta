@@ -181,6 +181,24 @@ impl HandcraftedPolicy {
         }
     }
 
+    /// X spells whose entire effect scales with X, so casting them for X=0
+    /// spends the card to do nothing (draw 0, deal 0, discard 0). The bot only
+    /// reaches X=0 when it has just enough mana for the base cost; it should
+    /// hold the card instead of throwing it away. Detonate is deliberately
+    /// excluded: at X=0 it still destroys a zero-cost artifact (a Mox, Black
+    /// Lotus, ...), so an X=0 cast there is meaningful.
+    fn is_null_at_zero_x(behavior: Option<CardBehavior>) -> bool {
+        matches!(
+            behavior,
+            Some(
+                CardBehavior::Braingeyser
+                    | CardBehavior::Fireball
+                    | CardBehavior::Earthquake
+                    | CardBehavior::MindTwist
+            )
+        )
+    }
+
     fn is_hostile_removal(behavior: Option<CardBehavior>) -> bool {
         matches!(
             behavior,
@@ -316,6 +334,11 @@ impl HandcraftedPolicy {
     ) -> i32 {
         let behavior = Self::hand_definition(observation, card).and_then(|id| self.behavior(id));
         let x = choices.x();
+        // An X spell whose whole value is in X does nothing at X=0. Never spend
+        // the card for a null effect; passing (score 0) is strictly better.
+        if x == 0 && Self::is_null_at_zero_x(behavior) {
+            return -10_000;
+        }
         let damage = match behavior {
             Some(CardBehavior::LightningBolt | CardBehavior::ChainLightning) => Some(3),
             Some(CardBehavior::GoblinGrenade) => Some(5),

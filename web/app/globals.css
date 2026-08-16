@@ -1926,6 +1926,14 @@ button {
 .action-list {
   min-height: 0;
   padding: 10px;
+  /* Bottom-align the per-turn controls (Pass priority, play a card, Attack
+     all, …) within their flexible region so they sit at the bottom of the
+     right column, closer to where the pointer/thumb rests at end of turn.
+     justify-content: flex-end pushes short lists down; overflow-y keeps a
+     long list scrollable from the top when it exceeds the region. */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
   overflow-y: auto;
   scrollbar-color: #554b3e transparent;
   scrollbar-width: thin;

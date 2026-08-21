@@ -134,6 +134,7 @@ fn reach_external_opponent_miracle() -> WebGame {
     panic!("the external opponent did not reach the configured Miracle draw");
 }
 
+#[allow(clippy::too_many_lines)]
 fn resolve_external_wheel(first_opponent_draw: CardDefinitionId) -> WebGame {
     let mut game = WebGame::new("Sligh", "Goblins", "External", false, 7_777, None)
         .expect("the hosted old-school game starts");

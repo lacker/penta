@@ -107,7 +107,8 @@ fn a_deferred_stack_completion_round_trips_and_rejects_tampering() {
         .any(|card| card.definition == crate::card::cards::WHEEL_OF_FORTUNE));
 
     let definition_error = rejected_finish_stack_tamper(&game, &wire, |procedure| {
-        procedure["object"]["definition"] = json!(crate::card::cards::ISLAND.0);
+        procedure["object"]["objectKind"]["definition"] =
+            json!(crate::card::cards::ISLAND.0);
     });
     assert!(
         definition_error.contains("does not match its retired stack object"),

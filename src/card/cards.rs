@@ -2,6 +2,7 @@
 
 use crate::CardDefinitionId;
 
+mod activation_prohibitions;
 mod activation_timing;
 mod additional_costs;
 mod attachments;
@@ -71,6 +72,7 @@ mod unleash;
 mod untap_skips;
 mod vintage_cube;
 mod wards;
+pub use activation_prohibitions::*;
 pub use activation_timing::*;
 pub use additional_costs::*;
 pub use attachments::*;

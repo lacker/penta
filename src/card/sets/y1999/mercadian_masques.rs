@@ -3,12 +3,43 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
-    BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType, ComparisonDef, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayerRelation,
-    SpellAdditionalCostDef, SpendModeDef, TriggerConditionDef, ValueDef, ZoneKind, abilities,
-    cards,
+    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
+    CardType, ComparisonDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    ObjectQueryDef, PlayerRelation, SpellAdditionalCostDef, SpendModeDef, TriggerConditionDef,
+    ValueDef, ZoneKind, abilities, cards,
 };
 use crate::{TargetIndex, mana_cost};
+
+/// Three prohibitions, applied together for the same duration, so the Aura
+/// leaving gives all three back at once.
+static ARREST_PROHIBITIONS: [AppliedEffectDef; 3] = [
+    AppliedEffectDef::Rule(AppliedRuleDef::CannotAttack),
+    AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+    AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
+];
+
+// MMQ 4 — Arrest
+pub(in crate::card::sets) static ARREST: CardRecord = CardRecord::new(
+    cards::ARREST,
+    "Arrest",
+    CardArt::new("3b083fd8-6422-4cd3-a27d-41b6d88598c2", "Dan Frazier"),
+    CardSet::MercadianMasques,
+    // The creature keeps its triggered and static abilities: only the
+    // activations are shut off.
+    CardRules::new_enchantment(mana_cost!("{2}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            AbilityDef::static_ability(
+                "Enchanted creature can't attack or block, and its activated abilities can't be \
+                 activated.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&ARREST_PROHIBITIONS),
+                },
+            ),
+        ]),
+);
 
 static NONBASIC_LAND: ObjectPredicateDef = ObjectPredicateDef::All(&[
     ObjectPredicateDef::HasType(CardType::Land),
@@ -171,7 +202,13 @@ pub(in crate::card::sets) static RISHADAN_PORT: CardRecord = CardRecord::new(
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&GUSH, &THWART, &SNUFF_OUT, &DUST_BOWL, &RISHADAN_PORT];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &ARREST,
+    &GUSH,
+    &THWART,
+    &SNUFF_OUT,
+    &DUST_BOWL,
+    &RISHADAN_PORT,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

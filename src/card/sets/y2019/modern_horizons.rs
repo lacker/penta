@@ -3,10 +3,11 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AddManaEffectDef, AlternativeCastKindDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, SpellAdditionalCostDef, SpendModeDef,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, cards,
+    AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules,
+    CardSet, CardSupertype, CardType, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
+    SpellAdditionalCostDef, SpendModeDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities, cards,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -243,6 +244,27 @@ pub(in crate::card::sets) static FORCE_OF_NEGATION: CardRecord = CardRecord::new
     ]),
 );
 
+// MH1 158 — Collector Ouphe
+pub(in crate::card::sets) static COLLECTOR_OUPHE: CardRecord = CardRecord::new(
+    cards::COLLECTOR_OUPHE,
+    "Collector Ouphe",
+    CardArt::new("085107a2-c1ec-473c-81d8-23e5a7197776", "Filip Burburan"),
+    CardSet::ModernHorizons1,
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Ouphe"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "Activated abilities of artifacts can't be activated.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
+            },
+        ),
+    ),
+);
+
 // MH1 164 — Force of Vigor
 pub(in crate::card::sets) static FORCE_OF_VIGOR: CardRecord = CardRecord::new(
     cards::FORCE_OF_VIGOR,
@@ -358,6 +380,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &WINDS_OF_ABANDON,
     &ECHO_OF_EONS,
     &FORCE_OF_NEGATION,
+    &COLLECTOR_OUPHE,
     &FORCE_OF_VIGOR,
     &FALLEN_SHINOBI,
     &SUNBAKED_CANYON,

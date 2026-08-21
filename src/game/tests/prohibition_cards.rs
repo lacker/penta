@@ -21,7 +21,7 @@ fn ready() -> Game {
 
 /// Puts a creature with an activated ability out under an Arrest and answers
 /// what it may still do.
-fn arrested() -> (Game, GameObjectId, GameObjectId) {
+fn arrested() -> (Game, GameObjectId, GameObjectId, GameObjectId) {
     let mut game = ready();
     let victim = creature(10_000, cards::ROYAL_ASSASSIN, PlayerId::One);
     let victim_id = victim.card.id;
@@ -42,7 +42,12 @@ fn arrested() -> (Game, GameObjectId, GameObjectId) {
     {
         target.tapped = true;
     }
-    (game, victim_id, arrest_id)
+    let mut attacker = creature(10_101, cards::GRIZZLY_BEARS, PlayerId::Two);
+    attacker.attacking = true;
+    attacker.attack_defender = Some(AttackDefender::Player(PlayerId::One));
+    let attacker_id = attacker.card.id;
+    game.battlefield.push(attacker);
+    (game, victim_id, arrest_id, attacker_id)
 }
 
 fn can_activate(game: &Game, source: GameObjectId) -> bool {
@@ -57,20 +62,39 @@ fn can_attack(game: &Game, attacker: GameObjectId) -> bool {
     )
 }
 
+fn can_block(game: &Game, blocker: GameObjectId, attacker: GameObjectId) -> bool {
+    game.legal_actions(PlayerId::One)
+        .contains(&Action::DeclareBlocker { blocker, attacker })
+}
+
 #[test]
 fn arrest_shuts_off_all_three_and_gives_them_back_together() {
-    let (mut game, victim, arrest) = arrested();
+    let (mut game, victim, arrest, attacker) = arrested();
     assert!(!can_activate(&game, victim), "its activations are gone");
 
     game.step = Step::DeclareAttackers;
     assert!(!can_attack(&game, victim), "and it cannot attack");
 
+    game.active_player = PlayerId::Two;
+    game.priority = PlayerId::One;
+    game.step = Step::DeclareBlockers;
+    game.attackers_declared = true;
+    assert!(!can_block(&game, victim, attacker), "or block");
+
+    game.active_player = PlayerId::One;
+    game.priority = PlayerId::One;
     game.step = Step::PrecombatMain;
     game.battlefield
         .retain(|permanent| permanent.card.id != arrest);
     assert!(can_activate(&game, victim), "the Aura left, so they return");
     game.step = Step::DeclareAttackers;
+    game.attackers_declared = false;
     assert!(can_attack(&game, victim));
+    game.active_player = PlayerId::Two;
+    game.priority = PlayerId::One;
+    game.step = Step::DeclareBlockers;
+    game.attackers_declared = true;
+    assert!(can_block(&game, victim, attacker));
 }
 
 /// An unarrested copy is the control: the ability is offered without the Aura.

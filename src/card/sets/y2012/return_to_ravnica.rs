@@ -1,7 +1,7 @@
 //! Return to Ravnica card records used by the built-in ISD–DGM Standard deck tranche.
 
 use super::{CardRecord, PrintingRecord};
-use crate::card::sets::{y1993::alpha, y2012::magic_2013};
+use crate::card::sets::{y1993::alpha, y1999::mercadian_masques as mmq, y2012::magic_2013};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardBehavior,
@@ -104,37 +104,6 @@ pub(in crate::card::sets) static ANGEL_OF_SERENITY: CardRecord = CardRecord::new
 
 // RTR 2 — Armory Guard
 // Audit: blocked — Needs a continuous Gate-control condition that grants vigilance only while a Gate remains under your control.
-
-/// Three prohibitions, applied together for the same duration, so the Aura
-/// leaving gives all three back at once.
-static ARREST_PROHIBITIONS: [AppliedEffectDef; 3] = [
-    AppliedEffectDef::Rule(AppliedRuleDef::CannotAttack),
-    AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
-    AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
-];
-
-// RTR 3 — Arrest
-pub(in crate::card::sets) static ARREST: CardRecord = CardRecord::new(
-    cards::ARREST,
-    "Arrest",
-    CardArt::new("498f74a2-7e5e-4082-97e7-b938d703f869", "Greg Staples"),
-    CardSet::ReturnToRavnica,
-    // The creature keeps its triggered and static abilities: only the
-    // activations are shut off.
-    CardRules::new_enchantment(mana_cost!("{2}{W}"))
-        .with_subtypes(&["Aura"])
-        .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
-            AbilityDef::static_ability(
-                "Enchanted creature can't attack or block, and its activated abilities can't be \
-                 activated.",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::Composite(&ARREST_PROHIBITIONS),
-                },
-            ),
-        ]),
-);
 
 static DAMAGE_DEALER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
     ObjectPredicateDef::All(&[
@@ -5433,7 +5402,6 @@ pub(in crate::card::sets) static TRANSGUILD_PROMENADE: CardRecord = CardRecord::
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ANGEL_OF_SERENITY,
-    &ARREST,
     &AVENGING_ARROW,
     &AZORIUS_ARRESTER,
     &AZORIUS_JUSTICIAR,
@@ -5630,6 +5598,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
+    PrintingRecord::reprint(&mmq::ARREST),          // RTR 3
     PrintingRecord::reprint(&magic_2013::MIND_ROT), // RTR 70
     PrintingRecord::reprint(&alpha::GIANT_GROWTH),  // RTR 125
     PrintingRecord::reprint(&alpha::PLAINS),        // RTR 250

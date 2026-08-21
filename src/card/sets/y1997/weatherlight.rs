@@ -237,6 +237,25 @@ pub(in crate::card::sets) static MIND_STONE: CardRecord = CardRecord::new(
     ]),
 );
 
+// WTH 154 — Null Rod
+pub(in crate::card::sets) static NULL_ROD: CardRecord = CardRecord::new(
+    cards::NULL_ROD,
+    "Null Rod",
+    CardArt::new("bc45f2cb-c256-4a0f-879a-c7db5b1a0b94", "Anson Maddocks"),
+    CardSet::Weatherlight,
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::static_ability(
+        "Activated abilities of artifacts can't be activated.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
+        },
+    )),
+);
+
 // WTH 155 — Phyrexian Furnace
 pub(in crate::card::sets) static PHYREXIAN_FURNACE: CardRecord = CardRecord::new(
     cards::PHYREXIAN_FURNACE,
@@ -315,6 +334,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DOOMSDAY,
     &GOBLIN_VANDAL,
     &MIND_STONE,
+    &NULL_ROD,
     &PHYREXIAN_FURNACE,
     &GEMSTONE_MINE,
 ];

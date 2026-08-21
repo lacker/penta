@@ -182,6 +182,11 @@ impl Game {
             if self.activated_abilities_are_named(permanent) {
                 continue;
             }
+            // A permanent-wide prohibition stops every activation it could
+            // contribute, including open and legacy abilities.
+            if self.activated_abilities_are_prohibited(permanent) {
+                continue;
+            }
             let only_open_abilities = permanent.controller != player;
             let mut legacy_activations = Vec::new();
             let mut untyped_legacy_activation = None;
@@ -217,7 +222,6 @@ impl Game {
                     // other clauses. An Aura saying so directly is the same
                     // prohibition without the deadline.
                     || permanent.detained_until_turn_of.is_some()
-                    || self.activated_abilities_are_prohibited(permanent)
                     || !self.activation_timing_allows(player, definition.timing)
                     // The engine already counts every activation per ability
                     // and clears the counts each turn, so the printed cap is

@@ -540,6 +540,7 @@ fn choose_decision_by_label(game: &mut Game, player: PlayerId, label: &str) {
 
 mod ability_resolution;
 mod activation_costs_and_turns;
+mod activation_prohibitions;
 mod activation_timing;
 mod additional_costs;
 mod alternative_costs;

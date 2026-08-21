@@ -343,6 +343,7 @@ impl Game {
                 resolver: trigger.resolver,
                 condition: trigger.condition,
                 mode_effects: Vec::new(),
+                resolution_destination: None,
                 x: trigger.x,
             }),
             controller: trigger.controller,

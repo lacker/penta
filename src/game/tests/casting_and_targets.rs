@@ -430,6 +430,7 @@ fn selected_modal_effects_resolve_distinct_and_deferred_flattened_targets() {
                 resolver: StackAbilityResolver::Declarative(ScopedEffect::primary(EffectDef::None)),
                 condition: None,
                 mode_effects: plan.mode_effects,
+                resolution_destination: None,
                 x: 0,
             }),
             controller: PlayerId::One,

@@ -127,6 +127,7 @@ pub(super) fn installing_object(
         resolver: StackAbilityResolver::Declarative(ScopedEffect::primary(EffectDef::None)),
         condition: None,
         mode_effects: Vec::new(),
+        resolution_destination: None,
         x,
     });
     object

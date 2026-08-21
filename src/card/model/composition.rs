@@ -134,6 +134,21 @@ impl PlayOptionDef {
         self
     }
 
+    /// Adds optional additional costs owned by semantic casting clauses on
+    /// `rules`. These remain independent of every alternative cost.
+    #[must_use]
+    pub fn with_optional_additional_costs(mut self, rules: &CardRules) -> Self {
+        self.additional_costs
+            .extend(rules.indexed_abilities().filter_map(|ability| {
+                ability
+                    .definition
+                    .is_executable()
+                    .then(|| ability.additional_cost())
+                    .flatten()
+            }));
+        self
+    }
+
     #[must_use]
     pub const fn restricted_to_hand(mut self) -> Self {
         self.restriction = PlayRestriction::FromHandOnly;
@@ -178,6 +193,7 @@ impl CardComposition {
                 effect_status,
             )
             .with_alternative_cast_costs(&rules)
+            .with_optional_additional_costs(&rules)
         };
         if rules.play_restriction() != PlayRestriction::Normal {
             option.restriction = rules.play_restriction();

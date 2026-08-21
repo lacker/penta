@@ -134,7 +134,8 @@ fn shared_static_query(query: ObjectQueryDef) -> bool {
 pub(super) fn shared_keyword(keyword: KeywordAbility) -> bool {
     matches!(
         keyword,
-        KeywordAbility::Flying
+        KeywordAbility::Convoke
+            | KeywordAbility::Flying
             | KeywordAbility::Trample
             | KeywordAbility::Haste
             | KeywordAbility::FirstStrike
@@ -336,6 +337,7 @@ pub(super) fn shared_resolving_applied_effect(effect: AppliedEffectDef) -> bool 
             }
             DeclarativeAbilityDef::Spell(_)
             | DeclarativeAbilityDef::Static(_)
+            | DeclarativeAbilityDef::OptionalAdditionalCost(_)
             | DeclarativeAbilityDef::SpecialAction(_)
             | DeclarativeAbilityDef::Legacy => false,
         },
@@ -907,18 +909,16 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
         }
         DeclarativeAbilityDef::Replacement(_) => unreachable!("handled before ordinary effects"),
         DeclarativeAbilityDef::AlternativeCast(definition) => match definition.kind {
-            // All seven are permission to cast rather than effects of their
-            // own. For six of them the card's spell clause does the work;
-            // for a face-down cast nothing does, which is the point. Buyback
-            // changes only where the card goes afterwards, and impending
-            // changes only how the permanent arrives.
+            // These are permissions to cast rather than effects of their
+            // own. The card's spell clause does the work; for a face-down
+            // cast nothing does, which is the point. Impending changes only
+            // how the permanent arrives.
             AlternativeCastKindDef::Flashback
             | AlternativeCastKindDef::WithoutPayingManaCost
             | AlternativeCastKindDef::Foretell
             | AlternativeCastKindDef::Escape
             | AlternativeCastKindDef::Impending
             | AlternativeCastKindDef::Miracle
-            | AlternativeCastKindDef::Buyback
             | AlternativeCastKindDef::AlternativeCost
             | AlternativeCastKindDef::FaceDown { .. } => effect == EffectDef::None,
             // Overload carries the instructions the modified spell resolves
@@ -931,6 +931,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                 effect == EffectDef::None || shared_stack_effect(effect)
             }
         },
+        DeclarativeAbilityDef::OptionalAdditionalCost(_) => effect == EffectDef::None,
         DeclarativeAbilityDef::Keyword(keyword) => shared_keyword(keyword),
         DeclarativeAbilityDef::SpecialAction(_) | DeclarativeAbilityDef::Legacy => false,
     }

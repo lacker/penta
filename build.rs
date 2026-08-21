@@ -529,6 +529,7 @@ fn generate_card_ids(root: &Path) {
          use crate::CardDefinitionId;\n\n",
     );
     for (symbol, id) in cards {
+        let id = readable_integer_literal(id);
         writeln!(
             &mut generated,
             "pub const {symbol}: CardDefinitionId = CardDefinitionId::new({id});"
@@ -539,6 +540,7 @@ fn generate_card_ids(root: &Path) {
         "\n#[cfg(test)]\npub(crate) const ALL_CARD_DEFINITION_IDS: &[CardDefinitionId] = &[\n",
     );
     for id in all_ids {
+        let id = readable_integer_literal(id);
         writeln!(&mut generated, "    CardDefinitionId::new({id}),")
             .expect("writing generated card IDs to a String cannot fail");
     }
@@ -547,6 +549,18 @@ fn generate_card_ids(root: &Path) {
         .join("card_definition_ids.rs");
     fs::write(&output, generated)
         .unwrap_or_else(|error| panic!("failed to write {}: {error}", output.display()));
+}
+
+fn readable_integer_literal(value: u64) -> String {
+    let digits = value.to_string();
+    let mut literal = String::with_capacity(digits.len() + digits.len() / 3);
+    for (index, digit) in digits.chars().enumerate() {
+        if index > 0 && (digits.len() - index).is_multiple_of(3) {
+            literal.push('_');
+        }
+        literal.push(digit);
+    }
+    literal
 }
 
 fn main() {

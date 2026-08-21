@@ -3,13 +3,13 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef,
-    AbilityTargetPredicate, AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef,
-    BattlefieldEntryModificationDef, CardArt, CardBehavior, CardRules, CardSet, CardSupertype,
-    CardType, ChoiceVisibilityDef, ChooseDef, EffectDef, EffectExecutionDef, EffectRecipientDef,
-    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ReplacementEventDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef, BattlefieldEntryModificationDef,
+    CardArt, CardBehavior, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef,
+    ChooseDef, EffectDef, EffectExecutionDef, EffectRecipientDef, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
 use crate::{TargetIndex, mana_cost};
@@ -207,6 +207,7 @@ pub(in crate::card::sets) static CORPSE_DANCE: CardRecord = CardRecord::new_with
     // price worth paying: whatever is on top of the graveyard attacks every
     // turn from here, and the card is never spent.
     CardRules::new_instant(mana_cost!("{2}{B}")).with_abilities(&[
+        abilities::buyback(mana_cost!("{2}")),
         AbilityDef::spell(
             "Return the top creature card of your graveyard to the battlefield. That creature gains haste until end of turn. Exile it at the beginning of the next end step.",
             EffectDef::MoveToZone {
@@ -220,12 +221,6 @@ pub(in crate::card::sets) static CORPSE_DANCE: CardRecord = CardRecord::new_with
                 attachment: None,
                 controller: None,
             },
-        ),
-        AbilityDef::alternative_cast(
-            mana_cost!("{4}{B}"),
-            AlternativeCastKindDef::Buyback,
-            Some("Buyback {2} (You may pay an additional {2} as you cast this spell. If you do, put this card into your hand as it resolves.)"),
-            EffectDef::None,
         ),
     ]),
 );

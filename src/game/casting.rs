@@ -1,14 +1,15 @@
 use super::{
     AbilityCostDef, AbilityOrigin, AlternativeCastKindDef, BTreeMap, BattlefieldExitCompletion,
-    CREATURE_TYPES, CardDefinition, CardDefinitionId, CardType, CardTypeSet, CastChoices,
-    CastOfferCost, CastSignature, CastSourceZone, CommittedTriggerEvent, DecisionContinuation,
-    DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone, DeclarativeAbilityDef,
-    EntryCompletion, Game, GameEvent, GameObjectId, Mana, ManaActivationChoices, ManaColor,
-    ManaPaymentPurpose, PendingBattlefieldEntry, Permanent, PlayActionKind, PlayOptionDef,
-    PlayOptionId, PlayerId, StackObject, StackObjectKind, Target, ZoneKind, ZoneMoveCause,
-    ZonePlacement, remove_card,
+    CREATURE_TYPES, CardBehavior, CardDefinition, CardInstance, CardType, CardTypeSet, CastChoices,
+    CastOfferCost, CastSignature, CastSourceZone, CommittedTriggerEvent, CostConfiguration,
+    DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
+    DeclarativeAbilityDef, EntryCompletion, Game, GameEvent, GameObjectId, Mana,
+    ManaActivationChoices, ManaColor, ManaCost, ManaPaymentPurpose, PendingBattlefieldEntry,
+    Permanent, PlayActionKind, PlayOptionDef, PlayOptionId, PlayerId, StackObject, StackObjectKind,
+    Target, ZoneKind, ZoneMoveCause, ZonePlacement, remove_card,
 };
 mod signature_validation;
+include!("casting/life_costs.rs");
 
 use crate::card::{
     BattlefieldEntryScalarChoiceDef, CardSet, ScalarChoiceListDef, SpellLifeCostDef, SpendModeDef,
@@ -449,88 +450,6 @@ impl Game {
         });
     }
 
-    /// Whether the chosen modes suit the play option: the right number, in
-    /// ascending order, without repeats unless the card allows them, and all
-    /// of them actually executable.
-    /// The spell's own "as an additional cost to cast this spell, pay N
-    /// life", if it prints one. An alternative cost replaces the mana cost
-    /// rather than the additional one, so this is read whichever way the
-    /// spell is being cast.
-    pub(super) fn spell_life_cost(
-        definition: &CardDefinition,
-        option: &PlayOptionDef,
-    ) -> Option<SpellLifeCostDef> {
-        let (_, ability) = Self::spell_ability(definition, option)?;
-        let DeclarativeAbilityDef::Spell(spell) = ability.definition else {
-            return None;
-        };
-        spell.life_cost()
-    }
-
-    /// How much life a cast of this spell for `x` actually pays.
-    pub(super) fn spell_life_payment(
-        definition: &CardDefinition,
-        option: &PlayOptionDef,
-        x: u16,
-    ) -> u16 {
-        Self::spell_life_cost(definition, option).map_or(0, |cost| {
-            if cost.amount_is_x {
-                x
-            } else {
-                u16::from(cost.amount)
-            }
-        })
-    }
-
-    /// The largest X a "pay X life" cost can be paid at. A player may pay
-    /// life only down to zero (CR 118.4), so their life total is the bound;
-    /// paying none is always available.
-    pub(super) fn maximum_x_for_life(&self, player: PlayerId) -> u16 {
-        u16::try_from(self.players[player.index()].life.max(0)).unwrap_or(u16::MAX)
-    }
-
-    /// The life a cast owes for the way it was paid for: what the chosen
-    /// alternative names, plus what the spell prints as an additional cost.
-    fn cast_life_payment(
-        &self,
-        definition: CardDefinitionId,
-        stack_object: &StackObject,
-        x: u16,
-    ) -> u16 {
-        self.selected_alternative_life(definition, stack_object)
-            + self
-                .catalog
-                .get(definition)
-                .and_then(|definition| {
-                    let option = stack_object
-                        .signature
-                        .as_ref()
-                        .and_then(|signature| definition.play_option(signature.play_option()))?;
-                    Some(Self::spell_life_payment(definition, option, x))
-                })
-                .unwrap_or(0)
-    }
-
-    /// The life a spell cast off the top of a library owes, read while it
-    /// is still up there.
-    fn library_top_life_for_cast(
-        &self,
-        player: PlayerId,
-        card_id: GameObjectId,
-        choices: &CastChoices,
-    ) -> u16 {
-        self.players[player.index()]
-            .library
-            .last()
-            .filter(|top| top.id == card_id)
-            .and_then(|top| {
-                let definition = self.catalog.get(top.definition)?;
-                let option = definition.play_option(choices.play_option())?;
-                self.library_top_life_cost(top, player, option)
-            })
-            .unwrap_or(0)
-    }
-
     pub(super) fn cast_spell(
         &mut self,
         player: PlayerId,
@@ -538,7 +457,7 @@ impl Game {
         choices: &CastChoices,
         sacrifices: &[GameObjectId],
     ) {
-        let (signature, cost, _behavior, source_zone) = self
+        let (signature, cost, behavior, source_zone) = self
             .validated_cast_signature(player, card_id, choices)
             .expect("validated casting choices remain valid while paying costs");
         // A standing cast offer is the permission that made this signature
@@ -549,9 +468,17 @@ impl Game {
         let offer = self
             .current_cast_offer(player, card_id, source_zone)
             .map(|offer| offer.cost);
+        let (object_payments, cast_life) = self.cast_object_payments_and_life(
+            player,
+            card_id,
+            &signature,
+            behavior,
+            super::CastCostContext { source_zone, offer },
+            sacrifices,
+        );
         let alternative_kind = self.cast_alternative_kind(player, card_id, &signature, offer);
         self.take_answered_cast_offer(card_id);
-        // Both routes exile the card rather than burying it afterwards.
+        // Both exile the card rather than burying it wherever it would otherwise have gone.
         let cast_via_flashback = matches!(
             alternative_kind,
             Some(AlternativeCastKindDef::Flashback | AlternativeCastKindDef::WithoutPayingManaCost)
@@ -565,7 +492,145 @@ impl Game {
         } else {
             0
         };
-        let card = match source_zone {
+        let card = self.remove_card_for_cast(player, card_id, source_zone);
+        let stack_object = self.propose_spell_on_stack(
+            player,
+            card,
+            signature,
+            source_zone,
+            cast_via_flashback,
+            face_down,
+        );
+        let stack_id = stack_object.id;
+        let definition = stack_object
+            .card
+            .definition
+            .card_definition()
+            .expect("a cast spell is backed by a card definition");
+        let payment_purpose = ManaPaymentPurpose::Spell {
+            object: stack_id,
+            definition,
+            controller: player,
+            form: stack_object
+                .signature
+                .as_ref()
+                .expect("a spell has a cast signature")
+                .form()
+                .clone(),
+        };
+        // Life named by the chosen alternative, by the spell's own additional
+        // cost, or by the permission that let it be cast off a library, is
+        // paid alongside its mana, before the spell is finished on the stack.
+        let life = cast_life.saturating_add(library_top_life);
+        if life > 0 {
+            self.lose_life(player, life);
+        }
+        // Read before the permission is consumed above; spent here, where
+        // every other cost for this cast is paid.
+        if energy > 0 {
+            self.spend_energy(player, energy);
+        }
+        let Some(plan) = self.plan_mana_activations_for_reserving(
+            player,
+            cost,
+            x,
+            None,
+            &payment_purpose,
+            sacrifices,
+        ) else {
+            panic!(
+                "{}",
+                self.unplannable_payment(player, cost, x, None, &payment_purpose)
+            );
+        };
+        self.continue_spell_mana_payment(
+            stack_object,
+            targets,
+            object_payments,
+            cost,
+            x,
+            payment_purpose,
+            plan,
+            0,
+        );
+    }
+
+    fn cast_object_payments_and_life(
+        &self,
+        player: PlayerId,
+        card_id: GameObjectId,
+        signature: &CastSignature,
+        behavior: CardBehavior,
+        context: super::CastCostContext,
+        sacrifices: &[GameObjectId],
+    ) -> (Vec<(GameObjectId, SpendModeDef)>, u16) {
+        let super::CastCostContext { source_zone, offer } = context;
+        let held = match source_zone {
+            CastSourceZone::Hand => self.players[player.index()]
+                .hand
+                .iter()
+                .find(|card| card.id == card_id),
+            CastSourceZone::Graveyard => self.players[player.index()]
+                .graveyard
+                .iter()
+                .find(|card| card.id == card_id),
+            CastSourceZone::Exile => self
+                .players
+                .iter()
+                .flat_map(|state| &state.exile)
+                .find(|card| card.id == card_id),
+            CastSourceZone::LibraryTop => self.players[player.index()]
+                .library
+                .last()
+                .filter(|card| card.id == card_id),
+        }
+        .expect("the validated cast card remains in its source zone");
+        let definition = self
+            .catalog
+            .get(held.definition)
+            .expect("a validated cast definition remains in the catalog");
+        let option = definition
+            .play_option(signature.play_option())
+            .expect("a validated cast option remains in the catalog");
+        let spend_modes = if behavior == CardBehavior::GoblinGrenade {
+            vec![SpendModeDef::ByZone; sacrifices.len()]
+        } else {
+            self.additional_cost_spend_modes(
+                definition,
+                option,
+                signature.costs(),
+                held,
+                super::casting_actions::CastScale {
+                    x: signature.x(),
+                    modes: signature.modes().len(),
+                    offer,
+                },
+            )
+        };
+        assert_eq!(
+            sacrifices.len(),
+            spend_modes.len(),
+            "a validated object payment retains one spend mode per object",
+        );
+        let object_payments = sacrifices.iter().copied().zip(spend_modes).collect();
+        let life = self.configured_cast_life_payment(
+            definition,
+            option,
+            card_id,
+            signature.costs(),
+            signature.x(),
+            offer,
+        );
+        (object_payments, life)
+    }
+
+    fn remove_card_for_cast(
+        &mut self,
+        player: PlayerId,
+        card_id: GameObjectId,
+        source_zone: CastSourceZone,
+    ) -> CardInstance {
+        match source_zone {
             CastSourceZone::Hand => remove_card(&mut self.players[player.index()].hand, card_id),
             CastSourceZone::Graveyard => {
                 // Cast out of a graveyard is a card leaving it, which the
@@ -584,7 +649,18 @@ impl Game {
                 remove_card(&mut self.players[player.index()].library, card_id)
             }
         }
-        .expect("legal cast action references a card in its validated source zone");
+        .expect("legal cast action references a card in its validated source zone")
+    }
+
+    fn propose_spell_on_stack(
+        &mut self,
+        player: PlayerId,
+        card: CardInstance,
+        signature: CastSignature,
+        source_zone: CastSourceZone,
+        cast_via_flashback: bool,
+        face_down: Option<crate::card::FaceDownCharacteristics>,
+    ) -> StackObject {
         // Every outstanding grant applies to the same next sorcery, whatever
         // its timing, so consume them together based on the form actually cast.
         let cast_is_sorcery = self
@@ -604,14 +680,13 @@ impl Game {
         // gives mana spend riders a concrete destination without exposing a
         // half-paid spell to priority or trigger placement.
         let (card, _zone_change) = self.zone_change_card(card);
-        let stack_id = card.id;
-        let definition = card.definition;
-        let frozen_spell_ability = self.frozen_spell_payload(definition, &signature);
+        let id = card.id;
+        let frozen_spell_ability = self.frozen_spell_payload(card.definition, &signature);
         // Read now, because nothing afterwards can tell: by resolution the
         // step has usually moved on, and the stack is empty again.
         let cast_at_instant_speed = !self.sorcery_speed_available(player);
-        let mut stack_object = StackObject {
-            id: stack_id,
+        StackObject {
+            id,
             kind: StackObjectKind::Spell,
             card: card.into(),
             source: None,
@@ -628,32 +703,88 @@ impl Game {
             face_down,
             colors_of_mana_spent: crate::card::ColorSet::empty(),
             is_copy: false,
-        };
-        let payment_purpose = ManaPaymentPurpose::Spell {
-            object: stack_id,
-            definition,
-            controller: player,
-            form: stack_object
-                .signature
-                .as_ref()
-                .expect("a spell has a cast signature")
-                .form()
-                .clone(),
-        };
-        // Life named by the chosen alternative, by the spell's own additional
-        // cost, or by the permission that let it be cast off a library, is
-        // paid alongside its mana, before the spell is finished on the stack.
-        let life = self.cast_life_payment(definition, &stack_object, x) + library_top_life;
-        if life > 0 {
-            self.lose_life(player, life);
         }
-        // Read before the permission is consumed above; spent here, where
-        // every other cost for this cast is paid.
-        if energy > 0 {
-            self.spend_energy(player, energy);
+    }
+
+    /// Completes the mana-payment portion of a cast. A mana ability may pay
+    /// by sacrificing a permanent whose exit needs a CR 616 replacement
+    /// choice. In that case the spell and the rest of its frozen payment plan
+    /// remain on the prospective exit batch until the ability has completed.
+    #[allow(clippy::too_many_arguments)]
+    pub(super) fn continue_spell_mana_payment(
+        &mut self,
+        mut stack_object: StackObject,
+        targets: Vec<Target>,
+        object_payments: Vec<(GameObjectId, SpendModeDef)>,
+        cost: ManaCost,
+        x: u16,
+        purpose: ManaPaymentPurpose,
+        plan: Vec<super::PlannedManaActivation>,
+        mut next_activation: usize,
+    ) {
+        while let Some(payment) = plan.get(next_activation).copied() {
+            next_activation += 1;
+            let super::PlannedPaymentKind::Mana {
+                ability,
+                color,
+                counters_removed,
+                cost_object,
+                combination,
+                ..
+            } = payment.kind
+            else {
+                continue;
+            };
+            let pending_before = self.pending_decisions.len();
+            self.activate_mana_source(
+                stack_object.controller,
+                payment.source,
+                ability,
+                color,
+                ManaActivationChoices {
+                    counters_removed,
+                    cost_object,
+                    combination,
+                },
+            );
+            let suspended = self.pending_decisions[pending_before..]
+                .iter()
+                .any(|pending| {
+                    matches!(
+                        &pending.continuation,
+                        DecisionContinuation::BattlefieldExitReplacement { .. }
+                    )
+                });
+            if suspended {
+                let deferred = self.defer_after_battlefield_exit(
+                    pending_before,
+                    BattlefieldExitCompletion::ContinueSpellManaPayment {
+                        object: Box::new(stack_object),
+                        targets,
+                        object_payments,
+                        cost,
+                        x,
+                        purpose,
+                        plan,
+                        next_activation,
+                    },
+                );
+                debug_assert!(deferred, "the observed exit choice retains the cast");
+                return;
+            }
         }
-        self.activate_mana_for_cost_avoiding_for(player, cost, x, None, &payment_purpose);
-        let spent_mana = self.pay_player_cost_for(player, cost, x, &payment_purpose);
+
+        // CR 601.2g completes every mana ability before 601.2h taps the
+        // creatures chosen for convoke.
+        for payment in &plan {
+            if payment.kind.uses_convoke() {
+                self.tap_permanent(payment.source)
+                    .expect("a planned convoke source remains on the battlefield");
+            }
+        }
+        let (mana_cost, mana_x) = self.residual_cost_after_convoke(cost, x, &purpose, &plan, true);
+        let spent_mana =
+            self.pay_player_cost_for(stack_object.controller, mana_cost, mana_x, &purpose);
         Self::apply_spent_mana_to_spell(&mut stack_object, &spent_mana);
         // Recorded whether or not this spell counts them: what paid for a
         // spell is a fact about the cast, and a clause that asks later has
@@ -664,141 +795,161 @@ impl Game {
                     stack_object.colors_of_mana_spent.with(mana.color);
             }
         }
-        self.continue_spell_cast(stack_object, targets, sacrifices.to_vec());
-    }
-
-    /// The life the chosen alternative names, if the cast selected one.
-    fn selected_alternative_life(&self, definition: CardDefinitionId, object: &StackObject) -> u16 {
-        let Some(signature) = object.signature.as_ref() else {
-            return 0;
-        };
-        let Some(selected) = signature.costs().alternative() else {
-            return 0;
-        };
-        let Some(card) = self.catalog.get(definition) else {
-            return 0;
-        };
-        let Some(option) = card.play_option(signature.play_option()) else {
-            return 0;
-        };
-        Self::alternative_cast_clause(card, option, selected)
-            .and_then(|(_, ability, _)| match ability.definition {
-                DeclarativeAbilityDef::AlternativeCast(alternative) => Some(alternative.life),
-                _ => None,
-            })
-            .unwrap_or(0)
-    }
-
-    /// How this spell's additional cost spends what it named. A cast that
-    /// selected an alternative reads that alternative's cost; everything else
-    /// reads the spell's own.
-    fn spell_additional_cost_spend(&self, object: &StackObject) -> SpendModeDef {
-        let Some(signature) = object.signature.as_ref() else {
-            return SpendModeDef::ByZone;
-        };
-        let Some(card_definition) = object.card.definition.card_definition() else {
-            return SpendModeDef::ByZone;
-        };
-        let Some(definition) = self.catalog.get(card_definition) else {
-            return SpendModeDef::ByZone;
-        };
-        let Some(option) = definition.play_option(signature.play_option()) else {
-            return SpendModeDef::ByZone;
-        };
-        if let Some(selected) = signature.costs().alternative()
-            && let Some((_, ability, _)) =
-                Self::alternative_cast_ability(definition, option, selected)
-            && let DeclarativeAbilityDef::AlternativeCast(alternative) = ability.definition
-            && let Some(cost) = alternative.additional_cost
-        {
-            return cost.spend;
-        }
-        definition
-            .rules
-            .ability_clauses()
-            .iter()
-            .find_map(|ability| match ability.definition {
-                DeclarativeAbilityDef::Spell(spell) if ability.is_executable() => {
-                    spell.additional_cost()
-                }
-                _ => None,
-            })
-            .map_or(SpendModeDef::ByZone, |cost| cost.spend)
+        self.continue_spell_cast(stack_object, targets, object_payments);
     }
 
     pub(super) fn continue_spell_cast(
         &mut self,
         stack_object: StackObject,
         targets: Vec<Target>,
-        mut remaining_sacrifices: Vec<GameObjectId>,
+        remaining_sacrifices: Vec<(GameObjectId, SpendModeDef)>,
     ) {
-        // The same list carries every object an additional cost spends. What
-        // spending means is the cost's own business: by default the object's
-        // zone decides, but a cost can say otherwise -- the free-spell cycle
-        // returns its lands to hand rather than losing them.
-        let spend = self.spell_additional_cost_spend(&stack_object);
-        if spend == SpendModeDef::ReturnToHand {
-            for spent in remaining_sacrifices.drain(..) {
-                self.move_target_to_zone(
-                    Target::Permanent(spent),
-                    ZoneKind::Hand,
-                    ZoneMoveCause::Effect {
-                        controller: stack_object.controller,
-                    },
-                    None,
-                    ZonePlacement::Top,
-                );
-            }
-        }
-        // One move for the whole cost, however many cards it spends out of a
-        // graveyard, which is what "one or more cards" reads.
-        let mut exiled_from_graveyard = Vec::new();
-        while let Some(&spent) = remaining_sacrifices.first() {
+        let Some((stack_object, targets)) =
+            self.pay_spell_object_costs(stack_object, targets, remaining_sacrifices)
+        else {
+            return;
+        };
+        self.complete_spell_cast(stack_object, targets);
+    }
+
+    fn pay_spell_object_costs(
+        &mut self,
+        stack_object: StackObject,
+        targets: Vec<Target>,
+        mut remaining_sacrifices: Vec<(GameObjectId, SpendModeDef)>,
+    ) -> Option<(StackObject, Vec<Target>)> {
+        // The action carries object choices in the same order as their
+        // additional-cost clauses. Process one at a time so a mandatory
+        // return/exile cost and an optional sacrifice cost retain distinct
+        // spend operations even when both were selected for the same cast.
+        while let Some((spent, spend)) = remaining_sacrifices.first().copied() {
+            remaining_sacrifices.remove(0);
             if self
                 .battlefield
                 .iter()
                 .any(|permanent| permanent.card.id == spent)
             {
-                break;
-            }
-            remaining_sacrifices.remove(0);
-            let owner = stack_object.controller;
-            if let Some(card) = remove_card(&mut self.players[owner.index()].graveyard, spent) {
-                let (card, _zone_change) = self.zone_change_card(card);
-                self.players[owner.index()].exile.push(card.clone());
-                exiled_from_graveyard.push(card);
-            } else if let Some(card) = remove_card(&mut self.players[owner.index()].hand, spent) {
-                let definition = card.definition;
-                let (card, _zone_change) = self.zone_change_card(card);
-                let moved = card.id;
-                if spend == SpendModeDef::Exile {
-                    self.players[owner.index()].exile.push(card);
-                } else {
-                    self.put_card_into_graveyard(owner, card);
-                    self.events.push(GameEvent::CardsDiscarded {
-                        player: owner,
-                        cards: vec![(moved, definition)],
-                    });
+                match spend {
+                    SpendModeDef::ByZone => {
+                        self.move_permanents_to_graveyard_then(
+                            &[spent],
+                            Some(BattlefieldExitCompletion::CompleteSpellCast {
+                                object: Box::new(stack_object),
+                                targets,
+                                remaining_sacrifices,
+                            }),
+                        );
+                        return None;
+                    }
+                    SpendModeDef::Exile | SpendModeDef::ReturnToHand => {
+                        let destination =
+                            Self::additional_cost_destination(spend, ZoneKind::Battlefield);
+                        self.move_target_to_zone(
+                            Target::Permanent(spent),
+                            destination,
+                            ZoneMoveCause::Effect {
+                                controller: stack_object.controller,
+                            },
+                            None,
+                            ZonePlacement::Top,
+                        );
+                    }
                 }
+                continue;
             }
-        }
-        if !exiled_from_graveyard.is_empty() {
-            self.capture_cards_exiled(&exiled_from_graveyard, ZoneKind::Graveyard);
-            self.note_card_left_graveyard(stack_object.controller);
-        }
-        if !remaining_sacrifices.is_empty() {
-            let sacrificed = remaining_sacrifices.remove(0);
-            self.move_permanents_to_graveyard_then(
-                &[sacrificed],
-                Some(BattlefieldExitCompletion::CompleteSpellCast {
-                    object: Box::new(stack_object),
-                    targets,
-                    remaining_sacrifices,
-                }),
+
+            let Some((from, card)) = self
+                .card_in_nonbattlefield_zone(spent)
+                .map(|(zone, card)| (zone, card.clone()))
+            else {
+                continue;
+            };
+            let destination = Self::additional_cost_destination(spend, from);
+            let owner = card.owner;
+            // "One or more cards" exiled from a graveyard by one payment is
+            // one move and therefore one trigger event. Keep that upstream
+            // batching while retaining each object's own spend provenance:
+            // a following return-to-hand object is not part of this batch.
+            if from == ZoneKind::Graveyard && destination == ZoneKind::Exile {
+                self.exile_graveyard_payment_batch(owner, spent, &mut remaining_sacrifices);
+                continue;
+            }
+            let moved = self.move_card_from_nonbattlefield_zone(
+                spent,
+                from,
+                destination,
+                ZoneMoveCause::Effect {
+                    controller: stack_object.controller,
+                },
+                None,
             );
-            return;
+            if from == ZoneKind::Hand
+                && destination == ZoneKind::Graveyard
+                && let Some((card, actual_destination)) = moved
+                && actual_destination == ZoneKind::Graveyard
+            {
+                self.events.push(GameEvent::CardsDiscarded {
+                    player: owner,
+                    cards: vec![(card.id, card.definition)],
+                });
+                self.capture_battlefield_triggers(&CommittedTriggerEvent::Discarded {
+                    player: owner,
+                });
+            }
         }
 
+        Some((stack_object, targets))
+    }
+
+    const fn additional_cost_destination(spend: SpendModeDef, from: ZoneKind) -> ZoneKind {
+        match spend {
+            SpendModeDef::ReturnToHand => ZoneKind::Hand,
+            SpendModeDef::ByZone if matches!(from, ZoneKind::Hand | ZoneKind::Battlefield) => {
+                ZoneKind::Graveyard
+            }
+            SpendModeDef::Exile | SpendModeDef::ByZone => ZoneKind::Exile,
+        }
+    }
+
+    fn exile_graveyard_payment_batch(
+        &mut self,
+        owner: PlayerId,
+        spent: GameObjectId,
+        remaining_sacrifices: &mut Vec<(GameObjectId, SpendModeDef)>,
+    ) {
+        let mut exiled = Vec::new();
+        let mut next = Some(spent);
+        while let Some(id) = next.take() {
+            if let Some(card) = remove_card(&mut self.players[owner.index()].graveyard, id) {
+                let (card, _zone_change) = self.zone_change_card(card);
+                self.players[owner.index()].exile.push(card.clone());
+                exiled.push(card);
+            }
+            next =
+                remaining_sacrifices
+                    .first()
+                    .copied()
+                    .and_then(|(candidate, candidate_spend)| {
+                        let (candidate_zone, candidate_card) =
+                            self.card_in_nonbattlefield_zone(candidate)?;
+                        let candidate_destination =
+                            Self::additional_cost_destination(candidate_spend, candidate_zone);
+                        (candidate_zone == ZoneKind::Graveyard
+                            && candidate_destination == ZoneKind::Exile
+                            && candidate_card.owner == owner)
+                            .then_some(candidate)
+                    });
+            if next.is_some() {
+                remaining_sacrifices.remove(0);
+            }
+        }
+        if !exiled.is_empty() {
+            self.capture_cards_exiled(&exiled, ZoneKind::Graveyard);
+            self.note_card_left_graveyard(owner);
+        }
+    }
+
+    fn complete_spell_cast(&mut self, stack_object: StackObject, targets: Vec<Target>) {
         let player = stack_object.controller;
         let stack_id = stack_object.id;
         let definition = stack_object

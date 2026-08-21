@@ -566,10 +566,10 @@ impl WebGame {
                     .play_option_label(observation, *card, choices.play_option())
                     .unwrap_or_else(|| self.instance_name(observation, *card));
                 let mut label = format!("Cast {option}");
+                let cast_option = Self::instance_definition(observation, *card)
+                    .and_then(|definition| self.catalog.get(definition))
+                    .and_then(|definition| definition.play_option(choices.play_option()));
                 if let Some(alternative) = choices.costs().alternative() {
-                    let cast_option = Self::instance_definition(observation, *card)
-                        .and_then(|definition| self.catalog.get(definition))
-                        .and_then(|definition| definition.play_option(choices.play_option()));
                     let printed = cast_option.and_then(|option| {
                         option
                             .alternative_costs
@@ -583,6 +583,19 @@ impl WebGame {
                         .or_else(|| cast_option.and_then(|option| option.mana_cost))
                     {
                         let _ = write!(label, " {}", mana_cost_label(cost));
+                    }
+                }
+                for selected in choices.costs().additional() {
+                    if let Some(additional) = cast_option.and_then(|option| {
+                        option
+                            .additional_costs
+                            .iter()
+                            .find(|cost| cost.id == *selected)
+                    }) {
+                        let _ = write!(label, " with {}", additional.label);
+                        if let Some(cost) = additional.mana_cost {
+                            let _ = write!(label, " {}", mana_cost_label(cost));
+                        }
                     }
                 }
                 let modes =

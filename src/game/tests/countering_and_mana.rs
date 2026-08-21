@@ -88,6 +88,7 @@ fn countering_acceptance_cards_report_complete_shared_implementations() {
                 | DeclarativeAbilityDef::Static(_)
                 | DeclarativeAbilityDef::Replacement(_)
                 | DeclarativeAbilityDef::AlternativeCast(_)
+                | DeclarativeAbilityDef::OptionalAdditionalCost(_)
                 | DeclarativeAbilityDef::SpecialAction(_)
                 | DeclarativeAbilityDef::Keyword(_)
                 | DeclarativeAbilityDef::Legacy => None,

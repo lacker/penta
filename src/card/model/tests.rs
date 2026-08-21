@@ -406,6 +406,21 @@ fn alternative_cast_clauses_render_and_project_their_owned_costs() {
 }
 
 #[test]
+fn convoke_and_mana_buyback_constructors_render_exact_rules_text() {
+    let convoke = crate::card::abilities::convoke();
+    assert_eq!(
+        convoke.rules_text(),
+        "Convoke (Your creatures can help cast this spell. Each creature you tap while casting this spell pays for {1} or one mana of that creature's color.)",
+    );
+
+    let buyback = crate::card::abilities::buyback(mana_cost!("{3}"));
+    assert_eq!(
+        buyback.rules_text(),
+        "Buyback {3} (You may pay an additional {3} as you cast this spell. If you do, put this card into your hand as it resolves.)",
+    );
+}
+
+#[test]
 fn symbolic_mana_costs_reject_invalid_or_unsupported_notation() {
     for (symbols, expected) in [
         ("", ManaCostParseErrorKind::Empty),

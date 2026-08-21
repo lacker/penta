@@ -54,6 +54,9 @@ static WOLF_OF_THE_HUNT: ObjectPredicateDef = ObjectPredicateDef::All(&[
 /// in card-level booleans.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum KeywordAbility {
+    /// CR 702.51. Each untapped creature the caster taps while paying for the
+    /// spell pays for one generic mana or one mana of that creature's color.
+    Convoke,
     Flying,
     Trample,
     Haste,
@@ -149,6 +152,7 @@ impl KeywordAbility {
     #[must_use]
     pub const fn simple_index(self) -> Option<u32> {
         Some(match self {
+            Self::Convoke => 30,
             Self::Flying => 0,
             Self::Trample => 1,
             Self::Haste => 2,

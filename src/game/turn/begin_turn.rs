@@ -321,6 +321,7 @@ impl Game {
                 resolver: StackAbilityResolver::Declarative(ScopedEffect::primary(effect)),
                 condition: None,
                 mode_effects: Vec::new(),
+                resolution_destination: None,
                 x: 0,
             }),
             controller: replacement.controller,

@@ -711,6 +711,7 @@ fn resolving_ability_masks_an_illegal_target_in_each_frozen_slot() {
             )),
             condition: None,
             mode_effects: Vec::new(),
+            resolution_destination: None,
             x: 0,
         }),
         controller: PlayerId::One,

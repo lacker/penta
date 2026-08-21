@@ -282,6 +282,50 @@ fn white_red_hybrid_symbols_accept_either_color_but_not_colorless() {
 }
 
 #[test]
+fn overlapping_hybrid_pairs_share_each_colors_capacity() {
+    let mut cost = ManaCost::default();
+    cost.hybrid[HybridPair::WhiteBlue.index()] = 1;
+    cost.hybrid[HybridPair::WhiteBlack.index()] = 1;
+
+    assert!(
+        !can_pay(
+            ManaPool {
+                white: 1,
+                green: 1,
+                ..ManaPool::default()
+            },
+            cost,
+            0,
+        ),
+        "one white cannot satisfy both overlapping hybrid symbols",
+    );
+
+    let mut pool = ManaPool {
+        white: 1,
+        blue: 1,
+        ..ManaPool::default()
+    };
+    assert!(can_pay(pool, cost, 0));
+    pay_cost(&mut pool, cost, 0);
+    assert_eq!(pool, ManaPool::default());
+
+    cost.generic = 1;
+    assert_eq!(
+        Game::generic_shortfall(
+            ManaPool {
+                white: 1,
+                blue: 1,
+                ..ManaPool::default()
+            },
+            cost,
+            0,
+        ),
+        1,
+        "both colored units are globally committed to the hybrid symbols",
+    );
+}
+
+#[test]
 fn declarative_mana_production_drives_generic_mana_sources() {
     static ABILITIES: [AbilityDef; 1] = [AbilityDef::activated_mana(
         "{T}: Add {U} or {R}.",

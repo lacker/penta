@@ -11,11 +11,12 @@ use super::model::{
     CounterKind, DamageEventMatcherDef, DamagePreventionDef, DamageRecipientMatcherDef,
     DiscardFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
     KeywordAbility, ManaColor, ManaCost, ObjectChoiceBindingDef, ObjectCountConditionDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PartitionItemsDef, PayOrDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PartitionItemsDef, PayOrDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, ProtectedCreatureType, ReplacementAbilityDef,
     ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, ScaledValueDef,
-    SplitIntoPilesDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement,
+    SpellAdditionalCostDef, SpellResolutionDestinationDef, SplitIntoPilesDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
 
@@ -949,5 +950,6 @@ pub const fn cannot_be_blocked(text: &'static str) -> AbilityDef {
 include!("abilities/lands.rs");
 include!("abilities/repeated_clauses.rs");
 include!("abilities/keyword_mechanics.rs");
+include!("abilities/convoke_buyback.rs");
 include!("abilities/attachment.rs");
 include!("abilities/tests.rs");

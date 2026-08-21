@@ -48,6 +48,41 @@ impl Game {
             .filter(|(_, ability, _)| ability.is_executable())
     }
 
+    pub(super) fn optional_additional_cost_clause(
+        definition: &CardDefinition,
+        option: &PlayOptionDef,
+        additional: AdditionalCostId,
+    ) -> Option<(AbilityOrigin, AbilityDef, OptionalAdditionalCostKindDef)> {
+        let parts: &[CardPartId] = match &option.form {
+            crate::card::SpellForm::Part(part) => std::slice::from_ref(part),
+            crate::card::SpellForm::Combined(parts) => parts,
+        };
+        parts.iter().find_map(|part_id| {
+            definition
+                .part(*part_id)?
+                .rules
+                .indexed_abilities()
+                .find_map(|attached| {
+                    let DeclarativeAbilityDef::OptionalAdditionalCost(cost) =
+                        attached.definition.definition
+                    else {
+                        return None;
+                    };
+                    (attached.additional_cost_id() == Some(additional)
+                        && attached.definition.is_executable())
+                    .then_some((
+                        AbilityOrigin::Printed {
+                            definition: definition.id,
+                            part: *part_id,
+                            ability: attached.id,
+                        },
+                        attached.definition,
+                        cost.kind,
+                    ))
+                })
+        })
+    }
+
     pub(super) fn selected_alternative_kind(
         &self,
         definition: &CardDefinition,
@@ -184,6 +219,20 @@ impl Game {
     ) -> Option<StackAbilityPayload> {
         let definition = self.catalog.get(definition_id)?;
         let option = definition.play_option(signature.play_option())?;
+        let (spell_origin, spell_ability) = Self::spell_ability(definition, option)?;
+        let DeclarativeAbilityDef::Spell(spell) = spell_ability.definition else {
+            unreachable!("spell_ability returns a spell clause")
+        };
+        let mut resolution_destination = spell.resolution_destination();
+        for selected in signature.costs().additional() {
+            if let Some((_, selected_ability, _)) =
+                Self::optional_additional_cost_clause(definition, option, *selected)
+                && let DeclarativeAbilityDef::OptionalAdditionalCost(cost) =
+                    selected_ability.definition
+            {
+                resolution_destination = cost.resolution_destination;
+            }
+        }
         // Overload and kicker both replace the spell's instructions with the
         // ones printed on their own clause, so both resolve that clause
         // rather than the base spell.
@@ -219,10 +268,11 @@ impl Game {
                 resolver: Self::ability_resolver(origin, &ability),
                 condition: None,
                 mode_effects: Vec::new(),
+                resolution_destination: Some(resolution_destination),
                 x: signature.x(),
             });
         }
-        let (origin, ability) = Self::spell_ability(definition, option)?;
+        let (origin, ability) = (spell_origin, spell_ability);
         let AbilityOrigin::Printed {
             ability: ability_id,
             ..
@@ -258,6 +308,7 @@ impl Game {
                 _ => Self::ability_resolver(origin, &ability),
             },
             mode_effects: plan.mode_effects,
+            resolution_destination: Some(resolution_destination),
             x: signature.x(),
         })
     }

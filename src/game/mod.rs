@@ -22,13 +22,14 @@ use crate::card::{
     EffectPaymentDef, EffectRecipientDef, EffectRecipientSetDef, FaceDownCharacteristics,
     HybridPair, KeywordAbility, ManaCost, ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef,
     ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayActionKind, PlayOptionDef, PlayRestriction, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    PowerToughnessOperationDef, ProtectedCreatureType, QuantifierDef, ReplacementChoiceDef,
-    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    SacrificedAmountDef, SetOperationDef, StackTargetKindDef, TapPurposeDef, TargetPredicate,
-    TargetSlotDef, TokenCharacteristics, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef,
-    TurnKindDef, TurnPhaseDef, TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement,
-    abilities, applicable_part_ids,
+    OptionalAdditionalCostKindDef, PlayActionKind, PlayOptionDef, PlayRestriction, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ProtectedCreatureType, QuantifierDef,
+    ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, SetOperationDef, SpellResolutionDestinationDef,
+    StackTargetKindDef, TapPurposeDef, TargetPredicate, TargetSlotDef, TokenCharacteristics,
+    TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnPhaseDef,
+    TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
+    applicable_part_ids,
 };
 use crate::casting::{CastChoices, CastSignature, CostConfiguration, TargetSelection};
 use crate::deck::Deck;
@@ -173,8 +174,8 @@ use decision_state::{
 use exile_permission::{ExilePlayCost, ExilePlayPermission};
 use mana_state::{
     AppliedStackEffect, FlexibleManaSource, ManaAbilityActivation, ManaActivationChoices,
-    ManaPaymentPurpose, ManaPlanOptions, ManaSourceOutput, ManaSourceOutputs,
-    PlannedManaActivation,
+    ManaPaymentPurpose, ManaPlanOptions, ManaSourceOutput, ManaSourceOutputs, PaymentCapacity,
+    PlannedManaActivation, PlannedPaymentKind,
 };
 use procedure_state::{DrawReplacement, PendingProcedure};
 use replacement_state::{
@@ -192,7 +193,7 @@ use trigger_state::{
 #[cfg(test)]
 use lifecycle::backing_cards;
 use mana_planning::{
-    add_generic, add_mana_cost, configured_mana_cost, fold_restricted_x, mana_cost_value,
+    add_generic, add_mana_cost, configured_base_mana_cost, fold_restricted_x, mana_cost_value,
     pay_cost_with_generic_strategy, reduce_generic,
 };
 #[cfg(test)]
@@ -421,6 +422,11 @@ struct StackAbilityPayload {
     /// Selected declarative mode effects frozen in canonical printed order.
     /// Repeated modes remain repeated procedures.
     mode_effects: Vec<ScopedEffect>,
+    /// Where a successfully resolving spell card goes. This is frozen as a
+    /// property of the stack object because optional additional costs can
+    /// change it independently of the ability whose instructions resolve.
+    /// Activated and triggered abilities carry `None`.
+    resolution_destination: Option<SpellResolutionDestinationDef>,
     /// The X chosen when the ability was activated, so its effects read the
     /// same number the cost was paid for.
     x: u16,

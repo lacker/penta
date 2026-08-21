@@ -466,6 +466,65 @@ fn toxic_deluge_is_offered_for_as_much_life_as_you_have() {
     }
 }
 
+#[test]
+fn spell_life_and_mana_source_life_share_one_cast_budget() {
+    let mut game = ready_game();
+    game.battlefield.clear();
+    let sources = (0..3)
+        .map(|_| {
+            game.put_onto_battlefield(PlayerId::One, cards::MANA_CONFLUENCE)
+                .expect("cataloged")
+        })
+        .collect::<Vec<_>>();
+    let deluge = card(77_005, cards::TOXIC_DELUGE, PlayerId::One);
+    let deluge_id = deluge.id;
+    game.players[PlayerId::One.index()].hand.push(deluge);
+
+    game.players[PlayerId::One.index()].life = 4;
+    let cast = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| {
+            matches!(action, Action::CastSpell { card, choices, .. }
+                if *card == deluge_id && choices.x() == 1)
+        })
+        .expect("one spell life plus three mana-source life is affordable at four");
+    let preview = game.mana_sources_for_action(PlayerId::One, &cast);
+    assert_eq!(preview.len(), sources.len());
+    assert!(sources.iter().all(|source| preview.contains(source)));
+
+    game.players[PlayerId::One.index()].life = 3;
+    assert!(
+        !game.is_legal_action(PlayerId::One, &cast),
+        "the spell cannot reserve one life and also spend all three on mana abilities",
+    );
+    assert!(
+        game.mana_sources_for_action(PlayerId::One, &cast)
+            .is_empty(),
+        "the stale action preview uses the same aggregate life budget",
+    );
+    assert!(game.apply(PlayerId::One, cast.clone()).is_err());
+    assert_eq!(game.players[PlayerId::One.index()].life, 3);
+    assert!(
+        game.players[PlayerId::One.index()]
+            .hand
+            .iter()
+            .any(|card| card.id == deluge_id),
+        "rejection happens before the spell leaves hand",
+    );
+    assert!(sources.iter().all(|source| {
+        game.battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == *source)
+            .is_some_and(|permanent| !permanent.tapped)
+    }));
+
+    game.players[PlayerId::One.index()].life = 4;
+    game.apply(PlayerId::One, cast)
+        .expect("the same aggregate payment is legal with four life");
+    assert_eq!(game.players[PlayerId::One.index()].life, 0);
+}
+
 /// The life is paid as the spell is cast, and the same X is what every
 /// creature shrinks by. A creature whose toughness reaches zero dies.
 #[test]
@@ -875,7 +934,7 @@ fn corpse_dance_returns_itself_only_when_bought_back() {
             .into_iter()
             .find(|action| match action {
                 Action::CastSpell { card, choices, .. } => {
-                    *card == dance_id && choices.costs().alternative().is_some() == bought_back
+                    *card == dance_id && choices.costs().additional().is_empty() != bought_back
                 }
                 _ => false,
             })

@@ -49,6 +49,7 @@ pub(super) fn validate_ability_effect_context(
         | DeclarativeAbilityDef::Activated(_)
         | DeclarativeAbilityDef::Triggered(_)
         | DeclarativeAbilityDef::AlternativeCast(_)
+        | DeclarativeAbilityDef::OptionalAdditionalCost(_)
         | DeclarativeAbilityDef::SpecialAction(_)
         | DeclarativeAbilityDef::Keyword(_)
         | DeclarativeAbilityDef::Legacy => {
@@ -71,6 +72,7 @@ fn resolving_source_zones(ability: &AbilityDef) -> &'static [ZoneKind] {
         DeclarativeAbilityDef::SpecialAction(definition) => definition.source_zones,
         DeclarativeAbilityDef::Spell(_)
         | DeclarativeAbilityDef::AlternativeCast(_)
+        | DeclarativeAbilityDef::OptionalAdditionalCost(_)
         | DeclarativeAbilityDef::Keyword(_)
         | DeclarativeAbilityDef::Legacy => &[ZoneKind::Stack],
         DeclarativeAbilityDef::Static(_) | DeclarativeAbilityDef::Replacement(_) => &[],

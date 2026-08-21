@@ -577,6 +577,7 @@ pub(super) fn parse_stack(
                             })
                         })
                         .collect::<Result<Vec<_>, _>>()?,
+                    resolution_destination: None,
                     x: payload_state.x,
                 };
                 if usize_field(shown, "x")? != usize::from(payload_state.x) {
@@ -789,6 +790,7 @@ fn parse_ability_payload(
                     .ok_or_else(|| "detached stack mode effect locator is absent".to_owned())
             })
             .collect::<Result<Vec<_>, _>>()?,
+        resolution_destination: None,
         x: state.x,
     })
 }

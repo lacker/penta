@@ -266,6 +266,20 @@ pub struct MismatchedAlternativeCost {
     pub actual_mana_cost: ManaCost,
 }
 
+/// The two sides of an optional additional-cost projection mismatch.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct MismatchedAdditionalCost {
+    pub definition: CardDefinitionId,
+    pub part: CardPartId,
+    pub ability: AbilityId,
+    pub option: PlayOptionId,
+    pub cost: AdditionalCostId,
+    pub expected_label: String,
+    pub actual_label: String,
+    pub expected_mana_cost: Option<ManaCost>,
+    pub actual_mana_cost: Option<ManaCost>,
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum CatalogError {
     DuplicateId(CardDefinitionId),
@@ -748,6 +762,13 @@ pub enum CatalogError {
     /// two whole mana costs and two labels -- and every fallible catalog
     /// function returns this enum by value.
     MismatchedAlternativeCostForAbility(Box<MismatchedAlternativeCost>),
+    MissingAdditionalCostForAbility {
+        definition: CardDefinitionId,
+        part: CardPartId,
+        ability: AbilityId,
+        cost: AdditionalCostId,
+    },
+    MismatchedAdditionalCostForAbility(Box<MismatchedAdditionalCost>),
     DuplicateAdditionalCostId {
         definition: CardDefinitionId,
         cost: AdditionalCostId,

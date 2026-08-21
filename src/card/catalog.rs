@@ -11,7 +11,8 @@ use super::{CardDefinition, CardPrinting, CardPrintingId, CardSet};
 use crate::{CardDefinitionId, Format};
 
 pub use self::error::{
-    CatalogError, EffectSubjectKind, GrantedAbilityValidationError, MismatchedAlternativeCost,
+    CatalogError, EffectSubjectKind, GrantedAbilityValidationError, MismatchedAdditionalCost,
+    MismatchedAlternativeCost,
 };
 
 #[cfg(test)]

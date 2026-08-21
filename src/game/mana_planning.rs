@@ -5,10 +5,11 @@ use super::{
     AppliedEffectDef, CardBehavior, CardDefinitionId, CardInstance, CardType,
     CharacteristicContext, CharacteristicOperationDef, CostConfiguration, DeclarativeAbilityDef,
     EffectDef, EffectRecipientDef, FlexibleManaSource, Game, GameObjectId, HybridPair,
-    ManaAbilityActivation, ManaActivationChoices, ManaColor, ManaCost, ManaPaymentPurpose,
-    ManaPlanOptions, ManaPool, ManaSourceOutput, ManaSourceOutputs, Permanent,
-    PlannedManaActivation, PlayActionKind, PlayOptionDef, PlayerId, SetOperationDef,
-    TriggerContext, ValueDef, ZoneKind, extra_target_cost,
+    KeywordAbility, ManaAbilityActivation, ManaActivationChoices, ManaColor, ManaCost,
+    ManaPaymentPurpose, ManaPlanOptions, ManaPool, ManaSourceOutput, ManaSourceOutputs,
+    PaymentCapacity, Permanent, PlannedManaActivation, PlannedPaymentKind, PlayActionKind,
+    PlayOptionDef, PlayerId, SetOperationDef, TriggerContext, ValueDef, ZoneKind,
+    extra_target_cost,
 };
 
 impl Game {
@@ -20,7 +21,28 @@ impl Game {
         let Some((cost, x, options, purpose)) = self.mana_requirement(player, action) else {
             return Vec::new();
         };
-        self.plan_mana_sources(player, cost, x, options, &purpose)
+        let reserved = match action {
+            Action::CastSpell { sacrifices, .. } => sacrifices.as_slice(),
+            _ => &[],
+        };
+        let life_available = match action {
+            Action::CastSpell { card, choices, .. } => self
+                .life_available_for_cast_action(player, *card, choices)
+                .unwrap_or(0),
+            _ => u16::try_from(self.players[player.index()].life.max(0)).unwrap_or(u16::MAX),
+        };
+        unique_payment_source_ids(
+            self.plan_mana_activations(ManaPlanningRequest {
+                player,
+                cost,
+                x,
+                options,
+                purpose: &purpose,
+                reserved,
+                life_available,
+            })
+            .unwrap_or_default(),
+        )
     }
 
     #[allow(clippy::too_many_lines)]
@@ -182,6 +204,7 @@ impl Game {
                 | DeclarativeAbilityDef::Static(_)
                 | DeclarativeAbilityDef::Replacement(_)
                 | DeclarativeAbilityDef::AlternativeCast(_)
+                | DeclarativeAbilityDef::OptionalAdditionalCost(_)
                 | DeclarativeAbilityDef::SpecialAction(_)
                 | DeclarativeAbilityDef::Keyword(_)
                 | DeclarativeAbilityDef::Legacy => None,
@@ -214,78 +237,6 @@ impl Game {
         ))
     }
 
-    /// Whether an ability turns its own source into a creature.
-    pub(super) fn effect_animates_source(effect: Option<EffectDef>) -> bool {
-        match effect {
-            Some(EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect,
-                ..
-            }) => Self::applied_effect_adds_creature_type(effect),
-            Some(EffectDef::Sequence(effects)) => effects
-                .iter()
-                .any(|effect| Self::effect_animates_source(Some(*effect))),
-            Some(EffectDef::Randomized {
-                on_success,
-                on_failure,
-                ..
-            }) => {
-                Self::effect_animates_source(Some(*on_success))
-                    || Self::effect_animates_source(Some(*on_failure))
-            }
-            Some(EffectDef::Choose(choice)) => Self::effect_animates_source(Some(*choice.then)),
-            Some(EffectDef::PayOr(payment)) => payment
-                .if_paid
-                .iter()
-                .chain(payment.otherwise.iter())
-                .any(|effect| Self::effect_animates_source(Some(**effect))),
-            Some(EffectDef::SplitIntoPiles(partition)) => {
-                Self::effect_animates_source(Some(*partition.then))
-            }
-            _ => false,
-        }
-    }
-
-    fn applied_effect_adds_creature_type(effect: AppliedEffectDef) -> bool {
-        match effect {
-            AppliedEffectDef::Composite(effects) => effects
-                .iter()
-                .copied()
-                .any(Self::applied_effect_adds_creature_type),
-            AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(
-                SetOperationDef::Add(types) | SetOperationDef::Set(types),
-            )) => types.contains(CardType::Creature),
-            _ => false,
-        }
-    }
-
-    pub(super) fn activated_ability_mana_cost(definition: ActivatedAbilityDef) -> Option<ManaCost> {
-        let mut cost = ManaCost::default();
-        let mut has_mana_cost = false;
-        for ability_cost in definition.costs.as_slice() {
-            if let AbilityCostDef::Mana(mana) = ability_cost {
-                cost = add_mana_cost(cost, *mana);
-                has_mana_cost = true;
-            }
-        }
-        has_mana_cost.then_some(cost)
-    }
-
-    pub(super) fn plan_mana_sources(
-        &self,
-        player: PlayerId,
-        cost: ManaCost,
-        x: u16,
-        options: ManaPlanOptions,
-        purpose: &ManaPaymentPurpose,
-    ) -> Vec<GameObjectId> {
-        self.plan_mana_activations_with_options_for(player, cost, x, options, purpose)
-            .unwrap_or_default()
-            .into_iter()
-            .map(|activation| activation.source)
-            .collect()
-    }
-
     /// How much {C} Channel could still produce for this player. The last
     /// point of life is not spendable, which is the same limit the priority
     /// action already enforces.
@@ -305,18 +256,24 @@ impl Game {
         for color in colored_mana() {
             spare.remove_color(color, mana_cost_amount(cost, color));
         }
-        for pair in HybridPair::ALL {
-            let mut remaining = cost.hybrid[pair.index()];
-            let (first, second) = pair.colors();
-            for color in [first, second] {
-                let spent = spare.amount(color).min(remaining);
-                spare.remove_color(color, spent);
-                remaining -= spent;
+        if cost.hybrid_total() > 0 {
+            let hybrid = maximum_hybrid_payment(spare, cost, &|_| false);
+            debug_assert_eq!(hybrid.total, hybrid_required_total(cost));
+            for (pair, allocation) in HybridPair::ALL.into_iter().zip(hybrid.allocations) {
+                let (first, second) = pair.colors();
+                spare.remove_color(first, allocation[0]);
+                spare.remove_color(second, allocation[1]);
             }
         }
-        cost.generic
-            .saturating_add(x.saturating_mul(cost.x_multiplier))
-            .saturating_sub(spare.total())
+        let colorless_paid = spare.colorless.min(cost.colorless);
+        spare.remove_color(ManaColor::Colorless, colorless_paid);
+        cost.colorless
+            .saturating_sub(colorless_paid)
+            .saturating_add(
+                cost.generic
+                    .saturating_add(x.saturating_mul(cost.x_multiplier))
+                    .saturating_sub(spare.total()),
+            )
     }
 
     /// Whether the player's floating pool alone covers this cost.
@@ -350,194 +307,29 @@ impl Game {
                     .first()
                     .is_some_and(|mana| Self::mana_has_spend_effect_for(*mana, purpose));
                 ManaSourceOutput {
-                    ability: activation.ability,
-                    color: activation.color,
+                    kind: PlannedPaymentKind::Mana {
+                        ability: activation.ability,
+                        color: activation.color,
+                        counters_removed: activation.counters_removed,
+                        cost_object: activation.cost_object,
+                        combination: activation.combination,
+                        convokes: false,
+                    },
                     production: Self::mana_production(activation),
+                    convoke_production: ManaPool::default(),
+                    generic_payment: 0,
+                    life_payment: activation
+                        .costs
+                        .iter()
+                        .filter_map(|cost| match cost {
+                            AbilityCostDef::PayLife(amount) => Some(*amount),
+                            _ => None,
+                        })
+                        .fold(0, u16::saturating_add),
                     benefits_payment,
-                    counters_removed: activation.counters_removed,
-                    cost_object: activation.cost_object,
-                    combination: activation.combination,
                 }
             })
             .collect()
-    }
-
-    pub(super) fn assigned_mana_activations_for(
-        &self,
-        player: PlayerId,
-        cost: ManaCost,
-        x: u16,
-        purpose: &ManaPaymentPurpose,
-    ) -> Option<Vec<PlannedManaActivation>> {
-        self.assigned_mana_activations_with_options(
-            player,
-            cost,
-            x,
-            ManaPlanOptions::default(),
-            purpose,
-        )
-    }
-
-    /// Whether this mana activation leaves the chosen permanent available to
-    /// pay a later tap cost. A different source can be incompatible too when
-    /// its mana ability would sacrifice the chosen permanent.
-    fn mana_activation_preserves_tap_cost_payer(
-        permanent: &Permanent,
-        activation: &ManaAbilityActivation,
-        payer: GameObjectId,
-    ) -> bool {
-        if activation.cost_object == Some(payer) {
-            return false;
-        }
-        if activation.source != payer {
-            return true;
-        }
-        if activation.costs.iter().any(|cost| {
-            matches!(
-                cost,
-                AbilityCostDef::TapSource
-                    | AbilityCostDef::SacrificeSource
-                    | AbilityCostDef::ExileSource
-                    | AbilityCostDef::ReturnSourceToHand
-            )
-        }) {
-            return false;
-        }
-        activation
-            .effect
-            .sacrifice_source_when_out_of
-            .is_none_or(|kind| {
-                let removed = activation.costs.iter().fold(0_u16, |removed, cost| {
-                    if let AbilityCostDef::RemoveCountersFromSource {
-                        kind: removed_kind,
-                        amount,
-                    } = cost
-                        && *removed_kind == kind
-                    {
-                        return removed.saturating_add(*amount);
-                    }
-                    removed
-                });
-                permanent.counters(kind) > removed
-            })
-    }
-
-    fn assigned_mana_activations_with_options(
-        &self,
-        player: PlayerId,
-        cost: ManaCost,
-        x: u16,
-        options: ManaPlanOptions,
-        purpose: &ManaPaymentPurpose,
-    ) -> Option<Vec<PlannedManaActivation>> {
-        let (cost, x) = self.restrict_x(cost, x, purpose);
-        let mut pool = self.eligible_mana_pool(player, purpose);
-        // Channel lets a player make {C} any time they could activate a mana
-        // ability, which includes the middle of paying for this spell.
-        pool.add_color(ManaColor::Colorless, self.channel_mana_available(player));
-        let mut assigned = Vec::new();
-        let mut flexible = Vec::new();
-        // An ability that taps its source as a cost cannot also tap it for
-        // mana, so that source is not a candidate at all.
-        let barred = match purpose {
-            ManaPaymentPurpose::Ability {
-                source,
-                taps_source: true,
-                ..
-            } => Some(*source),
-            _ => None,
-        };
-        for (order, permanent) in self
-            .battlefield
-            .iter()
-            .filter(|permanent| permanent.controller == player)
-            .filter(|permanent| Some(permanent.card.id) != barred)
-            .enumerate()
-        {
-            let mut activations = self
-                .mana_ability_activations(permanent)
-                .into_iter()
-                .filter(|activation| {
-                    let preserves_tap_cost_payer = options.tap_cost_payer.is_none_or(|payer| {
-                        Self::mana_activation_preserves_tap_cost_payer(permanent, activation, payer)
-                    });
-                    let preserves_required_source = !matches!(
-                        purpose,
-                        ManaPaymentPurpose::Ability {
-                            source,
-                            leaves_source: true,
-                            ..
-                        } if *source == activation.source
-                    ) || !activation.costs.iter().any(|cost| {
-                        matches!(
-                            cost,
-                            AbilityCostDef::SacrificeSource
-                                | AbilityCostDef::ExileSource
-                                | AbilityCostDef::ReturnSourceToHand
-                        )
-                    });
-                    // An activation that itself costs mana is left to the
-                    // player. The plan adds each source's production to a
-                    // running pool, and one that also spends from that pool
-                    // would be counted as free.
-                    let costs_mana = activation
-                        .costs
-                        .iter()
-                        .any(|cost| matches!(cost, AbilityCostDef::Mana(_)));
-                    Self::mana_for_activation(activation)
-                        .first()
-                        .is_some_and(|mana| self.mana_can_pay_for(*mana, purpose))
-                        && preserves_tap_cost_payer
-                        && preserves_required_source
-                        && !costs_mana
-                })
-                .collect::<Vec<_>>();
-            // When several outputs are legal, prefer one whose spend rider
-            // benefits this payment. Players can still manually choose a
-            // different mana ability before casting.
-            activations.sort_by_key(|activation| {
-                let benefits_payment = Self::mana_for_activation(activation)
-                    .first()
-                    .is_some_and(|mana| Self::mana_has_spend_effect_for(*mana, purpose));
-                let production = Self::mana_production(activation);
-                let pays_colored_symbol = colored_mana().into_iter().any(|color| {
-                    production.amount(color) > 0
-                        && (mana_cost_amount(cost, color) > 0 || hybrid_pays_with(cost, color))
-                });
-                (!benefits_payment, !pays_colored_symbol)
-            });
-            let outputs = Self::planned_outputs(&activations, purpose);
-            match outputs.as_slice() {
-                [] => {}
-                [output] => {
-                    pool.add(output.production);
-                    assigned.push(PlannedManaActivation {
-                        source: permanent.card.id,
-                        ability: output.ability,
-                        color: output.color,
-                        production: output.production,
-                        benefits_payment: output.benefits_payment,
-                        flexibility: 1,
-                        order,
-                        counters_removed: output.counters_removed,
-                        cost_object: output.cost_object,
-                        combination: output.combination,
-                    });
-                }
-                _ => flexible.push(FlexibleManaSource {
-                    source: permanent.card.id,
-                    outputs,
-                    order,
-                }),
-            }
-        }
-
-        let mut flexible_assignment = Vec::new();
-        if !assign_flexible_mana_outputs(&flexible, 0, pool, cost, x, &mut flexible_assignment) {
-            return None;
-        }
-        assigned.extend(flexible_assignment);
-        Some(assigned)
     }
 
     pub(super) fn plan_mana_activations_with_options_for(
@@ -548,95 +340,67 @@ impl Game {
         options: ManaPlanOptions,
         purpose: &ManaPaymentPurpose,
     ) -> Option<Vec<PlannedManaActivation>> {
-        let mut available =
-            self.assigned_mana_activations_with_options(player, cost, x, options, purpose)?;
-        let (cost, x) = self.restrict_x(cost, x, purpose);
-        let mut pool = self.eligible_mana_pool(player, purpose);
-        // The payment tops the pool up from Channel before it spends, so the
-        // plan has to count that mana too or it will tap sources for it.
-        pool.add_color(ManaColor::Colorless, self.channel_mana_available(player));
-        let mut selected = Vec::new();
+        let life_available =
+            u16::try_from(self.players[player.index()].life.max(0)).unwrap_or(u16::MAX);
+        self.plan_mana_activations(ManaPlanningRequest {
+            player,
+            cost,
+            x,
+            options,
+            purpose,
+            reserved: &[],
+            life_available,
+        })
+    }
 
-        for color in colored_mana() {
-            let required = mana_cost_amount(cost, color);
-            while pool.amount(color) < required {
-                let index = available
-                    .iter()
-                    .enumerate()
-                    // Read from what the activation makes rather than from
-                    // the colour that labels it: an ability making two
-                    // unlike mana pays for either.
-                    .filter(|(_, activation)| activation.production.amount(color) > 0)
-                    .min_by_key(|(_, activation)| {
-                        (
-                            Some(activation.source) == options.avoid,
-                            !activation.benefits_payment,
-                            activation.flexibility,
-                            activation.production.total(),
-                            activation.order,
-                        )
-                    })
-                    .map(|(index, _)| index)?;
-                let activation = available.remove(index);
-                pool.add(activation.production);
-                selected.push(activation);
-            }
-        }
+    pub(super) fn plan_mana_activations_for_reserving(
+        &self,
+        player: PlayerId,
+        cost: ManaCost,
+        x: u16,
+        avoid: Option<GameObjectId>,
+        purpose: &ManaPaymentPurpose,
+        reserved: &[GameObjectId],
+    ) -> Option<Vec<PlannedManaActivation>> {
+        let life_available =
+            u16::try_from(self.players[player.index()].life.max(0)).unwrap_or(u16::MAX);
+        self.plan_mana_activations(ManaPlanningRequest {
+            player,
+            cost,
+            x,
+            options: ManaPlanOptions {
+                avoid,
+                tap_cost_payer: None,
+            },
+            purpose,
+            reserved,
+            life_available,
+        })
+    }
 
-        // Each pair is satisfied in turn. No printed cost mixes pairs that
-        // share a colour, so taking them one at a time cannot strand a symbol
-        // another pair had already claimed.
-        for pair in HybridPair::ALL {
-            let needed = cost.hybrid[pair.index()];
-            while available_hybrid(pool, cost, pair) < needed {
-                let index = available
-                    .iter()
-                    .enumerate()
-                    .filter(|(_, activation)| {
-                        colored_mana().into_iter().any(|color| {
-                            pair.contains(color) && activation.production.amount(color) > 0
-                        })
-                    })
-                    .min_by_key(|(_, activation)| {
-                        (
-                            Some(activation.source) == options.avoid,
-                            !activation.benefits_payment,
-                            activation.flexibility,
-                            activation.production.total(),
-                            activation.order,
-                        )
-                    })
-                    .map(|(index, _)| index)?;
-                let activation = available.remove(index);
-                pool.add(activation.production);
-                selected.push(activation);
-            }
-        }
-
+    fn plan_mana_activations(
+        &self,
+        request: ManaPlanningRequest<'_>,
+    ) -> Option<Vec<PlannedManaActivation>> {
+        let available = self.assigned_mana_activations(request)?;
+        let (cost, x) = self.restrict_x(request.cost, request.x, request.purpose);
+        let mana = self.eligible_mana_pool(request.player, request.purpose);
+        let channel_enabled = self.channel_active[request.player.index()];
+        let mut selection = ManaPlanSelection::new(available, mana, request.options.avoid);
+        selection.pay_colored(cost)?;
+        selection.pay_hybrid(cost)?;
+        selection.pay_colorless(cost, channel_enabled, request.life_available)?;
         let required_total = colored_cost_total(cost)
             .saturating_add(cost.generic)
             .saturating_add(x.saturating_mul(cost.x_multiplier));
-        while pool.total() < required_total {
-            let index = available
-                .iter()
-                .enumerate()
-                .min_by_key(|(_, activation)| {
-                    (
-                        Some(activation.source) == options.avoid,
-                        !activation.benefits_payment,
-                        activation.production.amount(ManaColor::Colorless) == 0,
-                        activation.production.total(),
-                        activation.order,
-                    )
-                })
-                .map(|(index, _)| index)?;
-            let activation = available.remove(index);
-            pool.add(activation.production);
-            selected.push(activation);
-        }
-
-        debug_assert!(can_pay(pool, cost, x));
-        Some(selected)
+        selection.pay_total(required_total, channel_enabled, request.life_available)?;
+        let effective = with_channel_capacity(
+            selection.pool,
+            channel_enabled,
+            request.life_available.saturating_sub(selection.life_spent),
+        );
+        debug_assert!(can_cover_payment(effective, cost, x));
+        order_mana_activations_before_consumption(selection.selected)
     }
 
     /// "Players can't cast spells or play lands with ..." Read while play
@@ -686,6 +450,7 @@ impl Game {
         cost: ManaCost,
         purpose: &ManaPaymentPurpose,
     ) -> u16 {
+        let uses_convoke = self.payment_uses_convoke(purpose);
         let maximum = self.players[player.index()]
             .mana_pool
             .total()
@@ -693,13 +458,7 @@ impl Game {
                 self.battlefield
                     .iter()
                     .filter(|permanent| permanent.controller == player)
-                    .filter_map(|permanent| {
-                        self.mana_ability_activations(permanent)
-                            .into_iter()
-                            .map(|activation| Self::mana_production(&activation))
-                            .max_by_key(|production| production.total())
-                    })
-                    .map(ManaPool::total)
+                    .map(|permanent| self.maximum_payment_from_permanent(permanent, uses_convoke))
                     .sum(),
             )
             .saturating_add(self.channel_mana_available(player));
@@ -738,7 +497,7 @@ impl Game {
         x: u16,
         avoid: Option<GameObjectId>,
         purpose: &ManaPaymentPurpose,
-    ) {
+    ) -> (ManaCost, u16) {
         self.activate_mana_for_cost_with_options_for(
             player,
             cost,
@@ -748,7 +507,7 @@ impl Game {
                 tap_cost_payer: None,
             },
             purpose,
-        );
+        )
     }
 
     pub(super) fn activate_mana_for_cost_with_options_for(
@@ -758,28 +517,151 @@ impl Game {
         x: u16,
         options: ManaPlanOptions,
         purpose: &ManaPaymentPurpose,
-    ) {
-        let Some(plan) =
-            self.plan_mana_activations_with_options_for(player, cost, x, options, purpose)
-        else {
+    ) -> (ManaCost, u16) {
+        self.activate_mana_for_cost_with_options_reserving_for(
+            player,
+            cost,
+            x,
+            options,
+            purpose,
+            &[],
+        )
+    }
+
+    fn activate_mana_for_cost_with_options_reserving_for(
+        &mut self,
+        player: PlayerId,
+        cost: ManaCost,
+        x: u16,
+        options: ManaPlanOptions,
+        purpose: &ManaPaymentPurpose,
+        reserved: &[GameObjectId],
+    ) -> (ManaCost, u16) {
+        let life_available =
+            u16::try_from(self.players[player.index()].life.max(0)).unwrap_or(u16::MAX);
+        let Some(plan) = self.plan_mana_activations(ManaPlanningRequest {
+            player,
+            cost,
+            x,
+            options,
+            purpose,
+            reserved,
+            life_available,
+        }) else {
             panic!(
                 "{}",
                 self.unplannable_payment(player, cost, x, options.avoid, purpose)
             );
         };
-        for activation in plan {
+        let residual = self.residual_cost_after_convoke(cost, x, purpose, &plan, false);
+        // CR 601.2g comes before paying the spell's costs in 601.2h: activate
+        // actual mana abilities first, then tap the creatures that convoke.
+        for payment in &plan {
+            let PlannedPaymentKind::Mana {
+                ability,
+                color,
+                counters_removed,
+                cost_object,
+                combination,
+                ..
+            } = payment.kind
+            else {
+                continue;
+            };
             self.activate_mana_source(
                 player,
-                activation.source,
-                activation.ability,
-                activation.color,
+                payment.source,
+                ability,
+                color,
                 ManaActivationChoices {
-                    counters_removed: activation.counters_removed,
-                    cost_object: activation.cost_object,
-                    combination: activation.combination,
+                    counters_removed,
+                    cost_object,
+                    combination,
                 },
             );
         }
+        for payment in &plan {
+            if payment.kind.uses_convoke() {
+                self.tap_permanent(payment.source)
+                    .expect("a planned convoke source remains on the battlefield");
+            }
+        }
+        residual
+    }
+
+    /// Removes the contributions of selected convoke creatures from a spell's
+    /// total cost. The result is the mana-only remainder; the cast's chosen X
+    /// itself remains frozen on the stack even though its payable generic
+    /// portion has been folded into this remainder.
+    pub(super) fn residual_cost_after_convoke(
+        &self,
+        cost: ManaCost,
+        x: u16,
+        purpose: &ManaPaymentPurpose,
+        plan: &[PlannedManaActivation],
+        planned_production_is_in_pool: bool,
+    ) -> (ManaCost, u16) {
+        if !self.payment_uses_convoke(purpose) {
+            return (cost, x);
+        }
+        let (mut residual, restricted_x) = self.restrict_x(cost, x, purpose);
+        let mut actual = self.eligible_mana_pool(
+            match purpose {
+                ManaPaymentPurpose::Spell { controller, .. } => *controller,
+                _ => unreachable!("only spell payments use convoke"),
+            },
+            purpose,
+        );
+        let mut convoke = ManaPool::default();
+        let mut generic_only = 0_u16;
+        for payment in plan {
+            if !planned_production_is_in_pool {
+                actual.add(payment.production);
+            }
+            if payment.kind.uses_convoke() {
+                convoke.add(payment.convoke_production);
+                generic_only = generic_only.saturating_add(payment.generic_payment);
+            }
+        }
+        for color in colored_mana() {
+            let required = mana_cost_amount(residual, color);
+            let paid = convoke.amount(color).min(required);
+            convoke.remove_color(color, paid);
+            actual.remove_color(color, required.saturating_sub(paid));
+            match color {
+                ManaColor::White => residual.white -= paid,
+                ManaColor::Blue => residual.blue -= paid,
+                ManaColor::Black => residual.black -= paid,
+                ManaColor::Red => residual.red -= paid,
+                ManaColor::Green => residual.green -= paid,
+                ManaColor::Colorless => unreachable!("colored_mana excludes colorless"),
+            }
+        }
+        if residual.hybrid_total() > 0 {
+            let mut combined = actual;
+            combined.add(convoke);
+            let hybrid = maximum_hybrid_payment(combined, residual, &|_| false);
+            debug_assert_eq!(hybrid.total, hybrid_required_total(residual));
+            for (pair, allocation) in HybridPair::ALL.into_iter().zip(hybrid.allocations) {
+                let (first, second) = pair.colors();
+                let mut convoke_paid = 0_u16;
+                for (color, assigned) in [(first, allocation[0]), (second, allocation[1])] {
+                    let paid = convoke.amount(color).min(assigned);
+                    convoke.remove_color(color, paid);
+                    actual.remove_color(color, assigned.saturating_sub(paid));
+                    convoke_paid = convoke_paid.saturating_add(paid);
+                }
+                residual.hybrid[pair.index()] =
+                    residual.hybrid[pair.index()].saturating_sub(convoke_paid);
+            }
+        }
+        let generic_due = residual
+            .generic
+            .saturating_add(restricted_x.saturating_mul(residual.x_multiplier));
+        residual.generic = generic_due.saturating_sub(convoke.total().saturating_add(generic_only));
+        residual.variable_x = false;
+        residual.x_multiplier = 0;
+        (residual, 0)
     }
 
     /// Describes a payment that passed its affordability gate and then found
@@ -843,94 +725,33 @@ pub(super) fn can_pay(pool: ManaPool, cost: ManaCost, x: u16) -> bool {
         && pool.red >= cost.red
         && pool.green >= cost.green
         && pool.colorless >= cost.colorless
-        && HybridPair::ALL
-            .into_iter()
-            .all(|pair| available_hybrid(pool, cost, pair) >= cost.hybrid[pair.index()])
+        && can_cover_hybrid_cost(pool, cost)
         && pool.total()
             >= colored_cost_total(cost)
                 .saturating_add(cost.generic)
                 .saturating_add(x.saturating_mul(cost.x_multiplier))
 }
 
-pub(super) fn assign_flexible_mana_outputs(
-    sources: &[FlexibleManaSource],
-    index: usize,
-    pool: ManaPool,
-    cost: ManaCost,
-    x: u16,
-    assignment: &mut Vec<PlannedManaActivation>,
-) -> bool {
-    // A colour assignment cannot make up a total-mana shortfall. Prune before
-    // branching over every output of every remaining source; otherwise a
-    // large group of flexible sources can make an impossible high-X probe
-    // exponential even though their combined production is already too low.
-    let maximum_total = sources[index..]
-        .iter()
-        .filter_map(|source| {
-            source
-                .outputs
-                .iter()
-                .map(|output| output.production.total())
-                .max()
-        })
-        .fold(pool.total(), u16::saturating_add);
-    let required_total = colored_cost_total(cost)
-        .saturating_add(cost.generic)
-        .saturating_add(x.saturating_mul(cost.x_multiplier));
-    if maximum_total < required_total {
-        return false;
-    }
-
-    let Some(source) = sources.get(index) else {
-        return can_pay(pool, cost, x);
-    };
-    for output in &source.outputs {
-        let mut next = pool;
-        next.add(output.production);
-        assignment.push(PlannedManaActivation {
-            source: source.source,
-            ability: output.ability,
-            color: output.color,
-            production: output.production,
-            benefits_payment: output.benefits_payment,
-            flexibility: source.outputs.len(),
-            order: source.order,
-            counters_removed: output.counters_removed,
-            cost_object: output.cost_object,
-            combination: output.combination,
-        });
-        if assign_flexible_mana_outputs(sources, index + 1, next, cost, x, assignment) {
-            return true;
-        }
-        assignment.pop();
-    }
-    false
-}
-
-pub(super) fn configured_mana_cost(
+/// The selected mana cost before optional additional costs are added. An
+/// effect that replaces "its mana cost" replaces this value and leaves those
+/// additions intact (CR 118.9d).
+pub(super) fn configured_base_mana_cost(
     option: &PlayOptionDef,
     configuration: &CostConfiguration,
 ) -> Option<ManaCost> {
-    let mut cost = if let Some(selected) = configuration.alternative() {
+    if let Some(selected) = configuration.alternative() {
         option
             .alternative_costs
             .iter()
             .find(|candidate| candidate.id == selected)
-            .map(|candidate| candidate.mana_cost)?
+            .map(|candidate| candidate.mana_cost)
     } else {
-        option.mana_cost?
-    };
-    for selected in configuration.additional() {
-        let additional = option
-            .additional_costs
-            .iter()
-            .find(|candidate| candidate.id == *selected)?;
-        if let Some(mana) = additional.mana_cost {
-            cost = add_mana_cost(cost, mana);
-        }
+        option.mana_cost
     }
-    Some(cost)
 }
 
 include!("mana_planning/payment.rs");
+include!("mana_planning/convoke.rs");
+include!("mana_planning/source_assignment.rs");
 include!("mana_planning/cost_reduction.rs");
+include!("mana_planning/activation_characteristics.rs");

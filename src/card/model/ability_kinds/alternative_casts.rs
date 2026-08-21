@@ -56,11 +56,6 @@ pub enum AlternativeCastKindDef {
     /// it does, so the spell's own clause still supplies the instructions --
     /// what it carries instead is a nonmana cost in `additional_cost`.
     AlternativeCost,
-    /// Cast with its buyback paid (CR 702.27). Like a kicker it only costs
-    /// more, so the spell resolves exactly as printed; what it changes is
-    /// where the card goes afterwards -- to its owner's hand rather than the
-    /// graveyard, which is the whole of the mechanic.
-    Buyback,
     /// Cast from hand with its kicker paid. A kicker is printed as an
     /// optional additional cost, but the kicked spell is exactly a spell cast
     /// for the printed cost plus the kicker with a different set of
@@ -137,7 +132,6 @@ impl AlternativeCastKindDef {
             Self::Overload => "Overload",
             Self::Miracle => "Miracle",
             Self::Kicked => "Kicker",
-            Self::Buyback => "Buyback",
             Self::AlternativeCost => "Alternative cost",
             Self::Escape => "Escape",
             Self::Impending => "Impending",
@@ -160,7 +154,6 @@ impl AlternativeCastKindDef {
             Self::Overload,
             Self::Miracle,
             Self::Kicked,
-            Self::Buyback,
             Self::AlternativeCost,
             crate::card::face_down::morph_cast(),
             crate::card::face_down::disguise_cast(),
@@ -218,14 +211,6 @@ impl AlternativeCastAbilityDef {
             }
             (AlternativeCastKindDef::Kicked, AlternativeCastManaCostDef::ThisCardManaCost) => {
                 "Kicked".into()
-            }
-            // As with kicker, the printed reminder names the surcharge while
-            // the cost carried here is the bought-back total.
-            (AlternativeCastKindDef::Buyback, AlternativeCastManaCostDef::Fixed(mana_cost)) => {
-                format!("Bought back, for {mana_cost} in total")
-            }
-            (AlternativeCastKindDef::Buyback, AlternativeCastManaCostDef::ThisCardManaCost) => {
-                "Bought back".into()
             }
             // The card prints what is paid instead, so it supplies the text.
             (AlternativeCastKindDef::AlternativeCost, _) => "Alternative cost".into(),

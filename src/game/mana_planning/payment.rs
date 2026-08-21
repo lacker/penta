@@ -40,23 +40,15 @@ pub(super) fn pay_cost_with_generic_strategy(
     for color in colored_mana() {
         pool.remove_color(color, mana_cost_amount(cost, color));
     }
-    for pair in HybridPair::ALL {
-        let mut remaining = cost.hybrid[pair.index()];
-        if remaining == 0 {
-            continue;
+    pool.remove_color(ManaColor::Colorless, cost.colorless);
+    if cost.hybrid_total() > 0 {
+        let hybrid = maximum_hybrid_payment(*pool, cost, hybrid_preference);
+        debug_assert_eq!(hybrid.total, hybrid_required_total(cost));
+        for (pair, allocation) in HybridPair::ALL.into_iter().zip(hybrid.allocations) {
+            let (first, second) = pair.colors();
+            pool.remove_color(first, allocation[0]);
+            pool.remove_color(second, allocation[1]);
         }
-        let (first, second) = pair.colors();
-        let mut order = [first, second];
-        order.sort_by_key(|color| hybrid_preference(*color));
-        for color in order {
-            let spent = pool.amount(color).min(remaining);
-            pool.remove_color(color, spent);
-            remaining -= spent;
-            if remaining == 0 {
-                break;
-            }
-        }
-        debug_assert_eq!(remaining, 0);
     }
     let generic = cost
         .generic
@@ -194,15 +186,151 @@ pub(super) const fn mana_cost_value(cost: ManaCost) -> u16 {
     cost.generic.saturating_add(colored_cost_total(cost))
 }
 
-/// How much of a hybrid pair's colours is left once the cost's own coloured
-/// symbols are covered.
-pub(super) fn available_hybrid(pool: ManaPool, cost: ManaCost, pair: HybridPair) -> u16 {
-    let (first, second) = pair.colors();
-    let spare = |color: ManaColor| {
-        pool.amount(color)
-            .saturating_sub(mana_cost_amount(cost, color))
-    };
-    spare(first).saturating_add(spare(second))
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub(super) struct HybridPayment {
+    /// How many symbols of each pair are assigned to its first and second
+    /// printed colours.
+    pub(super) allocations: [[u16; 2]; HybridPair::COUNT],
+    pub(super) total: u32,
+}
+
+pub(super) fn hybrid_required_total(cost: ManaCost) -> u32 {
+    cost.hybrid.into_iter().map(u32::from).sum()
+}
+
+fn hybrid_color_node(color: ManaColor) -> usize {
+    const COLOR_START: usize = 1 + HybridPair::COUNT;
+    COLOR_START
+        + match color {
+            ManaColor::White => 0,
+            ManaColor::Blue => 1,
+            ManaColor::Black => 2,
+            ManaColor::Red => 3,
+            ManaColor::Green => 4,
+            ManaColor::Colorless => unreachable!("hybrid symbols have colored halves"),
+        }
+}
+
+/// Finds a maximum, globally consistent assignment of hybrid symbols to the
+/// available colours. Checking each pair independently is insufficient: one
+/// white mana cannot simultaneously pay a `{W/U}` and a `{W/B}` symbol.
+///
+/// This is a tiny max-flow network (ten pair nodes and five colour nodes).
+/// Pair-to-colour edges are visited in the caller's preferred order so mana
+/// with a useful spend rider remains the default when several maximum flows
+/// exist; residual edges still let a later pair reroute an earlier choice.
+pub(super) fn maximum_hybrid_payment(
+    available: ManaPool,
+    cost: ManaCost,
+    hybrid_preference: &impl Fn(ManaColor) -> bool,
+) -> HybridPayment {
+    const SOURCE: usize = 0;
+    const PAIR_START: usize = 1;
+    const COLOR_START: usize = PAIR_START + HybridPair::COUNT;
+    const SINK: usize = COLOR_START + 5;
+    const NODE_COUNT: usize = SINK + 1;
+
+    if cost.hybrid_total() == 0 {
+        return HybridPayment::default();
+    }
+
+    let mut residual = [[0_u32; NODE_COUNT]; NODE_COUNT];
+    for pair in HybridPair::ALL {
+        let pair_node = PAIR_START + pair.index();
+        let required = u32::from(cost.hybrid[pair.index()]);
+        residual[SOURCE][pair_node] = required;
+        let (first, second) = pair.colors();
+        residual[pair_node][hybrid_color_node(first)] = required;
+        residual[pair_node][hybrid_color_node(second)] = required;
+    }
+    for color in colored_mana() {
+        residual[hybrid_color_node(color)][SINK] = u32::from(available.amount(color));
+    }
+
+    let mut total = 0_u32;
+    loop {
+        let mut parent = [usize::MAX; NODE_COUNT];
+        parent[SOURCE] = SOURCE;
+        let mut queue = std::collections::VecDeque::from([SOURCE]);
+        while let Some(node) = queue.pop_front() {
+            let mut neighbors = core::array::from_fn::<_, NODE_COUNT, _>(|index| index);
+            if (PAIR_START..COLOR_START).contains(&node) {
+                neighbors.sort_by_key(|candidate| {
+                    let color = match *candidate {
+                        COLOR_START => Some(ManaColor::White),
+                        value if value == COLOR_START + 1 => Some(ManaColor::Blue),
+                        value if value == COLOR_START + 2 => Some(ManaColor::Black),
+                        value if value == COLOR_START + 3 => Some(ManaColor::Red),
+                        value if value == COLOR_START + 4 => Some(ManaColor::Green),
+                        _ => None,
+                    };
+                    color.map_or((true, false), |color| {
+                        (false, hybrid_preference(color))
+                    })
+                });
+            }
+            for next in neighbors {
+                if parent[next] == usize::MAX && residual[node][next] > 0 {
+                    parent[next] = node;
+                    queue.push_back(next);
+                }
+            }
+            if parent[SINK] != usize::MAX {
+                break;
+            }
+        }
+        if parent[SINK] == usize::MAX {
+            break;
+        }
+
+        let mut amount = u32::MAX;
+        let mut node = SINK;
+        while node != SOURCE {
+            let previous = parent[node];
+            amount = amount.min(residual[previous][node]);
+            node = previous;
+        }
+        node = SINK;
+        while node != SOURCE {
+            let previous = parent[node];
+            residual[previous][node] -= amount;
+            residual[node][previous] = residual[node][previous].saturating_add(amount);
+            node = previous;
+        }
+        total = total.saturating_add(amount);
+    }
+
+    let mut allocations = [[0_u16; 2]; HybridPair::COUNT];
+    for pair in HybridPair::ALL {
+        let pair_node = PAIR_START + pair.index();
+        let (first, second) = pair.colors();
+        allocations[pair.index()] = [
+            u16::try_from(residual[hybrid_color_node(first)][pair_node])
+                .expect("hybrid flow is bounded by one u16 symbol count"),
+            u16::try_from(residual[hybrid_color_node(second)][pair_node])
+                .expect("hybrid flow is bounded by one u16 symbol count"),
+        ];
+    }
+    HybridPayment { allocations, total }
+}
+
+/// Available colored capacity after this cost's fixed colored symbols have
+/// been reserved. True colorless is deliberately absent: it never pays a
+/// hybrid symbol.
+pub(super) fn mana_available_for_hybrid(mut pool: ManaPool, cost: ManaCost) -> ManaPool {
+    for color in colored_mana() {
+        pool.remove_color(color, mana_cost_amount(cost, color));
+    }
+    pool.colorless = 0;
+    pool
+}
+
+pub(super) fn can_cover_hybrid_cost(pool: ManaPool, cost: ManaCost) -> bool {
+    if cost.hybrid_total() == 0 {
+        return true;
+    }
+    maximum_hybrid_payment(mana_available_for_hybrid(pool, cost), cost, &|_| false).total
+        == hybrid_required_total(cost)
 }
 
 /// Whether one colour can pay any hybrid symbol this cost carries.

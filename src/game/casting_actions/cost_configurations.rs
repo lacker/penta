@@ -10,7 +10,7 @@ use super::super::{
     AlternativeCostId, CardDefinition, CardInstance, CastCostContext, CastOfferCost,
     CastSourceZone, ControlFlow, CostConfiguration, DeclarativeAbilityDef, ExilePlayCost, Game,
     GameObjectId, ManaCost, PlayOptionDef, PlayerId, TriggerContext, ZoneKind, add_mana_cost,
-    configured_mana_cost,
+    configured_base_mana_cost,
 };
 use crate::card::SpellAdditionalCostDef;
 
@@ -20,27 +20,19 @@ use crate::card::SpellAdditionalCostDef;
 pub(in crate::game) struct CastScale {
     pub(in crate::game) x: u16,
     pub(in crate::game) modes: usize,
+    pub(in crate::game) offer: Option<CastOfferCost>,
 }
 
 impl Game {
-    /// Every way to pay a spell's declarative additional cost. A spell with
-    /// none has exactly one way to pay it: spend nothing. A spell with one it
-    /// cannot afford has none at all, which is what stops it being offered.
-    #[allow(clippy::too_many_arguments)]
-    pub(in crate::game) fn additional_cost_choices(
+    fn selected_object_additional_costs(
         &self,
         definition: &CardDefinition,
         option: &PlayOptionDef,
         costs: &CostConfiguration,
         card: &CardInstance,
-        player: PlayerId,
-        scale: CastScale,
         offer: Option<CastOfferCost>,
-    ) -> Vec<Vec<GameObjectId>> {
-        // A cost paid instead of the mana cost replaces the spell's own
-        // additional cost rather than stacking with it: "rather than pay this
-        // spell's mana cost" is the whole payment.
-        let selected = costs
+    ) -> Vec<SpellAdditionalCostDef> {
+        let selected_alternative = costs
             .alternative()
             .and_then(|selected| Self::alternative_cast_ability(definition, option, selected))
             .and_then(|(_, ability, _)| match ability.definition {
@@ -55,34 +47,112 @@ impl Game {
                     .flatten()
                     .and_then(|(_, alternative, _)| alternative.additional_cost)
             });
-        let cost = selected.or_else(|| {
-            definition
-                .rules
-                .ability_clauses()
-                .iter()
-                .find_map(|ability| match ability.definition {
-                    DeclarativeAbilityDef::Spell(spell) if ability.is_executable() => {
-                        spell.additional_cost()
-                    }
-                    _ => None,
-                })
-        });
-        let Some(cost) = cost else {
-            return vec![Vec::new()];
-        };
-        // "Sacrifice a creature or discard a card" is one cost with two ways
-        // to pay it, so the ways of paying are the union: each half is
-        // enumerated over its own zone, and a half nothing can pay simply
-        // contributes nothing.
-        let mut payments = Vec::new();
-        for alternative in cost.alternatives() {
-            for payment in self.additional_cost_payments(alternative, card, player, scale) {
-                if !payments.contains(&payment) {
-                    payments.push(payment);
+        let mut required = Vec::new();
+        if let Some(cost) = selected_alternative {
+            required.push(cost);
+        }
+        // An alternative replaces only the spell's mana cost. Every mandatory
+        // additional cost printed by the spell still applies (CR 118.9d).
+        if let Some(cost) = definition
+            .rules
+            .ability_clauses()
+            .iter()
+            .find_map(|ability| match ability.definition {
+                DeclarativeAbilityDef::Spell(spell) if ability.is_executable() => {
+                    spell.additional_cost()
                 }
+                _ => None,
+            })
+        {
+            required.push(cost);
+        }
+        for selected in costs.additional() {
+            if let Some((_, ability, _)) =
+                Self::optional_additional_cost_clause(definition, option, *selected)
+                && let DeclarativeAbilityDef::OptionalAdditionalCost(optional) = ability.definition
+                && let Some(cost) = optional.additional_cost
+            {
+                required.push(cost);
             }
         }
-        payments
+        required
+    }
+
+    /// Every way to pay a spell's declarative additional cost. A spell with
+    /// none has exactly one way to pay it: spend nothing. A spell with one it
+    /// cannot afford has none at all, which is what stops it being offered.
+    pub(in crate::game) fn additional_cost_choices(
+        &self,
+        definition: &CardDefinition,
+        option: &PlayOptionDef,
+        costs: &CostConfiguration,
+        card: &CardInstance,
+        player: PlayerId,
+        scale: CastScale,
+    ) -> Vec<Vec<GameObjectId>> {
+        let required =
+            self.selected_object_additional_costs(definition, option, costs, card, scale.offer);
+        if required.is_empty() {
+            return vec![Vec::new()];
+        }
+
+        let mut combined = vec![Vec::new()];
+        for cost in required {
+            // "Sacrifice a creature or discard a card" is one cost with two
+            // ways to pay it, so the ways for this one cost are a union.
+            let mut ways = Vec::new();
+            for alternative in cost.alternatives() {
+                for payment in self.additional_cost_payments(alternative, card, player, scale) {
+                    if !ways.contains(&payment) {
+                        ways.push(payment);
+                    }
+                }
+            }
+            // Separate additional costs all have to be paid. Form their
+            // Cartesian product without allowing one object to pay twice.
+            let mut next = Vec::new();
+            for paid in &combined {
+                for way in &ways {
+                    if way.iter().any(|object| paid.contains(object)) {
+                        continue;
+                    }
+                    let mut payment = paid.clone();
+                    payment.extend(way);
+                    if !next.contains(&payment) {
+                        next.push(payment);
+                    }
+                }
+            }
+            combined = next;
+        }
+        combined
+    }
+
+    /// The spend operation paired with each object in one generated action.
+    /// `additional_cost_choices` concatenates costs in this same order, so
+    /// carrying the parallel list through payment preserves each cost's
+    /// provenance without changing the public action shape.
+    pub(in crate::game) fn additional_cost_spend_modes(
+        &self,
+        definition: &CardDefinition,
+        option: &PlayOptionDef,
+        costs: &CostConfiguration,
+        card: &CardInstance,
+        scale: CastScale,
+    ) -> Vec<crate::card::SpendModeDef> {
+        self.selected_object_additional_costs(definition, option, costs, card, scale.offer)
+            .into_iter()
+            .flat_map(|cost| {
+                let count = match cost.counted {
+                    crate::card::SpellAdditionalCostCountDef::Printed => usize::from(cost.count),
+                    crate::card::SpellAdditionalCostCountDef::ChosenX => usize::from(scale.x),
+                    crate::card::SpellAdditionalCostCountDef::ModesBeyondFirst => {
+                        usize::from(cost.count).saturating_mul(scale.modes.saturating_sub(1))
+                    }
+                };
+                core::iter::repeat_n(cost.spend, count)
+            })
+            .collect()
     }
 
     /// Every way to pay one half of a spell's additional cost.
@@ -229,7 +299,6 @@ impl Game {
                 Some(
                     AlternativeCastKindDef::Overload
                         | AlternativeCastKindDef::Kicked
-                        | AlternativeCastKindDef::Buyback
                         | AlternativeCastKindDef::AlternativeCost
                         | AlternativeCastKindDef::Impending
                         // Face down is a way of casting the card from hand,
@@ -422,34 +491,27 @@ impl Game {
             .then(|| self.granted_alternative_for_offer(card, option, offer))
             .flatten();
         let mut cost = granted_alternative.map_or_else(
-            || configured_mana_cost(option, configuration),
+            || configured_base_mana_cost(option, configuration),
             |(_, _, mana_cost)| Some(mana_cost),
         )?;
-        // `configured_mana_cost` already included additional costs for every
-        // printed alternative and the normal cost. Runtime-granted
-        // alternatives need them folded in here.
-        if granted_alternative.is_some() {
-            for selected in configuration.additional() {
-                let additional = option
-                    .additional_costs
-                    .iter()
-                    .find(|candidate| candidate.id == *selected)?;
-                if let Some(mana) = additional.mana_cost {
-                    cost = add_mana_cost(cost, mana);
-                }
-            }
-        }
         // "Without paying its mana cost" and "rather than paying its mana
-        // cost" are both permissions held over the card rather than
-        // alternatives printed on it, so they are applied here, after
-        // everything the card itself asks for. Additional costs still apply
-        // (CR 601.2h); only the mana cost is replaced.
+        // cost" replace the base or alternative cost, not optional
+        // additional costs (CR 118.9d).
         if self.card_mana_cost_is_replaced(card) || self.library_top_cost_is_life(card, option) {
             cost = ManaCost {
                 variable_x: cost.variable_x,
                 x_multiplier: cost.x_multiplier,
                 ..ManaCost::default()
             };
+        }
+        for selected in configuration.additional() {
+            let additional = option
+                .additional_costs
+                .iter()
+                .find(|candidate| candidate.id == *selected)?;
+            if let Some(mana) = additional.mana_cost {
+                cost = add_mana_cost(cost, mana);
+            }
         }
         Some(cost)
     }

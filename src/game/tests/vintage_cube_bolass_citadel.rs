@@ -132,6 +132,56 @@ fn a_spell_from_the_top_costs_life_instead_of_mana() {
     );
 }
 
+#[test]
+fn library_life_and_buyback_mana_source_life_share_one_cast_budget() {
+    let (mut game, _citadel) = staged(&[cards::SPROUT_SWARM]);
+    let sprout = top(&game);
+    let sources = (0..3)
+        .map(|_| {
+            game.put_onto_battlefield(PlayerId::One, cards::MANA_CONFLUENCE)
+                .expect("cataloged")
+        })
+        .collect::<Vec<_>>();
+
+    game.players[PlayerId::One.index()].life = 5;
+    let bought_back = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| {
+            matches!(action, Action::CastSpell { card, choices, .. }
+                if *card == sprout && !choices.costs().additional().is_empty())
+        })
+        .expect("two library life plus three mana-source life is affordable at five");
+
+    game.players[PlayerId::One.index()].life = 4;
+    assert!(
+        game.legal_actions(PlayerId::One).iter().all(|action| {
+            !matches!(action, Action::CastSpell { card, choices, .. }
+                if *card == sprout && !choices.costs().additional().is_empty())
+        }),
+        "Buyback cannot spend three life on mana after the library cast reserves two",
+    );
+    assert!(!game.is_legal_action(PlayerId::One, &bought_back));
+    assert!(game.apply(PlayerId::One, bought_back.clone()).is_err());
+    assert_eq!(game.players[PlayerId::One.index()].life, 4);
+    assert_eq!(
+        top(&game),
+        sprout,
+        "rejection leaves the spell on the library"
+    );
+    assert!(sources.iter().all(|source| {
+        game.battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == *source)
+            .is_some_and(|permanent| !permanent.tapped)
+    }));
+
+    game.players[PlayerId::One.index()].life = 5;
+    game.apply(PlayerId::One, bought_back)
+        .expect("the same aggregate payment is legal with five life");
+    assert_eq!(game.players[PlayerId::One.index()].life, 0);
+}
+
 /// "Rather than pay its mana cost" is the whole cost: a player with no mana
 /// at all still casts it, and one with no life does not.
 #[test]

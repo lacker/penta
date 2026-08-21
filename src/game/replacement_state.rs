@@ -1,10 +1,11 @@
-use crate::card::{ReplacementAbilityDef, ReplacementEffectDef, ZoneKind};
+use crate::card::{ManaCost, ReplacementAbilityDef, ReplacementEffectDef, SpendModeDef, ZoneKind};
 use crate::ids::{CardDefinitionId, GameObjectId, PlayerId};
 
 use super::{
     AbilitySourceRef, BalancePhase, BalanceTask, EffectResolutionContext, FrozenActivatedAbility,
-    Game, Mana, ManaAbilityActivation, ObjectCharacteristics, ObjectInstance, Permanent,
-    SacrificeFollowup, ScopedEffect, StackObject, Target, TargetSelection,
+    Game, Mana, ManaAbilityActivation, ManaPaymentPurpose, ObjectCharacteristics, ObjectInstance,
+    Permanent, PlannedManaActivation, SacrificeFollowup, ScopedEffect, StackObject, Target,
+    TargetSelection,
 };
 
 /// One replacement effect that currently applies to a prospective event.
@@ -110,7 +111,7 @@ pub(super) enum BattlefieldExitCompletion {
     CompleteSpellCast {
         object: Box<StackObject>,
         targets: Vec<Target>,
-        remaining_sacrifices: Vec<GameObjectId>,
+        remaining_sacrifices: Vec<(GameObjectId, SpendModeDef)>,
     },
     CompleteActivatedAbility {
         source: GameObjectId,
@@ -125,6 +126,16 @@ pub(super) enum BattlefieldExitCompletion {
         player: PlayerId,
         activation: ManaAbilityActivation,
         produced_mana: Vec<Mana>,
+    },
+    ContinueSpellManaPayment {
+        object: Box<StackObject>,
+        targets: Vec<Target>,
+        object_payments: Vec<(GameObjectId, SpendModeDef)>,
+        cost: ManaCost,
+        x: u16,
+        purpose: ManaPaymentPurpose,
+        plan: Vec<PlannedManaActivation>,
+        next_activation: usize,
     },
 }
 

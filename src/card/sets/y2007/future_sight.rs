@@ -1,6 +1,7 @@
 //! Future Sight cards cataloged as cross-format rules-engine test cases.
 
 use super::{CardRecord, PrintingRecord};
+use crate::card::sets::PrintingAnchor;
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AddManaEffectDef,
     AppliedEffectDef, ArrivalAttachmentDef, CardArt, CardRules, CardSet, CardType, CounterKind,
@@ -39,6 +40,22 @@ pub(in crate::card::sets) static REALITY_STROBE: CardRecord = CardRecord::new_wi
             "Suspend's upkeep counter removal and free cast from exile need the shared exile-casting lifecycle.",
         )),
     ),
+);
+
+// FUT 138 — Sprout Swarm
+pub(in crate::card::sets) static SPROUT_SWARM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0b915355-4e98-44df-81bd-961a3d3c86b8"),
+    "Sprout Swarm",
+    CardArt::new("0b915355-4e98-44df-81bd-961a3d3c86b8", "Chippy"),
+    CardSet::FutureSight,
+    CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[
+        abilities::convoke(),
+        abilities::buyback(mana_cost!("{3}")),
+        AbilityDef::spell(
+            "Create a 1/1 green Saproling creature token.",
+            EffectDef::create_creature_token(&["Saproling"], &[ManaColor::Green], 1, 1),
+        ),
+    ]),
 );
 
 /// The printed clause removes the counters and then adds the mana, but the
@@ -228,6 +245,7 @@ pub(in crate::card::sets) static HORIZON_CANOPY: CardRecord = CardRecord::new_wi
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &REALITY_STROBE,
+    &SPROUT_SWARM,
     &COALITION_RELIC,
     &SWORD_OF_THE_MEEK,
     &DARKSTEEL_GARRISON,

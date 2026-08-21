@@ -779,6 +779,7 @@ pub(super) const fn ability_target_defs(ability: &AbilityDef) -> &'static [Abili
         DeclarativeAbilityDef::Static(_)
         | DeclarativeAbilityDef::Replacement(_)
         | DeclarativeAbilityDef::AlternativeCast(_)
+        | DeclarativeAbilityDef::OptionalAdditionalCost(_)
         | DeclarativeAbilityDef::SpecialAction(_)
         | DeclarativeAbilityDef::Keyword(_)
         | DeclarativeAbilityDef::Legacy => &[],
@@ -817,6 +818,7 @@ fn collect_applied_abilities(effect: AppliedEffectDef, abilities: &mut Vec<&'sta
 
 pub(super) const fn keyword_snapshot(keyword: KeywordAbility) -> KeywordSnapshot {
     match keyword {
+        KeywordAbility::Convoke => KeywordSnapshot::Convoke,
         KeywordAbility::Devoid => KeywordSnapshot::Devoid,
         KeywordAbility::Infect => KeywordSnapshot::Infect,
         KeywordAbility::Flying => KeywordSnapshot::Flying,
@@ -875,6 +877,7 @@ pub(super) const fn keyword_snapshot(keyword: KeywordAbility) -> KeywordSnapshot
 
 pub(super) const fn parse_keyword(value: KeywordSnapshot) -> KeywordAbility {
     match value {
+        KeywordSnapshot::Convoke => KeywordAbility::Convoke,
         KeywordSnapshot::Devoid => KeywordAbility::Devoid,
         KeywordSnapshot::Infect => KeywordAbility::Infect,
         KeywordSnapshot::Flying => KeywordAbility::Flying,

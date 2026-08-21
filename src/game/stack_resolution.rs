@@ -1,9 +1,9 @@
 use super::{
-    AlternativeCastKindDef, BattlefieldExitCompletion, CardBehavior, CardPartId, CardRuntime,
-    CardType, CounterKind, DecisionContinuation, DecisionOption, DecisionPreference,
-    DecisionVisibility, DecisionZone, EntryCompletion, Game, GameEvent, GameObjectId,
-    PendingBattlefieldEntry, PendingProcedure, Permanent, PlayerId, ResolvedAbility,
-    StackAbilityResolver, StackObject, StackObjectKind, Target, ZoneKind,
+    BattlefieldExitCompletion, CardBehavior, CardPartId, CardRuntime, CardType, CounterKind,
+    DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
+    EntryCompletion, Game, GameEvent, GameObjectId, PendingBattlefieldEntry, PendingProcedure,
+    Permanent, PlayerId, ResolvedAbility, StackAbilityResolver, StackObject, StackObjectKind,
+    Target, ZoneKind,
 };
 use crate::SpellResolutionDestinationDef;
 
@@ -266,24 +266,11 @@ impl Game {
     ) {
         let owner = object.card.owner;
         let destination = if resolved {
-            // Buyback changes nothing about what the spell does, only where
-            // its card goes afterwards -- so it is read here rather than in
-            // the clause that resolved (CR 702.27a).
-            if self.cast_with_buyback(object) {
-                SpellResolutionDestinationDef::Hand
-            } else {
-                object
-                    .ability
-                    .as_ref()
-                    .and_then(|ability| ability.definition.as_deref())
-                    .and_then(|ability| match ability.definition {
-                        crate::card::DeclarativeAbilityDef::Spell(spell) => {
-                            Some(spell.resolution_destination())
-                        }
-                        _ => None,
-                    })
-                    .unwrap_or(SpellResolutionDestinationDef::Graveyard)
-            }
+            object
+                .ability
+                .as_ref()
+                .and_then(|ability| ability.resolution_destination)
+                .unwrap_or(SpellResolutionDestinationDef::Graveyard)
         } else {
             SpellResolutionDestinationDef::Graveyard
         };
@@ -344,20 +331,6 @@ impl Game {
                 self.rng.shuffle(&mut self.players[owner.index()].library);
             }
         }
-    }
-
-    /// Whether this spell was cast with its buyback paid.
-    fn cast_with_buyback(&self, object: &StackObject) -> bool {
-        let Some(signature) = object.signature.as_ref() else {
-            return false;
-        };
-        let Some(card_definition) = object.card.definition.card_definition() else {
-            return false;
-        };
-        self.catalog.get(card_definition).and_then(|definition| {
-            let option = definition.play_option(signature.play_option())?;
-            self.selected_alternative_kind(definition, option, object.id, signature.costs())
-        }) == Some(AlternativeCastKindDef::Buyback)
     }
 
     fn defer_stack_resolution(

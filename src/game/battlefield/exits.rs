@@ -529,6 +529,25 @@ impl Game {
                 activation,
                 produced_mana,
             } => self.complete_mana_ability(player, &activation, produced_mana),
+            BattlefieldExitCompletion::ContinueSpellManaPayment {
+                object,
+                targets,
+                object_payments,
+                cost,
+                x,
+                purpose,
+                plan,
+                next_activation,
+            } => self.continue_spell_mana_payment(
+                *object,
+                targets,
+                object_payments,
+                cost,
+                x,
+                purpose,
+                plan,
+                next_activation,
+            ),
         }
     }
 }

@@ -301,6 +301,7 @@ fn custom_spell_followup_waits_for_ugins_nexus_replacement_choice() {
         },
         condition: None,
         mode_effects: Vec::new(),
+        resolution_destination: None,
         x: 0,
     });
     game.stack.push(object);

@@ -1,20 +1,21 @@
 use super::{
     AbilityDef, AbilityId, AbilityOrigin, AbilityTargetDef, AbilityTargetPredicate, Action,
-    AlternativeCastAbilityDef, AlternativeCastKindDef, AlternativeCostId, CardBehavior,
-    CardDefinition, CardDefinitionId, CardEffectStatus, CardPartId, CardType, CardTypeSet,
-    CastChoices, CastCostContext, CastOffer, CastOfferCost, CastSignature, CastSourceZone,
-    ControlFlow, CostConfiguration, DeclarativeAbilityDef, DividedTotal, Game, GameObjectId,
-    KeywordAbility, ManaCost, ManaPaymentPurpose, ModeId, ObjectCharacteristics, PlayActionKind,
-    PlayOptionDef, PlayOptionId, PlayRestriction, PlayerId, ScopedEffect, SelectedSpellPlan,
-    StackAbilityPayload, StackAbilityResolver, Target, TargetSelection, TargetSlotDef,
-    TargetSlotId, TemporaryAbilityGrant, TriggerContext, add_generic, add_mana_cost,
-    extra_target_cost, mode_id_selections, positive_compositions, reduce_generic,
-    target_combinations,
+    AdditionalCostId, AlternativeCastAbilityDef, AlternativeCastKindDef, AlternativeCostId,
+    CardBehavior, CardDefinition, CardDefinitionId, CardEffectStatus, CardPartId, CardType,
+    CardTypeSet, CastChoices, CastCostContext, CastOffer, CastOfferCost, CastSignature,
+    CastSourceZone, ControlFlow, CostConfiguration, DeclarativeAbilityDef, DividedTotal, Game,
+    GameObjectId, KeywordAbility, ManaCost, ManaPaymentPurpose, ModeId, ObjectCharacteristics,
+    OptionalAdditionalCostKindDef, PlayActionKind, PlayOptionDef, PlayOptionId, PlayRestriction,
+    PlayerId, ScopedEffect, SelectedSpellPlan, StackAbilityPayload, StackAbilityResolver, Target,
+    TargetSelection, TargetSlotDef, TargetSlotId, TemporaryAbilityGrant, TriggerContext,
+    add_generic, add_mana_cost, extra_target_cost, mode_id_selections, positive_compositions,
+    reduce_generic, target_combinations,
 };
 
 use crate::card::{AlternateSpellKind, CardStructure, ModeSetDef, SpellForm, ZoneKind};
 
 mod cost_configurations;
+pub(in crate::game) use cost_configurations::CastScale;
 
 impl Game {
     pub(super) fn add_land_actions(&self, player: PlayerId, actions: &mut Vec<Action>) {
@@ -294,6 +295,26 @@ impl Game {
                                 (None, None) => 0,
                             };
                             for x in 0..=max_x {
+                                let cast_life = self.configured_cast_life_payment(
+                                    definition,
+                                    option,
+                                    card.id,
+                                    &costs,
+                                    x,
+                                    offer.map(|offer| offer.cost),
+                                );
+                                let library_life = if source_zone == CastSourceZone::LibraryTop {
+                                    self.library_top_life_cost(card, player, option)
+                                        .unwrap_or(0)
+                                } else {
+                                    0
+                                };
+                                let Some(life_available) = self.life_available_after_payment(
+                                    player,
+                                    cast_life.saturating_add(library_life),
+                                ) else {
+                                    continue;
+                                };
                                 let target_choices = if alternative_kind
                                     == Some(AlternativeCastKindDef::Overload)
                                 {
@@ -350,11 +371,13 @@ impl Game {
                                         ),
                                         self.spell_cost_reduction(definition.id, player, card.id),
                                     );
-                                    if !self.can_pay_cost_for(
+                                    if !self.can_pay_cost_for_reserving_with_life(
                                         player,
                                         payable_cost,
                                         x,
                                         &payment_purpose,
+                                        &[],
+                                        life_available,
                                     ) {
                                         continue;
                                     }
@@ -378,14 +401,24 @@ impl Game {
                                             &costs,
                                             card,
                                             player,
-                                            cost_configurations::CastScale {
+                                            CastScale {
                                                 x,
                                                 modes: modes.len(),
+                                                offer: offer.map(|offer| offer.cost),
                                             },
-                                            offer.map(|offer| offer.cost),
                                         )
                                     };
                                     for sacrifices in sacrifice_choices {
+                                        if !self.can_pay_cost_for_reserving_with_life(
+                                            player,
+                                            payable_cost,
+                                            x,
+                                            &payment_purpose,
+                                            &sacrifices,
+                                            life_available,
+                                        ) {
+                                            continue;
+                                        }
                                         actions.push(Action::CastSpell {
                                             card: card.id,
                                             choices: CastChoices::new(option.id)

@@ -376,6 +376,7 @@ impl Game {
             | DeclarativeAbilityDef::Static(_)
             | DeclarativeAbilityDef::Replacement(_)
             | DeclarativeAbilityDef::AlternativeCast(_)
+            | DeclarativeAbilityDef::OptionalAdditionalCost(_)
             | DeclarativeAbilityDef::SpecialAction(_)
             | DeclarativeAbilityDef::Keyword(_) => None,
         });

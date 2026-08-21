@@ -154,6 +154,7 @@ impl Game {
                 // Only a triggered ability carries an intervening-if.
                 condition: None,
                 mode_effects: frozen.mode_effects,
+                resolution_destination: None,
                 x: frozen.x,
             }),
             controller,

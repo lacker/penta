@@ -1,5 +1,6 @@
 use super::*;
 use crate::card::AppliedRuleDef;
+use crate::mana_cost;
 
 #[test]
 fn standard_records_have_complete_unique_scryfall_metadata() {
@@ -136,6 +137,44 @@ fn ordinary_records_synthesize_one_primary_part_and_play_option() {
     assert_eq!(mountain.parts[0].rules.mana_cost(), None);
     assert_eq!(mountain.play_options[0].action, PlayActionKind::PlayLand);
     assert_eq!(mountain.play_options[0].mana_cost, None);
+}
+
+#[test]
+fn buyback_records_project_only_optional_additional_costs() {
+    let projected_buyback = |record: &CardRecord| {
+        let definition = record.definition();
+        assert_eq!(
+            definition.play_options.len(),
+            1,
+            "{} has one ordinary spell form",
+            record.name,
+        );
+        let option = &definition.play_options[0];
+        assert!(
+            option.alternative_costs.is_empty(),
+            "{} must not project Buyback as an alternative cost",
+            record.name,
+        );
+        assert_eq!(
+            option.additional_costs.len(),
+            1,
+            "{} projects exactly one Buyback choice",
+            record.name,
+        );
+        option.additional_costs[0].clone()
+    };
+
+    let sprout_swarm = projected_buyback(&y2007::future_sight::SPROUT_SWARM);
+    assert_eq!(sprout_swarm.label, "Buyback");
+    assert_eq!(sprout_swarm.mana_cost, Some(mana_cost!("{3}")));
+
+    let corpse_dance = projected_buyback(&y1997::tempest::CORPSE_DANCE);
+    assert_eq!(corpse_dance.label, "Buyback");
+    assert_eq!(corpse_dance.mana_cost, Some(mana_cost!("{2}")));
+
+    let constant_mists = projected_buyback(&y1998::stronghold::CONSTANT_MISTS);
+    assert_eq!(constant_mists.label, "Buyback");
+    assert_eq!(constant_mists.mana_cost, None);
 }
 
 #[test]

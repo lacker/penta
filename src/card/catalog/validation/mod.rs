@@ -6,7 +6,10 @@ mod targeting;
 
 use std::collections::HashSet;
 
-use self::abilities::{validate_abilities, validate_alternative_cast_abilities};
+use self::abilities::{
+    validate_abilities, validate_alternative_cast_abilities,
+    validate_optional_additional_cost_abilities,
+};
 use self::composition::{
     structure_parts, validate_cost_ids, validate_fused_option, validate_modes_and_targets,
     validate_spell_form,
@@ -89,6 +92,7 @@ pub(super) fn validate_composition(definition: &CardDefinition) -> Result<(), Ca
     }
 
     validate_alternative_cast_abilities(definition)?;
+    validate_optional_additional_cost_abilities(definition)?;
 
     validate_fused_option(definition)
 }

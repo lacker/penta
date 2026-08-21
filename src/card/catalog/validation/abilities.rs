@@ -3,7 +3,8 @@ use std::collections::HashSet;
 use super::program_context::validate_ability_effect_context;
 use super::targeting::{validate_ability_program_targets, validate_ability_trigger_event};
 use crate::card::catalog::{
-    CatalogError, GrantedAbilityValidationError, MismatchedAlternativeCost,
+    CatalogError, GrantedAbilityValidationError, MismatchedAdditionalCost,
+    MismatchedAlternativeCost,
 };
 use crate::card::{
     AbilityDef, AbilityOperationDef, AbilityProcedureDef, AbilityProgramDef, AppliedEffectDef,
@@ -12,7 +13,7 @@ use crate::card::{
     ReplacementEffectDef, ReplacementEventDef, SpellForm, TokenCharacteristics, ZoneKind,
     ZoneMoveCauseDef,
 };
-use crate::{AbilityId, AlternativeCostId, CardPartId, GrantId, ModeId};
+use crate::{AbilityId, AdditionalCostId, AlternativeCostId, CardPartId, GrantId, ModeId};
 
 pub(super) fn validate_alternative_cast_abilities(
     definition: &CardDefinition,
@@ -70,6 +71,64 @@ pub(super) fn validate_alternative_cast_abilities(
             }
             if !owning_option_found {
                 return Err(CatalogError::MissingAlternativeCostForAbility {
+                    definition: definition.id,
+                    part: part.id,
+                    ability: attached.id,
+                    cost,
+                });
+            }
+        }
+    }
+    Ok(())
+}
+
+pub(super) fn validate_optional_additional_cost_abilities(
+    definition: &CardDefinition,
+) -> Result<(), CatalogError> {
+    for part in &definition.parts {
+        for attached in part.rules.indexed_abilities() {
+            let DeclarativeAbilityDef::OptionalAdditionalCost(optional) =
+                attached.definition.definition
+            else {
+                continue;
+            };
+            let cost = AdditionalCostId(attached.id.0);
+            let mut owning_option_found = false;
+            for option in definition.play_options.iter().filter(
+                |option| matches!(option.form, SpellForm::Part(candidate) if candidate == part.id),
+            ) {
+                owning_option_found = true;
+                let expected = optional.additional_cost(attached.id);
+                let Some(actual) = option
+                    .additional_costs
+                    .iter()
+                    .find(|cost| cost.id == expected.id)
+                else {
+                    return Err(CatalogError::MissingAdditionalCostForAbility {
+                        definition: definition.id,
+                        part: part.id,
+                        ability: attached.id,
+                        cost: expected.id,
+                    });
+                };
+                if actual != &expected {
+                    return Err(CatalogError::MismatchedAdditionalCostForAbility(Box::new(
+                        MismatchedAdditionalCost {
+                            definition: definition.id,
+                            part: part.id,
+                            ability: attached.id,
+                            option: option.id,
+                            cost: expected.id,
+                            expected_label: expected.label,
+                            actual_label: actual.label.clone(),
+                            expected_mana_cost: expected.mana_cost,
+                            actual_mana_cost: actual.mana_cost,
+                        },
+                    )));
+                }
+            }
+            if !owning_option_found {
+                return Err(CatalogError::MissingAdditionalCostForAbility {
                     definition: definition.id,
                     part: part.id,
                     ability: attached.id,
@@ -377,6 +436,7 @@ fn validate_ability_coverage(ability: &AbilityDef) -> Result<(), GrantedAbilityV
         | DeclarativeAbilityDef::Static(_)
         | DeclarativeAbilityDef::Replacement(_)
         | DeclarativeAbilityDef::AlternativeCast(_)
+        | DeclarativeAbilityDef::OptionalAdditionalCost(_)
         | DeclarativeAbilityDef::SpecialAction(_)
         | DeclarativeAbilityDef::Keyword(_)
         | DeclarativeAbilityDef::Legacy => false,
@@ -510,7 +570,9 @@ fn validate_ability_definition(ability: &AbilityDef) -> Result<(), GrantedAbilit
             (Some(special_action.source_zones), &[][..], false)
         }
         DeclarativeAbilityDef::AlternativeCast(alternative) => (None, alternative.targets, false),
-        DeclarativeAbilityDef::Keyword(_) | DeclarativeAbilityDef::Legacy => (None, &[][..], false),
+        DeclarativeAbilityDef::OptionalAdditionalCost(_)
+        | DeclarativeAbilityDef::Keyword(_)
+        | DeclarativeAbilityDef::Legacy => (None, &[][..], false),
     };
 
     if source_zones.is_some_and(<[ZoneKind]>::is_empty) {
@@ -539,6 +601,7 @@ fn validate_ability_definition(ability: &AbilityDef) -> Result<(), GrantedAbilit
         | DeclarativeAbilityDef::Static(_)
         | DeclarativeAbilityDef::Replacement(_)
         | DeclarativeAbilityDef::AlternativeCast(_)
+        | DeclarativeAbilityDef::OptionalAdditionalCost(_)
         | DeclarativeAbilityDef::SpecialAction(_)
         | DeclarativeAbilityDef::Keyword(_)
         | DeclarativeAbilityDef::Legacy => None,

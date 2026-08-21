@@ -430,12 +430,21 @@ distinguishes snapshots of the covered source and build inputs.
   and each named after the clause it picked. Umezawa's Jitte is the first
   card to print one.
 
-- **Buyback.** Like a kicker it only costs more, so the spell resolves
-  exactly as printed; what it changes is where the card goes afterwards --
-  to its owner's hand rather than the graveyard (CR 702.27a). That made it
-  an alternative cast carrying no instructions of its own, which the
-  cost-only kicker had already made possible. Flashback still wins: a
-  bought-back flashback spell is exiled wherever else it would have gone.
+- **Convoke.** A spell may tap the caster's untapped creatures while its final
+  cost is paid, each covering one generic symbol or one symbol of that
+  creature's color. These contributions are payment rather than mana: they do
+  not fire mana events or count as colors of mana spent. A creature whose mana
+  ability tapped it cannot also convoke the spell, while a non-tapping mana
+  ability may legally be activated before its source convokes. Sprout Swarm is
+  the first covered card.
+
+- **Buyback as an optional additional cost.** It combines with an alternative
+  way of casting a spell instead of replacing that way, and its mana or object
+  surcharge is included in the spell's final cost. Paying it freezes the
+  successful-resolution destination as the owner's hand without changing the
+  spell's instructions. Flashback still wins: a bought-back flashback spell is
+  exiled wherever else it would have gone. Corpse Dance is migrated to this
+  shared model; Sprout Swarm and Constant Mists add mana and sacrifice forms.
 
 - **"Can't cause you to discard cards."** The prohibition over being made to
   sacrifice existed; the same prohibition over discarding did not. Both are

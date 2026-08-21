@@ -8,8 +8,10 @@ use super::{
 };
 
 mod alternative_casts;
+mod optional_additional_costs;
 
 pub use alternative_casts::*;
+pub use optional_additional_costs::*;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum SpellAbilityDef {
@@ -768,6 +770,7 @@ pub enum DeclarativeAbilityDef {
     Static(StaticAbilityDef),
     Replacement(ReplacementAbilityDef),
     AlternativeCast(AlternativeCastAbilityDef),
+    OptionalAdditionalCost(OptionalAdditionalCostAbilityDef),
     SpecialAction(SpecialActionDef),
     Keyword(KeywordAbility),
     /// Transitional structural marker for a clause still dispatched through

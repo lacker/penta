@@ -1,11 +1,13 @@
 //! Stronghold cards used by the staged Premodern deck tranche.
 
 use super::{CardRecord, PrintingRecord};
+use crate::card::sets::PrintingAnchor;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
-    ObjectPredicateDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ValueDef, ZoneKind,
-    abilities,
+    CardSupertype, CardType, DamageEventMatcherDef, DamagePreventionDef, EffectDef,
+    EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
+    PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef,
+    ValueDef, ZoneKind, abilities,
 };
 use crate::mana_cost;
 
@@ -20,6 +22,33 @@ pub(in crate::card::sets) static MANA_LEAK: CardRecord = CardRecord::new_with_le
         &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
         abilities::counter_target_unless_paid(ValueDef::Constant(3)),
     )),
+);
+
+static SACRIFICE_A_LAND: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
+    ObjectPredicateDef::HasType(CardType::Land),
+    ZoneKind::Battlefield,
+    1,
+);
+
+// STH 104 — Constant Mists
+pub(in crate::card::sets) static CONSTANT_MISTS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("97a8a5fe-0391-489b-9556-0a1bf7e1900d"),
+    "Constant Mists",
+    CardArt::new("97a8a5fe-0391-489b-9556-0a1bf7e1900d", "Dermot Power"),
+    CardSet::Stronghold,
+    CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[
+        abilities::buyback_with_additional_cost(
+            "Buyback—Sacrifice a land. (You may sacrifice a land in addition to any other costs as you cast this spell. If you do, put this card into your hand as it resolves.)",
+            &SACRIFICE_A_LAND,
+        ),
+        AbilityDef::spell(
+            "Prevent all combat damage that would be dealt this turn.",
+            EffectDef::PreventDamage {
+                prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::COMBAT),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 /// A land card from hand, which is the whole cost. A hand with none cannot
@@ -92,6 +121,7 @@ pub(in crate::card::sets) static MOX_DIAMOND: CardRecord = CardRecord::new_with_
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&MANA_LEAK, &HERMIT_DRUID, &MOX_DIAMOND];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&MANA_LEAK, &CONSTANT_MISTS, &HERMIT_DRUID, &MOX_DIAMOND];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

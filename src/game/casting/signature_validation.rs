@@ -237,10 +237,22 @@ impl Game {
         if !x_is_chosen && choices.x() != 0 {
             return None;
         }
-        let life = Self::spell_life_payment(definition, option, choices.x());
-        if i16::try_from(life).unwrap_or(i16::MAX) > self.players[player.index()].life {
-            return None;
-        }
+        let cast_life = self.configured_cast_life_payment(
+            definition,
+            option,
+            card_id,
+            choices.costs(),
+            choices.x(),
+            offer.map(|offer| offer.cost),
+        );
+        let library_life = if source_zone == CastSourceZone::LibraryTop {
+            self.library_top_life_cost(card, player, option)
+                .unwrap_or(0)
+        } else {
+            0
+        };
+        let life_available =
+            self.life_available_after_payment(player, cast_life.saturating_add(library_life))?;
 
         let declared_slots = Self::target_slots_for(option, choices.modes());
         if alternative_kind == Some(AlternativeCastKindDef::Overload) {
@@ -298,7 +310,14 @@ impl Game {
         if cost.variable_x && choices.x() > self.maximum_x_for(player, cost, &payment_purpose) {
             return None;
         }
-        if !self.can_pay_cost_for(player, cost, choices.x(), &payment_purpose) {
+        if !self.can_pay_cost_for_reserving_with_life(
+            player,
+            cost,
+            choices.x(),
+            &payment_purpose,
+            &[],
+            life_available,
+        ) {
             return None;
         }
 

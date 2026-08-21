@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::fmt;
 
-use super::{CatalogError, MismatchedAlternativeCost};
+use super::{CatalogError, MismatchedAdditionalCost, MismatchedAlternativeCost};
 
 impl fmt::Display for CatalogError {
     #[allow(clippy::too_many_lines)]
@@ -708,6 +708,32 @@ impl fmt::Display for CatalogError {
                 write!(
                     formatter,
                     "alternative cost {cost:?} on play option {option:?}, projected from ability {ability:?} on part {part:?} of card definition {definition:?}, must be labeled {expected_label:?} with mana cost {expected_mana_cost}, but is labeled {actual_label:?} with mana cost {actual_mana_cost}"
+                )
+            }
+            Self::MissingAdditionalCostForAbility {
+                definition,
+                part,
+                ability,
+                cost,
+            } => write!(
+                formatter,
+                "optional additional-cost ability {ability:?} on part {part:?} of card definition {definition:?} references missing cost {cost:?}"
+            ),
+            Self::MismatchedAdditionalCostForAbility(mismatch) => {
+                let MismatchedAdditionalCost {
+                    definition,
+                    part,
+                    ability,
+                    option,
+                    cost,
+                    expected_label,
+                    actual_label,
+                    expected_mana_cost,
+                    actual_mana_cost,
+                } = mismatch.as_ref();
+                write!(
+                    formatter,
+                    "additional cost {cost:?} on play option {option:?}, projected from ability {ability:?} on part {part:?} of card definition {definition:?}, must be labeled {expected_label:?} with mana cost {expected_mana_cost:?}, but is labeled {actual_label:?} with mana cost {actual_mana_cost:?}"
                 )
             }
             Self::DuplicateAdditionalCostId { definition, cost } => write!(

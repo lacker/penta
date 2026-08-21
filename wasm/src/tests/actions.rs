@@ -72,6 +72,47 @@ fn cast_action_labels_distinguish_normal_flashback_and_overload() {
 }
 
 #[test]
+fn cast_action_labels_distinguish_optional_buyback() {
+    let game = WebGame::new(
+        "Briksza Naya Midrange",
+        "Greer G/R Aggro",
+        "Handcrafted",
+        true,
+        2,
+        Some("isd-dgm-standard".into()),
+    )
+    .unwrap();
+    let mut observation = game.session.engine().observe(game.human);
+    let sprout = CardInstanceId(90_010);
+    observation
+        .hand
+        .push((sprout, penta::card::cards::SPROUT_SWARM));
+
+    let ordinary = Action::CastSpell {
+        card: sprout,
+        choices: penta::CastChoices::default(),
+        sacrifices: Vec::new(),
+    };
+    let bought_back = Action::CastSpell {
+        card: sprout,
+        choices: penta::CastChoices::default().with_costs(penta::CostConfiguration::new(
+            None,
+            vec![penta::AdditionalCostId(1)],
+        )),
+        sacrifices: Vec::new(),
+    };
+
+    assert_eq!(
+        game.action_label(&observation, &ordinary),
+        "Cast Sprout Swarm"
+    );
+    assert_eq!(
+        game.action_label(&observation, &bought_back),
+        "Cast Sprout Swarm with Buyback {3}",
+    );
+}
+
+#[test]
 /// Two Prospector activations differ only in which Goblin dies, so the label
 /// has to name the sacrifice -- otherwise the player is offered what reads as
 /// the same option twice.

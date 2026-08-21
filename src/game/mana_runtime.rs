@@ -921,6 +921,26 @@ impl Game {
             .is_some()
     }
 
+    pub(super) fn can_pay_cost_for_reserving_with_life(
+        &self,
+        player: PlayerId,
+        cost: ManaCost,
+        x: u16,
+        purpose: &ManaPaymentPurpose,
+        reserved: &[GameObjectId],
+        life_available: u16,
+    ) -> bool {
+        self.assigned_mana_activations_for_reserving_with_life(
+            player,
+            cost,
+            x,
+            purpose,
+            reserved,
+            life_available,
+        )
+        .is_some()
+    }
+
     pub(super) fn add_mana_actions(&self, player: PlayerId, actions: &mut Vec<Action>) {
         for permanent in self
             .battlefield

@@ -7,10 +7,10 @@ use super::{
     AbilityTargetDef, ActivatedAbilityDef, ActivationTimingDef, AlternativeCastAbilityDef,
     AlternativeCastKindDef, AlternativeCastManaCostDef, CardBehavior, ConditionDef,
     DeclarativeAbilityDef, EffectDef, EffectExecutionDef, ImplementationStatus, KeywordAbility,
-    ManaCost, ModalSpellDef, ReplacementAbilityDef, ReplacementConditionDef, ReplacementEffectDef,
-    ReplacementEventDef, SpecialActionDef, SpellAbilityDef, SpellAdditionalCostDef,
-    SpellLifeCostDef, SpellResolutionDestinationDef, StaticAbilityDef, TriggerConditionDef,
-    TriggerEventDef, TriggeredAbilityDef, ZoneKind,
+    ManaCost, ModalSpellDef, OptionalAdditionalCostAbilityDef, ReplacementAbilityDef,
+    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, SpecialActionDef,
+    SpellAbilityDef, SpellAdditionalCostDef, SpellLifeCostDef, SpellResolutionDestinationDef,
+    StaticAbilityDef, TriggerConditionDef, TriggerEventDef, TriggeredAbilityDef, ZoneKind,
 };
 
 /// One printed rules clause and its implementation.
@@ -512,6 +512,22 @@ impl AbilityDef {
         )
     }
 
+    /// A cost a player may add to any legal way of casting this spell. The
+    /// selected identity travels in `CostConfiguration::additional`, so the
+    /// outcome can be frozen on the stack without conflating it with an
+    /// alternative way of casting the card.
+    #[must_use]
+    pub const fn optional_additional_cost(
+        text: &'static str,
+        definition: OptionalAdditionalCostAbilityDef,
+    ) -> Self {
+        Self::defined(
+            text,
+            DeclarativeAbilityDef::OptionalAdditionalCost(definition),
+            EffectDef::None,
+        )
+    }
+
     #[must_use]
     pub const fn special_action(
         text: &'static str,
@@ -747,6 +763,7 @@ impl AbilityDef {
             | DeclarativeAbilityDef::Static(_)
             | DeclarativeAbilityDef::Replacement(_)
             | DeclarativeAbilityDef::AlternativeCast(_)
+            | DeclarativeAbilityDef::OptionalAdditionalCost(_)
             | DeclarativeAbilityDef::SpecialAction(_)
             | DeclarativeAbilityDef::Keyword(_)
             | DeclarativeAbilityDef::Legacy => {
@@ -811,6 +828,11 @@ impl AbilityDef {
             DeclarativeAbilityDef::AlternativeCast(definition) => {
                 Cow::Owned(definition.rules_text())
             }
+            DeclarativeAbilityDef::OptionalAdditionalCost(definition)
+                if definition.mana_cost.is_some() && self.text == definition.kind.label() =>
+            {
+                Cow::Owned(definition.rules_text())
+            }
             _ => Cow::Borrowed(self.text),
         }
     }
@@ -837,6 +859,7 @@ impl AbilityDef {
             }
             DeclarativeAbilityDef::Spell(_)
             | DeclarativeAbilityDef::AlternativeCast(_)
+            | DeclarativeAbilityDef::OptionalAdditionalCost(_)
             | DeclarativeAbilityDef::Keyword(_)
             | DeclarativeAbilityDef::Legacy => {}
         }

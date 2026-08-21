@@ -1,11 +1,11 @@
 use std::borrow::Cow;
 
-use crate::ids::{AbilityId, AlternativeCostId, ModeId};
+use crate::ids::{AbilityId, AdditionalCostId, AlternativeCostId, ModeId};
 
 use super::{
-    AbilityDef, AlternativeCostDef, CardBehavior, CardSupertype, CardType, CardTypeSet, ColorSet,
-    DeclarativeAbilityDef, HybridPair, ImplementationStatus, KeywordAbility, ManaColor, ManaCost,
-    ModeSetDef, ObjectPredicateDef, PlayRestriction, PrintedManaCost,
+    AbilityDef, AdditionalCostDef, AlternativeCostDef, CardBehavior, CardSupertype, CardType,
+    CardTypeSet, ColorSet, DeclarativeAbilityDef, HybridPair, ImplementationStatus, KeywordAbility,
+    ManaColor, ManaCost, ModeSetDef, ObjectPredicateDef, PlayRestriction, PrintedManaCost,
 };
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -51,6 +51,19 @@ impl AttachedAbilityDef {
         }
     }
 
+    /// The stable identity of a printed optional additional-cost clause.
+    #[must_use]
+    pub const fn additional_cost_id(self) -> Option<AdditionalCostId> {
+        if matches!(
+            self.definition.definition,
+            DeclarativeAbilityDef::OptionalAdditionalCost(_)
+        ) {
+            Some(AdditionalCostId(self.id.0))
+        } else {
+            None
+        }
+    }
+
     /// Materializes the play-option view of a printed alternative cost.
     #[must_use]
     pub fn alternative_cost(self, card_mana_cost: Option<ManaCost>) -> Option<AlternativeCostDef> {
@@ -58,6 +71,17 @@ impl AttachedAbilityDef {
             return None;
         };
         definition.alternative_cost(self.id, card_mana_cost)
+    }
+
+    /// Materializes the play-option view of a printed optional additional
+    /// cost.
+    #[must_use]
+    pub fn additional_cost(self) -> Option<AdditionalCostDef> {
+        let DeclarativeAbilityDef::OptionalAdditionalCost(definition) = self.definition.definition
+        else {
+            return None;
+        };
+        Some(definition.additional_cost(self.id))
     }
 }
 

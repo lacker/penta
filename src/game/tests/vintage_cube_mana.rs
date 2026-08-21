@@ -192,6 +192,94 @@ fn mana_confluence_charges_a_life_as_a_cost_of_its_own_ability() {
     }
 }
 
+#[test]
+fn mana_confluence_life_costs_are_aggregated_for_ordinary_autopayment() {
+    let mut game = ready_game();
+    game.battlefield.clear();
+    game.put_onto_battlefield(PlayerId::One, cards::MANA_CONFLUENCE)
+        .expect("cataloged");
+    game.put_onto_battlefield(PlayerId::One, cards::MANA_CONFLUENCE)
+        .expect("cataloged");
+    let bears = card(74_500, cards::GRIZZLY_BEARS, PlayerId::One);
+    let bears_id = bears.id;
+    game.players[PlayerId::One.index()].hand.push(bears);
+
+    game.players[PlayerId::One.index()].life = 2;
+    let cast = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| matches!(action, Action::CastSpell { card, .. } if *card == bears_id))
+        .expect("two life can pay both Mana Confluence activation costs");
+
+    game.players[PlayerId::One.index()].life = 1;
+    assert!(
+        !game.is_legal_action(PlayerId::One, &cast),
+        "one life cannot pay two separate Mana Confluence activation costs",
+    );
+    assert!(
+        game.apply(PlayerId::One, cast).is_err(),
+        "ordinary autopayment also rejects the aggregate life overcommit",
+    );
+    assert_eq!(game.players[PlayerId::One.index()].life, 1);
+    assert!(
+        game.players[PlayerId::One.index()]
+            .hand
+            .iter()
+            .any(|card| card.id == bears_id),
+        "rejecting the stale cast leaves the spell in hand",
+    );
+}
+
+#[test]
+fn ordinary_autopayment_cannot_sacrifice_one_shared_cost_object_twice() {
+    static SACRIFICE_A_CREATURE: [AbilityCostDef; 1] = [AbilityCostDef::SacrificePermanent {
+        object: ObjectPredicateDef::HasType(CardType::Creature),
+        controller: PlayerRelation::You,
+    }];
+
+    let source_definition = CardDefinitionId::new(50_003);
+    let mut definition = CardDefinition::new(
+        source_definition,
+        "Shared sacrifice mana source",
+        CardSet::FutureSight,
+        false,
+        CardBehavior::Unsupported,
+    );
+    definition.rules =
+        CardRules::new_artifact(mana_cost!("{0}")).with_ability(AbilityDef::activated_mana(
+            "Sacrifice a creature: Add {G}.",
+            &SACRIFICE_A_CREATURE,
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
+        ));
+    synchronize_single_part_definition(&mut definition);
+
+    let mut game = ready_game();
+    let mut definitions = game
+        .catalog
+        .definitions()
+        .into_iter()
+        .cloned()
+        .collect::<Vec<_>>();
+    definitions.push(definition);
+    game.catalog = CardCatalog::new(definitions).expect("the mana-source fixture is valid");
+    game.battlefield.clear();
+    game.battlefield.extend([
+        creature(74_600, source_definition, PlayerId::One),
+        creature(74_601, source_definition, PlayerId::One),
+        creature(74_602, cards::GRIZZLY_BEARS, PlayerId::One),
+    ]);
+    let spell = card(74_603, cards::GRIZZLY_BEARS, PlayerId::One);
+    let spell_id = spell.id;
+    game.players[PlayerId::One.index()].hand.push(spell);
+
+    assert!(
+        game.legal_actions(PlayerId::One)
+            .iter()
+            .all(|action| !matches!(action, Action::CastSpell { card, .. } if *card == spell_id)),
+        "two mana abilities cannot both reserve the one creature they share as a sacrifice cost",
+    );
+}
+
 /// Tapped by something else, it costs nothing -- the difference from City of
 /// Brass, which would pay either way.
 #[test]

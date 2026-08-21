@@ -168,6 +168,55 @@ fn channel_pays_for_a_fireball_in_one_cast() {
 }
 
 #[test]
+fn channel_and_pay_life_mana_share_life_left_after_the_spell_cost() {
+    let mut game = ready_game();
+    game.battlefield.clear();
+    game.channel_active[PlayerId::One.index()] = true;
+    let confluence = game
+        .put_onto_battlefield(PlayerId::One, cards::MANA_CONFLUENCE)
+        .expect("cataloged");
+    let deluge = card(10_050, cards::TOXIC_DELUGE, PlayerId::One);
+    let deluge_id = deluge.id;
+    game.players[PlayerId::One.index()].hand.push(deluge);
+
+    game.players[PlayerId::One.index()].life = 5;
+    let cast = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| {
+            matches!(action, Action::CastSpell { card, choices, .. }
+                if *card == deluge_id && choices.x() == 1)
+        })
+        .expect("one spell life, one Confluence life, and two Channel life fit in five");
+
+    game.players[PlayerId::One.index()].life = 4;
+    assert!(
+        !game.is_legal_action(PlayerId::One, &cast),
+        "Channel and Mana Confluence cannot both claim life reserved by the spell",
+    );
+    assert!(game.apply(PlayerId::One, cast.clone()).is_err());
+    assert_eq!(game.players[PlayerId::One.index()].life, 4);
+    assert!(
+        game.players[PlayerId::One.index()]
+            .hand
+            .iter()
+            .any(|card| card.id == deluge_id)
+    );
+    assert!(
+        game.battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == confluence)
+            .is_some_and(|permanent| !permanent.tapped)
+    );
+
+    game.players[PlayerId::One.index()].life = 5;
+    game.apply(PlayerId::One, cast)
+        .expect("the aggregate life budget and execution agree at five");
+    assert_eq!(game.players[PlayerId::One.index()].life, 1);
+    assert_eq!(game.stack.len(), 1);
+}
+
+#[test]
 fn channel_does_not_pay_a_coloured_symbol() {
     // Channel makes {C}. It can cover the generic half of a cost and nothing
     // else, so a spell whose coloured symbol is unpayable stays unpayable
@@ -186,6 +235,55 @@ fn channel_does_not_pay_a_coloured_symbol() {
         "two blue is not something life can buy"
     );
     assert_eq!(game.players[0].life, 20, "and nothing was paid trying");
+}
+
+#[test]
+fn channel_pays_a_true_colorless_symbol_when_the_spell_is_applied() {
+    let definition_id = CardDefinitionId::new(59_900);
+    let mut definition = CardDefinition::new(
+        definition_id,
+        "True colorless Channel test",
+        CardSet::Magic2014,
+        false,
+        CardBehavior::Unsupported,
+    );
+    definition.rules = CardRules::new_artifact(mana_cost!("{C}"));
+    synchronize_single_part_definition(&mut definition);
+
+    let mut game = ready_game();
+    let mut definitions = game
+        .catalog
+        .definitions()
+        .into_iter()
+        .cloned()
+        .collect::<Vec<_>>();
+    definitions.push(definition);
+    game.catalog = CardCatalog::new(definitions).expect("the test definition is valid");
+    game.channel_active[PlayerId::One.index()] = true;
+    game.players[PlayerId::One.index()].life = 3;
+    let spell = card(10_002, definition_id, PlayerId::One);
+    let spell_id = spell.id;
+    game.players[PlayerId::One.index()].hand.push(spell);
+
+    let action = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| matches!(action, Action::CastSpell { card, .. } if *card == spell_id))
+        .expect("Channel advertises the spell because its mana can pay {C}");
+    game.apply(PlayerId::One, action)
+        .expect("the advertised true-colorless Channel payment applies");
+
+    assert_eq!(game.players[PlayerId::One.index()].life, 2);
+    assert_eq!(
+        game.players[PlayerId::One.index()].mana_pool,
+        ManaPool::default(),
+        "the one life became one {{C}} and that mana was spent",
+    );
+    assert!(
+        game.players[PlayerId::One.index()].mana.is_empty(),
+        "the attributed Channel mana was consumed",
+    );
+    assert_eq!(game.stack.len(), 1, "the paid-for spell is on the stack");
 }
 
 #[test]

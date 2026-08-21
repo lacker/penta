@@ -3,6 +3,13 @@
 pub enum ObjectRefDef {
     /// The game object from which the resolving spell or ability originated.
     Source,
+    /// The object whose continuous effect granted the resolving ability.
+    ///
+    /// This deliberately names that exact battlefield incarnation rather than
+    /// following a later zone change. A granted ability can sacrifice its
+    /// granter as a cost and still attribute its effect to that granter using
+    /// last-known information after the granter has left the battlefield.
+    AbilityGrantSource,
     /// The spell or ability object currently resolving. This is distinct from
     /// [`Self::Source`], which names its originating game object.
     ResolvingObject,
@@ -233,6 +240,7 @@ impl EffectRecipientDef {
             Some(ObjectRefDef::Binding(binding)) => Some(binding),
             Some(
                 ObjectRefDef::Source
+                | ObjectRefDef::AbilityGrantSource
                 | ObjectRefDef::ResolvingObject
                 | ObjectRefDef::AttachedToSource
                 | ObjectRefDef::Target(_)

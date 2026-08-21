@@ -3908,7 +3908,7 @@ pub(in crate::card::sets) static KITESAIL: CardRecord = CardRecord::new(
                 },
             ),
             abilities::equip(
-                mana_cost!("{2}"),
+                &[AbilityCostDef::Mana(mana_cost!("{2}"))],
                 "Equip {2} ({2}: Attach to target creature you control. Equip only as a \
                  sorcery.)",
             ),
@@ -3966,7 +3966,7 @@ pub(in crate::card::sets) static RING_OF_EVOS_ISLE: CardRecord = CardRecord::new
                     amount: ValueDef::Constant(1),
                 },
             ),
-            abilities::equip(mana_cost!("{1}"), "Equip {1}"),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
         ]),
 );
 
@@ -4007,7 +4007,7 @@ pub(in crate::card::sets) static RING_OF_KALONIA: CardRecord = CardRecord::new(
                     amount: ValueDef::Constant(1),
                 },
             ),
-            abilities::equip(mana_cost!("{1}"), "Equip {1}"),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
         ]),
 );
 
@@ -4048,7 +4048,7 @@ pub(in crate::card::sets) static RING_OF_THUNE: CardRecord = CardRecord::new(
                     amount: ValueDef::Constant(1),
                 },
             ),
-            abilities::equip(mana_cost!("{1}"), "Equip {1}"),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
         ]),
 );
 
@@ -4088,7 +4088,7 @@ pub(in crate::card::sets) static RING_OF_VALKAS: CardRecord = CardRecord::new(
                     amount: ValueDef::Constant(1),
                 },
             ),
-            abilities::equip(mana_cost!("{1}"), "Equip {1}"),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
         ]),
 );
 
@@ -4127,7 +4127,7 @@ pub(in crate::card::sets) static RING_OF_XATHRID: CardRecord = CardRecord::new(
                     amount: ValueDef::Constant(1),
                 },
             ),
-            abilities::equip(mana_cost!("{1}"), "Equip {1}"),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
         ]),
 );
 

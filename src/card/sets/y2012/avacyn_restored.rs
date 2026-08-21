@@ -4034,8 +4034,41 @@ pub(in crate::card::sets) static SIGARDA_HOST_OF_HERONS: CardRecord = CardRecord
 // AVR 211 — Angel's Tomb
 // Audit: blocked — Needs its optional creature-entry trigger authored as one end-of-turn composite characteristic effect.
 
+static ANGELIC_ARMAMENTS_FLYING: AbilityDef = abilities::flying();
+
+static ANGELIC_ARMAMENTS_BONUS: [AppliedEffectDef; 4] = [
+    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
+    AppliedEffectDef::add_ability(&ANGELIC_ARMAMENTS_FLYING),
+    AppliedEffectDef::add_colors(ColorSet::from_colors(&[ManaColor::White])),
+    AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Angel"])),
+];
+
 // AVR 212 — Angelic Armaments
-// Audit: blocked — Needs Equipment attach actions and attachment-scoped color and subtype changes.
+pub(in crate::card::sets) static ANGELIC_ARMAMENTS: CardRecord = CardRecord::new(
+    cards::ANGELIC_ARMAMENTS,
+    "Angelic Armaments",
+    CardArt::new(
+        "3fa99b48-469d-4112-bdfd-2391fa439514",
+        "Daniel Ljunggren",
+    ),
+    CardSet::AvacynRestored,
+    CardRules::new_artifact(mana_cost!("{3}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +2/+2, has flying, and is a white Angel in addition to its other colors and types.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&ANGELIC_ARMAMENTS_BONUS),
+                },
+            ),
+            abilities::equip(
+                &[AbilityCostDef::Mana(mana_cost!("{4}"))],
+                "Equip {4} ({4}: Attach to target creature you control. Equip only as a \
+                 sorcery.)",
+            ),
+        ]),
+);
 
 static BLADED_BRACERS_VIGILANCE: AbilityDef = abilities::vigilance();
 
@@ -4081,7 +4114,7 @@ pub(in crate::card::sets) static BLADED_BRACERS: CardRecord = CardRecord::new(
                 },
             ),
             abilities::equip(
-                mana_cost!("{2}"),
+                &[AbilityCostDef::Mana(mana_cost!("{2}"))],
                 "Equip {2} ({2}: Attach to target creature you control. Equip only as a \
                  sorcery.)",
             ),
@@ -4130,8 +4163,40 @@ pub(in crate::card::sets) static HAUNTED_GUARDIAN: CardRecord = CardRecord::new(
         .with_abilities(&[abilities::defender(), abilities::first_strike()]),
 );
 
+static MOONSILVER_SPEAR_FIRST_STRIKE: AbilityDef = abilities::first_strike();
+
 // AVR 217 — Moonsilver Spear
-// Audit: blocked — Needs Equipment attach actions and a trigger whose subject is the currently equipped creature.
+pub(in crate::card::sets) static MOONSILVER_SPEAR: CardRecord = CardRecord::new(
+    cards::MOONSILVER_SPEAR,
+    "Moonsilver Spear",
+    CardArt::new("0b5efb85-1e5f-40ba-97b1-0ef6ac680330", "James Paick"),
+    CardSet::AvacynRestored,
+    CardRules::new_artifact(mana_cost!("{4}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature has first strike.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&MOONSILVER_SPEAR_FIRST_STRIKE),
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever equipped creature attacks, create a 4/4 white Angel creature token with flying.",
+                TriggerEventDef::attacks(ObjectPredicateDef::AttachedToSource),
+                EffectDef::CreateToken {
+                    token: cards::ANGEL_TOKEN_4_4_WHITE,
+                    controller: None,
+                    count: ValueDef::Constant(1),
+                    tapped: false,
+                    attacking: false,
+                    counters: None,
+                    created: None,
+                },
+            ),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{4}"))], "Equip {4}"),
+        ]),
+);
 
 // AVR 218 — Narstad Scrapper
 pub(in crate::card::sets) static NARSTAD_SCRAPPER: CardRecord = CardRecord::new(
@@ -4252,7 +4317,7 @@ pub(in crate::card::sets) static TORMENTORS_TRIDENT: CardRecord = CardRecord::ne
                 },
             ),
             abilities::equip(
-                mana_cost!("{3}"),
+                &[AbilityCostDef::Mana(mana_cost!("{3}"))],
                 "Equip {3} ({3}: Attach to target creature you control. Equip only as a \
                  sorcery.)",
             ),
@@ -4281,7 +4346,7 @@ pub(in crate::card::sets) static VANGUARDS_SHIELD: CardRecord = CardRecord::new(
                 },
             ),
             abilities::equip(
-                mana_cost!("{3}"),
+                &[AbilityCostDef::Mana(mana_cost!("{3}"))],
                 "Equip {3} ({3}: Attach to target creature you control. Equip only as a \
                  sorcery.)",
             ),
@@ -4624,9 +4689,11 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &WOLFIR_SILVERHEART,
     &YEW_SPIRIT,
     &SIGARDA_HOST_OF_HERONS,
+    &ANGELIC_ARMAMENTS,
     &BLADED_BRACERS,
     &CONJURERS_CLOSET,
     &HAUNTED_GUARDIAN,
+    &MOONSILVER_SPEAR,
     &NARSTAD_SCRAPPER,
     &OTHERWORLD_ATLAS,
     &SCROLL_OF_AVACYN,

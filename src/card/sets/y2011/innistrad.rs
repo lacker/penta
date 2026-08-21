@@ -1,7 +1,7 @@
 //! Innistrad card records used by the built-in ISD–DGM Standard deck tranche.
 
 use super::{CardRecord, PrintingRecord};
-use crate::card::sets::{y1993::alpha, y2002::onslaught};
+use crate::card::sets::{y1993::alpha, y2002::onslaught, y2009::zendikar};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityPolicyHint, AbilityTargetDef,
     AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
@@ -21,7 +21,9 @@ use crate::game::{
     CardAbilityResolver, CardRuntime, PileChoice, PileChosen, PileSplit, PilesSeparated,
     ResolvedAbility,
 };
-use crate::ids::{AbilityId, CardPartId, PlayOptionId, TargetIndex, TargetSlotId};
+use crate::ids::{
+    AbilityId, CardPartId, ObjectSetBindingIndex, PlayOptionId, TargetIndex, TargetSlotId,
+};
 use crate::mana_cost;
 
 // ISD 1 — Abbey Griffin
@@ -4839,9 +4841,6 @@ pub(in crate::card::sets) static WREATH_OF_GEISTS: CardRecord = CardRecord::new(
 // ISD 215 — Olivia Voldaren
 // Audit: blocked — Needs a permanent subtype-adding effect and control lasting only while the source remains controlled.
 
-// ISD 216 — Blazing Torch
-// Audit: blocked — Needs the equip procedure, attachment-granted activated abilities, and a sacrifice of the Equipment from another permanent's ability.
-
 static EQUIPPED_CREATURE_IS_HUMAN: TriggerConditionDef =
     TriggerConditionDef::AttachedPermanentMatches {
         object: ObjectPredicateDef::Subtype("Human"),
@@ -4892,7 +4891,7 @@ pub(in crate::card::sets) static BUTCHERS_CLEAVER: CardRecord = CardRecord::new(
                     then: &BUTCHERS_CLEAVER_HUMAN,
                 },
             ),
-            abilities::equip(mana_cost!("{3}"), "Equip {3}"),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{3}"))], "Equip {3}"),
         ]),
 );
 
@@ -4918,7 +4917,7 @@ pub(in crate::card::sets) static COBBLED_WINGS: CardRecord = CardRecord::new(
                 },
             ),
             abilities::equip(
-                mana_cost!("{1}"),
+                &[AbilityCostDef::Mana(mana_cost!("{1}"))],
                 "Equip {1} ({1}: Attach to target creature you control. Equip only as a \
                  sorcery.)",
             ),
@@ -4928,8 +4927,33 @@ pub(in crate::card::sets) static COBBLED_WINGS: CardRecord = CardRecord::new(
 // ISD 220 — Creepy Doll
 // Audit: blocked — Needs a recorded coin flip after combat damage to a creature and a conditional destroy branch.
 
+static DEMONMAIL_HAUBERK_EQUIP_COST: [AbilityCostDef; 1] = [AbilityCostDef::SacrificePermanent {
+    object: ObjectPredicateDef::HasType(CardType::Creature),
+    controller: PlayerRelation::You,
+}];
+
 // ISD 221 — Demonmail Hauberk
-// Audit: blocked — Needs the equip procedure with sacrificing a chosen creature as the equip cost.
+pub(in crate::card::sets) static DEMONMAIL_HAUBERK: CardRecord = CardRecord::new(
+    cards::DEMONMAIL_HAUBERK,
+    "Demonmail Hauberk",
+    CardArt::new("aa33caa8-2a07-4f6c-a6c2-d21cf2d61193", "Jason Felix"),
+    CardSet::Innistrad,
+    CardRules::new_artifact(mana_cost!("{4}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +4/+2.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(4),
+                        ValueDef::Constant(2),
+                    ),
+                },
+            ),
+            abilities::equip(&DEMONMAIL_HAUBERK_EQUIP_COST, "Equip—Sacrifice a creature."),
+        ]),
+);
 
 // ISD 222 — Galvanic Juggernaut
 pub(in crate::card::sets) static GALVANIC_JUGGERNAUT: CardRecord = CardRecord::new(
@@ -5045,7 +5069,7 @@ pub(in crate::card::sets) static MASK_OF_AVACYN: CardRecord = CardRecord::new(
                     effect: AppliedEffectDef::Composite(&MASK_OF_AVACYN_BONUS),
                 },
             ),
-            abilities::equip(mana_cost!("{3}"), "Equip {3}"),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{3}"))], "Equip {3}"),
         ]),
 );
 
@@ -5116,7 +5140,7 @@ pub(in crate::card::sets) static RUNECHANTERS_PIKE: CardRecord = CardRecord::new
                 },
             ),
             abilities::equip(
-                mana_cost!("{2}"),
+                &[AbilityCostDef::Mana(mana_cost!("{2}"))],
                 "Equip {2} ({2}: Attach to target creature you control. Equip only as a \
                  sorcery.)",
             ),
@@ -5146,7 +5170,7 @@ pub(in crate::card::sets) static SHARPENED_PITCHFORK: CardRecord = CardRecord::n
                     then: &SHARPENED_PITCHFORK_HUMAN,
                 },
             ),
-            abilities::equip(mana_cost!("{1}"), "Equip {1}"),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
         ]),
 );
 
@@ -5176,7 +5200,7 @@ pub(in crate::card::sets) static SILVER_INLAID_DAGGER: CardRecord = CardRecord::
                     then: &SILVER_INLAID_DAGGER_HUMAN,
                 },
             ),
-            abilities::equip(mana_cost!("{2}"), "Equip {2}"),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
         ]),
 );
 
@@ -5212,14 +5236,81 @@ pub(in crate::card::sets) static TRAVELERS_AMULET: CardRecord = CardRecord::new(
     )),
 );
 
+static TREPANATION_BLADE_PUMP: EffectDef = EffectDef::Apply {
+    recipient: EffectRecipientDef::TriggeringObject,
+    effect: AppliedEffectDef::modify_power_toughness(
+        ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
+        ValueDef::Constant(0),
+    ),
+    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+};
+
 // ISD 235 — Trepanation Blade
-// Audit: blocked — Needs reveal-until-land, a revealed-card count, and the equip procedure.
+pub(in crate::card::sets) static TREPANATION_BLADE: CardRecord = CardRecord::new(
+    cards::TREPANATION_BLADE,
+    "Trepanation Blade",
+    CardArt::new(
+        "2182be77-9186-4d16-a070-9577d4392999",
+        "Daniel Ljunggren",
+    ),
+    CardSet::Innistrad,
+    CardRules::new_artifact(mana_cost!("{3}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::triggered(
+                "Whenever equipped creature attacks, defending player reveals cards from the top of their library until they reveal a land card. The creature gets +1/+0 until end of turn for each card revealed this way. That player puts the revealed cards into their graveyard.",
+                TriggerEventDef::attacks(ObjectPredicateDef::AttachedToSource),
+                EffectDef::MillUntil {
+                    player: EffectRecipientDef::EventPlayer,
+                    object: ObjectPredicateDef::HasType(CardType::Land),
+                    matched_zone: ZoneKind::Graveyard,
+                    binding: Some(ObjectSetBindingIndex::PRIMARY),
+                    then: Some(&TREPANATION_BLADE_PUMP),
+                },
+            ),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
+        ]),
+);
 
 // ISD 236 — Witchbane Orb
 // Audit: blocked — Needs player hexproof and identifying and destroying all Curses attached to that player.
 
 // ISD 237 — Wooden Stake
-// Audit: blocked — Needs the equip procedure and a block/becomes-blocked trigger linked to the opposing Vampire.
+pub(in crate::card::sets) static WOODEN_STAKE: CardRecord = CardRecord::new(
+    cards::WOODEN_STAKE,
+    "Wooden Stake",
+    CardArt::new("7e2825f5-8112-4108-910a-4303b2d57356", "David Palumbo"),
+    CardSet::Innistrad,
+    CardRules::new_artifact(mana_cost!("{2}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +1/+0.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(0),
+                    ),
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever equipped creature blocks or becomes blocked by a Vampire, destroy that creature. It can't be regenerated.",
+                TriggerEventDef::BlocksOrBecomesBlockedBy {
+                    creature: ObjectPredicateDef::AttachedToSource,
+                    other: ObjectPredicateDef::Subtype("Vampire"),
+                },
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::TriggeringObject,
+                    can_regenerate: false,
+                },
+            ),
+            abilities::equip(
+                &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+                "Equip {1} ({1}: Attach to target creature you control. Equip only as a sorcery.)",
+            ),
+        ]),
+);
 
 // ISD 238 — Clifftop Retreat
 pub(in crate::card::sets) static CLIFFTOP_RETREAT: CardRecord = CardRecord::new(
@@ -5677,6 +5768,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &WREATH_OF_GEISTS,
     &BUTCHERS_CLEAVER,
     &COBBLED_WINGS,
+    &DEMONMAIL_HAUBERK,
     &GALVANIC_JUGGERNAUT,
     &GEISTCATCHERS_RIG,
     &GHOULCALLERS_BELL,
@@ -5686,6 +5778,8 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SHARPENED_PITCHFORK,
     &SILVER_INLAID_DAGGER,
     &TRAVELERS_AMULET,
+    &TREPANATION_BLADE,
+    &WOODEN_STAKE,
     &CLIFFTOP_RETREAT,
     &GAVONY_TOWNSHIP,
     &GHOST_QUARTER,
@@ -5701,6 +5795,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
     PrintingRecord::reprint(&onslaught::NATURALIZE), // ISD 197
+    PrintingRecord::reprint(&zendikar::BLAZING_TORCH), // ISD 216
     PrintingRecord::reprint(&alpha::PLAINS),         // ISD 250
     PrintingRecord::alternate(&alpha::PLAINS, 1),    // ISD 251
     PrintingRecord::alternate(&alpha::PLAINS, 2),    // ISD 252

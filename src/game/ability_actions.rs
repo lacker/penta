@@ -2,15 +2,42 @@ use super::{
     AbilityCostDef, AbilityOrigin, AbilityProcedureDef, Action, CardBehavior, CardDefinitionId,
     CardInstance, CardPart, CardStructure, CharacteristicContext, CharacteristicSource,
     ControlFlow, DeclarativeAbilityDef, DoubleFacedKind, EffectiveAbility, FrozenActivatedAbility,
-    Game, GameEvent, GameObjectId, ManaCost, ManaPaymentPurpose, Permanent, PlayerId,
-    RetiredObject, ScopedEffect, SelectedSpellPlan, StackAbilityPayload, StackObject,
-    StackObjectKind, TargetSelection, TriggerContext, ZoneKind, add_mana_cost, applicable_part_ids,
-    mana_cost_value, mode_id_selections,
+    Game, GameEvent, GameObjectId, ManaCost, ManaPaymentPurpose, ManaPlanOptions, ObjectRefDef,
+    Permanent, PlayerId, RetiredObject, ScopedEffect, SelectedSpellPlan, StackAbilityPayload,
+    StackObject, StackObjectKind, TargetSelection, TriggerContext, ZoneKind, add_mana_cost,
+    applicable_part_ids, mana_cost_value, mode_id_selections,
 };
 use crate::card::ActivatedAbilityDef;
 use crate::ids::ModeId;
 
 impl Game {
+    /// Resolves object references that are fixed when an ability is
+    /// activated, before a stack object or resolution context exists.
+    /// Choices, targets, and trigger bindings are intentionally unavailable
+    /// here; the ability source and the object that granted it are the two
+    /// exact identities an activation cost can already know.
+    pub(super) const fn activation_object_reference(
+        reference: ObjectRefDef,
+        source: GameObjectId,
+        origin: AbilityOrigin,
+    ) -> Option<GameObjectId> {
+        match reference {
+            ObjectRefDef::Source => Some(source),
+            ObjectRefDef::AbilityGrantSource => match origin {
+                AbilityOrigin::Granted { source, .. } => Some(source),
+                AbilityOrigin::Printed { .. }
+                | AbilityOrigin::IntrinsicBasicLand(_)
+                | AbilityOrigin::IntrinsicCounter(_) => None,
+            },
+            ObjectRefDef::ResolvingObject
+            | ObjectRefDef::Binding(_)
+            | ObjectRefDef::AttachedToSource
+            | ObjectRefDef::Target(_)
+            | ObjectRefDef::TriggeringObject
+            | ObjectRefDef::SourceOfTargetedStackObject(_) => None,
+        }
+    }
+
     /// Every way of answering an activated ability's "choose one --". An
     /// ability that prints no modes has exactly one answer: choose none.
     pub(super) fn activated_mode_selections(definition: ActivatedAbilityDef) -> Vec<Vec<ModeId>> {
@@ -253,6 +280,26 @@ impl Game {
                     }
                     return;
                 }
+                let mut fixed_sacrifices = Vec::new();
+                for cost in definition.costs.as_slice() {
+                    let AbilityCostDef::SacrificeObject(reference) = cost else {
+                        continue;
+                    };
+                    let Some(sacrificed) = Self::activation_object_reference(
+                        *reference,
+                        permanent.card.id,
+                        effective.origin,
+                    ) else {
+                        return;
+                    };
+                    let controlled_permanent = self.battlefield.iter().any(|candidate| {
+                        candidate.card.id == sacrificed && candidate.controller == player
+                    });
+                    if !controlled_permanent || fixed_sacrifices.contains(&sacrificed) {
+                        return;
+                    }
+                    fixed_sacrifices.push(sacrificed);
+                }
                 let taps_source = definition.costs.contains(&AbilityCostDef::TapSource);
                 let leaves_source = definition.costs.iter().any(|cost| {
                     matches!(
@@ -261,7 +308,7 @@ impl Game {
                             | AbilityCostDef::ExileSource
                             | AbilityCostDef::ReturnSourceToHand
                     )
-                });
+                }) || fixed_sacrifices.contains(&permanent.card.id);
                 // The same purpose the payment will use, so an ability that
                 // taps its own source is never offered on mana only that
                 // source could have made.
@@ -302,6 +349,7 @@ impl Game {
                         | AbilityCostDef::RemoveCountersFromSource { .. }
                         | AbilityCostDef::TapSource
                         | AbilityCostDef::SacrificeSource
+                        | AbilityCostDef::SacrificeObject(_)
                         | AbilityCostDef::ReturnSourceToHand
                         | AbilityCostDef::ExileSource
                         | AbilityCostDef::SacrificePermanent { .. }
@@ -331,7 +379,8 @@ impl Game {
                                 | AbilityCostDef::ReturnSourceToHand
                         )
                     })
-                    .count();
+                    .count()
+                    + usize::from(fixed_sacrifices.contains(&permanent.card.id));
                 if source_exit_costs > 1 {
                     return;
                 }
@@ -352,13 +401,18 @@ impl Game {
                 if object_costs.next().is_some() {
                     return;
                 }
+                let taps_chosen_permanent =
+                    matches!(object_cost, Some(AbilityCostDef::TapPermanent { .. }));
+                let payable_mana_cost = Self::activated_ability_mana_cost(definition)
+                    .map(|cost| self.ability_mana_cost(permanent, cost));
                 let cost_object_choices = match object_cost {
                     None => vec![Vec::new()],
                     Some(AbilityCostDef::SacrificePermanent { object, controller }) => self
                         .battlefield
                         .iter()
                         .filter(|candidate| {
-                            !(source_exit_costs == 1 && candidate.card.id == permanent.card.id)
+                            (source_exit_costs != 1 || candidate.card.id != permanent.card.id)
+                                && !fixed_sacrifices.contains(&candidate.card.id)
                                 && self.player_relation_matches(
                                     candidate.controller,
                                     *controller,
@@ -436,17 +490,19 @@ impl Game {
                             .battlefield
                             .iter()
                             .filter(|candidate| {
-                                self.player_relation_matches(
-                                    candidate.controller,
-                                    *controller,
-                                    player,
-                                    TriggerContext::empty(),
-                                ) && self.trigger_object_matches(
-                                    *object,
-                                    &self.trigger_event_object(candidate),
-                                    permanent.card.id,
-                                    false,
-                                )
+                                !fixed_sacrifices.contains(&candidate.card.id)
+                                    && self.player_relation_matches(
+                                        candidate.controller,
+                                        *controller,
+                                        player,
+                                        TriggerContext::empty(),
+                                    )
+                                    && self.trigger_object_matches(
+                                        *object,
+                                        &self.trigger_event_object(candidate),
+                                        permanent.card.id,
+                                        false,
+                                    )
                             })
                             .count();
                         if available >= usize::from(*count) {
@@ -507,6 +563,30 @@ impl Game {
                                 continue;
                             }
                             for cost_objects in &cost_object_choices {
+                                // A permanent tapped as part of this cost cannot
+                                // also activate its tap-for-mana ability. Other
+                                // object costs deliberately remain available as
+                                // mana sources because they may be paid after
+                                // producing mana.
+                                if let (true, Some(cost), Some(tap_cost_payer)) = (
+                                    taps_chosen_permanent,
+                                    payable_mana_cost,
+                                    cost_objects.first().copied(),
+                                ) && self
+                                    .plan_mana_activations_with_options_for(
+                                        player,
+                                        cost,
+                                        x,
+                                        ManaPlanOptions {
+                                            avoid: None,
+                                            tap_cost_payer: Some(tap_cost_payer),
+                                        },
+                                        &payment_purpose,
+                                    )
+                                    .is_none()
+                                {
+                                    continue;
+                                }
                                 actions.push(Action::ActivateAbility {
                                     source: permanent.card.id,
                                     ability: effective.origin,
@@ -662,6 +742,7 @@ impl Game {
                         AbilityCostDef::TapSource
                         | AbilityCostDef::UntapSource
                         | AbilityCostDef::SacrificeSource
+                        | AbilityCostDef::SacrificeObject(_)
                         | AbilityCostDef::ReturnSourceToHand
                         | AbilityCostDef::RemoveCountersFromSource { .. }
                         | AbilityCostDef::RemoveAnyNumberOfCountersFromSource(_)
@@ -769,6 +850,7 @@ impl Game {
                             AbilityCostDef::TapSource
                             | AbilityCostDef::UntapSource
                             | AbilityCostDef::SacrificeSource
+                            | AbilityCostDef::SacrificeObject(_)
                             | AbilityCostDef::ReturnSourceToHand
                             | AbilityCostDef::RemoveCountersFromSource { .. }
                             | AbilityCostDef::RemoveAnyNumberOfCountersFromSource(_)

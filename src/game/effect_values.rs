@@ -109,6 +109,7 @@ impl Game {
             // layer has an affected object or a source pile to read.
             ValueDef::DividedAmongTargets
             | ValueDef::AffectedManaValue
+            | ValueDef::AffectedColorCount
             | ValueDef::TotalPowerOfLinkedExiles
             | ValueDef::TotalToughnessOfLinkedExiles => 0,
             ValueDef::SourceCastX => self

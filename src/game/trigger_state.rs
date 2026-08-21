@@ -199,6 +199,9 @@ pub(super) enum CommittedTriggerEvent {
         object: TriggerEventObject,
         declaration_size: u8,
         attack_number: u8,
+        /// The player being attacked, including the controller of a
+        /// planeswalker chosen as this attack's defender.
+        defending_player: PlayerId,
     },
     /// One whole move of cards into exile, published once however many
     /// cards it took. "Whenever one or more cards are put into exile" reads
@@ -310,10 +313,10 @@ pub(super) enum CommittedTriggerEvent {
 }
 
 impl CommittedTriggerEvent {
+    #[allow(clippy::too_many_lines)]
     pub(super) fn context(&self) -> TriggerContext {
         match self {
             Self::ZoneChanged { object, .. }
-            | Self::Attacks { object, .. }
             | Self::Transformed { object }
             | Self::Cycled { object }
             | Self::AttacksAndIsNotBlocked { object } => TriggerContext {
@@ -337,6 +340,16 @@ impl CommittedTriggerEvent {
                 object_controller: attackers.first().map(|attacker| attacker.controller),
                 event_player: attackers.first().map(|attacker| attacker.controller),
                 amount: Some(i32::try_from(attackers.len()).unwrap_or(i32::MAX)),
+            },
+            Self::Attacks {
+                object,
+                defending_player,
+                ..
+            } => TriggerContext {
+                object: Some(object.id),
+                object_controller: Some(object.controller),
+                event_player: Some(*defending_player),
+                amount: None,
             },
             Self::Tapped { object, for_mana } => TriggerContext {
                 object: Some(object.id),

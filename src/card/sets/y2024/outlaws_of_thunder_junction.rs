@@ -152,7 +152,7 @@ pub(in crate::card::sets) static LAVASPUR_BOOTS: CardRecord = CardRecord::new(
                     ]),
                 },
             ),
-            abilities::equip(mana_cost!("{1}"), "Equip {1}"),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
         ]),
 );
 

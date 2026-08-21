@@ -350,7 +350,10 @@ pub(in crate::card::sets) static COLOSSAL_DREADMASK: CardRecord = CardRecord::ne
                     ]),
                 },
             ),
-            abilities::equip(mana_cost!("{3}{G}{G}"), "Equip {3}{G}{G}"),
+            abilities::equip(
+                &[AbilityCostDef::Mana(mana_cost!("{3}{G}{G}"))],
+                "Equip {3}{G}{G}",
+            ),
         ]),
 );
 

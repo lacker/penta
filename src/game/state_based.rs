@@ -108,22 +108,34 @@ impl Game {
         self.capture_state_triggers();
     }
 
-    /// CR 704.5p: an Equipment on a noncreature and CR 704.5q: a
-    /// Fortification on a nonland become unattached. Unlike an Aura they stay
-    /// on the battlefield, so this is deliberately separate from the Aura
-    /// state-based move to the graveyard below.
+    /// CR 704.5p-r: an Equipment on a noncreature, a Fortification on a
+    /// nonland, a creature attached to anything, or an attached permanent
+    /// that is no longer an Aura, Equipment, or Fortification becomes
+    /// unattached. Unlike an Aura with an illegal host these stay on the
+    /// battlefield, so this is deliberately separate from the Aura move to
+    /// the graveyard below.
     fn unattach_illegal_non_aura_attachments(&mut self) {
         let loose = self
             .battlefield
             .iter()
             .filter(|permanent| {
-                permanent.attached_to.is_some()
-                    && self.attachment_kind(permanent).is_some_and(|kind| {
-                        !matches!(kind, super::attachments::AttachmentKind::Aura)
-                    })
-                    && permanent
-                        .attached_to
-                        .is_some_and(|host| !self.is_legal_attachment_host(permanent, host))
+                let Some(host) = permanent.attached_to else {
+                    return false;
+                };
+                if self
+                    .permanent_types(permanent)
+                    .is_some_and(|types| types.contains(CardType::Creature))
+                {
+                    return true;
+                }
+                match self.attachment_kind(permanent) {
+                    Some(super::attachments::AttachmentKind::Aura) => false,
+                    Some(
+                        super::attachments::AttachmentKind::Equipment
+                        | super::attachments::AttachmentKind::Fortification,
+                    ) => !self.is_legal_attachment_host(permanent, host),
+                    None => true,
+                }
             })
             .map(|permanent| permanent.card.id)
             .collect::<Vec<_>>();

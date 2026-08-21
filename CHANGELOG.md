@@ -25,6 +25,24 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Changed
 
+- **Checkpoint reconstruction moves to format 4.** Resolved continuous-effect
+  snapshots can now carry a generic named-subtype operation, which Haunted
+  Plate Mail needs to remain "no longer an Equipment" across reconstruction.
+  Because that operation is a new closed checkpoint tag, reconstruction
+  consumers must require `reconstruction.checkpoint.v4` and regenerate older
+  checkpoints. The bot protocol epoch remains 25.
+
+- **The native declarative API exposes the new Equipment primitives in the
+  current 0.7.0 release.** `BlocksOrBecomesBlockedBy` now names both the
+  subject creature and the creature on the other side of combat, and
+  `MillUntil` carries explicit binding and continuation members. New public
+  cost, effect, object-reference, characteristic-operation, and value variants
+  cover the remaining shared mechanics. The reusable `abilities::equip`
+  constructor now takes one ordered `AbilityCostDef` list, with mana represented
+  by `AbilityCostDef::Mana` alongside any nonmana costs, replacing the separate
+  mana-only and `equip_with_costs` helpers. Native exhaustive matches and struct
+  constructors must be updated for these additions; no bot action shape changes.
+
 - **Protocol 25 makes `ActivateAbility.costObject` an array, `costObjects`.**
   A cost can name more than one object -- "exile two cards from your
   graveyard" -- and an activation never holds priority, so there is no window
@@ -46,6 +64,15 @@ distinguishes snapshots of the covered source and build inputs.
   unchanged.
 
 ### Fixed
+
+- **A permanent chosen for a tap cost could also be planned as the mana
+  source for that activation.** Mixed mana and `TapPermanent` costs could
+  therefore offer an action that tried to tap the same permanent twice. Mana
+  planning now carries the chosen tap payer through enumeration, previews, and
+  payment, excluding only mana abilities that would tap, sacrifice, or move
+  it; counter-based mana abilities that leave it available remain legal. This
+  changes which activations are legal through the existing action shape, so
+  the protocol epoch does not move.
 
 - **A kicked spell could not target anything the unkicked one could not.**
   A kicked cast resolves its own clause, and that clause has always been able
@@ -278,6 +305,18 @@ distinguishes snapshots of the covered source and build inputs.
   than on any permanent. Checkpoints gain an optional `surcharge` beside each
   exile-play permission -- additive, so a checkpoint written without one
   restores with nothing owed, which is what every other permission carries.
+
+- **Ten more ISD–DGM Equipment identities.** Demonmail Hauberk, Avacyn's
+  Collar, Angelic Armaments, Moonsilver Spear, Wooden Stake, Civic Saber,
+  Haunted Plate Mail, Blazing Torch, and Trepanation Blade are complete
+  declarative cards. Elbrus now equips, unattaches, transforms, and presents
+  Withengar's complete combat body; it remains explicitly partial only for
+  Withengar's post-player-loss trigger, because Penta's supported two-player
+  game has already ended at that point. The shared machinery added along the
+  way covers nonmana equip costs, an exact ability-grant source, explicit
+  damage attribution, live color counts, subtype removal, unattachment,
+  attached-creature block events, frozen defending players, and
+  reveal-until continuations. None of the ten uses custom card behavior.
 
 - **`revealedLibraryTop` on the observation.** Null unless something lets you
   look at the top card of your own library, and a one-card list in the same

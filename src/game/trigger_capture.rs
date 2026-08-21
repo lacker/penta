@@ -707,8 +707,7 @@ impl Game {
         }
     }
 
-    // Long because the event vocabulary is wide, not because the function
-    // does several things: every arm pairs one definition with one event.
+    // Long only because every event definition pairs with its committed event.
     #[allow(clippy::too_many_lines)]
     pub(super) fn trigger_event_matches_for_controller(
         &self,
@@ -718,8 +717,7 @@ impl Game {
         controller: Option<PlayerId>,
     ) -> bool {
         match (definition, event) {
-            // One printed ability, several ways in. Each alternative is asked
-            // the same question the single-event forms are.
+            // One printed ability, several ways into the same matching path.
             (TriggerEventDef::AnyOf(events), _) => events.iter().any(|alternative| {
                 self.trigger_event_matches_for_controller(*alternative, event, source, controller)
             }),
@@ -791,8 +789,7 @@ impl Game {
             ) => self.trigger_object_matches_for_controller(
                 predicate, object, source, false, controller,
             ),
-            // The listener is the permanent that was pointed at, and the
-            // predicate reads the spell doing the pointing.
+            // The listener was pointed at; the predicate reads the spell.
             (
                 TriggerEventDef::BecomesTargetOfSpell(predicate),
                 CommittedTriggerEvent::BecameTargetOfSpell { target, object },
@@ -808,16 +805,19 @@ impl Game {
                     )
             }
             (
-                TriggerEventDef::BlocksOrBecomesBlockedBy { object: predicate },
+                TriggerEventDef::BlocksOrBecomesBlockedBy {
+                    creature: subject,
+                    other: predicate,
+                },
                 CommittedTriggerEvent::BlocksOrBecomesBlocked { creature, other },
             ) => {
-                creature.id == source
-                    && self.trigger_object_matches_for_controller(
-                        predicate, other, source, false, controller,
-                    )
+                self.trigger_object_matches_for_controller(
+                    subject, creature, source, false, controller,
+                ) && self.trigger_object_matches_for_controller(
+                    predicate, other, source, false, controller,
+                )
             }
-            // The one-directional halves read the same ordered pair and tell
-            // the sides apart by which of the two was attacking.
+            // The one-directional halves distinguish the pair by its attacker.
             (
                 TriggerEventDef::Blocks { blocked: predicate },
                 CommittedTriggerEvent::BlocksOrBecomesBlocked { creature, other },
@@ -865,6 +865,7 @@ impl Game {
                     object,
                     declaration_size,
                     attack_number,
+                    ..
                 },
             ) => self.attacker_matches(
                 matcher,

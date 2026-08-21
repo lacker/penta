@@ -1101,6 +1101,8 @@ static MILL_TO_THE_FIRST_LAND: EffectDef = EffectDef::MillUntil {
     player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
     object: ObjectPredicateDef::HasType(CardType::Land),
     matched_zone: ZoneKind::Graveyard,
+    binding: None,
+    then: None,
 };
 
 // GTC 57 — Balustrade Spy
@@ -4431,7 +4433,7 @@ pub(in crate::card::sets) static RIOT_GEAR: CardRecord = CardRecord::new(
                 },
             ),
             abilities::equip(
-                mana_cost!("{2}"),
+                &[AbilityCostDef::Mana(mana_cost!("{2}"))],
                 "Equip {2} ({2}: Attach to target creature you control. Equip only as a \
                  sorcery.)",
             ),
@@ -4499,7 +4501,7 @@ pub(in crate::card::sets) static SKYBLINDER_STAFF: CardRecord = CardRecord::new(
                 },
             ),
             abilities::equip(
-                mana_cost!("{3}"),
+                &[AbilityCostDef::Mana(mana_cost!("{3}"))],
                 "Equip {3} ({3}: Attach to target creature you control. Equip only as a \
                  sorcery.)",
             ),

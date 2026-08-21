@@ -112,7 +112,7 @@ pub(in crate::card::sets) static MORTARPOD: CardRecord = CardRecord::new(
                     ]),
                 },
             ),
-            abilities::equip(mana_cost!("{2}"), "Equip {2}"),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
         ]),
 );
 

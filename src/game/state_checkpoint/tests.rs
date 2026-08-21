@@ -239,6 +239,45 @@ fn dynamic_modify(
     (source_for_locator(source_object, &locator), definition)
 }
 
+fn subtype_change(
+    catalog: &CardCatalog,
+    source_object: GameObjectId,
+) -> (
+    AbilitySourceRef,
+    AppliedEffectDef,
+    SetOperationDef<&'static [&'static str]>,
+) {
+    let locator = ability_locator(catalog, |ability| {
+        semantics::applied_effects(ability).iter().any(|effect| {
+            matches!(
+                effect,
+                AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(_))
+            )
+        })
+    })
+    .expect("the catalog has a generic subtype-changing effect");
+    let ability = catalog_ability(catalog, &locator).expect("the located ability rebuilds");
+    let definition = semantics::applied_effects(&ability)
+        .into_iter()
+        .find(|effect| {
+            matches!(
+                effect,
+                AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(_))
+            )
+        })
+        .expect("the located ability contains its subtype change");
+    let AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(operation)) =
+        definition
+    else {
+        unreachable!("the located definition was a subtype change")
+    };
+    (
+        source_for_locator(source_object, &locator),
+        definition,
+        operation,
+    )
+}
+
 fn rebuild_current_checkpoint(game: &Game, viewer: PlayerId, seed: u64) -> (Value, Game) {
     let observation = game.observe(viewer);
     let actions = crate::protocol::protocol_actions(&observation);

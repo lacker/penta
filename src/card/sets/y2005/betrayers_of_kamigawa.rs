@@ -78,7 +78,7 @@ pub(in crate::card::sets) static UMEZAWAS_JITTE: CardRecord = CardRecord::new(
                 1,
                 false,
             ),
-            abilities::equip(mana_cost!("{2}"), "Equip {2}"),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
         ]),
 );
 

@@ -169,7 +169,8 @@ use decision_state::{
 use exile_permission::{ExilePlayCost, ExilePlayPermission};
 use mana_state::{
     AppliedStackEffect, FlexibleManaSource, ManaAbilityActivation, ManaActivationChoices,
-    ManaPaymentPurpose, ManaSourceOutput, ManaSourceOutputs, PlannedManaActivation,
+    ManaPaymentPurpose, ManaPlanOptions, ManaSourceOutput, ManaSourceOutputs,
+    PlannedManaActivation,
 };
 use procedure_state::{DrawReplacement, PendingProcedure};
 use replacement_state::{

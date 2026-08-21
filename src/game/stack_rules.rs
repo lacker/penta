@@ -84,6 +84,7 @@ impl Game {
             | EffectDef::AddMana(_)
             | EffectDef::AddManaEqualTo { .. }
             | EffectDef::DealDamage { .. }
+            | EffectDef::DealDamageFrom { .. }
             | EffectDef::DealDamageAndApply { .. }
             | EffectDef::DrainLife { .. }
             | EffectDef::GainLife { .. }
@@ -108,6 +109,7 @@ impl Game {
             | EffectDef::Attach { .. }
             | EffectDef::ReturnAttached { .. }
             | EffectDef::Reconfigure { .. }
+            | EffectDef::Unattach { .. }
             | EffectDef::PhaseOut { .. }
             | EffectDef::PairWithSource { .. }
             | EffectDef::Destroy { .. }

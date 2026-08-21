@@ -3,14 +3,16 @@ mod tests {
     use super::{
         banding, bloodrush, check_land_enters, double_strike, first_strike, flashback,
         flashback_for_card_mana_cost, flying, intimidate, overload, pain_land, shock_land_enters,
-        tap_for,
+        tap_for, EQUIP_TARGET, equip,
     };
     use crate::card::{
-        AbilityCostDef, AbilityCostList, AbilityCoverageDef, AbilityDef, AddManaEffectDef,
-        AlternativeCastKindDef, AlternativeCastManaCostDef, BasicLandType, CardRules, ConditionDef,
-        DeclarativeAbilityDef, EffectDef, EffectPaymentCostDef, KeywordAbility, ManaColor,
-        ManaCost, ObjectPredicateDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ZoneKind,
+        AbilityCostDef, AbilityCostList, AbilityCoverageDef, AbilityDef, ActivationTimingDef,
+        AddManaEffectDef, AlternativeCastKindDef, AlternativeCastManaCostDef, BasicLandType,
+        CardRules, ConditionDef, DeclarativeAbilityDef, EffectDef, EffectPaymentCostDef,
+        EffectRecipientDef, KeywordAbility, ManaColor, ManaCost, ObjectPredicateDef,
+        PlayerRelation, PlayerSetDef, ReplacementEffectDef, ZoneKind,
     };
+    use crate::TargetIndex;
     use crate::mana_cost;
 
     #[test]
@@ -215,5 +217,32 @@ mod tests {
             ],
         );
         assert_eq!(ability.declarative_effect(), Some(effect));
+    }
+
+    #[test]
+    fn equip_preserves_a_mixed_ordered_cost_list_and_shared_procedure() {
+        static COSTS: [AbilityCostDef; 3] = [
+            AbilityCostDef::Mana(mana_cost!("{2}")),
+            AbilityCostDef::TapSource,
+            AbilityCostDef::PayLife(1),
+        ];
+        let ability = equip(&COSTS, "{2}, {T}, Pay 1 life: Equip test creature.");
+        let DeclarativeAbilityDef::Activated(definition) = ability.definition else {
+            panic!("Equip should be an activated ability")
+        };
+
+        assert_eq!(
+            definition.costs.as_slice(),
+            COSTS,
+            "mana and distinct nonmana costs retain their printed order",
+        );
+        assert_eq!(definition.targets, EQUIP_TARGET);
+        assert_eq!(definition.timing, ActivationTimingDef::SorcerySpeed);
+        assert_eq!(
+            ability.declarative_effect(),
+            Some(EffectDef::Attach {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            }),
+        );
     }
 }

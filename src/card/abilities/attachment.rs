@@ -42,12 +42,14 @@ static RECONFIGURE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
 
 /// Equip. Attaching is what the ability does, and it is sorcery-speed, which
 /// is the whole difference between this and an Aura arriving from the stack.
-/// Reminder text carries the cost, so each card supplies its own literal.
+/// The complete printed cost is supplied as one ordered list: mana-only Equip
+/// abilities use a one-item slice, while alternative Equip costs can mix mana
+/// and any supported nonmana costs without changing helpers.
 #[must_use]
-pub const fn equip(mana_cost: ManaCost, text: &'static str) -> AbilityDef {
+pub const fn equip(costs: &'static [AbilityCostDef], text: &'static str) -> AbilityDef {
     AbilityDef::activated_with_cost_list_and_targets(
         text,
-        AbilityCostList::one(AbilityCostDef::Mana(mana_cost)),
+        AbilityCostList::borrowed(costs),
         &EQUIP_TARGET,
         EffectDef::Attach {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),

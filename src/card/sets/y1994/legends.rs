@@ -1556,7 +1556,8 @@ pub(in crate::card::sets) static ABOMINATION: CardRecord = CardRecord::new(
             "Whenever this creature blocks or becomes blocked by a green or white creature, \
              destroy that creature at end of combat.",
             TriggerEventDef::BlocksOrBecomesBlockedBy {
-                object: ObjectPredicateDef::AnyOf(&[
+                creature: ObjectPredicateDef::Source,
+                other: ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::Color(ManaColor::Green),
                     ObjectPredicateDef::Color(ManaColor::White),
                 ]),
@@ -3030,7 +3031,8 @@ pub(in crate::card::sets) static AISLING_LEPRECHAUN: CardRecord = CardRecord::ne
             "Whenever this creature blocks or becomes blocked by a creature, that creature \
              becomes green. (This effect lasts indefinitely.)",
             TriggerEventDef::BlocksOrBecomesBlockedBy {
-                object: ObjectPredicateDef::HasType(CardType::Creature),
+                creature: ObjectPredicateDef::Source,
+                other: ObjectPredicateDef::HasType(CardType::Creature),
             },
             EffectDef::Apply {
                 recipient: EffectRecipientDef::TriggeringObject,

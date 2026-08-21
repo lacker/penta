@@ -2,11 +2,11 @@
 
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef, AppliedEffectDef,
-    BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType, DividedTotal, EffectDef,
-    EffectRecipientDef, GraveyardTypeConditionDef, ManaColor, ObjectPredicateDef, ObjectQueryDef,
-    PlayerRelation, SpellAdditionalCostDef, SpendModeDef, TriggerConditionDef, TriggerEventDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities, cards,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
+    AppliedEffectDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    DividedTotal, EffectDef, EffectRecipientDef, GraveyardTypeConditionDef, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, PlayerRelation, SpellAdditionalCostDef, SpendModeDef,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, cards,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -383,7 +383,7 @@ pub(in crate::card::sets) static NETTLECYST: CardRecord = CardRecord::new(
                     ),
                 },
             ),
-            abilities::equip(mana_cost!("{2}"), "Equip {2}"),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
         ]),
 );
 

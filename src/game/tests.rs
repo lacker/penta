@@ -243,6 +243,9 @@ pub(super) fn attach_constant_resolved_characteristics(
             CharacteristicOperationDef::CreatureTypes(operation) => {
                 ResolvedContinuousEffectKind::CreatureTypes(operation)
             }
+            CharacteristicOperationDef::Subtypes(operation) => {
+                ResolvedContinuousEffectKind::Subtypes(operation)
+            }
             CharacteristicOperationDef::PowerToughness(operation) => {
                 let constant = |value| {
                     let ValueDef::Constant(value) = value else {
@@ -620,6 +623,9 @@ mod energy_tap;
 mod entry_replacements;
 mod equipment;
 mod equipment_cards;
+mod equipment_expansion_batch_one;
+mod equipment_expansion_batch_three;
+mod equipment_expansion_batch_two;
 mod erg_raiders;
 mod evolve;
 mod evolve_scavenge_cards;

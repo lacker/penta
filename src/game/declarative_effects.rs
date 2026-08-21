@@ -1,9 +1,9 @@
 use super::{
     AbilityProcedureDef, AbilitySourceRef, ArrivalAttachment, BattlefieldArrival, CardPartId,
     CharacteristicSource, CopiableAbility, CounteredSpellZone, DeclarativeAbilityDef, EffectDef,
-    EffectResolutionContext, Game, GameResult, InstalledTrigger, InstalledTriggerLifetime,
-    ManaPool, Permanent, ResolvedEffectPayment, SacrificeDeclined, SacrificeFollowup, ScopedEffect,
-    StackAbilityResolver, StackObject, Target, TriggerCapture, WinReason, ZoneKind, ZoneMoveCause,
+    EffectResolutionContext, Game, InstalledTrigger, InstalledTriggerLifetime, Permanent,
+    ResolvedEffectPayment, SacrificeDeclined, SacrificeFollowup, ScopedEffect,
+    StackAbilityResolver, StackObject, Target, TriggerCapture, ZoneKind, ZoneMoveCause,
     ZonePlacement,
 };
 use crate::card::{ArrivalAttachmentDef, EffectPaymentCostDef, InstalledTriggerLifetimeDef};
@@ -15,6 +15,7 @@ mod linked_exiles;
 mod mana;
 mod move_to_zone;
 mod permanent_state;
+mod player_state;
 mod prevention;
 mod tapping;
 mod tokens;
@@ -136,6 +137,13 @@ impl Game {
             EffectDef::DealDamage { recipient, amount } => {
                 self.deal_effect_damage(recipient, amount, object, &context, scoped);
             }
+            EffectDef::DealDamageFrom {
+                source,
+                recipient,
+                amount,
+            } => {
+                self.deal_effect_damage_from(source, recipient, amount, object, &context, scoped);
+            }
             EffectDef::DealDamageAndApply {
                 recipient,
                 amount,
@@ -145,17 +153,14 @@ impl Game {
                 let damaged = self.deal_effect_damage(recipient, amount, object, &context, scoped);
                 self.apply_effect_to_targets(&damaged, applied, duration, object, &context, scoped);
             }
-            EffectDef::GainLife { recipient, amount } => {
-                let amount = self
-                    .effect_value(amount, object, &context, scoped)
-                    .max(0)
-                    .try_into()
-                    .unwrap_or(u16::MAX);
-                for target in self.effect_recipients(recipient, object, &context, scoped) {
-                    if let Target::Player(player) = target {
-                        self.gain_life(player, amount);
-                    }
-                }
+            EffectDef::GainLife { .. }
+            | EffectDef::LoseLife { .. }
+            | EffectDef::AddEnergyCounters { .. }
+            | EffectDef::AddPoisonCounters { .. }
+            | EffectDef::EmptyManaPool { .. }
+            | EffectDef::WinTheGame { .. }
+            | EffectDef::LoseTheGame { .. } => {
+                self.resolve_player_state_effect(scoped, object, &context);
             }
             EffectDef::DestroyAtEndOfCombat { .. }
             | EffectDef::AddCounters { .. }
@@ -166,38 +171,6 @@ impl Game {
             | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
             | EffectDef::SkipNextUntapSteps { .. } => {
                 self.resolve_permanent_state_effect(scoped, object, &context);
-            }
-            EffectDef::AddEnergyCounters { recipient, amount } => {
-                let amount = self
-                    .effect_value(amount, object, &context, scoped)
-                    .max(0)
-                    .try_into()
-                    .unwrap_or(u16::MAX);
-                for target in self.effect_recipients(recipient, object, &context, scoped) {
-                    if let Target::Player(player) = target {
-                        self.add_energy(player, amount);
-                    }
-                }
-            }
-            EffectDef::AddPoisonCounters { recipient, amount } => {
-                let amount = self
-                    .effect_value(amount, object, &context, scoped)
-                    .max(0)
-                    .try_into()
-                    .unwrap_or(u16::MAX);
-                for target in self.effect_recipients(recipient, object, &context, scoped) {
-                    if let Target::Player(player) = target {
-                        self.add_poison_counters(player, amount);
-                    }
-                }
-            }
-            EffectDef::EmptyManaPool { player: recipient } => {
-                for target in self.effect_recipients(recipient, object, &context, scoped) {
-                    if let Target::Player(player) = target {
-                        self.players[player.index()].mana_pool = ManaPool::default();
-                        self.players[player.index()].mana.clear();
-                    }
-                }
             }
             EffectDef::DrawCards { .. }
             | EffectDef::ShuffleLibrary { .. }
@@ -224,18 +197,6 @@ impl Game {
                 for target in self.effect_recipients(recipient, object, &context, scoped) {
                     if let Target::Permanent(creature) = target {
                         self.explore(creature);
-                    }
-                }
-            }
-            EffectDef::LoseLife { recipient, amount } => {
-                let amount = self
-                    .effect_value(amount, object, &context, scoped)
-                    .max(0)
-                    .try_into()
-                    .unwrap_or(u16::MAX);
-                for target in self.effect_recipients(recipient, object, &context, scoped) {
-                    if let Target::Player(player) = target {
-                        self.lose_life(player, amount);
                     }
                 }
             }
@@ -354,48 +315,6 @@ impl Game {
                 emblem.timestamp = self.allocate_continuous_effect_timestamp();
                 emblem.emblem_source = object.ability_origin();
                 self.emblems.push(emblem);
-            }
-            EffectDef::WinTheGame { player: recipient } => {
-                let mut winners = self
-                    .effect_recipients(recipient, object, &context, scoped)
-                    .into_iter()
-                    .filter_map(|target| match target {
-                        Target::Player(player) => Some(player),
-                        Target::Card(_) | Target::Permanent(_) | Target::Spell(_) => None,
-                    })
-                    .collect::<Vec<_>>();
-                winners.sort_unstable();
-                winners.dedup();
-                // Both players winning at once is a draw, the same way both
-                // losing at once is. Only one card in the pool ends a game
-                // this way, and it names its own controller.
-                if let [winner] = winners.as_slice() {
-                    self.finish(GameResult::Winner {
-                        winner: *winner,
-                        reason: WinReason::WonByAnEffect,
-                    });
-                }
-            }
-            EffectDef::LoseTheGame { player: recipient } => {
-                let mut losers = self
-                    .effect_recipients(recipient, object, &context, scoped)
-                    .into_iter()
-                    .filter_map(|target| match target {
-                        Target::Player(player) => Some(player),
-                        Target::Card(_) | Target::Permanent(_) | Target::Spell(_) => None,
-                    })
-                    .collect::<Vec<_>>();
-                losers.sort_unstable();
-                losers.dedup();
-                match losers.as_slice() {
-                    [loser] => self.finish(GameResult::Winner {
-                        winner: loser.opponent(),
-                        reason: WinReason::OpponentLostToAnEffect,
-                    }),
-                    [_, _] => self.finish(GameResult::Draw),
-                    [] => {}
-                    _ => unreachable!("a two-player game has at most two losers"),
-                }
             }
             EffectDef::SacrificeKeepingOnePerType {
                 player: recipient,
@@ -921,6 +840,13 @@ impl Game {
                     self.try_attach(source, host);
                 } else {
                     self.unattach(source);
+                }
+            }
+            EffectDef::Unattach { object: recipient } => {
+                for target in self.effect_recipients(recipient, object, &context, scoped) {
+                    if let Target::Permanent(attachment) = target {
+                        self.unattach(attachment);
+                    }
                 }
             }
             EffectDef::None

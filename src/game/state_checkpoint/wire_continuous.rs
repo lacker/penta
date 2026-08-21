@@ -80,6 +80,12 @@ fn parse_resolved_operation(
         ) => Ok(ResolvedContinuousEffectKind::CreatureTypes(
             parse_set_operation(value, *operation)?,
         )),
+        (
+            AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(value)),
+            ResolvedContinuousOperationSnapshot::Subtypes { operation },
+        ) => Ok(ResolvedContinuousEffectKind::Subtypes(parse_set_operation(
+            value, *operation,
+        )?)),
         (AppliedEffectDef::Rule(rule), ResolvedContinuousOperationSnapshot::Rule) => {
             Ok(ResolvedContinuousEffectKind::Rule(rule))
         }

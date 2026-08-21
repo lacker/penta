@@ -2,8 +2,8 @@
 
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, EffectDef, EffectRecipientDef,
-    abilities, cards,
+    AbilityCostDef, AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, EffectDef,
+    EffectRecipientDef, abilities, cards,
 };
 use crate::mana_cost;
 
@@ -37,7 +37,7 @@ pub(in crate::card::sets) static LIGHTNING_GREAVES: CardRecord = CardRecord::new
                     effect: AppliedEffectDef::Composite(&GREAVES_GRANTS),
                 },
             ),
-            abilities::equip(mana_cost!("{0}"), "Equip {0}"),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{0}"))], "Equip {0}"),
         ]),
 );
 

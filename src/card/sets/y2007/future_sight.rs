@@ -127,7 +127,7 @@ static SWORD_OF_THE_MEEK_ABILITIES: [AbilityDef; 3] = [
         },
     ),
     abilities::equip(
-        mana_cost!("{2}"),
+        &[AbilityCostDef::Mana(mana_cost!("{2}"))],
         "Equip {2} ({2}: Attach to target creature you control. Equip only as a sorcery.)",
     ),
     AbilityDef::triggered(

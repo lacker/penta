@@ -1,7 +1,8 @@
 //! Dealing an effect's damage, and reporting where it landed.
 
 use super::super::{
-    EffectRecipientDef, EffectResolutionContext, Game, ScopedEffect, StackObject, Target, ValueDef,
+    EffectRecipientDef, EffectResolutionContext, Game, ObjectRefDef, ScopedEffect, StackObject,
+    Target, ValueDef,
 };
 
 impl Game {
@@ -23,6 +24,38 @@ impl Game {
         context: &EffectResolutionContext,
         scoped: ScopedEffect,
     ) -> Vec<Target> {
+        let source = object.source.or(Some(object.id));
+        self.deal_effect_damage_from_id(source, recipient, amount, object, context, scoped)
+    }
+
+    /// Deals one effect's damage under the exact object identity named by
+    /// `source`. The referenced object may already be retired; damage source
+    /// matching and attribution deliberately read its last-known information.
+    pub(super) fn deal_effect_damage_from(
+        &mut self,
+        source: ObjectRefDef,
+        recipient: EffectRecipientDef,
+        amount: ValueDef,
+        object: &StackObject,
+        context: &EffectResolutionContext,
+        scoped: ScopedEffect,
+    ) -> Vec<Target> {
+        let Some(source) = self.effect_object_reference_id(source, object, context, scoped) else {
+            return Vec::new();
+        };
+        self.deal_effect_damage_from_id(Some(source), recipient, amount, object, context, scoped)
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn deal_effect_damage_from_id(
+        &mut self,
+        source: Option<crate::GameObjectId>,
+        recipient: EffectRecipientDef,
+        amount: ValueDef,
+        object: &StackObject,
+        context: &EffectResolutionContext,
+        scoped: ScopedEffect,
+    ) -> Vec<Target> {
         // A divided total is chosen per target when the spell is
         // cast, so each one takes its own share rather than the same
         // amount as everyone else.
@@ -38,7 +71,6 @@ impl Game {
         let slot = recipient
             .legal_target()
             .map(|target| scoped.target_slot(target));
-        let source = object.source.or(Some(object.id));
         let mut damaged = Vec::new();
         for target in self.effect_recipients(recipient, object, context, scoped) {
             let amount = if divided {

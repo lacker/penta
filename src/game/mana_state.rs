@@ -36,6 +36,15 @@ pub(super) enum ManaPaymentPurpose {
     Other,
 }
 
+/// Action-specific guidance for choosing mana abilities. `avoid` is only a
+/// preference; a permanent chosen for a tap cost must instead remain present
+/// and untapped until that cost is paid.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub(super) struct ManaPlanOptions {
+    pub(super) avoid: Option<GameObjectId>,
+    pub(super) tap_cost_payer: Option<GameObjectId>,
+}
+
 /// The choices that distinguish otherwise identical activations of one mana
 /// ability. A mana ability resolves without ever holding priority, so each is
 /// enumerated into the activation rather than asked afterwards.

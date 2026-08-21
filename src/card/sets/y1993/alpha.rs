@@ -3619,7 +3619,8 @@ pub(in crate::card::sets) static COCKATRICE: CardRecord = CardRecord::new(
             "Whenever this creature blocks or becomes blocked by a non-Wall creature, \
                  destroy that creature at end of combat.",
             TriggerEventDef::BlocksOrBecomesBlockedBy {
-                object: ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Wall")),
+                creature: ObjectPredicateDef::Source,
+                other: ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Wall")),
             },
             EffectDef::DestroyAtEndOfCombat {
                 object: EffectRecipientDef::TriggeringObject,
@@ -4128,7 +4129,8 @@ pub(in crate::card::sets) static THICKET_BASILISK: CardRecord = CardRecord::new(
             "Whenever this creature blocks or becomes blocked by a non-Wall creature, \
                  destroy that creature at end of combat.",
             TriggerEventDef::BlocksOrBecomesBlockedBy {
-                object: ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Wall")),
+                creature: ObjectPredicateDef::Source,
+                other: ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Wall")),
             },
             EffectDef::DestroyAtEndOfCombat {
                 object: EffectRecipientDef::TriggeringObject,

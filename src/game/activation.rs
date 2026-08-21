@@ -2,8 +2,9 @@ use super::{
     AbilityCostDef, AbilityOrigin, AbilityProcedureDef, ActivationChoices, ActivationTimingDef,
     BattlefieldExitCompletion, CardBehavior, CardInstance, CharacteristicContext, CounterKind,
     DeclarativeAbilityDef, FrozenActivatedAbility, Game, GameEvent, GameObjectId, ManaCost,
-    ManaPaymentPurpose, PendingActivation, PlayRestriction, PlayerId, SacrificeQuota, Step, Target,
-    TargetSelection, ZoneKind, ZoneMoveCause, ZonePlacement, remove_card,
+    ManaPaymentPurpose, ManaPlanOptions, PendingActivation, PlayRestriction, PlayerId,
+    SacrificeQuota, Step, Target, TargetSelection, ZoneKind, ZoneMoveCause, ZonePlacement,
+    remove_card,
 };
 
 impl Game {
@@ -126,6 +127,7 @@ impl Game {
                 AbilityCostDef::TapSource
                 | AbilityCostDef::UntapSource
                 | AbilityCostDef::SacrificeSource
+                | AbilityCostDef::SacrificeObject(_)
                 | AbilityCostDef::ReturnSourceToHand
                 | AbilityCostDef::RemoveCountersFromSource { .. }
                 | AbilityCostDef::RemoveAnyNumberOfCountersFromSource(_)
@@ -268,6 +270,7 @@ impl Game {
                     AbilityCostDef::TapSource
                     | AbilityCostDef::UntapSource
                     | AbilityCostDef::SacrificeSource
+                    | AbilityCostDef::SacrificeObject(_)
                     | AbilityCostDef::ReturnSourceToHand
                     | AbilityCostDef::RemoveCountersFromSource { .. }
                     | AbilityCostDef::RemoveAnyNumberOfCountersFromSource(_)
@@ -381,12 +384,22 @@ impl Game {
                 unreachable!("the declarative activation filter checked its category")
             };
             let taps_source = definition.costs.contains(&AbilityCostDef::TapSource);
+            let fixed_sacrifices = definition
+                .costs
+                .iter()
+                .filter_map(|cost| {
+                    let AbilityCostDef::SacrificeObject(reference) = cost else {
+                        return None;
+                    };
+                    Self::activation_object_reference(*reference, source, frozen_ability.origin)
+                })
+                .collect::<Vec<_>>();
             let leaves_source = definition.costs.iter().any(|cost| {
                 matches!(
                     cost,
                     AbilityCostDef::SacrificeSource | AbilityCostDef::ExileSource
                 )
-            });
+            }) || fixed_sacrifices.contains(&source);
             let animates_source = Self::effect_animates_source(ability_def.declarative_effect());
             let has_generic_sacrifice = definition
                 .costs
@@ -394,6 +407,15 @@ impl Game {
                 .any(|cost| matches!(cost, AbilityCostDef::SacrificePermanent { .. }));
             let sacrifice_choice_is_source =
                 has_generic_sacrifice && cost_objects.contains(&source);
+            let tap_cost_payer = if definition
+                .costs
+                .iter()
+                .any(|cost| matches!(cost, AbilityCostDef::TapPermanent { .. }))
+            {
+                cost_objects.first().copied()
+            } else {
+                None
+            };
             if definition.costs.iter().any(|cost| {
                 matches!(
                     cost,
@@ -423,14 +445,17 @@ impl Game {
                             taps_source,
                             leaves_source,
                         };
-                        self.activate_mana_for_cost_avoiding_for(
+                        self.activate_mana_for_cost_with_options_for(
                             player,
                             cost,
                             x,
-                            // Tapping the source to pay would hand back a
-                            // tapped creature, so auto-payment leaves it
-                            // alone even though the tap itself is legal.
-                            (taps_source || animates_source).then_some(source),
+                            ManaPlanOptions {
+                                // Tapping the source to pay would hand back a
+                                // tapped creature, so auto-payment leaves it
+                                // alone even though the tap itself is legal.
+                                avoid: (taps_source || animates_source).then_some(source),
+                                tap_cost_payer,
+                            },
                             &payment_purpose,
                         );
                         // The same purpose the mana was raised under. Paying
@@ -447,6 +472,7 @@ impl Game {
                     | AbilityCostDef::ReturnUnblockedAttackerToHand
                     | AbilityCostDef::TapPermanent { .. }
                     | AbilityCostDef::SacrificeSource
+                    | AbilityCostDef::SacrificeObject(_)
                     | AbilityCostDef::ReturnSourceToHand
                     | AbilityCostDef::ExileSource
                     | AbilityCostDef::SacrificePermanent { .. }
@@ -532,6 +558,11 @@ impl Game {
                         .copied()
                         .filter(|chosen| *chosen != source),
                 );
+            }
+            for sacrificed in fixed_sacrifices {
+                if !remaining_sacrifices.contains(&sacrificed) {
+                    remaining_sacrifices.push(sacrificed);
+                }
             }
             if definition.costs.contains(&AbilityCostDef::ExileSource) {
                 self.exile_permanent(source);

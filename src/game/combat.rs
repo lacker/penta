@@ -183,10 +183,21 @@ impl Game {
             self.battlefield
                 .iter()
                 .find(|permanent| permanent.card.id == *attacker)
-                .map(|permanent| CommittedTriggerEvent::Attacks {
-                    object: self.trigger_event_object(permanent),
-                    declaration_size,
-                    attack_number: permanent.attacks_this_turn,
+                .map(|permanent| {
+                    let defending_player = match Self::combat_defender(permanent) {
+                        AttackDefender::Player(player) => player,
+                        AttackDefender::Planeswalker(walker) => self
+                            .battlefield
+                            .iter()
+                            .find(|candidate| candidate.card.id == walker)
+                            .map_or(permanent.controller.opponent(), |walker| walker.controller),
+                    };
+                    CommittedTriggerEvent::Attacks {
+                        object: self.trigger_event_object(permanent),
+                        declaration_size,
+                        attack_number: permanent.attacks_this_turn,
+                        defending_player,
+                    }
                 })
         }));
         // And the declaration itself, once: "whenever you attack" is one

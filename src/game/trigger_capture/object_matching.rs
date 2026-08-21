@@ -11,7 +11,8 @@ impl Game {
                 self.current_or_last_known_attached_host(ability_source)
             }
             ObjectRefDef::TriggeringObject => event.context().object,
-            ObjectRefDef::ResolvingObject
+            ObjectRefDef::AbilityGrantSource
+            | ObjectRefDef::ResolvingObject
             | ObjectRefDef::Binding(_)
             | ObjectRefDef::Target(_)
             | ObjectRefDef::SourceOfTargetedStackObject(_) => None,
@@ -98,7 +99,8 @@ impl Game {
             .iter()
             .find(|permanent| permanent.card.id == object)
             .is_some_and(|permanent| {
-                self.turns_started[permanent.controller.index()] <= permanent.entered_controller_turn
+                self.turns_started[permanent.controller.index()]
+                    <= permanent.entered_controller_turn
             })
     }
 
@@ -449,8 +451,9 @@ impl Game {
             | ObjectPredicateDef::DealtDamageThisTurn
             | ObjectPredicateDef::Unpaired
             | ObjectPredicateDef::PairedWithSource
-            | ObjectPredicateDef::AttachedTo(_) => self
-                .battlefield_relationship_matches(predicate, object, source, controller),
+            | ObjectPredicateDef::AttachedTo(_) => {
+                self.battlefield_relationship_matches(predicate, object, source, controller)
+            }
             ObjectPredicateDef::Tapped => object.tapped,
             ObjectPredicateDef::All(_)
             | ObjectPredicateDef::AnyOf(_)

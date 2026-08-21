@@ -106,6 +106,13 @@ pub enum EffectDef {
     Reconfigure {
         object: EffectRecipientDef,
     },
+    /// Detach the named Equipment or Fortification without moving it. This is
+    /// a rules action rather than a zone change: Elbrus does it immediately
+    /// before transforming, while the host and both objects remain otherwise
+    /// unchanged.
+    Unattach {
+        object: EffectRecipientDef,
+    },
     /// Replaces the source permanent's copiable values with the target's.
     /// Some copy effects, such as Thespian's Stage, retain the resolving
     /// ability as an exception to the copied values.
@@ -285,6 +292,17 @@ pub enum EffectDef {
         object: EffectRecipientDef,
     },
     DealDamage {
+        recipient: EffectRecipientDef,
+        amount: ValueDef,
+    },
+    /// Deals damage using an explicitly named source rather than the
+    /// resolving spell or ability's ordinary source.
+    ///
+    /// The reference is resolved as an object identity and may name a
+    /// permanent that paid a sacrifice cost. Damage attribution then reads
+    /// that identity through last-known information.
+    DealDamageFrom {
+        source: ObjectRefDef,
         recipient: EffectRecipientDef,
         amount: ValueDef,
     },
@@ -511,6 +529,17 @@ pub enum EffectDef {
         player: EffectRecipientDef,
         object: ObjectPredicateDef,
         matched_zone: ZoneKind,
+        /// Saves the identities of cards this effect put into a graveyard for
+        /// a same-resolution follow-up. They are bound under their new zone
+        /// identities rather than reconstructed from the graveyard. When the
+        /// matching card has another destination, use [`ValueDef::MatchedCount`]
+        /// to count every revealed card; the binding contains only the cards
+        /// that were milled.
+        binding: Option<ObjectSetBindingIndex>,
+        /// Runs immediately after the named reveal-and-move procedures.
+        /// [`ValueDef::MatchedCount`] describes every card
+        /// revealed, including a match sent somewhere other than a graveyard.
+        then: Option<&'static EffectDef>,
     },
     /// "Exile cards from the top of your library until you exile a nonland
     /// card. You may cast that card by paying an amount of {E} equal to its

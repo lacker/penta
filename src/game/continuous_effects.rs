@@ -23,10 +23,10 @@ thread_local! {
     static STATIC_SET_CHARACTERISTIC_LAYER_PASS: Cell<bool> = const { Cell::new(false) };
 }
 
-struct StaticSetCharacteristicLayerGuard;
+pub(super) struct StaticSetCharacteristicLayerGuard;
 
 impl StaticSetCharacteristicLayerGuard {
-    fn enter() -> Option<Self> {
+    pub(super) fn enter() -> Option<Self> {
         STATIC_SET_CHARACTERISTIC_LAYER_PASS
             .with(|pass| if pass.replace(true) { None } else { Some(Self) })
     }
@@ -403,28 +403,24 @@ impl Game {
         }
     }
 
-    /// Whether this permanent has the shared Aura attachment spell effect.
-    /// An Aura attaches as its own spell resolves, which is what separates it
-    /// from Equipment: both attach, but only one does so from a spell clause,
-    /// and only one goes to the graveyard when it comes loose.
+    /// Whether this permanent is currently an Aura. The effective subtype
+    /// gate makes an Aura that loses the subtype become unattached and stay
+    /// on the battlefield. The attachment-semantic gate preserves the window
+    /// for permanents such as Necromancy: its model carries the eventual Aura
+    /// subtype, but its own trigger has not made it an Aura until it attaches.
     pub(super) fn is_aura_permanent(&self, permanent: &Permanent) -> bool {
-        self.effective_rules(permanent).is_some_and(|rules| {
-            // An Aura is ordinarily recognised by the host its spell
-            // announces. One that attaches after resolving announces none
-            // and says what it enchants outright instead -- and becomes an
-            // Aura only once it is attached, which is what keeps it from
-            // being binned by state-based actions in the window between
-            // entering and its own trigger resolving.
-            (rules.enchant().is_some() && permanent.became_aura)
-                || rules.ability_clauses().iter().any(|ability| {
-                    ability.is_executable()
-                        && matches!(ability.definition, DeclarativeAbilityDef::Spell(_))
-                        && ability
-                            .declarative_effect()
-                            .and_then(Self::immediate_attachment_target)
-                            .is_some()
-                })
-        })
+        self.effective_subtypes(permanent).contains(&"Aura")
+            && self.effective_rules(permanent).is_some_and(|rules| {
+                (rules.enchant().is_some() && permanent.became_aura)
+                    || rules.ability_clauses().iter().any(|ability| {
+                        ability.is_executable()
+                            && matches!(ability.definition, DeclarativeAbilityDef::Spell(_))
+                            && ability
+                                .declarative_effect()
+                                .and_then(Self::immediate_attachment_target)
+                                .is_some()
+                    })
+            })
     }
 
     /// Finds the target an Aura attaches to as part of its spell procedure.
@@ -463,6 +459,7 @@ impl Game {
                 | EffectDef::AddMana(_)
                 | EffectDef::AddManaEqualTo { .. }
                 | EffectDef::DealDamage { .. }
+                | EffectDef::DealDamageFrom { .. }
                 | EffectDef::DealDamageAndApply { .. }
                 | EffectDef::DrainLife { .. }
                 | EffectDef::GainLife { .. }
@@ -499,6 +496,7 @@ impl Game {
                 | EffectDef::ReplaceNextDrawThisTurn { .. }
                 | EffectDef::CreateEmblem { .. }
                 | EffectDef::Transform { .. }
+                | EffectDef::Unattach { .. }
                 | EffectDef::Counter { .. }
                 | EffectDef::ReturnSpellToHand { .. }
                 | EffectDef::CopyResolvingSpell { .. }
@@ -833,6 +831,7 @@ impl Game {
                 ObjectSetDef::One(
                     ObjectRefDef::Binding(_)
                     | ObjectRefDef::ResolvingObject
+                    | ObjectRefDef::AbilityGrantSource
                     | ObjectRefDef::Target(_)
                     | ObjectRefDef::SourceOfTargetedStackObject(_)
                     | ObjectRefDef::TriggeringObject,

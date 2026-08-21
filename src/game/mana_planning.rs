@@ -6,9 +6,9 @@ use super::{
     CharacteristicContext, CharacteristicOperationDef, CostConfiguration, DeclarativeAbilityDef,
     EffectDef, EffectRecipientDef, FlexibleManaSource, Game, GameObjectId, HybridPair,
     ManaAbilityActivation, ManaActivationChoices, ManaColor, ManaCost, ManaPaymentPurpose,
-    ManaPool, ManaSourceOutput, ManaSourceOutputs, Permanent, PlannedManaActivation,
-    PlayActionKind, PlayOptionDef, PlayerId, SetOperationDef, TriggerContext, ValueDef, ZoneKind,
-    extra_target_cost,
+    ManaPlanOptions, ManaPool, ManaSourceOutput, ManaSourceOutputs, Permanent,
+    PlannedManaActivation, PlayActionKind, PlayOptionDef, PlayerId, SetOperationDef,
+    TriggerContext, ValueDef, ZoneKind, extra_target_cost,
 };
 
 impl Game {
@@ -17,10 +17,10 @@ impl Game {
     /// action still performs the authoritative payment and validation.
     #[must_use]
     pub fn mana_sources_for_action(&self, player: PlayerId, action: &Action) -> Vec<GameObjectId> {
-        let Some((cost, x, avoid, purpose)) = self.mana_requirement(player, action) else {
+        let Some((cost, x, options, purpose)) = self.mana_requirement(player, action) else {
             return Vec::new();
         };
-        self.plan_mana_sources(player, cost, x, avoid, &purpose)
+        self.plan_mana_sources(player, cost, x, options, &purpose)
     }
 
     #[allow(clippy::too_many_lines)]
@@ -28,7 +28,7 @@ impl Game {
         &self,
         player: PlayerId,
         action: &Action,
-    ) -> Option<(ManaCost, u16, Option<GameObjectId>, ManaPaymentPurpose)> {
+    ) -> Option<(ManaCost, u16, ManaPlanOptions, ManaPaymentPurpose)> {
         match action {
             Action::CastSpell { card, choices, .. } => {
                 let definition = self
@@ -51,7 +51,7 @@ impl Game {
                         self.spell_cost_reduction(definition.id, player, *card),
                     ),
                     choices.x(),
-                    None,
+                    ManaPlanOptions::default(),
                     ManaPaymentPurpose::Spell {
                         object: *card,
                         definition: definition.id,
@@ -61,10 +61,54 @@ impl Game {
                 ))
             }
             Action::ActivateAbility {
-                source, ability, x, ..
-            } => self.ability_mana_requirement(player, *source, *ability, *x),
+                source,
+                ability,
+                cost_objects,
+                x,
+                ..
+            } => self.ability_mana_requirement(player, *source, *ability, cost_objects, *x),
             _ => None,
         }
+    }
+
+    fn battlefield_ability_mana_context(
+        definition: ActivatedAbilityDef,
+        source: GameObjectId,
+        cost_objects: &[GameObjectId],
+        animates_source: bool,
+    ) -> (ManaPlanOptions, ManaPaymentPurpose) {
+        let taps_source = definition.costs.contains(&AbilityCostDef::TapSource);
+        let leaves_source = definition.costs.iter().any(|cost| {
+            matches!(
+                cost,
+                AbilityCostDef::SacrificeSource
+                    | AbilityCostDef::ExileSource
+                    | AbilityCostDef::ReturnSourceToHand
+            )
+        });
+        let tap_cost_payer = if definition
+            .costs
+            .iter()
+            .any(|cost| matches!(cost, AbilityCostDef::TapPermanent { .. }))
+        {
+            cost_objects.first().copied()
+        } else {
+            None
+        };
+        (
+            ManaPlanOptions {
+                // Tapping the source to pay would hand back a tapped
+                // creature, so auto-payment leaves it alone even though the
+                // tap itself is legal.
+                avoid: (taps_source || animates_source).then_some(source),
+                tap_cost_payer,
+            },
+            ManaPaymentPurpose::Ability {
+                source,
+                taps_source,
+                leaves_source,
+            },
+        )
     }
 
     /// The mana half of an activation cost, and how the payment should treat
@@ -74,8 +118,9 @@ impl Game {
         player: PlayerId,
         source: GameObjectId,
         ability: AbilityOrigin,
+        cost_objects: &[GameObjectId],
         x: u16,
-    ) -> Option<(ManaCost, u16, Option<GameObjectId>, ManaPaymentPurpose)> {
+    ) -> Option<(ManaCost, u16, ManaPlanOptions, ManaPaymentPurpose)> {
         if let Some(card) = self.players[player.index()]
             .hand
             .iter()
@@ -103,7 +148,7 @@ impl Game {
                 (
                     cost,
                     x,
-                    None,
+                    ManaPlanOptions::default(),
                     ManaPaymentPurpose::Ability {
                         source,
                         taps_source: false,
@@ -136,31 +181,14 @@ impl Game {
                 | DeclarativeAbilityDef::Legacy => None,
             })
         {
-            let cost = Self::activated_ability_mana_cost(definition);
-            let taps_source = definition.costs.contains(&AbilityCostDef::TapSource);
-            let leaves_source = definition.costs.iter().any(|cost| {
-                matches!(
-                    cost,
-                    AbilityCostDef::SacrificeSource
-                        | AbilityCostDef::ExileSource
-                        | AbilityCostDef::ReturnSourceToHand
-                )
-            });
-            return cost.map(|cost| {
-                (
-                    cost,
-                    x,
-                    // Tapping the source to pay would hand back a tapped
-                    // creature, so auto-payment leaves it alone even though
-                    // the tap itself is legal.
-                    (taps_source || animates_source).then_some(source),
-                    ManaPaymentPurpose::Ability {
-                        source,
-                        taps_source,
-                        leaves_source,
-                    },
-                )
-            });
+            let (options, purpose) = Self::battlefield_ability_mana_context(
+                definition,
+                source,
+                cost_objects,
+                animates_source,
+            );
+            return Self::activated_ability_mana_cost(definition)
+                .map(|cost| (cost, x, options, purpose));
         }
 
         let behavior = self.effective_behavior(permanent)?;
@@ -171,7 +199,7 @@ impl Game {
         Some((
             cost,
             0,
-            None,
+            ManaPlanOptions::default(),
             ManaPaymentPurpose::Ability {
                 source,
                 taps_source: false,
@@ -242,10 +270,10 @@ impl Game {
         player: PlayerId,
         cost: ManaCost,
         x: u16,
-        avoid: Option<GameObjectId>,
+        options: ManaPlanOptions,
         purpose: &ManaPaymentPurpose,
     ) -> Vec<GameObjectId> {
-        self.plan_mana_activations_for(player, cost, x, avoid, purpose)
+        self.plan_mana_activations_with_options_for(player, cost, x, options, purpose)
             .unwrap_or_default()
             .into_iter()
             .map(|activation| activation.source)
@@ -335,6 +363,67 @@ impl Game {
         x: u16,
         purpose: &ManaPaymentPurpose,
     ) -> Option<Vec<PlannedManaActivation>> {
+        self.assigned_mana_activations_with_options(
+            player,
+            cost,
+            x,
+            ManaPlanOptions::default(),
+            purpose,
+        )
+    }
+
+    /// Whether this mana activation leaves the chosen permanent available to
+    /// pay a later tap cost. A different source can be incompatible too when
+    /// its mana ability would sacrifice the chosen permanent.
+    fn mana_activation_preserves_tap_cost_payer(
+        permanent: &Permanent,
+        activation: &ManaAbilityActivation,
+        payer: GameObjectId,
+    ) -> bool {
+        if activation.cost_object == Some(payer) {
+            return false;
+        }
+        if activation.source != payer {
+            return true;
+        }
+        if activation.costs.iter().any(|cost| {
+            matches!(
+                cost,
+                AbilityCostDef::TapSource
+                    | AbilityCostDef::SacrificeSource
+                    | AbilityCostDef::ExileSource
+                    | AbilityCostDef::ReturnSourceToHand
+            )
+        }) {
+            return false;
+        }
+        activation
+            .effect
+            .sacrifice_source_when_out_of
+            .is_none_or(|kind| {
+                let removed = activation.costs.iter().fold(0_u16, |removed, cost| {
+                    if let AbilityCostDef::RemoveCountersFromSource {
+                        kind: removed_kind,
+                        amount,
+                    } = cost
+                        && *removed_kind == kind
+                    {
+                        return removed.saturating_add(*amount);
+                    }
+                    removed
+                });
+                permanent.counters(kind) > removed
+            })
+    }
+
+    fn assigned_mana_activations_with_options(
+        &self,
+        player: PlayerId,
+        cost: ManaCost,
+        x: u16,
+        options: ManaPlanOptions,
+        purpose: &ManaPaymentPurpose,
+    ) -> Option<Vec<PlannedManaActivation>> {
         let (cost, x) = self.restrict_x(cost, x, purpose);
         let mut pool = self.eligible_mana_pool(player, purpose);
         // Channel lets a player make {C} any time they could activate a mana
@@ -363,6 +452,9 @@ impl Game {
                 .mana_ability_activations(permanent)
                 .into_iter()
                 .filter(|activation| {
+                    let preserves_tap_cost_payer = options.tap_cost_payer.is_none_or(|payer| {
+                        Self::mana_activation_preserves_tap_cost_payer(permanent, activation, payer)
+                    });
                     let preserves_required_source = !matches!(
                         purpose,
                         ManaPaymentPurpose::Ability {
@@ -389,6 +481,7 @@ impl Game {
                     Self::mana_for_activation(activation)
                         .first()
                         .is_some_and(|mana| self.mana_can_pay_for(*mana, purpose))
+                        && preserves_tap_cost_payer
                         && preserves_required_source
                         && !costs_mana
                 })
@@ -441,15 +534,16 @@ impl Game {
         Some(assigned)
     }
 
-    pub(super) fn plan_mana_activations_for(
+    pub(super) fn plan_mana_activations_with_options_for(
         &self,
         player: PlayerId,
         cost: ManaCost,
         x: u16,
-        avoid: Option<GameObjectId>,
+        options: ManaPlanOptions,
         purpose: &ManaPaymentPurpose,
     ) -> Option<Vec<PlannedManaActivation>> {
-        let mut available = self.assigned_mana_activations_for(player, cost, x, purpose)?;
+        let mut available =
+            self.assigned_mana_activations_with_options(player, cost, x, options, purpose)?;
         let (cost, x) = self.restrict_x(cost, x, purpose);
         let mut pool = self.eligible_mana_pool(player, purpose);
         // The payment tops the pool up from Channel before it spends, so the
@@ -469,7 +563,7 @@ impl Game {
                     .filter(|(_, activation)| activation.production.amount(color) > 0)
                     .min_by_key(|(_, activation)| {
                         (
-                            Some(activation.source) == avoid,
+                            Some(activation.source) == options.avoid,
                             !activation.benefits_payment,
                             activation.flexibility,
                             activation.production.total(),
@@ -499,7 +593,7 @@ impl Game {
                     })
                     .min_by_key(|(_, activation)| {
                         (
-                            Some(activation.source) == avoid,
+                            Some(activation.source) == options.avoid,
                             !activation.benefits_payment,
                             activation.flexibility,
                             activation.production.total(),
@@ -522,7 +616,7 @@ impl Game {
                 .enumerate()
                 .min_by_key(|(_, activation)| {
                     (
-                        Some(activation.source) == avoid,
+                        Some(activation.source) == options.avoid,
                         !activation.benefits_payment,
                         activation.production.amount(ManaColor::Colorless) == 0,
                         activation.production.total(),
@@ -639,10 +733,32 @@ impl Game {
         avoid: Option<GameObjectId>,
         purpose: &ManaPaymentPurpose,
     ) {
-        let Some(plan) = self.plan_mana_activations_for(player, cost, x, avoid, purpose) else {
+        self.activate_mana_for_cost_with_options_for(
+            player,
+            cost,
+            x,
+            ManaPlanOptions {
+                avoid,
+                tap_cost_payer: None,
+            },
+            purpose,
+        );
+    }
+
+    pub(super) fn activate_mana_for_cost_with_options_for(
+        &mut self,
+        player: PlayerId,
+        cost: ManaCost,
+        x: u16,
+        options: ManaPlanOptions,
+        purpose: &ManaPaymentPurpose,
+    ) {
+        let Some(plan) =
+            self.plan_mana_activations_with_options_for(player, cost, x, options, purpose)
+        else {
             panic!(
                 "{}",
-                self.unplannable_payment(player, cost, x, avoid, purpose)
+                self.unplannable_payment(player, cost, x, options.avoid, purpose)
             );
         };
         for activation in plan {

@@ -308,6 +308,14 @@ impl Game {
         if value == ValueDef::AffectedManaValue {
             return i16::try_from(self.permanent_mana_value(permanent)).unwrap_or(i16::MAX);
         }
+        if value == ValueDef::AffectedColorCount {
+            let color_count = self
+                .permanent_colors(permanent)
+                .into_iter()
+                .filter(|present| *present)
+                .count();
+            return i16::try_from(color_count).unwrap_or(i16::MAX);
+        }
         // These two are measured from the pile the source took as it
         // entered, which is not on the board at all.
         if matches!(

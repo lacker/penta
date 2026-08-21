@@ -2838,7 +2838,7 @@ pub(in crate::card::sets) static ACCORDERS_SHIELD: CardRecord = CardRecord::new(
                 },
             ),
             abilities::equip(
-                mana_cost!("{3}"),
+                &[AbilityCostDef::Mana(mana_cost!("{3}"))],
                 "Equip {3} ({3}: Attach to target creature you control. Equip only as a \
                  sorcery.)",
             ),
@@ -2892,7 +2892,7 @@ pub(in crate::card::sets) static FIRESHRIEKER: CardRecord = CardRecord::new(
                 },
             ),
             abilities::equip(
-                mana_cost!("{2}"),
+                &[AbilityCostDef::Mana(mana_cost!("{2}"))],
                 "Equip {2} ({2}: Attach to target creature you control. Equip only as a \
                  sorcery.)",
             ),
@@ -2902,8 +2902,60 @@ pub(in crate::card::sets) static FIRESHRIEKER: CardRecord = CardRecord::new(
 // M14 211 — Guardian of the Ages
 // Audit: blocked — Attack events cannot match attacks at you or your planeswalker, and abilities cannot permanently remove defender from the source after that trigger.
 
+static HAUNTED_PLATE_MAIL_NO_CREATURES: TriggerConditionDef = TriggerConditionDef::ObjectCount {
+    query: ObjectQueryDef::matching(
+        ObjectPredicateDef::HasType(CardType::Creature),
+        &[ZoneKind::Battlefield],
+        PlayerRelation::You,
+    ),
+    comparison: ComparisonDef::Equal,
+    amount: 0,
+};
+
+static HAUNTED_PLATE_MAIL_ANIMATION: [AppliedEffectDef; 4] = [
+    AppliedEffectDef::set_card_types(
+        CardTypeSet::single(CardType::Artifact).with(CardType::Creature),
+    ),
+    AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Spirit"])),
+    AppliedEffectDef::remove_subtypes(&["Equipment"]),
+    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(4), ValueDef::Constant(4)),
+];
+
 // M14 212 — Haunted Plate Mail
-// Audit: blocked — Equipment is unsupported and activation restrictions cannot require controlling no creatures; the shared characteristic operations now cover its animation.
+pub(in crate::card::sets) static HAUNTED_PLATE_MAIL: CardRecord = CardRecord::new(
+    cards::HAUNTED_PLATE_MAIL,
+    "Haunted Plate Mail",
+    CardArt::new("e2dc1e07-7894-4f22-936d-bf5df3f8d5a5", "Izzy"),
+    CardSet::Magic2014,
+    CardRules::new_artifact(mana_cost!("{4}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +4/+4.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(4),
+                        ValueDef::Constant(4),
+                    ),
+                },
+            ),
+            AbilityDef::activated(
+                "{0}: Until end of turn, this permanent becomes a 4/4 Spirit artifact creature that's no longer an Equipment. Activate only if you control no creatures.",
+                &[],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Composite(&HAUNTED_PLATE_MAIL_ANIMATION),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            )
+            .with_activation_condition(&HAUNTED_PLATE_MAIL_NO_CREATURES),
+            abilities::equip(
+                &[AbilityCostDef::Mana(mana_cost!("{4}"))],
+                "Equip {4} ({4}: Attach to target creature you control. Equip only as a sorcery.)",
+            ),
+        ]),
+);
 
 // M14 214 — Pyromancer's Gauntlet
 // Audit: blocked — Damage replacement cannot filter red instant, sorcery, or planeswalker sources and add a fixed amount to the event.
@@ -3335,6 +3387,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ACCORDERS_SHIELD,
     &DARKSTEEL_FORGE,
     &FIRESHRIEKER,
+    &HAUNTED_PLATE_MAIL,
     &RATCHET_BOMB,
     &SLIVER_CONSTRUCT,
     &STAFF_OF_THE_DEATH_MAGUS,

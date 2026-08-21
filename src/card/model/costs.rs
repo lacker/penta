@@ -11,6 +11,13 @@ pub enum CostDef {
     TapSource,
     UntapSource,
     SacrificeSource,
+    /// Sacrifice the exact permanent named by an ability-context reference.
+    ///
+    /// Unlike [`Self::SacrificePermanent`], this is not a choice among
+    /// matching permanents. It supports granted abilities whose cost names
+    /// the object that granted them, while preserving split-control rules:
+    /// the activating player must control the referenced permanent.
+    SacrificeObject(ObjectRefDef),
     /// Remove counters from the permanent carrying this ability as the
     /// ability is activated. The source must carry at least `amount`; paying
     /// the cost removes them before the ability is put on the stack.

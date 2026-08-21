@@ -61,7 +61,7 @@ pub(in crate::card::sets) static SKULLCLAMP: CardRecord = CardRecord::new(
                     amount: ValueDef::Constant(2),
                 },
             ),
-            abilities::equip(mana_cost!("{1}"), "Equip {1}"),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
         ]),
 );
 

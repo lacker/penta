@@ -64,6 +64,8 @@ pub(in crate::card::sets) static HERMIT_DRUID: CardRecord = CardRecord::new(
                 player: EffectRecipientDef::Controller,
                 object: A_BASIC_LAND_CARD,
                 matched_zone: ZoneKind::Hand,
+                binding: None,
+                then: None,
             },
         ),
     ),

@@ -2,10 +2,12 @@
 
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, BasicLandType, CardArt, CardRules, CardSet,
-    CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef, ValueDef, ZoneKind, ZonePlacement,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
+    AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardType, EffectDef,
+    EffectRecipientDef, ObjectPredicateDef, ObjectRefDef, ValueDef, ZoneKind, ZonePlacement,
     abilities, cards,
 };
+use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 /// The five allied fetchlands of Onslaught got an enemy-coloured cycle here,
@@ -49,6 +51,57 @@ pub(in crate::card::sets) static SPELL_PIERCE: CardRecord = CardRecord::new(
         )],
         abilities::counter_target_unless_paid(ValueDef::Constant(2)),
     )),
+);
+
+static BLAZING_TORCH_GRANTED_ABILITY: AbilityDef = AbilityDef::activated_with_targets(
+    "{T}, Sacrifice Blazing Torch: Blazing Torch deals 2 damage to any target.",
+    &[
+        AbilityCostDef::TapSource,
+        AbilityCostDef::SacrificeObject(ObjectRefDef::AbilityGrantSource),
+    ],
+    &[AbilityTargetDef::exactly_one(
+        AbilityTargetPredicate::AnyTarget,
+    )],
+    EffectDef::DealDamageFrom {
+        source: ObjectRefDef::AbilityGrantSource,
+        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        amount: ValueDef::Constant(2),
+    },
+);
+
+// ZEN 197 — Blazing Torch
+pub(in crate::card::sets) static BLAZING_TORCH: CardRecord = CardRecord::new(
+    cards::BLAZING_TORCH,
+    "Blazing Torch",
+    CardArt::new("1e9d1ff2-9ce3-4737-af1d-9fc82e4dffe6", "Vance Kovacs"),
+    CardSet::Zendikar,
+    CardRules::new_artifact(mana_cost!("{1}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature can't be blocked by Vampires or Zombies.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::Subtype("Vampire"),
+                            ObjectPredicateDef::Subtype("Zombie"),
+                        ]),
+                    )),
+                },
+            ),
+            AbilityDef::static_ability(
+                "Equipped creature has \"{T}, Sacrifice Blazing Torch: Blazing Torch deals 2 damage to any target.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&BLAZING_TORCH_GRANTED_ABILITY),
+                },
+            ),
+            abilities::equip(
+                &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+                "Equip {1} ({1}: Attach to target creature you control. Equip only as a sorcery.)",
+            ),
+        ]),
 );
 
 // ZEN 201 — Expedition Map
@@ -148,6 +201,7 @@ pub(in crate::card::sets) static VERDANT_CATACOMBS: CardRecord = CardRecord::new
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SPELL_PIERCE,
+    &BLAZING_TORCH,
     &EXPEDITION_MAP,
     &ARID_MESA,
     &MARSH_FLATS,

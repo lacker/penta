@@ -220,6 +220,12 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
             deferred_decision_allowed && shared_effect_recipient(player) && !types.is_empty()
         }
         EffectDef::AddMana(_) => shared_mana_effect(effect, false),
+        EffectDef::DealDamageFrom {
+            source, recipient, ..
+        } => {
+            shared_effect_recipient(EffectRecipientDef::object(source))
+                && shared_effect_recipient(recipient)
+        }
         EffectDef::DealDamage { recipient, .. }
         | EffectDef::DealDamageAndApply { recipient, .. }
         | EffectDef::DrainLife { recipient, .. }
@@ -245,11 +251,6 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::SearchZonesAndExileRest {
             player: recipient, ..
         }
-        // The predicate is read against library cards, which the shared
-        // walk already reads for a search.
-        | EffectDef::MillUntil {
-            player: recipient, ..
-        }
         // The same predicate over the same cards; what differs is only where
         // they land and what the matched one carries.
         | EffectDef::ExileFromTopUntil {
@@ -260,6 +261,18 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::LookAtHand { player: recipient }
         | EffectDef::ManifestDread { player: recipient }
         | EffectDef::RevealHand { player: recipient } => shared_effect_recipient(recipient),
+        EffectDef::MillUntil {
+            player,
+            object,
+            then,
+            ..
+        } => {
+            shared_effect_recipient(player)
+                && shared_object_predicate(object)
+                && then.is_none_or(|effect| {
+                    shared_stack_effect_at_position(*effect, deferred_decision_allowed)
+                })
+        }
         // Everything it does belongs to the arrival, so what is left to
         // check is that the card it takes is one the shared walk can name
         // and that the follow-up naming the arrival is itself supported.
@@ -389,6 +402,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::PhaseOut { object }
         | EffectDef::ReturnAttached { object, .. }
         | EffectDef::Reconfigure { object }
+        | EffectDef::Unattach { object }
         | EffectDef::PairWithSource { object }
         | EffectDef::ChangeTextBasicLandType { object }
         // The colour is named at resolution, so the declaration only has to

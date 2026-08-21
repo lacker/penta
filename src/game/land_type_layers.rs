@@ -1,3 +1,4 @@
+use super::continuous_effects::StaticSetCharacteristicLayerGuard;
 use super::{
     AppliedEffectDef, BasicLandType, CREATURE_TYPES, CardType, CharacteristicOperationDef,
     ContinuousEffectTimestamp, ControlFlow, Cow, CreatureTypeSetDef, DeclarativeAbilityDef,
@@ -10,6 +11,7 @@ use super::{
 enum SubtypeLayerOperation {
     BasicLand(LandTypeOperation),
     Creature(SetOperationDef<CreatureTypeSetDef>),
+    Named(SetOperationDef<&'static [&'static str]>),
 }
 
 /// Land subtype vocabulary from CR 205.3i. Type-setting effects must remove
@@ -425,6 +427,7 @@ impl Game {
                 ObjectSetDef::One(
                     ObjectRefDef::Binding(_)
                     | ObjectRefDef::ResolvingObject
+                    | ObjectRefDef::AbilityGrantSource
                     | ObjectRefDef::Target(_)
                     | ObjectRefDef::SourceOfTargetedStackObject(_)
                     | ObjectRefDef::TriggeringObject,
@@ -571,9 +574,46 @@ impl Game {
                         effect.component_order,
                         SubtypeLayerOperation::Creature(operation),
                     )),
+                    ResolvedContinuousEffectKind::Subtypes(operation) => Some((
+                        effect.timestamp,
+                        effect.component_order,
+                        SubtypeLayerOperation::Named(operation),
+                    )),
                     _ => None,
                 }),
         );
+        if let Some(_pass) = StaticSetCharacteristicLayerGuard::enter() {
+            let mut collect = |applied: super::StaticAppliedEffect| {
+                match applied.effect {
+                    AppliedEffectDef::Characteristic(
+                        CharacteristicOperationDef::CreatureTypes(operation),
+                    ) => operations.push((
+                        applied.timestamp,
+                        applied.component_order,
+                        SubtypeLayerOperation::Creature(operation),
+                    )),
+                    AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(
+                        operation,
+                    )) => operations.push((
+                        applied.timestamp,
+                        applied.component_order,
+                        SubtypeLayerOperation::Named(operation),
+                    )),
+                    _ => {}
+                }
+                ControlFlow::Continue(())
+            };
+            let result = if let Some(prospective) = prospective {
+                self.visit_static_applied_effects_with_prospective(
+                    permanent,
+                    prospective,
+                    &mut collect,
+                )
+            } else {
+                self.visit_static_applied_effects(permanent, &mut collect)
+            };
+            debug_assert!(result.is_continue());
+        }
         operations.sort_by_key(|(timestamp, order, _)| (*timestamp, *order));
         operations
     }
@@ -673,6 +713,26 @@ impl Game {
                         }
                     }
                 }
+                SubtypeLayerOperation::Named(operation) => match operation {
+                    SetOperationDef::Add(types) => {
+                        for subtype in types {
+                            if !subtypes.contains(subtype) {
+                                subtypes.push(subtype);
+                            }
+                        }
+                    }
+                    SetOperationDef::Remove(types) => {
+                        subtypes.retain(|subtype| !types.contains(subtype));
+                    }
+                    SetOperationDef::Set(types) => {
+                        subtypes.clear();
+                        for subtype in types {
+                            if !subtypes.contains(subtype) {
+                                subtypes.push(subtype);
+                            }
+                        }
+                    }
+                },
             }
         }
     }

@@ -354,6 +354,10 @@ pub(super) fn shared_activated_costs(source_zones: &[ZoneKind], costs: &[Ability
         .iter()
         .filter(|cost| matches!(cost, AbilityCostDef::SacrificePermanent { .. }))
         .count();
+    let fixed_sacrifices = costs
+        .iter()
+        .filter(|cost| matches!(cost, AbilityCostDef::SacrificeObject(_)))
+        .count();
     let source_exit_costs = costs
         .iter()
         .filter(|cost| {
@@ -366,6 +370,7 @@ pub(super) fn shared_activated_costs(source_zones: &[ZoneKind], costs: &[Ability
         })
         .count();
     sacrifice_choices <= 1
+        && fixed_sacrifices <= 1
         && source_exit_costs <= 1
         && costs.iter().all(|cost| match cost {
             // A variable X is offered one activation per affordable
@@ -390,7 +395,12 @@ pub(super) fn shared_activated_costs(source_zones: &[ZoneKind], costs: &[Ability
             // Exiling the source is the one cost a card can pay from its own
             // graveyard; the rest of these need a permanent to act on.
             AbilityCostDef::ExileSource => battlefield || graveyard,
-            AbilityCostDef::TapSource
+            // A fixed object sacrifice is supported only when it names the
+            // source whose activation is being checked.
+            AbilityCostDef::SacrificeObject(
+                ObjectRefDef::Source | ObjectRefDef::AbilityGrantSource,
+            )
+            | AbilityCostDef::TapSource
             | AbilityCostDef::SacrificeSource
             // The source leaves the battlefield to pay either way; only
             // where it lands differs.
@@ -410,7 +420,15 @@ pub(super) fn shared_activated_costs(source_zones: &[ZoneKind], costs: &[Ability
             // card in hand.
             AbilityCostDef::DiscardSource
             | AbilityCostDef::ReturnUnblockedAttackerToHand => hand,
-            AbilityCostDef::UntapSource
+            AbilityCostDef::SacrificeObject(
+                ObjectRefDef::ResolvingObject
+                | ObjectRefDef::Binding(_)
+                | ObjectRefDef::AttachedToSource
+                | ObjectRefDef::Target(_)
+                | ObjectRefDef::TriggeringObject
+                | ObjectRefDef::SourceOfTargetedStackObject(_),
+            )
+            | AbilityCostDef::UntapSource
             | AbilityCostDef::DiscardCards(_)
             | AbilityCostDef::Special(_) => false,
         })
@@ -702,6 +720,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::May { .. }
                     | EffectDef::None
                     | EffectDef::DealDamage { .. }
+                    | EffectDef::DealDamageFrom { .. }
                     | EffectDef::DealDamageAndApply { .. }
                     | EffectDef::DrainLife { .. }
                     | EffectDef::GainLife { .. }
@@ -727,6 +746,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::PhaseOut { .. }
                     | EffectDef::ReturnAttached { .. }
                     | EffectDef::Reconfigure { .. }
+                    | EffectDef::Unattach { .. }
                     | EffectDef::CreateToken { .. }
                     | EffectDef::CreateAttachedToken { .. }
                     | EffectDef::CreateTokenCopyOf { .. }

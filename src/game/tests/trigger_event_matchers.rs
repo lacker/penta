@@ -357,6 +357,7 @@ fn attack_tap_and_transform_matchers_read_committed_event_facts() {
         object: object.clone(),
         declaration_size: 3,
         attack_number: 1,
+        defending_player: PlayerId::Two,
     };
     game.battlefield[0].attacks_this_turn = 2;
     assert!(game.trigger_event_matches_for_controller(
@@ -633,6 +634,7 @@ fn attack_batch_freezes_all_conditions_and_consumes_once_only_once() {
             object: game.trigger_event_object(permanent),
             declaration_size: 2,
             attack_number: 1,
+            defending_player: PlayerId::Two,
         })
         .collect::<Vec<_>>();
     let mut immediate_resolutions = 0;
@@ -822,6 +824,7 @@ fn an_any_of_event_fires_on_each_alternative_and_no_others() {
             object: snapshot.clone(),
             declaration_size: 1,
             attack_number: 1,
+            defending_player: PlayerId::Two,
         }),
         "and so does the attack half",
     );

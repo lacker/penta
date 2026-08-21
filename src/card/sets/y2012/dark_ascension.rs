@@ -2811,14 +2811,141 @@ pub(in crate::card::sets) static STROMKIRK_CAPTAIN: CardRecord = CardRecord::new
 // DKA 144 — Altar of the Lost
 // Audit: blocked — Needs two-mana any-color combination choice plus spending provenance restricted to flashback spells cast from graveyards.
 
+static AVACYNS_COLLAR_VIGILANCE: AbilityDef = abilities::vigilance();
+
+static AVACYNS_COLLAR_BONUS: [AppliedEffectDef; 2] = [
+    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(0)),
+    AppliedEffectDef::add_ability(&AVACYNS_COLLAR_VIGILANCE),
+];
+
 // DKA 145 — Avacyn's Collar
-// Audit: blocked — Needs equipment attachment/equip actions and a death trigger granted to the equipped creature that tests whether it was Human.
+pub(in crate::card::sets) static AVACYNS_COLLAR: CardRecord = CardRecord::new(
+    cards::AVACYNS_COLLAR,
+    "Avacyn's Collar",
+    CardArt::new("972e9a78-204b-4012-b394-b40fd0edac4c", "James Paick"),
+    CardSet::DarkAscension,
+    CardRules::new_artifact(mana_cost!("{1}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +1/+0 and has vigilance.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&AVACYNS_COLLAR_BONUS),
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever equipped creature dies, if it was a Human, create a 1/1 white Spirit creature token with flying.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::AttachedToSource,
+                        ObjectPredicateDef::Subtype("Human"),
+                    ]),
+                    Some(ZoneKind::Battlefield),
+                    Some(ZoneKind::Graveyard),
+                ),
+                EffectDef::CreateToken {
+                    token: cards::SPIRIT_TOKEN_1_1_WHITE,
+                    controller: None,
+                    count: ValueDef::Constant(1),
+                    tapped: false,
+                    attacking: false,
+                    counters: None,
+                    created: None,
+                },
+            ),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
+        ]),
+);
 
 // DKA 146 — Chalice of Life
 // Audit: blocked — Needs an activation-resolution life-total threshold that transforms the source, plus the complete back-face mana ability.
 
+static ELBRUS_UNATTACH_AND_TRANSFORM: [EffectDef; 2] = [
+    EffectDef::Unattach {
+        object: EffectRecipientDef::Source,
+    },
+    EffectDef::Transform {
+        object: EffectRecipientDef::Source,
+    },
+];
+
+static ELBRUS_FRONT_ABILITIES: [AbilityDef; 3] = [
+    AbilityDef::static_ability(
+        "Equipped creature gets +1/+0.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::AttachedPermanent,
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(1),
+                ValueDef::Constant(0),
+            ),
+        },
+    ),
+    AbilityDef::triggered(
+        "When equipped creature deals combat damage to a player, unattach Elbrus, then transform it.",
+        TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::AttachedToSource),
+        EffectDef::Sequence(&ELBRUS_UNATTACH_AND_TRANSFORM),
+    ),
+    abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
+];
+
+static WITHENGAR_ABILITIES: [AbilityDef; 4] = [
+    abilities::flying(),
+    abilities::intimidate(),
+    abilities::trample(),
+    AbilityDef::not_implemented(
+        "Whenever a player loses the game, put thirteen +1/+1 counters on Withengar Unbound.",
+        "Penta's supported two-player game ends as soon as a player loses, so no continuing game exists in which this trigger can be put on the stack or resolve.",
+    ),
+];
+
+const fn elbrus_front_rules() -> CardRules {
+    CardRules::new_artifact(mana_cost!("{7}"))
+        .with_supertype(CardSupertype::Legendary)
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&ELBRUS_FRONT_ABILITIES)
+}
+
+const fn withengar_back_rules() -> CardRules {
+    CardRules::new_creature_without_mana_cost(&["Demon"], 13, 13)
+        .with_supertype(CardSupertype::Legendary)
+        .printed_colors(&[ManaColor::Black])
+        .with_abilities(&WITHENGAR_ABILITIES)
+}
+
+fn elbrus_composition() -> CardComposition {
+    let front = elbrus_front_rules();
+    let back = withengar_back_rules();
+    CardComposition {
+        parts: vec![
+            CardPart::new(CardPartId::PRIMARY, "Elbrus, the Binding Blade", front),
+            CardPart::new(CardPartId(1), "Withengar Unbound", back),
+        ],
+        structure: CardStructure::DoubleFaced {
+            front: CardPartId::PRIMARY,
+            back: CardPartId(1),
+            kind: DoubleFacedKind::Transforming,
+        },
+        play_options: vec![PlayOptionDef::cast(
+            PlayOptionId::DEFAULT,
+            "Elbrus, the Binding Blade",
+            SpellForm::Part(CardPartId::PRIMARY),
+            mana_cost!("{7}"),
+            CardEffectStatus::Implemented,
+        )],
+    }
+}
+
 // DKA 147 — Elbrus, the Binding Blade
-// Audit: blocked — Needs equipment attachment/equip actions and a combat-damage trigger on the equipped creature that un attaches and transforms this permanent.
+// Audit: partial — Withengar's player-loses trigger is metadata-only because Penta's supported two-player game terminates as soon as a player loses.
+pub(in crate::card::sets) static ELBRUS_THE_BINDING_BLADE: CardRecord = CardRecord::new(
+    cards::ELBRUS_THE_BINDING_BLADE,
+    "Elbrus, the Binding Blade",
+    CardArt::new("683af377-c491-4f62-900c-6b83d75c33c9", "Eric Deschamps"),
+    CardSet::DarkAscension,
+    elbrus_front_rules(),
+)
+.with_composition(elbrus_composition);
 
 static EXECUTIONERS_HOOD_INTIMIDATE: AbilityDef = abilities::intimidate();
 
@@ -2839,7 +2966,7 @@ pub(in crate::card::sets) static EXECUTIONERS_HOOD: CardRecord = CardRecord::new
                 },
             ),
             abilities::equip(
-                mana_cost!("{2}"),
+                &[AbilityCostDef::Mana(mana_cost!("{2}"))],
                 "Equip {2} ({2}: Attach to target creature you control. Equip only as a \
                  sorcery.)",
             ),
@@ -2888,7 +3015,7 @@ pub(in crate::card::sets) static HEAVY_MATTOCK: CardRecord = CardRecord::new(
                 },
             ),
             abilities::equip(
-                mana_cost!("{2}"),
+                &[AbilityCostDef::Mana(mana_cost!("{2}"))],
                 "Equip {2} ({2}: Attach to target creature you control. Equip only as a \
                  sorcery.)",
             ),
@@ -3013,7 +3140,7 @@ pub(in crate::card::sets) static WOLFHUNTERS_QUIVER: CardRecord = CardRecord::ne
                 },
             ),
             abilities::equip(
-                mana_cost!("{5}"),
+                &[AbilityCostDef::Mana(mana_cost!("{5}"))],
                 "Equip {5} ({5}: Attach to target creature you control. Equip only as a \
                  sorcery.)",
             ),
@@ -3200,6 +3327,8 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DROGSKOL_REAVER,
     &HUNTMASTER_OF_THE_FELLS,
     &STROMKIRK_CAPTAIN,
+    &AVACYNS_COLLAR,
+    &ELBRUS_THE_BINDING_BLADE,
     &EXECUTIONERS_HOOD,
     &HEAVY_MATTOCK,
     &HELVAULT,

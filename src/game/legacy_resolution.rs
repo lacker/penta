@@ -1,7 +1,8 @@
 use super::{
     BalanceAction, BalancePhase, BalanceTask, CardBehavior, CardInstance, CardType,
-    DecisionContinuation, DecisionPreference, DecisionVisibility, DecisionZone, Game, GameObjectId,
-    ObjectPredicateDef, PlayerId, StackObject, Target, ZoneKind, ZoneMoveCause, ZonePlacement,
+    DecisionContinuation, DecisionPreference, DecisionVisibility, DecisionZone, Game, GameEvent,
+    GameObjectId, ObjectPredicateDef, PlayerId, StackObject, Target, ZoneKind, ZoneMoveCause,
+    ZonePlacement,
 };
 
 impl Game {
@@ -264,16 +265,20 @@ impl Game {
         }
     }
 
-    /// Take from the top until one matches, and bury the whole group. The
-    /// match is included: "until they reveal a land card, then puts those
-    /// cards into their graveyard" buries the land too.
+    /// Take from the top until one matches, publicly reveal every card, and
+    /// move the passed cards plus the match to their printed destinations.
+    ///
+    /// The returned targets are the new identities of cards put into a
+    /// graveyard, in reveal order. The count includes the matching card even
+    /// when it goes somewhere else, and includes every card in a library that
+    /// contains no match.
     pub(super) fn mill_until_matching(
         &mut self,
         player: PlayerId,
         predicate: ObjectPredicateDef,
         matched_zone: ZoneKind,
         source: GameObjectId,
-    ) {
+    ) -> (Vec<Target>, u16) {
         let mut revealed = Vec::new();
         let mut matched_card = None;
         while let Some(card) = self.players[player.index()].library.pop() {
@@ -283,6 +288,17 @@ impl Game {
             }
             revealed.push(card);
         }
+        let revealed_count = revealed
+            .len()
+            .saturating_add(usize::from(matched_card.is_some()));
+        self.events
+            .extend(revealed.iter().chain(matched_card.iter()).map(|card| {
+                GameEvent::CardRevealed {
+                    player,
+                    card: card.id,
+                    definition: card.definition,
+                }
+            }));
         // The match keeps its own destination; a library with nothing
         // matching found no match and buries everything it passed.
         match matched_card {
@@ -292,14 +308,22 @@ impl Game {
             }
             None => {}
         }
-        self.bury_cards(player, revealed);
+        let buried = self.bury_cards_with_ids(player, revealed);
+        (buried, u16::try_from(revealed_count).unwrap_or(u16::MAX))
     }
 
     pub(super) fn bury_cards(&mut self, player: PlayerId, cards: Vec<CardInstance>) {
+        let _ = self.bury_cards_with_ids(player, cards);
+    }
+
+    fn bury_cards_with_ids(&mut self, player: PlayerId, cards: Vec<CardInstance>) -> Vec<Target> {
+        let mut buried = Vec::with_capacity(cards.len());
         for card in cards {
             let (card, _zone_change) = self.zone_change_card(card);
+            buried.push(Target::Card(card.id));
             self.put_card_into_graveyard(player, card);
         }
+        buried
     }
 
     /// Discards at random from the cards in hand that match, leaving the

@@ -305,6 +305,7 @@ impl Game {
                 }
                 AbilityCostDef::DiscardSource
                 | AbilityCostDef::UntapSource
+                | AbilityCostDef::SacrificeObject(_)
                 | AbilityCostDef::Loyalty(_)
                 | AbilityCostDef::ExileCardsFromGraveyard { .. }
                 | AbilityCostDef::DiscardCards(_)

@@ -216,7 +216,7 @@ A clone forks the *true* state, hidden zones included. That is right for
 self-play but wrong for a search bot in a hosted match: its rollouts must use
 worlds consistent with its observation, not cards only the host knows.
 
-The optional `reconstruction.checkpoint.v3` capability advertises a hidden-safe
+The optional `reconstruction.checkpoint.v4` capability advertises a hidden-safe
 current-state checkpoint in each observation. The checkpoint was introduced in
 protocol 19, expanded in protocol 21 into the complete typed snapshot described
 below, and given its own nested format version in protocol 22. Supply a
@@ -300,7 +300,7 @@ lexical targets or bindings name a card in a hidden zone that has no stable
 public object ID; the checkpoint omits that trigger rather than serializing a
 host-only identity.
 
-Checkpoint format 3 covers every ordinary action boundary emitted by the
+Checkpoint format 4 covers every ordinary action boundary emitted by the
 hosted formats: pregame and turn/combat progression; complete permanent,
 emblem, stack, and combat state; restricted/source-specific mana; copied and
 temporarily modified characteristics; retired-object last-known information;
@@ -354,7 +354,7 @@ world it can search.
 | field | meaning |
 | --- | --- |
 | `protocolVersion` | the breaking bot-wire epoch; protocol 25 objects are open-world, but an epoch mismatch requires migration |
-| `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v3`; ignore unknown entries |
+| `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v4`; ignore unknown entries |
 | `simulationFingerprint` | a conservative identity of simulation source and build requirements; pin it for training and require it for reconstruction |
 | `engineVersion` | package-release provenance; it is not an exact simulation identity |
 | `format` | the rules/deck profile slug, such as `"old-school-93-94"` or `"isd-dgm-standard"` |
@@ -820,9 +820,19 @@ tags are replaced by the shared choice, PayOr, and partition procedures.
 Format-2 checkpoints do not contain the individual ordering, provenance,
 duration, trigger identity, lexical context, phase sequence, displaced
 continuation, payment kind, reveal instruction, or exact hidden-zone positions
-needed to recover this state. They cannot be upgraded by guessing. Current
-reconstruction consumers should require `reconstruction.checkpoint.v3` and
-regenerate checkpoints with the current engine.
+needed to recover this state. They cannot be upgraded by guessing. Consumers
+targeting this historical format had to require `reconstruction.checkpoint.v3`;
+current consumers should follow the format-4 migration below.
+
+### Migrating checkpoint format 3 to 4
+
+Protocol 25 remains in place. Checkpoint format 4 adds the closed `subtypes`
+operation to resolved continuous-effect snapshots, so an effect that adds,
+removes, or sets a named subtype can be reconstructed without flattening the
+permanent's characteristics. Format-3 importers cannot interpret that operation
+and must regenerate the checkpoint with the current engine. Reconstruction
+consumers should require `reconstruction.checkpoint.v4` and continue checking
+the exact simulation fingerprint.
 
 ### Migrating from protocol 24
 
@@ -864,7 +874,7 @@ Protocol 22 splits wire compatibility from conservative source identity:
   `requiredSimulationFingerprint` to refuse a different simulation before it
   is listed or assigned.
 
-The current optional capability is `reconstruction.checkpoint.v3`. An ordinary
+The current optional capability is `reconstruction.checkpoint.v4`. An ordinary
 hosted bot that only reads `legalActions` should declare an empty capability
 list; do not copy the server's advertised capabilities without implementing
 them.

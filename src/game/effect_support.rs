@@ -536,6 +536,9 @@ impl Game {
             CharacteristicOperationDef::CreatureTypes(operation) => {
                 ResolvedContinuousEffectKind::CreatureTypes(operation)
             }
+            CharacteristicOperationDef::Subtypes(operation) => {
+                ResolvedContinuousEffectKind::Subtypes(operation)
+            }
             CharacteristicOperationDef::PowerToughness(operation) => {
                 let freeze = |value| {
                     i16::try_from(

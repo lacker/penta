@@ -136,6 +136,7 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
                     ObjectSetDef::One(
                         ObjectRefDef::ResolvingObject
                         | ObjectRefDef::Binding(_)
+                        | ObjectRefDef::AbilityGrantSource
                         | ObjectRefDef::Target(_)
                         | ObjectRefDef::SourceOfTargetedStackObject(_)
                         | ObjectRefDef::TriggeringObject,
@@ -200,6 +201,7 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::AddMana(_)
         | EffectDef::AddManaEqualTo { .. }
         | EffectDef::DealDamage { .. }
+        | EffectDef::DealDamageFrom { .. }
         | EffectDef::DealDamageAndApply { .. }
         | EffectDef::DrainLife { .. }
         | EffectDef::GainLife { .. }
@@ -225,6 +227,7 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::PhaseOut { .. }
         | EffectDef::ReturnAttached { .. }
         | EffectDef::Reconfigure { .. }
+        | EffectDef::Unattach { .. }
         | EffectDef::PairWithSource { .. }
         | EffectDef::CreateToken { .. }
         | EffectDef::CreateAttachedToken { .. }
@@ -273,11 +276,19 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
 }
 
 fn shared_static_animation_query(recipient: EffectRecipientDef) -> bool {
-    recipient.object_query().is_some_and(|query| {
-        query.zones == [ZoneKind::Battlefield]
-            && shared_static_query(query)
-            && Game::static_animation_predicate_is_supported(query.object)
-    })
+    shared_direct_characteristic_recipient(recipient)
+        || recipient.object_query().is_some_and(|query| {
+            query.zones == [ZoneKind::Battlefield]
+                && shared_static_query(query)
+                && Game::static_animation_predicate_is_supported(query.object)
+        })
+}
+
+fn shared_direct_characteristic_recipient(recipient: EffectRecipientDef) -> bool {
+    matches!(
+        recipient.object_reference(),
+        Some(ObjectRefDef::Source | ObjectRefDef::AttachedToSource)
+    )
 }
 
 pub(in super::super) fn shared_static_applied_effect(
@@ -309,28 +320,24 @@ pub(in super::super) fn shared_static_applied_effect(
             AbilityOperationDef::Add(ability),
         )) => shared_definition_ability(ability),
         // Static animation is deliberately narrower than resolving
-        // characteristic changes: it may add the creature card type, may
-        // repaint color, and must use a query that cannot read anything those
-        // operations supply. Static subtype changes remain outside this
-        // stratified walk.
+        // characteristic changes. Direct source/attachment recipients cannot
+        // feed back into their own selection; a group query must avoid
+        // reading the characteristics it supplies.
         AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(
             SetOperationDef::Add(types),
         )) => {
             types == crate::card::CardTypeSet::single(CardType::Creature)
                 && shared_static_animation_query(recipient)
         }
-        AppliedEffectDef::Characteristic(CharacteristicOperationDef::Colors(
-            SetOperationDef::Set(_),
-        )) => shared_static_animation_query(recipient),
+        AppliedEffectDef::Characteristic(CharacteristicOperationDef::Colors(_)) => {
+            shared_static_animation_query(recipient)
+        }
         AppliedEffectDef::Characteristic(
-            CharacteristicOperationDef::CardTypes(
-                SetOperationDef::Remove(_) | SetOperationDef::Set(_),
-            )
-            | CharacteristicOperationDef::Colors(
-                SetOperationDef::Add(_) | SetOperationDef::Remove(_),
-            )
-            | CharacteristicOperationDef::CreatureTypes(_),
-        ) => false,
+            CharacteristicOperationDef::CreatureTypes(_) | CharacteristicOperationDef::Subtypes(_),
+        ) => shared_direct_characteristic_recipient(recipient),
+        AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(
+            SetOperationDef::Remove(_) | SetOperationDef::Set(_),
+        )) => false,
         // A blocking restriction is read off the ordinary static-effect walk
         // over the attacker, so a group recipient works exactly as a
         // self-applied one does: Bower Passage names every creature you
@@ -445,6 +452,7 @@ fn static_stat_value(value: crate::card::ValueDef) -> bool {
         // Read from the affected object rather than from the effect's own
         // source, which the static power-and-toughness layer has in hand.
         | crate::card::ValueDef::AffectedManaValue
+        | crate::card::ValueDef::AffectedColorCount
         // Read from the pile the source exiled as it entered, which the
         // static power-and-toughness layer can reach from that source.
         | crate::card::ValueDef::TotalPowerOfLinkedExiles

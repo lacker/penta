@@ -1107,7 +1107,8 @@ pub(in crate::card::sets) static DWARVEN_SOLDIER: CardRecord = CardRecord::new(
             "Whenever this creature blocks or becomes blocked by one or more Orcs, this \
              creature gets +0/+2 until end of turn.",
             TriggerEventDef::BlocksOrBecomesBlockedBy {
-                object: ObjectPredicateDef::Subtype("Orc"),
+                creature: ObjectPredicateDef::Source,
+                other: ObjectPredicateDef::Subtype("Orc"),
             },
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,

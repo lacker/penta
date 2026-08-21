@@ -55,6 +55,16 @@ impl Game {
                     None => Target::Permanent(source),
                 }
             }),
+            // A granted ability freezes the exact object that supplied the
+            // grant. Do not follow a zone-change successor here: this is the
+            // last-known permanent the ability names even after sacrificing
+            // it as a cost.
+            ObjectRefDef::AbilityGrantSource => object.ability_origin().and_then(|origin| {
+                let crate::AbilityOrigin::Granted { source, .. } = origin else {
+                    return None;
+                };
+                Some(Target::Permanent(source))
+            }),
             ObjectRefDef::ResolvingObject => self.live_object_target(object.id),
             ObjectRefDef::SourceOfTargetedStackObject(target) => self
                 .targeted_stack_object_source(target, object, scoped)
@@ -86,6 +96,12 @@ impl Game {
     ) -> Option<GameObjectId> {
         match reference {
             ObjectRefDef::Source => object.source,
+            ObjectRefDef::AbilityGrantSource => object.ability_origin().and_then(|origin| {
+                let crate::AbilityOrigin::Granted { source, .. } = origin else {
+                    return None;
+                };
+                Some(source)
+            }),
             ObjectRefDef::ResolvingObject => Some(object.id),
             ObjectRefDef::Binding(binding) => {
                 context

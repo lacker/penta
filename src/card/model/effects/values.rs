@@ -146,6 +146,11 @@ pub enum ValueDef {
     /// other enchantment a body its own cost decides, so the number is the
     /// affected object's and changes from one to the next.
     AffectedManaValue,
+    /// The number of colors the permanent a static effect is being applied
+    /// to currently has. Civic Saber measures the equipped creature rather
+    /// than the Equipment applying the bonus, and the value follows later
+    /// color-changing effects.
+    AffectedColorCount,
     /// The printed power, or toughness, of every card exiled with the
     /// ability's own source, added up. Sutured Ghoul is the body its own
     /// entry assembled, so the number is read off that pile rather than off

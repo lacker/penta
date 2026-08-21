@@ -479,7 +479,8 @@ pub(in crate::card::sets) static GIANT_SHARK: CardRecord = CardRecord::new(
             // Blood in the water: the other creature's damage this turn, not
             // the marks still showing on it, so a regenerated one still counts.
             TriggerEventDef::BlocksOrBecomesBlockedBy {
-                object: ObjectPredicateDef::WasDealtDamageThisTurn,
+                creature: ObjectPredicateDef::Source,
+                other: ObjectPredicateDef::WasDealtDamageThisTurn,
             },
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -1820,7 +1821,8 @@ pub(in crate::card::sets) static SPITTING_SLUG: CardRecord = CardRecord::new(
              this creature gains first strike until end of turn. Otherwise, each creature \
              blocking or blocked by this creature gains first strike until end of turn.",
             TriggerEventDef::BlocksOrBecomesBlockedBy {
-                object: ObjectPredicateDef::HasType(CardType::Creature),
+                creature: ObjectPredicateDef::Source,
+                other: ObjectPredicateDef::HasType(CardType::Creature),
             },
             EffectDef::PayOr(PayOrDef::optional_or(
                 EffectPaymentDef::mana(
@@ -1871,7 +1873,8 @@ static VENOMOUS_TOUCH: AbilityDef = AbilityDef::triggered(
     "Whenever this creature blocks or becomes blocked by a non-Wall creature, destroy the other \
      creature at end of combat.",
     TriggerEventDef::BlocksOrBecomesBlockedBy {
-        object: ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Wall")),
+        creature: ObjectPredicateDef::Source,
+        other: ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Wall")),
     },
     EffectDef::DestroyAtEndOfCombat {
         object: EffectRecipientDef::TriggeringObject,

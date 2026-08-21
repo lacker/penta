@@ -4990,7 +4990,27 @@ pub(in crate::card::sets) static CHROMATIC_LANTERN: CardRecord = CardRecord::new
 );
 
 // RTR 227 — Civic Saber
-// Audit: blocked — Needs the equip procedure and an attachment bonus derived from the equipped creature's current number of colors.
+pub(in crate::card::sets) static CIVIC_SABER: CardRecord = CardRecord::new(
+    cards::CIVIC_SABER,
+    "Civic Saber",
+    CardArt::new("29c9247e-05f4-44bb-86e3-90a60e880374", "Jung Park"),
+    CardSet::ReturnToRavnica,
+    CardRules::new_artifact(mana_cost!("{1}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +1/+0 for each of its colors.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::AffectedColorCount,
+                        ValueDef::Constant(0),
+                    ),
+                },
+            ),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
+        ]),
+);
 
 // RTR 228 — Codex Shredder
 pub(in crate::card::sets) static CODEX_SHREDDER: CardRecord = CardRecord::new(
@@ -5619,6 +5639,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &VASSAL_SOUL,
     &AZORIUS_KEYRUNE,
     &CHROMATIC_LANTERN,
+    &CIVIC_SABER,
     &CODEX_SHREDDER,
     &GOLGARI_KEYRUNE,
     &IZZET_KEYRUNE,

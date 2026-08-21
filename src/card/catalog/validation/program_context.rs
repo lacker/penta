@@ -361,27 +361,26 @@ fn static_object_applied_effect_supported(
             | PowerToughnessOperationDef::SetBaseToughness(power),
         )) => static_power_toughness_value_supported(power),
         // Static animation is deliberately narrower than resolving
-        // characteristic changes: it may add the creature card type, may
-        // repaint color, and must use a query that cannot read anything those
-        // operations supply. Static subtype changes remain outside this
-        // stratified walk.
+        // characteristic changes. A direct source/attachment recipient
+        // cannot feed back into its own selection; a group query must avoid
+        // reading the characteristics it supplies.
         AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(
             SetOperationDef::Add(types),
         )) => {
             types == crate::card::CardTypeSet::single(CardType::Creature)
                 && static_animation_query_supported(recipient)
         }
-        AppliedEffectDef::Characteristic(CharacteristicOperationDef::Colors(
-            SetOperationDef::Set(_),
-        )) => static_animation_query_supported(recipient),
+        AppliedEffectDef::Characteristic(CharacteristicOperationDef::Colors(_)) => {
+            static_animation_query_supported(recipient)
+        }
+        AppliedEffectDef::Characteristic(
+            CharacteristicOperationDef::CreatureTypes(_)
+            | CharacteristicOperationDef::Subtypes(_),
+        ) => static_direct_characteristic_recipient(recipient),
         AppliedEffectDef::Characteristic(
             CharacteristicOperationDef::CardTypes(
                 SetOperationDef::Remove(_) | SetOperationDef::Set(_),
-            )
-            | CharacteristicOperationDef::Colors(
-                SetOperationDef::Add(_) | SetOperationDef::Remove(_),
-            )
-            | CharacteristicOperationDef::CreatureTypes(_),
+            ),
         )
         | AppliedEffectDef::Rule(
             AppliedRuleDef::CannotBeCountered
@@ -423,6 +422,9 @@ fn validate_resolving_effect(
     match effect {
         EffectDef::ChooseCardName { then, .. }
         | EffectDef::SearchZone {
+            then: Some(then), ..
+        }
+        | EffectDef::MillUntil {
             then: Some(then), ..
         }
         | EffectDef::BindMatching { then, .. } => validate_resolving_effect(*then, source_zones),
@@ -515,6 +517,7 @@ fn validate_resolving_effect(
         | EffectDef::AddPoisonCounters { .. }
         | EffectDef::AddEnergyCounters { .. }
         | EffectDef::DealDamage { .. }
+        | EffectDef::DealDamageFrom { .. }
         | EffectDef::DealDamageAndApply { .. }
         | EffectDef::GainLife { .. }
         | EffectDef::DrawCards { .. }
@@ -534,6 +537,7 @@ fn validate_resolving_effect(
         | EffectDef::PhaseOut { .. }
         | EffectDef::ReturnAttached { .. }
         | EffectDef::Reconfigure { .. }
+        | EffectDef::Unattach { .. }
         | EffectDef::PairWithSource { .. }
         | EffectDef::Destroy { .. }
         | EffectDef::DestroyAtEndOfCombat { .. }
@@ -545,7 +549,7 @@ fn validate_resolving_effect(
         | EffectDef::ExileTopOfLibraryToPlay { .. }
         | EffectDef::Mill { .. }
         | EffectDef::SearchZonesAndExileRest { .. }
-        | EffectDef::MillUntil { .. }
+        | EffectDef::MillUntil { then: None, .. }
         | EffectDef::ExileFromTopUntil { .. }
         | EffectDef::ManifestDread { .. }
         | EffectDef::Cascade
@@ -643,6 +647,7 @@ fn static_object_set_supported(objects: ObjectSetDef) -> bool {
         | ObjectSetDef::One(
             ObjectRefDef::ResolvingObject
             | ObjectRefDef::Binding(_)
+            | ObjectRefDef::AbilityGrantSource
             | ObjectRefDef::Target(_)
             | ObjectRefDef::SourceOfTargetedStackObject(_)
             | ObjectRefDef::TriggeringObject,
@@ -668,11 +673,19 @@ fn static_query_supported(query: ObjectQueryDef) -> bool {
 }
 
 fn static_animation_query_supported(recipient: EffectRecipientDef) -> bool {
-    recipient.object_query().is_some_and(|query| {
-        query.zones == [ZoneKind::Battlefield]
-            && static_query_supported(query)
-            && static_animation_predicate_supported(query.object)
-    })
+    static_direct_characteristic_recipient(recipient)
+        || recipient.object_query().is_some_and(|query| {
+            query.zones == [ZoneKind::Battlefield]
+                && static_query_supported(query)
+                && static_animation_predicate_supported(query.object)
+        })
+}
+
+fn static_direct_characteristic_recipient(recipient: EffectRecipientDef) -> bool {
+    matches!(
+        recipient.object_reference(),
+        Some(ObjectRefDef::Source | ObjectRefDef::AttachedToSource)
+    )
 }
 
 /// Which predicates a static animation's own query may read.
@@ -861,6 +874,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::AddPoisonCounters { .. } => "AddPoisonCounters",
         EffectDef::AddEnergyCounters { .. } => "AddEnergyCounters",
         EffectDef::DealDamage { .. } => "DealDamage",
+        EffectDef::DealDamageFrom { .. } => "DealDamageFrom",
         EffectDef::DealDamageAndApply { .. } => "DealDamageAndApply",
         EffectDef::GainLife { .. } => "GainLife",
         EffectDef::DrawCards { .. } => "DrawCards",
@@ -881,6 +895,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         | EffectDef::PhaseOut { .. }
         | EffectDef::ReturnAttached { .. } => "Attach",
         EffectDef::Reconfigure { .. } => "Reconfigure",
+        EffectDef::Unattach { .. } => "Unattach",
         EffectDef::PairWithSource { .. } => "PairWithSource",
         EffectDef::Destroy { .. } => "Destroy",
         EffectDef::DestroyAtEndOfCombat { .. } => "DestroyAtEndOfCombat",

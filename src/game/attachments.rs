@@ -17,18 +17,10 @@ pub(super) enum AttachmentKind {
 impl Game {
     /// The attachment category a permanent currently presents as.
     pub(super) fn attachment_kind(&self, permanent: &Permanent) -> Option<AttachmentKind> {
-        // The attaching side asks whether this could be an Aura at all, so a
-        // declared enchant restriction counts here even before anything is
-        // attached. `is_aura_permanent` answers the narrower question that
-        // state-based actions ask, and needs the attachment to exist.
-        if self.is_aura_permanent(permanent)
-            || self
-                .effective_rules(permanent)
-                .is_some_and(|rules| rules.enchant().is_some())
-        {
+        let subtypes = self.effective_subtypes(permanent);
+        if subtypes.contains(&"Aura") {
             return Some(AttachmentKind::Aura);
         }
-        let subtypes = self.effective_subtypes(permanent);
         if subtypes.contains(&"Equipment") {
             Some(AttachmentKind::Equipment)
         } else if subtypes.contains(&"Fortification") {
@@ -63,7 +55,31 @@ impl Game {
         attachment: &Permanent,
         host: GameObjectId,
     ) -> bool {
-        match self.attachment_kind(attachment) {
+        self.is_legal_attachment_host_with_prospective_reconfigure(attachment, host, false)
+    }
+
+    fn is_legal_attachment_host_with_prospective_reconfigure(
+        &self,
+        attachment: &Permanent,
+        host: GameObjectId,
+        prospective_reconfigure: bool,
+    ) -> bool {
+        let kind = self.attachment_kind(attachment);
+        let is_creature = self
+            .permanent_types(attachment)
+            .is_some_and(|types| types.contains(CardType::Creature));
+        // An attached permanent that is also a creature must become
+        // unattached. Reconfigure is the one prospective exception: attaching
+        // it creates the timestamp that immediately removes Creature for as
+        // long as it remains attached.
+        if is_creature
+            && !(prospective_reconfigure
+                && kind == Some(AttachmentKind::Equipment)
+                && self.has_reconfigure(attachment))
+        {
+            return false;
+        }
+        match kind {
             Some(AttachmentKind::Aura) => self.is_legal_aura_host(attachment, host),
             Some(AttachmentKind::Equipment) => self.battlefield.iter().any(|candidate| {
                 candidate.card.id == host
@@ -146,12 +162,15 @@ impl Game {
         else {
             return false;
         };
-        if permanent.attached_to == Some(host) || !self.is_legal_attachment_host(&permanent, host) {
+        if permanent.attached_to == Some(host)
+            || !self.is_legal_attachment_host_with_prospective_reconfigure(&permanent, host, true)
+        {
             return false;
         }
         let timestamp = self.allocate_continuous_effect_timestamp();
         let reconfigured = self.attachment_kind(&permanent) == Some(AttachmentKind::Equipment)
             && self.has_reconfigure(&permanent);
+        let became_aura = self.attachment_kind(&permanent) == Some(AttachmentKind::Aura);
         let Some(permanent) = self
             .battlefield
             .iter_mut()
@@ -162,7 +181,7 @@ impl Game {
         permanent.attached_to = Some(host);
         // "It becomes an Aura" happens in the same resolution that attaches
         // it, so the two are recorded together and it stays one afterwards.
-        permanent.became_aura = true;
+        permanent.became_aura = became_aura;
         permanent.timestamp = timestamp;
         permanent.reconfigured_timestamp = reconfigured.then_some(timestamp);
         true

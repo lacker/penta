@@ -164,9 +164,11 @@ pub(in super::super) fn shared_trigger_event(event: TriggerEventDef) -> bool {
             source && recipient
         }
         TriggerEventDef::AttacksAndIsNotBlocked { attacker: source }
-        | TriggerEventDef::BlocksOrBecomesBlockedBy { object: source }
         | TriggerEventDef::Blocks { blocked: source }
         | TriggerEventDef::BecomesBlockedBy { blocker: source } => shared_object_predicate(source),
+        TriggerEventDef::BlocksOrBecomesBlockedBy { creature, other } => {
+            shared_object_predicate(creature) && shared_object_predicate(other)
+        }
     }
 }
 
@@ -389,6 +391,9 @@ pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effe
         | EffectDef::Mill {
             then: Some(effect), ..
         }
+        | EffectDef::MillUntil {
+            then: Some(effect), ..
+        }
         | EffectDef::ReplaceNextDrawThisTurn { effect, .. } => {
             assert_nested_definition_abilities(card_name, *effect);
         }
@@ -415,6 +420,7 @@ pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effe
         | EffectDef::AddMana(_)
         | EffectDef::AddManaEqualTo { .. }
         | EffectDef::DealDamage { .. }
+        | EffectDef::DealDamageFrom { .. }
         | EffectDef::DrainLife { .. }
         | EffectDef::GainLife { .. }
         | EffectDef::AddPoisonCounters { .. }
@@ -440,6 +446,7 @@ pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effe
         | EffectDef::PhaseOut { .. }
         | EffectDef::ReturnAttached { .. }
         | EffectDef::Reconfigure { .. }
+        | EffectDef::Unattach { .. }
         | EffectDef::PairWithSource { .. }
         | EffectDef::CreateAttachedToken { .. }
         | EffectDef::CreateTokenCopyOf { .. }
@@ -455,7 +462,7 @@ pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effe
         }
         | EffectDef::MayCastTargetWithoutPaying { .. }
         | EffectDef::SearchZonesAndExileRest { .. }
-        | EffectDef::MillUntil { .. }
+        | EffectDef::MillUntil { then: None, .. }
         | EffectDef::ExileFromTopUntil { .. }
         | EffectDef::ManifestDread { .. }
         | EffectDef::Cascade

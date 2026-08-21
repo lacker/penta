@@ -84,6 +84,15 @@ fn validate_effect_target_shapes(
             validate_recipient_shape(recipient, targets, RecipientExpectation::Any)?;
             validate_value_shape(amount, targets)
         }
+        EffectDef::DealDamageFrom {
+            source,
+            recipient,
+            amount,
+        } => {
+            validate_object_reference_shape(source, targets)?;
+            validate_recipient_shape(recipient, targets, RecipientExpectation::Any)?;
+            validate_value_shape(amount, targets)
+        }
         EffectDef::GainLife { recipient, amount }
         | EffectDef::AddPoisonCounters { recipient, amount }
         | EffectDef::AddEnergyCounters { recipient, amount }
@@ -97,7 +106,6 @@ fn validate_effect_target_shapes(
         }
         EffectDef::SearchZonesAndExileRest { player, .. }
         | EffectDef::ExileTopOfLibraryToPlay { player, .. }
-        | EffectDef::MillUntil { player, .. }
         | EffectDef::ExileFromTopUntil { player, .. }
         | EffectDef::ManifestDread { player }
         |         EffectDef::ShuffleLibrary { player }
@@ -188,6 +196,15 @@ fn validate_effect_target_shapes(
                 None => Ok(()),
             }
         }
+        EffectDef::MillUntil { player, then, .. } => {
+            validate_recipient_shape(player, targets, RecipientExpectation::Player)?;
+            match then {
+                Some(then) => {
+                    validate_effect_target_shapes(*then, targets, triggering_object_zone)
+                }
+                None => Ok(()),
+            }
+        }
         EffectDef::DiscardCards { object }
         | EffectDef::Explore { object }
         | EffectDef::Regenerate { object }
@@ -198,6 +215,7 @@ fn validate_effect_target_shapes(
         | EffectDef::PhaseOut { object }
         | EffectDef::ReturnAttached { object, .. }
         | EffectDef::Reconfigure { object }
+        | EffectDef::Unattach { object }
         | EffectDef::PairWithSource { object }
         | EffectDef::Destroy { object, .. }
         | EffectDef::DestroyAtEndOfCombat { object }

@@ -330,6 +330,7 @@ fn validate_value_shape(
         | ValueDef::SourceCastX
         | ValueDef::SourcePower
         | ValueDef::AffectedManaValue
+        | ValueDef::AffectedColorCount
         | ValueDef::TotalPowerOfLinkedExiles
         | ValueDef::TotalToughnessOfLinkedExiles
         | ValueDef::SourceToughness
@@ -561,6 +562,7 @@ fn recipient_may_name_nonbattlefield_object(
         EffectRecipientSetDef::Objects(
             ObjectSetDef::One(
                 ObjectRefDef::Source
+                | ObjectRefDef::AbilityGrantSource
                 | ObjectRefDef::ResolvingObject
                 | ObjectRefDef::AttachedToSource
                 // The permanent behind a countered ability, which is on the
@@ -616,6 +618,7 @@ fn recipient_nonbattlefield_zones_support_flashback(
         EffectRecipientSetDef::Objects(
             ObjectSetDef::One(
                 ObjectRefDef::Source
+                | ObjectRefDef::AbilityGrantSource
                 | ObjectRefDef::ResolvingObject
                 | ObjectRefDef::AttachedToSource
                 | ObjectRefDef::SourceOfTargetedStackObject(_),

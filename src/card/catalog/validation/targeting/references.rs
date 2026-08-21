@@ -150,8 +150,7 @@ fn validate_object_reference(
     scope: BindingScope,
 ) -> Result<(), GrantedAbilityValidationError> {
     match reference {
-        ObjectRefDef::Target(target)
-        | ObjectRefDef::SourceOfTargetedStackObject(target) => {
+        ObjectRefDef::Target(target) | ObjectRefDef::SourceOfTargetedStackObject(target) => {
             validate_target_index(target, target_count)
         }
         ObjectRefDef::Binding(binding) => {
@@ -162,6 +161,7 @@ fn validate_object_reference(
             }
         }
         ObjectRefDef::Source
+        | ObjectRefDef::AbilityGrantSource
         | ObjectRefDef::ResolvingObject
         | ObjectRefDef::AttachedToSource
         | ObjectRefDef::TriggeringObject => Ok(()),
@@ -267,26 +267,27 @@ fn validate_trigger_object_predicate(
             if matches!(
                 value,
                 ValueDef::CreaturesDiedThisTurn
-        | ValueDef::CardTypesAmongGraveyards(_)
-        | ValueDef::IfCardTypesAmongGraveyards(_)
-        | ValueDef::Constant(_)
+                    | ValueDef::CardTypesAmongGraveyards(_)
+                    | ValueDef::IfCardTypesAmongGraveyards(_)
+                    | ValueDef::Constant(_)
                     | ValueDef::ChosenX
                     | ValueDef::SourceCastX
                     | ValueDef::SourcePower
                     | ValueDef::AffectedManaValue
+                    | ValueDef::AffectedColorCount
                     | ValueDef::TotalPowerOfLinkedExiles
                     | ValueDef::TotalToughnessOfLinkedExiles
                     | ValueDef::LifeTotal(_)
-        | ValueDef::SourceToughness
+                    | ValueDef::SourceToughness
                     | ValueDef::CountersOnSource(_)
                     | ValueDef::CardsDrawnThisTurn(_)
-        | ValueDef::DevotionTo(_)
-        | ValueDef::LibrarySize(_)
-        | ValueDef::ColorsOfManaSpent
-        | ValueDef::PaidAmount
+                    | ValueDef::DevotionTo(_)
+                    | ValueDef::LibrarySize(_)
+                    | ValueDef::ColorsOfManaSpent
+                    | ValueDef::PaidAmount
                     | ValueDef::MatchedCount
                     | ValueDef::MatchedCardTypes
-        | ValueDef::BoundObjectCount(_)
+                    | ValueDef::BoundObjectCount(_)
                     | ValueDef::SpellsCastBeforeThisTurn
             ) {
                 Ok(())
@@ -481,9 +482,7 @@ fn validate_trigger_damage_matcher(
         }
     }
     match matcher.recipient {
-        DamageRecipientMatcherDef::Any | DamageRecipientMatcherDef::PlayerOrPlaneswalker => {
-            Ok(())
-        }
+        DamageRecipientMatcherDef::Any | DamageRecipientMatcherDef::PlayerOrPlaneswalker => Ok(()),
         DamageRecipientMatcherDef::Recipients(EffectRecipientDef(
             EffectRecipientSetDef::Objects(ObjectSetDef::One(reference)),
         )) => validate_trigger_object_reference(reference, event, target_count, scope),
@@ -509,6 +508,18 @@ const fn declaration_range_is_empty(range: crate::card::AttackDeclarationRangeDe
         }
 }
 
+const COMMITTED_ZONE_TRANSITIONS: [(ZoneKind, ZoneKind); 9] = [
+    (ZoneKind::Library, ZoneKind::Battlefield),
+    (ZoneKind::Hand, ZoneKind::Battlefield),
+    (ZoneKind::Graveyard, ZoneKind::Battlefield),
+    (ZoneKind::Exile, ZoneKind::Battlefield),
+    (ZoneKind::Stack, ZoneKind::Battlefield),
+    (ZoneKind::Battlefield, ZoneKind::Graveyard),
+    (ZoneKind::Battlefield, ZoneKind::Exile),
+    (ZoneKind::Battlefield, ZoneKind::Hand),
+    (ZoneKind::Battlefield, ZoneKind::Library),
+];
+
 fn validate_trigger_event_references(
     event: TriggerEventDef,
     target_count: usize,
@@ -517,28 +528,17 @@ fn validate_trigger_event_references(
     match event {
         // The ability is one ability, so every way into it has to be
         // independently valid.
-        TriggerEventDef::AnyOf(events) => events.iter().try_for_each(|event| {
-            validate_trigger_event_references(*event, target_count, scope)
-        }),
+        TriggerEventDef::AnyOf(events) => events
+            .iter()
+            .try_for_each(|event| validate_trigger_event_references(*event, target_count, scope)),
         TriggerEventDef::ZoneChanged(matcher) => {
-            const COMMITTED_TRANSITIONS: [(ZoneKind, ZoneKind); 9] = [
-                (ZoneKind::Library, ZoneKind::Battlefield),
-                (ZoneKind::Hand, ZoneKind::Battlefield),
-                (ZoneKind::Graveyard, ZoneKind::Battlefield),
-                (ZoneKind::Exile, ZoneKind::Battlefield),
-                (ZoneKind::Stack, ZoneKind::Battlefield),
-                (ZoneKind::Battlefield, ZoneKind::Graveyard),
-                (ZoneKind::Battlefield, ZoneKind::Exile),
-                (ZoneKind::Battlefield, ZoneKind::Hand),
-                (ZoneKind::Battlefield, ZoneKind::Library),
-            ];
-            if !COMMITTED_TRANSITIONS.iter().any(|(from, to)| {
+            if !COMMITTED_ZONE_TRANSITIONS.iter().any(|(from, to)| {
                 matcher.from.is_none_or(|expected| expected == *from)
                     && matcher.to.is_none_or(|expected| expected == *to)
             }) {
                 return Err(unsupported_trigger_event(event));
             }
-            let can_match_departure = COMMITTED_TRANSITIONS.iter().any(|(from, to)| {
+            let can_match_departure = COMMITTED_ZONE_TRANSITIONS.iter().any(|(from, to)| {
                 *from == ZoneKind::Battlefield
                     && *to != ZoneKind::Battlefield
                     && matcher.from.is_none_or(|expected| expected == *from)
@@ -590,7 +590,6 @@ fn validate_trigger_event_references(
             attacker: predicate,
         }
         | TriggerEventDef::BecomesBlocked(predicate)
-        | TriggerEventDef::BlocksOrBecomesBlockedBy { object: predicate }
         | TriggerEventDef::Blocks { blocked: predicate }
         | TriggerEventDef::BecomesBlockedBy { blocker: predicate }
         | TriggerEventDef::SpellCast(predicate)
@@ -601,6 +600,10 @@ fn validate_trigger_event_references(
         }
         | TriggerEventDef::Transforms(predicate) => {
             validate_trigger_object_predicate(predicate, event, target_count, scope)
+        }
+        TriggerEventDef::BlocksOrBecomesBlockedBy { creature, other } => {
+            validate_trigger_object_predicate(creature, event, target_count, scope)?;
+            validate_trigger_object_predicate(other, event, target_count, scope)
         }
         TriggerEventDef::DamageDealt(matcher) => {
             validate_trigger_damage_matcher(matcher, event, target_count, scope)
@@ -672,9 +675,7 @@ fn validate_condition(
 ) -> Result<(), GrantedAbilityValidationError> {
     match condition {
         ConditionDef::Exists(query) => validate_query(query, target_count, scope),
-        ConditionDef::ObjectCount(counting) => {
-            validate_query(counting.query, target_count, scope)
-        }
+        ConditionDef::ObjectCount(counting) => validate_query(counting.query, target_count, scope),
         ConditionDef::All(conditions) => conditions
             .iter()
             .try_for_each(|condition| validate_condition(*condition, target_count, scope)),
@@ -745,8 +746,7 @@ fn validate_recipient_target_references(
             | ObjectSetDef::SharingNameWith(reference),
         ) => validate_object_reference(reference, target_count, scope),
         EffectRecipientSetDef::Objects(
-            ObjectSetDef::Binding(binding)
-            | ObjectSetDef::MatchingBinding { binding, .. },
+            ObjectSetDef::Binding(binding) | ObjectSetDef::MatchingBinding { binding, .. },
         ) => {
             if scope.object_sets & (1 << binding.index()) != 0 {
                 Ok(())
@@ -826,6 +826,7 @@ fn validate_value_target_references(
         | ValueDef::SourceCastX
         | ValueDef::SourcePower
         | ValueDef::AffectedManaValue
+        | ValueDef::AffectedColorCount
         | ValueDef::TotalPowerOfLinkedExiles
         | ValueDef::TotalToughnessOfLinkedExiles
         | ValueDef::TriggeringObjectPower

@@ -304,6 +304,7 @@ impl HandcraftedPolicy {
             }
             EffectDef::May { effect, .. } => Self::is_empty_without_x(*effect),
             EffectDef::DealDamage { amount, .. }
+            | EffectDef::DealDamageFrom { amount, .. }
             | EffectDef::DealDamageAndApply { amount, .. }
             | EffectDef::DrainLife { amount, .. }
             | EffectDef::DrawCards { amount, .. }
@@ -357,6 +358,9 @@ impl HandcraftedPolicy {
                 Self::collect_spell_effect_profile(*effect, x, targets, profile);
             }
             EffectDef::DealDamage { recipient, amount }
+            | EffectDef::DealDamageFrom {
+                recipient, amount, ..
+            }
             | EffectDef::DealDamageAndApply {
                 recipient, amount, ..
             }
@@ -500,6 +504,7 @@ impl HandcraftedPolicy {
             | EffectDef::PhaseOut { .. }
             | EffectDef::ReturnAttached { .. }
             | EffectDef::Reconfigure { .. }
+            | EffectDef::Unattach { .. }
             | EffectDef::PairWithSource { .. }
             | EffectDef::CreateToken { .. }
             | EffectDef::CreateAttachedToken { .. }
@@ -517,6 +522,7 @@ impl HandcraftedPolicy {
             ValueDef::SourceCastX
             | ValueDef::SourcePower
             | ValueDef::AffectedManaValue
+            | ValueDef::AffectedColorCount
             | ValueDef::TotalPowerOfLinkedExiles
             | ValueDef::TotalToughnessOfLinkedExiles
             | ValueDef::TriggeringObjectPower

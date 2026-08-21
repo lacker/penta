@@ -34,11 +34,14 @@ pub enum TriggerEventDef {
     /// creatures are blocking it beyond the first, which is the quantity
     /// every rampage-style clause is written against.
     BecomesBlocked(ObjectPredicateDef),
-    /// This creature blocked a matching creature, or was blocked by one. The
-    /// two directions are one printed clause, and the creature on the other
-    /// side is the triggering object either way.
+    /// A matching creature blocked a matching creature, or was blocked by
+    /// one. The two directions are one printed clause; `creature` is the
+    /// subject named before "blocks" and `other` is the triggering object.
+    /// Keeping both predicates explicit lets an Equipment listen for its
+    /// attached creature without pretending the Equipment itself blocked.
     BlocksOrBecomesBlockedBy {
-        object: ObjectPredicateDef,
+        creature: ObjectPredicateDef,
+        other: ObjectPredicateDef,
     },
     /// This creature blocked a matching creature. The blocking half of
     /// [`Self::BlocksOrBecomesBlockedBy`], for the cards that print only one

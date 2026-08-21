@@ -353,7 +353,8 @@ impl Game {
             ObjectRefDef::AttachedToSource => {
                 self.current_or_last_known_attached_host(effect_source)
             }
-            ObjectRefDef::Binding(_)
+            ObjectRefDef::AbilityGrantSource
+            | ObjectRefDef::Binding(_)
             | ObjectRefDef::Target(_)
             | ObjectRefDef::SourceOfTargetedStackObject(_)
             | ObjectRefDef::TriggeringObject => None,

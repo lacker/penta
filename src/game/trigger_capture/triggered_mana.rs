@@ -32,6 +32,7 @@ impl Game {
             | EffectDef::SplitIntoPiles(_)
             | EffectDef::PreventDamage { .. }
             | EffectDef::DealDamage { .. }
+            | EffectDef::DealDamageFrom { .. }
             | EffectDef::DealDamageAndApply { .. }
             | EffectDef::DrainLife { .. }
             | EffectDef::GainLife { .. }
@@ -123,6 +124,7 @@ impl Game {
             | EffectDef::PhaseOut { .. }
             | EffectDef::ReturnAttached { .. }
             | EffectDef::Reconfigure { .. }
+            | EffectDef::Unattach { .. }
             | EffectDef::PairWithSource { .. }
             | EffectDef::CreateToken { .. }
             | EffectDef::CreateAttachedToken { .. }

@@ -198,6 +198,11 @@ fn resolved_operation_snapshot(
         ) => matching_set_operation(expected, *actual)
             .map(|operation| ResolvedContinuousOperationSnapshot::CreatureTypes { operation }),
         (
+            AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(expected)),
+            ResolvedContinuousEffectKind::Subtypes(actual),
+        ) => matching_set_operation(expected, *actual)
+            .map(|operation| ResolvedContinuousOperationSnapshot::Subtypes { operation }),
+        (
             AppliedEffectDef::Characteristic(CharacteristicOperationDef::PowerToughness(
                 PowerToughnessOperationDef::SetBase { .. },
             )),

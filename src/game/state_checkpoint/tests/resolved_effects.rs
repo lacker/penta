@@ -7,6 +7,8 @@ fn resolved_continuous_effects_round_trip_order_provenance_expiration_and_frozen
     let (source, modify_definition, granted, grant_definition) =
         composite_modify_and_grant(&game.catalog, target);
     let (dynamic_source, dynamic_definition) = dynamic_modify(&game.catalog, target);
+    let (subtype_source, subtype_definition, subtype_operation) =
+        subtype_change(&game.catalog, target);
     let shared_timestamp = ContinuousEffectTimestamp(90_000);
     let expected = vec![
         ResolvedContinuousEffect {
@@ -45,6 +47,14 @@ fn resolved_continuous_effects_round_trip_order_provenance_expiration_and_frozen
                     toughness: 9,
                 },
             ),
+        },
+        ResolvedContinuousEffect {
+            definition: subtype_definition,
+            source: subtype_source,
+            timestamp: ContinuousEffectTimestamp(90_002),
+            component_order: 0,
+            expiration: ContinuousEffectExpiration::EndOfTurn,
+            kind: ResolvedContinuousEffectKind::Subtypes(subtype_operation),
         },
     ];
     game.battlefield

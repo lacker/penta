@@ -88,6 +88,10 @@ pub enum CharacteristicOperationDef {
     CardTypes(SetOperationDef<CardTypeSet>),
     Colors(SetOperationDef<ColorSet>),
     CreatureTypes(SetOperationDef<CreatureTypeSetDef>),
+    /// Named subtype operations across every subtype family. Unlike
+    /// `CreatureTypes`, this can remove a noncreature subtype such as
+    /// Equipment without disturbing the permanent's other subtypes.
+    Subtypes(SetOperationDef<&'static [&'static str]>),
     PowerToughness(PowerToughnessOperationDef),
 }
 
@@ -410,6 +414,16 @@ impl AppliedEffectDef {
     pub const fn set_creature_types(types: CreatureTypeSetDef) -> Self {
         Self::Characteristic(CharacteristicOperationDef::CreatureTypes(
             SetOperationDef::Set(types),
+        ))
+    }
+
+    /// Remove the named subtypes, regardless of which card-type family they
+    /// belong to. This is the layer-4 operation used by "no longer an
+    /// Equipment" animations.
+    #[must_use]
+    pub const fn remove_subtypes(types: &'static [&'static str]) -> Self {
+        Self::Characteristic(CharacteristicOperationDef::Subtypes(
+            SetOperationDef::Remove(types),
         ))
     }
 

@@ -110,6 +110,7 @@ pub(super) enum ResolvedContinuousEffectKind {
     CardTypes(SetOperationDef<CardTypeSet>),
     Colors(SetOperationDef<ColorSet>),
     CreatureTypes(SetOperationDef<CreatureTypeSetDef>),
+    Subtypes(SetOperationDef<&'static [&'static str]>),
     PowerToughness(ResolvedPowerToughnessOperation),
     Rule(AppliedRuleDef),
 }

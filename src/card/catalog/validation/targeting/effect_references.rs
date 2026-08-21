@@ -142,6 +142,15 @@ fn validate_effect_references(
             validate_recipient_target_references(recipient, target_count, scope)?;
             validate_value_target_references(amount, target_count, scope)
         }
+        EffectDef::DealDamageFrom {
+            source,
+            recipient,
+            amount,
+        } => {
+            validate_object_reference(source, target_count, scope)?;
+            validate_recipient_target_references(recipient, target_count, scope)?;
+            validate_value_target_references(amount, target_count, scope)
+        }
         EffectDef::MayCastTargetWithoutPaying { object, .. }
         | EffectDef::Explore { object }
         | EffectDef::LoseTheGame { player: object }
@@ -160,6 +169,7 @@ fn validate_effect_references(
         | EffectDef::PhaseOut { object }
         | EffectDef::ReturnAttached { object, .. }
         | EffectDef::Reconfigure { object }
+        | EffectDef::Unattach { object }
         | EffectDef::PairWithSource { object }
         | EffectDef::Destroy { object, .. }
         | EffectDef::Sacrifice { object }
@@ -227,7 +237,6 @@ fn validate_effect_references(
         }
         EffectDef::SearchZonesAndExileRest { player, .. }
         | EffectDef::ExileTopOfLibraryToPlay { player, .. }
-        | EffectDef::MillUntil { player, .. }
         | EffectDef::ExileFromTopUntil { player, .. }
         | EffectDef::ManifestDread { player }
         | EffectDef::ChooseCards { player, .. }
@@ -268,6 +277,22 @@ fn validate_effect_references(
             };
             // The cards a mill put there are in scope for its own follow-up,
             // the same way a search's found cards are.
+            let nested = match binding {
+                Some(binding) => scope.with_object_set(binding)?,
+                None => scope,
+            };
+            validate_effect_references(*then, target_count, nested)
+        }
+        EffectDef::MillUntil {
+            player,
+            binding,
+            then,
+            ..
+        } => {
+            validate_recipient_target_references(player, target_count, scope)?;
+            let Some(then) = then else {
+                return Ok(());
+            };
             let nested = match binding {
                 Some(binding) => scope.with_object_set(binding)?,
                 None => scope,

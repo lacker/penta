@@ -318,13 +318,32 @@ impl Game {
                 player: recipient,
                 object: predicate,
                 matched_zone,
+                binding,
+                then,
             } => {
                 let source = object.source.unwrap_or(object.id);
+                let mut revealed = Vec::new();
+                let mut revealed_count = 0_u16;
                 for target in self.effect_recipients(recipient, object, context, scoped) {
                     if let Target::Player(player) = target {
-                        self.mill_until_matching(player, predicate, matched_zone, source);
+                        let (mut moved, count) =
+                            self.mill_until_matching(player, predicate, matched_zone, source);
+                        revealed.append(&mut moved);
+                        revealed_count = revealed_count.saturating_add(count);
                     }
                 }
+                let Some(then) = then else {
+                    return;
+                };
+                // Revealing and moving are synchronous, so the follow-up runs
+                // inline with both the exact moved identities and the frozen
+                // number revealed available to it.
+                let mut context = context.clone();
+                context.matched_count = Some(revealed_count);
+                if let Some(binding) = binding {
+                    context.bind_object_group(binding, revealed);
+                }
+                self.resolve_effect_def(scoped.with_effect(*then), object, context);
             }
             EffectDef::Cascade => self.cascade(object),
             EffectDef::ManifestDread { player: recipient } => {

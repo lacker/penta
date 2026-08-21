@@ -423,6 +423,9 @@ pub(super) enum ResolvedContinuousOperationSnapshot {
     CreatureTypes {
         operation: SetOperationSnapshot,
     },
+    Subtypes {
+        operation: SetOperationSnapshot,
+    },
     ModifyPowerToughness {
         power: i16,
         toughness: i16,

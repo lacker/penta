@@ -55,6 +55,9 @@ fn collect_ability_grants(effect: EffectDef, grants: &mut Vec<&AbilityDef>) {
         | EffectDef::Mill {
             then: Some(effect), ..
         }
+        | EffectDef::MillUntil {
+            then: Some(effect), ..
+        }
         | EffectDef::ReplaceNextDrawThisTurn { effect, .. } => {
             collect_ability_grants(*effect, grants);
         }
@@ -86,6 +89,7 @@ fn collect_ability_grants(effect: EffectDef, grants: &mut Vec<&AbilityDef>) {
         | EffectDef::AddMana(_)
         | EffectDef::AddManaEqualTo { .. }
         | EffectDef::DealDamage { .. }
+        | EffectDef::DealDamageFrom { .. }
         | EffectDef::DrainLife { .. }
         | EffectDef::GainLife { .. }
         | EffectDef::AddPoisonCounters { .. }
@@ -111,6 +115,7 @@ fn collect_ability_grants(effect: EffectDef, grants: &mut Vec<&AbilityDef>) {
         | EffectDef::PhaseOut { .. }
         | EffectDef::ReturnAttached { .. }
         | EffectDef::Reconfigure { .. }
+        | EffectDef::Unattach { .. }
         | EffectDef::PairWithSource { .. }
         | EffectDef::CreateAttachedToken { .. }
         | EffectDef::CreateTokenCopyOf { .. }
@@ -124,7 +129,7 @@ fn collect_ability_grants(effect: EffectDef, grants: &mut Vec<&AbilityDef>) {
         | EffectDef::ExileTopAndMayCast { otherwise: None, .. }
         | EffectDef::MayCastTargetWithoutPaying { .. }
         | EffectDef::SearchZonesAndExileRest { .. }
-            | EffectDef::MillUntil { .. }
+        | EffectDef::MillUntil { then: None, .. }
         | EffectDef::ExileFromTopUntil { .. }
         | EffectDef::ManifestDread { .. }
         | EffectDef::Cascade
@@ -272,6 +277,9 @@ fn ability_grant_sites(effect: EffectDef) -> usize {
         | EffectDef::Mill {
             then: Some(effect), ..
         }
+        | EffectDef::MillUntil {
+            then: Some(effect), ..
+        }
         | EffectDef::ReplaceNextDrawThisTurn { effect, .. }
         | EffectDef::SacrificeOfChoice {
             then: Some(effect), ..
@@ -294,6 +302,7 @@ fn ability_grant_sites(effect: EffectDef) -> usize {
         | EffectDef::AddMana(_)
         | EffectDef::AddManaEqualTo { .. }
         | EffectDef::DealDamage { .. }
+        | EffectDef::DealDamageFrom { .. }
         | EffectDef::DrainLife { .. }
         | EffectDef::GainLife { .. }
         | EffectDef::AddPoisonCounters { .. }
@@ -319,6 +328,7 @@ fn ability_grant_sites(effect: EffectDef) -> usize {
         | EffectDef::PhaseOut { .. }
         | EffectDef::ReturnAttached { .. }
         | EffectDef::Reconfigure { .. }
+        | EffectDef::Unattach { .. }
         | EffectDef::PairWithSource { .. }
         | EffectDef::CreateAttachedToken { .. }
         | EffectDef::CreateTokenCopyOf { .. }
@@ -332,7 +342,7 @@ fn ability_grant_sites(effect: EffectDef) -> usize {
         | EffectDef::ExileTopAndMayCast { otherwise: None, .. }
         | EffectDef::MayCastTargetWithoutPaying { .. }
         | EffectDef::SearchZonesAndExileRest { .. }
-            | EffectDef::MillUntil { .. }
+        | EffectDef::MillUntil { then: None, .. }
         | EffectDef::ExileFromTopUntil { .. }
         | EffectDef::ManifestDread { .. }
         | EffectDef::Cascade

@@ -101,6 +101,7 @@ fn the_piledriver_counts_other_attacking_goblins_only() {
         object: attacking,
         declaration_size: 4,
         attack_number: 1,
+        defending_player: PlayerId::Two,
     });
     settle(&mut game);
 

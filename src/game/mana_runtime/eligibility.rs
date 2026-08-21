@@ -42,6 +42,7 @@ impl Game {
                 | AbilityCostDef::TapSource
                 | AbilityCostDef::UntapSource
                 | AbilityCostDef::SacrificeSource
+                | AbilityCostDef::SacrificeObject(_)
                 | AbilityCostDef::ReturnSourceToHand
                 | AbilityCostDef::DiscardSource
                 | AbilityCostDef::DiscardCards(_)
@@ -116,6 +117,7 @@ impl Game {
                 !mana.variable_x && mana.hybrid.iter().all(|count| *count == 0) && bounded
             }
             AbilityCostDef::UntapSource
+            | AbilityCostDef::SacrificeObject(_)
             | AbilityCostDef::DiscardSource
             | AbilityCostDef::DiscardCards(_)
             | AbilityCostDef::DiscardCardMatching(_)

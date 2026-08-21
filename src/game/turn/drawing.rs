@@ -4,10 +4,11 @@
 //! a draw is one instruction whose interruptions are its own.
 
 use super::super::{
-    AlternativeCastKindDef, CardDefinitionId, CardPartId, CommittedTriggerEvent,
-    DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
-    DeclarativeAbilityDef, Game, GameEvent, GameObjectId, GameResult, ObjectCharacteristics,
-    PendingProcedure, PlayerId, Step, WinReason,
+    AbilityDef, AbilityOrigin, AbilitySourceRef, AlternativeCastKindDef, CardDefinitionId,
+    CardPartId, CommittedTriggerEvent, DecisionContinuation, DecisionOption, DecisionPreference,
+    DecisionVisibility, DecisionZone, DeclarativeAbilityDef, EffectDef, Game, GameEvent,
+    GameObjectId, GameResult, ObjectCharacteristics, PendingProcedure, PlayerId, Step,
+    TriggerCapture, TriggerContext, WinReason,
 };
 
 impl Game {
@@ -35,7 +36,6 @@ impl Game {
         };
         let (card, _zone_change) = self.zone_change_card(card);
         let card_id = card.id;
-        let definition = card.definition;
         self.players[player.index()].hand.push(card);
         self.events.push(GameEvent::CardDrawn {
             player,
@@ -44,8 +44,8 @@ impl Game {
         let drawn = &mut self.cards_drawn_this_turn[player.index()];
         *drawn = drawn.saturating_add(1);
         self.drawn_this_turn[player.index()].push(card_id);
-        if self.cards_drawn_this_turn[player.index()] == 1 && self.has_miracle(definition) {
-            self.queue_miracle_reveal(player, card_id);
+        if self.cards_drawn_this_turn[player.index()] == 1 {
+            self.queue_draw_action_window(player, card_id);
         }
         // Raised where the card actually reaches the hand: a draw that was
         // replaced above never happened, so nothing watching for one fires.
@@ -105,67 +105,129 @@ impl Game {
 
     /// Whether a card offers a miracle cost at all.
     pub(in crate::game) fn has_miracle(&self, definition: CardDefinitionId) -> bool {
-        self.catalog.get(definition).is_some_and(|definition| {
-            definition.parts.iter().any(|part| {
-                part.rules.ability_clauses().iter().any(|ability| {
-                    ability.is_executable()
-                        && matches!(
-                            ability.definition,
-                            DeclarativeAbilityDef::AlternativeCast(alternative)
-                                if alternative.kind == AlternativeCastKindDef::Miracle
-                        )
-                })
+        self.miracle_ability(definition).is_some()
+    }
+
+    pub(in crate::game) fn miracle_ability(
+        &self,
+        definition: CardDefinitionId,
+    ) -> Option<(AbilityOrigin, AbilityDef)> {
+        let definition = self.catalog.get(definition)?;
+        definition.parts.iter().find_map(|part| {
+            part.rules.indexed_abilities().find_map(|attached| {
+                (attached.definition.is_executable()
+                    && matches!(
+                        attached.definition.definition,
+                        DeclarativeAbilityDef::AlternativeCast(alternative)
+                            if alternative.kind == AlternativeCastKindDef::Miracle
+                    ))
+                .then_some((
+                    AbilityOrigin::Printed {
+                        definition: definition.id,
+                        part: part.id,
+                        ability: attached.id,
+                    },
+                    attached.definition,
+                ))
             })
         })
     }
 
-    /// Offers the reveal that opens a miracle window. Revealing is the whole
-    /// choice: whether to then pay the cost is the ordinary cast decision,
-    /// and declining to cast simply lets the window close.
-    pub(in crate::game) fn queue_miracle_reveal(&mut self, player: PlayerId, card: GameObjectId) {
-        let definition = self.players[player.index()]
+    /// Offers every private action available specifically because this was
+    /// the player's first card drawn this turn. The window exists even when
+    /// it has no actions, so declining Miracle and drawing an ordinary card
+    /// follow the same hidden decision path.
+    pub(in crate::game) fn queue_draw_action_window(
+        &mut self,
+        player: PlayerId,
+        card: GameObjectId,
+    ) {
+        let Some((definition, name)) = self.players[player.index()]
             .hand
             .iter()
             .find(|held| held.id == card)
-            .map(|held| held.definition);
-        let name = definition
-            .and_then(|definition| self.catalog.get(definition))
-            .map_or_else(
-                || "that card".to_string(),
-                |definition| definition.name.clone(),
-            );
+            .and_then(|held| {
+                self.catalog
+                    .get(held.definition)
+                    .map(|definition| (held.definition, definition.name.clone()))
+            })
+        else {
+            return;
+        };
+        let options = self
+            .has_miracle(definition)
+             .then(|| DecisionOption {
+                 id: 1,
+                 label: format!("Reveal {name}"),
+                 card: Some((
+                     card,
+                     ObjectCharacteristics::card(definition, CardPartId::PRIMARY),
+                 )),
+                members: Vec::new(),
+                ability_text: None,
+                zone: DecisionZone::Hand,
+            })
+            .into_iter()
+            .collect::<Vec<_>>();
+         let has_action = !options.is_empty();
+         let decision = self.next_decision_id;
         self.queue_decision(
             player,
-            format!("Reveal {name} for its miracle cost?"),
+            format!("Take an action with {name}?"),
             DecisionVisibility::Private,
-            DecisionPreference::Neutral,
-            1..=1,
+            DecisionPreference::PreferOption(1),
+            0..=1,
             false,
-            vec![
-                DecisionOption {
-                    id: 0,
-                    label: "Keep it hidden".into(),
-                    card: None,
-                    members: Vec::new(),
-                    ability_text: None,
-                    zone: DecisionZone::None,
-                },
-                DecisionOption {
-                    id: 1,
-                    label: format!("Reveal {name}"),
-                    card: definition.map(|definition| {
-                        (
-                            card,
-                            ObjectCharacteristics::card(definition, CardPartId::PRIMARY),
-                        )
-                    }),
-                    members: Vec::new(),
-                    ability_text: None,
-                    zone: DecisionZone::Hand,
-                },
-            ],
-            DecisionContinuation::MiracleReveal { card },
+            options,
+            DecisionContinuation::DrawActionWindow { card },
         );
+        if !has_action {
+            // Allocate and resolve the same decision path as a declined
+            // Miracle, but do it inside the atomic draw: there is no player
+            // choice to suspend a multi-card instruction or present to a
+            // host. The shared allocation keeps later public decision IDs
+            // independent of the hidden card's identity.
+            self.choose_decision(player, decision, &[]);
+        }
+    }
+
+    /// Reveals the drawn card and captures the triggered half of Miracle.
+    /// Trigger placement waits until the interrupted draw/effect procedure is
+    /// complete, so the cast offer cannot appear in the middle of a draw.
+    pub(in crate::game) fn reveal_miracle(&mut self, player: PlayerId, card: GameObjectId) {
+        let Some(held) = self.players[player.index()]
+            .hand
+            .iter()
+            .find(|held| held.id == card)
+            .cloned()
+        else {
+            return;
+        };
+        let Some((origin, ability)) = self.miracle_ability(held.definition) else {
+            return;
+        };
+        self.events.push(GameEvent::CardRevealed {
+            player,
+            card,
+            definition: held.definition,
+        });
+        self.capture_trigger(&TriggerCapture {
+            source: AbilitySourceRef {
+                object: card,
+                ability: origin,
+            },
+            definition: held.definition,
+            owner: held.owner,
+            controller: player,
+            text: ability.text,
+            target_defs: Vec::new(),
+            targets: Vec::new(),
+            effect: EffectDef::None,
+            resolver: Self::ability_resolver(origin, &ability),
+            context: TriggerContext::empty().into(),
+            condition: None,
+            x: 0,
+        });
     }
 
     pub(in crate::game) fn draw_cards(&mut self, player: PlayerId, count: u16) {

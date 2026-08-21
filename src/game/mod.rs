@@ -147,7 +147,10 @@ use observation::{LastSeenHand, PublicCard};
 
 use activation_sacrifice::SacrificeQuota;
 use activation_state::{ActivationChoices, FrozenActivatedAbility, PendingActivation};
-use casting_state::{CastSourceZone, SelectedSpellPlan, cast_source_zone_from_label};
+use casting_state::{
+    CastCostContext, CastOffer, CastOfferCost, CastSourceZone, SelectedSpellPlan,
+    cast_source_zone_from_label,
+};
 use characteristic_state::{
     BasicLandTypeChange, BattlefieldExitSnapshot, CharacteristicSource, CopiableAbility,
     CopiableCharacteristics, DoubleFacedCopiableCharacteristics, EffectiveAbility,
@@ -432,6 +435,23 @@ enum StackAbilityResolver {
     },
     Custom(CardBehavior),
     CardOwned(&'static CardAbilityResolver),
+    /// A linked triggered ability whose resolution offers its source card
+    /// for one exact alternative cost.
+    CastOffer(AlternativeCastKindDef),
+}
+
+impl StackAbilityResolver {
+    fn linked_cast_offer(ability: &AbilityDef) -> Option<Self> {
+        match ability.definition {
+            DeclarativeAbilityDef::AlternativeCast(alternative)
+                if ability.is_executable()
+                    && alternative.kind == AlternativeCastKindDef::Miracle =>
+            {
+                Some(Self::CastOffer(alternative.kind))
+            }
+            _ => None,
+        }
+    }
 }
 
 /// One authored effect together with the start of its clause-local target
@@ -847,10 +867,6 @@ pub struct Game {
     /// Resolved damage-redirection replacements in creation order. These are
     /// applied before prevention and remain separate from prevention state.
     damage_redirects: Vec<ResolvedDamageRedirect>,
-    /// The revealed card a miracle cost may currently be paid for. The window
-    /// belongs to one card and closes as soon as its controller does anything
-    /// else.
-    miracle_window: Option<GameObjectId>,
     /// Triggered abilities installed by resolved effects and listening from
     /// outside every zone.
     installed_triggers: Vec<InstalledTrigger>,

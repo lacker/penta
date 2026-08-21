@@ -55,9 +55,28 @@ impl Game {
         card: GameObjectId,
         costs: &CostConfiguration,
     ) -> Option<AlternativeCastKindDef> {
+        self.selected_alternative_kind_for_offer(definition, option, card, costs, None)
+    }
+
+    pub(super) fn selected_alternative_kind_for_offer(
+        &self,
+        definition: &CardDefinition,
+        option: &PlayOptionDef,
+        card: GameObjectId,
+        costs: &CostConfiguration,
+        offer: Option<CastOfferCost>,
+    ) -> Option<AlternativeCastKindDef> {
         let selected = costs.alternative()?;
         if Some(selected) == Self::temporary_alternative_cost_id(option)
-            && let Some((alternative, _)) = self.granted_alternative_cast(card, option)
+            && let Some((_, alternative, _)) = self.granted_alternative_cast(
+                card,
+                option,
+                match offer {
+                    Some(CastOfferCost::GrantedAlternative(grant)) => Some(grant),
+                    None | Some(CastOfferCost::Any) => None,
+                    Some(CastOfferCost::PrintedAlternative(_)) => return None,
+                },
+            )
         {
             return Some(alternative.kind);
         }
@@ -87,51 +106,57 @@ impl Game {
         &self,
         card: GameObjectId,
         option: &PlayOptionDef,
-    ) -> Option<(AlternativeCastAbilityDef, ManaCost)> {
-        let temporary = self
-            .temporary_ability_grants
-            .iter()
-            .filter(|grant| grant.object == card)
-            .find_map(|grant| {
-                if !grant.ability.is_executable() {
-                    return None;
-                }
-                let DeclarativeAbilityDef::AlternativeCast(alternative) = grant.ability.definition
-                else {
-                    return None;
-                };
-                matches!(
-                    alternative.kind,
-                    AlternativeCastKindDef::Flashback
-                        | AlternativeCastKindDef::WithoutPayingManaCost
-                )
-                .then_some(alternative)
-            });
-        let alternative = temporary.or_else(|| self.granted_graveyard_alternative(card))?;
+        required: Option<usize>,
+    ) -> Option<(AbilityDef, AlternativeCastAbilityDef, ManaCost)> {
+        let resolve = |grant: &TemporaryAbilityGrant| {
+            (grant.object == card).then_some(())?;
+            if !grant.ability.is_executable() {
+                return None;
+            }
+            let DeclarativeAbilityDef::AlternativeCast(alternative) = grant.ability.definition
+            else {
+                return None;
+            };
+            matches!(
+                alternative.kind,
+                AlternativeCastKindDef::Flashback | AlternativeCastKindDef::WithoutPayingManaCost
+            )
+            .then_some((grant.ability, alternative))
+        };
+        let temporary = match required {
+            Some(grant) => self.temporary_ability_grants.get(grant).and_then(resolve),
+            None => self.temporary_ability_grants.iter().find_map(resolve),
+        };
+        let (ability, alternative) = temporary.or_else(|| {
+            if required.is_some() {
+                return None;
+            }
+            let ability = self.granted_graveyard_alternative(card)?;
+            let DeclarativeAbilityDef::AlternativeCast(alternative) = ability.definition else {
+                return None;
+            };
+            Some((ability, alternative))
+        })?;
         alternative
             .mana_cost
             .resolve(option.mana_cost)
-            .map(|mana_cost| (alternative, mana_cost))
+            .map(|mana_cost| (ability, alternative, mana_cost))
     }
 
     /// The alternative cast a static ability grants to this card while it
     /// lies in its owner's graveyard.
-    fn granted_graveyard_alternative(
-        &self,
-        card: GameObjectId,
-    ) -> Option<AlternativeCastAbilityDef> {
-        let (owner, instance) = [PlayerId::One, PlayerId::Two].into_iter().find_map(|player| {
-            self.players[player.index()]
-                .graveyard
-                .iter()
-                .find(|candidate| candidate.id == card)
-                .map(|candidate| (player, candidate))
-        })?;
-        let ability = self.granted_graveyard_alternative_cast(instance, owner)?;
-        match ability.definition {
-            DeclarativeAbilityDef::AlternativeCast(alternative) => Some(alternative),
-            _ => None,
-        }
+    fn granted_graveyard_alternative(&self, card: GameObjectId) -> Option<AbilityDef> {
+        let (owner, instance) = [PlayerId::One, PlayerId::Two]
+            .into_iter()
+            .find_map(|player| {
+                self.players[player.index()]
+                    .graveyard
+                    .iter()
+                    .find(|candidate| candidate.id == card)
+                    .map(|candidate| (player, candidate))
+            })?;
+        self.granted_graveyard_alternative_cast(instance, owner)
+            .copied()
     }
     pub(super) fn spell_custom_followup(
         definition: &CardDefinition,

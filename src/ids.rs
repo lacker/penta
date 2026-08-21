@@ -1,6 +1,10 @@
 use std::fmt;
 
 /// Stable identity of a card in the card catalog.
+///
+/// Every numeric value, including zero, is an ordinary catalog key. Missing
+/// or hidden identity must be represented by the surrounding type rather than
+/// by a reserved value.
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct CardDefinitionId(pub u16);
 

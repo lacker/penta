@@ -203,6 +203,247 @@ fn validate_authored_decision(
     ))
 }
 
+fn first_drawn_card(
+    game: &Game,
+    player: PlayerId,
+    card: GameObjectId,
+    description: &str,
+) -> Result<CardDefinitionId, String> {
+    let held = game.players[player.index()]
+        .hand
+        .iter()
+        .find(|held| held.id == card)
+        .ok_or_else(|| format!("{description} card is not in the deciding player's hand"))?;
+    if game.drawn_this_turn[player.index()].first().copied() != Some(card)
+        || game.cards_drawn_this_turn[player.index()] == 0
+    {
+        return Err(format!(
+            "{description} card is not that player's first drawn card this turn"
+        ));
+    }
+    Ok(held.definition)
+}
+
+fn miracle_drawn_card(
+    game: &Game,
+    player: PlayerId,
+    card: GameObjectId,
+    description: &str,
+) -> Result<CardDefinitionId, String> {
+    let definition = first_drawn_card(game, player, card, description)?;
+    if !game.has_miracle(definition) {
+        return Err(format!(
+            "{description} card lacks an executable Miracle alternative"
+        ));
+    }
+    Ok(definition)
+}
+
+fn parse_draw_action_window_continuation(
+    game: &Game,
+    observation: &DecisionObservation,
+    card: GameObjectId,
+) -> Result<DecisionContinuation, String> {
+    let player = observation.player;
+    let definition = first_drawn_card(game, player, card, "draw-action window")?;
+    let name = game
+        .catalog
+        .get(definition)
+        .ok_or("draw-action window definition is absent from this catalog")?
+        .name
+        .clone();
+    let options = game
+        .has_miracle(definition)
+        .then(|| DecisionOption {
+            id: 1,
+            label: format!("Reveal {name}"),
+            card: Some((card, definition)),
+            members: Vec::new(),
+            ability_text: None,
+            zone: DecisionZone::Hand,
+        })
+        .into_iter()
+        .collect::<Vec<_>>();
+    validate_authored_decision(
+        observation,
+        player,
+        &format!("Take an action with {name}?"),
+        DecisionVisibility::Private,
+        DecisionPreference::PreferOption(1),
+        0,
+        1,
+        &options,
+        "draw-action window",
+    )?;
+    Ok(DecisionContinuation::DrawActionWindow { card })
+}
+
+fn parse_may_cast_alternative_continuation(
+    game: &Game,
+    observation: &DecisionObservation,
+    seat: usize,
+    card: GameObjectId,
+    ability: super::super::AbilityOrigin,
+) -> Result<DecisionContinuation, String> {
+    let player = player(seat)?;
+    if player != observation.player {
+        return Err("an alternative-cast offer names a player other than the deciding one".into());
+    }
+    let definition = miracle_drawn_card(game, player, card, "alternative-cast offer")?;
+    let linked_ability = game
+        .miracle_ability(definition)
+        .map(|(origin, _)| origin)
+        .ok_or("alternative-cast offer card lacks its linked Miracle ability")?;
+    if ability != linked_ability {
+        return Err("alternative-cast offer ability is not the card's linked Miracle clause".into());
+    }
+    let ability_definition = game
+        .ability_for_origin(card, ability)
+        .ok_or("alternative-cast offer ability is absent from the named card")?;
+    let DeclarativeAbilityDef::AlternativeCast(alternative) = ability_definition.definition else {
+        return Err("alternative-cast offer ability is not an alternative-cast clause".into());
+    };
+    if !ability_definition.is_executable() || alternative.kind != AlternativeCastKindDef::Miracle {
+        return Err("checkpoint alternative-cast offers currently support only Miracle".into());
+    }
+    let name = game
+        .catalog
+        .get(definition)
+        .ok_or("alternative-cast offer definition is absent from this catalog")?
+        .name
+        .clone();
+    let offer = CastOffer {
+        player,
+        card,
+        source_zone: CastSourceZone::Hand,
+        cost: CastOfferCost::PrintedAlternative(ability),
+    };
+    let mut castable = Vec::new();
+    game.add_offered_cast_actions(offer, &mut castable);
+    if castable.is_empty() {
+        return Err("alternative-cast offer has no legal offered cast".into());
+    }
+    let options = [DecisionOption {
+        id: 0,
+        label: "Decline".into(),
+        card: Some((card, definition)),
+        members: Vec::new(),
+        ability_text: None,
+        zone: DecisionZone::Hand,
+    }];
+    validate_authored_decision(
+        observation,
+        player,
+        &format!(
+            "Cast {name} for its {} cost, or decline",
+            alternative.kind.label()
+        ),
+        DecisionVisibility::Public,
+        DecisionPreference::PreferOption(0),
+        1,
+        1,
+        &options,
+        "alternative-cast offer",
+    )?;
+    Ok(DecisionContinuation::MayCastAlternative {
+        player,
+        card,
+        ability,
+    })
+}
+
+fn parse_may_cast_granted_continuation(
+    game: &Game,
+    observation: &DecisionObservation,
+    seat: usize,
+    card: GameObjectId,
+    locator: &AbilityLocator,
+    grant: usize,
+) -> Result<DecisionContinuation, String> {
+    let player = player(seat)?;
+    if player != observation.player {
+        return Err("a granted-cast offer names a player other than the deciding one".into());
+    }
+    let ability = catalog_ability(&game.catalog, locator)
+        .ok_or("checkpoint granted-cast ability is absent from this catalog")?;
+    if !game
+        .temporary_ability_grants
+        .get(grant)
+        .is_some_and(|candidate| candidate.object == card && candidate.ability == ability)
+    {
+        return Err("checkpoint granted-cast offer names the wrong temporary grant".into());
+    }
+    let Some((crate::card::ZoneKind::Graveyard, instance)) =
+        game.card_in_nonbattlefield_zone(card)
+    else {
+        return Err("checkpoint granted-cast offer card is not in a graveyard".into());
+    };
+    let DeclarativeAbilityDef::AlternativeCast(alternative) = ability.definition else {
+        return Err("checkpoint granted-cast offer ability is not an alternative-cast clause".into());
+    };
+    if !ability.is_executable()
+        || alternative.kind != AlternativeCastKindDef::WithoutPayingManaCost
+    {
+        return Err(
+            "checkpoint granted-cast offers currently support only executable free casts".into(),
+        );
+    }
+    let offer = CastOffer {
+        player,
+        card,
+        source_zone: CastSourceZone::Graveyard,
+        cost: CastOfferCost::GrantedAlternative(grant),
+    };
+    let mut castable = Vec::new();
+    game.add_offered_cast_actions(offer, &mut castable);
+    if castable.is_empty() {
+        return Err("granted-cast offer has no legal offered cast".into());
+    }
+    let name = game
+        .catalog
+        .get(instance.definition)
+        .ok_or("granted-cast offer definition is absent from this catalog")?
+        .name
+        .clone();
+    let options = [DecisionOption {
+        id: 0,
+        label: "Decline".into(),
+        card: Some((card, instance.definition)),
+        members: Vec::new(),
+        ability_text: None,
+        zone: DecisionZone::Graveyard,
+    }];
+    validate_authored_decision(
+        observation,
+        player,
+        &format!("Cast {name} without paying its mana cost, or decline"),
+        DecisionVisibility::Public,
+        DecisionPreference::PreferOption(0),
+        1,
+        1,
+        &options,
+        "granted-cast offer",
+    )?;
+    Ok(DecisionContinuation::MayCastGranted {
+        player,
+        card,
+        ability,
+        grant,
+    })
+}
+
+fn parse_explored_card_placement(
+    observation: &DecisionObservation,
+    seat: usize,
+    revealed: GameObjectId,
+) -> Result<DecisionContinuation, String> {
+    let player = player(seat)?;
+    if player != observation.player {
+        return Err("an explore placement names a player other than the deciding one".into());
+    }
+    Ok(DecisionContinuation::ExploredCardPlacement { player, revealed })
+}
+
 fn validate_exact_partition(
     authored: &[Target],
     first: &[Target],

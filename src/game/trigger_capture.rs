@@ -1,9 +1,8 @@
+use crate::CharacteristicContext;
 use crate::card::{
     AttackDeclarationRangeDef, AttackEventMatcherDef, BattlefieldEntryChoiceDestinationDef,
     DamageSourceGroupDef,
 };
-
-use crate::CharacteristicContext;
 
 use super::{
     AbilityDef, AbilityId, AbilityOrigin, AbilityProcedureDef, AbilitySourceRef, AddManaEffectDef,
@@ -529,6 +528,9 @@ impl Game {
         origin: AbilityOrigin,
         ability: &AbilityDef,
     ) -> StackAbilityResolver {
+        if let Some(resolver) = StackAbilityResolver::linked_cast_offer(ability) {
+            return resolver;
+        }
         if let Some(binding) = crate::card::ability_binding(origin, ability) {
             return StackAbilityResolver::CardOwned(binding.resolver());
         }

@@ -810,31 +810,6 @@ fn hypothesis_indices_outside_the_hidden_hand_are_rejected() {
         error.contains("out of range"),
         "unexpected message: {error}"
     );
-
-    let error = fixture.rejects_hidden("a miracle index past the end of the hand", |hidden| {
-        hidden["miracleWindow"] = json!({"seat": opponent, "handIndex": 9_999});
-    });
-    assert!(
-        error.contains("out of range"),
-        "unexpected message: {error}"
-    );
-}
-
-/// The viewer's own miracle window is public to it and already carried by the
-/// checkpoint. A hypothesis claiming the viewer's seat is trying to write
-/// state it does not own.
-#[test]
-fn a_hypothesis_that_claims_the_viewers_own_hidden_state_is_rejected() {
-    let fixture = Fixture::played(200, 8_161);
-    fixture.assert_baseline_rebuilds();
-    let viewer = seat_label(fixture.viewer);
-    let error = fixture.rejects_hidden("a miracle window on the viewer's seat", |hidden| {
-        hidden["miracleWindow"] = json!({"seat": viewer, "handIndex": 0});
-    });
-    assert!(
-        error.contains("must belong to the opposing seat"),
-        "unexpected message: {error}"
-    );
 }
 
 /// The direct statement of redaction: rewrite the opposing library into

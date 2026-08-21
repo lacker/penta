@@ -390,11 +390,16 @@ impl Game {
                     .collect::<Vec<_>>();
                 self.proliferate(&chosen);
             }
-            DecisionContinuation::MayCastGranted { card, ability, .. } => {
+            DecisionContinuation::MayCastGranted {
+                card,
+                ability,
+                grant,
+                ..
+            } => {
                 // Answering this decision is the decline: a cast would have
                 // taken the decision away instead of resolving it. Either
                 // way the lent ability goes back.
-                self.revoke_temporary_grant(card, &ability);
+                self.revoke_temporary_grant(grant, card, &ability);
             }
             DecisionContinuation::MayCastExiled {
                 card,
@@ -407,6 +412,11 @@ impl Game {
                 // taken the decision away instead of resolving it.
                 self.consume_exile_play_permission(card);
                 self.resolve_declined_cast(&object, context, definition);
+            }
+            DecisionContinuation::MayCastAlternative { .. } => {
+                // Answering the standing decision is the decline. Its
+                // permission is the decision itself, so removing it is all
+                // that declining has to do.
             }
             DecisionContinuation::CascadeCast {
                 player,
@@ -509,9 +519,9 @@ impl Game {
                 context.bind_object_group(unchosen, unchosen_objects);
                 self.resolve_nested_effect_before_later(effect, &object, context);
             }
-            DecisionContinuation::MiracleReveal { card } => {
+            DecisionContinuation::DrawActionWindow { card } => {
                 if options.contains(&1) {
-                    self.miracle_window = Some(card);
+                    self.reveal_miracle(player, card);
                 }
             }
             DecisionContinuation::SeparateIntoPiles {

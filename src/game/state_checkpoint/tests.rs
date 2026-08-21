@@ -312,6 +312,8 @@ include!("tests/resolved_effects.rs");
 
 include!("tests/prevention_and_replacements.rs");
 
+include!("tests/stack_completion.rs");
+
 fn checkpoint_wire(game: &Game) -> (PlayerId, Value) {
     let viewer = game.decision_player().expect("the game awaits an action");
     let observation = game.observe(viewer);
@@ -370,17 +372,6 @@ fn true_hidden_hypothesis(game: &Game, viewer: PlayerId) -> Value {
         .iter()
         .filter_map(|id| opponent_hand.iter().position(|card| card.id == *id))
         .collect::<Vec<_>>();
-    let miracle_window = game.miracle_window.and_then(|id| {
-        opponent_hand
-            .iter()
-            .position(|card| card.id == id)
-            .map(|hand_index| {
-                json!({
-                    "seat": seat_label(opponent),
-                    "handIndex": hand_index,
-                })
-            })
-    });
     let mut discard_choices = serde_json::Map::new();
     if let Some(DecisionContinuation::DiscardForEffect { chosen, .. }) = game
         .pending_decisions
@@ -414,7 +405,6 @@ fn true_hidden_hypothesis(game: &Game, viewer: PlayerId) -> Value {
         "drawnThisTurn": {
             (seat_label(opponent)): drawn_indices,
         },
-        "miracleWindow": miracle_window,
         "decision": {
             "discardChoices": discard_choices,
         },

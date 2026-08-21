@@ -9,10 +9,10 @@
 use super::super::ManaPaymentPurpose;
 use super::super::{
     AbilityTargetDef, AlternativeCastKindDef, CardBehavior, CardEffectStatus, CastChoices,
-    CastSignature, CastSourceZone, ControlFlow, DeclarativeAbilityDef, Game, GameObjectId,
-    ManaCost, PlayActionKind, PlayOptionDef, PlayRestriction, PlayerId, Target, TargetPredicate,
-    TargetSlotDef, TargetSlotId, TriggerContext, add_generic, add_mana_cost, extra_target_cost,
-    reduce_generic,
+    CastCostContext, CastSignature, CastSourceZone, ControlFlow, DeclarativeAbilityDef, Game,
+    GameObjectId, ManaCost, PlayActionKind, PlayOptionDef, PlayRestriction, PlayerId, Target,
+    TargetPredicate, TargetSlotDef, TargetSlotId, TriggerContext, add_generic, add_mana_cost,
+    extra_target_cost, reduce_generic,
 };
 
 impl Game {
@@ -151,6 +151,7 @@ impl Game {
                     .map(|card| (card, CastSourceZone::LibraryTop))
             })?;
         let definition = self.catalog.get(card.definition)?;
+        let offer = self.current_cast_offer(player, card_id, source_zone);
         let option = definition
             .play_option(choices.play_option())
             .filter(|option| option.action == PlayActionKind::CastSpell)?;
@@ -176,7 +177,7 @@ impl Game {
                 return None;
             }
         }
-        if !self.play_timing_allows(player, option.restriction) {
+        if offer.is_none() && !self.play_timing_allows(player, option.restriction) {
             return None;
         }
         let behavior =
@@ -191,24 +192,44 @@ impl Game {
         }
 
         if !self
-            .visit_cost_configurations(definition, card_id, player, option, source_zone, |costs| {
-                if &costs == choices.costs() {
-                    ControlFlow::Break(())
-                } else {
-                    ControlFlow::Continue(())
-                }
-            })
+            .visit_cost_configurations(
+                definition,
+                card_id,
+                player,
+                option,
+                CastCostContext {
+                    source_zone,
+                    offer: offer.map(|offer| offer.cost),
+                },
+                |costs| {
+                    if &costs == choices.costs() {
+                        ControlFlow::Break(())
+                    } else {
+                        ControlFlow::Continue(())
+                    }
+                },
+            )
             .is_break()
         {
             return None;
         }
-        let alternative_kind =
-            self.selected_alternative_kind(definition, option, card_id, choices.costs());
+        let alternative_kind = self.selected_alternative_kind_for_offer(
+            definition,
+            option,
+            card_id,
+            choices.costs(),
+            offer.map(|offer| offer.cost),
+        );
         if alternative_kind == Some(AlternativeCastKindDef::Overload) && !choices.modes().is_empty()
         {
             return None;
         }
-        let mut cost = self.configured_cast_mana_cost(card_id, option, choices.costs())?;
+        let mut cost = self.configured_cast_mana_cost(
+            card_id,
+            option,
+            choices.costs(),
+            offer.map(|offer| offer.cost),
+        )?;
         // X comes from the mana cost's {X} or from a printed "pay X life",
         // and a spell with neither is cast for nothing at all.
         let life_cost = Self::spell_life_cost(definition, option);

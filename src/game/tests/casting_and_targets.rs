@@ -280,7 +280,10 @@ fn cost_configuration_visitor_preserves_option_order() {
             GameObjectId(10_201),
             PlayerId::One,
             &option,
-            CastSourceZone::Hand,
+            CastCostContext {
+                source_zone: CastSourceZone::Hand,
+                offer: None,
+            },
             |configuration| {
                 actual.push(configuration);
                 ControlFlow::Continue(())

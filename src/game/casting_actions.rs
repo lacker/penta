@@ -2,13 +2,13 @@ use super::{
     AbilityDef, AbilityId, AbilityOrigin, AbilityTargetDef, AbilityTargetPredicate, Action,
     AlternativeCastAbilityDef, AlternativeCastKindDef, AlternativeCostId, CardBehavior,
     CardDefinition, CardDefinitionId, CardEffectStatus, CardPartId, CardType, CardTypeSet,
-    CastChoices, CastSignature, CastSourceZone, ControlFlow, CostConfiguration,
-    DeclarativeAbilityDef, DividedTotal, Game, GameObjectId, KeywordAbility, ManaCost,
-    ManaPaymentPurpose, ModeId, ObjectCharacteristics, PlayActionKind, PlayOptionDef, PlayOptionId,
-    PlayRestriction, PlayerId, ScopedEffect, SelectedSpellPlan, StackAbilityPayload,
-    StackAbilityResolver, Target, TargetSelection, TargetSlotDef, TargetSlotId, TriggerContext,
-    add_generic, add_mana_cost, extra_target_cost, mode_id_selections, positive_compositions,
-    reduce_generic, target_combinations,
+    CastChoices, CastCostContext, CastOffer, CastOfferCost, CastSignature, CastSourceZone,
+    ControlFlow, CostConfiguration, DeclarativeAbilityDef, DividedTotal, Game, GameObjectId,
+    KeywordAbility, ManaCost, ManaPaymentPurpose, ModeId, ObjectCharacteristics, PlayActionKind,
+    PlayOptionDef, PlayOptionId, PlayRestriction, PlayerId, ScopedEffect, SelectedSpellPlan,
+    StackAbilityPayload, StackAbilityResolver, Target, TargetSelection, TargetSlotDef, TargetSlotId,
+    TemporaryAbilityGrant, TriggerContext, add_generic, add_mana_cost, extra_target_cost,
+    mode_id_selections, positive_compositions, reduce_generic, target_combinations,
 };
 
 use crate::card::{AlternateSpellKind, CardStructure, ModeSetDef, SpellForm, ZoneKind};
@@ -82,20 +82,30 @@ impl Game {
     /// its type would normally impose. An offer made during a resolution is
     /// answered then or not at all (CR 608.2f), so a sorcery on the top of a
     /// library is castable in the middle of somebody else's turn.
-    pub(super) fn add_offered_cast_actions(
+    pub(super) fn add_offered_cast_actions(&self, offer: CastOffer, actions: &mut Vec<Action>) {
+        self.add_castable_spell_actions(offer.player, Some(offer), actions);
+    }
+
+    pub(super) fn current_cast_offer(
         &self,
         player: PlayerId,
         card: GameObjectId,
-        actions: &mut Vec<Action>,
-    ) {
-        self.add_castable_spell_actions(player, Some(card), actions);
+        source_zone: CastSourceZone,
+    ) -> Option<CastOffer> {
+        self.pending_decisions
+            .first()?
+            .continuation
+            .cast_offer()
+            .filter(|offer| {
+                offer.player == player && offer.card == card && offer.source_zone == source_zone
+            })
     }
 
     #[allow(clippy::too_many_lines)]
     fn add_castable_spell_actions(
         &self,
         player: PlayerId,
-        only: Option<GameObjectId>,
+        offer: Option<CastOffer>,
         actions: &mut Vec<Action>,
     ) {
         let state = &self.players[player.index()];
@@ -128,7 +138,8 @@ impl Game {
                     .map(|card| (card, CastSourceZone::LibraryTop)),
             )
         {
-            if only.is_some_and(|only| only != card.id) {
+            if offer.is_some_and(|offer| offer.card != card.id || offer.source_zone != source_zone)
+            {
                 continue;
             }
             // Energy replaces the mana cost rather than joining it, so a card
@@ -176,7 +187,7 @@ impl Game {
                         continue;
                     }
                 }
-                if only.is_none() && !self.play_timing_allows(player, option.restriction) {
+                if offer.is_none() && !self.play_timing_allows(player, option.restriction) {
                     continue;
                 }
                 // A declarative card intentionally has no custom behavior.
@@ -214,7 +225,7 @@ impl Game {
                 // type would otherwise impose -- which is the only way a
                 // cascaded sorcery, or one an Arcanist points at mid-combat,
                 // is ever cast at all.
-                if only.is_none()
+                if offer.is_none()
                     && !types.contains(CardType::Instant)
                     && !part_has_flash
                     && !granted_flash
@@ -238,18 +249,29 @@ impl Game {
                         card.id,
                         player,
                         option,
-                        source_zone,
+                        CastCostContext {
+                            source_zone,
+                            offer: offer.map(|offer| offer.cost),
+                        },
                         |costs| {
-                            let alternative_kind =
-                                self.selected_alternative_kind(definition, option, card.id, &costs);
+                            let alternative_kind = self.selected_alternative_kind_for_offer(
+                                definition,
+                                option,
+                                card.id,
+                                &costs,
+                                offer.map(|offer| offer.cost),
+                            );
                             if alternative_kind == Some(AlternativeCastKindDef::Overload)
                                 && !modes.is_empty()
                             {
                                 return ControlFlow::Continue(());
                             }
-                            let Some(cost) =
-                                self.configured_cast_mana_cost(card.id, option, &costs)
-                            else {
+                            let Some(cost) = self.configured_cast_mana_cost(
+                                card.id,
+                                option,
+                                &costs,
+                                offer.map(|offer| offer.cost),
+                            ) else {
                                 return ControlFlow::Continue(());
                             };
                             // X comes from the mana cost's {X}, from a
@@ -359,6 +381,7 @@ impl Game {
                                                 x,
                                                 modes: modes.len(),
                                             },
+                                            offer.map(|offer| offer.cost),
                                         )
                                     };
                                     for sacrifices in sacrifice_choices {

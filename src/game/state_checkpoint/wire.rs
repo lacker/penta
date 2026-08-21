@@ -329,28 +329,6 @@ pub(super) fn hidden_hand_indices(
         .collect()
 }
 
-pub(super) fn parse_miracle_window(
-    checkpoint: &GameSnapshot,
-    hidden: &Value,
-    viewer: PlayerId,
-    hands: &[Vec<CardInstance>; 2],
-) -> Result<Option<GameObjectId>, String> {
-    if let Some(object) = checkpoint.miracle_window {
-        return Ok(Some(GameObjectId(object)));
-    }
-    let Some(window) = hidden.get("miracleWindow").filter(|value| !value.is_null()) else {
-        return Ok(None);
-    };
-    let player = seat_value(field(window, "seat")?)?;
-    if player != viewer.opponent() {
-        return Err("hidden miracleWindow must belong to the opposing seat".into());
-    }
-    let index = usize_field(window, "handIndex")?;
-    hands[player.index()]
-        .get(index)
-        .map(|card| Some(card.id))
-        .ok_or_else(|| format!("hidden miracle hand index {index} is out of range"))
-}
 /// Object ids from a JSON array, ignoring anything that is not one. An
 /// absent or non-array value is no ids rather than an error, which is what a
 /// permanent blocking nothing looks like on the wire.

@@ -3,6 +3,19 @@
 
 use super::*;
 
+static OTHER_SAME_KIND_GRANT: AbilityDef = AbilityDef::alternative_cast(
+    ManaCost::new(7, 0),
+    AlternativeCastKindDef::WithoutPayingManaCost,
+    Some("A different same-kind test grant."),
+    EffectDef::None,
+);
+static IDENTICAL_FREE_GRANT: AbilityDef = AbilityDef::alternative_cast(
+    ManaCost::new(0, 0),
+    AlternativeCastKindDef::WithoutPayingManaCost,
+    Some("An identical one-shot free-cast grant."),
+    EffectDef::None,
+);
+
 /// Player One with an Arcanist out since last turn and `graveyard` behind
 /// it, ready to declare attackers.
 fn staged(graveyard: &[CardDefinitionId]) -> (Game, GameObjectId) {
@@ -135,6 +148,121 @@ fn it_casts_a_one_mana_spell_for_free() {
         game.players[0].mana_pool.total(),
         0,
         "and nothing was spent on it",
+    );
+    assert!(
+        game.temporary_ability_grants.is_empty(),
+        "accepting the offer returns its temporary grant"
+    );
+}
+
+/// A one-shot offer names its granted cost exactly. Even when the card's own
+/// flashback cost is affordable, the standing Arcanist decision does not turn
+/// into a menu of unrelated graveyard permissions.
+#[test]
+fn the_offer_exposes_only_the_granted_alternative_cost() {
+    let (mut game, arcanist) = staged(&[cards::FAITHLESS_LOOTING]);
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Red, 3);
+
+    attack(&mut game, arcanist, Some(cards::FAITHLESS_LOOTING));
+    let card = game.players[0]
+        .graveyard
+        .iter()
+        .find(|card| card.definition == cards::FAITHLESS_LOOTING)
+        .expect("Faithless Looting remains in the graveyard")
+        .id;
+    let casts = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .filter(|action| matches!(action, Action::CastSpell { card: found, .. } if *found == card))
+        .collect::<Vec<_>>();
+    assert!(!casts.is_empty(), "the free cast is offered");
+
+    let definition = game
+        .catalog
+        .get(cards::FAITHLESS_LOOTING)
+        .expect("Faithless Looting is cataloged");
+    assert!(casts.iter().all(|action| {
+        let Action::CastSpell { choices, .. } = action else {
+            return false;
+        };
+        let option = definition
+            .play_option(choices.play_option())
+            .expect("the cast names a play option");
+        game.selected_alternative_kind(definition, option, card, choices.costs())
+            == Some(AlternativeCastKindDef::WithoutPayingManaCost)
+    }));
+}
+
+#[test]
+fn the_offer_selects_its_exact_grant_among_same_kind_definitions() {
+    let (mut game, arcanist) = staged(&[cards::LIGHTNING_BOLT]);
+    let card = game.players[0].graveyard[0].id;
+    game.temporary_ability_grants.push(TemporaryAbilityGrant {
+        object: card,
+        ability: OTHER_SAME_KIND_GRANT,
+    });
+
+    attack(&mut game, arcanist, Some(cards::LIGHTNING_BOLT));
+
+    assert!(
+        free_cast(&game, cards::LIGHTNING_BOLT).is_some(),
+        "the unaffordable same-kind grant cannot replace Arcanist's exact free-cast grant",
+    );
+    assert!(matches!(
+        game.pending_decisions[0].continuation,
+        DecisionContinuation::MayCastGranted { ability, .. }
+            if ability != OTHER_SAME_KIND_GRANT
+    ));
+}
+
+#[test]
+fn declining_removes_only_the_exact_grant_behind_the_offer() {
+    let (mut game, _) = staged(&[cards::LIGHTNING_BOLT]);
+    let card = game.players[0].graveyard[0].id;
+    let existing = TemporaryAbilityGrant {
+        object: card,
+        ability: IDENTICAL_FREE_GRANT,
+    };
+    game.temporary_ability_grants.push(existing);
+    game.offer_granted_cast(PlayerId::One, card, &IDENTICAL_FREE_GRANT);
+
+    let decision = game
+        .observe(PlayerId::One)
+        .decision
+        .expect("the offer stands");
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options: vec![0],
+        },
+    )
+    .expect("declining the exact offer is legal");
+
+    assert_eq!(game.temporary_ability_grants, vec![existing]);
+}
+
+#[test]
+fn a_rebuilt_granted_cast_offer_cannot_be_made_cancellable() {
+    let (mut game, arcanist) = staged(&[cards::LIGHTNING_BOLT]);
+    attack(&mut game, arcanist, Some(cards::LIGHTNING_BOLT));
+    let (wire, hidden) = checkpoint_fixture(&game, PlayerId::One);
+    Game::from_observation_checkpoint(game.catalog.clone(), game.format, &wire, &hidden, 94_101)
+        .expect("the authored granted-cast offer reconstructs");
+
+    let mut cancellable = wire;
+    cancellable["decision"]["cancellable"] = serde_json::json!(true);
+    let error = Game::from_observation_checkpoint(
+        game.catalog.clone(),
+        game.format,
+        &cancellable,
+        &hidden,
+        94_102,
+    )
+    .expect_err("cancellation cannot bypass exact grant cleanup");
+    assert!(
+        error.contains("cancellability disagrees"),
+        "unexpected error: {error}"
     );
 }
 

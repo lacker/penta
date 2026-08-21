@@ -96,9 +96,9 @@ fn parse_continuation(
                 std::slice::from_ref(prototype),
                 &game.catalog,
             )?
-                .into_iter()
-                .next()
-                .ok_or("a chosen-colour mana prototype is required")?,
+            .into_iter()
+            .next()
+            .ok_or("a chosen-colour mana prototype is required")?,
             remaining: *remaining,
             choosable: crate::game::state_checkpoint::stack::color_set_from_flags(*choosable),
         },
@@ -422,9 +422,7 @@ fn parse_continuation(
             let payment = match authored_payment {
                 Some((expected_payer, payment)) if expected_payer == payer => payment,
                 Some(_) => {
-                    return Err(
-                        "pay-or payer or payment disagrees with its authored effect".into()
-                    );
+                    return Err("pay-or payer or payment disagrees with its authored effect".into());
                 }
                 None => resolved_effect_payment_for_payer(
                     game,
@@ -779,26 +777,26 @@ fn parse_continuation(
             targets: targets.iter().copied().map(parse_target).collect(),
             divisions: divisions.clone(),
         },
-        DecisionContinuationSnapshot::MiracleReveal { card } => {
-            DecisionContinuation::MiracleReveal {
-                card: GameObjectId(*card),
-            }
+        DecisionContinuationSnapshot::DrawActionWindow { card } => {
+            parse_draw_action_window_continuation(game, observation, GameObjectId(*card))?
         }
-        DecisionContinuationSnapshot::ExploredCardPlacement { player: seat, revealed } => {
-            let seat = player(*seat)?;
-            if seat != observation.player {
-                return Err("an explore placement names a player other than the deciding one".into());
-            }
-            DecisionContinuation::ExploredCardPlacement {
-                player: seat,
-                revealed: GameObjectId(*revealed),
-            }
-        }
+        DecisionContinuationSnapshot::ExploredCardPlacement {
+            player: seat,
+            revealed,
+        } => parse_explored_card_placement(
+            observation,
+            *seat,
+            GameObjectId(*revealed),
+        )?,
         DecisionContinuationSnapshot::Proliferate { candidates } => {
             // Rebuilt rather than trusted: what a proliferate could add to
             // is a fact of the board, so a checkpoint naming anything else
             // is not this game.
-            let restored = candidates.iter().copied().map(parse_target).collect::<Vec<_>>();
+            let restored = candidates
+                .iter()
+                .copied()
+                .map(parse_target)
+                .collect::<Vec<_>>();
             if restored != game.proliferate_candidates() {
                 return Err("proliferate candidates disagree with the board".into());
             }
@@ -810,18 +808,26 @@ fn parse_continuation(
             player: seat,
             card,
             ability,
-        } => {
-            let seat = player(*seat)?;
-            if seat != observation.player {
-                return Err("a granted-cast offer names a player other than the deciding one".into());
-            }
-            DecisionContinuation::MayCastGranted {
-                player: seat,
-                card: GameObjectId(*card),
-                ability: catalog_ability(&game.catalog, ability)
-                    .ok_or("checkpoint granted-cast ability is absent from this catalog")?,
-            }
-        }
+            grant,
+        } => parse_may_cast_granted_continuation(
+            game,
+            observation,
+            *seat,
+            GameObjectId(*card),
+            ability,
+            *grant,
+        )?,
+        DecisionContinuationSnapshot::MayCastAlternative {
+            player: seat,
+            card,
+            ability,
+        } => parse_may_cast_alternative_continuation(
+            game,
+            observation,
+            *seat,
+            GameObjectId(*card),
+            ability_origin_from_snapshot(*ability),
+        )?,
         DecisionContinuationSnapshot::CascadeCast {
             player: seat,
             card,
@@ -840,7 +846,9 @@ fn parse_continuation(
         DecisionContinuationSnapshot::SpellLibraryEnd { owner, spell } => {
             let owner = player(*owner)?;
             if owner != observation.player {
-                return Err("a library-end choice names a player other than the deciding one".into());
+                return Err(
+                    "a library-end choice names a player other than the deciding one".into(),
+                );
             }
             DecisionContinuation::SpellLibraryEnd {
                 owner,

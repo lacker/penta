@@ -125,7 +125,6 @@ pub(super) struct GameSnapshot {
     pub(super) drawn_this_turn: [Vec<u32>; 2],
     pub(super) defer_empty_library_loss: bool,
     pub(super) draw_replacements: [Vec<DrawReplacementSnapshot>; 2],
-    pub(super) miracle_window: Option<u32>,
     pub(super) pending_combat_attackers: Vec<u32>,
     pub(super) combat_blocked_attackers: Vec<u32>,
     pub(super) extra_turns: Vec<usize>,

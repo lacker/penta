@@ -1,5 +1,5 @@
 #[test]
-fn a_supported_pending_decision_rebuilds_and_resumes() {
+fn a_supported_draw_action_window_rebuilds_and_resumes() {
     let catalog = crate::poc::catalog().expect("catalog builds");
     let deck = crate::Deck {
         main: vec![crate::card::cards::MOUNTAIN; 60],
@@ -8,7 +8,11 @@ fn a_supported_pending_decision_rebuilds_and_resumes() {
     let mut game = Game::new(catalog.clone(), [deck.clone(), deck], 43).expect("game starts");
     let player = PlayerId::One;
     let card = game.players[player.index()].hand[0].id;
-    game.queue_miracle_reveal(player, card);
+    game.players[player.index()].hand[0] =
+        crate::game::tests::card(card.0, crate::card::cards::TERMINUS, player);
+    game.cards_drawn_this_turn[player.index()] = 1;
+    game.drawn_this_turn[player.index()] = vec![card];
+    game.queue_draw_action_window(player, card);
 
     let observation = game.observe(player);
     let actions = crate::protocol::protocol_actions(&observation);
@@ -80,11 +84,220 @@ fn a_supported_pending_decision_rebuilds_and_resumes() {
     );
     assert!(matches!(
         rebuilt.pending_decisions[0].continuation,
-        DecisionContinuation::MiracleReveal { card: rebuilt_card } if rebuilt_card == card
+        DecisionContinuation::DrawActionWindow { card: rebuilt_card } if rebuilt_card == card
     ));
     let decision = rebuilt.pending_decisions[0].observation.id;
     rebuilt.choose_decision(player, decision, &[1]);
-    assert_eq!(rebuilt.miracle_window, Some(card));
+    let [trigger] = rebuilt.pending_triggers.as_slice() else {
+        panic!("revealing creates one linked Miracle trigger");
+    };
+    assert_eq!(trigger.source.object, card);
+    assert_eq!(
+        trigger.resolver,
+        StackAbilityResolver::CastOffer(crate::card::AlternativeCastKindDef::Miracle)
+    );
+}
+
+fn game_with_draw_action_window(definition: CardDefinitionId) -> (Game, GameObjectId) {
+    let mut game = crate::game::tests::ready_game();
+    let player = PlayerId::One;
+    let card = crate::game::tests::card(80_900, definition, player);
+    let card_id = card.id;
+    game.players[player.index()].hand.push(card);
+    game.cards_drawn_this_turn[player.index()] = 1;
+    game.drawn_this_turn[player.index()] = vec![card_id];
+    game.add_unrestricted_mana(player, ManaColor::White, 1);
+    game.queue_draw_action_window(player, card_id);
+    (game, card_id)
+}
+
+fn wire_for_viewer(game: &Game, viewer: PlayerId) -> Value {
+    let observation = game.observe(viewer);
+    let actions = crate::protocol::protocol_actions(&observation);
+    crate::protocol::observation_json_for_format(
+        &game.catalog,
+        game.format,
+        &observation,
+        game.in_pregame(),
+        &actions,
+    )
+}
+
+#[test]
+fn an_ordinary_draw_action_window_settles_before_its_checkpoint_round_trip() {
+    let (game, card) = game_with_draw_action_window(crate::card::cards::PLAINS);
+    let player = PlayerId::One;
+    assert!(
+        game.pending_decisions.is_empty(),
+        "an ordinary card's empty draw action resolves atomically"
+    );
+
+    let wire = wire_for_viewer(&game, player);
+    assert_eq!(wire["checkpoint"]["hasDeferredState"], false);
+    let rebuilt = Game::from_observation_checkpoint(
+        game.catalog.clone(),
+        game.format,
+        &wire,
+        &true_hidden_hypothesis(&game, player),
+        80_898,
+    )
+    .expect("the owner can reconstruct the settled ordinary draw");
+    assert!(rebuilt.pending_decisions.is_empty());
+    assert!(rebuilt.pending_triggers.is_empty());
+    assert_eq!(rebuilt.next_decision_id, game.next_decision_id);
+    assert!(
+        rebuilt.players[player.index()]
+            .hand
+            .iter()
+            .any(|held| held.id == card),
+        "the drawn ordinary card remains in hand"
+    );
+}
+
+#[test]
+fn a_draw_action_window_checkpoint_cannot_be_made_public() {
+    let (game, _) = game_with_draw_action_window(crate::card::cards::TERMINUS);
+    let mut wire = wire_for_viewer(&game, PlayerId::One);
+    wire["decision"]["visibility"] = json!("Public");
+    let error = Game::from_observation_checkpoint(
+        game.catalog.clone(),
+        game.format,
+        &wire,
+        &true_hidden_hypothesis(&game, PlayerId::One),
+        80_899,
+    )
+    .expect_err("a draw-action window cannot be changed into a public decision");
+    assert!(
+        error.contains("draw-action window decision visibility disagrees"),
+        "unexpected error: {error}"
+    );
+}
+
+fn reveal_miracle_and_place_its_trigger(game: &mut Game) {
+    let reveal = game
+        .observe(PlayerId::One)
+        .decision
+        .expect("the Miracle reveal is pending");
+    game.choose_decision(PlayerId::One, reveal.id, &[1]);
+    assert_eq!(game.pending_triggers.len(), 1);
+    game.finish_rules_procedure();
+    assert!(game.pending_triggers.is_empty());
+    assert_eq!(game.stack.len(), 1);
+}
+
+#[test]
+fn a_miracle_trigger_in_a_hidden_hand_fails_closed_for_the_opponent() {
+    let (mut game, card) = game_with_draw_action_window(crate::card::cards::TERMINUS);
+    let reveal = game
+        .observe(PlayerId::One)
+        .decision
+        .expect("the Miracle reveal is pending");
+    game.choose_decision(PlayerId::One, reveal.id, &[1]);
+
+    let owner_pending = game.checkpoint_json(PlayerId::One);
+    assert_eq!(owner_pending["hasDeferredState"], false);
+    assert_eq!(
+        owner_pending["pendingTriggers"][0]["source"]["object"],
+        card.0
+    );
+    let opponent_pending = game.checkpoint_json(PlayerId::Two);
+    assert_eq!(opponent_pending["hasDeferredState"], true);
+    assert_eq!(opponent_pending["pendingTriggers"], json!([]));
+
+    game.finish_rules_procedure();
+    assert_eq!(game.stack.len(), 1);
+    let owner_stacked = game.checkpoint_json(PlayerId::One);
+    assert_eq!(owner_stacked["hasDeferredState"], false);
+    assert!(owner_stacked["stack"][0]["abilityPayload"].is_object());
+    let opponent_stacked = game.checkpoint_json(PlayerId::Two);
+    assert_eq!(opponent_stacked["hasDeferredState"], true);
+    assert_eq!(opponent_stacked["stack"][0]["abilityPayload"], Value::Null);
+    assert_eq!(opponent_stacked["stack"][0]["hasRuntimeOverrides"], true);
+}
+
+#[test]
+fn a_standing_miracle_offer_round_trips_for_both_seats_and_resumes() {
+    let (mut game, card) = game_with_draw_action_window(crate::card::cards::TERMINUS);
+    reveal_miracle_and_place_its_trigger(&mut game);
+    for _ in 0..2 {
+        let player = game.priority;
+        game.apply(player, Action::PassPriority)
+            .expect("priority passes to resolve the Miracle trigger");
+    }
+    assert!(matches!(
+        game.pending_decisions[0].continuation,
+        DecisionContinuation::MayCastAlternative {
+            player: PlayerId::One,
+            card: offered,
+            ability: AbilityOrigin::Printed {
+                definition: crate::card::cards::TERMINUS,
+                ..
+            },
+        } if offered == card
+    ));
+
+    let mut owner_rebuilt = None;
+    for viewer in [PlayerId::One, PlayerId::Two] {
+        let wire = wire_for_viewer(&game, viewer);
+        assert_eq!(wire["checkpoint"]["hasDeferredState"], false);
+        let original_actions = crate::protocol::protocol_actions(&game.observe(viewer));
+        let rebuilt = Game::from_observation_checkpoint(
+            game.catalog.clone(),
+            game.format,
+            &wire,
+            &true_hidden_hypothesis(&game, viewer),
+            80_901,
+        )
+        .expect("the public standing Miracle offer reconstructs for either seat");
+        assert_eq!(
+            crate::protocol::protocol_actions(&rebuilt.observe(viewer)),
+            original_actions
+        );
+        if viewer == PlayerId::One {
+            owner_rebuilt = Some(rebuilt);
+        }
+    }
+
+    let mut cast = owner_rebuilt.expect("the deciding seat reconstructed");
+    let mut declined = cast.clone();
+    let decline = declined
+        .observe(PlayerId::One)
+        .decision
+        .expect("the rebuilt offer can be declined");
+    declined.choose_decision(PlayerId::One, decline.id, &[0]);
+    assert!(declined.pending_decisions.is_empty());
+    assert!(declined.legal_actions(PlayerId::One).iter().all(
+        |action| !matches!(action, Action::CastSpell { card: offered, .. } if *offered == card)
+    ));
+
+    let cast_action = cast
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(
+            |action| matches!(action, Action::CastSpell { card: offered, .. } if *offered == card),
+        )
+        .expect("the rebuilt offer retains its exact cast action");
+    cast.apply(PlayerId::One, cast_action)
+        .expect("the reconstructed Miracle offer can be accepted");
+    assert!(cast.pending_decisions.is_empty());
+
+    let wire = wire_for_viewer(&game, PlayerId::One);
+    let hidden = true_hidden_hypothesis(&game, PlayerId::One);
+    let mut wrong_alternative = wire.clone();
+    wrong_alternative["checkpoint"]["decisionState"]["continuation"]["ability"]["abilityId"] =
+        json!(0);
+    let error = Game::from_observation_checkpoint(
+        game.catalog.clone(),
+        game.format,
+        &wrong_alternative,
+        &hidden,
+        80_902,
+    )
+    .expect_err("a checkpoint cannot manufacture another alternative-cast offer");
+    assert!(
+        error.contains("is not the card's linked Miracle clause"),
+        "unexpected error: {error}"
+    );
 }
 
 #[test]

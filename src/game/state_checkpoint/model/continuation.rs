@@ -7,10 +7,10 @@
 use serde::{Deserialize, Serialize};
 
 use super::{
-    AbilityLocator, AbilitySourceSnapshot, ApplicableBeginTurnReplacementSnapshot,
-    ApplicableReplacementSnapshot, BalancePhaseSnapshot, BalanceTaskSnapshot,
-    DecisionOptionSnapshot, DeferredBeginTurnEffectSnapshot, DetachedCardSnapshot,
-    DetachedStackSnapshot, DiscardChoiceSnapshot, DrawReplacementSnapshot,
+    AbilityLocator, AbilityOriginSnapshot, AbilitySourceSnapshot,
+    ApplicableBeginTurnReplacementSnapshot, ApplicableReplacementSnapshot, BalancePhaseSnapshot,
+    BalanceTaskSnapshot, DecisionOptionSnapshot, DeferredBeginTurnEffectSnapshot,
+    DetachedCardSnapshot, DetachedStackSnapshot, DiscardChoiceSnapshot, DrawReplacementSnapshot,
     EffectContinuationSnapshot, EffectResolutionContextSnapshot, ManaSnapshot,
     PendingTriggerSnapshot, PileSplitSnapshot, ReplacementEffectContextSnapshot,
     ReplacementEffectLocator, ResolvedEffectPaymentSnapshot, ScopedEffectSnapshot,
@@ -212,8 +212,13 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         targets: Vec<TargetSnapshot>,
         divisions: Vec<Vec<u16>>,
     },
-    MiracleReveal {
+    DrawActionWindow {
         card: u32,
+    },
+    MayCastAlternative {
+        player: usize,
+        card: u32,
+        ability: AbilityOriginSnapshot,
     },
     SpellLibraryEnd {
         owner: usize,
@@ -228,6 +233,7 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         player: usize,
         card: u32,
         ability: AbilityLocator,
+        grant: usize,
     },
     Proliferate {
         candidates: Vec<TargetSnapshot>,

@@ -2,8 +2,8 @@ use super::{
     AlternativeCastKindDef, BattlefieldExitCompletion, CardBehavior, CardPartId, CardRuntime,
     CardType, CounterKind, DecisionContinuation, DecisionOption, DecisionPreference,
     DecisionVisibility, DecisionZone, EntryCompletion, Game, GameEvent, GameObjectId,
-    PendingBattlefieldEntry, Permanent, PlayerId, ResolvedAbility, StackAbilityResolver,
-    StackObject, StackObjectKind, Target, ZoneKind,
+    PendingBattlefieldEntry, PendingProcedure, Permanent, PlayerId, ResolvedAbility,
+    StackAbilityResolver, StackObject, StackObjectKind, Target, ZoneKind,
 };
 use crate::SpellResolutionDestinationDef;
 
@@ -42,8 +42,16 @@ impl Game {
                 // here, so nothing is counted twice.
                 self.record_ability_resolution(&object);
                 let pending_before = self.pending_decisions.len();
+                let procedures_before = self.pending_procedures.len();
+                let events_before = self.pending_events.len();
                 let resolved = self.resolve_stack_ability(&object);
-                if self.defer_stack_resolution(pending_before, &object, resolved) {
+                if self.defer_stack_resolution(
+                    pending_before,
+                    procedures_before,
+                    events_before,
+                    &object,
+                    resolved,
+                ) {
                     return;
                 }
                 self.finish_stack_resolution(&object, resolved);
@@ -122,14 +130,30 @@ impl Game {
             });
         } else if object.ability.is_some() {
             let pending_before = self.pending_decisions.len();
+            let procedures_before = self.pending_procedures.len();
+            let events_before = self.pending_events.len();
             let _ = self.resolve_stack_ability(&object);
-            if self.defer_stack_resolution(pending_before, &object, true) {
+            if self.defer_stack_resolution(
+                pending_before,
+                procedures_before,
+                events_before,
+                &object,
+                true,
+            ) {
                 return;
             }
         } else {
             let pending_before = self.pending_decisions.len();
+            let procedures_before = self.pending_procedures.len();
+            let events_before = self.pending_events.len();
             self.resolve_spell_effect(&object, behavior);
-            if self.defer_stack_resolution(pending_before, &object, true) {
+            if self.defer_stack_resolution(
+                pending_before,
+                procedures_before,
+                events_before,
+                &object,
+                true,
+            ) {
                 return;
             }
         }
@@ -339,6 +363,8 @@ impl Game {
     fn defer_stack_resolution(
         &mut self,
         pending_before: usize,
+        procedures_before: usize,
+        events_before: usize,
         object: &StackObject,
         resolved: bool,
     ) -> bool {
@@ -349,6 +375,17 @@ impl Game {
                 resolved,
             },
         ) {
+            return true;
+        }
+        if self.pending_decisions.len() > pending_before
+            || self.pending_procedures.len() > procedures_before
+            || self.pending_events.len() > events_before
+        {
+            self.pending_procedures
+                .push_back(PendingProcedure::FinishStackResolution {
+                    object: Box::new(object.clone()),
+                    resolved,
+                });
             return true;
         }
         false
@@ -420,6 +457,21 @@ impl Game {
                         targets,
                     },
                 );
+            }
+            StackAbilityResolver::CastOffer(alternative) => {
+                if let (Some(card), Some(payload)) = (object.source, object.ability.as_ref()) {
+                    debug_assert_eq!(
+                        self.ability_for_origin(card, payload.origin)
+                            .and_then(|ability| match ability.definition {
+                                super::DeclarativeAbilityDef::AlternativeCast(definition) => {
+                                    Some(definition.kind)
+                                }
+                                _ => None,
+                            }),
+                        Some(alternative),
+                    );
+                    self.queue_alternative_cast_offer(object.controller, card, payload.origin);
+                }
             }
         }
         true

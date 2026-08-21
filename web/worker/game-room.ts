@@ -23,9 +23,11 @@
  * remembers how many it has delivered and sends only the tail; the counter
  * resets when a human command resets the queue.
  *
- * Nothing stores engine state. A game at rest is its configuration plus
- * every command applied -- human and bot alike -- and is rebuilt by replay,
- * refused loudly across a replay-format or exact-simulation change.
+ * Nothing stores authoritative engine state. A game at rest is its
+ * configuration plus every command applied -- human and bot alike -- and is
+ * rebuilt by replay, refused loudly across a replay-format or
+ * exact-simulation change. The last human-visible projection is cached only
+ * so a reconnect cannot observe a private opponent decision during replay.
  */
 
 import { type EngineModule, engine } from "./engine";
@@ -105,9 +107,20 @@ interface LoadOutcome {
   refused?: string;
 }
 
+/** A human snapshot from a boundary at which that seat may actually act. */
+interface HumanStateCache {
+  /** Number of replay commands already reflected in `state`. */
+  commandCount: number;
+  state: Record<string, unknown> & {
+    opponentActions?: unknown[];
+    result?: unknown;
+  };
+}
+
 import { FINISHED_ROOM_MS, moveBudgetMs } from "./bot-presence.mjs";
 
 const STORED = "hosted-game";
+const HUMAN_STATE = "human-state";
 
 /** The header a seat presents its token in. */
 const TOKEN_HEADER = "x-penta-token";
@@ -190,6 +203,8 @@ export class GameRoom {
   #deliveredBeats = 0;
   /** Who the room is waiting on, mirrored from storage. */
   #clock: MoveClock | null = null;
+  /** Last state it was safe to render to the human seat. */
+  #humanState: HumanStateCache | null = null;
 
   constructor(state: DurableState) {
     this.#state = state;
@@ -216,7 +231,7 @@ export class GameRoom {
       // The human's snapshot holds their hand, and the record holds the whole
       // game; neither belongs to whoever guessed the room id.
       if (route === "state") {
-        return seat === "human" ? this.#snapshot(game) : forbidden();
+        return seat === "human" ? this.#snapshot() : forbidden();
       }
       if (route === "opponent") {
         return seat === "bot" ? this.#opponentView(game) : forbidden();
@@ -245,7 +260,7 @@ export class GameRoom {
           seat: body.seat,
           reason: body.reason ?? "ran out of time",
         });
-        return this.#snapshot(game);
+        return this.#snapshot();
       }
       if (route === "command") {
         const command = (await request.json()) as Command;
@@ -254,24 +269,41 @@ export class GameRoom {
         await this.#apply(game, command);
         return seat === "bot"
           ? Response.json({ ok: true })
-          : this.#snapshot(game);
+          : this.#snapshot();
       }
       if (route === "record") {
         if (seat !== "human") return forbidden();
         const stored = this.#stored;
         if (!stored) return Response.json({ error: "no game" }, { status: 404 });
+        // A replay is useful to the human, but the bearer credentials that
+        // authorize both seats never are. Keep the response allowlisted so a
+        // future stored secret is private unless deliberately made public.
+        const record = {
+          config: stored.config,
+          commands: stored.commands,
+          replayVersion: stored.replayVersion,
+          simulationFingerprint: stored.simulationFingerprint,
+          engineVersion: stored.engineVersion,
+          protocolVersion: stored.protocolVersion,
+        };
         if (stored.config.botPolicy.toLowerCase() !== "external") {
-          return Response.json(stored);
+          return Response.json(record);
         }
-        // An external game's seed is both hands; the record hides it until
-        // the game is decided, after which it is the replay's provenance.
+        // An external game's seed is both hands, and its command journal can
+        // record a private choice that produced no public event. Neither is
+        // a live-game observation: withhold both until the result makes the
+        // complete replay ordinary post-game provenance.
         const finished = Boolean(
           (JSON.parse(game.state_json()) as { result?: unknown }).result,
         );
         return Response.json(
           finished
-            ? stored
-            : { ...stored, config: { ...stored.config, seed: null } },
+            ? record
+            : {
+                ...record,
+                config: { ...stored.config, seed: null },
+                commands: [],
+              },
         );
       }
       return Response.json({ error: `unknown route ${route}` }, { status: 404 });
@@ -307,21 +339,42 @@ export class GameRoom {
     return null;
   }
 
-  /** The full current snapshot, for polling callers; beats are not consumed. */
-  #snapshot(game: WebGame): Response {
-    return Response.json(this.#withClock(game, JSON.parse(game.state_json())));
+  /** The last human-safe snapshot, for polling callers; beats are not consumed. */
+  #snapshot(): Response {
+    if (!this.#humanState) {
+      throw new Error("the human-visible game state is unavailable");
+    }
+    return Response.json(this.#humanState.state);
   }
 
   /**
    * Adds the clock to a state payload. A deadline a player cannot see is a
    * trap, so the room reports it and lets the client show what it likes.
    */
-  #withClock(game: WebGame, state: Record<string, unknown>): Record<string, unknown> {
+  #withClock(state: HumanStateCache["state"]): HumanStateCache["state"] {
     const clock = this.#clock;
-    if (!clock || (JSON.parse(game.state_json()) as { result?: unknown }).result) {
+    if (!clock || state.result) {
       return state;
     }
     return { ...state, moveClock: { seat: clock.seat, deadline: clock.deadline } };
+  }
+
+  /** Captures and persists a boundary the human seat is allowed to render. */
+  async #rememberHumanState(game: WebGame): Promise<void> {
+    const stored = this.#stored;
+    if (!stored) throw new Error("no game");
+    const state = this.#withClock(JSON.parse(game.state_json()) as HumanStateCache["state"]);
+    const cached = { commandCount: stored.commands.length, state };
+    if (cached.commandCount !== this.#humanState?.commandCount) {
+      // The wasm's beat queue begins again at each human command. Keep the
+      // delivery cursor attached to the cached boundary until a new safe
+      // boundary replaces it, then begin delivery for that queue at zero.
+      this.#deliveredBeats = 0;
+    }
+    this.#humanState = cached;
+    if (stored.config.botPolicy.toLowerCase() === "external") {
+      await this.#state.storage.put(HUMAN_STATE, cached);
+    }
   }
 
   async #start(config: GameConfig, presented: string | null): Promise<Response> {
@@ -333,7 +386,8 @@ export class GameRoom {
       return forbidden();
     }
     const { WebGame, HostedGame } = await engine();
-    if (config.botPolicy.toLowerCase() === "external") {
+    const externalOpponent = config.botPolicy.toLowerCase() === "external";
+    if (externalOpponent) {
       // Against a real opponent the seed is the deal itself: whoever picks it
       // can precompute both hands. The room rolls its own and never sends it.
       config = { ...config, seed: crypto.getRandomValues(new Uint32Array(1))[0] };
@@ -360,15 +414,28 @@ export class GameRoom {
       humanToken: mintToken(),
       botToken: mintToken(),
     };
+    // No command has run yet, so this initial pregame view predates any
+    // card-dependent private window. It is the safe fallback if the external
+    // seat owns the first mulligan decision.
+    const humanState: HumanStateCache = {
+      commandCount: 0,
+      state: JSON.parse(game.state_json()) as HumanStateCache["state"],
+    };
     await this.#state.storage.put(STORED, stored);
+    if (externalOpponent) {
+      await this.#state.storage.put(HUMAN_STATE, humanState);
+    } else {
+      await this.#state.storage.delete(HUMAN_STATE);
+    }
     this.#game = game;
     this.#stored = stored;
+    this.#humanState = humanState;
     this.#deliveredBeats = 0;
     await this.#dispatch(game);
     // The only time either token is ever sent. The starter keeps the human's
     // and hands the bot's to whichever bot it invites.
     return Response.json({
-      state: JSON.parse(game.state_json()),
+      state: this.#humanState?.state ?? humanState.state,
       humanToken: stored.humanToken,
       botToken: stored.botToken,
     });
@@ -382,6 +449,11 @@ export class GameRoom {
       if (this.#game) return { game: this.#game };
       const stored = await this.#state.storage.get<StoredGame>(STORED);
       if (!stored) return {};
+      const externalOpponent = stored.config.botPolicy.toLowerCase() === "external";
+      const persistedHumanState = externalOpponent
+        ? await this.#state.storage.get<HumanStateCache>(HUMAN_STATE)
+        : undefined;
+      this.#clock = (await this.#state.storage.get<MoveClock>(CLOCK)) ?? null;
       const { WebGame, HostedGame } = await engine();
       const replayVersion = HostedGame.replayVersion();
       const simulationFingerprint = HostedGame.simulationFingerprint();
@@ -398,9 +470,21 @@ export class GameRoom {
         stored.config.seed,
         stored.config.format,
       );
+      // Replaying also recovers the last safe boundary for rooms created
+      // before the cache existed, or after a storage write was interrupted.
+      let replayedHumanState: HumanStateCache = {
+        commandCount: 0,
+        state: JSON.parse(game.state_json()) as HumanStateCache["state"],
+      };
       for (const [position, command] of stored.commands.entries()) {
         try {
           apply(game, command);
+          if (!game.opponentIsDeciding()) {
+            replayedHumanState = {
+              commandCount: position + 1,
+              state: JSON.parse(game.state_json()) as HumanStateCache["state"],
+            };
+          }
         } catch (cause) {
           return {
             refused:
@@ -409,8 +493,19 @@ export class GameRoom {
           };
         }
       }
+      if (replayedHumanState.commandCount === stored.commands.length) {
+        replayedHumanState.state = this.#withClock(replayedHumanState.state);
+      }
+      const humanState =
+        persistedHumanState?.commandCount === replayedHumanState.commandCount
+          ? persistedHumanState
+          : replayedHumanState;
       this.#game = game;
       this.#stored = stored;
+      this.#humanState = humanState;
+      if (externalOpponent && humanState !== persistedHumanState) {
+        await this.#state.storage.put(HUMAN_STATE, humanState);
+      }
       // A rebuilt room delivers the live queue afresh to whoever connects.
       this.#deliveredBeats = 0;
       return { game };
@@ -423,10 +518,6 @@ export class GameRoom {
     const stored = this.#stored;
     if (!stored) throw new Error("no game");
     apply(game, command);
-    if (!BOT_COMMANDS.has(command.t)) {
-      // A human command resets the wasm's beat queue, so delivery starts over.
-      this.#deliveredBeats = 0;
-    }
     stored.commands.push(command);
     await this.#state.storage.put(STORED, stored);
     await this.#dispatch(game);
@@ -457,7 +548,7 @@ export class GameRoom {
       server.addEventListener("close", () => {
         this.#humans.delete(server);
       });
-      server.send(this.#deliverable(game));
+      server.send(this.#deliverable());
     }
     return new Response(null, { status: 101, webSocket: pair[0] } as ResponseInit);
   }
@@ -502,8 +593,9 @@ export class GameRoom {
       // that rejects every click is worse than a still one.
       return;
     }
-    this.#toHumans(this.#deliverable(game));
-    const result = (JSON.parse(game.state_json()) as { result?: unknown }).result;
+    await this.#rememberHumanState(game);
+    this.#toHumans(this.#deliverable());
+    const result = this.#humanState?.state.result;
     if (result && this.#bot) {
       this.#bot.send(JSON.stringify({ t: "result", result }));
     }
@@ -546,9 +638,11 @@ export class GameRoom {
     if ((JSON.parse(game.state_json()) as { result?: unknown }).result) {
       // The retention alarm: the game ended, its keeping time is up.
       await this.#state.storage.delete(STORED);
+      await this.#state.storage.delete(HUMAN_STATE);
       await this.#state.storage.delete(CLOCK);
       this.#game = null;
       this.#stored = null;
+      this.#humanState = null;
       return;
     }
     const clock = this.#clock ?? (await this.#state.storage.get<MoveClock>(CLOCK));
@@ -582,14 +676,15 @@ export class GameRoom {
   }
 
   /** The state message with only the beats nobody has been sent yet. */
-  #deliverable(game: WebGame): string {
-    const state = JSON.parse(game.state_json()) as {
-      opponentActions?: unknown[];
-    };
+  #deliverable(): string {
+    if (!this.#humanState) {
+      throw new Error("the human-visible game state is unavailable");
+    }
+    const state = { ...this.#humanState.state };
     const beats = state.opponentActions ?? [];
     state.opponentActions = beats.slice(this.#deliveredBeats);
     this.#deliveredBeats = beats.length;
-    return JSON.stringify({ t: "state", state: this.#withClock(game, state) });
+    return JSON.stringify({ t: "state", state });
   }
 
   #toHumans(payload: string): void {

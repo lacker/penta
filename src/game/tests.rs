@@ -132,6 +132,53 @@ pub(super) fn ready_game_with_seed(seed: u64) -> Game {
     game
 }
 
+/// A bot-wire checkpoint and the true hidden-zone hypothesis behind it.
+/// Focused reconstruction tests mutate the former and use the latter only to
+/// prove that authored executable state cannot be spliced through the wire.
+pub(super) fn checkpoint_fixture(
+    game: &Game,
+    viewer: PlayerId,
+) -> (serde_json::Value, serde_json::Value) {
+    let observation = game.observe(viewer);
+    let actions = crate::protocol::protocol_actions(&observation);
+    let wire = crate::protocol::observation_json_for_format(
+        &game.catalog,
+        game.format,
+        &observation,
+        game.in_pregame(),
+        &actions,
+    );
+    let definitions = |cards: &[CardInstance]| {
+        cards
+            .iter()
+            .map(|card| card.definition.0)
+            .collect::<Vec<_>>()
+    };
+    let opponent = viewer.opponent();
+    let opponent_label = match opponent {
+        PlayerId::One => "p1",
+        PlayerId::Two => "p2",
+    };
+    let opponent_hand = &game.players[opponent.index()].hand;
+    let drawn_indices = game.drawn_this_turn[opponent.index()]
+        .iter()
+        .filter_map(|id| opponent_hand.iter().position(|card| card.id == *id))
+        .collect::<Vec<_>>();
+    let hidden = serde_json::json!({
+        "hands": {(opponent_label): definitions(opponent_hand)},
+        "libraries": {
+            "p1": definitions(&game.players[PlayerId::One.index()].library),
+            "p2": definitions(&game.players[PlayerId::Two.index()].library),
+        },
+        "outsideGame": {
+            "p1": definitions(&game.players[PlayerId::One.index()].outside_game),
+            "p2": definitions(&game.players[PlayerId::Two.index()].outside_game),
+        },
+        "drawnThisTurn": {(opponent_label): drawn_indices},
+    });
+    (wire, hidden)
+}
+
 pub(super) fn card(id: u32, definition: CardDefinitionId, owner: PlayerId) -> CardInstance {
     CardInstance {
         id: CardInstanceId(id),
@@ -707,6 +754,7 @@ mod meekstone;
 mod menace;
 mod mentor_of_the_meek;
 mod mill_until_land;
+mod miracle;
 mod mishras_war_machine;
 mod modal_effects;
 mod morbid;

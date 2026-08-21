@@ -38,7 +38,13 @@ impl Game {
                     .find(|candidate| candidate.id == *card)
                     .and_then(|candidate| self.catalog.get(candidate.definition))?;
                 let option = definition.play_option(choices.play_option())?;
-                let cost = self.configured_cast_mana_cost(*card, option, choices.costs())?;
+                let offer = self
+                    .pending_decisions
+                    .first()
+                    .and_then(|pending| pending.continuation.cast_offer())
+                    .filter(|offer| offer.player == player && offer.card == *card)
+                    .map(|offer| offer.cost);
+                let cost = self.configured_cast_mana_cost(*card, option, choices.costs(), offer)?;
                 Some((
                     reduce_generic(
                         add_mana_cost(

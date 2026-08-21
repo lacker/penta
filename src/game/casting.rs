@@ -1,11 +1,12 @@
 use super::{
     AbilityCostDef, AbilityOrigin, AlternativeCastKindDef, BTreeMap, BattlefieldExitCompletion,
     CREATURE_TYPES, CardDefinition, CardDefinitionId, CardType, CardTypeSet, CastChoices,
-    CastSignature, CastSourceZone, CommittedTriggerEvent, DecisionContinuation, DecisionOption,
-    DecisionPreference, DecisionVisibility, DecisionZone, DeclarativeAbilityDef, EntryCompletion,
-    Game, GameEvent, GameObjectId, Mana, ManaActivationChoices, ManaColor, ManaPaymentPurpose,
-    PendingBattlefieldEntry, Permanent, PlayActionKind, PlayOptionDef, PlayOptionId, PlayerId,
-    StackObject, StackObjectKind, Target, ZoneKind, ZoneMoveCause, ZonePlacement, remove_card,
+    CastOfferCost, CastSignature, CastSourceZone, CommittedTriggerEvent, DecisionContinuation,
+    DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone, DeclarativeAbilityDef,
+    EntryCompletion, Game, GameEvent, GameObjectId, Mana, ManaActivationChoices, ManaColor,
+    ManaPaymentPurpose, PendingBattlefieldEntry, Permanent, PlayActionKind, PlayOptionDef,
+    PlayOptionId, PlayerId, StackObject, StackObjectKind, Target, ZoneKind, ZoneMoveCause,
+    ZonePlacement, remove_card,
 };
 mod signature_validation;
 
@@ -392,6 +393,7 @@ impl Game {
         player: PlayerId,
         card_id: GameObjectId,
         signature: &CastSignature,
+        offer: Option<CastOfferCost>,
     ) -> Option<AlternativeCastKindDef> {
         self.players[player.index()]
             .hand
@@ -405,7 +407,13 @@ impl Game {
                     .map(|option| (definition, option))
             })
             .and_then(|(definition, option)| {
-                self.selected_alternative_kind(definition, option, card_id, signature.costs())
+                self.selected_alternative_kind_for_offer(
+                    definition,
+                    option,
+                    card_id,
+                    signature.costs(),
+                    offer,
+                )
             })
     }
 
@@ -533,9 +541,16 @@ impl Game {
         let (signature, cost, _behavior, source_zone) = self
             .validated_cast_signature(player, card_id, choices)
             .expect("validated casting choices remain valid while paying costs");
+        // A standing cast offer is the permission that made this signature
+        // legal, so keep it through validation and consume it atomically
+        // before paying costs or moving the card.
         let targets = signature.iter_targets().copied().collect::<Vec<_>>();
         let x = signature.x();
-        let alternative_kind = self.cast_alternative_kind(player, card_id, &signature);
+        let offer = self
+            .current_cast_offer(player, card_id, source_zone)
+            .map(|offer| offer.cost);
+        let alternative_kind = self.cast_alternative_kind(player, card_id, &signature, offer);
+        self.take_answered_cast_offer(card_id);
         // Both say the same thing about where the card goes afterwards:
         // exiled rather than buried, wherever it would otherwise have gone.
         let cast_via_flashback = matches!(

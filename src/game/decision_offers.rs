@@ -1,15 +1,18 @@
 use std::borrow::Cow;
 
 use super::{
-    CardInstance, CardPartId, CharacteristicContext, CharacteristicSource, ColorSet,
-    DecisionContinuation, DecisionKind, DecisionObservation, DecisionOption, DecisionPreference,
-    DecisionVisibility, DecisionZone, DeclarativeAbilityDef, EffectResolutionContext,
-    FORK_COPY_COLOR, Game, ManaCost, ObjectCharacteristics, PendingDecision, PlayerId,
-    ResolvedEffectPayment, ScopedEffect, StackObject, Target, TargetSelection, TargetSlotId,
-    TemporaryAbilityGrant, TriggerContext, ZoneKind, ZoneMoveCause, ZonePlacement,
+    CardInstance, CardPartId, CastOffer, CastOfferCost, CastSourceZone, CharacteristicContext,
+    CharacteristicSource, ColorSet, DecisionContinuation, DecisionKind, DecisionObservation,
+    DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone, DeclarativeAbilityDef,
+    EffectResolutionContext, FORK_COPY_COLOR, Game, ManaCost, ObjectCharacteristics,
+    PendingDecision, PlayerId, ResolvedEffectPayment, ScopedEffect, StackObject, Target,
+    TargetSelection, TargetSlotId, TemporaryAbilityGrant, TriggerContext, ZoneKind, ZoneMoveCause,
+    ZonePlacement,
     flatten_target_selections, target_combinations,
 };
-use crate::card::{AbilityDef, ChoiceVisibilityDef, EffectDef, ObjectPredicateDef};
+use crate::card::{
+    AbilityDef, AlternativeCastKindDef, ChoiceVisibilityDef, EffectDef, ObjectPredicateDef,
+};
 use crate::ids::GameObjectId;
 
 pub(super) const fn effect_choice_visibility(
@@ -557,7 +560,15 @@ impl Game {
         self.capture_cards_exiled(std::slice::from_ref(&card), ZoneKind::Library);
         self.permit_cast_this_turn(exiled, player);
         let mut castable = Vec::new();
-        self.add_offered_cast_actions(player, exiled, &mut castable);
+        self.add_offered_cast_actions(
+            CastOffer {
+                player,
+                card: exiled,
+                source_zone: CastSourceZone::Exile,
+                cost: CastOfferCost::Any,
+            },
+            &mut castable,
+        );
         if castable.is_empty() {
             self.consume_exile_play_permission(exiled);
             self.resolve_declined_cast(object, context, definition);
@@ -604,7 +615,7 @@ impl Game {
         card: GameObjectId,
         ability: &'static AbilityDef,
     ) {
-        let Some((_, instance)) = self.card_in_nonbattlefield_zone(card) else {
+        let Some((ZoneKind::Graveyard, instance)) = self.card_in_nonbattlefield_zone(card) else {
             return;
         };
         let printed = instance.definition;
@@ -616,11 +627,24 @@ impl Game {
             object: card,
             ability: *ability,
         };
+        let grant_index = self.temporary_ability_grants.len();
         self.temporary_ability_grants.push(grant);
+        let DeclarativeAbilityDef::AlternativeCast(_) = ability.definition else {
+            self.revoke_temporary_grant(grant_index, card, ability);
+            return;
+        };
         let mut castable = Vec::new();
-        self.add_offered_cast_actions(player, card, &mut castable);
+        self.add_offered_cast_actions(
+            CastOffer {
+                player,
+                card,
+                source_zone: CastSourceZone::Graveyard,
+                cost: CastOfferCost::GrantedAlternative(grant_index),
+            },
+            &mut castable,
+        );
         if castable.is_empty() {
-            self.revoke_temporary_grant(card, ability);
+            self.revoke_temporary_grant(grant_index, card, ability);
             return;
         }
         self.queue_decision(
@@ -645,19 +669,95 @@ impl Game {
                 player,
                 card,
                 ability: *ability,
+                grant: grant_index,
             },
         );
     }
 
-    /// Takes back one lent ability. Only the exact pair goes: a card may be
-    /// carrying somebody else's grant as well.
-    pub(super) fn revoke_temporary_grant(&mut self, card: GameObjectId, ability: &AbilityDef) {
-        if let Some(index) = self
-            .temporary_ability_grants
+    /// Offers the exact alternative cast named by a resolving linked
+    /// ability. The card has not moved; the standing decision is the entire
+    /// permission and answering its sole option declines it.
+    pub(super) fn queue_alternative_cast_offer(
+        &mut self,
+        player: PlayerId,
+        card: crate::GameObjectId,
+        ability: crate::AbilityOrigin,
+    ) {
+        let Some(held) = self.players[player.index()]
+            .hand
             .iter()
-            .position(|grant| grant.object == card && grant.ability == *ability)
+            .find(|held| held.id == card)
+        else {
+            return;
+        };
+        let definition = held.definition;
+        let Some(ability_definition) = self.ability_for_origin(card, ability) else {
+            return;
+        };
+        let DeclarativeAbilityDef::AlternativeCast(alternative) = ability_definition.definition
+        else {
+            return;
+        };
+        if !ability_definition.is_executable()
+            || alternative.kind != AlternativeCastKindDef::Miracle
         {
-            self.temporary_ability_grants.remove(index);
+            return;
+        }
+        let name = self
+            .catalog
+            .get(definition)
+            .map_or_else(|| "that card".to_owned(), |card| card.name.clone());
+        let offer = CastOffer {
+            player,
+            card,
+            source_zone: CastSourceZone::Hand,
+            cost: CastOfferCost::PrintedAlternative(ability),
+        };
+        let mut castable = Vec::new();
+        self.add_offered_cast_actions(offer, &mut castable);
+        if castable.is_empty() {
+            return;
+        }
+        self.queue_decision(
+            player,
+            format!(
+                "Cast {name} for its {} cost, or decline",
+                alternative.kind.label()
+            ),
+            DecisionVisibility::Public,
+            DecisionPreference::PreferOption(0),
+            1..=1,
+            false,
+            vec![DecisionOption {
+                id: 0,
+                label: "Decline".into(),
+                card: Some((card, definition)),
+                members: Vec::new(),
+                ability_text: None,
+                zone: DecisionZone::Hand,
+            }],
+            DecisionContinuation::MayCastAlternative {
+                player,
+                card,
+                ability,
+            },
+        );
+    }
+
+    /// Takes back the exact lent ability behind an offer. Equal grants remain
+    /// distinct: a card may be carrying somebody else's identical grant too.
+    pub(super) fn revoke_temporary_grant(
+        &mut self,
+        grant: usize,
+        card: GameObjectId,
+        ability: &AbilityDef,
+    ) {
+        if self
+            .temporary_ability_grants
+            .get(grant)
+            .is_some_and(|candidate| candidate.object == card && candidate.ability == *ability)
+        {
+            self.temporary_ability_grants.remove(grant);
         }
     }
 

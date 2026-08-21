@@ -2,10 +2,10 @@
 //! through a player's hand and library.
 
 use super::super::{
-    CardPartId, DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility,
-    DecisionZone, DiscardSelectionDef, DrawReplacement, EffectDef, EffectResolutionContext, Game,
-    GameEvent, GameObjectId, ObjectCharacteristics, PlayerId, ScopedEffect, StackObject, Target,
-    ZoneKind, ZoneMoveCause, public_cards, remove_card,
+    CardPartId, CastOffer, CastOfferCost, CastSourceZone, DecisionContinuation, DecisionOption,
+    DecisionPreference, DecisionVisibility, DecisionZone, DiscardSelectionDef, DrawReplacement,
+    EffectDef, EffectResolutionContext, Game, GameEvent, GameObjectId, ObjectCharacteristics,
+    PlayerId, ScopedEffect, StackObject, Target, ZoneKind, ZoneMoveCause, public_cards, remove_card,
 };
 use crate::card::ObjectPredicateDef;
 
@@ -103,7 +103,15 @@ impl Game {
         };
         self.permit_free_play_this_turn(matched, player);
         let mut castable = Vec::new();
-        self.add_offered_cast_actions(player, matched, &mut castable);
+        self.add_offered_cast_actions(
+            CastOffer {
+                player,
+                card: matched,
+                source_zone: CastSourceZone::Exile,
+                cost: CastOfferCost::Any,
+            },
+            &mut castable,
+        );
         if castable.is_empty() {
             self.consume_exile_play_permission(matched);
             self.bury_cascade_exiles(player, &exiled);

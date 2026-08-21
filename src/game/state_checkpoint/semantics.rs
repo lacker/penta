@@ -790,6 +790,7 @@ fn collect_effect_abilities(effect: EffectDef, abilities: &mut Vec<&'static Abil
             collect_applied_abilities(applied, abilities);
         }
         EffectDef::InstallTrigger(installed) => abilities.push(installed.ability),
+        EffectDef::MayCastTargetWithoutPaying { ability, .. } => abilities.push(ability),
         _ => {}
     }
     for child in child_effects(effect) {

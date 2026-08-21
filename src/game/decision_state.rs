@@ -1,4 +1,4 @@
-use crate::action::{ManaColor, Target};
+use crate::action::{AbilityOrigin, ManaColor, Target};
 use crate::card::{
     AbilityDef, BattlefieldEntryScalarChoiceDef, CardType, CardTypeSet, ColorChoiceOperationDef,
     ColorSet, EffectDef, ManaCost, ObjectChoiceBindingDef, ObjectPredicateDef,
@@ -9,10 +9,11 @@ use crate::ids::{CardDefinitionId, GameObjectId, ObjectSetBindingIndex, PlayerId
 
 use super::{
     AbilitySourceRef, ApplicableReplacement, ApplicableZoneMoveReplacement, CardInstance,
-    DecisionObservation, DecisionOption, DecisionZone, DrawReplacement, EffectResolutionContext,
-    Mana, ObjectCharacteristics, PendingActivation, PendingBattlefieldExitBatch, PendingTrigger,
-    PileChosen, PileSplit, PilesSeparated, ReplacementEffectContext, ResolvedEffectDurationDef,
-    SacrificeQuota, SacrificedAmountDef, ScopedEffect, StackObject, TriggerPlacementBatch,
+    CastOffer, CastOfferCost, CastSourceZone, DecisionObservation, DecisionOption, DecisionZone,
+    DrawReplacement, EffectResolutionContext, Mana, PendingActivation, PendingBattlefieldExitBatch,
+    ObjectCharacteristics, PendingTrigger, PileChosen, PileSplit, PilesSeparated,
+    ReplacementEffectContext, ResolvedEffectDurationDef, SacrificeQuota, SacrificedAmountDef,
+    ScopedEffect, StackObject, TriggerPlacementBatch,
 };
 
 /// Fork repaints its copy, so the copy is red and nothing else.
@@ -377,6 +378,7 @@ pub(super) enum DecisionContinuation {
         player: PlayerId,
         card: GameObjectId,
         ability: AbilityDef,
+        grant: usize,
     },
     /// "Its owner puts it on their choice of the top or bottom of their
     /// library." The owner answers, not whoever is resolving, so the spell
@@ -439,9 +441,18 @@ pub(super) enum DecisionContinuation {
         context: EffectResolutionContext,
         effect: ScopedEffect,
     },
-    /// The card just drawn, offered to its controller to reveal.
-    MiracleReveal {
+    /// The first card a player drew this turn, waiting for one optional
+    /// private draw-specific action. An empty answer takes no action.
+    DrawActionWindow {
         card: GameObjectId,
+    },
+    /// A linked trigger has resolved and offers one exact alternative way to
+    /// cast its source card. Casting answers the decision; choosing its sole
+    /// option declines.
+    MayCastAlternative {
+        player: PlayerId,
+        card: GameObjectId,
+        ability: AbilityOrigin,
     },
     /// A card-owned resolver has separated object-backed options into two
     /// piles. The shared runtime owns choice mechanics; the card owns what a
@@ -598,6 +609,43 @@ pub(super) enum DecisionContinuation {
         targets: Vec<Target>,
         divisions: Vec<Vec<u16>>,
     },
+}
+
+impl DecisionContinuation {
+    pub(super) fn cast_offer(&self) -> Option<CastOffer> {
+        match self {
+            Self::MayCastExiled { player, card, .. } | Self::CascadeCast { player, card, .. } => {
+                Some(CastOffer {
+                    player: *player,
+                    card: *card,
+                    source_zone: CastSourceZone::Exile,
+                    cost: CastOfferCost::Any,
+                })
+            }
+            Self::MayCastGranted {
+                player,
+                card,
+                grant,
+                ..
+            } => Some(CastOffer {
+                player: *player,
+                card: *card,
+                source_zone: CastSourceZone::Graveyard,
+                cost: CastOfferCost::GrantedAlternative(*grant),
+            }),
+            Self::MayCastAlternative {
+                player,
+                card,
+                ability,
+            } => Some(CastOffer {
+                player: *player,
+                card: *card,
+                source_zone: CastSourceZone::Hand,
+                cost: CastOfferCost::PrintedAlternative(*ability),
+            }),
+            _ => None,
+        }
+    }
 }
 
 /// The resolution an answered decision belongs to: the object that was

@@ -757,7 +757,9 @@ impl Game {
         let primary = match ability.resolver {
             StackAbilityResolver::Declarative(effect)
             | StackAbilityResolver::DeclarativeWithCustomFollowup { effect, .. } => Some(effect),
-            StackAbilityResolver::Custom(_) | StackAbilityResolver::CardOwned(_) => None,
+            StackAbilityResolver::Custom(_)
+            | StackAbilityResolver::CardOwned(_)
+            | StackAbilityResolver::CastOffer(_) => None,
         };
         primary
             .into_iter()

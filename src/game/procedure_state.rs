@@ -42,5 +42,12 @@ pub(super) enum PendingProcedure {
     ShuffleLibrary {
         player: PlayerId,
     },
+    /// A resolving spell or ability suspended behind one of the procedures
+    /// above. Its source remains a resolving stack object until every part of
+    /// the effect has completed, then takes its normal resolution destination.
+    FinishStackResolution {
+        object: Box<StackObject>,
+        resolved: bool,
+    },
     FinishStepAdvance,
 }

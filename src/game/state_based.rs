@@ -35,7 +35,6 @@ impl Game {
     }
 
     pub(super) fn check_state_based_actions(&mut self) {
-        self.close_stale_miracle_window();
         self.end_expired_control_changes();
         if self.check_player_loss_conditions() {
             return;

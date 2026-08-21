@@ -1,8 +1,8 @@
 use serde_json::Value;
 
 use crate::card::{
-    CardType, CardTypeSet, EffectDef, EffectPaymentCostDef, EffectPaymentDef, ReplacementChoiceDef,
-    ReplacementEventDef, TurnKindDef, ZonePlacement,
+    AlternativeCastKindDef, CardType, CardTypeSet, EffectDef, EffectPaymentCostDef,
+    EffectPaymentDef, ReplacementChoiceDef, ReplacementEventDef, TurnKindDef, ZonePlacement,
 };
 use crate::{
     CardCatalog, CardDefinitionId, CardPartId, GameObjectId, ManaCost, ObjectCharacteristics,
@@ -12,10 +12,10 @@ use crate::{
 use super::super::decision_offers::effect_choice_visibility;
 use super::super::{
     AbilitySourceRef, ApplicableBeginTurnReplacement, BalanceAction, BalancePhase, BalanceTask,
-    DecisionContinuation, DecisionKind, DecisionObservation, DecisionOption,
-    DecisionOrderSemantics, DecisionPreference, DecisionVisibility, DecisionZone,
-    DeferredBeginTurnEffect, PendingDecision, PendingTrigger, PileSplit, SacrificeFollowup,
-    ScopedEffect, Target, TriggerPlacementBatch,
+    CastOffer, CastOfferCost, CastSourceZone, DecisionContinuation, DecisionKind,
+    DecisionObservation, DecisionOption, DecisionOrderSemantics, DecisionPreference,
+    DecisionVisibility, DecisionZone, DeferredBeginTurnEffect, PendingDecision, PendingTrigger,
+    PileSplit, SacrificeFollowup, ScopedEffect, Target, TriggerPlacementBatch,
 };
 use super::model::{
     AbilityLocator, AbilitySourceSnapshot, ApplicableBeginTurnReplacementSnapshot,
@@ -590,8 +590,8 @@ fn continuation_snapshot(
             targets: targets.iter().copied().map(target_snapshot).collect(),
             divisions: divisions.clone(),
         },
-        DecisionContinuation::MiracleReveal { card } => {
-            DecisionContinuationSnapshot::MiracleReveal { card: card.0 }
+        DecisionContinuation::DrawActionWindow { card } => {
+            DecisionContinuationSnapshot::DrawActionWindow { card: card.0 }
         }
         DecisionContinuation::ExploredCardPlacement { player, revealed } => {
             DecisionContinuationSnapshot::ExploredCardPlacement {
@@ -608,10 +608,21 @@ fn continuation_snapshot(
             player,
             card,
             ability,
+            grant,
         } => DecisionContinuationSnapshot::MayCastGranted {
             player: player.index(),
             card: card.0,
             ability: ability_locator(&game.catalog, |candidate| candidate == ability)?,
+            grant: *grant,
+        },
+        DecisionContinuation::MayCastAlternative {
+            player,
+            card,
+            ability,
+        } => DecisionContinuationSnapshot::MayCastAlternative {
+            player: player.index(),
+            card: card.0,
+            ability: ability_origin_snapshot(*ability),
         },
         DecisionContinuation::CascadeCast {
             player,
@@ -884,7 +895,8 @@ pub(super) fn parse_pending_decision(
         }
         return Ok(None);
     };
-    let state = state.ok_or("decision continuation lacks a semantic checkpoint encoding")?;
+    let state = state
+        .ok_or("invalid game snapshot: decisionState is absent for the visible pending decision")?;
     let observation =
         parse_decision_observation(visible, &state.preference, &state.options, &game.catalog)?;
     let continuation = parse_continuation(&state.continuation, &observation, hidden, game)?;

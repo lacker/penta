@@ -89,8 +89,8 @@ use semantics::{
     resolved_replacement_effect_locator, token_characteristics_locator,
 };
 use stack::{
-    applied_stack_effect_snapshots, detached_stack_snapshot, parse_detached_stack, parse_stack,
-    parse_target as parse_snapshot_target, referenced_object_ids,
+    applied_stack_effect_snapshots, detached_stack_snapshot_allowing, parse_detached_stack,
+    parse_stack, parse_target as parse_snapshot_target, referenced_object_ids,
     resolution_context_referenced_object_ids, stack_ability_snapshot,
     stack_object_has_unrebindable_hidden_reference, stack_object_requires_retired,
     target_selections_referenced_object_ids, target_snapshot,
@@ -113,6 +113,16 @@ impl Game {
             .flatten();
         let has_unsupported_decision =
             !self.pending_decisions.is_empty() && decision_state.is_none();
+        let visible_decision_rebindings = decision_state
+            .as_ref()
+            .map(|state| {
+                state
+                    .card_origins
+                    .iter()
+                    .map(|origin| GameObjectId(origin.object_id))
+                    .collect::<Vec<_>>()
+            })
+            .unwrap_or_default();
         let visible_drawn_this_turn = [PlayerId::One, PlayerId::Two].map(|player| {
             if player == viewer {
                 self.drawn_this_turn[player.index()]
@@ -215,7 +225,13 @@ impl Game {
                 self.pending_procedures
                     .iter()
                     .filter(|procedure| {
-                        pending_procedure_snapshot(self, viewer, procedure).is_some()
+                        pending_procedure_snapshot(
+                            self,
+                            viewer,
+                            procedure,
+                            &visible_decision_rebindings,
+                        )
+                        .is_some()
                     })
                     .flat_map(pending_procedure_referenced_object_ids),
             )
@@ -275,7 +291,12 @@ impl Game {
                     },
                 }),
                 RetiredObject::Stack(object) => Some(RetiredObjectSnapshot::Stack {
-                    object: Box::new(detached_stack_snapshot(self, viewer, object)?),
+                    object: Box::new(detached_stack_snapshot_allowing(
+                        self,
+                        viewer,
+                        object,
+                        &visible_decision_rebindings,
+                    )?),
                 }),
             })
             .collect::<Vec<_>>();
@@ -336,7 +357,9 @@ impl Game {
         let pending_procedures = self
             .pending_procedures
             .iter()
-            .filter_map(|procedure| pending_procedure_snapshot(self, viewer, procedure))
+            .filter_map(|procedure| {
+                pending_procedure_snapshot(self, viewer, procedure, &visible_decision_rebindings)
+            })
             .collect::<Vec<_>>();
         let has_unlocated_pending_procedure =
             pending_procedures.len() != self.pending_procedures.len();
@@ -518,15 +541,6 @@ impl Game {
             drawn_this_turn: visible_drawn_this_turn,
             defer_empty_library_loss: self.defer_empty_library_loss,
             draw_replacements,
-            miracle_window: self
-                .miracle_window
-                .filter(|id| {
-                    self.players[viewer.index()]
-                        .hand
-                        .iter()
-                        .any(|card| card.id == *id)
-                })
-                .map(|id| id.0),
             pending_combat_attackers: self
                 .pending_combat_assignments
                 .iter()
@@ -881,7 +895,6 @@ impl Game {
             drawn_this_turn: parse_drawn_this_turn(&checkpoint, hidden, viewer, &checkpoint_hands)?,
             defer_empty_library_loss: checkpoint.defer_empty_library_loss,
             draw_replacements: std::array::from_fn(|_| VecDeque::new()),
-            miracle_window: parse_miracle_window(&checkpoint, hidden, viewer, &checkpoint_hands)?,
             installed_triggers: Vec::new(),
             next_installed_trigger_id: checkpoint.next_installed_trigger_id,
             blockers_declared: checkpoint.blockers_declared,

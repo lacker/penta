@@ -41,5 +41,9 @@ pub(super) enum PendingProcedureSnapshot {
     ShuffleLibrary {
         player: usize,
     },
+    FinishStackResolution {
+        object: Box<DetachedStackSnapshot>,
+        resolved: bool,
+    },
     FinishStepAdvance,
 }

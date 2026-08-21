@@ -203,7 +203,6 @@ impl Game {
             draw_replacements: std::array::from_fn(|_| VecDeque::new()),
             damage_preventions: Vec::new(),
             damage_redirects: Vec::new(),
-            miracle_window: None,
             installed_triggers: Vec::new(),
             next_installed_trigger_id: 0,
             blockers_declared: false,

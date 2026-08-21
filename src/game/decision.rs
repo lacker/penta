@@ -67,6 +67,9 @@ pub enum DecisionZone {
 pub struct DecisionOption {
     pub id: u32,
     pub label: String,
+    /// A known object and its frozen characteristics. An option without a
+    /// disclosed object uses `None`; no characteristics value is a hidden-card
+    /// sentinel.
     pub card: Option<(GameObjectId, ObjectCharacteristics)>,
     /// Cards represented collectively by this option, such as one pile in a
     /// choose-a-pile decision, or disclosed alongside its selectable `card`

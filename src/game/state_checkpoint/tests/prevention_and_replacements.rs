@@ -38,7 +38,7 @@ fn every_runtime_keyword_has_a_stable_checkpoint_round_trip() {
 }
 
 #[test]
-fn checkpoint_redacts_opposing_hidden_object_ids() {
+fn checkpoint_redacts_opposing_drawn_card_ids() {
     let catalog = crate::poc::catalog().expect("catalog builds");
     let deck = crate::Deck {
         main: vec![crate::card::cards::MOUNTAIN; 60],
@@ -47,18 +47,14 @@ fn checkpoint_redacts_opposing_hidden_object_ids() {
     let mut game = Game::new(catalog, [deck.clone(), deck], 41).expect("game starts");
     let hidden = game.players[PlayerId::Two.index()].hand[0].id;
     game.drawn_this_turn[PlayerId::Two.index()] = vec![hidden];
-    game.miracle_window = Some(hidden);
 
     let checkpoint = game.checkpoint_json(PlayerId::One);
     assert_eq!(checkpoint["drawnThisTurn"][1], json!([]));
-    assert!(checkpoint["miracleWindow"].is_null());
 
     let own = game.players[PlayerId::One.index()].hand[0].id;
     game.drawn_this_turn[PlayerId::One.index()] = vec![own];
-    game.miracle_window = Some(own);
     let checkpoint = game.checkpoint_json(PlayerId::One);
     assert_eq!(checkpoint["drawnThisTurn"][0], json!([own.0]));
-    assert_eq!(checkpoint["miracleWindow"], own.0);
 }
 
 #[test]

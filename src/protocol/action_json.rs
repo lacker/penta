@@ -198,6 +198,22 @@ pub fn protocol_actions(observation: &PlayerObservation) -> Vec<Action> {
                             options: vec![option.id],
                         });
                     }
+                } else if pending.minimum == 0 && pending.maximum == 1 {
+                    // A draw-time opportunity is genuinely optional: the empty
+                    // selection declines it, while each singleton accepts one
+                    // available action. Keep every branch index-addressable so
+                    // a bot need not use the separate decision endpoint merely
+                    // to reveal a Miracle card.
+                    actions.push(Action::ChooseDecision {
+                        decision: *decision,
+                        options: Vec::new(),
+                    });
+                    for option in &pending.options {
+                        actions.push(Action::ChooseDecision {
+                            decision: *decision,
+                            options: vec![option.id],
+                        });
+                    }
                 } else {
                     actions.push(Action::ChooseDecision {
                         decision: *decision,

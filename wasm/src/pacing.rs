@@ -5,6 +5,19 @@ use super::{
     js_error, json,
 };
 
+/// A declined private choice says nothing the observing seat may distinguish.
+fn is_empty_private_choice(observation: &super::PlayerObservation, action: &Action) -> bool {
+    matches!(
+        action,
+        Action::ChooseDecision { decision, options }
+            if options.is_empty()
+                && observation.decision.as_ref().is_some_and(|pending| {
+                    pending.id == *decision
+                        && pending.visibility == penta::DecisionVisibility::Private
+                })
+    )
+}
+
 impl WebGame {
     pub(super) fn advance_until_human_choice(&mut self) -> Result<(), JsValue> {
         for _ in 0..BOT_ACTION_LIMIT {
@@ -45,12 +58,13 @@ impl WebGame {
         observation: &super::PlayerObservation,
         action: Action,
     ) -> Result<(), JsValue> {
+        let empty_private_choice = is_empty_private_choice(observation, &action);
         let mut pending_animation = None;
         if player != self.human {
             if let Action::ActivateManaAbility { source, .. } = &action {
                 self.pending_opponent_mana
                     .push(self.instance_name(observation, *source));
-            } else if should_animate_action(&action) {
+            } else if should_animate_action(&action) && !empty_private_choice {
                 let mana_sources = if matches!(
                     action,
                     Action::CastSpell { .. } | Action::ActivateAbility { .. }

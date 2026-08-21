@@ -723,3 +723,50 @@ fn decisions_reach_bots_as_concrete_indexed_actions() {
     assert_eq!(legal[1]["type"], "ChooseDecision");
     assert_eq!(legal[1]["options"], json!([9]));
 }
+
+#[test]
+fn optional_single_choices_expose_decline_and_each_acceptance_by_index() {
+    let game = BotGame::new("Sligh", "The Deck", Opponent::External, PlayerId::Two, 0)
+        .expect("game starts");
+    let seat = game.decision_seat().expect("mulligan decision");
+    let mut observation = game.game.observe(seat);
+    let decision_id = 42;
+    observation.decision = Some(DecisionObservation {
+        id: decision_id,
+        player: seat,
+        kind: DecisionKind::Choice,
+        order_semantics: None,
+        prompt: "Take up to one action".into(),
+        visibility: crate::game::DecisionVisibility::Private,
+        preference: crate::game::DecisionPreference::Neutral,
+        minimum: 0,
+        maximum: 1,
+        cancellable: false,
+        options: vec![crate::game::DecisionOption {
+            id: 7,
+            label: "Reveal".into(),
+            card: None,
+            members: Vec::new(),
+            ability_text: None,
+            zone: crate::game::DecisionZone::None,
+        }],
+    });
+    observation.legal_actions = vec![Action::ChooseDecision {
+        decision: decision_id,
+        options: Vec::new(),
+    }];
+
+    assert_eq!(
+        protocol_actions(&observation),
+        vec![
+            Action::ChooseDecision {
+                decision: decision_id,
+                options: Vec::new(),
+            },
+            Action::ChooseDecision {
+                decision: decision_id,
+                options: vec![7],
+            },
+        ]
+    );
+}

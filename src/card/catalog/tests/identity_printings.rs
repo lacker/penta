@@ -1,6 +1,20 @@
 use super::*;
 
 #[test]
+fn zero_is_an_ordinary_definition_id() {
+    let id = CardDefinitionId(0);
+    let catalog = CardCatalog::new([definition(0, "Zero", CardSet::Alpha)]).unwrap();
+
+    assert_eq!(catalog.get(id).map(|card| card.id), Some(id));
+    assert_eq!(catalog.find_by_name("zero"), Some(id));
+    assert!(
+        catalog
+            .get_printing(CardPrintingId::new(id, CardSet::Alpha))
+            .is_some()
+    );
+}
+
+#[test]
 fn primary_and_additional_printings_are_indexed_by_canonical_definition() {
     let id = CardDefinitionId(1);
     let primary = CardPrintingId::new(id, CardSet::Alpha);

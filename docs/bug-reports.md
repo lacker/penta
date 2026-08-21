@@ -12,7 +12,14 @@ The game menu's form attaches the replay automatically -- a local game's
 journal via `WebGame::replayJson`, a hosted game's room record. The replay
 stamps its independent `replayVersion` and `simulationFingerprint`, with
 the engine package and bot-wire versions retained as provenance. Nothing else
-is collected beyond the page URL.
+is collected beyond the page URL, and hosted room records never include either
+seat credential.
+
+An unfinished hosted game against an external opponent deliberately returns a
+redacted room record with neither its seed nor command journal, because either
+can disclose private choices. File after that game ends when the report needs
+an exact replay; local and scripted-opponent games remain replayable while
+they are live.
 
 ## The agent workflow
 

@@ -1,4 +1,6 @@
+use crate::action::AbilityOrigin;
 use crate::card::AbilityTargetDef;
+use crate::ids::{GameObjectId, PlayerId};
 
 use super::ScopedEffect;
 
@@ -59,4 +61,38 @@ pub(super) fn cast_source_zone_from_label(label: &str) -> Option<CastSourceZone>
         "libraryTop" => Some(CastSourceZone::LibraryTop),
         _ => None,
     }
+}
+
+/// A cast that must be taken while a resolving instruction offers it, or not
+/// at all. The standing decision is the permission; no separate game flag is
+/// needed to remember that the card may be cast.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(super) struct CastOffer {
+    pub(super) player: PlayerId,
+    pub(super) card: GameObjectId,
+    pub(super) source_zone: CastSourceZone,
+    pub(super) cost: CastOfferCost,
+}
+
+/// Which costs a one-shot cast offer permits.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(super) enum CastOfferCost {
+    /// The instruction permits any way the named card can otherwise be cast.
+    Any,
+    /// The instruction permits exactly one alternative printed on the card.
+    /// Its origin identifies the authored clause even when several clauses
+    /// share the same keyword kind.
+    PrintedAlternative(AbilityOrigin),
+    /// The instruction permits exactly one temporary grant. The slot is
+    /// stable while the standing decision exists and keeps this hot context
+    /// small even though a complete `AbilityDef` is comparatively large.
+    GrantedAlternative(usize),
+}
+
+/// The zone and any one-shot permission governing which cost configurations
+/// may be selected for a cast.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(super) struct CastCostContext {
+    pub(super) source_zone: CastSourceZone,
+    pub(super) offer: Option<CastOfferCost>,
 }

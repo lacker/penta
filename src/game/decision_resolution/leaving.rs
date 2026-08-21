@@ -21,25 +21,35 @@ impl Game {
                 pending.continuation,
                 DecisionContinuation::MayCastExiled { card, .. }
                     | DecisionContinuation::CascadeCast { card, .. }
-                    | DecisionContinuation::MayCastGranted { card, .. } if card == cast
+                    | DecisionContinuation::MayCastGranted { card, .. }
+                    | DecisionContinuation::MayCastAlternative { card, .. } if card == cast
             )
         });
         if !answered {
             return;
         }
         let taken = self.pending_decisions.remove(0);
-        // Cascade's pile goes to the bottom whether the card it turned up
-        // was cast or declined, so the accepted half is finished here rather
-        // than in the resolution the decline takes. The card being cast is
-        // left where it is: this runs before the cast lifts it out of exile,
-        // and a card on the stack is no longer one of the cards exiled this
-        // way.
-        if let DecisionContinuation::CascadeCast { player, exiled, .. } = taken.continuation {
-            let rest = exiled
-                .into_iter()
-                .filter(|card| *card != cast)
-                .collect::<Vec<_>>();
-            self.bury_cascade_exiles(player, &rest);
+        match taken.continuation {
+            DecisionContinuation::MayCastGranted {
+                card,
+                ability,
+                grant,
+                ..
+            } => self.revoke_temporary_grant(grant, card, &ability),
+            // Cascade's pile goes to the bottom whether the card it turned up
+            // was cast or declined, so the accepted half is finished here
+            // rather than in the resolution the decline takes. The card being
+            // cast is left where it is: this runs before the cast lifts it out
+            // of exile, and a card on the stack is no longer one of the cards
+            // exiled this way.
+            DecisionContinuation::CascadeCast { player, exiled, .. } => {
+                let rest = exiled
+                    .into_iter()
+                    .filter(|card| *card != cast)
+                    .collect::<Vec<_>>();
+                self.bury_cascade_exiles(player, &rest);
+            }
+            _ => {}
         }
     }
 

@@ -3,6 +3,20 @@ use super::{
 };
 
 impl HandcraftedPolicy {
+    /// A standing cast offer is the one decision that deliberately exposes
+    /// ordinary actions beside its answer: casting accepts it, while
+    /// answering the decision declines it. Take the best useful cast and
+    /// leave a harmful or empty one alone.
+    pub(super) fn choose_offered_cast(&self, observation: &PlayerObservation) -> Option<Action> {
+        observation
+            .legal_actions
+            .iter()
+            .filter(|action| matches!(action, Action::CastSpell { .. }))
+            .max_by_key(|action| self.score_action(observation, action))
+            .filter(|action| self.score_action(observation, action) > 0)
+            .cloned()
+    }
+
     pub(super) fn choose_decision(
         &self,
         observation: &PlayerObservation,
@@ -49,9 +63,13 @@ impl HandcraftedPolicy {
                 .min(decision.maximum)
                 .min(options.len()),
             DecisionPreference::RemovalChoice => 1.min(options.len()),
+            DecisionPreference::PreferOption(preferred) => {
+                usize::from(options.iter().any(|option| option.id == preferred))
+                    .max(decision.minimum)
+                    .min(decision.maximum)
+            }
             DecisionPreference::LowerCardValue
             | DecisionPreference::BalancedPartition
-            | DecisionPreference::PreferOption(_)
             | DecisionPreference::Neutral => decision.minimum,
         };
         Some(Action::ChooseDecision {

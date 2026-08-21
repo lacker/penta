@@ -165,3 +165,157 @@ mod random;
 mod simulation;
 #[path = "policy/targeting.rs"]
 mod targeting;
+
+fn standing_cast_offer(
+    definition: penta::CardDefinitionId,
+    zone: DecisionZone,
+    cast: Action,
+) -> PlayerObservation {
+    let card = CardInstanceId(90_000);
+    let mut observation = policy_observation(
+        Vec::new(),
+        vec![
+            Action::Concede,
+            Action::ChooseDecision {
+                decision: 90,
+                options: Vec::new(),
+            },
+            cast,
+        ],
+    );
+    match zone {
+        DecisionZone::Hand => observation.hand.push((card, definition)),
+        DecisionZone::Exile => observation.exiles[PlayerId::One.index()].push((card, definition)),
+        _ => panic!("the policy fixture only stages cast offers from hand or exile"),
+    }
+    observation.decision = Some(DecisionObservation {
+        id: 90,
+        player: PlayerId::One,
+        kind: DecisionKind::Choice,
+        order_semantics: None,
+        prompt: "Cast now, or decline".to_owned(),
+        visibility: DecisionVisibility::Public,
+        preference: DecisionPreference::PreferOption(0),
+        minimum: 1,
+        maximum: 1,
+        cancellable: false,
+        options: vec![DecisionOption {
+            id: 0,
+            label: "Decline".to_owned(),
+            card: Some((card, definition)),
+            members: Vec::new(),
+            ability_text: None,
+            zone,
+        }],
+    });
+    observation
+}
+
+#[test]
+fn random_policy_treats_a_standing_cast_as_an_alternative_to_declining() {
+    let card = CardInstanceId(90_000);
+    let cast = Action::CastSpell {
+        card,
+        choices: CastChoices::default(),
+        sacrifices: Vec::new(),
+    };
+    let observation = standing_cast_offer(cards::LIGHTNING_BOLT, DecisionZone::Exile, cast.clone());
+    let mut policy = RandomPolicy::new(9_001);
+    let mut cast_seen = false;
+    let mut decline_seen = false;
+
+    for _ in 0..64 {
+        match policy.choose_action(&observation) {
+            Some(action) if action == cast => cast_seen = true,
+            Some(Action::ChooseDecision { decision, options }) => {
+                assert_eq!(decision, 90);
+                assert_eq!(options, vec![0]);
+                decline_seen = true;
+            }
+            other => panic!("standing offer produced an unrelated action: {other:?}"),
+        }
+    }
+
+    assert!(cast_seen, "the cast is part of the random choice set");
+    assert!(
+        decline_seen,
+        "declining remains part of the random choice set"
+    );
+}
+
+#[test]
+fn handcrafted_policy_accepts_a_useful_standing_cast_offer() {
+    let catalog = poc::catalog().unwrap();
+    let card = CardInstanceId(90_000);
+    let cast = Action::CastSpell {
+        card,
+        choices: CastChoices::default(),
+        sacrifices: Vec::new(),
+    };
+    let observation = standing_cast_offer(cards::LIGHTNING_BOLT, DecisionZone::Exile, cast.clone());
+    let mut policy = HandcraftedPolicy::new(catalog);
+
+    assert_eq!(policy.choose_action(&observation), Some(cast));
+}
+
+#[test]
+fn handcrafted_policy_still_declines_an_unhelpful_standing_cast() {
+    let catalog = poc::catalog().unwrap();
+    let card = CardInstanceId(90_000);
+    let cast = Action::CastSpell {
+        card,
+        choices: CastChoices::default(),
+        sacrifices: Vec::new(),
+    };
+    let observation = standing_cast_offer(cards::FIREBALL, DecisionZone::Hand, cast);
+    let mut policy = HandcraftedPolicy::new(catalog);
+
+    assert_eq!(
+        policy.choose_action(&observation),
+        Some(Action::ChooseDecision {
+            decision: 90,
+            options: vec![0],
+        }),
+        "an X spell offered with X of zero is worse than declining",
+    );
+}
+
+#[test]
+fn handcrafted_policy_takes_a_preferred_optional_action_when_present() {
+    let mut observation = policy_observation(
+        Vec::new(),
+        vec![Action::ChooseDecision {
+            decision: 91,
+            options: Vec::new(),
+        }],
+    );
+    observation.decision = Some(DecisionObservation {
+        id: 91,
+        player: PlayerId::One,
+        kind: DecisionKind::Choice,
+        order_semantics: None,
+        prompt: "Take an action while drawing".to_owned(),
+        visibility: DecisionVisibility::Private,
+        preference: DecisionPreference::PreferOption(1),
+        minimum: 0,
+        maximum: 1,
+        cancellable: false,
+        options: vec![DecisionOption {
+            id: 1,
+            label: "Reveal".to_owned(),
+            card: Some((CardInstanceId(90_001), cards::TERMINUS)),
+            members: Vec::new(),
+            ability_text: None,
+            zone: DecisionZone::Hand,
+        }],
+    });
+    let mut policy = HandcraftedPolicy::new(poc::catalog().unwrap());
+
+    assert_eq!(
+        policy.choose_action(&observation),
+        Some(Action::ChooseDecision {
+            decision: 91,
+            options: vec![1],
+        })
+    );
+}

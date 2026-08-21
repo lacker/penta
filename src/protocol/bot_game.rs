@@ -373,14 +373,9 @@ impl BotGame {
         self.advance()
     }
 
-    /// Runs the scripted opponent until the driven seat must decide or the
-    /// game ends. A no-op with an external opponent.
+    /// Runs the scripted opponent until the driven seat must make a real
+    /// choice or the game ends.
     fn advance(&mut self) -> Result<(), String> {
-        let policy: &mut dyn Policy = match &mut self.opponent {
-            OpponentPolicy::External => return Ok(()),
-            OpponentPolicy::Random(policy) => policy,
-            OpponentPolicy::Handcrafted(policy) => policy,
-        };
         for _ in 0..ACTION_LIMIT {
             let Some(player) = self.game.decision_player() else {
                 return Ok(());
@@ -389,6 +384,11 @@ impl BotGame {
                 return Ok(());
             }
             let observation = self.game.observe(player);
+            let policy: &mut dyn Policy = match &mut self.opponent {
+                OpponentPolicy::External => return Ok(()),
+                OpponentPolicy::Random(policy) => policy,
+                OpponentPolicy::Handcrafted(policy) => policy,
+            };
             let action = policy
                 .choose_action(&observation)
                 .ok_or("the scripted opponent returned no action")?;

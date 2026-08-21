@@ -52,6 +52,7 @@ pub(super) fn pending_procedure_snapshot(
     game: &Game,
     viewer: PlayerId,
     procedure: &super::super::PendingProcedure,
+    visible_rebindings: &[GameObjectId],
 ) -> Option<PendingProcedureSnapshot> {
     Some(match procedure {
         super::super::PendingProcedure::DrawCards { player, remaining } => {
@@ -66,10 +67,18 @@ pub(super) fn pending_procedure_snapshot(
             context,
             custom_followup,
         } => {
-            if trigger_capture_has_unrebindable_hidden_reference(game, viewer, &[], context) {
+            if trigger_capture_has_unrebindable_hidden_reference_except(
+                game,
+                viewer,
+                &[],
+                context,
+                visible_rebindings,
+            ) {
                 return None;
             }
-            let ability = stack_ability_snapshot(game, viewer, object)?.ability_locator?;
+            let ability =
+                stack_ability_snapshot_allowing(game, viewer, object, visible_rebindings)?
+                    .ability_locator?;
             let definition = catalog_ability(&game.catalog, &ability)?;
             let effects = effects
                 .iter()
@@ -84,7 +93,12 @@ pub(super) fn pending_procedure_snapshot(
             };
             PendingProcedureSnapshot::ResolveEffects {
                 effects,
-                object: Box::new(detached_stack_snapshot(game, viewer, object)?),
+                object: Box::new(detached_stack_snapshot_allowing(
+                    game,
+                    viewer,
+                    object,
+                    visible_rebindings,
+                )?),
                 ability,
                 context: effect_resolution_context_snapshot(context),
                 custom_followup,
@@ -107,6 +121,17 @@ pub(super) fn pending_procedure_snapshot(
         super::super::PendingProcedure::ShuffleLibrary { player } => {
             PendingProcedureSnapshot::ShuffleLibrary {
                 player: player.index(),
+            }
+        }
+        super::super::PendingProcedure::FinishStackResolution { object, resolved } => {
+            PendingProcedureSnapshot::FinishStackResolution {
+                object: Box::new(detached_stack_snapshot_allowing(
+                    game,
+                    viewer,
+                    object,
+                    visible_rebindings,
+                )?),
+                resolved: *resolved,
             }
         }
         super::super::PendingProcedure::FinishStepAdvance => {
@@ -178,6 +203,26 @@ pub(super) fn parse_pending_procedure(
                 player: player_from_index(*player)?,
             }
         }
+        PendingProcedureSnapshot::FinishStackResolution { object, resolved } => {
+            if !resolved {
+                return Err(
+                    "deferred stack completion cannot represent a failed resolution".to_owned(),
+                );
+            }
+            let object = parse_detached_stack(object, game)?;
+            if !matches!(
+                game.retired_objects.get(&object.id),
+                Some(super::super::RetiredObject::Stack(retired)) if retired.as_ref() == &object
+            ) {
+                return Err(
+                    "deferred stack completion does not match its retired stack object".to_owned(),
+                );
+            }
+            super::super::PendingProcedure::FinishStackResolution {
+                object: Box::new(object),
+                resolved: true,
+            }
+        }
         PendingProcedureSnapshot::FinishStepAdvance => {
             super::super::PendingProcedure::FinishStepAdvance
         }
@@ -197,6 +242,11 @@ pub(super) fn pending_procedure_referenced_object_ids(
         super::super::PendingProcedure::ResolveEffects {
             object, context, ..
         } => continuation_referenced_object_ids(object, context),
+        super::super::PendingProcedure::FinishStackResolution { object, .. } => {
+            std::iter::once(object.id)
+                .chain(referenced_object_ids(object))
+                .collect()
+        }
         super::super::PendingProcedure::DrawCards { .. }
         | super::super::PendingProcedure::SylvanAfterDraw { .. }
         | super::super::PendingProcedure::SimultaneousDraws { .. }

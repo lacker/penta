@@ -6,7 +6,8 @@
 //! configurations for the caller to walk.
 
 use super::super::{
-    AdditionalCostId, AlternativeCastKindDef, AlternativeCostId, CardDefinition, CardInstance,
+    AbilityDef, AbilityOrigin, AdditionalCostId, AlternativeCastAbilityDef, AlternativeCastKindDef,
+    AlternativeCostId, CardDefinition, CardInstance, CastCostContext, CastOfferCost,
     CastSourceZone, ControlFlow, CostConfiguration, DeclarativeAbilityDef, ExilePlayCost, Game,
     GameObjectId, ManaCost, PlayOptionDef, PlayerId, TriggerContext, ZoneKind, add_mana_cost,
     configured_mana_cost,
@@ -25,6 +26,7 @@ impl Game {
     /// Every way to pay a spell's declarative additional cost. A spell with
     /// none has exactly one way to pay it: spend nothing. A spell with one it
     /// cannot afford has none at all, which is what stops it being offered.
+    #[allow(clippy::too_many_arguments)]
     pub(in crate::game) fn additional_cost_choices(
         &self,
         definition: &CardDefinition,
@@ -33,6 +35,7 @@ impl Game {
         card: &CardInstance,
         player: PlayerId,
         scale: CastScale,
+        offer: Option<CastOfferCost>,
     ) -> Vec<Vec<GameObjectId>> {
         // A cost paid instead of the mana cost replaces the spell's own
         // additional cost rather than stacking with it: "rather than pay this
@@ -48,9 +51,9 @@ impl Game {
             // cost it adds comes off the grant itself.
             .or_else(|| {
                 (costs.alternative() == Self::temporary_alternative_cost_id(option))
-                    .then(|| self.granted_alternative_cast(card.id, option))
+                    .then(|| self.granted_alternative_for_offer(card.id, option, offer))
                     .flatten()
-                    .and_then(|(alternative, _)| alternative.additional_cost)
+                    .and_then(|(_, alternative, _)| alternative.additional_cost)
             });
         let cost = selected.or_else(|| {
             definition
@@ -205,23 +208,25 @@ impl Game {
     /// where it lies, and everything else is an ordinary cast from hand paid
     /// for differently.
     fn alternative_is_castable_from(
-        &self,
-        source_zone: CastSourceZone,
+        context: CastCostContext,
         kind: Option<AlternativeCastKindDef>,
-        card: GameObjectId,
+        origin: Option<AbilityOrigin>,
     ) -> bool {
-        match (source_zone, kind) {
-            // Flashback, escape, foretell, and a free cast off somebody
-            // else's clause are permissions to cast the card where it lies,
-            // which is nowhere else -- and each lies somewhere different.
+        match (context.source_zone, kind) {
+            // Miracle is permission supplied by its linked trigger, not an
+            // alternative that is generally available from hand.
             (CastSourceZone::Hand, Some(AlternativeCastKindDef::Miracle)) => {
-                // Only in the window the draw opened, and only for the card
-                // that was drawn.
-                self.miracle_window == Some(card)
+                matches!(
+                    (context.offer, origin),
+                    (
+                        Some(CastOfferCost::PrintedAlternative(required)),
+                        Some(candidate)
+                    ) if required == candidate
+                )
             }
-            (CastSourceZone::Hand, kind) => matches!(
-                kind,
-                None | Some(
+            (
+                CastSourceZone::Hand,
+                Some(
                     AlternativeCastKindDef::Overload
                         | AlternativeCastKindDef::Kicked
                         | AlternativeCastKindDef::Buyback
@@ -231,24 +236,43 @@ impl Game {
                         // not a permission to cast it elsewhere.
                         | AlternativeCastKindDef::FaceDown
                 )
-            ),
-            (CastSourceZone::Graveyard, kind) => matches!(
-                kind,
+                | None,
+            )
+            // Flashback, escape, and a resolution-granted free cast are
+            // permissions to cast the card where it lies.
+            | (
+                CastSourceZone::Graveyard,
                 Some(
                     AlternativeCastKindDef::Flashback
                         | AlternativeCastKindDef::Escape
                         | AlternativeCastKindDef::WithoutPayingManaCost
-                )
-            ),
-            // A card coming back from an adventure is cast for what its
-            // creature half prints, which is the permission the adventure
-            // gave; a foretold card is cast for what foretell charges.
-            (CastSourceZone::Exile, kind) => {
-                matches!(kind, Some(AlternativeCastKindDef::Foretell))
+                ),
+            )
+            // Foretell is the one alternative permission that casts from
+            // exile. Adventure and one-shot free permissions use the base
+            // configuration instead.
+            | (CastSourceZone::Exile, Some(AlternativeCastKindDef::Foretell))
+            // A permission to play the top card of a library uses what that
+            // play option ordinarily prints.
+            | (CastSourceZone::LibraryTop, None) => true,
+            _ => false,
+        }
+    }
+
+    /// The applicable external alternative, narrowed to one temporary grant
+    /// when a standing decision names it exactly.
+    fn granted_alternative_for_offer(
+        &self,
+        card: GameObjectId,
+        option: &PlayOptionDef,
+        offer: Option<CastOfferCost>,
+    ) -> Option<(AbilityDef, AlternativeCastAbilityDef, ManaCost)> {
+        match offer {
+            None | Some(CastOfferCost::Any) => self.granted_alternative_cast(card, option, None),
+            Some(CastOfferCost::GrantedAlternative(grant)) => {
+                self.granted_alternative_cast(card, option, Some(grant))
             }
-            // A permission to play what is on top of your library says
-            // nothing about how: the card is cast for whatever it prints.
-            (CastSourceZone::LibraryTop, kind) => kind.is_none(),
+            Some(CastOfferCost::PrintedAlternative(_)) => None,
         }
     }
 
@@ -258,11 +282,13 @@ impl Game {
         card: GameObjectId,
         player: PlayerId,
         option: &PlayOptionDef,
-        source_zone: CastSourceZone,
+        context: CastCostContext,
         mut visitor: impl FnMut(CostConfiguration) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
+        let CastCostContext { source_zone, offer } = context;
         let mut selected_additional = Vec::with_capacity(option.additional_costs.len());
-        if self.printed_cost_is_available_from(source_zone, card, player, option)
+        if matches!(offer, None | Some(CastOfferCost::Any))
+            && self.printed_cost_is_available_from(source_zone, card, player, option)
             && Self::visit_additional_cost_configurations(
                 option,
                 None,
@@ -275,11 +301,20 @@ impl Game {
             return ControlFlow::Break(());
         }
         for cost in &option.alternative_costs {
-            let kind = match Self::alternative_cast_clause(definition, option, cost.id) {
-                Some((_, ability, kind)) if ability.is_executable() => Some(kind),
+            let (origin, kind) = match Self::alternative_cast_clause(definition, option, cost.id) {
+                Some((origin, ability, kind)) if ability.is_executable() => {
+                    (Some(origin), Some(kind))
+                }
                 Some(_) => continue,
-                None => None,
+                None => (None, None),
             };
+            if match offer {
+                Some(CastOfferCost::PrintedAlternative(required)) => origin != Some(required),
+                Some(CastOfferCost::GrantedAlternative(_)) => true,
+                None | Some(CastOfferCost::Any) => false,
+            } {
+                continue;
+            }
             // A free cast gated on the board is not offered while its
             // condition is false, the same way an "activate only if" ability
             // is not offered.
@@ -306,7 +341,7 @@ impl Game {
                 },
                 None => false,
             };
-            let available = !gated && self.alternative_is_castable_from(source_zone, kind, card);
+            let available = !gated && Self::alternative_is_castable_from(context, kind, origin);
             if available
                 && Self::visit_additional_cost_configurations(
                     option,
@@ -321,7 +356,8 @@ impl Game {
             }
         }
         if source_zone == CastSourceZone::Graveyard
-            && self.granted_alternative_cast(card, option).is_some()
+            && let Some((_, _granted_alternative, _)) =
+                self.granted_alternative_for_offer(card, option, offer)
             && let Some(granted) = Self::temporary_alternative_cost_id(option)
             && Self::visit_additional_cost_configurations(
                 option,
@@ -378,15 +414,16 @@ impl Game {
         card: GameObjectId,
         option: &PlayOptionDef,
         configuration: &CostConfiguration,
+        offer: Option<CastOfferCost>,
     ) -> Option<ManaCost> {
         let granted = Self::temporary_alternative_cost_id(option);
         let granted_alternative = (configuration.alternative().is_some()
             && configuration.alternative() == granted)
-            .then(|| self.granted_alternative_cast(card, option))
+            .then(|| self.granted_alternative_for_offer(card, option, offer))
             .flatten();
         let mut cost = granted_alternative.map_or_else(
             || configured_mana_cost(option, configuration),
-            |(_, mana_cost)| Some(mana_cost),
+            |(_, _, mana_cost)| Some(mana_cost),
         )?;
         // `configured_mana_cost` already included additional costs for every
         // printed alternative and the normal cost. Runtime-granted

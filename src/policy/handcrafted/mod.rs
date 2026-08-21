@@ -45,6 +45,9 @@ impl HandcraftedPolicy {
 impl Policy for HandcraftedPolicy {
     fn choose_action(&mut self, observation: &PlayerObservation) -> Option<Action> {
         if let Some(decision) = observation.decision.as_ref() {
+            if let Some(cast) = self.choose_offered_cast(observation) {
+                return Some(cast);
+            }
             return self.choose_decision(observation, decision);
         }
         let action = observation

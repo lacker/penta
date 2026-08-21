@@ -1,11 +1,11 @@
 use super::{
-    AbilityDef, AbilityOrigin, Action, ActionError, ActivationChoices, CardBehavior, CardStructure,
-    CardType, CharacteristicContext, CombatDamageStage, CounterKind, DecisionContinuation,
-    DecisionVisibility, DoubleFacedKind, EmblemObservation, Game, GameEvent, GameObjectId,
-    GameResult, KeywordAbility, ManaActivationChoices, ManaColor, ObjectCharacteristics,
-    ObjectKind, Permanent, PermanentObservation, PhysicalFaceObservation, PhysicalFaceSide,
-    PlayerId, PlayerObservation, Pregame, StackObservation, Step, WinReason, ZoneKind,
-    combinations, public_cards,
+    AbilityDef, AbilityId, AbilityOrigin, Action, ActionError, ActivationChoices, CardBehavior,
+    CardStructure, CardType, CharacteristicContext, CombatDamageStage, CounterKind,
+    DecisionContinuation, DecisionVisibility, DoubleFacedKind, EmblemObservation, Game, GameEvent,
+    GameObjectId, GameResult, KeywordAbility, ManaActivationChoices, ManaColor,
+    ObjectCharacteristics, ObjectKind, Permanent, PermanentObservation, PhysicalFaceObservation,
+    PhysicalFaceSide, PlayerId, PlayerObservation, Pregame, StackObservation, Step, WinReason,
+    ZoneKind, combinations, public_cards,
 };
 
 impl Game {
@@ -150,24 +150,10 @@ impl Game {
                 // "You may cast that card" is answered by casting it, not by
                 // answering the decision, so the cast stands beside the
                 // decline rather than behind it.
-                if let DecisionContinuation::MayCastExiled {
-                    player: caster,
-                    card,
-                    ..
-                }
-                | DecisionContinuation::CascadeCast {
-                    player: caster,
-                    card,
-                    ..
-                }
-                | DecisionContinuation::MayCastGranted {
-                    player: caster,
-                    card,
-                    ..
-                } = &decision.continuation
-                    && *caster == player
+                if let Some(offer) = decision.continuation.cast_offer()
+                    && offer.player == player
                 {
-                    self.add_offered_cast_actions(player, *card, &mut actions);
+                    self.add_offered_cast_actions(offer, &mut actions);
                 }
             }
             return actions;
@@ -381,7 +367,6 @@ impl Game {
                 choices,
                 sacrifices,
             } => {
-                self.take_answered_cast_offer(card);
                 self.cast_spell(player, card, &choices, &sacrifices);
             }
             Action::ActivateAbility {

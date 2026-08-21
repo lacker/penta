@@ -3,6 +3,7 @@ use crate::hosted::HostedGame;
 
 mod actions;
 mod autopass;
+mod draw_windows;
 mod snapshots;
 
 fn assert_nested_card_art(card: &Value) {
@@ -170,6 +171,13 @@ mod external_opponent {
         for _ in 0..4_000 {
             if game.opponent_is_deciding() {
                 let observation = parsed(&game.opponent_observe_json().expect("external"));
+                assert!(
+                    !observation["decision"].as_object().is_some_and(|decision| {
+                        decision["minimum"] == 0
+                            && decision["options"].as_array().is_some_and(Vec::is_empty)
+                    }),
+                    "the external driver is never prompted for an empty action window",
+                );
                 game.opponent_act(driver_index(&observation))
                     .expect("the driver's index is legal");
                 continue;

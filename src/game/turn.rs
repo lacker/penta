@@ -238,20 +238,6 @@ impl Game {
         }
     }
 
-    /// A miracle window belongs to one card sitting in hand. Once that card
-    /// has been cast, discarded, or otherwise moved, there is nothing left to
-    /// pay a miracle cost for.
-    pub(super) fn close_stale_miracle_window(&mut self) {
-        if let Some(card) = self.miracle_window
-            && !self
-                .players
-                .iter()
-                .any(|player| player.hand.iter().any(|held| held.id == card))
-        {
-            self.miracle_window = None;
-        }
-    }
-
     pub(super) fn advance_step(&mut self) {
         if self.step.ends_phase() || self.format.rules().mana_empties_at_end_of_step {
             self.empty_mana_pools();
@@ -450,7 +436,6 @@ impl Game {
         self.permanent_left_battlefield_this_turn = [false; 2];
         self.card_left_graveyard_this_turn = [false; 2];
         self.drawn_this_turn = [Vec::new(), Vec::new()];
-        self.miracle_window = None;
         self.step = Step::Upkeep;
         self.players[self.active_player.index()].land_played_this_turn = false;
         let started = self.turns_started[self.active_player.index()];
@@ -668,7 +653,6 @@ impl Game {
         self.resolved_play_permissions
             .retain(|permission| permission.expiration.survives_cleanup());
         self.channel_active = [false; 2];
-        self.miracle_window = None;
         self.damage_preventions
             .retain(|prevention| prevention.expiration.survives_cleanup());
         self.damage_redirects
@@ -766,6 +750,9 @@ impl Game {
                 } => self.continue_simultaneous_draws(remaining, next, was_deferred),
                 PendingProcedure::ShuffleLibrary { player } => {
                     self.rng.shuffle(&mut self.players[player.index()].library);
+                }
+                PendingProcedure::FinishStackResolution { object, resolved } => {
+                    self.finish_stack_resolution(&object, resolved);
                 }
                 PendingProcedure::FinishStepAdvance => self.finish_step_advance(),
             }

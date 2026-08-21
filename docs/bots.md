@@ -216,7 +216,7 @@ A clone forks the *true* state, hidden zones included. That is right for
 self-play but wrong for a search bot in a hosted match: its rollouts must use
 worlds consistent with its observation, not cards only the host knows.
 
-The optional `reconstruction.checkpoint.v5` capability advertises a hidden-safe
+The optional `reconstruction.checkpoint.v6` capability advertises a hidden-safe
 current-state checkpoint in each observation. The checkpoint was introduced in
 protocol 19, expanded in protocol 21 into the complete typed snapshot described
 below, and given its own nested format version in protocol 22. Protocol 26's
@@ -263,11 +263,10 @@ hypothesized world has none. `rollout_seed` controls random choices made
 RNG state is ever present in `checkpoint`.
 
 When opposing hand identity matters to a rule, the hypothesis can additionally
-carry `drawnThisTurn: {"p2": [0, 2]}` using indexes into that hypothesized hand,
-and `miracleWindow: {"seat": "p2", "handIndex": 0}`. These belong in the
-hidden hypothesis rather than the observation: even an object ID with no card
-name can reveal which opposing card was drawn or retained. Omit them when the
-hypothesized world has no such state.
+carry `drawnThisTurn: {"p2": [0, 2]}` using indexes into that hypothesized hand.
+This belongs in the hidden hypothesis rather than the observation: even an
+object ID with no card name can reveal which opposing card was drawn or
+retained. Omit it when the hypothesized world has no such state.
 
 If a suspended multi-player discard has already recorded opposing choices,
 provide those as hand indexes too:
@@ -298,13 +297,30 @@ A private pending decision is reconstructible only from its choosing seat's
 observation. Other seats receive neither the decision nor its continuation in
 their checkpoint; `hasDeferredState` is true, so importing that checkpoint
 fails closed instead of exposing private candidates or effect-local bindings.
-An installed or pending trigger likewise fails closed when its retained
-lexical targets or bindings name a card in a hidden zone that has no stable
-public object ID; the checkpoint omits that trigger rather than serializing a
-host-only identity.
+The first successful draw of each turn always takes the same private
+draw-action path. Its empty selection means "take no draw action"; only the
+drawing seat receives the candidate payload that says whether Reveal is also
+available. The engine allocates and resolves an actionless ordinary window
+inside the atomic draw, so it adds no UI or network pause. A declined Miracle
+settles to the same decision counter, projected events, and opponent
+checkpoint. Direct callers that inspect `Game::observe` during an unresolved
+private choice can still distinguish that an action is pending; the raw engine
+API does not promise arbitrary-intermediate-state indistinguishability. Hosted
+rooms instead serve the opponent their last complete safe state until the
+choice settles. They do not add a cover delay, however: an interactive Miracle
+choice can take longer than an ordinary draw, so elapsed response time is not
+a privacy claim.
+An installed, pending, or stacked trigger likewise fails closed when its source,
+retained lexical targets, or bindings name a card in a hidden zone that has no
+stable public object ID; the checkpoint omits that executable state rather than
+serializing a host-only identity. In particular, the non-owner's checkpoint is
+deferred while a revealed Miracle card in hand is the source of its pending or
+stacked linked trigger. Once that trigger resolves, the public cast-or-decline
+decision carries an exact hidden-card origin and reconstructs for either seat.
 
-Checkpoint format 5 covers every ordinary action boundary emitted by the
-hosted formats: pregame and turn/combat progression; complete permanent,
+Checkpoint format 6 covers every ordinary action boundary emitted by the
+hosted formats, subject to the explicit fail-closed cases above: pregame and
+turn/combat progression; complete permanent,
 emblem, stack, and combat state; restricted/source-specific mana; copied and
 temporarily modified characteristics; retired-object last-known information;
 pending battlefield-entry replacement programs; installed and pending
@@ -357,7 +373,7 @@ world it can search.
 | field | meaning |
 | --- | --- |
 | `protocolVersion` | the breaking bot-wire epoch; protocol 26 objects are open-world, but an epoch mismatch requires migration |
-| `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v5`; ignore unknown entries |
+| `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v6`; ignore unknown entries |
 | `simulationFingerprint` | a conservative identity of simulation source and build requirements; pin it for training and require it for reconstruction |
 | `engineVersion` | package-release provenance; it is not an exact simulation identity |
 | `format` | the rules/deck profile slug, such as `"old-school-93-94"` or `"isd-dgm-standard"` |
@@ -679,7 +695,10 @@ implementation status.
 
 Catalog contents may grow compatibly within one protocol version because new
 definition IDs are appended and existing card identities never move. Retired
-IDs stay empty rather than being reassigned. The out-of-format interaction fixtures
+IDs stay empty rather than being reassigned. Treat every assigned definition ID
+as an opaque catalog value: `0` and every other numeric value may identify an
+ordinary definition, and no value means hidden, missing, or redacted. The
+out-of-format interaction fixtures
 `Urborg, Tomb of Yawgmoth` (definition 261, debut set `planar-chaos`) and
 `Yavimaya, Cradle of Growth` (definition 262, debut set
 `modern-horizons-2`) appear in every unfiltered catalog but have `allowed` and
@@ -902,8 +921,9 @@ operation to resolved continuous-effect snapshots, so an effect that adds,
 removes, or sets a named subtype can be reconstructed without flattening the
 permanent's characteristics. Format-3 importers cannot interpret that operation
 and must regenerate the checkpoint with the current engine. Reconstruction
-consumers should require `reconstruction.checkpoint.v4` and continue checking
-the exact simulation fingerprint.
+consumers of format 4 had to require `reconstruction.checkpoint.v4`; current
+consumers should follow the format-5 and format-6 migrations below. Continue
+checking the exact simulation fingerprint in every case.
 
 ### Migrating checkpoint format 4 to 5
 
@@ -922,6 +942,23 @@ format-4 checkpoint's synthetic definition cannot recover creator-owned
 characteristics after those global definitions disappear. Current
 reconstruction consumers should require `reconstruction.checkpoint.v5` and
 regenerate checkpoints with the current engine.
+
+### Migrating checkpoint format 5 to 6
+
+Protocol 26 and replay format 2 remain in place. Checkpoint format 6 removes
+Miracle's ambient `miracleWindow` bookkeeping and represents the private
+draw-action continuation directly. Its optional Reveal carries the card's real
+characteristics rather than an undocumented placeholder; the actionless
+ordinary path resolves atomically and leaves no pending checkpoint state.
+Revealing creates the linked triggered ability; when that ability resolves, a
+public standing decision offers exactly that card's Miracle cost or lets its
+controller decline.
+
+An already-open format-5 Miracle window does not record the linked trigger's
+placement, priority history, or one-shot decision state, so it cannot be
+upgraded without guessing. Consumers should require
+`reconstruction.checkpoint.v6`, continue checking the exact simulation
+fingerprint, and regenerate format-5 checkpoints with the current engine.
 
 ### Migrating from protocol 24
 
@@ -963,7 +1000,7 @@ Protocol 22 splits wire compatibility from conservative source identity:
   `requiredSimulationFingerprint` to refuse a different simulation before it
   is listed or assigned.
 
-The current optional capability is `reconstruction.checkpoint.v5`. An ordinary
+The current optional capability is `reconstruction.checkpoint.v6`. An ordinary
 hosted bot that only reads `legalActions` should declare an empty capability
 list; do not copy the server's advertised capabilities without implementing
 them.
@@ -1278,6 +1315,15 @@ and the bot answers with an index into that observation's `legalActions`:
 A hosted room's state payload carries `moveClock` -- `{seat, deadline}`, with
 the deadline in epoch milliseconds -- whenever a game is live, so a client can
 show what remains.
+
+While an external opponent owns a private decision, human polling and
+reconnects receive the last complete human-safe state rather than a mixture of
+that board and the live private boundary. Its clock is frozen with that state
+until the next safe update. The human-only room-record route likewise withholds
+both the seed and command journal of an unfinished external game: a private
+decline can otherwise be exposed by one extra recorded command. The complete
+seed and journal become available after the game ends; seat credentials are
+never part of a room record.
 
 A new observation follows if the seat still holds the decision; `{"t":
 "result", …}` arrives when the game ends, and `{"t": "error", …}` reports a

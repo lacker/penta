@@ -34,6 +34,9 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
         | DecisionContinuation::TopCardSelection {
             object, context, ..
         } => extend_stack_continuation_ids(&mut ids, object, context),
+        DecisionContinuation::DrawActionWindow { card }
+        | DecisionContinuation::MayCastAlternative { card, .. }
+        | DecisionContinuation::MayCastGranted { card, .. } => ids.push(*card),
         DecisionContinuation::ChooseForEffect {
             object,
             context,
@@ -99,7 +102,6 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
         DecisionContinuation::Proliferate { candidates } => {
             ids.extend(candidates.iter().copied().filter_map(target_object_id));
         }
-        DecisionContinuation::MayCastGranted { card, .. } => ids.push(*card),
         DecisionContinuation::CascadeCast { card, exiled, .. } => {
             ids.push(*card);
             ids.extend(exiled.iter().copied());
@@ -164,7 +166,6 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
         | DecisionContinuation::BasicLandTypeTextChange { .. }
         | DecisionContinuation::RecallDiscard { .. }
         | DecisionContinuation::RecallReturn { .. }
-        | DecisionContinuation::MiracleReveal { .. }
         | DecisionContinuation::SpellLibraryEnd { .. }
         | DecisionContinuation::SeparateIntoPiles { .. }
         | DecisionContinuation::ChoosePile { .. }
@@ -334,6 +335,9 @@ pub(in crate::game::state_checkpoint) fn pending_trigger_snapshot(
     viewer: PlayerId,
     trigger: &PendingTrigger,
 ) -> Option<PendingTriggerSnapshot> {
+    if object_reference_requires_hidden_rebinding(game, viewer, trigger.source.object) {
+        return None;
+    }
     if trigger_capture_has_unrebindable_hidden_reference(
         game,
         viewer,
@@ -343,12 +347,19 @@ pub(in crate::game::state_checkpoint) fn pending_trigger_snapshot(
         return None;
     }
     let ability = ability_locator_for_origin(&game.catalog, trigger.source.ability, |ability| {
-        let DeclarativeAbilityDef::Triggered(definition) = ability.definition else {
-            return false;
+        let condition = match ability.definition {
+            DeclarativeAbilityDef::Triggered(definition) => definition.condition,
+            DeclarativeAbilityDef::AlternativeCast(alternative)
+                if ability.is_executable()
+                    && alternative.kind == AlternativeCastKindDef::Miracle =>
+            {
+                None
+            }
+            _ => return false,
         };
         ability.text == trigger.text
             && ability.declarative_effect() == Some(trigger.effect)
-            && definition.condition == trigger.condition
+            && condition == trigger.condition
             && Game::ability_resolver(trigger.source.ability, ability) == trigger.resolver
     })?;
     let target_definition = ability_locator(&game.catalog, |ability| {
@@ -396,8 +407,14 @@ pub(in crate::game::state_checkpoint) fn parse_pending_trigger(
 ) -> Result<PendingTrigger, String> {
     let ability = catalog_ability(&game.catalog, &snapshot.ability)
         .ok_or("pending trigger ability locator is absent from this catalog")?;
-    let DeclarativeAbilityDef::Triggered(triggered) = ability.definition else {
-        return Err("pending trigger locator does not identify a triggered ability".into());
+    let condition = match ability.definition {
+        DeclarativeAbilityDef::Triggered(triggered) => triggered.condition,
+        DeclarativeAbilityDef::AlternativeCast(alternative)
+            if ability.is_executable() && alternative.kind == AlternativeCastKindDef::Miracle =>
+        {
+            None
+        }
+        _ => return Err("pending trigger locator does not identify a triggered ability".into()),
     };
     let source = super::super::AbilitySourceRef {
         object: GameObjectId(snapshot.source.object),
@@ -428,7 +445,7 @@ pub(in crate::game::state_checkpoint) fn parse_pending_trigger(
             .ok_or("pending trigger does not identify an ordinary declarative program")?,
         resolver: Game::ability_resolver(source.ability, &ability),
         context: parse_effect_resolution_context(snapshot.context.clone())?,
-        condition: triggered.condition,
+        condition,
         x: snapshot.x,
     })
 }

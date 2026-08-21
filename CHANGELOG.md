@@ -70,6 +70,12 @@ distinguishes snapshots of the covered source and build inputs.
   generic named-subtype operation for reconstructed continuous effects. Replay
   version 2 is unchanged.
 
+- **Checkpoint reconstruction moves to format 6 for linked Miracle state.**
+  Format 6 replaces Miracle's ambient window with its private draw action,
+  linked trigger, and exact one-shot cast offer. Reconstruction consumers must
+  require `reconstruction.checkpoint.v6` and regenerate older checkpoints. The
+  bot protocol remains 26 and replay version 2 is unchanged.
+
 - **The native declarative API exposes the new Equipment primitives in the
   current 0.7.0 release.** `BlocksOrBecomesBlockedBy` now names both the
   subject creature and the creature on the other side of combat, and
@@ -111,6 +117,19 @@ distinguishes snapshots of the covered source and build inputs.
   it; counter-based mana abilities that leave it available remain legal. This
   changes which activations are legal through the existing action shape, so
   the protocol epoch does not move.
+
+- **Miracle now uses its linked trigger and a one-shot cast-or-decline offer.**
+  Every first draw now crosses the same private draw-action window; an ordinary
+  card has no action and is completed internally before a UI or bot host can
+  render it, while a Miracle card privately adds its real Reveal option.
+  Once settled, declining that option leaves the same opponent-visible state
+  as the ordinary empty path; hosted rooms retain the last safe opponent state
+  while the private choice is open. Revealing creates the linked trigger, both
+  players receive priority, and resolving it offers only that card's Miracle
+  cost through the shared one-shot cast machinery. Definition IDs remain
+  opaque catalog values; zero is not reserved. Checkpoint format 6 and
+  `reconstruction.checkpoint.v6` replace the old `miracleWindow` bookkeeping;
+  the bot protocol and replay epochs are unchanged.
 
 - **A kicked spell could not target anything the unkicked one could not.**
   A kicked cast resolves its own clause, and that clause has always been able

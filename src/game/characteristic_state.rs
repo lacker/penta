@@ -1,7 +1,9 @@
 use crate::action::AbilityOrigin;
 use crate::card::{AbilityDef, BasicLandType, CardTypeSet, KeywordAbility};
 use crate::ids::{CardDefinitionId, MeldRecipeId};
-use crate::{EmblemCharacteristics, ObjectCharacteristics, TokenCharacteristics};
+use crate::{
+    EmblemCharacteristics, FaceDownCharacteristics, ObjectCharacteristics, TokenCharacteristics,
+};
 
 use super::TriggerEventObject;
 
@@ -15,6 +17,7 @@ pub(super) enum CharacteristicSource {
     Card(CardDefinitionId),
     Token(TokenCharacteristics),
     Emblem(EmblemCharacteristics),
+    FaceDown(FaceDownCharacteristics),
     Copy(CardDefinitionId),
     Ability(CardDefinitionId),
     Meld(MeldRecipeId),

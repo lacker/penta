@@ -1,8 +1,8 @@
 use super::model::{
-    AppliedStackEffectSnapshot, CastSignatureSnapshot, DetachedStackSnapshot,
-    EffectResolutionContextSnapshot, ManaSourceSnapshot, SeatSnapshot, SpellFormSnapshot,
-    StackAbilitySnapshot, StackObjectKindSnapshot, StackSnapshot, TargetSelectionSnapshot,
-    TargetSnapshot, TriggerContextSnapshot,
+    AppliedStackEffectSnapshot, BasicLandTypeChangeSnapshot, CastSignatureSnapshot,
+    DetachedStackSnapshot, EffectResolutionContextSnapshot, ManaSourceSnapshot, SeatSnapshot,
+    SpellFormSnapshot, StackAbilitySnapshot, StackObjectKindSnapshot, StackSnapshot,
+    TargetSelectionSnapshot, TargetSnapshot, TriggerContextSnapshot,
 };
 use super::semantics::{
     ability_locator_for_origin, applied_effect_locator, catalog_applied_effect,
@@ -16,8 +16,9 @@ use super::{
     ObjectInstance, ObjectKind, PlayOptionId, PlayerId, RetiredObject, SpellForm,
     StackAbilityPayload, StackObject, StackObjectKind, Target, TargetSelection, TriggerContext,
     Value, ability_locator, ability_origin_from_snapshot, ability_origin_snapshot,
-    ability_target_defs, array, card, cast_source_zone_from_label, catalog_ability, field,
-    object_characteristics_from_snapshot, object_characteristics_snapshot,
+    ability_target_defs, array, basic_land_type_snapshot, card, cast_source_zone_from_label,
+    catalog_ability, face_down_characteristics_from_snapshot, face_down_characteristics_snapshot,
+    field, object_characteristics_from_snapshot, object_characteristics_snapshot,
     object_kind_from_snapshot, object_kind_snapshot, optional_id, parse_basic_land_type,
     parse_cast_signature, parse_ids, seat_value, str_field, u8_field, u32_field, usize_field,
 };
@@ -25,6 +26,8 @@ use crate::card::{ColorSet, ManaColor};
 
 mod ability_kind;
 use ability_kind::{StackAbilityCondition, stack_ability_condition};
+mod current;
+pub(super) use current::current_stack_snapshot;
 
 pub(super) fn stack_ability_snapshot(
     game: &Game,
@@ -106,6 +109,12 @@ pub(super) fn detached_stack_snapshot_allowing(
         return None;
     }
     let (applied_effects, has_runtime_overrides) = applied_stack_effect_snapshots(game, object);
+    let face_down = object
+        .face_down
+        .and_then(face_down_characteristics_snapshot);
+    if object.face_down.is_some() && face_down.is_none() {
+        return None;
+    }
     Some(DetachedStackSnapshot {
         object_id: object.id.0,
         kind: kind_snapshot(object.kind),
@@ -131,6 +140,7 @@ pub(super) fn detached_stack_snapshot_allowing(
         cast_via_flashback: object.cast_via_flashback,
         cast_at_instant_speed: object.cast_at_instant_speed,
         cast_from_zone: object.cast_from_zone.map(|zone| zone.label().to_owned()),
+        face_down,
         is_copy: object.is_copy,
     })
 }
@@ -594,7 +604,7 @@ pub(super) fn parse_stack(
                 .cast_from_zone
                 .as_deref()
                 .and_then(cast_source_zone_from_label),
-            cast_face_down: false,
+            face_down: state.face_down.map(face_down_characteristics_from_snapshot),
             is_copy: state.is_copy,
         });
     }
@@ -677,7 +687,7 @@ pub(super) fn parse_detached_stack(
             .cast_from_zone
             .as_deref()
             .and_then(cast_source_zone_from_label),
-        cast_face_down: false,
+        face_down: state.face_down.map(face_down_characteristics_from_snapshot),
         is_copy: state.is_copy,
     })
 }
@@ -691,6 +701,7 @@ fn ability_object(
         ObjectCharacteristics::Card { definition, .. } => CharacteristicSource::Ability(definition),
         ObjectCharacteristics::Token { token, .. } => CharacteristicSource::Token(token),
         ObjectCharacteristics::Emblem { emblem } => CharacteristicSource::Emblem(emblem),
+        ObjectCharacteristics::FaceDown { face_down } => CharacteristicSource::FaceDown(face_down),
     };
     ObjectInstance {
         id,

@@ -19,16 +19,16 @@ use crate::card::{
     ControlDurationDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef,
     DamageRecipientMatcherDef, DamageSourceGroupDef, DamageSourceMatcherDef, DeclarativeAbilityDef,
     DiscardSelectionDef, DividedTotal, DoubleFacedKind, EffectDef, EffectPaymentCostDef,
-    EffectPaymentDef, EffectRecipientDef, EffectRecipientSetDef, HybridPair, KeywordAbility,
-    ManaCost, ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef, ObjectCountConditionDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayActionKind, PlayOptionDef,
-    PlayRestriction, PlayerRefDef, PlayerRelation, PlayerSetDef, PowerToughnessOperationDef,
-    ProtectedCreatureType, QuantifierDef, ReplacementChoiceDef, ReplacementConditionDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    SetOperationDef, StackTargetKindDef, TapPurposeDef, TargetPredicate, TargetSlotDef,
-    TokenCharacteristics, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnKindDef,
-    TurnPhaseDef, TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
-    applicable_part_ids,
+    EffectPaymentDef, EffectRecipientDef, EffectRecipientSetDef, FaceDownCharacteristics,
+    HybridPair, KeywordAbility, ManaCost, ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef,
+    ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PlayActionKind, PlayOptionDef, PlayRestriction, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    PowerToughnessOperationDef, ProtectedCreatureType, QuantifierDef, ReplacementChoiceDef,
+    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    SacrificedAmountDef, SetOperationDef, StackTargetKindDef, TapPurposeDef, TargetPredicate,
+    TargetSlotDef, TokenCharacteristics, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef,
+    TurnKindDef, TurnPhaseDef, TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement,
+    abilities, applicable_part_ids,
 };
 use crate::casting::{CastChoices, CastSignature, CostConfiguration, TargetSelection};
 use crate::deck::Deck;
@@ -386,10 +386,10 @@ struct StackObject {
     /// the top of a library or out of a graveyard, and by the time the
     /// permanent's own trigger resolves nothing else remembers.
     cast_from_zone: Option<CastSourceZone>,
-    /// Whether this spell was cast face down. The permanent it becomes
-    /// enters face down, and until it resolves only its controller may know
-    /// which card it is.
-    cast_face_down: bool,
+    /// The copiable characteristics supplied by the rule that allowed this
+    /// spell to be cast face down. The permanent it becomes keeps the same
+    /// values, while only its controller may inspect the physical card.
+    face_down: Option<FaceDownCharacteristics>,
     /// Which colours of mana actually paid for this spell, for the clauses
     /// that count them (CR 702.86a, converge). Payment-derived rather than
     /// part of the cast signature: a copy is never cast, so no mana was ever
@@ -607,14 +607,12 @@ pub(super) struct BattlefieldArrival {
     /// enters is a new object, and a following effect would have nothing
     /// left to name.
     pub(super) transformed: bool,
-    /// Whether the permanent arrives manifested: face down as a 2/2 with no
-    /// name, no types beyond creature, and no abilities, and turnable face
-    /// up for its own mana cost if the card under it is a creature card
-    /// (CR 701.34c). It belongs to the arrival because a card put onto the
-    /// battlefield face down was never face up there. Casting a morph face
-    /// down is the other way to arrive face down, and it does not come
-    /// through here.
-    pub(super) manifested: bool,
+    /// Copiable face-down values established before this permanent enters.
+    /// `None` means it arrives face up.
+    pub(super) face_down: Option<FaceDownCharacteristics>,
+    /// Whether this mechanism lets an underlying creature card turn face up
+    /// for its own mana cost, as Manifest and Cloak do.
+    pub(super) turn_up_for_mana_cost: bool,
     /// Counters the permanent arrives carrying. They belong to the arrival
     /// because an enters trigger reading the permanent's power has to see
     /// them: the counters were on it as it entered, not put there after.
@@ -628,20 +626,26 @@ impl BattlefieldArrival {
             tapped: false,
             transformed: false,
             attachment: None,
-            manifested: false,
+            face_down: None,
+            turn_up_for_mana_cost: false,
             counters: None,
         }
     }
 
-    /// Manifested: face down as a 2/2, and turnable face up for its mana
-    /// cost if the card under it is a creature card.
-    pub(super) const fn manifested_under(controller: PlayerId) -> Self {
+    /// Puts a card onto the battlefield with mechanism-owned face-down values
+    /// and the mechanism's mana-cost turn-up permission.
+    pub(super) const fn face_down_under(
+        controller: PlayerId,
+        face_down: FaceDownCharacteristics,
+        turn_up_for_mana_cost: bool,
+    ) -> Self {
         Self {
             controller,
             tapped: false,
             transformed: false,
             attachment: None,
-            manifested: true,
+            face_down: Some(face_down),
+            turn_up_for_mana_cost,
             counters: None,
         }
     }
@@ -652,7 +656,8 @@ impl BattlefieldArrival {
             tapped: true,
             transformed: false,
             attachment: None,
-            manifested: false,
+            face_down: None,
+            turn_up_for_mana_cost: false,
             counters: None,
         }
     }
@@ -663,7 +668,8 @@ impl BattlefieldArrival {
             tapped: false,
             transformed: true,
             attachment: None,
-            manifested: false,
+            face_down: None,
+            turn_up_for_mana_cost: false,
             counters: None,
         }
     }

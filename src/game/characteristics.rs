@@ -22,6 +22,9 @@ impl Game {
                 token.part(part).map(crate::card::TokenPart::name)
             }
             ObjectCharacteristics::Emblem { emblem } => Some(Cow::Borrowed(emblem.name())),
+            ObjectCharacteristics::FaceDown { face_down } => {
+                Some(Cow::Borrowed(face_down.display_name()))
+            }
         }
     }
 
@@ -60,7 +63,7 @@ impl Game {
         // one -- naming a card, matching another object's name -- ever finds
         // it. The catalog entry behind its body is legible for a client, not
         // a name the rules can see.
-        if permanent.face_down {
+        if permanent.face_down.is_some() {
             return None;
         }
         match Self::effective_rules_source(permanent) {
@@ -73,6 +76,9 @@ impl Game {
                 token.part(part).map(crate::card::TokenPart::name)
             }
             ObjectCharacteristics::Emblem { emblem } => Some(Cow::Borrowed(emblem.name())),
+            ObjectCharacteristics::FaceDown { face_down } => {
+                Some(Cow::Borrowed(face_down.display_name()))
+            }
         }
     }
 
@@ -88,6 +94,7 @@ impl Game {
                 .map(|part| part.rules),
             ObjectCharacteristics::Token { token, part } => token.part(part).map(|part| part.rules),
             ObjectCharacteristics::Emblem { emblem } => Some(emblem.rules_view()),
+            ObjectCharacteristics::FaceDown { face_down } => Some(face_down.rules()),
         }
     }
 
@@ -95,11 +102,8 @@ impl Game {
         // A face-down permanent presents the shared face-down body whatever
         // the card under it says, and whatever it was copying: turning a
         // permanent face down is not a copy effect, it hides one (CR 708.2).
-        if permanent.face_down {
-            return ObjectCharacteristics::card(
-                crate::card::cards::FACE_DOWN_CREATURE,
-                CardPartId::PRIMARY,
-            );
+        if let Some(face_down) = permanent.face_down {
+            return ObjectCharacteristics::face_down(face_down);
         }
         Self::unmasked_rules_source(permanent)
     }
@@ -190,6 +194,7 @@ impl Game {
                 .map(|part| part.rules),
             ObjectCharacteristics::Token { token, part } => token.part(part).map(|part| part.rules),
             ObjectCharacteristics::Emblem { .. } => None,
+            ObjectCharacteristics::FaceDown { face_down } => Some(face_down.rules()),
         }) else {
             return false;
         };

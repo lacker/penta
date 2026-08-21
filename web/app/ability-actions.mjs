@@ -23,6 +23,8 @@ export function abilityOriginKey(origin, actionSource) {
       return `${sourcePrefix}token:${origin.partId}:${origin.abilityId}`;
     case "emblem":
       return `${sourcePrefix}emblem:${origin.abilityId}`;
+    case "faceDown":
+      return `${sourcePrefix}face-down:${origin.abilityId}`;
     case "intrinsicBasicLand":
       return `${sourcePrefix}intrinsic-basic-land:${origin.landType}`;
     case "granted":
@@ -45,6 +47,13 @@ export function abilityOriginKey(origin, actionSource) {
     case "emblemGranted":
       return [
         `${sourcePrefix}emblem-granted`,
+        origin.source,
+        origin.sourceAbilityId,
+        origin.grantId,
+      ].join(":");
+    case "faceDownGranted":
+      return [
+        `${sourcePrefix}face-down-granted`,
         origin.source,
         origin.sourceAbilityId,
         origin.grantId,

@@ -171,6 +171,15 @@ pub(super) fn object_presentation(
         penta::ObjectCharacteristics::Emblem { emblem } => {
             StackCardPresentation::from_emblem(emblem)
         }
+        penta::ObjectCharacteristics::FaceDown { face_down } => {
+            let rules = face_down.rules();
+            StackCardPresentation::from_rules_with_art(
+                face_down.display_name().to_owned(),
+                None,
+                &rules,
+                rules.mana_cost(),
+            )
+        }
     }
 }
 

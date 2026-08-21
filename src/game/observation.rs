@@ -1,7 +1,7 @@
 use crate::{
     AbilityOrigin, Action, AttackDefender, CardDefinitionId, CardPartId, CardTypeSet,
-    CastSignature, DoubleFacedKind, EmblemCharacteristics, GameObjectId, PlayerId, Target,
-    TokenCharacteristics,
+    CastSignature, DoubleFacedKind, EmblemCharacteristics, FaceDownCharacteristics, GameObjectId,
+    PlayerId, Target, TokenCharacteristics,
 };
 use serde_json::Value;
 
@@ -30,6 +30,11 @@ pub enum ObjectCharacteristics {
     Emblem {
         emblem: EmblemCharacteristics,
     },
+    /// Rules-owned copiable values for a face-down spell or permanent. The
+    /// underlying object's physical card identity is retained separately.
+    FaceDown {
+        face_down: FaceDownCharacteristics,
+    },
 }
 
 impl ObjectCharacteristics {
@@ -49,10 +54,15 @@ impl ObjectCharacteristics {
     }
 
     #[must_use]
+    pub const fn face_down(face_down: FaceDownCharacteristics) -> Self {
+        Self::FaceDown { face_down }
+    }
+
+    #[must_use]
     pub const fn part(self) -> CardPartId {
         match self {
             Self::Card { part, .. } | Self::Token { part, .. } => part,
-            Self::Emblem { .. } => CardPartId::PRIMARY,
+            Self::Emblem { .. } | Self::FaceDown { .. } => CardPartId::PRIMARY,
         }
     }
 
@@ -61,7 +71,7 @@ impl ObjectCharacteristics {
         match self {
             Self::Card { definition, .. } => Self::Card { definition, part },
             Self::Token { token, .. } => Self::Token { token, part },
-            Self::Emblem { .. } => self,
+            Self::Emblem { .. } | Self::FaceDown { .. } => self,
         }
     }
 
@@ -69,14 +79,14 @@ impl ObjectCharacteristics {
     pub const fn card_definition(self) -> Option<CardDefinitionId> {
         match self {
             Self::Card { definition, .. } => Some(definition),
-            Self::Token { .. } | Self::Emblem { .. } => None,
+            Self::Token { .. } | Self::Emblem { .. } | Self::FaceDown { .. } => None,
         }
     }
 
     #[must_use]
     pub const fn token_characteristics(self) -> Option<TokenCharacteristics> {
         match self {
-            Self::Card { .. } | Self::Emblem { .. } => None,
+            Self::Card { .. } | Self::Emblem { .. } | Self::FaceDown { .. } => None,
             Self::Token { token, .. } => Some(token),
         }
     }
@@ -85,7 +95,15 @@ impl ObjectCharacteristics {
     pub const fn emblem_characteristics(self) -> Option<EmblemCharacteristics> {
         match self {
             Self::Emblem { emblem } => Some(emblem),
-            Self::Card { .. } | Self::Token { .. } => None,
+            Self::Card { .. } | Self::Token { .. } | Self::FaceDown { .. } => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn face_down_characteristics(self) -> Option<FaceDownCharacteristics> {
+        match self {
+            Self::FaceDown { face_down } => Some(face_down),
+            Self::Card { .. } | Self::Token { .. } | Self::Emblem { .. } => None,
         }
     }
 }
@@ -213,8 +231,8 @@ pub struct StackObservation {
     /// Frozen rules text for the creating ability. This remains inspectable
     /// even when its source changes zones or characteristics.
     pub ability_text: Option<String>,
-    /// Frozen presentation of the spell or ability. Token abilities carry
-    /// their source token's inline characteristics rather than a fake card ID.
+    /// Frozen presentation of the spell or ability. Token and face-down
+    /// sources carry inline characteristics rather than a fake card ID.
     pub characteristics: ObjectCharacteristics,
     pub controller: PlayerId,
     /// Public resolution constraint. An uncounterable object remains a legal

@@ -158,6 +158,9 @@ const fn ability_origin_snapshot(origin: AbilityOrigin) -> AbilityOriginSnapshot
         AbilityOrigin::Emblem { ability } => AbilityOriginSnapshot::Emblem {
             ability_id: ability.0,
         },
+        AbilityOrigin::FaceDown { ability } => AbilityOriginSnapshot::FaceDown {
+            ability_id: ability.0,
+        },
         AbilityOrigin::IntrinsicBasicLand(land_type) => AbilityOriginSnapshot::IntrinsicBasicLand {
             land_type: basic_land_type_snapshot(land_type),
         },
@@ -197,6 +200,15 @@ const fn ability_origin_snapshot(origin: AbilityOrigin) -> AbilityOriginSnapshot
             source_ability_id: source_ability.0,
             grant_id: grant.0,
         },
+        AbilityOrigin::FaceDownGranted {
+            source,
+            source_ability,
+            grant,
+        } => AbilityOriginSnapshot::FaceDownGranted {
+            source: source.0,
+            source_ability_id: source_ability.0,
+            grant_id: grant.0,
+        },
     }
 }
 
@@ -219,6 +231,9 @@ fn ability_origin_from_snapshot(origin: AbilityOriginSnapshot) -> AbilityOrigin 
             ability: AbilityId(ability_id),
         },
         AbilityOriginSnapshot::Emblem { ability_id } => AbilityOrigin::Emblem {
+            ability: AbilityId(ability_id),
+        },
+        AbilityOriginSnapshot::FaceDown { ability_id } => AbilityOrigin::FaceDown {
             ability: AbilityId(ability_id),
         },
         AbilityOriginSnapshot::IntrinsicBasicLand { land_type } => {
@@ -264,6 +279,15 @@ fn ability_origin_from_snapshot(origin: AbilityOriginSnapshot) -> AbilityOrigin 
             source_ability_id,
             grant_id,
         } => AbilityOrigin::EmblemGranted {
+            source: GameObjectId(source),
+            source_ability: AbilityId(source_ability_id),
+            grant: GrantId(grant_id),
+        },
+        AbilityOriginSnapshot::FaceDownGranted {
+            source,
+            source_ability_id,
+            grant_id,
+        } => AbilityOrigin::FaceDownGranted {
             source: GameObjectId(source),
             source_ability: AbilityId(source_ability_id),
             grant: GrantId(grant_id),

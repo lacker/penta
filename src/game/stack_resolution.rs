@@ -92,7 +92,7 @@ impl Game {
                 object.controller,
                 self.turns_started[object.controller.index()],
             );
-            permanent.face_down = object.cast_face_down;
+            permanent.face_down = object.face_down;
             self.initialize_battlefield_entry(&mut permanent);
             permanent.chosen_player = chosen_player;
             permanent.cast_x = object

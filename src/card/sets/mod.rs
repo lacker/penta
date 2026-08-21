@@ -5,7 +5,6 @@
 //! or metadata-only. Reprints and alternate-art variants point back to that
 //! canonical record from their own set module.
 
-mod tokens;
 mod y1993;
 mod y1994;
 mod y1995;
@@ -70,7 +69,6 @@ impl SetModule {
 /// introduced by that module; `additional_printings` contains reprints and
 /// further variants of definitions introduced elsewhere.
 const SET_MODULES: &[SetModule] = &[
-    SetModule::new(CardSet::Token, tokens::CARDS, tokens::ADDITIONAL_PRINTINGS),
     SetModule::new(
         CardSet::Alpha,
         y1993::alpha::CARDS,

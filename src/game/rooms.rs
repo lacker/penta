@@ -26,7 +26,7 @@ impl Game {
             return;
         }
         for permanent in &self.battlefield {
-            if permanent.controller != player || permanent.face_down {
+            if permanent.controller != player || permanent.face_down.is_some() {
                 continue;
             }
             let Some(definition) = permanent.card.definition.card_definition() else {
@@ -58,7 +58,7 @@ impl Game {
         else {
             return;
         };
-        if permanent.controller != player || permanent.face_down {
+        if permanent.controller != player || permanent.face_down.is_some() {
             return;
         }
         let Some(definition) = permanent.card.definition.card_definition() else {
@@ -105,7 +105,7 @@ impl Game {
             .battlefield
             .iter()
             .find(|entered| entered.card.id == permanent)
-            .filter(|entered| !entered.face_down)
+            .filter(|entered| entered.face_down.is_none())
             .and_then(|entered| {
                 let definition = entered.card.definition.card_definition()?;
                 let card = self.catalog.get(definition)?;

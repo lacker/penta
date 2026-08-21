@@ -102,6 +102,20 @@ pub(in crate::game::state_checkpoint) enum ObjectCharacteristicsSnapshot {
     Emblem {
         emblem: EmblemCharacteristicsLocator,
     },
+    FaceDown {
+        face_down: FaceDownCharacteristicsSnapshot,
+    },
+}
+
+/// Rule-defined face-down values supported by the current engine. The tags
+/// describe characteristics rather than the mechanism that supplied them:
+/// morph, manifest, and Illusionary Mask share `OrdinaryTwoTwo`, while
+/// disguise and cloak share `WardTwoTwo`.
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(in crate::game::state_checkpoint) enum FaceDownCharacteristicsSnapshot {
+    OrdinaryTwoTwo,
+    WardTwoTwo,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]

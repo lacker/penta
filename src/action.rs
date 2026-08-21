@@ -51,6 +51,11 @@ pub enum AbilityOrigin {
     Emblem {
         ability: AbilityId,
     },
+    /// An ability supplied by the rule-owned characteristics of a face-down
+    /// permanent. Pair this positional ID with the permanent's object ID.
+    FaceDown {
+        ability: AbilityId,
+    },
     IntrinsicBasicLand(BasicLandType),
     /// A keyword a counter on the permanent grants (CR 122.1e). Like the
     /// land one above it is nobody's printed ability: the permanent has it
@@ -76,6 +81,12 @@ pub enum AbilityOrigin {
     /// An ability granted by an emblem ability. The emblem object identifies
     /// the source, while the ability and grant IDs locate the authored clause.
     EmblemGranted {
+        source: GameObjectId,
+        source_ability: AbilityId,
+        grant: GrantId,
+    },
+    /// An ability granted by a rule-owned face-down ability.
+    FaceDownGranted {
         source: GameObjectId,
         source_ability: AbilityId,
         grant: GrantId,

@@ -320,11 +320,13 @@ pub(super) fn stack_object_json(catalog: &CardCatalog, object: &StackObservation
         AbilityOrigin::Printed { ability, .. } => Some(ability.0),
         AbilityOrigin::Token { .. }
         | AbilityOrigin::Emblem { .. }
+        | AbilityOrigin::FaceDown { .. }
         | AbilityOrigin::IntrinsicBasicLand(_)
         | AbilityOrigin::IntrinsicCounter(_)
         | AbilityOrigin::Granted { .. }
         | AbilityOrigin::TokenGranted { .. }
-        | AbilityOrigin::EmblemGranted { .. } => None,
+        | AbilityOrigin::EmblemGranted { .. }
+        | AbilityOrigin::FaceDownGranted { .. } => None,
     });
     let mut value = json!({
         "objectId": object.id.0,

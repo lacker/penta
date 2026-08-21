@@ -24,7 +24,7 @@ static IMPULSE_SELECTION: TopCardSelectionDef = TopCardSelectionDef {
     rest_placement: ZonePlacement::Bottom,
     selected_order_follows_choice: false,
     then: None,
-    selected_face_down: false,
+    selected_face_down: None,
 };
 
 // VIS 34 — Impulse

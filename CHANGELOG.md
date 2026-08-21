@@ -18,12 +18,26 @@ Observations and catalogs also advertise named additive capabilities. Replay
 and reconstruction payloads carry their own format versions instead of moving
 the bot-wire epoch.
 
-## 0.7.0 — protocol 26
+## 0.7.0 — protocol 27
 
-This release reports engine 0.7.0 and protocol 26. The simulation fingerprint
+This release reports engine 0.7.0 and protocol 27. The simulation fingerprint
 distinguishes snapshots of the covered source and build inputs.
 
 ### Changed
+
+- **Protocol 27 removes the synthetic face-down card definition.** Face-down
+  spells and permanents now carry rules-owned inline characteristics while the
+  physical card retains its real definition identity. Shared constructors
+  describe Morph, Manifest, and Illusionary Mask as ordinary nameless 2/2
+  creatures; Disguise and Cloak add ward {2}; other rules and effects can
+  supply their own face-down characteristics without allocating a catalog ID.
+  Observers not entitled to inspect the physical card receive the new
+  `faceDown` characteristics and ability-origin tags without a definition or
+  card part; an entitled controller still receives the real card identity. The
+  retired definition ID remains a catalog tombstone. Checkpoint format 7 and
+  `reconstruction.checkpoint.v7` preserve the standardized face-down presets;
+  replay version 2 is unchanged. This infrastructure does not by itself
+  implement every cast, turn-face-up, or card-specific face-down procedure.
 
 - **Protocol 26 gives tokens and emblems inline characteristics instead of fake
   card definitions.** Battlefield, stack, and decision objects now carry an

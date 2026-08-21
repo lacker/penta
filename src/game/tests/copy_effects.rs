@@ -687,8 +687,10 @@ fn separate_grant_sites_receive_distinct_structural_origins() {
             AbilityOrigin::Printed { .. }
             | AbilityOrigin::Token { .. }
             | AbilityOrigin::Emblem { .. }
+            | AbilityOrigin::FaceDown { .. }
             | AbilityOrigin::TokenGranted { .. }
             | AbilityOrigin::EmblemGranted { .. }
+            | AbilityOrigin::FaceDownGranted { .. }
             | AbilityOrigin::IntrinsicBasicLand(_)
             | AbilityOrigin::IntrinsicCounter(_) => None,
         })
@@ -771,8 +773,10 @@ fn a_nonmatching_grant_site_still_advances_the_structural_origin() {
             AbilityOrigin::Printed { .. }
             | AbilityOrigin::Token { .. }
             | AbilityOrigin::Emblem { .. }
+            | AbilityOrigin::FaceDown { .. }
             | AbilityOrigin::TokenGranted { .. }
             | AbilityOrigin::EmblemGranted { .. }
+            | AbilityOrigin::FaceDownGranted { .. }
             | AbilityOrigin::IntrinsicBasicLand(_)
             | AbilityOrigin::IntrinsicCounter(_) => None,
         })
@@ -841,8 +845,10 @@ fn nonmatching_composite_grant_sites_still_advance_structural_origins() {
             AbilityOrigin::Printed { .. }
             | AbilityOrigin::Token { .. }
             | AbilityOrigin::Emblem { .. }
+            | AbilityOrigin::FaceDown { .. }
             | AbilityOrigin::TokenGranted { .. }
             | AbilityOrigin::EmblemGranted { .. }
+            | AbilityOrigin::FaceDownGranted { .. }
             | AbilityOrigin::IntrinsicBasicLand(_)
             | AbilityOrigin::IntrinsicCounter(_) => None,
         })
@@ -968,8 +974,10 @@ pub(super) fn sole_granted_origin(game: &Game, receiver: CardInstanceId) -> Abil
             AbilityOrigin::Printed { .. }
             | AbilityOrigin::Token { .. }
             | AbilityOrigin::Emblem { .. }
+            | AbilityOrigin::FaceDown { .. }
             | AbilityOrigin::TokenGranted { .. }
             | AbilityOrigin::EmblemGranted { .. }
+            | AbilityOrigin::FaceDownGranted { .. }
             | AbilityOrigin::IntrinsicBasicLand(_)
             | AbilityOrigin::IntrinsicCounter(_) => None,
         })

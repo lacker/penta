@@ -24,9 +24,9 @@ impl Game {
     }
 
     /// What turning this permanent face up costs, or `None` when nothing
-    /// can. A morph pays what its card prints as a morph cost; a manifested
-    /// permanent pays the card's own mana cost, and only if the card under
-    /// it is a creature card (CR 701.34c).
+    /// can. A morph-like object pays the special cost its card prints; a
+    /// Manifest- or Cloak-like object pays the card's own mana cost, and only
+    /// if the card under it is a creature card (CR 701.34c, 701.58c).
     pub(super) fn face_up_cost(
         &self,
         permanent: &super::Permanent,
@@ -34,7 +34,7 @@ impl Game {
         if let Some(cost) = self.printed_morph_cost(permanent) {
             return Some(cost);
         }
-        if !permanent.manifested {
+        if !permanent.turn_up_for_mana_cost {
             return None;
         }
         let part = self
@@ -51,7 +51,7 @@ impl Game {
         for permanent in self
             .battlefield
             .iter()
-            .filter(|permanent| permanent.face_down && permanent.controller == player)
+            .filter(|permanent| permanent.face_down.is_some() && permanent.controller == player)
         {
             let Some(cost) = self.face_up_cost(permanent) else {
                 continue;
@@ -83,7 +83,7 @@ impl Game {
             .iter_mut()
             .find(|candidate| candidate.card.id == permanent)
         {
-            target.face_down = false;
+            target.face_down = None;
         }
         // Nothing in the staged tranche triggers on a permanent being
         // turned face up, so there is no event to raise yet; the state

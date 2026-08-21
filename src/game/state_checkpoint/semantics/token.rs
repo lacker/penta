@@ -15,7 +15,30 @@ use crate::{
     CardCatalog, CardDefinitionId, CardPartId, ObjectCharacteristics, TokenCharacteristics,
 };
 
-use super::super::model::{ObjectCharacteristicsSnapshot, TokenCharacteristicsLocator};
+use super::super::model::{
+    FaceDownCharacteristicsSnapshot, ObjectCharacteristicsSnapshot, TokenCharacteristicsLocator,
+};
+
+pub(in crate::game::state_checkpoint) fn face_down_characteristics_snapshot(
+    characteristics: crate::FaceDownCharacteristics,
+) -> Option<FaceDownCharacteristicsSnapshot> {
+    if characteristics == crate::card::face_down::ordinary() {
+        Some(FaceDownCharacteristicsSnapshot::OrdinaryTwoTwo)
+    } else if characteristics == crate::card::face_down::disguise() {
+        Some(FaceDownCharacteristicsSnapshot::WardTwoTwo)
+    } else {
+        None
+    }
+}
+
+pub(in crate::game::state_checkpoint) const fn face_down_characteristics_from_snapshot(
+    snapshot: FaceDownCharacteristicsSnapshot,
+) -> crate::FaceDownCharacteristics {
+    match snapshot {
+        FaceDownCharacteristicsSnapshot::OrdinaryTwoTwo => crate::card::face_down::ordinary(),
+        FaceDownCharacteristicsSnapshot::WardTwoTwo => crate::card::face_down::disguise(),
+    }
+}
 
 pub(in crate::game::state_checkpoint) fn token_characteristics_locator(
     catalog: &CardCatalog,
@@ -73,6 +96,11 @@ pub(in crate::game::state_checkpoint) fn object_characteristics_snapshot(
         ObjectCharacteristics::Emblem { emblem } => Some(ObjectCharacteristicsSnapshot::Emblem {
             emblem: emblem_characteristics_locator(catalog, emblem)?,
         }),
+        ObjectCharacteristics::FaceDown { face_down } => {
+            Some(ObjectCharacteristicsSnapshot::FaceDown {
+                face_down: face_down_characteristics_snapshot(face_down)?,
+            })
+        }
     }
 }
 
@@ -99,6 +127,9 @@ pub(in crate::game::state_checkpoint) fn object_characteristics_from_snapshot(
         ObjectCharacteristicsSnapshot::Emblem { emblem } => Some(ObjectCharacteristics::emblem(
             catalog_emblem_characteristics(catalog, emblem)?,
         )),
+        ObjectCharacteristicsSnapshot::FaceDown { face_down } => Some(
+            ObjectCharacteristics::face_down(face_down_characteristics_from_snapshot(*face_down)),
+        ),
     }
 }
 

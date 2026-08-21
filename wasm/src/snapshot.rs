@@ -272,11 +272,13 @@ impl WebGame {
                     AbilityOrigin::Printed { ability, .. } => Some(ability.0),
                     AbilityOrigin::Token { .. }
                     | AbilityOrigin::Emblem { .. }
+                    | AbilityOrigin::FaceDown { .. }
                     | AbilityOrigin::IntrinsicBasicLand(_)
                     | AbilityOrigin::IntrinsicCounter(_)
                     | AbilityOrigin::Granted { .. }
                     | AbilityOrigin::TokenGranted { .. }
-                    | AbilityOrigin::EmblemGranted { .. } => None,
+                    | AbilityOrigin::EmblemGranted { .. }
+                    | AbilityOrigin::FaceDownGranted { .. } => None,
                 });
                 // Enough card detail for the browser to draw a real card on
                 // the stack rather than a name tag.

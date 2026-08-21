@@ -586,6 +586,9 @@ impl Game {
             }
             ObjectCharacteristics::Token { token, .. } => CharacteristicSource::Token(token),
             ObjectCharacteristics::Emblem { emblem } => CharacteristicSource::Emblem(emblem),
+            ObjectCharacteristics::FaceDown { face_down } => {
+                CharacteristicSource::FaceDown(face_down)
+            }
         };
         ObjectInstance {
             id: self.allocate_object_id(),

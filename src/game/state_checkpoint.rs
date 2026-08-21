@@ -71,8 +71,8 @@ use model::{
     PendingEventSnapshot, PendingReplacementEffectSnapshot, PermanentSnapshot, PregameSnapshot,
     ReplacementEffectContextSnapshot, ReplacementEffectLocator, ResolvedContinuousEffectSnapshot,
     ResolvedContinuousOperationSnapshot, RetiredObjectSnapshot, SetOperationSnapshot,
-    StackSnapshot, SuccessorSnapshot, TemporaryAbilityGrantSnapshot, TurnPhaseResumeSnapshot,
-    TurnPhaseSnapshot, ZoneKindSnapshot,
+    SuccessorSnapshot, TemporaryAbilityGrantSnapshot, TurnPhaseResumeSnapshot, TurnPhaseSnapshot,
+    ZoneKindSnapshot,
 };
 use model_keyword::UpkeepKeywordSnapshot;
 use permanent::{detached_permanent_snapshot, permanent_snapshot};
@@ -83,16 +83,16 @@ use procedure::{
 use semantics::{
     ability_locator, ability_locator_for_origin, ability_target_defs, catalog_ability,
     catalog_applied_effect, catalog_mana_payload, catalog_replacement_effect,
-    catalog_token_characteristics, keyword_snapshot, mana_payload_locator,
+    catalog_token_characteristics, face_down_characteristics_from_snapshot,
+    face_down_characteristics_snapshot, keyword_snapshot, mana_payload_locator,
     object_characteristics_from_snapshot, object_characteristics_snapshot, parse_keyword,
     replacement_effect_locator_matches_source, resolved_applied_effect_locator,
     resolved_replacement_effect_locator, token_characteristics_locator,
 };
 use stack::{
-    applied_stack_effect_snapshots, detached_stack_snapshot_allowing, parse_detached_stack,
-    parse_stack, parse_target as parse_snapshot_target, referenced_object_ids,
-    resolution_context_referenced_object_ids, stack_ability_snapshot,
-    stack_object_has_unrebindable_hidden_reference, stack_object_requires_retired,
+    current_stack_snapshot, detached_stack_snapshot_allowing, parse_detached_stack, parse_stack,
+    parse_target as parse_snapshot_target, referenced_object_ids,
+    resolution_context_referenced_object_ids, stack_object_has_unrebindable_hidden_reference,
     target_selections_referenced_object_ids, target_snapshot,
     trigger_capture_has_unrebindable_hidden_reference,
 };
@@ -414,40 +414,7 @@ impl Game {
         let stack = self
             .stack
             .iter()
-            .map(|object| {
-                let ability_payload = (object.kind != StackObjectKind::Spell)
-                    .then(|| stack_ability_snapshot(self, viewer, object))
-                    .flatten();
-                let has_unlocated_ability_payload = object.kind != StackObjectKind::Spell
-                    && object.ability.is_some()
-                    && ability_payload.is_none();
-                let (applied_effects, has_unlocated_applied_effect) =
-                    applied_stack_effect_snapshots(self, object);
-                StackSnapshot {
-                    object_id: object.id.0,
-                    owner: object.card.owner.index(),
-                    object_kind: object_kind_snapshot(object.card.definition),
-                    ability_payload,
-                    requires_retired_object: stack_object_requires_retired(self, object),
-                    has_runtime_overrides: has_unlocated_ability_payload
-                        || has_unlocated_applied_effect,
-                    applied_effects,
-                    text_changes: object
-                        .text_changes
-                        .iter()
-                        .map(|change| model::BasicLandTypeChangeSnapshot {
-                            from: basic_land_type_snapshot(change.from),
-                            to: basic_land_type_snapshot(change.to),
-                        })
-                        .collect(),
-                    colors: object.colors.map(crate::card::ColorSet::to_flags),
-                    colors_of_mana_spent: object.colors_of_mana_spent.to_flags(),
-                    cast_via_flashback: object.cast_via_flashback,
-                    cast_at_instant_speed: object.cast_at_instant_speed,
-                    cast_from_zone: object.cast_from_zone.map(|zone| zone.label().to_owned()),
-                    is_copy: object.is_copy,
-                }
-            })
+            .map(|object| current_stack_snapshot(self, viewer, object))
             .collect::<Vec<_>>();
         let has_unlocated_stack_state = stack.iter().any(|object| object.has_runtime_overrides);
         let emblems = self

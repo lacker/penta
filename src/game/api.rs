@@ -491,7 +491,7 @@ impl Game {
     /// Physical topology is public while the permanent is face up, even when
     /// a copy effect supplies unrelated effective characteristics.
     fn physical_face_observation(&self, permanent: &Permanent) -> Option<PhysicalFaceObservation> {
-        if permanent.face_down {
+        if permanent.face_down.is_some() {
             return None;
         }
         let (kind, front, back) = match permanent.card.definition {
@@ -543,18 +543,15 @@ impl Game {
             (Some(stats.power), Some(stats.toughness))
         });
         let flying = self.has_flying(permanent);
-        // A face-down permanent is public information as a
-        // 2/2 body and private information as a card: its
-        // controller may look at it, and nobody else may.
-        let characteristics = if permanent.face_down && permanent.controller != viewer {
-            ObjectCharacteristics::card(
-                crate::card::cards::FACE_DOWN_CREATURE,
-                crate::CardPartId::PRIMARY,
-            )
-        } else if permanent.face_down {
-            Self::unmasked_rules_source(permanent)
-        } else {
-            Self::effective_rules_source(permanent)
+        // A face-down permanent's mechanism-owned body is public information
+        // and its physical card is private: its controller may look at the
+        // card, and nobody else may.
+        let characteristics = match permanent.face_down {
+            Some(face_down) if permanent.controller != viewer => {
+                ObjectCharacteristics::face_down(face_down)
+            }
+            Some(_) => Self::unmasked_rules_source(permanent),
+            None => Self::effective_rules_source(permanent),
         };
         PermanentObservation {
             id: permanent.card.id,
@@ -562,7 +559,7 @@ impl Game {
             token: permanent.card.definition.is_token(),
             controller: permanent.controller,
             types,
-            face_down: permanent.face_down,
+            face_down: permanent.face_down.is_some(),
             physical_face: self.physical_face_observation(permanent),
             phased_out: self
                 .phased_out
@@ -655,15 +652,13 @@ impl Game {
                     source: object.source,
                     ability: object.ability_origin(),
                     ability_text: object.ability_text().map(str::to_owned),
-                    // A spell cast face down is a 2/2 creature spell to
-                    // everyone; only its controller knows which card.
-                    characteristics: if object.cast_face_down && object.controller != viewer {
-                        ObjectCharacteristics::card(
-                            crate::card::cards::FACE_DOWN_CREATURE,
-                            crate::CardPartId::PRIMARY,
-                        )
-                    } else {
-                        object.presentation()
+                    // A spell cast face down has its mechanism-owned public
+                    // values; only its controller knows which card it is.
+                    characteristics: match object.face_down {
+                        Some(face_down) if object.controller != viewer => {
+                            ObjectCharacteristics::face_down(face_down)
+                        }
+                        Some(_) | None => object.presentation(),
                     },
                     controller: object.controller,
                     counterable: self.can_be_countered(object),

@@ -139,6 +139,9 @@ impl Game {
             ObjectCharacteristics::Emblem { .. } => {
                 unreachable!("an emblem cannot supply copiable permanent characteristics")
             }
+            ObjectCharacteristics::FaceDown { face_down } => {
+                CharacteristicSource::FaceDown(face_down)
+            }
         };
         let card = self.unbacked_token(controller, source);
         let physical_part = double_faced

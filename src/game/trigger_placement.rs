@@ -354,7 +354,7 @@ impl Game {
             cast_via_flashback: false,
             cast_at_instant_speed: false,
             cast_from_zone: None,
-            cast_face_down: false,
+            face_down: None,
             colors_of_mana_spent: crate::card::ColorSet::empty(),
             is_copy: false,
         });

@@ -88,11 +88,14 @@ pub enum AlternativeCastKindDef {
     /// {2} during its owner's turn; this is the other half, and it may not
     /// be taken until a later turn.
     Foretell,
-    /// Cast face down as a 2/2 creature with no name for {3} (CR 702.37a).
-    /// The spell's own clauses are not what it does while face down -- it
-    /// does nothing at all -- so this kind changes the object rather than
-    /// only its cost.
-    FaceDown,
+    /// Cast using the supplied face-down copiable values. The spell's own
+    /// clauses are not what it does while face down, so this kind changes the
+    /// object rather than only its cost. Morph and Disguise choose different
+    /// values without allocating either presentation a card definition.
+    FaceDown {
+        label: &'static str,
+        characteristics: super::super::FaceDownCharacteristics,
+    },
 }
 
 /// How an alternative-casting ability determines the cost it supplies.
@@ -118,6 +121,16 @@ impl AlternativeCastManaCostDef {
 
 impl AlternativeCastKindDef {
     #[must_use]
+    pub const fn face_down(self) -> Option<super::super::FaceDownCharacteristics> {
+        match self {
+            Self::FaceDown {
+                characteristics, ..
+            } => Some(characteristics),
+            _ => None,
+        }
+    }
+
+    #[must_use]
     pub const fn label(self) -> &'static str {
         match self {
             Self::Flashback => "Flashback",
@@ -130,7 +143,7 @@ impl AlternativeCastKindDef {
             Self::Impending => "Impending",
             Self::Foretell => "Foretell",
             Self::WithoutPayingManaCost => "Without paying its mana cost",
-            Self::FaceDown => "Morph",
+            Self::FaceDown { label, .. } => label,
         }
     }
 
@@ -149,7 +162,8 @@ impl AlternativeCastKindDef {
             Self::Kicked,
             Self::Buyback,
             Self::AlternativeCost,
-            Self::FaceDown,
+            crate::card::face_down::morph_cast(),
+            crate::card::face_down::disguise_cast(),
         ]
         .into_iter()
         .find(|kind| kind.label() == label)
@@ -232,9 +246,19 @@ impl AlternativeCastAbilityDef {
             // Morph is printed on the card that has it; casting face down is
             // the rule that applies to every such card, and the cost of doing
             // it is always {3}.
-            (AlternativeCastKindDef::FaceDown, _) => {
-                "You may cast this card face down as a 2/2 creature spell for {3}.".into()
-            }
+            (
+                AlternativeCastKindDef::FaceDown {
+                    characteristics, ..
+                },
+                _,
+            ) => format!(
+                "You may cast this card face down as a {} for {{3}}.",
+                if characteristics == crate::card::face_down::disguise() {
+                    "2/2 creature spell with ward {2}"
+                } else {
+                    "2/2 creature spell"
+                }
+            ),
         }
     }
 

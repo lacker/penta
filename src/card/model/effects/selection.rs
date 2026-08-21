@@ -1,5 +1,6 @@
 //! Looking at the top of a library and settling where the cards go.
 
+use super::super::FaceDownCharacteristics;
 use super::{EffectDef, ObjectPredicateDef, ValueDef, ZoneKind, ZonePlacement};
 
 // Four independent printed knobs rather than a state machine: whether the
@@ -32,10 +33,10 @@ pub struct TopCardSelectionDef {
     pub reveal_selected: bool,
     pub selected_zone: ZoneKind,
     pub selected_placement: ZonePlacement,
-    /// Whether a selected card put onto the battlefield arrives face down as
-    /// a 2/2. Manifest is the only thing that says so, and it belongs to the
-    /// arrival: a card put down face down was never face up there.
-    pub selected_face_down: bool,
+    /// Copiable values for selected cards put onto the battlefield face down.
+    /// `None` places them normally. This belongs to the arrival: a card put
+    /// down face down was never face up there.
+    pub selected_face_down: Option<FaceDownCharacteristics>,
     pub rest_zone: ZoneKind,
     pub rest_placement: ZonePlacement,
     /// The selected cards are placed in the order they were chosen rather

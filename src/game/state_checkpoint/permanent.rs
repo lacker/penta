@@ -50,12 +50,18 @@ pub(super) fn permanent_snapshot(
         .copied_from
         .and_then(|characteristics| object_characteristics_snapshot(catalog, characteristics));
     let has_unlocated_copied_from = permanent.copied_from.is_some() && copied_from.is_none();
+    let face_down = permanent
+        .face_down
+        .and_then(face_down_characteristics_snapshot);
+    let has_unlocated_face_down = permanent.face_down.is_some() && face_down.is_none();
     PermanentSnapshot {
         object_id: permanent.card.id.0,
         owner: permanent.card.owner.index(),
         object_kind: object_kind_snapshot(permanent.card.definition),
         token_characteristics,
         double_faced_token_copy: double_faced_token_copy.map(|(snapshot, _)| snapshot),
+        face_down,
+        turn_up_for_mana_cost: permanent.turn_up_for_mana_cost,
         presented_part_id: permanent.presented.0,
         timestamp: permanent.timestamp.0,
         entered_controller_turn: permanent.entered_controller_turn,
@@ -157,7 +163,8 @@ pub(super) fn permanent_snapshot(
             || has_unlocated_copy_ability
             || has_unlocated_double_faced_copy
             || has_unlocated_token_characteristics
-            || has_unlocated_copied_from,
+            || has_unlocated_copied_from
+            || has_unlocated_face_down,
     }
 }
 
@@ -340,7 +347,5 @@ pub(super) fn detached_permanent_snapshot(
         activated_loyalty_this_turn: permanent.activated_loyalty_this_turn,
         chosen_creature_type: permanent.chosen_creature_type.clone(),
         chosen_card_name: permanent.chosen_card_name.clone(),
-        face_down: permanent.face_down,
-        manifested: permanent.manifested,
     }
 }

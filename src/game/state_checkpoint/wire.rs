@@ -468,8 +468,6 @@ pub(super) fn parse_battlefield(
                         .get("chosenCardName")
                         .and_then(Value::as_str)
                         .map(str::to_owned),
-                    face_down: bool_field(shown, "faceDown").unwrap_or(false),
-                    manifested: false,
                 },
                 catalog,
             )
@@ -504,8 +502,6 @@ struct PermanentPresentation {
     activated_loyalty_this_turn: bool,
     chosen_creature_type: Option<String>,
     chosen_card_name: Option<String>,
-    face_down: bool,
-    manifested: bool,
 }
 
 #[allow(clippy::too_many_lines)]
@@ -585,6 +581,9 @@ fn parse_permanent(
                 (None, Some(ObjectCharacteristics::Token { token, .. })) => {
                     CharacteristicSource::Token(token)
                 }
+                (None, Some(ObjectCharacteristics::FaceDown { face_down })) => {
+                    CharacteristicSource::FaceDown(face_down)
+                }
                 (None, Some(ObjectCharacteristics::Emblem { .. })) => {
                     return Err("an emblem cannot supply copied permanent values".into());
                 }
@@ -660,8 +659,8 @@ fn parse_permanent(
         .and_then(crate::card::AlternativeCastKindDef::from_label);
     permanent.chosen_creature_type = shown.chosen_creature_type;
     permanent.chosen_card_name = shown.chosen_card_name;
-    permanent.face_down = shown.face_down;
-    permanent.manifested = shown.manifested;
+    permanent.face_down = state.face_down.map(face_down_characteristics_from_snapshot);
+    permanent.turn_up_for_mana_cost = state.turn_up_for_mana_cost;
     permanent.temporary_keywords = state
         .temporary_keywords
         .iter()
@@ -930,8 +929,6 @@ pub(super) fn parse_detached_permanent(
             activated_loyalty_this_turn: snapshot.activated_loyalty_this_turn,
             chosen_creature_type: snapshot.chosen_creature_type.clone(),
             chosen_card_name: snapshot.chosen_card_name.clone(),
-            face_down: snapshot.face_down,
-            manifested: snapshot.manifested,
         },
         catalog,
     )

@@ -7,8 +7,8 @@ use serde::{Deserialize, Serialize};
 
 use super::{
     AbilityLocator, AbilityOriginSnapshot, AppliedEffectLocator, BasicLandTypeSnapshot,
-    EffectResolutionContextSnapshot, ManaSourceSnapshot, ObjectCharacteristicsSnapshot,
-    ObjectKindSnapshot, TargetSelectionSnapshot,
+    EffectResolutionContextSnapshot, FaceDownCharacteristicsSnapshot, ManaSourceSnapshot,
+    ObjectCharacteristicsSnapshot, ObjectKindSnapshot, TargetSelectionSnapshot,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -39,6 +39,8 @@ pub(in crate::game::state_checkpoint) struct StackSnapshot {
     /// nothing, which is what a permanent nobody cast carries anyway.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(in crate::game::state_checkpoint) cast_from_zone: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(in crate::game::state_checkpoint) face_down: Option<FaceDownCharacteristicsSnapshot>,
     pub(in crate::game::state_checkpoint) is_copy: bool,
 }
 
@@ -94,6 +96,8 @@ pub(in crate::game::state_checkpoint) struct DetachedStackSnapshot {
     /// nothing, which is what a permanent nobody cast carries anyway.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(in crate::game::state_checkpoint) cast_from_zone: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(in crate::game::state_checkpoint) face_down: Option<FaceDownCharacteristicsSnapshot>,
     pub(in crate::game::state_checkpoint) is_copy: bool,
 }
 

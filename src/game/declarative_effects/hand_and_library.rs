@@ -22,7 +22,7 @@ static MANIFEST_DREAD: crate::card::TopCardSelectionDef = crate::card::TopCardSe
     reveal_selected: false,
     selected_zone: ZoneKind::Battlefield,
     selected_placement: crate::card::ZonePlacement::Top,
-    selected_face_down: true,
+    selected_face_down: Some(crate::card::face_down::manifest()),
     rest_zone: ZoneKind::Graveyard,
     rest_placement: crate::card::ZonePlacement::Top,
     selected_order_follows_choice: false,

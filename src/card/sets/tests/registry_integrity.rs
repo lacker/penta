@@ -9,9 +9,6 @@ fn format_sets_and_card_records_have_catalog_modules() {
         .chain(Format::IsdDgmStandard.rules().allowed_sets)
         .copied()
         .collect::<Vec<_>>();
-    // Synthetic face-down presentation is registered like a set so a client
-    // can resolve it, but it is deliberately in no format's card pool, so it
-    // is not part of this correspondence.
     let all_registered_sets = SET_MODULES
         .iter()
         .map(|module| module.set)
@@ -25,13 +22,7 @@ fn format_sets_and_card_records_have_catalog_modules() {
         all_registered_sets.len(),
         "each set must have exactly one catalog module",
     );
-    assert!(all_registered_sets.contains(&CardSet::Token));
-
-    let registered_sets = all_registered_sets
-        .iter()
-        .copied()
-        .filter(|set| *set != CardSet::Token)
-        .collect::<Vec<_>>();
+    assert!(!all_registered_sets.contains(&CardSet::Token));
     for format in [Format::OldSchool9394, Format::IsdDgmStandard] {
         assert!(
             !format.rules().allowed_sets.contains(&CardSet::Token),
@@ -40,7 +31,9 @@ fn format_sets_and_card_records_have_catalog_modules() {
     }
 
     assert!(
-        format_sets.iter().all(|set| registered_sets.contains(set)),
+        format_sets
+            .iter()
+            .all(|set| all_registered_sets.contains(set)),
         "every format-supported set must be cataloged",
     );
     for module in SET_MODULES {
@@ -59,8 +52,8 @@ fn built_in_records_have_unique_identity() {
     const RETIRED_VIRTUAL_OBJECT_IDS: &[u16] = &[
         245, 246, 247, 249, 254, 255, 256, 257, 258, 259, 260, 538, 539, 540, 602, 603, 676, 677,
         678, 679, 840, 841, 842, 963, 964, 1051, 1052, 1053, 1143, 1236, 1237, 1238, 1239, 1350,
-        1351, 1481, 1561, 1701, 1705, 1708, 1791, 1893, 2121, 2147, 2173, 2198, 2205, 2210, 2214,
-        2216, 2218, 2224, 2231, 2246, 2249, 2257, 2262, 2281, 2287, 2293, 2295, 2297,
+        1351, 1481, 1561, 1701, 1705, 1708, 1791, 1893, 2075, 2121, 2147, 2173, 2198, 2205, 2210,
+        2214, 2216, 2218, 2224, 2231, 2246, 2249, 2257, 2262, 2281, 2287, 2293, 2295, 2297,
     ];
 
     let records = SET_MODULES
@@ -96,7 +89,7 @@ fn built_in_records_have_unique_identity() {
 }
 
 #[test]
-fn created_token_characteristics_are_not_card_catalog_definitions() {
+fn virtual_and_face_down_characteristics_are_not_card_catalog_definitions() {
     let synthetic_names = SET_MODULES
         .iter()
         .flat_map(|module| module.cards.iter().copied())
@@ -104,11 +97,7 @@ fn created_token_characteristics_are_not_card_catalog_definitions() {
         .map(|record| record.name)
         .collect::<HashSet<_>>();
 
-    assert_eq!(
-        synthetic_names,
-        HashSet::from(["Face-down creature"]),
-        "only independently addressable face-down presentation belongs in the catalog",
-    );
+    assert!(synthetic_names.is_empty());
 }
 
 #[test]
@@ -136,11 +125,6 @@ fn built_in_catalog_indexes_definitions_and_printings_separately() {
             "{} is missing its debut printing",
             record.name,
         );
-        if record.debut_set == CardSet::Token {
-            let printings = catalog.printings_for(record.id);
-            assert_eq!(printings.len(), 1, "{} should be synthetic", record.name);
-            assert_eq!(printings[0].id.set, CardSet::Token);
-        }
     }
 
     for module in SET_MODULES {

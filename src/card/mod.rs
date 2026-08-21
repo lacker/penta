@@ -9,6 +9,7 @@ use std::sync::LazyLock;
 
 pub mod abilities;
 pub mod cards;
+pub mod face_down;
 pub mod tokens;
 
 mod behavior;
@@ -45,14 +46,15 @@ pub use model::{
     DamageRecipientMatcherDef, DamageSourceGroupDef, DamageSourceMatcherDef, DeclarativeAbilityDef,
     DiscardFollowUpDef, DiscardSelectionDef, DividedTotal, DoubleFacedKind, DrawEventMatcherDef,
     EffectDef, EffectExecutionDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
-    EffectRecipientSetDef, EmblemCharacteristics, GraveyardTypeConditionDef, HalvedValueDef,
-    HybridPair, ImplementationStatus, InstalledTriggerDef, InstalledTriggerLifetimeDef,
-    KeywordAbility, LifeConditionDef, LikelihoodDef, ManaColor, ManaCost, ManaCostParseError,
-    ManaCostParseErrorKind, ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef, ManaSplit,
-    MeldComponentDef, MeldRecipeDef, MeldResultDef, ModalSpellDef, ModeDef, ModeSetDef,
-    ObjectChoiceBindingDef, ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PartitionItemsDef, PayOrDef, PlayActionKind, PlayActionMatcherDef,
-    PlayOptionDef, PlayRestriction, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    EffectRecipientSetDef, EmblemCharacteristics, FaceDownCharacteristics,
+    GraveyardTypeConditionDef, HalvedValueDef, HybridPair, ImplementationStatus,
+    InstalledTriggerDef, InstalledTriggerLifetimeDef, KeywordAbility, LifeConditionDef,
+    LikelihoodDef, ManaColor, ManaCost, ManaCostParseError, ManaCostParseErrorKind,
+    ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef, ManaSplit, MeldComponentDef,
+    MeldRecipeDef, MeldResultDef, ModalSpellDef, ModeDef, ModeSetDef, ObjectChoiceBindingDef,
+    ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PartitionItemsDef, PayOrDef, PlayActionKind, PlayActionMatcherDef, PlayOptionDef,
+    PlayRestriction, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     PowerToughnessOperationDef, PrintedManaCost, ProtectedCreatureType, QuantifierDef,
     ReplacementAbilityDef, ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectDef,
     ReplacementEventDef, ResolvedEffectDurationDef, RoundingDef, SacrificedAmountDef,

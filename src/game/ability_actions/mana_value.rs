@@ -49,6 +49,9 @@ impl Game {
                 .part(part)
                 .map_or(0, |part| part.rules.printed_mana_cost().mana_value()),
             ObjectCharacteristics::Emblem { .. } => 0,
+            ObjectCharacteristics::FaceDown { face_down } => {
+                face_down.rules().printed_mana_cost().mana_value()
+            }
         }
     }
 

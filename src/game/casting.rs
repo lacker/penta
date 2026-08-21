@@ -551,13 +551,12 @@ impl Game {
             .map(|offer| offer.cost);
         let alternative_kind = self.cast_alternative_kind(player, card_id, &signature, offer);
         self.take_answered_cast_offer(card_id);
-        // Both say the same thing about where the card goes afterwards:
-        // exiled rather than buried, wherever it would otherwise have gone.
+        // Both routes exile the card rather than burying it afterwards.
         let cast_via_flashback = matches!(
             alternative_kind,
             Some(AlternativeCastKindDef::Flashback | AlternativeCastKindDef::WithoutPayingManaCost)
         );
-        let cast_face_down = alternative_kind == Some(AlternativeCastKindDef::FaceDown);
+        let face_down = alternative_kind.and_then(AlternativeCastKindDef::face_down);
         let energy = self.exile_energy_cost(card_id, player).unwrap_or(0);
         // Read while the card is still on the library, which is the only
         // place the permission reaching it can be found.
@@ -626,7 +625,7 @@ impl Game {
             cast_via_flashback,
             cast_at_instant_speed,
             cast_from_zone: Some(source_zone),
-            cast_face_down,
+            face_down,
             colors_of_mana_spent: crate::card::ColorSet::empty(),
             is_copy: false,
         };

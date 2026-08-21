@@ -40,6 +40,7 @@ impl Game {
                     }
                     ObjectCharacteristics::Token { token, part } => token.part(part)?.rules,
                     ObjectCharacteristics::Emblem { .. } => return None,
+                    ObjectCharacteristics::FaceDown { face_down } => face_down.rules(),
                 };
                 Some(
                     retained_abilities

@@ -904,6 +904,9 @@ impl Game {
                 token.part(part).map(crate::card::TokenPart::name)
             }
             ObjectCharacteristics::Emblem { emblem } => Some(Cow::Borrowed(emblem.name())),
+            ObjectCharacteristics::FaceDown { face_down } => {
+                Some(Cow::Borrowed(face_down.display_name()))
+            }
         }
     }
 }

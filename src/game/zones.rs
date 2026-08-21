@@ -532,10 +532,10 @@ impl Game {
         // Set before entry replacements run, the same way an as-enters clause
         // would, so nothing observes the permanent arriving untapped first.
         permanent.tapped = arrival.tapped;
-        // A manifested card was never face up on the battlefield, so this is
-        // part of the arrival rather than something turned over afterwards.
-        permanent.face_down = arrival.manifested;
-        permanent.manifested = arrival.manifested;
+        // A card put onto the battlefield face down was never face up there,
+        // so these are part of the arrival rather than a later turn-over.
+        permanent.face_down = arrival.face_down;
+        permanent.turn_up_for_mana_cost = arrival.turn_up_for_mana_cost;
         // On it as it arrives, so an enters trigger reading its power sees
         // them and a keyword counter is granting its keyword already.
         if let Some((kind, amount)) = arrival.counters {

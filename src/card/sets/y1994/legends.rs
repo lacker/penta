@@ -807,7 +807,7 @@ static VISIONS_LOOK: TopCardSelectionDef = TopCardSelectionDef {
     rest_placement: ZonePlacement::Top,
     selected_order_follows_choice: false,
     then: Some(&VISIONS_SHUFFLE),
-    selected_face_down: false,
+    selected_face_down: None,
 };
 
 static VISIONS_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(

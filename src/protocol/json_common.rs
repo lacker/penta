@@ -220,6 +220,7 @@ pub(super) fn object_characteristics_name(
                 .into_owned(),
         ),
         ObjectCharacteristics::Emblem { emblem } => Some(emblem.name().to_owned()),
+        ObjectCharacteristics::FaceDown { face_down } => Some(face_down.display_name().to_owned()),
     }
 }
 
@@ -256,6 +257,11 @@ pub(super) fn object_characteristics_json(characteristics: ObjectCharacteristics
                 "presentation": emblem_presentation_json(emblem),
             })
         }
+        ObjectCharacteristics::FaceDown { face_down } => json!({
+            "kind": "faceDown",
+            "name": face_down.display_name(),
+            "presentation": rules_presentation_json(&face_down.rules()),
+        }),
     }
 }
 
@@ -371,6 +377,10 @@ pub(super) fn ability_origin_json(origin: AbilityOrigin) -> Value {
             "kind": "emblem",
             "abilityId": ability.0,
         }),
+        AbilityOrigin::FaceDown { ability } => json!({
+            "kind": "faceDown",
+            "abilityId": ability.0,
+        }),
         AbilityOrigin::IntrinsicBasicLand(land_type) => json!({
             "kind": "intrinsicBasicLand",
             "landType": basic_land_type_name(land_type),
@@ -411,6 +421,16 @@ pub(super) fn ability_origin_json(origin: AbilityOrigin) -> Value {
             grant,
         } => json!({
             "kind": "emblemGranted",
+            "source": source.0,
+            "sourceAbilityId": source_ability.0,
+            "grantId": grant.0,
+        }),
+        AbilityOrigin::FaceDownGranted {
+            source,
+            source_ability,
+            grant,
+        } => json!({
+            "kind": "faceDownGranted",
             "source": source.0,
             "sourceAbilityId": source_ability.0,
             "grantId": grant.0,

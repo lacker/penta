@@ -2,6 +2,99 @@
 
 use super::*;
 
+#[test]
+fn mechanisms_supply_their_own_face_down_characteristics() {
+    let ordinary = crate::card::face_down::ordinary();
+    assert_eq!(crate::card::face_down::morph(), ordinary);
+    assert_eq!(crate::card::face_down::manifest(), ordinary);
+    assert_eq!(crate::card::face_down::illusionary_mask(), ordinary);
+
+    let warded = crate::card::face_down::disguise();
+    assert_eq!(crate::card::face_down::cloak(), warded);
+    assert_ne!(warded, ordinary);
+    let stats = warded.rules().creature_stats().expect("a creature body");
+    assert_eq!((stats.power, stats.toughness), (2, 2));
+    assert_eq!(warded.rules().ability_clauses().len(), 1);
+    assert!(warded.rules().rules_text().contains("Ward {2}"));
+
+    for (label, expected) in [("Morph", ordinary), ("Disguise", warded)] {
+        let kind = AlternativeCastKindDef::from_label(label).expect("known face-down cast");
+        let AlternativeCastKindDef::FaceDown {
+            characteristics, ..
+        } = kind
+        else {
+            unreachable!("face-down labels rebuild face-down cast metadata")
+        };
+        assert_eq!(kind.label(), label);
+        assert_eq!(characteristics, expected);
+    }
+}
+
+#[test]
+fn an_effect_can_supply_nonstandard_face_down_characteristics() {
+    let mut game = ready_game();
+    let forest = FaceDownCharacteristics::land("Face-down Forest", &["Forest"]);
+    let cyberman =
+        FaceDownCharacteristics::artifact_creature("Face-down Cyberman", &["Cyberman"], &[], 2, 2);
+    assert!(cyberman.rules().has_type(CardType::Artifact));
+    assert!(cyberman.rules().has_type(CardType::Creature));
+    assert_eq!(cyberman.rules().subtypes(), &["Cyberman"]);
+    let mut angel = creature(10_000, cards::SERRA_ANGEL, PlayerId::One);
+    angel.face_down = Some(forest);
+    game.battlefield.push(angel);
+
+    let permanent = &game.battlefield[0];
+    assert_eq!(
+        game.permanent_types(permanent),
+        Some(CardTypeSet::single(CardType::Land)),
+    );
+    assert_eq!(game.effective_subtypes(permanent).as_ref(), &["Forest"]);
+    assert_eq!(
+        game.mana_ability_activations(permanent)[0].ability,
+        AbilityOrigin::IntrinsicBasicLand(BasicLandType::Forest),
+    );
+    assert_eq!(
+        permanent.card.definition,
+        cards::SERRA_ANGEL,
+        "the custom presentation still has no catalog identity",
+    );
+}
+
+#[test]
+fn copying_a_face_down_permanent_preserves_its_inline_copiable_values() {
+    let mut game = ready_game();
+    game.battlefield.clear();
+    let mut source = creature(10_000, cards::SERRA_ANGEL, PlayerId::One);
+    source.face_down = Some(crate::card::face_down::disguise());
+    let copy = Game::copiable_characteristics(&source);
+    game.battlefield.push(source);
+
+    game.create_token_copy(PlayerId::One, copy.clone(), None, CardPartId::PRIMARY);
+    drain_pending(&mut game);
+    let copied = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.definition == ObjectKind::Token)
+        .expect("the token copy arrived");
+
+    assert_eq!(Game::effective_rules_source(copied), copy.base);
+    assert_eq!(
+        (game.power(copied), game.toughness(copied)),
+        (Some(2), Some(2))
+    );
+    assert_eq!(
+        copied.face_down, None,
+        "copying values does not turn the token over"
+    );
+    assert_eq!(
+        game.effective_rules(copied)
+            .expect("copied rules")
+            .ability_clauses()
+            .len(),
+        1,
+    );
+}
+
 /// A face-down permanent is a 2/2 creature with no name whatever the card
 /// under it says, and the card under it is still what the game holds.
 #[test]
@@ -9,7 +102,7 @@ fn a_face_down_permanent_is_a_nameless_two_two() {
     let mut game = ready_game();
     // Serra Angel is a 4/4 flier with two keywords face up.
     let mut angel = creature(10_000, cards::SERRA_ANGEL, PlayerId::One);
-    angel.face_down = true;
+    angel.face_down = Some(crate::card::face_down::ordinary());
     game.battlefield.push(angel);
 
     let permanent = &game.battlefield[0];
@@ -46,7 +139,7 @@ fn a_face_down_permanent_is_a_nameless_two_two() {
 fn only_its_controller_sees_what_it_is() {
     let mut game = ready_game();
     let mut angel = creature(10_000, cards::SERRA_ANGEL, PlayerId::One);
-    angel.face_down = true;
+    angel.face_down = Some(crate::card::face_down::ordinary());
     game.battlefield.push(angel);
 
     let mine = game.observe(PlayerId::One);
@@ -58,7 +151,7 @@ fn only_its_controller_sees_what_it_is() {
     );
     assert_eq!(
         theirs.battlefield[0].characteristics,
-        ObjectCharacteristics::card(cards::FACE_DOWN_CREATURE, CardPartId::PRIMARY),
+        ObjectCharacteristics::face_down(crate::card::face_down::ordinary()),
         "and the opponent sees only a body",
     );
     assert!(
@@ -104,7 +197,7 @@ fn exalted_angel_comes_down_face_down_and_stands_up_later() {
     assert!(!game.has_flying(permanent), "and none of the Angel's text");
     assert_eq!(
         game.observe(PlayerId::Two).battlefield[0].characteristics,
-        ObjectCharacteristics::card(cards::FACE_DOWN_CREATURE, CardPartId::PRIMARY),
+        ObjectCharacteristics::face_down(crate::card::face_down::morph()),
         "the opponent cannot see what it is",
     );
 

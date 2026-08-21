@@ -208,6 +208,10 @@ pub(super) fn ability_origin_value(origin: AbilityOrigin) -> Value {
             "kind": "emblem",
             "abilityId": ability.0,
         }),
+        AbilityOrigin::FaceDown { ability } => json!({
+            "kind": "faceDown",
+            "abilityId": ability.0,
+        }),
         AbilityOrigin::IntrinsicBasicLand(land_type) => json!({
             "kind": "intrinsicBasicLand",
             "landType": match land_type {
@@ -254,6 +258,16 @@ pub(super) fn ability_origin_value(origin: AbilityOrigin) -> Value {
             grant,
         } => json!({
             "kind": "emblemGranted",
+            "source": source.0,
+            "sourceAbilityId": source_ability.0,
+            "grantId": grant.0,
+        }),
+        AbilityOrigin::FaceDownGranted {
+            source,
+            source_ability,
+            grant,
+        } => json!({
+            "kind": "faceDownGranted",
             "source": source.0,
             "sourceAbilityId": source_ability.0,
             "grantId": grant.0,

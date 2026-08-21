@@ -114,6 +114,7 @@ impl Game {
             }
             ObjectCharacteristics::Token { token, part } => token.part(part)?.rules,
             ObjectCharacteristics::Emblem { emblem } => emblem.rules_view(),
+            ObjectCharacteristics::FaceDown { face_down } => face_down.rules(),
         };
         let mut keywords = 0;
         for ability in rules.ability_clauses() {

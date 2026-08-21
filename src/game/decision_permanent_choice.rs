@@ -357,6 +357,9 @@ impl Game {
                                     )
                                 }
                                 ObjectCharacteristics::Emblem { emblem } => emblem.name().into(),
+                                ObjectCharacteristics::FaceDown { face_down } => {
+                                    face_down.display_name().into()
+                                }
                             },
                             Some((id, characteristics)),
                             DecisionZone::Stack,

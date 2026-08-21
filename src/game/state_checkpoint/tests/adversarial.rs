@@ -212,7 +212,7 @@ fn a_private_effect_choice_is_not_serialized_for_the_other_seat() {
         cast_via_flashback: false,
         cast_at_instant_speed: false,
         cast_from_zone: None,
-        cast_face_down: false,
+        face_down: None,
         colors_of_mana_spent: crate::card::ColorSet::empty(),
         is_copy: false,
     };
@@ -314,7 +314,7 @@ fn a_public_effect_choice_cannot_retain_an_unexposed_hidden_object_id() {
         cast_via_flashback: false,
         cast_at_instant_speed: false,
         cast_from_zone: None,
-        cast_face_down: false,
+        face_down: None,
         colors_of_mana_spent: crate::card::ColorSet::empty(),
         is_copy: false,
     };
@@ -493,7 +493,7 @@ fn retained_trigger_state_never_serializes_unrebindable_hidden_object_ids() {
         cast_via_flashback: false,
         cast_at_instant_speed: false,
         cast_from_zone: None,
-        cast_face_down: false,
+        face_down: None,
         colors_of_mana_spent: crate::card::ColorSet::empty(),
         is_copy: false,
     });

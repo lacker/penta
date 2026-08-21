@@ -92,7 +92,7 @@ fn physical_double_faced_card_transforms_without_changing_its_copy_effect() {
             side: PhysicalFaceSide::Back,
         }),
     );
-    game.battlefield[0].face_down = true;
+    game.battlefield[0].face_down = Some(crate::card::face_down::ordinary());
     assert_eq!(
         game.observe(PlayerId::One).battlefield[0].physical_face,
         None,

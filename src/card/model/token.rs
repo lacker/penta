@@ -4,8 +4,8 @@ use std::hash::{Hash, Hasher};
 use crate::ids::CardPartId;
 
 use super::{
-    AbilityDef, CardArt, CardRules, CardSupertype, CardType, CardTypeSet, ColorSet, CreatureStats,
-    ManaColor,
+    AbilityDef, CardArt, CardRules, CardSupertype, CardType, CardTypeSet, CreatureStats, ManaColor,
+    inline_rules::InlineRules,
 };
 
 fn derived_token_name(
@@ -19,90 +19,6 @@ fn derived_token_name(
         [] => Cow::Borrowed("Token"),
         [subtype] => Cow::Borrowed(subtype),
         _ => Cow::Owned(subtypes.join(" ")),
-    }
-}
-
-/// Compact rules for one ordinary token face.
-///
-/// Abilities stay behind a slice because an ability can itself create a
-/// token. Storing an [`AbilityDef`] inline here would make the declarative
-/// effect schema recursively sized.
-#[derive(Clone, Copy, Debug)]
-struct TokenRules {
-    card_types: CardTypeSet,
-    supertypes: [bool; CardSupertype::COUNT],
-    subtypes: &'static [&'static str],
-    colors: ColorSet,
-    creature_stats: Option<CreatureStats>,
-    abilities: &'static [AbilityDef],
-}
-
-impl PartialEq for TokenRules {
-    fn eq(&self, other: &Self) -> bool {
-        self.card_types == other.card_types
-            && self.supertypes == other.supertypes
-            && self.subtypes == other.subtypes
-            && self.colors == other.colors
-            && self.creature_stats == other.creature_stats
-            && std::ptr::eq(self.abilities, other.abilities)
-    }
-}
-
-impl Eq for TokenRules {}
-
-impl Hash for TokenRules {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.card_types.hash(state);
-        self.supertypes.hash(state);
-        self.subtypes.hash(state);
-        self.colors.hash(state);
-        self.creature_stats.hash(state);
-        self.abilities.as_ptr().hash(state);
-        self.abilities.len().hash(state);
-    }
-}
-
-impl TokenRules {
-    const fn new(
-        card_types: CardTypeSet,
-        subtypes: &'static [&'static str],
-        colors: &'static [ManaColor],
-        creature_stats: Option<CreatureStats>,
-    ) -> Self {
-        Self {
-            card_types,
-            supertypes: [false; CardSupertype::COUNT],
-            subtypes,
-            colors: ColorSet::from_colors(colors),
-            creature_stats,
-            abilities: &[],
-        }
-    }
-
-    const fn with_type(mut self, card_type: CardType) -> Self {
-        self.card_types = self.card_types.with(card_type);
-        self
-    }
-
-    const fn with_supertype(mut self, supertype: CardSupertype) -> Self {
-        self.supertypes[supertype.index()] = true;
-        self
-    }
-
-    const fn with_abilities(mut self, abilities: &'static [AbilityDef]) -> Self {
-        self.abilities = abilities;
-        self
-    }
-
-    const fn materialize(self) -> CardRules {
-        CardRules::from_token_characteristics(
-            self.card_types,
-            self.supertypes,
-            self.subtypes,
-            self.colors,
-            self.creature_stats,
-            self.abilities,
-        )
     }
 }
 
@@ -194,7 +110,7 @@ impl Hash for TokenStructure {
 pub struct TokenCharacteristics {
     explicit_name: Option<&'static str>,
     pub art: Option<CardArt>,
-    rules: TokenRules,
+    rules: InlineRules,
     pub structure: TokenStructure,
 }
 
@@ -211,7 +127,7 @@ impl TokenCharacteristics {
         Self {
             explicit_name: None,
             art: None,
-            rules: TokenRules::new(card_types, subtypes, colors, creature_stats),
+            rules: InlineRules::new(card_types, subtypes, colors, creature_stats),
             structure: TokenStructure::Single,
         }
     }
@@ -294,7 +210,7 @@ impl TokenCharacteristics {
 
     #[must_use]
     pub fn name(self) -> Cow<'static, str> {
-        derived_token_name(self.explicit_name, self.rules.subtypes)
+        derived_token_name(self.explicit_name, self.rules.subtypes())
     }
 
     #[must_use]

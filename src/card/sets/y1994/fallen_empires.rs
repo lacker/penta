@@ -1298,7 +1298,7 @@ static ORCISH_SPY_LOOK: TopCardSelectionDef = TopCardSelectionDef {
     rest_placement: ZonePlacement::Top,
     selected_order_follows_choice: false,
     then: None,
-    selected_face_down: false,
+    selected_face_down: None,
 };
 
 static ORCISH_SPY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(

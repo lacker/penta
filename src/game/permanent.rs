@@ -96,17 +96,15 @@ struct Permanent {
     chosen_creature_type: Option<String>,
     /// The card name a permanent named as it entered, for Pithing Needle.
     chosen_card_name: Option<String>,
-    /// Whether this permanent is face down. A face-down permanent is a 2/2
-    /// colourless creature with no name, no card types beyond creature, and
-    /// no abilities (CR 708.2), whatever the card under it says. The physical
-    /// card is unchanged: `card.definition` still names it, which is what
-    /// lets it be turned face up and what it goes to the graveyard as.
-    face_down: bool,
-    /// Whether this face-down permanent was manifested rather than cast face
-    /// down. What it changes is the cost to turn it up: a morph pays the
-    /// morph cost its card prints, and a manifested creature card pays its
-    /// mana cost (CR 701.34c).
-    manifested: bool,
+    /// The copiable values supplied by the rule, ability, or effect that made
+    /// this permanent face down (CR 708.2). `None` means face up. The physical
+    /// card is unchanged: `card.definition` still names it, which is what lets
+    /// it be turned face up and what it becomes in another zone.
+    face_down: Option<FaceDownCharacteristics>,
+    /// Whether this face-down mechanism permits a creature card to turn face
+    /// up for its own mana cost. Manifest and Cloak do; Morph and Disguise use
+    /// their printed special-action cost instead.
+    turn_up_for_mana_cost: bool,
     destroy_at_end: bool,
     temporary_keywords: Vec<KeywordAbility>,
     /// Resolved noncopiable characteristic changes and rules modifications,
@@ -272,8 +270,8 @@ impl Permanent {
             chosen_player: None,
             chosen_creature_type: None,
             chosen_card_name: None,
-            face_down: false,
-            manifested: false,
+            face_down: None,
+            turn_up_for_mana_cost: false,
             destroy_at_end: false,
             temporary_keywords: Vec::new(),
             resolved_continuous_effects: Vec::new(),

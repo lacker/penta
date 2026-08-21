@@ -37,6 +37,9 @@ impl Game {
                 ObjectCharacteristics::Emblem { .. } => AbilityOrigin::Emblem {
                     ability: AbilityId::PRIMARY,
                 },
+                ObjectCharacteristics::FaceDown { .. } => AbilityOrigin::FaceDown {
+                    ability: AbilityId::PRIMARY,
+                },
             },
             |effective| effective.origin,
         )

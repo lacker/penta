@@ -240,7 +240,7 @@ fn loyalty_activations_require_sorcery_timing_sufficient_loyalty_and_once_per_tu
         cast_via_flashback: false,
         cast_at_instant_speed: false,
         cast_from_zone: None,
-        cast_face_down: false,
+        face_down: None,
     });
     assert!(!has_loyalty_action(&game, walker_id, 0));
     game.stack.clear();

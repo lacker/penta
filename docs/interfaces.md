@@ -46,12 +46,20 @@ and replay stream; it must not be used as a player observation.
 physical double-faced permanent, so consumers must not infer transformability
 from copied characteristics.
 
-Protocol 26 represents created tokens and emblems as creator-owned virtual
-objects rather than catalog cards. Printed characteristics retain catalog
-definition and part IDs; token and emblem characteristics travel inline and
-never invent a card-definition identity. A token's local part index describes
-only its own face structure, while a permanent's separate `token` flag remains
-the rules object's token status even after copying.
+Protocol 27 represents created tokens, emblems, and face-down objects without
+inventing catalog cards. Printed characteristics retain catalog definition and
+part IDs; token, emblem, and rules-defined face-down characteristics travel
+inline and never invent a card-definition identity. A token's local part index
+describes only its own face structure, while a permanent's separate `token`
+flag remains the rules object's token status even after copying. A face-down
+object's physical card keeps its real definition. An opponent sees only the
+characteristics assigned by its face-down mechanism, while a controller who
+may inspect the card retains its real catalog presentation.
+
+Like the token characteristics tag, the face-down characteristics tag records
+where copiable values came from, not the current physical status. A face-up
+copy can retain those values; consumers use the permanent's separate
+`faceDown` boolean to decide whether the physical object is face down.
 
 The engine enumerates legal actions rather than asking consumers to construct
 partially legal commands. Complex multi-selection decisions expose bounded
@@ -78,7 +86,7 @@ not one exact-version comparison:
   removed, renamed, retyped, or reinterpreted, not when an optional field or a
   legal action expressed through existing vocabulary is added.
 - `protocolCapabilities` advertises named, additive facilities such as
-  `reconstruction.checkpoint.v6`. A consumer may ignore capabilities it does
+  `reconstruction.checkpoint.v7`. A consumer may ignore capabilities it does
   not use. Hosted bots declare both supported vocabulary and facilities they
   require; compatibility needs an equal `protocolVersion` and each side's
   required subset to be supplied by the other.

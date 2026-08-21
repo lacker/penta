@@ -181,6 +181,26 @@ fn transforming_token_characteristics_are_inline_and_omit_missing_art() {
 }
 
 #[test]
+fn face_down_characteristics_are_inline_and_have_no_definition() {
+    let characteristics = crate::protocol::json_common::object_characteristics_json(
+        crate::ObjectCharacteristics::face_down(crate::card::face_down::cloak()),
+    );
+
+    assert_eq!(characteristics["kind"], "faceDown");
+    assert_eq!(characteristics["name"], "Face-down creature");
+    assert!(characteristics.get("definition").is_none());
+    assert!(characteristics.get("partId").is_none());
+    assert_eq!(characteristics["presentation"]["power"], 2);
+    assert_eq!(characteristics["presentation"]["toughness"], 2);
+    assert!(
+        characteristics["presentation"]["rulesText"]
+            .as_str()
+            .expect("rules text")
+            .contains("Ward {2}")
+    );
+}
+
+#[test]
 fn emblem_characteristics_are_inline_without_catalog_identity() {
     static EMBLEM_ABILITIES: [crate::AbilityDef; 1] = [crate::AbilityDef::not_implemented(
         "Test emblem rule.",

@@ -46,8 +46,7 @@ fn catalog_does_not_publish_creator_owned_virtual_characteristics() {
         .iter()
         .filter(|card| card["debutSet"] == "token")
         .collect::<Vec<_>>();
-    assert_eq!(synthetic.len(), 1);
-    assert_eq!(synthetic[0]["name"], "Face-down creature");
+    assert!(synthetic.is_empty());
 }
 
 #[test]

@@ -7,7 +7,8 @@ use emblem::authored_emblems;
 pub(super) use emblem::{catalog_emblem_characteristics, emblem_characteristics_locator};
 use token::authored_tokens;
 pub(super) use token::{
-    catalog_token_characteristics, object_characteristics_from_snapshot,
+    catalog_token_characteristics, face_down_characteristics_from_snapshot,
+    face_down_characteristics_snapshot, object_characteristics_from_snapshot,
     object_characteristics_snapshot, token_characteristics_locator,
 };
 use virtual_objects::token_parts;
@@ -148,7 +149,10 @@ pub(super) fn ability_locator_for_origin(
                     &mut matches,
                 )
             }),
-        AbilityOrigin::IntrinsicBasicLand(_) | AbilityOrigin::IntrinsicCounter(_) => None,
+        AbilityOrigin::FaceDown { .. }
+        | AbilityOrigin::FaceDownGranted { .. }
+        | AbilityOrigin::IntrinsicBasicLand(_)
+        | AbilityOrigin::IntrinsicCounter(_) => None,
     }
 }
 

@@ -15,6 +15,7 @@ export type AbilityOriginMetadata =
   | { kind: "printed"; definition: number; partId: number; abilityId: number }
   | { kind: "token"; partId: number; abilityId: number }
   | { kind: "emblem"; abilityId: number }
+  | { kind: "faceDown"; abilityId: number }
   | {
       kind: "intrinsicBasicLand";
       landType: "plains" | "island" | "swamp" | "mountain" | "forest";
@@ -36,6 +37,12 @@ export type AbilityOriginMetadata =
     }
   | {
       kind: "emblemGranted";
+      source: number;
+      sourceAbilityId: number;
+      grantId: number;
+    }
+  | {
+      kind: "faceDownGranted";
       source: number;
       sourceAbilityId: number;
       grantId: number;

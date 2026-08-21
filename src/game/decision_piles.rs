@@ -160,14 +160,14 @@ impl Game {
                     definition: card.definition,
                 }));
         }
-        if selection.selected_face_down {
+        if let Some(face_down) = selection.selected_face_down {
             // Manifested rather than placed: what goes down is a body, and
             // the card under it is what the mana cost to turn it up reads.
             for card in chosen {
                 self.put_card_onto_battlefield_from(
                     card,
                     ZoneKind::Library,
-                    super::BattlefieldArrival::manifested_under(player),
+                    super::BattlefieldArrival::face_down_under(player, face_down, true),
                     None,
                 );
             }

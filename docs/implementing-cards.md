@@ -31,9 +31,10 @@ module's set, including for reprint-only modules with an empty `CARDS`
 registry. Put each nonempty entry on its own line with a trailing identity such
 as `// LEB 233`: uppercase target set code and collector number, without the
 card name. Empty registries need no comments. Creator-owned token and emblem
-characteristics are built by their creating effects, are not card definitions,
-and remain outside these conventions. Move card-local helpers with the
-definition they support.
+characteristics and rules-owned face-down characteristics are built by the
+effect or mechanism that creates them, are not card definitions, and remain
+outside these conventions. Move card-local helpers with the definition they
+support.
 
 Start new and migrated work with the card's ordered `AbilityDef` clauses. Each
 printed clause should carry its explicit timing category and, where applicable,

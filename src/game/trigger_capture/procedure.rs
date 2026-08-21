@@ -1,4 +1,106 @@
 impl Game {
+    const fn face_down_granted_origin(
+        source: GameObjectId,
+        source_ability: AbilityId,
+        grant: GrantId,
+    ) -> AbilityOrigin {
+        AbilityOrigin::FaceDownGranted {
+            source,
+            source_ability,
+            grant,
+        }
+    }
+
+    pub(super) const fn granted_ability_origin(
+        source: GameObjectId,
+        origin: AbilityOrigin,
+        fallback: ObjectCharacteristics,
+        grant: GrantId,
+    ) -> AbilityOrigin {
+        match origin {
+            AbilityOrigin::Printed {
+                definition,
+                part,
+                ability,
+            } => AbilityOrigin::Granted {
+                source,
+                source_definition: definition,
+                source_part: part,
+                source_ability: ability,
+                grant,
+            },
+            AbilityOrigin::Token { part, ability } => AbilityOrigin::TokenGranted {
+                source,
+                source_part: part,
+                source_ability: ability,
+                grant,
+            },
+            AbilityOrigin::Emblem { ability } => AbilityOrigin::EmblemGranted {
+                source,
+                source_ability: ability,
+                grant,
+            },
+            AbilityOrigin::FaceDown { ability } => {
+                Self::face_down_granted_origin(source, ability, grant)
+            }
+            AbilityOrigin::Granted {
+                source_definition,
+                source_part,
+                source_ability,
+                ..
+            } => AbilityOrigin::Granted {
+                source,
+                source_definition,
+                source_part,
+                source_ability,
+                grant,
+            },
+            AbilityOrigin::TokenGranted {
+                source_part,
+                source_ability,
+                ..
+            } => AbilityOrigin::TokenGranted {
+                source,
+                source_part,
+                source_ability,
+                grant,
+            },
+            AbilityOrigin::EmblemGranted { source_ability, .. } => AbilityOrigin::EmblemGranted {
+                source,
+                source_ability,
+                grant,
+            },
+            AbilityOrigin::FaceDownGranted { source_ability, .. } => {
+                Self::face_down_granted_origin(source, source_ability, grant)
+            }
+            AbilityOrigin::IntrinsicBasicLand(_) | AbilityOrigin::IntrinsicCounter(_) => {
+                match fallback {
+                    ObjectCharacteristics::Card { definition, part } => AbilityOrigin::Granted {
+                        source,
+                        source_definition: definition,
+                        source_part: part,
+                        source_ability: AbilityId::PRIMARY,
+                        grant,
+                    },
+                    ObjectCharacteristics::Token { part, .. } => AbilityOrigin::TokenGranted {
+                        source,
+                        source_part: part,
+                        source_ability: AbilityId::PRIMARY,
+                        grant,
+                    },
+                    ObjectCharacteristics::Emblem { .. } => AbilityOrigin::EmblemGranted {
+                        source,
+                        source_ability: AbilityId::PRIMARY,
+                        grant,
+                    },
+                    ObjectCharacteristics::FaceDown { .. } => {
+                        Self::face_down_granted_origin(source, AbilityId::PRIMARY, grant)
+                    }
+                }
+            }
+        }
+    }
+
     /// Finishes an atomic rules procedure before a player can receive
     /// priority. Mana abilities invoked while casting resolve inside the
     /// procedure, while ordinary triggers collected by them wait here.
@@ -93,6 +195,7 @@ impl Game {
             },
             ObjectCharacteristics::Token { part, .. } => AbilityOrigin::Token { part, ability },
             ObjectCharacteristics::Emblem { .. } => AbilityOrigin::Emblem { ability },
+            ObjectCharacteristics::FaceDown { .. } => AbilityOrigin::FaceDown { ability },
         }
     }
 
@@ -108,16 +211,20 @@ impl Game {
                 ObjectCharacteristics::Token { token, .. } => {
                     ObjectCharacteristics::token(token, part)
                 }
-                ObjectCharacteristics::Card { .. } | ObjectCharacteristics::Emblem { .. } => {
+                ObjectCharacteristics::Card { .. }
+                | ObjectCharacteristics::Emblem { .. }
+                | ObjectCharacteristics::FaceDown { .. } => {
                     fallback
                 }
             },
             AbilityOrigin::Emblem { .. }
+            | AbilityOrigin::FaceDown { .. }
             | AbilityOrigin::IntrinsicBasicLand(_)
             | AbilityOrigin::IntrinsicCounter(_)
             | AbilityOrigin::Granted { .. }
             | AbilityOrigin::TokenGranted { .. }
-            | AbilityOrigin::EmblemGranted { .. } => fallback,
+            | AbilityOrigin::EmblemGranted { .. }
+            | AbilityOrigin::FaceDownGranted { .. } => fallback,
         }
     }
 }

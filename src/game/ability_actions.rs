@@ -29,10 +29,12 @@ impl Game {
             ObjectRefDef::AbilityGrantSource => match origin {
                 AbilityOrigin::Granted { source, .. }
                 | AbilityOrigin::TokenGranted { source, .. }
-                | AbilityOrigin::EmblemGranted { source, .. } => Some(source),
+                | AbilityOrigin::EmblemGranted { source, .. }
+                | AbilityOrigin::FaceDownGranted { source, .. } => Some(source),
                 AbilityOrigin::Printed { .. }
                 | AbilityOrigin::Token { .. }
                 | AbilityOrigin::Emblem { .. }
+                | AbilityOrigin::FaceDown { .. }
                 | AbilityOrigin::IntrinsicBasicLand(_)
                 | AbilityOrigin::IntrinsicCounter(_) => None,
             },
@@ -163,7 +165,7 @@ impl Game {
             cast_via_flashback: false,
             cast_at_instant_speed: false,
             cast_from_zone: None,
-            cast_face_down: false,
+            face_down: None,
             colors_of_mana_spent: crate::card::ColorSet::empty(),
             is_copy: false,
         });

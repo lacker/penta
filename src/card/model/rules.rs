@@ -166,11 +166,11 @@ impl CardRules {
         }
     }
 
-    /// Materializes the ordinary rules view of compact token
-    /// characteristics. Token definitions keep abilities behind a slice so
-    /// an ability that creates another token does not make the declarative
-    /// schema recursively sized.
-    pub(super) const fn from_token_characteristics(
+    /// Materializes the ordinary rules view of compact inline
+    /// characteristics. Virtual and face-down values keep abilities behind a
+    /// slice so a clause that creates another object does not make the
+    /// declarative schema recursively sized.
+    pub(super) const fn from_inline_characteristics(
         card_types: CardTypeSet,
         supertypes: [bool; CardSupertype::COUNT],
         subtypes: &'static [&'static str],

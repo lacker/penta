@@ -112,6 +112,34 @@ test("inline emblem origins remain source-scoped without fake definitions", () =
   );
 });
 
+test("face-down origins remain source-scoped without fake definitions", () => {
+  const faceDown = { kind: "faceDown", abilityId: 1 };
+  const first = action(0, faceDown, 40, "Ward {2}");
+  const second = action(1, faceDown, 41, "Ward {2}");
+  const otherSource = {
+    ...action(2, faceDown, 42, "Ward {2}"),
+    cardId: 10,
+  };
+  const groups = groupTargetedActionsByOrigin([first, second, otherSource]);
+
+  assert.equal(groups.length, 2);
+  assert.deepEqual(groups[0].actions, [first, second]);
+  assert.deepEqual(groups[1].actions, [otherSource]);
+  assert.match(groups[0].key, /^object:9:face-down:/);
+  assert.match(groups[1].key, /^object:10:face-down:/);
+
+  const granted = {
+    kind: "faceDownGranted",
+    source: 8,
+    sourceAbilityId: 1,
+    grantId: 3,
+  };
+  assert.notEqual(
+    abilityOriginKey(granted, 9),
+    abilityOriginKey({ ...granted, grantId: 4 }, 9),
+  );
+});
+
 test("actions without an ability origin retain the simple single group flow", () => {
   const actions = [
     action(0, null, 40, null),

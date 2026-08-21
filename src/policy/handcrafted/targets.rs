@@ -195,6 +195,9 @@ impl HandcraftedPolicy {
                                 .part(part)
                                 .map_or_else(CardTypeSet::empty, |part| part.rules.types()),
                             super::ObjectCharacteristics::Emblem { .. } => CardTypeSet::empty(),
+                            super::ObjectCharacteristics::FaceDown { face_down } => {
+                                face_down.rules().types()
+                            }
                         }
                     } else {
                         permanent.types
@@ -329,6 +332,13 @@ impl HandcraftedPolicy {
                 })
             }
             super::ObjectCharacteristics::Emblem { .. } => 0,
+            super::ObjectCharacteristics::FaceDown { face_down } => {
+                if face_down.rules().has_type(CardType::Creature) {
+                    65
+                } else {
+                    55
+                }
+            }
         }
     }
 }

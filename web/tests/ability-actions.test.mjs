@@ -146,3 +146,27 @@ test("inline emblem origin keys include the current source and grant provenance"
   assert.ok(emblemGrantedKey);
   assert.ok(!emblemGrantedKey.includes("undefined"));
 });
+
+test("face-down origin keys include the current source and grant provenance", () => {
+  const faceDown = { kind: "faceDown", abilityId: 1 };
+  assert.notEqual(
+    abilityOriginKey(faceDown, 61),
+    abilityOriginKey(faceDown, 62),
+  );
+  assert.notEqual(
+    abilityOriginKey(faceDown, 61),
+    abilityOriginKey({ ...faceDown, abilityId: 2 }, 61),
+  );
+
+  const granted = {
+    kind: "faceDownGranted",
+    source: 60,
+    sourceAbilityId: 1,
+    grantId: 3,
+  };
+  assert.notEqual(
+    abilityOriginKey(granted, 61),
+    abilityOriginKey({ ...granted, grantId: 4 }, 61),
+  );
+  assert.ok(!abilityOriginKey(granted, 61).includes("undefined"));
+});

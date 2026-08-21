@@ -44,8 +44,8 @@ pub(in crate::game::state_checkpoint) use triggers::*;
 pub(super) use balance::{BalanceActionSnapshot, BalancePhaseSnapshot, BalanceTaskSnapshot};
 pub(super) use continuation::DecisionContinuationSnapshot;
 pub(super) use objects::{
-    AbilityLocator, EmblemCharacteristicsLocator, ObjectCharacteristicsSnapshot,
-    ObjectKindSnapshot, TokenCharacteristicsLocator,
+    AbilityLocator, EmblemCharacteristicsLocator, FaceDownCharacteristicsSnapshot,
+    ObjectCharacteristicsSnapshot, ObjectKindSnapshot, TokenCharacteristicsLocator,
 };
 
 use super::model_keyword::{KeywordSnapshot, UpkeepKeywordSnapshot};
@@ -236,6 +236,9 @@ pub(super) enum AbilityOriginSnapshot {
     Emblem {
         ability_id: u8,
     },
+    FaceDown {
+        ability_id: u8,
+    },
     IntrinsicBasicLand {
         land_type: BasicLandTypeSnapshot,
     },
@@ -258,6 +261,11 @@ pub(super) enum AbilityOriginSnapshot {
         grant_id: u8,
     },
     EmblemGranted {
+        source: u32,
+        source_ability_id: u8,
+        grant_id: u8,
+    },
+    FaceDownGranted {
         source: u32,
         source_ability_id: u8,
         grant_id: u8,
@@ -312,6 +320,13 @@ pub(super) struct PermanentSnapshot {
     /// state faithfully at all.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(super) double_faced_token_copy: Option<DoubleFacedCopiableCharacteristicsSnapshot>,
+    /// Copiable values supplied by the rule or effect that made this
+    /// permanent face down. `None` means face up.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(super) face_down: Option<FaceDownCharacteristicsSnapshot>,
+    /// Whether the face-down mechanism grants a mana-cost turn-up permission.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub(super) turn_up_for_mana_cost: bool,
     pub(super) presented_part_id: u8,
     pub(super) timestamp: u64,
     pub(super) entered_controller_turn: u32,
@@ -584,14 +599,6 @@ pub(super) struct DetachedPermanentSnapshot {
     pub(super) activated_loyalty_this_turn: bool,
     pub(super) chosen_creature_type: Option<String>,
     pub(super) chosen_card_name: Option<String>,
-    /// Whether the permanent is face down. Absent from a payload written
-    /// before face-down permanents existed, which is the same as not one.
-    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
-    pub(super) face_down: bool,
-    /// Additive: a payload written before anything manifested restores this
-    /// as false, which is what a face-down morph means anyway.
-    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
-    pub(super) manifested: bool,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]

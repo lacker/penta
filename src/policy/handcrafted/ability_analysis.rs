@@ -145,6 +145,9 @@ impl HandcraftedPolicy {
                             .part(part)
                             .is_some_and(|part| part.rules.has_type(expected)),
                         super::ObjectCharacteristics::Emblem { .. } => false,
+                        super::ObjectCharacteristics::FaceDown { face_down } => {
+                            face_down.rules().has_type(expected)
+                        }
                     }
                 } else {
                     permanent.types.contains(expected)

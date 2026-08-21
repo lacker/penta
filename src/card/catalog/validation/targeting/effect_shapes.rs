@@ -648,7 +648,7 @@ mod recipient_shape_tests {
             rest_placement: ZonePlacement::Bottom,
             selected_order_follows_choice: false,
             then: None,
-        selected_face_down: false,};
+        selected_face_down: None,};
         static INVALID_ZONE: TopCardSelectionDef = TopCardSelectionDef {
             count: ValueDef::Constant(1),
             object: None,
@@ -664,7 +664,7 @@ mod recipient_shape_tests {
             rest_placement: ZonePlacement::Bottom,
             selected_order_follows_choice: false,
             then: None,
-        selected_face_down: false,};
+        selected_face_down: None,};
 
         for selection in [&INVALID_BOUNDS, &INVALID_ZONE] {
             assert_eq!(

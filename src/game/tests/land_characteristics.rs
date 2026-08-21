@@ -201,9 +201,11 @@ fn direct_and_composite_land_type_effects_grant_intrinsic_mana_in_order() {
                 AbilityOrigin::Printed { .. }
                 | AbilityOrigin::Token { .. }
                 | AbilityOrigin::Emblem { .. }
+                | AbilityOrigin::FaceDown { .. }
                 | AbilityOrigin::Granted { .. }
                 | AbilityOrigin::TokenGranted { .. }
                 | AbilityOrigin::EmblemGranted { .. }
+                | AbilityOrigin::FaceDownGranted { .. }
                 | AbilityOrigin::IntrinsicCounter(_) => None,
             })
             .collect::<Vec<_>>(),

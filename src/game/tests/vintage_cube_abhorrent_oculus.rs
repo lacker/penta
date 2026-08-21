@@ -109,7 +109,7 @@ fn manifest(game: &mut Game, wanted: CardDefinitionId) {
 fn face_down(game: &Game) -> Option<&Permanent> {
     game.battlefield
         .iter()
-        .find(|permanent| permanent.face_down)
+        .find(|permanent| permanent.face_down.is_some())
 }
 
 /// Six cards leave the graveyard as the Oculus is cast, and none of them
@@ -238,7 +238,7 @@ fn a_manifested_creature_card_turns_up_for_its_mana_cost() {
         .iter()
         .find(|permanent| permanent.card.id == body)
         .expect("it is still there");
-    assert!(!angel.face_down, "face up now");
+    assert!(angel.face_down.is_none(), "face up now");
     assert_eq!(game.power(angel), Some(4), "a 4/4 Serra Angel");
     assert!(
         game.permanent_has_executable_keyword(angel, KeywordAbility::Flying),

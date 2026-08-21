@@ -920,7 +920,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
             | AlternativeCastKindDef::Miracle
             | AlternativeCastKindDef::Buyback
             | AlternativeCastKindDef::AlternativeCost
-            | AlternativeCastKindDef::FaceDown => effect == EffectDef::None,
+            | AlternativeCastKindDef::FaceDown { .. } => effect == EffectDef::None,
             // Overload carries the instructions the modified spell resolves
             // with, so it has to be an effect the shared runtime can execute.
             AlternativeCastKindDef::Overload => shared_stack_effect(effect),

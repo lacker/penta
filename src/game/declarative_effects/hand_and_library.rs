@@ -2,10 +2,10 @@
 //! through a player's hand and library.
 
 use super::super::{
-    DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
-    DiscardSelectionDef, DrawReplacement, EffectDef, EffectResolutionContext, Game, GameEvent,
-    GameObjectId, PlayerId, ScopedEffect, StackObject, Target, ZoneKind, ZoneMoveCause,
-    public_cards, remove_card,
+    CardPartId, DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility,
+    DecisionZone, DiscardSelectionDef, DrawReplacement, EffectDef, EffectResolutionContext, Game,
+    GameEvent, GameObjectId, ObjectCharacteristics, PlayerId, ScopedEffect, StackObject, Target,
+    ZoneKind, ZoneMoveCause, public_cards, remove_card,
 };
 use crate::card::ObjectPredicateDef;
 
@@ -123,9 +123,12 @@ impl Game {
             vec![DecisionOption {
                 id: 0,
                 label: "Decline".into(),
-                card: self
-                    .card_in_nonbattlefield_zone(matched)
-                    .map(|(_, card)| (matched, card.definition)),
+                card: self.card_in_nonbattlefield_zone(matched).map(|(_, card)| {
+                    (
+                        matched,
+                        ObjectCharacteristics::card(card.definition, CardPartId::PRIMARY),
+                    )
+                }),
                 members: Vec::new(),
                 ability_text: None,
                 zone: DecisionZone::Exile,

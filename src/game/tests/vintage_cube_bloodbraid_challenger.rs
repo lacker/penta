@@ -113,7 +113,7 @@ fn it_digs_past_lands_to_the_first_cheaper_spell() {
             .options
             .first()
             .and_then(|option| option.card)
-            .map(|(_, definition)| definition),
+            .and_then(|(_, characteristics)| characteristics.card_definition()),
         Some(cards::LIGHTNING_BOLT),
         "two lands were walked past and the Bolt is the offer",
     );
@@ -217,7 +217,7 @@ fn a_card_costing_the_same_is_walked_past() {
             .options
             .first()
             .and_then(|option| option.card)
-            .map(|(_, definition)| definition),
+            .and_then(|(_, characteristics)| characteristics.card_definition()),
         Some(cards::LIGHTNING_BOLT),
         "the dig went past both five-drops to the Bolt underneath them",
     );

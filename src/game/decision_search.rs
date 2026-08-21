@@ -1,8 +1,8 @@
 use super::{
-    CardChoiceSourceDef, CardInstance, DecisionContinuation, DecisionOption, DecisionPreference,
-    DecisionVisibility, DecisionZone, EffectResolutionContext, Game, GameObjectId,
-    ObjectPredicateDef, PlayerId, ScopedEffect, SearchFollowUp, StackObject, ZoneKind,
-    ZonePlacement,
+    CardChoiceSourceDef, CardInstance, CardPartId, DecisionContinuation, DecisionOption,
+    DecisionPreference, DecisionVisibility, DecisionZone, EffectResolutionContext, Game,
+    GameObjectId, ObjectCharacteristics, ObjectPredicateDef, PlayerId, ScopedEffect,
+    SearchFollowUp, StackObject, ZoneKind, ZonePlacement,
 };
 
 impl Game {
@@ -56,7 +56,10 @@ impl Game {
                     .catalog
                     .get(card.definition)
                     .map_or_else(|| "Unknown card".into(), |card| card.name.clone()),
-                card: Some((card.id, card.definition)),
+                card: Some((
+                    card.id,
+                    ObjectCharacteristics::card(card.definition, CardPartId::PRIMARY),
+                )),
                 members: Vec::new(),
                 ability_text: None,
                 zone: decision_zone,
@@ -163,7 +166,10 @@ impl Game {
                         .catalog
                         .get(card.definition)
                         .map_or_else(|| "Unknown card".into(), |card| card.name.clone()),
-                    card: Some((card.id, card.definition)),
+                    card: Some((
+                        card.id,
+                        ObjectCharacteristics::card(card.definition, CardPartId::PRIMARY),
+                    )),
                     members: Vec::new(),
                     ability_text: None,
                     zone,

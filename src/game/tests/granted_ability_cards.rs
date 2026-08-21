@@ -86,7 +86,12 @@ fn the_slumlord_makes_rats_and_sharpens_them() {
     let rat = game
         .battlefield
         .iter()
-        .find(|permanent| permanent.card.definition == cards::RAT_TOKEN_1_1_BLACK)
+        .find(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Rat"], &[ManaColor::Black], 1, 1),
+            )
+        })
         .expect("the bear's death made one")
         .card
         .id;
@@ -103,7 +108,11 @@ fn the_slumlord_ignores_its_own_rats_dying() {
     let mut game = ready();
     game.battlefield
         .push(creature(10_000, cards::OGRE_SLUMLORD, PlayerId::One));
-    let rat = creature(10_100, cards::RAT_TOKEN_1_1_BLACK, PlayerId::One);
+    let rat = token_permanent(
+        10_100,
+        tokens::creature(&["Rat"], &[ManaColor::Black], 1, 1),
+        PlayerId::One,
+    );
     let rat_id = rat.card.id;
     game.battlefield.push(rat);
 
@@ -114,7 +123,10 @@ fn the_slumlord_ignores_its_own_rats_dying() {
     assert_eq!(
         game.battlefield
             .iter()
-            .filter(|permanent| permanent.card.definition == cards::RAT_TOKEN_1_1_BLACK)
+            .filter(|permanent| is_token_with(
+                permanent,
+                tokens::creature(&["Rat"], &[ManaColor::Black], 1, 1)
+            ))
             .count(),
         0,
         "a token dying is not another nontoken creature",

@@ -41,6 +41,18 @@ hidden zones. Rules-driven disclosures can add the known, possibly stale
 expose cards the player has not learned. `GameEvent` is an omniscient debugging
 and replay stream; it must not be used as a player observation.
 
+`PermanentObservation.characteristics` reports effective copiable values.
+`physical_face` separately reports the public topology and side of a face-up
+physical double-faced permanent, so consumers must not infer transformability
+from copied characteristics.
+
+Protocol 26 represents created tokens and emblems as creator-owned virtual
+objects rather than catalog cards. Printed characteristics retain catalog
+definition and part IDs; token and emblem characteristics travel inline and
+never invent a card-definition identity. A token's local part index describes
+only its own face structure, while a permanent's separate `token` flag remains
+the rules object's token status even after copying.
+
 The engine enumerates legal actions rather than asking consumers to construct
 partially legal commands. Complex multi-selection decisions expose bounded
 options and are submitted through the same checked state-machine boundary.
@@ -66,7 +78,7 @@ not one exact-version comparison:
   removed, renamed, retyped, or reinterpreted, not when an optional field or a
   legal action expressed through existing vocabulary is added.
 - `protocolCapabilities` advertises named, additive facilities such as
-  `reconstruction.checkpoint.v4`. A consumer may ignore capabilities it does
+  `reconstruction.checkpoint.v5`. A consumer may ignore capabilities it does
   not use. Hosted bots declare both supported vocabulary and facilities they
   require; compatibility needs an equal `protocolVersion` and each side's
   required subset to be supplied by the other.

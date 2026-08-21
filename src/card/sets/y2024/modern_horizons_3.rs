@@ -9,8 +9,8 @@ use crate::card::{
     EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayOptionDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SpellAdditionalCostDef,
-    SpellForm, SpendModeDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities, cards,
+    SpellForm, SpendModeDef, TokenCharacteristics, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, cards,
 };
 use crate::ids::{CardPartId, ObjectBindingIndex, ObjectSetBindingIndex, PlayOptionId};
 use crate::{TargetIndex, mana_cost};
@@ -34,15 +34,10 @@ static OCELOT_DOUBLES_THEM: EffectDef = EffectDef::CreateTokenCopyOf {
 };
 
 static OCELOT_END_STEP: [EffectDef; 2] = [
-    EffectDef::CreateToken {
-        token: cards::CAT_TOKEN_1_1_WHITE,
-        controller: None,
-        count: ValueDef::Constant(1),
-        tapped: false,
-        attacking: false,
-        counters: None,
-        created: None,
-    },
+    EffectDef::create_creature_token(&["Cat"], &[ManaColor::White], 1, 1).with_art(CardArt::new(
+        "74bacab2-a4c6-4ba5-a208-6bd09ae4cf9f",
+        "Maxime Minard",
+    )),
     // The blessing half is checked as this resolves rather than as it
     // triggers, so ascending in response still doubles.
     EffectDef::IfCondition {
@@ -336,7 +331,13 @@ pub(in crate::card::sets) static COLOSSAL_DREADMASK: CardRecord = CardRecord::ne
     CardRules::new_artifact(mana_cost!("{4}{G}{G}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
-            abilities::living_weapon(cards::GERM_TOKEN_0_0_BLACK),
+            abilities::living_weapon(
+                TokenCharacteristics::creature(&["Phyrexian", "Germ"], &[ManaColor::Black], 0, 0)
+                    .with_art(CardArt::new(
+                        "5ec719dc-6b07-4b1d-a79c-84ebced33422",
+                        "Igor Kieryluk",
+                    )),
+            ),
             AbilityDef::static_ability(
                 "Equipped creature gets +6/+6 and has trample.",
                 EffectDef::StaticApply {
@@ -479,15 +480,9 @@ static A_RED_PERMANENT_BESIDES_AJANI: TriggerConditionDef = TriggerConditionDef:
 /// after the token appears, and there is always a legal one because a
 /// player is a legal target.
 static AJANI_MAKES_A_CAT_AND_MAY_BURN: [EffectDef; 2] = [
-    EffectDef::CreateToken {
-        token: cards::CAT_WARRIOR_TOKEN_2_1_WHITE,
-        controller: None,
-        count: ValueDef::Constant(1),
-        tapped: false,
-        attacking: false,
-        counters: None,
-        created: None,
-    },
+    EffectDef::create_creature_token(&["Cat", "Warrior"], &[ManaColor::White], 2, 1).with_art(
+        CardArt::new("ce5c5bcf-1fdd-4d73-a92b-223292da00ca", "Ben Wootten"),
+    ),
     EffectDef::IfCondition {
         condition: &A_RED_PERMANENT_BESIDES_AJANI,
         then: &EffectDef::DealDamage {
@@ -526,15 +521,9 @@ static AJANI_PARIAH_ABILITIES: [AbilityDef; 2] = [
             None,
             Some(ZoneKind::Battlefield),
         ),
-        EffectDef::CreateToken {
-            token: cards::CAT_WARRIOR_TOKEN_2_1_WHITE,
-            controller: None,
-            count: ValueDef::Constant(1),
-            tapped: false,
-            attacking: false,
-            counters: None,
-            created: None,
-        },
+        EffectDef::create_creature_token(&["Cat", "Warrior"], &[ManaColor::White], 2, 1).with_art(
+            CardArt::new("ce5c5bcf-1fdd-4d73-a92b-223292da00ca", "Ben Wootten"),
+        ),
     ),
     // One trigger per Cat rather than one per batch. Several Cats dying at
     // once fire it several times, and every firing after the first finds

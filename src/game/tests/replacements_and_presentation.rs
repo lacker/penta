@@ -391,7 +391,7 @@ fn changing_a_permanents_presented_face_keeps_its_object_identity() {
 
     let front = &game.observe(PlayerId::One).battlefield[0];
     assert_eq!(front.id, permanent_id);
-    assert_eq!(front.presented, CardPartId::PRIMARY);
+    assert_eq!(front.characteristics.part(), CardPartId::PRIMARY);
     assert_eq!(
         (front.power, front.toughness, front.flying),
         (Some(2), Some(2), false)
@@ -401,7 +401,7 @@ fn changing_a_permanents_presented_face_keeps_its_object_identity() {
 
     let transformed = &game.observe(PlayerId::One).battlefield[0];
     assert_eq!(transformed.id, permanent_id);
-    assert_eq!(transformed.presented, back);
+    assert_eq!(transformed.characteristics.part(), back);
     assert_eq!(
         (transformed.power, transformed.toughness, transformed.flying),
         (Some(4), Some(5), true),

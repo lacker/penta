@@ -6,7 +6,8 @@ use crate::card::{
     AppliedEffectDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType,
     DividedTotal, EffectDef, EffectRecipientDef, GraveyardTypeConditionDef, ManaColor,
     ObjectPredicateDef, ObjectQueryDef, PlayerRelation, SpellAdditionalCostDef, SpendModeDef,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, cards,
+    TokenCharacteristics, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities, cards,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -372,7 +373,13 @@ pub(in crate::card::sets) static NETTLECYST: CardRecord = CardRecord::new(
     CardRules::new_artifact(mana_cost!("{3}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
-            abilities::living_weapon(cards::GERM_TOKEN_0_0_BLACK),
+            abilities::living_weapon(
+                TokenCharacteristics::creature(&["Phyrexian", "Germ"], &[ManaColor::Black], 0, 0)
+                    .with_art(CardArt::new(
+                        "b53e0681-603e-4180-bc86-3dadf214e61a",
+                        "Igor Kieryluk",
+                    )),
+            ),
             AbilityDef::static_ability(
                 "Equipped creature gets +1/+1 for each artifact and/or enchantment you control.",
                 EffectDef::StaticApply {

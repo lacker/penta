@@ -51,7 +51,11 @@ impl Game {
             }
             StackObjectKind::Spell => {}
         }
-        let definition = object.card.definition;
+        let definition = object
+            .card
+            .definition
+            .card_definition()
+            .expect("a spell object is backed by a card definition");
         let behavior = self
             .behavior(definition)
             .unwrap_or(CardBehavior::Unsupported);
@@ -160,7 +164,7 @@ impl Game {
     }
 
     pub(super) fn finish_stack_resolution(&mut self, object: &StackObject, resolved: bool) {
-        let definition = object.card.definition;
+        let presentation = object.presentation();
         match object.kind {
             StackObjectKind::ActivatedAbility => {
                 let source = object
@@ -170,13 +174,13 @@ impl Game {
                     GameEvent::AbilityResolved {
                         object: object.id,
                         source,
-                        definition,
+                        presentation,
                     }
                 } else {
                     GameEvent::AbilityFizzled {
                         object: object.id,
                         source,
-                        definition,
+                        presentation,
                     }
                 };
                 self.events.push(event);
@@ -190,13 +194,13 @@ impl Game {
                     GameEvent::TriggeredAbilityResolved {
                         object: object.id,
                         source,
-                        definition,
+                        presentation,
                     }
                 } else {
                     GameEvent::TriggeredAbilityFizzled {
                         object: object.id,
                         source,
-                        definition,
+                        presentation,
                     }
                 };
                 self.events.push(event);
@@ -204,6 +208,12 @@ impl Game {
             }
             StackObjectKind::Spell => {}
         }
+
+        let definition = object
+            .card
+            .definition
+            .card_definition()
+            .expect("a spell object is backed by a card definition");
 
         let behavior = self
             .behavior(definition)
@@ -267,7 +277,13 @@ impl Game {
         // its owner's library, and a spell that already exiles itself still
         // gets its destination counters.
         let flashback_replaces_move = object.cast_via_flashback || behavior == CardBehavior::Recall;
-        let (mut card, _zone_change) = self.zone_change_card(object.card.clone());
+        let (mut card, _zone_change) = self.zone_change_card(
+            object
+                .card
+                .clone()
+                .into_card()
+                .expect("a spell object is backed by a card"),
+        );
         match destination {
             SpellResolutionDestinationDef::Graveyard if !flashback_replaces_move => {
                 self.put_card_into_graveyard(owner, card);
@@ -308,15 +324,16 @@ impl Game {
 
     /// Whether this spell was cast with its buyback paid.
     fn cast_with_buyback(&self, object: &StackObject) -> bool {
-        object.signature.as_ref().is_some_and(|signature| {
-            self.catalog
-                .get(object.card.definition)
-                .and_then(|definition| {
-                    let option = definition.play_option(signature.play_option())?;
-                    self.selected_alternative_kind(definition, option, object.id, signature.costs())
-                })
-                == Some(AlternativeCastKindDef::Buyback)
-        })
+        let Some(signature) = object.signature.as_ref() else {
+            return false;
+        };
+        let Some(card_definition) = object.card.definition.card_definition() else {
+            return false;
+        };
+        self.catalog.get(card_definition).and_then(|definition| {
+            let option = definition.play_option(signature.play_option())?;
+            self.selected_alternative_kind(definition, option, object.id, signature.costs())
+        }) == Some(AlternativeCastKindDef::Buyback)
     }
 
     fn defer_stack_resolution(
@@ -452,7 +469,7 @@ impl Game {
             .battlefield
             .iter()
             .filter(|permanent| permanent.created_by == Some(source))
-            .map(|permanent| (permanent.card.id, permanent.card.definition))
+            .map(|permanent| (permanent.card.id, Self::effective_rules_source(permanent)))
             .collect::<Vec<_>>();
         if tokens.is_empty() {
             return;
@@ -460,13 +477,12 @@ impl Game {
         let options = tokens
             .iter()
             .enumerate()
-            .map(|(index, (id, definition))| DecisionOption {
+            .map(|(index, (id, presentation))| DecisionOption {
                 id: u32::try_from(index).unwrap_or(u32::MAX),
-                label: self.catalog.get(*definition).map_or_else(
-                    || "Unknown token".into(),
-                    |definition| definition.name.clone(),
-                ),
-                card: Some((*id, *definition)),
+                label: self
+                    .presentation_name(*presentation)
+                    .map_or_else(|| "Unknown token".to_owned(), std::borrow::Cow::into_owned),
+                card: Some((*id, *presentation)),
                 members: Vec::new(),
                 ability_text: None,
                 zone: DecisionZone::Battlefield,

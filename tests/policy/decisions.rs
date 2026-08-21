@@ -27,7 +27,7 @@ fn handcrafted_begins_the_turn_by_default_for_time_vaults_choice() {
             DecisionOption {
                 id: 1,
                 label: "Apply Time Vault's replacement effect".to_owned(),
-                card: Some((CardInstanceId(10), cards::TIME_VAULT)),
+                card: Some((CardInstanceId(10), printed(cards::TIME_VAULT))),
                 members: Vec::new(),
                 ability_text: None,
                 zone: DecisionZone::Battlefield,
@@ -63,7 +63,7 @@ fn handcrafted_balanced_partition_is_deterministic_nonempty_and_near_balanced() 
             DecisionOption {
                 id: 0,
                 label: "Mountain".to_owned(),
-                card: Some((CardInstanceId(10), poc::cards::MOUNTAIN)),
+                card: Some((CardInstanceId(10), printed(poc::cards::MOUNTAIN))),
                 members: Vec::new(),
                 ability_text: None,
                 zone: DecisionZone::Battlefield,
@@ -71,7 +71,7 @@ fn handcrafted_balanced_partition_is_deterministic_nonempty_and_near_balanced() 
             DecisionOption {
                 id: 1,
                 label: "Lightning Bolt".to_owned(),
-                card: Some((CardInstanceId(11), poc::cards::LIGHTNING_BOLT)),
+                card: Some((CardInstanceId(11), printed(poc::cards::LIGHTNING_BOLT))),
                 members: Vec::new(),
                 ability_text: None,
                 zone: DecisionZone::Battlefield,
@@ -79,7 +79,10 @@ fn handcrafted_balanced_partition_is_deterministic_nonempty_and_near_balanced() 
             DecisionOption {
                 id: 2,
                 label: "Goblin Balloon Brigade".to_owned(),
-                card: Some((CardInstanceId(12), poc::cards::GOBLIN_BALLOON_BRIGADE)),
+                card: Some((
+                    CardInstanceId(12),
+                    printed(poc::cards::GOBLIN_BALLOON_BRIGADE),
+                )),
                 members: Vec::new(),
                 ability_text: None,
                 zone: DecisionZone::Battlefield,
@@ -87,7 +90,7 @@ fn handcrafted_balanced_partition_is_deterministic_nonempty_and_near_balanced() 
             DecisionOption {
                 id: 3,
                 label: "Black Vise".to_owned(),
-                card: Some((CardInstanceId(13), poc::cards::BLACK_VISE)),
+                card: Some((CardInstanceId(13), printed(poc::cards::BLACK_VISE))),
                 members: Vec::new(),
                 ability_text: None,
                 zone: DecisionZone::Battlefield,
@@ -157,8 +160,8 @@ fn handcrafted_lower_card_value_uses_members_to_choose_the_cheaper_pile() {
                 label: "Mountain, Lightning Bolt".to_owned(),
                 card: None,
                 members: vec![
-                    (CardInstanceId(20), poc::cards::MOUNTAIN),
-                    (CardInstanceId(21), poc::cards::LIGHTNING_BOLT),
+                    (CardInstanceId(20), printed(poc::cards::MOUNTAIN)),
+                    (CardInstanceId(21), printed(poc::cards::LIGHTNING_BOLT)),
                 ],
                 ability_text: None,
                 zone: DecisionZone::None,
@@ -167,7 +170,10 @@ fn handcrafted_lower_card_value_uses_members_to_choose_the_cheaper_pile() {
                 id: 1,
                 label: "Goblin Balloon Brigade".to_owned(),
                 card: None,
-                members: vec![(CardInstanceId(22), poc::cards::GOBLIN_BALLOON_BRIGADE)],
+                members: vec![(
+                    CardInstanceId(22),
+                    printed(poc::cards::GOBLIN_BALLOON_BRIGADE),
+                )],
                 ability_text: None,
                 zone: DecisionZone::None,
             },
@@ -188,8 +194,8 @@ fn handcrafted_lower_card_value_uses_members_to_choose_the_cheaper_pile() {
 fn handcrafted_scores_a_selectable_card_before_auxiliary_inspection_members() {
     let catalog = poc::catalog().unwrap();
     let inspected = vec![
-        (CardInstanceId(10), poc::cards::LIGHTNING_BOLT),
-        (CardInstanceId(11), poc::cards::MOUNTAIN),
+        (CardInstanceId(10), printed(poc::cards::LIGHTNING_BOLT)),
+        (CardInstanceId(11), printed(poc::cards::MOUNTAIN)),
     ];
     let mut observation = policy_observation(Vec::new(), Vec::new());
     observation.decision = Some(DecisionObservation {
@@ -207,7 +213,7 @@ fn handcrafted_scores_a_selectable_card_before_auxiliary_inspection_members() {
             DecisionOption {
                 id: 0,
                 label: "Lightning Bolt".to_owned(),
-                card: Some((CardInstanceId(10), poc::cards::LIGHTNING_BOLT)),
+                card: Some((CardInstanceId(10), printed(poc::cards::LIGHTNING_BOLT))),
                 members: inspected.clone(),
                 ability_text: None,
                 zone: DecisionZone::Library,
@@ -215,7 +221,7 @@ fn handcrafted_scores_a_selectable_card_before_auxiliary_inspection_members() {
             DecisionOption {
                 id: 1,
                 label: "Mountain".to_owned(),
-                card: Some((CardInstanceId(11), poc::cards::MOUNTAIN)),
+                card: Some((CardInstanceId(11), printed(poc::cards::MOUNTAIN))),
                 members: inspected,
                 ability_text: None,
                 zone: DecisionZone::Library,

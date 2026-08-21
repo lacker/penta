@@ -1,17 +1,18 @@
 use super::{
     AbilitySourceRef, ApplicableReplacement, BasicLandType, BattlefieldEntryModificationDef,
-    CardTypeSet, ColorChoiceOperationDef, ColorSet, CommittedTriggerEvent, ConditionDef,
-    ControlFlow, DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility,
-    DecisionZone, DeclarativeAbilityDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
+    ColorChoiceOperationDef, ColorSet, CommittedTriggerEvent, ConditionDef, ControlFlow,
+    DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
+    DeclarativeAbilityDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
     EffectResolutionContext, EntryCompletion, Game, GameEvent, Mana, ManaColor,
-    ObjectCountConditionDef, ObjectPredicateDef, PendingBattlefieldEntry, PendingEvent,
-    PendingReplacementEffect, PlayerId, ReplaceableEvent, ReplacementChoiceDef,
-    ReplacementConditionDef, ReplacementEffectContext, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, ResolvedEffectPayment, ScopedEffect, StackObject, StackObjectKind,
-    Target, TriggerContext, ZoneKind,
+    ObjectCountConditionDef, PendingBattlefieldEntry, PendingEvent, PendingReplacementEffect,
+    PlayerId, ReplaceableEvent, ReplacementChoiceDef, ReplacementConditionDef,
+    ReplacementEffectContext, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    ResolvedEffectPayment, ScopedEffect, StackObject, StackObjectKind, Target, TriggerContext,
+    ZoneKind,
 };
 
 mod discovery;
+mod entry_copy;
 mod entry_exile;
 
 impl Game {
@@ -60,7 +61,10 @@ impl Game {
                             Some(DecisionOption {
                                 id: u32::try_from(index).ok()?,
                                 label: candidate.text.to_string(),
-                                card: Some((candidate.context.source.object, candidate.definition)),
+                                card: Some((
+                                    candidate.context.source.object,
+                                    candidate.presentation,
+                                )),
                                 members: Vec::new(),
                                 ability_text: Some(candidate.text.to_string()),
                                 zone: if self.battlefield.iter().any(|permanent| {
@@ -172,68 +176,6 @@ impl Game {
             self.pending_events.push_front(pending);
         }
         self.continue_pending_events();
-    }
-
-    /// Applies one queued replacement operation. `None` means the operation
-    /// suspended the event behind a decision that will resume it.
-    /// Offers the copy choice an entering permanent may make, or lets it enter
-    /// as itself when there is nothing to copy.
-    pub(super) fn offer_entry_copy(
-        &mut self,
-        pending: PendingEvent,
-        object: ObjectPredicateDef,
-        added_types: CardTypeSet,
-        retain_printed_subtypes: bool,
-        retained_abilities: &'static [crate::AbilityId],
-    ) -> Option<PendingEvent> {
-        let player = Self::pending_event_controller(&pending);
-        let ReplaceableEvent::BattlefieldEntry(entry) = &pending.event;
-        let entering = entry.permanent.card.id;
-        // Read off the card that is entering, which is where an "except it
-        // has ..." clause is printed. A copy takes the other permanent's
-        // abilities wholesale, so this is how its own come back.
-        let definition = entry.permanent.card.definition;
-        let part = entry.permanent.presented;
-        let kept = self
-            .catalog
-            .get(definition)
-            .and_then(|card| card.part(part))
-            .map(|part_rules| {
-                retained_abilities
-                    .iter()
-                    .filter_map(|id| {
-                        Some(super::CopiableAbility {
-                            origin: crate::AbilityOrigin::Printed {
-                                definition,
-                                part,
-                                ability: *id,
-                            },
-                            definition: *part_rules.rules.ability(*id)?,
-                        })
-                    })
-                    .collect::<Vec<_>>()
-            })
-            .unwrap_or_default();
-        let choices = self
-            .battlefield
-            .iter()
-            .filter(|permanent| permanent.card.id != entering)
-            .filter(|permanent| {
-                self.trigger_object_matches(
-                    object,
-                    &self.trigger_event_object(permanent),
-                    entering,
-                    false,
-                )
-            })
-            .map(|permanent| permanent.card.id)
-            .collect::<Vec<_>>();
-        if choices.is_empty() {
-            return Some(pending);
-        }
-        self.pending_events.push_front(pending);
-        self.queue_entry_copy_choice(player, choices, added_types, retain_printed_subtypes, kept);
-        None
     }
 
     pub(super) fn apply_pending_replacement_effect(
@@ -381,10 +323,8 @@ impl Game {
 
     pub(super) fn pending_entry_name(&self, pending: &PendingEvent) -> String {
         let ReplaceableEvent::BattlefieldEntry(entry) = &pending.event;
-        let definition = Self::effective_rules_source(&entry.permanent).0;
-        self.catalog
-            .get(definition)
-            .map_or_else(|| "this permanent".to_string(), |card| card.name.clone())
+        self.presentation_name(Self::effective_rules_source(&entry.permanent))
+            .map_or_else(|| "this permanent".to_owned(), std::borrow::Cow::into_owned)
     }
 
     fn pending_payment_object(
@@ -632,9 +572,9 @@ impl Game {
                         source,
                         controller: entry.permanent.controller,
                     },
-                    definition: Self::ability_presentation_definition(
+                    presentation: Self::ability_presentation(
                         effective.origin,
-                        entry.permanent.card.definition,
+                        Self::effective_rules_source(&entry.permanent),
                     ),
                     text: ability.text,
                     optional: definition.optional,
@@ -734,9 +674,9 @@ impl Game {
                                 source,
                                 controller: source_permanent.controller,
                             },
-                            definition: Self::ability_presentation_definition(
+                            presentation: Self::ability_presentation(
                                 effective.origin,
-                                source_permanent.card.definition,
+                                Self::effective_rules_source(source_permanent),
                             ),
                             text: ability.text,
                             optional: definition.optional,
@@ -764,7 +704,13 @@ impl Game {
     /// brought with it happens.
     fn commit_redirected_entry(&mut self, entry: PendingBattlefieldEntry, zone: ZoneKind) {
         let owner = entry.permanent.card.owner;
-        let (card, _zone_change) = self.zone_change_card(entry.permanent.card);
+        let Some(card) = entry.permanent.card.into_card() else {
+            // A token whose entry is redirected leaves the battlefield-entry
+            // process and then ceases to exist; it never becomes a card in the
+            // destination zone.
+            return;
+        };
+        let (card, _zone_change) = self.zone_change_card(card);
         match zone {
             ZoneKind::Graveyard => self.put_card_into_graveyard(owner, card),
             ZoneKind::Exile => self.players[owner.index()].exile.push(card),
@@ -781,9 +727,11 @@ impl Game {
             return;
         }
         let prospective = entry.permanent.card.id;
-        if entry.completion != EntryCompletion::Setup {
-            let (card, _zone_change) = self.zone_change_card(entry.permanent.card);
-            entry.permanent.card = card;
+        if entry.completion != EntryCompletion::Setup
+            && let Some(card) = entry.permanent.card.clone().into_card()
+        {
+            let (card, _zone_change) = self.zone_change_card(card);
+            entry.permanent.card = card.into();
         }
         // A permanent takes a fresh identity as it actually arrives, so
         // anything linked to it while the entry was still prospective has to
@@ -798,7 +746,7 @@ impl Game {
         }
         entry.permanent.timestamp = self.allocate_continuous_effect_timestamp();
         let permanent_id = entry.permanent.card.id;
-        let definition = entry.permanent.card.definition;
+        let definition = entry.permanent.card.definition.card_definition();
         self.battlefield.push(entry.permanent);
 
         if let EntryCompletion::AttachSource { source } = entry.completion {
@@ -829,7 +777,7 @@ impl Game {
             self.events.push(GameEvent::LandPlayed {
                 player,
                 card: permanent_id,
-                definition,
+                definition: definition.expect("a played land is a card"),
             });
         }
 

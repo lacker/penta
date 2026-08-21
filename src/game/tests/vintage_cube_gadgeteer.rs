@@ -31,7 +31,7 @@ fn staged() -> Game {
 fn clues(game: &Game) -> usize {
     game.battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::CLUE_TOKEN)
+        .filter(|permanent| is_token_with(permanent, tokens::clue()))
         .count()
 }
 
@@ -79,10 +79,15 @@ fn a_nonartifact_spell_leaves_nothing() {
 #[test]
 fn the_discount_takes_a_clue_from_two_mana_to_one() {
     let mut game = staged();
-    let clue = game
-        .put_onto_battlefield(PlayerId::One, cards::CLUE_TOKEN)
-        .expect("cataloged");
+    game.create_token(PlayerId::One, tokens::clue());
     drain_pending(&mut game);
+    let clue = game
+        .battlefield
+        .iter()
+        .find(|permanent| is_token_with(permanent, tokens::clue()))
+        .expect("the Clue token arrived")
+        .card
+        .id;
     game.add_unrestricted_mana(PlayerId::One, ManaColor::Colorless, 1);
 
     let activate = game
@@ -109,10 +114,15 @@ fn the_discount_takes_a_clue_from_two_mana_to_one() {
 fn one_mana_is_not_enough_without_the_discount() {
     let mut game = ready_game();
     game.battlefield.clear();
-    let clue = game
-        .put_onto_battlefield(PlayerId::One, cards::CLUE_TOKEN)
-        .expect("cataloged");
+    game.create_token(PlayerId::One, tokens::clue());
     drain_pending(&mut game);
+    let clue = game
+        .battlefield
+        .iter()
+        .find(|permanent| is_token_with(permanent, tokens::clue()))
+        .expect("the Clue token arrived")
+        .card
+        .id;
     game.add_unrestricted_mana(PlayerId::One, ManaColor::Colorless, 1);
 
     assert!(

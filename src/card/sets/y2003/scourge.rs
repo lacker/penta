@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
     AppliedEffectDef, BasicLandType, CardArt, CardRules, CardSet, CardType, ComparisonDef,
-    CounterKind, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
+    CounterKind, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, ManaColor,
     ObjectPredicateDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ResolvedEffectDurationDef, StackTargetKindDef, TriggerConditionDef, TriggerEventDef, ValueDef,
     ZoneKind, ZonePlacement, abilities, cards,
@@ -16,15 +16,13 @@ static GOBLIN_SPELLS: ObjectPredicateDef = ObjectPredicateDef::Subtype("Goblin")
 
 /// The cycling half: X is settled by the payment rather than by a cast, so
 /// the branch that makes the tokens reads back what was actually paid.
-static DECREE_SOLDIERS: EffectDef = EffectDef::CreateToken {
-    token: cards::SOLDIER_TOKEN_1_1_WHITE,
-    controller: None,
-    count: ValueDef::PaidAmount,
-    tapped: false,
-    attacking: false,
-    counters: None,
-    created: None,
-};
+static DECREE_SOLDIERS: EffectDef =
+    EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1)
+        .with_count(ValueDef::PaidAmount)
+        .with_art(CardArt::new(
+            "70205fb6-7722-4974-a8c6-8909dbb1c96d",
+            "Bachzim",
+        ));
 
 static DECREE_CYCLING_TRIGGER: EffectDef = EffectDef::PayOr(PayOrDef::optional(
     EffectPaymentDef {
@@ -46,14 +44,13 @@ pub(in crate::card::sets) static DECREE_OF_JUSTICE: CardRecord = CardRecord::new
     CardRules::new_sorcery(mana_cost!("{X}{X}{2}{W}{W}")).with_abilities(&[
         AbilityDef::spell(
             "Create X 4/4 white Angel creature tokens with flying.",
-            EffectDef::CreateToken {
-                token: cards::ANGEL_TOKEN_4_4_WHITE,
-                controller: None,
-                count: ValueDef::ChosenX,
-                tapped: false,
-                attacking: false,
-            counters: None,
-            created: None,},
+            EffectDef::create_creature_token(&["Angel"], &[ManaColor::White], 4, 4)
+                .with_count(ValueDef::ChosenX)
+                .with_abilities(&[abilities::flying()])
+                .with_art(CardArt::new(
+                    "bb6d0a6a-3007-47fc-a42c-3db311c9c41f",
+                    "Magali Villeneuve",
+                )),
         ),
         abilities::cycling(
             "Cycling {2}{W} ({2}{W}, Discard this card: Draw a card.)",
@@ -384,15 +381,12 @@ pub(in crate::card::sets) static SIEGE_GANG_COMMANDER: CardRecord = CardRecord::
                 None,
                 Some(ZoneKind::Battlefield),
             ),
-            EffectDef::CreateToken {
-                token: cards::GOBLIN_TOKEN_1_1_RED,
-                controller: None,
-                count: ValueDef::Constant(3),
-                tapped: false,
-                attacking: false,
-                counters: None,
-                created: None,
-            },
+            EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1)
+                .with_amount(3)
+                .with_art(CardArt::new(
+                    "09faad62-42ff-4e37-b8a5-d8e8a0f6d096",
+                    "Wizard of Barge",
+                )),
         ),
         AbilityDef::activated_with_targets(
             "{1}{R}, Sacrifice a Goblin: This creature deals 2 damage to any target.",

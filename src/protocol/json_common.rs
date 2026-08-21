@@ -1,10 +1,13 @@
 use serde_json::{Value, json};
 
-use crate::card::{AlternateSpellKind, BasicLandType, DoubleFacedKind, SpellForm, TargetPredicate};
+use crate::card::{
+    AlternateSpellKind, BasicLandType, CardArt, CardRules, DoubleFacedKind, HybridPair,
+    ImplementationStatus, SpellForm, TargetPredicate, TokenStructure,
+};
 use crate::casting::{CastChoices, CastSignature};
 use crate::{
-    AbilityOrigin, AttackDefender, DecisionVisibility, DecisionZone, GameObjectId, ManaColor,
-    PlayerId, Step, Target,
+    AbilityOrigin, AttackDefender, CardCatalog, DecisionVisibility, DecisionZone, GameObjectId,
+    ManaColor, ObjectCharacteristics, PlayerId, Step, Target,
 };
 
 pub(super) fn seat_name(player: PlayerId) -> &'static str {
@@ -137,6 +140,139 @@ pub(super) fn instances_json(cards: &[GameObjectId]) -> Value {
     Value::from(cards.iter().map(|card| card.0).collect::<Vec<_>>())
 }
 
+fn card_art_json(art: CardArt) -> Value {
+    json!({
+        "scryfallId": art.scryfall_id,
+        "artist": art.artist,
+    })
+}
+
+fn mana_cost_json(cost: crate::ManaCost) -> Value {
+    json!({
+        "generic": cost.generic,
+        "white": cost.white,
+        "blue": cost.blue,
+        "black": cost.black,
+        "red": cost.red,
+        "green": cost.green,
+        "colorless": cost.colorless,
+        "hybrid": HybridPair::ALL
+            .into_iter()
+            .filter(|pair| cost.hybrid[pair.index()] > 0)
+            .map(|pair| json!({ "symbol": pair.symbol(), "count": cost.hybrid[pair.index()] }))
+            .collect::<Vec<_>>(),
+        "variableX": cost.variable_x,
+        "xMultiplier": cost.x_multiplier,
+    })
+}
+
+const fn implementation_status_name(status: ImplementationStatus) -> &'static str {
+    match status {
+        ImplementationStatus::Complete => "complete",
+        ImplementationStatus::Partial => "partial",
+        ImplementationStatus::MetadataOnly => "metadataOnly",
+    }
+}
+
+fn rules_presentation_json(rules: &CardRules) -> Value {
+    let stats = rules.creature_stats();
+    json!({
+        "kind": rules.kind_name(),
+        "typeLine": rules.type_line(),
+        "manaCost": rules.mana_cost().map(mana_cost_json),
+        "power": stats.map(|stats| stats.power),
+        "toughness": stats.map(|stats| stats.toughness),
+        "rulesText": rules.rules_text(),
+        "implementationStatus": implementation_status_name(rules.implementation_status()),
+        "colors": rules.colors(),
+        "isLand": rules.has_type(crate::card::CardType::Land),
+    })
+}
+
+fn token_structure_json(structure: TokenStructure) -> Value {
+    match structure {
+        TokenStructure::Single => json!({
+            "kind": "single",
+            "mainPartId": crate::CardPartId::PRIMARY.0,
+        }),
+        TokenStructure::TransformingDoubleFaced { back } => json!({
+            "kind": "transformingDoubleFaced",
+            "frontPartId": crate::CardPartId::PRIMARY.0,
+            "backPartId": back.id.0,
+        }),
+    }
+}
+
+pub(super) fn object_characteristics_name(
+    catalog: &CardCatalog,
+    characteristics: ObjectCharacteristics,
+) -> Option<String> {
+    match characteristics {
+        ObjectCharacteristics::Card { definition, part } => catalog.get(definition).map(|card| {
+            card.part(part)
+                .map_or_else(|| card.name.clone(), |part| part.name.clone())
+        }),
+        ObjectCharacteristics::Token { token, part } => Some(
+            token
+                .part(part)
+                .unwrap_or_else(|| token.primary_part())
+                .name()
+                .into_owned(),
+        ),
+        ObjectCharacteristics::Emblem { emblem } => Some(emblem.name().to_owned()),
+    }
+}
+
+/// Stable public presentation identity for either a catalog-backed card or
+/// creator-owned virtual characteristics. Printed objects deliberately stay
+/// compact: their rules and art join through the catalog. Tokens and emblems
+/// have no catalog identity, so their complete display data travels inline.
+pub(super) fn object_characteristics_json(characteristics: ObjectCharacteristics) -> Value {
+    match characteristics {
+        ObjectCharacteristics::Card { definition, part } => json!({
+            "kind": "printed",
+            "definition": definition.0,
+            "partId": part.0,
+        }),
+        ObjectCharacteristics::Token { token, part } => {
+            let current = token.part(part).unwrap_or_else(|| token.primary_part());
+            let rules = current.rules();
+            let mut value = json!({
+                "kind": "token",
+                "partId": current.id.0,
+                "name": current.name(),
+                "structure": token_structure_json(token.structure),
+                "presentation": rules_presentation_json(&rules),
+            });
+            if let Some(art) = token.art {
+                value["art"] = card_art_json(art);
+            }
+            value
+        }
+        ObjectCharacteristics::Emblem { emblem } => {
+            json!({
+                "kind": "emblem",
+                "name": emblem.name(),
+                "presentation": emblem_presentation_json(emblem),
+            })
+        }
+    }
+}
+
+fn emblem_presentation_json(emblem: crate::EmblemCharacteristics) -> Value {
+    json!({
+        "kind": "Emblem",
+        "typeLine": "Emblem",
+        "manaCost": null,
+        "power": null,
+        "toughness": null,
+        "rulesText": emblem.rules_text(),
+        "implementationStatus": implementation_status_name(emblem.implementation_status()),
+        "colors": [],
+        "isLand": false,
+    })
+}
+
 pub(super) fn spell_form_json(form: &SpellForm) -> Value {
     match form {
         SpellForm::Part(part) => json!({
@@ -226,6 +362,15 @@ pub(super) fn ability_origin_json(origin: AbilityOrigin) -> Value {
             "partId": part.0,
             "abilityId": ability.0,
         }),
+        AbilityOrigin::Token { part, ability } => json!({
+            "kind": "token",
+            "partId": part.0,
+            "abilityId": ability.0,
+        }),
+        AbilityOrigin::Emblem { ability } => json!({
+            "kind": "emblem",
+            "abilityId": ability.0,
+        }),
         AbilityOrigin::IntrinsicBasicLand(land_type) => json!({
             "kind": "intrinsicBasicLand",
             "landType": basic_land_type_name(land_type),
@@ -245,6 +390,28 @@ pub(super) fn ability_origin_json(origin: AbilityOrigin) -> Value {
             "source": source.0,
             "sourceDefinition": source_definition.0,
             "sourcePartId": source_part.0,
+            "sourceAbilityId": source_ability.0,
+            "grantId": grant.0,
+        }),
+        AbilityOrigin::TokenGranted {
+            source,
+            source_part,
+            source_ability,
+            grant,
+        } => json!({
+            "kind": "tokenGranted",
+            "source": source.0,
+            "sourcePartId": source_part.0,
+            "sourceAbilityId": source_ability.0,
+            "grantId": grant.0,
+        }),
+        AbilityOrigin::EmblemGranted {
+            source,
+            source_ability,
+            grant,
+        } => json!({
+            "kind": "emblemGranted",
+            "source": source.0,
             "sourceAbilityId": source_ability.0,
             "grantId": grant.0,
         }),

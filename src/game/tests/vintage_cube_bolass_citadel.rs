@@ -233,9 +233,9 @@ fn the_sacrifice_ability_eats_ten_and_drains_ten() {
             .options
             .iter()
             .find(|option| {
-                option
-                    .card
-                    .is_some_and(|(_, definition)| definition == cards::SAVANNAH_LIONS)
+                option.card.is_some_and(|(_, characteristics)| {
+                    characteristics.card_definition() == Some(cards::SAVANNAH_LIONS)
+                })
             })
             .expect("a Lions remains")
             .id;

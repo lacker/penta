@@ -72,8 +72,8 @@ impl CardAbilityList {
     }
 }
 
-/// Declarative rules metadata kept beside a card's catalog identity.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+/// Declarative rules metadata for one card or token face.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 #[allow(clippy::struct_excessive_bools)]
 pub struct CardRules {
     card_types: CardTypeSet,
@@ -166,6 +166,31 @@ impl CardRules {
         }
     }
 
+    /// Materializes the ordinary rules view of compact token
+    /// characteristics. Token definitions keep abilities behind a slice so
+    /// an ability that creates another token does not make the declarative
+    /// schema recursively sized.
+    pub(super) const fn from_token_characteristics(
+        card_types: CardTypeSet,
+        supertypes: [bool; CardSupertype::COUNT],
+        subtypes: &'static [&'static str],
+        colors: ColorSet,
+        creature_stats: Option<CreatureStats>,
+        abilities: &'static [AbilityDef],
+    ) -> Self {
+        let mut rules = Self::base(card_types, PrintedManaCost::None);
+        rules.supertypes = supertypes;
+        rules.subtypes = subtypes;
+        rules.colors = colors;
+        rules.creature_stats = creature_stats;
+        rules.abilities = if abilities.is_empty() {
+            CardAbilityList::None
+        } else {
+            CardAbilityList::Many(abilities)
+        };
+        rules
+    }
+
     /// Records a printed morph cost. The permission to cast the card face
     /// down is a separate declared clause, so that a card carrying one
     /// without the other fails catalog validation rather than half-working.
@@ -196,12 +221,10 @@ impl CardRules {
         rules
     }
 
-    /// An emblem has abilities and nothing else: no types, no cost, and no
-    /// body. It is never in a zone a card can be in, so it needs none of the
-    /// characteristics the rest of the model is built around.
-    #[must_use]
-    pub const fn new_emblem() -> Self {
-        Self::base(CardTypeSet::single(CardType::Emblem), PrintedManaCost::None)
+    /// Adapts an emblem's ability slice to shared runtime ability machinery
+    /// without inventing card characteristics for the emblem itself.
+    pub(crate) const fn from_emblem_abilities(abilities: &'static [AbilityDef]) -> Self {
+        Self::base(CardTypeSet::empty(), PrintedManaCost::None).with_abilities(abilities)
     }
 
     #[must_use]

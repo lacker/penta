@@ -26,8 +26,8 @@ use crate::card::{
     ProtectedCreatureType, QuantifierDef, ReplacementChoiceDef, ReplacementConditionDef,
     ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
     SetOperationDef, StackTargetKindDef, TapPurposeDef, TargetPredicate, TargetSlotDef,
-    TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnPhaseDef,
-    TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
+    TokenCharacteristics, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnKindDef,
+    TurnPhaseDef, TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
     applicable_part_ids,
 };
 use crate::casting::{CastChoices, CastSignature, CostConfiguration, TargetSelection};
@@ -134,8 +134,8 @@ use event::TurnPhaseResume;
 pub use event::{BattlefieldExit, GameEvent, GameResult, StackObjectKind, Step, WinReason};
 pub use mana::{Mana, ManaPool, ManaSource};
 pub use observation::{
-    EmblemObservation, PermanentObservation, PlayerObservation, StackObservation, ZoneCard,
-    ZoneError,
+    EmblemObservation, ObjectCharacteristics, PermanentObservation, PhysicalFaceObservation,
+    PhysicalFaceSide, PlayerObservation, StackObservation, ZoneCard, ZoneError,
 };
 
 pub(crate) use card_runtime::{
@@ -150,7 +150,8 @@ use activation_state::{ActivationChoices, FrozenActivatedAbility, PendingActivat
 use casting_state::{CastSourceZone, SelectedSpellPlan, cast_source_zone_from_label};
 use characteristic_state::{
     BasicLandTypeChange, BattlefieldExitSnapshot, CharacteristicSource, CopiableAbility,
-    CopiableCharacteristics, EffectiveAbility, LandTypeOperation, PermanentLastKnownInformation,
+    CopiableCharacteristics, DoubleFacedCopiableCharacteristics, EffectiveAbility,
+    LandTypeOperation, PermanentLastKnownInformation,
 };
 use combat_state::CombatDamageStage;
 use continuous_state::{
@@ -246,6 +247,85 @@ impl CardInstance {
     }
 }
 
+/// The physical nature of an object that can exist on the battlefield or
+/// stack. A token is explicit state, never inferred from a synthetic card
+/// definition. Its authored characteristics live on the permanent or frozen
+/// stack presentation that owns them.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum ObjectKind {
+    Card(CardDefinitionId),
+    Token,
+    /// An emblem is a command-zone game object with creator-owned
+    /// characteristics, not a synthetic card definition.
+    Emblem,
+    /// A stack ability has an object ID but is neither a card nor a token.
+    Ability,
+}
+
+impl ObjectKind {
+    const fn card_definition(self) -> Option<CardDefinitionId> {
+        match self {
+            Self::Card(definition) => Some(definition),
+            Self::Token | Self::Emblem | Self::Ability => None,
+        }
+    }
+
+    const fn is_token(self) -> bool {
+        matches!(self, Self::Token)
+    }
+}
+
+impl PartialEq<CardDefinitionId> for ObjectKind {
+    fn eq(&self, other: &CardDefinitionId) -> bool {
+        matches!(self, Self::Card(definition) if definition == other)
+    }
+}
+
+impl PartialEq<ObjectKind> for CardDefinitionId {
+    fn eq(&self, other: &ObjectKind) -> bool {
+        other == self
+    }
+}
+
+/// An object on the battlefield or stack. Cards convert into this shell when
+/// they enter either zone; tokens are minted directly without ever pretending
+/// to be a [`CardInstance`].
+#[derive(Clone, Debug, Eq, PartialEq)]
+struct ObjectInstance {
+    id: GameObjectId,
+    definition: ObjectKind,
+    owner: PlayerId,
+    backing: ObjectBacking,
+    characteristics: CharacteristicSource,
+    counters: [u16; CounterKind::COUNT],
+}
+
+impl From<CardInstance> for ObjectInstance {
+    fn from(card: CardInstance) -> Self {
+        Self {
+            id: card.id,
+            definition: ObjectKind::Card(card.definition),
+            owner: card.owner,
+            backing: card.backing,
+            characteristics: card.characteristics,
+            counters: card.counters,
+        }
+    }
+}
+
+impl ObjectInstance {
+    fn into_card(self) -> Option<CardInstance> {
+        Some(CardInstance {
+            id: self.id,
+            definition: self.definition.card_definition()?,
+            owner: self.owner,
+            backing: self.backing,
+            characteristics: self.characteristics,
+            counters: self.counters,
+        })
+    }
+}
+
 /// A retired object incarnation retained for last-known-information queries.
 /// Zone changes still create a new [`GameObjectId`]; this record deliberately
 /// never follows the physical card into its new zone.
@@ -267,7 +347,7 @@ enum RetiredObject {
 struct StackObject {
     id: GameObjectId,
     kind: StackObjectKind,
-    card: CardInstance,
+    card: ObjectInstance,
     /// The permanent object whose ability this is. Spell objects have no
     /// source; their `card` is the stack incarnation itself.
     source: Option<GameObjectId>,
@@ -327,7 +407,7 @@ struct StackAbilityPayload {
     /// need its costs and targets as copiable values, not only its resolver;
     /// triggered payloads do not currently need this optional snapshot.
     definition: Option<Box<AbilityDef>>,
-    presentation_definition: CardDefinitionId,
+    presentation: ObjectCharacteristics,
     text: Option<&'static str>,
     target_defs: Vec<AbilityTargetDef>,
     targets: Vec<TargetSelection>,
@@ -409,12 +489,25 @@ impl StackObject {
         self.ability.as_ref().and_then(|ability| ability.text)
     }
 
-    fn presentation_definition(&self) -> CardDefinitionId {
-        self.ability
-            .as_ref()
-            .map_or(self.card.definition, |ability| {
-                ability.presentation_definition
-            })
+    fn presentation(&self) -> ObjectCharacteristics {
+        self.ability.as_ref().map_or_else(
+            || {
+                ObjectCharacteristics::card(
+                    self.card
+                        .definition
+                        .card_definition()
+                        .expect("a spell object is backed by a card definition"),
+                    self.signature
+                        .as_ref()
+                        .and_then(|signature| match signature.form() {
+                            crate::card::SpellForm::Part(part) => Some(*part),
+                            crate::card::SpellForm::Combined(parts) => parts.first().copied(),
+                        })
+                        .unwrap_or(CardPartId::PRIMARY),
+                )
+            },
+            |ability| ability.presentation,
+        )
     }
 
     fn targets(&self) -> Vec<Target> {

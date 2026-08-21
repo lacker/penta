@@ -1,5 +1,7 @@
 use crate::{CardDefinitionId, GameObjectId, PlayerId, Target};
 
+use super::ObjectCharacteristics;
+
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum Step {
     Upkeep,
@@ -142,8 +144,8 @@ pub enum GameEvent {
         object: GameObjectId,
         /// The permanent object that created the ability.
         source: GameObjectId,
-        /// Immutable source definition for logs after the source leaves play.
-        definition: CardDefinitionId,
+        /// Frozen source presentation for logs after the source leaves play.
+        presentation: ObjectCharacteristics,
         chosen_permanents: Vec<GameObjectId>,
     },
     AbilityResolved {
@@ -151,38 +153,38 @@ pub enum GameEvent {
         object: GameObjectId,
         /// The permanent object that created the ability.
         source: GameObjectId,
-        definition: CardDefinitionId,
+        presentation: ObjectCharacteristics,
     },
     /// An activated ability resolved with every target illegal, so it did
     /// nothing even though its activation costs remain paid.
     AbilityFizzled {
         object: GameObjectId,
         source: GameObjectId,
-        definition: CardDefinitionId,
+        presentation: ObjectCharacteristics,
     },
     AbilityTriggered {
         player: PlayerId,
         trigger: u32,
         source: GameObjectId,
-        definition: CardDefinitionId,
+        presentation: ObjectCharacteristics,
     },
     TriggeredAbilityPutOnStack {
         player: PlayerId,
         trigger: u32,
         object: GameObjectId,
         source: GameObjectId,
-        definition: CardDefinitionId,
+        presentation: ObjectCharacteristics,
     },
     TriggeredAbilityResolved {
         object: GameObjectId,
         source: GameObjectId,
-        definition: CardDefinitionId,
+        presentation: ObjectCharacteristics,
     },
     /// A triggered ability resolved with every target illegal.
     TriggeredAbilityFizzled {
         object: GameObjectId,
         source: GameObjectId,
-        definition: CardDefinitionId,
+        presentation: ObjectCharacteristics,
     },
     AttackDeclared {
         player: PlayerId,
@@ -214,12 +216,12 @@ pub enum GameEvent {
     },
     /// A permanent left the battlefield. Emitted from the three functions that
     /// can remove one, so nothing leaves play without the log seeing it. The
-    /// definition travels with the event because the card is by then in a zone
-    /// the observing player may not be able to read.
+    /// characteristics travel with the event because a token is by then gone
+    /// and a card may be in a zone the observing player cannot read.
     PermanentLeftBattlefield {
         controller: PlayerId,
         card: GameObjectId,
-        definition: CardDefinitionId,
+        characteristics: ObjectCharacteristics,
         destination: BattlefieldExit,
     },
     GameEnded {

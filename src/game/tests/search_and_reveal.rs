@@ -48,7 +48,11 @@ fn augur_of_bolas_digs_three_deep_when_it_enters() {
     let offered: Vec<_> = decision
         .options
         .iter()
-        .filter_map(|option| option.card.map(|(_, definition)| definition))
+        .filter_map(|option| {
+            option
+                .card
+                .and_then(|(_, characteristics)| characteristics.card_definition())
+        })
         .collect();
     assert_eq!(offered, vec![cards::LIGHTNING_BOLT]);
 
@@ -274,7 +278,11 @@ fn sin_collector_exiles_an_instant_or_sorcery_from_the_revealed_hand() {
     let offered: Vec<_> = decision
         .options
         .iter()
-        .filter_map(|option| option.card.map(|(_, definition)| definition))
+        .filter_map(|option| {
+            option
+                .card
+                .and_then(|(_, characteristics)| characteristics.card_definition())
+        })
         .collect();
     assert_eq!(offered, vec![cards::LIGHTNING_BOLT, cards::SINKHOLE]);
     assert_eq!(
@@ -299,9 +307,9 @@ fn sin_collector_exiles_an_instant_or_sorcery_from_the_revealed_hand() {
                     .options
                     .iter()
                     .find(|option| {
-                        option
-                            .card
-                            .is_some_and(|(_, card)| card == cards::LIGHTNING_BOLT)
+                        option.card.is_some_and(|(_, characteristics)| {
+                            characteristics.card_definition() == Some(cards::LIGHTNING_BOLT)
+                        })
                     })
                     .expect("the Bolt is a legal choice")
                     .id,
@@ -377,7 +385,11 @@ fn lifebane_zombie_only_takes_green_or_white_creatures() {
     let offered: Vec<_> = decision
         .options
         .iter()
-        .filter_map(|option| option.card.map(|(_, definition)| definition))
+        .filter_map(|option| {
+            option
+                .card
+                .and_then(|(_, characteristics)| characteristics.card_definition())
+        })
         .collect();
     assert_eq!(offered, vec![cards::SAVANNAH_LIONS, cards::ARBOR_ELF]);
 
@@ -385,9 +397,9 @@ fn lifebane_zombie_only_takes_green_or_white_creatures() {
         .options
         .iter()
         .find(|option| {
-            option
-                .card
-                .is_some_and(|(_, card)| card == cards::ARBOR_ELF)
+            option.card.is_some_and(|(_, characteristics)| {
+                characteristics.card_definition() == Some(cards::ARBOR_ELF)
+            })
         })
         .expect("the green creature is eligible");
     game.apply(

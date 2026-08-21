@@ -312,8 +312,8 @@ impl CardComposition {
     }
 }
 
-/// Canonical artwork metadata used when no exact printing is selected.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+/// Canonical artwork metadata for a card definition or created-token effect.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct CardArt {
     pub scryfall_id: &'static str,
     pub artist: &'static str,

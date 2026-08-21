@@ -1,10 +1,13 @@
+use std::borrow::Cow;
+
 use super::{
-    CardInstance, CharacteristicContext, CharacteristicSource, ColorSet, DecisionContinuation,
-    DecisionKind, DecisionObservation, DecisionOption, DecisionPreference, DecisionVisibility,
-    DecisionZone, DeclarativeAbilityDef, EffectResolutionContext, FORK_COPY_COLOR, Game, ManaCost,
-    PendingDecision, PlayerId, ResolvedEffectPayment, ScopedEffect, StackObject, Target,
-    TargetSelection, TargetSlotId, TemporaryAbilityGrant, TriggerContext, ZoneKind, ZoneMoveCause,
-    ZonePlacement, flatten_target_selections, target_combinations,
+    CardInstance, CardPartId, CharacteristicContext, CharacteristicSource, ColorSet,
+    DecisionContinuation, DecisionKind, DecisionObservation, DecisionOption, DecisionPreference,
+    DecisionVisibility, DecisionZone, DeclarativeAbilityDef, EffectResolutionContext,
+    FORK_COPY_COLOR, Game, ManaCost, ObjectCharacteristics, PendingDecision, PlayerId,
+    ResolvedEffectPayment, ScopedEffect, StackObject, Target, TargetSelection, TargetSlotId,
+    TemporaryAbilityGrant, TriggerContext, ZoneKind, ZoneMoveCause, ZonePlacement,
+    flatten_target_selections, target_combinations,
 };
 use crate::card::{AbilityDef, ChoiceVisibilityDef, EffectDef, ObjectPredicateDef};
 use crate::ids::GameObjectId;
@@ -380,7 +383,7 @@ impl Game {
                 {
                     let name = self
                         .permanent_card_name(permanent)
-                        .map_or_else(|| "a permanent".to_string(), ToOwned::to_owned);
+                        .map_or_else(|| "a permanent".to_string(), std::borrow::Cow::into_owned);
                     options.push(DecisionOption {
                         id: u32::try_from(index + 1).unwrap_or(u32::MAX),
                         label: if returning {
@@ -392,7 +395,7 @@ impl Game {
                             .battlefield
                             .iter()
                             .find(|candidate| candidate.card.id == permanent)
-                            .map(|candidate| (permanent, candidate.card.definition)),
+                            .map(|candidate| (permanent, Self::effective_rules_source(candidate))),
                         members: Vec::new(),
                         ability_text: None,
                         zone: DecisionZone::Battlefield,
@@ -412,7 +415,10 @@ impl Game {
                     options.push(DecisionOption {
                         id: u32::try_from(index + 1).unwrap_or(u32::MAX),
                         label: format!("Discard {name}"),
-                        card: Some((card.id, card.definition)),
+                        card: Some((
+                            card.id,
+                            ObjectCharacteristics::card(card.definition, CardPartId::PRIMARY),
+                        )),
                         members: Vec::new(),
                         ability_text: None,
                         zone: DecisionZone::Hand,
@@ -567,7 +573,10 @@ impl Game {
             vec![DecisionOption {
                 id: 0,
                 label: "Decline".into(),
-                card: Some((exiled, printed)),
+                card: Some((
+                    exiled,
+                    ObjectCharacteristics::card(printed, CardPartId::PRIMARY),
+                )),
                 members: Vec::new(),
                 ability_text: None,
                 zone: DecisionZone::Exile,
@@ -624,7 +633,10 @@ impl Game {
             vec![DecisionOption {
                 id: 0,
                 label: "Decline".into(),
-                card: Some((card, printed)),
+                card: Some((
+                    card,
+                    ObjectCharacteristics::card(printed, CardPartId::PRIMARY),
+                )),
                 members: Vec::new(),
                 ability_text: None,
                 zone: DecisionZone::Graveyard,
@@ -683,8 +695,8 @@ impl Game {
             .stack
             .iter()
             .find(|object| object.id == spell)
-            .and_then(|object| self.catalog.get(object.card.definition))
-            .map_or_else(|| "that spell".to_owned(), |card| card.name.clone());
+            .and_then(|object| self.characteristics_name(object.presentation()))
+            .map_or_else(|| "that spell".to_owned(), std::borrow::Cow::into_owned);
         self.queue_decision(
             owner,
             format!("Put {name} on the top or bottom of your library"),
@@ -768,14 +780,28 @@ impl Game {
                 .battlefield
                 .iter()
                 .find(|permanent| permanent.card.id == id)
-                .and_then(|permanent| self.catalog.get(permanent.card.definition))
-                .map_or_else(|| "that permanent".into(), |card| card.name.clone()),
+                .and_then(|permanent| self.effective_permanent_name(permanent))
+                .map_or_else(|| "that permanent".into(), Cow::into_owned),
             Target::Spell(id) => self
                 .stack
                 .iter()
                 .find(|object| object.id == id)
-                .and_then(|object| self.catalog.get(object.card.definition))
-                .map_or_else(|| "that spell".into(), |card| card.name.clone()),
+                .and_then(|object| self.characteristics_name(object.presentation()))
+                .map_or_else(|| "that spell".into(), Cow::into_owned),
+        }
+    }
+
+    fn characteristics_name(&self, characteristics: ObjectCharacteristics) -> Option<Cow<'_, str>> {
+        match characteristics {
+            ObjectCharacteristics::Card { definition, part } => self
+                .catalog
+                .get(definition)?
+                .part(part)
+                .map(|part| Cow::Borrowed(part.name.as_str())),
+            ObjectCharacteristics::Token { token, part } => {
+                token.part(part).map(crate::card::TokenPart::name)
+            }
+            ObjectCharacteristics::Emblem { emblem } => Some(Cow::Borrowed(emblem.name())),
         }
     }
 }

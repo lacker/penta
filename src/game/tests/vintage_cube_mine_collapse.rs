@@ -154,10 +154,23 @@ fn any_land_with_the_mountain_type_pays_it() {
 #[test]
 fn it_deals_five() {
     let (mut game, collapse, _angel) = staged(&[cards::MOUNTAIN]);
-    let wurm = game
-        .put_onto_battlefield(PlayerId::Two, cards::WURM_TOKEN_5_5_GREEN)
-        .expect("cataloged");
+    game.create_token(
+        PlayerId::Two,
+        token_with_trample(tokens::creature(&["Wurm"], &[ManaColor::Green], 5, 5)),
+    );
     drain_pending(&mut game);
+    let wurm = game
+        .battlefield
+        .iter()
+        .find(|permanent| {
+            is_token_with(
+                permanent,
+                token_with_trample(tokens::creature(&["Wurm"], &[ManaColor::Green], 5, 5)),
+            )
+        })
+        .expect("the Wurm token arrived")
+        .card
+        .id;
     game.priority = PlayerId::One;
 
     let action = casts(&game, collapse, wurm)

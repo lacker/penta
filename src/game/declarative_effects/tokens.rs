@@ -53,12 +53,9 @@ impl Game {
                 });
                 let mut minted = Vec::new();
                 for _ in 0..self.effect_value(count, object, context, scoped).max(0) {
-                    minted.extend(
-                        self.create_token_arriving(
-                            controller, token, None, tapped, defender, counters,
-                        )
-                        .map(Target::Permanent),
-                    );
+                    minted.push(Target::Permanent(self.create_token_arriving(
+                        controller, token, None, tapped, defender, counters,
+                    )));
                 }
                 // Bound after every one is made, so a clause naming them
                 // names the whole batch rather than the last of them.
@@ -82,18 +79,21 @@ impl Game {
                             .battlefield
                             .iter()
                             .find(|permanent| permanent.card.id == id)
-                            // A token that is itself a copy of something else
-                            // copies what it became, not what it was made as.
+                            // Freeze the source's complete copiable values. Its
+                            // token nature is deliberately not among them: the
+                            // newly created object is independently a token.
                             .map(|permanent| {
-                                permanent
-                                    .copied_from
-                                    .map_or(permanent.card.definition, |(definition, _)| definition)
+                                (
+                                    Self::copiable_characteristics(permanent),
+                                    self.double_faced_copiable_characteristics(permanent),
+                                    permanent.presented,
+                                )
                             }),
                         _ => None,
                     })
                     .collect::<Vec<_>>();
-                for definition in copies {
-                    self.create_token(object.controller, definition);
+                for (copy, double_faced, presented) in copies {
+                    self.create_token_copy(object.controller, copy, double_faced, presented);
                 }
             }
             _ => unreachable!("the caller admits only token-making clauses"),

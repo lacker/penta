@@ -103,9 +103,12 @@ fn spending_three_counters_makes_a_saproling() {
 
     assert_eq!(spores(&game, thallid), 0, "the counters were the cost");
     assert!(
-        game.battlefield
-            .iter()
-            .any(|permanent| { permanent.card.definition == cards::SAPROLING_TOKEN_1_1_GREEN }),
+        game.battlefield.iter().any(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Saproling"], &[ManaColor::Green], 1, 1),
+            )
+        }),
         "a Saproling token arrived"
     );
 }
@@ -144,7 +147,11 @@ mod saproling_sacrifice {
         let farmer = creature(10_000, card, PlayerId::One);
         let farmer_id = farmer.card.id;
         game.battlefield.push(farmer);
-        let saproling = creature(10_001, cards::SAPROLING_TOKEN_1_1_GREEN, PlayerId::One);
+        let saproling = token_permanent(
+            10_001,
+            tokens::creature(&["Saproling"], &[ManaColor::Green], 1, 1),
+            PlayerId::One,
+        );
         let saproling_id = saproling.card.id;
         game.battlefield.push(saproling);
         (game, farmer_id, saproling_id)

@@ -13,6 +13,8 @@ export type ImplementationStatus = "complete" | "partial" | "metadataOnly";
 
 export type AbilityOriginMetadata =
   | { kind: "printed"; definition: number; partId: number; abilityId: number }
+  | { kind: "token"; partId: number; abilityId: number }
+  | { kind: "emblem"; abilityId: number }
   | {
       kind: "intrinsicBasicLand";
       landType: "plains" | "island" | "swamp" | "mountain" | "forest";
@@ -22,6 +24,19 @@ export type AbilityOriginMetadata =
       source: number;
       sourceDefinition: number;
       sourcePartId: number;
+      sourceAbilityId: number;
+      grantId: number;
+    }
+  | {
+      kind: "tokenGranted";
+      source: number;
+      sourcePartId: number;
+      sourceAbilityId: number;
+      grantId: number;
+    }
+  | {
+      kind: "emblemGranted";
+      source: number;
       sourceAbilityId: number;
       grantId: number;
     };
@@ -70,6 +85,11 @@ export type Card = {
   id: number;
   /** Logical card part supplying this permanent's visible characteristics. */
   partId?: number;
+  /** Physical double-faced topology, independent of copied characteristics. */
+  physicalFace?: {
+    kind: "transforming" | "modal";
+    side: "front" | "back";
+  };
   name: string;
   art: CardArtMetadata | null;
   kind: string;
@@ -233,7 +253,7 @@ export type GameState = {
     sourceId?: number | null;
     /** Stable positional identifier of the printed ability that created this object. */
     abilityId?: number | null;
-    /** Full frozen origin, including copied card definition and intrinsic subtype. */
+    /** Full frozen origin, including printed/token clauses, intrinsic subtype, and grants. */
     ability?: AbilityOriginMetadata | null;
     signature?: CastSignatureMetadata | null;
     name: string;

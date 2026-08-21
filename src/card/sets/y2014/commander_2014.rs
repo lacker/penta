@@ -3,9 +3,9 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
-    ReplacementEffectDef, ReplacementEventDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities, cards,
+    CardSupertype, CardType, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    PlayerRelation, ReplacementEffectDef, ReplacementEventDef, TriggerEventDef, ZoneKind,
+    ZonePlacement, abilities, cards,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -82,15 +82,9 @@ static TITANIA_ABILITIES: [AbilityDef; 2] = [
             Some(ZoneKind::Battlefield),
             Some(ZoneKind::Graveyard),
         ),
-        EffectDef::CreateToken {
-            token: cards::ELEMENTAL_TOKEN_5_3_GREEN,
-            controller: None,
-            count: ValueDef::Constant(1),
-            tapped: false,
-            attacking: false,
-            counters: None,
-            created: None,
-        },
+        EffectDef::create_creature_token(&["Elemental"], &[ManaColor::Green], 5, 3).with_art(
+            CardArt::new("27440269-3b09-4010-8401-f159dc49a4cd", "Nils Hamm"),
+        ),
     ),
 ];
 

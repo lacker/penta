@@ -5,7 +5,7 @@ ships Eternal Central Old School 93/94 and the final pre-Theros ISD–DGM
 Standard format. This guide is for writing a program that plays it: from
 Python, C, C++, or Rust, against the included bots or against itself.
 
-This guide describes the current development wire contract, **protocol 25**,
+This guide describes the current development wire contract, **protocol 26**,
 which retains protocol 22's open-world model. Ignore JSON object members your bot does not use;
 the epoch changes only when an existing field or tag is removed, renamed,
 retyped, or reinterpreted. Additive fields and different legal actions expressed
@@ -216,12 +216,15 @@ A clone forks the *true* state, hidden zones included. That is right for
 self-play but wrong for a search bot in a hosted match: its rollouts must use
 worlds consistent with its observation, not cards only the host knows.
 
-The optional `reconstruction.checkpoint.v4` capability advertises a hidden-safe
+The optional `reconstruction.checkpoint.v5` capability advertises a hidden-safe
 current-state checkpoint in each observation. The checkpoint was introduced in
 protocol 19, expanded in protocol 21 into the complete typed snapshot described
-below, and given its own nested format version in protocol 22. Supply a
-hypothesis for the zones the observation intentionally redacts, then construct a
-live local game:
+below, and given its own nested format version in protocol 22. Protocol 26's
+format 5 restores creator-owned token and emblem characteristics through
+semantic paths to their printed creating abilities, without synthetic card
+definition IDs.
+Supply a hypothesis for the zones the observation intentionally redacts, then
+construct a live local game:
 
 ```python
 view_json = hosted_observation
@@ -300,7 +303,7 @@ lexical targets or bindings name a card in a hidden zone that has no stable
 public object ID; the checkpoint omits that trigger rather than serializing a
 host-only identity.
 
-Checkpoint format 4 covers every ordinary action boundary emitted by the
+Checkpoint format 5 covers every ordinary action boundary emitted by the
 hosted formats: pregame and turn/combat progression; complete permanent,
 emblem, stack, and combat state; restricted/source-specific mana; copied and
 temporarily modified characteristics; retired-object last-known information;
@@ -353,8 +356,8 @@ world it can search.
 
 | field | meaning |
 | --- | --- |
-| `protocolVersion` | the breaking bot-wire epoch; protocol 25 objects are open-world, but an epoch mismatch requires migration |
-| `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v4`; ignore unknown entries |
+| `protocolVersion` | the breaking bot-wire epoch; protocol 26 objects are open-world, but an epoch mismatch requires migration |
+| `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v5`; ignore unknown entries |
 | `simulationFingerprint` | a conservative identity of simulation source and build requirements; pin it for training and require it for reconstruction |
 | `engineVersion` | package-release provenance; it is not an exact simulation identity |
 | `format` | the rules/deck profile slug, such as `"old-school-93-94"` or `"isd-dgm-standard"` |
@@ -368,17 +371,17 @@ world it can search.
 | `opponentHandSize` | their current hidden hand as a count; learned snapshots are reported separately in `lastSeenHand` |
 | `revealedLibraryTop` | null unless something lets you look at the top card of your own library, such as Bolas's Citadel; a one-card list in the same shape as `hand` when it does |
 | `lastSeenHand` | null or the most recently revealed hand snapshot as `{seat, cards}`; it records known information and can outlive later hand changes |
-| `battlefield` | every permanent, including its current-zone object ID, canonical definition, and presented card-part ID; a planeswalker also reports `loyalty` and `loyaltyAbilityUsedThisTurn` |
+| `battlefield` | every permanent, including its current-zone object ID and authoritative tagged `characteristics`; catalog-backed cards retain definition/part IDs, while tokens carry their display characteristics inline. A physical double-faced permanent also reports `physicalFace`; a planeswalker reports `loyalty` and `loyaltyAbilityUsedThisTurn` |
 | `checkpoint` | the hidden-safe typed rules snapshot used by `Game.from_observation`, including its independent `version` and `simulationFingerprint`, deferred execution, dynamic objects, exact mana units, and reachable LKI; it never contains host RNG state or hidden-zone card identities |
-| `emblems` | command-zone emblems, each with its controller, name, granting ability, and clause texts |
-| `stack` | pending spells, activated abilities, and triggered abilities, bottom to top; entries expose the source object ID, creating definition and ability origin/text, controller, counterability, targets, chosen permanents, X, and a locked cast signature when applicable |
-| `graveyards`, `exiles` | public zones, both players; a card lying face down in exile is absent from the owner's own opponent's view rather than shown, and counted by `faceDownExileSizes` instead |
+| `emblems` | command-zone emblems, each with its controller, creator-owned name and clause texts, and the granting ability |
+| `stack` | pending spells, activated abilities, and triggered abilities, bottom to top; entries expose the source object ID, tagged characteristics and ability origin/text, controller, counterability, targets, chosen permanents, X, and a locked cast signature when applicable |
+| `graveyards`, `exiles` | public zones, both players; a card lying face down in exile is absent from the nonowner's view rather than shown, and counted by `faceDownExileSizes` instead |
 | `faceDownExileSizes` | how many cards lie face down in each player's exile, the way `opponentHandSize` counts a hand; only their owner knows what they are |
 | `decision` | a pending choice (see below), or null |
 | `result` | null while running, else `{winner, reason}`; `reason` is `OpponentConceded`, `OpponentLostAllLife`, `OpponentTriedToDrawFromEmptyLibrary`, `OpponentLostToAnEffect`, `OpponentRanOutOfTime`, or `OpponentPoisoned` |
 | `legalActions` | what you can do, each with an `index` |
 
-Every protocol-23 JSON object is open-world: ignore members you do not use
+Every protocol-26 JSON object is open-world: ignore members you do not use
 rather than rejecting the whole observation or catalog. Treat documented
 presentation strings as opaque. Where a string vocabulary has a safe fallback,
 use it: for example, an unknown non-null `result.reason` still means the game
@@ -393,14 +396,60 @@ players to draw, the active player completes all of their individual draws
 before the nonactive player begins theirs. This is visible in resulting hand
 sizes and game events but adds no observation field or legal-action shape.
 
-Cards are referenced two ways: the object ID identifies one rules object in
-its current zone, while `definition` identifies the canonical card kind and is
-the key into `penta.catalog(format)`. A true zone change creates a new object
-ID, so a Goblin Balloon Brigade card in hand, its spell on the stack, and its
-permanent on the battlefield are distinct. Transforming, flipping, and phasing
-do not create a new object. Physical-card lineage is private engine state and
-never appears in a player's observation. Fetch the format's catalog once at
-startup.
+Objects are referenced two ways. The object ID identifies one rules object in
+its current zone. Its `characteristics` object says how to present that object:
+
+- `{kind: "printed", definition, partId}` joins a printed card and current
+  part through `penta.catalog(format)`. The legacy top-level `definition` and
+  `presentedPartId` projections remain on printed battlefield, stack, and
+  decision objects.
+- `{kind: "token", partId, name, structure, presentation, art?}` is complete
+  inline presentation data. `structure` is tagged `single` or
+  `transformingDoubleFaced`; `presentation` carries the current part's kind,
+  type line, mana cost, power/toughness, rules text, colors, land status, and
+  implementation status. `art` is present only when the creating card selected
+  a token printing. A token object never carries a fake `definition` or
+  `presentedPartId`.
+- `{kind: "emblem", name, presentation}` is the complete inline identity of
+  an emblem ability's source. Its `presentation` carries the emblem's rules
+  text and uses the literal `kind` and `typeLine` value `Emblem` so existing
+  card-shaped renderers can label it. That label is display data, not a card
+  type or `CardRules` identity: emblems have no card definition, card part, or
+  art.
+
+Native declarative definitions mirror those wire identities. Common token
+effects use compact by-value builders: `EffectDef::create_creature_token`,
+`create_artifact_creature_token`, and `create_artifact_token`, followed as
+needed by `with_amount` or `with_count`, `with_name`, `with_abilities`, and
+`with_art`. The default name joins the supplied subtypes in order. Standardized
+artifact rules are functions such as `tokens::treasure`, `food`, `clue`,
+`blood`, `map`, and `incubator`, rather than globally named token constants.
+`EffectDef::create_emblem` similarly embeds a compact name-and-ability value in
+the creating card's effect. These APIs do not allocate either virtual object a
+card definition.
+
+The permanent's separate `token` boolean records whether the rules object is a
+token. Do not infer that status from `characteristics.kind`: a token can copy a
+printed card, and a nontoken permanent can copy a token. A face-up physical
+double-faced permanent also carries
+`physicalFace: {kind: "transforming"|"modal", side: "front"|"back"}`. This is
+physical topology and orientation, not copied characteristics: it is absent
+when a single-faced permanent copies a double-faced object and remains present
+when a double-faced permanent copies a single-faced object. It is omitted for
+physical single-faced and face-down permanents. Never infer transformability or
+physical orientation from `characteristics.structure`. Treat an unknown
+`physicalFace.kind` or `.side` as unavailable topology and fall back to the
+authoritative legal actions rather than guessing that the permanent can
+transform.
+
+A true zone change
+creates a new object ID, so a Goblin Balloon Brigade card in hand, its spell on
+the stack, and its permanent on the battlefield are distinct. Transforming,
+flipping, and phasing do not create a new object. Exact physical-card backing
+identity remains private engine state; only the public double-faced topology
+above appears in a player's observation. Fetch the
+format's catalog once at startup for printed characteristics; token and emblem
+characteristics need no catalog lookup.
 
 ### Actions
 
@@ -456,10 +505,23 @@ Its `kind` determines the rest of its provenance:
 
 - `printed` carries the canonical `definition`, positional `partId`, and
   positional `abilityId`.
+- `token` carries positional `partId` and `abilityId`; join it to the action's
+  source object for the inline characteristics rather than looking up a
+  definition.
+- `emblem` carries positional `abilityId`; join it to the action or stack
+  object's source for its inline emblem characteristics.
 - `intrinsicBasicLand` carries the lowercase `landType` whose rules supplied
   the ability.
+- `intrinsicCounter` carries the `counter` name whose keyword-counter rules
+  supplied the ability.
 - `granted` carries the granting `source` object together with
   `sourceDefinition`, `sourcePartId`, `sourceAbilityId`, and `grantId`.
+- `tokenGranted` carries the granting `source` object together with
+  `sourcePartId`, `sourceAbilityId`, and `grantId`; it deliberately has no
+  `sourceDefinition`.
+- `emblemGranted` carries the granting `source` object together with
+  `sourceAbilityId` and `grantId`; it deliberately has neither a
+  `sourceDefinition` nor `sourcePartId`.
 
 `ActivateAbility` carries `source`, `ability`, `x`, an array `costObjects`,
 canonical `targetSelections`, flattened `targets`, and a compatibility
@@ -549,7 +611,9 @@ Every decision has a `kind`:
 These arrive as a `decision` object with `id`, chooser `seat`, `prompt`,
 `visibility` (`Public` or `Private`), `minimum`/`maximum` counts,
 `cancellable`, and `options`. Each option has its own `id`, `label`, nullable
-card and `abilityText`, and a `zone`. They also arrive as `ChooseDecision`
+card and `abilityText`, and a `zone`. A card-backed option uses the same tagged
+`characteristics` shape as battlefield and stack objects, so an offered token
+needs no catalog definition. They also arrive as `ChooseDecision`
 entries in `legalActions`: a pick-exactly-one decision becomes one indexed
 action per option, so an index-only bot handles it like anything else. For a
 pick-several decision, `legalActions` carries one default selection (the first
@@ -595,8 +659,14 @@ count or effect.
 `penta.catalog(format)` carries the same `protocolVersion`,
 `protocolCapabilities`, `simulationFingerprint`, `engineVersion`, and `format`
 as observations, plus `formatName` and the canonical `cards` array. The array is
-ordered by `definition` and is not filtered: it contains tokens and definitions
-outside the selected format as well as playable cards.
+ordered by `definition` and is not filtered: it contains printed cards outside
+the selected format as well as the engine's uniquely named face-down
+presentation. Created-token characteristics and emblem descriptions are not
+card definitions and do not appear here; visible virtual-object characteristics
+travel inline.
+Their former synthetic definition IDs remain retired and are never reused, so
+the ordered `cards` array may contain gaps. Join a card through its explicit
+`definition`, never by treating that ID as an array index.
 That includes off-format rules test cases such as Darksteel Ingot (definition
 `263`, debut set `darksteel`), Enlightened Tutor (`313`, `mirage`), and the five
 Onslaught fetch lands (definitions `283`, `284`, and `1363` through `1365`,
@@ -607,8 +677,9 @@ executable even though the cards are not legal in either shipped format.
 their structure, parts, play options, legality, printings, and clause-derived
 implementation status.
 
-Catalog contents may grow compatibly within one protocol version because
-definition IDs are append-only. The out-of-format interaction fixtures
+Catalog contents may grow compatibly within one protocol version because new
+definition IDs are appended and existing card identities never move. Retired
+IDs stay empty rather than being reassigned. The out-of-format interaction fixtures
 `Urborg, Tomb of Yawgmoth` (definition 261, debut set `planar-chaos`) and
 `Yavimaya, Cradle of Growth` (definition 262, debut set
 `modern-horizons-2`) appear in every unfiltered catalog but have `allowed` and
@@ -822,7 +893,7 @@ duration, trigger identity, lexical context, phase sequence, displaced
 continuation, payment kind, reveal instruction, or exact hidden-zone positions
 needed to recover this state. They cannot be upgraded by guessing. Consumers
 targeting this historical format had to require `reconstruction.checkpoint.v3`;
-current consumers should follow the format-4 migration below.
+current consumers should follow the format-4 and format-5 migrations below.
 
 ### Migrating checkpoint format 3 to 4
 
@@ -833,6 +904,24 @@ permanent's characteristics. Format-3 importers cannot interpret that operation
 and must regenerate the checkpoint with the current engine. Reconstruction
 consumers should require `reconstruction.checkpoint.v4` and continue checking
 the exact simulation fingerprint.
+
+### Migrating checkpoint format 4 to 5
+
+Protocol 26 removes synthetic token and emblem card definitions. Checkpoint format 5
+therefore tags every frozen object presentation as either a catalog-backed card
+or a semantic locator for creator-owned token or emblem characteristics. The
+locator identifies a card-, token-, or emblem-owned creating ability and its
+nested effect path or indexed custom-created virtual object. A virtual-object
+chain is recursively rooted in a printed/custom card creator; restore rebinds
+that source through the exact catalog and simulation fingerprint to recover
+the token's selected art, complete rules, face structure, and current part, or
+the emblem's name and complete rules. Ability origins likewise distinguish
+printed, token, emblem, printed-granted, token-granted, and emblem-granted
+provenance. This is executable state rather than optional presentation data: a
+format-4 checkpoint's synthetic definition cannot recover creator-owned
+characteristics after those global definitions disappear. Current
+reconstruction consumers should require `reconstruction.checkpoint.v5` and
+regenerate checkpoints with the current engine.
 
 ### Migrating from protocol 24
 
@@ -874,7 +963,7 @@ Protocol 22 splits wire compatibility from conservative source identity:
   `requiredSimulationFingerprint` to refuse a different simulation before it
   is listed or assigned.
 
-The current optional capability is `reconstruction.checkpoint.v4`. An ordinary
+The current optional capability is `reconstruction.checkpoint.v5`. An ordinary
 hosted bot that only reads `legalActions` should declare an empty capability
 list; do not copy the server's advertised capabilities without implementing
 them.
@@ -1011,10 +1100,10 @@ import time, requests
 
 # Local while building; the public deployment when you are ready.
 SERVER = "http://localhost:3000"
-# This bot consumes the protocol-23 indexed-action vocabulary and no optional
+# This bot consumes the protocol-26 indexed-action vocabulary and no optional
 # facilities. Do not echo capabilities from the server unless you implement them.
 COMPATIBILITY = {
-    "protocolVersion": 25,
+    "protocolVersion": 26,
     "capabilities": [],
     "requiredCapabilities": [],
     # Trained bots may require the exact server artifact they target:

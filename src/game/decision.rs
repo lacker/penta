@@ -1,4 +1,4 @@
-use crate::{CardDefinitionId, GameObjectId, PlayerId};
+use crate::{GameObjectId, ObjectCharacteristics, PlayerId};
 
 /// The rules procedure represented by a mandatory player decision.
 ///
@@ -67,12 +67,12 @@ pub enum DecisionZone {
 pub struct DecisionOption {
     pub id: u32,
     pub label: String,
-    pub card: Option<(GameObjectId, CardDefinitionId)>,
+    pub card: Option<(GameObjectId, ObjectCharacteristics)>,
     /// Cards represented collectively by this option, such as one pile in a
     /// choose-a-pile decision, or disclosed alongside its selectable `card`
     /// after a private inspection. When `card` is present, it remains the
     /// object chosen by this option; `members` are auxiliary information.
-    pub members: Vec<(GameObjectId, CardDefinitionId)>,
+    pub members: Vec<(GameObjectId, ObjectCharacteristics)>,
     /// Frozen creating-ability text when this option represents a pending
     /// trigger. This distinguishes multiple abilities from the same source.
     pub ability_text: Option<String>,

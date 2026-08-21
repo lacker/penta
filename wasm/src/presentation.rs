@@ -66,8 +66,10 @@ pub(super) fn mana_cost_label(cost: penta::ManaCost) -> String {
 
 pub(super) struct StackCardPresentation {
     pub(super) name: String,
+    pub(super) art: Option<penta::CardArt>,
     pub(super) kind: String,
     pub(super) type_line: String,
+    pub(super) types: penta::CardTypeSet,
     pub(super) implementation_status: penta::ImplementationStatus,
     pub(super) is_land: bool,
     pub(super) mana_cost: Option<penta::ManaCost>,
@@ -80,8 +82,10 @@ impl StackCardPresentation {
     fn unknown() -> Self {
         Self {
             name: "Unknown card".into(),
+            art: None,
             kind: "unknown".into(),
             type_line: String::new(),
+            types: penta::CardTypeSet::default(),
             implementation_status: penta::ImplementationStatus::Complete,
             is_land: false,
             mana_cost: None,
@@ -91,15 +95,27 @@ impl StackCardPresentation {
         }
     }
 
+    #[cfg(test)]
     pub(super) fn from_rules(
         name: String,
         rules: &penta::CardRules,
         mana_cost: Option<penta::ManaCost>,
     ) -> Self {
+        Self::from_rules_with_art(name, None, rules, mana_cost)
+    }
+
+    fn from_rules_with_art(
+        name: String,
+        art: Option<penta::CardArt>,
+        rules: &penta::CardRules,
+        mana_cost: Option<penta::ManaCost>,
+    ) -> Self {
         Self {
             name,
+            art,
             kind: rules.kind_name().to_ascii_lowercase(),
             type_line: rules.type_line(),
+            types: rules.types(),
             implementation_status: rules.implementation_status(),
             is_land: rules.has_type(penta::CardType::Land),
             mana_cost,
@@ -108,25 +124,80 @@ impl StackCardPresentation {
             toughness: rules.creature_stats().map(|stats| stats.toughness),
         }
     }
+
+    fn from_emblem(emblem: penta::EmblemCharacteristics) -> Self {
+        Self {
+            name: emblem.name().to_owned(),
+            art: None,
+            kind: "emblem".into(),
+            type_line: "Emblem".into(),
+            types: penta::CardTypeSet::default(),
+            implementation_status: emblem.implementation_status(),
+            is_land: false,
+            mana_cost: None,
+            rules_text: emblem.rules_text().into_owned(),
+            power: None,
+            toughness: None,
+        }
+    }
+}
+
+pub(super) fn object_presentation(
+    catalog: &penta::CardCatalog,
+    characteristics: penta::ObjectCharacteristics,
+) -> StackCardPresentation {
+    match characteristics {
+        penta::ObjectCharacteristics::Card { definition, part } => {
+            let Some(card) = catalog.get(definition) else {
+                return StackCardPresentation::unknown();
+            };
+            let selected = card.part(part);
+            let name = selected.map_or_else(|| card.name.clone(), |part| part.name.clone());
+            let rules = selected.map_or(&card.rules, |part| &part.rules);
+            let mana_cost =
+                selected.map_or_else(|| card.rules.mana_cost(), penta::CardPart::mana_cost);
+            StackCardPresentation::from_rules_with_art(name, card.art, rules, mana_cost)
+        }
+        penta::ObjectCharacteristics::Token { token, part } => {
+            let selected = token.part(part).unwrap_or_else(|| token.primary_part());
+            let rules = selected.rules();
+            StackCardPresentation::from_rules_with_art(
+                selected.name().into_owned(),
+                token.art,
+                &rules,
+                rules.mana_cost(),
+            )
+        }
+        penta::ObjectCharacteristics::Emblem { emblem } => {
+            StackCardPresentation::from_emblem(emblem)
+        }
+    }
 }
 
 pub(super) fn stack_card_presentation(
-    card: Option<&penta::CardDefinition>,
+    catalog: &penta::CardCatalog,
+    characteristics: penta::ObjectCharacteristics,
     signature: Option<&penta::CastSignature>,
 ) -> StackCardPresentation {
-    let Some(card) = card else {
+    let penta::ObjectCharacteristics::Card { definition, .. } = characteristics else {
+        return object_presentation(catalog, characteristics);
+    };
+    let Some(card) = catalog.get(definition) else {
         return StackCardPresentation::unknown();
     };
-    let canonical = || {
-        StackCardPresentation::from_rules(card.name.clone(), &card.rules, card.rules.mana_cost())
-    };
+    let canonical = || object_presentation(catalog, characteristics);
     let Some(signature) = signature else {
         return canonical();
     };
 
     match signature.form() {
         penta::SpellForm::Part(part_id) => card.part(*part_id).map_or_else(canonical, |part| {
-            StackCardPresentation::from_rules(part.name.clone(), &part.rules, part.mana_cost())
+            StackCardPresentation::from_rules_with_art(
+                part.name.clone(),
+                card.art,
+                &part.rules,
+                part.mana_cost(),
+            )
         }),
         penta::SpellForm::Combined(part_ids) => {
             let Some(parts) = part_ids
@@ -171,8 +242,10 @@ pub(super) fn stack_card_presentation(
 
             StackCardPresentation {
                 name,
+                art: card.art,
                 kind,
                 type_line,
+                types: penta::CardTypeSet::default(),
                 implementation_status: parts
                     .iter()
                     .map(|part| part.rules.implementation_status())

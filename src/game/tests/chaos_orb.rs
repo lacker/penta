@@ -8,7 +8,11 @@ fn chaos_orb_chooses_during_resolution_and_uses_a_seeded_success_trial() {
     let mut target = creature(10_001, cards::BLACK_VISE, PlayerId::Two);
     target.temporary_keywords.push(KeywordAbility::Hexproof);
     target.temporary_keywords.push(KeywordAbility::Shroud);
-    let token = creature(10_002, cards::BEAST_TOKEN_3_3_GREEN, PlayerId::Two);
+    let token = token_permanent(
+        10_002,
+        tokens::creature(&["Beast"], &[ManaColor::Green], 3, 3),
+        PlayerId::Two,
+    );
     let orb_id = orb.card.id;
     let target_id = target.card.id;
     let token_id = token.card.id;

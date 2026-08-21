@@ -71,9 +71,9 @@ fn put_back(game: &mut Game, definitions: [CardDefinitionId; 2]) {
             .options
             .iter()
             .find(|option| {
-                option
-                    .card
-                    .is_some_and(|(_, definition)| definition == wanted)
+                option.card.is_some_and(|(_, characteristics)| {
+                    characteristics.card_definition() == Some(wanted)
+                })
             })
             .unwrap_or_else(|| panic!("the hand holds a {wanted:?}"))
     };

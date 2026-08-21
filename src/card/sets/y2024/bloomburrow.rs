@@ -4,8 +4,8 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
     CardArt, CardRules, CardSet, CardType, ComparisonDef, CounterKind, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, PlayerRelation, TriggerConditionDef, TriggerEventDef,
-    ValueDef, ZoneKind, ZonePlacement, cards,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation, TriggerConditionDef,
+    TriggerEventDef, ZoneKind, ZonePlacement, abilities, cards,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -33,15 +33,13 @@ static AN_INSTANT_OR_SORCERY_IN_YOUR_GRAVEYARD: [AbilityTargetDef; 1] =
         },
     )];
 
-static MAKE_AN_OTTER: EffectDef = EffectDef::CreateToken {
-    token: cards::OTTER_TOKEN_1_1_BLUE_RED,
-    controller: None,
-    count: ValueDef::Constant(1),
-    tapped: false,
-    attacking: false,
-    counters: None,
-    created: None,
-};
+static MAKE_AN_OTTER: EffectDef =
+    EffectDef::create_creature_token(&["Otter"], &[ManaColor::Blue, ManaColor::Red], 1, 1)
+        .with_abilities(&[abilities::prowess()])
+        .with_art(CardArt::new(
+            "e6b2c465-c446-4dee-9101-763105dcf813",
+            "Julia Griffin",
+        ));
 
 /// A Class is level 1 with no counters on it, so climbing to two takes one
 /// counter and to three takes two. Each level is bought separately and only

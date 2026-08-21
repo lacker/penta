@@ -41,10 +41,11 @@ fn seize(game: &mut Game, spell: GameObjectId, wanted: Option<CardDefinitionId>)
         {
             let options = wanted
                 .and_then(|wanted| {
-                    decision
-                        .options
-                        .iter()
-                        .find(|option| option.card.is_some_and(|(_, id)| id == wanted))
+                    decision.options.iter().find(|option| {
+                        option.card.is_some_and(|(_, characteristics)| {
+                            characteristics.card_definition() == Some(wanted)
+                        })
+                    })
                 })
                 .or_else(|| decision.options.first())
                 .map(|option| vec![option.id])
@@ -139,7 +140,10 @@ fn a_land_is_not_a_legal_choice() {
         offered
             .options
             .iter()
-            .all(|option| option.card.is_none_or(|(_, id)| id != cards::MOUNTAIN)),
+            .all(|option| option
+                .card
+                .is_none_or(|(_, characteristics)| characteristics.card_definition()
+                    != Some(cards::MOUNTAIN))),
         "a land is not a legal choice",
     );
     assert_eq!(offered.options.len(), 2, "both nonland cards and no more");

@@ -10,9 +10,9 @@ use crate::ids::{CardDefinitionId, GameObjectId, ObjectSetBindingIndex, PlayerId
 use super::{
     AbilitySourceRef, ApplicableReplacement, ApplicableZoneMoveReplacement, CardInstance,
     DecisionObservation, DecisionOption, DecisionZone, DrawReplacement, EffectResolutionContext,
-    Mana, PendingActivation, PendingBattlefieldExitBatch, PendingTrigger, PileChosen, PileSplit,
-    PilesSeparated, ReplacementEffectContext, ResolvedEffectDurationDef, SacrificeQuota,
-    SacrificedAmountDef, ScopedEffect, StackObject, TriggerPlacementBatch,
+    Mana, ObjectCharacteristics, PendingActivation, PendingBattlefieldExitBatch, PendingTrigger,
+    PileChosen, PileSplit, PilesSeparated, ReplacementEffectContext, ResolvedEffectDurationDef,
+    SacrificeQuota, SacrificedAmountDef, ScopedEffect, StackObject, TriggerPlacementBatch,
 };
 
 /// Fork repaints its copy, so the copy is red and nothing else.
@@ -97,7 +97,7 @@ pub(super) struct PendingDecision {
 pub(super) struct ApplicableBeginTurnReplacement {
     pub(super) source: AbilitySourceRef,
     pub(super) controller: PlayerId,
-    pub(super) definition: CardDefinitionId,
+    pub(super) presentation: ObjectCharacteristics,
     pub(super) text: &'static str,
     pub(super) optional: bool,
     pub(super) effect: ReplacementEffectDef,
@@ -146,7 +146,7 @@ pub(super) struct BalanceTask {
     pub(super) player: PlayerId,
     pub(super) prompt: String,
     pub(super) zone: DecisionZone,
-    pub(super) cards: Vec<CardInstance>,
+    pub(super) cards: Vec<(GameObjectId, ObjectCharacteristics)>,
     pub(super) count: usize,
     pub(super) action: BalanceAction,
     pub(super) cause: ZoneMoveCause,

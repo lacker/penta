@@ -75,7 +75,7 @@ fn tetravus_trades_counters_for_tetravites_that_remember_which_one_made_them() {
     let tetravites = game
         .battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::TETRAVITE_TOKEN)
+        .filter(|permanent| is_token_with(permanent, tokens::tetravite()))
         .collect::<Vec<_>>();
     assert_eq!(tetravites.len(), 2, "one Tetravite per counter");
     assert!(
@@ -98,7 +98,7 @@ fn an_aura_cannot_target_a_tetravite() {
     // something the Aura discovers after it has already arrived and attached.
     let mut game = ready_game();
     game.battlefield
-        .push(creature(10_000, cards::TETRAVITE_TOKEN, PlayerId::One));
+        .push(token_permanent(10_000, tokens::tetravite(), PlayerId::One));
     game.battlefield
         .push(creature(10_001, cards::SAVANNAH_LIONS, PlayerId::One));
     let aura = card(10_002, cards::VOLCANIC_STRENGTH, PlayerId::One);
@@ -162,7 +162,7 @@ fn tetravus_takes_back_only_the_tetravites_it_made() {
 
     // Two of its own, and one that belongs to a Tetravus that is not here.
     for (id, creator) in [(10_001, 10_000), (10_002, 10_000), (10_003, 10_999)] {
-        let mut token = creature(id, cards::TETRAVITE_TOKEN, PlayerId::One);
+        let mut token = token_permanent(id, tokens::tetravite(), PlayerId::One);
         token.created_by = Some(GameObjectId(creator));
         game.battlefield.push(token);
     }
@@ -189,7 +189,7 @@ fn tetravus_takes_back_only_the_tetravites_it_made() {
     let remaining = game
         .battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::TETRAVITE_TOKEN)
+        .filter(|permanent| is_token_with(permanent, tokens::tetravite()))
         .map(|permanent| permanent.card.id)
         .collect::<Vec<_>>();
     assert_eq!(
@@ -202,7 +202,7 @@ fn tetravus_takes_back_only_the_tetravites_it_made() {
 #[test]
 fn an_aura_cannot_stay_on_a_tetravite() {
     let mut game = ready_game();
-    let token = creature(10_000, cards::TETRAVITE_TOKEN, PlayerId::One);
+    let token = token_permanent(10_000, tokens::tetravite(), PlayerId::One);
     let bear = creature(10_001, cards::SAVANNAH_LIONS, PlayerId::One);
     game.battlefield.push(token);
     game.battlefield.push(bear);
@@ -225,7 +225,7 @@ fn an_aura_cannot_stay_on_a_tetravite() {
 fn an_assassin_that_connects_ends_the_game_no_matter_the_life_total() {
     let mut game = ready_game();
     game.step = Step::CombatDamage;
-    let mut assassin = creature(10_000, cards::ASSASSIN_TOKEN_1_1_BLACK, PlayerId::One);
+    let mut assassin = token_permanent(10_000, assassin_token(), PlayerId::One);
     assassin.attacking = true;
     game.battlefield.push(assassin);
     game.players[1].life = 40;
@@ -251,7 +251,7 @@ fn an_assassin_that_connects_ends_the_game_no_matter_the_life_total() {
 fn a_blocked_assassin_never_triggers() {
     let mut game = ready_game();
     game.step = Step::CombatDamage;
-    let mut assassin = creature(10_000, cards::ASSASSIN_TOKEN_1_1_BLACK, PlayerId::One);
+    let mut assassin = token_permanent(10_000, assassin_token(), PlayerId::One);
     assassin.attacking = true;
     let mut wall = creature(10_001, cards::WALL_OF_STONE, PlayerId::Two);
     wall.blocking = vec![GameObjectId(10_000)];
@@ -343,7 +343,7 @@ fn vraskas_ultimate_makes_three_assassins() {
     assert_eq!(
         game.battlefield
             .iter()
-            .filter(|permanent| permanent.card.definition == cards::ASSASSIN_TOKEN_1_1_BLACK)
+            .filter(|permanent| is_token_with(permanent, assassin_token()))
             .count(),
         3
     );

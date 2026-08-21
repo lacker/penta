@@ -178,6 +178,38 @@ fn handcrafted_prioritizes_time_vaults_declarative_extra_turn() {
 }
 
 #[test]
+fn handcrafted_profiles_token_activations_from_copiable_characteristics() {
+    for token_status in [true, false] {
+        let source = CardInstanceId(100);
+        let activate = Action::ActivateAbility {
+            source,
+            ability: AbilityOrigin::Token {
+                part: CardPartId::PRIMARY,
+                ability: AbilityId::PRIMARY,
+            },
+            targets: Vec::new(),
+            cost_objects: Vec::new(),
+            x: 0,
+            modes: Vec::new(),
+        };
+        let mut clue = permanent(source.0, cards::BLACK_LOTUS, PlayerId::One, None, None);
+        clue.characteristics =
+            ObjectCharacteristics::token(card::tokens::clue(), CardPartId::PRIMARY);
+        clue.token = token_status;
+        clue.types = penta::CardTypeSet::single(penta::CardType::Artifact);
+        let observation =
+            policy_observation(vec![clue], vec![Action::PassPriority, activate.clone()]);
+        let mut policy = HandcraftedPolicy::new(card::catalog().unwrap());
+
+        assert_eq!(
+            policy.choose_action(&observation),
+            Some(activate),
+            "copiable token characteristics drive the ability profile independently of physical token status",
+        );
+    }
+}
+
+#[test]
 fn handcrafted_does_not_counter_an_observed_uncounterable_spell() {
     let source = CardInstanceId(100);
     let threat = CardInstanceId(200);

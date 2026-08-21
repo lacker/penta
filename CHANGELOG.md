@@ -18,19 +18,57 @@ Observations and catalogs also advertise named additive capabilities. Replay
 and reconstruction payloads carry their own format versions instead of moving
 the bot-wire epoch.
 
-## 0.7.0 — protocol 25
+## 0.7.0 — protocol 26
 
-This release reports engine 0.7.0 and protocol 25. The simulation fingerprint
+This release reports engine 0.7.0 and protocol 26. The simulation fingerprint
 distinguishes snapshots of the covered source and build inputs.
 
 ### Changed
 
-- **Checkpoint reconstruction moves to format 4.** Resolved continuous-effect
-  snapshots can now carry a generic named-subtype operation, which Haunted
-  Plate Mail needs to remain "no longer an Equipment" across reconstruction.
-  Because that operation is a new closed checkpoint tag, reconstruction
-  consumers must require `reconstruction.checkpoint.v4` and regenerate older
-  checkpoints. The bot protocol epoch remains 25.
+- **Protocol 26 gives tokens and emblems inline characteristics instead of fake
+  card definitions.** Battlefield, stack, and decision objects now carry an
+  authoritative tagged `characteristics` object. Printed presentations retain
+  their catalog `definition` and `partId`; token presentations carry their
+  current name, optional selected art, structure, and rules-derived display
+  fields inline, and omit the legacy top-level definition projections. The
+  separate permanent `token` flag remains the rules-object status, because a
+  token can copy a printed card and a nontoken object can copy a token. Ability
+  origins likewise add explicit `token`, `tokenGranted`, `emblem`, and
+  `emblemGranted` tags without inventing source definitions. Emblem-origin
+  characteristics carry their name and rules-derived presentation inline,
+  without a card part or art. Face-up physical double-faced permanents add
+  `physicalFace` with their physical kind and side independently of copied
+  characteristics, so clients never infer transformability from effective
+  token/card structure. Created-token characteristics and emblem descriptions
+  are no longer entries in the global card catalog. Their former definition
+  IDs remain permanently retired; the catalog is ordered by definition but
+  may contain gaps, so consumers must join by the `definition` field rather
+  than array index.
+
+- **The declarative effect API now authors virtual objects as compact values.**
+  `EffectDef::create_creature_token`, `create_artifact_creature_token`, and
+  `create_artifact_token` take the token's subtype, color, and applicable
+  power/toughness characteristics directly. Token names are derived by joining
+  their subtypes unless `with_name` overrides the name; `with_amount`,
+  `with_count`, `with_abilities`, and `with_art` compose the common Oracle-text
+  variations without global per-token constants. Rules-defined artifact
+  characteristics are reusable functions such as `tokens::treasure`, `food`,
+  `clue`, `blood`, `map`, and `incubator`. `EffectDef::create_emblem` likewise
+  stores a compact name-and-ability value owned by its creating effect. Neither
+  value is a `CardDefinition` or participates in globally unique card naming.
+
+- **Checkpoint format 5 preserves creator-owned token and emblem
+  characteristics.** The reconstruction capability is now
+  `reconstruction.checkpoint.v5`; format 4
+  depended on synthetic token and emblem definition IDs and cannot recover the
+  complete creator-owned characteristics once those definitions are gone.
+  Format 5 instead stores semantic paths to card-, token-, or emblem-owned
+  creating abilities and their nested effects or indexed custom-created
+  virtual objects. Recursive creators remain rooted in a printed/custom card
+  creator, and restore rebinds that chain under the exact simulation
+  fingerprint. It retains format 4's
+  generic named-subtype operation for reconstructed continuous effects. Replay
+  version 2 is unchanged.
 
 - **The native declarative API exposes the new Equipment primitives in the
   current 0.7.0 release.** `BlocksOrBecomesBlockedBy` now names both the

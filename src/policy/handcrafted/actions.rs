@@ -46,7 +46,10 @@ impl HandcraftedPolicy {
                 permanent.controller == observation.viewer
                     && !permanent.tapped
                     && permanent.power.is_none()
-                    && self.definition_animates_itself(permanent.definition)
+                    && permanent
+                        .characteristics
+                        .card_definition()
+                        .is_some_and(|definition| self.definition_animates_itself(definition))
             });
         if saving_an_attacker
             && !Self::permanent_definition(observation, source)
@@ -68,7 +71,7 @@ impl HandcraftedPolicy {
             .is_some_and(|card| card.rules.has_supertype(CardSupertype::Legendary))
             && observation.battlefield.iter().any(|permanent| {
                 permanent.controller == observation.viewer
-                    && Some(permanent.definition) == definition
+                    && permanent.characteristics.card_definition() == definition
                     && !permanent.tapped
             })
         {
@@ -107,7 +110,7 @@ impl HandcraftedPolicy {
                         .find(|permanent| permanent.id == *id)
                 })
                 .map(|permanent| {
-                    let card = self.card_value(permanent.definition);
+                    let card = self.characteristics_value(permanent.characteristics);
                     let power = i32::from(permanent.power.unwrap_or(0).max(0));
                     card + power * 10
                 })
@@ -143,7 +146,7 @@ impl HandcraftedPolicy {
                         .iter()
                         .filter(|option| options.contains(&option.id))
                         .filter_map(|option| option.card)
-                        .map(|(_, definition)| self.card_value(definition))
+                        .map(|(_, characteristics)| self.characteristics_value(characteristics))
                         .sum::<i32>()
                 });
                 match observation
@@ -210,10 +213,10 @@ impl HandcraftedPolicy {
         decision: &DecisionObservation,
         option: &DecisionOption,
     ) -> i32 {
-        let Some((object, definition)) = option.card else {
+        let Some((object, characteristics)) = option.card else {
             return -10_000;
         };
-        let value = self.card_value(definition).max(1);
+        let value = self.characteristics_value(characteristics).max(1);
         match option.zone {
             DecisionZone::Battlefield => observation
                 .battlefield
@@ -253,10 +256,10 @@ impl HandcraftedPolicy {
         decision: &DecisionObservation,
         option: &DecisionOption,
     ) -> i32 {
-        let Some((object, definition)) = option.card else {
+        let Some((object, characteristics)) = option.card else {
             return -10_000;
         };
-        let value = self.card_value(definition).max(1);
+        let value = self.characteristics_value(characteristics).max(1);
         observation
             .battlefield
             .iter()

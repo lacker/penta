@@ -115,7 +115,13 @@ fn izzet_charm_loots_by_drawing_two_then_discarding_two_of_choice() {
     let discards = decision
         .options
         .iter()
-        .filter(|option| option.card != Some((keeper.id, cards::BLACK_LOTUS)))
+        .filter(|option| {
+            option.card
+                != Some((
+                    keeper.id,
+                    ObjectCharacteristics::card(cards::BLACK_LOTUS, CardPartId::PRIMARY),
+                ))
+        })
         .map(|option| option.id)
         .collect::<Vec<_>>();
     assert_eq!(discards.len(), 2, "the drawn cards are discardable");
@@ -232,7 +238,12 @@ fn selesnya_charm_can_instead_make_a_knight() {
     let knight = game
         .battlefield
         .iter()
-        .find(|permanent| permanent.card.definition == cards::KNIGHT_TOKEN_2_2_WHITE)
+        .find(|permanent| {
+            is_token_with(
+                permanent,
+                token_with_vigilance(tokens::creature(&["Knight"], &[ManaColor::White], 2, 2)),
+            )
+        })
         .expect("a Knight token arrived");
     assert_eq!(game.power(knight), Some(2));
     assert_eq!(game.toughness(knight), Some(2));
@@ -501,7 +512,7 @@ fn primeval_bounty_makes_a_beast_only_for_its_controller() {
             if game
                 .battlefield
                 .iter()
-                .any(|p| p.card.definition == cards::BEAST_TOKEN_3_3_GREEN)
+                .any(|p| is_token_with(p, tokens::creature(&["Beast"], &[ManaColor::Green], 3, 3)))
             {
                 break;
             }
@@ -514,7 +525,7 @@ fn primeval_bounty_makes_a_beast_only_for_its_controller() {
         let made_token = game
             .battlefield
             .iter()
-            .any(|p| p.card.definition == cards::BEAST_TOKEN_3_3_GREEN);
+            .any(|p| is_token_with(p, tokens::creature(&["Beast"], &[ManaColor::Green], 3, 3)));
         assert_eq!(
             made_token,
             expect_token,
@@ -937,7 +948,17 @@ fn assemble_the_legion_musters_one_more_soldier_every_upkeep() {
         mustered.push(
             game.battlefield
                 .iter()
-                .filter(|permanent| permanent.card.definition == cards::SOLDIER_TOKEN_1_1_RED_WHITE)
+                .filter(|permanent| {
+                    is_token_with(
+                        permanent,
+                        token_with_haste(tokens::creature(
+                            &["Soldier"],
+                            &[ManaColor::Red, ManaColor::White],
+                            1,
+                            1,
+                        )),
+                    )
+                })
                 .count(),
         );
     }

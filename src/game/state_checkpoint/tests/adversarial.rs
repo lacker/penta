@@ -8,7 +8,7 @@
 //! it went to the trouble of redacting.
 
 use super::super::*;
-use super::true_hidden_hypothesis;
+use super::{source_for_locator, true_hidden_hypothesis};
 use crate::card::{EffectDef, ObjectChoiceBindingDef, SpellForm};
 use crate::game::tests::card;
 use crate::game::{DecisionContinuation, DecisionKind, PendingDecision};
@@ -197,7 +197,7 @@ fn a_private_effect_choice_is_not_serialized_for_the_other_seat() {
     let resolving = StackObject {
         id: GameObjectId(424_243),
         kind: StackObjectKind::Spell,
-        card: card(424_243, crate::card::cards::DEMONIC_TUTOR, chooser),
+        card: card(424_243, crate::card::cards::DEMONIC_TUTOR, chooser).into(),
         source: None,
         ability: None,
         controller: chooser,
@@ -276,10 +276,7 @@ fn a_public_effect_choice_cannot_retain_an_unexposed_hidden_object_id() {
     let DeclarativeAbilityDef::Triggered(triggered) = ability.definition else {
         panic!("Berserk's nested ability is triggered");
     };
-    let source = AbilitySourceRef {
-        object: GameObjectId(424_246),
-        ability: AbilityOrigin::IntrinsicBasicLand(BasicLandType::Forest),
-    };
+    let source = source_for_locator(GameObjectId(424_246), &locator);
     let effect = ability
         .declarative_effect()
         .expect("the installed trigger is declarative");
@@ -287,12 +284,15 @@ fn a_public_effect_choice_cannot_retain_an_unexposed_hidden_object_id() {
     let resolving = StackObject {
         id: GameObjectId(424_245),
         kind: StackObjectKind::TriggeredAbility,
-        card: card(424_245, crate::card::cards::BERSERK, viewer),
+        card: card(424_245, crate::card::cards::BERSERK, viewer).into(),
         source: Some(source.object),
         ability: Some(StackAbilityPayload {
             origin: source.ability,
             definition: None,
-            presentation_definition: crate::card::cards::BERSERK,
+            presentation: ObjectCharacteristics::card(
+                crate::card::cards::BERSERK,
+                CardPartId::PRIMARY,
+            ),
             text: Some(ability.text),
             target_defs: Vec::new(),
             targets: vec![TargetSelection::single(
@@ -362,7 +362,10 @@ fn a_public_effect_choice_cannot_retain_an_unexposed_hidden_object_id() {
     );
 
     let definition = game.players[viewer.opponent().index()].library[0].definition;
-    game.pending_decisions[0].observation.options[0].card = Some((secret, definition));
+    game.pending_decisions[0].observation.options[0].card = Some((
+        secret,
+        ObjectCharacteristics::card(definition, CardPartId::PRIMARY),
+    ));
     game.pending_decisions[0].observation.options[0].zone = DecisionZone::Library;
     let observation = game.observe(viewer);
     let actions = crate::protocol::protocol_actions(&observation);
@@ -397,13 +400,10 @@ fn retained_trigger_state_never_serializes_unrebindable_hidden_object_ids() {
     let DeclarativeAbilityDef::Triggered(triggered) = ability.definition else {
         panic!("Berserk's nested ability is triggered");
     };
-    let source = AbilitySourceRef {
-        object: GameObjectId(90_001),
-        ability: AbilityOrigin::IntrinsicBasicLand(BasicLandType::Forest),
-    };
+    let source = source_for_locator(GameObjectId(90_001), &locator);
     let capture = TriggerCapture {
         source,
-        definition: crate::card::cards::BERSERK,
+        presentation: ObjectCharacteristics::card(crate::card::cards::BERSERK, CardPartId::PRIMARY),
         owner: viewer,
         controller: viewer,
         text: ability.text,
@@ -442,7 +442,7 @@ fn retained_trigger_state_never_serializes_unrebindable_hidden_object_ids() {
     game.pending_triggers.push(crate::game::PendingTrigger {
         id: 0,
         source,
-        definition: crate::card::cards::BERSERK,
+        presentation: capture.presentation,
         owner: viewer,
         controller: viewer,
         text: ability.text,
@@ -469,12 +469,12 @@ fn retained_trigger_state_never_serializes_unrebindable_hidden_object_ids() {
     game.stack.push(StackObject {
         id: stacked_id,
         kind: StackObjectKind::TriggeredAbility,
-        card: crate::game::tests::card(stacked_id.0, crate::card::cards::BERSERK, viewer),
+        card: crate::game::tests::card(stacked_id.0, crate::card::cards::BERSERK, viewer).into(),
         source: Some(source.object),
         ability: Some(StackAbilityPayload {
             origin: source.ability,
             definition: None,
-            presentation_definition: crate::card::cards::BERSERK,
+            presentation: capture.presentation,
             text: Some(ability.text),
             target_defs: Vec::new(),
             targets: capture.targets.clone(),
@@ -672,6 +672,7 @@ fn a_locator_that_is_absent_from_this_catalog_is_rejected() {
             json!([{
                 "object": 1,
                 "ability": {
+                    "source": "card",
                     "definition": u16::MAX,
                     "partId": 0,
                     "abilityId": 0,

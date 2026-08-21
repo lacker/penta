@@ -179,9 +179,9 @@ fn disciple_of_bolas_pays_out_the_power_of_what_it_ate() {
         .options
         .iter()
         .find(|option| {
-            option
-                .card
-                .is_some_and(|(_, def)| def == cards::SERRA_ANGEL)
+            option.card.is_some_and(|(_, characteristics)| {
+                characteristics.card_definition() == Some(cards::SERRA_ANGEL)
+            })
         })
         .expect("the Angel is a legal sacrifice");
     game.apply(

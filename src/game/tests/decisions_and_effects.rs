@@ -146,7 +146,13 @@ fn demonic_tutor_exposes_a_library_choice_then_shuffles() {
     let option = decision
         .options
         .iter()
-        .find(|option| option.card == Some((CardInstanceId(10_001), cards::JUZAM_DJINN)))
+        .find(|option| {
+            option.card
+                == Some((
+                    CardInstanceId(10_001),
+                    ObjectCharacteristics::card(cards::JUZAM_DJINN, CardPartId::PRIMARY),
+                ))
+        })
         .unwrap();
     let choice = Action::ChooseDecision {
         decision: decision.id,
@@ -437,7 +443,13 @@ fn searching_to_library_top_reveals_and_preserves_the_card_object() {
     let lotus = decision
         .options
         .iter()
-        .find(|option| option.card == Some((CardInstanceId(10_002), cards::BLACK_LOTUS)))
+        .find(|option| {
+            option.card
+                == Some((
+                    CardInstanceId(10_002),
+                    ObjectCharacteristics::card(cards::BLACK_LOTUS, CardPartId::PRIMARY),
+                ))
+        })
         .expect("Black Lotus matches the search");
     game.apply(
         PlayerId::One,

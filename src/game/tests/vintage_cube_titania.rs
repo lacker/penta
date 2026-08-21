@@ -84,7 +84,11 @@ fn cast(game: &mut Game, titania: GameObjectId, wanted: Option<CardDefinitionId>
     let option = decision
         .options
         .iter()
-        .find(|option| option.card.is_some_and(|(_, found)| found == wanted))
+        .find(|option| {
+            option
+                .card
+                .is_some_and(|(_, found)| found.card_definition() == Some(wanted))
+        })
         .unwrap_or_else(|| panic!("{wanted:?} is a legal target"))
         .id;
     game.apply(
@@ -101,7 +105,12 @@ fn cast(game: &mut Game, titania: GameObjectId, wanted: Option<CardDefinitionId>
 fn elementals(game: &Game) -> usize {
     game.battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::ELEMENTAL_TOKEN_5_3_GREEN)
+        .filter(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Elemental"], &[ManaColor::Green], 5, 3),
+            )
+        })
         .count()
 }
 
@@ -164,7 +173,12 @@ fn a_land_dying_makes_a_five_three() {
     let token = game
         .battlefield
         .iter()
-        .find(|permanent| permanent.card.definition == cards::ELEMENTAL_TOKEN_5_3_GREEN)
+        .find(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Elemental"], &[ManaColor::Green], 5, 3),
+            )
+        })
         .expect("it is here");
     assert_eq!(
         (game.power(token), game.toughness(token)),

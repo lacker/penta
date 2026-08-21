@@ -414,78 +414,12 @@ fn static_object_applied_effect_supported(
     }
 }
 
-#[allow(clippy::too_many_lines)]
 fn validate_resolving_effect(
     effect: EffectDef,
     source_zones: &[ZoneKind],
 ) -> Result<(), &'static str> {
     match effect {
-        EffectDef::ChooseCardName { then, .. }
-        | EffectDef::SearchZone {
-            then: Some(then), ..
-        }
-        | EffectDef::MillUntil {
-            then: Some(then), ..
-        }
-        | EffectDef::BindMatching { then, .. } => validate_resolving_effect(*then, source_zones),
-        EffectDef::Sequence(effects) => {
-            if effects.is_empty() {
-                return Err("empty Sequence");
-            }
-            for effect in effects {
-                validate_resolving_effect(*effect, source_zones)?;
-            }
-            Ok(())
-        }
-        EffectDef::Randomized {
-            on_success,
-            on_failure,
-            ..
-        } => {
-            validate_resolving_effect(*on_success, source_zones)?;
-            validate_resolving_effect(*on_failure, source_zones)
-        }
-        EffectDef::Choose(choice) => validate_resolving_effect(*choice.then, source_zones),
-        EffectDef::RevealAtRandomFromHand { then, .. } => {
-            validate_resolving_effect(*then, source_zones)
-        }
-        EffectDef::PayOr(payment) => {
-            for effect in payment.if_paid.iter().chain(payment.otherwise.iter()) {
-                validate_resolving_effect(**effect, source_zones)?;
-            }
-            Ok(())
-        }
-        EffectDef::SplitIntoPiles(partition) => {
-            validate_resolving_effect(*partition.then, source_zones)
-        }
-        EffectDef::May { effect, .. }
-        | EffectDef::ReplaceNextDrawThisTurn { effect, .. }
-        | EffectDef::IfCondition { then: effect, .. } => {
-            validate_resolving_effect(*effect, source_zones)
-        }
-        EffectDef::CreateToken { created, .. } => match created {
-            Some(created) => validate_resolving_effect(*created.then, source_zones),
-            None => Ok(()),
-        },
-        EffectDef::ExileTopAndMayCast { otherwise, .. } => match otherwise {
-            Some(effect) => validate_resolving_effect(*effect, source_zones),
-            None => Ok(()),
-        },
-        EffectDef::SacrificeOfChoice {
-            then: Some(effect), ..
-        } => validate_resolving_effect(*effect, source_zones),
-        EffectDef::LookAtTopAndSelect { selection, .. } => {
-            if let Some(effect) = selection.then {
-                validate_resolving_effect(*effect, source_zones)?;
-            }
-            Ok(())
-        }
-        EffectDef::IfFormat {
-            then, otherwise, ..
-        } => {
-            validate_resolving_effect(*then, source_zones)?;
-            validate_resolving_effect(*otherwise, source_zones)
-        }
+        EffectDef::Sequence([]) => Err("empty Sequence"),
         EffectDef::InstallTrigger(trigger) => {
             let Some(effect) = trigger.ability.declarative_effect() else {
                 return Err("InstallTrigger with a non-declarative program");
@@ -511,90 +445,12 @@ fn validate_resolving_effect(
         | EffectDef::CannotAttackUnless(_)
         | EffectDef::CannotAttackIf(_)
         | EffectDef::LandwalkCanBeBlocked(_) => Err(effect_operation_name(effect)),
-        EffectDef::None
-        | EffectDef::PreventDamage { .. }
-        | EffectDef::AddMana(_)
-        | EffectDef::AddPoisonCounters { .. }
-        | EffectDef::AddEnergyCounters { .. }
-        | EffectDef::DealDamage { .. }
-        | EffectDef::DealDamageFrom { .. }
-        | EffectDef::DealDamageAndApply { .. }
-        | EffectDef::GainLife { .. }
-        | EffectDef::DrawCards { .. }
-        | EffectDef::ShuffleLibrary { .. }
-        | EffectDef::EmptyManaPool { .. }
-        | EffectDef::Discard { .. }
-        | EffectDef::DiscardCards { .. }
-        | EffectDef::LoseLife { .. }
-        | EffectDef::LoseTheGame { .. }
-        | EffectDef::WinTheGame { .. }
-        | EffectDef::Tap { .. }
-        | EffectDef::RemoveFromCombat { .. }
-        | EffectDef::Untap { .. }
-        | EffectDef::CreateAttachedToken { .. }
-        | EffectDef::CreateTokenCopyOf { .. }
-        | EffectDef::Attach { .. }
-        | EffectDef::PhaseOut { .. }
-        | EffectDef::ReturnAttached { .. }
-        | EffectDef::Reconfigure { .. }
-        | EffectDef::Unattach { .. }
-        | EffectDef::PairWithSource { .. }
-        | EffectDef::Destroy { .. }
-        | EffectDef::DestroyAtEndOfCombat { .. }
-        | EffectDef::Detain { .. }
-        | EffectDef::Regenerate { .. }
-        | EffectDef::Sacrifice { .. }
-        | EffectDef::SacrificeKeepingOnePerType { .. }
-        | EffectDef::SacrificeOfChoice { then: None, .. }
-        | EffectDef::ExileTopOfLibraryToPlay { .. }
-        | EffectDef::Mill { .. }
-        | EffectDef::SearchZonesAndExileRest { .. }
-        | EffectDef::MillUntil { then: None, .. }
-        | EffectDef::ExileFromTopUntil { .. }
-        | EffectDef::ManifestDread { .. }
-        | EffectDef::Cascade
-        | EffectDef::Proliferate
-        | EffectDef::Explore { .. }
-        | EffectDef::MayCastTargetWithoutPaying { .. }
-        | EffectDef::LookAtHand { .. }
-        | EffectDef::RevealHand { .. }
-        | EffectDef::SearchZone { .. }
-        | EffectDef::ChooseCards { .. }
-        | EffectDef::Counter { .. }
-        | EffectDef::ReturnSpellToHand { .. }
-        | EffectDef::PutSpellIntoOwnersLibrary { .. }
-        | EffectDef::CopyResolvingSpell { .. }
-        | EffectDef::DrainLife { .. }
-        | EffectDef::AddManaEqualTo { .. }
-        | EffectDef::AddCounters { .. }
-        | EffectDef::RemoveCounters { .. }
-        | EffectDef::DoubleCounters { .. }
-        | EffectDef::RemoveAllCounters { .. }
-        | EffectDef::SkipNextUntapSteps { .. }
-        | EffectDef::ChangeTextBasicLandType { .. }
-        | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
-        | EffectDef::ChooseColor { .. }
-        | EffectDef::BecomeCopyOf { .. }
-        | EffectDef::PutSourceOntoBattlefieldAttacking
-        | EffectDef::BecomeMonarch { .. }
-        | EffectDef::GainClassLevel { .. }
-        | EffectDef::VoteForPermanentToExile { .. }
-        | EffectDef::DamageCannotBePreventedThisTurn
-        | EffectDef::GrantFlashToNextSorcery
-        | EffectDef::ExileLinkedToSource { .. }
-        | EffectDef::ExileGrantingOwnerPlay { .. }
-        | EffectDef::ReturnLinkedExiles { .. }
-        | EffectDef::GainControl { .. }
-        | EffectDef::ExchangeControl { .. }
-        | EffectDef::ScheduleTurnPhases(_)
-        | EffectDef::TakeExtraTurn { .. }
-        | EffectDef::CreateEmblem { .. }
-        | EffectDef::ReturnWithHasteAndFinality { .. }
-        | EffectDef::Transform { .. }
-        | EffectDef::PutIntoLibraryBeneathTop { .. }
-        | EffectDef::MoveToZone { .. }
-        | EffectDef::Apply { .. }
-        | EffectDef::Special(_) => Ok(()),
+        _ => {
+            for child in crate::card::child_effects(effect) {
+                validate_resolving_effect(child, source_zones)?;
+            }
+            Ok(())
+        }
     }
 }
 

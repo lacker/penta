@@ -44,7 +44,11 @@ fn entomb_puts_the_found_card_into_the_graveyard() {
     let angel = decision
         .options
         .iter()
-        .find(|option| option.card.is_some_and(|(_, id)| id == cards::SERRA_ANGEL))
+        .find(|option| {
+            option.card.is_some_and(|(_, characteristics)| {
+                characteristics.card_definition() == Some(cards::SERRA_ANGEL)
+            })
+        })
         .expect("every card in the library is eligible")
         .id;
     game.apply(
@@ -95,7 +99,11 @@ fn vampiric_tutor_leaves_the_card_on_top_and_costs_two_life() {
     let angel = decision
         .options
         .iter()
-        .find(|option| option.card.is_some_and(|(_, id)| id == cards::SERRA_ANGEL))
+        .find(|option| {
+            option.card.is_some_and(|(_, characteristics)| {
+                characteristics.card_definition() == Some(cards::SERRA_ANGEL)
+            })
+        })
         .expect("every card in the library is eligible")
         .id;
     game.apply(
@@ -148,7 +156,11 @@ fn mystical_tutor_offers_only_instants_and_sorceries() {
     let mut offered = decision
         .options
         .iter()
-        .filter_map(|option| option.card.map(|(_, definition)| definition))
+        .filter_map(|option| {
+            option
+                .card
+                .and_then(|(_, characteristics)| characteristics.card_definition())
+        })
         .collect::<Vec<_>>();
     offered.sort_unstable();
     let mut expected = vec![cards::LIGHTNING_BOLT, cards::ANCESTRAL_RECALL];
@@ -333,7 +345,11 @@ fn crop_rotation_trades_a_land_on_the_battlefield_for_any_land_in_the_library() 
     let mut offered = decision
         .options
         .iter()
-        .filter_map(|option| option.card.map(|(_, definition)| definition))
+        .filter_map(|option| {
+            option
+                .card
+                .and_then(|(_, characteristics)| characteristics.card_definition())
+        })
         .collect::<Vec<_>>();
     offered.sort_unstable();
     let mut lands = vec![cards::GAEAS_CRADLE, cards::TAIGA];
@@ -343,7 +359,11 @@ fn crop_rotation_trades_a_land_on_the_battlefield_for_any_land_in_the_library() 
     let cradle = decision
         .options
         .iter()
-        .find(|option| option.card.is_some_and(|(_, id)| id == cards::GAEAS_CRADLE))
+        .find(|option| {
+            option.card.is_some_and(|(_, characteristics)| {
+                characteristics.card_definition() == Some(cards::GAEAS_CRADLE)
+            })
+        })
         .expect("offered")
         .id;
     game.apply(
@@ -432,7 +452,11 @@ fn spellseeker_finds_a_cheap_instant_or_sorcery_and_nothing_else() {
     let mut offered = search
         .options
         .iter()
-        .filter_map(|option| option.card.map(|(_, definition)| definition))
+        .filter_map(|option| {
+            option
+                .card
+                .and_then(|(_, characteristics)| characteristics.card_definition())
+        })
         .collect::<Vec<_>>();
     offered.sort_unstable();
     let mut expected = vec![cards::LIGHTNING_BOLT, cards::DEMONIC_TUTOR];
@@ -446,9 +470,9 @@ fn spellseeker_finds_a_cheap_instant_or_sorcery_and_nothing_else() {
         .options
         .iter()
         .find(|option| {
-            option
-                .card
-                .is_some_and(|(_, id)| id == cards::DEMONIC_TUTOR)
+            option.card.is_some_and(|(_, characteristics)| {
+                characteristics.card_definition() == Some(cards::DEMONIC_TUTOR)
+            })
         })
         .expect("offered")
         .id;

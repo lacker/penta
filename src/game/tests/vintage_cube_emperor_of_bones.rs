@@ -67,7 +67,11 @@ fn answer(game: &mut Game, wanted: Option<CardDefinitionId>) {
         Some(definition) => decision
             .options
             .iter()
-            .find(|option| option.card.is_some_and(|(_, found)| found == definition))
+            .find(|option| {
+                option.card.is_some_and(|(_, characteristics)| {
+                    characteristics.card_definition() == Some(definition)
+                })
+            })
             .unwrap_or_else(|| panic!("{definition:?} is offered")),
         None => decision.options.first().expect("something is offered"),
     }

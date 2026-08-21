@@ -61,6 +61,57 @@ test("granted origins include every identity field", () => {
   assert.notEqual(abilityOriginKey(base), abilityOriginKey(differentGrant));
 });
 
+test("inline token origins remain source-scoped without fake definitions", () => {
+  const token = { kind: "token", partId: 0, abilityId: 1 };
+  const first = action(0, token, 40, "Token ability");
+  const second = action(1, token, 41, "Token ability");
+  const otherSource = { ...action(2, token, 42, "Token ability"), cardId: 10 };
+  const groups = groupTargetedActionsByOrigin([first, second, otherSource]);
+
+  assert.equal(groups.length, 2);
+  assert.deepEqual(groups[0].actions, [first, second]);
+  assert.deepEqual(groups[1].actions, [otherSource]);
+  assert.match(groups[0].key, /^object:9:token:/);
+  assert.match(groups[1].key, /^object:10:token:/);
+
+  const tokenGranted = {
+    kind: "tokenGranted",
+    source: 8,
+    sourcePartId: 0,
+    sourceAbilityId: 1,
+    grantId: 3,
+  };
+  assert.notEqual(
+    abilityOriginKey(tokenGranted, 9),
+    abilityOriginKey({ ...tokenGranted, grantId: 4 }, 9),
+  );
+});
+
+test("inline emblem origins remain source-scoped without fake definitions", () => {
+  const emblem = { kind: "emblem", abilityId: 1 };
+  const first = action(0, emblem, 40, "Emblem ability");
+  const second = action(1, emblem, 41, "Emblem ability");
+  const otherSource = { ...action(2, emblem, 42, "Emblem ability"), cardId: 10 };
+  const groups = groupTargetedActionsByOrigin([first, second, otherSource]);
+
+  assert.equal(groups.length, 2);
+  assert.deepEqual(groups[0].actions, [first, second]);
+  assert.deepEqual(groups[1].actions, [otherSource]);
+  assert.match(groups[0].key, /^object:9:emblem:/);
+  assert.match(groups[1].key, /^object:10:emblem:/);
+
+  const emblemGranted = {
+    kind: "emblemGranted",
+    source: 8,
+    sourceAbilityId: 1,
+    grantId: 3,
+  };
+  assert.notEqual(
+    abilityOriginKey(emblemGranted, 9),
+    abilityOriginKey({ ...emblemGranted, grantId: 4 }, 9),
+  );
+});
+
 test("actions without an ability origin retain the simple single group flow", () => {
   const actions = [
     action(0, null, 40, null),

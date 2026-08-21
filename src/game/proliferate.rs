@@ -62,7 +62,7 @@ impl Game {
                         .battlefield
                         .iter()
                         .find(|permanent| permanent.card.id == *id)
-                        .map(|permanent| (*id, permanent.card.definition)),
+                        .map(|permanent| (*id, Self::effective_rules_source(permanent))),
                     _ => None,
                 },
                 members: Vec::new(),
@@ -92,8 +92,10 @@ impl Game {
                 .battlefield
                 .iter()
                 .find(|permanent| permanent.card.id == id)
-                .and_then(|permanent| self.catalog.get(permanent.card.definition))
-                .map_or_else(|| "That permanent".to_owned(), |card| card.name.clone()),
+                .and_then(|permanent| {
+                    self.presentation_name(Self::effective_rules_source(permanent))
+                })
+                .map_or_else(|| "That permanent".to_owned(), std::borrow::Cow::into_owned),
             Target::Player(player) => {
                 if player == PlayerId::One {
                     "Player one".to_owned()

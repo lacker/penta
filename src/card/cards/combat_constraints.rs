@@ -90,7 +90,6 @@ pub const ILLNESS_IN_THE_RANKS: CardDefinitionId = CardDefinitionId(1889);
 pub const PHANTOM_GENERAL: CardDefinitionId = CardDefinitionId(1890);
 pub const HARVESTER_OF_SOULS: CardDefinitionId = CardDefinitionId(1891);
 pub const SOUL_OF_THE_HARVEST: CardDefinitionId = CardDefinitionId(1892);
-pub const RAT_TOKEN_1_1_BLACK: CardDefinitionId = CardDefinitionId(1893);
 pub const OGRE_SLUMLORD: CardDefinitionId = CardDefinitionId(1894);
 pub const SUBLIME_ARCHANGEL: CardDefinitionId = CardDefinitionId(1895);
 pub const PONTIFF_OF_BLIGHT: CardDefinitionId = CardDefinitionId(1896);

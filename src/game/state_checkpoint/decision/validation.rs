@@ -43,9 +43,7 @@ fn resolved_effect_payment(
             super::super::ResolvedEffectPayment::Mana(ManaCost::of_color(color, amount))
         }
         EffectPaymentCostDef::Life(amount) => super::super::ResolvedEffectPayment::Life(amount),
-        EffectPaymentCostDef::Energy(amount) => {
-            super::super::ResolvedEffectPayment::Energy(amount)
-        }
+        EffectPaymentCostDef::Energy(amount) => super::super::ResolvedEffectPayment::Energy(amount),
         EffectPaymentCostDef::Mill(amount) => super::super::ResolvedEffectPayment::Mill(amount),
         EffectPaymentCostDef::Discard(amount) => {
             super::super::ResolvedEffectPayment::Discard(amount)
@@ -116,7 +114,12 @@ fn validate_top_card_selection_observation(
         .collect::<Vec<_>>();
     let inspected = revealed
         .iter()
-        .map(|card| (card.id, card.definition))
+        .map(|card| {
+            (
+                card.id,
+                ObjectCharacteristics::card(card.definition, CardPartId::PRIMARY),
+            )
+        })
         .collect::<Vec<_>>();
     let mut expected = game.card_decision_options(&eligible, DecisionZone::Library);
     for option in &mut expected {
@@ -241,24 +244,7 @@ fn ability_locator_matches_origin(
     let Some(payload) = &object.ability else {
         return false;
     };
-    let expected = match payload.origin {
-        super::super::AbilityOrigin::Printed {
-            definition,
-            part,
-            ability,
-        } => (definition.0, part.0, ability.0),
-        super::super::AbilityOrigin::Granted {
-            source_definition,
-            source_part,
-            source_ability,
-            ..
-        } => (source_definition.0, source_part.0, source_ability.0),
-        super::super::AbilityOrigin::IntrinsicBasicLand(_)
-        | super::super::AbilityOrigin::IntrinsicCounter(_) => {
-            return false;
-        }
-    };
-    (locator.definition, locator.part_id, locator.ability_id) == expected
+    super::semantics::ability_locator_matches_origin(locator, payload.origin)
 }
 
 fn validate_entry_decision_context(

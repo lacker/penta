@@ -86,6 +86,13 @@ fn on_battlefield(game: &Game, definition: CardDefinitionId) -> bool {
     !permanents_of(game, definition).is_empty()
 }
 
+fn maps(game: &Game) -> Vec<&Permanent> {
+    game.battlefield
+        .iter()
+        .filter(|permanent| is_token_with(permanent, tokens::map()))
+        .collect()
+}
+
 /// It kills a creature and hands its controller two Maps.
 #[test]
 fn it_destroys_a_creature_and_pays_two_maps() {
@@ -95,7 +102,7 @@ fn it_destroys_a_creature_and_pays_two_maps() {
     cast_at(&mut game, get_lost, angel);
 
     assert!(!on_battlefield(&game, cards::SERRA_ANGEL), "the Angel died");
-    let maps = permanents_of(&game, cards::MAP_TOKEN);
+    let maps = maps(&game);
     assert_eq!(maps.len(), 2, "two Maps");
     for map in maps {
         assert_eq!(
@@ -121,7 +128,7 @@ fn it_reaches_an_enchantment() {
         !on_battlefield(&game, cards::CIRCLE_OF_PROTECTION_BLUE),
         "the Circle is gone",
     );
-    assert_eq!(permanents_of(&game, cards::MAP_TOKEN).len(), 2);
+    assert_eq!(maps(&game).len(), 2);
 }
 
 /// An artifact is not one of the three.
@@ -148,7 +155,7 @@ fn a_map_explores_a_land_into_hand() {
     let angel = permanents_of(&game, cards::SERRA_ANGEL)[0].card.id;
     cast_at(&mut game, get_lost, angel);
     let bears = permanents_of(&game, cards::GRIZZLY_BEARS)[0].card.id;
-    let map = permanents_of(&game, cards::MAP_TOKEN)[0].card.id;
+    let map = maps(&game)[0].card.id;
     let land = game
         .build_zone(PlayerId::Two, &[cards::MOUNTAIN])
         .expect("cataloged")
@@ -204,7 +211,7 @@ fn a_nonland_grows_the_creature_and_asks() {
     let angel = permanents_of(&game, cards::SERRA_ANGEL)[0].card.id;
     cast_at(&mut game, get_lost, angel);
     let bears = permanents_of(&game, cards::GRIZZLY_BEARS)[0].card.id;
-    let map = permanents_of(&game, cards::MAP_TOKEN)[0].card.id;
+    let map = maps(&game)[0].card.id;
     let spell = game
         .build_zone(PlayerId::Two, &[cards::LIGHTNING_BOLT])
         .expect("cataloged")
@@ -271,7 +278,7 @@ fn the_revealed_card_may_stay_on_top() {
     let angel = permanents_of(&game, cards::SERRA_ANGEL)[0].card.id;
     cast_at(&mut game, get_lost, angel);
     let bears = permanents_of(&game, cards::GRIZZLY_BEARS)[0].card.id;
-    let map = permanents_of(&game, cards::MAP_TOKEN)[0].card.id;
+    let map = maps(&game)[0].card.id;
     let spell = game
         .build_zone(PlayerId::Two, &[cards::LIGHTNING_BOLT])
         .expect("cataloged")
@@ -332,7 +339,7 @@ fn the_map_sacrifices_itself() {
     let angel = permanents_of(&game, cards::SERRA_ANGEL)[0].card.id;
     cast_at(&mut game, get_lost, angel);
     let bears = permanents_of(&game, cards::GRIZZLY_BEARS)[0].card.id;
-    let map = permanents_of(&game, cards::MAP_TOKEN)[0].card.id;
+    let map = maps(&game)[0].card.id;
     let land = game
         .build_zone(PlayerId::Two, &[cards::MOUNTAIN])
         .expect("cataloged")
@@ -361,9 +368,5 @@ fn the_map_sacrifices_itself() {
     game.apply(PlayerId::Two, action).expect("it activates");
     settle(&mut game);
 
-    assert_eq!(
-        permanents_of(&game, cards::MAP_TOKEN).len(),
-        1,
-        "one Map spent, one left",
-    );
+    assert_eq!(maps(&game).len(), 1, "one Map spent, one left");
 }

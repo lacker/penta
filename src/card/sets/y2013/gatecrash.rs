@@ -344,15 +344,13 @@ pub(in crate::card::sets) static KNIGHT_WATCH: CardRecord = CardRecord::new(
     CardSet::Gatecrash,
     CardRules::new_sorcery(mana_cost!("{4}{W}")).with_ability(AbilityDef::spell(
         "Create two 2/2 white Knight creature tokens with vigilance.",
-        EffectDef::CreateToken {
-            token: cards::KNIGHT_TOKEN_2_2_WHITE,
-            controller: None,
-            count: ValueDef::Constant(2),
-            tapped: false,
-            attacking: false,
-            counters: None,
-            created: None,
-        },
+        EffectDef::create_creature_token(&["Knight"], &[ManaColor::White], 2, 2)
+            .with_abilities(&[abilities::vigilance()])
+            .with_art(CardArt::new(
+                "67d3d039-248a-4eb8-be5c-12959b458fea",
+                "Matt Stewart",
+            ))
+            .with_amount(2),
     )),
 );
 
@@ -429,15 +427,12 @@ pub(in crate::card::sets) static MURDER_INVESTIGATION: CardRecord = CardRecord::
                 "When enchanted creature dies, create X 1/1 white Soldier creature tokens, \
                  where X is its power.",
                 ENCHANTED_CREATURE_DIES,
-                EffectDef::CreateToken {
-                    token: cards::SOLDIER_TOKEN_1_1_WHITE,
-                    controller: None,
-                    count: ValueDef::TriggeringObjectPower,
-                    tapped: false,
-                    attacking: false,
-                    counters: None,
-                    created: None,
-                },
+                EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1)
+                    .with_art(CardArt::new(
+                        "944a40e8-5469-4d8b-b044-67ff3382ec92",
+                        "Steve Prescott",
+                    ))
+                    .with_count(ValueDef::TriggeringObjectPower),
             ),
         ]),
 );
@@ -541,15 +536,12 @@ pub(in crate::card::sets) static URBIS_PROTECTOR: CardRecord = CardRecord::new(
                 None,
                 Some(ZoneKind::Battlefield),
             ),
-            EffectDef::CreateToken {
-                token: cards::ANGEL_TOKEN_4_4_WHITE,
-                controller: None,
-                count: ValueDef::Constant(1),
-                tapped: false,
-                attacking: false,
-                counters: None,
-                created: None,
-            },
+            EffectDef::create_creature_token(&["Angel"], &[ManaColor::White], 4, 4)
+                .with_abilities(&[abilities::flying()])
+                .with_art(CardArt::new(
+                    "71766a5a-ce00-4e48-b4f6-0d1a7f5b2691",
+                    "Steve Argyle",
+                )),
         ),
     ),
 );
@@ -1495,15 +1487,11 @@ pub(in crate::card::sets) static OGRE_SLUMLORD: CardRecord = CardRecord::new(
             ),
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &EffectDef::CreateToken {
-                    token: cards::RAT_TOKEN_1_1_BLACK,
-                    controller: None,
-                    count: ValueDef::Constant(1),
-                    tapped: false,
-                    attacking: false,
-                    counters: None,
-                    created: None,
-                },
+                effect: &EffectDef::create_creature_token(&["Rat"], &[ManaColor::Black], 1, 1)
+                    .with_art(CardArt::new(
+                        "f1fb8ca6-7351-457a-b2a4-48f57ec3c64a",
+                        "Nils Hamm",
+                    )),
             },
         ),
         AbilityDef::static_ability("Rats you control have deathtouch.", OGRE_SLUMLORD_RATS),
@@ -2693,14 +2681,7 @@ pub(in crate::card::sets) static ASSEMBLE_THE_LEGION: CardRecord = CardRecord::n
                     kind: CounterKind::Muster,
                     amount: ValueDef::Constant(1),
                 },
-                EffectDef::CreateToken {
-                    token: cards::SOLDIER_TOKEN_1_1_RED_WHITE,
-                    controller: None,
-                    count: ValueDef::CountersOnSource(CounterKind::Muster),
-                    tapped: false,
-                    attacking: false,
-                counters: None,
-                created: None,},
+                EffectDef::create_creature_token(&["Soldier"], &[ManaColor::Red, ManaColor::White], 1, 1).with_abilities(&[abilities::haste()]).with_art(CardArt::new("aae7bdfe-fe14-4a18-b2b0-16e9175a0441", "Justine Cruz")).with_count(ValueDef::CountersOnSource(CounterKind::Muster)),
             ]),
         ),
     ),
@@ -2981,6 +2962,30 @@ pub(in crate::card::sets) static DINROVA_HORROR: CardRecord = CardRecord::new(
 
 /// The available damage effects cover most of fight, but they resolve in
 /// sequence instead of committing both damage events simultaneously.
+static DOMRI_DOUBLE_STRIKE: AbilityDef = abilities::double_strike();
+static DOMRI_TRAMPLE: AbilityDef = abilities::trample();
+static DOMRI_HEXPROOF: AbilityDef = abilities::hexproof();
+static DOMRI_HASTE: AbilityDef = abilities::haste();
+
+static DOMRI_EMBLEM_KEYWORDS: [AppliedEffectDef; 4] = [
+    AppliedEffectDef::add_ability(&DOMRI_DOUBLE_STRIKE),
+    AppliedEffectDef::add_ability(&DOMRI_TRAMPLE),
+    AppliedEffectDef::add_ability(&DOMRI_HEXPROOF),
+    AppliedEffectDef::add_ability(&DOMRI_HASTE),
+];
+
+static DOMRI_RADE_EMBLEM_ABILITIES: [AbilityDef; 1] = [AbilityDef::static_ability(
+    "Creatures you control have double strike, trample, hexproof, and haste.",
+    EffectDef::StaticApply {
+        recipient: EffectRecipientDef::matching_objects(
+            ObjectPredicateDef::HasType(CardType::Creature),
+            &[ZoneKind::Battlefield],
+            PlayerRelation::You,
+        ),
+        effect: AppliedEffectDef::Composite(&DOMRI_EMBLEM_KEYWORDS),
+    },
+)];
+
 static DOMRI_ABILITIES: [AbilityDef; 3] = [
     AbilityDef::activated(
         "+1: Look at the top card of your library. If it's a creature card, you may reveal it and put it into your hand.",
@@ -3026,9 +3031,7 @@ static DOMRI_ABILITIES: [AbilityDef; 3] = [
     AbilityDef::activated(
         "−7: You get an emblem with \"Creatures you control have double strike, trample, hexproof, and haste.\"",
         &[AbilityCostDef::Loyalty(-7)],
-        EffectDef::CreateEmblem {
-            emblem: cards::DOMRI_RADE_EMBLEM,
-        },
+        EffectDef::create_emblem("Domri Rade emblem", &DOMRI_RADE_EMBLEM_ABILITIES),
     ),
 ];
 
@@ -3456,7 +3459,7 @@ pub(in crate::card::sets) static MORTUS_STRIDER: CardRecord = CardRecord::new(
 );
 
 // GTC 180 — Mystic Genesis
-// Audit: blocked — Token definitions have fixed characteristics, and no continuation can size a newly created Ooze from the countered spell's mana value.
+// Audit: blocked — Authored token characteristics are static, and no continuation can size a newly created Ooze from the countered spell's mana value.
 
 // GTC 181 — Nimbus Swimmer
 // Audit: blocked — Battlefield-entry counter modifications take fixed amounts and cannot read the creature spell's chosen X.
@@ -3793,15 +3796,17 @@ pub(in crate::card::sets) static SUNHOME_GUILDMAGE: CardRecord = CardRecord::new
         AbilityDef::activated(
             "{2}{R}{W}: Create a 1/1 red and white Soldier creature token with haste.",
             &[AbilityCostDef::Mana(mana_cost!("{2}{R}{W}"))],
-            EffectDef::CreateToken {
-                token: cards::SOLDIER_TOKEN_1_1_RED_WHITE,
-                controller: None,
-                count: ValueDef::Constant(1),
-                tapped: false,
-                attacking: false,
-                counters: None,
-                created: None,
-            },
+            EffectDef::create_creature_token(
+                &["Soldier"],
+                &[ManaColor::Red, ManaColor::White],
+                1,
+                1,
+            )
+            .with_abilities(&[abilities::haste()])
+            .with_art(CardArt::new(
+                "aae7bdfe-fe14-4a18-b2b0-16e9175a0441",
+                "Justine Cruz",
+            )),
         ),
     ]),
 );
@@ -3977,14 +3982,7 @@ pub(in crate::card::sets) static BECKON_APPARITION: CardRecord = CardRecord::new
                     attachment: None,
                     controller: None,
                 },
-                EffectDef::CreateToken {
-                    token: cards::SPIRIT_TOKEN_1_1_WHITE_BLACK,
-                    controller: None,
-                    count: ValueDef::Constant(1),
-                    tapped: false,
-                    attacking: false,
-                counters: None,
-                created: None,},
+                EffectDef::create_creature_token(&["Spirit"], &[ManaColor::White, ManaColor::Black], 1, 1).with_abilities(&[abilities::flying()]).with_art(CardArt::new("91f3a4b0-0992-4245-b245-033ad1083a93", "Cliff Childs")),
             ]),
         ),
     ),

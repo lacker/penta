@@ -11,9 +11,11 @@ use serde_json::json;
 
 mod adversarial;
 mod broad_audit;
+mod effect_walkers;
 mod rare_reconstructions;
 mod rare_states;
 mod semantics_coverage;
+mod tokens;
 mod trajectory;
 
 #[test]
@@ -38,7 +40,7 @@ fn catalog_semantics_rehydrate_top_level_and_nested_abilities() {
     let rebuilt = catalog_ability(&catalog, &locator).expect("nested locator resolves");
     assert_eq!(rebuilt.text, granted_text);
     assert!(
-        !locator.nested.is_empty(),
+        !locator_nested(&locator).is_empty(),
         "the granted clause is addressed beneath its printed source"
     );
 }
@@ -50,7 +52,7 @@ fn resolved_effect_locators_prefer_the_effect_source_ability() {
     'definitions: for definition in catalog.definitions() {
         for part in &definition.parts {
             for attached in part.rules.indexed_abilities() {
-                let source_root = model::AbilityLocator {
+                let source_root = model::AbilityLocator::Card {
                     definition: definition.id.0,
                     part_id: part.id.0,
                     ability_id: attached.id.0,
@@ -60,15 +62,7 @@ fn resolved_effect_locators_prefer_the_effect_source_ability() {
                     let Some(global) = semantics::applied_effect_locator(&catalog, effect) else {
                         continue;
                     };
-                    if (
-                        global.ability.definition,
-                        global.ability.part_id,
-                        global.ability.ability_id,
-                    ) != (
-                        source_root.definition,
-                        source_root.part_id,
-                        source_root.ability_id,
-                    ) {
+                    if printed_locator_root(&global.ability) != printed_locator_root(&source_root) {
                         example = Some((source_root, effect));
                         break 'definitions;
                     }
@@ -81,29 +75,44 @@ fn resolved_effect_locators_prefer_the_effect_source_ability() {
     let anchored = resolved_applied_effect_locator(&catalog, source, effect)
         .expect("the repeated effect has a source-anchored locator");
     assert_eq!(
-        (
-            anchored.ability.definition,
-            anchored.ability.part_id,
-            anchored.ability.ability_id,
-        ),
-        (
-            source_root.definition,
-            source_root.part_id,
-            source_root.ability_id,
-        ),
+        printed_locator_root(&anchored.ability),
+        printed_locator_root(&source_root),
         "resolved provenance must not collapse to the catalog's first equal effect"
     );
 }
 
 fn source_for_locator(object: GameObjectId, locator: &model::AbilityLocator) -> AbilitySourceRef {
+    let (definition, part, ability) =
+        printed_locator_root(locator).expect("the test source locator is printed");
     AbilitySourceRef {
         object,
         ability: AbilityOrigin::Printed {
-            definition: CardDefinitionId(locator.definition),
-            part: CardPartId(locator.part_id),
-            ability: AbilityId(locator.ability_id),
+            definition: CardDefinitionId(definition),
+            part: CardPartId(part),
+            ability: AbilityId(ability),
         },
     }
+}
+
+fn locator_nested(locator: &model::AbilityLocator) -> &[usize] {
+    match locator {
+        model::AbilityLocator::Card { nested, .. }
+        | model::AbilityLocator::Token { nested, .. }
+        | model::AbilityLocator::Emblem { nested, .. } => nested,
+    }
+}
+
+fn printed_locator_root(locator: &model::AbilityLocator) -> Option<(u16, u8, u8)> {
+    let model::AbilityLocator::Card {
+        definition,
+        part_id,
+        ability_id,
+        ..
+    } = locator
+    else {
+        return None;
+    };
+    Some((*definition, *part_id, *ability_id))
 }
 
 fn source_without_applied_effect(
@@ -114,7 +123,7 @@ fn source_without_applied_effect(
     for definition in catalog.definitions() {
         for part in &definition.parts {
             for attached in part.rules.indexed_abilities() {
-                let locator = model::AbilityLocator {
+                let locator = model::AbilityLocator::Card {
                     definition: definition.id.0,
                     part_id: part.id.0,
                     ability_id: attached.id.0,

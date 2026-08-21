@@ -60,7 +60,6 @@ impl Game {
     /// Split from the walker below only to keep either readable; together
     /// they are one decision about what a shortcut can answer.
     fn static_leaf_predicate_matches_lazily(
-        &self,
         predicate: ObjectPredicateDef,
         source: &Permanent,
         affected: &Permanent,
@@ -68,7 +67,7 @@ impl Game {
         match predicate {
             ObjectPredicateDef::Any => Some(true),
             ObjectPredicateDef::Source => Some(source.card.id == affected.card.id),
-            ObjectPredicateDef::Token => Some(self.is_token(affected.card.definition)),
+            ObjectPredicateDef::Token => Some(affected.card.definition.is_token()),
             ObjectPredicateDef::Tapped => Some(affected.tapped),
             ObjectPredicateDef::WasDealtDamageThisTurn => Some(affected.was_dealt_damage_this_turn),
             ObjectPredicateDef::DealtDamageThisTurn => Some(affected.dealt_damage_this_turn),
@@ -88,7 +87,7 @@ impl Game {
         affected: &Permanent,
         prospective: Option<&Permanent>,
     ) -> Option<bool> {
-        if let Some(answer) = self.static_leaf_predicate_matches_lazily(predicate, source, affected)
+        if let Some(answer) = Self::static_leaf_predicate_matches_lazily(predicate, source, affected)
         {
             return Some(answer);
         }
@@ -104,12 +103,12 @@ impl Game {
             ObjectPredicateDef::Spell | ObjectPredicateDef::NoncreatureSpell => Some(false),
             ObjectPredicateDef::Color(color) => {
                 let rules = self.effective_rules(affected)?;
-                let colors = self.effective_colors(affected, rules);
+                let colors = self.effective_colors(affected, &rules);
                 Some(color.color_index().is_some_and(|index| colors[index]))
             }
             ObjectPredicateDef::ColorCount(count) => {
                 let rules = self.effective_rules(affected)?;
-                let colors = self.effective_colors(affected, rules);
+                let colors = self.effective_colors(affected, &rules);
                 Some(colors.iter().filter(|present| **present).count() == usize::from(count))
             }
             ObjectPredicateDef::Subtype(subtype) => {

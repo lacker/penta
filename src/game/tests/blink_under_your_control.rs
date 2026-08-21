@@ -148,7 +148,9 @@ fn an_ordinary_return_gives_it_back_to_its_owner() {
     // leaves it mid-resolution.
     let bear = stolen_bear(10_001);
     let bear_id = bear.card.id;
-    game.players[PlayerId::Two.index()].exile.push(bear.card);
+    game.players[PlayerId::Two.index()]
+        .exile
+        .push(bear.card.into_card().expect("the fixture is a card"));
 
     game.return_exiled_card(bear_id, ZoneKind::Battlefield, None, None, false, None);
 

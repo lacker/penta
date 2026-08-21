@@ -196,7 +196,10 @@ fn the_commander_arrives_with_three_goblins() {
     assert_eq!(
         game.battlefield
             .iter()
-            .filter(|permanent| permanent.card.definition == cards::GOBLIN_TOKEN_1_1_RED)
+            .filter(|permanent| is_token_with(
+                permanent,
+                tokens::creature(&["Goblin"], &[ManaColor::Red], 1, 1)
+            ))
             .count(),
         3,
         "three tokens",

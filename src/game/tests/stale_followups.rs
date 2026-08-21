@@ -162,7 +162,12 @@ fn a_tapped_token_arrives_tapped() {
     let zombies: Vec<_> = game
         .battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::ZOMBIE_TOKEN_2_2_BLACK)
+        .filter(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2),
+            )
+        })
         .collect();
     assert_eq!(zombies.len(), 1, "its own death triggers it");
     assert!(zombies[0].tapped, "and the token arrives tapped");

@@ -40,6 +40,20 @@ fn attached_board(
     (game, equipment_id, host_id)
 }
 
+fn attached_token_board(
+    equipment: crate::ids::CardDefinitionId,
+    host: TokenCharacteristics,
+) -> (Game, GameObjectId, GameObjectId) {
+    let mut game = ready();
+    let host = token_permanent(10_100, host, PlayerId::One);
+    let host_id = host.card.id;
+    let mut equipment = creature(10_000, equipment, PlayerId::One);
+    let equipment_id = equipment.card.id;
+    equipment.attached_to = Some(host_id);
+    game.battlefield.extend([equipment, host]);
+    (game, equipment_id, host_id)
+}
+
 #[test]
 fn demonmail_hauberk_sacrifices_a_creature_to_equip() {
     let mut game = ready();
@@ -100,8 +114,10 @@ fn demonmail_hauberk_sacrifices_a_creature_to_equip() {
 
 #[test]
 fn avacyns_collar_watches_only_its_equipped_human_die() {
-    let (mut game, _collar, human_id) =
-        attached_board(cards::AVACYNS_COLLAR, cards::HUMAN_TOKEN_1_1_WHITE);
+    let (mut game, _collar, human_id) = attached_token_board(
+        cards::AVACYNS_COLLAR,
+        tokens::creature(&["Human"], &[ManaColor::White], 1, 1),
+    );
     assert_eq!(stats(&game, human_id), (Some(2), Some(1)));
     assert!(
         game.permanent_has_executable_keyword(
@@ -111,16 +127,21 @@ fn avacyns_collar_watches_only_its_equipped_human_die() {
         "the equipped Human receives vigilance",
     );
 
-    let bystander = creature(10_200, cards::HUMAN_TOKEN_1_1_WHITE, PlayerId::One);
+    let bystander = token_permanent(
+        10_200,
+        tokens::creature(&["Human"], &[ManaColor::White], 1, 1),
+        PlayerId::One,
+    );
     let bystander_id = bystander.card.id;
     game.battlefield.push(bystander);
     game.destroy_permanent(bystander_id);
     game.check_state_based_actions();
     drain_pending(&mut game);
     assert!(
-        game.battlefield
-            .iter()
-            .all(|permanent| permanent.card.definition != cards::SPIRIT_TOKEN_1_1_WHITE),
+        game.battlefield.iter().all(|permanent| !is_token_with(
+            permanent,
+            token_with_flying(tokens::creature(&["Spirit"], &[ManaColor::White], 1, 1))
+        )),
         "an unequipped Human dying does not trigger the Collar",
     );
 
@@ -130,7 +151,12 @@ fn avacyns_collar_watches_only_its_equipped_human_die() {
     let spirits = game
         .battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::SPIRIT_TOKEN_1_1_WHITE)
+        .filter(|permanent| {
+            is_token_with(
+                permanent,
+                token_with_flying(tokens::creature(&["Spirit"], &[ManaColor::White], 1, 1)),
+            )
+        })
         .collect::<Vec<_>>();
     assert_eq!(
         spirits.len(),
@@ -195,7 +221,12 @@ fn moonsilver_spear_triggers_only_for_the_equipped_attacker() {
     let angels = game
         .battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::ANGEL_TOKEN_4_4_WHITE)
+        .filter(|permanent| {
+            is_token_with(
+                permanent,
+                token_with_flying(tokens::creature(&["Angel"], &[ManaColor::White], 4, 4)),
+            )
+        })
         .collect::<Vec<_>>();
     assert_eq!(
         angels.len(),

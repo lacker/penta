@@ -3,9 +3,9 @@ use crate::card::{
     AbilityDef, AbilityPredicateDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardTypeSet,
     ColorSet, CreatureTypeSetDef, PlayRestrictionDef, SetOperationDef,
 };
-use crate::ids::{AbilityId, CardDefinitionId, CardPartId, GameObjectId, GrantId, PlayerId};
+use crate::ids::{GameObjectId, GrantId, PlayerId};
 
-use super::{AbilitySourceRef, Permanent};
+use super::{AbilitySourceRef, ObjectCharacteristics, Permanent};
 
 /// Timestamp shared by the continuous-effect slices currently modeled. Static
 /// effects use their source permanent's battlefield timestamp; resolving
@@ -187,9 +187,8 @@ pub(super) struct TemporaryAbilityGrant {
 pub(super) struct StaticAppliedEffect {
     pub(super) source: GameObjectId,
     pub(super) timestamp: ContinuousEffectTimestamp,
-    pub(super) source_definition: CardDefinitionId,
-    pub(super) source_part: CardPartId,
-    pub(super) source_ability: AbilityId,
+    pub(super) source_presentation: ObjectCharacteristics,
+    pub(super) source_origin: AbilityOrigin,
     pub(super) grant: Option<GrantId>,
     pub(super) component_order: u16,
     pub(super) effect: AppliedEffectDef,
@@ -217,9 +216,8 @@ pub(super) struct AppliedPlayRestriction {
 pub(super) struct StaticEffectTraversal<'a> {
     pub(super) source: &'a Permanent,
     pub(super) source_timestamp: ContinuousEffectTimestamp,
-    pub(super) source_definition: CardDefinitionId,
-    pub(super) source_part: CardPartId,
-    pub(super) source_ability: AbilityId,
+    pub(super) source_presentation: ObjectCharacteristics,
+    pub(super) source_origin: AbilityOrigin,
     pub(super) affected: &'a Permanent,
     pub(super) prospective: Option<&'a Permanent>,
     pub(super) next_grant: usize,

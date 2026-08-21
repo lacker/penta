@@ -1,9 +1,9 @@
 use super::{
-    CardDefinitionId, CharacteristicSource, DecisionContinuation, DecisionKind,
-    DecisionObservation, DecisionOption, DecisionOrderSemantics, DecisionPreference,
-    DecisionVisibility, DecisionZone, EffectDef, Game, GameEvent, GameObjectId, PendingDecision,
-    PendingTrigger, StackAbilityPayload, StackObject, StackObjectKind, Target, TargetSelection,
-    TargetSlotId, TriggerPlacementBatch, ZoneKind,
+    CardPartId, DecisionContinuation, DecisionKind, DecisionObservation, DecisionOption,
+    DecisionOrderSemantics, DecisionPreference, DecisionVisibility, DecisionZone, EffectDef, Game,
+    GameEvent, GameObjectId, ObjectCharacteristics, PendingDecision, PendingTrigger,
+    StackAbilityPayload, StackObject, StackObjectKind, Target, TargetSelection, TargetSlotId,
+    TriggerPlacementBatch, ZoneKind,
 };
 
 impl Game {
@@ -117,10 +117,10 @@ impl Game {
                 },
             })
             .collect::<Vec<_>>();
-        let source_name = self
-            .catalog
-            .get(trigger.definition)
-            .map_or("Triggered ability", |card| card.name.as_str());
+        let source_name = self.presentation_name(trigger.presentation).map_or_else(
+            || "Triggered ability".to_owned(),
+            std::borrow::Cow::into_owned,
+        );
         let target_effect = match trigger.effect {
             EffectDef::May { effect, .. } => *effect,
             effect => effect,
@@ -174,11 +174,10 @@ impl Game {
         targets: Vec<Target>,
         divisions: Vec<Vec<u16>>,
     ) {
-        let source_name = self
-            .catalog
-            .get(trigger.definition)
-            .map_or("Triggered ability", |card| card.name.as_str())
-            .to_owned();
+        let source_name = self.presentation_name(trigger.presentation).map_or_else(
+            || "Triggered ability".to_owned(),
+            std::borrow::Cow::into_owned,
+        );
         let labels = targets
             .iter()
             .map(|target| self.target_label(trigger.controller, *target))
@@ -239,13 +238,12 @@ impl Game {
             .iter()
             .map(|trigger| {
                 let name = self
-                    .catalog
-                    .get(trigger.definition)
-                    .map_or("Triggered ability", |card| card.name.as_str());
+                    .presentation_name(trigger.presentation)
+                    .unwrap_or_else(|| "Triggered ability".into());
                 DecisionOption {
                     id: trigger.id,
                     label: format!("{name} triggered ability"),
-                    card: Some((trigger.source.object, trigger.definition)),
+                    card: Some((trigger.source.object, trigger.presentation)),
                     members: Vec::new(),
                     ability_text: Some(trigger.text.into()),
                     zone: DecisionZone::Battlefield,
@@ -301,31 +299,33 @@ impl Game {
         self.place_trigger_sequence(push_order, remaining);
     }
 
-    pub(super) fn target_card(&self, target: Target) -> Option<(GameObjectId, CardDefinitionId)> {
+    pub(super) fn target_card(
+        &self,
+        target: Target,
+    ) -> Option<(GameObjectId, ObjectCharacteristics)> {
         match target {
             Target::Player(_) => None,
-            Target::Card(id) => self
-                .card_in_nonbattlefield_zone(id)
-                .map(|(_, card)| (id, card.definition)),
+            Target::Card(id) => self.card_in_nonbattlefield_zone(id).map(|(_, card)| {
+                (
+                    id,
+                    ObjectCharacteristics::card(card.definition, CardPartId::PRIMARY),
+                )
+            }),
             Target::Permanent(id) => self
                 .battlefield
                 .iter()
                 .find(|permanent| permanent.card.id == id)
-                .map(|permanent| (id, permanent.card.definition)),
+                .map(|permanent| (id, Self::effective_rules_source(permanent))),
             Target::Spell(id) => self
                 .stack
                 .iter()
                 .find(|object| object.id == id)
-                .map(|object| (id, object.card.definition)),
+                .map(|object| (id, object.presentation())),
         }
     }
 
     pub(super) fn put_trigger_on_stack(&mut self, trigger: PendingTrigger) {
-        let card = self.unbacked_object(
-            trigger.definition,
-            trigger.owner,
-            CharacteristicSource::Ability(trigger.definition),
-        );
+        let card = self.unbacked_ability_object(trigger.presentation, trigger.owner);
         let object = card.id;
         self.stack.push(StackObject {
             id: object,
@@ -335,7 +335,7 @@ impl Game {
             ability: Some(StackAbilityPayload {
                 origin: trigger.source.ability,
                 definition: None,
-                presentation_definition: trigger.definition,
+                presentation: trigger.presentation,
                 text: Some(trigger.text),
                 target_defs: trigger.target_defs,
                 targets: trigger.targets,
@@ -363,7 +363,7 @@ impl Game {
             trigger: trigger.id,
             object,
             source: trigger.source.object,
-            definition: trigger.definition,
+            presentation: trigger.presentation,
         });
         self.capture_ability_targeting_triggers(object);
     }

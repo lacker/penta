@@ -1,29 +1,37 @@
 //! Creating tokens.
 //!
-//! A token is an ordinary permanent whose card has no printed existence, so
-//! everything about it -- entry replacements, triggers, arriving tapped --
-//! goes through the same battlefield entry path as a card. What lives here is
-//! only the part that differs: minting the object.
+//! A token is an ordinary permanent with no backing card, so everything about
+//! it -- entry replacements, triggers, arriving tapped -- goes through the
+//! same battlefield entry path as a card. What lives here is only the part
+//! that differs: minting the object.
 
 use super::{
-    CardDefinitionId, CardSet, CharacteristicSource, CounterKind, EntryCompletion, Game,
-    GameObjectId, PendingBattlefieldEntry, Permanent, PlayerId, ZoneKind,
+    CardPartId, CharacteristicSource, CopiableCharacteristics, CounterKind,
+    DoubleFacedCopiableCharacteristics, EntryCompletion, Game, GameObjectId, ObjectBacking,
+    ObjectCharacteristics, ObjectInstance, ObjectKind, PendingBattlefieldEntry, Permanent,
+    PlayerId, TokenCharacteristics, ZoneKind,
 };
 
 impl Game {
-    /// Whether a definition is a token rather than a printed card.
-    pub(super) fn is_token(&self, definition: CardDefinitionId) -> bool {
-        self.catalog
-            .get(definition)
-            .is_some_and(|card| card.debut_set == CardSet::Token)
+    /// Mints the object shell shared by an authored token and a token copy.
+    fn unbacked_token(
+        &mut self,
+        owner: PlayerId,
+        characteristics: CharacteristicSource,
+    ) -> ObjectInstance {
+        ObjectInstance {
+            id: self.allocate_object_id(),
+            definition: ObjectKind::Token,
+            owner,
+            backing: ObjectBacking::None,
+            characteristics,
+            counters: [0; CounterKind::COUNT],
+        }
     }
 
-    /// Puts one token onto the battlefield under `controller`.
-    ///
-    /// A token is a real permanent built from a catalog definition that no
-    /// format allows, so it can be looked up and rendered like any other card
-    /// while never being deck-legal.
-    pub(super) fn create_token(&mut self, controller: PlayerId, token: CardDefinitionId) {
+    /// Test/setup shorthand for creating an ordinary unlinked token.
+    #[cfg(test)]
+    pub(super) fn create_token(&mut self, controller: PlayerId, token: TokenCharacteristics) {
         self.create_token_from(controller, token, None);
     }
 
@@ -33,7 +41,7 @@ impl Game {
     pub(super) fn create_token_from(
         &mut self,
         controller: PlayerId,
-        token: CardDefinitionId,
+        token: TokenCharacteristics,
         creator: Option<GameObjectId>,
     ) {
         self.create_token_arriving(controller, token, creator, false, None, None);
@@ -46,17 +54,13 @@ impl Game {
     pub(super) fn create_attached_token(
         &mut self,
         controller: PlayerId,
-        token: CardDefinitionId,
+        token: TokenCharacteristics,
         source: GameObjectId,
     ) {
-        let Some(definition) = self.catalog.get(token) else {
-            return;
-        };
-        let presented = definition.primary_part_id();
-        let card = self.unbacked_object(token, controller, CharacteristicSource::Card(token));
-        let permanent = Permanent::entering(
+        let card = self.unbacked_token(controller, CharacteristicSource::Token(token));
+        let permanent = Permanent::entering_token(
             card,
-            presented,
+            token,
             controller,
             self.turns_started[controller.index()],
         );
@@ -73,20 +77,16 @@ impl Game {
     pub(super) fn create_token_arriving(
         &mut self,
         controller: PlayerId,
-        token: CardDefinitionId,
+        token: TokenCharacteristics,
         creator: Option<GameObjectId>,
         tapped: bool,
         attacking: Option<crate::AttackDefender>,
         counters: Option<(CounterKind, u16)>,
-    ) -> Option<GameObjectId> {
-        let definition = self.catalog.get(token)?;
-        let presented = definition.primary_part_id();
-        // A token has no physical card behind it, which is exactly what an
-        // unbacked object is.
-        let card = self.unbacked_object(token, controller, CharacteristicSource::Card(token));
-        let mut permanent = Permanent::entering(
+    ) -> GameObjectId {
+        let card = self.unbacked_token(controller, CharacteristicSource::Token(token));
+        let mut permanent = Permanent::entering_token(
             card,
-            presented,
+            token,
             controller,
             self.turns_started[controller.index()],
         );
@@ -115,11 +115,52 @@ impl Game {
         // battlefield rather than the prospective one it was handed. An
         // entry still waiting on a decision has no successor yet, and gives
         // back the only id there is.
-        Some(
-            self.successors
-                .get(&prospective)
-                .copied()
-                .unwrap_or(prospective),
-        )
+        self.successors
+            .get(&prospective)
+            .copied()
+            .unwrap_or(prospective)
+    }
+
+    /// Creates a token with the complete copiable values of another permanent.
+    /// Token nature belongs to the new object shell, independently of whether
+    /// those values came from a printed card or another token.
+    pub(super) fn create_token_copy(
+        &mut self,
+        controller: PlayerId,
+        copy: CopiableCharacteristics,
+        double_faced: Option<DoubleFacedCopiableCharacteristics>,
+        presented: CardPartId,
+    ) {
+        let source = match copy.base {
+            ObjectCharacteristics::Card { definition, .. } => {
+                CharacteristicSource::Copy(definition)
+            }
+            ObjectCharacteristics::Token { token, .. } => CharacteristicSource::Token(token),
+            ObjectCharacteristics::Emblem { .. } => {
+                unreachable!("an emblem cannot supply copiable permanent characteristics")
+            }
+        };
+        let card = self.unbacked_token(controller, source);
+        let physical_part = double_faced
+            .as_ref()
+            .map_or(CardPartId::PRIMARY, |_| presented);
+        let mut permanent = Permanent::entering(
+            card,
+            physical_part,
+            controller,
+            self.turns_started[controller.index()],
+        );
+        permanent.copied_from = Some(copy.base);
+        if let Some(double_faced) = double_faced {
+            permanent.double_faced_token_copy = Some(double_faced);
+        } else {
+            permanent.copy_effect = Some(copy);
+        }
+        self.enqueue_battlefield_entry(PendingBattlefieldEntry {
+            permanent,
+            from: ZoneKind::Stack,
+            completion: EntryCompletion::None,
+            redirected_to: None,
+        });
     }
 }

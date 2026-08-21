@@ -146,7 +146,6 @@ const fn card_type_name(card_type: CardType) -> &'static str {
         CardType::Land => "land",
         CardType::Planeswalker => "planeswalker",
         CardType::Sorcery => "sorcery",
-        CardType::Emblem => "emblem",
     }
 }
 

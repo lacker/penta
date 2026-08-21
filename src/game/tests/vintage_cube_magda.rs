@@ -51,7 +51,7 @@ fn settle(game: &mut Game) {
 fn treasures(game: &Game) -> usize {
     game.battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::TREASURE_TOKEN)
+        .filter(|permanent| is_token_with(permanent, tokens::treasure()))
         .count()
 }
 
@@ -65,8 +65,7 @@ fn permanent_of(game: &Game, definition: CardDefinitionId) -> &Permanent {
 /// Puts `count` Treasures onto the battlefield without going through Magda.
 fn give_treasures(game: &mut Game, count: usize) {
     for _ in 0..count {
-        game.put_onto_battlefield(PlayerId::One, cards::TREASURE_TOKEN)
-            .expect("cataloged");
+        game.create_token(PlayerId::One, tokens::treasure());
     }
     drain_pending(game);
     game.priority = PlayerId::One;
@@ -168,7 +167,7 @@ fn five_treasures_fetch_an_artifact() {
         let wanted = decision.options.iter().find(|option| {
             option
                 .card
-                .is_some_and(|(_, found)| found == cards::SOL_RING)
+                .is_some_and(|(_, found)| found.card_definition() == Some(cards::SOL_RING))
         });
         let options = wanted.map_or_else(
             || {
@@ -220,7 +219,13 @@ fn four_treasures_are_not_enough() {
 fn a_treasure_makes_one_mana_of_any_colour() {
     let (mut game, _magda) = staged(&[]);
     give_treasures(&mut game, 1);
-    let treasure = permanent_of(&game, cards::TREASURE_TOKEN).card.id;
+    let treasure = game
+        .battlefield
+        .iter()
+        .find(|permanent| is_token_with(permanent, tokens::treasure()))
+        .expect("the Treasure is on the battlefield")
+        .card
+        .id;
 
     let colors = game
         .legal_actions(PlayerId::One)

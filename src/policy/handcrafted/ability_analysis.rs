@@ -3,8 +3,8 @@ use crate::card::AppliedRuleDef;
 use super::{
     AbilityCostDef, AbilityOrigin, AppliedEffectDef, CardDefinitionId, CharacteristicOperationDef,
     DeclarativeAbilityDef, DeclarativeSpellProfile, EffectDef, EffectRecipientDef, GameObjectId,
-    HandcraftedPolicy, ObjectPredicateDef, PlayerObservation, PlayerRelation,
-    PowerToughnessOperationDef, SetOperationDef, Step, Target, ValueDef,
+    HandcraftedPolicy, ObjectCharacteristics, ObjectPredicateDef, PlayerObservation,
+    PlayerRelation, PowerToughnessOperationDef, SetOperationDef, Step, Target, ValueDef,
 };
 
 impl HandcraftedPolicy {
@@ -133,10 +133,23 @@ impl HandcraftedPolicy {
     ) -> bool {
         match predicate {
             ObjectPredicateDef::Any => true,
-            ObjectPredicateDef::HasType(expected) => self
-                .catalog
-                .get(permanent.definition)
-                .is_some_and(|card| card.rules.has_type(expected)),
+            ObjectPredicateDef::HasType(expected) => {
+                if permanent.types.is_empty() {
+                    match permanent.characteristics {
+                        super::ObjectCharacteristics::Card { definition, part } => self
+                            .catalog
+                            .get(definition)
+                            .and_then(|card| card.part(part))
+                            .is_some_and(|part| part.rules.has_type(expected)),
+                        super::ObjectCharacteristics::Token { token, part } => token
+                            .part(part)
+                            .is_some_and(|part| part.rules.has_type(expected)),
+                        super::ObjectCharacteristics::Emblem { .. } => false,
+                    }
+                } else {
+                    permanent.types.contains(expected)
+                }
+            }
             _ => false,
         }
     }
@@ -562,26 +575,35 @@ impl HandcraftedPolicy {
 
     pub(super) fn declarative_activated_profile(
         &self,
-        definition: CardDefinitionId,
+        characteristics: ObjectCharacteristics,
         origin: AbilityOrigin,
     ) -> Option<DeclarativeSpellProfile> {
-        let AbilityOrigin::Printed {
-            definition: origin_definition,
-            part,
-            ability,
-        } = origin
-        else {
-            return None;
+        let ability = match (characteristics, origin) {
+            (
+                ObjectCharacteristics::Card {
+                    definition,
+                    part: presented,
+                },
+                AbilityOrigin::Printed {
+                    definition: origin_definition,
+                    part,
+                    ability,
+                },
+            ) if definition == origin_definition && presented == part => *self
+                .catalog
+                .get(definition)?
+                .part(part)?
+                .rules
+                .ability(ability)?,
+            (
+                ObjectCharacteristics::Token {
+                    token,
+                    part: presented,
+                },
+                AbilityOrigin::Token { part, ability },
+            ) if presented == part => *token.part(part)?.rules.ability(ability)?,
+            _ => return None,
         };
-        if origin_definition != definition {
-            return None;
-        }
-        let ability = self
-            .catalog
-            .get(definition)?
-            .part(part)?
-            .rules
-            .ability(ability)?;
         if !ability.is_executable()
             || !matches!(ability.definition, DeclarativeAbilityDef::Activated(_))
         {

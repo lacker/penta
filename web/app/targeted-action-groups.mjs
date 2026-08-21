@@ -15,20 +15,42 @@
  * Canonicalizes the tagged origin metadata without relying on JSON property order.
  *
  * @param {AbilityOriginMetadata | null | undefined} origin
+ * @param {number | null | undefined} [actionSource] Current object carrying
+ * the ability. Inline token clause IDs are only positional within that object.
  */
-export function abilityOriginKey(origin) {
+export function abilityOriginKey(origin, actionSource) {
   if (!origin) return "no-ability-origin";
+  const sourcePrefix = actionSource == null ? "" : `object:${actionSource}:`;
   switch (origin.kind) {
     case "printed":
-      return `printed:${origin.definition}:${origin.partId}:${origin.abilityId}`;
+      return `${sourcePrefix}printed:${origin.definition}:${origin.partId}:${origin.abilityId}`;
+    case "token":
+      return `${sourcePrefix}token:${origin.partId}:${origin.abilityId}`;
+    case "emblem":
+      return `${sourcePrefix}emblem:${origin.abilityId}`;
     case "intrinsicBasicLand":
-      return `intrinsic-basic-land:${origin.landType}`;
+      return `${sourcePrefix}intrinsic-basic-land:${origin.landType}`;
     case "granted":
       return [
-        "granted",
+        `${sourcePrefix}granted`,
         origin.source,
         origin.sourceDefinition,
         origin.sourcePartId,
+        origin.sourceAbilityId,
+        origin.grantId,
+      ].join(":");
+    case "tokenGranted":
+      return [
+        `${sourcePrefix}token-granted`,
+        origin.source,
+        origin.sourcePartId,
+        origin.sourceAbilityId,
+        origin.grantId,
+      ].join(":");
+    case "emblemGranted":
+      return [
+        `${sourcePrefix}emblem-granted`,
+        origin.source,
         origin.sourceAbilityId,
         origin.grantId,
       ].join(":");
@@ -37,7 +59,7 @@ export function abilityOriginKey(origin) {
 
 /** @param {Action} action */
 export function targetedActionOriginKey(action) {
-  return abilityOriginKey(action.ability);
+  return abilityOriginKey(action.ability, action.cardId);
 }
 
 /**

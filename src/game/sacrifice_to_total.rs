@@ -69,7 +69,7 @@ impl Game {
         for (index, (permanent, _)) in candidates.iter().enumerate() {
             let name = self
                 .permanent_card_name(*permanent)
-                .map_or_else(|| "a creature".to_string(), ToOwned::to_owned);
+                .map_or_else(|| "a creature".to_string(), std::borrow::Cow::into_owned);
             options.push(DecisionOption {
                 id: u32::try_from(index + 1).unwrap_or(u32::MAX),
                 label: format!("Sacrifice {name}"),
@@ -77,7 +77,7 @@ impl Game {
                     .battlefield
                     .iter()
                     .find(|candidate| candidate.card.id == *permanent)
-                    .map(|candidate| (*permanent, candidate.card.definition)),
+                    .map(|candidate| (*permanent, Self::effective_rules_source(candidate))),
                 members: Vec::new(),
                 ability_text: None,
                 zone: DecisionZone::Battlefield,

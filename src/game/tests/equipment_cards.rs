@@ -29,15 +29,35 @@ fn stats(game: &Game, id: GameObjectId) -> (Option<i16>, Option<i16>) {
 }
 
 /// Puts the Equipment and a creature out, then equips.
+enum EquipmentHost {
+    Card(CardDefinitionId),
+    Token(TokenCharacteristics),
+}
+
+impl From<CardDefinitionId> for EquipmentHost {
+    fn from(definition: CardDefinitionId) -> Self {
+        Self::Card(definition)
+    }
+}
+
+impl From<TokenCharacteristics> for EquipmentHost {
+    fn from(token: TokenCharacteristics) -> Self {
+        Self::Token(token)
+    }
+}
+
 fn equip_onto(
-    equipment: crate::ids::CardDefinitionId,
-    host: crate::ids::CardDefinitionId,
+    equipment: CardDefinitionId,
+    host: impl Into<EquipmentHost>,
 ) -> (Game, GameObjectId, GameObjectId) {
     let mut game = ready();
     let gear = creature(10_000, equipment, PlayerId::One);
     let gear_id = gear.card.id;
     game.battlefield.push(gear);
-    let creature_permanent = creature(10_100, host, PlayerId::One);
+    let creature_permanent = match host.into() {
+        EquipmentHost::Card(definition) => creature(10_100, definition, PlayerId::One),
+        EquipmentHost::Token(token) => token_permanent(10_100, token, PlayerId::One),
+    };
     let host_id = creature_permanent.card.id;
     game.battlefield.push(creature_permanent);
     game.players[PlayerId::One.index()].mana_pool.colorless = 6;
@@ -112,11 +132,17 @@ fn the_bracers_split_their_two_clauses() {
     };
 
     // A Human with no printed vigilance, so the grant is the only source.
-    let (game, _, human) = equip_onto(cards::BLADED_BRACERS, cards::HUMAN_TOKEN_1_1_WHITE);
+    let (game, _, human) = equip_onto(
+        cards::BLADED_BRACERS,
+        tokens::creature(&["Human"], &[ManaColor::White], 1, 1),
+    );
     assert_eq!(stats(&game, human), (Some(2), Some(2)));
     assert!(vigilant(&game, human), "a Human gets the vigilance");
 
-    let (game, _, zombie) = equip_onto(cards::BLADED_BRACERS, cards::ZOMBIE_TOKEN_2_2_BLACK);
+    let (game, _, zombie) = equip_onto(
+        cards::BLADED_BRACERS,
+        tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2),
+    );
     assert_eq!(
         stats(&game, zombie),
         (Some(3), Some(3)),

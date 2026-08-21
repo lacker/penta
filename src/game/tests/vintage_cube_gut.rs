@@ -73,9 +73,12 @@ fn attack_with(game: &mut Game, attacker: GameObjectId, sacrifice: bool) {
 }
 
 fn skeleton(game: &Game) -> Option<&Permanent> {
-    game.battlefield
-        .iter()
-        .find(|permanent| permanent.card.definition == cards::SKELETON_TOKEN_4_1_BLACK)
+    game.battlefield.iter().find(|permanent| {
+        is_token_with(
+            permanent,
+            token_with_menace(tokens::creature(&["Skeleton"], &[ManaColor::Black], 4, 1)),
+        )
+    })
 }
 
 /// Attacking with something to spend makes a Skeleton already attacking.
@@ -187,7 +190,10 @@ fn a_wide_attack_triggers_it_once() {
     assert_eq!(
         game.battlefield
             .iter()
-            .filter(|permanent| permanent.card.definition == cards::SKELETON_TOKEN_4_1_BLACK)
+            .filter(|permanent| is_token_with(
+                permanent,
+                token_with_menace(tokens::creature(&["Skeleton"], &[ManaColor::Black], 4, 1))
+            ))
             .count(),
         1,
         "two attackers, one trigger, one Skeleton",

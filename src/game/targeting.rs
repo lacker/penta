@@ -1,8 +1,8 @@
 use super::{
     CardBehavior, CardDefinition, CardDefinitionId, CardSupertype, CardType, CardTypeSet,
     CharacteristicContext, Cow, DeclarativeAbilityDef, Game, GameObjectId, ManaCost, ModeId,
-    PlayRestriction, PlayerId, StackObject, StackObjectKind, Step, Target, TargetPredicate,
-    TargetSelection, TriggerEventObject, applicable_part_ids,
+    ObjectCharacteristics, PlayRestriction, PlayerId, RetiredObject, StackObject, StackObjectKind,
+    Step, Target, TargetPredicate, TargetSelection, TriggerEventObject, applicable_part_ids,
 };
 
 impl Game {
@@ -44,7 +44,9 @@ impl Game {
     }
 
     pub(super) fn stack_spell_types(&self, object: &StackObject) -> Option<CardTypeSet> {
-        let definition = self.catalog.get(object.card.definition)?;
+        let definition = self
+            .catalog
+            .get(object.card.definition.card_definition()?)?;
         let signature = object.signature.as_ref()?;
         let option = definition.play_option(signature.play_option())?;
         Self::play_option_types(definition, option)
@@ -57,7 +59,7 @@ impl Game {
         let signature = object.signature.as_ref()?;
         self.printed_trigger_event_object(
             object.id,
-            object.card.definition,
+            object.card.definition.card_definition()?,
             object.controller,
             &CharacteristicContext::Stack {
                 form: signature.form().clone(),
@@ -75,14 +77,75 @@ impl Game {
         object: &StackObject,
     ) -> Option<TriggerEventObject> {
         self.stack_trigger_event_object(object).or_else(|| {
-            let mut view = self.printed_trigger_event_object(
+            let token = object.source.is_some_and(|source| {
+                self.battlefield
+                    .iter()
+                    .find(|permanent| permanent.card.id == source)
+                    .map(|permanent| permanent.card.definition.is_token())
+                    .or_else(|| match self.retired_objects.get(&source) {
+                        Some(RetiredObject::Permanent { permanent, .. }) => {
+                            Some(permanent.card.definition.is_token())
+                        }
+                        Some(RetiredObject::Card(_) | RetiredObject::Stack(_)) | None => None,
+                    })
+                    .unwrap_or(false)
+            });
+            let mut view = self.presentation_trigger_event_object(
                 object.id,
-                object.card.definition,
+                object.presentation(),
                 object.controller,
-                &CharacteristicContext::Command,
+                token,
             )?;
             view.controller = object.controller;
             Some(view)
+        })
+    }
+
+    fn presentation_trigger_event_object(
+        &self,
+        id: GameObjectId,
+        presentation: ObjectCharacteristics,
+        controller: PlayerId,
+        token: bool,
+    ) -> Option<TriggerEventObject> {
+        let rules = match presentation {
+            ObjectCharacteristics::Card { definition, part } => {
+                self.catalog.get(definition)?.part(part)?.rules
+            }
+            ObjectCharacteristics::Token { token, part } => token.part(part)?.rules,
+            ObjectCharacteristics::Emblem { emblem } => emblem.rules_view(),
+        };
+        let mut keywords = 0;
+        for ability in rules.ability_clauses() {
+            if ability.is_executable()
+                && let DeclarativeAbilityDef::Keyword(keyword) = ability.definition
+                && let Some(index) = keyword.simple_index()
+            {
+                keywords |= 1 << index;
+            }
+        }
+        let stats = rules.creature_stats();
+        let mut supertypes = [false; CardSupertype::COUNT];
+        for supertype in CardSupertype::ALL {
+            supertypes[supertype.index()] = rules.has_supertype(supertype);
+        }
+        Some(TriggerEventObject {
+            id,
+            token,
+            types: rules.types(),
+            controller,
+            colors: rules.colors(),
+            subtypes: Cow::Owned(rules.subtypes().to_vec()),
+            attacking_or_blocking: false,
+            keywords,
+            mana_value: rules.mana_cost().map_or(0, ManaCost::mana_value),
+            power: stats.map(|stats| stats.power),
+            toughness: stats.map(|stats| stats.toughness),
+            supertypes,
+            attacking: false,
+            tapped: false,
+            attacked_during_controllers_last_turn: false,
+            attacked_this_turn: false,
         })
     }
 
@@ -133,7 +196,7 @@ impl Game {
         }
         Some(TriggerEventObject {
             id,
-            token: self.is_token(definition.id),
+            token: false,
             types,
             controller,
             colors,

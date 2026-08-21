@@ -97,12 +97,27 @@ fn validate_effect_target_shapes(
         | EffectDef::AddPoisonCounters { recipient, amount }
         | EffectDef::AddEnergyCounters { recipient, amount }
         | EffectDef::DrawCards { recipient, amount }
-        | EffectDef::Discard {
-            recipient, amount, ..
-        }
         | EffectDef::LoseLife { recipient, amount } => {
             validate_recipient_shape(recipient, targets, RecipientExpectation::Player)?;
             validate_value_shape(amount, targets)
+        }
+        EffectDef::Discard {
+            recipient,
+            amount,
+            then,
+            ..
+        } => {
+            validate_recipient_shape(recipient, targets, RecipientExpectation::Player)?;
+            validate_value_shape(amount, targets)?;
+            if let Some(follow_up) = then {
+                validate_object_predicate_shape(follow_up.counted, targets)?;
+                validate_effect_target_shapes(
+                    *follow_up.effect,
+                    targets,
+                    triggering_object_zone,
+                )?;
+            }
+            Ok(())
         }
         EffectDef::SearchZonesAndExileRest { player, .. }
         | EffectDef::ExileTopOfLibraryToPlay { player, .. }
@@ -127,11 +142,12 @@ fn validate_effect_target_shapes(
             player,
             object,
             then,
+            otherwise,
             ..
         } => {
             validate_recipient_shape(player, targets, RecipientExpectation::Player)?;
             validate_object_predicate_shape(object, targets)?;
-            if let Some(effect) = then {
+            for effect in then.into_iter().chain(otherwise) {
                 validate_effect_target_shapes(*effect, targets, triggering_object_zone)?;
             }
             Ok(())
@@ -231,7 +247,6 @@ fn validate_effect_target_shapes(
         | EffectDef::ExileGrantingOwnerPlay { object, .. }
         | EffectDef::GainControl { object, .. }
         | EffectDef::ExchangeControl { first: object, .. }
-        | EffectDef::ReturnWithHasteAndFinality { object, .. }
         | EffectDef::Transform { object }
         | EffectDef::PutIntoLibraryBeneathTop { object, .. }
         | EffectDef::MoveToZone { object, .. }
@@ -240,6 +255,10 @@ fn validate_effect_target_shapes(
         | EffectDef::PutSpellIntoOwnersLibrary { object }
         | EffectDef::CreateTokenCopyOf { object } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Object)
+        }
+        EffectDef::ReturnWithHasteAndFinality { object, then, .. } => {
+            validate_recipient_shape(object, targets, RecipientExpectation::Object)?;
+            validate_effect_target_shapes(*then, targets, triggering_object_zone)
         }
         EffectDef::AddCounters { object, amount, .. }
         | EffectDef::RemoveCounters { object, amount, .. } => {

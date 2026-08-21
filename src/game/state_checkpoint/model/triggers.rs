@@ -3,7 +3,8 @@
 use serde::{Deserialize, Serialize};
 
 use super::{
-    AbilityLocator, AbilitySourceSnapshot, EffectResolutionContextSnapshot, TargetSelectionSnapshot,
+    AbilityLocator, AbilitySourceSnapshot, EffectResolutionContextSnapshot,
+    ObjectCharacteristicsSnapshot, TargetSelectionSnapshot,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -13,7 +14,7 @@ pub(in crate::game::state_checkpoint) struct PendingTriggerSnapshot {
     pub(in crate::game::state_checkpoint) source: AbilitySourceSnapshot,
     pub(in crate::game::state_checkpoint) ability: AbilityLocator,
     pub(in crate::game::state_checkpoint) target_definition: AbilityLocator,
-    pub(in crate::game::state_checkpoint) definition: u16,
+    pub(in crate::game::state_checkpoint) presentation: ObjectCharacteristicsSnapshot,
     pub(in crate::game::state_checkpoint) owner: usize,
     pub(in crate::game::state_checkpoint) controller: usize,
     pub(in crate::game::state_checkpoint) targets: Vec<TargetSelectionSnapshot>,

@@ -2,9 +2,9 @@ use super::{
     AbilityCostDef, AbilityOrigin, AbilityProcedureDef, ActivationChoices, ActivationTimingDef,
     BattlefieldExitCompletion, CardBehavior, CardInstance, CharacteristicContext, CounterKind,
     DeclarativeAbilityDef, FrozenActivatedAbility, Game, GameEvent, GameObjectId, ManaCost,
-    ManaPaymentPurpose, ManaPlanOptions, PendingActivation, PlayRestriction, PlayerId,
-    SacrificeQuota, Step, Target, TargetSelection, ZoneKind, ZoneMoveCause, ZonePlacement,
-    remove_card,
+    ManaPaymentPurpose, ManaPlanOptions, ObjectCharacteristics, ObjectInstance, PendingActivation,
+    PlayRestriction, PlayerId, SacrificeQuota, Step, Target, TargetSelection, ZoneKind,
+    ZoneMoveCause, ZonePlacement, remove_card,
 };
 
 impl Game {
@@ -96,9 +96,9 @@ impl Game {
         let frozen = FrozenActivatedAbility {
             origin: effective.origin,
             definition: Some(Box::new(effective.ability)),
-            presentation_definition: Self::ability_presentation_definition(
+            presentation: Self::ability_presentation(
                 effective.origin,
-                source_card.definition,
+                ObjectCharacteristics::card(source_card.definition, crate::CardPartId::PRIMARY),
             ),
             text: Some(effective.ability.text),
             target_defs: plan.target_defs,
@@ -157,7 +157,7 @@ impl Game {
             .collect();
         self.push_activated_ability(
             source,
-            source_card,
+            &source_card.clone().into(),
             player,
             frozen,
             targets,
@@ -209,9 +209,9 @@ impl Game {
             let frozen = FrozenActivatedAbility {
                 origin: effective.origin,
                 definition: Some(Box::new(effective.ability)),
-                presentation_definition: Self::ability_presentation_definition(
+                presentation: Self::ability_presentation(
                     effective.origin,
-                    source_card.definition,
+                    ObjectCharacteristics::card(source_card.definition, crate::CardPartId::PRIMARY),
                 ),
                 text: Some(effective.ability.text),
                 target_defs: plan.target_defs,
@@ -299,7 +299,7 @@ impl Game {
                 .collect();
             self.push_activated_ability(
                 source,
-                &source_card,
+                &source_card.clone().into(),
                 player,
                 frozen,
                 targets,
@@ -679,7 +679,7 @@ impl Game {
     pub(super) fn continue_activated_ability_costs(
         &mut self,
         source: GameObjectId,
-        source_card: CardInstance,
+        source_card: ObjectInstance,
         controller: PlayerId,
         frozen: FrozenActivatedAbility,
         targets: Vec<TargetSelection>,

@@ -54,7 +54,7 @@ fn ajani_on_battlefield() -> (Game, GameObjectId) {
 fn permanent_named<'a>(game: &'a Game, name: &str) -> Option<&'a Permanent> {
     game.battlefield
         .iter()
-        .find(|permanent| game.effective_permanent_name(permanent) == Some(name))
+        .find(|permanent| game.effective_permanent_name(permanent).as_deref() == Some(name))
 }
 
 /// Entering makes a Cat Warrior, which is the body the death trigger needs.
@@ -63,9 +63,10 @@ fn ajani_brings_a_cat_with_him() {
     let (game, _ajani) = ajani_on_battlefield();
 
     assert!(
-        game.battlefield
-            .iter()
-            .any(|permanent| permanent.card.definition == cards::CAT_WARRIOR_TOKEN_2_1_WHITE),
+        game.battlefield.iter().any(|permanent| is_token_with(
+            permanent,
+            tokens::creature(&["Cat", "Warrior"], &[ManaColor::White], 2, 1)
+        )),
         "the token is there",
     );
 }
@@ -78,7 +79,12 @@ fn another_cat_dying_returns_ajani_transformed() {
     let token = game
         .battlefield
         .iter()
-        .find(|permanent| permanent.card.definition == cards::CAT_WARRIOR_TOKEN_2_1_WHITE)
+        .find(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Cat", "Warrior"], &[ManaColor::White], 2, 1),
+            )
+        })
         .map(|permanent| permanent.card.id)
         .expect("the token is there");
 
@@ -127,10 +133,19 @@ fn the_plus_two_grows_every_cat() {
     let token = game
         .battlefield
         .iter()
-        .find(|permanent| permanent.card.definition == cards::CAT_WARRIOR_TOKEN_2_1_WHITE)
+        .find(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Cat", "Warrior"], &[ManaColor::White], 2, 1),
+            )
+        })
         .map(|permanent| permanent.card.id)
         .expect("the token is there");
-    let second_cat = creature(91_001, cards::CAT_WARRIOR_TOKEN_2_1_WHITE, PlayerId::One);
+    let second_cat = token_permanent(
+        91_001,
+        tokens::creature(&["Cat", "Warrior"], &[ManaColor::White], 2, 1),
+        PlayerId::One,
+    );
     let second_cat_id = second_cat.card.id;
     game.battlefield.push(second_cat);
 
@@ -183,7 +198,12 @@ fn avenger(game: &mut Game) -> GameObjectId {
     let token = game
         .battlefield
         .iter()
-        .find(|permanent| permanent.card.definition == cards::CAT_WARRIOR_TOKEN_2_1_WHITE)
+        .find(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Cat", "Warrior"], &[ManaColor::White], 2, 1),
+            )
+        })
         .map(|permanent| permanent.card.id)
         .expect("the token is there");
     game.move_permanents_to_graveyard(&[token]);
@@ -240,7 +260,12 @@ fn the_zero_burns_when_you_control_a_red_permanent() {
     let cats = game
         .battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::CAT_WARRIOR_TOKEN_2_1_WHITE)
+        .filter(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Cat", "Warrior"], &[ManaColor::White], 2, 1),
+            )
+        })
         .count();
     assert_eq!(cats, 1, "the zero made a Cat");
     assert_eq!(
@@ -268,9 +293,10 @@ fn the_zero_makes_a_cat_and_nothing_else_without_red() {
     );
 
     assert!(
-        game.battlefield
-            .iter()
-            .any(|permanent| permanent.card.definition == cards::CAT_WARRIOR_TOKEN_2_1_WHITE),
+        game.battlefield.iter().any(|permanent| is_token_with(
+            permanent,
+            tokens::creature(&["Cat", "Warrior"], &[ManaColor::White], 2, 1)
+        )),
         "the Cat is there either way",
     );
     assert_eq!(game.players[1].life, before, "and nothing burned");

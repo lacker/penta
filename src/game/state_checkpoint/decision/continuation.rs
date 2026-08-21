@@ -855,13 +855,16 @@ fn parse_continuation(
         } => DecisionContinuation::SeparateIntoPiles {
             resolving_controller: player(*resolving_controller)?,
             subject: player(*subject)?,
-            items: items.iter().map(parse_decision_option_snapshot).collect(),
+            items: items
+                .iter()
+                .map(|option| parse_decision_option_snapshot(&game.catalog, option))
+                .collect::<Result<Vec<_>, String>>()?,
             on_complete: crate::card::sets::piles_separated_resolver(on_complete)
                 .ok_or("unknown piles-separated resolver")?,
         },
         DecisionContinuationSnapshot::ChoosePile { piles, on_complete } => {
             DecisionContinuation::ChoosePile {
-                piles: parse_pile_split_snapshot(piles)?,
+                piles: parse_pile_split_snapshot(piles, &game.catalog)?,
                 on_complete: crate::card::sets::pile_chosen_resolver(on_complete)
                     .ok_or("unknown pile-chosen resolver")?,
             }

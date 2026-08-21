@@ -57,7 +57,12 @@ fn settle(game: &mut Game) {
 fn cats(game: &Game) -> usize {
     game.battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::CAT_TOKEN_1_1_WHITE)
+        .filter(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Cat"], &[ManaColor::White], 1, 1),
+            )
+        })
         .count()
 }
 

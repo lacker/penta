@@ -203,15 +203,10 @@ static COMMANDERS_AUTHORITY_UPKEEP: AbilityDef = AbilityDef::triggered(
         step: TurnStepDef::Upkeep,
         player: PlayerRelation::You,
     },
-    EffectDef::CreateToken {
-        token: cards::HUMAN_TOKEN_1_1_WHITE,
-        controller: None,
-        count: ValueDef::Constant(1),
-        tapped: false,
-        attacking: false,
-        counters: None,
-        created: None,
-    },
+    EffectDef::create_creature_token(&["Human"], &[ManaColor::White], 1, 1).with_art(CardArt::new(
+        "8894949b-f190-461e-996a-cf2b39f08a5d",
+        "Michael C. Hayes",
+    )),
 );
 
 // AVR 13 — Commander's Authority
@@ -316,15 +311,13 @@ pub(in crate::card::sets) static ENTREAT_THE_ANGELS: CardRecord = CardRecord::ne
     CardRules::new_sorcery(mana_cost!("{X}{X}{W}{W}{W}")).with_abilities(&[
         AbilityDef::spell(
             "Create X 4/4 white Angel creature tokens with flying.",
-            EffectDef::CreateToken {
-                token: cards::ANGEL_TOKEN_4_4_WHITE,
-                controller: None,
-                count: ValueDef::ChosenX,
-                tapped: false,
-                attacking: false,
-                counters: None,
-                created: None,
-            },
+            EffectDef::create_creature_token(&["Angel"], &[ManaColor::White], 4, 4)
+                .with_abilities(&[abilities::flying()])
+                .with_art(CardArt::new(
+                    "68dd1682-a5d5-4323-b876-66a86c311c43",
+                    "Anthony Palumbo",
+                ))
+                .with_count(ValueDef::ChosenX),
         ),
         abilities::miracle(mana_cost!("{X}{W}{W}")),
     ]),
@@ -796,15 +789,9 @@ pub(in crate::card::sets) static VOICE_OF_THE_PROVINCES: CardRecord = CardRecord
                 None,
                 Some(ZoneKind::Battlefield),
             ),
-            EffectDef::CreateToken {
-                token: cards::HUMAN_TOKEN_1_1_WHITE,
-                controller: None,
-                count: ValueDef::Constant(1),
-                tapped: false,
-                attacking: false,
-                counters: None,
-                created: None,
-            },
+            EffectDef::create_creature_token(&["Human"], &[ManaColor::White], 1, 1).with_art(
+                CardArt::new("8894949b-f190-461e-996a-cf2b39f08a5d", "Michael C. Hayes"),
+            ),
         ),
     ]),
 );
@@ -1119,15 +1106,12 @@ pub(in crate::card::sets) static GEIST_SNATCH: CardRecord = CardRecord::new(
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Graveyard,
             },
-            EffectDef::CreateToken {
-                token: cards::SPIRIT_TOKEN_1_1_BLUE,
-                controller: None,
-                count: ValueDef::Constant(1),
-                tapped: false,
-                attacking: false,
-                counters: None,
-                created: None,
-            },
+            EffectDef::create_creature_token(&["Spirit"], &[ManaColor::Blue], 1, 1)
+                .with_abilities(&[abilities::flying()])
+                .with_art(CardArt::new(
+                    "44c14591-f807-40cf-9c00-4c94b85fff44",
+                    "Dan Murayama Scott",
+                )),
         ]),
     )),
 );
@@ -1817,14 +1801,7 @@ pub(in crate::card::sets) static DEMONIC_RISING: CardRecord = CardRecord::new(
                 player: PlayerRelation::You,
             },
             &EXACTLY_ONE_CREATURE,
-            EffectDef::CreateToken {
-                token: cards::DEMON_TOKEN_5_5_BLACK,
-                controller: None,
-                count: ValueDef::Constant(1),
-                tapped: false,
-                attacking: false,
-            counters: None,
-            created: None,},
+            EffectDef::create_creature_token(&["Demon"], &[ManaColor::Black], 5, 5).with_abilities(&[abilities::flying()]).with_art(CardArt::new("6a3fc83f-ab02-4a44-910a-bfadc71cf162", "Kev Walker")),
         ),
     ),
 );
@@ -2118,15 +2095,12 @@ pub(in crate::card::sets) static MAALFELD_TWINS: CardRecord = CardRecord::new(
                 Some(ZoneKind::Battlefield),
                 Some(ZoneKind::Graveyard),
             ),
-            EffectDef::CreateToken {
-                token: cards::ZOMBIE_TOKEN_2_2_BLACK,
-                controller: None,
-                count: ValueDef::Constant(2),
-                tapped: false,
-                attacking: false,
-                counters: None,
-                created: None,
-            },
+            EffectDef::create_creature_token(&["Zombie"], &[ManaColor::Black], 2, 2)
+                .with_art(CardArt::new(
+                    "b877c19d-6022-4377-92e7-4511e24eb98e",
+                    "Lucas Graciano",
+                ))
+                .with_amount(2),
         ),
     ),
 );
@@ -4184,15 +4158,10 @@ pub(in crate::card::sets) static MOONSILVER_SPEAR: CardRecord = CardRecord::new(
             AbilityDef::triggered(
                 "Whenever equipped creature attacks, create a 4/4 white Angel creature token with flying.",
                 TriggerEventDef::attacks(ObjectPredicateDef::AttachedToSource),
-                EffectDef::CreateToken {
-                    token: cards::ANGEL_TOKEN_4_4_WHITE,
-                    controller: None,
-                    count: ValueDef::Constant(1),
-                    tapped: false,
-                    attacking: false,
-                    counters: None,
-                    created: None,
-                },
+                EffectDef::create_creature_token(&["Angel"], &[ManaColor::White], 4, 4).with_abilities(&[abilities::flying()]).with_art(CardArt::new(
+                        "68dd1682-a5d5-4323-b876-66a86c311c43",
+                        "Anthony Palumbo",
+                    )),
             ),
             abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{4}"))], "Equip {4}"),
         ]),

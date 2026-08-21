@@ -35,7 +35,7 @@ fn mana_actions_publish_their_choices_only_when_there_is_one() {
 }
 
 #[test]
-fn activated_actions_serialize_their_exact_ability_origin() {
+fn activated_actions_serialize_printed_and_granted_origins() {
     let mana = action_json(&Action::ActivateManaAbility {
         source: GameObjectId(9),
         ability: AbilityOrigin::IntrinsicBasicLand(BasicLandType::Mountain),
@@ -102,6 +102,90 @@ fn activated_actions_serialize_their_exact_ability_origin() {
     assert_eq!(granted["ability"]["sourceAbilityId"], 2);
     assert_eq!(granted["ability"]["grantId"], 3);
     assert!(granted["ability"].get("abilityId").is_none());
+}
+
+#[test]
+fn token_actions_serialize_their_exact_ability_origins() {
+    let token = action_json(&Action::ActivateAbility {
+        source: GameObjectId(13),
+        ability: AbilityOrigin::Token {
+            part: crate::CardPartId(1),
+            ability: crate::AbilityId(4),
+        },
+        targets: Vec::new(),
+        cost_objects: Vec::new(),
+        x: 0,
+        modes: Vec::new(),
+    });
+    assert_eq!(token["ability"]["kind"], "token");
+    assert_eq!(token["ability"]["partId"], 1);
+    assert_eq!(token["ability"]["abilityId"], 4);
+    assert!(token["ability"].get("definition").is_none());
+
+    let token_granted = action_json(&Action::ActivateAbility {
+        source: GameObjectId(14),
+        ability: AbilityOrigin::TokenGranted {
+            source: GameObjectId(13),
+            source_part: crate::CardPartId(1),
+            source_ability: crate::AbilityId(4),
+            grant: crate::GrantId(5),
+        },
+        targets: Vec::new(),
+        cost_objects: Vec::new(),
+        x: 0,
+        modes: Vec::new(),
+    });
+    assert_eq!(token_granted["ability"]["kind"], "tokenGranted");
+    assert_eq!(token_granted["ability"]["source"], 13);
+    assert_eq!(token_granted["ability"]["sourcePartId"], 1);
+    assert_eq!(token_granted["ability"]["sourceAbilityId"], 4);
+    assert_eq!(token_granted["ability"]["grantId"], 5);
+    assert!(token_granted["ability"].get("sourceDefinition").is_none());
+}
+
+#[test]
+fn emblem_actions_serialize_their_exact_ability_origins() {
+    let emblem = action_json(&Action::ActivateAbility {
+        source: GameObjectId(16),
+        ability: AbilityOrigin::Emblem {
+            ability: crate::AbilityId(6),
+        },
+        targets: Vec::new(),
+        cost_objects: Vec::new(),
+        x: 0,
+        modes: Vec::new(),
+    });
+    assert_eq!(
+        emblem["ability"],
+        json!({
+            "kind": "emblem",
+            "abilityId": 6,
+        })
+    );
+
+    let emblem_granted = action_json(&Action::ActivateAbility {
+        source: GameObjectId(17),
+        ability: AbilityOrigin::EmblemGranted {
+            source: GameObjectId(16),
+            source_ability: crate::AbilityId(6),
+            grant: crate::GrantId(7),
+        },
+        targets: Vec::new(),
+        cost_objects: Vec::new(),
+        x: 0,
+        modes: Vec::new(),
+    });
+    assert_eq!(
+        emblem_granted["ability"],
+        json!({
+            "kind": "emblemGranted",
+            "source": 16,
+            "sourceAbilityId": 6,
+            "grantId": 7,
+        })
+    );
+    assert!(emblem_granted["ability"].get("sourceDefinition").is_none());
+    assert!(emblem_granted["ability"].get("sourcePartId").is_none());
 }
 
 #[test]

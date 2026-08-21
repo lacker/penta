@@ -355,7 +355,11 @@ fn the_escort_shields_both_creatures_from_zombies() {
     let bear = creature(10_000, cards::GRIZZLY_BEARS, PlayerId::One);
     let bear_id = bear.card.id;
     game.battlefield.push(bear);
-    let zombie = creature(10_100, cards::ZOMBIE_TOKEN_2_2_BLACK, PlayerId::Two);
+    let zombie = token_permanent(
+        10_100,
+        tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2),
+        PlayerId::Two,
+    );
     let zombie_id = zombie.card.id;
     game.battlefield.push(zombie);
 

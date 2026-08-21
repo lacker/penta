@@ -9,6 +9,7 @@ use std::sync::LazyLock;
 
 pub mod abilities;
 pub mod cards;
+pub mod tokens;
 
 mod behavior;
 mod catalog;
@@ -18,6 +19,7 @@ mod model;
 mod record;
 pub(crate) mod sets;
 
+pub(crate) use model::child_effects;
 pub(crate) use record::{AbilityPolicyHint, CardAbilityBinding};
 
 pub use behavior::CardBehavior;
@@ -43,9 +45,9 @@ pub use model::{
     DamageRecipientMatcherDef, DamageSourceGroupDef, DamageSourceMatcherDef, DeclarativeAbilityDef,
     DiscardFollowUpDef, DiscardSelectionDef, DividedTotal, DoubleFacedKind, DrawEventMatcherDef,
     EffectDef, EffectExecutionDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
-    EffectRecipientSetDef, GraveyardTypeConditionDef, HalvedValueDef, HybridPair,
-    ImplementationStatus, InstalledTriggerDef, InstalledTriggerLifetimeDef, KeywordAbility,
-    LifeConditionDef, LikelihoodDef, ManaColor, ManaCost, ManaCostParseError,
+    EffectRecipientSetDef, EmblemCharacteristics, GraveyardTypeConditionDef, HalvedValueDef,
+    HybridPair, ImplementationStatus, InstalledTriggerDef, InstalledTriggerLifetimeDef,
+    KeywordAbility, LifeConditionDef, LikelihoodDef, ManaColor, ManaCost, ManaCostParseError,
     ManaCostParseErrorKind, ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef, ManaSplit,
     MeldComponentDef, MeldRecipeDef, MeldResultDef, ModalSpellDef, ModeDef, ModeSetDef,
     ObjectChoiceBindingDef, ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef,
@@ -58,10 +60,10 @@ pub use model::{
     SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpellForm, SpellLifeCostDef,
     SpellResolutionDestinationDef, SpendModeDef, SplitIntoPilesDef, StackTargetKindDef,
     StaticAbilityDef, SumValueDef, TapEventMatcherDef, TapPurposeDef, TargetConditionDef,
-    TargetPredicate, TargetSlotDef, TokenCountersDef, TopCardSelectionDef, TopOfLibraryCostDef,
-    TriggerConditionDef, TriggerEventDef, TriggeredAbilityDef, TurnKindDef, TurnPhaseDef,
-    TurnStepDef, ValueComparisonDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind,
-    ZoneMoveCauseDef, ZonePlacement,
+    TargetPredicate, TargetSlotDef, TokenCharacteristics, TokenCountersDef, TokenPart,
+    TokenStructure, TopCardSelectionDef, TopOfLibraryCostDef, TriggerConditionDef, TriggerEventDef,
+    TriggeredAbilityDef, TurnKindDef, TurnPhaseDef, TurnStepDef, ValueComparisonDef, ValueDef,
+    ZoneChangeEventMatcherDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement,
 };
 
 /// The built-in catalog, validated once per process. Construction walks every

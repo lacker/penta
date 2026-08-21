@@ -95,7 +95,11 @@ fn answer(game: &mut Game, wanted: &[CardDefinitionId]) {
             decision
                 .options
                 .iter()
-                .find(|option| option.card.is_some_and(|(_, found)| found == *definition))
+                .find(|option| {
+                    option
+                        .card
+                        .is_some_and(|(_, found)| found.card_definition() == Some(*definition))
+                })
                 .unwrap_or_else(|| panic!("{definition:?} is offered"))
                 .id
         })

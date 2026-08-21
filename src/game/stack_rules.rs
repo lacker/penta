@@ -16,7 +16,8 @@ impl Game {
             return self.stack_ability_fizzles(object);
         }
         if let Some(signature) = &object.signature
-            && let Some(definition) = self.catalog.get(object.card.definition)
+            && let Some(card_definition) = object.card.definition.card_definition()
+            && let Some(definition) = self.catalog.get(card_definition)
             && let Some(option) = definition.play_option(signature.play_option())
         {
             let slots = Self::target_slots_for(option, signature.modes());
@@ -207,7 +208,10 @@ impl Game {
         let Some(signature) = &object.signature else {
             return false;
         };
-        let Some(definition) = self.catalog.get(object.card.definition) else {
+        let Some(card_definition) = object.card.definition.card_definition() else {
+            return false;
+        };
+        let Some(definition) = self.catalog.get(card_definition) else {
             return false;
         };
         let Ok(parts) = applicable_part_ids(
@@ -300,7 +304,12 @@ impl Game {
         self.retire_stack_object(&object);
         if object.kind == StackObjectKind::Spell && !object.is_copy {
             let owner = object.card.owner;
-            let (card, _zone_change) = self.zone_change_card(object.card);
+            let (card, _zone_change) = self.zone_change_card(
+                object
+                    .card
+                    .into_card()
+                    .expect("a nontoken spell is backed by a card"),
+            );
             match if object.cast_via_flashback {
                 CounteredSpellZone::Exile
             } else {

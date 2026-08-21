@@ -75,7 +75,9 @@ fn answer(game: &mut Game, wanted: Option<CardDefinitionId>, label: Option<&str>
         .options
         .iter()
         .find(|option| match (wanted, label) {
-            (Some(definition), _) => option.card.is_some_and(|(_, found)| found == definition),
+            (Some(definition), _) => option.card.is_some_and(|(_, characteristics)| {
+                characteristics.card_definition() == Some(definition)
+            }),
             (None, Some(label)) => option.label == label,
             (None, None) => true,
         })
@@ -192,7 +194,11 @@ fn it_cannot_reach_across_the_table() {
         .expect("the trigger asks what to take")
         .options
         .iter()
-        .filter_map(|option| option.card.map(|(_, definition)| definition))
+        .filter_map(|option| {
+            option
+                .card
+                .and_then(|(_, characteristics)| characteristics.card_definition())
+        })
         .collect();
     assert!(
         offered.contains(&cards::LIGHTNING_BOLT),

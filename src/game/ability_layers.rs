@@ -124,18 +124,14 @@ impl Game {
         );
         let mut abilities = Vec::new();
         if !rules_text_removed && let Some(rules) = self.effective_rules(characteristics) {
-            let (definition, part) = Self::effective_rules_source(characteristics);
+            let source = Self::effective_rules_source(characteristics);
             for attached in rules.indexed_abilities() {
                 abilities.push(EffectiveAbility {
-                    origin: AbilityOrigin::Printed {
-                        definition,
-                        part,
-                        ability: attached.id,
-                    },
+                    origin: Self::authored_ability_origin(source, attached.id),
                     ability: attached.definition,
                 });
             }
-            if let Some(copy) = &characteristics.copy_effect {
+            if let Some(copy) = characteristics.active_copy_values() {
                 for added in &copy.added_abilities {
                     abilities.push(EffectiveAbility {
                         origin: added.origin,
@@ -186,7 +182,7 @@ impl Game {
         // A few legacy setup paths still write keyword markers directly. Seed
         // them before ordered operations so generalized removal affects them
         // just like an ordinary granted ability.
-        let (definition, part) = Self::effective_rules_source(characteristics);
+        let source = Self::effective_rules_source(characteristics);
         for keyword in permanent.temporary_keywords.iter().copied().chain(
             permanent
                 .keywords_until_upkeep_of
@@ -194,11 +190,7 @@ impl Game {
                 .map(|(_, keyword)| *keyword),
         ) {
             abilities.push(EffectiveAbility {
-                origin: AbilityOrigin::Printed {
-                    definition,
-                    part,
-                    ability: AbilityId::PRIMARY,
-                },
+                origin: Self::authored_ability_origin(source, AbilityId::PRIMARY),
                 ability: AbilityDef::keyword("Granted keyword ability", keyword),
             });
         }
@@ -263,19 +255,13 @@ impl Game {
             };
             let kind = match operation {
                 ResolvedAbilityOperation::Add { ability, grant } => {
-                    let (source_definition, source_part, source_ability) =
-                        Self::ability_origin_components(
-                            effect.source.ability,
-                            permanent.card.definition,
-                        );
                     AbilityLayerOperationKind::Add {
-                        origin: AbilityOrigin::Granted {
-                            source: effect.source.object,
-                            source_definition,
-                            source_part,
-                            source_ability,
+                        origin: Self::granted_ability_origin(
+                            effect.source.object,
+                            effect.source.ability,
+                            Self::effective_rules_source(permanent),
                             grant,
-                        },
+                        ),
                         ability,
                     }
                 }
@@ -367,13 +353,12 @@ impl Game {
                     timestamp: applied.timestamp,
                     order: applied.component_order,
                     kind: AbilityLayerOperationKind::Add {
-                        origin: AbilityOrigin::Granted {
-                            source: applied.source,
-                            source_definition: applied.source_definition,
-                            source_part: applied.source_part,
-                            source_ability: applied.source_ability,
+                        origin: Self::granted_ability_origin(
+                            applied.source,
+                            applied.source_origin,
+                            applied.source_presentation,
                             grant,
-                        },
+                        ),
                         ability: attached.definition,
                     },
                 });
@@ -388,15 +373,14 @@ impl Game {
             AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
                 AbilityOperationDef::Add(ability),
             )) => AbilityLayerOperationKind::Add {
-                origin: AbilityOrigin::Granted {
-                    source: applied.source,
-                    source_definition: applied.source_definition,
-                    source_part: applied.source_part,
-                    source_ability: applied.source_ability,
-                    grant: applied
+                origin: Self::granted_ability_origin(
+                    applied.source,
+                    applied.source_origin,
+                    applied.source_presentation,
+                    applied
                         .grant
                         .expect("a granted ability has a structural grant identity"),
-                },
+                ),
                 ability: *ability,
             },
             AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(

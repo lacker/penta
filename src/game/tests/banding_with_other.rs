@@ -74,11 +74,8 @@ fn two_wolves() -> (Game, Vec<GameObjectId>) {
     game.step = Step::DeclareAttackers;
     let ids = (0..2)
         .map(|index| {
-            let permanent = creature(
-                10_000 + index,
-                cards::WOLVES_OF_THE_HUNT_TOKEN_1_1_GREEN,
-                PlayerId::One,
-            );
+            let permanent =
+                token_permanent(10_000 + index, wolves_of_the_hunt_token(), PlayerId::One);
             let id = permanent.card.id;
             game.battlefield.push(permanent);
             id

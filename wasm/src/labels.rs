@@ -1,11 +1,11 @@
 use super::action_view::{
     source_ability_has_multiple_x_values, source_has_multiple_activated_abilities,
 };
-use super::presentation::mana_cost_label;
+use super::presentation::{mana_cost_label, object_presentation};
 use super::{
     AbilityOrigin, Action, BattlefieldExit, CardDefinitionId, CardInstanceId, GameEvent,
-    GameResult, ModeId, PlayOptionId, PlayerId, PlayerObservation, Step, Target, WebGame,
-    readable_debug,
+    GameResult, ModeId, ObjectCharacteristics, PlayOptionId, PlayerId, PlayerObservation, Step,
+    Target, WebGame, readable_debug,
 };
 use penta::card::AbilityDef;
 use std::fmt::Write as _;
@@ -17,26 +17,36 @@ impl WebGame {
             .map_or_else(|| "Unknown card".into(), |card| card.name.clone())
     }
 
-    fn instance_definition(
+    fn instance_characteristics(
         observation: &PlayerObservation,
         id: CardInstanceId,
-    ) -> Option<CardDefinitionId> {
+    ) -> Option<ObjectCharacteristics> {
         observation
             .hand
             .iter()
-            .find_map(|(candidate, definition)| (*candidate == id).then_some(*definition))
+            .find_map(|(candidate, definition)| {
+                (*candidate == id).then_some(ObjectCharacteristics::card(
+                    *definition,
+                    penta::CardPartId::PRIMARY,
+                ))
+            })
             .or_else(|| {
                 observation
                     .battlefield
                     .iter()
-                    .find_map(|permanent| (permanent.id == id).then_some(permanent.definition))
+                    .find_map(|permanent| (permanent.id == id).then_some(permanent.characteristics))
             })
             .or_else(|| {
                 observation
                     .graveyards
                     .iter()
                     .flatten()
-                    .find_map(|(candidate, definition)| (*candidate == id).then_some(*definition))
+                    .find_map(|(candidate, definition)| {
+                        (*candidate == id).then_some(ObjectCharacteristics::card(
+                            *definition,
+                            penta::CardPartId::PRIMARY,
+                        ))
+                    })
             })
             .or_else(|| {
                 // A spell the opponent just cast is still on the stack, and it
@@ -45,7 +55,7 @@ impl WebGame {
                 observation
                     .stack
                     .iter()
-                    .find_map(|object| (object.id == id).then_some(object.definition))
+                    .find_map(|object| (object.id == id).then_some(object.characteristics))
             })
             .or_else(|| {
                 // Exiled cards stay public, and the log keeps referring to them
@@ -54,8 +64,21 @@ impl WebGame {
                     .exiles
                     .iter()
                     .flatten()
-                    .find_map(|(candidate, definition)| (*candidate == id).then_some(*definition))
+                    .find_map(|(candidate, definition)| {
+                        (*candidate == id).then_some(ObjectCharacteristics::card(
+                            *definition,
+                            penta::CardPartId::PRIMARY,
+                        ))
+                    })
             })
+    }
+
+    fn instance_definition(
+        observation: &PlayerObservation,
+        id: CardInstanceId,
+    ) -> Option<CardDefinitionId> {
+        Self::instance_characteristics(observation, id)
+            .and_then(ObjectCharacteristics::card_definition)
     }
 
     pub(super) fn instance_name(
@@ -63,12 +86,12 @@ impl WebGame {
         observation: &PlayerObservation,
         id: CardInstanceId,
     ) -> String {
-        Self::instance_definition(observation, id).map_or_else(
+        Self::instance_characteristics(observation, id).map_or_else(
             // A card that has since moved somewhere this observation cannot
             // read — shuffled back into a library, say — is still described
             // in words rather than as a raw instance id.
             || "a card".into(),
-            |definition| self.card_name(definition),
+            |characteristics| object_presentation(&self.catalog, characteristics).name,
         )
     }
 
@@ -219,7 +242,7 @@ impl WebGame {
                 .find(|object| object.id == id)
                 .map_or_else(
                     || "a spell".into(),
-                    |object| self.card_name(object.definition),
+                    |object| object_presentation(&self.catalog, object.characteristics).name,
                 ),
         }
     }
@@ -289,14 +312,18 @@ impl WebGame {
                 Some(label)
             }
             GameEvent::AbilityActivated {
-                player, definition, ..
+                player,
+                presentation,
+                ..
             } => Some(format!(
                 "{} activated {}",
                 self.player_name(*player),
-                self.card_name(*definition)
+                object_presentation(&self.catalog, *presentation).name
             )),
             GameEvent::AbilityTriggered {
-                player, definition, ..
+                player,
+                presentation,
+                ..
             } => Some(format!(
                 "{} {} triggered",
                 if *player == self.human {
@@ -304,7 +331,7 @@ impl WebGame {
                 } else {
                     "Opponent’s"
                 },
-                self.card_name(*definition)
+                object_presentation(&self.catalog, *presentation).name
             )),
             GameEvent::AttackDeclared { player, attackers } => Some(format!(
                 "{} attacked with {}",
@@ -357,15 +384,18 @@ impl WebGame {
                     "opponent’s"
                 }
             )),
-            GameEvent::SpellFizzled { definition, .. }
-            | GameEvent::AbilityFizzled { definition, .. }
-            | GameEvent::TriggeredAbilityFizzled { definition, .. } => Some(format!(
+            GameEvent::SpellFizzled { definition, .. } => Some(format!(
                 "{} fizzled — its target was gone",
                 self.card_name(*definition)
             )),
+            GameEvent::AbilityFizzled { presentation, .. }
+            | GameEvent::TriggeredAbilityFizzled { presentation, .. } => Some(format!(
+                "{} fizzled — its target was gone",
+                object_presentation(&self.catalog, *presentation).name
+            )),
             GameEvent::PermanentLeftBattlefield {
                 controller,
-                definition,
+                characteristics,
                 destination,
                 ..
             } => Some(format!(
@@ -375,7 +405,7 @@ impl WebGame {
                 } else {
                     "Opponent’s"
                 },
-                self.card_name(*definition),
+                object_presentation(&self.catalog, *characteristics).name,
                 match destination {
                     BattlefieldExit::Graveyard => "was destroyed",
                     BattlefieldExit::Exile => "was exiled",

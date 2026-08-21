@@ -36,7 +36,7 @@ fn a_face_down_permanent_is_a_nameless_two_two() {
         "the physical card is unchanged underneath",
     );
     assert!(
-        !game.is_token(permanent.card.definition),
+        !permanent.card.definition.is_token(),
         "and it is not a token",
     );
 }
@@ -52,13 +52,13 @@ fn only_its_controller_sees_what_it_is() {
     let mine = game.observe(PlayerId::One);
     let theirs = game.observe(PlayerId::Two);
     assert_eq!(
-        mine.battlefield[0].definition,
-        cards::SERRA_ANGEL,
+        mine.battlefield[0].characteristics,
+        ObjectCharacteristics::card(cards::SERRA_ANGEL, CardPartId::PRIMARY),
         "its controller knows what they played",
     );
     assert_eq!(
-        theirs.battlefield[0].definition,
-        cards::FACE_DOWN_CREATURE,
+        theirs.battlefield[0].characteristics,
+        ObjectCharacteristics::card(cards::FACE_DOWN_CREATURE, CardPartId::PRIMARY),
         "and the opponent sees only a body",
     );
     assert!(
@@ -103,8 +103,8 @@ fn exalted_angel_comes_down_face_down_and_stands_up_later() {
     assert_eq!((stats.power, stats.toughness), (2, 2), "a 2/2 body");
     assert!(!game.has_flying(permanent), "and none of the Angel's text");
     assert_eq!(
-        game.observe(PlayerId::Two).battlefield[0].definition,
-        cards::FACE_DOWN_CREATURE,
+        game.observe(PlayerId::Two).battlefield[0].characteristics,
+        ObjectCharacteristics::card(cards::FACE_DOWN_CREATURE, CardPartId::PRIMARY),
         "the opponent cannot see what it is",
     );
 
@@ -143,8 +143,8 @@ fn exalted_angel_comes_down_face_down_and_stands_up_later() {
         "with its printed abilities back"
     );
     assert_eq!(
-        game.observe(PlayerId::Two).battlefield[0].definition,
-        cards::EXALTED_ANGEL,
+        game.observe(PlayerId::Two).battlefield[0].characteristics,
+        ObjectCharacteristics::card(cards::EXALTED_ANGEL, CardPartId::PRIMARY),
         "and now the opponent sees it too",
     );
 }

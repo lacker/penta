@@ -457,14 +457,6 @@ pub(super) fn parse_battlefield(
             parse_permanent(
                 state,
                 PermanentPresentation {
-                    definition: CardDefinitionId(
-                        u16::try_from(usize_field(shown, "definition")?)
-                            .map_err(|_| "definition too large")?,
-                    ),
-                    presented: CardPartId(
-                        u8::try_from(usize_field(shown, "presentedPartId")?)
-                            .map_err(|_| "part id too large")?,
-                    ),
                     controller: seat_value(field(shown, "controller")?)?,
                     tapped: bool_field(shown, "tapped")?,
                     damage: u16::try_from(usize_field(shown, "damage")?)
@@ -522,8 +514,6 @@ pub(super) fn parse_battlefield(
 
 #[allow(clippy::struct_excessive_bools)]
 struct PermanentPresentation {
-    definition: CardDefinitionId,
-    presented: CardPartId,
     controller: PlayerId,
     tapped: bool,
     damage: u16,
@@ -560,17 +550,101 @@ fn parse_permanent(
     let mut counters = [0; CounterKind::COUNT];
     counters[..state.counters.len()].copy_from_slice(&state.counters);
     let owner = player_from_index(state.owner)?;
+    let copy_effect = state
+        .copy_effect
+        .as_ref()
+        .map(|copy| parse_copiable_characteristics(copy, catalog))
+        .transpose()?;
+    let double_faced_token_copy = state
+        .double_faced_token_copy
+        .as_ref()
+        .map(|faces| parse_double_faced_copiable_characteristics(faces, catalog))
+        .transpose()?;
+    let token_characteristics = state
+        .token_characteristics
+        .as_ref()
+        .map(|token| {
+            catalog_token_characteristics(catalog, token)
+                .ok_or_else(|| "checkpoint token locator is absent from this catalog".to_owned())
+        })
+        .transpose()?;
+    let object_kind = object_kind_from_snapshot(state.object_kind, catalog)?;
+    let characteristics = match object_kind {
+        ObjectKind::Card(definition) => {
+            if double_faced_token_copy.is_some() {
+                return Err(
+                    "checkpoint card permanent carries double-faced token-copy values".into(),
+                );
+            }
+            CharacteristicSource::Card(definition)
+        }
+        ObjectKind::Token => {
+            if token_characteristics.is_some() && double_faced_token_copy.is_some() {
+                return Err(
+                    "checkpoint token has both authored and copied double-faced values".into(),
+                );
+            }
+            let presented = CardPartId(state.presented_part_id);
+            if double_faced_token_copy
+                .as_ref()
+                .is_some_and(|faces| presented != faces.front_part && presented != faces.back_part)
+            {
+                return Err(
+                    "checkpoint double-faced token presents neither of its physical faces".into(),
+                );
+            }
+            let copied_base = copy_effect.as_ref().map(|copy| copy.base).or_else(|| {
+                double_faced_token_copy
+                    .as_ref()
+                    .and_then(|faces| faces.face(presented))
+                    .map(|copy| copy.base)
+            });
+            match (token_characteristics, copied_base) {
+                (Some(token), _) => CharacteristicSource::Token(token),
+                (None, Some(ObjectCharacteristics::Card { definition, .. })) => {
+                    CharacteristicSource::Copy(definition)
+                }
+                (None, Some(ObjectCharacteristics::Token { token, .. })) => {
+                    CharacteristicSource::Token(token)
+                }
+                (None, Some(ObjectCharacteristics::Emblem { .. })) => {
+                    return Err("an emblem cannot supply copied permanent values".into());
+                }
+                (None, None) => {
+                    return Err(
+                        "checkpoint token has neither authored nor copied characteristics".into(),
+                    );
+                }
+            }
+        }
+        ObjectKind::Emblem => {
+            return Err("an emblem cannot appear in the battlefield snapshot".into());
+        }
+        ObjectKind::Ability => {
+            if double_faced_token_copy.is_some() {
+                return Err(
+                    "checkpoint ability permanent carries double-faced token-copy values".into(),
+                );
+            }
+            return Err("a permanent cannot have ability object kind".into());
+        }
+    };
+    let object = ObjectInstance {
+        id: GameObjectId(state.object_id),
+        definition: object_kind,
+        owner,
+        backing: ObjectBacking::None,
+        characteristics,
+        counters: [0; CounterKind::COUNT],
+    };
     let mut permanent = Permanent::entering(
-        card(
-            GameObjectId(state.object_id),
-            shown.definition,
-            owner,
-            catalog,
-        )?,
-        shown.presented,
+        object,
+        CardPartId(state.presented_part_id),
         shown.controller,
         state.entered_controller_turn,
     );
+    permanent.token_characteristics = token_characteristics;
+    permanent.double_faced_token_copy = double_faced_token_copy;
     permanent.timestamp = ContinuousEffectTimestamp(state.timestamp);
     permanent.tapped = shown.tapped;
     permanent.damage = shown.damage;
@@ -658,22 +732,15 @@ fn parse_permanent(
         .collect();
     permanent.cast_at_instant_speed = state.cast_at_instant_speed;
     permanent.became_aura = state.became_aura;
-    permanent.copy_effect = state
-        .copy_effect
-        .as_ref()
-        .map(|copy| parse_copiable_characteristics(copy, catalog))
-        .transpose()?;
+    permanent.copy_effect = copy_effect;
     permanent.copy_expiration = state.copy_expiration.map(parse_expiration).transpose()?;
     permanent.copied_from = state
         .copied_from
+        .as_ref()
         .map(|copy| {
-            let definition = CardDefinitionId(copy.definition);
-            let part = CardPartId(copy.part_id);
-            catalog
-                .get(definition)
-                .and_then(|card| card.part(part))
-                .ok_or("checkpoint copied-from card part is absent from this catalog")?;
-            Ok::<_, String>((definition, part))
+            object_characteristics_from_snapshot(catalog, &copy.characteristics).ok_or_else(|| {
+                "checkpoint copied-from characteristics are absent from this catalog".to_owned()
+            })
         })
         .transpose()?;
     permanent.text_changes = state
@@ -711,34 +778,6 @@ fn parse_permanent(
         })
         .collect();
     Ok(permanent)
-}
-
-pub(super) fn parse_copiable_characteristics(
-    snapshot: &CopiableCharacteristicsSnapshot,
-    catalog: &CardCatalog,
-) -> Result<CopiableCharacteristics, String> {
-    let definition = CardDefinitionId(snapshot.definition);
-    let part = CardPartId(snapshot.part_id);
-    catalog
-        .get(definition)
-        .and_then(|card| card.part(part))
-        .ok_or("checkpoint copy-effect card part is absent from this catalog")?;
-    let mut added_types = CardTypeSet::empty();
-    for (card_type, present) in CardType::ALL.into_iter().zip(snapshot.added_types) {
-        if present {
-            added_types = added_types.with(card_type);
-        }
-    }
-    Ok(CopiableCharacteristics {
-        base: (definition, part),
-        added_types,
-        retain_printed_subtypes: snapshot.retain_printed_subtypes,
-        added_abilities: snapshot
-            .added_abilities
-            .iter()
-            .map(|ability| parse_copiable_ability(ability, catalog))
-            .collect::<Result<Vec<_>, String>>()?,
-    })
 }
 
 pub(super) fn parse_retired_objects(
@@ -896,8 +935,6 @@ pub(super) fn parse_detached_permanent(
     parse_permanent(
         &snapshot.state,
         PermanentPresentation {
-            definition: CardDefinitionId(snapshot.definition),
-            presented: CardPartId(snapshot.presented_part_id),
             controller: player_from_index(snapshot.controller)?,
             tapped: snapshot.tapped,
             damage: snapshot.damage,
@@ -942,3 +979,4 @@ pub(super) fn parse_attack_defender(value: &Value) -> Result<AttackDefender, Str
 
 include!("wire_continuous.rs");
 include!("wire_cast.rs");
+include!("wire_copy.rs");

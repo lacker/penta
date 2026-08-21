@@ -79,7 +79,13 @@ fn assert_time_vault_begin_turn_decision(
     for (index, (option, vault)) in decision.options[1..].iter().zip(vaults).enumerate() {
         assert_eq!(option.id, u32::try_from(index + 1).unwrap());
         assert_eq!(option.label, "Apply Time Vault's replacement effect");
-        assert_eq!(option.card, Some((*vault, cards::TIME_VAULT)));
+        assert_eq!(
+            option.card,
+            Some((
+                *vault,
+                ObjectCharacteristics::card(cards::TIME_VAULT, CardPartId::PRIMARY),
+            )),
+        );
         assert!(option.members.is_empty());
         assert_eq!(
             option.ability_text.as_deref(),
@@ -653,11 +659,17 @@ fn affected_player_may_apply_time_vault_before_a_mandatory_extra_turn_replacemen
     assert!(decision.options.iter().all(|option| option.id != 0));
     assert_eq!(
         decision.options[0].card,
-        Some((mandatory, CardDefinitionId(10_064)))
+        Some((
+            mandatory,
+            ObjectCharacteristics::card(CardDefinitionId(10_064), CardPartId::PRIMARY),
+        ))
     );
     assert_eq!(
         decision.options[1].card,
-        Some((vault_id, cards::TIME_VAULT))
+        Some((
+            vault_id,
+            ObjectCharacteristics::card(cards::TIME_VAULT, CardPartId::PRIMARY),
+        ))
     );
 
     choose_begin_turn_option(&mut game, PlayerId::Two, 2);
@@ -703,7 +715,10 @@ fn multiple_time_vaults_share_one_choice_and_only_one_replaces_each_turn() {
     let decision = assert_time_vault_begin_turn_decision(&game, PlayerId::Two, &[second_id]);
     assert_eq!(
         decision.options[1].card,
-        Some((second_id, cards::TIME_VAULT)),
+        Some((
+            second_id,
+            ObjectCharacteristics::card(cards::TIME_VAULT, CardPartId::PRIMARY),
+        )),
         "the still-tapped Vault is offered on a later prospective turn"
     );
     choose_begin_turn_option(&mut game, PlayerId::Two, 0);

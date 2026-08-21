@@ -6,29 +6,30 @@ use super::{
     AbilitySourceRef, ApplicableReplacement, AppliedStackEffect, BasicLandTypeChange, CardInstance,
     CharacteristicSource, CombatDamageStage, ContinuousEffectExpiration, ContinuousEffectTimestamp,
     CopiableAbility, CopiableCharacteristics, CounterKind, DamageSourceGroupDef,
-    EffectResolutionContext, EntryCompletion, ExilePlayCost, ExilePlayPermission, Game, GameEvent,
-    GameObjectId, GameStack, InstalledTrigger, InstalledTriggerLifetime, Mana, ManaSource,
-    ObjectBacking, PendingBattlefieldEntry, PendingEvent, PendingReplacementEffect, Permanent,
-    PlayerId, PlayerState, Pregame, RelationalSourceFilter, ReplaceableEvent,
-    ReplacementEffectContext, ReplayRng, ResolvedAbilityOperation, ResolvedContinuousEffect,
-    ResolvedContinuousEffectKind, ResolvedDamagePrevention, ResolvedDamagePreventionCapacity,
-    ResolvedDamagePreventionCoverage, ResolvedDamageRecipientMatcher, ResolvedDamageRedirect,
-    ResolvedDamageSourceMatcher, ResolvedPlayPermission, ResolvedPlayRestriction,
-    ResolvedPowerToughnessOperation, RetiredObject, ScopedEffect, StackAbilityPayload,
-    StackAbilityResolver, StackObject, StackObjectKind, Step, TemporaryAbilityGrant,
-    TriggerCapture, TriggerContext, TurnPhaseResume, ZoneMoveCause, cast_source_zone_from_label,
+    DoubleFacedCopiableCharacteristics, EffectResolutionContext, EntryCompletion, ExilePlayCost,
+    ExilePlayPermission, Game, GameEvent, GameObjectId, GameStack, InstalledTrigger,
+    InstalledTriggerLifetime, Mana, ManaSource, ObjectBacking, ObjectInstance, ObjectKind,
+    PendingBattlefieldEntry, PendingEvent, PendingReplacementEffect, Permanent, PlayerId,
+    PlayerState, Pregame, RelationalSourceFilter, ReplaceableEvent, ReplacementEffectContext,
+    ReplayRng, ResolvedAbilityOperation, ResolvedContinuousEffect, ResolvedContinuousEffectKind,
+    ResolvedDamagePrevention, ResolvedDamagePreventionCapacity, ResolvedDamagePreventionCoverage,
+    ResolvedDamageRecipientMatcher, ResolvedDamageRedirect, ResolvedDamageSourceMatcher,
+    ResolvedPlayPermission, ResolvedPlayRestriction, ResolvedPowerToughnessOperation,
+    RetiredObject, ScopedEffect, StackAbilityPayload, StackAbilityResolver, StackObject,
+    StackObjectKind, Step, TemporaryAbilityGrant, TriggerCapture, TriggerContext, TurnPhaseResume,
+    ZoneMoveCause, cast_source_zone_from_label,
 };
 use crate::card::ManaCost;
 use crate::card::{
     AbilityOperationDef, AppliedEffectDef, BasicLandType, CardType, CardTypeSet,
-    CharacteristicOperationDef, DeclarativeAbilityDef, PowerToughnessOperationDef,
+    CharacteristicOperationDef, DeclarativeAbilityDef, DoubleFacedKind, PowerToughnessOperationDef,
     ReplacementEffectDef, ReplacementEventDef, SetOperationDef, SpellForm, TurnPhaseDef, ZoneKind,
 };
 use crate::casting::{CastChoices, CastSignature, CostConfiguration, TargetSelection};
 use crate::{
     AbilityId, AbilityOrigin, AdditionalCostId, AlternativeCostId, AttackDefender, CardCatalog,
     CardDefinitionId, CardPartId, Format, GameObjectId as PublicGameObjectId, GrantId, ModeId,
-    PlayOptionId, Target, TargetSlotId,
+    ObjectCharacteristics, PlayOptionId, Target, TargetSlotId,
 };
 
 mod decision;
@@ -64,13 +65,14 @@ use model::{
     ApplicableReplacementSnapshot, AttackDefenderSnapshot, BasicLandTypeSnapshot,
     CombatDamageAssignmentSnapshot, CombatDamageStageSnapshot, ContinuousEffectExpirationSnapshot,
     CopiableAbilitySnapshot, CopiableCharacteristicsSnapshot, CopiedFromSnapshot,
-    DetachedCardSnapshot, DetachedPermanentSnapshot, EntryCompletionSnapshot,
-    ExilePlayPermissionSnapshot, GameSnapshot, ManaColorSnapshot, ManaSnapshot, ManaSourceSnapshot,
-    PendingBattlefieldEntrySnapshot, PendingEventSnapshot, PendingReplacementEffectSnapshot,
-    PermanentSnapshot, PregameSnapshot, ReplacementEffectContextSnapshot, ReplacementEffectLocator,
-    ResolvedContinuousEffectSnapshot, ResolvedContinuousOperationSnapshot, RetiredObjectSnapshot,
-    SetOperationSnapshot, StackSnapshot, SuccessorSnapshot, TemporaryAbilityGrantSnapshot,
-    TurnPhaseResumeSnapshot, TurnPhaseSnapshot, ZoneKindSnapshot,
+    DetachedCardSnapshot, DetachedPermanentSnapshot, DoubleFacedCopiableCharacteristicsSnapshot,
+    EntryCompletionSnapshot, ExilePlayPermissionSnapshot, GameSnapshot, ManaColorSnapshot,
+    ManaSnapshot, ManaSourceSnapshot, ObjectKindSnapshot, PendingBattlefieldEntrySnapshot,
+    PendingEventSnapshot, PendingReplacementEffectSnapshot, PermanentSnapshot, PregameSnapshot,
+    ReplacementEffectContextSnapshot, ReplacementEffectLocator, ResolvedContinuousEffectSnapshot,
+    ResolvedContinuousOperationSnapshot, RetiredObjectSnapshot, SetOperationSnapshot,
+    StackSnapshot, SuccessorSnapshot, TemporaryAbilityGrantSnapshot, TurnPhaseResumeSnapshot,
+    TurnPhaseSnapshot, ZoneKindSnapshot,
 };
 use model_keyword::UpkeepKeywordSnapshot;
 use permanent::{detached_permanent_snapshot, permanent_snapshot};
@@ -79,10 +81,12 @@ use procedure::{
     parse_pending_procedure, pending_procedure_referenced_object_ids, pending_procedure_snapshot,
 };
 use semantics::{
-    ability_locator, ability_target_defs, catalog_ability, catalog_applied_effect,
-    catalog_mana_payload, catalog_replacement_effect, keyword_snapshot, mana_payload_locator,
-    parse_keyword, replacement_effect_locator_matches_source, resolved_applied_effect_locator,
-    resolved_replacement_effect_locator,
+    ability_locator, ability_locator_for_origin, ability_target_defs, catalog_ability,
+    catalog_applied_effect, catalog_mana_payload, catalog_replacement_effect,
+    catalog_token_characteristics, keyword_snapshot, mana_payload_locator,
+    object_characteristics_from_snapshot, object_characteristics_snapshot, parse_keyword,
+    replacement_effect_locator_matches_source, resolved_applied_effect_locator,
+    resolved_replacement_effect_locator, token_characteristics_locator,
 };
 use stack::{
     applied_stack_effect_snapshots, detached_stack_snapshot, parse_detached_stack, parse_stack,
@@ -408,6 +412,7 @@ impl Game {
                 StackSnapshot {
                     object_id: object.id.0,
                     owner: object.card.owner.index(),
+                    object_kind: object_kind_snapshot(object.card.definition),
                     ability_payload,
                     requires_retired_object: stack_object_requires_retired(self, object),
                     has_runtime_overrides: has_unlocated_ability_payload
@@ -431,6 +436,12 @@ impl Game {
             })
             .collect::<Vec<_>>();
         let has_unlocated_stack_state = stack.iter().any(|object| object.has_runtime_overrides);
+        let emblems = self
+            .emblems
+            .iter()
+            .filter_map(|emblem| emblem_snapshot(&self.catalog, emblem))
+            .collect::<Vec<_>>();
+        let has_unlocated_emblem = emblems.len() != self.emblems.len();
         GameSnapshot {
             version: crate::protocol::CHECKPOINT_VERSION,
             simulation_fingerprint: crate::protocol::SIMULATION_FINGERPRINT.to_owned(),
@@ -558,7 +569,7 @@ impl Game {
                 },
             },
             battlefield,
-            emblems: self.emblems.iter().map(emblem_snapshot).collect(),
+            emblems,
             stack,
             retired_objects,
             successors,
@@ -583,7 +594,8 @@ impl Game {
                 || has_unlocated_pending_procedure
                 || has_unlocated_damage_prevention
                 || has_unlocated_play_restriction
-                || has_unlocated_stack_state,
+                || has_unlocated_stack_state
+                || has_unlocated_emblem,
             // Makes accidental reuse with another seat fail closed in the
             // importer without revealing anything about that other seat.
             viewer: viewer.index(),

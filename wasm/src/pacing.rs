@@ -1,4 +1,5 @@
 use super::action_view::{action_card, animated_action_kind, should_animate_action};
+use super::presentation::object_presentation;
 use super::{
     Action, BOT_ACTION_LIMIT, CardInstanceId, GameEvent, JsValue, PlayerId, Step, Value, WebGame,
     js_error, json,
@@ -140,31 +141,50 @@ impl WebGame {
         let resolved: Vec<_> = caused
             .iter()
             .filter_map(|event| match event {
-                GameEvent::SpellResolved { card, definition } => Some((*card, *definition, false)),
+                GameEvent::SpellResolved { card, definition } => {
+                    Some((*card, self.card_name(*definition), false))
+                }
                 GameEvent::AbilityResolved {
-                    object, definition, ..
+                    object,
+                    presentation,
+                    ..
                 }
                 | GameEvent::TriggeredAbilityResolved {
-                    object, definition, ..
-                } => Some((*object, *definition, false)),
-                GameEvent::SpellFizzled { card, definition } => Some((*card, *definition, true)),
+                    object,
+                    presentation,
+                    ..
+                } => Some((
+                    *object,
+                    object_presentation(&self.catalog, *presentation).name,
+                    false,
+                )),
+                GameEvent::SpellFizzled { card, definition } => {
+                    Some((*card, self.card_name(*definition), true))
+                }
                 GameEvent::AbilityFizzled {
-                    object, definition, ..
+                    object,
+                    presentation,
+                    ..
                 }
                 | GameEvent::TriggeredAbilityFizzled {
-                    object, definition, ..
-                } => Some((*object, *definition, true)),
+                    object,
+                    presentation,
+                    ..
+                } => Some((
+                    *object,
+                    object_presentation(&self.catalog, *presentation).name,
+                    true,
+                )),
                 _ => None,
             })
             .collect();
-        for (card, definition, fizzled) in resolved {
+        for (card, name, fizzled) in resolved {
             let yours = stack_owners
                 .iter()
                 .any(|(object, controller)| *object == card && *controller == self.human);
             if yours && !fizzled {
                 continue;
             }
-            let name = self.card_name(definition);
             self.opponent_actions.push(json!({
                 "label": if fizzled {
                     format!("{name} fizzles")

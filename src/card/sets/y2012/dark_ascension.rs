@@ -183,15 +183,12 @@ pub(in crate::card::sets) static ELGAUD_INQUISITOR: CardRecord = CardRecord::new
                 Some(ZoneKind::Battlefield),
                 Some(ZoneKind::Graveyard),
             ),
-            EffectDef::CreateToken {
-                token: cards::SPIRIT_TOKEN_1_1_WHITE,
-                controller: None,
-                count: ValueDef::Constant(1),
-                tapped: false,
-                attacking: false,
-                counters: None,
-                created: None,
-            },
+            EffectDef::create_creature_token(&["Spirit"], &[ManaColor::White], 1, 1)
+                .with_abilities(&[abilities::flying()])
+                .with_art(CardArt::new(
+                    "59e79ba0-33c8-46c8-8694-8bf854345fe7",
+                    "Ryan Yee",
+                )),
         ),
     ]),
 );
@@ -213,15 +210,14 @@ pub(in crate::card::sets) static GATHER_THE_TOWNSFOLK: CardRecord = CardRecord::
     CardRules::new_sorcery(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell(
         "Create two 1/1 white Human creature tokens. Fateful hour — If you have 5 or less \
          life, create five of those tokens instead.",
-        EffectDef::CreateToken {
-            token: cards::HUMAN_TOKEN_1_1_WHITE,
-            controller: None,
-            count: ValueDef::IfControllerLifeAtMost(&GATHER_THE_TOWNSFOLK_COUNT),
-            tapped: false,
-            attacking: false,
-            counters: None,
-            created: None,
-        },
+        EffectDef::create_creature_token(&["Human"], &[ManaColor::White], 1, 1)
+            .with_art(CardArt::new(
+                "8894949b-f190-461e-996a-cf2b39f08a5d",
+                "Michael C. Hayes",
+            ))
+            .with_count(ValueDef::IfControllerLifeAtMost(
+                &GATHER_THE_TOWNSFOLK_COUNT,
+            )),
     )),
 );
 
@@ -272,15 +268,13 @@ pub(in crate::card::sets) static LINGERING_SOULS: CardRecord = CardRecord::new(
     CardRules::new_sorcery(mana_cost!("{2}{W}")).with_abilities(&[
         AbilityDef::spell(
             "Create two 1/1 white Spirit creature tokens with flying.",
-            EffectDef::CreateToken {
-                token: cards::SPIRIT_TOKEN_1_1_WHITE,
-                controller: None,
-                count: ValueDef::Constant(2),
-                tapped: false,
-                attacking: false,
-                counters: None,
-                created: None,
-            },
+            EffectDef::create_creature_token(&["Spirit"], &[ManaColor::White], 1, 1)
+                .with_abilities(&[abilities::flying()])
+                .with_art(CardArt::new(
+                    "59e79ba0-33c8-46c8-8694-8bf854345fe7",
+                    "Ryan Yee",
+                ))
+                .with_amount(2),
         ),
         abilities::flashback(mana_cost!("{1}{B}")),
     ]),
@@ -407,14 +401,7 @@ pub(in crate::card::sets) static REQUIEM_ANGEL: CardRecord = CardRecord::new(
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Spirit")),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                 ]), Some(ZoneKind::Battlefield), Some(ZoneKind::Graveyard)),
-            EffectDef::CreateToken {
-                token: cards::SPIRIT_TOKEN_1_1_WHITE,
-                controller: None,
-                count: ValueDef::Constant(1),
-                tapped: false,
-                attacking: false,
-            counters: None,
-            created: None,},
+            EffectDef::create_creature_token(&["Spirit"], &[ManaColor::White], 1, 1).with_abilities(&[abilities::flying()]).with_art(CardArt::new("59e79ba0-33c8-46c8-8694-8bf854345fe7", "Ryan Yee")),
         ),
     ]),
 );
@@ -525,15 +512,9 @@ pub(in crate::card::sets) static THRABEN_DOOMSAYER: CardRecord = CardRecord::new
         AbilityDef::activated(
             "{T}: Create a 1/1 white Human creature token.",
             &[AbilityCostDef::TapSource],
-            EffectDef::CreateToken {
-                token: cards::HUMAN_TOKEN_1_1_WHITE,
-                controller: None,
-                count: ValueDef::Constant(1),
-                tapped: false,
-                attacking: false,
-                counters: None,
-                created: None,
-            },
+            EffectDef::create_creature_token(&["Human"], &[ManaColor::White], 1, 1).with_art(
+                CardArt::new("8894949b-f190-461e-996a-cf2b39f08a5d", "Michael C. Hayes"),
+            ),
         ),
         AbilityDef::static_ability(
             "Fateful hour — As long as you have 5 or less life, other creatures you control get \
@@ -800,14 +781,7 @@ pub(in crate::card::sets) static HAVENGUL_RUNEBINDER: CardRecord = CardRecord::n
                 },
             ],
             EffectDef::Sequence(&[
-                EffectDef::CreateToken {
-                    token: cards::ZOMBIE_TOKEN_2_2_BLACK,
-                    controller: None,
-                    count: ValueDef::Constant(1),
-                    tapped: false,
-                    attacking: false,
-                counters: None,
-                created: None,},
+                EffectDef::create_creature_token(&["Zombie"], &[ManaColor::Black], 2, 2).with_art(CardArt::new("b877c19d-6022-4377-92e7-4511e24eb98e", "Lucas Graciano")),
                 EffectDef::AddCounters {
                     object: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
@@ -1358,15 +1332,9 @@ pub(in crate::card::sets) static REAP_THE_SEAGRAF: CardRecord = CardRecord::new(
     CardRules::new_sorcery(mana_cost!("{2}{B}")).with_abilities(&[
         AbilityDef::spell(
             "Create a 2/2 black Zombie creature token.",
-            EffectDef::CreateToken {
-                token: cards::ZOMBIE_TOKEN_2_2_BLACK,
-                controller: None,
-                count: ValueDef::Constant(1),
-                tapped: false,
-                attacking: false,
-                counters: None,
-                created: None,
-            },
+            EffectDef::create_creature_token(&["Zombie"], &[ManaColor::Black], 2, 2).with_art(
+                CardArt::new("b877c19d-6022-4377-92e7-4511e24eb98e", "Lucas Graciano"),
+            ),
         ),
         abilities::flashback(mana_cost!("{4}{U}")),
     ]),
@@ -1511,15 +1479,9 @@ pub(in crate::card::sets) static WAKEDANCER: CardRecord = CardRecord::new(
                 Some(ZoneKind::Battlefield),
             ),
             &MORBID_A_CREATURE_DIED,
-            EffectDef::CreateToken {
-                token: cards::ZOMBIE_TOKEN_2_2_BLACK,
-                controller: None,
-                count: ValueDef::Constant(1),
-                tapped: false,
-                attacking: false,
-                counters: None,
-                created: None,
-            },
+            EffectDef::create_creature_token(&["Zombie"], &[ManaColor::Black], 2, 2).with_art(
+                CardArt::new("b877c19d-6022-4377-92e7-4511e24eb98e", "Lucas Graciano"),
+            ),
         ),
     ),
 );
@@ -2161,15 +2123,13 @@ pub(in crate::card::sets) static DERANGED_OUTCAST: CardRecord = CardRecord::new(
 
 /// One Wolf per point of toughness, which is why the food of choice is a
 /// Wall: the pack it makes is worth far more than what fed it.
-static FEED_THE_PACK_PAYOFF: EffectDef = EffectDef::CreateToken {
-    token: cards::WOLF_TOKEN_2_2_GREEN,
-    controller: None,
-    count: ValueDef::TriggerEventAmount,
-    tapped: false,
-    attacking: false,
-    counters: None,
-    created: None,
-};
+static FEED_THE_PACK_PAYOFF: EffectDef =
+    EffectDef::create_creature_token(&["Wolf"], &[ManaColor::Green], 2, 2)
+        .with_art(CardArt::new(
+            "a53f8031-aaa8-424c-929a-5478538a8cc6",
+            "David Palumbo",
+        ))
+        .with_count(ValueDef::TriggerEventAmount);
 
 // DKA 114 — Feed the Pack
 pub(in crate::card::sets) static FEED_THE_PACK: CardRecord = CardRecord::new(
@@ -2636,15 +2596,10 @@ static HUNTMASTER_FRONT_ABILITIES: [AbilityDef; 3] = [
 ];
 
 static HUNTMASTER_WOLF_AND_LIFE: EffectDef = EffectDef::Sequence(&[
-    EffectDef::CreateToken {
-        token: cards::WOLF_TOKEN_2_2_GREEN,
-        controller: None,
-        count: ValueDef::Constant(1),
-        tapped: false,
-        attacking: false,
-        counters: None,
-        created: None,
-    },
+    EffectDef::create_creature_token(&["Wolf"], &[ManaColor::Green], 2, 2).with_art(CardArt::new(
+        "a53f8031-aaa8-424c-929a-5478538a8cc6",
+        "David Palumbo",
+    )),
     EffectDef::GainLife {
         recipient: EffectRecipientDef::Controller,
         amount: ValueDef::Constant(2),
@@ -2758,7 +2713,7 @@ pub(in crate::card::sets) static HUNTMASTER_OF_THE_FELLS: CardRecord = CardRecor
 // Audit: blocked — Needs a continuous prohibition preventing non-Human Werewolves you control from transforming.
 
 // DKA 142 — Sorin, Lord of Innistrad
-// Audit: blocked — Needs the emblem/token identities and an ultimate continuation that returns only the permanents destroyed this way under your control.
+// Audit: blocked — Needs its creator-owned emblem ability, Vampire token effect, and an ultimate continuation that returns only the permanents destroyed this way under your control.
 
 // DKA 143 — Stromkirk Captain
 pub(in crate::card::sets) static STROMKIRK_CAPTAIN: CardRecord = CardRecord::new(
@@ -2844,15 +2799,10 @@ pub(in crate::card::sets) static AVACYNS_COLLAR: CardRecord = CardRecord::new(
                     Some(ZoneKind::Battlefield),
                     Some(ZoneKind::Graveyard),
                 ),
-                EffectDef::CreateToken {
-                    token: cards::SPIRIT_TOKEN_1_1_WHITE,
-                    controller: None,
-                    count: ValueDef::Constant(1),
-                    tapped: false,
-                    attacking: false,
-                    counters: None,
-                    created: None,
-                },
+                EffectDef::create_creature_token(&["Spirit"], &[ManaColor::White], 1, 1).with_abilities(&[abilities::flying()]).with_art(CardArt::new(
+                        "59e79ba0-33c8-46c8-8694-8bf854345fe7",
+                        "Ryan Yee",
+                    )),
             ),
             abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
         ]),

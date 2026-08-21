@@ -203,7 +203,7 @@ fn ability_events_distinguish_the_stack_object_from_a_source_that_left_play() {
             player: PlayerId::One,
             object: ability_id,
             source: source_id,
-            definition: cards::STRIP_MINE,
+            presentation: ObjectCharacteristics::card(cards::STRIP_MINE, CardPartId::PRIMARY),
             chosen_permanents: vec![target_id],
         })
     );
@@ -213,7 +213,7 @@ fn ability_events_distinguish_the_stack_object_from_a_source_that_left_play() {
         game.events[event_start..].contains(&GameEvent::AbilityResolved {
             object: ability_id,
             source: source_id,
-            definition: cards::STRIP_MINE,
+            presentation: ObjectCharacteristics::card(cards::STRIP_MINE, CardPartId::PRIMARY),
         })
     );
 }

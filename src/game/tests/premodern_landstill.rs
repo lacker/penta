@@ -287,7 +287,10 @@ fn cycling_decree_of_justice_buys_soldiers_by_the_mana() {
     assert_eq!(
         game.battlefield
             .iter()
-            .filter(|permanent| permanent.card.definition == cards::SOLDIER_TOKEN_1_1_WHITE)
+            .filter(|permanent| is_token_with(
+                permanent,
+                tokens::creature(&["Soldier"], &[ManaColor::White], 1, 1)
+            ))
             .count(),
         3,
         "three mana bought three Soldiers",
@@ -330,10 +333,10 @@ fn declining_the_decrees_trigger_makes_no_soldiers() {
     drain_pending(&mut game);
 
     assert!(
-        !game
-            .battlefield
-            .iter()
-            .any(|permanent| permanent.card.definition == cards::SOLDIER_TOKEN_1_1_WHITE),
+        !game.battlefield.iter().any(|permanent| is_token_with(
+            permanent,
+            tokens::creature(&["Soldier"], &[ManaColor::White], 1, 1)
+        )),
         "nothing was paid, so nothing arrived",
     );
     assert_eq!(

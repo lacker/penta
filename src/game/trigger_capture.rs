@@ -7,114 +7,19 @@ use crate::CharacteristicContext;
 
 use super::{
     AbilityDef, AbilityId, AbilityOrigin, AbilityProcedureDef, AbilitySourceRef, AddManaEffectDef,
-    BattlefieldTriggerListener, CardDefinitionId, CardPartId, CardType, CommittedTriggerEvent,
-    DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
-    DeclarativeAbilityDef, EffectDef, EffectRecipientSetDef, EffectResolutionContext,
-    EffectiveAbility, FrozenActivatedAbility, Game, GameEvent, GameObjectId,
-    InstalledTriggerLifetime, KeywordAbility, Mana, ManaSelectionDef, ManaSource,
-    ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PendingTrigger, Permanent, PlayerId,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, RetiredObject, ScopedEffect, StackAbilityResolver,
-    TapPurposeDef, Target, TriggerCapture, TriggerContext, TriggerEventDef, TriggerEventObject,
-    ZoneKind,
+    BattlefieldTriggerListener, CardPartId, CardType, CommittedTriggerEvent, DamageEventMatcherDef,
+    DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DeclarativeAbilityDef,
+    EffectDef, EffectRecipientSetDef, EffectResolutionContext, EffectiveAbility,
+    FrozenActivatedAbility, Game, GameEvent, GameObjectId, GrantId, InstalledTriggerLifetime,
+    KeywordAbility, Mana, ManaSelectionDef, ManaSource, ObjectCharacteristics, ObjectPredicateDef,
+    ObjectRefDef, ObjectSetDef, PendingTrigger, Permanent, PlayerId, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, RetiredObject, ScopedEffect, StackAbilityResolver, TapPurposeDef, Target,
+    TriggerCapture, TriggerContext, TriggerEventDef, TriggerEventObject, ZoneKind,
 };
 
 mod graveyard;
 
 impl Game {
-    /// Finishes an atomic rules procedure before a player can receive
-    /// priority. Mana abilities invoked while casting resolve inside the
-    /// procedure, while ordinary triggers collected by them wait here.
-    pub(super) fn finish_rules_procedure(&mut self) {
-        // A decision can be one step in a still-resolving spell or turn-based
-        // procedure. Neither state-based actions nor trigger placement happen
-        // in the middle of that procedure: for example, a creature dealt
-        // lethal damage by Chain Lightning can still activate a mana ability
-        // when its controller is asked whether to pay for the copy. Drain the
-        // continuation chain before reaching either priority-boundary check.
-        loop {
-            if self.pending_decisions.is_empty() && !self.pending_events.is_empty() {
-                self.continue_pending_events();
-            }
-            if !self.pending_decisions.is_empty() || !self.pending_events.is_empty() {
-                return;
-            }
-            if self.pending_procedures.is_empty() {
-                break;
-            }
-            self.continue_pending_procedures();
-        }
-
-        self.check_state_based_actions();
-        if self.result.is_none()
-            && self.pending_decisions.is_empty()
-            && self.pending_events.is_empty()
-            && self.pending_procedures.is_empty()
-        {
-            self.begin_trigger_placement();
-        }
-    }
-
-    pub(super) fn capture_trigger(&mut self, capture: &TriggerCapture) {
-        // Rule 603.4: an intervening-if condition is checked as the ability
-        // would trigger. Failing it means the ability never triggers at all,
-        // so nothing reaches the stack and nothing is reported.
-        if !self.trigger_capture_condition_holds(capture) {
-            return;
-        }
-        self.capture_trigger_prechecked(capture);
-    }
-
-    fn trigger_capture_condition_holds(&self, capture: &TriggerCapture) -> bool {
-        capture.condition.is_none_or(|condition| {
-            self.trigger_condition_holds(
-                condition,
-                capture.source.object,
-                capture.controller,
-                capture.context.trigger,
-                Some(capture.source.ability),
-                None,
-            )
-        })
-    }
-
-    fn capture_trigger_prechecked(&mut self, capture: &TriggerCapture) {
-        let id = self.next_trigger_id;
-        self.next_trigger_id = self.next_trigger_id.saturating_add(1);
-        self.pending_triggers.push(PendingTrigger {
-            id,
-            source: capture.source,
-            definition: capture.definition,
-            owner: capture.owner,
-            controller: capture.controller,
-            text: capture.text,
-            target_defs: capture.target_defs.clone(),
-            targets: capture.targets.clone(),
-            effect: capture.effect,
-            resolver: capture.resolver,
-            context: capture.context.clone(),
-            condition: capture.condition,
-            x: capture.x,
-        });
-        self.events.push(GameEvent::AbilityTriggered {
-            player: capture.controller,
-            trigger: id,
-            source: capture.source.object,
-            definition: capture.definition,
-        });
-    }
-
-    pub(super) const fn ability_presentation_definition(
-        origin: AbilityOrigin,
-        fallback: CardDefinitionId,
-    ) -> CardDefinitionId {
-        match origin {
-            AbilityOrigin::Printed { definition, .. } => definition,
-            AbilityOrigin::IntrinsicBasicLand(_)
-            | AbilityOrigin::IntrinsicCounter(_)
-            | AbilityOrigin::Granted { .. } => fallback,
-        }
-    }
-
     pub(super) fn capture_battlefield_triggers(&mut self, event: &CommittedTriggerEvent) {
         let listeners = self.battlefield_trigger_listeners();
         self.capture_battlefield_triggers_from_snapshot(&listeners, event);
@@ -223,9 +128,9 @@ impl Game {
                         object: cycled,
                         ability: effective.origin,
                     },
-                    definition: Self::ability_presentation_definition(
+                    presentation: Self::ability_presentation(
                         effective.origin,
-                        card.definition,
+                        ObjectCharacteristics::card(card.definition, CardPartId::PRIMARY),
                     ),
                     owner: card.owner,
                     controller: player,
@@ -261,7 +166,9 @@ impl Game {
         let Some(object) = self.stack_object_event_object(&cast) else {
             return;
         };
-        let card = cast.card.clone();
+        let Some(card) = cast.card.clone().into_card() else {
+            return;
+        };
         let Some(signature) = cast.signature.as_ref() else {
             return;
         };
@@ -290,9 +197,9 @@ impl Game {
                         object: spell,
                         ability: effective.origin,
                     },
-                    definition: Self::ability_presentation_definition(
+                    presentation: Self::ability_presentation(
                         effective.origin,
-                        card.definition,
+                        ObjectCharacteristics::card(card.definition, CardPartId::PRIMARY),
                     ),
                     owner: card.owner,
                     controller: cast.controller,
@@ -321,6 +228,7 @@ impl Game {
     fn triggers_this_turn(&self, source: AbilitySourceRef) -> u8 {
         self.battlefield
             .iter()
+            .chain(self.emblems.iter())
             .find(|permanent| permanent.card.id == source.object)
             .and_then(|permanent| {
                 permanent
@@ -335,6 +243,7 @@ impl Game {
         let Some(permanent) = self
             .battlefield
             .iter_mut()
+            .chain(self.emblems.iter_mut())
             .find(|permanent| permanent.card.id == source.object)
         else {
             return;
@@ -399,9 +308,9 @@ impl Game {
                     installed: None,
                     capture: TriggerCapture {
                         source,
-                        definition: Self::ability_presentation_definition(
+                        presentation: Self::ability_presentation(
                             effective.origin,
-                            Self::effective_rules_source(permanent).0,
+                            Self::effective_rules_source(permanent),
                         ),
                         owner: permanent.card.owner,
                         controller: permanent.controller,
@@ -596,9 +505,9 @@ impl Game {
                     object: source.card.id,
                     ability,
                 },
-                definition: Self::ability_presentation_definition(
+                presentation: Self::ability_presentation(
                     ability,
-                    Self::effective_rules_source(source).0,
+                    Self::effective_rules_source(source),
                 ),
                 owner: source.card.owner,
                 controller: source.controller,
@@ -634,24 +543,83 @@ impl Game {
         }
     }
 
-    pub(super) fn ability_origin_components(
+    pub(super) const fn granted_ability_origin(
+        source: GameObjectId,
         origin: AbilityOrigin,
-        fallback: CardDefinitionId,
-    ) -> (CardDefinitionId, CardPartId, AbilityId) {
+        fallback: ObjectCharacteristics,
+        grant: GrantId,
+    ) -> AbilityOrigin {
         match origin {
             AbilityOrigin::Printed {
                 definition,
                 part,
                 ability,
-            } => (definition, part, ability),
+            } => AbilityOrigin::Granted {
+                source,
+                source_definition: definition,
+                source_part: part,
+                source_ability: ability,
+                grant,
+            },
+            AbilityOrigin::Token { part, ability } => AbilityOrigin::TokenGranted {
+                source,
+                source_part: part,
+                source_ability: ability,
+                grant,
+            },
+            AbilityOrigin::Emblem { ability } => AbilityOrigin::EmblemGranted {
+                source,
+                source_ability: ability,
+                grant,
+            },
             AbilityOrigin::Granted {
                 source_definition,
                 source_part,
                 source_ability,
                 ..
-            } => (source_definition, source_part, source_ability),
+            } => AbilityOrigin::Granted {
+                source,
+                source_definition,
+                source_part,
+                source_ability,
+                grant,
+            },
+            AbilityOrigin::TokenGranted {
+                source_part,
+                source_ability,
+                ..
+            } => AbilityOrigin::TokenGranted {
+                source,
+                source_part,
+                source_ability,
+                grant,
+            },
+            AbilityOrigin::EmblemGranted { source_ability, .. } => AbilityOrigin::EmblemGranted {
+                source,
+                source_ability,
+                grant,
+            },
             AbilityOrigin::IntrinsicBasicLand(_) | AbilityOrigin::IntrinsicCounter(_) => {
-                (fallback, CardPartId::PRIMARY, AbilityId::PRIMARY)
+                match fallback {
+                    ObjectCharacteristics::Card { definition, part } => AbilityOrigin::Granted {
+                        source,
+                        source_definition: definition,
+                        source_part: part,
+                        source_ability: AbilityId::PRIMARY,
+                        grant,
+                    },
+                    ObjectCharacteristics::Token { part, .. } => AbilityOrigin::TokenGranted {
+                        source,
+                        source_part: part,
+                        source_ability: AbilityId::PRIMARY,
+                        grant,
+                    },
+                    ObjectCharacteristics::Emblem { .. } => AbilityOrigin::EmblemGranted {
+                        source,
+                        source_ability: AbilityId::PRIMARY,
+                        grant,
+                    },
+                }
             }
         }
     }
@@ -663,9 +631,8 @@ impl Game {
     ) -> FrozenActivatedAbility {
         let effective =
             self.find_effective_ability(permanent, |effective| effective.origin == origin);
-        let fallback_definition = Self::effective_rules_source(permanent).0;
-        let presentation_definition =
-            Self::ability_presentation_definition(origin, fallback_definition);
+        let fallback = Self::effective_rules_source(permanent);
+        let presentation = Self::ability_presentation(origin, fallback);
         let text = effective.map(|effective| effective.ability.text);
         let definition = effective.map(|effective| Box::new(effective.ability));
         let (target_defs, resolver) = effective.map_or(
@@ -696,7 +663,7 @@ impl Game {
         FrozenActivatedAbility {
             origin,
             definition,
-            presentation_definition,
+            presentation,
             text,
             target_defs: target_defs.to_vec(),
             resolver,
@@ -995,3 +962,33 @@ include!("trigger_capture/attack_matching.rs");
 include!("trigger_capture/damage_matching.rs");
 include!("trigger_capture/triggered_mana.rs");
 include!("trigger_capture/object_matching.rs");
+include!("trigger_capture/procedure.rs");
+
+#[cfg(test)]
+mod emblem_trigger_limit_tests {
+    use super::*;
+
+    #[test]
+    fn emblem_trigger_counts_are_read_from_the_emblem() {
+        let mut game = crate::game::tests::ready_game();
+        let owner = PlayerId::One;
+        let card = game
+            .unbacked_emblem_object(crate::EmblemCharacteristics::new("Test emblem", &[]), owner);
+        let source = AbilitySourceRef {
+            object: card.id,
+            ability: AbilityOrigin::Emblem {
+                ability: AbilityId::PRIMARY,
+            },
+        };
+        game.emblems.push(Permanent::entering(
+            card,
+            CardPartId::PRIMARY,
+            owner,
+            game.turns_started[owner.index()],
+        ));
+
+        assert_eq!(game.triggers_this_turn(source), 0);
+        game.record_trigger_this_turn(source);
+        assert_eq!(game.triggers_this_turn(source), 1);
+    }
+}

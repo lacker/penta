@@ -5,9 +5,18 @@
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[allow(clippy::struct_excessive_bools)]
 struct Permanent {
-    card: CardInstance,
+    card: ObjectInstance,
+    /// Authored characteristics for an ordinary created token. Token copies
+    /// instead freeze their source in `copy_effect` or
+    /// `double_faced_token_copy`; either way token status is explicit in the
+    /// object's kind, never inferred from a catalog set.
+    token_characteristics: Option<TokenCharacteristics>,
+    /// Both intrinsic faces of a token created as a copy of a double-faced
+    /// permanent. A later copy effect masks these values but does not erase
+    /// the physical double-faced representation (CR 707.8a, 712.9).
+    double_faced_token_copy: Option<DoubleFacedCopiableCharacteristics>,
     timestamp: ContinuousEffectTimestamp,
-    /// The logical part currently supplying this permanent's printed
+    /// The logical part currently supplying this permanent's baseline
     /// characteristics. Transforming changes this without changing object ID.
     presented: CardPartId,
     controller: PlayerId,
@@ -145,7 +154,7 @@ struct Permanent {
     /// Whether this permanent entered as a copy. Transforming double-faced
     /// cards use this to distinguish their own back face from a copied one
     /// when determining mana value.
-    copied_from: Option<(CardDefinitionId, CardPartId)>,
+    copied_from: Option<ObjectCharacteristics>,
     /// Indefinite text changes applied to this object in timestamp order.
     text_changes: Vec<BasicLandTypeChange>,
     regeneration_shields: u8,
@@ -225,14 +234,17 @@ impl Permanent {
     /// adding one a three-place edit and gave a new entry path nothing to
     /// build on.
     fn entering(
-        card: CardInstance,
+        card: impl Into<ObjectInstance>,
         presented: CardPartId,
         controller: PlayerId,
         entered_controller_turn: u32,
     ) -> Self {
+        let card = card.into();
         Self {
             timestamp: ContinuousEffectTimestamp(u64::from(card.id.0)),
             card,
+            token_characteristics: None,
+            double_faced_token_copy: None,
             presented,
             controller,
             tapped: false,
@@ -290,6 +302,34 @@ impl Permanent {
             deathtouch_damage: false,
             created_by: None,
         }
+    }
+
+    fn entering_token(
+        card: ObjectInstance,
+        token: TokenCharacteristics,
+        controller: PlayerId,
+        entered_controller_turn: u32,
+    ) -> Self {
+        debug_assert!(card.definition.is_token());
+        let mut permanent = Self::entering(
+            card,
+            token.primary_part_id(),
+            controller,
+            entered_controller_turn,
+        );
+        permanent.token_characteristics = Some(token);
+        permanent
+    }
+
+    /// Copiable values currently supplying this permanent's characteristics.
+    /// A live copy effect masks every physical face. Without one, a
+    /// double-faced copy-token selects the intrinsic values of its face up.
+    fn active_copy_values(&self) -> Option<&CopiableCharacteristics> {
+        self.copy_effect.as_ref().or_else(|| {
+            self.double_faced_token_copy
+                .as_ref()
+                .and_then(|faces| faces.face(self.presented))
+        })
     }
 
     const fn counters(&self, kind: CounterKind) -> u16 {

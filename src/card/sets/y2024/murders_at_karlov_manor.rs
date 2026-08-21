@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, CardArt, CardRules, CardSet, CardType, EffectDef, EffectRecipientDef,
     ObjectPredicateDef, PlayerRelation, TopCardSelectionDef, TriggerEventDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities, cards,
+    ZonePlacement, abilities, cards, tokens,
 };
 use crate::mana_cost;
 
@@ -33,14 +33,10 @@ pub(in crate::card::sets) static FORENSIC_GADGETEER: CardRecord = CardRecord::ne
             AbilityDef::triggered(
                 "Whenever you cast an artifact spell, investigate. (Create a Clue token. It's an artifact with \"{2}, Sacrifice this token: Draw a card.\")",
                 TriggerEventDef::SpellCast(AN_ARTIFACT_SPELL_YOU_CAST),
-                EffectDef::CreateToken {
-                    token: cards::CLUE_TOKEN,
-                    controller: None,
-                    count: ValueDef::Constant(1),
-                    tapped: false,
-                    attacking: false,
-                counters: None,
-                created: None,},
+                EffectDef::create_token(tokens::clue()).with_art(CardArt::new(
+                    "ef607895-d6d2-44ab-a6b4-84af55fce593",
+                    "Daneen Wilkerson",
+                )),
             ),
             AbilityDef::static_ability(
                 "Activated abilities of artifacts you control cost {1} less to activate. This effect can't reduce the mana in that cost to less than one mana.",

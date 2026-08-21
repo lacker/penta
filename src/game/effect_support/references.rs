@@ -59,12 +59,16 @@ impl Game {
             // grant. Do not follow a zone-change successor here: this is the
             // last-known permanent the ability names even after sacrificing
             // it as a cost.
-            ObjectRefDef::AbilityGrantSource => object.ability_origin().and_then(|origin| {
-                let crate::AbilityOrigin::Granted { source, .. } = origin else {
-                    return None;
-                };
-                Some(Target::Permanent(source))
-            }),
+            ObjectRefDef::AbilityGrantSource => {
+                object.ability_origin().and_then(|origin| match origin {
+                    crate::AbilityOrigin::Granted { source, .. }
+                    | crate::AbilityOrigin::TokenGranted { source, .. }
+                    | crate::AbilityOrigin::EmblemGranted { source, .. } => {
+                        Some(Target::Permanent(source))
+                    }
+                    _ => None,
+                })
+            }
             ObjectRefDef::ResolvingObject => self.live_object_target(object.id),
             ObjectRefDef::SourceOfTargetedStackObject(target) => self
                 .targeted_stack_object_source(target, object, scoped)
@@ -96,12 +100,14 @@ impl Game {
     ) -> Option<GameObjectId> {
         match reference {
             ObjectRefDef::Source => object.source,
-            ObjectRefDef::AbilityGrantSource => object.ability_origin().and_then(|origin| {
-                let crate::AbilityOrigin::Granted { source, .. } = origin else {
-                    return None;
-                };
-                Some(source)
-            }),
+            ObjectRefDef::AbilityGrantSource => {
+                object.ability_origin().and_then(|origin| match origin {
+                    crate::AbilityOrigin::Granted { source, .. }
+                    | crate::AbilityOrigin::TokenGranted { source, .. }
+                    | crate::AbilityOrigin::EmblemGranted { source, .. } => Some(source),
+                    _ => None,
+                })
+            }
             ObjectRefDef::ResolvingObject => Some(object.id),
             ObjectRefDef::Binding(binding) => {
                 context
@@ -147,13 +153,15 @@ impl Game {
             .stack
             .iter()
             .find(|candidate| candidate.id == id)
-            .map_or_else(|| self.retired_stack_object_source(id), |stack| stack.source)?;
+            .map_or_else(
+                || self.retired_stack_object_source(id),
+                |stack| stack.source,
+            )?;
         self.battlefield
             .iter()
             .any(|permanent| permanent.card.id == source)
             .then_some(source)
     }
-
 
     pub(in crate::game) fn player_reference(
         &self,
@@ -295,7 +303,10 @@ impl Game {
         };
         self.battlefield
             .iter()
-            .filter(|permanent| self.permanent_card_name(permanent.card.id) == Some(name))
+            .filter(|permanent| {
+                self.permanent_card_name(permanent.card.id)
+                    .is_some_and(|candidate| candidate == name)
+            })
             .map(|permanent| Target::Permanent(permanent.card.id))
             .collect()
     }
@@ -326,8 +337,11 @@ impl Game {
             // one list, players first, which is the order the clause reads.
             EffectRecipientSetDef::PlayersAndCreaturesTheyControl(players) => {
                 let players = self.players_in_set(players, object, context, scoped);
-                let mut recipients =
-                    players.iter().copied().map(Target::Player).collect::<Vec<_>>();
+                let mut recipients = players
+                    .iter()
+                    .copied()
+                    .map(Target::Player)
+                    .collect::<Vec<_>>();
                 recipients.extend(
                     self.battlefield
                         .iter()
@@ -473,7 +487,7 @@ impl Game {
                 let Some(player) = self.player_reference(player, object, context, scoped) else {
                     return Vec::new();
                 };
-                let names: Vec<&str> = context
+                let names: Vec<_> = context
                     .object_group(binding)
                     .iter()
                     .filter_map(|bound| match bound {
@@ -485,7 +499,7 @@ impl Game {
                     .collect();
                 let mut found = Vec::new();
                 for name in names {
-                    for card in self.cards_named_in_zone(player, zone, name) {
+                    for card in self.cards_named_in_zone(player, zone, name.as_ref()) {
                         if !found.contains(&card) {
                             found.push(card);
                         }
@@ -499,8 +513,7 @@ impl Game {
                 player,
                 object: predicate,
             } => {
-                let Some(player) = self.player_reference(player, object, context, scoped)
-                else {
+                let Some(player) = self.player_reference(player, object, context, scoped) else {
                     return Vec::new();
                 };
                 let source = object.source.unwrap_or(object.id);

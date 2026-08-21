@@ -36,7 +36,11 @@ fn the_freebooter_takes_a_noncreature_nonland_card_and_gives_it_back() {
             let cards = decision
                 .options
                 .iter()
-                .filter_map(|option| option.card.map(|(_, definition)| definition))
+                .filter_map(|option| {
+                    option
+                        .card
+                        .and_then(|(_, characteristics)| characteristics.card_definition())
+                })
                 .collect::<Vec<_>>();
             if !cards.is_empty() {
                 offered = cards;
@@ -94,38 +98,50 @@ fn the_squadron_puts_a_counter_on_every_creature_token_you_control() {
         .expect("cataloged");
     drain_pending(&mut game);
 
-    let size_of = |game: &Game, definition| {
+    let size_of = |game: &Game, token| {
         let permanent = game
             .battlefield
             .iter()
-            .find(|permanent| permanent.card.definition == definition)
+            .find(|permanent| is_token_with(permanent, token))
             .expect("the token arrived");
         (game.power(permanent), game.toughness(permanent))
     };
 
-    game.create_token(PlayerId::One, cards::BEAST_TOKEN_3_3_GREEN);
+    game.create_token(
+        PlayerId::One,
+        tokens::creature(&["Beast"], &[ManaColor::Green], 3, 3),
+    );
     drain_pending(&mut game);
     assert_eq!(
-        size_of(&game, cards::BEAST_TOKEN_3_3_GREEN),
+        size_of(
+            &game,
+            tokens::creature(&["Beast"], &[ManaColor::Green], 3, 3)
+        ),
         (Some(4), Some(4)),
         "a 3/3 token arrives and is grown",
     );
 
     // A Food token is a token but not a creature.
-    game.create_token(PlayerId::One, cards::FOOD_TOKEN);
+    game.create_token(PlayerId::One, tokens::food());
     drain_pending(&mut game);
     let food = game
         .battlefield
         .iter()
-        .find(|permanent| permanent.card.definition == cards::FOOD_TOKEN)
+        .find(|permanent| is_token_with(permanent, tokens::food()))
         .expect("the Food arrived");
     assert_eq!(food.counters(CounterKind::PlusOnePlusOne), 0);
 
     // An opponent's token is not one you control.
-    game.create_token(PlayerId::Two, cards::KNIGHT_TOKEN_2_2_WHITE);
+    game.create_token(
+        PlayerId::Two,
+        token_with_vigilance(tokens::creature(&["Knight"], &[ManaColor::White], 2, 2)),
+    );
     drain_pending(&mut game);
     assert_eq!(
-        size_of(&game, cards::KNIGHT_TOKEN_2_2_WHITE),
+        size_of(
+            &game,
+            token_with_vigilance(tokens::creature(&["Knight"], &[ManaColor::White], 2, 2))
+        ),
         (Some(2), Some(2)),
         "and the other player's token is untouched",
     );
@@ -210,7 +226,11 @@ fn the_bat_holds_a_nonland_card_until_it_leaves() {
             let cards = decision
                 .options
                 .iter()
-                .filter_map(|option| option.card.map(|(_, definition)| definition))
+                .filter_map(|option| {
+                    option
+                        .card
+                        .and_then(|(_, characteristics)| characteristics.card_definition())
+                })
                 .collect::<Vec<_>>();
             if !cards.is_empty() {
                 offered = cards;

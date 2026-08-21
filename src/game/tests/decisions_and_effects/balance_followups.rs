@@ -27,7 +27,7 @@ fn balance_recounts_creatures_after_loxodon_smiter_replaces_its_discard() {
         .find(|option| {
             option
                 .card
-                .is_some_and(|(_, definition)| definition == cards::LOXODON_SMITER)
+                .is_some_and(|(_, characteristics)| characteristics.card_definition() == Some(cards::LOXODON_SMITER))
         })
         .expect("Loxodon Smiter is the discard choice")
         .id;
@@ -50,7 +50,7 @@ fn balance_recounts_creatures_after_loxodon_smiter_replaces_its_discard() {
     assert!(
         sacrifice.options[0]
             .card
-            .is_some_and(|(_, definition)| definition == cards::LOXODON_SMITER)
+            .is_some_and(|(_, characteristics)| characteristics.card_definition() == Some(cards::LOXODON_SMITER))
     );
     game.apply(
         PlayerId::Two,
@@ -117,7 +117,7 @@ fn balance_defers_one_apnap_trigger_batch_until_its_decisions_finish() {
         .filter(|option| {
             option
                 .card
-                .is_some_and(|(_, definition)| definition == cards::SU_CHI)
+                .is_some_and(|(_, characteristics)| characteristics.card_definition() == Some(cards::SU_CHI))
         })
         .map(|option| option.id)
         .collect::<Vec<_>>();

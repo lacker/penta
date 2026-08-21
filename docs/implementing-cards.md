@@ -30,9 +30,10 @@ Keep `ADDITIONAL_PRINTINGS` in natural order by the collector number in that
 module's set, including for reprint-only modules with an empty `CARDS`
 registry. Put each nonempty entry on its own line with a trailing identity such
 as `// LEB 233`: uppercase target set code and collector number, without the
-card name. Empty registries need no comments. Synthetic token definitions have
-no single printed set or collector number and remain outside these conventions.
-Move card-local helpers with the definition they support.
+card name. Empty registries need no comments. Creator-owned token and emblem
+characteristics are built by their creating effects, are not card definitions,
+and remain outside these conventions. Move card-local helpers with the
+definition they support.
 
 Start new and migrated work with the card's ordered `AbilityDef` clauses. Each
 printed clause should carry its explicit timing category and, where applicable,

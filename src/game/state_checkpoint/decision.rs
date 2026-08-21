@@ -4,7 +4,10 @@ use crate::card::{
     CardType, CardTypeSet, EffectDef, EffectPaymentCostDef, EffectPaymentDef, ReplacementChoiceDef,
     ReplacementEventDef, TurnKindDef, ZonePlacement,
 };
-use crate::{CardDefinitionId, GameObjectId, ManaCost, PlayerId};
+use crate::{
+    CardCatalog, CardDefinitionId, CardPartId, GameObjectId, ManaCost, ObjectCharacteristics,
+    PlayerId,
+};
 
 use super::super::decision_offers::effect_choice_visibility;
 use super::super::{
@@ -29,9 +32,9 @@ use option::parse_option;
 
 use super::procedure::{draw_replacement_snapshot_allowing, parse_draw_replacement};
 use super::semantics::{
-    ability_locator, ability_target_defs, catalog_ability, catalog_replacement_effect,
-    catalog_scoped_effect, replacement_effect_locator_matches_source, replacement_effects,
-    resolved_replacement_effect_locator, scoped_effect_snapshot,
+    ability_locator, ability_locator_for_origin, ability_target_defs, catalog_ability,
+    catalog_replacement_effect, catalog_scoped_effect, replacement_effect_locator_matches_source,
+    replacement_effects, resolved_replacement_effect_locator, scoped_effect_snapshot,
 };
 use super::stack::{
     detached_stack_snapshot_allowing, effect_resolution_context_snapshot,
@@ -45,9 +48,9 @@ use super::stack::{
 use super::{
     DeclarativeAbilityDef, Game, ReplacementEffectContext, ReplacementEffectDef, ZoneMoveCause,
     ability_origin_from_snapshot, ability_origin_snapshot, applicable_replacement_snapshot, array,
-    bool_field, card, copiable_ability_snapshot, field, parse_applicable_replacement,
-    parse_copiable_ability, parse_zone_kind, seat_value, str_field, u32_field, usize_field,
-    zone_kind_snapshot,
+    bool_field, card, copiable_ability_snapshot, field, object_characteristics_from_snapshot,
+    object_characteristics_snapshot, parse_applicable_replacement, parse_copiable_ability,
+    parse_zone_kind, seat_value, str_field, u32_field, usize_field, zone_kind_snapshot,
 };
 
 pub(super) fn decision_snapshot(
@@ -80,8 +83,15 @@ pub(super) fn decision_snapshot(
         .iter()
         .map(|origin| GameObjectId(origin.object_id))
         .collect::<Vec<_>>();
+    let options = pending
+        .observation
+        .options
+        .iter()
+        .map(|option| decision_option_snapshot(&game.catalog, option))
+        .collect::<Option<Vec<_>>>()?;
     Some(DecisionStateSnapshot {
         preference: preference_snapshot(pending.observation.preference),
+        options,
         card_origins,
         continuation: continuation_snapshot(
             game,
@@ -626,12 +636,15 @@ fn continuation_snapshot(
         } => DecisionContinuationSnapshot::SeparateIntoPiles {
             resolving_controller: resolving_controller.index(),
             subject: subject.index(),
-            items: items.iter().map(decision_option_snapshot).collect(),
+            items: items
+                .iter()
+                .map(|option| decision_option_snapshot(&game.catalog, option))
+                .collect::<Option<Vec<_>>>()?,
             on_complete: on_complete.key().to_owned(),
         },
         DecisionContinuation::ChoosePile { piles, on_complete } => {
             DecisionContinuationSnapshot::ChoosePile {
-                piles: pile_split_snapshot(piles),
+                piles: pile_split_snapshot(&game.catalog, piles)?,
                 on_complete: on_complete.key().to_owned(),
             }
         }
@@ -738,11 +751,11 @@ fn continuation_snapshot(
         } => DecisionContinuationSnapshot::Balance {
             controller: controller.index(),
             phase: balance_phase_snapshot(*phase),
-            task: balance_task_snapshot(viewer, task),
+            task: balance_task_snapshot(&game.catalog, viewer, task)?,
             remaining: remaining
                 .iter()
-                .map(|task| balance_task_snapshot(viewer, task))
-                .collect(),
+                .map(|task| balance_task_snapshot(&game.catalog, viewer, task))
+                .collect::<Option<Vec<_>>>()?,
         },
         DecisionContinuation::SearchZonesAndExileRest {
             player,
@@ -872,7 +885,8 @@ pub(super) fn parse_pending_decision(
         return Ok(None);
     };
     let state = state.ok_or("decision continuation lacks a semantic checkpoint encoding")?;
-    let observation = parse_decision_observation(visible, &state.preference)?;
+    let observation =
+        parse_decision_observation(visible, &state.preference, &state.options, &game.catalog)?;
     let continuation = parse_continuation(&state.continuation, &observation, hidden, game)?;
     Ok(Some(PendingDecision {
         observation,
@@ -883,7 +897,13 @@ pub(super) fn parse_pending_decision(
 fn parse_decision_observation(
     value: &Value,
     preference: &DecisionPreferenceSnapshot,
+    option_snapshots: &[DecisionOptionSnapshot],
+    catalog: &CardCatalog,
 ) -> Result<DecisionObservation, String> {
+    let options = array(field(value, "options")?)?;
+    if options.len() != option_snapshots.len() {
+        return Err("checkpoint decision options do not match observation".into());
+    }
     Ok(DecisionObservation {
         id: u32_field(value, "id")?,
         player: seat_value(field(value, "seat")?)?,
@@ -911,9 +931,10 @@ fn parse_decision_observation(
         minimum: usize_field(value, "minimum")?,
         maximum: usize_field(value, "maximum")?,
         cancellable: bool_field(value, "cancellable")?,
-        options: array(field(value, "options")?)?
+        options: options
             .iter()
-            .map(parse_option)
+            .zip(option_snapshots)
+            .map(|(value, snapshot)| parse_option(value, snapshot, catalog))
             .collect::<Result<Vec<_>, _>>()?,
     })
 }

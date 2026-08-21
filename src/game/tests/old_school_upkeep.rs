@@ -66,9 +66,9 @@ fn blind_obedience_competes_with_a_permanents_own_entry_replacement() {
         .options
         .iter()
         .find(|option| {
-            option
-                .card
-                .is_some_and(|(_, definition)| definition == cards::BLIND_OBEDIENCE)
+            option.card.is_some_and(|(_, characteristics)| {
+                characteristics.card_definition() == Some(cards::BLIND_OBEDIENCE)
+            })
         })
         .expect("Blind Obedience supplies one applicable replacement")
         .id;

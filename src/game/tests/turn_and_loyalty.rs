@@ -201,7 +201,7 @@ fn pithing_needle_locks_the_named_card_but_not_its_mana() {
             .options
             .iter()
             .any(|option| matches!(option.label.as_str(), "Dragon" | "Domri Rade emblem")),
-        "synthetic tokens and emblems are not legal card-name choices",
+        "created-token names and emblems are not legal card-name choices",
     );
     let factory_name = choice
         .options
@@ -316,7 +316,7 @@ fn voice_of_resurgence_makes_a_token_that_counts_the_board() {
     let token = game
         .battlefield
         .iter()
-        .find(|permanent| permanent.card.definition == cards::ELEMENTAL_TOKEN_GREEN_WHITE)
+        .find(|permanent| is_token_with(permanent, voice_elemental_token()))
         .expect("dying made a token")
         .clone();
     // The Voice is gone, so the token is the only creature: a 1/1.
@@ -331,7 +331,7 @@ fn voice_of_resurgence_makes_a_token_that_counts_the_board() {
     let token = game
         .battlefield
         .iter()
-        .find(|permanent| permanent.card.definition == cards::ELEMENTAL_TOKEN_GREEN_WHITE)
+        .find(|permanent| is_token_with(permanent, voice_elemental_token()))
         .expect("the token is still there")
         .clone();
     assert_eq!(game.power(&token), Some(3));
@@ -566,9 +566,10 @@ fn moorland_haunt_pays_with_a_creature_card_from_its_own_graveyard() {
         "and the land stayed put"
     );
     assert!(
-        game.battlefield
-            .iter()
-            .any(|permanent| permanent.card.definition == cards::SPIRIT_TOKEN_1_1_WHITE),
+        game.battlefield.iter().any(|permanent| is_token_with(
+            permanent,
+            token_with_flying(tokens::creature(&["Spirit"], &[ManaColor::White], 1, 1))
+        )),
         "and a Spirit arrived"
     );
 }
@@ -879,7 +880,10 @@ fn huntmaster_turns_on_a_quiet_turn_and_back_on_a_busy_one() {
     assert_eq!(
         game.battlefield
             .iter()
-            .filter(|permanent| permanent.card.definition == cards::WOLF_TOKEN_2_2_GREEN)
+            .filter(|permanent| is_token_with(
+                permanent,
+                tokens::creature(&["Wolf"], &[ManaColor::Green], 2, 2)
+            ))
             .count(),
         1
     );
@@ -917,7 +921,10 @@ fn huntmaster_turns_on_a_quiet_turn_and_back_on_a_busy_one() {
     assert_eq!(
         game.battlefield
             .iter()
-            .filter(|permanent| permanent.card.definition == cards::WOLF_TOKEN_2_2_GREEN)
+            .filter(|permanent| is_token_with(
+                permanent,
+                tokens::creature(&["Wolf"], &[ManaColor::Green], 2, 2)
+            ))
             .count(),
         1
     );
@@ -940,7 +947,10 @@ fn huntmaster_turns_on_a_quiet_turn_and_back_on_a_busy_one() {
     assert_eq!(
         game.battlefield
             .iter()
-            .filter(|permanent| permanent.card.definition == cards::WOLF_TOKEN_2_2_GREEN)
+            .filter(|permanent| is_token_with(
+                permanent,
+                tokens::creature(&["Wolf"], &[ManaColor::Green], 2, 2)
+            ))
             .count(),
         2
     );

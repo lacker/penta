@@ -79,7 +79,11 @@ fn attack(game: &mut Game, arcanist: GameObjectId, wanted: Option<CardDefinition
     let option = decision
         .options
         .iter()
-        .find(|option| option.card.is_some_and(|(_, found)| found == wanted))
+        .find(|option| {
+            option
+                .card
+                .is_some_and(|(_, found)| found.card_definition() == Some(wanted))
+        })
         .unwrap_or_else(|| panic!("{wanted:?} is a legal target"))
         .id;
     game.apply(

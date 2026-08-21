@@ -3,22 +3,21 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, CardArt, CardRules, CardSet, DiscardFollowUpDef, DiscardSelectionDef, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, ValueDef, cards,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, ValueDef, abilities, cards,
 };
 use crate::mana_cost;
 
 /// A Spirit for every card type the discard turned up. Every discarded card
 /// is counted, so the predicate is anything at all; what the value counts is
 /// the types between them rather than the cards.
-static SPIRITS_FOR_THE_TYPES: EffectDef = EffectDef::CreateToken {
-    token: cards::SPIRIT_TOKEN_1_1_WHITE,
-    controller: None,
-    count: ValueDef::MatchedCardTypes,
-    tapped: false,
-    attacking: false,
-    counters: None,
-    created: None,
-};
+static SPIRITS_FOR_THE_TYPES: EffectDef =
+    EffectDef::create_creature_token(&["Spirit"], &[ManaColor::White], 1, 1)
+        .with_abilities(&[abilities::flying()])
+        .with_art(CardArt::new(
+            "6bee4081-5d74-4cc2-ba2f-887bc8799513",
+            "Kim Sokol",
+        ))
+        .with_count(ValueDef::MatchedCardTypes);
 
 static EPIPHANY_DISCARD: DiscardFollowUpDef = DiscardFollowUpDef {
     counted: ObjectPredicateDef::Any,

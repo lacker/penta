@@ -386,14 +386,17 @@ fn copy_artifact_copies_an_artifact_creature() {
         .unwrap();
     assert_eq!(
         copied.copy_effect.as_ref().map(|copy| copy.base),
-        Some((cards::TETRAVUS, CardPartId::PRIMARY))
+        Some(ObjectCharacteristics::card(
+            cards::TETRAVUS,
+            CardPartId::PRIMARY,
+        ))
     );
     assert_eq!(copied.presented, CardPartId::PRIMARY);
     assert_eq!(
         game.effective_rules(copied),
         game.catalog
             .get(cards::TETRAVUS)
-            .map(|definition| &definition.rules),
+            .map(|definition| definition.rules),
     );
     let copied_types = game.permanent_types(copied).unwrap();
     assert!(copied_types.contains(CardType::Artifact));
@@ -404,6 +407,66 @@ fn copy_artifact_copies_an_artifact_creature() {
     );
     assert_eq!(game.power(copied), Some(4));
     assert!(game.has_flying(copied));
+}
+
+#[test]
+fn token_nature_is_independent_from_the_characteristics_being_copied() {
+    let mut game = ready_game();
+    game.battlefield.clear();
+
+    game.create_token_copy(
+        PlayerId::One,
+        copied_characteristics(cards::SERRA_ANGEL),
+        None,
+        CardPartId::PRIMARY,
+    );
+    drain_pending(&mut game);
+    let card_copy_token = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.definition.is_token())
+        .expect("the card-characteristics copy arrived as a token");
+    assert_eq!(
+        Game::effective_rules_source(card_copy_token),
+        ObjectCharacteristics::card(cards::SERRA_ANGEL, CardPartId::PRIMARY),
+    );
+    assert_eq!(
+        (game.power(card_copy_token), game.toughness(card_copy_token)),
+        (Some(4), Some(4))
+    );
+    let token_id = card_copy_token.card.id;
+    game.return_permanent_to_hand(token_id);
+    assert!(
+        game.players[PlayerId::One.index()].hand.is_empty(),
+        "a token copying a card still ceases instead of becoming a card in hand",
+    );
+
+    let food = token_permanent(10_100, tokens::food(), PlayerId::Two);
+    let food_id = food.card.id;
+    game.battlefield.push(food);
+    let copy = card(10_101, cards::COPY_ARTIFACT, PlayerId::One);
+    game.players[PlayerId::One.index()].hand.push(copy.clone());
+    game.players[PlayerId::One.index()].mana_pool.blue = 1;
+    game.players[PlayerId::One.index()].mana_pool.colorless = 1;
+    resolve_copy_artifact(&mut game, copy.id, food_id);
+
+    let token_characteristics_copy = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.definition == cards::COPY_ARTIFACT)
+        .expect("Copy Artifact resolved as its printed card object");
+    assert!(!token_characteristics_copy.card.definition.is_token());
+    assert_eq!(
+        token_characteristics_copy
+            .copy_effect
+            .as_ref()
+            .map(|copy| copy.base),
+        Some(ObjectCharacteristics::token(
+            tokens::food(),
+            CardPartId::PRIMARY,
+        )),
+        "a card can copy inline token characteristics without becoming a token",
+    );
 }
 
 #[test]
@@ -444,14 +507,14 @@ fn copy_artifact_resolves_a_copied_icy_manipulator_ability_from_its_frozen_origi
     )
     .unwrap();
     assert_eq!(game.stack.len(), 1);
-    assert_eq!(game.stack[0].card.definition, cards::ICY_MANIPULATOR);
+    assert_eq!(game.stack[0].card.definition, ObjectKind::Ability);
     assert_eq!(
         game.stack[0].ability_origin(),
         Some(primary_ability(cards::ICY_MANIPULATOR))
     );
     assert_eq!(
-        game.observe(PlayerId::One).stack[0].definition,
-        cards::ICY_MANIPULATOR,
+        game.observe(PlayerId::One).stack[0].characteristics,
+        ObjectCharacteristics::card(cards::ICY_MANIPULATOR, CardPartId::PRIMARY),
         "stack presentation follows the frozen copied ability definition",
     );
 
@@ -622,6 +685,10 @@ fn separate_grant_sites_receive_distinct_structural_origins() {
         .filter_map(|effective| match effective.origin {
             AbilityOrigin::Granted { .. } => Some(effective.origin),
             AbilityOrigin::Printed { .. }
+            | AbilityOrigin::Token { .. }
+            | AbilityOrigin::Emblem { .. }
+            | AbilityOrigin::TokenGranted { .. }
+            | AbilityOrigin::EmblemGranted { .. }
             | AbilityOrigin::IntrinsicBasicLand(_)
             | AbilityOrigin::IntrinsicCounter(_) => None,
         })
@@ -702,6 +769,10 @@ fn a_nonmatching_grant_site_still_advances_the_structural_origin() {
         .filter_map(|effective| match effective.origin {
             AbilityOrigin::Granted { .. } => Some(effective.origin),
             AbilityOrigin::Printed { .. }
+            | AbilityOrigin::Token { .. }
+            | AbilityOrigin::Emblem { .. }
+            | AbilityOrigin::TokenGranted { .. }
+            | AbilityOrigin::EmblemGranted { .. }
             | AbilityOrigin::IntrinsicBasicLand(_)
             | AbilityOrigin::IntrinsicCounter(_) => None,
         })
@@ -768,6 +839,10 @@ fn nonmatching_composite_grant_sites_still_advance_structural_origins() {
         .filter_map(|effective| match effective.origin {
             AbilityOrigin::Granted { .. } => Some(effective.origin),
             AbilityOrigin::Printed { .. }
+            | AbilityOrigin::Token { .. }
+            | AbilityOrigin::Emblem { .. }
+            | AbilityOrigin::TokenGranted { .. }
+            | AbilityOrigin::EmblemGranted { .. }
             | AbilityOrigin::IntrinsicBasicLand(_)
             | AbilityOrigin::IntrinsicCounter(_) => None,
         })
@@ -891,6 +966,10 @@ pub(super) fn sole_granted_origin(game: &Game, receiver: CardInstanceId) -> Abil
         .find_map(|effective| match effective.origin {
             AbilityOrigin::Granted { .. } => Some(effective.origin),
             AbilityOrigin::Printed { .. }
+            | AbilityOrigin::Token { .. }
+            | AbilityOrigin::Emblem { .. }
+            | AbilityOrigin::TokenGranted { .. }
+            | AbilityOrigin::EmblemGranted { .. }
             | AbilityOrigin::IntrinsicBasicLand(_)
             | AbilityOrigin::IntrinsicCounter(_) => None,
         })

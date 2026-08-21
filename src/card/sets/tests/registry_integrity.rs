@@ -9,9 +9,9 @@ fn format_sets_and_card_records_have_catalog_modules() {
         .chain(Format::IsdDgmStandard.rules().allowed_sets)
         .copied()
         .collect::<Vec<_>>();
-    // Tokens are registered like a set so a client can resolve one by
-    // definition, but they are deliberately in no format's card pool, so
-    // they are not part of this correspondence.
+    // Synthetic face-down presentation is registered like a set so a client
+    // can resolve it, but it is deliberately in no format's card pool, so it
+    // is not part of this correspondence.
     let all_registered_sets = SET_MODULES
         .iter()
         .map(|module| module.set)
@@ -56,36 +56,58 @@ fn format_sets_and_card_records_have_catalog_modules() {
 
 #[test]
 fn built_in_records_have_unique_identity() {
+    const RETIRED_VIRTUAL_OBJECT_IDS: &[u16] = &[
+        245, 246, 247, 249, 254, 255, 256, 257, 258, 259, 260, 538, 539, 540, 602, 603, 676, 677,
+        678, 679, 840, 841, 842, 963, 964, 1051, 1052, 1053, 1143, 1236, 1237, 1238, 1239, 1350,
+        1351, 1481, 1561, 1701, 1705, 1708, 1791, 1893, 2121, 2147, 2173, 2198, 2205, 2210, 2214,
+        2216, 2218, 2224, 2231, 2246, 2249, 2257, 2262, 2281, 2287, 2293, 2295, 2297,
+    ];
+
     let records = SET_MODULES
         .iter()
         .flat_map(|module| module.cards.iter().copied())
         .collect::<Vec<_>>();
-    let mut ids = records.iter().map(|record| record.id).collect::<Vec<_>>();
-    ids.sort_unstable();
-    let expected = (1..=records.len())
-        .map(|raw| {
-            CardDefinitionId(
-                u16::try_from(raw).expect("the built-in catalog must fit its definition ID type"),
-            )
-        })
-        .collect::<Vec<_>>();
     assert_eq!(
-        ids, expected,
-        "definition IDs must remain dense until deterministic IDs replace them",
+        records
+            .iter()
+            .map(|record| record.id)
+            .collect::<HashSet<_>>()
+            .len(),
+        records.len(),
+        "definition IDs must remain globally unique",
     );
-    // Names identify the cards a decklist can name. Tokens are not among
-    // them, and Magic prints several that share a name.
-    let deck_legal = records
-        .iter()
-        .filter(|record| record.debut_set != CardSet::Token)
-        .collect::<Vec<_>>();
+    for retired in RETIRED_VIRTUAL_OBJECT_IDS {
+        assert!(
+            records
+                .iter()
+                .all(|record| record.id != CardDefinitionId(*retired)),
+            "retired virtual-object definition ID {retired} must remain a tombstone",
+        );
+    }
     assert_eq!(
-        deck_legal
+        records
             .iter()
             .map(|record| record.name)
             .collect::<HashSet<_>>()
             .len(),
-        deck_legal.len()
+        records.len(),
+        "every catalog definition name must remain globally unique",
+    );
+}
+
+#[test]
+fn created_token_characteristics_are_not_card_catalog_definitions() {
+    let synthetic_names = SET_MODULES
+        .iter()
+        .flat_map(|module| module.cards.iter().copied())
+        .filter(|record| record.debut_set == CardSet::Token)
+        .map(|record| record.name)
+        .collect::<HashSet<_>>();
+
+    assert_eq!(
+        synthetic_names,
+        HashSet::from(["Face-down creature"]),
+        "only independently addressable face-down presentation belongs in the catalog",
     );
 }
 

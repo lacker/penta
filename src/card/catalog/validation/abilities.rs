@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use super::program_context::validate_ability_effect_context;
 use super::targeting::{validate_ability_program_targets, validate_ability_trigger_event};
 use crate::card::catalog::{
@@ -6,8 +8,9 @@ use crate::card::catalog::{
 use crate::card::{
     AbilityDef, AbilityOperationDef, AbilityProcedureDef, AbilityProgramDef, AppliedEffectDef,
     CardDefinition, CharacteristicOperationDef, DeclarativeAbilityDef, EffectDef,
-    EffectExecutionDef, EffectRecipientDef, ImplementationStatus, ReplacementEffectDef,
-    ReplacementEventDef, SpellForm, ZoneKind, ZoneMoveCauseDef,
+    EffectExecutionDef, EffectRecipientDef, EmblemCharacteristics, ImplementationStatus,
+    ReplacementEffectDef, ReplacementEventDef, SpellForm, TokenCharacteristics, ZoneKind,
+    ZoneMoveCauseDef,
 };
 use crate::{AbilityId, AlternativeCostId, CardPartId, GrantId, ModeId};
 
@@ -83,6 +86,26 @@ pub(super) fn validate_abilities(
     part: CardPartId,
     abilities: &[AbilityDef],
 ) -> Result<(), CatalogError> {
+    validate_abilities_with_created_virtuals(
+        definition,
+        part,
+        abilities,
+        &mut CreatedVirtualObjects::default(),
+    )
+}
+
+#[derive(Default)]
+struct CreatedVirtualObjects {
+    tokens: HashSet<TokenCharacteristics>,
+    emblems: HashSet<EmblemCharacteristics>,
+}
+
+fn validate_abilities_with_created_virtuals(
+    definition: &CardDefinition,
+    part: CardPartId,
+    abilities: &[AbilityDef],
+    created: &mut CreatedVirtualObjects,
+) -> Result<(), CatalogError> {
     if abilities.len() > usize::from(u8::MAX) + 1 {
         return Err(CatalogError::TooManyAbilities {
             definition: definition.id,
@@ -105,7 +128,7 @@ pub(super) fn validate_abilities(
     for (index, ability) in abilities.iter().enumerate() {
         let ability_id = AbilityId::from_index(index)
             .expect("the ability count was validated before assigning positional IDs");
-        validate_attached_ability(definition, part, ability_id, ability)?;
+        validate_attached_ability(definition, part, ability_id, ability, created)?;
     }
     Ok(())
 }
@@ -115,6 +138,7 @@ fn validate_attached_ability(
     part: CardPartId,
     ability_id: AbilityId,
     ability: &AbilityDef,
+    created: &mut CreatedVirtualObjects,
 ) -> Result<(), CatalogError> {
     if let Err(problem) = validate_ability_definition(ability) {
         return Err(top_level_ability_error(
@@ -204,7 +228,14 @@ fn validate_attached_ability(
             }
         }
     }
-    validate_granted_abilities(definition, part, ability_id, ability, &mut Vec::new())
+    validate_granted_abilities(
+        definition,
+        part,
+        ability_id,
+        ability,
+        &mut Vec::new(),
+        created,
+    )
 }
 
 fn validate_granted_abilities(
@@ -213,9 +244,12 @@ fn validate_granted_abilities(
     outer_ability: AbilityId,
     ability: &AbilityDef,
     path: &mut Vec<GrantId>,
+    created: &mut CreatedVirtualObjects,
 ) -> Result<(), CatalogError> {
     let mut grants = Vec::new();
-    collect_direct_ability_grants(ability, &mut grants);
+    let mut tokens = Vec::new();
+    let mut emblems = Vec::new();
+    collect_direct_ability_contents(ability, &mut grants, &mut tokens, &mut emblems);
     for (index, granted) in grants.into_iter().enumerate() {
         let grant = GrantId::from_index(index)
             .expect("the containing ability's grant-site capacity was validated");
@@ -239,20 +273,88 @@ fn validate_granted_abilities(
                 problem,
             });
         }
-        validate_granted_abilities(definition, part, outer_ability, granted, path)?;
+        validate_granted_abilities(definition, part, outer_ability, granted, path, created)?;
         path.pop();
     }
+    for token in tokens {
+        validate_created_token(definition, token, created)?;
+    }
+    for emblem in emblems {
+        validate_created_emblem(definition, emblem, created)?;
+    }
     Ok(())
+}
+
+fn validate_created_token(
+    definition: &CardDefinition,
+    token: TokenCharacteristics,
+    created: &mut CreatedVirtualObjects,
+) -> Result<(), CatalogError> {
+    if !created.tokens.insert(token.semantic_identity()) {
+        return Ok(());
+    }
+    let primary = token.primary_part();
+    validate_created_token_part(definition, &primary, created)?;
+    if let Some(back) = token
+        .other_face(primary.id)
+        .and_then(|part| token.part(part))
+    {
+        validate_created_token_part(definition, &back, created)?;
+    }
+    Ok(())
+}
+
+fn validate_created_token_part(
+    definition: &CardDefinition,
+    part: &crate::card::TokenPart,
+    created: &mut CreatedVirtualObjects,
+) -> Result<(), CatalogError> {
+    let rules = part.rules();
+    if let Some(explanation) = rules.coherence_error() {
+        return Err(CatalogError::IncoherentCardRules {
+            definition: definition.id,
+            part: part.id,
+            explanation,
+        });
+    }
+    validate_abilities_with_created_virtuals(definition, part.id, rules.ability_clauses(), created)
+}
+
+fn validate_created_emblem(
+    definition: &CardDefinition,
+    emblem: EmblemCharacteristics,
+    created: &mut CreatedVirtualObjects,
+) -> Result<(), CatalogError> {
+    if !created.emblems.insert(emblem) {
+        return Ok(());
+    }
+    validate_abilities_with_created_virtuals(
+        definition,
+        CardPartId::PRIMARY,
+        emblem.abilities(),
+        created,
+    )
 }
 
 /// Collects the grant sites owned directly by one ability clause. Modal spell
 /// branches are part of their parent clause's effect tree, so their sites
 /// continue the same [`GrantId`] sequence in printed mode order.
-fn collect_direct_ability_grants<'a>(ability: &'a AbilityDef, grants: &mut Vec<&'a AbilityDef>) {
-    collect_program_ability_grants(ability.effect.definition, grants);
+fn collect_direct_ability_contents<'a>(
+    ability: &'a AbilityDef,
+    grants: &mut Vec<&'a AbilityDef>,
+    tokens: &mut Vec<TokenCharacteristics>,
+    emblems: &mut Vec<EmblemCharacteristics>,
+) {
+    collect_program_ability_grants(ability.effect.definition, grants, tokens, emblems);
+    if let Some(behavior) = ability.effect.custom_behavior() {
+        tokens.extend(crate::card::tokens::custom_created_tokens(behavior));
+    }
     if let Some(modal) = ability.modal() {
         for mode in modal.modes {
-            collect_program_ability_grants(mode.effect.definition, grants);
+            collect_program_ability_grants(mode.effect.definition, grants, tokens, emblems);
+            if let Some(behavior) = mode.effect.custom_behavior() {
+                tokens.extend(crate::card::tokens::custom_created_tokens(behavior));
+            }
         }
     }
 }
@@ -687,3 +789,75 @@ include!("abilities/top_level_errors.rs");
 // grants them. Kept beside the validation above rather than in it: the
 // walk is one arm per effect variant and says nothing about validity.
 include!("abilities/ability_grants.rs");
+
+#[cfg(test)]
+mod custom_token_tests {
+    use super::*;
+
+    #[test]
+    fn tetravite_enters_the_creator_owned_validation_walk() {
+        let catalog = crate::poc::catalog().expect("the catalog builds");
+        let definition = catalog
+            .get(crate::card::cards::TETRAVUS)
+            .expect("Tetravus is cataloged");
+        let creator = definition
+            .part(CardPartId::PRIMARY)
+            .expect("Tetravus has its primary part")
+            .rules
+            .ability_clauses()
+            .iter()
+            .find(|ability| {
+                ability.effect.custom_behavior() == Some(crate::card::CardBehavior::TetravusDetach)
+            })
+            .expect("Tetravus has its detach creator");
+        let mut grants = Vec::new();
+        let mut tokens = Vec::new();
+        let mut emblems = Vec::new();
+        collect_direct_ability_contents(creator, &mut grants, &mut tokens, &mut emblems);
+
+        assert!(tokens.iter().any(|token| token.semantic_identity()
+            == crate::card::tokens::tetravite().semantic_identity()));
+        let mut validated = CreatedVirtualObjects::default();
+        for token in tokens {
+            validate_created_token(definition, token, &mut validated)
+                .expect("the registered Tetravite receives catalog validation");
+        }
+    }
+
+    #[test]
+    fn creator_owned_emblems_enter_recursive_validation() {
+        static INVALID_EMBLEM: EmblemCharacteristics = EmblemCharacteristics::new(
+            "Invalid emblem",
+            &[
+                AbilityDef::spell("First spell.", EffectDef::None),
+                AbilityDef::spell("Second spell.", EffectDef::None),
+            ],
+        );
+
+        let catalog = crate::poc::catalog().expect("the catalog builds");
+        let definition = catalog
+            .get(crate::card::cards::DOMRI_RADE)
+            .expect("Domri is cataloged");
+        let creator = definition
+            .part(CardPartId::PRIMARY)
+            .and_then(|part| part.rules.ability(AbilityId(2)))
+            .expect("Domri has an emblem-creating ultimate");
+        let mut grants = Vec::new();
+        let mut tokens = Vec::new();
+        let mut emblems = Vec::new();
+        collect_direct_ability_contents(creator, &mut grants, &mut tokens, &mut emblems);
+        assert!(
+            emblems
+                .iter()
+                .any(|emblem| emblem.name() == "Domri Rade emblem"),
+            "the creator-owned emblem is part of the recursive validation walk",
+        );
+        let error = validate_created_emblem(
+            definition,
+            INVALID_EMBLEM,
+            &mut CreatedVirtualObjects::default(),
+        )
+        .expect_err("invalid emblem-owned abilities are rejected");
+        assert!(matches!(error, CatalogError::MultipleSpellAbilities { .. }));
+    }
+}

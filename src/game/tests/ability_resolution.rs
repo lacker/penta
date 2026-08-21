@@ -687,12 +687,12 @@ fn resolving_ability_masks_an_illegal_target_in_each_frozen_slot() {
     game.stack.push(StackObject {
         id: StackObjectId(20_000),
         kind: StackObjectKind::TriggeredAbility,
-        card: card(20_000, cards::ANKH_OF_MISHRA, PlayerId::One),
+        card: card(20_000, cards::ANKH_OF_MISHRA, PlayerId::One).into(),
         source: Some(source),
         ability: Some(StackAbilityPayload {
             origin: primary_ability(cards::ANKH_OF_MISHRA),
             definition: None,
-            presentation_definition: cards::ANKH_OF_MISHRA,
+            presentation: ObjectCharacteristics::card(cards::ANKH_OF_MISHRA, CardPartId::PRIMARY),
             text: Some("Test two-slot trigger"),
             target_defs: TARGETS.to_vec(),
             targets: vec![

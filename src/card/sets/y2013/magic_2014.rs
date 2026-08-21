@@ -20,7 +20,7 @@ use crate::card::{
     ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, RoundingDef,
     SacrificedAmountDef, ScaledValueDef, TargetConditionDef, TopCardSelectionDef,
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities, cards,
+    abilities, cards, tokens,
 };
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -308,15 +308,12 @@ pub(in crate::card::sets) static HIVE_STIRRINGS: CardRecord = CardRecord::new(
     CardSet::Magic2014,
     CardRules::new_sorcery(mana_cost!("{2}{W}")).with_ability(AbilityDef::spell(
         "Create two 1/1 colorless Sliver creature tokens.",
-        EffectDef::CreateToken {
-            token: cards::SLIVER_TOKEN_1_1_COLORLESS,
-            controller: None,
-            count: ValueDef::Constant(2),
-            tapped: false,
-            attacking: false,
-            counters: None,
-            created: None,
-        },
+        EffectDef::create_creature_token(&["Sliver"], &[], 1, 1)
+            .with_art(CardArt::new(
+                "68353af0-9cd0-43c0-9b39-8f904c618e3a",
+                "Igor Kieryluk",
+            ))
+            .with_amount(2),
     )),
 );
 
@@ -1299,15 +1296,13 @@ pub(in crate::card::sets) static LIFEBANE_ZOMBIE: CardRecord = CardRecord::new(
     ]),
 );
 
-static TAPPED_ZOMBIE: EffectDef = EffectDef::CreateToken {
-    token: cards::ZOMBIE_TOKEN_2_2_BLACK,
-    controller: None,
-    count: ValueDef::Constant(1),
-    tapped: true,
-    attacking: false,
-    counters: None,
-    created: None,
-};
+static TAPPED_ZOMBIE: EffectDef =
+    EffectDef::create_creature_token(&["Zombie"], &[ManaColor::Black], 2, 2)
+        .with_art(CardArt::new(
+            "07d82a8d-4c57-401f-92c3-8fd9ba20174a",
+            "Lucas Graciano",
+        ))
+        .entering_tapped();
 
 static LILIANAS_REAVER_STRIKE: [EffectDef; 2] = [
     EffectDef::Discard {
@@ -1811,14 +1806,12 @@ pub(in crate::card::sets) static DRAGON_EGG: CardRecord = CardRecord::new(
         AbilityDef::triggered(
             "When this creature dies, create a 2/2 red Dragon creature token with flying and \"{R}: This token gets +1/+0 until end of turn.\"",
             TriggerEventDef::zone_changed(ObjectPredicateDef::Source, Some(ZoneKind::Battlefield), Some(ZoneKind::Graveyard)),
-            EffectDef::CreateToken {
-                token: cards::DRAGON_TOKEN_2_2_RED,
-                controller: None,
-                count: ValueDef::Constant(1),
-                tapped: false,
-                attacking: false,
-            counters: None,
-            created: None,},
+            EffectDef::create_creature_token(&["Dragon"], &[ManaColor::Red], 2, 2)
+                .with_abilities(&[abilities::flying(), tokens::dragon_pump()])
+                .with_art(CardArt::new(
+                    "0efaa5b5-984d-4eff-81b6-9b4989f149eb",
+                    "Jack Wang",
+                )),
         ),
     ]),
 );
@@ -2188,14 +2181,7 @@ pub(in crate::card::sets) static YOUNG_PYROMANCER: CardRecord = CardRecord::new(
                     ObjectPredicateDef::HasType(CardType::Sorcery),
                 ]),
             ])),
-            EffectDef::CreateToken {
-                token: cards::ELEMENTAL_TOKEN_1_1_RED,
-                controller: None,
-                count: ValueDef::Constant(1),
-                tapped: false,
-                attacking: false,
-            counters: None,
-            created: None,},
+            EffectDef::create_creature_token(&["Elemental"], &[ManaColor::Red], 1, 1).with_art(CardArt::new("fc7315d5-26d9-4ecc-bca2-b75c6fb12597", "Winona Nelson")),
         ),
     ),
 );
@@ -2339,15 +2325,12 @@ pub(in crate::card::sets) static HOWL_OF_THE_NIGHT_PACK: CardRecord = CardRecord
     CardSet::Magic2014,
     CardRules::new_sorcery(mana_cost!("{6}{G}")).with_ability(AbilityDef::spell(
         "Create a 2/2 green Wolf creature token for each Forest you control.",
-        EffectDef::CreateToken {
-            token: cards::WOLF_TOKEN_2_2_GREEN,
-            controller: None,
-            count: ValueDef::CountMatchingObjects(&M14_FORESTS_YOU_CONTROL),
-            tapped: false,
-            attacking: false,
-            counters: None,
-            created: None,
-        },
+        EffectDef::create_creature_token(&["Wolf"], &[ManaColor::Green], 2, 2)
+            .with_art(CardArt::new(
+                "309f1bd4-78af-4722-9d45-b5f40b001570",
+                "Lars Grant-West",
+            ))
+            .with_count(ValueDef::CountMatchingObjects(&M14_FORESTS_YOU_CONTROL)),
     )),
 );
 
@@ -2560,14 +2543,7 @@ pub(in crate::card::sets) static PRIMEVAL_BOUNTY: CardRecord = CardRecord::new(
                 ObjectPredicateDef::HasType(CardType::Creature),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
-            EffectDef::CreateToken {
-                token: cards::BEAST_TOKEN_3_3_GREEN,
-                controller: None,
-                count: ValueDef::Constant(1),
-                tapped: false,
-                attacking: false,
-            counters: None,
-            created: None,},
+            EffectDef::create_creature_token(&["Beast"], &[ManaColor::Green], 3, 3).with_art(CardArt::new("a8fc2dc9-40df-46d8-98c0-ca4919bd5524", "John Donahue")),
         ),
         AbilityDef::triggered_with_targets("Whenever you cast a noncreature spell, put three +1/+1 counters on target creature you control.", TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::NoncreatureSpell,
@@ -2699,14 +2675,7 @@ pub(in crate::card::sets) static SPOREMOUND: CardRecord = CardRecord::new(
                     ObjectPredicateDef::HasType(CardType::Land),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ]), None, Some(ZoneKind::Battlefield)),
-            EffectDef::CreateToken {
-                token: cards::SAPROLING_TOKEN_1_1_GREEN,
-                controller: None,
-                count: ValueDef::Constant(1),
-                tapped: false,
-                attacking: false,
-            counters: None,
-            created: None,},
+            EffectDef::create_creature_token(&["Saproling"], &[ManaColor::Green], 1, 1).with_art(CardArt::new("afd66b96-eccb-44ce-9125-063d34af2ff8", "Brad Rigney")),
         ),
     ),
 );

@@ -2,9 +2,9 @@ use crate::card::{ReplacementAbilityDef, ReplacementEffectDef, ZoneKind};
 use crate::ids::{CardDefinitionId, GameObjectId, PlayerId};
 
 use super::{
-    AbilitySourceRef, BalancePhase, BalanceTask, CardInstance, EffectResolutionContext,
-    FrozenActivatedAbility, Game, Mana, ManaAbilityActivation, Permanent, SacrificeFollowup,
-    ScopedEffect, StackObject, Target, TargetSelection,
+    AbilitySourceRef, BalancePhase, BalanceTask, EffectResolutionContext, FrozenActivatedAbility,
+    Game, Mana, ManaAbilityActivation, ObjectCharacteristics, ObjectInstance, Permanent,
+    SacrificeFollowup, ScopedEffect, StackObject, Target, TargetSelection,
 };
 
 /// One replacement effect that currently applies to a prospective event.
@@ -21,7 +21,7 @@ pub(super) struct ReplacementEffectContext {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) struct ApplicableReplacement {
     pub(super) context: ReplacementEffectContext,
-    pub(super) definition: CardDefinitionId,
+    pub(super) presentation: ObjectCharacteristics,
     pub(super) text: &'static str,
     pub(super) optional: bool,
     pub(super) effect: ReplacementEffectDef,
@@ -40,7 +40,7 @@ pub(super) struct PendingReplacementEffect {
 pub(super) struct ApplicableZoneMoveReplacement {
     pub(super) move_index: usize,
     pub(super) context: ReplacementEffectContext,
-    pub(super) definition: CardDefinitionId,
+    pub(super) presentation: ObjectCharacteristics,
     pub(super) text: &'static str,
     pub(super) effect: ReplacementEffectDef,
 }
@@ -65,7 +65,7 @@ pub(super) struct PendingBattlefieldExitMove {
 pub(super) struct FrozenZoneMoveReplacement {
     pub(super) source: AbilitySourceRef,
     pub(super) controller: PlayerId,
-    pub(super) definition: CardDefinitionId,
+    pub(super) presentation: ObjectCharacteristics,
     pub(super) text: &'static str,
     pub(super) replacement: ReplacementAbilityDef,
     pub(super) effect: ReplacementEffectDef,
@@ -114,7 +114,7 @@ pub(super) enum BattlefieldExitCompletion {
     },
     CompleteActivatedAbility {
         source: GameObjectId,
-        source_card: CardInstance,
+        source_card: ObjectInstance,
         controller: PlayerId,
         frozen: FrozenActivatedAbility,
         targets: Vec<TargetSelection>,

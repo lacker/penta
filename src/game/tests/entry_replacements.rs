@@ -210,7 +210,10 @@ fn shock_land_payment_or_decline_is_applied_before_ankh_observes_the_entry() {
                 matches!(
                     event,
                     GameEvent::AbilityTriggered {
-                        definition: cards::ANKH_OF_MISHRA,
+                        presentation: ObjectCharacteristics::Card {
+                            definition: cards::ANKH_OF_MISHRA,
+                            ..
+                        },
                         ..
                     }
                 )

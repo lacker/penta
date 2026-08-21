@@ -7,8 +7,9 @@
 //! and resumes once the pile is exiled and linked to it.
 
 use super::super::{
-    CardDefinitionId, DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility,
-    DecisionZone, Game, GameObjectId, ObjectPredicateDef, PlayerId, ZoneKind, remove_card,
+    CardDefinitionId, CardPartId, DecisionContinuation, DecisionOption, DecisionPreference,
+    DecisionVisibility, DecisionZone, Game, GameObjectId, ObjectCharacteristics,
+    ObjectPredicateDef, PlayerId, ZoneKind, remove_card,
 };
 
 impl Game {
@@ -43,7 +44,10 @@ impl Game {
                     .catalog
                     .get(*definition)
                     .map_or_else(|| "Unknown card".into(), |card| card.name.clone()),
-                card: Some((*card, *definition)),
+                card: Some((
+                    *card,
+                    ObjectCharacteristics::card(*definition, CardPartId::PRIMARY),
+                )),
                 members: Vec::new(),
                 ability_text: None,
                 zone: DecisionZone::Graveyard,

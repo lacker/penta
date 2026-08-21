@@ -227,7 +227,12 @@ fn nettlecyst_arrives_with_a_germ_that_it_alone_keeps_alive() {
     let germ = game
         .battlefield
         .iter()
-        .find(|permanent| permanent.card.definition == cards::GERM_TOKEN_0_0_BLACK)
+        .find(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Phyrexian", "Germ"], &[ManaColor::Black], 0, 0),
+            )
+        })
         .expect("living weapon made a Germ and the Germ survived");
     assert_eq!(
         (game.power(germ), game.toughness(germ)),
@@ -244,7 +249,12 @@ fn nettlecyst_arrives_with_a_germ_that_it_alone_keeps_alive() {
     let germ = game
         .battlefield
         .iter()
-        .find(|permanent| permanent.card.definition == cards::GERM_TOKEN_0_0_BLACK)
+        .find(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Phyrexian", "Germ"], &[ManaColor::Black], 0, 0),
+            )
+        })
         .expect("still there");
     assert_eq!((game.power(germ), game.toughness(germ)), (Some(3), Some(3)));
 
@@ -254,7 +264,12 @@ fn nettlecyst_arrives_with_a_germ_that_it_alone_keeps_alive() {
     let germ = game
         .battlefield
         .iter()
-        .find(|permanent| permanent.card.definition == cards::GERM_TOKEN_0_0_BLACK)
+        .find(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Phyrexian", "Germ"], &[ManaColor::Black], 0, 0),
+            )
+        })
         .expect("still there");
     assert_eq!((game.power(germ), game.toughness(germ)), (Some(3), Some(3)));
 }
@@ -288,9 +303,10 @@ fn moving_nettlecyst_takes_the_bonus_with_it() {
         (Some(3), Some(3))
     );
     assert!(
-        game.battlefield
-            .iter()
-            .all(|permanent| permanent.card.definition != cards::GERM_TOKEN_0_0_BLACK),
+        game.battlefield.iter().all(|permanent| !is_token_with(
+            permanent,
+            tokens::creature(&["Phyrexian", "Germ"], &[ManaColor::Black], 0, 0)
+        )),
         "the Germ is a 0/0 once the Equipment leaves it",
     );
 }

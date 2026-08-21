@@ -9,7 +9,7 @@ use crate::card::{
     DrawEventMatcherDef, EffectDef, EffectRecipientDef, ManaColor, ManaRestrictionDef,
     ManaSpendEffectDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, abilities, cards,
+    TriggerEventDef, ValueDef, ZoneKind, abilities, cards, tokens,
 };
 use crate::mana_cost;
 use crate::{ObjectSetBindingIndex, TargetIndex};
@@ -122,15 +122,10 @@ static NO_ARMY_YOU_CONTROL: TriggerConditionDef = TriggerConditionDef::ObjectCou
     amount: 0,
 };
 
-static AMASS_MAKES_AN_ARMY: EffectDef = EffectDef::CreateToken {
-    token: cards::ORC_ARMY_TOKEN_0_0_BLACK,
-    controller: None,
-    count: ValueDef::Constant(1),
-    tapped: false,
-    attacking: false,
-    counters: None,
-    created: None,
-};
+static AMASS_MAKES_AN_ARMY: EffectDef =
+    EffectDef::create_creature_token(&["Orc", "Army"], &[ManaColor::Black], 0, 0).with_art(
+        CardArt::new("6943f966-fd21-427c-a13f-44727edcaa4b", "Veli Nyström"),
+    );
 
 static AMASSED_ARMY: ObjectSetBindingIndex = ObjectSetBindingIndex::PRIMARY;
 
@@ -244,14 +239,10 @@ pub(in crate::card::sets) static GENEROUS_ENT: CardRecord = CardRecord::new(
                 None,
                 Some(ZoneKind::Battlefield),
             ),
-            EffectDef::CreateToken {
-                token: cards::FOOD_TOKEN,
-                controller: None,
-                count: ValueDef::Constant(1),
-                tapped: false,
-                attacking: false,
-            counters: None,
-            created: None,},
+            EffectDef::create_token(tokens::food()).with_art(CardArt::new(
+                "4a029bdc-92e3-4d85-8af5-e33429a5f017",
+                "L J Koh",
+            )),
         ),
         // Six mana is not what this card is for. Forestcycling is: one mana
         // from hand, and the Ent becomes the land the draw did not give you.

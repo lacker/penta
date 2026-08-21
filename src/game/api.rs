@@ -1,10 +1,11 @@
 use super::{
-    AbilityDef, AbilityId, AbilityOrigin, Action, ActionError, ActivationChoices, CardBehavior,
+    AbilityDef, AbilityOrigin, Action, ActionError, ActivationChoices, CardBehavior, CardStructure,
     CardType, CharacteristicContext, CombatDamageStage, CounterKind, DecisionContinuation,
-    DecisionVisibility, EmblemObservation, Game, GameEvent, GameObjectId, GameResult,
-    KeywordAbility, ManaActivationChoices, ManaColor, Permanent, PermanentObservation, PlayerId,
-    PlayerObservation, Pregame, StackObservation, Step, WinReason, ZoneKind, combinations,
-    public_cards,
+    DecisionVisibility, DoubleFacedKind, EmblemObservation, Game, GameEvent, GameObjectId,
+    GameResult, KeywordAbility, ManaActivationChoices, ManaColor, ObjectCharacteristics,
+    ObjectKind, Permanent, PermanentObservation, PhysicalFaceObservation, PhysicalFaceSide,
+    PlayerId, PlayerObservation, Pregame, StackObservation, Step, WinReason, ZoneKind,
+    combinations, public_cards,
 };
 
 impl Game {
@@ -479,31 +480,70 @@ impl Game {
     pub(super) fn observed_emblems(&self) -> Vec<EmblemObservation> {
         self.emblems
             .iter()
-            .map(|emblem| EmblemObservation {
-                id: emblem.card.id,
-                controller: emblem.controller,
-                name: self.catalog.get(emblem.card.definition).map_or_else(
-                    || "Unknown emblem".to_owned(),
-                    |definition| definition.name.clone(),
-                ),
-                source_ability: emblem.emblem_source.unwrap_or(AbilityOrigin::Printed {
-                    definition: emblem.card.definition,
-                    part: emblem.presented,
-                    ability: AbilityId::PRIMARY,
-                }),
-                ability_texts: self
-                    .catalog
-                    .get(emblem.card.definition)
-                    .and_then(|definition| definition.part(emblem.presented))
-                    .into_iter()
-                    .flat_map(|part| part.rules.ability_clauses().iter())
-                    .map(|ability| ability.text.to_owned())
-                    .collect(),
+            .map(|emblem| {
+                let ObjectCharacteristics::Emblem { emblem: authored } =
+                    Self::effective_rules_source(emblem)
+                else {
+                    unreachable!("an emblem has creator-owned emblem characteristics")
+                };
+                EmblemObservation {
+                    id: emblem.card.id,
+                    controller: emblem.controller,
+                    name: authored.name().to_owned(),
+                    source_ability: emblem
+                        .emblem_source
+                        .expect("a created emblem records its creating ability"),
+                    ability_texts: authored
+                        .abilities()
+                        .iter()
+                        .map(|ability| ability.text.to_owned())
+                        .collect(),
+                }
             })
             .collect()
     }
 
     #[must_use]
+    /// Physical topology is public while the permanent is face up, even when
+    /// a copy effect supplies unrelated effective characteristics.
+    fn physical_face_observation(&self, permanent: &Permanent) -> Option<PhysicalFaceObservation> {
+        if permanent.face_down {
+            return None;
+        }
+        let (kind, front, back) = match permanent.card.definition {
+            ObjectKind::Card(definition) => {
+                let CardStructure::DoubleFaced { front, back, kind } =
+                    &self.catalog.get(definition)?.structure
+                else {
+                    return None;
+                };
+                (*kind, *front, *back)
+            }
+            ObjectKind::Token => {
+                if let Some(faces) = &permanent.double_faced_token_copy {
+                    (faces.kind, faces.front_part, faces.back_part)
+                } else {
+                    let token = permanent.token_characteristics?;
+                    let front = token.primary_part_id();
+                    (
+                        DoubleFacedKind::Transforming,
+                        front,
+                        token.other_face(front)?,
+                    )
+                }
+            }
+            ObjectKind::Emblem | ObjectKind::Ability => return None,
+        };
+        let side = if permanent.presented == front {
+            PhysicalFaceSide::Front
+        } else if permanent.presented == back {
+            PhysicalFaceSide::Back
+        } else {
+            return None;
+        };
+        Some(PhysicalFaceObservation { kind, side })
+    }
+
     /// One permanent as `viewer` sees it. Split out of `observe` because the
     /// per-permanent view is long on its own and reads better beside the
     /// hidden-information rule it enforces.
@@ -522,21 +562,24 @@ impl Game {
         // A face-down permanent is public information as a
         // 2/2 body and private information as a card: its
         // controller may look at it, and nobody else may.
-        let (definition, presented) = if permanent.face_down && permanent.controller != viewer {
-            (
+        let characteristics = if permanent.face_down && permanent.controller != viewer {
+            ObjectCharacteristics::card(
                 crate::card::cards::FACE_DOWN_CREATURE,
                 crate::CardPartId::PRIMARY,
             )
+        } else if permanent.face_down {
+            Self::unmasked_rules_source(permanent)
         } else {
-            (permanent.card.definition, permanent.presented)
+            Self::effective_rules_source(permanent)
         };
         PermanentObservation {
             id: permanent.card.id,
-            definition,
-            presented,
+            characteristics,
+            token: permanent.card.definition.is_token(),
             controller: permanent.controller,
             types,
             face_down: permanent.face_down,
+            physical_face: self.physical_face_observation(permanent),
             phased_out: self
                 .phased_out
                 .iter()
@@ -630,10 +673,13 @@ impl Game {
                     ability_text: object.ability_text().map(str::to_owned),
                     // A spell cast face down is a 2/2 creature spell to
                     // everyone; only its controller knows which card.
-                    definition: if object.cast_face_down && object.controller != viewer {
-                        crate::card::cards::FACE_DOWN_CREATURE
+                    characteristics: if object.cast_face_down && object.controller != viewer {
+                        ObjectCharacteristics::card(
+                            crate::card::cards::FACE_DOWN_CREATURE,
+                            crate::CardPartId::PRIMARY,
+                        )
                     } else {
-                        object.presentation_definition()
+                        object.presentation()
                     },
                     controller: object.controller,
                     counterable: self.can_be_countered(object),
@@ -667,6 +713,7 @@ impl Game {
         if let Some(permanent) = self
             .battlefield
             .iter()
+            .chain(self.emblems.iter())
             .find(|permanent| permanent.card.id == source)
         {
             return self

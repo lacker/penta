@@ -3,8 +3,9 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt,
-    CardRules, CardSet, CardSupertype, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef,
-    ObjectQueryDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, abilities, cards,
+    CardRules, CardSet, CardSupertype, CardType, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind,
+    abilities, cards,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -49,15 +50,13 @@ static ADELINE_ABILITIES: [AbilityDef; 3] = [
         "Whenever you attack, for each opponent, create a 1/1 white Human creature token that's \
          tapped and attacking that player or a planeswalker they control.",
         WHENEVER_YOU_ATTACK,
-        EffectDef::CreateToken {
-            token: cards::HUMAN_TOKEN_1_1_WHITE,
-            controller: None,
-            count: ValueDef::Constant(1),
-            tapped: true,
-            attacking: true,
-            counters: None,
-            created: None,
-        },
+        EffectDef::create_creature_token(&["Human"], &[ManaColor::White], 1, 1)
+            .with_art(CardArt::new(
+                "7d13a93a-a43d-4cf5-8300-8341f3b7f1b1",
+                "Miguel Mercado",
+            ))
+            .entering_tapped()
+            .entering_attacking(),
     ),
 ];
 

@@ -837,10 +837,13 @@ fn bloodrush_rechecks_that_its_target_is_still_attacking() {
     assert!(!game.permanent_has_executable_keyword(attacker, KeywordAbility::Trample));
     assert!(game.events.iter().any(|event| matches!(
         event,
-        GameEvent::AbilityFizzled { object, source, definition }
+        GameEvent::AbilityFizzled { object, source, presentation }
             if *object == ability_object
                 && *source == rampager_id
-                && *definition == cards::GHOR_CLAN_RAMPAGER
+                && *presentation == ObjectCharacteristics::card(
+                    cards::GHOR_CLAN_RAMPAGER,
+                    CardPartId::PRIMARY,
+                )
     )));
     assert!(!game.events.iter().any(|event| matches!(
         event,

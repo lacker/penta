@@ -9,21 +9,43 @@
  * the identity. Granted abilities likewise keep their complete provenance.
  *
  * @param {AbilityOriginMetadata | null | undefined} origin
+ * @param {number | null | undefined} [actionSource] Current object carrying
+ * the ability. Inline token clause IDs are only positional within that object.
  * @returns {string | null}
  */
-export function abilityOriginKey(origin) {
+export function abilityOriginKey(origin, actionSource) {
   if (!origin) return null;
+  const sourcePrefix = actionSource == null ? "" : `object:${actionSource}:`;
   switch (origin.kind) {
     case "printed":
-      return `printed:${origin.definition}:${origin.partId}:${origin.abilityId}`;
+      return `${sourcePrefix}printed:${origin.definition}:${origin.partId}:${origin.abilityId}`;
+    case "token":
+      return `${sourcePrefix}token:${origin.partId}:${origin.abilityId}`;
+    case "emblem":
+      return `${sourcePrefix}emblem:${origin.abilityId}`;
     case "intrinsicBasicLand":
-      return `intrinsic-basic-land:${origin.landType}`;
+      return `${sourcePrefix}intrinsic-basic-land:${origin.landType}`;
     case "granted":
       return [
-        "granted",
+        `${sourcePrefix}granted`,
         origin.source,
         origin.sourceDefinition,
         origin.sourcePartId,
+        origin.sourceAbilityId,
+        origin.grantId,
+      ].join(":");
+    case "tokenGranted":
+      return [
+        `${sourcePrefix}token-granted`,
+        origin.source,
+        origin.sourcePartId,
+        origin.sourceAbilityId,
+        origin.grantId,
+      ].join(":");
+    case "emblemGranted":
+      return [
+        `${sourcePrefix}emblem-granted`,
+        origin.source,
         origin.sourceAbilityId,
         origin.grantId,
       ].join(":");
@@ -55,7 +77,7 @@ export function buildAbilityActionGroups(actions) {
   /** @type {Map<string, {key: string, actions: Action[], targeted: Action[], targetless: Action[]}>} */
   const groups = new Map();
   for (const action of actions) {
-    const key = abilityOriginKey(action.ability);
+    const key = abilityOriginKey(action.ability, action.cardId);
     if (key === null) continue;
     let group = groups.get(key);
     if (!group) {

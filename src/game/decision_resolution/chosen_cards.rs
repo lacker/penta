@@ -38,13 +38,15 @@ impl Game {
             .collect::<Vec<_>>();
         if reveal {
             self.events.extend(selected.iter().filter_map(|option| {
-                option
-                    .card
-                    .map(|(card, definition)| GameEvent::CardRevealed {
-                        player,
-                        card,
-                        definition,
-                    })
+                option.card.and_then(|(card, characteristics)| {
+                    characteristics
+                        .card_definition()
+                        .map(|definition| GameEvent::CardRevealed {
+                            player,
+                            card,
+                            definition,
+                        })
+                })
             }));
         }
         for option in selected {

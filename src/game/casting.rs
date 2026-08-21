@@ -129,14 +129,14 @@ impl Game {
                 .battlefield
                 .iter()
                 .find(|permanent| permanent.card.id == *id)?;
-            let definition = permanent.card.definition;
+            let presentation = Self::effective_rules_source(permanent);
             Some(DecisionOption {
                 id: u32::try_from(index + 1).unwrap_or(u32::MAX),
-                label: self.catalog.get(definition).map_or_else(
+                label: self.presentation_name(presentation).map_or_else(
                     || "Copy an unknown permanent".into(),
-                    |card| format!("Enter as a copy of {}", card.name),
+                    |name| format!("Enter as a copy of {name}"),
                 ),
-                card: Some((*id, definition)),
+                card: Some((*id, presentation)),
                 members: Vec::new(),
                 ability_text: None,
                 zone: DecisionZone::Battlefield,
@@ -380,7 +380,9 @@ impl Game {
                 | None => None,
             })?;
         let signature = stack_object.signature.as_ref()?;
-        let definition = self.catalog.get(stack_object.card.definition)?;
+        let definition = self
+            .catalog
+            .get(stack_object.card.definition.card_definition()?)?;
         let option = definition.play_option(signature.play_option())?;
         self.selected_alternative_kind(definition, option, object, signature.costs())
     }
@@ -597,7 +599,7 @@ impl Game {
         let mut stack_object = StackObject {
             id: stack_id,
             kind: StackObjectKind::Spell,
-            card,
+            card: card.into(),
             source: None,
             ability: frozen_spell_ability,
             controller: player,
@@ -680,7 +682,10 @@ impl Game {
         let Some(signature) = object.signature.as_ref() else {
             return SpendModeDef::ByZone;
         };
-        let Some(definition) = self.catalog.get(object.card.definition) else {
+        let Some(card_definition) = object.card.definition.card_definition() else {
+            return SpendModeDef::ByZone;
+        };
+        let Some(definition) = self.catalog.get(card_definition) else {
             return SpendModeDef::ByZone;
         };
         let Some(option) = definition.play_option(signature.play_option()) else {
@@ -782,7 +787,11 @@ impl Game {
 
         let player = stack_object.controller;
         let stack_id = stack_object.id;
-        let definition = stack_object.card.definition;
+        let definition = stack_object
+            .card
+            .definition
+            .card_definition()
+            .expect("a cast spell is backed by a card definition");
         let cast_event = self
             .stack_trigger_event_object(&stack_object)
             .expect("a cast spell has locked characteristics");

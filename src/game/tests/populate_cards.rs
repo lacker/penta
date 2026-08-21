@@ -27,10 +27,10 @@ fn stats(game: &Game, id: GameObjectId) -> (Option<i16>, Option<i16>) {
     (game.power(permanent), game.toughness(permanent))
 }
 
-fn tokens(game: &Game, definition: CardDefinitionId) -> usize {
+fn tokens(game: &Game, token: TokenCharacteristics) -> usize {
     game.battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == definition)
+        .filter(|permanent| is_token_with(permanent, token))
         .count()
 }
 
@@ -80,9 +80,9 @@ fn sundering_growth_destroys_then_copies_a_token() {
     let mox = creature(10_000, cards::MOX_JET, PlayerId::Two);
     let mox_id = mox.card.id;
     game.battlefield.push(mox);
-    game.battlefield.push(creature(
+    game.battlefield.push(token_permanent(
         10_100,
-        cards::ZOMBIE_TOKEN_2_2_BLACK,
+        tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2),
         PlayerId::One,
     ));
 
@@ -108,7 +108,10 @@ fn sundering_growth_destroys_then_copies_a_token() {
         "the artifact went",
     );
     assert_eq!(
-        tokens(&game, cards::ZOMBIE_TOKEN_2_2_BLACK),
+        tokens(
+            &game,
+            tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2)
+        ),
         2,
         "and the token was copied",
     );
@@ -143,7 +146,13 @@ fn sundering_growth_still_destroys_with_no_token_to_copy() {
             .iter()
             .any(|permanent| permanent.card.id == mox_id),
     );
-    assert_eq!(tokens(&game, cards::ZOMBIE_TOKEN_2_2_BLACK), 0);
+    assert_eq!(
+        tokens(
+            &game,
+            tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2)
+        ),
+        0
+    );
 }
 
 /// Trostani reads the entering creature's toughness, not her own and not a
@@ -207,9 +216,9 @@ fn the_guildmage_offers_both_abilities_at_their_own_costs() {
     let mage = creature(10_000, cards::VITU_GHAZI_GUILDMAGE, PlayerId::One);
     let mage_id = mage.card.id;
     game.battlefield.push(mage);
-    game.battlefield.push(creature(
+    game.battlefield.push(token_permanent(
         10_100,
-        cards::ZOMBIE_TOKEN_2_2_BLACK,
+        tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2),
         PlayerId::One,
     ));
     game.players[PlayerId::One.index()].mana_pool.green = 1;
@@ -241,9 +250,9 @@ fn the_guildmage_offers_both_abilities_at_their_own_costs() {
 #[test]
 fn wake_the_reflections_copies_a_token() {
     let mut game = ready();
-    game.battlefield.push(creature(
+    game.battlefield.push(token_permanent(
         10_000,
-        cards::ZOMBIE_TOKEN_2_2_BLACK,
+        tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2),
         PlayerId::One,
     ));
 
@@ -261,7 +270,13 @@ fn wake_the_reflections_copies_a_token() {
         .expect("the cast is legal");
     drain_pending(&mut game);
 
-    assert_eq!(tokens(&game, cards::ZOMBIE_TOKEN_2_2_BLACK), 2);
+    assert_eq!(
+        tokens(
+            &game,
+            tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2)
+        ),
+        2
+    );
 }
 
 /// Druid's Deliverance shields only its own controller, not the whole

@@ -363,8 +363,10 @@ impl Game {
     /// The one way a card reaches a graveyard, so a replacement that sends it
     /// somewhere else has a single place to apply.
     pub(super) fn put_card_into_graveyard(&mut self, owner: PlayerId, card: CardInstance) {
-        let is_token = self.is_token(card.definition);
-        match self.external_zone_move_replacement(ZoneKind::Graveyard, owner, is_token) {
+        // Tokens cease to exist as they leave the battlefield and never become
+        // `CardInstance`s. A physical card remains a nontoken here even when
+        // its former permanent was copying token characteristics.
+        match self.external_zone_move_replacement(ZoneKind::Graveyard, owner, false) {
             Some(ZoneKind::Exile) => self.players[owner.index()].exile.push(card),
             _ => self.players[owner.index()].graveyard.push(card),
         }

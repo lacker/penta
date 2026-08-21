@@ -9,8 +9,8 @@ use super::super::prevention_state::{
     ResolvedDamageRecipientMatcher, ResolvedDamageSourceMatcher,
 };
 use super::super::{
-    AbilityId, AbilityOrigin, AbilitySourceRef, CardPartId, EffectResolutionContext, Game,
-    RelationalSourceFilter, ScopedEffect, StackObject, Target,
+    AbilityId, AbilitySourceRef, EffectResolutionContext, Game, RelationalSourceFilter,
+    ScopedEffect, StackObject, Target,
 };
 
 impl Game {
@@ -79,10 +79,8 @@ impl Game {
         };
         let source_ability = AbilitySourceRef {
             object: object.source.unwrap_or(object.id),
-            ability: object.ability_origin().unwrap_or(AbilityOrigin::Printed {
-                definition: object.presentation_definition(),
-                part: CardPartId::PRIMARY,
-                ability: AbilityId::PRIMARY,
+            ability: object.ability_origin().unwrap_or_else(|| {
+                Self::authored_ability_origin(object.presentation(), AbilityId::PRIMARY)
             }),
         };
         let timestamp = self.allocate_continuous_effect_timestamp();

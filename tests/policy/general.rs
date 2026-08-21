@@ -25,7 +25,13 @@ fn handcrafted_accepts_detention_spheres_optional_exile() {
     let lion_option = target_decision
         .options
         .iter()
-        .find(|option| option.card == Some((lion, cards::SAVANNAH_LIONS)))
+        .find(|option| {
+            option.card
+                == Some((
+                    lion,
+                    ObjectCharacteristics::card(cards::SAVANNAH_LIONS, CardPartId::PRIMARY),
+                ))
+        })
         .expect("the opposing Lion is a legal target")
         .id;
     game.apply(
@@ -182,7 +188,7 @@ fn handcrafted_does_not_counter_a_publicly_uncounterable_spell() {
         source: None,
         ability: None,
         ability_text: None,
-        definition: poc::cards::ABRUPT_DECAY,
+        characteristics: ObjectCharacteristics::card(poc::cards::ABRUPT_DECAY, CardPartId::PRIMARY),
         controller: PlayerId::Two,
         counterable: false,
         signature: None,

@@ -1,10 +1,12 @@
+use std::borrow::Cow;
+
 use super::{
     AbilitySourceRef, ApplicableZoneMoveReplacement, AppliedRuleDef, BattlefieldArrival,
     BattlefieldExit, BattlefieldExitCompletion, CardInstance, CardPartId, CommittedTriggerEvent,
     CounterKind, DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility,
     DecisionZone, DeclarativeAbilityDef, EffectDef, EntryCompletion, FrozenZoneMoveReplacement,
-    Game, GameEvent, GameObjectId, KeywordAbility, PendingBattlefieldEntry,
-    PendingBattlefieldExitBatch, PendingBattlefieldExitMove, Permanent, PlayerId, PlayerRelation,
+    Game, GameEvent, GameObjectId, KeywordAbility, ObjectInstance, PendingBattlefieldEntry,
+    PendingBattlefieldExitBatch, PendingBattlefieldExitMove, Permanent, PlayerId,
     ReplacementConditionDef, ReplacementEffectContext, ReplacementEffectDef, ReplacementEventDef,
     RetiredObject, ScopedEffect, StackObject, StackObjectKind, Step, Target, TargetSlotId,
     TriggerContext, ZoneKind, ZoneMoveCauseDef, ZonePlacement, remove_card,
@@ -29,14 +31,17 @@ impl Game {
         };
         self.battlefield
             .iter()
-            .filter(|permanent| self.permanent_card_name(permanent.card.id) == Some(name))
+            .filter(|permanent| {
+                self.permanent_card_name(permanent.card.id)
+                    .is_some_and(|candidate| candidate == name)
+            })
             .map(|permanent| Target::Permanent(permanent.card.id))
             .collect()
     }
 
     /// The printed name of any object the engine can still find, wherever it
     /// is. Used by the cards that speak about names rather than identity.
-    pub(super) fn object_card_name(&self, id: GameObjectId) -> Option<&str> {
+    pub(super) fn object_card_name(&self, id: GameObjectId) -> Option<Cow<'_, str>> {
         self.permanent_card_name(id)
             .or_else(|| {
                 self.card_in_nonbattlefield_zone(id)
@@ -48,28 +53,24 @@ impl Game {
                             .find(|card| card.id == id)
                     })
                     .and_then(|card| self.catalog.get(card.definition))
-                    .map(|card| card.name.as_str())
+                    .map(|card| Cow::Borrowed(card.name.as_str()))
             })
             .or_else(|| match self.retired_objects.get(&id) {
-                Some(RetiredObject::Permanent { permanent, .. }) => self
-                    .catalog
-                    .get(Self::effective_rules_source(permanent).0)
-                    .map(|card| card.name.as_str()),
+                Some(RetiredObject::Permanent { permanent, .. }) => {
+                    self.presentation_name(Self::effective_rules_source(permanent))
+                }
                 Some(RetiredObject::Card(card)) => self
                     .catalog
                     .get(card.definition)
-                    .map(|definition| definition.name.as_str()),
-                Some(RetiredObject::Stack(stack)) => self
-                    .catalog
-                    .get(stack.card.definition)
-                    .map(|definition| definition.name.as_str()),
+                    .map(|definition| Cow::Borrowed(definition.name.as_str())),
+                Some(RetiredObject::Stack(stack)) => self.presentation_name(stack.presentation()),
                 None => None,
             })
     }
 
     /// The copiable name a permanent presents, for the cards that gather
     /// everything sharing a name.
-    pub(super) fn permanent_card_name(&self, id: GameObjectId) -> Option<&str> {
+    pub(super) fn permanent_card_name(&self, id: GameObjectId) -> Option<Cow<'_, str>> {
         self.battlefield
             .iter()
             .find(|permanent| permanent.card.id == id)
@@ -86,11 +87,11 @@ impl Game {
     /// Commits the untapped-to-tapped transition in one place so triggered
     /// abilities observe mana costs, activated-ability costs, combat, and
     /// resolving tap effects through the same event path.
-    pub(super) fn tap_permanent(&mut self, id: GameObjectId) -> Option<CardInstance> {
+    pub(super) fn tap_permanent(&mut self, id: GameObjectId) -> Option<ObjectInstance> {
         self.tap_permanent_with_purpose(id, false)
     }
 
-    pub(super) fn tap_permanent_for_mana(&mut self, id: GameObjectId) -> Option<CardInstance> {
+    pub(super) fn tap_permanent_for_mana(&mut self, id: GameObjectId) -> Option<ObjectInstance> {
         self.tap_permanent_with_purpose(id, true)
     }
 
@@ -98,7 +99,7 @@ impl Game {
         &mut self,
         id: GameObjectId,
         for_mana: bool,
-    ) -> Option<CardInstance> {
+    ) -> Option<ObjectInstance> {
         let (card, was_tapped) = self
             .battlefield
             .iter()
@@ -335,7 +336,7 @@ impl Game {
         self.events.push(GameEvent::PermanentLeftBattlefield {
             controller: permanent.controller,
             card: permanent.card.id,
-            definition: permanent.card.definition,
+            characteristics: Self::effective_rules_source(permanent),
             destination,
         });
     }
@@ -361,11 +362,16 @@ impl Game {
         self.capture_battlefield_triggers_from_snapshot(&listeners, &event);
         self.capture_custom_source_triggers(&permanent, &snapshot.abilities, &event);
         self.record_battlefield_exit(&permanent, BattlefieldExit::Exile);
-        if self.is_token(permanent.card.definition) {
+        if permanent.card.definition.is_token() {
             return;
         }
         let owner = permanent.card.owner;
-        let (card, _zone_change) = self.zone_change_card(permanent.card);
+        let (card, _zone_change) = self.zone_change_card(
+            permanent
+                .card
+                .into_card()
+                .expect("a nontoken permanent is backed by a card definition"),
+        );
         self.players[owner.index()].exile.push(card);
     }
 
@@ -502,11 +508,16 @@ impl Game {
         self.capture_battlefield_triggers_from_snapshot(&listeners, &event);
         self.capture_custom_source_triggers(&permanent, &snapshot.abilities, &event);
         self.record_battlefield_exit(&permanent, BattlefieldExit::Hand);
-        if self.is_token(permanent.card.definition) {
+        if permanent.card.definition.is_token() {
             return;
         }
         let owner = permanent.card.owner;
-        let (card, _zone_change) = self.zone_change_card(permanent.card);
+        let (card, _zone_change) = self.zone_change_card(
+            permanent
+                .card
+                .into_card()
+                .expect("a nontoken permanent is backed by a card definition"),
+        );
         self.players[owner.index()].hand.push(card);
     }
 
@@ -537,11 +548,16 @@ impl Game {
         self.capture_battlefield_triggers_from_snapshot(&listeners, &event);
         self.capture_custom_source_triggers(&permanent, &snapshot.abilities, &event);
         self.record_battlefield_exit(&permanent, BattlefieldExit::LibraryTop);
-        if self.is_token(permanent.card.definition) {
+        if permanent.card.definition.is_token() {
             return;
         }
         let owner = permanent.card.owner;
-        let (card, _zone_change) = self.zone_change_card(permanent.card);
+        let (card, _zone_change) = self.zone_change_card(
+            permanent
+                .card
+                .into_card()
+                .expect("a nontoken permanent is backed by a card definition"),
+        );
         match placement {
             ZonePlacement::Top => self.players[owner.index()].library.push(card),
             ZonePlacement::Bottom => self.players[owner.index()].library.insert(0, card),

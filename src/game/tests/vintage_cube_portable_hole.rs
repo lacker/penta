@@ -96,7 +96,11 @@ fn targets_offered(game: &Game) -> Vec<CardDefinitionId> {
             decision
                 .options
                 .iter()
-                .filter_map(|option| option.card.map(|(_, definition)| definition))
+                .filter_map(|option| {
+                    option
+                        .card
+                        .and_then(|(_, characteristics)| characteristics.card_definition())
+                })
                 .collect()
         })
         .unwrap_or_default()

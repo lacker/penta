@@ -237,6 +237,12 @@ fn a_generic_pile_split_reconstructs_and_resumes_for_both_seats() {
     spliced_split["decision"]["options"][0]["card"]["objectId"] = Value::from(outside.1.id.0);
     spliced_split["decision"]["options"][0]["card"]["definition"] =
         Value::from(outside.1.definition.0);
+    spliced_split["decision"]["options"][0]["card"]["characteristics"]["definition"] =
+        Value::from(outside.1.definition.0);
+    spliced_split["checkpoint"]["decisionState"]["options"][0]["card"]["objectId"] =
+        Value::from(outside.1.id.0);
+    spliced_split["checkpoint"]["decisionState"]["options"][0]["card"]["characteristics"]
+        ["definition"] = Value::from(outside.1.definition.0);
     let origin = spliced_split["checkpoint"]["decisionState"]["cardOrigins"]
         .as_array_mut()
         .expect("split origins are an array")
@@ -305,6 +311,9 @@ fn a_generic_pile_split_reconstructs_and_resumes_for_both_seats() {
     duplicated["checkpoint"]["decisionState"]["continuation"]["second"][0] = first;
     let first_member = duplicated["decision"]["options"][0]["members"][0].clone();
     duplicated["decision"]["options"][1]["members"][0] = first_member;
+    let first_member = duplicated["checkpoint"]["decisionState"]["options"][0]["members"][0]
+        .clone();
+    duplicated["checkpoint"]["decisionState"]["options"][1]["members"][0] = first_member;
     let error = Game::from_observation_checkpoint(
         game.catalog.clone(),
         game.format,

@@ -576,7 +576,10 @@ fn stage_copying_a_nonbasic_land_is_masked_but_persists_through_blood_moon() {
         .unwrap();
     assert_eq!(
         copied.copy_effect.as_ref().map(|copy| copy.base),
-        Some((cards::YAVIMAYA_CRADLE_OF_GROWTH, CardPartId::PRIMARY)),
+        Some(ObjectCharacteristics::card(
+            cards::YAVIMAYA_CRADLE_OF_GROWTH,
+            CardPartId::PRIMARY,
+        )),
         "the already-stacked activation resolves even though Moon masks its source",
     );
     assert_eq!(
@@ -593,7 +596,7 @@ fn stage_copying_a_nonbasic_land_is_masked_but_persists_through_blood_moon() {
         .find(|permanent| permanent.card.id == stage_id)
         .unwrap();
     assert_eq!(
-        game.effective_permanent_name(copied),
+        game.effective_permanent_name(copied).as_deref(),
         Some("Yavimaya, Cradle of Growth"),
     );
     assert!(

@@ -14,28 +14,49 @@ pub(super) fn permanent_snapshot(
         .collect::<Vec<_>>();
     let has_unlocated_resolved_effect =
         resolved_continuous_effects.len() != permanent.resolved_continuous_effects.len();
-    let copy_effect = permanent.copy_effect.as_ref().map(|copy| {
-        let added_abilities = copy
-            .added_abilities
-            .iter()
-            .filter_map(|ability| copiable_ability_snapshot(catalog, ability))
-            .collect::<Vec<_>>();
-        let complete = added_abilities.len() == copy.added_abilities.len();
-        (
-            CopiableCharacteristicsSnapshot {
-                definition: copy.base.0.0,
-                part_id: copy.base.1.0,
-                added_types: CardType::ALL.map(|card_type| copy.added_types.contains(card_type)),
-                added_abilities,
-                retain_printed_subtypes: copy.retain_printed_subtypes,
-            },
-            complete,
-        )
-    });
-    let has_unlocated_copy_ability = copy_effect.as_ref().is_some_and(|(_, complete)| !complete);
+    let copy_effect = permanent
+        .copy_effect
+        .as_ref()
+        .and_then(|copy| copiable_characteristics_snapshot(catalog, copy));
+    let has_unlocated_copy_ability = permanent.copy_effect.is_some()
+        && copy_effect.as_ref().is_none_or(|(_, complete)| !complete);
+    let double_faced_token_copy = permanent
+        .double_faced_token_copy
+        .as_ref()
+        .and_then(|faces| {
+            let (front, front_complete) = copiable_characteristics_snapshot(catalog, &faces.front)?;
+            let (back, back_complete) = copiable_characteristics_snapshot(catalog, &faces.back)?;
+            Some((
+                DoubleFacedCopiableCharacteristicsSnapshot {
+                    modal: faces.kind == DoubleFacedKind::Modal,
+                    front_part_id: faces.front_part.0,
+                    back_part_id: faces.back_part.0,
+                    front,
+                    back,
+                },
+                front_complete && back_complete,
+            ))
+        });
+    let has_unlocated_double_faced_copy = permanent.double_faced_token_copy.is_some()
+        && double_faced_token_copy
+            .as_ref()
+            .is_none_or(|(_, complete)| !complete);
+    let token_characteristics = permanent
+        .token_characteristics
+        .and_then(|token| token_characteristics_locator(catalog, token));
+    let has_unlocated_token_characteristics =
+        permanent.token_characteristics.is_some() && token_characteristics.is_none();
+    let copied_from = permanent
+        .copied_from
+        .and_then(|characteristics| object_characteristics_snapshot(catalog, characteristics));
+    let has_unlocated_copied_from = permanent.copied_from.is_some() && copied_from.is_none();
     PermanentSnapshot {
         object_id: permanent.card.id.0,
         owner: permanent.card.owner.index(),
+        object_kind: object_kind_snapshot(permanent.card.definition),
+        token_characteristics,
+        double_faced_token_copy: double_faced_token_copy.map(|(snapshot, _)| snapshot),
+        presented_part_id: permanent.presented.0,
         timestamp: permanent.timestamp.0,
         entered_controller_turn: permanent.entered_controller_turn,
         detained_until_turn_of: permanent
@@ -123,12 +144,7 @@ pub(super) fn permanent_snapshot(
         became_aura: permanent.became_aura,
         copy_effect: copy_effect.map(|(snapshot, _)| snapshot),
         copy_expiration: permanent.copy_expiration.map(expiration_snapshot),
-        copied_from: permanent
-            .copied_from
-            .map(|(definition, part)| CopiedFromSnapshot {
-                definition: definition.0,
-                part_id: part.0,
-            }),
+        copied_from: copied_from.map(|characteristics| CopiedFromSnapshot { characteristics }),
         text_changes: permanent
             .text_changes
             .iter()
@@ -137,8 +153,44 @@ pub(super) fn permanent_snapshot(
                 to: basic_land_type_snapshot(change.to),
             })
             .collect(),
-        has_dynamic_characteristics: has_unlocated_resolved_effect || has_unlocated_copy_ability,
+        has_dynamic_characteristics: has_unlocated_resolved_effect
+            || has_unlocated_copy_ability
+            || has_unlocated_double_faced_copy
+            || has_unlocated_token_characteristics
+            || has_unlocated_copied_from,
     }
+}
+
+fn copiable_characteristics_snapshot(
+    catalog: &CardCatalog,
+    copy: &CopiableCharacteristics,
+) -> Option<(CopiableCharacteristicsSnapshot, bool)> {
+    if matches!(copy.base, ObjectCharacteristics::Emblem { .. }) {
+        return None;
+    }
+    let base = object_characteristics_snapshot(catalog, copy.base)?;
+    let added_abilities = copy
+        .added_abilities
+        .iter()
+        .filter_map(|ability| {
+            Some(CopiableAbilitySnapshot {
+                origin: ability_origin_snapshot(ability.origin),
+                ability: ability_locator_for_origin(catalog, ability.origin, |candidate| {
+                    *candidate == ability.definition
+                })?,
+            })
+        })
+        .collect::<Vec<_>>();
+    let complete = added_abilities.len() == copy.added_abilities.len();
+    Some((
+        CopiableCharacteristicsSnapshot {
+            base,
+            added_types: CardType::ALL.map(|card_type| copy.added_types.contains(card_type)),
+            added_abilities,
+            retain_printed_subtypes: copy.retain_printed_subtypes,
+        },
+        complete,
+    ))
 }
 
 fn resolved_continuous_effect_snapshot(
@@ -269,8 +321,6 @@ pub(super) fn detached_permanent_snapshot(
 ) -> DetachedPermanentSnapshot {
     DetachedPermanentSnapshot {
         state: permanent_snapshot(catalog, permanent),
-        definition: permanent.card.definition.0,
-        presented_part_id: permanent.presented.0,
         controller: permanent.controller.index(),
         tapped: permanent.tapped,
         damage: permanent.damage,

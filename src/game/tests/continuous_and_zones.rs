@@ -261,7 +261,12 @@ fn demonic_rising_only_pays_off_with_exactly_one_creature() {
         let demons = game
             .battlefield
             .iter()
-            .filter(|permanent| permanent.card.definition == cards::DEMON_TOKEN_5_5_BLACK)
+            .filter(|permanent| {
+                is_token_with(
+                    permanent,
+                    token_with_flying(tokens::creature(&["Demon"], &[ManaColor::Black], 5, 5)),
+                )
+            })
             .count();
         assert_eq!(demons, usize::from(expect_demon), "{creatures} creatures");
     }
@@ -405,7 +410,16 @@ fn oblivion_ring_gives_back_exactly_what_it_took() {
                 let options = decision
                     .options
                     .iter()
-                    .filter(|option| option.card == Some((angel, cards::SERRA_ANGEL)))
+                    .filter(|option| {
+                        option.card
+                            == Some((
+                                angel,
+                                ObjectCharacteristics::card(
+                                    cards::SERRA_ANGEL,
+                                    CardPartId::PRIMARY,
+                                ),
+                            ))
+                    })
                     .map(|option| option.id)
                     .chain(decision.options.iter().map(|option| option.id))
                     .take(decision.minimum.max(1))
@@ -483,7 +497,14 @@ fn detention_sphere_takes_every_copy_and_gives_them_all_back() {
                     .iter()
                     .filter(|option| {
                         option.label == "Do it"
-                            || option.card == Some((lions[0], cards::SAVANNAH_LIONS))
+                            || option.card
+                                == Some((
+                                    lions[0],
+                                    ObjectCharacteristics::card(
+                                        cards::SAVANNAH_LIONS,
+                                        CardPartId::PRIMARY,
+                                    ),
+                                ))
                     })
                     .map(|option| option.id)
                     .chain(decision.options.iter().map(|option| option.id))

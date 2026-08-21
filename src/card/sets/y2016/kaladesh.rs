@@ -4,8 +4,8 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     CardArt, CardRules, CardSet, CardSupertype, CardType, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, ObjectSetDef, PlayerRelation, ValueDef, ZoneKind, ZonePlacement, abilities,
-    cards,
+    ObjectPredicateDef, ObjectSetDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities, cards,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -93,6 +93,21 @@ static CHANDRA_SHOOTS_INSTEAD: EffectDef = EffectDef::DealDamage {
     amount: ValueDef::Constant(2),
 };
 
+static CHANDRA_EMBLEM_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::AnyTarget,
+)];
+
+static CHANDRA_TORCH_OF_DEFIANCE_EMBLEM_ABILITIES: [AbilityDef; 1] =
+    [AbilityDef::triggered_with_targets(
+        "Whenever you cast a spell, this emblem deals 5 damage to any target.",
+        TriggerEventDef::SpellCast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
+        &CHANDRA_EMBLEM_TARGETS,
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::Constant(5),
+        },
+    )];
+
 static CHANDRA_DAMAGE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
     ObjectPredicateDef::HasType(CardType::Creature),
 )];
@@ -127,9 +142,10 @@ static CHANDRA_ABILITIES: [AbilityDef; 4] = [
         "−7: You get an emblem with \"Whenever you cast a spell, this emblem deals 5 damage to \
          any target.\"",
         &[AbilityCostDef::Loyalty(-7)],
-        EffectDef::CreateEmblem {
-            emblem: cards::CHANDRA_TORCH_OF_DEFIANCE_EMBLEM,
-        },
+        EffectDef::create_emblem(
+            "Chandra, Torch of Defiance emblem",
+            &CHANDRA_TORCH_OF_DEFIANCE_EMBLEM_ABILITIES,
+        ),
     ),
 ];
 

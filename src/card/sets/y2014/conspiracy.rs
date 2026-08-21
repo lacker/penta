@@ -4,7 +4,8 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules,
     CardSet, CardSupertype, CardType, ControlDurationDef, DiscardSelectionDef, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, PlayerRefDef, PlayerRelation, ValueDef, cards,
+    EffectRecipientDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PlayerRefDef,
+    PlayerRelation, TriggerEventDef, ValueDef, cards,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -37,6 +38,24 @@ static DACK_PLAYER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_on
 
 static DACK_ARTIFACT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
     ObjectPredicateDef::HasType(CardType::Artifact),
+)];
+
+static DACK_EMBLEM_PERMANENT: ObjectPredicateDef = ObjectPredicateDef::Any;
+
+static DACK_FAYDEN_EMBLEM_ABILITIES: [AbilityDef; 1] = [AbilityDef::triggered(
+    "Whenever you cast a spell that targets one or more permanents, gain control of those \
+         permanents.",
+    TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+        ObjectPredicateDef::TargetsObjectMatching(&DACK_EMBLEM_PERMANENT),
+    ])),
+    EffectDef::GainControl {
+        object: EffectRecipientDef::objects(ObjectSetDef::PermanentsTargetedBy(
+            ObjectRefDef::TriggeringObject,
+        )),
+        controller: PlayerRefDef::EffectController,
+        duration: ControlDurationDef::Indefinitely,
+    },
 )];
 
 /// Two for two is a wash against most decks and a windmill against a graveyard
@@ -77,9 +96,7 @@ static DACK_ABILITIES: [AbilityDef; 3] = [
         "−6: You get an emblem with \"Whenever you cast a spell that targets one or more \
          permanents, gain control of those permanents.\"",
         &[AbilityCostDef::Loyalty(-6)],
-        EffectDef::CreateEmblem {
-            emblem: cards::DACK_FAYDEN_EMBLEM,
-        },
+        EffectDef::create_emblem("Dack Fayden emblem", &DACK_FAYDEN_EMBLEM_ABILITIES),
     ),
 ];
 

@@ -75,7 +75,11 @@ fn phantom_general_pumps_tokens_only() {
     let general = creature(10_000, cards::PHANTOM_GENERAL, PlayerId::One);
     let general_id = general.card.id;
     game.battlefield.push(general);
-    let token = creature(10_100, cards::ZOMBIE_TOKEN_2_2_BLACK, PlayerId::One);
+    let token = token_permanent(
+        10_100,
+        tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2),
+        PlayerId::One,
+    );
     let token_id = token.card.id;
     game.battlefield.push(token);
     let bear = creature(10_101, cards::GRIZZLY_BEARS, PlayerId::One);
@@ -97,10 +101,18 @@ fn illness_in_the_ranks_shrinks_every_players_tokens() {
     let mut game = ready();
     game.battlefield
         .push(creature(10_000, cards::ILLNESS_IN_THE_RANKS, PlayerId::One));
-    let mine = creature(10_100, cards::ZOMBIE_TOKEN_2_2_BLACK, PlayerId::One);
+    let mine = token_permanent(
+        10_100,
+        tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2),
+        PlayerId::One,
+    );
     let mine_id = mine.card.id;
     game.battlefield.push(mine);
-    let theirs = creature(10_101, cards::ZOMBIE_TOKEN_2_2_BLACK, PlayerId::Two);
+    let theirs = token_permanent(
+        10_101,
+        tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2),
+        PlayerId::Two,
+    );
     let theirs_id = theirs.card.id;
     game.battlefield.push(theirs);
     let bear = creature(10_102, cards::GRIZZLY_BEARS, PlayerId::Two);
@@ -122,29 +134,28 @@ fn illness_in_the_ranks_kills_one_toughness_tokens() {
     let mut game = ready();
     game.battlefield
         .push(creature(10_000, cards::ILLNESS_IN_THE_RANKS, PlayerId::Two));
-    game.battlefield.push(creature(
+    game.battlefield.push(token_permanent(
         10_100,
-        cards::HUMAN_TOKEN_1_1_WHITE,
+        tokens::creature(&["Human"], &[ManaColor::White], 1, 1),
         PlayerId::One,
     ));
 
     game.check_state_based_actions();
     assert!(
-        !game
-            .battlefield
-            .iter()
-            .any(|permanent| permanent.card.definition == cards::HUMAN_TOKEN_1_1_WHITE),
+        !game.battlefield.iter().any(|permanent| is_token_with(
+            permanent,
+            tokens::creature(&["Human"], &[ManaColor::White], 1, 1)
+        )),
         "a 1/1 token is a 0/0",
     );
 }
 
 /// Destroys the named creature and reports how many cards the controller of
 /// the Harvester drew from its death.
-fn cards_drawn_when_dying(definition: crate::ids::CardDefinitionId) -> usize {
+fn cards_drawn_when_dying(victim: Permanent) -> usize {
     let mut game = ready();
     game.battlefield
         .push(creature(10_000, cards::HARVESTER_OF_SOULS, PlayerId::One));
-    let victim = creature(10_100, definition, PlayerId::One);
     let victim_id = victim.card.id;
     game.battlefield.push(victim);
     for index in 0..5 {
@@ -161,9 +172,16 @@ fn cards_drawn_when_dying(definition: crate::ids::CardDefinitionId) -> usize {
 
 #[test]
 fn the_harvester_draws_off_creature_cards_only() {
-    assert_eq!(cards_drawn_when_dying(cards::GRIZZLY_BEARS), 1);
     assert_eq!(
-        cards_drawn_when_dying(cards::ZOMBIE_TOKEN_2_2_BLACK),
+        cards_drawn_when_dying(creature(10_100, cards::GRIZZLY_BEARS, PlayerId::One)),
+        1,
+    );
+    assert_eq!(
+        cards_drawn_when_dying(token_permanent(
+            10_100,
+            tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2),
+            PlayerId::One,
+        )),
         0,
         "a token dying is not another nontoken creature",
     );
@@ -172,7 +190,7 @@ fn the_harvester_draws_off_creature_cards_only() {
 /// And the Soul's entry trigger reads the same status on the way in.
 #[test]
 fn the_soul_draws_off_creature_cards_entering() {
-    let entering = |definition: crate::ids::CardDefinitionId| {
+    let entering = |permanent: Permanent| {
         let mut game = ready();
         game.battlefield
             .push(creature(10_000, cards::SOUL_OF_THE_HARVEST, PlayerId::One));
@@ -183,7 +201,7 @@ fn the_soul_draws_off_creature_cards_entering() {
 
         let before = game.players[PlayerId::One.index()].hand.len();
         game.enqueue_battlefield_entry(PendingBattlefieldEntry {
-            permanent: creature(10_100, definition, PlayerId::One),
+            permanent,
             from: ZoneKind::Hand,
             completion: EntryCompletion::None,
             redirected_to: None,
@@ -192,9 +210,16 @@ fn the_soul_draws_off_creature_cards_entering() {
         game.players[PlayerId::One.index()].hand.len() - before
     };
 
-    assert_eq!(entering(cards::GRIZZLY_BEARS), 1);
     assert_eq!(
-        entering(cards::ZOMBIE_TOKEN_2_2_BLACK),
+        entering(creature(10_100, cards::GRIZZLY_BEARS, PlayerId::One)),
+        1,
+    );
+    assert_eq!(
+        entering(token_permanent(
+            10_100,
+            tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2),
+            PlayerId::One,
+        )),
         0,
         "a token arriving is not a nontoken creature",
     );

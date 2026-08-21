@@ -50,7 +50,17 @@ fn settle(game: &mut Game) {
 fn otters(game: &Game) -> usize {
     game.battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::OTTER_TOKEN_1_1_BLUE_RED)
+        .filter(|permanent| {
+            is_token_with(
+                permanent,
+                token_with_prowess(tokens::creature(
+                    &["Otter"],
+                    &[ManaColor::Blue, ManaColor::Red],
+                    1,
+                    1,
+                )),
+            )
+        })
         .count()
 }
 
@@ -183,7 +193,17 @@ fn the_otter_has_prowess() {
     let otter = game
         .battlefield
         .iter()
-        .find(|permanent| permanent.card.definition == cards::OTTER_TOKEN_1_1_BLUE_RED)
+        .find(|permanent| {
+            is_token_with(
+                permanent,
+                token_with_prowess(tokens::creature(
+                    &["Otter"],
+                    &[ManaColor::Blue, ManaColor::Red],
+                    1,
+                    1,
+                )),
+            )
+        })
         .expect("the entry made one")
         .card
         .id;

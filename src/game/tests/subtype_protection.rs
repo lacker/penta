@@ -33,7 +33,11 @@ fn a_zombie_cannot_damage_what_is_protected_from_zombies() {
     let bramble = creature(10_000, cards::GRAVE_BRAMBLE, PlayerId::One);
     let bramble_id = bramble.card.id;
     game.battlefield.push(bramble);
-    let zombie = creature(10_100, cards::ZOMBIE_TOKEN_2_2_BLACK, PlayerId::Two);
+    let zombie = token_permanent(
+        10_100,
+        tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2),
+        PlayerId::Two,
+    );
     let zombie_id = zombie.card.id;
     game.battlefield.push(zombie);
     let bear = creature(10_101, cards::GRIZZLY_BEARS, PlayerId::Two);
@@ -65,7 +69,11 @@ fn a_zombie_cannot_block_a_creature_protected_from_zombies() {
     bear.attacking = true;
     let bear_id = bear.card.id;
     game.battlefield.push(bear);
-    let zombie = creature(10_100, cards::ZOMBIE_TOKEN_2_2_BLACK, PlayerId::Two);
+    let zombie = token_permanent(
+        10_100,
+        tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2),
+        PlayerId::Two,
+    );
     let zombie_id = zombie.card.id;
     game.battlefield.push(zombie);
     let wall = creature(10_101, cards::WALL_OF_STONE, PlayerId::Two);
@@ -102,7 +110,11 @@ fn a_vampires_protection_ignores_zombies_entirely() {
     let duelist = creature(10_000, cards::MIDNIGHT_DUELIST, PlayerId::One);
     let duelist_id = duelist.card.id;
     game.battlefield.push(duelist);
-    let zombie = creature(10_100, cards::ZOMBIE_TOKEN_2_2_BLACK, PlayerId::Two);
+    let zombie = token_permanent(
+        10_100,
+        tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2),
+        PlayerId::Two,
+    );
     let zombie_id = zombie.card.id;
     game.battlefield.push(zombie);
 
@@ -138,7 +150,11 @@ fn the_inquisitor_carries_all_three_instances() {
         );
     }
 
-    let zombie = creature(10_100, cards::ZOMBIE_TOKEN_2_2_BLACK, PlayerId::Two);
+    let zombie = token_permanent(
+        10_100,
+        tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2),
+        PlayerId::Two,
+    );
     let zombie_id = zombie.card.id;
     game.battlefield.push(zombie);
     game.damage_target_from(Some(zombie_id), Some(Target::Permanent(inquisitor_id)), 2);

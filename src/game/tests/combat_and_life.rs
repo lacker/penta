@@ -476,7 +476,13 @@ fn celestial_flare_lets_the_targeted_player_pick_which_attacker_dies() {
     let keep = decision
         .options
         .iter()
-        .find(|option| option.card == Some((CardInstanceId(10_001), cards::SAVANNAH_LIONS)))
+        .find(|option| {
+            option.card
+                == Some((
+                    CardInstanceId(10_001),
+                    ObjectCharacteristics::card(cards::SAVANNAH_LIONS, CardPartId::PRIMARY),
+                ))
+        })
         .expect("both attackers are offered");
     game.apply(
         PlayerId::Two,

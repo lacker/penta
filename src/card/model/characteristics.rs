@@ -197,14 +197,10 @@ pub enum CardType {
     Land,
     Planeswalker,
     Sorcery,
-    /// Not a card type Magic prints. An emblem is an object with abilities
-    /// and no other characteristics, and every part in this model carries at
-    /// least one type, so emblems carry this one.
-    Emblem,
 }
 
 impl CardType {
-    pub const COUNT: usize = 8;
+    pub const COUNT: usize = 7;
     pub const ALL: [Self; Self::COUNT] = [
         Self::Artifact,
         Self::Creature,
@@ -213,7 +209,6 @@ impl CardType {
         Self::Land,
         Self::Planeswalker,
         Self::Sorcery,
-        Self::Emblem,
     ];
 
     /// Conventional type-line order for the combinations the catalog can
@@ -226,7 +221,6 @@ impl CardType {
         Self::Planeswalker,
         Self::Instant,
         Self::Sorcery,
-        Self::Emblem,
     ];
 
     #[must_use]
@@ -239,7 +233,6 @@ impl CardType {
             Self::Land => 4,
             Self::Planeswalker => 5,
             Self::Sorcery => 6,
-            Self::Emblem => 7,
         }
     }
 
@@ -253,7 +246,6 @@ impl CardType {
             Self::Land => "Land",
             Self::Planeswalker => "Planeswalker",
             Self::Sorcery => "Sorcery",
-            Self::Emblem => "Emblem",
         }
     }
 }

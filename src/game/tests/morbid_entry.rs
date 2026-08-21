@@ -55,7 +55,12 @@ fn cast(game: &mut Game, spell: CardDefinitionId) {
 fn zombies(game: &Game) -> usize {
     game.battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::ZOMBIE_TOKEN_2_2_BLACK)
+        .filter(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2),
+            )
+        })
         .count()
 }
 

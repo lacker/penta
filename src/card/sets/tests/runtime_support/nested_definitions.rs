@@ -1,4 +1,5 @@
 use super::*;
+use crate::card::TopCardSelectionDef;
 
 fn trigger_predicate_requires_live_battlefield(predicate: ObjectPredicateDef) -> bool {
     match predicate {
@@ -341,68 +342,8 @@ pub(in super::super) fn assert_nested_program_abilities(
     }
 }
 
-// Long because the effect vocabulary is wide, not because the function
-// does several things: every arm is one variant walked the same way.
-#[allow(clippy::too_many_lines)]
 pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effect: EffectDef) {
     match effect {
-        EffectDef::Sequence(effects) => {
-            for effect in effects {
-                assert_nested_definition_abilities(card_name, *effect);
-            }
-        }
-        EffectDef::Randomized {
-            on_success,
-            on_failure,
-            ..
-        } => {
-            assert_nested_definition_abilities(card_name, *on_success);
-            assert_nested_definition_abilities(card_name, *on_failure);
-        }
-        EffectDef::Choose(choice) => {
-            assert_nested_definition_abilities(card_name, *choice.then);
-        }
-        EffectDef::RevealAtRandomFromHand { then, .. }
-        | EffectDef::ChooseCardName { then, .. }
-        | EffectDef::SearchZone {
-            then: Some(then), ..
-        }
-        | EffectDef::BindMatching { then, .. } => {
-            assert_nested_definition_abilities(card_name, *then);
-        }
-        EffectDef::PayOr(payment) => {
-            for effect in payment.if_paid.iter().chain(payment.otherwise.iter()) {
-                assert_nested_definition_abilities(card_name, **effect);
-            }
-        }
-        EffectDef::SplitIntoPiles(partition) => {
-            assert_nested_definition_abilities(card_name, *partition.then);
-        }
-        EffectDef::CreateToken {
-            created: Some(created),
-            ..
-        } => assert_nested_definition_abilities(card_name, *created.then),
-        EffectDef::May { effect, .. }
-        | EffectDef::IfCondition { then: effect, .. }
-        | EffectDef::ExileTopAndMayCast {
-            otherwise: Some(effect),
-            ..
-        }
-        | EffectDef::Mill {
-            then: Some(effect), ..
-        }
-        | EffectDef::MillUntil {
-            then: Some(effect), ..
-        }
-        | EffectDef::ReplaceNextDrawThisTurn { effect, .. } => {
-            assert_nested_definition_abilities(card_name, *effect);
-        }
-        EffectDef::IfFormat {
-            then, otherwise, ..
-        } => {
-            assert_nested_definition_abilities(card_name, *then);
-            assert_nested_definition_abilities(card_name, *otherwise);
-        }
         EffectDef::InstallTrigger(trigger) => {
             assert_nested_installed_ability(card_name, trigger.ability);
         }
@@ -416,102 +357,10 @@ pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effe
         EffectDef::LookAtTopAndSelect { selection, .. } => {
             assert_nested_selection_abilities(card_name, *selection);
         }
-        EffectDef::None
-        | EffectDef::AddMana(_)
-        | EffectDef::AddManaEqualTo { .. }
-        | EffectDef::DealDamage { .. }
-        | EffectDef::DealDamageFrom { .. }
-        | EffectDef::DrainLife { .. }
-        | EffectDef::GainLife { .. }
-        | EffectDef::AddPoisonCounters { .. }
-        | EffectDef::AddEnergyCounters { .. }
-        | EffectDef::DrawCards { .. }
-        | EffectDef::Discard { .. }
-        | EffectDef::DiscardCards { .. }
-        | EffectDef::ShuffleLibrary { .. }
-        | EffectDef::EmptyManaPool { .. }
-        | EffectDef::LoseLife { .. }
-        | EffectDef::LoseTheGame { .. }
-        | EffectDef::WinTheGame { .. }
-        | EffectDef::Regenerate { .. }
-        | EffectDef::Tap { .. }
-        | EffectDef::RemoveFromCombat { .. }
-        | EffectDef::DestroyAtEndOfCombat { .. }
-        | EffectDef::SkipNextUntapSteps { .. }
-        | EffectDef::DoubleCounters { .. }
-        | EffectDef::RemoveAllCounters { .. }
-        | EffectDef::Untap { .. }
-        | EffectDef::PreventDamage { .. }
-        | EffectDef::Attach { .. }
-        | EffectDef::PhaseOut { .. }
-        | EffectDef::ReturnAttached { .. }
-        | EffectDef::Reconfigure { .. }
-        | EffectDef::Unattach { .. }
-        | EffectDef::PairWithSource { .. }
-        | EffectDef::CreateAttachedToken { .. }
-        | EffectDef::CreateTokenCopyOf { .. }
-        | EffectDef::CreateToken { created: None, .. }
-        | EffectDef::Destroy { .. }
-        | EffectDef::Sacrifice { .. }
-        | EffectDef::SacrificeKeepingOnePerType { .. }
-        | EffectDef::SacrificeOfChoice { .. }
-        | EffectDef::ExileTopOfLibraryToPlay { .. }
-        | EffectDef::Mill { then: None, .. }
-        | EffectDef::ExileTopAndMayCast {
-            otherwise: None, ..
-        }
-        | EffectDef::MayCastTargetWithoutPaying { .. }
-        | EffectDef::SearchZonesAndExileRest { .. }
-        | EffectDef::MillUntil { then: None, .. }
-        | EffectDef::ExileFromTopUntil { .. }
-        | EffectDef::ManifestDread { .. }
-        | EffectDef::Cascade
-        | EffectDef::Proliferate
-        | EffectDef::Explore { .. }
-        | EffectDef::LookAtHand { .. }
-        | EffectDef::RevealHand { .. }
-        | EffectDef::SearchZone { .. }
-        | EffectDef::ChooseCards { .. }
-        | EffectDef::Counter { .. }
-        | EffectDef::ReturnSpellToHand { .. }
-        | EffectDef::PutSpellIntoOwnersLibrary { .. }
-        | EffectDef::CopyResolvingSpell { .. }
-        | EffectDef::AddCounters { .. }
-        | EffectDef::RemoveCounters { .. }
-        | EffectDef::ChangeTextBasicLandType { .. }
-        | EffectDef::ChooseColor { .. }
-        | EffectDef::BecomeCopyOf { .. }
-        | EffectDef::CannotBeForcedToSacrifice
-        | EffectDef::CannotBeForcedToDiscard
-        | EffectDef::GainClassLevel { .. }
-        | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
-        | EffectDef::CreateEmblem { .. }
-        | EffectDef::ReturnWithHasteAndFinality { .. }
-        | EffectDef::Transform { .. }
-        | EffectDef::ScheduleTurnPhases(_)
-        | EffectDef::TakeExtraTurn { .. }
-        | EffectDef::PutSourceOntoBattlefieldAttacking
-        | EffectDef::BecomeMonarch { .. }
-        | EffectDef::VoteForPermanentToExile { .. }
-        | EffectDef::DamageCannotBePreventedThisTurn
-        | EffectDef::GrantFlashToNextSorcery
-        | EffectDef::ExileLinkedToSource { .. }
-        | EffectDef::ExileGrantingOwnerPlay { .. }
-        | EffectDef::ReturnLinkedExiles { .. }
-        | EffectDef::Detain { .. }
-        | EffectDef::GainControl { .. }
-        | EffectDef::ExchangeControl { .. }
-        | EffectDef::ReduceGenericCostBy(_)
-        | EffectDef::IncreaseMatchingAbilityCostBy { .. }
-        | EffectDef::ReduceMatchingAbilityCostBy { .. }
-        | EffectDef::IncreaseMatchingSpellCostBy { .. }
-        | EffectDef::ReduceMatchingSpellCostBy { .. }
-        | EffectDef::LandwalkCanBeBlocked(_)
-        | EffectDef::CannotAttackUnless(_)
-        | EffectDef::CannotAttackIf(_)
-        | EffectDef::PutIntoLibraryBeneathTop { .. }
-        | EffectDef::MoveToZone { .. }
-        | EffectDef::Special(_) => {}
+        _ => {}
+    }
+    for child in crate::card::child_effects(effect) {
+        assert_nested_definition_abilities(card_name, child);
     }
 }
 

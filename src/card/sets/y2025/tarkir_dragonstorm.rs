@@ -3,9 +3,9 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CreatedTokensDef,
-    EffectDef, EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef, ObjectSetDef,
-    PlayActionMatcherDef, PlayRestrictionDef, PlayerRelation, PlayerSetDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, cards,
+    EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectPredicateDef,
+    ObjectSetDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRelation, PlayerSetDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, cards,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::mana_cost;
@@ -35,18 +35,18 @@ static MOBILIZE_TWO: AbilityDef = AbilityDef::triggered(
     "Mobilize 2 (Whenever this creature attacks, create two tapped and attacking 1/1 red Warrior \
      creature tokens. Sacrifice them at the beginning of the next end step.)",
     TriggerEventDef::attacks(ObjectPredicateDef::Source),
-    EffectDef::CreateToken {
-        token: cards::WARRIOR_TOKEN_1_1_RED,
-        controller: None,
-        count: ValueDef::Constant(2),
-        tapped: true,
-        attacking: true,
-        counters: None,
-        created: Some(CreatedTokensDef {
+    EffectDef::create_creature_token(&["Warrior"], &[ManaColor::Red], 1, 1)
+        .with_art(CardArt::new(
+            "7edc0515-a130-45a7-aa09-0e23bba41587",
+            "Forrest Imel",
+        ))
+        .with_amount(2)
+        .entering_tapped()
+        .entering_attacking()
+        .with_created_tokens(CreatedTokensDef {
             binding: ObjectSetBindingIndex::PRIMARY,
             then: &MOBILIZE_SACRIFICE,
         }),
-    },
 );
 
 static NO_SPELLS: PlayRestrictionDef =

@@ -58,7 +58,12 @@ fn attack_with(game: &mut Game, attacker: GameObjectId) {
 fn warriors(game: &Game) -> Vec<&Permanent> {
     game.battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::WARRIOR_TOKEN_1_1_RED)
+        .filter(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Warrior"], &[ManaColor::Red], 1, 1),
+            )
+        })
         .collect()
 }
 
@@ -175,10 +180,23 @@ fn the_warriors_are_sacrificed_at_the_end_step() {
 #[test]
 fn it_sacrifices_only_the_tokens_it_made() {
     let (mut game, voice) = staged();
-    let bystander = game
-        .put_onto_battlefield(PlayerId::One, cards::WARRIOR_TOKEN_1_1_RED)
-        .expect("cataloged");
+    game.create_token(
+        PlayerId::One,
+        tokens::creature(&["Warrior"], &[ManaColor::Red], 1, 1),
+    );
     drain_pending(&mut game);
+    let bystander = game
+        .battlefield
+        .iter()
+        .find(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Warrior"], &[ManaColor::Red], 1, 1),
+            )
+        })
+        .expect("the bystander entered")
+        .card
+        .id;
 
     attack_with(&mut game, voice);
     assert_eq!(warriors(&game).len(), 3, "two new ones and the bystander");

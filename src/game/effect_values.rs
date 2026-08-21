@@ -42,7 +42,7 @@ impl Game {
                 .iter()
                 .filter(|permanent| permanent.controller == controller)
                 .filter_map(|permanent| self.effective_rules(permanent))
-                .filter_map(crate::card::CardRules::mana_cost)
+                .filter_map(|rules| rules.mana_cost())
                 .map(|cost| i32::from(devotion_symbols(cost, color)))
                 .sum(),
             crate::card::ValueDef::LibrarySize(relation) => {

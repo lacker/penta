@@ -139,7 +139,11 @@ fn emmara_shields_creature_tokens_only() {
     let emmara = creature(10_000, cards::EMMARA_TANDRIS, PlayerId::One);
     let emmara_id = emmara.card.id;
     game.battlefield.push(emmara);
-    let token = creature(10_100, cards::HUMAN_TOKEN_1_1_WHITE, PlayerId::One);
+    let token = token_permanent(
+        10_100,
+        tokens::creature(&["Human"], &[ManaColor::White], 1, 1),
+        PlayerId::One,
+    );
     let token_id = token.card.id;
     game.battlefield.push(token);
     let bear = creature(10_101, cards::GRIZZLY_BEARS, PlayerId::One);
@@ -177,7 +181,11 @@ fn emmara_covers_a_token_that_arrives_later() {
         .push(creature(10_000, cards::EMMARA_TANDRIS, PlayerId::One));
 
     game.enqueue_battlefield_entry(PendingBattlefieldEntry {
-        permanent: creature(10_100, cards::HUMAN_TOKEN_1_1_WHITE, PlayerId::One),
+        permanent: token_permanent(
+            10_100,
+            tokens::creature(&["Human"], &[ManaColor::White], 1, 1),
+            PlayerId::One,
+        ),
         from: ZoneKind::Battlefield,
         completion: EntryCompletion::None,
         redirected_to: None,
@@ -187,7 +195,12 @@ fn emmara_covers_a_token_that_arrives_later() {
     let token_id = game
         .battlefield
         .iter()
-        .find(|permanent| permanent.card.definition == cards::HUMAN_TOKEN_1_1_WHITE)
+        .find(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Human"], &[ManaColor::White], 1, 1),
+            )
+        })
         .expect("it arrived")
         .card
         .id;

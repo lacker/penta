@@ -7,8 +7,9 @@ use penta::poc;
 use penta::{
     AbilityId, AbilityOrigin, Action, AlternativeCostId, AttackDefender, BasicLandType,
     CardInstanceId, CardPartId, CastChoices, CastSignature, CostConfiguration, Game, GameResult,
-    HandcraftedPolicy, ManaPool, PlayOptionId, PlayerId, PlayerObservation, Policy, RandomPolicy,
-    SpellForm, StackObjectKind, Step, Target, TargetSelection, TargetSlotId, play_game,
+    HandcraftedPolicy, ManaPool, ObjectCharacteristics, PlayOptionId, PlayerId, PlayerObservation,
+    Policy, RandomPolicy, SpellForm, StackObjectKind, Step, Target, TargetSelection, TargetSlotId,
+    play_game,
 };
 
 const ACTION_LIMIT: usize = 50_000;
@@ -28,6 +29,10 @@ const fn printed_ability(definition: penta::CardDefinitionId, ability: u8) -> Ab
         part: CardPartId::PRIMARY,
         ability: AbilityId(ability),
     }
+}
+
+const fn printed(definition: penta::CardDefinitionId) -> ObjectCharacteristics {
+    ObjectCharacteristics::card(definition, CardPartId::PRIMARY)
 }
 
 fn policy_observation(
@@ -74,10 +79,11 @@ fn permanent(
 ) -> PermanentObservation {
     PermanentObservation {
         id: CardInstanceId(id),
-        definition,
-        presented: CardPartId::PRIMARY,
+        characteristics: ObjectCharacteristics::card(definition, CardPartId::PRIMARY),
+        token: false,
         controller,
         face_down: false,
+        physical_face: None,
         phased_out: false,
         types: penta::CardTypeSet::empty(),
         chosen_creature_type: None,
@@ -113,7 +119,7 @@ fn stack_object(
         source: None,
         ability: None,
         ability_text: None,
-        definition,
+        characteristics: ObjectCharacteristics::card(definition, CardPartId::PRIMARY),
         controller,
         counterable: true,
         signature: (kind == StackObjectKind::Spell).then(|| {

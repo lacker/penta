@@ -116,7 +116,9 @@ fn golem_activations(game: &Game, extruder: GameObjectId) -> Vec<Action> {
 fn golems(game: &Game) -> usize {
     game.battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::GOLEM_TOKEN_3_3_COLORLESS)
+        .filter(|permanent| {
+            is_token_with(permanent, tokens::artifact_creature(&["Golem"], &[], 3, 3))
+        })
         .count()
 }
 
@@ -172,7 +174,9 @@ fn it_turns_a_spare_artifact_into_a_golem() {
     let golem = game
         .battlefield
         .iter()
-        .find(|permanent| permanent.card.definition == cards::GOLEM_TOKEN_3_3_COLORLESS)
+        .find(|permanent| {
+            is_token_with(permanent, tokens::artifact_creature(&["Golem"], &[], 3, 3))
+        })
         .expect("it is here");
     assert_eq!(
         (game.power(golem), game.toughness(golem)),

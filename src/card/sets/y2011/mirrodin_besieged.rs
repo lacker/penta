@@ -3,9 +3,9 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
-    CardArt, CardRules, CardSet, EffectDef, EffectRecipientDef, ReplacementEffectDef,
-    ReplacementEventDef, SpellResolutionDestinationDef, ValueDef, ZoneKind, ZoneMoveCauseDef,
-    abilities, cards,
+    CardArt, CardRules, CardSet, EffectDef, EffectRecipientDef, ManaColor, ReplacementEffectDef,
+    ReplacementEventDef, SpellResolutionDestinationDef, TokenCharacteristics, ValueDef, ZoneKind,
+    ZoneMoveCauseDef, abilities, cards,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -18,14 +18,7 @@ pub(in crate::card::sets) static WHITE_SUNS_ZENITH: CardRecord = CardRecord::new
     CardRules::new_instant(mana_cost!("{X}{W}{W}")).with_ability(
         AbilityDef::spell(
             "Create X 2/2 white Cat creature tokens. Shuffle White Sun's Zenith into its owner's library.",
-            EffectDef::CreateToken {
-                token: cards::CAT_TOKEN_2_2_WHITE,
-                controller: None,
-                count: ValueDef::ChosenX,
-                tapped: false,
-                attacking: false,
-            counters: None,
-            created: None,},
+            EffectDef::create_creature_token(&["Cat"], &[ManaColor::White], 2, 2).with_art(CardArt::new("5252ab51-43e8-4b24-9830-de0ad9b9d3dc", "Scott Chou")).with_count(ValueDef::ChosenX),
         )
         .with_resolution_destination(SpellResolutionDestinationDef::LibraryShuffled),
     ),
@@ -90,7 +83,18 @@ pub(in crate::card::sets) static MORTARPOD: CardRecord = CardRecord::new(
     CardRules::new_artifact(mana_cost!("{2}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
-            abilities::living_weapon(cards::GERM_TOKEN_0_0_BLACK),
+            abilities::living_weapon(
+                TokenCharacteristics::creature(
+                    &["Phyrexian", "Germ"],
+                    &[ManaColor::Black],
+                    0,
+                    0,
+                )
+                .with_art(CardArt::new(
+                    "65c65445-1016-4fd3-963e-1c9eb252d4a6",
+                    "Igor Kieryluk",
+                )),
+            ),
             AbilityDef::static_ability(
                 "Equipped creature gets +0/+1 and has \"Sacrifice this creature: This creature deals 1 damage to any target.\"",
                 EffectDef::StaticApply {

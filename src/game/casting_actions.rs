@@ -4,11 +4,11 @@ use super::{
     CardDefinition, CardDefinitionId, CardEffectStatus, CardPartId, CardType, CardTypeSet,
     CastChoices, CastSignature, CastSourceZone, ControlFlow, CostConfiguration,
     DeclarativeAbilityDef, DividedTotal, Game, GameObjectId, KeywordAbility, ManaCost,
-    ManaPaymentPurpose, ModeId, PlayActionKind, PlayOptionDef, PlayOptionId, PlayRestriction,
-    PlayerId, ScopedEffect, SelectedSpellPlan, StackAbilityPayload, StackAbilityResolver, Target,
-    TargetSelection, TargetSlotDef, TargetSlotId, TriggerContext, add_generic, add_mana_cost,
-    extra_target_cost, mode_id_selections, positive_compositions, reduce_generic,
-    target_combinations,
+    ManaPaymentPurpose, ModeId, ObjectCharacteristics, PlayActionKind, PlayOptionDef, PlayOptionId,
+    PlayRestriction, PlayerId, ScopedEffect, SelectedSpellPlan, StackAbilityPayload,
+    StackAbilityResolver, Target, TargetSelection, TargetSlotDef, TargetSlotId, TriggerContext,
+    add_generic, add_mana_cost, extra_target_cost, mode_id_selections, positive_compositions,
+    reduce_generic, target_combinations,
 };
 
 use crate::card::{AlternateSpellKind, CardStructure, ModeSetDef, SpellForm, ZoneKind};

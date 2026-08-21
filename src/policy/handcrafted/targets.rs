@@ -32,7 +32,18 @@ impl HandcraftedPolicy {
         observation
             .battlefield
             .iter()
-            .find_map(|permanent| (permanent.id == id).then_some(permanent.definition))
+            .find(|permanent| permanent.id == id)
+            .and_then(|permanent| permanent.characteristics.card_definition())
+    }
+
+    pub(super) fn permanent_characteristics(
+        observation: &PlayerObservation,
+        id: GameObjectId,
+    ) -> Option<super::ObjectCharacteristics> {
+        observation
+            .battlefield
+            .iter()
+            .find_map(|permanent| (permanent.id == id).then_some(permanent.characteristics))
     }
 
     /// Spells whose whole purpose is to remove something the opponent
@@ -174,15 +185,23 @@ impl HandcraftedPolicy {
                         return false;
                     }
                     let types = if permanent.types.is_empty() {
-                        self.catalog
-                            .get(permanent.definition)
-                            .map_or_else(CardTypeSet::empty, |card| card.rules.types())
+                        match permanent.characteristics {
+                            super::ObjectCharacteristics::Card { definition, part } => self
+                                .catalog
+                                .get(definition)
+                                .and_then(|card| card.part(part))
+                                .map_or_else(CardTypeSet::empty, |part| part.rules.types()),
+                            super::ObjectCharacteristics::Token { token, part } => token
+                                .part(part)
+                                .map_or_else(CardTypeSet::empty, |part| part.rules.types()),
+                            super::ObjectCharacteristics::Emblem { .. } => CardTypeSet::empty(),
+                        }
                     } else {
                         permanent.types
                     };
                     types.intersects(destroyed_types)
                 })
-                .map(|permanent| self.card_value(permanent.definition))
+                .map(|permanent| self.characteristics_value(permanent.characteristics))
                 .sum::<i32>()
         };
         let swing = value(observation.viewer.opponent()) - value(observation.viewer);
@@ -289,6 +308,27 @@ impl HandcraftedPolicy {
                     55
                 }
             }),
+        }
+    }
+
+    /// Values either a catalog card or inline token characteristics without
+    /// manufacturing a card definition for the latter.
+    pub(super) fn characteristics_value(
+        &self,
+        characteristics: super::ObjectCharacteristics,
+    ) -> i32 {
+        match characteristics {
+            super::ObjectCharacteristics::Card { definition, .. } => self.card_value(definition),
+            super::ObjectCharacteristics::Token { token, part } => {
+                token.part(part).map_or(0, |part| {
+                    if part.rules.has_type(CardType::Creature) {
+                        65
+                    } else {
+                        55
+                    }
+                })
+            }
+            super::ObjectCharacteristics::Emblem { .. } => 0,
         }
     }
 }

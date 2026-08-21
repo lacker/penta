@@ -98,7 +98,9 @@ fn interwave_snapshot_and_pass_preview_expose_pending_regular_damage() {
         .observe(game.human)
         .battlefield
         .iter()
-        .find(|permanent| permanent.definition == penta::card::cards::BLACK_LOTUS)
+        .find(|permanent| {
+            permanent.characteristics.card_definition() == Some(penta::card::cards::BLACK_LOTUS)
+        })
         .expect("Black Lotus resolved")
         .id;
     apply_engine_action(game.session.engine_mut(), |action| {
@@ -133,7 +135,9 @@ fn interwave_snapshot_and_pass_preview_expose_pending_regular_damage() {
         .observe(game.human)
         .battlefield
         .iter()
-        .find(|permanent| permanent.definition == penta::card::cards::BLACK_KNIGHT)
+        .find(|permanent| {
+            permanent.characteristics.card_definition() == Some(penta::card::cards::BLACK_KNIGHT)
+        })
         .expect("Black Knight resolved")
         .id;
     apply_engine_action(
@@ -190,6 +194,76 @@ fn hand_mana_cost_distinguishes_no_cost_from_printed_zero() {
     assert!(zero.is_object());
     assert_eq!(zero["generic"], 0);
     assert_eq!(zero["red"], 0);
+}
+
+#[test]
+fn created_token_snapshot_uses_creator_selected_art_and_inline_rules() {
+    let mut game =
+        WebGame::new("Sligh", "Goblins", "Handcrafted", true, 9_394, None).expect("game starts");
+    while game.session.engine_mut().in_pregame() {
+        apply_engine_action(game.session.engine_mut(), |action| {
+            matches!(action, Action::KeepHand)
+        });
+    }
+    game.session
+        .engine_mut()
+        .put_onto_battlefield(game.human, penta::card::cards::ATTENDED_KNIGHT)
+        .expect("Attended Knight is cataloged");
+    advance_engine_quietly_until(game.session.engine_mut(), |observation| {
+        observation
+            .battlefield
+            .iter()
+            .any(|permanent| permanent.token)
+    });
+
+    let snapshot = game.snapshot_value(false);
+    let soldier = snapshot["battlefield"]
+        .as_array()
+        .expect("battlefield is an array")
+        .iter()
+        .find(|permanent| permanent["name"] == "Soldier")
+        .expect("Attended Knight created a token");
+
+    assert_eq!(soldier["name"], "Soldier");
+    assert_eq!(
+        soldier["art"],
+        json!({
+            "scryfallId": "86272c08-c5f2-413f-87ea-b135aca2d9c5",
+            "artist": "Greg Staples",
+        })
+    );
+    assert_eq!(soldier["kind"], "creature");
+    assert_eq!(soldier["typeLine"], "Creature — Soldier");
+    assert_eq!(soldier["rulesText"], "");
+    assert_eq!(soldier["power"], 1);
+    assert_eq!(soldier["toughness"], 1);
+}
+
+#[test]
+fn double_faced_snapshot_reports_physical_topology_separately() {
+    let mut game =
+        WebGame::new("Sligh", "Goblins", "Handcrafted", true, 9_394, None).expect("game starts");
+    while game.session.engine_mut().in_pregame() {
+        apply_engine_action(game.session.engine_mut(), |action| {
+            matches!(action, Action::KeepHand)
+        });
+    }
+    game.session
+        .engine_mut()
+        .put_onto_battlefield(game.human, penta::card::cards::HUNTMASTER_OF_THE_FELLS)
+        .expect("Huntmaster is cataloged");
+
+    let snapshot = game.snapshot_value(false);
+    let huntmaster = snapshot["battlefield"]
+        .as_array()
+        .expect("battlefield is an array")
+        .iter()
+        .find(|permanent| permanent["name"] == "Huntmaster of the Fells")
+        .expect("Huntmaster is on the battlefield");
+    assert_eq!(
+        huntmaster["physicalFace"],
+        json!({ "kind": "transforming", "side": "front" }),
+    );
 }
 
 #[test]

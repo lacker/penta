@@ -3,8 +3,9 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, ComparisonDef,
-    CounterKind, EffectDef, EffectRecipientDef, ObjectPredicateDef, ReplacementEffectDef,
-    TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, cards,
+    CounterKind, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    ReplacementEffectDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef,
+    ZoneKind, cards,
 };
 use crate::mana_cost;
 
@@ -46,15 +47,12 @@ static JACKED_RABBIT_ABILITIES: [AbilityDef; 3] = [
         "Whenever this creature attacks, create a number of 1/1 white Rabbit creature tokens \
          equal to this creature's power.",
         TriggerEventDef::attacks(ObjectPredicateDef::Source),
-        EffectDef::CreateToken {
-            token: cards::RABBIT_TOKEN_1_1_WHITE,
-            controller: None,
-            count: ValueDef::SourcePower,
-            tapped: false,
-            attacking: false,
-            counters: None,
-            created: None,
-        },
+        EffectDef::create_creature_token(&["Rabbit"], &[ManaColor::White], 1, 1)
+            .with_art(CardArt::new(
+                "81de52ef-7515-4958-abea-fb8ebdcef93c",
+                "Gina Matarazzo",
+            ))
+            .with_count(ValueDef::SourcePower),
     ),
 ];
 

@@ -1,7 +1,7 @@
 use super::{
     AbilityCostDef, AbilityOrigin, CardDefinitionId, CardTypeSet, DecisionOption,
     DeclarativeAbilityDef, DeclarativeSpellProfile, GameObjectId, HandcraftedPolicy,
-    PlayerObservation, Step, Target,
+    ObjectCharacteristics, PlayerObservation, Step, Target,
 };
 
 impl HandcraftedPolicy {
@@ -164,13 +164,13 @@ impl HandcraftedPolicy {
     /// that card even when `members` disclose other inspected cards. A pile
     /// option has no single `card`, so it is worth its members together.
     pub(super) fn option_value(&self, option: &DecisionOption) -> i32 {
-        if let Some((_, definition)) = option.card {
-            return self.card_value(definition);
+        if let Some((_, characteristics)) = option.card {
+            return self.characteristics_value(characteristics);
         }
         option
             .members
             .iter()
-            .map(|(_, definition)| self.card_value(*definition))
+            .map(|(_, characteristics)| self.characteristics_value(*characteristics))
             .sum()
     }
 
@@ -269,7 +269,7 @@ impl HandcraftedPolicy {
                             .battlefield
                             .iter()
                             .filter(|permanent| permanent.controller == *player)
-                            .map(|permanent| self.card_value(permanent.definition))
+                            .map(|permanent| self.characteristics_value(permanent.characteristics))
                             .sum::<i32>()
                             / 2;
                         if *player == observation.viewer {
@@ -282,6 +282,27 @@ impl HandcraftedPolicy {
             })
     }
 
+    fn activated_source_profile(
+        &self,
+        observation: &PlayerObservation,
+        source: GameObjectId,
+        ability: AbilityOrigin,
+    ) -> (Option<CardDefinitionId>, Option<DeclarativeSpellProfile>) {
+        let Some(characteristics) =
+            Self::permanent_characteristics(observation, source).or_else(|| {
+                Self::hand_definition(observation, source).map(|definition| {
+                    ObjectCharacteristics::card(definition, crate::CardPartId::PRIMARY)
+                })
+            })
+        else {
+            return (None, None);
+        };
+        (
+            characteristics.card_definition(),
+            self.declarative_activated_profile(characteristics, ability),
+        )
+    }
+
     pub(super) fn score_ability(
         &self,
         observation: &PlayerObservation,
@@ -291,11 +312,9 @@ impl HandcraftedPolicy {
         sacrifices: &[GameObjectId],
         x: u16,
     ) -> i32 {
-        let source_definition = Self::permanent_definition(observation, source)
-            .or_else(|| Self::hand_definition(observation, source));
+        let (source_definition, declarative) =
+            self.activated_source_profile(observation, source, ability);
         let behavior = source_definition.and_then(|id| self.behavior(id));
-        let declarative = source_definition
-            .and_then(|definition| self.declarative_activated_profile(definition, ability));
         let global_destroy_types =
             declarative.map_or_else(CardTypeSet::empty, |profile| profile.global_destroy_types);
         let target = targets
@@ -314,8 +333,8 @@ impl HandcraftedPolicy {
         let sacrifice_cost = sacrifices
             .iter()
             .filter(|card| **card != source)
-            .filter_map(|card| Self::permanent_definition(observation, *card))
-            .map(|definition| self.card_value(definition))
+            .filter_map(|card| Self::permanent_characteristics(observation, *card))
+            .map(|characteristics| self.characteristics_value(characteristics))
             .sum::<i32>();
         let discard_source_cost = self.discard_source_cost(source_definition, ability);
         let card_owned_hint_score = self.card_owned_hint_score(observation, ability, targets);

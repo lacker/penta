@@ -380,7 +380,7 @@ fn mountain_casts_and_resolves_lightning_bolt() {
         .observe(PlayerId::One)
         .battlefield
         .iter()
-        .find(|permanent| permanent.definition == CardDefinitionId(1))
+        .find(|permanent| permanent.characteristics.card_definition() == Some(CardDefinitionId(1)))
         .unwrap()
         .id;
     activate_red_mana(&mut game, PlayerId::One, mountain);
@@ -487,7 +487,7 @@ fn unspent_mana_burns_at_the_end_of_a_phase() {
         .observe(PlayerId::One)
         .battlefield
         .iter()
-        .find(|permanent| permanent.definition == CardDefinitionId(1))
+        .find(|permanent| permanent.characteristics.card_definition() == Some(CardDefinitionId(1)))
         .unwrap()
         .id;
     activate_red_mana(&mut game, PlayerId::One, mountain);
@@ -869,7 +869,7 @@ fn aura_sequence_attaches_to_its_indexed_semantic_target() {
     assert!(
         battlefield
             .iter()
-            .any(|permanent| permanent.definition == AURA),
+            .any(|permanent| permanent.characteristics.card_definition() == Some(AURA)),
         "the Aura remains attached because target 1 satisfies its enchant restriction"
     );
     assert!(

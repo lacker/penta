@@ -1,14 +1,17 @@
 use super::{
     AbilityCostDef, AbilityOrigin, AbilityProcedureDef, Action, CardBehavior, CardDefinitionId,
-    CardInstance, CardPart, CardStructure, CharacteristicContext, CharacteristicSource,
-    ControlFlow, DeclarativeAbilityDef, DoubleFacedKind, EffectiveAbility, FrozenActivatedAbility,
-    Game, GameEvent, GameObjectId, ManaCost, ManaPaymentPurpose, ManaPlanOptions, ObjectRefDef,
-    Permanent, PlayerId, RetiredObject, ScopedEffect, SelectedSpellPlan, StackAbilityPayload,
-    StackObject, StackObjectKind, TargetSelection, TriggerContext, ZoneKind, add_mana_cost,
-    applicable_part_ids, mana_cost_value, mode_id_selections,
+    CardInstance, CardPart, CardStructure, CharacteristicContext, ControlFlow,
+    DeclarativeAbilityDef, DoubleFacedKind, EffectiveAbility, FrozenActivatedAbility, Game,
+    GameEvent, GameObjectId, ManaCost, ManaPaymentPurpose, ManaPlanOptions, ObjectCharacteristics,
+    ObjectInstance, ObjectRefDef, Permanent, PlayerId, RetiredObject, ScopedEffect,
+    SelectedSpellPlan, StackAbilityPayload, StackObject, StackObjectKind, TargetSelection,
+    TriggerContext, ZoneKind, add_mana_cost, applicable_part_ids, mana_cost_value,
+    mode_id_selections,
 };
 use crate::card::ActivatedAbilityDef;
 use crate::ids::ModeId;
+
+mod mana_value;
 
 impl Game {
     /// Resolves object references that are fixed when an ability is
@@ -24,8 +27,12 @@ impl Game {
         match reference {
             ObjectRefDef::Source => Some(source),
             ObjectRefDef::AbilityGrantSource => match origin {
-                AbilityOrigin::Granted { source, .. } => Some(source),
+                AbilityOrigin::Granted { source, .. }
+                | AbilityOrigin::TokenGranted { source, .. }
+                | AbilityOrigin::EmblemGranted { source, .. } => Some(source),
                 AbilityOrigin::Printed { .. }
+                | AbilityOrigin::Token { .. }
+                | AbilityOrigin::Emblem { .. }
                 | AbilityOrigin::IntrinsicBasicLand(_)
                 | AbilityOrigin::IntrinsicCounter(_) => None,
             },
@@ -98,7 +105,7 @@ impl Game {
     pub(super) fn push_activated_ability(
         &mut self,
         source: GameObjectId,
-        source_card: &CardInstance,
+        source_card: &ObjectInstance,
         controller: PlayerId,
         frozen: FrozenActivatedAbility,
         targets: Vec<TargetSelection>,
@@ -119,11 +126,7 @@ impl Game {
             }
         }
         let event_chosen_permanents = chosen_permanents.clone();
-        let card = self.unbacked_object(
-            frozen.presentation_definition,
-            source_card.owner,
-            CharacteristicSource::Ability(frozen.presentation_definition),
-        );
+        let card = self.unbacked_ability_object(frozen.presentation, source_card.owner);
         let id = card.id;
         // The activation's targets are locked in here, which is where a
         // crime is committed if any of them belongs to an opponent.
@@ -140,7 +143,7 @@ impl Game {
             ability: Some(StackAbilityPayload {
                 origin: frozen.origin,
                 definition: frozen.definition,
-                presentation_definition: frozen.presentation_definition,
+                presentation: frozen.presentation,
                 text: frozen.text,
                 target_defs: frozen.target_defs,
                 targets,
@@ -168,7 +171,7 @@ impl Game {
             player: controller,
             object: id,
             source,
-            definition: frozen.presentation_definition,
+            presentation: frozen.presentation,
             chosen_permanents: event_chosen_permanents,
         });
         self.capture_crime_triggers(controller, &crime_targets);
@@ -906,76 +909,5 @@ impl Game {
         self.catalog
             .get(definition)
             .and_then(|card| card.rules.special_behavior())
-    }
-
-    pub(super) fn permanent_mana_value(&self, permanent: &Permanent) -> u16 {
-        // A transforming double-faced permanent keeps the mana value of its
-        // front face while its back face is up. A permanent merely copying a
-        // back face is not itself that transforming double-faced card, so its
-        // copied characteristics continue through the ordinary path below.
-        if permanent.copied_from.is_none()
-            && let Some(definition) = self.catalog.get(permanent.card.definition)
-            && let CardStructure::DoubleFaced {
-                front,
-                kind: DoubleFacedKind::Transforming,
-                ..
-            } = &definition.structure
-        {
-            return definition
-                .part(*front)
-                .map_or(0, |part| part.rules.printed_mana_cost().mana_value());
-        }
-        self.effective_rules(permanent)
-            .map_or(0, |rules| rules.printed_mana_cost().mana_value())
-    }
-
-    /// A permanent or spell's mana value, still readable after it has left
-    /// its zone so a later effect in the same sequence can measure it.
-    pub(super) fn current_or_last_known_mana_value(&self, id: GameObjectId) -> Option<u16> {
-        if let Some(permanent) = self
-            .battlefield
-            .iter()
-            .find(|permanent| permanent.card.id == id)
-        {
-            return Some(self.permanent_mana_value(permanent));
-        }
-        if let Some(object) = self.stack.iter().find(|object| object.id == id) {
-            return Some(self.stack_spell_mana_value(object));
-        }
-        if let Some((_, card)) = self.card_in_nonbattlefield_zone(id) {
-            return self
-                .catalog
-                .get(card.definition)
-                .map(|definition| definition.rules.printed_mana_cost().mana_value());
-        }
-        match self.retired_objects.get(&id) {
-            Some(RetiredObject::Permanent { mana_value, .. }) => Some(*mana_value),
-            Some(RetiredObject::Stack(object)) => Some(self.stack_spell_mana_value(object)),
-            Some(RetiredObject::Card(card)) => self
-                .catalog
-                .get(card.definition)
-                .map(|definition| definition.rules.printed_mana_cost().mana_value()),
-            None => None,
-        }
-    }
-
-    pub(super) fn stack_spell_mana_value(&self, object: &StackObject) -> u16 {
-        let Some(definition) = self.catalog.get(object.card.definition) else {
-            return 0;
-        };
-        let Some(signature) = &object.signature else {
-            return 0;
-        };
-        match signature.form() {
-            crate::card::SpellForm::Part(part) => definition
-                .part(*part)
-                .and_then(CardPart::mana_cost)
-                .map_or(0, mana_cost_value),
-            crate::card::SpellForm::Combined(parts) => parts
-                .iter()
-                .filter_map(|part| definition.part(*part).and_then(CardPart::mana_cost))
-                .map(mana_cost_value)
-                .fold(0, u16::saturating_add),
-        }
     }
 }

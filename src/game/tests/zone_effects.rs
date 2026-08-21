@@ -420,7 +420,11 @@ fn oblivion_ring_exiles_another_nonland_permanent() {
     let offered: Vec<_> = decision
         .options
         .iter()
-        .filter_map(|option| option.card.map(|(_, definition)| definition))
+        .filter_map(|option| {
+            option
+                .card
+                .and_then(|(_, characteristics)| characteristics.card_definition())
+        })
         .collect();
     assert_eq!(
         offered,
@@ -837,11 +841,12 @@ fn thragtusk_leaves_a_beast_behind() {
     // game processes actions, so the test has to keep playing rather than only
     // poking the engine.
     for _ in 0..12 {
-        if game
-            .battlefield
-            .iter()
-            .any(|permanent| permanent.card.definition == cards::BEAST_TOKEN_3_3_GREEN)
-        {
+        if game.battlefield.iter().any(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Beast"], &[ManaColor::Green], 3, 3),
+            )
+        }) {
             break;
         }
         let player = game.priority;
@@ -852,7 +857,12 @@ fn thragtusk_leaves_a_beast_behind() {
     let beast = game
         .battlefield
         .iter()
-        .find(|permanent| permanent.card.definition == cards::BEAST_TOKEN_3_3_GREEN)
+        .find(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Beast"], &[ManaColor::Green], 3, 3),
+            )
+        })
         .expect("a Beast token replaced it");
     assert_eq!(game.power(beast), Some(3));
     assert_eq!(game.toughness(beast), Some(3));
@@ -862,7 +872,10 @@ fn thragtusk_leaves_a_beast_behind() {
 #[test]
 fn a_token_ceases_to_exist_rather_than_reaching_a_graveyard() {
     let mut game = ready_game();
-    game.create_token(PlayerId::One, cards::BEAST_TOKEN_3_3_GREEN);
+    game.create_token(
+        PlayerId::One,
+        tokens::creature(&["Beast"], &[ManaColor::Green], 3, 3),
+    );
     let token_id = game.battlefield[0].card.id;
     assert!(game.players[0].graveyard.is_empty());
 
@@ -882,12 +895,12 @@ fn a_token_ceases_to_exist_rather_than_reaching_a_graveyard() {
 #[test]
 fn a_token_is_never_deck_legal() {
     let catalog = poc::catalog().expect("catalog builds");
-    for format in [Format::OldSchool9394, Format::IsdDgmStandard] {
-        assert!(
-            !catalog.is_allowed_in(cards::BEAST_TOKEN_3_3_GREEN, format),
-            "a token belongs to no format's card pool"
-        );
-    }
+    assert!(
+        catalog
+            .find_by_name(&tokens::creature(&["Beast"], &[ManaColor::Green], 3, 3).name())
+            .is_none(),
+        "a token is absent from the card catalog rather than merely format-illegal",
+    );
 }
 #[test]
 fn put_onto_battlefield_reaches_a_board_state_directly() {

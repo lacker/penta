@@ -1,9 +1,18 @@
 use super::*;
 
-#[test]
-fn observation_json_carries_interwave_state_and_presented_card_part() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let observation = PlayerObservation {
+fn test_token() -> crate::TokenCharacteristics {
+    static TEST_TOKEN: crate::TokenCharacteristics =
+        crate::TokenCharacteristics::artifact_creature(&["Servo"], &[], 1, 1)
+            .with_name("Test Servo")
+            .with_art(crate::CardArt::new(
+                "00000000-0000-0000-0000-000000000001",
+                "Test Artist",
+            ));
+    TEST_TOKEN
+}
+
+fn observation_with_printed_and_token_permanents() -> PlayerObservation {
+    PlayerObservation {
         viewer: PlayerId::One,
         turn: 1,
         active_turn: 1,
@@ -25,59 +34,187 @@ fn observation_json_carries_interwave_state_and_presented_card_part() {
         exiles: [Vec::new(), Vec::new()],
         face_down_exile_sizes: [0, 0],
         emblems: Vec::new(),
-        battlefield: vec![crate::game::PermanentObservation {
-            id: GameObjectId(30),
-            definition: crate::card::cards::HUNTMASTER_OF_THE_FELLS,
-            presented: crate::CardPartId(1),
-            controller: PlayerId::One,
-            face_down: false,
-            phased_out: false,
-            types: crate::CardTypeSet::single(crate::CardType::Creature),
-            chosen_creature_type: Some("Werewolf".into()),
-            chosen_card_name: None,
-            tapped: false,
-            power: Some(4),
-            toughness: Some(4),
-            damage: 0,
-            loyalty: None,
-            loyalty_ability_used_this_turn: false,
-            attack_defender: None,
-            attacking: false,
-            blocked_this_combat: false,
-            blocking: Vec::new(),
-            blocking_this_combat: false,
-            attacking_band: None,
-            flying: false,
-            can_attack: true,
-            entered_this_turn: false,
-        }],
+        battlefield: vec![
+            crate::game::PermanentObservation {
+                id: GameObjectId(30),
+                characteristics: crate::ObjectCharacteristics::card(
+                    crate::card::cards::HUNTMASTER_OF_THE_FELLS,
+                    crate::CardPartId(1),
+                ),
+                token: false,
+                controller: PlayerId::One,
+                face_down: false,
+                physical_face: Some(crate::PhysicalFaceObservation {
+                    kind: crate::DoubleFacedKind::Transforming,
+                    side: crate::PhysicalFaceSide::Back,
+                }),
+                phased_out: false,
+                types: crate::CardTypeSet::single(crate::CardType::Creature),
+                chosen_creature_type: Some("Werewolf".into()),
+                chosen_card_name: None,
+                tapped: false,
+                power: Some(4),
+                toughness: Some(4),
+                damage: 0,
+                loyalty: None,
+                loyalty_ability_used_this_turn: false,
+                attack_defender: None,
+                attacking: false,
+                blocked_this_combat: false,
+                blocking: Vec::new(),
+                blocking_this_combat: false,
+                attacking_band: None,
+                flying: false,
+                can_attack: true,
+                entered_this_turn: false,
+            },
+            crate::game::PermanentObservation {
+                id: GameObjectId(31),
+                characteristics: crate::ObjectCharacteristics::token(
+                    test_token(),
+                    crate::CardPartId::PRIMARY,
+                ),
+                token: true,
+                controller: PlayerId::One,
+                face_down: false,
+                physical_face: None,
+                phased_out: false,
+                types: crate::CardTypeSet::single(crate::CardType::Artifact)
+                    .with(crate::CardType::Creature),
+                chosen_creature_type: None,
+                chosen_card_name: None,
+                tapped: false,
+                power: Some(1),
+                toughness: Some(1),
+                damage: 0,
+                loyalty: None,
+                loyalty_ability_used_this_turn: false,
+                attack_defender: None,
+                attacking: false,
+                blocked_this_combat: false,
+                blocking: Vec::new(),
+                blocking_this_combat: false,
+                attacking_band: None,
+                flying: false,
+                can_attack: true,
+                entered_this_turn: true,
+            },
+        ],
         stack: Vec::new(),
         decision: None,
         result: None,
         legal_actions: Vec::new(),
         checkpoint: json!({}),
-    };
+    }
+}
 
+#[test]
+fn observation_json_carries_interwave_state_and_presented_card_part() {
+    let catalog = poc::catalog().expect("catalog builds");
+    let observation = observation_with_printed_and_token_permanents();
     let value =
         observation_json_for_format(&catalog, Format::IsdDgmStandard, &observation, false, &[]);
     assert_eq!(value["regularCombatDamagePending"], true);
     assert_eq!(value["battlefield"][0]["objectId"], 30);
     assert_eq!(value["battlefield"][0]["presentedPartId"], 1);
+    assert_eq!(
+        value["battlefield"][0]["characteristics"]["kind"],
+        "printed"
+    );
+    assert_eq!(value["battlefield"][0]["characteristics"]["partId"], 1);
+    assert_eq!(
+        value["battlefield"][0]["physicalFace"],
+        json!({ "kind": "transforming", "side": "back" }),
+    );
     assert_eq!(value["battlefield"][0]["name"], "Ravager of the Fells");
     assert_eq!(value["battlefield"][0]["chosenCreatureType"], "Werewolf");
+    let token = &value["battlefield"][1];
+    assert_eq!(token["name"], "Test Servo");
+    assert_eq!(token["token"], true);
+    assert!(token.get("physicalFace").is_none());
+    assert!(token.get("definition").is_none());
+    assert!(token.get("presentedPartId").is_none());
+    assert_eq!(token["characteristics"]["kind"], "token");
+    assert_eq!(token["characteristics"]["partId"], 0);
+    assert_eq!(token["characteristics"]["name"], "Test Servo");
     assert_eq!(
-        card_part_name(
-            &catalog,
-            crate::card::cards::HUNTMASTER_OF_THE_FELLS,
-            crate::CardPartId(99),
-        ),
-        "Huntmaster of the Fells"
+        token["characteristics"]["art"]["scryfallId"],
+        "00000000-0000-0000-0000-000000000001"
     );
+    assert_eq!(token["characteristics"]["art"]["artist"], "Test Artist");
+    assert_eq!(token["characteristics"]["structure"]["kind"], "single");
+    assert_eq!(token["characteristics"]["presentation"]["power"], 1);
+    assert_eq!(token["characteristics"]["presentation"]["toughness"], 1);
+}
+
+#[test]
+fn transforming_token_characteristics_are_inline_and_omit_missing_art() {
+    static BACK: crate::TokenPart = crate::TokenPart::new(
+        crate::CardPartId(1),
+        "Phyrexian",
+        crate::CardRules::new_artifact_creature_without_mana_cost(&["Phyrexian"], 0, 0),
+    );
+    static TOKEN: crate::TokenCharacteristics =
+        crate::TokenCharacteristics::artifact(&["Incubator"], &[]).transforming_into(&BACK);
+    let characteristics = crate::protocol::json_common::object_characteristics_json(
+        crate::ObjectCharacteristics::token(TOKEN, crate::CardPartId(1)),
+    );
+
+    assert_eq!(characteristics["kind"], "token");
+    assert_eq!(characteristics["partId"], 1);
+    assert_eq!(characteristics["name"], "Phyrexian");
+    assert!(characteristics.get("art").is_none());
+    assert_eq!(
+        characteristics["structure"],
+        json!({
+            "kind": "transformingDoubleFaced",
+            "frontPartId": 0,
+            "backPartId": 1,
+        })
+    );
+    assert_eq!(characteristics["presentation"]["power"], 0);
+    assert_eq!(characteristics["presentation"]["toughness"], 0);
+    assert_eq!(
+        characteristics["presentation"]["typeLine"],
+        "Artifact Creature — Phyrexian"
+    );
+}
+
+#[test]
+fn emblem_characteristics_are_inline_without_catalog_identity() {
+    static EMBLEM_ABILITIES: [crate::AbilityDef; 1] = [crate::AbilityDef::not_implemented(
+        "Test emblem rule.",
+        "protocol fixture",
+    )];
+    static EMBLEM: crate::EmblemCharacteristics =
+        crate::EmblemCharacteristics::new("Test emblem", &EMBLEM_ABILITIES);
+    let characteristics = crate::protocol::json_common::object_characteristics_json(
+        crate::ObjectCharacteristics::Emblem { emblem: EMBLEM },
+    );
+
+    assert_eq!(characteristics["kind"], "emblem");
+    assert_eq!(characteristics["name"], "Test emblem");
+    assert_eq!(characteristics["presentation"]["kind"], "Emblem");
+    assert_eq!(characteristics["presentation"]["typeLine"], "Emblem");
+    assert_eq!(
+        characteristics["presentation"]["rulesText"],
+        "Test emblem rule."
+    );
+    assert_eq!(
+        characteristics["presentation"]["implementationStatus"],
+        "metadataOnly"
+    );
+    assert!(characteristics.get("definition").is_none());
+    assert!(characteristics.get("partId").is_none());
+    assert!(characteristics.get("art").is_none());
 }
 
 #[test]
 #[allow(clippy::too_many_lines)]
 fn stack_json_uses_game_object_identity_and_preserves_cast_signature() {
+    static EMBLEM: crate::EmblemCharacteristics =
+        crate::EmblemCharacteristics::new("Test emblem", &[]);
+
     let catalog = poc::catalog().expect("catalog builds");
     let signature = CastSignature::from_validated_choices(
         SpellForm::Combined(vec![crate::CardPartId(0), crate::CardPartId(1)]),
@@ -89,7 +226,10 @@ fn stack_json_uses_game_object_identity_and_preserves_cast_signature() {
         source: None,
         ability: None,
         ability_text: None,
-        definition: crate::card::cards::TURN_BURN,
+        characteristics: crate::ObjectCharacteristics::card(
+            crate::card::cards::TURN_BURN,
+            crate::CardPartId::PRIMARY,
+        ),
         controller: PlayerId::One,
         counterable: true,
         targets: signature.iter_targets().copied().collect(),
@@ -123,7 +263,10 @@ fn stack_json_uses_game_object_identity_and_preserves_cast_signature() {
         source: None,
         ability: None,
         ability_text: None,
-        definition: crate::card::cards::TURN_BURN,
+        characteristics: crate::ObjectCharacteristics::card(
+            crate::card::cards::TURN_BURN,
+            crate::CardPartId(1),
+        ),
         controller: PlayerId::One,
         counterable: true,
         targets: Vec::new(),
@@ -139,7 +282,10 @@ fn stack_json_uses_game_object_identity_and_preserves_cast_signature() {
         source: Some(GameObjectId(39)),
         ability: None,
         ability_text: None,
-        definition: crate::card::cards::MISHRA_S_FACTORY,
+        characteristics: crate::ObjectCharacteristics::card(
+            crate::card::cards::MISHRA_S_FACTORY,
+            crate::CardPartId::PRIMARY,
+        ),
         controller: PlayerId::One,
         counterable: true,
         targets: Vec::new(),
@@ -170,7 +316,10 @@ fn stack_json_uses_game_object_identity_and_preserves_cast_signature() {
         ability_text: Some(
             "Whenever a land enters, Ankh of Mishra deals 2 damage to its controller.".into(),
         ),
-        definition: crate::card::cards::ANKH_OF_MISHRA,
+        characteristics: crate::ObjectCharacteristics::card(
+            crate::card::cards::ANKH_OF_MISHRA,
+            crate::CardPartId::PRIMARY,
+        ),
         controller: PlayerId::Two,
         counterable: true,
         targets: Vec::new(),
@@ -192,6 +341,74 @@ fn stack_json_uses_game_object_identity_and_preserves_cast_signature() {
         "Whenever a land enters, Ankh of Mishra deals 2 damage to its controller."
     );
     assert_eq!(trigger_value["controller"], "p2");
+
+    let token_trigger = StackObservation {
+        id: GameObjectId(44),
+        kind: StackObjectKind::TriggeredAbility,
+        source: Some(GameObjectId(37)),
+        ability: Some(AbilityOrigin::Token {
+            part: crate::CardPartId::PRIMARY,
+            ability: crate::AbilityId(2),
+        }),
+        ability_text: Some("Test token trigger".into()),
+        characteristics: crate::ObjectCharacteristics::token(
+            test_token(),
+            crate::CardPartId::PRIMARY,
+        ),
+        controller: PlayerId::One,
+        counterable: true,
+        targets: Vec::new(),
+        chosen_permanents: Vec::new(),
+        x: 0,
+        signature: None,
+    };
+    let token_value = stack_object_json(&catalog, &token_trigger);
+    assert_eq!(token_value["name"], "Test Servo");
+    assert!(token_value.get("definition").is_none());
+    assert!(token_value.get("presentedPartId").is_none());
+    assert!(token_value["abilityId"].is_null());
+    assert_eq!(token_value["ability"]["kind"], "token");
+    assert_eq!(token_value["ability"]["partId"], 0);
+    assert_eq!(token_value["ability"]["abilityId"], 2);
+    assert_eq!(token_value["characteristics"]["kind"], "token");
+    assert_eq!(
+        token_value["characteristics"]["art"]["artist"],
+        "Test Artist"
+    );
+
+    let emblem_trigger = StackObservation {
+        id: GameObjectId(45),
+        kind: StackObjectKind::TriggeredAbility,
+        source: Some(GameObjectId(38)),
+        ability: Some(AbilityOrigin::Emblem {
+            ability: crate::AbilityId(3),
+        }),
+        ability_text: Some("Test emblem trigger".into()),
+        characteristics: crate::ObjectCharacteristics::Emblem { emblem: EMBLEM },
+        controller: PlayerId::One,
+        counterable: true,
+        targets: Vec::new(),
+        chosen_permanents: Vec::new(),
+        x: 0,
+        signature: None,
+    };
+    let emblem_value = stack_object_json(&catalog, &emblem_trigger);
+    assert_eq!(emblem_value["name"], "Test emblem");
+    assert!(emblem_value.get("definition").is_none());
+    assert!(emblem_value.get("presentedPartId").is_none());
+    assert!(emblem_value["abilityId"].is_null());
+    assert_eq!(
+        emblem_value["ability"],
+        json!({
+            "kind": "emblem",
+            "abilityId": 3,
+        })
+    );
+    assert_eq!(emblem_value["characteristics"]["kind"], "emblem");
+    assert_eq!(
+        emblem_value["characteristics"]["presentation"]["typeLine"],
+        "Emblem"
+    );
 }
 
 #[test]
@@ -212,7 +429,13 @@ fn decision_json_exposes_trigger_procedure_and_resolution_order_semantics() {
             crate::game::DecisionOption {
                 id: 11,
                 label: "First Ankh trigger".into(),
-                card: Some((GameObjectId(81), crate::card::cards::ANKH_OF_MISHRA)),
+                card: Some((
+                    GameObjectId(81),
+                    crate::ObjectCharacteristics::card(
+                        crate::card::cards::ANKH_OF_MISHRA,
+                        crate::CardPartId::PRIMARY,
+                    ),
+                )),
                 members: Vec::new(),
                 ability_text: Some("First frozen trigger text".into()),
                 zone: crate::game::DecisionZone::Battlefield,
@@ -220,7 +443,13 @@ fn decision_json_exposes_trigger_procedure_and_resolution_order_semantics() {
             crate::game::DecisionOption {
                 id: 12,
                 label: "Second Ankh trigger".into(),
-                card: Some((GameObjectId(82), crate::card::cards::ANKH_OF_MISHRA)),
+                card: Some((
+                    GameObjectId(82),
+                    crate::ObjectCharacteristics::card(
+                        crate::card::cards::ANKH_OF_MISHRA,
+                        crate::CardPartId::PRIMARY,
+                    ),
+                )),
                 members: Vec::new(),
                 ability_text: Some("Second frozen trigger text".into()),
                 zone: crate::game::DecisionZone::Battlefield,
@@ -289,7 +518,13 @@ fn decision_json_names_outside_game_card_provenance() {
         options: vec![crate::game::DecisionOption {
             id: 0,
             label: "Black Lotus".into(),
-            card: Some((GameObjectId(99), crate::card::cards::BLACK_LOTUS)),
+            card: Some((
+                GameObjectId(99),
+                crate::ObjectCharacteristics::card(
+                    crate::card::cards::BLACK_LOTUS,
+                    crate::CardPartId::PRIMARY,
+                ),
+            )),
             members: Vec::new(),
             ability_text: None,
             zone: crate::game::DecisionZone::OutsideGame,

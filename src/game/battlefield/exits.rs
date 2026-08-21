@@ -6,6 +6,8 @@
 // ordinary members of the same `impl Game`. The paths and imports are the
 // parent module's.
 
+use super::PlayerRelation;
+
 /// One permanent on its way off the battlefield, as the exit batch collects
 /// it: what it was, what had damaged it, where it is going, whether undying
 /// will bring it back, and which face it was showing.
@@ -67,9 +69,9 @@ impl Game {
                         ability: effective.origin,
                     },
                     controller: permanent.controller,
-                    definition: Self::ability_presentation_definition(
+                    presentation: Self::ability_presentation(
                         effective.origin,
-                        Self::effective_rules_source(permanent).0,
+                        Self::effective_rules_source(permanent),
                     ),
                     text: ability.text,
                     replacement,
@@ -125,7 +127,9 @@ impl Game {
         else {
             return false;
         };
-        if !tokens && self.is_token(permanent.card.definition) {
+        // Token nature belongs to the physical object, not the characteristics
+        // it may currently be copying.
+        if !tokens && permanent.card.definition.is_token() {
             return false;
         }
         self.player_relation_matches(
@@ -190,7 +194,7 @@ impl Game {
                     source: replacement.source,
                     controller: replacement.controller,
                 },
-                definition: replacement.definition,
+                presentation: replacement.presentation,
                 text: replacement.text,
                 effect: replacement.effect,
             })
@@ -208,8 +212,7 @@ impl Game {
         let proposed = &batch.moves[move_index];
         let name = self
             .object_card_name(proposed.object)
-            .unwrap_or("this permanent")
-            .to_string();
+            .map_or_else(|| "this permanent".to_string(), std::borrow::Cow::into_owned);
         let options = candidates
             .iter()
             .enumerate()
@@ -217,7 +220,7 @@ impl Game {
                 Some(DecisionOption {
                     id: u32::try_from(index).ok()?,
                     label: candidate.text.to_string(),
-                    card: Some((candidate.context.source.object, candidate.definition)),
+                    card: Some((candidate.context.source.object, candidate.presentation)),
                     members: Vec::new(),
                     ability_text: Some(candidate.text.to_string()),
                     zone: DecisionZone::Battlefield,
@@ -425,11 +428,16 @@ impl Game {
             self.record_battlefield_exit(&permanent, exit);
             // 111.7: a token that leaves the battlefield ceases to exist. The
             // exit and everything watching for it still happened.
-            if self.is_token(permanent.card.definition) {
+            if permanent.card.definition.is_token() {
                 continue;
             }
             let owner = permanent.card.owner;
-            let (card, _zone_change) = self.zone_change_card(permanent.card);
+            let (card, _zone_change) = self.zone_change_card(
+                permanent
+                    .card
+                    .into_card()
+                    .expect("a nontoken permanent is backed by a card definition"),
+            );
             match to {
                 ZoneKind::Exile => self.players[owner.index()].exile.push(card),
                 ZoneKind::Graveyard => self.players[owner.index()].graveyard.push(card),

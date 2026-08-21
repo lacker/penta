@@ -11,11 +11,11 @@
 //! take it ends in a choice.
 
 use crate::card::{CardType, CounterKind};
-use crate::ids::GameObjectId;
+use crate::ids::{CardPartId, GameObjectId};
 
 use super::{
     DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
-    Game, GameEvent, PlayerId,
+    Game, GameEvent, ObjectCharacteristics, PlayerId,
 };
 
 impl Game {
@@ -58,6 +58,7 @@ impl Game {
             .catalog
             .get(definition)
             .map_or_else(|| "that card".to_owned(), |card| card.name.clone());
+        let presentation = ObjectCharacteristics::card(definition, CardPartId::PRIMARY);
         self.queue_decision(
             player,
             format!("Put {name} back on top of your library or into your graveyard"),
@@ -69,7 +70,7 @@ impl Game {
                 DecisionOption {
                     id: 0,
                     label: "Top of library".into(),
-                    card: Some((revealed, definition)),
+                    card: Some((revealed, presentation)),
                     members: Vec::new(),
                     ability_text: None,
                     zone: DecisionZone::Library,
@@ -77,7 +78,7 @@ impl Game {
                 DecisionOption {
                     id: 1,
                     label: "Graveyard".into(),
-                    card: Some((revealed, definition)),
+                    card: Some((revealed, presentation)),
                     members: Vec::new(),
                     ability_text: None,
                     zone: DecisionZone::Library,

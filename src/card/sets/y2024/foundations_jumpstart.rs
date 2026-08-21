@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, CardArt, CardRules, CardSet, CardSupertype, CounterKind, EffectDef,
     EffectRecipientDef, ObjectPredicateDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind,
-    abilities, cards,
+    abilities, cards, tokens,
 };
 use crate::mana_cost;
 
@@ -25,15 +25,10 @@ static IVORA_ABILITIES: [AbilityDef; 3] = [
     AbilityDef::triggered(
         "When Ivora enters and whenever it deals combat damage to a player, create a Blood token.",
         TriggerEventDef::AnyOf(&IVORA_MAKES_BLOOD),
-        EffectDef::CreateToken {
-            token: cards::BLOOD_TOKEN,
-            controller: None,
-            count: ValueDef::Constant(1),
-            tapped: false,
-            attacking: false,
-            counters: None,
-            created: None,
-        },
+        EffectDef::create_token(tokens::blood()).with_art(CardArt::new(
+            "6b563165-b97f-42c6-82a8-65d8ee69e381",
+            "Stephen Andrade",
+        )),
     ),
     // Any discard, including one paid as a cost -- which is how her own Blood
     // token feeds her.

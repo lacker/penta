@@ -62,7 +62,12 @@ fn settle(game: &mut Game) {
 fn tokens(game: &Game) -> usize {
     game.battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::WURM_TOKEN_5_5_GREEN)
+        .filter(|permanent| {
+            is_token_with(
+                permanent,
+                token_with_trample(tokens::creature(&["Wurm"], &[ManaColor::Green], 5, 5)),
+            )
+        })
         .count()
 }
 
@@ -132,7 +137,12 @@ fn the_tokens_are_five_five_tramplers() {
     let token = game
         .battlefield
         .iter()
-        .find(|permanent| permanent.card.definition == cards::WURM_TOKEN_5_5_GREEN)
+        .find(|permanent| {
+            is_token_with(
+                permanent,
+                token_with_trample(tokens::creature(&["Wurm"], &[ManaColor::Green], 5, 5)),
+            )
+        })
         .expect("a token was made");
     assert_eq!(game.power(token), Some(5), "5/5");
     assert!(

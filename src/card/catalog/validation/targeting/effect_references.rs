@@ -135,9 +135,6 @@ fn validate_effect_references(
         | EffectDef::AddPoisonCounters { recipient, amount }
         | EffectDef::AddEnergyCounters { recipient, amount }
         | EffectDef::DrawCards { recipient, amount }
-        | EffectDef::Discard {
-            recipient, amount, ..
-        }
         | EffectDef::LoseLife { recipient, amount } => {
             validate_recipient_target_references(recipient, target_count, scope)?;
             validate_value_target_references(amount, target_count, scope)
@@ -182,7 +179,6 @@ fn validate_effect_references(
         | EffectDef::Detain { object }
         | EffectDef::GainControl { object, .. }
         | EffectDef::ExchangeControl { first: object, .. }
-        | EffectDef::ReturnWithHasteAndFinality { object, .. }
         | EffectDef::Transform { object }
         | EffectDef::PutIntoLibraryBeneathTop { object, .. }
         | EffectDef::MoveToZone { object, .. }
@@ -191,6 +187,19 @@ fn validate_effect_references(
         | EffectDef::PutSpellIntoOwnersLibrary { object }
         | EffectDef::CreateTokenCopyOf { object } => {
             validate_recipient_target_references(object, target_count, scope)
+        }
+        EffectDef::Discard {
+            recipient,
+            amount,
+            then,
+            ..
+        } => {
+            validate_recipient_target_references(recipient, target_count, scope)?;
+            validate_value_target_references(amount, target_count, scope)?;
+            if let Some(follow_up) = then {
+                validate_effect_references(*follow_up.effect, target_count, scope)?;
+            }
+            Ok(())
         }
         EffectDef::CreateToken { count, created, .. } => {
             validate_value_target_references(count, target_count, scope)?;
@@ -206,12 +215,25 @@ fn validate_effect_references(
         | EffectDef::ReduceMatchingSpellCostBy { amount: count, .. } => {
             validate_value_target_references(count, target_count, scope)
         }
-        EffectDef::SacrificeOfChoice { player, then, .. } => {
+        EffectDef::SacrificeOfChoice {
+            player,
+            then,
+            otherwise,
+            ..
+        } => {
             validate_recipient_target_references(player, target_count, scope)?;
-            if let Some(effect) = then {
+            for effect in then.into_iter().chain(otherwise) {
                 validate_effect_references(*effect, target_count, scope)?;
             }
             Ok(())
+        }
+        EffectDef::ReturnWithHasteAndFinality {
+            object,
+            binding,
+            then,
+        } => {
+            validate_recipient_target_references(object, target_count, scope)?;
+            validate_effect_references(*then, target_count, scope.with_object_set(binding)?)
         }
         EffectDef::SearchZone {
             player,

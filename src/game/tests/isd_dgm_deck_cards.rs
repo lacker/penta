@@ -255,7 +255,12 @@ fn garruk_offers_only_supported_modes_and_makes_one_wurm_per_controlled_land() {
     let wurms = game
         .battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::WURM_TOKEN_6_6_GREEN)
+        .filter(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Wurm"], &[ManaColor::Green], 6, 6),
+            )
+        })
         .collect::<Vec<_>>();
     assert_eq!(wurms.len(), 3, "the opponent's land is not counted");
     assert!(wurms.iter().all(|wurm| {
@@ -305,7 +310,13 @@ fn increasing_ambition_searches_for_exactly_one_card_from_hand() {
     let forest = decision
         .options
         .iter()
-        .find(|option| option.card == Some((GameObjectId(24_102), cards::FOREST)))
+        .find(|option| {
+            option.card
+                == Some((
+                    GameObjectId(24_102),
+                    ObjectCharacteristics::card(cards::FOREST, CardPartId::PRIMARY),
+                ))
+        })
         .expect("the unrestricted search offers Forest")
         .id;
     game.apply(
@@ -461,9 +472,9 @@ fn rangers_path_puts_two_forest_cards_onto_the_battlefield_tapped() {
         .options
         .iter()
         .filter(|option| {
-            option
-                .card
-                .is_some_and(|(_, definition)| definition == cards::FOREST)
+            option.card.is_some_and(|(_, characteristics)| {
+                characteristics.card_definition() == Some(cards::FOREST)
+            })
         })
         .map(|option| option.id)
         .collect::<Vec<_>>();

@@ -621,6 +621,12 @@ fn duress_choice_checkpoint_rejects_ineligible_hand_card_splices() {
     spliced["decision"]["options"][0]["label"] = Value::String("Savannah Lions".into());
     spliced["decision"]["options"][0]["card"]["objectId"] = Value::from(savannah.id.0);
     spliced["decision"]["options"][0]["card"]["definition"] = Value::from(savannah.definition.0);
+    spliced["decision"]["options"][0]["card"]["characteristics"]["definition"] =
+        Value::from(savannah.definition.0);
+    spliced["checkpoint"]["decisionState"]["options"][0]["card"]["objectId"] =
+        Value::from(savannah.id.0);
+    spliced["checkpoint"]["decisionState"]["options"][0]["card"]["characteristics"]["definition"] =
+        Value::from(savannah.definition.0);
     let origins = spliced["checkpoint"]["decisionState"]["cardOrigins"]
         .as_array_mut()
         .expect("card origins are an array");

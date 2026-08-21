@@ -1,7 +1,7 @@
 use super::*;
 use crate::card::{
-    ChooseDef, EffectPaymentDef, ObjectChoiceBindingDef, PartitionItemsDef, SplitIntoPilesDef,
-    ValueDef,
+    ChooseDef, DiscardSelectionDef, EffectPaymentDef, ObjectChoiceBindingDef, PartitionItemsDef,
+    SplitIntoPilesDef, ValueDef,
 };
 
 pub(in super::super) fn shared_stack_effect(effect: EffectDef) -> bool {
@@ -233,14 +233,10 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::AddPoisonCounters { recipient, .. }
         | EffectDef::AddEnergyCounters { recipient, .. }
         | EffectDef::DrawCards { recipient, .. }
-        | EffectDef::Discard { recipient, .. }
         | EffectDef::ShuffleLibrary { player: recipient }
         | EffectDef::EmptyManaPool { player: recipient }
         | EffectDef::TakeExtraTurn { player: recipient }
         | EffectDef::LoseLife { recipient, .. }
-        | EffectDef::Mill {
-            player: recipient, ..
-        }
         // The permission it grants belongs to the resolving controller, so
         // nothing beyond the recipient has to be read here.
         | EffectDef::ExileTopOfLibraryToPlay {
@@ -261,6 +257,37 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::LookAtHand { player: recipient }
         | EffectDef::ManifestDread { player: recipient }
         | EffectDef::RevealHand { player: recipient } => shared_effect_recipient(recipient),
+        EffectDef::Discard {
+            recipient,
+            selection,
+            then,
+            ..
+        } => {
+            let follow_up_is_shared = then.is_none_or(|follow_up| {
+                shared_object_predicate(follow_up.counted)
+                    && shared_stack_effect_at_position(*follow_up.effect, true)
+            });
+            shared_effect_recipient(recipient)
+                && match selection {
+                    DiscardSelectionDef::RecipientChooses => {
+                        deferred_decision_allowed && follow_up_is_shared
+                    }
+                    DiscardSelectionDef::Random => then.is_none(),
+                    DiscardSelectionDef::RandomMatching(predicate) => {
+                        then.is_none() && shared_object_predicate(*predicate)
+                    }
+                }
+        }
+        EffectDef::Mill {
+            player,
+            then,
+            ..
+        } => {
+            shared_effect_recipient(player)
+                && then.is_none_or(|effect| {
+                    shared_stack_effect_at_position(*effect, deferred_decision_allowed)
+                })
+        }
         EffectDef::MillUntil {
             player,
             object,

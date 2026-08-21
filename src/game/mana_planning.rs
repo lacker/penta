@@ -813,9 +813,8 @@ impl Game {
                 continue;
             }
             let name = self
-                .catalog
-                .get(permanent.card.definition)
-                .map_or("?", |definition| definition.name.as_str());
+                .presentation_name(Self::effective_rules_source(permanent))
+                .unwrap_or_else(|| "?".into());
             let colors: Vec<ManaColor> = activations
                 .iter()
                 .map(|activation| activation.color)

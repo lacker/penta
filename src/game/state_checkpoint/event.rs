@@ -79,7 +79,7 @@ pub(super) fn applicable_replacement_snapshot(
             replacement.context.source,
             replacement.effect,
         )?,
-        definition: replacement.definition.0,
+        presentation: object_characteristics_snapshot(catalog, replacement.presentation)?,
     })
 }
 
@@ -98,7 +98,8 @@ pub(super) fn parse_applicable_replacement(
     };
     Ok(ApplicableReplacement {
         context,
-        definition: CardDefinitionId(snapshot.definition),
+        presentation: object_characteristics_from_snapshot(catalog, &snapshot.presentation)
+            .ok_or("entry replacement presentation is absent from this catalog")?,
         text: ability.text,
         optional: definition.optional,
         effect: catalog_replacement_effect(catalog, &snapshot.effect)

@@ -11,8 +11,8 @@ use penta::card;
 use penta::game::{DecisionKind, DecisionOrderSemantics};
 use penta::{
     AbilityOrigin, Action, BattlefieldExit, CardCatalog, CardDefinitionId, CardInstanceId, Format,
-    Game, GameEvent, GameResult, HandcraftedPolicy, ModeId, PlayOptionId, PlayerId,
-    PlayerObservation, Policy, RandomPolicy, Step, Target,
+    Game, GameEvent, GameResult, HandcraftedPolicy, ModeId, ObjectCharacteristics, PlayOptionId,
+    PlayerId, PlayerObservation, Policy, RandomPolicy, Step, Target,
 };
 use presentation::deck_by_name;
 use serde_json::{Value, json};
@@ -32,7 +32,8 @@ use autopass::{
 };
 #[cfg(test)]
 use presentation::{
-    StackCardPresentation, card_art_value, hand_mana_cost_value, stack_card_presentation,
+    StackCardPresentation, card_art_value, hand_mana_cost_value, object_presentation,
+    stack_card_presentation,
 };
 
 const BOT_ACTION_LIMIT: usize = 50_000;

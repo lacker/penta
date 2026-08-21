@@ -390,29 +390,15 @@ pub const WARLEADERS_HELIX: CardDefinitionId = CardDefinitionId(242);
 pub const WOODLAND_CEMETERY: CardDefinitionId = CardDefinitionId(243);
 pub const ZEALOUS_CONSCRIPTS: CardDefinitionId = CardDefinitionId(244);
 
-/// Token definitions. Tokens are game objects rather than printed cards; they
-/// live in the catalog so a client can look one up by definition, and belong
-/// to no set any format allows, so they are never deck-legal.
-pub const BEAST_TOKEN_3_3_GREEN: CardDefinitionId = CardDefinitionId(245);
-pub const KNIGHT_TOKEN_2_2_WHITE: CardDefinitionId = CardDefinitionId(246);
-pub const SOLDIER_TOKEN_1_1_RED_WHITE: CardDefinitionId = CardDefinitionId(247);
-
 /// Definition ids are a wire contract, so they are only ever appended. A card
-/// added to an older set therefore lands after the tokens rather than beside
-/// its set's block.
+/// added to an older set therefore lands after existing definitions rather
+/// than beside its set's block. Retired virtual-object IDs remain permanent
+/// tombstones.
 pub const WALL_OF_STONE: CardDefinitionId = CardDefinitionId(248);
-pub const DEMON_TOKEN_5_5_BLACK: CardDefinitionId = CardDefinitionId(249);
 pub const MAGICAL_HACK: CardDefinitionId = CardDefinitionId(250);
 pub const THESPIANS_STAGE: CardDefinitionId = CardDefinitionId(251);
 pub const DRYAD_ARBOR: CardDefinitionId = CardDefinitionId(252);
 pub const NYLEAS_PRESENCE: CardDefinitionId = CardDefinitionId(253);
-pub const ELEMENTAL_TOKEN_GREEN_WHITE: CardDefinitionId = CardDefinitionId(254);
-pub const SPIRIT_TOKEN_1_1_WHITE: CardDefinitionId = CardDefinitionId(255);
-pub const WOLF_TOKEN_2_2_GREEN: CardDefinitionId = CardDefinitionId(256);
-pub const WOLF_TOKEN_1_1_BLACK: CardDefinitionId = CardDefinitionId(257);
-pub const DOMRI_RADE_EMBLEM: CardDefinitionId = CardDefinitionId(258);
-pub const TETRAVITE_TOKEN: CardDefinitionId = CardDefinitionId(259);
-pub const ASSASSIN_TOKEN_1_1_BLACK: CardDefinitionId = CardDefinitionId(260);
 pub const URBORG_TOMB_OF_YAWGMOTH: CardDefinitionId = CardDefinitionId(261);
 pub const YAVIMAYA_CRADLE_OF_GROWTH: CardDefinitionId = CardDefinitionId(262);
 pub const DARKSTEEL_INGOT: CardDefinitionId = CardDefinitionId(263);
@@ -690,9 +676,6 @@ pub const ARENA_OF_THE_ANCIENTS: CardDefinitionId = CardDefinitionId(534);
 pub const KARAKAS: CardDefinitionId = CardDefinitionId(535);
 pub const THE_TABERNACLE_AT_PENDRELL_VALE: CardDefinitionId = CardDefinitionId(536);
 pub const TYPHOON: CardDefinitionId = CardDefinitionId(537);
-pub const BIRD_TOKEN_4_4_RED: CardDefinitionId = CardDefinitionId(538);
-pub const CITIZEN_TOKEN_1_1_WHITE: CardDefinitionId = CardDefinitionId(539);
-pub const THRULL_TOKEN_0_1_BLACK: CardDefinitionId = CardDefinitionId(540);
 pub const EXORCIST: CardDefinitionId = CardDefinitionId(541);
 pub const HOLY_LIGHT: CardDefinitionId = CardDefinitionId(542);
 pub const MORALE: CardDefinitionId = CardDefinitionId(543);
@@ -754,8 +737,6 @@ pub const HAVENWOOD_BATTLEGROUND: CardDefinitionId = CardDefinitionId(598);
 pub const RUINS_OF_TROKAIR: CardDefinitionId = CardDefinitionId(599);
 pub const SVYELUNITE_TEMPLE: CardDefinitionId = CardDefinitionId(600);
 pub const THELONITE_DRUID: CardDefinitionId = CardDefinitionId(601);
-pub const WASP_TOKEN_1_1_COLORLESS: CardDefinitionId = CardDefinitionId(602);
-pub const MINOR_DEMON_TOKEN_1_1_BLACK_RED: CardDefinitionId = CardDefinitionId(603);
 pub const THE_HIVE: CardDefinitionId = CardDefinitionId(604);
 pub const BORIS_DEVILBOON: CardDefinitionId = CardDefinitionId(605);
 pub const GUARDIAN_BEAST: CardDefinitionId = CardDefinitionId(606);

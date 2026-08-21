@@ -84,7 +84,10 @@ fn fungal_sprouting_makes_one_saproling_per_greatest_power() {
     assert_eq!(
         game.battlefield
             .iter()
-            .filter(|permanent| permanent.card.definition == cards::SAPROLING_TOKEN_1_1_GREEN)
+            .filter(|permanent| is_token_with(
+                permanent,
+                tokens::creature(&["Saproling"], &[ManaColor::Green], 1, 1)
+            ))
             .count(),
         4,
         "the Angel's four, not the Wall's eight or the board's three",

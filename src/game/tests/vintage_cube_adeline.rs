@@ -70,7 +70,12 @@ fn permanent(game: &Game, id: GameObjectId) -> &Permanent {
 fn humans(game: &Game) -> Vec<&Permanent> {
     game.battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::HUMAN_TOKEN_1_1_WHITE)
+        .filter(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Human"], &[ManaColor::White], 1, 1),
+            )
+        })
         .collect()
 }
 

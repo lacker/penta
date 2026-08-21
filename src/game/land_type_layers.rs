@@ -2,7 +2,7 @@ use super::continuous_effects::StaticSetCharacteristicLayerGuard;
 use super::{
     AppliedEffectDef, BasicLandType, CREATURE_TYPES, CardType, CharacteristicOperationDef,
     ContinuousEffectTimestamp, ControlFlow, Cow, CreatureTypeSetDef, DeclarativeAbilityDef,
-    EffectDef, EffectRecipientDef, EffectRecipientSetDef, Game, LandTypeOperation,
+    EffectDef, EffectRecipientDef, EffectRecipientSetDef, Game, LandTypeOperation, ObjectKind,
     ObjectPredicateDef, ObjectRefDef, ObjectSetDef, Permanent, ResolvedContinuousEffectKind,
     SetOperationDef, TriggerContext, ZoneKind,
 };
@@ -168,8 +168,8 @@ impl Game {
                 .copied()
                 .chain(
                     source
-                        .copy_effect
-                        .iter()
+                        .active_copy_values()
+                        .into_iter()
                         .flat_map(|copy| copy.added_abilities.iter())
                         .map(|ability| ability.definition),
                 )
@@ -286,8 +286,8 @@ impl Game {
             .copied()
             .chain(
                 source
-                    .copy_effect
-                    .iter()
+                    .active_copy_values()
+                    .into_iter()
                     .flat_map(|copy| copy.added_abilities.iter())
                     .map(|ability| ability.definition),
             )
@@ -455,7 +455,7 @@ impl Game {
         match predicate {
             ObjectPredicateDef::Any => true,
             ObjectPredicateDef::Source => source.card.id == affected.card.id,
-            ObjectPredicateDef::Token => self.is_token(affected.card.definition),
+            ObjectPredicateDef::Token => affected.card.definition.is_token(),
             ObjectPredicateDef::HasType(CardType::Land) => self
                 .permanent_types_below_static_effects(affected)
                 .is_some_and(|types| types.contains(CardType::Land)),
@@ -622,13 +622,24 @@ impl Game {
     /// them: "except it's an Illusion in addition to its other types" names
     /// the subtype line the card already prints.
     fn retained_printed_subtypes(&self, permanent: &Permanent) -> &'static [&'static str] {
-        permanent
-            .copy_effect
-            .as_ref()
+        let Some(_) = permanent
+            .active_copy_values()
             .filter(|copy| copy.retain_printed_subtypes)
-            .and_then(|_| self.catalog.get(permanent.card.definition))
-            .and_then(|card| card.part(permanent.presented))
-            .map_or(&[], |part| part.rules.subtypes())
+        else {
+            return &[];
+        };
+        match permanent.card.definition {
+            ObjectKind::Card(definition) => self
+                .catalog
+                .get(definition)
+                .and_then(|card| card.part(permanent.presented))
+                .map_or(&[], |part| part.rules.subtypes()),
+            ObjectKind::Token => permanent
+                .token_characteristics
+                .and_then(|token| token.part(permanent.presented))
+                .map_or(&[], |part| part.rules.subtypes()),
+            ObjectKind::Emblem | ObjectKind::Ability => &[],
+        }
     }
 
     /// Applies the subtype layer's operations in timestamp order. Split

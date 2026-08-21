@@ -5152,15 +5152,13 @@ pub(in crate::card::sets) static THE_HIVE: CardRecord = CardRecord::new(
             AbilityCostDef::Mana(mana_cost!("{5}")),
             AbilityCostDef::TapSource,
         ],
-        EffectDef::CreateToken {
-            token: cards::WASP_TOKEN_1_1_COLORLESS,
-            controller: None,
-            count: ValueDef::Constant(1),
-            tapped: false,
-            attacking: false,
-            counters: None,
-            created: None,
-        },
+        EffectDef::create_artifact_creature_token(&["Insect"], &[], 1, 1)
+            .with_name("Wasp")
+            .with_abilities(&[abilities::flying()])
+            .with_art(CardArt::new(
+                "09921372-126f-4c81-b6d8-ea50b1d0eb44",
+                "Sandra Everingham",
+            )),
     )),
 );
 

@@ -1,12 +1,16 @@
+mod children;
 mod composites;
 mod conditions;
+mod emblem_creation;
 mod likelihood;
 mod replacements;
 mod selection;
+mod token_creation;
 mod triggers;
 mod turn_structure;
 mod values;
 
+pub(crate) use children::child_effects;
 pub use composites::*;
 pub use conditions::*;
 pub use likelihood::*;
@@ -18,12 +22,12 @@ pub use values::*;
 
 use super::payments::{EffectPaymentDef, PayOrDef};
 use crate::Format;
-use crate::ids::{CardDefinitionId, ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
+use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
 
 use super::{
     AbilityDef, AddManaEffectDef, BasicLandType, CardTypeSet, ColorSet, ComparisonDef, CounterKind,
     KeywordAbility, ManaColor, ManaCost, ObjectPredicateDef, PlayActionKind, PlayerRelation,
-    TriggerConditionDef, ZoneKind, ZonePlacement,
+    TokenCharacteristics, TriggerConditionDef, ZoneKind, ZonePlacement,
 };
 
 // Effect subjects, lifetimes, and event matchers form the shared vocabulary
@@ -249,12 +253,12 @@ pub enum EffectDef {
     /// Gives its controller an emblem, an object that sits outside every
     /// zone and does nothing but carry its abilities.
     CreateEmblem {
-        emblem: CardDefinitionId,
+        emblem: super::EmblemCharacteristics,
     },
-    /// Puts token copies of `token` onto the battlefield under the resolving
-    /// object's controller.
+    /// Creates tokens with `token`'s complete authored characteristics under
+    /// the resolving object's controller.
     CreateToken {
-        token: CardDefinitionId,
+        token: TokenCharacteristics,
         /// Who the tokens arrive under. `None` is the resolving object's own
         /// controller, which is what "create a token" means; a clause that
         /// hands them to somebody else -- "its controller creates two Map
@@ -284,7 +288,7 @@ pub enum EffectDef {
     /// the common living-weapon shape; the delayed entry completion keeps it
     /// correct through replacement effects and zone-change identity.
     CreateAttachedToken {
-        token: CardDefinitionId,
+        token: TokenCharacteristics,
     },
     /// Creates a token copying the recipient's copiable values. Populate uses
     /// this after its generic choice has selected a creature token.

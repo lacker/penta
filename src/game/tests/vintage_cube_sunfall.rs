@@ -69,7 +69,7 @@ fn cast(game: &mut Game, sunfall: GameObjectId) {
 fn incubator(game: &Game) -> &Permanent {
     game.battlefield
         .iter()
-        .find(|permanent| permanent.card.definition == cards::INCUBATOR_TOKEN)
+        .find(|permanent| is_token_with(permanent, tokens::incubator()))
         .expect("an Incubator token was made")
 }
 

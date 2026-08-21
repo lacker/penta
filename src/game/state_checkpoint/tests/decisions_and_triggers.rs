@@ -309,12 +309,18 @@ fn an_emblem_rebuilds_with_identity_and_source_provenance() {
     };
     let mut game = Game::new(catalog.clone(), [deck.clone(), deck], 53).expect("game starts");
     let controller = PlayerId::One;
-    let definition = crate::card::cards::DOMRI_RADE_EMBLEM;
-    let card = game.unbacked_object(
-        definition,
-        controller,
-        CharacteristicSource::Ability(definition),
-    );
+    let creator = catalog
+        .get(crate::card::cards::DOMRI_RADE)
+        .and_then(|definition| definition.part(CardPartId::PRIMARY))
+        .and_then(|part| part.rules.ability(AbilityId(2)))
+        .expect("Domri has an emblem-creating ultimate");
+    let EffectDef::CreateEmblem { emblem: authored } = creator
+        .declarative_effect()
+        .expect("Domri's ultimate is declarative")
+    else {
+        panic!("Domri's ultimate creates an emblem")
+    };
+    let card = game.unbacked_emblem_object(authored, controller);
     let emblem_id = card.id;
     let mut emblem = Permanent::entering(
         card,
@@ -365,6 +371,11 @@ fn an_emblem_rebuilds_with_identity_and_source_provenance() {
             .expect("emblem reconstructs");
     assert_eq!(rebuilt.emblems.len(), 1);
     assert_eq!(rebuilt.emblems[0].card.id, emblem_id);
+    assert_eq!(rebuilt.emblems[0].card.definition, ObjectKind::Emblem);
+    assert!(matches!(
+        rebuilt.emblems[0].card.characteristics,
+        CharacteristicSource::Emblem(_)
+    ));
     assert_eq!(rebuilt.observed_emblems(), observation.emblems);
 }
 
@@ -388,10 +399,7 @@ fn installed_trigger_round_trip_preserves_targets_bindings_and_x() {
     let DeclarativeAbilityDef::Triggered(triggered) = ability.definition else {
         panic!("Berserk's nested ability is triggered");
     };
-    let source = AbilitySourceRef {
-        object: first_target,
-        ability: AbilityOrigin::IntrinsicBasicLand(BasicLandType::Forest),
-    };
+    let source = source_for_locator(first_target, &installed_locator);
     let mut context = EffectResolutionContext::empty();
     context.bind_single_object(
         ObjectBindingIndex::PRIMARY,
@@ -406,7 +414,10 @@ fn installed_trigger_round_trip_preserves_targets_bindings_and_x() {
         .expect("the installed trigger is declarative");
     let capture = |target_base, x| TriggerCapture {
         source,
-        definition: crate::card::cards::BERSERK,
+        presentation: ObjectCharacteristics::card(
+            crate::card::cards::BERSERK,
+            CardPartId::PRIMARY,
+        ),
         owner: PlayerId::One,
         controller: PlayerId::One,
         text: ability.text,
@@ -471,7 +482,8 @@ fn installed_trigger_round_trip_preserves_targets_bindings_and_x() {
     );
 
     let mut missing_definition = wire;
-    missing_definition["checkpoint"]["installedTriggers"][0]["definition"] = json!(u16::MAX);
+    missing_definition["checkpoint"]["installedTriggers"][0]["presentation"]["definition"] =
+        json!(u16::MAX);
     let error = Game::from_observation_checkpoint(
         game.catalog.clone(),
         game.format,
@@ -481,7 +493,7 @@ fn installed_trigger_round_trip_preserves_targets_bindings_and_x() {
     )
     .expect_err("an installed trigger must name a cataloged presentation definition");
     assert!(
-        error.contains("presentation definition is absent"),
+        error.contains("presentation locator is absent"),
         "unexpected error: {error}",
     );
 }

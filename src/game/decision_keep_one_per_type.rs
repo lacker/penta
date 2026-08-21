@@ -34,7 +34,14 @@ impl Game {
                 self.permanent_types(permanent)
                     .is_some_and(|types| types.contains(kind))
             })
-            .map(|permanent| (permanent.card.id, permanent.card.definition))
+            .map(|permanent| {
+                (
+                    permanent.card.id,
+                    Self::effective_rules_source(permanent),
+                    self.effective_permanent_name(permanent)
+                        .map_or_else(|| "Unknown permanent".into(), std::borrow::Cow::into_owned),
+                )
+            })
             .collect::<Vec<_>>();
         // A player with nothing of this type keeps nothing of it, and is not
         // asked a question with one answer.
@@ -45,13 +52,10 @@ impl Game {
         let options = candidates
             .iter()
             .enumerate()
-            .map(|(index, (id, definition))| DecisionOption {
+            .map(|(index, (id, characteristics, label))| DecisionOption {
                 id: u32::try_from(index).expect("a battlefield fits u32"),
-                label: self
-                    .catalog
-                    .get(*definition)
-                    .map_or_else(|| "Unknown card".into(), |card| card.name.clone()),
-                card: Some((*id, *definition)),
+                label: label.clone(),
+                card: Some((*id, *characteristics)),
                 members: Vec::new(),
                 ability_text: None,
                 zone: DecisionZone::Battlefield,
@@ -80,9 +84,7 @@ impl Game {
             CardType::Creature => "Keep a creature",
             CardType::Enchantment => "Keep an enchantment",
             CardType::Planeswalker => "Keep a planeswalker",
-            CardType::Instant | CardType::Sorcery | CardType::Land | CardType::Emblem => {
-                "Keep a permanent"
-            }
+            CardType::Instant | CardType::Sorcery | CardType::Land => "Keep a permanent",
         }
     }
 

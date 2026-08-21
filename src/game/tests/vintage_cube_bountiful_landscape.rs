@@ -92,7 +92,11 @@ fn it_fetches_a_named_basic_tapped() {
     let offered: Vec<CardDefinitionId> = decision
         .options
         .iter()
-        .filter_map(|option| option.card.map(|(_, definition)| definition))
+        .filter_map(|option| {
+            option
+                .card
+                .and_then(|(_, characteristics)| characteristics.card_definition())
+        })
         .collect();
     assert!(
         offered.contains(&cards::ISLAND),
@@ -106,7 +110,11 @@ fn it_fetches_a_named_basic_tapped() {
     let island = decision
         .options
         .iter()
-        .find(|option| option.card.is_some_and(|(_, def)| def == cards::ISLAND))
+        .find(|option| {
+            option.card.is_some_and(|(_, characteristics)| {
+                characteristics.card_definition() == Some(cards::ISLAND)
+            })
+        })
         .expect("the Island is offered")
         .id;
     game.apply(
@@ -155,7 +163,11 @@ fn a_nonbasic_with_the_right_type_is_not_found() {
         .expect("the search asks")
         .options
         .iter()
-        .filter_map(|option| option.card.map(|(_, definition)| definition))
+        .filter_map(|option| {
+            option
+                .card
+                .and_then(|(_, characteristics)| characteristics.card_definition())
+        })
         .collect();
     assert!(
         offered.contains(&cards::FOREST),

@@ -7,10 +7,10 @@
 use super::*;
 use crate::ImplementationStatus;
 
-fn tokens_of(game: &Game, definition: CardDefinitionId) -> usize {
+fn tokens_of(game: &Game, token: TokenCharacteristics) -> usize {
     game.battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == definition)
+        .filter(|permanent| is_token_with(permanent, token))
         .count()
 }
 
@@ -36,16 +36,68 @@ fn populate_with(game: &mut Game) {
 #[test]
 fn populate_copies_a_creature_token_you_control() {
     let mut game = ready_game();
-    let token = creature(10_001, cards::SOLDIER_TOKEN_1_1_WHITE, PlayerId::One);
+    let token = token_permanent(
+        10_001,
+        tokens::creature(&["Soldier"], &[ManaColor::White], 1, 1),
+        PlayerId::One,
+    );
     game.battlefield.push(token);
 
     populate_with(&mut game);
 
     assert_eq!(
-        tokens_of(&game, cards::SOLDIER_TOKEN_1_1_WHITE),
+        tokens_of(
+            &game,
+            tokens::creature(&["Soldier"], &[ManaColor::White], 1, 1)
+        ),
         2,
         "the chosen token was copied"
     );
+}
+
+#[test]
+fn populate_preserves_the_tokens_complete_copiable_values() {
+    let mut game = ready_game();
+    let mut original = token_permanent(
+        10_001,
+        token_with_vigilance(tokens::creature(&["Knight"], &[ManaColor::White], 2, 2)),
+        PlayerId::One,
+    );
+    original.copy_effect = Some(CopiableCharacteristics {
+        base: ObjectCharacteristics::token(
+            token_with_vigilance(tokens::creature(&["Knight"], &[ManaColor::White], 2, 2)),
+            CardPartId::PRIMARY,
+        ),
+        added_types: CardTypeSet::single(CardType::Artifact),
+        added_abilities: Vec::new(),
+        retain_printed_subtypes: false,
+    });
+    game.battlefield.push(original);
+
+    populate_with(&mut game);
+
+    let knights = game
+        .battlefield
+        .iter()
+        .filter(|permanent| {
+            is_token_with(
+                permanent,
+                token_with_vigilance(tokens::creature(&["Knight"], &[ManaColor::White], 2, 2)),
+            )
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(knights.len(), 2);
+    for knight in knights {
+        assert!(
+            game.permanent_types(knight)
+                .is_some_and(|types| types.contains(CardType::Artifact)),
+            "the copy-process type exception is copied along with the token base",
+        );
+        assert!(
+            game.permanent_has_executable_keyword(knight, KeywordAbility::Vigilance),
+            "the inline token's own rules are copied too",
+        );
+    }
 }
 
 /// A nontoken creature is not a candidate, however big it is.
@@ -58,22 +110,33 @@ fn a_nontoken_creature_is_not_copied() {
     populate_with(&mut game);
 
     assert_eq!(
-        tokens_of(&game, cards::SEDGE_TROLL),
+        game.battlefield.len(),
         1,
-        "a printed creature is not a token to copy"
+        "a printed creature is not copied"
     );
+    assert!(!game.battlefield[0].card.definition.is_token());
 }
 
 /// Nor is a token an opponent controls.
 #[test]
 fn an_opponents_token_is_not_copied() {
     let mut game = ready_game();
-    let theirs = creature(10_001, cards::SOLDIER_TOKEN_1_1_WHITE, PlayerId::Two);
+    let theirs = token_permanent(
+        10_001,
+        tokens::creature(&["Soldier"], &[ManaColor::White], 1, 1),
+        PlayerId::Two,
+    );
     game.battlefield.push(theirs);
 
     populate_with(&mut game);
 
-    assert_eq!(tokens_of(&game, cards::SOLDIER_TOKEN_1_1_WHITE), 1);
+    assert_eq!(
+        tokens_of(
+            &game,
+            tokens::creature(&["Soldier"], &[ManaColor::White], 1, 1)
+        ),
+        1
+    );
 }
 
 /// With nothing to copy the spell still resolves; the rest of its text has to
@@ -120,7 +183,10 @@ fn making_a_token_first_gives_populate_something_to_copy() {
     drain_pending(&mut game);
 
     assert_eq!(
-        tokens_of(&game, cards::CENTAUR_TOKEN_3_3_GREEN),
+        tokens_of(
+            &game,
+            tokens::creature(&["Centaur"], &[ManaColor::Green], 3, 3)
+        ),
         2,
         "one made, then one copied from it"
     );

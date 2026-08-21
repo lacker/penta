@@ -1,9 +1,9 @@
+use crate::GameObjectId;
 use crate::card::DeclarativeAbilityDef;
-use crate::{CardDefinitionId, GameObjectId};
 
 use super::model::AbilitySourceSnapshot;
 use super::model_trigger::{InstalledTriggerLifetimeSnapshot, InstalledTriggerSnapshot};
-use super::semantics::{ability_locator, catalog_ability};
+use super::semantics::{ability_locator_for_origin, catalog_ability};
 use super::stack::{
     effect_resolution_context_snapshot, parse_effect_resolution_context, parse_target_selection,
     target_selection_snapshot, trigger_capture_has_unrebindable_hidden_reference,
@@ -34,7 +34,7 @@ pub(super) fn installed_trigger_snapshot(
     if resolver.effect != capture.effect {
         return None;
     }
-    let ability = ability_locator(&game.catalog, |ability| {
+    let ability = ability_locator_for_origin(&game.catalog, capture.source.ability, |ability| {
         let DeclarativeAbilityDef::Triggered(definition) = ability.definition else {
             return false;
         };
@@ -55,7 +55,7 @@ pub(super) fn installed_trigger_snapshot(
             ability: ability_origin_snapshot(capture.source.ability),
         },
         ability,
-        definition: capture.definition.0,
+        presentation: super::object_characteristics_snapshot(&game.catalog, capture.presentation)?,
         owner: capture.owner.index(),
         controller: capture.controller.index(),
         targets: capture
@@ -94,10 +94,12 @@ pub(super) fn parse_installed_trigger(
         object: GameObjectId(snapshot.source.object),
         ability: ability_origin_from_snapshot(snapshot.source.ability),
     };
-    let presentation_definition = CardDefinitionId(snapshot.definition);
-    if game.catalog.get(presentation_definition).is_none() {
-        return Err("installed trigger presentation definition is absent from this catalog".into());
+    if !super::semantics::ability_locator_matches_origin(&snapshot.ability, source.ability) {
+        return Err("installed trigger ability locator disagrees with its origin".into());
     }
+    let presentation =
+        super::object_characteristics_from_snapshot(&game.catalog, &snapshot.presentation)
+            .ok_or("installed trigger presentation locator is absent from this catalog")?;
     let targets = snapshot
         .targets
         .iter()
@@ -111,7 +113,7 @@ pub(super) fn parse_installed_trigger(
         event: triggered.event,
         capture: TriggerCapture {
             source,
-            definition: presentation_definition,
+            presentation,
             owner: player_from_index(snapshot.owner)?,
             controller: player_from_index(snapshot.controller)?,
             text: ability.text,

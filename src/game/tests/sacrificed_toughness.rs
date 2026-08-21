@@ -176,7 +176,12 @@ fn feed_the_pack_end_step(food: CardDefinitionId) -> Game {
 fn wolves(game: &Game) -> usize {
     game.battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::WOLF_TOKEN_2_2_GREEN)
+        .filter(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Wolf"], &[ManaColor::Green], 2, 2),
+            )
+        })
         .count()
 }
 

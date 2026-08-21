@@ -91,7 +91,10 @@ fn domri_plus_one_filters_reveals_and_preserves_a_declined_or_ineligible_top_car
     assert_eq!(decision.options.len(), 1);
     assert_eq!(
         decision.options[0].members,
-        vec![(GameObjectId(19_100), cards::LIGHTNING_BOLT)],
+        vec![(
+            GameObjectId(19_100),
+            ObjectCharacteristics::card(cards::LIGHTNING_BOLT, CardPartId::PRIMARY),
+        )],
         "the chooser sees the ineligible card they looked at",
     );
     assert!(
@@ -189,12 +192,11 @@ fn domri_fights_and_hands_out_an_emblem() {
     game.apply(PlayerId::One, ultimate).unwrap();
     drain_pending(&mut game);
 
-    assert!(
-        !game
-            .battlefield
-            .iter()
-            .any(|permanent| permanent.card.definition == cards::DOMRI_RADE_EMBLEM),
-        "an emblem is not a permanent"
+    assert_eq!(game.emblems.len(), 1, "the ultimate creates one emblem");
+    assert_eq!(
+        game.emblems[0].card.definition,
+        ObjectKind::Emblem,
+        "an emblem is a creator-owned command-zone object, not a card",
     );
     assert!(
         !game

@@ -1,10 +1,30 @@
+use std::borrow::Cow;
+
 use super::{
-    BattlefieldExitSnapshot, CardBehavior, CardDefinitionId, CardPartId, CardRules, CardSupertype,
-    CardType, CardTypeSet, CopiableCharacteristics, CounterKind, DeclarativeAbilityDef, Game,
-    Permanent, PermanentLastKnownInformation, TriggerEventObject,
+    BattlefieldExitSnapshot, CardBehavior, CardPartId, CardRules, CardStructure, CardSupertype,
+    CardType, CardTypeSet, CopiableCharacteristics, CounterKind, DeclarativeAbilityDef,
+    DoubleFacedCopiableCharacteristics, Game, ObjectCharacteristics, ObjectKind, Permanent,
+    PermanentLastKnownInformation, TriggerEventObject,
 };
 
 impl Game {
+    pub(super) fn presentation_name(
+        &self,
+        presentation: ObjectCharacteristics,
+    ) -> Option<Cow<'_, str>> {
+        match presentation {
+            ObjectCharacteristics::Card { definition, part } => self
+                .catalog
+                .get(definition)?
+                .part(part)
+                .map(|part| Cow::Borrowed(part.name.as_str())),
+            ObjectCharacteristics::Token { token, part } => {
+                token.part(part).map(crate::card::TokenPart::name)
+            }
+            ObjectCharacteristics::Emblem { emblem } => Some(Cow::Borrowed(emblem.name())),
+        }
+    }
+
     pub(super) fn count_behavior(&self, behavior: CardBehavior) -> u16 {
         u16::try_from(
             self.battlefield
@@ -32,7 +52,10 @@ impl Game {
         }
     }
 
-    pub(super) fn effective_permanent_name<'a>(&'a self, permanent: &Permanent) -> Option<&'a str> {
+    pub(super) fn effective_permanent_name<'a>(
+        &'a self,
+        permanent: &Permanent,
+    ) -> Option<Cow<'a, str>> {
         // A face-down permanent has no name at all, so nothing that reads
         // one -- naming a card, matching another object's name -- ever finds
         // it. The catalog entry behind its body is legible for a client, not
@@ -40,49 +63,192 @@ impl Game {
         if permanent.face_down {
             return None;
         }
-        let (definition, part) = Self::effective_rules_source(permanent);
-        self.catalog
-            .get(definition)?
-            .part(part)
-            .map(|part| part.name.as_str())
+        match Self::effective_rules_source(permanent) {
+            ObjectCharacteristics::Card { definition, part } => self
+                .catalog
+                .get(definition)?
+                .part(part)
+                .map(|part| Cow::Borrowed(part.name.as_str())),
+            ObjectCharacteristics::Token { token, part } => {
+                token.part(part).map(crate::card::TokenPart::name)
+            }
+            ObjectCharacteristics::Emblem { emblem } => Some(Cow::Borrowed(emblem.name())),
+        }
     }
 
     /// Resolves the printed rules currently supplying baseline permanent
     /// characteristics. A copy's copiable rules take precedence over the
     /// physical card's presented part.
-    pub(super) fn effective_rules<'a>(&'a self, permanent: &Permanent) -> Option<&'a CardRules> {
-        let (definition, part) = Self::effective_rules_source(permanent);
-        self.catalog
-            .get(definition)?
-            .part(part)
-            .map(|part| &part.rules)
+    pub(super) fn effective_rules(&self, permanent: &Permanent) -> Option<CardRules> {
+        match Self::effective_rules_source(permanent) {
+            ObjectCharacteristics::Card { definition, part } => self
+                .catalog
+                .get(definition)?
+                .part(part)
+                .map(|part| part.rules),
+            ObjectCharacteristics::Token { token, part } => token.part(part).map(|part| part.rules),
+            ObjectCharacteristics::Emblem { emblem } => Some(emblem.rules_view()),
+        }
     }
 
-    pub(super) fn effective_rules_source(permanent: &Permanent) -> (CardDefinitionId, CardPartId) {
+    pub(super) fn effective_rules_source(permanent: &Permanent) -> ObjectCharacteristics {
         // A face-down permanent presents the shared face-down body whatever
         // the card under it says, and whatever it was copying: turning a
         // permanent face down is not a copy effect, it hides one (CR 708.2).
         if permanent.face_down {
-            return (crate::card::cards::FACE_DOWN_CREATURE, CardPartId::PRIMARY);
+            return ObjectCharacteristics::card(
+                crate::card::cards::FACE_DOWN_CREATURE,
+                CardPartId::PRIMARY,
+            );
         }
-        permanent
-            .copy_effect
-            .as_ref()
-            .map_or((permanent.card.definition, permanent.presented), |copy| {
-                copy.base
-            })
+        Self::unmasked_rules_source(permanent)
+    }
+
+    /// Copiable source before a face-down presentation masks it. A permanent's
+    /// controller may inspect the object underneath their face-down body, and
+    /// checkpoint/copy machinery must retain those values as well.
+    pub(super) fn unmasked_rules_source(permanent: &Permanent) -> ObjectCharacteristics {
+        if let Some(copy) = permanent.active_copy_values() {
+            return copy.base;
+        }
+        match permanent.card.definition {
+            ObjectKind::Card(definition) => {
+                ObjectCharacteristics::card(definition, permanent.presented)
+            }
+            ObjectKind::Token => ObjectCharacteristics::token(
+                permanent
+                    .token_characteristics
+                    .expect("a noncopy token has authored characteristics"),
+                permanent.presented,
+            ),
+            ObjectKind::Emblem => match permanent.card.characteristics {
+                super::CharacteristicSource::Emblem(emblem) => {
+                    ObjectCharacteristics::emblem(emblem)
+                }
+                _ => unreachable!("an emblem has emblem characteristics"),
+            },
+            ObjectKind::Ability => unreachable!("a stack ability cannot be a permanent"),
+        }
     }
 
     pub(super) fn copiable_characteristics(permanent: &Permanent) -> CopiableCharacteristics {
         permanent
-            .copy_effect
-            .clone()
+            .active_copy_values()
+            .cloned()
             .unwrap_or_else(|| CopiableCharacteristics {
-                base: (permanent.card.definition, permanent.presented),
+                base: Self::effective_rules_source(permanent),
                 added_types: CardTypeSet::empty(),
                 added_abilities: Vec::new(),
                 retain_printed_subtypes: false,
             })
+    }
+
+    /// The other physical face this permanent can present. Copy effects do
+    /// not participate: a single-faced copier stays single-faced, while a
+    /// double-faced permanent stays able to transform through a copy effect.
+    pub(super) fn physical_other_face(&self, permanent: &Permanent) -> Option<CardPartId> {
+        match permanent.card.definition {
+            ObjectKind::Card(definition) => {
+                let definition = self.catalog.get(definition)?;
+                let CardStructure::DoubleFaced {
+                    kind: crate::card::DoubleFacedKind::Transforming,
+                    ..
+                } = definition.structure
+                else {
+                    return None;
+                };
+                let other = definition.other_face(permanent.presented)?;
+                let rules = definition.part(other)?.rules;
+                (!rules.has_type(CardType::Instant) && !rules.has_type(CardType::Sorcery))
+                    .then_some(other)
+            }
+            ObjectKind::Token => {
+                if let Some(faces) = &permanent.double_faced_token_copy {
+                    if faces.kind != crate::card::DoubleFacedKind::Transforming {
+                        return None;
+                    }
+                    let other = faces.other_face(permanent.presented)?;
+                    let copy = faces.face(other)?;
+                    return self.copiable_face_can_be_up(copy).then_some(other);
+                }
+                let token = permanent.token_characteristics?;
+                let other = token.other_face(permanent.presented)?;
+                let rules = token.part(other)?.rules;
+                (!rules.has_type(CardType::Instant) && !rules.has_type(CardType::Sorcery))
+                    .then_some(other)
+            }
+            ObjectKind::Emblem | ObjectKind::Ability => None,
+        }
+    }
+
+    fn copiable_face_can_be_up(&self, copy: &CopiableCharacteristics) -> bool {
+        let Some(rules) = (match copy.base {
+            ObjectCharacteristics::Card { definition, part } => self
+                .catalog
+                .get(definition)
+                .and_then(|definition| definition.part(part))
+                .map(|part| part.rules),
+            ObjectCharacteristics::Token { token, part } => token.part(part).map(|part| part.rules),
+            ObjectCharacteristics::Emblem { .. } => None,
+        }) else {
+            return false;
+        };
+        let types = rules.types().union(copy.added_types);
+        !types.contains(CardType::Instant) && !types.contains(CardType::Sorcery)
+    }
+
+    /// Freezes both faces when an effect creates a token copy of a physical
+    /// double-faced permanent (CR 707.8a). A copy effect applying to the
+    /// source supplies both faces, but the source's physical topology remains
+    /// the topology of the resulting token.
+    pub(super) fn double_faced_copiable_characteristics(
+        &self,
+        permanent: &Permanent,
+    ) -> Option<DoubleFacedCopiableCharacteristics> {
+        let unmodified = |base| CopiableCharacteristics {
+            base,
+            added_types: CardTypeSet::empty(),
+            added_abilities: Vec::new(),
+            retain_printed_subtypes: false,
+        };
+        let mut faces = match permanent.card.definition {
+            ObjectKind::Card(definition) => {
+                let definition_record = self.catalog.get(definition)?;
+                let CardStructure::DoubleFaced { front, back, kind } = definition_record.structure
+                else {
+                    return None;
+                };
+                DoubleFacedCopiableCharacteristics {
+                    kind,
+                    front_part: front,
+                    back_part: back,
+                    front: unmodified(ObjectCharacteristics::card(definition, front)),
+                    back: unmodified(ObjectCharacteristics::card(definition, back)),
+                }
+            }
+            ObjectKind::Token => {
+                if let Some(faces) = &permanent.double_faced_token_copy {
+                    faces.clone()
+                } else {
+                    let token = permanent.token_characteristics?;
+                    let front_part = token.primary_part_id();
+                    let back_part = token.other_face(front_part)?;
+                    DoubleFacedCopiableCharacteristics {
+                        kind: crate::card::DoubleFacedKind::Transforming,
+                        front_part,
+                        back_part,
+                        front: unmodified(ObjectCharacteristics::token(token, front_part)),
+                        back: unmodified(ObjectCharacteristics::token(token, back_part)),
+                    }
+                }
+            }
+            ObjectKind::Emblem | ObjectKind::Ability => return None,
+        };
+        if let Some(copy) = &permanent.copy_effect {
+            faces.front.clone_from(copy);
+            faces.back.clone_from(copy);
+        }
+        Some(faces)
     }
 
     pub(super) fn trigger_event_object(&self, permanent: &Permanent) -> TriggerEventObject {
@@ -91,13 +257,13 @@ impl Game {
             .expect("a battlefield object has effective rules");
         TriggerEventObject {
             id: permanent.card.id,
-            token: self.is_token(permanent.card.definition),
+            token: permanent.card.definition.is_token(),
             types: self
                 .permanent_types(permanent)
                 .expect("a battlefield object has effective types"),
             controller: permanent.controller,
             attacking_or_blocking: permanent.attacking || permanent.is_blocking_this_combat(),
-            colors: self.effective_colors(permanent, rules),
+            colors: self.effective_colors(permanent, &rules),
             subtypes: self.effective_subtypes(permanent),
             mana_value: self.permanent_mana_value(permanent),
             power: self.power_ignoring_static_effects(permanent),
@@ -149,13 +315,13 @@ impl Game {
             .expect("a battlefield object has effective rules");
         TriggerEventObject {
             id: permanent.card.id,
-            token: self.is_token(permanent.card.definition),
+            token: permanent.card.definition.is_token(),
             types: self
                 .permanent_types(permanent)
                 .expect("a battlefield object has effective types"),
             controller: permanent.controller,
             attacking_or_blocking: permanent.attacking || permanent.is_blocking_this_combat(),
-            colors: self.effective_colors(permanent, rules),
+            colors: self.effective_colors(permanent, &rules),
             subtypes: self.effective_subtypes_with_prospective(permanent, prospective),
             mana_value: self.permanent_mana_value(permanent),
             power: self.power_ignoring_static_effects(permanent),

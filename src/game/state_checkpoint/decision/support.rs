@@ -342,7 +342,7 @@ pub(in crate::game::state_checkpoint) fn pending_trigger_snapshot(
     ) {
         return None;
     }
-    let ability = ability_locator(&game.catalog, |ability| {
+    let ability = ability_locator_for_origin(&game.catalog, trigger.source.ability, |ability| {
         let DeclarativeAbilityDef::Triggered(definition) = ability.definition else {
             return false;
         };
@@ -362,7 +362,7 @@ pub(in crate::game::state_checkpoint) fn pending_trigger_snapshot(
         },
         ability,
         target_definition,
-        definition: trigger.definition.0,
+        presentation: object_characteristics_snapshot(&game.catalog, trigger.presentation)?,
         owner: trigger.owner.index(),
         controller: trigger.controller.index(),
         targets: trigger
@@ -403,12 +403,17 @@ pub(in crate::game::state_checkpoint) fn parse_pending_trigger(
         object: GameObjectId(snapshot.source.object),
         ability: ability_origin_from_snapshot(snapshot.source.ability),
     };
+    if !super::super::semantics::ability_locator_matches_origin(&snapshot.ability, source.ability) {
+        return Err("pending trigger ability locator disagrees with its origin".into());
+    }
     let target_definition = catalog_ability(&game.catalog, &snapshot.target_definition)
         .ok_or("pending trigger target-definition locator is absent from this catalog")?;
+    let presentation = object_characteristics_from_snapshot(&game.catalog, &snapshot.presentation)
+        .ok_or("pending trigger presentation locator is absent from this catalog")?;
     Ok(PendingTrigger {
         id: snapshot.id,
         source,
-        definition: CardDefinitionId(snapshot.definition),
+        presentation,
         owner: player(snapshot.owner)?,
         controller: player(snapshot.controller)?,
         text: ability.text,
@@ -541,61 +546,98 @@ pub(super) fn game_ids(ids: &[u32]) -> Vec<GameObjectId> {
     ids.iter().copied().map(GameObjectId).collect()
 }
 
-pub(super) fn decision_option_snapshot(option: &DecisionOption) -> DecisionOptionSnapshot {
-    let card = |(object, definition): (GameObjectId, CardDefinitionId)| DecisionCardSnapshot {
-        object_id: object.0,
-        definition: definition.0,
+pub(super) fn decision_option_snapshot(
+    catalog: &CardCatalog,
+    option: &DecisionOption,
+) -> Option<DecisionOptionSnapshot> {
+    let snapshot_card = |(object, characteristics): (GameObjectId, ObjectCharacteristics)| {
+        Some(DecisionCardSnapshot {
+            object_id: object.0,
+            characteristics: object_characteristics_snapshot(catalog, characteristics)?,
+        })
     };
-    DecisionOptionSnapshot {
+    let card = match option.card {
+        Some(value) => Some(snapshot_card(value)?),
+        None => None,
+    };
+    Some(DecisionOptionSnapshot {
         id: option.id,
         label: option.label.clone(),
-        card: option.card.map(card),
-        members: option.members.iter().copied().map(card).collect(),
+        card,
+        members: option
+            .members
+            .iter()
+            .copied()
+            .map(snapshot_card)
+            .collect::<Option<Vec<_>>>()?,
         ability_text: option.ability_text.clone(),
         zone: decision_zone_snapshot(option.zone),
-    }
+    })
 }
 
-pub(super) fn parse_decision_option_snapshot(snapshot: &DecisionOptionSnapshot) -> DecisionOption {
-    let card = |card: DecisionCardSnapshot| {
-        (
+pub(super) fn parse_decision_option_snapshot(
+    catalog: &CardCatalog,
+    snapshot: &DecisionOptionSnapshot,
+) -> Result<DecisionOption, String> {
+    let card = |card: &DecisionCardSnapshot| {
+        Ok((
             GameObjectId(card.object_id),
-            CardDefinitionId(card.definition),
-        )
+            object_characteristics_from_snapshot(catalog, &card.characteristics).ok_or_else(
+                || "decision card characteristics are absent from this catalog".to_owned(),
+            )?,
+        ))
     };
-    DecisionOption {
+    Ok(DecisionOption {
         id: snapshot.id,
         label: snapshot.label.clone(),
-        card: snapshot.card.map(card),
-        members: snapshot.members.iter().copied().map(card).collect(),
+        card: snapshot.card.as_ref().map(card).transpose()?,
+        members: snapshot
+            .members
+            .iter()
+            .map(card)
+            .collect::<Result<Vec<_>, String>>()?,
         ability_text: snapshot.ability_text.clone(),
         zone: parse_decision_zone_snapshot(snapshot.zone),
-    }
+    })
 }
 
-pub(super) fn pile_split_snapshot(piles: &PileSplit) -> PileSplitSnapshot {
-    PileSplitSnapshot {
+pub(super) fn pile_split_snapshot(
+    catalog: &CardCatalog,
+    piles: &PileSplit,
+) -> Option<PileSplitSnapshot> {
+    Some(PileSplitSnapshot {
         resolving_controller: piles.resolving_controller.index(),
         subject: piles.subject.index(),
-        first: piles.first.iter().map(decision_option_snapshot).collect(),
-        second: piles.second.iter().map(decision_option_snapshot).collect(),
-    }
+        first: piles
+            .first
+            .iter()
+            .map(|option| decision_option_snapshot(catalog, option))
+            .collect::<Option<Vec<_>>>()?,
+        second: piles
+            .second
+            .iter()
+            .map(|option| decision_option_snapshot(catalog, option))
+            .collect::<Option<Vec<_>>>()?,
+    })
 }
 
-pub(super) fn parse_pile_split_snapshot(snapshot: &PileSplitSnapshot) -> Result<PileSplit, String> {
+pub(super) fn parse_pile_split_snapshot(
+    snapshot: &PileSplitSnapshot,
+    catalog: &CardCatalog,
+) -> Result<PileSplit, String> {
     Ok(PileSplit {
         resolving_controller: player(snapshot.resolving_controller)?,
         subject: player(snapshot.subject)?,
         first: snapshot
             .first
             .iter()
-            .map(parse_decision_option_snapshot)
-            .collect(),
+            .map(|option| parse_decision_option_snapshot(catalog, option))
+            .collect::<Result<Vec<_>, String>>()?,
         second: snapshot
             .second
             .iter()
-            .map(parse_decision_option_snapshot)
-            .collect(),
+            .map(|option| parse_decision_option_snapshot(catalog, option))
+            .collect::<Result<Vec<_>, String>>()?,
     })
 }
 
@@ -609,20 +651,39 @@ pub(super) fn parse_card_type_set(flags: [bool; CardType::COUNT]) -> CardTypeSet
         })
 }
 
-pub(super) fn balance_task_snapshot(viewer: PlayerId, task: &BalanceTask) -> BalanceTaskSnapshot {
-    BalanceTaskSnapshot {
+pub(super) fn balance_task_snapshot(
+    catalog: &CardCatalog,
+    viewer: PlayerId,
+    task: &BalanceTask,
+) -> Option<BalanceTaskSnapshot> {
+    let cards = if task.zone != DecisionZone::Hand || task.player == viewer {
+        Some(
+            task.cards
+                .iter()
+                .copied()
+                .map(|(object, characteristics)| {
+                    Some(DecisionCardSnapshot {
+                        object_id: object.0,
+                        characteristics: object_characteristics_snapshot(catalog, characteristics)?,
+                    })
+                })
+                .collect::<Option<Vec<_>>>()?,
+        )
+    } else {
+        None
+    };
+    Some(BalanceTaskSnapshot {
         player: task.player.index(),
         prompt: task.prompt.clone(),
         zone: decision_zone_snapshot(task.zone),
-        cards: (task.zone != DecisionZone::Hand || task.player == viewer)
-            .then(|| task.cards.iter().map(detached_card_snapshot).collect()),
+        cards,
         count: task.count,
         action: match task.action {
             BalanceAction::Sacrifice => BalanceActionSnapshot::Sacrifice,
             BalanceAction::Discard => BalanceActionSnapshot::Discard,
         },
         cause: cause_snapshot(task.cause),
-    }
+    })
 }
 
 pub(super) fn parse_balance_task(
@@ -632,8 +693,28 @@ pub(super) fn parse_balance_task(
     let owner = player(snapshot.player)?;
     let zone = parse_decision_zone_snapshot(snapshot.zone);
     let cards = match &snapshot.cards {
-        Some(cards) => parse_detached_cards(cards, game)?,
-        None if zone == DecisionZone::Hand => game.players[owner.index()].hand.clone(),
+        Some(cards) => cards
+            .iter()
+            .map(|card| {
+                Ok((
+                    GameObjectId(card.object_id),
+                    object_characteristics_from_snapshot(&game.catalog, &card.characteristics)
+                        .ok_or_else(|| {
+                            "Balance card characteristics are absent from this catalog".to_owned()
+                        })?,
+                ))
+            })
+            .collect::<Result<Vec<_>, String>>()?,
+        None if zone == DecisionZone::Hand => game.players[owner.index()]
+            .hand
+            .iter()
+            .map(|card| {
+                (
+                    card.id,
+                    ObjectCharacteristics::card(card.definition, CardPartId::PRIMARY),
+                )
+            })
+            .collect(),
         None => return Err("only hidden Balance hand tasks may omit card identities".into()),
     };
     Ok(BalanceTask {

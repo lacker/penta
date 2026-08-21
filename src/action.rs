@@ -38,6 +38,19 @@ pub enum AbilityOrigin {
         part: CardPartId,
         ability: AbilityId,
     },
+    /// An ability printed by inline token characteristics. Pairing this with
+    /// the token's game-object ID gives it stable in-game identity without
+    /// inventing a globally cataloged card definition for the token.
+    Token {
+        part: CardPartId,
+        ability: AbilityId,
+    },
+    /// An ability supplied by creator-owned emblem characteristics. Emblems
+    /// have no card definition or card part; pair this with the emblem's
+    /// game-object ID for stable in-game identity.
+    Emblem {
+        ability: AbilityId,
+    },
     IntrinsicBasicLand(BasicLandType),
     /// A keyword a counter on the permanent grants (CR 122.1e). Like the
     /// land one above it is nobody's printed ability: the permanent has it
@@ -47,6 +60,23 @@ pub enum AbilityOrigin {
         source: GameObjectId,
         source_definition: CardDefinitionId,
         source_part: CardPartId,
+        source_ability: AbilityId,
+        grant: GrantId,
+    },
+    /// An ability granted by an inline token ability. The granting object's
+    /// ID and positional clause identity are sufficient in live state; its
+    /// frozen token characteristics travel with the affected object and stack
+    /// presentation instead of being assigned a catalog identity.
+    TokenGranted {
+        source: GameObjectId,
+        source_part: CardPartId,
+        source_ability: AbilityId,
+        grant: GrantId,
+    },
+    /// An ability granted by an emblem ability. The emblem object identifies
+    /// the source, while the ability and grant IDs locate the authored clause.
+    EmblemGranted {
+        source: GameObjectId,
         source_ability: AbilityId,
         grant: GrantId,
     },

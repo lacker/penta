@@ -6,7 +6,7 @@
 //! once, against that controller, before anyone votes.
 
 use super::{
-    DecisionContinuation, DecisionPreference, DecisionVisibility, DecisionZone, Game, GameObjectId,
+    DecisionContinuation, DecisionPreference, DecisionVisibility, Game, GameObjectId,
     ObjectPredicateDef, PlayerId,
 };
 
@@ -54,18 +54,18 @@ impl Game {
             return;
         }
         let next = remaining.remove(0);
-        let cards = self
+        let available = self
             .battlefield
             .iter()
             .filter(|permanent| candidates.contains(&permanent.card.id))
-            .map(|permanent| permanent.card.clone())
+            .map(|permanent| permanent.card.id)
             .collect::<Vec<_>>();
         // Every candidate has already left, so there is nothing to vote on
         // and nothing left to exile.
-        if cards.is_empty() {
+        if available.is_empty() {
             return;
         }
-        let options = self.card_decision_options(&cards, DecisionZone::Battlefield);
+        let options = self.permanent_decision_options(&available);
         self.queue_decision(
             next,
             "Vote for a permanent",

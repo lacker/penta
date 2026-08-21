@@ -180,7 +180,10 @@ impl Game {
             return Some(StackAbilityPayload {
                 origin,
                 definition: Some(Box::new(ability)),
-                presentation_definition: definition_id,
+                presentation: Self::ability_presentation(
+                    origin,
+                    ObjectCharacteristics::card(definition_id, CardPartId::PRIMARY),
+                ),
                 text: alternative_cast.stack_text.or(Some(ability.text)),
                 // Overload declares none, having changed "target" to "each";
                 // a kicked spell declares its own, which need not be the ones
@@ -211,7 +214,10 @@ impl Game {
         Some(StackAbilityPayload {
             origin,
             definition: Some(Box::new(ability)),
-            presentation_definition: definition_id,
+            presentation: Self::ability_presentation(
+                origin,
+                ObjectCharacteristics::card(definition_id, CardPartId::PRIMARY),
+            ),
             text: Some(ability.text),
             target_defs: plan.target_defs,
             targets: signature.targets().to_vec(),

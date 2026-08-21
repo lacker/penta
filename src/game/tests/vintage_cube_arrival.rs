@@ -55,12 +55,16 @@ fn the_priest_exiles_creatures_that_arrive_without_being_cast() {
     );
 
     // A token is exempt.
-    game.create_token(PlayerId::One, cards::BEAST_TOKEN_3_3_GREEN);
+    game.create_token(
+        PlayerId::One,
+        tokens::creature(&["Beast"], &[ManaColor::Green], 3, 3),
+    );
     drain_pending(&mut game);
     assert!(
-        game.battlefield
-            .iter()
-            .any(|permanent| permanent.card.definition == cards::BEAST_TOKEN_3_3_GREEN),
+        game.battlefield.iter().any(|permanent| is_token_with(
+            permanent,
+            tokens::creature(&["Beast"], &[ManaColor::Green], 3, 3)
+        )),
         "a token is not a nontoken creature",
     );
 }

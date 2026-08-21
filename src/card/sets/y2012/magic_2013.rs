@@ -69,15 +69,12 @@ pub(in crate::card::sets) static AJANI_CALLER_OF_THE_PRIDE: CardRecord = CardRec
             AbilityDef::activated(
                 "−8: Create X 2/2 white Cat creature tokens, where X is your life total.",
                 &[AbilityCostDef::Loyalty(-8)],
-                EffectDef::CreateToken {
-                    token: cards::CAT_TOKEN_2_2_WHITE,
-                    controller: None,
-                    count: ValueDef::LifeTotal(PlayerRelation::You),
-                    tapped: false,
-                    attacking: false,
-                    counters: None,
-                    created: None,
-                },
+                EffectDef::create_creature_token(&["Cat"], &[ManaColor::White], 2, 2)
+                    .with_art(CardArt::new(
+                        "f97868f6-a9ce-4ce9-bc3f-b535f3202602",
+                        "Jesper Ejsing",
+                    ))
+                    .with_count(ValueDef::LifeTotal(PlayerRelation::You)),
             ),
         ]),
 );
@@ -137,15 +134,9 @@ pub(in crate::card::sets) static ATTENDED_KNIGHT: CardRecord = CardRecord::new(
                 None,
                 Some(ZoneKind::Battlefield),
             ),
-            EffectDef::CreateToken {
-                token: cards::SOLDIER_TOKEN_1_1_WHITE,
-                controller: None,
-                count: ValueDef::Constant(1),
-                tapped: false,
-                attacking: false,
-                counters: None,
-                created: None,
-            },
+            EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1).with_art(
+                CardArt::new("86272c08-c5f2-413f-87ea-b135aca2d9c5", "Greg Staples"),
+            ),
         ),
     ]),
 );
@@ -223,15 +214,12 @@ pub(in crate::card::sets) static CAPTAIN_OF_THE_WATCH: CardRecord = CardRecord::
                     None,
                     Some(ZoneKind::Battlefield),
                 ),
-                EffectDef::CreateToken {
-                    token: cards::SOLDIER_TOKEN_1_1_WHITE,
-                    controller: None,
-                    count: ValueDef::Constant(3),
-                    tapped: false,
-                    attacking: false,
-                    counters: None,
-                    created: None,
-                },
+                EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1)
+                    .with_art(CardArt::new(
+                        "86272c08-c5f2-413f-87ea-b135aca2d9c5",
+                        "Greg Staples",
+                    ))
+                    .with_amount(3),
             ),
         ],
     ),
@@ -245,15 +233,12 @@ pub(in crate::card::sets) static CAPTAINS_CALL: CardRecord = CardRecord::new(
     CardSet::Magic2013,
     CardRules::new_sorcery(mana_cost!("{3}{W}")).with_ability(AbilityDef::spell(
         "Create three 1/1 white Soldier creature tokens.",
-        EffectDef::CreateToken {
-            token: cards::SOLDIER_TOKEN_1_1_WHITE,
-            controller: None,
-            count: ValueDef::Constant(3),
-            tapped: false,
-            attacking: false,
-            counters: None,
-            created: None,
-        },
+        EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1)
+            .with_art(CardArt::new(
+                "86272c08-c5f2-413f-87ea-b135aca2d9c5",
+                "Greg Staples",
+            ))
+            .with_amount(3),
     )),
 );
 
@@ -1361,14 +1346,7 @@ pub(in crate::card::sets) static TALRAND_SKY_SUMMONER: CardRecord = CardRecord::
                 ObjectPredicateDef::HasType(CardType::Sorcery),
             ]),
         ])),
-        EffectDef::CreateToken {
-            token: cards::DRAKE_TOKEN_2_2_BLUE,
-            controller: None,
-            count: ValueDef::Constant(1),
-            tapped: false,
-            attacking: false,
-        counters: None,
-        created: None,},
+        EffectDef::create_creature_token(&["Drake"], &[ManaColor::Blue], 2, 2).with_abilities(&[abilities::flying()]).with_art(CardArt::new("93679bb9-ee1c-4eea-bcdd-72785d5788af", "Svetlin Velinov")),
     )),
 );
 
@@ -1380,15 +1358,13 @@ pub(in crate::card::sets) static TALRANDS_INVOCATION: CardRecord = CardRecord::n
     CardSet::Magic2013,
     CardRules::new_sorcery(mana_cost!("{2}{U}{U}")).with_ability(AbilityDef::spell(
         "Create two 2/2 blue Drake creature tokens with flying.",
-        EffectDef::CreateToken {
-            token: cards::DRAKE_TOKEN_2_2_BLUE,
-            controller: None,
-            count: ValueDef::Constant(2),
-            tapped: false,
-            attacking: false,
-            counters: None,
-            created: None,
-        },
+        EffectDef::create_creature_token(&["Drake"], &[ManaColor::Blue], 2, 2)
+            .with_abilities(&[abilities::flying()])
+            .with_art(CardArt::new(
+                "93679bb9-ee1c-4eea-bcdd-72785d5788af",
+                "Svetlin Velinov",
+            ))
+            .with_amount(2),
     )),
 );
 
@@ -2232,15 +2208,9 @@ pub(in crate::card::sets) static VILE_REBIRTH: CardRecord = CardRecord::new(
                 attachment: None,
                 controller: None,
             },
-            EffectDef::CreateToken {
-                token: cards::ZOMBIE_TOKEN_2_2_BLACK,
-                controller: None,
-                count: ValueDef::Constant(1),
-                tapped: false,
-                attacking: false,
-                counters: None,
-                created: None,
-            },
+            EffectDef::create_creature_token(&["Zombie"], &[ManaColor::Black], 2, 2).with_art(
+                CardArt::new("1966d7e6-cd4a-47ff-bc3e-f8e0db8a3439", "Lucas Graciano"),
+            ),
         ]),
     )),
 );
@@ -2660,14 +2630,7 @@ pub(in crate::card::sets) static KRENKO_MOB_BOSS: CardRecord = CardRecord::new(
     .with_ability(AbilityDef::activated(
         "{T}: Create X 1/1 red Goblin creature tokens, where X is the number of Goblins you control.",
         &[AbilityCostDef::TapSource],
-        EffectDef::CreateToken {
-            token: cards::GOBLIN_TOKEN_1_1_RED,
-            controller: None,
-            count: ValueDef::CountMatchingObjects(&KRENKO_GOBLINS),
-            tapped: false,
-            attacking: false,
-        counters: None,
-        created: None,},
+        EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1).with_art(CardArt::new("0e67efea-8a80-42ec-8e77-07d387d933d4", "Karl Kopinski")).with_count(ValueDef::CountMatchingObjects(&KRENKO_GOBLINS)),
     )),
 );
 
@@ -2679,15 +2642,12 @@ pub(in crate::card::sets) static KRENKOS_COMMAND: CardRecord = CardRecord::new(
     CardSet::Magic2013,
     CardRules::new_sorcery(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell(
         "Create two 1/1 red Goblin creature tokens.",
-        EffectDef::CreateToken {
-            token: cards::GOBLIN_TOKEN_1_1_RED,
-            controller: None,
-            count: ValueDef::Constant(2),
-            tapped: false,
-            attacking: false,
-            counters: None,
-            created: None,
-        },
+        EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1)
+            .with_art(CardArt::new(
+                "0e67efea-8a80-42ec-8e77-07d387d933d4",
+                "Karl Kopinski",
+            ))
+            .with_amount(2),
     )),
 );
 
@@ -3302,14 +3262,7 @@ pub(in crate::card::sets) static FUNGAL_SPROUTING: CardRecord = CardRecord::new(
     CardSet::Magic2013,
     CardRules::new_sorcery(mana_cost!("{3}{G}")).with_ability(AbilityDef::spell(
         "Create X 1/1 green Saproling creature tokens, where X is the greatest power among creatures you control.",
-        EffectDef::CreateToken {
-            token: cards::SAPROLING_TOKEN_1_1_GREEN,
-            controller: None,
-            count: ValueDef::GreatestPowerAmong(&GREATEST_POWER_YOU_CONTROL),
-            tapped: false,
-            attacking: false,
-        counters: None,
-        created: None,},
+        EffectDef::create_creature_token(&["Saproling"], &[ManaColor::Green], 1, 1).with_art(CardArt::new("dd67de8a-3879-4d03-a716-6e907d597b25", "Brad Rigney")).with_count(ValueDef::GreatestPowerAmong(&GREATEST_POWER_YOU_CONTROL)),
     )),
 );
 
@@ -3334,15 +3287,9 @@ pub(in crate::card::sets) static GARRUK_PRIMAL_HUNTER: CardRecord = CardRecord::
             AbilityDef::activated(
                 "+1: Create a 3/3 green Beast creature token.",
                 &[AbilityCostDef::Loyalty(1)],
-                EffectDef::CreateToken {
-                    token: cards::BEAST_TOKEN_3_3_GREEN,
-                    controller: None,
-                    count: ValueDef::Constant(1),
-                    tapped: false,
-                    attacking: false,
-                    counters: None,
-                    created: None,
-                },
+                EffectDef::create_creature_token(&["Beast"], &[ManaColor::Green], 3, 3).with_art(
+                    CardArt::new("c94010f1-cd4b-4f65-8a0e-2df6eec058ec", "John Donahue"),
+                ),
             ),
             AbilityDef::activated(
                 "−3: Draw cards equal to the greatest power among creatures you control.",
@@ -3355,15 +3302,12 @@ pub(in crate::card::sets) static GARRUK_PRIMAL_HUNTER: CardRecord = CardRecord::
             AbilityDef::activated(
                 "−6: Create a 6/6 green Wurm creature token for each land you control.",
                 &[AbilityCostDef::Loyalty(-6)],
-                EffectDef::CreateToken {
-                    token: cards::WURM_TOKEN_6_6_GREEN,
-                    controller: None,
-                    count: ValueDef::CountMatchingObjects(&LANDS_YOU_CONTROL),
-                    tapped: false,
-                    attacking: false,
-                    counters: None,
-                    created: None,
-                },
+                EffectDef::create_creature_token(&["Wurm"], &[ManaColor::Green], 6, 6)
+                    .with_art(CardArt::new(
+                        "a4d87f38-c342-4186-8768-c3f1aceb680a",
+                        "Anthony Francisco",
+                    ))
+                    .with_count(ValueDef::CountMatchingObjects(&LANDS_YOU_CONTROL)),
             ),
         ]),
 );
@@ -3633,15 +3577,9 @@ pub(in crate::card::sets) static THRAGTUSK: CardRecord = CardRecord::new(
                 Some(ZoneKind::Battlefield),
                 None,
             ),
-            EffectDef::CreateToken {
-                token: cards::BEAST_TOKEN_3_3_GREEN,
-                controller: None,
-                count: ValueDef::Constant(1),
-                tapped: false,
-                attacking: false,
-                counters: None,
-                created: None,
-            },
+            EffectDef::create_creature_token(&["Beast"], &[ManaColor::Green], 3, 3).with_art(
+                CardArt::new("c94010f1-cd4b-4f65-8a0e-2df6eec058ec", "John Donahue"),
+            ),
         ),
     ]),
 );

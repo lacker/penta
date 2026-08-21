@@ -6,8 +6,9 @@ use crate::{GameObjectId, ObjectSetBindingIndex};
 
 use super::decision_offers::effect_choice_visibility;
 use super::{
-    DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
-    EffectResolutionContext, Game, ScopedEffect, StackObject, Target,
+    CardPartId, DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility,
+    DecisionZone, EffectResolutionContext, Game, ObjectCharacteristics, ScopedEffect, StackObject,
+    Target,
 };
 
 pub(super) struct EffectChoiceDecisionState {
@@ -322,9 +323,11 @@ impl Game {
                     || ("Unknown permanent".into(), None, DecisionZone::Battlefield),
                     |permanent| {
                         (
-                            self.effective_permanent_name(permanent)
-                                .map_or_else(|| "Unknown permanent".into(), str::to_owned),
-                            Some((id, permanent.card.definition)),
+                            self.effective_permanent_name(permanent).map_or_else(
+                                || "Unknown permanent".into(),
+                                std::borrow::Cow::into_owned,
+                            ),
+                            Some((id, Self::effective_rules_source(permanent))),
                             DecisionZone::Battlefield,
                         )
                     },
@@ -336,11 +339,26 @@ impl Game {
                 .map_or_else(
                     || ("Unknown spell".into(), None, DecisionZone::Stack),
                     |candidate| {
+                        let characteristics = candidate.presentation();
                         (
-                            self.catalog
-                                .get(candidate.card.definition)
-                                .map_or_else(|| "Unknown spell".into(), |card| card.name.clone()),
-                            Some((id, candidate.card.definition)),
+                            match characteristics {
+                                ObjectCharacteristics::Card { definition, part } => self
+                                    .catalog
+                                    .get(definition)
+                                    .and_then(|card| card.part(part))
+                                    .map_or_else(
+                                        || "Unknown spell".into(),
+                                        |part| part.name.clone(),
+                                    ),
+                                ObjectCharacteristics::Token { token, part } => {
+                                    token.part(part).map_or_else(
+                                        || "Unknown spell".into(),
+                                        |part| part.name().into_owned(),
+                                    )
+                                }
+                                ObjectCharacteristics::Emblem { emblem } => emblem.name().into(),
+                            },
+                            Some((id, characteristics)),
                             DecisionZone::Stack,
                         )
                     },
@@ -353,7 +371,10 @@ impl Game {
                             || "Unknown card".into(),
                             |definition| definition.name.clone(),
                         ),
-                        Some((id, card.definition)),
+                        Some((
+                            id,
+                            ObjectCharacteristics::card(card.definition, CardPartId::PRIMARY),
+                        )),
                         decision_zone(zone),
                     )
                 },
@@ -374,24 +395,24 @@ impl Game {
         }
     }
 
-    fn effect_target_card(
-        &self,
-        target: Target,
-    ) -> Option<(GameObjectId, crate::CardDefinitionId)> {
+    fn effect_target_card(&self, target: Target) -> Option<(GameObjectId, ObjectCharacteristics)> {
         match target {
             Target::Permanent(id) => self
                 .battlefield
                 .iter()
                 .find(|permanent| permanent.card.id == id)
-                .map(|permanent| (id, permanent.card.definition)),
+                .map(|permanent| (id, Self::effective_rules_source(permanent))),
             Target::Spell(id) => self
                 .stack
                 .iter()
                 .find(|candidate| candidate.id == id)
-                .map(|candidate| (id, candidate.card.definition)),
-            Target::Card(id) => self
-                .card_in_nonbattlefield_zone(id)
-                .map(|(_, card)| (id, card.definition)),
+                .map(|candidate| (id, candidate.presentation())),
+            Target::Card(id) => self.card_in_nonbattlefield_zone(id).map(|(_, card)| {
+                (
+                    id,
+                    ObjectCharacteristics::card(card.definition, CardPartId::PRIMARY),
+                )
+            }),
             Target::Player(_) => None,
         }
     }

@@ -1,7 +1,8 @@
+use crate::ObjectCharacteristics;
 use crate::action::AbilityOrigin;
 use crate::card::{AbilityDef, AbilityTargetDef};
 use crate::casting::TargetSelection;
-use crate::ids::{CardDefinitionId, ModeId};
+use crate::ids::ModeId;
 
 use super::GameObjectId;
 
@@ -22,7 +23,7 @@ use super::{ScopedEffect, StackAbilityResolver};
 pub(super) struct FrozenActivatedAbility {
     pub(super) origin: AbilityOrigin,
     pub(super) definition: Option<Box<AbilityDef>>,
-    pub(super) presentation_definition: CardDefinitionId,
+    pub(super) presentation: ObjectCharacteristics,
     pub(super) text: Option<&'static str>,
     /// Owned rather than borrowed because a modal ability's slots are its
     /// own followed by each chosen mode's, which is a list nothing prints.
@@ -44,7 +45,7 @@ pub(super) struct FrozenActivatedAbility {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) struct PendingActivation {
     pub(super) source: GameObjectId,
-    pub(super) source_card: super::CardInstance,
+    pub(super) source_card: super::ObjectInstance,
     pub(super) controller: crate::ids::PlayerId,
     pub(super) frozen: FrozenActivatedAbility,
     pub(super) targets: Vec<TargetSelection>,

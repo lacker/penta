@@ -91,3 +91,15 @@ fn unknown_definitions_have_no_printings() {
             .is_none()
     );
 }
+
+#[test]
+fn synthetic_definitions_do_not_bypass_global_name_uniqueness() {
+    assert_eq!(
+        CardCatalog::new([
+            definition(1, "Shared name", CardSet::Token),
+            definition(2, " shared NAME ", CardSet::Token),
+        ])
+        .unwrap_err(),
+        CatalogError::DuplicateName(" shared NAME ".into()),
+    );
+}

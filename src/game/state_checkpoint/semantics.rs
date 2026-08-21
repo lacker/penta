@@ -1,3 +1,17 @@
+mod emblem;
+mod token;
+mod virtual_objects;
+
+pub(super) use crate::card::child_effects;
+use emblem::authored_emblems;
+pub(super) use emblem::{catalog_emblem_characteristics, emblem_characteristics_locator};
+use token::authored_tokens;
+pub(super) use token::{
+    catalog_token_characteristics, object_characteristics_from_snapshot,
+    object_characteristics_snapshot, token_characteristics_locator,
+};
+use virtual_objects::token_parts;
+
 use super::model::{
     AbilityLocator, AppliedEffectLocator, ManaPayloadLocator, ReplacementEffectLocator,
     ScopedEffectSnapshot,
@@ -7,7 +21,6 @@ use crate::card::BandingQuality;
 use super::model_keyword::KeywordSnapshot;
 use super::model_prevention::DamagePreventionLocator;
 use super::{AbilityOrigin, AbilitySourceRef, Mana, ScopedEffect};
-use crate::CardCatalog;
 use crate::card::{
     AbilityDef, AbilityOperationDef, AbilityProgramDef, AbilityTargetDef, AddManaEffectDef,
     AppliedEffectDef, BasicLandType, CharacteristicOperationDef, DamagePreventionDef,
@@ -15,6 +28,7 @@ use crate::card::{
     ManaSpendEffectDef, ObjectPredicateDef, ProtectedCreatureType, ReplacementEffectDef,
     SpellAbilityDef,
 };
+use crate::{CardCatalog, CardDefinitionId, CardPartId};
 
 pub(super) fn ability_locator(
     catalog: &CardCatalog,
@@ -25,7 +39,7 @@ pub(super) fn ability_locator(
             for attached in part.rules.indexed_abilities() {
                 let mut nested = Vec::new();
                 if locate_ability(&attached.definition, &mut matches, &mut nested) {
-                    return Some(AbilityLocator {
+                    return Some(AbilityLocator::Card {
                         definition: definition.id.0,
                         part_id: part.id.0,
                         ability_id: attached.id.0,
@@ -35,22 +49,264 @@ pub(super) fn ability_locator(
             }
         }
     }
+    for (token, token_locator) in authored_tokens(catalog) {
+        for part in token_parts(token) {
+            for attached in part.rules().indexed_abilities() {
+                let mut nested = Vec::new();
+                if locate_ability(&attached.definition, &mut matches, &mut nested) {
+                    return Some(AbilityLocator::Token {
+                        token: token_locator,
+                        part_id: part.id.0,
+                        ability_id: attached.id.0,
+                        nested,
+                    });
+                }
+            }
+        }
+    }
+    for (emblem, emblem_locator) in authored_emblems(catalog) {
+        for (index, ability) in emblem.abilities().iter().enumerate() {
+            let ability_id = crate::AbilityId::from_index(index)
+                .expect("validated emblem ability count has positional IDs");
+            let mut nested = Vec::new();
+            if locate_ability(ability, &mut matches, &mut nested) {
+                return Some(AbilityLocator::Emblem {
+                    emblem: emblem_locator,
+                    ability_id: ability_id.0,
+                    nested,
+                });
+            }
+        }
+    }
     None
+}
+
+/// Locates an authored ability beneath the exact positional origin retained by
+/// runtime state. Token origins do not carry a catalog definition, so their
+/// root is recovered by matching the frozen ability against token rules that
+/// are themselves reachable from a printed creator effect.
+pub(super) fn ability_locator_for_origin(
+    catalog: &CardCatalog,
+    origin: AbilityOrigin,
+    mut matches: impl FnMut(&AbilityDef) -> bool,
+) -> Option<AbilityLocator> {
+    match origin {
+        AbilityOrigin::Printed {
+            definition,
+            part,
+            ability,
+        }
+        | AbilityOrigin::Granted {
+            source_definition: definition,
+            source_part: part,
+            source_ability: ability,
+            ..
+        } => {
+            let root = AbilityLocator::Card {
+                definition: definition.0,
+                part_id: part.0,
+                ability_id: ability.0,
+                nested: Vec::new(),
+            };
+            locate_beneath_root(catalog, root, &mut matches)
+        }
+        AbilityOrigin::Token { part, ability }
+        | AbilityOrigin::TokenGranted {
+            source_part: part,
+            source_ability: ability,
+            ..
+        } => authored_tokens(catalog)
+            .into_iter()
+            .find_map(|(token, token_locator)| {
+                token.part(part)?.rules().ability(ability)?;
+                locate_beneath_root(
+                    catalog,
+                    AbilityLocator::Token {
+                        token: token_locator,
+                        part_id: part.0,
+                        ability_id: ability.0,
+                        nested: Vec::new(),
+                    },
+                    &mut matches,
+                )
+            }),
+        AbilityOrigin::Emblem { ability }
+        | AbilityOrigin::EmblemGranted {
+            source_ability: ability,
+            ..
+        } => authored_emblems(catalog)
+            .into_iter()
+            .find_map(|(emblem, emblem_locator)| {
+                emblem.ability(ability)?;
+                locate_beneath_root(
+                    catalog,
+                    AbilityLocator::Emblem {
+                        emblem: emblem_locator,
+                        ability_id: ability.0,
+                        nested: Vec::new(),
+                    },
+                    &mut matches,
+                )
+            }),
+        AbilityOrigin::IntrinsicBasicLand(_) | AbilityOrigin::IntrinsicCounter(_) => None,
+    }
+}
+
+fn locate_beneath_root(
+    catalog: &CardCatalog,
+    root: AbilityLocator,
+    matches: &mut impl FnMut(&AbilityDef) -> bool,
+) -> Option<AbilityLocator> {
+    let definition = catalog_ability(catalog, &root)?;
+    let mut nested = Vec::new();
+    locate_ability(&definition, matches, &mut nested).then(|| with_nested(root, nested))
 }
 
 pub(super) fn catalog_ability(
     catalog: &CardCatalog,
     locator: &AbilityLocator,
 ) -> Option<AbilityDef> {
-    let mut current = *catalog
-        .get(crate::CardDefinitionId(locator.definition))?
-        .part(crate::CardPartId(locator.part_id))?
-        .rules
-        .ability(crate::AbilityId(locator.ability_id))?;
-    for &index in &locator.nested {
+    let (mut current, nested) = match locator {
+        AbilityLocator::Card {
+            definition,
+            part_id,
+            ability_id,
+            nested,
+        } => (
+            *catalog
+                .get(CardDefinitionId(*definition))?
+                .part(CardPartId(*part_id))?
+                .rules
+                .ability(crate::AbilityId(*ability_id))?,
+            nested,
+        ),
+        AbilityLocator::Token {
+            token,
+            part_id,
+            ability_id,
+            nested,
+        } => (
+            *catalog_token_characteristics(catalog, token)?
+                .part(CardPartId(*part_id))?
+                .rules()
+                .ability(crate::AbilityId(*ability_id))?,
+            nested,
+        ),
+        AbilityLocator::Emblem {
+            emblem,
+            ability_id,
+            nested,
+        } => (
+            catalog_emblem_characteristics(catalog, emblem)?
+                .ability(crate::AbilityId(*ability_id))?,
+            nested,
+        ),
+    };
+    for &index in nested {
         current = **child_abilities(&current).get(index)?;
     }
     Some(current)
+}
+
+pub(super) fn ability_locator_matches_origin(
+    locator: &AbilityLocator,
+    origin: AbilityOrigin,
+) -> bool {
+    match (locator, origin) {
+        (
+            AbilityLocator::Card {
+                definition,
+                part_id,
+                ability_id,
+                ..
+            },
+            AbilityOrigin::Printed {
+                definition: expected_definition,
+                part,
+                ability,
+            },
+        ) => *definition == expected_definition.0 && *part_id == part.0 && *ability_id == ability.0,
+        (
+            AbilityLocator::Card {
+                definition,
+                part_id,
+                ability_id,
+                ..
+            },
+            AbilityOrigin::Granted {
+                source_definition,
+                source_part,
+                source_ability,
+                ..
+            },
+        ) => {
+            *definition == source_definition.0
+                && *part_id == source_part.0
+                && *ability_id == source_ability.0
+        }
+        (
+            AbilityLocator::Token {
+                part_id,
+                ability_id,
+                ..
+            },
+            AbilityOrigin::Token { part, ability },
+        ) => *part_id == part.0 && *ability_id == ability.0,
+        (
+            AbilityLocator::Token {
+                part_id,
+                ability_id,
+                ..
+            },
+            AbilityOrigin::TokenGranted {
+                source_part,
+                source_ability,
+                ..
+            },
+        ) => *part_id == source_part.0 && *ability_id == source_ability.0,
+        (AbilityLocator::Emblem { ability_id, .. }, AbilityOrigin::Emblem { ability }) => {
+            *ability_id == ability.0
+        }
+        (
+            AbilityLocator::Emblem { ability_id, .. },
+            AbilityOrigin::EmblemGranted { source_ability, .. },
+        ) => *ability_id == source_ability.0,
+        _ => false,
+    }
+}
+
+fn with_nested(locator: AbilityLocator, nested: Vec<usize>) -> AbilityLocator {
+    match locator {
+        AbilityLocator::Card {
+            definition,
+            part_id,
+            ability_id,
+            ..
+        } => AbilityLocator::Card {
+            definition,
+            part_id,
+            ability_id,
+            nested,
+        },
+        AbilityLocator::Token {
+            token,
+            part_id,
+            ability_id,
+            ..
+        } => AbilityLocator::Token {
+            token,
+            part_id,
+            ability_id,
+            nested,
+        },
+        AbilityLocator::Emblem {
+            emblem, ability_id, ..
+        } => AbilityLocator::Emblem {
+            emblem,
+            ability_id,
+            nested,
+        },
+    }
 }
 
 pub(super) fn mana_payload_locator(
@@ -112,35 +368,8 @@ pub(super) fn resolved_applied_effect_locator(
     source: AbilitySourceRef,
     expected: AppliedEffectDef,
 ) -> Option<AppliedEffectLocator> {
-    let (definition, part_id, ability_id) = match source.ability {
-        AbilityOrigin::Printed {
-            definition,
-            part,
-            ability,
-        } => (definition.0, part.0, ability.0),
-        AbilityOrigin::Granted {
-            source_definition,
-            source_part,
-            source_ability,
-            ..
-        } => (source_definition.0, source_part.0, source_ability.0),
-        AbilityOrigin::IntrinsicBasicLand(_) | AbilityOrigin::IntrinsicCounter(_) => {
-            return None;
-        }
-    };
-    let root = AbilityLocator {
-        definition,
-        part_id,
-        ability_id,
-        nested: Vec::new(),
-    };
-    let root_definition = catalog_ability(catalog, &root)?;
-    let mut nested = Vec::new();
     let mut contains = |candidate: &AbilityDef| applied_effects(candidate).contains(&expected);
-    if !locate_ability(&root_definition, &mut contains, &mut nested) {
-        return None;
-    }
-    let ability = AbilityLocator { nested, ..root };
+    let ability = ability_locator_for_origin(catalog, source.ability, &mut contains)?;
     let definition = catalog_ability(catalog, &ability)?;
     let effect_index = applied_effects(&definition)
         .iter()
@@ -155,27 +384,7 @@ pub(super) fn applied_effect_locator_matches_source(
     locator: &AppliedEffectLocator,
     source: AbilitySourceRef,
 ) -> bool {
-    let expected = match source.ability {
-        AbilityOrigin::Printed {
-            definition,
-            part,
-            ability,
-        } => (definition.0, part.0, ability.0),
-        AbilityOrigin::Granted {
-            source_definition,
-            source_part,
-            source_ability,
-            ..
-        } => (source_definition.0, source_part.0, source_ability.0),
-        AbilityOrigin::IntrinsicBasicLand(_) | AbilityOrigin::IntrinsicCounter(_) => {
-            return false;
-        }
-    };
-    (
-        locator.ability.definition,
-        locator.ability.part_id,
-        locator.ability.ability_id,
-    ) == expected
+    ability_locator_matches_origin(&locator.ability, source.ability)
 }
 
 pub(super) fn catalog_applied_effect(
@@ -192,39 +401,12 @@ pub(super) fn resolved_damage_prevention_locator(
     predicate: ObjectPredicateDef,
 ) -> Option<DamagePreventionLocator> {
     let expected = DamageSourceMatcherDef::Matching(predicate);
-    let (definition, part_id, ability_id) = match source.ability {
-        AbilityOrigin::Printed {
-            definition,
-            part,
-            ability,
-        } => (definition.0, part.0, ability.0),
-        AbilityOrigin::Granted {
-            source_definition,
-            source_part,
-            source_ability,
-            ..
-        } => (source_definition.0, source_part.0, source_ability.0),
-        AbilityOrigin::IntrinsicBasicLand(_) | AbilityOrigin::IntrinsicCounter(_) => {
-            return None;
-        }
-    };
-    let root = AbilityLocator {
-        definition,
-        part_id,
-        ability_id,
-        nested: Vec::new(),
-    };
-    let root_definition = catalog_ability(catalog, &root)?;
-    let mut nested = Vec::new();
     let mut contains = |candidate: &AbilityDef| {
         damage_prevention_defs(candidate)
             .iter()
             .any(|prevention| prevention.matcher.source == expected)
     };
-    if !locate_ability(&root_definition, &mut contains, &mut nested) {
-        return None;
-    }
-    let ability = AbilityLocator { nested, ..root };
+    let ability = ability_locator_for_origin(catalog, source.ability, &mut contains)?;
     let definition = catalog_ability(catalog, &ability)?;
     let effect_index = damage_prevention_defs(&definition)
         .iter()
@@ -393,39 +575,12 @@ pub(super) fn resolved_replacement_effect_locator(
     source: AbilitySourceRef,
     expected: ReplacementEffectDef,
 ) -> Option<ReplacementEffectLocator> {
-    let (definition, part_id, ability_id) = match source.ability {
-        AbilityOrigin::Printed {
-            definition,
-            part,
-            ability,
-        } => (definition.0, part.0, ability.0),
-        AbilityOrigin::Granted {
-            source_definition,
-            source_part,
-            source_ability,
-            ..
-        } => (source_definition.0, source_part.0, source_ability.0),
-        AbilityOrigin::IntrinsicBasicLand(_) | AbilityOrigin::IntrinsicCounter(_) => {
-            return None;
-        }
-    };
-    let root = AbilityLocator {
-        definition,
-        part_id,
-        ability_id,
-        nested: Vec::new(),
-    };
-    let root_definition = catalog_ability(catalog, &root)?;
-    let mut nested = Vec::new();
     let mut contains = |candidate: &AbilityDef| {
         replacement_effects(candidate)
             .into_iter()
             .any(|effect| effect == expected)
     };
-    if !locate_ability(&root_definition, &mut contains, &mut nested) {
-        return None;
-    }
-    let ability = AbilityLocator { nested, ..root };
+    let ability = ability_locator_for_origin(catalog, source.ability, &mut contains)?;
     let definition = catalog_ability(catalog, &ability)?;
     let effect_index = replacement_effects(&definition)
         .into_iter()
@@ -440,27 +595,7 @@ pub(super) fn replacement_effect_locator_matches_source(
     locator: &ReplacementEffectLocator,
     source: AbilitySourceRef,
 ) -> bool {
-    let expected = match source.ability {
-        AbilityOrigin::Printed {
-            definition,
-            part,
-            ability,
-        } => (definition.0, part.0, ability.0),
-        AbilityOrigin::Granted {
-            source_definition,
-            source_part,
-            source_ability,
-            ..
-        } => (source_definition.0, source_part.0, source_ability.0),
-        AbilityOrigin::IntrinsicBasicLand(_) | AbilityOrigin::IntrinsicCounter(_) => {
-            return false;
-        }
-    };
-    (
-        locator.ability.definition,
-        locator.ability.part_id,
-        locator.ability.ability_id,
-    ) == expected
+    ability_locator_matches_origin(&locator.ability, source.ability)
 }
 
 pub(super) fn catalog_replacement_effect(
@@ -530,57 +665,6 @@ fn locate_effect(current: EffectDef, needle: EffectDef, path: &mut Vec<usize>) -
         path.pop();
     }
     false
-}
-
-pub(super) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
-    match effect {
-        EffectDef::Sequence(effects) => effects.to_vec(),
-        EffectDef::Randomized {
-            on_success,
-            on_failure,
-            ..
-        } => vec![*on_success, *on_failure],
-        EffectDef::Choose(choice) => vec![*choice.then],
-        EffectDef::PayOr(payment) => payment
-            .if_paid
-            .iter()
-            .chain(payment.otherwise.iter())
-            .copied()
-            .copied()
-            .collect(),
-        EffectDef::SplitIntoPiles(partition) => vec![*partition.then],
-        EffectDef::May {
-            effect: otherwise, ..
-        }
-        | EffectDef::ReplaceNextDrawThisTurn {
-            effect: otherwise, ..
-        }
-        | EffectDef::IfCondition {
-            then: otherwise, ..
-        } => vec![*otherwise],
-        EffectDef::IfFormat {
-            then, otherwise, ..
-        } => vec![*then, *otherwise],
-        EffectDef::SacrificeOfChoice {
-            then: Some(effect), ..
-        } => vec![*effect],
-        EffectDef::LookAtTopAndSelect { selection, .. } => {
-            selection.then.into_iter().copied().collect()
-        }
-        EffectDef::SearchZone {
-            then: Some(then), ..
-        }
-        | EffectDef::ChooseCardName { then, .. }
-        | EffectDef::BindMatching { then, .. } => {
-            vec![*then]
-        }
-        EffectDef::Discard {
-            then: Some(follow_up),
-            ..
-        } => vec![*follow_up.effect],
-        EffectDef::RevealAtRandomFromHand { then, .. } => vec![*then],
-        _ => Vec::new(),
-    }
 }
 
 pub(super) fn replacement_child_effects(effect: ReplacementEffectDef) -> Vec<EffectDef> {
@@ -843,32 +927,4 @@ pub(super) const fn parse_keyword(value: KeywordSnapshot) -> KeywordAbility {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::card::{EffectRecipientDef, ResolvedEffectDurationDef, ValueDef};
-
-    static GRANTED: AbilityDef = AbilityDef::not_implemented(
-        "A nested ability.",
-        "Only structural checkpoint traversal matters in this fixture.",
-    );
-    static APPLIED: [AppliedEffectDef; 2] = [
-        AppliedEffectDef::add_ability(&GRANTED),
-        AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(3), ValueDef::Constant(3)),
-    ];
-    static PERFORM: EffectDef = EffectDef::Apply {
-        recipient: EffectRecipientDef::Source,
-        effect: AppliedEffectDef::Composite(&APPLIED),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    };
-    static PROGRAM: [ReplacementEffectDef; 1] = [ReplacementEffectDef::Perform(&PERFORM)];
-    static OUTER: AbilityDef = AbilityDef::replacement(
-        "Perform nested definitions while replacing an event.",
-        ReplacementEffectDef::Sequence(&PROGRAM),
-    );
-
-    #[test]
-    fn checkpoint_semantic_walkers_descend_replacement_programs() {
-        assert_eq!(child_abilities(&OUTER), vec![&GRANTED]);
-        assert!(applied_effects(&OUTER).contains(&APPLIED[1]));
-    }
-}
+mod tests;

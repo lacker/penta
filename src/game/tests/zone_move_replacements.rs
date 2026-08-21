@@ -123,18 +123,16 @@ fn a_simultaneously_exiting_rest_in_peace_still_competes_with_nexus() {
         .decision
         .expect("the frozen Rest in Peace still replaces the Nexus move");
     assert_eq!(decision.options.len(), 2);
-    assert!(
-        decision
-            .options
-            .iter()
-            .any(|option| option.card == Some((rest, cards::REST_IN_PEACE)))
-    );
-    assert!(
-        decision
-            .options
-            .iter()
-            .any(|option| option.card == Some((nexus, cards::UGINS_NEXUS)))
-    );
+    assert!(decision.options.iter().any(|option| option.card
+        == Some((
+            rest,
+            ObjectCharacteristics::card(cards::REST_IN_PEACE, CardPartId::PRIMARY)
+        ))));
+    assert!(decision.options.iter().any(|option| option.card
+        == Some((
+            nexus,
+            ObjectCharacteristics::card(cards::UGINS_NEXUS, CardPartId::PRIMARY)
+        ))));
 
     choose_replacement_from(&mut game, PlayerId::One, nexus);
 
@@ -289,7 +287,7 @@ fn custom_spell_followup_waits_for_ugins_nexus_replacement_choice() {
     object.ability = Some(StackAbilityPayload {
         origin: primary_ability(cards::CHAIN_LIGHTNING),
         definition: None,
-        presentation_definition: cards::CHAIN_LIGHTNING,
+        presentation: ObjectCharacteristics::card(cards::CHAIN_LIGHTNING, CardPartId::PRIMARY),
         text: Some("Test declarative effect with custom follow-up"),
         target_defs: Vec::new(),
         targets: vec![TargetSelection::single(

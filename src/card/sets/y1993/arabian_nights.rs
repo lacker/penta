@@ -815,14 +815,12 @@ pub(in crate::card::sets) static RUKH_EGG: CardRecord = CardRecord::new(
                     step: TurnStepDef::End,
                     player: PlayerRelation::Any,
                 },
-                EffectDef::CreateToken {
-                    token: cards::BIRD_TOKEN_4_4_RED,
-                    controller: None,
-                    count: ValueDef::Constant(1),
-                    tapped: false,
-                    attacking: false,
-                counters: None,
-                created: None,},
+                EffectDef::create_creature_token(&["Bird"], &[ManaColor::Red], 4, 4)
+                    .with_abilities(&[abilities::flying()])
+                    .with_art(CardArt::new(
+                        "b5489e26-6aec-4706-9c3e-8454878fa6c3",
+                        "Edward P. Beard, Jr.",
+                    )),
             ))),
         ),
     ]),
@@ -1134,15 +1132,9 @@ pub(in crate::card::sets) static BOTTLE_OF_SULEIMAN: CardRecord = CardRecord::ne
     )),
 );
 
-static BOTTLE_OF_SULEIMAN_WON: EffectDef = EffectDef::CreateToken {
-    token: cards::DJINN_TOKEN_5_5_COLORLESS,
-    controller: None,
-    count: ValueDef::Constant(1),
-    tapped: false,
-    attacking: false,
-    counters: None,
-    created: None,
-};
+static BOTTLE_OF_SULEIMAN_WON: EffectDef =
+    EffectDef::create_artifact_creature_token(&["Djinn"], &[], 5, 5)
+        .with_abilities(&[abilities::flying()]);
 
 static BOTTLE_OF_SULEIMAN_LOST: EffectDef = EffectDef::DealDamage {
     recipient: EffectRecipientDef::Controller,

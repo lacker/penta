@@ -4,8 +4,9 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCoverageDef, AbilityDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation, SacrificedAmountDef,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities, cards,
+    EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation,
+    SacrificedAmountDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
+    cards,
 };
 use crate::mana_cost;
 
@@ -23,15 +24,15 @@ static ANOTHER_CREATURE_OR_AN_ARTIFACT: ObjectPredicateDef = ObjectPredicateDef:
 /// The token arrives already attacking, which is the whole point: it was
 /// never declared, so nothing that watches a declaration sees it, and it
 /// still connects this combat.
-static GUT_MAKES_A_SKELETON: EffectDef = EffectDef::CreateToken {
-    token: cards::SKELETON_TOKEN_4_1_BLACK,
-    controller: None,
-    count: ValueDef::Constant(1),
-    tapped: true,
-    attacking: true,
-    counters: None,
-    created: None,
-};
+static GUT_MAKES_A_SKELETON: EffectDef =
+    EffectDef::create_creature_token(&["Skeleton"], &[ManaColor::Black], 4, 1)
+        .with_abilities(&[abilities::menace()])
+        .with_art(CardArt::new(
+            "cf4c245f-af2f-46a7-81f3-670a04940901",
+            "David Astruga",
+        ))
+        .entering_tapped()
+        .entering_attacking();
 
 /// "Whenever you attack" is one or more creatures you control attacking,
 /// counted once for the declaration rather than once per attacker.

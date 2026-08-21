@@ -46,15 +46,10 @@ static LEGION_EXTRUDER_ABILITIES: [AbilityDef; 2] = [
         "{2}, {T}, Sacrifice another artifact: Create a 3/3 colorless Golem artifact creature \
          token.",
         &EXTRUDER_GOLEM_COST,
-        EffectDef::CreateToken {
-            token: cards::GOLEM_TOKEN_3_3_COLORLESS,
-            controller: None,
-            count: ValueDef::Constant(1),
-            tapped: false,
-            attacking: false,
-            counters: None,
-            created: None,
-        },
+        EffectDef::create_artifact_creature_token(&["Golem"], &[], 3, 3).with_art(CardArt::new(
+            "406e2960-f560-48bb-b4a6-4bd35889a8f8",
+            "Brian Valeza",
+        )),
     ),
 ];
 

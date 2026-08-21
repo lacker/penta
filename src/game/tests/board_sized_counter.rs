@@ -174,9 +174,20 @@ fn the_adephage_copies_itself_on_connection() {
     let copies = game
         .battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::GIANT_ADEPHAGE)
+        .filter(|permanent| {
+            Game::effective_rules_source(permanent)
+                == ObjectCharacteristics::card(cards::GIANT_ADEPHAGE, CardPartId::PRIMARY)
+        })
         .collect::<Vec<_>>();
     assert_eq!(copies.len(), 2, "the original and one copy");
+    assert_eq!(
+        copies
+            .iter()
+            .filter(|permanent| permanent.card.definition.is_token())
+            .count(),
+        1,
+        "the copy is a token even though it presents Giant Adephage's characteristics",
+    );
     for permanent in copies {
         assert_eq!(game.power(permanent), Some(7));
         assert!(game.permanent_has_executable_keyword(permanent, KeywordAbility::Trample));

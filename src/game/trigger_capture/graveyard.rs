@@ -6,8 +6,9 @@
 //! listens, and it is read directly.
 
 use super::{
-    AbilityProcedureDef, AbilitySourceRef, BattlefieldTriggerListener, CharacteristicContext,
-    DeclarativeAbilityDef, EffectDef, Game, PlayerId, TriggerCapture, TriggerContext, ZoneKind,
+    AbilityProcedureDef, AbilitySourceRef, BattlefieldTriggerListener, CardPartId,
+    CharacteristicContext, DeclarativeAbilityDef, EffectDef, Game, ObjectCharacteristics, PlayerId,
+    TriggerCapture, TriggerContext, ZoneKind,
 };
 
 impl Game {
@@ -46,9 +47,12 @@ impl Game {
                                     object: card.id,
                                     ability: effective.origin,
                                 },
-                                definition: Self::ability_presentation_definition(
+                                presentation: Self::ability_presentation(
                                     effective.origin,
-                                    card.definition,
+                                    ObjectCharacteristics::card(
+                                        card.definition,
+                                        CardPartId::PRIMARY,
+                                    ),
                                 ),
                                 owner: card.owner,
                                 controller: player,

@@ -108,9 +108,9 @@ impl Game {
                 replacements.push(ApplicableBeginTurnReplacement {
                     source,
                     controller: permanent.controller,
-                    definition: Self::ability_presentation_definition(
+                    presentation: Self::ability_presentation(
                         effective.origin,
-                        Self::effective_rules_source(permanent).0,
+                        Self::effective_rules_source(permanent),
                     ),
                     text: ability.text,
                     optional: definition.optional,
@@ -143,13 +143,12 @@ impl Game {
         }
         options.extend(replacements.iter().enumerate().map(|(index, replacement)| {
             let name = self
-                .catalog
-                .get(replacement.definition)
-                .map_or("the source", |definition| definition.name.as_str());
+                .presentation_name(replacement.presentation)
+                .unwrap_or_else(|| "the source".into());
             DecisionOption {
                 id: u32::try_from(index + 1).expect("begin-turn replacement count fits u32"),
                 label: format!("Apply {name}'s replacement effect"),
-                card: Some((replacement.source.object, replacement.definition)),
+                card: Some((replacement.source.object, replacement.presentation)),
                 members: Vec::new(),
                 ability_text: Some(replacement.text.into()),
                 zone: DecisionZone::Battlefield,
@@ -310,7 +309,7 @@ impl Game {
             ability: Some(StackAbilityPayload {
                 origin: replacement.source.ability,
                 definition: None,
-                presentation_definition: replacement.definition,
+                presentation: replacement.presentation,
                 text: Some(replacement.text),
                 target_defs: Vec::new(),
                 targets: Vec::new(),

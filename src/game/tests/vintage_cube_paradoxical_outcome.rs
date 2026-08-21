@@ -107,7 +107,10 @@ fn lands_and_tokens_are_not_legal_targets() {
     let (mut game, spell) = staged();
     game.put_onto_battlefield(PlayerId::One, cards::MOUNTAIN)
         .expect("cataloged");
-    game.create_token(PlayerId::One, cards::SPIRIT_TOKEN_1_1_WHITE);
+    game.create_token(
+        PlayerId::One,
+        token_with_flying(tokens::creature(&["Spirit"], &[ManaColor::White], 1, 1)),
+    );
     drain_pending(&mut game);
     game.priority = PlayerId::One;
 

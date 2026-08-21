@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype,
     CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation, TriggerEventDef,
-    ValueDef, ZoneKind, ZonePlacement, cards,
+    ValueDef, ZoneKind, ZonePlacement, cards, tokens,
 };
 use crate::mana_cost;
 
@@ -51,15 +51,10 @@ static MAGDA_ABILITIES: [AbilityDef; 3] = [
     AbilityDef::triggered(
         "Whenever a Dwarf you control becomes tapped, create a Treasure token.",
         TriggerEventDef::tapped(A_DWARF_YOU_CONTROL),
-        EffectDef::CreateToken {
-            token: cards::TREASURE_TOKEN,
-            controller: None,
-            count: ValueDef::Constant(1),
-            tapped: false,
-            attacking: false,
-            counters: None,
-            created: None,
-        },
+        EffectDef::create_token(tokens::treasure()).with_art(CardArt::new(
+            "4ae9f454-4f8c-4123-9886-674bc439dfe7",
+            "Olena Richards",
+        )),
     ),
     AbilityDef::activated(
         "Sacrifice five Treasures: Search your library for an artifact or Dragon card, put that \

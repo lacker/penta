@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
 
 use super::model::{
-    AbilityLocator, AbilitySourceSnapshot, EffectResolutionContextSnapshot, TargetSelectionSnapshot,
+    AbilityLocator, AbilitySourceSnapshot, EffectResolutionContextSnapshot,
+    ObjectCharacteristicsSnapshot, TargetSelectionSnapshot,
 };
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
@@ -21,7 +22,7 @@ pub(super) struct InstalledTriggerSnapshot {
     pub(super) id: u32,
     pub(super) source: AbilitySourceSnapshot,
     pub(super) ability: AbilityLocator,
-    pub(super) definition: u16,
+    pub(super) presentation: ObjectCharacteristicsSnapshot,
     pub(super) owner: usize,
     pub(super) controller: usize,
     pub(super) targets: Vec<TargetSelectionSnapshot>,

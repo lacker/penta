@@ -103,7 +103,7 @@ fn serpent_generators_snakes_carry_the_trigger() {
     let snake_id = game
         .battlefield
         .iter()
-        .find(|permanent| permanent.card.definition == cards::SNAKE_TOKEN_1_1_POISONOUS)
+        .find(|permanent| is_token_with(permanent, poisonous_snake_token()))
         .expect("a Snake token entered")
         .card
         .id;
@@ -132,7 +132,6 @@ fn every_poison_identity_reports_complete_coverage() {
         cards::MARSH_VIPER,
         cards::PIT_SCORPION,
         cards::SERPENT_GENERATOR,
-        cards::SNAKE_TOKEN_1_1_POISONOUS,
     ] {
         let card = catalog.get(definition).expect("the card is cataloged");
         assert_eq!(
@@ -142,4 +141,9 @@ fn every_poison_identity_reports_complete_coverage() {
             card.name,
         );
     }
+    assert_eq!(
+        poisonous_snake_token().rules().implementation_status(),
+        ImplementationStatus::Complete,
+        "the inline Snake token should be fully executable",
+    );
 }

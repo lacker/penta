@@ -153,7 +153,10 @@ impl Game {
         if signature.targets().is_empty() {
             return vec![Vec::new()];
         }
-        let Some(definition) = self.catalog.get(spell.card.definition) else {
+        let Some(card_definition) = spell.card.definition.card_definition() else {
+            return vec![signature.targets().to_vec()];
+        };
+        let Some(definition) = self.catalog.get(card_definition) else {
             return vec![signature.targets().to_vec()];
         };
         let Some(option) = definition.play_option(signature.play_option()) else {
@@ -278,10 +281,14 @@ impl Game {
         colors: Option<ColorSet>,
     ) {
         spell.colors = colors;
-        let definition = spell.card.definition;
+        let definition = spell
+            .card
+            .definition
+            .card_definition()
+            .expect("a spell copy keeps its printed card definition");
         let card = self.unbacked_object(definition, player, CharacteristicSource::Copy(definition));
         spell.id = card.id;
-        spell.card = card;
+        spell.card = card.into();
         spell.source = None;
         spell.controller = player;
         if let Some(ability) = &mut spell.ability {

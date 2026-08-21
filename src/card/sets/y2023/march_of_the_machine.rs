@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, CardArt, CardRules, CardSet, CardType, CounterKind, EffectDef, EffectRecipientDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, TokenCountersDef, ValueDef, ZoneKind,
-    ZonePlacement, cards,
+    ZonePlacement, cards, tokens,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::mana_cost;
@@ -29,18 +29,15 @@ static SUNFALL_STEPS: [EffectDef; 2] = [
     },
     // Incubate X. One token however large X is, and X of zero still makes
     // one: the keyword creates the token unconditionally.
-    EffectDef::CreateToken {
-        token: cards::INCUBATOR_TOKEN,
-        controller: None,
-        count: ValueDef::Constant(1),
-        tapped: false,
-        attacking: false,
-        counters: Some(TokenCountersDef {
+    EffectDef::create_token(tokens::incubator())
+        .with_art(CardArt::new(
+            "2c5ed737-657b-43bf-b222-941da7579a4a",
+            "Johann Bodin",
+        ))
+        .with_counters(TokenCountersDef {
             kind: CounterKind::PlusOnePlusOne,
             amount: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
         }),
-        created: None,
-    },
 ];
 
 static SUNFALL_EXILES_THEN_INCUBATES: EffectDef = EffectDef::BindMatching {

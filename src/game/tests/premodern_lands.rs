@@ -264,7 +264,11 @@ fn coastal_tower_enters_tapped_and_fetchlands_find_only_their_land_types() {
         let offered = decision
             .options
             .iter()
-            .filter_map(|option| option.card.map(|(_, definition)| definition))
+            .filter_map(|option| {
+                option
+                    .card
+                    .and_then(|(_, characteristics)| characteristics.card_definition())
+            })
             .collect::<Vec<_>>();
         assert!(offered.contains(&eligible));
         assert!(!offered.contains(&ineligible));
@@ -272,9 +276,9 @@ fn coastal_tower_enters_tapped_and_fetchlands_find_only_their_land_types() {
             .options
             .iter()
             .find(|option| {
-                option
-                    .card
-                    .is_some_and(|(_, definition)| definition == eligible)
+                option.card.is_some_and(|(_, characteristics)| {
+                    characteristics.card_definition() == Some(eligible)
+                })
             })
             .expect("the matching land is selectable")
             .id;

@@ -98,7 +98,11 @@ fn answer(game: &mut Game, wanted: &[CardDefinitionId]) {
             decision
                 .options
                 .iter()
-                .find(|option| option.card.is_some_and(|(_, found)| found == *definition))
+                .find(|option| {
+                    option
+                        .card
+                        .is_some_and(|(_, found)| found.card_definition() == Some(*definition))
+                })
                 .unwrap_or_else(|| panic!("{definition:?} is offered"))
                 .id
         })
@@ -122,7 +126,11 @@ fn offered(game: &Game) -> Vec<CardDefinitionId> {
         .expect("just checked")
         .options
         .iter()
-        .filter_map(|option| option.card.map(|(_, definition)| definition))
+        .filter_map(|option| {
+            option
+                .card
+                .and_then(|(_, characteristics)| characteristics.card_definition())
+        })
         .collect()
 }
 

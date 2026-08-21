@@ -29,7 +29,10 @@ impl Game {
             if permanent.controller != player || permanent.face_down {
                 continue;
             }
-            let Some(card) = self.catalog.get(permanent.card.definition) else {
+            let Some(definition) = permanent.card.definition.card_definition() else {
+                continue;
+            };
+            let Some(card) = self.catalog.get(definition) else {
                 continue;
             };
             for door in card.locked_doors(permanent.presented) {
@@ -58,7 +61,9 @@ impl Game {
         if permanent.controller != player || permanent.face_down {
             return;
         }
-        let definition = permanent.card.definition;
+        let Some(definition) = permanent.card.definition.card_definition() else {
+            return;
+        };
         let presented = permanent.presented;
         let Some(card) = self.catalog.get(definition) else {
             return;
@@ -102,7 +107,8 @@ impl Game {
             .find(|entered| entered.card.id == permanent)
             .filter(|entered| !entered.face_down)
             .and_then(|entered| {
-                let card = self.catalog.get(entered.card.definition)?;
+                let definition = entered.card.definition.card_definition()?;
+                let card = self.catalog.get(definition)?;
                 let CardStructure::Room { doors, .. } = &card.structure else {
                     return None;
                 };
@@ -129,7 +135,9 @@ impl Game {
         else {
             return;
         };
-        let definition = permanent.card.definition;
+        let Some(definition) = permanent.card.definition.card_definition() else {
+            return;
+        };
         let owner = permanent.card.owner;
         let controller = permanent.controller;
         let Some(part) = self
@@ -153,30 +161,27 @@ impl Game {
             {
                 continue;
             }
+            let origin = AbilityOrigin::Printed {
+                definition,
+                part: door,
+                ability: attached.id,
+            };
             captures.push(TriggerCapture {
                 source: AbilitySourceRef {
                     object: room,
-                    ability: AbilityOrigin::Printed {
-                        definition,
-                        part: door,
-                        ability: attached.id,
-                    },
+                    ability: origin,
                 },
-                definition,
+                presentation: Self::ability_presentation(
+                    origin,
+                    Self::effective_rules_source(permanent),
+                ),
                 owner,
                 controller,
                 text: ability.text,
                 target_defs: triggered.targets.to_vec(),
                 targets: Vec::new(),
                 effect: ability.declarative_effect().unwrap_or(EffectDef::None),
-                resolver: Self::ability_resolver(
-                    AbilityOrigin::Printed {
-                        definition,
-                        part: door,
-                        ability: attached.id,
-                    },
-                    &ability,
-                ),
+                resolver: Self::ability_resolver(origin, &ability),
                 context: TriggerContext::empty().into(),
                 condition: triggered.condition,
                 x: 0,

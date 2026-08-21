@@ -35,6 +35,7 @@ pub(super) fn is_zero_u16(value: &u16) -> bool {
 
 mod balance;
 mod continuation;
+mod objects;
 mod stack;
 mod triggers;
 pub(in crate::game::state_checkpoint) use stack::*;
@@ -42,6 +43,10 @@ pub(in crate::game::state_checkpoint) use triggers::*;
 
 pub(super) use balance::{BalanceActionSnapshot, BalancePhaseSnapshot, BalanceTaskSnapshot};
 pub(super) use continuation::DecisionContinuationSnapshot;
+pub(super) use objects::{
+    AbilityLocator, EmblemCharacteristicsLocator, ObjectCharacteristicsSnapshot,
+    ObjectKindSnapshot, TokenCharacteristicsLocator,
+};
 
 use super::model_keyword::{KeywordSnapshot, UpkeepKeywordSnapshot};
 pub(super) use super::model_prevention::*;
@@ -225,6 +230,13 @@ pub(super) enum AbilityOriginSnapshot {
         part_id: u8,
         ability_id: u8,
     },
+    Token {
+        part_id: u8,
+        ability_id: u8,
+    },
+    Emblem {
+        ability_id: u8,
+    },
     IntrinsicBasicLand {
         land_type: BasicLandTypeSnapshot,
     },
@@ -237,6 +249,17 @@ pub(super) enum AbilityOriginSnapshot {
         source: u32,
         source_definition: u16,
         source_part_id: u8,
+        source_ability_id: u8,
+        grant_id: u8,
+    },
+    TokenGranted {
+        source: u32,
+        source_part_id: u8,
+        source_ability_id: u8,
+        grant_id: u8,
+    },
+    EmblemGranted {
+        source: u32,
         source_ability_id: u8,
         grant_id: u8,
     },
@@ -279,6 +302,18 @@ pub(super) enum CombatDamageStageSnapshot {
 pub(super) struct PermanentSnapshot {
     pub(super) object_id: u32,
     pub(super) owner: usize,
+    pub(super) object_kind: ObjectKindSnapshot,
+    /// The authored token characteristics originally minted for this permanent.
+    /// A token copy legitimately has none because its single-faced copy effect
+    /// or frozen double-faced values supply its copiable characteristics;
+    /// `object_kind` still records that it is a token.
+    pub(super) token_characteristics: Option<TokenCharacteristicsLocator>,
+    /// Both intrinsic faces of a token created as a copy of a double-faced
+    /// permanent. Additive because older checkpoints could not represent this
+    /// state faithfully at all.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(super) double_faced_token_copy: Option<DoubleFacedCopiableCharacteristicsSnapshot>,
+    pub(super) presented_part_id: u8,
     pub(super) timestamp: u64,
     pub(super) entered_controller_turn: u32,
     /// Detained until this seat's next turn, with the turn count it landed on.
@@ -453,8 +488,7 @@ pub(super) struct AbilityActivationSnapshot {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct CopiableCharacteristicsSnapshot {
-    pub(super) definition: u16,
-    pub(super) part_id: u8,
+    pub(super) base: ObjectCharacteristicsSnapshot,
     pub(super) added_types: [bool; crate::card::CardType::COUNT],
     pub(super) added_abilities: Vec<CopiableAbilitySnapshot>,
     /// Additive: a checkpoint written before a copy could keep its own
@@ -465,16 +499,25 @@ pub(super) struct CopiableCharacteristicsSnapshot {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub(super) struct DoubleFacedCopiableCharacteristicsSnapshot {
+    pub(super) modal: bool,
+    pub(super) front_part_id: u8,
+    pub(super) back_part_id: u8,
+    pub(super) front: CopiableCharacteristicsSnapshot,
+    pub(super) back: CopiableCharacteristicsSnapshot,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub(super) struct CopiableAbilitySnapshot {
     pub(super) origin: AbilityOriginSnapshot,
     pub(super) ability: AbilityLocator,
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct CopiedFromSnapshot {
-    pub(super) definition: u16,
-    pub(super) part_id: u8,
+    pub(super) characteristics: ObjectCharacteristicsSnapshot,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
@@ -521,8 +564,6 @@ pub(super) enum RetiredObjectSnapshot {
 #[allow(clippy::struct_excessive_bools)]
 pub(super) struct DetachedPermanentSnapshot {
     pub(super) state: PermanentSnapshot,
-    pub(super) definition: u16,
-    pub(super) presented_part_id: u8,
     pub(super) controller: usize,
     pub(super) tapped: bool,
     pub(super) damage: u16,
@@ -576,9 +617,8 @@ pub(super) struct CombatDamageAssignmentSnapshot {
 #[serde(rename_all = "camelCase")]
 pub(super) struct EmblemSnapshot {
     pub(super) object_id: u32,
-    pub(super) definition: u16,
+    pub(super) characteristics: EmblemCharacteristicsLocator,
     pub(super) owner: usize,
-    pub(super) presented_part_id: u8,
     pub(super) timestamp: u64,
     pub(super) entered_controller_turn: u32,
 }
@@ -641,7 +681,7 @@ pub(super) struct PendingReplacementEffectSnapshot {
 pub(super) struct ApplicableReplacementSnapshot {
     pub(super) context: ReplacementEffectContextSnapshot,
     pub(super) effect: ReplacementEffectLocator,
-    pub(super) definition: u16,
+    pub(super) presentation: ObjectCharacteristicsSnapshot,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -685,15 +725,6 @@ pub(super) enum ZoneKindSnapshot {
     Stack,
     Exile,
     Command,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub(super) struct AbilityLocator {
-    pub(super) definition: u16,
-    pub(super) part_id: u8,
-    pub(super) ability_id: u8,
-    pub(super) nested: Vec<usize>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -746,6 +777,7 @@ pub(super) struct EffectResolutionContextSnapshot {
 #[serde(rename_all = "camelCase")]
 pub(super) struct DecisionStateSnapshot {
     pub(super) preference: DecisionPreferenceSnapshot,
+    pub(super) options: Vec<DecisionOptionSnapshot>,
     /// Hidden-zone locations for cards whose identities are visible in the
     /// current decision. Reconstruction mints fresh hidden objects before it
     /// parses the continuation, so these origins let it preserve the public
@@ -789,7 +821,7 @@ pub(super) enum TurnKindSnapshot {
 pub(super) struct ApplicableBeginTurnReplacementSnapshot {
     pub(super) source: AbilitySourceSnapshot,
     pub(super) controller: usize,
-    pub(super) definition: u16,
+    pub(super) presentation: ObjectCharacteristicsSnapshot,
     pub(super) effect: ReplacementEffectLocator,
 }
 
@@ -820,11 +852,11 @@ pub(super) struct DecisionOptionSnapshot {
     pub(super) zone: DecisionZoneSnapshot,
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct DecisionCardSnapshot {
     pub(super) object_id: u32,
-    pub(super) definition: u16,
+    pub(super) characteristics: ObjectCharacteristicsSnapshot,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]

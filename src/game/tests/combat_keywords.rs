@@ -132,7 +132,10 @@ fn undying_return_finishes_entry_replacements_before_publishing_entry_triggers()
     assert!(game.events()[event_start..].iter().all(|event| !matches!(
         event,
         GameEvent::AbilityTriggered {
-            definition: cards::AUGUR_OF_BOLAS,
+            presentation: ObjectCharacteristics::Card {
+                definition: cards::AUGUR_OF_BOLAS,
+                ..
+            },
             ..
         }
     )));
@@ -157,7 +160,10 @@ fn undying_return_finishes_entry_replacements_before_publishing_entry_triggers()
     assert!(game.events()[event_start..].iter().any(|event| matches!(
         event,
         GameEvent::AbilityTriggered {
-            definition: cards::AUGUR_OF_BOLAS,
+            presentation: ObjectCharacteristics::Card {
+                definition: cards::AUGUR_OF_BOLAS,
+                ..
+            },
             ..
         }
     )));

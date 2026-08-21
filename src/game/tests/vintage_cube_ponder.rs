@@ -59,14 +59,22 @@ fn ponder(game: &mut Game, spell: GameObjectId, first: CardDefinitionId, shuffle
                 let mut ids = decision
                     .options
                     .iter()
-                    .filter(|option| option.card.is_some_and(|(_, id)| id == first))
+                    .filter(|option| {
+                        option.card.is_some_and(|(_, characteristics)| {
+                            characteristics.card_definition() == Some(first)
+                        })
+                    })
                     .map(|option| option.id)
                     .collect::<Vec<_>>();
                 ids.extend(
                     decision
                         .options
                         .iter()
-                        .filter(|option| option.card.is_none_or(|(_, id)| id != first))
+                        .filter(|option| {
+                            option.card.is_none_or(|(_, characteristics)| {
+                                characteristics.card_definition() != Some(first)
+                            })
+                        })
                         .map(|option| option.id),
                 );
                 ids.truncate(decision.maximum);

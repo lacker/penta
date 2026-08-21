@@ -39,7 +39,9 @@ fn acceptance_play_cavern_choosing(game: &mut Game, creature_type: &str) -> Game
         .observe(PlayerId::One)
         .battlefield
         .into_iter()
-        .find(|candidate| candidate.definition == cards::CAVERN_OF_SOULS)
+        .find(|candidate| {
+            candidate.characteristics.card_definition() == Some(cards::CAVERN_OF_SOULS)
+        })
         .expect("Cavern entered after its creature type was chosen");
     assert_eq!(
         permanent.chosen_creature_type.as_deref(),
@@ -107,7 +109,9 @@ fn cavern_of_souls_requires_and_records_a_creature_type_choice() {
     let cavern = observed
         .battlefield
         .iter()
-        .find(|permanent| permanent.definition == cards::CAVERN_OF_SOULS)
+        .find(|permanent| {
+            permanent.characteristics.card_definition() == Some(cards::CAVERN_OF_SOULS)
+        })
         .expect("Cavern enters after the choice");
     assert_eq!(cavern.chosen_creature_type.as_deref(), Some("Angel"));
 }

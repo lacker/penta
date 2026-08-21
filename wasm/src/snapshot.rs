@@ -5,13 +5,64 @@ use super::action_view::{
     action_targets, attack_defender_value, cast_signature_value,
 };
 use super::presentation::{
-    card_art_value, hand_mana_cost_value, implementation_status_name, stack_card_presentation,
-    win_reason_text,
+    card_art_value, hand_mana_cost_value, implementation_status_name, object_presentation,
+    stack_card_presentation, win_reason_text,
 };
 use super::{
     AbilityOrigin, Action, CardDefinitionId, DecisionKind, DecisionOrderSemantics, GameResult,
-    PlayerId, Target, Value, WebGame, json, readable_debug,
+    PlayerId, Target, Value, WebGame, json,
 };
+
+const fn step_name(step: penta::Step) -> &'static str {
+    match step {
+        penta::Step::Upkeep => "Upkeep",
+        penta::Step::Draw => "Draw",
+        penta::Step::PrecombatMain => "Precombat Main",
+        penta::Step::BeginningOfCombat => "Beginning Of Combat",
+        penta::Step::DeclareAttackers => "Declare Attackers",
+        penta::Step::DeclareBlockers => "Declare Blockers",
+        penta::Step::CombatDamage => "Combat Damage",
+        penta::Step::EndOfCombat => "End Of Combat",
+        penta::Step::PostcombatMain => "Postcombat Main",
+        penta::Step::End => "End",
+        penta::Step::Cleanup => "Cleanup",
+    }
+}
+
+const fn decision_visibility_name(visibility: penta::DecisionVisibility) -> &'static str {
+    match visibility {
+        penta::DecisionVisibility::Public => "Public",
+        penta::DecisionVisibility::Private => "Private",
+    }
+}
+
+const fn decision_zone_name(zone: penta::DecisionZone) -> &'static str {
+    match zone {
+        penta::DecisionZone::Hand => "Hand",
+        penta::DecisionZone::Graveyard => "Graveyard",
+        penta::DecisionZone::Battlefield => "Battlefield",
+        penta::DecisionZone::Stack => "Stack",
+        penta::DecisionZone::Library => "Library",
+        penta::DecisionZone::Exile => "Exile",
+        penta::DecisionZone::Command => "Command",
+        penta::DecisionZone::OutsideGame => "Outside Game",
+        penta::DecisionZone::DrawnThisStep => "Drawn This Step",
+        penta::DecisionZone::None => "None",
+    }
+}
+
+fn physical_face_value(face: penta::PhysicalFaceObservation) -> Value {
+    json!({
+        "kind": match face.kind {
+            penta::DoubleFacedKind::Transforming => "transforming",
+            penta::DoubleFacedKind::Modal => "modal",
+        },
+        "side": match face.side {
+            penta::PhysicalFaceSide::Front => "front",
+            penta::PhysicalFaceSide::Back => "back",
+        },
+    })
+}
 
 impl WebGame {
     #[allow(clippy::too_many_lines)]
@@ -106,48 +157,36 @@ impl WebGame {
             .battlefield
             .iter()
             .map(|permanent| {
-                let card = self.catalog.get(permanent.definition);
-                let art = card.and_then(|card| card.art.as_ref());
-                let part = card.and_then(|card| card.part(permanent.presented));
-                let rules = part
-                    .map(|part| &part.rules)
-                    .or_else(|| card.map(|card| &card.rules));
-                let mana_cost = part.map_or_else(
-                    || card.and_then(|card| card.rules.mana_cost()),
-                    penta::CardPart::mana_cost,
-                );
+                let presentation = object_presentation(&self.catalog, permanent.characteristics);
                 // The engine reports what the permanent is right now, so an
                 // animated land renders as the creature it became rather than
                 // as the land it is printed as.
-                let printed_types = rules.map(penta::CardRules::types);
                 let current_kind = if permanent.types.is_empty() {
-                    rules.map_or("unknown".into(), |rules| {
-                        rules.kind_name().to_ascii_lowercase()
-                    })
+                    presentation.kind.clone()
                 } else {
                     permanent.types.kind_name().to_ascii_lowercase()
                 };
                 // The printed line still carries the subtypes, so it is only
                 // replaced when the permanent has stopped matching it.
-                let current_type_line = match printed_types {
-                    Some(printed) if printed != permanent.types => permanent.types.type_name(),
-                    _ => rules.map_or_else(String::new, penta::CardRules::type_line),
+                let current_type_line = if !permanent.types.is_empty()
+                    && presentation.types != permanent.types
+                {
+                    permanent.types.type_name()
+                } else {
+                    presentation.type_line.clone()
                 };
-                json!({
+                let mut value = json!({
                     "id": permanent.id.0,
-                    "partId": permanent.presented.0,
-                    "name": part.map_or_else(
-                        || self.card_name(permanent.definition),
-                        |part| part.name.clone(),
-                    ),
-                    "art": card_art_value(art),
+                    "partId": permanent.characteristics.part().0,
+                    "name": presentation.name,
+                    "art": card_art_value(presentation.art.as_ref()),
                     "kind": current_kind,
                     "typeLine": current_type_line,
-                    "implementationStatus": rules.map_or("complete", |rules| {
-                        implementation_status_name(rules.implementation_status())
-                    }),
-                    "isLand": rules.is_some_and(|rules| rules.has_type(penta::CardType::Land)),
-                    "manaCost": mana_cost.map(|cost| json!({
+                    "implementationStatus": implementation_status_name(
+                        presentation.implementation_status,
+                    ),
+                    "isLand": presentation.is_land,
+                    "manaCost": presentation.mana_cost.map(|cost| json!({
                         "generic": cost.generic,
                         "white": cost.white,
                         "blue": cost.blue,
@@ -164,9 +203,7 @@ impl WebGame {
                             .collect::<Vec<_>>(),
                         "x": cost.variable_x,
                     })),
-                    "rulesText": rules.map_or_else(String::new, |rules| {
-                        rules.rules_text().into_owned()
-                    }),
+                    "rulesText": presentation.rules_text,
                     "owner": if permanent.controller == self.human { "human" } else { "opponent" },
                     "chosenCardName": permanent.chosen_card_name.as_deref(),
                     "chosenCreatureType": permanent.chosen_creature_type.as_deref(),
@@ -187,7 +224,11 @@ impl WebGame {
                     "flying": permanent.flying,
                     "canAttack": permanent.can_attack,
                     "enteredThisTurn": permanent.entered_this_turn,
-                })
+                });
+                if let Some(face) = permanent.physical_face {
+                    value["physicalFace"] = physical_face_value(face);
+                }
+                value
             })
             .collect::<Vec<_>>();
         // The hand and the graveyard both draw real cards in the browser, and
@@ -229,16 +270,22 @@ impl WebGame {
             .map(|object| {
                 let ability_id = object.ability.and_then(|origin| match origin {
                     AbilityOrigin::Printed { ability, .. } => Some(ability.0),
-                    AbilityOrigin::IntrinsicBasicLand(_)
+                    AbilityOrigin::Token { .. }
+                    | AbilityOrigin::Emblem { .. }
+                    | AbilityOrigin::IntrinsicBasicLand(_)
                     | AbilityOrigin::IntrinsicCounter(_)
-                    | AbilityOrigin::Granted { .. } => None,
+                    | AbilityOrigin::Granted { .. }
+                    | AbilityOrigin::TokenGranted { .. }
+                    | AbilityOrigin::EmblemGranted { .. } => None,
                 });
                 // Enough card detail for the browser to draw a real card on
                 // the stack rather than a name tag.
-                let card = self.catalog.get(object.definition);
-                let art = card.and_then(|card| card.art.as_ref());
                 let signature = object.signature.as_ref();
-                let presentation = stack_card_presentation(card, signature);
+                let presentation = stack_card_presentation(
+                    &self.catalog,
+                    object.characteristics,
+                    signature,
+                );
                 let targets = signature.map_or_else(
                     || object.targets.clone(),
                     |signature| signature.iter_targets().copied().collect(),
@@ -254,9 +301,13 @@ impl WebGame {
                     "abilityId": ability_id,
                     "abilityText": object.ability_text,
                     "name": presentation.name,
-                    "art": card_art_value(art),
+                    "art": card_art_value(presentation.art.as_ref()),
                     "owner": if object.controller == self.human { "human" } else { "opponent" },
-                    "kind": format!("{:?}", object.kind),
+                    "kind": match object.kind {
+                        penta::StackObjectKind::Spell => "Spell",
+                        penta::StackObjectKind::ActivatedAbility => "ActivatedAbility",
+                        penta::StackObjectKind::TriggeredAbility => "TriggeredAbility",
+                    },
                     "counterable": object.counterable,
                     "x": signature.map_or(0, penta::CastSignature::x),
                     "playOptionId": signature.map(|signature| signature.play_option().0),
@@ -383,19 +434,21 @@ impl WebGame {
                 "minimum": decision.minimum,
                 "maximum": decision.maximum,
                 "cancellable": decision.cancellable,
-                "visibility": readable_debug(decision.visibility),
+                "visibility": decision_visibility_name(decision.visibility),
                 "options": decision.options.iter().map(|option| json!({
                     "id": option.id,
                     "triggerId": matches!(decision.kind, DecisionKind::TriggerOrder).then_some(option.id),
                     "label": option.label,
                     "cardId": option.card.map(|(card, _)| card.0),
-                    "cardName": option.card.map(|(_, definition)| self.card_name(definition)),
-                    "members": option.members.iter().map(|(card, definition)| json!({
+                    "cardName": option.card.map(|(_, characteristics)| {
+                        object_presentation(&self.catalog, characteristics).name
+                    }),
+                    "members": option.members.iter().map(|(card, characteristics)| json!({
                         "id": card.0,
-                        "name": self.card_name(*definition),
+                        "name": object_presentation(&self.catalog, *characteristics).name,
                     })).collect::<Vec<_>>(),
                     "abilityText": option.ability_text,
-                    "zone": readable_debug(option.zone),
+                    "zone": decision_zone_name(option.zone),
                 })).collect::<Vec<_>>(),
             });
             if let Some(order_semantics) = decision.order_semantics {
@@ -410,7 +463,7 @@ impl WebGame {
             "format": self.session.format().slug(),
             "turn": observation.active_turn,
             "gameTurn": observation.turn,
-            "step": readable_debug(observation.step),
+            "step": step_name(observation.step),
             "regularCombatDamagePending": observation.regular_combat_damage_pending,
             // Turn one has not started yet, so the board should not be
             // claiming an upkeep is happening.

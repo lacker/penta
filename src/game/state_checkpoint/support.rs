@@ -137,6 +137,13 @@ const fn ability_origin_snapshot(origin: AbilityOrigin) -> AbilityOriginSnapshot
             part_id: part.0,
             ability_id: ability.0,
         },
+        AbilityOrigin::Token { part, ability } => AbilityOriginSnapshot::Token {
+            part_id: part.0,
+            ability_id: ability.0,
+        },
+        AbilityOrigin::Emblem { ability } => AbilityOriginSnapshot::Emblem {
+            ability_id: ability.0,
+        },
         AbilityOrigin::IntrinsicBasicLand(land_type) => AbilityOriginSnapshot::IntrinsicBasicLand {
             land_type: basic_land_type_snapshot(land_type),
         },
@@ -156,6 +163,26 @@ const fn ability_origin_snapshot(origin: AbilityOrigin) -> AbilityOriginSnapshot
             source_ability_id: source_ability.0,
             grant_id: grant.0,
         },
+        AbilityOrigin::TokenGranted {
+            source,
+            source_part,
+            source_ability,
+            grant,
+        } => AbilityOriginSnapshot::TokenGranted {
+            source: source.0,
+            source_part_id: source_part.0,
+            source_ability_id: source_ability.0,
+            grant_id: grant.0,
+        },
+        AbilityOrigin::EmblemGranted {
+            source,
+            source_ability,
+            grant,
+        } => AbilityOriginSnapshot::EmblemGranted {
+            source: source.0,
+            source_ability_id: source_ability.0,
+            grant_id: grant.0,
+        },
     }
 }
 
@@ -168,6 +195,16 @@ fn ability_origin_from_snapshot(origin: AbilityOriginSnapshot) -> AbilityOrigin 
         } => AbilityOrigin::Printed {
             definition: CardDefinitionId(definition),
             part: CardPartId(part_id),
+            ability: AbilityId(ability_id),
+        },
+        AbilityOriginSnapshot::Token {
+            part_id,
+            ability_id,
+        } => AbilityOrigin::Token {
+            part: CardPartId(part_id),
+            ability: AbilityId(ability_id),
+        },
+        AbilityOriginSnapshot::Emblem { ability_id } => AbilityOrigin::Emblem {
             ability: AbilityId(ability_id),
         },
         AbilityOriginSnapshot::IntrinsicBasicLand { land_type } => {
@@ -197,6 +234,55 @@ fn ability_origin_from_snapshot(origin: AbilityOriginSnapshot) -> AbilityOrigin 
             source_ability: AbilityId(source_ability_id),
             grant: GrantId(grant_id),
         },
+        AbilityOriginSnapshot::TokenGranted {
+            source,
+            source_part_id,
+            source_ability_id,
+            grant_id,
+        } => AbilityOrigin::TokenGranted {
+            source: GameObjectId(source),
+            source_part: CardPartId(source_part_id),
+            source_ability: AbilityId(source_ability_id),
+            grant: GrantId(grant_id),
+        },
+        AbilityOriginSnapshot::EmblemGranted {
+            source,
+            source_ability_id,
+            grant_id,
+        } => AbilityOrigin::EmblemGranted {
+            source: GameObjectId(source),
+            source_ability: AbilityId(source_ability_id),
+            grant: GrantId(grant_id),
+        },
+    }
+}
+
+const fn object_kind_snapshot(kind: ObjectKind) -> ObjectKindSnapshot {
+    match kind {
+        ObjectKind::Card(definition) => ObjectKindSnapshot::Card {
+            definition: definition.0,
+        },
+        ObjectKind::Token => ObjectKindSnapshot::Token,
+        ObjectKind::Emblem => ObjectKindSnapshot::Emblem,
+        ObjectKind::Ability => ObjectKindSnapshot::Ability,
+    }
+}
+
+fn object_kind_from_snapshot(
+    snapshot: ObjectKindSnapshot,
+    catalog: &CardCatalog,
+) -> Result<ObjectKind, String> {
+    match snapshot {
+        ObjectKindSnapshot::Card { definition } => {
+            let definition = CardDefinitionId(definition);
+            catalog
+                .get(definition)
+                .ok_or("checkpoint object card definition is absent from this catalog")?;
+            Ok(ObjectKind::Card(definition))
+        }
+        ObjectKindSnapshot::Token => Ok(ObjectKind::Token),
+        ObjectKindSnapshot::Emblem => Ok(ObjectKind::Emblem),
+        ObjectKindSnapshot::Ability => Ok(ObjectKind::Ability),
     }
 }
 

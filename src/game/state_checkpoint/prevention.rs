@@ -202,11 +202,7 @@ pub(super) fn parse_damage_prevention(
 }
 
 fn same_locator(left: &DamagePreventionLocator, right: &DamagePreventionLocator) -> bool {
-    left.effect_index == right.effect_index
-        && left.ability.definition == right.ability.definition
-        && left.ability.part_id == right.ability.part_id
-        && left.ability.ability_id == right.ability.ability_id
-        && left.ability.nested == right.ability.nested
+    left.effect_index == right.effect_index && left.ability == right.ability
 }
 
 pub(super) fn damage_prevention_referenced_object_ids(

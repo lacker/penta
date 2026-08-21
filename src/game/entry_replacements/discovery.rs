@@ -100,7 +100,7 @@ impl Game {
         };
         self.effective_rules(permanent)
             .is_some_and(|rules| rules.ability_clauses().iter().any(&may_supply))
-            || permanent.copy_effect.iter().any(|copy| {
+            || permanent.active_copy_values().into_iter().any(|copy| {
                 copy.added_abilities
                     .iter()
                     .any(|added| may_supply(&added.definition))

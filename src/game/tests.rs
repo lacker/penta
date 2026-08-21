@@ -1,7 +1,7 @@
 use super::*;
 use crate::card::{
     ChoiceVisibilityDef, ChooseDef, EffectPaymentDef, ObjectChoiceBindingDef, PayOrDef,
-    PlayerSetDef, abilities,
+    PlayerSetDef, abilities, tokens,
 };
 use crate::mana_cost;
 use crate::poc::{self, cards};
@@ -15,6 +15,9 @@ use crate::{
     ReplacementEffectDef, ReplacementEventDef, SpellForm, StackObjectId, TargetIndex,
     TargetPredicate, TargetSelection, TargetSlotDef, TargetSlotId, ZonePlacement,
 };
+
+mod token_fixtures;
+pub(super) use token_fixtures::*;
 
 static TEST_FLYING_ABILITY: [AbilityDef; 1] = [abilities::flying()];
 static TEST_FLYING_TRAMPLE_ABILITIES: [AbilityDef; 2] = [abilities::flying(), abilities::trample()];
@@ -149,6 +152,32 @@ pub(super) fn creature(id: u32, definition: CardDefinitionId, controller: Player
     )
 }
 
+pub(super) fn token_permanent(
+    id: u32,
+    token: TokenCharacteristics,
+    controller: PlayerId,
+) -> Permanent {
+    let object = ObjectInstance {
+        id: GameObjectId(id),
+        definition: ObjectKind::Token,
+        owner: controller,
+        backing: ObjectBacking::None,
+        characteristics: CharacteristicSource::Token(token),
+        counters: [0; CounterKind::COUNT],
+    };
+    Permanent::entering_token(object, token, controller, 0)
+}
+
+pub(super) fn is_token_with(permanent: &Permanent, token: TokenCharacteristics) -> bool {
+    let Some(actual) = Game::effective_rules_source(permanent).token_characteristics() else {
+        return false;
+    };
+    permanent.card.definition.is_token()
+        && actual.name() == token.name()
+        && actual.rules() == token.rules()
+        && actual.structure == token.structure
+}
+
 /// Attach constant resolved characteristic leaves to one permanent as a
 /// single timestamped effect. Test setup uses this instead of recreating the
 /// fragmented animation, ability, and power/toughness state this model
@@ -180,7 +209,11 @@ pub(super) fn attach_constant_resolved_characteristics(
     let source = AbilitySourceRef {
         object: permanent,
         ability: AbilityOrigin::Printed {
-            definition: target.card.definition,
+            definition: target
+                .card
+                .definition
+                .card_definition()
+                .expect("the fixture source is a printed card"),
             part: target.presented,
             ability: AbilityId::PRIMARY,
         },
@@ -297,7 +330,7 @@ pub(super) fn attach_constant_resolved_characteristics(
 
 fn copied_characteristics(definition: CardDefinitionId) -> CopiableCharacteristics {
     CopiableCharacteristics {
-        base: (definition, CardPartId::PRIMARY),
+        base: ObjectCharacteristics::card(definition, CardPartId::PRIMARY),
         added_types: CardTypeSet::empty(),
         added_abilities: Vec::new(),
         retain_printed_subtypes: false,
@@ -390,7 +423,7 @@ fn spell(id: u32, definition: CardDefinitionId, controller: PlayerId, x: u16) ->
     StackObject {
         id: StackObjectId(id),
         kind: StackObjectKind::Spell,
-        card: card(id, definition, controller),
+        card: card(id, definition, controller).into(),
         source: None,
         ability: None,
         controller,
@@ -597,6 +630,7 @@ mod conditional_anthems;
 mod continuous_and_zones;
 mod control_duration;
 mod copy_effects;
+mod copy_transform;
 mod counted_bodies;
 mod counted_statics;
 mod counter_conditions;
@@ -828,6 +862,7 @@ mod vintage_cube_gut;
 mod vintage_cube_hand_attack;
 mod vintage_cube_horizon_land;
 mod vintage_cube_infect;
+mod vintage_cube_ivora;
 mod vintage_cube_jace_the_mind_sculptor;
 mod vintage_cube_jacked_rabbit;
 mod vintage_cube_jitte;

@@ -159,10 +159,25 @@ static FORESTS_IN_YOUR_LIBRARY: ObjectQueryDef = ObjectQueryDef::matching(
     PlayerRelation::You,
 );
 
-static NISSA_ULTIMATE: [EffectDef; 2] = [
-    EffectDef::CreateEmblem {
-        emblem: cards::NISSA_WHO_SHAKES_THE_WORLD_EMBLEM,
+static NISSA_LANDS_ARE_INDESTRUCTIBLE: AbilityDef = abilities::indestructible();
+
+static NISSA_WHO_SHAKES_THE_WORLD_EMBLEM_ABILITIES: [AbilityDef; 1] = [AbilityDef::static_ability(
+    "Lands you control have indestructible.",
+    EffectDef::StaticApply {
+        recipient: EffectRecipientDef::matching_objects(
+            ObjectPredicateDef::HasType(CardType::Land),
+            &[ZoneKind::Battlefield],
+            PlayerRelation::You,
+        ),
+        effect: AppliedEffectDef::add_ability(&NISSA_LANDS_ARE_INDESTRUCTIBLE),
     },
+)];
+
+static NISSA_ULTIMATE: [EffectDef; 2] = [
+    EffectDef::create_emblem(
+        "Nissa, Who Shakes the World emblem",
+        &NISSA_WHO_SHAKES_THE_WORLD_EMBLEM_ABILITIES,
+    ),
     EffectDef::SearchZone {
         player: EffectRecipientDef::Controller,
         source: ZoneKind::Library,
@@ -439,15 +454,10 @@ static SAHEELI_ABILITIES: [AbilityDef; 2] = [
         "Whenever you cast a noncreature spell, create a 1/1 colorless Servo artifact creature \
          token.",
         TriggerEventDef::SpellCast(A_NONCREATURE_SPELL_YOU_CAST),
-        EffectDef::CreateToken {
-            token: cards::SERVO_TOKEN_1_1_COLORLESS,
-            controller: None,
-            count: ValueDef::Constant(1),
-            tapped: false,
-            attacking: false,
-            counters: None,
-            created: None,
-        },
+        EffectDef::create_artifact_creature_token(&["Servo"], &[], 1, 1).with_art(CardArt::new(
+            "761507d5-d36a-4123-a074-95d7f6ffb4c5",
+            "Victor Adame Minguez",
+        )),
     ),
     AbilityDef::activated_with_targets(
         "−2: Target artifact you control becomes a copy of another target artifact or creature \

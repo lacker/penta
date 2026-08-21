@@ -222,14 +222,7 @@ pub(in crate::card::sets) static SUNSPIRE_GATEKEEPERS: CardRecord = CardRecord::
             "When this creature enters, if you control two or more Gates, create a 2/2 white Knight creature token with vigilance.",
             TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)),
             &TWO_GATES_CONDITION,
-            EffectDef::CreateToken {
-                token: cards::KNIGHT_TOKEN_2_2_WHITE,
-                controller: None,
-                count: ValueDef::Constant(1),
-                tapped: false,
-                attacking: false,
-            counters: None,
-            created: None,},
+            EffectDef::create_creature_token(&["Knight"], &[ManaColor::White], 2, 2).with_abilities(&[abilities::vigilance()]).with_art(CardArt::new("67d3d039-248a-4eb8-be5c-12959b458fea", "Matt Stewart")),
         ),
     ),
 );
@@ -967,15 +960,12 @@ pub(in crate::card::sets) static ADVENT_OF_THE_WURM: CardRecord = CardRecord::ne
     CardSet::DragonsMaze,
     CardRules::new_instant(mana_cost!("{1}{G}{G}{W}")).with_ability(AbilityDef::spell(
         "Create a 5/5 green Wurm creature token with trample.",
-        EffectDef::CreateToken {
-            token: cards::WURM_TOKEN_5_5_GREEN,
-            controller: None,
-            count: ValueDef::Constant(1),
-            tapped: false,
-            attacking: false,
-            counters: None,
-            created: None,
-        },
+        EffectDef::create_creature_token(&["Wurm"], &[ManaColor::Green], 5, 5)
+            .with_abilities(&[abilities::trample()])
+            .with_art(CardArt::new(
+                "33ee3f6c-5df6-4271-b2f9-86b9afffab7b",
+                "Anthony Palumbo",
+            )),
     )),
 );
 
@@ -1906,30 +1896,9 @@ pub(in crate::card::sets) static TROSTANIS_SUMMONER: CardRecord = CardRecord::ne
             "When this creature enters, create a 2/2 white Knight creature token with vigilance, a 3/3 green Centaur creature token, and a 4/4 green Rhino creature token with trample.",
             TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)),
             EffectDef::Sequence(&[
-                EffectDef::CreateToken {
-                    token: cards::KNIGHT_TOKEN_2_2_WHITE,
-                    controller: None,
-                    count: ValueDef::Constant(1),
-                    tapped: false,
-                    attacking: false,
-                counters: None,
-                created: None,},
-                EffectDef::CreateToken {
-                    token: cards::CENTAUR_TOKEN_3_3_GREEN,
-                    controller: None,
-                    count: ValueDef::Constant(1),
-                    tapped: false,
-                    attacking: false,
-                counters: None,
-                created: None,},
-                EffectDef::CreateToken {
-                    token: cards::RHINO_TOKEN_4_4_GREEN,
-                    controller: None,
-                    count: ValueDef::Constant(1),
-                    tapped: false,
-                    attacking: false,
-                counters: None,
-                created: None,},
+                EffectDef::create_creature_token(&["Knight"], &[ManaColor::White], 2, 2).with_abilities(&[abilities::vigilance()]).with_art(CardArt::new("67d3d039-248a-4eb8-be5c-12959b458fea", "Matt Stewart")),
+                EffectDef::create_creature_token(&["Centaur"], &[ManaColor::Green], 3, 3).with_art(CardArt::new("880d5dc1-ceec-4c5f-93c2-c88b7dbfcac2", "Slawomir Maniak")),
+                EffectDef::create_creature_token(&["Rhino"], &[ManaColor::Green], 4, 4).with_abilities(&[abilities::trample()]).with_art(CardArt::new("1331008a-ae86-4640-b823-a73be766ac16", "Tomasz Jedruszek")),
             ]),
         ),
     ),
@@ -2009,15 +1978,30 @@ pub(in crate::card::sets) static VIASHINO_FIRSTBLADE: CardRecord = CardRecord::n
 static VOICE_OF_RESURGENCE_DURING_YOUR_TURN: TriggerConditionDef =
     TriggerConditionDef::ActivePlayer(PlayerRelation::You);
 
-static VOICE_OF_RESURGENCE_TOKEN: EffectDef = EffectDef::CreateToken {
-    token: cards::ELEMENTAL_TOKEN_GREEN_WHITE,
-    controller: None,
-    count: ValueDef::Constant(1),
-    tapped: false,
-    attacking: false,
-    counters: None,
-    created: None,
-};
+static VOICE_OF_RESURGENCE_CREATURES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::HasType(CardType::Creature),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::You,
+);
+
+static VOICE_OF_RESURGENCE_ELEMENTAL_ABILITY: AbilityDef = AbilityDef::static_ability(
+    "This token's power and toughness are each equal to the number of creatures you control.",
+    EffectDef::StaticApply {
+        recipient: EffectRecipientDef::Source,
+        effect: AppliedEffectDef::modify_power_toughness(
+            ValueDef::CountMatchingObjects(&VOICE_OF_RESURGENCE_CREATURES_YOU_CONTROL),
+            ValueDef::CountMatchingObjects(&VOICE_OF_RESURGENCE_CREATURES_YOU_CONTROL),
+        ),
+    },
+);
+
+static VOICE_OF_RESURGENCE_TOKEN: EffectDef =
+    EffectDef::create_creature_token(&["Elemental"], &[ManaColor::Green, ManaColor::White], 0, 0)
+        .with_abilities(&[VOICE_OF_RESURGENCE_ELEMENTAL_ABILITY])
+        .with_art(CardArt::new(
+            "5bfb1440-d4c1-42cf-a777-ee1644dbbac7",
+            "Mark Winters",
+        ));
 
 // DGM 114 — Voice of Resurgence
 pub(in crate::card::sets) static VOICE_OF_RESURGENCE: CardRecord = CardRecord::new(

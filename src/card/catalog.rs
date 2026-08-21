@@ -108,12 +108,8 @@ impl CardCatalog {
             if entries.definition_index(definition.id).is_some() {
                 return Err(CatalogError::DuplicateId(definition.id));
             }
-            // Tokens are not deck-legal and are never looked up by name, and
-            // Magic prints several that share one. Only the cards a decklist
-            // can name have to be distinguishable by name.
-            let is_token = definition.debut_set == CardSet::Token;
             let normalized_name = normalize_name(&definition.name);
-            if !is_token && entries.ids_by_name.contains_key(&normalized_name) {
+            if entries.ids_by_name.contains_key(&normalized_name) {
                 return Err(CatalogError::DuplicateName(definition.name));
             }
             validate_composition(&definition)?;
@@ -123,9 +119,7 @@ impl CardCatalog {
                     .into_iter()
                     .map(|printing| (definition.id, printing)),
             );
-            if !is_token {
-                entries.ids_by_name.insert(normalized_name, definition.id);
-            }
+            entries.ids_by_name.insert(normalized_name, definition.id);
             entries.insert_definition(definition);
         }
 

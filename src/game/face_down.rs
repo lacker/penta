@@ -17,7 +17,7 @@ impl Game {
         permanent: &super::Permanent,
     ) -> Option<crate::card::ManaCost> {
         self.catalog
-            .get(permanent.card.definition)?
+            .get(permanent.card.definition.card_definition()?)?
             .part(permanent.presented)?
             .rules
             .morph_cost()
@@ -39,7 +39,7 @@ impl Game {
         }
         let part = self
             .catalog
-            .get(permanent.card.definition)?
+            .get(permanent.card.definition.card_definition()?)?
             .part(permanent.presented)?;
         part.rules
             .has_type(crate::card::CardType::Creature)

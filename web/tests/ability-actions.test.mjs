@@ -87,3 +87,62 @@ test("ability origin keys preserve definition, part, and grant provenance", () =
     }),
   );
 });
+
+test("inline token origin keys include the current source and token grant provenance", () => {
+  const token = { kind: "token", partId: 0, abilityId: 1 };
+  assert.notEqual(abilityOriginKey(token, 41), abilityOriginKey(token, 42));
+  assert.notEqual(
+    abilityOriginKey(token, 41),
+    abilityOriginKey({ ...token, abilityId: 2 }, 41),
+  );
+
+  const tokenGranted = {
+    kind: "tokenGranted",
+    source: 40,
+    sourcePartId: 0,
+    sourceAbilityId: 1,
+    grantId: 3,
+  };
+  assert.notEqual(
+    abilityOriginKey(tokenGranted, 41),
+    abilityOriginKey({ ...tokenGranted, grantId: 4 }, 41),
+  );
+  const tokenGrantedKey = abilityOriginKey(tokenGranted, 41);
+  assert.ok(tokenGrantedKey);
+  assert.ok(!tokenGrantedKey.includes("undefined"));
+
+  const first = { ...action(30, 0), cardId: 41, ability: token };
+  const sameSource = {
+    ...action(31, 0, { targetPlayer: "opponent", targetCount: 1 }),
+    cardId: 41,
+    ability: token,
+  };
+  const otherSource = { ...action(32, 0), cardId: 42, ability: token };
+  const groups = buildAbilityActionGroups([first, sameSource, otherSource]);
+  assert.equal(groups.length, 2);
+  assert.deepEqual(groups[0].actions, [first, sameSource]);
+  assert.deepEqual(groups[1].actions, [otherSource]);
+});
+
+test("inline emblem origin keys include the current source and grant provenance", () => {
+  const emblem = { kind: "emblem", abilityId: 1 };
+  assert.notEqual(abilityOriginKey(emblem, 51), abilityOriginKey(emblem, 52));
+  assert.notEqual(
+    abilityOriginKey(emblem, 51),
+    abilityOriginKey({ ...emblem, abilityId: 2 }, 51),
+  );
+
+  const emblemGranted = {
+    kind: "emblemGranted",
+    source: 50,
+    sourceAbilityId: 1,
+    grantId: 3,
+  };
+  assert.notEqual(
+    abilityOriginKey(emblemGranted, 51),
+    abilityOriginKey({ ...emblemGranted, grantId: 4 }, 51),
+  );
+  const emblemGrantedKey = abilityOriginKey(emblemGranted, 51);
+  assert.ok(emblemGrantedKey);
+  assert.ok(!emblemGrantedKey.includes("undefined"));
+});

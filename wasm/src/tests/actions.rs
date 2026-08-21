@@ -349,7 +349,11 @@ fn stack_presentation_uses_the_locked_split_card_form() {
         penta::CastChoices::new(penta::PlayOptionId(1)),
     );
 
-    let burn = stack_card_presentation(Some(turn_burn), Some(&burn_signature));
+    let burn = stack_card_presentation(
+        &catalog,
+        penta::ObjectCharacteristics::card(turn_burn.id, penta::CardPartId::PRIMARY),
+        Some(&burn_signature),
+    );
     assert_eq!(burn.name, "Burn");
     assert_eq!(burn.kind, "instant");
     assert_eq!(burn.type_line, "Instant");
@@ -368,7 +372,11 @@ fn stack_presentation_uses_the_locked_split_card_form() {
         penta::SpellForm::Combined(vec![penta::CardPartId::PRIMARY, penta::CardPartId(1)]),
         penta::CastChoices::new(penta::PlayOptionId(2)),
     );
-    let fused = stack_card_presentation(Some(turn_burn), Some(&fused_signature));
+    let fused = stack_card_presentation(
+        &catalog,
+        penta::ObjectCharacteristics::card(turn_burn.id, penta::CardPartId::PRIMARY),
+        Some(&fused_signature),
+    );
     assert_eq!(fused.name, "Turn // Burn");
     assert_eq!(fused.kind, "instant");
     assert_eq!(fused.type_line, "Instant");
@@ -382,6 +390,65 @@ fn stack_presentation_uses_the_locked_split_card_form() {
         fused.implementation_status,
         penta::ImplementationStatus::Complete
     );
+}
+
+#[test]
+fn inline_token_presentation_uses_its_own_name_art_and_rules() {
+    static TOKEN: penta::TokenCharacteristics =
+        penta::TokenCharacteristics::artifact_creature(&["Servo"], &[], 1, 1)
+            .with_name("Test Servo")
+            .with_art(penta::CardArt::new(
+                "00000000-0000-0000-0000-000000000001",
+                "Test Artist",
+            ));
+    let catalog = card::catalog().expect("catalog builds");
+    let presentation = object_presentation(
+        &catalog,
+        penta::ObjectCharacteristics::token(TOKEN, penta::CardPartId::PRIMARY),
+    );
+
+    assert_eq!(presentation.name, "Test Servo");
+    assert_eq!(
+        presentation.art,
+        Some(penta::CardArt::new(
+            "00000000-0000-0000-0000-000000000001",
+            "Test Artist",
+        ))
+    );
+    assert_eq!(presentation.kind, "artifactcreature");
+    assert_eq!(presentation.type_line, "Artifact Creature — Servo");
+    assert_eq!(presentation.mana_cost, None);
+    assert_eq!(
+        (presentation.power, presentation.toughness),
+        (Some(1), Some(1))
+    );
+}
+
+#[test]
+fn inline_emblem_presentation_uses_its_own_name_and_rules() {
+    static EMBLEM_ABILITIES: [penta::AbilityDef; 1] = [penta::AbilityDef::not_implemented(
+        "Test emblem rule.",
+        "WASM fixture",
+    )];
+    static EMBLEM: penta::EmblemCharacteristics =
+        penta::EmblemCharacteristics::new("Test emblem", &EMBLEM_ABILITIES);
+    let catalog = card::catalog().expect("catalog builds");
+    let presentation = object_presentation(
+        &catalog,
+        penta::ObjectCharacteristics::Emblem { emblem: EMBLEM },
+    );
+
+    assert_eq!(presentation.name, "Test emblem");
+    assert_eq!(presentation.art, None);
+    assert_eq!(presentation.kind, "emblem");
+    assert_eq!(presentation.type_line, "Emblem");
+    assert_eq!(presentation.mana_cost, None);
+    assert_eq!(presentation.rules_text, "Test emblem rule.");
+    assert_eq!(
+        presentation.implementation_status,
+        penta::ImplementationStatus::MetadataOnly
+    );
+    assert_eq!((presentation.power, presentation.toughness), (None, None));
 }
 
 #[test]
@@ -456,7 +523,7 @@ fn blocker_actions_expose_the_attacker_as_their_board_target() {
 }
 
 #[test]
-fn ability_actions_expose_their_stable_origins() {
+fn printed_ability_actions_expose_their_stable_origins_and_targets() {
     let action = Action::ActivateAbility {
         source: CardInstanceId(8),
         ability: penta::AbilityOrigin::Printed {
@@ -499,7 +566,10 @@ fn ability_actions_expose_their_stable_origins() {
         vec!["opponent"]
     );
     assert_eq!(action_target_stacks(&action), vec![12]);
+}
 
+#[test]
+fn mana_and_granted_ability_actions_expose_their_stable_origins() {
     let mana_action = Action::ActivateManaAbility {
         source: CardInstanceId(9),
         ability: penta::AbilityOrigin::IntrinsicBasicLand(penta::BasicLandType::Mountain),
@@ -539,6 +609,96 @@ fn ability_actions_expose_their_stable_origins() {
             "sourcePartId": 1,
             "sourceAbilityId": 2,
             "grantId": 3,
+        }))
+    );
+}
+
+#[test]
+fn token_ability_actions_expose_their_stable_origins() {
+    let token_action = Action::ActivateAbility {
+        source: CardInstanceId(11),
+        ability: penta::AbilityOrigin::Token {
+            part: penta::CardPartId(1),
+            ability: penta::AbilityId(4),
+        },
+        targets: Vec::new(),
+        cost_objects: Vec::new(),
+        x: 0,
+        modes: Vec::new(),
+    };
+    assert_eq!(
+        action_ability_origin(&token_action),
+        Some(json!({
+            "kind": "token",
+            "partId": 1,
+            "abilityId": 4,
+        }))
+    );
+
+    let token_granted_action = Action::ActivateAbility {
+        source: CardInstanceId(12),
+        ability: penta::AbilityOrigin::TokenGranted {
+            source: CardInstanceId(11),
+            source_part: penta::CardPartId(1),
+            source_ability: penta::AbilityId(4),
+            grant: penta::GrantId(5),
+        },
+        targets: Vec::new(),
+        cost_objects: Vec::new(),
+        x: 0,
+        modes: Vec::new(),
+    };
+    assert_eq!(
+        action_ability_origin(&token_granted_action),
+        Some(json!({
+            "kind": "tokenGranted",
+            "source": 11,
+            "sourcePartId": 1,
+            "sourceAbilityId": 4,
+            "grantId": 5,
+        }))
+    );
+}
+
+#[test]
+fn emblem_ability_actions_expose_their_stable_origins() {
+    let emblem_action = Action::ActivateAbility {
+        source: CardInstanceId(13),
+        ability: penta::AbilityOrigin::Emblem {
+            ability: penta::AbilityId(6),
+        },
+        targets: Vec::new(),
+        cost_objects: Vec::new(),
+        x: 0,
+        modes: Vec::new(),
+    };
+    assert_eq!(
+        action_ability_origin(&emblem_action),
+        Some(json!({
+            "kind": "emblem",
+            "abilityId": 6,
+        }))
+    );
+
+    let emblem_granted_action = Action::ActivateAbility {
+        source: CardInstanceId(14),
+        ability: penta::AbilityOrigin::EmblemGranted {
+            source: CardInstanceId(13),
+            source_ability: penta::AbilityId(6),
+            grant: penta::GrantId(7),
+        },
+        targets: Vec::new(),
+        cost_objects: Vec::new(),
+        x: 0,
+        modes: Vec::new(),
+    };
+    assert_eq!(
+        action_ability_origin(&emblem_granted_action),
+        Some(json!({
+            "kind": "emblemGranted",
+            "source": 13,
+            "sourceAbilityId": 6,
+            "grantId": 7,
         }))
     );
 }

@@ -1,6 +1,7 @@
 use crate::{
     AbilityOrigin, Action, AttackDefender, CardDefinitionId, CardPartId, CardTypeSet,
-    CastSignature, GameObjectId, PlayerId, Target,
+    CastSignature, DoubleFacedKind, EmblemCharacteristics, GameObjectId, PlayerId, Target,
+    TokenCharacteristics,
 };
 use serde_json::Value;
 
@@ -8,6 +9,86 @@ use super::{DecisionObservation, GameResult, ManaPool, StackObjectKind, Step};
 
 pub(super) type PublicCard = (GameObjectId, CardDefinitionId);
 pub(super) type LastSeenHand = Option<(PlayerId, Vec<PublicCard>)>;
+
+/// The authored copiable characteristics an object presents.
+///
+/// Printed cards join through the global card catalog. Tokens instead carry
+/// the complete characteristics supplied by the effect that created them, so
+/// duplicate token names never become duplicate card identities. Whether the
+/// object itself is a token is recorded separately: a token can copy a card,
+/// and a nontoken card can copy a token.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum ObjectCharacteristics {
+    Card {
+        definition: CardDefinitionId,
+        part: CardPartId,
+    },
+    Token {
+        token: TokenCharacteristics,
+        part: CardPartId,
+    },
+    Emblem {
+        emblem: EmblemCharacteristics,
+    },
+}
+
+impl ObjectCharacteristics {
+    #[must_use]
+    pub const fn card(definition: CardDefinitionId, part: CardPartId) -> Self {
+        Self::Card { definition, part }
+    }
+
+    #[must_use]
+    pub const fn token(token: TokenCharacteristics, part: CardPartId) -> Self {
+        Self::Token { token, part }
+    }
+
+    #[must_use]
+    pub const fn emblem(emblem: EmblemCharacteristics) -> Self {
+        Self::Emblem { emblem }
+    }
+
+    #[must_use]
+    pub const fn part(self) -> CardPartId {
+        match self {
+            Self::Card { part, .. } | Self::Token { part, .. } => part,
+            Self::Emblem { .. } => CardPartId::PRIMARY,
+        }
+    }
+
+    #[must_use]
+    pub const fn with_part(self, part: CardPartId) -> Self {
+        match self {
+            Self::Card { definition, .. } => Self::Card { definition, part },
+            Self::Token { token, .. } => Self::Token { token, part },
+            Self::Emblem { .. } => self,
+        }
+    }
+
+    #[must_use]
+    pub const fn card_definition(self) -> Option<CardDefinitionId> {
+        match self {
+            Self::Card { definition, .. } => Some(definition),
+            Self::Token { .. } | Self::Emblem { .. } => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn token_characteristics(self) -> Option<TokenCharacteristics> {
+        match self {
+            Self::Card { .. } | Self::Emblem { .. } => None,
+            Self::Token { token, .. } => Some(token),
+        }
+    }
+
+    #[must_use]
+    pub const fn emblem_characteristics(self) -> Option<EmblemCharacteristics> {
+        match self {
+            Self::Emblem { emblem } => Some(emblem),
+            Self::Card { .. } | Self::Token { .. } => None,
+        }
+    }
+}
 
 /// One card in a hand or library, as a simulation rearranging hidden state
 /// sees it. Unlike an observation this is never redacted, because a `Game` in
@@ -51,14 +132,29 @@ pub struct EmblemObservation {
     pub ability_texts: Vec<String>,
 }
 
+/// Which physical side of a double-faced permanent is currently up.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum PhysicalFaceSide {
+    Front,
+    Back,
+}
+
+/// Public physical topology kept separate from effective copied values.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct PhysicalFaceObservation {
+    pub kind: DoubleFacedKind,
+    pub side: PhysicalFaceSide,
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[allow(clippy::struct_excessive_bools)]
 pub struct PermanentObservation {
     pub id: GameObjectId,
-    pub definition: CardDefinitionId,
-    /// The logical card part currently supplying this permanent's printed
-    /// characteristics. Changing faces does not change `id`.
-    pub presented: CardPartId,
+    /// The logical card or token part currently supplying this permanent's
+    /// copiable characteristics. Changing faces does not change `id`.
+    pub characteristics: ObjectCharacteristics,
+    /// Tokens retain this status even while copying a printed card.
+    pub token: bool,
     pub controller: PlayerId,
     /// Whether this permanent is phased out. It is public information --
     /// both players can see it -- and the rules merely treat it as though it
@@ -67,6 +163,10 @@ pub struct PermanentObservation {
     /// Whether this permanent is face down. Everyone sees that much; only
     /// its controller's observation carries the definition underneath.
     pub face_down: bool,
+    /// The physical double-faced topology and side up, independently of the
+    /// characteristics a copy effect currently supplies. Hidden while face
+    /// down and absent for a physical single-faced object.
+    pub physical_face: Option<PhysicalFaceObservation>,
     /// The card types this permanent presents right now, including resolved
     /// continuous changes that the printed rules alone cannot say.
     pub types: CardTypeSet,
@@ -113,7 +213,9 @@ pub struct StackObservation {
     /// Frozen rules text for the creating ability. This remains inspectable
     /// even when its source changes zones or characteristics.
     pub ability_text: Option<String>,
-    pub definition: CardDefinitionId,
+    /// Frozen presentation of the spell or ability. Token abilities carry
+    /// their source token's inline characteristics rather than a fake card ID.
+    pub characteristics: ObjectCharacteristics,
     pub controller: PlayerId,
     /// Public resolution constraint. An uncounterable object remains a legal
     /// target for counter spells, but those effects cannot remove it.
@@ -172,4 +274,19 @@ pub struct PlayerObservation {
     /// Hidden-safe rules bookkeeping needed to treat this observation as a
     /// current-state checkpoint for local determinization.
     pub checkpoint: Value,
+}
+
+#[cfg(test)]
+mod tests {
+    use std::mem::size_of;
+
+    use super::ObjectCharacteristics;
+
+    #[test]
+    fn object_characteristics_keep_inline_virtual_values_compact() {
+        assert!(
+            size_of::<ObjectCharacteristics>() <= 128,
+            "object characteristics exceeded their 128-byte inline budget",
+        );
+    }
 }

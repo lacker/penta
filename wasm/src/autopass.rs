@@ -1,4 +1,5 @@
 use super::{Action, BOT_ACTION_LIMIT, DecisionKind, PlayerObservation, Step, WebGame};
+use crate::presentation::object_presentation;
 
 impl WebGame {
     pub(super) fn automatic_human_action_for(
@@ -71,7 +72,10 @@ impl WebGame {
             return None;
         }
         if let Some(top) = observation.stack.last() {
-            return Some(format!("Resolve {}", self.card_name(top.definition)));
+            return Some(format!(
+                "Resolve {}",
+                object_presentation(&self.catalog, top.characteristics).name
+            ));
         }
         let start_turn = observation.turn;
         let start_active_is_human = observation.active_player == self.human;

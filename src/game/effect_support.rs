@@ -1,6 +1,6 @@
 use super::{
     AbilityDef, AbilityId, AbilityOperationDef, AbilityOrigin, AbilitySourceRef,
-    AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef, CardPartId, CastSignature,
+    AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef, CastSignature,
     CharacteristicOperationDef, ColorChoiceOperationDef, ColorSet, ComparisonDef,
     ContinuousEffectExpiration, ContinuousEffectTimestamp, ControlFlow, CounterKind,
     EffectRecipientDef, EffectRecipientSetDef, EffectResolutionContext, Game, GameObjectId,
@@ -331,14 +331,9 @@ impl Game {
         }
         let source = AbilitySourceRef {
             object: resolution.object.source.unwrap_or(resolution.object.id),
-            ability: resolution
-                .object
-                .ability_origin()
-                .unwrap_or(AbilityOrigin::Printed {
-                    definition: resolution.object.presentation_definition(),
-                    part: CardPartId::PRIMARY,
-                    ability: AbilityId::PRIMARY,
-                }),
+            ability: resolution.object.ability_origin().unwrap_or_else(|| {
+                Self::authored_ability_origin(resolution.object.presentation(), AbilityId::PRIMARY)
+            }),
         };
         if self.apply_player_play_rule(target, definition, rule, &resolution, source, expiration) {
             return;
@@ -446,14 +441,9 @@ impl Game {
         };
         let source = AbilitySourceRef {
             object: resolution.object.source.unwrap_or(resolution.object.id),
-            ability: resolution
-                .object
-                .ability_origin()
-                .unwrap_or(AbilityOrigin::Printed {
-                    definition: resolution.object.presentation_definition(),
-                    part: CardPartId::PRIMARY,
-                    ability: AbilityId::PRIMARY,
-                }),
+            ability: resolution.object.ability_origin().unwrap_or_else(|| {
+                Self::authored_ability_origin(resolution.object.presentation(), AbilityId::PRIMARY)
+            }),
         };
         let expiration = Self::continuous_effect_expiration(
             resolution.duration,

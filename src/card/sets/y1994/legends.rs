@@ -3455,15 +3455,9 @@ pub(in crate::card::sets) static MASTER_OF_THE_HUNT: CardRecord = CardRecord::ne
             "{2}{G}{G}: Create a 1/1 green Wolf creature token named Wolves of the Hunt. It \
              has \"bands with other creatures named Wolves of the Hunt.\"",
             &[AbilityCostDef::Mana(mana_cost!("{2}{G}{G}"))],
-            EffectDef::CreateToken {
-                token: cards::WOLVES_OF_THE_HUNT_TOKEN_1_1_GREEN,
-                controller: None,
-                count: ValueDef::Constant(1),
-                tapped: false,
-                attacking: false,
-                counters: None,
-                created: None,
-            },
+            EffectDef::create_creature_token(&["Wolf"], &[ManaColor::Green], 1, 1)
+                .with_name("Wolves of the Hunt")
+                .with_abilities(&[abilities::bands_with_other(BandingQuality::WolvesOfTheHunt)]),
         ),
     ),
 );
@@ -4020,15 +4014,8 @@ pub(in crate::card::sets) static BORIS_DEVILBOON: CardRecord = CardRecord::new(
                 AbilityCostDef::Mana(mana_cost!("{2}{B}{R}")),
                 AbilityCostDef::TapSource,
             ],
-            EffectDef::CreateToken {
-                token: cards::MINOR_DEMON_TOKEN_1_1_BLACK_RED,
-                controller: None,
-                count: ValueDef::Constant(1),
-                tapped: false,
-                attacking: false,
-                counters: None,
-                created: None,
-            },
+            EffectDef::create_creature_token(&["Demon"], &[ManaColor::Black, ManaColor::Red], 1, 1)
+                .with_name("Minor Demon"),
         )),
 );
 
@@ -4150,7 +4137,7 @@ pub(in crate::card::sets) static GWENDLYN_DI_CORCI: CardRecord = CardRecord::new
 // Audit: blocked — Needs a characteristic-layer effect or dynamic value for “At the beginning of your upkeep, change Halfdane's base power and toughness to the power and toughness of target creature other than Halfdane until the end of your next upkeep”.
 
 // LEG 230 — Hazezon Tamar
-// Audit: blocked — Needs the exact token definition and creation/lifecycle behavior for “When Hazezon enters, create X 1/1 Sand Warrior creature tokens that are red, green, and white at the beginning of your next upkeep, where X is the number of lands you control at that time”.
+// Audit: blocked — Needs delayed token creation that determines X at the future upkeep for “When Hazezon enters, create X 1/1 Sand Warrior creature tokens that are red, green, and white at the beginning of your next upkeep, where X is the number of lands you control at that time”.
 
 // LEG 231 — Hunding Gjornersen
 pub(in crate::card::sets) static HUNDING_GJORNERSEN: CardRecord = CardRecord::new(
@@ -5310,14 +5297,12 @@ pub(in crate::card::sets) static SERPENT_GENERATOR: CardRecord = CardRecord::new
             AbilityCostDef::Mana(mana_cost!("{4}")),
             AbilityCostDef::TapSource,
         ],
-        EffectDef::CreateToken {
-            token: cards::SNAKE_TOKEN_1_1_POISONOUS,
-            controller: None,
-            count: ValueDef::Constant(1),
-            tapped: false,
-            attacking: false,
-        counters: None,
-        created: None,},
+        EffectDef::create_artifact_creature_token(&["Snake"], &[], 1, 1).with_abilities(&[
+            abilities::poisonous_damage(
+                1,
+                "Whenever this creature deals damage to a player, that player gets a poison counter.",
+            ),
+        ]),
     )),
 );
 

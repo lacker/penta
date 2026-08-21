@@ -7,7 +7,8 @@ use serde::{Deserialize, Serialize};
 
 use super::{
     AbilityLocator, AbilityOriginSnapshot, AppliedEffectLocator, BasicLandTypeSnapshot,
-    EffectResolutionContextSnapshot, ManaSourceSnapshot, TargetSelectionSnapshot,
+    EffectResolutionContextSnapshot, ManaSourceSnapshot, ObjectCharacteristicsSnapshot,
+    ObjectKindSnapshot, TargetSelectionSnapshot,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -16,6 +17,7 @@ use super::{
 pub(in crate::game::state_checkpoint) struct StackSnapshot {
     pub(in crate::game::state_checkpoint) object_id: u32,
     pub(in crate::game::state_checkpoint) owner: usize,
+    pub(in crate::game::state_checkpoint) object_kind: ObjectKindSnapshot,
     pub(in crate::game::state_checkpoint) ability_payload: Option<StackAbilitySnapshot>,
     pub(in crate::game::state_checkpoint) requires_retired_object: bool,
     pub(in crate::game::state_checkpoint) has_runtime_overrides: bool,
@@ -53,6 +55,7 @@ pub(in crate::game::state_checkpoint) struct StackAbilitySnapshot {
     pub(in crate::game::state_checkpoint) ability_locator: Option<AbilityLocator>,
     pub(in crate::game::state_checkpoint) target_definition_locator: Option<AbilityLocator>,
     pub(in crate::game::state_checkpoint) origin: AbilityOriginSnapshot,
+    pub(in crate::game::state_checkpoint) presentation: ObjectCharacteristicsSnapshot,
     pub(in crate::game::state_checkpoint) target_selections: Vec<TargetSelectionSnapshot>,
     pub(in crate::game::state_checkpoint) context: EffectResolutionContextSnapshot,
     pub(in crate::game::state_checkpoint) mode_effects: Vec<ScopedEffectSnapshot>,
@@ -65,7 +68,7 @@ pub(in crate::game::state_checkpoint) struct StackAbilitySnapshot {
 pub(in crate::game::state_checkpoint) struct DetachedStackSnapshot {
     pub(in crate::game::state_checkpoint) object_id: u32,
     pub(in crate::game::state_checkpoint) kind: StackObjectKindSnapshot,
-    pub(in crate::game::state_checkpoint) definition: u16,
+    pub(in crate::game::state_checkpoint) object_kind: ObjectKindSnapshot,
     pub(in crate::game::state_checkpoint) owner: usize,
     pub(in crate::game::state_checkpoint) source: Option<u32>,
     pub(in crate::game::state_checkpoint) ability_payload: Option<StackAbilitySnapshot>,

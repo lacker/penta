@@ -38,10 +38,10 @@ fn settle_naming(game: &mut Game, wanted: Option<CardDefinitionId>) -> Option<Ve
             );
             let chosen = wanted
                 .and_then(|definition| {
-                    decision
-                        .options
-                        .iter()
-                        .find(|option| option.card.map(|(_, actual)| actual) == Some(definition))
+                    decision.options.iter().find(|option| {
+                        option.card.and_then(|(_, actual)| actual.card_definition())
+                            == Some(definition)
+                    })
                 })
                 .or_else(|| decision.options.first())
                 .map(|option| option.id);

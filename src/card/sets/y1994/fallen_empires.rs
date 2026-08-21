@@ -363,15 +363,12 @@ pub(in crate::card::sets) static ICATIAN_TOWN: CardRecord = CardRecord::new(
     CardSet::FallenEmpires,
     CardRules::new_sorcery(mana_cost!("{5}{W}")).with_abilities(&[AbilityDef::spell(
         "Create four 1/1 white Citizen creature tokens.",
-        EffectDef::CreateToken {
-            token: cards::CITIZEN_TOKEN_1_1_WHITE,
-            controller: None,
-            count: ValueDef::Constant(4),
-            tapped: false,
-            attacking: false,
-            counters: None,
-            created: None,
-        },
+        EffectDef::create_creature_token(&["Citizen"], &[ManaColor::White], 1, 1)
+            .with_amount(4)
+            .with_art(CardArt::new(
+                "165164e7-5693-4d65-b789-8ed8a222365b",
+                "Michael Phillippi",
+            )),
     )]),
 );
 
@@ -789,15 +786,9 @@ pub(in crate::card::sets) static BREEDING_PIT: CardRecord = CardRecord::new(
                 step: TurnStepDef::End,
                 player: PlayerRelation::You,
             },
-            EffectDef::CreateToken {
-                token: cards::THRULL_TOKEN_0_1_BLACK,
-                controller: None,
-                count: ValueDef::Constant(1),
-                tapped: false,
-                attacking: false,
-                counters: None,
-                created: None,
-            },
+            EffectDef::create_creature_token(&["Thrull"], &[ManaColor::Black], 0, 1).with_art(
+                CardArt::new("b9f3042b-784c-4006-9bf1-60a323e60c5c", "Véronique Meignaud"),
+            ),
         ),
     ]),
 );
@@ -1463,14 +1454,16 @@ pub(in crate::card::sets) static ELVISH_FARMER: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "Remove three spore counters from this creature: Create a 1/1 green Saproling creature token.",
                 &REMOVE_THREE_SPORES,
-                EffectDef::CreateToken {
-                    token: cards::SAPROLING_TOKEN_1_1_GREEN,
-                    controller: None,
-                    count: ValueDef::Constant(1),
-                    tapped: false,
-                    attacking: false,
-                counters: None,
-                created: None,},
+                EffectDef::create_creature_token(
+                    &["Saproling"],
+                    &[ManaColor::Green],
+                    1,
+                    1,
+                )
+                .with_art(CardArt::new(
+                    "248ade83-ac57-42d6-985c-1e4cc3639f36",
+                    "Joseph Meehan",
+                )),
             ),
             AbilityDef::activated(
                 "Sacrifice a Saproling: You gain 2 life.",
@@ -1711,14 +1704,16 @@ pub(in crate::card::sets) static THALLID: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "Remove three spore counters from this creature: Create a 1/1 green Saproling creature token.",
                 &REMOVE_THREE_SPORES,
-                EffectDef::CreateToken {
-                    token: cards::SAPROLING_TOKEN_1_1_GREEN,
-                    controller: None,
-                    count: ValueDef::Constant(1),
-                    tapped: false,
-                    attacking: false,
-                counters: None,
-                created: None,},
+                EffectDef::create_creature_token(
+                    &["Saproling"],
+                    &[ManaColor::Green],
+                    1,
+                    1,
+                )
+                .with_art(CardArt::new(
+                    "248ade83-ac57-42d6-985c-1e4cc3639f36",
+                    "Joseph Meehan",
+                )),
             ),
         ]),
 );
@@ -1745,14 +1740,16 @@ pub(in crate::card::sets) static THALLID_DEVOURER: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "Remove three spore counters from this creature: Create a 1/1 green Saproling creature token.",
                 &REMOVE_THREE_SPORES,
-                EffectDef::CreateToken {
-                    token: cards::SAPROLING_TOKEN_1_1_GREEN,
-                    controller: None,
-                    count: ValueDef::Constant(1),
-                    tapped: false,
-                    attacking: false,
-                counters: None,
-                created: None,},
+                EffectDef::create_creature_token(
+                    &["Saproling"],
+                    &[ManaColor::Green],
+                    1,
+                    1,
+                )
+                .with_art(CardArt::new(
+                    "248ade83-ac57-42d6-985c-1e4cc3639f36",
+                    "Joseph Meehan",
+                )),
             ),
             AbilityDef::activated(
                 "Sacrifice a Saproling: This creature gets +1/+2 until end of turn.",

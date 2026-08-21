@@ -42,7 +42,10 @@ fn white_suns_zenith_creates_cats_then_returns_and_shuffles() {
     assert_eq!(
         game.battlefield
             .iter()
-            .filter(|permanent| permanent.card.definition == cards::CAT_TOKEN_2_2_WHITE)
+            .filter(|permanent| is_token_with(
+                permanent,
+                tokens::creature(&["Cat"], &[ManaColor::White], 2, 2)
+            ))
             .count(),
         2,
     );

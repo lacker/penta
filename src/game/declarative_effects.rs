@@ -1,10 +1,9 @@
 use super::{
     AbilityProcedureDef, AbilitySourceRef, ArrivalAttachment, BattlefieldArrival, CardPartId,
-    CharacteristicSource, CopiableAbility, CounteredSpellZone, DeclarativeAbilityDef, EffectDef,
-    EffectResolutionContext, Game, InstalledTrigger, InstalledTriggerLifetime, Permanent,
-    ResolvedEffectPayment, SacrificeDeclined, SacrificeFollowup, ScopedEffect,
-    StackAbilityResolver, StackObject, Target, TriggerCapture, ZoneKind, ZoneMoveCause,
-    ZonePlacement,
+    CopiableAbility, CounteredSpellZone, DeclarativeAbilityDef, EffectDef, EffectResolutionContext,
+    Game, InstalledTrigger, InstalledTriggerLifetime, Permanent, ResolvedEffectPayment,
+    SacrificeDeclined, SacrificeFollowup, ScopedEffect, StackAbilityResolver, StackObject, Target,
+    TriggerCapture, ZoneKind, ZoneMoveCause, ZonePlacement,
 };
 use crate::card::{ArrivalAttachmentDef, EffectPaymentCostDef, InstalledTriggerLifetimeDef};
 use move_to_zone::MoveToZoneClause;
@@ -304,8 +303,7 @@ impl Game {
             }
             EffectDef::CreateEmblem { emblem } => {
                 let controller = object.controller;
-                let card =
-                    self.unbacked_object(emblem, controller, CharacteristicSource::Ability(emblem));
+                let card = self.unbacked_emblem_object(emblem, controller);
                 let mut emblem = Permanent::entering(
                     card,
                     CardPartId::PRIMARY,
@@ -544,7 +542,7 @@ impl Game {
                             object: object.source.unwrap_or(object.id),
                             ability: frozen.origin,
                         },
-                        definition: frozen.presentation_definition,
+                        presentation: frozen.presentation,
                         owner: object.card.owner,
                         controller: object.controller,
                         text: installed.ability.text,

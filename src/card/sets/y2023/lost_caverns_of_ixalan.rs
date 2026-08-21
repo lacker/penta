@@ -5,8 +5,8 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, CardType,
     ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
-    cards,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerEventDef, ZoneKind, abilities, cards,
+    tokens,
 };
 use crate::ids::ObjectBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -93,17 +93,15 @@ static A_CREATURE_ENCHANTMENT_OR_PLANESWALKER: [AbilityTargetDef; 1] =
 /// "Its controller creates two Map tokens." The Maps are theirs, not yours,
 /// and the permanent is already destroyed by the time they arrive -- so the
 /// player is read from what the target was rather than from where it is.
-static TWO_MAPS_FOR_ITS_CONTROLLER: EffectDef = EffectDef::CreateToken {
-    token: cards::MAP_TOKEN,
-    controller: Some(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+static TWO_MAPS_FOR_ITS_CONTROLLER: EffectDef = EffectDef::create_token(tokens::map())
+    .with_art(CardArt::new(
+        "64839118-09d2-4645-9d3c-f80755ac781f",
+        "Francesca Baerald",
+    ))
+    .with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
         TargetIndex::PRIMARY,
-    ))),
-    count: ValueDef::Constant(2),
-    tapped: false,
-    attacking: false,
-    counters: None,
-    created: None,
-};
+    )))
+    .with_amount(2);
 
 static GET_LOST_EFFECT: [EffectDef; 2] = [
     EffectDef::Destroy {

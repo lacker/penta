@@ -1,7 +1,7 @@
 use std::cell::Cell;
 
 use super::{
-    AppliedEffectDef, BasicLandType, CardBehavior, CardRules, CardSupertype, CardType,
+    AppliedEffectDef, BasicLandType, CardBehavior, CardSupertype, CardType,
     CharacteristicOperationDef, ControlFlow, CounterKind, DeclarativeAbilityDef, EffectDef, Game,
     GameObjectId, KeywordAbility, ObjectPredicateDef, ObjectQueryDef, Permanent, PlayerId,
     PlayerRelation, PowerToughnessOperationDef, ResolvedContinuousEffectKind,
@@ -103,7 +103,7 @@ impl Game {
         if setters.is_empty() {
             return self
                 .effective_rules(permanent)
-                .and_then(CardRules::creature_stats);
+                .and_then(|rules| rules.creature_stats());
         }
         // Applied in order rather than by taking the latest outright: a setter
         // that names only power leaves the toughness under it standing, which
@@ -111,7 +111,7 @@ impl Game {
         setters.sort_by_key(|(timestamp, order, _, _)| (*timestamp, *order));
         let mut stats = self
             .effective_rules(permanent)
-            .and_then(CardRules::creature_stats)
+            .and_then(|rules| rules.creature_stats())
             .unwrap_or(crate::CreatureStats {
                 power: 0,
                 toughness: 0,

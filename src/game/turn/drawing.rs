@@ -4,9 +4,10 @@
 //! a draw is one instruction whose interruptions are its own.
 
 use super::super::{
-    AlternativeCastKindDef, CardDefinitionId, CommittedTriggerEvent, DecisionContinuation,
-    DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone, DeclarativeAbilityDef,
-    Game, GameEvent, GameObjectId, GameResult, PendingProcedure, PlayerId, Step, WinReason,
+    AlternativeCastKindDef, CardDefinitionId, CardPartId, CommittedTriggerEvent,
+    DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
+    DeclarativeAbilityDef, Game, GameEvent, GameObjectId, GameResult, ObjectCharacteristics,
+    PendingProcedure, PlayerId, Step, WinReason,
 };
 
 impl Game {
@@ -71,11 +72,9 @@ impl Game {
             .iter()
             .enumerate()
             .map(|(index, replacement)| {
-                let definition = replacement.object.presentation_definition();
                 let name = self
-                    .catalog
-                    .get(definition)
-                    .map_or("Draw replacement", |card| card.name.as_str());
+                    .presentation_name(replacement.object.presentation())
+                    .unwrap_or_else(|| "Draw replacement".into());
                 DecisionOption {
                     id: u32::try_from(index).unwrap_or(u32::MAX),
                     label: replacement
@@ -124,11 +123,13 @@ impl Game {
     /// choice: whether to then pay the cost is the ordinary cast decision,
     /// and declining to cast simply lets the window close.
     pub(in crate::game) fn queue_miracle_reveal(&mut self, player: PlayerId, card: GameObjectId) {
-        let name = self.players[player.index()]
+        let definition = self.players[player.index()]
             .hand
             .iter()
             .find(|held| held.id == card)
-            .and_then(|held| self.catalog.get(held.definition))
+            .map(|held| held.definition);
+        let name = definition
+            .and_then(|definition| self.catalog.get(definition))
             .map_or_else(
                 || "that card".to_string(),
                 |definition| definition.name.clone(),
@@ -152,7 +153,12 @@ impl Game {
                 DecisionOption {
                     id: 1,
                     label: format!("Reveal {name}"),
-                    card: Some((card, CardDefinitionId(0))),
+                    card: definition.map(|definition| {
+                        (
+                            card,
+                            ObjectCharacteristics::card(definition, CardPartId::PRIMARY),
+                        )
+                    }),
                     members: Vec::new(),
                     ability_text: None,
                     zone: DecisionZone::Hand,

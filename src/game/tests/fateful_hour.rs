@@ -139,7 +139,12 @@ fn gather_the_townsfolk_makes_two_or_five() {
         drain_pending(&mut game);
         game.battlefield
             .iter()
-            .filter(|permanent| permanent.card.definition == cards::HUMAN_TOKEN_1_1_WHITE)
+            .filter(|permanent| {
+                is_token_with(
+                    permanent,
+                    tokens::creature(&["Human"], &[ManaColor::White], 1, 1),
+                )
+            })
             .count()
     };
 
@@ -166,7 +171,12 @@ fn the_doomsayer_pumps_the_tokens_it_makes() {
     let token = game
         .battlefield
         .iter()
-        .find(|permanent| permanent.card.definition == cards::HUMAN_TOKEN_1_1_WHITE)
+        .find(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Human"], &[ManaColor::White], 1, 1),
+            )
+        })
         .expect("a token arrived")
         .card
         .id;

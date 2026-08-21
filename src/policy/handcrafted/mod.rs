@@ -21,8 +21,8 @@ use crate::game::{
     StackObjectKind, StackObservation, Step,
 };
 use crate::{
-    AbilityOrigin, Action, AttackDefender, CardDefinitionId, CastChoices, GameObjectId, PlayerId,
-    Target,
+    AbilityOrigin, Action, AttackDefender, CardDefinitionId, CastChoices, GameObjectId,
+    ObjectCharacteristics, PlayerId, Target,
 };
 
 /// A deterministic baseline that applies simple card- and combat-aware rules.

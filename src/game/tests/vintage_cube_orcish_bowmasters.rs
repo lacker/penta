@@ -57,9 +57,12 @@ fn staged() -> Game {
 }
 
 fn army(game: &Game) -> Option<&Permanent> {
-    game.battlefield
-        .iter()
-        .find(|permanent| permanent.card.definition == cards::ORC_ARMY_TOKEN_0_0_BLACK)
+    game.battlefield.iter().find(|permanent| {
+        is_token_with(
+            permanent,
+            tokens::creature(&["Orc", "Army"], &[ManaColor::Black], 0, 0),
+        )
+    })
 }
 
 fn army_counters(game: &Game) -> u16 {
@@ -94,7 +97,10 @@ fn each_extra_draw_grows_the_same_army() {
     assert_eq!(
         game.battlefield
             .iter()
-            .filter(|permanent| permanent.card.definition == cards::ORC_ARMY_TOKEN_0_0_BLACK)
+            .filter(|permanent| is_token_with(
+                permanent,
+                tokens::creature(&["Orc", "Army"], &[ManaColor::Black], 0, 0)
+            ))
             .count(),
         1,
         "amass grows an Army it already controls",

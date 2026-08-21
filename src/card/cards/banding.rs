@@ -19,5 +19,4 @@ pub const MOUNTAIN_STRONGHOLD: CardDefinitionId = CardDefinitionId(1787);
 pub const SEAFARERS_QUAY: CardDefinitionId = CardDefinitionId(1788);
 pub const UNHOLY_CITADEL: CardDefinitionId = CardDefinitionId(1789);
 pub const MASTER_OF_THE_HUNT: CardDefinitionId = CardDefinitionId(1790);
-pub const WOLVES_OF_THE_HUNT_TOKEN_1_1_GREEN: CardDefinitionId = CardDefinitionId(1791);
 pub const FORTIFIED_AREA: CardDefinitionId = CardDefinitionId(1792);

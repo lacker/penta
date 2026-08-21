@@ -1,82 +1,35 @@
 // Long because the effect vocabulary is wide, not because the function
 // does several things: every arm is one variant walked the same way.
-fn collect_program_ability_grants(program: AbilityProgramDef, grants: &mut Vec<&AbilityDef>) {
+fn collect_program_ability_grants(
+    program: AbilityProgramDef,
+    grants: &mut Vec<&AbilityDef>,
+    tokens: &mut Vec<TokenCharacteristics>,
+    emblems: &mut Vec<EmblemCharacteristics>,
+) {
     match program {
-        AbilityProgramDef::Effects(effect) => collect_ability_grants(effect, grants),
+        AbilityProgramDef::Effects(effect) => {
+            collect_ability_grants(effect, grants, tokens, emblems);
+        }
         AbilityProgramDef::Replacement(effect) => {
-            collect_replacement_ability_grants(effect, grants);
+            collect_replacement_ability_grants(effect, grants, tokens, emblems);
         }
     }
 }
 
-#[allow(clippy::too_many_lines)]
-fn collect_ability_grants(effect: EffectDef, grants: &mut Vec<&AbilityDef>) {
+fn collect_ability_grants(
+    effect: EffectDef,
+    grants: &mut Vec<&AbilityDef>,
+    tokens: &mut Vec<TokenCharacteristics>,
+    emblems: &mut Vec<EmblemCharacteristics>,
+) {
     match effect {
-        EffectDef::Sequence(effects) => {
-            for effect in effects {
-                collect_ability_grants(*effect, grants);
-            }
-        }
-        EffectDef::Randomized {
-            on_success,
-            on_failure,
-            ..
-        } => {
-            collect_ability_grants(*on_success, grants);
-            collect_ability_grants(*on_failure, grants);
-        }
-        EffectDef::Choose(choice) => collect_ability_grants(*choice.then, grants),
-        EffectDef::RevealAtRandomFromHand { then, .. }
-        | EffectDef::ChooseCardName { then, .. }
-        | EffectDef::SearchZone {
-            then: Some(then), ..
-        }
-        | EffectDef::BindMatching { then, .. } => {
-            collect_ability_grants(*then, grants);
-        }
-        EffectDef::PayOr(payment) => {
-            for effect in payment.if_paid.iter().chain(payment.otherwise.iter()) {
-                collect_ability_grants(**effect, grants);
-            }
-        }
-        EffectDef::SplitIntoPiles(partition) => {
-            collect_ability_grants(*partition.then, grants);
-        }
-        EffectDef::CreateToken {
-            created: Some(created),
-            ..
-        } => collect_ability_grants(*created.then, grants),
-        EffectDef::May { effect, .. }
-        | EffectDef::IfCondition { then: effect, .. }
-        | EffectDef::ExileTopAndMayCast {
-            otherwise: Some(effect),
-            ..
-        }
-        | EffectDef::Mill {
-            then: Some(effect), ..
-        }
-        | EffectDef::MillUntil {
-            then: Some(effect), ..
-        }
-        | EffectDef::ReplaceNextDrawThisTurn { effect, .. } => {
-            collect_ability_grants(*effect, grants);
-        }
         EffectDef::InstallTrigger(trigger) => {
-            collect_program_ability_grants(trigger.ability.effect.definition, grants);
-        }
-        EffectDef::IfFormat {
-            then, otherwise, ..
-        } => {
-            collect_ability_grants(*then, grants);
-            collect_ability_grants(*otherwise, grants);
-        }
-        EffectDef::SacrificeOfChoice {
-            then: Some(effect), ..
-        } => collect_ability_grants(*effect, grants),
-        EffectDef::LookAtTopAndSelect { selection, .. } => {
-            if let Some(effect) = selection.then {
-                collect_ability_grants(*effect, grants);
-            }
+            collect_program_ability_grants(
+                trigger.ability.effect.definition,
+                grants,
+                tokens,
+                emblems,
+            );
         }
         EffectDef::StaticApply { effect, .. }
         | EffectDef::Apply { effect, .. }
@@ -85,116 +38,37 @@ fn collect_ability_grants(effect: EffectDef, grants: &mut Vec<&AbilityDef>) {
         } => {
             collect_applied_ability_grants(effect, grants);
         }
-        EffectDef::None
-        | EffectDef::AddMana(_)
-        | EffectDef::AddManaEqualTo { .. }
-        | EffectDef::DealDamage { .. }
-        | EffectDef::DealDamageFrom { .. }
-        | EffectDef::DrainLife { .. }
-        | EffectDef::GainLife { .. }
-        | EffectDef::AddPoisonCounters { .. }
-            | EffectDef::AddEnergyCounters { .. }
-        | EffectDef::DrawCards { .. }
-        | EffectDef::Discard { .. }
-        | EffectDef::DiscardCards { .. }
-        | EffectDef::ShuffleLibrary { .. }
-        | EffectDef::EmptyManaPool { .. }
-        | EffectDef::LoseLife { .. }
-        | EffectDef::LoseTheGame { .. }
-        | EffectDef::WinTheGame { .. }
-        | EffectDef::Regenerate { .. }
-        | EffectDef::Tap { .. }
-        | EffectDef::RemoveFromCombat { .. }
-        | EffectDef::DestroyAtEndOfCombat { .. }
-        | EffectDef::SkipNextUntapSteps { .. }
-        | EffectDef::DoubleCounters { .. }
-            | EffectDef::RemoveAllCounters { .. }
-        | EffectDef::Untap { .. }
-        | EffectDef::PreventDamage { .. }
-        | EffectDef::Attach { .. }
-        | EffectDef::PhaseOut { .. }
-        | EffectDef::ReturnAttached { .. }
-        | EffectDef::Reconfigure { .. }
-        | EffectDef::Unattach { .. }
-        | EffectDef::PairWithSource { .. }
-        | EffectDef::CreateAttachedToken { .. }
-        | EffectDef::CreateTokenCopyOf { .. }
-        | EffectDef::CreateToken { created: None, .. }
-        | EffectDef::Destroy { .. }
-        | EffectDef::Sacrifice { .. }
-        | EffectDef::SacrificeKeepingOnePerType { .. }
-        | EffectDef::SacrificeOfChoice { then: None, .. }
-        | EffectDef::ExileTopOfLibraryToPlay { .. }
-        | EffectDef::Mill { then: None, .. }
-        | EffectDef::ExileTopAndMayCast { otherwise: None, .. }
-        | EffectDef::MayCastTargetWithoutPaying { .. }
-        | EffectDef::SearchZonesAndExileRest { .. }
-        | EffectDef::MillUntil { then: None, .. }
-        | EffectDef::ExileFromTopUntil { .. }
-        | EffectDef::ManifestDread { .. }
-        | EffectDef::Cascade
-        | EffectDef::Proliferate
-        | EffectDef::Explore { .. }
-        | EffectDef::LookAtHand { .. }
-        | EffectDef::RevealHand { .. }
-        | EffectDef::SearchZone { .. }
-        | EffectDef::ChooseCards { .. }
-        | EffectDef::Counter { .. }
-        | EffectDef::ReturnSpellToHand { .. }
-        | EffectDef::PutSpellIntoOwnersLibrary { .. }
-        | EffectDef::CopyResolvingSpell { .. }
-        | EffectDef::AddCounters { .. }
-        | EffectDef::RemoveCounters { .. }
-        | EffectDef::ChangeTextBasicLandType { .. }
-        | EffectDef::ChooseColor { .. }
-        | EffectDef::BecomeCopyOf { .. }
-        | EffectDef::CannotBeForcedToSacrifice
-            | EffectDef::CannotBeForcedToDiscard
-            | EffectDef::GainClassLevel { .. }
-        | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
-        | EffectDef::CreateEmblem { .. }
-        | EffectDef::ReturnWithHasteAndFinality { .. }
-        | EffectDef::Transform { .. }
-        | EffectDef::ScheduleTurnPhases(_)
-        | EffectDef::TakeExtraTurn { .. }
-        | EffectDef::PutSourceOntoBattlefieldAttacking
-            | EffectDef::BecomeMonarch { .. }
-        | EffectDef::VoteForPermanentToExile { .. }
-        | EffectDef::DamageCannotBePreventedThisTurn
-        | EffectDef::GrantFlashToNextSorcery
-        | EffectDef::ExileLinkedToSource { .. }
-        | EffectDef::ExileGrantingOwnerPlay { .. }
-        | EffectDef::ReturnLinkedExiles { .. }
-        | EffectDef::Detain { .. }
-        | EffectDef::GainControl { .. }
-        | EffectDef::ExchangeControl { .. }
-        | EffectDef::ReduceGenericCostBy(_)
-        | EffectDef::IncreaseMatchingAbilityCostBy { .. }
-            | EffectDef::ReduceMatchingAbilityCostBy { .. }
-        | EffectDef::IncreaseMatchingSpellCostBy { .. }
-        | EffectDef::ReduceMatchingSpellCostBy { .. }
-        | EffectDef::LandwalkCanBeBlocked(_)
-        | EffectDef::CannotAttackUnless(_)
-        | EffectDef::CannotAttackIf(_)
-        | EffectDef::PutIntoLibraryBeneathTop { .. }
-            | EffectDef::MoveToZone { .. }
-        | EffectDef::Special(_) => {}
+        EffectDef::CreateToken { token, .. } | EffectDef::CreateAttachedToken { token, .. } => {
+            tokens.push(token);
+        }
+        EffectDef::CreateEmblem { emblem } => emblems.push(emblem),
+        _ => {}
+    }
+    for child in crate::card::child_effects(effect) {
+        collect_ability_grants(child, grants, tokens, emblems);
     }
 }
 
-fn collect_replacement_ability_grants(effect: ReplacementEffectDef, grants: &mut Vec<&AbilityDef>) {
+fn collect_replacement_ability_grants(
+    effect: ReplacementEffectDef,
+    grants: &mut Vec<&AbilityDef>,
+    tokens: &mut Vec<TokenCharacteristics>,
+    emblems: &mut Vec<EmblemCharacteristics>,
+) {
     match effect {
         ReplacementEffectDef::Sequence(effects) => {
             for effect in effects {
-                collect_replacement_ability_grants(*effect, grants);
+                collect_replacement_ability_grants(*effect, grants, tokens, emblems);
             }
         }
-        ReplacementEffectDef::Perform(effect) => collect_ability_grants(*effect, grants),
+        ReplacementEffectDef::Perform(effect) => {
+            collect_ability_grants(*effect, grants, tokens, emblems);
+        }
         ReplacementEffectDef::Conditional {
             if_true, if_false, ..
         } => {
             for effect in if_true.iter().chain(if_false.iter()) {
-                collect_replacement_ability_grants(*effect, grants);
+                collect_replacement_ability_grants(*effect, grants, tokens, emblems);
             }
         }
         ReplacementEffectDef::PayOr {
@@ -203,7 +77,7 @@ fn collect_replacement_ability_grants(effect: ReplacementEffectDef, grants: &mut
             ..
         } => {
             for effect in if_paid.iter().chain(if_declined.iter()) {
-                collect_replacement_ability_grants(*effect, grants);
+                collect_replacement_ability_grants(*effect, grants, tokens, emblems);
             }
         }
         ReplacementEffectDef::ReplaceEventWithNothing
@@ -236,163 +110,25 @@ fn program_ability_grant_sites(program: AbilityProgramDef) -> usize {
     }
 }
 
-// One arm per effect that can carry a grant; the list is long because the
-// vocabulary is, not because the function does much.
-#[allow(clippy::too_many_lines)]
 fn ability_grant_sites(effect: EffectDef) -> usize {
-    match effect {
-        EffectDef::Sequence(effects) => effects
-            .iter()
-            .map(|effect| ability_grant_sites(*effect))
-            .fold(0, usize::saturating_add),
-        EffectDef::Randomized {
-            on_success,
-            on_failure,
-            ..
-        } => ability_grant_sites(*on_success).saturating_add(ability_grant_sites(*on_failure)),
-        EffectDef::Choose(choice) => ability_grant_sites(*choice.then),
-        EffectDef::RevealAtRandomFromHand { then, .. }
-        | EffectDef::ChooseCardName { then, .. }
-        | EffectDef::SearchZone {
-            then: Some(then), ..
-        }
-        | EffectDef::BindMatching { then, .. } => ability_grant_sites(*then),
-        EffectDef::PayOr(payment) => payment
-            .if_paid
-            .iter()
-            .chain(payment.otherwise.iter())
-            .map(|effect| ability_grant_sites(**effect))
-            .fold(0, usize::saturating_add),
-        EffectDef::SplitIntoPiles(partition) => ability_grant_sites(*partition.then),
-        EffectDef::CreateToken {
-            created: Some(created),
-            ..
-        } => ability_grant_sites(*created.then),
-        EffectDef::May { effect, .. }
-        | EffectDef::IfCondition { then: effect, .. }
-        | EffectDef::ExileTopAndMayCast {
-            otherwise: Some(effect),
-            ..
-        }
-        | EffectDef::Mill {
-            then: Some(effect), ..
-        }
-        | EffectDef::MillUntil {
-            then: Some(effect), ..
-        }
-        | EffectDef::ReplaceNextDrawThisTurn { effect, .. }
-        | EffectDef::SacrificeOfChoice {
-            then: Some(effect), ..
-        } => ability_grant_sites(*effect),
+    let direct = match effect {
         EffectDef::InstallTrigger(trigger) => {
             program_ability_grant_sites(trigger.ability.effect.definition)
         }
-        EffectDef::LookAtTopAndSelect { selection, .. } => selection
-            .then
-            .map_or(0, |effect| ability_grant_sites(*effect)),
         EffectDef::IfFormat {
             then, otherwise, ..
-        } => ability_grant_sites(*then).max(ability_grant_sites(*otherwise)),
+        } => return ability_grant_sites(*then).max(ability_grant_sites(*otherwise)),
         EffectDef::StaticApply { effect, .. }
         | EffectDef::Apply { effect, .. }
         | EffectDef::DealDamageAndApply {
             applied: effect, ..
         } => applied_ability_grant_sites(effect),
-        EffectDef::None
-        | EffectDef::AddMana(_)
-        | EffectDef::AddManaEqualTo { .. }
-        | EffectDef::DealDamage { .. }
-        | EffectDef::DealDamageFrom { .. }
-        | EffectDef::DrainLife { .. }
-        | EffectDef::GainLife { .. }
-        | EffectDef::AddPoisonCounters { .. }
-            | EffectDef::AddEnergyCounters { .. }
-        | EffectDef::DrawCards { .. }
-        | EffectDef::Discard { .. }
-        | EffectDef::DiscardCards { .. }
-        | EffectDef::ShuffleLibrary { .. }
-        | EffectDef::EmptyManaPool { .. }
-        | EffectDef::LoseLife { .. }
-        | EffectDef::LoseTheGame { .. }
-        | EffectDef::WinTheGame { .. }
-        | EffectDef::Regenerate { .. }
-        | EffectDef::Tap { .. }
-        | EffectDef::RemoveFromCombat { .. }
-        | EffectDef::DestroyAtEndOfCombat { .. }
-        | EffectDef::SkipNextUntapSteps { .. }
-        | EffectDef::DoubleCounters { .. }
-            | EffectDef::RemoveAllCounters { .. }
-        | EffectDef::Untap { .. }
-        | EffectDef::PreventDamage { .. }
-        | EffectDef::Attach { .. }
-        | EffectDef::PhaseOut { .. }
-        | EffectDef::ReturnAttached { .. }
-        | EffectDef::Reconfigure { .. }
-        | EffectDef::Unattach { .. }
-        | EffectDef::PairWithSource { .. }
-        | EffectDef::CreateAttachedToken { .. }
-        | EffectDef::CreateTokenCopyOf { .. }
-        | EffectDef::CreateToken { created: None, .. }
-        | EffectDef::Destroy { .. }
-        | EffectDef::Sacrifice { .. }
-        | EffectDef::SacrificeKeepingOnePerType { .. }
-        | EffectDef::SacrificeOfChoice { then: None, .. }
-        | EffectDef::ExileTopOfLibraryToPlay { .. }
-        | EffectDef::Mill { then: None, .. }
-        | EffectDef::ExileTopAndMayCast { otherwise: None, .. }
-        | EffectDef::MayCastTargetWithoutPaying { .. }
-        | EffectDef::SearchZonesAndExileRest { .. }
-        | EffectDef::MillUntil { then: None, .. }
-        | EffectDef::ExileFromTopUntil { .. }
-        | EffectDef::ManifestDread { .. }
-        | EffectDef::Cascade
-        | EffectDef::Proliferate
-        | EffectDef::Explore { .. }
-        | EffectDef::LookAtHand { .. }
-        | EffectDef::RevealHand { .. }
-        | EffectDef::SearchZone { .. }
-        | EffectDef::ChooseCards { .. }
-        | EffectDef::Counter { .. }
-        | EffectDef::ReturnSpellToHand { .. }
-        | EffectDef::PutSpellIntoOwnersLibrary { .. }
-        | EffectDef::CopyResolvingSpell { .. }
-        | EffectDef::AddCounters { .. }
-        | EffectDef::RemoveCounters { .. }
-        | EffectDef::ChangeTextBasicLandType { .. }
-        | EffectDef::ChooseColor { .. }
-        | EffectDef::BecomeCopyOf { .. }
-        | EffectDef::CannotBeForcedToSacrifice
-            | EffectDef::GainClassLevel { .. }
-            | EffectDef::CannotBeForcedToDiscard
-        | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
-        | EffectDef::CreateEmblem { .. }
-        | EffectDef::ReturnWithHasteAndFinality { .. }
-        | EffectDef::Transform { .. }
-        | EffectDef::ScheduleTurnPhases(_)
-        | EffectDef::TakeExtraTurn { .. }
-        | EffectDef::PutSourceOntoBattlefieldAttacking
-            | EffectDef::BecomeMonarch { .. }
-        | EffectDef::VoteForPermanentToExile { .. }
-        | EffectDef::DamageCannotBePreventedThisTurn
-        | EffectDef::GrantFlashToNextSorcery
-        | EffectDef::ExileLinkedToSource { .. }
-        | EffectDef::ExileGrantingOwnerPlay { .. }
-        | EffectDef::ReturnLinkedExiles { .. }
-        | EffectDef::Detain { .. }
-        | EffectDef::GainControl { .. }
-        | EffectDef::ExchangeControl { .. }
-        | EffectDef::ReduceGenericCostBy(_)
-        | EffectDef::IncreaseMatchingAbilityCostBy { .. }
-            | EffectDef::ReduceMatchingAbilityCostBy { .. }
-        | EffectDef::IncreaseMatchingSpellCostBy { .. }
-        | EffectDef::ReduceMatchingSpellCostBy { .. }
-        | EffectDef::LandwalkCanBeBlocked(_)
-        | EffectDef::CannotAttackUnless(_)
-        | EffectDef::CannotAttackIf(_)
-        | EffectDef::PutIntoLibraryBeneathTop { .. }
-            | EffectDef::MoveToZone { .. }
-        | EffectDef::Special(_) => 0,
-    }
+        _ => 0,
+    };
+    crate::card::child_effects(effect)
+        .into_iter()
+        .map(ability_grant_sites)
+        .fold(direct, usize::saturating_add)
 }
 
 fn replacement_ability_grant_sites(effect: ReplacementEffectDef) -> usize {

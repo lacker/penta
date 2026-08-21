@@ -92,9 +92,9 @@ fn the_beasts_want_a_nontoken_white_permanent_opposite() {
     );
 
     // A white token opposite is white but not nontoken.
-    game.battlefield.push(creature(
+    game.battlefield.push(token_permanent(
         10_101,
-        cards::HUMAN_TOKEN_1_1_WHITE,
+        tokens::creature(&["Human"], &[ManaColor::White], 1, 1),
         PlayerId::Two,
     ));
     assert_eq!(
@@ -188,8 +188,11 @@ fn the_guardians_pump_by_name_on_both_sides() {
     );
 
     // A red token opposite is red but not nontoken.
-    game.battlefield
-        .push(creature(10_102, cards::GOBLIN_TOKEN_1_1_RED, PlayerId::Two));
+    game.battlefield.push(token_permanent(
+        10_102,
+        tokens::creature(&["Goblin"], &[ManaColor::Red], 1, 1),
+        PlayerId::Two,
+    ));
     assert_eq!(stats(&game, mine_id), (Some(3), Some(3)), "still a token");
 
     let red = creature(10_103, cards::GOBLINS_OF_THE_FLARG, PlayerId::Two);

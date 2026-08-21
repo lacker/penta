@@ -1,6 +1,7 @@
 use crate::action::AbilityOrigin;
 use crate::card::{AbilityDef, BasicLandType, CardTypeSet, KeywordAbility};
-use crate::ids::{CardDefinitionId, CardPartId, MeldRecipeId};
+use crate::ids::{CardDefinitionId, MeldRecipeId};
+use crate::{EmblemCharacteristics, ObjectCharacteristics, TokenCharacteristics};
 
 use super::TriggerEventObject;
 
@@ -12,6 +13,8 @@ use super::TriggerEventObject;
 #[allow(dead_code)]
 pub(super) enum CharacteristicSource {
     Card(CardDefinitionId),
+    Token(TokenCharacteristics),
+    Emblem(EmblemCharacteristics),
     Copy(CardDefinitionId),
     Ability(CardDefinitionId),
     Meld(MeldRecipeId),
@@ -47,13 +50,51 @@ pub(super) struct CopiableAbility {
 /// characteristics; copy-process exceptions are frozen beside it.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) struct CopiableCharacteristics {
-    pub(super) base: (CardDefinitionId, CardPartId),
+    pub(super) base: ObjectCharacteristics,
     pub(super) added_types: CardTypeSet,
     pub(super) added_abilities: Vec<CopiableAbility>,
     /// Whether the copying card's own printed subtypes stand beside the ones
     /// it copied, which is what "except it's an Illusion in addition to its
     /// other types" says.
     pub(super) retain_printed_subtypes: bool,
+}
+
+/// The permanent, two-face copiable values of a double-faced token created as
+/// a copy. The physical face identifiers stay separate from either face's
+/// effective base because an intervening copy effect can make both faces copy
+/// the same single-faced object without making the token single-faced.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub(super) struct DoubleFacedCopiableCharacteristics {
+    pub(super) kind: crate::card::DoubleFacedKind,
+    pub(super) front_part: crate::CardPartId,
+    pub(super) back_part: crate::CardPartId,
+    pub(super) front: CopiableCharacteristics,
+    pub(super) back: CopiableCharacteristics,
+}
+
+impl DoubleFacedCopiableCharacteristics {
+    pub(super) fn face(&self, presented: crate::CardPartId) -> Option<&CopiableCharacteristics> {
+        if presented == self.front_part {
+            Some(&self.front)
+        } else if presented == self.back_part {
+            Some(&self.back)
+        } else {
+            None
+        }
+    }
+
+    pub(super) const fn other_face(
+        &self,
+        presented: crate::CardPartId,
+    ) -> Option<crate::CardPartId> {
+        if presented.0 == self.front_part.0 {
+            Some(self.back_part)
+        } else if presented.0 == self.back_part.0 {
+            Some(self.front_part)
+        } else {
+            None
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

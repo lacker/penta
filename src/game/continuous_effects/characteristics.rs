@@ -23,11 +23,20 @@ impl Game {
             activated_index += 1;
             matches
         })
-        .map_or(
-            AbilityOrigin::Printed {
-                definition: Self::effective_rules_source(permanent).0,
-                part: Self::effective_rules_source(permanent).1,
-                ability: AbilityId::PRIMARY,
+        .map_or_else(
+            || match Self::effective_rules_source(permanent) {
+                ObjectCharacteristics::Card { definition, part } => AbilityOrigin::Printed {
+                    definition,
+                    part,
+                    ability: AbilityId::PRIMARY,
+                },
+                ObjectCharacteristics::Token { part, .. } => AbilityOrigin::Token {
+                    part,
+                    ability: AbilityId::PRIMARY,
+                },
+                ObjectCharacteristics::Emblem { .. } => AbilityOrigin::Emblem {
+                    ability: AbilityId::PRIMARY,
+                },
             },
             |effective| effective.origin,
         )
@@ -35,7 +44,7 @@ impl Game {
 
     pub(super) fn permanent_types(&self, permanent: &Permanent) -> Option<CardTypeSet> {
         let mut types = self.effective_rules(permanent)?.types();
-        if let Some(copy) = &permanent.copy_effect {
+        if let Some(copy) = permanent.active_copy_values() {
             types = types.union(copy.added_types);
         }
         let mut operations = permanent
@@ -181,7 +190,7 @@ impl Game {
         let Some(rules) = self.effective_rules(permanent) else {
             return [false; 5];
         };
-        self.effective_colors(permanent, rules)
+        self.effective_colors(permanent, &rules)
     }
 
     pub(super) fn is_protected_from_colors(
@@ -380,12 +389,12 @@ impl Game {
         self.battlefield
             .iter()
             .find(|permanent| permanent.card.id == object)
-            .map(|permanent| permanent.card.definition)
+            .and_then(|permanent| permanent.card.definition.card_definition())
             .or_else(|| {
                 self.stack
                     .iter()
                     .find(|stack| stack.id == object)
-                    .map(|stack| stack.card.definition)
+                    .and_then(|stack| stack.presentation().card_definition())
             })
             .or_else(|| {
                 self.card_in_nonbattlefield_zone(object)
@@ -400,8 +409,10 @@ impl Game {
             })
             .or_else(|| match self.retired_objects.get(&object) {
                 Some(RetiredObject::Card(card)) => Some(card.definition),
-                Some(RetiredObject::Permanent { permanent, .. }) => Some(permanent.card.definition),
-                Some(RetiredObject::Stack(stack)) => Some(stack.card.definition),
+                Some(RetiredObject::Permanent { permanent, .. }) => {
+                    permanent.card.definition.card_definition()
+                }
+                Some(RetiredObject::Stack(stack)) => stack.presentation().card_definition(),
                 None => None,
             })
     }

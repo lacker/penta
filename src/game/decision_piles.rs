@@ -1,11 +1,11 @@
 use super::{
-    BalancePhase, BalanceTask, BattlefieldExitCompletion, CardInstance, CardRuntime,
+    BalancePhase, BalanceTask, BattlefieldExitCompletion, CardInstance, CardPartId, CardRuntime,
     CommittedTriggerEvent, CounterKind, DecisionContinuation, DecisionOption, DecisionPreference,
     DecisionVisibility, DecisionZone, DeclarativeAbilityDef, DiscardFollowUp, EffectDef,
-    EffectResolutionContext, Game, GameEvent, GameObjectId, ObjectPredicateDef, Permanent,
-    PileChoice, PileChosen, PileSplit, PilesSeparated, PlayerId, SacrificeDeclined,
-    SacrificeFollowup, SacrificedAmountDef, ScopedEffect, StackObject, Step, TopCardSelectionDef,
-    ZoneKind, ZoneMoveCause,
+    EffectResolutionContext, Game, GameEvent, GameObjectId, ObjectCharacteristics,
+    ObjectPredicateDef, Permanent, PileChoice, PileChosen, PileSplit, PilesSeparated, PlayerId,
+    SacrificeDeclined, SacrificeFollowup, SacrificedAmountDef, ScopedEffect, StackObject, Step,
+    TopCardSelectionDef, ZoneKind, ZoneMoveCause,
 };
 
 impl Game {
@@ -67,7 +67,12 @@ impl Game {
         }
         let inspected = revealed
             .iter()
-            .map(|card| (card.id, card.definition))
+            .map(|card| {
+                (
+                    card.id,
+                    ObjectCharacteristics::card(card.definition, CardPartId::PRIMARY),
+                )
+            })
             .collect::<Vec<_>>();
         let mut options = self.card_decision_options(&eligible, DecisionZone::Library);
         for option in &mut options {
@@ -191,7 +196,10 @@ impl Game {
                     || "Unknown card".into(),
                     |definition| definition.name.clone(),
                 ),
-                card: Some((card.id, card.definition)),
+                card: Some((
+                    card.id,
+                    ObjectCharacteristics::card(card.definition, CardPartId::PRIMARY),
+                )),
                 members: Vec::new(),
                 ability_text: None,
                 zone,
@@ -213,11 +221,11 @@ impl Game {
                     .find(|permanent| permanent.card.id == *id)?;
                 let label = self
                     .effective_permanent_name(permanent)
-                    .map_or_else(|| "Unknown permanent".into(), str::to_owned);
+                    .map_or_else(|| "Unknown permanent".into(), std::borrow::Cow::into_owned);
                 Some(DecisionOption {
                     id: u32::try_from(index).unwrap_or(u32::MAX),
                     label,
-                    card: Some((permanent.card.id, permanent.card.definition)),
+                    card: Some((permanent.card.id, Self::effective_rules_source(permanent))),
                     members: Vec::new(),
                     ability_text: None,
                     zone: DecisionZone::Battlefield,
@@ -344,7 +352,21 @@ impl Game {
         task: BalanceTask,
         remaining: Vec<BalanceTask>,
     ) {
-        let options = self.card_decision_options(&task.cards, task.zone);
+        let options = task
+            .cards
+            .iter()
+            .enumerate()
+            .map(|(index, (id, presentation))| DecisionOption {
+                id: u32::try_from(index).unwrap_or(u32::MAX),
+                label: self
+                    .presentation_name(*presentation)
+                    .map_or_else(|| "Unknown object".to_owned(), std::borrow::Cow::into_owned),
+                card: Some((*id, *presentation)),
+                members: Vec::new(),
+                ability_text: None,
+                zone: task.zone,
+            })
+            .collect();
         self.queue_decision(
             task.player,
             task.prompt.clone(),
@@ -598,19 +620,14 @@ impl Game {
     /// faces and copies answer to the name whose abilities they currently
     /// present.
     pub(super) fn activated_abilities_are_named(&self, permanent: &Permanent) -> bool {
-        let (definition, part) = Self::effective_rules_source(permanent);
-        let Some(name) = self.catalog.get(definition).map(|definition| {
-            definition
-                .part(part)
-                .map_or(definition.name.as_str(), |part| part.name.as_str())
-        }) else {
+        let Some(name) = self.effective_permanent_name(permanent) else {
             return false;
         };
         self.battlefield.iter().any(|candidate| {
             candidate
                 .chosen_card_name
                 .as_deref()
-                .is_some_and(|chosen| chosen == name)
+                .is_some_and(|chosen| chosen == name.as_ref())
         })
     }
 
@@ -642,12 +659,7 @@ impl Game {
         else {
             return;
         };
-        let definition = self.battlefield[index].card.definition;
-        let Some(other) = self
-            .catalog
-            .get(definition)
-            .and_then(|definition| definition.other_face(self.battlefield[index].presented))
-        else {
+        let Some(other) = self.physical_other_face(&self.battlefield[index]) else {
             return;
         };
         self.battlefield[index].presented = other;
@@ -680,13 +692,13 @@ impl Game {
                     false,
                 )
             })
-            .map(|permanent| permanent.card.clone())
+            .map(|permanent| permanent.card.id)
             .collect::<Vec<_>>();
         // An optional sacrifice is always a question, even with one candidate
         // or none: declining is a real answer. A compulsory one with a single
         // candidate has only one answer, so it happens without asking.
         if !optional && candidates.len() <= 1 {
-            let sacrificed = candidates.first().map(|only| only.id);
+            let sacrificed = candidates.first().copied();
             if let Some(followup) = followup {
                 self.move_permanents_to_graveyard_then(
                     sacrificed.as_slice(),
@@ -706,7 +718,7 @@ impl Game {
             self.resolve_sacrifice_declined(declined);
             return;
         }
-        let options = self.card_decision_options(&candidates, DecisionZone::Battlefield);
+        let options = self.permanent_decision_options(&candidates);
         self.queue_decision(
             player,
             if optional {
@@ -799,9 +811,15 @@ impl Game {
             .hand
             .iter()
             .find(|candidate| candidate.id == card)
-            .map(|card| (card.id, card.definition));
+            .map(|card| {
+                (
+                    card.id,
+                    ObjectCharacteristics::card(card.definition, CardPartId::PRIMARY),
+                )
+            });
         let card_name = card_info
-            .and_then(|(_, definition)| self.catalog.get(definition))
+            .and_then(|(_, characteristics)| characteristics.card_definition())
+            .and_then(|definition| self.catalog.get(definition))
             .map_or("this card", |card| card.name.as_str());
         let mut options = vec![DecisionOption {
             id: 0,

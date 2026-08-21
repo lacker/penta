@@ -119,7 +119,7 @@ pub(super) fn installing_object(
     object.ability = Some(StackAbilityPayload {
         origin: primary_ability(cards::LIGHTNING_BOLT),
         definition: None,
-        presentation_definition: cards::LIGHTNING_BOLT,
+        presentation: ObjectCharacteristics::card(cards::LIGHTNING_BOLT, CardPartId::PRIMARY),
         text: Some("Install a triggered ability."),
         target_defs,
         targets,
@@ -652,7 +652,7 @@ fn ghost_quarter_destroys_a_land_and_lets_its_owner_replace_it() {
         .options
         .iter()
         .filter_map(|option| option.card)
-        .map(|(_, definition)| definition)
+        .filter_map(|(_, characteristics)| characteristics.card_definition())
         .collect::<Vec<_>>();
     assert_eq!(
         offered,

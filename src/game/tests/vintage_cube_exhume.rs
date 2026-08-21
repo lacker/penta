@@ -77,7 +77,11 @@ fn pending(game: &Game) -> Option<(PlayerId, Vec<CardDefinitionId>)> {
             decision
                 .options
                 .iter()
-                .filter_map(|option| option.card.map(|(_, definition)| definition))
+                .filter_map(|option| {
+                    option
+                        .card
+                        .and_then(|(_, characteristics)| characteristics.card_definition())
+                })
                 .collect(),
         )
     })
@@ -90,7 +94,11 @@ fn take(game: &mut Game, wanted: CardDefinitionId) {
     let option = decision
         .options
         .iter()
-        .find(|option| option.card.is_some_and(|(_, found)| found == wanted))
+        .find(|option| {
+            option.card.is_some_and(|(_, characteristics)| {
+                characteristics.card_definition() == Some(wanted)
+            })
+        })
         .unwrap_or_else(|| panic!("{wanted:?} is offered"))
         .id;
     game.apply(

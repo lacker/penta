@@ -63,13 +63,13 @@ impl Game {
                 label: format!(
                     "Sacrifice {}",
                     self.permanent_card_name(*permanent)
-                        .unwrap_or("a permanent")
+                        .unwrap_or_else(|| "a permanent".into())
                 ),
                 card: self
                     .battlefield
                     .iter()
                     .find(|candidate| candidate.card.id == *permanent)
-                    .map(|candidate| (*permanent, candidate.card.definition)),
+                    .map(|candidate| (*permanent, Self::effective_rules_source(candidate))),
                 members: Vec::new(),
                 ability_text: None,
                 zone: DecisionZone::Battlefield,

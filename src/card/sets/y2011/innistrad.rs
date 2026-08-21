@@ -224,15 +224,12 @@ pub(in crate::card::sets) static DOOMED_TRAVELER: CardRecord = CardRecord::new(
                 Some(ZoneKind::Battlefield),
                 Some(ZoneKind::Graveyard),
             ),
-            EffectDef::CreateToken {
-                token: cards::SPIRIT_TOKEN_1_1_WHITE,
-                controller: None,
-                count: ValueDef::Constant(1),
-                tapped: false,
-                attacking: false,
-                counters: None,
-                created: None,
-            },
+            EffectDef::create_creature_token(&["Spirit"], &[ManaColor::White], 1, 1)
+                .with_abilities(&[abilities::flying()])
+                .with_art(CardArt::new(
+                    "59e79ba0-33c8-46c8-8694-8bf854345fe7",
+                    "Ryan Yee",
+                )),
         ),
     ),
 );
@@ -421,14 +418,7 @@ pub(in crate::card::sets) static GEIST_HONORED_MONK: CardRecord = CardRecord::ne
             AbilityDef::triggered(
                 "When this creature enters, create two 1/1 white Spirit creature tokens with flying.",
                 TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)),
-                EffectDef::CreateToken {
-                    token: cards::SPIRIT_TOKEN_1_1_WHITE,
-                    controller: None,
-                    count: ValueDef::Constant(2),
-                    tapped: false,
-                    attacking: false,
-                counters: None,
-                created: None,},
+                EffectDef::create_creature_token(&["Spirit"], &[ManaColor::White], 1, 1).with_abilities(&[abilities::flying()]).with_art(CardArt::new("59e79ba0-33c8-46c8-8694-8bf854345fe7", "Ryan Yee")).with_amount(2),
             ),
         ]),
 );
@@ -513,15 +503,13 @@ pub(in crate::card::sets) static MAUSOLEUM_GUARD: CardRecord = CardRecord::new(
                 Some(ZoneKind::Battlefield),
                 Some(ZoneKind::Graveyard),
             ),
-            EffectDef::CreateToken {
-                token: cards::SPIRIT_TOKEN_1_1_WHITE,
-                controller: None,
-                count: ValueDef::Constant(2),
-                tapped: false,
-                attacking: false,
-                counters: None,
-                created: None,
-            },
+            EffectDef::create_creature_token(&["Spirit"], &[ManaColor::White], 1, 1)
+                .with_abilities(&[abilities::flying()])
+                .with_art(CardArt::new(
+                    "59e79ba0-33c8-46c8-8694-8bf854345fe7",
+                    "Ryan Yee",
+                ))
+                .with_amount(2),
         ),
     ),
 );
@@ -576,15 +564,13 @@ pub(in crate::card::sets) static MIDNIGHT_HAUNTING: CardRecord = CardRecord::new
     CardSet::Innistrad,
     CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(AbilityDef::spell(
         "Create two 1/1 white Spirit creature tokens with flying.",
-        EffectDef::CreateToken {
-            token: cards::SPIRIT_TOKEN_1_1_WHITE,
-            controller: None,
-            count: ValueDef::Constant(2),
-            tapped: false,
-            attacking: false,
-            counters: None,
-            created: None,
-        },
+        EffectDef::create_creature_token(&["Spirit"], &[ManaColor::White], 1, 1)
+            .with_abilities(&[abilities::flying()])
+            .with_art(CardArt::new(
+                "59e79ba0-33c8-46c8-8694-8bf854345fe7",
+                "Ryan Yee",
+            ))
+            .with_amount(2),
     )),
 );
 
@@ -1688,15 +1674,11 @@ pub(in crate::card::sets) static STITCHERS_APPRENTICE: CardRecord = CardRecord::
                 AbilityCostDef::TapSource,
             ],
             EffectDef::Sequence(&[
-                EffectDef::CreateToken {
-                    token: cards::HOMUNCULUS_TOKEN_2_2_BLUE,
-                    controller: None,
-                    count: ValueDef::Constant(1),
-                    tapped: false,
-                    attacking: false,
-                    counters: None,
-                    created: None,
-                },
+                EffectDef::create_creature_token(&["Homunculus"], &[ManaColor::Blue], 2, 2)
+                    .with_art(CardArt::new(
+                        "e2020f53-d012-4d26-be13-87ed0f196c53",
+                        "Johann Bodin",
+                    )),
                 EffectDef::SacrificeOfChoice {
                     player: EffectRecipientDef::Controller,
                     object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -1838,15 +1820,13 @@ pub(in crate::card::sets) static ARMY_OF_THE_DAMNED: CardRecord = CardRecord::ne
     CardRules::new_sorcery(mana_cost!("{5}{B}{B}{B}")).with_abilities(&[
         AbilityDef::spell(
             "Create thirteen tapped 2/2 black Zombie creature tokens.",
-            EffectDef::CreateToken {
-                token: cards::ZOMBIE_TOKEN_2_2_BLACK,
-                controller: None,
-                count: ValueDef::Constant(13),
-                tapped: true,
-                attacking: false,
-                counters: None,
-                created: None,
-            },
+            EffectDef::create_creature_token(&["Zombie"], &[ManaColor::Black], 2, 2)
+                .with_art(CardArt::new(
+                    "b877c19d-6022-4377-92e7-4511e24eb98e",
+                    "Lucas Graciano",
+                ))
+                .with_amount(13)
+                .entering_tapped(),
         ),
         abilities::flashback(mana_cost!("{7}{B}{B}{B}")),
     ]),
@@ -2019,15 +1999,12 @@ pub(in crate::card::sets) static ENDLESS_RANKS_OF_THE_DEAD: CardRecord = CardRec
             step: TurnStepDef::Upkeep,
             player: PlayerRelation::You,
         },
-        EffectDef::CreateToken {
-            token: cards::ZOMBIE_TOKEN_2_2_BLACK,
-            controller: None,
-            count: ValueDef::Halved(&ENDLESS_RANKS_COUNT),
-            tapped: false,
-            attacking: false,
-            counters: None,
-            created: None,
-        },
+        EffectDef::create_creature_token(&["Zombie"], &[ManaColor::Black], 2, 2)
+            .with_art(CardArt::new(
+                "b877c19d-6022-4377-92e7-4511e24eb98e",
+                "Lucas Graciano",
+            ))
+            .with_count(ValueDef::Halved(&ENDLESS_RANKS_COUNT)),
     )),
 );
 
@@ -2326,15 +2303,12 @@ pub(in crate::card::sets) static MOAN_OF_THE_UNHALLOWED: CardRecord = CardRecord
     CardRules::new_sorcery(mana_cost!("{2}{B}{B}")).with_abilities(&[
         AbilityDef::spell(
             "Create two 2/2 black Zombie creature tokens.",
-            EffectDef::CreateToken {
-                token: cards::ZOMBIE_TOKEN_2_2_BLACK,
-                controller: None,
-                count: ValueDef::Constant(2),
-                tapped: false,
-                attacking: false,
-                counters: None,
-                created: None,
-            },
+            EffectDef::create_creature_token(&["Zombie"], &[ManaColor::Black], 2, 2)
+                .with_art(CardArt::new(
+                    "b877c19d-6022-4377-92e7-4511e24eb98e",
+                    "Lucas Graciano",
+                ))
+                .with_amount(2),
         ),
         abilities::flashback(mana_cost!("{5}{B}{B}")),
     ]),
@@ -4007,15 +3981,9 @@ static GARRUK_FRONT_ABILITIES: [AbilityDef; 3] = [
     AbilityDef::activated(
         "0: Create a 2/2 green Wolf creature token.",
         &[AbilityCostDef::Loyalty(0)],
-        EffectDef::CreateToken {
-            token: cards::WOLF_TOKEN_2_2_GREEN,
-            controller: None,
-            count: ValueDef::Constant(1),
-            tapped: false,
-            attacking: false,
-            counters: None,
-            created: None,
-        },
+        EffectDef::create_creature_token(&["Wolf"], &[ManaColor::Green], 2, 2).with_art(
+            CardArt::new("a53f8031-aaa8-424c-929a-5478538a8cc6", "David Palumbo"),
+        ),
     ),
 ];
 
@@ -4058,15 +4026,12 @@ static GARRUK_BACK_ABILITIES: [AbilityDef; 3] = [
     AbilityDef::activated(
         "+1: Create a 1/1 black Wolf creature token with deathtouch.",
         &[AbilityCostDef::Loyalty(1)],
-        EffectDef::CreateToken {
-            token: cards::WOLF_TOKEN_1_1_BLACK,
-            controller: None,
-            count: ValueDef::Constant(1),
-            tapped: false,
-            attacking: false,
-            counters: None,
-            created: None,
-        },
+        EffectDef::create_creature_token(&["Wolf"], &[ManaColor::Black], 1, 1)
+            .with_abilities(&[abilities::deathtouch()])
+            .with_art(CardArt::new(
+                "7a49607c-427a-474c-ad77-60cd05844b3c",
+                "Daniel Ljunggren",
+            )),
     ),
     AbilityDef::activated(
         "−1: Sacrifice a creature. If you do, search your library for a creature card, reveal it, put it into your hand, then shuffle.",
@@ -4417,15 +4382,9 @@ static HOWLPACK_ALPHA_ABILITIES: [AbilityDef; 3] = [
             step: crate::card::TurnStepDef::End,
             player: PlayerRelation::You,
         },
-        EffectDef::CreateToken {
-            token: cards::WOLF_TOKEN_2_2_GREEN,
-            controller: None,
-            count: ValueDef::Constant(1),
-            tapped: false,
-            attacking: false,
-            counters: None,
-            created: None,
-        },
+        EffectDef::create_creature_token(&["Wolf"], &[ManaColor::Green], 2, 2).with_art(
+            CardArt::new("a53f8031-aaa8-424c-929a-5478538a8cc6", "David Palumbo"),
+        ),
     ),
     WEREWOLF_BACK_TRANSFORM,
 ];
@@ -4603,14 +4562,7 @@ pub(in crate::card::sets) static SPIDER_SPAWNING: CardRecord = CardRecord::new(
     CardRules::new_sorcery(mana_cost!("{4}{G}")).with_abilities(&[
         AbilityDef::spell(
             "Create a 1/2 green Spider creature token with reach for each creature card in your graveyard.",
-            EffectDef::CreateToken {
-                token: cards::SPIDER_TOKEN_1_2_GREEN,
-                controller: None,
-                count: ValueDef::CountMatchingObjects(&CREATURE_CARDS_IN_YOUR_GRAVEYARD),
-                tapped: false,
-                attacking: false,
-            counters: None,
-            created: None,},
+            EffectDef::create_creature_token(&["Spider"], &[ManaColor::Green], 1, 2).with_abilities(&[abilities::reach()]).with_art(CardArt::new("71031ff1-17dc-46b7-a72b-3297137a83bb", "Daniel Ljunggren")).with_count(ValueDef::CountMatchingObjects(&CREATURE_CARDS_IN_YOUR_GRAVEYARD)),
         ),
         abilities::flashback(mana_cost!("{6}{B}")),
     ]),
@@ -5505,14 +5457,7 @@ pub(in crate::card::sets) static MOORLAND_HAUNT: CardRecord = CardRecord::new(
                     count: 1,
                 },
             ],
-            EffectDef::CreateToken {
-                token: cards::SPIRIT_TOKEN_1_1_WHITE,
-                controller: None,
-                count: ValueDef::Constant(1),
-                tapped: false,
-                attacking: false,
-            counters: None,
-            created: None,},
+            EffectDef::create_creature_token(&["Spirit"], &[ManaColor::White], 1, 1).with_abilities(&[abilities::flying()]).with_art(CardArt::new("59e79ba0-33c8-46c8-8694-8bf854345fe7", "Ryan Yee")),
         ),
     ]),
 );

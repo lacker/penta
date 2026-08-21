@@ -153,7 +153,7 @@ pub const fn fortify(mana_cost: ManaCost, text: &'static str) -> AbilityDef {
 /// continuation attaches the Equipment to the token's exact resulting
 /// permanent before state-based actions are checked.
 #[must_use]
-pub const fn living_weapon(token: crate::CardDefinitionId) -> AbilityDef {
+pub const fn living_weapon(token: crate::TokenCharacteristics) -> AbilityDef {
     AbilityDef::triggered(
         "Living weapon (When this Equipment enters, create a 0/0 black Phyrexian Germ creature token, then attach this to it.)",
         TriggerEventDef::zone_changed(

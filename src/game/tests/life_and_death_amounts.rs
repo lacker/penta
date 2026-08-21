@@ -138,7 +138,10 @@ fn ajanis_ultimate_counts_your_life_total() {
     assert_eq!(
         game.battlefield
             .iter()
-            .filter(|permanent| permanent.card.definition == cards::CAT_TOKEN_2_2_WHITE)
+            .filter(|permanent| is_token_with(
+                permanent,
+                tokens::creature(&["Cat"], &[ManaColor::White], 2, 2)
+            ))
             .count(),
         17,
         "your life total, not the opponent's and not a printed number",

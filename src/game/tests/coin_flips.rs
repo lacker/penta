@@ -44,10 +44,12 @@ fn bottle_of_suleiman_reaches_both_branches() {
             .expect("the ability activates");
         drain_pending(&mut game);
 
-        let djinn = game
-            .battlefield
-            .iter()
-            .any(|permanent| permanent.card.definition == cards::DJINN_TOKEN_5_5_COLORLESS);
+        let djinn = game.battlefield.iter().any(|permanent| {
+            is_token_with(
+                permanent,
+                token_with_flying(tokens::artifact_creature(&["Djinn"], &[], 5, 5)),
+            )
+        });
         let damaged = game.players[PlayerId::One.index()].life < i16::from(rules::STARTING_LIFE);
         // Exactly one branch happens, whichever it was.
         assert_ne!(djinn, damaged, "one branch, not both and not neither");

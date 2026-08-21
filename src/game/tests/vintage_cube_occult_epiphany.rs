@@ -89,7 +89,12 @@ fn cast_and_discard(game: &mut Game, epiphany: GameObjectId, x: u16, pitched: &[
 fn spirits(game: &Game) -> usize {
     game.battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::SPIRIT_TOKEN_1_1_WHITE)
+        .filter(|permanent| {
+            is_token_with(
+                permanent,
+                token_with_flying(tokens::creature(&["Spirit"], &[ManaColor::White], 1, 1)),
+            )
+        })
         .count()
 }
 

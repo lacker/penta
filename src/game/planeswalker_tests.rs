@@ -1,4 +1,4 @@
-use super::tests::{creature, ready_game};
+use super::tests::{assassin_token, creature, is_token_with, ready_game};
 use super::*;
 use crate::card::cards;
 use crate::{CardInstanceId, HandcraftedPolicy, Policy};
@@ -226,7 +226,7 @@ fn loyalty_activations_require_sorcery_timing_sufficient_loyalty_and_once_per_tu
     game.stack.push(StackObject {
         id: CardInstanceId(12_000),
         kind: StackObjectKind::Spell,
-        card: card(12_000, cards::MOUNTAIN, PlayerId::Two),
+        card: card(12_000, cards::MOUNTAIN, PlayerId::Two).into(),
         source: None,
         ability: None,
         controller: PlayerId::Two,
@@ -402,7 +402,10 @@ fn domri_plus_one_reveals_a_top_creature_but_not_a_noncreature() {
     );
     assert_eq!(
         decision.observation.options[0].members,
-        vec![(GameObjectId(21_000), cards::MOUNTAIN)],
+        vec![(
+            GameObjectId(21_000),
+            ObjectCharacteristics::card(cards::MOUNTAIN, CardPartId::PRIMARY),
+        )],
     );
     choose_cards(&mut game, PlayerId::One, &[]);
     assert!(game.players[PlayerId::One.index()].hand.is_empty());
@@ -946,16 +949,16 @@ fn vraska_ultimate_creates_assassins_whose_combat_damage_makes_a_player_lose() {
     let assassin_ids = game
         .battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::ASSASSIN_TOKEN_1_1_BLACK)
+        .filter(|permanent| is_token_with(permanent, assassin_token()))
         .map(|permanent| permanent.card.id)
         .collect::<Vec<_>>();
     assert_eq!(assassin_ids.len(), 3);
     for assassin in &assassin_ids {
         let assassin = permanent(&game, *assassin);
-        assert!(game.is_token(assassin.card.definition));
+        assert!(assassin.card.definition.is_token());
         let rules = game
             .effective_rules(assassin)
-            .expect("the Assassin token has cataloged rules");
+            .expect("the Assassin token has inline rules");
         assert_eq!(rules.colors(), [false, false, true, false, false]);
         assert!(rules.has_subtype("Assassin"));
         assert_eq!(game.power(assassin), Some(1));

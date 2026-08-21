@@ -15,8 +15,8 @@ use crate::card::{
     PlayOptionDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, PrintedManaCost,
     ReplacementAbilityDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
     SpellForm, SplitIntoPilesDef, TargetConditionDef, TargetPredicate, TargetSlotDef,
-    TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnStepDef, ValueDef, ZoneKind,
-    ZoneMoveCauseDef,
+    TokenCharacteristics, TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnStepDef, ValueDef,
+    ZoneKind, ZoneMoveCauseDef,
 };
 use crate::{
     AbilityId, AdditionalCostId, AlternativeCostId, CardDefinitionId, CardPartId, Format, GrantId,

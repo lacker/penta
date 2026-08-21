@@ -9,7 +9,6 @@
 
 use std::ops::ControlFlow;
 
-use crate::action::AbilityOrigin;
 use crate::card::{
     AppliedEffectDef, AppliedRuleDef, DamageEventMatcherDef, DamageLimitDef, DeclarativeAbilityDef,
     EffectDef, EffectRecipientDef, EffectRecipientSetDef, PlayerRefDef, PlayerSetDef,
@@ -50,7 +49,7 @@ impl Game {
             let Some(rules) = self.effective_rules(source) else {
                 continue;
             };
-            let (source_definition, source_part) = Self::effective_rules_source(source);
+            let source_presentation = Self::effective_rules_source(source);
             if self.rules_text_abilities_removed_from_sources(source, &land_type_sources) {
                 continue;
             }
@@ -65,11 +64,7 @@ impl Game {
                 }
                 if !self.ability_survives_resolved_operations(
                     source,
-                    AbilityOrigin::Printed {
-                        definition: source_definition,
-                        part: source_part,
-                        ability: attached.id,
-                    },
+                    Self::authored_ability_origin(source_presentation, attached.id),
                 ) {
                     continue;
                 }
@@ -113,7 +108,7 @@ impl Game {
             let Some(rules) = self.effective_rules(source) else {
                 continue;
             };
-            let (source_definition, source_part) = Self::effective_rules_source(source);
+            let source_presentation = Self::effective_rules_source(source);
             if self.rules_text_abilities_removed_from_sources(source, &land_type_sources) {
                 continue;
             }
@@ -128,11 +123,7 @@ impl Game {
                 }
                 if !self.ability_survives_resolved_operations(
                     source,
-                    AbilityOrigin::Printed {
-                        definition: source_definition,
-                        part: source_part,
-                        ability: attached.id,
-                    },
+                    Self::authored_ability_origin(source_presentation, attached.id),
                 ) {
                     continue;
                 }
@@ -190,7 +181,7 @@ impl Game {
             let Some(rules) = self.effective_rules(source) else {
                 continue;
             };
-            let (source_definition, source_part) = Self::effective_rules_source(source);
+            let source_presentation = Self::effective_rules_source(source);
             if self.rules_text_abilities_removed_from_sources(source, &land_type_sources) {
                 continue;
             }
@@ -205,11 +196,7 @@ impl Game {
                 }
                 if !self.ability_survives_resolved_operations(
                     source,
-                    AbilityOrigin::Printed {
-                        definition: source_definition,
-                        part: source_part,
-                        ability: attached.id,
-                    },
+                    Self::authored_ability_origin(source_presentation, attached.id),
                 ) {
                     continue;
                 }

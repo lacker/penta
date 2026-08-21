@@ -3,8 +3,9 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRelation,
-    ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities, cards,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
+    PlayerRelation, ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    abilities, cards,
 };
 use crate::mana_cost;
 
@@ -50,15 +51,12 @@ static GOBLIN_RABBLEMASTER_ABILITIES: [AbilityDef; 3] = [
             step: TurnStepDef::BeginningOfCombat,
             player: PlayerRelation::You,
         },
-        EffectDef::CreateToken {
-            token: cards::GOBLIN_TOKEN_1_1_RED_HASTE,
-            controller: None,
-            count: ValueDef::Constant(1),
-            tapped: false,
-            attacking: false,
-            counters: None,
-            created: None,
-        },
+        EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1)
+            .with_abilities(&[abilities::haste()])
+            .with_art(CardArt::new(
+                "98993a45-4aff-4f9b-a030-7d72fbb4ec6c",
+                "Karl Kopinski",
+            )),
     ),
     AbilityDef::triggered(
         "Whenever this creature attacks, it gets +1/+0 until end of turn for each other attacking \

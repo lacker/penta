@@ -411,12 +411,15 @@ fn selected_modal_effects_resolve_distinct_and_deferred_flattened_targets() {
         StackObject {
             id: StackObjectId(id),
             kind: StackObjectKind::Spell,
-            card: card(id, cards::LIGHTNING_BOLT, PlayerId::One),
+            card: card(id, cards::LIGHTNING_BOLT, PlayerId::One).into(),
             source: None,
             ability: Some(StackAbilityPayload {
                 origin: primary_ability(cards::LIGHTNING_BOLT),
                 definition: Some(Box::new(MODAL)),
-                presentation_definition: cards::LIGHTNING_BOLT,
+                presentation: ObjectCharacteristics::card(
+                    cards::LIGHTNING_BOLT,
+                    CardPartId::PRIMARY,
+                ),
                 text: Some(MODAL.text),
                 target_defs: plan.target_defs,
                 targets,

@@ -868,7 +868,7 @@ impl Game {
                 for _ in 0..removed {
                     self.create_token_from(
                         controller,
-                        crate::card::cards::TETRAVITE_TOKEN,
+                        crate::card::tokens::tetravite(),
                         Some(source),
                     );
                 }
@@ -926,6 +926,11 @@ fn selected_cards(
                 .iter()
                 .find(|option| option.id == *selected)
                 .and_then(|option| option.card)
+                .and_then(|(object, characteristics)| {
+                    characteristics
+                        .card_definition()
+                        .map(|definition| (object, definition))
+                })
         })
         .collect()
 }

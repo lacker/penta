@@ -1,8 +1,8 @@
 use super::{
-    BalanceAction, BalancePhase, BalanceTask, CardBehavior, CardInstance, CardType,
+    BalanceAction, BalancePhase, BalanceTask, CardBehavior, CardInstance, CardPartId, CardType,
     DecisionContinuation, DecisionPreference, DecisionVisibility, DecisionZone, Game, GameEvent,
-    GameObjectId, ObjectPredicateDef, PlayerId, StackObject, Target, ZoneKind, ZoneMoveCause,
-    ZonePlacement,
+    GameObjectId, ObjectCharacteristics, ObjectPredicateDef, PlayerId, StackObject, Target,
+    ZoneKind, ZoneMoveCause, ZonePlacement,
 };
 
 impl Game {
@@ -396,7 +396,19 @@ impl Game {
                         player,
                         prompt: format!("Choose {count} card(s) to discard to Balance"),
                         zone: DecisionZone::Hand,
-                        cards: self.players[player.index()].hand.clone(),
+                        cards: self.players[player.index()]
+                            .hand
+                            .iter()
+                            .map(|card| {
+                                (
+                                    card.id,
+                                    ObjectCharacteristics::card(
+                                        card.definition,
+                                        CardPartId::PRIMARY,
+                                    ),
+                                )
+                            })
+                            .collect(),
                         count,
                         action: BalanceAction::Discard,
                         cause: ZoneMoveCause::Effect { controller },
@@ -439,7 +451,7 @@ impl Game {
                                 .is_some_and(|types| types.contains(CardType::Land))
                         }
                 })
-                .map(|permanent| permanent.card.clone())
+                .map(|permanent| (permanent.card.id, Self::effective_rules_source(permanent)))
                 .collect::<Vec<_>>();
             let count = cards.len().saturating_sub(keep);
             if count > 0 {

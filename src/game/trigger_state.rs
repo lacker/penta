@@ -6,11 +6,9 @@ use crate::card::{
     TurnStepDef, ZoneKind,
 };
 use crate::casting::TargetSelection;
-use crate::ids::{
-    CardDefinitionId, GameObjectId, ObjectBindingIndex, ObjectSetBindingIndex, PlayerId,
-};
+use crate::ids::{GameObjectId, ObjectBindingIndex, ObjectSetBindingIndex, PlayerId};
 
-use super::StackAbilityResolver;
+use super::{ObjectCharacteristics, StackAbilityResolver};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) struct TriggerContext {
@@ -436,7 +434,7 @@ pub(super) struct AbilitySourceRef {
 pub(super) struct PendingTrigger {
     pub(super) id: u32,
     pub(super) source: AbilitySourceRef,
-    pub(super) definition: CardDefinitionId,
+    pub(super) presentation: ObjectCharacteristics,
     pub(super) owner: PlayerId,
     pub(super) controller: PlayerId,
     pub(super) text: &'static str,
@@ -455,7 +453,7 @@ pub(super) struct PendingTrigger {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) struct TriggerCapture {
     pub(super) source: AbilitySourceRef,
-    pub(super) definition: CardDefinitionId,
+    pub(super) presentation: ObjectCharacteristics,
     pub(super) owner: PlayerId,
     pub(super) controller: PlayerId,
     pub(super) text: &'static str,

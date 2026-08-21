@@ -88,11 +88,19 @@ fn old_school_ring_offers_owned_exile_and_sideboard_then_resumes_the_draws() {
     assert!(game.observe(PlayerId::Two).decision.is_none());
     assert!(decision.options.iter().any(|option| {
         option.zone == DecisionZone::Exile
-            && option.card == Some((exiled_ring, cards::RING_OF_MARUF))
+            && option.card
+                == Some((
+                    exiled_ring,
+                    ObjectCharacteristics::card(cards::RING_OF_MARUF, CardPartId::PRIMARY),
+                ))
     }));
     assert!(decision.options.iter().any(|option| {
         option.zone == DecisionZone::OutsideGame
-            && option.card == Some((outside_id, cards::SERRA_ANGEL))
+            && option.card
+                == Some((
+                    outside_id,
+                    ObjectCharacteristics::card(cards::SERRA_ANGEL, CardPartId::PRIMARY),
+                ))
     }));
     assert_eq!(game.players[0].library.len(), 3);
     assert_eq!(game.cards_drawn_this_turn[0], 0);

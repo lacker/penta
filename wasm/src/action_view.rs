@@ -199,9 +199,24 @@ pub(super) fn ability_origin_value(origin: AbilityOrigin) -> Value {
             "partId": part.0,
             "abilityId": ability.0,
         }),
+        AbilityOrigin::Token { part, ability } => json!({
+            "kind": "token",
+            "partId": part.0,
+            "abilityId": ability.0,
+        }),
+        AbilityOrigin::Emblem { ability } => json!({
+            "kind": "emblem",
+            "abilityId": ability.0,
+        }),
         AbilityOrigin::IntrinsicBasicLand(land_type) => json!({
             "kind": "intrinsicBasicLand",
-            "landType": format!("{land_type:?}").to_ascii_lowercase(),
+            "landType": match land_type {
+                penta::BasicLandType::Plains => "plains",
+                penta::BasicLandType::Island => "island",
+                penta::BasicLandType::Swamp => "swamp",
+                penta::BasicLandType::Mountain => "mountain",
+                penta::BasicLandType::Forest => "forest",
+            },
         }),
         AbilityOrigin::IntrinsicCounter(kind) => json!({
             "kind": "intrinsicCounter",
@@ -218,6 +233,28 @@ pub(super) fn ability_origin_value(origin: AbilityOrigin) -> Value {
             "source": source.0,
             "sourceDefinition": source_definition.0,
             "sourcePartId": source_part.0,
+            "sourceAbilityId": source_ability.0,
+            "grantId": grant.0,
+        }),
+        AbilityOrigin::TokenGranted {
+            source,
+            source_part,
+            source_ability,
+            grant,
+        } => json!({
+            "kind": "tokenGranted",
+            "source": source.0,
+            "sourcePartId": source_part.0,
+            "sourceAbilityId": source_ability.0,
+            "grantId": grant.0,
+        }),
+        AbilityOrigin::EmblemGranted {
+            source,
+            source_ability,
+            grant,
+        } => json!({
+            "kind": "emblemGranted",
+            "source": source.0,
             "sourceAbilityId": source_ability.0,
             "grantId": grant.0,
         }),

@@ -88,7 +88,11 @@ fn manifest(game: &mut Game, wanted: CardDefinitionId) {
     let option = decision
         .options
         .iter()
-        .find(|option| option.card.is_some_and(|(_, found)| found == wanted))
+        .find(|option| {
+            option.card.is_some_and(|(_, characteristics)| {
+                characteristics.card_definition() == Some(wanted)
+            })
+        })
         .unwrap_or_else(|| panic!("{wanted:?} is one of the two"))
         .id;
     game.apply(

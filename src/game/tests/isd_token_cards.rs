@@ -30,7 +30,12 @@ fn stats(game: &Game, id: GameObjectId) -> (Option<i16>, Option<i16>) {
 fn zombies(game: &Game) -> usize {
     game.battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::ZOMBIE_TOKEN_2_2_BLACK)
+        .filter(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2),
+            )
+        })
         .count()
 }
 
@@ -40,7 +45,11 @@ fn intangible_virtue_reaches_tokens_only() {
     let mut game = ready();
     game.battlefield
         .push(creature(10_000, cards::INTANGIBLE_VIRTUE, PlayerId::One));
-    let token = creature(10_100, cards::ZOMBIE_TOKEN_2_2_BLACK, PlayerId::One);
+    let token = token_permanent(
+        10_100,
+        tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2),
+        PlayerId::One,
+    );
     let token_id = token.card.id;
     game.battlefield.push(token);
     let bear = creature(10_101, cards::GRIZZLY_BEARS, PlayerId::One);
@@ -85,7 +94,10 @@ fn army_of_the_damned_makes_thirteen_tapped_zombies() {
     assert!(
         game.battlefield
             .iter()
-            .filter(|permanent| permanent.card.definition == cards::ZOMBIE_TOKEN_2_2_BLACK)
+            .filter(|permanent| is_token_with(
+                permanent,
+                tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2)
+            ))
             .all(|permanent| permanent.tapped),
         "every one of them arrived tapped",
     );
@@ -102,9 +114,9 @@ fn endless_ranks_rounds_the_zombie_count_down() {
             PlayerId::One,
         ));
         for index in 0..existing {
-            game.battlefield.push(creature(
+            game.battlefield.push(token_permanent(
                 10_100 + index,
-                cards::ZOMBIE_TOKEN_2_2_BLACK,
+                tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2),
                 PlayerId::One,
             ));
         }

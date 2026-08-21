@@ -5,7 +5,10 @@ use super::*;
 
 /// Player One with a Rabblemaster out since last turn and `others` beside
 /// it, on Player One's turn just before combat.
-fn staged(others: &[CardDefinitionId]) -> (Game, GameObjectId, Vec<GameObjectId>) {
+fn staged(
+    others: &[CardDefinitionId],
+    goblin_tokens: usize,
+) -> (Game, GameObjectId, Vec<GameObjectId>) {
     let mut game = ready_game();
     game.battlefield.clear();
     game.players[0].hand.clear();
@@ -18,6 +21,15 @@ fn staged(others: &[CardDefinitionId]) -> (Game, GameObjectId, Vec<GameObjectId>
             game.put_onto_battlefield(PlayerId::One, *definition)
                 .expect("cataloged"),
         );
+    }
+    for index in 0..goblin_tokens {
+        let permanent = token_permanent(
+            90_000 + u32::try_from(index).expect("the fixture has few tokens"),
+            tokens::creature(&["Goblin"], &[ManaColor::Red], 1, 1),
+            PlayerId::One,
+        );
+        friends.push(permanent.card.id);
+        game.battlefield.push(permanent);
     }
     for permanent in &mut game.battlefield {
         permanent.entered_controller_turn = 0;
@@ -66,7 +78,12 @@ fn reach_declare_attackers(game: &mut Game) {
 fn goblin_tokens(game: &Game) -> usize {
     game.battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::GOBLIN_TOKEN_1_1_RED_HASTE)
+        .filter(|permanent| {
+            is_token_with(
+                permanent,
+                token_with_haste(tokens::creature(&["Goblin"], &[ManaColor::Red], 1, 1)),
+            )
+        })
         .count()
 }
 
@@ -81,7 +98,7 @@ fn permanent(game: &Game, id: GameObjectId) -> &Permanent {
 /// the turn it arrives.
 #[test]
 fn it_makes_a_hasty_goblin_at_the_beginning_of_combat() {
-    let (mut game, _rabblemaster, _friends) = staged(&[]);
+    let (mut game, _rabblemaster, _friends) = staged(&[], 0);
     assert_eq!(goblin_tokens(&game), 0, "nothing yet");
 
     reach_declare_attackers(&mut game);
@@ -90,7 +107,12 @@ fn it_makes_a_hasty_goblin_at_the_beginning_of_combat() {
     let token = game
         .battlefield
         .iter()
-        .find(|permanent| permanent.card.definition == cards::GOBLIN_TOKEN_1_1_RED_HASTE)
+        .find(|permanent| {
+            is_token_with(
+                permanent,
+                token_with_haste(tokens::creature(&["Goblin"], &[ManaColor::Red], 1, 1)),
+            )
+        })
         .expect("a token was made");
     assert!(
         game.permanent_has_executable_keyword(token, KeywordAbility::Haste),
@@ -102,7 +124,7 @@ fn it_makes_a_hasty_goblin_at_the_beginning_of_combat() {
 /// let the attack step finish while an untapped Goblin is sitting home.
 #[test]
 fn other_goblins_are_made_to_attack() {
-    let (mut game, _rabblemaster, friends) = staged(&[cards::GOBLIN_TOKEN_1_1_RED]);
+    let (mut game, _rabblemaster, friends) = staged(&[], 1);
     let goblin = friends[0];
     reach_declare_attackers(&mut game);
 
@@ -125,7 +147,7 @@ fn other_goblins_are_made_to_attack() {
 /// to attack by its own clause.
 #[test]
 fn the_rabblemaster_is_not_made_to_attack_by_itself() {
-    let (mut game, rabblemaster, _friends) = staged(&[]);
+    let (mut game, rabblemaster, _friends) = staged(&[], 0);
     reach_declare_attackers(&mut game);
 
     assert!(
@@ -140,7 +162,7 @@ fn the_rabblemaster_is_not_made_to_attack_by_itself() {
 /// A creature that is not a Goblin is left alone, however friendly.
 #[test]
 fn a_nongoblin_is_left_alone() {
-    let (mut game, _rabblemaster, friends) = staged(&[cards::SAVANNAH_LIONS]);
+    let (mut game, _rabblemaster, friends) = staged(&[cards::SAVANNAH_LIONS], 0);
     let lions = friends[0];
     reach_declare_attackers(&mut game);
 
@@ -157,8 +179,7 @@ fn a_nongoblin_is_left_alone() {
 /// 2/2 into a 4/2.
 #[test]
 fn it_grows_by_one_for_each_other_attacking_goblin() {
-    let (mut game, rabblemaster, friends) =
-        staged(&[cards::GOBLIN_TOKEN_1_1_RED, cards::GOBLIN_TOKEN_1_1_RED]);
+    let (mut game, rabblemaster, friends) = staged(&[], 2);
     reach_declare_attackers(&mut game);
 
     let _ = friends;
@@ -191,13 +212,17 @@ fn it_grows_by_one_for_each_other_attacking_goblin() {
 /// Attacking alone is worth nothing: the count is of *other* Goblins.
 #[test]
 fn attacking_alone_grows_it_by_nothing() {
-    let (mut game, rabblemaster, _friends) = staged(&[]);
+    let (mut game, rabblemaster, _friends) = staged(&[], 0);
     reach_declare_attackers(&mut game);
     // The token its combat trigger just made would have to attack too, so
     // it is taken off the board: what is being measured is a Rabblemaster
     // with no company.
-    game.battlefield
-        .retain(|permanent| permanent.card.definition != cards::GOBLIN_TOKEN_1_1_RED_HASTE);
+    game.battlefield.retain(|permanent| {
+        !is_token_with(
+            permanent,
+            token_with_haste(tokens::creature(&["Goblin"], &[ManaColor::Red], 1, 1)),
+        )
+    });
     let action = game
         .legal_actions(PlayerId::One)
         .into_iter()

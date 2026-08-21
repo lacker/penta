@@ -360,7 +360,7 @@ fn direct_object_target_references_recheck_legality() {
     doom_blade.ability = Some(StackAbilityPayload {
         origin: primary_ability(cards::DOOM_BLADE),
         definition: None,
-        presentation_definition: cards::DOOM_BLADE,
+        presentation: ObjectCharacteristics::card(cards::DOOM_BLADE, CardPartId::PRIMARY),
         text: Some("Test direct object target reference"),
         target_defs: TARGETS.to_vec(),
         targets: vec![TargetSelection::single(
@@ -378,7 +378,7 @@ fn direct_object_target_references_recheck_legality() {
         .find(|permanent| permanent.card.id == target_id)
         .expect("the target remains on the battlefield")
         .card
-        .definition = cards::BLACK_KNIGHT;
+        .definition = ObjectKind::Card(cards::BLACK_KNIGHT);
     game.battlefield
         .iter_mut()
         .find(|permanent| permanent.card.id == target_id)
@@ -795,9 +795,9 @@ fn duress_takes_a_noncreature_nonland_card_of_the_casters_choosing() {
         .options
         .iter()
         .find(|option| {
-            option
-                .card
-                .is_some_and(|(_, definition)| definition == cards::LIGHTNING_BOLT)
+            option.card.is_some_and(|(_, characteristics)| {
+                characteristics.card_definition() == Some(cards::LIGHTNING_BOLT)
+            })
         })
         .expect("the Bolt is a legal choice")
         .id;

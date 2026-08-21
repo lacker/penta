@@ -4,9 +4,9 @@ mod untap_limits;
 use std::cell::Cell;
 
 #[cfg(test)]
-use super::AbilityId;
+use super::{AbilityId, AbilityOrigin, ObjectCharacteristics};
 use super::{
-    AbilityOperationDef, AbilityOrigin, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
+    AbilityOperationDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
     AppliedRuleEffect, CardDefinitionId, CardRules, CardSet, CardType, CardTypeSet,
     CharacteristicOperationDef, ColorSet, ContinuousEffectExpiration, ControlFlow,
     DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EffectRecipientSetDef, Game,
@@ -149,7 +149,7 @@ impl Game {
             let Some(rules) = self.effective_rules(source) else {
                 continue;
             };
-            let (source_definition, source_part) = Self::effective_rules_source(source);
+            let source_presentation = Self::effective_rules_source(source);
             let supplies_static_effect = rules.ability_clauses().iter().any(|ability| {
                 ability.is_executable()
                     && matches!(ability.definition, DeclarativeAbilityDef::Static(_))
@@ -172,11 +172,7 @@ impl Game {
                 }
                 if !self.ability_survives_resolved_operations(
                     source,
-                    AbilityOrigin::Printed {
-                        definition: source_definition,
-                        part: source_part,
-                        ability: attached.id,
-                    },
+                    Self::authored_ability_origin(source_presentation, attached.id),
                 ) {
                     continue;
                 }
@@ -186,9 +182,8 @@ impl Game {
                 let mut traversal = StaticEffectTraversal {
                     source,
                     source_timestamp: source.timestamp,
-                    source_definition,
-                    source_part,
-                    source_ability: attached.id,
+                    source_presentation,
+                    source_origin: Self::authored_ability_origin(source_presentation, attached.id),
                     affected,
                     prospective: None,
                     next_grant: 0,
@@ -217,7 +212,7 @@ impl Game {
             let Some(rules) = self.effective_rules(source) else {
                 continue;
             };
-            let (source_definition, source_part) = Self::effective_rules_source(source);
+            let source_presentation = Self::effective_rules_source(source);
             let supplies_static_effect = rules.ability_clauses().iter().any(|ability| {
                 ability.is_executable()
                     && matches!(ability.definition, DeclarativeAbilityDef::Static(_))
@@ -242,11 +237,7 @@ impl Game {
                 }
                 if !self.ability_survives_resolved_operations(
                     source,
-                    AbilityOrigin::Printed {
-                        definition: source_definition,
-                        part: source_part,
-                        ability: attached.id,
-                    },
+                    Self::authored_ability_origin(source_presentation, attached.id),
                 ) {
                     continue;
                 }
@@ -262,9 +253,8 @@ impl Game {
                     } else {
                         source.timestamp
                     },
-                    source_definition,
-                    source_part,
-                    source_ability: attached.id,
+                    source_presentation,
+                    source_origin: Self::authored_ability_origin(source_presentation, attached.id),
                     affected,
                     prospective: prospective_source,
                     next_grant: 0,
@@ -389,9 +379,8 @@ impl Game {
                     visitor(StaticAppliedEffect {
                         source: traversal.source.card.id,
                         timestamp: traversal.source_timestamp,
-                        source_definition: traversal.source_definition,
-                        source_part: traversal.source_part,
-                        source_ability: traversal.source_ability,
+                        source_presentation: traversal.source_presentation,
+                        source_origin: traversal.source_origin,
                         grant,
                         component_order,
                         effect,

@@ -59,7 +59,12 @@ fn on_battlefield(game: &Game) -> Option<&Permanent> {
 fn rabbits(game: &Game) -> usize {
     game.battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::RABBIT_TOKEN_1_1_WHITE)
+        .filter(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Rabbit"], &[ManaColor::White], 1, 1),
+            )
+        })
         .count()
 }
 
@@ -166,7 +171,10 @@ fn the_tokens_do_not_attack() {
     assert!(
         game.battlefield
             .iter()
-            .filter(|permanent| permanent.card.definition == cards::RABBIT_TOKEN_1_1_WHITE)
+            .filter(|permanent| is_token_with(
+                permanent,
+                tokens::creature(&["Rabbit"], &[ManaColor::White], 1, 1)
+            ))
             .all(|permanent| !permanent.attacking),
         "the declaration was over before they existed",
     );

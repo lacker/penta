@@ -44,7 +44,11 @@ fn impulse_offers_the_top_four_and_bottoms_the_rest() {
     let offered = decision
         .options
         .iter()
-        .filter_map(|option| option.card.map(|(_, definition)| definition))
+        .filter_map(|option| {
+            option
+                .card
+                .and_then(|(_, characteristics)| characteristics.card_definition())
+        })
         .collect::<Vec<_>>();
     assert_eq!(
         offered,

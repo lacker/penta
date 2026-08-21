@@ -897,3 +897,5 @@ fn target_references_are_validated_through_nested_values() {
 // Choice scopes, replacements, triggers, and positional limits share the
 // catalog fixtures above but form a separate validation surface.
 include!("abilities_grants/program_scopes.rs");
+
+include!("abilities_grants/effect_continuations.rs");

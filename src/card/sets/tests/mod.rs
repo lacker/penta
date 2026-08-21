@@ -13,8 +13,8 @@ use crate::card::{
     ObjectRefDef, ObjectSetDef, PayOrDef, PlayActionKind, PlayRestriction, PlayerRefDef,
     PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementEffectDef,
     ReplacementEventDef, ResolvedEffectDurationDef, SetOperationDef, SpellForm, TargetPredicate,
-    TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZoneMoveCauseDef, ZonePlacement, cards,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef,
+    ZonePlacement, cards,
 };
 use crate::{
     CardDefinitionId, CardPartId, CardSet, Format, ManaCost, ModeId, PlayOptionId, TargetSlotId,

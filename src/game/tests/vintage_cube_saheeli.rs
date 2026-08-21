@@ -61,7 +61,9 @@ fn cast(game: &mut Game, definition: CardDefinitionId, color: ManaColor, amount:
 fn servos(game: &Game) -> usize {
     game.battlefield
         .iter()
-        .filter(|permanent| permanent.card.definition == cards::SERVO_TOKEN_1_1_COLORLESS)
+        .filter(|permanent| {
+            is_token_with(permanent, tokens::artifact_creature(&["Servo"], &[], 1, 1))
+        })
         .count()
 }
 

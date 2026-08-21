@@ -52,6 +52,75 @@ fn incoherent_rules_cannot_enter_the_catalog() {
         }
     );
 }
+
+#[test]
+fn creator_owned_token_rules_receive_catalog_composition_validation() {
+    static INCOHERENT_TOKEN: TokenCharacteristics = TokenCharacteristics::new(
+        crate::CardTypeSet::single(CardType::Land),
+        &[],
+        &[],
+        Some(crate::CreatureStats {
+            power: 1,
+            toughness: 1,
+        }),
+    )
+    .with_name("Broken Land");
+    static CREATE_TOKEN: [AbilityDef; 1] = [AbilityDef::activated(
+        "Create a token.",
+        &[],
+        EffectDef::CreateToken {
+            token: INCOHERENT_TOKEN,
+            controller: None,
+            count: ValueDef::Constant(1),
+            tapped: false,
+            attacking: false,
+            counters: None,
+            created: None,
+        },
+    )];
+
+    let mut creator = definition(1, "Token Creator", CardSet::Alpha);
+    let rules = creator.rules.with_abilities(&CREATE_TOKEN);
+    set_primary_rules(&mut creator, &rules);
+    assert_eq!(
+        error(creator),
+        CatalogError::IncoherentCardRules {
+            definition: CardDefinitionId(1),
+            part: CardPartId::PRIMARY,
+            explanation: "a noncreature cannot have creature power and toughness",
+        }
+    );
+}
+
+#[test]
+fn creator_owned_token_abilities_receive_catalog_validation() {
+    static INVALID_TOKEN_ABILITIES: [AbilityDef; 1] =
+        [AbilityDef::activated("", &[], EffectDef::None)];
+    static INVALID_TOKEN: TokenCharacteristics =
+        TokenCharacteristics::creature(&["Germ"], &[], 0, 0)
+            .with_name("Broken Germ")
+            .with_abilities(&INVALID_TOKEN_ABILITIES);
+    static CREATE_ATTACHED_TOKEN: [AbilityDef; 1] = [AbilityDef::activated(
+        "Create and attach a token.",
+        &[],
+        EffectDef::CreateAttachedToken {
+            token: INVALID_TOKEN,
+        },
+    )];
+
+    let mut creator = definition(1, "Living Weapon", CardSet::Alpha);
+    let rules = creator.rules.with_abilities(&CREATE_ATTACHED_TOKEN);
+    set_primary_rules(&mut creator, &rules);
+    assert_eq!(
+        error(creator),
+        CatalogError::EmptyAbilityText {
+            definition: CardDefinitionId(1),
+            part: CardPartId::PRIMARY,
+            ability: AbilityId::PRIMARY,
+        }
+    );
+}
+
 #[test]
 fn compatibility_rules_must_match_the_primary_part() {
     let mut card = definition(1, "Test Card", CardSet::Alpha);

@@ -1,10 +1,10 @@
 use super::{
     BTreeMap, CardCatalog, CardDefinitionId, CardInstance, CharacteristicSource, CombatDamageStage,
     ContinuousEffectTimestamp, CounterKind, DamageSourceGroupDef, Deck, Format, Game, GameError,
-    GameEvent, GameObjectId, GameStack, ManaPool, ObjectBacking, Permanent,
-    PermanentLastKnownInformation, PhysicalCard, PhysicalCardId, PlayerId, PlayerState, Pregame,
-    ReplayRng, RetiredObject, StackObject, Step, ValueDef, VecDeque, ZoneChangeOutcome,
-    remove_card,
+    GameEvent, GameObjectId, GameStack, ManaPool, ObjectBacking, ObjectCharacteristics,
+    ObjectInstance, ObjectKind, Permanent, PermanentLastKnownInformation, PhysicalCard,
+    PhysicalCardId, PlayerId, PlayerState, Pregame, ReplayRng, RetiredObject, StackObject, Step,
+    ValueDef, VecDeque, ZoneChangeOutcome, remove_card,
 };
 
 impl Game {
@@ -520,6 +520,7 @@ impl Game {
     ) -> Option<PlayerId> {
         self.battlefield
             .iter()
+            .chain(self.emblems.iter())
             .find(|permanent| permanent.card.id == object)
             .map(|permanent| permanent.controller)
             .or_else(|| {
@@ -538,6 +539,7 @@ impl Game {
     pub(super) fn current_or_last_known_owner(&self, object: GameObjectId) -> Option<PlayerId> {
         self.battlefield
             .iter()
+            .chain(self.emblems.iter())
             .find(|permanent| permanent.card.id == object)
             .map(|permanent| permanent.card.owner)
             .or_else(|| {
@@ -570,6 +572,44 @@ impl Game {
             owner,
             backing: ObjectBacking::None,
             characteristics,
+            counters: [0; CounterKind::COUNT],
+        }
+    }
+
+    pub(super) fn unbacked_ability_object(
+        &mut self,
+        presentation: ObjectCharacteristics,
+        owner: PlayerId,
+    ) -> ObjectInstance {
+        let characteristics = match presentation {
+            ObjectCharacteristics::Card { definition, .. } => {
+                CharacteristicSource::Ability(definition)
+            }
+            ObjectCharacteristics::Token { token, .. } => CharacteristicSource::Token(token),
+            ObjectCharacteristics::Emblem { emblem } => CharacteristicSource::Emblem(emblem),
+        };
+        ObjectInstance {
+            id: self.allocate_object_id(),
+            definition: ObjectKind::Ability,
+            owner,
+            backing: ObjectBacking::None,
+            characteristics,
+            counters: [0; CounterKind::COUNT],
+        }
+    }
+
+    /// Mints the object shell for a creator-owned command-zone emblem.
+    pub(super) fn unbacked_emblem_object(
+        &mut self,
+        emblem: crate::EmblemCharacteristics,
+        owner: PlayerId,
+    ) -> ObjectInstance {
+        ObjectInstance {
+            id: self.allocate_object_id(),
+            definition: ObjectKind::Emblem,
+            owner,
+            backing: ObjectBacking::None,
+            characteristics: CharacteristicSource::Emblem(emblem),
             counters: [0; CounterKind::COUNT],
         }
     }

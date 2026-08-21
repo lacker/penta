@@ -1,11 +1,10 @@
 use super::{
-    AbilityDef, AbilityId, AbilityOrigin, Action, ActionError, ActivationChoices, CardBehavior,
-    CardStructure, CardType, CharacteristicContext, CombatDamageStage, CounterKind,
-    DecisionContinuation, DecisionVisibility, DoubleFacedKind, EmblemObservation, Game, GameEvent,
-    GameObjectId, GameResult, KeywordAbility, ManaActivationChoices, ManaColor,
-    ObjectCharacteristics, ObjectKind, Permanent, PermanentObservation, PhysicalFaceObservation,
-    PhysicalFaceSide, PlayerId, PlayerObservation, Pregame, StackObservation, Step, WinReason,
-    ZoneKind, combinations, public_cards,
+    AbilityDef, AbilityOrigin, Action, ActionError, ActivationChoices, CardBehavior, CardStructure,
+    CardType, CharacteristicContext, CombatDamageStage, CounterKind, DecisionVisibility,
+    DoubleFacedKind, EmblemObservation, Game, GameEvent, GameObjectId, GameResult, KeywordAbility,
+    ManaActivationChoices, ManaColor, ObjectCharacteristics, ObjectKind, Permanent,
+    PermanentObservation, PhysicalFaceObservation, PhysicalFaceSide, PlayerId, PlayerObservation,
+    Pregame, StackObservation, Step, WinReason, ZoneKind, combinations, public_cards,
 };
 
 impl Game {

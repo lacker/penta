@@ -7,8 +7,7 @@ use super::{
     EffectResolutionContext, FORK_COPY_COLOR, Game, ManaCost, ObjectCharacteristics,
     PendingDecision, PlayerId, ResolvedEffectPayment, ScopedEffect, StackObject, Target,
     TargetSelection, TargetSlotId, TemporaryAbilityGrant, TriggerContext, ZoneKind, ZoneMoveCause,
-    ZonePlacement,
-    flatten_target_selections, target_combinations,
+    ZonePlacement, flatten_target_selections, target_combinations,
 };
 use crate::card::{
     AbilityDef, AlternativeCastKindDef, ChoiceVisibilityDef, EffectDef, ObjectPredicateDef,
@@ -731,7 +730,10 @@ impl Game {
             vec![DecisionOption {
                 id: 0,
                 label: "Decline".into(),
-                card: Some((card, definition)),
+                card: Some((
+                    card,
+                    ObjectCharacteristics::card(definition, CardPartId::PRIMARY),
+                )),
                 members: Vec::new(),
                 ability_text: None,
                 zone: DecisionZone::Hand,

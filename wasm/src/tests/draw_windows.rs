@@ -107,9 +107,9 @@ fn reach_external_opponent_miracle() -> WebGame {
             if observation.decision.as_ref().is_some_and(|decision| {
                 decision.visibility == penta::DecisionVisibility::Private
                     && decision.options.iter().any(|option| {
-                        option
-                            .card
-                            .is_some_and(|(_, card)| card == penta::card::cards::TERMINUS)
+                        option.card.is_some_and(|(_, card)| {
+                            card.card_definition() == Some(penta::card::cards::TERMINUS)
+                        })
                     })
             }) {
                 return game;
@@ -177,9 +177,9 @@ fn resolve_external_wheel(first_opponent_draw: CardDefinitionId) -> WebGame {
             if let Some(decision) = observation.decision.as_ref()
                 && decision.visibility == penta::DecisionVisibility::Private
                 && decision.options.iter().any(|option| {
-                    option
-                        .card
-                        .is_some_and(|(_, card)| card == penta::card::cards::TERMINUS)
+                    option.card.is_some_and(|(_, card)| {
+                        card.card_definition() == Some(penta::card::cards::TERMINUS)
+                    })
                 })
             {
                 assert_eq!(first_opponent_draw, penta::card::cards::TERMINUS);

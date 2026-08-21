@@ -8,6 +8,7 @@
 //! depend on.
 
 use super::super::ScopedEffect;
+use super::super::model::AbilityLocator;
 use super::super::semantics::{
     ability_locator, applied_effect_locator, applied_effects, catalog_ability,
     catalog_applied_effect, catalog_mana_payload, catalog_replacement_effect,
@@ -98,10 +99,15 @@ fn one_shot_cast_grant_has_a_stable_locator() {
 
     let locator = ability_locator(&catalog, |candidate| std::ptr::eq(candidate, granted))
         .expect("the exact granted ability has a locator");
-    assert_eq!(locator.definition, cards::DREADHORDE_ARCANIST.0);
-    assert_eq!(locator.part_id, CardPartId::PRIMARY.0);
-    assert_eq!(locator.ability_id, source_ability.0);
-    assert_eq!(locator.nested, vec![0]);
+    assert_eq!(
+        locator,
+        AbilityLocator::Card {
+            definition: cards::DREADHORDE_ARCANIST.0,
+            part_id: CardPartId::PRIMARY.0,
+            ability_id: source_ability.0,
+            nested: vec![0],
+        }
+    );
     assert_eq!(catalog_ability(&catalog, &locator), Some(*granted));
 }
 

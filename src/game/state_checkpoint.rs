@@ -113,16 +113,7 @@ impl Game {
             .flatten();
         let has_unsupported_decision =
             !self.pending_decisions.is_empty() && decision_state.is_none();
-        let visible_decision_rebindings = decision_state
-            .as_ref()
-            .map(|state| {
-                state
-                    .card_origins
-                    .iter()
-                    .map(|origin| GameObjectId(origin.object_id))
-                    .collect::<Vec<_>>()
-            })
-            .unwrap_or_default();
+        let visible_decision_rebindings = visible_decision_rebinding_ids(decision_state.as_ref());
         let visible_drawn_this_turn = [PlayerId::One, PlayerId::Two].map(|player| {
             if player == viewer {
                 self.drawn_this_turn[player.index()]

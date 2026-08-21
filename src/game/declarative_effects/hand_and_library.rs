@@ -5,7 +5,8 @@ use super::super::{
     CardPartId, CastOffer, CastOfferCost, CastSourceZone, DecisionContinuation, DecisionOption,
     DecisionPreference, DecisionVisibility, DecisionZone, DiscardSelectionDef, DrawReplacement,
     EffectDef, EffectResolutionContext, Game, GameEvent, GameObjectId, ObjectCharacteristics,
-    PlayerId, ScopedEffect, StackObject, Target, ZoneKind, ZoneMoveCause, public_cards, remove_card,
+    PlayerId, ScopedEffect, StackObject, Target, ZoneKind, ZoneMoveCause, public_cards,
+    remove_card,
 };
 use crate::card::ObjectPredicateDef;
 

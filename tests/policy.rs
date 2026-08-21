@@ -202,7 +202,7 @@ fn standing_cast_offer(
         options: vec![DecisionOption {
             id: 0,
             label: "Decline".to_owned(),
-            card: Some((card, definition)),
+            card: Some((card, printed(definition))),
             members: Vec::new(),
             ability_text: None,
             zone,
@@ -303,7 +303,7 @@ fn handcrafted_policy_takes_a_preferred_optional_action_when_present() {
         options: vec![DecisionOption {
             id: 1,
             label: "Reveal".to_owned(),
-            card: Some((CardInstanceId(90_001), cards::TERMINUS)),
+            card: Some((CardInstanceId(90_001), printed(cards::TERMINUS))),
             members: Vec::new(),
             ability_text: None,
             zone: DecisionZone::Hand,

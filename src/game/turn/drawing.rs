@@ -156,21 +156,21 @@ impl Game {
         };
         let options = self
             .has_miracle(definition)
-             .then(|| DecisionOption {
-                 id: 1,
-                 label: format!("Reveal {name}"),
-                 card: Some((
-                     card,
-                     ObjectCharacteristics::card(definition, CardPartId::PRIMARY),
-                 )),
+            .then(|| DecisionOption {
+                id: 1,
+                label: format!("Reveal {name}"),
+                card: Some((
+                    card,
+                    ObjectCharacteristics::card(definition, CardPartId::PRIMARY),
+                )),
                 members: Vec::new(),
                 ability_text: None,
                 zone: DecisionZone::Hand,
             })
             .into_iter()
             .collect::<Vec<_>>();
-         let has_action = !options.is_empty();
-         let decision = self.next_decision_id;
+        let has_action = !options.is_empty();
+        let decision = self.next_decision_id;
         self.queue_decision(
             player,
             format!("Take an action with {name}?"),
@@ -216,7 +216,10 @@ impl Game {
                 object: card,
                 ability: origin,
             },
-            definition: held.definition,
+            presentation: Self::ability_presentation(
+                origin,
+                ObjectCharacteristics::card(held.definition, CardPartId::PRIMARY),
+            ),
             owner: held.owner,
             controller: player,
             text: ability.text,

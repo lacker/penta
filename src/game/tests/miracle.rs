@@ -124,7 +124,10 @@ fn miracle_reveal_uses_the_real_definition_and_creates_a_linked_trigger() {
     assert_eq!(reveal.options[0].id, 1);
     assert_eq!(
         reveal.options[0].card,
-        Some((drawn, cards::TERMINUS)),
+        Some((
+            drawn,
+            ObjectCharacteristics::card(cards::TERMINUS, CardPartId::PRIMARY),
+        )),
         "the option carries the card's actual catalog identity"
     );
     assert!(
@@ -354,7 +357,7 @@ fn terminus_offer_contains_only_its_miracle_cost_and_survives_revalidation() {
     assert!(!game.battlefield.iter().any(|permanent| {
         matches!(
             permanent.card.definition,
-            cards::SAVANNAH_LIONS | cards::SERRA_ANGEL
+            ObjectKind::Card(cards::SAVANNAH_LIONS | cards::SERRA_ANGEL)
         )
     }));
 }

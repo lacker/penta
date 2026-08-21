@@ -23,6 +23,9 @@ use super::{
 };
 use crate::card::{ColorSet, ManaColor};
 
+mod ability_kind;
+use ability_kind::{StackAbilityCondition, stack_ability_condition};
+
 pub(super) fn stack_ability_snapshot(
     game: &Game,
     viewer: PlayerId,
@@ -372,34 +375,6 @@ fn stack_payload_matches(
     payload.text == Some(candidate.text)
         && payload.condition == condition
         && payload.resolver == Game::ability_resolver(payload.origin, candidate)
-}
-
-enum StackAbilityCondition {
-    Unsupported,
-    Supported(Option<&'static crate::card::TriggerConditionDef>),
-}
-
-fn stack_ability_condition(
-    kind: StackObjectKind,
-    definition: &crate::card::AbilityDef,
-) -> StackAbilityCondition {
-    match (kind, definition.definition) {
-        (StackObjectKind::ActivatedAbility, DeclarativeAbilityDef::Activated(_)) => {
-            StackAbilityCondition::Supported(None)
-        }
-        (StackObjectKind::TriggeredAbility, DeclarativeAbilityDef::Triggered(triggered)) => {
-            StackAbilityCondition::Supported(triggered.condition)
-        }
-        (
-            StackObjectKind::TriggeredAbility,
-            DeclarativeAbilityDef::AlternativeCast(alternative),
-        ) if definition.is_executable()
-            && alternative.kind == crate::card::AlternativeCastKindDef::Miracle =>
-        {
-            StackAbilityCondition::Supported(None)
-        }
-        _ => StackAbilityCondition::Unsupported,
-    }
 }
 
 pub(super) fn target_selection_snapshot(selection: &TargetSelection) -> TargetSelectionSnapshot {

@@ -257,7 +257,10 @@ fn parse_draw_action_window_continuation(
         .then(|| DecisionOption {
             id: 1,
             label: format!("Reveal {name}"),
-            card: Some((card, definition)),
+            card: Some((
+                card,
+                ObjectCharacteristics::card(definition, CardPartId::PRIMARY),
+            )),
             members: Vec::new(),
             ability_text: None,
             zone: DecisionZone::Hand,
@@ -326,7 +329,10 @@ fn parse_may_cast_alternative_continuation(
     let options = [DecisionOption {
         id: 0,
         label: "Decline".into(),
-        card: Some((card, definition)),
+        card: Some((
+            card,
+            ObjectCharacteristics::card(definition, CardPartId::PRIMARY),
+        )),
         members: Vec::new(),
         ability_text: None,
         zone: DecisionZone::Hand,
@@ -408,7 +414,10 @@ fn parse_may_cast_granted_continuation(
     let options = [DecisionOption {
         id: 0,
         label: "Decline".into(),
-        card: Some((card, instance.definition)),
+        card: Some((
+            card,
+            ObjectCharacteristics::card(instance.definition, CardPartId::PRIMARY),
+        )),
         members: Vec::new(),
         ability_text: None,
         zone: DecisionZone::Graveyard,

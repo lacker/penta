@@ -988,9 +988,7 @@ fn parse_continuation(
             choices_left: *choices_left,
         },
         DecisionContinuationSnapshot::TetravusDetach { source } => {
-            DecisionContinuation::TetravusDetach {
-                source: GameObjectId(*source),
-            }
+            DecisionContinuation::TetravusDetach { source: GameObjectId(*source) }
         }
         DecisionContinuationSnapshot::TetravusAssemble { source } => {
             DecisionContinuation::TetravusAssemble {

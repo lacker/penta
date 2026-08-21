@@ -1,3 +1,17 @@
+fn visible_decision_rebinding_ids(
+    state: Option<&model::DecisionStateSnapshot>,
+) -> Vec<GameObjectId> {
+    state
+        .map(|state| {
+            state
+                .card_origins
+                .iter()
+                .map(|origin| GameObjectId(origin.object_id))
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
 const fn zone_kind_snapshot(zone: ZoneKind) -> ZoneKindSnapshot {
     match zone {
         ZoneKind::Library => ZoneKindSnapshot::Library,

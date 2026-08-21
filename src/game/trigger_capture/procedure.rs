@@ -112,6 +112,13 @@ impl Game {
         // when its controller is asked whether to pay for the copy. Drain the
         // continuation chain before reaching either priority-boundary check.
         loop {
+            // Once an effect has won the game, suspended follow-ups are no
+            // longer rules procedures to finish. The procedure runner uses
+            // the same terminal guard, so calling it again could not make
+            // progress while queued cleanup remained.
+            if self.result.is_some() {
+                return;
+            }
             if self.pending_decisions.is_empty() && !self.pending_events.is_empty() {
                 self.continue_pending_events();
             }

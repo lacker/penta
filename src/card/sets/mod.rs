@@ -300,6 +300,11 @@ const SET_MODULES: &[SetModule] = &[
         y2011::mirrodin_besieged::ADDITIONAL_PRINTINGS,
     ),
     SetModule::new(
+        CardSet::NewPhyrexia,
+        y2011::new_phyrexia::CARDS,
+        y2011::new_phyrexia::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
         CardSet::Conflux,
         y2009::conflux::CARDS,
         y2009::conflux::ADDITIONAL_PRINTINGS,

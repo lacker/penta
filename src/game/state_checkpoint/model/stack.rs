@@ -29,6 +29,10 @@ pub(in crate::game::state_checkpoint) struct StackSnapshot {
     /// spell nothing was spent on.
     #[serde(default, skip_serializing_if = "no_colors_spent")]
     pub(in crate::game::state_checkpoint) colors_of_mana_spent: [bool; 5],
+    /// Additive payment count used by Compleated. Older checkpoints restore
+    /// an ordinary mana-paid spell.
+    #[serde(default, skip_serializing_if = "super::is_zero_u16")]
+    pub(in crate::game::state_checkpoint) phyrexian_symbols_paid_with_life: u16,
     pub(in crate::game::state_checkpoint) cast_via_flashback: bool,
     /// Additive: a payload written before the flag existed restores as
     /// false, which is what an ordinary sorcery-speed cast means anyway.
@@ -86,6 +90,10 @@ pub(in crate::game::state_checkpoint) struct DetachedStackSnapshot {
     /// spell nothing was spent on.
     #[serde(default, skip_serializing_if = "no_colors_spent")]
     pub(in crate::game::state_checkpoint) colors_of_mana_spent: [bool; 5],
+    /// Additive payment count used by Compleated. Older checkpoints restore
+    /// an ordinary mana-paid spell.
+    #[serde(default, skip_serializing_if = "super::is_zero_u16")]
+    pub(in crate::game::state_checkpoint) phyrexian_symbols_paid_with_life: u16,
     pub(in crate::game::state_checkpoint) cast_via_flashback: bool,
     /// Additive: a payload written before the flag existed restores as
     /// false, which is what an ordinary sorcery-speed cast means anyway.
@@ -153,6 +161,10 @@ pub(in crate::game::state_checkpoint) struct ManaCostSnapshot {
     #[serde(default, skip_serializing_if = "super::is_zero_u16")]
     pub(in crate::game::state_checkpoint) colorless: u16,
     pub(in crate::game::state_checkpoint) hybrid: Vec<u16>,
+    /// Flexible symbols added after ordinary two-color hybrid. Older
+    /// checkpoints carry none.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(in crate::game::state_checkpoint) additional_flexible: Vec<u16>,
     pub(in crate::game::state_checkpoint) variable_x: bool,
     pub(in crate::game::state_checkpoint) x_multiplier: u16,
 }

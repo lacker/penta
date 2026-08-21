@@ -214,6 +214,7 @@ fn a_private_effect_choice_is_not_serialized_for_the_other_seat() {
         cast_from_zone: None,
         face_down: None,
         colors_of_mana_spent: crate::card::ColorSet::empty(),
+        phyrexian_symbols_paid_with_life: 0,
         is_copy: false,
     };
     let mut context = EffectResolutionContext::empty();
@@ -317,6 +318,7 @@ fn a_public_effect_choice_cannot_retain_an_unexposed_hidden_object_id() {
         cast_from_zone: None,
         face_down: None,
         colors_of_mana_spent: crate::card::ColorSet::empty(),
+        phyrexian_symbols_paid_with_life: 0,
         is_copy: false,
     };
     let mut context = EffectResolutionContext::empty();
@@ -497,6 +499,7 @@ fn retained_trigger_state_never_serializes_unrebindable_hidden_object_ids() {
         cast_from_zone: None,
         face_down: None,
         colors_of_mana_spent: crate::card::ColorSet::empty(),
+        phyrexian_symbols_paid_with_life: 0,
         is_copy: false,
     });
 

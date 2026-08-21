@@ -1,15 +1,39 @@
 //! Modern Horizons 3 Commander cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType,
+    AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef, ObjectChoiceBindingDef,
     ObjectPredicateDef, ObjectSetDef, PlayerRefDef, PlayerRelation, SpellAdditionalCostDef,
     SpendModeDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
+
+static ULALEK_ABILITIES: [AbilityDef; 2] = [
+    abilities::devoid().with_coverage(AbilityCoverageDef::metadata_only(
+        "Ulalek's colorlessness is represented directly in its printed color metadata.",
+    )),
+    AbilityDef::not_implemented(
+        "Whenever you cast an Eldrazi spell, you may pay {C}{C}. If you do, copy all spells you control, then copy all other activated and triggered abilities you control. You may choose new targets for the copies. (Mana abilities can't be copied.)",
+        "Copying every spell and nonmana ability one player controls, while preserving each copy's choices and allowing new targets, is not modeled.",
+    ),
+];
+
+// M3C 4 — Ulalek, Fused Atrocity
+// Audit: metadata-only — Its creature body and Devoid are catalog metadata; the mass spell-and-ability copy trigger is not executable.
+pub(in crate::card::sets) static ULALEK_FUSED_ATROCITY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fdad1b0e-d3cc-4d76-ae7e-fee12558cf2c"),
+    "Ulalek, Fused Atrocity",
+    CardArt::new("fdad1b0e-d3cc-4d76-ae7e-fee12558cf2c", "Alex Konstad"),
+    CardSet::ModernHorizons3Commander,
+    CardRules::new_creature(mana_cost!("{C/W}{C/U}{C/B}{C/R}{C/G}"), &["Eldrazi"], 2, 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_metadata_only_creature_body()
+        .printed_colors(&[])
+        .with_abilities(&ULALEK_ABILITIES),
+);
 
 /// A Lhurgoyf you control -- this one included, which is what "this creature
 /// or another" comes to.
@@ -184,7 +208,11 @@ pub(in crate::card::sets) static BLOODBRAID_CHALLENGER: CardRecord = CardRecord:
         .with_abilities(&BLOODBRAID_CHALLENGER_ABILITIES),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&BARROWGOYF, &PYROGOYF, &BLOODBRAID_CHALLENGER];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &ULALEK_FUSED_ATROCITY,
+    &BARROWGOYF,
+    &PYROGOYF,
+    &BLOODBRAID_CHALLENGER,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

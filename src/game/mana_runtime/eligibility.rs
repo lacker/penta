@@ -8,7 +8,7 @@ impl Game {
     pub(in crate::game) fn mana_ability_is_usable(
         &self,
         permanent: &Permanent,
-        definition: ActivatedAbilityDef,
+        definition: &ActivatedAbilityDef,
     ) -> bool {
         let taps_source = definition.costs.contains(&AbilityCostDef::TapSource);
         definition.source_zones.contains(&ZoneKind::Battlefield)
@@ -26,7 +26,7 @@ impl Game {
                 })
                 .count()
                 <= 1
-            && !(taps_source && (permanent.tapped || !self.can_use_tap_ability(permanent)))
+            && !(taps_source && (permanent.tapped || !self.can_use_tap_or_untap_ability(permanent)))
             && definition
                 .costs
                 .iter()
@@ -64,7 +64,7 @@ impl Game {
     /// it has such a cost. At most one: two open-ended sizes in one cost
     /// would be two questions with one answer.
     pub(in crate::game) fn variable_counter_removal(
-        definition: ActivatedAbilityDef,
+        definition: &ActivatedAbilityDef,
     ) -> Option<CounterKind> {
         definition.costs.iter().find_map(|cost| match cost {
             AbilityCostDef::RemoveAnyNumberOfCountersFromSource(kind) => Some(*kind),
@@ -77,10 +77,10 @@ impl Game {
     /// A mana cost is payable only out of the pool, so the ability also has
     /// to spend its source: one that could be activated again and again
     /// without changing the board would have nothing to stop it. That is
-    /// also why hybrid and {X} are excluded -- both would need a choice the
-    /// activation has no room to carry.
+    /// also why flexible mana symbols and {X} are excluded -- both would need
+    /// a choice the activation has no room to carry.
     pub(in crate::game) fn mana_ability_cost_is_supported(
-        definition: ActivatedAbilityDef,
+        definition: &ActivatedAbilityDef,
         cost: &AbilityCostDef,
     ) -> bool {
         match cost {
@@ -114,7 +114,7 @@ impl Game {
                         | AbilityCostDef::SacrificePermanents { .. }
                         )
                     });
-                !mana.variable_x && mana.hybrid.iter().all(|count| *count == 0) && bounded
+                !mana.variable_x && mana.hybrid_total() == 0 && bounded
             }
             AbilityCostDef::UntapSource
             | AbilityCostDef::SacrificeObject(_)

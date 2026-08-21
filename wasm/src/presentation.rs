@@ -22,10 +22,13 @@ pub(super) fn hand_mana_cost_value(card: Option<&penta::CardDefinition>) -> Valu
                 "red": cost.red,
                 "green": cost.green,
                 "colorless": cost.colorless,
-                "hybrid": penta::HybridPair::ALL
+                "hybrid": penta::FlexibleManaSymbol::ALL
                     .into_iter()
-                    .filter(|pair| cost.hybrid[pair.index()] > 0)
-                    .map(|pair| json!({ "symbol": pair.symbol(), "count": cost.hybrid[pair.index()] }))
+                    .filter(|symbol| cost.flexible_count(*symbol) > 0)
+                    .map(|symbol| json!({
+                        "symbol": symbol.symbol(),
+                        "count": cost.flexible_count(symbol),
+                    }))
                     .collect::<Vec<_>>(),
                 "x": cost.variable_x,
             })
@@ -48,14 +51,15 @@ pub(super) fn mana_cost_label(cost: penta::ManaCost) -> String {
         (cost.black, "B"),
         (cost.red, "R"),
         (cost.green, "G"),
+        (cost.colorless, "C"),
     ] {
         for _ in 0..amount {
             let _ = write!(label, "{{{symbol}}}");
         }
     }
-    for pair in penta::HybridPair::ALL {
-        for _ in 0..cost.hybrid[pair.index()] {
-            let _ = write!(label, "{{{}}}", pair.symbol());
+    for symbol in penta::FlexibleManaSymbol::ALL {
+        for _ in 0..cost.flexible_count(symbol) {
+            let _ = write!(label, "{{{}}}", symbol.symbol());
         }
     }
     if label.is_empty() {

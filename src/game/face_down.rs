@@ -31,6 +31,14 @@ impl Game {
         &self,
         permanent: &super::Permanent,
     ) -> Option<crate::card::ManaCost> {
+        if self
+            .catalog
+            .get(permanent.card.definition.card_definition()?)?
+            .rules
+            .has_metadata_only_creature_body()
+        {
+            return None;
+        }
         if let Some(cost) = self.printed_morph_cost(permanent) {
             return Some(cost);
         }

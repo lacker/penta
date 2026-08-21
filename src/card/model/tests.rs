@@ -3,9 +3,10 @@ use super::{
     AddManaEffectDef, AlternativeCastKindDef, AlternativeCostDef, CardBehavior, CardComposition,
     CardDefinition, CardEffectStatus, CardPart, CardPrinting, CardPrintingId, CardRules, CardSet,
     CardType, CardTypeSet, CreatureStats, DeclarativeAbilityDef, EffectDef, EffectRecipientDef,
-    ImplementationStatus, LikelihoodDef, ManaColor, ManaCost, ManaCostParseErrorKind,
-    ManaRestrictionDef, ManaSelectionDef, ObjectPredicateDef, PlayOptionDef, PlayerRelation,
-    PrintedManaCost, SpellForm, TargetPredicate, TriggerEventDef, ZoneKind,
+    FlexibleManaSymbol, ImplementationStatus, LikelihoodDef, ManaColor, ManaCost,
+    ManaCostParseErrorKind, ManaRestrictionDef, ManaSelectionDef, ObjectPredicateDef,
+    PlayOptionDef, PlayerRelation, PrintedManaCost, SpellForm, TargetPredicate, TriggerEventDef,
+    ZoneKind,
 };
 use crate::{
     AbilityId, AlternativeCostId, CardDefinitionId, CardPartId, ModeId, PlayOptionId, TargetIndex,
@@ -335,6 +336,79 @@ fn symbolic_mana_costs_parse_at_compile_time_and_runtime() {
 }
 
 #[test]
+fn every_requested_flexible_symbol_parses_and_keeps_its_rules_meaning() {
+    const COST: ManaCost = crate::mana_cost!("{2/B}{R/P}{G/U/P}{C/W}");
+    assert_eq!(COST, "{2/B}{R/P}{G/U/P}{C/W}".parse().unwrap());
+    assert_eq!(COST.to_string(), "{2/B}{R/P}{G/U/P}{C/W}");
+    assert_eq!(COST.flexible_count(FlexibleManaSymbol::TwoBlack), 1);
+    assert_eq!(COST.flexible_count(FlexibleManaSymbol::RedPhyrexian), 1);
+    assert_eq!(
+        COST.flexible_count(FlexibleManaSymbol::BlueGreenPhyrexian),
+        1
+    );
+    assert_eq!(COST.flexible_count(FlexibleManaSymbol::ColorlessWhite), 1);
+    assert_eq!(COST.mana_value(), 5, "two-brid contributes two");
+    assert_eq!(FlexibleManaSymbol::TwoBlack.generic_alternative(), Some(2));
+    assert_eq!(FlexibleManaSymbol::RedPhyrexian.generic_alternative(), None);
+    assert_eq!(FlexibleManaSymbol::RedPhyrexian.life_cost(), Some(2));
+    assert!(
+        COST.without_flexible(FlexibleManaSymbol::TwoBlack, 2)
+            .is_none(),
+        "checked removal rejects a count larger than the printed cost",
+    );
+
+    assert_eq!(crate::mana_cost!("{2/B}{2/B}{2/B}").mana_value(), 6);
+    assert_eq!(crate::mana_cost!("{C}").mana_value(), 1);
+    assert_eq!(crate::mana_cost!("{C}").to_string(), "{C}");
+    assert_eq!(crate::mana_cost!("{W/C}").to_string(), "{C/W}");
+    assert_eq!(crate::mana_cost!("{U/G/P}").to_string(), "{G/U/P}");
+}
+
+#[test]
+fn every_flexible_symbol_round_trips_through_the_runtime_parser() {
+    for symbol in FlexibleManaSymbol::ALL {
+        let printed = format!("{{{}}}", symbol.symbol());
+        let cost = printed
+            .parse::<ManaCost>()
+            .unwrap_or_else(|error| panic!("{printed} must parse: {error}"));
+        assert_eq!(cost.flexible_count(symbol), 1, "{printed}");
+        assert_eq!(cost.hybrid_total(), 1, "{printed}");
+        assert_eq!(cost.mana_value(), symbol.mana_value(), "{printed}");
+        assert_eq!(cost.to_string(), printed, "{printed}");
+    }
+}
+
+#[test]
+fn flexible_symbols_derive_every_colored_component_but_never_colorless() {
+    assert_eq!(
+        CardRules::new_instant(crate::mana_cost!("{G/W}")).colors(),
+        [true, false, false, false, true]
+    );
+    assert_eq!(
+        CardRules::new_sorcery(crate::mana_cost!("{2/B}{2/B}{2/B}")).colors(),
+        [false, false, true, false, false]
+    );
+    assert_eq!(
+        CardRules::new_instant(crate::mana_cost!("{R/P}")).colors(),
+        [false, false, false, true, false]
+    );
+    assert_eq!(
+        CardRules::new_planeswalker(crate::mana_cost!("{2}{G}{G/U/P}{U}"), &["Tamiyo"], 5).colors(),
+        [false, true, false, false, true]
+    );
+    assert_eq!(
+        CardRules::new_creature(
+            crate::mana_cost!("{C/W}{C/U}{C/B}{C/R}{C/G}"),
+            &["Eldrazi"],
+            2,
+            5,
+        )
+        .colors(),
+        [true, true, true, true, true]
+    );
+}
+
+#[test]
 fn alternative_cast_clauses_render_and_project_their_owned_costs() {
     static ABILITIES: [AbilityDef; 3] = [
         AbilityDef::spell("Draw a card.", EffectDef::None),
@@ -428,6 +502,9 @@ fn symbolic_mana_costs_reject_invalid_or_unsupported_notation() {
         ("{2", ManaCostParseErrorKind::UnterminatedSymbol),
         ("{}", ManaCostParseErrorKind::EmptySymbol),
         ("{S}", ManaCostParseErrorKind::InvalidSymbol),
+        ("{P/R}", ManaCostParseErrorKind::InvalidSymbol),
+        ("{G/U/Q}", ManaCostParseErrorKind::InvalidSymbol),
+        ("{2/C}", ManaCostParseErrorKind::InvalidSymbol),
         ("{2}{3}", ManaCostParseErrorKind::DuplicateGenericSymbol),
         ("{65536}", ManaCostParseErrorKind::Overflow),
     ] {
@@ -531,6 +608,37 @@ fn creature_body_with_an_unimplemented_clause_is_partial() {
     assert_eq!(
         CardComposition::single("Partial creature", rules).play_options[0].effect_status,
         CardEffectStatus::Implemented
+    );
+}
+
+#[test]
+fn a_catalog_only_creature_body_can_be_explicitly_metadata_only() {
+    let rules = CardRules::new_creature(ManaCost::default(), &[], 2, 2)
+        .with_metadata_only_creature_body()
+        .with_abilities(&DEFERRED_CLAUSE);
+
+    assert_eq!(
+        rules.implementation_status(),
+        ImplementationStatus::MetadataOnly
+    );
+    assert_eq!(
+        CardComposition::single("Catalog-only creature", rules).play_options[0].effect_status,
+        CardEffectStatus::MetadataOnly
+    );
+}
+
+#[test]
+fn a_catalog_only_creature_body_needs_no_synthetic_deferred_clause() {
+    let rules =
+        CardRules::new_creature(ManaCost::default(), &[], 2, 2).with_metadata_only_creature_body();
+
+    assert_eq!(
+        rules.implementation_status(),
+        ImplementationStatus::MetadataOnly
+    );
+    assert_eq!(
+        CardComposition::single("Catalog-only creature", rules).play_options[0].effect_status,
+        CardEffectStatus::MetadataOnly
     );
 }
 

@@ -19,6 +19,7 @@ fn every_runtime_keyword_has_a_stable_checkpoint_round_trip() {
         KeywordAbility::Undying,
         KeywordAbility::Indestructible,
         KeywordAbility::AttacksEachCombatIfAble,
+        KeywordAbility::Compleated,
     ];
     keywords.extend(crate::card::BasicLandType::ALL.map(KeywordAbility::Landwalk));
     keywords.extend(

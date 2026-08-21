@@ -13,4 +13,4 @@ pub(super) mod outlaws_of_thunder_junction;
 pub(super) mod ravnica_clue_edition;
 pub(super) mod the_big_score;
 
-pub(super) use super::{CardRecord, PrintingRecord};
+pub(super) use super::{CardRecord, PrintingAnchor, PrintingRecord};

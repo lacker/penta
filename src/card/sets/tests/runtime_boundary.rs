@@ -87,6 +87,14 @@ fn activated_cost_boundary_is_specific_to_the_source_zone() {
         &[ZoneKind::Battlefield],
         &[mana, AbilityCostDef::TapSource],
     ));
+    assert!(shared_activated_costs(
+        &[ZoneKind::Battlefield],
+        &[mana, AbilityCostDef::UntapSource],
+    ));
+    assert!(!shared_activated_costs(
+        &[ZoneKind::Hand],
+        &[AbilityCostDef::UntapSource],
+    ));
     assert!(!shared_activated_costs(
         &[ZoneKind::Battlefield],
         &[AbilityCostDef::DiscardSource],

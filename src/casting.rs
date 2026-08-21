@@ -9,7 +9,7 @@ use std::error::Error;
 use std::fmt;
 
 use crate::action::Target;
-use crate::card::SpellForm;
+use crate::card::{FlexibleManaSymbol, SpellForm};
 use crate::ids::{AdditionalCostId, AlternativeCostId, ModeId, PlayOptionId, TargetSlotId};
 
 /// Semantic cost choices made while casting a spell.
@@ -22,6 +22,62 @@ use crate::ids::{AdditionalCostId, AlternativeCostId, ModeId, PlayOptionId, Targ
 pub struct CostConfiguration {
     alternative: Option<AlternativeCostId>,
     additional: Vec<AdditionalCostId>,
+}
+
+/// Copies of one flexible mana symbol paid through its announced alternative.
+///
+/// For a two-brid symbol such as `{2/B}`, `count` is how many copies are paid
+/// with two generic mana. For a Phyrexian symbol, it is how many copies are
+/// paid with 2 life. Ordinary hybrid and colorless-hybrid symbols have only
+/// mana alternatives and therefore never appear here.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct FlexibleManaPayment {
+    symbol: FlexibleManaSymbol,
+    count: u16,
+}
+
+impl FlexibleManaPayment {
+    #[must_use]
+    pub const fn new(symbol: FlexibleManaSymbol, count: u16) -> Self {
+        Self { symbol, count }
+    }
+
+    #[must_use]
+    pub const fn symbol(self) -> FlexibleManaSymbol {
+        self.symbol
+    }
+
+    #[must_use]
+    pub const fn count(self) -> u16 {
+        self.count
+    }
+}
+
+/// Explicit alternatives selected while paying a spell's flexible symbols.
+///
+/// Colored-mana allocation for ordinary hybrid stays with the mana planner;
+/// this records the branches that change a total cost or spend life. It is a
+/// payment fact, not a copiable characteristic, and is deliberately omitted
+/// from [`CastSignature`].
+#[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
+pub struct ManaPaymentChoice {
+    alternatives: Vec<FlexibleManaPayment>,
+}
+
+static EMPTY_MANA_PAYMENT: ManaPaymentChoice = ManaPaymentChoice {
+    alternatives: Vec::new(),
+};
+
+impl ManaPaymentChoice {
+    #[must_use]
+    pub fn new(alternatives: Vec<FlexibleManaPayment>) -> Self {
+        Self { alternatives }
+    }
+
+    #[must_use]
+    pub fn alternatives(&self) -> &[FlexibleManaPayment] {
+        &self.alternatives
+    }
 }
 
 impl CostConfiguration {
@@ -122,8 +178,9 @@ impl TargetSelection {
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct CastChoices {
     play_option: PlayOptionId,
-    modes: Vec<ModeId>,
+    modes: Box<[ModeId]>,
     costs: CostConfiguration,
+    mana_payment: Option<Box<ManaPaymentChoice>>,
     x: u16,
     targets: Vec<TargetSelection>,
 }
@@ -139,8 +196,9 @@ impl CastChoices {
     pub fn new(play_option: PlayOptionId) -> Self {
         Self {
             play_option,
-            modes: Vec::new(),
+            modes: Box::default(),
             costs: CostConfiguration::default(),
+            mana_payment: None,
             x: 0,
             targets: Vec::new(),
         }
@@ -148,13 +206,23 @@ impl CastChoices {
 
     #[must_use]
     pub fn with_modes(mut self, modes: Vec<ModeId>) -> Self {
-        self.modes = modes;
+        self.modes = modes.into_boxed_slice();
         self
     }
 
     #[must_use]
     pub fn with_costs(mut self, costs: CostConfiguration) -> Self {
         self.costs = costs;
+        self
+    }
+
+    #[must_use]
+    pub fn with_mana_payment(mut self, payment: ManaPaymentChoice) -> Self {
+        self.mana_payment = if payment.alternatives().is_empty() {
+            None
+        } else {
+            Some(Box::new(payment))
+        };
         self
     }
 
@@ -186,6 +254,11 @@ impl CastChoices {
     }
 
     #[must_use]
+    pub fn mana_payment(&self) -> &ManaPaymentChoice {
+        self.mana_payment.as_deref().unwrap_or(&EMPTY_MANA_PAYMENT)
+    }
+
+    #[must_use]
     pub const fn x(&self) -> u16 {
         self.x
     }
@@ -207,14 +280,15 @@ impl CastChoices {
 /// The immutable casting choices carried by a spell on the stack.
 ///
 /// Modes are stored in canonical printed order, with repeated IDs preserving
-/// multiplicity. Copying a spell clones this complete value; a copy effect
+/// multiplicity. Copying a spell clones every copiable casting choice; actual
+/// payments such as Phyrexian life are intentionally absent. A copy effect
 /// such as Fork may then replace only target values through
 /// [`Self::copy_with_targets`].
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct CastSignature {
     play_option: PlayOptionId,
     form: SpellForm,
-    modes: Vec<ModeId>,
+    modes: Box<[ModeId]>,
     costs: CostConfiguration,
     x: u16,
     targets: Vec<TargetSelection>,

@@ -242,6 +242,16 @@ impl Game {
         zone: ZoneKind,
         source: GameObjectId,
     ) -> bool {
+        if self
+            .catalog
+            .get(card.definition)
+            .is_some_and(|definition| definition.rules.has_metadata_only_creature_body())
+        {
+            // A catalog-only creature still exposes exact printed metadata to
+            // catalog consumers, but no gameplay effect may select it and
+            // turn that metadata into an executable vanilla permanent.
+            return false;
+        }
         let context = match zone {
             ZoneKind::Library => CharacteristicContext::Library,
             ZoneKind::Hand => CharacteristicContext::Hand,

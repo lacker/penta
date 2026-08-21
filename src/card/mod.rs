@@ -46,7 +46,7 @@ pub use model::{
     DamageRecipientMatcherDef, DamageSourceGroupDef, DamageSourceMatcherDef, DeclarativeAbilityDef,
     DiscardFollowUpDef, DiscardSelectionDef, DividedTotal, DoubleFacedKind, DrawEventMatcherDef,
     EffectDef, EffectExecutionDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
-    EffectRecipientSetDef, EmblemCharacteristics, FaceDownCharacteristics,
+    EffectRecipientSetDef, EmblemCharacteristics, FaceDownCharacteristics, FlexibleManaSymbol,
     GraveyardTypeConditionDef, HalvedValueDef, HybridPair, ImplementationStatus,
     InstalledTriggerDef, InstalledTriggerLifetimeDef, KeywordAbility, LifeConditionDef,
     LikelihoodDef, ManaColor, ManaCost, ManaCostParseError, ManaCostParseErrorKind,

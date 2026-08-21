@@ -93,7 +93,9 @@ impl Game {
         }
     }
 
-    pub(super) fn activated_ability_mana_cost(definition: ActivatedAbilityDef) -> Option<ManaCost> {
+    pub(super) fn activated_ability_mana_cost(
+        definition: &ActivatedAbilityDef,
+    ) -> Option<ManaCost> {
         let mut cost = ManaCost::default();
         let mut has_mana_cost = false;
         for ability_cost in definition.costs.as_slice() {

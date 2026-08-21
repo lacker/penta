@@ -648,33 +648,33 @@ fn fellwar_mana_and_nested_color_queries_use_their_typed_legacy_clauses() {
     assert_eq!(game.players[PlayerId::One.index()].mana_pool.blue, 1);
 }
 
+static TWO_SLOT_TARGETS: [AbilityTargetDef; 2] = [
+    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::HasType(CardType::Creature),
+        zones: &[ZoneKind::Battlefield],
+        controller: Some(PlayerRelation::You),
+        owner: None,
+    }),
+    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::HasType(CardType::Creature),
+        zones: &[ZoneKind::Battlefield],
+        controller: Some(PlayerRelation::You),
+        owner: None,
+    }),
+];
+static TWO_SLOT_EFFECTS: [EffectDef; 2] = [
+    EffectDef::DealDamage {
+        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        amount: ValueDef::Constant(1),
+    },
+    EffectDef::DealDamage {
+        recipient: EffectRecipientDef::Target(TargetIndex(1)),
+        amount: ValueDef::Constant(1),
+    },
+];
+
 #[test]
 fn resolving_ability_masks_an_illegal_target_in_each_frozen_slot() {
-    static TARGETS: [AbilityTargetDef; 2] = [
-        AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-            object: ObjectPredicateDef::HasType(CardType::Creature),
-            zones: &[ZoneKind::Battlefield],
-            controller: Some(PlayerRelation::You),
-            owner: None,
-        }),
-        AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-            object: ObjectPredicateDef::HasType(CardType::Creature),
-            zones: &[ZoneKind::Battlefield],
-            controller: Some(PlayerRelation::You),
-            owner: None,
-        }),
-    ];
-    static EFFECTS: [EffectDef; 2] = [
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(1),
-        },
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex(1)),
-            amount: ValueDef::Constant(1),
-        },
-    ];
-
     let mut game = ready_game();
     let source = CardInstanceId(10_000);
     let first = CardInstanceId(10_001);
@@ -694,7 +694,7 @@ fn resolving_ability_masks_an_illegal_target_in_each_frozen_slot() {
             definition: None,
             presentation: ObjectCharacteristics::card(cards::ANKH_OF_MISHRA, CardPartId::PRIMARY),
             text: Some("Test two-slot trigger"),
-            target_defs: TARGETS.to_vec(),
+            target_defs: TWO_SLOT_TARGETS.to_vec(),
             targets: vec![
                 TargetSelection::single(TargetSlotId(0), Target::Permanent(first)),
                 TargetSelection::single(TargetSlotId(1), Target::Permanent(second)),
@@ -707,7 +707,7 @@ fn resolving_ability_masks_an_illegal_target_in_each_frozen_slot() {
             }
             .into(),
             resolver: StackAbilityResolver::Declarative(ScopedEffect::primary(
-                EffectDef::Sequence(&EFFECTS),
+                EffectDef::Sequence(&TWO_SLOT_EFFECTS),
             )),
             condition: None,
             mode_effects: Vec::new(),
@@ -725,6 +725,7 @@ fn resolving_ability_masks_an_illegal_target_in_each_frozen_slot() {
         cast_from_zone: None,
         face_down: None,
         colors_of_mana_spent: ColorSet::empty(),
+        phyrexian_symbols_paid_with_life: 0,
         is_copy: false,
     });
 

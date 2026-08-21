@@ -14,7 +14,6 @@ use super::{
 mod discovery;
 mod entry_copy;
 mod entry_exile;
-
 impl Game {
     pub(super) fn enqueue_battlefield_entry(&mut self, entry: PendingBattlefieldEntry) {
         self.pending_events.push_back(PendingEvent {
@@ -359,6 +358,7 @@ impl Game {
             cast_from_zone: None,
             face_down: None,
             colors_of_mana_spent: crate::card::ColorSet::empty(),
+            phyrexian_symbols_paid_with_life: 0,
             is_copy: false,
         })
     }

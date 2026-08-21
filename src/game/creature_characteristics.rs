@@ -615,7 +615,9 @@ impl Game {
         )
     }
 
-    pub(super) fn can_use_tap_ability(&self, permanent: &Permanent) -> bool {
+    /// Whether this permanent may pay a `{T}` or `{Q}` activation cost.
+    /// Both symbols apply the creature continuous-control rule; haste lifts it.
+    pub(super) fn can_use_tap_or_untap_ability(&self, permanent: &Permanent) -> bool {
         self.base_stats(permanent).is_none_or(|_| {
             self.permanent_has_executable_keyword(permanent, KeywordAbility::Haste)
                 || self.turns_started[permanent.controller.index()]

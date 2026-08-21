@@ -235,6 +235,7 @@ fn loyalty_activations_require_sorcery_timing_sufficient_loyalty_and_once_per_tu
         chosen_permanents: Vec::new(),
         applied_effects: Vec::new(),
         colors_of_mana_spent: ColorSet::empty(),
+        phyrexian_symbols_paid_with_life: 0,
         is_copy: false,
         text_changes: Vec::new(),
         cast_via_flashback: false,

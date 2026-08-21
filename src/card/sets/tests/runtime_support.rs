@@ -166,6 +166,7 @@ pub(super) fn shared_keyword(keyword: KeywordAbility) -> bool {
             // keyword itself has nothing left to execute.
             | KeywordAbility::Infect
             | KeywordAbility::Devoid
+            | KeywordAbility::Compleated
     )
 }
 
@@ -403,6 +404,7 @@ pub(super) fn shared_activated_costs(source_zones: &[ZoneKind], costs: &[Ability
                 ObjectRefDef::Source | ObjectRefDef::AbilityGrantSource,
             )
             | AbilityCostDef::TapSource
+            | AbilityCostDef::UntapSource
             | AbilityCostDef::SacrificeSource
             // The source leaves the battlefield to pay either way; only
             // where it lands differs.
@@ -430,7 +432,6 @@ pub(super) fn shared_activated_costs(source_zones: &[ZoneKind], costs: &[Ability
                 | ObjectRefDef::TriggeringObject
                 | ObjectRefDef::SourceOfTargetedStackObject(_),
             )
-            | AbilityCostDef::UntapSource
             | AbilityCostDef::DiscardCards(_)
             | AbilityCostDef::Special(_) => false,
         })
@@ -634,7 +635,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
             }
         }
         DeclarativeAbilityDef::ActivatedMana(definition) => {
-            fn is_bounded(definition: ActivatedAbilityDef) -> bool {
+            fn is_bounded(definition: &ActivatedAbilityDef) -> bool {
                 // A printed "only once each turn" bounds the ability just as
                 // surely as a cost that spends the board does, which is what
                 // lets Vivi Ornitier's {0} be a cost at all.
@@ -675,12 +676,13 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     ) || matches!(
                         cost,
                         // Mana is paid out of the pool, so the ability also
-                        // has to be bounded some other way; hybrid and {X}
-                        // would need a choice the activation cannot carry.
+                        // has to be bounded some other way; flexible mana
+                        // symbols and {X} would need a choice the activation
+                        // cannot carry.
                         AbilityCostDef::Mana(mana)
                             if !mana.variable_x
-                                && mana.hybrid.iter().all(|count| *count == 0)
-                                && is_bounded(definition)
+                                && mana.hybrid_total() == 0
+                                && is_bounded(&definition)
                     )
                 })
                 && definition

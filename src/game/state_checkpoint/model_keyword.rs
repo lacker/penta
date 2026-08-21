@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 pub(super) enum KeywordSnapshot {
     Convoke,
     Devoid,
+    Compleated,
     Infect,
     Flying,
     Trample,

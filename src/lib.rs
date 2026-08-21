@@ -36,14 +36,14 @@ pub use card::{
     DamageSourceMatcherDef, DeclarativeAbilityDef, DiscardSelectionDef, DividedTotal,
     DoubleFacedKind, EffectDef, EffectExecutionDef, EffectPaymentCostDef, EffectPaymentDef,
     EffectRecipientDef, EffectRecipientSetDef, EffectSubjectKind, EmblemCharacteristics,
-    FaceDownCharacteristics, GrantedAbilityValidationError, HybridPair, ImplementationStatus,
-    InstalledTriggerDef, InstalledTriggerLifetimeDef, KeywordAbility, LikelihoodDef, ManaCost,
-    ManaCostParseError, ManaCostParseErrorKind, ManaRestrictionDef, ManaSelectionDef,
-    ManaSpendEffectDef, ManaSplit, MeldComponentDef, MeldRecipeDef, MeldResultDef, ModalSpellDef,
-    ModeDef, ModeSetDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PlayActionKind,
-    PlayActionMatcherDef, PlayOptionDef, PlayRestriction, PlayRestrictionDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, PrintedManaCost,
+    FaceDownCharacteristics, FlexibleManaSymbol, GrantedAbilityValidationError, HybridPair,
+    ImplementationStatus, InstalledTriggerDef, InstalledTriggerLifetimeDef, KeywordAbility,
+    LikelihoodDef, ManaCost, ManaCostParseError, ManaCostParseErrorKind, ManaRestrictionDef,
+    ManaSelectionDef, ManaSpendEffectDef, ManaSplit, MeldComponentDef, MeldRecipeDef,
+    MeldResultDef, ModalSpellDef, ModeDef, ModeSetDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef,
+    PlayActionKind, PlayActionMatcherDef, PlayOptionDef, PlayRestriction, PlayRestrictionDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, PrintedManaCost,
     ReplacementAbilityDef, ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectDef,
     ReplacementEventDef, ResolvedEffectDurationDef, ScalarChoiceListDef, SetOperationDef,
     SpecialActionDef, SpellAbilityDef, SpellForm, SpellResolutionDestinationDef, StaticAbilityDef,
@@ -54,7 +54,8 @@ pub use card::{
     face_down, tokens,
 };
 pub use casting::{
-    CastChoices, CastSignature, CostConfiguration, TargetReplacementError, TargetSelection,
+    CastChoices, CastSignature, CostConfiguration, FlexibleManaPayment, ManaPaymentChoice,
+    TargetReplacementError, TargetSelection,
 };
 pub use deck::{Deck, DeckError, ValidatedDeck};
 pub use format::{Format, FormatRules};

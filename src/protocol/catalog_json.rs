@@ -5,8 +5,8 @@ use super::json_common::{
 };
 use super::{ENGINE_VERSION, PROTOCOL_CAPABILITIES, PROTOCOL_VERSION, SIMULATION_FINGERPRINT};
 use crate::card::{
-    CardDefinition, CardRules, CardSet, CardStructure, HybridPair, ImplementationStatus, ManaCost,
-    ModeDef, PlayActionKind, PlayOptionDef, PlayRestriction, TargetSlotDef,
+    CardDefinition, CardRules, CardSet, CardStructure, FlexibleManaSymbol, ImplementationStatus,
+    ManaCost, ModeDef, PlayActionKind, PlayOptionDef, PlayRestriction, TargetSlotDef,
 };
 use crate::{CardCatalog, CardPart, Format};
 
@@ -19,12 +19,15 @@ fn mana_cost_json(cost: &ManaCost) -> Value {
         "red": cost.red,
         "green": cost.green,
         "colorless": cost.colorless,
-        // One entry per pair the cost actually carries, so a client renders
-        // the printed symbols without knowing every pair in the game.
-        "hybrid": HybridPair::ALL
+        // One entry per flexible symbol the cost actually carries, so a
+        // client need not know the engine's complete symbol vocabulary.
+        "hybrid": FlexibleManaSymbol::ALL
             .into_iter()
-            .filter(|pair| cost.hybrid[pair.index()] > 0)
-            .map(|pair| json!({ "symbol": pair.symbol(), "count": cost.hybrid[pair.index()] }))
+            .filter(|symbol| cost.flexible_count(*symbol) > 0)
+            .map(|symbol| json!({
+                "symbol": symbol.symbol(),
+                "count": cost.flexible_count(symbol),
+            }))
             .collect::<Vec<_>>(),
         "variableX": cost.variable_x,
         "xMultiplier": cost.x_multiplier,
@@ -92,6 +95,7 @@ const fn card_set_slug(set: CardSet) -> &'static str {
         CardSet::ChampionsOfKamigawa => "champions_of_kamigawa",
         CardSet::BetrayersOfKamigawa => "betrayers_of_kamigawa",
         CardSet::MirrodinBesieged => "mirrodin-besieged",
+        CardSet::NewPhyrexia => "new-phyrexia",
         CardSet::PlanarChaos => "planar-chaos",
         CardSet::FutureSight => "future-sight",
         CardSet::Lorwyn => "lorwyn",

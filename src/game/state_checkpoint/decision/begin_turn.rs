@@ -4,7 +4,7 @@ use super::*;
 
 pub(super) fn begin_turn_replacement_snapshot(
     game: &Game,
-    replacement: ApplicableBeginTurnReplacement,
+    replacement: &ApplicableBeginTurnReplacement,
 ) -> Option<ApplicableBeginTurnReplacementSnapshot> {
     let ability_locator =
         ability_locator_for_origin(&game.catalog, replacement.source.ability, |ability| {
@@ -45,7 +45,7 @@ pub(super) fn deferred_begin_turn_effect_snapshot(
     game: &Game,
     deferred: &DeferredBeginTurnEffect,
 ) -> Option<DeferredBeginTurnEffectSnapshot> {
-    let replacement = begin_turn_replacement_snapshot(game, deferred.replacement)?;
+    let replacement = begin_turn_replacement_snapshot(game, &deferred.replacement)?;
     let ability = catalog_ability(&game.catalog, &replacement.effect.ability)?;
     Some(DeferredBeginTurnEffectSnapshot {
         effect: scoped_effect_snapshot(

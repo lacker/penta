@@ -1,11 +1,11 @@
 //! Modern Horizons cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
     AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
+    CardSupertype, CardType, CounterKind, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
     SpellAdditionalCostDef, SpendModeDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind,
     ZonePlacement, abilities,
 };
@@ -303,6 +303,38 @@ pub(in crate::card::sets) static FALLEN_SHINOBI: CardRecord = CardRecord::new_wi
         .with_abilities(&SHINOBI_ABILITIES),
 );
 
+static FARMSTEAD_GLEANER_ABILITIES: [AbilityDef; 2] = [
+    AbilityDef::static_ability(
+        "This creature doesn't untap during your untap step.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::Source,
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
+        },
+    ),
+    AbilityDef::activated(
+        "{2}, {Q}: Put a +1/+1 counter on this creature. ({Q} is the untap symbol.)",
+        &[
+            AbilityCostDef::Mana(mana_cost!("{2}")),
+            AbilityCostDef::UntapSource,
+        ],
+        EffectDef::AddCounters {
+            object: EffectRecipientDef::Source,
+            kind: CounterKind::PlusOnePlusOne,
+            amount: ValueDef::Constant(1),
+        },
+    ),
+];
+
+// MH1 222 — Farmstead Gleaner
+pub(in crate::card::sets) static FARMSTEAD_GLEANER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("edafd52f-2dda-4981-baee-404f47ee8969"),
+    "Farmstead Gleaner",
+    CardArt::new("edafd52f-2dda-4981-baee-404f47ee8969", "Josh Hass"),
+    CardSet::ModernHorizons1,
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Scarecrow"], 2, 2)
+        .with_abilities(&FARMSTEAD_GLEANER_ABILITIES),
+);
+
 static SUNBAKED_CANYON_COLORS: [ManaColor; 2] = [ManaColor::Red, ManaColor::White];
 
 static SUNBAKED_CANYON_ABILITIES: [AbilityDef; 2] =
@@ -324,6 +356,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &COLLECTOR_OUPHE,
     &FORCE_OF_VIGOR,
     &FALLEN_SHINOBI,
+    &FARMSTEAD_GLEANER,
     &SUNBAKED_CANYON,
 ];
 

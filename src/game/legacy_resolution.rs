@@ -250,7 +250,7 @@ impl Game {
             // was never cast.
             ZoneKind::Battlefield => {
                 for card in cards {
-                    self.put_card_onto_battlefield_from(
+                    let _ = self.put_card_onto_battlefield_from(
                         card,
                         ZoneKind::Library,
                         super::BattlefieldArrival::under(player),

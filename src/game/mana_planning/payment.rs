@@ -13,7 +13,7 @@ pub(super) fn pay_cost(pool: &mut ManaPool, cost: ManaCost, x: u16) {
         cost,
         x,
         // No rider to prefer, so each pair spends in its printed order.
-        &|_| false,
+        &|_| 0,
         &[
             ManaColor::Colorless,
             ManaColor::Green,
@@ -33,31 +33,151 @@ pub(super) fn pay_cost_with_generic_strategy(
     pool: &mut ManaPool,
     cost: ManaCost,
     x: u16,
-    hybrid_preference: &impl Fn(ManaColor) -> bool,
+    hybrid_preference: &impl Fn(ManaColor) -> u16,
     generic_order: &[ManaColor],
     spread_generic_colors: bool,
 ) {
-    for color in colored_mana() {
-        pool.remove_color(color, mana_cost_amount(cost, color));
+    *pool = payment_remainder(
+        *pool,
+        cost,
+        x,
+        hybrid_preference,
+        generic_order,
+        spread_generic_colors,
+    )
+    .expect("an authoritative payment is affordable");
+}
+
+/// The pool left after one globally consistent allocation to the cost.
+#[allow(clippy::too_many_arguments)]
+pub(super) fn payment_remainder(
+    pool: ManaPool,
+    cost: ManaCost,
+    x: u16,
+    flexible_preference: &impl Fn(ManaColor) -> u16,
+    generic_order: &[ManaColor],
+    spread_generic_colors: bool,
+) -> Option<ManaPool> {
+    let mut remaining = pool;
+    for color in ManaColor::ALL {
+        let required = mana_cost_amount(cost, color);
+        if remaining.amount(color) < required {
+            return None;
+        }
+        remaining.remove_color(color, required);
     }
-    pool.remove_color(ManaColor::Colorless, cost.colorless);
-    if cost.hybrid_total() > 0 {
-        let hybrid = maximum_hybrid_payment(*pool, cost, hybrid_preference);
-        debug_assert_eq!(hybrid.total, hybrid_required_total(cost));
-        for (pair, allocation) in HybridPair::ALL.into_iter().zip(hybrid.allocations) {
-            let (first, second) = pair.colors();
-            pool.remove_color(first, allocation[0]);
-            pool.remove_color(second, allocation[1]);
+    allocate_flexible_symbols(
+        remaining,
+        cost,
+        0,
+        cost.generic
+            .saturating_add(x.saturating_mul(cost.x_multiplier)),
+        flexible_preference,
+        generic_order,
+        spread_generic_colors,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn allocate_flexible_symbols(
+    pool: ManaPool,
+    cost: ManaCost,
+    index: usize,
+    generic: u16,
+    flexible_preference: &impl Fn(ManaColor) -> u16,
+    generic_order: &[ManaColor],
+    spread_generic_colors: bool,
+) -> Option<ManaPool> {
+    let Some(symbol) = FlexibleManaSymbol::ALL.get(index).copied() else {
+        if pool.total() < generic {
+            return None;
+        }
+        let mut after = pool;
+        if spread_generic_colors {
+            pay_generic_spreading_colors(&mut after, generic, generic_order);
+        } else {
+            pay_generic_in_order(&mut after, generic, generic_order);
+        }
+        return Some(after);
+    };
+    let count = cost.flexible_count(symbol);
+    if count == 0 {
+        return allocate_flexible_symbols(
+            pool,
+            cost,
+            index + 1,
+            generic,
+            flexible_preference,
+            generic_order,
+            spread_generic_colors,
+        );
+    }
+
+    let options = symbol.mana_options();
+    let first = options[0];
+    let second = options.get(1).copied();
+    if let Some(generic_alternative) = symbol.generic_alternative() {
+        let maximum_colored = pool.amount(first).min(count);
+        for fewer_colored in 0..=maximum_colored {
+            let colored = maximum_colored - fewer_colored;
+            let mut after = pool;
+            after.remove_color(first, colored);
+            let added = (count - colored).saturating_mul(generic_alternative);
+            if let Some(result) = allocate_flexible_symbols(
+                after,
+                cost,
+                index + 1,
+                generic.saturating_add(added),
+                flexible_preference,
+                generic_order,
+                spread_generic_colors,
+            ) {
+                return Some(result);
+            }
+        }
+        return None;
+    }
+
+    let Some(second) = second else {
+        if pool.amount(first) < count {
+            return None;
+        }
+        let mut after = pool;
+        after.remove_color(first, count);
+        return allocate_flexible_symbols(
+            after,
+            cost,
+            index + 1,
+            generic,
+            flexible_preference,
+            generic_order,
+            spread_generic_colors,
+        );
+    };
+
+    let first_is_preferred = flexible_preference(first) <= flexible_preference(second);
+    for offset in 0..=count {
+        let first_count = if first_is_preferred { count - offset } else { offset };
+        let second_count = count - first_count;
+        if pool.amount(first) < first_count || pool.amount(second) < second_count {
+            continue;
+        }
+        let mut after = pool;
+        after.remove_color(first, first_count);
+        after.remove_color(second, second_count);
+        if let Some(result) = allocate_flexible_symbols(
+            after,
+            cost,
+            index + 1,
+            generic,
+            flexible_preference,
+            generic_order,
+            spread_generic_colors,
+        ) {
+            return Some(result);
         }
     }
-    let generic = cost
-        .generic
-        .saturating_add(x.saturating_mul(cost.x_multiplier));
-    if spread_generic_colors {
-        pay_generic_spreading_colors(pool, generic, generic_order);
-    } else {
-        pay_generic_in_order(pool, generic, generic_order);
-    }
+    None
 }
 
 pub(super) fn add_generic(mut cost: ManaCost, additional: u16) -> ManaCost {
@@ -82,6 +202,10 @@ pub(super) fn add_mana_cost(mut cost: ManaCost, additional: ManaCost) -> ManaCos
     cost.colorless = cost.colorless.saturating_add(additional.colorless);
     for index in 0..HybridPair::COUNT {
         cost.hybrid[index] = cost.hybrid[index].saturating_add(additional.hybrid[index]);
+    }
+    for index in 0..FlexibleManaSymbol::ADDITIONAL_COUNT {
+        cost.additional_flexible[index] =
+            cost.additional_flexible[index].saturating_add(additional.additional_flexible[index]);
     }
     cost.variable_x |= additional.variable_x;
     cost.x_multiplier = cost.x_multiplier.saturating_add(additional.x_multiplier);
@@ -335,7 +459,7 @@ pub(super) fn can_cover_hybrid_cost(pool: ManaPool, cost: ManaCost) -> bool {
 
 /// Whether one colour can pay any hybrid symbol this cost carries.
 pub(super) fn hybrid_pays_with(cost: ManaCost, color: ManaColor) -> bool {
-    HybridPair::ALL
-        .into_iter()
-        .any(|pair| cost.hybrid[pair.index()] > 0 && pair.contains(color))
+    FlexibleManaSymbol::ALL.into_iter().any(|symbol| {
+        cost.flexible_count(symbol) > 0 && symbol.mana_options().contains(&color)
+    })
 }

@@ -18,12 +18,21 @@ Observations and catalogs also advertise named additive capabilities. Replay
 and reconstruction payloads carry their own format versions instead of moving
 the bot-wire epoch.
 
-## 0.7.0 — protocol 27
+## 0.7.0 — protocol 28
 
-This release reports engine 0.7.0 and protocol 27. The simulation fingerprint
+This release reports engine 0.7.0 and protocol 28. The simulation fingerprint
 distinguishes snapshots of the covered source and build inputs.
 
 ### Changed
+
+- **Protocol 28 broadens flexible mana and adds announced payment choices.**
+  Catalog `manaCost.hybrid[].symbol` values can now describe two-brid (`2/B`),
+  Phyrexian (`R/P`), Phyrexian hybrid (`G/U/P`), and colorless hybrid (`C/W`)
+  symbols as well as ordinary two-color hybrid. Cast actions add the optional
+  `choices.manaPayment` array when one or more symbols use an explicitly
+  announced life or generic alternative; mana-paid copies are omitted. Treat
+  symbol strings as open display values. Checkpoint format 7 and replay
+  version 2 are unchanged.
 
 - **Card definition IDs now use printing-anchored, JavaScript-safe 52-bit
   identities.** Every existing card keeps its historic numeric value, now
@@ -35,7 +44,7 @@ distinguishes snapshots of the covered source and build inputs.
   derived values. `CardDefinitionId` is now a constrained,
   nonzero `u64` newtype with `new`, `try_new`, and `get`; Python setters accept
   the wider integer range. Protocol and checkpoint JSON remain exact JSON
-  numbers with unchanged legacy meanings, so protocol 27, checkpoint format 7,
+  numbers with unchanged legacy meanings, so protocol 28, checkpoint format 7,
   and replay version 2 are unchanged.
 
 - **Protocol 27 removes the synthetic face-down card definition.** Face-down

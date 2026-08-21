@@ -86,6 +86,46 @@ fn a_spell_cast_from_a_graveyard_reconstructs_while_it_is_on_the_stack() {
     assert_reconstructs(&game, "a flashback spell on the stack");
 }
 
+#[test]
+fn a_phyrexian_life_payment_reconstructs_and_is_not_copied() {
+    let mut game = ready_game();
+    let tamiyo = card(
+        20_100,
+        crate::card::cards::TAMIYO_COMPLEATED_SAGE,
+        PlayerId::One,
+    );
+    let tamiyo_id = tamiyo.id;
+    game.players[PlayerId::One.index()].hand.push(tamiyo);
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Colorless, 2);
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Green, 1);
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Blue, 1);
+
+    let action = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| {
+            matches!(
+                action,
+                Action::CastSpell { card, choices, .. }
+                    if *card == tamiyo_id && !choices.mana_payment().alternatives().is_empty()
+            )
+        })
+        .expect("Tamiyo can be cast with life for the Phyrexian symbol");
+    game.apply(PlayerId::One, action)
+        .expect("the Phyrexian-life cast is legal");
+    let original = game.stack.last().expect("Tamiyo is on the stack").clone();
+    assert_eq!(original.phyrexian_symbols_paid_with_life, 1);
+    assert_reconstructs(&game, "a Phyrexian-life spell on the stack");
+
+    game.push_copy_with_colors(original, PlayerId::One, Vec::new(), None);
+    assert!(
+        game.stack
+            .last()
+            .is_some_and(|copy| copy.is_copy && copy.phyrexian_symbols_paid_with_life == 0),
+        "a spell copy inherits copiable choices but not its original payment",
+    );
+}
+
 /// Fork puts a copy of a spell on the stack and repaints it red. The copy is
 /// backed by no card in any zone and its color no longer matches its printed
 /// face, so both the copy flag and the override have to survive.

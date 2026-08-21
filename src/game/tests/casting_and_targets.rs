@@ -447,6 +447,7 @@ fn selected_modal_effects_resolve_distinct_and_deferred_flattened_targets() {
             cast_from_zone: None,
             face_down: None,
             colors_of_mana_spent: ColorSet::empty(),
+            phyrexian_symbols_paid_with_life: 0,
             is_copy: false,
         }
     };

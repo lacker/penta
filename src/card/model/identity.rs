@@ -52,6 +52,7 @@ pub enum CardSet {
     ChampionsOfKamigawa,
     BetrayersOfKamigawa,
     MirrodinBesieged,
+    NewPhyrexia,
     PlanarChaos,
     FutureSight,
     Lorwyn,

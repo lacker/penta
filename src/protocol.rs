@@ -91,8 +91,10 @@ use observation_json::{decision_json, stack_object_json};
 /// reports their creator-owned inline characteristics instead. Version 27
 /// does the same for face-down spells and permanents: their rules-defined
 /// characteristics travel inline while their physical card keeps its real
-/// definition identity.
-pub const PROTOCOL_VERSION: u32 = 27;
+/// definition identity. Version 28 broadens catalog mana symbols beyond
+/// ordinary two-color hybrid and records explicitly announced flexible-mana
+/// alternatives on cast actions.
+pub const PROTOCOL_VERSION: u32 = 28;
 
 /// The engine package release. This is ordinary Cargo `SemVer`, not an exact
 /// ruleset identity; use [`SIMULATION_FINGERPRINT`] for replay and model

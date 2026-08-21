@@ -460,6 +460,11 @@ impl Game {
         let (signature, cost, behavior, source_zone) = self
             .validated_cast_signature(player, card_id, choices)
             .expect("validated casting choices remain valid while paying costs");
+        let phyrexian_life = Self::mana_payment_life(choices.mana_payment())
+            .expect("validated casting choices carry a valid flexible-mana payment");
+        let phyrexian_symbols_paid_with_life =
+            Self::phyrexian_symbols_paid_with_life(choices.mana_payment())
+                .expect("validated casting choices carry a valid flexible-mana payment");
         // A standing cast offer is the permission that made this signature
         // legal, so keep it through validation and consume it atomically
         // before paying costs or moving the card.
@@ -493,7 +498,7 @@ impl Game {
             0
         };
         let card = self.remove_card_for_cast(player, card_id, source_zone);
-        let stack_object = self.propose_spell_on_stack(
+        let mut stack_object = self.propose_spell_on_stack(
             player,
             card,
             signature,
@@ -501,12 +506,16 @@ impl Game {
             cast_via_flashback,
             face_down,
         );
+        stack_object.phyrexian_symbols_paid_with_life = phyrexian_symbols_paid_with_life;
         let stack_id = stack_object.id;
         let definition = stack_object
             .card
             .definition
             .card_definition()
             .expect("a cast spell is backed by a card definition");
+        let life = cast_life
+            .saturating_add(library_top_life)
+            .saturating_add(phyrexian_life);
         let payment_purpose = ManaPaymentPurpose::Spell {
             object: stack_id,
             definition,
@@ -517,11 +526,11 @@ impl Game {
                 .expect("a spell has a cast signature")
                 .form()
                 .clone(),
+            channel_life_reservation: life,
         };
         // Life named by the chosen alternative, by the spell's own additional
         // cost, or by the permission that let it be cast off a library, is
         // paid alongside its mana, before the spell is finished on the stack.
-        let life = cast_life.saturating_add(library_top_life);
         if life > 0 {
             self.lose_life(player, life);
         }
@@ -553,75 +562,6 @@ impl Game {
             plan,
             0,
         );
-    }
-
-    fn cast_object_payments_and_life(
-        &self,
-        player: PlayerId,
-        card_id: GameObjectId,
-        signature: &CastSignature,
-        behavior: CardBehavior,
-        context: super::CastCostContext,
-        sacrifices: &[GameObjectId],
-    ) -> (Vec<(GameObjectId, SpendModeDef)>, u16) {
-        let super::CastCostContext { source_zone, offer } = context;
-        let held = match source_zone {
-            CastSourceZone::Hand => self.players[player.index()]
-                .hand
-                .iter()
-                .find(|card| card.id == card_id),
-            CastSourceZone::Graveyard => self.players[player.index()]
-                .graveyard
-                .iter()
-                .find(|card| card.id == card_id),
-            CastSourceZone::Exile => self
-                .players
-                .iter()
-                .flat_map(|state| &state.exile)
-                .find(|card| card.id == card_id),
-            CastSourceZone::LibraryTop => self.players[player.index()]
-                .library
-                .last()
-                .filter(|card| card.id == card_id),
-        }
-        .expect("the validated cast card remains in its source zone");
-        let definition = self
-            .catalog
-            .get(held.definition)
-            .expect("a validated cast definition remains in the catalog");
-        let option = definition
-            .play_option(signature.play_option())
-            .expect("a validated cast option remains in the catalog");
-        let spend_modes = if behavior == CardBehavior::GoblinGrenade {
-            vec![SpendModeDef::ByZone; sacrifices.len()]
-        } else {
-            self.additional_cost_spend_modes(
-                definition,
-                option,
-                signature.costs(),
-                held,
-                super::casting_actions::CastScale {
-                    x: signature.x(),
-                    modes: signature.modes().len(),
-                    offer,
-                },
-            )
-        };
-        assert_eq!(
-            sacrifices.len(),
-            spend_modes.len(),
-            "a validated object payment retains one spend mode per object",
-        );
-        let object_payments = sacrifices.iter().copied().zip(spend_modes).collect();
-        let life = self.configured_cast_life_payment(
-            definition,
-            option,
-            card_id,
-            signature.costs(),
-            signature.x(),
-            offer,
-        );
-        (object_payments, life)
     }
 
     fn remove_card_for_cast(
@@ -702,6 +642,7 @@ impl Game {
             cast_from_zone: Some(source_zone),
             face_down,
             colors_of_mana_spent: crate::card::ColorSet::empty(),
+            phyrexian_symbols_paid_with_life: 0,
             is_copy: false,
         }
     }
@@ -783,8 +724,27 @@ impl Game {
             }
         }
         let (mana_cost, mana_x) = self.residual_cost_after_convoke(cost, x, &purpose, &plan, true);
+        // The spell's nonmana life bill was paid before this continuation
+        // began. Do not reserve it a second time when Channel supplies the
+        // final shortfall after the planned mana abilities resolve.
+        let payment_purpose = match &purpose {
+            ManaPaymentPurpose::Spell {
+                object,
+                definition,
+                controller,
+                form,
+                ..
+            } => ManaPaymentPurpose::Spell {
+                object: *object,
+                definition: *definition,
+                controller: *controller,
+                form: form.clone(),
+                channel_life_reservation: 0,
+            },
+            ManaPaymentPurpose::Ability { .. } | ManaPaymentPurpose::Other => purpose.clone(),
+        };
         let spent_mana =
-            self.pay_player_cost_for(stack_object.controller, mana_cost, mana_x, &purpose);
+            self.pay_player_cost_for(stack_object.controller, mana_cost, mana_x, &payment_purpose);
         Self::apply_spent_mana_to_spell(&mut stack_object, &spent_mana);
         // Recorded whether or not this spell counts them: what paid for a
         // spell is a fact about the cast, and a clause that asks later has

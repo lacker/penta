@@ -551,6 +551,19 @@ impl Game {
                 then,
             } => {
                 let source = object.source.unwrap_or(object.id);
+                // A computed mana-value bound belongs to this resolution, not
+                // merely to the source object. Freeze it while the search is
+                // created so values such as "the number of lands you
+                // control" can use the full effect context before the hidden
+                // zone choices are filtered.
+                let predicate = match predicate {
+                    ObjectPredicateDef::ManaValueAtMostValue(value) => {
+                        ObjectPredicateDef::ManaValueAtMostValue(crate::card::ValueDef::Constant(
+                            self.effect_value(value, object, context, scoped),
+                        ))
+                    }
+                    _ => predicate,
+                };
                 // Sized once, before the search is offered: "up to X, where X
                 // is the number of lands you control" is answered by the
                 // board as the spell resolves.

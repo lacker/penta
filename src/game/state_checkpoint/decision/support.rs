@@ -809,6 +809,10 @@ pub(super) const fn parse_zone_placement(placement: ZonePlacementSnapshot) -> Zo
 }
 
 pub(in crate::game::state_checkpoint) fn mana_cost_snapshot(cost: ManaCost) -> ManaCostSnapshot {
+    let mut additional_flexible = cost.additional_flexible.to_vec();
+    while additional_flexible.last() == Some(&0) {
+        additional_flexible.pop();
+    }
     ManaCostSnapshot {
         generic: cost.generic,
         white: cost.white,
@@ -818,6 +822,9 @@ pub(in crate::game::state_checkpoint) fn mana_cost_snapshot(cost: ManaCost) -> M
         green: cost.green,
         colorless: cost.colorless,
         hybrid: cost.hybrid.to_vec(),
+        // Keep the additive field sparse so an ordinary cost still matches a
+        // checkpoint written before flexible-symbol storage existed.
+        additional_flexible,
         variable_x: cost.variable_x,
         x_multiplier: cost.x_multiplier,
     }
@@ -833,6 +840,13 @@ pub(in crate::game::state_checkpoint) fn mana_cost_from_snapshot(
     for (slot, amount) in hybrid.iter_mut().zip(snapshot.hybrid.iter()) {
         *slot = *amount;
     }
+    let mut additional_flexible = [0; crate::card::FlexibleManaSymbol::ADDITIONAL_COUNT];
+    for (slot, amount) in additional_flexible
+        .iter_mut()
+        .zip(snapshot.additional_flexible.iter())
+    {
+        *slot = *amount;
+    }
     ManaCost {
         generic: snapshot.generic,
         white: snapshot.white,
@@ -842,6 +856,7 @@ pub(in crate::game::state_checkpoint) fn mana_cost_from_snapshot(
         green: snapshot.green,
         colorless: snapshot.colorless,
         hybrid,
+        additional_flexible,
         variable_x: snapshot.variable_x,
         x_multiplier: snapshot.x_multiplier,
     }
@@ -952,5 +967,30 @@ pub(super) fn player(index: usize) -> Result<PlayerId, String> {
         0 => Ok(PlayerId::One),
         1 => Ok(PlayerId::Two),
         _ => Err("seat index must be 0 or 1".into()),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::mana_cost_snapshot;
+    use crate::{FlexibleManaSymbol, ManaCost};
+
+    #[test]
+    fn additive_flexible_mana_snapshot_stays_sparse() {
+        assert!(
+            mana_cost_snapshot(ManaCost::new(2, 0))
+                .additional_flexible
+                .is_empty(),
+            "an older ordinary-mana checkpoint defaults to this same shape",
+        );
+
+        let phyrexian =
+            ManaCost::new(0, 0).with_flexible_symbol(FlexibleManaSymbol::RedPhyrexian, 1);
+        let snapshot = mana_cost_snapshot(phyrexian);
+        assert_eq!(
+            snapshot.additional_flexible.last(),
+            Some(&1),
+            "only storage through the last present flexible symbol is retained",
+        );
     }
 }

@@ -46,6 +46,7 @@ import {
 import {
   actionMatchesTargetedOrigin,
   groupTargetedActionsByOrigin,
+  targetActionsAreUnambiguous,
 } from "./targeted-action-groups.mjs";
 
 const randomSeed = () => crypto.getRandomValues(new Uint32Array(1))[0];
@@ -980,6 +981,7 @@ export function GameClient({
     if (
       targeted.length > 0 &&
       targetedGroups.length === 1 &&
+      targetActionsAreUnambiguous(targeted, actionTargetKeys) &&
       playable.length === 0 &&
       new Set(targeted.map((action) => action.x ?? null)).size === 1
     ) {
@@ -1221,10 +1223,11 @@ export function GameClient({
   };
   const handleTargetDrop = (target: string) => {
     if (!canDragTarget(target)) return;
-    const action = draggingTargetActions.find((candidate) =>
+    const matches = draggingTargetActions.filter((candidate) =>
       actionTargetKeys(candidate).includes(target),
     );
-    if (!action) return;
+    if (matches.length !== 1) return;
+    const [action] = matches;
     dragDropped.current = true;
     setDraggingCardId(null);
     setDragOverTarget(null);
@@ -1261,6 +1264,7 @@ export function GameClient({
       (directActions.length === 0 &&
         targetedActions.length > 0 &&
         targetedGroups.length === 1 &&
+        targetActionsAreUnambiguous(targetedActions, actionTargetKeys) &&
         hasSingleXValue);
   };
 
@@ -3299,6 +3303,7 @@ function GameCard({
   const isRed =
     !card.kind.includes("artifact") &&
     !card.isLand &&
+    !card.rulesText.includes("Devoid") &&
     ((card.manaCost?.red ?? 0) > 0 || hybridIncludes(card.manaCost, "R"));
   const showZeroCost =
     !card.isLand &&
@@ -3308,6 +3313,7 @@ function GameCard({
     card.manaCost.black === 0 &&
     card.manaCost.red === 0 &&
     card.manaCost.green === 0 &&
+    card.manaCost.colorless === 0 &&
     hybridSymbolCount(card.manaCost) === 0 &&
     !card.manaCost.x;
   const manaSymbolCount = card.manaCost
@@ -3318,6 +3324,7 @@ function GameCard({
       card.manaCost.black +
       card.manaCost.red +
       card.manaCost.green +
+      card.manaCost.colorless +
       hybridSymbolCount(card.manaCost)
     : 0;
   const manaCost = formatManaCost(card);
@@ -3471,10 +3478,15 @@ function GameCard({
               {Array.from({ length: card.manaCost.green }, (_, index) => (
                 <i className="mana-green-symbol" key={`g${index}`}>G</i>
               ))}
+              {Array.from({ length: card.manaCost.colorless }, (_, index) => (
+                <i className="mana-colorless-symbol" key={`c${index}`}>C</i>
+              ))}
               {card.manaCost.hybrid.flatMap((pair) =>
                 Array.from({ length: pair.count }, (_, index) => (
                   <i
-                    className="mana-hybrid-symbol"
+                    className={`mana-hybrid-symbol ${
+                      pair.symbol.length > 3 ? "mana-hybrid-symbol-wide" : ""
+                    }`}
                     key={`${pair.symbol}${index}`}
                     style={{ background: hybridGradient(pair.symbol) }}
                   >
@@ -3556,6 +3568,9 @@ const MANA_LETTER_COLORS: Record<string, string> = {
   B: "#403943",
   R: "#e26b4f",
   G: "#4e8a59",
+  C: "#aaa49b",
+  "2": "#d8d2c5",
+  P: "#9f8a9f",
 };
 
 /** A hybrid symbol is split diagonally between its two colours. */
@@ -3566,7 +3581,7 @@ function hybridGradient(symbol: string) {
   return `linear-gradient(135deg, ${from} 0 50%, ${to} 50% 100%)`;
 }
 
-/** How many hybrid symbols a cost prints, across every pair. */
+/** How many flexible mana symbols a cost prints. */
 function hybridSymbolCount(cost: ManaCostView | null | undefined) {
   return (cost?.hybrid ?? []).reduce((total, pair) => total + pair.count, 0);
 }
@@ -3587,6 +3602,7 @@ function formatManaCost(card: Card) {
     "B".repeat(card.manaCost.black),
     "R".repeat(card.manaCost.red),
     "G".repeat(card.manaCost.green),
+    "C".repeat(card.manaCost.colorless),
     ...card.manaCost.hybrid.map((pair) => `{${pair.symbol}}`.repeat(pair.count)),
   ].filter(Boolean);
   return parts.length > 0 ? parts.join(" ") : "0";

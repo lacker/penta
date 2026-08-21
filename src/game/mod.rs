@@ -396,6 +396,10 @@ struct StackObject {
     /// part of the cast signature: a copy is never cast, so no mana was ever
     /// spent on it and its count is zero however the original was paid for.
     colors_of_mana_spent: ColorSet,
+    /// How many Phyrexian mana symbols were paid with life. Like mana colors
+    /// spent, this is a fact about the payment rather than a copiable cast
+    /// characteristic; spell copies always clear it.
+    phyrexian_symbols_paid_with_life: u16,
     is_copy: bool,
 }
 

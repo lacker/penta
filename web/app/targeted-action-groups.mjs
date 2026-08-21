@@ -86,6 +86,26 @@ export function actionMatchesTargetedOrigin(action, selectedSource, selectedOrig
 }
 
 /**
+ * Whether dropping on a target identifies exactly one action. A drag cannot
+ * expose a second picker after the drop, so payment, mode, or cost choices
+ * that share a target have to stay in the click-through action flow.
+ *
+ * @template T
+ * @param {T[]} actions
+ * @param {(action: T) => string[]} targetKeys
+ */
+export function targetActionsAreUnambiguous(actions, targetKeys) {
+  const claimedTargets = new Set();
+  for (const action of actions) {
+    for (const target of targetKeys(action)) {
+      if (claimedTargets.has(target)) return false;
+      claimedTargets.add(target);
+    }
+  }
+  return true;
+}
+
+/**
  * Groups already-filtered targeted actions by the complete serialized origin.
  * A target-independent backend label names the ability picker; the complete
  * target-bearing actions remain available for the next interaction.

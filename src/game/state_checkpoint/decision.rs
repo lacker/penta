@@ -182,7 +182,7 @@ fn continuation_snapshot(
                 .collect(),
             replacements: replacements
                 .iter()
-                .map(|replacement| begin_turn_replacement_snapshot(game, *replacement))
+                .map(|replacement| begin_turn_replacement_snapshot(game, replacement))
                 .collect::<Option<Vec<_>>>()?,
             deferred: deferred
                 .iter()

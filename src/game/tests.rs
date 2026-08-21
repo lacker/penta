@@ -487,6 +487,7 @@ fn spell(id: u32, definition: CardDefinitionId, controller: PlayerId, x: u16) ->
         cast_from_zone: None,
         face_down: None,
         colors_of_mana_spent: ColorSet::empty(),
+        phyrexian_symbols_paid_with_life: 0,
         is_copy: false,
     }
 }
@@ -750,6 +751,8 @@ mod m13_stale_audits;
 mod m14_stale_audits;
 mod mana_ability_costs;
 mod mana_and_costs;
+mod mana_planning_life;
+mod mana_symbol_cards;
 mod mana_triggers;
 mod mana_vault;
 mod meekstone;
@@ -857,6 +860,7 @@ mod unleash;
 mod untap_caps;
 mod untap_skip_spells;
 mod untap_skips;
+mod untap_source_costs;
 mod until_end_of_combat;
 mod urza_lands;
 mod venarian_gold;

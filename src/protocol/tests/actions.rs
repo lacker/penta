@@ -1,4 +1,5 @@
 use super::*;
+use crate::{FlexibleManaPayment, ManaPaymentChoice};
 
 /// Both optional members are absent unless the ability offers the choice
 /// they answer, so an old consumer reading an ordinary mana ability sees the
@@ -218,4 +219,30 @@ fn action_json_locks_play_option_modes_costs_x_and_target_slots() {
         21
     );
     assert_eq!(spell["sacrifices"], json!([12]));
+    assert!(spell["choices"].get("manaPayment").is_none());
+}
+
+#[test]
+fn cast_actions_publish_only_explicit_flexible_symbol_payments() {
+    let life = action_json(&Action::CastSpell {
+        card: GameObjectId(20),
+        choices: CastChoices::default().with_mana_payment(ManaPaymentChoice::new(vec![
+            FlexibleManaPayment::new(crate::FlexibleManaSymbol::RedPhyrexian, 1),
+        ])),
+        sacrifices: Vec::new(),
+    });
+    assert_eq!(life["choices"]["manaPayment"][0]["symbol"], "R/P");
+    assert_eq!(life["choices"]["manaPayment"][0]["count"], 1);
+    assert_eq!(life["choices"]["manaPayment"][0]["payWith"], "life");
+
+    let generic = action_json(&Action::CastSpell {
+        card: GameObjectId(21),
+        choices: CastChoices::default().with_mana_payment(ManaPaymentChoice::new(vec![
+            FlexibleManaPayment::new(crate::FlexibleManaSymbol::TwoBlack, 2),
+        ])),
+        sacrifices: Vec::new(),
+    });
+    assert_eq!(generic["choices"]["manaPayment"][0]["symbol"], "2/B");
+    assert_eq!(generic["choices"]["manaPayment"][0]["count"], 2);
+    assert_eq!(generic["choices"]["manaPayment"][0]["payWith"], "generic");
 }

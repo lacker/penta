@@ -346,6 +346,62 @@ fn a_qualified_hidden_zone_search_may_fail_to_find() {
 }
 
 #[test]
+fn search_zone_resolves_a_computed_mana_value_bound_before_filtering() {
+    static LANDS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
+        ObjectPredicateDef::HasType(CardType::Land),
+        &[ZoneKind::Battlefield],
+        PlayerRelation::You,
+    );
+
+    let mut game = ready_game();
+    game.battlefield.clear();
+    game.players[0].library.clear();
+    game.put_onto_battlefield(PlayerId::One, cards::PLAINS)
+        .expect("Plains is cataloged");
+    game.put_onto_battlefield(PlayerId::One, cards::ISLAND)
+        .expect("Island is cataloged");
+    game.players[0].library.extend([
+        card(10_101, cards::LIGHTNING_BOLT, PlayerId::One),
+        card(10_102, cards::GRIZZLY_BEARS, PlayerId::One),
+        card(10_103, cards::SERRA_ANGEL, PlayerId::One),
+    ]);
+    let source = spell(10_100, cards::DEMONIC_TUTOR, PlayerId::One, 0);
+
+    game.resolve_effect_def(
+        ScopedEffect::primary(EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::ManaValueAtMostValue(ValueDef::CountMatchingObjects(
+                &LANDS_YOU_CONTROL,
+            )),
+            minimum: 0,
+            maximum: ValueDef::Constant(1),
+            reveal: true,
+            destination: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: false,
+            binding: None,
+            then: None,
+        }),
+        &source,
+        TriggerContext::empty(),
+    );
+
+    let decision = game.observe(PlayerId::One).decision.expect("a search");
+    let offered = decision
+        .options
+        .iter()
+        .filter_map(|option| {
+            option
+                .card
+                .and_then(|(_, characteristics)| characteristics.card_definition())
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(offered, vec![cards::LIGHTNING_BOLT, cards::GRIZZLY_BEARS]);
+}
+
+#[test]
 fn search_zone_moves_multiple_selected_cards_in_one_resolution() {
     let mut game = ready_game();
     game.players[0].library.clear();

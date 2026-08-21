@@ -20,6 +20,9 @@ pub(super) enum ManaPaymentPurpose {
         definition: CardDefinitionId,
         controller: PlayerId,
         form: SpellForm,
+        /// Life already committed by the spell while mana abilities are
+        /// planned, including Phyrexian symbols paid with life.
+        channel_life_reservation: u16,
     },
     Ability {
         source: GameObjectId,
@@ -176,6 +179,7 @@ impl PaymentCapacity {
         self.generic = self.generic.saturating_add(output.generic_payment);
     }
 
+    #[allow(dead_code)]
     pub(super) fn add_planned(&mut self, payment: &PlannedManaActivation) {
         self.mana.add(payment.production);
         self.mana.add(payment.convoke_production);
@@ -203,12 +207,14 @@ pub(super) struct PlannedManaActivation {
 }
 
 impl PlannedManaActivation {
+    #[allow(dead_code)]
     pub(super) const fn payment_amount(self, color: ManaColor) -> u16 {
         self.production
             .amount(color)
             .saturating_add(self.convoke_production.amount(color))
     }
 
+    #[allow(dead_code)]
     pub(super) const fn payment_total(self) -> u16 {
         self.production
             .total()

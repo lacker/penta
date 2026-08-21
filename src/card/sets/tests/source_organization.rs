@@ -222,6 +222,7 @@ fn set_source_for_file(path: &Path) -> SetSource {
         Some("champions_of_kamigawa.rs") => source(CardSet::ChampionsOfKamigawa, "CHK"),
         Some("betrayers_of_kamigawa.rs") => source(CardSet::BetrayersOfKamigawa, "BOK"),
         Some("mirrodin_besieged.rs") => source(CardSet::MirrodinBesieged, "MBS"),
+        Some("new_phyrexia.rs") => source(CardSet::NewPhyrexia, "NPH"),
         Some("future_sight.rs") => source(CardSet::FutureSight, "FUT"),
         Some("lorwyn.rs") => source(CardSet::Lorwyn, "LRW"),
         Some("planar_chaos.rs") => source(CardSet::PlanarChaos, "PLC"),

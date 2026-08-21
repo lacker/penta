@@ -606,6 +606,33 @@ impl WebGame {
                 if choices.x() > 0 {
                     let _ = write!(label, " (X={})", choices.x());
                 }
+                if !choices.mana_payment().alternatives().is_empty() {
+                    let payments =
+                        choices
+                            .mana_payment()
+                            .alternatives()
+                            .iter()
+                            .map(|payment| {
+                                let symbol = payment.symbol();
+                                if let Some(life) = symbol.life_cost() {
+                                    format!(
+                                        "{} life for {} {}",
+                                        life.saturating_mul(payment.count()),
+                                        payment.count(),
+                                        symbol.symbol(),
+                                    )
+                                } else {
+                                    format!(
+                                        "{} {} with generic mana",
+                                        payment.count(),
+                                        symbol.symbol(),
+                                    )
+                                }
+                            })
+                            .collect::<Vec<_>>()
+                            .join(", ");
+                    let _ = write!(label, " (pay {payments})");
+                }
                 if !sacrifices.is_empty() {
                     let _ = write!(
                         label,

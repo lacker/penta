@@ -5,6 +5,7 @@ import {
   actionMatchesTargetedOrigin,
   abilityOriginKey,
   groupTargetedActionsByOrigin,
+  targetActionsAreUnambiguous,
   targetedActionOriginKey,
 } from "../app/targeted-action-groups.mjs";
 
@@ -151,4 +152,27 @@ test("actions without an ability origin retain the simple single group flow", ()
   assert.equal(groups[0].key, targetedActionOriginKey(actions[0]));
   assert.deepEqual(groups[0].actions, actions);
   assert.equal(groups[0].label, "Choose a target");
+});
+
+test("drag targeting rejects distinct choices that share one target", () => {
+  const payMana = action(0, null, 40, null);
+  const payLife = {
+    ...action(1, null, 40, null),
+    label: "Cast Gut Shot (pay 2 life for 1 R/P) → target 40",
+  };
+  const targetKeys = (candidate) => [`card:${candidate.targetCardId}`];
+
+  assert.equal(
+    targetActionsAreUnambiguous([payMana, payLife], targetKeys),
+    false,
+    "a drop must not silently select one mana-payment action",
+  );
+  assert.equal(
+    targetActionsAreUnambiguous(
+      [payMana, action(2, null, 41, null)],
+      targetKeys,
+    ),
+    true,
+    "one action per target remains safe to drag",
+  );
 });

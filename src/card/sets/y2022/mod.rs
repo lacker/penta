@@ -5,4 +5,4 @@ pub(super) mod dominaria_united;
 pub(super) mod kamigawa_neon_dynasty;
 pub(super) mod streets_of_new_capenna;
 
-pub(super) use super::{CardRecord, PrintingRecord};
+pub(super) use super::{CardRecord, PrintingAnchor, PrintingRecord};

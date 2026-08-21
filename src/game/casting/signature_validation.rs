@@ -183,7 +183,10 @@ impl Game {
         let behavior =
             Self::play_option_behavior(definition, option).unwrap_or(CardBehavior::Unsupported);
         let types = Self::play_option_types(definition, option)?;
-        if option.effect_status == CardEffectStatus::MetadataOnly && !types.is_creature() {
+        if option.effect_status == CardEffectStatus::MetadataOnly
+            && (!types.is_creature()
+                || !definition.play_option_has_executable_creature_body(option))
+        {
             return None;
         }
 
@@ -251,9 +254,6 @@ impl Game {
         } else {
             0
         };
-        let life_available =
-            self.life_available_after_payment(player, cast_life.saturating_add(library_life))?;
-
         let declared_slots = Self::target_slots_for(option, choices.modes());
         if alternative_kind == Some(AlternativeCastKindDef::Overload) {
             if !choices.targets().is_empty() {
@@ -297,15 +297,22 @@ impl Game {
         } else if !self.declared_slot_selection_is_valid(&declared_slots, choices) {
             return None;
         }
-        cost = reduce_generic(
-            add_mana_cost(cost, self.spell_cost_increase(player, card_id)),
+        cost = add_mana_cost(cost, self.spell_cost_increase(player, card_id));
+        let (cost, phyrexian_life) = Self::locked_mana_payment(cost, choices.mana_payment())?;
+        let cost = reduce_generic(
+            cost,
             self.spell_cost_reduction(definition.id, player, card_id),
         );
+        let total_life = cast_life
+            .saturating_add(library_life)
+            .saturating_add(phyrexian_life);
+        let life_available = self.life_available_after_payment(player, total_life)?;
         let payment_purpose = ManaPaymentPurpose::Spell {
             object: card_id,
             definition: definition.id,
             controller: player,
             form: option.form.clone(),
+            channel_life_reservation: total_life,
         };
         if cost.variable_x && choices.x() > self.maximum_x_for(player, cost, &payment_purpose) {
             return None;

@@ -4,8 +4,9 @@ use crate::ids::{AbilityId, AdditionalCostId, AlternativeCostId, ModeId};
 
 use super::{
     AbilityDef, AdditionalCostDef, AlternativeCostDef, CardBehavior, CardSupertype, CardType,
-    CardTypeSet, ColorSet, DeclarativeAbilityDef, HybridPair, ImplementationStatus, KeywordAbility,
-    ManaColor, ManaCost, ModeSetDef, ObjectPredicateDef, PlayRestriction, PrintedManaCost,
+    CardTypeSet, ColorSet, DeclarativeAbilityDef, FlexibleManaSymbol, ImplementationStatus,
+    KeywordAbility, ManaColor, ManaCost, ModeSetDef, ObjectPredicateDef, PlayRestriction,
+    PrintedManaCost,
 };
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -106,6 +107,9 @@ pub struct CardRules {
     pub(super) printed_mana_cost: PrintedManaCost,
     pub(super) starting_loyalty: Option<u16>,
     pub(super) creature_stats: Option<CreatureStats>,
+    /// Whether the ordinary creature spell/permanent rules represented by
+    /// `creature_stats` are part of this definition's executable coverage.
+    creature_body_is_executable: bool,
     /// Ordered printed rules clauses. Abilities supplied by the rules, such as
     /// those intrinsic to basic land types, are derived by the game engine.
     abilities: CardAbilityList,
@@ -138,11 +142,12 @@ pub struct CardRules {
     pub(super) morph: Option<ManaCost>,
 }
 
-/// Whether any hybrid symbol in this cost can be paid with one colour.
+/// Whether any flexible symbol in this cost contains one colour.
 const fn hybrid_includes(cost: ManaCost, color: ManaColor) -> bool {
     let mut index = 0;
-    while index < HybridPair::COUNT {
-        if cost.hybrid[index] > 0 && HybridPair::ALL[index].contains(color) {
+    while index < FlexibleManaSymbol::COUNT {
+        let symbol = FlexibleManaSymbol::ALL[index];
+        if cost.flexible_count(symbol) > 0 && symbol.contains_color(color) {
             return true;
         }
         index += 1;
@@ -179,6 +184,7 @@ impl CardRules {
             printed_mana_cost,
             starting_loyalty: None,
             creature_stats: None,
+            creature_body_is_executable: true,
             abilities: CardAbilityList::None,
             colors,
             play_restriction: PlayRestriction::Normal,
@@ -243,6 +249,26 @@ impl CardRules {
         rules.subtypes = subtypes;
         rules.creature_stats = Some(CreatureStats { power, toughness });
         rules
+    }
+
+    /// Keeps printed creature characteristics as metadata without exposing
+    /// the baseline creature spell or permanent as executable behavior.
+    #[must_use]
+    pub const fn with_metadata_only_creature_body(mut self) -> Self {
+        self.creature_body_is_executable = false;
+        self
+    }
+
+    #[must_use]
+    pub const fn has_executable_creature_body(&self) -> bool {
+        self.creature_stats.is_some() && self.creature_body_is_executable
+    }
+
+    /// Whether this printed creature exists only as catalog metadata and must
+    /// not be exposed as a face-up gameplay object.
+    #[must_use]
+    pub const fn has_metadata_only_creature_body(&self) -> bool {
+        self.creature_stats.is_some() && !self.creature_body_is_executable
     }
 
     /// Adapts an emblem's ability slice to shared runtime ability machinery
@@ -639,9 +665,9 @@ impl CardRules {
     pub fn implementation_status(&self) -> ImplementationStatus {
         // Playing a land and casting/using a modeled creature body are shared,
         // executable rules even when every card-specific clause is deferred.
-        let mut has_full = self.has_type(CardType::Land) || self.creature_stats.is_some();
+        let mut has_full = self.has_type(CardType::Land) || self.has_executable_creature_body();
         let mut has_partial = false;
-        let mut has_unimplemented = false;
+        let mut has_unimplemented = self.has_metadata_only_creature_body();
         for ability in self.ability_clauses() {
             match ability.implementation_status() {
                 ImplementationStatus::Complete => has_full = true,

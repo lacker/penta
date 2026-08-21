@@ -15,6 +15,7 @@ use super::{
 use crate::card::{AlternateSpellKind, CardStructure, ModeSetDef, SpellForm, ZoneKind};
 
 mod cost_configurations;
+mod mana_payments;
 pub(in crate::game) use cost_configurations::CastScale;
 
 impl Game {
@@ -200,10 +201,10 @@ impl Game {
                 let Some(types) = Self::play_option_types(definition, option) else {
                     continue;
                 };
-                // Metadata-only creatures retain baseline casting/combat. A
-                // metadata-only noncreature spell or modal branch must not be
-                // exposed as a legal action that would silently do nothing.
-                if option.effect_status == CardEffectStatus::MetadataOnly && !types.is_creature() {
+                if option.effect_status == CardEffectStatus::MetadataOnly
+                    && (!types.is_creature()
+                        || !definition.play_option_has_executable_creature_body(option))
+                {
                     continue;
                 }
                 let part_has_flash = match &option.form {
@@ -237,13 +238,6 @@ impl Game {
                 {
                     continue;
                 }
-                let payment_purpose = ManaPaymentPurpose::Spell {
-                    object: card.id,
-                    definition: card.definition,
-                    controller: player,
-                    form: option.form.clone(),
-                };
-
                 for modes in self.implemented_mode_selections(option, player, card.id) {
                     let declared_slots = Self::target_slots_for(option, &modes);
                     let _ = self.visit_cost_configurations(
@@ -282,7 +276,49 @@ impl Game {
                             // out first.
                             let life_cost = Self::spell_life_cost(definition, option);
                             let mana_x = if cost.variable_x {
-                                Some(self.maximum_x_for(player, cost, &payment_purpose))
+                                let increased =
+                                    add_mana_cost(cost, self.spell_cost_increase(player, card.id));
+                                Some(
+                                    Self::mana_payment_choices(increased)
+                                        .into_iter()
+                                        .filter_map(|choice| {
+                                            let (locked, phyrexian_life) =
+                                                Self::locked_mana_payment(increased, &choice)?;
+                                            let total_life = self
+                                                .configured_cast_life_payment(
+                                                    definition,
+                                                    option,
+                                                    card.id,
+                                                    &costs,
+                                                    0,
+                                                    offer.map(|offer| offer.cost),
+                                                )
+                                                .saturating_add(phyrexian_life);
+                                            self.life_available_after_payment(player, total_life)?;
+                                            let exact_purpose = ManaPaymentPurpose::Spell {
+                                                object: card.id,
+                                                definition: card.definition,
+                                                controller: player,
+                                                form: option.form.clone(),
+                                                channel_life_reservation: total_life,
+                                            };
+                                            let maximum = self.maximum_x_for(
+                                                player,
+                                                reduce_generic(
+                                                    locked,
+                                                    self.spell_cost_reduction(
+                                                        definition.id,
+                                                        player,
+                                                        card.id,
+                                                    ),
+                                                ),
+                                                &exact_purpose,
+                                            );
+                                            Some(maximum)
+                                        })
+                                        .max()
+                                        .unwrap_or(0),
+                                )
                             } else {
                                 None
                             };
@@ -308,12 +344,6 @@ impl Game {
                                         .unwrap_or(0)
                                 } else {
                                     0
-                                };
-                                let Some(life_available) = self.life_available_after_payment(
-                                    player,
-                                    cast_life.saturating_add(library_life),
-                                ) else {
-                                    continue;
                                 };
                                 let target_choices = if alternative_kind
                                     == Some(AlternativeCastKindDef::Overload)
@@ -361,73 +391,99 @@ impl Game {
                                     // which is what keeps a discount from
                                     // eating generic mana an increase then
                                     // adds back (CR 601.2f).
-                                    let payable_cost = reduce_generic(
-                                        add_mana_cost(
-                                            add_generic(
-                                                cost,
-                                                extra_target_cost(definition, target_count),
-                                            ),
-                                            self.spell_cost_increase(player, card.id),
+                                    let increased_cost = add_mana_cost(
+                                        add_generic(
+                                            cost,
+                                            extra_target_cost(definition, target_count),
                                         ),
-                                        self.spell_cost_reduction(definition.id, player, card.id),
+                                        self.spell_cost_increase(player, card.id),
                                     );
-                                    if !self.can_pay_cost_for_reserving_with_life(
-                                        player,
-                                        payable_cost,
-                                        x,
-                                        &payment_purpose,
-                                        &[],
-                                        life_available,
-                                    ) {
-                                        continue;
-                                    }
-                                    let sacrifice_choices = if behavior
-                                        == CardBehavior::GoblinGrenade
-                                    {
-                                        self.battlefield
-                                            .iter()
-                                            .filter(|permanent| {
-                                                permanent.controller == player
-                                                    && self.effective_rules(permanent).is_some_and(
-                                                        |rules| rules.has_subtype("Goblin"),
-                                                    )
-                                            })
-                                            .map(|permanent| vec![permanent.card.id])
-                                            .collect()
-                                    } else {
-                                        self.additional_cost_choices(
-                                            definition,
-                                            option,
-                                            &costs,
-                                            card,
-                                            player,
-                                            CastScale {
-                                                x,
-                                                modes: modes.len(),
-                                                offer: offer.map(|offer| offer.cost),
-                                            },
-                                        )
-                                    };
-                                    for sacrifices in sacrifice_choices {
-                                        if !self.can_pay_cost_for_reserving_with_life(
-                                            player,
-                                            payable_cost,
-                                            x,
-                                            &payment_purpose,
-                                            &sacrifices,
-                                            life_available,
-                                        ) {
+                                    for mana_payment in Self::mana_payment_choices(increased_cost) {
+                                        let Some((locked_cost, phyrexian_life)) =
+                                            Self::locked_mana_payment(
+                                                increased_cost,
+                                                &mana_payment,
+                                            )
+                                        else {
                                             continue;
+                                        };
+                                        let payable_cost = reduce_generic(
+                                            locked_cost,
+                                            self.spell_cost_reduction(
+                                                definition.id,
+                                                player,
+                                                card.id,
+                                            ),
+                                        );
+                                        let Some(life_available) = self
+                                            .life_available_after_payment(
+                                                player,
+                                                cast_life
+                                                    .saturating_add(library_life)
+                                                    .saturating_add(phyrexian_life),
+                                            )
+                                        else {
+                                            continue;
+                                        };
+                                        let exact_purpose = ManaPaymentPurpose::Spell {
+                                            object: card.id,
+                                            definition: card.definition,
+                                            controller: player,
+                                            form: option.form.clone(),
+                                            channel_life_reservation: cast_life
+                                                .saturating_add(library_life)
+                                                .saturating_add(phyrexian_life),
+                                        };
+                                        let sacrifice_choices =
+                                            if behavior == CardBehavior::GoblinGrenade {
+                                                self.battlefield
+                                                    .iter()
+                                                    .filter(|permanent| {
+                                                        permanent.controller == player
+                                                            && self
+                                                                .effective_rules(permanent)
+                                                                .is_some_and(|rules| {
+                                                                    rules.has_subtype("Goblin")
+                                                                })
+                                                    })
+                                                    .map(|permanent| vec![permanent.card.id])
+                                                    .collect()
+                                            } else {
+                                                self.additional_cost_choices(
+                                                    definition,
+                                                    option,
+                                                    &costs,
+                                                    card,
+                                                    player,
+                                                    CastScale {
+                                                        x,
+                                                        modes: modes.len(),
+                                                        offer: offer.map(|offer| offer.cost),
+                                                    },
+                                                )
+                                            };
+                                        for sacrifices in sacrifice_choices {
+                                            if !self.can_pay_cost_for_reserving_with_life(
+                                                player,
+                                                payable_cost,
+                                                x,
+                                                &exact_purpose,
+                                                &sacrifices,
+                                                life_available,
+                                            ) {
+                                                continue;
+                                            }
+                                            actions.push(Action::CastSpell {
+                                                card: card.id,
+                                                choices: CastChoices::new(option.id)
+                                                    .with_modes(modes.clone())
+                                                    .with_costs(costs.clone())
+                                                    .with_mana_payment(mana_payment.clone())
+                                                    .with_x(x)
+                                                    .with_targets(targets.clone()),
+                                                sacrifices,
+                                            });
                                         }
-                                        actions.push(Action::CastSpell {
-                                            card: card.id,
-                                            choices: CastChoices::new(option.id)
-                                                .with_modes(modes.clone())
-                                                .with_costs(costs.clone())
-                                                .with_x(x)
-                                                .with_targets(targets.clone()),
-                                            sacrifices,
-                                        });
                                     }
                                 }
                             }

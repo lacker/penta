@@ -38,7 +38,7 @@ impl Game {
             [] => self.commit_next_turn(player, deferred),
             [replacement] if !replacement.optional => {
                 applied.push(replacement.source);
-                if Self::apply_begin_turn_replacement(*replacement, &mut deferred) {
+                if Self::apply_begin_turn_replacement(replacement, &mut deferred) {
                     self.start_next_turn_with_deferred(deferred);
                 } else {
                     self.continue_begin_turn(player, kind, applied, deferred);
@@ -199,7 +199,7 @@ impl Game {
             return;
         };
         applied.push(replacement.source);
-        if Self::apply_begin_turn_replacement(replacement, &mut deferred) {
+        if Self::apply_begin_turn_replacement(&replacement, &mut deferred) {
             self.start_next_turn_with_deferred(deferred);
         } else {
             self.continue_begin_turn(player, kind, applied, deferred);
@@ -236,14 +236,14 @@ impl Game {
     }
 
     fn apply_begin_turn_replacement(
-        replacement: ApplicableBeginTurnReplacement,
+        replacement: &ApplicableBeginTurnReplacement,
         deferred: &mut Vec<DeferredBeginTurnEffect>,
     ) -> bool {
         Self::apply_begin_turn_replacement_effect(replacement, replacement.effect, deferred)
     }
 
     fn apply_begin_turn_replacement_effect(
-        replacement: ApplicableBeginTurnReplacement,
+        replacement: &ApplicableBeginTurnReplacement,
         effect: ReplacementEffectDef,
         deferred: &mut Vec<DeferredBeginTurnEffect>,
     ) -> bool {
@@ -259,7 +259,7 @@ impl Game {
             ReplacementEffectDef::ReplaceEventWithNothing => true,
             ReplacementEffectDef::Perform(effect) => {
                 deferred.push(DeferredBeginTurnEffect {
-                    replacement,
+                    replacement: *replacement,
                     effect: *effect,
                 });
                 false
@@ -281,7 +281,7 @@ impl Game {
     ) {
         for deferred in deferred {
             self.perform_begin_turn_replacement_effect(
-                deferred.replacement,
+                &deferred.replacement,
                 deferred.effect,
                 player,
             );
@@ -290,7 +290,7 @@ impl Game {
 
     fn perform_begin_turn_replacement_effect(
         &mut self,
-        replacement: ApplicableBeginTurnReplacement,
+        replacement: &ApplicableBeginTurnReplacement,
         effect: EffectDef,
         player: PlayerId,
     ) {
@@ -335,6 +335,7 @@ impl Game {
             cast_from_zone: None,
             face_down: None,
             colors_of_mana_spent: crate::card::ColorSet::empty(),
+            phyrexian_symbols_paid_with_life: 0,
             is_copy: false,
         };
         self.resolve_effect_def(

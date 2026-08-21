@@ -820,6 +820,7 @@ pub(super) const fn keyword_snapshot(keyword: KeywordAbility) -> KeywordSnapshot
     match keyword {
         KeywordAbility::Convoke => KeywordSnapshot::Convoke,
         KeywordAbility::Devoid => KeywordSnapshot::Devoid,
+        KeywordAbility::Compleated => KeywordSnapshot::Compleated,
         KeywordAbility::Infect => KeywordSnapshot::Infect,
         KeywordAbility::Flying => KeywordSnapshot::Flying,
         KeywordAbility::Trample => KeywordSnapshot::Trample,
@@ -879,6 +880,7 @@ pub(super) const fn parse_keyword(value: KeywordSnapshot) -> KeywordAbility {
     match value {
         KeywordSnapshot::Convoke => KeywordAbility::Convoke,
         KeywordSnapshot::Devoid => KeywordAbility::Devoid,
+        KeywordSnapshot::Compleated => KeywordAbility::Compleated,
         KeywordSnapshot::Infect => KeywordAbility::Infect,
         KeywordSnapshot::Flying => KeywordAbility::Flying,
         KeywordSnapshot::Trample => KeywordAbility::Trample,

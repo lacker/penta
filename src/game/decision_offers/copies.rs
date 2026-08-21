@@ -305,6 +305,7 @@ impl Game {
         spell.applied_effects.clear();
         // Text-changing effects are not copiable values.
         spell.text_changes.clear();
+        spell.phyrexian_symbols_paid_with_life = 0;
         spell.is_copy = true;
         self.stack.push(spell);
     }

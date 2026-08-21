@@ -49,7 +49,7 @@ impl Game {
 
     /// Every way of answering an activated ability's "choose one --". An
     /// ability that prints no modes has exactly one answer: choose none.
-    pub(super) fn activated_mode_selections(definition: ActivatedAbilityDef) -> Vec<Vec<ModeId>> {
+    pub(super) fn activated_mode_selections(definition: &ActivatedAbilityDef) -> Vec<Vec<ModeId>> {
         let Some(modal) = definition.modes else {
             return vec![Vec::new()];
         };
@@ -72,7 +72,7 @@ impl Game {
     /// The ability's own targets come first, then each chosen mode's, which
     /// is the same flattening a modal spell uses.
     pub(super) fn selected_activated_plan(
-        definition: ActivatedAbilityDef,
+        definition: &ActivatedAbilityDef,
         selected_modes: &[ModeId],
     ) -> Option<SelectedSpellPlan> {
         let Some(modal) = definition.modes else {
@@ -168,6 +168,7 @@ impl Game {
             cast_from_zone: None,
             face_down: None,
             colors_of_mana_spent: crate::card::ColorSet::empty(),
+            phyrexian_symbols_paid_with_life: 0,
             is_copy: false,
         });
         self.events.push(GameEvent::AbilityActivated {
@@ -307,6 +308,7 @@ impl Game {
                     fixed_sacrifices.push(sacrificed);
                 }
                 let taps_source = definition.costs.contains(&AbilityCostDef::TapSource);
+                let untaps_source = definition.costs.contains(&AbilityCostDef::UntapSource);
                 let leaves_source = definition.costs.iter().any(|cost| {
                     matches!(
                         cost,
@@ -323,7 +325,10 @@ impl Game {
                     taps_source,
                     leaves_source,
                 };
-                if (taps_source && (permanent.tapped || !self.can_use_tap_ability(permanent)))
+                if (taps_source
+                    && (permanent.tapped || !self.can_use_tap_or_untap_ability(permanent)))
+                    || (untaps_source
+                        && (!permanent.tapped || !self.can_use_tap_or_untap_ability(permanent)))
                     || !Self::source_counter_costs_are_payable(
                         permanent,
                         definition.costs.as_slice(),
@@ -354,6 +359,7 @@ impl Game {
                         AbilityCostDef::RemoveAnyNumberOfCountersFromSource(_)
                         | AbilityCostDef::RemoveCountersFromSource { .. }
                         | AbilityCostDef::TapSource
+                        | AbilityCostDef::UntapSource
                         | AbilityCostDef::SacrificeSource
                         | AbilityCostDef::SacrificeObject(_)
                         | AbilityCostDef::ReturnSourceToHand
@@ -366,8 +372,7 @@ impl Game {
                         // which the choice list below answers.
                         | AbilityCostDef::ExileCardsFromGraveyard { .. }
                         | AbilityCostDef::DiscardCardMatching(_) => false,
-                        AbilityCostDef::UntapSource
-                        | AbilityCostDef::DiscardSource
+                        AbilityCostDef::DiscardSource
                         | AbilityCostDef::DiscardCards(_)
                         | AbilityCostDef::Special(_) => true,
                     })
@@ -409,7 +414,7 @@ impl Game {
                 }
                 let taps_chosen_permanent =
                     matches!(object_cost, Some(AbilityCostDef::TapPermanent { .. }));
-                let payable_mana_cost = Self::activated_ability_mana_cost(definition)
+                let payable_mana_cost = Self::activated_ability_mana_cost(&definition)
                     .map(|cost| self.ability_mana_cost(permanent, cost));
                 let cost_object_choices = match object_cost {
                     None => vec![Vec::new()],
@@ -544,10 +549,10 @@ impl Game {
                 // "Choose one --" is answered as the ability is activated, so
                 // each way of answering is its own action, with that mode's
                 // targets appended to the ability's own.
-                let mode_selections = Self::activated_mode_selections(definition);
+                let mode_selections = Self::activated_mode_selections(&definition);
                 for x in 0..=max_x {
                     for selected_modes in &mode_selections {
-                        let Some(plan) = Self::selected_activated_plan(definition, selected_modes)
+                        let Some(plan) = Self::selected_activated_plan(&definition, selected_modes)
                         else {
                             continue;
                         };
@@ -641,7 +646,7 @@ impl Game {
             }
             CardBehavior::LibraryOfAlexandria
                 if !permanent.tapped
-                    && self.can_use_tap_ability(permanent)
+                    && self.can_use_tap_or_untap_ability(permanent)
                     && self.players[player.index()].hand.len() == 7 =>
             {
                 actions.push(Action::ActivateAbility {

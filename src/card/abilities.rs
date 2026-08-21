@@ -180,6 +180,13 @@ pub const fn devoid() -> AbilityDef {
     keyword("Devoid (This card has no color.)", KeywordAbility::Devoid)
 }
 
+/// Compleated (CR 702.150): this permanent enters with two fewer loyalty
+/// counters if life was paid for a Phyrexian mana symbol while casting it.
+#[must_use]
+pub const fn compleated(text: &'static str) -> AbilityDef {
+    keyword(text, KeywordAbility::Compleated)
+}
+
 /// Infect (CR 702.90): "This creature deals damage to creatures in the form
 /// of -1/-1 counters and to players in the form of poison counters."
 #[must_use]

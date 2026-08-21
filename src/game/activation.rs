@@ -90,7 +90,7 @@ impl Game {
         {
             return;
         }
-        let Some(plan) = Self::selected_activated_plan(definition, modes) else {
+        let Some(plan) = Self::selected_activated_plan(&definition, modes) else {
             return;
         };
         let frozen = FrozenActivatedAbility {
@@ -203,7 +203,7 @@ impl Game {
             {
                 return;
             }
-            let Some(plan) = Self::selected_activated_plan(definition, modes) else {
+            let Some(plan) = Self::selected_activated_plan(&definition, modes) else {
                 return;
             };
             let frozen = FrozenActivatedAbility {
@@ -340,7 +340,7 @@ impl Game {
             .find_effective_ability(source_permanent, |effective| effective.origin == ability)
             .map(|effective| effective.ability.definition)
         {
-            let Some(plan) = Self::selected_activated_plan(definition, modes) else {
+            let Some(plan) = Self::selected_activated_plan(&definition, modes) else {
                 return;
             };
             frozen_ability.target_defs = plan.target_defs;
@@ -467,6 +467,13 @@ impl Game {
                     AbilityCostDef::TapSource => {
                         let _ = self.tap_permanent(source);
                     }
+                    AbilityCostDef::UntapSource => {
+                        self.battlefield
+                            .iter_mut()
+                            .find(|permanent| permanent.card.id == source)
+                            .expect("a legal activation has its source")
+                            .tapped = false;
+                    }
                     // The open-ended removal never reaches payment: mana
                     // enumeration replaced it with a sized one.
                     AbilityCostDef::RemoveAnyNumberOfCountersFromSource(_)
@@ -544,9 +551,7 @@ impl Game {
                     AbilityCostDef::DiscardCardsAtRandom(amount) => {
                         self.discard_at_random(player, usize::from(*amount));
                     }
-                    AbilityCostDef::UntapSource
-                    | AbilityCostDef::DiscardCards(_)
-                    | AbilityCostDef::Special(_) => {
+                    AbilityCostDef::DiscardCards(_) | AbilityCostDef::Special(_) => {
                         unreachable!("unsupported costs are not offered as legal actions")
                     }
                 }

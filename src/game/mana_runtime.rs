@@ -33,7 +33,7 @@ impl Game {
             let DeclarativeAbilityDef::ActivatedMana(definition) = ability.definition else {
                 return;
             };
-            if !self.mana_ability_is_usable(permanent, definition) {
+            if !self.mana_ability_is_usable(permanent, &definition) {
                 return;
             }
             // A mana ability is enumerated here rather than with the rest, so
@@ -69,7 +69,7 @@ impl Game {
             activations.extend(self.mana_activations_for(
                 permanent,
                 effective.origin,
-                definition,
+                &definition,
                 &ability,
             ));
         });
@@ -77,7 +77,7 @@ impl Game {
     }
 
     fn shared_add_mana_effect(
-        definition: ActivatedAbilityDef,
+        definition: &ActivatedAbilityDef,
         ability: &AbilityDef,
     ) -> Option<AddManaEffectDef> {
         if definition.procedure != AbilityProcedureDef::Shared
@@ -164,7 +164,7 @@ impl Game {
     /// reads its controller's own; both compute their colours from the board
     /// rather than declaring them.
     fn borrowed_mana_ability_behavior(
-        definition: ActivatedAbilityDef,
+        definition: &ActivatedAbilityDef,
         ability: &AbilityDef,
     ) -> Option<CardBehavior> {
         if definition.procedure != AbilityProcedureDef::Legacy
@@ -192,7 +192,7 @@ impl Game {
     fn mana_ability_sacrifice_candidates(
         &self,
         permanent: &Permanent,
-        definition: ActivatedAbilityDef,
+        definition: &ActivatedAbilityDef,
     ) -> Vec<Option<GameObjectId>> {
         let Some((object, controller)) = definition.costs.iter().find_map(|cost| match cost {
             AbilityCostDef::SacrificePermanent { object, controller } => {
@@ -225,7 +225,7 @@ impl Game {
         &self,
         permanent: &Permanent,
         origin: AbilityOrigin,
-        definition: ActivatedAbilityDef,
+        definition: &ActivatedAbilityDef,
         ability: &AbilityDef,
     ) -> Vec<ManaAbilityActivation> {
         let mut activations = Vec::new();
@@ -428,7 +428,7 @@ impl Game {
             }) {
                 return;
             }
-            if let Some(effect) = Self::shared_add_mana_effect(definition, &effective.ability) {
+            if let Some(effect) = Self::shared_add_mana_effect(&definition, &effective.ability) {
                 match effect.mana {
                     ManaSelectionDef::One(kind) => colors.push(kind),
                     ManaSelectionDef::Choice(kinds) | ManaSelectionDef::Combination(kinds) => {
@@ -436,7 +436,7 @@ impl Game {
                     }
                 }
             } else if let Some(behavior) =
-                Self::borrowed_mana_ability_behavior(definition, &effective.ability)
+                Self::borrowed_mana_ability_behavior(&definition, &effective.ability)
             {
                 colors.extend(self.borrowed_mana_colors(permanent, behavior, visiting));
             }
@@ -591,6 +591,7 @@ impl Game {
                 definition,
                 controller,
                 form,
+                ..
             } => self
                 .printed_trigger_event_object(
                     *object,
@@ -744,13 +745,23 @@ impl Game {
         x: u16,
         purpose: &ManaPaymentPurpose,
     ) {
-        let available = self.channel_mana_available(player);
+        let available = self.channel_mana_available_for(player, purpose);
         if available == 0 {
             return;
         }
         let pool = self.eligible_mana_pool(player, purpose);
         let needed = Self::generic_shortfall(pool, cost, x).min(available);
-        for _ in 0..needed {
+        self.channel_for_amount(player, needed, purpose);
+    }
+
+    pub(super) fn channel_for_amount(
+        &mut self,
+        player: PlayerId,
+        amount: u16,
+        purpose: &ManaPaymentPurpose,
+    ) {
+        debug_assert!(amount <= self.channel_mana_available_for(player, purpose));
+        for _ in 0..amount {
             self.players[player.index()].life -= 1;
             self.add_unrestricted_mana(player, ManaColor::Colorless, 1);
         }
@@ -777,7 +788,7 @@ impl Game {
         };
         // A hybrid symbol prefers whichever of its colours carries a rider
         // this payment can use.
-        let hybrid_preference = |color: ManaColor| !has_eligible_spend_effect(color);
+        let hybrid_preference = |color: ManaColor| u16::from(!has_eligible_spend_effect(color));
         let mut generic_order = [
             ManaColor::Colorless,
             ManaColor::Green,
@@ -917,7 +928,7 @@ impl Game {
         x: u16,
         purpose: &ManaPaymentPurpose,
     ) -> bool {
-        self.assigned_mana_activations_for(player, cost, x, purpose)
+        self.plan_mana_activations_for(player, cost, x, None, purpose)
             .is_some()
     }
 

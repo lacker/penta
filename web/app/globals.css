@@ -1482,6 +1482,10 @@ button {
   background: #d8d2c5;
 }
 
+.mana-colorless-symbol {
+  background: #aaa49b;
+}
+
 .mana-red-symbol {
   background: #e26b4f;
 }
@@ -1507,6 +1511,30 @@ button {
 
 .mana-hybrid-symbol {
   font-size: 7px !important;
+}
+
+.game-card-compact .card-cost .mana-hybrid-symbol {
+  font-size: 5px !important;
+  letter-spacing: -0.04em;
+}
+
+/* Phyrexian hybrid uses notation such as G/U/P. Preserve the full printed
+   symbol instead of squeezing five characters into the ordinary round pip. */
+.card-cost .mana-hybrid-symbol-wide {
+  width: 22px;
+  border-radius: 999px;
+  font-size: 6px !important;
+  letter-spacing: -0.04em;
+}
+
+.game-card-compact .card-cost .mana-hybrid-symbol-wide {
+  width: 16px;
+  font-size: 4px !important;
+}
+
+.game-card:not(.game-card-compact) .card-header-dense .card-cost .mana-hybrid-symbol-wide {
+  width: 17px;
+  font-size: 5px !important;
 }
 
 .card-art {

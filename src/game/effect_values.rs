@@ -17,10 +17,10 @@ fn devotion_symbols(cost: crate::card::ManaCost, color: crate::card::ManaColor) 
         // devoted to it.
         crate::card::ManaColor::Colorless => return 0,
     };
-    crate::card::HybridPair::ALL
+    crate::card::FlexibleManaSymbol::ALL
         .into_iter()
-        .filter(|pair| pair.contains(color))
-        .map(|pair| cost.hybrid[pair.index()])
+        .filter(|symbol| symbol.contains_color(color))
+        .map(|symbol| cost.flexible_count(symbol))
         .fold(plain, u16::saturating_add)
 }
 
@@ -441,5 +441,26 @@ impl Game {
                 .count(),
         )
         .unwrap_or(0)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::devotion_symbols;
+    use crate::ManaColor;
+
+    #[test]
+    fn every_flexible_colored_component_counts_toward_devotion() {
+        let cost = crate::mana_cost!("{2/B}{R/P}{G/U/P}{C/W}");
+        for color in [
+            ManaColor::White,
+            ManaColor::Blue,
+            ManaColor::Black,
+            ManaColor::Red,
+            ManaColor::Green,
+        ] {
+            assert_eq!(devotion_symbols(cost, color), 1);
+        }
+        assert_eq!(devotion_symbols(cost, ManaColor::Colorless), 0);
     }
 }

@@ -451,7 +451,7 @@ impl Game {
         })?;
         let card = remove_card(&mut self.players[owner.index()].exile, id)?;
         if zone == ZoneKind::Battlefield {
-            self.put_card_onto_battlefield_from(
+            let _ = self.put_card_onto_battlefield_from(
                 card,
                 ZoneKind::Exile,
                 if transformed {

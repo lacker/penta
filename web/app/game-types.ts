@@ -111,7 +111,8 @@ export type Card = {
     black: number;
     red: number;
     green: number;
-    /** One entry per hybrid pair the cost carries, such as `{ symbol: "R/W", count: 3 }`. */
+    colorless: number;
+    /** One entry per flexible symbol, such as `R/W`, `2/B`, `R/P`, or `C/W`. */
     hybrid: { symbol: string; count: number }[];
     x: boolean;
   } | null;

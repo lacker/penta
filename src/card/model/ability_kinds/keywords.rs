@@ -115,6 +115,10 @@ pub enum KeywordAbility {
     /// card's printed color set being empty, so what this variant adds is
     /// the printed keyword itself -- the name and its reminder text.
     Devoid,
+    /// CR 702.150. A permanent cast using life for Phyrexian symbols enters
+    /// with two fewer loyalty counters per such symbol. The payment count is
+    /// recorded on the spell rather than inferred from mana spent.
+    Compleated,
     /// Protection from every object of two or more colors. Not the union of
     /// the five color qualities: a monocolored source gets through, and a
     /// two-color one is stopped even where neither of its colors alone would
@@ -185,6 +189,7 @@ impl KeywordAbility {
             Self::LegendaryLandwalk => 25,
             Self::Devoid => 28,
             Self::Infect => 29,
+            Self::Compleated => 31,
             Self::ProtectionFrom(_)
             | Self::ProtectionFromCreatureType(_)
             | Self::BandsWithOther(_) => return None,

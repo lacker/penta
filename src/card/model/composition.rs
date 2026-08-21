@@ -409,6 +409,20 @@ impl CardDefinition {
         self.play_options.iter().find(|option| option.id == id)
     }
 
+    /// Whether a metadata-only play option still represents the shared,
+    /// executable body of at least one creature part.
+    #[must_use]
+    pub(crate) fn play_option_has_executable_creature_body(&self, option: &PlayOptionDef) -> bool {
+        let part_ids = match &option.form {
+            SpellForm::Part(part) => core::slice::from_ref(part),
+            SpellForm::Combined(parts) => parts.as_slice(),
+        };
+        part_ids.iter().any(|part_id| {
+            self.part(*part_id)
+                .is_some_and(|part| part.rules.has_executable_creature_body())
+        })
+    }
+
     /// Derives card-level coverage from every ordered clause on every part.
     /// A mix of complete and unimplemented parts is partial; a card is
     /// metadata-only only when every represented clause is unimplemented.

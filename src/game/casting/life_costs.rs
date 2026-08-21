@@ -91,6 +91,7 @@ impl Game {
             .checked_sub(payment)
     }
 
+    #[allow(dead_code)]
     pub(super) fn life_available_for_cast_action(
         &self,
         player: PlayerId,
@@ -160,5 +161,74 @@ impl Game {
                 self.library_top_life_cost(top, player, option)
             })
             .unwrap_or(0)
+    }
+
+    fn cast_object_payments_and_life(
+        &self,
+        player: PlayerId,
+        card_id: GameObjectId,
+        signature: &CastSignature,
+        behavior: CardBehavior,
+        context: super::CastCostContext,
+        sacrifices: &[GameObjectId],
+    ) -> (Vec<(GameObjectId, SpendModeDef)>, u16) {
+        let super::CastCostContext { source_zone, offer } = context;
+        let held = match source_zone {
+            CastSourceZone::Hand => self.players[player.index()]
+                .hand
+                .iter()
+                .find(|card| card.id == card_id),
+            CastSourceZone::Graveyard => self.players[player.index()]
+                .graveyard
+                .iter()
+                .find(|card| card.id == card_id),
+            CastSourceZone::Exile => self
+                .players
+                .iter()
+                .flat_map(|state| &state.exile)
+                .find(|card| card.id == card_id),
+            CastSourceZone::LibraryTop => self.players[player.index()]
+                .library
+                .last()
+                .filter(|card| card.id == card_id),
+        }
+        .expect("the validated cast card remains in its source zone");
+        let definition = self
+            .catalog
+            .get(held.definition)
+            .expect("a validated cast definition remains in the catalog");
+        let option = definition
+            .play_option(signature.play_option())
+            .expect("a validated cast option remains in the catalog");
+        let spend_modes = if behavior == CardBehavior::GoblinGrenade {
+            vec![SpendModeDef::ByZone; sacrifices.len()]
+        } else {
+            self.additional_cost_spend_modes(
+                definition,
+                option,
+                signature.costs(),
+                held,
+                super::casting_actions::CastScale {
+                    x: signature.x(),
+                    modes: signature.modes().len(),
+                    offer,
+                },
+            )
+        };
+        assert_eq!(
+            sacrifices.len(),
+            spend_modes.len(),
+            "a validated object payment retains one spend mode per object",
+        );
+        let object_payments = sacrifices.iter().copied().zip(spend_modes).collect();
+        let life = self.configured_cast_life_payment(
+            definition,
+            option,
+            card_id,
+            signature.costs(),
+            signature.x(),
+            offer,
+        );
+        (object_payments, life)
     }
 }

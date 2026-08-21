@@ -164,7 +164,7 @@ impl Game {
             // Manifested rather than placed: what goes down is a body, and
             // the card under it is what the mana cost to turn it up reads.
             for card in chosen {
-                self.put_card_onto_battlefield_from(
+                let _ = self.put_card_onto_battlefield_from(
                     card,
                     ZoneKind::Library,
                     super::BattlefieldArrival::face_down_under(player, face_down, true),

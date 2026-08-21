@@ -2,7 +2,7 @@ use std::error::Error;
 use std::fmt;
 use std::str::FromStr;
 
-use super::{HybridPair, ManaColor};
+use super::{FlexibleManaSymbol, HybridPair, ManaColor};
 
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
 pub struct ManaCost {
@@ -18,6 +18,10 @@ pub struct ManaCost {
     /// How many hybrid symbols of each colour pair this cost carries, indexed
     /// by [`HybridPair::index`].
     pub hybrid: [u16; HybridPair::COUNT],
+    /// Flexible symbols beyond ordinary two-colour hybrid, indexed by
+    /// [`FlexibleManaSymbol::additional_index`]. Ordinary pairs remain in
+    /// `hybrid` so the longstanding public representation stays compatible.
+    pub additional_flexible: [u16; FlexibleManaSymbol::ADDITIONAL_COUNT],
     pub variable_x: bool,
     pub x_multiplier: u16,
 }
@@ -103,6 +107,7 @@ impl ManaCost {
             green: 0,
             colorless: 0,
             hybrid: [0; HybridPair::COUNT],
+            additional_flexible: [0; FlexibleManaSymbol::ADDITIONAL_COUNT],
             variable_x: false,
             x_multiplier: 0,
         };
@@ -174,16 +179,14 @@ impl ManaCost {
                     b'0'..=b'9' => cost.generic = value,
                     _ => {}
                 }
-            } else if symbol_len == 3
-                && bytes[symbol_start + 1] == b'/'
-                && let Some(pair) =
-                    HybridPair::from_letters(bytes[symbol_start], bytes[symbol_start + 2])
+            } else if let Some(symbol) =
+                Self::parse_flexible_symbol(bytes, symbol_start, symbol_end)
             {
-                let index = pair.index();
-                cost.hybrid[index] = match Self::checked_increment(cost.hybrid[index]) {
+                let value = match Self::checked_increment(cost.flexible_count(symbol)) {
                     Ok(value) => value,
                     Err(kind) => return Err(ManaCostParseError::new(symbol_start, kind)),
                 };
+                cost = cost.with_flexible_symbol(symbol, value);
             } else {
                 let first = bytes[symbol_start];
                 if !first.is_ascii_digit() {
@@ -244,6 +247,51 @@ impl ManaCost {
         Ok(cost)
     }
 
+    const fn parse_flexible_symbol(
+        bytes: &[u8],
+        start: usize,
+        end: usize,
+    ) -> Option<FlexibleManaSymbol> {
+        let len = end - start;
+        if len == 3 && bytes[start + 1] == b'/' {
+            let first = bytes[start];
+            let second = bytes[start + 2];
+            if let Some(pair) = HybridPair::from_letters(first, second) {
+                return Some(FlexibleManaSymbol::from_hybrid_pair(pair));
+            }
+            if first == b'2'
+                && let Some(color) = ManaColor::from_letter(second)
+            {
+                return FlexibleManaSymbol::two_brid(color);
+            }
+            if second == b'P'
+                && let Some(color) = ManaColor::from_letter(first)
+            {
+                return FlexibleManaSymbol::phyrexian(color);
+            }
+            if first == b'C'
+                && let Some(color) = ManaColor::from_letter(second)
+            {
+                return FlexibleManaSymbol::colorless_hybrid(color);
+            }
+            if second == b'C'
+                && let Some(color) = ManaColor::from_letter(first)
+            {
+                return FlexibleManaSymbol::colorless_hybrid(color);
+            }
+            return None;
+        }
+        if len == 5
+            && bytes[start + 1] == b'/'
+            && bytes[start + 3] == b'/'
+            && bytes[start + 4] == b'P'
+            && let Some(pair) = HybridPair::from_letters(bytes[start], bytes[start + 2])
+        {
+            return Some(FlexibleManaSymbol::phyrexian_hybrid(pair));
+        }
+        None
+    }
+
     const fn checked_increment(value: u16) -> Result<u16, ManaCostParseErrorKind> {
         match value.checked_add(1) {
             Some(value) => Ok(value),
@@ -254,13 +302,24 @@ impl ManaCost {
     /// Mana value with each `{X}` treated as zero.
     #[must_use]
     pub const fn mana_value(self) -> u16 {
-        self.generic
+        let mut value = self
+            .generic
             .saturating_add(self.white)
             .saturating_add(self.blue)
             .saturating_add(self.black)
             .saturating_add(self.red)
             .saturating_add(self.green)
-            .saturating_add(self.hybrid_total())
+            .saturating_add(self.colorless);
+        let mut index = 0;
+        while index < FlexibleManaSymbol::COUNT {
+            let symbol = FlexibleManaSymbol::ALL[index];
+            value = value.saturating_add(
+                self.flexible_count(symbol)
+                    .saturating_mul(symbol.mana_value()),
+            );
+            index += 1;
+        }
+        value
     }
 
     #[must_use]
@@ -274,6 +333,7 @@ impl ManaCost {
             green: 0,
             colorless: 0,
             hybrid: [0; HybridPair::COUNT],
+            additional_flexible: [0; FlexibleManaSymbol::ADDITIONAL_COUNT],
             variable_x: false,
             x_multiplier: 0,
         }
@@ -297,6 +357,7 @@ impl ManaCost {
             green,
             colorless: 0,
             hybrid: [0; HybridPair::COUNT],
+            additional_flexible: [0; FlexibleManaSymbol::ADDITIONAL_COUNT],
             variable_x: false,
             x_multiplier: 0,
         }
@@ -312,7 +373,11 @@ impl ManaCost {
             ManaColor::Black => Self::colored(0, 0, 0, amount, 0, 0),
             ManaColor::Red => Self::colored(0, 0, 0, 0, amount, 0),
             ManaColor::Green => Self::colored(0, 0, 0, 0, 0, amount),
-            ManaColor::Colorless => Self::colored(amount, 0, 0, 0, 0, 0),
+            ManaColor::Colorless => {
+                let mut cost = Self::new(0, 0);
+                cost.colorless = amount;
+                cost
+            }
         }
     }
 
@@ -327,6 +392,7 @@ impl ManaCost {
             green: 0,
             colorless: 0,
             hybrid: [0; HybridPair::COUNT],
+            additional_flexible: [0; FlexibleManaSymbol::ADDITIONAL_COUNT],
             variable_x: true,
             x_multiplier: 1,
         }
@@ -342,11 +408,16 @@ impl ManaCost {
     #[must_use]
     pub const fn as_any_color(self) -> Self {
         let mut generic = self.generic;
-        generic += self.white + self.blue + self.black + self.red + self.green;
-        let mut pair = 0;
-        while pair < HybridPair::COUNT {
-            generic += self.hybrid[pair];
-            pair += 1;
+        generic = generic
+            .saturating_add(self.white)
+            .saturating_add(self.blue)
+            .saturating_add(self.black)
+            .saturating_add(self.red)
+            .saturating_add(self.green);
+        let mut symbol = 0;
+        while symbol < FlexibleManaSymbol::COUNT {
+            generic = generic.saturating_add(self.flexible_count(FlexibleManaSymbol::ALL[symbol]));
+            symbol += 1;
         }
         Self {
             generic,
@@ -356,6 +427,7 @@ impl ManaCost {
             red: 0,
             green: 0,
             hybrid: [0; HybridPair::COUNT],
+            additional_flexible: [0; FlexibleManaSymbol::ADDITIONAL_COUNT],
             ..self
         }
     }
@@ -371,6 +443,7 @@ impl ManaCost {
             green,
             colorless: 0,
             hybrid: [0; HybridPair::COUNT],
+            additional_flexible: [0; FlexibleManaSymbol::ADDITIONAL_COUNT],
             variable_x: true,
             x_multiplier: 1,
         }
@@ -395,21 +468,59 @@ impl ManaCost {
             green,
             colorless: 0,
             hybrid: [0; HybridPair::COUNT],
+            additional_flexible: [0; FlexibleManaSymbol::ADDITIONAL_COUNT],
             variable_x: true,
             x_multiplier,
         }
     }
 
-    /// How many hybrid symbols this cost carries in total.
+    /// How many flexible mana symbols this cost carries in total.
     #[must_use]
     pub const fn hybrid_total(&self) -> u16 {
         let mut total: u16 = 0;
         let mut index = 0;
-        while index < HybridPair::COUNT {
-            total = total.saturating_add(self.hybrid[index]);
+        while index < FlexibleManaSymbol::COUNT {
+            total = total.saturating_add(self.flexible_count(FlexibleManaSymbol::ALL[index]));
             index += 1;
         }
         total
+    }
+
+    /// How many copies of one flexible symbol this cost carries.
+    #[must_use]
+    pub const fn flexible_count(&self, symbol: FlexibleManaSymbol) -> u16 {
+        match symbol.hybrid_pair() {
+            Some(pair) => self.hybrid[pair.index()],
+            None => match symbol.additional_index() {
+                Some(index) => self.additional_flexible[index],
+                None => 0,
+            },
+        }
+    }
+
+    /// Sets one flexible symbol's multiplicity.
+    #[must_use]
+    pub const fn with_flexible_symbol(mut self, symbol: FlexibleManaSymbol, count: u16) -> Self {
+        match symbol.hybrid_pair() {
+            Some(pair) => self.hybrid[pair.index()] = count,
+            None => {
+                if let Some(index) = symbol.additional_index() {
+                    self.additional_flexible[index] = count;
+                }
+            }
+        }
+        self
+    }
+
+    /// Removes `count` copies of one symbol, rejecting a forged overpayment.
+    #[must_use]
+    pub const fn without_flexible(self, symbol: FlexibleManaSymbol, count: u16) -> Option<Self> {
+        let present = self.flexible_count(symbol);
+        if count > present {
+            None
+        } else {
+            Some(self.with_flexible_symbol(symbol, present - count))
+        }
     }
 
     #[must_use]
@@ -427,6 +538,7 @@ impl ManaCost {
                 hybrid[pair.index()] = count;
                 hybrid
             },
+            additional_flexible: [0; FlexibleManaSymbol::ADDITIONAL_COUNT],
             variable_x: false,
             x_multiplier: 0,
         }
@@ -452,15 +564,16 @@ impl fmt::Display for ManaCost {
             (self.black, "B"),
             (self.red, "R"),
             (self.green, "G"),
+            (self.colorless, "C"),
         ] {
             for _ in 0..amount {
                 write!(formatter, "{{{symbol}}}")?;
                 wrote_symbol = true;
             }
         }
-        for pair in HybridPair::ALL {
-            for _ in 0..self.hybrid[pair.index()] {
-                write!(formatter, "{{{}}}", pair.symbol())?;
+        for symbol in FlexibleManaSymbol::ALL {
+            for _ in 0..self.flexible_count(symbol) {
+                write!(formatter, "{{{}}}", symbol.symbol())?;
                 wrote_symbol = true;
             }
         }

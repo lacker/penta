@@ -94,6 +94,16 @@ impl Game {
             );
             permanent.face_down = object.face_down;
             self.initialize_battlefield_entry(&mut permanent);
+            if object.phyrexian_symbols_paid_with_life > 0
+                && self.effective_rules(&permanent).is_some_and(|rules| {
+                    rules.has_executable_keyword(crate::card::KeywordAbility::Compleated)
+                })
+            {
+                let loyalty = permanent
+                    .counters(CounterKind::Loyalty)
+                    .saturating_sub(object.phyrexian_symbols_paid_with_life.saturating_mul(2));
+                permanent.set_counters(CounterKind::Loyalty, loyalty);
+            }
             permanent.chosen_player = chosen_player;
             permanent.cast_x = object
                 .signature

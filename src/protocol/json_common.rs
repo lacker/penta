@@ -313,7 +313,7 @@ pub(super) fn target_selections_json(selections: &[crate::TargetSelection]) -> V
 }
 
 pub(super) fn cast_choices_json(choices: &CastChoices) -> Value {
-    json!({
+    let mut value = json!({
         "playOptionId": choices.play_option().0,
         "modeIds": choices.modes().iter().map(|mode| mode.0).collect::<Vec<_>>(),
         "alternativeCostId": choices.costs().alternative().map(|cost| cost.0),
@@ -325,7 +325,29 @@ pub(super) fn cast_choices_json(choices: &CastChoices) -> Value {
             .collect::<Vec<_>>(),
         "x": choices.x(),
         "targetSelections": target_selections_json(choices.targets()),
-    })
+    });
+    if !choices.mana_payment().alternatives().is_empty() {
+        value["manaPayment"] = Value::Array(
+            choices
+                .mana_payment()
+                .alternatives()
+                .iter()
+                .map(|payment| {
+                    let symbol = payment.symbol();
+                    json!({
+                        "symbol": symbol.symbol(),
+                        "count": payment.count(),
+                        "payWith": if symbol.life_cost().is_some() {
+                            "life"
+                        } else {
+                            "generic"
+                        },
+                    })
+                })
+                .collect(),
+        );
+    }
+    value
 }
 
 pub(super) fn cast_signature_json(signature: &CastSignature) -> Value {

@@ -1,4 +1,6 @@
-use std::ops::ControlFlow;
+use std::{collections::HashMap, ops::ControlFlow};
+
+use crate::card::FlexibleManaSymbol;
 
 use super::{
     AbilityCostDef, AbilityOrigin, AbilityProcedureDef, Action, ActivatedAbilityDef,
@@ -26,9 +28,7 @@ impl Game {
             _ => &[],
         };
         let life_available = match action {
-            Action::CastSpell { card, choices, .. } => self
-                .life_available_for_cast_action(player, *card, choices)
-                .unwrap_or(0),
+            Action::CastSpell { .. } => self.mana_ability_life_budget(player, &purpose),
             _ => u16::try_from(self.players[player.index()].life.max(0)).unwrap_or(u16::MAX),
         };
         unique_payment_source_ids(
@@ -67,15 +67,36 @@ impl Game {
                     .filter(|offer| offer.player == player && offer.card == *card)
                     .map(|offer| offer.cost);
                 let cost = self.configured_cast_mana_cost(*card, option, choices.costs(), offer)?;
+                let increased = add_mana_cost(
+                    add_generic(
+                        cost,
+                        extra_target_cost(definition, choices.iter_targets().count()),
+                    ),
+                    self.spell_cost_increase(player, *card),
+                );
+                let (locked, phyrexian_life) =
+                    Self::locked_mana_payment(increased, choices.mana_payment())?;
+                let cast_life = self.configured_cast_life_payment(
+                    definition,
+                    option,
+                    *card,
+                    choices.costs(),
+                    choices.x(),
+                    offer,
+                );
+                let library_life = self
+                    .players
+                    .iter()
+                    .flat_map(|state| &state.library)
+                    .find(|candidate| candidate.id == *card)
+                    .and_then(|held| self.library_top_life_cost(held, player, option))
+                    .unwrap_or(0);
+                let total_life = cast_life
+                    .saturating_add(library_life)
+                    .saturating_add(phyrexian_life);
                 Some((
                     reduce_generic(
-                        add_mana_cost(
-                            add_generic(
-                                cost,
-                                extra_target_cost(definition, choices.iter_targets().count()),
-                            ),
-                            self.spell_cost_increase(player, *card),
-                        ),
+                        locked,
                         self.spell_cost_reduction(definition.id, player, *card),
                     ),
                     choices.x(),
@@ -85,6 +106,7 @@ impl Game {
                         definition: definition.id,
                         controller: player,
                         form: option.form.clone(),
+                        channel_life_reservation: total_life,
                     },
                 ))
             }
@@ -100,7 +122,7 @@ impl Game {
     }
 
     fn battlefield_ability_mana_context(
-        definition: ActivatedAbilityDef,
+        definition: &ActivatedAbilityDef,
         source: GameObjectId,
         cost_objects: &[GameObjectId],
         animates_source: bool,
@@ -172,7 +194,7 @@ impl Game {
                     _ => None,
                 })
         {
-            return Self::activated_ability_mana_cost(definition).map(|cost| {
+            return Self::activated_ability_mana_cost(&definition).map(|cost| {
                 (
                     cost,
                     x,
@@ -211,12 +233,12 @@ impl Game {
             })
         {
             let (options, purpose) = Self::battlefield_ability_mana_context(
-                definition,
+                &definition,
                 source,
                 cost_objects,
                 animates_source,
             );
-            return Self::activated_ability_mana_cost(definition)
+            return Self::activated_ability_mana_cost(&definition)
                 .map(|cost| (cost, x, options, purpose));
         }
 
@@ -245,6 +267,36 @@ impl Game {
             return 0;
         }
         u16::try_from(self.players[player.index()].life.saturating_sub(1)).unwrap_or(0)
+    }
+
+    /// Channel mana available after reserving life already committed by the
+    /// spell being paid for.
+    pub(super) fn channel_mana_available_for(
+        &self,
+        player: PlayerId,
+        purpose: &ManaPaymentPurpose,
+    ) -> u16 {
+        if !self.channel_active[player.index()] {
+            return 0;
+        }
+        self.mana_ability_life_budget(player, purpose)
+            .saturating_sub(1)
+    }
+
+    pub(super) fn mana_ability_life_budget(
+        &self,
+        player: PlayerId,
+        purpose: &ManaPaymentPurpose,
+    ) -> u16 {
+        let reserved = match purpose {
+            ManaPaymentPurpose::Spell {
+                channel_life_reservation,
+                ..
+            } => *channel_life_reservation,
+            ManaPaymentPurpose::Ability { .. } | ManaPaymentPurpose::Other => 0,
+        };
+        let reserved = i16::try_from(reserved).unwrap_or(i16::MAX);
+        u16::try_from(self.players[player.index()].life.saturating_sub(reserved)).unwrap_or(0)
     }
 
     /// The generic mana this payment would be short if it drew only on the
@@ -353,6 +405,29 @@ impl Game {
         })
     }
 
+    pub(super) fn plan_mana_activations_for(
+        &self,
+        player: PlayerId,
+        cost: ManaCost,
+        x: u16,
+        avoid: Option<GameObjectId>,
+        purpose: &ManaPaymentPurpose,
+    ) -> Option<Vec<PlannedManaActivation>> {
+        let life_available = self.mana_ability_life_budget(player, purpose);
+        self.plan_mana_activations(ManaPlanningRequest {
+            player,
+            cost,
+            x,
+            options: ManaPlanOptions {
+                avoid,
+                tap_cost_payer: None,
+            },
+            purpose,
+            reserved: &[],
+            life_available,
+        })
+    }
+
     pub(super) fn plan_mana_activations_for_reserving(
         &self,
         player: PlayerId,
@@ -382,25 +457,10 @@ impl Game {
         &self,
         request: ManaPlanningRequest<'_>,
     ) -> Option<Vec<PlannedManaActivation>> {
-        let available = self.assigned_mana_activations(request)?;
-        let (cost, x) = self.restrict_x(request.cost, request.x, request.purpose);
-        let mana = self.eligible_mana_pool(request.player, request.purpose);
-        let channel_enabled = self.channel_active[request.player.index()];
-        let mut selection = ManaPlanSelection::new(available, mana, request.options.avoid);
-        selection.pay_colored(cost)?;
-        selection.pay_hybrid(cost)?;
-        selection.pay_colorless(cost, channel_enabled, request.life_available)?;
-        let required_total = colored_cost_total(cost)
-            .saturating_add(cost.generic)
-            .saturating_add(x.saturating_mul(cost.x_multiplier));
-        selection.pay_total(required_total, channel_enabled, request.life_available)?;
-        let effective = with_channel_capacity(
-            selection.pool,
-            channel_enabled,
-            request.life_available.saturating_sub(selection.life_spent),
-        );
-        debug_assert!(can_cover_payment(effective, cost, x));
-        order_mana_activations_before_consumption(selection.selected)
+        order_mana_activations_before_consumption(
+            self.assigned_mana_activations(request)?,
+            request.cost,
+        )
     }
 
     /// "Players can't cast spells or play lands with ..." Read while play
@@ -719,17 +779,7 @@ impl Game {
 }
 
 pub(super) fn can_pay(pool: ManaPool, cost: ManaCost, x: u16) -> bool {
-    pool.white >= cost.white
-        && pool.blue >= cost.blue
-        && pool.black >= cost.black
-        && pool.red >= cost.red
-        && pool.green >= cost.green
-        && pool.colorless >= cost.colorless
-        && can_cover_hybrid_cost(pool, cost)
-        && pool.total()
-            >= colored_cost_total(cost)
-                .saturating_add(cost.generic)
-                .saturating_add(x.saturating_mul(cost.x_multiplier))
+    payment_remainder(pool, cost, x, &|_| 0, &ManaColor::ALL, false).is_some()
 }
 
 /// The selected mana cost before optional additional costs are added. An

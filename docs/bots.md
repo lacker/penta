@@ -5,7 +5,7 @@ ships Eternal Central Old School 93/94 and the final pre-Theros ISD–DGM
 Standard format. This guide is for writing a program that plays it: from
 Python, C, C++, or Rust, against the included bots or against itself.
 
-This guide describes the current development wire contract, **protocol 27**,
+This guide describes the current development wire contract, **protocol 28**,
 which retains protocol 22's open-world model. Ignore JSON object members your bot does not use;
 the epoch changes only when an existing field or tag is removed, renamed,
 retyped, or reinterpreted. Additive fields and different legal actions expressed
@@ -373,7 +373,7 @@ world it can search.
 
 | field | meaning |
 | --- | --- |
-| `protocolVersion` | the breaking bot-wire epoch; protocol 27 objects are open-world, but an epoch mismatch requires migration |
+| `protocolVersion` | the breaking bot-wire epoch; protocol 28 objects are open-world, but an epoch mismatch requires migration |
 | `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v7`; ignore unknown entries |
 | `simulationFingerprint` | a conservative identity of simulation source and build requirements; pin it for training and require it for reconstruction |
 | `engineVersion` | package-release provenance; it is not an exact simulation identity |
@@ -522,7 +522,12 @@ different card, with no error to notice.
 
 For `CastSpell`, `card` and `sacrifices` are top-level. The canonical nested
 `choices` object contains `playOptionId`, ordered `modeIds`, nullable
-`alternativeCostId`, `additionalCostIds`, `x`, and `targetSelections`.
+`alternativeCostId`, `additionalCostIds`, `x`, and `targetSelections`. It also
+contains `manaPayment` when a flexible symbol uses an explicitly announced
+alternative. Each entry names the printed `symbol`, selected `count`, and
+`payWith` (`life` for Phyrexian mana or `generic` for two-brid). Mana-paid
+copies are omitted, and this payment choice is not copied into the spell's
+stack signature.
 Top-level `playOptionId`, `modeIds`, flattened `targets`, and `x` remain
 compatibility projections; new clients should read `choices`. Each target
 selection has `slotId`, ordered `targets`, and an `amounts` array. `amounts` is
@@ -850,14 +855,18 @@ Since protocol 8, every non-null mana-cost object has this shape:
   "black": 0,
   "red": 0,
   "green": 0,
+  "colorless": 0,
   "hybrid": [{"symbol": "R/W", "count": 3}],
   "variableX": false,
   "xMultiplier": 1
 }
 ```
 
-`hybrid` is sparse: it contains one entry for each nonzero two-color pair, and
-`count` says how many copies of that printed symbol occur. Protocol 8 replaced
+`hybrid` is sparse: it contains one entry for each nonzero flexible symbol,
+and `count` says how many copies occur. Besides ordinary two-color hybrid such
+as `R/W`, protocol 28 permits two-brid (`2/B`), Phyrexian (`R/P`), Phyrexian
+hybrid (`G/U/P`), and colorless hybrid (`C/W`). Treat this symbol vocabulary
+as open and display an unknown string as supplied. Protocol 8 replaced
 protocol 7's one-off numeric `whiteRedHybrid` field with this general array.
 The shape is used everywhere the catalog reports a cost, including parts,
 play options, alternative costs, and additional costs.
@@ -1001,6 +1010,15 @@ than serializing function pointers. Reconstruction consumers should require
 `reconstruction.checkpoint.v7`, keep checking the exact simulation
 fingerprint, and regenerate format-6 checkpoints. Replay version 2 is
 unchanged.
+
+### Migrating from protocol 27
+
+Protocol 28 broadens the catalog's sparse `manaCost.hybrid` array beyond the
+ordinary two-color pairs documented through protocol 27. Its `symbol` member
+can now be two-brid (`2/B`), Phyrexian (`R/P`), Phyrexian hybrid (`G/U/P`), or
+colorless hybrid (`C/W`). Treat the string as an open display value. Cast
+actions can also include the optional `choices.manaPayment` array described
+above. Checkpoint format 7 and replay version 2 are unchanged.
 
 ### Migrating from protocol 24
 
@@ -1179,10 +1197,10 @@ import time, requests
 
 # Local while building; the public deployment when you are ready.
 SERVER = "http://localhost:3000"
-# This bot consumes the protocol-27 indexed-action vocabulary and no optional
+# This bot consumes the protocol-28 indexed-action vocabulary and no optional
 # facilities. Do not echo capabilities from the server unless you implement them.
 COMPATIBILITY = {
-    "protocolVersion": 27,
+    "protocolVersion": 28,
     "capabilities": [],
     "requiredCapabilities": [],
     # Trained bots may require the exact server artifact they target:

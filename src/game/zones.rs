@@ -498,12 +498,31 @@ impl Game {
         from: ZoneKind,
         arrival: BattlefieldArrival,
         grant: Option<KeywordAbility>,
-    ) -> CardInstance {
+    ) -> Option<CardInstance> {
         let controller = arrival.controller;
         let definition = self
             .catalog
             .get(card.definition)
             .expect("a card in hand remains cataloged");
+        if definition.rules.has_metadata_only_creature_body() && arrival.face_down.is_none() {
+            // Catalog-only bodies may still exist in hidden-zone fixtures and
+            // may be manifested as the ordinary face-down 2/2, but no game
+            // effect can turn their printed metadata into a face-up vanilla
+            // permanent. Restore the card because the attempted move did not
+            // happen.
+            let owner = card.owner;
+            match from {
+                ZoneKind::Library => self.players[owner.index()].library.push(card),
+                ZoneKind::Hand => self.players[owner.index()].hand.push(card),
+                ZoneKind::Graveyard => self.players[owner.index()].graveyard.push(card),
+                ZoneKind::Exile => self.players[owner.index()].exile.push(card),
+                ZoneKind::Stack => self.put_card_into_graveyard(owner, card),
+                ZoneKind::Battlefield | ZoneKind::Command => {
+                    debug_assert!(false, "unsupported source for a battlefield arrival");
+                }
+            }
+            return None;
+        }
         let front = applicable_part_ids(definition, &CharacteristicContext::Hand)
             .ok()
             .and_then(|parts| parts.first().copied())
@@ -568,7 +587,7 @@ impl Game {
             .last()
             .filter(|permanent| permanent.card.definition == expected)
             .map(|permanent| permanent.card.id);
-        entered_card
+        Some(entered_card)
     }
 
     /// Moves a card between non-stack zones after applying replacement
@@ -615,7 +634,7 @@ impl Game {
                 from,
                 arrival.unwrap_or_else(|| BattlefieldArrival::under(owner)),
                 None,
-            )
+            )?
         } else {
             let (card, _zone_change) = self.zone_change_card(card);
             match destination {

@@ -1,275 +1,110 @@
 # Repository instructions
 
 This file is canonical for every agent. `CLAUDE.md` imports it rather than
-restating it, so put repository guidance here and leave that file alone.
+restating it. Skills live in `.agents/skills/<name>/`; matching
+`.claude/skills/<name>/SKILL.md` files point to the same entrypoints. Write
+repository paths in skill bodies from the repository root so both harnesses
+resolve them identically.
 
-Skills live in `.agents/skills/<name>/`, and `.claude/skills/<name>/SKILL.md`
-symlinks to the same file so Claude Code discovers them too. A skill body is
-therefore read through two directories: write paths inside one from the
-repository root, never relative to the file. `tests/agent_skills.rs` enforces
-all of this.
+Keep this file limited to rules that apply broadly. Put task-specific detail in
+the linked guide or skill so agents load it only when the task requires it.
 
-## Optional reference material
+## Working in this repository
 
-Magic rules and card data may be available in an optional development cache
-under Git's common directory. One cache is shared by every linked worktree in
-the clone. Use `$query-magic-references` for efficient read-only access to its
-generated Scryfall SQLite index and `$refresh-magic-references` to locate,
-inspect, migrate, populate, or rebuild the cache.
+- Preserve unrelated user changes and inspect the relevant existing code before
+  editing. Treat a dirty worktree as user-owned unless proven otherwise.
+- Use the [design doctrine](docs/design-doctrine.md) as the direction of travel,
+  not a purity gate. Keep supported behavior correct, coverage honest,
+  exceptions contained, and tradeoffs explicit.
+- For an architectural or card-extension-boundary decision, also read the
+  relevant focused guide before choosing an implementation.
 
-Locating the cache, querying it, checking `status scryfall-index`, and viewing
-`lock-status` are low-friction read operations; they do not justify a refresh.
-Fetch, index, and migration commands mutate shared clone state and require
-explicit human approval. Run them rarely: only when material is missing or
-corrupt, the required database schema is unavailable, or the current task
-genuinely requires fresher source data. Do not refresh merely because a new
-worktree was created. If the cache is absent, stale for an irrelevant purpose,
-or unavailable, continue with appropriate authoritative online sources.
+## Task router
 
-Treat `refresh.lock` metadata as diagnostic information. The kernel lock is
-authoritative; never delete or bypass the lock merely because its recorded
-owner appears stale. Do not commit or ship downloaded reference payloads.
+- **Cards, sets, decks, and mechanics:** read
+  [implementing cards](docs/implementing-cards.md), including its source-order,
+  coverage, and extension-boundary rules. Use `$query-magic-references` when
+  exact printing or card data matters.
+- **Protocol, WASM contracts, bindings, replay, or checkpoints:** read
+  [compatibility boundaries](docs/interfaces.md#compatibility-boundaries), the
+  relevant [bot versioning section](docs/bots.md#determinism-and-versioning),
+  and only the affected migration entry in [the changelog](CHANGELOG.md).
+- **Web, rendered UI, or deployment:** read [the web guide](web/README.md).
+- **Performance:** treat it as review context, not a merge gate. Read
+  [the performance guide](docs/performance.md) and use
+  `$profile-engine-performance` when measurement could affect a decision.
+- **Player bug reports:** when explicitly asked to process the queue, follow
+  [the bug-report workflow](docs/bug-reports.md).
+- **Validation tooling, uncertain lane selection, or contributor workflow:**
+  consult only the relevant section of
+  [the development guide](docs/development.md#validation-workflow).
 
-Treat both reference skills as maintained development tooling. When repeated
-work exposes a missing field, relationship, index, or query pattern, update the
-refresh builder, both skills, and the documented schema together, then rebuild
-and validate the cache. Avoid expanding them for isolated one-off questions.
+The optional Magic reference cache is shared by every linked worktree. Querying
+it, locating it, checking status, and inspecting lock metadata are read-only.
+Fetching, indexing, or migrating it mutates shared clone state and requires
+explicit human approval. The kernel lock is authoritative: never delete or
+bypass it because recorded metadata looks stale, and never commit downloaded
+reference payloads. Use `$refresh-magic-references` only for approved cache
+maintenance or repair.
 
-## Deployment
+## Agent coordination
 
-The web client is deployed to <https://penta.lacker.workers.dev>. Hosted
-games and the bot registry are gated behind `HOSTED_GAMES`, and the engine
-self-check behind `ENGINE_SELF_CHECK`. Do not claim from memory whether a deployment sets it -- one
-request settles it:
-
-```bash
-curl -s -o /dev/null -w '%{http_code}\n' https://penta.lacker.workers.dev/_bots
-```
-
-## Design doctrine
-
-Prefer the [design doctrine](docs/design-doctrine.md) and
-[card extension boundaries](docs/implementing-cards.md#extension-boundaries)
-in the project documentation. Treat them as the project's direction of travel
-and the default starting point for implementation decisions, not as purity
-gates. When a task benefits from a different boundary, keep the supported
-behavior correct, the coverage honest, the exception contained, and the
-tradeoff explicit.
-
-## Card-set source organization
-
-In each printed set module under `src/card/sets/y<year>/`, keep canonical
-`CardRecord` declarations in natural collector-number order and keep `CARDS`
-in exactly the same order. Keep `ADDITIONAL_PRINTINGS` in natural order by the
-collector number of each printing in that module's set, including in
-reprint-only modules whose `CARDS` registry is empty. Compare numeric portions
-numerically (`8`, `8a`, `8b`, `16`), not lexicographically.
-
-Introduce every declaration with an ordinary one-line comment in the exact
-form `// LEA 230 — Ankh of Mishra`: uppercase set code, collector number
-verbatim, an em dash, and the canonical `CardRecord` name. Ordinarily the
-header immediately precedes the declaration. For an identity in the inline Old
-School audit, put its explanation on the next line in the exact form
-`// Audit: blocked — Needs ...`, using `partial` or `metadata-only` instead when
-applicable. A partial or metadata-only audit line immediately precedes its
-declaration; a blocked header and audit line stand alone at that identity's
-collector position. Keep all identity headers in natural collector order. Put
-every nonempty `ADDITIONAL_PRINTINGS` entry on its own line and end it with a
-comment in the exact form `// LEB 233`: the target printing's uppercase set
-code and collector number, with no card name. Empty additional-printing
-registries need no comments.
-
-The comment identifies the canonical printing in that module's set, even when
-the chosen presentation art intentionally comes from another printing. Move
-card-local helpers with the definition they support. This convention does not
-apply to `src/card/sets/tokens.rs`, whose synthetic objects have no single
-printed set or collector number.
-
-## Performance awareness
-
-Follow the [performance guide](docs/performance.md). Treat performance as
-review context, not a merge gate. Most changes need only a qualitative impact
-note; measure when evidence could change a design or review decision, using
-`$profile-engine-performance` for the repository's reproducible comparison
-workflow. Stop once the relevant question is answered rather than turning a
-routine check into an open-ended optimization task.
-
-## Protocol versioning
-
-`protocolVersion` is the breaking epoch for canonical bot observation, action,
-and catalog JSON. Bump it once relative to the target branch only when an old
-consumer could misinterpret existing wire data: removing, renaming, or changing
-the type or meaning of a key, tag, identifier, or index; or adding mandatory
-vocabulary without a negotiated fallback. After rebasing such a branch,
-re-check the target version and adjust it if necessary.
-
-JSON objects are open-world. Do not bump the epoch for an optional member, a
-documented open-enum value with a safe fallback, append-only catalog growth,
-different legal-action membership expressed through existing shapes, a rules
-fix, presentation text, browser state, a Rust API or event, or replay/checkpoint
-encoding. Use named capabilities for additive facilities, the automatically
-generated simulation fingerprint as a conservative rules/artifact guard,
-Cargo SemVer for native APIs, and the dedicated replay or checkpoint format
-version for those artifacts. Bump the replay format when the command journal's
-envelope, commands, configuration, or interpretation changes; bump the
-checkpoint format when its imported bookkeeping changes incompatibly. Classify
-new string-enum values as open with a safe fallback or closed/capability-gated;
-an unclassified mandatory value is a breaking change. Never derive stable wire
-tags with Rust `Debug` formatting.
-
-Treat the [bot guide](docs/bots.md) and [changelog](CHANGELOG.md) as part of the
-contract. Update them when a bot wire contract, capability, exact-artifact
-format, or versioning rule changes; ordinary card/rules changes need only the
-appropriate behavioral documentation. Check examples against every affected
-binding. Never add a test that hard-codes the current epoch or names a branch as
-its owner. Keep the root `BOTS.md` compatibility symlink pointed at
-`docs/bots.md`.
-
-## Bug reports
-
-Players file bugs from the game menu with the game's replay attached. To
-work through them, follow [the bug-report workflow](docs/bug-reports.md):
-list the open reports from the dev server's `/_bugs/list`, reproduce each
-natively with the `replay_bug` example, fix, and resolve with a note naming
-the commit.
+- Delegate only concrete, bounded work whose parallelism outweighs the added
+  context and integration cost. Prefer a small number of independent agents,
+  no nested delegation by default, minimal self-contained briefs, and one owner
+  per file. When the harness supports history selection, pass no parent history
+  or only the few relevant turns; do not forward full history by default.
+- Designate one validation owner for a shared worktree. A child returning work
+  to its parent is internal integration, not the external handoff that triggers
+  final repository checks. Unless explicitly assigned a focused test, children
+  should report changed paths and suggested filters instead of running Cargo,
+  WASM builds, Clippy, formatting, source-size checks, or final preflight.
+- Never run compile-heavy Cargo or WASM commands concurrently in one worktree.
+  Let a running command finish, use an initial yield around 30 seconds, and poll
+  at 30--60 second intervals rather than creating one-second model/tool loops.
+  If output tracking is lost, inspect the existing process or terminal before
+  starting a replacement.
+- Use one long-lived remote CI watcher, reuse its session, and poll it at the
+  same bounded cadence instead of launching repeated status queries. Report
+  only state changes or the final result.
 
 ## Validation
 
-Use the root `Makefile` as the canonical entry point; `make help` lists the
-available suites.
+Use the root `Makefile` as the canonical command catalog; `make help` lists its
+targets. Read-only investigation requires no validation. For changes, inspect
+the complete diff and run the narrowest owning-lane check. Consult the
+[path-to-target map](docs/development.md#choose-the-owning-lane) only when the
+right target is not evident. Run focused checks while they are useful during
+iteration, then validate the final integrated contents once.
 
-- Choose local validation from the complete branch diff and the behavior it
-  changes, not from the fact that work is ready for a push or PR. During
-  implementation and before handoff, run the narrowest target or filtered test
-  that exercises that behavior.
-- Two repository-wide invariants do not depend on which paths changed, so the
-  path map below never exempts them: run `make fmt` and
-  `make test-source-file-sizes` before every handoff or push, whatever the
-  change touched. Neither is an aggregate, and both finish in about a second
-  even in a cold worktree -- the size check is a dependency-free crate that
-  reads the working tree and never builds the engine, so there is no state in
-  which skipping it saves meaningful time. The size limit is the one a narrow
-  test cannot reach: ten lines added to a file someone else left at 995 breaks
-  a gate that no card-behavior filter runs, and it stays broken for everyone
-  afterwards. It was for a long time the single largest source of red CI, and
-  every one of those failures was a check that would have taken a second.
-- Native card definitions, game rules, decks, and policies do not require web
-  or WASM tests merely because the engine is compiled for the browser. Run
-  browser-facing tests locally only when the change affects the WASM adapter,
-  the shape or meaning of a browser-consumed contract, web code, or a bug that
-  reproduces only there. Ordinary card additions, catalog IDs or counts, and
-  generated fingerprint changes in existing shapes are not by themselves
-  reasons to run web tests locally. Browser-visible format or deck registries,
-  replay/protocol values, and capabilities do warrant the one closest contract
-  or replay test when their consumed value changes, never the full web gate by
-  default.
-- Validate each part of a mixed change in its owning lane. Touching one web file
-  does not promote otherwise native card or rules behavior into every browser
-  suite; run the one web target that covers the browser-facing part.
-- Run a slow test only when the changed behavior is covered by it, and use
-  `FILTER` or `PATTERN` when available. Native simulation, policy, auto-pass,
-  or combat work may justify native slow tests; it does not by itself justify
-  slow browser pacing or combat suites.
-- The deferred sweeps are not in any per-push gate, native or browser. A sweep
-  is a test that plays a great many whole games to see whether anything comes
-  loose; it belongs nightly, not in front of a push. Both tiers were dominating
-  the gates that ran them -- five `#[ignore]` Rust sweeps outweighed the other
-  two thousand tests by roughly thirty to one, and the four
-  `WEB_WASM_SLOW_SUITES` were about ten times the rest of the web gate put
-  together. They run through `.github/workflows/nightly.yml`, which has no time
-  budget. Run `make test-rust-slow` or `make test-web-wasm-slow` locally when
-  you change behavior they cover; do not add either back to `check-rust` or
-  `check-web`. A new sweep needs no wiring: mark a Rust test `#[ignore]`, or add
-  a browser suite to `WEB_WASM_SLOW_SUITES`, and the nightly lane picks it up.
-  When a nightly fails, its log ends with the one command that reruns each
-  failing sweep -- start from those rather than rerunning the whole thing.
-- Aggregate targets are not routine PR prerequisites. This includes
-  `make check-fast`, `make check`, `make check-rust`, `make check-web`,
-  `make check-tooling`, `make check-bindings`, and `make ci`. Use one when the
-  user explicitly requests that aggregate or a complete local CI mirror, when
-  the whole covered lane is affected, or when its aggregate orchestration is
-  itself failing. Reproduce an individual CI failure with its focused child
-  target, not the containing aggregate. For validation-graph changes, exercise
-  the smallest changed orchestration target or dry-run its dependency graph;
-  do not widen to a parent aggregate merely because it contains that target.
-  PR CI owns the complete Rust, web, tooling, and binding gates, and the
-  nightly workflow owns the deferred simulation sweeps.
-- Treat a rebase request as one bounded operation: fetch the target branch once
-  at the start, record the fetched commit, and rebase onto that snapshot. After
-  resolving conflicts, rerun only checks invalidated by the resolutions or by
-  overlapping upstream changes, then push without refetching the target branch
-  merely to chase a newer snapshot. Continue to inspect the remote feature
-  branch and use `--force-with-lease` after a rewrite. Upstream movement during
-  local validation or CI is expected; do not enter a fetch/rebase/validate
-  loop. Rebase again only on a new user request or when an actual merge conflict
-  or branch-protection/merge-queue refusal requires it. A newer base SHA, a
-  `BEHIND` label, or pending CI alone is not such a requirement.
-- Validation attaches to tested contents, not commit identity or PR metadata.
-  A metadata-only commit rewrite, content-equivalent rebase, PR-body edit, or
-  unrelated file change does not invalidate a passing check; rerun only checks
-  whose executable inputs or covered behavior changed.
-- If output tracking for a running validation command is lost, inspect the
-  process or terminal state before starting the same target again. Do not run
-  duplicate suites merely to recover missing tool output.
-- In the handoff, list the exact local checks run and identify the full gates
-  left to CI.
-- For UI changes, command-line checks do not replace the visual verification
-  below.
+Passing checks attach to covered contents, not commit identity or PR metadata.
+Do not repeat a passing command unless its executable inputs or covered behavior
+changed. Validate each part of a mixed change in its own lane. Native card,
+rules, deck, or policy work does not require browser/WASM validation unless it
+also changes a browser-consumed contract, adapter, or web code.
 
-Map changed paths to the narrowest useful target before broadening:
+After content freeze, the validation owner runs `make preflight` once before an
+external handoff or push, regardless of changed paths. It sequentially checks
+formatting and the repository-wide source-file size invariant. Documentation-
+only changes add `git diff --check` and verification of changed links/commands,
+but no unrelated code suite.
 
-- `src/game/**`, `src/card/**`, `src/deck*`, `decks/**`, and core rules: run
-  `make test-engine-unit FILTER=<name>` or `make test-engine-integration
-  FILTER=<name>`. Keep ordinary card-behavior validation in this native lane.
-- `src/policy.rs`, `src/policy/**`, and policy behavior: run `make test-policy
-  FILTER=<name>`; add `make test-rust-slow` when the simulation sweeps are
-  relevant.
-- `src/protocol.rs` and `src/protocol/**`: start with `make test-engine-unit
-  FILTER=protocol`. Add a binding target only when its exported bot interface
-  changes. Bot-only internals stay native; protocol JSON, versions,
-  capabilities, or compatibility values exported through WASM also require
-  `make test-wasm-rust` and the one closest browser contract test.
-- `wasm/**`: run `make test-wasm-rust`, then the one matching browser contract
-  suite when browser-visible behavior changes. Add `make typecheck-web` when
-  generated TypeScript types or their use can change.
-- `web/**`: run the static checks applicable to the changed files and the one
-  nearest unit, WASM, or render target, followed by the required browser
-  verification for UI changes. Do not broaden from one changed browser domain
-  to every WASM suite.
-- `bindings/penta-ffi/**` or `bindings/penta-py/**`: use the corresponding
-  `make check-bindings-*` target. Run both only when shared binding behavior
-  changes. The one requirement an engine change could break from a distance --
-  pyo3 demanding `Send + Sync` of the `Game` it wraps -- is asserted in
-  `src/game/tests/thread_safety.rs`, so a field that costs `Sync` fails in the
-  native lane instead of only in the bindings job.
-- `.agents/skills/profile-engine-performance/**`: run
-  `make test-profile-attribution`.
-- `.agents/skills/query-magic-references/**` or
-  `.agents/skills/refresh-magic-references/**`: run
-  `make test-magic-references` for implementation changes.
-- `Makefile`, `scripts/**`, or `.github/workflows/**`: `make lint-infra` and
-  exercise the changed orchestration target. For `.github/dependabot.yml`,
-  validate against GitHub's Dependabot 2.0 schema. Run `make doctor` when
-  prerequisites are in question.
-- Documentation-only changes: run `git diff --check` and verify changed links
-  and commands; do not run code suites without a specific dependency.
+Slow sweeps and aggregate targets such as `make check-fast`, `make check`, and
+`make ci` are not routine PR prerequisites. Run them only when the user requests
+one, the changed behavior is specifically covered by it, most of its lane is
+affected, or its orchestration is itself under test. PR CI owns the complete
+Rust, web, tooling, and binding gates; nightly CI owns deferred sweeps.
 
-## UI changes
+For a requested rebase, fetch the target once, record that snapshot, and rebase
+onto it. Rerun only checks invalidated by conflicts or overlapping upstream
+changes, then push with lease safety without chasing later target movement.
+Rebase again only on a new request or an actual merge requirement. Report the
+exact local checks run and which full gates remain to CI.
 
-For every change that can affect the web interface:
+## Rendered UI changes
 
-1. Start or restart the local server from the current working tree. Confirm that
-   the worktree-specific URL from `cd web && pnpm run dev:url` is served by that
-   process; do not accept a fallback port or assume an older server picked up
-   the change.
-2. Open the rendered application in a browser and inspect it visually. A
-   successful build, DOM snapshot, or HTTP response is not sufficient.
-3. Check at least a 1280×720 laptop viewport. Verify that important content is
-   visible and readable, with no unintended clipping, overlap, off-screen
-   controls, or inaccessible horizontal overflow.
-4. Exercise enough UI state to display the changed component. For game-table
-   changes, check cards in hand and cards on the battlefield when applicable.
-5. Take a fresh screenshot after the final code change and inspect it before
-   reporting completion.
-
-Keep the verified local server running for the user unless they ask otherwise.
+When rendered output or interaction can change, follow the visual-verification
+checklist in [the web guide](web/README.md): serve the current worktree at its
+assigned URL, inspect the actual UI in a browser at the required viewport and
+state, and review a fresh final screenshot. Keep the verified server running
+unless the user asks otherwise.

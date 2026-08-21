@@ -34,7 +34,7 @@ The repository pins its Rust version, components, and WASM target in
 also requires the Node and pnpm versions declared by the repository, plus the
 matching `wasm-bindgen` CLI.
 
-Start by checking the environment:
+For a new clone, or when prerequisites are in doubt, check the environment:
 
 ```sh
 make doctor
@@ -42,12 +42,50 @@ make doctor
 
 `make doctor` reports setup problems without installing tools implicitly. It
 checks Rust, Node, pnpm, the WASM target and generator, binding prerequisites,
-ShellCheck, and Actionlint.
+ShellCheck, and Actionlint. It is a diagnostic, not a routine preflight.
 
 ## Validation workflow
 
-During implementation, run the narrowest target that exercises the changed
-behavior:
+Read-only investigation requires no validation. For a change, inspect
+`git status --short` and the complete branch diff, then choose checks from the
+behavior and executable inputs that changed. Use `make help` to discover the
+available targets.
+
+### Ownership and timing
+
+In a shared worktree, designate one validation owner. Parallel agents may
+inspect or edit independent areas, but they must not start competing Cargo,
+Clippy, WASM, formatting, or preflight commands. Unless the owner explicitly
+delegates one focused test, a child reports its changed paths and suggested
+filters; returning work to the parent is internal integration, not a final
+handoff.
+
+Validation has four phases:
+
+1. **Iteration:** run the narrowest filtered test that gives useful feedback
+   while implementing. Do not add a compilation-only warmup; the test compiles
+   what it needs.
+2. **Integration:** after parallel edits land, the validation owner runs the
+   focused owning-lane checks whose covered behavior changed.
+3. **Content freeze:** once code and any rebase conflict resolutions are final,
+   run each remaining relevant check once, followed by `make preflight` once
+   before an external handoff or push.
+4. **Remote:** let PR CI run the complete Rust, web, tooling, and binding gates.
+   Assign one watcher rather than starting parallel polling loops.
+
+Passing validation attaches to covered contents, not a commit hash or PR
+metadata. Do not repeat a passing command after a metadata-only rewrite,
+content-equivalent rebase, PR-body edit, or unrelated file change. Rerun it only
+when its executable inputs or covered behavior changed.
+
+Let a running build or test finish before starting another compiler command in
+the same worktree. For long commands, prefer an initial yield around 30 seconds
+and subsequent polls 30--60 seconds apart. If output tracking is lost, inspect
+the existing process or terminal state before starting a replacement.
+
+### Choose the owning lane
+
+Start with the smallest target that exercises the behavior. Common examples:
 
 ```sh
 make test-engine-unit FILTER=mana_burn
@@ -57,23 +95,70 @@ make typecheck-web
 make lint-web
 ```
 
-Use the same focused checks before handoff. In particular, card definitions,
-game rules, decks, and policy changes stay in native Rust validation unless
-they also change the WASM adapter, the shape or meaning of a browser-consumed
-contract, or web code. Ordinary card/catalog/fingerprint changes carried by
-existing shapes do not cross that boundary. Browser-visible format/deck
-registries and replay/protocol/capability values instead use the one closest
-contract or replay test. Compiling the engine to WASM does not by itself make
-the full web gate a local prerequisite.
+- `src/game/**`, `src/card/**`, decks, and core rules use
+  `make test-engine-unit FILTER=<name>` or
+  `make test-engine-integration FILTER=<name>`.
+- Policy behavior uses `make test-policy FILTER=<name>`. Add the native slow
+  sweep only when the changed behavior is specifically exercised there.
+- Protocol work starts with `make test-engine-unit FILTER=protocol`. Add a
+  binding target only when its exported interface changes. Protocol JSON,
+  versions, capabilities, or compatibility values exported through WASM also
+  require `make test-wasm-rust` and the closest browser contract test.
+- `wasm/**` uses `make test-wasm-rust`, then the closest browser contract suite
+  when browser-visible behavior changes. Add `make typecheck-web` when generated
+  TypeScript types or their consumers can change.
+- `web/**` uses the applicable static check and closest unit, WASM, or render
+  target. A change to rendered output or interaction also follows the
+  [visual-verification checklist](../web/README.md#visual-verification).
+- `bindings/penta-ffi/**` and `bindings/penta-py/**` use their corresponding
+  `make check-bindings-*` target. Run both only for shared binding behavior. An
+  engine field that makes `Game` lose `Send + Sync` is already guarded by the
+  native `src/game/tests/thread_safety.rs` test.
+- Agent guidance and skill entrypoints use `make test-agent-guidance`.
+  Performance-tool implementation changes add `make test-profile-attribution`;
+  Magic-reference implementation changes add `make test-magic-references`.
+- `Makefile`, `scripts/**`, and workflows use `make lint-infra` plus the smallest
+  changed orchestration target or a dry run of its dependency graph. Use
+  `make doctor` only when prerequisites are in question. Validate
+  `.github/dependabot.yml` against GitHub's Dependabot 2.0 schema.
+- Documentation-only changes use `git diff --check` and verification of changed
+  links and commands; do not run an unrelated code suite.
 
-PR CI runs the complete Rust, web, tooling, and binding gates. `make check-fast`,
-`make check`, and `make ci` remain available when explicitly requested, for
-changes spanning most validation surfaces, and for aggregate-orchestration
-failures; PR readiness alone is not a reason to run them locally. Reproduce an
-individual CI failure with its focused child target. Exercise changed validation
-targets directly instead of automatically running every aggregate that contains
-them. In a mixed change, validate each part in its owning lane rather than
-broadening every part to every affected language.
+Validate each part of a mixed change in its own lane. Native card definitions,
+game rules, decks, and policies stay in native validation unless they also
+change the WASM adapter, a browser-consumed contract, or web code. Ordinary
+card/catalog/fingerprint changes carried by existing shapes do not cross that
+boundary. Browser-visible registries and replay/protocol/capability values use
+the one closest contract or replay test, not every browser suite.
+
+### Final and broad checks
+
+Run this once on final contents before an external handoff or push, whatever
+paths changed:
+
+```sh
+make preflight
+```
+
+It sequentially runs `make fmt` and `make test-source-file-sizes`. The latter is
+a dependency-free crate that enforces the 1,000-line Rust source-file limit
+without building the engine. Direct card-set files are the semantic exception;
+the checker discovers all Cargo roots and applies the repository rule.
+
+Slow simulation sweeps are deferred to nightly CI. Run `make test-rust-slow` or
+`make test-web-wasm-slow` locally only when changed behavior is specifically
+covered there or the user asks. New Rust tests marked `#[ignore]` and suites in
+`WEB_WASM_SLOW_SUITES` are picked up by the nightly lane.
+When nightly fails, start with the narrow rerun command printed for each failing
+sweep rather than rerunning the whole lane.
+
+Aggregate targets such as `make check-fast`, `make check`, `make check-rust`,
+`make check-web`, `make check-tooling`, `make check-bindings`, and `make ci` are
+not routine PR prerequisites. Use one when explicitly requested, when most of
+its lane changed, or when its orchestration is under test. Reproduce an
+individual CI failure with the focused child target, not its parent aggregate.
+
+### Rebases
 
 For a rebase, fetch the target branch once, record that commit, and treat it as
 the snapshot for the request. After resolving conflicts, rerun only checks
@@ -86,31 +171,6 @@ rebase again; do so only when requested or when an actual conflict or merge
 requirement blocks the PR. Passing checks attach to tested contents, so
 metadata-only rewrites, content-equivalent rebases, and PR metadata edits do
 not invalidate them.
-
-Binding changes can use `make check-bindings-c` or
-`make check-bindings-python`; run both only when shared binding behavior
-changes. `make check-bindings-available` is the explicit best-effort local
-variant when Python is unavailable; `make ci` never skips a repository gate.
-
-All Cargo validation uses committed lockfiles. Clippy runs pedantic with
-`-D warnings`, so the pinned toolchain makes lint changes deliberate rather
-than dependent on a contributor's local compiler.
-
-Rust source files are limited to 1,000 physical lines so modules retain clear
-conceptual boundaries and remain practical to review and merge. The sole
-semantic exception is a direct card-set file matching
-`src/card/sets/y<four ASCII digits>/*.rs`; those files intentionally organize
-the card corpus by set. There is no file-specific allowlist. The guard
-discovers every Cargo root in the repository, including the standalone
-`bindings/penta-py` crate, and scans its `src`, `tests`, `examples`, `benches`,
-and `build.rs` sources. Run it directly with:
-
-```sh
-make test-source-file-sizes
-```
-
-Detailed path-specific validation and UI verification requirements live in
-the canonical repository instructions in `AGENTS.md`.
 
 ## Web development
 

@@ -55,11 +55,12 @@ define run_rust_tests
 	fi
 endef
 
-.PHONY: help doctor fmt fmt-rust fmt-python-binding \
+.PHONY: help doctor fmt fmt-rust fmt-python-binding preflight \
 	lint lint-rust lint-web lint-infra lint-infra-available lint-python-binding \
 	test test-rust test-rust-full test-rust-slow nightly-sweep nightly-sweep-web \
 	test-engine test-engine-unit test-engine-integration test-policy test-wasm-rust \
-	test-profile-attribution test-magic-references test-rust-budget test-source-file-sizes \
+	test-agent-guidance test-profile-attribution test-magic-references \
+	test-rust-budget test-source-file-sizes \
 	catalog-report \
 	build-profile-engine benchmark-engine benchmark-engine-baseline benchmark-engine-compare \
 	profile-engine profile-engine-all profile-engine-open \
@@ -97,6 +98,10 @@ fmt-python-binding: ## Check formatting for the standalone Python binding crate.
 	cargo fmt --manifest-path bindings/penta-py/Cargo.toml -- --check
 
 fmt: fmt-rust fmt-python-binding ## Check formatting for every Rust crate.
+
+preflight: ## Run universal final checks once before an external handoff or push.
+	$(MAKE) fmt
+	$(MAKE) test-source-file-sizes
 
 lint-rust: ## Lint every Rust workspace target and feature.
 	cargo clippy --locked --workspace --all-targets --all-features -- -D warnings
@@ -185,6 +190,9 @@ test-profile-attribution: ## Test the repository-local engine performance toolin
 	python3 -m unittest discover \
 		-s .agents/skills/profile-engine-performance/tests -p 'test_*.py'
 
+test-agent-guidance: ## Test cross-harness agent guidance and skill discovery.
+	python3 scripts/check-agent-guidance.py
+
 test-magic-references: ## Test the repository-local Magic reference tooling.
 	python3 -m unittest discover \
 		-s .agents/skills/refresh-magic-references/tests -p 'test_*.py'
@@ -260,11 +268,11 @@ test-web: test-web-fast test-web-render ## Run the normal web tests.
 test-web-full: build-web ## Run every discovered web test unfiltered.
 	cd web && CI=true node --test $(WEB_TEST_CONCURRENCY_ARG) $(WEB_ROOT_TESTS) $(WEB_WASM_FAST_SUITES) $(WEB_WASM_SLOW_SUITES)
 
-test: test-rust test-profile-attribution test-magic-references test-web ## Run normal Rust, tooling, and web tests.
+test: test-rust test-agent-guidance test-profile-attribution test-magic-references test-web ## Run normal Rust, tooling, and web tests.
 
 test-slow: test-rust-slow test-web-wasm-slow ## Run only simulation-heavy suites.
 
-check-fast: fmt-rust lint test-rust test-profile-attribution test-magic-references typecheck-web test-web-fast ## Run the broad checkpoint without slow tests or a production web build.
+check-fast: fmt-rust lint test-rust test-agent-guidance test-profile-attribution test-magic-references typecheck-web test-web-fast ## Run the broad checkpoint without slow tests or a production web build.
 
 check-rust: fmt-rust lint-rust test-rust-budget ## Run the complete root Rust workspace gate.
 
@@ -275,9 +283,9 @@ check-rust: fmt-rust lint-rust test-rust-budget ## Run the complete root Rust wo
 # five-minute web job to catch what a nightly catches the same day.
 check-web: lint-web typecheck-web test-web ## Run the complete web gate.
 
-check-tooling: lint-infra test-profile-attribution test-magic-references ## Run the strict infrastructure and repository-tooling gate.
+check-tooling: lint-infra test-agent-guidance test-profile-attribution test-magic-references ## Run the strict infrastructure and repository-tooling gate.
 
-check: check-rust check-web lint-infra-available test-profile-attribution test-magic-references ## Run the broad local engine, web, and available-tooling aggregate.
+check: check-rust check-web lint-infra-available test-agent-guidance test-profile-attribution test-magic-references ## Run the broad local engine, web, and available-tooling aggregate.
 
 check-bindings-c: test-source-file-sizes ## Build and smoke-test only the C ABI.
 	./scripts/check-bindings.sh c

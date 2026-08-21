@@ -13,15 +13,18 @@ ability clauses can all be understood at the declaration.
 
 Within a printed set module, keep declarations and the `CARDS` registry in
 natural collector-number order, with `CARDS` exactly mirroring declaration
-order. Introduce each declaration with an identifying comment in the form
-`// LEA 230 — Ankh of Mishra`, using the canonical printing's uppercase set
-code, collector number, and card name. Ordinarily the header immediately
+order. Compare numeric portions numerically (`8`, `8a`, `8b`, `16`), not
+lexicographically. Introduce each declaration with an identifying comment in
+the form `// LEA 230 — Ankh of Mishra`, using the canonical printing's uppercase
+set code, collector number, and card name. Ordinarily the header immediately
 precedes the declaration. In the inline Old School audit, an incomplete
 identity puts `// Audit: blocked — Needs ...` on the next line, using `partial`
 or `metadata-only` when applicable. Partial and metadata-only audit lines
 immediately precede their declarations; blocked header-and-audit pairs stand
 alone at the identity's collector position. Keep every identity header in
-natural collector order.
+natural collector order. The header identifies the canonical printing in that
+module's set even when presentation art intentionally comes from another
+printing.
 
 Keep `ADDITIONAL_PRINTINGS` in natural order by the collector number in that
 module's set, including for reprint-only modules with an empty `CARDS`
@@ -29,6 +32,7 @@ registry. Put each nonempty entry on its own line with a trailing identity such
 as `// LEB 233`: uppercase target set code and collector number, without the
 card name. Empty registries need no comments. Synthetic token definitions have
 no single printed set or collector number and remain outside these conventions.
+Move card-local helpers with the definition they support.
 
 Start new and migrated work with the card's ordered `AbilityDef` clauses. Each
 printed clause should carry its explicit timing category and, where applicable,

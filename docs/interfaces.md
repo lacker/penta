@@ -61,8 +61,8 @@ The adapters expose several identifiers because compatibility is directional,
 not one exact-version comparison:
 
 - `protocolVersion` is the breaking epoch for canonical bot observation,
-  action, and catalog JSON. Protocol 23 objects are open-world: consumers ignore
-  members they do not use. The epoch changes when an existing field or tag is
+  action, and catalog JSON. Protocol JSON objects are open-world: consumers
+  ignore members they do not use. The epoch changes when an existing field or tag is
   removed, renamed, retyped, or reinterpreted, not when an optional field or a
   legal action expressed through existing vocabulary is added.
 - `protocolCapabilities` advertises named, additive facilities such as
@@ -86,3 +86,21 @@ Query `protocol_version()`, `simulation_fingerprint()`, and `engine_version()`
 through the relevant binding. Release history and migration notes live in the
 [changelog](../CHANGELOG.md); the precise JSON and hosted negotiation contract
 lives in the [bot guide](bots.md).
+
+When authoring a compatibility change, bump `protocolVersion` once relative to
+the target branch only when an old consumer could misinterpret existing wire
+data: removing, renaming, retyping, or changing the meaning of a key, tag,
+identifier, or index, or adding mandatory vocabulary with no negotiated
+fallback. Do not bump it for an optional open-world member, append-only catalog
+growth, legal-action membership expressed through existing shapes, a rules fix,
+presentation text, browser state, native Rust APIs, or replay/checkpoint
+encoding. Use a named capability for an additive facility and the appropriate
+replay or checkpoint version for incompatible changes to those artifacts.
+
+Classify new string-enum values as open with a safe fallback or as closed and
+capability-gated. Never derive a stable wire tag from Rust `Debug` formatting.
+When a public contract or exact-artifact format changes, update this guide's
+authoritative consumer documentation, the changelog, and affected binding
+examples. Tests should exercise behavior rather than hard-code the current
+epoch or name a branch as its owner. Keep the root `BOTS.md` compatibility
+symlink pointed at `docs/bots.md`.

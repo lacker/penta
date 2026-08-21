@@ -62,6 +62,24 @@ production build.
 `pnpm test` and `pnpm run test:all` retain the complete web gate. `pnpm lint`
 and `pnpm build` remain available directly.
 
+## Visual verification
+
+For every change that can affect rendered output or user interaction:
+
+1. Start or restart the development server from the current worktree. Confirm
+   that the URL reported by `pnpm run dev:url` is served by that process; do not
+   accept a fallback port or assume an older server picked up the change.
+2. Open the rendered application in a browser and inspect it visually. A build,
+   DOM snapshot, or HTTP response is not a visual check.
+3. Check at least a 1280x720 laptop viewport for clipping, overlap, off-screen
+   controls, unreadable content, and inaccessible horizontal overflow.
+4. Exercise enough state to display the changed component. For game-table work,
+   inspect cards in hand and on the battlefield when applicable.
+5. After the final code change, take a fresh screenshot and inspect it before
+   reporting completion.
+
+Keep the verified server running unless the user asks otherwise.
+
 ## Deploying
 
 The client deploys to Cloudflare Workers. `worker/index.ts` is the entry point
@@ -77,3 +95,13 @@ Worker. It needs a Cloudflare account — `npx wrangler login` once, and
 `npx wrangler whoami` to check which account is active. The game runs entirely
 in the browser, so there are no D1, R2, or other storage bindings to provision,
 and local development needs no Cloudflare credentials at all.
+
+The public client is deployed at <https://penta.lacker.workers.dev>. Hosted
+games and the bot registry are gated by `HOSTED_GAMES`; the engine self-check is
+gated by `ENGINE_SELF_CHECK`. When asked about current deployment state, verify
+it rather than answering from memory. One request distinguishes an enabled bot
+registry from the disabled route:
+
+```bash
+curl -s -o /dev/null -w '%{http_code}\n' https://penta.lacker.workers.dev/_bots
+```

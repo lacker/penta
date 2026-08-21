@@ -11,11 +11,14 @@ inspect; never dump the database into model context.
 
 ## Start safely
 
-Read [the schema reference](.agents/skills/query-magic-references/references/schema.md)
-before composing a nontrivial query. It documents the schema, indexes, FTS
-behavior, examples, and interpretation limits. Like the script paths below,
-this path is written from the repository root, so it resolves the same way
-however the skill was loaded — including through `.claude/skills`.
+The field map below is sufficient for exact UUID, exact name/set, exact
+set/collector, and bounded set-level queries; do not load a larger reference
+merely to repeat one of those common patterns. Read
+[the schema reference](.agents/skills/query-magic-references/references/schema.md)
+before using unlisted fields, unfamiliar joins, FTS, broad aggregates, batch
+analysis, query planning, or changing the index tooling. It documents the full
+schema, examples, indexes, and interpretation limits. The link is written from
+the repository root so it resolves identically through both skill entrypoints.
 
 Resolve the database path instead of constructing or hardcoding it:
 
@@ -49,11 +52,14 @@ an authoritative online source instead.
 
 - Use `printings.scryfall_id` for an exact printing UUID.
 - Use `(printings.normalized_name, printings.set_code)` when an exact UUID is
-  absent or stale, retaining collector number and UUID in the result.
+  absent or stale, retaining collector number and UUID in the result. Normalize
+  lookup text with Unicode NFKC followed by case folding; set codes are stored
+  lowercase.
 - Use `printings` for set, collector-number, language, rarity, artist, and
   parent-image metadata. Keep `scryfall_id` in projected results when a lookup
   can match more than one printing.
-- Use `card_names.normalized_name` for an exact primary or face name.
+- Use `card_names.normalized_name` for an exact primary or face name, with the
+  same NFKC-plus-case-fold normalization.
 - Use `cards` for Oracle-level characteristics and compact JSON fields.
 - Use `card_faces` for face-specific cost, type, text, or stats.
 - Join `printings` to `cards` through nullable `card_id`, and join `cards` to
@@ -92,3 +98,9 @@ through the refresh script for unmodeled fields such as localized
 `printed_name` values and exact-printing face images. Do not substitute
 representative `card_faces` images for a different printing. Use an
 appropriately live source for prices.
+
+When repeated work exposes a missing indexed field, relationship, or query
+pattern, treat that as a reference-tooling change: update the builder, both
+skills, and the documented schema together, then rebuild and validate with the
+required shared-cache approval. Do not expand the tooling for an isolated
+one-off query.

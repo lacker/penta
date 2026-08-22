@@ -166,6 +166,7 @@ impl Game {
             stack: GameStack::default(),
             retired_objects: BTreeMap::new(),
             temporary_ability_grants: Vec::new(),
+            ongoing_effects: Vec::new(),
             next_object_id,
             next_continuous_effect_timestamp: u64::from(next_object_id),
             turn: 1,
@@ -223,7 +224,6 @@ impl Game {
             combat_blocked_attackers: Vec::new(),
             next_regular_player: PlayerId::Two,
             extra_turns: Vec::new(),
-            channel_active: [false, false],
             result: None,
             events: vec![GameEvent::GameStarted { seed }],
         })

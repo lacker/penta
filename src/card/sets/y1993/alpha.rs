@@ -8,11 +8,11 @@ use crate::card::{
     DamageRecipientMatcherDef, DamageSourceGroupDef, DiscardSelectionDef, EffectDef,
     EffectExecutionDef, EffectPaymentDef, EffectRecipientDef, HalvedValueDef, InstalledTriggerDef,
     KeywordAbility, LikelihoodDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ReplacementAbilityDef, ReplacementChoiceDef, ReplacementConditionDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, RoundingDef,
-    TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, OngoingEffectDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ReplacementAbilityDef, ReplacementChoiceDef,
+    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    RoundingDef, TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnStepDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -467,8 +467,47 @@ pub(in crate::card::sets) static GREEN_WARD: CardRecord = CardRecord::new_with_l
         ]),
 );
 
+static GUARDIAN_ANGEL_PAYMENT: AbilityDef = AbilityDef::activated(
+    "{1}: Prevent the next 1 damage that would be dealt to the affected permanent or player this turn.",
+    &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+    EffectDef::PreventDamage {
+        prevention: DamagePreventionDef::amount(
+            DamageEventMatcherDef::to(EffectRecipientDef::object(ObjectRefDef::Binding(
+                ObjectBindingIndex::PRIMARY,
+            ))),
+            ValueDef::Constant(1),
+        ),
+        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+    },
+)
+.with_source_zones(&[ZoneKind::Command]);
+
 // LEA 21 — Guardian Angel
-// Audit: blocked — Needs a repeatable optional payment window open until end of turn, each payment adding another prevention shield to the same recipient. The initial shield itself is available.
+pub(in crate::card::sets) static GUARDIAN_ANGEL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0f84d676-5327-454c-a033-b4498a9d28e2"),
+    "Guardian Angel",
+    CardArt::new("0f84d676-5327-454c-a033-b4498a9d28e2", "Anson Maddocks"),
+    CardSet::Alpha,
+    CardRules::new_instant(mana_cost!("{X}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Prevent the next X damage that would be dealt to any target this turn. Until end of turn, you may pay {1} any time you could cast an instant. If you do, prevent the next 1 damage that would be dealt to that permanent or player this turn.",
+        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
+        EffectDef::Sequence(&[
+            EffectDef::PreventDamage {
+                prevention: DamagePreventionDef::amount(
+                    DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+                    ValueDef::ChosenX,
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::CreateOngoingEffect(OngoingEffectDef::new(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ObjectBindingIndex::PRIMARY,
+                &GUARDIAN_ANGEL_PAYMENT,
+                ResolvedEffectDurationDef::UntilEndOfTurn,
+            )),
+        ]),
+    )),
+);
 
 // LEA 22 — Healing Salve
 pub(in crate::card::sets) static HEALING_SALVE: CardRecord = CardRecord::new_with_legacy_id(
@@ -3641,6 +3680,13 @@ pub(in crate::card::sets) static BIRDS_OF_PARADISE: CardRecord = CardRecord::new
 // LEA 187 — Camouflage
 // Audit: blocked — Needs a duration-scoped replacement/prevention effect for “This turn, instead of declaring blockers, each defending player chooses any number of creatures they control and divides them into a number of piles equal to the number of attacking…”.
 
+static CHANNEL_MANA: AbilityDef = AbilityDef::activated_mana(
+    "Pay 1 life: Add {C}.",
+    &[AbilityCostDef::PayLife(1)],
+    EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+)
+.with_source_zones(&[ZoneKind::Command]);
+
 // LEA 188 — Channel
 pub(in crate::card::sets) static CHANNEL: CardRecord = CardRecord::new_with_legacy_id(
     65,
@@ -3648,11 +3694,13 @@ pub(in crate::card::sets) static CHANNEL: CardRecord = CardRecord::new_with_lega
     CardArt::new("c1862c47-71cc-45a3-8805-a5ddc62e55ea", "Richard Thomas"),
     CardSet::Alpha,
     CardRules::new_sorcery(mana_cost!("{G}{G}"))
-    .with_abilities(&[AbilityDef::custom_full(
+    .with_ability(AbilityDef::spell(
         "Until end of turn, any time you could activate a mana ability, you may pay 1 life. If you do, add {C}.",
-        CardBehavior::Channel,
-        "The life is offered as its own action at priority and is also counted by the payment layer, so a cost can be paid with it mid-cast. Colourless mana pays only the generic part of a cost, and the last point of life is not spendable.",
-    )]),
+        EffectDef::CreateOngoingEffect(OngoingEffectDef::unbound(
+            &CHANNEL_MANA,
+            ResolvedEffectDurationDef::UntilEndOfTurn,
+        )),
+    )),
 );
 
 // LEA 189 — Cockatrice
@@ -5470,6 +5518,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DISENCHANT,
     &FARMSTEAD,
     &GREEN_WARD,
+    &GUARDIAN_ANGEL,
     &HEALING_SALVE,
     &HOLY_ARMOR,
     &HOLY_STRENGTH,

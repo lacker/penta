@@ -91,7 +91,6 @@ lands are legal in every format and are not listed.
 - `Thundertrap Trainer`
 - `Tinker`
 - `Tishana's Tidebinder`
-- `Treasure Cruise`
 - `Trinket Mage`
 - `Urza, Lord High Artificer`
 
@@ -564,6 +563,7 @@ been played beside.
 - `Titania, Protector of Argoth`
 - `Tolarian Academy`
 - `Toxic Deluge`
+- `Treasure Cruise`
 - `Tropical Island`
 - `Tundra`
 - `Umezawa's Jitte`

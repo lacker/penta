@@ -31,6 +31,14 @@ fn collect_ability_grants(
                 emblems,
             );
         }
+        EffectDef::CreateOngoingEffect(ongoing) => {
+            collect_program_ability_grants(
+                ongoing.ability.effect.definition,
+                grants,
+                tokens,
+                emblems,
+            );
+        }
         EffectDef::StaticApply { effect, .. }
         | EffectDef::Apply { effect, .. }
         | EffectDef::DealDamageAndApply {
@@ -114,6 +122,9 @@ fn ability_grant_sites(effect: EffectDef) -> usize {
     let direct = match effect {
         EffectDef::InstallTrigger(trigger) => {
             program_ability_grant_sites(trigger.ability.effect.definition)
+        }
+        EffectDef::CreateOngoingEffect(ongoing) => {
+            program_ability_grant_sites(ongoing.ability.effect.definition)
         }
         EffectDef::IfFormat {
             then, otherwise, ..

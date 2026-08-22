@@ -123,7 +123,7 @@ fn channel_pays_for_a_fireball_in_one_cast() {
     // The reason Channel is a card: the life is spendable while paying for
     // the spell, so the X the engine offers has to count it.
     let mut game = ready_game();
-    game.channel_active[0] = true;
+    resolve_channel(&mut game);
     game.battlefield
         .push(creature(10_000, cards::MOUNTAIN, PlayerId::One));
     let fireball = card(10_001, cards::FIREBALL, PlayerId::One);
@@ -146,10 +146,7 @@ fn channel_pays_for_a_fireball_in_one_cast() {
         })
         .max()
         .expect("Fireball can be cast");
-    assert_eq!(
-        biggest, 19,
-        "nineteen life is spendable; the twentieth is not"
-    );
+    assert_eq!(biggest, 20, "Channel may spend the last point of life");
 
     game.apply(
         PlayerId::One,
@@ -171,7 +168,7 @@ fn channel_pays_for_a_fireball_in_one_cast() {
 fn channel_and_pay_life_mana_share_life_left_after_the_spell_cost() {
     let mut game = ready_game();
     game.battlefield.clear();
-    game.channel_active[PlayerId::One.index()] = true;
+    resolve_channel(&mut game);
     let confluence = game
         .put_onto_battlefield(PlayerId::One, cards::MANA_CONFLUENCE)
         .expect("cataloged");
@@ -189,13 +186,13 @@ fn channel_and_pay_life_mana_share_life_left_after_the_spell_cost() {
         })
         .expect("one spell life, one Confluence life, and two Channel life fit in five");
 
-    game.players[PlayerId::One.index()].life = 4;
+    game.players[PlayerId::One.index()].life = 3;
     assert!(
         !game.is_legal_action(PlayerId::One, &cast),
         "Channel and Mana Confluence cannot both claim life reserved by the spell",
     );
     assert!(game.apply(PlayerId::One, cast.clone()).is_err());
-    assert_eq!(game.players[PlayerId::One.index()].life, 4);
+    assert_eq!(game.players[PlayerId::One.index()].life, 3);
     assert!(
         game.players[PlayerId::One.index()]
             .hand
@@ -222,7 +219,7 @@ fn channel_does_not_pay_a_coloured_symbol() {
     // else, so a spell whose coloured symbol is unpayable stays unpayable
     // however much life is left.
     let mut game = ready_game();
-    game.channel_active[0] = true;
+    resolve_channel(&mut game);
     game.battlefield
         .push(creature(10_000, cards::MOUNTAIN, PlayerId::One));
     let counterspell = card(10_001, cards::COUNTERSPELL, PlayerId::One);
@@ -259,7 +256,7 @@ fn channel_pays_a_true_colorless_symbol_when_the_spell_is_applied() {
         .collect::<Vec<_>>();
     definitions.push(definition);
     game.catalog = CardCatalog::new(definitions).expect("the test definition is valid");
-    game.channel_active[PlayerId::One.index()] = true;
+    resolve_channel(&mut game);
     game.players[PlayerId::One.index()].life = 3;
     let spell = card(10_002, definition_id, PlayerId::One);
     let spell_id = spell.id;

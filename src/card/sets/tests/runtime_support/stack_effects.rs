@@ -505,6 +505,32 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         // Installing an ability is a resolution like any other; what it
         // installs has to be an ability the shared runtime can fire.
         EffectDef::InstallTrigger(trigger) => shared_definition_ability(trigger.ability),
+        EffectDef::CreateOngoingEffect(ongoing) => {
+            let (definition, mana) = match ongoing.ability.definition {
+                DeclarativeAbilityDef::Activated(definition) => (definition, false),
+                DeclarativeAbilityDef::ActivatedMana(definition) => (definition, true),
+                _ => return false,
+            };
+            ongoing.affected.is_none_or(shared_effect_recipient)
+                && definition.procedure == AbilityProcedureDef::Shared
+                && definition.source_zones == [ZoneKind::Command]
+                && definition.targets.is_empty()
+                && definition.modes.is_none()
+                && definition.activation_limit.is_none()
+                && !definition.any_player_may_activate
+                && definition.condition.is_none()
+                && definition.costs.as_slice().iter().all(|cost| {
+                    if mana {
+                        matches!(cost, AbilityCostDef::PayLife(_))
+                    } else {
+                        matches!(cost, AbilityCostDef::Mana(cost) if !cost.variable_x)
+                    }
+                })
+                && ongoing.duration != ResolvedEffectDurationDef::WhileSourceTapped
+                && ongoing.ability.declarative_effect().is_some_and(|effect| {
+                    shared_stack_effect_at_position(effect, false)
+                })
+        }
         EffectDef::Apply {
             recipient,
             effect,

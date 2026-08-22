@@ -1,16 +1,34 @@
 //! Khans of Tarkir cards cataloged as cross-format rules-engine test cases.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, CardArt, CardRules, CardSet, CardSupertype, EffectDef, EffectRecipientDef,
-    PlayerRelation, ReplacementEffectDef, ReplacementEventDef, TurnKindDef, ZoneKind,
-    ZoneMoveCauseDef,
+    PlayerRelation, ReplacementEffectDef, ReplacementEventDef, TurnKindDef, ValueDef, ZoneKind,
+    ZoneMoveCauseDef, abilities,
 };
 use crate::mana_cost;
 
 static TAKE_EXTRA_TURN_CONTROLLER: EffectDef = EffectDef::TakeExtraTurn {
     player: EffectRecipientDef::Controller,
 };
+
+// KTK 59 — Treasure Cruise
+pub(in crate::card::sets) static TREASURE_CRUISE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7a59d4b1-6cf4-44ec-8a96-1bb7094fea21"),
+    "Treasure Cruise",
+    CardArt::new("7a59d4b1-6cf4-44ec-8a96-1bb7094fea21", "Cynthia Sheppard"),
+    CardSet::KhansOfTarkir,
+    CardRules::new_sorcery(mana_cost!("{7}{U}")).with_abilities(&[
+        abilities::delve(),
+        AbilityDef::spell(
+            "Draw three cards.",
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(3),
+            },
+        ),
+    ]),
+);
 
 // KTK 227 — Ugin's Nexus
 pub(in crate::card::sets) static UGINS_NEXUS: CardRecord = CardRecord::new_with_legacy_id(
@@ -44,6 +62,6 @@ pub(in crate::card::sets) static UGINS_NEXUS: CardRecord = CardRecord::new_with_
         ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&UGINS_NEXUS];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&TREASURE_CRUISE, &UGINS_NEXUS];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

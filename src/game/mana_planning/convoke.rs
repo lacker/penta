@@ -1,25 +1,45 @@
+#[derive(Clone, Copy, Default)]
+struct ManaContributionKinds {
+    convoke: bool,
+    delve: bool,
+    improvise: bool,
+}
+
+impl ManaContributionKinds {
+    const fn any(self) -> bool {
+        self.convoke || self.delve || self.improvise
+    }
+}
+
 impl Game {
-    /// Whether the spell currently being paid for has an executable convoke
-    /// clause on one of the parts in its selected form.
-    fn payment_uses_convoke(&self, purpose: &ManaPaymentPurpose) -> bool {
+    /// Which direct mana-cost contribution keywords are executable on the
+    /// selected spell form.
+    fn payment_contributions(&self, purpose: &ManaPaymentPurpose) -> ManaContributionKinds {
         let ManaPaymentPurpose::Spell {
             definition, form, ..
         } = purpose
         else {
-            return false;
+            return ManaContributionKinds::default();
         };
         let Some(definition) = self.catalog.get(*definition) else {
-            return false;
+            return ManaContributionKinds::default();
         };
         let parts: &[crate::CardPartId] = match form {
             crate::card::SpellForm::Part(part) => core::slice::from_ref(part),
             crate::card::SpellForm::Combined(parts) => parts,
         };
-        parts.iter().any(|part| {
-            definition
-                .part(*part)
-                .is_some_and(|part| part.rules.has_executable_keyword(KeywordAbility::Convoke))
-        })
+        let has = |keyword| {
+            parts.iter().any(|part| {
+                definition
+                    .part(*part)
+                    .is_some_and(|part| part.rules.has_executable_keyword(keyword))
+            })
+        };
+        ManaContributionKinds {
+            convoke: has(KeywordAbility::Convoke),
+            delve: has(KeywordAbility::Delve),
+            improvise: has(KeywordAbility::Improvise),
+        }
     }
 
     /// The distinct ways one untapped creature can contribute to convoke.
@@ -48,9 +68,9 @@ impl Game {
                 let mut production = ManaPool::default();
                 production.add_color(color, 1);
                 outputs.push(ManaSourceOutput {
-                    kind: PlannedPaymentKind::Convoke,
+                    kind: PlannedPaymentKind::Contribution(ManaContributionKind::Convoke),
                     production: ManaPool::default(),
-                    convoke_production: production,
+                    colored_contribution: production,
                     generic_payment: 0,
                     life_payment: 0,
                     benefits_payment: false,
@@ -59,9 +79,38 @@ impl Game {
         }
         if outputs.is_empty() {
             outputs.push(ManaSourceOutput {
-                kind: PlannedPaymentKind::Convoke,
+                kind: PlannedPaymentKind::Contribution(ManaContributionKind::Convoke),
                 production: ManaPool::default(),
-                convoke_production: ManaPool::default(),
+                colored_contribution: ManaPool::default(),
+                generic_payment: 1,
+                life_payment: 0,
+                benefits_payment: false,
+            });
+        }
+        outputs
+    }
+
+    /// A permanent can supply at most one tap-based contribution. Convoke
+    /// may pay with a creature's color; improvise is always generic-only.
+    fn permanent_contribution_outputs(
+        &self,
+        permanent: &Permanent,
+        kinds: ManaContributionKinds,
+    ) -> ManaSourceOutputs {
+        let mut outputs = Vec::new();
+        if kinds.convoke {
+            outputs.extend(self.convoke_outputs(permanent));
+        }
+        if kinds.improvise
+            && !permanent.tapped
+            && self
+                .permanent_types(permanent)
+                .is_some_and(|types| types.contains(CardType::Artifact))
+        {
+            outputs.push(ManaSourceOutput {
+                kind: PlannedPaymentKind::Contribution(ManaContributionKind::Improvise),
+                production: ManaPool::default(),
+                colored_contribution: ManaPool::default(),
                 generic_payment: 1,
                 life_payment: 0,
                 benefits_payment: false,
@@ -74,7 +123,7 @@ impl Game {
     /// activated in 601.2g and then have that same source tapped for convoke
     /// in 601.2h. A tap or source-leaving cost makes the two uses mutually
     /// exclusive, which is the Llanowar Elves case.
-    fn mana_activation_can_also_convoke(activation: &ManaAbilityActivation) -> bool {
+    fn mana_activation_can_also_contribute(activation: &ManaAbilityActivation) -> bool {
         activation.cost_object != Some(activation.source)
             && !activation.costs.iter().any(|cost| {
                 matches!(
@@ -102,13 +151,21 @@ impl Game {
                 && activation
                     .costs
                     .iter()
-                    .filter(|cost| matches!(cost, AbilityCostDef::SacrificePermanent { .. }))
+                    .filter(|cost| {
+                        matches!(
+                            cost,
+                            AbilityCostDef::SacrificePermanent { .. }
+                                | AbilityCostDef::ExileCardFromHand(_)
+                        )
+                    })
                     .count()
                     == 1
                 && activation.costs.iter().all(|cost| {
                     matches!(
                         cost,
-                        AbilityCostDef::SacrificePermanent { .. } | AbilityCostDef::PayLife(_)
+                        AbilityCostDef::SacrificePermanent { .. }
+                            | AbilityCostDef::ExileCardFromHand(_)
+                            | AbilityCostDef::PayLife(_)
                     )
                 })
         });
@@ -127,7 +184,7 @@ impl Game {
                 })
     }
 
-    fn append_repeatable_convoke_mana_sources(
+    fn append_repeatable_costed_mana_sources(
         &self,
         sources: &mut Vec<FlexibleManaSource>,
         permanent: &Permanent,
@@ -159,15 +216,24 @@ impl Game {
         }
     }
 
-    fn maximum_payment_from_permanent(&self, permanent: &Permanent, uses_convoke: bool) -> u16 {
+    fn maximum_payment_from_permanent(
+        &self,
+        permanent: &Permanent,
+        contributions: ManaContributionKinds,
+    ) -> u16 {
         let activations = self.mana_ability_activations(permanent);
         let mut repeatable = Vec::<(GameObjectId, u16)>::new();
         let mut single = 0_u16;
-        let mut single_with_convoke = 0_u16;
-        let convoke = u16::from(uses_convoke && !self.convoke_outputs(permanent).is_empty());
+        let mut single_with_contribution = 0_u16;
+        let contribution = self
+            .permanent_contribution_outputs(permanent, contributions)
+            .iter()
+            .map(|output| output.payment_total())
+            .max()
+            .unwrap_or(0);
         for activation in &activations {
             let amount = Self::mana_production(activation).total();
-            if uses_convoke && self.mana_activation_can_repeat_in_payment(permanent, activation) {
+            if self.mana_activation_can_repeat_in_payment(permanent, activation) {
                 let object = activation.cost_object.expect("repeatable cost names an object");
                 match repeatable.iter_mut().find(|(candidate, _)| *candidate == object) {
                     Some((_, maximum)) => *maximum = (*maximum).max(amount),
@@ -175,8 +241,9 @@ impl Game {
                 }
             } else {
                 single = single.max(amount);
-                if Self::mana_activation_can_also_convoke(activation) {
-                    single_with_convoke = single_with_convoke.max(amount.saturating_add(convoke));
+                if Self::mana_activation_can_also_contribute(activation) {
+                    single_with_contribution =
+                        single_with_contribution.max(amount.saturating_add(contribution));
                 }
             }
         }
@@ -184,20 +251,20 @@ impl Game {
             .iter()
             .map(|(_, amount)| *amount)
             .fold(0_u16, u16::saturating_add)
-            .saturating_add(single.max(convoke).max(single_with_convoke))
+            .saturating_add(single.max(contribution).max(single_with_contribution))
     }
 
-    fn mana_and_convoke_outputs(
+    fn mana_and_contribution_outputs(
         activations: &[ManaAbilityActivation],
         mana_outputs: &[ManaSourceOutput],
-        convoke_outputs: &[ManaSourceOutput],
+        contribution_outputs: &[ManaSourceOutput],
     ) -> ManaSourceOutputs {
         let mut combined = Vec::new();
         for (activation, mana) in activations.iter().zip(mana_outputs) {
-            if !Self::mana_activation_can_also_convoke(activation) {
+            if !Self::mana_activation_can_also_contribute(activation) {
                 continue;
             }
-            for convoke in convoke_outputs {
+            for contribution in contribution_outputs {
                 let PlannedPaymentKind::Mana {
                     ability,
                     color,
@@ -216,11 +283,11 @@ impl Game {
                         counters_removed,
                         cost_object,
                         combination,
-                        convokes: true,
+                        contribution: contribution.kind.contribution(),
                     },
                     production: mana.production,
-                    convoke_production: convoke.convoke_production,
-                    generic_payment: convoke.generic_payment,
+                    colored_contribution: contribution.colored_contribution,
+                    generic_payment: contribution.generic_payment,
                     life_payment: mana.life_payment,
                     benefits_payment: mana.benefits_payment,
                 });

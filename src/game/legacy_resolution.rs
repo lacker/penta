@@ -90,7 +90,6 @@ impl Game {
                     self.queue_fork_decision(object.controller, original);
                 }
             }
-            CardBehavior::Channel => self.channel_active[object.controller.index()] = true,
             CardBehavior::Mulch => {
                 let player = object.controller;
                 let revealed = self.take_top_of_library(player, 4);

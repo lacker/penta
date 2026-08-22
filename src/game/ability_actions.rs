@@ -12,6 +12,7 @@ use crate::card::ActivatedAbilityDef;
 use crate::ids::ModeId;
 
 mod mana_value;
+include!("ability_actions/modes.rs");
 
 impl Game {
     /// Resolves object references that are fixed when an ability is
@@ -47,63 +48,6 @@ impl Game {
         }
     }
 
-    /// Every way of answering an activated ability's "choose one --". An
-    /// ability that prints no modes has exactly one answer: choose none.
-    pub(super) fn activated_mode_selections(definition: &ActivatedAbilityDef) -> Vec<Vec<ModeId>> {
-        let Some(modal) = definition.modes else {
-            return vec![Vec::new()];
-        };
-        let implemented = modal
-            .modes
-            .iter()
-            .enumerate()
-            .filter(|(_, mode)| mode.is_executable())
-            .filter_map(|(index, _)| ModeId::from_index(index))
-            .collect::<Vec<_>>();
-        mode_id_selections(
-            &implemented,
-            usize::from(modal.minimum),
-            usize::from(modal.maximum),
-            modal.may_repeat,
-        )
-    }
-
-    /// The targets and mode effects an activation with these modes carries.
-    /// The ability's own targets come first, then each chosen mode's, which
-    /// is the same flattening a modal spell uses.
-    pub(super) fn selected_activated_plan(
-        definition: &ActivatedAbilityDef,
-        selected_modes: &[ModeId],
-    ) -> Option<SelectedSpellPlan> {
-        let Some(modal) = definition.modes else {
-            return selected_modes.is_empty().then(|| SelectedSpellPlan {
-                target_defs: definition.targets.to_vec(),
-                mode_effects: Vec::new(),
-            });
-        };
-        let mut target_defs = definition.targets.to_vec();
-        let mut selected = selected_modes.to_vec();
-        selected.sort_by_key(|mode| mode.index());
-        let mut mode_effects = Vec::with_capacity(selected.len());
-        for selected in selected {
-            let mode = modal.modes.get(selected.index())?;
-            let effect = mode.declarative_effect()?;
-            let DeclarativeAbilityDef::Spell(mode_spell) = mode.definition else {
-                return None;
-            };
-            let target_base = target_defs.len();
-            target_defs.extend_from_slice(mode_spell.targets());
-            mode_effects.push(ScopedEffect {
-                effect,
-                target_base,
-            });
-        }
-        Some(SelectedSpellPlan {
-            target_defs,
-            mode_effects,
-        })
-    }
-
     pub(super) fn push_activated_ability(
         &mut self,
         source: GameObjectId,
@@ -112,6 +56,28 @@ impl Game {
         frozen: FrozenActivatedAbility,
         targets: Vec<TargetSelection>,
         chosen_permanents: Vec<GameObjectId>,
+    ) -> GameObjectId {
+        self.push_activated_ability_with_context(
+            source,
+            source_card.owner,
+            controller,
+            frozen,
+            targets,
+            chosen_permanents,
+            TriggerContext::empty().into(),
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub(super) fn push_activated_ability_with_context(
+        &mut self,
+        source: GameObjectId,
+        source_owner: PlayerId,
+        controller: PlayerId,
+        frozen: FrozenActivatedAbility,
+        targets: Vec<TargetSelection>,
+        chosen_permanents: Vec<GameObjectId>,
+        context: super::EffectResolutionContext,
     ) -> GameObjectId {
         if let Some(permanent) = self
             .battlefield
@@ -128,7 +94,7 @@ impl Game {
             }
         }
         let event_chosen_permanents = chosen_permanents.clone();
-        let card = self.unbacked_ability_object(frozen.presentation, source_card.owner);
+        let card = self.unbacked_ability_object(frozen.presentation, source_owner);
         let id = card.id;
         // The activation's targets are locked in here, which is where a
         // crime is committed if any of them belongs to an opponent.
@@ -149,7 +115,7 @@ impl Game {
                 text: frozen.text,
                 target_defs: frozen.target_defs,
                 targets,
-                context: TriggerContext::empty().into(),
+                context,
                 resolver: frozen.resolver,
                 // Only a triggered ability carries an intervening-if.
                 condition: None,
@@ -371,7 +337,8 @@ impl Game {
                         // Payability is decided by whether any card qualifies,
                         // which the choice list below answers.
                         | AbilityCostDef::ExileCardsFromGraveyard { .. }
-                        | AbilityCostDef::DiscardCardMatching(_) => false,
+                        | AbilityCostDef::DiscardCardMatching(_)
+                        | AbilityCostDef::ExileCardFromHand(_) => false,
                         AbilityCostDef::DiscardSource
                         | AbilityCostDef::DiscardCards(_)
                         | AbilityCostDef::Special(_) => true,
@@ -406,6 +373,7 @@ impl Game {
                             | AbilityCostDef::TapPermanent { .. }
                             | AbilityCostDef::ExileCardsFromGraveyard { .. }
                             | AbilityCostDef::DiscardCardMatching(_)
+                            | AbilityCostDef::ExileCardFromHand(_)
                     )
                 });
                 let object_cost = object_costs.next();
@@ -489,6 +457,19 @@ impl Game {
                     })
                     .map(|card| vec![card.id])
                     .collect(),
+                    Some(AbilityCostDef::ExileCardFromHand(object)) => self.players[player.index()]
+                        .hand
+                        .iter()
+                        .filter(|card| {
+                            self.card_object_matches(
+                                *object,
+                                card,
+                                ZoneKind::Hand,
+                                permanent.card.id,
+                            )
+                        })
+                        .map(|card| vec![card.id])
+                        .collect(),
                     // Paid by a decision rather than by enumeration, so the
                     // activation names none of them: one offer stands for
                     // however many ways there are to pay it.
@@ -620,6 +601,47 @@ impl Game {
         }
         self.add_hand_ability_actions(player, actions);
         self.add_graveyard_ability_actions(player, actions);
+        self.add_ongoing_effect_ability_actions(player, actions);
+    }
+
+    /// Activations supplied by duration-scoped effects. These sources are
+    /// classified as command-zone objects for source-zone checks, but are not
+    /// emblems and never join the battlefield ability-layer walk.
+    fn add_ongoing_effect_ability_actions(&self, player: PlayerId, actions: &mut Vec<Action>) {
+        for ongoing in self
+            .ongoing_effects
+            .iter()
+            .filter(|ongoing| ongoing.controller == player)
+        {
+            let DeclarativeAbilityDef::Activated(definition) = ongoing.ability.definition else {
+                continue;
+            };
+            if !ongoing.ability.is_executable()
+                || definition.procedure != AbilityProcedureDef::Shared
+                || definition.source_zones != [ZoneKind::Command]
+                || !self.activation_timing_allows(player, definition.timing)
+            {
+                continue;
+            }
+            let Some(cost) = Self::activated_ability_mana_cost(&definition) else {
+                continue;
+            };
+            let purpose = ManaPaymentPurpose::Ability {
+                source: ongoing.source.object,
+                taps_source: false,
+                leaves_source: false,
+            };
+            if self.can_pay_cost_for(player, cost, 0, &purpose) {
+                actions.push(Action::ActivateAbility {
+                    source: ongoing.source.object,
+                    ability: ongoing.source.ability,
+                    targets: Vec::new(),
+                    cost_objects: Vec::new(),
+                    x: 0,
+                    modes: Vec::new(),
+                });
+            }
+        }
     }
 
     #[allow(clippy::too_many_lines)]
@@ -760,6 +782,7 @@ impl Game {
                         | AbilityCostDef::PayLife(_)
                         | AbilityCostDef::DiscardCards(_)
                         | AbilityCostDef::DiscardCardMatching(_)
+                        | AbilityCostDef::ExileCardFromHand(_)
                         | AbilityCostDef::DiscardCardsAtRandom(_)
                         | AbilityCostDef::SacrificePermanent { .. }
                         | AbilityCostDef::SacrificePermanents { .. }
@@ -869,6 +892,7 @@ impl Game {
                             | AbilityCostDef::DiscardSource
                             | AbilityCostDef::DiscardCards(_)
                             | AbilityCostDef::DiscardCardMatching(_)
+                            | AbilityCostDef::ExileCardFromHand(_)
                             | AbilityCostDef::DiscardCardsAtRandom(_)
                             | AbilityCostDef::SacrificePermanent { .. }
                             | AbilityCostDef::SacrificePermanents { .. }

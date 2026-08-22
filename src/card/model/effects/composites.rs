@@ -5,8 +5,9 @@
 //! reach for, rather than a variant of any one of them.
 
 use super::super::{
-    AbilityDef, ChoiceVisibilityDef, CounterKind, EffectDef, ObjectPredicateDef, ObjectRefDef,
-    ObjectSetDef, PlayerRefDef, PlayerSetDef, ValueDef,
+    AbilityDef, ChoiceVisibilityDef, CounterKind, EffectDef, EffectRecipientDef,
+    ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerSetDef,
+    ResolvedEffectDurationDef, ValueDef,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
 
@@ -84,6 +85,58 @@ pub enum InstalledTriggerLifetimeDef {
 pub struct InstalledTriggerDef {
     pub ability: &'static AbilityDef,
     pub lifetime: InstalledTriggerLifetimeDef,
+}
+
+/// A resolving effect that remains outside every zone and offers one
+/// activated ability for a fixed duration.
+///
+/// When present, the affected recipient is frozen into `binding` as the
+/// ongoing effect is created, so the nested ability can read it without
+/// targeting it again. An unbound effect instead carries a self-contained
+/// ability such as Channel's mana ability. The ongoing effect is a game object
+/// for ability-source identity, but it is not a permanent and cannot pay costs
+/// that require permanent state. Penta treats it as command-zone-resident for
+/// source-zone checks. The rules effect does not technically occupy a zone,
+/// but that approximation is gameplay-indistinguishable while the object
+/// remains untargetable and separate from emblems.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct OngoingEffectDef {
+    pub affected: Option<EffectRecipientDef>,
+    pub binding: Option<ObjectBindingIndex>,
+    pub ability: &'static AbilityDef,
+    pub duration: ResolvedEffectDurationDef,
+}
+
+impl OngoingEffectDef {
+    #[must_use]
+    pub const fn new(
+        affected: EffectRecipientDef,
+        binding: ObjectBindingIndex,
+        ability: &'static AbilityDef,
+        duration: ResolvedEffectDurationDef,
+    ) -> Self {
+        Self {
+            affected: Some(affected),
+            binding: Some(binding),
+            ability,
+            duration,
+        }
+    }
+
+    /// Creates an ongoing effect whose ability does not refer back to an
+    /// affected object. Channel is the representative shape.
+    #[must_use]
+    pub const fn unbound(
+        ability: &'static AbilityDef,
+        duration: ResolvedEffectDurationDef,
+    ) -> Self {
+        Self {
+            affected: None,
+            binding: None,
+            ability,
+            duration,
+        }
+    }
 }
 
 impl InstalledTriggerDef {

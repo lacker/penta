@@ -2,8 +2,9 @@ use super::{
     AbilityProcedureDef, AbilitySourceRef, ArrivalAttachment, BattlefieldArrival, CardPartId,
     CopiableAbility, CounteredSpellZone, DeclarativeAbilityDef, EffectDef, EffectResolutionContext,
     Game, InstalledTrigger, InstalledTriggerLifetime, Permanent, ResolvedEffectPayment,
-    SacrificeDeclined, SacrificeFollowup, ScopedEffect, StackAbilityResolver, StackObject, Target,
-    TriggerCapture, ZoneKind, ZoneMoveCause, ZonePlacement,
+    ResolvedOngoingEffect, SacrificeDeclined, SacrificeFollowup, ScopedEffect,
+    StackAbilityResolver, StackObject, Target, TriggerCapture, ZoneKind, ZoneMoveCause,
+    ZonePlacement,
 };
 use crate::card::{ArrivalAttachmentDef, EffectPaymentCostDef, InstalledTriggerLifetimeDef};
 use move_to_zone::MoveToZoneClause;
@@ -313,6 +314,47 @@ impl Game {
                 emblem.timestamp = self.allocate_continuous_effect_timestamp();
                 emblem.emblem_source = object.ability_origin();
                 self.emblems.push(emblem);
+            }
+            EffectDef::CreateOngoingEffect(ongoing) => {
+                let Some(frozen) = object.ability.as_ref() else {
+                    return;
+                };
+                let expiration = Self::continuous_effect_expiration(
+                    ongoing.duration,
+                    object.controller,
+                    self.turns_started[object.controller.index()],
+                );
+                let affected = ongoing.affected.map_or_else(
+                    || vec![None],
+                    |recipient| {
+                        self.effect_recipients(recipient, object, &context, scoped)
+                            .into_iter()
+                            .map(Some)
+                            .collect()
+                    },
+                );
+                for affected in affected {
+                    let mut frozen_context = context.clone();
+                    if let (Some(binding), Some(affected)) = (ongoing.binding, affected) {
+                        frozen_context.bind_single_object(binding, Some(affected));
+                    }
+                    let effect_object = self.allocate_object_id();
+                    self.ongoing_effects.push(ResolvedOngoingEffect {
+                        source: AbilitySourceRef {
+                            object: effect_object,
+                            // The nested ability is structurally located
+                            // beneath the resolving clause, so its root
+                            // provenance remains the clause that created it.
+                            ability: frozen.origin,
+                        },
+                        owner: object.card.owner,
+                        controller: object.controller,
+                        presentation: frozen.presentation,
+                        ability: *ongoing.ability,
+                        context: frozen_context,
+                        expiration,
+                    });
+                }
             }
             EffectDef::SacrificeKeepingOnePerType {
                 player: recipient,

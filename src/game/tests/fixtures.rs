@@ -413,6 +413,27 @@ pub(in crate::game) fn cast_action(
     }
 }
 
+pub(in crate::game) fn resolve_channel(game: &mut Game) {
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Green, 2);
+    let channel = card(99_188, cards::CHANNEL, PlayerId::One);
+    let channel_id = channel.id;
+    game.players[PlayerId::One.index()].hand.push(channel);
+    let cast = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| matches!(action, Action::CastSpell { card, .. } if *card == channel_id))
+        .expect("Channel can be cast with two green mana");
+    game.apply(PlayerId::One, cast)
+        .expect("Channel cast applies");
+    pass_priority_pair(game);
+    assert!(
+        !game
+            .ongoing_mana_ability_activations(PlayerId::One)
+            .is_empty(),
+        "resolving Channel creates its declarative ongoing mana ability",
+    );
+}
+
 pub(in crate::game) fn activated_targets(target: Target) -> Vec<TargetSelection> {
     vec![TargetSelection::single(TargetSlotId(0), target)]
 }

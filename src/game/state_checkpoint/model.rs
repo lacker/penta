@@ -125,13 +125,15 @@ pub(super) struct GameSnapshot {
     pub(super) life_gained_this_turn: [u16; 2],
     pub(super) draw_step_draw_taken: [bool; 2],
     pub(super) drawn_this_turn: [Vec<u32>; 2],
+    /// Compatibility-only wire member. Channel now reconstructs through
+    /// `ongoing_effects`; current writers always emit false for both seats.
+    pub(super) channel_active: [bool; 2],
     pub(super) defer_empty_library_loss: bool,
     pub(super) draw_replacements: [Vec<DrawReplacementSnapshot>; 2],
     pub(super) pending_combat_attackers: Vec<u32>,
     pub(super) combat_blocked_attackers: Vec<u32>,
     pub(super) extra_turns: Vec<usize>,
     pub(super) next_regular_player: usize,
-    pub(super) channel_active: [bool; 2],
     /// Resolved damage-prevention rules in creation order. Static prevention
     /// remains source-derived and therefore is not checkpointed here.
     pub(super) damage_preventions: Vec<ResolvedDamagePreventionSnapshot>,
@@ -153,6 +155,11 @@ pub(super) struct GameSnapshot {
     pub(super) successors: Vec<SuccessorSnapshot>,
     pub(super) pending_events: Vec<PendingEventSnapshot>,
     pub(super) temporary_ability_grants: Vec<TemporaryAbilityGrantSnapshot>,
+    /// Resolved duration-scoped effects that expose an activated ability.
+    /// Additive: checkpoints written before these effects existed restore
+    /// with none, which is the state of every game without one.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(super) ongoing_effects: Vec<ResolvedOngoingEffectSnapshot>,
     pub(super) next_installed_trigger_id: u32,
     pub(super) installed_triggers: Vec<InstalledTriggerSnapshot>,
     pub(super) pending_triggers: Vec<PendingTriggerSnapshot>,
@@ -184,6 +191,21 @@ pub(super) enum TurnPhaseResumeSnapshot {
 pub(super) struct TemporaryAbilityGrantSnapshot {
     pub(super) object: u32,
     pub(super) ability: AbilityLocator,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct ResolvedOngoingEffectSnapshot {
+    /// The effect object's own public identity. It is not a permanent or an
+    /// emblem and therefore has no ordinary observation-zone entry.
+    pub(super) object_id: u32,
+    pub(super) origin: AbilityOriginSnapshot,
+    pub(super) ability: AbilityLocator,
+    pub(super) presentation: ObjectCharacteristicsSnapshot,
+    pub(super) owner: usize,
+    pub(super) controller: usize,
+    pub(super) context: EffectResolutionContextSnapshot,
+    pub(super) expiration: ContinuousEffectExpirationSnapshot,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]

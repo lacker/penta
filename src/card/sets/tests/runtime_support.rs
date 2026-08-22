@@ -135,6 +135,8 @@ pub(super) fn shared_keyword(keyword: KeywordAbility) -> bool {
     matches!(
         keyword,
         KeywordAbility::Convoke
+            | KeywordAbility::Delve
+            | KeywordAbility::Improvise
             | KeywordAbility::Flying
             | KeywordAbility::Trample
             | KeywordAbility::Haste
@@ -392,7 +394,8 @@ pub(super) fn shared_activated_costs(source_zones: &[ZoneKind], costs: &[Ability
             | AbilityCostDef::SacrificePermanents { object, .. }
             | AbilityCostDef::TapPermanent { object, .. }
             | AbilityCostDef::ExileCardsFromGraveyard { object, .. }
-            | AbilityCostDef::DiscardCardMatching(object) => {
+            | AbilityCostDef::DiscardCardMatching(object)
+            | AbilityCostDef::ExileCardFromHand(object) => {
                 battlefield && shared_object_predicate(*object)
             }
             // Exiling the source is the one cost a card can pay from its own
@@ -650,14 +653,32 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                                 // ability the same way spending the source
                                 // does.
                                 | AbilityCostDef::SacrificePermanent { .. }
+                                | AbilityCostDef::ExileCardFromHand(_)
                         )
                     })
             }
 
-            battlefield_only(definition.source_zones)
+            let battlefield = battlefield_only(definition.source_zones);
+            let hand = definition.source_zones == [ZoneKind::Hand]
+                && definition.costs.as_slice() == [AbilityCostDef::ExileSource]
+                && definition.activation_limit.is_none()
+                && definition.condition.is_none();
+            let command = definition.source_zones == [ZoneKind::Command]
+                && !definition.costs.as_slice().is_empty()
+                && definition
+                    .costs
+                    .iter()
+                    .all(|cost| matches!(cost, AbilityCostDef::PayLife(_)))
+                && definition.activation_limit.is_none()
+                && definition.condition.is_none();
+
+            (battlefield || hand || command)
                 && definition.procedure == AbilityProcedureDef::Shared
                 && !definition.costs.as_slice().is_empty()
                 && definition.costs.iter().all(|cost| {
+                    if hand || command {
+                        return true;
+                    }
                     matches!(
                         cost,
                         AbilityCostDef::TapSource
@@ -672,6 +693,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                             // a <thing>" cost into one activation per
                             // candidate, for the same reason.
                             | AbilityCostDef::SacrificePermanent { .. }
+                            | AbilityCostDef::ExileCardFromHand(_)
                             | AbilityCostDef::PayLife(_)
                     ) || matches!(
                         cost,
@@ -699,10 +721,10 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                 // "Activate only if you control a Swamp or a Forest" is read
                 // where the activation is offered, so its shape has to be
                 // one the runtime can actually evaluate.
-                && definition
-                    .condition
-                    .is_none_or(|condition| shared_trigger_condition(*condition))
-                && shared_mana_effect(effect, true)
+                && definition.condition.is_none_or(|condition| {
+                    battlefield && shared_trigger_condition(*condition)
+                })
+                && shared_mana_effect(effect, battlefield)
         }
         DeclarativeAbilityDef::TriggeredMana(definition) => {
             fn immediate_mana_effect(effect: EffectDef) -> bool {
@@ -793,6 +815,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::GainClassLevel { .. }
                     | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
                     | EffectDef::CreateEmblem { .. }
+                    | EffectDef::CreateOngoingEffect(_)
                     | EffectDef::Transform { .. }
                     | EffectDef::ScheduleTurnPhases(_)
                     | EffectDef::TakeExtraTurn { .. }

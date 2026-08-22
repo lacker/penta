@@ -5,7 +5,7 @@ use crate::card::{
 };
 use crate::ids::{GameObjectId, GrantId, PlayerId};
 
-use super::{AbilitySourceRef, ObjectCharacteristics, Permanent};
+use super::{AbilitySourceRef, EffectResolutionContext, ObjectCharacteristics, Permanent};
 
 /// Timestamp shared by the continuous-effect slices currently modeled. Static
 /// effects use their source permanent's battlefield timestamp; resolving
@@ -181,6 +181,22 @@ pub(super) struct AbilityLayerOperation {
 pub(super) struct TemporaryAbilityGrant {
     pub(super) object: GameObjectId,
     pub(super) ability: AbilityDef,
+}
+
+/// A resolved duration-scoped effect that can be activated from outside every
+/// ordinary zone. It deliberately is not a [`Permanent`]: the command-zone
+/// source classification is only the closest gameplay-equivalent home for
+/// activation checks, not a claim that the rules effect technically has a
+/// zone.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub(super) struct ResolvedOngoingEffect {
+    pub(super) source: AbilitySourceRef,
+    pub(super) owner: PlayerId,
+    pub(super) controller: PlayerId,
+    pub(super) presentation: ObjectCharacteristics,
+    pub(super) ability: AbilityDef,
+    pub(super) context: EffectResolutionContext,
+    pub(super) expiration: ContinuousEffectExpiration,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

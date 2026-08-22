@@ -22,7 +22,7 @@ pub(super) enum ManaPaymentPurpose {
         form: SpellForm,
         /// Life already committed by the spell while mana abilities are
         /// planned, including Phyrexian symbols paid with life.
-        channel_life_reservation: u16,
+        reserved_life_payment: u16,
     },
     Ability {
         source: GameObjectId,
@@ -70,11 +70,11 @@ pub(super) struct ManaAbilityActivation {
     /// `None` whenever the cost has only one size, which is every other
     /// mana ability.
     pub(super) counters_removed: Option<u16>,
-    /// The permanent a "Sacrifice a <thing>" cost consumes. Like the counter
-    /// size above, source and colour do not distinguish one Goblin from
-    /// another, so the choice is enumerated into the activation rather than
-    /// asked afterwards -- a mana ability has no window in which to ask.
-    /// `None` for every ability that sacrifices nothing but itself.
+    /// The separate object a chosen sacrifice or hand-exile cost consumes.
+    /// Like the counter size above, source and colour do not distinguish one
+    /// candidate from another, so the choice is enumerated into the activation
+    /// rather than asked afterwards -- a mana ability has no window to ask.
+    /// `None` when no separate object is consumed.
     pub(super) cost_object: Option<GameObjectId>,
     /// How the amount is divided, for "add three mana in any combination of
     /// {U} and/or {R}". Each division is its own activation for the same
@@ -93,8 +93,8 @@ pub(super) struct ManaSourceOutput {
     pub(super) kind: PlannedPaymentKind,
     /// Mana this output actually puts into the player's pool.
     pub(super) production: ManaPool,
-    /// Colored payment supplied by convoke without producing mana.
-    pub(super) convoke_production: ManaPool,
+    /// Colored payment supplied directly without producing mana.
+    pub(super) colored_contribution: ManaPool,
     pub(super) generic_payment: u16,
     /// Life paid as a cost of the mana ability represented by this output.
     /// Convoke itself never pays life.
@@ -106,18 +106,36 @@ impl ManaSourceOutput {
     pub(super) const fn payment_amount(self, color: ManaColor) -> u16 {
         self.production
             .amount(color)
-            .saturating_add(self.convoke_production.amount(color))
+            .saturating_add(self.colored_contribution.amount(color))
     }
 
     pub(super) const fn payment_total(self) -> u16 {
         self.production
             .total()
-            .saturating_add(self.convoke_production.total())
+            .saturating_add(self.colored_contribution.total())
             .saturating_add(self.generic_payment)
     }
 }
 
 pub(super) type ManaSourceOutputs = Vec<ManaSourceOutput>;
+
+/// A spell-cost resource that supplies payment without producing mana.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(super) enum ManaContributionKind {
+    Convoke,
+    Delve,
+    Improvise,
+}
+
+impl ManaContributionKind {
+    pub(super) const fn taps_source(self) -> bool {
+        matches!(self, Self::Convoke | Self::Improvise)
+    }
+
+    pub(super) const fn exiles_source(self) -> bool {
+        matches!(self, Self::Delve)
+    }
+}
 
 /// What one selected payment source does. Convoke is deliberately not a mana
 /// ability: it taps the creature while costs are paid, produces no mana, and
@@ -130,22 +148,36 @@ pub(super) enum PlannedPaymentKind {
         counters_removed: Option<u16>,
         cost_object: Option<GameObjectId>,
         combination: Option<ManaSplit>,
-        /// This non-tapping activation is followed by convoking the same
-        /// source, so one permanent legitimately contributes in both ways.
-        convokes: bool,
+        /// This non-tapping activation is followed by a direct contribution
+        /// from the same source, so one object legitimately contributes in
+        /// both ways.
+        contribution: Option<ManaContributionKind>,
     },
-    Convoke,
+    Contribution(ManaContributionKind),
 }
 
 impl PlannedPaymentKind {
-    pub(super) const fn uses_convoke(self) -> bool {
-        matches!(self, Self::Convoke | Self::Mana { convokes: true, .. })
+    pub(super) const fn contribution(self) -> Option<ManaContributionKind> {
+        match self {
+            Self::Contribution(kind)
+            | Self::Mana {
+                contribution: Some(kind),
+                ..
+            } => Some(kind),
+            Self::Mana {
+                contribution: None, ..
+            } => None,
+        }
+    }
+
+    pub(super) const fn uses_contribution(self) -> bool {
+        self.contribution().is_some()
     }
 
     pub(super) const fn cost_object(self) -> Option<GameObjectId> {
         match self {
             Self::Mana { cost_object, .. } => cost_object,
-            Self::Convoke => None,
+            Self::Contribution(_) => None,
         }
     }
 }
@@ -175,14 +207,14 @@ impl PaymentCapacity {
 
     pub(super) fn add_output(&mut self, output: &ManaSourceOutput) {
         self.mana.add(output.production);
-        self.mana.add(output.convoke_production);
+        self.mana.add(output.colored_contribution);
         self.generic = self.generic.saturating_add(output.generic_payment);
     }
 
     #[allow(dead_code)]
     pub(super) fn add_planned(&mut self, payment: &PlannedManaActivation) {
         self.mana.add(payment.production);
-        self.mana.add(payment.convoke_production);
+        self.mana.add(payment.colored_contribution);
         self.generic = self.generic.saturating_add(payment.generic_payment);
     }
 }
@@ -193,13 +225,14 @@ pub(super) struct PlannedManaActivation {
     pub(super) kind: PlannedPaymentKind,
     /// Mana this activation actually produces.
     pub(super) production: ManaPool,
-    /// Colored payment supplied by convoking this source.
-    pub(super) convoke_production: ManaPool,
+    /// Colored payment supplied directly by this source.
+    pub(super) colored_contribution: ManaPool,
     /// Capacity that pays generic only; nonzero only for a colorless creature
     /// convoked for this spell.
     pub(super) generic_payment: u16,
-    /// Life this mana ability pays when activated. Channel is accounted for
-    /// separately because it is synthesized only for the final shortfall.
+    /// Life this mana ability pays when activated. Repeatable ongoing life
+    /// mana is accounted for separately because it is synthesized only for
+    /// the final shortfall.
     pub(super) life_payment: u16,
     pub(super) benefits_payment: bool,
     pub(super) flexibility: usize,
@@ -211,14 +244,14 @@ impl PlannedManaActivation {
     pub(super) const fn payment_amount(self, color: ManaColor) -> u16 {
         self.production
             .amount(color)
-            .saturating_add(self.convoke_production.amount(color))
+            .saturating_add(self.colored_contribution.amount(color))
     }
 
     #[allow(dead_code)]
     pub(super) const fn payment_total(self) -> u16 {
         self.production
             .total()
-            .saturating_add(self.convoke_production.total())
+            .saturating_add(self.colored_contribution.total())
             .saturating_add(self.generic_payment)
     }
 }

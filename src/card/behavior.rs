@@ -4,7 +4,6 @@ pub enum CardBehavior {
     Balance,
     BloodBaronOfVizkopa,
     ChainLightning,
-    Channel,
     DustToDust,
     EssenceScatter,
     Fireball,

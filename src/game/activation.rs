@@ -51,16 +51,23 @@ impl Game {
     /// graveyard. Retiring the old identity here is what later lets the
     /// resolving ability read the card's power: by then it is in exile under
     /// a new one.
-    fn exile_graveyard_source(&mut self, player: PlayerId, source: GameObjectId) {
-        let exiled = remove_card(&mut self.players[player.index()].graveyard, source)
-            .expect("a legal graveyard activation still has its source");
-        let (exiled, _zone_change) = self.zone_change_card(exiled);
-        self.players[player.index()].exile.push(exiled.clone());
-        self.capture_cards_exiled(
-            std::slice::from_ref(&exiled),
-            crate::card::ZoneKind::Graveyard,
-        );
-        self.note_card_left_graveyard(player);
+    pub(super) fn exile_graveyard_source(&mut self, player: PlayerId, source: GameObjectId) {
+        self.exile_graveyard_cards(player, &[source]);
+    }
+
+    pub(super) fn exile_graveyard_cards(&mut self, player: PlayerId, sources: &[GameObjectId]) {
+        let mut exiled = Vec::new();
+        for source in sources {
+            let card = remove_card(&mut self.players[player.index()].graveyard, *source)
+                .expect("a legal graveyard payment still has its card");
+            let (card, _zone_change) = self.zone_change_card(card);
+            self.players[player.index()].exile.push(card.clone());
+            exiled.push(card);
+        }
+        if !exiled.is_empty() {
+            self.capture_cards_exiled(&exiled, crate::card::ZoneKind::Graveyard);
+            self.note_card_left_graveyard(player);
+        }
     }
 
     fn activate_graveyard_ability(
@@ -135,6 +142,7 @@ impl Game {
                 | AbilityCostDef::DiscardSource
                 | AbilityCostDef::DiscardCards(_)
                 | AbilityCostDef::DiscardCardMatching(_)
+                | AbilityCostDef::ExileCardFromHand(_)
                 | AbilityCostDef::DiscardCardsAtRandom(_)
                 | AbilityCostDef::SacrificePermanent { .. }
                 | AbilityCostDef::SacrificePermanents { .. }
@@ -167,6 +175,71 @@ impl Game {
         self.check_state_based_actions();
     }
 
+    /// Activates the ability carried by a resolved ongoing effect. The effect
+    /// is command-zone-resident only as an engine source-zone approximation;
+    /// it has no permanent state and therefore supports only the source-free
+    /// mana-cost shape enforced by catalog validation.
+    fn activate_ongoing_effect_ability(
+        &mut self,
+        player: PlayerId,
+        source: GameObjectId,
+        ability: AbilityOrigin,
+    ) -> bool {
+        let Some(ongoing) = self
+            .ongoing_effects
+            .iter()
+            .find(|ongoing| {
+                ongoing.source.object == source
+                    && ongoing.source.ability == ability
+                    && ongoing.controller == player
+            })
+            .cloned()
+        else {
+            return false;
+        };
+        let DeclarativeAbilityDef::Activated(definition) = ongoing.ability.definition else {
+            return false;
+        };
+        if !ongoing.ability.is_executable()
+            || definition.procedure != AbilityProcedureDef::Shared
+            || definition.source_zones != [ZoneKind::Command]
+        {
+            return false;
+        }
+        let Some(cost) = Self::activated_ability_mana_cost(&definition) else {
+            return false;
+        };
+        let purpose = ManaPaymentPurpose::Ability {
+            source,
+            taps_source: false,
+            leaves_source: false,
+        };
+        self.activate_mana_for_cost_avoiding_for(player, cost, 0, None, &purpose);
+        let _ = self.pay_player_cost_for(player, cost, 0, &purpose);
+        let frozen = FrozenActivatedAbility {
+            origin: ongoing.source.ability,
+            definition: Some(Box::new(ongoing.ability)),
+            presentation: ongoing.presentation,
+            text: Some(ongoing.ability.text),
+            target_defs: Vec::new(),
+            resolver: Self::ability_resolver(ongoing.source.ability, &ongoing.ability),
+            mode_effects: Vec::new(),
+            x: 0,
+        };
+        self.push_activated_ability_with_context(
+            source,
+            ongoing.owner,
+            player,
+            frozen,
+            Vec::new(),
+            Vec::new(),
+            ongoing.context,
+        );
+        self.consecutive_passes = 0;
+        self.check_state_based_actions();
+        true
+    }
+
     #[allow(clippy::too_many_lines)]
     pub(super) fn activate_ability(
         &mut self,
@@ -181,6 +254,9 @@ impl Game {
             x,
             modes,
         } = choices;
+        if self.activate_ongoing_effect_ability(player, source, ability) {
+            return;
+        }
         if let Some(source_card) = self.players[player.index()]
             .hand
             .iter()
@@ -277,6 +353,7 @@ impl Game {
                     | AbilityCostDef::PayLife(_)
                     | AbilityCostDef::DiscardCards(_)
                     | AbilityCostDef::DiscardCardMatching(_)
+                    | AbilityCostDef::ExileCardFromHand(_)
                     | AbilityCostDef::DiscardCardsAtRandom(_)
                     | AbilityCostDef::SacrificePermanent { .. }
                     | AbilityCostDef::SacrificePermanents { .. }
@@ -507,6 +584,20 @@ impl Game {
                     }
                     AbilityCostDef::DiscardCardMatching(_) => {
                         self.discard_cards(player, cost_objects);
+                    }
+                    AbilityCostDef::ExileCardFromHand(_) => {
+                        for chosen in cost_objects {
+                            if let Some(card) =
+                                remove_card(&mut self.players[player.index()].hand, *chosen)
+                            {
+                                let (card, _zone_change) = self.zone_change_card(card);
+                                self.players[player.index()].exile.push(card.clone());
+                                self.capture_cards_exiled(
+                                    std::slice::from_ref(&card),
+                                    crate::card::ZoneKind::Hand,
+                                );
+                            }
+                        }
                     }
                     // The cost names as many cards as it prints, and the
                     // activation carried every one of them.

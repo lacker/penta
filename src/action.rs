@@ -146,12 +146,11 @@ pub enum Action {
         /// part of the action rather than something chosen afterwards.
         /// `None` for every ability whose cost has only one size.
         counters_removed: Option<u16>,
-        /// The permanent a "Sacrifice a <thing>" cost consumes. Source,
-        /// ability, and colour name one Goblin-sacrificing ability once per
-        /// Goblin, so which one is part of the action: a mana ability
-        /// resolves without ever holding priority, so there is no window in
-        /// which to ask afterwards. `None` for every ability that sacrifices
-        /// nothing but itself.
+        /// The object a selected cost consumes. Source, ability, and colour
+        /// do not distinguish one Goblin sacrificed or one hand card exiled
+        /// from another, so which one is part of the action: a mana ability
+        /// resolves without ever holding priority, and has no window in which
+        /// to ask afterwards. `None` when no separate object is consumed.
         cost_object: Option<GameObjectId>,
         /// How the amount is divided, for an ability that adds mana "in any
         /// combination of" more than one type. Source, ability, and colour
@@ -161,6 +160,10 @@ pub enum Action {
         /// produces one type at a time.
         combination: Option<ManaSplit>,
     },
+    /// Legacy protocol vocabulary for the former Channel-specific action.
+    /// Channel now exposes an ordinary `ActivateManaAbility`; this variant is
+    /// retained so protocol 28 consumers can still compile and parse its tag,
+    /// but the engine never offers it as a legal action.
     PayLifeForMana,
     CastSpell {
         card: GameObjectId,

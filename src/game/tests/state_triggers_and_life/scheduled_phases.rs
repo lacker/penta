@@ -258,7 +258,6 @@ fn a_phase_scheduled_during_the_ending_phase_precedes_the_next_turn() {
                 ObjectPredicateDef::NoncreatureSpell,
             ),
         });
-    game.channel_active = [true; 2];
     game.step = Step::End;
     game.resolve_effect_def(
         ScopedEffect::primary(EffectDef::ScheduleTurnPhases(&COMBAT)),
@@ -271,7 +270,6 @@ fn a_phase_scheduled_during_the_ending_phase_precedes_the_next_turn() {
     assert_eq!(game.step, Step::BeginningOfCombat);
     assert_eq!(game.sorcery_flash_grants[PlayerId::One.index()], 0);
     assert!(game.resolved_play_restrictions.is_empty());
-    assert_eq!(game.channel_active, [false; 2]);
     let permanent = game
         .battlefield
         .iter()

@@ -429,8 +429,10 @@ fn validate_resolving_effect(
             validate_resolving_effect(effect, source_zones)
         }
         EffectDef::CreateOngoingEffect(ongoing) => {
-            let DeclarativeAbilityDef::Activated(definition) = ongoing.ability.definition else {
-                return Err("CreateOngoingEffect with a non-activated ability");
+            let (definition, mana) = match ongoing.ability.definition {
+                DeclarativeAbilityDef::Activated(definition) => (definition, false),
+                DeclarativeAbilityDef::ActivatedMana(definition) => (definition, true),
+                _ => return Err("CreateOngoingEffect with a non-activated ability"),
             };
             let Some(effect) = ongoing.ability.declarative_effect() else {
                 return Err("CreateOngoingEffect with a non-declarative program");
@@ -442,11 +444,13 @@ fn validate_resolving_effect(
                 || definition.activation_limit.is_some()
                 || definition.any_player_may_activate
                 || definition.condition.is_some()
-                || definition
-                    .costs
-                    .as_slice()
-                    .iter()
-                    .any(|cost| !matches!(cost, AbilityCostDef::Mana(cost) if !cost.variable_x))
+                || definition.costs.as_slice().iter().any(|cost| {
+                    if mana {
+                        !matches!(cost, AbilityCostDef::PayLife(_))
+                    } else {
+                        !matches!(cost, AbilityCostDef::Mana(cost) if !cost.variable_x)
+                    }
+                })
                 || ongoing.duration == crate::card::ResolvedEffectDurationDef::WhileSourceTapped
             {
                 return Err("CreateOngoingEffect with an unsupported activated ability");

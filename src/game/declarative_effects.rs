@@ -324,10 +324,20 @@ impl Game {
                     object.controller,
                     self.turns_started[object.controller.index()],
                 );
-                let affected = self.effect_recipients(ongoing.affected, object, &context, scoped);
+                let affected = ongoing.affected.map_or_else(
+                    || vec![None],
+                    |recipient| {
+                        self.effect_recipients(recipient, object, &context, scoped)
+                            .into_iter()
+                            .map(Some)
+                            .collect()
+                    },
+                );
                 for affected in affected {
                     let mut frozen_context = context.clone();
-                    frozen_context.bind_single_object(ongoing.binding, Some(affected));
+                    if let (Some(binding), Some(affected)) = (ongoing.binding, affected) {
+                        frozen_context.bind_single_object(binding, Some(affected));
+                    }
                     let effect_object = self.allocate_object_id();
                     self.ongoing_effects.push(ResolvedOngoingEffect {
                         source: AbilitySourceRef {

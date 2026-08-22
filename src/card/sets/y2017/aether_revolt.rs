@@ -1,6 +1,6 @@
 //! Aether Revolt cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardType, CounterKind, EffectDef,
@@ -69,6 +69,16 @@ pub(in crate::card::sets) static FATAL_PUSH: CardRecord = CardRecord::new_with_l
     )),
 );
 
+// AER 151 — Foundry Assembler
+pub(in crate::card::sets) static FOUNDRY_ASSEMBLER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e83a2862-a2d7-4d87-a4b8-def9f441f5fa"),
+    "Foundry Assembler",
+    CardArt::new("e83a2862-a2d7-4d87-a4b8-def9f441f5fa", "Karl Kopinski"),
+    CardSet::AetherRevolt,
+    CardRules::new_artifact_creature(mana_cost!("{5}"), &["Assembly-Worker"], 3, 3)
+        .with_ability(crate::card::abilities::improvise()),
+);
+
 static ANY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::AnyTarget,
 )];
@@ -121,6 +131,7 @@ pub(in crate::card::sets) static WALKING_BALLISTA: CardRecord = CardRecord::new_
         .with_abilities(&WALKING_BALLISTA_ABILITIES),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&FATAL_PUSH, &WALKING_BALLISTA];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&FATAL_PUSH, &FOUNDRY_ASSEMBLER, &WALKING_BALLISTA];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

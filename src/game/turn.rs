@@ -664,7 +664,6 @@ impl Game {
             .retain(|permission| permission.expiration.survives_cleanup());
         self.ongoing_effects
             .retain(|effect| effect.expiration.survives_cleanup());
-        self.channel_active = [false; 2];
         self.damage_preventions
             .retain(|prevention| prevention.expiration.survives_cleanup());
         self.damage_redirects

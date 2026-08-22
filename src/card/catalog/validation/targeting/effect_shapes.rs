@@ -327,7 +327,9 @@ fn validate_effect_target_shapes(
             )
         }
         EffectDef::CreateOngoingEffect(ongoing) => {
-            validate_recipient_shape(ongoing.affected, targets, RecipientExpectation::Any)?;
+            if let Some(affected) = ongoing.affected {
+                validate_recipient_shape(affected, targets, RecipientExpectation::Any)?;
+            }
             validate_program_target_shapes(ongoing.ability.effect.definition, &[], None)
         }
         EffectDef::CannotAttackUnless(query) | EffectDef::CannotAttackIf(query) => {

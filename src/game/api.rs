@@ -2,9 +2,9 @@ use super::{
     AbilityDef, AbilityOrigin, Action, ActionError, ActivationChoices, CardBehavior, CardStructure,
     CardType, CharacteristicContext, CombatDamageStage, CounterKind, DecisionVisibility,
     DoubleFacedKind, EmblemObservation, Game, GameEvent, GameObjectId, GameResult, KeywordAbility,
-    ManaActivationChoices, ManaColor, ObjectCharacteristics, ObjectKind, Permanent,
-    PermanentObservation, PhysicalFaceObservation, PhysicalFaceSide, PlayerId, PlayerObservation,
-    Pregame, StackObservation, Step, WinReason, ZoneKind, combinations, public_cards,
+    ManaActivationChoices, ObjectCharacteristics, ObjectKind, Permanent, PermanentObservation,
+    PhysicalFaceObservation, PhysicalFaceSide, PlayerId, PlayerObservation, Pregame,
+    StackObservation, Step, WinReason, ZoneKind, combinations, public_cards,
 };
 
 impl Game {
@@ -253,9 +253,6 @@ impl Game {
 
         actions.push(Action::PassPriority);
         self.add_mana_actions(player, &mut actions);
-        if self.channel_active[player.index()] && self.players[player.index()].life > 1 {
-            actions.push(Action::PayLifeForMana);
-        }
         self.add_land_actions(player, &mut actions);
         self.add_spell_actions(player, &mut actions);
         self.add_ability_actions(player, &mut actions);
@@ -363,9 +360,7 @@ impl Game {
                 );
             }
             Action::PayLifeForMana => {
-                self.players[player.index()].life -= 1;
-                self.add_unrestricted_mana(player, ManaColor::Colorless, 1);
-                self.consecutive_passes = 0;
+                unreachable!("the legacy Channel action is never legal")
             }
             Action::CastSpell {
                 card,

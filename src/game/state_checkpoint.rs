@@ -50,6 +50,7 @@ mod stack;
 mod trigger;
 mod wire;
 mod wire_decision;
+include!("state_checkpoint/compatibility.rs");
 
 use decision::{
     decision_referenced_object_ids, decision_snapshot, mana_cost_from_snapshot, mana_cost_snapshot,
@@ -518,6 +519,7 @@ impl Game {
             life_gained_this_turn: self.life_gained_this_turn,
             draw_step_draw_taken: self.draw_step_draw_taken,
             drawn_this_turn: visible_drawn_this_turn,
+            channel_active: [false; 2],
             defer_empty_library_loss: self.defer_empty_library_loss,
             draw_replacements,
             pending_combat_attackers: self
@@ -536,7 +538,6 @@ impl Game {
                 .map(|player| player.index())
                 .collect(),
             next_regular_player: self.next_regular_player.index(),
-            channel_active: self.channel_active,
             damage_preventions,
             damage_redirects,
             pregame: self.pregame.map(|pregame| match pregame {
@@ -630,8 +631,7 @@ impl Game {
                 crate::protocol::SIMULATION_FINGERPRINT
             ));
         }
-        let checkpoint: GameSnapshot = serde_json::from_value(checkpoint_value.clone())
-            .map_err(|error| format!("invalid game snapshot: {error}"))?;
+        let checkpoint = parse_compatible_game_snapshot(checkpoint_value)?;
         if checkpoint.has_deferred_state {
             return Err(
                 "checkpoint contains executable rules state without stable catalog semantics"
@@ -911,7 +911,6 @@ impl Game {
                 .map(player_from_index)
                 .collect::<Result<Vec<_>, _>>()?,
             next_regular_player: player_from_index(checkpoint.next_regular_player)?,
-            channel_active: checkpoint.channel_active,
             damage_preventions,
             damage_redirects,
             result: None,

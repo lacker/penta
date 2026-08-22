@@ -353,8 +353,16 @@ fn validate_effect_references(
             validate_program_references(trigger.ability.effect.definition, target_count, scope)
         }
         EffectDef::CreateOngoingEffect(ongoing) => {
-            validate_recipient_target_references(ongoing.affected, target_count, scope)?;
-            let nested = scope.with_object(ongoing.binding)?;
+            let nested = match (ongoing.affected, ongoing.binding) {
+                (Some(affected), Some(binding)) => {
+                    validate_recipient_target_references(affected, target_count, scope)?;
+                    scope.with_object(binding)?
+                }
+                (None, None) => scope,
+                _ => {
+                    return Err(GrantedAbilityValidationError::UnsupportedInstalledTriggerAbility);
+                }
+            };
             // The installed ability does not retain the creating spell's
             // target namespace. It receives only the concrete affected
             // recipient through the declared binding.

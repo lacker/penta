@@ -93,16 +93,32 @@ distinguishes snapshots of the covered source and build inputs.
   stores a compact name-and-ability value owned by its creating effect. Neither
   value is a `CardDefinition` or participates in globally unique card naming.
 
-- **Resolved ongoing effects can now carry an ordinary activated ability.**
-  `EffectDef::CreateOngoingEffect` freezes an affected recipient into the
-  nested ability's resolution context for a declared duration, while giving
-  the effect its own nonpermanent game-object identity. Its activation uses
-  the shared timing, mana-payment, stack, response, and resolution machinery;
-  Guardian Angel is the first declarative card to use it. Penta classifies the
-  source as command-zone-resident for activation checks, even though the rules
-  effect technically has no zone; it remains distinct from both permanents and
-  emblems. Checkpoint format 7 stores these effects in an additive
-  `ongoingEffects` member, so protocol 27, checkpoint format 7, and replay
+- **Resolved ongoing effects can now carry ordinary activated and mana
+  abilities.** `EffectDef::CreateOngoingEffect` can freeze an affected
+  recipient into the nested ability's resolution context or create an unbound,
+  self-contained effect for a declared duration, while giving either shape its
+  own nonpermanent game-object identity. Ordinary activations use the shared
+  timing, mana-payment, stack, response, and resolution machinery; mana
+  activations resolve immediately and participate in casting-time payment
+  planning. Guardian Angel and Channel are the first declarative cards to use
+  the two shapes. Penta classifies the source as command-zone-resident for
+  activation checks, even though the rules effect technically has no zone; it
+  remains distinct from both permanents and emblems. Checkpoint format 7 stores
+  these effects in an additive
+  `ongoingEffects` member. Channel now emits the existing
+  `ActivateManaAbility` shape; the legacy `PayLifeForMana` action tag remains
+  in the protocol vocabulary but is no longer offered. Protocol 28, checkpoint
+  format 7, and replay version 2 are unchanged.
+
+- **Mana planning now shares zone-aware sources and direct cost
+  contributions.** Activated mana abilities may be supplied by battlefield
+  permanents, cards in hand, or ongoing effects, with one resource ledger for
+  life and consumed objects. Convoke, Delve, and Improvise are distinct direct
+  contributions that never produce mana; Delve and Improvise pay only generic
+  requirements, and a tapped permanent cannot also pay through a tap-based
+  contribution. Cadaverous Bloom, Elvish Spirit Guide, Treasure Cruise, and
+  Foundry Assembler use these declarations. This is compatible catalog and
+  legal-action growth within protocol 28; checkpoint format 7 and replay
   version 2 are unchanged.
 
 - **Checkpoint format 5 preserves creator-owned token and emblem

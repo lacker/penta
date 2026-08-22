@@ -33,6 +33,7 @@ mod activation_prohibitions;
 mod activation_timing;
 mod additional_costs;
 mod alternative_costs;
+mod alternative_mana;
 mod animate_artifact;
 mod arabian_lands;
 mod armageddon_clock;

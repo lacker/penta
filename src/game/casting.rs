@@ -4,12 +4,13 @@ use super::{
     CastOfferCost, CastSignature, CastSourceZone, CommittedTriggerEvent, CostConfiguration,
     DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
     DeclarativeAbilityDef, EntryCompletion, Game, GameEvent, GameObjectId, Mana,
-    ManaActivationChoices, ManaColor, ManaCost, ManaPaymentPurpose, PendingBattlefieldEntry,
-    Permanent, PlayActionKind, PlayOptionDef, PlayOptionId, PlayerId, StackObject, StackObjectKind,
-    Target, ZoneKind, ZoneMoveCause, ZonePlacement, remove_card,
+    ManaAbilityActivation, ManaActivationChoices, ManaColor, ManaCost, ManaPaymentPurpose,
+    PendingBattlefieldEntry, Permanent, PlayActionKind, PlayOptionDef, PlayOptionId, PlayerId,
+    StackObject, StackObjectKind, Target, ZoneKind, ZoneMoveCause, ZonePlacement, remove_card,
 };
 mod signature_validation;
 include!("casting/life_costs.rs");
+include!("casting/mana_activation.rs");
 
 use crate::card::{
     BattlefieldEntryScalarChoiceDef, CardSet, ScalarChoiceListDef, SpellLifeCostDef, SpendModeDef,
@@ -253,6 +254,19 @@ impl Game {
             .iter()
             .find(|permanent| permanent.card.id == source)
             .and_then(|permanent| self.mana_ability_activation(permanent, ability, color, choices))
+            .or_else(|| {
+                self.hand_mana_ability_activations(player)
+                    .into_iter()
+                    .chain(self.ongoing_mana_ability_activations(player))
+                    .find(|activation| {
+                        activation.source == source
+                            && activation.ability == ability
+                            && activation.color == color
+                            && activation.counters_removed == choices.counters_removed
+                            && activation.cost_object == choices.cost_object
+                            && activation.combination == choices.combination
+                    })
+            })
             .expect("legal mana action references a mana source");
         let produced_mana = Self::mana_for_activation(&activation);
         // Counted for the same reason an ordinary activation is: a printed
@@ -272,80 +286,9 @@ impl Game {
                 None => permanent.activations_this_turn.push((ability, 1)),
             }
         }
-        for cost in activation.costs.as_slice() {
-            match cost {
-                AbilityCostDef::TapSource => {
-                    // The tap transition carries its purpose, so ordinary
-                    // tap triggers and mana-tap triggers scan one event.
-                    let _ = self.tap_permanent_for_mana(source);
-                }
-                // The open-ended removal never arrives: enumeration sized it
-                // before the activation was built. The two sacrifices and the
-                // exile are deferred to the batch below, so that a Goblin
-                // sacrificing itself leaves the battlefield once.
-                AbilityCostDef::SacrificeSource
-                | AbilityCostDef::ReturnSourceToHand
-                | AbilityCostDef::ExileSource
-                | AbilityCostDef::SacrificePermanent { .. }
-                | AbilityCostDef::SacrificePermanents { .. }
-                | AbilityCostDef::RemoveAnyNumberOfCountersFromSource(_) => {}
-                AbilityCostDef::RemoveCountersFromSource { kind, amount } => {
-                    self.battlefield
-                        .iter_mut()
-                        .find(|permanent| permanent.card.id == source)
-                        .expect("a legal mana activation has its source")
-                        .remove_counters(*kind, *amount);
-                }
-                AbilityCostDef::PayLife(amount) => {
-                    self.lose_life(player, *amount);
-                }
-                AbilityCostDef::Mana(cost) => {
-                    // Out of the pool, never by planning: the mana this
-                    // ability is about to make is not available to pay for
-                    // making it.
-                    let _ = self.pay_player_cost(player, *cost, 0);
-                }
-                AbilityCostDef::DiscardSource
-                | AbilityCostDef::UntapSource
-                | AbilityCostDef::SacrificeObject(_)
-                | AbilityCostDef::Loyalty(_)
-                | AbilityCostDef::ExileCardsFromGraveyard { .. }
-                | AbilityCostDef::DiscardCards(_)
-                | AbilityCostDef::DiscardCardMatching(_)
-                | AbilityCostDef::DiscardCardsAtRandom(_)
-                | AbilityCostDef::ReturnUnblockedAttackerToHand
-                | AbilityCostDef::TapPermanent { .. }
-                | AbilityCostDef::Special(_) => {
-                    unreachable!("unsupported mana-ability costs are not enumerated")
-                }
-            }
-        }
-        if activation.costs.contains(&AbilityCostDef::ExileSource) {
-            self.exile_permanent(source);
-        } else {
-            // The source's own sacrifice and a named permanent's are the same
-            // exit, so they go in one batch. Skirk Prospector sacrificing
-            // itself names its own id here, and the batch holds it once.
-            let mut sacrificed = Vec::new();
-            if activation.costs.contains(&AbilityCostDef::SacrificeSource) {
-                sacrificed.push(source);
-            }
-            if let Some(chosen) = activation.cost_object
-                && !sacrificed.contains(&chosen)
-            {
-                sacrificed.push(chosen);
-            }
-            if !sacrificed.is_empty() {
-                self.move_permanents_to_graveyard_then(
-                    &sacrificed,
-                    Some(BattlefieldExitCompletion::CompleteManaAbility {
-                        player,
-                        activation,
-                        produced_mana,
-                    }),
-                );
-                return;
-            }
+        self.pay_immediate_mana_activation_costs(player, source, &activation);
+        if self.pay_moving_mana_activation_costs(player, source, &activation, &produced_mana) {
+            return;
         }
         self.complete_mana_ability(player, &activation, produced_mana);
     }
@@ -526,7 +469,7 @@ impl Game {
                 .expect("a spell has a cast signature")
                 .form()
                 .clone(),
-            channel_life_reservation: life,
+            reserved_life_payment: life,
         };
         // Life named by the chosen alternative, by the spell's own additional
         // cost, or by the permission that let it be cast off a library, is
@@ -715,18 +658,34 @@ impl Game {
             }
         }
 
-        // CR 601.2g completes every mana ability before 601.2h taps the
-        // creatures chosen for convoke.
+        // CR 601.2g completes every mana ability before 601.2h spends the
+        // objects chosen for direct contributions.
         for payment in &plan {
-            if payment.kind.uses_convoke() {
+            if payment
+                .kind
+                .contribution()
+                .is_some_and(super::ManaContributionKind::taps_source)
+            {
                 self.tap_permanent(payment.source)
-                    .expect("a planned convoke source remains on the battlefield");
+                    .expect("a planned contribution source remains on the battlefield");
             }
         }
-        let (mana_cost, mana_x) = self.residual_cost_after_convoke(cost, x, &purpose, &plan, true);
+        let exiled = plan
+            .iter()
+            .filter(|payment| {
+                payment
+                    .kind
+                    .contribution()
+                    .is_some_and(super::ManaContributionKind::exiles_source)
+            })
+            .map(|payment| payment.source)
+            .collect::<Vec<_>>();
+        self.exile_graveyard_cards(stack_object.controller, &exiled);
+        let (mana_cost, mana_x) =
+            self.residual_cost_after_contributions(cost, x, &purpose, &plan, true);
         // The spell's nonmana life bill was paid before this continuation
-        // began. Do not reserve it a second time when Channel supplies the
-        // final shortfall after the planned mana abilities resolve.
+        // began. Do not reserve it a second time when repeatable life mana
+        // supplies the final shortfall after the planned abilities resolve.
         let payment_purpose = match &purpose {
             ManaPaymentPurpose::Spell {
                 object,
@@ -739,7 +698,7 @@ impl Game {
                 definition: *definition,
                 controller: *controller,
                 form: form.clone(),
-                channel_life_reservation: 0,
+                reserved_life_payment: 0,
             },
             ManaPaymentPurpose::Ability { .. } | ManaPaymentPurpose::Other => purpose.clone(),
         };

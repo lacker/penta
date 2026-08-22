@@ -51,16 +51,23 @@ impl Game {
     /// graveyard. Retiring the old identity here is what later lets the
     /// resolving ability read the card's power: by then it is in exile under
     /// a new one.
-    fn exile_graveyard_source(&mut self, player: PlayerId, source: GameObjectId) {
-        let exiled = remove_card(&mut self.players[player.index()].graveyard, source)
-            .expect("a legal graveyard activation still has its source");
-        let (exiled, _zone_change) = self.zone_change_card(exiled);
-        self.players[player.index()].exile.push(exiled.clone());
-        self.capture_cards_exiled(
-            std::slice::from_ref(&exiled),
-            crate::card::ZoneKind::Graveyard,
-        );
-        self.note_card_left_graveyard(player);
+    pub(super) fn exile_graveyard_source(&mut self, player: PlayerId, source: GameObjectId) {
+        self.exile_graveyard_cards(player, &[source]);
+    }
+
+    pub(super) fn exile_graveyard_cards(&mut self, player: PlayerId, sources: &[GameObjectId]) {
+        let mut exiled = Vec::new();
+        for source in sources {
+            let card = remove_card(&mut self.players[player.index()].graveyard, *source)
+                .expect("a legal graveyard payment still has its card");
+            let (card, _zone_change) = self.zone_change_card(card);
+            self.players[player.index()].exile.push(card.clone());
+            exiled.push(card);
+        }
+        if !exiled.is_empty() {
+            self.capture_cards_exiled(&exiled, crate::card::ZoneKind::Graveyard);
+            self.note_card_left_graveyard(player);
+        }
     }
 
     fn activate_graveyard_ability(
@@ -135,6 +142,7 @@ impl Game {
                 | AbilityCostDef::DiscardSource
                 | AbilityCostDef::DiscardCards(_)
                 | AbilityCostDef::DiscardCardMatching(_)
+                | AbilityCostDef::ExileCardFromHand(_)
                 | AbilityCostDef::DiscardCardsAtRandom(_)
                 | AbilityCostDef::SacrificePermanent { .. }
                 | AbilityCostDef::SacrificePermanents { .. }
@@ -198,7 +206,7 @@ impl Game {
         {
             return false;
         }
-        let Some(cost) = Self::activated_ability_mana_cost(definition) else {
+        let Some(cost) = Self::activated_ability_mana_cost(&definition) else {
             return false;
         };
         let purpose = ManaPaymentPurpose::Ability {
@@ -345,6 +353,7 @@ impl Game {
                     | AbilityCostDef::PayLife(_)
                     | AbilityCostDef::DiscardCards(_)
                     | AbilityCostDef::DiscardCardMatching(_)
+                    | AbilityCostDef::ExileCardFromHand(_)
                     | AbilityCostDef::DiscardCardsAtRandom(_)
                     | AbilityCostDef::SacrificePermanent { .. }
                     | AbilityCostDef::SacrificePermanents { .. }
@@ -575,6 +584,20 @@ impl Game {
                     }
                     AbilityCostDef::DiscardCardMatching(_) => {
                         self.discard_cards(player, cost_objects);
+                    }
+                    AbilityCostDef::ExileCardFromHand(_) => {
+                        for chosen in cost_objects {
+                            if let Some(card) =
+                                remove_card(&mut self.players[player.index()].hand, *chosen)
+                            {
+                                let (card, _zone_change) = self.zone_change_card(card);
+                                self.players[player.index()].exile.push(card.clone());
+                                self.capture_cards_exiled(
+                                    std::slice::from_ref(&card),
+                                    crate::card::ZoneKind::Hand,
+                                );
+                            }
+                        }
                     }
                     // The cost names as many cards as it prints, and the
                     // activation carried every one of them.

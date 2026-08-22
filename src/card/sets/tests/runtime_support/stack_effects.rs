@@ -506,10 +506,12 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         // installs has to be an ability the shared runtime can fire.
         EffectDef::InstallTrigger(trigger) => shared_definition_ability(trigger.ability),
         EffectDef::CreateOngoingEffect(ongoing) => {
-            let DeclarativeAbilityDef::Activated(definition) = ongoing.ability.definition else {
-                return false;
+            let (definition, mana) = match ongoing.ability.definition {
+                DeclarativeAbilityDef::Activated(definition) => (definition, false),
+                DeclarativeAbilityDef::ActivatedMana(definition) => (definition, true),
+                _ => return false,
             };
-            shared_effect_recipient(ongoing.affected)
+            ongoing.affected.is_none_or(shared_effect_recipient)
                 && definition.procedure == AbilityProcedureDef::Shared
                 && definition.source_zones == [ZoneKind::Command]
                 && definition.targets.is_empty()
@@ -517,9 +519,13 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                 && definition.activation_limit.is_none()
                 && !definition.any_player_may_activate
                 && definition.condition.is_none()
-                && definition.costs.as_slice().iter().all(
-                    |cost| matches!(cost, AbilityCostDef::Mana(cost) if !cost.variable_x),
-                )
+                && definition.costs.as_slice().iter().all(|cost| {
+                    if mana {
+                        matches!(cost, AbilityCostDef::PayLife(_))
+                    } else {
+                        matches!(cost, AbilityCostDef::Mana(cost) if !cost.variable_x)
+                    }
+                })
                 && ongoing.duration != ResolvedEffectDurationDef::WhileSourceTapped
                 && ongoing.ability.declarative_effect().is_some_and(|effect| {
                     shared_stack_effect_at_position(effect, false)

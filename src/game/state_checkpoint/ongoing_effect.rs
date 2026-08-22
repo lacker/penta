@@ -41,8 +41,10 @@ pub(super) fn parse_ongoing_effect(
 ) -> Result<ResolvedOngoingEffect, String> {
     let ability = catalog_ability(&game.catalog, &snapshot.ability)
         .ok_or("ongoing effect ability locator is absent from this catalog")?;
-    let DeclarativeAbilityDef::Activated(definition) = ability.definition else {
-        return Err("ongoing effect locator does not identify an activated ability".into());
+    let (definition, mana) = match ability.definition {
+        DeclarativeAbilityDef::Activated(definition) => (definition, false),
+        DeclarativeAbilityDef::ActivatedMana(definition) => (definition, true),
+        _ => return Err("ongoing effect locator does not identify an activated ability".into()),
     };
     if !ability.is_executable()
         || definition.procedure != AbilityProcedureDef::Shared
@@ -52,11 +54,13 @@ pub(super) fn parse_ongoing_effect(
         || definition.activation_limit.is_some()
         || definition.any_player_may_activate
         || definition.condition.is_some()
-        || definition
-            .costs
-            .as_slice()
-            .iter()
-            .any(|cost| !matches!(cost, AbilityCostDef::Mana(cost) if !cost.variable_x))
+        || definition.costs.as_slice().iter().any(|cost| {
+            if mana {
+                !matches!(cost, AbilityCostDef::PayLife(_))
+            } else {
+                !matches!(cost, AbilityCostDef::Mana(cost) if !cost.variable_x)
+            }
+        })
     {
         return Err("ongoing effect does not identify a shared command-source ability".into());
     }

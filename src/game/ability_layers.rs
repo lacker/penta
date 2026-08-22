@@ -479,7 +479,7 @@ impl Game {
         &self,
         permanent: &Permanent,
         prospective: Option<&Permanent>,
-    ) -> u32 {
+    ) -> u64 {
         let abilities = self.collect_effective_abilities(permanent, prospective);
         let mut mask = 0;
         let mut set = |keyword: KeywordAbility| {

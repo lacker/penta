@@ -125,13 +125,15 @@ pub(super) struct GameSnapshot {
     pub(super) life_gained_this_turn: [u16; 2],
     pub(super) draw_step_draw_taken: [bool; 2],
     pub(super) drawn_this_turn: [Vec<u32>; 2],
+    /// Compatibility-only wire member. Channel now reconstructs through
+    /// `ongoing_effects`; current writers always emit false for both seats.
+    pub(super) channel_active: [bool; 2],
     pub(super) defer_empty_library_loss: bool,
     pub(super) draw_replacements: [Vec<DrawReplacementSnapshot>; 2],
     pub(super) pending_combat_attackers: Vec<u32>,
     pub(super) combat_blocked_attackers: Vec<u32>,
     pub(super) extra_turns: Vec<usize>,
     pub(super) next_regular_player: usize,
-    pub(super) channel_active: [bool; 2],
     /// Resolved damage-prevention rules in creation order. Static prevention
     /// remains source-derived and therefore is not checkpointed here.
     pub(super) damage_preventions: Vec<ResolvedDamagePreventionSnapshot>,

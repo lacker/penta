@@ -265,6 +265,7 @@ pub enum EffectDef {
     CreateTokenCopyOf {
         object: EffectRecipientDef,
     },
+    CreateMyriadTokens, // Exact no-op in two-player games: there is no other opponent.
     /// Endure N (CR 702.183a): put N +1/+1 counters on the object, or create
     /// an N/N white Spirit creature token. Its controller chooses, as the
     /// ability resolves.

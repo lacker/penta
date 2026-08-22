@@ -745,7 +745,6 @@ pub(super) const fn rules(behavior: CardBehavior) -> &'static CardRules {
         CardBehavior::DustToDust => &y1994::the_dark::DUST_TO_DUST.rules,
         CardBehavior::GrislySalvage => &y2012::return_to_ravnica::GRISLY_SALVAGE.rules,
         CardBehavior::KirdApe => &y1993::arabian_nights::KIRD_APE.rules,
-        CardBehavior::Moat => &y1994::legends::MOAT.rules,
         CardBehavior::Mulch => &y2011::innistrad::MULCH.rules,
         CardBehavior::Negate => &y2012::magic_2013::NEGATE.rules,
         CardBehavior::PillarOfFlame => &y2012::avacyn_restored::PILLAR_OF_FLAME.rules,

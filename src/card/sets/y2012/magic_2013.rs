@@ -505,7 +505,7 @@ pub(in crate::card::sets) static OBLIVION_RING: CardRecord = CardRecord::new_wit
 /// wholesale, and nothing needs to -- attacking and blocking are separate
 /// declarations, so barring each is barring both.
 static PACIFIED: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::Rule(AppliedRuleDef::CannotAttack),
+    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
     AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
 ];
 

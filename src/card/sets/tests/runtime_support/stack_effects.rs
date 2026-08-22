@@ -462,6 +462,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
             shared_stack_effect_at_position(*created.then, deferred_decision_allowed)
         }),
         EffectDef::Cascade
+        | EffectDef::CreateMyriadTokens
         | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
         | EffectDef::AddManaEqualTo { .. }
         | EffectDef::CreateAttachedToken { .. }

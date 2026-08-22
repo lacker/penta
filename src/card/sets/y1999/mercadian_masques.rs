@@ -13,7 +13,7 @@ use crate::{TargetIndex, mana_cost};
 /// Three prohibitions, applied together for the same duration, so the Aura
 /// leaving gives all three back at once.
 static ARREST_PROHIBITIONS: [AppliedEffectDef; 3] = [
-    AppliedEffectDef::Rule(AppliedRuleDef::CannotAttack),
+    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
     AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
     AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
 ];

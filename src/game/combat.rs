@@ -1,142 +1,14 @@
 use super::{
     Action, AppliedRuleDef, AttackDefender, CardType, CombatDamageAssignment, CombatDamageStage,
-    CommittedTriggerEvent, ControlFlow, CounterKind, DeclarativeAbilityDef, EffectDef, Game,
-    GameEvent, GameObjectId, KeywordAbility, Permanent, PlayerId, Target,
+    CommittedTriggerEvent, ControlFlow, CounterKind, Game, GameEvent, GameObjectId, KeywordAbility,
+    Permanent, PlayerId, Target,
 };
 
 mod assignment;
+mod attacking;
 mod damage_delivery;
 
 impl Game {
-    pub(super) fn attacker_actions(&self, player: PlayerId, moat_active: bool) -> Vec<Action> {
-        let mut defenders = vec![AttackDefender::Player(player.opponent())];
-        defenders.extend(
-            self.battlefield
-                .iter()
-                .filter(|permanent| {
-                    permanent.controller == player.opponent()
-                        && self
-                            .permanent_types(permanent)
-                            .is_some_and(|types| types.contains(CardType::Planeswalker))
-                })
-                .map(|permanent| AttackDefender::Planeswalker(permanent.card.id)),
-        );
-        self.battlefield
-            .iter()
-            .filter(|permanent| {
-                permanent.controller == player
-                    && !permanent.tapped
-                    && !permanent.attacking
-                    && permanent.detained_until_turn_of.is_none()
-                    && self.can_attack_with_moat(permanent, moat_active)
-            })
-            .flat_map(|permanent| {
-                defenders
-                    .iter()
-                    .copied()
-                    .filter(|defender| self.attack_restrictions_allow(permanent, *defender))
-                    .map(|defender| Action::DeclareAttacker {
-                        attacker: permanent.card.id,
-                        defender,
-                    })
-            })
-            .collect()
-    }
-
-    fn attack_restrictions_allow(&self, attacker: &Permanent, defender: AttackDefender) -> bool {
-        let AttackDefender::Player(defender) = defender else {
-            return true;
-        };
-        self.resolved_attack_restrictions
-            .iter()
-            .filter(|restriction| {
-                restriction.affected_player == defender
-                    && self.continuous_effect_expiration_is_active(
-                        restriction.expiration,
-                        restriction.source.object,
-                    )
-            })
-            .all(|restriction| {
-                self.trigger_object_matches(
-                    restriction.allowed_attacker,
-                    &self.trigger_event_object(attacker),
-                    restriction.source.object,
-                    false,
-                )
-            })
-    }
-
-    #[cfg(test)]
-    pub(super) fn can_attack(&self, permanent: &Permanent) -> bool {
-        let moat_active = self.count_behavior(super::CardBehavior::Moat) > 0;
-        self.can_attack_with_moat(permanent, moat_active)
-    }
-
-    pub(super) fn can_attack_with_moat(&self, permanent: &Permanent, moat_active: bool) -> bool {
-        if self.base_stats(permanent).is_none() {
-            return false;
-        }
-        let flying = moat_active && self.has_flying(permanent);
-        self.can_attack_creature(permanent, moat_active, flying)
-    }
-
-    pub(super) fn can_attack_creature(
-        &self,
-        permanent: &Permanent,
-        moat_active: bool,
-        flying: bool,
-    ) -> bool {
-        if self.permanent_has_executable_keyword(permanent, KeywordAbility::Defender)
-            && !self.has_applied_rule(permanent, AppliedRuleDef::MayAttackDespiteDefender)
-        {
-            return false;
-        }
-        if moat_active && !flying {
-            return false;
-        }
-        if !self.attack_restrictions_met(permanent) || self.cannot_attack(permanent) {
-            return false;
-        }
-        self.permanent_has_executable_keyword(permanent, KeywordAbility::Haste)
-            || self.has_applied_rule(permanent, AppliedRuleDef::MayAttackAsThoughHasty)
-            || self.turns_started[permanent.controller.index()] > permanent.entered_controller_turn
-    }
-
-    /// Whether every "can't attack unless ..." clause this creature prints is
-    /// currently satisfied. The query carries its own controller relation, so
-    /// "defending player" is read as the attacker's opponent -- which is the
-    /// only defending player there is in a two-player game.
-    fn attack_restrictions_met(&self, permanent: &Permanent) -> bool {
-        let mut allowed = true;
-        let _ = self.visit_effective_abilities(permanent, |effective| {
-            if effective.ability.is_executable()
-                && matches!(
-                    effective.ability.definition,
-                    DeclarativeAbilityDef::Static(_)
-                )
-                && let Some(effect) = effective.ability.declarative_effect()
-                && match effect {
-                    EffectDef::CannotAttackUnless(query) => !self.any_battlefield_object_matches(
-                        query,
-                        permanent.card.id,
-                        permanent.controller,
-                    ),
-                    EffectDef::CannotAttackIf(query) => self.any_battlefield_object_matches(
-                        query,
-                        permanent.card.id,
-                        permanent.controller,
-                    ),
-                    _ => false,
-                }
-            {
-                allowed = false;
-                return ControlFlow::Break(());
-            }
-            ControlFlow::Continue(())
-        });
-        allowed
-    }
-
     pub(super) fn declare_attacker(&mut self, attacker: GameObjectId, defender: AttackDefender) {
         let vigilance = self
             .battlefield
@@ -169,6 +41,7 @@ impl Game {
     }
 
     pub(super) fn finish_declaring_attackers(&mut self) {
+        self.pay_attack_declaration_cost(self.active_player);
         self.attackers_declared = true;
         self.priority = self.active_player;
         self.consecutive_passes = 0;
@@ -303,13 +176,6 @@ impl Game {
     /// expires and a static one when its source leaves.
     fn cannot_be_blocked(&self, permanent: &Permanent) -> bool {
         self.has_applied_rule(permanent, AppliedRuleDef::CannotBeBlocked)
-    }
-
-    /// Whether a continuous effect from anywhere forbids this creature from
-    /// attacking. The printed "can't attack unless ..." clause is a separate
-    /// question a creature asks about itself.
-    pub(super) fn cannot_attack(&self, permanent: &Permanent) -> bool {
-        self.has_applied_rule(permanent, AppliedRuleDef::CannotAttack)
     }
 
     /// Whether this creature may still be declared as a blocker.

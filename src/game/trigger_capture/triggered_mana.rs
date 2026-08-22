@@ -131,6 +131,7 @@ impl Game {
             | EffectDef::CreateAttachedToken { .. }
             | EffectDef::CreateTokenCopyOf { .. }
             | EffectDef::Endure { .. }
+            | EffectDef::CreateMyriadTokens
             | EffectDef::StaticApply { .. }
             | EffectDef::Apply { .. }
             | EffectDef::Special(_) => {

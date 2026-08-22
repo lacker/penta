@@ -109,6 +109,68 @@ pub enum AppliedEffectDef {
     Rule(AppliedRuleDef),
 }
 
+/// Which defenders a rule applied to one player protects.
+///
+/// An unrestricted attacker-facing rule is instead applied to the creature
+/// itself. Keeping the protected player's planeswalkers explicit preserves
+/// the difference between "can't attack you" and "can't attack."
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum AttackDefenderScopeDef {
+    /// The rule is attached to an attacker and applies whichever defender it
+    /// attacks. Player recipients cannot use this scope.
+    Any,
+    /// Only the affected player, not planeswalkers they control.
+    AffectedPlayer,
+    /// The affected player and planeswalkers they control.
+    AffectedPlayerOrPlaneswalker,
+}
+
+/// One predicate-driven restriction on declaring an attacker.
+///
+/// `cost` is paid once for each matching attacker. `None` is a prohibition;
+/// `Some` is the declaration cost that makes the attack legal. Several
+/// restrictions compose by prohibiting if any one prohibits and otherwise
+/// adding all of their costs.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct AttackRestrictionDef {
+    pub attacker: ObjectPredicateDef,
+    pub defender: AttackDefenderScopeDef,
+    pub cost: Option<ManaCost>,
+}
+
+impl AttackRestrictionDef {
+    #[must_use]
+    pub const fn prohibit(
+        attacker: ObjectPredicateDef,
+        defender: AttackDefenderScopeDef,
+    ) -> Self {
+        Self {
+            attacker,
+            defender,
+            cost: None,
+        }
+    }
+
+    #[must_use]
+    pub const fn unless_paid(
+        attacker: ObjectPredicateDef,
+        defender: AttackDefenderScopeDef,
+        cost: ManaCost,
+    ) -> Self {
+        Self {
+            attacker,
+            defender,
+            cost: Some(cost),
+        }
+    }
+
+    /// The ordinary creature-facing "can't attack" prohibition.
+    pub const CANNOT_ATTACK: Self = Self::prohibit(
+        ObjectPredicateDef::Any,
+        AttackDefenderScopeDef::Any,
+    );
+}
+
 /// A continuous rule modification applied to one object or player.
 ///
 /// Keeping these leaves separate from characteristic operations makes their
@@ -209,13 +271,11 @@ pub enum AppliedRuleDef {
     /// The affected creature may block only creatures matching this
     /// predicate.
     CanBlockOnly(ObjectPredicateDef),
-    /// The affected creature cannot be declared as an attacker.
-    CannotAttack,
-    /// Creatures that do not match the predicate cannot attack the affected
-    /// player. This is defender-scoped rather than attached to an attacking
-    /// creature, so it does not stop those creatures attacking a
-    /// planeswalker the player controls.
-    CannotBeAttackedExceptBy(ObjectPredicateDef),
+    /// A predicate-driven attacker prohibition or declaration cost. The
+    /// recipient determines whether the rule is attached to one attacker or
+    /// to a protected player; the defender scope makes that distinction
+    /// explicit and keeps planeswalker attacks honest.
+    AttackRestriction(AttackRestrictionDef),
     /// Defender does not stop the affected creature from attacking.
     ///
     /// A permission rather than an ability removal: the creature keeps the
@@ -293,6 +353,11 @@ pub enum AppliedRuleDef {
     /// effect exists. Two-sided prevention is an
     /// [`AppliedEffectDef::Composite`] of source and recipient matchers.
     PreventDamage(DamageEventMatcherDef),
+}
+
+impl AppliedRuleDef {
+    /// The common object-facing rule used by Pacifism and similar effects.
+    pub const CANNOT_ATTACK: Self = Self::AttackRestriction(AttackRestrictionDef::CANNOT_ATTACK);
 }
 
 /// Which kind of play action a restriction matches.

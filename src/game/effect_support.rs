@@ -401,7 +401,9 @@ impl Game {
                 }
                 true
             }
-            AppliedRuleDef::CannotBeAttackedExceptBy(allowed_attacker) => {
+            AppliedRuleDef::AttackRestriction(restriction)
+                if restriction.defender != crate::card::AttackDefenderScopeDef::Any =>
+            {
                 if let Target::Player(affected_player) = target {
                     self.resolved_attack_restrictions
                         .push(ResolvedAttackRestriction {
@@ -409,7 +411,7 @@ impl Game {
                             source,
                             affected_player,
                             expiration,
-                            allowed_attacker,
+                            restriction,
                         });
                 }
                 true

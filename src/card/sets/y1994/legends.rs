@@ -2,17 +2,18 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef,
     AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef, AppliedEffectDef,
-    AppliedRuleDef, BandingQuality, BasicLandType, BattlefieldEntryModificationDef, CardArt,
-    CardBehavior, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef,
-    ChooseDef, ColorChoiceOperationDef, ColorSet, ComparisonDef, ControlDurationDef, CounterKind,
-    DamageEventMatcherDef, DamageKindDef, DamageLimitDef, DamagePreventionDef,
-    DamageRecipientMatcherDef, DamageSourceGroupDef, DamageSourceMatcherDef, DiscardSelectionDef,
-    DividedTotal, EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef,
-    KeywordAbility, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    ScaledValueDef, SumValueDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, BandingQuality, BasicLandType,
+    BattlefieldEntryModificationDef, CardArt, CardBehavior, CardRules, CardSet, CardSupertype,
+    CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorChoiceOperationDef, ColorSet,
+    ComparisonDef, ControlDurationDef, CounterKind, DamageEventMatcherDef, DamageKindDef,
+    DamageLimitDef, DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceGroupDef,
+    DamageSourceMatcherDef, DiscardSelectionDef, DividedTotal, EffectDef, EffectPaymentDef,
+    EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, SumValueDef,
+    TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -44,7 +45,7 @@ pub(in crate::card::sets) static AKRON_LEGIONNAIRE: CardRecord = CardRecord::new
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
                 ),
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotAttack),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
             },
         ),
     ),
@@ -560,17 +561,27 @@ pub(in crate::card::sets) static LIFEBLOOD: CardRecord = CardRecord::new_with_le
     )),
 );
 
+static MOAT_NONFLIERS: ObjectPredicateDef =
+    ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(KeywordAbility::Flying));
+
 // LEG 28 — Moat
 pub(in crate::card::sets) static MOAT: CardRecord = CardRecord::new_with_legacy_id(
     119,
     "Moat",
     CardArt::new("952ba126-0915-47f0-9b6a-a0a6dcd22c6f", "Jeff A. Menges"),
     CardSet::Legends,
-    CardRules::new_enchantment(mana_cost!("{2}{W}{W}")).with_abilities(&[AbilityDef::custom_full(
+    CardRules::new_enchantment(mana_cost!("{2}{W}{W}")).with_ability(AbilityDef::static_ability(
         "Creatures without flying can't attack.",
-        CardBehavior::Moat,
-        "The attack restriction is implemented by the legacy combat legality check.",
-    )]),
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::EachPlayer,
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::AttackRestriction(
+                AttackRestrictionDef::prohibit(
+                    MOAT_NONFLIERS,
+                    AttackDefenderScopeDef::AffectedPlayerOrPlaneswalker,
+                ),
+            )),
+        },
+    )),
 );
 
 /// Every end step, not only its controller's: something dying on either turn
@@ -1683,7 +1694,7 @@ pub(in crate::card::sets) static DEMONIC_TORMENT: CardRecord = CardRecord::new_w
                 "Enchanted creature can't attack.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotAttack),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
                 },
             ),
             AbilityDef::static_ability(
@@ -1717,7 +1728,7 @@ pub(in crate::card::sets) static EVIL_EYE_OF_ORMS_BY_GORE: CardRecord =
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     ),
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotAttack),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
                 },
             ),
             AbilityDef::static_ability(
@@ -3380,7 +3391,7 @@ pub(in crate::card::sets) static GIANT_TURTLE: CardRecord = CardRecord::new_with
             "This creature can't attack if it attacked during your last turn.",
             EffectDef::StaticApply {
                 recipient: GIANT_TURTLE_RESTING,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotAttack),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
             },
         ),
     ),

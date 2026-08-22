@@ -1,10 +1,10 @@
 use super::{
-    AbilityDef, AbilityOrigin, Action, ActionError, ActivationChoices, CardBehavior, CardStructure,
-    CardType, CharacteristicContext, CombatDamageStage, CounterKind, DecisionVisibility,
-    DoubleFacedKind, EmblemObservation, Game, GameEvent, GameObjectId, GameResult, KeywordAbility,
-    ManaActivationChoices, ManaColor, ObjectCharacteristics, ObjectKind, Permanent,
-    PermanentObservation, PhysicalFaceObservation, PhysicalFaceSide, PlayerId, PlayerObservation,
-    Pregame, StackObservation, Step, WinReason, ZoneKind, combinations, public_cards,
+    AbilityDef, AbilityOrigin, Action, ActionError, ActivationChoices, CardStructure, CardType,
+    CharacteristicContext, CombatDamageStage, CounterKind, DecisionVisibility, DoubleFacedKind,
+    EmblemObservation, Game, GameEvent, GameObjectId, GameResult, ManaActivationChoices, ManaColor,
+    ObjectCharacteristics, ObjectKind, Permanent, PermanentObservation, PhysicalFaceObservation,
+    PhysicalFaceSide, PlayerId, PlayerObservation, Pregame, StackObservation, Step, WinReason,
+    ZoneKind, combinations, public_cards,
 };
 
 impl Game {
@@ -212,7 +212,6 @@ impl Game {
         }
         if self.step == Step::DeclareAttackers && !self.attackers_declared {
             if player == self.active_player {
-                let moat_active = self.count_behavior(CardBehavior::Moat) > 0;
                 // A creature that attacks each combat if able is only
                 // required to when it actually can, so the same conditions
                 // that offer it as an attacker are what make it compulsory.
@@ -220,16 +219,12 @@ impl Game {
                     permanent.controller == player
                         && !permanent.tapped
                         && !permanent.attacking
-                        && self.can_attack_with_moat(permanent, moat_active)
-                        && self.permanent_has_executable_keyword(
-                            permanent,
-                            KeywordAbility::AttacksEachCombatIfAble,
-                        )
+                        && self.must_attack_if_able(permanent)
                 });
-                if !a_creature_must_attack {
+                if !a_creature_must_attack && self.attack_declaration_is_payable(player) {
                     actions.push(Action::FinishDeclaringAttackers);
                 }
-                actions.extend(self.attacker_actions(player, moat_active));
+                actions.extend(self.attacker_actions(player));
                 actions.extend(self.band_actions(player));
                 actions.extend(self.exert_actions(player));
             }
@@ -538,12 +533,7 @@ impl Game {
     /// One permanent as `viewer` sees it. Split out of `observe` because the
     /// per-permanent view is long on its own and reads better beside the
     /// hidden-information rule it enforces.
-    fn observe_permanent(
-        &self,
-        permanent: &Permanent,
-        viewer: PlayerId,
-        moat_active: bool,
-    ) -> PermanentObservation {
+    fn observe_permanent(&self, permanent: &Permanent, viewer: PlayerId) -> PermanentObservation {
         let types = self.permanent_types(permanent).unwrap_or_default();
         let stats = self.creature_stats(permanent);
         let (power, toughness) = stats.map_or((None, None), |stats| {
@@ -589,7 +579,7 @@ impl Game {
             blocking_this_combat: permanent.is_blocking_this_combat(),
             attacking_band: permanent.attacking_band,
             flying,
-            can_attack: stats.is_some() && self.can_attack_creature(permanent, moat_active, flying),
+            can_attack: stats.is_some() && self.can_attack(permanent),
             entered_this_turn: self.turns_started[permanent.controller.index()]
                 == permanent.entered_controller_turn,
         }
@@ -598,7 +588,6 @@ impl Game {
     pub fn observe(&self, viewer: PlayerId) -> PlayerObservation {
         let player = &self.players[viewer.index()];
         let opponent = &self.players[viewer.opponent().index()];
-        let moat_active = self.count_behavior(CardBehavior::Moat) > 0;
         PlayerObservation {
             viewer,
             turn: self.turn,
@@ -647,7 +636,7 @@ impl Game {
                 .battlefield
                 .iter()
                 .chain(self.phased_out.iter())
-                .map(|permanent| self.observe_permanent(permanent, viewer, moat_active))
+                .map(|permanent| self.observe_permanent(permanent, viewer))
                 .collect(),
             emblems: self.observed_emblems(),
             stack: self

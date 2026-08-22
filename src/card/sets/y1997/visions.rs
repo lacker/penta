@@ -9,6 +9,10 @@ use crate::card::{
     TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
     ZonePlacement, abilities,
 };
+use crate::card::{
+    AppliedEffectDef, AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, CounterKind,
+    EffectPaymentDef, PayOrDef, PlayerSetDef,
+};
 use crate::{TargetIndex, mana_cost};
 
 static IMPULSE_SELECTION: TopCardSelectionDef = TopCardSelectionDef {
@@ -263,6 +267,78 @@ pub(in crate::card::sets) static FIREBLAST: CardRecord = CardRecord::new_with_le
     ]),
 );
 
+static ELEPHANT_GRASS_BLACK_CREATURES: ObjectPredicateDef =
+    ObjectPredicateDef::Color(ManaColor::Black);
+static ELEPHANT_GRASS_NONBLACK_CREATURES: ObjectPredicateDef =
+    ObjectPredicateDef::Not(&ELEPHANT_GRASS_BLACK_CREATURES);
+
+static ELEPHANT_GRASS_SACRIFICE: EffectDef = EffectDef::Sacrifice {
+    object: EffectRecipientDef::Source,
+};
+
+static ELEPHANT_GRASS_UPKEEP_STEPS: [EffectDef; 2] = [
+    EffectDef::AddCounters {
+        object: EffectRecipientDef::Source,
+        kind: CounterKind::Age,
+        amount: ValueDef::Constant(1),
+    },
+    EffectDef::PayOr(PayOrDef::unless(
+        EffectPaymentDef::generic_mana(
+            PlayerSetDef::One(PlayerRefDef::EffectController),
+            ValueDef::CountersOnSource(CounterKind::Age),
+        ),
+        &ELEPHANT_GRASS_SACRIFICE,
+    )),
+];
+
+static ELEPHANT_GRASS_UPKEEP: EffectDef = EffectDef::IfCondition {
+    condition: &TriggerConditionDef::SourceOnBattlefield,
+    then: &EffectDef::Sequence(&ELEPHANT_GRASS_UPKEEP_STEPS),
+};
+
+// VIS 104 — Elephant Grass
+pub(in crate::card::sets) static ELEPHANT_GRASS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f4c1f5a7-0d28-43ab-9b66-937e963f42cd"),
+    "Elephant Grass",
+    CardArt::new("f4c1f5a7-0d28-43ab-9b66-937e963f42cd", "Tony Roberts"),
+    CardSet::Visions,
+    CardRules::new_enchantment(mana_cost!("{G}")).with_abilities(&[
+        AbilityDef::triggered(
+            "Cumulative upkeep {1} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            ELEPHANT_GRASS_UPKEEP,
+        ),
+        AbilityDef::static_ability(
+            "Black creatures can't attack you.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Controller,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::AttackRestriction(
+                    AttackRestrictionDef::prohibit(
+                        ELEPHANT_GRASS_BLACK_CREATURES,
+                        AttackDefenderScopeDef::AffectedPlayer,
+                    ),
+                )),
+            },
+        ),
+        AbilityDef::static_ability(
+            "Nonblack creatures can't attack you unless their controller pays {2} for each creature they control that's attacking you.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Controller,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::AttackRestriction(
+                    AttackRestrictionDef::unless_paid(
+                        ELEPHANT_GRASS_NONBLACK_CREATURES,
+                        AttackDefenderScopeDef::AffectedPlayer,
+                        mana_cost!("{2}"),
+                    ),
+                )),
+            },
+        ),
+    ]),
+);
+
 /// A green creature, wherever the card is looking for one. The sacrifice and
 /// the search name the same thing, which is what makes this a trade rather
 /// than a tutor.
@@ -321,6 +397,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &NECROMANCY,
     &VAMPIRIC_TUTOR,
     &FIREBLAST,
+    &ELEPHANT_GRASS,
     &NATURAL_ORDER,
 ];
 

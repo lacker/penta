@@ -425,6 +425,7 @@ fn validate_effect_references(
         | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
         | EffectDef::ScheduleTurnPhases(_)
         | EffectDef::CreateAttachedToken { .. }
+        | EffectDef::CreateMyriadTokens
         | EffectDef::Special(_) => Ok(()),
     }
 }

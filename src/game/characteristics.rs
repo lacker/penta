@@ -1,8 +1,8 @@
 use std::borrow::Cow;
 
 use super::{
-    BattlefieldExitSnapshot, CardBehavior, CardPartId, CardRules, CardStructure, CardSupertype,
-    CardType, CardTypeSet, CopiableCharacteristics, CounterKind, DeclarativeAbilityDef,
+    BattlefieldExitSnapshot, CardPartId, CardRules, CardStructure, CardSupertype, CardType,
+    CardTypeSet, CopiableCharacteristics, CounterKind, DeclarativeAbilityDef,
     DoubleFacedCopiableCharacteristics, Game, ObjectCharacteristics, ObjectKind, Permanent,
     PermanentLastKnownInformation, TriggerEventObject,
 };
@@ -26,16 +26,6 @@ impl Game {
                 Some(Cow::Borrowed(face_down.display_name()))
             }
         }
-    }
-
-    pub(super) fn count_behavior(&self, behavior: CardBehavior) -> u16 {
-        u16::try_from(
-            self.battlefield
-                .iter()
-                .filter(|permanent| self.effective_behavior(permanent) == Some(behavior))
-                .count(),
-        )
-        .unwrap_or(u16::MAX)
     }
 
     pub(super) fn is_artifact_permanent(&self, permanent: &Permanent) -> bool {

@@ -10,14 +10,182 @@
 use std::ops::ControlFlow;
 
 use crate::card::{
-    AppliedEffectDef, AppliedRuleDef, DamageEventMatcherDef, DamageLimitDef, DeclarativeAbilityDef,
-    EffectDef, EffectRecipientDef, EffectRecipientSetDef, PlayerRefDef, PlayerSetDef,
+    AppliedEffectDef, AppliedRuleDef, AttackDefenderScopeDef, DamageEventMatcherDef,
+    DamageLimitDef, DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EffectRecipientSetDef,
+    PlayerRefDef, PlayerSetDef,
 };
 use crate::ids::{GameObjectId, PlayerId};
 
-use super::super::{AppliedPlayRestriction, Game, Permanent, TriggerContext};
+use super::super::{
+    AppliedAttackRestriction, AppliedPlayRestriction, Game, Permanent, TriggerContext,
+};
 
 impl Game {
+    /// Visits every static and resolved attack restriction applying to one
+    /// player. The rule itself decides whether it protects only that player
+    /// or their planeswalkers as well.
+    pub(in crate::game) fn visit_attack_restrictions(
+        &self,
+        affected_player: PlayerId,
+        mut visitor: impl FnMut(AppliedAttackRestriction) -> ControlFlow<()>,
+    ) -> ControlFlow<()> {
+        for resolved in self
+            .resolved_attack_restrictions
+            .iter()
+            .filter(|restriction| {
+                restriction.affected_player == affected_player
+                    && self.continuous_effect_expiration_is_active(
+                        restriction.expiration,
+                        restriction.source.object,
+                    )
+            })
+        {
+            if visitor(AppliedAttackRestriction {
+                source: resolved.source.object,
+                affected_player,
+                restriction: resolved.restriction,
+            })
+            .is_break()
+            {
+                return ControlFlow::Break(());
+            }
+        }
+
+        let land_type_sources = self.land_type_effect_sources(None);
+        for source in self.battlefield.iter().chain(self.emblems.iter()) {
+            let Some(rules) = self.effective_rules(source) else {
+                continue;
+            };
+            let source_presentation = Self::effective_rules_source(source);
+            if self.rules_text_abilities_removed_from_sources(source, &land_type_sources) {
+                continue;
+            }
+            for attached in rules.indexed_abilities() {
+                if !attached.definition.is_executable()
+                    || !matches!(
+                        attached.definition.definition,
+                        DeclarativeAbilityDef::Static(_)
+                    )
+                    || !self.ability_survives_resolved_operations(
+                        source,
+                        Self::authored_ability_origin(source_presentation, attached.id),
+                    )
+                {
+                    continue;
+                }
+                let Some(effect) = attached.definition.declarative_effect() else {
+                    continue;
+                };
+                if self
+                    .visit_static_attack_restrictions(
+                        effect,
+                        source,
+                        affected_player,
+                        true,
+                        &mut visitor,
+                    )
+                    .is_break()
+                {
+                    return ControlFlow::Break(());
+                }
+            }
+        }
+        ControlFlow::Continue(())
+    }
+
+    fn visit_static_attack_restrictions(
+        &self,
+        effect: EffectDef,
+        source: &Permanent,
+        affected_player: PlayerId,
+        enabled: bool,
+        visitor: &mut impl FnMut(AppliedAttackRestriction) -> ControlFlow<()>,
+    ) -> ControlFlow<()> {
+        match effect {
+            EffectDef::Sequence(effects) => {
+                for effect in effects {
+                    if self
+                        .visit_static_attack_restrictions(
+                            *effect,
+                            source,
+                            affected_player,
+                            enabled,
+                            visitor,
+                        )
+                        .is_break()
+                    {
+                        return ControlFlow::Break(());
+                    }
+                }
+                ControlFlow::Continue(())
+            }
+            EffectDef::IfCondition { condition, then } => {
+                let condition_holds = enabled
+                    && self.trigger_condition_holds(
+                        condition,
+                        source.card.id,
+                        source.controller,
+                        TriggerContext::empty(),
+                        None,
+                        None,
+                    );
+                self.visit_static_attack_restrictions(
+                    *then,
+                    source,
+                    affected_player,
+                    condition_holds,
+                    visitor,
+                )
+            }
+            EffectDef::StaticApply { recipient, effect } => {
+                if !enabled
+                    || !self.static_player_recipient_matches(recipient, source, affected_player)
+                {
+                    return ControlFlow::Continue(());
+                }
+                Self::visit_attack_restriction_components(effect, source, affected_player, visitor)
+            }
+            _ => ControlFlow::Continue(()),
+        }
+    }
+
+    fn visit_attack_restriction_components(
+        effect: AppliedEffectDef,
+        source: &Permanent,
+        affected_player: PlayerId,
+        visitor: &mut impl FnMut(AppliedAttackRestriction) -> ControlFlow<()>,
+    ) -> ControlFlow<()> {
+        match effect {
+            AppliedEffectDef::Composite(effects) => {
+                for effect in effects {
+                    if Self::visit_attack_restriction_components(
+                        *effect,
+                        source,
+                        affected_player,
+                        visitor,
+                    )
+                    .is_break()
+                    {
+                        return ControlFlow::Break(());
+                    }
+                }
+                ControlFlow::Continue(())
+            }
+            AppliedEffectDef::Rule(AppliedRuleDef::AttackRestriction(restriction))
+                if restriction.defender != AttackDefenderScopeDef::Any =>
+            {
+                visitor(AppliedAttackRestriction {
+                    source: source.card.id,
+                    affected_player,
+                    restriction,
+                })
+            }
+            AppliedEffectDef::Rule(_) | AppliedEffectDef::Characteristic(_) => {
+                ControlFlow::Continue(())
+            }
+        }
+    }
+
     /// Visits static and resolved play prohibitions in timestamp/component
     /// order for one player. Static prohibitions are derived live from their
     /// source; resolving prohibitions use the game-level stored rule list.

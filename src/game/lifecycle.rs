@@ -4,8 +4,9 @@ use super::{
     GameEvent, GameObjectId, GameStack, ManaPool, ObjectBacking, ObjectCharacteristics,
     ObjectInstance, ObjectKind, Permanent, PermanentLastKnownInformation, PhysicalCard,
     PhysicalCardId, PlayerId, PlayerState, Pregame, ReplayRng, RetiredObject, StackObject, Step,
-    ValueDef, VecDeque, ZoneChangeOutcome, remove_card,
+    TriggerContext, ValueDef, VecDeque, ZoneChangeOutcome, remove_card,
 };
+use crate::card::PlayerRelation;
 
 impl Game {
     /// Creates a game, shuffles both decks, and draws opening hands.
@@ -492,6 +493,34 @@ impl Game {
             ValueDef::SourcePower => self.current_or_last_known_power(source).map(i32::from),
             ValueDef::SourceToughness => {
                 self.current_or_last_known_toughness(source).map(i32::from)
+            }
+            ValueDef::CardsInHandAbove { player, threshold } => {
+                let controller = self.current_or_last_known_controller(source)?;
+                let counted = if player == PlayerRelation::ControllerOfAttachedPermanent {
+                    self.attached_host_controller_of(source)
+                        .unwrap_or(controller)
+                } else {
+                    [PlayerId::One, PlayerId::Two]
+                        .into_iter()
+                        .find(|candidate| {
+                            self.player_relation_matches(
+                                *candidate,
+                                player,
+                                controller,
+                                TriggerContext::empty(),
+                            )
+                        })
+                        .unwrap_or(controller)
+                };
+                Some(
+                    i32::try_from(
+                        self.players[counted.index()]
+                            .hand
+                            .len()
+                            .saturating_sub(usize::from(threshold)),
+                    )
+                    .unwrap_or(i32::MAX),
+                )
             }
             // "Power X or less" is said as "below X plus one", so a sum has
             // to be reachable from here as well as its parts.

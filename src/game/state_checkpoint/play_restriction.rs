@@ -13,14 +13,14 @@ use super::{
 
 pub(super) fn resolved_attack_restriction_snapshot(
     catalog: &CardCatalog,
-    restriction: ResolvedAttackRestriction,
+    restriction: &ResolvedAttackRestriction,
 ) -> Option<ResolvedAttackRestrictionSnapshot> {
-    let AppliedEffectDef::Rule(AppliedRuleDef::CannotBeAttackedExceptBy(authored)) =
+    let AppliedEffectDef::Rule(AppliedRuleDef::AttackRestriction(authored)) =
         restriction.definition
     else {
         return None;
     };
-    if authored != restriction.allowed_attacker {
+    if authored != restriction.restriction {
         return None;
     }
     Some(ResolvedAttackRestrictionSnapshot {
@@ -50,12 +50,9 @@ pub(super) fn parse_resolved_attack_restriction(
     }
     let definition = semantics::catalog_applied_effect(catalog, &snapshot.definition)
         .ok_or("checkpoint attack-restriction locator is absent from this catalog")?;
-    let AppliedEffectDef::Rule(AppliedRuleDef::CannotBeAttackedExceptBy(allowed_attacker)) =
-        definition
-    else {
+    let AppliedEffectDef::Rule(AppliedRuleDef::AttackRestriction(restriction)) = definition else {
         return Err(
-            "checkpoint attack-restriction locator does not name CannotBeAttackedExceptBy"
-                .to_owned(),
+            "checkpoint attack-restriction locator does not name an attack rule".to_owned(),
         );
     };
     Ok(ResolvedAttackRestriction {
@@ -63,7 +60,7 @@ pub(super) fn parse_resolved_attack_restriction(
         source,
         affected_player: wire::player_from_index(snapshot.affected_seat)?,
         expiration: parse_expiration(snapshot.expiration)?,
-        allowed_attacker,
+        restriction,
     })
 }
 
@@ -72,7 +69,7 @@ pub(super) fn parse_resolved_attack_restriction(
 /// the question is the answer.
 pub(super) fn resolved_play_permission_snapshot(
     catalog: &CardCatalog,
-    permission: ResolvedPlayPermission,
+    permission: &ResolvedPlayPermission,
 ) -> Option<ResolvedPlayPermissionSnapshot> {
     let AppliedEffectDef::Rule(authored) = permission.definition else {
         return None;

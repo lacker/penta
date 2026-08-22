@@ -3539,7 +3539,7 @@ pub(in crate::card::sets) static OBZEDAT_GHOST_COUNCIL: CardRecord = CardRecord:
 );
 
 static ONE_THOUSAND_LASHES_PROHIBITIONS: [AppliedEffectDef; 3] = [
-    AppliedEffectDef::Rule(AppliedRuleDef::CannotAttack),
+    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
     AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
     AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
 ];

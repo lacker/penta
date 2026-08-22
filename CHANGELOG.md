@@ -34,18 +34,22 @@ distinguishes snapshots of the covered source and build inputs.
   symbol strings as open display values. Checkpoint format 7 and replay
   version 2 are unchanged.
 
-- **Island Sanctuary and Sylvan Library now use shared declarative rules, and
-  checkpoint reconstruction moves to format 8.** Optional static draw
-  replacements can replace each applicable draw with an ordinary effect;
-  duration-scoped player attack restrictions can admit attackers by predicate;
-  drawn-this-turn cards still in hand form a reusable object set; and a generic
-  resumable `ForEachInBinding` effect applies a continuation to every chosen
-  object, with ordered object-set bindings preserving a player's resolution
-  order. The former Sylvan Library behavior key and its custom decisions are
-  removed. Format 8 records optional versus installed draw replacements,
-  replacement-effect continuations, object-set iteration, and resolved attack
-  restrictions, and freezes the stack kind inside the checkpoint as well as
-  the public observation. Reconstruction consumers must require
+- **Island Sanctuary, Sylvan Library, Elephant Grass, Moat, Caller of the Pack,
+  and Ensnaring Bridge now use shared declarative rules, and checkpoint
+  reconstruction moves to format 8.** Optional static draw replacements can
+  replace each applicable draw with an ordinary effect; attack restrictions
+  carry an attacker predicate, an explicit player-or-planeswalker defender
+  scope, and an optional additive declaration cost; drawn-this-turn cards still
+  in hand form a reusable object set; and a generic resumable
+  `ForEachInBinding` effect applies a continuation to every chosen object, with
+  ordered object-set bindings preserving a player's resolution order. The
+  former Sylvan Library and Moat behavior keys and their card-specific paths are
+  removed. Cumulative upkeep uses appended age counters, and Myriad is an
+  ordinary attack trigger whose exact two-player result is no token. Format 8
+  records optional versus installed draw replacements, replacement-effect
+  continuations, object-set iteration, and resolved attack restrictions, and
+  freezes the stack kind inside the checkpoint as well as the public
+  observation. Reconstruction consumers must require
   `reconstruction.checkpoint.v8` and regenerate format-7 checkpoints. Protocol
   28 and replay version 2 are unchanged.
 

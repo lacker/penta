@@ -877,6 +877,7 @@ impl Game {
                 }
             }
             EffectDef::None
+            | EffectDef::CreateMyriadTokens
             | EffectDef::CannotBeForcedToSacrifice
             | EffectDef::CannotBeForcedToDiscard
             | EffectDef::ReduceGenericCostBy(_)
@@ -889,8 +890,10 @@ impl Game {
             | EffectDef::CannotAttackIf(_)
             | EffectDef::StaticApply { .. }
             | EffectDef::Special(_) => {
-                // Execution seams until a supported card needs their
-                // concrete rules procedure.
+                // Myriad performs no mutation in a two-player game because
+                // there is no opponent other than the defending player.
+                // The remaining entries are execution seams until a
+                // supported card needs their concrete rules procedure.
             }
         }
     }

@@ -1,18 +1,18 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    ActivationTimingDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
-    CardArt, CardBehavior, CardRules, CardSet, CardSupertype, CardType, CardTypeSet,
-    ChoiceVisibilityDef, ChooseDef, ColorSet, ComparisonDef, ControlDurationDef, CounterKind,
-    CreatureTypeSetDef, DamageEventMatcherDef, DamagePreventionDef, DamagePreventionFollowUpDef,
-    DamageRecipientMatcherDef, DamageSourceGroupDef, DiscardSelectionDef, EffectDef,
-    EffectExecutionDef, EffectPaymentDef, EffectRecipientDef, HalvedValueDef, InstalledTriggerDef,
-    KeywordAbility, LikelihoodDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ReplacementAbilityDef, ReplacementChoiceDef, ReplacementConditionDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, RoundingDef,
-    TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    ActivationTimingDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef,
+    AttackDefenderScopeDef, AttackRestrictionDef, BasicLandType, CardArt, CardBehavior, CardRules,
+    CardSet, CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorSet,
+    ComparisonDef, ControlDurationDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef,
+    DamagePreventionDef, DamagePreventionFollowUpDef, DamageRecipientMatcherDef,
+    DamageSourceGroupDef, DiscardSelectionDef, EffectDef, EffectExecutionDef, EffectPaymentDef,
+    EffectRecipientDef, HalvedValueDef, InstalledTriggerDef, KeywordAbility, LikelihoodDef,
+    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementAbilityDef,
+    ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, RoundingDef, TriggerConditionDef, TriggerEventDef, TurnKindDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -575,11 +575,16 @@ static ISLAND_SANCTUARY_ATTACKERS: ObjectPredicateDef = ObjectPredicateDef::AnyO
     ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
     ObjectPredicateDef::HasKeyword(KeywordAbility::Landwalk(BasicLandType::Island)),
 ]);
+static ISLAND_SANCTUARY_PREVENTED_ATTACKERS: ObjectPredicateDef =
+    ObjectPredicateDef::Not(&ISLAND_SANCTUARY_ATTACKERS);
 
 static ISLAND_SANCTUARY_RESTRICTION: EffectDef = EffectDef::Apply {
     recipient: EffectRecipientDef::Controller,
-    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeAttackedExceptBy(
-        ISLAND_SANCTUARY_ATTACKERS,
+    effect: AppliedEffectDef::Rule(AppliedRuleDef::AttackRestriction(
+        AttackRestrictionDef::prohibit(
+            ISLAND_SANCTUARY_PREVENTED_ATTACKERS,
+            AttackDefenderScopeDef::AffectedPlayer,
+        ),
     )),
     duration: ResolvedEffectDurationDef::UntilYourNextTurn,
 };

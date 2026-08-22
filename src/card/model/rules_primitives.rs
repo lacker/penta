@@ -84,10 +84,13 @@ pub enum CounterKind {
     /// which is why the body it brings back keeps the lifelink after every
     /// duration a spell could have given it would have run out.
     Lifelink,
+    /// Cumulative upkeep's counter (CR 702.24). Its count determines the
+    /// upkeep payment rather than changing the permanent by itself.
+    Age,
 }
 
 impl CounterKind {
-    pub const COUNT: usize = 29;
+    pub const COUNT: usize = 30;
 
     pub const ALL: [Self; Self::COUNT] = [
         Self::PlusOnePlusOne,
@@ -119,6 +122,7 @@ impl CounterKind {
         Self::Finality,
         Self::Flying,
         Self::Lifelink,
+        Self::Age,
     ];
 
     /// What one counter of this kind adds to power and toughness. The kinds
@@ -155,7 +159,8 @@ impl CounterKind {
             | Self::Level
             | Self::Finality
             | Self::Flying
-            | Self::Lifelink => (0, 0),
+            | Self::Lifelink
+            | Self::Age => (0, 0),
         }
     }
 
@@ -191,6 +196,7 @@ impl CounterKind {
             Self::Finality => 26,
             Self::Flying => 27,
             Self::Lifelink => 28,
+            Self::Age => 29,
         }
     }
 
@@ -226,6 +232,7 @@ impl CounterKind {
             Self::Finality => "finality",
             Self::Flying => "flying",
             Self::Lifelink => "lifelink",
+            Self::Age => "age",
         }
     }
 

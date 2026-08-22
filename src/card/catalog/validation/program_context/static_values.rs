@@ -8,7 +8,10 @@
 fn static_source_value_supported(value: ValueDef) -> bool {
     matches!(
         value,
-        ValueDef::Constant(_) | ValueDef::SourcePower | ValueDef::CountersOnSource(_)
+        ValueDef::Constant(_)
+            | ValueDef::SourcePower
+            | ValueDef::CountersOnSource(_)
+            | ValueDef::CardsInHandAbove { .. }
     )
 }
 

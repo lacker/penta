@@ -3390,7 +3390,7 @@ static FLOWERING_LUMBERKNOT_UNPAIRED: TriggerConditionDef = TriggerConditionDef:
 };
 
 static FLOWERING_LUMBERKNOT_SIDELINED: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::Rule(AppliedRuleDef::CannotAttack),
+    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
     AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
 ];
 

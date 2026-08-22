@@ -534,6 +534,33 @@ impl Game {
         self.activate_mana_for_cost_avoiding(player, cost, x, None);
     }
 
+    /// Whether the declaration cost remains payable when `tap_cost_payer`
+    /// will be tapped by attacking before mana abilities may be activated.
+    /// A vigilant attacker passes `None` because it remains untapped and may
+    /// legally activate a mana ability while declaration costs are paid.
+    pub(super) fn can_pay_attack_cost(
+        &self,
+        player: PlayerId,
+        cost: ManaCost,
+        tap_cost_payer: Option<GameObjectId>,
+    ) -> bool {
+        let life_available =
+            u16::try_from(self.players[player.index()].life.max(0)).unwrap_or(u16::MAX);
+        self.plan_mana_activations(ManaPlanningRequest {
+            player,
+            cost,
+            x: 0,
+            options: ManaPlanOptions {
+                avoid: None,
+                tap_cost_payer,
+            },
+            purpose: &ManaPaymentPurpose::Other,
+            reserved: &[],
+            life_available,
+        })
+        .is_some()
+    }
+
     pub(super) fn activate_mana_for_cost_avoiding(
         &mut self,
         player: PlayerId,

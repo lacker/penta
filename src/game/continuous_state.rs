@@ -151,7 +151,17 @@ pub(super) struct ResolvedAttackRestriction {
     pub(super) source: AbilitySourceRef,
     pub(super) affected_player: PlayerId,
     pub(super) expiration: ContinuousEffectExpiration,
-    pub(super) allowed_attacker: crate::card::ObjectPredicateDef,
+    pub(super) restriction: crate::card::AttackRestrictionDef,
+}
+
+/// One live static or resolved attack restriction after its player recipient
+/// has been identified. Attack restrictions do not layer; prohibitions
+/// compose and declaration costs add.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(super) struct AppliedAttackRestriction {
+    pub(super) source: GameObjectId,
+    pub(super) affected_player: PlayerId,
+    pub(super) restriction: crate::card::AttackRestrictionDef,
 }
 
 /// A permission to play from an unusual zone that resolved rather than being

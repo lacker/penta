@@ -26,7 +26,6 @@ pub(super) use fixtures::*;
 
 mod token_fixtures;
 pub(super) use token_fixtures::*;
-
 mod declarative_draw_enchantments;
 
 mod ability_resolution;
@@ -102,6 +101,7 @@ mod damage_limits;
 mod damage_redirection;
 mod damaged_by_this_creature;
 mod decisions_and_effects;
+mod declarative_attack_restrictions;
 mod deep_spawn;
 mod delayed_triggers;
 mod derelor;

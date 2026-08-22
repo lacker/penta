@@ -2,8 +2,8 @@ use crate::card::catalog::{EffectSubjectKind, GrantedAbilityValidationError};
 use crate::card::{
     AbilityOperationDef, AbilityProcedureDef, AbilityProgramDef, AbilityTargetDef,
     AbilityTargetPredicate, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef,
-    BattlefieldEntryChoiceDestinationDef, CharacteristicOperationDef, ConditionDef,
-    DamageEventMatcherDef, DamagePreventionCapacityDef, DamageRecipientMatcherDef,
+    AttackDefenderScopeDef, BattlefieldEntryChoiceDestinationDef, CharacteristicOperationDef,
+    ConditionDef, DamageEventMatcherDef, DamagePreventionCapacityDef, DamageRecipientMatcherDef,
     DamageSourceMatcherDef, DeclarativeAbilityDef, EffectDef, EffectPaymentCostDef,
     EffectPaymentDef, EffectRecipientDef, EffectRecipientSetDef, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,

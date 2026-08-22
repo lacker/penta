@@ -3,7 +3,8 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::sets::PrintingAnchor;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, CardArt, CardRules, CardSet,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef,
+    AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, DamageEventMatcherDef, DamagePreventionDef, EffectDef,
     EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
     PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef,
@@ -100,6 +101,31 @@ pub(in crate::card::sets) static HERMIT_DRUID: CardRecord = CardRecord::new_with
     ),
 );
 
+static ENSNARING_BRIDGE_HAND_SIZE: ValueDef = ValueDef::CardsInHandAbove {
+    player: PlayerRelation::You,
+    threshold: 0,
+};
+
+// STH 133 — Ensnaring Bridge
+pub(in crate::card::sets) static ENSNARING_BRIDGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("27d838a1-2739-45f7-a856-6202334fa76a"),
+    "Ensnaring Bridge",
+    CardArt::new("27d838a1-2739-45f7-a856-6202334fa76a", "Pete Venters"),
+    CardSet::Stronghold,
+    CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::static_ability(
+        "Creatures with power greater than the number of cards in your hand can't attack.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::EachPlayer,
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::AttackRestriction(
+                AttackRestrictionDef::prohibit(
+                    ObjectPredicateDef::PowerGreaterThan(ENSNARING_BRIDGE_HAND_SIZE),
+                    AttackDefenderScopeDef::AffectedPlayerOrPlaneswalker,
+                ),
+            )),
+        },
+    )),
+);
+
 // STH 138 — Mox Diamond
 pub(in crate::card::sets) static MOX_DIAMOND: CardRecord = CardRecord::new_with_legacy_id(
     2052,
@@ -121,7 +147,12 @@ pub(in crate::card::sets) static MOX_DIAMOND: CardRecord = CardRecord::new_with_
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&MANA_LEAK, &CONSTANT_MISTS, &HERMIT_DRUID, &MOX_DIAMOND];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &MANA_LEAK,
+    &CONSTANT_MISTS,
+    &HERMIT_DRUID,
+    &ENSNARING_BRIDGE,
+    &MOX_DIAMOND,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

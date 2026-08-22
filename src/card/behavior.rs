@@ -13,7 +13,6 @@ pub enum CardBehavior {
     GrislySalvage,
     KirdApe,
     LibraryOfAlexandria,
-    Moat,
     Mulch,
     Negate,
     PillarOfFlame,

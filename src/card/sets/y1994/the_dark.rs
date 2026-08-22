@@ -93,7 +93,7 @@ pub(in crate::card::sets) static FESTIVAL: CardRecord = CardRecord::new_with_leg
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     ),
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotAttack),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             ),

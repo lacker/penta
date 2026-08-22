@@ -699,12 +699,20 @@ fn validate_applied_effect_shapes(
         ) => validate_recipient_shape(recipient, targets, RecipientExpectation::Player),
         // The cap names the players it applies to; the predicate picks out
         // which of their permanents it covers.
-        AppliedEffectDef::Rule(
-            AppliedRuleDef::UntapAtMostOne(predicate)
-            | AppliedRuleDef::CannotBeAttackedExceptBy(predicate),
-        ) => {
+        AppliedEffectDef::Rule(AppliedRuleDef::UntapAtMostOne(predicate)) => {
             validate_recipient_shape(recipient, targets, RecipientExpectation::Player)?;
             validate_object_predicate_shape(predicate, targets)
+        }
+        AppliedEffectDef::Rule(AppliedRuleDef::AttackRestriction(restriction)) => {
+            let expectation = match restriction.defender {
+                AttackDefenderScopeDef::Any => RecipientExpectation::Object,
+                AttackDefenderScopeDef::AffectedPlayer
+                | AttackDefenderScopeDef::AffectedPlayerOrPlaneswalker => {
+                    RecipientExpectation::Player
+                }
+            };
+            validate_recipient_shape(recipient, targets, expectation)?;
+            validate_object_predicate_shape(restriction.attacker, targets)
         }
         AppliedEffectDef::Rule(AppliedRuleDef::PreventDamage(matcher)) => {
             validate_recipient_shape(recipient, targets, RecipientExpectation::Object)?;

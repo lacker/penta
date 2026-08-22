@@ -223,7 +223,7 @@ impl Game {
             return operations;
         };
         let mut visit_static = |applied: StaticAppliedEffect| {
-            self.push_static_ability_layer_operations(applied, &mut operations);
+            self.push_static_ability_layer_operations(&applied, &mut operations);
             ControlFlow::Continue(())
         };
         let result = if let Some(prospective) = prospective {
@@ -299,7 +299,7 @@ impl Game {
     /// this fills a list rather than returning a single operation.
     fn push_static_ability_layer_operations(
         &self,
-        applied: StaticAppliedEffect,
+        applied: &StaticAppliedEffect,
         operations: &mut Vec<AbilityLayerOperation>,
     ) {
         if matches!(
@@ -321,7 +321,7 @@ impl Game {
     /// identity from the moment it appears until the whole pile goes home.
     fn push_linked_exile_ability_grants(
         &self,
-        applied: StaticAppliedEffect,
+        applied: &StaticAppliedEffect,
         operations: &mut Vec<AbilityLayerOperation>,
     ) {
         let mut position = 0_usize;
@@ -367,7 +367,7 @@ impl Game {
     }
 
     fn static_ability_layer_operation(
-        applied: StaticAppliedEffect,
+        applied: &StaticAppliedEffect,
     ) -> Option<AbilityLayerOperation> {
         let kind = match applied.effect {
             AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(

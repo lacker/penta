@@ -383,6 +383,7 @@ fn validate_effect_target_shapes(
         | EffectDef::ScheduleTurnPhases(_)
         | EffectDef::CreateEmblem { .. }
         | EffectDef::CreateAttachedToken { .. }
+        | EffectDef::CreateMyriadTokens
         | EffectDef::Special(_) => Ok(()),
     }
 }

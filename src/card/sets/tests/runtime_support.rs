@@ -762,6 +762,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::CreateAttachedToken { .. }
                     | EffectDef::CreateTokenCopyOf { .. }
                     | EffectDef::Endure { .. }
+                    | EffectDef::CreateMyriadTokens
                     | EffectDef::Destroy { .. }
                     | EffectDef::Sacrifice { .. }
                     | EffectDef::SacrificeKeepingOnePerType { .. }

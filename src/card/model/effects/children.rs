@@ -83,6 +83,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::CreateAttachedToken { .. }
         | EffectDef::CreateTokenCopyOf { .. }
         | EffectDef::Endure { .. }
+        | EffectDef::CreateMyriadTokens
         | EffectDef::DealDamage { .. }
         | EffectDef::DealDamageFrom { .. }
         | EffectDef::DealDamageAndApply { .. }

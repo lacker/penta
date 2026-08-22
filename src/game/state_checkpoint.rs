@@ -388,7 +388,6 @@ impl Game {
         let resolved_attack_restrictions = self
             .resolved_attack_restrictions
             .iter()
-            .copied()
             .filter_map(|restriction| {
                 play_restriction::resolved_attack_restriction_snapshot(&self.catalog, restriction)
             })
@@ -398,7 +397,6 @@ impl Game {
         let resolved_play_permissions = self
             .resolved_play_permissions
             .iter()
-            .copied()
             .filter_map(|permission| {
                 play_restriction::resolved_play_permission_snapshot(&self.catalog, permission)
             })

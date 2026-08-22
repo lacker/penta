@@ -1,6 +1,7 @@
 //! Commander 2015 cards cataloged for the Vintage Cube pool.
 
 use super::{CardRecord, PrintingRecord};
+use crate::card::sets::PrintingAnchor;
 use crate::card::{
     AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardType, EffectDef,
     EffectRecipientDef, ObjectPredicateDef, ValueDef, ZoneKind, ZonePlacement, abilities,
@@ -65,6 +66,16 @@ pub(in crate::card::sets) static MYSTIC_CONFLUENCE: CardRecord = CardRecord::new
     )),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&MYSTIC_CONFLUENCE];
+// C15 34 — Caller of the Pack
+pub(in crate::card::sets) static CALLER_OF_THE_PACK: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1286208b-896b-4f41-a837-1c8a2b199a0f"),
+    "Caller of the Pack",
+    CardArt::new("1286208b-896b-4f41-a837-1c8a2b199a0f", "Ryan Yee"),
+    CardSet::Commander2015,
+    CardRules::new_creature(mana_cost!("{5}{G}{G}"), &["Beast"], 8, 6)
+        .with_abilities(&[abilities::trample(), abilities::myriad()]),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&MYSTIC_CONFLUENCE, &CALLER_OF_THE_PACK];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

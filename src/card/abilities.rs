@@ -107,6 +107,18 @@ pub const fn trample() -> AbilityDef {
     keyword("Trample", KeywordAbility::Trample)
 }
 
+/// Myriad's reusable attack trigger. In the current two-player engine there
+/// is no opponent other than the defending player, so its explicit procedure
+/// resolves without creating a token.
+#[must_use]
+pub const fn myriad() -> AbilityDef {
+    AbilityDef::triggered(
+        "Myriad (Whenever this creature attacks, for each opponent other than defending player, you may create a token copy that's tapped and attacking that player or a planeswalker they control. Exile the tokens at end of combat.)",
+        TriggerEventDef::attacks(ObjectPredicateDef::Source),
+        EffectDef::CreateMyriadTokens,
+    )
+}
+
 #[must_use]
 pub const fn haste() -> AbilityDef {
     keyword("Haste", KeywordAbility::Haste)

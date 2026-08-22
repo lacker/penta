@@ -274,6 +274,7 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::Transform { .. }
         | EffectDef::ScheduleTurnPhases(_)
         | EffectDef::TakeExtraTurn { .. }
+        | EffectDef::CreateMyriadTokens
         | EffectDef::Special(_) => false,
     }
 }

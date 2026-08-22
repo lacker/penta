@@ -32,6 +32,13 @@ need immediate migration merely for architectural purity. Refactor when a
 stable semantic boundary emerges, or when the relevant code is already being
 changed and the cleanup is reasonably in scope.
 
+Independent card implementations should remain independently mergeable unless
+they genuinely share a rules primitive or compatibility boundary. Do not make
+each card change update checked-in global coverage counts, generated lists, or
+tests that merely restate those derived artifacts. Keep declarations and inline
+`// Audit:` entries authoritative, and generate aggregate or card-by-card
+coverage reports from them on demand.
+
 ## Engine principles
 
 - Game state changes only through explicit actions.

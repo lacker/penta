@@ -175,9 +175,6 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
         | DecisionContinuation::Balance { .. }
         | DecisionContinuation::SearchZonesAndExileRest { .. }
         | DecisionContinuation::Vote { .. }
-        | DecisionContinuation::SylvanOffer { .. }
-        | DecisionContinuation::SylvanSelect { .. }
-        | DecisionContinuation::SylvanMode { .. }
         | DecisionContinuation::TetravusDetach { .. }
         | DecisionContinuation::TetravusAssemble { .. }
         | DecisionContinuation::AugurOfBolas { .. }

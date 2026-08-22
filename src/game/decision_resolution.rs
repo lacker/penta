@@ -7,8 +7,8 @@ use super::decision_search_resolution::SearchResolution;
 use super::{
     BalanceAction, BasicLandType, BasicLandTypeChange, BattlefieldArrival,
     BattlefieldExitCompletion, CardRuntime, CounterKind, DecisionContinuation, DecisionOption,
-    Game, GameEvent, ManaCost, PendingProcedure, PileChoice, PileSplit, PlayerId, ReplaceableEvent,
-    Target, TargetSelection, ZoneKind, ZoneMoveCause, ZonePlacement, remove_card,
+    Game, GameEvent, ManaCost, PileChoice, PileSplit, PlayerId, ReplaceableEvent, Target,
+    TargetSelection, ZoneKind, ZoneMoveCause, ZonePlacement, remove_card,
 };
 use crate::card::{BattlefieldEntryChoiceDestinationDef, ReplacementEffectDef};
 
@@ -459,12 +459,24 @@ impl Game {
                 candidates,
                 effect,
             } => {
-                let selected = pending
-                    .observation
-                    .options
+                let ordered = matches!(
+                    binding,
+                    crate::card::ObjectChoiceBindingDef::OrderedObjects(_)
+                );
+                let selected_ids = if ordered {
+                    options.to_vec()
+                } else {
+                    pending
+                        .observation
+                        .options
+                        .iter()
+                        .filter(|option| options.contains(&option.id))
+                        .map(|option| option.id)
+                        .collect()
+                };
+                let selected = selected_ids
                     .iter()
-                    .filter(|option| options.contains(&option.id))
-                    .filter_map(|option| usize::try_from(option.id).ok())
+                    .filter_map(|option| usize::try_from(*option).ok())
                     .filter_map(|index| candidates.get(index))
                     .copied()
                     .collect::<Vec<_>>();
@@ -711,14 +723,32 @@ impl Game {
             } => {
                 let selected = options
                     .first()
-                    .and_then(|option| usize::try_from(*option).ok())
+                    .and_then(|option| option.checked_sub(1))
+                    .and_then(|option| usize::try_from(option).ok())
                     .filter(|index| *index < replacements.len());
                 let Some(selected) = selected else {
-                    self.draw_replacements[player.index()].extend(replacements);
+                    if replacements.iter().all(|replacement| replacement.optional) {
+                        self.draw_replacements[player.index()].extend(
+                            replacements
+                                .into_iter()
+                                .filter(|replacement| replacement.installed),
+                        );
+                        self.commit_draw_card(player);
+                    } else {
+                        self.draw_replacements[player.index()].extend(
+                            replacements
+                                .into_iter()
+                                .filter(|replacement| replacement.installed),
+                        );
+                    }
                     return;
                 };
                 let replacement = replacements.remove(selected);
-                self.draw_replacements[player.index()].extend(replacements);
+                self.draw_replacements[player.index()].extend(
+                    replacements
+                        .into_iter()
+                        .filter(|replacement| replacement.installed),
+                );
                 // The interrupted draw instruction and any enclosing effect
                 // tail are already queued behind this choice. A chosen
                 // replacement is part of the current draw, so let every
@@ -802,60 +832,6 @@ impl Game {
                             remaining,
                         }),
                     );
-                }
-            }
-            DecisionContinuation::SylvanOffer { player } => {
-                if !options.contains(&1) {
-                    return;
-                }
-                self.draw_cards(player, 2);
-                if !self.pending_decisions.is_empty()
-                    || !self.pending_events.is_empty()
-                    || !self.pending_procedures.is_empty()
-                {
-                    self.pending_procedures
-                        .push_back(PendingProcedure::SylvanAfterDraw { player });
-                } else {
-                    let candidates = self.sylvan_candidates(player);
-                    // Two cards, or every card drawn this turn if fewer remain.
-                    let choices = candidates.len().min(2);
-                    if choices > 0 {
-                        self.queue_sylvan_select(player, candidates, choices);
-                    }
-                }
-            }
-            DecisionContinuation::SylvanSelect {
-                player,
-                mut candidates,
-                choices_left,
-            } => {
-                let selected = pending
-                    .observation
-                    .options
-                    .iter()
-                    .find(|option| options.contains(&option.id))
-                    .and_then(|option| option.card)
-                    .map(|(card, _)| card);
-                if let Some(card) = selected {
-                    candidates.retain(|candidate| *candidate != card);
-                    self.queue_sylvan_mode(player, card, candidates, choices_left);
-                }
-            }
-            DecisionContinuation::SylvanMode {
-                player,
-                card,
-                candidates,
-                choices_left,
-            } => {
-                if options.contains(&1) {
-                    self.players[player.index()].life -= 4;
-                } else if let Some(card) = remove_card(&mut self.players[player.index()].hand, card)
-                {
-                    let (card, _zone_change) = self.zone_change_card(card);
-                    self.players[player.index()].library.push(card);
-                }
-                if choices_left > 1 && self.result.is_none() {
-                    self.queue_sylvan_select(player, candidates, choices_left - 1);
                 }
             }
             DecisionContinuation::TetravusDetach { source } => {

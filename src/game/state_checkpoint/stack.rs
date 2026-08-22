@@ -27,7 +27,7 @@ use super::{
 use crate::card::{ColorSet, ManaColor};
 
 mod ability_kind;
-use ability_kind::{StackAbilityCondition, stack_ability_condition};
+use ability_kind::{StackAbilityCondition, stack_ability_condition, stack_payload_matches};
 mod current;
 mod hidden_references;
 pub(super) use current::current_stack_snapshot;
@@ -288,6 +288,152 @@ fn stack_payload_matches(
         && payload.resolver == Game::ability_resolver(payload.origin, candidate)
 }
 
+pub(super) fn stack_object_requires_retired(game: &Game, object: &StackObject) -> bool {
+    referenced_object_ids(object).any(|id| game.retired_objects.contains_key(&id))
+}
+
+pub(super) fn stack_object_has_unrebindable_hidden_reference(
+    game: &Game,
+    viewer: PlayerId,
+    object: &StackObject,
+) -> bool {
+    object
+        .source
+        .is_some_and(|source| object_reference_requires_hidden_rebinding(game, viewer, source))
+        || object.ability.as_ref().is_some_and(|payload| {
+            stack_payload_has_unrebindable_hidden_reference_except(game, viewer, payload, &[])
+        })
+}
+
+pub(super) fn referenced_object_ids(object: &StackObject) -> impl Iterator<Item = GameObjectId> {
+    let mut ids = Vec::new();
+    ids.extend(object.source);
+    ids.extend(object.chosen_permanents.iter().copied());
+    ids.extend(
+        object
+            .applied_effects
+            .iter()
+            .filter_map(|effect| effect.source.map(|source| source.object)),
+    );
+    if let Some(payload) = &object.ability {
+        ids.extend(resolution_context_referenced_object_ids(&payload.context));
+        ids.extend(lexical_target_referenced_object_ids(payload));
+    }
+    ids.into_iter()
+}
+
+/// Target selections with a declared slot are ordinary targets: once their
+/// object changes zones, the id is deliberately left dangling so legality
+/// makes the spell or ability fizzle. Extra selections without a declared
+/// slot are captured lexical state (for example a delayed follow-up referring
+/// to an earlier target), so they still require hidden rebinding and LKI.
+fn lexical_target_referenced_object_ids(payload: &StackAbilityPayload) -> Vec<GameObjectId> {
+    payload
+        .targets
+        .iter()
+        .filter(|selection| payload.target_defs.get(selection.slot().index()).is_none())
+        .flat_map(TargetSelection::targets)
+        .filter_map(|target| match target {
+            Target::Player(_) => None,
+            Target::Card(id) | Target::Permanent(id) | Target::Spell(id) => Some(*id),
+        })
+        .collect()
+}
+
+fn stack_payload_has_unrebindable_hidden_reference_except(
+    game: &Game,
+    viewer: PlayerId,
+    payload: &StackAbilityPayload,
+    visible_rebindings: &[GameObjectId],
+) -> bool {
+    lexical_target_referenced_object_ids(payload)
+        .into_iter()
+        .chain(resolution_context_referenced_object_ids(&payload.context))
+        .any(|object| {
+            object_reference_requires_hidden_rebinding(game, viewer, object)
+                && !visible_rebindings.contains(&object)
+        })
+}
+
+pub(super) fn target_selections_referenced_object_ids(
+    selections: &[TargetSelection],
+) -> Vec<GameObjectId> {
+    selections
+        .iter()
+        .flat_map(TargetSelection::targets)
+        .filter_map(|target| match target {
+            Target::Player(_) => None,
+            Target::Card(id) | Target::Permanent(id) | Target::Spell(id) => Some(*id),
+        })
+        .collect()
+}
+
+/// Captured trigger state has no hidden-zone rebinding table of its own.
+/// References to the viewer's hand keep their public observation ids, but
+/// libraries, outside-game cards, and the opposing hand are reconstructed
+/// from a hypothesis with freshly minted ids. Serializing one of those host
+/// ids would both disclose hidden identity and leave a dangling reference in
+/// the reconstructed game, so the containing checkpoint must fail closed.
+pub(super) fn trigger_capture_has_unrebindable_hidden_reference(
+    game: &Game,
+    viewer: PlayerId,
+    targets: &[TargetSelection],
+    context: &EffectResolutionContext,
+) -> bool {
+    trigger_capture_has_unrebindable_hidden_reference_except(game, viewer, targets, context, &[])
+}
+
+pub(super) fn trigger_capture_has_unrebindable_hidden_reference_except(
+    game: &Game,
+    viewer: PlayerId,
+    targets: &[TargetSelection],
+    context: &EffectResolutionContext,
+    visible_rebindings: &[GameObjectId],
+) -> bool {
+    target_selections_referenced_object_ids(targets)
+        .into_iter()
+        .chain(resolution_context_referenced_object_ids(context))
+        .any(|object| {
+            object_reference_requires_hidden_rebinding(game, viewer, object)
+                && !visible_rebindings.contains(&object)
+        })
+}
+
+pub(super) fn object_reference_requires_hidden_rebinding(
+    game: &Game,
+    viewer: PlayerId,
+    object: GameObjectId,
+) -> bool {
+    matches!(
+        game.retired_objects.get(&object),
+        Some(RetiredObject::Card(_))
+    ) || [PlayerId::One, PlayerId::Two].into_iter().any(|player| {
+        let state = &game.players[player.index()];
+        state.library.iter().any(|card| card.id == object)
+            || state.outside_game.iter().any(|card| card.id == object)
+            || (player != viewer && state.hand.iter().any(|card| card.id == object))
+    })
+}
+
+pub(super) fn resolution_context_referenced_object_ids(
+    context: &EffectResolutionContext,
+) -> Vec<GameObjectId> {
+    let mut ids = context.trigger.object.into_iter().collect::<Vec<_>>();
+    ids.extend(
+        context
+            .single_objects()
+            .iter()
+            .flatten()
+            .chain(context.object_groups().iter().flatten())
+            .copied()
+            .filter_map(|target| match target {
+                Target::Player(_) => None,
+                Target::Card(id) | Target::Permanent(id) | Target::Spell(id) => Some(id),
+            }),
+    );
+    ids
+}
+
 pub(super) fn target_selection_snapshot(selection: &TargetSelection) -> TargetSelectionSnapshot {
     TargetSelectionSnapshot {
         slot_id: selection.slot().0,
@@ -380,6 +526,9 @@ pub(super) fn parse_stack(
             "TriggeredAbility" => StackObjectKind::TriggeredAbility,
             other => return Err(format!("unknown stack object kind {other}")),
         };
+        if state.kind != kind_snapshot(kind) {
+            return Err("checkpoint stack kind does not match observation".into());
+        }
         let (source, ability, signature, card) = match kind {
             StackObjectKind::Spell => {
                 let ObjectKind::Card(definition) = object_kind else {
@@ -525,10 +674,13 @@ pub(super) fn parse_detached_stack(
     let object_kind = object_kind_from_snapshot(state.object_kind, &game.catalog)?;
     let owner = seat_index_value(state.owner)?;
     let controller = seat_index_value(state.controller)?;
+    let replacement_effect = state.kind == StackObjectKindSnapshot::ReplacementEffect;
     let kind = match state.kind {
         StackObjectKindSnapshot::Spell => StackObjectKind::Spell,
         StackObjectKindSnapshot::ActivatedAbility => StackObjectKind::ActivatedAbility,
-        StackObjectKindSnapshot::TriggeredAbility => StackObjectKind::TriggeredAbility,
+        StackObjectKindSnapshot::TriggeredAbility | StackObjectKindSnapshot::ReplacementEffect => {
+            StackObjectKind::TriggeredAbility
+        }
     };
     let signature = state
         .signature
@@ -545,14 +697,23 @@ pub(super) fn parse_detached_stack(
                 .and_then(|signature| game.frozen_spell_payload(definition, signature))
         }
         StackObjectKind::ActivatedAbility | StackObjectKind::TriggeredAbility => {
-            if object_kind != ObjectKind::Ability {
+            if replacement_effect {
+                if !matches!(object_kind, ObjectKind::Card(_)) {
+                    return Err("a detached replacement effect must be backed by a card".into());
+                }
+            } else if object_kind != ObjectKind::Ability {
                 return Err("a detached stack ability must have ability object kind".into());
             }
             let payload = state
                 .ability_payload
                 .as_ref()
                 .ok_or("detached stack ability is missing its frozen payload")?;
-            Some(parse_ability_payload(kind, payload, game)?)
+            Some(parse_ability_payload(
+                kind,
+                replacement_effect,
+                payload,
+                game,
+            )?)
         }
     };
     let stack_card = match (object_kind, ability.as_ref()) {
@@ -646,6 +807,7 @@ pub(super) fn color_set_from_flags(flags: [bool; 5]) -> ColorSet {
 
 fn parse_ability_payload(
     kind: StackObjectKind,
+    replacement_effect: bool,
     state: &StackAbilitySnapshot,
     game: &Game,
 ) -> Result<StackAbilityPayload, String> {
@@ -655,9 +817,18 @@ fn parse_ability_payload(
         .ok_or("stack ability lacks a catalog locator")?;
     let definition = catalog_ability(&game.catalog, locator)
         .ok_or_else(|| "stack ability locator is absent from this catalog".to_owned())?;
-    let StackAbilityCondition::Supported(condition) = stack_ability_condition(kind, &definition)
-    else {
-        return Err("stack ability locator does not match its ability kind".into());
+    let condition = if replacement_effect {
+        if !matches!(definition.definition, DeclarativeAbilityDef::Replacement(_)) {
+            return Err("replacement-effect locator does not name a replacement ability".into());
+        }
+        None
+    } else {
+        let StackAbilityCondition::Supported(condition) =
+            stack_ability_condition(kind, &definition)
+        else {
+            return Err("stack ability locator does not match its ability kind".into());
+        };
+        condition
     };
     let target_definition = state
         .target_definition_locator

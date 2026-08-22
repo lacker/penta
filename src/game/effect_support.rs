@@ -6,11 +6,11 @@ use super::{
     EffectRecipientDef, EffectRecipientSetDef, EffectResolutionContext, Game, GameObjectId,
     GrantId, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, Permanent,
     PlayerId, PlayerRefDef, PlayerSetDef, PowerToughnessOperationDef, QuantifierDef,
-    ResolvedAbilityOperation, ResolvedContinuousEffect, ResolvedContinuousEffectKind,
-    ResolvedDamageRedirect, ResolvedEffectDurationDef, ResolvedPlayPermission,
-    ResolvedPlayRestriction, ResolvedPowerToughnessOperation, ScopedEffect, StackObject,
-    StackObjectKind, Target, TargetIndex, TargetSelection, TargetSlotId, TemporaryAbilityGrant,
-    TriggerConditionDef, TriggerContext, ZoneKind, abilities,
+    ResolvedAbilityOperation, ResolvedAttackRestriction, ResolvedContinuousEffect,
+    ResolvedContinuousEffectKind, ResolvedDamageRedirect, ResolvedEffectDurationDef,
+    ResolvedPlayPermission, ResolvedPlayRestriction, ResolvedPowerToughnessOperation, ScopedEffect,
+    StackObject, StackObjectKind, Target, TargetIndex, TargetSelection, TargetSlotId,
+    TemporaryAbilityGrant, TriggerConditionDef, TriggerContext, ZoneKind, abilities,
 };
 
 #[derive(Clone, Copy)]
@@ -397,6 +397,19 @@ impl Game {
                             component_order: resolution.component_order,
                             expiration,
                             restriction,
+                        });
+                }
+                true
+            }
+            AppliedRuleDef::CannotBeAttackedExceptBy(allowed_attacker) => {
+                if let Target::Player(affected_player) = target {
+                    self.resolved_attack_restrictions
+                        .push(ResolvedAttackRestriction {
+                            definition,
+                            source,
+                            affected_player,
+                            expiration,
+                            allowed_attacker,
                         });
                 }
                 true

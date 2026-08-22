@@ -68,6 +68,7 @@ impl Game {
             EffectDef::Choose(ChooseDef { then, .. })
             | EffectDef::SplitIntoPiles(SplitIntoPilesDef { then, .. })
             | EffectDef::ChooseCardName { then, .. }
+            | EffectDef::ForEachInBinding { effect: then, .. }
             | EffectDef::SearchZone {
                 then: Some(then), ..
             }

@@ -16,6 +16,7 @@ use super::{
 #[allow(clippy::struct_excessive_bools)]
 pub(in crate::game::state_checkpoint) struct StackSnapshot {
     pub(in crate::game::state_checkpoint) object_id: u32,
+    pub(in crate::game::state_checkpoint) kind: StackObjectKindSnapshot,
     pub(in crate::game::state_checkpoint) owner: usize,
     pub(in crate::game::state_checkpoint) object_kind: ObjectKindSnapshot,
     pub(in crate::game::state_checkpoint) ability_payload: Option<StackAbilitySnapshot>,
@@ -126,12 +127,13 @@ pub(in crate::game::state_checkpoint) struct AppliedStackEffectSnapshot {
     pub(in crate::game::state_checkpoint) effect: AppliedEffectLocator,
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(in crate::game::state_checkpoint) enum StackObjectKindSnapshot {
     Spell,
     ActivatedAbility,
     TriggeredAbility,
+    ReplacementEffect,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

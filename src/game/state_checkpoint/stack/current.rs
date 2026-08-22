@@ -23,6 +23,7 @@ pub(in crate::game::state_checkpoint) fn current_stack_snapshot(
     let has_unlocated_face_down = object.face_down.is_some() && face_down.is_none();
     StackSnapshot {
         object_id: object.id.0,
+        kind: super::kind_snapshot(object.kind),
         owner: object.card.owner.index(),
         object_kind: object_kind_snapshot(object.card.definition),
         ability_payload,

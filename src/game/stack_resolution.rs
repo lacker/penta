@@ -536,63 +536,11 @@ impl Game {
         );
     }
 
-    /// "You may draw two additional cards. If you do, choose two cards in
-    /// your hand drawn this turn..." The offer comes first because declining
-    /// it skips the rest of the ability entirely.
-    pub(super) fn queue_sylvan_offer(&mut self, player: PlayerId) {
-        self.queue_decision(
-            player,
-            "Draw two additional cards?",
-            DecisionVisibility::Private,
-            DecisionPreference::Neutral,
-            1..=1,
-            false,
-            vec![
-                DecisionOption {
-                    id: 0,
-                    label: "Do not draw".into(),
-                    card: None,
-                    members: Vec::new(),
-                    ability_text: None,
-                    zone: DecisionZone::None,
-                },
-                DecisionOption {
-                    id: 1,
-                    label: "Draw two additional cards".into(),
-                    card: None,
-                    members: Vec::new(),
-                    ability_text: None,
-                    zone: DecisionZone::None,
-                },
-            ],
-            DecisionContinuation::SylvanOffer { player },
-        );
-    }
-
-    /// The cards this player drew this turn that are still in hand, which is
-    /// the pool Sylvan Library chooses from.
-    pub(super) fn sylvan_candidates(&self, player: PlayerId) -> Vec<GameObjectId> {
-        self.drawn_this_turn[player.index()]
-            .iter()
-            .copied()
-            .filter(|drawn| {
-                self.players[player.index()]
-                    .hand
-                    .iter()
-                    .any(|card| card.id == *drawn)
-            })
-            .collect()
-    }
-
     pub(super) fn resolve_custom_triggered_ability(
         &mut self,
         object: &StackObject,
         behavior: CardBehavior,
     ) {
-        if behavior == CardBehavior::SylvanLibrary {
-            self.queue_sylvan_offer(object.controller);
-            return;
-        }
         if matches!(
             behavior,
             CardBehavior::TetravusDetach | CardBehavior::TetravusAssemble

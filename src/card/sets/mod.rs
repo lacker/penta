@@ -742,7 +742,6 @@ pub(super) const fn rules(behavior: CardBehavior) -> &'static CardRules {
         CardBehavior::EssenceScatter => &y2012::magic_2013::ESSENCE_SCATTER.rules,
         CardBehavior::LibraryOfAlexandria => &y1993::arabian_nights::LIBRARY_OF_ALEXANDRIA.rules,
         CardBehavior::Recall => &y1994::legends::RECALL.rules,
-        CardBehavior::SylvanLibrary => &y1994::legends::SYLVAN_LIBRARY.rules,
         CardBehavior::DustToDust => &y1994::the_dark::DUST_TO_DUST.rules,
         CardBehavior::GrislySalvage => &y2012::return_to_ravnica::GRISLY_SALVAGE.rules,
         CardBehavior::KirdApe => &y1993::arabian_nights::KIRD_APE.rules,

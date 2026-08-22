@@ -34,12 +34,36 @@ impl Game {
                 defenders
                     .iter()
                     .copied()
+                    .filter(|defender| self.attack_restrictions_allow(permanent, *defender))
                     .map(|defender| Action::DeclareAttacker {
                         attacker: permanent.card.id,
                         defender,
                     })
             })
             .collect()
+    }
+
+    fn attack_restrictions_allow(&self, attacker: &Permanent, defender: AttackDefender) -> bool {
+        let AttackDefender::Player(defender) = defender else {
+            return true;
+        };
+        self.resolved_attack_restrictions
+            .iter()
+            .filter(|restriction| {
+                restriction.affected_player == defender
+                    && self.continuous_effect_expiration_is_active(
+                        restriction.expiration,
+                        restriction.source.object,
+                    )
+            })
+            .all(|restriction| {
+                self.trigger_object_matches(
+                    restriction.allowed_attacker,
+                    &self.trigger_event_object(attacker),
+                    restriction.source.object,
+                    false,
+                )
+            })
     }
 
     #[cfg(test)]

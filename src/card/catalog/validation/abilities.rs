@@ -689,6 +689,7 @@ fn validate_replacement_program_for_event(
         ReplacementEventDef::WouldBeginTurn { .. } => {
             validate_begin_turn_replacement_program(effect)
         }
+        ReplacementEventDef::WouldDraw { .. } => validate_draw_replacement_program(effect),
         ReplacementEventDef::AnyObjectWouldMove {
             to: ZoneKind::Graveyard,
             ..
@@ -697,6 +698,25 @@ fn validate_replacement_program_for_event(
         | ReplacementEventDef::WouldGainLife(_)
         | ReplacementEventDef::AnyObjectWouldMove { .. }
         | ReplacementEventDef::Special(_) => Err(replacement_operation_name(effect)),
+    }
+}
+
+fn validate_draw_replacement_program(effect: ReplacementEffectDef) -> Result<(), &'static str> {
+    let ReplacementEffectDef::Sequence(effects) = effect else {
+        return Err(replacement_operation_name(effect));
+    };
+    let replaces_draw = effects
+        .iter()
+        .filter(|effect| **effect == ReplacementEffectDef::ReplaceEventWithNothing)
+        .count();
+    let performs_effect = effects
+        .iter()
+        .filter(|effect| matches!(effect, ReplacementEffectDef::Perform(_)))
+        .count();
+    if effects.len() == 2 && replaces_draw == 1 && performs_effect == 1 {
+        Ok(())
+    } else {
+        Err("unsupported draw replacement sequence")
     }
 }
 

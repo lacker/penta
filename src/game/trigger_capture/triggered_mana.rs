@@ -28,6 +28,7 @@ impl Game {
             | EffectDef::Choose(_)
             | EffectDef::ChooseCardName { .. }
             | EffectDef::BindMatching { .. }
+            | EffectDef::ForEachInBinding { .. }
             | EffectDef::PayOr(_)
             | EffectDef::SplitIntoPiles(_)
             | EffectDef::PreventDamage { .. }

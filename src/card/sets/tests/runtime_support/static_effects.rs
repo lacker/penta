@@ -144,6 +144,7 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
                     | ObjectSetDef::Binding(_)
                     | ObjectSetDef::MatchingBinding { .. }
                     | ObjectSetDef::LinkedExiles(_)
+                    | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                     | ObjectSetDef::BottomOfGraveyard(_)
                     | ObjectSetDef::LegalTargets(_)
                     | ObjectSetDef::PermanentsTargetedBy(_)
@@ -185,6 +186,7 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::Choose(_)
         | EffectDef::ChooseCardName { .. }
         | EffectDef::BindMatching { .. }
+        | EffectDef::ForEachInBinding { .. }
         | EffectDef::PayOr(_)
         | EffectDef::SplitIntoPiles(_)
         | EffectDef::PreventDamage { .. }

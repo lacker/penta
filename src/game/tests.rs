@@ -27,6 +27,8 @@ pub(super) use fixtures::*;
 mod token_fixtures;
 pub(super) use token_fixtures::*;
 
+mod declarative_draw_enchantments;
+
 mod ability_resolution;
 mod activation_costs_and_turns;
 mod activation_prohibitions;
@@ -406,3 +408,4 @@ use modal_effects::cast_mode;
 use old_school_spells::game_with_test_fused_split;
 use removal_and_keywords::dust_to_dust_targets;
 use search_and_reveal::stack_library;
+

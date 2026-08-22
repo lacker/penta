@@ -270,6 +270,30 @@ pub(in super::super) fn shared_begin_turn_replacement_effect(effect: Replacement
     }
 }
 
+pub(in super::super) fn shared_draw_replacement_effect(effect: ReplacementEffectDef) -> bool {
+    let ReplacementEffectDef::Sequence(effects) = effect else {
+        return false;
+    };
+    effects.len() == 2
+        && effects
+            .iter()
+            .filter(|effect| **effect == ReplacementEffectDef::ReplaceEventWithNothing)
+            .count()
+            == 1
+        && effects
+            .iter()
+            .filter_map(|effect| match effect {
+                ReplacementEffectDef::Perform(effect) => Some(**effect),
+                _ => None,
+            })
+            .all(shared_stack_effect)
+        && effects
+            .iter()
+            .filter(|effect| matches!(effect, ReplacementEffectDef::Perform(_)))
+            .count()
+            == 1
+}
+
 pub(in super::super) fn shared_battlefield_exit_replacement_effect(
     effect: ReplacementEffectDef,
 ) -> bool {
@@ -311,6 +335,7 @@ pub(super) fn shared_replacement_event(event: ReplacementEventDef) -> bool {
     match event {
         ReplacementEventDef::SourceEntersBattlefield
         | ReplacementEventDef::WouldGainLife(_)
+        | ReplacementEventDef::WouldDraw { .. }
         | ReplacementEventDef::WouldBeginTurn { .. } => true,
         ReplacementEventDef::ObjectEntersBattlefield { object, .. } => {
             shared_object_predicate(object)

@@ -795,29 +795,6 @@ fn continuation_snapshot(
             remaining: remaining.iter().map(|player| player.index()).collect(),
             votes: ids(votes),
         },
-        DecisionContinuation::SylvanOffer { player } => DecisionContinuationSnapshot::SylvanOffer {
-            player: player.index(),
-        },
-        DecisionContinuation::SylvanSelect {
-            player,
-            candidates,
-            choices_left,
-        } => DecisionContinuationSnapshot::SylvanSelect {
-            player: player.index(),
-            candidates: ids(candidates),
-            choices_left: *choices_left,
-        },
-        DecisionContinuation::SylvanMode {
-            player,
-            card,
-            candidates,
-            choices_left,
-        } => DecisionContinuationSnapshot::SylvanMode {
-            player: player.index(),
-            card: card.0,
-            candidates: ids(candidates),
-            choices_left: *choices_left,
-        },
         DecisionContinuation::TetravusDetach { source } => {
             DecisionContinuationSnapshot::TetravusDetach { source: source.0 }
         }

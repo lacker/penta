@@ -76,7 +76,8 @@ fn validate_effect_references(
                 crate::card::ObjectChoiceBindingDef::Object(binding) => {
                     scope.with_object(binding)?
                 }
-                crate::card::ObjectChoiceBindingDef::Objects(binding) => {
+                crate::card::ObjectChoiceBindingDef::Objects(binding)
+                | crate::card::ObjectChoiceBindingDef::OrderedObjects(binding) => {
                     scope.with_object_set(binding)?
                 }
             };
@@ -88,6 +89,20 @@ fn validate_effect_references(
                 None => nested,
             };
             validate_effect_references(*choice.then, target_count, nested)
+        }
+        EffectDef::ForEachInBinding {
+            objects,
+            binding,
+            effect,
+        } => {
+            if scope.object_sets & (1 << objects.index()) == 0 {
+                return Err(
+                    GrantedAbilityValidationError::ObjectSetBindingReferenceOutOfScope {
+                        binding: objects,
+                    },
+                );
+            }
+            validate_effect_references(*effect, target_count, scope.with_object(binding)?)
         }
         EffectDef::PayOr(payment) => {
             validate_payment_references(payment.payment, target_count, scope)?;

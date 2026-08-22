@@ -20,7 +20,7 @@ fn shared_choose(choice: ChooseDef) -> bool {
         && choice.minimum <= choice.maximum
         && match choice.binding {
             ObjectChoiceBindingDef::Object(_) => choice.maximum == 1,
-            ObjectChoiceBindingDef::Objects(_) => true,
+            ObjectChoiceBindingDef::Objects(_) | ObjectChoiceBindingDef::OrderedObjects(_) => true,
         }
         && shared_effect_recipient(EffectRecipientDef::player(choice.chooser))
         && shared_effect_recipient(EffectRecipientDef::objects(choice.candidates))
@@ -499,7 +499,8 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         // Scheduling creates a fresh resolution boundary. A decision may
         // therefore be the delayed effect's root even when scheduling it
         // is itself one component of a sequence.
-        EffectDef::IfCondition { then: effect, .. } => {
+        EffectDef::IfCondition { then: effect, .. }
+        | EffectDef::ForEachInBinding { effect, .. } => {
             shared_stack_effect_at_position(*effect, deferred_decision_allowed)
         }
         // Installing an ability is a resolution like any other; what it

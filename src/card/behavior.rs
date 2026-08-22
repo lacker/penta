@@ -19,7 +19,6 @@ pub enum CardBehavior {
     PillarOfFlame,
     Recall,
     SedgeTroll,
-    SylvanLibrary,
     FellwarStone,
     ReflectingPool,
     SphinxsRevelation,

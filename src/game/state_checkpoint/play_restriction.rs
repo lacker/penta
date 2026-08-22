@@ -1,12 +1,71 @@
 use crate::CardCatalog;
 use crate::card::{AppliedEffectDef, AppliedRuleDef};
 
-use super::model::{ResolvedPlayPermissionSnapshot, ResolvedPlayRestrictionSnapshot};
-use super::{
-    AbilitySourceRef, ContinuousEffectTimestamp, GameObjectId, ResolvedPlayPermission,
-    ResolvedPlayRestriction, ability_origin_from_snapshot, event, expiration_snapshot,
-    parse_expiration, resolved_applied_effect_locator, semantics, wire,
+use super::model::{
+    ResolvedAttackRestrictionSnapshot, ResolvedPlayPermissionSnapshot,
+    ResolvedPlayRestrictionSnapshot,
 };
+use super::{
+    AbilitySourceRef, ContinuousEffectTimestamp, GameObjectId, ResolvedAttackRestriction,
+    ResolvedPlayPermission, ResolvedPlayRestriction, ability_origin_from_snapshot, event,
+    expiration_snapshot, parse_expiration, resolved_applied_effect_locator, semantics, wire,
+};
+
+pub(super) fn resolved_attack_restriction_snapshot(
+    catalog: &CardCatalog,
+    restriction: ResolvedAttackRestriction,
+) -> Option<ResolvedAttackRestrictionSnapshot> {
+    let AppliedEffectDef::Rule(AppliedRuleDef::CannotBeAttackedExceptBy(authored)) =
+        restriction.definition
+    else {
+        return None;
+    };
+    if authored != restriction.allowed_attacker {
+        return None;
+    }
+    Some(ResolvedAttackRestrictionSnapshot {
+        definition: resolved_applied_effect_locator(
+            catalog,
+            restriction.source,
+            restriction.definition,
+        )?,
+        source: event::ability_source_snapshot(restriction.source),
+        affected_seat: restriction.affected_player.index(),
+        expiration: expiration_snapshot(restriction.expiration),
+    })
+}
+
+pub(super) fn parse_resolved_attack_restriction(
+    catalog: &CardCatalog,
+    snapshot: &ResolvedAttackRestrictionSnapshot,
+) -> Result<ResolvedAttackRestriction, String> {
+    let source = AbilitySourceRef {
+        object: GameObjectId(snapshot.source.object),
+        ability: ability_origin_from_snapshot(snapshot.source.ability),
+    };
+    if !semantics::applied_effect_locator_matches_source(&snapshot.definition, source) {
+        return Err(
+            "checkpoint attack-restriction locator disagrees with its source ability".to_owned(),
+        );
+    }
+    let definition = semantics::catalog_applied_effect(catalog, &snapshot.definition)
+        .ok_or("checkpoint attack-restriction locator is absent from this catalog")?;
+    let AppliedEffectDef::Rule(AppliedRuleDef::CannotBeAttackedExceptBy(allowed_attacker)) =
+        definition
+    else {
+        return Err(
+            "checkpoint attack-restriction locator does not name CannotBeAttackedExceptBy"
+                .to_owned(),
+        );
+    };
+    Ok(ResolvedAttackRestriction {
+        definition,
+        source,
+        affected_player: wire::player_from_index(snapshot.affected_seat)?,
+        expiration: parse_expiration(snapshot.expiration)?,
+        allowed_attacker,
+    })
+}
 
 /// The mirror of the restriction pair below. A permission carries no
 /// timestamp because nothing layers against it: the first one that answers

@@ -211,6 +211,11 @@ pub enum AppliedRuleDef {
     CanBlockOnly(ObjectPredicateDef),
     /// The affected creature cannot be declared as an attacker.
     CannotAttack,
+    /// Creatures that do not match the predicate cannot attack the affected
+    /// player. This is defender-scoped rather than attached to an attacking
+    /// creature, so it does not stop those creatures attacking a
+    /// planeswalker the player controls.
+    CannotBeAttackedExceptBy(ObjectPredicateDef),
     /// Defender does not stop the affected creature from attacking.
     ///
     /// A permission rather than an ability removal: the creature keeps the

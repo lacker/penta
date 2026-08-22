@@ -392,6 +392,7 @@ fn static_object_applied_effect_supported(
             | AppliedRuleDef::MaySpendManaAsAnyColorForCreatureAbilities
             | AppliedRuleDef::NoMaximumHandSize
             | AppliedRuleDef::WinsInsteadOfDrawingFromEmptyLibrary
+            | AppliedRuleDef::CannotBeAttackedExceptBy(_)
             | AppliedRuleDef::CannotPlay(_)
             | AppliedRuleDef::MayPlayFromGraveyard(_)
             | AppliedRuleDef::MayPlayFromTopOfLibrary { .. }
@@ -514,6 +515,7 @@ fn static_object_set_supported(objects: ObjectSetDef) -> bool {
         | ObjectSetDef::MatchingBinding { .. }
         | ObjectSetDef::PermanentsTargetedBy(_)
         | ObjectSetDef::LinkedExiles(_)
+        | ObjectSetDef::CardsDrawnThisTurnInHand(_)
         | ObjectSetDef::BottomOfGraveyard(_)
         | ObjectSetDef::SharingNameWith(_)
         | ObjectSetDef::SharingNameWithBinding { .. }
@@ -739,6 +741,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::Sequence(_) => "Sequence",
         EffectDef::Randomized { .. } => "Randomized",
         EffectDef::Choose(_) | EffectDef::ChooseCardName { .. } => "Choose",
+        EffectDef::ForEachInBinding { .. } => "ForEachInBinding",
         EffectDef::BindMatching { .. } => "BindMatching",
         EffectDef::PayOr(_) => "PayOr",
         EffectDef::SplitIntoPiles(_) => "SplitIntoPiles",

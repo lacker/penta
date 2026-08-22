@@ -15,6 +15,9 @@ use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
 pub enum ObjectChoiceBindingDef {
     Object(ObjectBindingIndex),
     Objects(ObjectSetBindingIndex),
+    /// Preserve the chooser's submitted order for a continuation that acts on
+    /// the chosen objects one at a time.
+    OrderedObjects(ObjectSetBindingIndex),
 }
 
 /// Choose a bounded number of non-targeted objects, save them in the resolving

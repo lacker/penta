@@ -635,6 +635,8 @@ impl Game {
                             object: Box::new(object.clone()),
                             context: context.clone(),
                             effect: scoped.with_effect(*effect),
+                            optional: false,
+                            installed: true,
                         });
                     }
                 }

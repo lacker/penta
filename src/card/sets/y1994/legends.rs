@@ -7,14 +7,14 @@ use crate::card::{
     ChooseDef, ColorChoiceOperationDef, ColorSet, ComparisonDef, ControlDurationDef, CounterKind,
     DamageEventMatcherDef, DamageKindDef, DamageLimitDef, DamagePreventionDef,
     DamageRecipientMatcherDef, DamageSourceGroupDef, DamageSourceMatcherDef, DiscardSelectionDef,
-    DividedTotal, EffectDef, EffectExecutionDef, EffectPaymentDef, EffectRecipientDef,
-    InstalledTriggerDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    SacrificedAmountDef, ScaledValueDef, SumValueDef, TopCardSelectionDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    DividedTotal, EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef,
+    KeywordAbility, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
+    ScaledValueDef, SumValueDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::{ObjectBindingIndex, TargetIndex};
+use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
 use crate::mana_cost;
 
 static INDESTRUCTIBLE_AURA_TARGET: [AbilityTargetDef; 1] =
@@ -3658,6 +3658,46 @@ pub(in crate::card::sets) static SUBDUE: CardRecord = CardRecord::new_with_legac
     )),
 );
 
+static SYLVAN_PUT_BACK: EffectDef = EffectDef::MoveToZone {
+    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+    zone: ZoneKind::Library,
+    placement: ZonePlacement::Top,
+    arrival_effect: None,
+    attachment: None,
+    controller: None,
+};
+
+static SYLVAN_SETTLE_CARD: EffectDef = EffectDef::PayOr(PayOrDef::unless(
+    EffectPaymentDef::life(PlayerSetDef::One(PlayerRefDef::EffectController), 4),
+    &SYLVAN_PUT_BACK,
+));
+
+static SYLVAN_SETTLE_CHOSEN: EffectDef = EffectDef::ForEachInBinding {
+    objects: ObjectSetBindingIndex::PRIMARY,
+    binding: ObjectBindingIndex::PRIMARY,
+    effect: &SYLVAN_SETTLE_CARD,
+};
+
+static SYLVAN_CHOOSE_DRAWN: EffectDef = EffectDef::Choose(ChooseDef {
+    binding: ObjectChoiceBindingDef::OrderedObjects(ObjectSetBindingIndex::PRIMARY),
+    unchosen: None,
+    chooser: PlayerRefDef::EffectController,
+    candidates: ObjectSetDef::CardsDrawnThisTurnInHand(PlayerRefDef::EffectController),
+    exclude: None,
+    minimum: 2,
+    maximum: 2,
+    visibility: ChoiceVisibilityDef::Private,
+    then: &SYLVAN_SETTLE_CHOSEN,
+});
+
+static SYLVAN_DRAW_AND_SETTLE: EffectDef = EffectDef::Sequence(&[
+    EffectDef::DrawCards {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::Constant(2),
+    },
+    SYLVAN_CHOOSE_DRAWN,
+]);
+
 // LEG 207 — Sylvan Library
 pub(in crate::card::sets) static SYLVAN_LIBRARY: CardRecord = CardRecord::new_with_legacy_id(
     98,
@@ -3671,12 +3711,11 @@ pub(in crate::card::sets) static SYLVAN_LIBRARY: CardRecord = CardRecord::new_wi
             step: TurnStepDef::Draw,
             player: PlayerRelation::You,
         },
-        EffectDef::Special("Offer the extra draws, then settle each chosen card"),
-    )
-    .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::SylvanLibrary))
-    .with_coverage(AbilityCoverageDef::explained_complete(
-        "The trigger is declarative and uses the shared stack; the card-local resolver offers the draws and then the pay-or-top choice for each card drawn this turn.",
-    ))]),
+        EffectDef::May {
+            player: EffectRecipientDef::Controller,
+            effect: &SYLVAN_DRAW_AND_SETTLE,
+        },
+    )]),
 );
 
 static TYPHOON_OPPONENT_ISLANDS: ObjectQueryDef = ObjectQueryDef::matching(

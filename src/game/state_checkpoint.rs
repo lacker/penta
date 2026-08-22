@@ -11,13 +11,13 @@ use super::{
     InstalledTriggerLifetime, Mana, ManaSource, ObjectBacking, ObjectInstance, ObjectKind,
     PendingBattlefieldEntry, PendingEvent, PendingReplacementEffect, Permanent, PlayerId,
     PlayerState, Pregame, RelationalSourceFilter, ReplaceableEvent, ReplacementEffectContext,
-    ReplayRng, ResolvedAbilityOperation, ResolvedContinuousEffect, ResolvedContinuousEffectKind,
-    ResolvedDamagePrevention, ResolvedDamagePreventionCapacity, ResolvedDamagePreventionCoverage,
-    ResolvedDamageRecipientMatcher, ResolvedDamageRedirect, ResolvedDamageSourceMatcher,
-    ResolvedPlayPermission, ResolvedPlayRestriction, ResolvedPowerToughnessOperation,
-    RetiredObject, ScopedEffect, StackAbilityPayload, StackAbilityResolver, StackObject,
-    StackObjectKind, Step, TemporaryAbilityGrant, TriggerCapture, TriggerContext, TurnPhaseResume,
-    ZoneMoveCause, cast_source_zone_from_label,
+    ReplayRng, ResolvedAbilityOperation, ResolvedAttackRestriction, ResolvedContinuousEffect,
+    ResolvedContinuousEffectKind, ResolvedDamagePrevention, ResolvedDamagePreventionCapacity,
+    ResolvedDamagePreventionCoverage, ResolvedDamageRecipientMatcher, ResolvedDamageRedirect,
+    ResolvedDamageSourceMatcher, ResolvedPlayPermission, ResolvedPlayRestriction,
+    ResolvedPowerToughnessOperation, RetiredObject, ScopedEffect, StackAbilityPayload,
+    StackAbilityResolver, StackObject, StackObjectKind, Step, TemporaryAbilityGrant,
+    TriggerCapture, TriggerContext, TurnPhaseResume, ZoneMoveCause, cast_source_zone_from_label,
 };
 use crate::card::ManaCost;
 use crate::card::{
@@ -245,6 +245,11 @@ impl Game {
                     .map(|restriction| restriction.source.object),
             )
             .chain(
+                self.resolved_attack_restrictions
+                    .iter()
+                    .map(|restriction| restriction.source.object),
+            )
+            .chain(
                 self.resolved_play_permissions
                     .iter()
                     .map(|permission| permission.source.object),
@@ -378,8 +383,18 @@ impl Game {
                 play_restriction::resolved_play_restriction_snapshot(&self.catalog, restriction)
             })
             .collect::<Vec<_>>();
-        let has_unlocated_play_restriction =
+        let has_unlocated_resolved_player_rule =
             resolved_play_restrictions.len() != self.resolved_play_restrictions.len();
+        let resolved_attack_restrictions = self
+            .resolved_attack_restrictions
+            .iter()
+            .copied()
+            .filter_map(|restriction| {
+                play_restriction::resolved_attack_restriction_snapshot(&self.catalog, restriction)
+            })
+            .collect::<Vec<_>>();
+        let has_unlocated_resolved_player_rule = has_unlocated_resolved_player_rule
+            || resolved_attack_restrictions.len() != self.resolved_attack_restrictions.len();
         let resolved_play_permissions = self
             .resolved_play_permissions
             .iter()
@@ -388,7 +403,7 @@ impl Game {
                 play_restriction::resolved_play_permission_snapshot(&self.catalog, permission)
             })
             .collect::<Vec<_>>();
-        let has_unlocated_play_restriction = has_unlocated_play_restriction
+        let has_unlocated_resolved_player_rule = has_unlocated_resolved_player_rule
             || resolved_play_permissions.len() != self.resolved_play_permissions.len();
         // Phased-out permanents follow the battlefield in the observation,
         // so they follow it here too: the two lists are zipped by position.
@@ -487,6 +502,7 @@ impl Game {
                 .collect(),
             turn_phase_resume: self.turn_phase_resume.map(turn_phase_resume_snapshot),
             resolved_play_restrictions,
+            resolved_attack_restrictions,
             resolved_play_permissions,
             spells_cast_this_turn: self.spells_cast_this_turn,
             spells_cast_last_turn: self.spells_cast_last_turn,
@@ -565,7 +581,7 @@ impl Game {
                 || has_unlocated_draw_replacement
                 || has_unlocated_pending_procedure
                 || has_unlocated_damage_prevention
-                || has_unlocated_play_restriction
+                || has_unlocated_resolved_player_rule
                 || has_unlocated_stack_state
                 || has_unlocated_emblem,
             // Makes accidental reuse with another seat fail closed in the
@@ -754,6 +770,13 @@ impl Game {
                 play_restriction::parse_resolved_play_restriction(&catalog, restriction)
             })
             .collect::<Result<Vec<_>, _>>()?;
+        let resolved_attack_restrictions = checkpoint
+            .resolved_attack_restrictions
+            .iter()
+            .map(|restriction| {
+                play_restriction::parse_resolved_attack_restriction(&catalog, restriction)
+            })
+            .collect::<Result<Vec<_>, _>>()?;
         let resolved_play_permissions = checkpoint
             .resolved_play_permissions
             .iter()
@@ -849,6 +872,7 @@ impl Game {
                 .collect(),
             turn_phase_resume: checkpoint.turn_phase_resume.map(parse_turn_phase_resume),
             resolved_play_restrictions,
+            resolved_attack_restrictions,
             resolved_play_permissions,
             emblems: Vec::new(),
             spells_cast_this_turn: checkpoint.spells_cast_this_turn,

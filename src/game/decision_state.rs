@@ -516,20 +516,6 @@ pub(super) enum DecisionContinuation {
         /// One entry per vote cast, in the order they were cast.
         votes: Vec<GameObjectId>,
     },
-    SylvanOffer {
-        player: PlayerId,
-    },
-    SylvanSelect {
-        player: PlayerId,
-        candidates: Vec<GameObjectId>,
-        choices_left: usize,
-    },
-    SylvanMode {
-        player: PlayerId,
-        card: GameObjectId,
-        candidates: Vec<GameObjectId>,
-        choices_left: usize,
-    },
     /// How many +1/+1 counters Tetravus is trading for Tetravites. Every
     /// option stands for one counter, so the count selected is the answer.
     TetravusDetach {

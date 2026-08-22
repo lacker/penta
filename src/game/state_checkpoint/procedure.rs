@@ -24,15 +24,21 @@ pub(super) fn draw_replacement_snapshot_allowing(
     replacement: &super::super::DrawReplacement,
     visible_rebindings: &[GameObjectId],
 ) -> Option<DrawReplacementSnapshot> {
+    let mut continuation = effect_continuation_snapshot(
+        game,
+        viewer,
+        &replacement.object,
+        &replacement.context,
+        replacement.effect,
+        visible_rebindings,
+    )?;
+    if !replacement.installed {
+        continuation.object.kind = super::model::StackObjectKindSnapshot::ReplacementEffect;
+    }
     Some(DrawReplacementSnapshot {
-        continuation: effect_continuation_snapshot(
-            game,
-            viewer,
-            &replacement.object,
-            &replacement.context,
-            replacement.effect,
-            visible_rebindings,
-        )?,
+        continuation,
+        optional: replacement.optional,
+        installed: replacement.installed,
     })
 }
 
@@ -45,6 +51,8 @@ pub(super) fn parse_draw_replacement(
         object: continuation.object,
         context: continuation.context,
         effect: continuation.effect,
+        optional: snapshot.optional,
+        installed: snapshot.installed,
     })
 }
 
@@ -104,11 +112,26 @@ pub(super) fn pending_procedure_snapshot(
                 custom_followup,
             }
         }
-        super::super::PendingProcedure::SylvanAfterDraw { player } => {
-            PendingProcedureSnapshot::SylvanAfterDraw {
-                player: player.index(),
-            }
-        }
+        super::super::PendingProcedure::ForEachInBinding {
+            objects,
+            binding,
+            next,
+            effect,
+            object,
+            context,
+        } => PendingProcedureSnapshot::ForEachInBinding {
+            objects: objects.index(),
+            binding: binding.index(),
+            next: *next,
+            continuation: effect_continuation_snapshot(
+                game,
+                viewer,
+                object,
+                context,
+                *effect,
+                visible_rebindings,
+            )?,
+        },
         super::super::PendingProcedure::SimultaneousDraws {
             remaining,
             next,
@@ -184,9 +207,22 @@ pub(super) fn parse_pending_procedure(
                 custom_followup,
             }
         }
-        PendingProcedureSnapshot::SylvanAfterDraw { player } => {
-            super::super::PendingProcedure::SylvanAfterDraw {
-                player: player_from_index(*player)?,
+        PendingProcedureSnapshot::ForEachInBinding {
+            objects,
+            binding,
+            next,
+            continuation,
+        } => {
+            let continuation = parse_effect_continuation(continuation, game)?;
+            super::super::PendingProcedure::ForEachInBinding {
+                objects: crate::ObjectSetBindingIndex::from_index(*objects)
+                    .ok_or("for-each object-set binding is out of range")?,
+                binding: crate::ObjectBindingIndex::from_index(*binding)
+                    .ok_or("for-each object binding is out of range")?,
+                next: *next,
+                effect: continuation.effect,
+                object: continuation.object,
+                context: continuation.context,
             }
         }
         PendingProcedureSnapshot::SimultaneousDraws {
@@ -241,6 +277,9 @@ pub(super) fn pending_procedure_referenced_object_ids(
     match procedure {
         super::super::PendingProcedure::ResolveEffects {
             object, context, ..
+        }
+        | super::super::PendingProcedure::ForEachInBinding {
+            object, context, ..
         } => continuation_referenced_object_ids(object, context),
         super::super::PendingProcedure::FinishStackResolution { object, .. } => {
             std::iter::once(object.id)
@@ -248,7 +287,6 @@ pub(super) fn pending_procedure_referenced_object_ids(
                 .collect()
         }
         super::super::PendingProcedure::DrawCards { .. }
-        | super::super::PendingProcedure::SylvanAfterDraw { .. }
         | super::super::PendingProcedure::SimultaneousDraws { .. }
         | super::super::PendingProcedure::ShuffleLibrary { .. }
         | super::super::PendingProcedure::FinishStepAdvance => Vec::new(),
@@ -293,7 +331,7 @@ fn parse_effect_continuation(
         object: Box::new(parse_detached_stack(&snapshot.object, game)?),
         context: parse_effect_resolution_context(snapshot.context.clone())?,
         effect: catalog_scoped_effect(&game.catalog, &snapshot.ability, &snapshot.effect)
-            .ok_or("draw replacement effect locator is absent from this catalog")?,
+            .ok_or("effect continuation locator is absent from this catalog")?,
         amount: crate::card::SacrificedAmountDef::Power,
     })
 }

@@ -130,6 +130,140 @@ fn checkpoint_encodes_draw_replacement_and_procedure_state() {
 }
 
 #[test]
+fn island_sanctuary_draw_choice_and_attack_restriction_survive_checkpoint_round_trip() {
+    let mut game = crate::game::tests::ready_game();
+    game.put_onto_battlefield(PlayerId::One, crate::card::cards::ISLAND_SANCTUARY)
+        .expect("Island Sanctuary enters");
+    game.step = Step::Draw;
+    game.active_player = PlayerId::One;
+    game.players[0].library = vec![crate::game::tests::card(
+        77_001,
+        crate::card::cards::PLAINS,
+        PlayerId::One,
+    )];
+
+    assert_eq!(game.draw_card(PlayerId::One), None);
+    let checkpoint = game.checkpoint_json(PlayerId::One);
+    assert_eq!(
+        checkpoint["hasDeferredState"],
+        json!(false),
+        "{checkpoint:#}"
+    );
+    let (_, rebuilt_choice) = rebuild_current_checkpoint(&game, PlayerId::One, 4_250);
+    let DecisionContinuation::DrawReplacement { replacements, .. } =
+        &rebuilt_choice.pending_decisions[0].continuation
+    else {
+        panic!("draw replacement choice reconstructs as the same continuation");
+    };
+    assert_eq!(replacements.len(), 1);
+    assert!(replacements[0].optional);
+    assert!(!replacements[0].installed);
+
+    let decision = game.pending_decisions[0].observation.clone();
+    let skip = decision
+        .options
+        .iter()
+        .find(|option| option.ability_text.is_some())
+        .expect("the Sanctuary replacement is offered")
+        .id;
+    game.choose_decision(PlayerId::One, decision.id, &[skip]);
+    let (_, rebuilt_restriction) = rebuild_current_checkpoint(&game, PlayerId::One, 4_251);
+    assert_eq!(
+        rebuilt_restriction.resolved_attack_restrictions,
+        game.resolved_attack_restrictions
+    );
+}
+
+#[test]
+fn sylvan_library_for_each_payment_resumes_after_checkpoint_round_trip() {
+    let mut game = crate::game::tests::ready_game();
+    game.turn = 2;
+    game.step = Step::Upkeep;
+    game.put_onto_battlefield(PlayerId::One, crate::card::cards::SYLVAN_LIBRARY)
+        .expect("Sylvan Library enters");
+    game.players[0].library = vec![
+        crate::game::tests::card(77_010, crate::card::cards::PLAINS, PlayerId::One),
+        crate::game::tests::card(77_011, crate::card::cards::MOUNTAIN, PlayerId::One),
+        crate::game::tests::card(77_012, crate::card::cards::FOREST, PlayerId::One),
+    ];
+
+    game.advance_step();
+    let first = game.priority;
+    game.apply(first, Action::PassPriority).unwrap();
+    game.apply(first.opponent(), Action::PassPriority).unwrap();
+    crate::game::tests::pass_until_decision(&mut game);
+    let offer = game.pending_decisions[0].observation.clone();
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: offer.id,
+            options: vec![1],
+        },
+    )
+    .expect("the extra draws are accepted");
+    let choice = game.pending_decisions[0].observation.clone();
+    assert_eq!(
+        choice.order_semantics,
+        Some(DecisionOrderSemantics::Resolution)
+    );
+    let mut chosen = choice
+        .options
+        .iter()
+        .take(2)
+        .map(|option| option.id)
+        .collect::<Vec<_>>();
+    chosen.reverse();
+    let expected_order = chosen
+        .iter()
+        .filter_map(|id| {
+            choice
+                .options
+                .iter()
+                .find(|option| option.id == *id)
+                .and_then(|option| option.card.map(|(card, _)| Target::Card(card)))
+        })
+        .collect::<Vec<_>>();
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: choice.id,
+            options: chosen,
+        },
+    )
+    .expect("two drawn cards are chosen");
+
+    assert!(matches!(
+        game.pending_procedures.front(),
+        Some(crate::game::PendingProcedure::ForEachInBinding { next: 1, .. })
+    ));
+    let Some(crate::game::PendingProcedure::ForEachInBinding { context, .. }) =
+        game.pending_procedures.front()
+    else {
+        unreachable!();
+    };
+    assert_eq!(
+        context.object_group(crate::ObjectSetBindingIndex::PRIMARY),
+        expected_order
+    );
+    let (_, mut rebuilt) = rebuild_current_checkpoint(&game, PlayerId::One, 4_252);
+    assert!(matches!(
+        rebuilt.pending_procedures.front(),
+        Some(crate::game::PendingProcedure::ForEachInBinding { next: 1, .. })
+    ));
+    let payment = rebuilt.pending_decisions[0].observation.clone();
+    rebuilt
+        .apply(
+            PlayerId::One,
+            Action::ChooseDecision {
+                decision: payment.id,
+                options: vec![0],
+            },
+        )
+        .expect("the reconstructed first payment may be declined");
+    assert!(!rebuilt.pending_decisions.is_empty());
+}
+
+#[test]
 #[allow(clippy::too_many_lines)]
 fn resolved_prevention_and_prohibitions_survive_checkpoint_round_trip() {
     let mut game = crate::game::tests::ready_game();

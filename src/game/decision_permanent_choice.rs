@@ -49,14 +49,20 @@ impl Game {
             return;
         };
 
-        // A mandatory single-object instruction has no decision when zero or
-        // one legal objects exist: Magic does as much as possible, binding
-        // none or the only object. An optional instruction still asks, because
-        // declining is itself the player's choice even with one candidate --
-        // but not with none, where there is nothing to decline and the only
-        // legal answer is the empty one.
+        // A mandatory instruction has no decision when every legal object is
+        // forced, unless its binding preserves resolution order and at least
+        // two objects still need ordering. An optional instruction still asks,
+        // because declining is itself the player's choice even with one
+        // candidate -- but not with none, where there is nothing to decline
+        // and the only legal answer is the empty one.
+        let ordering_matters = matches!(
+            definition.binding,
+            ObjectChoiceBindingDef::OrderedObjects(_)
+        ) && state.candidates.len() > 1;
         if state.candidates.is_empty()
-            || (definition.minimum > 0 && state.candidates.len() <= definition.minimum)
+            || (!ordering_matters
+                && definition.minimum > 0
+                && state.candidates.len() <= definition.minimum)
         {
             let mut context = context;
             Self::bind_effect_choice(&mut context, definition.binding, state.candidates);
@@ -81,6 +87,16 @@ impl Game {
                 effect: scoped.with_effect(*definition.then),
             },
         );
+        if matches!(
+            definition.binding,
+            ObjectChoiceBindingDef::OrderedObjects(_)
+        ) {
+            self.pending_decisions
+                .last_mut()
+                .expect("the effect choice was just queued")
+                .observation
+                .order_semantics = Some(super::DecisionOrderSemantics::Resolution);
+        }
     }
 
     pub(super) fn effect_choice_decision_state(
@@ -135,7 +151,8 @@ impl Game {
             ObjectChoiceBindingDef::Object(binding) => {
                 context.bind_single_object(binding, selected.first().copied());
             }
-            ObjectChoiceBindingDef::Objects(binding) => {
+            ObjectChoiceBindingDef::Objects(binding)
+            | ObjectChoiceBindingDef::OrderedObjects(binding) => {
                 context.bind_object_group(binding, selected);
             }
         }
@@ -450,7 +467,8 @@ fn recipient_uses_binding(recipient: EffectRecipientDef, binding: ObjectChoiceBi
         ) => recipient == binding,
         (
             EffectRecipientSetDef::Objects(ObjectSetDef::Binding(recipient)),
-            ObjectChoiceBindingDef::Objects(binding),
+            ObjectChoiceBindingDef::Objects(binding)
+            | ObjectChoiceBindingDef::OrderedObjects(binding),
         ) => recipient == binding,
         _ => false,
     }

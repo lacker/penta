@@ -69,6 +69,12 @@ pub enum ObjectSetDef {
     /// A set of objects saved by an earlier choice or partition in this
     /// resolution.
     Binding(ObjectSetBindingIndex),
+    /// Cards the named player actually drew this turn that remain in that
+    /// player's hand. The identities are rules history rather than a zone
+    /// characteristic: a card that began the turn in hand is not included,
+    /// and a drawn card that left and returned is a new object and no longer
+    /// belongs to this set.
+    CardsDrawnThisTurnInHand(PlayerRefDef),
     /// The members of a binding that match a predicate. "Put a creature card
     /// from among them into your hand" names a subset of what a mill just
     /// bound, which neither a plain binding nor a zone query can say: the
@@ -198,6 +204,7 @@ impl EffectRecipientDef {
             | EffectRecipientSetDef::PlayersAndCreaturesTheyControl(_)
             | EffectRecipientSetDef::Objects(
                 ObjectSetDef::Binding(_)
+                | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                 | ObjectSetDef::MatchingBinding { .. }
                 | ObjectSetDef::PermanentsTargetedBy(_)
                 | ObjectSetDef::LinkedExiles(_)
@@ -220,7 +227,8 @@ impl EffectRecipientDef {
             | EffectRecipientSetDef::Objects(
                 ObjectSetDef::One(_)
                 | ObjectSetDef::Binding(_)
-            | ObjectSetDef::MatchingBinding { .. }
+                | ObjectSetDef::CardsDrawnThisTurnInHand(_)
+                | ObjectSetDef::MatchingBinding { .. }
                 | ObjectSetDef::PermanentsTargetedBy(_)
                 | ObjectSetDef::LinkedExiles(_)
                 | ObjectSetDef::BottomOfGraveyard(_)

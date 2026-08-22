@@ -38,6 +38,14 @@ pub enum ReplacementEventDef {
     /// A player would gain life, matched relative to the replacement
     /// ability's controller.
     WouldGainLife(PlayerRelation),
+    /// A player would draw a card. When `during_own_draw_step` is true, the
+    /// prospective draw must occur during that same player's draw step; this
+    /// is narrower than merely requiring the current step to be Draw because
+    /// another player can draw during it.
+    WouldDraw {
+        player: PlayerRelation,
+        during_own_draw_step: bool,
+    },
     /// A matching player would begin a turn. The turn is still prospective:
     /// none of its turn-based actions, counters, or beginning-of-turn events
     /// have happened yet.

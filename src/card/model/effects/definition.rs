@@ -669,6 +669,16 @@ pub enum EffectDef {
     },
     None,
     PayOr(PayOrDef),
+    /// Resolve the nested effect once for each member of an object-set
+    /// binding, in binding order. Each iteration places its current member in
+    /// the single-object binding. The set was already frozen by the effect
+    /// that introduced it, so cards moving during earlier iterations do not
+    /// change the remaining work.
+    ForEachInBinding {
+        objects: ObjectSetBindingIndex,
+        binding: ObjectBindingIndex,
+        effect: &'static EffectDef,
+    },
     /// "Damage can't be prevented this turn." Not a prevention of its own
     /// but a rule about every other one, including what protection prevents
     /// (CR 702.16e). Damage limits are not prevention and still apply.

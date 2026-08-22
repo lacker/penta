@@ -131,7 +131,8 @@ impl Game {
                     | ObjectSetDef::Query(_)
                     | ObjectSetDef::PermanentsTargetedBy(_)
                     | ObjectSetDef::LinkedExiles(_)
-                | ObjectSetDef::BottomOfGraveyard(_)
+                    | ObjectSetDef::CardsDrawnThisTurnInHand(_)
+                    | ObjectSetDef::BottomOfGraveyard(_)
                     | ObjectSetDef::SharingNameWith(_)
                     | ObjectSetDef::SharingNameWithBinding { .. }
                     | ObjectSetDef::TopOfGraveyardMatching { .. },

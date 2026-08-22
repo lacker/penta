@@ -107,6 +107,8 @@ pub(super) struct GameSnapshot {
     pub(super) turn_phase_resume: Option<TurnPhaseResumeSnapshot>,
     /// Resolving play prohibitions. Static restrictions remain source-derived.
     pub(super) resolved_play_restrictions: Vec<ResolvedPlayRestrictionSnapshot>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(super) resolved_attack_restrictions: Vec<ResolvedAttackRestrictionSnapshot>,
     /// Resolving play permissions. Additive: a checkpoint written before
     /// anything could grant one restores with none, which is what every game
     /// with no such effect in it has.
@@ -444,6 +446,15 @@ pub(super) struct ResolvedPlayRestrictionSnapshot {
     pub(super) affected_seat: usize,
     pub(super) timestamp: u64,
     pub(super) component_order: u16,
+    pub(super) expiration: ContinuousEffectExpirationSnapshot,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct ResolvedAttackRestrictionSnapshot {
+    pub(super) definition: AppliedEffectLocator,
+    pub(super) source: AbilitySourceSnapshot,
+    pub(super) affected_seat: usize,
     pub(super) expiration: ContinuousEffectExpirationSnapshot,
 }
 

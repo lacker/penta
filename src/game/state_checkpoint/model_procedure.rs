@@ -9,6 +9,14 @@ use super::model::{
 #[serde(rename_all = "camelCase")]
 pub(super) struct DrawReplacementSnapshot {
     pub(super) continuation: EffectContinuationSnapshot,
+    #[serde(default)]
+    pub(super) optional: bool,
+    #[serde(default = "default_true")]
+    pub(super) installed: bool,
+}
+
+const fn default_true() -> bool {
+    true
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -30,8 +38,11 @@ pub(super) enum PendingProcedureSnapshot {
         context: EffectResolutionContextSnapshot,
         custom_followup: Option<AbilityLocator>,
     },
-    SylvanAfterDraw {
-        player: usize,
+    ForEachInBinding {
+        objects: usize,
+        binding: usize,
+        next: usize,
+        continuation: EffectContinuationSnapshot,
     },
     SimultaneousDraws {
         remaining: [u16; 2],

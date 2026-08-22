@@ -771,11 +771,6 @@ fn parse_continuation(
                 .map(|task| parse_balance_task(task, game))
                 .collect::<Result<Vec<_>, _>>()?,
         },
-        DecisionContinuationSnapshot::SylvanOffer { player: owner } => {
-            DecisionContinuation::SylvanOffer {
-                player: player(*owner)?,
-            }
-        }
         DecisionContinuationSnapshot::SearchZonesAndExileRest {
             player: owner,
             zones,
@@ -796,26 +791,6 @@ fn parse_continuation(
                 .map(|owner| player(*owner))
                 .collect::<Result<Vec<_>, _>>()?,
             votes: game_ids(votes),
-        },
-        DecisionContinuationSnapshot::SylvanSelect {
-            player: owner,
-            candidates,
-            choices_left,
-        } => DecisionContinuation::SylvanSelect {
-            player: player(*owner)?,
-            candidates: game_ids(candidates),
-            choices_left: *choices_left,
-        },
-        DecisionContinuationSnapshot::SylvanMode {
-            player: owner,
-            card,
-            candidates,
-            choices_left,
-        } => DecisionContinuation::SylvanMode {
-            player: player(*owner)?,
-            card: GameObjectId(*card),
-            candidates: game_ids(candidates),
-            choices_left: *choices_left,
         },
         DecisionContinuationSnapshot::TetravusDetach { source } => {
             DecisionContinuation::TetravusDetach { source: GameObjectId(*source) }

@@ -101,6 +101,7 @@ pub(super) fn shared_effect_recipient(recipient: EffectRecipientDef) -> bool {
             | ObjectSetDef::Binding(_)
             | ObjectSetDef::MatchingBinding { .. }
             | ObjectSetDef::LinkedExiles(_)
+            | ObjectSetDef::CardsDrawnThisTurnInHand(_)
             | ObjectSetDef::BottomOfGraveyard(_)
             | ObjectSetDef::LegalTargets(_)
             | ObjectSetDef::SharingNameWith(_)
@@ -609,6 +610,11 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     && battlefield_only(definition.source_zones)
                     && shared_begin_turn_replacement_effect(effect)
             }
+            ReplacementEventDef::WouldDraw { .. } => {
+                definition.condition.is_none()
+                    && battlefield_only(definition.source_zones)
+                    && shared_draw_replacement_effect(effect)
+            }
             ReplacementEventDef::Special(_) => false,
         };
     }
@@ -718,6 +724,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::Choose(_)
                     | EffectDef::ChooseCardName { .. }
                     | EffectDef::BindMatching { .. }
+                    | EffectDef::ForEachInBinding { .. }
                     | EffectDef::PayOr(_)
                     | EffectDef::SplitIntoPiles(_)
                     | EffectDef::PreventDamage { .. }

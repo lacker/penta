@@ -768,6 +768,7 @@ fn validate_recipient_target_references(
         EffectRecipientSetDef::Objects(ObjectSetDef::LinkedExiles(_)) => Ok(()),
         EffectRecipientSetDef::Objects(
             ObjectSetDef::BottomOfGraveyard(player)
+            | ObjectSetDef::CardsDrawnThisTurnInHand(player)
             | ObjectSetDef::SharingNameWithBinding { player, .. }
             | ObjectSetDef::TopOfGraveyardMatching { player, .. },
         ) => validate_player_reference(player, target_count, scope),
@@ -910,6 +911,7 @@ fn validate_resolving_applied_effect(
         AppliedEffectDef::Rule(
             AppliedRuleDef::CannotPlay(_)
             | AppliedRuleDef::MayPlayFromGraveyard(_)
+            | AppliedRuleDef::CannotBeAttackedExceptBy(_)
             | AppliedRuleDef::RedirectDamageFromTo { .. },
         ) => {
             if matches!(recipient.0, EffectRecipientSetDef::Objects(_)) {

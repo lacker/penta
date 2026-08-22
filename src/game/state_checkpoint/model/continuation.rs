@@ -313,20 +313,6 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         remaining: Vec<usize>,
         votes: Vec<u32>,
     },
-    SylvanOffer {
-        player: usize,
-    },
-    SylvanSelect {
-        player: usize,
-        candidates: Vec<u32>,
-        choices_left: usize,
-    },
-    SylvanMode {
-        player: usize,
-        card: u32,
-        candidates: Vec<u32>,
-        choices_left: usize,
-    },
     TetravusDetach {
         source: u32,
     },

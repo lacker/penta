@@ -34,6 +34,21 @@ distinguishes snapshots of the covered source and build inputs.
   symbol strings as open display values. Checkpoint format 7 and replay
   version 2 are unchanged.
 
+- **Island Sanctuary and Sylvan Library now use shared declarative rules, and
+  checkpoint reconstruction moves to format 8.** Optional static draw
+  replacements can replace each applicable draw with an ordinary effect;
+  duration-scoped player attack restrictions can admit attackers by predicate;
+  drawn-this-turn cards still in hand form a reusable object set; and a generic
+  resumable `ForEachInBinding` effect applies a continuation to every chosen
+  object, with ordered object-set bindings preserving a player's resolution
+  order. The former Sylvan Library behavior key and its custom decisions are
+  removed. Format 8 records optional versus installed draw replacements,
+  replacement-effect continuations, object-set iteration, and resolved attack
+  restrictions, and freezes the stack kind inside the checkpoint as well as
+  the public observation. Reconstruction consumers must require
+  `reconstruction.checkpoint.v8` and regenerate format-7 checkpoints. Protocol
+  28 and replay version 2 are unchanged.
+
 - **Card definition IDs now use printing-anchored, JavaScript-safe 52-bit
   identities.** Every existing card keeps its historic numeric value, now
   authored beside its `CardRecord`; new cards deterministically hash an

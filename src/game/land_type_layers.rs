@@ -437,6 +437,7 @@ impl Game {
                 | ObjectSetDef::LegalTargets(_)
                 | ObjectSetDef::PermanentsTargetedBy(_)
                 | ObjectSetDef::LinkedExiles(_)
+                | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                 | ObjectSetDef::BottomOfGraveyard(_)
                 | ObjectSetDef::SharingNameWith(_)
                 | ObjectSetDef::SharingNameWithBinding { .. }

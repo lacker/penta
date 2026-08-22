@@ -326,6 +326,8 @@ fn replacement_effect_tail_finishes_before_later_draws_and_outer_effects() {
     stack_library(&mut game, &[(12_075, cards::MOUNTAIN)]);
     let source = spell(12_076, cards::SIGN_IN_BLOOD, PlayerId::One, 0);
     game.draw_replacements[0].push_back(DrawReplacement {
+        optional: false,
+        installed: true,
         object: Box::new(source.clone()),
         context: TriggerContext::empty().into(),
         effect: ScopedEffect::primary(EffectDef::Sequence(&REPLACEMENT_EFFECTS)),
@@ -372,6 +374,8 @@ fn the_affected_player_chooses_between_multiple_draw_replacements() {
     let source = spell(12_091, cards::RING_OF_MARUF, PlayerId::One, 0);
     game.draw_replacements[0].extend([
         DrawReplacement {
+            optional: false,
+            installed: true,
             object: Box::new(source.clone()),
             context: TriggerContext::empty().into(),
             effect: ScopedEffect::primary(EffectDef::LoseLife {
@@ -380,6 +384,8 @@ fn the_affected_player_chooses_between_multiple_draw_replacements() {
             }),
         },
         DrawReplacement {
+            optional: false,
+            installed: true,
             object: Box::new(source),
             context: TriggerContext::empty().into(),
             effect: ScopedEffect::primary(EffectDef::GainLife {
@@ -397,7 +403,7 @@ fn the_affected_player_chooses_between_multiple_draw_replacements() {
         PlayerId::One,
         Action::ChooseDecision {
             decision: decision.id,
-            options: vec![1],
+            options: vec![2],
         },
     )
     .unwrap();
@@ -430,6 +436,8 @@ fn a_chosen_replacement_finishes_its_draw_before_the_original_instruction_resume
     let source = spell(12_096, cards::RING_OF_MARUF, PlayerId::One, 0);
     game.draw_replacements[0].extend([
         DrawReplacement {
+            optional: false,
+            installed: true,
             object: Box::new(source.clone()),
             context: TriggerContext::empty().into(),
             effect: ScopedEffect::primary(EffectDef::DrawCards {
@@ -438,6 +446,8 @@ fn a_chosen_replacement_finishes_its_draw_before_the_original_instruction_resume
             }),
         },
         DrawReplacement {
+            optional: false,
+            installed: true,
             object: Box::new(source.clone()),
             context: TriggerContext::empty().into(),
             effect: ScopedEffect::primary(EffectDef::LoseLife {
@@ -461,7 +471,7 @@ fn a_chosen_replacement_finishes_its_draw_before_the_original_instruction_resume
             // The chosen replacement draws one. The unchosen replacement
             // applies to that nested draw and consumes it before the original
             // instruction's second draw can happen.
-            options: vec![0],
+            options: vec![1],
         },
     )
     .unwrap();
@@ -531,6 +541,8 @@ fn the_draw_step_finishes_only_after_ring_is_answered_and_replacements_expire() 
 
     // A second Ring effect that is never used lapses in cleanup.
     game.draw_replacements[0].push_back(DrawReplacement {
+        optional: false,
+        installed: true,
         object: Box::new(spell(12_200, cards::RING_OF_MARUF, PlayerId::One, 0)),
         context: TriggerContext::empty().into(),
         effect: ScopedEffect::primary(EffectDef::None),

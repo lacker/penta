@@ -55,6 +55,20 @@ impl Game {
             EffectDef::Choose(definition) => {
                 self.queue_effect_choice(definition, object, context, scoped);
             }
+            EffectDef::ForEachInBinding {
+                objects,
+                binding,
+                effect,
+            } => {
+                self.resolve_for_each_in_binding(
+                    objects,
+                    binding,
+                    0,
+                    scoped.with_effect(*effect),
+                    object,
+                    context,
+                );
+            }
             EffectDef::PayOr(definition) => {
                 let payers =
                     self.effect_players(definition.payment.payer, object, &context, scoped);
@@ -879,5 +893,43 @@ impl Game {
                 // concrete rules procedure.
             }
         }
+    }
+
+    pub(super) fn resolve_for_each_in_binding(
+        &mut self,
+        objects: crate::ObjectSetBindingIndex,
+        binding: crate::ObjectBindingIndex,
+        mut next: usize,
+        effect: ScopedEffect,
+        object: &StackObject,
+        context: EffectResolutionContext,
+    ) {
+        let members = context.object_group(objects).to_vec();
+        let mut later_procedures = std::mem::take(&mut self.pending_procedures);
+        while let Some(member) = members.get(next).copied() {
+            next += 1;
+            let mut iteration = context.clone();
+            iteration.bind_single_object(binding, Some(member));
+            self.resolve_effect_def(effect, object, iteration);
+            if !self.pending_decisions.is_empty()
+                || !self.pending_events.is_empty()
+                || !self.pending_procedures.is_empty()
+            {
+                if next < members.len() {
+                    self.pending_procedures
+                        .push_back(super::PendingProcedure::ForEachInBinding {
+                            objects,
+                            binding,
+                            next,
+                            effect,
+                            object: Box::new(object.clone()),
+                            context,
+                        });
+                }
+                self.pending_procedures.append(&mut later_procedures);
+                return;
+            }
+        }
+        self.pending_procedures.append(&mut later_procedures);
     }
 }

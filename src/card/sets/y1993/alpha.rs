@@ -571,8 +571,43 @@ static KARMA_SWAMPS: ObjectQueryDef = ObjectQueryDef::matching(
     PlayerRelation::EventPlayer,
 );
 
+static ISLAND_SANCTUARY_ATTACKERS: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
+    ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+    ObjectPredicateDef::HasKeyword(KeywordAbility::Landwalk(BasicLandType::Island)),
+]);
+
+static ISLAND_SANCTUARY_RESTRICTION: EffectDef = EffectDef::Apply {
+    recipient: EffectRecipientDef::Controller,
+    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeAttackedExceptBy(
+        ISLAND_SANCTUARY_ATTACKERS,
+    )),
+    duration: ResolvedEffectDurationDef::UntilYourNextTurn,
+};
+
+static ISLAND_SANCTUARY_REPLACEMENT: [ReplacementEffectDef; 2] = [
+    ReplacementEffectDef::ReplaceEventWithNothing,
+    ReplacementEffectDef::Perform(&ISLAND_SANCTUARY_RESTRICTION),
+];
+
 // LEA 25 — Island Sanctuary
-// Audit: blocked — Needs an optional draw-step replacement and an attack restriction keyed to the attacking creature's abilities lasting until your next turn.
+pub(in crate::card::sets) static ISLAND_SANCTUARY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c15e8a42-89de-42bc-8d5f-33426d207c3a"),
+    "Island Sanctuary",
+    CardArt::new("c15e8a42-89de-42bc-8d5f-33426d207c3a", "Mark Poole"),
+    CardSet::Alpha,
+    CardRules::new_enchantment(mana_cost!("{1}{W}")).with_abilities(&[
+        AbilityDef::defined_replacement(
+            "If you would draw a card during your draw step, instead you may skip that draw. If you do, until your next turn, you can't be attacked except by creatures with flying and/or islandwalk.",
+            ReplacementAbilityDef::new()
+                .with_event(ReplacementEventDef::WouldDraw {
+                    player: PlayerRelation::You,
+                    during_own_draw_step: true,
+                })
+                .optional(),
+            ReplacementEffectDef::Sequence(&ISLAND_SANCTUARY_REPLACEMENT),
+        ),
+    ]),
+);
 
 // LEA 26 — Karma
 pub(in crate::card::sets) static KARMA: CardRecord = CardRecord::new_with_legacy_id(
@@ -5473,6 +5508,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &HEALING_SALVE,
     &HOLY_ARMOR,
     &HOLY_STRENGTH,
+    &ISLAND_SANCTUARY,
     &KARMA,
     &LANCE,
     &MESA_PEGASUS,

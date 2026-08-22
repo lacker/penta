@@ -460,6 +460,12 @@ impl Game {
                     .collect()
             }
             ObjectSetDef::Binding(binding) => context.object_group(binding).to_vec(),
+            ObjectSetDef::CardsDrawnThisTurnInHand(player) => {
+                let Some(player) = self.player_reference(player, object, context, scoped) else {
+                    return Vec::new();
+                };
+                self.cards_drawn_this_turn_in_hand(player)
+            }
             ObjectSetDef::MatchingBinding {
                 binding,
                 object: predicate,
@@ -540,5 +546,19 @@ impl Game {
                 .into_iter()
                 .collect(),
         }
+    }
+
+    fn cards_drawn_this_turn_in_hand(&self, player: PlayerId) -> Vec<Target> {
+        self.drawn_this_turn[player.index()]
+            .iter()
+            .copied()
+            .filter(|drawn| {
+                self.players[player.index()]
+                    .hand
+                    .iter()
+                    .any(|card| card.id == *drawn)
+            })
+            .map(Target::Card)
+            .collect()
     }
 }

@@ -1,4 +1,4 @@
-use crate::ids::PlayerId;
+use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, PlayerId};
 
 use super::{CardBehavior, EffectResolutionContext, ScopedEffect, StackObject};
 
@@ -12,6 +12,11 @@ pub(super) struct DrawReplacement {
     pub(super) object: Box<StackObject>,
     pub(super) context: EffectResolutionContext,
     pub(super) effect: ScopedEffect,
+    /// The affected player may let the prospective draw happen instead.
+    pub(super) optional: bool,
+    /// Unchosen installed next-draw replacements remain queued. A static
+    /// battlefield replacement is rediscovered for the next draw instead.
+    pub(super) installed: bool,
 }
 
 /// Rules procedures that paused behind a decision and must finish before
@@ -29,8 +34,13 @@ pub(super) enum PendingProcedure {
         context: EffectResolutionContext,
         custom_followup: Option<CardBehavior>,
     },
-    SylvanAfterDraw {
-        player: PlayerId,
+    ForEachInBinding {
+        objects: ObjectSetBindingIndex,
+        binding: ObjectBindingIndex,
+        next: usize,
+        effect: ScopedEffect,
+        object: Box<StackObject>,
+        context: EffectResolutionContext,
     },
     SimultaneousDraws {
         remaining: [u16; 2],

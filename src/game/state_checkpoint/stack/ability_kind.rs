@@ -1,4 +1,4 @@
-use super::super::{DeclarativeAbilityDef, StackObjectKind};
+use super::super::{DeclarativeAbilityDef, Game, StackAbilityPayload, StackObjectKind};
 
 pub(super) enum StackAbilityCondition {
     Unsupported,
@@ -26,4 +26,29 @@ pub(super) fn stack_ability_condition(
         }
         _ => StackAbilityCondition::Unsupported,
     }
+}
+
+pub(super) fn stack_payload_matches(
+    payload: &StackAbilityPayload,
+    candidate: &crate::card::AbilityDef,
+) -> bool {
+    if let Some(definition) = payload.definition.as_deref() {
+        return definition == candidate;
+    }
+    let condition = match candidate.definition {
+        DeclarativeAbilityDef::Triggered(triggered) => triggered.condition,
+        DeclarativeAbilityDef::Replacement(_) => {
+            return payload.text == Some(candidate.text) && payload.condition.is_none();
+        }
+        DeclarativeAbilityDef::AlternativeCast(alternative)
+            if candidate.is_executable()
+                && alternative.kind == crate::card::AlternativeCastKindDef::Miracle =>
+        {
+            None
+        }
+        _ => return false,
+    };
+    payload.text == Some(candidate.text)
+        && payload.condition == condition
+        && payload.resolver == Game::ability_resolver(payload.origin, candidate)
 }

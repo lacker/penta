@@ -225,6 +225,10 @@ pub enum EffectDef {
     CreateEmblem {
         emblem: super::EmblemCharacteristics,
     },
+    /// Creates a duration-scoped rules object outside every zone. It is not a
+    /// permanent, but its activated ability uses the ordinary action, cost,
+    /// stack, response, and resolution machinery.
+    CreateOngoingEffect(OngoingEffectDef),
     /// Creates tokens with `token`'s complete authored characteristics under
     /// the resolving object's controller.
     CreateToken {

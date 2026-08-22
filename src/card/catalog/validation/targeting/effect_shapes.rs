@@ -334,6 +334,10 @@ fn validate_effect_target_shapes(
                 trigger_event,
             )
         }
+        EffectDef::CreateOngoingEffect(ongoing) => {
+            validate_recipient_shape(ongoing.affected, targets, RecipientExpectation::Any)?;
+            validate_program_target_shapes(ongoing.ability.effect.definition, &[], None)
+        }
         EffectDef::CannotAttackUnless(query) | EffectDef::CannotAttackIf(query) => {
             validate_query_shape(*query, targets)
         }

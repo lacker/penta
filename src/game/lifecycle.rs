@@ -167,6 +167,7 @@ impl Game {
             stack: GameStack::default(),
             retired_objects: BTreeMap::new(),
             temporary_ability_grants: Vec::new(),
+            ongoing_effects: Vec::new(),
             next_object_id,
             next_continuous_effect_timestamp: u64::from(next_object_id),
             turn: 1,

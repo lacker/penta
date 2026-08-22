@@ -164,6 +164,11 @@ pub(super) struct GameSnapshot {
     pub(super) successors: Vec<SuccessorSnapshot>,
     pub(super) pending_events: Vec<PendingEventSnapshot>,
     pub(super) temporary_ability_grants: Vec<TemporaryAbilityGrantSnapshot>,
+    /// Resolved duration-scoped effects that expose an activated ability.
+    /// Additive: checkpoints written before these effects existed restore
+    /// with none, which is the state of every game without one.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(super) ongoing_effects: Vec<ResolvedOngoingEffectSnapshot>,
     pub(super) next_installed_trigger_id: u32,
     pub(super) installed_triggers: Vec<InstalledTriggerSnapshot>,
     pub(super) pending_triggers: Vec<PendingTriggerSnapshot>,
@@ -195,6 +200,21 @@ pub(super) enum TurnPhaseResumeSnapshot {
 pub(super) struct TemporaryAbilityGrantSnapshot {
     pub(super) object: u32,
     pub(super) ability: AbilityLocator,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct ResolvedOngoingEffectSnapshot {
+    /// The effect object's own public identity. It is not a permanent or an
+    /// emblem and therefore has no ordinary observation-zone entry.
+    pub(super) object_id: u32,
+    pub(super) origin: AbilityOriginSnapshot,
+    pub(super) ability: AbilityLocator,
+    pub(super) presentation: ObjectCharacteristicsSnapshot,
+    pub(super) owner: usize,
+    pub(super) controller: usize,
+    pub(super) context: EffectResolutionContextSnapshot,
+    pub(super) expiration: ContinuousEffectExpirationSnapshot,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]

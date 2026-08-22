@@ -478,6 +478,7 @@ impl HandcraftedPolicy {
             | EffectDef::GainClassLevel { .. }
             | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
             | EffectDef::CreateEmblem { .. }
+            | EffectDef::CreateOngoingEffect(_)
             | EffectDef::ReturnWithHasteAndFinality { .. }
             | EffectDef::Transform { .. }
             | EffectDef::ScheduleTurnPhases(_)

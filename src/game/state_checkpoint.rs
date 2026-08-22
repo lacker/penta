@@ -14,7 +14,8 @@ use super::{
     ReplayRng, ResolvedAbilityOperation, ResolvedAttackRestriction, ResolvedContinuousEffect,
     ResolvedContinuousEffectKind, ResolvedDamagePrevention, ResolvedDamagePreventionCapacity,
     ResolvedDamagePreventionCoverage, ResolvedDamageRecipientMatcher, ResolvedDamageRedirect,
-    ResolvedDamageSourceMatcher, ResolvedPlayPermission, ResolvedPlayRestriction,
+    ResolvedDamageSourceMatcher, ResolvedOngoingEffect, ResolvedPlayPermission,
+    ResolvedPlayRestriction,
     ResolvedPowerToughnessOperation, RetiredObject, ScopedEffect, StackAbilityPayload,
     StackAbilityResolver, StackObject, StackObjectKind, Step, TemporaryAbilityGrant,
     TriggerCapture, TriggerContext, TurnPhaseResume, ZoneMoveCause, cast_source_zone_from_label,
@@ -41,6 +42,7 @@ mod model_keyword;
 mod model_prevention;
 mod model_procedure;
 mod model_trigger;
+mod ongoing_effect;
 mod permanent;
 mod play_restriction;
 mod prevention;
@@ -76,6 +78,7 @@ use model::{
     ZoneKindSnapshot,
 };
 use model_keyword::UpkeepKeywordSnapshot;
+use ongoing_effect::{ongoing_effect_snapshot, parse_ongoing_effect};
 use permanent::{detached_permanent_snapshot, permanent_snapshot};
 use procedure::{
     draw_replacement_referenced_object_ids, draw_replacement_snapshot, parse_draw_replacement,
@@ -170,6 +173,19 @@ impl Game {
                                 &trigger.capture.context,
                             ))
                     }),
+            )
+            .chain(
+                self.ongoing_effects
+                    .iter()
+                    .filter(|ongoing| {
+                        !trigger_capture_has_unrebindable_hidden_reference(
+                            self,
+                            viewer,
+                            &[],
+                            &ongoing.context,
+                        )
+                    })
+                    .flat_map(|ongoing| resolution_context_referenced_object_ids(&ongoing.context)),
             )
             .chain(
                 self.pending_triggers
@@ -327,6 +343,12 @@ impl Game {
             .collect::<Vec<_>>();
         let has_unlocated_temporary_ability_grant =
             temporary_ability_grants.len() != self.temporary_ability_grants.len();
+        let ongoing_effects = self
+            .ongoing_effects
+            .iter()
+            .filter_map(|ongoing| ongoing_effect_snapshot(self, viewer, ongoing))
+            .collect::<Vec<_>>();
+        let has_unlocated_ongoing_effect = ongoing_effects.len() != self.ongoing_effects.len();
         let installed_triggers = self
             .installed_triggers
             .iter()
@@ -549,12 +571,14 @@ impl Game {
             successors,
             pending_events,
             temporary_ability_grants,
+            ongoing_effects,
             next_installed_trigger_id: self.next_installed_trigger_id,
             installed_triggers,
             pending_triggers,
             pending_procedures,
             decision_state,
             has_deferred_state: has_unlocated_temporary_ability_grant
+                || has_unlocated_ongoing_effect
                 || has_unlocated_installed_trigger
                 || has_unsupported_decision
                 || has_unsupported_event
@@ -803,6 +827,7 @@ impl Game {
             stack: GameStack::default(),
             retired_objects: BTreeMap::new(),
             temporary_ability_grants,
+            ongoing_effects: Vec::new(),
             next_object_id,
             next_continuous_effect_timestamp: checkpoint.next_continuous_effect_timestamp,
             turn: u32_field(observation, "turn")?,
@@ -896,6 +921,11 @@ impl Game {
             .collect();
 
         game.stack = parse_stack(observation, &checkpoint.stack, &game)?;
+        game.ongoing_effects = checkpoint
+            .ongoing_effects
+            .iter()
+            .map(|ongoing| parse_ongoing_effect(ongoing, &game))
+            .collect::<Result<Vec<_>, _>>()?;
         game.pending_events = parse_pending_events(&checkpoint.pending_events, &game.catalog)?;
         game.installed_triggers = checkpoint
             .installed_triggers

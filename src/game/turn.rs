@@ -413,6 +413,11 @@ impl Game {
                 .expiration
                 .survives_turn_start(self.active_player, turns_started)
         });
+        self.ongoing_effects.retain(|effect| {
+            effect
+                .expiration
+                .survives_turn_start(self.active_player, turns_started)
+        });
         for permanent in &mut self.battlefield {
             permanent.resolved_continuous_effects.retain(|effect| {
                 effect
@@ -531,6 +536,8 @@ impl Game {
             .retain(|restriction| restriction.expiration.survives_untap_step(active));
         self.resolved_play_permissions
             .retain(|permission| permission.expiration.survives_untap_step(active));
+        self.ongoing_effects
+            .retain(|effect| effect.expiration.survives_untap_step(active));
         for permanent in &mut self.battlefield {
             permanent
                 .resolved_continuous_effects
@@ -581,6 +588,8 @@ impl Game {
             .retain(|restriction| restriction.expiration.survives_end_of_combat());
         self.resolved_play_permissions
             .retain(|permission| permission.expiration.survives_end_of_combat());
+        self.ongoing_effects
+            .retain(|effect| effect.expiration.survives_end_of_combat());
     }
 
     fn destroy_end_of_combat_permanents(&mut self) {
@@ -665,6 +674,8 @@ impl Game {
             .retain(|restriction| restriction.expiration.survives_cleanup());
         self.resolved_play_permissions
             .retain(|permission| permission.expiration.survives_cleanup());
+        self.ongoing_effects
+            .retain(|effect| effect.expiration.survives_cleanup());
         self.channel_active = [false; 2];
         self.damage_preventions
             .retain(|prevention| prevention.expiration.survives_cleanup());

@@ -113,6 +113,28 @@ impl Game {
         targets: Vec<TargetSelection>,
         chosen_permanents: Vec<GameObjectId>,
     ) -> GameObjectId {
+        self.push_activated_ability_with_context(
+            source,
+            source_card.owner,
+            controller,
+            frozen,
+            targets,
+            chosen_permanents,
+            TriggerContext::empty().into(),
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub(super) fn push_activated_ability_with_context(
+        &mut self,
+        source: GameObjectId,
+        source_owner: PlayerId,
+        controller: PlayerId,
+        frozen: FrozenActivatedAbility,
+        targets: Vec<TargetSelection>,
+        chosen_permanents: Vec<GameObjectId>,
+        context: super::EffectResolutionContext,
+    ) -> GameObjectId {
         if let Some(permanent) = self
             .battlefield
             .iter_mut()
@@ -128,7 +150,7 @@ impl Game {
             }
         }
         let event_chosen_permanents = chosen_permanents.clone();
-        let card = self.unbacked_ability_object(frozen.presentation, source_card.owner);
+        let card = self.unbacked_ability_object(frozen.presentation, source_owner);
         let id = card.id;
         // The activation's targets are locked in here, which is where a
         // crime is committed if any of them belongs to an opponent.
@@ -149,7 +171,7 @@ impl Game {
                 text: frozen.text,
                 target_defs: frozen.target_defs,
                 targets,
-                context: TriggerContext::empty().into(),
+                context,
                 resolver: frozen.resolver,
                 // Only a triggered ability carries an intervening-if.
                 condition: None,
@@ -624,6 +646,47 @@ impl Game {
         }
         self.add_hand_ability_actions(player, actions);
         self.add_graveyard_ability_actions(player, actions);
+        self.add_ongoing_effect_ability_actions(player, actions);
+    }
+
+    /// Activations supplied by duration-scoped effects. These sources are
+    /// classified as command-zone objects for source-zone checks, but are not
+    /// emblems and never join the battlefield ability-layer walk.
+    fn add_ongoing_effect_ability_actions(&self, player: PlayerId, actions: &mut Vec<Action>) {
+        for ongoing in self
+            .ongoing_effects
+            .iter()
+            .filter(|ongoing| ongoing.controller == player)
+        {
+            let DeclarativeAbilityDef::Activated(definition) = ongoing.ability.definition else {
+                continue;
+            };
+            if !ongoing.ability.is_executable()
+                || definition.procedure != AbilityProcedureDef::Shared
+                || definition.source_zones != [ZoneKind::Command]
+                || !self.activation_timing_allows(player, definition.timing)
+            {
+                continue;
+            }
+            let Some(cost) = Self::activated_ability_mana_cost(definition) else {
+                continue;
+            };
+            let purpose = ManaPaymentPurpose::Ability {
+                source: ongoing.source.object,
+                taps_source: false,
+                leaves_source: false,
+            };
+            if self.can_pay_cost_for(player, cost, 0, &purpose) {
+                actions.push(Action::ActivateAbility {
+                    source: ongoing.source.object,
+                    ability: ongoing.source.ability,
+                    targets: Vec::new(),
+                    cost_objects: Vec::new(),
+                    x: 0,
+                    modes: Vec::new(),
+                });
+            }
+        }
     }
 
     #[allow(clippy::too_many_lines)]

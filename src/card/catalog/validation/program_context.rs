@@ -1,11 +1,11 @@
 use crate::card::{
-    AbilityDef, AbilityOperationDef, AppliedEffectDef, AppliedRuleDef, AttackDefenderScopeDef,
-    AttackRestrictionDef, CardType, CharacteristicOperationDef, CostModificationDef,
-    DamageEventMatcherDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
-    DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EffectRecipientSetDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, PowerToughnessOperationDef, SetOperationDef, TriggerConditionDef, ValueDef,
-    ZoneKind,
+    AbilityCostDef, AbilityDef, AbilityOperationDef, AbilityProcedureDef, AppliedEffectDef,
+    AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, CardType,
+    CharacteristicOperationDef, CostModificationDef, DamageEventMatcherDef,
+    DamageRecipientMatcherDef, DamageSourceMatcherDef, DeclarativeAbilityDef, EffectDef,
+    EffectRecipientDef, EffectRecipientSetDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, PowerToughnessOperationDef,
+    SetOperationDef, TriggerConditionDef, ValueDef, ZoneKind,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -448,6 +448,31 @@ fn validate_resolving_effect(
             };
             validate_resolving_effect(effect, source_zones)
         }
+        EffectDef::CreateOngoingEffect(ongoing) => {
+            let DeclarativeAbilityDef::Activated(definition) = ongoing.ability.definition else {
+                return Err("CreateOngoingEffect with a non-activated ability");
+            };
+            let Some(effect) = ongoing.ability.declarative_effect() else {
+                return Err("CreateOngoingEffect with a non-declarative program");
+            };
+            if definition.procedure != AbilityProcedureDef::Shared
+                || definition.source_zones != [ZoneKind::Command]
+                || !definition.targets.is_empty()
+                || definition.modes.is_some()
+                || definition.activation_limit.is_some()
+                || definition.any_player_may_activate
+                || definition.condition.is_some()
+                || definition
+                    .costs
+                    .as_slice()
+                    .iter()
+                    .any(|cost| !matches!(cost, AbilityCostDef::Mana(cost) if !cost.variable_x))
+                || ongoing.duration == crate::card::ResolvedEffectDurationDef::WhileSourceTapped
+            {
+                return Err("CreateOngoingEffect with an unsupported activated ability");
+            }
+            validate_resolving_effect(effect, &[ZoneKind::Command])
+        }
         EffectDef::Apply {
             recipient, effect, ..
         } if recipient == EffectRecipientDef::Source
@@ -847,6 +872,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::GainControl { .. } | EffectDef::ExchangeControl { .. } => "GainControl",
         EffectDef::IfCondition { .. } => "IfCondition",
         EffectDef::InstallTrigger(_) => "InstallTrigger",
+        EffectDef::CreateOngoingEffect(_) => "CreateOngoingEffect",
         EffectDef::CannotBeForcedToSacrifice => "CannotBeForcedToSacrifice",
         EffectDef::CannotBeForcedToDiscard => "CannotBeForcedToDiscard",
         EffectDef::GainClassLevel { .. } => "GainClassLevel",

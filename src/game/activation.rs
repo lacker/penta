@@ -168,6 +168,71 @@ impl Game {
         self.check_state_based_actions();
     }
 
+    /// Activates the ability carried by a resolved ongoing effect. The effect
+    /// is command-zone-resident only as an engine source-zone approximation;
+    /// it has no permanent state and therefore supports only the source-free
+    /// mana-cost shape enforced by catalog validation.
+    fn activate_ongoing_effect_ability(
+        &mut self,
+        player: PlayerId,
+        source: GameObjectId,
+        ability: AbilityOrigin,
+    ) -> bool {
+        let Some(ongoing) = self
+            .ongoing_effects
+            .iter()
+            .find(|ongoing| {
+                ongoing.source.object == source
+                    && ongoing.source.ability == ability
+                    && ongoing.controller == player
+            })
+            .cloned()
+        else {
+            return false;
+        };
+        let DeclarativeAbilityDef::Activated(definition) = ongoing.ability.definition else {
+            return false;
+        };
+        if !ongoing.ability.is_executable()
+            || definition.procedure != AbilityProcedureDef::Shared
+            || definition.source_zones != [ZoneKind::Command]
+        {
+            return false;
+        }
+        let Some(cost) = Self::activated_ability_mana_cost(definition) else {
+            return false;
+        };
+        let purpose = ManaPaymentPurpose::Ability {
+            source,
+            taps_source: false,
+            leaves_source: false,
+        };
+        self.activate_mana_for_cost_avoiding_for(player, cost, 0, None, &purpose);
+        let _ = self.pay_player_cost_for(player, cost, 0, &purpose);
+        let frozen = FrozenActivatedAbility {
+            origin: ongoing.source.ability,
+            definition: Some(Box::new(ongoing.ability)),
+            presentation: ongoing.presentation,
+            text: Some(ongoing.ability.text),
+            target_defs: Vec::new(),
+            resolver: Self::ability_resolver(ongoing.source.ability, &ongoing.ability),
+            mode_effects: Vec::new(),
+            x: 0,
+        };
+        self.push_activated_ability_with_context(
+            source,
+            ongoing.owner,
+            player,
+            frozen,
+            Vec::new(),
+            Vec::new(),
+            ongoing.context,
+        );
+        self.consecutive_passes = 0;
+        self.check_state_based_actions();
+        true
+    }
+
     #[allow(clippy::too_many_lines)]
     pub(super) fn activate_ability(
         &mut self,
@@ -182,6 +247,9 @@ impl Game {
             x,
             modes,
         } = choices;
+        if self.activate_ongoing_effect_ability(player, source, ability) {
+            return;
+        }
         if let Some(source_card) = self.players[player.index()]
             .hand
             .iter()

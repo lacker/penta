@@ -686,6 +686,13 @@ impl Game {
         source: GameObjectId,
         origin: AbilityOrigin,
     ) -> Option<AbilityDef> {
+        if let Some(ongoing) = self
+            .ongoing_effects
+            .iter()
+            .find(|ongoing| ongoing.source.object == source && ongoing.source.ability == origin)
+        {
+            return Some(ongoing.ability);
+        }
         if let Some(permanent) = self
             .battlefield
             .iter()

@@ -527,6 +527,7 @@ impl Game {
                 | EffectDef::ChooseCards { .. }
                 | EffectDef::ReplaceNextDrawThisTurn { .. }
                 | EffectDef::CreateEmblem { .. }
+                | EffectDef::CreateOngoingEffect(_)
                 | EffectDef::Transform { .. }
                 | EffectDef::Unattach { .. }
                 | EffectDef::Counter { .. }

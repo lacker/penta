@@ -32,11 +32,11 @@ format does not change existing games.
 The Vintage Cube is staged as the next expansion, and is the first format here
 whose legality is a fixed card list rather than a set window: `FormatRules`
 carries the pool, and a card is legal because the cube names it. The pool, its
-singleton forty-card profile, and the card-by-card backlog are tracked in the
-[Vintage Cube roadmap](vintage-cube.md). Most of the pool is not cataloged yet,
-so no decks are registered and the format is not offered in the web client.
-Drafting is deferred; the first goal is a pool complete enough to play fixed
-lists from.
+singleton forty-card profile, and the command for deriving its current coverage
+are documented in the [Vintage Cube roadmap](vintage-cube.md). The pool is not
+fully cataloged yet, so no decks are registered and the format is not offered
+in the web client. Drafting is deferred; the first goal is a pool complete
+enough to play fixed lists from.
 
 ### Old School 93/94
 

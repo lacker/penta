@@ -93,6 +93,18 @@ distinguishes snapshots of the covered source and build inputs.
   stores a compact name-and-ability value owned by its creating effect. Neither
   value is a `CardDefinition` or participates in globally unique card naming.
 
+- **Resolved ongoing effects can now carry an ordinary activated ability.**
+  `EffectDef::CreateOngoingEffect` freezes an affected recipient into the
+  nested ability's resolution context for a declared duration, while giving
+  the effect its own nonpermanent game-object identity. Its activation uses
+  the shared timing, mana-payment, stack, response, and resolution machinery;
+  Guardian Angel is the first declarative card to use it. Penta classifies the
+  source as command-zone-resident for activation checks, even though the rules
+  effect technically has no zone; it remains distinct from both permanents and
+  emblems. Checkpoint format 7 stores these effects in an additive
+  `ongoingEffects` member, so protocol 27, checkpoint format 7, and replay
+  version 2 are unchanged.
+
 - **Checkpoint format 5 preserves creator-owned token and emblem
   characteristics.** The reconstruction capability is now
   `reconstruction.checkpoint.v5`; format 4

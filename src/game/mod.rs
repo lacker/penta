@@ -163,9 +163,9 @@ use combat_state::CombatDamageStage;
 use continuous_state::{
     AbilityLayerOperation, AbilityLayerOperationKind, AppliedPlayRestriction, AppliedRuleEffect,
     ContinuousEffectExpiration, ContinuousEffectTimestamp, ResolvedAbilityOperation,
-    ResolvedContinuousEffect, ResolvedContinuousEffectKind, ResolvedPlayPermission,
-    ResolvedPlayRestriction, ResolvedPowerToughnessOperation, StaticAppliedEffect,
-    StaticEffectTraversal, TemporaryAbilityGrant,
+    ResolvedContinuousEffect, ResolvedContinuousEffectKind, ResolvedOngoingEffect,
+    ResolvedPlayPermission, ResolvedPlayRestriction, ResolvedPowerToughnessOperation,
+    StaticAppliedEffect, StaticEffectTraversal, TemporaryAbilityGrant,
 };
 use decision_state::{
     ApplicableBeginTurnReplacement, BalanceAction, BalancePhase, BalanceTask, CounteredSpellZone,
@@ -775,6 +775,10 @@ pub struct Game {
     retired_objects: BTreeMap<GameObjectId, RetiredObject>,
     /// Abilities granted to non-battlefield object incarnations until cleanup.
     temporary_ability_grants: Vec<TemporaryAbilityGrant>,
+    /// Duration-scoped effects with activated abilities. They use command-zone
+    /// source semantics as a documented approximation, but remain distinct
+    /// from both permanents and emblems and are not targetable game pieces.
+    ongoing_effects: Vec<ResolvedOngoingEffect>,
     next_object_id: u32,
     next_continuous_effect_timestamp: u64,
     turn: u32,

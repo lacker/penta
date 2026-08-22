@@ -793,6 +793,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::GainClassLevel { .. }
                     | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
                     | EffectDef::CreateEmblem { .. }
+                    | EffectDef::CreateOngoingEffect(_)
                     | EffectDef::Transform { .. }
                     | EffectDef::ScheduleTurnPhases(_)
                     | EffectDef::TakeExtraTurn { .. }

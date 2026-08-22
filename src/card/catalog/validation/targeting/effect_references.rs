@@ -352,6 +352,14 @@ fn validate_effect_references(
             }
             validate_program_references(trigger.ability.effect.definition, target_count, scope)
         }
+        EffectDef::CreateOngoingEffect(ongoing) => {
+            validate_recipient_target_references(ongoing.affected, target_count, scope)?;
+            let nested = scope.with_object(ongoing.binding)?;
+            // The installed ability does not retain the creating spell's
+            // target namespace. It receives only the concrete affected
+            // recipient through the declared binding.
+            validate_program_references(ongoing.ability.effect.definition, 0, nested)
+        }
         EffectDef::IfCondition { condition, then } => {
             validate_trigger_condition(*condition, target_count, scope)?;
             validate_effect_references(*then, target_count, scope)

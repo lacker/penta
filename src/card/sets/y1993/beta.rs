@@ -38,6 +38,7 @@ pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
     PrintingRecord::reprint(&alpha::BALANCE),        // LEB 3
     PrintingRecord::reprint(&alpha::CRUSADE),        // LEB 17
     PrintingRecord::reprint(&alpha::DISENCHANT),     // LEB 19
+    PrintingRecord::reprint(&alpha::GUARDIAN_ANGEL), // LEB 22
     PrintingRecord::reprint(&alpha::SAVANNAH_LIONS), // LEB 39
     PrintingRecord::reprint(&alpha::SERRA_ANGEL),    // LEB 40
     PrintingRecord::reprint(&alpha::SWORDS_TO_PLOWSHARES), // LEB 41

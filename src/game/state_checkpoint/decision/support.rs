@@ -530,7 +530,7 @@ pub(super) fn ids(ids: &[GameObjectId]) -> Vec<u32> {
 pub(super) fn detached_card_snapshot(card: &super::super::CardInstance) -> DetachedCardSnapshot {
     DetachedCardSnapshot {
         object_id: card.id.0,
-        definition: card.definition.0,
+        definition: card.definition,
         owner: card.owner.index(),
     }
 }
@@ -551,7 +551,7 @@ pub(super) fn parse_detached_cards(
             }
             card(
                 GameObjectId(snapshot.object_id),
-                CardDefinitionId(snapshot.definition),
+                snapshot.definition,
                 player(snapshot.owner)?,
                 &game.catalog,
             )

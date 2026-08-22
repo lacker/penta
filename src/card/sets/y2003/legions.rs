@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardType, EffectDef,
     EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, PlayerRelation, TriggerEventDef,
-    ValueDef, ZoneKind, abilities, cards,
+    ValueDef, ZoneKind, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -23,8 +23,8 @@ static INCINERATE_FOR_EACH_GOBLIN: EffectDef = EffectDef::DealDamage {
 };
 
 // LGN 94 — Gempalm Incinerator
-pub(in crate::card::sets) static GEMPALM_INCINERATOR: CardRecord = CardRecord::new(
-    cards::GEMPALM_INCINERATOR,
+pub(in crate::card::sets) static GEMPALM_INCINERATOR: CardRecord = CardRecord::new_with_legacy_id(
+    2026,
     "Gempalm Incinerator",
     CardArt::new("2687c311-fd0c-4fe0-bce8-e3f412216796", "Luca Zontini"),
     CardSet::Legions,

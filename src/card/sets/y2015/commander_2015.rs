@@ -3,7 +3,7 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardType, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, ValueDef, ZoneKind, ZonePlacement, abilities, cards,
+    EffectRecipientDef, ObjectPredicateDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -46,8 +46,8 @@ static MYSTIC_CONFLUENCE_MODES: [AbilityDef; 3] = [
 ];
 
 // C15 14 — Mystic Confluence
-pub(in crate::card::sets) static MYSTIC_CONFLUENCE: CardRecord = CardRecord::new(
-    cards::MYSTIC_CONFLUENCE,
+pub(in crate::card::sets) static MYSTIC_CONFLUENCE: CardRecord = CardRecord::new_with_legacy_id(
+    2229,
     "Mystic Confluence",
     CardArt::new("81bbffc2-6f58-4baa-8f95-168eab106b15", "Kieran Yanner"),
     CardSet::Commander2015,

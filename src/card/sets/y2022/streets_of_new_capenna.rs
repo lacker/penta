@@ -3,7 +3,7 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, CardArt, CardRules, CardSet, ComparisonDef, ObjectPredicateDef, PlayerRelation,
-    QuantifierDef, TriggerConditionDef, TriggerEventDef, abilities, cards,
+    QuantifierDef, TriggerConditionDef, TriggerEventDef, abilities,
 };
 use crate::mana_cost;
 
@@ -48,8 +48,8 @@ static LEDGER_SHREDDER_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // SNC 46 — Ledger Shredder
-pub(in crate::card::sets) static LEDGER_SHREDDER: CardRecord = CardRecord::new(
-    cards::LEDGER_SHREDDER,
+pub(in crate::card::sets) static LEDGER_SHREDDER: CardRecord = CardRecord::new_with_legacy_id(
+    2286,
     "Ledger Shredder",
     CardArt::new("7ea4b5bc-18a4-45db-a56a-ab3f8bd2fb0d", "Mila Pesic"),
     CardSet::StreetsOfNewCapenna,
@@ -60,8 +60,8 @@ pub(in crate::card::sets) static LEDGER_SHREDDER: CardRecord = CardRecord::new(
 );
 
 // SNC 250 — Jetmir's Garden
-pub(in crate::card::sets) static JETMIRS_GARDEN: CardRecord = CardRecord::new(
-    cards::JETMIRS_GARDEN,
+pub(in crate::card::sets) static JETMIRS_GARDEN: CardRecord = CardRecord::new_with_legacy_id(
+    2101,
     "Jetmir's Garden",
     CardArt::new(
         "26d40e03-6de4-4373-9fbf-04c1dd79e995",
@@ -72,8 +72,8 @@ pub(in crate::card::sets) static JETMIRS_GARDEN: CardRecord = CardRecord::new(
 );
 
 // SNC 254 — Raffine's Tower
-pub(in crate::card::sets) static RAFFINES_TOWER: CardRecord = CardRecord::new(
-    cards::RAFFINES_TOWER,
+pub(in crate::card::sets) static RAFFINES_TOWER: CardRecord = CardRecord::new_with_legacy_id(
+    2102,
     "Raffine's Tower",
     CardArt::new("a2c56479-4bee-4edb-80d7-4af010b7c793", "Sam White"),
     CardSet::StreetsOfNewCapenna,
@@ -81,8 +81,8 @@ pub(in crate::card::sets) static RAFFINES_TOWER: CardRecord = CardRecord::new(
 );
 
 // SNC 257 — Spara's Headquarters
-pub(in crate::card::sets) static SPARAS_HEADQUARTERS: CardRecord = CardRecord::new(
-    cards::SPARAS_HEADQUARTERS,
+pub(in crate::card::sets) static SPARAS_HEADQUARTERS: CardRecord = CardRecord::new_with_legacy_id(
+    2103,
     "Spara's Headquarters",
     CardArt::new("7363f1fb-9af3-4212-921f-d59533faf0e5", "Kieran Yanner"),
     CardSet::StreetsOfNewCapenna,
@@ -90,8 +90,8 @@ pub(in crate::card::sets) static SPARAS_HEADQUARTERS: CardRecord = CardRecord::n
 );
 
 // SNC 260 — Xander's Lounge
-pub(in crate::card::sets) static XANDERS_LOUNGE: CardRecord = CardRecord::new(
-    cards::XANDERS_LOUNGE,
+pub(in crate::card::sets) static XANDERS_LOUNGE: CardRecord = CardRecord::new_with_legacy_id(
+    2104,
     "Xander's Lounge",
     CardArt::new("54f449ff-4025-465e-9ec5-a5cf42c4c9d3", "James Paick"),
     CardSet::StreetsOfNewCapenna,
@@ -99,13 +99,14 @@ pub(in crate::card::sets) static XANDERS_LOUNGE: CardRecord = CardRecord::new(
 );
 
 // SNC 261 — Ziatora's Proving Ground
-pub(in crate::card::sets) static ZIATORAS_PROVING_GROUND: CardRecord = CardRecord::new(
-    cards::ZIATORAS_PROVING_GROUND,
-    "Ziatora's Proving Ground",
-    CardArt::new("75fdce80-e338-4a50-bdc6-786511feaeef", "Viko Menezes"),
-    CardSet::StreetsOfNewCapenna,
-    triome(&["Swamp", "Mountain", "Forest"]),
-);
+pub(in crate::card::sets) static ZIATORAS_PROVING_GROUND: CardRecord =
+    CardRecord::new_with_legacy_id(
+        2105,
+        "Ziatora's Proving Ground",
+        CardArt::new("75fdce80-e338-4a50-bdc6-786511feaeef", "Viko Menezes"),
+        CardSet::StreetsOfNewCapenna,
+        triome(&["Swamp", "Mountain", "Forest"]),
+    );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &LEDGER_SHREDDER,

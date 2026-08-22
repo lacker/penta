@@ -13,7 +13,7 @@ use crate::card::{
     ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
     ObjectSetDef, PayOrDef, PlayOptionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ResolvedEffectDurationDef, SacrificedAmountDef, SpellForm, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, cards,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{CardPartId, ObjectBindingIndex, PlayOptionId, TargetIndex};
 use crate::mana_cost;
@@ -47,8 +47,8 @@ static TWO_GATES_CONDITION: TriggerConditionDef = TriggerConditionDef::ObjectCou
 
 // DGM 1 — Boros Mastiff
 // Audit: partial — Battalion's attack-count restriction is rechecked on resolution as though it were an intervening-if condition.
-pub(in crate::card::sets) static BOROS_MASTIFF: CardRecord = CardRecord::new(
-    cards::BOROS_MASTIFF,
+pub(in crate::card::sets) static BOROS_MASTIFF: CardRecord = CardRecord::new_with_legacy_id(
+    607,
     "Boros Mastiff",
     CardArt::new("27a3bfb6-3843-4bda-bbcb-905e4b351dea", "Kev Walker"),
     CardSet::DragonsMaze,
@@ -70,8 +70,8 @@ pub(in crate::card::sets) static BOROS_MASTIFF: CardRecord = CardRecord::new(
 );
 
 // DGM 2 — Haazda Snare Squad
-pub(in crate::card::sets) static HAAZDA_SNARE_SQUAD: CardRecord = CardRecord::new(
-    cards::HAAZDA_SNARE_SQUAD,
+pub(in crate::card::sets) static HAAZDA_SNARE_SQUAD: CardRecord = CardRecord::new_with_legacy_id(
+    608,
     "Haazda Snare Squad",
     CardArt::new(
         "85d3c012-f356-424d-a960-60e95f395134",
@@ -104,8 +104,8 @@ pub(in crate::card::sets) static HAAZDA_SNARE_SQUAD: CardRecord = CardRecord::ne
 );
 
 // DGM 3 — Lyev Decree
-pub(in crate::card::sets) static LYEV_DECREE: CardRecord = CardRecord::new(
-    cards::LYEV_DECREE,
+pub(in crate::card::sets) static LYEV_DECREE: CardRecord = CardRecord::new_with_legacy_id(
+    1543,
     "Lyev Decree",
     CardArt::new("773cf2aa-4337-4d14-8a8e-ff8b1fdec1b5", "Kev Walker"),
     CardSet::DragonsMaze,
@@ -129,8 +129,8 @@ static LYEV_DECREE_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
 )];
 
 // DGM 4 — Maze Sentinel
-pub(in crate::card::sets) static MAZE_SENTINEL: CardRecord = CardRecord::new(
-    cards::MAZE_SENTINEL,
+pub(in crate::card::sets) static MAZE_SENTINEL: CardRecord = CardRecord::new_with_legacy_id(
+    609,
     "Maze Sentinel",
     CardArt::new("7a977e2d-a2bc-42d1-be7d-36a822c6a66e", "Yeong-Hao Han"),
     CardSet::DragonsMaze,
@@ -151,8 +151,8 @@ pub(in crate::card::sets) static MAZE_SENTINEL: CardRecord = CardRecord::new(
 );
 
 // DGM 5 — Renounce the Guilds
-pub(in crate::card::sets) static RENOUNCE_THE_GUILDS: CardRecord = CardRecord::new(
-    cards::RENOUNCE_THE_GUILDS,
+pub(in crate::card::sets) static RENOUNCE_THE_GUILDS: CardRecord = CardRecord::new_with_legacy_id(
+    610,
     "Renounce the Guilds",
     CardArt::new("bc9acc14-24e0-4c03-a09a-2afee351f2cc", "Daarken"),
     CardSet::DragonsMaze,
@@ -176,8 +176,8 @@ static RIOT_CONTROL_OPPONENT_CREATURES: ObjectQueryDef = ObjectQueryDef::matchin
 );
 
 // DGM 6 — Riot Control
-pub(in crate::card::sets) static RIOT_CONTROL: CardRecord = CardRecord::new(
-    cards::RIOT_CONTROL,
+pub(in crate::card::sets) static RIOT_CONTROL: CardRecord = CardRecord::new_with_legacy_id(
+    1499,
     "Riot Control",
     CardArt::new("d7886607-86db-4221-8752-296104aaaef2", "Slawomir Maniak"),
     CardSet::DragonsMaze,
@@ -202,8 +202,8 @@ pub(in crate::card::sets) static RIOT_CONTROL: CardRecord = CardRecord::new(
 // Audit: blocked — Needs an enters-trigger condition that remembers whether the permanent was cast from hand, plus populate's token-copy choice.
 
 // DGM 8 — Steeple Roc
-pub(in crate::card::sets) static STEEPLE_ROC: CardRecord = CardRecord::new(
-    cards::STEEPLE_ROC,
+pub(in crate::card::sets) static STEEPLE_ROC: CardRecord = CardRecord::new_with_legacy_id(
+    611,
     "Steeple Roc",
     CardArt::new("5fecafab-97f4-40ed-bc43-d186eb2f3af6", "David Palumbo"),
     CardSet::DragonsMaze,
@@ -212,8 +212,8 @@ pub(in crate::card::sets) static STEEPLE_ROC: CardRecord = CardRecord::new(
 );
 
 // DGM 9 — Sunspire Gatekeepers
-pub(in crate::card::sets) static SUNSPIRE_GATEKEEPERS: CardRecord = CardRecord::new(
-    cards::SUNSPIRE_GATEKEEPERS,
+pub(in crate::card::sets) static SUNSPIRE_GATEKEEPERS: CardRecord = CardRecord::new_with_legacy_id(
+    612,
     "Sunspire Gatekeepers",
     CardArt::new("0a3bc6b9-475b-4257-a3bc-1a0b70d45f79", "Chippy"),
     CardSet::DragonsMaze,
@@ -228,8 +228,8 @@ pub(in crate::card::sets) static SUNSPIRE_GATEKEEPERS: CardRecord = CardRecord::
 );
 
 // DGM 10 — Wake the Reflections
-pub(in crate::card::sets) static WAKE_THE_REFLECTIONS: CardRecord = CardRecord::new(
-    cards::WAKE_THE_REFLECTIONS,
+pub(in crate::card::sets) static WAKE_THE_REFLECTIONS: CardRecord = CardRecord::new_with_legacy_id(
+    1863,
     "Wake the Reflections",
     CardArt::new("3db0074c-95cf-4d15-8fe1-7282803ec757", "Cynthia Sheppard"),
     CardSet::DragonsMaze,
@@ -240,8 +240,8 @@ pub(in crate::card::sets) static WAKE_THE_REFLECTIONS: CardRecord = CardRecord::
 );
 
 // DGM 11 — Aetherling
-pub(in crate::card::sets) static AETHERLING: CardRecord = CardRecord::new(
-    cards::AETHERLING,
+pub(in crate::card::sets) static AETHERLING: CardRecord = CardRecord::new_with_legacy_id(
+    130,
     "Aetherling",
     CardArt::new("9c93313b-cf43-47e9-a911-717b4d14b0b5", "Tyler Jacobson"),
     CardSet::DragonsMaze,
@@ -315,8 +315,8 @@ pub(in crate::card::sets) static AETHERLING: CardRecord = CardRecord::new(
 // Audit: blocked — Needs tap-or-untap choices made independently on resolution and cipher's encoded-card link, combat-damage trigger, and free-copy casting permission.
 
 // DGM 13 — Maze Glider
-pub(in crate::card::sets) static MAZE_GLIDER: CardRecord = CardRecord::new(
-    cards::MAZE_GLIDER,
+pub(in crate::card::sets) static MAZE_GLIDER: CardRecord = CardRecord::new_with_legacy_id(
+    613,
     "Maze Glider",
     CardArt::new("d1d20281-49c0-4fd0-91f2-390506ac33f6", "Yeong-Hao Han"),
     CardSet::DragonsMaze,
@@ -337,8 +337,8 @@ pub(in crate::card::sets) static MAZE_GLIDER: CardRecord = CardRecord::new(
 );
 
 // DGM 14 — Mindstatic
-pub(in crate::card::sets) static MINDSTATIC: CardRecord = CardRecord::new(
-    cards::MINDSTATIC,
+pub(in crate::card::sets) static MINDSTATIC: CardRecord = CardRecord::new_with_legacy_id(
+    614,
     "Mindstatic",
     CardArt::new("55d3fad5-a12a-4b41-9c7b-c1af5e0b5ca8", "Johann Bodin"),
     CardSet::DragonsMaze,
@@ -350,8 +350,8 @@ pub(in crate::card::sets) static MINDSTATIC: CardRecord = CardRecord::new(
 );
 
 // DGM 15 — Murmuring Phantasm
-pub(in crate::card::sets) static MURMURING_PHANTASM: CardRecord = CardRecord::new(
-    cards::MURMURING_PHANTASM,
+pub(in crate::card::sets) static MURMURING_PHANTASM: CardRecord = CardRecord::new_with_legacy_id(
+    615,
     "Murmuring Phantasm",
     CardArt::new("9752644c-7c43-429e-a79c-1239b9a0bc8a", "Peter Mohrbacher"),
     CardSet::DragonsMaze,
@@ -360,8 +360,8 @@ pub(in crate::card::sets) static MURMURING_PHANTASM: CardRecord = CardRecord::ne
 );
 
 // DGM 16 — Opal Lake Gatekeepers
-pub(in crate::card::sets) static OPAL_LAKE_GATEKEEPERS: CardRecord = CardRecord::new(
-    cards::OPAL_LAKE_GATEKEEPERS,
+pub(in crate::card::sets) static OPAL_LAKE_GATEKEEPERS: CardRecord = CardRecord::new_with_legacy_id(
+    616,
     "Opal Lake Gatekeepers",
     CardArt::new("f43ac38f-5cd0-46cf-8623-d82cb8fb719b", "Seb McKinnon"),
     CardSet::DragonsMaze,
@@ -387,8 +387,8 @@ pub(in crate::card::sets) static OPAL_LAKE_GATEKEEPERS: CardRecord = CardRecord:
 
 // DGM 17 — Runner's Bane
 // Audit: partial — Power-based Aura legality ignores continuous static power modifiers when offering and rechecking the enchanted creature.
-pub(in crate::card::sets) static RUNNERS_BANE: CardRecord = CardRecord::new(
-    cards::RUNNERS_BANE,
+pub(in crate::card::sets) static RUNNERS_BANE: CardRecord = CardRecord::new_with_legacy_id(
+    617,
     "Runner's Bane",
     CardArt::new("4696b5a6-edfd-445e-ac80-64c1be94fbfc", "Karl Kopinski"),
     CardSet::DragonsMaze,
@@ -433,11 +433,11 @@ pub(in crate::card::sets) static RUNNERS_BANE: CardRecord = CardRecord::new(
 // Audit: blocked — Needs duration-scoped color-word text changes and cipher's encoded-card link, combat-damage trigger, and free-copy casting permission.
 
 // DGM 19 — Uncovered Clues
-// Audit: blocked — Needs a top-four selection constrained to up to two instant or sorcery cards, followed by ordering the unselected cards on the library bottom.
+// Audit: blocked — Needs a top-four selection constrained to up to two instant or sorcery followed by ordering the unselected cards on the library bottom.
 
 // DGM 21 — Bane Alley Blackguard
-pub(in crate::card::sets) static BANE_ALLEY_BLACKGUARD: CardRecord = CardRecord::new(
-    cards::BANE_ALLEY_BLACKGUARD,
+pub(in crate::card::sets) static BANE_ALLEY_BLACKGUARD: CardRecord = CardRecord::new_with_legacy_id(
+    619,
     "Bane Alley Blackguard",
     CardArt::new("15fcad03-4567-4f96-976e-01a07d8ab050", "Mike Bierek"),
     CardSet::DragonsMaze,
@@ -451,8 +451,8 @@ pub(in crate::card::sets) static BANE_ALLEY_BLACKGUARD: CardRecord = CardRecord:
 // Audit: blocked — Needs the number of cards actually exiled by a graveyard sweep to feed one life-gain event after replacements are applied.
 
 // DGM 24 — Fatal Fumes
-pub(in crate::card::sets) static FATAL_FUMES: CardRecord = CardRecord::new(
-    cards::FATAL_FUMES,
+pub(in crate::card::sets) static FATAL_FUMES: CardRecord = CardRecord::new_with_legacy_id(
+    620,
     "Fatal Fumes",
     CardArt::new("967aa636-a11d-4c5c-ba85-648734b295c2", "Kev Walker"),
     CardSet::DragonsMaze,
@@ -476,8 +476,8 @@ pub(in crate::card::sets) static FATAL_FUMES: CardRecord = CardRecord::new(
 // Audit: blocked — Needs revealing a random card from the targeted opponent's hand after the life-loss effect.
 
 // DGM 26 — Maze Abomination
-pub(in crate::card::sets) static MAZE_ABOMINATION: CardRecord = CardRecord::new(
-    cards::MAZE_ABOMINATION,
+pub(in crate::card::sets) static MAZE_ABOMINATION: CardRecord = CardRecord::new_with_legacy_id(
+    621,
     "Maze Abomination",
     CardArt::new("dd84659f-4209-42a2-800a-61706470ce54", "Yeong-Hao Han"),
     CardSet::DragonsMaze,
@@ -514,8 +514,8 @@ static PONTIFF_OF_BLIGHT_GRANT: EffectDef = EffectDef::StaticApply {
 };
 
 // DGM 27 — Pontiff of Blight
-pub(in crate::card::sets) static PONTIFF_OF_BLIGHT: CardRecord = CardRecord::new(
-    cards::PONTIFF_OF_BLIGHT,
+pub(in crate::card::sets) static PONTIFF_OF_BLIGHT: CardRecord = CardRecord::new_with_legacy_id(
+    1896,
     "Pontiff of Blight",
     CardArt::new("72e5291f-9281-4cb7-9158-54b7cb336b93", "Seb McKinnon"),
     CardSet::DragonsMaze,
@@ -531,8 +531,8 @@ pub(in crate::card::sets) static PONTIFF_OF_BLIGHT: CardRecord = CardRecord::new
 );
 
 // DGM 28 — Rakdos Drake
-pub(in crate::card::sets) static RAKDOS_DRAKE: CardRecord = CardRecord::new(
-    cards::RAKDOS_DRAKE,
+pub(in crate::card::sets) static RAKDOS_DRAKE: CardRecord = CardRecord::new_with_legacy_id(
+    1627,
     "Rakdos Drake",
     CardArt::new("b9c1bfd7-b8b2-4db7-9ea7-a2d643a83589", "Karl Kopinski"),
     CardSet::DragonsMaze,
@@ -547,8 +547,8 @@ pub(in crate::card::sets) static RAKDOS_DRAKE: CardRecord = CardRecord::new(
 // Audit: blocked — Needs an Aura to observe both attack and block events from its attached creature and make that creature's controller lose life.
 
 // DGM 30 — Ubul Sar Gatekeepers
-pub(in crate::card::sets) static UBUL_SAR_GATEKEEPERS: CardRecord = CardRecord::new(
-    cards::UBUL_SAR_GATEKEEPERS,
+pub(in crate::card::sets) static UBUL_SAR_GATEKEEPERS: CardRecord = CardRecord::new_with_legacy_id(
+    622,
     "Ubul Sar Gatekeepers",
     CardArt::new("f5b2e327-adfd-459b-8d18-faa39d88b5de", "Volkan Baǵa"),
     CardSet::DragonsMaze,
@@ -578,8 +578,8 @@ pub(in crate::card::sets) static UBUL_SAR_GATEKEEPERS: CardRecord = CardRecord::
 // Audit: blocked — Needs a turn-long restriction preventing every monocolored creature from blocking.
 
 // DGM 32 — Clear a Path
-pub(in crate::card::sets) static CLEAR_A_PATH: CardRecord = CardRecord::new(
-    cards::CLEAR_A_PATH,
+pub(in crate::card::sets) static CLEAR_A_PATH: CardRecord = CardRecord::new_with_legacy_id(
+    623,
     "Clear a Path",
     CardArt::new("8a8f904b-a9a3-4bae-9284-4e9cbe7592ee", "Karl Kopinski"),
     CardSet::DragonsMaze,
@@ -594,8 +594,8 @@ pub(in crate::card::sets) static CLEAR_A_PATH: CardRecord = CardRecord::new(
 );
 
 // DGM 33 — Maze Rusher
-pub(in crate::card::sets) static MAZE_RUSHER: CardRecord = CardRecord::new(
-    cards::MAZE_RUSHER,
+pub(in crate::card::sets) static MAZE_RUSHER: CardRecord = CardRecord::new_with_legacy_id(
+    624,
     "Maze Rusher",
     CardArt::new("864d2eb8-e27f-4f84-9725-d2ae6446e217", "Yeong-Hao Han"),
     CardSet::DragonsMaze,
@@ -619,8 +619,8 @@ pub(in crate::card::sets) static MAZE_RUSHER: CardRecord = CardRecord::new(
 // Audit: blocked — Needs spell-type-aware library reveal-until, free casting of the found card, and random ordering of the linked exiled cards.
 
 // DGM 35 — Punish the Enemy
-pub(in crate::card::sets) static PUNISH_THE_ENEMY: CardRecord = CardRecord::new(
-    cards::PUNISH_THE_ENEMY,
+pub(in crate::card::sets) static PUNISH_THE_ENEMY: CardRecord = CardRecord::new_with_legacy_id(
+    625,
     "Punish the Enemy",
     CardArt::new("4179a72b-8482-46ec-9815-f5d6d94b5aa5", "Slawomir Maniak"),
     CardSet::DragonsMaze,
@@ -651,8 +651,8 @@ pub(in crate::card::sets) static PUNISH_THE_ENEMY: CardRecord = CardRecord::new(
 
 // DGM 36 — Pyrewild Shaman
 // Audit: partial — Bloodrush is implemented, but combat damage from multiple creatures is captured as separate events instead of one “one or more” event for the graveyard return trigger.
-pub(in crate::card::sets) static PYREWILD_SHAMAN: CardRecord = CardRecord::new(
-    cards::PYREWILD_SHAMAN,
+pub(in crate::card::sets) static PYREWILD_SHAMAN: CardRecord = CardRecord::new_with_legacy_id(
+    626,
     "Pyrewild Shaman",
     CardArt::new("8c6f6e45-f613-420d-83d2-d93c643265ee", "Lucas Graciano"),
     CardSet::DragonsMaze,
@@ -678,8 +678,8 @@ pub(in crate::card::sets) static PYREWILD_SHAMAN: CardRecord = CardRecord::new(
 );
 
 // DGM 37 — Riot Piker
-pub(in crate::card::sets) static RIOT_PIKER: CardRecord = CardRecord::new(
-    cards::RIOT_PIKER,
+pub(in crate::card::sets) static RIOT_PIKER: CardRecord = CardRecord::new_with_legacy_id(
+    627,
     "Riot Piker",
     CardArt::new(
         "4daaccd2-733c-4b3b-aa3f-cc825bcc3e53",
@@ -695,8 +695,8 @@ pub(in crate::card::sets) static RIOT_PIKER: CardRecord = CardRecord::new(
 );
 
 // DGM 38 — Rubblebelt Maaka
-pub(in crate::card::sets) static RUBBLEBELT_MAAKA: CardRecord = CardRecord::new(
-    cards::RUBBLEBELT_MAAKA,
+pub(in crate::card::sets) static RUBBLEBELT_MAAKA: CardRecord = CardRecord::new_with_legacy_id(
+    628,
     "Rubblebelt Maaka",
     CardArt::new("bc802d62-6559-45b9-ad11-de5887aece2b", "Eric Velhagen"),
     CardSet::DragonsMaze,
@@ -718,8 +718,8 @@ pub(in crate::card::sets) static RUBBLEBELT_MAAKA: CardRecord = CardRecord::new(
 );
 
 // DGM 39 — Smelt-Ward Gatekeepers
-pub(in crate::card::sets) static SMELT_WARD_GATEKEEPERS: CardRecord = CardRecord::new(
-    cards::SMELT_WARD_GATEKEEPERS,
+pub(in crate::card::sets) static SMELT_WARD_GATEKEEPERS: CardRecord = CardRecord::new_with_legacy_id(
+    629,
     "Smelt-Ward Gatekeepers",
     CardArt::new("8237b11f-36d2-4624-a0ef-520663385891", "Daarken"),
     CardSet::DragonsMaze,
@@ -761,8 +761,8 @@ static WEAPON_SURGE_PUMP: AppliedEffectDef = AppliedEffectDef::Composite(&[
 ]);
 
 // DGM 40 — Weapon Surge
-pub(in crate::card::sets) static WEAPON_SURGE: CardRecord = CardRecord::new(
-    cards::WEAPON_SURGE,
+pub(in crate::card::sets) static WEAPON_SURGE: CardRecord = CardRecord::new_with_legacy_id(
+    630,
     "Weapon Surge",
     CardArt::new("f28df164-8bff-4428-b7dd-2974c288f1d3", "Jason Felix"),
     CardSet::DragonsMaze,
@@ -800,8 +800,8 @@ pub(in crate::card::sets) static WEAPON_SURGE: CardRecord = CardRecord::new(
 );
 
 // DGM 41 — Battering Krasis
-pub(in crate::card::sets) static BATTERING_KRASIS: CardRecord = CardRecord::new(
-    cards::BATTERING_KRASIS,
+pub(in crate::card::sets) static BATTERING_KRASIS: CardRecord = CardRecord::new_with_legacy_id(
+    1897,
     "Battering Krasis",
     CardArt::new("5d9aa740-9adf-412a-b6ec-0b9bb1b4618b", "Jack Wang"),
     CardSet::DragonsMaze,
@@ -810,8 +810,8 @@ pub(in crate::card::sets) static BATTERING_KRASIS: CardRecord = CardRecord::new(
 );
 
 // DGM 42 — Kraul Warrior
-pub(in crate::card::sets) static KRAUL_WARRIOR: CardRecord = CardRecord::new(
-    cards::KRAUL_WARRIOR,
+pub(in crate::card::sets) static KRAUL_WARRIOR: CardRecord = CardRecord::new_with_legacy_id(
+    631,
     "Kraul Warrior",
     CardArt::new("f71da8cc-8773-4dcb-aca8-50a000142218", "David Rapoza"),
     CardSet::DragonsMaze,
@@ -832,8 +832,8 @@ pub(in crate::card::sets) static KRAUL_WARRIOR: CardRecord = CardRecord::new(
 );
 
 // DGM 43 — Maze Behemoth
-pub(in crate::card::sets) static MAZE_BEHEMOTH: CardRecord = CardRecord::new(
-    cards::MAZE_BEHEMOTH,
+pub(in crate::card::sets) static MAZE_BEHEMOTH: CardRecord = CardRecord::new_with_legacy_id(
+    632,
     "Maze Behemoth",
     CardArt::new("0a7c9678-dea7-4219-bac0-9e1cef531f54", "Yeong-Hao Han"),
     CardSet::DragonsMaze,
@@ -854,8 +854,8 @@ pub(in crate::card::sets) static MAZE_BEHEMOTH: CardRecord = CardRecord::new(
 );
 
 // DGM 44 — Mending Touch
-pub(in crate::card::sets) static MENDING_TOUCH: CardRecord = CardRecord::new(
-    cards::MENDING_TOUCH,
+pub(in crate::card::sets) static MENDING_TOUCH: CardRecord = CardRecord::new_with_legacy_id(
+    1495,
     "Mending Touch",
     CardArt::new("c042c7ee-0e74-4ca5-bbb9-2898b0576f0a", "Karla Ortiz"),
     CardSet::DragonsMaze,
@@ -874,8 +874,8 @@ pub(in crate::card::sets) static MENDING_TOUCH: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a target predicate for a +1/+1 counter and the simultaneous fight damage procedure.
 
 // DGM 46 — Phytoburst
-pub(in crate::card::sets) static PHYTOBURST: CardRecord = CardRecord::new(
-    cards::PHYTOBURST,
+pub(in crate::card::sets) static PHYTOBURST: CardRecord = CardRecord::new_with_legacy_id(
+    633,
     "Phytoburst",
     CardArt::new("7507afc4-f504-4eb2-a86d-f99bc2860838", "Izzy"),
     CardSet::DragonsMaze,
@@ -899,8 +899,8 @@ pub(in crate::card::sets) static PHYTOBURST: CardRecord = CardRecord::new(
 // Audit: blocked — Needs evolve's characteristic comparison and an evolve event that can drive the counter sweep.
 
 // DGM 48 — Saruli Gatekeepers
-pub(in crate::card::sets) static SARULI_GATEKEEPERS: CardRecord = CardRecord::new(
-    cards::SARULI_GATEKEEPERS,
+pub(in crate::card::sets) static SARULI_GATEKEEPERS: CardRecord = CardRecord::new_with_legacy_id(
+    634,
     "Saruli Gatekeepers",
     CardArt::new("471a5b1d-e2e5-4d90-b72a-ffae81ad6602", "Chris Rahn"),
     CardSet::DragonsMaze,
@@ -922,8 +922,8 @@ pub(in crate::card::sets) static SARULI_GATEKEEPERS: CardRecord = CardRecord::ne
 );
 
 // DGM 49 — Skylasher
-pub(in crate::card::sets) static SKYLASHER: CardRecord = CardRecord::new(
-    cards::SKYLASHER,
+pub(in crate::card::sets) static SKYLASHER: CardRecord = CardRecord::new_with_legacy_id(
+    635,
     "Skylasher",
     CardArt::new("4f4c2069-deb1-4e56-8069-170c4f495944", "Dan Murayama Scott"),
     CardSet::DragonsMaze,
@@ -936,8 +936,8 @@ pub(in crate::card::sets) static SKYLASHER: CardRecord = CardRecord::new(
 );
 
 // DGM 50 — Thrashing Mossdog
-pub(in crate::card::sets) static THRASHING_MOSSDOG: CardRecord = CardRecord::new(
-    cards::THRASHING_MOSSDOG,
+pub(in crate::card::sets) static THRASHING_MOSSDOG: CardRecord = CardRecord::new_with_legacy_id(
+    1869,
     "Thrashing Mossdog",
     CardArt::new("ffd0d63a-d947-4ce4-8e34-5c1521955b18", "Ryan Barger"),
     CardSet::DragonsMaze,
@@ -953,8 +953,8 @@ pub(in crate::card::sets) static THRASHING_MOSSDOG: CardRecord = CardRecord::new
 );
 
 // DGM 51 — Advent of the Wurm
-pub(in crate::card::sets) static ADVENT_OF_THE_WURM: CardRecord = CardRecord::new(
-    cards::ADVENT_OF_THE_WURM,
+pub(in crate::card::sets) static ADVENT_OF_THE_WURM: CardRecord = CardRecord::new_with_legacy_id(
+    636,
     "Advent of the Wurm",
     CardArt::new("f40284e6-01a1-4372-a92c-940e5732607e", "Lucas Graciano"),
     CardSet::DragonsMaze,
@@ -970,8 +970,8 @@ pub(in crate::card::sets) static ADVENT_OF_THE_WURM: CardRecord = CardRecord::ne
 );
 
 // DGM 52 — Armored Wolf-Rider
-pub(in crate::card::sets) static ARMORED_WOLF_RIDER: CardRecord = CardRecord::new(
-    cards::ARMORED_WOLF_RIDER,
+pub(in crate::card::sets) static ARMORED_WOLF_RIDER: CardRecord = CardRecord::new_with_legacy_id(
+    637,
     "Armored Wolf-Rider",
     CardArt::new("e43d959f-6055-4578-a69a-0ec93e993e21", "Matt Stewart"),
     CardSet::DragonsMaze,
@@ -979,8 +979,8 @@ pub(in crate::card::sets) static ARMORED_WOLF_RIDER: CardRecord = CardRecord::ne
 );
 
 // DGM 53 — Ascended Lawmage
-pub(in crate::card::sets) static ASCENDED_LAWMAGE: CardRecord = CardRecord::new(
-    cards::ASCENDED_LAWMAGE,
+pub(in crate::card::sets) static ASCENDED_LAWMAGE: CardRecord = CardRecord::new_with_legacy_id(
+    638,
     "Ascended Lawmage",
     CardArt::new("b1f00799-80ce-431e-97bb-8bb4e0e8ba49", "Ryan Yee"),
     CardSet::DragonsMaze,
@@ -991,8 +991,8 @@ pub(in crate::card::sets) static ASCENDED_LAWMAGE: CardRecord = CardRecord::new(
 static BEETLE_WINGS: AbilityDef = abilities::flying();
 
 // DGM 54 — Beetleform Mage
-pub(in crate::card::sets) static BEETLEFORM_MAGE: CardRecord = CardRecord::new(
-    cards::BEETLEFORM_MAGE,
+pub(in crate::card::sets) static BEETLEFORM_MAGE: CardRecord = CardRecord::new_with_legacy_id(
+    1661,
     "Beetleform Mage",
     CardArt::new("1e2f7d7f-4097-419b-8de0-b7bf28fc3a4b", "Marco Nelor"),
     CardSet::DragonsMaze,
@@ -1030,8 +1030,8 @@ pub(in crate::card::sets) static BEETLEFORM_MAGE: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a damage event that groups all damage dealt by one instant or sorcery before creating the two tokens.
 
 // DGM 57 — Blood Baron of Vizkopa
-pub(in crate::card::sets) static BLOOD_BARON_OF_VIZKOPA: CardRecord = CardRecord::new(
-    cards::BLOOD_BARON_OF_VIZKOPA,
+pub(in crate::card::sets) static BLOOD_BARON_OF_VIZKOPA: CardRecord = CardRecord::new_with_legacy_id(
+    142,
     "Blood Baron of Vizkopa",
     CardArt::new("e4edad09-bf7b-40e9-ac2a-100da8a43274", "Anthony Palumbo"),
     CardSet::DragonsMaze,
@@ -1060,8 +1060,8 @@ pub(in crate::card::sets) static BLOOD_BARON_OF_VIZKOPA: CardRecord = CardRecord
 // Audit: blocked — Needs a combat-damage source predicate that tests for a +1/+1 counter on the dealing creature.
 
 // DGM 60 — Bronzebeak Moa
-pub(in crate::card::sets) static BRONZEBEAK_MOA: CardRecord = CardRecord::new(
-    cards::BRONZEBEAK_MOA,
+pub(in crate::card::sets) static BRONZEBEAK_MOA: CardRecord = CardRecord::new_with_legacy_id(
+    639,
     "Bronzebeak Moa",
     CardArt::new("291c0ebc-d489-42c7-8d8a-9216c333412f", "James Ryman"),
     CardSet::DragonsMaze,
@@ -1094,8 +1094,8 @@ pub(in crate::card::sets) static BRONZEBEAK_MOA: CardRecord = CardRecord::new(
 // Audit: blocked — Needs arithmetic values for twice X and one life-gain event equal to the life actually lost by all opponents.
 
 // DGM 65 — Deputy of Acquittals
-pub(in crate::card::sets) static DEPUTY_OF_ACQUITTALS: CardRecord = CardRecord::new(
-    cards::DEPUTY_OF_ACQUITTALS,
+pub(in crate::card::sets) static DEPUTY_OF_ACQUITTALS: CardRecord = CardRecord::new_with_legacy_id(
+    640,
     "Deputy of Acquittals",
     CardArt::new("4b555888-21b1-4c45-966d-d98f32460d4e", "James Ryman"),
     CardSet::DragonsMaze,
@@ -1142,14 +1142,14 @@ static DROWN_IN_FILTH_PENALTY: ValueDef =
     ValueDef::Negate(&ValueDef::CountMatchingObjects(&DROWN_IN_FILTH_LANDS));
 
 // DGM 67 — Drown in Filth
-pub(in crate::card::sets) static DROWN_IN_FILTH: CardRecord = CardRecord::new(
-    cards::DROWN_IN_FILTH,
+pub(in crate::card::sets) static DROWN_IN_FILTH: CardRecord = CardRecord::new_with_legacy_id(
+    641,
     "Drown in Filth",
     CardArt::new("22feacda-01e0-4f0d-a3c7-a22e3d40bf4e", "Seb McKinnon"),
     CardSet::DragonsMaze,
     CardRules::new_sorcery(mana_cost!("{B}{G}")).with_ability(
         AbilityDef::spell_with_targets(
-            "Choose target creature. Mill four cards, then that creature gets -1/-1 until end of turn for each land card in your graveyard.",
+            "Choose target creature. Mill four then that creature gets -1/-1 until end of turn for each land card in your graveyard.",
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -1179,8 +1179,8 @@ static EMMARA_TANDRIS_SHIELD: AppliedEffectDef =
     }));
 
 // DGM 68 — Emmara Tandris
-pub(in crate::card::sets) static EMMARA_TANDRIS: CardRecord = CardRecord::new(
-    cards::EMMARA_TANDRIS,
+pub(in crate::card::sets) static EMMARA_TANDRIS: CardRecord = CardRecord::new_with_legacy_id(
+    1898,
     "Emmara Tandris",
     CardArt::new("c7c91a0a-2f14-4131-8ca7-1d0046a8edd2", "Mark Winters"),
     CardSet::DragonsMaze,
@@ -1213,35 +1213,36 @@ static EXAVA_OTHER_COUNTERED_CREATURES: [ObjectPredicateDef; 3] = [
 static EXAVA_HASTE: AbilityDef = abilities::haste();
 
 // DGM 69 — Exava, Rakdos Blood Witch
-pub(in crate::card::sets) static EXAVA_RAKDOS_BLOOD_WITCH: CardRecord = CardRecord::new(
-    cards::EXAVA_RAKDOS_BLOOD_WITCH,
-    "Exava, Rakdos Blood Witch",
-    CardArt::new("6cb72a64-89e7-4b0e-a3d3-1309829071d2", "Aleksi Briclot"),
-    CardSet::DragonsMaze,
-    CardRules::new_creature(mana_cost!("{2}{B}{R}"), &["Human", "Cleric"], 3, 3)
-        .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&[
-            abilities::first_strike(),
-            abilities::haste(),
-            abilities::unleash(),
-            abilities::unleash_counter(),
-            AbilityDef::static_ability(
-                "Each other creature you control with a +1/+1 counter on it has haste.",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::matching_objects(
-                        ObjectPredicateDef::All(&EXAVA_OTHER_COUNTERED_CREATURES),
-                        &[ZoneKind::Battlefield],
-                        PlayerRelation::You,
-                    ),
-                    effect: AppliedEffectDef::add_ability(&EXAVA_HASTE),
-                },
-            ),
-        ]),
-);
+pub(in crate::card::sets) static EXAVA_RAKDOS_BLOOD_WITCH: CardRecord =
+    CardRecord::new_with_legacy_id(
+        1630,
+        "Exava, Rakdos Blood Witch",
+        CardArt::new("6cb72a64-89e7-4b0e-a3d3-1309829071d2", "Aleksi Briclot"),
+        CardSet::DragonsMaze,
+        CardRules::new_creature(mana_cost!("{2}{B}{R}"), &["Human", "Cleric"], 3, 3)
+            .with_supertype(CardSupertype::Legendary)
+            .with_abilities(&[
+                abilities::first_strike(),
+                abilities::haste(),
+                abilities::unleash(),
+                abilities::unleash_counter(),
+                AbilityDef::static_ability(
+                    "Each other creature you control with a +1/+1 counter on it has haste.",
+                    EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::matching_objects(
+                            ObjectPredicateDef::All(&EXAVA_OTHER_COUNTERED_CREATURES),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                        effect: AppliedEffectDef::add_ability(&EXAVA_HASTE),
+                    },
+                ),
+            ]),
+    );
 
 // DGM 70 — Feral Animist
-pub(in crate::card::sets) static FERAL_ANIMIST: CardRecord = CardRecord::new(
-    cards::FERAL_ANIMIST,
+pub(in crate::card::sets) static FERAL_ANIMIST: CardRecord = CardRecord::new_with_legacy_id(
+    642,
     "Feral Animist",
     CardArt::new("108a9ef2-c74a-450b-8148-4fdf9f09843f", "Dave Kendall"),
     CardSet::DragonsMaze,
@@ -1262,8 +1263,8 @@ pub(in crate::card::sets) static FERAL_ANIMIST: CardRecord = CardRecord::new(
 );
 
 // DGM 71 — Fluxcharger
-pub(in crate::card::sets) static FLUXCHARGER: CardRecord = CardRecord::new(
-    cards::FLUXCHARGER,
+pub(in crate::card::sets) static FLUXCHARGER: CardRecord = CardRecord::new_with_legacy_id(
+    1993,
     "Fluxcharger",
     CardArt::new("7c58f6ed-2544-4b58-8dc0-a0a37b9547e6", "Willian Murai"),
     CardSet::DragonsMaze,
@@ -1287,8 +1288,8 @@ pub(in crate::card::sets) static FLUXCHARGER: CardRecord = CardRecord::new(
 );
 
 // DGM 72 — Gaze of Granite
-pub(in crate::card::sets) static GAZE_OF_GRANITE: CardRecord = CardRecord::new(
-    cards::GAZE_OF_GRANITE,
+pub(in crate::card::sets) static GAZE_OF_GRANITE: CardRecord = CardRecord::new_with_legacy_id(
+    167,
     "Gaze of Granite",
     CardArt::new("96c9ac10-d114-4aa5-87ac-f1069cde8e40", "Nils Hamm"),
     CardSet::DragonsMaze,
@@ -1309,8 +1310,8 @@ pub(in crate::card::sets) static GAZE_OF_GRANITE: CardRecord = CardRecord::new(
 );
 
 // DGM 73 — Gleam of Battle
-pub(in crate::card::sets) static GLEAM_OF_BATTLE: CardRecord = CardRecord::new(
-    cards::GLEAM_OF_BATTLE,
+pub(in crate::card::sets) static GLEAM_OF_BATTLE: CardRecord = CardRecord::new_with_legacy_id(
+    643,
     "Gleam of Battle",
     CardArt::new("e5f0feef-1a71-4c8c-9fd1-f5cbe718a988", "Raymond Swanland"),
     CardSet::DragonsMaze,
@@ -1337,8 +1338,8 @@ static GRUUL_WAR_CHANT_EFFECT: [AppliedEffectDef; 2] = [
 ];
 
 // DGM 75 — Gruul War Chant
-pub(in crate::card::sets) static GRUUL_WAR_CHANT: CardRecord = CardRecord::new(
-    cards::GRUUL_WAR_CHANT,
+pub(in crate::card::sets) static GRUUL_WAR_CHANT: CardRecord = CardRecord::new_with_legacy_id(
+    1759,
     "Gruul War Chant",
     CardArt::new("7c3091d4-d0f8-43d6-9ecb-0fecb32fe698", "Dave Kendall"),
     CardSet::DragonsMaze,
@@ -1356,8 +1357,8 @@ pub(in crate::card::sets) static GRUUL_WAR_CHANT: CardRecord = CardRecord::new(
 );
 
 // DGM 76 — Haunter of Nightveil
-pub(in crate::card::sets) static HAUNTER_OF_NIGHTVEIL: CardRecord = CardRecord::new(
-    cards::HAUNTER_OF_NIGHTVEIL,
+pub(in crate::card::sets) static HAUNTER_OF_NIGHTVEIL: CardRecord = CardRecord::new_with_legacy_id(
+    644,
     "Haunter of Nightveil",
     CardArt::new("438683f5-adfa-42ae-a6fb-c4649a8a30ab", "Igor Kieryluk"),
     CardSet::DragonsMaze,
@@ -1380,8 +1381,8 @@ pub(in crate::card::sets) static HAUNTER_OF_NIGHTVEIL: CardRecord = CardRecord::
 );
 
 // DGM 77 — Jelenn Sphinx
-pub(in crate::card::sets) static JELENN_SPHINX: CardRecord = CardRecord::new(
-    cards::JELENN_SPHINX,
+pub(in crate::card::sets) static JELENN_SPHINX: CardRecord = CardRecord::new_with_legacy_id(
+    645,
     "Jelenn Sphinx",
     CardArt::new("533c89eb-d7c6-4945-9689-2f2c0e428b84", "Wesley Burt"),
     CardSet::DragonsMaze,
@@ -1420,8 +1421,8 @@ pub(in crate::card::sets) static JELENN_SPHINX: CardRecord = CardRecord::new(
 // Audit: blocked — Needs an attack-alone restriction, an unblocked-attacker trigger that sets a player's life total, and suppression of this creature's combat damage.
 
 // DGM 83 — Maw of the Obzedat
-pub(in crate::card::sets) static MAW_OF_THE_OBZEDAT: CardRecord = CardRecord::new(
-    cards::MAW_OF_THE_OBZEDAT,
+pub(in crate::card::sets) static MAW_OF_THE_OBZEDAT: CardRecord = CardRecord::new_with_legacy_id(
+    646,
     "Maw of the Obzedat",
     CardArt::new("cd1131c6-04da-4c4d-ab61-874ac5be7087", "Randy Gallegos"),
     CardSet::DragonsMaze,
@@ -1456,8 +1457,8 @@ pub(in crate::card::sets) static MAW_OF_THE_OBZEDAT: CardRecord = CardRecord::ne
 
 // DGM 86 — Morgue Burst
 // Audit: partial — Returning the graveyard card is implemented, but TargetPower cannot read a card target's power after it moves to hand.
-pub(in crate::card::sets) static MORGUE_BURST: CardRecord = CardRecord::new(
-    cards::MORGUE_BURST,
+pub(in crate::card::sets) static MORGUE_BURST: CardRecord = CardRecord::new_with_legacy_id(
+    647,
     "Morgue Burst",
     CardArt::new("7b3c2909-87ab-4027-9b56-58a2abae3fa3", "Raymond Swanland"),
     CardSet::DragonsMaze,
@@ -1505,8 +1506,8 @@ static INSTANT_OR_SORCERY_YOU_CAST: ObjectPredicateDef = ObjectPredicateDef::All
 ]);
 
 // DGM 87 — Nivix Cyclops
-pub(in crate::card::sets) static NIVIX_CYCLOPS: CardRecord = CardRecord::new(
-    cards::NIVIX_CYCLOPS,
+pub(in crate::card::sets) static NIVIX_CYCLOPS: CardRecord = CardRecord::new_with_legacy_id(
+    1741,
     "Nivix Cyclops",
     CardArt::new("87c6651d-72ca-43b3-94ca-d6c4c6b3ca3b", "Wayne Reynolds"),
     CardSet::DragonsMaze,
@@ -1529,8 +1530,8 @@ pub(in crate::card::sets) static NIVIX_CYCLOPS: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a draw-event replacement that recognizes the first draw of each opponent's draw step and redirects every other draw.
 
 // DGM 89 — Obzedat's Aid
-pub(in crate::card::sets) static OBZEDATS_AID: CardRecord = CardRecord::new(
-    cards::OBZEDATS_AID,
+pub(in crate::card::sets) static OBZEDATS_AID: CardRecord = CardRecord::new_with_legacy_id(
+    648,
     "Obzedat's Aid",
     CardArt::new("b846ba99-81ba-424a-98eb-f9f69c40f984", "Dan Murayama Scott"),
     CardSet::DragonsMaze,
@@ -1562,8 +1563,8 @@ pub(in crate::card::sets) static OBZEDATS_AID: CardRecord = CardRecord::new(
 );
 
 // DGM 90 — Pilfered Plans
-pub(in crate::card::sets) static PILFERED_PLANS: CardRecord = CardRecord::new(
-    cards::PILFERED_PLANS,
+pub(in crate::card::sets) static PILFERED_PLANS: CardRecord = CardRecord::new_with_legacy_id(
+    649,
     "Pilfered Plans",
     CardArt::new("3475fcc6-ee53-48da-89d2-80685a584e6a", "Michael C. Hayes"),
     CardSet::DragonsMaze,
@@ -1594,8 +1595,8 @@ pub(in crate::card::sets) static PILFERED_PLANS: CardRecord = CardRecord::new(
 // Audit: blocked — Needs an as-enters copy effect that adds a triggered ability to the copied values and later creates token copies of itself.
 
 // DGM 93 — Putrefy
-pub(in crate::card::sets) static PUTREFY: CardRecord = CardRecord::new(
-    cards::PUTREFY,
+pub(in crate::card::sets) static PUTREFY: CardRecord = CardRecord::new_with_legacy_id(
+    198,
     "Putrefy",
     CardArt::new("0d43a0b6-2a5c-4959-96ee-6e570949dfed", "Igor Kieryluk"),
     CardSet::DragonsMaze,
@@ -1611,8 +1612,8 @@ pub(in crate::card::sets) static PUTREFY: CardRecord = CardRecord::new(
 
 // DGM 94 — Ral Zarek
 // Audit: partial — The damage ability is complete, but the tap/untap targets are not constrained to different permanents and coin flips plus extra-turn scheduling are unavailable.
-pub(in crate::card::sets) static RAL_ZAREK: CardRecord = CardRecord::new(
-    cards::RAL_ZAREK,
+pub(in crate::card::sets) static RAL_ZAREK: CardRecord = CardRecord::new_with_legacy_id(
+    650,
     "Ral Zarek",
     CardArt::new("fcdbb062-0b0b-4b4c-b4db-dd149f744baa", "Eric Deschamps"),
     CardSet::DragonsMaze,
@@ -1667,8 +1668,8 @@ pub(in crate::card::sets) static RAL_ZAREK: CardRecord = CardRecord::new(
 // Audit: blocked — Needs an executable can't-block restriction and milling cards as an activation cost from the graveyard.
 
 // DGM 99 — Ruric Thar, the Unbowed
-pub(in crate::card::sets) static RURIC_THAR_THE_UNBOWED: CardRecord = CardRecord::new(
-    cards::RURIC_THAR_THE_UNBOWED,
+pub(in crate::card::sets) static RURIC_THAR_THE_UNBOWED: CardRecord = CardRecord::new_with_legacy_id(
+    206,
     "Ruric Thar, the Unbowed",
     CardArt::new("84dd3586-7c3b-4f9c-a1eb-7745b75339b0", "Tyler Jacobson"),
     CardSet::DragonsMaze,
@@ -1724,8 +1725,8 @@ static SHOWSTOPPER_DIES_ABILITY: AbilityDef = AbilityDef::triggered_with_targets
 );
 
 // DGM 102 — Showstopper
-pub(in crate::card::sets) static SHOWSTOPPER: CardRecord = CardRecord::new(
-    cards::SHOWSTOPPER,
+pub(in crate::card::sets) static SHOWSTOPPER: CardRecord = CardRecord::new_with_legacy_id(
+    651,
     "Showstopper",
     CardArt::new("2fd1f68b-3f16-484e-95c9-5cfa8da218c9", "Steve Prescott"),
     CardSet::DragonsMaze,
@@ -1773,8 +1774,8 @@ static SIN_COLLECTOR_EFFECTS: [EffectDef; 2] = [
 ];
 
 // DGM 103 — Sin Collector
-pub(in crate::card::sets) static SIN_COLLECTOR: CardRecord = CardRecord::new(
-    cards::SIN_COLLECTOR,
+pub(in crate::card::sets) static SIN_COLLECTOR: CardRecord = CardRecord::new_with_legacy_id(
+    214,
     "Sin Collector",
     CardArt::new("305a3feb-df49-486c-a3b4-ff2721d60019", "Mike Bierek"),
     CardSet::DragonsMaze,
@@ -1791,8 +1792,8 @@ pub(in crate::card::sets) static SIN_COLLECTOR: CardRecord = CardRecord::new(
 );
 
 // DGM 104 — Sire of Insanity
-pub(in crate::card::sets) static SIRE_OF_INSANITY: CardRecord = CardRecord::new(
-    cards::SIRE_OF_INSANITY,
+pub(in crate::card::sets) static SIRE_OF_INSANITY: CardRecord = CardRecord::new_with_legacy_id(
+    652,
     "Sire of Insanity",
     CardArt::new("3665cfb7-51b6-4083-8eae-fbd3fa6c3554", "Peter Mohrbacher"),
     CardSet::DragonsMaze,
@@ -1815,8 +1816,8 @@ pub(in crate::card::sets) static SIRE_OF_INSANITY: CardRecord = CardRecord::new(
 
 // DGM 105 — Species Gorger
 // Audit: partial — Needs a mandatory non-target creature choice followed by returning that chosen permanent to its owner's hand.
-pub(in crate::card::sets) static SPECIES_GORGER: CardRecord = CardRecord::new(
-    cards::SPECIES_GORGER,
+pub(in crate::card::sets) static SPECIES_GORGER: CardRecord = CardRecord::new_with_legacy_id(
+    653,
     "Species Gorger",
     CardArt::new("e0087a98-55cf-4c8b-a180-fb0d9c336eb2", "Min Yum"),
     CardSet::DragonsMaze,
@@ -1836,8 +1837,8 @@ pub(in crate::card::sets) static SPECIES_GORGER: CardRecord = CardRecord::new(
 );
 
 // DGM 106 — Spike Jester
-pub(in crate::card::sets) static SPIKE_JESTER: CardRecord = CardRecord::new(
-    cards::SPIKE_JESTER,
+pub(in crate::card::sets) static SPIKE_JESTER: CardRecord = CardRecord::new_with_legacy_id(
+    654,
     "Spike Jester",
     CardArt::new("cec50499-70d4-4dc1-9cae-abbecfc8e87d", "Ryan Barger"),
     CardSet::DragonsMaze,
@@ -1847,8 +1848,8 @@ pub(in crate::card::sets) static SPIKE_JESTER: CardRecord = CardRecord::new(
 
 // DGM 107 — Tajic, Blade of the Legion
 // Audit: partial — Battalion's attack-count restriction is rechecked on resolution as though it were an intervening-if condition.
-pub(in crate::card::sets) static TAJIC_BLADE_OF_THE_LEGION: CardRecord = CardRecord::new(
-    cards::TAJIC_BLADE_OF_THE_LEGION,
+pub(in crate::card::sets) static TAJIC_BLADE_OF_THE_LEGION: CardRecord = CardRecord::new_with_legacy_id(
+    655,
     "Tajic, Blade of the Legion",
     CardArt::new("be5717c1-338e-446c-aa7e-93e79e4abb72", "James Ryman"),
     CardSet::DragonsMaze,
@@ -1876,8 +1877,8 @@ pub(in crate::card::sets) static TAJIC_BLADE_OF_THE_LEGION: CardRecord = CardRec
 // Audit: blocked — Needs protection from creatures and a combat-damage trigger that destroys the specific dealing creature before creating a token.
 
 // DGM 109 — Tithe Drinker
-pub(in crate::card::sets) static TITHE_DRINKER: CardRecord = CardRecord::new(
-    cards::TITHE_DRINKER,
+pub(in crate::card::sets) static TITHE_DRINKER: CardRecord = CardRecord::new_with_legacy_id(
+    1899,
     "Tithe Drinker",
     CardArt::new("e069aa06-35b0-4af8-89cb-af653708ed32", "Slawomir Maniak"),
     CardSet::DragonsMaze,
@@ -1886,8 +1887,8 @@ pub(in crate::card::sets) static TITHE_DRINKER: CardRecord = CardRecord::new(
 );
 
 // DGM 110 — Trostani's Summoner
-pub(in crate::card::sets) static TROSTANIS_SUMMONER: CardRecord = CardRecord::new(
-    cards::TROSTANIS_SUMMONER,
+pub(in crate::card::sets) static TROSTANIS_SUMMONER: CardRecord = CardRecord::new_with_legacy_id(
+    656,
     "Trostani's Summoner",
     CardArt::new("1921fa4e-2256-4ef1-b2fe-874f9fbbcdf3", "Howard Lyon"),
     CardSet::DragonsMaze,
@@ -1905,8 +1906,8 @@ pub(in crate::card::sets) static TROSTANIS_SUMMONER: CardRecord = CardRecord::ne
 );
 
 // DGM 111 — Unflinching Courage
-pub(in crate::card::sets) static UNFLINCHING_COURAGE: CardRecord = CardRecord::new(
-    cards::UNFLINCHING_COURAGE,
+pub(in crate::card::sets) static UNFLINCHING_COURAGE: CardRecord = CardRecord::new_with_legacy_id(
+    234,
     "Unflinching Courage",
     CardArt::new("35952c24-d728-4ec6-b0d1-b8183a18554a", "Mike Bierek"),
     CardSet::DragonsMaze,
@@ -1947,8 +1948,8 @@ pub(in crate::card::sets) static UNFLINCHING_COURAGE: CardRecord = CardRecord::n
 // Audit: blocked — Needs granting scavenge to graveyard cards with each card's own mana cost and power, plus regeneration shields.
 
 // DGM 113 — Viashino Firstblade
-pub(in crate::card::sets) static VIASHINO_FIRSTBLADE: CardRecord = CardRecord::new(
-    cards::VIASHINO_FIRSTBLADE,
+pub(in crate::card::sets) static VIASHINO_FIRSTBLADE: CardRecord = CardRecord::new_with_legacy_id(
+    657,
     "Viashino Firstblade",
     CardArt::new("1cb0c21c-bdf1-478a-9ad8-6c6bda6ffb0f", "Matt Stewart"),
     CardSet::DragonsMaze,
@@ -2004,8 +2005,8 @@ static VOICE_OF_RESURGENCE_TOKEN: EffectDef =
         ));
 
 // DGM 114 — Voice of Resurgence
-pub(in crate::card::sets) static VOICE_OF_RESURGENCE: CardRecord = CardRecord::new(
-    cards::VOICE_OF_RESURGENCE,
+pub(in crate::card::sets) static VOICE_OF_RESURGENCE: CardRecord = CardRecord::new_with_legacy_id(
+    238,
     "Voice of Resurgence",
     CardArt::new("07246783-d475-4f61-99ac-e2b574072349", "Winona Nelson"),
     CardSet::DragonsMaze,
@@ -2036,8 +2037,8 @@ pub(in crate::card::sets) static VOICE_OF_RESURGENCE: CardRecord = CardRecord::n
 // Audit: blocked — Needs an effect that doubles every kind of counter on one targeted artifact, creature, or land.
 
 // DGM 116 — Warleader's Helix
-pub(in crate::card::sets) static WARLEADERS_HELIX: CardRecord = CardRecord::new(
-    cards::WARLEADERS_HELIX,
+pub(in crate::card::sets) static WARLEADERS_HELIX: CardRecord = CardRecord::new_with_legacy_id(
+    242,
     "Warleader's Helix",
     CardArt::new("81e474ac-54f7-43f9-8af9-2f1adf258b15", "Greg Staples"),
     CardSet::DragonsMaze,
@@ -2063,8 +2064,8 @@ pub(in crate::card::sets) static WARLEADERS_HELIX: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a current hand-card count value and its negation to drive the temporary +X/-X effect.
 
 // DGM 118 — Woodlot Crawler
-pub(in crate::card::sets) static WOODLOT_CRAWLER: CardRecord = CardRecord::new(
-    cards::WOODLOT_CRAWLER,
+pub(in crate::card::sets) static WOODLOT_CRAWLER: CardRecord = CardRecord::new_with_legacy_id(
+    658,
     "Woodlot Crawler",
     CardArt::new("11f1e6fe-e959-4030-9925-9ccc27040275", "Greg Staples"),
     CardSet::DragonsMaze,
@@ -2078,8 +2079,8 @@ pub(in crate::card::sets) static WOODLOT_CRAWLER: CardRecord = CardRecord::new(
 // Audit: blocked — Needs mana-production provenance so the trigger can add one mana of a type the tapped land produced.
 
 // DGM 120 — Zhur-Taa Druid
-pub(in crate::card::sets) static ZHUR_TAA_DRUID: CardRecord = CardRecord::new(
-    cards::ZHUR_TAA_DRUID,
+pub(in crate::card::sets) static ZHUR_TAA_DRUID: CardRecord = CardRecord::new_with_legacy_id(
+    659,
     "Zhur-Taa Druid",
     CardArt::new("fd565782-8b2f-4b9f-a62d-4af60af20a82", "Mark Winters"),
     CardSet::DragonsMaze,
@@ -2127,8 +2128,8 @@ static OWN_GRAVEYARD_CARD_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exa
 )];
 
 // DGM 126 — Down // Dirty
-pub(in crate::card::sets) static DOWN_DIRTY: CardRecord = CardRecord::new(
-    cards::DOWN_DIRTY,
+pub(in crate::card::sets) static DOWN_DIRTY: CardRecord = CardRecord::new_with_legacy_id(
+    660,
     "Down // Dirty",
     CardArt::new("c35c63c1-6344-4d8c-8f7d-cd253d12f9ae", "Svetlin Velinov"),
     CardSet::DragonsMaze,
@@ -2168,8 +2169,8 @@ fn down_dirty_composition() -> CardComposition {
 }
 
 // DGM 127 — Far // Away
-pub(in crate::card::sets) static FAR_AWAY: CardRecord = CardRecord::new(
-    cards::FAR_AWAY,
+pub(in crate::card::sets) static FAR_AWAY: CardRecord = CardRecord::new_with_legacy_id(
+    661,
     "Far // Away",
     CardArt::new("d13cdb71-a499-41db-84e6-95f84650c524", "Greg Staples"),
     CardSet::DragonsMaze,
@@ -2217,8 +2218,8 @@ fn far_away_composition() -> CardComposition {
 // Audit: blocked — Needs fuse spell composition and removing all +1/+1 counters from the targeted creature while remembering the removed count.
 
 // DGM 130 — Profit // Loss
-pub(in crate::card::sets) static PROFIT_LOSS: CardRecord = CardRecord::new(
-    cards::PROFIT_LOSS,
+pub(in crate::card::sets) static PROFIT_LOSS: CardRecord = CardRecord::new_with_legacy_id(
+    662,
     "Profit // Loss",
     CardArt::new("0eb3ce46-ddd2-43b3-9e45-019ae91df686", "Kev Walker"),
     CardSet::DragonsMaze,
@@ -2265,8 +2266,8 @@ fn profit_loss_composition() -> CardComposition {
 }
 
 // DGM 131 — Protect // Serve
-pub(in crate::card::sets) static PROTECT_SERVE: CardRecord = CardRecord::new(
-    cards::PROTECT_SERVE,
+pub(in crate::card::sets) static PROTECT_SERVE: CardRecord = CardRecord::new_with_legacy_id(
+    663,
     "Protect // Serve",
     CardArt::new("9b8acd7d-f3e2-4358-91ab-40901b68d64c", "Ryan Barger"),
     CardSet::DragonsMaze,
@@ -2308,8 +2309,8 @@ fn protect_serve_composition() -> CardComposition {
 }
 
 // DGM 132 — Ready // Willing
-pub(in crate::card::sets) static READY_WILLING: CardRecord = CardRecord::new(
-    cards::READY_WILLING,
+pub(in crate::card::sets) static READY_WILLING: CardRecord = CardRecord::new_with_legacy_id(
+    664,
     "Ready // Willing",
     CardArt::new("22081f95-dc8e-41ed-b609-b6a22ee5428b", "Zoltan Boros"),
     CardSet::DragonsMaze,
@@ -2510,8 +2511,8 @@ fn turn_burn_composition() -> CardComposition {
 }
 
 // DGM 134 — Turn // Burn
-pub(in crate::card::sets) static TURN_BURN: CardRecord = CardRecord::new(
-    cards::TURN_BURN,
+pub(in crate::card::sets) static TURN_BURN: CardRecord = CardRecord::new_with_legacy_id(
+    230,
     "Turn // Burn",
     CardArt::new("8d7fdd59-6d76-4a0c-ac75-816345ef4a39", "Ryan Barger"),
     CardSet::DragonsMaze,
@@ -2520,8 +2521,8 @@ pub(in crate::card::sets) static TURN_BURN: CardRecord = CardRecord::new(
 .with_composition(turn_burn_composition);
 
 // DGM 135 — Wear // Tear
-pub(in crate::card::sets) static WEAR_TEAR: CardRecord = CardRecord::new(
-    cards::WEAR_TEAR,
+pub(in crate::card::sets) static WEAR_TEAR: CardRecord = CardRecord::new_with_legacy_id(
+    665,
     "Wear // Tear",
     CardArt::new("d169a3b2-18ae-4414-98ef-d879676fdcc0", "Ryan Pancoast"),
     CardSet::DragonsMaze,
@@ -2652,8 +2653,8 @@ const fn cluestone_rules(abilities: &'static [AbilityDef]) -> CardRules {
 }
 
 // DGM 136 — Azorius Cluestone
-pub(in crate::card::sets) static AZORIUS_CLUESTONE: CardRecord = CardRecord::new(
-    cards::AZORIUS_CLUESTONE,
+pub(in crate::card::sets) static AZORIUS_CLUESTONE: CardRecord = CardRecord::new_with_legacy_id(
+    666,
     "Azorius Cluestone",
     CardArt::new("09eeb301-bc28-4515-ad69-0b1b5164a5bc", "Raoul Vitale"),
     CardSet::DragonsMaze,
@@ -2661,8 +2662,8 @@ pub(in crate::card::sets) static AZORIUS_CLUESTONE: CardRecord = CardRecord::new
 );
 
 // DGM 137 — Boros Cluestone
-pub(in crate::card::sets) static BOROS_CLUESTONE: CardRecord = CardRecord::new(
-    cards::BOROS_CLUESTONE,
+pub(in crate::card::sets) static BOROS_CLUESTONE: CardRecord = CardRecord::new_with_legacy_id(
+    667,
     "Boros Cluestone",
     CardArt::new("87252577-3e7b-4ea2-b0ac-3ba3f0eaac40", "Raoul Vitale"),
     CardSet::DragonsMaze,
@@ -2670,8 +2671,8 @@ pub(in crate::card::sets) static BOROS_CLUESTONE: CardRecord = CardRecord::new(
 );
 
 // DGM 138 — Dimir Cluestone
-pub(in crate::card::sets) static DIMIR_CLUESTONE: CardRecord = CardRecord::new(
-    cards::DIMIR_CLUESTONE,
+pub(in crate::card::sets) static DIMIR_CLUESTONE: CardRecord = CardRecord::new_with_legacy_id(
+    668,
     "Dimir Cluestone",
     CardArt::new("0d8ac24f-3309-453a-b2d6-6363df9a1ddd", "Raoul Vitale"),
     CardSet::DragonsMaze,
@@ -2679,8 +2680,8 @@ pub(in crate::card::sets) static DIMIR_CLUESTONE: CardRecord = CardRecord::new(
 );
 
 // DGM 139 — Golgari Cluestone
-pub(in crate::card::sets) static GOLGARI_CLUESTONE: CardRecord = CardRecord::new(
-    cards::GOLGARI_CLUESTONE,
+pub(in crate::card::sets) static GOLGARI_CLUESTONE: CardRecord = CardRecord::new_with_legacy_id(
+    669,
     "Golgari Cluestone",
     CardArt::new("ff77e1ee-7fa3-4370-a0c9-ec008b63302f", "Raoul Vitale"),
     CardSet::DragonsMaze,
@@ -2688,8 +2689,8 @@ pub(in crate::card::sets) static GOLGARI_CLUESTONE: CardRecord = CardRecord::new
 );
 
 // DGM 140 — Gruul Cluestone
-pub(in crate::card::sets) static GRUUL_CLUESTONE: CardRecord = CardRecord::new(
-    cards::GRUUL_CLUESTONE,
+pub(in crate::card::sets) static GRUUL_CLUESTONE: CardRecord = CardRecord::new_with_legacy_id(
+    670,
     "Gruul Cluestone",
     CardArt::new("bc47d1fe-8ab2-42f6-bcab-4bc2084ceba7", "Raoul Vitale"),
     CardSet::DragonsMaze,
@@ -2697,8 +2698,8 @@ pub(in crate::card::sets) static GRUUL_CLUESTONE: CardRecord = CardRecord::new(
 );
 
 // DGM 141 — Izzet Cluestone
-pub(in crate::card::sets) static IZZET_CLUESTONE: CardRecord = CardRecord::new(
-    cards::IZZET_CLUESTONE,
+pub(in crate::card::sets) static IZZET_CLUESTONE: CardRecord = CardRecord::new_with_legacy_id(
+    671,
     "Izzet Cluestone",
     CardArt::new("8cf63def-e2cc-48c7-8409-c08a36eddf93", "Raoul Vitale"),
     CardSet::DragonsMaze,
@@ -2706,8 +2707,8 @@ pub(in crate::card::sets) static IZZET_CLUESTONE: CardRecord = CardRecord::new(
 );
 
 // DGM 142 — Orzhov Cluestone
-pub(in crate::card::sets) static ORZHOV_CLUESTONE: CardRecord = CardRecord::new(
-    cards::ORZHOV_CLUESTONE,
+pub(in crate::card::sets) static ORZHOV_CLUESTONE: CardRecord = CardRecord::new_with_legacy_id(
+    672,
     "Orzhov Cluestone",
     CardArt::new("4823f904-1c41-42cf-aef7-db0dcf82b10b", "Raoul Vitale"),
     CardSet::DragonsMaze,
@@ -2715,8 +2716,8 @@ pub(in crate::card::sets) static ORZHOV_CLUESTONE: CardRecord = CardRecord::new(
 );
 
 // DGM 143 — Rakdos Cluestone
-pub(in crate::card::sets) static RAKDOS_CLUESTONE: CardRecord = CardRecord::new(
-    cards::RAKDOS_CLUESTONE,
+pub(in crate::card::sets) static RAKDOS_CLUESTONE: CardRecord = CardRecord::new_with_legacy_id(
+    673,
     "Rakdos Cluestone",
     CardArt::new("9ef43817-1813-4608-8e3d-3c14321ab736", "Raoul Vitale"),
     CardSet::DragonsMaze,
@@ -2724,8 +2725,8 @@ pub(in crate::card::sets) static RAKDOS_CLUESTONE: CardRecord = CardRecord::new(
 );
 
 // DGM 144 — Selesnya Cluestone
-pub(in crate::card::sets) static SELESNYA_CLUESTONE: CardRecord = CardRecord::new(
-    cards::SELESNYA_CLUESTONE,
+pub(in crate::card::sets) static SELESNYA_CLUESTONE: CardRecord = CardRecord::new_with_legacy_id(
+    674,
     "Selesnya Cluestone",
     CardArt::new("34ad5631-439a-43e2-b00a-04f78d66b8e6", "Raoul Vitale"),
     CardSet::DragonsMaze,
@@ -2733,8 +2734,8 @@ pub(in crate::card::sets) static SELESNYA_CLUESTONE: CardRecord = CardRecord::ne
 );
 
 // DGM 145 — Simic Cluestone
-pub(in crate::card::sets) static SIMIC_CLUESTONE: CardRecord = CardRecord::new(
-    cards::SIMIC_CLUESTONE,
+pub(in crate::card::sets) static SIMIC_CLUESTONE: CardRecord = CardRecord::new_with_legacy_id(
+    675,
     "Simic Cluestone",
     CardArt::new("e3c47552-afed-463d-bd24-13eb1cd724fc", "Raoul Vitale"),
     CardSet::DragonsMaze,

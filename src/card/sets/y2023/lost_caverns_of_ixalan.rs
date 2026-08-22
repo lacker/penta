@@ -5,8 +5,7 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, CardType,
     ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerEventDef, ZoneKind, abilities, cards,
-    tokens,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerEventDef, ZoneKind, abilities, tokens,
 };
 use crate::ids::ObjectBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -112,13 +111,13 @@ static GET_LOST_EFFECT: [EffectDef; 2] = [
 ];
 
 // LCI 14 — Get Lost
-pub(in crate::card::sets) static GET_LOST: CardRecord = CardRecord::new(
-    cards::GET_LOST,
+pub(in crate::card::sets) static GET_LOST: CardRecord = CardRecord::new_with_legacy_id(
+    2294,
     "Get Lost",
     CardArt::new("522aa72b-2b8c-484c-872b-f082101cee35", "Eli Minaya"),
     CardSet::LostCavernsOfIxalan,
     // Two mana that answers three card types at instant speed, and the two
-    // Maps are what it pays for that: real cards, but slow ones.
+    // Maps are what it pays for that: real but slow ones.
     CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell_with_targets(
         "Destroy target creature, enchantment, or planeswalker. Its controller creates two Map \
          tokens.",
@@ -128,8 +127,8 @@ pub(in crate::card::sets) static GET_LOST: CardRecord = CardRecord::new(
 );
 
 // LCI 102 — Deep-Cavern Bat
-pub(in crate::card::sets) static DEEP_CAVERN_BAT: CardRecord = CardRecord::new(
-    cards::DEEP_CAVERN_BAT,
+pub(in crate::card::sets) static DEEP_CAVERN_BAT: CardRecord = CardRecord::new_with_legacy_id(
+    2161,
     "Deep-Cavern Bat",
     CardArt::new("69c68c95-b788-43b1-9f22-1b22c5a00b25", "Campbell White"),
     CardSet::LostCavernsOfIxalan,

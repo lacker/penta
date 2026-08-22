@@ -26,6 +26,21 @@ natural collector order. The header identifies the canonical printing in that
 module's set even when presentation art intentionally comes from another
 printing.
 
+Existing definitions use `CardRecord::new_with_legacy_id`, with their historic
+numeric value written beside the record. Never allocate another sequential
+legacy value. A new definition uses `CardRecord::new` with an explicitly frozen
+exact first-printing Scryfall UUID through `PrintingAnchor::scryfall`; the build
+derives a stable 52-bit ID and rejects collisions across the whole corpus. Do
+not recompute the earliest printing later: the committed anchor is the identity.
+If the
+vanishingly unlikely collision occurs, commit
+`PrintingAnchor::scryfall_with_nonce` for the newcomer rather than changing any
+existing record. The ordinary `card::cards::*` constants are compatibility
+output generated from these declarations, not an independently authored ID
+registry. A compact build fingerprint prevents any migrated legacy assignment
+from moving. Presentation art may change independently; use
+`with_identity_anchor` when the anchor printing differs from the selected art.
+
 Keep `ADDITIONAL_PRINTINGS` in natural order by the collector number in that
 module's set, including for reprint-only modules with an empty `CARDS`
 registry. Put each nonempty entry on its own line with a trailing identity such

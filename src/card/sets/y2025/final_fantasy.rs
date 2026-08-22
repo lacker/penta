@@ -7,7 +7,7 @@ use crate::card::{
     CardType, CounterKind, DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef,
     DamageSourceMatcherDef, DoubleFacedKind, EffectDef, EffectRecipientDef, ManaColor,
     ObjectPredicateDef, ObjectRefDef, PlayOptionDef, PlayerRelation, ResolvedEffectDurationDef,
-    SpellForm, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities, cards,
+    SpellForm, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{CardPartId, PlayOptionId, mana_cost};
 
@@ -128,8 +128,8 @@ fn cecil_composition() -> CardComposition {
 }
 
 // FIN 91 — Cecil, Dark Knight
-pub(in crate::card::sets) static CECIL_DARK_KNIGHT: CardRecord = CardRecord::new(
-    cards::CECIL_DARK_KNIGHT,
+pub(in crate::card::sets) static CECIL_DARK_KNIGHT: CardRecord = CardRecord::new_with_legacy_id(
+    2129,
     "Cecil, Dark Knight",
     CardArt::new("026e7167-d665-43d0-a51e-8df2d68cdb5e", "Josu Hernaiz"),
     CardSet::FinalFantasy,
@@ -163,8 +163,8 @@ static TIFA_DOUBLES: [AbilityDef; 2] = [
 ];
 
 // FIN 206 — Tifa Lockhart
-pub(in crate::card::sets) static TIFA_LOCKHART: CardRecord = CardRecord::new(
-    cards::TIFA_LOCKHART,
+pub(in crate::card::sets) static TIFA_LOCKHART: CardRecord = CardRecord::new_with_legacy_id(
+    2146,
     "Tifa Lockhart",
     CardArt::new("fb781323-2746-405d-a9b2-e778c037a6e9", "Laurel Austin"),
     CardSet::FinalFantasy,
@@ -218,8 +218,8 @@ static VIVI_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // FIN 248 — Vivi Ornitier
-pub(in crate::card::sets) static VIVI_ORNITIER: CardRecord = CardRecord::new(
-    cards::VIVI_ORNITIER,
+pub(in crate::card::sets) static VIVI_ORNITIER: CardRecord = CardRecord::new_with_legacy_id(
+    2162,
     "Vivi Ornitier",
     CardArt::new("ecc1027a-8c07-44a0-bdde-fa2844cff694", "Toni Infante"),
     CardSet::FinalFantasy,

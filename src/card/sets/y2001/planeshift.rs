@@ -8,14 +8,14 @@ use crate::card::{
     EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayActionMatcherDef,
     PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
-    ReplacementEffectDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, cards,
+    ReplacementEffectDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
 };
 use crate::ids::ObjectBindingIndex;
 use crate::mana_cost;
 
 // PLS 89 — Quirion Dryad
-pub(in crate::card::sets) static QUIRION_DRYAD: CardRecord = CardRecord::new(
-    cards::QUIRION_DRYAD,
+pub(in crate::card::sets) static QUIRION_DRYAD: CardRecord = CardRecord::new_with_legacy_id(
+    291,
     "Quirion Dryad",
     CardArt::new("f6841ae6-b15f-488e-9cae-2cc5ec668278", "Don Hazeltine"),
     CardSet::Planeshift,
@@ -48,8 +48,8 @@ static SPELLS_WITH_THE_CHOSEN_NAME: PlayRestrictionDef = PlayRestrictionDef::new
 );
 
 // PLS 116 — Meddling Mage
-pub(in crate::card::sets) static MEDDLING_MAGE: CardRecord = CardRecord::new(
-    cards::MEDDLING_MAGE,
+pub(in crate::card::sets) static MEDDLING_MAGE: CardRecord = CardRecord::new_with_legacy_id(
+    2050,
     "Meddling Mage",
     CardArt::new(
         "176f84c6-aa5e-449c-bd2b-cc91a898f0c7",
@@ -110,8 +110,8 @@ static CITY_EXILE_AND_UNTAP: EffectDef = EffectDef::Choose(ChooseDef {
 });
 
 // PLS 139 — Forsaken City
-pub(in crate::card::sets) static FORSAKEN_CITY: CardRecord = CardRecord::new(
-    cards::FORSAKEN_CITY,
+pub(in crate::card::sets) static FORSAKEN_CITY: CardRecord = CardRecord::new_with_legacy_id(
+    2059,
     "Forsaken City",
     CardArt::new("676703fe-0e1a-4b40-9a2b-8b2e2c6b4a05", "Dana Knutson"),
     CardSet::Planeshift,
@@ -145,8 +145,8 @@ pub(in crate::card::sets) static FORSAKEN_CITY: CardRecord = CardRecord::new(
 );
 
 // PLS 143 — Treva's Ruins
-pub(in crate::card::sets) static TREVAS_RUINS: CardRecord = CardRecord::new(
-    cards::TREVAS_RUINS,
+pub(in crate::card::sets) static TREVAS_RUINS: CardRecord = CardRecord::new_with_legacy_id(
+    2060,
     "Treva's Ruins",
     CardArt::new("8bae2458-7cfa-4e0e-9d55-2b2ef8d1c6a1", "Jerry Tiritilli"),
     CardSet::Planeshift,

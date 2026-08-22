@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, CardArt, CardRules, CardSet, CardType, EffectDef, EffectRecipientDef,
     ObjectPredicateDef, PlayerRelation, TopCardSelectionDef, TriggerEventDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities, cards, tokens,
+    ZonePlacement, abilities, tokens,
 };
 use crate::mana_cost;
 
@@ -21,8 +21,8 @@ static ARTIFACTS_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
 ]);
 
 // MKM 57 — Forensic Gadgeteer
-pub(in crate::card::sets) static FORENSIC_GADGETEER: CardRecord = CardRecord::new(
-    cards::FORENSIC_GADGETEER,
+pub(in crate::card::sets) static FORENSIC_GADGETEER: CardRecord = CardRecord::new_with_legacy_id(
+    2206,
     "Forensic Gadgeteer",
     CardArt::new("97d08a15-e61c-4421-a541-c68a4f87cb74", "Volkan Baǵa"),
     CardSet::MurdersAtKarlovManor,
@@ -94,8 +94,8 @@ const fn surveil_land(types: &'static [&'static str]) -> CardRules {
 }
 
 // MKM 259 — Commercial District
-pub(in crate::card::sets) static COMMERCIAL_DISTRICT: CardRecord = CardRecord::new(
-    cards::COMMERCIAL_DISTRICT,
+pub(in crate::card::sets) static COMMERCIAL_DISTRICT: CardRecord = CardRecord::new_with_legacy_id(
+    2275,
     "Commercial District",
     CardArt::new(
         "bf220c06-3cce-4bdd-aa58-83940c223e9c",
@@ -108,8 +108,8 @@ pub(in crate::card::sets) static COMMERCIAL_DISTRICT: CardRecord = CardRecord::n
 );
 
 // MKM 263 — Lush Portico
-pub(in crate::card::sets) static LUSH_PORTICO: CardRecord = CardRecord::new(
-    cards::LUSH_PORTICO,
+pub(in crate::card::sets) static LUSH_PORTICO: CardRecord = CardRecord::new_with_legacy_id(
+    2248,
     "Lush Portico",
     CardArt::new("c17816e8-28b1-4295-a637-efb0e5c18873", "Kamila Szutenberg"),
     CardSet::MurdersAtKarlovManor,
@@ -119,8 +119,8 @@ pub(in crate::card::sets) static LUSH_PORTICO: CardRecord = CardRecord::new(
 );
 
 // MKM 264 — Meticulous Archive
-pub(in crate::card::sets) static METICULOUS_ARCHIVE: CardRecord = CardRecord::new(
-    cards::METICULOUS_ARCHIVE,
+pub(in crate::card::sets) static METICULOUS_ARCHIVE: CardRecord = CardRecord::new_with_legacy_id(
+    2303,
     "Meticulous Archive",
     CardArt::new("652236c2-84ef-45e4-b5fc-ed6170bc3d6c", "Sam Burley"),
     CardSet::MurdersAtKarlovManor,
@@ -130,8 +130,8 @@ pub(in crate::card::sets) static METICULOUS_ARCHIVE: CardRecord = CardRecord::ne
 );
 
 // MKM 269 — Thundering Falls
-pub(in crate::card::sets) static THUNDERING_FALLS: CardRecord = CardRecord::new(
-    cards::THUNDERING_FALLS,
+pub(in crate::card::sets) static THUNDERING_FALLS: CardRecord = CardRecord::new_with_legacy_id(
+    2226,
     "Thundering Falls",
     CardArt::new("17260fff-b239-4af4-9306-3236ae3fa5a5", "Grady Frederick"),
     CardSet::MurdersAtKarlovManor,

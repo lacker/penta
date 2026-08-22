@@ -6,7 +6,7 @@ use crate::card::{
     CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerConditionDef, TriggerEventDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities, cards,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ObjectBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -65,8 +65,8 @@ static ELITE_SPELLBINDER_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // STX 17 — Elite Spellbinder
-pub(in crate::card::sets) static ELITE_SPELLBINDER: CardRecord = CardRecord::new(
-    cards::ELITE_SPELLBINDER,
+pub(in crate::card::sets) static ELITE_SPELLBINDER: CardRecord = CardRecord::new_with_legacy_id(
+    2274,
     "Elite Spellbinder",
     CardArt::new("9d3a7998-ccac-45ad-a4e9-3a2cb057f63b", "Ryan Pancoast"),
     CardSet::StrixhavenSchoolOfMages,
@@ -119,8 +119,8 @@ static MASTERY_RESOLUTION: [EffectDef; 2] = [
 ];
 
 // STX 64 — Baleful Mastery
-pub(in crate::card::sets) static BALEFUL_MASTERY: CardRecord = CardRecord::new(
-    cards::BALEFUL_MASTERY,
+pub(in crate::card::sets) static BALEFUL_MASTERY: CardRecord = CardRecord::new_with_legacy_id(
+    2201,
     "Baleful Mastery",
     CardArt::new("35f1a6ba-e46f-44fb-93f4-fb883d677b36", "Chris Cold"),
     CardSet::StrixhavenSchoolOfMages,

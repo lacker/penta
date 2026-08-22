@@ -7,7 +7,7 @@ use crate::card::{
     CardSupertype, CardType, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
     SpellAdditionalCostDef, SpendModeDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities, cards,
+    ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -100,8 +100,8 @@ static WINDS_OVERLOADED: EffectDef = EffectDef::BindMatching {
 };
 
 // MH1 37 — Winds of Abandon
-pub(in crate::card::sets) static WINDS_OF_ABANDON: CardRecord = CardRecord::new(
-    cards::WINDS_OF_ABANDON,
+pub(in crate::card::sets) static WINDS_OF_ABANDON: CardRecord = CardRecord::new_with_legacy_id(
+    2181,
     "Winds of Abandon",
     CardArt::new("3bb17913-fe4d-4acd-9b75-71f5a90f898b", "Noah Bradley"),
     CardSet::ModernHorizons1,
@@ -124,8 +124,8 @@ pub(in crate::card::sets) static WINDS_OF_ABANDON: CardRecord = CardRecord::new(
 );
 
 // MH1 46 — Echo of Eons
-pub(in crate::card::sets) static ECHO_OF_EONS: CardRecord = CardRecord::new(
-    cards::ECHO_OF_EONS,
+pub(in crate::card::sets) static ECHO_OF_EONS: CardRecord = CardRecord::new_with_legacy_id(
+    2278,
     "Echo of Eons",
     CardArt::new("ff590af2-2d6c-4f16-a9b8-1a6dab6e9ad5", "Terese Nielsen"),
     CardSet::ModernHorizons1,
@@ -184,8 +184,8 @@ static A_NONCREATURE_SPELL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_o
 )];
 
 // MH1 52 — Force of Negation
-pub(in crate::card::sets) static FORCE_OF_NEGATION: CardRecord = CardRecord::new(
-    cards::FORCE_OF_NEGATION,
+pub(in crate::card::sets) static FORCE_OF_NEGATION: CardRecord = CardRecord::new_with_legacy_id(
+    2268,
     "Force of Negation",
     CardArt::new("e9be371c-c688-44ad-ab71-bd4c9f242d58", "Paul Scott Canavan"),
     CardSet::ModernHorizons1,
@@ -219,8 +219,8 @@ pub(in crate::card::sets) static FORCE_OF_NEGATION: CardRecord = CardRecord::new
 );
 
 // MH1 158 — Collector Ouphe
-pub(in crate::card::sets) static COLLECTOR_OUPHE: CardRecord = CardRecord::new(
-    cards::COLLECTOR_OUPHE,
+pub(in crate::card::sets) static COLLECTOR_OUPHE: CardRecord = CardRecord::new_with_legacy_id(
+    2284,
     "Collector Ouphe",
     CardArt::new("085107a2-c1ec-473c-81d8-23e5a7197776", "Filip Burburan"),
     CardSet::ModernHorizons1,
@@ -240,8 +240,8 @@ pub(in crate::card::sets) static COLLECTOR_OUPHE: CardRecord = CardRecord::new(
 );
 
 // MH1 164 — Force of Vigor
-pub(in crate::card::sets) static FORCE_OF_VIGOR: CardRecord = CardRecord::new(
-    cards::FORCE_OF_VIGOR,
+pub(in crate::card::sets) static FORCE_OF_VIGOR: CardRecord = CardRecord::new_with_legacy_id(
+    2127,
     "Force of Vigor",
     CardArt::new("017c415b-d635-43c6-92b8-8c95d1c4ff8d", "Randy Vargas"),
     CardSet::ModernHorizons1,
@@ -291,8 +291,8 @@ static SHINOBI_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // MH1 199 — Fallen Shinobi
-pub(in crate::card::sets) static FALLEN_SHINOBI: CardRecord = CardRecord::new(
-    cards::FALLEN_SHINOBI,
+pub(in crate::card::sets) static FALLEN_SHINOBI: CardRecord = CardRecord::new_with_legacy_id(
+    2178,
     "Fallen Shinobi",
     CardArt::new("900c9dfd-ece1-4b09-a801-0fa05e1994b9", "Tomasz Jedruszek"),
     CardSet::ModernHorizons1,
@@ -309,8 +309,8 @@ static SUNBAKED_CANYON_ABILITIES: [AbilityDef; 2] =
     abilities::horizon_land("{T}, Pay 1 life: Add {R} or {W}.", &SUNBAKED_CANYON_COLORS);
 
 // MH1 247 — Sunbaked Canyon
-pub(in crate::card::sets) static SUNBAKED_CANYON: CardRecord = CardRecord::new(
-    cards::SUNBAKED_CANYON,
+pub(in crate::card::sets) static SUNBAKED_CANYON: CardRecord = CardRecord::new_with_legacy_id(
+    2230,
     "Sunbaked Canyon",
     CardArt::new("c36820fa-ee86-4206-9a0d-737a67cf5208", "Yeong-Hao Han"),
     CardSet::ModernHorizons1,

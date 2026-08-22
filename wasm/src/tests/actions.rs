@@ -549,7 +549,7 @@ fn printed_ability_actions_expose_their_stable_origins_and_targets() {
         action_ability_origin(&action),
         Some(json!({
             "kind": "printed",
-            "definition": penta::poc::cards::MISHRA_S_FACTORY.0,
+            "definition": penta::poc::cards::MISHRA_S_FACTORY.get(),
             "partId": 0,
             "abilityId": 0,
         }))
@@ -590,7 +590,7 @@ fn mana_and_granted_ability_actions_expose_their_stable_origins() {
         source: CardInstanceId(10),
         ability: penta::AbilityOrigin::Granted {
             source: CardInstanceId(9),
-            source_definition: penta::CardDefinitionId(8),
+            source_definition: penta::CardDefinitionId::new(8),
             source_part: penta::CardPartId(1),
             source_ability: penta::AbilityId(2),
             grant: penta::GrantId(3),

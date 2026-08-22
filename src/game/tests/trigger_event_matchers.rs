@@ -57,7 +57,7 @@ fn overlapping_damage_matchers_scan_one_committed_event_once_each() {
         ),
     ];
 
-    let definition = CardDefinitionId(10_300);
+    let definition = CardDefinitionId::new(10_300);
     let mut game = ready_game();
     add_definition(
         &mut game,
@@ -129,7 +129,7 @@ fn related_damage_recipients_are_relative_to_the_ability_controller() {
         EffectDef::None,
     )];
 
-    let definition = CardDefinitionId(10_302);
+    let definition = CardDefinitionId::new(10_302);
     let mut aura = CardDefinition::new(
         definition,
         "Controller-relative damage watcher",
@@ -422,7 +422,7 @@ fn live_tap_event_snapshots_the_post_transition_object() {
         TriggerEventDef::tapped(ObjectPredicateDef::Tapped),
         EffectDef::None,
     )];
-    let definition = CardDefinitionId(10_314);
+    let definition = CardDefinitionId::new(10_314);
     let mut game = ready_game();
     add_definition(
         &mut game,
@@ -459,7 +459,7 @@ fn attacker_tap_events_wait_for_the_whole_declaration() {
         &CONDITION,
         EffectDef::None,
     )];
-    let definition = CardDefinitionId(10_315);
+    let definition = CardDefinitionId::new(10_315);
     let mut game = ready_game();
     add_definition(
         &mut game,
@@ -522,7 +522,7 @@ fn partial_attack_and_block_declarations_do_not_run_state_triggers() {
     )];
 
     let mut attacks = ready_game();
-    let attack_definition = CardDefinitionId(10_318);
+    let attack_definition = CardDefinitionId::new(10_318);
     add_definition(
         &mut attacks,
         trigger_creature_definition(attack_definition, "Attack state watcher", &ATTACK_ABILITY),
@@ -555,7 +555,7 @@ fn partial_attack_and_block_declarations_do_not_run_state_triggers() {
     ));
 
     let mut blocks = ready_game();
-    let block_definition = CardDefinitionId(10_320);
+    let block_definition = CardDefinitionId::new(10_320);
     add_definition(
         &mut blocks,
         trigger_creature_definition(block_definition, "Block state watcher", &BLOCK_ABILITY),
@@ -599,7 +599,7 @@ fn attack_batch_freezes_all_conditions_and_consumes_once_only_once() {
         &CONDITION,
         EffectDef::None,
     )];
-    let definition = CardDefinitionId(10_323);
+    let definition = CardDefinitionId::new(10_323);
     let mut game = ready_game();
     add_definition(
         &mut game,
@@ -670,7 +670,7 @@ fn simultaneous_exit_batch_freezes_all_conditions_before_immediate_resolution() 
         &CONDITION,
         EffectDef::None,
     )];
-    let definition = CardDefinitionId(10_326);
+    let definition = CardDefinitionId::new(10_326);
     let mut game = ready_game();
     add_definition(
         &mut game,
@@ -780,7 +780,7 @@ fn an_any_of_event_fires_on_each_alternative_and_no_others() {
         TriggerEventDef::AnyOf(&ALTERNATIVES),
         EffectDef::None,
     )];
-    let definition = CardDefinitionId(10_400);
+    let definition = CardDefinitionId::new(10_400);
     let mut game = ready_game();
     add_definition(
         &mut game,

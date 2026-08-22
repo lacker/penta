@@ -5,14 +5,14 @@ use crate::TargetIndex;
 use crate::card::{
     AbilityCoverageDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardRules,
     CardSet, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef,
-    ResolvedEffectDurationDef, SpellResolutionDestinationDef, ValueDef, cards,
+    ResolvedEffectDurationDef, SpellResolutionDestinationDef, ValueDef,
 };
 use crate::mana_cost;
 
 // DTK 4 — Artful Maneuver
 // Audit: partial — Rebound's self-exile is executable, but its next-upkeep free cast from exile needs the shared exile-casting lifecycle.
-pub(in crate::card::sets) static ARTFUL_MANEUVER: CardRecord = CardRecord::new(
-    cards::ARTFUL_MANEUVER,
+pub(in crate::card::sets) static ARTFUL_MANEUVER: CardRecord = CardRecord::new_with_legacy_id(
+    1710,
     "Artful Maneuver",
     CardArt::new("7fcaf67e-ba97-4af9-8c47-dbca703cba35", "Lars Grant-West"),
     CardSet::DragonsOfTarkir,

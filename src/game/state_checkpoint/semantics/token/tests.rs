@@ -25,7 +25,7 @@ fn token_owned_abilities_can_locate_tokens_they_create() {
     )];
 
     let mut definition = CardDefinition::new(
-        CardDefinitionId(1),
+        CardDefinitionId::new(1),
         "Nested Token Creator",
         CardSet::Alpha,
         false,

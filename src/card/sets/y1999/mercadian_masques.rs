@@ -6,7 +6,7 @@ use crate::card::{
     AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
     CardType, ComparisonDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
     ObjectQueryDef, PlayerRelation, SpellAdditionalCostDef, SpendModeDef, TriggerConditionDef,
-    ValueDef, ZoneKind, abilities, cards,
+    ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -19,8 +19,8 @@ static ARREST_PROHIBITIONS: [AppliedEffectDef; 3] = [
 ];
 
 // MMQ 4 — Arrest
-pub(in crate::card::sets) static ARREST: CardRecord = CardRecord::new(
-    cards::ARREST,
+pub(in crate::card::sets) static ARREST: CardRecord = CardRecord::new_with_legacy_id(
+    1952,
     "Arrest",
     CardArt::new("3b083fd8-6422-4cd3-a27d-41b6d88598c2", "Dan Frazier"),
     CardSet::MercadianMasques,
@@ -70,8 +70,8 @@ static TARGET_SPELL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 )];
 
 // MMQ 82 — Gush
-pub(in crate::card::sets) static GUSH: CardRecord = CardRecord::new(
-    cards::GUSH,
+pub(in crate::card::sets) static GUSH: CardRecord = CardRecord::new_with_legacy_id(
+    2045,
     "Gush",
     CardArt::new("e755bbef-bf34-49c0-ae72-d70e3599de52", "Kev Walker"),
     CardSet::MercadianMasques,
@@ -94,8 +94,8 @@ pub(in crate::card::sets) static GUSH: CardRecord = CardRecord::new(
 );
 
 // MMQ 108 — Thwart
-pub(in crate::card::sets) static THWART: CardRecord = CardRecord::new(
-    cards::THWART,
+pub(in crate::card::sets) static THWART: CardRecord = CardRecord::new_with_legacy_id(
+    2046,
     "Thwart",
     CardArt::new("c12a0717-e9ea-4be3-a29f-179671ed4489", "Christopher Moeller"),
     CardSet::MercadianMasques,
@@ -130,8 +130,8 @@ static SNUFF_OUT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_
 )];
 
 // MMQ 162 — Snuff Out
-pub(in crate::card::sets) static SNUFF_OUT: CardRecord = CardRecord::new(
-    cards::SNUFF_OUT,
+pub(in crate::card::sets) static SNUFF_OUT: CardRecord = CardRecord::new_with_legacy_id(
+    2158,
     "Snuff Out",
     CardArt::new("18a3cca1-e50e-49b6-9e1a-f86640e3b177", "Mike Ploog"),
     CardSet::MercadianMasques,
@@ -155,8 +155,8 @@ pub(in crate::card::sets) static SNUFF_OUT: CardRecord = CardRecord::new(
 );
 
 // MMQ 316 — Dust Bowl
-pub(in crate::card::sets) static DUST_BOWL: CardRecord = CardRecord::new(
-    cards::DUST_BOWL,
+pub(in crate::card::sets) static DUST_BOWL: CardRecord = CardRecord::new_with_legacy_id(
+    280,
     "Dust Bowl",
     CardArt::new("75b03c30-c2b8-4207-b675-26c59c40a7e5", "Ben Thompson"),
     CardSet::MercadianMasques,
@@ -179,8 +179,8 @@ pub(in crate::card::sets) static DUST_BOWL: CardRecord = CardRecord::new(
 );
 
 // MMQ 324 — Rishadan Port
-pub(in crate::card::sets) static RISHADAN_PORT: CardRecord = CardRecord::new(
-    cards::RISHADAN_PORT,
+pub(in crate::card::sets) static RISHADAN_PORT: CardRecord = CardRecord::new_with_legacy_id(
+    281,
     "Rishadan Port",
     CardArt::new("477a1f53-5cdf-4b45-b584-2e36b31a3fdb", "Jerry Tiritilli"),
     CardSet::MercadianMasques,

@@ -438,7 +438,7 @@ fn snapcaster_flashback_cannot_be_combined_with_overload() {
 #[test]
 #[allow(clippy::too_many_lines)]
 fn incomplete_alternative_cast_clauses_do_not_enable_or_transform_their_costs() {
-    let definition_id = CardDefinitionId(20_100);
+    let definition_id = CardDefinitionId::new(20_100);
     let flashback = AlternativeCostId(1);
     let overload = AlternativeCostId(2);
     let targets = Box::leak(

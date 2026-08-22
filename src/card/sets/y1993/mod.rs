@@ -7,4 +7,4 @@ pub(super) mod collectors_edition;
 pub(super) mod international_collectors_edition;
 pub(super) mod unlimited;
 
-pub(super) use super::{CardRecord, PrintingRecord};
+pub(super) use super::{CardRecord, PrintingAnchor, PrintingRecord};

@@ -69,7 +69,7 @@ fn catalog_validation_follows_nested_token_and_grant_continuations() {
         assert_eq!(
             error(definition_granting(child)),
             CatalogError::InvalidGrantedAbility {
-                definition: CardDefinitionId(1),
+                definition: CardDefinitionId::new(1),
                 part: CardPartId::PRIMARY,
                 ability: AbilityId::PRIMARY,
                 grant_path: vec![GrantId::PRIMARY, GrantId::PRIMARY],
@@ -89,7 +89,7 @@ fn catalog_validation_follows_nested_token_and_grant_continuations() {
         assert_eq!(
             error(creator),
             CatalogError::IncoherentCardRules {
-                definition: CardDefinitionId(1),
+                definition: CardDefinitionId::new(1),
                 part: CardPartId::PRIMARY,
                 explanation: "a noncreature cannot have creature power and toughness",
             },
@@ -142,7 +142,7 @@ fn resolving_program_context_follows_every_recursive_continuation() {
         assert_eq!(
             error(definition_with_ability(ability)),
             CatalogError::UnsupportedAbilityEffectProgramContext {
-                definition: CardDefinitionId(1),
+                definition: CardDefinitionId::new(1),
                 part: CardPartId::PRIMARY,
                 ability: AbilityId::PRIMARY,
                 context: "resolving",

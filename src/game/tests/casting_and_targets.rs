@@ -83,7 +83,7 @@ fn energy_flux_taxes_every_artifact_and_takes_the_ones_nobody_pays_for() {
 #[test]
 #[allow(clippy::too_many_lines)]
 fn cast_validation_rejects_unrecognized_structured_choices() {
-    let definition_id = CardDefinitionId(10_200);
+    let definition_id = CardDefinitionId::new(10_200);
     let option_id = PlayOptionId(7);
     let implemented_mode = ModeId(0);
     let metadata_mode = ModeId(1);
@@ -240,7 +240,7 @@ fn cast_validation_rejects_unrecognized_structured_choices() {
 #[test]
 fn cost_configuration_visitor_preserves_option_order() {
     let definition = CardDefinition::new(
-        CardDefinitionId(10_201),
+        CardDefinitionId::new(10_201),
         "Ordered Costs",
         CardSet::Alpha,
         false,

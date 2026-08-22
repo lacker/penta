@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, CardArt, CardRules, CardSet, CardSupertype, CounterKind, EffectDef,
     EffectRecipientDef, ObjectPredicateDef, PlayerRelation, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, cards,
+    TurnStepDef, ValueDef,
 };
 use crate::mana_cost;
 
@@ -44,8 +44,8 @@ static GAU_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // FIC 55 — Gau, Feral Youth
-pub(in crate::card::sets) static GAU_FERAL_YOUTH: CardRecord = CardRecord::new(
-    cards::GAU_FERAL_YOUTH,
+pub(in crate::card::sets) static GAU_FERAL_YOUTH: CardRecord = CardRecord::new_with_legacy_id(
+    2304,
     "Gau, Feral Youth",
     CardArt::new("89175ce1-0746-4ba1-970e-617d134b0527", "Eglė Mosakaitė"),
     CardSet::FinalFantasyCommander,

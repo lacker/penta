@@ -7,13 +7,13 @@ use crate::card::{
     DiscardSelectionDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
     ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef,
     PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, ScaledValueDef, TriggerEventDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities, cards,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, TurnStepDef, mana_cost};
 
 // ONS 2 — Akroma's Vengeance
-pub(in crate::card::sets) static AKROMAS_VENGEANCE: CardRecord = CardRecord::new(
-    cards::AKROMAS_VENGEANCE,
+pub(in crate::card::sets) static AKROMAS_VENGEANCE: CardRecord = CardRecord::new_with_legacy_id(
+    2023,
     "Akroma's Vengeance",
     CardArt::new(
         "5e33aaf7-7490-4b64-a966-82fbf7ca8686",
@@ -85,8 +85,8 @@ static A_NONLAND_PERMANENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_o
 )];
 
 // ONS 28 — Exalted Angel
-pub(in crate::card::sets) static EXALTED_ANGEL: CardRecord = CardRecord::new(
-    cards::EXALTED_ANGEL,
+pub(in crate::card::sets) static EXALTED_ANGEL: CardRecord = CardRecord::new_with_legacy_id(
+    2076,
     "Exalted Angel",
     CardArt::new("d75cc975-0f7e-48e7-a693-453306e5a907", "Michael Sutfin"),
     CardSet::Onslaught,
@@ -116,8 +116,8 @@ pub(in crate::card::sets) static EXALTED_ANGEL: CardRecord = CardRecord::new(
 );
 
 // ONS 73 — Chain of Vapor
-pub(in crate::card::sets) static CHAIN_OF_VAPOR: CardRecord = CardRecord::new(
-    cards::CHAIN_OF_VAPOR,
+pub(in crate::card::sets) static CHAIN_OF_VAPOR: CardRecord = CardRecord::new_with_legacy_id(
+    2062,
     "Chain of Vapor",
     CardArt::new("30f6b4a2-4e64-4d0e-9dbb-2b6a5b8f5b1f", "Carl Critchlow"),
     CardSet::Onslaught,
@@ -156,8 +156,8 @@ static CHAIN_OF_SMOG_REBOUND: EffectDef = EffectDef::May {
 };
 
 // ONS 132 — Chain of Smog
-pub(in crate::card::sets) static CHAIN_OF_SMOG: CardRecord = CardRecord::new(
-    cards::CHAIN_OF_SMOG,
+pub(in crate::card::sets) static CHAIN_OF_SMOG: CardRecord = CardRecord::new_with_legacy_id(
+    2155,
     "Chain of Smog",
     CardArt::new("6bfe64f9-8b03-41f6-a47b-fade397ad9d1", "Greg Staples"),
     CardSet::Onslaught,
@@ -177,8 +177,8 @@ pub(in crate::card::sets) static CHAIN_OF_SMOG: CardRecord = CardRecord::new(
 );
 
 // ONS 205 — Goblin Piledriver
-pub(in crate::card::sets) static GOBLIN_PILEDRIVER: CardRecord = CardRecord::new(
-    cards::GOBLIN_PILEDRIVER,
+pub(in crate::card::sets) static GOBLIN_PILEDRIVER: CardRecord = CardRecord::new_with_legacy_id(
+    2019,
     "Goblin Piledriver",
     CardArt::new("f6c4df1f-f148-42ec-8e22-e7114216927d", "Matt Cavotta"),
     CardSet::Onslaught,
@@ -202,8 +202,8 @@ pub(in crate::card::sets) static GOBLIN_PILEDRIVER: CardRecord = CardRecord::new
 );
 
 // ONS 206 — Goblin Pyromancer
-pub(in crate::card::sets) static GOBLIN_PYROMANCER: CardRecord = CardRecord::new(
-    cards::GOBLIN_PYROMANCER,
+pub(in crate::card::sets) static GOBLIN_PYROMANCER: CardRecord = CardRecord::new_with_legacy_id(
+    307,
     "Goblin Pyromancer",
     CardArt::new(
         "bb4815b7-fc20-44a4-ad1c-66d92993557f",
@@ -253,8 +253,8 @@ pub(in crate::card::sets) static GOBLIN_PYROMANCER: CardRecord = CardRecord::new
 );
 
 // ONS 207 — Goblin Sharpshooter
-pub(in crate::card::sets) static GOBLIN_SHARPSHOOTER: CardRecord = CardRecord::new(
-    cards::GOBLIN_SHARPSHOOTER,
+pub(in crate::card::sets) static GOBLIN_SHARPSHOOTER: CardRecord = CardRecord::new_with_legacy_id(
+    292,
     "Goblin Sharpshooter",
     CardArt::new("7e689df7-b85d-4346-bee8-5e978b5cbbbc", "Greg Staples"),
     CardSet::Onslaught,
@@ -292,8 +292,8 @@ pub(in crate::card::sets) static GOBLIN_SHARPSHOOTER: CardRecord = CardRecord::n
 );
 
 // ONS 230 — Skirk Prospector
-pub(in crate::card::sets) static SKIRK_PROSPECTOR: CardRecord = CardRecord::new(
-    cards::SKIRK_PROSPECTOR,
+pub(in crate::card::sets) static SKIRK_PROSPECTOR: CardRecord = CardRecord::new_with_legacy_id(
+    2028,
     "Skirk Prospector",
     CardArt::new("eb545dcd-3a7a-46a7-9c35-d28faebc6d17", "Doug Chaffee"),
     CardSet::Onslaught,
@@ -312,8 +312,8 @@ pub(in crate::card::sets) static SKIRK_PROSPECTOR: CardRecord = CardRecord::new(
 );
 
 // ONS 275 — Naturalize
-pub(in crate::card::sets) static NATURALIZE: CardRecord = CardRecord::new(
-    cards::NATURALIZE,
+pub(in crate::card::sets) static NATURALIZE: CardRecord = CardRecord::new_with_legacy_id(
+    270,
     "Naturalize",
     CardArt::new("c0acc41f-b55b-47cb-8803-d39d72788799", "Ron Spears"),
     CardSet::Onslaught,
@@ -353,8 +353,8 @@ const fn fetch_land(text: &'static str, land_types: &'static [BasicLandType]) ->
 }
 
 // ONS 313 — Bloodstained Mire
-pub(in crate::card::sets) static BLOODSTAINED_MIRE: CardRecord = CardRecord::new(
-    cards::BLOODSTAINED_MIRE,
+pub(in crate::card::sets) static BLOODSTAINED_MIRE: CardRecord = CardRecord::new_with_legacy_id(
+    1363,
     "Bloodstained Mire",
     CardArt::new("68c72226-6f52-4322-8b14-18737293dfa0", "Rob Alexander"),
     CardSet::Onslaught,
@@ -365,8 +365,8 @@ pub(in crate::card::sets) static BLOODSTAINED_MIRE: CardRecord = CardRecord::new
 );
 
 // ONS 316 — Flooded Strand
-pub(in crate::card::sets) static FLOODED_STRAND: CardRecord = CardRecord::new(
-    cards::FLOODED_STRAND,
+pub(in crate::card::sets) static FLOODED_STRAND: CardRecord = CardRecord::new_with_legacy_id(
+    283,
     "Flooded Strand",
     CardArt::new("b4e3d844-d3b4-41d8-921d-c1cb3af343f8", "Rob Alexander"),
     CardSet::Onslaught,
@@ -377,8 +377,8 @@ pub(in crate::card::sets) static FLOODED_STRAND: CardRecord = CardRecord::new(
 );
 
 // ONS 321 — Polluted Delta
-pub(in crate::card::sets) static POLLUTED_DELTA: CardRecord = CardRecord::new(
-    cards::POLLUTED_DELTA,
+pub(in crate::card::sets) static POLLUTED_DELTA: CardRecord = CardRecord::new_with_legacy_id(
+    1364,
     "Polluted Delta",
     CardArt::new("0f7585c8-9e21-4eef-afc1-2852de23db2f", "Rob Alexander"),
     CardSet::Onslaught,
@@ -389,8 +389,8 @@ pub(in crate::card::sets) static POLLUTED_DELTA: CardRecord = CardRecord::new(
 );
 
 // ONS 324 — Secluded Steppe
-pub(in crate::card::sets) static SECLUDED_STEPPE: CardRecord = CardRecord::new(
-    cards::SECLUDED_STEPPE,
+pub(in crate::card::sets) static SECLUDED_STEPPE: CardRecord = CardRecord::new_with_legacy_id(
+    2024,
     "Secluded Steppe",
     CardArt::new("ea454280-f7f4-4315-bb46-b56050c02c97", "Heather Hudson"),
     CardSet::Onslaught,
@@ -411,8 +411,8 @@ pub(in crate::card::sets) static SECLUDED_STEPPE: CardRecord = CardRecord::new(
 );
 
 // ONS 328 — Windswept Heath
-pub(in crate::card::sets) static WINDSWEPT_HEATH: CardRecord = CardRecord::new(
-    cards::WINDSWEPT_HEATH,
+pub(in crate::card::sets) static WINDSWEPT_HEATH: CardRecord = CardRecord::new_with_legacy_id(
+    1365,
     "Windswept Heath",
     CardArt::new("7a7c5941-9c8a-4a40-9efb-a84f05c58e53", "Anthony S. Waters"),
     CardSet::Onslaught,
@@ -423,8 +423,8 @@ pub(in crate::card::sets) static WINDSWEPT_HEATH: CardRecord = CardRecord::new(
 );
 
 // ONS 330 — Wooded Foothills
-pub(in crate::card::sets) static WOODED_FOOTHILLS: CardRecord = CardRecord::new(
-    cards::WOODED_FOOTHILLS,
+pub(in crate::card::sets) static WOODED_FOOTHILLS: CardRecord = CardRecord::new_with_legacy_id(
+    284,
     "Wooded Foothills",
     CardArt::new("cdad38f7-9dfa-4f1b-9fac-41ab2b253f53", "Rob Alexander"),
     CardSet::Onslaught,

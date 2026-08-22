@@ -1,4 +1,4 @@
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     ActivationTimingDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
@@ -12,7 +12,7 @@ use crate::card::{
     PlayerSetDef, ReplacementAbilityDef, ReplacementChoiceDef, ReplacementConditionDef,
     ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, RoundingDef,
     TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities, cards,
+    ZonePlacement, abilities,
 };
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -62,8 +62,8 @@ static ENCHANT_WALL_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_o
 )];
 
 // LEA 1 — Animate Wall
-pub(in crate::card::sets) static ANIMATE_WALL: CardRecord = CardRecord::new(
-    cards::ANIMATE_WALL,
+pub(in crate::card::sets) static ANIMATE_WALL: CardRecord = CardRecord::new_with_legacy_id(
+    1731,
     "Animate Wall",
     CardArt::new("6757e04d-7bfc-4bdc-9dcb-02059a2d4e60", "Dan Frazier"),
     CardSet::Alpha,
@@ -82,8 +82,8 @@ pub(in crate::card::sets) static ANIMATE_WALL: CardRecord = CardRecord::new(
 );
 
 // LEA 2 — Armageddon
-pub(in crate::card::sets) static ARMAGEDDON: CardRecord = CardRecord::new(
-    cards::ARMAGEDDON,
+pub(in crate::card::sets) static ARMAGEDDON: CardRecord = CardRecord::new_with_legacy_id(
+    58,
     "Armageddon",
     CardArt::new("5b6ddce7-b9c5-431d-a0b0-46d4aa93cbcb", "Jesper Myrfors"),
     CardSet::Alpha,
@@ -101,8 +101,8 @@ pub(in crate::card::sets) static ARMAGEDDON: CardRecord = CardRecord::new(
 );
 
 // LEA 3 — Balance
-pub(in crate::card::sets) static BALANCE: CardRecord = CardRecord::new(
-    cards::BALANCE,
+pub(in crate::card::sets) static BALANCE: CardRecord = CardRecord::new_with_legacy_id(
+    60,
     "Balance",
     CardArt::new("6f9ea46a-411f-40ce-a873-a905180093f4", "Mark Poole"),
     CardSet::Alpha,
@@ -115,8 +115,8 @@ pub(in crate::card::sets) static BALANCE: CardRecord = CardRecord::new(
 );
 
 // LEA 4 — Benalish Hero
-pub(in crate::card::sets) static BENALISH_HERO: CardRecord = CardRecord::new(
-    cards::BENALISH_HERO,
+pub(in crate::card::sets) static BENALISH_HERO: CardRecord = CardRecord::new_with_legacy_id(
+    1772,
     "Benalish Hero",
     CardArt::new("11600105-56c6-4073-a4a6-8469030b39c9", "Douglas Shuler"),
     CardSet::Alpha,
@@ -125,8 +125,8 @@ pub(in crate::card::sets) static BENALISH_HERO: CardRecord = CardRecord::new(
 );
 
 // LEA 5 — Black Ward
-pub(in crate::card::sets) static BLACK_WARD: CardRecord = CardRecord::new(
-    cards::BLACK_WARD,
+pub(in crate::card::sets) static BLACK_WARD: CardRecord = CardRecord::new_with_legacy_id(
+    1553,
     "Black Ward",
     CardArt::new("15967a39-303f-457d-bcde-51837c8d63e1", "Dan Frazier"),
     CardSet::Alpha,
@@ -161,8 +161,8 @@ static BLAZE_OF_GLORY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly
 )];
 
 // LEA 6 — Blaze of Glory
-pub(in crate::card::sets) static BLAZE_OF_GLORY: CardRecord = CardRecord::new(
-    cards::BLAZE_OF_GLORY,
+pub(in crate::card::sets) static BLAZE_OF_GLORY: CardRecord = CardRecord::new_with_legacy_id(
+    1812,
     "Blaze of Glory",
     CardArt::new("98fba951-c5bb-497c-9292-ce1b2a1e1247", "Richard Thomas"),
     CardSet::Alpha,
@@ -179,8 +179,8 @@ pub(in crate::card::sets) static BLAZE_OF_GLORY: CardRecord = CardRecord::new(
 );
 
 // LEA 7 — Blessing
-pub(in crate::card::sets) static BLESSING: CardRecord = CardRecord::new(
-    cards::BLESSING,
+pub(in crate::card::sets) static BLESSING: CardRecord = CardRecord::new_with_legacy_id(
+    315,
     "Blessing",
     CardArt::new("f131fd27-18da-47ca-b59f-135bcac83abd", "Julie Baroh"),
     CardSet::Alpha,
@@ -204,8 +204,8 @@ pub(in crate::card::sets) static BLESSING: CardRecord = CardRecord::new(
 );
 
 // LEA 8 — Blue Ward
-pub(in crate::card::sets) static BLUE_WARD: CardRecord = CardRecord::new(
-    cards::BLUE_WARD,
+pub(in crate::card::sets) static BLUE_WARD: CardRecord = CardRecord::new_with_legacy_id(
+    1554,
     "Blue Ward",
     CardArt::new("93f9f0f2-e1cc-4740-888c-1336c6de0a27", "Dan Frazier"),
     CardSet::Alpha,
@@ -222,8 +222,8 @@ pub(in crate::card::sets) static BLUE_WARD: CardRecord = CardRecord::new(
 );
 
 // LEA 9 — Castle
-pub(in crate::card::sets) static CASTLE: CardRecord = CardRecord::new(
-    cards::CASTLE,
+pub(in crate::card::sets) static CASTLE: CardRecord = CardRecord::new_with_legacy_id(
+    1663,
     "Castle",
     CardArt::new("b0da8d56-3178-44c2-9344-95d2346d326f", "Dameon Willich"),
     CardSet::Alpha,
@@ -249,8 +249,8 @@ pub(in crate::card::sets) static CASTLE: CardRecord = CardRecord::new(
 );
 
 // LEA 10 — Circle of Protection: Blue
-pub(in crate::card::sets) static CIRCLE_OF_PROTECTION_BLUE: CardRecord = CardRecord::new(
-    cards::CIRCLE_OF_PROTECTION_BLUE,
+pub(in crate::card::sets) static CIRCLE_OF_PROTECTION_BLUE: CardRecord = CardRecord::new_with_legacy_id(
+    1446,
     "Circle of Protection: Blue",
     CardArt::new("848b1a7f-e8ba-40b5-92b7-af1e963a0319", "Dameon Willich"),
     CardSet::Alpha,
@@ -264,8 +264,8 @@ pub(in crate::card::sets) static CIRCLE_OF_PROTECTION_BLUE: CardRecord = CardRec
 );
 
 // LEA 11 — Circle of Protection: Green
-pub(in crate::card::sets) static CIRCLE_OF_PROTECTION_GREEN: CardRecord = CardRecord::new(
-    cards::CIRCLE_OF_PROTECTION_GREEN,
+pub(in crate::card::sets) static CIRCLE_OF_PROTECTION_GREEN: CardRecord = CardRecord::new_with_legacy_id(
+    1447,
     "Circle of Protection: Green",
     CardArt::new("1ae32d20-b438-4f43-b603-e8f706ecfb03", "Sandra Everingham"),
     CardSet::Alpha,
@@ -279,8 +279,8 @@ pub(in crate::card::sets) static CIRCLE_OF_PROTECTION_GREEN: CardRecord = CardRe
 );
 
 // LEA 12 — Circle of Protection: Red
-pub(in crate::card::sets) static CIRCLE_OF_PROTECTION_RED: CardRecord = CardRecord::new(
-    cards::CIRCLE_OF_PROTECTION_RED,
+pub(in crate::card::sets) static CIRCLE_OF_PROTECTION_RED: CardRecord = CardRecord::new_with_legacy_id(
+    1448,
     "Circle of Protection: Red",
     CardArt::new("b3dd94c5-42f6-4148-be6e-2a3a4226cc0e", "Mark Tedin"),
     CardSet::Alpha,
@@ -294,8 +294,8 @@ pub(in crate::card::sets) static CIRCLE_OF_PROTECTION_RED: CardRecord = CardReco
 );
 
 // LEA 13 — Circle of Protection: White
-pub(in crate::card::sets) static CIRCLE_OF_PROTECTION_WHITE: CardRecord = CardRecord::new(
-    cards::CIRCLE_OF_PROTECTION_WHITE,
+pub(in crate::card::sets) static CIRCLE_OF_PROTECTION_WHITE: CardRecord = CardRecord::new_with_legacy_id(
+    1449,
     "Circle of Protection: White",
     CardArt::new("92df19c9-e127-42d9-8dd2-7fa5a7095428", "Douglas Shuler"),
     CardSet::Alpha,
@@ -312,8 +312,8 @@ pub(in crate::card::sets) static CIRCLE_OF_PROTECTION_WHITE: CardRecord = CardRe
 // Audit: blocked — Needs this compound indestructibility and attachment-legality effect for “Enchanted land has indestructible and can't be enchanted by other Auras”.
 
 // LEA 15 — Conversion
-pub(in crate::card::sets) static CONVERSION: CardRecord = CardRecord::new(
-    cards::CONVERSION,
+pub(in crate::card::sets) static CONVERSION: CardRecord = CardRecord::new_with_legacy_id(
+    316,
     "Conversion",
     CardArt::new("13186bc9-8d9c-433b-ba15-121ef94dd68a", "Jesper Myrfors"),
     CardSet::Alpha,
@@ -346,8 +346,8 @@ pub(in crate::card::sets) static CONVERSION: CardRecord = CardRecord::new(
 );
 
 // LEA 16 — Crusade
-pub(in crate::card::sets) static CRUSADE: CardRecord = CardRecord::new(
-    cards::CRUSADE,
+pub(in crate::card::sets) static CRUSADE: CardRecord = CardRecord::new_with_legacy_id(
+    67,
     "Crusade",
     CardArt::new("057986c7-20c0-4157-b4df-beae4ef5c66d", "Mark Poole"),
     CardSet::Alpha,
@@ -371,8 +371,8 @@ pub(in crate::card::sets) static CRUSADE: CardRecord = CardRecord::new(
 );
 
 // LEA 17 — Death Ward
-pub(in crate::card::sets) static DEATH_WARD: CardRecord = CardRecord::new(
-    cards::DEATH_WARD,
+pub(in crate::card::sets) static DEATH_WARD: CardRecord = CardRecord::new_with_legacy_id(
+    1419,
     "Death Ward",
     CardArt::new("fa5466cc-aa57-4a7f-8b21-d92b2fe02e13", "Mark Poole"),
     CardSet::Alpha,
@@ -386,8 +386,8 @@ pub(in crate::card::sets) static DEATH_WARD: CardRecord = CardRecord::new(
 );
 
 // LEA 18 — Disenchant
-pub(in crate::card::sets) static DISENCHANT: CardRecord = CardRecord::new(
-    cards::DISENCHANT,
+pub(in crate::card::sets) static DISENCHANT: CardRecord = CardRecord::new_with_legacy_id(
+    47,
     "Disenchant",
     CardArt::new("2722d7e2-61c6-4934-9c21-875ee78fd06c", "Amy Weber"),
     CardSet::Alpha,
@@ -430,8 +430,8 @@ static FARMSTEAD_LAND_ABILITY: AbilityDef = AbilityDef::triggered(
 );
 
 // LEA 19 — Farmstead
-pub(in crate::card::sets) static FARMSTEAD: CardRecord = CardRecord::new(
-    cards::FARMSTEAD,
+pub(in crate::card::sets) static FARMSTEAD: CardRecord = CardRecord::new_with_legacy_id(
+    459,
     "Farmstead",
     CardArt::new("3455b006-9ea5-4aef-8ad2-d0701eb0cacf", "Mark Poole"),
     CardSet::Alpha,
@@ -450,8 +450,8 @@ pub(in crate::card::sets) static FARMSTEAD: CardRecord = CardRecord::new(
 );
 
 // LEA 20 — Green Ward
-pub(in crate::card::sets) static GREEN_WARD: CardRecord = CardRecord::new(
-    cards::GREEN_WARD,
+pub(in crate::card::sets) static GREEN_WARD: CardRecord = CardRecord::new_with_legacy_id(
+    1555,
     "Green Ward",
     CardArt::new("1f6118b2-fe01-425a-a2ed-6d7c42286c8e", "Dan Frazier"),
     CardSet::Alpha,
@@ -471,8 +471,8 @@ pub(in crate::card::sets) static GREEN_WARD: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a repeatable optional payment window open until end of turn, each payment adding another prevention shield to the same recipient. The initial shield itself is available.
 
 // LEA 22 — Healing Salve
-pub(in crate::card::sets) static HEALING_SALVE: CardRecord = CardRecord::new(
-    cards::HEALING_SALVE,
+pub(in crate::card::sets) static HEALING_SALVE: CardRecord = CardRecord::new_with_legacy_id(
+    1581,
     "Healing Salve",
     CardArt::new("e28de37e-84d5-4dc7-b36c-e14da5924729", "Dan Frazier"),
     CardSet::Alpha,
@@ -508,8 +508,8 @@ pub(in crate::card::sets) static HEALING_SALVE: CardRecord = CardRecord::new(
 );
 
 // LEA 23 — Holy Armor
-pub(in crate::card::sets) static HOLY_ARMOR: CardRecord = CardRecord::new(
-    cards::HOLY_ARMOR,
+pub(in crate::card::sets) static HOLY_ARMOR: CardRecord = CardRecord::new_with_legacy_id(
+    317,
     "Holy Armor",
     CardArt::new("b01041d2-687e-4972-81c8-16690809275b", "Melissa A. Benson"),
     CardSet::Alpha,
@@ -543,8 +543,8 @@ pub(in crate::card::sets) static HOLY_ARMOR: CardRecord = CardRecord::new(
 );
 
 // LEA 24 — Holy Strength
-pub(in crate::card::sets) static HOLY_STRENGTH: CardRecord = CardRecord::new(
-    cards::HOLY_STRENGTH,
+pub(in crate::card::sets) static HOLY_STRENGTH: CardRecord = CardRecord::new_with_legacy_id(
+    318,
     "Holy Strength",
     CardArt::new("e945a4cd-0eb1-4f54-898d-169ce2748a03", "Anson Maddocks"),
     CardSet::Alpha,
@@ -575,8 +575,8 @@ static KARMA_SWAMPS: ObjectQueryDef = ObjectQueryDef::matching(
 // Audit: blocked — Needs an optional draw-step replacement and an attack restriction keyed to the attacking creature's abilities lasting until your next turn.
 
 // LEA 26 — Karma
-pub(in crate::card::sets) static KARMA: CardRecord = CardRecord::new(
-    cards::KARMA,
+pub(in crate::card::sets) static KARMA: CardRecord = CardRecord::new_with_legacy_id(
+    319,
     "Karma",
     CardArt::new(
         "6f30ad61-fcb7-4d55-ba86-94de1bf545e4",
@@ -599,8 +599,8 @@ pub(in crate::card::sets) static KARMA: CardRecord = CardRecord::new(
 );
 
 // LEA 27 — Lance
-pub(in crate::card::sets) static LANCE: CardRecord = CardRecord::new(
-    cards::LANCE,
+pub(in crate::card::sets) static LANCE: CardRecord = CardRecord::new_with_legacy_id(
+    320,
     "Lance",
     CardArt::new("ddb633f5-cc4d-4157-8217-def90cb15e24", "Rob Alexander"),
     CardSet::Alpha,
@@ -619,8 +619,8 @@ pub(in crate::card::sets) static LANCE: CardRecord = CardRecord::new(
 );
 
 // LEA 28 — Mesa Pegasus
-pub(in crate::card::sets) static MESA_PEGASUS: CardRecord = CardRecord::new(
-    cards::MESA_PEGASUS,
+pub(in crate::card::sets) static MESA_PEGASUS: CardRecord = CardRecord::new_with_legacy_id(
+    1773,
     "Mesa Pegasus",
     CardArt::new("eaac88da-d19e-4771-944c-3709963d04e7", "Melissa A. Benson"),
     CardSet::Alpha,
@@ -629,8 +629,8 @@ pub(in crate::card::sets) static MESA_PEGASUS: CardRecord = CardRecord::new(
 );
 
 // LEA 29 — Northern Paladin
-pub(in crate::card::sets) static NORTHERN_PALADIN: CardRecord = CardRecord::new(
-    cards::NORTHERN_PALADIN,
+pub(in crate::card::sets) static NORTHERN_PALADIN: CardRecord = CardRecord::new_with_legacy_id(
+    321,
     "Northern Paladin",
     CardArt::new("6303233b-35eb-49ca-b844-ba6b9fe1cbd2", "Douglas Shuler"),
     CardSet::Alpha,
@@ -653,8 +653,8 @@ pub(in crate::card::sets) static NORTHERN_PALADIN: CardRecord = CardRecord::new(
 );
 
 // LEA 30 — Pearled Unicorn
-pub(in crate::card::sets) static PEARLED_UNICORN: CardRecord = CardRecord::new(
-    cards::PEARLED_UNICORN,
+pub(in crate::card::sets) static PEARLED_UNICORN: CardRecord = CardRecord::new_with_legacy_id(
+    322,
     "Pearled Unicorn",
     CardArt::new("6daf1aab-1e58-4a5a-bc66-cb3f7c86e0e8", "Cornelius Brudi"),
     CardSet::Alpha,
@@ -675,8 +675,8 @@ static SPELL_OR_PERMANENT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exa
 )];
 
 // LEA 32 — Purelace
-pub(in crate::card::sets) static PURELACE: CardRecord = CardRecord::new(
-    cards::PURELACE,
+pub(in crate::card::sets) static PURELACE: CardRecord = CardRecord::new_with_legacy_id(
+    1562,
     "Purelace",
     CardArt::new("2facf462-55cd-4da4-997f-2cf4add75628", "Sandra Everingham"),
     CardSet::Alpha,
@@ -692,8 +692,8 @@ pub(in crate::card::sets) static PURELACE: CardRecord = CardRecord::new(
 );
 
 // LEA 33 — Red Ward
-pub(in crate::card::sets) static RED_WARD: CardRecord = CardRecord::new(
-    cards::RED_WARD,
+pub(in crate::card::sets) static RED_WARD: CardRecord = CardRecord::new_with_legacy_id(
+    1556,
     "Red Ward",
     CardArt::new("e0c64c01-c2aa-470b-88c6-3d3e4a969649", "Dan Frazier"),
     CardSet::Alpha,
@@ -710,8 +710,8 @@ pub(in crate::card::sets) static RED_WARD: CardRecord = CardRecord::new(
 );
 
 // LEA 34 — Resurrection
-pub(in crate::card::sets) static RESURRECTION: CardRecord = CardRecord::new(
-    cards::RESURRECTION,
+pub(in crate::card::sets) static RESURRECTION: CardRecord = CardRecord::new_with_legacy_id(
+    323,
     "Resurrection",
     CardArt::new("4fff6e6f-4ebd-4ec8-9443-59efb22d376c", "Dan Frazier"),
     CardSet::Alpha,
@@ -739,8 +739,8 @@ pub(in crate::card::sets) static RESURRECTION: CardRecord = CardRecord::new(
 );
 
 // LEA 35 — Reverse Damage
-pub(in crate::card::sets) static REVERSE_DAMAGE: CardRecord = CardRecord::new(
-    cards::REVERSE_DAMAGE,
+pub(in crate::card::sets) static REVERSE_DAMAGE: CardRecord = CardRecord::new_with_legacy_id(
+    1453,
     "Reverse Damage",
     CardArt::new("943baea8-b173-4863-a3ab-dd217d483cd9", "Dameon Willich"),
     CardSet::Alpha,
@@ -766,8 +766,8 @@ static REVERSE_DAMAGE_SHIELD: EffectDef = EffectDef::PreventDamage {
 };
 
 // LEA 36 — Righteousness
-pub(in crate::card::sets) static RIGHTEOUSNESS: CardRecord = CardRecord::new(
-    cards::RIGHTEOUSNESS,
+pub(in crate::card::sets) static RIGHTEOUSNESS: CardRecord = CardRecord::new_with_legacy_id(
+    324,
     "Righteousness",
     CardArt::new("d0ba7b76-f3d0-47d0-8a35-0c08e67200fb", "Douglas Shuler"),
     CardSet::Alpha,
@@ -792,8 +792,8 @@ pub(in crate::card::sets) static RIGHTEOUSNESS: CardRecord = CardRecord::new(
 );
 
 // LEA 37 — Samite Healer
-pub(in crate::card::sets) static SAMITE_HEALER: CardRecord = CardRecord::new(
-    cards::SAMITE_HEALER,
+pub(in crate::card::sets) static SAMITE_HEALER: CardRecord = CardRecord::new_with_legacy_id(
+    1409,
     "Samite Healer",
     CardArt::new("efba235e-04e5-449c-906c-0ac33f6d7929", "Tom Wänerstrand"),
     CardSet::Alpha,
@@ -816,8 +816,8 @@ pub(in crate::card::sets) static SAMITE_HEALER: CardRecord = CardRecord::new(
 );
 
 // LEA 38 — Savannah Lions
-pub(in crate::card::sets) static SAVANNAH_LIONS: CardRecord = CardRecord::new(
-    cards::SAVANNAH_LIONS,
+pub(in crate::card::sets) static SAVANNAH_LIONS: CardRecord = CardRecord::new_with_legacy_id(
+    92,
     "Savannah Lions",
     CardArt::new("d05b92bd-797e-413f-a8b0-32e0937a1ee0", "Daniel Gelon"),
     CardSet::Alpha,
@@ -825,8 +825,8 @@ pub(in crate::card::sets) static SAVANNAH_LIONS: CardRecord = CardRecord::new(
 );
 
 // LEA 39 — Serra Angel
-pub(in crate::card::sets) static SERRA_ANGEL: CardRecord = CardRecord::new(
-    cards::SERRA_ANGEL,
+pub(in crate::card::sets) static SERRA_ANGEL: CardRecord = CardRecord::new_with_legacy_id(
+    53,
     "Serra Angel",
     CardArt::new("f8ac5006-91bd-4803-93da-f87cf196dd2f", "Douglas Shuler"),
     CardSet::Alpha,
@@ -835,8 +835,8 @@ pub(in crate::card::sets) static SERRA_ANGEL: CardRecord = CardRecord::new(
 );
 
 // LEA 40 — Swords to Plowshares
-pub(in crate::card::sets) static SWORDS_TO_PLOWSHARES: CardRecord = CardRecord::new(
-    cards::SWORDS_TO_PLOWSHARES,
+pub(in crate::card::sets) static SWORDS_TO_PLOWSHARES: CardRecord = CardRecord::new_with_legacy_id(
+    54,
     "Swords to Plowshares",
     CardArt::new("386ea9eb-abc1-4862-aa2d-8fb808d79490", "Jeff A. Menges"),
     CardSet::Alpha,
@@ -875,8 +875,8 @@ static UNTAPPED_SELF: EffectRecipientDef = EffectRecipientDef::matching_objects(
 );
 
 // LEA 41 — Veteran Bodyguard
-pub(in crate::card::sets) static VETERAN_BODYGUARD: CardRecord = CardRecord::new(
-    cards::VETERAN_BODYGUARD,
+pub(in crate::card::sets) static VETERAN_BODYGUARD: CardRecord = CardRecord::new_with_legacy_id(
+    1684,
     "Veteran Bodyguard",
     CardArt::new("cbd9ab01-a833-4fa4-8dee-151bd9800835", "Douglas Shuler"),
     CardSet::Alpha,
@@ -895,8 +895,8 @@ pub(in crate::card::sets) static VETERAN_BODYGUARD: CardRecord = CardRecord::new
 );
 
 // LEA 42 — Wall of Swords
-pub(in crate::card::sets) static WALL_OF_SWORDS: CardRecord = CardRecord::new(
-    cards::WALL_OF_SWORDS,
+pub(in crate::card::sets) static WALL_OF_SWORDS: CardRecord = CardRecord::new_with_legacy_id(
+    325,
     "Wall of Swords",
     CardArt::new("99ec4723-b36c-4015-b361-736a6523e8f5", "Mark Tedin"),
     CardSet::Alpha,
@@ -905,8 +905,8 @@ pub(in crate::card::sets) static WALL_OF_SWORDS: CardRecord = CardRecord::new(
 );
 
 // LEA 43 — White Knight
-pub(in crate::card::sets) static WHITE_KNIGHT: CardRecord = CardRecord::new(
-    cards::WHITE_KNIGHT,
+pub(in crate::card::sets) static WHITE_KNIGHT: CardRecord = CardRecord::new_with_legacy_id(
+    107,
     "White Knight",
     CardArt::new("50abfba8-c9f9-4ebf-965a-4b425fe83129", "Daniel Gelon"),
     CardSet::Alpha,
@@ -917,8 +917,8 @@ pub(in crate::card::sets) static WHITE_KNIGHT: CardRecord = CardRecord::new(
 );
 
 // LEA 44 — White Ward
-pub(in crate::card::sets) static WHITE_WARD: CardRecord = CardRecord::new(
-    cards::WHITE_WARD,
+pub(in crate::card::sets) static WHITE_WARD: CardRecord = CardRecord::new_with_legacy_id(
+    1557,
     "White Ward",
     CardArt::new("49b22665-1501-420a-82ad-f71f6768bcf8", "Dan Frazier"),
     CardSet::Alpha,
@@ -935,8 +935,8 @@ pub(in crate::card::sets) static WHITE_WARD: CardRecord = CardRecord::new(
 );
 
 // LEA 45 — Wrath of God
-pub(in crate::card::sets) static WRATH_OF_GOD: CardRecord = CardRecord::new(
-    cards::WRATH_OF_GOD,
+pub(in crate::card::sets) static WRATH_OF_GOD: CardRecord = CardRecord::new_with_legacy_id(
+    128,
     "Wrath of God",
     CardArt::new("a2788d69-6a3a-42f0-8736-cc6b57755ecd", "Quinton Hoover"),
     CardSet::Alpha,
@@ -954,8 +954,8 @@ pub(in crate::card::sets) static WRATH_OF_GOD: CardRecord = CardRecord::new(
 );
 
 // LEA 46 — Air Elemental
-pub(in crate::card::sets) static AIR_ELEMENTAL: CardRecord = CardRecord::new(
-    cards::AIR_ELEMENTAL,
+pub(in crate::card::sets) static AIR_ELEMENTAL: CardRecord = CardRecord::new_with_legacy_id(
+    326,
     "Air Elemental",
     CardArt::new("69c3b2a3-0daa-4d42-832d-fcdfda6555ea", "Richard Thomas"),
     CardSet::Alpha,
@@ -964,8 +964,8 @@ pub(in crate::card::sets) static AIR_ELEMENTAL: CardRecord = CardRecord::new(
 );
 
 // LEA 47 — Ancestral Recall
-pub(in crate::card::sets) static ANCESTRAL_RECALL: CardRecord = CardRecord::new(
-    cards::ANCESTRAL_RECALL,
+pub(in crate::card::sets) static ANCESTRAL_RECALL: CardRecord = CardRecord::new_with_legacy_id(
+    44,
     "Ancestral Recall",
     CardArt::new("70e7ddf2-5604-41e7-bb9d-ddd03d3e9d0b", "Mark Poole"),
     CardSet::Alpha,
@@ -985,8 +985,8 @@ pub(in crate::card::sets) static ANCESTRAL_RECALL: CardRecord = CardRecord::new(
 // Audit: blocked — Needs Aura-scoped animation with base power and toughness dynamically equal to the enchanted artifact's mana value.
 
 // LEA 49 — Blue Elemental Blast
-pub(in crate::card::sets) static BLUE_ELEMENTAL_BLAST: CardRecord = CardRecord::new(
-    cards::BLUE_ELEMENTAL_BLAST,
+pub(in crate::card::sets) static BLUE_ELEMENTAL_BLAST: CardRecord = CardRecord::new_with_legacy_id(
+    64,
     "Blue Elemental Blast",
     CardArt::new("20d666ef-39bf-4fbf-8201-5f1056539da2", "Richard Thomas"),
     CardSet::Alpha,
@@ -1007,8 +1007,8 @@ pub(in crate::card::sets) static BLUE_ELEMENTAL_BLAST: CardRecord = CardRecord::
 );
 
 // LEA 50 — Braingeyser
-pub(in crate::card::sets) static BRAINGEYSER: CardRecord = CardRecord::new(
-    cards::BRAINGEYSER,
+pub(in crate::card::sets) static BRAINGEYSER: CardRecord = CardRecord::new_with_legacy_id(
+    45,
     "Braingeyser",
     CardArt::new("62b19a12-6914-430e-81ce-dcfca47884df", "Mark Tedin"),
     CardSet::Alpha,
@@ -1027,8 +1027,8 @@ pub(in crate::card::sets) static BRAINGEYSER: CardRecord = CardRecord::new(
 );
 
 // LEA 51 — Clone
-pub(in crate::card::sets) static CLONE: CardRecord = CardRecord::new(
-    cards::CLONE,
+pub(in crate::card::sets) static CLONE: CardRecord = CardRecord::new_with_legacy_id(
+    327,
     "Clone",
     CardArt::new("f00d33dd-4eb2-4446-9813-1923d8e2d2f3", "Julie Baroh"),
     CardSet::Alpha,
@@ -1046,8 +1046,8 @@ pub(in crate::card::sets) static CLONE: CardRecord = CardRecord::new(
 );
 
 // LEA 52 — Control Magic
-pub(in crate::card::sets) static CONTROL_MAGIC: CardRecord = CardRecord::new(
-    cards::CONTROL_MAGIC,
+pub(in crate::card::sets) static CONTROL_MAGIC: CardRecord = CardRecord::new_with_legacy_id(
+    1802,
     "Control Magic",
     CardArt::new("7b52f459-c703-4a0b-9114-ff69eec61287", "Dameon Willich"),
     CardSet::Alpha,
@@ -1077,8 +1077,8 @@ pub(in crate::card::sets) static CONTROL_MAGIC: CardRecord = CardRecord::new(
 );
 
 // LEA 53 — Copy Artifact
-pub(in crate::card::sets) static COPY_ARTIFACT: CardRecord = CardRecord::new(
-    cards::COPY_ARTIFACT,
+pub(in crate::card::sets) static COPY_ARTIFACT: CardRecord = CardRecord::new_with_legacy_id(
+    111,
     "Copy Artifact",
     CardArt::new("fd5ed955-1193-4e6a-a3e2-f54c1f9bf063", "Amy Weber"),
     CardSet::Alpha,
@@ -1095,8 +1095,8 @@ pub(in crate::card::sets) static COPY_ARTIFACT: CardRecord = CardRecord::new(
 );
 
 // LEA 54 — Counterspell
-pub(in crate::card::sets) static COUNTERSPELL: CardRecord = CardRecord::new(
-    cards::COUNTERSPELL,
+pub(in crate::card::sets) static COUNTERSPELL: CardRecord = CardRecord::new_with_legacy_id(
+    46,
     "Counterspell",
     CardArt::new("0df55e3f-14de-46ef-b6b1-616618724d9e", "Mark Poole"),
     CardSet::Alpha,
@@ -1118,8 +1118,8 @@ pub(in crate::card::sets) static COUNTERSPELL: CardRecord = CardRecord::new(
 );
 
 // LEA 55 — Creature Bond
-pub(in crate::card::sets) static CREATURE_BOND: CardRecord = CardRecord::new(
-    cards::CREATURE_BOND,
+pub(in crate::card::sets) static CREATURE_BOND: CardRecord = CardRecord::new_with_legacy_id(
+    1811,
     "Creature Bond",
     CardArt::new("ee4bd7d1-77e5-46e5-a594-c24469e88c4c", "Anson Maddocks"),
     CardSet::Alpha,
@@ -1152,8 +1152,8 @@ pub(in crate::card::sets) static CREATURE_BOND: CardRecord = CardRecord::new(
 // Audit: blocked — Needs cost/mana provenance or dynamic payment support for “Target player activates a mana ability of each land they control. Then that player loses all unspent mana and you add the mana lost this way”.
 
 // LEA 57 — Feedback
-pub(in crate::card::sets) static FEEDBACK: CardRecord = CardRecord::new(
-    cards::FEEDBACK,
+pub(in crate::card::sets) static FEEDBACK: CardRecord = CardRecord::new_with_legacy_id(
+    1569,
     "Feedback",
     CardArt::new("0eb8f591-d763-49bf-8ef9-86265aaa72f7", "Quinton Hoover"),
     CardSet::Alpha,
@@ -1178,8 +1178,8 @@ pub(in crate::card::sets) static FEEDBACK: CardRecord = CardRecord::new(
 );
 
 // LEA 58 — Flight
-pub(in crate::card::sets) static FLIGHT: CardRecord = CardRecord::new(
-    cards::FLIGHT,
+pub(in crate::card::sets) static FLIGHT: CardRecord = CardRecord::new_with_legacy_id(
+    328,
     "Flight",
     CardArt::new("67c7784b-6b79-4268-a714-895c82809aff", "Anson Maddocks"),
     CardSet::Alpha,
@@ -1198,8 +1198,8 @@ pub(in crate::card::sets) static FLIGHT: CardRecord = CardRecord::new(
 );
 
 // LEA 59 — Invisibility
-pub(in crate::card::sets) static INVISIBILITY: CardRecord = CardRecord::new(
-    cards::INVISIBILITY,
+pub(in crate::card::sets) static INVISIBILITY: CardRecord = CardRecord::new_with_legacy_id(
+    329,
     "Invisibility",
     CardArt::new("1858ac51-e6a7-48d7-8759-166070ca13d8", "Anson Maddocks"),
     CardSet::Alpha,
@@ -1220,8 +1220,8 @@ pub(in crate::card::sets) static INVISIBILITY: CardRecord = CardRecord::new(
 );
 
 // LEA 60 — Jump
-pub(in crate::card::sets) static JUMP: CardRecord = CardRecord::new(
-    cards::JUMP,
+pub(in crate::card::sets) static JUMP: CardRecord = CardRecord::new_with_legacy_id(
+    330,
     "Jump",
     CardArt::new("cb3f4b11-ad1b-48e2-a500-787d351b0174", "Mark Poole"),
     CardSet::Alpha,
@@ -1237,8 +1237,8 @@ pub(in crate::card::sets) static JUMP: CardRecord = CardRecord::new(
 );
 
 // LEA 61 — Lifetap
-pub(in crate::card::sets) static LIFETAP: CardRecord = CardRecord::new(
-    cards::LIFETAP,
+pub(in crate::card::sets) static LIFETAP: CardRecord = CardRecord::new_with_legacy_id(
+    331,
     "Lifetap",
     CardArt::new("11add837-7ee4-4104-b031-c161bce459ae", "Anson Maddocks"),
     CardSet::Alpha,
@@ -1256,8 +1256,8 @@ pub(in crate::card::sets) static LIFETAP: CardRecord = CardRecord::new(
 );
 
 // LEA 62 — Lord of Atlantis
-pub(in crate::card::sets) static LORD_OF_ATLANTIS: CardRecord = CardRecord::new(
-    cards::LORD_OF_ATLANTIS,
+pub(in crate::card::sets) static LORD_OF_ATLANTIS: CardRecord = CardRecord::new_with_legacy_id(
+    1386,
     "Lord of Atlantis",
     CardArt::new("210c4a90-fc7a-4c76-aeaa-20a005e45386", "Melissa A. Benson"),
     CardSet::Alpha,
@@ -1287,8 +1287,8 @@ pub(in crate::card::sets) static LORD_OF_ATLANTIS: CardRecord = CardRecord::new(
 
 // LEA 63 — Magical Hack
 // Audit: partial — Text changing rewrites land type lines and intrinsic mana only, not landwalk, predicates, other rules text, or spell text.
-pub(in crate::card::sets) static MAGICAL_HACK: CardRecord = CardRecord::new(
-    cards::MAGICAL_HACK,
+pub(in crate::card::sets) static MAGICAL_HACK: CardRecord = CardRecord::new_with_legacy_id(
+    250,
     "Magical Hack",
     CardArt::new("2bd4202c-0477-45aa-82fd-83c85d6d4bef", "Julie Baroh"),
     CardSet::Alpha,
@@ -1310,8 +1310,8 @@ pub(in crate::card::sets) static MAGICAL_HACK: CardRecord = CardRecord::new(
 );
 
 // LEA 64 — Mahamoti Djinn
-pub(in crate::card::sets) static MAHAMOTI_DJINN: CardRecord = CardRecord::new(
-    cards::MAHAMOTI_DJINN,
+pub(in crate::card::sets) static MAHAMOTI_DJINN: CardRecord = CardRecord::new_with_legacy_id(
+    332,
     "Mahamoti Djinn",
     CardArt::new("36204ddd-ddf7-4b44-ae3c-b4a5a41ac9cb", "Dan Frazier"),
     CardSet::Alpha,
@@ -1320,8 +1320,8 @@ pub(in crate::card::sets) static MAHAMOTI_DJINN: CardRecord = CardRecord::new(
 );
 
 // LEA 65 — Mana Short
-pub(in crate::card::sets) static MANA_SHORT: CardRecord = CardRecord::new(
-    cards::MANA_SHORT,
+pub(in crate::card::sets) static MANA_SHORT: CardRecord = CardRecord::new_with_legacy_id(
+    301,
     "Mana Short",
     CardArt::new("32dc632a-1378-4b3e-b959-1f32ae4d5652", "Dameon Willich"),
     CardSet::Alpha,
@@ -1345,17 +1345,18 @@ pub(in crate::card::sets) static MANA_SHORT: CardRecord = CardRecord::new(
 );
 
 // LEA 66 — Merfolk of the Pearl Trident
-pub(in crate::card::sets) static MERFOLK_OF_THE_PEARL_TRIDENT: CardRecord = CardRecord::new(
-    cards::MERFOLK_OF_THE_PEARL_TRIDENT,
-    "Merfolk of the Pearl Trident",
-    CardArt::new("2b871039-6a66-4ac3-95e7-24759c1f2f92", "Jeff A. Menges"),
-    CardSet::Alpha,
-    CardRules::new_creature(mana_cost!("{U}"), &["Merfolk"], 1, 1),
-);
+pub(in crate::card::sets) static MERFOLK_OF_THE_PEARL_TRIDENT: CardRecord =
+    CardRecord::new_with_legacy_id(
+        333,
+        "Merfolk of the Pearl Trident",
+        CardArt::new("2b871039-6a66-4ac3-95e7-24759c1f2f92", "Jeff A. Menges"),
+        CardSet::Alpha,
+        CardRules::new_creature(mana_cost!("{U}"), &["Merfolk"], 1, 1),
+    );
 
 // LEA 67 — Phantasmal Forces
-pub(in crate::card::sets) static PHANTASMAL_FORCES: CardRecord = CardRecord::new(
-    cards::PHANTASMAL_FORCES,
+pub(in crate::card::sets) static PHANTASMAL_FORCES: CardRecord = CardRecord::new_with_legacy_id(
+    334,
     "Phantasmal Forces",
     CardArt::new("0631c7c8-9aa5-4333-8e20-20247fc47033", "Mark Poole"),
     CardSet::Alpha,
@@ -1381,8 +1382,8 @@ pub(in crate::card::sets) static PHANTASMAL_FORCES: CardRecord = CardRecord::new
 // Audit: blocked — Needs a persistent dynamic characteristic choice and predicates that consume it for “Enchanted land is the chosen type”.
 
 // LEA 69 — Phantom Monster
-pub(in crate::card::sets) static PHANTOM_MONSTER: CardRecord = CardRecord::new(
-    cards::PHANTOM_MONSTER,
+pub(in crate::card::sets) static PHANTOM_MONSTER: CardRecord = CardRecord::new_with_legacy_id(
+    335,
     "Phantom Monster",
     CardArt::new("e46d2cf5-e8d0-4fb2-b950-252d52084b63", "Jesper Myrfors"),
     CardSet::Alpha,
@@ -1391,8 +1392,8 @@ pub(in crate::card::sets) static PHANTOM_MONSTER: CardRecord = CardRecord::new(
 );
 
 // LEA 70 — Pirate Ship
-pub(in crate::card::sets) static PIRATE_SHIP: CardRecord = CardRecord::new(
-    cards::PIRATE_SHIP,
+pub(in crate::card::sets) static PIRATE_SHIP: CardRecord = CardRecord::new_with_legacy_id(
+    1404,
     "Pirate Ship",
     CardArt::new("d0a7cb23-d229-43c5-addd-dcf423984b0c", "Tom Wänerstrand"),
     CardSet::Alpha,
@@ -1430,8 +1431,8 @@ pub(in crate::card::sets) static PIRATE_SHIP: CardRecord = CardRecord::new(
 // Audit: blocked — Needs counter-unless-X resolution whose failed-payment branch taps mana lands and empties that player's mana pool.
 
 // LEA 73 — Prodigal Sorcerer
-pub(in crate::card::sets) static PRODIGAL_SORCERER: CardRecord = CardRecord::new(
-    cards::PRODIGAL_SORCERER,
+pub(in crate::card::sets) static PRODIGAL_SORCERER: CardRecord = CardRecord::new_with_legacy_id(
+    336,
     "Prodigal Sorcerer",
     CardArt::new("e4dc1103-7bf1-47f6-9006-d3ed9ccd7a6a", "Douglas Shuler"),
     CardSet::Alpha,
@@ -1450,8 +1451,8 @@ pub(in crate::card::sets) static PRODIGAL_SORCERER: CardRecord = CardRecord::new
 );
 
 // LEA 74 — Psionic Blast
-pub(in crate::card::sets) static PSIONIC_BLAST: CardRecord = CardRecord::new(
-    cards::PSIONIC_BLAST,
+pub(in crate::card::sets) static PSIONIC_BLAST: CardRecord = CardRecord::new_with_legacy_id(
+    88,
     "Psionic Blast",
     CardArt::new("a6a86e6e-bfff-46af-9d36-c912901fea92", "Douglas Shuler"),
     CardSet::Alpha,
@@ -1474,8 +1475,8 @@ pub(in crate::card::sets) static PSIONIC_BLAST: CardRecord = CardRecord::new(
 );
 
 // LEA 75 — Psychic Venom
-pub(in crate::card::sets) static PSYCHIC_VENOM: CardRecord = CardRecord::new(
-    cards::PSYCHIC_VENOM,
+pub(in crate::card::sets) static PSYCHIC_VENOM: CardRecord = CardRecord::new_with_legacy_id(
+    1652,
     "Psychic Venom",
     CardArt::new("f3f5b68a-6b0e-431e-89f0-ff60f17687a5", "Brian Snõddy"),
     CardSet::Alpha,
@@ -1498,8 +1499,8 @@ pub(in crate::card::sets) static PSYCHIC_VENOM: CardRecord = CardRecord::new(
 );
 
 // LEA 76 — Sea Serpent
-pub(in crate::card::sets) static SEA_SERPENT: CardRecord = CardRecord::new(
-    cards::SEA_SERPENT,
+pub(in crate::card::sets) static SEA_SERPENT: CardRecord = CardRecord::new_with_legacy_id(
+    1405,
     "Sea Serpent",
     CardArt::new("d0b333b7-db4d-4439-b0de-60414cbf8d7b", "Jeff A. Menges"),
     CardSet::Alpha,
@@ -1527,8 +1528,8 @@ pub(in crate::card::sets) static SEA_SERPENT: CardRecord = CardRecord::new(
 
 // LEA 79 — Spell Blast
 // Audit: partial — A target spell's chosen X is omitted from its stack mana value.
-pub(in crate::card::sets) static SPELL_BLAST: CardRecord = CardRecord::new(
-    cards::SPELL_BLAST,
+pub(in crate::card::sets) static SPELL_BLAST: CardRecord = CardRecord::new_with_legacy_id(
+    337,
     "Spell Blast",
     CardArt::new("845734da-ab03-4dbc-bb5f-96481d3b8e88", "Brian Snõddy"),
     CardSet::Alpha,
@@ -1546,8 +1547,8 @@ pub(in crate::card::sets) static SPELL_BLAST: CardRecord = CardRecord::new(
 );
 
 // LEA 80 — Stasis
-pub(in crate::card::sets) static STASIS: CardRecord = CardRecord::new(
-    cards::STASIS,
+pub(in crate::card::sets) static STASIS: CardRecord = CardRecord::new_with_legacy_id(
+    302,
     "Stasis",
     CardArt::new("1e328704-d1d9-47f4-a923-8b5c187d4dc6", "Fay Jones"),
     CardSet::Alpha,
@@ -1580,8 +1581,8 @@ pub(in crate::card::sets) static STASIS: CardRecord = CardRecord::new(
 );
 
 // LEA 81 — Steal Artifact
-pub(in crate::card::sets) static STEAL_ARTIFACT: CardRecord = CardRecord::new(
-    cards::STEAL_ARTIFACT,
+pub(in crate::card::sets) static STEAL_ARTIFACT: CardRecord = CardRecord::new_with_legacy_id(
+    1803,
     "Steal Artifact",
     CardArt::new("83316930-d6ad-46ce-9b40-48eea856d95b", "Amy Weber"),
     CardSet::Alpha,
@@ -1608,8 +1609,8 @@ pub(in crate::card::sets) static STEAL_ARTIFACT: CardRecord = CardRecord::new(
 );
 
 // LEA 82 — Thoughtlace
-pub(in crate::card::sets) static THOUGHTLACE: CardRecord = CardRecord::new(
-    cards::THOUGHTLACE,
+pub(in crate::card::sets) static THOUGHTLACE: CardRecord = CardRecord::new_with_legacy_id(
+    1563,
     "Thoughtlace",
     CardArt::new("23749375-1416-47a4-9251-52f41fe2fae9", "Mark Poole"),
     CardSet::Alpha,
@@ -1625,8 +1626,8 @@ pub(in crate::card::sets) static THOUGHTLACE: CardRecord = CardRecord::new(
 );
 
 // LEA 83 — Time Walk
-pub(in crate::card::sets) static TIME_WALK: CardRecord = CardRecord::new(
-    cards::TIME_WALK,
+pub(in crate::card::sets) static TIME_WALK: CardRecord = CardRecord::new_with_legacy_id(
+    55,
     "Time Walk",
     CardArt::new("e0139f60-d48e-46fb-9f5a-1e3d7558c834", "Amy Weber"),
     CardSet::Alpha,
@@ -1639,8 +1640,8 @@ pub(in crate::card::sets) static TIME_WALK: CardRecord = CardRecord::new(
 );
 
 // LEA 84 — Timetwister
-pub(in crate::card::sets) static TIMETWISTER: CardRecord = CardRecord::new(
-    cards::TIMETWISTER,
+pub(in crate::card::sets) static TIMETWISTER: CardRecord = CardRecord::new_with_legacy_id(
+    103,
     "Timetwister",
     CardArt::new("9a49dc44-616e-4bdd-8220-0bb71eccc512", "Mark Tedin"),
     CardSet::Alpha,
@@ -1660,8 +1661,8 @@ static TWIDDLE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_pe
 
 // LEA 85 — Twiddle
 // Audit: partial — Tap versus untap is locked while casting instead of chosen, or declined, when the spell resolves.
-pub(in crate::card::sets) static TWIDDLE: CardRecord = CardRecord::new(
-    cards::TWIDDLE,
+pub(in crate::card::sets) static TWIDDLE: CardRecord = CardRecord::new_with_legacy_id(
+    338,
     "Twiddle",
     CardArt::new("576e811f-26a3-4a7c-bd13-3b1cc3e184eb", "Rob Alexander"),
     CardSet::Alpha,
@@ -1693,8 +1694,8 @@ pub(in crate::card::sets) static TWIDDLE: CardRecord = CardRecord::new(
 );
 
 // LEA 86 — Unsummon
-pub(in crate::card::sets) static UNSUMMON: CardRecord = CardRecord::new(
-    cards::UNSUMMON,
+pub(in crate::card::sets) static UNSUMMON: CardRecord = CardRecord::new_with_legacy_id(
+    339,
     "Unsummon",
     CardArt::new("8512f2c1-6361-4b79-843f-80b6bceeeb99", "Douglas Shuler"),
     CardSet::Alpha,
@@ -1719,8 +1720,8 @@ pub(in crate::card::sets) static UNSUMMON: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a zone-object query and identity-preserving continuation for “Destroy X target Mountains. Volcanic Eruption deals damage to each creature and each player equal to the number of Mountains put into a graveyard this way”.
 
 // LEA 89 — Wall of Air
-pub(in crate::card::sets) static WALL_OF_AIR: CardRecord = CardRecord::new(
-    cards::WALL_OF_AIR,
+pub(in crate::card::sets) static WALL_OF_AIR: CardRecord = CardRecord::new_with_legacy_id(
+    340,
     "Wall of Air",
     CardArt::new("da56fdf3-6a8f-4833-a5c3-197650cc4889", "Richard Thomas"),
     CardSet::Alpha,
@@ -1729,8 +1730,8 @@ pub(in crate::card::sets) static WALL_OF_AIR: CardRecord = CardRecord::new(
 );
 
 // LEA 90 — Wall of Water
-pub(in crate::card::sets) static WALL_OF_WATER: CardRecord = CardRecord::new(
-    cards::WALL_OF_WATER,
+pub(in crate::card::sets) static WALL_OF_WATER: CardRecord = CardRecord::new_with_legacy_id(
+    341,
     "Wall of Water",
     CardArt::new("41faed1a-ded8-49ee-8e2a-c60d377775d7", "Richard Thomas"),
     CardSet::Alpha,
@@ -1752,8 +1753,8 @@ pub(in crate::card::sets) static WALL_OF_WATER: CardRecord = CardRecord::new(
 );
 
 // LEA 91 — Water Elemental
-pub(in crate::card::sets) static WATER_ELEMENTAL: CardRecord = CardRecord::new(
-    cards::WATER_ELEMENTAL,
+pub(in crate::card::sets) static WATER_ELEMENTAL: CardRecord = CardRecord::new_with_legacy_id(
+    342,
     "Water Elemental",
     CardArt::new("8de940d6-98c0-46a9-b5fd-e2b0899ea19e", "Jeff A. Menges"),
     CardSet::Alpha,
@@ -1764,8 +1765,8 @@ pub(in crate::card::sets) static WATER_ELEMENTAL: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a zone-object query and identity-preserving continuation for “When this Aura enters, if it's on the battlefield, it loses "enchant creature card in a graveyard" and gains "enchant creature put onto the battlefield with this Aura." Return enchanted…”.
 
 // LEA 93 — Bad Moon
-pub(in crate::card::sets) static BAD_MOON: CardRecord = CardRecord::new(
-    cards::BAD_MOON,
+pub(in crate::card::sets) static BAD_MOON: CardRecord = CardRecord::new_with_legacy_id(
+    343,
     "Bad Moon",
     CardArt::new("43572906-ea74-4411-a549-5dc401591d2a", "Jesper Myrfors"),
     CardSet::Alpha,
@@ -1789,8 +1790,8 @@ pub(in crate::card::sets) static BAD_MOON: CardRecord = CardRecord::new(
 );
 
 // LEA 94 — Black Knight
-pub(in crate::card::sets) static BLACK_KNIGHT: CardRecord = CardRecord::new(
-    cards::BLACK_KNIGHT,
+pub(in crate::card::sets) static BLACK_KNIGHT: CardRecord = CardRecord::new_with_legacy_id(
+    62,
     "Black Knight",
     CardArt::new("c1662949-0d69-49a3-8c69-daf10717ed4e", "Jeff A. Menges"),
     CardSet::Alpha,
@@ -1801,8 +1802,8 @@ pub(in crate::card::sets) static BLACK_KNIGHT: CardRecord = CardRecord::new(
 );
 
 // LEA 95 — Bog Wraith
-pub(in crate::card::sets) static BOG_WRAITH: CardRecord = CardRecord::new(
-    cards::BOG_WRAITH,
+pub(in crate::card::sets) static BOG_WRAITH: CardRecord = CardRecord::new_with_legacy_id(
+    1380,
     "Bog Wraith",
     CardArt::new("6701874e-986e-4b81-9268-90b6171e6187", "Jeff A. Menges"),
     CardSet::Alpha,
@@ -1814,8 +1815,8 @@ pub(in crate::card::sets) static BOG_WRAITH: CardRecord = CardRecord::new(
 // Audit: blocked — Needs ante-zone and deck-construction handling for “Discard your hand, ante the top card of your library, then draw seven cards”.
 
 // LEA 97 — Cursed Land
-pub(in crate::card::sets) static CURSED_LAND: CardRecord = CardRecord::new(
-    cards::CURSED_LAND,
+pub(in crate::card::sets) static CURSED_LAND: CardRecord = CardRecord::new_with_legacy_id(
+    1570,
     "Cursed Land",
     CardArt::new("cf5f3c61-1e54-4eea-bf82-311cfa988e6a", "Jesper Myrfors"),
     CardSet::Alpha,
@@ -1837,8 +1838,8 @@ pub(in crate::card::sets) static CURSED_LAND: CardRecord = CardRecord::new(
 );
 
 // LEA 98 — Dark Ritual
-pub(in crate::card::sets) static DARK_RITUAL: CardRecord = CardRecord::new(
-    cards::DARK_RITUAL,
+pub(in crate::card::sets) static DARK_RITUAL: CardRecord = CardRecord::new_with_legacy_id(
+    68,
     "Dark Ritual",
     CardArt::new("ebb6664d-23ca-456e-9916-afcd6f26aa7f", "Sandra Everingham"),
     CardSet::Alpha,
@@ -1852,8 +1853,8 @@ pub(in crate::card::sets) static DARK_RITUAL: CardRecord = CardRecord::new(
 // Audit: blocked — Needs an ante zone plus a permanent ownership exchange between a chosen ante card and the top card of a library.
 
 // LEA 100 — Deathgrip
-pub(in crate::card::sets) static DEATHGRIP: CardRecord = CardRecord::new(
-    cards::DEATHGRIP,
+pub(in crate::card::sets) static DEATHGRIP: CardRecord = CardRecord::new_with_legacy_id(
+    344,
     "Deathgrip",
     CardArt::new("2371c126-f19a-472a-ba5f-3b1366274ea0", "Anson Maddocks"),
     CardSet::Alpha,
@@ -1873,8 +1874,8 @@ pub(in crate::card::sets) static DEATHGRIP: CardRecord = CardRecord::new(
 );
 
 // LEA 101 — Deathlace
-pub(in crate::card::sets) static DEATHLACE: CardRecord = CardRecord::new(
-    cards::DEATHLACE,
+pub(in crate::card::sets) static DEATHLACE: CardRecord = CardRecord::new_with_legacy_id(
+    1564,
     "Deathlace",
     CardArt::new("6ff1cefc-62cb-4525-b0c5-2b09603b4314", "Sandra Everingham"),
     CardSet::Alpha,
@@ -1896,8 +1897,8 @@ pub(in crate::card::sets) static DEATHLACE: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a persistent tap/untap restriction or event relation for “At the beginning of your upkeep, unless you pay {B}{B}{B}, tap this creature and sacrifice a land of an opponent's choice”.
 
 // LEA 104 — Demonic Tutor
-pub(in crate::card::sets) static DEMONIC_TUTOR: CardRecord = CardRecord::new(
-    cards::DEMONIC_TUTOR,
+pub(in crate::card::sets) static DEMONIC_TUTOR: CardRecord = CardRecord::new_with_legacy_id(
+    69,
     "Demonic Tutor",
     CardArt::new("711d4d54-5520-4de8-9b93-79902ed8e562", "Douglas Shuler"),
     CardSet::Alpha,
@@ -1921,8 +1922,8 @@ pub(in crate::card::sets) static DEMONIC_TUTOR: CardRecord = CardRecord::new(
 );
 
 // LEA 105 — Drain Life
-pub(in crate::card::sets) static DRAIN_LIFE: CardRecord = CardRecord::new(
-    cards::DRAIN_LIFE,
+pub(in crate::card::sets) static DRAIN_LIFE: CardRecord = CardRecord::new_with_legacy_id(
+    71,
     "Drain Life",
     CardArt::new("5d077a49-73d4-4958-b42a-31b814e110e8", "Douglas Shuler"),
     CardSet::Alpha,
@@ -1948,8 +1949,8 @@ pub(in crate::card::sets) static DRAIN_LIFE: CardRecord = CardRecord::new(
 );
 
 // LEA 106 — Drudge Skeletons
-pub(in crate::card::sets) static DRUDGE_SKELETONS: CardRecord = CardRecord::new(
-    cards::DRUDGE_SKELETONS,
+pub(in crate::card::sets) static DRUDGE_SKELETONS: CardRecord = CardRecord::new_with_legacy_id(
+    1369,
     "Drudge Skeletons",
     CardArt::new("23614289-0d73-4747-a849-5cb67cc97d6a", "Sandra Everingham"),
     CardSet::Alpha,
@@ -1962,8 +1963,8 @@ pub(in crate::card::sets) static DRUDGE_SKELETONS: CardRecord = CardRecord::new(
 );
 
 // LEA 107 — Evil Presence
-pub(in crate::card::sets) static EVIL_PRESENCE: CardRecord = CardRecord::new(
-    cards::EVIL_PRESENCE,
+pub(in crate::card::sets) static EVIL_PRESENCE: CardRecord = CardRecord::new_with_legacy_id(
+    345,
     "Evil Presence",
     CardArt::new("0551d66e-8cd4-48f0-aa17-15f26be9d85f", "Sandra Everingham"),
     CardSet::Alpha,
@@ -1983,8 +1984,8 @@ pub(in crate::card::sets) static EVIL_PRESENCE: CardRecord = CardRecord::new(
 
 // LEA 108 — Fear
 // Audit: partial — The blocking restriction is stored directly rather than as a removable granted ability.
-pub(in crate::card::sets) static FEAR: CardRecord = CardRecord::new(
-    cards::FEAR,
+pub(in crate::card::sets) static FEAR: CardRecord = CardRecord::new_with_legacy_id(
+    346,
     "Fear",
     CardArt::new("0cd927be-e63f-4371-a1d8-7a0489cb187e", "Mark Poole"),
     CardSet::Alpha,
@@ -2011,8 +2012,8 @@ pub(in crate::card::sets) static FEAR: CardRecord = CardRecord::new(
 );
 
 // LEA 109 — Frozen Shade
-pub(in crate::card::sets) static FROZEN_SHADE: CardRecord = CardRecord::new(
-    cards::FROZEN_SHADE,
+pub(in crate::card::sets) static FROZEN_SHADE: CardRecord = CardRecord::new_with_legacy_id(
+    347,
     "Frozen Shade",
     CardArt::new("d0bd76c8-4cff-4c15-9686-7a299b589814", "Douglas Shuler"),
     CardSet::Alpha,
@@ -2040,8 +2041,8 @@ static GLOOM_WHITE_ENCHANTMENT: ObjectPredicateDef = ObjectPredicateDef::All(&[
 ]);
 
 // LEA 110 — Gloom
-pub(in crate::card::sets) static GLOOM: CardRecord = CardRecord::new(
-    cards::GLOOM,
+pub(in crate::card::sets) static GLOOM: CardRecord = CardRecord::new_with_legacy_id(
+    1845,
     "Gloom",
     CardArt::new("a8d10bc7-daeb-4c0d-9e4a-8eae8d11699f", "Dan Frazier"),
     CardSet::Alpha,
@@ -2067,8 +2068,8 @@ pub(in crate::card::sets) static GLOOM: CardRecord = CardRecord::new(
 );
 
 // LEA 111 — Howl from Beyond
-pub(in crate::card::sets) static HOWL_FROM_BEYOND: CardRecord = CardRecord::new(
-    cards::HOWL_FROM_BEYOND,
+pub(in crate::card::sets) static HOWL_FROM_BEYOND: CardRecord = CardRecord::new_with_legacy_id(
+    348,
     "Howl from Beyond",
     CardArt::new("67ec17e1-174b-4d07-a27f-91a333c4b2fb", "Mark Poole"),
     CardSet::Alpha,
@@ -2087,8 +2088,8 @@ pub(in crate::card::sets) static HOWL_FROM_BEYOND: CardRecord = CardRecord::new(
 );
 
 // LEA 112 — Hypnotic Specter
-pub(in crate::card::sets) static HYPNOTIC_SPECTER: CardRecord = CardRecord::new(
-    cards::HYPNOTIC_SPECTER,
+pub(in crate::card::sets) static HYPNOTIC_SPECTER: CardRecord = CardRecord::new_with_legacy_id(
+    76,
     "Hypnotic Specter",
     CardArt::new("b43b900f-2d9b-442b-9699-058483604ec9", "Douglas Shuler"),
     CardSet::Alpha,
@@ -2124,8 +2125,8 @@ static TARGET_PLAYER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 // Audit: blocked — Needs a mandatory creature-sacrifice choice with an explicit no-legal-sacrifice damage branch during upkeep.
 
 // LEA 115 — Mind Twist
-pub(in crate::card::sets) static MIND_TWIST: CardRecord = CardRecord::new(
-    cards::MIND_TWIST,
+pub(in crate::card::sets) static MIND_TWIST: CardRecord = CardRecord::new_with_legacy_id(
+    82,
     "Mind Twist",
     CardArt::new("eee9e106-a248-49d2-b8c8-6bbcd56ce739", "Julie Baroh"),
     CardSet::Alpha,
@@ -2165,8 +2166,8 @@ static PARALYZE_UNTAP: EffectDef = EffectDef::Untap {
 };
 
 // LEA 119 — Paralyze
-pub(in crate::card::sets) static PARALYZE: CardRecord = CardRecord::new(
-    cards::PARALYZE,
+pub(in crate::card::sets) static PARALYZE: CardRecord = CardRecord::new_with_legacy_id(
+    1841,
     "Paralyze",
     CardArt::new("be33a155-de26-43d1-88f1-c926f1b7cb7c", "Anson Maddocks"),
     CardSet::Alpha,
@@ -2210,8 +2211,8 @@ pub(in crate::card::sets) static PARALYZE: CardRecord = CardRecord::new(
 );
 
 // LEA 120 — Pestilence
-pub(in crate::card::sets) static PESTILENCE: CardRecord = CardRecord::new(
-    cards::PESTILENCE,
+pub(in crate::card::sets) static PESTILENCE: CardRecord = CardRecord::new_with_legacy_id(
+    349,
     "Pestilence",
     CardArt::new("d42a6350-b16b-4e10-a273-e6cbb55dcb7a", "Jesper Myrfors"),
     CardSet::Alpha,
@@ -2246,8 +2247,8 @@ pub(in crate::card::sets) static PESTILENCE: CardRecord = CardRecord::new(
 
 // LEA 121 — Plague Rats
 // Audit: partial — Its power and toughness are a battlefield-only continuous effect rather than a characteristic-defining ability, so they read as printed in every other zone.
-pub(in crate::card::sets) static PLAGUE_RATS: CardRecord = CardRecord::new(
-    cards::PLAGUE_RATS,
+pub(in crate::card::sets) static PLAGUE_RATS: CardRecord = CardRecord::new_with_legacy_id(
+    1466,
     "Plague Rats",
     CardArt::new("b3724e40-0622-4aee-9334-6c9fff88bcd5", "Anson Maddocks"),
     CardSet::Alpha,
@@ -2280,8 +2281,8 @@ static CREATURES_NAMED_LIKE_THE_SOURCE: ObjectQueryDef = ObjectQueryDef::matchin
 );
 
 // LEA 122 — Raise Dead
-pub(in crate::card::sets) static RAISE_DEAD: CardRecord = CardRecord::new(
-    cards::RAISE_DEAD,
+pub(in crate::card::sets) static RAISE_DEAD: CardRecord = CardRecord::new_with_legacy_id(
+    350,
     "Raise Dead",
     CardArt::new("ce07bede-2219-427c-a61a-56518751de42", "Jeff A. Menges"),
     CardSet::Alpha,
@@ -2307,8 +2308,8 @@ pub(in crate::card::sets) static RAISE_DEAD: CardRecord = CardRecord::new(
 );
 
 // LEA 123 — Royal Assassin
-pub(in crate::card::sets) static ROYAL_ASSASSIN: CardRecord = CardRecord::new(
-    cards::ROYAL_ASSASSIN,
+pub(in crate::card::sets) static ROYAL_ASSASSIN: CardRecord = CardRecord::new_with_legacy_id(
+    1427,
     "Royal Assassin",
     CardArt::new("59590768-fa96-4869-8763-9d5ab6ac22ad", "Tom Wänerstrand"),
     CardSet::Alpha,
@@ -2329,8 +2330,8 @@ pub(in crate::card::sets) static ROYAL_ASSASSIN: CardRecord = CardRecord::new(
 // Audit: blocked — Needs cost/mana provenance or dynamic payment support for “Add an amount of {B} equal to the sacrificed creature's mana value”.
 
 // LEA 125 — Scathe Zombies
-pub(in crate::card::sets) static SCATHE_ZOMBIES: CardRecord = CardRecord::new(
-    cards::SCATHE_ZOMBIES,
+pub(in crate::card::sets) static SCATHE_ZOMBIES: CardRecord = CardRecord::new_with_legacy_id(
+    351,
     "Scathe Zombies",
     CardArt::new("e9be6dcf-5e25-4b8c-9cd0-badf3771f81e", "Jesper Myrfors"),
     CardSet::Alpha,
@@ -2338,8 +2339,8 @@ pub(in crate::card::sets) static SCATHE_ZOMBIES: CardRecord = CardRecord::new(
 );
 
 // LEA 126 — Scavenging Ghoul
-pub(in crate::card::sets) static SCAVENGING_GHOUL: CardRecord = CardRecord::new(
-    cards::SCAVENGING_GHOUL,
+pub(in crate::card::sets) static SCAVENGING_GHOUL: CardRecord = CardRecord::new_with_legacy_id(
+    1839,
     "Scavenging Ghoul",
     CardArt::new("426984e0-88e1-4a2d-9a1c-798b95864df3", "Jeff A. Menges"),
     CardSet::Alpha,
@@ -2373,8 +2374,8 @@ pub(in crate::card::sets) static SCAVENGING_GHOUL: CardRecord = CardRecord::new(
 );
 
 // LEA 127 — Sengir Vampire
-pub(in crate::card::sets) static SENGIR_VAMPIRE: CardRecord = CardRecord::new(
-    cards::SENGIR_VAMPIRE,
+pub(in crate::card::sets) static SENGIR_VAMPIRE: CardRecord = CardRecord::new_with_legacy_id(
+    95,
     "Sengir Vampire",
     CardArt::new("510840f4-7c0e-4b47-8ebf-23c20cac4bd9", "Anson Maddocks"),
     CardSet::Alpha,
@@ -2422,8 +2423,8 @@ static SIMULACRUM_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one
 )];
 
 // LEA 128 — Simulacrum
-pub(in crate::card::sets) static SIMULACRUM: CardRecord = CardRecord::new(
-    cards::SIMULACRUM,
+pub(in crate::card::sets) static SIMULACRUM: CardRecord = CardRecord::new_with_legacy_id(
+    1714,
     "Simulacrum",
     CardArt::new("35c3a78d-cc79-4187-929a-8aa1d1469990", "Mark Poole"),
     CardSet::Alpha,
@@ -2445,8 +2446,8 @@ pub(in crate::card::sets) static SIMULACRUM: CardRecord = CardRecord::new(
 );
 
 // LEA 129 — Sinkhole
-pub(in crate::card::sets) static SINKHOLE: CardRecord = CardRecord::new(
-    cards::SINKHOLE,
+pub(in crate::card::sets) static SINKHOLE: CardRecord = CardRecord::new_with_legacy_id(
+    96,
     "Sinkhole",
     CardArt::new("04b31611-9053-4eaf-b392-21bb644fef5f", "Sandra Everingham"),
     CardSet::Alpha,
@@ -2479,8 +2480,8 @@ static TERROR_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_per
 )];
 
 // LEA 130 — Terror
-pub(in crate::card::sets) static TERROR: CardRecord = CardRecord::new(
-    cards::TERROR,
+pub(in crate::card::sets) static TERROR: CardRecord = CardRecord::new_with_legacy_id(
+    100,
     "Terror",
     CardArt::new("21004958-2c7e-4a55-bc80-411c4d780106", "Ron Spencer"),
     CardSet::Alpha,
@@ -2495,8 +2496,8 @@ pub(in crate::card::sets) static TERROR: CardRecord = CardRecord::new(
 );
 
 // LEA 131 — Unholy Strength
-pub(in crate::card::sets) static UNHOLY_STRENGTH: CardRecord = CardRecord::new(
-    cards::UNHOLY_STRENGTH,
+pub(in crate::card::sets) static UNHOLY_STRENGTH: CardRecord = CardRecord::new_with_legacy_id(
+    352,
     "Unholy Strength",
     CardArt::new("90563f90-0127-4164-b43b-f0321dc63a1d", "Douglas Shuler"),
     CardSet::Alpha,
@@ -2518,8 +2519,8 @@ pub(in crate::card::sets) static UNHOLY_STRENGTH: CardRecord = CardRecord::new(
 );
 
 // LEA 132 — Wall of Bone
-pub(in crate::card::sets) static WALL_OF_BONE: CardRecord = CardRecord::new(
-    cards::WALL_OF_BONE,
+pub(in crate::card::sets) static WALL_OF_BONE: CardRecord = CardRecord::new_with_legacy_id(
+    1370,
     "Wall of Bone",
     CardArt::new("ae20d442-a544-4a03-9ebf-5ecb137c67dd", "Anson Maddocks"),
     CardSet::Alpha,
@@ -2533,8 +2534,8 @@ pub(in crate::card::sets) static WALL_OF_BONE: CardRecord = CardRecord::new(
 );
 
 // LEA 133 — Warp Artifact
-pub(in crate::card::sets) static WARP_ARTIFACT: CardRecord = CardRecord::new(
-    cards::WARP_ARTIFACT,
+pub(in crate::card::sets) static WARP_ARTIFACT: CardRecord = CardRecord::new_with_legacy_id(
+    1571,
     "Warp Artifact",
     CardArt::new("9e5e07a2-fbdf-4c4c-996a-fce40bab5de5", "Amy Weber"),
     CardSet::Alpha,
@@ -2556,8 +2557,8 @@ pub(in crate::card::sets) static WARP_ARTIFACT: CardRecord = CardRecord::new(
 );
 
 // LEA 134 — Weakness
-pub(in crate::card::sets) static WEAKNESS: CardRecord = CardRecord::new(
-    cards::WEAKNESS,
+pub(in crate::card::sets) static WEAKNESS: CardRecord = CardRecord::new_with_legacy_id(
+    353,
     "Weakness",
     CardArt::new("36ca06a1-9b9a-49a2-9c47-9b72228621bc", "Douglas Shuler"),
     CardSet::Alpha,
@@ -2579,8 +2580,8 @@ pub(in crate::card::sets) static WEAKNESS: CardRecord = CardRecord::new(
 );
 
 // LEA 135 — Will-o'-the-Wisp
-pub(in crate::card::sets) static WILL_O_THE_WISP: CardRecord = CardRecord::new(
-    cards::WILL_O_THE_WISP,
+pub(in crate::card::sets) static WILL_O_THE_WISP: CardRecord = CardRecord::new_with_legacy_id(
+    1371,
     "Will-o'-the-Wisp",
     CardArt::new("a1a6f8e9-7bc1-4151-b55f-acf877b1a7a6", "Jesper Myrfors"),
     CardSet::Alpha,
@@ -2597,8 +2598,8 @@ pub(in crate::card::sets) static WILL_O_THE_WISP: CardRecord = CardRecord::new(
 // Audit: blocked — Needs ordered-library inspection, selection, and visibility handling for “Look at target opponent's hand and choose a card from it. You control that player until Word of Command finishes resolving. The player plays that card if able. While doing so, the player…”.
 
 // LEA 137 — Zombie Master
-pub(in crate::card::sets) static ZOMBIE_MASTER: CardRecord = CardRecord::new(
-    cards::ZOMBIE_MASTER,
+pub(in crate::card::sets) static ZOMBIE_MASTER: CardRecord = CardRecord::new_with_legacy_id(
+    1426,
     "Zombie Master",
     CardArt::new("3d4255a0-d445-4c00-b936-bbf07851e1c8", "Jeff A. Menges"),
     CardSet::Alpha,
@@ -2629,8 +2630,8 @@ pub(in crate::card::sets) static ZOMBIE_MASTER: CardRecord = CardRecord::new(
 );
 
 // LEA 138 — Burrowing
-pub(in crate::card::sets) static BURROWING: CardRecord = CardRecord::new(
-    cards::BURROWING,
+pub(in crate::card::sets) static BURROWING: CardRecord = CardRecord::new_with_legacy_id(
+    460,
     "Burrowing",
     CardArt::new("a14c05e4-8df3-450b-8a98-5028e73b14c1", "Mark Poole"),
     CardSet::Alpha,
@@ -2678,8 +2679,8 @@ static DRAGON_WHELP_PUMP: [EffectDef; 2] = [
 ];
 
 // LEA 139 — Chaoslace
-pub(in crate::card::sets) static CHAOSLACE: CardRecord = CardRecord::new(
-    cards::CHAOSLACE,
+pub(in crate::card::sets) static CHAOSLACE: CardRecord = CardRecord::new_with_legacy_id(
+    1565,
     "Chaoslace",
     CardArt::new("72ea2048-57bc-43d5-8987-33ca727f1a97", "Dameon Willich"),
     CardSet::Alpha,
@@ -2698,8 +2699,8 @@ pub(in crate::card::sets) static CHAOSLACE: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a duration-scoped prohibition on creating or applying regeneration shields for “Disintegrate deals X damage to any target. If it's a creature, it can't be regenerated this turn, and if it would die this turn, exile it instead”.
 
 // LEA 141 — Dragon Whelp
-pub(in crate::card::sets) static DRAGON_WHELP: CardRecord = CardRecord::new(
-    cards::DRAGON_WHELP,
+pub(in crate::card::sets) static DRAGON_WHELP: CardRecord = CardRecord::new_with_legacy_id(
+    23,
     "Dragon Whelp",
     CardArt::new("6bbf1eab-bc32-4835-b566-8634b1fe81b0", "Amy Weber"),
     CardSet::Alpha,
@@ -2715,30 +2716,31 @@ pub(in crate::card::sets) static DRAGON_WHELP: CardRecord = CardRecord::new(
 );
 
 // LEA 142 — Dwarven Demolition Team
-pub(in crate::card::sets) static DWARVEN_DEMOLITION_TEAM: CardRecord = CardRecord::new(
-    cards::DWARVEN_DEMOLITION_TEAM,
-    "Dwarven Demolition Team",
-    CardArt::new("03482c9c-1f25-4d73-9243-17462ea37ac4", "Kev Brockschmidt"),
-    CardSet::Alpha,
-    CardRules::new_creature(mana_cost!("{2}{R}"), &["Dwarf"], 1, 1).with_abilities(&[
-        AbilityDef::activated_with_targets(
-            "{T}: Destroy target Wall.",
-            &[AbilityCostDef::TapSource],
-            &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::Subtype("Wall"),
-            )],
-            EffectDef::Destroy {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
-            },
-        ),
-    ]),
-);
+pub(in crate::card::sets) static DWARVEN_DEMOLITION_TEAM: CardRecord =
+    CardRecord::new_with_legacy_id(
+        461,
+        "Dwarven Demolition Team",
+        CardArt::new("03482c9c-1f25-4d73-9243-17462ea37ac4", "Kev Brockschmidt"),
+        CardSet::Alpha,
+        CardRules::new_creature(mana_cost!("{2}{R}"), &["Dwarf"], 1, 1).with_abilities(&[
+            AbilityDef::activated_with_targets(
+                "{T}: Destroy target Wall.",
+                &[AbilityCostDef::TapSource],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::Subtype("Wall"),
+                )],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    can_regenerate: true,
+                },
+            ),
+        ]),
+    );
 
 // LEA 143 — Dwarven Warriors
 // Audit: partial — The target's power omits modifiers from static continuous effects.
-pub(in crate::card::sets) static DWARVEN_WARRIORS: CardRecord = CardRecord::new(
-    cards::DWARVEN_WARRIORS,
+pub(in crate::card::sets) static DWARVEN_WARRIORS: CardRecord = CardRecord::new_with_legacy_id(
+    462,
     "Dwarven Warriors",
     CardArt::new("2d4d87a3-5f8b-4152-9a8b-538ab49d62e8", "Douglas Shuler"),
     CardSet::Alpha,
@@ -2767,8 +2769,8 @@ pub(in crate::card::sets) static DWARVEN_WARRIORS: CardRecord = CardRecord::new(
 );
 
 // LEA 144 — Earth Elemental
-pub(in crate::card::sets) static EARTH_ELEMENTAL: CardRecord = CardRecord::new(
-    cards::EARTH_ELEMENTAL,
+pub(in crate::card::sets) static EARTH_ELEMENTAL: CardRecord = CardRecord::new_with_legacy_id(
+    463,
     "Earth Elemental",
     CardArt::new("b24b5864-44c0-4bc8-8705-9504f83b2c03", "Dan Frazier"),
     CardSet::Alpha,
@@ -2779,8 +2781,8 @@ pub(in crate::card::sets) static EARTH_ELEMENTAL: CardRecord = CardRecord::new(
 // Audit: blocked — Needs an Aura-entry condition on the attached creature plus a persistent removal of flying created during resolution.
 
 // LEA 146 — Earthquake
-pub(in crate::card::sets) static EARTHQUAKE: CardRecord = CardRecord::new(
-    cards::EARTHQUAKE,
+pub(in crate::card::sets) static EARTHQUAKE: CardRecord = CardRecord::new_with_legacy_id(
+    72,
     "Earthquake",
     CardArt::new("e68ac362-6cdc-48a6-bdd3-4f8ea32add64", "Dan Frazier"),
     CardSet::Alpha,
@@ -2812,8 +2814,8 @@ pub(in crate::card::sets) static EARTHQUAKE: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a combat declaration or damage-assignment constraint for “Remove target creature defending player controls from combat. Creatures it was blocking that had become blocked by only that creature this combat become unblocked. You may have it block…”.
 
 // LEA 148 — Fire Elemental
-pub(in crate::card::sets) static FIRE_ELEMENTAL: CardRecord = CardRecord::new(
-    cards::FIRE_ELEMENTAL,
+pub(in crate::card::sets) static FIRE_ELEMENTAL: CardRecord = CardRecord::new_with_legacy_id(
+    464,
     "Fire Elemental",
     CardArt::new("da237992-2919-4e37-8f56-2164095f59b5", "Melissa A. Benson"),
     CardSet::Alpha,
@@ -2821,8 +2823,8 @@ pub(in crate::card::sets) static FIRE_ELEMENTAL: CardRecord = CardRecord::new(
 );
 
 // LEA 149 — Fireball
-pub(in crate::card::sets) static FIREBALL: CardRecord = CardRecord::new(
-    cards::FIREBALL,
+pub(in crate::card::sets) static FIREBALL: CardRecord = CardRecord::new_with_legacy_id(
+    9,
     "Fireball",
     CardArt::new("b7623c00-144b-4a8f-9c6c-f5e9e4f65ece", "Mark Tedin"),
     CardSet::Alpha,
@@ -2843,8 +2845,8 @@ pub(in crate::card::sets) static FIREBALL: CardRecord = CardRecord::new(
 );
 
 // LEA 150 — Firebreathing
-pub(in crate::card::sets) static FIREBREATHING: CardRecord = CardRecord::new(
-    cards::FIREBREATHING,
+pub(in crate::card::sets) static FIREBREATHING: CardRecord = CardRecord::new_with_legacy_id(
+    465,
     "Firebreathing",
     CardArt::new("3eb27381-505d-4e47-bf66-9e7ba91a5075", "Dan Frazier"),
     CardSet::Alpha,
@@ -2868,8 +2870,8 @@ pub(in crate::card::sets) static FIREBREATHING: CardRecord = CardRecord::new(
 );
 
 // LEA 151 — Flashfires
-pub(in crate::card::sets) static FLASHFIRES: CardRecord = CardRecord::new(
-    cards::FLASHFIRES,
+pub(in crate::card::sets) static FLASHFIRES: CardRecord = CardRecord::new_with_legacy_id(
+    466,
     "Flashfires",
     CardArt::new("ee8a05a4-0ce3-4abe-bb60-08af53cf08e5", "Dameon Willich"),
     CardSet::Alpha,
@@ -2888,8 +2890,8 @@ pub(in crate::card::sets) static FLASHFIRES: CardRecord = CardRecord::new(
 
 // LEA 152 — Fork
 // Audit: partial — Copy retargeting is offered as one ordered decision instead of independent choices for each target slot.
-pub(in crate::card::sets) static FORK: CardRecord = CardRecord::new(
-    cards::FORK,
+pub(in crate::card::sets) static FORK: CardRecord = CardRecord::new_with_legacy_id(
+    10,
     "Fork",
     CardArt::new("e6b43916-fe2d-417a-a550-d7c795023297", "Amy Weber"),
     CardSet::Alpha,
@@ -2903,27 +2905,28 @@ pub(in crate::card::sets) static FORK: CardRecord = CardRecord::new(
 );
 
 // LEA 153 — Goblin Balloon Brigade
-pub(in crate::card::sets) static GOBLIN_BALLOON_BRIGADE: CardRecord = CardRecord::new(
-    cards::GOBLIN_BALLOON_BRIGADE,
-    "Goblin Balloon Brigade",
-    CardArt::new("5129b422-7a35-4bc5-b14b-c814012a0d8f", "Andi Rusu"),
-    CardSet::Alpha,
-    CardRules::new_creature(mana_cost!("{R}"), &["Goblin", "Warrior"], 1, 1).with_abilities(&[
-        AbilityDef::activated(
-            "{R}: This creature gains flying until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&abilities::flying()),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
-        ),
-    ]),
-);
+pub(in crate::card::sets) static GOBLIN_BALLOON_BRIGADE: CardRecord =
+    CardRecord::new_with_legacy_id(
+        24,
+        "Goblin Balloon Brigade",
+        CardArt::new("5129b422-7a35-4bc5-b14b-c814012a0d8f", "Andi Rusu"),
+        CardSet::Alpha,
+        CardRules::new_creature(mana_cost!("{R}"), &["Goblin", "Warrior"], 1, 1).with_abilities(&[
+            AbilityDef::activated(
+                "{R}: This creature gains flying until end of turn.",
+                &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&abilities::flying()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
+    );
 
 // LEA 154 — Goblin King
-pub(in crate::card::sets) static GOBLIN_KING: CardRecord = CardRecord::new(
-    cards::GOBLIN_KING,
+pub(in crate::card::sets) static GOBLIN_KING: CardRecord = CardRecord::new_with_legacy_id(
+    27,
     "Goblin King",
     CardArt::new("5873672d-37ea-4c0f-97f3-12b74fde112d", "Jesper Myrfors"),
     CardSet::Alpha,
@@ -2952,8 +2955,8 @@ pub(in crate::card::sets) static GOBLIN_KING: CardRecord = CardRecord::new(
 );
 
 // LEA 155 — Granite Gargoyle
-pub(in crate::card::sets) static GRANITE_GARGOYLE: CardRecord = CardRecord::new(
-    cards::GRANITE_GARGOYLE,
+pub(in crate::card::sets) static GRANITE_GARGOYLE: CardRecord = CardRecord::new_with_legacy_id(
+    29,
     "Granite Gargoyle",
     CardArt::new("f15bf2b2-6848-4fbd-b89a-8d8da8ae1cdc", "Christopher Rush"),
     CardSet::Alpha,
@@ -2975,8 +2978,8 @@ pub(in crate::card::sets) static GRANITE_GARGOYLE: CardRecord = CardRecord::new(
 );
 
 // LEA 156 — Gray Ogre
-pub(in crate::card::sets) static GRAY_OGRE: CardRecord = CardRecord::new(
-    cards::GRAY_OGRE,
+pub(in crate::card::sets) static GRAY_OGRE: CardRecord = CardRecord::new_with_legacy_id(
+    467,
     "Gray Ogre",
     CardArt::new("73ae5276-b607-4f23-a9d2-e8cc7b8e3693", "Dan Frazier"),
     CardSet::Alpha,
@@ -2984,8 +2987,8 @@ pub(in crate::card::sets) static GRAY_OGRE: CardRecord = CardRecord::new(
 );
 
 // LEA 157 — Hill Giant
-pub(in crate::card::sets) static HILL_GIANT: CardRecord = CardRecord::new(
-    cards::HILL_GIANT,
+pub(in crate::card::sets) static HILL_GIANT: CardRecord = CardRecord::new_with_legacy_id(
+    468,
     "Hill Giant",
     CardArt::new("0ddb98e8-13fe-4786-83f7-b72c56db135a", "Dan Frazier"),
     CardSet::Alpha,
@@ -2993,8 +2996,8 @@ pub(in crate::card::sets) static HILL_GIANT: CardRecord = CardRecord::new(
 );
 
 // LEA 158 — Hurloon Minotaur
-pub(in crate::card::sets) static HURLOON_MINOTAUR: CardRecord = CardRecord::new(
-    cards::HURLOON_MINOTAUR,
+pub(in crate::card::sets) static HURLOON_MINOTAUR: CardRecord = CardRecord::new_with_legacy_id(
+    469,
     "Hurloon Minotaur",
     CardArt::new("78a9088f-8755-47cb-aa93-51d992ccab90", "Anson Maddocks"),
     CardSet::Alpha,
@@ -3002,8 +3005,8 @@ pub(in crate::card::sets) static HURLOON_MINOTAUR: CardRecord = CardRecord::new(
 );
 
 // LEA 159 — Ironclaw Orcs
-pub(in crate::card::sets) static IRONCLAW_ORCS: CardRecord = CardRecord::new(
-    cards::IRONCLAW_ORCS,
+pub(in crate::card::sets) static IRONCLAW_ORCS: CardRecord = CardRecord::new_with_legacy_id(
+    30,
     "Ironclaw Orcs",
     CardArt::new("d56421a8-34ae-4033-943f-c59a7bf2b6f9", "Anson Maddocks"),
     CardSet::Alpha,
@@ -3022,8 +3025,8 @@ pub(in crate::card::sets) static IRONCLAW_ORCS: CardRecord = CardRecord::new(
 
 // LEA 160 — Keldon Warlord
 // Audit: partial — Its power and toughness are a battlefield-only continuous effect rather than a characteristic-defining ability, so they read as printed in every other zone.
-pub(in crate::card::sets) static KELDON_WARLORD: CardRecord = CardRecord::new(
-    cards::KELDON_WARLORD,
+pub(in crate::card::sets) static KELDON_WARLORD: CardRecord = CardRecord::new_with_legacy_id(
+    1467,
     "Keldon Warlord",
     CardArt::new("8fe3fd83-969c-4add-888f-86f4306b067c", "Kev Brockschmidt"),
     CardSet::Alpha,
@@ -3054,8 +3057,8 @@ static NON_WALL_CREATURES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching
 );
 
 // LEA 161 — Lightning Bolt
-pub(in crate::card::sets) static LIGHTNING_BOLT: CardRecord = CardRecord::new(
-    cards::LIGHTNING_BOLT,
+pub(in crate::card::sets) static LIGHTNING_BOLT: CardRecord = CardRecord::new_with_legacy_id(
+    13,
     "Lightning Bolt",
     CardArt::new("d573ef03-4730-45aa-93dd-e45ac1dbaf4a", "Christopher Rush"),
     CardSet::Alpha,
@@ -3075,8 +3078,8 @@ pub(in crate::card::sets) static LIGHTNING_BOLT: CardRecord = CardRecord::new(
 // Audit: blocked — Needs cost/mana provenance or dynamic payment support for “Whenever a player taps a land for mana, that player adds one mana of any type that land produced”.
 
 // LEA 163 — Manabarbs
-pub(in crate::card::sets) static MANABARBS: CardRecord = CardRecord::new(
-    cards::MANABARBS,
+pub(in crate::card::sets) static MANABARBS: CardRecord = CardRecord::new_with_legacy_id(
+    470,
     "Manabarbs",
     CardArt::new("6121f72f-680f-4bb4-ae4d-37ee4ebed4d8", "Christopher Rush"),
     CardSet::Alpha,
@@ -3091,8 +3094,8 @@ pub(in crate::card::sets) static MANABARBS: CardRecord = CardRecord::new(
 );
 
 // LEA 164 — Mons's Goblin Raiders
-pub(in crate::card::sets) static MONSS_GOBLIN_RAIDERS: CardRecord = CardRecord::new(
-    cards::MONSS_GOBLIN_RAIDERS,
+pub(in crate::card::sets) static MONSS_GOBLIN_RAIDERS: CardRecord = CardRecord::new_with_legacy_id(
+    471,
     "Mons's Goblin Raiders",
     CardArt::new("b4eb3db3-6a7c-488a-9433-d5d1d3133816", "Jeff A. Menges"),
     CardSet::Alpha,
@@ -3100,8 +3103,8 @@ pub(in crate::card::sets) static MONSS_GOBLIN_RAIDERS: CardRecord = CardRecord::
 );
 
 // LEA 165 — Orcish Artillery
-pub(in crate::card::sets) static ORCISH_ARTILLERY: CardRecord = CardRecord::new(
-    cards::ORCISH_ARTILLERY,
+pub(in crate::card::sets) static ORCISH_ARTILLERY: CardRecord = CardRecord::new_with_legacy_id(
+    472,
     "Orcish Artillery",
     CardArt::new("a97208b1-a91b-4129-8a00-2f97b418accc", "Anson Maddocks"),
     CardSet::Alpha,
@@ -3127,8 +3130,8 @@ pub(in crate::card::sets) static ORCISH_ARTILLERY: CardRecord = CardRecord::new(
 );
 
 // LEA 166 — Orcish Oriflamme
-pub(in crate::card::sets) static ORCISH_ORIFLAMME: CardRecord = CardRecord::new(
-    cards::ORCISH_ORIFLAMME,
+pub(in crate::card::sets) static ORCISH_ORIFLAMME: CardRecord = CardRecord::new_with_legacy_id(
+    473,
     "Orcish Oriflamme",
     CardArt::new("911538ea-322c-4c40-a9c3-35e47fe60fce", "Dan Frazier"),
     CardSet::Alpha,
@@ -3158,8 +3161,8 @@ pub(in crate::card::sets) static ORCISH_ORIFLAMME: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a combat declaration or damage-assignment constraint for “Whenever one or more creatures you control attack, each defending player divides all creatures without flying they control into a "left" pile and a "right" pile. Then, for each attacking…”.
 
 // LEA 169 — Red Elemental Blast
-pub(in crate::card::sets) static RED_ELEMENTAL_BLAST: CardRecord = CardRecord::new(
-    cards::RED_ELEMENTAL_BLAST,
+pub(in crate::card::sets) static RED_ELEMENTAL_BLAST: CardRecord = CardRecord::new_with_legacy_id(
+    15,
     "Red Elemental Blast",
     CardArt::new("776ad9be-3309-4f1d-9f27-6219d9477662", "Richard Thomas"),
     CardSet::Alpha,
@@ -3182,8 +3185,8 @@ pub(in crate::card::sets) static RED_ELEMENTAL_BLAST: CardRecord = CardRecord::n
 );
 
 // LEA 170 — Roc of Kher Ridges
-pub(in crate::card::sets) static ROC_OF_KHER_RIDGES: CardRecord = CardRecord::new(
-    cards::ROC_OF_KHER_RIDGES,
+pub(in crate::card::sets) static ROC_OF_KHER_RIDGES: CardRecord = CardRecord::new_with_legacy_id(
+    474,
     "Roc of Kher Ridges",
     CardArt::new("731a4b86-c213-4d8e-bf01-0a0e8cff0ff1", "Andi Rusu"),
     CardSet::Alpha,
@@ -3196,8 +3199,8 @@ pub(in crate::card::sets) static ROC_OF_KHER_RIDGES: CardRecord = CardRecord::ne
 // Audit: blocked — Needs a duration-scoped replacement/prevention effect for “For each 1 damage that would be dealt to this creature, if it has a +1/+1 counter on it, remove a +1/+1 counter from it and prevent that 1 damage”.
 
 // LEA 172 — Sedge Troll
-pub(in crate::card::sets) static SEDGE_TROLL: CardRecord = CardRecord::new(
-    cards::SEDGE_TROLL,
+pub(in crate::card::sets) static SEDGE_TROLL: CardRecord = CardRecord::new_with_legacy_id(
+    123,
     "Sedge Troll",
     CardArt::new("02ec317b-52a6-4490-80e5-a56826b06771", "Dan Frazier"),
     CardSet::Alpha,
@@ -3215,11 +3218,14 @@ pub(in crate::card::sets) static SEDGE_TROLL: CardRecord = CardRecord::new(
             &[AbilityCostDef::Mana(mana_cost!("{B}"))],
         ),
     ]),
-);
+)
+.with_identity_anchor(PrintingAnchor::scryfall(
+    "b13bf496-f3c0-4c13-8282-e7abfab6a198",
+));
 
 // LEA 173 — Shatter
-pub(in crate::card::sets) static SHATTER: CardRecord = CardRecord::new(
-    cards::SHATTER,
+pub(in crate::card::sets) static SHATTER: CardRecord = CardRecord::new_with_legacy_id(
+    16,
     "Shatter",
     CardArt::new("50dc7fc1-cb6a-4c68-b993-1a25cf16226e", "Amy Weber"),
     CardSet::Alpha,
@@ -3241,8 +3247,8 @@ pub(in crate::card::sets) static SHATTER: CardRecord = CardRecord::new(
 );
 
 // LEA 174 — Shivan Dragon
-pub(in crate::card::sets) static SHIVAN_DRAGON: CardRecord = CardRecord::new(
-    cards::SHIVAN_DRAGON,
+pub(in crate::card::sets) static SHIVAN_DRAGON: CardRecord = CardRecord::new_with_legacy_id(
+    475,
     "Shivan Dragon",
     CardArt::new("fefbf149-f988-4f8b-9f53-56f5878116a6", "Melissa A. Benson"),
     CardSet::Alpha,
@@ -3264,8 +3270,8 @@ pub(in crate::card::sets) static SHIVAN_DRAGON: CardRecord = CardRecord::new(
 );
 
 // LEA 175 — Smoke
-pub(in crate::card::sets) static SMOKE: CardRecord = CardRecord::new(
-    cards::SMOKE,
+pub(in crate::card::sets) static SMOKE: CardRecord = CardRecord::new_with_legacy_id(
+    17,
     "Smoke",
     CardArt::new("7c67788e-d713-47c3-ab9f-b8a6212ae24f", "Jesper Myrfors"),
     CardSet::Alpha,
@@ -3318,8 +3324,8 @@ static STONE_GIANT_FLYING: AbilityDef = abilities::flying();
 
 // LEA 176 — Stone Giant
 // Audit: partial — The source's power and target's toughness omit modifiers from static continuous effects.
-pub(in crate::card::sets) static STONE_GIANT: CardRecord = CardRecord::new(
-    cards::STONE_GIANT,
+pub(in crate::card::sets) static STONE_GIANT: CardRecord = CardRecord::new_with_legacy_id(
+    18,
     "Stone Giant",
     CardArt::new("7ffaedb9-25f8-4304-9085-e12505b93312", "Dameon Willich"),
     CardSet::Alpha,
@@ -3338,8 +3344,8 @@ pub(in crate::card::sets) static STONE_GIANT: CardRecord = CardRecord::new(
 );
 
 // LEA 177 — Stone Rain
-pub(in crate::card::sets) static STONE_RAIN: CardRecord = CardRecord::new(
-    cards::STONE_RAIN,
+pub(in crate::card::sets) static STONE_RAIN: CardRecord = CardRecord::new_with_legacy_id(
+    125,
     "Stone Rain",
     CardArt::new("57ff74cb-a2ed-4123-ac42-f72f9820049e", "Daniel Gelon"),
     CardSet::Alpha,
@@ -3361,8 +3367,8 @@ pub(in crate::card::sets) static STONE_RAIN: CardRecord = CardRecord::new(
 );
 
 // LEA 178 — Tunnel
-pub(in crate::card::sets) static TUNNEL: CardRecord = CardRecord::new(
-    cards::TUNNEL,
+pub(in crate::card::sets) static TUNNEL: CardRecord = CardRecord::new_with_legacy_id(
+    476,
     "Tunnel",
     CardArt::new("b21ebc9f-a93e-4d18-b3e8-8459e3abbf31", "Dan Frazier"),
     CardSet::Alpha,
@@ -3374,30 +3380,31 @@ pub(in crate::card::sets) static TUNNEL: CardRecord = CardRecord::new(
 );
 
 // LEA 179 — Two-Headed Giant of Foriys
-pub(in crate::card::sets) static TWO_HEADED_GIANT_OF_FORIYS: CardRecord = CardRecord::new(
-    cards::TWO_HEADED_GIANT_OF_FORIYS,
-    "Two-Headed Giant of Foriys",
-    CardArt::new("31c687dc-ee0c-4e54-a2b3-5d8e633b3245", "Anson Maddocks"),
-    CardSet::Alpha,
-    CardRules::new_creature(mana_cost!("{4}{R}"), &["Giant"], 4, 4).with_abilities(&[
-        abilities::trample(),
-        AbilityDef::static_ability(
-            "This creature can block an additional creature each combat.",
-            EffectDef::StaticApply {
-                recipient: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::Source,
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::Any,
-                ),
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayBlockAdditionalCreatures(1)),
-            },
-        ),
-    ]),
-);
+pub(in crate::card::sets) static TWO_HEADED_GIANT_OF_FORIYS: CardRecord =
+    CardRecord::new_with_legacy_id(
+        1771,
+        "Two-Headed Giant of Foriys",
+        CardArt::new("31c687dc-ee0c-4e54-a2b3-5d8e633b3245", "Anson Maddocks"),
+        CardSet::Alpha,
+        CardRules::new_creature(mana_cost!("{4}{R}"), &["Giant"], 4, 4).with_abilities(&[
+            abilities::trample(),
+            AbilityDef::static_ability(
+                "This creature can block an additional creature each combat.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::Source,
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayBlockAdditionalCreatures(1)),
+                },
+            ),
+        ]),
+    );
 
 // LEA 180 — Uthden Troll
-pub(in crate::card::sets) static UTHDEN_TROLL: CardRecord = CardRecord::new(
-    cards::UTHDEN_TROLL,
+pub(in crate::card::sets) static UTHDEN_TROLL: CardRecord = CardRecord::new_with_legacy_id(
+    1372,
     "Uthden Troll",
     CardArt::new("2ff21a6f-83a7-4bf3-a078-294e303232cc", "Douglas Shuler"),
     CardSet::Alpha,
@@ -3410,8 +3417,8 @@ pub(in crate::card::sets) static UTHDEN_TROLL: CardRecord = CardRecord::new(
 );
 
 // LEA 181 — Wall of Fire
-pub(in crate::card::sets) static WALL_OF_FIRE: CardRecord = CardRecord::new(
-    cards::WALL_OF_FIRE,
+pub(in crate::card::sets) static WALL_OF_FIRE: CardRecord = CardRecord::new_with_legacy_id(
+    477,
     "Wall of Fire",
     CardArt::new("efcf12cd-fb70-444e-9641-73ffa0e8f16e", "Richard Thomas"),
     CardSet::Alpha,
@@ -3433,8 +3440,8 @@ pub(in crate::card::sets) static WALL_OF_FIRE: CardRecord = CardRecord::new(
 );
 
 // LEA 182 — Wall of Stone
-pub(in crate::card::sets) static WALL_OF_STONE: CardRecord = CardRecord::new(
-    cards::WALL_OF_STONE,
+pub(in crate::card::sets) static WALL_OF_STONE: CardRecord = CardRecord::new_with_legacy_id(
+    248,
     "Wall of Stone",
     CardArt::new("f7fd8b8e-98fd-4b0d-8bb9-06bd25a1e30f", "Dan Frazier"),
     CardSet::Alpha,
@@ -3448,8 +3455,8 @@ pub(in crate::card::sets) static WALL_OF_STONE: CardRecord = CardRecord::new(
 const ENTIRE_HAND: ValueDef = ValueDef::Constant(i32::MAX);
 
 // LEA 183 — Wheel of Fortune
-pub(in crate::card::sets) static WHEEL_OF_FORTUNE: CardRecord = CardRecord::new(
-    cards::WHEEL_OF_FORTUNE,
+pub(in crate::card::sets) static WHEEL_OF_FORTUNE: CardRecord = CardRecord::new_with_legacy_id(
+    40,
     "Wheel of Fortune",
     CardArt::new("67b369c4-faa8-45c8-a1b9-98f228b69682", "Daniel Gelon"),
     CardSet::Alpha,
@@ -3527,8 +3534,8 @@ static ASPECT_OF_WOLF_TOUGHNESS: HalvedValueDef = HalvedValueDef::new(
 );
 
 // LEA 184 — Aspect of Wolf
-pub(in crate::card::sets) static ASPECT_OF_WOLF: CardRecord = CardRecord::new(
-    cards::ASPECT_OF_WOLF,
+pub(in crate::card::sets) static ASPECT_OF_WOLF: CardRecord = CardRecord::new_with_legacy_id(
+    1837,
     "Aspect of Wolf",
     CardArt::new("fd9ac9e6-1395-4fbd-80e2-645f0d910c29", "Jeff A. Menges"),
     CardSet::Alpha,
@@ -3552,8 +3559,8 @@ pub(in crate::card::sets) static ASPECT_OF_WOLF: CardRecord = CardRecord::new(
 );
 
 // LEA 185 — Berserk
-pub(in crate::card::sets) static BERSERK: CardRecord = CardRecord::new(
-    cards::BERSERK,
+pub(in crate::card::sets) static BERSERK: CardRecord = CardRecord::new_with_legacy_id(
+    109,
     "Berserk",
     CardArt::new("e173c8ce-2352-405e-ad00-e3bb94ced1ad", "Dan Frazier"),
     CardSet::Alpha,
@@ -3575,8 +3582,8 @@ pub(in crate::card::sets) static BERSERK: CardRecord = CardRecord::new(
 );
 
 // LEA 186 — Birds of Paradise
-pub(in crate::card::sets) static BIRDS_OF_PARADISE: CardRecord = CardRecord::new(
-    cards::BIRDS_OF_PARADISE,
+pub(in crate::card::sets) static BIRDS_OF_PARADISE: CardRecord = CardRecord::new_with_legacy_id(
+    63,
     "Birds of Paradise",
     CardArt::new("55fe6449-1f23-43dc-adee-d144cd505b5c", "Mark Poole"),
     CardSet::Alpha,
@@ -3594,8 +3601,8 @@ pub(in crate::card::sets) static BIRDS_OF_PARADISE: CardRecord = CardRecord::new
 // Audit: blocked — Needs a duration-scoped replacement/prevention effect for “This turn, instead of declaring blockers, each defending player chooses any number of creatures they control and divides them into a number of piles equal to the number of attacking…”.
 
 // LEA 188 — Channel
-pub(in crate::card::sets) static CHANNEL: CardRecord = CardRecord::new(
-    cards::CHANNEL,
+pub(in crate::card::sets) static CHANNEL: CardRecord = CardRecord::new_with_legacy_id(
+    65,
     "Channel",
     CardArt::new("c1862c47-71cc-45a3-8805-a5ddc62e55ea", "Richard Thomas"),
     CardSet::Alpha,
@@ -3608,8 +3615,8 @@ pub(in crate::card::sets) static CHANNEL: CardRecord = CardRecord::new(
 );
 
 // LEA 189 — Cockatrice
-pub(in crate::card::sets) static COCKATRICE: CardRecord = CardRecord::new(
-    cards::COCKATRICE,
+pub(in crate::card::sets) static COCKATRICE: CardRecord = CardRecord::new_with_legacy_id(
+    1573,
     "Cockatrice",
     CardArt::new("9cd91814-6177-4a3d-a1c1-a3be7d7c7957", "Dan Frazier"),
     CardSet::Alpha,
@@ -3630,8 +3637,8 @@ pub(in crate::card::sets) static COCKATRICE: CardRecord = CardRecord::new(
 );
 
 // LEA 190 — Craw Wurm
-pub(in crate::card::sets) static CRAW_WURM: CardRecord = CardRecord::new(
-    cards::CRAW_WURM,
+pub(in crate::card::sets) static CRAW_WURM: CardRecord = CardRecord::new_with_legacy_id(
+    478,
     "Craw Wurm",
     CardArt::new("bfed1a95-bd67-4e16-a781-81866028af2f", "Daniel Gelon"),
     CardSet::Alpha,
@@ -3639,8 +3646,8 @@ pub(in crate::card::sets) static CRAW_WURM: CardRecord = CardRecord::new(
 );
 
 // LEA 191 — Elvish Archers
-pub(in crate::card::sets) static ELVISH_ARCHERS: CardRecord = CardRecord::new(
-    cards::ELVISH_ARCHERS,
+pub(in crate::card::sets) static ELVISH_ARCHERS: CardRecord = CardRecord::new_with_legacy_id(
+    479,
     "Elvish Archers",
     CardArt::new("1cb9d405-f2b5-4e10-a405-feafd2a87d90", "Anson Maddocks"),
     CardSet::Alpha,
@@ -3652,8 +3659,8 @@ pub(in crate::card::sets) static ELVISH_ARCHERS: CardRecord = CardRecord::new(
 // Audit: blocked — Needs damage-history/source tracking or card-specific damage processing for “Whenever you play a land, if it wasn't the first land you played this turn, this enchantment deals 1 damage to you”.
 
 // LEA 193 — Fog
-pub(in crate::card::sets) static FOG: CardRecord = CardRecord::new(
-    cards::FOG,
+pub(in crate::card::sets) static FOG: CardRecord = CardRecord::new_with_legacy_id(
+    1406,
     "Fog",
     CardArt::new("cfba606d-bb55-43ba-aa0c-299649958788", "Jesper Myrfors"),
     CardSet::Alpha,
@@ -3667,8 +3674,8 @@ pub(in crate::card::sets) static FOG: CardRecord = CardRecord::new(
 );
 
 // LEA 194 — Force of Nature
-pub(in crate::card::sets) static FORCE_OF_NATURE: CardRecord = CardRecord::new(
-    cards::FORCE_OF_NATURE,
+pub(in crate::card::sets) static FORCE_OF_NATURE: CardRecord = CardRecord::new_with_legacy_id(
+    480,
     "Force of Nature",
     CardArt::new(
         "21551cb6-3a53-42dd-9bbd-4bc56304d6d3",
@@ -3697,8 +3704,8 @@ pub(in crate::card::sets) static FORCE_OF_NATURE: CardRecord = CardRecord::new(
 
 // LEA 195 — Fungusaur
 // Audit: partial — Simultaneous damage from multiple creatures produces one trigger per source instead of one trigger for the event.
-pub(in crate::card::sets) static FUNGUSAUR: CardRecord = CardRecord::new(
-    cards::FUNGUSAUR,
+pub(in crate::card::sets) static FUNGUSAUR: CardRecord = CardRecord::new_with_legacy_id(
+    481,
     "Fungusaur",
     CardArt::new("5ad89f0d-b09b-40a0-84d6-3ee60dec7e23", "Daniel Gelon"),
     CardSet::Alpha,
@@ -3722,8 +3729,8 @@ pub(in crate::card::sets) static FUNGUSAUR: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a combat declaration or damage-assignment constraint for “As long as Gaea's Liege isn't attacking, its power and toughness are each equal to the number of Forests you control. As long as Gaea's Liege is attacking, its power and toughness are…”.
 
 // LEA 197 — Giant Growth
-pub(in crate::card::sets) static GIANT_GROWTH: CardRecord = CardRecord::new(
-    cards::GIANT_GROWTH,
+pub(in crate::card::sets) static GIANT_GROWTH: CardRecord = CardRecord::new_with_legacy_id(
+    114,
     "Giant Growth",
     CardArt::new("367dbefe-3366-408e-9fcf-7dc00f8cc201", "Sandra Everingham"),
     CardSet::Alpha,
@@ -3744,8 +3751,8 @@ pub(in crate::card::sets) static GIANT_GROWTH: CardRecord = CardRecord::new(
 );
 
 // LEA 198 — Giant Spider
-pub(in crate::card::sets) static GIANT_SPIDER: CardRecord = CardRecord::new(
-    cards::GIANT_SPIDER,
+pub(in crate::card::sets) static GIANT_SPIDER: CardRecord = CardRecord::new_with_legacy_id(
+    482,
     "Giant Spider",
     CardArt::new("77636b4c-faea-4bf5-b88c-dd5bb88dc930", "Sandra Everingham"),
     CardSet::Alpha,
@@ -3754,8 +3761,8 @@ pub(in crate::card::sets) static GIANT_SPIDER: CardRecord = CardRecord::new(
 );
 
 // LEA 199 — Grizzly Bears
-pub(in crate::card::sets) static GRIZZLY_BEARS: CardRecord = CardRecord::new(
-    cards::GRIZZLY_BEARS,
+pub(in crate::card::sets) static GRIZZLY_BEARS: CardRecord = CardRecord::new_with_legacy_id(
+    483,
     "Grizzly Bears",
     CardArt::new("ce2d603a-3231-4a8c-bf39-1617586ea870", "Jeff A. Menges"),
     CardSet::Alpha,
@@ -3763,8 +3770,8 @@ pub(in crate::card::sets) static GRIZZLY_BEARS: CardRecord = CardRecord::new(
 );
 
 // LEA 200 — Hurricane
-pub(in crate::card::sets) static HURRICANE: CardRecord = CardRecord::new(
-    cards::HURRICANE,
+pub(in crate::card::sets) static HURRICANE: CardRecord = CardRecord::new_with_legacy_id(
+    484,
     "Hurricane",
     CardArt::new("52f5a19f-16e4-4d35-89e1-969ac8202f88", "Dameon Willich"),
     CardSet::Alpha,
@@ -3791,8 +3798,8 @@ pub(in crate::card::sets) static HURRICANE: CardRecord = CardRecord::new(
 );
 
 // LEA 201 — Ice Storm
-pub(in crate::card::sets) static ICE_STORM: CardRecord = CardRecord::new(
-    cards::ICE_STORM,
+pub(in crate::card::sets) static ICE_STORM: CardRecord = CardRecord::new_with_legacy_id(
+    485,
     "Ice Storm",
     CardArt::new("9914836e-2fa6-4390-94b2-431427848a54", "Dan Frazier"),
     CardSet::Alpha,
@@ -3804,8 +3811,8 @@ pub(in crate::card::sets) static ICE_STORM: CardRecord = CardRecord::new(
 );
 
 // LEA 202 — Instill Energy
-pub(in crate::card::sets) static INSTILL_ENERGY: CardRecord = CardRecord::new(
-    cards::INSTILL_ENERGY,
+pub(in crate::card::sets) static INSTILL_ENERGY: CardRecord = CardRecord::new_with_legacy_id(
+    1826,
     "Instill Energy",
     CardArt::new("5bd38716-874c-4e3c-a315-837839a6258c", "Dameon Willich"),
     CardSet::Alpha,
@@ -3837,8 +3844,8 @@ pub(in crate::card::sets) static INSTILL_ENERGY: CardRecord = CardRecord::new(
 );
 
 // LEA 203 — Ironroot Treefolk
-pub(in crate::card::sets) static IRONROOT_TREEFOLK: CardRecord = CardRecord::new(
-    cards::IRONROOT_TREEFOLK,
+pub(in crate::card::sets) static IRONROOT_TREEFOLK: CardRecord = CardRecord::new_with_legacy_id(
+    486,
     "Ironroot Treefolk",
     CardArt::new("b93c5869-7777-44bb-967a-e9439b25ced4", "Jesper Myrfors"),
     CardSet::Alpha,
@@ -3849,8 +3856,8 @@ pub(in crate::card::sets) static IRONROOT_TREEFOLK: CardRecord = CardRecord::new
 // Audit: blocked — Needs the destroyed land's controller to choose, as the trigger resolves, a new land to attach this Aura to. The destruction half is available.
 
 // LEA 205 — Ley Druid
-pub(in crate::card::sets) static LEY_DRUID: CardRecord = CardRecord::new(
-    cards::LEY_DRUID,
+pub(in crate::card::sets) static LEY_DRUID: CardRecord = CardRecord::new_with_legacy_id(
+    487,
     "Ley Druid",
     CardArt::new("f9232508-d363-4ef3-987a-741f6bff331f", "Sandra Everingham"),
     CardSet::Alpha,
@@ -3869,8 +3876,8 @@ pub(in crate::card::sets) static LEY_DRUID: CardRecord = CardRecord::new(
 );
 
 // LEA 206 — Lifeforce
-pub(in crate::card::sets) static LIFEFORCE: CardRecord = CardRecord::new(
-    cards::LIFEFORCE,
+pub(in crate::card::sets) static LIFEFORCE: CardRecord = CardRecord::new_with_legacy_id(
+    488,
     "Lifeforce",
     CardArt::new("e292577e-6232-44fa-a9c2-cc09949c6ed3", "Dameon Willich"),
     CardSet::Alpha,
@@ -3890,8 +3897,8 @@ pub(in crate::card::sets) static LIFEFORCE: CardRecord = CardRecord::new(
 );
 
 // LEA 207 — Lifelace
-pub(in crate::card::sets) static LIFELACE: CardRecord = CardRecord::new(
-    cards::LIFELACE,
+pub(in crate::card::sets) static LIFELACE: CardRecord = CardRecord::new_with_legacy_id(
+    1566,
     "Lifelace",
     CardArt::new("38cb601b-a35c-412e-b386-e77dad3daa54", "Amy Weber"),
     CardSet::Alpha,
@@ -3935,8 +3942,8 @@ static LIVING_ARTIFACT_OFFER: EffectDef = EffectDef::May {
 };
 
 // LEA 208 — Living Artifact
-pub(in crate::card::sets) static LIVING_ARTIFACT: CardRecord = CardRecord::new(
-    cards::LIVING_ARTIFACT,
+pub(in crate::card::sets) static LIVING_ARTIFACT: CardRecord = CardRecord::new_with_legacy_id(
+    1825,
     "Living Artifact",
     CardArt::new("c9e753a2-a7d0-4d37-ae65-b5a1b5039a6e", "Anson Maddocks"),
     CardSet::Alpha,
@@ -3976,8 +3983,8 @@ static LAND_CREATURE: [AppliedEffectDef; 2] = [
 ];
 
 // LEA 209 — Living Lands
-pub(in crate::card::sets) static LIVING_LANDS: CardRecord = CardRecord::new(
-    cards::LIVING_LANDS,
+pub(in crate::card::sets) static LIVING_LANDS: CardRecord = CardRecord::new_with_legacy_id(
+    1655,
     "Living Lands",
     CardArt::new("80be0580-7948-4d8e-8c0f-5e2797ac411b", "Jesper Myrfors"),
     CardSet::Alpha,
@@ -3995,8 +4002,8 @@ pub(in crate::card::sets) static LIVING_LANDS: CardRecord = CardRecord::new(
 );
 
 // LEA 210 — Llanowar Elves
-pub(in crate::card::sets) static LLANOWAR_ELVES: CardRecord = CardRecord::new(
-    cards::LLANOWAR_ELVES,
+pub(in crate::card::sets) static LLANOWAR_ELVES: CardRecord = CardRecord::new_with_legacy_id(
+    118,
     "Llanowar Elves",
     CardArt::new("d4f1cc9e-4f99-4c26-ac1b-8ef069fa8ceb", "Anson Maddocks"),
     CardSet::Alpha,
@@ -4016,8 +4023,8 @@ static REGROWTH_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 )];
 
 // LEA 211 — Lure
-pub(in crate::card::sets) static LURE: CardRecord = CardRecord::new(
-    cards::LURE,
+pub(in crate::card::sets) static LURE: CardRecord = CardRecord::new_with_legacy_id(
+    1718,
     "Lure",
     CardArt::new("a0865e0d-5699-4545-b3ed-27071c481e41", "Anson Maddocks"),
     CardSet::Alpha,
@@ -4041,8 +4048,8 @@ pub(in crate::card::sets) static LURE: CardRecord = CardRecord::new(
 // Audit: blocked — Needs ordered-library inspection, selection, and visibility handling for “Look at the top three cards of target player's library, then put them back in any order. You may have that player shuffle”.
 
 // LEA 213 — Regeneration
-pub(in crate::card::sets) static REGENERATION: CardRecord = CardRecord::new(
-    cards::REGENERATION,
+pub(in crate::card::sets) static REGENERATION: CardRecord = CardRecord::new_with_legacy_id(
+    1420,
     "Regeneration",
     CardArt::new("b7b7aa34-b4f8-41b4-82ce-ab2e204c3bf4", "Quinton Hoover"),
     CardSet::Alpha,
@@ -4061,8 +4068,8 @@ pub(in crate::card::sets) static REGENERATION: CardRecord = CardRecord::new(
 );
 
 // LEA 214 — Regrowth
-pub(in crate::card::sets) static REGROWTH: CardRecord = CardRecord::new(
-    cards::REGROWTH,
+pub(in crate::card::sets) static REGROWTH: CardRecord = CardRecord::new_with_legacy_id(
+    90,
     "Regrowth",
     CardArt::new("badc73ec-3728-4246-90c7-5f4eb7051ed5", "Dameon Willich"),
     CardSet::Alpha,
@@ -4081,8 +4088,8 @@ pub(in crate::card::sets) static REGROWTH: CardRecord = CardRecord::new(
 );
 
 // LEA 215 — Scryb Sprites
-pub(in crate::card::sets) static SCRYB_SPRITES: CardRecord = CardRecord::new(
-    cards::SCRYB_SPRITES,
+pub(in crate::card::sets) static SCRYB_SPRITES: CardRecord = CardRecord::new_with_legacy_id(
+    124,
     "Scryb Sprites",
     CardArt::new("6d929c38-91e6-457c-937a-d1884f4bba44", "Amy Weber"),
     CardSet::Alpha,
@@ -4091,8 +4098,8 @@ pub(in crate::card::sets) static SCRYB_SPRITES: CardRecord = CardRecord::new(
 );
 
 // LEA 216 — Shanodin Dryads
-pub(in crate::card::sets) static SHANODIN_DRYADS: CardRecord = CardRecord::new(
-    cards::SHANODIN_DRYADS,
+pub(in crate::card::sets) static SHANODIN_DRYADS: CardRecord = CardRecord::new_with_legacy_id(
+    489,
     "Shanodin Dryads",
     CardArt::new("814cf35c-f1ad-4bf4-8c10-a5592c3b1be8", "Anson Maddocks"),
     CardSet::Alpha,
@@ -4101,8 +4108,8 @@ pub(in crate::card::sets) static SHANODIN_DRYADS: CardRecord = CardRecord::new(
 );
 
 // LEA 217 — Stream of Life
-pub(in crate::card::sets) static STREAM_OF_LIFE: CardRecord = CardRecord::new(
-    cards::STREAM_OF_LIFE,
+pub(in crate::card::sets) static STREAM_OF_LIFE: CardRecord = CardRecord::new_with_legacy_id(
+    490,
     "Stream of Life",
     CardArt::new("aa1c4d4b-2645-4cd9-823e-3c9bb2eb48f9", "Mark Poole"),
     CardSet::Alpha,
@@ -4119,8 +4126,8 @@ pub(in crate::card::sets) static STREAM_OF_LIFE: CardRecord = CardRecord::new(
 );
 
 // LEA 218 — Thicket Basilisk
-pub(in crate::card::sets) static THICKET_BASILISK: CardRecord = CardRecord::new(
-    cards::THICKET_BASILISK,
+pub(in crate::card::sets) static THICKET_BASILISK: CardRecord = CardRecord::new_with_legacy_id(
+    1574,
     "Thicket Basilisk",
     CardArt::new("e92cce01-b3bd-4307-aae5-9a7c8fa386ab", "Dan Frazier"),
     CardSet::Alpha,
@@ -4140,8 +4147,8 @@ pub(in crate::card::sets) static THICKET_BASILISK: CardRecord = CardRecord::new(
 );
 
 // LEA 219 — Timber Wolves
-pub(in crate::card::sets) static TIMBER_WOLVES: CardRecord = CardRecord::new(
-    cards::TIMBER_WOLVES,
+pub(in crate::card::sets) static TIMBER_WOLVES: CardRecord = CardRecord::new_with_legacy_id(
+    1775,
     "Timber Wolves",
     CardArt::new("bc2570a4-eef9-430d-b6c2-cd51d29b9d01", "Melissa A. Benson"),
     CardSet::Alpha,
@@ -4150,8 +4157,8 @@ pub(in crate::card::sets) static TIMBER_WOLVES: CardRecord = CardRecord::new(
 );
 
 // LEA 220 — Tranquility
-pub(in crate::card::sets) static TRANQUILITY: CardRecord = CardRecord::new(
-    cards::TRANQUILITY,
+pub(in crate::card::sets) static TRANQUILITY: CardRecord = CardRecord::new_with_legacy_id(
+    491,
     "Tranquility",
     CardArt::new("774cc5a6-3a69-4812-add4-eb5eb6389238", "Douglas Shuler"),
     CardSet::Alpha,
@@ -4169,8 +4176,8 @@ pub(in crate::card::sets) static TRANQUILITY: CardRecord = CardRecord::new(
 );
 
 // LEA 221 — Tsunami
-pub(in crate::card::sets) static TSUNAMI: CardRecord = CardRecord::new(
-    cards::TSUNAMI,
+pub(in crate::card::sets) static TSUNAMI: CardRecord = CardRecord::new_with_legacy_id(
+    492,
     "Tsunami",
     CardArt::new("9ed67d61-cf47-446b-b454-eb404a8686b7", "Richard Thomas"),
     CardSet::Alpha,
@@ -4188,8 +4195,8 @@ pub(in crate::card::sets) static TSUNAMI: CardRecord = CardRecord::new(
 );
 
 // LEA 222 — Verduran Enchantress
-pub(in crate::card::sets) static VERDURAN_ENCHANTRESS: CardRecord = CardRecord::new(
-    cards::VERDURAN_ENCHANTRESS,
+pub(in crate::card::sets) static VERDURAN_ENCHANTRESS: CardRecord = CardRecord::new_with_legacy_id(
+    493,
     "Verduran Enchantress",
     CardArt::new("9f87178b-1221-4d7a-a7a5-20d7f01b8089", "Kev Brockschmidt"),
     CardSet::Alpha,
@@ -4212,8 +4219,8 @@ pub(in crate::card::sets) static VERDURAN_ENCHANTRESS: CardRecord = CardRecord::
 );
 
 // LEA 223 — Wall of Brambles
-pub(in crate::card::sets) static WALL_OF_BRAMBLES: CardRecord = CardRecord::new(
-    cards::WALL_OF_BRAMBLES,
+pub(in crate::card::sets) static WALL_OF_BRAMBLES: CardRecord = CardRecord::new_with_legacy_id(
+    1373,
     "Wall of Brambles",
     CardArt::new("af2a4558-db6e-41b2-aff6-b164d93282a0", "Anson Maddocks"),
     CardSet::Alpha,
@@ -4227,8 +4234,8 @@ pub(in crate::card::sets) static WALL_OF_BRAMBLES: CardRecord = CardRecord::new(
 );
 
 // LEA 224 — Wall of Ice
-pub(in crate::card::sets) static WALL_OF_ICE: CardRecord = CardRecord::new(
-    cards::WALL_OF_ICE,
+pub(in crate::card::sets) static WALL_OF_ICE: CardRecord = CardRecord::new_with_legacy_id(
+    494,
     "Wall of Ice",
     CardArt::new("cc743a03-867c-4bb0-8fb0-2bcaa0a8a756", "Richard Thomas"),
     CardSet::Alpha,
@@ -4237,8 +4244,8 @@ pub(in crate::card::sets) static WALL_OF_ICE: CardRecord = CardRecord::new(
 );
 
 // LEA 225 — Wall of Wood
-pub(in crate::card::sets) static WALL_OF_WOOD: CardRecord = CardRecord::new(
-    cards::WALL_OF_WOOD,
+pub(in crate::card::sets) static WALL_OF_WOOD: CardRecord = CardRecord::new_with_legacy_id(
+    495,
     "Wall of Wood",
     CardArt::new("8df80424-3bd9-4982-ad79-e55d9ba3b43d", "Mark Tedin"),
     CardSet::Alpha,
@@ -4247,8 +4254,8 @@ pub(in crate::card::sets) static WALL_OF_WOOD: CardRecord = CardRecord::new(
 );
 
 // LEA 226 — Wanderlust
-pub(in crate::card::sets) static WANDERLUST: CardRecord = CardRecord::new(
-    cards::WANDERLUST,
+pub(in crate::card::sets) static WANDERLUST: CardRecord = CardRecord::new_with_legacy_id(
+    1572,
     "Wanderlust",
     CardArt::new("220a03ca-8c9b-4acb-821d-f6577fbb20fb", "Cornelius Brudi"),
     CardSet::Alpha,
@@ -4270,8 +4277,8 @@ pub(in crate::card::sets) static WANDERLUST: CardRecord = CardRecord::new(
 );
 
 // LEA 227 — War Mammoth
-pub(in crate::card::sets) static WAR_MAMMOTH: CardRecord = CardRecord::new(
-    cards::WAR_MAMMOTH,
+pub(in crate::card::sets) static WAR_MAMMOTH: CardRecord = CardRecord::new_with_legacy_id(
+    496,
     "War Mammoth",
     CardArt::new("c8d6081e-f686-4263-a0a2-21c0d9af5fdb", "Jeff A. Menges"),
     CardSet::Alpha,
@@ -4280,8 +4287,8 @@ pub(in crate::card::sets) static WAR_MAMMOTH: CardRecord = CardRecord::new(
 );
 
 // LEA 228 — Web
-pub(in crate::card::sets) static WEB: CardRecord = CardRecord::new(
-    cards::WEB,
+pub(in crate::card::sets) static WEB: CardRecord = CardRecord::new_with_legacy_id(
+    497,
     "Web",
     CardArt::new("37c7890a-86dc-4a97-a7ce-1436fa22d0c0", "Rob Alexander"),
     CardSet::Alpha,
@@ -4303,8 +4310,8 @@ pub(in crate::card::sets) static WEB: CardRecord = CardRecord::new(
 );
 
 // LEA 229 — Wild Growth
-pub(in crate::card::sets) static WILD_GROWTH: CardRecord = CardRecord::new(
-    cards::WILD_GROWTH,
+pub(in crate::card::sets) static WILD_GROWTH: CardRecord = CardRecord::new_with_legacy_id(
+    1793,
     "Wild Growth",
     CardArt::new("fd896dfa-66c0-4327-8e5b-489bbe350c95", "Mark Poole"),
     CardSet::Alpha,
@@ -4326,8 +4333,8 @@ pub(in crate::card::sets) static WILD_GROWTH: CardRecord = CardRecord::new(
 );
 
 // LEA 230 — Ankh of Mishra
-pub(in crate::card::sets) static ANKH_OF_MISHRA: CardRecord = CardRecord::new(
-    cards::ANKH_OF_MISHRA,
+pub(in crate::card::sets) static ANKH_OF_MISHRA: CardRecord = CardRecord::new_with_legacy_id(
+    1,
     "Ankh of Mishra",
     CardArt::new("f594b7aa-d44e-47c4-989b-565f881e25f1", "Amy Weber"),
     CardSet::Alpha,
@@ -4346,8 +4353,8 @@ pub(in crate::card::sets) static ANKH_OF_MISHRA: CardRecord = CardRecord::new(
 );
 
 // LEA 231 — Basalt Monolith
-pub(in crate::card::sets) static BASALT_MONOLITH: CardRecord = CardRecord::new(
-    cards::BASALT_MONOLITH,
+pub(in crate::card::sets) static BASALT_MONOLITH: CardRecord = CardRecord::new_with_legacy_id(
+    498,
     "Basalt Monolith",
     CardArt::new("66a74c89-6f86-4ec8-af17-391cd5026054", "Jesper Myrfors"),
     CardSet::Alpha,
@@ -4375,8 +4382,8 @@ pub(in crate::card::sets) static BASALT_MONOLITH: CardRecord = CardRecord::new(
 );
 
 // LEA 232 — Black Lotus
-pub(in crate::card::sets) static BLACK_LOTUS: CardRecord = CardRecord::new(
-    cards::BLACK_LOTUS,
+pub(in crate::card::sets) static BLACK_LOTUS: CardRecord = CardRecord::new_with_legacy_id(
+    21,
     "Black Lotus",
     CardArt::new("b0faa7f2-b547-42c4-a810-839da50dadfe", "Christopher Rush"),
     CardSet::Alpha,
@@ -4388,8 +4395,8 @@ pub(in crate::card::sets) static BLACK_LOTUS: CardRecord = CardRecord::new(
 );
 
 // LEA 233 — Black Vise
-pub(in crate::card::sets) static BLACK_VISE: CardRecord = CardRecord::new(
-    cards::BLACK_VISE,
+pub(in crate::card::sets) static BLACK_VISE: CardRecord = CardRecord::new_with_legacy_id(
+    4,
     "Black Vise",
     CardArt::new("76ac72f8-5b1e-4d67-a796-ef69cde27424", "Richard Thomas"),
     CardSet::Alpha,
@@ -4419,8 +4426,8 @@ pub(in crate::card::sets) static BLACK_VISE: CardRecord = CardRecord::new(
 
 // LEA 234 — Celestial Prism
 // Audit: metadata-only — The mana-ability runtime cannot activate a mana ability that itself has a mana payment cost.
-pub(in crate::card::sets) static CELESTIAL_PRISM: CardRecord = CardRecord::new(
-    cards::CELESTIAL_PRISM,
+pub(in crate::card::sets) static CELESTIAL_PRISM: CardRecord = CardRecord::new_with_legacy_id(
+    499,
     "Celestial Prism",
     CardArt::new("a47417cb-1ea7-4f65-ba06-e27a99373114", "Amy Weber"),
     CardSet::Alpha,
@@ -4455,8 +4462,8 @@ static CHAOS_ORB_IF_PRESENT: EffectDef = EffectDef::IfCondition {
 };
 
 // LEA 235 — Chaos Orb
-pub(in crate::card::sets) static CHAOS_ORB: CardRecord = CardRecord::new(
-    cards::CHAOS_ORB,
+pub(in crate::card::sets) static CHAOS_ORB: CardRecord = CardRecord::new_with_legacy_id(
+    22,
     "Chaos Orb",
     CardArt::new("92274971-7c4a-4326-b0fe-75e2d124f718", "Mark Tedin"),
     CardSet::Alpha,
@@ -4490,8 +4497,8 @@ pub(in crate::card::sets) static CHAOS_ORB: CardRecord = CardRecord::new(
 // Audit: blocked — Needs card-specific counter state and counter-consuming effects for “{X}, {T}: Put up to X +1/+0 counters on this creature. This ability can't cause the total number of +1/+0 counters on this creature to be greater than seven. Activate only during your upkeep”.
 
 // LEA 237 — Conservator
-pub(in crate::card::sets) static CONSERVATOR: CardRecord = CardRecord::new(
-    cards::CONSERVATOR,
+pub(in crate::card::sets) static CONSERVATOR: CardRecord = CardRecord::new_with_legacy_id(
+    1438,
     "Conservator",
     CardArt::new("c7824e2a-4eff-4f72-9216-0db30a4f4252", "Amy Weber"),
     CardSet::Alpha,
@@ -4512,8 +4519,8 @@ pub(in crate::card::sets) static CONSERVATOR: CardRecord = CardRecord::new(
 );
 
 // LEA 238 — Copper Tablet
-pub(in crate::card::sets) static COPPER_TABLET: CardRecord = CardRecord::new(
-    cards::COPPER_TABLET,
+pub(in crate::card::sets) static COPPER_TABLET: CardRecord = CardRecord::new_with_legacy_id(
+    7,
     "Copper Tablet",
     CardArt::new("30935e4a-013e-4c46-ad05-304df8e5dfa4", "Amy Weber"),
     CardSet::Alpha,
@@ -4531,8 +4538,8 @@ pub(in crate::card::sets) static COPPER_TABLET: CardRecord = CardRecord::new(
 );
 
 // LEA 239 — Crystal Rod
-pub(in crate::card::sets) static CRYSTAL_ROD: CardRecord = CardRecord::new(
-    cards::CRYSTAL_ROD,
+pub(in crate::card::sets) static CRYSTAL_ROD: CardRecord = CardRecord::new_with_legacy_id(
+    500,
     "Crystal Rod",
     CardArt::new("76693233-7961-4b7e-80f2-ed90e494c4aa", "Amy Weber"),
     CardSet::Alpha,
@@ -4556,8 +4563,8 @@ pub(in crate::card::sets) static CRYSTAL_ROD: CardRecord = CardRecord::new(
 // Audit: blocked — Needs card-specific counter state and counter-consuming effects for “{2}, {T}: Put a mire counter on target non-Swamp land. That land is a Swamp for as long as it has a mire counter on it. Activate only during your upkeep”.
 
 // LEA 241 — Dingus Egg
-pub(in crate::card::sets) static DINGUS_EGG: CardRecord = CardRecord::new(
-    cards::DINGUS_EGG,
+pub(in crate::card::sets) static DINGUS_EGG: CardRecord = CardRecord::new_with_legacy_id(
+    501,
     "Dingus Egg",
     CardArt::new("65eb6cda-e512-40a8-9c1f-335b713409ff", "Dan Frazier"),
     CardSet::Alpha,
@@ -4572,8 +4579,8 @@ pub(in crate::card::sets) static DINGUS_EGG: CardRecord = CardRecord::new(
 );
 
 // LEA 242 — Disrupting Scepter
-pub(in crate::card::sets) static DISRUPTING_SCEPTER: CardRecord = CardRecord::new(
-    cards::DISRUPTING_SCEPTER,
+pub(in crate::card::sets) static DISRUPTING_SCEPTER: CardRecord = CardRecord::new_with_legacy_id(
+    1457,
     "Disrupting Scepter",
     CardArt::new("ca571ee8-07a2-43b8-9acf-89cbfd3cf7c9", "Dan Frazier"),
     CardSet::Alpha,
@@ -4602,8 +4609,8 @@ pub(in crate::card::sets) static DISRUPTING_SCEPTER: CardRecord = CardRecord::ne
 // Audit: blocked — Needs a duration-scoped replacement/prevention effect for “{1}: The next time an unblocked creature of your choice would deal combat damage to you this turn, prevent all but 1 of that damage”.
 
 // LEA 244 — Gauntlet of Might
-pub(in crate::card::sets) static GAUNTLET_OF_MIGHT: CardRecord = CardRecord::new(
-    cards::GAUNTLET_OF_MIGHT,
+pub(in crate::card::sets) static GAUNTLET_OF_MIGHT: CardRecord = CardRecord::new_with_legacy_id(
+    1794,
     "Gauntlet of Might",
     CardArt::new("da248001-ed75-4b68-9532-37d3cd5afc4c", "Christopher Rush"),
     CardSet::Alpha,
@@ -4640,8 +4647,8 @@ pub(in crate::card::sets) static GAUNTLET_OF_MIGHT: CardRecord = CardRecord::new
 );
 
 // LEA 245 — Glasses of Urza
-pub(in crate::card::sets) static GLASSES_OF_URZA: CardRecord = CardRecord::new(
-    cards::GLASSES_OF_URZA,
+pub(in crate::card::sets) static GLASSES_OF_URZA: CardRecord = CardRecord::new_with_legacy_id(
+    11,
     "Glasses of Urza",
     CardArt::new("cafc2350-5d64-4379-9198-79a114654d45", "Douglas Shuler"),
     CardSet::Alpha,
@@ -4660,8 +4667,8 @@ pub(in crate::card::sets) static GLASSES_OF_URZA: CardRecord = CardRecord::new(
 );
 
 // LEA 246 — Helm of Chatzuk
-pub(in crate::card::sets) static HELM_OF_CHATZUK: CardRecord = CardRecord::new(
-    cards::HELM_OF_CHATZUK,
+pub(in crate::card::sets) static HELM_OF_CHATZUK: CardRecord = CardRecord::new_with_legacy_id(
+    1780,
     "Helm of Chatzuk",
     CardArt::new("3792c6ef-c4e6-4923-9a51-7d28fbc5c393", "Mark Tedin"),
     CardSet::Alpha,
@@ -4683,8 +4690,8 @@ pub(in crate::card::sets) static HELM_OF_CHATZUK: CardRecord = CardRecord::new(
 );
 
 // LEA 247 — Howling Mine
-pub(in crate::card::sets) static HOWLING_MINE: CardRecord = CardRecord::new(
-    cards::HOWLING_MINE,
+pub(in crate::card::sets) static HOWLING_MINE: CardRecord = CardRecord::new_with_legacy_id(
+    1827,
     "Howling Mine",
     CardArt::new("51f8f6e1-a451-4262-90d3-5107caf54175", "Mark Poole"),
     CardSet::Alpha,
@@ -4708,8 +4715,8 @@ pub(in crate::card::sets) static HOWLING_MINE: CardRecord = CardRecord::new(
 );
 
 // LEA 248 — Icy Manipulator
-pub(in crate::card::sets) static ICY_MANIPULATOR: CardRecord = CardRecord::new(
-    cards::ICY_MANIPULATOR,
+pub(in crate::card::sets) static ICY_MANIPULATOR: CardRecord = CardRecord::new_with_legacy_id(
+    116,
     "Icy Manipulator",
     CardArt::new("29dc1596-a2e7-4d60-9f99-89babaef8a06", "Douglas Shuler"),
     CardSet::Alpha,
@@ -4743,8 +4750,8 @@ pub(in crate::card::sets) static ICY_MANIPULATOR: CardRecord = CardRecord::new(
 // Audit: blocked — Needs cost/mana provenance or dynamic payment support for “{X}: You may choose a creature card in your hand whose mana cost could be paid by some amount of, or all of, the mana you spent on {X}. If you do, you may cast that card face down as a…”.
 
 // LEA 250 — Iron Star
-pub(in crate::card::sets) static IRON_STAR: CardRecord = CardRecord::new(
-    cards::IRON_STAR,
+pub(in crate::card::sets) static IRON_STAR: CardRecord = CardRecord::new_with_legacy_id(
+    12,
     "Iron Star",
     CardArt::new("5786de12-cade-43c2-a6b0-0c5b294b9d0e", "Dan Frazier"),
     CardSet::Alpha,
@@ -4765,8 +4772,8 @@ pub(in crate::card::sets) static IRON_STAR: CardRecord = CardRecord::new(
 );
 
 // LEA 251 — Ivory Cup
-pub(in crate::card::sets) static IVORY_CUP: CardRecord = CardRecord::new(
-    cards::IVORY_CUP,
+pub(in crate::card::sets) static IVORY_CUP: CardRecord = CardRecord::new_with_legacy_id(
+    502,
     "Ivory Cup",
     CardArt::new("9964d8d8-dc97-4e5f-9f52-173f7e2c37fd", "Anson Maddocks"),
     CardSet::Alpha,
@@ -4800,8 +4807,8 @@ static JADE_STATUE_ANIMATION: [AppliedEffectDef; 3] = [
 ];
 
 // LEA 253 — Jade Statue
-pub(in crate::card::sets) static JADE_STATUE: CardRecord = CardRecord::new(
-    cards::JADE_STATUE,
+pub(in crate::card::sets) static JADE_STATUE: CardRecord = CardRecord::new_with_legacy_id(
+    1828,
     "Jade Statue",
     CardArt::new("8d82d94b-ceef-4533-a4f2-b6442a61b839", "Dan Frazier"),
     CardSet::Alpha,
@@ -4825,8 +4832,8 @@ pub(in crate::card::sets) static JADE_STATUE: CardRecord = CardRecord::new(
 );
 
 // LEA 254 — Jayemdae Tome
-pub(in crate::card::sets) static JAYEMDAE_TOME: CardRecord = CardRecord::new(
-    cards::JAYEMDAE_TOME,
+pub(in crate::card::sets) static JAYEMDAE_TOME: CardRecord = CardRecord::new_with_legacy_id(
+    51,
     "Jayemdae Tome",
     CardArt::new("cac8c421-5b92-481d-b2de-560c0231ab58", "Mark Tedin"),
     CardSet::Alpha,
@@ -4846,8 +4853,8 @@ pub(in crate::card::sets) static JAYEMDAE_TOME: CardRecord = CardRecord::new(
 );
 
 // LEA 255 — Juggernaut
-pub(in crate::card::sets) static JUGGERNAUT: CardRecord = CardRecord::new(
-    cards::JUGGERNAUT,
+pub(in crate::card::sets) static JUGGERNAUT: CardRecord = CardRecord::new_with_legacy_id(
+    41,
     "Juggernaut",
     CardArt::new("dcd6a291-5282-4f49-8203-d9b416083c48", "Dan Frazier"),
     CardSet::Alpha,
@@ -4873,8 +4880,8 @@ static BLACK_LAND_CREATURE: [AppliedEffectDef; 3] = [
 ];
 
 // LEA 256 — Kormus Bell
-pub(in crate::card::sets) static KORMUS_BELL: CardRecord = CardRecord::new(
-    cards::KORMUS_BELL,
+pub(in crate::card::sets) static KORMUS_BELL: CardRecord = CardRecord::new_with_legacy_id(
+    1656,
     "Kormus Bell",
     CardArt::new("3f4ef7a1-148d-44ac-89ed-0ef379cca0c6", "Christopher Rush"),
     CardSet::Alpha,
@@ -4895,8 +4902,8 @@ pub(in crate::card::sets) static KORMUS_BELL: CardRecord = CardRecord::new(
 // Audit: blocked — Needs ordered-library inspection, selection, and visibility handling for “If an effect causes you to discard a card, discard it, but you may put it on top of your library instead of into your graveyard”.
 
 // LEA 258 — Living Wall
-pub(in crate::card::sets) static LIVING_WALL: CardRecord = CardRecord::new(
-    cards::LIVING_WALL,
+pub(in crate::card::sets) static LIVING_WALL: CardRecord = CardRecord::new_with_legacy_id(
+    1374,
     "Living Wall",
     CardArt::new("4a98ada6-923a-44a5-bdef-ea6a160b481e", "Anson Maddocks"),
     CardSet::Alpha,
@@ -4910,8 +4917,8 @@ pub(in crate::card::sets) static LIVING_WALL: CardRecord = CardRecord::new(
 );
 
 // LEA 259 — Mana Vault
-pub(in crate::card::sets) static MANA_VAULT: CardRecord = CardRecord::new(
-    cards::MANA_VAULT,
+pub(in crate::card::sets) static MANA_VAULT: CardRecord = CardRecord::new_with_legacy_id(
+    42,
     "Mana Vault",
     CardArt::new("19499cb7-eccb-4e69-af32-6002d447a160", "Mark Tedin"),
     CardSet::Alpha,
@@ -4962,8 +4969,8 @@ pub(in crate::card::sets) static MANA_VAULT: CardRecord = CardRecord::new(
 );
 
 // LEA 260 — Meekstone
-pub(in crate::card::sets) static MEEKSTONE: CardRecord = CardRecord::new(
-    cards::MEEKSTONE,
+pub(in crate::card::sets) static MEEKSTONE: CardRecord = CardRecord::new_with_legacy_id(
+    1677,
     "Meekstone",
     CardArt::new("13a68a17-22ee-47c9-870a-83e911862b94", "Quinton Hoover"),
     CardSet::Alpha,
@@ -4986,8 +4993,8 @@ pub(in crate::card::sets) static MEEKSTONE: CardRecord = CardRecord::new(
 );
 
 // LEA 261 — Mox Emerald
-pub(in crate::card::sets) static MOX_EMERALD: CardRecord = CardRecord::new(
-    cards::MOX_EMERALD,
+pub(in crate::card::sets) static MOX_EMERALD: CardRecord = CardRecord::new_with_legacy_id(
+    32,
     "Mox Emerald",
     CardArt::new("b0e1427c-05cd-465b-be59-97ed6e39f7ba", "Dan Frazier"),
     CardSet::Alpha,
@@ -4996,8 +5003,8 @@ pub(in crate::card::sets) static MOX_EMERALD: CardRecord = CardRecord::new(
 );
 
 // LEA 262 — Mox Jet
-pub(in crate::card::sets) static MOX_JET: CardRecord = CardRecord::new(
-    cards::MOX_JET,
+pub(in crate::card::sets) static MOX_JET: CardRecord = CardRecord::new_with_legacy_id(
+    33,
     "Mox Jet",
     CardArt::new("92bcd1ce-19b1-4d78-8b09-95242ca08d76", "Dan Frazier"),
     CardSet::Alpha,
@@ -5006,8 +5013,8 @@ pub(in crate::card::sets) static MOX_JET: CardRecord = CardRecord::new(
 );
 
 // LEA 263 — Mox Pearl
-pub(in crate::card::sets) static MOX_PEARL: CardRecord = CardRecord::new(
-    cards::MOX_PEARL,
+pub(in crate::card::sets) static MOX_PEARL: CardRecord = CardRecord::new_with_legacy_id(
+    34,
     "Mox Pearl",
     CardArt::new("8ebe4be7-e12a-4596-a899-fbd5b152e879", "Dan Frazier"),
     CardSet::Alpha,
@@ -5016,8 +5023,8 @@ pub(in crate::card::sets) static MOX_PEARL: CardRecord = CardRecord::new(
 );
 
 // LEA 264 — Mox Ruby
-pub(in crate::card::sets) static MOX_RUBY: CardRecord = CardRecord::new(
-    cards::MOX_RUBY,
+pub(in crate::card::sets) static MOX_RUBY: CardRecord = CardRecord::new_with_legacy_id(
+    35,
     "Mox Ruby",
     CardArt::new("8945585f-4773-493d-a0fe-d707db910b38", "Dan Frazier"),
     CardSet::Alpha,
@@ -5026,8 +5033,8 @@ pub(in crate::card::sets) static MOX_RUBY: CardRecord = CardRecord::new(
 );
 
 // LEA 265 — Mox Sapphire
-pub(in crate::card::sets) static MOX_SAPPHIRE: CardRecord = CardRecord::new(
-    cards::MOX_SAPPHIRE,
+pub(in crate::card::sets) static MOX_SAPPHIRE: CardRecord = CardRecord::new_with_legacy_id(
+    36,
     "Mox Sapphire",
     CardArt::new("82da0972-b17b-4600-9efd-e9430a0db04b", "Dan Frazier"),
     CardSet::Alpha,
@@ -5036,8 +5043,8 @@ pub(in crate::card::sets) static MOX_SAPPHIRE: CardRecord = CardRecord::new(
 );
 
 // LEA 266 — Nevinyrral's Disk
-pub(in crate::card::sets) static NEVINYRRALS_DISK: CardRecord = CardRecord::new(
-    cards::NEVINYRRALS_DISK,
+pub(in crate::card::sets) static NEVINYRRALS_DISK: CardRecord = CardRecord::new_with_legacy_id(
+    84,
     "Nevinyrral's Disk",
     CardArt::new("12926dc8-8e6f-4a47-a12b-4d674189615a", "Mark Tedin"),
     CardSet::Alpha,
@@ -5066,8 +5073,8 @@ pub(in crate::card::sets) static NEVINYRRALS_DISK: CardRecord = CardRecord::new(
 );
 
 // LEA 267 — Obsianus Golem
-pub(in crate::card::sets) static OBSIANUS_GOLEM: CardRecord = CardRecord::new(
-    cards::OBSIANUS_GOLEM,
+pub(in crate::card::sets) static OBSIANUS_GOLEM: CardRecord = CardRecord::new_with_legacy_id(
+    503,
     "Obsianus Golem",
     CardArt::new("4c8e9f5c-deba-4443-bf9d-fb2be75c5418", "Jesper Myrfors"),
     CardSet::Alpha,
@@ -5075,8 +5082,8 @@ pub(in crate::card::sets) static OBSIANUS_GOLEM: CardRecord = CardRecord::new(
 );
 
 // LEA 268 — Rod of Ruin
-pub(in crate::card::sets) static ROD_OF_RUIN: CardRecord = CardRecord::new(
-    cards::ROD_OF_RUIN,
+pub(in crate::card::sets) static ROD_OF_RUIN: CardRecord = CardRecord::new_with_legacy_id(
+    504,
     "Rod of Ruin",
     CardArt::new("af957200-c538-4f52-b105-6db7a7abb4dc", "Christopher Rush"),
     CardSet::Alpha,
@@ -5099,8 +5106,8 @@ pub(in crate::card::sets) static ROD_OF_RUIN: CardRecord = CardRecord::new(
 );
 
 // LEA 269 — Sol Ring
-pub(in crate::card::sets) static SOL_RING: CardRecord = CardRecord::new(
-    cards::SOL_RING,
+pub(in crate::card::sets) static SOL_RING: CardRecord = CardRecord::new_with_legacy_id(
+    38,
     "Sol Ring",
     CardArt::new("c4300d24-1cae-4dd5-be7e-38cc677cf5bd", "Mark Tedin"),
     CardSet::Alpha,
@@ -5112,8 +5119,8 @@ pub(in crate::card::sets) static SOL_RING: CardRecord = CardRecord::new(
 );
 
 // LEA 270 — Soul Net
-pub(in crate::card::sets) static SOUL_NET: CardRecord = CardRecord::new(
-    cards::SOUL_NET,
+pub(in crate::card::sets) static SOUL_NET: CardRecord = CardRecord::new_with_legacy_id(
+    505,
     "Soul Net",
     CardArt::new("2b814198-814b-4619-a158-327af675f8f2", "Dameon Willich"),
     CardSet::Alpha,
@@ -5141,8 +5148,8 @@ pub(in crate::card::sets) static SOUL_NET: CardRecord = CardRecord::new(
 // Audit: blocked — Needs cost/mana provenance or dynamic payment support for “You may spend white mana as though it were red mana”.
 
 // LEA 272 — The Hive
-pub(in crate::card::sets) static THE_HIVE: CardRecord = CardRecord::new(
-    cards::THE_HIVE,
+pub(in crate::card::sets) static THE_HIVE: CardRecord = CardRecord::new_with_legacy_id(
+    604,
     "The Hive",
     CardArt::new("544a7138-eae8-4ff9-9e17-680bfa717183", "Sandra Everingham"),
     CardSet::Alpha,
@@ -5163,8 +5170,8 @@ pub(in crate::card::sets) static THE_HIVE: CardRecord = CardRecord::new(
 );
 
 // LEA 273 — Throne of Bone
-pub(in crate::card::sets) static THRONE_OF_BONE: CardRecord = CardRecord::new(
-    cards::THRONE_OF_BONE,
+pub(in crate::card::sets) static THRONE_OF_BONE: CardRecord = CardRecord::new_with_legacy_id(
+    506,
     "Throne of Bone",
     CardArt::new("a2931ae0-7836-4000-b9ec-f2029ebf5d96", "Anson Maddocks"),
     CardSet::Alpha,
@@ -5192,8 +5199,8 @@ static TIME_VAULT_TURN_REPLACEMENT: [ReplacementEffectDef; 2] = [
 ];
 
 // LEA 274 — Time Vault
-pub(in crate::card::sets) static TIME_VAULT: CardRecord = CardRecord::new(
-    cards::TIME_VAULT,
+pub(in crate::card::sets) static TIME_VAULT: CardRecord = CardRecord::new_with_legacy_id(
+    102,
     "Time Vault",
     CardArt::new("902441dc-c976-4c92-b897-6376eaa0fe38", "Mark Tedin"),
     CardSet::Alpha,
@@ -5238,8 +5245,8 @@ static WINTER_ORB_LIMIT: EffectDef = EffectDef::StaticApply {
 };
 
 // LEA 275 — Winter Orb
-pub(in crate::card::sets) static WINTER_ORB: CardRecord = CardRecord::new(
-    cards::WINTER_ORB,
+pub(in crate::card::sets) static WINTER_ORB: CardRecord = CardRecord::new_with_legacy_id(
+    20,
     "Winter Orb",
     CardArt::new("9359f60c-9a27-4e53-b35b-964a121a6fba", "Mark Tedin"),
     CardSet::Alpha,
@@ -5254,8 +5261,8 @@ pub(in crate::card::sets) static WINTER_ORB: CardRecord = CardRecord::new(
 );
 
 // LEA 276 — Wooden Sphere
-pub(in crate::card::sets) static WOODEN_SPHERE: CardRecord = CardRecord::new(
-    cards::WOODEN_SPHERE,
+pub(in crate::card::sets) static WOODEN_SPHERE: CardRecord = CardRecord::new_with_legacy_id(
+    507,
     "Wooden Sphere",
     CardArt::new("bcae01a2-171b-47cd-87be-f1e4e5314326", "Mark Tedin"),
     CardSet::Alpha,
@@ -5276,8 +5283,8 @@ pub(in crate::card::sets) static WOODEN_SPHERE: CardRecord = CardRecord::new(
 );
 
 // LEA 277 — Badlands
-pub(in crate::card::sets) static BADLANDS: CardRecord = CardRecord::new(
-    cards::BADLANDS,
+pub(in crate::card::sets) static BADLANDS: CardRecord = CardRecord::new_with_legacy_id(
+    59,
     "Badlands",
     CardArt::new("717f6d10-9144-4ade-9ac6-a481cc66b875", "Rob Alexander"),
     CardSet::Alpha,
@@ -5285,8 +5292,8 @@ pub(in crate::card::sets) static BADLANDS: CardRecord = CardRecord::new(
 );
 
 // LEA 278 — Bayou
-pub(in crate::card::sets) static BAYOU: CardRecord = CardRecord::new(
-    cards::BAYOU,
+pub(in crate::card::sets) static BAYOU: CardRecord = CardRecord::new_with_legacy_id(
+    61,
     "Bayou",
     CardArt::new("412ceddd-2b9a-4551-a6bf-ae2830a2010a", "Jesper Myrfors"),
     CardSet::Alpha,
@@ -5294,8 +5301,8 @@ pub(in crate::card::sets) static BAYOU: CardRecord = CardRecord::new(
 );
 
 // LEA 279 — Plateau
-pub(in crate::card::sets) static PLATEAU: CardRecord = CardRecord::new(
-    cards::PLATEAU,
+pub(in crate::card::sets) static PLATEAU: CardRecord = CardRecord::new_with_legacy_id(
+    87,
     "Plateau",
     CardArt::new("6eafa00b-c628-40f6-86eb-88e1361fc7a0", "Drew Tucker"),
     CardSet::Alpha,
@@ -5303,8 +5310,8 @@ pub(in crate::card::sets) static PLATEAU: CardRecord = CardRecord::new(
 );
 
 // LEA 280 — Savannah
-pub(in crate::card::sets) static SAVANNAH: CardRecord = CardRecord::new(
-    cards::SAVANNAH,
+pub(in crate::card::sets) static SAVANNAH: CardRecord = CardRecord::new_with_legacy_id(
+    91,
     "Savannah",
     CardArt::new("94f7e24c-2546-41b6-81ad-5e920b07e64e", "Rob Alexander"),
     CardSet::Alpha,
@@ -5312,8 +5319,8 @@ pub(in crate::card::sets) static SAVANNAH: CardRecord = CardRecord::new(
 );
 
 // LEA 281 — Scrubland
-pub(in crate::card::sets) static SCRUBLAND: CardRecord = CardRecord::new(
-    cards::SCRUBLAND,
+pub(in crate::card::sets) static SCRUBLAND: CardRecord = CardRecord::new_with_legacy_id(
+    93,
     "Scrubland",
     CardArt::new("bebe39d4-21fb-46a4-a1ec-b97102e46c15", "Jesper Myrfors"),
     CardSet::Alpha,
@@ -5321,8 +5328,8 @@ pub(in crate::card::sets) static SCRUBLAND: CardRecord = CardRecord::new(
 );
 
 // LEA 282 — Taiga
-pub(in crate::card::sets) static TAIGA: CardRecord = CardRecord::new(
-    cards::TAIGA,
+pub(in crate::card::sets) static TAIGA: CardRecord = CardRecord::new_with_legacy_id(
+    99,
     "Taiga",
     CardArt::new("60df6592-0b3b-4b87-aeb2-8fa94b4fb7be", "Rob Alexander"),
     CardSet::Alpha,
@@ -5330,8 +5337,8 @@ pub(in crate::card::sets) static TAIGA: CardRecord = CardRecord::new(
 );
 
 // LEA 283 — Tropical Island
-pub(in crate::card::sets) static TROPICAL_ISLAND: CardRecord = CardRecord::new(
-    cards::TROPICAL_ISLAND,
+pub(in crate::card::sets) static TROPICAL_ISLAND: CardRecord = CardRecord::new_with_legacy_id(
+    104,
     "Tropical Island",
     CardArt::new("a9c6c759-aabf-44e7-ba8c-33c5df232b56", "Jesper Myrfors"),
     CardSet::Alpha,
@@ -5339,8 +5346,8 @@ pub(in crate::card::sets) static TROPICAL_ISLAND: CardRecord = CardRecord::new(
 );
 
 // LEA 284 — Tundra
-pub(in crate::card::sets) static TUNDRA: CardRecord = CardRecord::new(
-    cards::TUNDRA,
+pub(in crate::card::sets) static TUNDRA: CardRecord = CardRecord::new_with_legacy_id(
+    56,
     "Tundra",
     CardArt::new("a03e8c5b-f4ed-4fd7-ba05-db813ccc05eb", "Jesper Myrfors"),
     CardSet::Alpha,
@@ -5348,8 +5355,8 @@ pub(in crate::card::sets) static TUNDRA: CardRecord = CardRecord::new(
 );
 
 // LEA 285 — Underground Sea
-pub(in crate::card::sets) static UNDERGROUND_SEA: CardRecord = CardRecord::new(
-    cards::UNDERGROUND_SEA,
+pub(in crate::card::sets) static UNDERGROUND_SEA: CardRecord = CardRecord::new_with_legacy_id(
+    105,
     "Underground Sea",
     CardArt::new("ff76ac86-8a8a-47fe-9388-8950ca3e26c3", "Rob Alexander"),
     CardSet::Alpha,
@@ -5357,8 +5364,8 @@ pub(in crate::card::sets) static UNDERGROUND_SEA: CardRecord = CardRecord::new(
 );
 
 // LEA 286 — Plains
-pub(in crate::card::sets) static PLAINS: CardRecord = CardRecord::new(
-    cards::PLAINS,
+pub(in crate::card::sets) static PLAINS: CardRecord = CardRecord::new_with_legacy_id(
+    52,
     "Plains",
     CardArt::new("b1623d57-4729-4796-b3f7-f1837a05c6ed", "Jesper Myrfors"),
     CardSet::Alpha,
@@ -5366,8 +5373,8 @@ pub(in crate::card::sets) static PLAINS: CardRecord = CardRecord::new(
 );
 
 // LEA 288 — Island
-pub(in crate::card::sets) static ISLAND: CardRecord = CardRecord::new(
-    cards::ISLAND,
+pub(in crate::card::sets) static ISLAND: CardRecord = CardRecord::new_with_legacy_id(
+    49,
     "Island",
     CardArt::new("90a57c0e-fa61-45ef-955d-d296403967d5", "Mark Poole"),
     CardSet::Alpha,
@@ -5375,8 +5382,8 @@ pub(in crate::card::sets) static ISLAND: CardRecord = CardRecord::new(
 );
 
 // LEA 290 — Swamp
-pub(in crate::card::sets) static SWAMP: CardRecord = CardRecord::new(
-    cards::SWAMP,
+pub(in crate::card::sets) static SWAMP: CardRecord = CardRecord::new_with_legacy_id(
+    97,
     "Swamp",
     CardArt::new("6176936d-72e2-4205-8871-4c5a4f1cb2d8", "Dan Frazier"),
     CardSet::Alpha,
@@ -5384,8 +5391,8 @@ pub(in crate::card::sets) static SWAMP: CardRecord = CardRecord::new(
 );
 
 // LEA 292 — Mountain
-pub(in crate::card::sets) static MOUNTAIN: CardRecord = CardRecord::new(
-    cards::MOUNTAIN,
+pub(in crate::card::sets) static MOUNTAIN: CardRecord = CardRecord::new_with_legacy_id(
+    14,
     "Mountain",
     CardArt::new("eace2c85-976c-425e-9800-5a6ccbd91b56", "Douglas Shuler"),
     CardSet::Alpha,
@@ -5393,8 +5400,8 @@ pub(in crate::card::sets) static MOUNTAIN: CardRecord = CardRecord::new(
 );
 
 // LEA 294 — Forest
-pub(in crate::card::sets) static FOREST: CardRecord = CardRecord::new(
-    cards::FOREST,
+pub(in crate::card::sets) static FOREST: CardRecord = CardRecord::new_with_legacy_id(
+    74,
     "Forest",
     CardArt::new("6f1c8cb0-38eb-408b-94e8-16db83999b3b", "Christopher Rush"),
     CardSet::Alpha,

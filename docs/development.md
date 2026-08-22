@@ -21,7 +21,9 @@ target and `make doctor` reports missing prerequisites.
   coding-agent harnesses.
 
 The original `poc` module remains as a compatibility facade. New code should
-prefer `card::catalog()`, `card::cards::*`, and the functions in `decks`.
+prefer `card::catalog()` and the functions in `decks`. The generated
+`card::cards::*` constants remain available for native compatibility, but
+authored rules should refer to Magic card names rather than numeric identities.
 
 For architecture and implementation boundaries, read the
 [design doctrine](design-doctrine.md), [engine architecture](engine.md), and

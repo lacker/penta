@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardType, EffectDef,
     EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef, PlayerRefDef, PlayerRelation,
-    TriggerEventDef, ZoneKind, cards,
+    TriggerEventDef, ZoneKind,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -66,8 +66,8 @@ static JAILER_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // CN2 18 — Palace Jailer
-pub(in crate::card::sets) static PALACE_JAILER: CardRecord = CardRecord::new(
-    cards::PALACE_JAILER,
+pub(in crate::card::sets) static PALACE_JAILER: CardRecord = CardRecord::new_with_legacy_id(
+    2171,
     "Palace Jailer",
     CardArt::new("78cef262-c753-4658-b3ec-fec8db47f944", "David Palumbo"),
     CardSet::ConspiracyTakeTheCrown,

@@ -5,7 +5,7 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
     CardArt, CardRules, CardSet, CardType, ComparisonDef, CounterKind, EffectDef,
     EffectRecipientDef, ObjectPredicateDef, PlayerRelation, ResolvedEffectDurationDef,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities, cards,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -68,8 +68,8 @@ static UNRULY_KRASIS_ABILITIES: [AbilityDef; 3] = [
 ];
 
 // CLU 50 — Unruly Krasis
-pub(in crate::card::sets) static UNRULY_KRASIS: CardRecord = CardRecord::new(
-    cards::UNRULY_KRASIS,
+pub(in crate::card::sets) static UNRULY_KRASIS: CardRecord = CardRecord::new_with_legacy_id(
+    2144,
     "Unruly Krasis",
     CardArt::new("a3b1b58d-b7f1-404f-aec6-b19cef4bebbd", "Billy Christian"),
     CardSet::RavnicaClueEdition,

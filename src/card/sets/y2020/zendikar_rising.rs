@@ -5,7 +5,7 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AddManaEffectDef, CardArt, CardRules, CardSet, CardSupertype,
     CardType, ComparisonDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
     ObjectQueryDef, ObjectSetDef, PlayerRelation, TriggerConditionDef, TriggerEventDef, ValueDef,
-    ZoneKind, abilities, cards,
+    ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -37,8 +37,8 @@ static THIRST_DESTROY: EffectDef = EffectDef::Destroy {
 // Audit: blocked — Kicker here is a spell cast for more mana with different instructions, and the kicked clause has to carry those instructions. This card's kicker changes nothing about how the spell resolves; it changes whether a triggered ability fires afterwards and what that ability may target, which the kicked alternative has no way to say. It also needs a minimum on X, since casts are enumerated from zero and "X can't be 0" would otherwise let an unkicked-sized cast steal a nothing-cost artifact.
 
 // ZNR 94 — Bloodchief's Thirst
-pub(in crate::card::sets) static BLOODCHIEFS_THIRST: CardRecord = CardRecord::new(
-    cards::BLOODCHIEFS_THIRST,
+pub(in crate::card::sets) static BLOODCHIEFS_THIRST: CardRecord = CardRecord::new_with_legacy_id(
+    2165,
     "Bloodchief's Thirst",
     CardArt::new("059e8447-6b1c-4651-a734-a8fea2cbf7b2", "Jason Rainville"),
     CardSet::ZendikarRising,
@@ -163,17 +163,18 @@ static OMNATH_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // ZNR 232 — Omnath, Locus of Creation
-pub(in crate::card::sets) static OMNATH_LOCUS_OF_CREATION: CardRecord = CardRecord::new(
-    cards::OMNATH_LOCUS_OF_CREATION,
-    "Omnath, Locus of Creation",
-    CardArt::new("4e4fb50c-a81f-44d3-93c5-fa9a0b37f617", "Chris Rahn"),
-    CardSet::ZendikarRising,
-    // Four colours for a 4/4 that replaces itself, and a deck full of
-    // fetchlands turns the third land of a turn into eight damage.
-    CardRules::new_creature(mana_cost!("{R}{G}{W}{U}"), &["Elemental"], 4, 4)
-        .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&OMNATH_ABILITIES),
-);
+pub(in crate::card::sets) static OMNATH_LOCUS_OF_CREATION: CardRecord =
+    CardRecord::new_with_legacy_id(
+        2264,
+        "Omnath, Locus of Creation",
+        CardArt::new("4e4fb50c-a81f-44d3-93c5-fa9a0b37f617", "Chris Rahn"),
+        CardSet::ZendikarRising,
+        // Four colours for a 4/4 that replaces itself, and a deck full of
+        // fetchlands turns the third land of a turn into eight damage.
+        CardRules::new_creature(mana_cost!("{R}{G}{W}{U}"), &["Elemental"], 4, 4)
+            .with_supertype(CardSupertype::Legendary)
+            .with_abilities(&OMNATH_ABILITIES),
+    );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =
     &[&BLOODCHIEFS_THIRST, &OMNATH_LOCUS_OF_CREATION];

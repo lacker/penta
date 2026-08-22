@@ -8,7 +8,6 @@ use crate::card::{
     EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
     PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef,
     SpendModeDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
-    cards,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -51,8 +50,8 @@ static WAVE_EXILE_COST: [AbilityCostDef; 1] = [AbilityCostDef::RemoveCountersFro
 }];
 
 // NEM 17 — Parallax Wave
-pub(in crate::card::sets) static PARALLAX_WAVE: CardRecord = CardRecord::new(
-    cards::PARALLAX_WAVE,
+pub(in crate::card::sets) static PARALLAX_WAVE: CardRecord = CardRecord::new_with_legacy_id(
+    2081,
     "Parallax Wave",
     CardArt::new("fb552595-ca42-4b93-9a07-395e0b674a6f", "Greg Staples"),
     CardSet::Nemesis,
@@ -107,8 +106,8 @@ pub(in crate::card::sets) static PARALLAX_WAVE: CardRecord = CardRecord::new(
 );
 
 // NEM 18 — Seal of Cleansing
-pub(in crate::card::sets) static SEAL_OF_CLEANSING: CardRecord = CardRecord::new(
-    cards::SEAL_OF_CLEANSING,
+pub(in crate::card::sets) static SEAL_OF_CLEANSING: CardRecord = CardRecord::new_with_legacy_id(
+    276,
     "Seal of Cleansing",
     CardArt::new(
         "af6c921e-1b82-412c-9979-adfdf83440f7",
@@ -149,8 +148,8 @@ static DAZE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 )];
 
 // NEM 30 — Daze
-pub(in crate::card::sets) static DAZE: CardRecord = CardRecord::new(
-    cards::DAZE,
+pub(in crate::card::sets) static DAZE: CardRecord = CardRecord::new_with_legacy_id(
+    2044,
     "Daze",
     CardArt::new("d03bff25-0d5e-4dcf-8d75-6df846afea3b", "Matthew D. Wilson"),
     CardSet::Nemesis,
@@ -199,8 +198,8 @@ static SALVAGE_WINDOW: TriggerConditionDef = TriggerConditionDef::All(&[
 ]);
 
 // NEM 94 — Mogg Salvage
-pub(in crate::card::sets) static MOGG_SALVAGE: CardRecord = CardRecord::new(
-    cards::MOGG_SALVAGE,
+pub(in crate::card::sets) static MOGG_SALVAGE: CardRecord = CardRecord::new_with_legacy_id(
+    2047,
     "Mogg Salvage",
     CardArt::new("403aa48c-b684-4c54-8863-460958055a1f", "Paolo Parente"),
     CardSet::Nemesis,
@@ -225,8 +224,8 @@ pub(in crate::card::sets) static MOGG_SALVAGE: CardRecord = CardRecord::new(
 );
 
 // NEM 98 — Seal of Fire
-pub(in crate::card::sets) static SEAL_OF_FIRE: CardRecord = CardRecord::new(
-    cards::SEAL_OF_FIRE,
+pub(in crate::card::sets) static SEAL_OF_FIRE: CardRecord = CardRecord::new_with_legacy_id(
+    269,
     "Seal of Fire",
     CardArt::new(
         "37eaf1f6-4bdc-4669-9a15-50b65e016ccf",
@@ -247,8 +246,8 @@ pub(in crate::card::sets) static SEAL_OF_FIRE: CardRecord = CardRecord::new(
 );
 
 // NEM 141 — Kor Haven
-pub(in crate::card::sets) static KOR_HAVEN: CardRecord = CardRecord::new(
-    cards::KOR_HAVEN,
+pub(in crate::card::sets) static KOR_HAVEN: CardRecord = CardRecord::new_with_legacy_id(
+    308,
     "Kor Haven",
     CardArt::new("3d5529ca-5c20-4dfd-8595-96d6dfa6debe", "Darrell Riche"),
     CardSet::Nemesis,

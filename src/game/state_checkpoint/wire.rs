@@ -35,6 +35,25 @@ pub(super) fn u32_field(value: &Value, name: &str) -> Result<u32, String> {
     usize_field(value, name)
         .and_then(|v| u32::try_from(v).map_err(|_| format!("field {name} is too large")))
 }
+
+pub(super) fn card_definition_id(value: &Value) -> Result<CardDefinitionId, String> {
+    value
+        .as_u64()
+        .and_then(CardDefinitionId::try_new)
+        .ok_or_else(|| {
+            format!(
+                "card definition must be an integer from 1 through {}",
+                CardDefinitionId::MAX
+            )
+        })
+}
+
+pub(super) fn card_definition_id_field(
+    value: &Value,
+    name: &str,
+) -> Result<CardDefinitionId, String> {
+    card_definition_id(field(value, name)?).map_err(|error| format!("field {name}: {error}"))
+}
 pub(super) fn u8_field(value: &Value, name: &str) -> Result<u8, String> {
     usize_field(value, name)
         .and_then(|v| u8::try_from(v).map_err(|_| format!("field {name} is too large")))
@@ -51,15 +70,7 @@ pub(super) fn seat_value(value: &Value) -> Result<PlayerId, String> {
     }
 }
 pub(super) fn definitions(value: &Value) -> Result<Vec<CardDefinitionId>, String> {
-    array(value)?
-        .iter()
-        .map(|v| {
-            v.as_u64()
-                .and_then(|n| u16::try_from(n).ok())
-                .map(CardDefinitionId)
-                .ok_or_else(|| "card definitions must be u16 integers".into())
-        })
-        .collect()
+    array(value)?.iter().map(card_definition_id).collect()
 }
 pub(super) fn hidden_definitions(
     hidden: &Value,
@@ -76,7 +87,7 @@ pub(super) fn card(
     catalog: &CardCatalog,
 ) -> Result<CardInstance, String> {
     if catalog.get(definition).is_none() {
-        return Err(format!("unknown card definition {}", definition.0));
+        return Err(format!("unknown card definition {definition}"));
     }
     Ok(CardInstance {
         id,
@@ -97,10 +108,7 @@ pub(super) fn parse_cards(
         .iter()
         .map(|value| {
             let id = GameObjectId(u32_field(value, "objectId")?);
-            let definition = CardDefinitionId(
-                u16::try_from(usize_field(value, "definition")?)
-                    .map_err(|_| "definition is too large")?,
-            );
+            let definition = card_definition_id_field(value, "definition")?;
             card(id, definition, owner, catalog)
         })
         .collect()
@@ -363,10 +371,7 @@ pub(super) fn parse_last_seen_hand(
         .map(|card| {
             Ok((
                 GameObjectId(u32_field(card, "objectId")?),
-                CardDefinitionId(
-                    u16::try_from(usize_field(card, "definition")?)
-                        .map_err(|_| "last-seen definition is too large")?,
-                ),
+                card_definition_id_field(card, "definition")?,
             ))
         })
         .collect::<Result<Vec<_>, String>>()?;
@@ -767,7 +772,7 @@ pub(super) fn parse_retired_objects(
             RetiredObjectSnapshot::Card { card: snapshot } => {
                 let parsed = card(
                     GameObjectId(snapshot.object_id),
-                    CardDefinitionId(snapshot.definition),
+                    snapshot.definition,
                     player_from_index(snapshot.owner)?,
                     &game.catalog,
                 )?;
@@ -870,7 +875,7 @@ pub(super) fn parse_completion(
         EntryCompletionSnapshot::SpellResolved { card, definition } => {
             Ok(EntryCompletion::SpellResolved {
                 card: GameObjectId(card),
-                definition: CardDefinitionId(definition),
+                definition,
             })
         }
         EntryCompletionSnapshot::AttachSource { source } => Ok(EntryCompletion::AttachSource {

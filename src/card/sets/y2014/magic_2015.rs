@@ -5,7 +5,7 @@ use crate::card::{
     AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType, EffectDef,
     EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
     PlayerRelation, ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    abilities, cards,
+    abilities,
 };
 use crate::mana_cost;
 
@@ -74,8 +74,8 @@ static GOBLIN_RABBLEMASTER_ABILITIES: [AbilityDef; 3] = [
 ];
 
 // M15 145 — Goblin Rabblemaster
-pub(in crate::card::sets) static GOBLIN_RABBLEMASTER: CardRecord = CardRecord::new(
-    cards::GOBLIN_RABBLEMASTER,
+pub(in crate::card::sets) static GOBLIN_RABBLEMASTER: CardRecord = CardRecord::new_with_legacy_id(
+    2263,
     "Goblin Rabblemaster",
     CardArt::new("ee9c697e-d2c0-413b-9142-ecf5d7cf5322", "Svetlin Velinov"),
     CardSet::Magic2015,

@@ -241,7 +241,7 @@ fn semantic_target_labels_are_derived_from_predicates() {
 
 #[test]
 fn printing_ids_distinguish_variants_within_one_set() {
-    let definition = CardDefinitionId(7);
+    let definition = CardDefinitionId::new(7);
     let primary = CardPrintingId::new(definition, CardSet::Alpha);
     let alternate = CardPrintingId::with_variant(definition, CardSet::Alpha, 1);
 
@@ -255,7 +255,7 @@ fn printing_ids_distinguish_variants_within_one_set() {
 
 #[test]
 fn definitions_start_with_their_primary_printing() {
-    let id = CardDefinitionId(7);
+    let id = CardDefinitionId::new(7);
     let definition = CardDefinition::new(
         id,
         "Test Card",
@@ -466,7 +466,7 @@ fn clause_implementation_drives_the_ordinary_play_option_gate() {
         CardEffectStatus::MetadataOnly
     );
     let metadata_definition = CardDefinition::new(
-        CardDefinitionId(8),
+        CardDefinitionId::new(8),
         "Unsupported",
         CardSet::Alpha,
         false,

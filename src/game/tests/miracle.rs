@@ -364,7 +364,7 @@ fn terminus_offer_contains_only_its_miracle_cost_and_survives_revalidation() {
 
 #[test]
 fn miracle_offer_names_the_exact_linked_clause_across_same_kind_play_options() {
-    let definition_id = CardDefinitionId(10_300);
+    let definition_id = CardDefinitionId::new(10_300);
     let first_rules = CardRules::new_sorcery(ManaCost::new(6, 1))
         .with_abilities(&FIRST_DUPLICATE_MIRACLE_ABILITIES);
     let second_rules = CardRules::new_sorcery(ManaCost::new(5, 1))

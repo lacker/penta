@@ -363,7 +363,7 @@ fn resolved_prevention_retains_controller_lki_and_rejects_spliced_provenance() {
         },
     );
 
-    let definition_id = CardDefinitionId(10_064);
+    let definition_id = CardDefinitionId::new(10_064);
     let mut definition = CardDefinition::new(
         definition_id,
         "Checkpoint Prevention Source",
@@ -431,7 +431,7 @@ fn resolved_prevention_retains_controller_lki_and_rejects_spliced_provenance() {
 
     let mut malformed = wire.clone();
     malformed["checkpoint"]["damagePreventions"][0]["sourceAbility"]["ability"]["definition"] =
-        json!(crate::card::cards::LIGHTNING_BOLT.0);
+        json!(crate::card::cards::LIGHTNING_BOLT.get());
     let error = Game::from_observation_checkpoint(
         game.catalog.clone(),
         game.format,

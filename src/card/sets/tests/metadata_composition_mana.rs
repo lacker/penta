@@ -352,7 +352,7 @@ fn migrated_activated_cards_preserve_their_derived_implementation_status() {
 fn early_core_sets_reuse_definitions_without_duplicating_identity() {
     let all_definition_ids = SET_MODULES
         .iter()
-        .flat_map(|module| module.cards.iter().map(|record| record.id))
+        .flat_map(|module| module.cards.iter().map(|record| record.id()))
         .collect::<HashSet<_>>();
     let basics = [
         cards::PLAINS,
@@ -390,6 +390,6 @@ fn early_core_sets_reuse_definitions_without_duplicating_identity() {
         }
     }
 
-    assert_eq!(y1993::beta::VOLCANIC_ISLAND.id, cards::VOLCANIC_ISLAND);
+    assert_eq!(y1993::beta::VOLCANIC_ISLAND.id(), cards::VOLCANIC_ISLAND);
     assert_eq!(y1993::beta::VOLCANIC_ISLAND.debut_set, CardSet::Beta);
 }

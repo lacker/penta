@@ -457,7 +457,7 @@ fn protocol_reincarnates_public_object_identity_across_cast_zones() {
                     .iter()
                     .find(|card| card["objectId"].as_u64() == Some(hand_raw))?;
                 let definition_raw = hand_card["definition"].as_u64()?;
-                let definition = crate::CardDefinitionId(u16::try_from(definition_raw).ok()?);
+                let definition = crate::CardDefinitionId::try_new(definition_raw)?;
                 if !game
                     .catalog
                     .get(definition)
@@ -547,7 +547,7 @@ fn protocol_reincarnates_public_object_identity_across_cast_zones() {
         .as_array()
         .expect("stack")
         .iter()
-        .find(|object| object["definition"].as_u64() == Some(u64::from(definition_id.0)))
+        .find(|object| object["definition"].as_u64() == Some(definition_id.get()))
         .expect("cast spell is public on the stack");
     assert_eq!(spell["kind"], "Spell");
     assert!(spell["sourceObjectId"].is_null());
@@ -581,7 +581,7 @@ fn protocol_reincarnates_public_object_identity_across_cast_zones() {
         .as_array()
         .expect("battlefield")
         .iter()
-        .find(|object| object["definition"].as_u64() == Some(u64::from(definition_id.0)))
+        .find(|object| object["definition"].as_u64() == Some(definition_id.get()))
         .expect("resolved permanent is public on the battlefield");
     let permanent_id = GameObjectId(
         u32::try_from(permanent["objectId"].as_u64().expect("permanent object ID"))

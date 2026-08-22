@@ -144,12 +144,19 @@ impl Game {
     ///
     /// Definitions are the `definition` ids from `catalog()`.
     #[allow(clippy::needless_pass_by_value)]
-    fn set_hand(&mut self, seat: &str, definitions: Vec<u16>) -> PyResult<()> {
+    fn set_hand(&mut self, seat: &str, definitions: Vec<u64>) -> PyResult<()> {
         let seat = seat_from_name(seat)?;
         let cards: Vec<_> = definitions
             .into_iter()
-            .map(engine::CardDefinitionId)
-            .collect();
+            .map(|definition| {
+                engine::CardDefinitionId::try_new(definition).ok_or_else(|| {
+                    PyValueError::new_err(format!(
+                        "card definition IDs must be between 1 and {}",
+                        engine::CardDefinitionId::MAX
+                    ))
+                })
+            })
+            .collect::<PyResult<_>>()?;
         self.inner
             .set_hand(seat, &cards)
             .map_err(PyValueError::new_err)
@@ -157,12 +164,19 @@ impl Game {
 
     /// Replaces a seat's library, top card first. See `set_hand`.
     #[allow(clippy::needless_pass_by_value)]
-    fn set_library(&mut self, seat: &str, definitions: Vec<u16>) -> PyResult<()> {
+    fn set_library(&mut self, seat: &str, definitions: Vec<u64>) -> PyResult<()> {
         let seat = seat_from_name(seat)?;
         let cards: Vec<_> = definitions
             .into_iter()
-            .map(engine::CardDefinitionId)
-            .collect();
+            .map(|definition| {
+                engine::CardDefinitionId::try_new(definition).ok_or_else(|| {
+                    PyValueError::new_err(format!(
+                        "card definition IDs must be between 1 and {}",
+                        engine::CardDefinitionId::MAX
+                    ))
+                })
+            })
+            .collect::<PyResult<_>>()?;
         self.inner
             .set_library(seat, &cards)
             .map_err(PyValueError::new_err)

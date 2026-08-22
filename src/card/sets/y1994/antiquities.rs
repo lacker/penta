@@ -9,7 +9,7 @@ use crate::card::{
     KeywordAbility, ManaColor, ManaRestrictionDef, ObjectPredicateDef, ObjectQueryDef,
     ObjectRefDef, PayOrDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, ScaledValueDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities, cards,
+    ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -29,41 +29,41 @@ static ENERGY_FLUX_GRANTED_ABILITY: AbilityDef = AbilityDef::triggered(
 );
 
 // ATQ 1 — Argivian Archaeologist
-pub(in crate::card::sets) static ARGIVIAN_ARCHAEOLOGIST: CardRecord = CardRecord::new(
-    cards::ARGIVIAN_ARCHAEOLOGIST,
-    "Argivian Archaeologist",
-    CardArt::new("ce83a3cb-467d-44f6-a051-4855c8cf52a6", "Amy Weber"),
-    CardSet::Antiquities,
-    CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Human", "Artificer"], 1, 1).with_abilities(
-        &[AbilityDef::activated_with_targets(
-            "{W}{W}, {T}: Return target artifact card from your graveyard to your hand.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{W}{W}")),
-                AbilityCostDef::TapSource,
-            ],
-            &[AbilityTargetDef::exactly_one(
-                AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::HasType(CardType::Artifact),
-                    zones: &[ZoneKind::Graveyard],
+pub(in crate::card::sets) static ARGIVIAN_ARCHAEOLOGIST: CardRecord =
+    CardRecord::new_with_legacy_id(
+        375,
+        "Argivian Archaeologist",
+        CardArt::new("ce83a3cb-467d-44f6-a051-4855c8cf52a6", "Amy Weber"),
+        CardSet::Antiquities,
+        CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Human", "Artificer"], 1, 1)
+            .with_abilities(&[AbilityDef::activated_with_targets(
+                "{W}{W}, {T}: Return target artifact card from your graveyard to your hand.",
+                &[
+                    AbilityCostDef::Mana(mana_cost!("{W}{W}")),
+                    AbilityCostDef::TapSource,
+                ],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Artifact),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    },
+                )],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    arrival_effect: None,
+                    attachment: None,
                     controller: None,
-                    owner: Some(PlayerRelation::You),
                 },
-            )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                controller: None,
-            },
-        )],
-    ),
-);
+            )]),
+    );
 
 // ATQ 2 — Argivian Blacksmith
-pub(in crate::card::sets) static ARGIVIAN_BLACKSMITH: CardRecord = CardRecord::new(
-    cards::ARGIVIAN_BLACKSMITH,
+pub(in crate::card::sets) static ARGIVIAN_BLACKSMITH: CardRecord = CardRecord::new_with_legacy_id(
+    1440,
     "Argivian Blacksmith",
     CardArt::new("5f604338-5ee4-4c47-ad5a-5c805c96c8de", "Kerstin Kaman"),
     CardSet::Antiquities,
@@ -91,8 +91,8 @@ pub(in crate::card::sets) static ARGIVIAN_BLACKSMITH: CardRecord = CardRecord::n
 // Audit: blocked — Needs a targeting restriction keyed to the source's card type for “Enchanted creature can't be the target of abilities from artifact sources”; the artifact-source damage prevention and the artifact-creature blocking restriction both exist.
 
 // ATQ 4 — Circle of Protection: Artifacts
-pub(in crate::card::sets) static CIRCLE_OF_PROTECTION_ARTIFACTS: CardRecord = CardRecord::new(
-    cards::CIRCLE_OF_PROTECTION_ARTIFACTS,
+pub(in crate::card::sets) static CIRCLE_OF_PROTECTION_ARTIFACTS: CardRecord = CardRecord::new_with_legacy_id(
+    1451,
     "Circle of Protection: Artifacts",
     CardArt::new("22ebd5a3-fef8-4097-b038-89a6cb38227d", "Pete Venters"),
     CardSet::Antiquities,
@@ -106,8 +106,8 @@ pub(in crate::card::sets) static CIRCLE_OF_PROTECTION_ARTIFACTS: CardRecord = Ca
 );
 
 // ATQ 5 — Damping Field
-pub(in crate::card::sets) static DAMPING_FIELD: CardRecord = CardRecord::new(
-    cards::DAMPING_FIELD,
+pub(in crate::card::sets) static DAMPING_FIELD: CardRecord = CardRecord::new_with_legacy_id(
+    1735,
     "Damping Field",
     CardArt::new("229b1109-4a8d-49d1-9c28-04799aa719a7", "Justin Hampton"),
     CardSet::Antiquities,
@@ -135,8 +135,8 @@ static MARTYRS_UNTAPPED: EffectRecipientDef = EffectRecipientDef::matching_objec
 );
 
 // ATQ 6 — Martyrs of Korlis
-pub(in crate::card::sets) static MARTYRS_OF_KORLIS: CardRecord = CardRecord::new(
-    cards::MARTYRS_OF_KORLIS,
+pub(in crate::card::sets) static MARTYRS_OF_KORLIS: CardRecord = CardRecord::new_with_legacy_id(
+    1685,
     "Martyrs of Korlis",
     CardArt::new(
         "bde037b9-4947-4ff7-8ea4-e9f1a7e4ab88",
@@ -167,8 +167,8 @@ static REVERSE_POLARITY_DOUBLED: ScaledValueDef = ScaledValueDef::new(
 );
 
 // ATQ 7 — Reverse Polarity
-pub(in crate::card::sets) static REVERSE_POLARITY: CardRecord = CardRecord::new(
-    cards::REVERSE_POLARITY,
+pub(in crate::card::sets) static REVERSE_POLARITY: CardRecord = CardRecord::new_with_legacy_id(
+    1715,
     "Reverse Polarity",
     CardArt::new("da7ed8ba-3886-4779-a9b3-6892a7ed3527", "Justin Hampton"),
     CardSet::Antiquities,
@@ -186,8 +186,8 @@ pub(in crate::card::sets) static REVERSE_POLARITY: CardRecord = CardRecord::new(
 // Audit: blocked — Needs ordered-library inspection, selection, and visibility handling for “Put any number of target artifact cards from target player's graveyard on top of their library in any order”.
 
 // ATQ 9 — Energy Flux
-pub(in crate::card::sets) static ENERGY_FLUX: CardRecord = CardRecord::new(
-    cards::ENERGY_FLUX,
+pub(in crate::card::sets) static ENERGY_FLUX: CardRecord = CardRecord::new_with_legacy_id(
+    113,
     "Energy Flux",
     CardArt::new("bd1f624b-e8f2-462f-838a-7cb9e8fda988", "Kaja Foglio"),
     CardSet::Antiquities,
@@ -202,8 +202,8 @@ pub(in crate::card::sets) static ENERGY_FLUX: CardRecord = CardRecord::new(
 );
 
 // ATQ 10 — Hurkyl's Recall
-pub(in crate::card::sets) static HURKYLS_RECALL: CardRecord = CardRecord::new(
-    cards::HURKYLS_RECALL,
+pub(in crate::card::sets) static HURKYLS_RECALL: CardRecord = CardRecord::new_with_legacy_id(
+    115,
     "Hurkyl's Recall",
     CardArt::new("f32373dd-06d8-45d1-8777-3b1411bcb30a", "NéNé Thomas"),
     CardSet::Antiquities,
@@ -230,8 +230,8 @@ pub(in crate::card::sets) static HURKYLS_RECALL: CardRecord = CardRecord::new(
 // Audit: blocked — Needs cost/mana provenance or dynamic payment support for “Enchanted artifact's activated abilities cost {2} less to activate. This effect can't reduce the mana in that cost to less than one mana”.
 
 // ATQ 12 — Reconstruction
-pub(in crate::card::sets) static RECONSTRUCTION: CardRecord = CardRecord::new(
-    cards::RECONSTRUCTION,
+pub(in crate::card::sets) static RECONSTRUCTION: CardRecord = CardRecord::new_with_legacy_id(
+    376,
     "Reconstruction",
     CardArt::new("1aa2d27b-cc25-4baa-86f4-4db45b30e2a4", "Anson Maddocks"),
     CardSet::Antiquities,
@@ -257,8 +257,8 @@ pub(in crate::card::sets) static RECONSTRUCTION: CardRecord = CardRecord::new(
 );
 
 // ATQ 13 — Sage of Lat-Nam
-pub(in crate::card::sets) static SAGE_OF_LAT_NAM: CardRecord = CardRecord::new(
-    cards::SAGE_OF_LAT_NAM,
+pub(in crate::card::sets) static SAGE_OF_LAT_NAM: CardRecord = CardRecord::new_with_legacy_id(
+    122,
     "Sage of Lat-Nam",
     CardArt::new("b4ff60ce-073c-46b8-807c-8b40467b960c", "Pete Venters"),
     CardSet::Antiquities,
@@ -287,8 +287,8 @@ pub(in crate::card::sets) static SAGE_OF_LAT_NAM: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a trigger event for a player activating an ability of a named permanent, including inspection of whether {T} is among its costs. The tap half is available.
 
 // ATQ 16 — Gate to Phyrexia
-pub(in crate::card::sets) static GATE_TO_PHYREXIA: CardRecord = CardRecord::new(
-    cards::GATE_TO_PHYREXIA,
+pub(in crate::card::sets) static GATE_TO_PHYREXIA: CardRecord = CardRecord::new_with_legacy_id(
+    1461,
     "Gate to Phyrexia",
     CardArt::new("1f372950-6693-4838-80ef-8fd9aa3e0349", "Sandra Everingham"),
     CardSet::Antiquities,
@@ -321,8 +321,8 @@ static GREMLIN_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_pe
 )];
 
 // ATQ 18 — Phyrexian Gremlins
-pub(in crate::card::sets) static PHYREXIAN_GREMLINS: CardRecord = CardRecord::new(
-    cards::PHYREXIAN_GREMLINS,
+pub(in crate::card::sets) static PHYREXIAN_GREMLINS: CardRecord = CardRecord::new_with_legacy_id(
+    1682,
     "Phyrexian Gremlins",
     CardArt::new("21a985a9-5612-4844-982e-fd1aa6249770", "Amy Weber"),
     CardSet::Antiquities,
@@ -377,8 +377,8 @@ static XENIC_POLTERGEIST_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exac
 )];
 
 // ATQ 20 — Xenic Poltergeist
-pub(in crate::card::sets) static XENIC_POLTERGEIST: CardRecord = CardRecord::new(
-    cards::XENIC_POLTERGEIST,
+pub(in crate::card::sets) static XENIC_POLTERGEIST: CardRecord = CardRecord::new_with_legacy_id(
+    1815,
     "Xenic Poltergeist",
     CardArt::new("5149ffff-d38f-458e-bcfa-a4b6b332a0b4", "Dan Frazier"),
     CardSet::Antiquities,
@@ -401,8 +401,8 @@ pub(in crate::card::sets) static XENIC_POLTERGEIST: CardRecord = CardRecord::new
 // Audit: blocked — Needs an optional artifact-sacrifice choice whose declined or impossible branch taps the source and deals damage.
 
 // ATQ 22 — Artifact Blast
-pub(in crate::card::sets) static ARTIFACT_BLAST: CardRecord = CardRecord::new(
-    cards::ARTIFACT_BLAST,
+pub(in crate::card::sets) static ARTIFACT_BLAST: CardRecord = CardRecord::new_with_legacy_id(
+    377,
     "Artifact Blast",
     CardArt::new("1506d99d-7b2e-4101-84a5-c950dadb263a", "Mark Poole"),
     CardSet::Antiquities,
@@ -413,8 +413,8 @@ pub(in crate::card::sets) static ARTIFACT_BLAST: CardRecord = CardRecord::new(
 );
 
 // ATQ 23 — Atog
-pub(in crate::card::sets) static ATOG: CardRecord = CardRecord::new(
-    cards::ATOG,
+pub(in crate::card::sets) static ATOG: CardRecord = CardRecord::new_with_legacy_id(
+    2,
     "Atog",
     CardArt::new("2249fc40-4412-48fd-800a-7ea3678aee3f", "Jesper Myrfors"),
     CardSet::Antiquities,
@@ -460,8 +460,8 @@ static DETONATE_EFFECT: [EffectDef; 2] = [
 ];
 
 // ATQ 24 — Detonate
-pub(in crate::card::sets) static DETONATE: CardRecord = CardRecord::new(
-    cards::DETONATE,
+pub(in crate::card::sets) static DETONATE: CardRecord = CardRecord::new_with_legacy_id(
+    8,
     "Detonate",
     CardArt::new(
         "ffd7eb90-ae95-49df-898a-9510187bce1c",
@@ -478,8 +478,8 @@ pub(in crate::card::sets) static DETONATE: CardRecord = CardRecord::new(
 );
 
 // ATQ 25 — Dwarven Weaponsmith
-pub(in crate::card::sets) static DWARVEN_WEAPONSMITH: CardRecord = CardRecord::new(
-    cards::DWARVEN_WEAPONSMITH,
+pub(in crate::card::sets) static DWARVEN_WEAPONSMITH: CardRecord = CardRecord::new_with_legacy_id(
+    1458,
     "Dwarven Weaponsmith",
     CardArt::new("0848d94a-2704-460f-986b-b192dd6d26b7", "Mark Poole"),
     CardSet::Antiquities,
@@ -511,8 +511,8 @@ pub(in crate::card::sets) static DWARVEN_WEAPONSMITH: CardRecord = CardRecord::n
 // Audit: blocked — Needs a deterministic recorded coin-flip choice and both result branches for “{T}: Flip a coin. If you win the flip, draw a card. If you lose the flip, counter target artifact spell you control that isn't the target of an ability from another creature named Goblin…”.
 
 // ATQ 27 — Orcish Mechanics
-pub(in crate::card::sets) static ORCISH_MECHANICS: CardRecord = CardRecord::new(
-    cards::ORCISH_MECHANICS,
+pub(in crate::card::sets) static ORCISH_MECHANICS: CardRecord = CardRecord::new_with_legacy_id(
+    37,
     "Orcish Mechanics",
     CardArt::new("5e34fc6b-5f00-4a22-9ee2-afc1caf99961", "Pete Venters"),
     CardSet::Antiquities,
@@ -538,8 +538,8 @@ pub(in crate::card::sets) static ORCISH_MECHANICS: CardRecord = CardRecord::new(
 );
 
 // ATQ 28 — Shatterstorm
-pub(in crate::card::sets) static SHATTERSTORM: CardRecord = CardRecord::new(
-    cards::SHATTERSTORM,
+pub(in crate::card::sets) static SHATTERSTORM: CardRecord = CardRecord::new_with_legacy_id(
+    378,
     "Shatterstorm",
     CardArt::new("0987461a-45c0-4956-8627-cd27a7e038d0", "Dan Frazier"),
     CardSet::Antiquities,
@@ -564,8 +564,8 @@ static ARTIFACT_CREATURE: ObjectPredicateDef = ObjectPredicateDef::All(&[
 ]);
 
 // ATQ 29 — Argothian Pixies
-pub(in crate::card::sets) static ARGOTHIAN_PIXIES: CardRecord = CardRecord::new(
-    cards::ARGOTHIAN_PIXIES,
+pub(in crate::card::sets) static ARGOTHIAN_PIXIES: CardRecord = CardRecord::new_with_legacy_id(
+    108,
     "Argothian Pixies",
     CardArt::new("5712e87a-2381-4f5b-a853-6973841f9bf1", "Amy Weber"),
     CardSet::Antiquities,
@@ -590,8 +590,8 @@ pub(in crate::card::sets) static ARGOTHIAN_PIXIES: CardRecord = CardRecord::new(
 );
 
 // ATQ 30 — Argothian Treefolk
-pub(in crate::card::sets) static ARGOTHIAN_TREEFOLK: CardRecord = CardRecord::new(
-    cards::ARGOTHIAN_TREEFOLK,
+pub(in crate::card::sets) static ARGOTHIAN_TREEFOLK: CardRecord = CardRecord::new_with_legacy_id(
+    1418,
     "Argothian Treefolk",
     CardArt::new("8db8882e-4db6-4e3c-9e9e-8c71d557a071", "Amy Weber"),
     CardSet::Antiquities,
@@ -609,8 +609,8 @@ pub(in crate::card::sets) static ARGOTHIAN_TREEFOLK: CardRecord = CardRecord::ne
 );
 
 // ATQ 31 — Citanul Druid
-pub(in crate::card::sets) static CITANUL_DRUID: CardRecord = CardRecord::new(
-    cards::CITANUL_DRUID,
+pub(in crate::card::sets) static CITANUL_DRUID: CardRecord = CardRecord::new_with_legacy_id(
+    379,
     "Citanul Druid",
     CardArt::new("f8a130dc-3b1f-4fae-8459-b26bb5647fec", "Jeff A. Menges"),
     CardSet::Antiquities,
@@ -631,8 +631,8 @@ pub(in crate::card::sets) static CITANUL_DRUID: CardRecord = CardRecord::new(
 );
 
 // ATQ 32 — Crumble
-pub(in crate::card::sets) static CRUMBLE: CardRecord = CardRecord::new(
-    cards::CRUMBLE,
+pub(in crate::card::sets) static CRUMBLE: CardRecord = CardRecord::new_with_legacy_id(
+    380,
     "Crumble",
     CardArt::new("d2101f86-8d3c-4ba8-ac42-bd3df0644280", "Jesper Myrfors"),
     CardSet::Antiquities,
@@ -658,8 +658,8 @@ pub(in crate::card::sets) static CRUMBLE: CardRecord = CardRecord::new(
 
 // ATQ 33 — Gaea's Avenger
 // Audit: partial — Its power and toughness are a battlefield-only continuous effect rather than a characteristic-defining ability, so they read as printed in every other zone.
-pub(in crate::card::sets) static GAEAS_AVENGER: CardRecord = CardRecord::new(
-    cards::GAEAS_AVENGER,
+pub(in crate::card::sets) static GAEAS_AVENGER: CardRecord = CardRecord::new_with_legacy_id(
+    1468,
     "Gaea's Avenger",
     CardArt::new("39d763bd-b0a9-46ba-bcd2-9304063446f2", "Pete Venters"),
     CardSet::Antiquities,
@@ -698,8 +698,8 @@ static ARTIFACTS_YOUR_OPPONENTS_CONTROL: ObjectQueryDef = ObjectQueryDef::matchi
 // Audit: blocked — Needs static animation of every noncreature artifact with dynamic mana-value power/toughness and ability removal.
 
 // ATQ 36 — Amulet of Kroog
-pub(in crate::card::sets) static AMULET_OF_KROOG: CardRecord = CardRecord::new(
-    cards::AMULET_OF_KROOG,
+pub(in crate::card::sets) static AMULET_OF_KROOG: CardRecord = CardRecord::new_with_legacy_id(
+    1411,
     "Amulet of Kroog",
     CardArt::new(
         "b094f8dd-0184-41a2-9767-e848a6e4eac1",
@@ -728,8 +728,8 @@ pub(in crate::card::sets) static AMULET_OF_KROOG: CardRecord = CardRecord::new(
 );
 
 // ATQ 37 — Armageddon Clock
-pub(in crate::card::sets) static ARMAGEDDON_CLOCK: CardRecord = CardRecord::new(
-    cards::ARMAGEDDON_CLOCK,
+pub(in crate::card::sets) static ARMAGEDDON_CLOCK: CardRecord = CardRecord::new_with_legacy_id(
+    1817,
     "Armageddon Clock",
     CardArt::new("44a31889-6a8d-450c-a73d-381a7ff28bf9", "Amy Weber"),
     CardSet::Antiquities,
@@ -779,8 +779,8 @@ pub(in crate::card::sets) static ARMAGEDDON_CLOCK: CardRecord = CardRecord::new(
 // Audit: blocked — Needs mana-ability activation to select and sacrifice a different creature; the mana runtime can currently sacrifice only the source.
 
 // ATQ 39 — Ashnod's Battle Gear
-pub(in crate::card::sets) static ASHNODS_BATTLE_GEAR: CardRecord = CardRecord::new(
-    cards::ASHNODS_BATTLE_GEAR,
+pub(in crate::card::sets) static ASHNODS_BATTLE_GEAR: CardRecord = CardRecord::new_with_legacy_id(
+    1664,
     "Ashnod's Battle Gear",
     CardArt::new("aeeec853-dd3f-4ac3-8b20-c07fada8888f", "Mark Poole"),
     CardSet::Antiquities,
@@ -838,8 +838,8 @@ static ASHNODS_TRANSMOGRANT_TARGET: [AbilityTargetDef; 1] =
     )];
 
 // ATQ 40 — Ashnod's Transmogrant
-pub(in crate::card::sets) static ASHNODS_TRANSMOGRANT: CardRecord = CardRecord::new(
-    cards::ASHNODS_TRANSMOGRANT,
+pub(in crate::card::sets) static ASHNODS_TRANSMOGRANT: CardRecord = CardRecord::new_with_legacy_id(
+    1810,
     "Ashnod's Transmogrant",
     CardArt::new("2aa5b289-36ba-49b1-a5ac-f23bf71f8241", "Mark Tedin"),
     CardSet::Antiquities,
@@ -855,8 +855,8 @@ pub(in crate::card::sets) static ASHNODS_TRANSMOGRANT: CardRecord = CardRecord::
 static BATTERING_RAM_BANDING: AbilityDef = abilities::banding();
 
 // ATQ 41 — Battering Ram
-pub(in crate::card::sets) static BATTERING_RAM: CardRecord = CardRecord::new(
-    cards::BATTERING_RAM,
+pub(in crate::card::sets) static BATTERING_RAM: CardRecord = CardRecord::new_with_legacy_id(
+    1797,
     "Battering Ram",
     CardArt::new("f7a69e35-d209-41c0-aa3c-c78414617075", "Jeff A. Menges"),
     CardSet::Antiquities,
@@ -903,8 +903,8 @@ static CANDELABRA_X_LANDS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_ch
 )];
 
 // ATQ 43 — Candelabra of Tawnos
-pub(in crate::card::sets) static CANDELABRA_OF_TAWNOS: CardRecord = CardRecord::new(
-    cards::CANDELABRA_OF_TAWNOS,
+pub(in crate::card::sets) static CANDELABRA_OF_TAWNOS: CardRecord = CardRecord::new_with_legacy_id(
+    1829,
     "Candelabra of Tawnos",
     CardArt::new("35a335bf-7358-460f-b7c9-1e8bc4300f64", "Douglas Shuler"),
     CardSet::Antiquities,
@@ -924,8 +924,8 @@ pub(in crate::card::sets) static CANDELABRA_OF_TAWNOS: CardRecord = CardRecord::
 );
 
 // ATQ 44 — Clay Statue
-pub(in crate::card::sets) static CLAY_STATUE: CardRecord = CardRecord::new(
-    cards::CLAY_STATUE,
+pub(in crate::card::sets) static CLAY_STATUE: CardRecord = CardRecord::new_with_legacy_id(
+    1375,
     "Clay Statue",
     CardArt::new("64975352-8d35-4d02-94ac-fa0c6ee12409", "Jesper Myrfors"),
     CardSet::Antiquities,
@@ -941,8 +941,8 @@ pub(in crate::card::sets) static CLAY_STATUE: CardRecord = CardRecord::new(
 // Audit: blocked — Needs card-specific counter state and counter-consuming effects for “{X}, {T}: Put up to X +1/+0 counters on this creature. This ability can't cause the total number of +1/+0 counters on this creature to be greater than four. Activate only during your upkeep”.
 
 // ATQ 46 — Colossus of Sardia
-pub(in crate::card::sets) static COLOSSUS_OF_SARDIA: CardRecord = CardRecord::new(
-    cards::COLOSSUS_OF_SARDIA,
+pub(in crate::card::sets) static COLOSSUS_OF_SARDIA: CardRecord = CardRecord::new_with_legacy_id(
+    1464,
     "Colossus of Sardia",
     CardArt::new("067c44e9-1b23-42fd-9acb-daafb62c32a2", "Jesper Myrfors"),
     CardSet::Antiquities,
@@ -967,8 +967,8 @@ pub(in crate::card::sets) static COLOSSUS_OF_SARDIA: CardRecord = CardRecord::ne
 );
 
 // ATQ 47 — Coral Helm
-pub(in crate::card::sets) static CORAL_HELM: CardRecord = CardRecord::new(
-    cards::CORAL_HELM,
+pub(in crate::card::sets) static CORAL_HELM: CardRecord = CardRecord::new_with_legacy_id(
+    1807,
     "Coral Helm",
     CardArt::new("6c6df9db-0a46-40a5-ae9d-59f47dae9056", "Amy Weber"),
     CardSet::Antiquities,
@@ -996,8 +996,8 @@ pub(in crate::card::sets) static CORAL_HELM: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a hidden-zone decision and continuation for “The chosen player's maximum hand size is four”.
 
 // ATQ 49 — Dragon Engine
-pub(in crate::card::sets) static DRAGON_ENGINE: CardRecord = CardRecord::new(
-    cards::DRAGON_ENGINE,
+pub(in crate::card::sets) static DRAGON_ENGINE: CardRecord = CardRecord::new_with_legacy_id(
+    381,
     "Dragon Engine",
     CardArt::new("07793a71-1106-4303-b620-e403bd378020", "Anson Maddocks"),
     CardSet::Antiquities,
@@ -1018,8 +1018,8 @@ pub(in crate::card::sets) static DRAGON_ENGINE: CardRecord = CardRecord::new(
 );
 
 // ATQ 50 — Feldon's Cane
-pub(in crate::card::sets) static FELDONS_CANE: CardRecord = CardRecord::new(
-    cards::FELDONS_CANE,
+pub(in crate::card::sets) static FELDONS_CANE: CardRecord = CardRecord::new_with_legacy_id(
+    1480,
     "Feldon's Cane",
     CardArt::new("bb6af436-bcfd-4d47-a1aa-e84b587a725a", "Mark Tedin"),
     CardSet::Antiquities,
@@ -1030,7 +1030,7 @@ pub(in crate::card::sets) static FELDONS_CANE: CardRecord = CardRecord::new(
     )),
 );
 
-/// The documented composition: move the cards, then shuffle the library they
+/// The documented composition: move the then shuffle the library they
 /// arrived in.
 static FELDONS_CANE_SHUFFLE: [EffectDef; 2] = [
     EffectDef::MoveToZone {
@@ -1052,8 +1052,8 @@ static FELDONS_CANE_SHUFFLE: [EffectDef; 2] = [
 
 // ATQ 51 — Golgothian Sylex
 // Audit: partial — Its expansion predicate follows physical identity rather than the permanent's current copied name.
-pub(in crate::card::sets) static GOLGOTHIAN_SYLEX: CardRecord = CardRecord::new(
-    cards::GOLGOTHIAN_SYLEX,
+pub(in crate::card::sets) static GOLGOTHIAN_SYLEX: CardRecord = CardRecord::new_with_legacy_id(
+    382,
     "Golgothian Sylex",
     CardArt::new("856be1dd-a20b-49c2-be9d-7db76c7efd8b", "Kerstin Kaman"),
     CardSet::Antiquities,
@@ -1073,8 +1073,8 @@ pub(in crate::card::sets) static GOLGOTHIAN_SYLEX: CardRecord = CardRecord::new(
 );
 
 // ATQ 52 — Grapeshot Catapult
-pub(in crate::card::sets) static GRAPESHOT_CATAPULT: CardRecord = CardRecord::new(
-    cards::GRAPESHOT_CATAPULT,
+pub(in crate::card::sets) static GRAPESHOT_CATAPULT: CardRecord = CardRecord::new_with_legacy_id(
+    383,
     "Grapeshot Catapult",
     CardArt::new("4c7a7348-c82e-453c-975c-e5365e152a3a", "Dan Frazier"),
     CardSet::Antiquities,
@@ -1097,8 +1097,8 @@ pub(in crate::card::sets) static GRAPESHOT_CATAPULT: CardRecord = CardRecord::ne
 );
 
 // ATQ 53 — Ivory Tower
-pub(in crate::card::sets) static IVORY_TOWER: CardRecord = CardRecord::new(
-    cards::IVORY_TOWER,
+pub(in crate::card::sets) static IVORY_TOWER: CardRecord = CardRecord::new_with_legacy_id(
+    50,
     "Ivory Tower",
     CardArt::new(
         "a5f23039-45ca-4c15-af50-bfd40ea26453",
@@ -1124,8 +1124,8 @@ pub(in crate::card::sets) static IVORY_TOWER: CardRecord = CardRecord::new(
 );
 
 // ATQ 54 — Jalum Tome
-pub(in crate::card::sets) static JALUM_TOME: CardRecord = CardRecord::new(
-    cards::JALUM_TOME,
+pub(in crate::card::sets) static JALUM_TOME: CardRecord = CardRecord::new_with_legacy_id(
+    384,
     "Jalum Tome",
     CardArt::new("5a5b7c5a-ee63-4a1b-9a0f-fb0a309168df", "Tom Wänerstrand"),
     CardSet::Antiquities,
@@ -1153,8 +1153,8 @@ pub(in crate::card::sets) static JALUM_TOME: CardRecord = CardRecord::new(
 );
 
 // ATQ 55 — Mightstone
-pub(in crate::card::sets) static MIGHTSTONE: CardRecord = CardRecord::new(
-    cards::MIGHTSTONE,
+pub(in crate::card::sets) static MIGHTSTONE: CardRecord = CardRecord::new_with_legacy_id(
+    385,
     "Mightstone",
     CardArt::new("b28ba599-5299-4831-a118-1712ada10ef6", "Pete Venters"),
     CardSet::Antiquities,
@@ -1178,8 +1178,8 @@ pub(in crate::card::sets) static MIGHTSTONE: CardRecord = CardRecord::new(
 );
 
 // ATQ 56 — Millstone
-pub(in crate::card::sets) static MILLSTONE: CardRecord = CardRecord::new(
-    cards::MILLSTONE,
+pub(in crate::card::sets) static MILLSTONE: CardRecord = CardRecord::new_with_legacy_id(
+    386,
     "Millstone",
     CardArt::new("107646bc-2181-49f4-8821-1eaa46291855", "Kaja Foglio"),
     CardSet::Antiquities,
@@ -1220,8 +1220,8 @@ static MISHRAS_WAR_MACHINE_UNPAID_SEQUENCE: EffectDef =
     EffectDef::Sequence(&MISHRAS_WAR_MACHINE_UNPAID);
 
 // ATQ 57 — Mishra's War Machine
-pub(in crate::card::sets) static MISHRA_S_WAR_MACHINE: CardRecord = CardRecord::new(
-    cards::MISHRA_S_WAR_MACHINE,
+pub(in crate::card::sets) static MISHRA_S_WAR_MACHINE: CardRecord = CardRecord::new_with_legacy_id(
+    1835,
     "Mishra's War Machine",
     CardArt::new("8f6b4652-a1d4-418f-a89b-6a977a920a9e", "Amy Weber"),
     CardSet::Antiquities,
@@ -1245,8 +1245,8 @@ pub(in crate::card::sets) static MISHRA_S_WAR_MACHINE: CardRecord = CardRecord::
 );
 
 // ATQ 58 — Obelisk of Undoing
-pub(in crate::card::sets) static OBELISK_OF_UNDOING: CardRecord = CardRecord::new(
-    cards::OBELISK_OF_UNDOING,
+pub(in crate::card::sets) static OBELISK_OF_UNDOING: CardRecord = CardRecord::new_with_legacy_id(
+    387,
     "Obelisk of Undoing",
     CardArt::new("1ba61ccd-4429-4f7c-b9f3-30867878d88e", "Tom Wänerstrand"),
     CardSet::Antiquities,
@@ -1278,8 +1278,8 @@ pub(in crate::card::sets) static OBELISK_OF_UNDOING: CardRecord = CardRecord::ne
 );
 
 // ATQ 59 — Onulet
-pub(in crate::card::sets) static ONULET: CardRecord = CardRecord::new(
-    cards::ONULET,
+pub(in crate::card::sets) static ONULET: CardRecord = CardRecord::new_with_legacy_id(
+    388,
     "Onulet",
     CardArt::new("d77fe8e2-8438-473e-ace5-01baddd2c4ed", "Anson Maddocks"),
     CardSet::Antiquities,
@@ -1300,8 +1300,8 @@ pub(in crate::card::sets) static ONULET: CardRecord = CardRecord::new(
 );
 
 // ATQ 60 — Ornithopter
-pub(in crate::card::sets) static ORNITHOPTER: CardRecord = CardRecord::new(
-    cards::ORNITHOPTER,
+pub(in crate::card::sets) static ORNITHOPTER: CardRecord = CardRecord::new_with_legacy_id(
+    389,
     "Ornithopter",
     CardArt::new("59cc9bdb-7cf2-4795-bac7-ffff605c9eb0", "Amy Weber"),
     CardSet::Antiquities,
@@ -1338,8 +1338,8 @@ static RAKALITE_SHIELD: [EffectDef; 2] = [
 ];
 
 // ATQ 62 — Rakalite
-pub(in crate::card::sets) static RAKALITE: CardRecord = CardRecord::new(
-    cards::RAKALITE,
+pub(in crate::card::sets) static RAKALITE: CardRecord = CardRecord::new_with_legacy_id(
+    1583,
     "Rakalite",
     CardArt::new("0fd7c711-3ff4-4691-914f-242e6737066c", "Christopher Rush"),
     CardSet::Antiquities,
@@ -1361,8 +1361,8 @@ pub(in crate::card::sets) static RAKALITE: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a characteristic-layer effect or dynamic value for “Shapeshifter's power is equal to the last chosen number and its toughness is equal to 7 minus that number”.
 
 // ATQ 65 — Staff of Zegon
-pub(in crate::card::sets) static STAFF_OF_ZEGON: CardRecord = CardRecord::new(
-    cards::STAFF_OF_ZEGON,
+pub(in crate::card::sets) static STAFF_OF_ZEGON: CardRecord = CardRecord::new_with_legacy_id(
+    390,
     "Staff of Zegon",
     CardArt::new("a6bf858d-bba9-4a16-9045-55384b1de633", "Mark Poole"),
     CardSet::Antiquities,
@@ -1389,8 +1389,8 @@ pub(in crate::card::sets) static STAFF_OF_ZEGON: CardRecord = CardRecord::new(
 );
 
 // ATQ 66 — Su-Chi
-pub(in crate::card::sets) static SU_CHI: CardRecord = CardRecord::new(
-    cards::SU_CHI,
+pub(in crate::card::sets) static SU_CHI: CardRecord = CardRecord::new_with_legacy_id(
+    19,
     "Su-Chi",
     CardArt::new("a64d4f93-0c04-4078-aec0-7e9de92f260f", "Christopher Rush"),
     CardSet::Antiquities,
@@ -1408,8 +1408,8 @@ pub(in crate::card::sets) static SU_CHI: CardRecord = CardRecord::new(
 );
 
 // ATQ 67 — Tablet of Epityr
-pub(in crate::card::sets) static TABLET_OF_EPITYR: CardRecord = CardRecord::new(
-    cards::TABLET_OF_EPITYR,
+pub(in crate::card::sets) static TABLET_OF_EPITYR: CardRecord = CardRecord::new_with_legacy_id(
+    391,
     "Tablet of Epityr",
     CardArt::new("6d7a2718-301f-4191-b348-0c44c7c07d43", "Christopher Rush"),
     CardSet::Antiquities,
@@ -1437,8 +1437,8 @@ pub(in crate::card::sets) static TABLET_OF_EPITYR: CardRecord = CardRecord::new(
 
 // ATQ 69 — Tawnos's Wand
 // Audit: partial — Its power predicate omits modifiers from static continuous effects.
-pub(in crate::card::sets) static TAWNOSS_WAND: CardRecord = CardRecord::new(
-    cards::TAWNOSS_WAND,
+pub(in crate::card::sets) static TAWNOSS_WAND: CardRecord = CardRecord::new_with_legacy_id(
+    392,
     "Tawnos's Wand",
     CardArt::new("978f09dd-121a-4da5-ba16-5c03fbdce084", "Douglas Shuler"),
     CardSet::Antiquities,
@@ -1477,8 +1477,8 @@ const UPKEEP: TriggerEventDef = TriggerEventDef::StepBegins {
 };
 
 // ATQ 70 — Tawnos's Weaponry
-pub(in crate::card::sets) static TAWNOSS_WEAPONRY: CardRecord = CardRecord::new(
-    cards::TAWNOSS_WEAPONRY,
+pub(in crate::card::sets) static TAWNOSS_WEAPONRY: CardRecord = CardRecord::new_with_legacy_id(
+    1665,
     "Tawnos's Weaponry",
     CardArt::new("3035cead-a501-4204-9154-5fd648577d32", "Dan Frazier"),
     CardSet::Antiquities,
@@ -1513,8 +1513,8 @@ pub(in crate::card::sets) static TAWNOSS_WEAPONRY: CardRecord = CardRecord::new(
 );
 
 // ATQ 71 — Tetravus
-pub(in crate::card::sets) static TETRAVUS: CardRecord = CardRecord::new(
-    cards::TETRAVUS,
+pub(in crate::card::sets) static TETRAVUS: CardRecord = CardRecord::new_with_legacy_id(
+    126,
     "Tetravus",
     CardArt::new("23eb19f9-2e8f-4bf0-9bf8-868e6da70e2d", "Mark Tedin"),
     CardSet::Antiquities,
@@ -1555,8 +1555,8 @@ pub(in crate::card::sets) static TETRAVUS: CardRecord = CardRecord::new(
 // Audit: blocked — Needs an enter-time player choice stored on the permanent and used by its later upkeep trigger.
 
 // ATQ 73 — Triskelion
-pub(in crate::card::sets) static TRISKELION: CardRecord = CardRecord::new(
-    cards::TRISKELION,
+pub(in crate::card::sets) static TRISKELION: CardRecord = CardRecord::new_with_legacy_id(
+    43,
     "Triskelion",
     CardArt::new("a79c99e1-722a-44b6-8fa3-2be3f0c193d8", "Douglas Shuler"),
     CardSet::Antiquities,
@@ -1591,8 +1591,8 @@ pub(in crate::card::sets) static TRISKELION: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a modal activated ability for “gains your choice of banding, flying, first strike, or trample”; modes are currently a spell-only shape. Each of the four grants is implemented on its own.
 
 // ATQ 75 — Urza's Chalice
-pub(in crate::card::sets) static URZAS_CHALICE: CardRecord = CardRecord::new(
-    cards::URZAS_CHALICE,
+pub(in crate::card::sets) static URZAS_CHALICE: CardRecord = CardRecord::new_with_legacy_id(
+    393,
     "Urza's Chalice",
     CardArt::new("f3728537-86d3-42be-9046-90bba1bfafc1", "Jeff A. Menges"),
     CardSet::Antiquities,
@@ -1616,8 +1616,8 @@ pub(in crate::card::sets) static URZAS_CHALICE: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a zone-object query and identity-preserving continuation for “Whenever an artifact you control is put into a graveyard from the battlefield, if it wasn't sacrificed, you may pay {3}. If you do, draw a card”.
 
 // ATQ 77 — Wall of Spears
-pub(in crate::card::sets) static WALL_OF_SPEARS: CardRecord = CardRecord::new(
-    cards::WALL_OF_SPEARS,
+pub(in crate::card::sets) static WALL_OF_SPEARS: CardRecord = CardRecord::new_with_legacy_id(
+    394,
     "Wall of Spears",
     CardArt::new("b1dda179-c49a-4995-ba5a-db93ac43dbe7", "Sandra Everingham"),
     CardSet::Antiquities,
@@ -1626,8 +1626,8 @@ pub(in crate::card::sets) static WALL_OF_SPEARS: CardRecord = CardRecord::new(
 );
 
 // ATQ 78 — Weakstone
-pub(in crate::card::sets) static WEAKSTONE: CardRecord = CardRecord::new(
-    cards::WEAKSTONE,
+pub(in crate::card::sets) static WEAKSTONE: CardRecord = CardRecord::new_with_legacy_id(
+    395,
     "Weakstone",
     CardArt::new("46adf48f-99d2-440e-9129-794584c1ea21", "Justin Hampton"),
     CardSet::Antiquities,
@@ -1651,8 +1651,8 @@ pub(in crate::card::sets) static WEAKSTONE: CardRecord = CardRecord::new(
 );
 
 // ATQ 79 — Yotian Soldier
-pub(in crate::card::sets) static YOTIAN_SOLDIER: CardRecord = CardRecord::new(
-    cards::YOTIAN_SOLDIER,
+pub(in crate::card::sets) static YOTIAN_SOLDIER: CardRecord = CardRecord::new_with_legacy_id(
+    396,
     "Yotian Soldier",
     CardArt::new("27cf53e3-76f6-4831-800e-1259394d779d", "Christopher Rush"),
     CardSet::Antiquities,
@@ -1685,8 +1685,8 @@ static MISHRAS_FACTORY_PUMP_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::e
 )];
 
 // ATQ 80a — Mishra's Factory
-pub(in crate::card::sets) static MISHRA_S_FACTORY: CardRecord = CardRecord::new(
-    cards::MISHRA_S_FACTORY,
+pub(in crate::card::sets) static MISHRA_S_FACTORY: CardRecord = CardRecord::new_with_legacy_id(
+    31,
     "Mishra's Factory",
     CardArt::new("a696c5b6-f216-454d-8029-74e84bbd1428", "Kaja Foglio & Phil Foglio"),
     CardSet::Antiquities,
@@ -1719,8 +1719,8 @@ static MISHRA_S_WORKSHOP_RESTRICTIONS: [ManaRestrictionDef; 1] = [ManaRestrictio
 )];
 
 // ATQ 81 — Mishra's Workshop
-pub(in crate::card::sets) static MISHRA_S_WORKSHOP: CardRecord = CardRecord::new(
-    cards::MISHRA_S_WORKSHOP,
+pub(in crate::card::sets) static MISHRA_S_WORKSHOP: CardRecord = CardRecord::new_with_legacy_id(
+    83,
     "Mishra's Workshop",
     CardArt::new("135de5c7-6ac9-4b68-8f1a-97f120a4b125", "Kaja Foglio"),
     CardSet::Antiquities,
@@ -1736,8 +1736,8 @@ pub(in crate::card::sets) static MISHRA_S_WORKSHOP: CardRecord = CardRecord::new
 );
 
 // ATQ 82a — Strip Mine
-pub(in crate::card::sets) static STRIP_MINE: CardRecord = CardRecord::new(
-    cards::STRIP_MINE,
+pub(in crate::card::sets) static STRIP_MINE: CardRecord = CardRecord::new_with_legacy_id(
+    39,
     "Strip Mine",
     CardArt::new("e7880157-7f27-4f1b-9cdc-ab36a6252376", "Daniel Gelon"),
     CardSet::Antiquities,
@@ -1789,8 +1789,8 @@ static URZAS_TOWER_ASSEMBLED: [ConditionDef; 2] = [
 ];
 
 // ATQ 83a — Urza's Mine
-pub(in crate::card::sets) static URZA_S_MINE: CardRecord = CardRecord::new(
-    cards::URZA_S_MINE,
+pub(in crate::card::sets) static URZA_S_MINE: CardRecord = CardRecord::new_with_legacy_id(
+    1830,
     "Urza's Mine",
     CardArt::new("ddf85792-470b-4b42-99ac-9cb43a575523", "Anson Maddocks"),
     CardSet::Antiquities,
@@ -1806,8 +1806,8 @@ pub(in crate::card::sets) static URZA_S_MINE: CardRecord = CardRecord::new(
 );
 
 // ATQ 84a — Urza's Power Plant
-pub(in crate::card::sets) static URZA_S_POWER_PLANT: CardRecord = CardRecord::new(
-    cards::URZA_S_POWER_PLANT,
+pub(in crate::card::sets) static URZA_S_POWER_PLANT: CardRecord = CardRecord::new_with_legacy_id(
+    1831,
     "Urza's Power Plant",
     CardArt::new("94896e0b-859c-47e4-bf27-35ed37b841e0", "Mark Tedin"),
     CardSet::Antiquities,
@@ -1822,8 +1822,8 @@ pub(in crate::card::sets) static URZA_S_POWER_PLANT: CardRecord = CardRecord::ne
 );
 
 // ATQ 85a — Urza's Tower
-pub(in crate::card::sets) static URZA_S_TOWER: CardRecord = CardRecord::new(
-    cards::URZA_S_TOWER,
+pub(in crate::card::sets) static URZA_S_TOWER: CardRecord = CardRecord::new_with_legacy_id(
+    1832,
     "Urza's Tower",
     CardArt::new("8ed85655-fc59-4a57-bcf9-75e1899dff78", "Mark Poole"),
     CardSet::Antiquities,

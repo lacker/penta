@@ -2,13 +2,13 @@
 
 use super::{CardRecord, PrintingRecord, alpha};
 use crate::card::{
-    AbilityCostDef, CardArt, CardRules, CardSet, ManaColor, ObjectPredicateDef, abilities, cards,
+    AbilityCostDef, CardArt, CardRules, CardSet, ManaColor, ObjectPredicateDef, abilities,
 };
 use crate::mana_cost;
 
 // LEB 10 — Circle of Protection: Black
-pub(in crate::card::sets) static CIRCLE_OF_PROTECTION_BLACK: CardRecord = CardRecord::new(
-    cards::CIRCLE_OF_PROTECTION_BLACK,
+pub(in crate::card::sets) static CIRCLE_OF_PROTECTION_BLACK: CardRecord = CardRecord::new_with_legacy_id(
+    1450,
     "Circle of Protection: Black",
     CardArt::new("fa47b4cd-8da4-4544-b011-ba92b7009203", "Jesper Myrfors"),
     CardSet::Beta,
@@ -22,8 +22,8 @@ pub(in crate::card::sets) static CIRCLE_OF_PROTECTION_BLACK: CardRecord = CardRe
 );
 
 // LEB 287 — Volcanic Island
-pub(in crate::card::sets) static VOLCANIC_ISLAND: CardRecord = CardRecord::new(
-    cards::VOLCANIC_ISLAND,
+pub(in crate::card::sets) static VOLCANIC_ISLAND: CardRecord = CardRecord::new_with_legacy_id(
+    57,
     "Volcanic Island",
     CardArt::new("0324641d-af55-4c53-b4dc-c8262e967da5", "Brian Snõddy"),
     CardSet::Beta,

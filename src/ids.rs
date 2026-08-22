@@ -1,12 +1,89 @@
 use std::fmt;
+use std::num::NonZeroU64;
+
+use serde::{Deserialize, Deserializer, Serialize, Serializer, de};
 
 /// Stable identity of a card in the card catalog.
 ///
-/// Every numeric value, including zero, is an ordinary catalog key. Missing
-/// or hidden identity must be represented by the surrounding type rather than
-/// by a reserved value.
+/// Values are positive integers no greater than [`Self::MAX`], so every ID is
+/// represented exactly by a JavaScript `number`. Missing or hidden identity
+/// is represented by the surrounding type rather than by a reserved value.
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-pub struct CardDefinitionId(pub u16);
+pub struct CardDefinitionId(NonZeroU64);
+
+impl CardDefinitionId {
+    /// Largest exactly representable ID the engine assigns.
+    pub const MAX: u64 = (1_u64 << 52) - 1;
+
+    /// Creates a JavaScript-safe card definition ID.
+    ///
+    /// # Panics
+    ///
+    /// Panics when `raw` is zero or exceeds [`Self::MAX`]. Use
+    /// [`Self::try_new`] at untrusted input boundaries.
+    #[must_use]
+    pub const fn new(raw: u64) -> Self {
+        assert!(raw > 0, "card definition IDs must be nonzero");
+        assert!(
+            raw <= Self::MAX,
+            "card definition IDs must be JavaScript-safe"
+        );
+        Self(NonZeroU64::new(raw).expect("card definition ID was checked as nonzero"))
+    }
+
+    #[must_use]
+    pub const fn try_new(raw: u64) -> Option<Self> {
+        if raw == 0 || raw > Self::MAX {
+            None
+        } else {
+            match NonZeroU64::new(raw) {
+                Some(raw) => Some(Self(raw)),
+                None => None,
+            }
+        }
+    }
+
+    #[must_use]
+    pub const fn get(self) -> u64 {
+        self.0.get()
+    }
+}
+
+impl From<CardDefinitionId> for u64 {
+    fn from(id: CardDefinitionId) -> Self {
+        id.get()
+    }
+}
+
+impl fmt::Display for CardDefinitionId {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.get().fmt(formatter)
+    }
+}
+
+impl Serialize for CardDefinitionId {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_u64(self.get())
+    }
+}
+
+impl<'de> Deserialize<'de> for CardDefinitionId {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let raw = u64::deserialize(deserializer)?;
+        Self::try_new(raw).ok_or_else(|| {
+            de::Error::custom(format_args!(
+                "card definition ID must be between 1 and {}",
+                Self::MAX
+            ))
+        })
+    }
+}
 
 /// Identity of one logical rules component within a card definition.
 ///
@@ -304,7 +381,25 @@ impl fmt::Display for PlayerId {
 
 #[cfg(test)]
 mod tests {
-    use super::{ObjectBindingIndex, ObjectSetBindingIndex};
+    use super::{CardDefinitionId, ObjectBindingIndex, ObjectSetBindingIndex};
+
+    #[test]
+    fn card_definition_ids_serde_as_exact_javascript_numbers() {
+        let id = CardDefinitionId::new(1_u64 << 40);
+        let encoded = serde_json::to_value(id).expect("ID serializes");
+        assert_eq!(encoded.as_u64(), Some(id.get()));
+        assert_eq!(
+            serde_json::from_value::<CardDefinitionId>(encoded).expect("ID deserializes"),
+            id,
+        );
+        assert!(serde_json::from_value::<CardDefinitionId>(serde_json::json!(0)).is_err());
+        assert!(
+            serde_json::from_value::<CardDefinitionId>(serde_json::json!(
+                CardDefinitionId::MAX + 1
+            ))
+            .is_err()
+        );
+    }
 
     #[test]
     fn object_binding_indices_use_eight_bounded_slots() {

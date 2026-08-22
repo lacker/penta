@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::CardDefinitionId;
+
 /// A semantic path to an authored ability. Printed abilities start directly
 /// from the card catalog; virtual-object abilities first rebuild their
 /// creator-owned characteristics from the effect that creates them.
@@ -11,7 +13,7 @@ use serde::{Deserialize, Serialize};
 )]
 pub(in crate::game::state_checkpoint) enum AbilityLocator {
     Card {
-        definition: u16,
+        definition: CardDefinitionId,
         part_id: u8,
         ability_id: u8,
         nested: Vec<usize>,
@@ -92,7 +94,7 @@ impl EmblemCharacteristicsLocator {
 )]
 pub(in crate::game::state_checkpoint) enum ObjectCharacteristicsSnapshot {
     Card {
-        definition: u16,
+        definition: CardDefinitionId,
         part_id: u8,
     },
     Token {
@@ -125,7 +127,7 @@ pub(in crate::game::state_checkpoint) enum FaceDownCharacteristicsSnapshot {
     rename_all_fields = "camelCase"
 )]
 pub(in crate::game::state_checkpoint) enum ObjectKindSnapshot {
-    Card { definition: u16 },
+    Card { definition: CardDefinitionId },
     Token,
     Emblem,
     Ability,

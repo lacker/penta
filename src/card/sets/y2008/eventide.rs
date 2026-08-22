@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, CreatureTypeSetDef,
     EffectDef, EffectRecipientDef, ObjectPredicateDef, ResolvedEffectDurationDef,
-    TriggerConditionDef, ValueDef, abilities, cards,
+    TriggerConditionDef, ValueDef, abilities,
 };
 use crate::mana_cost;
 
@@ -97,8 +97,8 @@ static FIGURE_OF_DESTINY_ABILITIES: [AbilityDef; 3] = [
 ];
 
 // EVE 139 — Figure of Destiny
-pub(in crate::card::sets) static FIGURE_OF_DESTINY: CardRecord = CardRecord::new(
-    cards::FIGURE_OF_DESTINY,
+pub(in crate::card::sets) static FIGURE_OF_DESTINY: CardRecord = CardRecord::new_with_legacy_id(
+    2260,
     "Figure of Destiny",
     CardArt::new("0da69523-cece-425a-b08a-fb27fac29374", "Scott M. Fischer"),
     CardSet::Eventide,

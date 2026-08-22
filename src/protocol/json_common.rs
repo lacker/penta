@@ -97,7 +97,7 @@ pub(super) fn zone_cards_json(cards: &[crate::ZoneCard]) -> Value {
             .map(|card| {
                 json!({
                     "objectId": card.object.0,
-                    "definition": card.definition.0,
+                    "definition": card.definition.get(),
                 })
             })
             .collect::<Vec<_>>(),
@@ -232,7 +232,7 @@ pub(super) fn object_characteristics_json(characteristics: ObjectCharacteristics
     match characteristics {
         ObjectCharacteristics::Card { definition, part } => json!({
             "kind": "printed",
-            "definition": definition.0,
+            "definition": definition.get(),
             "partId": part.0,
         }),
         ObjectCharacteristics::Token { token, part } => {
@@ -364,7 +364,7 @@ pub(super) fn ability_origin_json(origin: AbilityOrigin) -> Value {
             ability,
         } => json!({
             "kind": "printed",
-            "definition": definition.0,
+            "definition": definition.get(),
             "partId": part.0,
             "abilityId": ability.0,
         }),
@@ -398,7 +398,7 @@ pub(super) fn ability_origin_json(origin: AbilityOrigin) -> Value {
         } => json!({
             "kind": "granted",
             "source": source.0,
-            "sourceDefinition": source_definition.0,
+            "sourceDefinition": source_definition.get(),
             "sourcePartId": source_part.0,
             "sourceAbilityId": source_ability.0,
             "grantId": grant.0,

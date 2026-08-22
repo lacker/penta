@@ -354,7 +354,7 @@ fn stack_json_uses_game_object_identity_and_preserves_cast_signature() {
     assert_eq!(trigger_value["ability"]["kind"], "printed");
     assert_eq!(
         trigger_value["ability"]["definition"],
-        crate::card::cards::ANKH_OF_MISHRA.0
+        crate::card::cards::ANKH_OF_MISHRA.get()
     );
     assert_eq!(
         trigger_value["abilityText"],

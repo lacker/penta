@@ -6,7 +6,7 @@ use crate::card::{
     AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     CharacteristicOperationDef, CounterKind, EffectDef, EffectRecipientDef, ObjectPredicateDef,
     ObjectQueryDef, ObjectSetDef, PlayerRelation, PlayerSetDef, TriggerConditionDef, ValueDef,
-    ZoneKind, cards,
+    ZoneKind,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -106,8 +106,8 @@ static AGATHAS_SOUL_CAULDRON_ABILITIES: [AbilityDef; 3] = [
 ];
 
 // WOE 242 — Agatha's Soul Cauldron
-pub(in crate::card::sets) static AGATHAS_SOUL_CAULDRON: CardRecord = CardRecord::new(
-    cards::AGATHAS_SOUL_CAULDRON,
+pub(in crate::card::sets) static AGATHAS_SOUL_CAULDRON: CardRecord = CardRecord::new_with_legacy_id(
+    2251,
     "Agatha's Soul Cauldron",
     CardArt::new("019b51b0-e5c6-4208-922b-7736686dddcd", "Jason A. Engle"),
     CardSet::WildsOfEldraine,

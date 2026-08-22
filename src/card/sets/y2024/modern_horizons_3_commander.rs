@@ -6,7 +6,7 @@ use crate::card::{
     AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType,
     ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef, ObjectChoiceBindingDef,
     ObjectPredicateDef, ObjectSetDef, PlayerRefDef, PlayerRelation, SpellAdditionalCostDef,
-    SpendModeDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, cards,
+    SpendModeDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -100,8 +100,8 @@ static BARROWGOYF_MILLS: EffectDef = EffectDef::Mill {
 };
 
 // M3C 50 — Barrowgoyf
-pub(in crate::card::sets) static BARROWGOYF: CardRecord = CardRecord::new(
-    cards::BARROWGOYF,
+pub(in crate::card::sets) static BARROWGOYF: CardRecord = CardRecord::new_with_legacy_id(
+    2213,
     "Barrowgoyf",
     CardArt::new("f979fc86-2c7e-49b3-965e-607a203cbfb1", "Igor Kieryluk"),
     CardSet::ModernHorizons3Commander,
@@ -139,8 +139,8 @@ pub(in crate::card::sets) static BARROWGOYF: CardRecord = CardRecord::new(
 );
 
 // M3C 59 — Pyrogoyf
-pub(in crate::card::sets) static PYROGOYF: CardRecord = CardRecord::new(
-    cards::PYROGOYF,
+pub(in crate::card::sets) static PYROGOYF: CardRecord = CardRecord::new_with_legacy_id(
+    2141,
     "Pyrogoyf",
     CardArt::new("f60be310-4461-4b84-95f0-b2095108bd79", "Xabi Gaztelua"),
     CardSet::ModernHorizons3Commander,
@@ -173,8 +173,8 @@ static BLOODBRAID_CHALLENGER_ABILITIES: [AbilityDef; 3] = [
 ];
 
 // M3C 70 — Bloodbraid Challenger
-pub(in crate::card::sets) static BLOODBRAID_CHALLENGER: CardRecord = CardRecord::new(
-    cards::BLOODBRAID_CHALLENGER,
+pub(in crate::card::sets) static BLOODBRAID_CHALLENGER: CardRecord = CardRecord::new_with_legacy_id(
+    2255,
     "Bloodbraid Challenger",
     CardArt::new("4b39d43d-2a02-4edb-915a-6a7c002c945f", "Lie Setiawan"),
     CardSet::ModernHorizons3Commander,

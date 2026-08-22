@@ -1,7 +1,7 @@
 //! Ikoria: Lair of Behemoths cards cataloged for the Vintage Cube pool.
 
 use super::{CardRecord, PrintingRecord};
-use crate::card::{AbilityDef, CardArt, CardRules, CardSet, abilities, cards};
+use crate::card::{AbilityDef, CardArt, CardRules, CardSet, abilities};
 use crate::mana_cost;
 
 /// A triome is a tapped land with three basic land types and cycling, and
@@ -20,8 +20,8 @@ const fn triome(types: &'static [&'static str]) -> CardRules {
 }
 
 // IKO 248 — Indatha Triome
-pub(in crate::card::sets) static INDATHA_TRIOME: CardRecord = CardRecord::new(
-    cards::INDATHA_TRIOME,
+pub(in crate::card::sets) static INDATHA_TRIOME: CardRecord = CardRecord::new_with_legacy_id(
+    2096,
     "Indatha Triome",
     CardArt::new("2b74bb81-fb9a-40e5-a941-e517430b52f5", "Noah Bradley"),
     CardSet::Ikoria,
@@ -29,8 +29,8 @@ pub(in crate::card::sets) static INDATHA_TRIOME: CardRecord = CardRecord::new(
 );
 
 // IKO 250 — Ketria Triome
-pub(in crate::card::sets) static KETRIA_TRIOME: CardRecord = CardRecord::new(
-    cards::KETRIA_TRIOME,
+pub(in crate::card::sets) static KETRIA_TRIOME: CardRecord = CardRecord::new_with_legacy_id(
+    2097,
     "Ketria Triome",
     CardArt::new("a249b1f4-2b22-4b67-a207-e0c4ae95d2e1", "Sam Burley"),
     CardSet::Ikoria,
@@ -38,8 +38,8 @@ pub(in crate::card::sets) static KETRIA_TRIOME: CardRecord = CardRecord::new(
 );
 
 // IKO 251 — Raugrin Triome
-pub(in crate::card::sets) static RAUGRIN_TRIOME: CardRecord = CardRecord::new(
-    cards::RAUGRIN_TRIOME,
+pub(in crate::card::sets) static RAUGRIN_TRIOME: CardRecord = CardRecord::new_with_legacy_id(
+    2098,
     "Raugrin Triome",
     CardArt::new("02138fbb-3962-4348-8d31-faaefba0b8b2", "Jonas De Ro"),
     CardSet::Ikoria,
@@ -47,8 +47,8 @@ pub(in crate::card::sets) static RAUGRIN_TRIOME: CardRecord = CardRecord::new(
 );
 
 // IKO 253 — Savai Triome
-pub(in crate::card::sets) static SAVAI_TRIOME: CardRecord = CardRecord::new(
-    cards::SAVAI_TRIOME,
+pub(in crate::card::sets) static SAVAI_TRIOME: CardRecord = CardRecord::new_with_legacy_id(
+    2099,
     "Savai Triome",
     CardArt::new("748e6a61-9c1f-4225-9f04-e54002f63ac3", "Titus Lunter"),
     CardSet::Ikoria,
@@ -56,8 +56,8 @@ pub(in crate::card::sets) static SAVAI_TRIOME: CardRecord = CardRecord::new(
 );
 
 // IKO 259 — Zagoth Triome
-pub(in crate::card::sets) static ZAGOTH_TRIOME: CardRecord = CardRecord::new(
-    cards::ZAGOTH_TRIOME,
+pub(in crate::card::sets) static ZAGOTH_TRIOME: CardRecord = CardRecord::new_with_legacy_id(
+    2100,
     "Zagoth Triome",
     CardArt::new("cc520518-2063-4b57-a0d4-10cf62a7175e", "Eytan Zana"),
     CardSet::Ikoria,

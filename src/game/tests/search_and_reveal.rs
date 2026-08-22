@@ -90,7 +90,7 @@ fn augur_of_bolas_digs_three_deep_when_it_enters() {
 
 #[test]
 fn any_target_damage_can_remove_a_planeswalker() {
-    let definition_id = CardDefinitionId(10_075);
+    let definition_id = CardDefinitionId::new(10_075);
     let mut definition = CardDefinition::new(
         definition_id,
         "Test Planeswalker",
@@ -605,7 +605,7 @@ fn simultaneous_deaths_use_the_pre_exit_trigger_listener_snapshot() {
             amount: ValueDef::Constant(1),
         },
     )];
-    let definition_id = CardDefinitionId(10_080);
+    let definition_id = CardDefinitionId::new(10_080);
     let mut definition = CardDefinition::new(
         definition_id,
         "Test death listener",
@@ -652,7 +652,7 @@ fn simultaneous_exits_keep_pre_exit_characteristics_for_trigger_matching() {
             amount: ValueDef::Constant(1),
         },
     )];
-    let definition_id = CardDefinitionId(10_081);
+    let definition_id = CardDefinitionId::new(10_081);
     let mut definition = CardDefinition::new(
         definition_id,
         "Test Mountain exit listener",

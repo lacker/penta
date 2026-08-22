@@ -195,7 +195,7 @@ pub(super) fn ability_origin_value(origin: AbilityOrigin) -> Value {
             ability,
         } => json!({
             "kind": "printed",
-            "definition": definition.0,
+            "definition": definition.get(),
             "partId": part.0,
             "abilityId": ability.0,
         }),
@@ -235,7 +235,7 @@ pub(super) fn ability_origin_value(origin: AbilityOrigin) -> Value {
         } => json!({
             "kind": "granted",
             "source": source.0,
-            "sourceDefinition": source_definition.0,
+            "sourceDefinition": source_definition.get(),
             "sourcePartId": source_part.0,
             "sourceAbilityId": source_ability.0,
             "grantId": grant.0,

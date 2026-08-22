@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, CardArt, CardRules, CardSet, CardType, EffectDef, EffectRecipientDef,
     ObjectPredicateDef, TopCardSelectionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities, cards,
+    abilities,
 };
 use crate::mana_cost;
 
@@ -35,8 +35,8 @@ static PREORDAIN_SCRY: TopCardSelectionDef = TopCardSelectionDef {
 };
 
 // M11 70 — Preordain
-pub(in crate::card::sets) static PREORDAIN: CardRecord = CardRecord::new(
-    cards::PREORDAIN,
+pub(in crate::card::sets) static PREORDAIN: CardRecord = CardRecord::new_with_legacy_id(
+    2130,
     "Preordain",
     CardArt::new("e3868c3d-4fcd-444b-866f-0f8e50ce7b67", "Svetlin Velinov"),
     CardSet::Magic2011,
@@ -80,15 +80,15 @@ static FETCH_TWO_LANDS: EffectDef = EffectDef::SearchZone {
 };
 
 // M11 192 — Primeval Titan
-pub(in crate::card::sets) static PRIMEVAL_TITAN: CardRecord = CardRecord::new(
-    cards::PRIMEVAL_TITAN,
+pub(in crate::card::sets) static PRIMEVAL_TITAN: CardRecord = CardRecord::new_with_legacy_id(
+    2128,
     "Primeval Titan",
     CardArt::new("feee9327-b937-46ba-a2aa-6c015ab6cdd5", "Aleksi Briclot"),
     CardSet::Magic2011,
     CardRules::new_creature(mana_cost!("{4}{G}{G}"), &["Giant"], 6, 6).with_abilities(&[
         abilities::trample(),
         AbilityDef::triggered(
-            "Whenever this creature enters or attacks, you may search your library for up to two land cards, put them onto the battlefield tapped, then shuffle.",
+            "Whenever this creature enters or attacks, you may search your library for up to two land put them onto the battlefield tapped, then shuffle.",
             TriggerEventDef::AnyOf(&ENTERS_OR_ATTACKS),
             EffectDef::May {
                 player: EffectRecipientDef::Controller,

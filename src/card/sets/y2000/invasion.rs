@@ -6,7 +6,7 @@ use crate::card::{
     AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardType, EffectDef,
     EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectRefDef, PlayerRelation,
     StackTargetKindDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities, cards,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -30,8 +30,8 @@ static FACT_OR_FICTION_PILE_MOVES: EffectDef = EffectDef::Sequence(&[
 ]);
 
 // INV 57 — Fact or Fiction
-pub(in crate::card::sets) static FACT_OR_FICTION: CardRecord = CardRecord::new(
-    cards::FACT_OR_FICTION,
+pub(in crate::card::sets) static FACT_OR_FICTION: CardRecord = CardRecord::new_with_legacy_id(
+    277,
     "Fact or Fiction",
     CardArt::new(
         "7fd4d018-dcf3-4439-8445-02d66e44f7d3",
@@ -69,8 +69,8 @@ static OPT_SELECTION: TopCardSelectionDef = TopCardSelectionDef {
 };
 
 // INV 64 — Opt
-pub(in crate::card::sets) static OPT: CardRecord = CardRecord::new(
-    cards::OPT,
+pub(in crate::card::sets) static OPT: CardRecord = CardRecord::new_with_legacy_id(
+    312,
     "Opt",
     CardArt::new("958262ec-8e52-40cf-a9fd-a60e42643e15", "John Howe"),
     CardSet::Invasion,
@@ -122,8 +122,8 @@ static PROHIBIT_KICKED: EffectDef = EffectDef::IfCondition {
 };
 
 // INV 67 — Prohibit
-pub(in crate::card::sets) static PROHIBIT: CardRecord = CardRecord::new(
-    cards::PROHIBIT,
+pub(in crate::card::sets) static PROHIBIT: CardRecord = CardRecord::new_with_legacy_id(
+    2030,
     "Prohibit",
     CardArt::new("0daa5458-2a97-40d0-b18d-2381a7a68ee1", "Adam Rex"),
     CardSet::Invasion,
@@ -207,8 +207,8 @@ static RESPONSE_EFFECT: EffectDef = EffectDef::Sequence(&[
 ]);
 
 // INV 78 — Teferi's Response
-pub(in crate::card::sets) static TEFERIS_RESPONSE: CardRecord = CardRecord::new(
-    cards::TEFERIS_RESPONSE,
+pub(in crate::card::sets) static TEFERIS_RESPONSE: CardRecord = CardRecord::new_with_legacy_id(
+    2058,
     "Teferi's Response",
     CardArt::new("f3bb2df8-8b6e-4f7c-9e9a-6c8b0f4b8e2d", "Scott Bailey"),
     CardSet::Invasion,
@@ -222,8 +222,8 @@ pub(in crate::card::sets) static TEFERIS_RESPONSE: CardRecord = CardRecord::new(
 );
 
 // INV 157 — Overload
-pub(in crate::card::sets) static OVERLOAD: CardRecord = CardRecord::new(
-    cards::OVERLOAD,
+pub(in crate::card::sets) static OVERLOAD: CardRecord = CardRecord::new_with_legacy_id(
+    2029,
     "Overload",
     CardArt::new("c91fca91-7296-422e-b251-d571b710ff71", "Gary Ruddell"),
     CardSet::Invasion,
@@ -245,8 +245,8 @@ pub(in crate::card::sets) static OVERLOAD: CardRecord = CardRecord::new(
 );
 
 // INV 317 — Tsabo's Web
-pub(in crate::card::sets) static TSABOS_WEB: CardRecord = CardRecord::new(
-    cards::TSABOS_WEB,
+pub(in crate::card::sets) static TSABOS_WEB: CardRecord = CardRecord::new_with_legacy_id(
+    309,
     "Tsabo's Web",
     CardArt::new("0dee69f8-cceb-41b9-a0ee-6b2ac9f4bad9", "Carl Critchlow"),
     CardSet::Invasion,
@@ -273,8 +273,8 @@ pub(in crate::card::sets) static TSABOS_WEB: CardRecord = CardRecord::new(
 );
 
 // INV 321 — Coastal Tower
-pub(in crate::card::sets) static COASTAL_TOWER: CardRecord = CardRecord::new(
-    cards::COASTAL_TOWER,
+pub(in crate::card::sets) static COASTAL_TOWER: CardRecord = CardRecord::new_with_legacy_id(
+    282,
     "Coastal Tower",
     CardArt::new("d115dbff-e35b-495f-a1e3-19651895927e", "Don Hazeltine"),
     CardSet::Invasion,

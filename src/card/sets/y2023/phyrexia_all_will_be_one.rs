@@ -3,7 +3,7 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardType, EffectDef,
-    ObjectPredicateDef, cards,
+    ObjectPredicateDef,
 };
 use crate::mana_cost;
 
@@ -34,8 +34,8 @@ static CANKERBLOOM_COST: [AbilityCostDef; 2] = [
 ];
 
 // ONE 161 — Cankerbloom
-pub(in crate::card::sets) static CANKERBLOOM: CardRecord = CardRecord::new(
-    cards::CANKERBLOOM,
+pub(in crate::card::sets) static CANKERBLOOM: CardRecord = CardRecord::new_with_legacy_id(
+    2292,
     "Cankerbloom",
     CardArt::new("89b39293-6f57-4294-85fc-c718bdbb4d40", "Nicholas Gregory"),
     CardSet::PhyrexiaAllWillBeOne,

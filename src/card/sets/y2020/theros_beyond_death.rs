@@ -6,7 +6,7 @@ use crate::card::{
     CardArt, CardRules, CardSet, CardType, ComparisonDef, EffectDef, EffectRecipientDef, ManaColor,
     ObjectPredicateDef, PlayerRelation, PlayerSetDef, SpellAdditionalCostDef, TopCardSelectionDef,
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
-    ZonePlacement, cards,
+    ZonePlacement,
 };
 use crate::mana_cost;
 
@@ -59,8 +59,8 @@ static ORACLE_ENTERS: [EffectDef; 2] = [
 ];
 
 // THB 73 — Thassa's Oracle
-pub(in crate::card::sets) static THASSAS_ORACLE: CardRecord = CardRecord::new(
-    cards::THASSAS_ORACLE,
+pub(in crate::card::sets) static THASSAS_ORACLE: CardRecord = CardRecord::new_with_legacy_id(
+    2212,
     "Thassa's Oracle",
     CardArt::new("13d7e352-4d01-4947-a76f-f8a01dd876cc", "Jesper Ejsing"),
     CardSet::TherosBeyondDeath,
@@ -131,8 +131,8 @@ static UNDERWORLD_BREACH_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // THB 161 — Underworld Breach
-pub(in crate::card::sets) static UNDERWORLD_BREACH: CardRecord = CardRecord::new(
-    cards::UNDERWORLD_BREACH,
+pub(in crate::card::sets) static UNDERWORLD_BREACH: CardRecord = CardRecord::new_with_legacy_id(
+    2271,
     "Underworld Breach",
     CardArt::new("0e51d796-7279-4c06-87f0-37adbdaa41df", "Lie Setiawan"),
     CardSet::TherosBeyondDeath,

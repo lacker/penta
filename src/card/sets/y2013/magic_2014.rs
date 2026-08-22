@@ -20,7 +20,7 @@ use crate::card::{
     ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, RoundingDef,
     SacrificedAmountDef, ScaledValueDef, TargetConditionDef, TopCardSelectionDef,
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities, cards, tokens,
+    abilities, tokens,
 };
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -32,8 +32,8 @@ use crate::mana_cost;
 // Audit: blocked — Trigger conditions cannot track life gained during the turn or compare that total with four.
 
 // M14 5 — Archangel of Thune
-pub(in crate::card::sets) static ARCHANGEL_OF_THUNE: CardRecord = CardRecord::new(
-    cards::ARCHANGEL_OF_THUNE,
+pub(in crate::card::sets) static ARCHANGEL_OF_THUNE: CardRecord = CardRecord::new_with_legacy_id(
+    133,
     "Archangel of Thune",
     CardArt::new("531cba81-afd7-4be4-adec-87edb77ba2a9", "James Ryman"),
     CardSet::Magic2014,
@@ -62,8 +62,8 @@ pub(in crate::card::sets) static ARCHANGEL_OF_THUNE: CardRecord = CardRecord::ne
 );
 
 // M14 6 — Auramancer
-pub(in crate::card::sets) static AURAMANCER: CardRecord = CardRecord::new(
-    cards::AURAMANCER,
+pub(in crate::card::sets) static AURAMANCER: CardRecord = CardRecord::new_with_legacy_id(
+    1144,
     "Auramancer",
     CardArt::new("0a3dc4ab-1c45-4495-91b6-27d62087380c", "Rebecca Guay"),
     CardSet::Magic2014,
@@ -96,8 +96,8 @@ pub(in crate::card::sets) static AURAMANCER: CardRecord = CardRecord::new(
 // Audit: blocked — Linked exile cannot express Banisher Priest's one-shot duration, which must do nothing if the source left before the enter trigger resolved.
 
 // M14 9 — Bonescythe Sliver
-pub(in crate::card::sets) static BONESCYTHE_SLIVER: CardRecord = CardRecord::new(
-    cards::BONESCYTHE_SLIVER,
+pub(in crate::card::sets) static BONESCYTHE_SLIVER: CardRecord = CardRecord::new_with_legacy_id(
+    1145,
     "Bonescythe Sliver",
     CardArt::new("a26bb68b-1830-470a-8cea-91edc7db0c57", "Trevor Claxton"),
     CardSet::Magic2014,
@@ -120,8 +120,8 @@ pub(in crate::card::sets) static BONESCYTHE_SLIVER: CardRecord = CardRecord::new
 );
 
 // M14 10 — Brave the Elements
-pub(in crate::card::sets) static BRAVE_THE_ELEMENTS: CardRecord = CardRecord::new(
-    cards::BRAVE_THE_ELEMENTS,
+pub(in crate::card::sets) static BRAVE_THE_ELEMENTS: CardRecord = CardRecord::new_with_legacy_id(
+    1996,
     "Brave the Elements",
     CardArt::new("097d7838-ae58-4306-ba0f-e914601b31b6", "Goran Josic"),
     CardSet::Magic2014,
@@ -146,8 +146,8 @@ pub(in crate::card::sets) static BRAVE_THE_ELEMENTS: CardRecord = CardRecord::ne
 );
 
 // M14 11 — Capashen Knight
-pub(in crate::card::sets) static CAPASHEN_KNIGHT: CardRecord = CardRecord::new(
-    cards::CAPASHEN_KNIGHT,
+pub(in crate::card::sets) static CAPASHEN_KNIGHT: CardRecord = CardRecord::new_with_legacy_id(
+    1146,
     "Capashen Knight",
     CardArt::new("78802af4-46b5-4bac-8cdf-5b77d0b19895", "Jasper Sandner"),
     CardSet::Magic2014,
@@ -169,8 +169,8 @@ pub(in crate::card::sets) static CAPASHEN_KNIGHT: CardRecord = CardRecord::new(
 );
 
 // M14 12 — Celestial Flare
-pub(in crate::card::sets) static CELESTIAL_FLARE: CardRecord = CardRecord::new(
-    cards::CELESTIAL_FLARE,
+pub(in crate::card::sets) static CELESTIAL_FLARE: CardRecord = CardRecord::new_with_legacy_id(
+    148,
     "Celestial Flare",
     CardArt::new("6c8d1320-0f1a-4c66-86c9-9f8da0f1d9ef", "Clint Cearley"),
     CardSet::Magic2014,
@@ -194,8 +194,8 @@ pub(in crate::card::sets) static CELESTIAL_FLARE: CardRecord = CardRecord::new(
 );
 
 // M14 13 — Charging Griffin
-pub(in crate::card::sets) static CHARGING_GRIFFIN: CardRecord = CardRecord::new(
-    cards::CHARGING_GRIFFIN,
+pub(in crate::card::sets) static CHARGING_GRIFFIN: CardRecord = CardRecord::new_with_legacy_id(
+    1147,
     "Charging Griffin",
     CardArt::new("88637cc0-3b2a-402c-b491-26fcc2d21fb8", "Erica Yang"),
     CardSet::Magic2014,
@@ -228,8 +228,8 @@ static CONGREGATE_AMOUNT: ScaledValueDef =
     ScaledValueDef::new(ValueDef::CountMatchingObjects(&CONGREGATE_CREATURES), 2);
 
 // M14 14 — Congregate
-pub(in crate::card::sets) static CONGREGATE: CardRecord = CardRecord::new(
-    cards::CONGREGATE,
+pub(in crate::card::sets) static CONGREGATE: CardRecord = CardRecord::new_with_legacy_id(
+    1861,
     "Congregate",
     CardArt::new("b792574a-4d8f-4c80-a958-7c0edbe391fc", "Mark Zug"),
     CardSet::Magic2014,
@@ -246,8 +246,8 @@ pub(in crate::card::sets) static CONGREGATE: CardRecord = CardRecord::new(
 );
 
 // M14 15 — Dawnstrike Paladin
-pub(in crate::card::sets) static DAWNSTRIKE_PALADIN: CardRecord = CardRecord::new(
-    cards::DAWNSTRIKE_PALADIN,
+pub(in crate::card::sets) static DAWNSTRIKE_PALADIN: CardRecord = CardRecord::new_with_legacy_id(
+    1148,
     "Dawnstrike Paladin",
     CardArt::new("93cf5fb3-bb41-4efa-9721-2c2d169b05cd", "Tyler Jacobson"),
     CardSet::Magic2014,
@@ -262,8 +262,8 @@ pub(in crate::card::sets) static DAWNSTRIKE_PALADIN: CardRecord = CardRecord::ne
 // Audit: blocked — Targeting restrictions cannot filter opposing spell sources by black or red color while leaving abilities unaffected.
 
 // M14 19 — Fortify
-pub(in crate::card::sets) static FORTIFY: CardRecord = CardRecord::new(
-    cards::FORTIFY,
+pub(in crate::card::sets) static FORTIFY: CardRecord = CardRecord::new_with_legacy_id(
+    1149,
     "Fortify",
     CardArt::new("1eff4028-d4f9-4822-81d6-9f5e5e6f3011", "Christopher Moeller"),
     CardSet::Magic2014,
@@ -291,8 +291,8 @@ pub(in crate::card::sets) static FORTIFY: CardRecord = CardRecord::new(
 );
 
 // M14 20 — Griffin Sentinel
-pub(in crate::card::sets) static GRIFFIN_SENTINEL: CardRecord = CardRecord::new(
-    cards::GRIFFIN_SENTINEL,
+pub(in crate::card::sets) static GRIFFIN_SENTINEL: CardRecord = CardRecord::new_with_legacy_id(
+    1150,
     "Griffin Sentinel",
     CardArt::new("b40d6626-a85f-4116-9721-19e39b83cba0", "Warren Mahy"),
     CardSet::Magic2014,
@@ -301,8 +301,8 @@ pub(in crate::card::sets) static GRIFFIN_SENTINEL: CardRecord = CardRecord::new(
 );
 
 // M14 21 — Hive Stirrings
-pub(in crate::card::sets) static HIVE_STIRRINGS: CardRecord = CardRecord::new(
-    cards::HIVE_STIRRINGS,
+pub(in crate::card::sets) static HIVE_STIRRINGS: CardRecord = CardRecord::new_with_legacy_id(
+    1151,
     "Hive Stirrings",
     CardArt::new("e4399e19-d05d-4bb3-9aff-c4133ddd2850", "Maciej Kuciara"),
     CardSet::Magic2014,
@@ -318,8 +318,8 @@ pub(in crate::card::sets) static HIVE_STIRRINGS: CardRecord = CardRecord::new(
 );
 
 // M14 22 — Imposing Sovereign
-pub(in crate::card::sets) static IMPOSING_SOVEREIGN: CardRecord = CardRecord::new(
-    cards::IMPOSING_SOVEREIGN,
+pub(in crate::card::sets) static IMPOSING_SOVEREIGN: CardRecord = CardRecord::new_with_legacy_id(
+    1152,
     "Imposing Sovereign",
     CardArt::new("0f672328-3361-498e-a9f4-2d8e69a8b072", "Scott M. Fischer"),
     CardSet::Magic2014,
@@ -337,8 +337,8 @@ pub(in crate::card::sets) static IMPOSING_SOVEREIGN: CardRecord = CardRecord::ne
 );
 
 // M14 23 — Indestructibility
-pub(in crate::card::sets) static INDESTRUCTIBILITY: CardRecord = CardRecord::new(
-    cards::INDESTRUCTIBILITY,
+pub(in crate::card::sets) static INDESTRUCTIBILITY: CardRecord = CardRecord::new_with_legacy_id(
+    1153,
     "Indestructibility",
     CardArt::new("e086a062-d39b-4e2a-bde0-f4d6d1797a5f", "Darrell Riche"),
     CardSet::Magic2014,
@@ -374,8 +374,8 @@ pub(in crate::card::sets) static INDESTRUCTIBILITY: CardRecord = CardRecord::new
 // Audit: blocked — Effects cannot choose a nontarget source and install a turn-long prevention shield against all damage from it.
 
 // M14 30 — Sentinel Sliver
-pub(in crate::card::sets) static SENTINEL_SLIVER: CardRecord = CardRecord::new(
-    cards::SENTINEL_SLIVER,
+pub(in crate::card::sets) static SENTINEL_SLIVER: CardRecord = CardRecord::new_with_legacy_id(
+    1154,
     "Sentinel Sliver",
     CardArt::new("74c28560-e6ac-4be9-a253-22c4613b0d90", "Maciej Kuciara"),
     CardSet::Magic2014,
@@ -398,8 +398,8 @@ pub(in crate::card::sets) static SENTINEL_SLIVER: CardRecord = CardRecord::new(
 );
 
 // M14 31 — Seraph of the Sword
-pub(in crate::card::sets) static SERAPH_OF_THE_SWORD: CardRecord = CardRecord::new(
-    cards::SERAPH_OF_THE_SWORD,
+pub(in crate::card::sets) static SERAPH_OF_THE_SWORD: CardRecord = CardRecord::new_with_legacy_id(
+    1745,
     "Seraph of the Sword",
     CardArt::new("6caa91aa-f175-40cd-b984-f37cb2cae7db", "Jaime Jones"),
     CardSet::Magic2014,
@@ -418,8 +418,8 @@ pub(in crate::card::sets) static SERAPH_OF_THE_SWORD: CardRecord = CardRecord::n
 );
 
 // M14 34 — Siege Mastodon
-pub(in crate::card::sets) static SIEGE_MASTODON: CardRecord = CardRecord::new(
-    cards::SIEGE_MASTODON,
+pub(in crate::card::sets) static SIEGE_MASTODON: CardRecord = CardRecord::new_with_legacy_id(
+    1155,
     "Siege Mastodon",
     CardArt::new("40e7a30f-bb29-4c6b-bf70-53e9e4292814", "Matt Cavotta"),
     CardSet::Magic2014,
@@ -430,8 +430,8 @@ pub(in crate::card::sets) static SIEGE_MASTODON: CardRecord = CardRecord::new(
 // Audit: blocked — The turn-scoped cast prohibition only covers noncreature spells, not every spell an opponent could cast.
 
 // M14 36 — Solemn Offering
-pub(in crate::card::sets) static SOLEMN_OFFERING: CardRecord = CardRecord::new(
-    cards::SOLEMN_OFFERING,
+pub(in crate::card::sets) static SOLEMN_OFFERING: CardRecord = CardRecord::new_with_legacy_id(
+    1156,
     "Solemn Offering",
     CardArt::new("9ca09fed-f9b3-49ee-be89-404581a4cbd2", "Sam Wood"),
     CardSet::Magic2014,
@@ -457,8 +457,8 @@ pub(in crate::card::sets) static SOLEMN_OFFERING: CardRecord = CardRecord::new(
 );
 
 // M14 37 — Soulmender
-pub(in crate::card::sets) static SOULMENDER: CardRecord = CardRecord::new(
-    cards::SOULMENDER,
+pub(in crate::card::sets) static SOULMENDER: CardRecord = CardRecord::new_with_legacy_id(
+    1157,
     "Soulmender",
     CardArt::new("37f45133-6134-4664-9952-67c03d60f9a0", "James Ryman"),
     CardSet::Magic2014,
@@ -475,8 +475,8 @@ pub(in crate::card::sets) static SOULMENDER: CardRecord = CardRecord::new(
 );
 
 // M14 38 — Steelform Sliver
-pub(in crate::card::sets) static STEELFORM_SLIVER: CardRecord = CardRecord::new(
-    cards::STEELFORM_SLIVER,
+pub(in crate::card::sets) static STEELFORM_SLIVER: CardRecord = CardRecord::new_with_legacy_id(
+    1158,
     "Steelform Sliver",
     CardArt::new("c15d6329-ffb1-43fd-8558-60c8315f5b91", "Chase Stone"),
     CardSet::Magic2014,
@@ -502,8 +502,8 @@ pub(in crate::card::sets) static STEELFORM_SLIVER: CardRecord = CardRecord::new(
 );
 
 // M14 39 — Stonehorn Chanter
-pub(in crate::card::sets) static STONEHORN_CHANTER: CardRecord = CardRecord::new(
-    cards::STONEHORN_CHANTER,
+pub(in crate::card::sets) static STONEHORN_CHANTER: CardRecord = CardRecord::new_with_legacy_id(
+    1159,
     "Stonehorn Chanter",
     CardArt::new("cd6ec61b-c039-4526-a359-a7947eeba5c3", "Raymond Swanland"),
     CardSet::Magic2014,
@@ -525,8 +525,8 @@ pub(in crate::card::sets) static STONEHORN_CHANTER: CardRecord = CardRecord::new
 );
 
 // M14 40 — Suntail Hawk
-pub(in crate::card::sets) static SUNTAIL_HAWK: CardRecord = CardRecord::new(
-    cards::SUNTAIL_HAWK,
+pub(in crate::card::sets) static SUNTAIL_HAWK: CardRecord = CardRecord::new_with_legacy_id(
+    1160,
     "Suntail Hawk",
     CardArt::new("28a1f83c-a9ef-463e-97b5-2ca3b7232f82", "Heather Hudson"),
     CardSet::Magic2014,
@@ -535,8 +535,8 @@ pub(in crate::card::sets) static SUNTAIL_HAWK: CardRecord = CardRecord::new(
 );
 
 // M14 42 — Air Servant
-pub(in crate::card::sets) static AIR_SERVANT: CardRecord = CardRecord::new(
-    cards::AIR_SERVANT,
+pub(in crate::card::sets) static AIR_SERVANT: CardRecord = CardRecord::new_with_legacy_id(
+    1161,
     "Air Servant",
     CardArt::new("0cbc279d-952a-4b8d-b6ff-37166daa2dd5", "Lars Grant-West"),
     CardSet::Magic2014,
@@ -559,8 +559,8 @@ pub(in crate::card::sets) static AIR_SERVANT: CardRecord = CardRecord::new(
 );
 
 // M14 44 — Armored Cancrix
-pub(in crate::card::sets) static ARMORED_CANCRIX: CardRecord = CardRecord::new(
-    cards::ARMORED_CANCRIX,
+pub(in crate::card::sets) static ARMORED_CANCRIX: CardRecord = CardRecord::new_with_legacy_id(
+    1162,
     "Armored Cancrix",
     CardArt::new("3b455b0f-a69c-43b4-bbf5-605ed41f10e0", "Tomasz Jedruszek"),
     CardSet::Magic2014,
@@ -571,8 +571,8 @@ pub(in crate::card::sets) static ARMORED_CANCRIX: CardRecord = CardRecord::new(
 // Audit: blocked — Islandwalk and defending-player targeting are unsupported, and linked exile cannot express the required one-shot duration if the source leaves early.
 
 // M14 49 — Coral Merfolk
-pub(in crate::card::sets) static CORAL_MERFOLK: CardRecord = CardRecord::new(
-    cards::CORAL_MERFOLK,
+pub(in crate::card::sets) static CORAL_MERFOLK: CardRecord = CardRecord::new_with_legacy_id(
+    1163,
     "Coral Merfolk",
     CardArt::new("09ef366b-26f5-473a-ab96-e668ed54d691", "rk post"),
     CardSet::Magic2014,
@@ -583,8 +583,8 @@ pub(in crate::card::sets) static CORAL_MERFOLK: CardRecord = CardRecord::new(
 // Audit: blocked — Static effects cannot add a creature subtype, and no trigger event observes a permanent becoming a target.
 
 // M14 51 — Disperse
-pub(in crate::card::sets) static DISPERSE: CardRecord = CardRecord::new(
-    cards::DISPERSE,
+pub(in crate::card::sets) static DISPERSE: CardRecord = CardRecord::new_with_legacy_id(
+    1164,
     "Disperse",
     CardArt::new("e6b415d2-53fe-4540-aea6-9cd2c498134c", "Steve Ellis"),
     CardSet::Magic2014,
@@ -634,8 +634,8 @@ static FROST_BREATH_EFFECT: [EffectDef; 2] = [
 ];
 
 // M14 56 — Frost Breath
-pub(in crate::card::sets) static FROST_BREATH: CardRecord = CardRecord::new(
-    cards::FROST_BREATH,
+pub(in crate::card::sets) static FROST_BREATH: CardRecord = CardRecord::new_with_legacy_id(
+    1850,
     "Frost Breath",
     CardArt::new("85d3f777-7660-48ae-8c32-6777ec8427d4", "Mike Bierek"),
     CardSet::Magic2014,
@@ -648,8 +648,8 @@ pub(in crate::card::sets) static FROST_BREATH: CardRecord = CardRecord::new(
 );
 
 // M14 57 — Galerider Sliver
-pub(in crate::card::sets) static GALERIDER_SLIVER: CardRecord = CardRecord::new(
-    cards::GALERIDER_SLIVER,
+pub(in crate::card::sets) static GALERIDER_SLIVER: CardRecord = CardRecord::new_with_legacy_id(
+    1165,
     "Galerider Sliver",
     CardArt::new("425f5d1b-9989-4fd1-88e2-6c3108aefa0b", "James Zapata"),
     CardSet::Magic2014,
@@ -672,8 +672,8 @@ pub(in crate::card::sets) static GALERIDER_SLIVER: CardRecord = CardRecord::new(
 );
 
 // M14 58 — Glimpse the Future
-pub(in crate::card::sets) static GLIMPSE_THE_FUTURE: CardRecord = CardRecord::new(
-    cards::GLIMPSE_THE_FUTURE,
+pub(in crate::card::sets) static GLIMPSE_THE_FUTURE: CardRecord = CardRecord::new_with_legacy_id(
+    1166,
     "Glimpse the Future",
     CardArt::new("f4d875e9-713d-4ddb-ae0a-db8483366319", "Andrew Robinson"),
     CardSet::Magic2014,
@@ -710,8 +710,8 @@ pub(in crate::card::sets) static GLIMPSE_THE_FUTURE: CardRecord = CardRecord::ne
 // Audit: blocked — Islandwalk is unsupported and hand reveal cannot select one uniformly random card.
 
 // M14 63 — Messenger Drake
-pub(in crate::card::sets) static MESSENGER_DRAKE: CardRecord = CardRecord::new(
-    cards::MESSENGER_DRAKE,
+pub(in crate::card::sets) static MESSENGER_DRAKE: CardRecord = CardRecord::new_with_legacy_id(
+    1167,
     "Messenger Drake",
     CardArt::new("13dd3172-0b45-4dc8-adc6-9e0ba112e664", "Yeong-Hao Han"),
     CardSet::Magic2014,
@@ -733,8 +733,8 @@ pub(in crate::card::sets) static MESSENGER_DRAKE: CardRecord = CardRecord::new(
 );
 
 // M14 66 — Opportunity
-pub(in crate::card::sets) static OPPORTUNITY: CardRecord = CardRecord::new(
-    cards::OPPORTUNITY,
+pub(in crate::card::sets) static OPPORTUNITY: CardRecord = CardRecord::new_with_legacy_id(
+    1168,
     "Opportunity",
     CardArt::new("e1b242f3-9398-4d65-a2c7-4de56ee58933", "Allen Williams"),
     CardSet::Magic2014,
@@ -751,8 +751,8 @@ pub(in crate::card::sets) static OPPORTUNITY: CardRecord = CardRecord::new(
 );
 
 // M14 67 — Phantom Warrior
-pub(in crate::card::sets) static PHANTOM_WARRIOR: CardRecord = CardRecord::new(
-    cards::PHANTOM_WARRIOR,
+pub(in crate::card::sets) static PHANTOM_WARRIOR: CardRecord = CardRecord::new_with_legacy_id(
+    1169,
     "Phantom Warrior",
     CardArt::new("e12a1a64-5b32-4b85-8fae-c407d7926547", "Greg Staples"),
     CardSet::Magic2014,
@@ -770,8 +770,8 @@ pub(in crate::card::sets) static PHANTOM_WARRIOR: CardRecord = CardRecord::new(
 );
 
 // M14 68 — Quicken
-pub(in crate::card::sets) static QUICKEN: CardRecord = CardRecord::new(
-    cards::QUICKEN,
+pub(in crate::card::sets) static QUICKEN: CardRecord = CardRecord::new_with_legacy_id(
+    199,
     "Quicken",
     CardArt::new("066bef3d-c785-4b25-9b91-8f676aa9906f", "Aleksi Briclot"),
     CardSet::Magic2014,
@@ -790,8 +790,8 @@ pub(in crate::card::sets) static QUICKEN: CardRecord = CardRecord::new(
 );
 
 // M14 70 — Seacoast Drake
-pub(in crate::card::sets) static SEACOAST_DRAKE: CardRecord = CardRecord::new(
-    cards::SEACOAST_DRAKE,
+pub(in crate::card::sets) static SEACOAST_DRAKE: CardRecord = CardRecord::new_with_legacy_id(
+    1170,
     "Seacoast Drake",
     CardArt::new("5333de10-a6d4-47ff-ab57-4edb49535739", "Scott Chou"),
     CardSet::Magic2014,
@@ -803,8 +803,8 @@ pub(in crate::card::sets) static SEACOAST_DRAKE: CardRecord = CardRecord::new(
 // Audit: blocked — Effect durations cannot end when the source changes controller while remaining on the battlefield.
 
 // M14 74 — Time Ebb
-pub(in crate::card::sets) static TIME_EBB: CardRecord = CardRecord::new(
-    cards::TIME_EBB,
+pub(in crate::card::sets) static TIME_EBB: CardRecord = CardRecord::new_with_legacy_id(
+    1171,
     "Time Ebb",
     CardArt::new("bf0c48f6-8b2e-4eff-aa1e-10e6ccae426a", "Alan Rabinowitz"),
     CardSet::Magic2014,
@@ -825,8 +825,8 @@ pub(in crate::card::sets) static TIME_EBB: CardRecord = CardRecord::new(
 );
 
 // M14 75 — Tome Scour
-pub(in crate::card::sets) static TOME_SCOUR: CardRecord = CardRecord::new(
-    cards::TOME_SCOUR,
+pub(in crate::card::sets) static TOME_SCOUR: CardRecord = CardRecord::new_with_legacy_id(
+    1172,
     "Tome Scour",
     CardArt::new("aed4cfec-5cea-4987-890e-825b2802e9f9", "Steven Belledin"),
     CardSet::Magic2014,
@@ -845,8 +845,8 @@ pub(in crate::card::sets) static TOME_SCOUR: CardRecord = CardRecord::new(
 );
 
 // M14 76 — Trained Condor
-pub(in crate::card::sets) static TRAINED_CONDOR: CardRecord = CardRecord::new(
-    cards::TRAINED_CONDOR,
+pub(in crate::card::sets) static TRAINED_CONDOR: CardRecord = CardRecord::new_with_legacy_id(
+    1173,
     "Trained Condor",
     CardArt::new("6e1eaa5a-3f9d-4166-b418-fd82fff86c73", "Alex Horley-Orlandelli"),
     CardSet::Magic2014,
@@ -878,8 +878,8 @@ static HALF_THEIR_LIBRARY: HalvedValueDef = HalvedValueDef::new(
 );
 
 // M14 77 — Traumatize
-pub(in crate::card::sets) static TRAUMATIZE: CardRecord = CardRecord::new(
-    cards::TRAUMATIZE,
+pub(in crate::card::sets) static TRAUMATIZE: CardRecord = CardRecord::new_with_legacy_id(
+    2008,
     "Traumatize",
     CardArt::new("9b8784dd-83f9-41f8-aedc-f0f81073ffcb", "Greg Staples"),
     CardSet::Magic2014,
@@ -898,8 +898,8 @@ pub(in crate::card::sets) static TRAUMATIZE: CardRecord = CardRecord::new(
 );
 
 // M14 78 — Wall of Frost
-pub(in crate::card::sets) static WALL_OF_FROST: CardRecord = CardRecord::new(
-    cards::WALL_OF_FROST,
+pub(in crate::card::sets) static WALL_OF_FROST: CardRecord = CardRecord::new_with_legacy_id(
+    1862,
     "Wall of Frost",
     CardArt::new("d4000b46-7843-4c07-8332-a10f207e2cdc", "Mike Bierek"),
     CardSet::Magic2014,
@@ -925,8 +925,8 @@ pub(in crate::card::sets) static WALL_OF_FROST: CardRecord = CardRecord::new(
 // Audit: blocked — Generic-cost reduction cannot be filtered to creature spells with effective flying.
 
 // M14 80 — Water Servant
-pub(in crate::card::sets) static WATER_SERVANT: CardRecord = CardRecord::new(
-    cards::WATER_SERVANT,
+pub(in crate::card::sets) static WATER_SERVANT: CardRecord = CardRecord::new_with_legacy_id(
+    1174,
     "Water Servant",
     CardArt::new("a2c7562e-3e25-447d-b9f4-eb96960511b8", "Igor Kieryluk"),
     CardSet::Magic2014,
@@ -959,8 +959,8 @@ pub(in crate::card::sets) static WATER_SERVANT: CardRecord = CardRecord::new(
 );
 
 // M14 81 — Windreader Sphinx
-pub(in crate::card::sets) static WINDREADER_SPHINX: CardRecord = CardRecord::new(
-    cards::WINDREADER_SPHINX,
+pub(in crate::card::sets) static WINDREADER_SPHINX: CardRecord = CardRecord::new_with_legacy_id(
+    1175,
     "Windreader Sphinx",
     CardArt::new("f566741d-a847-4f24-b6fc-7873f0797d59", "Min Yum"),
     CardSet::Magic2014,
@@ -984,8 +984,8 @@ pub(in crate::card::sets) static WINDREADER_SPHINX: CardRecord = CardRecord::new
 );
 
 // M14 82 — Zephyr Charge
-pub(in crate::card::sets) static ZEPHYR_CHARGE: CardRecord = CardRecord::new(
-    cards::ZEPHYR_CHARGE,
+pub(in crate::card::sets) static ZEPHYR_CHARGE: CardRecord = CardRecord::new_with_legacy_id(
+    1176,
     "Zephyr Charge",
     CardArt::new("f9ea2808-0dde-4065-ae7d-905aae98703f", "Steve Prescott"),
     CardSet::Magic2014,
@@ -1006,8 +1006,8 @@ pub(in crate::card::sets) static ZEPHYR_CHARGE: CardRecord = CardRecord::new(
 );
 
 // M14 83 — Accursed Spirit
-pub(in crate::card::sets) static ACCURSED_SPIRIT: CardRecord = CardRecord::new(
-    cards::ACCURSED_SPIRIT,
+pub(in crate::card::sets) static ACCURSED_SPIRIT: CardRecord = CardRecord::new_with_legacy_id(
+    1177,
     "Accursed Spirit",
     CardArt::new("cf08313b-14c9-4e0b-aad7-05cbd90b1ed8", "Kev Walker"),
     CardSet::Magic2014,
@@ -1019,8 +1019,8 @@ pub(in crate::card::sets) static ACCURSED_SPIRIT: CardRecord = CardRecord::new(
 // Audit: blocked — Conditions and recipients cannot follow an Aura to an Equipment and then to the creature that Equipment is attached to.
 
 // M14 86 — Blightcaster
-pub(in crate::card::sets) static BLIGHTCASTER: CardRecord = CardRecord::new(
-    cards::BLIGHTCASTER,
+pub(in crate::card::sets) static BLIGHTCASTER: CardRecord = CardRecord::new_with_legacy_id(
+    1178,
     "Blightcaster",
     CardArt::new("61752b13-255a-44d0-9fb0-5ed5680b954e", "Winona Nelson"),
     CardSet::Magic2014,
@@ -1047,8 +1047,8 @@ pub(in crate::card::sets) static BLIGHTCASTER: CardRecord = CardRecord::new(
 );
 
 // M14 87 — Blood Bairn
-pub(in crate::card::sets) static BLOOD_BAIRN: CardRecord = CardRecord::new(
-    cards::BLOOD_BAIRN,
+pub(in crate::card::sets) static BLOOD_BAIRN: CardRecord = CardRecord::new_with_legacy_id(
+    1179,
     "Blood Bairn",
     CardArt::new("a3fcbbd1-ee51-42a3-ad11-2fd41728c35d", "Ryan Yee"),
     CardSet::Magic2014,
@@ -1078,8 +1078,8 @@ pub(in crate::card::sets) static BLOOD_BAIRN: CardRecord = CardRecord::new(
 // Audit: blocked — SearchZone cannot match either exact printed name or make the selected permanent enter tapped.
 
 // M14 89 — Child of Night
-pub(in crate::card::sets) static CHILD_OF_NIGHT: CardRecord = CardRecord::new(
-    cards::CHILD_OF_NIGHT,
+pub(in crate::card::sets) static CHILD_OF_NIGHT: CardRecord = CardRecord::new_with_legacy_id(
+    1180,
     "Child of Night",
     CardArt::new("c21b5476-5f5f-46b5-b627-398e9fcd04aa", "Ash Wood"),
     CardSet::Magic2014,
@@ -1088,8 +1088,8 @@ pub(in crate::card::sets) static CHILD_OF_NIGHT: CardRecord = CardRecord::new(
 );
 
 // M14 90 — Corpse Hauler
-pub(in crate::card::sets) static CORPSE_HAULER: CardRecord = CardRecord::new(
-    cards::CORPSE_HAULER,
+pub(in crate::card::sets) static CORPSE_HAULER: CardRecord = CardRecord::new_with_legacy_id(
+    1181,
     "Corpse Hauler",
     CardArt::new("ca6adc5e-9221-4a18-8d41-4675797e5d46", "Jesper Ejsing"),
     CardSet::Magic2014,
@@ -1122,8 +1122,8 @@ pub(in crate::card::sets) static CORPSE_HAULER: CardRecord = CardRecord::new(
 // Audit: blocked — No effect can gain exactly the damage Corrupt actually dealt after prevention without incorrectly capping overkill damage.
 
 // M14 93 — Dark Prophecy
-pub(in crate::card::sets) static DARK_PROPHECY: CardRecord = CardRecord::new(
-    cards::DARK_PROPHECY,
+pub(in crate::card::sets) static DARK_PROPHECY: CardRecord = CardRecord::new_with_legacy_id(
+    1182,
     "Dark Prophecy",
     CardArt::new("ecf82c3b-7a35-43dd-8bf3-ebc68dc1b8fc", "Scott Chou"),
     CardSet::Magic2014,
@@ -1151,8 +1151,8 @@ pub(in crate::card::sets) static DARK_PROPHECY: CardRecord = CardRecord::new(
 );
 
 // M14 94 — Deathgaze Cockatrice
-pub(in crate::card::sets) static DEATHGAZE_COCKATRICE: CardRecord = CardRecord::new(
-    cards::DEATHGAZE_COCKATRICE,
+pub(in crate::card::sets) static DEATHGAZE_COCKATRICE: CardRecord = CardRecord::new_with_legacy_id(
+    1183,
     "Deathgaze Cockatrice",
     CardArt::new("9f17b58c-9738-4cdb-a408-e1595c384b92", "Kev Walker"),
     CardSet::Magic2014,
@@ -1161,8 +1161,8 @@ pub(in crate::card::sets) static DEATHGAZE_COCKATRICE: CardRecord = CardRecord::
 );
 
 // M14 95 — Diabolic Tutor
-pub(in crate::card::sets) static DIABOLIC_TUTOR: CardRecord = CardRecord::new(
-    cards::DIABOLIC_TUTOR,
+pub(in crate::card::sets) static DIABOLIC_TUTOR: CardRecord = CardRecord::new_with_legacy_id(
+    1184,
     "Diabolic Tutor",
     CardArt::new("d75a7c8b-f29f-4574-96c0-daac17fc75bb", "Greg Staples"),
     CardSet::Magic2014,
@@ -1186,8 +1186,8 @@ pub(in crate::card::sets) static DIABOLIC_TUTOR: CardRecord = CardRecord::new(
 );
 
 // M14 96 — Doom Blade
-pub(in crate::card::sets) static DOOM_BLADE: CardRecord = CardRecord::new(
-    cards::DOOM_BLADE,
+pub(in crate::card::sets) static DOOM_BLADE: CardRecord = CardRecord::new_with_legacy_id(
+    158,
     "Doom Blade",
     CardArt::new("75d96a37-bdbe-46ae-926f-8742699a0b20", "Chippy"),
     CardSet::Magic2014,
@@ -1205,8 +1205,8 @@ pub(in crate::card::sets) static DOOM_BLADE: CardRecord = CardRecord::new(
 // Audit: blocked — Object predicates cannot test for a different exact card name to choose between two effect amounts.
 
 // M14 99 — Gnawing Zombie
-pub(in crate::card::sets) static GNAWING_ZOMBIE: CardRecord = CardRecord::new(
-    cards::GNAWING_ZOMBIE,
+pub(in crate::card::sets) static GNAWING_ZOMBIE: CardRecord = CardRecord::new_with_legacy_id(
+    1185,
     "Gnawing Zombie",
     CardArt::new("56653d9e-0c29-440b-8724-cae746abb1a9", "Greg Staples"),
     CardSet::Magic2014,
@@ -1277,8 +1277,8 @@ static LIFEBANE_EFFECTS: [EffectDef; 2] = [
 ];
 
 // M14 101 — Lifebane Zombie
-pub(in crate::card::sets) static LIFEBANE_ZOMBIE: CardRecord = CardRecord::new(
-    cards::LIFEBANE_ZOMBIE,
+pub(in crate::card::sets) static LIFEBANE_ZOMBIE: CardRecord = CardRecord::new_with_legacy_id(
+    183,
     "Lifebane Zombie",
     CardArt::new("98370735-5303-40d4-9e80-cdb40dee18e2", "Min Yum"),
     CardSet::Magic2014,
@@ -1315,8 +1315,8 @@ static LILIANAS_REAVER_STRIKE: [EffectDef; 2] = [
 ];
 
 // M14 103 — Liliana's Reaver
-pub(in crate::card::sets) static LILIANAS_REAVER: CardRecord = CardRecord::new(
-    cards::LILIANAS_REAVER,
+pub(in crate::card::sets) static LILIANAS_REAVER: CardRecord = CardRecord::new_with_legacy_id(
+    1631,
     "Liliana's Reaver",
     CardArt::new("a734c33c-4fa0-4f7a-943c-14a8aecea1a6", "Karl Kopinski"),
     CardSet::Magic2014,
@@ -1332,8 +1332,8 @@ pub(in crate::card::sets) static LILIANAS_REAVER: CardRecord = CardRecord::new(
 );
 
 // M14 104 — Liturgy of Blood
-pub(in crate::card::sets) static LITURGY_OF_BLOOD: CardRecord = CardRecord::new(
-    cards::LITURGY_OF_BLOOD,
+pub(in crate::card::sets) static LITURGY_OF_BLOOD: CardRecord = CardRecord::new_with_legacy_id(
+    1186,
     "Liturgy of Blood",
     CardArt::new("3532105d-c550-4c20-8465-a6a19169efbd", "Zack Stella"),
     CardSet::Magic2014,
@@ -1353,8 +1353,8 @@ pub(in crate::card::sets) static LITURGY_OF_BLOOD: CardRecord = CardRecord::new(
 );
 
 // M14 107 — Minotaur Abomination
-pub(in crate::card::sets) static MINOTAUR_ABOMINATION: CardRecord = CardRecord::new(
-    cards::MINOTAUR_ABOMINATION,
+pub(in crate::card::sets) static MINOTAUR_ABOMINATION: CardRecord = CardRecord::new_with_legacy_id(
+    1187,
     "Minotaur Abomination",
     CardArt::new("9dca75a1-443d-4f8e-b12b-2aada3a8e3e4", "Karl Kopinski"),
     CardSet::Magic2014,
@@ -1365,8 +1365,8 @@ pub(in crate::card::sets) static MINOTAUR_ABOMINATION: CardRecord = CardRecord::
 // Audit: blocked — Dynamic power/toughness effects are battlefield-only and cannot implement a characteristic-defining ability in every zone.
 
 // M14 109 — Nightwing Shade
-pub(in crate::card::sets) static NIGHTWING_SHADE: CardRecord = CardRecord::new(
-    cards::NIGHTWING_SHADE,
+pub(in crate::card::sets) static NIGHTWING_SHADE: CardRecord = CardRecord::new_with_legacy_id(
+    1188,
     "Nightwing Shade",
     CardArt::new("a3112a8a-dc80-4099-966c-8fa1807a189b", "Lucas Graciano"),
     CardSet::Magic2014,
@@ -1389,8 +1389,8 @@ pub(in crate::card::sets) static NIGHTWING_SHADE: CardRecord = CardRecord::new(
 
 // M14 110 — Quag Sickness
 // Audit: partial — Static power/toughness modifiers cannot negate a dynamic count of Swamps you control.
-pub(in crate::card::sets) static QUAG_SICKNESS: CardRecord = CardRecord::new(
-    cards::QUAG_SICKNESS,
+pub(in crate::card::sets) static QUAG_SICKNESS: CardRecord = CardRecord::new_with_legacy_id(
+    1189,
     "Quag Sickness",
     CardArt::new("a759dcd2-ca07-4428-a3ea-b2e829b1fcb4", "Martina Pilcerova"),
     CardSet::Magic2014,
@@ -1417,8 +1417,8 @@ pub(in crate::card::sets) static QUAG_SICKNESS: CardRecord = CardRecord::new(
 // Audit: blocked — MoveToZone cannot sweep matching cards from every graveyard into one player's control.
 
 // M14 112 — Sanguine Bond
-pub(in crate::card::sets) static SANGUINE_BOND: CardRecord = CardRecord::new(
-    cards::SANGUINE_BOND,
+pub(in crate::card::sets) static SANGUINE_BOND: CardRecord = CardRecord::new_with_legacy_id(
+    1190,
     "Sanguine Bond",
     CardArt::new("e50e807d-b2eb-4b62-8663-8ad17eed2a39", "Jaime Jones"),
     CardSet::Magic2014,
@@ -1454,8 +1454,8 @@ static SHADOWBORN_DEMON_UPKEEP_CONDITION: TriggerConditionDef = TriggerCondition
 };
 
 // M14 115 — Shadowborn Demon
-pub(in crate::card::sets) static SHADOWBORN_DEMON: CardRecord = CardRecord::new(
-    cards::SHADOWBORN_DEMON,
+pub(in crate::card::sets) static SHADOWBORN_DEMON: CardRecord = CardRecord::new_with_legacy_id(
+    211,
     "Shadowborn Demon",
     CardArt::new("3884c05b-c10e-4f1d-a8bd-8b5118657972", "Lucas Graciano"),
     CardSet::Magic2014,
@@ -1496,8 +1496,8 @@ pub(in crate::card::sets) static SHADOWBORN_DEMON: CardRecord = CardRecord::new(
 );
 
 // M14 116 — Shrivel
-pub(in crate::card::sets) static SHRIVEL: CardRecord = CardRecord::new(
-    cards::SHRIVEL,
+pub(in crate::card::sets) static SHRIVEL: CardRecord = CardRecord::new_with_legacy_id(
+    1191,
     "Shrivel",
     CardArt::new("47b2ffdd-f8a4-49e4-aab1-a8096ba2b7cb", "Jung Park"),
     CardSet::Magic2014,
@@ -1519,8 +1519,8 @@ pub(in crate::card::sets) static SHRIVEL: CardRecord = CardRecord::new(
 );
 
 // M14 117 — Syphon Sliver
-pub(in crate::card::sets) static SYPHON_SLIVER: CardRecord = CardRecord::new(
-    cards::SYPHON_SLIVER,
+pub(in crate::card::sets) static SYPHON_SLIVER: CardRecord = CardRecord::new_with_legacy_id(
+    1192,
     "Syphon Sliver",
     CardArt::new("85cb40e3-c3ed-4b3f-88ad-6f1305297c6f", "Tyler Jacobson"),
     CardSet::Magic2014,
@@ -1546,8 +1546,8 @@ pub(in crate::card::sets) static SYPHON_SLIVER: CardRecord = CardRecord::new(
 // Audit: blocked — The effect vocabulary cannot make the returned source enter tapped after a death trigger.
 
 // M14 119 — Undead Minotaur
-pub(in crate::card::sets) static UNDEAD_MINOTAUR: CardRecord = CardRecord::new(
-    cards::UNDEAD_MINOTAUR,
+pub(in crate::card::sets) static UNDEAD_MINOTAUR: CardRecord = CardRecord::new_with_legacy_id(
+    1193,
     "Undead Minotaur",
     CardArt::new("5e5ae910-ee1d-4958-92d9-0b06872913c6", "Karl Kopinski"),
     CardSet::Magic2014,
@@ -1555,8 +1555,8 @@ pub(in crate::card::sets) static UNDEAD_MINOTAUR: CardRecord = CardRecord::new(
 );
 
 // M14 120 — Vampire Warlord
-pub(in crate::card::sets) static VAMPIRE_WARLORD: CardRecord = CardRecord::new(
-    cards::VAMPIRE_WARLORD,
+pub(in crate::card::sets) static VAMPIRE_WARLORD: CardRecord = CardRecord::new_with_legacy_id(
+    1484,
     "Vampire Warlord",
     CardArt::new("7e07929b-450c-45b0-85e6-512ad280a122", "Wesley Burt"),
     CardSet::Magic2014,
@@ -1577,8 +1577,8 @@ static ANOTHER_CREATURE: ObjectPredicateDef = ObjectPredicateDef::All(&[
 ]);
 
 // M14 122 — Wring Flesh
-pub(in crate::card::sets) static WRING_FLESH: CardRecord = CardRecord::new(
-    cards::WRING_FLESH,
+pub(in crate::card::sets) static WRING_FLESH: CardRecord = CardRecord::new_with_legacy_id(
+    1194,
     "Wring Flesh",
     CardArt::new("d6b77692-08aa-40b6-b21b-c29a2dc87709", "Izzy"),
     CardSet::Magic2014,
@@ -1607,8 +1607,8 @@ static YOUR_HUMAN_CREATURES: [ObjectPredicateDef; 3] = [
 ];
 
 // M14 123 — Xathrid Necromancer
-pub(in crate::card::sets) static XATHRID_NECROMANCER: CardRecord = CardRecord::new(
-    cards::XATHRID_NECROMANCER,
+pub(in crate::card::sets) static XATHRID_NECROMANCER: CardRecord = CardRecord::new_with_legacy_id(
+    1632,
     "Xathrid Necromancer",
     CardArt::new("26494f96-1d97-4435-a116-3ade1becaab4", "Maciej Kuciara"),
     CardSet::Magic2014,
@@ -1631,8 +1631,8 @@ pub(in crate::card::sets) static XATHRID_NECROMANCER: CardRecord = CardRecord::n
 
 // M14 126 — Awaken the Ancient
 // Audit: partial — Static effects cannot animate an attached land while preserving its land characteristics through the shared runtime.
-pub(in crate::card::sets) static AWAKEN_THE_ANCIENT: CardRecord = CardRecord::new(
-    cards::AWAKEN_THE_ANCIENT,
+pub(in crate::card::sets) static AWAKEN_THE_ANCIENT: CardRecord = CardRecord::new_with_legacy_id(
+    1195,
     "Awaken the Ancient",
     CardArt::new("e4125304-fd68-4051-96d5-625ffa9b0d3c", "Jaime Jones"),
     CardSet::Magic2014,
@@ -1659,33 +1659,36 @@ pub(in crate::card::sets) static AWAKEN_THE_ANCIENT: CardRecord = CardRecord::ne
 );
 
 // M14 127 — Barrage of Expendables
-pub(in crate::card::sets) static BARRAGE_OF_EXPENDABLES: CardRecord = CardRecord::new(
-    cards::BARRAGE_OF_EXPENDABLES,
-    "Barrage of Expendables",
-    CardArt::new("b9e0912d-b4b9-497c-bce7-ed80b79bab32", "Trevor Claxton"),
-    CardSet::Magic2014,
-    CardRules::new_enchantment(mana_cost!("{R}")).with_ability(AbilityDef::activated_with_targets(
-        "{R}, Sacrifice a creature: This enchantment deals 1 damage to any target.",
-        &[
-            AbilityCostDef::Mana(mana_cost!("{R}")),
-            AbilityCostDef::SacrificePermanent {
-                object: ObjectPredicateDef::HasType(CardType::Creature),
-                controller: PlayerRelation::You,
-            },
-        ],
-        &[AbilityTargetDef::exactly_one(
-            AbilityTargetPredicate::AnyTarget,
-        )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(1),
-        },
-    )),
-);
+pub(in crate::card::sets) static BARRAGE_OF_EXPENDABLES: CardRecord =
+    CardRecord::new_with_legacy_id(
+        1196,
+        "Barrage of Expendables",
+        CardArt::new("b9e0912d-b4b9-497c-bce7-ed80b79bab32", "Trevor Claxton"),
+        CardSet::Magic2014,
+        CardRules::new_enchantment(mana_cost!("{R}")).with_ability(
+            AbilityDef::activated_with_targets(
+                "{R}, Sacrifice a creature: This enchantment deals 1 damage to any target.",
+                &[
+                    AbilityCostDef::Mana(mana_cost!("{R}")),
+                    AbilityCostDef::SacrificePermanent {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        controller: PlayerRelation::You,
+                    },
+                ],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )],
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ),
+    );
 
 // M14 128 — Battle Sliver
-pub(in crate::card::sets) static BATTLE_SLIVER: CardRecord = CardRecord::new(
-    cards::BATTLE_SLIVER,
+pub(in crate::card::sets) static BATTLE_SLIVER: CardRecord = CardRecord::new_with_legacy_id(
+    1197,
     "Battle Sliver",
     CardArt::new("68490b8c-e9d1-4f5c-9001-750be0e0569f", "Slawomir Maniak"),
     CardSet::Magic2014,
@@ -1711,8 +1714,8 @@ pub(in crate::card::sets) static BATTLE_SLIVER: CardRecord = CardRecord::new(
 );
 
 // M14 129 — Blur Sliver
-pub(in crate::card::sets) static BLUR_SLIVER: CardRecord = CardRecord::new(
-    cards::BLUR_SLIVER,
+pub(in crate::card::sets) static BLUR_SLIVER: CardRecord = CardRecord::new_with_legacy_id(
+    1198,
     "Blur Sliver",
     CardArt::new("63227937-86cc-45e0-9e9e-8c7ab80cbaef", "Daarken"),
     CardSet::Magic2014,
@@ -1735,8 +1738,8 @@ pub(in crate::card::sets) static BLUR_SLIVER: CardRecord = CardRecord::new(
 );
 
 // M14 130 — Burning Earth
-pub(in crate::card::sets) static BURNING_EARTH: CardRecord = CardRecord::new(
-    cards::BURNING_EARTH,
+pub(in crate::card::sets) static BURNING_EARTH: CardRecord = CardRecord::new_with_legacy_id(
+    146,
     "Burning Earth",
     CardArt::new("1df3a7c9-5c8d-438c-a5ad-3c9754c6ea5d", "rk post"),
     CardSet::Magic2014,
@@ -1761,8 +1764,8 @@ pub(in crate::card::sets) static BURNING_EARTH: CardRecord = CardRecord::new(
 // Audit: blocked — Planeswalker support lacks a turn-long cannot-block effect, top-card exile/play permission, and the ultimate's repeatable spell-copy procedure.
 
 // M14 133 — Chandra's Outrage
-pub(in crate::card::sets) static CHANDRAS_OUTRAGE: CardRecord = CardRecord::new(
-    cards::CHANDRAS_OUTRAGE,
+pub(in crate::card::sets) static CHANDRAS_OUTRAGE: CardRecord = CardRecord::new_with_legacy_id(
+    1199,
     "Chandra's Outrage",
     CardArt::new(
         "65d1b479-f6f6-4fec-a5a6-1a74d426fb13",
@@ -1796,8 +1799,8 @@ pub(in crate::card::sets) static CHANDRAS_OUTRAGE: CardRecord = CardRecord::new(
 // Audit: blocked — Combat restrictions cannot compare a prospective attacker's effective power when deciding whether this creature may block it.
 
 // M14 137 — Dragon Egg
-pub(in crate::card::sets) static DRAGON_EGG: CardRecord = CardRecord::new(
-    cards::DRAGON_EGG,
+pub(in crate::card::sets) static DRAGON_EGG: CardRecord = CardRecord::new_with_legacy_id(
+    1200,
     "Dragon Egg",
     CardArt::new("dc2048f7-0c68-4142-9aad-de9b91fe5958", "Jack Wang"),
     CardSet::Magic2014,
@@ -1818,8 +1821,8 @@ pub(in crate::card::sets) static DRAGON_EGG: CardRecord = CardRecord::new(
 
 // M14 140 — Fleshpulper Giant
 // Audit: partial — The toughness target predicate does not yet account for continuous static power/toughness effects.
-pub(in crate::card::sets) static FLESHPULPER_GIANT: CardRecord = CardRecord::new(
-    cards::FLESHPULPER_GIANT,
+pub(in crate::card::sets) static FLESHPULPER_GIANT: CardRecord = CardRecord::new_with_legacy_id(
+    1201,
     "Fleshpulper Giant",
     CardArt::new(
         "f2726d3c-c182-4d8a-a723-0de2c5c4b152",
@@ -1849,8 +1852,8 @@ pub(in crate::card::sets) static FLESHPULPER_GIANT: CardRecord = CardRecord::new
 );
 
 // M14 141 — Goblin Diplomats
-pub(in crate::card::sets) static GOBLIN_DIPLOMATS: CardRecord = CardRecord::new(
-    cards::GOBLIN_DIPLOMATS,
+pub(in crate::card::sets) static GOBLIN_DIPLOMATS: CardRecord = CardRecord::new_with_legacy_id(
+    1202,
     "Goblin Diplomats",
     CardArt::new("4620c581-fef7-45e8-ba20-d00903c2f4c5", "Izzy"),
     CardSet::Magic2014,
@@ -1874,8 +1877,8 @@ pub(in crate::card::sets) static GOBLIN_DIPLOMATS: CardRecord = CardRecord::new(
 );
 
 // M14 142 — Goblin Shortcutter
-pub(in crate::card::sets) static GOBLIN_SHORTCUTTER: CardRecord = CardRecord::new(
-    cards::GOBLIN_SHORTCUTTER,
+pub(in crate::card::sets) static GOBLIN_SHORTCUTTER: CardRecord = CardRecord::new_with_legacy_id(
+    1747,
     "Goblin Shortcutter",
     CardArt::new("71bccbec-6e1e-43d5-b0dc-eddf942fa798", "Jesper Ejsing"),
     CardSet::Magic2014,
@@ -1900,8 +1903,8 @@ pub(in crate::card::sets) static GOBLIN_SHORTCUTTER: CardRecord = CardRecord::ne
 );
 
 // M14 143 — Lava Axe
-pub(in crate::card::sets) static LAVA_AXE: CardRecord = CardRecord::new(
-    cards::LAVA_AXE,
+pub(in crate::card::sets) static LAVA_AXE: CardRecord = CardRecord::new_with_legacy_id(
+    1203,
     "Lava Axe",
     CardArt::new("1c4f1041-8bbe-46fa-bbe4-40cd993f53a2", "Brian Snõddy"),
     CardSet::Magic2014,
@@ -1918,8 +1921,8 @@ pub(in crate::card::sets) static LAVA_AXE: CardRecord = CardRecord::new(
 );
 
 // M14 144 — Lightning Talons
-pub(in crate::card::sets) static LIGHTNING_TALONS: CardRecord = CardRecord::new(
-    cards::LIGHTNING_TALONS,
+pub(in crate::card::sets) static LIGHTNING_TALONS: CardRecord = CardRecord::new_with_legacy_id(
+    1204,
     "Lightning Talons",
     CardArt::new("87186a8a-45da-4cde-a167-c16a6abc4d24", "Johann Bodin"),
     CardSet::Magic2014,
@@ -1955,8 +1958,8 @@ pub(in crate::card::sets) static LIGHTNING_TALONS: CardRecord = CardRecord::new(
 // Audit: blocked — Attack requirements cannot be conditional on controlling a permanent with a different exact name.
 
 // M14 146 — Mindsparker
-pub(in crate::card::sets) static MINDSPARKER: CardRecord = CardRecord::new(
-    cards::MINDSPARKER,
+pub(in crate::card::sets) static MINDSPARKER: CardRecord = CardRecord::new_with_legacy_id(
+    1205,
     "Mindsparker",
     CardArt::new("a94295dc-d078-4f3f-9856-bd0a1899a9ca", "Wayne Reynolds"),
     CardSet::Magic2014,
@@ -1987,8 +1990,8 @@ pub(in crate::card::sets) static MINDSPARKER: CardRecord = CardRecord::new(
 // Audit: blocked — There is no coin-flip decision or result-conditioned self-return effect.
 
 // M14 148 — Ogre Battledriver
-pub(in crate::card::sets) static OGRE_BATTLEDRIVER: CardRecord = CardRecord::new(
-    cards::OGRE_BATTLEDRIVER,
+pub(in crate::card::sets) static OGRE_BATTLEDRIVER: CardRecord = CardRecord::new_with_legacy_id(
+    1206,
     "Ogre Battledriver",
     CardArt::new("bff2d740-22cc-4719-ac58-28621951e68d", "Greg Staples"),
     CardSet::Magic2014,
@@ -2013,8 +2016,8 @@ pub(in crate::card::sets) static OGRE_BATTLEDRIVER: CardRecord = CardRecord::new
 );
 
 // M14 150 — Regathan Firecat
-pub(in crate::card::sets) static REGATHAN_FIRECAT: CardRecord = CardRecord::new(
-    cards::REGATHAN_FIRECAT,
+pub(in crate::card::sets) static REGATHAN_FIRECAT: CardRecord = CardRecord::new_with_legacy_id(
+    1207,
     "Regathan Firecat",
     CardArt::new("4b4df1dd-886d-4fe7-b3f7-2dca044de41c", "Eric Velhagen"),
     CardSet::Magic2014,
@@ -2022,8 +2025,8 @@ pub(in crate::card::sets) static REGATHAN_FIRECAT: CardRecord = CardRecord::new(
 );
 
 // M14 151 — Scourge of Valkas
-pub(in crate::card::sets) static SCOURGE_OF_VALKAS: CardRecord = CardRecord::new(
-    cards::SCOURGE_OF_VALKAS,
+pub(in crate::card::sets) static SCOURGE_OF_VALKAS: CardRecord = CardRecord::new_with_legacy_id(
+    1208,
     "Scourge of Valkas",
     CardArt::new("27ce2b55-45bf-4852-a74a-d0b17c6c9c3f", "Lucas Graciano"),
     CardSet::Magic2014,
@@ -2064,8 +2067,8 @@ pub(in crate::card::sets) static SCOURGE_OF_VALKAS: CardRecord = CardRecord::new
 // Audit: blocked — A granted activated ability cannot retain the enchanted creature as its recipient if the Aura leaves before resolution.
 
 // M14 155 — Shock
-pub(in crate::card::sets) static SHOCK: CardRecord = CardRecord::new(
-    cards::SHOCK,
+pub(in crate::card::sets) static SHOCK: CardRecord = CardRecord::new_with_legacy_id(
+    1209,
     "Shock",
     CardArt::new("2fbec2ea-7b60-4c51-9782-52ccdd96c4b7", "Jon Foster"),
     CardSet::Magic2014,
@@ -2082,8 +2085,8 @@ pub(in crate::card::sets) static SHOCK: CardRecord = CardRecord::new(
 );
 
 // M14 157 — Striking Sliver
-pub(in crate::card::sets) static STRIKING_SLIVER: CardRecord = CardRecord::new(
-    cards::STRIKING_SLIVER,
+pub(in crate::card::sets) static STRIKING_SLIVER: CardRecord = CardRecord::new_with_legacy_id(
+    1210,
     "Striking Sliver",
     CardArt::new("4ee9254b-3d98-4477-a82e-1450cf3ee96e", "Maciej Kuciara"),
     CardSet::Magic2014,
@@ -2118,8 +2121,8 @@ static THORNCASTER_SLIVER_GRANTED_ABILITY: AbilityDef = AbilityDef::triggered_wi
 );
 
 // M14 158 — Thorncaster Sliver
-pub(in crate::card::sets) static THORNCASTER_SLIVER: CardRecord = CardRecord::new(
-    cards::THORNCASTER_SLIVER,
+pub(in crate::card::sets) static THORNCASTER_SLIVER: CardRecord = CardRecord::new_with_legacy_id(
+    1211,
     "Thorncaster Sliver",
     CardArt::new("3655d837-945f-4ff5-8952-cff5f7b2d18f", "Trevor Claxton"),
     CardSet::Magic2014,
@@ -2138,8 +2141,8 @@ pub(in crate::card::sets) static THORNCASTER_SLIVER: CardRecord = CardRecord::ne
 );
 
 // M14 159 — Thunder Strike
-pub(in crate::card::sets) static THUNDER_STRIKE: CardRecord = CardRecord::new(
-    cards::THUNDER_STRIKE,
+pub(in crate::card::sets) static THUNDER_STRIKE: CardRecord = CardRecord::new_with_legacy_id(
+    1212,
     "Thunder Strike",
     CardArt::new("61aa445d-d734-4e4f-800d-fe7bea86eb70", "Wayne Reynolds"),
     CardSet::Magic2014,
@@ -2166,8 +2169,8 @@ pub(in crate::card::sets) static THUNDER_STRIKE: CardRecord = CardRecord::new(
 // Audit: blocked — Stack effects cannot retarget a spell, copy it, and independently retarget the copy.
 
 // M14 163 — Young Pyromancer
-pub(in crate::card::sets) static YOUNG_PYROMANCER: CardRecord = CardRecord::new(
-    cards::YOUNG_PYROMANCER,
+pub(in crate::card::sets) static YOUNG_PYROMANCER: CardRecord = CardRecord::new_with_legacy_id(
+    1213,
     "Young Pyromancer",
     CardArt::new("e349c204-3a93-4bf7-b79a-5f5f261ea2d3", "Cynthia Sheppard"),
     CardSet::Magic2014,
@@ -2187,8 +2190,8 @@ pub(in crate::card::sets) static YOUNG_PYROMANCER: CardRecord = CardRecord::new(
 );
 
 // M14 164 — Advocate of the Beast
-pub(in crate::card::sets) static ADVOCATE_OF_THE_BEAST: CardRecord = CardRecord::new(
-    cards::ADVOCATE_OF_THE_BEAST,
+pub(in crate::card::sets) static ADVOCATE_OF_THE_BEAST: CardRecord = CardRecord::new_with_legacy_id(
+    1214,
     "Advocate of the Beast",
     CardArt::new("b1320400-5aa8-48d6-be84-197b4559456f", "Jesper Ejsing"),
     CardSet::Magic2014,
@@ -2214,8 +2217,8 @@ pub(in crate::card::sets) static ADVOCATE_OF_THE_BEAST: CardRecord = CardRecord:
 );
 
 // M14 167 — Brindle Boar
-pub(in crate::card::sets) static BRINDLE_BOAR: CardRecord = CardRecord::new(
-    cards::BRINDLE_BOAR,
+pub(in crate::card::sets) static BRINDLE_BOAR: CardRecord = CardRecord::new_with_legacy_id(
+    1215,
     "Brindle Boar",
     CardArt::new("a30b4a78-afdd-4067-810e-1fa0ddf8fb0e", "Dave Allsop"),
     CardSet::Magic2014,
@@ -2232,8 +2235,8 @@ pub(in crate::card::sets) static BRINDLE_BOAR: CardRecord = CardRecord::new(
 );
 
 // M14 169 — Elvish Mystic
-pub(in crate::card::sets) static ELVISH_MYSTIC: CardRecord = CardRecord::new(
-    cards::ELVISH_MYSTIC,
+pub(in crate::card::sets) static ELVISH_MYSTIC: CardRecord = CardRecord::new_with_legacy_id(
+    160,
     "Elvish Mystic",
     CardArt::new("60d0e6a6-629a-45a7-bfcb-25ba7156788b", "Wesley Burt"),
     CardSet::Magic2014,
@@ -2252,8 +2255,8 @@ static ENLARGE_GROWTH: [AppliedEffectDef; 3] = [
 ];
 
 // M14 170 — Enlarge
-pub(in crate::card::sets) static ENLARGE: CardRecord = CardRecord::new(
-    cards::ENLARGE,
+pub(in crate::card::sets) static ENLARGE: CardRecord = CardRecord::new_with_legacy_id(
+    1740,
     "Enlarge",
     CardArt::new("ec40df78-b1ca-4300-8a47-4d5b0ae3499e", "Michael Komarck"),
     CardSet::Magic2014,
@@ -2278,8 +2281,8 @@ pub(in crate::card::sets) static ENLARGE: CardRecord = CardRecord::new(
 // Audit: blocked — The engine cannot reveal the top library card continuously or offer creature spells there as castable play options.
 
 // M14 176 — Gladecover Scout
-pub(in crate::card::sets) static GLADECOVER_SCOUT: CardRecord = CardRecord::new(
-    cards::GLADECOVER_SCOUT,
+pub(in crate::card::sets) static GLADECOVER_SCOUT: CardRecord = CardRecord::new_with_legacy_id(
+    1216,
     "Gladecover Scout",
     CardArt::new("e112d77d-f019-4709-b31a-b02952df0e35", "Allen Williams"),
     CardSet::Magic2014,
@@ -2288,8 +2291,8 @@ pub(in crate::card::sets) static GLADECOVER_SCOUT: CardRecord = CardRecord::new(
 );
 
 // M14 177 — Groundshaker Sliver
-pub(in crate::card::sets) static GROUNDSHAKER_SLIVER: CardRecord = CardRecord::new(
-    cards::GROUNDSHAKER_SLIVER,
+pub(in crate::card::sets) static GROUNDSHAKER_SLIVER: CardRecord = CardRecord::new_with_legacy_id(
+    1217,
     "Groundshaker Sliver",
     CardArt::new("712f0ce4-9189-4c75-9c2b-d370bce89052", "Chase Stone"),
     CardSet::Magic2014,
@@ -2318,21 +2321,22 @@ static M14_FORESTS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
 );
 
 // M14 178 — Howl of the Night Pack
-pub(in crate::card::sets) static HOWL_OF_THE_NIGHT_PACK: CardRecord = CardRecord::new(
-    cards::HOWL_OF_THE_NIGHT_PACK,
-    "Howl of the Night Pack",
-    CardArt::new("20fc5ff1-b8bd-44d5-a659-17eeae06736a", "Lars Grant-West"),
-    CardSet::Magic2014,
-    CardRules::new_sorcery(mana_cost!("{6}{G}")).with_ability(AbilityDef::spell(
-        "Create a 2/2 green Wolf creature token for each Forest you control.",
-        EffectDef::create_creature_token(&["Wolf"], &[ManaColor::Green], 2, 2)
-            .with_art(CardArt::new(
-                "309f1bd4-78af-4722-9d45-b5f40b001570",
-                "Lars Grant-West",
-            ))
-            .with_count(ValueDef::CountMatchingObjects(&M14_FORESTS_YOU_CONTROL)),
-    )),
-);
+pub(in crate::card::sets) static HOWL_OF_THE_NIGHT_PACK: CardRecord =
+    CardRecord::new_with_legacy_id(
+        1218,
+        "Howl of the Night Pack",
+        CardArt::new("20fc5ff1-b8bd-44d5-a659-17eeae06736a", "Lars Grant-West"),
+        CardSet::Magic2014,
+        CardRules::new_sorcery(mana_cost!("{6}{G}")).with_ability(AbilityDef::spell(
+            "Create a 2/2 green Wolf creature token for each Forest you control.",
+            EffectDef::create_creature_token(&["Wolf"], &[ManaColor::Green], 2, 2)
+                .with_art(CardArt::new(
+                    "309f1bd4-78af-4722-9d45-b5f40b001570",
+                    "Lars Grant-West",
+                ))
+                .with_count(ValueDef::CountMatchingObjects(&M14_FORESTS_YOU_CONTROL)),
+        )),
+    );
 
 // M14 179 — Hunt the Weak
 // Audit: blocked — DealDamage can only attribute damage to the resolving spell, not to each fighting creature.
@@ -2357,8 +2361,8 @@ static INTO_THE_WILDS_LOOK: TopCardSelectionDef = TopCardSelectionDef {
 };
 
 // M14 180 — Into the Wilds
-pub(in crate::card::sets) static INTO_THE_WILDS: CardRecord = CardRecord::new(
-    cards::INTO_THE_WILDS,
+pub(in crate::card::sets) static INTO_THE_WILDS: CardRecord = CardRecord::new_with_legacy_id(
+    2007,
     "Into the Wilds",
     CardArt::new("ecfa6c8d-b5b5-4b68-9ad4-c9d8169659d6", "Véronique Meignaud"),
     CardSet::Magic2014,
@@ -2382,8 +2386,8 @@ pub(in crate::card::sets) static INTO_THE_WILDS: CardRecord = CardRecord::new(
 // Audit: blocked — Counter effects cannot double each creature's existing +1/+1 counter count.
 
 // M14 182 — Kalonian Tusker
-pub(in crate::card::sets) static KALONIAN_TUSKER: CardRecord = CardRecord::new(
-    cards::KALONIAN_TUSKER,
+pub(in crate::card::sets) static KALONIAN_TUSKER: CardRecord = CardRecord::new_with_legacy_id(
+    1219,
     "Kalonian Tusker",
     CardArt::new("135946fc-fe67-401f-821d-d7145c63f030", "Svetlin Velinov"),
     CardSet::Magic2014,
@@ -2391,8 +2395,8 @@ pub(in crate::card::sets) static KALONIAN_TUSKER: CardRecord = CardRecord::new(
 );
 
 // M14 183 — Lay of the Land
-pub(in crate::card::sets) static LAY_OF_THE_LAND: CardRecord = CardRecord::new(
-    cards::LAY_OF_THE_LAND,
+pub(in crate::card::sets) static LAY_OF_THE_LAND: CardRecord = CardRecord::new_with_legacy_id(
+    1220,
     "Lay of the Land",
     CardArt::new("3bb3410b-d6c3-4e42-b3c9-fb557f9a16f0", "Chuck Lukacs"),
     CardSet::Magic2014,
@@ -2425,8 +2429,8 @@ static MANAWEFT_SLIVER_GRANTED_ABILITY: AbilityDef = AbilityDef::activated_mana(
 );
 
 // M14 184 — Manaweft Sliver
-pub(in crate::card::sets) static MANAWEFT_SLIVER: CardRecord = CardRecord::new(
-    cards::MANAWEFT_SLIVER,
+pub(in crate::card::sets) static MANAWEFT_SLIVER: CardRecord = CardRecord::new_with_legacy_id(
+    1221,
     "Manaweft Sliver",
     CardArt::new("fe45433b-e124-44d7-9463-dada39310148", "Trevor Claxton"),
     CardSet::Magic2014,
@@ -2449,8 +2453,8 @@ pub(in crate::card::sets) static MANAWEFT_SLIVER: CardRecord = CardRecord::new(
 );
 
 // M14 185 — Megantic Sliver
-pub(in crate::card::sets) static MEGANTIC_SLIVER: CardRecord = CardRecord::new(
-    cards::MEGANTIC_SLIVER,
+pub(in crate::card::sets) static MEGANTIC_SLIVER: CardRecord = CardRecord::new_with_legacy_id(
+    1222,
     "Megantic Sliver",
     CardArt::new("7745f6a9-400c-4200-9732-86c54247de46", "Ryan Barger"),
     CardSet::Magic2014,
@@ -2476,8 +2480,8 @@ pub(in crate::card::sets) static MEGANTIC_SLIVER: CardRecord = CardRecord::new(
 );
 
 // M14 187 — Oath of the Ancient Wood
-pub(in crate::card::sets) static OATH_OF_THE_ANCIENT_WOOD: CardRecord = CardRecord::new(
-    cards::OATH_OF_THE_ANCIENT_WOOD,
+pub(in crate::card::sets) static OATH_OF_THE_ANCIENT_WOOD: CardRecord = CardRecord::new_with_legacy_id(
+    1223,
     "Oath of the Ancient Wood",
     CardArt::new("9bc42032-8727-4f78-b369-ba103d965b73", "Dan Murayama Scott"),
     CardSet::Magic2014,
@@ -2504,8 +2508,8 @@ pub(in crate::card::sets) static OATH_OF_THE_ANCIENT_WOOD: CardRecord = CardReco
 );
 
 // M14 189 — Predatory Sliver
-pub(in crate::card::sets) static PREDATORY_SLIVER: CardRecord = CardRecord::new(
-    cards::PREDATORY_SLIVER,
+pub(in crate::card::sets) static PREDATORY_SLIVER: CardRecord = CardRecord::new_with_legacy_id(
+    1224,
     "Predatory Sliver",
     CardArt::new("a2e37de8-66a1-4afa-aa6f-1151f849dfa8", "Mathias Kollros"),
     CardSet::Magic2014,
@@ -2531,8 +2535,8 @@ pub(in crate::card::sets) static PREDATORY_SLIVER: CardRecord = CardRecord::new(
 );
 
 // M14 190 — Primeval Bounty
-pub(in crate::card::sets) static PRIMEVAL_BOUNTY: CardRecord = CardRecord::new(
-    cards::PRIMEVAL_BOUNTY,
+pub(in crate::card::sets) static PRIMEVAL_BOUNTY: CardRecord = CardRecord::new_with_legacy_id(
+    197,
     "Primeval Bounty",
     CardArt::new("e750d55d-d5e8-4abe-99cf-f6b8ba86cf16", "Christine Choi"),
     CardSet::Magic2014,
@@ -2573,8 +2577,8 @@ pub(in crate::card::sets) static PRIMEVAL_BOUNTY: CardRecord = CardRecord::new(
 );
 
 // M14 192 — Rootwalla
-pub(in crate::card::sets) static ROOTWALLA: CardRecord = CardRecord::new(
-    cards::ROOTWALLA,
+pub(in crate::card::sets) static ROOTWALLA: CardRecord = CardRecord::new_with_legacy_id(
+    1902,
     "Rootwalla",
     CardArt::new("2b84b6dc-d78d-4d6a-9e9a-2b40854a102b", "Roger Raupp"),
     CardSet::Magic2014,
@@ -2598,8 +2602,8 @@ pub(in crate::card::sets) static ROOTWALLA: CardRecord = CardRecord::new(
 );
 
 // M14 193 — Rumbling Baloth
-pub(in crate::card::sets) static RUMBLING_BALOTH: CardRecord = CardRecord::new(
-    cards::RUMBLING_BALOTH,
+pub(in crate::card::sets) static RUMBLING_BALOTH: CardRecord = CardRecord::new_with_legacy_id(
+    1225,
     "Rumbling Baloth",
     CardArt::new("d8610ff1-064b-4c75-a8df-d3b076370d1e", "Jesper Ejsing"),
     CardSet::Magic2014,
@@ -2618,8 +2622,8 @@ static EXILED_A_CREATURE: TargetConditionDef = TargetConditionDef {
 };
 
 // M14 195 — Scavenging Ooze
-pub(in crate::card::sets) static SCAVENGING_OOZE: CardRecord = CardRecord::new(
-    cards::SCAVENGING_OOZE,
+pub(in crate::card::sets) static SCAVENGING_OOZE: CardRecord = CardRecord::new_with_legacy_id(
+    208,
     "Scavenging Ooze",
     CardArt::new("ec30153a-36b5-42f8-beed-9efab09f1051", "Austin Hsu"),
     CardSet::Magic2014,
@@ -2663,8 +2667,8 @@ pub(in crate::card::sets) static SCAVENGING_OOZE: CardRecord = CardRecord::new(
 );
 
 // M14 196 — Sporemound
-pub(in crate::card::sets) static SPOREMOUND: CardRecord = CardRecord::new(
-    cards::SPOREMOUND,
+pub(in crate::card::sets) static SPOREMOUND: CardRecord = CardRecord::new_with_legacy_id(
+    1226,
     "Sporemound",
     CardArt::new("2d256cd0-6fe9-4905-9886-fb1457292db5", "Svetlin Velinov"),
     CardSet::Magic2014,
@@ -2681,8 +2685,8 @@ pub(in crate::card::sets) static SPOREMOUND: CardRecord = CardRecord::new(
 );
 
 // M14 197 — Trollhide
-pub(in crate::card::sets) static TROLLHIDE: CardRecord = CardRecord::new(
-    cards::TROLLHIDE,
+pub(in crate::card::sets) static TROLLHIDE: CardRecord = CardRecord::new_with_legacy_id(
+    1485,
     "Trollhide",
     CardArt::new("08b9c400-dc8f-4fe6-a868-fdf0d247086a", "Steven Belledin"),
     CardSet::Magic2014,
@@ -2717,8 +2721,8 @@ static TROLLHIDE_REGENERATION: AbilityDef = abilities::regenerate_self(
 // Audit: blocked — Entry replacements cannot derive a counter amount from life gained during the turn.
 
 // M14 201 — Windstorm
-pub(in crate::card::sets) static WINDSTORM: CardRecord = CardRecord::new(
-    cards::WINDSTORM,
+pub(in crate::card::sets) static WINDSTORM: CardRecord = CardRecord::new_with_legacy_id(
+    1227,
     "Windstorm",
     CardArt::new("3cb7d122-34e8-48e1-a978-831c78a37d0c", "Rob Alexander"),
     CardSet::Magic2014,
@@ -2764,8 +2768,8 @@ static WOODBORN_BEHEMOTH_GRANT: EffectDef = EffectDef::StaticApply {
 };
 
 // M14 203 — Woodborn Behemoth
-pub(in crate::card::sets) static WOODBORN_BEHEMOTH: CardRecord = CardRecord::new(
-    cards::WOODBORN_BEHEMOTH,
+pub(in crate::card::sets) static WOODBORN_BEHEMOTH: CardRecord = CardRecord::new_with_legacy_id(
+    1919,
     "Woodborn Behemoth",
     CardArt::new("8c73dbf3-e68e-4f21-b6ca-94302bf5574c", "Matt Stewart"),
     CardSet::Magic2014,
@@ -2791,8 +2795,8 @@ static ACCORDERS_SHIELD_BONUS: [AppliedEffectDef; 2] = [
 ];
 
 // M14 204 — Accorder's Shield
-pub(in crate::card::sets) static ACCORDERS_SHIELD: CardRecord = CardRecord::new(
-    cards::ACCORDERS_SHIELD,
+pub(in crate::card::sets) static ACCORDERS_SHIELD: CardRecord = CardRecord::new_with_legacy_id(
+    1624,
     "Accorder's Shield",
     CardArt::new("c5a4c2ab-c5bc-4e07-8671-a688ebd5471c", "Alan Pollack"),
     CardSet::Magic2014,
@@ -2818,8 +2822,8 @@ pub(in crate::card::sets) static ACCORDERS_SHIELD: CardRecord = CardRecord::new(
 // Audit: blocked — Costs cannot select an exact named sacrifice, and effects cannot total life actually lost by all opponents for the linked gain.
 
 // M14 206 — Darksteel Forge
-pub(in crate::card::sets) static DARKSTEEL_FORGE: CardRecord = CardRecord::new(
-    cards::DARKSTEEL_FORGE,
+pub(in crate::card::sets) static DARKSTEEL_FORGE: CardRecord = CardRecord::new_with_legacy_id(
+    1228,
     "Darksteel Forge",
     CardArt::new("2c95a0a1-9c2c-44df-b0fe-c22efb6d87ee", "Martina Pilcerova"),
     CardSet::Magic2014,
@@ -2842,8 +2846,8 @@ pub(in crate::card::sets) static DARKSTEEL_FORGE: CardRecord = CardRecord::new(
 static FIRESHRIEKER_DOUBLE_STRIKE: AbilityDef = abilities::double_strike();
 
 // M14 210 — Fireshrieker
-pub(in crate::card::sets) static FIRESHRIEKER: CardRecord = CardRecord::new(
-    cards::FIRESHRIEKER,
+pub(in crate::card::sets) static FIRESHRIEKER: CardRecord = CardRecord::new_with_legacy_id(
+    1625,
     "Fireshrieker",
     CardArt::new(
         "9f653742-b92a-4cfa-b3b5-8d20aabdb5dd",
@@ -2891,8 +2895,8 @@ static HAUNTED_PLATE_MAIL_ANIMATION: [AppliedEffectDef; 4] = [
 ];
 
 // M14 212 — Haunted Plate Mail
-pub(in crate::card::sets) static HAUNTED_PLATE_MAIL: CardRecord = CardRecord::new(
-    cards::HAUNTED_PLATE_MAIL,
+pub(in crate::card::sets) static HAUNTED_PLATE_MAIL: CardRecord = CardRecord::new_with_legacy_id(
+    2312,
     "Haunted Plate Mail",
     CardArt::new("e2dc1e07-7894-4f22-936d-bf5df3f8d5a5", "Izzy"),
     CardSet::Magic2014,
@@ -2930,8 +2934,8 @@ pub(in crate::card::sets) static HAUNTED_PLATE_MAIL: CardRecord = CardRecord::ne
 // Audit: blocked — Damage replacement cannot filter red instant, sorcery, or planeswalker sources and add a fixed amount to the event.
 
 // M14 215 — Ratchet Bomb
-pub(in crate::card::sets) static RATCHET_BOMB: CardRecord = CardRecord::new(
-    cards::RATCHET_BOMB,
+pub(in crate::card::sets) static RATCHET_BOMB: CardRecord = CardRecord::new_with_legacy_id(
+    200,
     "Ratchet Bomb",
     CardArt::new("3e9045df-3eff-4236-9bbb-77537b302e27", "Austin Hsu"),
     CardSet::Magic2014,
@@ -2967,8 +2971,8 @@ pub(in crate::card::sets) static RATCHET_BOMB: CardRecord = CardRecord::new(
 // Audit: blocked — CounterKind has no wish counter, so the entry counters and removal cost cannot share the printed counter identity.
 
 // M14 218 — Sliver Construct
-pub(in crate::card::sets) static SLIVER_CONSTRUCT: CardRecord = CardRecord::new(
-    cards::SLIVER_CONSTRUCT,
+pub(in crate::card::sets) static SLIVER_CONSTRUCT: CardRecord = CardRecord::new_with_legacy_id(
+    1229,
     "Sliver Construct",
     CardArt::new("3129645a-221c-4eb5-88fd-12cc742a1dfe", "Mathias Kollros"),
     CardSet::Magic2014,
@@ -2976,196 +2980,201 @@ pub(in crate::card::sets) static SLIVER_CONSTRUCT: CardRecord = CardRecord::new(
 );
 
 // M14 219 — Staff of the Death Magus
-pub(in crate::card::sets) static STAFF_OF_THE_DEATH_MAGUS: CardRecord = CardRecord::new(
-    cards::STAFF_OF_THE_DEATH_MAGUS,
-    "Staff of the Death Magus",
-    CardArt::new("624fe171-8bd8-4156-b40e-74e2a847d380", "Daniel Ljunggren"),
-    CardSet::Magic2014,
-    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
-        AbilityDef::triggered(
-            "Whenever you cast a black spell, you gain 1 life.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
-                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                ObjectPredicateDef::Color(ManaColor::Black),
-            ])),
-            EffectDef::GainLife {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
-            },
-        ),
-        AbilityDef::triggered(
-            "Whenever a Swamp you control enters, you gain 1 life.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Land),
-                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
+pub(in crate::card::sets) static STAFF_OF_THE_DEATH_MAGUS: CardRecord =
+    CardRecord::new_with_legacy_id(
+        1230,
+        "Staff of the Death Magus",
+        CardArt::new("624fe171-8bd8-4156-b40e-74e2a847d380", "Daniel Ljunggren"),
+        CardSet::Magic2014,
+        CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+            AbilityDef::triggered(
+                "Whenever you cast a black spell, you gain 1 life.",
+                TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                ]),
-                None,
-                Some(ZoneKind::Battlefield),
+                    ObjectPredicateDef::Color(ManaColor::Black),
+                ])),
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
             ),
-            EffectDef::GainLife {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
-            },
-        ),
-    ]),
-);
+            AbilityDef::triggered(
+                "Whenever a Swamp you control enters, you gain 1 life.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
+    );
 
 // M14 220 — Staff of the Flame Magus
-pub(in crate::card::sets) static STAFF_OF_THE_FLAME_MAGUS: CardRecord = CardRecord::new(
-    cards::STAFF_OF_THE_FLAME_MAGUS,
-    "Staff of the Flame Magus",
-    CardArt::new("6d6befbd-4fe3-4338-b8ea-13b8b70a7664", "Daniel Ljunggren"),
-    CardSet::Magic2014,
-    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
-        AbilityDef::triggered(
-            "Whenever you cast a red spell, you gain 1 life.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
-                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                ObjectPredicateDef::Color(ManaColor::Red),
-            ])),
-            EffectDef::GainLife {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
-            },
-        ),
-        AbilityDef::triggered(
-            "Whenever a Mountain you control enters, you gain 1 life.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Land),
-                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+pub(in crate::card::sets) static STAFF_OF_THE_FLAME_MAGUS: CardRecord =
+    CardRecord::new_with_legacy_id(
+        1231,
+        "Staff of the Flame Magus",
+        CardArt::new("6d6befbd-4fe3-4338-b8ea-13b8b70a7664", "Daniel Ljunggren"),
+        CardSet::Magic2014,
+        CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+            AbilityDef::triggered(
+                "Whenever you cast a red spell, you gain 1 life.",
+                TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                ]),
-                None,
-                Some(ZoneKind::Battlefield),
+                    ObjectPredicateDef::Color(ManaColor::Red),
+                ])),
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
             ),
-            EffectDef::GainLife {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
-            },
-        ),
-    ]),
-);
+            AbilityDef::triggered(
+                "Whenever a Mountain you control enters, you gain 1 life.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
+    );
 
 // M14 221 — Staff of the Mind Magus
-pub(in crate::card::sets) static STAFF_OF_THE_MIND_MAGUS: CardRecord = CardRecord::new(
-    cards::STAFF_OF_THE_MIND_MAGUS,
-    "Staff of the Mind Magus",
-    CardArt::new("f86bf36b-b83f-4451-8cdc-2a4ccffb93c7", "Daniel Ljunggren"),
-    CardSet::Magic2014,
-    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
-        AbilityDef::triggered(
-            "Whenever you cast a blue spell, you gain 1 life.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
-                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                ObjectPredicateDef::Color(ManaColor::Blue),
-            ])),
-            EffectDef::GainLife {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
-            },
-        ),
-        AbilityDef::triggered(
-            "Whenever an Island you control enters, you gain 1 life.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Land),
-                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+pub(in crate::card::sets) static STAFF_OF_THE_MIND_MAGUS: CardRecord =
+    CardRecord::new_with_legacy_id(
+        1232,
+        "Staff of the Mind Magus",
+        CardArt::new("f86bf36b-b83f-4451-8cdc-2a4ccffb93c7", "Daniel Ljunggren"),
+        CardSet::Magic2014,
+        CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+            AbilityDef::triggered(
+                "Whenever you cast a blue spell, you gain 1 life.",
+                TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                ]),
-                None,
-                Some(ZoneKind::Battlefield),
+                    ObjectPredicateDef::Color(ManaColor::Blue),
+                ])),
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
             ),
-            EffectDef::GainLife {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
-            },
-        ),
-    ]),
-);
+            AbilityDef::triggered(
+                "Whenever an Island you control enters, you gain 1 life.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
+    );
 
 // M14 222 — Staff of the Sun Magus
-pub(in crate::card::sets) static STAFF_OF_THE_SUN_MAGUS: CardRecord = CardRecord::new(
-    cards::STAFF_OF_THE_SUN_MAGUS,
-    "Staff of the Sun Magus",
-    CardArt::new("90a1f830-d19a-4ebf-9573-09b677693dd6", "Daniel Ljunggren"),
-    CardSet::Magic2014,
-    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
-        AbilityDef::triggered(
-            "Whenever you cast a white spell, you gain 1 life.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
-                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                ObjectPredicateDef::Color(ManaColor::White),
-            ])),
-            EffectDef::GainLife {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
-            },
-        ),
-        AbilityDef::triggered(
-            "Whenever a Plains you control enters, you gain 1 life.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Land),
-                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Plains]),
+pub(in crate::card::sets) static STAFF_OF_THE_SUN_MAGUS: CardRecord =
+    CardRecord::new_with_legacy_id(
+        1233,
+        "Staff of the Sun Magus",
+        CardArt::new("90a1f830-d19a-4ebf-9573-09b677693dd6", "Daniel Ljunggren"),
+        CardSet::Magic2014,
+        CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+            AbilityDef::triggered(
+                "Whenever you cast a white spell, you gain 1 life.",
+                TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                ]),
-                None,
-                Some(ZoneKind::Battlefield),
+                    ObjectPredicateDef::Color(ManaColor::White),
+                ])),
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
             ),
-            EffectDef::GainLife {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
-            },
-        ),
-    ]),
-);
+            AbilityDef::triggered(
+                "Whenever a Plains you control enters, you gain 1 life.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Plains]),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
+    );
 
 // M14 223 — Staff of the Wild Magus
-pub(in crate::card::sets) static STAFF_OF_THE_WILD_MAGUS: CardRecord = CardRecord::new(
-    cards::STAFF_OF_THE_WILD_MAGUS,
-    "Staff of the Wild Magus",
-    CardArt::new("d207f03d-4c7b-444f-bf95-e63f7004d525", "Daniel Ljunggren"),
-    CardSet::Magic2014,
-    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
-        AbilityDef::triggered(
-            "Whenever you cast a green spell, you gain 1 life.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
-                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                ObjectPredicateDef::Color(ManaColor::Green),
-            ])),
-            EffectDef::GainLife {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
-            },
-        ),
-        AbilityDef::triggered(
-            "Whenever a Forest you control enters, you gain 1 life.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Land),
-                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+pub(in crate::card::sets) static STAFF_OF_THE_WILD_MAGUS: CardRecord =
+    CardRecord::new_with_legacy_id(
+        1234,
+        "Staff of the Wild Magus",
+        CardArt::new("d207f03d-4c7b-444f-bf95-e63f7004d525", "Daniel Ljunggren"),
+        CardSet::Magic2014,
+        CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+            AbilityDef::triggered(
+                "Whenever you cast a green spell, you gain 1 life.",
+                TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                ]),
-                None,
-                Some(ZoneKind::Battlefield),
+                    ObjectPredicateDef::Color(ManaColor::Green),
+                ])),
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
             ),
-            EffectDef::GainLife {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
-            },
-        ),
-    ]),
-);
+            AbilityDef::triggered(
+                "Whenever a Forest you control enters, you gain 1 life.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
+    );
 
 // M14 224 — Strionic Resonator
 // Audit: blocked — Triggered abilities are not targetable stack objects and cannot be copied or retargeted declaratively.
 
 // M14 226 — Vial of Poison
-pub(in crate::card::sets) static VIAL_OF_POISON: CardRecord = CardRecord::new(
-    cards::VIAL_OF_POISON,
+pub(in crate::card::sets) static VIAL_OF_POISON: CardRecord = CardRecord::new_with_legacy_id(
+    1235,
     "Vial of Poison",
     CardArt::new("7769159b-5a6a-45e5-b69b-8db2a6ef5418", "Franz Vohwinkel"),
     CardSet::Magic2014,
@@ -3187,8 +3196,8 @@ pub(in crate::card::sets) static VIAL_OF_POISON: CardRecord = CardRecord::new(
 );
 
 // M14 227 — Encroaching Wastes
-pub(in crate::card::sets) static ENCROACHING_WASTES: CardRecord = CardRecord::new(
-    cards::ENCROACHING_WASTES,
+pub(in crate::card::sets) static ENCROACHING_WASTES: CardRecord = CardRecord::new_with_legacy_id(
+    161,
     "Encroaching Wastes",
     CardArt::new("1ad5a84b-ae9b-4ed1-a4de-b91bbf8ed0a5", "Noah Bradley"),
     CardSet::Magic2014,
@@ -3224,8 +3233,8 @@ static MUTAVAULT_ANIMATION: [AppliedEffectDef; 3] = [
 ];
 
 // M14 228 — Mutavault
-pub(in crate::card::sets) static MUTAVAULT: CardRecord = CardRecord::new(
-    cards::MUTAVAULT,
+pub(in crate::card::sets) static MUTAVAULT: CardRecord = CardRecord::new_with_legacy_id(
+    189,
     "Mutavault",
     CardArt::new("927ed667-c228-4b96-a9f6-7cbadade8134", "Fred Fields"),
     CardSet::Magic2014,

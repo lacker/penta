@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, CardArt, CardRules, CardSet, CardSupertype, EffectDef, EffectRecipientDef,
     PlayerRelation, ReplacementEffectDef, ReplacementEventDef, TurnKindDef, ZoneKind,
-    ZoneMoveCauseDef, cards,
+    ZoneMoveCauseDef,
 };
 use crate::mana_cost;
 
@@ -13,8 +13,8 @@ static TAKE_EXTRA_TURN_CONTROLLER: EffectDef = EffectDef::TakeExtraTurn {
 };
 
 // KTK 227 — Ugin's Nexus
-pub(in crate::card::sets) static UGINS_NEXUS: CardRecord = CardRecord::new(
-    cards::UGINS_NEXUS,
+pub(in crate::card::sets) static UGINS_NEXUS: CardRecord = CardRecord::new_with_legacy_id(
+    1368,
     "Ugin's Nexus",
     CardArt::new("94002868-a48a-4ea8-bfce-17257078f5db", "Sam Burley"),
     CardSet::KhansOfTarkir,

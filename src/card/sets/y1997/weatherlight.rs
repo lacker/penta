@@ -1,7 +1,6 @@
 //! Weatherlight cards used by the staged Premodern deck tranche.
 
 use super::{CardRecord, PrintingRecord};
-use crate::card::cards;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
@@ -35,8 +34,8 @@ static ABEYANCE_LOCK: [AppliedEffectDef; 2] = [
 ];
 
 // WTH 1 — Abeyance
-pub(in crate::card::sets) static ABEYANCE: CardRecord = CardRecord::new(
-    cards::ABEYANCE,
+pub(in crate::card::sets) static ABEYANCE: CardRecord = CardRecord::new_with_legacy_id(
+    2086,
     "Abeyance",
     CardArt::new("efb452f0-c019-4409-bfb1-600a97d58fdd", "Thomas Gianni"),
     CardSet::Weatherlight,
@@ -64,8 +63,8 @@ static ABEYANCE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 )];
 
 // WTH 7 — Aura of Silence
-pub(in crate::card::sets) static AURA_OF_SILENCE: CardRecord = CardRecord::new(
-    cards::AURA_OF_SILENCE,
+pub(in crate::card::sets) static AURA_OF_SILENCE: CardRecord = CardRecord::new_with_legacy_id(
+    2042,
     "Aura of Silence",
     CardArt::new(
         "57e6c366-b8c7-4f66-b8e1-82dc69c0081c",
@@ -141,8 +140,8 @@ static DOOMSDAY_STEPS: [EffectDef; 2] = [
 static DOOMSDAY_ZONES: [ZoneKind; 2] = [ZoneKind::Library, ZoneKind::Graveyard];
 
 // WTH 66 — Doomsday
-pub(in crate::card::sets) static DOOMSDAY: CardRecord = CardRecord::new(
-    cards::DOOMSDAY,
+pub(in crate::card::sets) static DOOMSDAY: CardRecord = CardRecord::new_with_legacy_id(
+    2185,
     "Doomsday",
     CardArt::new("5b3c6d87-9383-450b-bba5-33435b6b0d08", "Adrian Smith"),
     CardSet::Weatherlight,
@@ -156,8 +155,8 @@ pub(in crate::card::sets) static DOOMSDAY: CardRecord = CardRecord::new(
 );
 
 // WTH 105 — Goblin Vandal
-pub(in crate::card::sets) static GOBLIN_VANDAL: CardRecord = CardRecord::new(
-    cards::GOBLIN_VANDAL,
+pub(in crate::card::sets) static GOBLIN_VANDAL: CardRecord = CardRecord::new_with_legacy_id(
+    2032,
     "Goblin Vandal",
     CardArt::new("b7ad3b81-f706-4b33-b1ec-7600182a5232", "Franz Vohwinkel"),
     CardSet::Weatherlight,
@@ -211,8 +210,8 @@ static FURNACE_EXILE_AND_DRAW: EffectDef = EffectDef::Sequence(&[
 ]);
 
 // WTH 153 — Mind Stone
-pub(in crate::card::sets) static MIND_STONE: CardRecord = CardRecord::new(
-    cards::MIND_STONE,
+pub(in crate::card::sets) static MIND_STONE: CardRecord = CardRecord::new_with_legacy_id(
+    2117,
     "Mind Stone",
     CardArt::new("162e81d3-6cd4-4cb8-8ed8-cfbd8d34ca71", "Adam Rex"),
     CardSet::Weatherlight,
@@ -238,8 +237,8 @@ pub(in crate::card::sets) static MIND_STONE: CardRecord = CardRecord::new(
 );
 
 // WTH 154 — Null Rod
-pub(in crate::card::sets) static NULL_ROD: CardRecord = CardRecord::new(
-    cards::NULL_ROD,
+pub(in crate::card::sets) static NULL_ROD: CardRecord = CardRecord::new_with_legacy_id(
+    2283,
     "Null Rod",
     CardArt::new("bc45f2cb-c256-4a0f-879a-c7db5b1a0b94", "Anson Maddocks"),
     CardSet::Weatherlight,
@@ -257,8 +256,8 @@ pub(in crate::card::sets) static NULL_ROD: CardRecord = CardRecord::new(
 );
 
 // WTH 155 — Phyrexian Furnace
-pub(in crate::card::sets) static PHYREXIAN_FURNACE: CardRecord = CardRecord::new(
-    cards::PHYREXIAN_FURNACE,
+pub(in crate::card::sets) static PHYREXIAN_FURNACE: CardRecord = CardRecord::new_with_legacy_id(
+    2054,
     "Phyrexian Furnace",
     CardArt::new("e98bca31-a1f4-4d9e-bbb8-fd9b6f4d2b91", "George Pratt"),
     CardSet::Weatherlight,
@@ -293,8 +292,8 @@ pub(in crate::card::sets) static PHYREXIAN_FURNACE: CardRecord = CardRecord::new
 );
 
 // WTH 164 — Gemstone Mine
-pub(in crate::card::sets) static GEMSTONE_MINE: CardRecord = CardRecord::new(
-    cards::GEMSTONE_MINE,
+pub(in crate::card::sets) static GEMSTONE_MINE: CardRecord = CardRecord::new_with_legacy_id(
+    2049,
     "Gemstone Mine",
     CardArt::new("09507f7f-c58f-4f57-b878-b39811a5b619", "Brom"),
     CardSet::Weatherlight,

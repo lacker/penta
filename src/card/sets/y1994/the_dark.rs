@@ -9,7 +9,7 @@ use crate::card::{
     KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
     PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, RoundingDef,
     SacrificedAmountDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities, cards,
+    ZonePlacement, abilities,
 };
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -27,8 +27,8 @@ use crate::mana_cost;
 // Audit: blocked — Needs linked sacrifice/destruction accounting for “For each land, destroy that land unless any player pays 1 life”.
 
 // DRK 5 — Dust to Dust
-pub(in crate::card::sets) static DUST_TO_DUST: CardRecord = CardRecord::new(
-    cards::DUST_TO_DUST,
+pub(in crate::card::sets) static DUST_TO_DUST: CardRecord = CardRecord::new_with_legacy_id(
+    112,
     "Dust to Dust",
     CardArt::new("ade075fd-73ee-4d12-a2da-48e5938043af", "Drew Tucker"),
     CardSet::TheDark,
@@ -40,8 +40,8 @@ pub(in crate::card::sets) static DUST_TO_DUST: CardRecord = CardRecord::new(
 );
 
 // DRK 6 — Exorcist
-pub(in crate::card::sets) static EXORCIST: CardRecord = CardRecord::new(
-    cards::EXORCIST,
+pub(in crate::card::sets) static EXORCIST: CardRecord = CardRecord::new_with_legacy_id(
+    541,
     "Exorcist",
     CardArt::new("184b7d52-e991-4668-9f6a-bcded97f51ac", "Drew Tucker"),
     CardSet::TheDark,
@@ -70,8 +70,8 @@ pub(in crate::card::sets) static EXORCIST: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a duration-scoped replacement/prevention effect for “If you would begin your draw step, you may skip that step instead. If you do, you gain 2 life”.
 
 // DRK 8 — Festival
-pub(in crate::card::sets) static FESTIVAL: CardRecord = CardRecord::new(
-    cards::FESTIVAL,
+pub(in crate::card::sets) static FESTIVAL: CardRecord = CardRecord::new_with_legacy_id(
+    1822,
     "Festival",
     CardArt::new("e9357990-701a-4336-b545-ac5a24d89cad", "Mark Poole"),
     CardSet::TheDark,
@@ -104,8 +104,8 @@ pub(in crate::card::sets) static FESTIVAL: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a combat declaration or damage-assignment constraint for “Fire and Brimstone deals 4 damage to target player who attacked this turn and 4 damage to you”.
 
 // DRK 10 — Holy Light
-pub(in crate::card::sets) static HOLY_LIGHT: CardRecord = CardRecord::new(
-    cards::HOLY_LIGHT,
+pub(in crate::card::sets) static HOLY_LIGHT: CardRecord = CardRecord::new_with_legacy_id(
+    542,
     "Holy Light",
     CardArt::new("c3c8a850-bc99-4679-a316-45ecdea696b2", "Drew Tucker"),
     CardSet::TheDark,
@@ -130,8 +130,8 @@ pub(in crate::card::sets) static HOLY_LIGHT: CardRecord = CardRecord::new(
 );
 
 // DRK 11 — Knights of Thorn
-pub(in crate::card::sets) static KNIGHTS_OF_THORN: CardRecord = CardRecord::new(
-    cards::KNIGHTS_OF_THORN,
+pub(in crate::card::sets) static KNIGHTS_OF_THORN: CardRecord = CardRecord::new_with_legacy_id(
+    1777,
     "Knights of Thorn",
     CardArt::new("ae541c73-9903-49e6-997a-db4701135145", "Christopher Rush"),
     CardSet::TheDark,
@@ -157,8 +157,8 @@ static MIRACLE_WORKER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly
 )];
 
 // DRK 13 — Miracle Worker
-pub(in crate::card::sets) static MIRACLE_WORKER: CardRecord = CardRecord::new(
-    cards::MIRACLE_WORKER,
+pub(in crate::card::sets) static MIRACLE_WORKER: CardRecord = CardRecord::new_with_legacy_id(
+    1678,
     "Miracle Worker",
     CardArt::new("35d29bda-096c-44d4-b45e-c2c507f8efbe", "Ron Spencer"),
     CardSet::TheDark,
@@ -176,8 +176,8 @@ pub(in crate::card::sets) static MIRACLE_WORKER: CardRecord = CardRecord::new(
 );
 
 // DRK 14 — Morale
-pub(in crate::card::sets) static MORALE: CardRecord = CardRecord::new(
-    cards::MORALE,
+pub(in crate::card::sets) static MORALE: CardRecord = CardRecord::new_with_legacy_id(
+    543,
     "Morale",
     CardArt::new("c4104546-abd9-4bfb-a65e-5928cdd4522f", "Mark Poole"),
     CardSet::TheDark,
@@ -199,8 +199,8 @@ pub(in crate::card::sets) static MORALE: CardRecord = CardRecord::new(
 );
 
 // DRK 15 — Pikemen
-pub(in crate::card::sets) static PIKEMEN: CardRecord = CardRecord::new(
-    cards::PIKEMEN,
+pub(in crate::card::sets) static PIKEMEN: CardRecord = CardRecord::new_with_legacy_id(
+    1778,
     "Pikemen",
     CardArt::new("bf2f6936-b50c-4907-9b55-ebf8a3fba8f5", "Dennis Detwiller"),
     CardSet::TheDark,
@@ -212,8 +212,8 @@ pub(in crate::card::sets) static PIKEMEN: CardRecord = CardRecord::new(
 // Audit: blocked — Needs duration-aware control-changing continuous effects for “{T}: For as long as this creature remains tapped, gain control of target creature of an opponent's choice they control”.
 
 // DRK 17 — Squire
-pub(in crate::card::sets) static SQUIRE: CardRecord = CardRecord::new(
-    cards::SQUIRE,
+pub(in crate::card::sets) static SQUIRE: CardRecord = CardRecord::new_with_legacy_id(
+    544,
     "Squire",
     CardArt::new("374df061-ebd2-4f1f-9a6e-7940a49197a9", "Dennis Detwiller"),
     CardSet::TheDark,
@@ -221,8 +221,8 @@ pub(in crate::card::sets) static SQUIRE: CardRecord = CardRecord::new(
 );
 
 // DRK 18 — Tivadar's Crusade
-pub(in crate::card::sets) static TIVADARS_CRUSADE: CardRecord = CardRecord::new(
-    cards::TIVADARS_CRUSADE,
+pub(in crate::card::sets) static TIVADARS_CRUSADE: CardRecord = CardRecord::new_with_legacy_id(
+    545,
     "Tivadar's Crusade",
     CardArt::new("8b6da540-6803-47e5-9af0-7ae8e2f84b6c", "Dennis Detwiller"),
     CardSet::TheDark,
@@ -240,8 +240,8 @@ pub(in crate::card::sets) static TIVADARS_CRUSADE: CardRecord = CardRecord::new(
 );
 
 // DRK 19 — Witch Hunter
-pub(in crate::card::sets) static WITCH_HUNTER: CardRecord = CardRecord::new(
-    cards::WITCH_HUNTER,
+pub(in crate::card::sets) static WITCH_HUNTER: CardRecord = CardRecord::new_with_legacy_id(
+    546,
     "Witch Hunter",
     CardArt::new("4eef9bb7-cd3c-422e-a93b-90d98684675a", "Jesper Myrfors"),
     CardSet::TheDark,
@@ -304,8 +304,8 @@ static TARGET_PLAYER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 )];
 
 // DRK 20 — Amnesia
-pub(in crate::card::sets) static AMNESIA: CardRecord = CardRecord::new(
-    cards::AMNESIA,
+pub(in crate::card::sets) static AMNESIA: CardRecord = CardRecord::new_with_legacy_id(
+    1727,
     "Amnesia",
     CardArt::new("5b650e75-28ae-4f9e-9a04-7e28a246693f", "Mark Poole"),
     CardSet::TheDark,
@@ -319,8 +319,8 @@ pub(in crate::card::sets) static AMNESIA: CardRecord = CardRecord::new(
 );
 
 // DRK 21 — Apprentice Wizard
-pub(in crate::card::sets) static APPRENTICE_WIZARD: CardRecord = CardRecord::new(
-    cards::APPRENTICE_WIZARD,
+pub(in crate::card::sets) static APPRENTICE_WIZARD: CardRecord = CardRecord::new_with_legacy_id(
+    1635,
     "Apprentice Wizard",
     CardArt::new("151b332e-164b-4646-8f52-741984cd71ad", "Dan Frazier"),
     CardSet::TheDark,
@@ -343,8 +343,8 @@ pub(in crate::card::sets) static APPRENTICE_WIZARD: CardRecord = CardRecord::new
 // Audit: blocked — Needs a duration-scoped replacement/prevention effect for “{U}: Until end of turn, if you tap a land you control for mana, it produces {U} instead of any other type”.
 
 // DRK 24 — Drowned
-pub(in crate::card::sets) static DROWNED: CardRecord = CardRecord::new(
-    cards::DROWNED,
+pub(in crate::card::sets) static DROWNED: CardRecord = CardRecord::new_with_legacy_id(
+    1376,
     "Drowned",
     CardArt::new("951b6c10-cbba-44b6-aae2-2c386b7ebacb", "Quinton Hoover"),
     CardSet::TheDark,
@@ -357,8 +357,8 @@ pub(in crate::card::sets) static DROWNED: CardRecord = CardRecord::new(
 );
 
 // DRK 25 — Electric Eel
-pub(in crate::card::sets) static ELECTRIC_EEL: CardRecord = CardRecord::new(
-    cards::ELECTRIC_EEL,
+pub(in crate::card::sets) static ELECTRIC_EEL: CardRecord = CardRecord::new_with_legacy_id(
+    547,
     "Electric Eel",
     CardArt::new("b8834c18-0e4e-4785-9d15-b33345e3789b", "Anson Maddocks"),
     CardSet::TheDark,
@@ -400,8 +400,8 @@ pub(in crate::card::sets) static ELECTRIC_EEL: CardRecord = CardRecord::new(
 // Audit: blocked — Needs an upkeep trigger whose event player is derived from the attached permanent's current controller for “At the beginning of the upkeep of enchanted land's controller, destroy that land unless that player pays {1} or 1 life”.
 
 // DRK 27 — Flood
-pub(in crate::card::sets) static FLOOD: CardRecord = CardRecord::new(
-    cards::FLOOD,
+pub(in crate::card::sets) static FLOOD: CardRecord = CardRecord::new_with_legacy_id(
+    548,
     "Flood",
     CardArt::new("fabc3267-b59b-4f36-8873-5b4b072711ca", "Dennis Detwiller"),
     CardSet::TheDark,
@@ -425,8 +425,8 @@ pub(in crate::card::sets) static FLOOD: CardRecord = CardRecord::new(
 );
 
 // DRK 28 — Ghost Ship
-pub(in crate::card::sets) static GHOST_SHIP: CardRecord = CardRecord::new(
-    cards::GHOST_SHIP,
+pub(in crate::card::sets) static GHOST_SHIP: CardRecord = CardRecord::new_with_legacy_id(
+    1377,
     "Ghost Ship",
     CardArt::new("db591b28-37e5-4e7c-ae4d-d761262b12d0", "Tom Wänerstrand"),
     CardSet::TheDark,
@@ -463,8 +463,8 @@ static GIANT_SHARK_FRENZY: [AppliedEffectDef; 2] = [
 ];
 
 // DRK 29 — Giant Shark
-pub(in crate::card::sets) static GIANT_SHARK: CardRecord = CardRecord::new(
-    cards::GIANT_SHARK,
+pub(in crate::card::sets) static GIANT_SHARK: CardRecord = CardRecord::new_with_legacy_id(
+    1904,
     "Giant Shark",
     CardArt::new("53ec4a19-0f2f-4713-a869-58832484648d", "Tom Wänerstrand"),
     CardSet::TheDark,
@@ -506,8 +506,8 @@ pub(in crate::card::sets) static GIANT_SHARK: CardRecord = CardRecord::new(
 // Audit: blocked — Needs linked sacrifice/destruction accounting for “At the beginning of each player's upkeep, that player sacrifices a land of their choice”.
 
 // DRK 32 — Merfolk Assassin
-pub(in crate::card::sets) static MERFOLK_ASSASSIN: CardRecord = CardRecord::new(
-    cards::MERFOLK_ASSASSIN,
+pub(in crate::card::sets) static MERFOLK_ASSASSIN: CardRecord = CardRecord::new_with_legacy_id(
+    1436,
     "Merfolk Assassin",
     CardArt::new("36313dc7-6bf2-4d73-b696-969d984a7466", "Dennis Detwiller"),
     CardSet::TheDark,
@@ -538,8 +538,8 @@ static ISLANDWALKER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_o
 // Audit: blocked — Needs a persistent dynamic characteristic choice and predicates that consume it for “At the beginning of each opponent's upkeep, this enchantment deals X damage to that player, where X is the number of nontoken permanents of the chosen color they control”.
 
 // DRK 35 — Riptide
-pub(in crate::card::sets) static RIPTIDE: CardRecord = CardRecord::new(
-    cards::RIPTIDE,
+pub(in crate::card::sets) static RIPTIDE: CardRecord = CardRecord::new_with_legacy_id(
+    549,
     "Riptide",
     CardArt::new(
         "b0f11ae4-e30e-441d-bb64-439930d9997c",
@@ -562,8 +562,8 @@ pub(in crate::card::sets) static RIPTIDE: CardRecord = CardRecord::new(
 );
 
 // DRK 36 — Sunken City
-pub(in crate::card::sets) static SUNKEN_CITY: CardRecord = CardRecord::new(
-    cards::SUNKEN_CITY,
+pub(in crate::card::sets) static SUNKEN_CITY: CardRecord = CardRecord::new_with_legacy_id(
+    550,
     "Sunken City",
     CardArt::new("f1e0f9ec-2b06-4bda-8b80-a716d82d1f13", "Jesper Myrfors"),
     CardSet::TheDark,
@@ -620,8 +620,8 @@ static TANGLE_KELP_HOST_THAT_ATTACKED: EffectRecipientDef = EffectRecipientDef::
 );
 
 // DRK 37 — Tangle Kelp
-pub(in crate::card::sets) static TANGLE_KELP: CardRecord = CardRecord::new(
-    cards::TANGLE_KELP,
+pub(in crate::card::sets) static TANGLE_KELP: CardRecord = CardRecord::new_with_legacy_id(
+    1724,
     "Tangle Kelp",
     CardArt::new("8ba55fc4-62bb-4515-a209-e914d8cbb303", "Rob Alexander"),
     CardSet::TheDark,
@@ -652,8 +652,8 @@ pub(in crate::card::sets) static TANGLE_KELP: CardRecord = CardRecord::new(
 );
 
 // DRK 38 — Water Wurm
-pub(in crate::card::sets) static WATER_WURM: CardRecord = CardRecord::new(
-    cards::WATER_WURM,
+pub(in crate::card::sets) static WATER_WURM: CardRecord = CardRecord::new_with_legacy_id(
+    575,
     "Water Wurm",
     CardArt::new("e3da4a88-5225-467f-9240-f30bc1eee520", "Ron Spencer"),
     CardSet::TheDark,
@@ -672,8 +672,8 @@ pub(in crate::card::sets) static WATER_WURM: CardRecord = CardRecord::new(
 );
 
 // DRK 39 — Ashes to Ashes
-pub(in crate::card::sets) static ASHES_TO_ASHES: CardRecord = CardRecord::new(
-    cards::ASHES_TO_ASHES,
+pub(in crate::card::sets) static ASHES_TO_ASHES: CardRecord = CardRecord::new_with_legacy_id(
+    551,
     "Ashes to Ashes",
     CardArt::new("825496e5-19c7-4f50-8070-0265a58608dc", "Drew Tucker"),
     CardSet::TheDark,
@@ -717,8 +717,8 @@ pub(in crate::card::sets) static ASHES_TO_ASHES: CardRecord = CardRecord::new(
 // Audit: blocked — Needs damage-history/source tracking or card-specific damage processing for “{X}, {T}: This creature deals half X damage, rounded down, to any target, and half X damage, rounded up, to you”.
 
 // DRK 41 — Bog Imp
-pub(in crate::card::sets) static BOG_IMP: CardRecord = CardRecord::new(
-    cards::BOG_IMP,
+pub(in crate::card::sets) static BOG_IMP: CardRecord = CardRecord::new_with_legacy_id(
+    552,
     "Bog Imp",
     CardArt::new("e3bb7271-634a-4612-9073-7a5438e8c2b8", "Ron Spencer"),
     CardSet::TheDark,
@@ -727,8 +727,8 @@ pub(in crate::card::sets) static BOG_IMP: CardRecord = CardRecord::new(
 );
 
 // DRK 42 — Bog Rats
-pub(in crate::card::sets) static BOG_RATS: CardRecord = CardRecord::new(
-    cards::BOG_RATS,
+pub(in crate::card::sets) static BOG_RATS: CardRecord = CardRecord::new_with_legacy_id(
+    553,
     "Bog Rats",
     CardArt::new("d64c9153-bc6d-4a64-885f-c039a5487a31", "Ron Spencer"),
     CardSet::TheDark,
@@ -755,8 +755,8 @@ static CURSE_ARTIFACT_TOLL: EffectDef = EffectDef::DealDamage {
 };
 
 // DRK 43 — Curse Artifact
-pub(in crate::card::sets) static CURSE_ARTIFACT: CardRecord = CardRecord::new(
-    cards::CURSE_ARTIFACT,
+pub(in crate::card::sets) static CURSE_ARTIFACT: CardRecord = CardRecord::new_with_legacy_id(
+    1966,
     "Curse Artifact",
     CardArt::new("9fc0d070-8a42-4d5e-8f2b-ceb59147de6f", "Mark Tedin"),
     CardSet::TheDark,
@@ -790,8 +790,8 @@ pub(in crate::card::sets) static CURSE_ARTIFACT: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a duration-scoped replacement/prevention effect for “As this creature enters, exile X creature cards from your graveyard. If you can't, put this creature into its owner's graveyard instead of onto the battlefield. For each creature card…”.
 
 // DRK 46 — Grave Robbers
-pub(in crate::card::sets) static GRAVE_ROBBERS: CardRecord = CardRecord::new(
-    cards::GRAVE_ROBBERS,
+pub(in crate::card::sets) static GRAVE_ROBBERS: CardRecord = CardRecord::new_with_legacy_id(
+    555,
     "Grave Robbers",
     CardArt::new("a131605a-f646-4745-a1e4-48d155a3d94f", "Quinton Hoover"),
     CardSet::TheDark,
@@ -847,8 +847,8 @@ static INQUISITION_STRIKE: [EffectDef; 2] = [
 ];
 
 // DRK 47 — Inquisition
-pub(in crate::card::sets) static INQUISITION: CardRecord = CardRecord::new(
-    cards::INQUISITION,
+pub(in crate::card::sets) static INQUISITION: CardRecord = CardRecord::new_with_legacy_id(
+    1728,
     "Inquisition",
     CardArt::new("be36c273-8584-4a8d-b253-b45449300b63", "Anson Maddocks"),
     CardSet::TheDark,
@@ -861,8 +861,8 @@ pub(in crate::card::sets) static INQUISITION: CardRecord = CardRecord::new(
 );
 
 // DRK 48 — Marsh Gas
-pub(in crate::card::sets) static MARSH_GAS: CardRecord = CardRecord::new(
-    cards::MARSH_GAS,
+pub(in crate::card::sets) static MARSH_GAS: CardRecord = CardRecord::new_with_legacy_id(
+    556,
     "Marsh Gas",
     CardArt::new("b80ecb15-258b-4fc9-86e4-c2bf01891606", "Douglas Shuler"),
     CardSet::TheDark,
@@ -884,8 +884,8 @@ pub(in crate::card::sets) static MARSH_GAS: CardRecord = CardRecord::new(
 );
 
 // DRK 49 — Murk Dwellers
-pub(in crate::card::sets) static MURK_DWELLERS: CardRecord = CardRecord::new(
-    cards::MURK_DWELLERS,
+pub(in crate::card::sets) static MURK_DWELLERS: CardRecord = CardRecord::new_with_legacy_id(
+    1711,
     "Murk Dwellers",
     CardArt::new("a213450f-02f4-4c08-8da8-891ebfa8e237", "Drew Tucker"),
     CardSet::TheDark,
@@ -927,8 +927,8 @@ static RAG_MAN_STRIKE: [EffectDef; 2] = [
 ];
 
 // DRK 51 — Rag Man
-pub(in crate::card::sets) static RAG_MAN: CardRecord = CardRecord::new(
-    cards::RAG_MAN,
+pub(in crate::card::sets) static RAG_MAN: CardRecord = CardRecord::new_with_legacy_id(
+    1809,
     "Rag Man",
     CardArt::new("f4c133b8-8383-433f-be96-c47a937287b7", "Daniel Gelon"),
     CardSet::TheDark,
@@ -956,8 +956,8 @@ pub(in crate::card::sets) static RAG_MAN: CardRecord = CardRecord::new(
 // Audit: blocked — Needs per-source damage history spanning the whole game for “each opponent and planeswalker it has dealt damage to this game”.
 
 // DRK 54 — Uncle Istvan
-pub(in crate::card::sets) static UNCLE_ISTVAN: CardRecord = CardRecord::new(
-    cards::UNCLE_ISTVAN,
+pub(in crate::card::sets) static UNCLE_ISTVAN: CardRecord = CardRecord::new_with_legacy_id(
+    557,
     "Uncle Istvan",
     CardArt::new("848ad6d5-3a7e-4d6b-9929-36465796871f", "Daniel Gelon"),
     CardSet::TheDark,
@@ -987,8 +987,8 @@ static WORD_OF_BINDING_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exact
 )];
 
 // DRK 55 — Word of Binding
-pub(in crate::card::sets) static WORD_OF_BINDING: CardRecord = CardRecord::new(
-    cards::WORD_OF_BINDING,
+pub(in crate::card::sets) static WORD_OF_BINDING: CardRecord = CardRecord::new_with_legacy_id(
+    1833,
     "Word of Binding",
     CardArt::new("ee30efdb-f1f1-497f-80a6-ec961db67c1d", "Ron Spencer"),
     CardSet::TheDark,
@@ -1005,8 +1005,8 @@ pub(in crate::card::sets) static WORD_OF_BINDING: CardRecord = CardRecord::new(
 // Audit: blocked — Needs an any-player upkeep choice between sacrificing two lands and taking damage, followed by conditional self-destruction.
 
 // DRK 57 — Ball Lightning
-pub(in crate::card::sets) static BALL_LIGHTNING: CardRecord = CardRecord::new(
-    cards::BALL_LIGHTNING,
+pub(in crate::card::sets) static BALL_LIGHTNING: CardRecord = CardRecord::new_with_legacy_id(
+    3,
     "Ball Lightning",
     CardArt::new("c1ba83ab-83f5-421d-bba1-0f925870b5c8", "Quinton Hoover"),
     CardSet::TheDark,
@@ -1027,8 +1027,8 @@ pub(in crate::card::sets) static BALL_LIGHTNING: CardRecord = CardRecord::new(
 );
 
 // DRK 58 — Blood Moon
-pub(in crate::card::sets) static BLOOD_MOON: CardRecord = CardRecord::new(
-    cards::BLOOD_MOON,
+pub(in crate::card::sets) static BLOOD_MOON: CardRecord = CardRecord::new_with_legacy_id(
+    5,
     "Blood Moon",
     CardArt::new("78373616-e2d6-4ccf-998f-09f02bea45b4", "Tom Wänerstrand"),
     CardSet::TheDark,
@@ -1051,8 +1051,8 @@ pub(in crate::card::sets) static BLOOD_MOON: CardRecord = CardRecord::new(
 );
 
 // DRK 59 — Brothers of Fire
-pub(in crate::card::sets) static BROTHERS_OF_FIRE: CardRecord = CardRecord::new(
-    cards::BROTHERS_OF_FIRE,
+pub(in crate::card::sets) static BROTHERS_OF_FIRE: CardRecord = CardRecord::new_with_legacy_id(
+    558,
     "Brothers of Fire",
     CardArt::new("ba2cc4a6-fdcc-4082-801a-d2c50e560e8d", "Mark Tedin"),
     CardSet::TheDark,
@@ -1078,8 +1078,8 @@ pub(in crate::card::sets) static BROTHERS_OF_FIRE: CardRecord = CardRecord::new(
 );
 
 // DRK 60 — Cave People
-pub(in crate::card::sets) static CAVE_PEOPLE: CardRecord = CardRecord::new(
-    cards::CAVE_PEOPLE,
+pub(in crate::card::sets) static CAVE_PEOPLE: CardRecord = CardRecord::new_with_legacy_id(
+    559,
     "Cave People",
     CardArt::new("72746a5d-faa1-44b7-97b5-0ef9302a3c13", "Drew Tucker"),
     CardSet::TheDark,
@@ -1139,8 +1139,8 @@ static ETERNAL_FLAME_EFFECTS: [EffectDef; 2] = [
 ];
 
 // DRK 61 — Eternal Flame
-pub(in crate::card::sets) static ETERNAL_FLAME: CardRecord = CardRecord::new(
-    cards::ETERNAL_FLAME,
+pub(in crate::card::sets) static ETERNAL_FLAME: CardRecord = CardRecord::new_with_legacy_id(
+    1921,
     "Eternal Flame",
     CardArt::new("d646feea-3c20-4737-8d20-ffad42258ced", "Mark Poole"),
     CardSet::TheDark,
@@ -1155,8 +1155,8 @@ pub(in crate::card::sets) static ETERNAL_FLAME: CardRecord = CardRecord::new(
 );
 
 // DRK 62 — Fire Drake
-pub(in crate::card::sets) static FIRE_DRAKE: CardRecord = CardRecord::new(
-    cards::FIRE_DRAKE,
+pub(in crate::card::sets) static FIRE_DRAKE: CardRecord = CardRecord::new_with_legacy_id(
+    1462,
     "Fire Drake",
     CardArt::new("d3419db6-1c38-4aa4-b953-1dde7d22b927", "Christopher Rush"),
     CardSet::TheDark,
@@ -1179,8 +1179,8 @@ pub(in crate::card::sets) static FIRE_DRAKE: CardRecord = CardRecord::new(
 );
 
 // DRK 63 — Fissure
-pub(in crate::card::sets) static FISSURE: CardRecord = CardRecord::new(
-    cards::FISSURE,
+pub(in crate::card::sets) static FISSURE: CardRecord = CardRecord::new_with_legacy_id(
+    560,
     "Fissure",
     CardArt::new("aa2d778d-d74b-45ec-a86b-5d52ffad6ba5", "Douglas Shuler"),
     CardSet::TheDark,
@@ -1214,8 +1214,8 @@ static GOBLIN_CAVES_ANTHEM: EffectDef = EffectDef::StaticApply {
 };
 
 // DRK 64 — Goblin Caves
-pub(in crate::card::sets) static GOBLIN_CAVES: CardRecord = CardRecord::new(
-    cards::GOBLIN_CAVES,
+pub(in crate::card::sets) static GOBLIN_CAVES: CardRecord = CardRecord::new_with_legacy_id(
+    1916,
     "Goblin Caves",
     CardArt::new("c6a415b0-00a2-4a65-8994-4a395c50ae2d", "Drew Tucker"),
     CardSet::TheDark,
@@ -1236,8 +1236,8 @@ pub(in crate::card::sets) static GOBLIN_CAVES: CardRecord = CardRecord::new(
 );
 
 // DRK 65 — Goblin Digging Team
-pub(in crate::card::sets) static GOBLIN_DIGGING_TEAM: CardRecord = CardRecord::new(
-    cards::GOBLIN_DIGGING_TEAM,
+pub(in crate::card::sets) static GOBLIN_DIGGING_TEAM: CardRecord = CardRecord::new_with_legacy_id(
+    25,
     "Goblin Digging Team",
     CardArt::new("8a538b9d-351e-40bb-be11-9ba08c16352b", "Ron Spencer"),
     CardSet::TheDark,
@@ -1257,8 +1257,8 @@ pub(in crate::card::sets) static GOBLIN_DIGGING_TEAM: CardRecord = CardRecord::n
 );
 
 // DRK 66 — Goblin Hero
-pub(in crate::card::sets) static GOBLIN_HERO: CardRecord = CardRecord::new(
-    cards::GOBLIN_HERO,
+pub(in crate::card::sets) static GOBLIN_HERO: CardRecord = CardRecord::new_with_legacy_id(
+    561,
     "Goblin Hero",
     CardArt::new("7135a569-e5d3-4a1f-924b-bdb86926b4e1", "Mark Tedin"),
     CardSet::TheDark,
@@ -1294,8 +1294,8 @@ static DEFENDER_CONTROLS_A_MOUNTAIN: ObjectQueryDef = ObjectQueryDef::matching(
 );
 
 // DRK 67 — Goblin Rock Sled
-pub(in crate::card::sets) static GOBLIN_ROCK_SLED: CardRecord = CardRecord::new(
-    cards::GOBLIN_ROCK_SLED,
+pub(in crate::card::sets) static GOBLIN_ROCK_SLED: CardRecord = CardRecord::new_with_legacy_id(
+    1723,
     "Goblin Rock Sled",
     CardArt::new("0f0b49dc-da11-4397-8b12-e85b75fc8e63", "Dennis Detwiller"),
     CardSet::TheDark,
@@ -1326,8 +1326,8 @@ static GOBLIN_SHRINE_ANTHEM: EffectDef = EffectDef::StaticApply {
 };
 
 // DRK 68 — Goblin Shrine
-pub(in crate::card::sets) static GOBLIN_SHRINE: CardRecord = CardRecord::new(
-    cards::GOBLIN_SHRINE,
+pub(in crate::card::sets) static GOBLIN_SHRINE: CardRecord = CardRecord::new_with_legacy_id(
+    1917,
     "Goblin Shrine",
     CardArt::new("cd69a6dc-27f3-42aa-9e63-4417796e4ef5", "Ron Spencer"),
     CardSet::TheDark,
@@ -1380,8 +1380,8 @@ static GOBLIN_WIZARD_CHOICE: EffectDef = EffectDef::ChooseCards {
 };
 
 // DRK 69 — Goblin Wizard
-pub(in crate::card::sets) static GOBLIN_WIZARD: CardRecord = CardRecord::new(
-    cards::GOBLIN_WIZARD,
+pub(in crate::card::sets) static GOBLIN_WIZARD: CardRecord = CardRecord::new_with_legacy_id(
+    2005,
     "Goblin Wizard",
     CardArt::new("9b73dfb4-d930-4a89-b621-129dd9f6328c", "Daniel Gelon"),
     CardSet::TheDark,
@@ -1411,8 +1411,8 @@ pub(in crate::card::sets) static GOBLIN_WIZARD: CardRecord = CardRecord::new(
 );
 
 // DRK 70 — Goblins of the Flarg
-pub(in crate::card::sets) static GOBLINS_OF_THE_FLARG: CardRecord = CardRecord::new(
-    cards::GOBLINS_OF_THE_FLARG,
+pub(in crate::card::sets) static GOBLINS_OF_THE_FLARG: CardRecord = CardRecord::new_with_legacy_id(
+    28,
     "Goblins of the Flarg",
     CardArt::new("fd333b18-b896-4ab8-9c46-eed4efdd94f2", "Tom Wänerstrand"),
     CardSet::TheDark,
@@ -1430,8 +1430,8 @@ pub(in crate::card::sets) static GOBLINS_OF_THE_FLARG: CardRecord = CardRecord::
 );
 
 // DRK 71 — Inferno
-pub(in crate::card::sets) static INFERNO: CardRecord = CardRecord::new(
-    cards::INFERNO,
+pub(in crate::card::sets) static INFERNO: CardRecord = CardRecord::new_with_legacy_id(
+    562,
     "Inferno",
     CardArt::new(
         "a6b61512-5b24-424c-966f-36b595781e14",
@@ -1461,8 +1461,8 @@ pub(in crate::card::sets) static INFERNO: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a deterministic recorded coin-flip choice and both result branches for “You and target opponent each flip a coin. Mana Clash deals 1 damage to each player whose coin comes up tails. Repeat this process until both players' coins come up heads on the same flip”.
 
 // DRK 73 — Orc General
-pub(in crate::card::sets) static ORC_GENERAL: CardRecord = CardRecord::new(
-    cards::ORC_GENERAL,
+pub(in crate::card::sets) static ORC_GENERAL: CardRecord = CardRecord::new_with_legacy_id(
+    590,
     "Orc General",
     CardArt::new("65a10fd5-506e-46bf-87e6-fde134c0dc04", "Jesper Myrfors"),
     CardSet::TheDark,
@@ -1499,8 +1499,8 @@ pub(in crate::card::sets) static ORC_GENERAL: CardRecord = CardRecord::new(
 );
 
 // DRK 74 — Sisters of the Flame
-pub(in crate::card::sets) static SISTERS_OF_THE_FLAME: CardRecord = CardRecord::new(
-    cards::SISTERS_OF_THE_FLAME,
+pub(in crate::card::sets) static SISTERS_OF_THE_FLAME: CardRecord = CardRecord::new_with_legacy_id(
+    563,
     "Sisters of the Flame",
     CardArt::new("564e0ccd-decb-48d2-981f-cefa8045340f", "Jesper Myrfors"),
     CardSet::TheDark,
@@ -1514,8 +1514,8 @@ pub(in crate::card::sets) static SISTERS_OF_THE_FLAME: CardRecord = CardRecord::
 );
 
 // DRK 75 — Carnivorous Plant
-pub(in crate::card::sets) static CARNIVOROUS_PLANT: CardRecord = CardRecord::new(
-    cards::CARNIVOROUS_PLANT,
+pub(in crate::card::sets) static CARNIVOROUS_PLANT: CardRecord = CardRecord::new_with_legacy_id(
+    564,
     "Carnivorous Plant",
     CardArt::new("6a615650-4da3-4efc-aa5e-c1f2c4f79478", "Quinton Hoover"),
     CardSet::TheDark,
@@ -1524,8 +1524,8 @@ pub(in crate::card::sets) static CARNIVOROUS_PLANT: CardRecord = CardRecord::new
 );
 
 // DRK 76 — Elves of Deep Shadow
-pub(in crate::card::sets) static ELVES_OF_DEEP_SHADOW: CardRecord = CardRecord::new(
-    cards::ELVES_OF_DEEP_SHADOW,
+pub(in crate::card::sets) static ELVES_OF_DEEP_SHADOW: CardRecord = CardRecord::new_with_legacy_id(
+    1477,
     "Elves of Deep Shadow",
     CardArt::new("f395278e-6d74-4f35-af9d-21bad7b19763", "Jesper Myrfors"),
     CardSet::TheDark,
@@ -1558,8 +1558,8 @@ static GAEAS_TOUCH_CHOICE: EffectDef = EffectDef::ChooseCards {
 };
 
 // DRK 77 — Gaea's Touch
-pub(in crate::card::sets) static GAEAS_TOUCH: CardRecord = CardRecord::new(
-    cards::GAEAS_TOUCH,
+pub(in crate::card::sets) static GAEAS_TOUCH: CardRecord = CardRecord::new_with_legacy_id(
+    2006,
     "Gaea's Touch",
     CardArt::new("0e1ae3d6-6d96-4db6-bbc4-cee91bae6cf7", "Mark Poole"),
     CardSet::TheDark,
@@ -1582,8 +1582,8 @@ pub(in crate::card::sets) static GAEAS_TOUCH: CardRecord = CardRecord::new(
 );
 
 // DRK 78 — Hidden Path
-pub(in crate::card::sets) static HIDDEN_PATH: CardRecord = CardRecord::new(
-    cards::HIDDEN_PATH,
+pub(in crate::card::sets) static HIDDEN_PATH: CardRecord = CardRecord::new_with_legacy_id(
+    565,
     "Hidden Path",
     CardArt::new("cbc93c0b-0ac8-4b8f-b2f6-96887d1acd77", "Rob Alexander"),
     CardSet::TheDark,
@@ -1606,8 +1606,8 @@ pub(in crate::card::sets) static HIDDEN_PATH: CardRecord = CardRecord::new(
 );
 
 // DRK 79 — Land Leeches
-pub(in crate::card::sets) static LAND_LEECHES: CardRecord = CardRecord::new(
-    cards::LAND_LEECHES,
+pub(in crate::card::sets) static LAND_LEECHES: CardRecord = CardRecord::new_with_legacy_id(
+    566,
     "Land Leeches",
     CardArt::new("ff99543d-86a1-44f8-88ec-aaec071d6c05", "Quinton Hoover"),
     CardSet::TheDark,
@@ -1619,8 +1619,8 @@ pub(in crate::card::sets) static LAND_LEECHES: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a combat declaration or damage-assignment constraint for “This creature can't be the target of spells unless it attacked or blocked this turn”.
 
 // DRK 81 — Marsh Viper
-pub(in crate::card::sets) static MARSH_VIPER: CardRecord = CardRecord::new(
-    cards::MARSH_VIPER,
+pub(in crate::card::sets) static MARSH_VIPER: CardRecord = CardRecord::new_with_legacy_id(
+    1558,
     "Marsh Viper",
     CardArt::new("109cce7a-96f7-4e67-878a-bd5c93ea8643", "Ron Spencer"),
     CardSet::TheDark,
@@ -1634,8 +1634,8 @@ pub(in crate::card::sets) static MARSH_VIPER: CardRecord = CardRecord::new(
 );
 
 // DRK 82 — Niall Silvain
-pub(in crate::card::sets) static NIALL_SILVAIN: CardRecord = CardRecord::new(
-    cards::NIALL_SILVAIN,
+pub(in crate::card::sets) static NIALL_SILVAIN: CardRecord = CardRecord::new_with_legacy_id(
+    1423,
     "Niall Silvain",
     CardArt::new("9d5911b5-a54e-4ebb-9c36-d4dc8e97bb4b", "Christopher Rush"),
     CardSet::TheDark,
@@ -1658,8 +1658,8 @@ pub(in crate::card::sets) static NIALL_SILVAIN: CardRecord = CardRecord::new(
 
 // DRK 83 — People of the Woods
 // Audit: partial — Its toughness is a battlefield-only continuous effect rather than a characteristic-defining ability, so it reads as printed in every other zone.
-pub(in crate::card::sets) static PEOPLE_OF_THE_WOODS: CardRecord = CardRecord::new(
-    cards::PEOPLE_OF_THE_WOODS,
+pub(in crate::card::sets) static PEOPLE_OF_THE_WOODS: CardRecord = CardRecord::new_with_legacy_id(
+    1470,
     "People of the Woods",
     CardArt::new("2fb5926f-9988-4bc0-b2b7-e286db208310", "Drew Tucker"),
     CardSet::TheDark,
@@ -1697,8 +1697,8 @@ static SAVAEN_ELVES_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_o
 )];
 
 // DRK 84 — Savaen Elves
-pub(in crate::card::sets) static SAVAEN_ELVES: CardRecord = CardRecord::new(
-    cards::SAVAEN_ELVES,
+pub(in crate::card::sets) static SAVAEN_ELVES: CardRecord = CardRecord::new_with_legacy_id(
+    1679,
     "Savaen Elves",
     CardArt::new("38fb3014-f631-4a75-92cd-7e626b13a4c3", "Ron Spencer"),
     CardSet::TheDark,
@@ -1722,8 +1722,8 @@ pub(in crate::card::sets) static SAVAEN_ELVES: CardRecord = CardRecord::new(
 // Audit: blocked — Needs duration-aware control-changing continuous effects for “{2}{G}, {T}: Unless an opponent pays {2}, gain control of target artifact for as long as this creature remains on the battlefield”.
 
 // DRK 86 — Scarwood Hag
-pub(in crate::card::sets) static SCARWOOD_HAG: CardRecord = CardRecord::new(
-    cards::SCARWOOD_HAG,
+pub(in crate::card::sets) static SCARWOOD_HAG: CardRecord = CardRecord::new_with_legacy_id(
+    578,
     "Scarwood Hag",
     CardArt::new("ac2655e4-3a4d-4f73-820a-02fab675d42e", "Anson Maddocks"),
     CardSet::TheDark,
@@ -1761,8 +1761,8 @@ pub(in crate::card::sets) static SCARWOOD_HAG: CardRecord = CardRecord::new(
 );
 
 // DRK 87 — Scavenger Folk
-pub(in crate::card::sets) static SCAVENGER_FOLK: CardRecord = CardRecord::new(
-    cards::SCAVENGER_FOLK,
+pub(in crate::card::sets) static SCAVENGER_FOLK: CardRecord = CardRecord::new_with_legacy_id(
+    567,
     "Scavenger Folk",
     CardArt::new("8e99870c-b2b9-431b-b8a8-3f4a80aa8fa5", "Dennis Detwiller"),
     CardSet::TheDark,
@@ -1808,8 +1808,8 @@ static SPITTING_SLUG_OPPONENTS: EffectDef = EffectDef::Apply {
 };
 
 // DRK 88 — Spitting Slug
-pub(in crate::card::sets) static SPITTING_SLUG: CardRecord = CardRecord::new(
-    cards::SPITTING_SLUG,
+pub(in crate::card::sets) static SPITTING_SLUG: CardRecord = CardRecord::new_with_legacy_id(
+    1900,
     "Spitting Slug",
     CardArt::new("7011356e-7516-4ca0-ac54-d30af7ce03a2", "Anson Maddocks"),
     CardSet::TheDark,
@@ -1837,8 +1837,8 @@ pub(in crate::card::sets) static SPITTING_SLUG: CardRecord = CardRecord::new(
 );
 
 // DRK 89 — Tracker
-pub(in crate::card::sets) static TRACKER: CardRecord = CardRecord::new(
-    cards::TRACKER,
+pub(in crate::card::sets) static TRACKER: CardRecord = CardRecord::new_with_legacy_id(
+    568,
     "Tracker",
     CardArt::new("35ffc69e-26f2-434f-8c89-2df108dd984a", "Jeff A. Menges"),
     CardSet::TheDark,
@@ -1882,8 +1882,8 @@ static VENOMOUS_TOUCH: AbilityDef = AbilityDef::triggered(
 );
 
 // DRK 90 — Venom
-pub(in crate::card::sets) static VENOM: CardRecord = CardRecord::new(
-    cards::VENOM,
+pub(in crate::card::sets) static VENOM: CardRecord = CardRecord::new_with_legacy_id(
+    1734,
     "Venom",
     CardArt::new("7b89b81b-7b32-42a0-acf0-67784015b59a", "Tom Wänerstrand"),
     CardSet::TheDark,
@@ -1906,8 +1906,8 @@ pub(in crate::card::sets) static VENOM: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a duration-scoped prohibition on creating or applying regeneration shields for “{G}{G}, {T}: Target creature can't be regenerated this turn. Damage that would be dealt to that creature this turn can't be prevented or dealt instead to another permanent or player.…”.
 
 // DRK 92 — Wormwood Treefolk
-pub(in crate::card::sets) static WORMWOOD_TREEFOLK: CardRecord = CardRecord::new(
-    cards::WORMWOOD_TREEFOLK,
+pub(in crate::card::sets) static WORMWOOD_TREEFOLK: CardRecord = CardRecord::new_with_legacy_id(
+    1437,
     "Wormwood Treefolk",
     CardArt::new("2fa20173-e88a-4b14-9c54-14567ca5571c", "Jesper Myrfors"),
     CardSet::TheDark,
@@ -1952,8 +1952,8 @@ static FORESTWALK: AbilityDef = abilities::landwalk(BasicLandType::Forest);
 static SWAMPWALK: AbilityDef = abilities::landwalk(BasicLandType::Swamp);
 
 // DRK 93 — Marsh Goblins
-pub(in crate::card::sets) static MARSH_GOBLINS: CardRecord = CardRecord::new(
-    cards::MARSH_GOBLINS,
+pub(in crate::card::sets) static MARSH_GOBLINS: CardRecord = CardRecord::new_with_legacy_id(
+    1385,
     "Marsh Goblins",
     CardArt::new("8aabd80f-a18a-4bc1-9f05-4c3a63de77ce", "Quinton Hoover"),
     CardSet::TheDark,
@@ -1962,8 +1962,8 @@ pub(in crate::card::sets) static MARSH_GOBLINS: CardRecord = CardRecord::new(
 );
 
 // DRK 94 — Scarwood Goblins
-pub(in crate::card::sets) static SCARWOOD_GOBLINS: CardRecord = CardRecord::new(
-    cards::SCARWOOD_GOBLINS,
+pub(in crate::card::sets) static SCARWOOD_GOBLINS: CardRecord = CardRecord::new_with_legacy_id(
+    569,
     "Scarwood Goblins",
     CardArt::new("5542d236-af43-43b8-b30f-8980d74bbdd0", "Ron Spencer"),
     CardSet::TheDark,
@@ -1971,27 +1971,28 @@ pub(in crate::card::sets) static SCARWOOD_GOBLINS: CardRecord = CardRecord::new(
 );
 
 // DRK 95 — Dark Heart of the Wood
-pub(in crate::card::sets) static DARK_HEART_OF_THE_WOOD: CardRecord = CardRecord::new(
-    cards::DARK_HEART_OF_THE_WOOD,
-    "Dark Heart of the Wood",
-    CardArt::new("e3d3df64-1e90-4aef-86ae-0062aa23ff30", "Christopher Rush"),
-    CardSet::TheDark,
-    CardRules::new_enchantment(mana_cost!("{B}{G}")).with_abilities(&[AbilityDef::activated(
-        "Sacrifice a Forest: You gain 3 life.",
-        &[AbilityCostDef::SacrificePermanent {
-            object: ObjectPredicateDef::Subtype("Forest"),
-            controller: PlayerRelation::You,
-        }],
-        EffectDef::GainLife {
-            recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::Constant(3),
-        },
-    )]),
-);
+pub(in crate::card::sets) static DARK_HEART_OF_THE_WOOD: CardRecord =
+    CardRecord::new_with_legacy_id(
+        570,
+        "Dark Heart of the Wood",
+        CardArt::new("e3d3df64-1e90-4aef-86ae-0062aa23ff30", "Christopher Rush"),
+        CardSet::TheDark,
+        CardRules::new_enchantment(mana_cost!("{B}{G}")).with_abilities(&[AbilityDef::activated(
+            "Sacrifice a Forest: You gain 3 life.",
+            &[AbilityCostDef::SacrificePermanent {
+                object: ObjectPredicateDef::Subtype("Forest"),
+                controller: PlayerRelation::You,
+            }],
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(3),
+            },
+        )]),
+    );
 
 // DRK 96 — Barl's Cage
-pub(in crate::card::sets) static BARLS_CAGE: CardRecord = CardRecord::new(
-    cards::BARLS_CAGE,
+pub(in crate::card::sets) static BARLS_CAGE: CardRecord = CardRecord::new_with_legacy_id(
+    1568,
     "Barl's Cage",
     CardArt::new("6768a307-da2e-435e-8efd-72d82b4d4a2b", "Tom Wänerstrand"),
     CardSet::TheDark,
@@ -2009,8 +2010,8 @@ pub(in crate::card::sets) static BARLS_CAGE: CardRecord = CardRecord::new(
 );
 
 // DRK 97 — Bone Flute
-pub(in crate::card::sets) static BONE_FLUTE: CardRecord = CardRecord::new(
-    cards::BONE_FLUTE,
+pub(in crate::card::sets) static BONE_FLUTE: CardRecord = CardRecord::new_with_legacy_id(
+    571,
     "Bone Flute",
     CardArt::new("63a31de0-d764-4ff6-a85f-027e1e58d86c", "Christopher Rush"),
     CardSet::TheDark,
@@ -2036,8 +2037,8 @@ pub(in crate::card::sets) static BONE_FLUTE: CardRecord = CardRecord::new(
 );
 
 // DRK 98 — Book of Rass
-pub(in crate::card::sets) static BOOK_OF_RASS: CardRecord = CardRecord::new(
-    cards::BOOK_OF_RASS,
+pub(in crate::card::sets) static BOOK_OF_RASS: CardRecord = CardRecord::new_with_legacy_id(
+    572,
     "Book of Rass",
     CardArt::new("5a391ada-e9e3-45db-ae84-17421ac6b44d", "Sandra Everingham"),
     CardSet::TheDark,
@@ -2057,8 +2058,8 @@ pub(in crate::card::sets) static BOOK_OF_RASS: CardRecord = CardRecord::new(
 );
 
 // DRK 99 — Coal Golem
-pub(in crate::card::sets) static COAL_GOLEM: CardRecord = CardRecord::new(
-    cards::COAL_GOLEM,
+pub(in crate::card::sets) static COAL_GOLEM: CardRecord = CardRecord::new_with_legacy_id(
+    1636,
     "Coal Golem",
     CardArt::new("1ad7692d-5a51-493f-a322-7b615446ea8e", "Christopher Rush"),
     CardSet::TheDark,
@@ -2075,8 +2076,8 @@ pub(in crate::card::sets) static COAL_GOLEM: CardRecord = CardRecord::new(
 );
 
 // DRK 100 — Dark Sphere
-pub(in crate::card::sets) static DARK_SPHERE: CardRecord = CardRecord::new(
-    cards::DARK_SPHERE,
+pub(in crate::card::sets) static DARK_SPHERE: CardRecord = CardRecord::new_with_legacy_id(
+    1454,
     "Dark Sphere",
     CardArt::new("72cfe9b9-677d-4ecb-83ab-67fb6481371d", "Mark Tedin"),
     CardSet::TheDark,
@@ -2101,8 +2102,8 @@ static DARK_SPHERE_SHIELD: EffectDef = EffectDef::PreventDamage {
 };
 
 // DRK 101 — Diabolic Machine
-pub(in crate::card::sets) static DIABOLIC_MACHINE: CardRecord = CardRecord::new(
-    cards::DIABOLIC_MACHINE,
+pub(in crate::card::sets) static DIABOLIC_MACHINE: CardRecord = CardRecord::new_with_legacy_id(
+    1378,
     "Diabolic Machine",
     CardArt::new("c3b0f228-6b06-4426-a557-1225d547b908", "Anson Maddocks"),
     CardSet::TheDark,
@@ -2115,8 +2116,8 @@ pub(in crate::card::sets) static DIABOLIC_MACHINE: CardRecord = CardRecord::new(
 );
 
 // DRK 102 — Fellwar Stone
-pub(in crate::card::sets) static FELLWAR_STONE: CardRecord = CardRecord::new(
-    cards::FELLWAR_STONE,
+pub(in crate::card::sets) static FELLWAR_STONE: CardRecord = CardRecord::new_with_legacy_id(
+    48,
     "Fellwar Stone",
     CardArt::new("dc47e322-f8b8-4685-b035-fda0cc433e6b", "Quinton Hoover"),
     CardSet::TheDark,
@@ -2133,8 +2134,8 @@ pub(in crate::card::sets) static FELLWAR_STONE: CardRecord = CardRecord::new(
 );
 
 // DRK 103 — Fountain of Youth
-pub(in crate::card::sets) static FOUNTAIN_OF_YOUTH: CardRecord = CardRecord::new(
-    cards::FOUNTAIN_OF_YOUTH,
+pub(in crate::card::sets) static FOUNTAIN_OF_YOUTH: CardRecord = CardRecord::new_with_legacy_id(
+    573,
     "Fountain of Youth",
     CardArt::new("2b60eb23-cb9a-4203-86fb-60e47dbd870b", "Daniel Gelon"),
     CardSet::TheDark,
@@ -2164,8 +2165,8 @@ pub(in crate::card::sets) static FOUNTAIN_OF_YOUTH: CardRecord = CardRecord::new
 // Audit: blocked — Needs a combat declaration or damage-assignment constraint for “{3}, {T}: Target attacking creature gets +2/+0 until end of turn. When that creature leaves the battlefield this turn, sacrifice this artifact. If the creature deals damage to a creature…”.
 
 // DRK 108 — Scarecrow
-pub(in crate::card::sets) static SCARECROW: CardRecord = CardRecord::new(
-    cards::SCARECROW,
+pub(in crate::card::sets) static SCARECROW: CardRecord = CardRecord::new_with_legacy_id(
+    1673,
     "Scarecrow",
     CardArt::new("93850e74-744c-4261-a84e-01eaced6e49a", "Anson Maddocks"),
     CardSet::TheDark,
@@ -2189,8 +2190,8 @@ pub(in crate::card::sets) static SCARECROW: CardRecord = CardRecord::new(
 );
 
 // DRK 109 — Skull of Orm
-pub(in crate::card::sets) static SKULL_OF_ORM: CardRecord = CardRecord::new(
-    cards::SKULL_OF_ORM,
+pub(in crate::card::sets) static SKULL_OF_ORM: CardRecord = CardRecord::new_with_legacy_id(
+    574,
     "Skull of Orm",
     CardArt::new("aa1d9bb5-972a-4705-bf22-0fa1e974dd26", "Tom Wänerstrand"),
     CardSet::TheDark,
@@ -2222,8 +2223,8 @@ pub(in crate::card::sets) static SKULL_OF_ORM: CardRecord = CardRecord::new(
 );
 
 // DRK 110 — Standing Stones
-pub(in crate::card::sets) static STANDING_STONES: CardRecord = CardRecord::new(
-    cards::STANDING_STONES,
+pub(in crate::card::sets) static STANDING_STONES: CardRecord = CardRecord::new_with_legacy_id(
+    1683,
     "Standing Stones",
     CardArt::new("6d4c853e-2231-4af2-bcb0-1781c18ec3be", "Sandra Everingham"),
     CardSet::TheDark,
@@ -2242,8 +2243,8 @@ pub(in crate::card::sets) static STANDING_STONES: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a battlefield-wide static spell-cost reduction; the available generic cost reducer applies only to the source card in hand.
 
 // DRK 112 — Tormod's Crypt
-pub(in crate::card::sets) static TORMODS_CRYPT: CardRecord = CardRecord::new(
-    cards::TORMODS_CRYPT,
+pub(in crate::card::sets) static TORMODS_CRYPT: CardRecord = CardRecord::new_with_legacy_id(
+    304,
     "Tormod's Crypt",
     CardArt::new("79be5dc2-fab0-4ca1-a044-83e599ed1b41", "Christopher Rush"),
     CardSet::TheDark,
@@ -2270,8 +2271,8 @@ pub(in crate::card::sets) static TORMODS_CRYPT: CardRecord = CardRecord::new(
 
 // DRK 113 — Tower of Coireall
 // Audit: metadata-only — Needs a temporary blocking restriction limited to Wall blockers; the available effect would make the creature completely unblockable.
-pub(in crate::card::sets) static TOWER_OF_COIREALL: CardRecord = CardRecord::new(
-    cards::TOWER_OF_COIREALL,
+pub(in crate::card::sets) static TOWER_OF_COIREALL: CardRecord = CardRecord::new_with_legacy_id(
+    576,
     "Tower of Coireall",
     CardArt::new("64c19977-ac7d-4ce7-925c-33a7503420f5", "Dan Frazier"),
     CardSet::TheDark,
@@ -2325,8 +2326,8 @@ static MAZE_OF_ITH_EFFECT: [EffectDef; 2] = [
 // Audit: blocked — Needs the mana-ability runtime to pay this ability's mana activation cost for “{T}: Add {C} for each storage counter on this land”.
 
 // DRK 117 — Maze of Ith
-pub(in crate::card::sets) static MAZE_OF_ITH: CardRecord = CardRecord::new(
-    cards::MAZE_OF_ITH,
+pub(in crate::card::sets) static MAZE_OF_ITH: CardRecord = CardRecord::new_with_legacy_id(
+    81,
     "Maze of Ith",
     CardArt::new("42dcceee-2a47-4eaa-a6a3-2931b3d50244", "Anson Maddocks"),
     CardSet::TheDark,
@@ -2339,8 +2340,8 @@ pub(in crate::card::sets) static MAZE_OF_ITH: CardRecord = CardRecord::new(
 );
 
 // DRK 118 — Safe Haven
-pub(in crate::card::sets) static SAFE_HAVEN: CardRecord = CardRecord::new(
-    cards::SAFE_HAVEN,
+pub(in crate::card::sets) static SAFE_HAVEN: CardRecord = CardRecord::new_with_legacy_id(
+    577,
     "Safe Haven",
     CardArt::new("0d48fb47-1bed-4791-a014-504515f3d36f", "Christopher Rush"),
     CardSet::TheDark,

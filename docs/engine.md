@@ -9,11 +9,15 @@ philosophy, [implementing cards](implementing-cards.md) for extension guidance,
 ## Identities and zones
 
 A `CardDefinitionId` identifies one canonical card name and rules identity in
-the catalog. Copy limits, banned and restricted lists, and executable behavior
-all use that canonical identity. A `CardPrintingId` identifies one exact
-set-and-variant printing of the definition. Multiple printing variants may
-therefore share a set and canonical definition, which can represent different
-basic-land art without duplicating gameplay rules.
+the catalog. Existing numeric meanings remain fixed; new definitions derive a
+positive, JavaScript-safe 52-bit value from an explicitly frozen exact
+first-printing UUID. The values are opaque and sparse, while the catalog keeps
+definitions dense internally behind an ID-to-index map. Copy limits, banned and
+restricted lists, and executable behavior all use that canonical identity. A
+`CardPrintingId` identifies one exact set-and-variant printing of the
+definition. Multiple printing variants may therefore share a set and canonical
+definition, which can represent different basic-land art without duplicating
+gameplay rules.
 
 The runtime model deliberately separates physical-card lineage from rules
 object identity:

@@ -3,7 +3,7 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, EffectDef,
-    EffectRecipientDef, abilities, cards,
+    EffectRecipientDef, abilities,
 };
 use crate::mana_cost;
 
@@ -20,8 +20,8 @@ static GREAVES_GRANTS: [AppliedEffectDef; 2] = [
 ];
 
 // MRD 199 — Lightning Greaves
-pub(in crate::card::sets) static LIGHTNING_GREAVES: CardRecord = CardRecord::new(
-    cards::LIGHTNING_GREAVES,
+pub(in crate::card::sets) static LIGHTNING_GREAVES: CardRecord = CardRecord::new_with_legacy_id(
+    2170,
     "Lightning Greaves",
     CardArt::new("61a28870-cf78-4323-9d82-cee764067764", "Jeremy Jarvis"),
     CardSet::Mirrodin,

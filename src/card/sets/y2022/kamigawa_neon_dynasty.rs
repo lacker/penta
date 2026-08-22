@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
     CardArt, CardRules, CardSet, CardType, CounterKind, EffectDef, EffectRecipientDef,
-    ObjectPredicateDef, TriggerConditionDef, ValueDef, ZoneKind, ZonePlacement, abilities, cards,
+    ObjectPredicateDef, TriggerConditionDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -58,8 +58,8 @@ static LION_SASH_EXILE: [EffectDef; 2] = [
 ];
 
 // NEO 26 — Lion Sash
-pub(in crate::card::sets) static LION_SASH: CardRecord = CardRecord::new(
-    cards::LION_SASH,
+pub(in crate::card::sets) static LION_SASH: CardRecord = CardRecord::new_with_legacy_id(
+    2243,
     "Lion Sash",
     CardArt::new("3e1766e9-2fa7-4446-a255-7beea1467ece", "Yongjae Choi"),
     CardSet::KamigawaNeonDynasty,
@@ -93,8 +93,8 @@ pub(in crate::card::sets) static LION_SASH: CardRecord = CardRecord::new(
 );
 
 // NEO 157 — Rabbit Battery
-pub(in crate::card::sets) static RABBIT_BATTERY: CardRecord = CardRecord::new(
-    cards::RABBIT_BATTERY,
+pub(in crate::card::sets) static RABBIT_BATTERY: CardRecord = CardRecord::new_with_legacy_id(
+    1706,
     "Rabbit Battery",
     CardArt::new("5d33a5b7-797b-4079-8d62-edd124c0fb5a", "Justyna Dura"),
     CardSet::KamigawaNeonDynasty,

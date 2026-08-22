@@ -5,7 +5,6 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardType, CounterKind, EffectDef,
     EffectRecipientDef, ObjectPredicateDef, ReplacementEffectDef, TriggerConditionDef, ValueDef,
-    cards,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -54,8 +53,8 @@ static FATAL_PUSH_EFFECT: [EffectDef; 2] = [
 ];
 
 // AER 57 — Fatal Push
-pub(in crate::card::sets) static FATAL_PUSH: CardRecord = CardRecord::new(
-    cards::FATAL_PUSH,
+pub(in crate::card::sets) static FATAL_PUSH: CardRecord = CardRecord::new_with_legacy_id(
+    2233,
     "Fatal Push",
     CardArt::new("b5e81649-9954-424c-89d1-f87d73b66047", "Eric Deschamps"),
     CardSet::AetherRevolt,
@@ -111,8 +110,8 @@ static WALKING_BALLISTA_ABILITIES: [AbilityDef; 3] = [
 ];
 
 // AER 181 — Walking Ballista
-pub(in crate::card::sets) static WALKING_BALLISTA: CardRecord = CardRecord::new(
-    cards::WALKING_BALLISTA,
+pub(in crate::card::sets) static WALKING_BALLISTA: CardRecord = CardRecord::new_with_legacy_id(
+    2237,
     "Walking Ballista",
     CardArt::new("329a8738-3e17-403a-857a-0ba529ce8cd1", "Daniel Ljunggren"),
     CardSet::AetherRevolt,

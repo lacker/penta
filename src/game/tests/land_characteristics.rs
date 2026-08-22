@@ -71,7 +71,7 @@ fn lands_derive_intrinsic_mana_in_effective_subtype_order() {
 
 #[test]
 fn a_basic_land_subtype_only_grants_mana_to_a_land() {
-    let definition_id = CardDefinitionId(10_000);
+    let definition_id = CardDefinitionId::new(10_000);
     let mut definition = CardDefinition::new(
         definition_id,
         "Forest creature",
@@ -97,7 +97,7 @@ fn a_basic_land_subtype_only_grants_mana_to_a_land() {
 #[test]
 fn printed_and_intrinsic_mana_abilities_coexist() {
     static ABILITIES: [AbilityDef; 1] = [abilities::tap_for(ManaColor::Green)];
-    let definition_id = CardDefinitionId(10_000);
+    let definition_id = CardDefinitionId::new(10_000);
     let mut definition = CardDefinition::new(
         definition_id,
         "Forest with printed mana",
@@ -159,7 +159,7 @@ fn direct_and_composite_land_type_effects_grant_intrinsic_mana_in_order() {
         EffectDef::Sequence(&EFFECTS),
     )];
 
-    let definition_id = CardDefinitionId(10_081);
+    let definition_id = CardDefinitionId::new(10_081);
     let mut definition = CardDefinition::new(
         definition_id,
         "Composite land-type test Aura",
@@ -302,7 +302,7 @@ fn blood_moon_suppresses_nonbasic_lands_own_entry_replacements() {
 
 #[test]
 fn blood_moon_preserves_nonland_subtypes_on_a_land_creature() {
-    let definition_id = CardDefinitionId(10_000);
+    let definition_id = CardDefinitionId::new(10_000);
     let mut definition = CardDefinition::new(
         definition_id,
         "Forest Dryad",

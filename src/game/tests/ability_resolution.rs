@@ -73,7 +73,7 @@ static MULTI_SLOT_ACTIVATION_ABILITIES: [AbilityDef; 1] = [AbilityDef::activated
 
 #[test]
 fn declarative_activation_preserves_multiple_slots_before_sacrificing_its_source() {
-    let definition_id = CardDefinitionId(10_063);
+    let definition_id = CardDefinitionId::new(10_063);
     let mut definition = CardDefinition::new(
         definition_id,
         "Multi-slot activation test card",
@@ -186,7 +186,7 @@ fn one_ability_target_slot_resolves_for_every_selected_legal_target() {
         },
     )];
 
-    let definition_id = CardDefinitionId(10_064);
+    let definition_id = CardDefinitionId::new(10_064);
     let mut definition = CardDefinition::new(
         definition_id,
         "Multi-target slot test card",
@@ -273,7 +273,7 @@ fn granted_ability_keeps_its_frozen_resolver_when_the_source_changes() {
             effect: AppliedEffectDef::add_ability(&GRANTED_ABILITY),
         },
     )];
-    let definition_id = CardDefinitionId(10_061);
+    let definition_id = CardDefinitionId::new(10_061);
     let mut definition = CardDefinition::new(
         definition_id,
         "Granted resolver test card",
@@ -360,7 +360,7 @@ fn declarative_clause_uses_its_own_resolver_on_a_card_with_custom_behavior() {
             "The test keeps one explicitly custom clause beside the declarative clause.",
         ),
     ];
-    let definition_id = CardDefinitionId(10_060);
+    let definition_id = CardDefinitionId::new(10_060);
     let mut definition = CardDefinition::new(
         definition_id,
         "Mixed resolver test card",
@@ -437,7 +437,7 @@ fn legacy_activated_clauses_dispatch_from_their_own_effect_execution() {
         ))
         .with_legacy_procedure(),
     ];
-    let definition_id = CardDefinitionId(10_096);
+    let definition_id = CardDefinitionId::new(10_096);
     let mut definition = CardDefinition::new(
         definition_id,
         "Multiple legacy activation test",
@@ -525,7 +525,7 @@ fn a_legacy_activation_after_a_shared_clause_keeps_its_own_origin() {
         ))
         .with_legacy_procedure(),
     ];
-    let definition_id = CardDefinitionId(10_097);
+    let definition_id = CardDefinitionId::new(10_097);
     let mut definition = CardDefinition::new(
         definition_id,
         "Mixed shared and legacy activation test",
@@ -596,7 +596,7 @@ fn fellwar_mana_and_nested_color_queries_use_their_typed_legacy_clauses() {
         ))
         .with_legacy_procedure(),
     ];
-    let definition_id = CardDefinitionId(10_098);
+    let definition_id = CardDefinitionId::new(10_098);
     let mut definition = CardDefinition::new(
         definition_id,
         "Typed Fellwar mana test",
@@ -606,7 +606,7 @@ fn fellwar_mana_and_nested_color_queries_use_their_typed_legacy_clauses() {
     );
     definition.rules = CardRules::new_artifact(ManaCost::default()).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
-    let proxy_definition_id = CardDefinitionId(10_099);
+    let proxy_definition_id = CardDefinitionId::new(10_099);
     let mut proxy_definition = CardDefinition::new(
         proxy_definition_id,
         "Typed Fellwar land proxy test",

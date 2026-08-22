@@ -7,7 +7,7 @@ use crate::card::{
     DividedTotal, EffectDef, EffectRecipientDef, GraveyardTypeConditionDef, ManaColor,
     ObjectPredicateDef, ObjectQueryDef, PlayerRelation, SpellAdditionalCostDef, SpendModeDef,
     TokenCharacteristics, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities, cards,
+    abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -114,8 +114,8 @@ static ENDING_EXILE: EffectDef = EffectDef::MoveToZone {
 };
 
 // MH2 25 — Prismatic Ending
-pub(in crate::card::sets) static PRISMATIC_ENDING: CardRecord = CardRecord::new(
-    cards::PRISMATIC_ENDING,
+pub(in crate::card::sets) static PRISMATIC_ENDING: CardRecord = CardRecord::new_with_legacy_id(
+    2193,
     "Prismatic Ending",
     CardArt::new("825969b9-3c70-4fca-8cab-696e9ca7cdb2", "John Stanko"),
     CardSet::ModernHorizons2,
@@ -187,8 +187,8 @@ static SUBTLETY_ABILITIES: [AbilityDef; 5] = [
 ];
 
 // MH2 67 — Subtlety
-pub(in crate::card::sets) static SUBTLETY: CardRecord = CardRecord::new(
-    cards::SUBTLETY,
+pub(in crate::card::sets) static SUBTLETY: CardRecord = CardRecord::new_with_legacy_id(
+    2236,
     "Subtlety",
     CardArt::new(
         "701256d5-1389-48b7-9581-d6037209bd06",
@@ -202,8 +202,8 @@ pub(in crate::card::sets) static SUBTLETY: CardRecord = CardRecord::new(
 );
 
 // MH2 76 — Bone Shards
-pub(in crate::card::sets) static BONE_SHARDS: CardRecord = CardRecord::new(
-    cards::BONE_SHARDS,
+pub(in crate::card::sets) static BONE_SHARDS: CardRecord = CardRecord::new_with_legacy_id(
+    2169,
     "Bone Shards",
     CardArt::new("1ee98955-4c47-4d45-9377-608dfa755337", "Tommy Arnold"),
     CardSet::ModernHorizons2,
@@ -223,8 +223,8 @@ pub(in crate::card::sets) static BONE_SHARDS: CardRecord = CardRecord::new(
 );
 
 // MH2 80 — Damn
-pub(in crate::card::sets) static DAMN: CardRecord = CardRecord::new(
-    cards::DAMN,
+pub(in crate::card::sets) static DAMN: CardRecord = CardRecord::new_with_legacy_id(
+    2192,
     "Damn",
     CardArt::new("efeae088-9ac5-4d2f-a15c-d8675a471ac5", "Lucas Graciano"),
     CardSet::ModernHorizons2,
@@ -257,8 +257,8 @@ pub(in crate::card::sets) static DAMN: CardRecord = CardRecord::new(
 );
 
 // MH2 126 — Fury
-pub(in crate::card::sets) static FURY: CardRecord = CardRecord::new(
-    cards::FURY,
+pub(in crate::card::sets) static FURY: CardRecord = CardRecord::new_with_legacy_id(
+    2157,
     "Fury",
     CardArt::new("bd281158-8180-40b9-a5b7-03cfc712d81a", "Raoul Vitale"),
     CardSet::ModernHorizons2,
@@ -302,8 +302,8 @@ static MINE_COLLAPSE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_
 )];
 
 // MH2 135 — Mine Collapse
-pub(in crate::card::sets) static MINE_COLLAPSE: CardRecord = CardRecord::new(
-    cards::MINE_COLLAPSE,
+pub(in crate::card::sets) static MINE_COLLAPSE: CardRecord = CardRecord::new_with_legacy_id(
+    2261,
     "Mine Collapse",
     CardArt::new("56e2e8b5-660d-4469-a4fe-2367dfadb709", "Bud Cook"),
     CardSet::ModernHorizons2,
@@ -346,8 +346,8 @@ static UNHOLY_HEAT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_on
 )];
 
 // MH2 145 — Unholy Heat
-pub(in crate::card::sets) static UNHOLY_HEAT: CardRecord = CardRecord::new(
-    cards::UNHOLY_HEAT,
+pub(in crate::card::sets) static UNHOLY_HEAT: CardRecord = CardRecord::new_with_legacy_id(
+    2159,
     "Unholy Heat",
     CardArt::new("2b73d294-6ab1-4051-9b0f-d8e335d37674", "Kari Christensen"),
     CardSet::ModernHorizons2,
@@ -365,8 +365,8 @@ pub(in crate::card::sets) static UNHOLY_HEAT: CardRecord = CardRecord::new(
 // Audit: blocked — Needs three capabilities at once: a resolution loop that repeats a step while reading what the previous iteration milled, a reflexive triggered ability that chooses its target when the optional sacrifice is actually made rather than on activation, and characteristics that apply in every zone except the battlefield.
 
 // MH2 231 — Nettlecyst
-pub(in crate::card::sets) static NETTLECYST: CardRecord = CardRecord::new(
-    cards::NETTLECYST,
+pub(in crate::card::sets) static NETTLECYST: CardRecord = CardRecord::new_with_legacy_id(
+    2126,
     "Nettlecyst",
     CardArt::new("4a0bb5dc-75a6-4bd6-81f8-611197fb0fba", "Vincent Proce"),
     CardSet::ModernHorizons2,
@@ -395,25 +395,26 @@ pub(in crate::card::sets) static NETTLECYST: CardRecord = CardRecord::new(
 );
 
 // MH2 261 — Yavimaya, Cradle of Growth
-pub(in crate::card::sets) static YAVIMAYA_CRADLE_OF_GROWTH: CardRecord = CardRecord::new(
-    cards::YAVIMAYA_CRADLE_OF_GROWTH,
-    "Yavimaya, Cradle of Growth",
-    CardArt::new("4e4b6e22-93b2-4896-bba5-0ceaa5d8ea3c", "Sarah Finnigan"),
-    CardSet::ModernHorizons2,
-    CardRules::new_land(&[])
-        .with_supertype(CardSupertype::Legendary)
-        .with_ability(AbilityDef::static_ability(
-            "Each land is a Forest in addition to its other land types.",
-            EffectDef::StaticApply {
-                recipient: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::HasType(CardType::Land),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::Any,
-                ),
-                effect: AppliedEffectDef::add_basic_land_types(&[BasicLandType::Forest]),
-            },
-        )),
-);
+pub(in crate::card::sets) static YAVIMAYA_CRADLE_OF_GROWTH: CardRecord =
+    CardRecord::new_with_legacy_id(
+        262,
+        "Yavimaya, Cradle of Growth",
+        CardArt::new("4e4b6e22-93b2-4896-bba5-0ceaa5d8ea3c", "Sarah Finnigan"),
+        CardSet::ModernHorizons2,
+        CardRules::new_land(&[])
+            .with_supertype(CardSupertype::Legendary)
+            .with_ability(AbilityDef::static_ability(
+                "Each land is a Forest in addition to its other land types.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    effect: AppliedEffectDef::add_basic_land_types(&[BasicLandType::Forest]),
+                },
+            )),
+    );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PRISMATIC_ENDING,

@@ -3,7 +3,7 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, EffectDef,
-    EffectRecipientDef, TopCardSelectionDef, ValueDef, ZoneKind, ZonePlacement, cards,
+    EffectRecipientDef, TopCardSelectionDef, ValueDef, ZoneKind, ZonePlacement,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -24,8 +24,8 @@ static SLEIGHT_SELECTION: TopCardSelectionDef = TopCardSelectionDef {
 };
 
 // P02 46 — Sleight of Hand
-pub(in crate::card::sets) static SLEIGHT_OF_HAND: CardRecord = CardRecord::new(
-    cards::SLEIGHT_OF_HAND,
+pub(in crate::card::sets) static SLEIGHT_OF_HAND: CardRecord = CardRecord::new_with_legacy_id(
+    311,
     "Sleight of Hand",
     CardArt::new("f3405184-dcda-4bb6-ade6-c2a87bc3296d", "Phil Foglio"),
     CardSet::PortalSecondAge,
@@ -40,8 +40,8 @@ pub(in crate::card::sets) static SLEIGHT_OF_HAND: CardRecord = CardRecord::new(
 );
 
 // P02 119 — Volcanic Hammer
-pub(in crate::card::sets) static VOLCANIC_HAMMER: CardRecord = CardRecord::new(
-    cards::VOLCANIC_HAMMER,
+pub(in crate::card::sets) static VOLCANIC_HAMMER: CardRecord = CardRecord::new_with_legacy_id(
+    273,
     "Volcanic Hammer",
     CardArt::new(
         "58c0489d-b073-4ad4-b044-447fcc865b6c",

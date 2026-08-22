@@ -5,7 +5,7 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
     CardArt, CardRules, CardSet, CardType, ComparisonDef, CounterKind, EffectDef,
     EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation, TriggerConditionDef,
-    TriggerEventDef, ZoneKind, ZonePlacement, abilities, cards,
+    TriggerEventDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -114,8 +114,8 @@ static STORMCHASERS_TALENT_ABILITIES: [AbilityDef; 5] = [
 ];
 
 // BLB 75 — Stormchaser's Talent
-pub(in crate::card::sets) static STORMCHASERS_TALENT: CardRecord = CardRecord::new(
-    cards::STORMCHASERS_TALENT,
+pub(in crate::card::sets) static STORMCHASERS_TALENT: CardRecord = CardRecord::new_with_legacy_id(
+    2232,
     "Stormchaser's Talent",
     CardArt::new("a36e682d-b43d-4e08-bf5b-70d7e924dbe5", "Christina Kraus"),
     CardSet::Bloomburrow,

@@ -8,7 +8,7 @@ use crate::card::{
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef,
     PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementChoiceDef,
     ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef, SpendModeDef,
-    TopCardSelectionDef, ValueDef, ZoneKind, ZonePlacement, abilities, cards,
+    TopCardSelectionDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -43,8 +43,8 @@ static FLASH_OF_INSIGHT_LOOK: TopCardSelectionDef = TopCardSelectionDef {
 };
 
 // JUD 40 — Flash of Insight
-pub(in crate::card::sets) static FLASH_OF_INSIGHT: CardRecord = CardRecord::new(
-    cards::FLASH_OF_INSIGHT,
+pub(in crate::card::sets) static FLASH_OF_INSIGHT: CardRecord = CardRecord::new_with_legacy_id(
+    2064,
     "Flash of Insight",
     CardArt::new("ffaab905-8b2f-4a5c-9b1f-3c8e5d2b7a41", "Ben Thompson"),
     CardSet::Judgment,
@@ -91,8 +91,8 @@ static THERAPY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 )];
 
 // JUD 62 — Cabal Therapy
-pub(in crate::card::sets) static CABAL_THERAPY: CardRecord = CardRecord::new(
-    cards::CABAL_THERAPY,
+pub(in crate::card::sets) static CABAL_THERAPY: CardRecord = CardRecord::new_with_legacy_id(
+    2068,
     "Cabal Therapy",
     CardArt::new("0a5df970-6c2b-4e7f-9a3d-1b8e5c2f4d6a", "Ron Spencer"),
     CardSet::Judgment,
@@ -121,7 +121,7 @@ pub(in crate::card::sets) static CABAL_THERAPY: CardRecord = CardRecord::new(
     ]),
 );
 
-/// The chosen cards, shuffled back in. The shuffle follows the move so the
+/// The chosen shuffled back in. The shuffle follows the move so the
 /// library the cards join is the one that gets randomized.
 static RECLAMATION_SHUFFLE: EffectDef = EffectDef::Sequence(&[
     EffectDef::MoveToZone {
@@ -165,8 +165,8 @@ static GHOUL_BODY: AppliedEffectDef = AppliedEffectDef::Characteristic(
 );
 
 // JUD 73 — Sutured Ghoul
-pub(in crate::card::sets) static SUTURED_GHOUL: CardRecord = CardRecord::new(
-    cards::SUTURED_GHOUL,
+pub(in crate::card::sets) static SUTURED_GHOUL: CardRecord = CardRecord::new_with_legacy_id(
+    2089,
     "Sutured Ghoul",
     CardArt::new("754a167b-19ac-4100-91b8-4c605efa5ff7", "Carl Critchlow"),
     CardSet::Judgment,
@@ -191,8 +191,8 @@ pub(in crate::card::sets) static SUTURED_GHOUL: CardRecord = CardRecord::new(
 );
 
 // JUD 122 — Krosan Reclamation
-pub(in crate::card::sets) static KROSAN_RECLAMATION: CardRecord = CardRecord::new(
-    cards::KROSAN_RECLAMATION,
+pub(in crate::card::sets) static KROSAN_RECLAMATION: CardRecord = CardRecord::new_with_legacy_id(
+    2074,
     "Krosan Reclamation",
     CardArt::new("2aa77608-8f0e-4b12-80e2-d1feabf7787d", "Gary Ruddell"),
     CardSet::Judgment,
@@ -224,8 +224,8 @@ pub(in crate::card::sets) static KROSAN_RECLAMATION: CardRecord = CardRecord::ne
 );
 
 // JUD 133 — Sylvan Safekeeper
-pub(in crate::card::sets) static SYLVAN_SAFEKEEPER: CardRecord = CardRecord::new(
-    cards::SYLVAN_SAFEKEEPER,
+pub(in crate::card::sets) static SYLVAN_SAFEKEEPER: CardRecord = CardRecord::new_with_legacy_id(
+    293,
     "Sylvan Safekeeper",
     CardArt::new("f1b8413f-c9fc-4cea-b416-a1fcf651b009", "Pete Venters"),
     CardSet::Judgment,

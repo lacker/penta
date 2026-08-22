@@ -558,7 +558,7 @@ fn granted_activation_freezes_payload_before_sacrificing_grant_source() {
             effect: AppliedEffectDef::add_ability(&GRANTED_ABILITY),
         },
     )];
-    let grantor_definition_id = CardDefinitionId(10_062);
+    let grantor_definition_id = CardDefinitionId::new(10_062);
     let mut grantor_definition = CardDefinition::new(
         grantor_definition_id,
         "Activated snapshot test grantor",
@@ -655,7 +655,7 @@ fn separate_grant_sites_receive_distinct_structural_origins() {
         "This permanent has flying.\nThis permanent has flying.",
         EffectDef::Sequence(&EFFECTS),
     )];
-    let definition_id = CardDefinitionId(10_063);
+    let definition_id = CardDefinitionId::new(10_063);
     let mut definition = CardDefinition::new(
         definition_id,
         "Grant identity test card",
@@ -738,7 +738,7 @@ fn a_nonmatching_grant_site_still_advances_the_structural_origin() {
         "This permanent has flying. Creatures you control have flying.",
         EffectDef::Sequence(&EFFECTS),
     )];
-    let definition_id = CardDefinitionId(10_080);
+    let definition_id = CardDefinitionId::new(10_080);
     let mut definition = CardDefinition::new(
         definition_id,
         "Nonmatching grant identity test card",
@@ -813,7 +813,7 @@ fn nonmatching_composite_grant_sites_still_advance_structural_origins() {
         "The attached permanent has flying.\nThis permanent has flying.",
         EffectDef::Sequence(&EFFECTS),
     )];
-    let definition_id = CardDefinitionId(10_064);
+    let definition_id = CardDefinitionId::new(10_064);
     let mut definition = CardDefinition::new(
         definition_id,
         "Conditional composite grant identity test card",
@@ -929,8 +929,8 @@ pub(super) fn copied_grant_source_game() -> (
     CardDefinitionId,
     CardDefinitionId,
 ) {
-    let definition_a = CardDefinitionId(10_064);
-    let definition_b = CardDefinitionId(10_065);
+    let definition_a = CardDefinitionId::new(10_064);
+    let definition_b = CardDefinitionId::new(10_065);
     let source_a = copy_grant_source_definition(
         definition_a,
         "First grant source",

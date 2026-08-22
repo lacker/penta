@@ -3,7 +3,7 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, CardArt, CardRules, CardSet, CardType, EffectDef, EffectRecipientDef,
-    ObjectPredicateDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, cards,
+    ObjectPredicateDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
 };
 use crate::mana_cost;
 
@@ -33,8 +33,8 @@ static SPELLSEEKER_SEARCH: EffectDef = EffectDef::SearchZone {
 };
 
 // BBD 41 — Spellseeker
-pub(in crate::card::sets) static SPELLSEEKER: CardRecord = CardRecord::new(
-    cards::SPELLSEEKER,
+pub(in crate::card::sets) static SPELLSEEKER: CardRecord = CardRecord::new_with_legacy_id(
+    2150,
     "Spellseeker",
     CardArt::new("74b4c336-5d4c-4bc5-b82a-35084a6ad808", "Igor Kieryluk"),
     CardSet::Battlebond,

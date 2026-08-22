@@ -4,14 +4,14 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, BasicLandType, CardArt, CardRules, CardSet, CardType, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, TriggerEventDef, ValueDef, ZoneKind, abilities, cards,
+    EffectRecipientDef, ObjectPredicateDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 // THS 169 — Nylea's Presence
-pub(in crate::card::sets) static NYLEAS_PRESENCE: CardRecord = CardRecord::new(
-    cards::NYLEAS_PRESENCE,
+pub(in crate::card::sets) static NYLEAS_PRESENCE: CardRecord = CardRecord::new_with_legacy_id(
+    253,
     "Nylea's Presence",
     CardArt::new("e68f1fd4-1a2f-405b-a592-6c4af6214eae", "Ralph Horsley"),
     CardSet::Theros,
@@ -55,8 +55,8 @@ pub(in crate::card::sets) static NYLEAS_PRESENCE: CardRecord = CardRecord::new(
 );
 
 // THS 180 — Sylvan Caryatid
-pub(in crate::card::sets) static SYLVAN_CARYATID: CardRecord = CardRecord::new(
-    cards::SYLVAN_CARYATID,
+pub(in crate::card::sets) static SYLVAN_CARYATID: CardRecord = CardRecord::new_with_legacy_id(
+    2228,
     "Sylvan Caryatid",
     CardArt::new("d40b65c1-b24d-492d-81b9-d8474ebdc08c", "Chase Stone"),
     CardSet::Theros,

@@ -5,7 +5,7 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     CardArt, CardRules, CardSet, CardSupertype, CardType, EffectDef, EffectRecipientDef, ManaColor,
     ObjectPredicateDef, ObjectSetDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities, cards,
+    ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -69,8 +69,8 @@ static OUTCOME_EFFECT: EffectDef = EffectDef::BindMatching {
 };
 
 // KLD 60 — Paradoxical Outcome
-pub(in crate::card::sets) static PARADOXICAL_OUTCOME: CardRecord = CardRecord::new(
-    cards::PARADOXICAL_OUTCOME,
+pub(in crate::card::sets) static PARADOXICAL_OUTCOME: CardRecord = CardRecord::new_with_legacy_id(
+    2242,
     "Paradoxical Outcome",
     CardArt::new("17e50157-bf49-4c5f-9b8a-bf73484e63a5", "Nils Hamm"),
     CardSet::Kaladesh,
@@ -150,17 +150,18 @@ static CHANDRA_ABILITIES: [AbilityDef; 4] = [
 ];
 
 // KLD 110 — Chandra, Torch of Defiance
-pub(in crate::card::sets) static CHANDRA_TORCH_OF_DEFIANCE: CardRecord = CardRecord::new(
-    cards::CHANDRA_TORCH_OF_DEFIANCE,
-    "Chandra, Torch of Defiance",
-    CardArt::new("ff8086cd-b868-4f4e-823e-2635ad7ebc07", "Magali Villeneuve"),
-    CardSet::Kaladesh,
-    // Four abilities and no bad one: she draws, she ramps, she kills, and if
-    // the game somehow goes long she ends it by herself.
-    CardRules::new_planeswalker(mana_cost!("{2}{R}{R}"), &["Chandra"], 4)
-        .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&CHANDRA_ABILITIES),
-);
+pub(in crate::card::sets) static CHANDRA_TORCH_OF_DEFIANCE: CardRecord =
+    CardRecord::new_with_legacy_id(
+        2217,
+        "Chandra, Torch of Defiance",
+        CardArt::new("ff8086cd-b868-4f4e-823e-2635ad7ebc07", "Magali Villeneuve"),
+        CardSet::Kaladesh,
+        // Four abilities and no bad one: she draws, she ramps, she kills, and if
+        // the game somehow goes long she ends it by herself.
+        CardRules::new_planeswalker(mana_cost!("{2}{R}{R}"), &["Chandra"], 4)
+            .with_supertype(CardSupertype::Legendary)
+            .with_abilities(&CHANDRA_ABILITIES),
+    );
 
 /// The fastland cycle: untapped while the board is still small, an expensive
 /// tapped land after that. Every one of the ten prints this same clause, and
@@ -182,8 +183,8 @@ static BLOOMING_MARSH_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // KLD 243 — Blooming Marsh
-pub(in crate::card::sets) static BLOOMING_MARSH: CardRecord = CardRecord::new(
-    cards::BLOOMING_MARSH,
+pub(in crate::card::sets) static BLOOMING_MARSH: CardRecord = CardRecord::new_with_legacy_id(
+    2136,
     "Blooming Marsh",
     CardArt::new("90da33d4-fe9c-42fe-b326-2fe337dc3ecd", "Adam Paquette"),
     CardSet::Kaladesh,
@@ -203,8 +204,8 @@ static BOTANICAL_SANCTUM_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // KLD 244 — Botanical Sanctum
-pub(in crate::card::sets) static BOTANICAL_SANCTUM: CardRecord = CardRecord::new(
-    cards::BOTANICAL_SANCTUM,
+pub(in crate::card::sets) static BOTANICAL_SANCTUM: CardRecord = CardRecord::new_with_legacy_id(
+    2137,
     "Botanical Sanctum",
     CardArt::new("8744471b-a528-47d9-84d0-4526273f55e9", "Christine Choi"),
     CardSet::Kaladesh,
@@ -224,8 +225,8 @@ static CONCEALED_COURTYARD_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // KLD 245 — Concealed Courtyard
-pub(in crate::card::sets) static CONCEALED_COURTYARD: CardRecord = CardRecord::new(
-    cards::CONCEALED_COURTYARD,
+pub(in crate::card::sets) static CONCEALED_COURTYARD: CardRecord = CardRecord::new_with_legacy_id(
+    2138,
     "Concealed Courtyard",
     CardArt::new("c8769e97-aee8-4466-a9d7-0f4245ae4a97", "Jung Park"),
     CardSet::Kaladesh,
@@ -245,8 +246,8 @@ static INSPIRING_VANTAGE_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // KLD 246 — Inspiring Vantage
-pub(in crate::card::sets) static INSPIRING_VANTAGE: CardRecord = CardRecord::new(
-    cards::INSPIRING_VANTAGE,
+pub(in crate::card::sets) static INSPIRING_VANTAGE: CardRecord = CardRecord::new_with_legacy_id(
+    2139,
     "Inspiring Vantage",
     CardArt::new("160ac412-005f-48ca-a204-10207307c6c2", "Jonas De Ro"),
     CardSet::Kaladesh,
@@ -263,8 +264,8 @@ static SPIREBLUFF_CANAL_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // KLD 249 — Spirebluff Canal
-pub(in crate::card::sets) static SPIREBLUFF_CANAL: CardRecord = CardRecord::new(
-    cards::SPIREBLUFF_CANAL,
+pub(in crate::card::sets) static SPIREBLUFF_CANAL: CardRecord = CardRecord::new_with_legacy_id(
+    2140,
     "Spirebluff Canal",
     CardArt::new("4e587ea7-0632-4789-ba75-3c410da2bb96", "Adam Paquette"),
     CardSet::Kaladesh,

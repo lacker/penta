@@ -31,7 +31,7 @@ pub(super) fn authored_virtual_objects(catalog: &CardCatalog) -> AuthoredVirtual
         for part in &definition.parts {
             for attached in part.rules.indexed_abilities() {
                 let creator = AbilityLocator::Card {
-                    definition: definition.id.0,
+                    definition: definition.id,
                     part_id: part.id.0,
                     ability_id: attached.id.0,
                     nested: Vec::new(),

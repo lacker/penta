@@ -5,7 +5,7 @@ use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt,
     CardRules, CardSet, CardSupertype, CardType, EffectDef, EffectRecipientDef, ManaColor,
     ObjectPredicateDef, ObjectQueryDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind,
-    abilities, cards,
+    abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -61,17 +61,18 @@ static ADELINE_ABILITIES: [AbilityDef; 3] = [
 ];
 
 // MID 1 — Adeline, Resplendent Cathar
-pub(in crate::card::sets) static ADELINE_RESPLENDENT_CATHAR: CardRecord = CardRecord::new(
-    cards::ADELINE_RESPLENDENT_CATHAR,
-    "Adeline, Resplendent Cathar",
-    CardArt::new("18092f68-b96e-4084-9eba-b240d2195d81", "Bryan Sola"),
-    CardSet::InnistradMidnightHunt,
-    // Three mana that attacks for four the turn after it lands and for more
-    // every turn after that, because each token it makes makes it bigger.
-    CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Human", "Knight"], 0, 4)
-        .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&ADELINE_ABILITIES),
-);
+pub(in crate::card::sets) static ADELINE_RESPLENDENT_CATHAR: CardRecord =
+    CardRecord::new_with_legacy_id(
+        2280,
+        "Adeline, Resplendent Cathar",
+        CardArt::new("18092f68-b96e-4084-9eba-b240d2195d81", "Bryan Sola"),
+        CardSet::InnistradMidnightHunt,
+        // Three mana that attacks for four the turn after it lands and for more
+        // every turn after that, because each token it makes makes it bigger.
+        CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Human", "Knight"], 0, 4)
+            .with_supertype(CardSupertype::Legendary)
+            .with_abilities(&ADELINE_ABILITIES),
+    );
 
 static AN_ARTIFACT_OR_ENCHANTMENT: [AbilityTargetDef; 1] =
     [AbilityTargetDef::exactly_one_permanent(
@@ -82,8 +83,8 @@ static AN_ARTIFACT_OR_ENCHANTMENT: [AbilityTargetDef; 1] =
     )];
 
 // MID 10 — Cathar Commando
-pub(in crate::card::sets) static CATHAR_COMMANDO: CardRecord = CardRecord::new(
-    cards::CATHAR_COMMANDO,
+pub(in crate::card::sets) static CATHAR_COMMANDO: CardRecord = CardRecord::new_with_legacy_id(
+    2273,
     "Cathar Commando",
     CardArt::new("98cbc1c2-b76e-4da3-aa43-00e10b2ce532", "Evyn Fong"),
     CardSet::InnistradMidnightHunt,

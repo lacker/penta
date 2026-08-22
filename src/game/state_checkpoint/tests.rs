@@ -54,7 +54,7 @@ fn resolved_effect_locators_prefer_the_effect_source_ability() {
         for part in &definition.parts {
             for attached in part.rules.indexed_abilities() {
                 let source_root = model::AbilityLocator::Card {
-                    definition: definition.id.0,
+                    definition: definition.id,
                     part_id: part.id.0,
                     ability_id: attached.id.0,
                     nested: Vec::new(),
@@ -88,7 +88,7 @@ fn source_for_locator(object: GameObjectId, locator: &model::AbilityLocator) -> 
     AbilitySourceRef {
         object,
         ability: AbilityOrigin::Printed {
-            definition: CardDefinitionId(definition),
+            definition,
             part: CardPartId(part),
             ability: AbilityId(ability),
         },
@@ -103,7 +103,7 @@ fn locator_nested(locator: &model::AbilityLocator) -> &[usize] {
     }
 }
 
-fn printed_locator_root(locator: &model::AbilityLocator) -> Option<(u16, u8, u8)> {
+fn printed_locator_root(locator: &model::AbilityLocator) -> Option<(CardDefinitionId, u8, u8)> {
     let model::AbilityLocator::Card {
         definition,
         part_id,
@@ -125,7 +125,7 @@ fn source_without_applied_effect(
         for part in &definition.parts {
             for attached in part.rules.indexed_abilities() {
                 let locator = model::AbilityLocator::Card {
-                    definition: definition.id.0,
+                    definition: definition.id,
                     part_id: part.id.0,
                     ability_id: attached.id.0,
                     nested: Vec::new(),
@@ -149,7 +149,7 @@ fn splice_printed_source_ability(value: &mut Value, source: AbilitySourceRef) {
     else {
         panic!("the test splice source is printed");
     };
-    value["definition"] = json!(definition.0);
+    value["definition"] = json!(definition.get());
     value["partId"] = json!(part.0);
     value["abilityId"] = json!(ability.0);
 }
@@ -364,7 +364,7 @@ fn true_hidden_hypothesis(game: &Game, viewer: PlayerId) -> Value {
     let definitions = |cards: &[CardInstance]| {
         cards
             .iter()
-            .map(|card| card.definition.0)
+            .map(|card| card.definition.get())
             .collect::<Vec<_>>()
     };
     let opponent = viewer.opponent();
@@ -429,8 +429,8 @@ fn checkpoint_round_trips_extra_turns_and_the_regular_turn_anchor() {
     let hidden = json!({
         "hands": {"p2": []},
         "libraries": {
-            "p1": game.players[0].library.iter().map(|card| card.definition.0).collect::<Vec<_>>(),
-            "p2": game.players[1].library.iter().map(|card| card.definition.0).collect::<Vec<_>>(),
+            "p1": game.players[0].library.iter().map(|card| card.definition.get()).collect::<Vec<_>>(),
+            "p2": game.players[1].library.iter().map(|card| card.definition.get()).collect::<Vec<_>>(),
         },
         "outsideGame": {"p1": [], "p2": []},
     });

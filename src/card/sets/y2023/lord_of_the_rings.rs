@@ -9,7 +9,7 @@ use crate::card::{
     DrawEventMatcherDef, EffectDef, EffectRecipientDef, ManaColor, ManaRestrictionDef,
     ManaSpendEffectDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, abilities, cards, tokens,
+    TriggerEventDef, ValueDef, ZoneKind, abilities, tokens,
 };
 use crate::mana_cost;
 use crate::{ObjectSetBindingIndex, TargetIndex};
@@ -31,8 +31,8 @@ static REPRIEVE_EFFECTS: [EffectDef; 2] = [
 ];
 
 // LTR 26 — Reprieve
-pub(in crate::card::sets) static REPRIEVE: CardRecord = CardRecord::new(
-    cards::REPRIEVE,
+pub(in crate::card::sets) static REPRIEVE: CardRecord = CardRecord::new_with_legacy_id(
+    2168,
     "Reprieve",
     CardArt::new("1bd3fa8a-6c50-4f7f-9ae3-0810eec5e3db", "Justyna Dura"),
     CardSet::LordOfTheRings,
@@ -56,8 +56,8 @@ static STERN_SCOLDING_TARGET: AbilityTargetDef =
     ]));
 
 // LTR 60 — Lórien Revealed
-pub(in crate::card::sets) static LORIEN_REVEALED: CardRecord = CardRecord::new(
-    cards::LORIEN_REVEALED,
+pub(in crate::card::sets) static LORIEN_REVEALED: CardRecord = CardRecord::new_with_legacy_id(
+    2209,
     "Lórien Revealed",
     CardArt::new("0ce44270-a684-4489-9077-521456e6dfaa", "Randy Gallegos"),
     CardSet::LordOfTheRings,
@@ -81,8 +81,8 @@ pub(in crate::card::sets) static LORIEN_REVEALED: CardRecord = CardRecord::new(
 );
 
 // LTR 71 — Stern Scolding
-pub(in crate::card::sets) static STERN_SCOLDING: CardRecord = CardRecord::new(
-    cards::STERN_SCOLDING,
+pub(in crate::card::sets) static STERN_SCOLDING: CardRecord = CardRecord::new_with_legacy_id(
+    2125,
     "Stern Scolding",
     CardArt::new("3ca1e1de-b916-445f-b3b2-0f4d0cc7ceeb", "Valera Lutfullina"),
     CardSet::LordOfTheRings,
@@ -182,8 +182,8 @@ static BOWMASTERS_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // LTR 103 — Orcish Bowmasters
-pub(in crate::card::sets) static ORCISH_BOWMASTERS: CardRecord = CardRecord::new(
-    cards::ORCISH_BOWMASTERS,
+pub(in crate::card::sets) static ORCISH_BOWMASTERS: CardRecord = CardRecord::new_with_legacy_id(
+    2215,
     "Orcish Bowmasters",
     CardArt::new("adfd33cb-086c-48f4-b9fa-91b5e8f6f3d7", "Anna Podedworna"),
     CardSet::LordOfTheRings,
@@ -205,8 +205,8 @@ static HALFLING_MANA_SPEND_EFFECTS: [ManaSpendEffectDef; 1] =
     )];
 
 // LTR 158 — Delighted Halfling
-pub(in crate::card::sets) static DELIGHTED_HALFLING: CardRecord = CardRecord::new(
-    cards::DELIGHTED_HALFLING,
+pub(in crate::card::sets) static DELIGHTED_HALFLING: CardRecord = CardRecord::new_with_legacy_id(
+    2153,
     "Delighted Halfling",
     CardArt::new("71384418-173a-4f77-adab-56e52fa23692", "Inka Schulz"),
     CardSet::LordOfTheRings,
@@ -225,8 +225,8 @@ pub(in crate::card::sets) static DELIGHTED_HALFLING: CardRecord = CardRecord::ne
 );
 
 // LTR 169 — Generous Ent
-pub(in crate::card::sets) static GENEROUS_ENT: CardRecord = CardRecord::new(
-    cards::GENEROUS_ENT,
+pub(in crate::card::sets) static GENEROUS_ENT: CardRecord = CardRecord::new_with_legacy_id(
+    2122,
     "Generous Ent",
     CardArt::new("85d22d5d-3875-42ff-b51e-c6e21db201f5", "Simon Dominic"),
     CardSet::LordOfTheRings,
@@ -299,8 +299,8 @@ static FLAME_OF_ANOR_CREATURE_TARGET: [AbilityTargetDef; 1] =
     )];
 
 // LTR 203 — Flame of Anor
-pub(in crate::card::sets) static FLAME_OF_ANOR: CardRecord = CardRecord::new(
-    cards::FLAME_OF_ANOR,
+pub(in crate::card::sets) static FLAME_OF_ANOR: CardRecord = CardRecord::new_with_legacy_id(
+    2163,
     "Flame of Anor",
     CardArt::new("04779a7e-b453-48b9-b392-6d6fd0b8d283", "Yigit Koroglu"),
     CardSet::LordOfTheRings,

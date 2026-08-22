@@ -131,7 +131,7 @@ fn guardian_beast_stops_an_opponent_from_gaining_control_of_an_artifact() {
 
 #[test]
 fn guardian_beast_keeps_an_existing_aura_but_blocks_a_new_one() {
-    let aura_definition = CardDefinitionId(10_100);
+    let aura_definition = CardDefinitionId::new(10_100);
     let mut definition = CardDefinition::new(
         aura_definition,
         "Enchant permanent test Aura",

@@ -3,7 +3,7 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, CardArt, CardRules, CardSet, DiscardFollowUpDef, DiscardSelectionDef, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ValueDef, abilities, cards,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, ValueDef, abilities,
 };
 use crate::mana_cost;
 
@@ -38,15 +38,15 @@ static OCCULT_EPIPHANY_EFFECT: [EffectDef; 2] = [
 ];
 
 // VOC 14 — Occult Epiphany
-pub(in crate::card::sets) static OCCULT_EPIPHANY: CardRecord = CardRecord::new(
-    cards::OCCULT_EPIPHANY,
+pub(in crate::card::sets) static OCCULT_EPIPHANY: CardRecord = CardRecord::new_with_legacy_id(
+    2235,
     "Occult Epiphany",
     CardArt::new("6920c895-bc98-4871-a53f-219fa27a74e5", "Jason Rainville"),
     CardSet::InnistradCrimsonVowCommander,
     // The draw is a wash and the Spirits are the card: a hand with five
     // types in it turns X of nothing into five fliers.
     CardRules::new_instant(mana_cost!("{X}{U}")).with_ability(AbilityDef::spell(
-        "Draw X cards, then discard X cards. Create a 1/1 white Spirit creature token with \
+        "Draw X then discard X cards. Create a 1/1 white Spirit creature token with \
              flying for each card type among cards discarded this way.",
         EffectDef::Sequence(&OCCULT_EPIPHANY_EFFECT),
     )),

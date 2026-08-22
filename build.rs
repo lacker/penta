@@ -346,8 +346,212 @@ fn hash_text(hash: &mut Sha256, label: &str, value: &str) {
     }
 }
 
+fn sha256_hex(hash: Sha256) -> String {
+    // Written out a byte at a time because sha2 0.11 returns a plain array,
+    // which has no LowerHex implementation of its own.
+    let digest = hash.finalize();
+    let mut hex = String::with_capacity(digest.len() * 2);
+    for byte in digest {
+        write!(&mut hex, "{byte:02x}").expect("writing to a String cannot fail");
+    }
+    hex
+}
+
+const CARD_DECLARATION_PREFIX: &str = "pub(in crate::card::sets) static ";
+const CARD_ID_DOMAIN: &[u8] = b"penta/card-printing-id/v1\0";
+const LEGACY_CARD_ID_FINGERPRINT: &str =
+    "48b65efd1c927143dfc013c1ce5878e0f61959d0659f9c32f109c1075529f955";
+const MAX_CARD_DEFINITION_ID: u64 = (1_u64 << 52) - 1;
+
+fn derived_card_definition_id(scryfall_id: &str, nonce: u32) -> u64 {
+    let mut hash = Sha256::new();
+    hash.update(CARD_ID_DOMAIN);
+    hash.update(scryfall_id.as_bytes());
+    hash.update(nonce.to_be_bytes());
+    let digest = hash.finalize();
+    let prefix = u64::from_be_bytes(
+        digest[..8]
+            .try_into()
+            .expect("SHA-256 digest always has an eight-byte prefix"),
+    );
+    let id = prefix >> 12;
+    assert!(id > 0, "derived card definition ID must be nonzero");
+    assert!(id <= MAX_CARD_DEFINITION_ID);
+    id
+}
+
+fn quoted_argument(value: &str, prefix: &str, suffix: &str) -> Option<String> {
+    value
+        .strip_prefix(prefix)?
+        .strip_suffix(suffix)
+        .map(str::to_owned)
+}
+
+fn authored_card_id(value: &str, path: &Path, line: usize) -> (u64, bool) {
+    let value = value.trim();
+    if let Ok(id) = value
+        .strip_suffix(',')
+        .unwrap_or(value)
+        .replace('_', "")
+        .parse::<u64>()
+    {
+        assert!(
+            id > 0,
+            "{}:{line}: legacy ID must be nonzero",
+            path.display()
+        );
+        assert!(
+            id <= MAX_CARD_DEFINITION_ID,
+            "{}:{line}: legacy ID must be JavaScript-safe",
+            path.display()
+        );
+        return (id, true);
+    }
+    if let Some(scryfall_id) = quoted_argument(value, "PrintingAnchor::scryfall(\"", "\"),") {
+        return (derived_card_definition_id(&scryfall_id, 0), false);
+    }
+    if let Some(arguments) = value
+        .strip_prefix("PrintingAnchor::scryfall_with_nonce(\"")
+        .and_then(|value| value.strip_suffix("),"))
+    {
+        let (scryfall_id, nonce) = arguments.rsplit_once("\", ").unwrap_or_else(|| {
+            panic!("{}:{line}: malformed printing anchor nonce", path.display())
+        });
+        let nonce = nonce.parse::<u32>().unwrap_or_else(|error| {
+            panic!(
+                "{}:{line}: invalid printing anchor nonce: {error}",
+                path.display()
+            )
+        });
+        return (derived_card_definition_id(scryfall_id, nonce), false);
+    }
+    panic!(
+        "{}:{line}: CardRecord identity must be a legacy integer or PrintingAnchor",
+        path.display()
+    );
+}
+
+fn collect_card_ids(
+    directory: &Path,
+    cards: &mut BTreeMap<String, u64>,
+    legacy_cards: &mut BTreeMap<String, u64>,
+) {
+    let mut entries = fs::read_dir(directory)
+        .unwrap_or_else(|error| panic!("failed to read {}: {error}", directory.display()))
+        .map(|entry| {
+            entry
+                .expect("card source directory entry is readable")
+                .path()
+        })
+        .collect::<Vec<_>>();
+    entries.sort();
+    for path in entries {
+        if path.is_dir() {
+            if path.file_name().is_some_and(|name| name == "tests") {
+                continue;
+            }
+            collect_card_ids(&path, cards, legacy_cards);
+            continue;
+        }
+        if path.extension().and_then(|extension| extension.to_str()) != Some("rs") {
+            continue;
+        }
+        let source = fs::read_to_string(&path)
+            .unwrap_or_else(|error| panic!("failed to read {}: {error}", path.display()));
+        let lines = source.lines().collect::<Vec<_>>();
+        for (index, declaration) in lines.iter().enumerate() {
+            let Some(declaration) = declaration.strip_prefix(CARD_DECLARATION_PREFIX) else {
+                continue;
+            };
+            let Some((symbol, _)) = declaration.split_once(": CardRecord") else {
+                continue;
+            };
+            let initializer_index = (index..lines.len().min(index + 3))
+                .find(|candidate| lines[*candidate].trim().ends_with('('))
+                .unwrap_or_else(|| {
+                    panic!(
+                        "{}:{}: CardRecord declaration is missing its constructor",
+                        path.display(),
+                        index + 1
+                    )
+                });
+            let initializer = lines[initializer_index].trim();
+            assert!(
+                initializer.ends_with('('),
+                "{}:{}: CardRecord initializer must put its identity on the next line",
+                path.display(),
+                initializer_index + 1
+            );
+            let identity = lines.get(initializer_index + 1).unwrap_or_else(|| {
+                panic!(
+                    "{}:{}: CardRecord declaration is missing its identity",
+                    path.display(),
+                    initializer_index + 1
+                )
+            });
+            let (id, legacy) = authored_card_id(identity, &path, initializer_index + 2);
+            assert!(
+                cards.insert(symbol.to_owned(), id).is_none(),
+                "duplicate CardRecord symbol {symbol}"
+            );
+            if legacy {
+                legacy_cards.insert(symbol.to_owned(), id);
+            }
+        }
+    }
+}
+
+fn generate_card_ids(root: &Path) {
+    let mut cards = BTreeMap::new();
+    let mut legacy_cards = BTreeMap::new();
+    collect_card_ids(&root.join("src/card/sets"), &mut cards, &mut legacy_cards);
+    let mut legacy_registry = String::new();
+    for (symbol, id) in legacy_cards {
+        writeln!(&mut legacy_registry, "{symbol} {id}")
+            .expect("writing legacy IDs to a String cannot fail");
+    }
+    let mut legacy_hash = Sha256::new();
+    legacy_hash.update(legacy_registry.as_bytes());
+    assert_eq!(
+        sha256_hex(legacy_hash),
+        LEGACY_CARD_ID_FINGERPRINT,
+        "legacy card definition IDs are immutable; new records must use PrintingAnchor",
+    );
+    let mut ids = BTreeMap::new();
+    for (symbol, id) in &cards {
+        if let Some(existing) = ids.insert(*id, symbol) {
+            panic!("card definition ID {id} is shared by {existing} and {symbol}");
+        }
+    }
+    let all_ids = cards.values().copied().collect::<Vec<_>>();
+    let mut generated = String::from(
+        "// @generated by build.rs from CardRecord declarations.\n\
+         use crate::CardDefinitionId;\n\n",
+    );
+    for (symbol, id) in cards {
+        writeln!(
+            &mut generated,
+            "pub const {symbol}: CardDefinitionId = CardDefinitionId::new({id});"
+        )
+        .expect("writing generated card IDs to a String cannot fail");
+    }
+    generated.push_str(
+        "\n#[cfg(test)]\npub(crate) const ALL_CARD_DEFINITION_IDS: &[CardDefinitionId] = &[\n",
+    );
+    for id in all_ids {
+        writeln!(&mut generated, "    CardDefinitionId::new({id}),")
+            .expect("writing generated card IDs to a String cannot fail");
+    }
+    generated.push_str("];\n");
+    let output = PathBuf::from(std::env::var_os("OUT_DIR").expect("Cargo output directory"))
+        .join("card_definition_ids.rs");
+    fs::write(&output, generated)
+        .unwrap_or_else(|error| panic!("failed to write {}: {error}", output.display()));
+}
+
 fn main() {
     let root = PathBuf::from(std::env::var_os("CARGO_MANIFEST_DIR").expect("manifest directory"));
+    generate_card_ids(&root);
     let (files, directories) = tracked_files(&root);
     let direct_dependencies = dependency_names(&canonical_manifest(&root));
     let lockfile = lockfile(&root);
@@ -392,13 +596,6 @@ fn main() {
             package.checksum.as_deref().unwrap_or("local"),
         );
     }
-    // Written out a byte at a time rather than with `{:x}`: sha2 0.11
-    // returns a plain array, which has no LowerHex of its own. The bytes and
-    // therefore the fingerprint are the same either way.
-    let digest = hash.finalize();
-    let mut hex = String::with_capacity(digest.len() * 2);
-    for byte in digest {
-        write!(&mut hex, "{byte:02x}").expect("writing to a String cannot fail");
-    }
+    let hex = sha256_hex(hash);
     println!("cargo::rustc-env=PENTA_SIMULATION_FINGERPRINT=sha256-{hex}");
 }

@@ -100,7 +100,7 @@ fn second_main_waits_for_spells_lands_and_non_mana_abilities() {
         Action::ActivateAbility {
             source: CardInstanceId(9),
             ability: penta::AbilityOrigin::Printed {
-                definition: penta::CardDefinitionId(0),
+                definition: penta::CardDefinitionId::new(1),
                 part: penta::CardPartId::PRIMARY,
                 ability: penta::AbilityId::PRIMARY,
             },
@@ -334,7 +334,7 @@ fn a_pump_ability_holds_combat_open_only_while_it_matters() {
         Action::ActivateAbility {
             source: CardInstanceId(8),
             ability: penta::AbilityOrigin::Printed {
-                definition: penta::CardDefinitionId(0),
+                definition: penta::CardDefinitionId::new(1),
                 part: penta::CardPartId::PRIMARY,
                 ability: penta::AbilityId::PRIMARY,
             },

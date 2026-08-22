@@ -68,7 +68,7 @@ fn activated_actions_serialize_printed_and_granted_origins() {
     assert_eq!(activated["ability"]["kind"], "printed");
     assert_eq!(
         activated["ability"]["definition"],
-        crate::card::cards::MISHRA_S_FACTORY.0
+        crate::card::cards::MISHRA_S_FACTORY.get()
     );
     assert_eq!(activated["ability"]["partId"], 0);
     assert_eq!(activated["ability"]["abilityId"], 2);
@@ -85,7 +85,7 @@ fn activated_actions_serialize_printed_and_granted_origins() {
         source: GameObjectId(12),
         ability: AbilityOrigin::Granted {
             source: GameObjectId(9),
-            source_definition: crate::CardDefinitionId(8),
+            source_definition: crate::CardDefinitionId::new(8),
             source_part: crate::CardPartId(1),
             source_ability: crate::AbilityId(2),
             grant: crate::GrantId(3),

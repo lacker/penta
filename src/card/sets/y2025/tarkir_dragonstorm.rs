@@ -5,7 +5,7 @@ use crate::card::{
     AbilityDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CreatedTokensDef,
     EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectPredicateDef,
     ObjectSetDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRelation, PlayerSetDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, cards,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::mana_cost;
@@ -72,8 +72,8 @@ static VOICE_OF_VICTORY_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // TDM 33 — Voice of Victory
-pub(in crate::card::sets) static VOICE_OF_VICTORY: CardRecord = CardRecord::new(
-    cards::VOICE_OF_VICTORY,
+pub(in crate::card::sets) static VOICE_OF_VICTORY: CardRecord = CardRecord::new_with_legacy_id(
+    2282,
     "Voice of Victory",
     CardArt::new("ec3de5f4-bb55-4ab9-995f-f3e0dc22c1bb", "Joshua Cairos"),
     CardSet::TarkirDragonstorm,
@@ -84,7 +84,7 @@ pub(in crate::card::sets) static VOICE_OF_VICTORY: CardRecord = CardRecord::new(
 );
 
 // TDM 127 — Tersa Lightshatter
-// Audit: blocked — Two of her three abilities need capabilities that are already blocking other cards. "Discard up to two cards, then draw that many" needs a discard whose size the player chooses, where a discard here takes a fixed number; the same gap blocks Mind Bomb in The Dark. And "you may play that card this turn" needs a permission to play one exiled card for a duration, which nothing here can grant and which also blocks Robber of the Rich. Haste alone is not the card.
+// Audit: blocked — Two of her three abilities need capabilities that are already blocking other cards. "Discard up to two then draw that many" needs a discard whose size the player chooses, where a discard here takes a fixed number; the same gap blocks Mind Bomb in The Dark. And "you may play that card this turn" needs a permission to play one exiled card for a duration, which nothing here can grant and which also blocks Robber of the Rich. Haste alone is not the card.
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&VOICE_OF_VICTORY];
 

@@ -1,6 +1,6 @@
 //! War of the Spark cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules,
@@ -8,7 +8,7 @@ use crate::card::{
     EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef,
     PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ResolvedEffectDurationDef, TopCardSelectionDef, TopOfLibraryCostDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, cards,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -89,15 +89,16 @@ static JACE_MILL_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 )];
 
 // WAR 54 — Jace, Wielder of Mysteries
-pub(in crate::card::sets) static JACE_WIELDER_OF_MYSTERIES: CardRecord = CardRecord::new(
-    cards::JACE_WIELDER_OF_MYSTERIES,
-    "Jace, Wielder of Mysteries",
-    CardArt::new("6adb7d73-4482-4930-8497-cffd169b57e2", "Anna Steinbauer"),
-    CardSet::WarOfTheSpark,
-    CardRules::new_planeswalker(mana_cost!("{1}{U}{U}{U}"), &["Jace"], 4)
-        .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&JACE_ABILITIES),
-);
+pub(in crate::card::sets) static JACE_WIELDER_OF_MYSTERIES: CardRecord =
+    CardRecord::new_with_legacy_id(
+        2160,
+        "Jace, Wielder of Mysteries",
+        CardArt::new("6adb7d73-4482-4930-8497-cffd169b57e2", "Anna Steinbauer"),
+        CardSet::WarOfTheSpark,
+        CardRules::new_planeswalker(mana_cost!("{1}{U}{U}{U}"), &["Jace"], 4)
+            .with_supertype(CardSupertype::Legendary)
+            .with_abilities(&JACE_ABILITIES),
+    );
 
 /// "You tap a Forest for mana" is the tap transition carrying its purpose,
 /// so an ordinary tap does not fire it and a mana tap does.
@@ -207,7 +208,7 @@ static NISSA_ABILITIES: [AbilityDef; 3] = [
         EffectDef::Sequence(&NISSA_AWAKENS_A_LAND),
     ),
     AbilityDef::activated(
-        "−8: You get an emblem with \"Lands you control have indestructible.\" Search your library for any number of Forest cards, put them onto the battlefield tapped, then shuffle.",
+        "−8: You get an emblem with \"Lands you control have indestructible.\" Search your library for any number of Forest put them onto the battlefield tapped, then shuffle.",
         &[AbilityCostDef::Loyalty(-8)],
         EffectDef::Sequence(&NISSA_ULTIMATE),
     ),
@@ -257,8 +258,8 @@ static BOLASS_CITADEL_ABILITIES: [AbilityDef; 3] = [
 ];
 
 // WAR 79 — Bolas's Citadel
-pub(in crate::card::sets) static BOLASS_CITADEL: CardRecord = CardRecord::new(
-    cards::BOLASS_CITADEL,
+pub(in crate::card::sets) static BOLASS_CITADEL: CardRecord = CardRecord::new_with_legacy_id(
+    2253,
     "Bolas's Citadel",
     CardArt::new("d2124603-d20e-40eb-97f0-a66323397ac2", "Jonas De Ro"),
     CardSet::WarOfTheSpark,
@@ -312,8 +313,8 @@ static DREADHORDE_ARCANIST_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // WAR 125 — Dreadhorde Arcanist
-pub(in crate::card::sets) static DREADHORDE_ARCANIST: CardRecord = CardRecord::new(
-    cards::DREADHORDE_ARCANIST,
+pub(in crate::card::sets) static DREADHORDE_ARCANIST: CardRecord = CardRecord::new_with_legacy_id(
+    2279,
     "Dreadhorde Arcanist",
     CardArt::new("fd97b3cf-924e-4f77-bb82-0bf19592389f", "G-host Lee"),
     CardSet::WarOfTheSpark,
@@ -324,17 +325,21 @@ pub(in crate::card::sets) static DREADHORDE_ARCANIST: CardRecord = CardRecord::n
 );
 
 // WAR 169 — Nissa, Who Shakes the World
-pub(in crate::card::sets) static NISSA_WHO_SHAKES_THE_WORLD: CardRecord = CardRecord::new(
-    cards::NISSA_WHO_SHAKES_THE_WORLD,
-    "Nissa, Who Shakes the World",
-    CardArt::new("41e108a5-4e2f-42cf-9ea1-87bf3c0a2b7f", "Chris Rallis"),
-    CardSet::WarOfTheSpark,
-    // Doubling every Forest is the card: five mana becomes eight the turn
-    // after, and the +1 turns the spare land into a 3/3 that attacks at once.
-    CardRules::new_planeswalker(mana_cost!("{3}{G}{G}"), &["Nissa"], 5)
-        .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&NISSA_ABILITIES),
-);
+pub(in crate::card::sets) static NISSA_WHO_SHAKES_THE_WORLD: CardRecord =
+    CardRecord::new_with_legacy_id(
+        2172,
+        "Nissa, Who Shakes the World",
+        CardArt::new("41e108a5-4e2f-42cf-9ea1-87bf3c0a2b7f", "Chris Rallis"),
+        CardSet::WarOfTheSpark,
+        // Doubling every Forest is the card: five mana becomes eight the turn
+        // after, and the +1 turns the spare land into a 3/3 that attacks at once.
+        CardRules::new_planeswalker(mana_cost!("{3}{G}{G}"), &["Nissa"], 5)
+            .with_supertype(CardSupertype::Legendary)
+            .with_abilities(&NISSA_ABILITIES),
+    )
+    .with_identity_anchor(PrintingAnchor::scryfall(
+        "f857bbe4-5619-4733-a0c7-69700f2ef4f3",
+    ));
 
 /// Two prohibitions in one printed sentence, which is why they are a
 /// sequence rather than one effect: other cards state only one of them.
@@ -414,18 +419,22 @@ static TAMIYO_ABILITIES: [AbilityDef; 3] = [
 ];
 
 // WAR 220 — Tamiyo, Collector of Tales
-pub(in crate::card::sets) static TAMIYO_COLLECTOR_OF_TALES: CardRecord = CardRecord::new(
-    cards::TAMIYO_COLLECTOR_OF_TALES,
-    "Tamiyo, Collector of Tales",
-    CardArt::new("786d89de-da0c-47af-80ae-2734dc0514fc", "Chase Stone"),
-    CardSet::WarOfTheSpark,
-    // The static is what the card is played for: it turns off every
-    // discard-based and sacrifice-based answer an opponent has, and the
-    // loyalty abilities are what it does while doing that.
-    CardRules::new_planeswalker(mana_cost!("{2}{G}{U}"), &["Tamiyo"], 5)
-        .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&TAMIYO_ABILITIES),
-);
+pub(in crate::card::sets) static TAMIYO_COLLECTOR_OF_TALES: CardRecord =
+    CardRecord::new_with_legacy_id(
+        2186,
+        "Tamiyo, Collector of Tales",
+        CardArt::new("786d89de-da0c-47af-80ae-2734dc0514fc", "Chase Stone"),
+        CardSet::WarOfTheSpark,
+        // The static is what the card is played for: it turns off every
+        // discard-based and sacrifice-based answer an opponent has, and the
+        // loyalty abilities are what it does while doing that.
+        CardRules::new_planeswalker(mana_cost!("{2}{G}{U}"), &["Tamiyo"], 5)
+            .with_supertype(CardSupertype::Legendary)
+            .with_abilities(&TAMIYO_ABILITIES),
+    )
+    .with_identity_anchor(PrintingAnchor::scryfall(
+        "76776b24-a2e1-4590-88e7-8a421baf2fc4",
+    ));
 
 static A_NONCREATURE_SPELL_YOU_CAST: ObjectPredicateDef = ObjectPredicateDef::All(&[
     ObjectPredicateDef::NoncreatureSpell,
@@ -475,17 +484,18 @@ static SAHEELI_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // WAR 234 — Saheeli, Sublime Artificer
-pub(in crate::card::sets) static SAHEELI_SUBLIME_ARTIFICER: CardRecord = CardRecord::new(
-    cards::SAHEELI_SUBLIME_ARTIFICER,
-    "Saheeli, Sublime Artificer",
-    CardArt::new("5a10b543-d5d4-42a8-9ee8-dada59a2ad7e", "Wesley Burt"),
-    CardSet::WarOfTheSpark,
-    // A planeswalker that never has to be activated: three mana, five
-    // loyalty, and a body for every spell the deck was casting anyway.
-    CardRules::new_planeswalker(mana_cost!("{1}{U/R}{U/R}"), &["Saheeli"], 5)
-        .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&SAHEELI_ABILITIES),
-);
+pub(in crate::card::sets) static SAHEELI_SUBLIME_ARTIFICER: CardRecord =
+    CardRecord::new_with_legacy_id(
+        2247,
+        "Saheeli, Sublime Artificer",
+        CardArt::new("5a10b543-d5d4-42a8-9ee8-dada59a2ad7e", "Wesley Burt"),
+        CardSet::WarOfTheSpark,
+        // A planeswalker that never has to be activated: three mana, five
+        // loyalty, and a body for every spell the deck was casting anyway.
+        CardRules::new_planeswalker(mana_cost!("{1}{U/R}{U/R}"), &["Saheeli"], 5)
+            .with_supertype(CardSupertype::Legendary)
+            .with_abilities(&SAHEELI_ABILITIES),
+    );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &JACE_WIELDER_OF_MYSTERIES,

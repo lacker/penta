@@ -236,13 +236,13 @@ fn a_generic_pile_split_reconstructs_and_resumes_for_both_seats() {
     spliced_split["decision"]["options"][0]["label"] = Value::String(outside_name);
     spliced_split["decision"]["options"][0]["card"]["objectId"] = Value::from(outside.1.id.0);
     spliced_split["decision"]["options"][0]["card"]["definition"] =
-        Value::from(outside.1.definition.0);
+        Value::from(outside.1.definition.get());
     spliced_split["decision"]["options"][0]["card"]["characteristics"]["definition"] =
-        Value::from(outside.1.definition.0);
+        Value::from(outside.1.definition.get());
     spliced_split["checkpoint"]["decisionState"]["options"][0]["card"]["objectId"] =
         Value::from(outside.1.id.0);
     spliced_split["checkpoint"]["decisionState"]["options"][0]["card"]["characteristics"]
-        ["definition"] = Value::from(outside.1.definition.0);
+        ["definition"] = Value::from(outside.1.definition.get());
     let origin = spliced_split["checkpoint"]["decisionState"]["cardOrigins"]
         .as_array_mut()
         .expect("split origins are an array")
@@ -484,7 +484,7 @@ fn a_permanent_that_named_a_card_reconstructs_while_naming_and_after() {
     let hidden = true_hidden_hypothesis(&game, viewer);
     let mut spliced_destination = wire.clone();
     spliced_destination["checkpoint"]["decisionState"]["continuation"]["effect"]["ability"]["definition"] =
-        Value::from(crate::card::cards::CAVERN_OF_SOULS.0);
+        Value::from(crate::card::cards::CAVERN_OF_SOULS.get());
     let error = Game::from_observation_checkpoint(
         game.catalog.clone(),
         game.format,
@@ -636,7 +636,7 @@ fn an_optional_entry_replacement_reconstructs_resumes_and_rejects_splices() {
     ] {
         if label == "effect source" {
             edited["checkpoint"]["decisionState"]["continuation"]["effect"]["ability"]["definition"] =
-                Value::from(crate::card::cards::FESTERHIDE_BOAR.0);
+                Value::from(crate::card::cards::FESTERHIDE_BOAR.get());
         } else if label == "applied source" {
             edited["checkpoint"]["pendingEvents"][0]["applied"] = serde_json::json!([]);
         } else {

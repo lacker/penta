@@ -38,7 +38,7 @@ mod y2023;
 mod y2024;
 mod y2025;
 
-use super::record::{CardAbilityBinding, CardRecord, PrintingRecord};
+use super::record::{CardAbilityBinding, CardRecord, PrintingAnchor, PrintingRecord};
 use crate::AbilityOrigin;
 use crate::card::{AbilityDef, CardBehavior, CardDefinition, CardPrinting, CardRules, CardSet};
 use crate::game::{PileChosen, PilesSeparated};
@@ -690,7 +690,7 @@ pub(crate) fn ability_binding(
     SET_MODULES
         .iter()
         .flat_map(|module| module.cards.iter().copied())
-        .find(|record| record.id == definition)?
+        .find(|record| record.id() == definition)?
         .ability_bindings
         .iter()
         .find(|binding| {

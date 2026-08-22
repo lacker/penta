@@ -4,7 +4,6 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, EffectDef, EffectRecipientDef,
     PlayerRelation, ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef, ValueDef, abilities,
-    cards,
 };
 use crate::mana_cost;
 
@@ -44,8 +43,8 @@ static MONSTROSITY_COMBAT: [EffectDef; 2] = [
 ];
 
 // DSC 36 — Ursine Monstrosity
-pub(in crate::card::sets) static URSINE_MONSTROSITY: CardRecord = CardRecord::new(
-    cards::URSINE_MONSTROSITY,
+pub(in crate::card::sets) static URSINE_MONSTROSITY: CardRecord = CardRecord::new_with_legacy_id(
+    2195,
     "Ursine Monstrosity",
     CardArt::new("73cc6df4-3564-4ace-bf8a-eac3e62d725a", "Carlos Palma Cruchaga"),
     CardSet::DuskmournHouseOfHorrorCommander,

@@ -6,7 +6,6 @@ use crate::card::{
     AbilityCoverageDef, AbilityDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation,
     SacrificedAmountDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
-    cards,
 };
 use crate::mana_cost;
 
@@ -43,8 +42,8 @@ static WHENEVER_YOU_ATTACK: TriggerEventDef = TriggerEventDef::attack_declared(
 );
 
 // CLB 180 — Gut, True Soul Zealot
-pub(in crate::card::sets) static GUT_TRUE_SOUL_ZEALOT: CardRecord = CardRecord::new(
-    cards::GUT_TRUE_SOUL_ZEALOT,
+pub(in crate::card::sets) static GUT_TRUE_SOUL_ZEALOT: CardRecord = CardRecord::new_with_legacy_id(
+    2211,
     "Gut, True Soul Zealot",
     CardArt::new("3d8ca18d-9099-4f1e-95c1-f04da58a26bd", "Wayne Reynolds"),
     CardSet::CommanderLegendsBattleForBaldursGate,
@@ -107,23 +106,24 @@ static DELAYED_BLAST_FIREBALL_EFFECT: [EffectDef; 2] = [
 ];
 
 // CLB 630 — Delayed Blast Fireball
-pub(in crate::card::sets) static DELAYED_BLAST_FIREBALL: CardRecord = CardRecord::new(
-    cards::DELAYED_BLAST_FIREBALL,
-    "Delayed Blast Fireball",
-    CardArt::new("400c76c6-f677-4e7e-87ad-2e526d4b498a", "Andreas Zafiratos"),
-    CardSet::CommanderLegendsBattleForBaldursGate,
-    // A one-sided sweeper that costs a turn of setup, which is the trade the
-    // cube's aggressive decks are least able to make and the slow ones most.
-    CardRules::new_instant(mana_cost!("{1}{R}{R}")).with_abilities(&[
-        AbilityDef::spell(
-            "Delayed Blast Fireball deals 2 damage to each opponent and each creature they \
+pub(in crate::card::sets) static DELAYED_BLAST_FIREBALL: CardRecord =
+    CardRecord::new_with_legacy_id(
+        2299,
+        "Delayed Blast Fireball",
+        CardArt::new("400c76c6-f677-4e7e-87ad-2e526d4b498a", "Andreas Zafiratos"),
+        CardSet::CommanderLegendsBattleForBaldursGate,
+        // A one-sided sweeper that costs a turn of setup, which is the trade the
+        // cube's aggressive decks are least able to make and the slow ones most.
+        CardRules::new_instant(mana_cost!("{1}{R}{R}")).with_abilities(&[
+            AbilityDef::spell(
+                "Delayed Blast Fireball deals 2 damage to each opponent and each creature they \
              control. If this spell was cast from exile, it deals 5 damage to each opponent and \
              each creature they control instead.",
-            EffectDef::Sequence(&DELAYED_BLAST_FIREBALL_EFFECT),
-        ),
-        abilities::foretell(mana_cost!("{4}{R}{R}")),
-    ]),
-);
+                EffectDef::Sequence(&DELAYED_BLAST_FIREBALL_EFFECT),
+            ),
+            abilities::foretell(mana_cost!("{4}{R}{R}")),
+        ]),
+    );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =
     &[&GUT_TRUE_SOUL_ZEALOT, &DELAYED_BLAST_FIREBALL];

@@ -6,7 +6,7 @@ use crate::card::{
     CardArt, CardRules, CardSet, CardSupertype, CardType, DividedTotal, EffectDef,
     EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectPredicateDef, ObjectRefDef,
     PlayerRefDef, PlayerRelation, SpellAdditionalCostDef, SpendModeDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, cards,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -85,8 +85,8 @@ static DENIAL_DRAWS: EffectDef = EffectDef::Sequence(&[
 ]);
 
 // ALL 22a — Arcane Denial
-pub(in crate::card::sets) static ARCANE_DENIAL: CardRecord = CardRecord::new(
-    cards::ARCANE_DENIAL,
+pub(in crate::card::sets) static ARCANE_DENIAL: CardRecord = CardRecord::new_with_legacy_id(
+    2061,
     "Arcane Denial",
     CardArt::new("b0c5728e-4a52-4d2f-9b04-3c1c7d3f5e6a", "Richard Kane Ferguson"),
     CardSet::Alliances,
@@ -119,8 +119,8 @@ static FORCE_OF_WILL_TARGET: [AbilityTargetDef; 1] =
     [AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)];
 
 // ALL 28 — Force of Will
-pub(in crate::card::sets) static FORCE_OF_WILL: CardRecord = CardRecord::new(
-    cards::FORCE_OF_WILL,
+pub(in crate::card::sets) static FORCE_OF_WILL: CardRecord = CardRecord::new_with_legacy_id(
+    2174,
     "Force of Will",
     CardArt::new("9a879b60-4381-447d-8a5a-8e0b6a1d49ca", "Terese Nielsen"),
     CardSet::Alliances,
@@ -148,8 +148,8 @@ pub(in crate::card::sets) static FORCE_OF_WILL: CardRecord = CardRecord::new(
 );
 
 // ALL 78 — Pyrokinesis
-pub(in crate::card::sets) static PYROKINESIS: CardRecord = CardRecord::new(
-    cards::PYROKINESIS,
+pub(in crate::card::sets) static PYROKINESIS: CardRecord = CardRecord::new_with_legacy_id(
+    2031,
     "Pyrokinesis",
     CardArt::new("db2a5e85-6cbc-43c1-9362-4056ad017ef0", "Ron Spencer"),
     CardSet::Alliances,
@@ -216,8 +216,8 @@ static GLACIERS_FETCH: EffectDef = EffectDef::Sequence(&[
 ]);
 
 // ALL 144 — Thawing Glaciers
-pub(in crate::card::sets) static THAWING_GLACIERS: CardRecord = CardRecord::new(
-    cards::THAWING_GLACIERS,
+pub(in crate::card::sets) static THAWING_GLACIERS: CardRecord = CardRecord::new_with_legacy_id(
+    2057,
     "Thawing Glaciers",
     CardArt::new("6411a8c6-010f-4863-a0fa-bbebe09d5c34", "Jeff A. Menges"),
     CardSet::Alliances,

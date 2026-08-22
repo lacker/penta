@@ -313,7 +313,7 @@ fn definition_json(catalog: &CardCatalog, format: Format, card: &CardDefinition)
     let restricted = catalog.is_restricted_in(card.id, format);
     json!({
         // Compatibility fields retained from protocol v1.
-        "definition": card.id.0,
+        "definition": card.id.get(),
         "name": card.name,
         "kind": rules.kind_name(),
         "isBasicLand": card.is_basic_land(),

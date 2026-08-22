@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::CardDefinitionId;
+
 // serde hands `skip_serializing_if` a reference, so this signature is fixed.
 #[allow(clippy::trivially_copy_pass_by_ref)]
 fn is_zero_u8(value: &u8) -> bool {
@@ -225,7 +227,7 @@ pub(super) struct ManaPayloadLocator {
 )]
 pub(super) enum AbilityOriginSnapshot {
     Printed {
-        definition: u16,
+        definition: CardDefinitionId,
         part_id: u8,
         ability_id: u8,
     },
@@ -249,7 +251,7 @@ pub(super) enum AbilityOriginSnapshot {
     },
     Granted {
         source: u32,
-        source_definition: u16,
+        source_definition: CardDefinitionId,
         source_part_id: u8,
         source_ability_id: u8,
         grant_id: u8,
@@ -712,11 +714,22 @@ pub(super) struct AbilitySourceSnapshot {
     rename_all_fields = "camelCase"
 )]
 pub(super) enum EntryCompletionSnapshot {
-    LandPlayed { seat: usize },
-    SpellResolved { card: u32, definition: u16 },
-    AttachSource { source: u32 },
-    AttachToHost { host: u32 },
-    Attacking { defender: AttackDefenderSnapshot },
+    LandPlayed {
+        seat: usize,
+    },
+    SpellResolved {
+        card: u32,
+        definition: CardDefinitionId,
+    },
+    AttachSource {
+        source: u32,
+    },
+    AttachToHost {
+        host: u32,
+    },
+    Attacking {
+        defender: AttackDefenderSnapshot,
+    },
     Setup,
     None,
 }
@@ -921,7 +934,7 @@ pub(super) struct DiscardChoiceSnapshot {
 #[serde(rename_all = "camelCase")]
 pub(super) struct DetachedCardSnapshot {
     pub(super) object_id: u32,
-    pub(super) definition: u16,
+    pub(super) definition: CardDefinitionId,
     pub(super) owner: usize,
 }
 

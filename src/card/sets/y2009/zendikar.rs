@@ -5,7 +5,7 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
     AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardType, EffectDef,
     EffectRecipientDef, ObjectPredicateDef, ObjectRefDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities, cards,
+    abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -39,8 +39,8 @@ const fn fetch_land(text: &'static str, land_types: &'static [BasicLandType]) ->
 }
 
 // ZEN 67 — Spell Pierce
-pub(in crate::card::sets) static SPELL_PIERCE: CardRecord = CardRecord::new(
-    cards::SPELL_PIERCE,
+pub(in crate::card::sets) static SPELL_PIERCE: CardRecord = CardRecord::new_with_legacy_id(
+    2115,
     "Spell Pierce",
     CardArt::new("cb3d3901-e4a6-45ab-a7b5-c65d91e1875e", "Vance Kovacs"),
     CardSet::Zendikar,
@@ -70,8 +70,8 @@ static BLAZING_TORCH_GRANTED_ABILITY: AbilityDef = AbilityDef::activated_with_ta
 );
 
 // ZEN 197 — Blazing Torch
-pub(in crate::card::sets) static BLAZING_TORCH: CardRecord = CardRecord::new(
-    cards::BLAZING_TORCH,
+pub(in crate::card::sets) static BLAZING_TORCH: CardRecord = CardRecord::new_with_legacy_id(
+    2314,
     "Blazing Torch",
     CardArt::new("1e9d1ff2-9ce3-4737-af1d-9fc82e4dffe6", "Vance Kovacs"),
     CardSet::Zendikar,
@@ -105,8 +105,8 @@ pub(in crate::card::sets) static BLAZING_TORCH: CardRecord = CardRecord::new(
 );
 
 // ZEN 201 — Expedition Map
-pub(in crate::card::sets) static EXPEDITION_MAP: CardRecord = CardRecord::new(
-    cards::EXPEDITION_MAP,
+pub(in crate::card::sets) static EXPEDITION_MAP: CardRecord = CardRecord::new_with_legacy_id(
+    2245,
     "Expedition Map",
     CardArt::new("c55bee97-593f-441f-b96c-a998d5212a55", "Franz Vohwinkel"),
     CardSet::Zendikar,
@@ -140,8 +140,8 @@ static EXPEDITION_MAP_COST: [AbilityCostDef; 3] = [
 ];
 
 // ZEN 211 — Arid Mesa
-pub(in crate::card::sets) static ARID_MESA: CardRecord = CardRecord::new(
-    cards::ARID_MESA,
+pub(in crate::card::sets) static ARID_MESA: CardRecord = CardRecord::new_with_legacy_id(
+    2091,
     "Arid Mesa",
     CardArt::new("16c8d2fa-54a7-46e8-980c-905258497c90", "Raymond Swanland"),
     CardSet::Zendikar,
@@ -152,8 +152,8 @@ pub(in crate::card::sets) static ARID_MESA: CardRecord = CardRecord::new(
 );
 
 // ZEN 219 — Marsh Flats
-pub(in crate::card::sets) static MARSH_FLATS: CardRecord = CardRecord::new(
-    cards::MARSH_FLATS,
+pub(in crate::card::sets) static MARSH_FLATS: CardRecord = CardRecord::new_with_legacy_id(
+    2092,
     "Marsh Flats",
     CardArt::new("45026d57-0324-4312-8b86-2e7d4f581ee9", "Izzy"),
     CardSet::Zendikar,
@@ -164,8 +164,8 @@ pub(in crate::card::sets) static MARSH_FLATS: CardRecord = CardRecord::new(
 );
 
 // ZEN 220 — Misty Rainforest
-pub(in crate::card::sets) static MISTY_RAINFOREST: CardRecord = CardRecord::new(
-    cards::MISTY_RAINFOREST,
+pub(in crate::card::sets) static MISTY_RAINFOREST: CardRecord = CardRecord::new_with_legacy_id(
+    2093,
     "Misty Rainforest",
     CardArt::new("24a5cc2c-0fbf-4a5f-b175-6e0ffd0d0787", "Shelly Wan"),
     CardSet::Zendikar,
@@ -176,8 +176,8 @@ pub(in crate::card::sets) static MISTY_RAINFOREST: CardRecord = CardRecord::new(
 );
 
 // ZEN 223 — Scalding Tarn
-pub(in crate::card::sets) static SCALDING_TARN: CardRecord = CardRecord::new(
-    cards::SCALDING_TARN,
+pub(in crate::card::sets) static SCALDING_TARN: CardRecord = CardRecord::new_with_legacy_id(
+    2094,
     "Scalding Tarn",
     CardArt::new("327cf118-cc92-4073-85d0-94d2a0a6989a", "Philip Straub"),
     CardSet::Zendikar,
@@ -188,8 +188,8 @@ pub(in crate::card::sets) static SCALDING_TARN: CardRecord = CardRecord::new(
 );
 
 // ZEN 229 — Verdant Catacombs
-pub(in crate::card::sets) static VERDANT_CATACOMBS: CardRecord = CardRecord::new(
-    cards::VERDANT_CATACOMBS,
+pub(in crate::card::sets) static VERDANT_CATACOMBS: CardRecord = CardRecord::new_with_legacy_id(
+    2095,
     "Verdant Catacombs",
     CardArt::new("7abd2723-2851-4f1a-b2d0-dfcb526472c3", "Vance Kovacs"),
     CardSet::Zendikar,

@@ -4,13 +4,13 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet,
     EffectDef, EffectRecipientDef, ObjectPredicateDef, TriggerEventDef, ValueDef, ZoneKind,
-    abilities, cards,
+    abilities,
 };
 use crate::mana_cost;
 
 // DST 112 — Darksteel Ingot
-pub(in crate::card::sets) static DARKSTEEL_INGOT: CardRecord = CardRecord::new(
-    cards::DARKSTEEL_INGOT,
+pub(in crate::card::sets) static DARKSTEEL_INGOT: CardRecord = CardRecord::new_with_legacy_id(
+    263,
     "Darksteel Ingot",
     CardArt::new("b02b9634-77e9-48ae-a6bf-859598d12c52", "Martina Pilcerova"),
     CardSet::Darksteel,
@@ -25,8 +25,8 @@ pub(in crate::card::sets) static DARKSTEEL_INGOT: CardRecord = CardRecord::new(
 );
 
 // DST 140 — Skullclamp
-pub(in crate::card::sets) static SKULLCLAMP: CardRecord = CardRecord::new(
-    cards::SKULLCLAMP,
+pub(in crate::card::sets) static SKULLCLAMP: CardRecord = CardRecord::new_with_legacy_id(
+    2120,
     "Skullclamp",
     CardArt::new("55318397-de3c-47ea-a088-72a24df5c8fa", "Luca Zontini"),
     CardSet::Darksteel,

@@ -25,7 +25,7 @@ impl Game {
                     .and_then(|index| candidates.get(index))
                     .copied();
                 if let (Some(pending), Some(selected)) = (self.pending_events.pop_front(), selected)
-                    && let Some(pending) = self.prepare_entry_replacement(pending, selected)
+                    && let Some(pending) = self.prepare_entry_replacement(pending, &selected)
                 {
                     self.pending_events.push_front(pending);
                     self.continue_pending_events();
@@ -51,7 +51,7 @@ impl Game {
                     .and_then(|index| candidates.get(index))
                     .copied();
                 if let Some(selected) = selected {
-                    self.apply_battlefield_exit_replacement(&mut batch, selected);
+                    self.apply_battlefield_exit_replacement(&mut batch, &selected);
                     self.continue_battlefield_exit_replacements(batch);
                 }
             }

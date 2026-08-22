@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, CardArt, CardRules, CardSet, CardSupertype, CounterKind, EffectDef,
     EffectRecipientDef, ObjectPredicateDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind,
-    abilities, cards, tokens,
+    abilities, tokens,
 };
 use crate::mana_cost;
 
@@ -44,8 +44,8 @@ static IVORA_ABILITIES: [AbilityDef; 3] = [
 ];
 
 // J25 50 — Ivora, Insatiable Heir
-pub(in crate::card::sets) static IVORA_INSATIABLE_HEIR: CardRecord = CardRecord::new(
-    cards::IVORA_INSATIABLE_HEIR,
+pub(in crate::card::sets) static IVORA_INSATIABLE_HEIR: CardRecord = CardRecord::new_with_legacy_id(
+    2148,
     "Ivora, Insatiable Heir",
     CardArt::new("2ba70366-b6ae-423a-a8d8-29d2b8afd939", "Canata Katana"),
     CardSet::FoundationsJumpstart,

@@ -3,7 +3,7 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardType, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, ValueDef, cards,
+    EffectRecipientDef, ObjectPredicateDef, ValueDef,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -12,8 +12,8 @@ static FLAME_SLASH_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_on
 )];
 
 // ROE 145 — Flame Slash
-pub(in crate::card::sets) static FLAME_SLASH: CardRecord = CardRecord::new(
-    cards::FLAME_SLASH,
+pub(in crate::card::sets) static FLAME_SLASH: CardRecord = CardRecord::new_with_legacy_id(
+    2184,
     "Flame Slash",
     CardArt::new("006d2bf1-20f7-4b09-8d98-8233d91682bd", "Raymond Swanland"),
     CardSet::RiseOfTheEldrazi,

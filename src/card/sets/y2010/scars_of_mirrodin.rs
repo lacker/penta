@@ -3,7 +3,7 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AddManaEffectDef, CardArt, CardRules, CardSet, EffectDef,
-    ManaColor, abilities, cards,
+    ManaColor, abilities,
 };
 
 /// The fastland cycle: untapped while the board is still small, an expensive
@@ -26,8 +26,8 @@ static BLACKCLEAVE_CLIFFS_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // SOM 224 — Blackcleave Cliffs
-pub(in crate::card::sets) static BLACKCLEAVE_CLIFFS: CardRecord = CardRecord::new(
-    cards::BLACKCLEAVE_CLIFFS,
+pub(in crate::card::sets) static BLACKCLEAVE_CLIFFS: CardRecord = CardRecord::new_with_legacy_id(
+    2131,
     "Blackcleave Cliffs",
     CardArt::new("3d71be5f-0fd7-4a88-8041-f4d6bc4cc9ac", "Dave Kendall"),
     CardSet::ScarsOfMirrodin,
@@ -47,8 +47,8 @@ static COPPERLINE_GORGE_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // SOM 225 — Copperline Gorge
-pub(in crate::card::sets) static COPPERLINE_GORGE: CardRecord = CardRecord::new(
-    cards::COPPERLINE_GORGE,
+pub(in crate::card::sets) static COPPERLINE_GORGE: CardRecord = CardRecord::new_with_legacy_id(
+    2132,
     "Copperline Gorge",
     CardArt::new(
         "28f1d784-f286-418d-a712-bc07ad10d4a2",
@@ -71,8 +71,8 @@ static DARKSLICK_SHORES_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // SOM 226 — Darkslick Shores
-pub(in crate::card::sets) static DARKSLICK_SHORES: CardRecord = CardRecord::new(
-    cards::DARKSLICK_SHORES,
+pub(in crate::card::sets) static DARKSLICK_SHORES: CardRecord = CardRecord::new_with_legacy_id(
+    2133,
     "Darkslick Shores",
     CardArt::new("e530388b-eb19-4211-abd8-8a4c3c38c3af", "Charles Urbach"),
     CardSet::ScarsOfMirrodin,
@@ -92,8 +92,8 @@ static RAZORVERGE_THICKET_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // SOM 228 — Razorverge Thicket
-pub(in crate::card::sets) static RAZORVERGE_THICKET: CardRecord = CardRecord::new(
-    cards::RAZORVERGE_THICKET,
+pub(in crate::card::sets) static RAZORVERGE_THICKET: CardRecord = CardRecord::new_with_legacy_id(
+    2134,
     "Razorverge Thicket",
     CardArt::new("345e053a-3178-485c-8602-1624bbf2f064", "James Paick"),
     CardSet::ScarsOfMirrodin,
@@ -113,8 +113,8 @@ static SEACHROME_COAST_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // SOM 229 — Seachrome Coast
-pub(in crate::card::sets) static SEACHROME_COAST: CardRecord = CardRecord::new(
-    cards::SEACHROME_COAST,
+pub(in crate::card::sets) static SEACHROME_COAST: CardRecord = CardRecord::new_with_legacy_id(
+    2135,
     "Seachrome Coast",
     CardArt::new("99939b90-e88c-4c2f-ba78-56d455611703", "Lars Grant-West"),
     CardSet::ScarsOfMirrodin,

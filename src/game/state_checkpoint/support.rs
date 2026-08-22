@@ -32,7 +32,7 @@ const fn completion_snapshot(completion: EntryCompletion) -> EntryCompletionSnap
         EntryCompletion::SpellResolved { card, definition } => {
             EntryCompletionSnapshot::SpellResolved {
                 card: card.0,
-                definition: definition.0,
+                definition,
             }
         }
         EntryCompletion::AttachSource { source } => EntryCompletionSnapshot::AttachSource {
@@ -147,7 +147,7 @@ const fn ability_origin_snapshot(origin: AbilityOrigin) -> AbilityOriginSnapshot
             part,
             ability,
         } => AbilityOriginSnapshot::Printed {
-            definition: definition.0,
+            definition,
             part_id: part.0,
             ability_id: ability.0,
         },
@@ -175,7 +175,7 @@ const fn ability_origin_snapshot(origin: AbilityOrigin) -> AbilityOriginSnapshot
             grant,
         } => AbilityOriginSnapshot::Granted {
             source: source.0,
-            source_definition: source_definition.0,
+            source_definition,
             source_part_id: source_part.0,
             source_ability_id: source_ability.0,
             grant_id: grant.0,
@@ -219,7 +219,7 @@ fn ability_origin_from_snapshot(origin: AbilityOriginSnapshot) -> AbilityOrigin 
             part_id,
             ability_id,
         } => AbilityOrigin::Printed {
-            definition: CardDefinitionId(definition),
+            definition,
             part: CardPartId(part_id),
             ability: AbilityId(ability_id),
         },
@@ -258,7 +258,7 @@ fn ability_origin_from_snapshot(origin: AbilityOriginSnapshot) -> AbilityOrigin 
             grant_id,
         } => AbilityOrigin::Granted {
             source: GameObjectId(source),
-            source_definition: CardDefinitionId(source_definition),
+            source_definition,
             source_part: CardPartId(source_part_id),
             source_ability: AbilityId(source_ability_id),
             grant: GrantId(grant_id),
@@ -297,9 +297,7 @@ fn ability_origin_from_snapshot(origin: AbilityOriginSnapshot) -> AbilityOrigin 
 
 const fn object_kind_snapshot(kind: ObjectKind) -> ObjectKindSnapshot {
     match kind {
-        ObjectKind::Card(definition) => ObjectKindSnapshot::Card {
-            definition: definition.0,
-        },
+        ObjectKind::Card(definition) => ObjectKindSnapshot::Card { definition },
         ObjectKind::Token => ObjectKindSnapshot::Token,
         ObjectKind::Emblem => ObjectKindSnapshot::Emblem,
         ObjectKind::Ability => ObjectKindSnapshot::Ability,
@@ -312,7 +310,6 @@ fn object_kind_from_snapshot(
 ) -> Result<ObjectKind, String> {
     match snapshot {
         ObjectKindSnapshot::Card { definition } => {
-            let definition = CardDefinitionId(definition);
             catalog
                 .get(definition)
                 .ok_or("checkpoint object card definition is absent from this catalog")?;

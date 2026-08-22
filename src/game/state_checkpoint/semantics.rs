@@ -29,7 +29,7 @@ use crate::card::{
     ManaSpendEffectDef, ObjectPredicateDef, ProtectedCreatureType, ReplacementEffectDef,
     SpellAbilityDef,
 };
-use crate::{CardCatalog, CardDefinitionId, CardPartId};
+use crate::{CardCatalog, CardPartId};
 
 pub(super) fn ability_locator(
     catalog: &CardCatalog,
@@ -41,7 +41,7 @@ pub(super) fn ability_locator(
                 let mut nested = Vec::new();
                 if locate_ability(&attached.definition, &mut matches, &mut nested) {
                     return Some(AbilityLocator::Card {
-                        definition: definition.id.0,
+                        definition: definition.id,
                         part_id: part.id.0,
                         ability_id: attached.id.0,
                         nested,
@@ -104,7 +104,7 @@ pub(super) fn ability_locator_for_origin(
             ..
         } => {
             let root = AbilityLocator::Card {
-                definition: definition.0,
+                definition,
                 part_id: part.0,
                 ability_id: ability.0,
                 nested: Vec::new(),
@@ -178,7 +178,7 @@ pub(super) fn catalog_ability(
             nested,
         } => (
             *catalog
-                .get(CardDefinitionId(*definition))?
+                .get(*definition)?
                 .part(CardPartId(*part_id))?
                 .rules
                 .ability(crate::AbilityId(*ability_id))?,
@@ -229,7 +229,7 @@ pub(super) fn ability_locator_matches_origin(
                 part,
                 ability,
             },
-        ) => *definition == expected_definition.0 && *part_id == part.0 && *ability_id == ability.0,
+        ) => *definition == expected_definition && *part_id == part.0 && *ability_id == ability.0,
         (
             AbilityLocator::Card {
                 definition,
@@ -244,7 +244,7 @@ pub(super) fn ability_locator_matches_origin(
                 ..
             },
         ) => {
-            *definition == source_definition.0
+            *definition == source_definition
                 && *part_id == source_part.0
                 && *ability_id == source_ability.0
         }

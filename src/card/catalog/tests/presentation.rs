@@ -36,9 +36,9 @@ fn every_structure_family_rejects_undefined_or_repeated_parts() {
         assert!(matches!(
             error(card),
             CatalogError::UndefinedStructurePart {
-                definition: CardDefinitionId(1),
+                definition,
                 part: CardPartId(9),
-            }
+            } if definition == CardDefinitionId::new(1)
         ));
     }
 
@@ -50,7 +50,7 @@ fn every_structure_family_rejects_undefined_or_repeated_parts() {
     assert_eq!(
         error(repeated),
         CatalogError::DuplicateStructurePart {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             part: CardPartId::PRIMARY,
         }
     );
@@ -63,7 +63,7 @@ fn spell_forms_must_reference_defined_structural_parts() {
     assert_eq!(
         error(undefined),
         CatalogError::UndefinedSpellFormPart {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             option: PlayOptionId::DEFAULT,
             part: CardPartId(9),
         }
@@ -80,7 +80,7 @@ fn spell_forms_must_reference_defined_structural_parts() {
     assert_eq!(
         error(empty),
         CatalogError::EmptySpellForm {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             option: PlayOptionId(2),
         }
     );
@@ -91,7 +91,7 @@ fn fused_option_must_exist_and_match_all_split_parts_in_printed_order() {
     assert_eq!(
         error(split_definition(Some(PlayOptionId(2)))),
         CatalogError::MissingFusedPlayOption {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             option: PlayOptionId(2),
         }
     );
@@ -125,7 +125,7 @@ fn fused_option_must_exist_and_match_all_split_parts_in_printed_order() {
     assert_eq!(
         error(undeclared),
         CatalogError::UnexpectedCombinedSpellForm {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             option: PlayOptionId(2),
         }
     );
@@ -139,7 +139,7 @@ fn mode_and_alternative_cost_ids_are_local_to_options() {
     assert_eq!(
         error(duplicate_mode),
         CatalogError::DuplicateModeId {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             option: PlayOptionId::DEFAULT,
             mode: ModeId(3),
         }
@@ -151,7 +151,7 @@ fn mode_and_alternative_cost_ids_are_local_to_options() {
     assert_eq!(
         error(nonpositional_mode),
         CatalogError::NonPositionalModeId {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             option: PlayOptionId::DEFAULT,
             expected: ModeId(0),
             actual: ModeId(3),
@@ -174,7 +174,7 @@ fn mode_and_alternative_cost_ids_are_local_to_options() {
     assert_eq!(
         error(duplicate_alternative),
         CatalogError::DuplicateAlternativeCostId {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             option: PlayOptionId::DEFAULT,
             cost: AlternativeCostId(4),
         }
@@ -207,7 +207,7 @@ fn mode_and_alternative_cost_ids_are_local_to_options() {
     assert_eq!(
         error(duplicate_additional),
         CatalogError::DuplicateAdditionalCostId {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             cost: AdditionalCostId(5),
         }
     );
@@ -236,7 +236,7 @@ fn alternative_cast_ability_requires_its_derived_cost_projection() {
     assert_eq!(
         error(missing),
         CatalogError::MissingAlternativeCostForAbility {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
             cost: AlternativeCostId(AbilityId::PRIMARY.0),
@@ -274,7 +274,7 @@ fn alternative_cast_ability_requires_its_derived_cost_projection() {
     assert_eq!(
         error(mismatched_label),
         CatalogError::MismatchedAlternativeCostForAbility(Box::new(MismatchedAlternativeCost {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             part: CardPartId::PRIMARY,
             ability: AbilityId(1),
             option: PlayOptionId::DEFAULT,
@@ -291,7 +291,7 @@ fn alternative_cast_ability_requires_its_derived_cost_projection() {
     assert_eq!(
         error(mismatched_mana),
         CatalogError::MismatchedAlternativeCostForAbility(Box::new(MismatchedAlternativeCost {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             part: CardPartId::PRIMARY,
             ability: AbilityId(1),
             option: PlayOptionId::DEFAULT,
@@ -334,7 +334,7 @@ fn incomplete_alternative_cast_ability_remains_non_executable_catalog_metadata()
     set_primary_rules(&mut definition, &rules);
 
     let catalog = CardCatalog::new([definition]).expect("incomplete clauses stay cataloged");
-    let stored = catalog.get(CardDefinitionId(1)).unwrap();
+    let stored = catalog.get(CardDefinitionId::new(1)).unwrap();
     assert_eq!(
         stored.implementation_status(),
         crate::ImplementationStatus::Partial,
@@ -361,7 +361,7 @@ fn mode_and_target_cardinality_bounds_are_sane() {
     assert_eq!(
         error(invalid_modes),
         CatalogError::InvalidModeBounds {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             option: PlayOptionId::DEFAULT,
             minimum: 2,
             maximum: 1,
@@ -379,7 +379,7 @@ fn mode_and_target_cardinality_bounds_are_sane() {
     assert_eq!(
         error(too_many_modes),
         CatalogError::TooManyModesWithoutRepetition {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             option: PlayOptionId::DEFAULT,
             maximum: 2,
             available: 1,
@@ -391,7 +391,7 @@ fn mode_and_target_cardinality_bounds_are_sane() {
     assert_eq!(
         error(invalid_targets),
         CatalogError::InvalidTargetBounds {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             option: PlayOptionId::DEFAULT,
             mode: None,
             slot: TargetSlotId(0),
@@ -413,7 +413,7 @@ fn semantic_spell_modes_require_matching_presentation_mode_ids() {
     assert_eq!(
         error(missing_presentation),
         CatalogError::MissingPresentationSpellMode {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             option: PlayOptionId::DEFAULT,
             mode: ModeId(0),
         }
@@ -429,7 +429,7 @@ fn semantic_spell_modes_require_matching_presentation_mode_ids() {
     assert_eq!(
         error(missing_semantic),
         CatalogError::MissingSemanticSpellMode {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             option: PlayOptionId::DEFAULT,
             mode: ModeId(1),
         }
@@ -446,7 +446,7 @@ fn semantic_modal_spell_selection_must_be_possible() {
     assert_eq!(
         error(definition),
         CatalogError::InvalidModalSpellSelection {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             part: CardPartId::PRIMARY,
             ability: AbilityId(0),
             minimum: 1,
@@ -467,7 +467,7 @@ fn executable_nonmodal_spells_reject_presentation_modes() {
     assert_eq!(
         error(definition),
         CatalogError::UnexpectedPresentationSpellModes {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             option: PlayOptionId::DEFAULT,
         }
     );
@@ -482,7 +482,7 @@ fn nonmodal_spell_target_presentations_are_derived_positionally() {
     assert_eq!(
         error(missing),
         CatalogError::MissingPresentationSpellTarget {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             option: PlayOptionId::DEFAULT,
             target: TargetSlotId(0),
         }
@@ -497,11 +497,11 @@ fn nonmodal_spell_target_presentations_are_derived_positionally() {
     assert!(matches!(
         error(mismatched),
         CatalogError::MismatchedSpellTargetPresentation {
-            definition: CardDefinitionId(1),
+            definition,
             option: PlayOptionId::DEFAULT,
             position: 0,
             ..
-        }
+        } if definition == CardDefinitionId::new(1)
     ));
 }
 
@@ -528,7 +528,7 @@ fn unpresentable_nonmodal_targets_use_only_the_semantic_runtime_definition() {
     assert_eq!(
         error(approximated),
         CatalogError::UnpresentableSpellTarget {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             option: PlayOptionId::DEFAULT,
             target: TargetSlotId(0),
         }
@@ -560,7 +560,7 @@ fn unpresentable_modal_targets_use_only_the_semantic_runtime_definition() {
     assert_eq!(
         error(approximated),
         CatalogError::UnpresentableSpellModeTarget {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             option: PlayOptionId::DEFAULT,
             mode: ModeId(0),
             target: TargetSlotId(0),
@@ -587,7 +587,7 @@ fn combined_play_options_reject_modal_constituent_parts() {
     assert_eq!(
         validate_semantic_spell_presentation(&definition, &option),
         Err(CatalogError::CombinedModalSpellUnsupported {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             option: PlayOptionId(2),
             part: CardPartId::PRIMARY,
         })
@@ -605,7 +605,7 @@ fn semantic_modal_spells_keep_targets_on_their_branches() {
     assert_eq!(
         error(definition),
         CatalogError::UnexpectedModalSpellTargets {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             option: PlayOptionId::DEFAULT,
             count: 1,
         }
@@ -628,7 +628,7 @@ fn semantic_spell_mode_selection_rules_cannot_drift_from_presentation() {
     assert_eq!(
         error(mismatched),
         CatalogError::MismatchedSpellModeSelection {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             option: PlayOptionId::DEFAULT,
             presentation_minimum: 1,
             presentation_maximum: 2,
@@ -653,7 +653,7 @@ fn executable_spell_mode_branches_are_declarative() {
     assert_eq!(
         error(definition),
         CatalogError::CustomSpellModeImplementation {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             part: CardPartId::PRIMARY,
             ability: AbilityId(0),
             mode: ModeId(0),
@@ -676,7 +676,7 @@ fn semantic_spell_mode_targets_require_matching_positions_and_cardinalities() {
     assert_eq!(
         error(missing_presentation),
         CatalogError::MissingPresentationSpellModeTarget {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             option: PlayOptionId::DEFAULT,
             mode: ModeId(0),
             target: TargetSlotId(0),
@@ -690,7 +690,7 @@ fn semantic_spell_mode_targets_require_matching_positions_and_cardinalities() {
     assert_eq!(
         error(missing_semantic),
         CatalogError::MissingSemanticSpellModeTarget {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             option: PlayOptionId::DEFAULT,
             mode: ModeId(0),
             target: TargetSlotId(0),
@@ -704,7 +704,7 @@ fn semantic_spell_mode_targets_require_matching_positions_and_cardinalities() {
     assert_eq!(
         error(mismatched_cardinality),
         CatalogError::MismatchedSpellModeTargetCardinality {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             option: PlayOptionId::DEFAULT,
             mode: ModeId(0),
             target: TargetSlotId(0),
@@ -798,7 +798,7 @@ fn composed_target_count_fits_the_runtime_slot_space() {
     assert_eq!(
         error(card),
         CatalogError::TooManyInstantiatedTargets {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             option: PlayOptionId::DEFAULT,
             count: 400,
         }

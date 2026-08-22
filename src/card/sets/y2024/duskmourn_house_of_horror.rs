@@ -11,7 +11,7 @@ use crate::card::{
     PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementConditionDef,
     ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SetOperationDef,
     SpellAdditionalCostDef, SpendModeDef, TokenCountersDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, cards,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -75,8 +75,8 @@ static ENDURING_INNOCENCE_ABILITIES: [AbilityDef; 3] = [
 ];
 
 // DSK 6 — Enduring Innocence
-pub(in crate::card::sets) static ENDURING_INNOCENCE: CardRecord = CardRecord::new(
-    cards::ENDURING_INNOCENCE,
+pub(in crate::card::sets) static ENDURING_INNOCENCE: CardRecord = CardRecord::new_with_legacy_id(
+    2222,
     "Enduring Innocence",
     CardArt::new("6d908299-aac0-46a6-8fa5-780d5b3e0386", "Liiga Smilshkalne"),
     CardSet::DuskmournHouseOfHorror,
@@ -177,7 +177,7 @@ static OVERLORD_ABILITIES: [AbilityDef; 4] = [
         },
     ),
     AbilityDef::triggered(
-        "Whenever this permanent enters or attacks, mill four cards, then you may return a \
+        "Whenever this permanent enters or attacks, mill four then you may return a \
          non-Avatar creature card or a planeswalker card from your graveyard to your hand.",
         TriggerEventDef::AnyOf(&OVERLORD_EVENTS),
         EffectDef::Sequence(&OVERLORD_DIGS),
@@ -214,8 +214,8 @@ static OCULUS_ABILITIES: [AbilityDef; 3] = [
 ];
 
 // DSK 42 — Abhorrent Oculus
-pub(in crate::card::sets) static ABHORRENT_OCULUS: CardRecord = CardRecord::new(
-    cards::ABHORRENT_OCULUS,
+pub(in crate::card::sets) static ABHORRENT_OCULUS: CardRecord = CardRecord::new_with_legacy_id(
+    2270,
     "Abhorrent Oculus",
     CardArt::new("d2705b43-a94a-44c0-8740-82e0b296820c", "Bryan Sola"),
     CardSet::DuskmournHouseOfHorror,
@@ -225,16 +225,17 @@ pub(in crate::card::sets) static ABHORRENT_OCULUS: CardRecord = CardRecord::new(
 );
 
 // DSK 113 — Overlord of the Balemurk
-pub(in crate::card::sets) static OVERLORD_OF_THE_BALEMURK: CardRecord = CardRecord::new(
-    cards::OVERLORD_OF_THE_BALEMURK,
-    "Overlord of the Balemurk",
-    CardArt::new("9b911653-7b96-4cf3-a907-13c5c53a14f7", "Babs Webb"),
-    CardSet::DuskmournHouseOfHorror,
-    // Two mana for the trigger now and a 5/5 five turns later, which is the
-    // whole appeal: the enchantment does the work while the body waits.
-    CardRules::new_enchantment_creature(mana_cost!("{3}{B}{B}"), &["Avatar", "Horror"], 5, 5)
-        .with_abilities(&OVERLORD_ABILITIES),
-);
+pub(in crate::card::sets) static OVERLORD_OF_THE_BALEMURK: CardRecord =
+    CardRecord::new_with_legacy_id(
+        2234,
+        "Overlord of the Balemurk",
+        CardArt::new("9b911653-7b96-4cf3-a907-13c5c53a14f7", "Babs Webb"),
+        CardSet::DuskmournHouseOfHorror,
+        // Two mana for the trigger now and a 5/5 five turns later, which is the
+        // whole appeal: the enchantment does the work while the body waits.
+        CardRules::new_enchantment_creature(mana_cost!("{3}{B}{B}"), &["Avatar", "Horror"], 5, 5)
+            .with_abilities(&OVERLORD_ABILITIES),
+    );
 
 /// Either graveyard: the Vacuum is as happy eating your own escape targets
 /// as theirs, and the second ability does not care whose card it was.
@@ -389,21 +390,22 @@ fn walk_in_closet_composition() -> CardComposition {
 }
 
 // DSK 205 — Walk-In Closet // Forgotten Cellar
-pub(in crate::card::sets) static WALK_IN_CLOSET_FORGOTTEN_CELLAR: CardRecord = CardRecord::new(
-    cards::WALK_IN_CLOSET_FORGOTTEN_CELLAR,
-    "Walk-In Closet // Forgotten Cellar",
-    CardArt::new("0adcd4e5-d542-4293-8774-ace2305ef820", "Mikl\u{f3}s Ligeti"),
-    CardSet::DuskmournHouseOfHorror,
-    // Three mana for Crucible of Worlds, and five more whenever the game
-    // gives you nothing better to do -- which is what a Room is for: a card
-    // that is cheap early and still has something left late.
-    walk_in_closet_rules(),
-)
-.with_composition(walk_in_closet_composition);
+pub(in crate::card::sets) static WALK_IN_CLOSET_FORGOTTEN_CELLAR: CardRecord =
+    CardRecord::new_with_legacy_id(
+        2305,
+        "Walk-In Closet // Forgotten Cellar",
+        CardArt::new("0adcd4e5-d542-4293-8774-ace2305ef820", "Mikl\u{f3}s Ligeti"),
+        CardSet::DuskmournHouseOfHorror,
+        // Three mana for Crucible of Worlds, and five more whenever the game
+        // gives you nothing better to do -- which is what a Room is for: a card
+        // that is cheap early and still has something left late.
+        walk_in_closet_rules(),
+    )
+    .with_composition(walk_in_closet_composition);
 
 // DSK 248 — Ghost Vacuum
-pub(in crate::card::sets) static GHOST_VACUUM: CardRecord = CardRecord::new(
-    cards::GHOST_VACUUM,
+pub(in crate::card::sets) static GHOST_VACUUM: CardRecord = CardRecord::new_with_legacy_id(
+    2289,
     "Ghost Vacuum",
     CardArt::new("8ac39c01-127f-4471-bc74-11a90c48e306", "David Szabo"),
     CardSet::DuskmournHouseOfHorror,

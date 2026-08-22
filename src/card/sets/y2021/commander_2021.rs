@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, CardArt, CardRules, CardSet, CardSupertype, CounterKind, EffectDef,
     EffectRecipientDef, ObjectPredicateDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind,
-    abilities, cards,
+    abilities,
 };
 use crate::mana_cost;
 
@@ -43,17 +43,18 @@ static LAELIA_ABILITIES: [AbilityDef; 3] = [
 ];
 
 // C21 53 — Laelia, the Blade Reforged
-pub(in crate::card::sets) static LAELIA_THE_BLADE_REFORGED: CardRecord = CardRecord::new(
-    cards::LAELIA_THE_BLADE_REFORGED,
-    "Laelia, the Blade Reforged",
-    CardArt::new("a3bb2881-e8fb-4fba-a9f9-d93e6ca24378", "Wisnu Tan"),
-    CardSet::Commander2021,
-    // Three mana with haste that attacks as a 3/3 on the turn it lands, and
-    // grows every attack after because her own trigger feeds the other one.
-    CardRules::new_creature(mana_cost!("{2}{R}"), &["Spirit", "Warrior"], 2, 2)
-        .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&LAELIA_ABILITIES),
-);
+pub(in crate::card::sets) static LAELIA_THE_BLADE_REFORGED: CardRecord =
+    CardRecord::new_with_legacy_id(
+        2302,
+        "Laelia, the Blade Reforged",
+        CardArt::new("a3bb2881-e8fb-4fba-a9f9-d93e6ca24378", "Wisnu Tan"),
+        CardSet::Commander2021,
+        // Three mana with haste that attacks as a 3/3 on the turn it lands, and
+        // grows every attack after because her own trigger feeds the other one.
+        CardRules::new_creature(mana_cost!("{2}{R}"), &["Spirit", "Warrior"], 2, 2)
+            .with_supertype(CardSupertype::Legendary)
+            .with_abilities(&LAELIA_ABILITIES),
+    );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&LAELIA_THE_BLADE_REFORGED];
 

@@ -151,7 +151,7 @@ pub(super) fn checkpoint_fixture(
     let definitions = |cards: &[CardInstance]| {
         cards
             .iter()
-            .map(|card| card.definition.0)
+            .map(|card| card.definition.get())
             .collect::<Vec<_>>()
     };
     let opponent = viewer.opponent();

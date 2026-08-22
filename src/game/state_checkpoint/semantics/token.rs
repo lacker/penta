@@ -11,9 +11,7 @@ use super::catalog_ability;
 use super::emblem::{catalog_emblem_characteristics, emblem_characteristics_locator};
 use super::virtual_objects::{authored_virtual_objects, effect_at_path};
 use crate::card::EffectDef;
-use crate::{
-    CardCatalog, CardDefinitionId, CardPartId, ObjectCharacteristics, TokenCharacteristics,
-};
+use crate::{CardCatalog, CardPartId, ObjectCharacteristics, TokenCharacteristics};
 
 use super::super::model::{
     FaceDownCharacteristicsSnapshot, ObjectCharacteristicsSnapshot, TokenCharacteristicsLocator,
@@ -82,7 +80,7 @@ pub(in crate::game::state_checkpoint) fn object_characteristics_snapshot(
         ObjectCharacteristics::Card { definition, part } => {
             catalog.get(definition)?.part(part)?;
             Some(ObjectCharacteristicsSnapshot::Card {
-                definition: definition.0,
+                definition,
                 part_id: part.0,
             })
         }
@@ -113,7 +111,7 @@ pub(in crate::game::state_checkpoint) fn object_characteristics_from_snapshot(
             definition,
             part_id,
         } => {
-            let definition = CardDefinitionId(*definition);
+            let definition = *definition;
             let part = CardPartId(*part_id);
             catalog.get(definition)?.part(part)?;
             Some(ObjectCharacteristics::card(definition, part))

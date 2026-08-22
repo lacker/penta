@@ -2,12 +2,12 @@
 
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AddManaEffectDef, CardArt, CardRules, CardSet, EffectDef, cards,
+    AbilityCostDef, AbilityDef, AddManaEffectDef, CardArt, CardRules, CardSet, EffectDef,
 };
 
 // JOU 163 — Mana Confluence
-pub(in crate::card::sets) static MANA_CONFLUENCE: CardRecord = CardRecord::new(
-    cards::MANA_CONFLUENCE,
+pub(in crate::card::sets) static MANA_CONFLUENCE: CardRecord = CardRecord::new_with_legacy_id(
+    2154,
     "Mana Confluence",
     CardArt::new("504a69eb-3c2d-4bb1-b117-252b15acf0c2", "Richard Wright"),
     CardSet::JourneyIntoNyx,

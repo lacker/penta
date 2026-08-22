@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     DrawEventMatcherDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
-    TriggerEventDef, ValueDef, abilities, cards,
+    TriggerEventDef, ValueDef, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -41,8 +41,8 @@ static CUT_DOWN_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_p
 )];
 
 // DMU 89 — Cut Down
-pub(in crate::card::sets) static CUT_DOWN: CardRecord = CardRecord::new(
-    cards::CUT_DOWN,
+pub(in crate::card::sets) static CUT_DOWN: CardRecord = CardRecord::new_with_legacy_id(
+    2204,
     "Cut Down",
     CardArt::new("753db072-5d6a-4f37-8f7d-255572ecd3bd", "Dominik Mayer"),
     CardSet::DominariaUnited,
@@ -59,18 +59,19 @@ pub(in crate::card::sets) static CUT_DOWN: CardRecord = CardRecord::new(
 );
 
 // DMU 107 — Sheoldred, the Apocalypse
-pub(in crate::card::sets) static SHEOLDRED_THE_APOCALYPSE: CardRecord = CardRecord::new(
-    cards::SHEOLDRED_THE_APOCALYPSE,
-    "Sheoldred, the Apocalypse",
-    CardArt::new("d67be074-cdd4-41d9-ac89-0a0456c4e4b2", "Chris Rahn"),
-    CardSet::DominariaUnited,
-    // A four-mana 4/5 deathtouch would be playable on its own. The draw
-    // clauses are what make it unanswerable: the opponent's own draw step
-    // pays for it, every turn it survives.
-    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Phyrexian", "Praetor"], 4, 5)
-        .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&SHEOLDRED_ABILITIES),
-);
+pub(in crate::card::sets) static SHEOLDRED_THE_APOCALYPSE: CardRecord =
+    CardRecord::new_with_legacy_id(
+        2180,
+        "Sheoldred, the Apocalypse",
+        CardArt::new("d67be074-cdd4-41d9-ac89-0a0456c4e4b2", "Chris Rahn"),
+        CardSet::DominariaUnited,
+        // A four-mana 4/5 deathtouch would be playable on its own. The draw
+        // clauses are what make it unanswerable: the opponent's own draw step
+        // pays for it, every turn it survives.
+        CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Phyrexian", "Praetor"], 4, 5)
+            .with_supertype(CardSupertype::Legendary)
+            .with_abilities(&SHEOLDRED_ABILITIES),
+    );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&CUT_DOWN, &SHEOLDRED_THE_APOCALYPSE];
 

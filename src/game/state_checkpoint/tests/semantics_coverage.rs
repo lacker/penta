@@ -54,7 +54,7 @@ fn collect(
 
 fn card_name(catalog: &CardCatalog, definition: CardDefinitionId) -> String {
     catalog.get(definition).map_or_else(
-        || format!("definition {}", definition.0),
+        || format!("definition {}", definition.get()),
         |card| card.name.clone(),
     )
 }
@@ -102,7 +102,7 @@ fn one_shot_cast_grant_has_a_stable_locator() {
     assert_eq!(
         locator,
         AbilityLocator::Card {
-            definition: cards::DREADHORDE_ARCANIST.0,
+            definition: cards::DREADHORDE_ARCANIST,
             part_id: CardPartId::PRIMARY.0,
             ability_id: source_ability.0,
             nested: vec![0],

@@ -5,7 +5,7 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, CardType,
     ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef, ObjectChoiceBindingDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, TriggerEventDef, ZoneKind, cards,
+    PlayerSetDef, TriggerEventDef, ZoneKind,
 };
 use crate::ids::ObjectBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -74,8 +74,8 @@ static TIDEHOLLOW_SCULLER_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // ALA 202 — Tidehollow Sculler
-pub(in crate::card::sets) static TIDEHOLLOW_SCULLER: CardRecord = CardRecord::new(
-    cards::TIDEHOLLOW_SCULLER,
+pub(in crate::card::sets) static TIDEHOLLOW_SCULLER: CardRecord = CardRecord::new_with_legacy_id(
+    2145,
     "Tidehollow Sculler",
     CardArt::new("1abecc77-07f2-43e4-8585-0a8199cdcf01", "rk post"),
     CardSet::ShardsOfAlara,

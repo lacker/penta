@@ -5,7 +5,7 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules,
     CardSet, CardSupertype, CardType, ControlDurationDef, DiscardSelectionDef, EffectDef,
     EffectRecipientDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PlayerRefDef,
-    PlayerRelation, TriggerEventDef, ValueDef, cards,
+    PlayerRelation, TriggerEventDef, ValueDef,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -16,8 +16,8 @@ static JUDGMENT_BALLOT: ObjectPredicateDef =
     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land));
 
 // CNS 16 — Council's Judgment
-pub(in crate::card::sets) static COUNCILS_JUDGMENT: CardRecord = CardRecord::new(
-    cards::COUNCILS_JUDGMENT,
+pub(in crate::card::sets) static COUNCILS_JUDGMENT: CardRecord = CardRecord::new_with_legacy_id(
+    2175,
     "Council's Judgment",
     CardArt::new("17f28b16-da65-41a8-ba4f-f1c5e104aad6", "Kev Walker"),
     CardSet::Conspiracy,
@@ -75,7 +75,7 @@ static DACK_ROOTS_THROUGH: EffectDef = EffectDef::Sequence(&[
 
 static DACK_ABILITIES: [AbilityDef; 3] = [
     AbilityDef::activated_with_targets(
-        "+1: Target player draws two cards, then discards two cards.",
+        "+1: Target player draws two then discards two cards.",
         &[AbilityCostDef::Loyalty(1)],
         &DACK_PLAYER_TARGET,
         DACK_ROOTS_THROUGH,
@@ -101,8 +101,8 @@ static DACK_ABILITIES: [AbilityDef; 3] = [
 ];
 
 // CNS 42 — Dack Fayden
-pub(in crate::card::sets) static DACK_FAYDEN: CardRecord = CardRecord::new(
-    cards::DACK_FAYDEN,
+pub(in crate::card::sets) static DACK_FAYDEN: CardRecord = CardRecord::new_with_legacy_id(
+    2219,
     "Dack Fayden",
     CardArt::new("3fcb7810-1054-4001-855c-6e17939b3d3f", "Eric Deschamps"),
     CardSet::Conspiracy,

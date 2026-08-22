@@ -5,7 +5,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, CardType,
     EffectDef, EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef, PlayerRelation,
-    TriggerEventDef, ZoneKind, cards,
+    TriggerEventDef, ZoneKind,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -55,8 +55,8 @@ static HOLE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 )];
 
 // AFR 33 — Portable Hole
-pub(in crate::card::sets) static PORTABLE_HOLE: CardRecord = CardRecord::new(
-    cards::PORTABLE_HOLE,
+pub(in crate::card::sets) static PORTABLE_HOLE: CardRecord = CardRecord::new_with_legacy_id(
+    2256,
     "Portable Hole",
     CardArt::new("80fca8c0-ae3e-439e-b202-228b9f360e9a", "John Stanko"),
     CardSet::AdventuresInTheForgottenRealms,

@@ -695,10 +695,9 @@ count or effect.
 `protocolCapabilities`, `simulationFingerprint`, `engineVersion`, and `format`
 as observations, plus `formatName` and the canonical `cards` array. The array is
 ordered by `definition` and is not filtered: it contains printed cards outside
-the selected format as well as the engine's uniquely named face-down
-presentation. Created-token characteristics and emblem descriptions are not
-card definitions and do not appear here; visible virtual-object characteristics
-travel inline.
+the selected format. Created-token, emblem, and face-down characteristics are
+not card definitions and do not appear here; visible virtual-object
+characteristics travel inline.
 Their former synthetic definition IDs remain retired and are never reused, so
 the ordered `cards` array may contain gaps. Join a card through its explicit
 `definition`, never by treating that ID as an array index.
@@ -713,10 +712,12 @@ their structure, parts, play options, legality, printings, and clause-derived
 implementation status.
 
 Catalog contents may grow compatibly within one protocol version because new
-definition IDs are appended and existing card identities never move. Retired
-IDs stay empty rather than being reassigned. Treat every assigned definition ID
-as an opaque catalog value: `0` and every other numeric value may identify an
-ordinary definition, and no value means hidden, missing, or redacted. The
+opaque definition IDs can be added while existing card identities never move.
+Retired IDs stay empty rather than being reassigned. Definition IDs are
+positive integers no greater than `2^52 - 1`, so JSON and JavaScript represent
+them exactly; the values are sparse and must never be treated as array indexes.
+Zero is invalid, and absence or null—not any numeric value—means hidden,
+missing, or redacted. The
 out-of-format interaction fixtures
 `Urborg, Tomb of Yawgmoth` (definition 261, debut set `planar-chaos`) and
 `Yavimaya, Cradle of Growth` (definition 262, debut set

@@ -767,7 +767,7 @@ fn a_hypothesis_with_the_wrong_hidden_zone_sizes_is_rejected() {
         let hand = hidden["hands"][opponent]
             .as_array_mut()
             .expect("the hypothesis lists the opposing hand");
-        hand.push(json!(crate::card::cards::MOUNTAIN.0));
+        hand.push(json!(crate::card::cards::MOUNTAIN.get()));
     });
     assert!(
         error.contains("opponentHandSize"),

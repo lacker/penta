@@ -7,7 +7,7 @@ use crate::card::{
     DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
     ObjectQueryDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ResolvedEffectDurationDef, SpellAdditionalCostDef, SpendModeDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, cards,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -25,8 +25,8 @@ static STANDSTILL_REFILL: EffectDef = EffectDef::Sequence(&[
 ]);
 
 // ODY 102 — Standstill
-pub(in crate::card::sets) static STANDSTILL: CardRecord = CardRecord::new(
-    cards::STANDSTILL,
+pub(in crate::card::sets) static STANDSTILL: CardRecord = CardRecord::new_with_legacy_id(
+    2043,
     "Standstill",
     CardArt::new("3ede3f6f-e642-4fe4-aa37-0f01cdf4d149", "Heather Hudson"),
     CardSet::Odyssey,
@@ -40,8 +40,8 @@ pub(in crate::card::sets) static STANDSTILL: CardRecord = CardRecord::new(
 );
 
 // ODY 113 — Upheaval
-pub(in crate::card::sets) static UPHEAVAL: CardRecord = CardRecord::new(
-    cards::UPHEAVAL,
+pub(in crate::card::sets) static UPHEAVAL: CardRecord = CardRecord::new_with_legacy_id(
+    290,
     "Upheaval",
     CardArt::new("9e201229-34a6-48c8-a07c-d8aefcf5f8a7", "Kev Walker"),
     CardSet::Odyssey,
@@ -105,8 +105,8 @@ static ECHOES_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 )];
 
 // ODY 132 — Entomb
-pub(in crate::card::sets) static ENTOMB: CardRecord = CardRecord::new(
-    cards::ENTOMB,
+pub(in crate::card::sets) static ENTOMB: CardRecord = CardRecord::new_with_legacy_id(
+    2113,
     "Entomb",
     CardArt::new("f60a2091-fb97-4f04-911b-fce9b6351044", "Ron Spears"),
     CardSet::Odyssey,
@@ -130,8 +130,8 @@ pub(in crate::card::sets) static ENTOMB: CardRecord = CardRecord::new(
 );
 
 // ODY 142 — Haunting Echoes
-pub(in crate::card::sets) static HAUNTING_ECHOES: CardRecord = CardRecord::new(
-    cards::HAUNTING_ECHOES,
+pub(in crate::card::sets) static HAUNTING_ECHOES: CardRecord = CardRecord::new_with_legacy_id(
+    2069,
     "Haunting Echoes",
     CardArt::new("3f051d37-e5ad-4975-839e-2da5538685f2", "Arnie Swekel"),
     CardSet::Odyssey,
@@ -163,8 +163,8 @@ static EXILE_X_FROM_YOUR_GRAVEYARD: SpellAdditionalCostDef =
         .spent(SpendModeDef::Exile);
 
 // ODY 161 — Skeletal Scrying
-pub(in crate::card::sets) static SKELETAL_SCRYING: CardRecord = CardRecord::new(
-    cards::SKELETAL_SCRYING,
+pub(in crate::card::sets) static SKELETAL_SCRYING: CardRecord = CardRecord::new_with_legacy_id(
+    2066,
     "Skeletal Scrying",
     CardArt::new("ee49bae4-6b1a-4c3f-8b2e-1d5a7c9e3f2b", "Bob Petillo"),
     CardSet::Odyssey,
@@ -194,8 +194,8 @@ static FIREBOLT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 )];
 
 // ODY 193 — Firebolt
-pub(in crate::card::sets) static FIREBOLT: CardRecord = CardRecord::new(
-    cards::FIREBOLT,
+pub(in crate::card::sets) static FIREBOLT: CardRecord = CardRecord::new_with_legacy_id(
+    2152,
     "Firebolt",
     CardArt::new("d5e45005-dd81-4d80-b043-02f719aca929", "Ron Spencer"),
     CardSet::Odyssey,
@@ -215,8 +215,8 @@ pub(in crate::card::sets) static FIREBOLT: CardRecord = CardRecord::new(
 );
 
 // ODY 292 — Psychatog
-pub(in crate::card::sets) static PSYCHATOG: CardRecord = CardRecord::new(
-    cards::PSYCHATOG,
+pub(in crate::card::sets) static PSYCHATOG: CardRecord = CardRecord::new_with_legacy_id(
+    2040,
     "Psychatog",
     CardArt::new(
         "6757bf0e-489f-4be2-9e41-463b59f00dd1",
@@ -259,8 +259,8 @@ static BARBARIAN_RING_SHOT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_o
 )];
 
 // ODY 313 — Barbarian Ring
-pub(in crate::card::sets) static BARBARIAN_RING: CardRecord = CardRecord::new(
-    cards::BARBARIAN_RING,
+pub(in crate::card::sets) static BARBARIAN_RING: CardRecord = CardRecord::new_with_legacy_id(
+    2033,
     "Barbarian Ring",
     CardArt::new("1809361e-ae1a-4c47-8464-e6496e94d962", "John Avon"),
     CardSet::Odyssey,
@@ -307,8 +307,8 @@ static COLISEUM_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 )];
 
 // ODY 317 — Cephalid Coliseum
-pub(in crate::card::sets) static CEPHALID_COLISEUM: CardRecord = CardRecord::new(
-    cards::CEPHALID_COLISEUM,
+pub(in crate::card::sets) static CEPHALID_COLISEUM: CardRecord = CardRecord::new_with_legacy_id(
+    2041,
     "Cephalid Coliseum",
     CardArt::new("d5d74112-7244-4c3f-a5eb-b6be671aefe8", "John Avon"),
     CardSet::Odyssey,
@@ -321,7 +321,7 @@ pub(in crate::card::sets) static CEPHALID_COLISEUM: CardRecord = CardRecord::new
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Blue).with_damage_to_controller(1)),
         ),
         AbilityDef::activated_with_targets(
-            "Threshold — {U}, {T}, Sacrifice this land: Target player draws three cards, then discards three cards. Activate only if there are seven or more cards in your graveyard.",
+            "Threshold — {U}, {T}, Sacrifice this land: Target player draws three then discards three cards. Activate only if there are seven or more cards in your graveyard.",
             &[
                 AbilityCostDef::Mana(mana_cost!("{U}")),
                 AbilityCostDef::TapSource,
@@ -335,8 +335,8 @@ pub(in crate::card::sets) static CEPHALID_COLISEUM: CardRecord = CardRecord::new
 );
 
 // ODY 327 — Skycloud Expanse
-pub(in crate::card::sets) static SKYCLOUD_EXPANSE: CardRecord = CardRecord::new(
-    cards::SKYCLOUD_EXPANSE,
+pub(in crate::card::sets) static SKYCLOUD_EXPANSE: CardRecord = CardRecord::new_with_legacy_id(
+    2087,
     "Skycloud Expanse",
     CardArt::new("35c527b6-4004-41f7-b70c-1ac1a49dce1f", "Rob Alexander"),
     CardSet::Odyssey,

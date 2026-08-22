@@ -3,7 +3,7 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules,
-    CardSet, EffectDef, EffectRecipientDef, ObjectPredicateDef, ValueDef, cards,
+    CardSet, EffectDef, EffectRecipientDef, ObjectPredicateDef, ValueDef,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -12,8 +12,8 @@ static ANY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 )];
 
 // TOR 100 — Grim Lavamancer
-pub(in crate::card::sets) static GRIM_LAVAMANCER: CardRecord = CardRecord::new(
-    cards::GRIM_LAVAMANCER,
+pub(in crate::card::sets) static GRIM_LAVAMANCER: CardRecord = CardRecord::new_with_legacy_id(
+    2036,
     "Grim Lavamancer",
     CardArt::new("5dd72697-24be-42c7-a6d9-a837bdbd4662", "Jim Nelson"),
     CardSet::Torment,

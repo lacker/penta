@@ -8,7 +8,7 @@ use crate::card::{
     CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardType, ControlDurationDef,
     CounterKind, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRefDef,
     ReplacementEffectDef, SpellForm, SpellResolutionDestinationDef, TriggerEventDef, ValueDef,
-    ZoneKind, ZonePlacement, cards,
+    ZoneKind, ZonePlacement,
 };
 use crate::{CardPartId, PlayOptionId, TargetIndex, mana_cost};
 
@@ -49,8 +49,8 @@ static WISHCLAW_GRANTS_A_WISH: [EffectDef; 2] = [
 ];
 
 // ELD 110 — Wishclaw Talisman
-pub(in crate::card::sets) static WISHCLAW_TALISMAN: CardRecord = CardRecord::new(
-    cards::WISHCLAW_TALISMAN,
+pub(in crate::card::sets) static WISHCLAW_TALISMAN: CardRecord = CardRecord::new_with_legacy_id(
+    2166,
     "Wishclaw Talisman",
     CardArt::new("07c17b01-ee5d-491a-8403-b3f819b778c4", "Daarken"),
     CardSet::ThroneOfEldraine,
@@ -155,8 +155,8 @@ fn bonecrusher_composition() -> CardComposition {
 }
 
 // ELD 115 — Bonecrusher Giant
-pub(in crate::card::sets) static BONECRUSHER_GIANT: CardRecord = CardRecord::new(
-    cards::BONECRUSHER_GIANT,
+pub(in crate::card::sets) static BONECRUSHER_GIANT: CardRecord = CardRecord::new_with_legacy_id(
+    2167,
     "Bonecrusher Giant",
     CardArt::new(
         "09fd2d9c-1793-4beb-a3fb-7a869f660cd4",
@@ -231,14 +231,15 @@ fn embereth_shieldbreaker_composition() -> CardComposition {
 }
 
 // ELD 122 — Embereth Shieldbreaker
-pub(in crate::card::sets) static EMBERETH_SHIELDBREAKER: CardRecord = CardRecord::new(
-    cards::EMBERETH_SHIELDBREAKER,
-    "Embereth Shieldbreaker",
-    CardArt::new("6cc73d16-5ed7-4104-91f6-0997a2080e2e", "Randy Vargas"),
-    CardSet::ThroneOfEldraine,
-    embereth_shieldbreaker_rules(),
-)
-.with_composition(embereth_shieldbreaker_composition);
+pub(in crate::card::sets) static EMBERETH_SHIELDBREAKER: CardRecord =
+    CardRecord::new_with_legacy_id(
+        2208,
+        "Embereth Shieldbreaker",
+        CardArt::new("6cc73d16-5ed7-4104-91f6-0997a2080e2e", "Randy Vargas"),
+        CardSet::ThroneOfEldraine,
+        embereth_shieldbreaker_rules(),
+    )
+    .with_composition(embereth_shieldbreaker_composition);
 
 // ELD 138 — Robber of the Rich
 // Audit: blocked — Needs three things. An intervening-if that compares two players' hand sizes rather than a count against a printed number; a permission to cast one exiled card that survives its source leaving the battlefield and is gated on having attacked with a Rogue that turn; and spending mana as though it were mana of any color, which already blocks North Star in Legends.

@@ -7,7 +7,7 @@ use crate::card::{
     EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef, PlayerRefDef, PlayerRelation,
     SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef, TopCardSelectionDef,
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities, cards,
+    abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -28,8 +28,8 @@ static IMPULSE_SELECTION: TopCardSelectionDef = TopCardSelectionDef {
 };
 
 // VIS 34 — Impulse
-pub(in crate::card::sets) static IMPULSE: CardRecord = CardRecord::new(
-    cards::IMPULSE,
+pub(in crate::card::sets) static IMPULSE: CardRecord = CardRecord::new_with_legacy_id(
+    310,
     "Impulse",
     CardArt::new("9d710a97-062f-4773-b6c6-8aeddeb3b6e8", "Bryan Talbot"),
     CardSet::Visions,
@@ -97,8 +97,8 @@ static VISION_CHARM_MODES: [AbilityDef; 3] = [
 ];
 
 // VIS 49 — Vision Charm
-pub(in crate::card::sets) static VISION_CHARM: CardRecord = CardRecord::new(
-    cards::VISION_CHARM,
+pub(in crate::card::sets) static VISION_CHARM: CardRecord = CardRecord::new_with_legacy_id(
+    2090,
     "Vision Charm",
     CardArt::new("0efaa72c-8f65-4488-ad66-80dc877166cc", "Greg Spalenka"),
     CardSet::Visions,
@@ -160,8 +160,8 @@ static NECROMANCY_REANIMATES: [EffectDef; 2] = [
 ];
 
 // VIS 64 — Necromancy
-pub(in crate::card::sets) static NECROMANCY: CardRecord = CardRecord::new(
-    cards::NECROMANCY,
+pub(in crate::card::sets) static NECROMANCY: CardRecord = CardRecord::new_with_legacy_id(
+    2202,
     "Necromancy",
     CardArt::new("311a6257-dd77-4bb6-81cb-c8e7862350f3", "Pete Venters"),
     CardSet::Visions,
@@ -205,8 +205,8 @@ pub(in crate::card::sets) static NECROMANCY: CardRecord = CardRecord::new(
 );
 
 // VIS 72 — Vampiric Tutor
-pub(in crate::card::sets) static VAMPIRIC_TUTOR: CardRecord = CardRecord::new(
-    cards::VAMPIRIC_TUTOR,
+pub(in crate::card::sets) static VAMPIRIC_TUTOR: CardRecord = CardRecord::new_with_legacy_id(
+    2108,
     "Vampiric Tutor",
     CardArt::new("0a07cba3-2e8d-48ec-a6f8-4d2edfcd833d", "Gary Leach"),
     CardSet::Visions,
@@ -238,8 +238,8 @@ static VAMPIRIC_TUTOR_EFFECT: [EffectDef; 2] = [
 ];
 
 // VIS 79 — Fireblast
-pub(in crate::card::sets) static FIREBLAST: CardRecord = CardRecord::new(
-    cards::FIREBLAST,
+pub(in crate::card::sets) static FIREBLAST: CardRecord = CardRecord::new_with_legacy_id(
+    2035,
     "Fireblast",
     CardArt::new("b1eb5b2c-1f02-48a6-a287-88eb189d6780", "Michael Danza"),
     CardSet::Visions,

@@ -5,7 +5,7 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, CardType,
     ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef, ObjectChoiceBindingDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, TopCardSelectionDef, ValueDef, ZoneKind, ZonePlacement, cards,
+    PlayerSetDef, TopCardSelectionDef, ValueDef, ZoneKind, ZonePlacement,
 };
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -56,8 +56,8 @@ static CRYPTIC_COMMAND_MODES: [AbilityDef; 4] = [
 ];
 
 // LRW 56 — Cryptic Command
-pub(in crate::card::sets) static CRYPTIC_COMMAND: CardRecord = CardRecord::new(
-    cards::CRYPTIC_COMMAND,
+pub(in crate::card::sets) static CRYPTIC_COMMAND: CardRecord = CardRecord::new_with_legacy_id(
+    2272,
     "Cryptic Command",
     CardArt::new("829e3d6e-5d7c-4cc4-a7a6-7cbf5a7442ba", "Wayne England"),
     CardSet::Lorwyn,
@@ -110,8 +110,8 @@ static PONDER_LOOK: TopCardSelectionDef = TopCardSelectionDef {
 };
 
 // LRW 79 — Ponder
-pub(in crate::card::sets) static PONDER: CardRecord = CardRecord::new(
-    cards::PONDER,
+pub(in crate::card::sets) static PONDER: CardRecord = CardRecord::new_with_legacy_id(
+    2241,
     "Ponder",
     CardArt::new("ba6b6fc5-5077-4812-b8e9-906783dbaf67", "Mark Tedin"),
     CardSet::Lorwyn,
@@ -165,8 +165,8 @@ static THOUGHTSEIZE_EFFECT: [EffectDef; 3] = [
 ];
 
 // LRW 145 — Thoughtseize
-pub(in crate::card::sets) static THOUGHTSEIZE: CardRecord = CardRecord::new(
-    cards::THOUGHTSEIZE,
+pub(in crate::card::sets) static THOUGHTSEIZE: CardRecord = CardRecord::new_with_legacy_id(
+    2240,
     "Thoughtseize",
     CardArt::new("3df8c148-e87d-4043-9d8b-ec72bf8b6d5d", "Aleksi Briclot"),
     CardSet::Lorwyn,

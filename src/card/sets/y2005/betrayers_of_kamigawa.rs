@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, CounterKind, EffectDef, EffectRecipientDef, ObjectPredicateDef,
-    ResolvedEffectDurationDef, TriggerEventDef, ValueDef, abilities, cards,
+    ResolvedEffectDurationDef, TriggerEventDef, ValueDef, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -47,8 +47,8 @@ static JITTE_MODES: &[AbilityDef] = &[
 ];
 
 // BOK 163 — Umezawa's Jitte
-pub(in crate::card::sets) static UMEZAWAS_JITTE: CardRecord = CardRecord::new(
-    cards::UMEZAWAS_JITTE,
+pub(in crate::card::sets) static UMEZAWAS_JITTE: CardRecord = CardRecord::new_with_legacy_id(
+    2188,
     "Umezawa's Jitte",
     CardArt::new("d4ecc3ef-a9f2-4c4c-9c8d-b4a0e6ba4ac2", "Christopher Moeller"),
     CardSet::BetrayersOfKamigawa,

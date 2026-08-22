@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, CardArt,
     CardRules, CardSet, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef,
-    ResolvedEffectDurationDef, cards,
+    ResolvedEffectDurationDef,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -22,8 +22,8 @@ static A_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_perman
 )];
 
 // M20 230 — Manifold Key
-pub(in crate::card::sets) static MANIFOLD_KEY: CardRecord = CardRecord::new(
-    cards::MANIFOLD_KEY,
+pub(in crate::card::sets) static MANIFOLD_KEY: CardRecord = CardRecord::new_with_legacy_id(
+    2207,
     "Manifold Key",
     CardArt::new("715e637a-dfd8-45a0-b1ea-53e4abd29307", "Lake Hurwitz"),
     CardSet::Magic2020,

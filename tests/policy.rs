@@ -14,7 +14,7 @@ use penta::{
 
 const ACTION_LIMIT: usize = 50_000;
 const PRIMARY_PRINTED_ABILITY: AbilityOrigin = AbilityOrigin::Printed {
-    definition: penta::CardDefinitionId(0),
+    definition: penta::CardDefinitionId::new(1),
     part: CardPartId::PRIMARY,
     ability: AbilityId::PRIMARY,
 };

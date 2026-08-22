@@ -14,7 +14,7 @@ use crate::card::{
     PlayerSetDef, ProtectedCreatureType, ReplacementChoiceDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostCountDef,
     SpellAdditionalCostDef, SpendModeDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement, abilities, cards,
+    ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -25,8 +25,8 @@ use crate::{TargetIndex, mana_cost};
 // Audit: blocked — Needs a static prohibition on paying life or sacrificing creatures specifically to cast spells and activate abilities.
 
 // AVR 3 — Angel's Mercy
-pub(in crate::card::sets) static ANGELS_MERCY: CardRecord = CardRecord::new(
-    cards::ANGELS_MERCY,
+pub(in crate::card::sets) static ANGELS_MERCY: CardRecord = CardRecord::new_with_legacy_id(
+    750,
     "Angel's Mercy",
     CardArt::new("7a437999-26ae-49fa-8647-c8c2b4640702", "Greg Staples"),
     CardSet::AvacynRestored,
@@ -40,8 +40,8 @@ pub(in crate::card::sets) static ANGELS_MERCY: CardRecord = CardRecord::new(
 );
 
 // AVR 4 — Angelic Wall
-pub(in crate::card::sets) static ANGELIC_WALL: CardRecord = CardRecord::new(
-    cards::ANGELIC_WALL,
+pub(in crate::card::sets) static ANGELIC_WALL: CardRecord = CardRecord::new_with_legacy_id(
+    751,
     "Angelic Wall",
     CardArt::new("d7b2450d-87a7-46dc-b43a-2db2abeca44f", "Allen Williams"),
     CardSet::AvacynRestored,
@@ -50,8 +50,8 @@ pub(in crate::card::sets) static ANGELIC_WALL: CardRecord = CardRecord::new(
 );
 
 // AVR 5 — Archangel
-pub(in crate::card::sets) static ARCHANGEL: CardRecord = CardRecord::new(
-    cards::ARCHANGEL,
+pub(in crate::card::sets) static ARCHANGEL: CardRecord = CardRecord::new_with_legacy_id(
+    752,
     "Archangel",
     CardArt::new("3741b2a7-7bda-481a-b8f8-9b04c96035b0", "Cynthia Sheppard"),
     CardSet::AvacynRestored,
@@ -60,8 +60,8 @@ pub(in crate::card::sets) static ARCHANGEL: CardRecord = CardRecord::new(
 );
 
 // AVR 6 — Avacyn, Angel of Hope
-pub(in crate::card::sets) static AVACYN_ANGEL_OF_HOPE: CardRecord = CardRecord::new(
-    cards::AVACYN_ANGEL_OF_HOPE,
+pub(in crate::card::sets) static AVACYN_ANGEL_OF_HOPE: CardRecord = CardRecord::new_with_legacy_id(
+    753,
     "Avacyn, Angel of Hope",
     CardArt::new("ba149706-cd17-4da6-8403-ccfe2d6cb437", "Jason Chan"),
     CardSet::AvacynRestored,
@@ -86,8 +86,8 @@ pub(in crate::card::sets) static AVACYN_ANGEL_OF_HOPE: CardRecord = CardRecord::
 );
 
 // AVR 7 — Banishing Stroke
-pub(in crate::card::sets) static BANISHING_STROKE: CardRecord = CardRecord::new(
-    cards::BANISHING_STROKE,
+pub(in crate::card::sets) static BANISHING_STROKE: CardRecord = CardRecord::new_with_legacy_id(
+    754,
     "Banishing Stroke",
     CardArt::new("238d8437-1abd-4bb7-8b5b-54f959bc2c79", "Igor Kieryluk"),
     CardSet::AvacynRestored,
@@ -115,8 +115,8 @@ pub(in crate::card::sets) static BANISHING_STROKE: CardRecord = CardRecord::new(
 );
 
 // AVR 8 — Builder's Blessing
-pub(in crate::card::sets) static BUILDERS_BLESSING: CardRecord = CardRecord::new(
-    cards::BUILDERS_BLESSING,
+pub(in crate::card::sets) static BUILDERS_BLESSING: CardRecord = CardRecord::new_with_legacy_id(
+    1920,
     "Builder's Blessing",
     CardArt::new("2ad27af1-b482-40d5-9dbb-11201ffa0410", "John Stanko"),
     CardSet::AvacynRestored,
@@ -145,8 +145,8 @@ pub(in crate::card::sets) static BUILDERS_BLESSING: CardRecord = CardRecord::new
 // Audit: blocked — Needs an attachment-scoped effect that adds the Angel subtype without replacing the creature's existing types.
 
 // AVR 10 — Cathars' Crusade
-pub(in crate::card::sets) static CATHARS_CRUSADE: CardRecord = CardRecord::new(
-    cards::CATHARS_CRUSADE,
+pub(in crate::card::sets) static CATHARS_CRUSADE: CardRecord = CardRecord::new_with_legacy_id(
+    755,
     "Cathars' Crusade",
     CardArt::new("78154978-9e7d-44e9-a03f-c578072a8ff7", "Karl Kopinski"),
     CardSet::AvacynRestored,
@@ -173,8 +173,8 @@ pub(in crate::card::sets) static CATHARS_CRUSADE: CardRecord = CardRecord::new(
 );
 
 // AVR 11 — Cathedral Sanctifier
-pub(in crate::card::sets) static CATHEDRAL_SANCTIFIER: CardRecord = CardRecord::new(
-    cards::CATHEDRAL_SANCTIFIER,
+pub(in crate::card::sets) static CATHEDRAL_SANCTIFIER: CardRecord = CardRecord::new_with_legacy_id(
+    756,
     "Cathedral Sanctifier",
     CardArt::new("76cac47a-9e83-4039-8d80-fa9bdadb7527", "Michael C. Hayes"),
     CardSet::AvacynRestored,
@@ -210,8 +210,8 @@ static COMMANDERS_AUTHORITY_UPKEEP: AbilityDef = AbilityDef::triggered(
 );
 
 // AVR 13 — Commander's Authority
-pub(in crate::card::sets) static COMMANDERS_AUTHORITY: CardRecord = CardRecord::new(
-    cards::COMMANDERS_AUTHORITY,
+pub(in crate::card::sets) static COMMANDERS_AUTHORITY: CardRecord = CardRecord::new_with_legacy_id(
+    757,
     "Commander's Authority",
     CardArt::new("08ef4383-11e7-4426-a04a-058570f46e47", "Johannes Voss"),
     CardSet::AvacynRestored,
@@ -238,8 +238,8 @@ pub(in crate::card::sets) static COMMANDERS_AUTHORITY: CardRecord = CardRecord::
 );
 
 // AVR 14 — Cursebreak
-pub(in crate::card::sets) static CURSEBREAK: CardRecord = CardRecord::new(
-    cards::CURSEBREAK,
+pub(in crate::card::sets) static CURSEBREAK: CardRecord = CardRecord::new_with_legacy_id(
+    758,
     "Cursebreak",
     CardArt::new("c71a0883-316c-4870-a029-25f16952fbc0", "Sam Wolfe Connelly"),
     CardSet::AvacynRestored,
@@ -271,8 +271,8 @@ static DEFANG_SHIELD: DamageEventMatcherDef = DamageEventMatcherDef {
 };
 
 // AVR 15 — Defang
-pub(in crate::card::sets) static DEFANG: CardRecord = CardRecord::new(
-    cards::DEFANG,
+pub(in crate::card::sets) static DEFANG: CardRecord = CardRecord::new_with_legacy_id(
+    1749,
     "Defang",
     CardArt::new("4dfdca4d-d2f6-40b3-8973-2caec0e849e4", "Steven Belledin"),
     CardSet::AvacynRestored,
@@ -303,8 +303,8 @@ pub(in crate::card::sets) static DEFANG: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a resolving non-target choice of a permanent you control to return to its owner's hand.
 
 // AVR 20 — Entreat the Angels
-pub(in crate::card::sets) static ENTREAT_THE_ANGELS: CardRecord = CardRecord::new(
-    cards::ENTREAT_THE_ANGELS,
+pub(in crate::card::sets) static ENTREAT_THE_ANGELS: CardRecord = CardRecord::new_with_legacy_id(
+    759,
     "Entreat the Angels",
     CardArt::new("31292616-70e6-4d19-a883-e63ad860f50c", "Todd Lockwood"),
     CardSet::AvacynRestored,
@@ -324,8 +324,8 @@ pub(in crate::card::sets) static ENTREAT_THE_ANGELS: CardRecord = CardRecord::ne
 );
 
 // AVR 21 — Farbog Explorer
-pub(in crate::card::sets) static FARBOG_EXPLORER: CardRecord = CardRecord::new(
-    cards::FARBOG_EXPLORER,
+pub(in crate::card::sets) static FARBOG_EXPLORER: CardRecord = CardRecord::new_with_legacy_id(
+    1875,
     "Farbog Explorer",
     CardArt::new("489c6a2f-38b4-4ff9-95f7-431384480ed9", "Scott Chou"),
     CardSet::AvacynRestored,
@@ -336,8 +336,8 @@ pub(in crate::card::sets) static FARBOG_EXPLORER: CardRecord = CardRecord::new(
 );
 
 // AVR 22 — Goldnight Commander
-pub(in crate::card::sets) static GOLDNIGHT_COMMANDER: CardRecord = CardRecord::new(
-    cards::GOLDNIGHT_COMMANDER,
+pub(in crate::card::sets) static GOLDNIGHT_COMMANDER: CardRecord = CardRecord::new_with_legacy_id(
+    760,
     "Goldnight Commander",
     CardArt::new("c6ebec82-9d4a-4e78-b923-37c3a52133e7", "Chris Rahn"),
     CardSet::AvacynRestored,
@@ -379,8 +379,8 @@ static GOLDNIGHT_REDEEMER_AMOUNT: ScaledValueDef = ScaledValueDef::new(
 );
 
 // AVR 23 — Goldnight Redeemer
-pub(in crate::card::sets) static GOLDNIGHT_REDEEMER: CardRecord = CardRecord::new(
-    cards::GOLDNIGHT_REDEEMER,
+pub(in crate::card::sets) static GOLDNIGHT_REDEEMER: CardRecord = CardRecord::new_with_legacy_id(
+    1876,
     "Goldnight Redeemer",
     CardArt::new("df5656e3-5f53-41f8-9f24-04caad5e4ca3", "Karl Kopinski"),
     CardSet::AvacynRestored,
@@ -410,8 +410,8 @@ static HOLY_JUSTICIAR_ZOMBIE: TriggerConditionDef = TriggerConditionDef::TargetM
 };
 
 // AVR 25 — Holy Justiciar
-pub(in crate::card::sets) static HOLY_JUSTICIAR: CardRecord = CardRecord::new(
-    cards::HOLY_JUSTICIAR,
+pub(in crate::card::sets) static HOLY_JUSTICIAR: CardRecord = CardRecord::new_with_legacy_id(
+    761,
     "Holy Justiciar",
     CardArt::new("640cad49-1db3-4611-a80d-7ce95f000fad", "David Rapoza"),
     CardSet::AvacynRestored,
@@ -461,8 +461,8 @@ static LEAP_OF_FAITH_EFFECTS: [EffectDef; 2] = [
 ];
 
 // AVR 26 — Leap of Faith
-pub(in crate::card::sets) static LEAP_OF_FAITH: CardRecord = CardRecord::new(
-    cards::LEAP_OF_FAITH,
+pub(in crate::card::sets) static LEAP_OF_FAITH: CardRecord = CardRecord::new_with_legacy_id(
+    1496,
     "Leap of Faith",
     CardArt::new("7ba52aed-440c-4b32-8f25-0c5364441712", "Gabor Szikszai"),
     CardSet::AvacynRestored,
@@ -476,8 +476,8 @@ pub(in crate::card::sets) static LEAP_OF_FAITH: CardRecord = CardRecord::new(
 );
 
 // AVR 27 — Midnight Duelist
-pub(in crate::card::sets) static MIDNIGHT_DUELIST: CardRecord = CardRecord::new(
-    cards::MIDNIGHT_DUELIST,
+pub(in crate::card::sets) static MIDNIGHT_DUELIST: CardRecord = CardRecord::new_with_legacy_id(
+    1909,
     "Midnight Duelist",
     CardArt::new("2371bd0c-ca38-4a62-b525-bef4d1ca0646", "Bud Cook"),
     CardSet::AvacynRestored,
@@ -490,8 +490,8 @@ pub(in crate::card::sets) static MIDNIGHT_DUELIST: CardRecord = CardRecord::new(
 );
 
 // AVR 28 — Midvast Protector
-pub(in crate::card::sets) static MIDVAST_PROTECTOR: CardRecord = CardRecord::new(
-    cards::MIDVAST_PROTECTOR,
+pub(in crate::card::sets) static MIDVAST_PROTECTOR: CardRecord = CardRecord::new_with_legacy_id(
+    1995,
     "Midvast Protector",
     CardArt::new("d4f6214f-90cb-4575-b221-3c8d0ed65ffe", "James Ryman"),
     CardSet::AvacynRestored,
@@ -521,8 +521,8 @@ pub(in crate::card::sets) static MIDVAST_PROTECTOR: CardRecord = CardRecord::new
 );
 
 // AVR 29 — Moonlight Geist
-pub(in crate::card::sets) static MOONLIGHT_GEIST: CardRecord = CardRecord::new(
-    cards::MOONLIGHT_GEIST,
+pub(in crate::card::sets) static MOONLIGHT_GEIST: CardRecord = CardRecord::new_with_legacy_id(
+    762,
     "Moonlight Geist",
     CardArt::new("4cf4c4cf-df35-4725-81ca-d62b70b8d0dd", "Dan Murayama Scott"),
     CardSet::AvacynRestored,
@@ -550,8 +550,8 @@ pub(in crate::card::sets) static MOONLIGHT_GEIST: CardRecord = CardRecord::new(
 );
 
 // AVR 30 — Moorland Inquisitor
-pub(in crate::card::sets) static MOORLAND_INQUISITOR: CardRecord = CardRecord::new(
-    cards::MOORLAND_INQUISITOR,
+pub(in crate::card::sets) static MOORLAND_INQUISITOR: CardRecord = CardRecord::new_with_legacy_id(
+    763,
     "Moorland Inquisitor",
     CardArt::new("581dbbea-9995-4e4b-ba5c-d6d5597e4ace", "David Palumbo"),
     CardSet::AvacynRestored,
@@ -576,8 +576,8 @@ static NEARHEATH_PILGRIM_BONUS: EffectDef = EffectDef::StaticApply {
 };
 
 // AVR 31 — Nearheath Pilgrim
-pub(in crate::card::sets) static NEARHEATH_PILGRIM: CardRecord = CardRecord::new(
-    cards::NEARHEATH_PILGRIM,
+pub(in crate::card::sets) static NEARHEATH_PILGRIM: CardRecord = CardRecord::new_with_legacy_id(
+    1943,
     "Nearheath Pilgrim",
     CardArt::new("d81d6fe0-c7c2-46a6-811c-f121284937ea", "Erica Yang"),
     CardSet::AvacynRestored,
@@ -597,8 +597,8 @@ pub(in crate::card::sets) static NEARHEATH_PILGRIM: CardRecord = CardRecord::new
 
 // AVR 32 — Restoration Angel
 // Audit: partial — Linked exile returns a blinked permanent under its owner rather than this ability's controller when the target was stolen.
-pub(in crate::card::sets) static RESTORATION_ANGEL: CardRecord = CardRecord::new(
-    cards::RESTORATION_ANGEL,
+pub(in crate::card::sets) static RESTORATION_ANGEL: CardRecord = CardRecord::new_with_legacy_id(
+    203,
     "Restoration Angel",
     CardArt::new("c2ad8639-e586-47f4-baca-2a1af5aa281b", "Johannes Voss"),
     CardSet::AvacynRestored,
@@ -654,8 +654,8 @@ pub(in crate::card::sets) static RESTORATION_ANGEL: CardRecord = CardRecord::new
 // Audit: blocked — Needs protection from creatures of a dynamically chosen creature type.
 
 // AVR 34 — Righteous Blow
-pub(in crate::card::sets) static RIGHTEOUS_BLOW: CardRecord = CardRecord::new(
-    cards::RIGHTEOUS_BLOW,
+pub(in crate::card::sets) static RIGHTEOUS_BLOW: CardRecord = CardRecord::new_with_legacy_id(
+    764,
     "Righteous Blow",
     CardArt::new("9b640fdc-7a19-475e-858f-e159f61e154e", "Clint Cearley"),
     CardSet::AvacynRestored,
@@ -675,8 +675,8 @@ pub(in crate::card::sets) static RIGHTEOUS_BLOW: CardRecord = CardRecord::new(
 );
 
 // AVR 35 — Seraph of Dawn
-pub(in crate::card::sets) static SERAPH_OF_DAWN: CardRecord = CardRecord::new(
-    cards::SERAPH_OF_DAWN,
+pub(in crate::card::sets) static SERAPH_OF_DAWN: CardRecord = CardRecord::new_with_legacy_id(
+    765,
     "Seraph of Dawn",
     CardArt::new("5da345bd-8f2b-4966-97f5-c0e4c6cfe3b7", "Todd Lockwood"),
     CardSet::AvacynRestored,
@@ -692,8 +692,8 @@ static SILVERBLADE_PALADIN_BONUS: EffectDef = EffectDef::StaticApply {
 };
 
 // AVR 36 — Silverblade Paladin
-pub(in crate::card::sets) static SILVERBLADE_PALADIN: CardRecord = CardRecord::new(
-    cards::SILVERBLADE_PALADIN,
+pub(in crate::card::sets) static SILVERBLADE_PALADIN: CardRecord = CardRecord::new_with_legacy_id(
+    1932,
     "Silverblade Paladin",
     CardArt::new("16298ca0-80d4-4299-a550-500b7ef6ac67", "Jason Chan"),
     CardSet::AvacynRestored,
@@ -719,8 +719,8 @@ static SPECTRAL_GATEGUARDS_BONUS: EffectDef = EffectDef::StaticApply {
 };
 
 // AVR 37 — Spectral Gateguards
-pub(in crate::card::sets) static SPECTRAL_GATEGUARDS: CardRecord = CardRecord::new(
-    cards::SPECTRAL_GATEGUARDS,
+pub(in crate::card::sets) static SPECTRAL_GATEGUARDS: CardRecord = CardRecord::new_with_legacy_id(
+    1933,
     "Spectral Gateguards",
     CardArt::new("f774e0eb-5c05-4a9e-8ab7-9ee4c7741591", "Wayne England"),
     CardSet::AvacynRestored,
@@ -740,8 +740,8 @@ pub(in crate::card::sets) static SPECTRAL_GATEGUARDS: CardRecord = CardRecord::n
 
 // AVR 38 — Terminus
 // Audit: partial — Permanents move to library one at a time, and the engine does not offer each owner the required ordering choice for multiple cards put on the bottom.
-pub(in crate::card::sets) static TERMINUS: CardRecord = CardRecord::new(
-    cards::TERMINUS,
+pub(in crate::card::sets) static TERMINUS: CardRecord = CardRecord::new_with_legacy_id(
+    225,
     "Terminus",
     CardArt::new("0982ea7e-05a4-4e40-98ab-ea9aa6c7342e", "James Paick"),
     CardSet::AvacynRestored,
@@ -765,8 +765,8 @@ pub(in crate::card::sets) static TERMINUS: CardRecord = CardRecord::new(
 );
 
 // AVR 39 — Thraben Valiant
-pub(in crate::card::sets) static THRABEN_VALIANT: CardRecord = CardRecord::new(
-    cards::THRABEN_VALIANT,
+pub(in crate::card::sets) static THRABEN_VALIANT: CardRecord = CardRecord::new_with_legacy_id(
+    766,
     "Thraben Valiant",
     CardArt::new("20558f69-9240-49b9-9695-caf75ee2db1b", "Jason Chan"),
     CardSet::AvacynRestored,
@@ -775,30 +775,31 @@ pub(in crate::card::sets) static THRABEN_VALIANT: CardRecord = CardRecord::new(
 );
 
 // AVR 40 — Voice of the Provinces
-pub(in crate::card::sets) static VOICE_OF_THE_PROVINCES: CardRecord = CardRecord::new(
-    cards::VOICE_OF_THE_PROVINCES,
-    "Voice of the Provinces",
-    CardArt::new("b785276b-3778-49f3-b46f-a1f3d91db097", "Igor Kieryluk"),
-    CardSet::AvacynRestored,
-    CardRules::new_creature(mana_cost!("{4}{W}{W}"), &["Angel"], 3, 3).with_abilities(&[
-        abilities::flying(),
-        AbilityDef::triggered(
-            "When this creature enters, create a 1/1 white Human creature token.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
+pub(in crate::card::sets) static VOICE_OF_THE_PROVINCES: CardRecord =
+    CardRecord::new_with_legacy_id(
+        767,
+        "Voice of the Provinces",
+        CardArt::new("b785276b-3778-49f3-b46f-a1f3d91db097", "Igor Kieryluk"),
+        CardSet::AvacynRestored,
+        CardRules::new_creature(mana_cost!("{4}{W}{W}"), &["Angel"], 3, 3).with_abilities(&[
+            abilities::flying(),
+            AbilityDef::triggered(
+                "When this creature enters, create a 1/1 white Human creature token.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::create_creature_token(&["Human"], &[ManaColor::White], 1, 1).with_art(
+                    CardArt::new("8894949b-f190-461e-996a-cf2b39f08a5d", "Michael C. Hayes"),
+                ),
             ),
-            EffectDef::create_creature_token(&["Human"], &[ManaColor::White], 1, 1).with_art(
-                CardArt::new("8894949b-f190-461e-996a-cf2b39f08a5d", "Michael C. Hayes"),
-            ),
-        ),
-    ]),
-);
+        ]),
+    );
 
 // AVR 41 — Zealous Strike
-pub(in crate::card::sets) static ZEALOUS_STRIKE: CardRecord = CardRecord::new(
-    cards::ZEALOUS_STRIKE,
+pub(in crate::card::sets) static ZEALOUS_STRIKE: CardRecord = CardRecord::new_with_legacy_id(
+    768,
     "Zealous Strike",
     CardArt::new("ae8a01fb-dd47-44de-b528-8b7ca4b3388b", "Bud Cook"),
     CardSet::AvacynRestored,
@@ -822,8 +823,8 @@ pub(in crate::card::sets) static ZEALOUS_STRIKE: CardRecord = CardRecord::new(
 );
 
 // AVR 42 — Alchemist's Apprentice
-pub(in crate::card::sets) static ALCHEMISTS_APPRENTICE: CardRecord = CardRecord::new(
-    cards::ALCHEMISTS_APPRENTICE,
+pub(in crate::card::sets) static ALCHEMISTS_APPRENTICE: CardRecord = CardRecord::new_with_legacy_id(
+    769,
     "Alchemist's Apprentice",
     CardArt::new("31abba67-1241-4fb3-88b5-4c4668ec5f25", "David Palumbo"),
     CardSet::AvacynRestored,
@@ -850,8 +851,8 @@ static ARCANE_MELEE_SPELLS: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
 ]);
 
 // AVR 44 — Arcane Melee
-pub(in crate::card::sets) static ARCANE_MELEE: CardRecord = CardRecord::new(
-    cards::ARCANE_MELEE,
+pub(in crate::card::sets) static ARCANE_MELEE: CardRecord = CardRecord::new_with_legacy_id(
+    1761,
     "Arcane Melee",
     CardArt::new("f70eb8ee-3810-4cff-b87f-b6cf7849c018", "Jaime Jones"),
     CardSet::AvacynRestored,
@@ -885,8 +886,8 @@ static CRIPPLING_CHILL_EFFECT: [EffectDef; 3] = [
 ];
 
 // AVR 46 — Crippling Chill
-pub(in crate::card::sets) static CRIPPLING_CHILL: CardRecord = CardRecord::new(
-    cards::CRIPPLING_CHILL,
+pub(in crate::card::sets) static CRIPPLING_CHILL: CardRecord = CardRecord::new_with_legacy_id(
+    1849,
     "Crippling Chill",
     CardArt::new("79791bd9-aded-48d9-866d-9f7bd6848905", "Svetlin Velinov"),
     CardSet::AvacynRestored,
@@ -913,13 +914,13 @@ static DREADWATERS_LANDS: ObjectQueryDef = ObjectQueryDef::matching(
 );
 
 // AVR 49 — Dreadwaters
-pub(in crate::card::sets) static DREADWATERS: CardRecord = CardRecord::new(
-    cards::DREADWATERS,
+pub(in crate::card::sets) static DREADWATERS: CardRecord = CardRecord::new_with_legacy_id(
+    770,
     "Dreadwaters",
     CardArt::new("88245a41-d4d5-46bf-969f-48d4dd540e2c", "Cliff Childs"),
     CardSet::AvacynRestored,
     CardRules::new_sorcery(mana_cost!("{3}{U}")).with_ability(AbilityDef::spell_with_targets(
-        "Target player mills X cards, where X is the number of lands you control.",
+        "Target player mills X where X is the number of lands you control.",
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Player(PlayerRelation::Any),
         )],
@@ -940,8 +941,8 @@ static ELGAUD_SHIELDMATE_BONUS: EffectDef = EffectDef::StaticApply {
 };
 
 // AVR 50 — Elgaud Shieldmate
-pub(in crate::card::sets) static ELGAUD_SHIELDMATE: CardRecord = CardRecord::new(
-    cards::ELGAUD_SHIELDMATE,
+pub(in crate::card::sets) static ELGAUD_SHIELDMATE: CardRecord = CardRecord::new_with_legacy_id(
+    1934,
     "Elgaud Shieldmate",
     CardArt::new("e7d376ef-c900-4abb-9a0b-5eb9369f5739", "Anthony Palumbo"),
     CardSet::AvacynRestored,
@@ -960,8 +961,8 @@ pub(in crate::card::sets) static ELGAUD_SHIELDMATE: CardRecord = CardRecord::new
 );
 
 // AVR 51 — Favorable Winds
-pub(in crate::card::sets) static FAVORABLE_WINDS: CardRecord = CardRecord::new(
-    cards::FAVORABLE_WINDS,
+pub(in crate::card::sets) static FAVORABLE_WINDS: CardRecord = CardRecord::new_with_legacy_id(
+    1639,
     "Favorable Winds",
     CardArt::new("4cbd57f1-9883-40a4-9b52-1649cee83815", "Winona Nelson"),
     CardSet::AvacynRestored,
@@ -998,8 +999,8 @@ static FETTERGEIST_SACRIFICE: EffectDef = EffectDef::Sacrifice {
 };
 
 // AVR 52 — Fettergeist
-pub(in crate::card::sets) static FETTERGEIST: CardRecord = CardRecord::new(
-    cards::FETTERGEIST,
+pub(in crate::card::sets) static FETTERGEIST: CardRecord = CardRecord::new_with_legacy_id(
+    1877,
     "Fettergeist",
     CardArt::new("8e89ef0e-1bfe-4e12-90ee-38f993cd8110", "Izzy"),
     CardSet::AvacynRestored,
@@ -1028,8 +1029,8 @@ pub(in crate::card::sets) static FETTERGEIST: CardRecord = CardRecord::new(
 );
 
 // AVR 53 — Fleeting Distraction
-pub(in crate::card::sets) static FLEETING_DISTRACTION: CardRecord = CardRecord::new(
-    cards::FLEETING_DISTRACTION,
+pub(in crate::card::sets) static FLEETING_DISTRACTION: CardRecord = CardRecord::new_with_legacy_id(
+    771,
     "Fleeting Distraction",
     CardArt::new("1ba49d16-e3e4-470a-8ca2-a93a5b358f6e", "Ryan Yee"),
     CardSet::AvacynRestored,
@@ -1071,8 +1072,8 @@ static GALVANIC_ALCHEMIST_BONUS: EffectDef = EffectDef::StaticApply {
 };
 
 // AVR 54 — Galvanic Alchemist
-pub(in crate::card::sets) static GALVANIC_ALCHEMIST: CardRecord = CardRecord::new(
-    cards::GALVANIC_ALCHEMIST,
+pub(in crate::card::sets) static GALVANIC_ALCHEMIST: CardRecord = CardRecord::new_with_legacy_id(
+    1944,
     "Galvanic Alchemist",
     CardArt::new("b0e24d65-0e6f-4978-8de1-c5e4acac12fb", "Svetlin Velinov"),
     CardSet::AvacynRestored,
@@ -1091,8 +1092,8 @@ pub(in crate::card::sets) static GALVANIC_ALCHEMIST: CardRecord = CardRecord::ne
 );
 
 // AVR 55 — Geist Snatch
-pub(in crate::card::sets) static GEIST_SNATCH: CardRecord = CardRecord::new(
-    cards::GEIST_SNATCH,
+pub(in crate::card::sets) static GEIST_SNATCH: CardRecord = CardRecord::new_with_legacy_id(
+    772,
     "Geist Snatch",
     CardArt::new("b6dac5db-ef96-4bd5-aabc-e5ae2b95c8c3", "Dan Murayama Scott"),
     CardSet::AvacynRestored,
@@ -1117,8 +1118,8 @@ pub(in crate::card::sets) static GEIST_SNATCH: CardRecord = CardRecord::new(
 );
 
 // AVR 56 — Ghostform
-pub(in crate::card::sets) static GHOSTFORM: CardRecord = CardRecord::new(
-    cards::GHOSTFORM,
+pub(in crate::card::sets) static GHOSTFORM: CardRecord = CardRecord::new_with_legacy_id(
+    773,
     "Ghostform",
     CardArt::new("1f6a20ba-6691-4844-9685-dfcd4184224e", "Scott Chou"),
     CardSet::AvacynRestored,
@@ -1150,8 +1151,8 @@ pub(in crate::card::sets) static GHOSTFORM: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a tap-or-untap choice inside the triggered ability granted by an Aura.
 
 // AVR 59 — Gryff Vanguard
-pub(in crate::card::sets) static GRYFF_VANGUARD: CardRecord = CardRecord::new(
-    cards::GRYFF_VANGUARD,
+pub(in crate::card::sets) static GRYFF_VANGUARD: CardRecord = CardRecord::new_with_legacy_id(
+    774,
     "Gryff Vanguard",
     CardArt::new("b7238136-c8de-4949-9b54-ff75094e0569", "Jason Chan"),
     CardSet::AvacynRestored,
@@ -1179,8 +1180,8 @@ pub(in crate::card::sets) static GRYFF_VANGUARD: CardRecord = CardRecord::new(
 // Audit: blocked — Needs attachment-derived copy effects for existing creatures and an entry replacement that copies the currently enchanted creature.
 
 // AVR 62 — Into the Void
-pub(in crate::card::sets) static INTO_THE_VOID: CardRecord = CardRecord::new(
-    cards::INTO_THE_VOID,
+pub(in crate::card::sets) static INTO_THE_VOID: CardRecord = CardRecord::new_with_legacy_id(
+    775,
     "Into the Void",
     CardArt::new("5ddd1050-8abd-4dfe-9e52-5b56af358653", "Daarken"),
     CardSet::AvacynRestored,
@@ -1207,8 +1208,8 @@ pub(in crate::card::sets) static INTO_THE_VOID: CardRecord = CardRecord::new(
 );
 
 // AVR 63 — Latch Seeker
-pub(in crate::card::sets) static LATCH_SEEKER: CardRecord = CardRecord::new(
-    cards::LATCH_SEEKER,
+pub(in crate::card::sets) static LATCH_SEEKER: CardRecord = CardRecord::new_with_legacy_id(
+    776,
     "Latch Seeker",
     CardArt::new("3e4e7589-9cee-4d57-8648-ce733781bfb2", "Vincent Proce"),
     CardSet::AvacynRestored,
@@ -1229,8 +1230,8 @@ pub(in crate::card::sets) static LATCH_SEEKER: CardRecord = CardRecord::new(
 // Audit: blocked — Needs ordered bottom-of-library placement for the unchosen cards after the conditional top-four selection.
 
 // AVR 65 — Lunar Mystic
-pub(in crate::card::sets) static LUNAR_MYSTIC: CardRecord = CardRecord::new(
-    cards::LUNAR_MYSTIC,
+pub(in crate::card::sets) static LUNAR_MYSTIC: CardRecord = CardRecord::new_with_legacy_id(
+    777,
     "Lunar Mystic",
     CardArt::new("f346d236-528c-4164-9995-74cdc56597a9", "Wesley Burt"),
     CardSet::AvacynRestored,
@@ -1262,8 +1263,8 @@ static MASS_APPEAL_HUMANS: ObjectQueryDef = ObjectQueryDef::matching(
 );
 
 // AVR 66 — Mass Appeal
-pub(in crate::card::sets) static MASS_APPEAL: CardRecord = CardRecord::new(
-    cards::MASS_APPEAL,
+pub(in crate::card::sets) static MASS_APPEAL: CardRecord = CardRecord::new_with_legacy_id(
+    778,
     "Mass Appeal",
     CardArt::new(
         "dfe9ae51-fd2b-45ca-a780-725f51f897b2",
@@ -1280,8 +1281,8 @@ pub(in crate::card::sets) static MASS_APPEAL: CardRecord = CardRecord::new(
 );
 
 // AVR 67 — Mist Raven
-pub(in crate::card::sets) static MIST_RAVEN: CardRecord = CardRecord::new(
-    cards::MIST_RAVEN,
+pub(in crate::card::sets) static MIST_RAVEN: CardRecord = CardRecord::new_with_legacy_id(
+    779,
     "Mist Raven",
     CardArt::new("0d98f0c4-021a-407a-8b0c-5500d804f959", "John Avon"),
     CardSet::AvacynRestored,
@@ -1331,8 +1332,8 @@ static BLINK_UNDER_YOUR_CONTROL: [EffectDef; 2] = [
 ];
 
 // AVR 69 — Nephalia Smuggler
-pub(in crate::card::sets) static NEPHALIA_SMUGGLER: CardRecord = CardRecord::new(
-    cards::NEPHALIA_SMUGGLER,
+pub(in crate::card::sets) static NEPHALIA_SMUGGLER: CardRecord = CardRecord::new_with_legacy_id(
+    2000,
     "Nephalia Smuggler",
     CardArt::new("1a531b2f-2a9e-4cc9-aea6-9dce239f5511", "Matt Stewart"),
     CardSet::AvacynRestored,
@@ -1363,8 +1364,8 @@ pub(in crate::card::sets) static NEPHALIA_SMUGGLER: CardRecord = CardRecord::new
 // Audit: blocked — Needs a stack-object predicate for a spell that currently targets a player.
 
 // AVR 71 — Peel from Reality
-pub(in crate::card::sets) static PEEL_FROM_REALITY: CardRecord = CardRecord::new(
-    cards::PEEL_FROM_REALITY,
+pub(in crate::card::sets) static PEEL_FROM_REALITY: CardRecord = CardRecord::new_with_legacy_id(
+    780,
     "Peel from Reality",
     CardArt::new("7f41285b-5961-4653-96a0-fb6d27111390", "Jason Felix"),
     CardSet::AvacynRestored,
@@ -1408,8 +1409,8 @@ pub(in crate::card::sets) static PEEL_FROM_REALITY: CardRecord = CardRecord::new
 );
 
 // AVR 72 — Rotcrown Ghoul
-pub(in crate::card::sets) static ROTCROWN_GHOUL: CardRecord = CardRecord::new(
-    cards::ROTCROWN_GHOUL,
+pub(in crate::card::sets) static ROTCROWN_GHOUL: CardRecord = CardRecord::new_with_legacy_id(
+    781,
     "Rotcrown Ghoul",
     CardArt::new("f13b5ba6-0de1-4f5c-867b-57e2c10bde8e", "Dave Kendall"),
     CardSet::AvacynRestored,
@@ -1443,8 +1444,8 @@ static BLOCKS_ONLY_FLYERS: EffectDef = EffectDef::StaticApply {
 };
 
 // AVR 73 — Scrapskin Drake
-pub(in crate::card::sets) static SCRAPSKIN_DRAKE: CardRecord = CardRecord::new(
-    cards::SCRAPSKIN_DRAKE,
+pub(in crate::card::sets) static SCRAPSKIN_DRAKE: CardRecord = CardRecord::new_with_legacy_id(
+    1599,
     "Scrapskin Drake",
     CardArt::new("c9f03bae-1d23-43ea-9079-4b09d61bbadd", "Kev Walker"),
     CardSet::AvacynRestored,
@@ -1486,8 +1487,8 @@ static STERN_MENTOR_BONUS: EffectDef = EffectDef::StaticApply {
 };
 
 // AVR 77 — Stern Mentor
-pub(in crate::card::sets) static STERN_MENTOR: CardRecord = CardRecord::new(
-    cards::STERN_MENTOR,
+pub(in crate::card::sets) static STERN_MENTOR: CardRecord = CardRecord::new_with_legacy_id(
+    1945,
     "Stern Mentor",
     CardArt::new("ffe4d34f-68f0-4d79-9aab-58c5304224d9", "Igor Kieryluk"),
     CardSet::AvacynRestored,
@@ -1528,8 +1529,8 @@ static TANDEM_LOOKOUT_BONUS: EffectDef = EffectDef::StaticApply {
 };
 
 // AVR 80 — Tandem Lookout
-pub(in crate::card::sets) static TANDEM_LOOKOUT: CardRecord = CardRecord::new(
-    cards::TANDEM_LOOKOUT,
+pub(in crate::card::sets) static TANDEM_LOOKOUT: CardRecord = CardRecord::new_with_legacy_id(
+    1946,
     "Tandem Lookout",
     CardArt::new("83564e67-2677-4955-a3b9-3b221dbb100b", "Kev Walker"),
     CardSet::AvacynRestored,
@@ -1548,8 +1549,8 @@ pub(in crate::card::sets) static TANDEM_LOOKOUT: CardRecord = CardRecord::new(
 );
 
 // AVR 81 — Temporal Mastery
-pub(in crate::card::sets) static TEMPORAL_MASTERY: CardRecord = CardRecord::new(
-    cards::TEMPORAL_MASTERY,
+pub(in crate::card::sets) static TEMPORAL_MASTERY: CardRecord = CardRecord::new_with_legacy_id(
+    1693,
     "Temporal Mastery",
     CardArt::new("266e5267-2288-4bb0-8c54-0c556521cec3", "Franz Vohwinkel"),
     CardSet::AvacynRestored,
@@ -1566,8 +1567,8 @@ pub(in crate::card::sets) static TEMPORAL_MASTERY: CardRecord = CardRecord::new(
 );
 
 // AVR 82 — Vanishment
-pub(in crate::card::sets) static VANISHMENT: CardRecord = CardRecord::new(
-    cards::VANISHMENT,
+pub(in crate::card::sets) static VANISHMENT: CardRecord = CardRecord::new_with_legacy_id(
+    782,
     "Vanishment",
     CardArt::new("dece40c1-790c-4471-a790-1d356b345603", "Daarken"),
     CardSet::AvacynRestored,
@@ -1598,8 +1599,8 @@ static WINGCRAFTER_BONUS: EffectDef = EffectDef::StaticApply {
 };
 
 // AVR 83 — Wingcrafter
-pub(in crate::card::sets) static WINGCRAFTER: CardRecord = CardRecord::new(
-    cards::WINGCRAFTER,
+pub(in crate::card::sets) static WINGCRAFTER: CardRecord = CardRecord::new_with_legacy_id(
+    1935,
     "Wingcrafter",
     CardArt::new("04a3059f-92f2-4163-b79a-154118a4e36d", "Matt Stewart"),
     CardSet::AvacynRestored,
@@ -1624,8 +1625,8 @@ pub(in crate::card::sets) static WINGCRAFTER: CardRecord = CardRecord::new(
 // Audit: blocked — Needs each player to make one resolving choice of two creatures, or a continuation across two sacrifice choices.
 
 // AVR 86 — Blood Artist
-pub(in crate::card::sets) static BLOOD_ARTIST: CardRecord = CardRecord::new(
-    cards::BLOOD_ARTIST,
+pub(in crate::card::sets) static BLOOD_ARTIST: CardRecord = CardRecord::new_with_legacy_id(
+    783,
     "Blood Artist",
     CardArt::new("2e1fb442-68ff-4249-8e44-87edf6fae211", "Johannes Voss"),
     CardSet::AvacynRestored,
@@ -1651,8 +1652,8 @@ pub(in crate::card::sets) static BLOOD_ARTIST: CardRecord = CardRecord::new(
 );
 
 // AVR 87 — Bloodflow Connoisseur
-pub(in crate::card::sets) static BLOODFLOW_CONNOISSEUR: CardRecord = CardRecord::new(
-    cards::BLOODFLOW_CONNOISSEUR,
+pub(in crate::card::sets) static BLOODFLOW_CONNOISSEUR: CardRecord = CardRecord::new_with_legacy_id(
+    784,
     "Bloodflow Connoisseur",
     CardArt::new("97485dbf-2f31-4ed2-a6cd-529ca22c9ac5", "Slawomir Maniak"),
     CardSet::AvacynRestored,
@@ -1682,8 +1683,8 @@ static SACRIFICE_A_CREATURE: SpellAdditionalCostDef = SpellAdditionalCostDef {
 };
 
 // AVR 88 — Bone Splinters
-pub(in crate::card::sets) static BONE_SPLINTERS: CardRecord = CardRecord::new(
-    cards::BONE_SPLINTERS,
+pub(in crate::card::sets) static BONE_SPLINTERS: CardRecord = CardRecord::new_with_legacy_id(
+    1962,
     "Bone Splinters",
     CardArt::new("387eda28-f35b-48b0-ba59-773d82902327", "Nils Hamm"),
     CardSet::AvacynRestored,
@@ -1705,8 +1706,8 @@ pub(in crate::card::sets) static BONE_SPLINTERS: CardRecord = CardRecord::new(
 );
 
 // AVR 89 — Butcher Ghoul
-pub(in crate::card::sets) static BUTCHER_GHOUL: CardRecord = CardRecord::new(
-    cards::BUTCHER_GHOUL,
+pub(in crate::card::sets) static BUTCHER_GHOUL: CardRecord = CardRecord::new_with_legacy_id(
+    785,
     "Butcher Ghoul",
     CardArt::new(
         "44a91e62-e946-4101-8cef-d1c147caebf2",
@@ -1721,8 +1722,8 @@ pub(in crate::card::sets) static BUTCHER_GHOUL: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a hidden-hand card choice and an activation timing restriction of sorcery speed.
 
 // AVR 91 — Crypt Creeper
-pub(in crate::card::sets) static CRYPT_CREEPER: CardRecord = CardRecord::new(
-    cards::CRYPT_CREEPER,
+pub(in crate::card::sets) static CRYPT_CREEPER: CardRecord = CardRecord::new_with_legacy_id(
+    786,
     "Crypt Creeper",
     CardArt::new("0382cb94-0836-4e23-99b7-034faa363203", "Scott Chou"),
     CardSet::AvacynRestored,
@@ -1754,8 +1755,8 @@ pub(in crate::card::sets) static CRYPT_CREEPER: CardRecord = CardRecord::new(
 // Audit: blocked — Needs the source to acquire every activated ability of the creature cards it exiled.
 
 // AVR 93 — Death Wind
-pub(in crate::card::sets) static DEATH_WIND: CardRecord = CardRecord::new(
-    cards::DEATH_WIND,
+pub(in crate::card::sets) static DEATH_WIND: CardRecord = CardRecord::new_with_legacy_id(
+    787,
     "Death Wind",
     CardArt::new("462a0961-cca5-4d63-867f-7426dbef8639", "Tomasz Jedruszek"),
     CardSet::AvacynRestored,
@@ -1788,8 +1789,8 @@ static EXACTLY_ONE_CREATURE: TriggerConditionDef = TriggerConditionDef::ObjectCo
 };
 
 // AVR 94 — Demonic Rising
-pub(in crate::card::sets) static DEMONIC_RISING: CardRecord = CardRecord::new(
-    cards::DEMONIC_RISING,
+pub(in crate::card::sets) static DEMONIC_RISING: CardRecord = CardRecord::new_with_legacy_id(
+    151,
     "Demonic Rising",
     CardArt::new("a2136a82-b535-47f6-9eee-5b7585ac5cf1", "Trevor Claxton"),
     CardSet::AvacynRestored,
@@ -1807,8 +1808,8 @@ pub(in crate::card::sets) static DEMONIC_RISING: CardRecord = CardRecord::new(
 );
 
 // AVR 95 — Demonic Taskmaster
-pub(in crate::card::sets) static DEMONIC_TASKMASTER: CardRecord = CardRecord::new(
-    cards::DEMONIC_TASKMASTER,
+pub(in crate::card::sets) static DEMONIC_TASKMASTER: CardRecord = CardRecord::new_with_legacy_id(
+    788,
     "Demonic Taskmaster",
     CardArt::new("fb5d6266-30a7-4360-84bc-22b52fb782b3", "Chris Rahn"),
     CardSet::AvacynRestored,
@@ -1850,8 +1851,8 @@ static A_BLACK_ZOMBIE_AS_WELL: AppliedEffectDef = AppliedEffectDef::Composite(&[
 ]);
 
 // AVR 98 — Dread Slaver
-pub(in crate::card::sets) static DREAD_SLAVER: CardRecord = CardRecord::new(
-    cards::DREAD_SLAVER,
+pub(in crate::card::sets) static DREAD_SLAVER: CardRecord = CardRecord::new_with_legacy_id(
+    2004,
     "Dread Slaver",
     CardArt::new("3d8a3abd-a4a2-48e6-b709-1c0240a76c5e", "Dave Kendall"),
     CardSet::AvacynRestored,
@@ -1880,8 +1881,8 @@ pub(in crate::card::sets) static DREAD_SLAVER: CardRecord = CardRecord::new(
 );
 
 // AVR 99 — Driver of the Dead
-pub(in crate::card::sets) static DRIVER_OF_THE_DEAD: CardRecord = CardRecord::new(
-    cards::DRIVER_OF_THE_DEAD,
+pub(in crate::card::sets) static DRIVER_OF_THE_DEAD: CardRecord = CardRecord::new_with_legacy_id(
+    789,
     "Driver of the Dead",
     CardArt::new("56113cde-4210-46be-bd53-8966c36ef2a3", "James Ryman"),
     CardSet::AvacynRestored,
@@ -1931,8 +1932,8 @@ static ESSENCE_HARVEST_DRAIN: [EffectDef; 2] = [
 ];
 
 // AVR 100 — Essence Harvest
-pub(in crate::card::sets) static ESSENCE_HARVEST: CardRecord = CardRecord::new(
-    cards::ESSENCE_HARVEST,
+pub(in crate::card::sets) static ESSENCE_HARVEST: CardRecord = CardRecord::new_with_legacy_id(
+    1978,
     "Essence Harvest",
     CardArt::new("7c3fac03-a019-4faa-bc1c-09e3a394fff7", "Daarken"),
     CardSet::AvacynRestored,
@@ -1946,8 +1947,8 @@ pub(in crate::card::sets) static ESSENCE_HARVEST: CardRecord = CardRecord::new(
 );
 
 // AVR 101 — Evernight Shade
-pub(in crate::card::sets) static EVERNIGHT_SHADE: CardRecord = CardRecord::new(
-    cards::EVERNIGHT_SHADE,
+pub(in crate::card::sets) static EVERNIGHT_SHADE: CardRecord = CardRecord::new_with_legacy_id(
+    790,
     "Evernight Shade",
     CardArt::new("1091fadf-97c4-4f87-8466-6a1246a72226", "Nic Klein"),
     CardSet::AvacynRestored,
@@ -1981,8 +1982,8 @@ pub(in crate::card::sets) static EVERNIGHT_SHADE: CardRecord = CardRecord::new(
 // Audit: blocked — Its sacrifice choice would be nested after another zone move, and the current resolving-decision continuation cannot resume that sequence.
 
 // AVR 106 — Griselbrand
-pub(in crate::card::sets) static GRISELBRAND: CardRecord = CardRecord::new(
-    cards::GRISELBRAND,
+pub(in crate::card::sets) static GRISELBRAND: CardRecord = CardRecord::new_with_legacy_id(
+    791,
     "Griselbrand",
     CardArt::new("b51666ae-2aef-4cb1-9cd4-44aec81530f8", "Igor Kieryluk"),
     CardSet::AvacynRestored,
@@ -2011,8 +2012,8 @@ static HARVESTER_OF_SOULS_DEATH: ObjectPredicateDef = ObjectPredicateDef::All(&[
 ]);
 
 // AVR 107 — Harvester of Souls
-pub(in crate::card::sets) static HARVESTER_OF_SOULS: CardRecord = CardRecord::new(
-    cards::HARVESTER_OF_SOULS,
+pub(in crate::card::sets) static HARVESTER_OF_SOULS: CardRecord = CardRecord::new_with_legacy_id(
+    1891,
     "Harvester of Souls",
     CardArt::new("505c0d25-dc1f-402e-9183-01c273efe0e1", "Slawomir Maniak"),
     CardSet::AvacynRestored,
@@ -2040,8 +2041,8 @@ pub(in crate::card::sets) static HARVESTER_OF_SOULS: CardRecord = CardRecord::ne
 // Audit: blocked — Needs an exactly-one-creature condition that controls both the affected recipient and a lifelink grant in the static ability layer.
 
 // AVR 109 — Human Frailty
-pub(in crate::card::sets) static HUMAN_FRAILTY: CardRecord = CardRecord::new(
-    cards::HUMAN_FRAILTY,
+pub(in crate::card::sets) static HUMAN_FRAILTY: CardRecord = CardRecord::new_with_legacy_id(
+    792,
     "Human Frailty",
     CardArt::new("1d1de712-86ac-4c03-be86-2403cd121f66", "David Palumbo"),
     CardSet::AvacynRestored,
@@ -2060,8 +2061,8 @@ static ANY_CREATURE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_o
 )];
 
 // AVR 110 — Hunted Ghoul
-pub(in crate::card::sets) static HUNTED_GHOUL: CardRecord = CardRecord::new(
-    cards::HUNTED_GHOUL,
+pub(in crate::card::sets) static HUNTED_GHOUL: CardRecord = CardRecord::new_with_legacy_id(
+    1742,
     "Hunted Ghoul",
     CardArt::new("644509fa-559b-4b84-a67b-ba59797df2ed", "Ryan Pancoast"),
     CardSet::AvacynRestored,
@@ -2082,8 +2083,8 @@ pub(in crate::card::sets) static HUNTED_GHOUL: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a separate pay-X-life-or-sacrifice choice for the controller of every creature.
 
 // AVR 112 — Maalfeld Twins
-pub(in crate::card::sets) static MAALFELD_TWINS: CardRecord = CardRecord::new(
-    cards::MAALFELD_TWINS,
+pub(in crate::card::sets) static MAALFELD_TWINS: CardRecord = CardRecord::new_with_legacy_id(
+    793,
     "Maalfeld Twins",
     CardArt::new("c63dd203-bce9-4ab7-8a0c-059d19d384e9", "Mike Sass"),
     CardSet::AvacynRestored,
@@ -2106,8 +2107,8 @@ pub(in crate::card::sets) static MAALFELD_TWINS: CardRecord = CardRecord::new(
 );
 
 // AVR 113 — Marrow Bats
-pub(in crate::card::sets) static MARROW_BATS: CardRecord = CardRecord::new(
-    cards::MARROW_BATS,
+pub(in crate::card::sets) static MARROW_BATS: CardRecord = CardRecord::new_with_legacy_id(
+    1433,
     "Marrow Bats",
     CardArt::new("38dcbad0-267e-411f-8e99-5d90b537bf9b", "Jason A. Engle"),
     CardSet::AvacynRestored,
@@ -2124,8 +2125,8 @@ pub(in crate::card::sets) static MARROW_BATS: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a continuation that waits for the targeted player's discard choice before applying the printed life loss.
 
 // AVR 115 — Necrobite
-pub(in crate::card::sets) static NECROBITE: CardRecord = CardRecord::new(
-    cards::NECROBITE,
+pub(in crate::card::sets) static NECROBITE: CardRecord = CardRecord::new_with_legacy_id(
+    1434,
     "Necrobite",
     CardArt::new("52e59918-cf12-4d73-a4e0-31f38e792dc4", "Nils Hamm"),
     CardSet::AvacynRestored,
@@ -2150,8 +2151,8 @@ static NECROBITE_EFFECTS: [EffectDef; 2] = [
 ];
 
 // AVR 116 — Polluted Dead
-pub(in crate::card::sets) static POLLUTED_DEAD: CardRecord = CardRecord::new(
-    cards::POLLUTED_DEAD,
+pub(in crate::card::sets) static POLLUTED_DEAD: CardRecord = CardRecord::new_with_legacy_id(
+    794,
     "Polluted Dead",
     CardArt::new("036c1954-37d3-4787-8df8-f2d0dd39058a", "Jason A. Engle"),
     CardSet::AvacynRestored,
@@ -2178,8 +2179,8 @@ pub(in crate::card::sets) static POLLUTED_DEAD: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a no-other-creatures condition that controls a static intimidate grant to the enchanted creature.
 
 // AVR 118 — Renegade Demon
-pub(in crate::card::sets) static RENEGADE_DEMON: CardRecord = CardRecord::new(
-    cards::RENEGADE_DEMON,
+pub(in crate::card::sets) static RENEGADE_DEMON: CardRecord = CardRecord::new_with_legacy_id(
+    795,
     "Renegade Demon",
     CardArt::new("395696f8-9be2-4925-852f-b783850e1ca2", "Tomasz Jedruszek"),
     CardSet::AvacynRestored,
@@ -2187,8 +2188,8 @@ pub(in crate::card::sets) static RENEGADE_DEMON: CardRecord = CardRecord::new(
 );
 
 // AVR 119 — Searchlight Geist
-pub(in crate::card::sets) static SEARCHLIGHT_GEIST: CardRecord = CardRecord::new(
-    cards::SEARCHLIGHT_GEIST,
+pub(in crate::card::sets) static SEARCHLIGHT_GEIST: CardRecord = CardRecord::new_with_legacy_id(
+    796,
     "Searchlight Geist",
     CardArt::new("b0dc1a94-0193-464e-a481-730b34b57db5", "Steven Belledin"),
     CardSet::AvacynRestored,
@@ -2207,8 +2208,8 @@ pub(in crate::card::sets) static SEARCHLIGHT_GEIST: CardRecord = CardRecord::new
 );
 
 // AVR 120 — Soulcage Fiend
-pub(in crate::card::sets) static SOULCAGE_FIEND: CardRecord = CardRecord::new(
-    cards::SOULCAGE_FIEND,
+pub(in crate::card::sets) static SOULCAGE_FIEND: CardRecord = CardRecord::new_with_legacy_id(
+    797,
     "Soulcage Fiend",
     CardArt::new("dce1b1d3-9602-42bf-b341-d96976ff1e60", "Jason A. Engle"),
     CardSet::AvacynRestored,
@@ -2238,8 +2239,8 @@ static CONTROLS_THE_BIGGEST: TriggerConditionDef =
     TriggerConditionDef::ControlsGreatestPowerCreature;
 
 // AVR 122 — Triumph of Cruelty
-pub(in crate::card::sets) static TRIUMPH_OF_CRUELTY: CardRecord = CardRecord::new(
-    cards::TRIUMPH_OF_CRUELTY,
+pub(in crate::card::sets) static TRIUMPH_OF_CRUELTY: CardRecord = CardRecord::new_with_legacy_id(
+    1613,
     "Triumph of Cruelty",
     CardArt::new("906618e2-2638-4017-9d6e-e6f282967a81", "Izzy"),
     CardSet::AvacynRestored,
@@ -2266,8 +2267,8 @@ pub(in crate::card::sets) static TRIUMPH_OF_CRUELTY: CardRecord = CardRecord::ne
 );
 
 // AVR 123 — Undead Executioner
-pub(in crate::card::sets) static UNDEAD_EXECUTIONER: CardRecord = CardRecord::new(
-    cards::UNDEAD_EXECUTIONER,
+pub(in crate::card::sets) static UNDEAD_EXECUTIONER: CardRecord = CardRecord::new_with_legacy_id(
+    798,
     "Undead Executioner",
     CardArt::new("8d330058-16af-4486-aa89-b6be759e35d4", "Dave Kendall"),
     CardSet::AvacynRestored,
@@ -2304,8 +2305,8 @@ pub(in crate::card::sets) static UNDEAD_EXECUTIONER: CardRecord = CardRecord::ne
 // Audit: blocked — Needs to grant the attack requirement only to creatures actually dealt damage after prevention and replacement effects.
 
 // AVR 126 — Archwing Dragon
-pub(in crate::card::sets) static ARCHWING_DRAGON: CardRecord = CardRecord::new(
-    cards::ARCHWING_DRAGON,
+pub(in crate::card::sets) static ARCHWING_DRAGON: CardRecord = CardRecord::new_with_legacy_id(
+    799,
     "Archwing Dragon",
     CardArt::new("6c6f1a8b-329e-4094-8141-6bc88311a08c", "Daarken"),
     CardSet::AvacynRestored,
@@ -2331,8 +2332,8 @@ pub(in crate::card::sets) static ARCHWING_DRAGON: CardRecord = CardRecord::new(
 );
 
 // AVR 127 — Banners Raised
-pub(in crate::card::sets) static BANNERS_RAISED: CardRecord = CardRecord::new(
-    cards::BANNERS_RAISED,
+pub(in crate::card::sets) static BANNERS_RAISED: CardRecord = CardRecord::new_with_legacy_id(
+    800,
     "Banners Raised",
     CardArt::new("a7792df3-e2ab-4e60-abee-f24b72807107", "Mike Bierek"),
     CardSet::AvacynRestored,
@@ -2360,8 +2361,8 @@ static BATTLE_HYMN_CREATURES: ObjectQueryDef = ObjectQueryDef::matching(
 );
 
 // AVR 128 — Battle Hymn
-pub(in crate::card::sets) static BATTLE_HYMN: CardRecord = CardRecord::new(
-    cards::BATTLE_HYMN,
+pub(in crate::card::sets) static BATTLE_HYMN: CardRecord = CardRecord::new_with_legacy_id(
+    801,
     "Battle Hymn",
     CardArt::new("43b5d46e-7054-44f8-9a14-b412f2f0ab86", "Nils Hamm"),
     CardSet::AvacynRestored,
@@ -2375,8 +2376,8 @@ pub(in crate::card::sets) static BATTLE_HYMN: CardRecord = CardRecord::new(
 );
 
 // AVR 129 — Bonfire of the Damned
-pub(in crate::card::sets) static BONFIRE_OF_THE_DAMNED: CardRecord = CardRecord::new(
-    cards::BONFIRE_OF_THE_DAMNED,
+pub(in crate::card::sets) static BONFIRE_OF_THE_DAMNED: CardRecord = CardRecord::new_with_legacy_id(
+    143,
     "Bonfire of the Damned",
     CardArt::new("e60610fe-891d-46de-b556-d03b637dccec", "James Paick"),
     CardSet::AvacynRestored,
@@ -2408,8 +2409,8 @@ pub(in crate::card::sets) static BONFIRE_OF_THE_DAMNED: CardRecord = CardRecord:
 // Audit: blocked — Needs a dynamic whole-hand discard amount before the draw.
 
 // AVR 132 — Demolish
-pub(in crate::card::sets) static DEMOLISH: CardRecord = CardRecord::new(
-    cards::DEMOLISH,
+pub(in crate::card::sets) static DEMOLISH: CardRecord = CardRecord::new_with_legacy_id(
+    802,
     "Demolish",
     CardArt::new("4657aa15-8274-4bd7-afe4-504693064373", "Raymond Swanland"),
     CardSet::AvacynRestored,
@@ -2427,8 +2428,8 @@ pub(in crate::card::sets) static DEMOLISH: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a stack-spell copy effect with optional new targets.
 
 // AVR 134 — Falkenrath Exterminator
-pub(in crate::card::sets) static FALKENRATH_EXTERMINATOR: CardRecord = CardRecord::new(
-    cards::FALKENRATH_EXTERMINATOR,
+pub(in crate::card::sets) static FALKENRATH_EXTERMINATOR: CardRecord = CardRecord::new_with_legacy_id(
+    803,
     "Falkenrath Exterminator",
     CardArt::new("40e23909-7e08-4686-ae59-e18e7d4cfd3c", "Winona Nelson"),
     CardSet::AvacynRestored,
@@ -2457,8 +2458,8 @@ pub(in crate::card::sets) static FALKENRATH_EXTERMINATOR: CardRecord = CardRecor
 );
 
 // AVR 135 — Fervent Cathar
-pub(in crate::card::sets) static FERVENT_CATHAR: CardRecord = CardRecord::new(
-    cards::FERVENT_CATHAR,
+pub(in crate::card::sets) static FERVENT_CATHAR: CardRecord = CardRecord::new_with_legacy_id(
+    1743,
     "Fervent Cathar",
     CardArt::new("39715fa1-595f-4e3d-84a3-35f2636bccc7", "Steven Belledin"),
     CardSet::AvacynRestored,
@@ -2482,8 +2483,8 @@ pub(in crate::card::sets) static FERVENT_CATHAR: CardRecord = CardRecord::new(
 );
 
 // AVR 136 — Gang of Devils
-pub(in crate::card::sets) static GANG_OF_DEVILS: CardRecord = CardRecord::new(
-    cards::GANG_OF_DEVILS,
+pub(in crate::card::sets) static GANG_OF_DEVILS: CardRecord = CardRecord::new_with_legacy_id(
+    804,
     "Gang of Devils",
     CardArt::new("0430b9fa-3bc6-4183-ad5b-d70ad401fa97", "Erica Yang"),
     CardSet::AvacynRestored,
@@ -2507,8 +2508,8 @@ pub(in crate::card::sets) static GANG_OF_DEVILS: CardRecord = CardRecord::new(
 );
 
 // AVR 137 — Guise of Fire
-pub(in crate::card::sets) static GUISE_OF_FIRE: CardRecord = CardRecord::new(
-    cards::GUISE_OF_FIRE,
+pub(in crate::card::sets) static GUISE_OF_FIRE: CardRecord = CardRecord::new_with_legacy_id(
+    805,
     "Guise of Fire",
     CardArt::new("beb10d42-fa19-400c-bad8-ec3827f077bc", "Dave Kendall"),
     CardSet::AvacynRestored,
@@ -2550,8 +2551,8 @@ static HANWEIR_LANCER_BONUS: EffectDef = EffectDef::StaticApply {
 };
 
 // AVR 138 — Hanweir Lancer
-pub(in crate::card::sets) static HANWEIR_LANCER: CardRecord = CardRecord::new(
-    cards::HANWEIR_LANCER,
+pub(in crate::card::sets) static HANWEIR_LANCER: CardRecord = CardRecord::new_with_legacy_id(
+    1936,
     "Hanweir Lancer",
     CardArt::new("73884fd1-5be9-4ad5-8c72-c0fbe27ad4c1", "Steve Prescott"),
     CardSet::AvacynRestored,
@@ -2570,8 +2571,8 @@ pub(in crate::card::sets) static HANWEIR_LANCER: CardRecord = CardRecord::new(
 );
 
 // AVR 139 — Havengul Vampire
-pub(in crate::card::sets) static HAVENGUL_VAMPIRE: CardRecord = CardRecord::new(
-    cards::HAVENGUL_VAMPIRE,
+pub(in crate::card::sets) static HAVENGUL_VAMPIRE: CardRecord = CardRecord::new_with_legacy_id(
+    806,
     "Havengul Vampire",
     CardArt::new("cbc09839-1463-40b8-86bd-fb96797b2633", "James Ryman"),
     CardSet::AvacynRestored,
@@ -2605,8 +2606,8 @@ pub(in crate::card::sets) static HAVENGUL_VAMPIRE: CardRecord = CardRecord::new(
 );
 
 // AVR 140 — Heirs of Stromkirk
-pub(in crate::card::sets) static HEIRS_OF_STROMKIRK: CardRecord = CardRecord::new(
-    cards::HEIRS_OF_STROMKIRK,
+pub(in crate::card::sets) static HEIRS_OF_STROMKIRK: CardRecord = CardRecord::new_with_legacy_id(
+    807,
     "Heirs of Stromkirk",
     CardArt::new("ff89ad3b-b154-49e2-a0fd-135279512250", "Winona Nelson"),
     CardSet::AvacynRestored,
@@ -2625,8 +2626,8 @@ pub(in crate::card::sets) static HEIRS_OF_STROMKIRK: CardRecord = CardRecord::ne
 );
 
 // AVR 141 — Hound of Griselbrand
-pub(in crate::card::sets) static HOUND_OF_GRISELBRAND: CardRecord = CardRecord::new(
-    cards::HOUND_OF_GRISELBRAND,
+pub(in crate::card::sets) static HOUND_OF_GRISELBRAND: CardRecord = CardRecord::new_with_legacy_id(
+    808,
     "Hound of Griselbrand",
     CardArt::new("0fe68bce-6207-4fd1-9e82-a18fd2d6ddca", "Svetlin Velinov"),
     CardSet::AvacynRestored,
@@ -2641,8 +2642,8 @@ static KESSIG_MALCONTENTS_HUMANS: ObjectQueryDef = ObjectQueryDef::matching(
 );
 
 // AVR 142 — Kessig Malcontents
-pub(in crate::card::sets) static KESSIG_MALCONTENTS: CardRecord = CardRecord::new(
-    cards::KESSIG_MALCONTENTS,
+pub(in crate::card::sets) static KESSIG_MALCONTENTS: CardRecord = CardRecord::new_with_legacy_id(
+    809,
     "Kessig Malcontents",
     CardArt::new("dce9a30f-a850-4826-a255-ce511d567b60", "John Stanko"),
     CardSet::AvacynRestored,
@@ -2662,8 +2663,8 @@ pub(in crate::card::sets) static KESSIG_MALCONTENTS: CardRecord = CardRecord::ne
 );
 
 // AVR 143 — Kruin Striker
-pub(in crate::card::sets) static KRUIN_STRIKER: CardRecord = CardRecord::new(
-    cards::KRUIN_STRIKER,
+pub(in crate::card::sets) static KRUIN_STRIKER: CardRecord = CardRecord::new_with_legacy_id(
+    810,
     "Kruin Striker",
     CardArt::new("73e72249-84ea-4e9c-9f64-b67b02ffdf3a", "Christopher Moeller"),
     CardSet::AvacynRestored,
@@ -2695,8 +2696,8 @@ static LIGHTNING_MAULER_BONUS: EffectDef = EffectDef::StaticApply {
 };
 
 // AVR 144 — Lightning Mauler
-pub(in crate::card::sets) static LIGHTNING_MAULER: CardRecord = CardRecord::new(
-    cards::LIGHTNING_MAULER,
+pub(in crate::card::sets) static LIGHTNING_MAULER: CardRecord = CardRecord::new_with_legacy_id(
+    1937,
     "Lightning Mauler",
     CardArt::new("241cc968-b93e-4fe3-a66d-7776d29aa023", "Dave Kendall"),
     CardSet::AvacynRestored,
@@ -2727,8 +2728,8 @@ static LIGHTNING_PROWESS_PING: AbilityDef = AbilityDef::activated_with_targets(
 );
 
 // AVR 145 — Lightning Prowess
-pub(in crate::card::sets) static LIGHTNING_PROWESS: CardRecord = CardRecord::new(
-    cards::LIGHTNING_PROWESS,
+pub(in crate::card::sets) static LIGHTNING_PROWESS: CardRecord = CardRecord::new_with_legacy_id(
+    811,
     "Lightning Prowess",
     CardArt::new("5578e3e2-2460-4dfb-9016-527463f2d918", "David Rapoza"),
     CardSet::AvacynRestored,
@@ -2758,8 +2759,8 @@ pub(in crate::card::sets) static LIGHTNING_PROWESS: CardRecord = CardRecord::new
 );
 
 // AVR 146 — Mad Prophet
-pub(in crate::card::sets) static MAD_PROPHET: CardRecord = CardRecord::new(
-    cards::MAD_PROPHET,
+pub(in crate::card::sets) static MAD_PROPHET: CardRecord = CardRecord::new_with_legacy_id(
+    1960,
     "Mad Prophet",
     CardArt::new("172383d9-9135-4daa-a647-9d76435d3158", "Wayne Reynolds"),
     CardSet::AvacynRestored,
@@ -2794,8 +2795,8 @@ static MALICIOUS_INTENT_ABILITY: AbilityDef = AbilityDef::activated_with_targets
 );
 
 // AVR 147 — Malicious Intent
-pub(in crate::card::sets) static MALICIOUS_INTENT: CardRecord = CardRecord::new(
-    cards::MALICIOUS_INTENT,
+pub(in crate::card::sets) static MALICIOUS_INTENT: CardRecord = CardRecord::new_with_legacy_id(
+    1744,
     "Malicious Intent",
     CardArt::new("79f4d244-2aaf-4780-ba65-798b090338b4", "Kev Walker"),
     CardSet::AvacynRestored,
@@ -2817,8 +2818,8 @@ pub(in crate::card::sets) static MALICIOUS_INTENT: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a characteristic-defining half-highest-opponent-life value and a damage-prevention prohibition for the source.
 
 // AVR 149 — Pillar of Flame
-pub(in crate::card::sets) static PILLAR_OF_FLAME: CardRecord = CardRecord::new(
-    cards::PILLAR_OF_FLAME,
+pub(in crate::card::sets) static PILLAR_OF_FLAME: CardRecord = CardRecord::new_with_legacy_id(
+    195,
     "Pillar of Flame",
     CardArt::new("c983e879-d9d2-47cc-9958-506711ca80cd", "Karl Kopinski"),
     CardSet::AvacynRestored,
@@ -2832,8 +2833,8 @@ pub(in crate::card::sets) static PILLAR_OF_FLAME: CardRecord = CardRecord::new(
 );
 
 // AVR 150 — Raging Poltergeist
-pub(in crate::card::sets) static RAGING_POLTERGEIST: CardRecord = CardRecord::new(
-    cards::RAGING_POLTERGEIST,
+pub(in crate::card::sets) static RAGING_POLTERGEIST: CardRecord = CardRecord::new_with_legacy_id(
+    812,
     "Raging Poltergeist",
     CardArt::new("78833788-ffb2-43fc-9345-975f1cd46f38", "Slawomir Maniak"),
     CardSet::AvacynRestored,
@@ -2844,8 +2845,8 @@ pub(in crate::card::sets) static RAGING_POLTERGEIST: CardRecord = CardRecord::ne
 // Audit: blocked — Needs a dynamic whole-hand discard for every player before the seven-card draw.
 
 // AVR 152 — Riot Ringleader
-pub(in crate::card::sets) static RIOT_RINGLEADER: CardRecord = CardRecord::new(
-    cards::RIOT_RINGLEADER,
+pub(in crate::card::sets) static RIOT_RINGLEADER: CardRecord = CardRecord::new_with_legacy_id(
+    813,
     "Riot Ringleader",
     CardArt::new("c043f30b-548f-4c31-a415-0e59c2841dcf", "Gabor Szikszai"),
     CardSet::AvacynRestored,
@@ -2872,8 +2873,8 @@ pub(in crate::card::sets) static RIOT_RINGLEADER: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a chosen ordering of three permanent types and six sequential per-player sacrifice choices with retained mode order.
 
 // AVR 154 — Rush of Blood
-pub(in crate::card::sets) static RUSH_OF_BLOOD: CardRecord = CardRecord::new(
-    cards::RUSH_OF_BLOOD,
+pub(in crate::card::sets) static RUSH_OF_BLOOD: CardRecord = CardRecord::new_with_legacy_id(
+    814,
     "Rush of Blood",
     CardArt::new("a2884824-d138-47f2-913b-32cd475e9584", "Cynthia Sheppard"),
     CardSet::AvacynRestored,
@@ -2894,8 +2895,8 @@ pub(in crate::card::sets) static RUSH_OF_BLOOD: CardRecord = CardRecord::new(
 );
 
 // AVR 155 — Scalding Devil
-pub(in crate::card::sets) static SCALDING_DEVIL: CardRecord = CardRecord::new(
-    cards::SCALDING_DEVIL,
+pub(in crate::card::sets) static SCALDING_DEVIL: CardRecord = CardRecord::new_with_legacy_id(
+    815,
     "Scalding Devil",
     CardArt::new("bbe49a97-dac8-4273-b4dc-45cdf8f5a6e0", "Erica Yang"),
     CardSet::AvacynRestored,
@@ -2915,8 +2916,8 @@ pub(in crate::card::sets) static SCALDING_DEVIL: CardRecord = CardRecord::new(
 );
 
 // AVR 156 — Somberwald Vigilante
-pub(in crate::card::sets) static SOMBERWALD_VIGILANTE: CardRecord = CardRecord::new(
-    cards::SOMBERWALD_VIGILANTE,
+pub(in crate::card::sets) static SOMBERWALD_VIGILANTE: CardRecord = CardRecord::new_with_legacy_id(
+    1753,
     "Somberwald Vigilante",
     CardArt::new("0479b796-a4f8-4001-ad16-705cabcdcef8", "John Stanko"),
     CardSet::AvacynRestored,
@@ -2954,8 +2955,8 @@ static STONEWRIGHT_BONUS: EffectDef = EffectDef::StaticApply {
 };
 
 // AVR 157 — Stonewright
-pub(in crate::card::sets) static STONEWRIGHT: CardRecord = CardRecord::new(
-    cards::STONEWRIGHT,
+pub(in crate::card::sets) static STONEWRIGHT: CardRecord = CardRecord::new_with_legacy_id(
+    1947,
     "Stonewright",
     CardArt::new("9564d79d-5f4d-4192-94ee-5e5998011266", "Wesley Burt"),
     CardSet::AvacynRestored,
@@ -2977,8 +2978,8 @@ pub(in crate::card::sets) static STONEWRIGHT: CardRecord = CardRecord::new(
 // Audit: blocked — Needs identity links from the three created tokens to the delayed sacrifice so it does not sacrifice unrelated Human tokens.
 
 // AVR 159 — Thunderbolt
-pub(in crate::card::sets) static THUNDERBOLT: CardRecord = CardRecord::new(
-    cards::THUNDERBOLT,
+pub(in crate::card::sets) static THUNDERBOLT: CardRecord = CardRecord::new_with_legacy_id(
+    1640,
     "Thunderbolt",
     CardArt::new("5845a5bc-6b7d-4bbb-80b3-a0f877b95553", "Anthony Francisco"),
     CardSet::AvacynRestored,
@@ -3016,8 +3017,8 @@ pub(in crate::card::sets) static THUNDERBOLT: CardRecord = CardRecord::new(
 );
 
 // AVR 160 — Thunderous Wrath
-pub(in crate::card::sets) static THUNDEROUS_WRATH: CardRecord = CardRecord::new(
-    cards::THUNDEROUS_WRATH,
+pub(in crate::card::sets) static THUNDEROUS_WRATH: CardRecord = CardRecord::new_with_legacy_id(
+    816,
     "Thunderous Wrath",
     CardArt::new("daa39826-7f89-41cb-a7fe-7f7be817d5cd", "Adam Paquette"),
     CardSet::AvacynRestored,
@@ -3043,8 +3044,8 @@ pub(in crate::card::sets) static THUNDEROUS_WRATH: CardRecord = CardRecord::new(
 // Audit: blocked — Needs an opponent's random permanent choice and repeat-until-land sacrifice loop.
 
 // AVR 163 — Uncanny Speed
-pub(in crate::card::sets) static UNCANNY_SPEED: CardRecord = CardRecord::new(
-    cards::UNCANNY_SPEED,
+pub(in crate::card::sets) static UNCANNY_SPEED: CardRecord = CardRecord::new_with_legacy_id(
+    817,
     "Uncanny Speed",
     CardArt::new("1d7b747e-446a-4c25-9834-0be8476dc22d", "Raymond Swanland"),
     CardSet::AvacynRestored,
@@ -3071,8 +3072,8 @@ pub(in crate::card::sets) static UNCANNY_SPEED: CardRecord = CardRecord::new(
 // Audit: blocked — Needs an opponent choice on resolution, including which opponent in multiplayer, with a sacrifice branch only when one accepts the damage.
 
 // AVR 165 — Vigilante Justice
-pub(in crate::card::sets) static VIGILANTE_JUSTICE: CardRecord = CardRecord::new(
-    cards::VIGILANTE_JUSTICE,
+pub(in crate::card::sets) static VIGILANTE_JUSTICE: CardRecord = CardRecord::new_with_legacy_id(
+    818,
     "Vigilante Justice",
     CardArt::new("a9db329b-6248-4082-bfc8-5d2c0db43338", "Steve Prescott"),
     CardSet::AvacynRestored,
@@ -3103,8 +3104,8 @@ pub(in crate::card::sets) static VIGILANTE_JUSTICE: CardRecord = CardRecord::new
 static HASTE_GRANT: AbilityDef = abilities::haste();
 
 // AVR 166 — Zealous Conscripts
-pub(in crate::card::sets) static ZEALOUS_CONSCRIPTS: CardRecord = CardRecord::new(
-    cards::ZEALOUS_CONSCRIPTS,
+pub(in crate::card::sets) static ZEALOUS_CONSCRIPTS: CardRecord = CardRecord::new_with_legacy_id(
+    244,
     "Zealous Conscripts",
     CardArt::new("fc027b11-1ecc-430d-a862-586a14bb23c3", "Steve Prescott"),
     CardSet::AvacynRestored,
@@ -3145,8 +3146,8 @@ static ABUNDANT_GROWTH_MANA: AbilityDef = AbilityDef::activated_mana(
 );
 
 // AVR 167 — Abundant Growth
-pub(in crate::card::sets) static ABUNDANT_GROWTH: CardRecord = CardRecord::new(
-    cards::ABUNDANT_GROWTH,
+pub(in crate::card::sets) static ABUNDANT_GROWTH: CardRecord = CardRecord::new_with_legacy_id(
+    819,
     "Abundant Growth",
     CardArt::new("afbc8fd0-dc15-4ac9-b97b-173f7fb66ed7", "Vincent Proce"),
     CardSet::AvacynRestored,
@@ -3188,8 +3189,8 @@ pub(in crate::card::sets) static ABUNDANT_GROWTH: CardRecord = CardRecord::new(
 // Audit: blocked — Divided target shares are currently implemented only for damage; using them for counters resolves every counter amount as zero.
 
 // AVR 169 — Borderland Ranger
-pub(in crate::card::sets) static BORDERLAND_RANGER: CardRecord = CardRecord::new(
-    cards::BORDERLAND_RANGER,
+pub(in crate::card::sets) static BORDERLAND_RANGER: CardRecord = CardRecord::new_with_legacy_id(
+    820,
     "Borderland Ranger",
     CardArt::new("8f067c26-c51d-44d0-a0af-106b5778f06a", "Zoltan Boros"),
     CardSet::AvacynRestored,
@@ -3226,8 +3227,8 @@ pub(in crate::card::sets) static BORDERLAND_RANGER: CardRecord = CardRecord::new
 );
 
 // AVR 170 — Bower Passage
-pub(in crate::card::sets) static BOWER_PASSAGE: CardRecord = CardRecord::new(
-    cards::BOWER_PASSAGE,
+pub(in crate::card::sets) static BOWER_PASSAGE: CardRecord = CardRecord::new_with_legacy_id(
+    1641,
     "Bower Passage",
     CardArt::new("b9f0048f-aaa0-4597-b898-ee754d0bbe4b", "Cliff Childs"),
     CardSet::AvacynRestored,
@@ -3256,8 +3257,8 @@ static CRATERHOOF_CREATURES: ObjectQueryDef = ObjectQueryDef::matching(
 );
 
 // AVR 172 — Craterhoof Behemoth
-pub(in crate::card::sets) static CRATERHOOF_BEHEMOTH: CardRecord = CardRecord::new(
-    cards::CRATERHOOF_BEHEMOTH,
+pub(in crate::card::sets) static CRATERHOOF_BEHEMOTH: CardRecord = CardRecord::new_with_legacy_id(
+    821,
     "Craterhoof Behemoth",
     CardArt::new("a249be17-73ed-4108-89c0-f7e87939beb8", "Chris Rahn"),
     CardSet::AvacynRestored,
@@ -3292,8 +3293,8 @@ static DIREGRAF_ESCORT_BONUS: EffectDef = EffectDef::StaticApply {
 };
 
 // AVR 174 — Diregraf Escort
-pub(in crate::card::sets) static DIREGRAF_ESCORT: CardRecord = CardRecord::new(
-    cards::DIREGRAF_ESCORT,
+pub(in crate::card::sets) static DIREGRAF_ESCORT: CardRecord = CardRecord::new_with_legacy_id(
+    1948,
     "Diregraf Escort",
     CardArt::new("640e21ad-5064-41bc-886e-2c997f69a3f5", "Ryan Pancoast"),
     CardSet::AvacynRestored,
@@ -3317,8 +3318,8 @@ static DRUIDS_FAMILIAR_BONUS: EffectDef = EffectDef::StaticApply {
 };
 
 // AVR 175 — Druid's Familiar
-pub(in crate::card::sets) static DRUIDS_FAMILIAR: CardRecord = CardRecord::new(
-    cards::DRUIDS_FAMILIAR,
+pub(in crate::card::sets) static DRUIDS_FAMILIAR: CardRecord = CardRecord::new_with_legacy_id(
+    1938,
     "Druid's Familiar",
     CardArt::new("1d8c794a-7964-41f0-bc9c-27af7cf87aaa", "Adam Paquette"),
     CardSet::AvacynRestored,
@@ -3337,8 +3338,8 @@ pub(in crate::card::sets) static DRUIDS_FAMILIAR: CardRecord = CardRecord::new(
 );
 
 // AVR 176 — Druids' Repository
-pub(in crate::card::sets) static DRUIDS_REPOSITORY: CardRecord = CardRecord::new(
-    cards::DRUIDS_REPOSITORY,
+pub(in crate::card::sets) static DRUIDS_REPOSITORY: CardRecord = CardRecord::new_with_legacy_id(
+    822,
     "Druids' Repository",
     CardArt::new("57e6fb62-7ee3-444d-8fd4-c1f44014a05c", "Daarken"),
     CardSet::AvacynRestored,
@@ -3387,8 +3388,8 @@ static FLOWERING_LUMBERKNOT_RESTRICTION: EffectDef = EffectDef::StaticApply {
 };
 
 // AVR 178 — Flowering Lumberknot
-pub(in crate::card::sets) static FLOWERING_LUMBERKNOT: CardRecord = CardRecord::new(
-    cards::FLOWERING_LUMBERKNOT,
+pub(in crate::card::sets) static FLOWERING_LUMBERKNOT: CardRecord = CardRecord::new_with_legacy_id(
+    1949,
     "Flowering Lumberknot",
     CardArt::new("78fa2ddc-142b-4562-8812-ecb72e3bae57", "Nic Klein"),
     CardSet::AvacynRestored,
@@ -3414,8 +3415,8 @@ static GEIST_TRAPPERS_BONUS: EffectDef = EffectDef::StaticApply {
 };
 
 // AVR 179 — Geist Trappers
-pub(in crate::card::sets) static GEIST_TRAPPERS: CardRecord = CardRecord::new(
-    cards::GEIST_TRAPPERS,
+pub(in crate::card::sets) static GEIST_TRAPPERS: CardRecord = CardRecord::new_with_legacy_id(
+    1939,
     "Geist Trappers",
     CardArt::new("26f00a18-0ff7-42e4-be16-aa34fe27093b", "Anthony Palumbo"),
     CardSet::AvacynRestored,
@@ -3434,8 +3435,8 @@ pub(in crate::card::sets) static GEIST_TRAPPERS: CardRecord = CardRecord::new(
 );
 
 // AVR 180 — Gloomwidow
-pub(in crate::card::sets) static GLOOMWIDOW: CardRecord = CardRecord::new(
-    cards::GLOOMWIDOW,
+pub(in crate::card::sets) static GLOOMWIDOW: CardRecord = CardRecord::new_with_legacy_id(
+    1600,
     "Gloomwidow",
     CardArt::new("a016c872-09bd-42e1-94da-f587e8252492", "Svetlin Velinov"),
     CardSet::AvacynRestored,
@@ -3449,8 +3450,8 @@ pub(in crate::card::sets) static GLOOMWIDOW: CardRecord = CardRecord::new(
 );
 
 // AVR 181 — Grounded
-pub(in crate::card::sets) static GROUNDED: CardRecord = CardRecord::new(
-    cards::GROUNDED,
+pub(in crate::card::sets) static GROUNDED: CardRecord = CardRecord::new_with_legacy_id(
+    823,
     "Grounded",
     CardArt::new("dc4982f0-0ede-4846-82c8-bcf7ad63d099", "Greg Staples"),
     CardSet::AvacynRestored,
@@ -3485,8 +3486,8 @@ static WEAKER_THAN_SOURCE: ObjectPredicateDef =
     ObjectPredicateDef::PowerLessThan(ValueDef::SourcePower);
 
 // AVR 182 — Howlgeist
-pub(in crate::card::sets) static HOWLGEIST: CardRecord = CardRecord::new(
-    cards::HOWLGEIST,
+pub(in crate::card::sets) static HOWLGEIST: CardRecord = CardRecord::new_with_legacy_id(
+    1596,
     "Howlgeist",
     CardArt::new("dad60d45-1c99-41d1-a237-c0ee18ce5361", "David Rapoza"),
     CardSet::AvacynRestored,
@@ -3511,8 +3512,8 @@ pub(in crate::card::sets) static HOWLGEIST: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a mandatory characteristic-filtered top-two split and player-chosen ordering for the cards put on the bottom.
 
 // AVR 185 — Natural End
-pub(in crate::card::sets) static NATURAL_END: CardRecord = CardRecord::new(
-    cards::NATURAL_END,
+pub(in crate::card::sets) static NATURAL_END: CardRecord = CardRecord::new_with_legacy_id(
+    824,
     "Natural End",
     CardArt::new("95d25235-de1c-4b67-9712-24f0564bd2bf", "Scott Chou"),
     CardSet::AvacynRestored,
@@ -3538,8 +3539,8 @@ pub(in crate::card::sets) static NATURAL_END: CardRecord = CardRecord::new(
 );
 
 // AVR 186 — Nettle Swine
-pub(in crate::card::sets) static NETTLE_SWINE: CardRecord = CardRecord::new(
-    cards::NETTLE_SWINE,
+pub(in crate::card::sets) static NETTLE_SWINE: CardRecord = CardRecord::new_with_legacy_id(
+    825,
     "Nettle Swine",
     CardArt::new(
         "75935f0e-9086-485b-b3e6-1a958fd0f2af",
@@ -3557,8 +3558,8 @@ static NIGHTSHADE_PEDDLER_BONUS: EffectDef = EffectDef::StaticApply {
 };
 
 // AVR 187 — Nightshade Peddler
-pub(in crate::card::sets) static NIGHTSHADE_PEDDLER: CardRecord = CardRecord::new(
-    cards::NIGHTSHADE_PEDDLER,
+pub(in crate::card::sets) static NIGHTSHADE_PEDDLER: CardRecord = CardRecord::new_with_legacy_id(
+    1940,
     "Nightshade Peddler",
     CardArt::new("4d3de66c-2283-458f-9d0d-943027520aa2", "John Stanko"),
     CardSet::AvacynRestored,
@@ -3584,8 +3585,8 @@ static PATHBREAKER_WURM_BONUS: EffectDef = EffectDef::StaticApply {
 };
 
 // AVR 188 — Pathbreaker Wurm
-pub(in crate::card::sets) static PATHBREAKER_WURM: CardRecord = CardRecord::new(
-    cards::PATHBREAKER_WURM,
+pub(in crate::card::sets) static PATHBREAKER_WURM: CardRecord = CardRecord::new_with_legacy_id(
+    1941,
     "Pathbreaker Wurm",
     CardArt::new("fe65eded-37ef-4cf0-b55c-390d34aab7b8", "Nils Hamm"),
     CardSet::AvacynRestored,
@@ -3607,8 +3608,8 @@ pub(in crate::card::sets) static PATHBREAKER_WURM: CardRecord = CardRecord::new(
 // Audit: blocked — Needs a repeatable top-card exile procedure with a permanent-card branch and a new optional decision on every iteration.
 
 // AVR 190 — Rain of Thorns
-pub(in crate::card::sets) static RAIN_OF_THORNS: CardRecord = CardRecord::new(
-    cards::RAIN_OF_THORNS,
+pub(in crate::card::sets) static RAIN_OF_THORNS: CardRecord = CardRecord::new_with_legacy_id(
+    826,
     "Rain of Thorns",
     CardArt::new("fd1cb530-b9d5-4386-b89e-2acecc8294c8", "Sam Burley"),
     CardSet::AvacynRestored,
@@ -3670,8 +3671,8 @@ static SHELTERING_WORD_PROGRAM: [EffectDef; 2] = [
 ];
 
 // AVR 192 — Sheltering Word
-pub(in crate::card::sets) static SHELTERING_WORD: CardRecord = CardRecord::new(
-    cards::SHELTERING_WORD,
+pub(in crate::card::sets) static SHELTERING_WORD: CardRecord = CardRecord::new_with_legacy_id(
+    1973,
     "Sheltering Word",
     CardArt::new("93cd9be4-1ce4-4a7c-b2a6-98d3fde0a92b", "Igor Kieryluk"),
     CardSet::AvacynRestored,
@@ -3690,8 +3691,8 @@ pub(in crate::card::sets) static SHELTERING_WORD: CardRecord = CardRecord::new(
 );
 
 // AVR 193 — Snare the Skies
-pub(in crate::card::sets) static SNARE_THE_SKIES: CardRecord = CardRecord::new(
-    cards::SNARE_THE_SKIES,
+pub(in crate::card::sets) static SNARE_THE_SKIES: CardRecord = CardRecord::new_with_legacy_id(
+    827,
     "Snare the Skies",
     CardArt::new("28f75827-a144-4fe2-a713-4439ae7567eb", "Ryan Yee"),
     CardSet::AvacynRestored,
@@ -3719,8 +3720,8 @@ static SOMBERWALD_SAGE_RESTRICTIONS: [ManaRestrictionDef; 1] = [ManaRestrictionD
 )];
 
 // AVR 194 — Somberwald Sage
-pub(in crate::card::sets) static SOMBERWALD_SAGE: CardRecord = CardRecord::new(
-    cards::SOMBERWALD_SAGE,
+pub(in crate::card::sets) static SOMBERWALD_SAGE: CardRecord = CardRecord::new_with_legacy_id(
+    828,
     "Somberwald Sage",
     CardArt::new("409c0272-7a43-4a6c-ab3f-740397b1f5c8", "Steve Argyle"),
     CardSet::AvacynRestored,
@@ -3745,8 +3746,8 @@ static SOUL_OF_THE_HARVEST_ENTRY: ObjectPredicateDef = ObjectPredicateDef::All(&
 ]);
 
 // AVR 195 — Soul of the Harvest
-pub(in crate::card::sets) static SOUL_OF_THE_HARVEST: CardRecord = CardRecord::new(
-    cards::SOUL_OF_THE_HARVEST,
+pub(in crate::card::sets) static SOUL_OF_THE_HARVEST: CardRecord = CardRecord::new_with_legacy_id(
+    1892,
     "Soul of the Harvest",
     CardArt::new("078f5e79-18dd-44e5-a930-8dc288f0b535", "Eytan Zana"),
     CardSet::AvacynRestored,
@@ -3773,8 +3774,8 @@ pub(in crate::card::sets) static SOUL_OF_THE_HARVEST: CardRecord = CardRecord::n
 );
 
 // AVR 196 — Terrifying Presence
-pub(in crate::card::sets) static TERRIFYING_PRESENCE: CardRecord = CardRecord::new(
-    cards::TERRIFYING_PRESENCE,
+pub(in crate::card::sets) static TERRIFYING_PRESENCE: CardRecord = CardRecord::new_with_legacy_id(
+    1500,
     "Terrifying Presence",
     CardArt::new("2e8d0a22-f31b-45c0-85c7-0101aa63c77b", "Jaime Jones"),
     CardSet::AvacynRestored,
@@ -3793,8 +3794,8 @@ pub(in crate::card::sets) static TERRIFYING_PRESENCE: CardRecord = CardRecord::n
 );
 
 // AVR 197 — Timberland Guide
-pub(in crate::card::sets) static TIMBERLAND_GUIDE: CardRecord = CardRecord::new(
-    cards::TIMBERLAND_GUIDE,
+pub(in crate::card::sets) static TIMBERLAND_GUIDE: CardRecord = CardRecord::new_with_legacy_id(
+    829,
     "Timberland Guide",
     CardArt::new("ae80fefb-af78-4f98-8058-71b61e91842f", "Zoltan Boros"),
     CardSet::AvacynRestored,
@@ -3819,8 +3820,8 @@ pub(in crate::card::sets) static TIMBERLAND_GUIDE: CardRecord = CardRecord::new(
 );
 
 // AVR 198 — Triumph of Ferocity
-pub(in crate::card::sets) static TRIUMPH_OF_FEROCITY: CardRecord = CardRecord::new(
-    cards::TRIUMPH_OF_FEROCITY,
+pub(in crate::card::sets) static TRIUMPH_OF_FEROCITY: CardRecord = CardRecord::new_with_legacy_id(
+    1614,
     "Triumph of Ferocity",
     CardArt::new("7bb41fa6-0cc6-43e5-9aa8-fcd9c781f4ce", "James Ryman"),
     CardSet::AvacynRestored,
@@ -3858,8 +3859,8 @@ static TRUSTED_FORCEMAGE_BONUS: EffectDef = EffectDef::StaticApply {
 };
 
 // AVR 199 — Trusted Forcemage
-pub(in crate::card::sets) static TRUSTED_FORCEMAGE: CardRecord = CardRecord::new(
-    cards::TRUSTED_FORCEMAGE,
+pub(in crate::card::sets) static TRUSTED_FORCEMAGE: CardRecord = CardRecord::new_with_legacy_id(
+    1931,
     "Trusted Forcemage",
     CardArt::new("3ee66ef9-10a7-4aab-88f7-84956811cc6c", "Cynthia Sheppard"),
     CardSet::AvacynRestored,
@@ -3881,8 +3882,8 @@ pub(in crate::card::sets) static TRUSTED_FORCEMAGE: CardRecord = CardRecord::new
 // Audit: blocked — Needs the simultaneous fight damage procedure and its two-creature target relation.
 
 // AVR 201 — Vorstclaw
-pub(in crate::card::sets) static VORSTCLAW: CardRecord = CardRecord::new(
-    cards::VORSTCLAW,
+pub(in crate::card::sets) static VORSTCLAW: CardRecord = CardRecord::new_with_legacy_id(
+    830,
     "Vorstclaw",
     CardArt::new("7591ee4f-9bfe-4419-84df-abf35d85bb94", "Lucas Graciano"),
     CardSet::AvacynRestored,
@@ -3890,8 +3891,8 @@ pub(in crate::card::sets) static VORSTCLAW: CardRecord = CardRecord::new(
 );
 
 // AVR 202 — Wandering Wolf
-pub(in crate::card::sets) static WANDERING_WOLF: CardRecord = CardRecord::new(
-    cards::WANDERING_WOLF,
+pub(in crate::card::sets) static WANDERING_WOLF: CardRecord = CardRecord::new_with_legacy_id(
+    1597,
     "Wandering Wolf",
     CardArt::new("ac606ad5-b8d0-4c93-a9de-5e41229a8229", "Tomasz Jedruszek"),
     CardSet::AvacynRestored,
@@ -3915,8 +3916,8 @@ pub(in crate::card::sets) static WANDERING_WOLF: CardRecord = CardRecord::new(
 // Audit: blocked — Needs an active-player condition usable by a continuous power/toughness effect.
 
 // AVR 205 — Wolfir Avenger
-pub(in crate::card::sets) static WOLFIR_AVENGER: CardRecord = CardRecord::new(
-    cards::WOLFIR_AVENGER,
+pub(in crate::card::sets) static WOLFIR_AVENGER: CardRecord = CardRecord::new_with_legacy_id(
+    1435,
     "Wolfir Avenger",
     CardArt::new("88cc00e5-9683-4ccc-a914-c422b76f6014", "Daniel Ljunggren"),
     CardSet::AvacynRestored,
@@ -3935,8 +3936,8 @@ static WOLFIR_SILVERHEART_BONUS: EffectDef = EffectDef::StaticApply {
 };
 
 // AVR 206 — Wolfir Silverheart
-pub(in crate::card::sets) static WOLFIR_SILVERHEART: CardRecord = CardRecord::new(
-    cards::WOLFIR_SILVERHEART,
+pub(in crate::card::sets) static WOLFIR_SILVERHEART: CardRecord = CardRecord::new_with_legacy_id(
+    1942,
     "Wolfir Silverheart",
     CardArt::new("8629c598-11c8-4911-acfb-0643e5feffa8", "Raymond Swanland"),
     CardSet::AvacynRestored,
@@ -3955,8 +3956,8 @@ pub(in crate::card::sets) static WOLFIR_SILVERHEART: CardRecord = CardRecord::ne
 );
 
 // AVR 207 — Yew Spirit
-pub(in crate::card::sets) static YEW_SPIRIT: CardRecord = CardRecord::new(
-    cards::YEW_SPIRIT,
+pub(in crate::card::sets) static YEW_SPIRIT: CardRecord = CardRecord::new_with_legacy_id(
+    831,
     "Yew Spirit",
     CardArt::new("b9320432-4f89-4363-91e6-2e740535cc2e", "Dan Murayama Scott"),
     CardSet::AvacynRestored,
@@ -3983,8 +3984,8 @@ pub(in crate::card::sets) static YEW_SPIRIT: CardRecord = CardRecord::new(
 // Audit: blocked — Needs global damage-event replacements that double opposing damage and prevent half of incoming damage with rounding.
 
 // AVR 210 — Sigarda, Host of Herons
-pub(in crate::card::sets) static SIGARDA_HOST_OF_HERONS: CardRecord = CardRecord::new(
-    cards::SIGARDA_HOST_OF_HERONS,
+pub(in crate::card::sets) static SIGARDA_HOST_OF_HERONS: CardRecord = CardRecord::new_with_legacy_id(
+    212,
     "Sigarda, Host of Herons",
     CardArt::new("feccd0e2-fae6-4ced-acdf-4252ed5c56e7", "Chris Rahn"),
     CardSet::AvacynRestored,
@@ -4018,8 +4019,8 @@ static ANGELIC_ARMAMENTS_BONUS: [AppliedEffectDef; 4] = [
 ];
 
 // AVR 212 — Angelic Armaments
-pub(in crate::card::sets) static ANGELIC_ARMAMENTS: CardRecord = CardRecord::new(
-    cards::ANGELIC_ARMAMENTS,
+pub(in crate::card::sets) static ANGELIC_ARMAMENTS: CardRecord = CardRecord::new_with_legacy_id(
+    2308,
     "Angelic Armaments",
     CardArt::new(
         "3fa99b48-469d-4112-bdfd-2391fa439514",
@@ -4060,8 +4061,8 @@ static BLADED_BRACERS_VIGILANCE_GRANT: EffectDef = EffectDef::StaticApply {
 };
 
 // AVR 213 — Bladed Bracers
-pub(in crate::card::sets) static BLADED_BRACERS: CardRecord = CardRecord::new(
-    cards::BLADED_BRACERS,
+pub(in crate::card::sets) static BLADED_BRACERS: CardRecord = CardRecord::new_with_legacy_id(
+    1926,
     "Bladed Bracers",
     CardArt::new("897a5116-043c-46aa-880e-be8dcb1618bc", "Ryan Yee"),
     CardSet::AvacynRestored,
@@ -4096,8 +4097,8 @@ pub(in crate::card::sets) static BLADED_BRACERS: CardRecord = CardRecord::new(
 );
 
 // AVR 214 — Conjurer's Closet
-pub(in crate::card::sets) static CONJURERS_CLOSET: CardRecord = CardRecord::new(
-    cards::CONJURERS_CLOSET,
+pub(in crate::card::sets) static CONJURERS_CLOSET: CardRecord = CardRecord::new_with_legacy_id(
+    2001,
     "Conjurer's Closet",
     CardArt::new("7378e998-0382-42fc-8606-c6e7fc04b6a4", "Jason Felix"),
     CardSet::AvacynRestored,
@@ -4128,8 +4129,8 @@ pub(in crate::card::sets) static CONJURERS_CLOSET: CardRecord = CardRecord::new(
 // Audit: blocked — Needs an activation cost that taps three separately chosen untapped Humans you control.
 
 // AVR 216 — Haunted Guardian
-pub(in crate::card::sets) static HAUNTED_GUARDIAN: CardRecord = CardRecord::new(
-    cards::HAUNTED_GUARDIAN,
+pub(in crate::card::sets) static HAUNTED_GUARDIAN: CardRecord = CardRecord::new_with_legacy_id(
+    832,
     "Haunted Guardian",
     CardArt::new("7d97f8b8-bdb0-4d4b-b077-9affe2f9cd91", "Daniel Ljunggren"),
     CardSet::AvacynRestored,
@@ -4140,8 +4141,8 @@ pub(in crate::card::sets) static HAUNTED_GUARDIAN: CardRecord = CardRecord::new(
 static MOONSILVER_SPEAR_FIRST_STRIKE: AbilityDef = abilities::first_strike();
 
 // AVR 217 — Moonsilver Spear
-pub(in crate::card::sets) static MOONSILVER_SPEAR: CardRecord = CardRecord::new(
-    cards::MOONSILVER_SPEAR,
+pub(in crate::card::sets) static MOONSILVER_SPEAR: CardRecord = CardRecord::new_with_legacy_id(
+    2309,
     "Moonsilver Spear",
     CardArt::new("0b5efb85-1e5f-40ba-97b1-0ef6ac680330", "James Paick"),
     CardSet::AvacynRestored,
@@ -4168,8 +4169,8 @@ pub(in crate::card::sets) static MOONSILVER_SPEAR: CardRecord = CardRecord::new(
 );
 
 // AVR 218 — Narstad Scrapper
-pub(in crate::card::sets) static NARSTAD_SCRAPPER: CardRecord = CardRecord::new(
-    cards::NARSTAD_SCRAPPER,
+pub(in crate::card::sets) static NARSTAD_SCRAPPER: CardRecord = CardRecord::new_with_legacy_id(
+    833,
     "Narstad Scrapper",
     CardArt::new("f808ed9b-95ac-4069-bdca-b100bc816b5b", "Steven Belledin"),
     CardSet::AvacynRestored,
@@ -4190,8 +4191,8 @@ pub(in crate::card::sets) static NARSTAD_SCRAPPER: CardRecord = CardRecord::new(
 );
 
 // AVR 219 — Otherworld Atlas
-pub(in crate::card::sets) static OTHERWORLD_ATLAS: CardRecord = CardRecord::new(
-    cards::OTHERWORLD_ATLAS,
+pub(in crate::card::sets) static OTHERWORLD_ATLAS: CardRecord = CardRecord::new_with_legacy_id(
+    834,
     "Otherworld Atlas",
     CardArt::new("46e4aa67-4643-42ff-8172-200498686494", "Sam Wolfe Connelly"),
     CardSet::AvacynRestored,
@@ -4229,8 +4230,8 @@ static CONTROLS_AN_ANGEL: TriggerConditionDef = TriggerConditionDef::ObjectCount
 };
 
 // AVR 220 — Scroll of Avacyn
-pub(in crate::card::sets) static SCROLL_OF_AVACYN: CardRecord = CardRecord::new(
-    cards::SCROLL_OF_AVACYN,
+pub(in crate::card::sets) static SCROLL_OF_AVACYN: CardRecord = CardRecord::new_with_legacy_id(
+    835,
     "Scroll of Avacyn",
     CardArt::new("871e6e2a-7e45-446b-b964-94377eb6ca92", "Cliff Childs"),
     CardSet::AvacynRestored,
@@ -4268,8 +4269,8 @@ static TORMENTORS_TRIDENT_BONUS: [AppliedEffectDef; 2] = [
 ];
 
 // AVR 222 — Tormentor's Trident
-pub(in crate::card::sets) static TORMENTORS_TRIDENT: CardRecord = CardRecord::new(
-    cards::TORMENTORS_TRIDENT,
+pub(in crate::card::sets) static TORMENTORS_TRIDENT: CardRecord = CardRecord::new_with_legacy_id(
+    1928,
     "Tormentor's Trident",
     CardArt::new("9543d454-27d6-42ba-aad8-54811d180cfb", "Anthony Palumbo"),
     CardSet::AvacynRestored,
@@ -4299,8 +4300,8 @@ static VANGUARDS_SHIELD_BONUS: [AppliedEffectDef; 2] = [
 ];
 
 // AVR 223 — Vanguard's Shield
-pub(in crate::card::sets) static VANGUARDS_SHIELD: CardRecord = CardRecord::new(
-    cards::VANGUARDS_SHIELD,
+pub(in crate::card::sets) static VANGUARDS_SHIELD: CardRecord = CardRecord::new_with_legacy_id(
+    1929,
     "Vanguard's Shield",
     CardArt::new("ce8d9db6-5737-4a1f-ae4e-75821a602784", "Ryan Pancoast"),
     CardSet::AvacynRestored,
@@ -4323,8 +4324,8 @@ pub(in crate::card::sets) static VANGUARDS_SHIELD: CardRecord = CardRecord::new(
 );
 
 // AVR 224 — Vessel of Endless Rest
-pub(in crate::card::sets) static VESSEL_OF_ENDLESS_REST: CardRecord = CardRecord::new(
-    cards::VESSEL_OF_ENDLESS_REST,
+pub(in crate::card::sets) static VESSEL_OF_ENDLESS_REST: CardRecord = CardRecord::new_with_legacy_id(
+    836,
     "Vessel of Endless Rest",
     CardArt::new("ec733373-3f68-47ad-ac35-6f39092f1e26", "John Avon"),
     CardSet::AvacynRestored,
@@ -4357,8 +4358,8 @@ pub(in crate::card::sets) static VESSEL_OF_ENDLESS_REST: CardRecord = CardRecord
 
 // AVR 225 — Alchemist's Refuge
 // Audit: partial — Needs a turn-scoped permission allowing every spell you cast to be cast as though it had flash.
-pub(in crate::card::sets) static ALCHEMISTS_REFUGE: CardRecord = CardRecord::new(
-    cards::ALCHEMISTS_REFUGE,
+pub(in crate::card::sets) static ALCHEMISTS_REFUGE: CardRecord = CardRecord::new_with_legacy_id(
+    1694,
     "Alchemist's Refuge",
     CardArt::new(
         "c767a897-52e3-4401-8104-930157bb2b02",
@@ -4390,8 +4391,8 @@ static CAVERN_COLORED_MANA_SPEND_EFFECTS: [ManaSpendEffectDef; 1] =
     )];
 
 // AVR 226 — Cavern of Souls
-pub(in crate::card::sets) static CAVERN_OF_SOULS: CardRecord = CardRecord::new(
-    cards::CAVERN_OF_SOULS,
+pub(in crate::card::sets) static CAVERN_OF_SOULS: CardRecord = CardRecord::new_with_legacy_id(
+    147,
     "Cavern of Souls",
     CardArt::new("1381c8f1-a292-4bdf-b20c-a5c2a169ee84", "Cliff Childs"),
     CardSet::AvacynRestored,
@@ -4416,8 +4417,8 @@ pub(in crate::card::sets) static CAVERN_OF_SOULS: CardRecord = CardRecord::new(
 );
 
 // AVR 227 — Desolate Lighthouse
-pub(in crate::card::sets) static DESOLATE_LIGHTHOUSE: CardRecord = CardRecord::new(
-    cards::DESOLATE_LIGHTHOUSE,
+pub(in crate::card::sets) static DESOLATE_LIGHTHOUSE: CardRecord = CardRecord::new_with_legacy_id(
+    837,
     "Desolate Lighthouse",
     CardArt::new("16fb45bc-6152-4b01-9831-a8e80b1c1852", "Scott Chou"),
     CardSet::AvacynRestored,
@@ -4446,8 +4447,8 @@ pub(in crate::card::sets) static DESOLATE_LIGHTHOUSE: CardRecord = CardRecord::n
 );
 
 // AVR 228 — Seraph Sanctuary
-pub(in crate::card::sets) static SERAPH_SANCTUARY: CardRecord = CardRecord::new(
-    cards::SERAPH_SANCTUARY,
+pub(in crate::card::sets) static SERAPH_SANCTUARY: CardRecord = CardRecord::new_with_legacy_id(
+    838,
     "Seraph Sanctuary",
     CardArt::new("f903b04a-2733-4ce7-9d83-9db8d5e1e10d", "David Palumbo"),
     CardSet::AvacynRestored,
@@ -4484,8 +4485,8 @@ pub(in crate::card::sets) static SERAPH_SANCTUARY: CardRecord = CardRecord::new(
 );
 
 // AVR 229 — Slayers' Stronghold
-pub(in crate::card::sets) static SLAYERS_STRONGHOLD: CardRecord = CardRecord::new(
-    cards::SLAYERS_STRONGHOLD,
+pub(in crate::card::sets) static SLAYERS_STRONGHOLD: CardRecord = CardRecord::new_with_legacy_id(
+    839,
     "Slayers' Stronghold",
     CardArt::new("939a4351-3ec7-4e6c-8cdd-766bfd670391", "Karl Kopinski"),
     CardSet::AvacynRestored,

@@ -3,7 +3,7 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, CardArt, CardRules, CardSet, CardType, CardTypeSet, EffectDef, EffectRecipientDef,
-    ObjectPredicateDef, ReplacementEffectDef, TriggerEventDef, cards,
+    ObjectPredicateDef, ReplacementEffectDef, TriggerEventDef,
 };
 use crate::ids::AbilityId;
 use crate::mana_cost;
@@ -39,8 +39,8 @@ static PHANTASMAL_IMAGE_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // M12 72 — Phantasmal Image
-pub(in crate::card::sets) static PHANTASMAL_IMAGE: CardRecord = CardRecord::new(
-    cards::PHANTASMAL_IMAGE,
+pub(in crate::card::sets) static PHANTASMAL_IMAGE: CardRecord = CardRecord::new_with_legacy_id(
+    2276,
     "Phantasmal Image",
     CardArt::new("98e7bf8f-dba7-4005-8cee-634c9153931d", "Nils Hamm"),
     CardSet::Magic2012,

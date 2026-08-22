@@ -415,7 +415,7 @@ fn a_non_executable_cannot_be_countered_clause_does_not_change_gameplay() {
     .with_coverage(AbilityCoverageDef::metadata_only(
         "Test-only incomplete clause.",
     ))];
-    let definition_id = CardDefinitionId(20_000);
+    let definition_id = CardDefinitionId::new(20_000);
     let mut definition = CardDefinition::new(
         definition_id,
         "Incomplete uncounterable spell",
@@ -445,7 +445,7 @@ fn a_composite_static_clause_can_make_its_source_uncounterable() {
         },
     )
     .with_source_zones(&[ZoneKind::Stack])];
-    let definition_id = CardDefinitionId(20_001);
+    let definition_id = CardDefinitionId::new(20_001);
     let mut definition = CardDefinition::new(
         definition_id,
         "Composite uncounterable spell",
@@ -498,7 +498,7 @@ fn overload_does_not_silently_discard_selected_modal_effects() {
         ),
     ];
 
-    let definition_id = CardDefinitionId(20_003);
+    let definition_id = CardDefinitionId::new(20_003);
     let mut definition = CardDefinition::new(
         definition_id,
         "Modal overload test",

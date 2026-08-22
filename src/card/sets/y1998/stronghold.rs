@@ -5,13 +5,13 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
     ObjectPredicateDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ValueDef, ZoneKind,
-    abilities, cards,
+    abilities,
 };
 use crate::mana_cost;
 
 // STH 36 — Mana Leak
-pub(in crate::card::sets) static MANA_LEAK: CardRecord = CardRecord::new(
-    cards::MANA_LEAK,
+pub(in crate::card::sets) static MANA_LEAK: CardRecord = CardRecord::new_with_legacy_id(
+    272,
     "Mana Leak",
     CardArt::new("abcaf16d-aa02-43e2-aa38-bb1835d47a05", "Christopher Rush"),
     CardSet::Stronghold,
@@ -45,8 +45,8 @@ static A_BASIC_LAND_CARD: ObjectPredicateDef = ObjectPredicateDef::All(&[
 ]);
 
 // STH 108 — Hermit Druid
-pub(in crate::card::sets) static HERMIT_DRUID: CardRecord = CardRecord::new(
-    cards::HERMIT_DRUID,
+pub(in crate::card::sets) static HERMIT_DRUID: CardRecord = CardRecord::new_with_legacy_id(
+    2070,
     "Hermit Druid",
     CardArt::new("a912f57d-9622-453d-826d-ef3d83644850", "Heather Hudson"),
     CardSet::Stronghold,
@@ -72,8 +72,8 @@ pub(in crate::card::sets) static HERMIT_DRUID: CardRecord = CardRecord::new(
 );
 
 // STH 138 — Mox Diamond
-pub(in crate::card::sets) static MOX_DIAMOND: CardRecord = CardRecord::new(
-    cards::MOX_DIAMOND,
+pub(in crate::card::sets) static MOX_DIAMOND: CardRecord = CardRecord::new_with_legacy_id(
+    2052,
     "Mox Diamond",
     CardArt::new("28028830-83ed-45e2-b495-3b9ad9d3e988", "Dan Frazier"),
     CardSet::Stronghold,

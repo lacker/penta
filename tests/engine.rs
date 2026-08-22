@@ -21,29 +21,29 @@ fn lightning_bolt(id: CardDefinitionId) -> CardDefinition {
 fn catalog() -> CardCatalog {
     CardCatalog::new([
         CardDefinition::new(
-            CardDefinitionId(1),
+            CardDefinitionId::new(1),
             "Mountain",
             CardSet::Alpha,
             true,
             CardBehavior::Mountain,
         ),
-        lightning_bolt(CardDefinitionId(2)),
+        lightning_bolt(CardDefinitionId::new(2)),
         CardDefinition::new(
-            CardDefinitionId(3),
+            CardDefinitionId::new(3),
             "Black Lotus",
             CardSet::Alpha,
             false,
             CardBehavior::Unsupported,
         ),
         CardDefinition::new(
-            CardDefinitionId(4),
+            CardDefinitionId::new(4),
             "Contract from Below",
             CardSet::Alpha,
             false,
             CardBehavior::Unsupported,
         ),
         CardDefinition::new(
-            CardDefinitionId(5),
+            CardDefinitionId::new(5),
             "Standard Test Spell",
             CardSet::Innistrad,
             false,
@@ -54,9 +54,9 @@ fn catalog() -> CardCatalog {
 }
 
 fn valid_deck() -> Deck {
-    let mut main = vec![CardDefinitionId(1); 55];
-    main.extend([CardDefinitionId(2); 4]);
-    main.push(CardDefinitionId(3));
+    let mut main = vec![CardDefinitionId::new(1); 55];
+    main.extend([CardDefinitionId::new(2); 4]);
+    main.push(CardDefinitionId::new(3));
     Deck {
         main,
         sideboard: Vec::new(),
@@ -70,10 +70,10 @@ fn game_with_mountain_and_bolt() -> Game {
         let hand = &game.observe(PlayerId::One).hand;
         let has_mountain = hand
             .iter()
-            .any(|(_, definition)| *definition == CardDefinitionId(1));
+            .any(|(_, definition)| *definition == CardDefinitionId::new(1));
         let has_bolt = hand
             .iter()
-            .any(|(_, definition)| *definition == CardDefinitionId(2));
+            .any(|(_, definition)| *definition == CardDefinitionId::new(2));
         if has_mountain && has_bolt {
             keep_both(&mut game);
             return game;
@@ -150,8 +150,8 @@ fn advance_to_first_main(game: &mut Game) {
 #[test]
 fn restricted_cards_are_limited_across_deck_and_sideboard() {
     let catalog = catalog();
-    let mut main = vec![CardDefinitionId(1); 58];
-    main.extend([CardDefinitionId(3); 2]);
+    let mut main = vec![CardDefinitionId::new(1); 58];
+    main.extend([CardDefinitionId::new(3); 2]);
     let error = Deck {
         main,
         sideboard: Vec::new(),
@@ -172,8 +172,8 @@ fn restricted_cards_are_limited_across_deck_and_sideboard() {
 #[test]
 fn banned_cards_are_rejected() {
     let catalog = catalog();
-    let mut main = vec![CardDefinitionId(1); 59];
-    main.push(CardDefinitionId(4));
+    let mut main = vec![CardDefinitionId::new(1); 59];
+    main.push(CardDefinitionId::new(4));
 
     assert_eq!(
         Deck {
@@ -189,8 +189,8 @@ fn banned_cards_are_rejected() {
 #[test]
 fn deck_validation_uses_the_selected_formats_card_pool() {
     let catalog = catalog();
-    let mut main = vec![CardDefinitionId(1); 59];
-    main.push(CardDefinitionId(5));
+    let mut main = vec![CardDefinitionId::new(1); 59];
+    main.push(CardDefinitionId::new(5));
     let standard_deck = Deck {
         main,
         sideboard: Vec::new(),
@@ -207,8 +207,8 @@ fn deck_validation_uses_the_selected_formats_card_pool() {
         .validate_for_format(&catalog, Format::IsdDgmStandard)
         .unwrap();
 
-    let mut main = vec![CardDefinitionId(1); 59];
-    main.push(CardDefinitionId(2));
+    let mut main = vec![CardDefinitionId::new(1); 59];
+    main.push(CardDefinitionId::new(2));
     assert_eq!(
         Deck {
             main,
@@ -226,24 +226,28 @@ fn deck_validation_uses_the_selected_formats_card_pool() {
 #[test]
 fn deck_validation_uses_reprints_without_splitting_copy_identity() {
     let mountain = CardDefinition::new(
-        CardDefinitionId(1),
+        CardDefinitionId::new(1),
         "Mountain",
         CardSet::Alpha,
         true,
         CardBehavior::Mountain,
     );
-    let bolt = lightning_bolt(CardDefinitionId(2));
+    let bolt = lightning_bolt(CardDefinitionId::new(2));
     let catalog = CardCatalog::with_additional_printings(
         [mountain, bolt],
         [
-            CardPrinting::new(CardDefinitionId(2), CardSet::Magic2014),
-            CardPrinting::with_variant(CardDefinitionId(2), CardSet::Magic2014, 1),
+            CardPrinting::new(CardDefinitionId::new(2), CardSet::Magic2014),
+            CardPrinting::with_variant(CardDefinitionId::new(2), CardSet::Magic2014, 1),
         ],
     )
     .unwrap();
 
     let legal = Deck {
-        main: [vec![CardDefinitionId(1); 56], vec![CardDefinitionId(2); 4]].concat(),
+        main: [
+            vec![CardDefinitionId::new(1); 56],
+            vec![CardDefinitionId::new(2); 4],
+        ]
+        .concat(),
         sideboard: Vec::new(),
     };
     legal
@@ -251,7 +255,11 @@ fn deck_validation_uses_reprints_without_splitting_copy_identity() {
         .unwrap();
 
     let too_many = Deck {
-        main: [vec![CardDefinitionId(1); 55], vec![CardDefinitionId(2); 5]].concat(),
+        main: [
+            vec![CardDefinitionId::new(1); 55],
+            vec![CardDefinitionId::new(2); 5],
+        ]
+        .concat(),
         sideboard: Vec::new(),
     };
     assert_eq!(
@@ -266,7 +274,7 @@ fn deck_validation_uses_reprints_without_splitting_copy_identity() {
     );
     assert_eq!(
         catalog.find_by_name("lightning bolt"),
-        Some(CardDefinitionId(2))
+        Some(CardDefinitionId::new(2))
     );
 }
 
@@ -358,13 +366,13 @@ fn mountain_casts_and_resolves_lightning_bolt() {
     let mountain = observation
         .hand
         .iter()
-        .find(|(_, definition)| *definition == CardDefinitionId(1))
+        .find(|(_, definition)| *definition == CardDefinitionId::new(1))
         .unwrap()
         .0;
     let bolt = observation
         .hand
         .iter()
-        .find(|(_, definition)| *definition == CardDefinitionId(2))
+        .find(|(_, definition)| *definition == CardDefinitionId::new(2))
         .unwrap()
         .0;
 
@@ -380,7 +388,9 @@ fn mountain_casts_and_resolves_lightning_bolt() {
         .observe(PlayerId::One)
         .battlefield
         .iter()
-        .find(|permanent| permanent.characteristics.card_definition() == Some(CardDefinitionId(1)))
+        .find(|permanent| {
+            permanent.characteristics.card_definition() == Some(CardDefinitionId::new(1))
+        })
         .unwrap()
         .id;
     activate_red_mana(&mut game, PlayerId::One, mountain);
@@ -411,7 +421,7 @@ fn mountain_casts_and_resolves_lightning_bolt() {
     let resolved = game.observe(PlayerId::One);
     assert!(resolved.stack.is_empty());
     assert_eq!(resolved.life_totals, [20, 17]);
-    assert_eq!(resolved.graveyards[0][0].1, CardDefinitionId(2));
+    assert_eq!(resolved.graveyards[0][0].1, CardDefinitionId::new(2));
     assert_ne!(resolved.graveyards[0][0].0, spell_id);
     assert!(game.events().contains(&GameEvent::DamageDealt {
         player: PlayerId::Two,
@@ -471,7 +481,7 @@ fn unspent_mana_burns_at_the_end_of_a_phase() {
         .observe(PlayerId::One)
         .hand
         .iter()
-        .find(|(_, definition)| *definition == CardDefinitionId(1))
+        .find(|(_, definition)| *definition == CardDefinitionId::new(1))
         .unwrap()
         .0;
 
@@ -487,7 +497,9 @@ fn unspent_mana_burns_at_the_end_of_a_phase() {
         .observe(PlayerId::One)
         .battlefield
         .iter()
-        .find(|permanent| permanent.characteristics.card_definition() == Some(CardDefinitionId(1)))
+        .find(|permanent| {
+            permanent.characteristics.card_definition() == Some(CardDefinitionId::new(1))
+        })
         .unwrap()
         .id;
     activate_red_mana(&mut game, PlayerId::One, mountain);
@@ -507,7 +519,7 @@ fn unspent_mana_burns_at_the_end_of_a_phase() {
 fn mana_emptying_and_burn_follow_the_games_format() {
     let catalog = catalog();
     let deck = Deck {
-        main: vec![CardDefinitionId(1); 60],
+        main: vec![CardDefinitionId::new(1); 60],
         sideboard: Vec::new(),
     };
 
@@ -552,7 +564,7 @@ fn mana_emptying_and_burn_follow_the_games_format() {
 fn game_validates_decks_against_its_own_catalog() {
     let catalog = catalog();
     let short_deck = Deck {
-        main: vec![CardDefinitionId(1); 59],
+        main: vec![CardDefinitionId::new(1); 59],
         sideboard: Vec::new(),
     };
 
@@ -761,9 +773,9 @@ fn aura_sequence_attaches_to_its_indexed_semantic_target() {
         TargetIndex, ZoneKind,
     };
 
-    const MOUNTAIN: CardDefinitionId = CardDefinitionId(1);
-    const CREATURE: CardDefinitionId = CardDefinitionId(6);
-    const AURA: CardDefinitionId = CardDefinitionId(7);
+    const MOUNTAIN: CardDefinitionId = CardDefinitionId::new(1);
+    const CREATURE: CardDefinitionId = CardDefinitionId::new(6);
+    const AURA: CardDefinitionId = CardDefinitionId::new(7);
     static ATTACH_SEQUENCE: [EffectDef; 1] = [EffectDef::Attach {
         object: EffectRecipientDef::Target(TargetIndex(1)),
     }];
@@ -968,7 +980,7 @@ mod hidden_state {
     #[test]
     fn a_card_outside_the_catalog_is_rejected() {
         let mut game = game();
-        let unknown = penta::CardDefinitionId(60_000);
+        let unknown = penta::CardDefinitionId::new(60_000);
         assert_eq!(
             game.set_hand(PlayerId::Two, &[unknown]),
             Err(ZoneError::UnknownCard(unknown)),

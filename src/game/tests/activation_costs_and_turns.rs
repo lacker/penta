@@ -20,7 +20,7 @@ fn duplicate_source_counter_costs_are_aggregated_before_an_activation_is_offered
             amount: ValueDef::Constant(1),
         },
     )];
-    let definition_id = CardDefinitionId(10_090);
+    let definition_id = CardDefinitionId::new(10_090);
     let mut definition = CardDefinition::new(
         definition_id,
         "Aggregate counter cost test",
@@ -74,7 +74,7 @@ fn a_counter_only_mana_ability_is_offered_and_pays_its_counter_cost() {
         &COSTS,
         EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
     )];
-    let definition_id = CardDefinitionId(10_092);
+    let definition_id = CardDefinitionId::new(10_092);
     let mut definition = CardDefinition::new(
         definition_id,
         "Counter mana cost test",
@@ -133,7 +133,7 @@ fn source_counters_are_removed_before_a_source_sacrifice_cost_regardless_of_prin
             amount: ValueDef::Constant(1),
         },
     )];
-    let definition_id = CardDefinitionId(10_091);
+    let definition_id = CardDefinitionId::new(10_091);
     let mut definition = CardDefinition::new(
         definition_id,
         "Counter and sacrifice cost test",
@@ -205,7 +205,7 @@ fn a_generic_source_sacrifice_waits_for_its_tap_and_counter_costs() {
             amount: ValueDef::Constant(1),
         },
     )];
-    let definition_id = CardDefinitionId(10_093);
+    let definition_id = CardDefinitionId::new(10_093);
     let mut definition = CardDefinition::new(
         definition_id,
         "Generic source sacrifice ordering test",
@@ -272,7 +272,7 @@ fn separate_source_sacrifice_costs_require_separate_permanents() {
             amount: ValueDef::Constant(1),
         },
     )];
-    let definition_id = CardDefinitionId(10_094);
+    let definition_id = CardDefinitionId::new(10_094);
     let mut definition = CardDefinition::new(
         definition_id,
         "Distinct sacrifice cost test",
@@ -351,7 +351,7 @@ fn duplicate_source_sacrifice_costs_are_never_offered() {
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
         ),
     ];
-    let definition_id = CardDefinitionId(10_095);
+    let definition_id = CardDefinitionId::new(10_095);
     let mut definition = CardDefinition::new(
         definition_id,
         "Duplicate source sacrifice test",

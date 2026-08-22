@@ -9,7 +9,7 @@ use crate::card::{
     ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
     PlayerRefDef, PlayerRelation, ReplacementChoiceDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, cards,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -58,8 +58,8 @@ static SEARCH_DISCARD_THEN_UNTAP: EffectDef = EffectDef::Sequence(&[
 ]);
 
 // ULG 14 — Mother of Runes
-pub(in crate::card::sets) static MOTHER_OF_RUNES: CardRecord = CardRecord::new(
-    cards::MOTHER_OF_RUNES,
+pub(in crate::card::sets) static MOTHER_OF_RUNES: CardRecord = CardRecord::new_with_legacy_id(
+    2119,
     "Mother of Runes",
     CardArt::new("0b1a46ab-95cb-4c24-924f-fc2afd4fcac7", "Scott M. Fischer"),
     CardSet::UrzasLegacy,
@@ -87,15 +87,15 @@ static MOTHER_OF_RUNES_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactl
 )];
 
 // ULG 32 — Frantic Search
-pub(in crate::card::sets) static FRANTIC_SEARCH: CardRecord = CardRecord::new(
-    cards::FRANTIC_SEARCH,
+pub(in crate::card::sets) static FRANTIC_SEARCH: CardRecord = CardRecord::new_with_legacy_id(
+    2078,
     "Frantic Search",
     CardArt::new("6cec132b-939d-4730-9bbd-2760c63c3cb4", "Jeff Miracola"),
     CardSet::UrzasLegacy,
     // Free if three of the lands paying for it untap again, which is why a
     // deck that wants to fill its graveyard plays it over a plain cantrip.
     CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell(
-        "Draw two cards, then discard two cards. Untap up to three lands.",
+        "Draw two then discard two cards. Untap up to three lands.",
         EffectDef::Sequence(&[
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
@@ -107,8 +107,8 @@ pub(in crate::card::sets) static FRANTIC_SEARCH: CardRecord = CardRecord::new(
 );
 
 // ULG 36 — Miscalculation
-pub(in crate::card::sets) static MISCALCULATION: CardRecord = CardRecord::new(
-    cards::MISCALCULATION,
+pub(in crate::card::sets) static MISCALCULATION: CardRecord = CardRecord::new_with_legacy_id(
+    2116,
     "Miscalculation",
     CardArt::new("4b4956a2-9a39-4152-9c98-70e4b2acfa26", "Jeff Laubenstein"),
     CardSet::UrzasLegacy,
@@ -126,8 +126,8 @@ pub(in crate::card::sets) static MISCALCULATION: CardRecord = CardRecord::new(
 );
 
 // ULG 51 — Engineered Plague
-pub(in crate::card::sets) static ENGINEERED_PLAGUE: CardRecord = CardRecord::new(
-    cards::ENGINEERED_PLAGUE,
+pub(in crate::card::sets) static ENGINEERED_PLAGUE: CardRecord = CardRecord::new_with_legacy_id(
+    2048,
     "Engineered Plague",
     CardArt::new("27e158d5-efb2-4f90-8898-60ede98f7d29", "Michael Sutfin"),
     CardSet::UrzasLegacy,
@@ -173,8 +173,8 @@ static SACRIFICE_A_LAND: SpellAdditionalCostDef = SpellAdditionalCostDef {
 };
 
 // ULG 98 — Crop Rotation
-pub(in crate::card::sets) static CROP_ROTATION: CardRecord = CardRecord::new(
-    cards::CROP_ROTATION,
+pub(in crate::card::sets) static CROP_ROTATION: CardRecord = CardRecord::new_with_legacy_id(
+    2143,
     "Crop Rotation",
     CardArt::new("6563f790-862c-465a-b963-7a61f2385516", "DiTerlizzi"),
     CardSet::UrzasLegacy,
@@ -202,8 +202,8 @@ pub(in crate::card::sets) static CROP_ROTATION: CardRecord = CardRecord::new(
 );
 
 // ULG 110 — Rancor
-pub(in crate::card::sets) static RANCOR: CardRecord = CardRecord::new(
-    cards::RANCOR,
+pub(in crate::card::sets) static RANCOR: CardRecord = CardRecord::new_with_legacy_id(
+    2124,
     "Rancor",
     CardArt::new("59e256c2-38df-4012-9308-ce17dd889e5f", "Kev Walker"),
     CardSet::UrzasLegacy,
@@ -247,8 +247,8 @@ static RANCOR_BONUS: [AppliedEffectDef; 2] = [
 ];
 
 // ULG 125 — Defense Grid
-pub(in crate::card::sets) static DEFENSE_GRID: CardRecord = CardRecord::new(
-    cards::DEFENSE_GRID,
+pub(in crate::card::sets) static DEFENSE_GRID: CardRecord = CardRecord::new_with_legacy_id(
+    2065,
     "Defense Grid",
     CardArt::new("5c2592c9-3f8c-4b7e-9e0a-4a6f2c1d8b3e", "Mark Tedin"),
     CardSet::UrzasLegacy,
@@ -265,8 +265,8 @@ pub(in crate::card::sets) static DEFENSE_GRID: CardRecord = CardRecord::new(
 );
 
 // ULG 126 — Grim Monolith
-pub(in crate::card::sets) static GRIM_MONOLITH: CardRecord = CardRecord::new(
-    cards::GRIM_MONOLITH,
+pub(in crate::card::sets) static GRIM_MONOLITH: CardRecord = CardRecord::new_with_legacy_id(
+    2118,
     "Grim Monolith",
     CardArt::new("9ddc9fe1-17c8-4e1d-aeb8-c4214e881280", "Chippy"),
     CardSet::UrzasLegacy,

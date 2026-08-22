@@ -5,7 +5,7 @@ use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt,
     CardRules, CardSet, CardSupertype, CardType, CounterKind, DiscardSelectionDef, EffectDef,
     EffectRecipientDef, ObjectPredicateDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind,
-    abilities, cards,
+    abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -97,8 +97,8 @@ static DUELIST_ABILITIES: [AbilityDef; 4] = [
 ];
 
 // OTJ 45 — Duelist of the Mind
-pub(in crate::card::sets) static DUELIST_OF_THE_MIND: CardRecord = CardRecord::new(
-    cards::DUELIST_OF_THE_MIND,
+pub(in crate::card::sets) static DUELIST_OF_THE_MIND: CardRecord = CardRecord::new_with_legacy_id(
+    2200,
     "Duelist of the Mind",
     CardArt::new("2b58e47b-c165-4a58-aa2a-033a35645adc", "Darren Tan"),
     CardSet::OutlawsOfThunderJunction,
@@ -109,17 +109,18 @@ pub(in crate::card::sets) static DUELIST_OF_THE_MIND: CardRecord = CardRecord::n
 );
 
 // OTJ 157 — Bristly Bill, Spine Sower
-pub(in crate::card::sets) static BRISTLY_BILL_SPINE_SOWER: CardRecord = CardRecord::new(
-    cards::BRISTLY_BILL_SPINE_SOWER,
-    "Bristly Bill, Spine Sower",
-    CardArt::new("52eef0d6-24b7-40b7-8403-e8e863d0cd55", "Daniel Zrom"),
-    CardSet::OutlawsOfThunderJunction,
-    // The counters accumulate for free off lands, and then the activation
-    // turns a slow board into a lethal one in a single turn.
-    CardRules::new_creature(mana_cost!("{1}{G}"), &["Plant", "Druid"], 2, 2)
-        .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&BILL_ABILITIES),
-);
+pub(in crate::card::sets) static BRISTLY_BILL_SPINE_SOWER: CardRecord =
+    CardRecord::new_with_legacy_id(
+        2177,
+        "Bristly Bill, Spine Sower",
+        CardArt::new("52eef0d6-24b7-40b7-8403-e8e863d0cd55", "Daniel Zrom"),
+        CardSet::OutlawsOfThunderJunction,
+        // The counters accumulate for free off lands, and then the activation
+        // turns a slow board into a lethal one in a single turn.
+        CardRules::new_creature(mana_cost!("{1}{G}"), &["Plant", "Druid"], 2, 2)
+            .with_supertype(CardSupertype::Legendary)
+            .with_abilities(&BILL_ABILITIES),
+    );
 
 /// Ward reads as one clause on the Boots, so the granted ability carries the
 /// whole of the printed reminder rather than a paraphrase of it.
@@ -130,8 +131,8 @@ static LAVASPUR_WARD: AbilityDef = abilities::ward(
 );
 
 // OTJ 243 — Lavaspur Boots
-pub(in crate::card::sets) static LAVASPUR_BOOTS: CardRecord = CardRecord::new(
-    cards::LAVASPUR_BOOTS,
+pub(in crate::card::sets) static LAVASPUR_BOOTS: CardRecord = CardRecord::new_with_legacy_id(
+    2252,
     "Lavaspur Boots",
     CardArt::new("e50709de-e6ef-4dbc-af1e-290fed279f34", "Mila Pesic"),
     CardSet::OutlawsOfThunderJunction,

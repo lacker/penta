@@ -5,13 +5,13 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
     CardArt, CardRules, CardSet, EffectDef, EffectRecipientDef, ManaColor, ReplacementEffectDef,
     ReplacementEventDef, SpellResolutionDestinationDef, TokenCharacteristics, ValueDef, ZoneKind,
-    ZoneMoveCauseDef, abilities, cards,
+    ZoneMoveCauseDef, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
 // MBS 19 — White Sun's Zenith
-pub(in crate::card::sets) static WHITE_SUNS_ZENITH: CardRecord = CardRecord::new(
-    cards::WHITE_SUNS_ZENITH,
+pub(in crate::card::sets) static WHITE_SUNS_ZENITH: CardRecord = CardRecord::new_with_legacy_id(
+    1707,
     "White Sun's Zenith",
     CardArt::new("a879940e-6632-47c5-a30e-d29a82d16e9d", "Mike Bierek"),
     CardSet::MirrodinBesieged,
@@ -62,8 +62,8 @@ static COLOSSUS_ABILITIES: [AbilityDef; 4] = [
 ];
 
 // MBS 99 — Blightsteel Colossus
-pub(in crate::card::sets) static BLIGHTSTEEL_COLOSSUS: CardRecord = CardRecord::new(
-    cards::BLIGHTSTEEL_COLOSSUS,
+pub(in crate::card::sets) static BLIGHTSTEEL_COLOSSUS: CardRecord = CardRecord::new_with_legacy_id(
+    2183,
     "Blightsteel Colossus",
     CardArt::new("7928bb14-7631-4830-a756-26d1ea832ba2", "Chris Rahn"),
     CardSet::MirrodinBesieged,
@@ -75,8 +75,8 @@ pub(in crate::card::sets) static BLIGHTSTEEL_COLOSSUS: CardRecord = CardRecord::
 );
 
 // MBS 115 — Mortarpod
-pub(in crate::card::sets) static MORTARPOD: CardRecord = CardRecord::new(
-    cards::MORTARPOD,
+pub(in crate::card::sets) static MORTARPOD: CardRecord = CardRecord::new_with_legacy_id(
+    1704,
     "Mortarpod",
     CardArt::new("fbd23da5-421f-41d0-bb60-59560da7dece", "Eric Deschamps"),
     CardSet::MirrodinBesieged,

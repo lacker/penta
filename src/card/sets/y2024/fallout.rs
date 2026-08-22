@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCoverageDef, AbilityDef, CardArt, CardRules, CardSet, CardType, CounterKind, EffectDef,
     EffectRecipientDef, ObjectPredicateDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind,
-    abilities, cards,
+    abilities,
 };
 use crate::mana_cost;
 
@@ -45,8 +45,8 @@ static SECURITRON_SQUADRON_ABILITIES: [AbilityDef; 3] = [
 ];
 
 // PIP 23 — Securitron Squadron
-pub(in crate::card::sets) static SECURITRON_SQUADRON: CardRecord = CardRecord::new(
-    cards::SECURITRON_SQUADRON,
+pub(in crate::card::sets) static SECURITRON_SQUADRON: CardRecord = CardRecord::new_with_legacy_id(
+    2151,
     "Securitron Squadron",
     CardArt::new("b689a206-aec3-4a31-95cf-3d4b840db04c", "Jonas De Ro"),
     CardSet::Fallout,

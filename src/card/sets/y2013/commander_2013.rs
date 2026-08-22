@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType,
     EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation, ResolvedEffectDurationDef,
-    SpellLifeCostDef, ValueDef, ZoneKind, cards,
+    SpellLifeCostDef, ValueDef, ZoneKind,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -18,8 +18,8 @@ static ABSENT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_per
 )];
 
 // C13 25 — Unexpectedly Absent
-pub(in crate::card::sets) static UNEXPECTEDLY_ABSENT: CardRecord = CardRecord::new(
-    cards::UNEXPECTEDLY_ABSENT,
+pub(in crate::card::sets) static UNEXPECTEDLY_ABSENT: CardRecord = CardRecord::new_with_legacy_id(
+    2182,
     "Unexpectedly Absent",
     CardArt::new("6dff437b-ef68-48f7-afd3-3b72d3c56187", "Min Yum"),
     CardSet::Commander2013,
@@ -37,8 +37,8 @@ pub(in crate::card::sets) static UNEXPECTEDLY_ABSENT: CardRecord = CardRecord::n
 );
 
 // C13 96 — Toxic Deluge
-pub(in crate::card::sets) static TOXIC_DELUGE: CardRecord = CardRecord::new(
-    cards::TOXIC_DELUGE,
+pub(in crate::card::sets) static TOXIC_DELUGE: CardRecord = CardRecord::new_with_legacy_id(
+    2164,
     "Toxic Deluge",
     CardArt::new("564caf57-4ba5-4993-a35e-945699c94eb7", "Svetlin Velinov"),
     CardSet::Commander2013,

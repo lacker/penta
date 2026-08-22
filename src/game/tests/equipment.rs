@@ -8,8 +8,8 @@
 use super::*;
 use crate::ImplementationStatus;
 
-const MANA_AND_TAP_ELF_EQUIPMENT_ID: CardDefinitionId = CardDefinitionId(10_090);
-const COUNTER_MANA_ELF_ID: CardDefinitionId = CardDefinitionId(10_091);
+const MANA_AND_TAP_ELF_EQUIPMENT_ID: CardDefinitionId = CardDefinitionId::new(10_090);
+const COUNTER_MANA_ELF_ID: CardDefinitionId = CardDefinitionId::new(10_091);
 
 static MANA_AND_TAP_ELF_EQUIP_COSTS: [AbilityCostDef; 2] = [
     AbilityCostDef::Mana(mana_cost!("{G}")),

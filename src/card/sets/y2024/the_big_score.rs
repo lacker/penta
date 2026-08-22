@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules,
     CardSet, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
-    TriggerEventDef, ValueDef, ZoneKind, cards,
+    TriggerEventDef, ValueDef, ZoneKind,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -54,8 +54,8 @@ static LEGION_EXTRUDER_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // BIG 12 — Legion Extruder
-pub(in crate::card::sets) static LEGION_EXTRUDER: CardRecord = CardRecord::new(
-    cards::LEGION_EXTRUDER,
+pub(in crate::card::sets) static LEGION_EXTRUDER: CardRecord = CardRecord::new_with_legacy_id(
+    2288,
     "Legion Extruder",
     CardArt::new("5a077de0-1893-40d0-a499-ee2e6e2258f1", "Anton Solovianchyk"),
     CardSet::TheBigScore,

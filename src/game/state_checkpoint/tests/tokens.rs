@@ -268,7 +268,7 @@ fn checkpoint_rejects_malformed_double_faced_copy_token_state() {
     let mut printed_owner = wire.clone();
     checkpoint_permanent_mut(&mut printed_owner, token_id)["objectKind"] = json!({
         "kind": "card",
-        "definition": crate::card::cards::SERRA_ANGEL.0,
+        "definition": crate::card::cards::SERRA_ANGEL.get(),
     });
     assert!(
         rebuild(&printed_owner)

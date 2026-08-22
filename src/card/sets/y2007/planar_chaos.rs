@@ -4,13 +4,13 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AppliedEffectDef, BasicLandType, CardArt, CardRules, CardSet,
     CardSupertype, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
-    ValueDef, ZoneKind, abilities, cards,
+    ValueDef, ZoneKind, abilities,
 };
 use crate::mana_cost;
 
 // PLC 25 — Mana Tithe
-pub(in crate::card::sets) static MANA_TITHE: CardRecord = CardRecord::new(
-    cards::MANA_TITHE,
+pub(in crate::card::sets) static MANA_TITHE: CardRecord = CardRecord::new_with_legacy_id(
+    2114,
     "Mana Tithe",
     CardArt::new("7d48d622-f397-4f31-b1a5-0c23f60aa71c", "Martina Pilcerova"),
     CardSet::PlanarChaos,
@@ -22,25 +22,26 @@ pub(in crate::card::sets) static MANA_TITHE: CardRecord = CardRecord::new(
 );
 
 // PLC 165 — Urborg, Tomb of Yawgmoth
-pub(in crate::card::sets) static URBORG_TOMB_OF_YAWGMOTH: CardRecord = CardRecord::new(
-    cards::URBORG_TOMB_OF_YAWGMOTH,
-    "Urborg, Tomb of Yawgmoth",
-    CardArt::new("19e1224f-82cb-4f41-8739-f880cba61bbb", "John Avon"),
-    CardSet::PlanarChaos,
-    CardRules::new_land(&[])
-        .with_supertype(CardSupertype::Legendary)
-        .with_ability(AbilityDef::static_ability(
-            "Each land is a Swamp in addition to its other land types.",
-            EffectDef::StaticApply {
-                recipient: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::HasType(CardType::Land),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::Any,
-                ),
-                effect: AppliedEffectDef::add_basic_land_types(&[BasicLandType::Swamp]),
-            },
-        )),
-);
+pub(in crate::card::sets) static URBORG_TOMB_OF_YAWGMOTH: CardRecord =
+    CardRecord::new_with_legacy_id(
+        261,
+        "Urborg, Tomb of Yawgmoth",
+        CardArt::new("19e1224f-82cb-4f41-8739-f880cba61bbb", "John Avon"),
+        CardSet::PlanarChaos,
+        CardRules::new_land(&[])
+            .with_supertype(CardSupertype::Legendary)
+            .with_ability(AbilityDef::static_ability(
+                "Each land is a Swamp in addition to its other land types.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    effect: AppliedEffectDef::add_basic_land_types(&[BasicLandType::Swamp]),
+                },
+            )),
+    );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&MANA_TITHE, &URBORG_TOMB_OF_YAWGMOTH];
 

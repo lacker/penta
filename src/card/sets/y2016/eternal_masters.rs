@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AddManaEffectDef, CardArt, CardRules, CardSet, EffectDef,
     EffectRecipientDef, LikelihoodDef, ManaColor, PlayerRelation, TriggerEventDef, TurnStepDef,
-    ValueDef, cards,
+    ValueDef,
 };
 use crate::mana_cost;
 
@@ -37,8 +37,8 @@ static MANA_CRYPT_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // EMA 225 — Mana Crypt
-pub(in crate::card::sets) static MANA_CRYPT: CardRecord = CardRecord::new(
-    cards::MANA_CRYPT,
+pub(in crate::card::sets) static MANA_CRYPT: CardRecord = CardRecord::new_with_legacy_id(
+    2142,
     "Mana Crypt",
     CardArt::new("0cb33b46-4d1b-4f97-bfdc-d815aee111da", "Matt Stewart"),
     CardSet::EternalMasters,

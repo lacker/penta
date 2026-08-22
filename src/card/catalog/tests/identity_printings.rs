@@ -1,22 +1,18 @@
 use super::*;
 
 #[test]
-fn zero_is_an_ordinary_definition_id() {
-    let id = CardDefinitionId(0);
-    let catalog = CardCatalog::new([definition(0, "Zero", CardSet::Alpha)]).unwrap();
-
-    assert_eq!(catalog.get(id).map(|card| card.id), Some(id));
-    assert_eq!(catalog.find_by_name("zero"), Some(id));
-    assert!(
-        catalog
-            .get_printing(CardPrintingId::new(id, CardSet::Alpha))
-            .is_some()
+fn definition_ids_are_nonzero_and_javascript_safe() {
+    assert_eq!(CardDefinitionId::try_new(0), None);
+    assert_eq!(CardDefinitionId::try_new(CardDefinitionId::MAX + 1), None);
+    assert_eq!(
+        CardDefinitionId::try_new(CardDefinitionId::MAX),
+        Some(CardDefinitionId::new(CardDefinitionId::MAX)),
     );
 }
 
 #[test]
 fn primary_and_additional_printings_are_indexed_by_canonical_definition() {
-    let id = CardDefinitionId(1);
+    let id = CardDefinitionId::new(1);
     let primary = CardPrintingId::new(id, CardSet::Alpha);
     let beta = CardPrinting::new(id, CardSet::Beta);
     let alternate_beta = CardPrinting::with_variant(id, CardSet::Beta, 1);
@@ -40,8 +36,20 @@ fn primary_and_additional_printings_are_indexed_by_canonical_definition() {
 }
 
 #[test]
+fn sparse_javascript_safe_definition_ids_do_not_expand_the_dense_index() {
+    let id = CardDefinitionId::new(1_u64 << 40);
+    let catalog = CardCatalog::new([definition(id.get(), "Sparse Card", CardSet::Alpha)]).unwrap();
+
+    assert_eq!(
+        catalog.get(id).map(|card| card.name.as_str()),
+        Some("Sparse Card")
+    );
+    assert_eq!(catalog.find_by_name("sparse card"), Some(id));
+}
+
+#[test]
 fn duplicate_printing_ids_are_rejected() {
-    let id = CardDefinitionId(1);
+    let id = CardDefinitionId::new(1);
     let duplicate = CardPrinting::new(id, CardSet::Alpha);
     assert_eq!(
         CardCatalog::with_additional_printings(
@@ -55,7 +63,7 @@ fn duplicate_printing_ids_are_rejected() {
 
 #[test]
 fn an_allowed_reprint_makes_the_canonical_identity_format_legal() {
-    let id = CardDefinitionId(1);
+    let id = CardDefinitionId::new(1);
     let catalog = CardCatalog::with_additional_printings(
         [definition(1, "Test Card", CardSet::Alpha)],
         [CardPrinting::new(id, CardSet::Magic2014)],
@@ -69,7 +77,7 @@ fn an_allowed_reprint_makes_the_canonical_identity_format_legal() {
 
 #[test]
 fn additional_printings_must_reference_a_cataloged_definition() {
-    let orphan = CardPrinting::new(CardDefinitionId(2), CardSet::Beta);
+    let orphan = CardPrinting::new(CardDefinitionId::new(2), CardSet::Beta);
     assert_eq!(
         CardCatalog::with_additional_printings(
             [definition(1, "Test Card", CardSet::Alpha)],
@@ -83,13 +91,13 @@ fn additional_printings_must_reference_a_cataloged_definition() {
 #[test]
 fn definition_supplied_printings_must_belong_to_that_definition() {
     let mut card = definition(1, "Test Card", CardSet::Alpha);
-    let mismatched = CardPrinting::new(CardDefinitionId(2), CardSet::Beta);
+    let mismatched = CardPrinting::new(CardDefinitionId::new(2), CardSet::Beta);
     card.printings.push(mismatched);
 
     assert_eq!(
         CardCatalog::new([card]).unwrap_err(),
         CatalogError::MismatchedPrintingDefinition {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             printing: mismatched.id,
         }
     );
@@ -98,10 +106,13 @@ fn definition_supplied_printings_must_belong_to_that_definition() {
 #[test]
 fn unknown_definitions_have_no_printings() {
     let catalog = CardCatalog::new([definition(1, "Test Card", CardSet::Alpha)]).unwrap();
-    assert!(catalog.printings_for(CardDefinitionId(2)).is_empty());
+    assert!(catalog.printings_for(CardDefinitionId::new(2)).is_empty());
     assert!(
         catalog
-            .get_printing(CardPrintingId::new(CardDefinitionId(2), CardSet::Alpha))
+            .get_printing(CardPrintingId::new(
+                CardDefinitionId::new(2),
+                CardSet::Alpha
+            ))
             .is_none()
     );
 }

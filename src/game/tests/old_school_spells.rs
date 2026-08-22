@@ -569,7 +569,7 @@ pub(super) fn game_with_test_fused_split(
 
 #[test]
 fn combined_spell_trigger_and_target_characteristics_union_parts() {
-    let definition_id = CardDefinitionId(10_066);
+    let definition_id = CardDefinitionId::new(10_066);
     let instant = CardRules::new_instant(ManaCost::default()).with_subtypes(&["Arcane"]);
     let sorcery = CardRules::new_sorcery(ManaCost::default()).with_subtypes(&["Lesson"]);
     let (mut game, combined, parts) = game_with_test_fused_split(definition_id, &instant, &sorcery);
@@ -626,7 +626,7 @@ fn combined_spell_trigger_and_target_characteristics_union_parts() {
 
 #[test]
 fn split_card_target_characteristics_union_parts_outside_the_stack() {
-    let definition_id = CardDefinitionId(10_067);
+    let definition_id = CardDefinitionId::new(10_067);
     let instant = CardRules::new_instant(ManaCost::default()).with_subtypes(&["Arcane"]);
     let sorcery = CardRules::new_sorcery(ManaCost::default()).with_subtypes(&["Lesson"]);
     let (mut game, _, _) = game_with_test_fused_split(definition_id, &instant, &sorcery);

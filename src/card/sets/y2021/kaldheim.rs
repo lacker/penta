@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype,
     CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation, TriggerEventDef,
-    ValueDef, ZoneKind, ZonePlacement, cards, tokens,
+    ValueDef, ZoneKind, ZonePlacement, tokens,
 };
 use crate::mana_cost;
 
@@ -78,8 +78,8 @@ static MAGDA_ABILITIES: [AbilityDef; 3] = [
 ];
 
 // KHM 142 — Magda, Brazen Outlaw
-pub(in crate::card::sets) static MAGDA_BRAZEN_OUTLAW: CardRecord = CardRecord::new(
-    cards::MAGDA_BRAZEN_OUTLAW,
+pub(in crate::card::sets) static MAGDA_BRAZEN_OUTLAW: CardRecord = CardRecord::new_with_legacy_id(
+    2298,
     "Magda, Brazen Outlaw",
     CardArt::new("079e6263-e54c-4899-a336-5315909b9322", "Slawomir Maniak"),
     CardSet::Kaldheim,

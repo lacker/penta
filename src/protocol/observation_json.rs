@@ -74,7 +74,7 @@ fn presented_object_json(
         "name": object_characteristics_name(catalog, characteristics),
     });
     if let crate::ObjectCharacteristics::Card { definition, part } = characteristics {
-        value["definition"] = Value::from(definition.0);
+        value["definition"] = Value::from(definition.get());
         value["presentedPartId"] = Value::from(part.0);
     }
     value
@@ -91,7 +91,7 @@ fn card_list_json(
                 json!({
                     "objectId": instance.0,
                     "instance": instance.0,
-                    "definition": definition.0,
+                    "definition": definition.get(),
                     "name": card_name(catalog, *definition),
                 })
             })
@@ -197,7 +197,7 @@ fn permanent_observation_json(
         "enteredThisTurn": permanent.entered_this_turn,
     });
     if let crate::ObjectCharacteristics::Card { definition, part } = permanent.characteristics {
-        value["definition"] = Value::from(definition.0);
+        value["definition"] = Value::from(definition.get());
         value["presentedPartId"] = Value::from(part.0);
     }
     if let Some(face) = permanent.physical_face {
@@ -363,7 +363,7 @@ pub(super) fn stack_object_json(catalog: &CardCatalog, object: &StackObservation
         "x": object.x,
     });
     if let crate::ObjectCharacteristics::Card { definition, part } = object.characteristics {
-        value["definition"] = Value::from(definition.0);
+        value["definition"] = Value::from(definition.get());
         value["presentedPartId"] = Value::from(part.0);
     }
     value

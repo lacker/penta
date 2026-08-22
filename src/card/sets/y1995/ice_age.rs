@@ -6,13 +6,13 @@ use crate::card::{
     AppliedRuleDef, CardArt, CardRules, CardSet, CardType, EffectDef, EffectRecipientDef,
     InstalledTriggerDef, ManaColor, ObjectPredicateDef, PlayerRelation, ResolvedEffectDurationDef,
     TopCardSelectionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities, cards,
+    abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
 // ICE 61 — Brainstorm
-pub(in crate::card::sets) static BRAINSTORM: CardRecord = CardRecord::new(
-    cards::BRAINSTORM,
+pub(in crate::card::sets) static BRAINSTORM: CardRecord = CardRecord::new_with_legacy_id(
+    2254,
     "Brainstorm",
     CardArt::new("8d42d7aa-7f53-4cfc-842a-086aab2448d1", "Christopher Rush"),
     CardSet::IceAge,
@@ -20,15 +20,15 @@ pub(in crate::card::sets) static BRAINSTORM: CardRecord = CardRecord::new(
     // what it buys is the top of the library, and a fetchland turns the two
     // cards put back into two cards nobody has to draw.
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell(
-        "Draw three cards, then put two cards from your hand on top of your library in any \
+        "Draw three then put two cards from your hand on top of your library in any \
              order.",
         abilities::brainstorm(),
     )),
 );
 
 // ICE 72 — Hydroblast
-pub(in crate::card::sets) static HYDROBLAST: CardRecord = CardRecord::new(
-    cards::HYDROBLAST,
+pub(in crate::card::sets) static HYDROBLAST: CardRecord = CardRecord::new_with_legacy_id(
+    264,
     "Hydroblast",
     CardArt::new("f62716f0-fde2-49ef-b8a4-c1b03f451194", "Kaja Foglio"),
     CardSet::IceAge,
@@ -97,8 +97,8 @@ static PORTENT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 )];
 
 // ICE 90 — Portent
-pub(in crate::card::sets) static PORTENT: CardRecord = CardRecord::new(
-    cards::PORTENT,
+pub(in crate::card::sets) static PORTENT: CardRecord = CardRecord::new_with_legacy_id(
+    2051,
     "Portent",
     CardArt::new("e040be83-3fb5-4da5-ba7a-4923b8854b74", "Liz Danforth"),
     CardSet::IceAge,
@@ -114,8 +114,8 @@ pub(in crate::card::sets) static PORTENT: CardRecord = CardRecord::new(
 );
 
 // ICE 194 — Incinerate
-pub(in crate::card::sets) static INCINERATE: CardRecord = CardRecord::new(
-    cards::INCINERATE,
+pub(in crate::card::sets) static INCINERATE: CardRecord = CardRecord::new_with_legacy_id(
+    265,
     "Incinerate",
     CardArt::new("9c3f00af-010d-4485-b8b7-47400d99c496", "Mark Poole"),
     CardSet::IceAge,
@@ -136,8 +136,8 @@ pub(in crate::card::sets) static INCINERATE: CardRecord = CardRecord::new(
 );
 
 // ICE 213 — Pyroblast
-pub(in crate::card::sets) static PYROBLAST: CardRecord = CardRecord::new(
-    cards::PYROBLAST,
+pub(in crate::card::sets) static PYROBLAST: CardRecord = CardRecord::new_with_legacy_id(
+    266,
     "Pyroblast",
     CardArt::new("c342cac5-08ae-4428-9c2c-f6c5904e54d2", "Kaja Foglio"),
     CardSet::IceAge,
@@ -160,8 +160,8 @@ pub(in crate::card::sets) static PYROBLAST: CardRecord = CardRecord::new(
 );
 
 // ICE 350 — Zuran Orb
-pub(in crate::card::sets) static ZURAN_ORB: CardRecord = CardRecord::new(
-    cards::ZURAN_ORB,
+pub(in crate::card::sets) static ZURAN_ORB: CardRecord = CardRecord::new_with_legacy_id(
+    2106,
     "Zuran Orb",
     CardArt::new("3a9d1082-a862-45d4-9e5e-392e879fead6", "Sandra Everingham"),
     CardSet::IceAge,
@@ -179,8 +179,8 @@ pub(in crate::card::sets) static ZURAN_ORB: CardRecord = CardRecord::new(
 );
 
 // ICE 351 — Adarkar Wastes
-pub(in crate::card::sets) static ADARKAR_WASTES: CardRecord = CardRecord::new(
-    cards::ADARKAR_WASTES,
+pub(in crate::card::sets) static ADARKAR_WASTES: CardRecord = CardRecord::new_with_legacy_id(
+    294,
     "Adarkar Wastes",
     CardArt::new("09dd9023-f7ee-4e99-8821-7059deb83730", "Mike Raabe"),
     CardSet::IceAge,
@@ -191,8 +191,8 @@ pub(in crate::card::sets) static ADARKAR_WASTES: CardRecord = CardRecord::new(
 );
 
 // ICE 356 — Karplusan Forest
-pub(in crate::card::sets) static KARPLUSAN_FOREST: CardRecord = CardRecord::new(
-    cards::KARPLUSAN_FOREST,
+pub(in crate::card::sets) static KARPLUSAN_FOREST: CardRecord = CardRecord::new_with_legacy_id(
+    295,
     "Karplusan Forest",
     CardArt::new("ba6f1263-d598-49fb-b5f8-09f11822ebd0", "Nicola Leonard"),
     CardSet::IceAge,
@@ -203,8 +203,8 @@ pub(in crate::card::sets) static KARPLUSAN_FOREST: CardRecord = CardRecord::new(
 );
 
 // ICE 362 — Underground River
-pub(in crate::card::sets) static UNDERGROUND_RIVER: CardRecord = CardRecord::new(
-    cards::UNDERGROUND_RIVER,
+pub(in crate::card::sets) static UNDERGROUND_RIVER: CardRecord = CardRecord::new_with_legacy_id(
+    296,
     "Underground River",
     CardArt::new("92369d7e-5e5a-46f9-bb31-c57d62410283", "NéNé Thomas"),
     CardSet::IceAge,

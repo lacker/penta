@@ -277,7 +277,7 @@ impl Game {
                 RetiredObject::Card(card) => Some(RetiredObjectSnapshot::Card {
                     card: DetachedCardSnapshot {
                         object_id: card.id.0,
-                        definition: card.definition.0,
+                        definition: card.definition,
                         owner: card.owner.index(),
                     },
                 }),

@@ -93,7 +93,7 @@ impl Game {
                 match candidates.as_slice() {
                     [] => {}
                     [candidate] => {
-                        self.apply_battlefield_exit_replacement(&mut batch, *candidate);
+                        self.apply_battlefield_exit_replacement(&mut batch, candidate);
                         progressed = true;
                         break;
                     }
@@ -242,7 +242,7 @@ impl Game {
     pub(super) fn apply_battlefield_exit_replacement(
         &mut self,
         batch: &mut PendingBattlefieldExitBatch,
-        replacement: ApplicableZoneMoveReplacement,
+        replacement: &ApplicableZoneMoveReplacement,
     ) {
         batch.moves[replacement.move_index]
             .applied

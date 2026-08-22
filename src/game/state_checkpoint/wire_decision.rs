@@ -6,7 +6,9 @@ use super::model::{
     DecisionCardOriginSnapshot, DecisionContinuationSnapshot, DecisionStateSnapshot,
     DecisionZoneSnapshot,
 };
-use super::wire::{array, field, player_from_index, str_field, u32_field, usize_field};
+use super::wire::{
+    array, card_definition_id_field, field, player_from_index, str_field, u32_field,
+};
 use super::{CardDefinitionId, CardInstance, GameObjectId, PlayerId};
 
 pub(super) fn rebind_visible_decision_cards(
@@ -246,10 +248,7 @@ fn insert_visible_card(
     zone: DecisionZoneSnapshot,
 ) -> Result<(), String> {
     let object = GameObjectId(u32_field(value, "objectId")?);
-    let definition = CardDefinitionId(
-        u16::try_from(usize_field(value, "definition")?)
-            .map_err(|_| "decision card definition is too large")?,
-    );
+    let definition = card_definition_id_field(value, "definition")?;
     match seen.insert(object, (definition, zone)) {
         Some(previous) if previous != (definition, zone) => {
             return Err("one visible decision card has conflicting definitions or zones".into());

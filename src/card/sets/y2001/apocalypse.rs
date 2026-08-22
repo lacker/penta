@@ -7,13 +7,13 @@ use crate::card::{
     DiscardFollowUpDef, DiscardSelectionDef, DividedTotal, EffectDef, EffectRecipientDef,
     ManaColor, ObjectPredicateDef, PlayOptionDef, PlayerRelation, ResolvedEffectDurationDef,
     ScaledValueDef, SpellForm, TopCardSelectionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities, cards,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::{CardPartId, PlayOptionId, TargetIndex, mana_cost};
 
 // APC 47 — Phyrexian Arena
-pub(in crate::card::sets) static PHYREXIAN_ARENA: CardRecord = CardRecord::new(
-    cards::PHYREXIAN_ARENA,
+pub(in crate::card::sets) static PHYREXIAN_ARENA: CardRecord = CardRecord::new_with_legacy_id(
+    289,
     "Phyrexian Arena",
     CardArt::new("84e19975-e3e1-453b-b902-a1b1fc1d8504", "Pete Venters"),
     CardSet::Apocalypse,
@@ -56,8 +56,8 @@ static RINGLEADER_DIG: TopCardSelectionDef = TopCardSelectionDef {
 };
 
 // APC 62 — Goblin Ringleader
-pub(in crate::card::sets) static GOBLIN_RINGLEADER: CardRecord = CardRecord::new(
-    cards::GOBLIN_RINGLEADER,
+pub(in crate::card::sets) static GOBLIN_RINGLEADER: CardRecord = CardRecord::new_with_legacy_id(
+    2027,
     "Goblin Ringleader",
     CardArt::new("b6b2cd77-9552-48b1-80cb-26966323c1ea", "Mark Romanoski"),
     CardSet::Apocalypse,
@@ -99,8 +99,8 @@ static VERDICT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 )];
 
 // APC 102 — Gerrard's Verdict
-pub(in crate::card::sets) static GERRARDS_VERDICT: CardRecord = CardRecord::new(
-    cards::GERRARDS_VERDICT,
+pub(in crate::card::sets) static GERRARDS_VERDICT: CardRecord = CardRecord::new_with_legacy_id(
+    2067,
     "Gerrard's Verdict",
     CardArt::new("583740c0-8b3d-4f2a-9e1c-6b5d8a3f2c7e", "Carl Critchlow"),
     CardSet::Apocalypse,
@@ -122,8 +122,8 @@ pub(in crate::card::sets) static GERRARDS_VERDICT: CardRecord = CardRecord::new(
 );
 
 // APC 126 — Vindicate
-pub(in crate::card::sets) static VINDICATE: CardRecord = CardRecord::new(
-    cards::VINDICATE,
+pub(in crate::card::sets) static VINDICATE: CardRecord = CardRecord::new_with_legacy_id(
+    278,
     "Vindicate",
     CardArt::new("2a1bfefd-dae8-49e9-9d56-cc852e3dc93b", "Brian Snõddy"),
     CardSet::Apocalypse,
@@ -208,8 +208,8 @@ fn fire_ice_composition() -> CardComposition {
 }
 
 // APC 128 — Fire // Ice
-pub(in crate::card::sets) static FIRE_ICE: CardRecord = CardRecord::new(
-    cards::FIRE_ICE,
+pub(in crate::card::sets) static FIRE_ICE: CardRecord = CardRecord::new_with_legacy_id(
+    306,
     "Fire // Ice",
     CardArt::new(
         "f98f4538-5b5b-475d-b98f-49d01dae6f04",
@@ -309,8 +309,8 @@ fn life_death_composition() -> CardComposition {
 }
 
 // APC 130 — Life // Death
-pub(in crate::card::sets) static LIFE_DEATH: CardRecord = CardRecord::new(
-    cards::LIFE_DEATH,
+pub(in crate::card::sets) static LIFE_DEATH: CardRecord = CardRecord::new_with_legacy_id(
+    2123,
     "Life // Death",
     CardArt::new(
         "7ab75cdb-93a1-4f78-b404-37566295c321",
@@ -322,8 +322,8 @@ pub(in crate::card::sets) static LIFE_DEATH: CardRecord = CardRecord::new(
 .with_composition(life_death_composition);
 
 // APC 140 — Caves of Koilos
-pub(in crate::card::sets) static CAVES_OF_KOILOS: CardRecord = CardRecord::new(
-    cards::CAVES_OF_KOILOS,
+pub(in crate::card::sets) static CAVES_OF_KOILOS: CardRecord = CardRecord::new_with_legacy_id(
+    297,
     "Caves of Koilos",
     CardArt::new("144dd08e-451e-4438-b572-7a138e1a15f3", "Jim Nelson"),
     CardSet::Apocalypse,
@@ -334,8 +334,8 @@ pub(in crate::card::sets) static CAVES_OF_KOILOS: CardRecord = CardRecord::new(
 );
 
 // APC 141 — Llanowar Wastes
-pub(in crate::card::sets) static LLANOWAR_WASTES: CardRecord = CardRecord::new(
-    cards::LLANOWAR_WASTES,
+pub(in crate::card::sets) static LLANOWAR_WASTES: CardRecord = CardRecord::new_with_legacy_id(
+    298,
     "Llanowar Wastes",
     CardArt::new("610b7cd5-5532-45a9-acfe-24a818034d1c", "Rob Alexander"),
     CardSet::Apocalypse,
@@ -346,8 +346,8 @@ pub(in crate::card::sets) static LLANOWAR_WASTES: CardRecord = CardRecord::new(
 );
 
 // APC 143 — Yavimaya Coast
-pub(in crate::card::sets) static YAVIMAYA_COAST: CardRecord = CardRecord::new(
-    cards::YAVIMAYA_COAST,
+pub(in crate::card::sets) static YAVIMAYA_COAST: CardRecord = CardRecord::new_with_legacy_id(
+    299,
     "Yavimaya Coast",
     CardArt::new("177ee102-d981-4fc3-9f09-9dd07755f22c", "Anthony S. Waters"),
     CardSet::Apocalypse,

@@ -425,7 +425,7 @@ fn mwonvuli_beast_tracker_finds_only_the_four_named_keywords() {
                 .and_then(|(_, characteristics)| characteristics.card_definition())
         })
         .collect::<Vec<_>>();
-    offered.sort_unstable_by_key(|definition| definition.0);
+    offered.sort_unstable_by_key(|definition| definition.get());
     assert_eq!(
         offered,
         vec![cards::GIANT_SPIDER, cards::DEADLY_RECLUSE],

@@ -25,6 +25,19 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Changed
 
+- **Card definition IDs now use printing-anchored, JavaScript-safe 52-bit
+  identities.** Every existing card keeps its historic numeric value, now
+  authored beside its `CardRecord`; new cards deterministically hash an
+  immutable exact-printing UUID with a committed collision nonce when needed.
+  The former hand-maintained flat ID registry is generated as a native
+  compatibility surface, a compact fingerprint freezes every migrated legacy
+  assignment, and the catalog uses a dense legacy index plus a sparse map for
+  derived values. `CardDefinitionId` is now a constrained,
+  nonzero `u64` newtype with `new`, `try_new`, and `get`; Python setters accept
+  the wider integer range. Protocol and checkpoint JSON remain exact JSON
+  numbers with unchanged legacy meanings, so protocol 27, checkpoint format 7,
+  and replay version 2 are unchanged.
+
 - **Protocol 27 removes the synthetic face-down card definition.** Face-down
   spells and permanents now carry rules-owned inline characteristics while the
   physical card retains its real definition identity. Shared constructors

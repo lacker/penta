@@ -230,8 +230,9 @@ fn seat_wire(game: &Game, viewer: PlayerId) -> Value {
 /// effect that discards at random -- Hymn to Tourach -- takes a different card
 /// out of a hand. Neither is a reconstruction bug; the rollout seed is
 /// deliberately not the host seed.
-fn hidden_state(game: &Game) -> Vec<Vec<u16>> {
-    let definitions = |cards: &[CardInstance]| cards.iter().map(|card| card.definition.0).collect();
+fn hidden_state(game: &Game) -> Vec<Vec<u64>> {
+    let definitions =
+        |cards: &[CardInstance]| cards.iter().map(|card| card.definition.get()).collect();
     game.players
         .iter()
         .flat_map(|player| [definitions(&player.hand), definitions(&player.library)])

@@ -26,7 +26,7 @@ fn a_supported_draw_action_window_rebuilds_and_resumes() {
     let definitions = |cards: &[CardInstance]| {
         cards
             .iter()
-            .map(|card| card.definition.0)
+            .map(|card| card.definition.get())
             .collect::<Vec<_>>()
     };
     let hidden = json!({
@@ -561,7 +561,7 @@ fn an_emblem_rebuilds_with_identity_and_source_provenance() {
     let definitions = |cards: &[CardInstance]| {
         cards
             .iter()
-            .map(|card| card.definition.0)
+            .map(|card| card.definition.get())
             .collect::<Vec<_>>()
     };
     let hidden = json!({

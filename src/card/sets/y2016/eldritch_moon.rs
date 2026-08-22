@@ -6,7 +6,7 @@ use crate::card::{
     CardSet, CardType, ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SpellAdditionalCostDef,
-    ValueDef, ZoneKind, cards,
+    ValueDef, ZoneKind,
 };
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -95,8 +95,8 @@ static BRUTALITY_MODES: [AbilityDef; 3] = [
 ];
 
 // EMN 85 — Collective Brutality
-pub(in crate::card::sets) static COLLECTIVE_BRUTALITY: CardRecord = CardRecord::new(
-    cards::COLLECTIVE_BRUTALITY,
+pub(in crate::card::sets) static COLLECTIVE_BRUTALITY: CardRecord = CardRecord::new_with_legacy_id(
+    2244,
     "Collective Brutality",
     CardArt::new("cb94a02f-4660-45b6-8a39-941b710cf8f3", "Johann Bodin"),
     CardSet::EldritchMoon,

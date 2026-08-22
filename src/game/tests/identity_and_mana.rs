@@ -288,7 +288,7 @@ fn declarative_mana_production_drives_generic_mana_sources() {
         &[AbilityCostDef::TapSource],
         EffectDef::AddMana(AddManaEffectDef::choice(&[ManaColor::Blue, ManaColor::Red])),
     )];
-    let definition_id = CardDefinitionId(10_000);
+    let definition_id = CardDefinitionId::new(10_000);
     let mut definition = CardDefinition::new(
         definition_id,
         "Test dual land",

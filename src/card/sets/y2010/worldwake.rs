@@ -7,7 +7,7 @@ use crate::card::{
     CardTypeSet, ColorSet, CreatureTypeSetDef, EffectDef, EffectRecipientDef, ManaColor,
     ObjectPredicateDef, ObjectQueryDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ResolvedEffectDurationDef, TopCardSelectionDef, TriggerEventDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities, cards,
+    ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -31,8 +31,8 @@ static MYSTIC_PUT_EQUIPMENT_DOWN: EffectDef = EffectDef::ChooseCards {
 };
 
 // WWK 20 — Stoneforge Mystic
-pub(in crate::card::sets) static STONEFORGE_MYSTIC: CardRecord = CardRecord::new(
-    cards::STONEFORGE_MYSTIC,
+pub(in crate::card::sets) static STONEFORGE_MYSTIC: CardRecord = CardRecord::new_with_legacy_id(
+    2191,
     "Stoneforge Mystic",
     CardArt::new("19557351-b65f-4b04-b971-66abdc07000a", "Mike Bierek"),
     CardSet::Worldwake,
@@ -173,7 +173,7 @@ static JACE_THE_MIND_SCULPTOR_ABILITIES: [AbilityDef; 4] = [
         },
     ),
     AbilityDef::activated(
-        "0: Draw three cards, then put two cards from your hand on top of your library in any \
+        "0: Draw three then put two cards from your hand on top of your library in any \
          order.",
         &[AbilityCostDef::Loyalty(0)],
         abilities::brainstorm(),
@@ -201,22 +201,23 @@ static JACE_THE_MIND_SCULPTOR_ABILITIES: [AbilityDef; 4] = [
 ];
 
 // WWK 31 — Jace, the Mind Sculptor
-pub(in crate::card::sets) static JACE_THE_MIND_SCULPTOR: CardRecord = CardRecord::new(
-    cards::JACE_THE_MIND_SCULPTOR,
-    "Jace, the Mind Sculptor",
-    CardArt::new("0e606072-a3aa-4300-ba90-ec92a721fa76", "Jason Chan"),
-    CardSet::Worldwake,
-    // Four abilities and three of them matter: the bounce buys the turn, the
-    // zero rebuilds the hand, and the fateseal is what a Jace that is not
-    // under pressure does forever.
-    CardRules::new_planeswalker(mana_cost!("{2}{U}{U}"), &["Jace"], 3)
-        .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&JACE_THE_MIND_SCULPTOR_ABILITIES),
-);
+pub(in crate::card::sets) static JACE_THE_MIND_SCULPTOR: CardRecord =
+    CardRecord::new_with_legacy_id(
+        2291,
+        "Jace, the Mind Sculptor",
+        CardArt::new("0e606072-a3aa-4300-ba90-ec92a721fa76", "Jason Chan"),
+        CardSet::Worldwake,
+        // Four abilities and three of them matter: the bounce buys the turn, the
+        // zero rebuilds the hand, and the fateseal is what a Jace that is not
+        // under pressure does forever.
+        CardRules::new_planeswalker(mana_cost!("{2}{U}{U}"), &["Jace"], 3)
+            .with_supertype(CardSupertype::Legendary)
+            .with_abilities(&JACE_THE_MIND_SCULPTOR_ABILITIES),
+    );
 
 // WWK 133 — Celestial Colonnade
-pub(in crate::card::sets) static CELESTIAL_COLONNADE: CardRecord = CardRecord::new(
-    cards::CELESTIAL_COLONNADE,
+pub(in crate::card::sets) static CELESTIAL_COLONNADE: CardRecord = CardRecord::new_with_legacy_id(
+    2239,
     "Celestial Colonnade",
     CardArt::new("f6929259-2903-4f6f-9b06-42048fd55c6a", "Eric Deschamps"),
     CardSet::Worldwake,

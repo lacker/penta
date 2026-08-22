@@ -60,20 +60,28 @@ fn built_in_records_have_unique_identity() {
         .iter()
         .flat_map(|module| module.cards.iter().copied())
         .collect::<Vec<_>>();
+    let record_ids = records
+        .iter()
+        .map(|record| record.id())
+        .collect::<HashSet<_>>();
     assert_eq!(
-        records
-            .iter()
-            .map(|record| record.id)
-            .collect::<HashSet<_>>()
-            .len(),
+        record_ids.len(),
         records.len(),
         "definition IDs must remain globally unique",
+    );
+    assert_eq!(
+        crate::card::cards::ALL_CARD_DEFINITION_IDS
+            .iter()
+            .copied()
+            .collect::<HashSet<_>>(),
+        record_ids,
+        "generated compatibility IDs must match the runtime records",
     );
     for retired in RETIRED_VIRTUAL_OBJECT_IDS {
         assert!(
             records
                 .iter()
-                .all(|record| record.id != CardDefinitionId(*retired)),
+                .all(|record| record.id() != CardDefinitionId::new(u64::from(*retired))),
             "retired virtual-object definition ID {retired} must remain a tombstone",
         );
     }
@@ -86,6 +94,23 @@ fn built_in_records_have_unique_identity() {
         records.len(),
         "every catalog definition name must remain globally unique",
     );
+    assert_eq!(
+        records
+            .iter()
+            .map(|record| record.identity_anchor())
+            .collect::<HashSet<_>>()
+            .len(),
+        records.len(),
+        "every catalog definition must have a unique anchor printing",
+    );
+    for record in records {
+        assert!(
+            super::is_uuid(record.identity_anchor()),
+            "{} has an invalid anchor printing UUID: {}",
+            record.name,
+            record.identity_anchor(),
+        );
+    }
 }
 
 #[test]
@@ -115,12 +140,12 @@ fn built_in_catalog_indexes_definitions_and_printings_separately() {
 
     for record in records {
         let definition = catalog
-            .get(record.id)
+            .get(record.id())
             .unwrap_or_else(|| panic!("{} is missing from the catalog", record.name));
         assert_eq!(definition.name, record.name);
         assert!(
             catalog
-                .get_printing(CardPrintingId::new(record.id, record.debut_set))
+                .get_printing(CardPrintingId::new(record.id(), record.debut_set))
                 .is_some(),
             "{} is missing its debut printing",
             record.name,
@@ -419,7 +444,7 @@ fn standard_records_are_unique_and_format_legal() {
     assert_eq!(
         records
             .iter()
-            .map(|record| record.id)
+            .map(|record| record.id())
             .collect::<HashSet<_>>()
             .len(),
         records.len(),

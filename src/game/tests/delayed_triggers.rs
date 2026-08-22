@@ -427,7 +427,7 @@ fn stacked_quickens_are_all_spent_by_the_same_next_sorcery() {
 
 #[test]
 fn quicken_consumes_its_grant_for_the_selected_sorcery_part() {
-    let definition_id = CardDefinitionId(10_068);
+    let definition_id = CardDefinitionId::new(10_068);
     let instant = CardRules::new_instant(ManaCost::default());
     let sorcery = CardRules::new_sorcery(ManaCost::default());
     let (mut game, _, _) = game_with_test_fused_split(definition_id, &instant, &sorcery);
@@ -467,7 +467,7 @@ fn quicken_consumes_its_grant_for_the_selected_sorcery_part() {
 
 #[test]
 fn quicken_preserves_its_grant_for_the_selected_instant_part() {
-    let definition_id = CardDefinitionId(10_069);
+    let definition_id = CardDefinitionId::new(10_069);
     let sorcery = CardRules::new_sorcery(ManaCost::default());
     let instant = CardRules::new_instant(ManaCost::default());
     let (mut game, _, _) = game_with_test_fused_split(definition_id, &sorcery, &instant);

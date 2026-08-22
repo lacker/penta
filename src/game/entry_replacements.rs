@@ -46,7 +46,7 @@ impl Game {
             match candidates.as_slice() {
                 [] => self.commit_pending_event(pending),
                 [candidate] => {
-                    let Some(pending) = self.prepare_entry_replacement(pending, *candidate) else {
+                    let Some(pending) = self.prepare_entry_replacement(pending, candidate) else {
                         return;
                     };
                     self.pending_events.push_front(pending);
@@ -101,7 +101,7 @@ impl Game {
     pub(super) fn prepare_entry_replacement(
         &mut self,
         mut pending: PendingEvent,
-        candidate: ApplicableReplacement,
+        candidate: &ApplicableReplacement,
     ) -> Option<PendingEvent> {
         pending.applied.push(candidate.context.source);
         if candidate.optional {

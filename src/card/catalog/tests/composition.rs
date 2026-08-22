@@ -7,7 +7,7 @@ fn part_and_play_option_ids_are_unique_within_a_definition() {
     assert_eq!(
         error(duplicate_part),
         CatalogError::DuplicatePartId {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             part: CardPartId::PRIMARY,
         }
     );
@@ -19,7 +19,7 @@ fn part_and_play_option_ids_are_unique_within_a_definition() {
     assert_eq!(
         error(duplicate_option),
         CatalogError::DuplicatePlayOptionId {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             option: PlayOptionId::DEFAULT,
         }
     );
@@ -35,7 +35,7 @@ fn incoherent_rules_cannot_enter_the_catalog() {
     assert_eq!(
         error(invalid_compatibility_view),
         CatalogError::IncoherentCardRules {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             part: CardPartId::PRIMARY,
             explanation: "a land cannot have a printed mana cost",
         }
@@ -46,7 +46,7 @@ fn incoherent_rules_cannot_enter_the_catalog() {
     assert_eq!(
         error(invalid_part),
         CatalogError::IncoherentCardRules {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             part: CardPartId::PRIMARY,
             explanation: "a land cannot have a printed mana cost",
         }
@@ -85,7 +85,7 @@ fn creator_owned_token_rules_receive_catalog_composition_validation() {
     assert_eq!(
         error(creator),
         CatalogError::IncoherentCardRules {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             part: CardPartId::PRIMARY,
             explanation: "a noncreature cannot have creature power and toughness",
         }
@@ -114,7 +114,7 @@ fn creator_owned_token_abilities_receive_catalog_validation() {
     assert_eq!(
         error(creator),
         CatalogError::EmptyAbilityText {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
         }
@@ -129,7 +129,7 @@ fn compatibility_rules_must_match_the_primary_part() {
     assert_eq!(
         error(card),
         CatalogError::MismatchedPrimaryRules {
-            definition: CardDefinitionId(1),
+            definition: CardDefinitionId::new(1),
             part: CardPartId::PRIMARY,
         }
     );

@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCoverageDef, AbilityDef, AppliedEffectDef, CardArt, CardChoiceSourceDef, CardRules,
     CardSet, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
-    TriggerEventDef, TurnStepDef, ZoneKind, ZonePlacement, abilities, cards,
+    TriggerEventDef, TurnStepDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::mana_cost;
 
@@ -48,8 +48,8 @@ static BREACH_PUT_ONTO_BATTLEFIELD: EffectDef = EffectDef::ChooseCards {
 };
 
 // CHK 193 — Through the Breach
-pub(in crate::card::sets) static THROUGH_THE_BREACH: CardRecord = CardRecord::new(
-    cards::THROUGH_THE_BREACH,
+pub(in crate::card::sets) static THROUGH_THE_BREACH: CardRecord = CardRecord::new_with_legacy_id(
+    2190,
     "Through the Breach",
     CardArt::new("6da09e6a-2965-4855-bd41-41b41ba188fb", "Hugh Jamieson"),
     CardSet::ChampionsOfKamigawa,

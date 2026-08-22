@@ -405,14 +405,14 @@ mod tests {
         // Two cards from the same set, one in the pool and one not: only
         // membership separates them.
         let inside = CardDefinition::new(
-            CardDefinitionId(1),
+            CardDefinitionId::new(1),
             "Ancestral Recall",
             CardSet::Alpha,
             false,
             CardBehavior::Unsupported,
         );
         let outside = CardDefinition::new(
-            CardDefinitionId(2),
+            CardDefinitionId::new(2),
             "Sorrow's Path",
             CardSet::Alpha,
             false,
@@ -446,21 +446,21 @@ mod tests {
     #[test]
     fn formats_allow_only_their_sets_but_share_basic_lands() {
         let old_spell = CardDefinition::new(
-            CardDefinitionId(1),
+            CardDefinitionId::new(1),
             "Old spell",
             CardSet::Alpha,
             false,
             CardBehavior::Unsupported,
         );
         let standard_spell = CardDefinition::new(
-            CardDefinitionId(2),
+            CardDefinitionId::new(2),
             "Standard spell",
             CardSet::Innistrad,
             false,
             CardBehavior::Unsupported,
         );
         let old_printing_of_a_basic = CardDefinition::new(
-            CardDefinitionId(3),
+            CardDefinitionId::new(3),
             "Plains",
             CardSet::Alpha,
             true,
@@ -477,7 +477,7 @@ mod tests {
 
     #[test]
     fn any_allowed_reprint_makes_the_canonical_card_identity_legal() {
-        let id = CardDefinitionId(1);
+        let id = CardDefinitionId::new(1);
         let mut reprinted_spell = CardDefinition::new(
             id,
             "Reprinted spell",

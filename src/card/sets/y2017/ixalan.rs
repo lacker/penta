@@ -5,7 +5,7 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, CardType,
     ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerEventDef, ZoneKind, abilities, cards,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerEventDef, ZoneKind, abilities,
 };
 use crate::ids::ObjectBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -85,8 +85,8 @@ static KITESAIL_FREEBOOTER_ABILITIES: [AbilityDef; 2] = [
 ];
 
 // XLN 110 — Kitesail Freebooter
-pub(in crate::card::sets) static KITESAIL_FREEBOOTER: CardRecord = CardRecord::new(
-    cards::KITESAIL_FREEBOOTER,
+pub(in crate::card::sets) static KITESAIL_FREEBOOTER: CardRecord = CardRecord::new_with_legacy_id(
+    2149,
     "Kitesail Freebooter",
     CardArt::new("f62fd592-4910-417d-a500-e7029f3d119f", "Dan Murayama Scott"),
     CardSet::Ixalan,

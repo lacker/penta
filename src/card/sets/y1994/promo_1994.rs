@@ -5,7 +5,7 @@
 use crate::card::{
     AbilityCostDef, AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, ComparisonDef,
     EffectDef, EffectRecipientDef, InstalledTriggerDef, PlayerRelation, ResolvedEffectDurationDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, abilities, cards,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, abilities,
 };
 use crate::mana_cost;
 
@@ -47,8 +47,8 @@ static NALATHNI_DRAGON_PUMP: [EffectDef; 2] = [
 ];
 
 // P94 3 — Nalathni Dragon
-pub(in crate::card::sets) static NALATHNI_DRAGON: CardRecord = CardRecord::new(
-    cards::NALATHNI_DRAGON,
+pub(in crate::card::sets) static NALATHNI_DRAGON: CardRecord = CardRecord::new_with_legacy_id(
+    1781,
     "Nalathni Dragon",
     CardArt::new("7f9c6be5-ec44-4c66-aad6-cf9eca765b6b", "Michael Whelan"),
     CardSet::Promo1994,

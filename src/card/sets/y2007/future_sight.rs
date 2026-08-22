@@ -6,7 +6,7 @@ use crate::card::{
     AppliedEffectDef, ArrivalAttachmentDef, CardArt, CardRules, CardSet, CardType, CounterKind,
     CreatureStats, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectRefDef,
     PlayerRelation, ResolvedEffectDurationDef, SpellResolutionDestinationDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, cards,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -14,8 +14,8 @@ static REALITY_STROBE_TIME_COUNTERS: [(CounterKind, u16); 1] = [(CounterKind::Ti
 
 // FUT 43 — Reality Strobe
 // Audit: partial — Its spell effect and self-exile with time counters are executable, but suspend's upkeep counter removal and free cast from exile need the shared exile-casting lifecycle.
-pub(in crate::card::sets) static REALITY_STROBE: CardRecord = CardRecord::new(
-    cards::REALITY_STROBE,
+pub(in crate::card::sets) static REALITY_STROBE: CardRecord = CardRecord::new_with_legacy_id(
+    1709,
     "Reality Strobe",
     CardArt::new("8e6d881a-f7b1-471f-bc0b-64a79bb491c9", "Dan Murayama Scott"),
     CardSet::FutureSight,
@@ -58,8 +58,8 @@ static RELIC_CASHES_IN: [EffectDef; 2] = [
 ];
 
 // FUT 161 — Coalition Relic
-pub(in crate::card::sets) static COALITION_RELIC: CardRecord = CardRecord::new(
-    cards::COALITION_RELIC,
+pub(in crate::card::sets) static COALITION_RELIC: CardRecord = CardRecord::new_with_legacy_id(
+    2197,
     "Coalition Relic",
     CardArt::new("7a7c98b0-d64d-4d0a-b284-1187a8e7095e", "Donato Giancola"),
     CardSet::FutureSight,
@@ -143,8 +143,8 @@ static SWORD_OF_THE_MEEK_ABILITIES: [AbilityDef; 3] = [
 ];
 
 // FUT 165 — Sword of the Meek
-pub(in crate::card::sets) static SWORD_OF_THE_MEEK: CardRecord = CardRecord::new(
-    cards::SWORD_OF_THE_MEEK,
+pub(in crate::card::sets) static SWORD_OF_THE_MEEK: CardRecord = CardRecord::new_with_legacy_id(
+    2220,
     "Sword of the Meek",
     CardArt::new("e9f13705-6ede-4c29-a2b4-a082bf69e9c5", "Franz Vohwinkel"),
     CardSet::FutureSight,
@@ -156,8 +156,8 @@ pub(in crate::card::sets) static SWORD_OF_THE_MEEK: CardRecord = CardRecord::new
 );
 
 // FUT 167 — Darksteel Garrison
-pub(in crate::card::sets) static DARKSTEEL_GARRISON: CardRecord = CardRecord::new(
-    cards::DARKSTEEL_GARRISON,
+pub(in crate::card::sets) static DARKSTEEL_GARRISON: CardRecord = CardRecord::new_with_legacy_id(
+    1702,
     "Darksteel Garrison",
     CardArt::new("e77eaaa0-40f9-40e4-b0ba-5a8addd764d3", "David Martin"),
     CardSet::FutureSight,
@@ -194,8 +194,8 @@ pub(in crate::card::sets) static DARKSTEEL_GARRISON: CardRecord = CardRecord::ne
 );
 
 // FUT 174 — Dryad Arbor
-pub(in crate::card::sets) static DRYAD_ARBOR: CardRecord = CardRecord::new(
-    cards::DRYAD_ARBOR,
+pub(in crate::card::sets) static DRYAD_ARBOR: CardRecord = CardRecord::new_with_legacy_id(
+    252,
     "Dryad Arbor",
     CardArt::new("8cee476d-42e1-4997-87af-73e18f542167", "Eric Fortune"),
     CardSet::FutureSight,
@@ -215,8 +215,8 @@ static HORIZON_CANOPY_ABILITIES: [AbilityDef; 2] =
     abilities::horizon_land("{T}, Pay 1 life: Add {G} or {W}.", &HORIZON_CANOPY_COLORS);
 
 // FUT 177 — Horizon Canopy
-pub(in crate::card::sets) static HORIZON_CANOPY: CardRecord = CardRecord::new(
-    cards::HORIZON_CANOPY,
+pub(in crate::card::sets) static HORIZON_CANOPY: CardRecord = CardRecord::new_with_legacy_id(
+    2285,
     "Horizon Canopy",
     CardArt::new("d5dfc25d-a17b-4ead-9484-e8a18b8fa176", "Michael Komarck"),
     CardSet::FutureSight,

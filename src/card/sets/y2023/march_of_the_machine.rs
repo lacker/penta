@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, CardArt, CardRules, CardSet, CardType, CounterKind, EffectDef, EffectRecipientDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, TokenCountersDef, ValueDef, ZoneKind,
-    ZonePlacement, cards, tokens,
+    ZonePlacement, tokens,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::mana_cost;
@@ -47,8 +47,8 @@ static SUNFALL_EXILES_THEN_INCUBATES: EffectDef = EffectDef::BindMatching {
 };
 
 // MOM 40 — Sunfall
-pub(in crate::card::sets) static SUNFALL: CardRecord = CardRecord::new(
-    cards::SUNFALL,
+pub(in crate::card::sets) static SUNFALL: CardRecord = CardRecord::new_with_legacy_id(
+    2258,
     "Sunfall",
     CardArt::new(
         "32e29c7d-ed4b-4eff-b3c2-d99e5b63ef8d",

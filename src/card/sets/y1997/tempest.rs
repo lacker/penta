@@ -9,7 +9,7 @@ use crate::card::{
     ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
     ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
     ReplacementEventDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities, cards,
+    ZonePlacement, abilities,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
 use crate::{TargetIndex, mana_cost};
@@ -23,8 +23,8 @@ static HUMBLED: [AppliedEffectDef; 2] = [
 ];
 
 // TMP 24 — Humility
-pub(in crate::card::sets) static HUMILITY: CardRecord = CardRecord::new(
-    cards::HUMILITY,
+pub(in crate::card::sets) static HUMILITY: CardRecord = CardRecord::new_with_legacy_id(
+    2055,
     "Humility",
     CardArt::new("a2fb7128-806b-4148-80fe-eb967f248021", "Phil Foglio"),
     CardSet::Tempest,
@@ -44,8 +44,8 @@ pub(in crate::card::sets) static HUMILITY: CardRecord = CardRecord::new(
 );
 
 // TMP 51 — Warmth
-pub(in crate::card::sets) static WARMTH: CardRecord = CardRecord::new(
-    cards::WARMTH,
+pub(in crate::card::sets) static WARMTH: CardRecord = CardRecord::new_with_legacy_id(
+    286,
     "Warmth",
     CardArt::new("d7dbeea8-06b0-4482-bdae-aa82b9db8856", "Drew Tucker"),
     CardSet::Tempest,
@@ -63,8 +63,8 @@ pub(in crate::card::sets) static WARMTH: CardRecord = CardRecord::new(
 );
 
 // TMP 56 — Chill
-pub(in crate::card::sets) static CHILL: CardRecord = CardRecord::new(
-    cards::CHILL,
+pub(in crate::card::sets) static CHILL: CardRecord = CardRecord::new_with_legacy_id(
+    2038,
     "Chill",
     CardArt::new("5a7bd777-6f11-441e-887f-9cee1ef96035", "Greg Simanson"),
     CardSet::Tempest,
@@ -125,8 +125,8 @@ static INTUITION_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 )];
 
 // TMP 70 — Intuition
-pub(in crate::card::sets) static INTUITION: CardRecord = CardRecord::new(
-    cards::INTUITION,
+pub(in crate::card::sets) static INTUITION: CardRecord = CardRecord::new_with_legacy_id(
+    2084,
     "Intuition",
     CardArt::new("19eae4ac-10a4-4860-bcc2-0c9816f8bcdd", "April Lee"),
     CardSet::Tempest,
@@ -158,8 +158,8 @@ static TIME_WARP_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 )];
 
 // TMP 97 — Time Warp
-pub(in crate::card::sets) static TIME_WARP: CardRecord = CardRecord::new(
-    cards::TIME_WARP,
+pub(in crate::card::sets) static TIME_WARP: CardRecord = CardRecord::new_with_legacy_id(
+    2109,
     "Time Warp",
     CardArt::new("3447aeaf-3b26-442a-99d4-0a7ee76c8e76", "Pete Venters"),
     CardSet::Tempest,
@@ -198,8 +198,8 @@ static DANCE_ARRIVAL: AppliedEffectDef = AppliedEffectDef::Composite(&[
 ]);
 
 // TMP 116 — Corpse Dance
-pub(in crate::card::sets) static CORPSE_DANCE: CardRecord = CardRecord::new(
-    cards::CORPSE_DANCE,
+pub(in crate::card::sets) static CORPSE_DANCE: CardRecord = CardRecord::new_with_legacy_id(
+    2187,
     "Corpse Dance",
     CardArt::new("76ae81ea-13e3-4ab8-b956-4c7b139a5e9c", "Brian Snõddy"),
     CardSet::Tempest,
@@ -231,8 +231,8 @@ pub(in crate::card::sets) static CORPSE_DANCE: CardRecord = CardRecord::new(
 );
 
 // TMP 151 — Reanimate
-pub(in crate::card::sets) static REANIMATE: CardRecord = CardRecord::new(
-    cards::REANIMATE,
+pub(in crate::card::sets) static REANIMATE: CardRecord = CardRecord::new_with_legacy_id(
+    305,
     "Reanimate",
     CardArt::new("fc00f897-988b-4602-969a-c510804ec12a", "Robert Bliss"),
     CardSet::Tempest,
@@ -266,8 +266,8 @@ static GOBLIN_BOMBARDMENT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exa
 )];
 
 // TMP 179 — Goblin Bombardment
-pub(in crate::card::sets) static GOBLIN_BOMBARDMENT: CardRecord = CardRecord::new(
-    cards::GOBLIN_BOMBARDMENT,
+pub(in crate::card::sets) static GOBLIN_BOMBARDMENT: CardRecord = CardRecord::new_with_legacy_id(
+    2110,
     "Goblin Bombardment",
     CardArt::new("179e954f-1d90-4ef4-b800-25845cc338e2", "Brian Snoddy"),
     CardSet::Tempest,
@@ -288,8 +288,8 @@ pub(in crate::card::sets) static GOBLIN_BOMBARDMENT: CardRecord = CardRecord::ne
 );
 
 // TMP 183 — Jackal Pup
-pub(in crate::card::sets) static JACKAL_PUP: CardRecord = CardRecord::new(
-    cards::JACKAL_PUP,
+pub(in crate::card::sets) static JACKAL_PUP: CardRecord = CardRecord::new_with_legacy_id(
+    267,
     "Jackal Pup",
     CardArt::new("3707ab74-9aec-4d30-86e0-ffa5f72d5b4f", "Susan Van Camp"),
     CardSet::Tempest,
@@ -306,8 +306,8 @@ pub(in crate::card::sets) static JACKAL_PUP: CardRecord = CardRecord::new(
 );
 
 // TMP 190 — Mogg Fanatic
-pub(in crate::card::sets) static MOGG_FANATIC: CardRecord = CardRecord::new(
-    cards::MOGG_FANATIC,
+pub(in crate::card::sets) static MOGG_FANATIC: CardRecord = CardRecord::new_with_legacy_id(
+    268,
     "Mogg Fanatic",
     CardArt::new("ca2ecfd4-c874-4468-8601-87aa110d5a00", "Brom"),
     CardSet::Tempest,
@@ -327,8 +327,8 @@ pub(in crate::card::sets) static MOGG_FANATIC: CardRecord = CardRecord::new(
 );
 
 // TMP 250 — Root Maze
-pub(in crate::card::sets) static ROOT_MAZE: CardRecord = CardRecord::new(
-    cards::ROOT_MAZE,
+pub(in crate::card::sets) static ROOT_MAZE: CardRecord = CardRecord::new_with_legacy_id(
+    287,
     "Root Maze",
     CardArt::new("99a12b74-f191-4362-81ab-77590ae5e68f", "Rebecca Guay"),
     CardSet::Tempest,
@@ -381,8 +381,8 @@ static CARDS_IN_YOUR_HAND: ObjectQueryDef = ObjectQueryDef::owned_by(
 );
 
 // TMP 281 — Cursed Scroll
-pub(in crate::card::sets) static CURSED_SCROLL: CardRecord = CardRecord::new(
-    cards::CURSED_SCROLL,
+pub(in crate::card::sets) static CURSED_SCROLL: CardRecord = CardRecord::new_with_legacy_id(
+    2037,
     "Cursed Scroll",
     CardArt::new(
         "31415b9b-fb30-4132-a9a3-795b4573a901",
@@ -417,8 +417,8 @@ static SCROLL_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 )];
 
 // TMP 294 — Lotus Petal
-pub(in crate::card::sets) static LOTUS_PETAL: CardRecord = CardRecord::new(
-    cards::LOTUS_PETAL,
+pub(in crate::card::sets) static LOTUS_PETAL: CardRecord = CardRecord::new_with_legacy_id(
+    271,
     "Lotus Petal",
     CardArt::new("6c877da3-68fa-41d0-8a24-8c79fcd8ecc1", "April Lee"),
     CardSet::Tempest,
@@ -430,8 +430,8 @@ pub(in crate::card::sets) static LOTUS_PETAL: CardRecord = CardRecord::new(
 );
 
 // TMP 315 — Ancient Tomb
-pub(in crate::card::sets) static ANCIENT_TOMB: CardRecord = CardRecord::new(
-    cards::ANCIENT_TOMB,
+pub(in crate::card::sets) static ANCIENT_TOMB: CardRecord = CardRecord::new_with_legacy_id(
+    300,
     "Ancient Tomb",
     CardArt::new("30e401e3-282b-4524-87e1-c6cd50cd6d00", "Colin MacNeil"),
     CardSet::Tempest,
@@ -447,8 +447,8 @@ pub(in crate::card::sets) static ANCIENT_TOMB: CardRecord = CardRecord::new(
 );
 
 // TMP 322 — Reflecting Pool
-pub(in crate::card::sets) static REFLECTING_POOL: CardRecord = CardRecord::new(
-    cards::REFLECTING_POOL,
+pub(in crate::card::sets) static REFLECTING_POOL: CardRecord = CardRecord::new_with_legacy_id(
+    2073,
     "Reflecting Pool",
     CardArt::new("4fc67298-6610-47d7-971b-baf5728d5349", "Adam Rex"),
     CardSet::Tempest,
@@ -469,8 +469,8 @@ pub(in crate::card::sets) static REFLECTING_POOL: CardRecord = CardRecord::new(
 );
 
 // TMP 330 — Wasteland
-pub(in crate::card::sets) static WASTELAND: CardRecord = CardRecord::new(
-    cards::WASTELAND,
+pub(in crate::card::sets) static WASTELAND: CardRecord = CardRecord::new_with_legacy_id(
+    279,
     "Wasteland",
     CardArt::new("99ff731b-8399-40c8-b539-ba6ba5783771", "Una Fricker"),
     CardSet::Tempest,

@@ -26,7 +26,7 @@ fn standard_records() -> Vec<&'static CardRecord> {
         .filter(|module| Format::IsdDgmStandard.allows_set(module.set))
         .flat_map(|module| module.cards.iter().copied())
         .collect::<Vec<_>>();
-    records.sort_unstable_by_key(|record| record.id);
+    records.sort_unstable_by_key(|record| record.id());
     records
 }
 
@@ -43,7 +43,7 @@ fn printings_for_set(set: CardSet) -> Vec<CardPrinting> {
     module
         .cards
         .iter()
-        .map(|record| CardPrinting::new(record.id, set))
+        .map(|record| CardPrinting::new(record.id(), set))
         .chain(
             module
                 .additional_printings

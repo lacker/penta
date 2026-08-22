@@ -7,7 +7,7 @@ use crate::card::{
     CounterKind, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, ManaColor,
     ObjectPredicateDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ResolvedEffectDurationDef, StackTargetKindDef, TriggerConditionDef, TriggerEventDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities, cards,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -33,8 +33,8 @@ static DECREE_CYCLING_TRIGGER: EffectDef = EffectDef::PayOr(PayOrDef::optional(
 ));
 
 // SCG 8 — Decree of Justice
-pub(in crate::card::sets) static DECREE_OF_JUSTICE: CardRecord = CardRecord::new(
-    cards::DECREE_OF_JUSTICE,
+pub(in crate::card::sets) static DECREE_OF_JUSTICE: CardRecord = CardRecord::new_with_legacy_id(
+    2056,
     "Decree of Justice",
     CardArt::new("5e8a7e5c-2a37-4e73-b5c9-b8a4b9d0b6e9", "Adam Rex"),
     CardSet::Scourge,
@@ -65,8 +65,8 @@ pub(in crate::card::sets) static DECREE_OF_JUSTICE: CardRecord = CardRecord::new
 );
 
 // SCG 12 — Eternal Dragon
-pub(in crate::card::sets) static ETERNAL_DRAGON: CardRecord = CardRecord::new(
-    cards::ETERNAL_DRAGON,
+pub(in crate::card::sets) static ETERNAL_DRAGON: CardRecord = CardRecord::new_with_legacy_id(
+    2025,
     "Eternal Dragon",
     CardArt::new("0596928c-2b20-4dbb-aa78-3ab6c3ce0d72", "Justin Sweet"),
     CardSet::Scourge,
@@ -109,8 +109,8 @@ static A_PLAYER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 )];
 
 // SCG 29 — Brain Freeze
-pub(in crate::card::sets) static BRAIN_FREEZE: CardRecord = CardRecord::new(
-    cards::BRAIN_FREEZE,
+pub(in crate::card::sets) static BRAIN_FREEZE: CardRecord = CardRecord::new_with_legacy_id(
+    2063,
     "Brain Freeze",
     CardArt::new("59a43ef5-9f6a-4d3e-8e3f-9b3d8f6c1a2b", "Tim Hildebrandt"),
     CardSet::Scourge,
@@ -164,8 +164,8 @@ static AN_OPPONENTS_SPELL: ObjectPredicateDef =
     ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent);
 
 // SCG 32 — Decree of Silence
-pub(in crate::card::sets) static DECREE_OF_SILENCE: CardRecord = CardRecord::new(
-    cards::DECREE_OF_SILENCE,
+pub(in crate::card::sets) static DECREE_OF_SILENCE: CardRecord = CardRecord::new_with_legacy_id(
+    2082,
     "Decree of Silence",
     CardArt::new("064fcd41-176d-460d-8e63-8437cfa9b4b1", "Adam Rex"),
     CardSet::Scourge,
@@ -205,8 +205,8 @@ static STIFLE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 )];
 
 // SCG 52 — Stifle
-pub(in crate::card::sets) static STIFLE: CardRecord = CardRecord::new(
-    cards::STIFLE,
+pub(in crate::card::sets) static STIFLE: CardRecord = CardRecord::new_with_legacy_id(
+    2071,
     "Stifle",
     CardArt::new("b3adbbdc-9747-4745-95f1-fda5617529f2", "Dany Orizio"),
     CardSet::Scourge,
@@ -254,8 +254,8 @@ static TENDRILS_STORM: EffectDef = EffectDef::CopyResolvingSpell {
 };
 
 // SCG 75 — Tendrils of Agony
-pub(in crate::card::sets) static TENDRILS_OF_AGONY: CardRecord = CardRecord::new(
-    cards::TENDRILS_OF_AGONY,
+pub(in crate::card::sets) static TENDRILS_OF_AGONY: CardRecord = CardRecord::new_with_legacy_id(
+    2223,
     "Tendrils of Agony",
     CardArt::new("0559352e-95c1-403b-bd8f-d0679717cfa2", "Pete Venters"),
     CardSet::Scourge,
@@ -277,8 +277,8 @@ pub(in crate::card::sets) static TENDRILS_OF_AGONY: CardRecord = CardRecord::new
 );
 
 // SCG 86 — Dragon Breath
-pub(in crate::card::sets) static DRAGON_BREATH: CardRecord = CardRecord::new(
-    cards::DRAGON_BREATH,
+pub(in crate::card::sets) static DRAGON_BREATH: CardRecord = CardRecord::new_with_legacy_id(
+    2088,
     "Dragon Breath",
     CardArt::new("addf9bde-5caf-4b0d-bdc0-a36c18c12604", "Greg Staples"),
     CardSet::Scourge,
@@ -327,8 +327,8 @@ pub(in crate::card::sets) static DRAGON_BREATH: CardRecord = CardRecord::new(
 );
 
 // SCG 97 — Goblin Warchief
-pub(in crate::card::sets) static GOBLIN_WARCHIEF: CardRecord = CardRecord::new(
-    cards::GOBLIN_WARCHIEF,
+pub(in crate::card::sets) static GOBLIN_WARCHIEF: CardRecord = CardRecord::new_with_legacy_id(
+    2020,
     "Goblin Warchief",
     CardArt::new(
         "66864a4b-8924-40ef-a337-15b12413a158",
@@ -363,8 +363,8 @@ pub(in crate::card::sets) static GOBLIN_WARCHIEF: CardRecord = CardRecord::new(
 );
 
 // SCG 103 — Siege-Gang Commander
-pub(in crate::card::sets) static SIEGE_GANG_COMMANDER: CardRecord = CardRecord::new(
-    cards::SIEGE_GANG_COMMANDER,
+pub(in crate::card::sets) static SIEGE_GANG_COMMANDER: CardRecord = CardRecord::new_with_legacy_id(
+    2021,
     "Siege-Gang Commander",
     CardArt::new(
         "92e78cec-aaf9-4fe8-887b-b7e356d63315",

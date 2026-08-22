@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardSupertype, CardType, EffectDef,
     EffectRecipientDef, ObjectPredicateDef, ObjectRefDef, PlayerRefDef, ValueDef, ZoneKind,
-    ZonePlacement, cards,
+    ZonePlacement,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -50,8 +50,8 @@ static PATH_STEPS: [EffectDef; 2] = [
 ];
 
 // CON 15 — Path to Exile
-pub(in crate::card::sets) static PATH_TO_EXILE: CardRecord = CardRecord::new(
-    cards::PATH_TO_EXILE,
+pub(in crate::card::sets) static PATH_TO_EXILE: CardRecord = CardRecord::new_with_legacy_id(
+    2189,
     "Path to Exile",
     CardArt::new("29b7a8b1-b98e-483a-87a4-73bd831c03d4", "Todd Lockwood"),
     CardSet::Conflux,

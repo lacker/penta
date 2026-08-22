@@ -10,7 +10,7 @@ use crate::card::{
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayOptionDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SpellAdditionalCostDef,
     SpellForm, SpendModeDef, TokenCharacteristics, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, cards,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{CardPartId, ObjectBindingIndex, ObjectSetBindingIndex, PlayOptionId};
 use crate::{TargetIndex, mana_cost};
@@ -71,8 +71,8 @@ static OCELOT_PRIDE_ABILITIES: [AbilityDef; 4] = [
 ];
 
 // MH3 38 — Ocelot Pride
-pub(in crate::card::sets) static OCELOT_PRIDE: CardRecord = CardRecord::new(
-    cards::OCELOT_PRIDE,
+pub(in crate::card::sets) static OCELOT_PRIDE: CardRecord = CardRecord::new_with_legacy_id(
+    2225,
     "Ocelot Pride",
     CardArt::new("89cf6f57-230f-497e-a14e-ad1e8737fd42", "Chris Seaman"),
     CardSet::ModernHorizons3,
@@ -127,8 +127,8 @@ static PRISON_SACRIFICE: EffectDef = EffectDef::Sacrifice {
 };
 
 // MH3 44 — Static Prison
-pub(in crate::card::sets) static STATIC_PRISON: CardRecord = CardRecord::new(
-    cards::STATIC_PRISON,
+pub(in crate::card::sets) static STATIC_PRISON: CardRecord = CardRecord::new_with_legacy_id(
+    2194,
     "Static Prison",
     CardArt::new("dd16222e-349c-4a2b-a7c8-8eb35a8ab332", "Jason A. Engle"),
     CardSet::ModernHorizons3,
@@ -298,8 +298,8 @@ static EMPEROR_OF_BONES_ABILITIES: [AbilityDef; 3] = [
 ];
 
 // MH3 90 — Emperor of Bones
-pub(in crate::card::sets) static EMPEROR_OF_BONES: CardRecord = CardRecord::new(
-    cards::EMPEROR_OF_BONES,
+pub(in crate::card::sets) static EMPEROR_OF_BONES: CardRecord = CardRecord::new_with_legacy_id(
+    2269,
     "Emperor of Bones",
     CardArt::new("df9d9075-2d1e-4848-b661-816d539e05eb", "Josh Hass"),
     CardSet::ModernHorizons3,
@@ -311,8 +311,8 @@ pub(in crate::card::sets) static EMPEROR_OF_BONES: CardRecord = CardRecord::new(
 );
 
 // MH3 114 — Amped Raptor
-pub(in crate::card::sets) static AMPED_RAPTOR: CardRecord = CardRecord::new(
-    cards::AMPED_RAPTOR,
+pub(in crate::card::sets) static AMPED_RAPTOR: CardRecord = CardRecord::new_with_legacy_id(
+    2221,
     "Amped Raptor",
     CardArt::new("1ac0e78b-0fdd-44f9-8b7b-c4f28a32782e", "Alex Konstad"),
     CardSet::ModernHorizons3,
@@ -323,8 +323,8 @@ pub(in crate::card::sets) static AMPED_RAPTOR: CardRecord = CardRecord::new(
 );
 
 // MH3 148 — Colossal Dreadmask
-pub(in crate::card::sets) static COLOSSAL_DREADMASK: CardRecord = CardRecord::new(
-    cards::COLOSSAL_DREADMASK,
+pub(in crate::card::sets) static COLOSSAL_DREADMASK: CardRecord = CardRecord::new_with_legacy_id(
+    1703,
     "Colossal Dreadmask",
     CardArt::new("98164430-64c1-465f-b786-45753c965f44", "Caio Monteiro"),
     CardSet::ModernHorizons3,
@@ -413,8 +413,8 @@ static MYCOSPAWN_ABILITIES: [AbilityDef; 4] = [
 ];
 
 // MH3 170 — Sowing Mycospawn
-pub(in crate::card::sets) static SOWING_MYCOSPAWN: CardRecord = CardRecord::new(
-    cards::SOWING_MYCOSPAWN,
+pub(in crate::card::sets) static SOWING_MYCOSPAWN: CardRecord = CardRecord::new_with_legacy_id(
+    2176,
     "Sowing Mycospawn",
     CardArt::new("cdfadb17-76ad-4d4d-9fa7-33c4b88b4c0a", "Slawomir Maniak"),
     CardSet::ModernHorizons3,
@@ -688,17 +688,18 @@ static PHLAGE_ABILITIES: [AbilityDef; 3] = [
 ];
 
 // MH3 197 — Phlage, Titan of Fire's Fury
-pub(in crate::card::sets) static PHLAGE_TITAN_OF_FIRES_FURY: CardRecord = CardRecord::new(
-    cards::PHLAGE_TITAN_OF_FIRES_FURY,
-    "Phlage, Titan of Fire's Fury",
-    CardArt::new("e419cd0b-2449-4cc5-9ead-b9e45e271700", "Lucas Graciano"),
-    CardSet::ModernHorizons3,
-    // A three-mana Lightning Helix that stays a Helix until the graveyard is
-    // deep enough, and then is a 6/6 that helixes again every attack.
-    CardRules::new_creature(mana_cost!("{1}{R}{W}"), &["Elder", "Giant"], 6, 6)
-        .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&PHLAGE_ABILITIES),
-);
+pub(in crate::card::sets) static PHLAGE_TITAN_OF_FIRES_FURY: CardRecord =
+    CardRecord::new_with_legacy_id(
+        2227,
+        "Phlage, Titan of Fire's Fury",
+        CardArt::new("e419cd0b-2449-4cc5-9ead-b9e45e271700", "Lucas Graciano"),
+        CardSet::ModernHorizons3,
+        // A three-mana Lightning Helix that stays a Helix until the graveyard is
+        // deep enough, and then is a 6/6 that helixes again every attack.
+        CardRules::new_creature(mana_cost!("{1}{R}{W}"), &["Elder", "Giant"], 6, 6)
+            .with_supertype(CardSupertype::Legendary)
+            .with_abilities(&PHLAGE_ABILITIES),
+    );
 
 static PSYCHIC_FROG_ABILITIES: [AbilityDef; 3] = [
     // A player or a planeswalker: the Frog is happy to be chumped by neither.
@@ -736,8 +737,8 @@ static PSYCHIC_FROG_ABILITIES: [AbilityDef; 3] = [
 ];
 
 // MH3 199 — Psychic Frog
-pub(in crate::card::sets) static PSYCHIC_FROG: CardRecord = CardRecord::new(
-    cards::PSYCHIC_FROG,
+pub(in crate::card::sets) static PSYCHIC_FROG: CardRecord = CardRecord::new_with_legacy_id(
+    2277,
     "Psychic Frog",
     CardArt::new("68924203-c3d9-41ce-8ca8-c6dd491eb3ca", "Pete Venters"),
     CardSet::ModernHorizons3,
@@ -790,8 +791,8 @@ static BOUNTIFUL_LANDSCAPE_ABILITIES: [AbilityDef; 3] = [
 ];
 
 // MH3 217 — Bountiful Landscape
-pub(in crate::card::sets) static BOUNTIFUL_LANDSCAPE: CardRecord = CardRecord::new(
-    cards::BOUNTIFUL_LANDSCAPE,
+pub(in crate::card::sets) static BOUNTIFUL_LANDSCAPE: CardRecord = CardRecord::new_with_legacy_id(
+    2265,
     "Bountiful Landscape",
     CardArt::new("b277752b-430a-4f09-8a98-b72f813dd52e", "Mark Poole"),
     CardSet::ModernHorizons3,
@@ -802,8 +803,8 @@ pub(in crate::card::sets) static BOUNTIFUL_LANDSCAPE: CardRecord = CardRecord::n
 );
 
 // MH3 237 — Ajani, Nacatl Pariah
-pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord = CardRecord::new(
-    cards::AJANI_NACATL_PARIAH,
+pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord = CardRecord::new_with_legacy_id(
+    2199,
     "Ajani, Nacatl Pariah",
     CardArt::new("0d16e8e0-31b2-4389-afd6-783c501f6fa0", "Chris Rallis"),
     CardSet::ModernHorizons3,

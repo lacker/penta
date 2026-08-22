@@ -42,7 +42,7 @@ mod tests {
         let catalog = catalog().unwrap();
         let mut scryfall_ids = HashSet::new();
         for raw_id in 1..=128 {
-            let card = catalog.get(CardDefinitionId(raw_id)).unwrap();
+            let card = catalog.get(CardDefinitionId::new(raw_id)).unwrap();
             let expected_status =
                 if card.implementation_status() == crate::ImplementationStatus::MetadataOnly {
                     CardEffectStatus::MetadataOnly

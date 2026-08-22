@@ -24,9 +24,9 @@ use crate::{
     TargetSlotId,
 };
 
-fn definition(id: u16, name: &str, set: CardSet) -> CardDefinition {
+fn definition(id: u64, name: &str, set: CardSet) -> CardDefinition {
     CardDefinition::new(
-        CardDefinitionId(id),
+        CardDefinitionId::new(id),
         name,
         set,
         false,

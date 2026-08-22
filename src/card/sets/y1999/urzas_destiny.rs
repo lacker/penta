@@ -5,7 +5,7 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType,
     CardTypeSet, CharacteristicOperationDef, CounterKind, EffectDef, EffectRecipientDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRelation, PowerToughnessOperationDef,
-    SetOperationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, cards,
+    SetOperationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
 };
 use crate::mana_cost;
 
@@ -47,8 +47,8 @@ static ANIMATE_AS_ITS_OWN_COST: AppliedEffectDef = AppliedEffectDef::Composite(&
 ]);
 
 // UDS 13 — Opalescence
-pub(in crate::card::sets) static OPALESCENCE: CardRecord = CardRecord::new(
-    cards::OPALESCENCE,
+pub(in crate::card::sets) static OPALESCENCE: CardRecord = CardRecord::new_with_legacy_id(
+    2080,
     "Opalescence",
     CardArt::new("c8b66a4d-4ee1-40ba-993a-a56a5cbd2c3c", "John Avon"),
     CardSet::UrzasDestiny,
@@ -66,8 +66,8 @@ pub(in crate::card::sets) static OPALESCENCE: CardRecord = CardRecord::new(
 );
 
 // UDS 15 — Replenish
-pub(in crate::card::sets) static REPLENISH: CardRecord = CardRecord::new(
-    cards::REPLENISH,
+pub(in crate::card::sets) static REPLENISH: CardRecord = CardRecord::new_with_legacy_id(
+    2077,
     "Replenish",
     CardArt::new("c922d401-7916-42d3-9185-9de6219f9c38", "Jim Nelson"),
     CardSet::UrzasDestiny,
@@ -118,8 +118,8 @@ static KEG_FUSE: EffectDef = EffectDef::May {
 };
 
 // UDS 136 — Powder Keg
-pub(in crate::card::sets) static POWDER_KEG: CardRecord = CardRecord::new(
-    cards::POWDER_KEG,
+pub(in crate::card::sets) static POWDER_KEG: CardRecord = CardRecord::new_with_legacy_id(
+    2053,
     "Powder Keg",
     CardArt::new("4d9715c2-9036-4ae2-a5b4-1b190d50c963", "Dan Frazier"),
     CardSet::UrzasDestiny,

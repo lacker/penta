@@ -3,7 +3,7 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, AddManaEffectDef, CardArt, CardRules, CardSet, EffectDef, EffectRecipientDef,
-    ManaColor, ValueDef, cards,
+    ManaColor, ValueDef,
 };
 use crate::mana_cost;
 
@@ -26,8 +26,8 @@ static MANAMORPHOSE_EFFECT: [EffectDef; 2] = [
 ];
 
 // SHM 211 — Manamorphose
-pub(in crate::card::sets) static MANAMORPHOSE: CardRecord = CardRecord::new(
-    cards::MANAMORPHOSE,
+pub(in crate::card::sets) static MANAMORPHOSE: CardRecord = CardRecord::new_with_legacy_id(
+    2238,
     "Manamorphose",
     CardArt::new("50283122-b8c4-4fb3-8eba-6252b72222f4", "Jeff Miracola"),
     CardSet::Shadowmoor,

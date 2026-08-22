@@ -6,14 +6,13 @@ use crate::card::{
     CardRules, CardSet, CardType, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
     EffectRecipientDef, ObjectPredicateDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
     PlayerSetDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
-    cards,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 // MIR 14 — Enlightened Tutor
-pub(in crate::card::sets) static ENLIGHTENED_TUTOR: CardRecord = CardRecord::new(
-    cards::ENLIGHTENED_TUTOR,
+pub(in crate::card::sets) static ENLIGHTENED_TUTOR: CardRecord = CardRecord::new_with_legacy_id(
+    313,
     "Enlightened Tutor",
     CardArt::new("cbac1d27-15e2-4e2f-82ab-625a16e096cb", "Dan Frazier"),
     CardSet::Mirage,
@@ -65,8 +64,8 @@ static GRAVE_ARRIVAL: AppliedEffectDef = AppliedEffectDef::Composite(&[
 ]);
 
 // MIR 80 — Mystical Tutor
-pub(in crate::card::sets) static MYSTICAL_TUTOR: CardRecord = CardRecord::new(
-    cards::MYSTICAL_TUTOR,
+pub(in crate::card::sets) static MYSTICAL_TUTOR: CardRecord = CardRecord::new_with_legacy_id(
+    2107,
     "Mystical Tutor",
     CardArt::new("5d98101f-e32a-4a4a-a649-faa920d111ee", "David O'Connor"),
     CardSet::Mirage,
@@ -93,8 +92,8 @@ pub(in crate::card::sets) static MYSTICAL_TUTOR: CardRecord = CardRecord::new(
 );
 
 // MIR 141 — Shallow Grave
-pub(in crate::card::sets) static SHALLOW_GRAVE: CardRecord = CardRecord::new(
-    cards::SHALLOW_GRAVE,
+pub(in crate::card::sets) static SHALLOW_GRAVE: CardRecord = CardRecord::new_with_legacy_id(
+    2072,
     "Shallow Grave",
     CardArt::new("8932e789-1d1c-4750-837e-e0b45a81c1c7", "John Coulthart"),
     CardSet::Mirage,
@@ -117,8 +116,8 @@ pub(in crate::card::sets) static SHALLOW_GRAVE: CardRecord = CardRecord::new(
 );
 
 // MIR 180 — Goblin Tinkerer
-pub(in crate::card::sets) static GOBLIN_TINKERER: CardRecord = CardRecord::new(
-    cards::GOBLIN_TINKERER,
+pub(in crate::card::sets) static GOBLIN_TINKERER: CardRecord = CardRecord::new_with_legacy_id(
+    2022,
     "Goblin Tinkerer",
     CardArt::new("e6529852-8b3e-4a70-a4a1-029e012231c6", "Hannibal King"),
     CardSet::Mirage,
@@ -154,8 +153,8 @@ static GOBLIN_TINKERER_PROGRAM: [EffectDef; 2] = [
 ];
 
 // MIR 245 — Tranquil Domain
-pub(in crate::card::sets) static TRANQUIL_DOMAIN: CardRecord = CardRecord::new(
-    cards::TRANQUIL_DOMAIN,
+pub(in crate::card::sets) static TRANQUIL_DOMAIN: CardRecord = CardRecord::new_with_legacy_id(
+    285,
     "Tranquil Domain",
     CardArt::new(
         "801f34a6-9f22-43c2-b1e5-194395cc7da1",
@@ -179,8 +178,8 @@ pub(in crate::card::sets) static TRANQUIL_DOMAIN: CardRecord = CardRecord::new(
 );
 
 // MIR 255 — Worldly Tutor
-pub(in crate::card::sets) static WORLDLY_TUTOR: CardRecord = CardRecord::new(
-    cards::WORLDLY_TUTOR,
+pub(in crate::card::sets) static WORLDLY_TUTOR: CardRecord = CardRecord::new_with_legacy_id(
+    314,
     "Worldly Tutor",
     CardArt::new("f00115bc-b551-4bf5-a121-bebb37201575", "David O'Connor"),
     CardSet::Mirage,
@@ -204,8 +203,8 @@ pub(in crate::card::sets) static WORLDLY_TUTOR: CardRecord = CardRecord::new(
 );
 
 // MIR 299 — Cursed Totem
-pub(in crate::card::sets) static CURSED_TOTEM: CardRecord = CardRecord::new(
-    cards::CURSED_TOTEM,
+pub(in crate::card::sets) static CURSED_TOTEM: CardRecord = CardRecord::new_with_legacy_id(
+    2039,
     "Cursed Totem",
     CardArt::new(
         "cc99ee76-45b6-4f1d-b0b0-7da8775ca90c",
@@ -241,8 +240,8 @@ static DREADNOUGHT_COST: PayOrDef = PayOrDef::unless(
 );
 
 // MIR 315 — Phyrexian Dreadnought
-pub(in crate::card::sets) static PHYREXIAN_DREADNOUGHT: CardRecord = CardRecord::new(
-    cards::PHYREXIAN_DREADNOUGHT,
+pub(in crate::card::sets) static PHYREXIAN_DREADNOUGHT: CardRecord = CardRecord::new_with_legacy_id(
+    2085,
     "Phyrexian Dreadnought",
     CardArt::new("57fc0c2b-42b6-4d89-845c-6c08587f330e", "Pete Venters"),
     CardSet::Mirage,

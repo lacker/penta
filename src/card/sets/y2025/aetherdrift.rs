@@ -5,7 +5,7 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AddManaEffectDef, BasicLandType, CardArt, CardRules, CardSet,
     CardType, ComparisonDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
     ObjectQueryDef, PlayerRelation, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities, cards,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::mana_cost;
 
@@ -29,8 +29,8 @@ static STOCK_UP_SELECTION: TopCardSelectionDef = TopCardSelectionDef {
 };
 
 // DFT 67 — Stock Up
-pub(in crate::card::sets) static STOCK_UP: CardRecord = CardRecord::new(
-    cards::STOCK_UP,
+pub(in crate::card::sets) static STOCK_UP: CardRecord = CardRecord::new_with_legacy_id(
+    2179,
     "Stock Up",
     CardArt::new("0a786855-6eb4-42c0-a528-4842db46809d", "Izzy"),
     CardSet::Aetherdrift,
@@ -98,8 +98,8 @@ static BRIGHTGLASS_GEARHULK_ABILITIES: [AbilityDef; 3] = [
 ];
 
 // DFT 191 — Brightglass Gearhulk
-pub(in crate::card::sets) static BRIGHTGLASS_GEARHULK: CardRecord = CardRecord::new(
-    cards::BRIGHTGLASS_GEARHULK,
+pub(in crate::card::sets) static BRIGHTGLASS_GEARHULK: CardRecord = CardRecord::new_with_legacy_id(
+    2301,
     "Brightglass Gearhulk",
     CardArt::new("3dea5b45-925c-4732-8e9d-fa8232792736", "José Parodi"),
     CardSet::Aetherdrift,
@@ -125,8 +125,8 @@ static VERGE_HAS_ITS_LAND: TriggerConditionDef = TriggerConditionDef::ObjectCoun
 };
 
 // DFT 268 — Wastewood Verge
-pub(in crate::card::sets) static WASTEWOOD_VERGE: CardRecord = CardRecord::new(
-    cards::WASTEWOOD_VERGE,
+pub(in crate::card::sets) static WASTEWOOD_VERGE: CardRecord = CardRecord::new_with_legacy_id(
+    2196,
     "Wastewood Verge",
     CardArt::new("5ceacc7d-d407-4f82-af58-9bdf8426924e", "Bartek Fedyczak"),
     CardSet::Aetherdrift,

@@ -10,17 +10,18 @@ use super::semantics::{
 };
 use super::{
     AbilityId, AbilityOrigin, AdditionalCostId, AlternativeCostId, AppliedStackEffect,
-    BasicLandType, BasicLandTypeChange, CardDefinitionId, CardPartId, CastChoices, CastSignature,
+    BasicLandType, BasicLandTypeChange, CardPartId, CastChoices, CastSignature,
     CharacteristicSource, CostConfiguration, DeclarativeAbilityDef, EffectResolutionContext, Game,
     GameObjectId, GameStack, GrantId, ManaSource, ModeId, ObjectBacking, ObjectCharacteristics,
     ObjectInstance, ObjectKind, PlayOptionId, PlayerId, RetiredObject, SpellForm,
     StackAbilityPayload, StackObject, StackObjectKind, Target, TargetSelection, TriggerContext,
     Value, ability_locator, ability_origin_from_snapshot, ability_origin_snapshot,
-    ability_target_defs, array, basic_land_type_snapshot, card, cast_source_zone_from_label,
-    catalog_ability, face_down_characteristics_from_snapshot, face_down_characteristics_snapshot,
-    field, object_characteristics_from_snapshot, object_characteristics_snapshot,
-    object_kind_from_snapshot, object_kind_snapshot, optional_id, parse_basic_land_type,
-    parse_cast_signature, parse_ids, seat_value, str_field, u8_field, u32_field, usize_field,
+    ability_target_defs, array, basic_land_type_snapshot, card, card_definition_id_field,
+    cast_source_zone_from_label, catalog_ability, face_down_characteristics_from_snapshot,
+    face_down_characteristics_snapshot, field, object_characteristics_from_snapshot,
+    object_characteristics_snapshot, object_kind_from_snapshot, object_kind_snapshot, optional_id,
+    parse_basic_land_type, parse_cast_signature, parse_ids, seat_value, str_field, u8_field,
+    u32_field, usize_field,
 };
 use crate::card::{ColorSet, ManaColor};
 
@@ -887,10 +888,7 @@ fn seat_index_value(index: usize) -> Result<PlayerId, String> {
 pub(super) fn parse_ability_origin(value: &Value) -> Result<AbilityOrigin, String> {
     match str_field(value, "kind")? {
         "printed" => Ok(AbilityOrigin::Printed {
-            definition: CardDefinitionId(
-                u16::try_from(usize_field(value, "definition")?)
-                    .map_err(|_| "ability definition is too large")?,
-            ),
+            definition: card_definition_id_field(value, "definition")?,
             part: CardPartId(u8_field(value, "partId")?),
             ability: AbilityId(u8_field(value, "abilityId")?),
         }),
@@ -921,10 +919,7 @@ pub(super) fn parse_ability_origin(value: &Value) -> Result<AbilityOrigin, Strin
         }
         "granted" => Ok(AbilityOrigin::Granted {
             source: GameObjectId(u32_field(value, "source")?),
-            source_definition: CardDefinitionId(
-                u16::try_from(usize_field(value, "sourceDefinition")?)
-                    .map_err(|_| "grant source definition is too large")?,
-            ),
+            source_definition: card_definition_id_field(value, "sourceDefinition")?,
             source_part: CardPartId(u8_field(value, "sourcePartId")?),
             source_ability: AbilityId(u8_field(value, "sourceAbilityId")?),
             grant: GrantId(u8_field(value, "grantId")?),

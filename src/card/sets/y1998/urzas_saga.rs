@@ -7,14 +7,14 @@ use crate::card::{
     ChooseDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef,
     PlayerRelation, PlayerSetDef, SpellResolutionDestinationDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, cards,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
 
 // USG 21 — Monk Realist
-pub(in crate::card::sets) static MONK_REALIST: CardRecord = CardRecord::new(
-    cards::MONK_REALIST,
+pub(in crate::card::sets) static MONK_REALIST: CardRecord = CardRecord::new_with_legacy_id(
+    274,
     "Monk Realist",
     CardArt::new("7a7fe9f1-f3c0-43e4-aa30-d0bdab4ae94d", "Daren Bader"),
     CardSet::UrzasSaga,
@@ -35,8 +35,8 @@ pub(in crate::card::sets) static MONK_REALIST: CardRecord = CardRecord::new(
 );
 
 // USG 59 — Annul
-pub(in crate::card::sets) static ANNUL: CardRecord = CardRecord::new(
-    cards::ANNUL,
+pub(in crate::card::sets) static ANNUL: CardRecord = CardRecord::new_with_legacy_id(
+    275,
     "Annul",
     CardArt::new("3f8c73ff-be92-41ca-93a7-76f9823adb38", "Greg Simanson"),
     CardSet::UrzasSaga,
@@ -76,15 +76,15 @@ static GOBLIN_LACKEY_TRIGGER: EffectDef = EffectDef::ChooseCards {
 };
 
 // USG 61 — Attunement
-pub(in crate::card::sets) static ATTUNEMENT: CardRecord = CardRecord::new(
-    cards::ATTUNEMENT,
+pub(in crate::card::sets) static ATTUNEMENT: CardRecord = CardRecord::new_with_legacy_id(
+    2079,
     "Attunement",
     CardArt::new("b752a0d5-61f8-4f16-9d61-341464c9b2a2", "Randy Gallegos"),
     CardSet::UrzasSaga,
     // A net card down every time, and that is the point: the deck wants the
     // graveyard, and the enchantment comes back to do it again.
     CardRules::new_enchantment(mana_cost!("{2}{U}")).with_ability(AbilityDef::activated(
-        "Return this enchantment to its owner's hand: Draw three cards, then discard four cards.",
+        "Return this enchantment to its owner's hand: Draw three then discard four cards.",
         &[AbilityCostDef::ReturnSourceToHand],
         EffectDef::Sequence(&[
             EffectDef::DrawCards {
@@ -137,8 +137,8 @@ static A_CREATURE_AN_OPPONENT_CONTROLS: ObjectPredicateDef = ObjectPredicateDef:
 ]);
 
 // USG 76 — Gilded Drake
-pub(in crate::card::sets) static GILDED_DRAKE: CardRecord = CardRecord::new(
-    cards::GILDED_DRAKE,
+pub(in crate::card::sets) static GILDED_DRAKE: CardRecord = CardRecord::new_with_legacy_id(
+    2083,
     "Gilded Drake",
     CardArt::new("9ada76ca-ae9d-40e8-a3ff-71e6fc581b79", "Bob Eggleton"),
     CardSet::UrzasSaga,
@@ -174,8 +174,8 @@ static EXHUME_EACH_GRAVEYARD: [CardChoiceSourceDef; 1] =
     [CardChoiceSourceDef::Zone(ZoneKind::Graveyard)];
 
 // USG 103 — Time Spiral
-pub(in crate::card::sets) static TIME_SPIRAL: CardRecord = CardRecord::new(
-    cards::TIME_SPIRAL,
+pub(in crate::card::sets) static TIME_SPIRAL: CardRecord = CardRecord::new_with_legacy_id(
+    2290,
     "Time Spiral",
     CardArt::new("f3d62dbd-63db-4ac9-950f-9852627f23f2", "Michael Sutfin"),
     CardSet::UrzasSaga,
@@ -195,8 +195,8 @@ pub(in crate::card::sets) static TIME_SPIRAL: CardRecord = CardRecord::new(
 );
 
 // USG 134 — Exhume
-pub(in crate::card::sets) static EXHUME: CardRecord = CardRecord::new(
-    cards::EXHUME,
+pub(in crate::card::sets) static EXHUME: CardRecord = CardRecord::new_with_legacy_id(
+    2267,
     "Exhume",
     CardArt::new("a88b23ce-ce19-47da-b9f2-055a4d6bdc79", "Carl Critchlow"),
     CardSet::UrzasSaga,
@@ -221,8 +221,8 @@ pub(in crate::card::sets) static EXHUME: CardRecord = CardRecord::new(
 );
 
 // USG 190 — Goblin Lackey
-pub(in crate::card::sets) static GOBLIN_LACKEY: CardRecord = CardRecord::new(
-    cards::GOBLIN_LACKEY,
+pub(in crate::card::sets) static GOBLIN_LACKEY: CardRecord = CardRecord::new_with_legacy_id(
+    2017,
     "Goblin Lackey",
     CardArt::new("9b848caa-aad8-4060-8f86-304a8556de2d", "Jerry Tiritilli"),
     CardSet::UrzasSaga,
@@ -238,8 +238,8 @@ pub(in crate::card::sets) static GOBLIN_LACKEY: CardRecord = CardRecord::new(
 );
 
 // USG 191 — Goblin Matron
-pub(in crate::card::sets) static GOBLIN_MATRON: CardRecord = CardRecord::new(
-    cards::GOBLIN_MATRON,
+pub(in crate::card::sets) static GOBLIN_MATRON: CardRecord = CardRecord::new_with_legacy_id(
+    2018,
     "Goblin Matron",
     CardArt::new("9e9e2e5d-ad06-4378-9afb-ffb174e6a5b4", "DiTerlizzi"),
     CardSet::UrzasSaga,
@@ -300,8 +300,8 @@ static TIME_SPIRAL_EFFECT: [EffectDef; 2] = [
 ];
 
 // USG 193 — Goblin Patrol
-pub(in crate::card::sets) static GOBLIN_PATROL: CardRecord = CardRecord::new(
-    cards::GOBLIN_PATROL,
+pub(in crate::card::sets) static GOBLIN_PATROL: CardRecord = CardRecord::new_with_legacy_id(
+    2034,
     "Goblin Patrol",
     CardArt::new("d0fcd8d3-f159-49a1-8dd9-582ae4a0adc3", "Greg Staples"),
     CardSet::UrzasSaga,
@@ -314,8 +314,8 @@ pub(in crate::card::sets) static GOBLIN_PATROL: CardRecord = CardRecord::new(
 );
 
 // USG 290 — Claws of Gix
-pub(in crate::card::sets) static CLAWS_OF_GIX: CardRecord = CardRecord::new(
-    cards::CLAWS_OF_GIX,
+pub(in crate::card::sets) static CLAWS_OF_GIX: CardRecord = CardRecord::new_with_legacy_id(
+    288,
     "Claws of Gix",
     CardArt::new(
         "78372366-8c4c-46ac-bd7c-a735c2b24b5d",
@@ -345,8 +345,8 @@ static CREATURES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
 );
 
 // USG 321 — Gaea's Cradle
-pub(in crate::card::sets) static GAEAS_CRADLE: CardRecord = CardRecord::new(
-    cards::GAEAS_CRADLE,
+pub(in crate::card::sets) static GAEAS_CRADLE: CardRecord = CardRecord::new_with_legacy_id(
+    2111,
     "Gaea's Cradle",
     CardArt::new("25b0b816-0583-44aa-9dc5-f3ff48993a51", "Mark Zug"),
     CardSet::UrzasSaga,
@@ -369,8 +369,8 @@ static ARTIFACTS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
 );
 
 // USG 330 — Tolarian Academy
-pub(in crate::card::sets) static TOLARIAN_ACADEMY: CardRecord = CardRecord::new(
-    cards::TOLARIAN_ACADEMY,
+pub(in crate::card::sets) static TOLARIAN_ACADEMY: CardRecord = CardRecord::new_with_legacy_id(
+    2112,
     "Tolarian Academy",
     CardArt::new("ad7ac9a5-340f-4509-826c-7b9416d47887", "Stephen Daniele"),
     CardSet::UrzasSaga,

@@ -2,6 +2,7 @@
 
 use super::*;
 use crate::ImplementationStatus;
+use crate::card::{AttackDefenderScopeDef, EffectRecipientSetDef};
 
 fn ready_attackers(definitions: &[CardDefinitionId]) -> (Game, Vec<GameObjectId>) {
     let mut game = ready_game();
@@ -40,11 +41,24 @@ fn offers_attack(game: &Game, attacker: GameObjectId, defender: AttackDefender) 
 }
 
 #[test]
-fn moat_uses_a_live_keyword_predicate_for_every_defender() {
+fn moat_applies_an_attacker_facing_restriction_for_every_defender() {
+    let catalog = ready_game().catalog;
+    let moat = catalog.get(cards::MOAT).expect("Moat is cataloged");
+    let Some(EffectDef::StaticApply {
+        recipient,
+        effect: AppliedEffectDef::Rule(AppliedRuleDef::AttackRestriction(restriction)),
+    }) = moat.rules.ability_clauses()[0].declarative_effect()
+    else {
+        panic!("Moat should apply an attack restriction to matching creatures");
+    };
+    assert!(matches!(recipient.0, EffectRecipientSetDef::Objects(_)));
+    assert_eq!(restriction.attacker, ObjectPredicateDef::Any);
+    assert_eq!(restriction.defender, AttackDefenderScopeDef::Any);
+
     let (mut game, attackers) = ready_attackers(&[cards::SAVANNAH_LIONS, cards::SERRA_ANGEL]);
     let walker = add_planeswalker(&mut game);
     game.battlefield
-        .push(creature(10_501, cards::MOAT, PlayerId::Two));
+        .push(creature(10_501, cards::MOAT, PlayerId::One));
 
     for defender in [
         AttackDefender::Player(PlayerId::Two),

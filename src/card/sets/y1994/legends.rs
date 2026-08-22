@@ -2,18 +2,17 @@ use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef,
     AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef, AppliedEffectDef,
-    AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, BandingQuality, BasicLandType,
-    BattlefieldEntryModificationDef, CardArt, CardBehavior, CardRules, CardSet, CardSupertype,
-    CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorChoiceOperationDef, ColorSet,
-    ComparisonDef, ControlDurationDef, CounterKind, DamageEventMatcherDef, DamageKindDef,
-    DamageLimitDef, DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceGroupDef,
-    DamageSourceMatcherDef, DiscardSelectionDef, DividedTotal, EffectDef, EffectPaymentDef,
-    EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, SumValueDef,
-    TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    AppliedRuleDef, BandingQuality, BasicLandType, BattlefieldEntryModificationDef, CardArt,
+    CardBehavior, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef,
+    ChooseDef, ColorChoiceOperationDef, ColorSet, ComparisonDef, ControlDurationDef, CounterKind,
+    DamageEventMatcherDef, DamageKindDef, DamageLimitDef, DamagePreventionDef,
+    DamageRecipientMatcherDef, DamageSourceGroupDef, DamageSourceMatcherDef, DiscardSelectionDef,
+    DividedTotal, EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef,
+    KeywordAbility, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
+    ScaledValueDef, SumValueDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -561,8 +560,11 @@ pub(in crate::card::sets) static LIFEBLOOD: CardRecord = CardRecord::new_with_le
     )),
 );
 
-static MOAT_NONFLIERS: ObjectPredicateDef =
-    ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(KeywordAbility::Flying));
+static MOAT_HAS_FLYING: ObjectPredicateDef = ObjectPredicateDef::HasKeyword(KeywordAbility::Flying);
+static MOAT_NONFLYING_CREATURES: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::HasType(CardType::Creature),
+    ObjectPredicateDef::Not(&MOAT_HAS_FLYING),
+]);
 
 // LEG 28 — Moat
 pub(in crate::card::sets) static MOAT: CardRecord = CardRecord::new_with_legacy_id(
@@ -573,13 +575,12 @@ pub(in crate::card::sets) static MOAT: CardRecord = CardRecord::new_with_legacy_
     CardRules::new_enchantment(mana_cost!("{2}{W}{W}")).with_ability(AbilityDef::static_ability(
         "Creatures without flying can't attack.",
         EffectDef::StaticApply {
-            recipient: EffectRecipientDef::EachPlayer,
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::AttackRestriction(
-                AttackRestrictionDef::prohibit(
-                    MOAT_NONFLIERS,
-                    AttackDefenderScopeDef::AffectedPlayerOrPlaneswalker,
-                ),
-            )),
+            recipient: EffectRecipientDef::matching_objects(
+                MOAT_NONFLYING_CREATURES,
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
         },
     )),
 );
@@ -3670,6 +3671,7 @@ pub(in crate::card::sets) static SUBDUE: CardRecord = CardRecord::new_with_legac
 );
 
 static SYLVAN_PUT_BACK: EffectDef = EffectDef::MoveToZone {
+    counters: None,
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
     zone: ZoneKind::Library,
     placement: ZonePlacement::Top,

@@ -38,8 +38,8 @@ distinguishes snapshots of the covered source and build inputs.
   and Ensnaring Bridge now use shared declarative rules, and checkpoint
   reconstruction moves to format 8.** Optional static draw replacements can
   replace each applicable draw with an ordinary effect; attack restrictions
-  carry an attacker predicate, an explicit player-or-planeswalker defender
-  scope, and an optional additive declaration cost; drawn-this-turn cards still
+  carry an attacker predicate, an explicit defender scope, and an optional
+  additive declaration cost; drawn-this-turn cards still
   in hand form a reusable object set; and a generic resumable
   `ForEachInBinding` effect applies a continuation to every chosen object, with
   ordered object-set bindings preserving a player's resolution order. The

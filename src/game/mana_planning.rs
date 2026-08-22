@@ -7,8 +7,8 @@ use super::{
     AppliedEffectDef, CardBehavior, CardDefinitionId, CardInstance, CardType,
     CharacteristicContext, CharacteristicOperationDef, CostConfiguration, DeclarativeAbilityDef,
     EffectDef, EffectRecipientDef, FlexibleManaSource, Game, GameObjectId, HybridPair,
-    KeywordAbility, ManaAbilityActivation, ManaActivationChoices, ManaColor, ManaCost,
-    ManaPaymentPurpose, ManaPlanOptions, ManaPool, ManaSourceOutput, ManaSourceOutputs,
+    KeywordAbility, ManaAbilityActivation, ManaActivationChoices, ManaColor, ManaContributionKind,
+    ManaCost, ManaPaymentPurpose, ManaPlanOptions, ManaPool, ManaSourceOutput, ManaSourceOutputs,
     PaymentCapacity, Permanent, PlannedManaActivation, PlannedPaymentKind, PlayActionKind,
     PlayOptionDef, PlayerId, SetOperationDef, TriggerContext, ValueDef, ZoneKind,
     extra_target_cost,
@@ -106,7 +106,7 @@ impl Game {
                         definition: definition.id,
                         controller: player,
                         form: option.form.clone(),
-                        channel_life_reservation: total_life,
+                        reserved_life_payment: total_life,
                     },
                 ))
             }
@@ -259,28 +259,33 @@ impl Game {
         ))
     }
 
-    /// How much {C} Channel could still produce for this player. The last
-    /// point of life is not spendable, which is the same limit the priority
-    /// action already enforces.
-    pub(super) fn channel_mana_available(&self, player: PlayerId) -> u16 {
-        if !self.channel_active[player.index()] {
+    /// How much {C} a repeatable pay-life ongoing mana ability could still
+    /// produce. Paying the last point is legal; state-based actions handle
+    /// the resulting zero life after the casting procedure finishes.
+    pub(super) fn repeatable_life_mana_available(&self, player: PlayerId) -> u16 {
+        if self
+            .repeatable_colorless_life_mana_activation(player)
+            .is_none()
+        {
             return 0;
         }
-        u16::try_from(self.players[player.index()].life.saturating_sub(1)).unwrap_or(0)
+        u16::try_from(self.players[player.index()].life.max(0)).unwrap_or(0)
     }
 
-    /// Channel mana available after reserving life already committed by the
-    /// spell being paid for.
-    pub(super) fn channel_mana_available_for(
+    /// Repeatable life-mana capacity after reserving life already committed
+    /// by the spell being paid for.
+    pub(super) fn repeatable_life_mana_available_for(
         &self,
         player: PlayerId,
         purpose: &ManaPaymentPurpose,
     ) -> u16 {
-        if !self.channel_active[player.index()] {
+        if self
+            .repeatable_colorless_life_mana_activation(player)
+            .is_none()
+        {
             return 0;
         }
         self.mana_ability_life_budget(player, purpose)
-            .saturating_sub(1)
     }
 
     pub(super) fn mana_ability_life_budget(
@@ -290,9 +295,9 @@ impl Game {
     ) -> u16 {
         let reserved = match purpose {
             ManaPaymentPurpose::Spell {
-                channel_life_reservation,
+                reserved_life_payment,
                 ..
-            } => *channel_life_reservation,
+            } => *reserved_life_payment,
             ManaPaymentPurpose::Ability { .. } | ManaPaymentPurpose::Other => 0,
         };
         let reserved = i16::try_from(reserved).unwrap_or(i16::MAX);
@@ -301,8 +306,8 @@ impl Game {
 
     /// The generic mana this payment would be short if it drew only on the
     /// pool. Coloured and hybrid symbols come off first, exactly as the
-    /// payment does, because Channel's {C} cannot pay a coloured symbol and
-    /// must not be counted against one.
+    /// payment does, because the generated {C} cannot pay a coloured symbol
+    /// and must not be counted against one.
     pub(super) fn generic_shortfall(pool: ManaPool, cost: ManaCost, x: u16) -> u16 {
         let mut spare = pool;
         for color in colored_mana() {
@@ -336,7 +341,10 @@ impl Game {
     /// already: tap the land, then filter what it made.
     pub(super) fn pool_covers_cost(&self, player: PlayerId, cost: ManaCost) -> bool {
         let mut spare = self.eligible_mana_pool(player, &ManaPaymentPurpose::Other);
-        spare.add_color(ManaColor::Colorless, self.channel_mana_available(player));
+        spare.add_color(
+            ManaColor::Colorless,
+            self.repeatable_life_mana_available(player),
+        );
         for color in colored_mana() {
             let required = mana_cost_amount(cost, color);
             if spare.amount(color) < required {
@@ -365,10 +373,10 @@ impl Game {
                         counters_removed: activation.counters_removed,
                         cost_object: activation.cost_object,
                         combination: activation.combination,
-                        convokes: false,
+                        contribution: None,
                     },
                     production: Self::mana_production(activation),
-                    convoke_production: ManaPool::default(),
+                    colored_contribution: ManaPool::default(),
                     generic_payment: 0,
                     life_payment: activation
                         .costs
@@ -510,7 +518,7 @@ impl Game {
         cost: ManaCost,
         purpose: &ManaPaymentPurpose,
     ) -> u16 {
-        let uses_convoke = self.payment_uses_convoke(purpose);
+        let contributions = self.payment_contributions(purpose);
         let maximum = self.players[player.index()]
             .mana_pool
             .total()
@@ -518,10 +526,15 @@ impl Game {
                 self.battlefield
                     .iter()
                     .filter(|permanent| permanent.controller == player)
-                    .map(|permanent| self.maximum_payment_from_permanent(permanent, uses_convoke))
+                    .map(|permanent| self.maximum_payment_from_permanent(permanent, contributions))
                     .sum(),
             )
-            .saturating_add(self.channel_mana_available(player));
+            .saturating_add(if contributions.delve {
+                u16::try_from(self.players[player.index()].graveyard.len()).unwrap_or(u16::MAX)
+            } else {
+                0
+            })
+            .saturating_add(self.repeatable_life_mana_available(player));
         // The upper bound is only a search ceiling; can_pay_cost_for is
         // what rules each X in or out, including the barred source.
         (0..=maximum)
@@ -640,9 +653,9 @@ impl Game {
                 self.unplannable_payment(player, cost, x, options.avoid, purpose)
             );
         };
-        let residual = self.residual_cost_after_convoke(cost, x, purpose, &plan, false);
+        let residual = self.residual_cost_after_contributions(cost, x, purpose, &plan, false);
         // CR 601.2g comes before paying the spell's costs in 601.2h: activate
-        // actual mana abilities first, then tap the creatures that convoke.
+        // actual mana abilities first, then spend direct contributors.
         for payment in &plan {
             let PlannedPaymentKind::Mana {
                 ability,
@@ -668,19 +681,34 @@ impl Game {
             );
         }
         for payment in &plan {
-            if payment.kind.uses_convoke() {
+            if payment
+                .kind
+                .contribution()
+                .is_some_and(ManaContributionKind::taps_source)
+            {
                 self.tap_permanent(payment.source)
-                    .expect("a planned convoke source remains on the battlefield");
+                    .expect("a planned contribution source remains on the battlefield");
             }
         }
+        let exiled = plan
+            .iter()
+            .filter(|payment| {
+                payment
+                    .kind
+                    .contribution()
+                    .is_some_and(ManaContributionKind::exiles_source)
+            })
+            .map(|payment| payment.source)
+            .collect::<Vec<_>>();
+        self.exile_graveyard_cards(player, &exiled);
         residual
     }
 
-    /// Removes the contributions of selected convoke creatures from a spell's
-    /// total cost. The result is the mana-only remainder; the cast's chosen X
-    /// itself remains frozen on the stack even though its payable generic
-    /// portion has been folded into this remainder.
-    pub(super) fn residual_cost_after_convoke(
+    /// Removes selected Convoke, Delve, and Improvise contributions from a
+    /// spell's total cost. The result is the mana-only remainder; the cast's
+    /// chosen X itself remains frozen on the stack even though its payable
+    /// generic portion has been folded into this remainder.
+    pub(super) fn residual_cost_after_contributions(
         &self,
         cost: ManaCost,
         x: u16,
@@ -688,14 +716,14 @@ impl Game {
         plan: &[PlannedManaActivation],
         planned_production_is_in_pool: bool,
     ) -> (ManaCost, u16) {
-        if !self.payment_uses_convoke(purpose) {
+        if !self.payment_contributions(purpose).any() {
             return (cost, x);
         }
         let (mut residual, restricted_x) = self.restrict_x(cost, x, purpose);
         let mut actual = self.eligible_mana_pool(
             match purpose {
                 ManaPaymentPurpose::Spell { controller, .. } => *controller,
-                _ => unreachable!("only spell payments use convoke"),
+                _ => unreachable!("only spell payments use direct contributions"),
             },
             purpose,
         );
@@ -705,8 +733,8 @@ impl Game {
             if !planned_production_is_in_pool {
                 actual.add(payment.production);
             }
-            if payment.kind.uses_convoke() {
-                convoke.add(payment.convoke_production);
+            if payment.kind.uses_contribution() {
+                convoke.add(payment.colored_contribution);
                 generic_only = generic_only.saturating_add(payment.generic_payment);
             }
         }
@@ -772,11 +800,11 @@ impl Game {
             report,
             "\n  cost {cost} with x {x} for {player:?}, purpose {purpose:?}, avoiding {avoid:?}\
              \n  affordable per the gate: {}\
-             \n  pool {:?}, eligible for this purpose {:?}, channel {}",
+             \n  pool {:?}, eligible for this purpose {:?}, repeatable life mana {}",
             self.can_pay_cost_for(player, cost, x, purpose),
             self.players[player.index()].mana_pool,
             self.eligible_mana_pool(player, purpose),
-            self.channel_mana_available(player),
+            self.repeatable_life_mana_available(player),
         );
         for permanent in self
             .battlefield
@@ -830,5 +858,6 @@ pub(super) fn configured_base_mana_cost(
 include!("mana_planning/payment.rs");
 include!("mana_planning/convoke.rs");
 include!("mana_planning/source_assignment.rs");
+include!("mana_planning/payment_order.rs");
 include!("mana_planning/cost_reduction.rs");
 include!("mana_planning/activation_characteristics.rs");

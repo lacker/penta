@@ -82,6 +82,10 @@ pub enum CostDef {
     /// with the activation rather than being counted, which is what "discard
     /// a card" and "discard a land card" both need.
     DiscardCardMatching(ObjectPredicateDef),
+    /// Exile a matching card from the payer's own hand. Unlike discarding,
+    /// the card never enters a graveyard; Cadaverous Bloom is the canonical
+    /// mana-ability use.
+    ExileCardFromHand(ObjectPredicateDef),
     /// Exile a matching card from the controller's own graveyard. The card is
     /// chosen when the cost is paid, so it travels with the action rather
     /// than being a target.

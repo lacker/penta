@@ -12,8 +12,8 @@ use crate::card::{
     ObjectQueryDef, ObjectRefDef, ObjectSetDef, OngoingEffectDef, PayOrDef, PlayerRefDef,
     PlayerRelation, PlayerSetDef, ReplacementAbilityDef, ReplacementChoiceDef,
     ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    RoundingDef, TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    RoundingDef, TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnStepDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -3721,6 +3721,13 @@ pub(in crate::card::sets) static BIRDS_OF_PARADISE: CardRecord = CardRecord::new
 // LEA 187 — Camouflage
 // Audit: blocked — Needs a duration-scoped replacement/prevention effect for “This turn, instead of declaring blockers, each defending player chooses any number of creatures they control and divides them into a number of piles equal to the number of attacking…”.
 
+static CHANNEL_MANA: AbilityDef = AbilityDef::activated_mana(
+    "Pay 1 life: Add {C}.",
+    &[AbilityCostDef::PayLife(1)],
+    EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+)
+.with_source_zones(&[ZoneKind::Command]);
+
 // LEA 188 — Channel
 pub(in crate::card::sets) static CHANNEL: CardRecord = CardRecord::new_with_legacy_id(
     65,
@@ -3728,11 +3735,13 @@ pub(in crate::card::sets) static CHANNEL: CardRecord = CardRecord::new_with_lega
     CardArt::new("c1862c47-71cc-45a3-8805-a5ddc62e55ea", "Richard Thomas"),
     CardSet::Alpha,
     CardRules::new_sorcery(mana_cost!("{G}{G}"))
-    .with_abilities(&[AbilityDef::custom_full(
+    .with_ability(AbilityDef::spell(
         "Until end of turn, any time you could activate a mana ability, you may pay 1 life. If you do, add {C}.",
-        CardBehavior::Channel,
-        "The life is offered as its own action at priority and is also counted by the payment layer, so a cost can be paid with it mid-cast. Colourless mana pays only the generic part of a cost, and the last point of life is not spendable.",
-    )]),
+        EffectDef::CreateOngoingEffect(OngoingEffectDef::unbound(
+            &CHANNEL_MANA,
+            ResolvedEffectDurationDef::UntilEndOfTurn,
+        )),
+    )),
 );
 
 // LEA 189 — Cockatrice

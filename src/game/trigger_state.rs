@@ -158,7 +158,7 @@ pub(super) struct TriggerEventObject {
     /// omitting it, so a predicate here and the combat rules give one answer.
     /// The one exception is the walk's own recipient matching, which reads the
     /// layer below itself; `Game::collect_ability_layer_operations` says why.
-    pub(super) keywords: u32,
+    pub(super) keywords: u64,
     /// Whether this creature is attacking, excluding a creature that is only
     /// blocking. Bloodrush and similar predicates need the narrower state.
     pub(super) attacking: bool,

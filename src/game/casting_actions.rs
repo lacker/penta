@@ -318,7 +318,7 @@ impl Game {
                                                 definition: card.definition,
                                                 controller: player,
                                                 form: option.form.clone(),
-                                                channel_life_reservation: total_life,
+                                                reserved_life_payment: total_life,
                                             };
                                             let maximum = self.maximum_x_for(
                                                 player,
@@ -448,7 +448,7 @@ impl Game {
                                             definition: card.definition,
                                             controller: player,
                                             form: option.form.clone(),
-                                            channel_life_reservation: cast_life
+                                            reserved_life_payment: cast_life
                                                 .saturating_add(library_life)
                                                 .saturating_add(phyrexian_life),
                                         };

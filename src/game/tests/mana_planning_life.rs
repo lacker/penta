@@ -19,7 +19,7 @@ fn plan_mana_sources(
 #[test]
 fn free_mana_sources_are_used_before_channel() {
     let mut game = ready_game();
-    game.channel_active[PlayerId::One.index()] = true;
+    resolve_channel(&mut game);
     let plains = game
         .put_onto_battlefield(PlayerId::One, cards::PLAINS)
         .expect("Plains is cataloged");
@@ -118,7 +118,7 @@ fn flexible_allocation_caps_each_color_by_the_affordable_sources() {
         definition: cards::BARKSHELL_BLESSING,
         controller: PlayerId::One,
         form: SpellForm::Part(CardPartId::PRIMARY),
-        channel_life_reservation: 1,
+        reserved_life_payment: 1,
     };
     let cost = mana_cost!("{G/W}{G/W}");
 
@@ -203,7 +203,7 @@ fn exact_mana_plan_preserves_cross_color_source_correlation() {
         definition: cards::BARKSHELL_BLESSING,
         controller: PlayerId::One,
         form: SpellForm::Part(CardPartId::PRIMARY),
-        channel_life_reservation: 1,
+        reserved_life_payment: 1,
     };
     let cost = mana_cost!("{B}{W/U}");
 

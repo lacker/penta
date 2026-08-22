@@ -226,7 +226,6 @@ impl Game {
             combat_blocked_attackers: Vec::new(),
             next_regular_player: PlayerId::Two,
             extra_turns: Vec::new(),
-            channel_active: [false, false],
             result: None,
             events: vec![GameEvent::GameStarted { seed }],
         })

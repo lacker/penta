@@ -15,6 +15,26 @@ pub const fn convoke() -> AbilityDef {
     )
 }
 
+/// Delve (CR 702.66): graveyard cards become generic-only payment sources.
+#[must_use]
+pub const fn delve() -> AbilityDef {
+    keyword(
+        "Delve (Each card you exile from your graveyard while casting this spell pays for {1}.)",
+        KeywordAbility::Delve,
+    )
+}
+
+/// Improvise (CR 702.126): untapped artifacts become generic-only payment
+/// sources after mana abilities have been activated.
+#[must_use]
+pub const fn improvise() -> AbilityDef {
+    keyword(
+        "Improvise (Your artifacts can help cast this spell. Each artifact you tap after you're \
+         done activating mana abilities pays for {1}.)",
+        KeywordAbility::Improvise,
+    )
+}
+
 /// Buyback with a mana surcharge. It is an optional additional cost, so it
 /// composes with flashback and every other casting permission.
 #[must_use]

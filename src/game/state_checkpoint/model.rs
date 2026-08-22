@@ -60,6 +60,7 @@ pub(super) use objects::{
 };
 
 use super::model_keyword::{KeywordSnapshot, UpkeepKeywordSnapshot};
+pub(super) use super::model_ongoing::ResolvedOngoingEffectSnapshot;
 pub(super) use super::model_prevention::*;
 
 use super::model_procedure::{DrawReplacementSnapshot, PendingProcedureSnapshot};
@@ -136,13 +137,15 @@ pub(super) struct GameSnapshot {
     pub(super) life_gained_this_turn: [u16; 2],
     pub(super) draw_step_draw_taken: [bool; 2],
     pub(super) drawn_this_turn: [Vec<u32>; 2],
+    /// Compatibility-only wire member. Channel now reconstructs through
+    /// `ongoing_effects`; current writers always emit false for both seats.
+    pub(super) channel_active: [bool; 2],
     pub(super) defer_empty_library_loss: bool,
     pub(super) draw_replacements: [Vec<DrawReplacementSnapshot>; 2],
     pub(super) pending_combat_attackers: Vec<u32>,
     pub(super) combat_blocked_attackers: Vec<u32>,
     pub(super) extra_turns: Vec<usize>,
     pub(super) next_regular_player: usize,
-    pub(super) channel_active: [bool; 2],
     /// Resolved damage-prevention rules in creation order. Static prevention
     /// remains source-derived and therefore is not checkpointed here.
     pub(super) damage_preventions: Vec<ResolvedDamagePreventionSnapshot>,
@@ -200,21 +203,6 @@ pub(super) enum TurnPhaseResumeSnapshot {
 pub(super) struct TemporaryAbilityGrantSnapshot {
     pub(super) object: u32,
     pub(super) ability: AbilityLocator,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub(super) struct ResolvedOngoingEffectSnapshot {
-    /// The effect object's own public identity. It is not a permanent or an
-    /// emblem and therefore has no ordinary observation-zone entry.
-    pub(super) object_id: u32,
-    pub(super) origin: AbilityOriginSnapshot,
-    pub(super) ability: AbilityLocator,
-    pub(super) presentation: ObjectCharacteristicsSnapshot,
-    pub(super) owner: usize,
-    pub(super) controller: usize,
-    pub(super) context: EffectResolutionContextSnapshot,
-    pub(super) expiration: ContinuousEffectExpirationSnapshot,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]

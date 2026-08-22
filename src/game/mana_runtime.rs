@@ -12,6 +12,7 @@ use crate::card::{AbilityCostList, ManaSplit};
 
 mod eligibility;
 mod pricing;
+include!("mana_runtime/nonpermanent.rs");
 
 impl Game {
     pub(super) fn mana_ability_activations(
@@ -189,36 +190,48 @@ impl Game {
     /// take, one per activation. An ability with no such cost yields a single
     /// `None`, so the enumeration below runs once for it rather than not at
     /// all.
-    fn mana_ability_sacrifice_candidates(
+    fn mana_ability_cost_candidates(
         &self,
         permanent: &Permanent,
         definition: &ActivatedAbilityDef,
     ) -> Vec<Option<GameObjectId>> {
-        let Some((object, controller)) = definition.costs.iter().find_map(|cost| match cost {
-            AbilityCostDef::SacrificePermanent { object, controller } => {
-                Some((*object, *controller))
-            }
-            _ => None,
+        let Some(cost) = definition.costs.iter().find(|cost| {
+            matches!(
+                cost,
+                AbilityCostDef::SacrificePermanent { .. } | AbilityCostDef::ExileCardFromHand(_)
+            )
         }) else {
             return vec![None];
         };
-        self.battlefield
-            .iter()
-            .filter(|candidate| {
-                self.player_relation_matches(
-                    candidate.controller,
-                    controller,
-                    permanent.controller,
-                    TriggerContext::empty(),
-                ) && self.trigger_object_matches(
-                    object,
-                    &self.trigger_event_object(candidate),
-                    permanent.card.id,
-                    false,
-                )
-            })
-            .map(|candidate| Some(candidate.card.id))
-            .collect()
+        match cost {
+            AbilityCostDef::SacrificePermanent { object, controller } => self
+                .battlefield
+                .iter()
+                .filter(|candidate| {
+                    self.player_relation_matches(
+                        candidate.controller,
+                        *controller,
+                        permanent.controller,
+                        TriggerContext::empty(),
+                    ) && self.trigger_object_matches(
+                        *object,
+                        &self.trigger_event_object(candidate),
+                        permanent.card.id,
+                        false,
+                    )
+                })
+                .map(|candidate| Some(candidate.card.id))
+                .collect(),
+            AbilityCostDef::ExileCardFromHand(object) => self.players[permanent.controller.index()]
+                .hand
+                .iter()
+                .filter(|card| {
+                    self.card_object_matches(*object, card, ZoneKind::Hand, permanent.card.id)
+                })
+                .map(|card| Some(card.id))
+                .collect(),
+            _ => unreachable!("candidate cost was filtered above"),
+        }
     }
 
     pub(super) fn mana_activations_for(
@@ -258,7 +271,7 @@ impl Game {
             // "Sacrifice a Goblin" is a choice of which one, and a mana
             // ability has no window in which to ask: like the counter sizes
             // above, each candidate becomes its own activation.
-            let sacrifices = self.mana_ability_sacrifice_candidates(permanent, definition);
+            let sacrifices = self.mana_ability_cost_candidates(permanent, definition);
             let mut add_activation =
                 |color, costs, amount, counters_removed, cost_object, combination| {
                     activations.push(ManaAbilityActivation {
@@ -736,37 +749,6 @@ impl Game {
         eligible
     }
 
-    /// Turns life into the {C} this payment is short, one point at a time,
-    /// so the ordinary payment below finds a pool that can cover the cost.
-    pub(super) fn channel_for_shortfall(
-        &mut self,
-        player: PlayerId,
-        cost: ManaCost,
-        x: u16,
-        purpose: &ManaPaymentPurpose,
-    ) {
-        let available = self.channel_mana_available_for(player, purpose);
-        if available == 0 {
-            return;
-        }
-        let pool = self.eligible_mana_pool(player, purpose);
-        let needed = Self::generic_shortfall(pool, cost, x).min(available);
-        self.channel_for_amount(player, needed, purpose);
-    }
-
-    pub(super) fn channel_for_amount(
-        &mut self,
-        player: PlayerId,
-        amount: u16,
-        purpose: &ManaPaymentPurpose,
-    ) {
-        debug_assert!(amount <= self.channel_mana_available_for(player, purpose));
-        for _ in 0..amount {
-            self.players[player.index()].life -= 1;
-            self.add_unrestricted_mana(player, ManaColor::Colorless, 1);
-        }
-    }
-
     pub(super) fn pay_player_cost_for(
         &mut self,
         player: PlayerId,
@@ -776,7 +758,7 @@ impl Game {
     ) -> Vec<Mana> {
         let (cost, x) = self.restrict_x(cost, x, purpose);
         self.reconcile_mana(player);
-        self.channel_for_shortfall(player, cost, x, purpose);
+        self.activate_repeatable_life_mana_for_shortfall(player, cost, x, purpose);
         let before = self.eligible_mana_pool(player, purpose);
         let mut after = before;
         let has_eligible_spend_effect = |color| {
@@ -969,5 +951,18 @@ impl Game {
                 },
             ));
         }
+        actions.extend(
+            self.hand_mana_ability_activations(player)
+                .into_iter()
+                .chain(self.ongoing_mana_ability_activations(player))
+                .map(|activation| Action::ActivateManaAbility {
+                    source: activation.source,
+                    ability: activation.ability,
+                    color: activation.color,
+                    counters_removed: activation.counters_removed,
+                    cost_object: activation.cost_object,
+                    combination: activation.combination,
+                }),
+        );
     }
 }

@@ -312,7 +312,7 @@ impl Game {
             definition: definition.id,
             controller: player,
             form: option.form.clone(),
-            channel_life_reservation: total_life,
+            reserved_life_payment: total_life,
         };
         if cost.variable_x && choices.x() > self.maximum_x_for(player, cost, &payment_purpose) {
             return None;

@@ -728,7 +728,7 @@ fn blue_pain_source_definition() -> (CardDefinitionId, CardDefinition) {
 fn phyrexian_life_is_reserved_from_channel() {
     let mut channel_game = ready_game();
     channel_game.players[PlayerId::One.index()].life = 2;
-    channel_game.channel_active[PlayerId::One.index()] = true;
+    resolve_channel(&mut channel_game);
     channel_game.add_unrestricted_mana(PlayerId::One, ManaColor::Green, 1);
     channel_game.add_unrestricted_mana(PlayerId::One, ManaColor::Blue, 1);
     channel_game.add_unrestricted_mana(PlayerId::One, ManaColor::Colorless, 1);
@@ -744,7 +744,7 @@ fn phyrexian_life_is_reserved_from_channel() {
 
     let mut exact_channel_game = ready_game();
     exact_channel_game.players[PlayerId::One.index()].life = 4;
-    exact_channel_game.channel_active[PlayerId::One.index()] = true;
+    resolve_channel(&mut exact_channel_game);
     exact_channel_game.add_unrestricted_mana(PlayerId::One, ManaColor::Green, 1);
     exact_channel_game.add_unrestricted_mana(PlayerId::One, ManaColor::Blue, 1);
     exact_channel_game.add_unrestricted_mana(PlayerId::One, ManaColor::Colorless, 1);
@@ -786,7 +786,7 @@ fn phyrexian_life_is_reserved_from_life_cost_mana_sources() {
     let (blue_pain_id, blue_pain) = blue_pain_source_definition();
     let mut mixed_game = ready_game();
     mixed_game.players[PlayerId::One.index()].life = 5;
-    mixed_game.channel_active[PlayerId::One.index()] = true;
+    resolve_channel(&mut mixed_game);
     let mut definitions = mixed_game
         .catalog
         .definitions()

@@ -47,6 +47,7 @@ impl Game {
                 | AbilityCostDef::DiscardSource
                 | AbilityCostDef::DiscardCards(_)
                 | AbilityCostDef::DiscardCardMatching(_)
+                | AbilityCostDef::ExileCardFromHand(_)
                 | AbilityCostDef::DiscardCardsAtRandom(_)
                 | AbilityCostDef::SacrificePermanent { .. }
                 | AbilityCostDef::SacrificePermanents { .. }
@@ -91,12 +92,13 @@ impl Game {
             | AbilityCostDef::ExileSource
             | AbilityCostDef::RemoveCountersFromSource { .. }
             | AbilityCostDef::RemoveAnyNumberOfCountersFromSource(_)
-            // Sacrificing another permanent spends the board just as surely
-            // as spending the source does, so it bounds the ability the same
-            // way. Which permanent is a choice, and it is answered by
-            // enumerating one activation per candidate.
+            // Sacrificing another permanent or exiling a card from hand
+            // consumes a finite object, so it bounds the ability. Which
+            // object is spent is answered by enumerating one activation per
+            // candidate.
             | AbilityCostDef::SacrificePermanent { .. }
-                        | AbilityCostDef::SacrificePermanents { .. }
+            | AbilityCostDef::ExileCardFromHand(_)
+            | AbilityCostDef::SacrificePermanents { .. }
             | AbilityCostDef::PayLife(_) => true,
             AbilityCostDef::Mana(mana) => {
                 // A mana cost alone does not bound how often the ability can
@@ -112,7 +114,8 @@ impl Game {
                                 | AbilityCostDef::ReturnSourceToHand
                                 | AbilityCostDef::ExileSource
                                 | AbilityCostDef::SacrificePermanent { .. }
-                        | AbilityCostDef::SacrificePermanents { .. }
+                                | AbilityCostDef::ExileCardFromHand(_)
+                                | AbilityCostDef::SacrificePermanents { .. }
                         )
                     });
                 !mana.variable_x && mana.hybrid_total() == 0 && bounded

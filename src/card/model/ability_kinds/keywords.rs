@@ -57,6 +57,12 @@ pub enum KeywordAbility {
     /// CR 702.51. Each untapped creature the caster taps while paying for the
     /// spell pays for one generic mana or one mana of that creature's color.
     Convoke,
+    /// CR 702.66. Each card exiled from the caster's graveyard while paying
+    /// for the spell pays for one generic mana.
+    Delve,
+    /// CR 702.126. Each untapped artifact the caster taps while paying for
+    /// the spell pays for one generic mana.
+    Improvise,
     Flying,
     Trample,
     Haste,
@@ -162,6 +168,8 @@ impl KeywordAbility {
     pub const fn simple_index(self) -> Option<u32> {
         Some(match self {
             Self::Convoke => 30,
+            Self::Delve => 32,
+            Self::Improvise => 33,
             Self::Flying => 0,
             Self::Trample => 1,
             Self::Haste => 2,

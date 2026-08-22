@@ -2,6 +2,14 @@
 
 use super::*;
 
+impl Game {
+    /// Projection for the current checkpoint format. The checkpoint has one typed schema
+    /// internally; only this boundary turns it into JSON.
+    pub(in crate::game) fn checkpoint_json(&self, viewer: PlayerId) -> Value {
+        serde_json::to_value(self.snapshot(viewer)).expect("GameSnapshot is serializable")
+    }
+}
+
 pub(super) fn field<'a>(value: &'a Value, name: &str) -> Result<&'a Value, String> {
     value
         .get(name)

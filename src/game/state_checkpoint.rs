@@ -15,10 +15,10 @@ use super::{
     ResolvedContinuousEffectKind, ResolvedDamagePrevention, ResolvedDamagePreventionCapacity,
     ResolvedDamagePreventionCoverage, ResolvedDamageRecipientMatcher, ResolvedDamageRedirect,
     ResolvedDamageSourceMatcher, ResolvedOngoingEffect, ResolvedPlayPermission,
-    ResolvedPlayRestriction,
-    ResolvedPowerToughnessOperation, RetiredObject, ScopedEffect, StackAbilityPayload,
-    StackAbilityResolver, StackObject, StackObjectKind, Step, TemporaryAbilityGrant,
-    TriggerCapture, TriggerContext, TurnPhaseResume, ZoneMoveCause, cast_source_zone_from_label,
+    ResolvedPlayRestriction, ResolvedPowerToughnessOperation, RetiredObject, ScopedEffect,
+    StackAbilityPayload, StackAbilityResolver, StackObject, StackObjectKind, Step,
+    TemporaryAbilityGrant, TriggerCapture, TriggerContext, TurnPhaseResume, ZoneMoveCause,
+    cast_source_zone_from_label,
 };
 use crate::card::ManaCost;
 use crate::card::{
@@ -39,6 +39,7 @@ mod event;
 mod exile_play;
 mod model;
 mod model_keyword;
+mod model_ongoing;
 mod model_prevention;
 mod model_procedure;
 mod model_trigger;
@@ -52,6 +53,7 @@ mod stack;
 mod trigger;
 mod wire;
 mod wire_decision;
+include!("state_checkpoint/compatibility.rs");
 
 use decision::{
     decision_referenced_object_ids, decision_snapshot, mana_cost_from_snapshot, mana_cost_snapshot,
@@ -521,6 +523,7 @@ impl Game {
             life_gained_this_turn: self.life_gained_this_turn,
             draw_step_draw_taken: self.draw_step_draw_taken,
             drawn_this_turn: visible_drawn_this_turn,
+            channel_active: [false; 2],
             defer_empty_library_loss: self.defer_empty_library_loss,
             draw_replacements,
             pending_combat_attackers: self
@@ -539,7 +542,6 @@ impl Game {
                 .map(|player| player.index())
                 .collect(),
             next_regular_player: self.next_regular_player.index(),
-            channel_active: self.channel_active,
             damage_preventions,
             damage_redirects,
             pregame: self.pregame.map(|pregame| match pregame {
@@ -600,12 +602,6 @@ impl Game {
         }
     }
 
-    /// Projection for the current checkpoint format. The checkpoint has one typed schema
-    /// internally; only this boundary turns it into JSON.
-    pub(super) fn checkpoint_json(&self, viewer: PlayerId) -> Value {
-        serde_json::to_value(self.snapshot(viewer)).expect("GameSnapshot is serializable")
-    }
-
     /// Rebuilds a decision-boundary state from its seat checkpoint and
     /// separately supplied hidden-zone hypothesis.
     #[allow(clippy::too_many_lines)]
@@ -617,30 +613,7 @@ impl Game {
         rollout_seed: u64,
     ) -> Result<Self, String> {
         let checkpoint_value = field(observation, "checkpoint")?;
-        let version = u32_field(checkpoint_value, "version")
-            .map_err(|error| format!("invalid game snapshot: {error}"))?;
-        if version != crate::protocol::CHECKPOINT_VERSION {
-            return Err(format!(
-                "checkpoint version {version} does not match {}",
-                crate::protocol::CHECKPOINT_VERSION
-            ));
-        }
-        let fingerprint = str_field(checkpoint_value, "simulationFingerprint")
-            .map_err(|error| format!("invalid game snapshot: {error}"))?;
-        if fingerprint != crate::protocol::SIMULATION_FINGERPRINT {
-            return Err(format!(
-                "checkpoint simulation fingerprint {fingerprint:?} does not match {}",
-                crate::protocol::SIMULATION_FINGERPRINT
-            ));
-        }
-        let checkpoint: GameSnapshot = serde_json::from_value(checkpoint_value.clone())
-            .map_err(|error| format!("invalid game snapshot: {error}"))?;
-        if checkpoint.has_deferred_state {
-            return Err(
-                "checkpoint contains executable rules state without stable catalog semantics"
-                    .into(),
-            );
-        }
+        let checkpoint = parse_compatible_game_snapshot(checkpoint_value)?;
         let viewer = seat_value(field(observation, "seat")?)?;
         if checkpoint.viewer != viewer.index() {
             return Err("checkpoint viewer does not match observation seat".into());
@@ -902,7 +875,6 @@ impl Game {
                 .map(player_from_index)
                 .collect::<Result<Vec<_>, _>>()?,
             next_regular_player: player_from_index(checkpoint.next_regular_player)?,
-            channel_active: checkpoint.channel_active,
             damage_preventions,
             damage_redirects,
             result: None,

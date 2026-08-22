@@ -178,8 +178,8 @@ use decision_state::{
 use exile_permission::{ExilePlayCost, ExilePlayPermission};
 use mana_state::{
     AppliedStackEffect, FlexibleManaSource, ManaAbilityActivation, ManaActivationChoices,
-    ManaPaymentPurpose, ManaPlanOptions, ManaSourceOutput, ManaSourceOutputs, PaymentCapacity,
-    PlannedManaActivation, PlannedPaymentKind,
+    ManaContributionKind, ManaPaymentPurpose, ManaPlanOptions, ManaSourceOutput, ManaSourceOutputs,
+    PaymentCapacity, PlannedManaActivation, PlannedPaymentKind,
 };
 use procedure_state::{DrawReplacement, PendingProcedure};
 use replacement_state::{
@@ -926,7 +926,6 @@ pub struct Game {
     /// front of this anchor without changing it.
     next_regular_player: PlayerId,
     extra_turns: Vec<PlayerId>,
-    channel_active: [bool; 2],
     result: Option<GameResult>,
     events: Vec<GameEvent>,
 }

@@ -1,12 +1,12 @@
 //! Alliances cards used by the staged Premodern deck tranche.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, DividedTotal, EffectDef,
-    EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectPredicateDef, ObjectRefDef,
-    PlayerRefDef, PlayerRelation, SpellAdditionalCostDef, SpendModeDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AlternativeCastKindDef, CardArt, CardRules, CardSet, CardSupertype, CardType, DividedTotal,
+    EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectPredicateDef,
+    ObjectRefDef, PlayerRefDef, PlayerRelation, SpellAdditionalCostDef, SpendModeDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -174,6 +174,22 @@ pub(in crate::card::sets) static PYROKINESIS: CardRecord = CardRecord::new_with_
     ]),
 );
 
+// ALL 89 — Elvish Spirit Guide
+pub(in crate::card::sets) static ELVISH_SPIRIT_GUIDE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5b94f37f-ebdf-4b79-a615-58331d27cf4e"),
+    "Elvish Spirit Guide",
+    CardArt::new("5b94f37f-ebdf-4b79-a615-58331d27cf4e", "Julie Baroh"),
+    CardSet::Alliances,
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Elf", "Spirit"], 2, 2).with_ability(
+        AbilityDef::activated_mana(
+            "Exile this card from your hand: Add {G}.",
+            &[AbilityCostDef::ExileSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
+        )
+        .with_source_zones(&[ZoneKind::Hand]),
+    ),
+);
+
 /// The land fetches, and then leaves: the return is a delayed trigger so
 /// that the land is available to tap again next turn rather than staying to
 /// be tapped twice in one.
@@ -241,6 +257,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ARCANE_DENIAL,
     &FORCE_OF_WILL,
     &PYROKINESIS,
+    &ELVISH_SPIRIT_GUIDE,
     &THAWING_GLACIERS,
 ];
 

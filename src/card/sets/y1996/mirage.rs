@@ -1,11 +1,12 @@
 //! Mirage cards used by the staged Premodern deck tranche.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, CardArt,
-    CardRules, CardSet, CardType, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
-    EffectRecipientDef, ObjectPredicateDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef,
+    AppliedRuleDef, CardArt, CardRules, CardSet, CardType, EffectDef, EffectPaymentCostDef,
+    EffectPaymentDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectSetDef, PayOrDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -204,6 +205,21 @@ pub(in crate::card::sets) static WORLDLY_TUTOR: CardRecord = CardRecord::new_wit
     )),
 );
 
+// MIR 258 — Cadaverous Bloom
+pub(in crate::card::sets) static CADAVEROUS_BLOOM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c9bef70b-61c7-4df5-b4df-09cd6ab2015c"),
+    "Cadaverous Bloom",
+    CardArt::new("c9bef70b-61c7-4df5-b4df-09cd6ab2015c", "Alan Rabinowitz"),
+    CardSet::Mirage,
+    CardRules::new_enchantment(mana_cost!("{3}{B}{G}")).with_ability(AbilityDef::activated_mana(
+        "Exile a card from your hand: Add {B}{B} or {G}{G}.",
+        &[AbilityCostDef::ExileCardFromHand(ObjectPredicateDef::Any)],
+        EffectDef::AddMana(
+            AddManaEffectDef::choice(&[ManaColor::Black, ManaColor::Green]).with_amount(2),
+        ),
+    )),
+);
+
 // MIR 299 — Cursed Totem
 pub(in crate::card::sets) static CURSED_TOTEM: CardRecord = CardRecord::new_with_legacy_id(
     2039,
@@ -271,6 +287,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GOBLIN_TINKERER,
     &TRANQUIL_DOMAIN,
     &WORLDLY_TUTOR,
+    &CADAVEROUS_BLOOM,
     &CURSED_TOTEM,
     &PHYREXIAN_DREADNOUGHT,
 ];

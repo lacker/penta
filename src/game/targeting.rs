@@ -116,7 +116,7 @@ impl Game {
             ObjectCharacteristics::Emblem { emblem } => emblem.rules_view(),
             ObjectCharacteristics::FaceDown { face_down } => face_down.rules(),
         };
-        let mut keywords = 0;
+        let mut keywords = 0_u64;
         for ability in rules.ability_clauses() {
             if ability.is_executable()
                 && let DeclarativeAbilityDef::Keyword(keyword) = ability.definition
@@ -167,7 +167,7 @@ impl Game {
         let mut power = None;
         let mut toughness = None;
         let mut supertypes = [false; CardSupertype::COUNT];
-        let mut keywords = 0;
+        let mut keywords = 0_u64;
         for part in parts {
             let part = definition.part(part)?;
             types = types.union(part.rules.types());

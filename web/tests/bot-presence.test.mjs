@@ -59,9 +59,21 @@ test("the public view carries no token, whatever else the record holds", () => {
     }),
     NOW,
   );
-  assert.deepEqual(Object.keys(view).sort(), ["busy", "deck", "id", "name", "online"]);
+  assert.deepEqual(Object.keys(view).sort(), [
+    "busy",
+    "deck",
+    "discloseDeck",
+    "id",
+    "name",
+    "online",
+  ]);
   assert.equal(JSON.stringify(view).includes("secret"), false);
   assert.equal(JSON.stringify(view).includes("private.claim.v1"), false);
+});
+
+test("a bot that never opts in to open decklists shows as not disclosing", () => {
+  assert.equal(publicBot(bot(), NOW).discloseDeck, false);
+  assert.equal(publicBot(bot({ discloseDeck: true }), NOW).discloseDeck, true);
 });
 
 test("a bot's move clock is far shorter than a person's", () => {

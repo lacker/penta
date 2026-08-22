@@ -54,8 +54,8 @@ export const FINISHED_ROOM_MS = 60 * 60_000;
  * stay generic over it rather than duplicating the record.
  *
  * @typedef {{ at: number }} Dated
- * @typedef {{ id: string, name: string, deck: string, lastSeen: number,
- *             invites: Dated[] }} BotRecord
+ * @typedef {{ id: string, name: string, deck: string, discloseDeck?: boolean,
+ *             lastSeen: number, invites: Dated[] }} BotRecord
  */
 
 /**
@@ -105,6 +105,7 @@ export function publicBot(bot, now) {
     id: bot.id,
     name: bot.name,
     deck: bot.deck,
+    discloseDeck: bot.discloseDeck === true,
     online: isOnline(bot.lastSeen, now),
     busy: liveInvites(bot.invites, now).length > 0,
   };

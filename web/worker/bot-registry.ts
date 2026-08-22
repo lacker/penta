@@ -72,7 +72,11 @@ interface DurableState {
   storage: DurableStorage;
 }
 
-/** Only the game rooms, so a dropped bot can be made to lose its game. */
+/**
+ * Only the game rooms: enough to make a dropped bot lose its game, verify a
+ * challenger owns the room it is pointing a bot at, and tell a room whether
+ * the bot claiming its seat opted into open decklists.
+ */
 interface RegistryEnv {
   GAME_ROOMS: {
     idFromName(name: string): unknown;
@@ -102,6 +106,14 @@ interface RegisteredBot {
   name: string;
   /** What it plays when a challenger does not choose for it. */
   deck: string;
+  /**
+   * Opts into open decklists: this bot is willing to have its own deck named
+   * to an opponent who has also opted in. Off by default, so an existing bot
+   * that never sets this sees no behavior change at all. Absent only on
+   * registrations stored before this field existed, same as `compatibility`.
+   * See `game-room.ts` for where the mutual opt-in actually takes effect.
+   */
+  discloseDeck?: boolean;
   registeredAt: string;
   /** When it last heartbeated. Presence is this, and nothing else. */
   lastSeen: number;
@@ -115,6 +127,7 @@ interface PublicBot {
   id: string;
   name: string;
   deck: string;
+  discloseDeck: boolean;
   online: boolean;
   busy: boolean;
 }
@@ -206,6 +219,7 @@ export class BotRegistry {
       token: mintToken(),
       name,
       deck: (typeof body.deck === "string" ? body.deck : "").trim() || "Sligh",
+      discloseDeck: body.discloseDeck === true,
       registeredAt: new Date().toISOString(),
       // Registering is not being online: the first heartbeat is.
       lastSeen: 0,
@@ -217,6 +231,7 @@ export class BotRegistry {
       id: bot.id,
       token: bot.token,
       deck: bot.deck,
+      discloseDeck: bot.discloseDeck,
       compatibility: publicServerCompatibility(server),
     });
   }
@@ -257,10 +272,17 @@ export class BotRegistry {
       (invite) => !done.has(invite.room),
     );
     bot.compatibility = compatibility;
+    // Optional, and left as whatever it already was when this heartbeat does
+    // not mention it -- a bot that only sometimes echoes it back should not
+    // be toggled off by omission.
+    if (Object.hasOwn(body, "discloseDeck")) {
+      bot.discloseDeck = body.discloseDeck === true;
+    }
     await this.#state.storage.put(PREFIX + id, bot);
     return Response.json({
       invites: bot.invites,
       deck: bot.deck,
+      discloseDeck: bot.discloseDeck,
       compatibility: publicServerCompatibility(server),
     });
   }
@@ -317,7 +339,34 @@ export class BotRegistry {
     // Someone is now waiting on this bot, so start watching whether it is
     // still here. Nothing else in the registry runs on its own.
     await this.#state.storage.setAlarm(now + PRESENCE_MS);
-    return Response.json({ room, deck: bot.deck });
+    // Tell the room whether the bot that just claimed the seat opted into
+    // open decklists -- the registry is the only trustworthy source for that,
+    // since it is this bot's own declaration and not something a challenger
+    // could assert on its behalf. Best-effort: a room that cannot be told
+    // simply plays the redacted observation it always has.
+    await this.#declareDisclosure(room, bot.discloseDeck === true);
+    return Response.json({ room, deck: bot.deck, discloseDeck: bot.discloseDeck === true });
+  }
+
+  /**
+   * Records, on the room itself, whether the bot now filling the seat opted
+   * into open decklists. Called only once a challenge has actually succeeded,
+   * so a bot that never gets to play never leaves a stray declaration behind.
+   */
+  async #declareDisclosure(room: string, discloseDeck: boolean): Promise<void> {
+    try {
+      const stub = this.#env.GAME_ROOMS.get(this.#env.GAME_ROOMS.idFromName(room));
+      await stub.fetch(
+        new Request(`https://room/_game/${room}/disclose-bot-deck`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ discloseDeck }),
+        }),
+      );
+    } catch {
+      // The room may be finished or gone; there is no game left to disclose
+      // anything about either way.
+    }
   }
 
   /**

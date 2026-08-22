@@ -1308,8 +1308,8 @@ Two consequences worth designing for:
 
 | Call | Meaning |
 | --- | --- |
-| `POST /_bots/register {name, deck, compatibility: {protocolVersion, capabilities, requiredCapabilities, requiredSimulationFingerprint?}}` | Once per registration. Returns `{id, token, deck, compatibility}`; keep the token. An incompatible declaration returns 409. |
-| `POST /_bots/<id>/heartbeat {token, done, compatibility}` | Renews presence and compatibility, returning `{invites, deck, compatibility}`. An incompatible declaration returns 409 before presence is renewed. |
+| `POST /_bots/register {name, deck, discloseDeck?, compatibility: {protocolVersion, capabilities, requiredCapabilities, requiredSimulationFingerprint?}}` | Once per registration. Returns `{id, token, deck, discloseDeck, compatibility}`; keep the token. An incompatible declaration returns 409. |
+| `POST /_bots/<id>/heartbeat {token, done, discloseDeck?, compatibility}` | Renews presence and compatibility, returning `{invites, deck, discloseDeck, compatibility}`. An incompatible declaration returns 409 before presence is renewed. |
 | `GET /_bots` | Returns `{compatibility, bots}` for compatible bots that are online now, with `busy`. |
 | `POST /_bots/<id>/challenge {room, token}` | Asks an idle bot to play a started room. `token` is that room's bot-seat token, which only whoever started the room has, so nobody can park your bot in a room of theirs. The web client does this when someone picks you. |
 
@@ -1328,6 +1328,44 @@ the web client offers as your side of the matchup. An omitted compatibility
 declaration identifies a pre-negotiation protocol-21 bot. Protocol 23 therefore
 requires an explicit declaration: this is how a bot opts into open-world
 objects rather than being assumed to tolerate them.
+
+### Open decklists (optional)
+
+By default a hosted match discloses nothing about either deck beyond what
+play itself reveals -- the situation this guide describes everywhere else, and
+still the only option unless both sides ask for something different. A bot
+that would rather know its opponent's archetype up front, the way an
+archetype is known at a competitive paper table, can opt in.
+
+Add `"discloseDeck": true` to your `/_bots/register` or heartbeat body. It
+declares that you are willing to have your own deck named to an opponent who
+also opts in; the registration and heartbeat responses echo it back as
+`discloseDeck`, and the public `/_bots` listing shows it for every bot, so a
+human or scheduler can tell which bots play open-decklist games. A heartbeat
+that omits the field leaves your prior declaration as it was; send it as
+`false` to withdraw it.
+
+Whoever starts a room declares the human seat's own willingness the same
+way, with `"humanDiscloseDeck": true` in the `POST /_game/<room-id>/start`
+body.
+
+Disclosure only takes effect when *both* seats have opted in for that
+specific room -- one side opting in, alone, changes nothing. When they have,
+the bot seat's observation, from both `/opponent` and the `observe` message
+on the bot socket, carries one extra field:
+
+| field | meaning |
+| --- | --- |
+| `opponentDeck` | present only when both seats opted in to open decklists; the human seat's registered deck name |
+
+Absent that mutual opt-in, nothing changes: no `opponentDeck` field appears,
+and a bot that never asks for this sees exactly the redacted observation it
+always has. This is additive, protocol-27-compatible JSON -- ignore it if you
+do not use it, same as any other field this guide describes. It is also a
+hosted-room convenience layered on top of the wire protocol by the deployment
+itself, not a change to the core engine: a local `penta.Game`, and the
+`observe()` fields the engine emits directly, are unaffected either way, since
+neither the registry nor a room's own deck configuration exists there.
 
 ## Hosted games over WebSocket
 
@@ -1353,6 +1391,10 @@ and the bot answers with an index into that observation's `legalActions`:
 ```json
 { "t": "act", "index": 3 }
 ```
+
+That observation carries `opponentDeck` when [open decklists](#open-decklists-optional)
+are in effect for this room, and is otherwise identical to what `/opponent`
+already returns while polling.
 
 A hosted room's state payload carries `moveClock` -- `{seat, deadline}`, with
 the deadline in epoch milliseconds -- whenever a game is live, so a client can

@@ -42,6 +42,13 @@ interface GameConfig {
   humanFirst: boolean;
   seed: number;
   format?: string;
+  /**
+   * The human seat's own opt-in to open decklists: it is willing to have
+   * `humanDeck` named to a bot opponent who has also opted in. Off by
+   * default. Not passed to `WebGame` -- it plays no part in the deal, only
+   * in what `#withOpponentDeck` later adds to the bot's observation.
+   */
+  humanDiscloseDeck?: boolean;
 }
 
 /** Everything either seat can do, in a form that can be written down. */
@@ -77,6 +84,14 @@ interface StoredGame {
    */
   humanToken: string;
   botToken: string;
+  /**
+   * The bot seat's own opt-in to open decklists, learned from the registry
+   * once the bot that actually claimed the seat is known -- unlike
+   * `config.humanDiscloseDeck`, this cannot be declared at `start`, since
+   * whichever bot the room's starter goes on to invite is not yet decided.
+   * See `disclose-bot-deck` below.
+   */
+  botDiscloseDeck?: boolean;
 }
 
 interface DurableStorage {
@@ -245,6 +260,19 @@ export class GameRoom {
           ok: tokenMatches(this.#stored?.botToken, body.token ?? null),
         });
       }
+      if (route === "disclose-bot-deck") {
+        // Object-to-object only, like `verify-bot-token` and `lose-on-time`:
+        // the registry calls this right after a challenge succeeds, once it
+        // knows which bot actually claimed the seat and whether that bot
+        // opted into open decklists. This alone discloses nothing -- it only
+        // sets the flag `#withOpponentDeck` later reads, and only takes
+        // effect once the human seat has opted in too.
+        const body = (await request.json().catch(() => ({}))) as {
+          discloseDeck?: boolean;
+        };
+        await this.#setBotDiscloseDeck(body.discloseDeck === true);
+        return Response.json({ ok: true });
+      }
       if (route === "lose-on-time") {
         // Reachable only object-to-object: the public router refuses this
         // path, so a caller here is this room's alarm or the registry.
@@ -326,8 +354,32 @@ export class GameRoom {
     return Response.json({
       deciding: true,
       result: result ?? null,
-      observation: JSON.parse(game.opponentObserveJson()),
+      observation: this.#withOpponentDeck(JSON.parse(game.opponentObserveJson())),
     });
+  }
+
+  /**
+   * Open decklists: adds `opponentDeck`, naming the human seat's deck, to a
+   * bot's observation -- but only once both seats have opted in for this
+   * particular room. Absent that mutual opt-in this is the identity
+   * function, so every existing bot's observation is byte-for-byte what
+   * `protocol.rs` already produces. This lives here, not in the engine: it
+   * is meta-game information a hosted room happens to know (who is playing
+   * what), the same way an announced paper-Magic decklist is, not something
+   * observable from the board `PlayerObservation` models.
+   */
+  #withOpponentDeck(observation: Record<string, unknown>): Record<string, unknown> {
+    const stored = this.#stored;
+    if (!stored?.config.humanDiscloseDeck || !stored.botDiscloseDeck) return observation;
+    return { ...observation, opponentDeck: stored.config.humanDeck };
+  }
+
+  /** Records whether the bot that just claimed the seat opted into open decklists. */
+  async #setBotDiscloseDeck(discloseDeck: boolean): Promise<void> {
+    const stored = this.#stored;
+    if (!stored) return;
+    stored.botDiscloseDeck = discloseDeck;
+    await this.#state.storage.put(STORED, stored);
   }
 
   /** Which seat a presented token speaks for, if any. */
@@ -670,7 +722,7 @@ export class GameRoom {
     this.#bot?.send(
       JSON.stringify({
         t: "observe",
-        observation: JSON.parse(game.opponentObserveJson()),
+        observation: this.#withOpponentDeck(JSON.parse(game.opponentObserveJson())),
       }),
     );
   }

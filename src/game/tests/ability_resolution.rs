@@ -262,7 +262,9 @@ fn granted_ability_keeps_its_frozen_resolver_when_the_source_changes() {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         },
     )
-    .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::SedgeTroll))
+    .with_effect_execution(EffectExecutionDef::Custom(
+        CardBehavior::LibraryOfAlexandria,
+    ))
     .with_coverage(AbilityCoverageDef::explained_complete(
         "The test intentionally grants a custom resolver.",
     ));
@@ -324,17 +326,21 @@ fn granted_ability_keeps_its_frozen_resolver_when_the_source_changes() {
             .ability
             .as_ref()
             .map(|ability| ability.resolver),
-        Some(StackAbilityResolver::Custom(CardBehavior::SedgeTroll))
+        Some(StackAbilityResolver::Custom(
+            CardBehavior::LibraryOfAlexandria
+        ))
     ));
 
     // This models a continuous/copy effect changing the effective rules of a
     // source after activation. The origin remains provenance, while the stack
-    // object's executable payload must remain the Sedge Troll procedure.
+    // object's executable payload must remain the Library procedure.
     game.battlefield[0].copy_effect = Some(copied_characteristics(cards::JAYEMDAE_TOME));
+    pass_priority_pair(&mut game);
     pass_priority_pair(&mut game);
 
     assert_eq!(
-        game.battlefield[0].regeneration_shields, 1,
+        game.players[PlayerId::One.index()].hand.len(),
+        1,
         "resolution must not rediscover a different handler from the changed source",
     );
 }
@@ -407,9 +413,7 @@ fn declarative_clause_uses_its_own_resolver_on_a_card_with_custom_behavior() {
 }
 
 #[test]
-fn legacy_activated_clauses_dispatch_from_their_own_effect_execution() {
-    static REGENERATION_COSTS: [AbilityCostDef; 1] =
-        [AbilityCostDef::Mana(ManaCost::colored(0, 0, 0, 1, 0, 0))];
+fn legacy_activated_clauses_keep_their_own_origins() {
     static ABILITIES: [AbilityDef; 2] = [
         AbilityDef::activated(
             "{T}: Draw a card. Activate only if you have exactly seven cards in hand.",
@@ -427,13 +431,18 @@ fn legacy_activated_clauses_dispatch_from_their_own_effect_execution() {
         ))
         .with_legacy_procedure(),
         AbilityDef::activated(
-            "{B}: Regenerate this permanent.",
-            &REGENERATION_COSTS,
-            EffectDef::Special("Regenerate the source permanent"),
+            "{T}: Draw a card. Activate only if you have exactly seven cards in hand.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
         )
-        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::SedgeTroll))
+        .with_effect_execution(EffectExecutionDef::Custom(
+            CardBehavior::LibraryOfAlexandria,
+        ))
         .with_coverage(AbilityCoverageDef::explained_complete(
-            "The test uses the Sedge Troll regeneration resolver.",
+            "The test uses the Library of Alexandria resolver.",
         ))
         .with_legacy_procedure(),
     ];
@@ -460,34 +469,20 @@ fn legacy_activated_clauses_dispatch_from_their_own_effect_execution() {
     let source = CardInstanceId(10_000);
     game.battlefield
         .push(creature(source.0, definition_id, PlayerId::One));
-    game.players[PlayerId::One.index()].mana_pool.black = 1;
     game.players[PlayerId::One.index()]
         .hand
         .extend((0..7).map(|offset| card(10_001 + offset, cards::MOUNTAIN, PlayerId::One)));
-    let library_origin = activated_ability_for(&game, source, 0);
-    let regeneration_origin = activated_ability_for(&game, source, 1);
-    let library = plain_activation(source, library_origin);
-    let regeneration = plain_activation(source, regeneration_origin);
+    let first_origin = activated_ability_for(&game, source, 0);
+    let second_origin = activated_ability_for(&game, source, 1);
+    let first = plain_activation(source, first_origin);
+    let second = plain_activation(source, second_origin);
     let actions = game.legal_actions(PlayerId::One);
-    assert!(actions.contains(&library));
-    assert!(actions.contains(&regeneration));
-    assert_ne!(library_origin, regeneration_origin);
+    assert!(actions.contains(&first));
+    assert!(actions.contains(&second));
+    assert_ne!(first_origin, second_origin);
 
-    game.apply(PlayerId::One, regeneration).unwrap();
-    assert_eq!(game.stack[0].ability_origin(), Some(regeneration_origin));
-    assert_eq!(
-        game.stack[0]
-            .ability
-            .as_ref()
-            .map(|ability| ability.resolver),
-        Some(StackAbilityResolver::Custom(CardBehavior::SedgeTroll)),
-    );
-    pass_priority_pair(&mut game);
-    assert_eq!(game.battlefield[0].regeneration_shields, 1);
-
-    game.apply(PlayerId::One, library).unwrap();
-    assert!(game.battlefield[0].tapped);
-    assert_eq!(game.stack[0].ability_origin(), Some(library_origin));
+    game.apply(PlayerId::One, second).unwrap();
+    assert_eq!(game.stack[0].ability_origin(), Some(second_origin));
     assert_eq!(
         game.stack[0]
             .ability
@@ -498,13 +493,12 @@ fn legacy_activated_clauses_dispatch_from_their_own_effect_execution() {
         )),
     );
     pass_priority_pair(&mut game);
+    assert!(game.battlefield[0].tapped);
     assert_eq!(game.players[PlayerId::One.index()].hand.len(), 8);
 }
 
 #[test]
 fn a_legacy_activation_after_a_shared_clause_keeps_its_own_origin() {
-    static REGENERATION_COSTS: [AbilityCostDef; 1] =
-        [AbilityCostDef::Mana(ManaCost::colored(0, 0, 0, 1, 0, 0))];
     static ABILITIES: [AbilityDef; 2] = [
         AbilityDef::activated(
             "You gain 1 life.",
@@ -515,13 +509,18 @@ fn a_legacy_activation_after_a_shared_clause_keeps_its_own_origin() {
             },
         ),
         AbilityDef::activated(
-            "{B}: Regenerate this creature.",
-            &REGENERATION_COSTS,
-            EffectDef::Special("Regenerate the source creature"),
+            "{T}: Draw a card. Activate only if you have exactly seven cards in hand.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
         )
-        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::SedgeTroll))
+        .with_effect_execution(EffectExecutionDef::Custom(
+            CardBehavior::LibraryOfAlexandria,
+        ))
         .with_coverage(AbilityCoverageDef::explained_complete(
-            "The test uses the Sedge Troll regeneration resolver.",
+            "The test uses the Library of Alexandria resolver.",
         ))
         .with_legacy_procedure(),
     ];
@@ -549,7 +548,9 @@ fn a_legacy_activation_after_a_shared_clause_keeps_its_own_origin() {
     let source = CardInstanceId(10_000);
     game.battlefield
         .push(creature(source.0, definition_id, PlayerId::One));
-    game.players[PlayerId::One.index()].mana_pool.black = 1;
+    game.players[PlayerId::One.index()]
+        .hand
+        .extend((0..7).map(|offset| card(10_001 + offset, cards::MOUNTAIN, PlayerId::One)));
     let legacy_origin = activated_ability_for(&game, source, 1);
     let action = Action::ActivateAbility {
         source,
@@ -568,11 +569,13 @@ fn a_legacy_activation_after_a_shared_clause_keeps_its_own_origin() {
             .ability
             .as_ref()
             .map(|ability| ability.resolver),
-        Some(StackAbilityResolver::Custom(CardBehavior::SedgeTroll)),
+        Some(StackAbilityResolver::Custom(
+            CardBehavior::LibraryOfAlexandria,
+        )),
     );
     assert_eq!(game.players[PlayerId::One.index()].life, 20);
     pass_priority_pair(&mut game);
-    assert_eq!(game.battlefield[0].regeneration_shields, 1);
+    assert_eq!(game.players[PlayerId::One.index()].hand.len(), 8);
     assert!(game.stack.is_empty());
 }
 

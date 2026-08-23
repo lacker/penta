@@ -7,13 +7,13 @@ use crate::card::{
     ComparisonDef, ControlDurationDef, CostModificationDef, CounterKind, CreatureTypeSetDef,
     DamageEventMatcherDef, DamagePreventionDef, DamagePreventionFollowUpDef,
     DamageRecipientMatcherDef, DamageSourceGroupDef, DiscardSelectionDef, EffectDef,
-    EffectExecutionDef, EffectPaymentDef, EffectRecipientDef, HalvedValueDef, InstalledTriggerDef,
-    KeywordAbility, LikelihoodDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, OngoingEffectDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ReplacementAbilityDef, ReplacementChoiceDef,
-    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    RoundingDef, TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    EffectPaymentDef, EffectRecipientDef, HalvedValueDef, InstalledTriggerDef, KeywordAbility,
+    LikelihoodDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, OngoingEffectDef, PayOrDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ReplacementAbilityDef, ReplacementChoiceDef, ReplacementConditionDef,
+    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, RoundingDef,
+    TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -3521,7 +3521,6 @@ pub(in crate::card::sets) static ROCK_HYDRA: CardRecord = CardRecord::new(
 );
 
 // LEA 172 — Sedge Troll
-// Audit: custom — Needs a declarative characteristic bonus conditioned on its controller controlling a land with a specified basic land type.
 pub(in crate::card::sets) static SEDGE_TROLL: CardRecord = CardRecord::new_with_legacy_id(
     123,
     "Sedge Troll",
@@ -3530,12 +3529,20 @@ pub(in crate::card::sets) static SEDGE_TROLL: CardRecord = CardRecord::new_with_
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Troll"], 2, 2).with_abilities(&[
         AbilityDef::static_ability(
             "This creature gets +1/+1 as long as you control a Swamp.",
-            EffectDef::Special("Give this creature +1/+1 while its controller controls a Swamp"),
-        )
-        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::SedgeTroll))
-        .with_coverage(AbilityCoverageDef::explained_complete(
-            "The conditional characteristic bonus is implemented by the legacy evaluator.",
-        )),
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::controls_basic_land_type(
+                    PlayerRelation::You,
+                    BasicLandType::Swamp,
+                ),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                },
+            },
+        ),
         abilities::regenerate_self(
             "{B}: Regenerate this creature.",
             &[AbilityCostDef::Mana(mana_cost!("{B}"))],

@@ -2,13 +2,14 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef,
+    AbilityCostDef, AbilityDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
     BattlefieldEntryChoiceDestinationDef, BattlefieldEntryScalarChoiceDef, CardArt, CardRules,
     CardSet, CardType, ChoiceVisibilityDef, ChooseDef, CounterKind, EffectDef,
     EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayActionMatcherDef,
     PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
-    ReplacementEffectDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    ReplacementEffectDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement,
 };
 use crate::ids::ObjectBindingIndex;
 use crate::mana_cost;
@@ -677,13 +678,29 @@ pub(in crate::card::sets) static MAGMA_BURST: CardRecord = CardRecord::new(
 );
 
 // PLS 67 — Mire Kavu
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static MIRE_KAVU: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ccdd0086-eb27-48b3-91cb-a113aa1de102"),
     "Mire Kavu",
     crate::card::CardArt::new("ccdd0086-eb27-48b3-91cb-a113aa1de102", "Wayne England"),
     crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Kavu"], 3, 2).with_ability(
+        AbilityDef::static_ability(
+            "This creature gets +1/+1 as long as you control a Swamp.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::controls_basic_land_type(
+                    PlayerRelation::You,
+                    BasicLandType::Swamp,
+                ),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                },
+            },
+        ),
+    ),
 );
 
 // PLS 68 — Mogg Jailer

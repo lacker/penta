@@ -11,21 +11,8 @@ impl Game {
         object: &StackObject,
         behavior: CardBehavior,
     ) {
-        match behavior {
-            CardBehavior::SedgeTroll => {
-                if let Some(permanent) = self
-                    .battlefield
-                    .iter_mut()
-                    .find(|permanent| Some(permanent.card.id) == object.source)
-                {
-                    permanent.regeneration_shields =
-                        permanent.regeneration_shields.saturating_add(1);
-                }
-            }
-            CardBehavior::LibraryOfAlexandria => {
-                self.draw_instruction(object.controller, 1);
-            }
-            _ => {}
+        if behavior == CardBehavior::LibraryOfAlexandria {
+            self.draw_instruction(object.controller, 1);
         }
     }
 

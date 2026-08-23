@@ -1,3 +1,4 @@
+use super::continuous_effects::StaticEffectKind;
 use super::continuous_effects::StaticSetCharacteristicLayerGuard;
 use super::{
     AppliedEffectDef, BasicLandType, CREATURE_TYPES, CardType, CharacteristicOperationDef,
@@ -653,10 +654,15 @@ impl Game {
                 self.visit_static_applied_effects_with_prospective(
                     permanent,
                     prospective,
+                    StaticEffectKind::Subtypes,
                     &mut collect,
                 )
             } else {
-                self.visit_static_applied_effects(permanent, &mut collect)
+                self.visit_static_applied_effects(
+                    permanent,
+                    StaticEffectKind::Subtypes,
+                    &mut collect,
+                )
             };
             debug_assert!(result.is_continue());
         }

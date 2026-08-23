@@ -229,6 +229,19 @@ impl BasicLandType {
         }
     }
 
+    /// This type as a reusable one-element static slice, for declarative
+    /// predicates and effects whose shape accepts a set of land types.
+    #[must_use]
+    pub const fn singleton(self) -> &'static [Self] {
+        match self {
+            Self::Plains => &[Self::Plains],
+            Self::Island => &[Self::Island],
+            Self::Swamp => &[Self::Swamp],
+            Self::Mountain => &[Self::Mountain],
+            Self::Forest => &[Self::Forest],
+        }
+    }
+
     #[must_use]
     pub const fn mana_color(self) -> ManaColor {
         match self {

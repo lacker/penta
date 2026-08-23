@@ -2,7 +2,7 @@ use super::{
     AbilityCostDef, AbilityOrigin, AbilityProcedureDef, ActivationChoices, ActivationTimingDef,
     BattlefieldExitCompletion, CardBehavior, CardInstance, CharacteristicContext,
     CommittedTriggerEvent, CounterKind, DeclarativeAbilityDef, FrozenActivatedAbility, Game,
-    GameEvent, GameObjectId, ManaCost, ManaPaymentPurpose, ManaPlanOptions, ObjectCharacteristics,
+    GameEvent, GameObjectId, ManaPaymentPurpose, ManaPlanOptions, ObjectCharacteristics,
     ObjectInstance, PendingActivation, PlayRestriction, PlayerId, SacrificeQuota, Step, Target,
     TargetSelection, ZoneKind, ZoneMoveCause, ZonePlacement, remove_card,
 };
@@ -780,40 +780,18 @@ impl Game {
             );
             return;
         }
-        match behavior {
-            Some(CardBehavior::SedgeTroll) => {
-                let cost = ManaCost::colored(0, 0, 0, 1, 0, 0);
-                self.activate_mana_for_cost(player, cost, 0);
-                let _ = self.pay_player_cost(player, cost, 0);
-                let card = self
-                    .battlefield
-                    .iter()
-                    .find(|permanent| permanent.card.id == source)
-                    .map(|permanent| permanent.card.clone())
-                    .expect("legal Sedge Troll activation has a source");
-                self.push_activated_ability(
-                    source,
-                    &card,
-                    player,
-                    frozen_ability,
-                    Vec::new(),
-                    Vec::new(),
-                );
-            }
-            Some(CardBehavior::LibraryOfAlexandria) => {
-                let card = self
-                    .tap_permanent(source)
-                    .expect("legal activation has a source");
-                self.push_activated_ability(
-                    source,
-                    &card,
-                    player,
-                    frozen_ability,
-                    frozen_targets,
-                    Vec::new(),
-                );
-            }
-            _ => {}
+        if let Some(CardBehavior::LibraryOfAlexandria) = behavior {
+            let card = self
+                .tap_permanent(source)
+                .expect("legal activation has a source");
+            self.push_activated_ability(
+                source,
+                &card,
+                player,
+                frozen_ability,
+                frozen_targets,
+                Vec::new(),
+            );
         }
         self.consecutive_passes = 0;
         self.check_state_based_actions();

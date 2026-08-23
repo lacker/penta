@@ -94,15 +94,20 @@ impl Game {
             ));
         }
         if let Some(_pass) = StaticSetCharacteristicLayerGuard::enter() {
-            let result = self.visit_static_applied_effects(permanent, |applied| {
-                if let AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(
-                    operation,
-                )) = applied.effect
-                {
+            let result = self.visit_static_applied_effects(
+                permanent,
+                StaticEffectKind::CardTypes,
+                |applied| {
+                    let AppliedEffectDef::Characteristic(
+                        CharacteristicOperationDef::CardTypes(operation),
+                    ) = applied.effect
+                    else {
+                        unreachable!("the card-type filter admits only card-type operations");
+                    };
                     operations.push((applied.timestamp, applied.component_order, operation));
-                }
-                ControlFlow::Continue(())
-            });
+                    ControlFlow::Continue(())
+                },
+            );
             debug_assert!(result.is_continue());
         }
         operations.sort_by_key(|(timestamp, order, _)| (*timestamp, *order));
@@ -154,15 +159,20 @@ impl Game {
             })
             .collect::<Vec<_>>();
         if let Some(_pass) = StaticSetCharacteristicLayerGuard::enter() {
-            let result = self.visit_static_applied_effects(permanent, |applied| {
-                if let AppliedEffectDef::Characteristic(CharacteristicOperationDef::Colors(
-                    operation,
-                )) = applied.effect
-                {
+            let result = self.visit_static_applied_effects(
+                permanent,
+                StaticEffectKind::Colors,
+                |applied| {
+                    let AppliedEffectDef::Characteristic(CharacteristicOperationDef::Colors(
+                        operation,
+                    )) = applied.effect
+                    else {
+                        unreachable!("the color filter admits only color operations");
+                    };
                     operations.push((applied.timestamp, applied.component_order, operation));
-                }
-                ControlFlow::Continue(())
-            });
+                    ControlFlow::Continue(())
+                },
+            );
             debug_assert!(result.is_continue());
         }
         operations.sort_by_key(|(timestamp, order, _)| (*timestamp, *order));

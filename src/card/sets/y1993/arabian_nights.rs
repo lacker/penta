@@ -846,18 +846,29 @@ pub(in crate::card::sets) static HURR_JACKAL: CardRecord = CardRecord::new_with_
 );
 
 // ARN 40 — Kird Ape
-// Audit: custom — Needs a declarative characteristic bonus conditioned on its controller controlling a land with a specified basic land type.
 pub(in crate::card::sets) static KIRD_APE: CardRecord = CardRecord::new_with_legacy_id(
     117,
     "Kird Ape",
     CardArt::new("ebe8845e-df1c-481c-949c-aab84af99a05", "Ken Meyer, Jr."),
     CardSet::ArabianNights,
-    CardRules::new_creature(mana_cost!("{R}"), &["Ape"], 1, 1)
-    .with_abilities(&[AbilityDef::custom_full(
-        "This creature gets +1/+2 as long as you control a Forest.",
-        CardBehavior::KirdApe,
-        "The conditional power and toughness bonus is implemented by the legacy characteristic evaluator.",
-    )]),
+    CardRules::new_creature(mana_cost!("{R}"), &["Ape"], 1, 1).with_ability(
+        AbilityDef::static_ability(
+            "This creature gets +1/+2 as long as you control a Forest.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::controls_basic_land_type(
+                    PlayerRelation::You,
+                    BasicLandType::Forest,
+                ),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(2),
+                    ),
+                },
+            },
+        ),
+    ),
 );
 
 // ARN 41 — Magnetic Mountain

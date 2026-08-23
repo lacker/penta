@@ -5,10 +5,10 @@ use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::sets::y1993::beta as catalog_leb;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
-    AppliedRuleDef, CardArt, CardRules, CardSet, CardType, EffectDef, EffectRecipientDef,
-    InstalledTriggerDef, ManaColor, ObjectPredicateDef, PlayerRelation, ResolvedEffectDurationDef,
-    TopCardSelectionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardType, EffectDef,
+    EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectPredicateDef, PlayerRelation,
+    ResolvedEffectDurationDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -2302,13 +2302,26 @@ pub(in crate::card::sets) static CHUB_TOAD: CardRecord = CardRecord::new(
 );
 
 // ICE 230 — Dire Wolves
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static DIRE_WOLVES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a602c93d-e00f-4b4f-a7ff-95316b7e7641"),
     "Dire Wolves",
     crate::card::CardArt::new("a602c93d-e00f-4b4f-a7ff-95316b7e7641", "Ron Spencer"),
     crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Wolf"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "This creature has banding as long as you control a Plains.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::controls_basic_land_type(
+                    PlayerRelation::You,
+                    BasicLandType::Plains,
+                ),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&abilities::banding()),
+                },
+            },
+        ),
+    ),
 );
 
 // ICE 231 — Earthlore

@@ -13,7 +13,8 @@ use super::{
     GameObjectId, GrantId, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectRefDef,
     ObjectSetDef, Permanent, PlayerId, ResolvedContinuousEffect, ResolvedContinuousEffectKind,
     RetiredObject, SetOperationDef, StackAbilityResolver, StackObject, StaticAppliedEffect,
-    StaticEffectTraversal, Target, TargetIndex, TriggerContext, TriggerEventObject, ZoneKind,
+    StaticEffectTraversal, Target, TargetIndex, TriggerConditionDef, TriggerContext,
+    TriggerEventObject, ZoneKind,
 };
 
 thread_local! {
@@ -34,6 +35,48 @@ impl StaticSetCharacteristicLayerGuard {
 impl Drop for StaticSetCharacteristicLayerGuard {
     fn drop(&mut self) {
         STATIC_SET_CHARACTERISTIC_LAYER_PASS.with(|pass| pass.set(false));
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(super) enum StaticEffectKind {
+    Rules,
+    CardTypes,
+    Colors,
+    Abilities,
+    Subtypes,
+    PowerToughness,
+}
+
+impl StaticEffectKind {
+    const fn includes(self, effect: AppliedEffectDef) -> bool {
+        matches!(
+            (self, effect),
+            (Self::Rules, AppliedEffectDef::Rule(_))
+                | (
+                    Self::CardTypes,
+                    AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(_)),
+                )
+                | (
+                    Self::Colors,
+                    AppliedEffectDef::Characteristic(CharacteristicOperationDef::Colors(_)),
+                )
+                | (
+                    Self::Abilities,
+                    AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(_)),
+                )
+                | (
+                    Self::Subtypes,
+                    AppliedEffectDef::Characteristic(
+                        CharacteristicOperationDef::CreatureTypes(_)
+                            | CharacteristicOperationDef::Subtypes(_),
+                    ),
+                )
+                | (
+                    Self::PowerToughness,
+                    AppliedEffectDef::Characteristic(CharacteristicOperationDef::PowerToughness(_)),
+                )
+        )
     }
 }
 
@@ -124,17 +167,19 @@ impl Game {
                 })
             })
             .collect::<Vec<_>>();
-        let static_result = self.visit_static_applied_effects(affected, |applied| {
-            if let AppliedEffectDef::Rule(rule) = applied.effect {
+        let static_result =
+            self.visit_static_applied_effects(affected, StaticEffectKind::Rules, |applied| {
+                let AppliedEffectDef::Rule(rule) = applied.effect else {
+                    unreachable!("the static rule filter admits only rules");
+                };
                 rules.push(AppliedRuleEffect {
                     source: applied.source,
                     timestamp: applied.timestamp,
                     component_order: applied.component_order,
                     rule,
                 });
-            }
-            ControlFlow::Continue(())
-        });
+                ControlFlow::Continue(())
+            });
         debug_assert!(static_result.is_continue());
         rules.sort_by_key(|effect| (effect.timestamp, effect.component_order));
         for rule in rules {
@@ -159,6 +204,7 @@ impl Game {
     pub(super) fn visit_static_applied_effects(
         &self,
         affected: &Permanent,
+        kind: StaticEffectKind,
         mut visitor: impl FnMut(StaticAppliedEffect) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
         // Emblems sit outside every zone but their abilities apply, so they
@@ -209,7 +255,7 @@ impl Game {
                     next_component_order: 0,
                 };
                 if self
-                    .visit_static_effect(effect, &mut traversal, &mut visitor)
+                    .visit_static_effect(effect, &mut traversal, kind, &mut visitor)
                     .is_break()
                 {
                     return ControlFlow::Break(());
@@ -223,6 +269,7 @@ impl Game {
         &self,
         affected: &Permanent,
         prospective: &Permanent,
+        kind: StaticEffectKind,
         mut visitor: impl FnMut(StaticAppliedEffect) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
         let prospective_source = (prospective.card.id == affected.card.id).then_some(prospective);
@@ -280,7 +327,7 @@ impl Game {
                     next_component_order: 0,
                 };
                 if self
-                    .visit_static_effect(effect, &mut traversal, &mut visitor)
+                    .visit_static_effect(effect, &mut traversal, kind, &mut visitor)
                     .is_break()
                 {
                     return ControlFlow::Break(());
@@ -294,23 +341,25 @@ impl Game {
         &self,
         effect: EffectDef,
         traversal: &mut StaticEffectTraversal<'_>,
+        kind: StaticEffectKind,
         visitor: &mut impl FnMut(StaticAppliedEffect) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
-        self.visit_static_effect_if(effect, traversal, true, visitor)
+        self.visit_static_effect_tree(effect, traversal, &mut Vec::new(), kind, visitor)
     }
 
-    fn visit_static_effect_if(
+    fn visit_static_effect_tree(
         &self,
         effect: EffectDef,
         traversal: &mut StaticEffectTraversal<'_>,
-        enabled: bool,
+        conditions: &mut Vec<&'static TriggerConditionDef>,
+        kind: StaticEffectKind,
         visitor: &mut impl FnMut(StaticAppliedEffect) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
         match effect {
             EffectDef::Sequence(effects) => {
                 for effect in effects {
                     if self
-                        .visit_static_effect_if(*effect, traversal, enabled, visitor)
+                        .visit_static_effect_tree(*effect, traversal, conditions, kind, visitor)
                         .is_break()
                     {
                         return ControlFlow::Break(());
@@ -319,16 +368,11 @@ impl Game {
                 ControlFlow::Continue(())
             }
             EffectDef::IfCondition { condition, then } => {
-                let condition_holds = enabled
-                    && self.trigger_condition_holds(
-                        condition,
-                        traversal.source.card.id,
-                        traversal.source.controller,
-                        TriggerContext::empty(),
-                        None,
-                        None,
-                    );
-                self.visit_static_effect_if(*then, traversal, condition_holds, visitor)
+                conditions.push(condition);
+                let result =
+                    self.visit_static_effect_tree(*then, traversal, conditions, kind, visitor);
+                conditions.pop();
+                result
             }
             EffectDef::StaticApply { recipient, effect } => {
                 // CR 613.6 keeps one recipient set for every component of a
@@ -352,17 +396,18 @@ impl Game {
                 // recipient does not match. Grant IDs identify structural
                 // grant sites, so later grants must not be renumbered by
                 // which permanent happens to be queried.
-                let include_effect = enabled
-                    && self.static_recipient_matches(
-                        recipient,
-                        traversal.source,
-                        traversal.affected,
-                        traversal.prospective,
-                    );
-                Self::visit_static_applied_effect_components(
+                let recipient_matches = self.static_recipient_matches(
+                    recipient,
+                    traversal.source,
+                    traversal.affected,
+                    traversal.prospective,
+                );
+                self.visit_static_applied_effect_components(
                     effect,
                     traversal,
-                    include_effect,
+                    recipient_matches,
+                    conditions,
+                    kind,
                     visitor,
                 )
             }
@@ -395,21 +440,27 @@ impl Game {
     }
 
     pub(super) fn visit_static_applied_effect_components(
+        &self,
         effect: AppliedEffectDef,
         traversal: &mut StaticEffectTraversal<'_>,
-        include_effect: bool,
+        recipient_matches: bool,
+        conditions: &[&'static TriggerConditionDef],
+        kind: StaticEffectKind,
         visitor: &mut impl FnMut(StaticAppliedEffect) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
         match effect {
             AppliedEffectDef::Composite(effects) => {
                 for effect in effects {
-                    if Self::visit_static_applied_effect_components(
-                        *effect,
-                        traversal,
-                        include_effect,
-                        visitor,
-                    )
-                    .is_break()
+                    if self
+                        .visit_static_applied_effect_components(
+                            *effect,
+                            traversal,
+                            recipient_matches,
+                            conditions,
+                            kind,
+                            visitor,
+                        )
+                        .is_break()
                     {
                         return ControlFlow::Break(());
                     }
@@ -435,6 +486,22 @@ impl Game {
                 } else {
                     None
                 };
+                // Resolve the recipient and component layer before checking
+                // surrounding conditions. A source-only conditional static
+                // should not inspect live board state while an unrelated
+                // permanent or continuous-effect layer is being assembled.
+                let include_effect = recipient_matches
+                    && kind.includes(effect)
+                    && conditions.iter().all(|condition| {
+                        self.trigger_condition_holds(
+                            condition,
+                            traversal.source.card.id,
+                            traversal.source.controller,
+                            TriggerContext::empty(),
+                            None,
+                            None,
+                        )
+                    });
                 if include_effect {
                     visitor(StaticAppliedEffect {
                         source: traversal.source.card.id,

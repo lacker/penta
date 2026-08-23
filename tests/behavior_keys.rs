@@ -98,7 +98,7 @@ fn reported_behaviors(root: &Path) -> BTreeSet<String> {
         reported.extend(behaviors_in(&source));
     }
     assert!(
-        reported.len() > 20,
+        reported.len() >= 20,
         "the scan found almost no behaviors, so it is measuring the wrong thing"
     );
     reported

@@ -195,6 +195,23 @@ pub enum TriggerConditionDef {
     },
 }
 
+impl TriggerConditionDef {
+    /// Whether a matching player controls a land with the named effective
+    /// basic land type. This is a subtype check rather than a card-name check:
+    /// a dual land or a land changed by a continuous effect counts too.
+    #[must_use]
+    pub const fn controls_basic_land_type(
+        player: PlayerRelation,
+        land_type: BasicLandType,
+    ) -> Self {
+        Self::ObjectCount {
+            query: ObjectQueryDef::controlled_basic_land_type(player, land_type),
+            comparison: ComparisonDef::GreaterOrEqual,
+            amount: 1,
+        }
+    }
+}
+
 /// Two amounts and how they are compared. Held behind a reference so that
 /// [`TriggerConditionDef`] stays the width of its smallest useful variant.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]

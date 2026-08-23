@@ -1,12 +1,16 @@
 use std::cell::Cell;
 
+use super::continuous_effects::StaticEffectKind;
 use super::{
     AppliedEffectDef, BasicLandType, CardBehavior, CardSupertype, CardType,
-    CharacteristicOperationDef, ControlFlow, CounterKind, DeclarativeAbilityDef, EffectDef, Game,
-    GameObjectId, KeywordAbility, ObjectPredicateDef, ObjectQueryDef, Permanent, PlayerId,
-    PlayerRelation, PowerToughnessOperationDef, ResolvedContinuousEffectKind,
-    ResolvedPowerToughnessOperation, RetiredObject, TriggerContext, ValueDef,
+    CharacteristicOperationDef, ContinuousEffectTimestamp, ControlFlow, CounterKind,
+    DeclarativeAbilityDef, EffectDef, Game, GameObjectId, KeywordAbility, ObjectPredicateDef,
+    ObjectQueryDef, Permanent, PlayerId, PlayerRelation, PowerToughnessOperationDef,
+    ResolvedContinuousEffectKind, ResolvedPowerToughnessOperation, RetiredObject, TriggerContext,
+    ValueDef,
 };
+
+type BaseStatSetter = (ContinuousEffectTimestamp, u16, Option<i16>, Option<i16>);
 
 thread_local! {
     /// Guards the live layer-7 walk when a static recipient predicate asks for
@@ -64,42 +68,7 @@ impl Game {
                 _ => None,
             })
             .collect::<Vec<_>>();
-        if let Some(_pass) = StaticPowerToughnessLayerGuard::enter() {
-            let result = self.visit_static_applied_effects(permanent, |applied| {
-                if let AppliedEffectDef::Characteristic(
-                    CharacteristicOperationDef::PowerToughness(
-                        PowerToughnessOperationDef::SetBase { power, toughness },
-                    ),
-                ) = applied.effect
-                {
-                    setters.push((
-                        applied.timestamp,
-                        applied.component_order,
-                        Some(self.static_power_toughness_value(permanent, applied.source, power)),
-                        Some(self.static_power_toughness_value(
-                            permanent,
-                            applied.source,
-                            toughness,
-                        )),
-                    ));
-                }
-                if let AppliedEffectDef::Characteristic(
-                    CharacteristicOperationDef::PowerToughness(
-                        PowerToughnessOperationDef::SetBasePower(power),
-                    ),
-                ) = applied.effect
-                {
-                    setters.push((
-                        applied.timestamp,
-                        applied.component_order,
-                        Some(self.static_power_toughness_value(permanent, applied.source, power)),
-                        None,
-                    ));
-                }
-                ControlFlow::Continue(())
-            });
-            debug_assert!(result.is_continue());
-        }
+        self.append_static_base_stat_setters(permanent, &mut setters);
         if setters.is_empty() {
             // "Except it's a 1/1" travels with the copy, so it answers before
             // the copied card's own printed stats do.
@@ -131,6 +100,46 @@ impl Game {
             };
         }
         Some(stats)
+    }
+
+    fn append_static_base_stat_setters(
+        &self,
+        permanent: &Permanent,
+        setters: &mut Vec<BaseStatSetter>,
+    ) {
+        let Some(_pass) = StaticPowerToughnessLayerGuard::enter() else {
+            return;
+        };
+        let result = self.visit_static_applied_effects(
+            permanent,
+            StaticEffectKind::PowerToughness,
+            |applied| {
+                let AppliedEffectDef::Characteristic(CharacteristicOperationDef::PowerToughness(
+                    operation,
+                )) = applied.effect
+                else {
+                    unreachable!("the power/toughness filter admits only stat operations");
+                };
+                let (power, toughness) = match operation {
+                    PowerToughnessOperationDef::SetBase { power, toughness } => (
+                        Some(self.static_power_toughness_value(permanent, applied.source, power)),
+                        Some(self.static_power_toughness_value(
+                            permanent,
+                            applied.source,
+                            toughness,
+                        )),
+                    ),
+                    PowerToughnessOperationDef::SetBasePower(power) => (
+                        Some(self.static_power_toughness_value(permanent, applied.source, power)),
+                        None,
+                    ),
+                    _ => return ControlFlow::Continue(()),
+                };
+                setters.push((applied.timestamp, applied.component_order, power, toughness));
+                ControlFlow::Continue(())
+            },
+        );
+        debug_assert!(result.is_continue());
     }
 
     pub(super) fn controls_land_type(&self, player: PlayerId, land_type: BasicLandType) -> bool {
@@ -283,26 +292,32 @@ impl Game {
             return (0, 0);
         };
         let mut total = (0_i16, 0_i16);
-        let result = self.visit_static_applied_effects(permanent, |applied| {
-            if let AppliedEffectDef::Characteristic(CharacteristicOperationDef::PowerToughness(
-                PowerToughnessOperationDef::Modify { power, toughness },
-            )) = applied.effect
-            {
-                total = (
-                    total.0.saturating_add(self.static_power_toughness_value(
-                        permanent,
-                        applied.source,
-                        power,
-                    )),
-                    total.1.saturating_add(self.static_power_toughness_value(
-                        permanent,
-                        applied.source,
-                        toughness,
-                    )),
-                );
-            }
-            ControlFlow::Continue(())
-        });
+        let result = self.visit_static_applied_effects(
+            permanent,
+            StaticEffectKind::PowerToughness,
+            |applied| {
+                if let AppliedEffectDef::Characteristic(
+                    CharacteristicOperationDef::PowerToughness(
+                        PowerToughnessOperationDef::Modify { power, toughness },
+                    ),
+                ) = applied.effect
+                {
+                    total = (
+                        total.0.saturating_add(self.static_power_toughness_value(
+                            permanent,
+                            applied.source,
+                            power,
+                        )),
+                        total.1.saturating_add(self.static_power_toughness_value(
+                            permanent,
+                            applied.source,
+                            toughness,
+                        )),
+                    );
+                }
+                ControlFlow::Continue(())
+            },
+        );
         debug_assert!(result.is_continue());
         total
     }
@@ -407,19 +422,6 @@ impl Game {
         static_bonus: (i16, i16),
     ) -> crate::CreatureStats {
         let behavior = self.effective_behavior(permanent);
-        let conditional_bonus = match behavior {
-            Some(CardBehavior::KirdApe)
-                if self.controls_land_type(permanent.controller, BasicLandType::Forest) =>
-            {
-                (1, 2)
-            }
-            Some(CardBehavior::SedgeTroll)
-                if self.controls_land_type(permanent.controller, BasicLandType::Swamp) =>
-            {
-                (1, 1)
-            }
-            _ => (0, 0),
-        };
         let ascended = if behavior == Some(CardBehavior::BloodBaronOfVizkopa)
             && self.players[permanent.controller.index()].life >= 30
             && self.players[permanent.controller.opponent().index()].life <= 10
@@ -431,17 +433,11 @@ impl Game {
         let counter_bonus = Self::counter_stat_bonus(permanent);
         let resolved_bonus = self.resolved_power_toughness_bonus(permanent);
         let stats = crate::CreatureStats {
-            power: base.power
-                + ascended
-                + resolved_bonus.0
-                + static_bonus.0
-                + conditional_bonus.0
-                + counter_bonus.0,
+            power: base.power + ascended + resolved_bonus.0 + static_bonus.0 + counter_bonus.0,
             toughness: base.toughness
                 + ascended
                 + resolved_bonus.1
                 + static_bonus.1
-                + conditional_bonus.1
                 + counter_bonus.1,
         };
         // CR 613.4e: the switch is applied after everything above, and two
@@ -478,17 +474,21 @@ impl Game {
             return resolved;
         };
         let mut statics = 0;
-        let result = self.visit_static_applied_effects(permanent, |applied| {
-            if matches!(
-                applied.effect,
-                AppliedEffectDef::Characteristic(CharacteristicOperationDef::PowerToughness(
-                    PowerToughnessOperationDef::Switch
-                ))
-            ) {
-                statics += 1;
-            }
-            ControlFlow::Continue(())
-        });
+        let result = self.visit_static_applied_effects(
+            permanent,
+            StaticEffectKind::PowerToughness,
+            |applied| {
+                if matches!(
+                    applied.effect,
+                    AppliedEffectDef::Characteristic(CharacteristicOperationDef::PowerToughness(
+                        PowerToughnessOperationDef::Switch
+                    ))
+                ) {
+                    statics += 1;
+                }
+                ControlFlow::Continue(())
+            },
+        );
         debug_assert!(result.is_continue());
         resolved + statics
     }

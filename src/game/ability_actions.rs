@@ -675,18 +675,6 @@ impl Game {
         actions: &mut Vec<Action>,
     ) {
         match behavior {
-            CardBehavior::SedgeTroll
-                if self.can_pay_cost(player, ManaCost::colored(0, 0, 0, 1, 0, 0), 0) =>
-            {
-                actions.push(Action::ActivateAbility {
-                    source: permanent.card.id,
-                    ability,
-                    targets: Vec::new(),
-                    cost_objects: Vec::new(),
-                    x: 0,
-                    modes: Vec::new(),
-                });
-            }
             CardBehavior::LibraryOfAlexandria
                 if !permanent.tapped
                     && self.can_use_tap_or_untap_ability(permanent)

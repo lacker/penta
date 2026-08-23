@@ -1,6 +1,8 @@
 use crate::ids::{ObjectSetBindingIndex, TargetIndex};
 
-use super::super::{CounterKind, ManaColor, ObjectPredicateDef, PlayerRelation, ZoneKind};
+use super::super::{
+    BasicLandType, CounterKind, ManaColor, ObjectPredicateDef, PlayerRelation, ZoneKind,
+};
 use super::{DamageSourceGroupDef, PlayerSetDef};
 
 /// The two branches of a conditional value.
@@ -127,6 +129,20 @@ impl ObjectQueryDef {
             controller: None,
             owner: None,
         }
+    }
+
+    /// Lands a matching player controls with the named effective basic land
+    /// type. Dual lands and lands changed by continuous effects match too.
+    #[must_use]
+    pub const fn controlled_basic_land_type(
+        player: PlayerRelation,
+        land_type: BasicLandType,
+    ) -> Self {
+        Self::matching(
+            ObjectPredicateDef::HasAnyBasicLandType(land_type.singleton()),
+            &[ZoneKind::Battlefield],
+            player,
+        )
     }
 }
 

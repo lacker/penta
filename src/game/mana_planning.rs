@@ -4,11 +4,11 @@ use crate::card::{CostModificationDef, FlexibleManaSymbol};
 
 use super::{
     AbilityCostDef, AbilityOrigin, AbilityProcedureDef, Action, ActivatedAbilityDef,
-    AppliedEffectDef, CardBehavior, CardDefinitionId, CardInstance, CardType,
-    CharacteristicContext, CharacteristicOperationDef, CostConfiguration, DeclarativeAbilityDef,
-    EffectDef, EffectRecipientDef, FlexibleManaSource, Game, GameObjectId, HybridPair,
-    KeywordAbility, ManaAbilityActivation, ManaActivationChoices, ManaColor, ManaContributionKind,
-    ManaCost, ManaPaymentPurpose, ManaPlanOptions, ManaPool, ManaSourceOutput, ManaSourceOutputs,
+    AppliedEffectDef, CardDefinitionId, CardInstance, CardType, CharacteristicContext,
+    CharacteristicOperationDef, CostConfiguration, DeclarativeAbilityDef, EffectDef,
+    EffectRecipientDef, FlexibleManaSource, Game, GameObjectId, HybridPair, KeywordAbility,
+    ManaAbilityActivation, ManaActivationChoices, ManaColor, ManaContributionKind, ManaCost,
+    ManaPaymentPurpose, ManaPlanOptions, ManaPool, ManaSourceOutput, ManaSourceOutputs,
     PaymentCapacity, Permanent, PlannedManaActivation, PlannedPaymentKind, PlayActionKind,
     PlayOptionDef, PlayerId, SetOperationDef, TriggerContext, ValueDef, ZoneKind,
     extra_target_cost,
@@ -242,21 +242,7 @@ impl Game {
                 .map(|cost| (cost, x, options, purpose));
         }
 
-        let behavior = self.effective_behavior(permanent)?;
-        let cost = match behavior {
-            CardBehavior::SedgeTroll => ManaCost::colored(0, 0, 0, 1, 0, 0),
-            _ => return None,
-        };
-        Some((
-            cost,
-            0,
-            ManaPlanOptions::default(),
-            ManaPaymentPurpose::Ability {
-                source,
-                taps_source: false,
-                leaves_source: false,
-            },
-        ))
+        None
     }
 
     /// How much {C} a repeatable pay-life ongoing mana ability could still

@@ -957,11 +957,9 @@ pub(super) const fn rules(behavior: CardBehavior) -> &'static CardRules {
         CardBehavior::Recall => &y1994::legends::RECALL.rules,
         CardBehavior::DustToDust => &y1994::the_dark::DUST_TO_DUST.rules,
         CardBehavior::GrislySalvage => &y2012::return_to_ravnica::GRISLY_SALVAGE.rules,
-        CardBehavior::KirdApe => &y1993::arabian_nights::KIRD_APE.rules,
         CardBehavior::Mulch => &y2011::innistrad::MULCH.rules,
         CardBehavior::Negate => &y2012::magic_2013::NEGATE.rules,
         CardBehavior::PillarOfFlame => &y2012::avacyn_restored::PILLAR_OF_FLAME.rules,
-        CardBehavior::SedgeTroll => &y1993::alpha::SEDGE_TROLL.rules,
         CardBehavior::SphinxsRevelation => &y2012::return_to_ravnica::SPHINXS_REVELATION.rules,
         CardBehavior::TetravusDetach | CardBehavior::TetravusAssemble => {
             &y1994::antiquities::TETRAVUS.rules

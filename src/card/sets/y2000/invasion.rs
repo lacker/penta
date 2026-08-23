@@ -16,8 +16,8 @@ use crate::card::sets::y2012::return_to_ravnica as catalog_rtr;
 use crate::card::sets::y2013::gatecrash as catalog_gtc;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardType, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectRefDef, PlayerRelation,
+    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardType,
+    EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectRefDef, PlayerRelation,
     StackTargetKindDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, ValueDef,
     ZoneKind, ZonePlacement, abilities,
 };
@@ -3219,13 +3219,76 @@ pub(in crate::card::sets) static SPARRING_GOLEM: CardRecord = CardRecord::new(
 );
 
 // INV 313 — Tek
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static TEK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c1f38104-a699-4bb9-930a-699f7bbc338a"),
     "Tek",
     crate::card::CardArt::new("c1f38104-a699-4bb9-930a-699f7bbc338a", "Chippy"),
     crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{5}"), &["Dragon"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "This creature gets +0/+2 as long as you control a Plains, has flying as long as you \
+             control an Island, gets +2/+0 as long as you control a Swamp, has first strike as \
+             long as you control a Mountain, and has trample as long as you control a Forest.",
+            EffectDef::Sequence(&[
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::controls_basic_land_type(
+                        PlayerRelation::You,
+                        BasicLandType::Plains,
+                    ),
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(0),
+                            ValueDef::Constant(2),
+                        ),
+                    },
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::controls_basic_land_type(
+                        PlayerRelation::You,
+                        BasicLandType::Island,
+                    ),
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::add_ability(&abilities::flying()),
+                    },
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::controls_basic_land_type(
+                        PlayerRelation::You,
+                        BasicLandType::Swamp,
+                    ),
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(0),
+                        ),
+                    },
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::controls_basic_land_type(
+                        PlayerRelation::You,
+                        BasicLandType::Mountain,
+                    ),
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::add_ability(&abilities::first_strike()),
+                    },
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::controls_basic_land_type(
+                        PlayerRelation::You,
+                        BasicLandType::Forest,
+                    ),
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::add_ability(&abilities::trample()),
+                    },
+                },
+            ]),
+        ),
+    ),
 );
 
 // INV 314 — Tigereye Cameo

@@ -48,6 +48,16 @@ distinguishes snapshots of the covered source and build inputs.
   graveyard shuffle. New closed keyword checkpoint tags are additive;
   checkpoint format 8, replay version 2, and protocol 29 are unchanged.
 
+- **Land-type-conditioned static abilities.** Reusable query and condition
+  constructors now ask whether a matching player controls a land with a named
+  effective basic land type, so dual lands and type-changing effects count
+  while extra matching lands do not multiply the result. Static traversal
+  checks each condition only after its recipient and characteristic layer are
+  relevant, preserving conditional control flow without unrelated layer work.
+  Kird Ape and Sedge Troll have moved off their legacy characteristic and
+  activation branches, and Dire Wolves, Mire Kavu, and Tek are now complete
+  declarative cards using the same predicate.
+
 - **Plot, and a `Plot` action.** The mirror of foretell's economics: a
   special action pays the plot cost to exile a card from your hand face up,
   and what it buys is a free cast on a later turn. Only the first half is new

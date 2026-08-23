@@ -3,6 +3,7 @@ use std::cell::Cell;
 use crate::card::AbilityPredicateDef;
 use crate::ids::GrantId;
 
+use super::continuous_effects::StaticEffectKind;
 use super::{
     AbilityDef, AbilityId, AbilityLayerOperation, AbilityLayerOperationKind, AbilityOperationDef,
     AbilityOrigin, AppliedEffectDef, BasicLandType, CardBehavior, CardType,
@@ -230,10 +231,15 @@ impl Game {
             self.visit_static_applied_effects_with_prospective(
                 permanent,
                 prospective,
+                StaticEffectKind::Abilities,
                 &mut visit_static,
             )
         } else {
-            self.visit_static_applied_effects(permanent, &mut visit_static)
+            self.visit_static_applied_effects(
+                permanent,
+                StaticEffectKind::Abilities,
+                &mut visit_static,
+            )
         };
         debug_assert!(result.is_continue());
 

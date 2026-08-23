@@ -547,11 +547,11 @@ impl Game {
         self.activate_mana_for_cost_avoiding(player, cost, x, None);
     }
 
-    /// Whether the declaration cost remains payable when `tap_cost_payer`
-    /// will be tapped by attacking before mana abilities may be activated.
-    /// A vigilant attacker passes `None` because it remains untapped and may
-    /// legally activate a mana ability while declaration costs are paid.
-    pub(super) fn can_pay_attack_cost(
+    /// Whether a combat declaration cost remains payable. `tap_cost_payer`
+    /// names an attacker that will tap before mana abilities may be activated;
+    /// blockers and vigilant attackers pass `None` because they remain able
+    /// to activate a mana ability while declaration costs are paid.
+    pub(super) fn can_pay_declaration_cost(
         &self,
         player: PlayerId,
         cost: ManaCost,

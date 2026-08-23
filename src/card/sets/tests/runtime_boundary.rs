@@ -453,7 +453,7 @@ fn composite_uncounterability_stays_within_the_shared_runtime_boundary() {
         [AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered)];
     static MIXED: [AppliedEffectDef; 2] = [
         AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered),
-        AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
     ];
     static RIDERS: [ManaSpendEffectDef; 1] = [ManaSpendEffectDef::ApplyToPaidSpell(
         AppliedEffectDef::Composite(&CANNOT_BE_COUNTERED),
@@ -623,7 +623,7 @@ fn source_tapped_duration_accepts_only_supported_recursive_leaves() {
     ];
     static UNSUPPORTED: [AppliedEffectDef; 2] = [
         AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
-        AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
     ];
     let recipient = EffectRecipientDef::Target(TargetIndex::PRIMARY);
 

@@ -791,7 +791,7 @@ pub(in crate::card::sets) static INCURSION_SPECIALIST: CardRecord = CardRecord::
                         ValueDef::Constant(2),
                         ValueDef::Constant(0),
                     ),
-                    AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlocked),
+                    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
                 ]),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
@@ -841,7 +841,7 @@ pub(in crate::card::sets) static KEYMASTER_ROGUE: CardRecord = CardRecord::new_w
             "This creature can't be blocked.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlocked),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
             },
         ),
         AbilityDef::triggered(
@@ -1179,7 +1179,7 @@ static WAY_OF_THE_THIEF_HAS_A_GATE: TriggerConditionDef = TriggerConditionDef::O
 
 static WAY_OF_THE_THIEF_EVASION: EffectDef = EffectDef::StaticApply {
     recipient: EffectRecipientDef::AttachedPermanent,
-    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlocked),
+    effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
 };
 
 // GTC 56 — Way of the Thief
@@ -1952,7 +1952,7 @@ pub(in crate::card::sets) static FIREFIST_STRIKER: CardRecord = CardRecord::new_
             )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -2178,7 +2178,7 @@ static MUGGING_EFFECTS: [EffectDef; 2] = [
     },
     EffectDef::Apply {
         recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+        effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
         duration: ResolvedEffectDurationDef::UntilEndOfTurn,
     },
 ];
@@ -2830,7 +2830,7 @@ pub(in crate::card::sets) static SPIRE_TRACER: CardRecord = CardRecord::new_with
             "This creature can't be blocked except by creatures with flying or reach.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                     ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
                         ObjectPredicateDef::HasKeyword(KeywordAbility::Reach),
@@ -3956,7 +3956,7 @@ pub(in crate::card::sets) static OBZEDAT_GHOST_COUNCIL: CardRecord = CardRecord:
 
 static ONE_THOUSAND_LASHES_PROHIBITIONS: [AppliedEffectDef; 3] = [
     AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
-    AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
     AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
 ];
 
@@ -4613,7 +4613,7 @@ pub(in crate::card::sets) static DEATHCULT_ROGUE: CardRecord = CardRecord::new_w
             "This creature can't be blocked except by Rogues.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Rogue")),
                 )),
             },
@@ -4839,7 +4839,7 @@ static DIMIR_KEYRUNE_ANIMATION: [AppliedEffectDef; 5] = [
     AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Horror"])),
     AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Blue, ManaColor::Black])),
     AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
-    AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlocked),
+    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
 ];
 
 // GTC 228 — Dimir Keyrune
@@ -5072,7 +5072,7 @@ pub(in crate::card::sets) static SIMIC_KEYRUNE: CardRecord = CardRecord::new_wit
 
 static SKYBLINDER_STAFF_BONUS: [AppliedEffectDef; 2] = [
     AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(0)),
-    AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+    AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
         ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
     )),
 ];

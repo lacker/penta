@@ -277,7 +277,7 @@ pub(in crate::card::sets) static AETHERLING: CardRecord = CardRecord::new_with_l
             &[AbilityCostDef::Mana(mana_cost!("{U}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                     ObjectPredicateDef::Any,
                 )),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
@@ -619,13 +619,26 @@ pub(in crate::card::sets) static UBUL_SAR_GATEKEEPERS: CardRecord = CardRecord::
 );
 
 // DGM 31 — Awe for the Guilds
-// Audit: metadata-only — Needs a turn-long restriction preventing every monocolored creature from blocking.
 pub(in crate::card::sets) static AWE_FOR_THE_GUILDS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ec644ac3-07a2-43de-8173-9cc18e2ea2d9"),
     "Awe for the Guilds",
     crate::card::CardArt::new("ec644ac3-07a2-43de-8173-9cc18e2ea2d9", "Mathias Kollros"),
     crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell(
+        "Monocolored creatures can't block this turn.",
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ColorCount(1),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // DGM 32 — Clear a Path

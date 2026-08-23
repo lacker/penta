@@ -1352,7 +1352,7 @@ pub(in crate::card::sets) static INVISIBILITY: CardRecord = CardRecord::new_with
                 "Enchanted creature can't be blocked except by Walls.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Wall")),
                     )),
                 },
@@ -2223,7 +2223,7 @@ pub(in crate::card::sets) static FEAR: CardRecord = CardRecord::new_with_legacy_
                 "Enchanted creature has fear. (It can't be blocked except by artifact creatures and/or black creatures.)",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                         ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
                             ObjectPredicateDef::HasType(CardType::Artifact),
                             ObjectPredicateDef::Color(ManaColor::Black),
@@ -3038,7 +3038,7 @@ pub(in crate::card::sets) static DWARVEN_WARRIORS: CardRecord = CardRecord::new_
             )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                     ObjectPredicateDef::Any,
                 )),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
@@ -3309,7 +3309,7 @@ pub(in crate::card::sets) static IRONCLAW_ORCS: CardRecord = CardRecord::new_wit
             "This creature can't block creatures with power 2 or greater.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CanBlockOnly(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
                     ObjectPredicateDef::Not(&ObjectPredicateDef::PowerAtLeast(2)),
                 )),
             },
@@ -5263,7 +5263,7 @@ pub(in crate::card::sets) static JUGGERNAUT: CardRecord = CardRecord::new_with_l
             "This creature can't be blocked by Walls.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                     ObjectPredicateDef::Subtype("Wall"),
                 )),
             },

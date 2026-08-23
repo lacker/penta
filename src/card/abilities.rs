@@ -975,7 +975,7 @@ pub const fn cannot_be_blocked(text: &'static str) -> AbilityDef {
         text,
         EffectDef::StaticApply {
             recipient: EffectRecipientDef::Source,
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlocked),
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
         },
     )
 }

@@ -37,7 +37,7 @@ static CANNONEER_GROWS: [EffectDef; 2] = [
     },
     EffectDef::Apply {
         recipient: EffectRecipientDef::Source,
-        effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlocked),
+        effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
         duration: ResolvedEffectDurationDef::UntilEndOfTurn,
     },
 ];

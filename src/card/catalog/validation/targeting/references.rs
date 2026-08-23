@@ -508,6 +508,15 @@ fn validate_applied_effect_target_references(
                 scope,
             )
         }
+        AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(restriction)) => {
+            match restriction.counterpart {
+                BlockRestrictionMatchDef::Any => Ok(()),
+                BlockRestrictionMatchDef::Matching(predicate)
+                | BlockRestrictionMatchDef::Except(predicate) => {
+                    validate_object_predicate_references(predicate, target_count, scope)
+                }
+            }
+        }
         AppliedEffectDef::Rule(AppliedRuleDef::RedirectDamageFromTo {
             source,
             destination,
@@ -590,6 +599,21 @@ fn validate_resolving_applied_effect(
                     Ok(())
                 }
                 _ => Err(GrantedAbilityValidationError::UnsupportedResolvingAppliedEffect),
+            }
+        }
+        AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(restriction)) => {
+            let object_recipient = matches!(
+                recipient.0,
+                EffectRecipientSetDef::Objects(_) | EffectRecipientSetDef::LegalTargets(_)
+            );
+            if restriction
+                .cost
+                .is_some_and(|cost| cost.variable_x || cost.x_multiplier != 0)
+                || !object_recipient
+            {
+                Err(GrantedAbilityValidationError::UnsupportedResolvingAppliedEffect)
+            } else {
+                Ok(())
             }
         }
         AppliedEffectDef::Rule(

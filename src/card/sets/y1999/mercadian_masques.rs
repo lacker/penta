@@ -27,7 +27,7 @@ use crate::{TargetIndex, mana_cost};
 /// leaving gives all three back at once.
 static ARREST_PROHIBITIONS: [AppliedEffectDef; 3] = [
     AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
-    AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
     AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
 ];
 

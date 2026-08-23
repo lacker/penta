@@ -116,7 +116,7 @@ pub(in crate::card::sets) static AVACYNIAN_PRIEST: CardRecord = CardRecord::new_
 
 static BONDS_OF_FAITH_PACIFIED: [AppliedEffectDef; 2] = [
     AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
-    AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
 ];
 
 static BONDS_OF_FAITH_HUMAN_BOOST: EffectDef = EffectDef::StaticApply {
@@ -1494,7 +1494,7 @@ pub(in crate::card::sets) static INVISIBLE_STALKER: CardRecord = CardRecord::new
             "This creature can't be blocked.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                     ObjectPredicateDef::Any,
                 )),
             },
@@ -2981,7 +2981,7 @@ pub(in crate::card::sets) static VAMPIRE_INTERLOPER: CardRecord = CardRecord::ne
             "This creature can't block.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
             },
         ),
     ]),
@@ -3198,7 +3198,7 @@ pub(in crate::card::sets) static CROSSWAY_VAMPIRE: CardRecord = CardRecord::new_
             )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -3649,7 +3649,7 @@ pub(in crate::card::sets) static NIGHTBIRDS_CLUTCHES: CardRecord = CardRecord::n
             &CLUTCHES_TARGETS,
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -3893,7 +3893,7 @@ pub(in crate::card::sets) static STROMKIRK_NOBLE: CardRecord = CardRecord::new_w
             "This creature can't be blocked by Humans.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                     ObjectPredicateDef::Subtype("Human"),
                 )),
             },
@@ -4962,7 +4962,7 @@ pub(in crate::card::sets) static ORCHARD_SPIRIT: CardRecord = CardRecord::new_wi
             "This creature can't be blocked except by creatures with flying or reach.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                     ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasKeyword(crate::card::KeywordAbility::Flying),
                         ObjectPredicateDef::HasKeyword(crate::card::KeywordAbility::Reach),

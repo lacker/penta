@@ -1,12 +1,28 @@
 use super::{
     Action, AppliedRuleDef, AttackDefender, CardType, CombatDamageAssignment, CombatDamageStage,
     CommittedTriggerEvent, ControlFlow, CounterKind, Game, GameEvent, GameObjectId, KeywordAbility,
-    Permanent, PlayerId, Target,
+    ManaCost, Permanent, PlayerId, Target,
 };
 
 mod assignment;
 mod attacking;
+mod blocking;
 mod damage_delivery;
+
+pub(super) fn add_declaration_cost(mut total: ManaCost, cost: ManaCost) -> ManaCost {
+    total.generic = total.generic.saturating_add(cost.generic);
+    total.white = total.white.saturating_add(cost.white);
+    total.blue = total.blue.saturating_add(cost.blue);
+    total.black = total.black.saturating_add(cost.black);
+    total.red = total.red.saturating_add(cost.red);
+    total.green = total.green.saturating_add(cost.green);
+    total.colorless = total.colorless.saturating_add(cost.colorless);
+    for (total, cost) in total.hybrid.iter_mut().zip(cost.hybrid) {
+        *total = total.saturating_add(cost);
+    }
+    debug_assert!(!cost.variable_x && cost.x_multiplier == 0);
+    total
+}
 
 impl Game {
     pub(super) fn declare_attacker(&mut self, attacker: GameObjectId, defender: AttackDefender) {
@@ -113,45 +129,6 @@ impl Game {
         self.capture_battlefield_trigger_batch_from_snapshot(&listeners, &events);
     }
 
-    /// Whether a static effect on `blocker` narrows what it may block, and
-    /// this attacker is outside that. The other direction -- an attacker
-    /// forbidding a blocker -- is `blocking_is_prevented`.
-    pub(super) fn blocker_may_only_block(&self, blocker: &Permanent, attacker: &Permanent) -> bool {
-        // Asked while blockers are declared, which is outside static
-        // resolution, so this reads the real current numbers: "power 2 or
-        // greater" has to see a creature a Crusade has pumped.
-        let characteristics = self.targeting_event_object(attacker);
-        let mut restricted = false;
-        let _ = self.visit_applied_rules(blocker, |applied| {
-            if let AppliedRuleDef::CanBlockOnly(predicate) = applied.rule
-                && !self.trigger_object_matches(predicate, &characteristics, applied.source, false)
-            {
-                restricted = true;
-                return ControlFlow::Break(());
-            }
-            ControlFlow::Continue(())
-        });
-        restricted
-    }
-
-    /// Whether a static effect on `attacker` forbids `blocker` from blocking
-    /// it, as Juggernaut forbids Walls.
-    pub(super) fn blocking_is_prevented(&self, attacker: &Permanent, blocker: &Permanent) -> bool {
-        let characteristics = self.trigger_event_object(blocker);
-        let mut prevented = false;
-        let result = self.visit_applied_rules(attacker, |applied| {
-            if let AppliedRuleDef::CannotBeBlockedBy(predicate) = applied.rule
-                && self.trigger_object_matches(predicate, &characteristics, applied.source, false)
-            {
-                prevented = true;
-                return ControlFlow::Break(());
-            }
-            ControlFlow::Continue(())
-        });
-        debug_assert!(result.is_continue() || prevented);
-        prevented
-    }
-
     /// Whether a static or resolved rule on `attacker` requires `blocker` to
     /// block it, as Lure requires every creature that can. Read from the
     /// attacker for the same reason the prohibition above is: the printed
@@ -169,13 +146,6 @@ impl Game {
             ControlFlow::Continue(())
         });
         required
-    }
-
-    /// Whether a continuous effect currently stops anything blocking this
-    /// permanent. Asked afresh, so a resolved rule stops when its duration
-    /// expires and a static one when its source leaves.
-    fn cannot_be_blocked(&self, permanent: &Permanent) -> bool {
-        self.has_applied_rule(permanent, AppliedRuleDef::CannotBeBlocked)
     }
 
     /// Whether this creature may still be declared as a blocker.
@@ -226,7 +196,7 @@ impl Game {
         {
             return true;
         }
-        self.has_applied_rule(permanent, AppliedRuleDef::CannotBlock)
+        false
     }
 
     /// The blocks this player may declare, after combat requirements have
@@ -274,7 +244,13 @@ impl Game {
                 blocker_permanent,
                 AppliedRuleDef::MustBlockEachAttackerIfAble,
             );
-        required.then_some((*blocker, *attacker))
+        (required
+            && self.prospective_block_adds_no_cost(
+                blocker_permanent.controller,
+                *blocker,
+                *attacker,
+            ))
+        .then_some((*blocker, *attacker))
     }
 
     /// Whether a requirement is still unmet, which is what stops the
@@ -326,9 +302,7 @@ impl Game {
             return false;
         }
         if self.landwalk_beats(attacker_permanent, attacker_permanent.controller.opponent())
-            || self.cannot_be_blocked(attacker_permanent)
-            || self.blocking_is_prevented(attacker_permanent, blocker_permanent)
-            || self.blocker_may_only_block(blocker_permanent, attacker_permanent)
+            || !self.block_pair_is_allowed(blocker_permanent, attacker_permanent)
             || self.combat_is_protected(blocker_permanent, attacker_permanent)
         {
             return false;
@@ -395,13 +369,18 @@ impl Game {
                     .find(|permanent| permanent.card.id == blocker)
                     .expect("blocker is on the battlefield");
                 groups.iter().filter_map(move |(attacker, group)| {
-                    group
+                    (group
                         .iter()
                         .all(|member| self.blocker_may_block(blocker_permanent, *member))
-                        .then_some(Action::DeclareBlocker {
-                            blocker,
-                            attacker: *attacker,
-                        })
+                        && self.prospective_block_is_affordable(
+                            player,
+                            blocker_permanent,
+                            *attacker,
+                        ))
+                    .then_some(Action::DeclareBlocker {
+                        blocker,
+                        attacker: *attacker,
+                    })
                 })
             })
             .collect()
@@ -430,6 +409,7 @@ impl Game {
     }
 
     pub(super) fn finish_declaring_blockers(&mut self) {
+        self.pay_block_declaration_cost(self.active_player.opponent());
         self.blockers_declared = true;
         self.priority = self.active_player;
         self.consecutive_passes = 0;

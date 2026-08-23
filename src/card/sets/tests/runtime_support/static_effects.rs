@@ -360,10 +360,8 @@ pub(in super::super) fn shared_static_applied_effect(
             SetOperationDef::Remove(_) | SetOperationDef::Set(_),
         )) => false,
         // A blocking restriction is read off the ordinary static-effect walk
-        // over the attacker, so a group recipient works exactly as a
-        // self-applied one does: Bower Passage names every creature you
-        // control rather than only itself. The other restriction keeps the
-        // narrower list because no card applies it to a group.
+        // over whichever participant carries it, so a group recipient works
+        // exactly as a self-applied one does.
         AppliedEffectDef::Rule(rule) => shared_static_applied_rule(recipient, rule),
         // A switch reads nothing, so there is no value to gate on.
         // A linked-exile grant hands out whatever the exiled creature cards
@@ -391,22 +389,26 @@ pub(in super::super) fn shared_static_applied_effect(
 fn shared_static_applied_rule(recipient: EffectRecipientDef, rule: AppliedRuleDef) -> bool {
     match rule {
         AppliedRuleDef::RedirectDamageFromTo { .. } => false,
-        // A blocking restriction is read off the ordinary static-effect walk
-        // over the attacker, so a group recipient works exactly as a
-        // self-applied one does: Bower Passage names every creature you
-        // control rather than only itself. The other restriction keeps the
-        // narrower list because no card applies it to a group.
-        AppliedRuleDef::CannotBeBlockedBy(predicate) => {
+        AppliedRuleDef::BlockRestriction(restriction) => {
             (matches!(
                 recipient.object_reference(),
                 Some(ObjectRefDef::Source | ObjectRefDef::AttachedToSource)
             ) || recipient.object_query().is_some())
-                && shared_object_predicate(predicate)
+                && match restriction.counterpart {
+                    BlockRestrictionMatchDef::Any => true,
+                    BlockRestrictionMatchDef::Matching(predicate)
+                    | BlockRestrictionMatchDef::Except(predicate) => {
+                        shared_object_predicate(predicate)
+                    }
+                }
+                && restriction
+                    .cost
+                    .is_none_or(|cost| !cost.variable_x && cost.x_multiplier == 0)
         }
         // A requirement is read off the attacker on the same walk as the
         // prohibition above, but no card applies one to a group, so the
         // recipient list stays as narrow as the restriction's.
-        AppliedRuleDef::CanBlockOnly(predicate) | AppliedRuleDef::MustBeBlockedBy(predicate) => {
+        AppliedRuleDef::MustBeBlockedBy(predicate) => {
             matches!(
                 recipient.object_reference(),
                 Some(ObjectRefDef::Source | ObjectRefDef::AttachedToSource)

@@ -94,7 +94,7 @@ static SCARLETT_ABILITIES: [AbilityDef; 3] = [
                     PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
                 ),
             )),
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         },
     ),

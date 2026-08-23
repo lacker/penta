@@ -894,7 +894,7 @@ pub(in crate::card::sets) static PHANTOM_WARRIOR: CardRecord = CardRecord::new_w
             "This creature can't be blocked.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                     ObjectPredicateDef::Any,
                 )),
             },
@@ -2070,13 +2070,23 @@ pub(in crate::card::sets) static CHANDRA_S_PHOENIX: CardRecord = CardRecord::new
 );
 
 // M14 135 — Cyclops Tyrant
-// Audit: metadata-only — Combat restrictions cannot compare a prospective attacker's effective power when deciding whether this creature may block it.
 pub(in crate::card::sets) static CYCLOPS_TYRANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f0b8e733-22a7-4696-83b3-297cbe75dadc"),
     "Cyclops Tyrant",
     crate::card::CardArt::new("f0b8e733-22a7-4696-83b3-297cbe75dadc", "Zack Stella"),
     crate::card::CardSet::Magic2014,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{R}"), &["Cyclops"], 3, 4).with_abilities(&[
+        abilities::intimidate(),
+        AbilityDef::static_ability(
+            "This creature can't block creatures with power 2 or less.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
+                    ObjectPredicateDef::PowerAtLeast(3),
+                )),
+            },
+        ),
+    ]),
 );
 
 // M14 136 — Demolish (reprint)
@@ -2184,7 +2194,7 @@ pub(in crate::card::sets) static GOBLIN_SHORTCUTTER: CardRecord = CardRecord::ne
             )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -2366,13 +2376,28 @@ pub(in crate::card::sets) static SCOURGE_OF_VALKAS: CardRecord = CardRecord::new
 );
 
 // M14 152 — Seismic Stomp
-// Audit: metadata-only — No group effect prohibits blocking for the turn, and the flying predicate must use effective continuous abilities.
 pub(in crate::card::sets) static SEISMIC_STOMP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f55a02a3-8b65-44a7-82ef-2d3dc05d00ab"),
     "Seismic Stomp",
     crate::card::CardArt::new("f55a02a3-8b65-44a7-82ef-2d3dc05d00ab", "Chase Stone"),
     crate::card::CardSet::Magic2014,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell(
+        "Creatures without flying can't block this turn.",
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                        crate::card::KeywordAbility::Flying,
+                    )),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // M14 153 — Shiv's Embrace (reprint)

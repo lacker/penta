@@ -209,7 +209,7 @@ pub(in crate::card::sets) static BLAZING_TORCH: CardRecord = CardRecord::new_wit
                 "Equipped creature can't be blocked by Vampires or Zombies.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                         ObjectPredicateDef::AnyOf(&[
                             ObjectPredicateDef::Subtype("Vampire"),
                             ObjectPredicateDef::Subtype("Zombie"),

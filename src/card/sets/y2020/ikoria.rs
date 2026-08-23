@@ -151,7 +151,7 @@ pub(in crate::card::sets) static ZIRDA_THE_DAWNWAKER: CardRecord = CardRecord::n
                 &A_CREATURE,
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             ),

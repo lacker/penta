@@ -86,7 +86,7 @@ fn the_second_spell_pumps_it_and_the_first_does_not() {
         .find(|permanent| permanent.card.id == specialist)
         .expect("still there");
     assert!(
-        game.has_applied_rule(permanent, AppliedRuleDef::CannotBeBlocked),
+        game.has_applied_rule(permanent, AppliedRuleDef::CANNOT_BE_BLOCKED),
         "and it cannot be blocked this turn",
     );
 }

@@ -718,15 +718,10 @@ fn validate_applied_effect_shapes(
             validate_object_predicate_shape(predicate, targets)
         }
         AppliedEffectDef::Rule(AppliedRuleDef::AttackRestriction(restriction)) => {
-            let expectation = match restriction.defender {
-                AttackDefenderScopeDef::Any => RecipientExpectation::Object,
-                AttackDefenderScopeDef::AffectedPlayer
-                | AttackDefenderScopeDef::AffectedPlayerOrPlaneswalker => {
-                    RecipientExpectation::Player
-                }
-            };
-            validate_recipient_shape(recipient, targets, expectation)?;
-            validate_object_predicate_shape(restriction.attacker, targets)
+            validate_attack_restriction_shape(recipient, restriction, targets)
+        }
+        AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(restriction)) => {
+            validate_block_restriction_shape(recipient, restriction, targets)
         }
         AppliedEffectDef::Rule(AppliedRuleDef::PreventDamage(matcher)) => {
             validate_recipient_shape(recipient, targets, RecipientExpectation::Object)?;
@@ -756,6 +751,35 @@ fn validate_applied_effect_shapes(
         }
         AppliedEffectDef::Rule(_) | AppliedEffectDef::Characteristic(_) => {
             validate_recipient_shape(recipient, targets, RecipientExpectation::Object)
+        }
+    }
+}
+
+fn validate_attack_restriction_shape(
+    recipient: EffectRecipientDef,
+    restriction: AttackRestrictionDef,
+    targets: &[AbilityTargetDef],
+) -> Result<(), GrantedAbilityValidationError> {
+    let expectation = match restriction.defender {
+        AttackDefenderScopeDef::Any => RecipientExpectation::Object,
+        AttackDefenderScopeDef::AffectedPlayer
+        | AttackDefenderScopeDef::AffectedPlayerOrPlaneswalker => RecipientExpectation::Player,
+    };
+    validate_recipient_shape(recipient, targets, expectation)?;
+    validate_object_predicate_shape(restriction.attacker, targets)
+}
+
+fn validate_block_restriction_shape(
+    recipient: EffectRecipientDef,
+    restriction: BlockRestrictionDef,
+    targets: &[AbilityTargetDef],
+) -> Result<(), GrantedAbilityValidationError> {
+    validate_recipient_shape(recipient, targets, RecipientExpectation::Object)?;
+    match restriction.counterpart {
+        BlockRestrictionMatchDef::Any => Ok(()),
+        BlockRestrictionMatchDef::Matching(predicate)
+        | BlockRestrictionMatchDef::Except(predicate) => {
+            validate_object_predicate_shape(predicate, targets)
         }
     }
 }

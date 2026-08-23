@@ -1233,7 +1233,7 @@ pub(in crate::card::sets) static GHOSTFORM: CardRecord = CardRecord::new_with_le
         )],
         EffectDef::Apply {
             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                 ObjectPredicateDef::Any,
             )),
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
@@ -1344,7 +1344,7 @@ pub(in crate::card::sets) static LATCH_SEEKER: CardRecord = CardRecord::new_with
             "This creature can't be blocked.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                     ObjectPredicateDef::Any,
                 )),
             },
@@ -1588,7 +1588,7 @@ pub(in crate::card::sets) static ROTCROWN_GHOUL: CardRecord = CardRecord::new_wi
 /// "This creature can block only creatures with flying."
 static BLOCKS_ONLY_FLYERS: EffectDef = EffectDef::StaticApply {
     recipient: EffectRecipientDef::Source,
-    effect: AppliedEffectDef::Rule(AppliedRuleDef::CanBlockOnly(
+    effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
         ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
     )),
 };
@@ -2331,7 +2331,7 @@ pub(in crate::card::sets) static HUNTED_GHOUL: CardRecord = CardRecord::new_with
             "This creature can't block Humans.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CanBlockOnly(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Human")),
                 )),
             },
@@ -2799,7 +2799,7 @@ pub(in crate::card::sets) static FERVENT_CATHAR: CardRecord = CardRecord::new_wi
             &ANY_CREATURE_TARGET,
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -3113,7 +3113,7 @@ static MALICIOUS_INTENT_ABILITY: AbilityDef = AbilityDef::activated_with_targets
     &ANY_CREATURE_TARGET,
     EffectDef::Apply {
         recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+        effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
         duration: ResolvedEffectDurationDef::UntilEndOfTurn,
     },
 );
@@ -3621,7 +3621,7 @@ pub(in crate::card::sets) static BOWER_PASSAGE: CardRecord = CardRecord::new_wit
                 &[ZoneKind::Battlefield],
                 PlayerRelation::You,
             ),
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                 ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
             )),
         },
@@ -3629,7 +3629,6 @@ pub(in crate::card::sets) static BOWER_PASSAGE: CardRecord = CardRecord::new_wit
 );
 
 // AVR 171 — Champion of Lambholt
-// Audit: metadata-only — Needs a blocking predicate that dynamically compares each prospective blocker's power with this creature's current power.
 pub(in crate::card::sets) static CHAMPION_OF_LAMBHOLT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e8ab9cd3-2faf-4500-a2ee-90b3a8d559c4"),
     "Champion of Lambholt",
@@ -3638,7 +3637,39 @@ pub(in crate::card::sets) static CHAMPION_OF_LAMBHOLT: CardRecord = CardRecord::
         "Christopher Moeller",
     ),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Human", "Warrior"], 1, 1)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Creatures with power less than this creature's power can't block creatures you control.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
+                        ObjectPredicateDef::PowerLessThan(ValueDef::SourcePower),
+                    )),
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever another creature you control enters, put a +1/+1 counter on this creature.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    object: EffectRecipientDef::Source,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 static CRATERHOOF_CREATURES: ObjectQueryDef = ObjectQueryDef::matching(
@@ -3784,7 +3815,7 @@ static FLOWERING_LUMBERKNOT_UNPAIRED: TriggerConditionDef = TriggerConditionDef:
 
 static FLOWERING_LUMBERKNOT_SIDELINED: [AppliedEffectDef; 2] = [
     AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
-    AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
 ];
 
 static FLOWERING_LUMBERKNOT_RESTRICTION: EffectDef = EffectDef::StaticApply {
@@ -3901,7 +3932,7 @@ pub(in crate::card::sets) static HOWLGEIST: CardRecord = CardRecord::new_with_le
             "Creatures with power less than this creature's power can't block it.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                     WEAKER_THAN_SOURCE,
                 )),
             },
@@ -4347,7 +4378,7 @@ pub(in crate::card::sets) static WANDERING_WOLF: CardRecord = CardRecord::new_wi
             "Creatures with power less than this creature's power can't block it.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                     WEAKER_THAN_SOURCE,
                 )),
             },

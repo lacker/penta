@@ -172,7 +172,7 @@ fn static_apply_rejects_shapes_its_live_reader_would_ignore() {
     let cases = [
         (
             EffectRecipientDef::EachPlayer,
-            AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+            AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
             "StaticApply with an unsupported player-facing effect",
         ),
         (
@@ -258,7 +258,7 @@ fn resolving_apply_rejects_shapes_that_cannot_be_stored() {
             &[],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Controller,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),

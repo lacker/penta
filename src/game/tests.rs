@@ -104,6 +104,7 @@ mod damage_redirection;
 mod damaged_by_this_creature;
 mod decisions_and_effects;
 mod declarative_attack_restrictions;
+mod declarative_block_restrictions;
 mod deep_spawn;
 mod delayed_triggers;
 mod derelor;

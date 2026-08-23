@@ -531,7 +531,7 @@ pub(in crate::card::sets) static ODRIC_MASTER_TACTICIAN: CardRecord = CardRecord
 /// declarations, so barring each is barring both.
 static PACIFIED: [AppliedEffectDef; 2] = [
     AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
-    AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
 ];
 
 // M13 24 — Pacifism
@@ -1491,7 +1491,7 @@ pub(in crate::card::sets) static TRICKS_OF_THE_TRADE: CardRecord = CardRecord::n
                             ValueDef::Constant(2),
                             ValueDef::Constant(0),
                         ),
-                        AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                        AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                             ObjectPredicateDef::Any,
                         )),
                     ]),
@@ -1572,7 +1572,7 @@ pub(in crate::card::sets) static WELKIN_TERN: CardRecord = CardRecord::new_with_
             "This creature can block only creatures with flying.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CanBlockOnly(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
                     ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
                 )),
             },
@@ -1688,7 +1688,7 @@ pub(in crate::card::sets) static COWER_IN_FEAR: CardRecord = CardRecord::new_wit
 
 static CRIPPLING_BLIGHT_EFFECT: [AppliedEffectDef; 2] = [
     AppliedEffectDef::modify_power_toughness(ValueDef::Constant(-1), ValueDef::Constant(-1)),
-    AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
 ];
 
 // M13 85 — Crippling Blight
@@ -1980,7 +1980,7 @@ pub(in crate::card::sets) static HARBOR_BANDIT: CardRecord = CardRecord::new_wit
             &[AbilityCostDef::Mana(mana_cost!("{1}{U}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                     ObjectPredicateDef::Any,
                 )),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
@@ -2271,8 +2271,8 @@ pub(in crate::card::sets) static SIGN_IN_BLOOD: CardRecord = CardRecord::new_wit
 /// The two halves point opposite ways: one keeps it out of blocks it would
 /// join, the other out of blocks it would be caught by.
 static TORMENTED_SOUL_COMBAT: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
-    AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlocked),
+    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
 ];
 
 // M13 111 — Tormented Soul
@@ -2709,7 +2709,7 @@ pub(in crate::card::sets) static GOBLIN_BATTLE_JESTER: CardRecord = CardRecord::
             )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),

@@ -156,7 +156,7 @@ pub(in crate::card::sets) static MANIFOLD_KEY: CardRecord = CardRecord::new_with
             &A_CREATURE,
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlocked),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),

@@ -642,7 +642,7 @@ pub(in crate::card::sets) static ARGOTHIAN_PIXIES: CardRecord = CardRecord::new_
             "This creature can't be blocked by artifact creatures.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                     ARTIFACT_CREATURE,
                 )),
             },
@@ -1600,7 +1600,7 @@ pub(in crate::card::sets) static TAWNOSS_WAND: CardRecord = CardRecord::new_with
             )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                     ObjectPredicateDef::Any,
                 )),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,

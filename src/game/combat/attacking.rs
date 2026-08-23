@@ -8,6 +8,7 @@ use super::super::{
     Action, AppliedRuleDef, AttackDefender, CardType, DeclarativeAbilityDef, EffectDef, Game,
     KeywordAbility, ManaCost, Permanent, PlayerId,
 };
+use super::add_declaration_cost;
 
 impl Game {
     pub(in crate::game) fn attacker_actions(&self, player: PlayerId) -> Vec<Action> {
@@ -142,7 +143,7 @@ impl Game {
         }
         let taps_to_attack =
             !self.permanent_has_executable_keyword(permanent, KeywordAbility::Vigilance);
-        self.can_pay_attack_cost(
+        self.can_pay_declaration_cost(
             permanent.controller,
             cost,
             taps_to_attack.then_some(permanent.card.id),
@@ -153,7 +154,7 @@ impl Game {
         let Some(cost) = self.attack_declaration_cost(player, None) else {
             return false;
         };
-        cost == ManaCost::default() || self.can_pay_attack_cost(player, cost, None)
+        cost == ManaCost::default() || self.can_pay_declaration_cost(player, cost, None)
     }
 
     pub(super) fn pay_attack_declaration_cost(&mut self, player: PlayerId) {
@@ -179,10 +180,10 @@ impl Game {
             .filter(|permanent| permanent.controller == player && permanent.attacking)
         {
             let defender = permanent.attack_defender?;
-            total = add_attack_cost(total, self.attack_pair_cost(permanent, defender)?);
+            total = add_declaration_cost(total, self.attack_pair_cost(permanent, defender)?);
         }
         if let Some((permanent, defender)) = prospective {
-            total = add_attack_cost(total, self.attack_pair_cost(permanent, defender)?);
+            total = add_declaration_cost(total, self.attack_pair_cost(permanent, defender)?);
         }
         Some(total)
     }
@@ -205,7 +206,7 @@ impl Game {
                 )
             {
                 if let Some(cost) = restriction.cost {
-                    total = add_attack_cost(total, cost);
+                    total = add_declaration_cost(total, cost);
                 } else {
                     allowed = false;
                     return ControlFlow::Break(());
@@ -236,7 +237,7 @@ impl Game {
                 )
             {
                 if let Some(cost) = restriction.cost {
-                    total = add_attack_cost(total, cost);
+                    total = add_declaration_cost(total, cost);
                 } else {
                     allowed = false;
                     return ControlFlow::Break(());
@@ -253,19 +254,4 @@ fn attack_scope_matches(restriction: AttackRestrictionDef, defender: AttackDefen
         AttackDefenderScopeDef::Any | AttackDefenderScopeDef::AffectedPlayerOrPlaneswalker => true,
         AttackDefenderScopeDef::AffectedPlayer => matches!(defender, AttackDefender::Player(_)),
     }
-}
-
-fn add_attack_cost(mut total: ManaCost, cost: ManaCost) -> ManaCost {
-    total.generic = total.generic.saturating_add(cost.generic);
-    total.white = total.white.saturating_add(cost.white);
-    total.blue = total.blue.saturating_add(cost.blue);
-    total.black = total.black.saturating_add(cost.black);
-    total.red = total.red.saturating_add(cost.red);
-    total.green = total.green.saturating_add(cost.green);
-    total.colorless = total.colorless.saturating_add(cost.colorless);
-    for (total, cost) in total.hybrid.iter_mut().zip(cost.hybrid) {
-        *total = total.saturating_add(cost);
-    }
-    debug_assert!(!cost.variable_x && cost.x_multiplier == 0);
-    total
 }

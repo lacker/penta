@@ -362,9 +362,7 @@ impl HandcraftedPolicy {
                     ability.declarative_effect(),
                     Some(EffectDef::Apply {
                         recipient: EffectRecipientDef::Source,
-                        effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
-                            ObjectPredicateDef::Any
-                        )),
+                        effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
                         ..
                     })
                 )

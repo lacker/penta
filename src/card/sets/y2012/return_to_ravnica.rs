@@ -4619,7 +4619,7 @@ pub(in crate::card::sets) static TELEPORTAL: CardRecord = CardRecord::new_with_l
                         ValueDef::Constant(1),
                         ValueDef::Constant(0),
                     ),
-                    AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                    AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                         ObjectPredicateDef::Any,
                     )),
                 ]),
@@ -4640,7 +4640,7 @@ pub(in crate::card::sets) static TELEPORTAL: CardRecord = CardRecord::new_with_l
                         ValueDef::Constant(1),
                         ValueDef::Constant(0),
                     ),
-                    AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                    AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                         ObjectPredicateDef::Any,
                     )),
                 ]),
@@ -5703,7 +5703,7 @@ pub(in crate::card::sets) static ROGUES_PASSAGE: CardRecord = CardRecord::new_wi
             )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                     ObjectPredicateDef::Any,
                 )),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,

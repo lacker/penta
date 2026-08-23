@@ -88,7 +88,6 @@ pub(in crate::card::sets) static ALABASTER_POTION: CardRecord = CardRecord::new_
 );
 
 // LEG 3 — Amrou Kithkin
-// Audit: partial — Its blocker power predicate omits modifiers from static continuous effects.
 pub(in crate::card::sets) static AMROU_KITHKIN: CardRecord = CardRecord::new_with_legacy_id(
     397,
     "Amrou Kithkin",
@@ -99,14 +98,11 @@ pub(in crate::card::sets) static AMROU_KITHKIN: CardRecord = CardRecord::new_wit
             "This creature can't be blocked by creatures with power 3 or greater.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                     ObjectPredicateDef::PowerAtLeast(3),
                 )),
             },
-        )
-        .with_coverage(AbilityCoverageDef::partial(
-            "Blocking checks printed and temporary power but not power from static continuous effects.",
-        )),
+        ),
     ),
 );
 
@@ -751,7 +747,7 @@ pub(in crate::card::sets) static SEEKER: CardRecord = CardRecord::new_with_legac
                 "Enchanted creature can't be blocked except by artifact creatures and/or white creatures.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                         ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
                             ObjectPredicateDef::HasType(CardType::Artifact),
                             ObjectPredicateDef::Color(ManaColor::White),
@@ -1051,7 +1047,7 @@ static ELDER_SPAWN_TOLL: [EffectDef; 2] = [
 static ELDER_SPAWN_TOLL_SEQUENCE: EffectDef = EffectDef::Sequence(&ELDER_SPAWN_TOLL);
 
 static ELDER_SPAWN_RED_BLOCKERS: AppliedEffectDef = AppliedEffectDef::Rule(
-    AppliedRuleDef::CannotBeBlockedBy(ObjectPredicateDef::Color(ManaColor::Red)),
+    AppliedRuleDef::cannot_be_blocked_by(ObjectPredicateDef::Color(ManaColor::Red)),
 );
 
 // LEG 52 — Elder Spawn
@@ -1648,7 +1644,7 @@ pub(in crate::card::sets) static TELEPORT: CardRecord = CardRecord::new_with_leg
                 )],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlocked),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             ),
@@ -2002,7 +1998,7 @@ pub(in crate::card::sets) static EVIL_EYE_OF_ORMS_BY_GORE: CardRecord =
                 "This creature can't be blocked except by Walls.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Source,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Wall")),
                     )),
                 },
@@ -3728,7 +3724,7 @@ pub(in crate::card::sets) static ELVEN_RIDERS: CardRecord = CardRecord::new_with
             "This creature can't be blocked except by Walls and/or creatures with flying.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                     ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::Subtype("Wall"),
                         ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),

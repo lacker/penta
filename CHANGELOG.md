@@ -25,6 +25,16 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **Predicate-driven blocking restrictions and declaration costs.** Blocking
+  now uses the same declarative shape as attacking: a rule records which side
+  of the block carries it, predicates the creature on the other side, and can
+  either prohibit the pairing or add a fixed mana cost paid as blockers are
+  declared. Predicates read current characteristics, group effects can apply a
+  restriction for a turn, and blocker-scoped costs are paid once even when one
+  creature blocks several attackers. Tower of Coireall, Amrou Kithkin,
+  Champion of Lambholt, Cyclops Tyrant, Seismic Stomp, Awe for the Guilds,
+  Branded Brawlers, and Veteran Brawlers now use the shared runtime.
+
 - **Plot, and a `Plot` action.** The mirror of foretell's economics: a
   special action pays the plot cost to exile a card from your hand face up,
   and what it buys is a free cast on a later turn. Only the first half is new

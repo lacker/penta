@@ -176,6 +176,82 @@ impl AttackRestrictionDef {
     );
 }
 
+/// Which participant carries a restriction on one prospective block.
+///
+/// The rule is found on that participant through the ordinary applied-effect
+/// walk. `counterpart` then describes the creature on the other side of the
+/// block, which keeps blocker-facing and attacker-facing wording in one
+/// declaration model without losing which object the effect affected.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum BlockRestrictionSubjectDef {
+    Blocker,
+    Attacker,
+}
+
+/// Which counterpart makes a blocking restriction apply.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum BlockRestrictionMatchDef {
+    /// Every prospective counterpart, for an unqualified prohibition or cost.
+    Any,
+    /// Counterparts matching the predicate, as in "can't be blocked by Walls."
+    Matching(ObjectPredicateDef),
+    /// Counterparts outside the predicate, as in "can block only creatures
+    /// with flying."
+    Except(ObjectPredicateDef),
+}
+
+/// One predicate-driven restriction or cost on declaring a blocker.
+///
+/// `None` prohibits the matching block. `Some` is paid by the blocking
+/// creature's controller. Restrictions on a blocker are charged once for
+/// that blocker even if it can block several attackers; restrictions on an
+/// attacker are charged once for each matching blocker assigned to it.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct BlockRestrictionDef {
+    pub subject: BlockRestrictionSubjectDef,
+    pub counterpart: BlockRestrictionMatchDef,
+    pub cost: Option<ManaCost>,
+}
+
+impl BlockRestrictionDef {
+    #[must_use]
+    pub const fn prohibit(
+        subject: BlockRestrictionSubjectDef,
+        counterpart: BlockRestrictionMatchDef,
+    ) -> Self {
+        Self {
+            subject,
+            counterpart,
+            cost: None,
+        }
+    }
+
+    #[must_use]
+    pub const fn unless_paid(
+        subject: BlockRestrictionSubjectDef,
+        counterpart: BlockRestrictionMatchDef,
+        cost: ManaCost,
+    ) -> Self {
+        Self {
+            subject,
+            counterpart,
+            cost: Some(cost),
+        }
+    }
+
+    /// The ordinary creature-facing "can't block" prohibition.
+    pub const CANNOT_BLOCK: Self = Self::prohibit(
+        BlockRestrictionSubjectDef::Blocker,
+        BlockRestrictionMatchDef::Any,
+    );
+
+    /// The ordinary attacker-facing "can't be blocked" prohibition.
+    pub const CANNOT_BE_BLOCKED: Self = Self::prohibit(
+        BlockRestrictionSubjectDef::Attacker,
+        BlockRestrictionMatchDef::Any,
+    );
+}
+
 /// A continuous rule modification applied to one object or player.
 ///
 /// Keeping these leaves separate from characteristic operations makes their
@@ -266,8 +342,6 @@ pub enum AppliedRuleDef {
     /// the activations: its triggered and static clauses, and any mana it
     /// makes as a cost of something else, are untouched.
     CannotActivateAbilities,
-    /// A creature matching this predicate cannot block the affected creature.
-    CannotBeBlockedBy(ObjectPredicateDef),
     /// No Aura may attach to the affected permanent. This restricts both the
     /// Aura spell's targeting and whether an existing attachment stays legal,
     /// so an Aura already on the permanent falls off.
@@ -275,8 +349,6 @@ pub enum AppliedRuleDef {
     /// No new Aura may attach to the affected permanent, but an Aura already
     /// attached remains legal. Guardian Beast needs this narrower prohibition.
     CannotBecomeEnchanted,
-    /// The affected creature cannot block at all.
-    CannotBlock,
     /// How many creatures beyond the first the affected creature may block.
     ///
     /// [`u8::MAX`] means any number. Blocking one attacker is the default
@@ -289,9 +361,10 @@ pub enum AppliedRuleDef {
     /// make its host an illegal one. This is the printed exception that lets
     /// an Aura grant protection from its own color without falling off.
     RemainsAttachedThroughProtection,
-    /// The affected creature may block only creatures matching this
-    /// predicate.
-    CanBlockOnly(ObjectPredicateDef),
+    /// A predicate-driven blocker prohibition or declaration cost. The rule's
+    /// subject records whether the affected object is the prospective blocker
+    /// or attacker; its matcher describes the creature on the other side.
+    BlockRestriction(BlockRestrictionDef),
     /// A predicate-driven attacker prohibition or declaration cost. The
     /// recipient determines whether the rule is attached to one attacker or
     /// to a protected player; the defender scope makes that distinction
@@ -310,8 +383,6 @@ pub enum AppliedRuleDef {
     /// {T} or {Q} in its cost, and anything reading "a creature with haste"
     /// still does not find one.
     MayAttackAsThoughHasty,
-    /// Nothing can block the affected creature.
-    CannotBeBlocked,
     /// Every creature matching this predicate that is able to block the
     /// affected creature must do so.
     ///
@@ -379,6 +450,32 @@ pub enum AppliedRuleDef {
 impl AppliedRuleDef {
     /// The common object-facing rule used by Pacifism and similar effects.
     pub const CANNOT_ATTACK: Self = Self::AttackRestriction(AttackRestrictionDef::CANNOT_ATTACK);
+
+    /// The common object-facing rule used by Pacifism and similar effects.
+    pub const CANNOT_BLOCK: Self =
+        Self::BlockRestriction(BlockRestrictionDef::CANNOT_BLOCK);
+
+    /// The common attacker-facing rule for complete unblockability.
+    pub const CANNOT_BE_BLOCKED: Self =
+        Self::BlockRestriction(BlockRestrictionDef::CANNOT_BE_BLOCKED);
+
+    /// The affected attacker cannot be blocked by matching creatures.
+    #[must_use]
+    pub const fn cannot_be_blocked_by(blocker: ObjectPredicateDef) -> Self {
+        Self::BlockRestriction(BlockRestrictionDef::prohibit(
+            BlockRestrictionSubjectDef::Attacker,
+            BlockRestrictionMatchDef::Matching(blocker),
+        ))
+    }
+
+    /// The affected blocker may block only matching attackers.
+    #[must_use]
+    pub const fn can_block_only(attacker: ObjectPredicateDef) -> Self {
+        Self::BlockRestriction(BlockRestrictionDef::prohibit(
+            BlockRestrictionSubjectDef::Blocker,
+            BlockRestrictionMatchDef::Except(attacker),
+        ))
+    }
 }
 
 /// Which kind of play action a restriction matches.

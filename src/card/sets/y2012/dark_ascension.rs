@@ -623,7 +623,7 @@ pub(in crate::card::sets) static ARTFUL_DODGE: CardRecord = CardRecord::new_with
             )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                     ObjectPredicateDef::Any,
                 )),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
@@ -1090,7 +1090,7 @@ pub(in crate::card::sets) static SOUL_SEIZER: CardRecord = CardRecord::new(
 /// "This creature can block only creatures with flying."
 static BLOCKS_ONLY_FLYERS: EffectDef = EffectDef::StaticApply {
     recipient: EffectRecipientDef::Source,
-    effect: AppliedEffectDef::Rule(AppliedRuleDef::CanBlockOnly(
+    effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
         ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
     )),
 };
@@ -1555,7 +1555,7 @@ pub(in crate::card::sets) static SIGHTLESS_GHOUL: CardRecord = CardRecord::new_w
             "This creature can't block.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
             },
         ),
         abilities::undying(),
@@ -2029,7 +2029,7 @@ pub(in crate::card::sets) static MARKOV_WARLORD: CardRecord = CardRecord::new_wi
             &UP_TO_TWO_CREATURES,
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),

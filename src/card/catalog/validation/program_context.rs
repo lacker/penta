@@ -1,11 +1,12 @@
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityOperationDef, AbilityProcedureDef, AppliedEffectDef,
-    AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, CardType,
-    CharacteristicOperationDef, CostModificationDef, DamageEventMatcherDef,
-    DamageRecipientMatcherDef, DamageSourceMatcherDef, DeclarativeAbilityDef, EffectDef,
-    EffectRecipientDef, EffectRecipientSetDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, PowerToughnessOperationDef,
-    SetOperationDef, TriggerConditionDef, ValueDef, ZoneKind,
+    AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, BlockRestrictionDef,
+    BlockRestrictionMatchDef, CardType, CharacteristicOperationDef, CostModificationDef,
+    DamageEventMatcherDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
+    DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EffectRecipientSetDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, PowerToughnessOperationDef, SetOperationDef, TriggerConditionDef, ValueDef,
+    ZoneKind,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -394,8 +395,6 @@ fn static_object_rule_supported(recipient: EffectRecipientDef, rule: AppliedRule
         | AppliedRuleDef::MayActivateLoyaltyAnyTime
         | AppliedRuleDef::MayAttackDespiteDefender
         | AppliedRuleDef::MayAttackAsThoughHasty
-        | AppliedRuleDef::CannotBeBlocked
-        | AppliedRuleDef::CannotBlock
         | AppliedRuleDef::MustBlockEachAttackerIfAble
         | AppliedRuleDef::CannotChangeController
         | AppliedRuleDef::CannotRegenerate
@@ -405,6 +404,9 @@ fn static_object_rule_supported(recipient: EffectRecipientDef, rule: AppliedRule
         AppliedRuleDef::AttackRestriction(restriction) => {
             restriction.defender == AttackDefenderScopeDef::Any
                 && static_attack_restriction_supported(restriction)
+        }
+        AppliedRuleDef::BlockRestriction(restriction) => {
+            static_block_restriction_supported(restriction)
         }
         // Zero extra blocks would be a rule that grants nothing.
         AppliedRuleDef::MayBlockAdditionalCreatures(extra) => extra > 0,
@@ -422,9 +424,7 @@ fn static_object_rule_supported(recipient: EffectRecipientDef, rule: AppliedRule
         | AppliedRuleDef::GrantsAlternativeCastFromGraveyard { .. }
         | AppliedRuleDef::UntapAtMostOne(_)
         | AppliedRuleDef::RedirectDamageFromTo { .. } => false,
-        AppliedRuleDef::CannotBeBlockedBy(predicate)
-        | AppliedRuleDef::CanBlockOnly(predicate)
-        | AppliedRuleDef::MustBeBlockedBy(predicate) => static_object_predicate_supported(predicate),
+        AppliedRuleDef::MustBeBlockedBy(predicate) => static_object_predicate_supported(predicate),
         AppliedRuleDef::PreventDamage(matcher) | AppliedRuleDef::LimitDamage { matcher, .. } => {
             static_damage_matcher_supported(matcher)
         }
@@ -439,6 +439,20 @@ fn static_object_rule_supported(recipient: EffectRecipientDef, rule: AppliedRule
 
 fn static_attack_restriction_supported(restriction: AttackRestrictionDef) -> bool {
     static_object_predicate_supported(restriction.attacker)
+        && restriction
+            .cost
+            .is_none_or(|cost| !cost.variable_x && cost.x_multiplier == 0)
+}
+
+fn static_block_restriction_supported(restriction: BlockRestrictionDef) -> bool {
+    let counterpart_supported = match restriction.counterpart {
+        BlockRestrictionMatchDef::Any => true,
+        BlockRestrictionMatchDef::Matching(predicate)
+        | BlockRestrictionMatchDef::Except(predicate) => {
+            static_object_predicate_supported(predicate)
+        }
+    };
+    counterpart_supported
         && restriction
             .cost
             .is_none_or(|cost| !cost.variable_x && cost.x_multiplier == 0)

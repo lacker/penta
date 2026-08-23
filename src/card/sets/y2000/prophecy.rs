@@ -1,6 +1,61 @@
-//! Prophecy currently contributes no catalog definitions.
+//! Prophecy card records.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::{
+    AbilityDef, AppliedEffectDef, AppliedRuleDef, CardRules, CardSet, CardType, ComparisonDef,
+    EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, PlayerRelation,
+    TriggerConditionDef, ZoneKind,
+};
+use crate::mana_cost;
+
+static YOU_CONTROL_AN_UNTAPPED_LAND: TriggerConditionDef = TriggerConditionDef::ObjectCount {
+    query: ObjectQueryDef::matching(
+        ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Land),
+            ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+        ]),
+        &[ZoneKind::Battlefield],
+        PlayerRelation::You,
+    ),
+    comparison: ComparisonDef::GreaterOrEqual,
+    amount: 1,
+};
+
+static OPPONENT_CONTROLS_AN_UNTAPPED_LAND: TriggerConditionDef = TriggerConditionDef::ObjectCount {
+    query: ObjectQueryDef::matching(
+        ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Land),
+            ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+        ]),
+        &[ZoneKind::Battlefield],
+        PlayerRelation::Opponent,
+    ),
+    comparison: ComparisonDef::GreaterOrEqual,
+    amount: 1,
+};
+
+static BRAWLER_RESTRICTIONS: [AbilityDef; 2] = [
+    AbilityDef::static_ability(
+        "This creature can't attack if defending player controls an untapped land.",
+        EffectDef::IfCondition {
+            condition: &OPPONENT_CONTROLS_AN_UNTAPPED_LAND,
+            then: &EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
+            },
+        },
+    ),
+    AbilityDef::static_ability(
+        "This creature can't block if you control an untapped land.",
+        EffectDef::IfCondition {
+            condition: &YOU_CONTROL_AN_UNTAPPED_LAND,
+            then: &EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+            },
+        },
+    ),
+];
 
 // PCY 1 — Abolish
 // Audit: metadata-only — Card rules have not been implemented.
@@ -856,13 +911,13 @@ pub(in crate::card::sets) static BARBED_FIELD: CardRecord = CardRecord::new(
 );
 
 // PCY 84 — Branded Brawlers
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static BRANDED_BRAWLERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("90a48065-fbf1-4f2a-993e-7061057a4c45"),
     "Branded Brawlers",
     crate::card::CardArt::new("90a48065-fbf1-4f2a-993e-7061057a4c45", "Scott M. Fischer"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardSet::Prophecy,
+    CardRules::new_creature(mana_cost!("{R}"), &["Human", "Soldier"], 2, 2)
+        .with_abilities(&BRAWLER_RESTRICTIONS),
 );
 
 // PCY 85 — Brutal Suppression
@@ -1076,13 +1131,13 @@ pub(in crate::card::sets) static TASK_MAGE_ASSEMBLY: CardRecord = CardRecord::ne
 );
 
 // PCY 106 — Veteran Brawlers
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static VETERAN_BRAWLERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ee4d3acb-68be-409d-beb7-92a7cbc0402f"),
     "Veteran Brawlers",
     crate::card::CardArt::new("ee4d3acb-68be-409d-beb7-92a7cbc0402f", "Paolo Parente"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardSet::Prophecy,
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Soldier"], 4, 4)
+        .with_abilities(&BRAWLER_RESTRICTIONS),
 );
 
 // PCY 107 — Whip Sergeant

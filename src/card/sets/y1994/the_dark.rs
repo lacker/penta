@@ -852,7 +852,7 @@ pub(in crate::card::sets) static BOG_RATS: CardRecord = CardRecord::new_with_leg
             "This creature can't be blocked by Walls.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedBy(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                     ObjectPredicateDef::Subtype("Wall"),
                 )),
             },
@@ -2501,16 +2501,25 @@ pub(in crate::card::sets) static TORMODS_CRYPT: CardRecord = CardRecord::new_wit
 );
 
 // DRK 113 — Tower of Coireall
-// Audit: metadata-only — Needs a temporary blocking restriction limited to Wall blockers; the available effect would make the creature completely unblockable.
 pub(in crate::card::sets) static TOWER_OF_COIREALL: CardRecord = CardRecord::new_with_legacy_id(
     576,
     "Tower of Coireall",
     CardArt::new("64c19977-ac7d-4ce7-925c-33a7503420f5", "Dan Frazier"),
     CardSet::TheDark,
-    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[AbilityDef::not_implemented(
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::activated_with_targets(
         "{T}: Target creature can't be blocked by Walls this turn.",
-        "Temporary blocking restrictions cannot currently be limited to one blocker subtype; the available effect would make the creature completely unblockable.",
-    )]),
+        &[AbilityCostDef::TapSource],
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
+                ObjectPredicateDef::Subtype("Wall"),
+            )),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 /// The Maze does not remove the creature from combat: it stays an attacker,

@@ -1275,7 +1275,7 @@ pub(in crate::card::sets) static BRASSCLAW_ORCS: CardRecord = CardRecord::new_wi
             "This creature can't block creatures with power 2 or greater.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CanBlockOnly(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
                     ObjectPredicateDef::Not(&ObjectPredicateDef::PowerAtLeast(2)),
                 )),
             },
@@ -1635,7 +1635,7 @@ pub(in crate::card::sets) static ORCISH_VETERAN: CardRecord = CardRecord::new_wi
             "This creature can't block white creatures with power 2 or greater.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CanBlockOnly(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
                     NOT_A_BIG_WHITE_CREATURE,
                 )),
             },
@@ -1686,7 +1686,7 @@ pub(in crate::card::sets) static ORGG: CardRecord = CardRecord::new_with_legacy_
             "This creature can't block creatures with power 3 or greater.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CanBlockOnly(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
                     ObjectPredicateDef::Not(&ObjectPredicateDef::PowerAtLeast(3)),
                 )),
             },

@@ -1,6 +1,16 @@
-//! Magic 2013 card records used by the built-in ISD–DGM Standard deck tranche.
+//! Magic 2013 card records used by the built-in ISD–M14 Standard deck tranche.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord, avacyn_restored, dark_ascension};
+use crate::card::sets::y1994::antiquities as catalog_atq;
+use crate::card::sets::y1998::stronghold as catalog_sth;
+use crate::card::sets::y1998::urzas_saga as catalog_usg;
+use crate::card::sets::y2001::apocalypse as catalog_apc;
+use crate::card::sets::y2001::odyssey as catalog_ody;
+use crate::card::sets::y2004::fifth_dawn as catalog_5dn;
+use crate::card::sets::y2006::time_spiral as catalog_tsp;
+use crate::card::sets::y2007::future_sight as catalog_fut;
+use crate::card::sets::y2010::magic_2011 as catalog_m11;
+use crate::card::sets::y2012::dark_ascension as catalog_dka;
 use crate::card::sets::{
     y1993::alpha, y1994::the_dark, y1999::urzas_legacy, y2001::planeshift, y2002::onslaught,
     y2011::innistrad,
@@ -89,6 +99,8 @@ pub(in crate::card::sets) static AJANIS_SUNSTRIKER: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{W}{W}"), &["Cat", "Cleric"], 2, 2)
         .with_abilities(&[abilities::lifelink()]),
 );
+
+// M13 3 — Angel's Mercy (reprint)
 
 // M13 4 — Angelic Benediction
 pub(in crate::card::sets) static ANGELIC_BENEDICTION: CardRecord = CardRecord::new_with_legacy_id(
@@ -349,7 +361,14 @@ pub(in crate::card::sets) static ERASE: CardRecord = CardRecord::new_with_legacy
 );
 
 // M13 14 — Faith's Reward
-// Audit: blocked — Needs turn-history provenance for permanent cards put into your graveyard from the battlefield and a simultaneous mass return.
+// Audit: metadata-only — Needs turn-history provenance for permanent cards put into your graveyard from the battlefield and a simultaneous mass return.
+pub(in crate::card::sets) static FAITH_S_REWARD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("799ed076-4724-47bb-94a0-11b42a9826eb"),
+    "Faith's Reward",
+    crate::card::CardArt::new("799ed076-4724-47bb-94a0-11b42a9826eb", "Raymond Swanland"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 15 — Glorious Charge
 pub(in crate::card::sets) static GLORIOUS_CHARGE: CardRecord = CardRecord::new_with_legacy_id(
@@ -447,8 +466,7 @@ pub(in crate::card::sets) static HEALER_OF_THE_PRIDE: CardRecord = CardRecord::n
     ),
 );
 
-// M13 20 — Intrepid Hero
-// Audit: blocked — Power predicates omit continuous static bonuses, so they cannot enforce the target's full current power.
+// M13 20 — Intrepid Hero (reprint)
 
 // M13 21 — Knight of Glory
 pub(in crate::card::sets) static KNIGHT_OF_GLORY: CardRecord = CardRecord::new_with_legacy_id(
@@ -499,7 +517,14 @@ pub(in crate::card::sets) static OBLIVION_RING: CardRecord = CardRecord::new_wit
 );
 
 // M13 23 — Odric, Master Tactician
-// Audit: blocked — Needs an attacking-group threshold and a combat procedure that lets its controller assign every blocker.
+// Audit: metadata-only — Needs an attacking-group threshold and a combat procedure that lets its controller assign every blocker.
+pub(in crate::card::sets) static ODRIC_MASTER_TACTICIAN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("bb1552a8-27b4-4a95-9022-6fdd59aca28f"),
+    "Odric, Master Tactician",
+    crate::card::CardArt::new("bb1552a8-27b4-4a95-9022-6fdd59aca28f", "Michael Komarck"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 /// Two prohibitions rather than one: nothing in the vocabulary bars combat
 /// wholesale, and nothing needs to -- attacking and blocking are separate
@@ -649,11 +674,11 @@ pub(in crate::card::sets) static SAFE_PASSAGE: CardRecord = CardRecord::new_with
     )),
 );
 
-// M13 32 — Serra Avatar
-// Audit: blocked — Needs a life-total characteristic value in all zones and a self graveyard-to-library replacement.
+// M13 31 — Serra Angel (reprint)
 
-// M13 33 — Serra Avenger
-// Audit: blocked — Casting restrictions cannot inspect how many turns its controller has taken.
+// M13 32 — Serra Avatar (reprint)
+
+// M13 33 — Serra Avenger (reprint)
 
 // M13 34 — Show of Valor
 pub(in crate::card::sets) static SHOW_OF_VALOR: CardRecord = CardRecord::new_with_legacy_id(
@@ -719,10 +744,27 @@ pub(in crate::card::sets) static SUBLIME_ARCHANGEL: CardRecord = CardRecord::new
 );
 
 // M13 37 — Touch of the Eternal
-// Audit: blocked — No effect can set a player's life total from a battlefield permanent count.
+// Audit: metadata-only — No effect can set a player's life total from a battlefield permanent count.
+pub(in crate::card::sets) static TOUCH_OF_THE_ETERNAL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("55c5f0c2-99e6-42b7-aa16-61d5815d060d"),
+    "Touch of the Eternal",
+    crate::card::CardArt::new(
+        "55c5f0c2-99e6-42b7-aa16-61d5815d060d",
+        "Christopher Moeller",
+    ),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 38 — War Falcon
-// Audit: blocked — Combat restrictions cannot condition this source's attack permission on controlling a Knight or Soldier.
+// Audit: metadata-only — Combat restrictions cannot condition this source's attack permission on controlling a Knight or Soldier.
+pub(in crate::card::sets) static WAR_FALCON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7e092a0d-c031-4a76-86c1-7f83878a06e8"),
+    "War Falcon",
+    crate::card::CardArt::new("7e092a0d-c031-4a76-86c1-7f83878a06e8", "Volkan Baǵa"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 39 — War Priest of Thune
 pub(in crate::card::sets) static WAR_PRIEST_OF_THUNE: CardRecord = CardRecord::new_with_legacy_id(
@@ -893,8 +935,19 @@ pub(in crate::card::sets) static BATTLE_OF_WITS: CardRecord = CardRecord::new_wi
     ),
 );
 
+// M13 45 — Clone (reprint)
+
 // M13 46 — Courtly Provocateur
-// Audit: blocked — No turn-long effects require a target creature to attack or block if able.
+// Audit: metadata-only — No turn-long effects require a target creature to attack or block if able.
+pub(in crate::card::sets) static COURTLY_PROVOCATEUR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ba912207-a8bf-4ffb-9967-34029cb09f7f"),
+    "Courtly Provocateur",
+    crate::card::CardArt::new("ba912207-a8bf-4ffb-9967-34029cb09f7f", "James Ryman"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
+
+// M13 47 — Divination (reprint)
 
 // M13 48 — Downpour
 pub(in crate::card::sets) static DOWNPOUR: CardRecord = CardRecord::new_with_legacy_id(
@@ -1049,8 +1102,7 @@ pub(in crate::card::sets) static HYDROSURGE: CardRecord = CardRecord::new_with_l
     )),
 );
 
-// M13 55 — Index
-// Audit: blocked — Top-card selection cannot return all five cards in an arbitrary chosen order.
+// M13 55 — Index (reprint)
 
 // M13 56 — Jace, Memory Adept
 pub(in crate::card::sets) static JACE_MEMORY_ADEPT: CardRecord = CardRecord::new_with_legacy_id(
@@ -1113,7 +1165,14 @@ pub(in crate::card::sets) static JACE_MEMORY_ADEPT: CardRecord = CardRecord::new
 );
 
 // M13 57 — Jace's Phantasm
-// Audit: blocked — Conditional static bonuses cannot test whether an opponent's graveyard contains at least ten cards.
+// Audit: metadata-only — Conditional static bonuses cannot test whether an opponent's graveyard contains at least ten cards.
+pub(in crate::card::sets) static JACE_S_PHANTASM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("16829504-385c-4154-8e6d-f3fbaf273890"),
+    "Jace's Phantasm",
+    crate::card::CardArt::new("16829504-385c-4154-8e6d-f3fbaf273890", "Johann Bodin"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 58 — Kraken Hatchling
 pub(in crate::card::sets) static KRAKEN_HATCHLING: CardRecord = CardRecord::new_with_legacy_id(
@@ -1161,6 +1220,8 @@ pub(in crate::card::sets) static MASTER_OF_THE_PEARL_TRIDENT: CardRecord =
             ),
         ),
     );
+
+// M13 60 — Merfolk of the Pearl Trident (reprint)
 
 // M13 61 — Mind Sculpt
 pub(in crate::card::sets) static MIND_SCULPT: CardRecord = CardRecord::new_with_legacy_id(
@@ -1238,8 +1299,7 @@ pub(in crate::card::sets) static REDIRECT: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
-// M13 65 — Rewind
-// Audit: blocked — Needs a non-target choice of up to four lands made during resolution after the spell is countered.
+// M13 65 — Rewind (reprint)
 
 // M13 66 — Scroll Thief
 pub(in crate::card::sets) static SCROLL_THIEF: CardRecord = CardRecord::new_with_legacy_id(
@@ -1296,7 +1356,14 @@ pub(in crate::card::sets) static SLEEP: CardRecord = CardRecord::new_with_legacy
 );
 
 // M13 68 — Spelltwine
-// Audit: blocked — Needs linked graveyard choices, spell copies, and permission to cast both copies without paying their costs.
+// Audit: metadata-only — Needs linked graveyard choices, spell copies, and permission to cast both copies without paying their costs.
+pub(in crate::card::sets) static SPELLTWINE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e4d2f5ab-c6be-4661-843c-51b4977a9bea"),
+    "Spelltwine",
+    crate::card::CardArt::new("e4d2f5ab-c6be-4661-843c-51b4977a9bea", "Noah Bradley"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 static SPHINX_OF_UTHUUN_PILE_MOVES: EffectDef = EffectDef::Sequence(&[
     EffectDef::MoveToZone {
@@ -1338,11 +1405,17 @@ pub(in crate::card::sets) static SPHINX_OF_UTHUUN: CardRecord = CardRecord::new_
     ]),
 );
 
-// M13 70 — Stormtide Leviathan
-// Audit: blocked — Islandwalk, global Island type addition, and attack restrictions based on flying or islandwalk cannot all be expressed.
+// M13 70 — Stormtide Leviathan (reprint)
 
 // M13 71 — Switcheroo
-// Audit: blocked — Indefinite control exchange between two targets is unavailable.
+// Audit: metadata-only — Indefinite control exchange between two targets is unavailable.
+pub(in crate::card::sets) static SWITCHEROO: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7d62aaf3-0fd4-44ba-8eeb-18ac759dfe84"),
+    "Switcheroo",
+    crate::card::CardArt::new("7d62aaf3-0fd4-44ba-8eeb-18ac759dfe84", "Kev Walker"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 72 — Talrand, Sky Summoner
 pub(in crate::card::sets) static TALRAND_SKY_SUMMONER: CardRecord = CardRecord::new_with_legacy_id(
@@ -1424,6 +1497,8 @@ pub(in crate::card::sets) static TRICKS_OF_THE_TRADE: CardRecord = CardRecord::n
         ]),
 );
 
+// M13 75 — Unsummon (reprint)
+
 // M13 76 — Vedalken Entrancer
 pub(in crate::card::sets) static VEDALKEN_ENTRANCER: CardRecord = CardRecord::new_with_legacy_id(
     994,
@@ -1451,7 +1526,14 @@ pub(in crate::card::sets) static VEDALKEN_ENTRANCER: CardRecord = CardRecord::ne
 );
 
 // M13 77 — Void Stalker
-// Audit: blocked — Needs simultaneous source-and-target library moves followed by shuffling both affected owners' libraries.
+// Audit: metadata-only — Needs simultaneous source-and-target library moves followed by shuffling both affected owners' libraries.
+pub(in crate::card::sets) static VOID_STALKER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7fc30e31-4796-4e98-992c-a56cd51ad3c9"),
+    "Void Stalker",
+    crate::card::CardArt::new("7fc30e31-4796-4e98-992c-a56cd51ad3c9", "Marco Nelor"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 78 — Watercourser
 pub(in crate::card::sets) static WATERCOURSER: CardRecord = CardRecord::new_with_legacy_id(
@@ -1917,7 +1999,17 @@ pub(in crate::card::sets) static KNIGHT_OF_INFAMY: CardRecord = CardRecord::new_
 );
 
 // M13 97 — Liliana of the Dark Realms
-// Audit: blocked — Needs a choice between dynamic Swamp-count pump or shrink and an emblem that multiplies mana from Swamps.
+// Audit: metadata-only — Needs a choice between dynamic Swamp-count pump or shrink and an emblem that multiplies mana from Swamps.
+pub(in crate::card::sets) static LILIANA_OF_THE_DARK_REALMS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2cd2d81e-1388-4f34-9917-2289971cf8da"),
+    "Liliana of the Dark Realms",
+    crate::card::CardArt::new(
+        "2cd2d81e-1388-4f34-9917-2289971cf8da",
+        "D. Alexander Gregory",
+    ),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 98 — Liliana's Shade
 pub(in crate::card::sets) static LILIANAS_SHADE: CardRecord = CardRecord::new_with_legacy_id(
@@ -2053,13 +2145,26 @@ pub(in crate::card::sets) static MUTILATE: CardRecord = CardRecord::new_with_leg
 );
 
 // M13 103 — Nefarox, Overlord of Grixis
-// Audit: blocked — Needs exalted's attacks-alone subject and the captured defending player for the sacrifice choice.
+// Audit: metadata-only — Needs exalted's attacks-alone subject and the captured defending player for the sacrifice choice.
+pub(in crate::card::sets) static NEFAROX_OVERLORD_OF_GRIXIS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("abc382f3-fdb9-4987-acf4-bf1ac4fd2ef7"),
+    "Nefarox, Overlord of Grixis",
+    crate::card::CardArt::new("abc382f3-fdb9-4987-acf4-bf1ac4fd2ef7", "Aleksi Briclot"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
-// M13 104 — Phylactery Lich
-// Audit: blocked — Needs an as-enters artifact choice that receives a phylactery counter and a state trigger for controlling none.
+// M13 104 — Phylactery Lich (reprint)
 
 // M13 105 — Public Execution
-// Audit: blocked — A target-relative creature sweep cannot exclude the destroyed target when destruction is prevented or replaced.
+// Audit: metadata-only — A target-relative creature sweep cannot exclude the destroyed target when destruction is prevented or replaced.
+pub(in crate::card::sets) static PUBLIC_EXECUTION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("48188942-d0ba-4503-bd75-c7a5329bb7c8"),
+    "Public Execution",
+    crate::card::CardArt::new("48188942-d0ba-4503-bd75-c7a5329bb7c8", "Anthony Palumbo"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 106 — Ravenous Rats
 pub(in crate::card::sets) static RAVENOUS_RATS: CardRecord = CardRecord::new_with_legacy_id(
@@ -2134,8 +2239,7 @@ pub(in crate::card::sets) static SERVANT_OF_NEFAROX: CardRecord = CardRecord::ne
         .with_ability(abilities::exalted()),
 );
 
-// M13 109 — Shimian Specter
-// Audit: blocked — Needs a combat-damage hand reveal and choice, then same-name searches across graveyard, hand, and library.
+// M13 109 — Shimian Specter (reprint)
 
 // M13 110 — Sign in Blood
 pub(in crate::card::sets) static SIGN_IN_BLOOD: CardRecord = CardRecord::new_with_legacy_id(
@@ -2201,10 +2305,24 @@ pub(in crate::card::sets) static VAMPIRE_NIGHTHAWK: CardRecord = CardRecord::new
 );
 
 // M13 113 — Vampire Nocturnus
-// Audit: blocked — Needs persistent top-library revelation and a top-card-color-conditioned Vampire mass bonus and flying grant.
+// Audit: metadata-only — Needs persistent top-library revelation and a top-card-color-conditioned Vampire mass bonus and flying grant.
+pub(in crate::card::sets) static VAMPIRE_NOCTURNUS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3194ae81-90fb-49e9-90de-9d161e296770"),
+    "Vampire Nocturnus",
+    crate::card::CardArt::new("8daccbbb-6600-4467-810f-277f01a11771", "Raymond Swanland"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 114 — Veilborn Ghoul
-// Audit: blocked — Needs a land-entry trigger functioning from this card's graveyard and a self return from that zone.
+// Audit: metadata-only — Needs a land-entry trigger functioning from this card's graveyard and a self return from that zone.
+pub(in crate::card::sets) static VEILBORN_GHOUL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d3f49232-2853-427f-8c20-322e09a3ccde"),
+    "Veilborn Ghoul",
+    crate::card::CardArt::new("d3f49232-2853-427f-8c20-322e09a3ccde", "Dan Murayama Scott"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 115 — Vile Rebirth
 pub(in crate::card::sets) static VILE_REBIRTH: CardRecord = CardRecord::new_with_legacy_id(
@@ -2239,6 +2357,8 @@ pub(in crate::card::sets) static VILE_REBIRTH: CardRecord = CardRecord::new_with
     )),
 );
 
+// M13 116 — Walking Corpse (reprint)
+
 // M13 117 — Wit's End
 pub(in crate::card::sets) static WITS_END: CardRecord = CardRecord::new_with_legacy_id(
     1358,
@@ -2260,7 +2380,14 @@ pub(in crate::card::sets) static WITS_END: CardRecord = CardRecord::new_with_leg
 );
 
 // M13 118 — Xathrid Gorgon
-// Audit: blocked — Needs a resolving counter choice plus type, color, ability-removal, and defender changes keyed to that counter.
+// Audit: metadata-only — Needs a resolving counter choice plus type, color, ability-removal, and defender changes keyed to that counter.
+pub(in crate::card::sets) static XATHRID_GORGON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("abfeac83-84ef-41ab-b6ee-cc2bab6aa06d"),
+    "Xathrid Gorgon",
+    crate::card::CardArt::new("e07524e0-303d-465d-b112-ca605b9b27fc", "Chase Stone"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 119 — Zombie Goliath
 pub(in crate::card::sets) static ZOMBIE_GOLIATH: CardRecord = CardRecord::new_with_legacy_id(
@@ -2461,8 +2588,17 @@ pub(in crate::card::sets) static FERVOR: CardRecord = CardRecord::new_with_legac
     )),
 );
 
+// M13 130 — Fire Elemental (reprint)
+
 // M13 131 — Firewing Phoenix
-// Audit: blocked — Effect recipients cannot identify an activated ability's own source card while it is in a graveyard.
+// Audit: metadata-only — Effect recipients cannot identify an activated ability's own source card while it is in a graveyard.
+pub(in crate::card::sets) static FIREWING_PHOENIX: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b8824674-ced2-448e-9bf0-03c1c43a5315"),
+    "Firewing Phoenix",
+    crate::card::CardArt::new("b8824674-ced2-448e-9bf0-03c1c43a5315", "James Paick"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 132 — Flames of the Firebrand
 pub(in crate::card::sets) static FLAMES_OF_THE_FIREBRAND: CardRecord = CardRecord::new_with_legacy_id(
@@ -2749,10 +2885,16 @@ pub(in crate::card::sets) static MARK_OF_MUTINY: CardRecord = CardRecord::new_wi
 );
 
 // M13 142 — Mindclaw Shaman
-// Audit: blocked — Needs an opponent-hand reveal and choice followed by permission to cast the chosen card without paying its cost.
+// Audit: metadata-only — Needs an opponent-hand reveal and choice followed by permission to cast the chosen card without paying its cost.
+pub(in crate::card::sets) static MINDCLAW_SHAMAN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0f342fe9-aa73-4222-b908-d4035b5746be"),
+    "Mindclaw Shaman",
+    crate::card::CardArt::new("0f342fe9-aa73-4222-b908-d4035b5746be", "Slawomir Maniak"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
-// M13 143 — Mogg Flunkies
-// Audit: blocked — Combat restrictions cannot require another creature to attack or block alongside this source.
+// M13 143 — Mogg Flunkies (reprint)
 
 // M13 144 — Reckless Brute
 pub(in crate::card::sets) static RECKLESS_BRUTE: CardRecord = CardRecord::new_with_legacy_id(
@@ -2810,7 +2952,14 @@ pub(in crate::card::sets) static SEARING_SPEAR: CardRecord = CardRecord::new_wit
 );
 
 // M13 148 — Slumbering Dragon
-// Audit: blocked — Needs attack and block permission based on counter count plus an attack-at-you event that adds counters.
+// Audit: metadata-only — Needs attack and block permission based on counter count plus an attack-at-you event that adds counters.
+pub(in crate::card::sets) static SLUMBERING_DRAGON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("277cbd0d-c8da-4a37-965c-6a60771df2f7"),
+    "Slumbering Dragon",
+    crate::card::CardArt::new("277cbd0d-c8da-4a37-965c-6a60771df2f7", "Chris Rahn"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 149 — Smelt
 pub(in crate::card::sets) static SMELT: CardRecord = CardRecord::new_with_legacy_id(
@@ -2855,6 +3004,8 @@ pub(in crate::card::sets) static THUNDERMAW_HELLKITE: CardRecord = CardRecord::n
         ),
     ]),
 );
+
+// M13 151 — Torch Fiend (reprint)
 
 // M13 152 — Trumpet Blast
 pub(in crate::card::sets) static TRUMPET_BLAST: CardRecord = CardRecord::new_with_legacy_id(
@@ -2954,6 +3105,8 @@ static DISCARD_A_CARD: SpellAdditionalCostDef = SpellAdditionalCostDef {
     spend: SpendModeDef::ByZone,
     or: None,
 };
+
+// M13 156 — Wall of Fire (reprint)
 
 // M13 157 — Wild Guess
 pub(in crate::card::sets) static WILD_GUESS: CardRecord = CardRecord::new_with_legacy_id(
@@ -3166,7 +3319,14 @@ pub(in crate::card::sets) static DUSKDALE_WURM: CardRecord = CardRecord::new_wit
 );
 
 // M13 167 — Elderscale Wurm
-// Audit: blocked — Needs conditional life-total setting on entry and a damage replacement that enforces a life floor.
+// Audit: metadata-only — Needs conditional life-total setting on entry and a damage replacement that enforces a life floor.
+pub(in crate::card::sets) static ELDERSCALE_WURM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("20f3f63d-0f04-4945-9895-940c916a2547"),
+    "Elderscale Wurm",
+    crate::card::CardArt::new("20f3f63d-0f04-4945-9895-940c916a2547", "Richard Wright"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 static ELVISH_ARCHDRUID_ELVES: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::Subtype("Elf"),
@@ -3306,6 +3466,8 @@ static GREATEST_POWER_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
     PlayerRelation::You,
 );
 
+// M13 172 — Fog (reprint)
+
 // M13 173 — Fungal Sprouting
 pub(in crate::card::sets) static FUNGAL_SPROUTING: CardRecord = CardRecord::new_with_legacy_id(
     1979,
@@ -3364,11 +3526,9 @@ pub(in crate::card::sets) static GARRUK_PRIMAL_HUNTER: CardRecord = CardRecord::
         ]),
 );
 
-// M13 175 — Garruk's Packleader
-// Audit: blocked — Power predicates omit continuous static bonuses, so the entry trigger cannot test full current power.
+// M13 175 — Garruk's Packleader (reprint)
 
-// M13 176 — Ground Seal
-// Audit: blocked — No static effect prohibits targeting cards in graveyards.
+// M13 176 — Ground Seal (reprint)
 
 // M13 177 — Mwonvuli Beast Tracker
 pub(in crate::card::sets) static MWONVULI_BEAST_TRACKER: CardRecord = CardRecord::new_with_legacy_id(
@@ -3409,6 +3569,8 @@ pub(in crate::card::sets) static MWONVULI_BEAST_TRACKER: CardRecord = CardRecord
         ),
     ),
 );
+
+// M13 178 — Naturalize (reprint)
 
 // M13 179 — Plummet
 pub(in crate::card::sets) static PLUMMET: CardRecord = CardRecord::new_with_legacy_id(
@@ -3470,6 +3632,8 @@ pub(in crate::card::sets) static PREDATORY_RAMPAGE: CardRecord = CardRecord::new
     )),
 );
 
+// M13 181 — Prey Upon (reprint)
+
 // M13 182 — Primal Huntbeast
 pub(in crate::card::sets) static PRIMAL_HUNTBEAST: CardRecord = CardRecord::new_with_legacy_id(
     1035,
@@ -3489,6 +3653,10 @@ pub(in crate::card::sets) static PRIMORDIAL_HYDRA: CardRecord = CardRecord::new(
     crate::card::CardSet::Magic2013,
     crate::card::CardRules::unsupported(),
 );
+
+// M13 184 — Quirion Dryad (reprint)
+
+// M13 185 — Rancor (reprint)
 
 // M13 186 — Ranger's Path
 pub(in crate::card::sets) static RANGERS_PATH: CardRecord = CardRecord::new_with_legacy_id(
@@ -3544,7 +3712,14 @@ pub(in crate::card::sets) static REVIVE: CardRecord = CardRecord::new_with_legac
 );
 
 // M13 188 — Roaring Primadox
-// Audit: blocked — No resolving choice selects a nontarget creature the controller owns for a mandatory return.
+// Audit: metadata-only — No resolving choice selects a nontarget creature the controller owns for a mandatory return.
+pub(in crate::card::sets) static ROARING_PRIMADOX: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("19529b2f-03f0-469d-92d4-e2a2a933d5dc"),
+    "Roaring Primadox",
+    crate::card::CardArt::new("19529b2f-03f0-469d-92d4-e2a2a933d5dc", "James Ryman"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 189 — Sentinel Spider
 pub(in crate::card::sets) static SENTINEL_SPIDER: CardRecord = CardRecord::new_with_legacy_id(
@@ -3706,7 +3881,14 @@ pub(in crate::card::sets) static VASTWOOD_GORGER: CardRecord = CardRecord::new_w
 );
 
 // M13 197 — Yeva, Nature's Herald
-// Audit: blocked — No static permission grants flash-like casting timing to green creature cards.
+// Audit: metadata-only — No static permission grants flash-like casting timing to green creature cards.
+pub(in crate::card::sets) static YEVA_NATURE_S_HERALD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("80acb6dc-a9bd-4f12-9025-623416bdfc32"),
+    "Yeva, Nature's Herald",
+    crate::card::CardArt::new("80acb6dc-a9bd-4f12-9025-623416bdfc32", "Eric Deschamps"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 198 — Yeva's Forcemage
 pub(in crate::card::sets) static YEVAS_FORCEMAGE: CardRecord = CardRecord::new_with_legacy_id(
@@ -3832,8 +4014,7 @@ pub(in crate::card::sets) static CHRONOMATON: CardRecord = CardRecord::new_with_
     ),
 );
 
-// M13 202 — Clock of Omens
-// Audit: blocked — Ability costs cannot tap two separately chosen untapped artifacts.
+// M13 202 — Clock of Omens (reprint)
 
 // M13 203 — Door to Nothingness
 pub(in crate::card::sets) static DOOR_TO_NOTHINGNESS: CardRecord = CardRecord::new_with_legacy_id(
@@ -3874,7 +4055,14 @@ pub(in crate::card::sets) static ELIXIR_OF_IMMORTALITY: CardRecord = CardRecord:
 );
 
 // M13 205 — Gem of Becoming
-// Audit: blocked — Needs three separate library searches for cards with three different names.
+// Audit: metadata-only — Needs three separate library searches for cards with three different names.
+pub(in crate::card::sets) static GEM_OF_BECOMING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0e07bc36-2207-48f4-a151-4ccb0c6d851d"),
+    "Gem of Becoming",
+    crate::card::CardArt::new("0e07bc36-2207-48f4-a151-4ccb0c6d851d", "Jack Wang"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 206 — Gilded Lotus
 pub(in crate::card::sets) static GILDED_LOTUS: CardRecord = CardRecord::new_with_legacy_id(
@@ -3895,6 +4083,8 @@ static KITESAIL_BONUS: [AppliedEffectDef; 2] = [
     AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(0)),
     AppliedEffectDef::add_ability(&KITESAIL_FLYING),
 ];
+
+// M13 207 — Jayemdae Tome (reprint)
 
 // M13 208 — Kitesail
 pub(in crate::card::sets) static KITESAIL: CardRecord = CardRecord::new_with_legacy_id(
@@ -3932,8 +4122,7 @@ pub(in crate::card::sets) static PHYREXIAN_HULK: CardRecord = CardRecord::new_wi
     CardRules::new_artifact_creature(mana_cost!("{6}"), &["Phyrexian", "Golem"], 5, 4),
 );
 
-// M13 210 — Primal Clay
-// Audit: blocked — Needs an as-enters modal choice that sets one of three characteristic and keyword packages.
+// M13 210 — Primal Clay (reprint)
 
 static EVOS_ISLE_HEXPROOF: AbilityDef = abilities::hexproof();
 
@@ -4195,11 +4384,19 @@ pub(in crate::card::sets) static STAFF_OF_NIN: CardRecord = CardRecord::new_with
     ]),
 );
 
-// M13 218 — Stuffy Doll
-// Audit: blocked — Effects cannot route triggered damage to the player chosen as this permanent entered.
+// M13 218 — Stuffy Doll (reprint)
+
+// M13 219 — Tormod's Crypt (reprint)
 
 // M13 220 — Trading Post
-// Audit: blocked — Needs four modes whose costs include unsupported discard or separately chosen sacrifice costs and their linked continuations.
+// Audit: metadata-only — Needs four modes whose costs include unsupported discard or separately chosen sacrifice costs and their linked continuations.
+pub(in crate::card::sets) static TRADING_POST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("20604b28-d096-40f8-a30c-3bc89e708676"),
+    "Trading Post",
+    crate::card::CardArt::new("20604b28-d096-40f8-a30c-3bc89e708676", "Adam Paquette"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 221 — Cathedral of War
 pub(in crate::card::sets) static CATHEDRAL_OF_WAR: CardRecord = CardRecord::new_with_legacy_id(
@@ -4262,6 +4459,8 @@ pub(in crate::card::sets) static DROWNED_CATACOMB: CardRecord = CardRecord::new_
     ]),
 );
 
+// M13 224 — Evolving Wilds (reprint)
+
 // M13 225 — Glacial Fortress
 pub(in crate::card::sets) static GLACIAL_FORTRESS: CardRecord = CardRecord::new_with_legacy_id(
     170,
@@ -4285,7 +4484,14 @@ pub(in crate::card::sets) static GLACIAL_FORTRESS: CardRecord = CardRecord::new_
 );
 
 // M13 226 — Hellion Crucible
-// Audit: blocked — The counter vocabulary has no pressure counter, so the add and remove costs cannot use the printed counter kind.
+// Audit: metadata-only — The counter vocabulary has no pressure counter, so the add and remove costs cannot use the printed counter kind.
+pub(in crate::card::sets) static HELLION_CRUCIBLE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ad8274ef-a46a-4f5f-8ad1-6ce828f24210"),
+    "Hellion Crucible",
+    crate::card::CardArt::new("ad8274ef-a46a-4f5f-8ad1-6ce828f24210", "Trevor Claxton"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 227 — Reliquary Tower
 pub(in crate::card::sets) static RELIQUARY_TOWER: CardRecord = CardRecord::new_with_legacy_id(
@@ -4356,6 +4562,46 @@ pub(in crate::card::sets) static SUNPETAL_GROVE: CardRecord = CardRecord::new_wi
     ]),
 );
 
+// M13 230 — Plains (reprint)
+
+// M13 231 — Plains (alternate printing)
+
+// M13 232 — Plains (alternate printing)
+
+// M13 233 — Plains (alternate printing)
+
+// M13 234 — Island (reprint)
+
+// M13 235 — Island (alternate printing)
+
+// M13 236 — Island (alternate printing)
+
+// M13 237 — Island (alternate printing)
+
+// M13 238 — Swamp (reprint)
+
+// M13 239 — Swamp (alternate printing)
+
+// M13 240 — Swamp (alternate printing)
+
+// M13 241 — Swamp (alternate printing)
+
+// M13 242 — Mountain (reprint)
+
+// M13 243 — Mountain (alternate printing)
+
+// M13 244 — Mountain (alternate printing)
+
+// M13 245 — Mountain (alternate printing)
+
+// M13 246 — Forest (reprint)
+
+// M13 247 — Forest (alternate printing)
+
+// M13 248 — Forest (alternate printing)
+
+// M13 249 — Forest (alternate printing)
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AJANI_CALLER_OF_THE_PRIDE,
     &AJANIS_SUNSTRIKER,
@@ -4369,6 +4615,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DIVINE_FAVOR,
     &DIVINE_VERDICT,
     &ERASE,
+    &FAITH_S_REWARD,
     &GLORIOUS_CHARGE,
     &GRIFFIN_PROTECTOR,
     &GUARDIAN_LIONS,
@@ -4376,6 +4623,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &HEALER_OF_THE_PRIDE,
     &KNIGHT_OF_GLORY,
     &OBLIVION_RING,
+    &ODRIC_MASTER_TACTICIAN,
     &PACIFISM,
     &PILLARFIELD_OX,
     &PLANAR_CLEANSING,
@@ -4386,12 +4634,15 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SHOW_OF_VALOR,
     &SILVERCOAT_LION,
     &SUBLIME_ARCHANGEL,
+    &TOUCH_OF_THE_ETERNAL,
+    &WAR_FALCON,
     &WAR_PRIEST_OF_THUNE,
     &WARCLAMP_MASTIFF,
     &ARCHAEOMANCER,
     &ARCTIC_AVEN,
     &AUGUR_OF_BOLAS,
     &BATTLE_OF_WITS,
+    &COURTLY_PROVOCATEUR,
     &DOWNPOUR,
     &ENCRUST,
     &ESSENCE_SCATTER,
@@ -4400,6 +4651,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &HARBOR_SERPENT,
     &HYDROSURGE,
     &JACE_MEMORY_ADEPT,
+    &JACE_S_PHANTASM,
     &KRAKEN_HATCHLING,
     &MASTER_OF_THE_PEARL_TRIDENT,
     &MIND_SCULPT,
@@ -4408,11 +4660,14 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &REDIRECT,
     &SCROLL_THIEF,
     &SLEEP,
+    &SPELLTWINE,
     &SPHINX_OF_UTHUUN,
+    &SWITCHEROO,
     &TALRAND_SKY_SUMMONER,
     &TALRANDS_INVOCATION,
     &TRICKS_OF_THE_TRADE,
     &VEDALKEN_ENTRANCER,
+    &VOID_STALKER,
     &WATERCOURSER,
     &WELKIN_TERN,
     &WIND_DRAKE,
@@ -4432,19 +4687,25 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GIANT_SCORPION,
     &HARBOR_BANDIT,
     &KNIGHT_OF_INFAMY,
+    &LILIANA_OF_THE_DARK_REALMS,
     &LILIANAS_SHADE,
     &MARK_OF_THE_VAMPIRE,
     &MIND_ROT,
     &MURDER,
     &MUTILATE,
+    &NEFAROX_OVERLORD_OF_GRIXIS,
+    &PUBLIC_EXECUTION,
     &RAVENOUS_RATS,
     &RISE_FROM_THE_GRAVE,
     &SERVANT_OF_NEFAROX,
     &SIGN_IN_BLOOD,
     &TORMENTED_SOUL,
     &VAMPIRE_NIGHTHAWK,
+    &VAMPIRE_NOCTURNUS,
+    &VEILBORN_GHOUL,
     &VILE_REBIRTH,
     &WITS_END,
+    &XATHRID_GORGON,
     &ZOMBIE_GOLIATH,
     &ARMS_DEALER,
     &BLADETUSK_BOAR,
@@ -4456,6 +4717,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CRIMSON_MUCKWADER,
     &DRAGON_HATCHLING,
     &FERVOR,
+    &FIREWING_PHOENIX,
     &FLAMES_OF_THE_FIREBRAND,
     &FURNACE_WHELP,
     &GOBLIN_ARSONIST,
@@ -4466,10 +4728,12 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &KRENKOS_COMMAND,
     &MAGMAQUAKE,
     &MARK_OF_MUTINY,
+    &MINDCLAW_SHAMAN,
     &RECKLESS_BRUTE,
     &REVERBERATE,
     &RUMMAGING_GOBLIN,
     &SEARING_SPEAR,
+    &SLUMBERING_DRAGON,
     &SMELT,
     &THUNDERMAW_HELLKITE,
     &TRUMPET_BLAST,
@@ -4486,6 +4750,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CENTAUR_COURSER,
     &DEADLY_RECLUSE,
     &DUSKDALE_WURM,
+    &ELDERSCALE_WURM,
     &ELVISH_ARCHDRUID,
     &ELVISH_VISIONARY,
     &FARSEEK,
@@ -4499,6 +4764,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PRIMORDIAL_HYDRA,
     &RANGERS_PATH,
     &REVIVE,
+    &ROARING_PRIMADOX,
     &SENTINEL_SPIDER,
     &SERPENTS_GIFT,
     &SILKLASH_SPIDER,
@@ -4507,12 +4773,14 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &TIMBERPACK_WOLF,
     &TITANIC_GROWTH,
     &VASTWOOD_GORGER,
+    &YEVA_NATURE_S_HERALD,
     &YEVAS_FORCEMAGE,
     &NICOL_BOLAS_PLANESWALKER,
     &AKROMAS_MEMORIAL,
     &CHRONOMATON,
     &DOOR_TO_NOTHINGNESS,
     &ELIXIR_OF_IMMORTALITY,
+    &GEM_OF_BECOMING,
     &GILDED_LOTUS,
     &KITESAIL,
     &PHYREXIAN_HULK,
@@ -4523,10 +4791,12 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &RING_OF_XATHRID,
     &SANDS_OF_DELIRIUM,
     &STAFF_OF_NIN,
+    &TRADING_POST,
     &CATHEDRAL_OF_WAR,
     &DRAGONSKULL_SUMMIT,
     &DROWNED_CATACOMB,
     &GLACIAL_FORTRESS,
+    &HELLION_CRUCIBLE,
     &RELIQUARY_TOWER,
     &ROOTBOUND_CRAG,
     &SUNPETAL_GROVE,
@@ -4534,22 +4804,37 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
     PrintingRecord::reprint(&avacyn_restored::ANGELS_MERCY), // M13 3
+    PrintingRecord::reprint(&catalog_usg::INTREPID_HERO),    // M13 20
     PrintingRecord::reprint(&alpha::SERRA_ANGEL),            // M13 31
+    PrintingRecord::reprint(&catalog_usg::SERRA_AVATAR),     // M13 32
+    PrintingRecord::reprint(&catalog_tsp::SERRA_AVENGER),    // M13 33
     PrintingRecord::reprint(&alpha::CLONE),                  // M13 45
     PrintingRecord::reprint(&dark_ascension::DIVINATION),    // M13 47
+    PrintingRecord::reprint(&catalog_apc::INDEX),            // M13 55
     PrintingRecord::reprint(&alpha::MERFOLK_OF_THE_PEARL_TRIDENT), // M13 60
+    PrintingRecord::reprint(&catalog_usg::REWIND),           // M13 65
+    PrintingRecord::reprint(&catalog_m11::STORMTIDE_LEVIATHAN), // M13 70
     PrintingRecord::reprint(&alpha::UNSUMMON),               // M13 75
+    PrintingRecord::reprint(&catalog_m11::PHYLACTERY_LICH),  // M13 104
+    PrintingRecord::reprint(&catalog_fut::SHIMIAN_SPECTER),  // M13 109
     PrintingRecord::reprint(&innistrad::WALKING_CORPSE),     // M13 116
     PrintingRecord::reprint(&alpha::FIRE_ELEMENTAL),         // M13 130
+    PrintingRecord::reprint(&catalog_sth::MOGG_FLUNKIES),    // M13 143
     PrintingRecord::reprint(&dark_ascension::TORCH_FIEND),   // M13 151
     PrintingRecord::reprint(&alpha::WALL_OF_FIRE),           // M13 156
     PrintingRecord::reprint(&alpha::FOG),                    // M13 172
+    PrintingRecord::reprint(&catalog_m11::GARRUK_S_PACKLEADER), // M13 175
+    PrintingRecord::reprint(&catalog_ody::GROUND_SEAL),      // M13 176
     PrintingRecord::reprint(&onslaught::NATURALIZE),         // M13 178
     PrintingRecord::reprint(&innistrad::PREY_UPON),          // M13 181
     PrintingRecord::reprint(&planeshift::QUIRION_DRYAD),     // M13 184
     PrintingRecord::reprint(&urzas_legacy::RANCOR),          // M13 185
+    PrintingRecord::reprint(&catalog_5dn::CLOCK_OF_OMENS),   // M13 202
     PrintingRecord::reprint(&alpha::JAYEMDAE_TOME),          // M13 207
+    PrintingRecord::reprint(&catalog_atq::PRIMAL_CLAY),      // M13 210
+    PrintingRecord::reprint(&catalog_tsp::STUFFY_DOLL),      // M13 218
     PrintingRecord::reprint(&the_dark::TORMODS_CRYPT),       // M13 219
+    PrintingRecord::reprint(&catalog_dka::EVOLVING_WILDS),   // M13 224
     PrintingRecord::reprint(&alpha::PLAINS),                 // M13 230
     PrintingRecord::alternate(&alpha::PLAINS, 1),            // M13 231
     PrintingRecord::alternate(&alpha::PLAINS, 2),            // M13 232

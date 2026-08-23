@@ -1,6 +1,7 @@
 //! Magic 2012 cards cataloged for the Vintage Cube pool.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::{
     AbilityDef, CardArt, CardRules, CardSet, CardType, CardTypeSet, EffectDef, EffectRecipientDef,
     ObjectPredicateDef, ReplacementEffectDef, TriggerEventDef,
@@ -71,6 +72,8 @@ pub(in crate::card::sets) static ANGELIC_DESTINY: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// M12 4 — Angel's Mercy (reprint)
+
 // M12 5 — Arbalest Elite
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ARBALEST_ELITE: CardRecord = CardRecord::new(
@@ -100,6 +103,10 @@ pub(in crate::card::sets) static ARMORED_WARHORSE: CardRecord = CardRecord::new(
     crate::card::CardSet::Magic2012,
     crate::card::CardRules::unsupported(),
 );
+
+// M12 8 — Assault Griffin (reprint)
+
+// M12 9 — Auramancer (reprint)
 
 // M12 10 — Benalish Veteran
 // Audit: metadata-only — Card rules have not been implemented.
@@ -140,6 +147,8 @@ pub(in crate::card::sets) static DEMYSTIFY: CardRecord = CardRecord::new(
     crate::card::CardSet::Magic2012,
     crate::card::CardRules::unsupported(),
 );
+
+// M12 14 — Divine Favor (reprint)
 
 // M12 15 — Elite Vanguard
 // Audit: metadata-only — Card rules have not been implemented.
@@ -201,6 +210,8 @@ pub(in crate::card::sets) static GRIFFIN_RIDER: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// M12 21 — Griffin Sentinel (reprint)
+
 // M12 22 — Guardians' Pledge
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static GUARDIANS_PLEDGE: CardRecord = CardRecord::new(
@@ -254,6 +265,10 @@ pub(in crate::card::sets) static MIGHTY_LEAP: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// M12 27 — Oblivion Ring (reprint)
+
+// M12 28 — Pacifism (reprint)
+
 // M12 29 — Peregrine Griffin
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PEREGRINE_GRIFFIN: CardRecord = CardRecord::new(
@@ -293,6 +308,10 @@ pub(in crate::card::sets) static ROC_EGG: CardRecord = CardRecord::new(
     crate::card::CardSet::Magic2012,
     crate::card::CardRules::unsupported(),
 );
+
+// M12 33 — Serra Angel (reprint)
+
+// M12 34 — Siege Mastodon (reprint)
 
 // M12 35 — Spirit Mantle
 // Audit: metadata-only — Card rules have not been implemented.
@@ -414,6 +433,8 @@ pub(in crate::card::sets) static BELLTOWER_SPHINX: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// M12 47 — Cancel (reprint)
+
 // M12 48 — Chasm Drake
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CHASM_DRAKE: CardRecord = CardRecord::new(
@@ -423,6 +444,10 @@ pub(in crate::card::sets) static CHASM_DRAKE: CardRecord = CardRecord::new(
     crate::card::CardSet::Magic2012,
     crate::card::CardRules::unsupported(),
 );
+
+// M12 49 — Coral Merfolk (reprint)
+
+// M12 50 — Divination (reprint)
 
 // M12 51 — Djinn of Wishes
 // Audit: metadata-only — Card rules have not been implemented.
@@ -444,6 +469,10 @@ pub(in crate::card::sets) static FLASHFREEZE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// M12 53 — Flight (reprint)
+
+// M12 54 — Frost Breath (reprint)
+
 // M12 55 — Frost Titan
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static FROST_TITAN: CardRecord = CardRecord::new(
@@ -454,6 +483,8 @@ pub(in crate::card::sets) static FROST_TITAN: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// M12 56 — Harbor Serpent (reprint)
+
 // M12 57 — Ice Cage
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ICE_CAGE: CardRecord = CardRecord::new(
@@ -463,6 +494,8 @@ pub(in crate::card::sets) static ICE_CAGE: CardRecord = CardRecord::new(
     crate::card::CardSet::Magic2012,
     crate::card::CardRules::unsupported(),
 );
+
+// M12 58 — Jace, Memory Adept (reprint)
 
 // M12 59 — Jace's Archivist
 // Audit: metadata-only — Card rules have not been implemented.
@@ -503,6 +536,8 @@ pub(in crate::card::sets) static LORD_OF_THE_UNREAL: CardRecord = CardRecord::ne
     crate::card::CardSet::Magic2012,
     crate::card::CardRules::unsupported(),
 );
+
+// M12 63 — Mana Leak (reprint)
 
 // M12 64 — Master Thief
 // Audit: metadata-only — Card rules have not been implemented.
@@ -560,6 +595,8 @@ pub(in crate::card::sets) static MIND_UNBOUND: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// M12 69 — Negate (reprint)
+
 // M12 70 — Phantasmal Bear
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PHANTASMAL_BEAR: CardRecord = CardRecord::new(
@@ -592,6 +629,10 @@ pub(in crate::card::sets) static PHANTASMAL_IMAGE: CardRecord = CardRecord::new_
         .with_abilities(&PHANTASMAL_IMAGE_ABILITIES),
 );
 
+// M12 73 — Ponder (reprint)
+
+// M12 74 — Redirect (reprint)
+
 // M12 75 — Skywinder Drake
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SKYWINDER_DRAKE: CardRecord = CardRecord::new(
@@ -601,6 +642,8 @@ pub(in crate::card::sets) static SKYWINDER_DRAKE: CardRecord = CardRecord::new(
     crate::card::CardSet::Magic2012,
     crate::card::CardRules::unsupported(),
 );
+
+// M12 76 — Sphinx of Uthuun (reprint)
 
 // M12 77 — Time Reversal
 // Audit: metadata-only — Card rules have not been implemented.
@@ -621,6 +664,8 @@ pub(in crate::card::sets) static TURN_TO_FROG: CardRecord = CardRecord::new(
     crate::card::CardSet::Magic2012,
     crate::card::CardRules::unsupported(),
 );
+
+// M12 79 — Unsummon (reprint)
 
 // M12 80 — Visions of Beyond
 // Audit: metadata-only — Card rules have not been implemented.
@@ -695,6 +740,8 @@ pub(in crate::card::sets) static CEMETERY_REAPER: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// M12 87 — Child of Night (reprint)
+
 // M12 88 — Consume Spirit
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CONSUME_SPIRIT: CardRecord = CardRecord::new(
@@ -704,6 +751,8 @@ pub(in crate::card::sets) static CONSUME_SPIRIT: CardRecord = CardRecord::new(
     crate::card::CardSet::Magic2012,
     crate::card::CardRules::unsupported(),
 );
+
+// M12 89 — Dark Favor (reprint)
 
 // M12 90 — Deathmark
 // Audit: metadata-only — Card rules have not been implemented.
@@ -725,6 +774,10 @@ pub(in crate::card::sets) static DEVOURING_SWARM: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// M12 92 — Diabolic Tutor (reprint)
+
+// M12 93 — Disentomb (reprint)
+
 // M12 94 — Distress
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static DISTRESS: CardRecord = CardRecord::new(
@@ -734,6 +787,8 @@ pub(in crate::card::sets) static DISTRESS: CardRecord = CardRecord::new(
     crate::card::CardSet::Magic2012,
     crate::card::CardRules::unsupported(),
 );
+
+// M12 95 — Doom Blade (reprint)
 
 // M12 96 — Drifting Shade
 // Audit: metadata-only — Card rules have not been implemented.
@@ -785,6 +840,8 @@ pub(in crate::card::sets) static HIDEOUS_VISAGE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// M12 101 — Mind Rot (reprint)
+
 // M12 102 — Monomania
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static MONOMANIA: CardRecord = CardRecord::new(
@@ -815,6 +872,8 @@ pub(in crate::card::sets) static REASSEMBLING_SKELETON: CardRecord = CardRecord:
     crate::card::CardRules::unsupported(),
 );
 
+// M12 105 — Royal Assassin (reprint)
+
 // M12 106 — Rune-Scarred Demon
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static RUNE_SCARRED_DEMON: CardRecord = CardRecord::new(
@@ -824,6 +883,8 @@ pub(in crate::card::sets) static RUNE_SCARRED_DEMON: CardRecord = CardRecord::ne
     crate::card::CardSet::Magic2012,
     crate::card::CardRules::unsupported(),
 );
+
+// M12 107 — Sengir Vampire (reprint)
 
 // M12 108 — Smallpox
 // Audit: metadata-only — Card rules have not been implemented.
@@ -868,6 +929,8 @@ pub(in crate::card::sets) static SORIN_S_VENGEANCE: CardRecord = CardRecord::new
     crate::card::CardRules::unsupported(),
 );
 
+// M12 112 — Sutured Ghoul (reprint)
+
 // M12 113 — Taste of Blood
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static TASTE_OF_BLOOD: CardRecord = CardRecord::new(
@@ -877,6 +940,8 @@ pub(in crate::card::sets) static TASTE_OF_BLOOD: CardRecord = CardRecord::new(
     crate::card::CardSet::Magic2012,
     crate::card::CardRules::unsupported(),
 );
+
+// M12 114 — Tormented Soul (reprint)
 
 // M12 115 — Vampire Outcasts
 // Audit: metadata-only — Card rules have not been implemented.
@@ -908,6 +973,10 @@ pub(in crate::card::sets) static WARPATH_GHOUL: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// M12 118 — Wring Flesh (reprint)
+
+// M12 119 — Zombie Goliath (reprint)
+
 // M12 120 — Zombie Infestation
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ZOMBIE_INFESTATION: CardRecord = CardRecord::new(
@@ -917,6 +986,8 @@ pub(in crate::card::sets) static ZOMBIE_INFESTATION: CardRecord = CardRecord::ne
     crate::card::CardSet::Magic2012,
     crate::card::CardRules::unsupported(),
 );
+
+// M12 121 — Act of Treason (reprint)
 
 // M12 122 — Blood Ogre
 // Audit: metadata-only — Card rules have not been implemented.
@@ -940,6 +1011,12 @@ pub(in crate::card::sets) static BONEBREAKER_GIANT: CardRecord = CardRecord::new
     crate::card::CardSet::Magic2012,
     crate::card::CardRules::unsupported(),
 );
+
+// M12 124 — Chandra, the Firebrand (reprint)
+
+// M12 125 — Chandra's Outrage (reprint)
+
+// M12 126 — Chandra's Phoenix (reprint)
 
 // M12 127 — Circle of Flame
 // Audit: metadata-only — Card rules have not been implemented.
@@ -981,6 +1058,10 @@ pub(in crate::card::sets) static FIERY_HELLHOUND: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// M12 131 — Fireball (reprint)
+
+// M12 132 — Firebreathing (reprint)
+
 // M12 133 — Flameblast Dragon
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static FLAMEBLAST_DRAGON: CardRecord = CardRecord::new(
@@ -991,6 +1072,8 @@ pub(in crate::card::sets) static FLAMEBLAST_DRAGON: CardRecord = CardRecord::new
     crate::card::CardRules::unsupported(),
 );
 
+// M12 134 — Fling (reprint)
+
 // M12 135 — Furyborn Hellkite
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static FURYBORN_HELLKITE: CardRecord = CardRecord::new(
@@ -1000,6 +1083,8 @@ pub(in crate::card::sets) static FURYBORN_HELLKITE: CardRecord = CardRecord::new
     crate::card::CardSet::Magic2012,
     crate::card::CardRules::unsupported(),
 );
+
+// M12 136 — Goblin Arsonist (reprint)
 
 // M12 137 — Goblin Bangchuckers
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1030,6 +1115,8 @@ pub(in crate::card::sets) static GOBLIN_FIRESLINGER: CardRecord = CardRecord::ne
     crate::card::CardSet::Magic2012,
     crate::card::CardRules::unsupported(),
 );
+
+// M12 140 — Goblin Grenade (reprint)
 
 // M12 141 — Goblin Piker
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1071,6 +1158,10 @@ pub(in crate::card::sets) static GOREHORN_MINOTAURS: CardRecord = CardRecord::ne
     crate::card::CardRules::unsupported(),
 );
 
+// M12 145 — Grim Lavamancer (reprint)
+
+// M12 146 — Incinerate (reprint)
+
 // M12 147 — Inferno Titan
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static INFERNO_TITAN: CardRecord = CardRecord::new(
@@ -1081,6 +1172,8 @@ pub(in crate::card::sets) static INFERNO_TITAN: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// M12 148 — Lava Axe (reprint)
+
 // M12 149 — Lightning Elemental
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static LIGHTNING_ELEMENTAL: CardRecord = CardRecord::new(
@@ -1090,6 +1183,8 @@ pub(in crate::card::sets) static LIGHTNING_ELEMENTAL: CardRecord = CardRecord::n
     crate::card::CardSet::Magic2012,
     crate::card::CardRules::unsupported(),
 );
+
+// M12 150 — Manabarbs (reprint)
 
 // M12 151 — Manic Vandal
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1104,6 +1199,8 @@ pub(in crate::card::sets) static MANIC_VANDAL: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// M12 152 — Reverberate (reprint)
+
 // M12 153 — Scrambleverse
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SCRAMBLEVERSE: CardRecord = CardRecord::new(
@@ -1113,6 +1210,8 @@ pub(in crate::card::sets) static SCRAMBLEVERSE: CardRecord = CardRecord::new(
     crate::card::CardSet::Magic2012,
     crate::card::CardRules::unsupported(),
 );
+
+// M12 154 — Shock (reprint)
 
 // M12 155 — Slaughter Cry
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1174,6 +1273,8 @@ pub(in crate::card::sets) static WARSTORM_SURGE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// M12 161 — Acidic Slime (reprint)
+
 // M12 162 — Arachnus Spinner
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ARACHNUS_SPINNER: CardRecord = CardRecord::new(
@@ -1203,6 +1304,12 @@ pub(in crate::card::sets) static AUTUMN_S_VEIL: CardRecord = CardRecord::new(
     crate::card::CardSet::Magic2012,
     crate::card::CardRules::unsupported(),
 );
+
+// M12 165 — Birds of Paradise (reprint)
+
+// M12 166 — Bountiful Harvest (reprint)
+
+// M12 167 — Brindle Boar (reprint)
 
 // M12 168 — Carnage Wurm
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1244,6 +1351,12 @@ pub(in crate::card::sets) static DUNGROVE_ELDER: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// M12 172 — Elvish Archdruid (reprint)
+
+// M12 173 — Fog (reprint)
+
+// M12 174 — Garruk, Primal Hunter (reprint)
+
 // M12 175 — Garruk's Companion
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static GARRUK_S_COMPANION: CardRecord = CardRecord::new(
@@ -1253,6 +1366,12 @@ pub(in crate::card::sets) static GARRUK_S_COMPANION: CardRecord = CardRecord::ne
     crate::card::CardSet::Magic2012,
     crate::card::CardRules::unsupported(),
 );
+
+// M12 176 — Garruk's Horde (reprint)
+
+// M12 177 — Giant Spider (reprint)
+
+// M12 178 — Gladecover Scout (reprint)
 
 // M12 179 — Greater Basilisk
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1284,6 +1403,10 @@ pub(in crate::card::sets) static JADE_MAGE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// M12 182 — Llanowar Elves (reprint)
+
+// M12 183 — Lure (reprint)
+
 // M12 184 — Lurking Crocodile
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static LURKING_CROCODILE: CardRecord = CardRecord::new(
@@ -1294,6 +1417,8 @@ pub(in crate::card::sets) static LURKING_CROCODILE: CardRecord = CardRecord::new
     crate::card::CardRules::unsupported(),
 );
 
+// M12 185 — Naturalize (reprint)
+
 // M12 186 — Overrun
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static OVERRUN: CardRecord = CardRecord::new(
@@ -1303,6 +1428,12 @@ pub(in crate::card::sets) static OVERRUN: CardRecord = CardRecord::new(
     crate::card::CardSet::Magic2012,
     crate::card::CardRules::unsupported(),
 );
+
+// M12 187 — Plummet (reprint)
+
+// M12 188 — Primeval Titan (reprint)
+
+// M12 189 — Primordial Hydra (reprint)
 
 // M12 190 — Rampant Growth
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1384,6 +1515,12 @@ pub(in crate::card::sets) static STINGERFLING_SPIDER: CardRecord = CardRecord::n
     crate::card::CardRules::unsupported(),
 );
 
+// M12 198 — Titanic Growth (reprint)
+
+// M12 199 — Trollhide (reprint)
+
+// M12 200 — Vastwood Gorger (reprint)
+
 // M12 201 — Adaptive Automaton
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ADAPTIVE_AUTOMATON: CardRecord = CardRecord::new(
@@ -1453,6 +1590,8 @@ pub(in crate::card::sets) static DRUIDIC_SATCHEL: CardRecord = CardRecord::new(
     crate::card::CardSet::Magic2012,
     crate::card::CardRules::unsupported(),
 );
+
+// M12 208 — Elixir of Immortality (reprint)
 
 // M12 209 — Greatsword
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1613,6 +1752,56 @@ pub(in crate::card::sets) static BURIED_RUIN: CardRecord = CardRecord::new(
     crate::card::CardSet::Magic2012,
     crate::card::CardRules::unsupported(),
 );
+
+// M12 225 — Dragonskull Summit (reprint)
+
+// M12 226 — Drowned Catacomb (reprint)
+
+// M12 227 — Glacial Fortress (reprint)
+
+// M12 228 — Rootbound Crag (reprint)
+
+// M12 229 — Sunpetal Grove (reprint)
+
+// M12 230 — Plains (reprint)
+
+// M12 231 — Plains (alternate printing)
+
+// M12 232 — Plains (alternate printing)
+
+// M12 233 — Plains (alternate printing)
+
+// M12 234 — Island (reprint)
+
+// M12 235 — Island (alternate printing)
+
+// M12 236 — Island (alternate printing)
+
+// M12 237 — Island (alternate printing)
+
+// M12 238 — Swamp (reprint)
+
+// M12 239 — Swamp (alternate printing)
+
+// M12 240 — Swamp (alternate printing)
+
+// M12 241 — Swamp (alternate printing)
+
+// M12 242 — Mountain (reprint)
+
+// M12 243 — Mountain (alternate printing)
+
+// M12 244 — Mountain (alternate printing)
+
+// M12 245 — Mountain (alternate printing)
+
+// M12 246 — Forest (reprint)
+
+// M12 247 — Forest (alternate printing)
+
+// M12 248 — Forest (alternate printing)
+
+// M12 249 — Forest (alternate printing)
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AEGIS_ANGEL,
@@ -1848,8 +2037,23 @@ pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
     PrintingRecord::reprint(&crate::card::sets::y2012::magic_2013::ROOTBOUND_CRAG),     // M12 228
     PrintingRecord::reprint(&crate::card::sets::y2012::magic_2013::SUNPETAL_GROVE),     // M12 229
     PrintingRecord::reprint(&crate::card::sets::y1993::alpha::PLAINS),                  // M12 230
+    PrintingRecord::alternate(&catalog_lea::PLAINS, 1),                                 // M12 231
+    PrintingRecord::alternate(&catalog_lea::PLAINS, 2),                                 // M12 232
+    PrintingRecord::alternate(&catalog_lea::PLAINS, 3),                                 // M12 233
     PrintingRecord::reprint(&crate::card::sets::y1993::alpha::ISLAND),                  // M12 234
+    PrintingRecord::alternate(&catalog_lea::ISLAND, 1),                                 // M12 235
+    PrintingRecord::alternate(&catalog_lea::ISLAND, 2),                                 // M12 236
+    PrintingRecord::alternate(&catalog_lea::ISLAND, 3),                                 // M12 237
     PrintingRecord::reprint(&crate::card::sets::y1993::alpha::SWAMP),                   // M12 238
+    PrintingRecord::alternate(&catalog_lea::SWAMP, 1),                                  // M12 239
+    PrintingRecord::alternate(&catalog_lea::SWAMP, 2),                                  // M12 240
+    PrintingRecord::alternate(&catalog_lea::SWAMP, 3),                                  // M12 241
     PrintingRecord::reprint(&crate::card::sets::y1993::alpha::MOUNTAIN),                // M12 242
+    PrintingRecord::alternate(&catalog_lea::MOUNTAIN, 1),                               // M12 243
+    PrintingRecord::alternate(&catalog_lea::MOUNTAIN, 2),                               // M12 244
+    PrintingRecord::alternate(&catalog_lea::MOUNTAIN, 3),                               // M12 245
     PrintingRecord::reprint(&crate::card::sets::y1993::alpha::FOREST),                  // M12 246
+    PrintingRecord::alternate(&catalog_lea::FOREST, 1),                                 // M12 247
+    PrintingRecord::alternate(&catalog_lea::FOREST, 2),                                 // M12 248
+    PrintingRecord::alternate(&catalog_lea::FOREST, 3),                                 // M12 249
 ];

@@ -22,6 +22,17 @@ pub(in crate::card::sets) static PUTRID_LEECH: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&SOUL_MANIPULATION, &PUTRID_LEECH];
+// ARB 133 — Thopter Foundry
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static THOPTER_FOUNDRY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("42b8d797-b01d-49cf-9818-d84bba17029d"),
+    "Thopter Foundry",
+    crate::card::CardArt::new("42b8d797-b01d-49cf-9818-d84bba17029d", "Ralph Horsley"),
+    crate::card::CardSet::AlaraReborn,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&SOUL_MANIPULATION, &PUTRID_LEECH, &THOPTER_FOUNDRY];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

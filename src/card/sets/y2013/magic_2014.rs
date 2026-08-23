@@ -1,6 +1,15 @@
-//! Magic 2014 card records used by the built-in ISD–DGM Standard decks.
+//! Magic 2014 card records used by the built-in ISD–M14 Standard decks.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord, gatecrash};
+use crate::card::sets::y1993::alpha as catalog_lea;
+use crate::card::sets::y1998::urzas_saga as catalog_usg;
+use crate::card::sets::y2002::torment as catalog_tor;
+use crate::card::sets::y2007::lorwyn as catalog_lrw;
+use crate::card::sets::y2010::magic_2011 as catalog_m11;
+use crate::card::sets::y2010::rise_of_the_eldrazi as catalog_roe;
+use crate::card::sets::y2011::innistrad as catalog_isd;
+use crate::card::sets::y2012::magic_2013 as catalog_m13;
+use crate::card::sets::y2013::gatecrash as catalog_gtc;
 use crate::card::sets::{
     y1993::alpha,
     y1994::antiquities,
@@ -25,11 +34,29 @@ use crate::card::{
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
 
+// M14 1 — Ajani, Caller of the Pride (reprint)
+
 // M14 2 — Ajani's Chosen
-// Audit: blocked — CreateToken cannot continue by conditionally attaching the triggering Aura to the newly created token.
+// Audit: metadata-only — CreateToken cannot continue by conditionally attaching the triggering Aura to the newly created token.
+pub(in crate::card::sets) static AJANI_S_CHOSEN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("583bfbc1-638b-4de5-b865-0b00a69dd073"),
+    "Ajani's Chosen",
+    crate::card::CardArt::new("583bfbc1-638b-4de5-b865-0b00a69dd073", "Wayne Reynolds"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 // M14 3 — Angelic Accord
-// Audit: blocked — Trigger conditions cannot track life gained during the turn or compare that total with four.
+// Audit: metadata-only — Trigger conditions cannot track life gained during the turn or compare that total with four.
+pub(in crate::card::sets) static ANGELIC_ACCORD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("03f26bc2-53d7-4448-8021-de35aa82fcc6"),
+    "Angelic Accord",
+    crate::card::CardArt::new("03f26bc2-53d7-4448-8021-de35aa82fcc6", "Michael C. Hayes"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
+
+// M14 4 — Angelic Wall (reprint)
 
 // M14 5 — Archangel of Thune
 pub(in crate::card::sets) static ARCHANGEL_OF_THUNE: CardRecord = CardRecord::new_with_legacy_id(
@@ -94,7 +121,16 @@ pub(in crate::card::sets) static AURAMANCER: CardRecord = CardRecord::new_with_l
 );
 
 // M14 7 — Banisher Priest
-// Audit: blocked — Linked exile cannot express Banisher Priest's one-shot duration, which must do nothing if the source left before the enter trigger resolved.
+// Audit: metadata-only — Linked exile cannot express Banisher Priest's one-shot duration, which must do nothing if the source left before the enter trigger resolved.
+pub(in crate::card::sets) static BANISHER_PRIEST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("06823bf8-2fca-49e1-ba40-9b61c9ae55b3"),
+    "Banisher Priest",
+    crate::card::CardArt::new("06823bf8-2fca-49e1-ba40-9b61c9ae55b3", "Willian Murai"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
+
+// M14 8 — Blessing (reprint)
 
 // M14 9 — Bonescythe Sliver
 pub(in crate::card::sets) static BONESCYTHE_SLIVER: CardRecord = CardRecord::new_with_legacy_id(
@@ -258,10 +294,26 @@ pub(in crate::card::sets) static DAWNSTRIKE_PALADIN: CardRecord = CardRecord::ne
 );
 
 // M14 16 — Devout Invocation
-// Audit: blocked — Spell costs cannot tap a freely chosen number of creatures and carry that paid count into token creation.
+// Audit: metadata-only — Spell costs cannot tap a freely chosen number of creatures and carry that paid count into token creation.
+pub(in crate::card::sets) static DEVOUT_INVOCATION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8a286954-fb40-4440-9f0e-a28367c6823c"),
+    "Devout Invocation",
+    crate::card::CardArt::new("8a286954-fb40-4440-9f0e-a28367c6823c", "David Palumbo"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
+
+// M14 17 — Divine Favor (reprint)
 
 // M14 18 — Fiendslayer Paladin
-// Audit: blocked — Targeting restrictions cannot filter opposing spell sources by black or red color while leaving abilities unaffected.
+// Audit: metadata-only — Targeting restrictions cannot filter opposing spell sources by black or red color while leaving abilities unaffected.
+pub(in crate::card::sets) static FIENDSLAYER_PALADIN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5cfb0f4a-e273-4ffb-91cd-dd1a7b6f6a8f"),
+    "Fiendslayer Paladin",
+    crate::card::CardArt::new("5cfb0f4a-e273-4ffb-91cd-dd1a7b6f6a8f", "Wesley Burt"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 // M14 19 — Fortify
 pub(in crate::card::sets) static FORTIFY: CardRecord = CardRecord::new_with_legacy_id(
@@ -367,13 +419,32 @@ pub(in crate::card::sets) static INDESTRUCTIBILITY: CardRecord = CardRecord::new
 );
 
 // M14 24 — Master of Diversion
-// Audit: blocked — Attack triggers cannot restrict a target to the creature controlled by that attack's defending player.
+// Audit: metadata-only — Attack triggers cannot restrict a target to the creature controlled by that attack's defending player.
+pub(in crate::card::sets) static MASTER_OF_DIVERSION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2bec89b3-640e-4093-a6e9-5639610769b9"),
+    "Master of Diversion",
+    crate::card::CardArt::new("2bec89b3-640e-4093-a6e9-5639610769b9", "Michael Komarck"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
+
+// M14 25 — Pacifism (reprint)
 
 // M14 26 — Path of Bravery
-// Audit: blocked — Continuous effects cannot compare current and starting life, and attack events cannot aggregate one combat's attackers into one trigger amount.
+// Audit: metadata-only — Continuous effects cannot compare current and starting life, and attack events cannot aggregate one combat's attackers into one trigger amount.
+pub(in crate::card::sets) static PATH_OF_BRAVERY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5222e200-df1b-46c6-a194-c341e8c1d516"),
+    "Path of Bravery",
+    crate::card::CardArt::new("5222e200-df1b-46c6-a194-c341e8c1d516", "Chris Rahn"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
-// M14 27 — Pay No Heed
-// Audit: blocked — Effects cannot choose a nontarget source and install a turn-long prevention shield against all damage from it.
+// M14 27 — Pay No Heed (reprint)
+
+// M14 28 — Pillarfield Ox (reprint)
+
+// M14 29 — Planar Cleansing (reprint)
 
 // M14 30 — Sentinel Sliver
 pub(in crate::card::sets) static SENTINEL_SLIVER: CardRecord = CardRecord::new_with_legacy_id(
@@ -419,6 +490,10 @@ pub(in crate::card::sets) static SERAPH_OF_THE_SWORD: CardRecord = CardRecord::n
     ]),
 );
 
+// M14 32 — Serra Angel (reprint)
+
+// M14 33 — Show of Valor (reprint)
+
 // M14 34 — Siege Mastodon
 pub(in crate::card::sets) static SIEGE_MASTODON: CardRecord = CardRecord::new_with_legacy_id(
     1155,
@@ -428,8 +503,7 @@ pub(in crate::card::sets) static SIEGE_MASTODON: CardRecord = CardRecord::new_wi
     CardRules::new_creature(mana_cost!("{4}{W}"), &["Elephant"], 3, 5),
 );
 
-// M14 35 — Silence
-// Audit: blocked — The turn-scoped cast prohibition only covers noncreature spells, not every spell an opponent could cast.
+// M14 35 — Silence (reprint)
 
 // M14 36 — Solemn Offering
 pub(in crate::card::sets) static SOLEMN_OFFERING: CardRecord = CardRecord::new_with_legacy_id(
@@ -536,6 +610,8 @@ pub(in crate::card::sets) static SUNTAIL_HAWK: CardRecord = CardRecord::new_with
         .with_abilities(&[abilities::flying()]),
 );
 
+// M14 41 — Wall of Swords (reprint)
+
 // M14 42 — Air Servant
 pub(in crate::card::sets) static AIR_SERVANT: CardRecord = CardRecord::new_with_legacy_id(
     1161,
@@ -560,6 +636,8 @@ pub(in crate::card::sets) static AIR_SERVANT: CardRecord = CardRecord::new_with_
     ]),
 );
 
+// M14 43 — Archaeomancer (reprint)
+
 // M14 44 — Armored Cancrix
 pub(in crate::card::sets) static ARMORED_CANCRIX: CardRecord = CardRecord::new_with_legacy_id(
     1162,
@@ -569,8 +647,21 @@ pub(in crate::card::sets) static ARMORED_CANCRIX: CardRecord = CardRecord::new_w
     CardRules::new_creature(mana_cost!("{4}{U}"), &["Crab"], 2, 5),
 );
 
+// M14 45 — Cancel (reprint)
+
+// M14 46 — Claustrophobia (reprint)
+
+// M14 47 — Clone (reprint)
+
 // M14 48 — Colossal Whale
-// Audit: blocked — Islandwalk and defending-player targeting are unsupported, and linked exile cannot express the required one-shot duration if the source leaves early.
+// Audit: metadata-only — Islandwalk and defending-player targeting are unsupported, and linked exile cannot express the required one-shot duration if the source leaves early.
+pub(in crate::card::sets) static COLOSSAL_WHALE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("20968c42-d63b-4b2a-ae47-f986f3c35fdc"),
+    "Colossal Whale",
+    crate::card::CardArt::new("f7f7caca-14ee-4d6a-97c3-e19898f86635", "Adam Paquette"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 // M14 49 — Coral Merfolk
 pub(in crate::card::sets) static CORAL_MERFOLK: CardRecord = CardRecord::new_with_legacy_id(
@@ -582,7 +673,14 @@ pub(in crate::card::sets) static CORAL_MERFOLK: CardRecord = CardRecord::new_wit
 );
 
 // M14 50 — Dismiss into Dream
-// Audit: blocked — Static effects cannot add a creature subtype, and no trigger event observes a permanent becoming a target.
+// Audit: metadata-only — Static effects cannot add a creature subtype, and no trigger event observes a permanent becoming a target.
+pub(in crate::card::sets) static DISMISS_INTO_DREAM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("af4cd7fe-639c-45a5-97af-9529904e3975"),
+    "Dismiss into Dream",
+    crate::card::CardArt::new("af4cd7fe-639c-45a5-97af-9529904e3975", "Sam Wolfe Connelly"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 // M14 51 — Disperse
 pub(in crate::card::sets) static DISPERSE: CardRecord = CardRecord::new_with_legacy_id(
@@ -607,11 +705,19 @@ pub(in crate::card::sets) static DISPERSE: CardRecord = CardRecord::new_with_leg
     )),
 );
 
-// M14 53 — Domestication
-// Audit: blocked — There is no source-bound continuous control effect, and the power condition would need effective power plus intervening-if rechecks.
+// M14 52 — Divination (reprint)
+
+// M14 53 — Domestication (reprint)
 
 // M14 54 — Elite Arcanist
-// Audit: blocked — Imprint cannot retain a chosen hand card for a later X cost, spell copy, and free-cast permission.
+// Audit: metadata-only — Imprint cannot retain a chosen hand card for a later X cost, spell copy, and free-cast permission.
+pub(in crate::card::sets) static ELITE_ARCANIST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("99b225fe-c07d-4d8a-bf2b-c1777bd29061"),
+    "Elite Arcanist",
+    crate::card::CardArt::new("99b225fe-c07d-4d8a-bf2b-c1777bd29061", "James Zapata"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 /// "Up to two", so nothing at all is a legal declaration, and the skip is
 /// counted on each creature separately -- the two may belong to different
@@ -635,6 +741,8 @@ static FROST_BREATH_EFFECT: [EffectDef; 2] = [
         count: 1,
     },
 ];
+
+// M14 55 — Essence Scatter (reprint)
 
 // M14 56 — Frost Breath
 pub(in crate::card::sets) static FROST_BREATH: CardRecord = CardRecord::new_with_legacy_id(
@@ -708,13 +816,28 @@ pub(in crate::card::sets) static GLIMPSE_THE_FUTURE: CardRecord = CardRecord::ne
 );
 
 // M14 59 — Illusionary Armor
-// Audit: blocked — No trigger event observes the enchanted creature becoming a target.
+// Audit: metadata-only — No trigger event observes the enchanted creature becoming a target.
+pub(in crate::card::sets) static ILLUSIONARY_ARMOR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d09346ff-6e63-499b-9265-c15a7b2cdece"),
+    "Illusionary Armor",
+    crate::card::CardArt::new("d09346ff-6e63-499b-9265-c15a7b2cdece", "Mathias Kollros"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
+
+// M14 60 — Jace, Memory Adept (reprint)
 
 // M14 61 — Jace's Mindseeker
-// Audit: blocked — Mill cannot retain the exact milled batch for a filtered optional free-cast choice.
+// Audit: metadata-only — Mill cannot retain the exact milled batch for a filtered optional free-cast choice.
+pub(in crate::card::sets) static JACE_S_MINDSEEKER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f67852a6-ae75-44e7-9e2d-d458c7b9d869"),
+    "Jace's Mindseeker",
+    crate::card::CardArt::new("f67852a6-ae75-44e7-9e2d-d458c7b9d869", "Greg Staples"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
-// M14 62 — Merfolk Spy
-// Audit: blocked — Islandwalk is unsupported and hand reveal cannot select one uniformly random card.
+// M14 62 — Merfolk Spy (reprint)
 
 // M14 63 — Messenger Drake
 pub(in crate::card::sets) static MESSENGER_DRAKE: CardRecord = CardRecord::new_with_legacy_id(
@@ -738,6 +861,10 @@ pub(in crate::card::sets) static MESSENGER_DRAKE: CardRecord = CardRecord::new_w
         ),
     ]),
 );
+
+// M14 64 — Negate (reprint)
+
+// M14 65 — Nephalia Seakite (reprint)
 
 // M14 66 — Opportunity
 pub(in crate::card::sets) static OPPORTUNITY: CardRecord = CardRecord::new_with_legacy_id(
@@ -796,6 +923,8 @@ pub(in crate::card::sets) static QUICKEN: CardRecord = CardRecord::new_with_lega
     )),
 );
 
+// M14 69 — Scroll Thief (reprint)
+
 // M14 70 — Seacoast Drake
 pub(in crate::card::sets) static SEACOAST_DRAKE: CardRecord = CardRecord::new_with_legacy_id(
     1170,
@@ -806,8 +935,22 @@ pub(in crate::card::sets) static SEACOAST_DRAKE: CardRecord = CardRecord::new_wi
         .with_abilities(&[abilities::flying()]),
 );
 
+// M14 71 — Sensory Deprivation (reprint)
+
+// M14 72 — Spell Blast (reprint)
+
 // M14 73 — Tidebinder Mage
-// Audit: blocked — Effect durations cannot end when the source changes controller while remaining on the battlefield.
+// Audit: metadata-only — Effect durations cannot end when the source changes controller while remaining on the battlefield.
+pub(in crate::card::sets) static TIDEBINDER_MAGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e032d1dd-6efc-4f6c-ad3b-30fe74845edf"),
+    "Tidebinder Mage",
+    crate::card::CardArt::new(
+        "e032d1dd-6efc-4f6c-ad3b-30fe74845edf",
+        "John Severin Brassell",
+    ),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 // M14 74 — Time Ebb
 pub(in crate::card::sets) static TIME_EBB: CardRecord = CardRecord::new_with_legacy_id(
@@ -930,7 +1073,14 @@ pub(in crate::card::sets) static WALL_OF_FROST: CardRecord = CardRecord::new_wit
 );
 
 // M14 79 — Warden of Evos Isle
-// Audit: blocked — Generic-cost reduction cannot be filtered to creature spells with effective flying.
+// Audit: metadata-only — Generic-cost reduction cannot be filtered to creature spells with effective flying.
+pub(in crate::card::sets) static WARDEN_OF_EVOS_ISLE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2316d281-21a4-460d-9062-f0737249484e"),
+    "Warden of Evos Isle",
+    crate::card::CardArt::new("2316d281-21a4-460d-9062-f0737249484e", "Nils Hamm"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 // M14 80 — Water Servant
 pub(in crate::card::sets) static WATER_SERVANT: CardRecord = CardRecord::new_with_legacy_id(
@@ -1023,8 +1173,17 @@ pub(in crate::card::sets) static ACCURSED_SPIRIT: CardRecord = CardRecord::new_w
         .with_abilities(&[abilities::intimidate()]),
 );
 
+// M14 84 — Altar's Reap (reprint)
+
 // M14 85 — Artificer's Hex
-// Audit: blocked — Conditions and recipients cannot follow an Aura to an Equipment and then to the creature that Equipment is attached to.
+// Audit: metadata-only — Conditions and recipients cannot follow an Aura to an Equipment and then to the creature that Equipment is attached to.
+pub(in crate::card::sets) static ARTIFICER_S_HEX: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3a5cd9a1-da2e-44ef-9f2e-352dc9f92c50"),
+    "Artificer's Hex",
+    crate::card::CardArt::new("3a5cd9a1-da2e-44ef-9f2e-352dc9f92c50", "Franz Vohwinkel"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 // M14 86 — Blightcaster
 pub(in crate::card::sets) static BLIGHTCASTER: CardRecord = CardRecord::new_with_legacy_id(
@@ -1083,7 +1242,14 @@ pub(in crate::card::sets) static BLOOD_BAIRN: CardRecord = CardRecord::new_with_
 );
 
 // M14 88 — Bogbrew Witch
-// Audit: blocked — SearchZone cannot match either exact printed name or make the selected permanent enter tapped.
+// Audit: metadata-only — SearchZone cannot match either exact printed name or make the selected permanent enter tapped.
+pub(in crate::card::sets) static BOGBREW_WITCH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7559cf3e-7fad-4bcf-8551-045f9150e014"),
+    "Bogbrew Witch",
+    crate::card::CardArt::new("7559cf3e-7fad-4bcf-8551-045f9150e014", "Eric Deschamps"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 // M14 89 — Child of Night
 pub(in crate::card::sets) static CHILD_OF_NIGHT: CardRecord = CardRecord::new_with_legacy_id(
@@ -1127,8 +1293,9 @@ pub(in crate::card::sets) static CORPSE_HAULER: CardRecord = CardRecord::new_wit
     ),
 );
 
-// M14 91 — Corrupt
-// Audit: blocked — No effect can gain exactly the damage Corrupt actually dealt after prevention without incorrectly capping overkill damage.
+// M14 91 — Corrupt (reprint)
+
+// M14 92 — Dark Favor (reprint)
 
 // M14 93 — Dark Prophecy
 pub(in crate::card::sets) static DARK_PROPHECY: CardRecord = CardRecord::new_with_legacy_id(
@@ -1210,8 +1377,17 @@ pub(in crate::card::sets) static DOOM_BLADE: CardRecord = CardRecord::new_with_l
     )),
 );
 
+// M14 97 — Duress (reprint)
+
 // M14 98 — Festering Newt
-// Audit: blocked — Object predicates cannot test for a different exact card name to choose between two effect amounts.
+// Audit: metadata-only — Object predicates cannot test for a different exact card name to choose between two effect amounts.
+pub(in crate::card::sets) static FESTERING_NEWT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("eaee5261-416c-41e9-9ad7-bf7bd169aa08"),
+    "Festering Newt",
+    crate::card::CardArt::new("eaee5261-416c-41e9-9ad7-bf7bd169aa08", "Eric Deschamps"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 // M14 99 — Gnawing Zombie
 pub(in crate::card::sets) static GNAWING_ZOMBIE: CardRecord = CardRecord::new_with_legacy_id(
@@ -1247,7 +1423,14 @@ pub(in crate::card::sets) static GNAWING_ZOMBIE: CardRecord = CardRecord::new_wi
 );
 
 // M14 100 — Grim Return
-// Audit: blocked — Graveyard target predicates cannot inspect whether a card moved there from the battlefield this turn.
+// Audit: metadata-only — Graveyard target predicates cannot inspect whether a card moved there from the battlefield this turn.
+pub(in crate::card::sets) static GRIM_RETURN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("15b69f74-3b54-4db4-abf3-b71db8cc9562"),
+    "Grim Return",
+    crate::card::CardArt::new("15b69f74-3b54-4db4-abf3-b71db8cc9562", "Seb McKinnon"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 static LIFEBANE_EXILE: EffectDef = EffectDef::MoveToZone {
     counters: None,
@@ -1324,6 +1507,8 @@ static LILIANAS_REAVER_STRIKE: [EffectDef; 2] = [
     TAPPED_ZOMBIE,
 ];
 
+// M14 102 — Liliana of the Dark Realms (reprint)
+
 // M14 103 — Liliana's Reaver
 pub(in crate::card::sets) static LILIANAS_REAVER: CardRecord = CardRecord::new_with_legacy_id(
     1631,
@@ -1362,6 +1547,10 @@ pub(in crate::card::sets) static LITURGY_OF_BLOOD: CardRecord = CardRecord::new_
     )),
 );
 
+// M14 105 — Mark of the Vampire (reprint)
+
+// M14 106 — Mind Rot (reprint)
+
 // M14 107 — Minotaur Abomination
 pub(in crate::card::sets) static MINOTAUR_ABOMINATION: CardRecord = CardRecord::new_with_legacy_id(
     1187,
@@ -1371,8 +1560,7 @@ pub(in crate::card::sets) static MINOTAUR_ABOMINATION: CardRecord = CardRecord::
     CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Zombie", "Minotaur"], 4, 6),
 );
 
-// M14 108 — Nightmare
-// Audit: blocked — Dynamic power/toughness effects are battlefield-only and cannot implement a characteristic-defining ability in every zone.
+// M14 108 — Nightmare (reprint)
 
 // M14 109 — Nightwing Shade
 pub(in crate::card::sets) static NIGHTWING_SHADE: CardRecord = CardRecord::new_with_legacy_id(
@@ -1424,7 +1612,14 @@ pub(in crate::card::sets) static QUAG_SICKNESS: CardRecord = CardRecord::new_wit
 );
 
 // M14 111 — Rise of the Dark Realms
-// Audit: blocked — MoveToZone cannot sweep matching cards from every graveyard into one player's control.
+// Audit: metadata-only — MoveToZone cannot sweep matching cards from every graveyard into one player's control.
+pub(in crate::card::sets) static RISE_OF_THE_DARK_REALMS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("073f81e8-8c0c-4430-bd3e-95ed3625340f"),
+    "Rise of the Dark Realms",
+    crate::card::CardArt::new("073f81e8-8c0c-4430-bd3e-95ed3625340f", "Michael Komarck"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 // M14 112 — Sanguine Bond
 pub(in crate::card::sets) static SANGUINE_BOND: CardRecord = CardRecord::new_with_legacy_id(
@@ -1447,8 +1642,17 @@ pub(in crate::card::sets) static SANGUINE_BOND: CardRecord = CardRecord::new_wit
     ),
 );
 
+// M14 113 — Sengir Vampire (reprint)
+
 // M14 114 — Shadowborn Apostle
-// Audit: blocked — Deck construction has no any-number exception, and activated costs cannot choose and sacrifice six matching permanents as one payment.
+// Audit: metadata-only — Deck construction has no any-number exception, and activated costs cannot choose and sacrifice six matching permanents as one payment.
+pub(in crate::card::sets) static SHADOWBORN_APOSTLE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("202c2323-6589-457a-af51-5528a98e7b30"),
+    "Shadowborn Apostle",
+    crate::card::CardArt::new("202c2323-6589-457a-af51-5528a98e7b30", "Lucas Graciano"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 /// Fewer than six is at most five. The count is of creature cards in your
 /// own graveyard, which the Demon feeds on and which is why it stops eating
@@ -1554,7 +1758,14 @@ pub(in crate::card::sets) static SYPHON_SLIVER: CardRecord = CardRecord::new_wit
 );
 
 // M14 118 — Tenacious Dead
-// Audit: blocked — The effect vocabulary cannot make the returned source enter tapped after a death trigger.
+// Audit: metadata-only — The effect vocabulary cannot make the returned source enter tapped after a death trigger.
+pub(in crate::card::sets) static TENACIOUS_DEAD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5b96fed2-0be9-4181-94ae-10f031e2aeb2"),
+    "Tenacious Dead",
+    crate::card::CardArt::new("5b96fed2-0be9-4181-94ae-10f031e2aeb2", "John Stanko"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 // M14 119 — Undead Minotaur
 pub(in crate::card::sets) static UNDEAD_MINOTAUR: CardRecord = CardRecord::new_with_legacy_id(
@@ -1586,6 +1797,8 @@ static ANOTHER_CREATURE: ObjectPredicateDef = ObjectPredicateDef::All(&[
     ObjectPredicateDef::HasType(CardType::Creature),
     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
 ]);
+
+// M14 121 — Vile Rebirth (reprint)
 
 // M14 122 — Wring Flesh
 pub(in crate::card::sets) static WRING_FLESH: CardRecord = CardRecord::new_with_legacy_id(
@@ -1638,7 +1851,16 @@ pub(in crate::card::sets) static XATHRID_NECROMANCER: CardRecord = CardRecord::n
 );
 
 // M14 124 — Academy Raider
-// Audit: blocked — The optional discard cost needs a continuation that draws only when a card was actually discarded.
+// Audit: metadata-only — The optional discard cost needs a continuation that draws only when a card was actually discarded.
+pub(in crate::card::sets) static ACADEMY_RAIDER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6652ed29-ee90-4abc-a6cf-6b18a6cbae86"),
+    "Academy Raider",
+    crate::card::CardArt::new("6652ed29-ee90-4abc-a6cf-6b18a6cbae86", "Karl Kopinski"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
+
+// M14 125 — Act of Treason (reprint)
 
 // M14 126 — Awaken the Ancient
 // Audit: partial — Static effects cannot animate an attached land while preserving its land characteristics through the shared runtime.
@@ -1771,8 +1993,17 @@ pub(in crate::card::sets) static BURNING_EARTH: CardRecord = CardRecord::new_wit
     ),
 );
 
+// M14 131 — Canyon Minotaur (reprint)
+
 // M14 132 — Chandra, Pyromaster
-// Audit: blocked — Planeswalker support lacks a turn-long cannot-block effect, top-card exile/play permission, and the ultimate's repeatable spell-copy procedure.
+// Audit: metadata-only — Planeswalker support lacks a turn-long cannot-block effect, top-card exile/play permission, and the ultimate's repeatable spell-copy procedure.
+pub(in crate::card::sets) static CHANDRA_PYROMASTER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("53ce8381-4cbb-4bf9-bdac-3b2375a46340"),
+    "Chandra, Pyromaster",
+    crate::card::CardArt::new("bcb4f983-a4b4-46df-830d-ab3d892c93bb", "Winona Nelson"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 // M14 133 — Chandra's Outrage
 pub(in crate::card::sets) static CHANDRAS_OUTRAGE: CardRecord = CardRecord::new_with_legacy_id(
@@ -1814,7 +2045,16 @@ pub(in crate::card::sets) static CHANDRA_S_PHOENIX: CardRecord = CardRecord::new
 );
 
 // M14 135 — Cyclops Tyrant
-// Audit: blocked — Combat restrictions cannot compare a prospective attacker's effective power when deciding whether this creature may block it.
+// Audit: metadata-only — Combat restrictions cannot compare a prospective attacker's effective power when deciding whether this creature may block it.
+pub(in crate::card::sets) static CYCLOPS_TYRANT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f0b8e733-22a7-4696-83b3-297cbe75dadc"),
+    "Cyclops Tyrant",
+    crate::card::CardArt::new("f0b8e733-22a7-4696-83b3-297cbe75dadc", "Zack Stella"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
+
+// M14 136 — Demolish (reprint)
 
 // M14 137 — Dragon Egg
 pub(in crate::card::sets) static DRAGON_EGG: CardRecord = CardRecord::new_with_legacy_id(
@@ -1836,6 +2076,10 @@ pub(in crate::card::sets) static DRAGON_EGG: CardRecord = CardRecord::new_with_l
         ),
     ]),
 );
+
+// M14 138 — Dragon Hatchling (reprint)
+
+// M14 139 — Flames of the Firebrand (reprint)
 
 // M14 140 — Fleshpulper Giant
 // Audit: partial — The toughness target predicate does not yet account for continuous static power/toughness effects.
@@ -1973,7 +2217,14 @@ pub(in crate::card::sets) static LIGHTNING_TALONS: CardRecord = CardRecord::new_
 );
 
 // M14 145 — Marauding Maulhorn
-// Audit: blocked — Attack requirements cannot be conditional on controlling a permanent with a different exact name.
+// Audit: metadata-only — Attack requirements cannot be conditional on controlling a permanent with a different exact name.
+pub(in crate::card::sets) static MARAUDING_MAULHORN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b7d5e3dc-f307-4f91-a5ee-e7c5d03d8102"),
+    "Marauding Maulhorn",
+    crate::card::CardArt::new("b7d5e3dc-f307-4f91-a5ee-e7c5d03d8102", "Jesper Ejsing"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 // M14 146 — Mindsparker
 pub(in crate::card::sets) static MINDSPARKER: CardRecord = CardRecord::new_with_legacy_id(
@@ -2005,7 +2256,14 @@ pub(in crate::card::sets) static MINDSPARKER: CardRecord = CardRecord::new_with_
 );
 
 // M14 147 — Molten Birth
-// Audit: blocked — There is no coin-flip decision or result-conditioned self-return effect.
+// Audit: metadata-only — There is no coin-flip decision or result-conditioned self-return effect.
+pub(in crate::card::sets) static MOLTEN_BIRTH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0cd182be-1604-47e1-858f-3c304fd0ee63"),
+    "Molten Birth",
+    crate::card::CardArt::new("0cd182be-1604-47e1-858f-3c304fd0ee63", "Jaime Jones"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 // M14 148 — Ogre Battledriver
 pub(in crate::card::sets) static OGRE_BATTLEDRIVER: CardRecord = CardRecord::new_with_legacy_id(
@@ -2032,6 +2290,8 @@ pub(in crate::card::sets) static OGRE_BATTLEDRIVER: CardRecord = CardRecord::new
         ),
     ),
 );
+
+// M14 149 — Pitchburn Devils (reprint)
 
 // M14 150 — Regathan Firecat
 pub(in crate::card::sets) static REGATHAN_FIRECAT: CardRecord = CardRecord::new_with_legacy_id(
@@ -2079,10 +2339,18 @@ pub(in crate::card::sets) static SCOURGE_OF_VALKAS: CardRecord = CardRecord::new
 );
 
 // M14 152 — Seismic Stomp
-// Audit: blocked — No group effect prohibits blocking for the turn, and the flying predicate must use effective continuous abilities.
+// Audit: metadata-only — No group effect prohibits blocking for the turn, and the flying predicate must use effective continuous abilities.
+pub(in crate::card::sets) static SEISMIC_STOMP: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f55a02a3-8b65-44a7-82ef-2d3dc05d00ab"),
+    "Seismic Stomp",
+    crate::card::CardArt::new("f55a02a3-8b65-44a7-82ef-2d3dc05d00ab", "Chase Stone"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
-// M14 153 — Shiv's Embrace
-// Audit: blocked — A granted activated ability cannot retain the enchanted creature as its recipient if the Aura leaves before resolution.
+// M14 153 — Shiv's Embrace (reprint)
+
+// M14 154 — Shivan Dragon (reprint)
 
 // M14 155 — Shock
 pub(in crate::card::sets) static SHOCK: CardRecord = CardRecord::new_with_legacy_id(
@@ -2101,6 +2369,8 @@ pub(in crate::card::sets) static SHOCK: CardRecord = CardRecord::new_with_legacy
         },
     )),
 );
+
+// M14 156 — Smelt (reprint)
 
 // M14 157 — Striking Sliver
 pub(in crate::card::sets) static STRIKING_SLIVER: CardRecord = CardRecord::new_with_legacy_id(
@@ -2183,8 +2453,11 @@ pub(in crate::card::sets) static THUNDER_STRIKE: CardRecord = CardRecord::new_wi
     )),
 );
 
-// M14 162 — Wild Ricochet
-// Audit: blocked — Stack effects cannot retarget a spell, copy it, and independently retarget the copy.
+// M14 160 — Volcanic Geyser (reprint)
+
+// M14 161 — Wild Guess (reprint)
+
+// M14 162 — Wild Ricochet (reprint)
 
 // M14 163 — Young Pyromancer
 pub(in crate::card::sets) static YOUNG_PYROMANCER: CardRecord = CardRecord::new_with_legacy_id(
@@ -2234,6 +2507,10 @@ pub(in crate::card::sets) static ADVOCATE_OF_THE_BEAST: CardRecord = CardRecord:
     ),
 );
 
+// M14 165 — Bramblecrush (reprint)
+
+// M14 166 — Briarpack Alpha (reprint)
+
 // M14 167 — Brindle Boar
 pub(in crate::card::sets) static BRINDLE_BOAR: CardRecord = CardRecord::new_with_legacy_id(
     1215,
@@ -2251,6 +2528,8 @@ pub(in crate::card::sets) static BRINDLE_BOAR: CardRecord = CardRecord::new_with
         ),
     ),
 );
+
+// M14 168 — Deadly Recluse (reprint)
 
 // M14 169 — Elvish Mystic
 pub(in crate::card::sets) static ELVISH_MYSTIC: CardRecord = CardRecord::new_with_legacy_id(
@@ -2292,8 +2571,17 @@ pub(in crate::card::sets) static ENLARGE: CardRecord = CardRecord::new_with_lega
     )),
 );
 
+// M14 171 — Fog (reprint)
+
 // M14 172 — Garruk, Caller of Beasts
-// Audit: blocked — The planeswalker modes need filtered multi-card top selection, a hand-to-battlefield choice, and an emblem carrying an optional creature tutor trigger.
+// Audit: metadata-only — The planeswalker modes need filtered multi-card top selection, a hand-to-battlefield choice, and an emblem carrying an optional creature tutor trigger.
+pub(in crate::card::sets) static GARRUK_CALLER_OF_BEASTS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d61f670e-8e4c-493f-bef0-c4c7b0bcd288"),
+    "Garruk, Caller of Beasts",
+    crate::card::CardArt::new("a96d0c67-e9f4-46d9-bd74-13a8606fdfe3", "Karl Kopinski"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 // M14 173 — Garruk's Horde
 // Audit: metadata-only — Card rules have not been implemented.
@@ -2304,6 +2592,10 @@ pub(in crate::card::sets) static GARRUK_S_HORDE: CardRecord = CardRecord::new(
     crate::card::CardSet::Magic2014,
     crate::card::CardRules::unsupported(),
 );
+
+// M14 174 — Giant Growth (reprint)
+
+// M14 175 — Giant Spider (reprint)
 
 // M14 176 — Gladecover Scout
 pub(in crate::card::sets) static GLADECOVER_SCOUT: CardRecord = CardRecord::new_with_legacy_id(
@@ -2364,7 +2656,14 @@ pub(in crate::card::sets) static HOWL_OF_THE_NIGHT_PACK: CardRecord =
     );
 
 // M14 179 — Hunt the Weak
-// Audit: blocked — DealDamage can only attribute damage to the resolving spell, not to each fighting creature.
+// Audit: metadata-only — DealDamage can only attribute damage to the resolving spell, not to each fighting creature.
+pub(in crate::card::sets) static HUNT_THE_WEAK: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8f7a6df7-acfc-4047-b119-505f4277225c"),
+    "Hunt the Weak",
+    crate::card::CardArt::new("8f7a6df7-acfc-4047-b119-505f4277225c", "Raoul Vitale"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 /// Only a land may be taken, and taking it is optional -- a minimum of zero
 /// is the "you may". Whatever is not taken goes back on top rather than
@@ -2412,7 +2711,14 @@ pub(in crate::card::sets) static INTO_THE_WILDS: CardRecord = CardRecord::new_wi
 );
 
 // M14 181 — Kalonian Hydra
-// Audit: blocked — Counter effects cannot double each creature's existing +1/+1 counter count.
+// Audit: metadata-only — Counter effects cannot double each creature's existing +1/+1 counter count.
+pub(in crate::card::sets) static KALONIAN_HYDRA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("438bd3c1-98f2-4fcc-8521-995c6c5c1a79"),
+    "Kalonian Hydra",
+    crate::card::CardArt::new("438bd3c1-98f2-4fcc-8521-995c6c5c1a79", "Chris Rahn"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 // M14 182 — Kalonian Tusker
 pub(in crate::card::sets) static KALONIAN_TUSKER: CardRecord = CardRecord::new_with_legacy_id(
@@ -2508,6 +2814,8 @@ pub(in crate::card::sets) static MEGANTIC_SLIVER: CardRecord = CardRecord::new_w
     ),
 );
 
+// M14 186 — Naturalize (reprint)
+
 // M14 187 — Oath of the Ancient Wood
 pub(in crate::card::sets) static OATH_OF_THE_ANCIENT_WOOD: CardRecord = CardRecord::new_with_legacy_id(
     1223,
@@ -2535,6 +2843,8 @@ pub(in crate::card::sets) static OATH_OF_THE_ANCIENT_WOOD: CardRecord = CardReco
         ),
     ),
 );
+
+// M14 188 — Plummet (reprint)
 
 // M14 189 — Predatory Sliver
 pub(in crate::card::sets) static PREDATORY_SLIVER: CardRecord = CardRecord::new_with_legacy_id(
@@ -2605,6 +2915,8 @@ pub(in crate::card::sets) static PRIMEVAL_BOUNTY: CardRecord = CardRecord::new_w
     ]),
 );
 
+// M14 191 — Ranger's Guile (reprint)
+
 // M14 192 — Rootwalla
 pub(in crate::card::sets) static ROOTWALLA: CardRecord = CardRecord::new_with_legacy_id(
     1902,
@@ -2640,7 +2952,14 @@ pub(in crate::card::sets) static RUMBLING_BALOTH: CardRecord = CardRecord::new_w
 );
 
 // M14 194 — Savage Summoning
-// Audit: blocked — No continuation can tag the next creature spell with flash, uncounterability, and an entry counter while also making this spell uncounterable.
+// Audit: metadata-only — No continuation can tag the next creature spell with flash, uncounterability, and an entry counter while also making this spell uncounterable.
+pub(in crate::card::sets) static SAVAGE_SUMMONING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b5346ed7-2e17-4d8c-9c4b-b5efdd26380d"),
+    "Savage Summoning",
+    crate::card::CardArt::new("b5346ed7-2e17-4d8c-9c4b-b5efdd26380d", "Johann Bodin"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 /// One when the exiled card was a creature, nothing otherwise.
 static EXILED_A_CREATURE: TargetConditionDef = TargetConditionDef {
@@ -2745,10 +3064,26 @@ static TROLLHIDE_REGENERATION: AbilityDef = abilities::regenerate_self(
 );
 
 // M14 198 — Vastwood Hydra
-// Audit: blocked — Entry replacements cannot add chosen-X counters, and counter distribution cannot read the dead source's last-known counter count.
+// Audit: metadata-only — Entry replacements cannot add chosen-X counters, and counter distribution cannot read the dead source's last-known counter count.
+pub(in crate::card::sets) static VASTWOOD_HYDRA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9e635174-7f7d-4c04-a6aa-8674da6863ff"),
+    "Vastwood Hydra",
+    crate::card::CardArt::new("9e635174-7f7d-4c04-a6aa-8674da6863ff", "Slawomir Maniak"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
+
+// M14 199 — Verdant Haven (reprint)
 
 // M14 200 — Voracious Wurm
-// Audit: blocked — Entry replacements cannot derive a counter amount from life gained during the turn.
+// Audit: metadata-only — Entry replacements cannot derive a counter amount from life gained during the turn.
+pub(in crate::card::sets) static VORACIOUS_WURM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("da15100b-2934-438c-9917-84ad8bdc4181"),
+    "Voracious Wurm",
+    crate::card::CardArt::new("da15100b-2934-438c-9917-84ad8bdc4181", "Igor Kieryluk"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 // M14 201 — Windstorm
 pub(in crate::card::sets) static WINDSTORM: CardRecord = CardRecord::new_with_legacy_id(
@@ -2773,7 +3108,17 @@ pub(in crate::card::sets) static WINDSTORM: CardRecord = CardRecord::new_with_le
 );
 
 // M14 202 — Witchstalker
-// Audit: blocked — A non-intervening spell-cast trigger cannot capture “during your turn” without incorrectly rechecking that restriction on resolution.
+// Audit: metadata-only — A non-intervening spell-cast trigger cannot capture “during your turn” without incorrectly rechecking that restriction on resolution.
+pub(in crate::card::sets) static WITCHSTALKER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5a5ce47d-ea4f-4e15-adb6-5bb66981ed24"),
+    "Witchstalker",
+    crate::card::CardArt::new(
+        "5a5ce47d-ea4f-4e15-adb6-5bb66981ed24",
+        "Christopher Moeller",
+    ),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 static WOODBORN_BEHEMOTH_TRAMPLE: AbilityDef = abilities::trample();
 
@@ -2849,7 +3194,14 @@ pub(in crate::card::sets) static ACCORDERS_SHIELD: CardRecord = CardRecord::new_
 );
 
 // M14 205 — Bubbling Cauldron
-// Audit: blocked — Costs cannot select an exact named sacrifice, and effects cannot total life actually lost by all opponents for the linked gain.
+// Audit: metadata-only — Costs cannot select an exact named sacrifice, and effects cannot total life actually lost by all opponents for the linked gain.
+pub(in crate::card::sets) static BUBBLING_CAULDRON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9af87c24-a534-462b-968b-dccf6ac63299"),
+    "Bubbling Cauldron",
+    crate::card::CardArt::new("9af87c24-a534-462b-968b-dccf6ac63299", "Eric Deschamps"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 // M14 206 — Darksteel Forge
 pub(in crate::card::sets) static DARKSTEEL_FORGE: CardRecord = CardRecord::new_with_legacy_id(
@@ -2870,10 +3222,21 @@ pub(in crate::card::sets) static DARKSTEEL_FORGE: CardRecord = CardRecord::new_w
     )),
 );
 
+// M14 207 — Darksteel Ingot (reprint)
+
 // M14 208 — Door of Destinies
-// Audit: blocked — Predicates cannot consume a stored creature-type choice for both spell triggers and a counter-scaled continuous bonus.
+// Audit: metadata-only — Predicates cannot consume a stored creature-type choice for both spell triggers and a counter-scaled continuous bonus.
+pub(in crate::card::sets) static DOOR_OF_DESTINIES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d4ab817e-11d4-4444-b9e1-322624501619"),
+    "Door of Destinies",
+    crate::card::CardArt::new("68a6bf1a-7152-496f-a4c7-e720ef4294d8", "Larry MacDougall"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 static FIRESHRIEKER_DOUBLE_STRIKE: AbilityDef = abilities::double_strike();
+
+// M14 209 — Elixir of Immortality (reprint)
 
 // M14 210 — Fireshrieker
 pub(in crate::card::sets) static FIRESHRIEKER: CardRecord = CardRecord::new_with_legacy_id(
@@ -2903,7 +3266,14 @@ pub(in crate::card::sets) static FIRESHRIEKER: CardRecord = CardRecord::new_with
 );
 
 // M14 211 — Guardian of the Ages
-// Audit: blocked — Attack events cannot match attacks at you or your planeswalker, and abilities cannot permanently remove defender from the source after that trigger.
+// Audit: metadata-only — Attack events cannot match attacks at you or your planeswalker, and abilities cannot permanently remove defender from the source after that trigger.
+pub(in crate::card::sets) static GUARDIAN_OF_THE_AGES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c825c138-97de-44b9-8aec-70608ae035b6"),
+    "Guardian of the Ages",
+    crate::card::CardArt::new("c825c138-97de-44b9-8aec-70608ae035b6", "Ryan Pancoast"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 static HAUNTED_PLATE_MAIL_NO_CREATURES: TriggerConditionDef = TriggerConditionDef::ObjectCount {
     query: ObjectQueryDef::matching(
@@ -2960,8 +3330,17 @@ pub(in crate::card::sets) static HAUNTED_PLATE_MAIL: CardRecord = CardRecord::ne
         ]),
 );
 
+// M14 213 — Millstone (reprint)
+
 // M14 214 — Pyromancer's Gauntlet
-// Audit: blocked — Damage replacement cannot filter red instant, sorcery, or planeswalker sources and add a fixed amount to the event.
+// Audit: metadata-only — Damage replacement cannot filter red instant, sorcery, or planeswalker sources and add a fixed amount to the event.
+pub(in crate::card::sets) static PYROMANCER_S_GAUNTLET: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9bde6763-2102-4adb-8048-fc9fe921205b"),
+    "Pyromancer's Gauntlet",
+    crate::card::CardArt::new("9bde6763-2102-4adb-8048-fc9fe921205b", "Christine Choi"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 // M14 215 — Ratchet Bomb
 pub(in crate::card::sets) static RATCHET_BOMB: CardRecord = CardRecord::new_with_legacy_id(
@@ -2998,7 +3377,16 @@ pub(in crate::card::sets) static RATCHET_BOMB: CardRecord = CardRecord::new_with
 );
 
 // M14 216 — Ring of Three Wishes
-// Audit: blocked — CounterKind has no wish counter, so the entry counters and removal cost cannot share the printed counter identity.
+// Audit: metadata-only — CounterKind has no wish counter, so the entry counters and removal cost cannot share the printed counter identity.
+pub(in crate::card::sets) static RING_OF_THREE_WISHES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("219ab03a-2b3b-4eef-8a42-2cbe793d2f33"),
+    "Ring of Three Wishes",
+    crate::card::CardArt::new("219ab03a-2b3b-4eef-8a42-2cbe793d2f33", "Mark Winters"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
+
+// M14 217 — Rod of Ruin (reprint)
 
 // M14 218 — Sliver Construct
 pub(in crate::card::sets) static SLIVER_CONSTRUCT: CardRecord = CardRecord::new_with_legacy_id(
@@ -3200,7 +3588,16 @@ pub(in crate::card::sets) static STAFF_OF_THE_WILD_MAGUS: CardRecord =
     );
 
 // M14 224 — Strionic Resonator
-// Audit: blocked — Triggered abilities are not targetable stack objects and cannot be copied or retargeted declaratively.
+// Audit: metadata-only — Triggered abilities are not targetable stack objects and cannot be copied or retargeted declaratively.
+pub(in crate::card::sets) static STRIONIC_RESONATOR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("94d1fc0f-5c8b-4e47-aaf8-8888c025f70f"),
+    "Strionic Resonator",
+    crate::card::CardArt::new("94d1fc0f-5c8b-4e47-aaf8-8888c025f70f", "Noah Bradley"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
+
+// M14 225 — Trading Post (reprint)
 
 // M14 226 — Vial of Poison
 pub(in crate::card::sets) static VIAL_OF_POISON: CardRecord = CardRecord::new_with_legacy_id(
@@ -3282,9 +3679,54 @@ pub(in crate::card::sets) static MUTAVAULT: CardRecord = CardRecord::new_with_le
     ]),
 );
 
+// M14 229 — Shimmering Grotto (reprint)
+
+// M14 230 — Plains (reprint)
+
+// M14 231 — Plains (alternate printing)
+
+// M14 232 — Plains (alternate printing)
+
+// M14 233 — Plains (alternate printing)
+
+// M14 234 — Island (reprint)
+
+// M14 235 — Island (alternate printing)
+
+// M14 236 — Island (alternate printing)
+
+// M14 237 — Island (alternate printing)
+
+// M14 238 — Swamp (reprint)
+
+// M14 239 — Swamp (alternate printing)
+
+// M14 240 — Swamp (alternate printing)
+
+// M14 241 — Swamp (alternate printing)
+
+// M14 242 — Mountain (reprint)
+
+// M14 243 — Mountain (alternate printing)
+
+// M14 244 — Mountain (alternate printing)
+
+// M14 245 — Mountain (alternate printing)
+
+// M14 246 — Forest (reprint)
+
+// M14 247 — Forest (alternate printing)
+
+// M14 248 — Forest (alternate printing)
+
+// M14 249 — Forest (alternate printing)
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &AJANI_S_CHOSEN,
+    &ANGELIC_ACCORD,
     &ARCHANGEL_OF_THUNE,
     &AURAMANCER,
+    &BANISHER_PRIEST,
     &BONESCYTHE_SLIVER,
     &BRAVE_THE_ELEMENTS,
     &CAPASHEN_KNIGHT,
@@ -3292,11 +3734,15 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CHARGING_GRIFFIN,
     &CONGREGATE,
     &DAWNSTRIKE_PALADIN,
+    &DEVOUT_INVOCATION,
+    &FIENDSLAYER_PALADIN,
     &FORTIFY,
     &GRIFFIN_SENTINEL,
     &HIVE_STIRRINGS,
     &IMPOSING_SOVEREIGN,
     &INDESTRUCTIBILITY,
+    &MASTER_OF_DIVERSION,
+    &PATH_OF_BRAVERY,
     &SENTINEL_SLIVER,
     &SERAPH_OF_THE_SWORD,
     &SIEGE_MASTODON,
@@ -3307,65 +3753,85 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SUNTAIL_HAWK,
     &AIR_SERVANT,
     &ARMORED_CANCRIX,
+    &COLOSSAL_WHALE,
     &CORAL_MERFOLK,
+    &DISMISS_INTO_DREAM,
     &DISPERSE,
+    &ELITE_ARCANIST,
     &FROST_BREATH,
     &GALERIDER_SLIVER,
     &GLIMPSE_THE_FUTURE,
+    &ILLUSIONARY_ARMOR,
+    &JACE_S_MINDSEEKER,
     &MESSENGER_DRAKE,
     &OPPORTUNITY,
     &PHANTOM_WARRIOR,
     &QUICKEN,
     &SEACOAST_DRAKE,
+    &TIDEBINDER_MAGE,
     &TIME_EBB,
     &TOME_SCOUR,
     &TRAINED_CONDOR,
     &TRAUMATIZE,
     &WALL_OF_FROST,
+    &WARDEN_OF_EVOS_ISLE,
     &WATER_SERVANT,
     &WINDREADER_SPHINX,
     &ZEPHYR_CHARGE,
     &ACCURSED_SPIRIT,
+    &ARTIFICER_S_HEX,
     &BLIGHTCASTER,
     &BLOOD_BAIRN,
+    &BOGBREW_WITCH,
     &CHILD_OF_NIGHT,
     &CORPSE_HAULER,
     &DARK_PROPHECY,
     &DEATHGAZE_COCKATRICE,
     &DIABOLIC_TUTOR,
     &DOOM_BLADE,
+    &FESTERING_NEWT,
     &GNAWING_ZOMBIE,
+    &GRIM_RETURN,
     &LIFEBANE_ZOMBIE,
     &LILIANAS_REAVER,
     &LITURGY_OF_BLOOD,
     &MINOTAUR_ABOMINATION,
     &NIGHTWING_SHADE,
     &QUAG_SICKNESS,
+    &RISE_OF_THE_DARK_REALMS,
     &SANGUINE_BOND,
+    &SHADOWBORN_APOSTLE,
     &SHADOWBORN_DEMON,
     &SHRIVEL,
     &SYPHON_SLIVER,
+    &TENACIOUS_DEAD,
     &UNDEAD_MINOTAUR,
     &VAMPIRE_WARLORD,
     &WRING_FLESH,
     &XATHRID_NECROMANCER,
+    &ACADEMY_RAIDER,
     &AWAKEN_THE_ANCIENT,
     &BARRAGE_OF_EXPENDABLES,
     &BATTLE_SLIVER,
     &BLUR_SLIVER,
     &BURNING_EARTH,
+    &CHANDRA_PYROMASTER,
     &CHANDRAS_OUTRAGE,
     &CHANDRA_S_PHOENIX,
+    &CYCLOPS_TYRANT,
     &DRAGON_EGG,
     &FLESHPULPER_GIANT,
     &GOBLIN_DIPLOMATS,
     &GOBLIN_SHORTCUTTER,
     &LAVA_AXE,
     &LIGHTNING_TALONS,
+    &MARAUDING_MAULHORN,
     &MINDSPARKER,
+    &MOLTEN_BIRTH,
     &OGRE_BATTLEDRIVER,
     &REGATHAN_FIRECAT,
     &SCOURGE_OF_VALKAS,
+    &SEISMIC_STOMP,
     &SHOCK,
     &STRIKING_SLIVER,
     &THORNCASTER_SLIVER,
@@ -3375,11 +3841,14 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BRINDLE_BOAR,
     &ELVISH_MYSTIC,
     &ENLARGE,
+    &GARRUK_CALLER_OF_BEASTS,
     &GARRUK_S_HORDE,
     &GLADECOVER_SCOUT,
     &GROUNDSHAKER_SLIVER,
     &HOWL_OF_THE_NIGHT_PACK,
+    &HUNT_THE_WEAK,
     &INTO_THE_WILDS,
+    &KALONIAN_HYDRA,
     &KALONIAN_TUSKER,
     &LAY_OF_THE_LAND,
     &MANAWEFT_SLIVER,
@@ -3389,92 +3858,120 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PRIMEVAL_BOUNTY,
     &ROOTWALLA,
     &RUMBLING_BALOTH,
+    &SAVAGE_SUMMONING,
     &SCAVENGING_OOZE,
     &SPOREMOUND,
     &TROLLHIDE,
+    &VASTWOOD_HYDRA,
+    &VORACIOUS_WURM,
     &WINDSTORM,
+    &WITCHSTALKER,
     &WOODBORN_BEHEMOTH,
     &ACCORDERS_SHIELD,
+    &BUBBLING_CAULDRON,
     &DARKSTEEL_FORGE,
+    &DOOR_OF_DESTINIES,
     &FIRESHRIEKER,
+    &GUARDIAN_OF_THE_AGES,
     &HAUNTED_PLATE_MAIL,
+    &PYROMANCER_S_GAUNTLET,
     &RATCHET_BOMB,
+    &RING_OF_THREE_WISHES,
     &SLIVER_CONSTRUCT,
     &STAFF_OF_THE_DEATH_MAGUS,
     &STAFF_OF_THE_FLAME_MAGUS,
     &STAFF_OF_THE_MIND_MAGUS,
     &STAFF_OF_THE_SUN_MAGUS,
     &STAFF_OF_THE_WILD_MAGUS,
+    &STRIONIC_RESONATOR,
     &VIAL_OF_POISON,
     &ENCROACHING_WASTES,
     &MUTAVAULT,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
-    PrintingRecord::reprint(&avacyn_restored::ANGELIC_WALL), // M14 4
-    PrintingRecord::reprint(&alpha::BLESSING),               // M14 8
-    PrintingRecord::reprint(&magic_2013::DIVINE_FAVOR),      // M14 17
-    PrintingRecord::reprint(&magic_2013::PILLARFIELD_OX),    // M14 28
-    PrintingRecord::reprint(&magic_2013::PLANAR_CLEANSING),  // M14 29
-    PrintingRecord::reprint(&alpha::SERRA_ANGEL),            // M14 32
-    PrintingRecord::reprint(&magic_2013::SHOW_OF_VALOR),     // M14 33
-    PrintingRecord::reprint(&alpha::WALL_OF_SWORDS),         // M14 41
-    PrintingRecord::reprint(&magic_2013::ARCHAEOMANCER),     // M14 43
-    PrintingRecord::reprint(&return_to_ravnica::CANCEL),     // M14 45
-    PrintingRecord::reprint(&innistrad::CLAUSTROPHOBIA),     // M14 46
-    PrintingRecord::reprint(&alpha::CLONE),                  // M14 47
-    PrintingRecord::reprint(&dark_ascension::DIVINATION),    // M14 52
-    PrintingRecord::reprint(&magic_2013::ESSENCE_SCATTER),   // M14 55
-    PrintingRecord::reprint(&magic_2013::JACE_MEMORY_ADEPT), // M14 60
-    PrintingRecord::reprint(&magic_2013::NEGATE),            // M14 64
-    PrintingRecord::reprint(&dark_ascension::NEPHALIA_SEAKITE), // M14 65
-    PrintingRecord::reprint(&magic_2013::SCROLL_THIEF),      // M14 69
-    PrintingRecord::reprint(&innistrad::SENSORY_DEPRIVATION), // M14 71
-    PrintingRecord::reprint(&alpha::SPELL_BLAST),            // M14 72
-    PrintingRecord::reprint(&magic_2013::DARK_FAVOR),        // M14 92
-    PrintingRecord::reprint(&magic_2013::DURESS),            // M14 97
-    PrintingRecord::reprint(&magic_2013::MARK_OF_THE_VAMPIRE), // M14 105
-    PrintingRecord::reprint(&magic_2013::MIND_ROT),          // M14 106
-    PrintingRecord::reprint(&alpha::SENGIR_VAMPIRE),         // M14 113
-    PrintingRecord::reprint(&magic_2013::VILE_REBIRTH),      // M14 121
-    PrintingRecord::reprint(&gatecrash::ACT_OF_TREASON),     // M14 125
-    PrintingRecord::reprint(&magic_2013::CANYON_MINOTAUR),   // M14 131
-    PrintingRecord::reprint(&avacyn_restored::DEMOLISH),     // M14 136
-    PrintingRecord::reprint(&magic_2013::DRAGON_HATCHLING),  // M14 138
-    PrintingRecord::reprint(&magic_2013::FLAMES_OF_THE_FIREBRAND), // M14 139
-    PrintingRecord::reprint(&innistrad::PITCHBURN_DEVILS),   // M14 149
-    PrintingRecord::reprint(&alpha::SHIVAN_DRAGON),          // M14 154
-    PrintingRecord::reprint(&magic_2013::SMELT),             // M14 156
-    PrintingRecord::reprint(&magic_2013::VOLCANIC_GEYSER),   // M14 160
-    PrintingRecord::reprint(&innistrad::BRAMBLECRUSH),       // M14 165
-    PrintingRecord::reprint(&dark_ascension::BRIARPACK_ALPHA), // M14 166
-    PrintingRecord::reprint(&magic_2013::DEADLY_RECLUSE),    // M14 168
-    PrintingRecord::reprint(&alpha::GIANT_GROWTH),           // M14 174
-    PrintingRecord::reprint(&alpha::GIANT_SPIDER),           // M14 175
-    PrintingRecord::reprint(&onslaught::NATURALIZE),         // M14 186
-    PrintingRecord::reprint(&magic_2013::PLUMMET),           // M14 188
-    PrintingRecord::reprint(&innistrad::RANGERS_GUILE),      // M14 191
-    PrintingRecord::reprint(&darksteel::DARKSTEEL_INGOT),    // M14 207
-    PrintingRecord::reprint(&antiquities::MILLSTONE),        // M14 213
-    PrintingRecord::reprint(&alpha::ROD_OF_RUIN),            // M14 217
-    PrintingRecord::reprint(&alpha::PLAINS),                 // M14 230
-    PrintingRecord::alternate(&alpha::PLAINS, 1),            // M14 231
-    PrintingRecord::alternate(&alpha::PLAINS, 2),            // M14 232
-    PrintingRecord::alternate(&alpha::PLAINS, 3),            // M14 233
-    PrintingRecord::reprint(&alpha::ISLAND),                 // M14 234
-    PrintingRecord::alternate(&alpha::ISLAND, 1),            // M14 235
-    PrintingRecord::alternate(&alpha::ISLAND, 2),            // M14 236
-    PrintingRecord::alternate(&alpha::ISLAND, 3),            // M14 237
-    PrintingRecord::reprint(&alpha::SWAMP),                  // M14 238
-    PrintingRecord::alternate(&alpha::SWAMP, 1),             // M14 239
-    PrintingRecord::alternate(&alpha::SWAMP, 2),             // M14 240
-    PrintingRecord::alternate(&alpha::SWAMP, 3),             // M14 241
-    PrintingRecord::reprint(&alpha::MOUNTAIN),               // M14 242
-    PrintingRecord::alternate(&alpha::MOUNTAIN, 1),          // M14 243
-    PrintingRecord::alternate(&alpha::MOUNTAIN, 2),          // M14 244
-    PrintingRecord::alternate(&alpha::MOUNTAIN, 3),          // M14 245
-    PrintingRecord::reprint(&alpha::FOREST),                 // M14 246
-    PrintingRecord::alternate(&alpha::FOREST, 1),            // M14 247
-    PrintingRecord::alternate(&alpha::FOREST, 2),            // M14 248
-    PrintingRecord::alternate(&alpha::FOREST, 3),            // M14 249
+    PrintingRecord::reprint(&catalog_m13::AJANI_CALLER_OF_THE_PRIDE), // M14 1
+    PrintingRecord::reprint(&avacyn_restored::ANGELIC_WALL),          // M14 4
+    PrintingRecord::reprint(&alpha::BLESSING),                        // M14 8
+    PrintingRecord::reprint(&magic_2013::DIVINE_FAVOR),               // M14 17
+    PrintingRecord::reprint(&catalog_m13::PACIFISM),                  // M14 25
+    PrintingRecord::reprint(&catalog_tor::PAY_NO_HEED),               // M14 27
+    PrintingRecord::reprint(&magic_2013::PILLARFIELD_OX),             // M14 28
+    PrintingRecord::reprint(&magic_2013::PLANAR_CLEANSING),           // M14 29
+    PrintingRecord::reprint(&alpha::SERRA_ANGEL),                     // M14 32
+    PrintingRecord::reprint(&magic_2013::SHOW_OF_VALOR),              // M14 33
+    PrintingRecord::reprint(&catalog_m11::SILENCE),                   // M14 35
+    PrintingRecord::reprint(&alpha::WALL_OF_SWORDS),                  // M14 41
+    PrintingRecord::reprint(&magic_2013::ARCHAEOMANCER),              // M14 43
+    PrintingRecord::reprint(&return_to_ravnica::CANCEL),              // M14 45
+    PrintingRecord::reprint(&innistrad::CLAUSTROPHOBIA),              // M14 46
+    PrintingRecord::reprint(&alpha::CLONE),                           // M14 47
+    PrintingRecord::reprint(&dark_ascension::DIVINATION),             // M14 52
+    PrintingRecord::reprint(&catalog_roe::DOMESTICATION),             // M14 53
+    PrintingRecord::reprint(&magic_2013::ESSENCE_SCATTER),            // M14 55
+    PrintingRecord::reprint(&magic_2013::JACE_MEMORY_ADEPT),          // M14 60
+    PrintingRecord::reprint(&catalog_m11::MERFOLK_SPY),               // M14 62
+    PrintingRecord::reprint(&magic_2013::NEGATE),                     // M14 64
+    PrintingRecord::reprint(&dark_ascension::NEPHALIA_SEAKITE),       // M14 65
+    PrintingRecord::reprint(&magic_2013::SCROLL_THIEF),               // M14 69
+    PrintingRecord::reprint(&innistrad::SENSORY_DEPRIVATION),         // M14 71
+    PrintingRecord::reprint(&alpha::SPELL_BLAST),                     // M14 72
+    PrintingRecord::reprint(&catalog_isd::ALTARS_REAP),               // M14 84
+    PrintingRecord::reprint(&catalog_usg::CORRUPT),                   // M14 91
+    PrintingRecord::reprint(&magic_2013::DARK_FAVOR),                 // M14 92
+    PrintingRecord::reprint(&magic_2013::DURESS),                     // M14 97
+    PrintingRecord::reprint(&catalog_m13::LILIANA_OF_THE_DARK_REALMS), // M14 102
+    PrintingRecord::reprint(&magic_2013::MARK_OF_THE_VAMPIRE),        // M14 105
+    PrintingRecord::reprint(&magic_2013::MIND_ROT),                   // M14 106
+    PrintingRecord::reprint(&catalog_lea::NIGHTMARE),                 // M14 108
+    PrintingRecord::reprint(&alpha::SENGIR_VAMPIRE),                  // M14 113
+    PrintingRecord::reprint(&magic_2013::VILE_REBIRTH),               // M14 121
+    PrintingRecord::reprint(&gatecrash::ACT_OF_TREASON),              // M14 125
+    PrintingRecord::reprint(&magic_2013::CANYON_MINOTAUR),            // M14 131
+    PrintingRecord::reprint(&avacyn_restored::DEMOLISH),              // M14 136
+    PrintingRecord::reprint(&magic_2013::DRAGON_HATCHLING),           // M14 138
+    PrintingRecord::reprint(&magic_2013::FLAMES_OF_THE_FIREBRAND),    // M14 139
+    PrintingRecord::reprint(&innistrad::PITCHBURN_DEVILS),            // M14 149
+    PrintingRecord::reprint(&catalog_usg::SHIV_S_EMBRACE),            // M14 153
+    PrintingRecord::reprint(&alpha::SHIVAN_DRAGON),                   // M14 154
+    PrintingRecord::reprint(&magic_2013::SMELT),                      // M14 156
+    PrintingRecord::reprint(&magic_2013::VOLCANIC_GEYSER),            // M14 160
+    PrintingRecord::reprint(&catalog_m13::WILD_GUESS),                // M14 161
+    PrintingRecord::reprint(&catalog_lrw::WILD_RICOCHET),             // M14 162
+    PrintingRecord::reprint(&innistrad::BRAMBLECRUSH),                // M14 165
+    PrintingRecord::reprint(&dark_ascension::BRIARPACK_ALPHA),        // M14 166
+    PrintingRecord::reprint(&magic_2013::DEADLY_RECLUSE),             // M14 168
+    PrintingRecord::reprint(&catalog_lea::FOG),                       // M14 171
+    PrintingRecord::reprint(&alpha::GIANT_GROWTH),                    // M14 174
+    PrintingRecord::reprint(&alpha::GIANT_SPIDER),                    // M14 175
+    PrintingRecord::reprint(&onslaught::NATURALIZE),                  // M14 186
+    PrintingRecord::reprint(&magic_2013::PLUMMET),                    // M14 188
+    PrintingRecord::reprint(&innistrad::RANGERS_GUILE),               // M14 191
+    PrintingRecord::reprint(&catalog_gtc::VERDANT_HAVEN),             // M14 199
+    PrintingRecord::reprint(&darksteel::DARKSTEEL_INGOT),             // M14 207
+    PrintingRecord::reprint(&catalog_m13::ELIXIR_OF_IMMORTALITY),     // M14 209
+    PrintingRecord::reprint(&antiquities::MILLSTONE),                 // M14 213
+    PrintingRecord::reprint(&alpha::ROD_OF_RUIN),                     // M14 217
+    PrintingRecord::reprint(&catalog_m13::TRADING_POST),              // M14 225
+    PrintingRecord::reprint(&catalog_lrw::SHIMMERING_GROTTO),         // M14 229
+    PrintingRecord::reprint(&alpha::PLAINS),                          // M14 230
+    PrintingRecord::alternate(&alpha::PLAINS, 1),                     // M14 231
+    PrintingRecord::alternate(&alpha::PLAINS, 2),                     // M14 232
+    PrintingRecord::alternate(&alpha::PLAINS, 3),                     // M14 233
+    PrintingRecord::reprint(&alpha::ISLAND),                          // M14 234
+    PrintingRecord::alternate(&alpha::ISLAND, 1),                     // M14 235
+    PrintingRecord::alternate(&alpha::ISLAND, 2),                     // M14 236
+    PrintingRecord::alternate(&alpha::ISLAND, 3),                     // M14 237
+    PrintingRecord::reprint(&alpha::SWAMP),                           // M14 238
+    PrintingRecord::alternate(&alpha::SWAMP, 1),                      // M14 239
+    PrintingRecord::alternate(&alpha::SWAMP, 2),                      // M14 240
+    PrintingRecord::alternate(&alpha::SWAMP, 3),                      // M14 241
+    PrintingRecord::reprint(&alpha::MOUNTAIN),                        // M14 242
+    PrintingRecord::alternate(&alpha::MOUNTAIN, 1),                   // M14 243
+    PrintingRecord::alternate(&alpha::MOUNTAIN, 2),                   // M14 244
+    PrintingRecord::alternate(&alpha::MOUNTAIN, 3),                   // M14 245
+    PrintingRecord::reprint(&alpha::FOREST),                          // M14 246
+    PrintingRecord::alternate(&alpha::FOREST, 1),                     // M14 247
+    PrintingRecord::alternate(&alpha::FOREST, 2),                     // M14 248
+    PrintingRecord::alternate(&alpha::FOREST, 3),                     // M14 249
 ];

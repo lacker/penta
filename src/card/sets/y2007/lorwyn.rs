@@ -197,6 +197,26 @@ pub(in crate::card::sets) static THOUGHTSEIZE: CardRecord = CardRecord::new_with
     )),
 );
 
+// LRW 194 — Tarfire
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TARFIRE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d13a898e-6a97-4fd9-980e-3bfd8d755386"),
+    "Tarfire",
+    crate::card::CardArt::new("d13a898e-6a97-4fd9-980e-3bfd8d755386", "Omar Rayyan"),
+    crate::card::CardSet::Lorwyn,
+    crate::card::CardRules::unsupported(),
+);
+
+// LRW 196 — Wild Ricochet
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WILD_RICOCHET: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d76f09bc-b49a-4ad2-be2d-2a191d41b86d"),
+    "Wild Ricochet",
+    crate::card::CardArt::new("d76f09bc-b49a-4ad2-be2d-2a191d41b86d", "Dan Murayama Scott"),
+    crate::card::CardSet::Lorwyn,
+    crate::card::CardRules::unsupported(),
+);
+
 /// Hideaway's look: four cards, one of them exiled face down and linked to
 /// the land that took it, and the rest back under the library in an order
 /// nobody knows.
@@ -290,12 +310,25 @@ pub(in crate::card::sets) static SHELLDOCK_ISLE: CardRecord = CardRecord::new(
     ]),
 );
 
+// LRW 273 — Shimmering Grotto
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SHIMMERING_GROTTO: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b5e85acc-ed12-4036-8193-739721c3e178"),
+    "Shimmering Grotto",
+    crate::card::CardArt::new("b5e85acc-ed12-4036-8193-739721c3e178", "Alan Pollack"),
+    crate::card::CardSet::Lorwyn,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CRYPTIC_COMMAND,
     &MULLDRIFTER,
     &PONDER,
     &THOUGHTSEIZE,
+    &TARFIRE,
+    &WILD_RICOCHET,
     &SHELLDOCK_ISLE,
+    &SHIMMERING_GROTTO,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -11,12 +11,52 @@ static FLAME_SLASH_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_on
     ObjectPredicateDef::HasType(CardType::Creature),
 )];
 
+// ROE 4 — Emrakul, the Aeons Torn
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static EMRAKUL_THE_AEONS_TORN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("67600383-bbb8-411c-b8e6-2296650bc747"),
+    "Emrakul, the Aeons Torn",
+    crate::card::CardArt::new("67600383-bbb8-411c-b8e6-2296650bc747", "Mark Tedin"),
+    crate::card::CardSet::RiseOfTheEldrazi,
+    crate::card::CardRules::unsupported(),
+);
+
 // ROE 13 — Ulamog's Crusher
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ULAMOG_S_CRUSHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("76bacedb-9fa8-4a21-b0eb-e7ead64360b4"),
     "Ulamog's Crusher",
     crate::card::CardArt::new("76bacedb-9fa8-4a21-b0eb-e7ead64360b4", "Todd Lockwood"),
+    crate::card::CardSet::RiseOfTheEldrazi,
+    crate::card::CardRules::unsupported(),
+);
+
+// ROE 40 — Oust
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static OUST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("07313dd3-d0dc-40ca-98a3-fa4d39e5bcae"),
+    "Oust",
+    crate::card::CardArt::new("07313dd3-d0dc-40ca-98a3-fa4d39e5bcae", "Mike Bierek"),
+    crate::card::CardSet::RiseOfTheEldrazi,
+    crate::card::CardRules::unsupported(),
+);
+
+// ROE 61 — Domestication
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DOMESTICATION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e1f15831-8dfd-4232-875c-efa6744c9a12"),
+    "Domestication",
+    crate::card::CardArt::new("e1f15831-8dfd-4232-875c-efa6744c9a12", "Jesper Ejsing"),
+    crate::card::CardSet::RiseOfTheEldrazi,
+    crate::card::CardRules::unsupported(),
+);
+
+// ROE 115 — Inquisition of Kozilek
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static INQUISITION_OF_KOZILEK: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6a3ff5c3-0fdb-4d54-b4e5-ce7bad9953f0"),
+    "Inquisition of Kozilek",
+    crate::card::CardArt::new("6a3ff5c3-0fdb-4d54-b4e5-ce7bad9953f0", "Tomasz Jedruszek"),
     crate::card::CardSet::RiseOfTheEldrazi,
     crate::card::CardRules::unsupported(),
 );
@@ -70,7 +110,11 @@ pub(in crate::card::sets) static NEST_INVADER: CardRecord = CardRecord::new(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &EMRAKUL_THE_AEONS_TORN,
     &ULAMOG_S_CRUSHER,
+    &OUST,
+    &DOMESTICATION,
+    &INQUISITION_OF_KOZILEK,
     &VENDETTA,
     &FLAME_SLASH,
     &RAID_BOMBARDMENT,

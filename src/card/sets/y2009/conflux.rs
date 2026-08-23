@@ -1,6 +1,6 @@
 //! Conflux cards cataloged for the Vintage Cube.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardSupertype, CardType, EffectDef,
     EffectRecipientDef, ObjectPredicateDef, ObjectRefDef, PlayerRefDef, ValueDef, ZoneKind,
@@ -63,6 +63,27 @@ pub(in crate::card::sets) static PATH_TO_EXILE: CardRecord = CardRecord::new_wit
     )),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&PATH_TO_EXILE];
+// CON 87 — Noble Hierarch
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static NOBLE_HIERARCH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6adfe928-1305-444d-b709-1e714544daaf"),
+    "Noble Hierarch",
+    crate::card::CardArt::new("6adfe928-1305-444d-b709-1e714544daaf", "Mark Zug"),
+    crate::card::CardSet::Conflux,
+    crate::card::CardRules::unsupported(),
+);
+
+// CON 113 — Knight of the Reliquary
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static KNIGHT_OF_THE_RELIQUARY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ad8b8518-c09e-4cb7-95b2-08e4e370d89c"),
+    "Knight of the Reliquary",
+    crate::card::CardArt::new("ad8b8518-c09e-4cb7-95b2-08e4e370d89c", "Michael Komarck"),
+    crate::card::CardSet::Conflux,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&PATH_TO_EXILE, &NOBLE_HIERARCH, &KNIGHT_OF_THE_RELIQUARY];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

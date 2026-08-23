@@ -1,7 +1,6 @@
 //! Commander 2015 cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
-use crate::card::sets::PrintingAnchor;
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardType, EffectDef,
     EffectRecipientDef, ObjectPredicateDef, PlayerRelation, ValueDef, ZoneKind, ZonePlacement,

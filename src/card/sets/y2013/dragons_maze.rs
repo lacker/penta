@@ -1,6 +1,6 @@
-//! Dragon's Maze card records used by the built-in ISD–DGM Standard decks.
+//! Dragon's Maze card records used by the built-in ISD–M14 Standard decks.
 
-use super::{CardRecord, PrintingRecord, gatecrash};
+use super::{CardRecord, PrintingAnchor, PrintingRecord, gatecrash};
 use crate::ManaCost;
 use crate::card::sets::y2012::return_to_ravnica;
 use crate::card::{
@@ -200,7 +200,14 @@ pub(in crate::card::sets) static RIOT_CONTROL: CardRecord = CardRecord::new_with
 );
 
 // DGM 7 — Scion of Vitu-Ghazi
-// Audit: blocked — Needs an enters-trigger condition that remembers whether the permanent was cast from hand, plus populate's token-copy choice.
+// Audit: metadata-only — Needs an enters-trigger condition that remembers whether the permanent was cast from hand, plus populate's token-copy choice.
+pub(in crate::card::sets) static SCION_OF_VITU_GHAZI: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3cd20865-0a9a-4a72-92f9-77c8d6384b46"),
+    "Scion of Vitu-Ghazi",
+    crate::card::CardArt::new("3cd20865-0a9a-4a72-92f9-77c8d6384b46", "Willian Murai"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 8 — Steeple Roc
 pub(in crate::card::sets) static STEEPLE_ROC: CardRecord = CardRecord::new_with_legacy_id(
@@ -313,7 +320,14 @@ pub(in crate::card::sets) static AETHERLING: CardRecord = CardRecord::new_with_l
 );
 
 // DGM 12 — Hidden Strings
-// Audit: blocked — Needs tap-or-untap choices made independently on resolution and cipher's encoded-card link, combat-damage trigger, and free-copy casting permission.
+// Audit: metadata-only — Needs tap-or-untap choices made independently on resolution and cipher's encoded-card link, combat-damage trigger, and free-copy casting permission.
+pub(in crate::card::sets) static HIDDEN_STRINGS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("216e8047-6f54-49ce-bf86-27dc8fc8c8f7"),
+    "Hidden Strings",
+    crate::card::CardArt::new("216e8047-6f54-49ce-bf86-27dc8fc8c8f7", "Daarken"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 13 — Maze Glider
 pub(in crate::card::sets) static MAZE_GLIDER: CardRecord = CardRecord::new_with_legacy_id(
@@ -431,10 +445,26 @@ pub(in crate::card::sets) static RUNNERS_BANE: CardRecord = CardRecord::new_with
 );
 
 // DGM 18 — Trait Doctoring
-// Audit: blocked — Needs duration-scoped color-word text changes and cipher's encoded-card link, combat-damage trigger, and free-copy casting permission.
+// Audit: metadata-only — Needs duration-scoped color-word text changes and cipher's encoded-card link, combat-damage trigger, and free-copy casting permission.
+pub(in crate::card::sets) static TRAIT_DOCTORING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e21a7981-5940-4b75-907f-7600a742f946"),
+    "Trait Doctoring",
+    crate::card::CardArt::new("e21a7981-5940-4b75-907f-7600a742f946", "Clint Cearley"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 19 — Uncovered Clues
-// Audit: blocked — Needs a top-four selection constrained to up to two instant or sorcery followed by ordering the unselected cards on the library bottom.
+// Audit: metadata-only — Needs a top-four selection constrained to up to two instant or sorcery followed by ordering the unselected cards on the library bottom.
+pub(in crate::card::sets) static UNCOVERED_CLUES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9dd24556-994f-4480-835e-11d4443f0700"),
+    "Uncovered Clues",
+    crate::card::CardArt::new("9dd24556-994f-4480-835e-11d4443f0700", "Jaime Jones"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
+
+// DGM 20 — Wind Drake (reprint)
 
 // DGM 21 — Bane Alley Blackguard
 pub(in crate::card::sets) static BANE_ALLEY_BLACKGUARD: CardRecord = CardRecord::new_with_legacy_id(
@@ -446,10 +476,24 @@ pub(in crate::card::sets) static BANE_ALLEY_BLACKGUARD: CardRecord = CardRecord:
 );
 
 // DGM 22 — Blood Scrivener
-// Audit: blocked — Needs a draw-event replacement that checks an empty hand and replaces one draw with two cards plus one life loss.
+// Audit: metadata-only — Needs a draw-event replacement that checks an empty hand and replaces one draw with two cards plus one life loss.
+pub(in crate::card::sets) static BLOOD_SCRIVENER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9ea8179a-d3c9-4cdc-a5b5-68cc73279050"),
+    "Blood Scrivener",
+    crate::card::CardArt::new("9ea8179a-d3c9-4cdc-a5b5-68cc73279050", "Peter Mohrbacher"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 23 — Crypt Incursion
-// Audit: blocked — Needs the number of cards actually exiled by a graveyard sweep to feed one life-gain event after replacements are applied.
+// Audit: metadata-only — Needs the number of cards actually exiled by a graveyard sweep to feed one life-gain event after replacements are applied.
+pub(in crate::card::sets) static CRYPT_INCURSION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c3b71cc5-0a81-4cab-bae3-49335c04aaaa"),
+    "Crypt Incursion",
+    crate::card::CardArt::new("c3b71cc5-0a81-4cab-bae3-49335c04aaaa", "Svetlin Velinov"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 24 — Fatal Fumes
 pub(in crate::card::sets) static FATAL_FUMES: CardRecord = CardRecord::new_with_legacy_id(
@@ -474,7 +518,14 @@ pub(in crate::card::sets) static FATAL_FUMES: CardRecord = CardRecord::new_with_
 );
 
 // DGM 25 — Hired Torturer
-// Audit: blocked — Needs revealing a random card from the targeted opponent's hand after the life-loss effect.
+// Audit: metadata-only — Needs revealing a random card from the targeted opponent's hand after the life-loss effect.
+pub(in crate::card::sets) static HIRED_TORTURER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("62e9f79e-6606-4c9b-838c-eda5d8cc612c"),
+    "Hired Torturer",
+    crate::card::CardArt::new("62e9f79e-6606-4c9b-838c-eda5d8cc612c", "Winona Nelson"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 26 — Maze Abomination
 pub(in crate::card::sets) static MAZE_ABOMINATION: CardRecord = CardRecord::new_with_legacy_id(
@@ -545,7 +596,14 @@ pub(in crate::card::sets) static RAKDOS_DRAKE: CardRecord = CardRecord::new_with
 );
 
 // DGM 29 — Sinister Possession
-// Audit: blocked — Needs an Aura to observe both attack and block events from its attached creature and make that creature's controller lose life.
+// Audit: metadata-only — Needs an Aura to observe both attack and block events from its attached creature and make that creature's controller lose life.
+pub(in crate::card::sets) static SINISTER_POSSESSION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7f54c15b-fec0-49a6-8a49-d1af4eeee40e"),
+    "Sinister Possession",
+    crate::card::CardArt::new("7f54c15b-fec0-49a6-8a49-d1af4eeee40e", "Anthony Palumbo"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 30 — Ubul Sar Gatekeepers
 pub(in crate::card::sets) static UBUL_SAR_GATEKEEPERS: CardRecord = CardRecord::new_with_legacy_id(
@@ -576,7 +634,14 @@ pub(in crate::card::sets) static UBUL_SAR_GATEKEEPERS: CardRecord = CardRecord::
 );
 
 // DGM 31 — Awe for the Guilds
-// Audit: blocked — Needs a turn-long restriction preventing every monocolored creature from blocking.
+// Audit: metadata-only — Needs a turn-long restriction preventing every monocolored creature from blocking.
+pub(in crate::card::sets) static AWE_FOR_THE_GUILDS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ec644ac3-07a2-43de-8173-9cc18e2ea2d9"),
+    "Awe for the Guilds",
+    crate::card::CardArt::new("ec644ac3-07a2-43de-8173-9cc18e2ea2d9", "Mathias Kollros"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 32 — Clear a Path
 pub(in crate::card::sets) static CLEAR_A_PATH: CardRecord = CardRecord::new_with_legacy_id(
@@ -617,7 +682,14 @@ pub(in crate::card::sets) static MAZE_RUSHER: CardRecord = CardRecord::new_with_
 );
 
 // DGM 34 — Possibility Storm
-// Audit: blocked — Needs spell-type-aware library reveal-until, free casting of the found card, and random ordering of the linked exiled cards.
+// Audit: metadata-only — Needs spell-type-aware library reveal-until, free casting of the found card, and random ordering of the linked exiled cards.
+pub(in crate::card::sets) static POSSIBILITY_STORM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("858aa831-b491-4f1e-bb56-33eeca14771d"),
+    "Possibility Storm",
+    crate::card::CardArt::new("858aa831-b491-4f1e-bb56-33eeca14771d", "Jason Felix"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 35 — Punish the Enemy
 pub(in crate::card::sets) static PUNISH_THE_ENEMY: CardRecord = CardRecord::new_with_legacy_id(
@@ -872,7 +944,14 @@ pub(in crate::card::sets) static MENDING_TOUCH: CardRecord = CardRecord::new_wit
 );
 
 // DGM 45 — Mutant's Prey
-// Audit: blocked — Needs a target predicate for a +1/+1 counter and the simultaneous fight damage procedure.
+// Audit: metadata-only — Needs a target predicate for a +1/+1 counter and the simultaneous fight damage procedure.
+pub(in crate::card::sets) static MUTANT_S_PREY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d9e32d47-2796-4eac-b373-a93506d8d6b7"),
+    "Mutant's Prey",
+    crate::card::CardArt::new("d9e32d47-2796-4eac-b373-a93506d8d6b7", "Ryan Barger"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 46 — Phytoburst
 pub(in crate::card::sets) static PHYTOBURST: CardRecord = CardRecord::new_with_legacy_id(
@@ -897,7 +976,14 @@ pub(in crate::card::sets) static PHYTOBURST: CardRecord = CardRecord::new_with_l
 );
 
 // DGM 47 — Renegade Krasis
-// Audit: blocked — Needs evolve's characteristic comparison and an evolve event that can drive the counter sweep.
+// Audit: metadata-only — Needs evolve's characteristic comparison and an evolve event that can drive the counter sweep.
+pub(in crate::card::sets) static RENEGADE_KRASIS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("23b68921-0c34-4d92-83c3-21542f62c7f6"),
+    "Renegade Krasis",
+    crate::card::CardArt::new("23b68921-0c34-4d92-83c3-21542f62c7f6", "Howard Lyon"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 48 — Saruli Gatekeepers
 pub(in crate::card::sets) static SARULI_GATEKEEPERS: CardRecord = CardRecord::new_with_legacy_id(
@@ -1025,10 +1111,24 @@ pub(in crate::card::sets) static BEETLEFORM_MAGE: CardRecord = CardRecord::new_w
 );
 
 // DGM 55 — Blast of Genius
-// Audit: blocked — Needs a discard choice whose chosen card's mana value feeds the later damage effect.
+// Audit: metadata-only — Needs a discard choice whose chosen card's mana value feeds the later damage effect.
+pub(in crate::card::sets) static BLAST_OF_GENIUS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b2ff592c-bd35-4947-ba17-8b6170d5388e"),
+    "Blast of Genius",
+    crate::card::CardArt::new("b2ff592c-bd35-4947-ba17-8b6170d5388e", "Terese Nielsen"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 56 — Blaze Commando
-// Audit: blocked — Needs a damage event that groups all damage dealt by one instant or sorcery before creating the two tokens.
+// Audit: metadata-only — Needs a damage event that groups all damage dealt by one instant or sorcery before creating the two tokens.
+pub(in crate::card::sets) static BLAZE_COMMANDO: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5e179f0d-2965-44e4-8483-67b330a8608c"),
+    "Blaze Commando",
+    crate::card::CardArt::new("5e179f0d-2965-44e4-8483-67b330a8608c", "James Ryman"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 57 — Blood Baron of Vizkopa
 pub(in crate::card::sets) static BLOOD_BARON_OF_VIZKOPA: CardRecord = CardRecord::new_with_legacy_id(
@@ -1055,10 +1155,24 @@ pub(in crate::card::sets) static BLOOD_BARON_OF_VIZKOPA: CardRecord = CardRecord
 );
 
 // DGM 58 — Boros Battleshaper
-// Audit: blocked — Needs beginning-of-combat targets that impose positive and negative attack-or-block requirements for that combat.
+// Audit: metadata-only — Needs beginning-of-combat targets that impose positive and negative attack-or-block requirements for that combat.
+pub(in crate::card::sets) static BOROS_BATTLESHAPER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6c43e449-acf2-4e94-b7cf-8c84d70191da"),
+    "Boros Battleshaper",
+    crate::card::CardArt::new("6c43e449-acf2-4e94-b7cf-8c84d70191da", "Zoltan Boros"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 59 — Bred for the Hunt
-// Audit: blocked — Needs a combat-damage source predicate that tests for a +1/+1 counter on the dealing creature.
+// Audit: metadata-only — Needs a combat-damage source predicate that tests for a +1/+1 counter on the dealing creature.
+pub(in crate::card::sets) static BRED_FOR_THE_HUNT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4258a536-2275-45e8-8833-e921ca15c5a7"),
+    "Bred for the Hunt",
+    crate::card::CardArt::new("4258a536-2275-45e8-8833-e921ca15c5a7", "Karl Kopinski"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 60 — Bronzebeak Moa
 pub(in crate::card::sets) static BRONZEBEAK_MOA: CardRecord = CardRecord::new_with_legacy_id(
@@ -1083,16 +1197,44 @@ pub(in crate::card::sets) static BRONZEBEAK_MOA: CardRecord = CardRecord::new_wi
 );
 
 // DGM 61 — Carnage Gladiator
-// Audit: blocked — Needs a blocking event that identifies each blocker and regeneration shields for the activated ability.
+// Audit: metadata-only — Needs a blocking event that identifies each blocker and regeneration shields for the activated ability.
+pub(in crate::card::sets) static CARNAGE_GLADIATOR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("20bde6c1-917c-4860-a8d0-a9d7c461f8d2"),
+    "Carnage Gladiator",
+    crate::card::CardArt::new("20bde6c1-917c-4860-a8d0-a9d7c461f8d2", "Ryan Barger"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 62 — Council of the Absolute
-// Audit: blocked — Needs a stored noncreature, nonland card-name choice that both prohibits opponents' matching spells and reduces matching spells you cast.
+// Audit: metadata-only — Needs a stored noncreature, nonland card-name choice that both prohibits opponents' matching spells and reduces matching spells you cast.
+pub(in crate::card::sets) static COUNCIL_OF_THE_ABSOLUTE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("da18a6a5-0042-40ae-bd33-a6d5a65a9944"),
+    "Council of the Absolute",
+    crate::card::CardArt::new("da18a6a5-0042-40ae-bd33-a6d5a65a9944", "Zoltan Boros"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 63 — Deadbridge Chant
-// Audit: blocked — Needs a random graveyard-card choice followed by a card-type-dependent destination.
+// Audit: metadata-only — Needs a random graveyard-card choice followed by a card-type-dependent destination.
+pub(in crate::card::sets) static DEADBRIDGE_CHANT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("26417a58-b0c9-49fa-956c-794ee1c09a4f"),
+    "Deadbridge Chant",
+    crate::card::CardArt::new("26417a58-b0c9-49fa-956c-794ee1c09a4f", "Zoltan Boros"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 64 — Debt to the Deathless
-// Audit: blocked — Needs arithmetic values for twice X and one life-gain event equal to the life actually lost by all opponents.
+// Audit: metadata-only — Needs arithmetic values for twice X and one life-gain event equal to the life actually lost by all opponents.
+pub(in crate::card::sets) static DEBT_TO_THE_DEATHLESS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("610e5a91-857b-4121-8b75-dbbea27aa0aa"),
+    "Debt to the Deathless",
+    crate::card::CardArt::new("610e5a91-857b-4121-8b75-dbbea27aa0aa", "Seb McKinnon"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 65 — Deputy of Acquittals
 pub(in crate::card::sets) static DEPUTY_OF_ACQUITTALS: CardRecord = CardRecord::new_with_legacy_id(
@@ -1133,7 +1275,14 @@ pub(in crate::card::sets) static DEPUTY_OF_ACQUITTALS: CardRecord = CardRecord::
 );
 
 // DGM 66 — Dragonshift
-// Audit: blocked — Needs its targeted and overload programs migrated to one composite type, color, ability, power/toughness, and flying effect.
+// Audit: metadata-only — Needs its targeted and overload programs migrated to one composite type, color, ability, power/toughness, and flying effect.
+pub(in crate::card::sets) static DRAGONSHIFT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6c046e4e-810c-4123-bb1a-4f97e0cd43d1"),
+    "Dragonshift",
+    crate::card::CardArt::new("6c046e4e-810c-4123-bb1a-4f97e0cd43d1", "Svetlin Velinov"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 static DROWN_IN_FILTH_LANDS: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasType(CardType::Land),
@@ -1332,7 +1481,14 @@ pub(in crate::card::sets) static GLEAM_OF_BATTLE: CardRecord = CardRecord::new_w
 );
 
 // DGM 74 — Goblin Test Pilot
-// Audit: blocked — Needs a uniformly random legal target choice when the activated ability resolves.
+// Audit: metadata-only — Needs a uniformly random legal target choice when the activated ability resolves.
+pub(in crate::card::sets) static GOBLIN_TEST_PILOT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a8dbb9aa-1bf8-447d-a96c-33e2248bfb01"),
+    "Goblin Test Pilot",
+    crate::card::CardArt::new("a8dbb9aa-1bf8-447d-a96c-33e2248bfb01", "Svetlin Velinov"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 static GRUUL_WAR_CHANT_EFFECT: [AppliedEffectDef; 2] = [
     AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(0)),
@@ -1408,19 +1564,54 @@ pub(in crate::card::sets) static JELENN_SPHINX: CardRecord = CardRecord::new_wit
 );
 
 // DGM 78 — Korozda Gorgon
-// Audit: blocked — Needs removing a +1/+1 counter from a chosen creature, rather than from the ability source, as an activation cost.
+// Audit: metadata-only — Needs removing a +1/+1 counter from a chosen creature, rather than from the ability source, as an activation cost.
+pub(in crate::card::sets) static KOROZDA_GORGON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7006e5b9-d6a3-43ce-904b-b2ac0fea67e5"),
+    "Korozda Gorgon",
+    crate::card::CardArt::new("7006e5b9-d6a3-43ce-904b-b2ac0fea67e5", "Volkan Baǵa"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 79 — Krasis Incubation
-// Audit: blocked — Needs attached-creature attack, block, and activated-ability prohibitions plus returning the Aura as a cost while retaining its former attachment through last-known information.
+// Audit: metadata-only — Needs attached-creature attack, block, and activated-ability prohibitions plus returning the Aura as a cost while retaining its former attachment through last-known information.
+pub(in crate::card::sets) static KRASIS_INCUBATION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8da986da-e8ee-4b53-8bbd-9285d0f7f3cb"),
+    "Krasis Incubation",
+    crate::card::CardArt::new("8da986da-e8ee-4b53-8bbd-9285d0f7f3cb", "Marco Nelor"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 80 — Lavinia of the Tenth
-// Audit: blocked — Needs detain's persistent restrictions and a nonland permanent sweep filtered by mana value.
+// Audit: metadata-only — Needs detain's persistent restrictions and a nonland permanent sweep filtered by mana value.
+pub(in crate::card::sets) static LAVINIA_OF_THE_TENTH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("813f1967-c048-4e6e-9720-216773fde47e"),
+    "Lavinia of the Tenth",
+    crate::card::CardArt::new("813f1967-c048-4e6e-9720-216773fde47e", "Willian Murai"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 81 — Legion's Initiative
-// Audit: blocked — Needs a non-choice binding for exactly the creatures exiled together so the installed beginning-of-combat trigger can return and grant haste only to that group.
+// Audit: metadata-only — Needs a non-choice binding for exactly the creatures exiled together so the installed beginning-of-combat trigger can return and grant haste only to that group.
+pub(in crate::card::sets) static LEGION_S_INITIATIVE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("672051a6-d232-4546-842a-369d412c38d2"),
+    "Legion's Initiative",
+    crate::card::CardArt::new("672051a6-d232-4546-842a-369d412c38d2", "Jaime Jones"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 82 — Master of Cruelties
-// Audit: blocked — Needs an attack-alone restriction, an unblocked-attacker trigger that sets a player's life total, and suppression of this creature's combat damage.
+// Audit: metadata-only — Needs an attack-alone restriction, an unblocked-attacker trigger that sets a player's life total, and suppression of this creature's combat damage.
+pub(in crate::card::sets) static MASTER_OF_CRUELTIES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7b4d8ab5-252c-4727-817d-6f18cbaedd91"),
+    "Master of Cruelties",
+    crate::card::CardArt::new("7b4d8ab5-252c-4727-817d-6f18cbaedd91", "Chase Stone"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 83 — Maw of the Obzedat
 pub(in crate::card::sets) static MAW_OF_THE_OBZEDAT: CardRecord = CardRecord::new_with_legacy_id(
@@ -1452,10 +1643,24 @@ pub(in crate::card::sets) static MAW_OF_THE_OBZEDAT: CardRecord = CardRecord::ne
 );
 
 // DGM 84 — Melek, Izzet Paragon
-// Audit: blocked — Needs a continuously revealed library top, cast permission from that zone, and copying spells cast from the library with target reselection.
+// Audit: metadata-only — Needs a continuously revealed library top, cast permission from that zone, and copying spells cast from the library with target reselection.
+pub(in crate::card::sets) static MELEK_IZZET_PARAGON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("19b4dc6c-940e-478c-b87f-b3939a30efbd"),
+    "Melek, Izzet Paragon",
+    crate::card::CardArt::new("3e892d86-f443-4846-8049-40ec6b8c22b4", "Jason Chan"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 85 — Mirko Vosk, Mind Drinker
-// Audit: blocked — Needs reveal-until-four-matching-cards library traversal and moving the entire revealed group to the graveyard.
+// Audit: metadata-only — Needs reveal-until-four-matching-cards library traversal and moving the entire revealed group to the graveyard.
+pub(in crate::card::sets) static MIRKO_VOSK_MIND_DRINKER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d37cdd3e-4303-4391-aff4-4a543e65a836"),
+    "Mirko Vosk, Mind Drinker",
+    crate::card::CardArt::new("d37cdd3e-4303-4391-aff4-4a543e65a836", "Chase Stone"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 86 — Morgue Burst
 // Audit: partial — Returning the graveyard card is implemented, but TargetPower cannot read a card target's power after it moves to hand.
@@ -1530,7 +1735,14 @@ pub(in crate::card::sets) static NIVIX_CYCLOPS: CardRecord = CardRecord::new_wit
 );
 
 // DGM 88 — Notion Thief
-// Audit: blocked — Needs a draw-event replacement that recognizes the first draw of each opponent's draw step and redirects every other draw.
+// Audit: metadata-only — Needs a draw-event replacement that recognizes the first draw of each opponent's draw step and redirects every other draw.
+pub(in crate::card::sets) static NOTION_THIEF: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("728e660b-ad8b-49d2-a7e5-6588e496519b"),
+    "Notion Thief",
+    crate::card::CardArt::new("728e660b-ad8b-49d2-a7e5-6588e496519b", "Clint Cearley"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 89 — Obzedat's Aid
 pub(in crate::card::sets) static OBZEDATS_AID: CardRecord = CardRecord::new_with_legacy_id(
@@ -1593,10 +1805,24 @@ pub(in crate::card::sets) static PILFERED_PLANS: CardRecord = CardRecord::new_wi
 );
 
 // DGM 91 — Plasm Capture
-// Audit: blocked — Needs a delayed first-main-phase mana effect that lets its controller distribute the countered spell's mana value among any combination of colors.
+// Audit: metadata-only — Needs a delayed first-main-phase mana effect that lets its controller distribute the countered spell's mana value among any combination of colors.
+pub(in crate::card::sets) static PLASM_CAPTURE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0ffe8485-d5fb-47cc-af53-6e0fd062b7a2"),
+    "Plasm Capture",
+    crate::card::CardArt::new("0ffe8485-d5fb-47cc-af53-6e0fd062b7a2", "Chase Stone"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 92 — Progenitor Mimic
-// Audit: blocked — Needs an as-enters copy effect that adds a triggered ability to the copied values and later creates token copies of itself.
+// Audit: metadata-only — Needs an as-enters copy effect that adds a triggered ability to the copied values and later creates token copies of itself.
+pub(in crate::card::sets) static PROGENITOR_MIMIC: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3ad76314-b5d5-4353-86aa-e899e0d757a5"),
+    "Progenitor Mimic",
+    crate::card::CardArt::new("3ad76314-b5d5-4353-86aa-e899e0d757a5", "Daarken"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 93 — Putrefy
 pub(in crate::card::sets) static PUTREFY: CardRecord = CardRecord::new_with_legacy_id(
@@ -1660,16 +1886,44 @@ pub(in crate::card::sets) static RAL_ZAREK: CardRecord = CardRecord::new_with_le
 );
 
 // DGM 95 — Reap Intellect
-// Audit: blocked — Needs an X-bounded private-hand choice, same-name searches across three zones, exile of every chosen group, and the final shuffle.
+// Audit: metadata-only — Needs an X-bounded private-hand choice, same-name searches across three zones, exile of every chosen group, and the final shuffle.
+pub(in crate::card::sets) static REAP_INTELLECT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c6297df2-c67a-4054-9617-5c6202c76de8"),
+    "Reap Intellect",
+    crate::card::CardArt::new("c6297df2-c67a-4054-9617-5c6202c76de8", "Steven Belledin"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 96 — Render Silent
-// Audit: blocked — Needs a turn-long prohibition on the countered spell's controller casting any spell.
+// Audit: metadata-only — Needs a turn-long prohibition on the countered spell's controller casting any spell.
+pub(in crate::card::sets) static RENDER_SILENT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4514a13f-5eee-49a8-876c-6b4befff4592"),
+    "Render Silent",
+    crate::card::CardArt::new("e3f3d6e4-0abe-4042-a7f6-0395683e8582", "Matt Stewart"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 97 — Restore the Peace
-// Audit: blocked — Needs per-turn damage history on creatures and a simultaneous return sweep over every creature that dealt damage.
+// Audit: metadata-only — Needs per-turn damage history on creatures and a simultaneous return sweep over every creature that dealt damage.
+pub(in crate::card::sets) static RESTORE_THE_PEACE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("105902f6-99d0-4bee-9dfd-87a92ac04d91"),
+    "Restore the Peace",
+    crate::card::CardArt::new("105902f6-99d0-4bee-9dfd-87a92ac04d91", "Kev Walker"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 98 — Rot Farm Skeleton
-// Audit: blocked — Needs an executable can't-block restriction and milling cards as an activation cost from the graveyard.
+// Audit: metadata-only — Needs an executable can't-block restriction and milling cards as an activation cost from the graveyard.
+pub(in crate::card::sets) static ROT_FARM_SKELETON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ef5af2dd-75c7-402c-be9a-3d0d4290520c"),
+    "Rot Farm Skeleton",
+    crate::card::CardArt::new("ef5af2dd-75c7-402c-be9a-3d0d4290520c", "Maciej Kuciara"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 99 — Ruric Thar, the Unbowed
 pub(in crate::card::sets) static RURIC_THAR_THE_UNBOWED: CardRecord = CardRecord::new_with_legacy_id(
@@ -1702,10 +1956,24 @@ pub(in crate::card::sets) static RURIC_THAR_THE_UNBOWED: CardRecord = CardRecord
 );
 
 // DGM 100 — Savageborn Hydra
-// Audit: blocked — Needs an X-sized battlefield-entry counter replacement and a hybrid-mana activation restricted to sorcery timing.
+// Audit: metadata-only — Needs an X-sized battlefield-entry counter replacement and a hybrid-mana activation restricted to sorcery timing.
+pub(in crate::card::sets) static SAVAGEBORN_HYDRA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2f2b73cd-6179-4885-9d92-1782d0b492c1"),
+    "Savageborn Hydra",
+    crate::card::CardArt::new("2f2b73cd-6179-4885-9d92-1782d0b492c1", "Raymond Swanland"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 101 — Scab-Clan Giant
-// Audit: blocked — Needs a uniformly random legal opponent-creature choice followed by the simultaneous fight damage procedure.
+// Audit: metadata-only — Needs a uniformly random legal opponent-creature choice followed by the simultaneous fight damage procedure.
+pub(in crate::card::sets) static SCAB_CLAN_GIANT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a8e360ae-4c78-47a9-81d4-1849cfa518b7"),
+    "Scab-Clan Giant",
+    crate::card::CardArt::new("a8e360ae-4c78-47a9-81d4-1849cfa518b7", "Zoltan Boros"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 static SHOWSTOPPER_DIES_ABILITY: AbilityDef = AbilityDef::triggered_with_targets(
     "When this creature dies, it deals 2 damage to target creature an opponent controls.",
@@ -1879,7 +2147,14 @@ pub(in crate::card::sets) static TAJIC_BLADE_OF_THE_LEGION: CardRecord = CardRec
 );
 
 // DGM 108 — Teysa, Envoy of Ghosts
-// Audit: blocked — Needs protection from creatures and a combat-damage trigger that destroys the specific dealing creature before creating a token.
+// Audit: metadata-only — Needs protection from creatures and a combat-damage trigger that destroys the specific dealing creature before creating a token.
+pub(in crate::card::sets) static TEYSA_ENVOY_OF_GHOSTS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("cbd8183c-6967-4332-b822-02b82c14ef2d"),
+    "Teysa, Envoy of Ghosts",
+    crate::card::CardArt::new("cbd8183c-6967-4332-b822-02b82c14ef2d", "Karla Ortiz"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 109 — Tithe Drinker
 pub(in crate::card::sets) static TITHE_DRINKER: CardRecord = CardRecord::new_with_legacy_id(
@@ -1950,7 +2225,14 @@ pub(in crate::card::sets) static UNFLINCHING_COURAGE: CardRecord = CardRecord::n
 );
 
 // DGM 112 — Varolz, the Scar-Striped
-// Audit: blocked — Needs granting scavenge to graveyard cards with each card's own mana cost and power, plus regeneration shields.
+// Audit: metadata-only — Needs granting scavenge to graveyard cards with each card's own mana cost and power, plus regeneration shields.
+pub(in crate::card::sets) static VAROLZ_THE_SCAR_STRIPED: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4c3ae3db-c14a-4ffc-805c-a3a51da9370d"),
+    "Varolz, the Scar-Striped",
+    crate::card::CardArt::new("4c3ae3db-c14a-4ffc-805c-a3a51da9370d", "Adam Paquette"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 113 — Viashino Firstblade
 pub(in crate::card::sets) static VIASHINO_FIRSTBLADE: CardRecord = CardRecord::new_with_legacy_id(
@@ -2039,7 +2321,14 @@ pub(in crate::card::sets) static VOICE_OF_RESURGENCE: CardRecord = CardRecord::n
 );
 
 // DGM 115 — Vorel of the Hull Clade
-// Audit: blocked — Needs an effect that doubles every kind of counter on one targeted artifact, creature, or land.
+// Audit: metadata-only — Needs an effect that doubles every kind of counter on one targeted artifact, creature, or land.
+pub(in crate::card::sets) static VOREL_OF_THE_HULL_CLADE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("db0665d4-d974-4d5e-ba29-7bf40cbbe29c"),
+    "Vorel of the Hull Clade",
+    crate::card::CardArt::new("db0665d4-d974-4d5e-ba29-7bf40cbbe29c", "Mike Bierek"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 116 — Warleader's Helix
 pub(in crate::card::sets) static WARLEADERS_HELIX: CardRecord = CardRecord::new_with_legacy_id(
@@ -2066,7 +2355,14 @@ pub(in crate::card::sets) static WARLEADERS_HELIX: CardRecord = CardRecord::new_
 );
 
 // DGM 117 — Warped Physique
-// Audit: blocked — Needs a current hand-card count value and its negation to drive the temporary +X/-X effect.
+// Audit: metadata-only — Needs a current hand-card count value and its negation to drive the temporary +X/-X effect.
+pub(in crate::card::sets) static WARPED_PHYSIQUE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("134802b2-7c5c-4eda-a879-b29bc06faaed"),
+    "Warped Physique",
+    crate::card::CardArt::new("134802b2-7c5c-4eda-a879-b29bc06faaed", "Karl Kopinski"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 118 — Woodlot Crawler
 pub(in crate::card::sets) static WOODLOT_CRAWLER: CardRecord = CardRecord::new_with_legacy_id(
@@ -2081,7 +2377,14 @@ pub(in crate::card::sets) static WOODLOT_CRAWLER: CardRecord = CardRecord::new_w
 );
 
 // DGM 119 — Zhur-Taa Ancient
-// Audit: blocked — Needs mana-production provenance so the trigger can add one mana of a type the tapped land produced.
+// Audit: metadata-only — Needs mana-production provenance so the trigger can add one mana of a type the tapped land produced.
+pub(in crate::card::sets) static ZHUR_TAA_ANCIENT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2076308f-0f4e-4b31-9e75-c2965942e7d1"),
+    "Zhur-Taa Ancient",
+    crate::card::CardArt::new("2076308f-0f4e-4b31-9e75-c2965942e7d1", "Adam Paquette"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 120 — Zhur-Taa Druid
 pub(in crate::card::sets) static ZHUR_TAA_DRUID: CardRecord = CardRecord::new_with_legacy_id(
@@ -2103,19 +2406,54 @@ pub(in crate::card::sets) static ZHUR_TAA_DRUID: CardRecord = CardRecord::new_wi
 );
 
 // DGM 121 — Alive // Well
-// Audit: blocked — Needs fuse spell composition plus a 3/3 green Centaur token and a creature-count life-gain value multiplied by two.
+// Audit: metadata-only — Needs fuse spell composition plus a 3/3 green Centaur token and a creature-count life-gain value multiplied by two.
+pub(in crate::card::sets) static ALIVE_WELL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("db84415e-048a-4cfc-9121-5ae17a412198"),
+    "Alive // Well",
+    crate::card::CardArt::new("db84415e-048a-4cfc-9121-5ae17a412198", "Nils Hamm"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 122 — Armed // Dangerous
-// Audit: blocked — Needs fuse spell composition and a turn-long requirement that every creature able to block the Dangerous target does so.
+// Audit: metadata-only — Needs fuse spell composition and a turn-long requirement that every creature able to block the Dangerous target does so.
+pub(in crate::card::sets) static ARMED_DANGEROUS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ff7f4fc2-6f76-44e7-a30b-7166a0d10d2a"),
+    "Armed // Dangerous",
+    crate::card::CardArt::new("ff7f4fc2-6f76-44e7-a30b-7166a0d10d2a", "David Palumbo"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 123 — Beck // Call
-// Audit: blocked — Needs fuse spell composition plus a temporary enters-the-battlefield listener and a 1/1 white flying Bird token.
+// Audit: metadata-only — Needs fuse spell composition plus a temporary enters-the-battlefield listener and a 1/1 white flying Bird token.
+pub(in crate::card::sets) static BECK_CALL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a01d6540-9eaf-4e08-a62d-682551ee78e9"),
+    "Beck // Call",
+    crate::card::CardArt::new("a01d6540-9eaf-4e08-a62d-682551ee78e9", "Adam Paquette"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 124 — Breaking // Entering
-// Audit: blocked — Needs fuse spell composition and a nontarget creature-card choice from either graveyard for Entering.
+// Audit: metadata-only — Needs fuse spell composition and a nontarget creature-card choice from either graveyard for Entering.
+pub(in crate::card::sets) static BREAKING_ENTERING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("50e30e21-0bf7-4d10-b2cc-ed0c52b95955"),
+    "Breaking // Entering",
+    crate::card::CardArt::new("66724f4e-59dd-4c70-b09b-49947320e6d1", "Mathias Kollros"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 125 — Catch // Release
-// Audit: blocked — Needs fuse spell composition and one independent permanent choice for each named card type from every player.
+// Audit: metadata-only — Needs fuse spell composition and one independent permanent choice for each named card type from every player.
+pub(in crate::card::sets) static CATCH_RELEASE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("29968873-56f3-4528-ab0b-f11dd67dd162"),
+    "Catch // Release",
+    crate::card::CardArt::new("29968873-56f3-4528-ab0b-f11dd67dd162", "Kev Walker"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 static ANY_PLAYER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Player(PlayerRelation::Any),
@@ -2220,10 +2558,24 @@ fn far_away_composition() -> CardComposition {
 }
 
 // DGM 128 — Flesh // Blood
-// Audit: blocked — Needs fuse spell composition and a value carrying the exiled graveyard card's power into Flesh's counter effect.
+// Audit: metadata-only — Needs fuse spell composition and a value carrying the exiled graveyard card's power into Flesh's counter effect.
+pub(in crate::card::sets) static FLESH_BLOOD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("02b40fe4-901a-4832-8d52-a6bb5cc07b63"),
+    "Flesh // Blood",
+    crate::card::CardArt::new("02b40fe4-901a-4832-8d52-a6bb5cc07b63", "Lucas Graciano"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 129 — Give // Take
-// Audit: blocked — Needs fuse spell composition and removing all +1/+1 counters from the targeted creature while remembering the removed count.
+// Audit: metadata-only — Needs fuse spell composition and removing all +1/+1 counters from the targeted creature while remembering the removed count.
+pub(in crate::card::sets) static GIVE_TAKE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9af07d28-45a2-45d6-b1cb-0858c609a881"),
+    "Give // Take",
+    crate::card::CardArt::new("9af07d28-45a2-45d6-b1cb-0858c609a881", "Steve Prescott"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 // DGM 130 — Profit // Loss
 pub(in crate::card::sets) static PROFIT_LOSS: CardRecord = CardRecord::new_with_legacy_id(
@@ -2433,7 +2785,14 @@ fn split_fuse_composition(
 }
 
 // DGM 133 — Toil // Trouble
-// Audit: blocked — Needs fuse spell composition and a value for the targeted player's current hand size.
+// Audit: metadata-only — Needs fuse spell composition and a value for the targeted player's current hand size.
+pub(in crate::card::sets) static TOIL_TROUBLE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("15bb3454-e3bb-4af9-9e93-461e210c26b7"),
+    "Toil // Trouble",
+    crate::card::CardArt::new("15bb3454-e3bb-4af9-9e93-461e210c26b7", "Nils Hamm"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
 
 /// Turn repaints the characteristics it names while leaving the target's
 /// other card types and subtype categories intact.
@@ -2750,8 +3109,35 @@ pub(in crate::card::sets) static SIMIC_CLUESTONE: CardRecord = CardRecord::new_w
     cluestone_rules(&SIMIC_CLUESTONE_ABILITIES),
 );
 
+// DGM 146 — Azorius Guildgate (reprint)
+
+// DGM 147 — Boros Guildgate (reprint)
+
+// DGM 148 — Dimir Guildgate (reprint)
+
+// DGM 149 — Golgari Guildgate (reprint)
+
+// DGM 150 — Gruul Guildgate (reprint)
+
+// DGM 151 — Izzet Guildgate (reprint)
+
 // DGM 152 — Maze's End
-// Audit: blocked — Needs returning the land as an activation cost, a Gate-specific library search to the battlefield, and the ten-distinct-names win condition.
+// Audit: metadata-only — Needs returning the land as an activation cost, a Gate-specific library search to the battlefield, and the ten-distinct-names win condition.
+pub(in crate::card::sets) static MAZE_S_END: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6966ecf0-6dab-4652-bf5b-6e766b8347d0"),
+    "Maze's End",
+    crate::card::CardArt::new("401f7042-24fd-42a0-ae7c-e6b7de1aa446", "Cliff Childs"),
+    crate::card::CardSet::DragonsMaze,
+    crate::card::CardRules::unsupported(),
+);
+
+// DGM 153 — Orzhov Guildgate (reprint)
+
+// DGM 154 — Rakdos Guildgate (reprint)
+
+// DGM 155 — Selesnya Guildgate (reprint)
+
+// DGM 156 — Simic Guildgate (reprint)
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BOROS_MASTIFF,
@@ -2760,23 +3146,33 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &MAZE_SENTINEL,
     &RENOUNCE_THE_GUILDS,
     &RIOT_CONTROL,
+    &SCION_OF_VITU_GHAZI,
     &STEEPLE_ROC,
     &SUNSPIRE_GATEKEEPERS,
     &WAKE_THE_REFLECTIONS,
     &AETHERLING,
+    &HIDDEN_STRINGS,
     &MAZE_GLIDER,
     &MINDSTATIC,
     &MURMURING_PHANTASM,
     &OPAL_LAKE_GATEKEEPERS,
     &RUNNERS_BANE,
+    &TRAIT_DOCTORING,
+    &UNCOVERED_CLUES,
     &BANE_ALLEY_BLACKGUARD,
+    &BLOOD_SCRIVENER,
+    &CRYPT_INCURSION,
     &FATAL_FUMES,
+    &HIRED_TORTURER,
     &MAZE_ABOMINATION,
     &PONTIFF_OF_BLIGHT,
     &RAKDOS_DRAKE,
+    &SINISTER_POSSESSION,
     &UBUL_SAR_GATEKEEPERS,
+    &AWE_FOR_THE_GUILDS,
     &CLEAR_A_PATH,
     &MAZE_RUSHER,
+    &POSSIBILITY_STORM,
     &PUNISH_THE_ENEMY,
     &PYREWILD_SHAMAN,
     &RIOT_PIKER,
@@ -2787,7 +3183,9 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &KRAUL_WARRIOR,
     &MAZE_BEHEMOTH,
     &MENDING_TOUCH,
+    &MUTANT_S_PREY,
     &PHYTOBURST,
+    &RENEGADE_KRASIS,
     &SARULI_GATEKEEPERS,
     &SKYLASHER,
     &THRASHING_MOSSDOG,
@@ -2795,9 +3193,18 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ARMORED_WOLF_RIDER,
     &ASCENDED_LAWMAGE,
     &BEETLEFORM_MAGE,
+    &BLAST_OF_GENIUS,
+    &BLAZE_COMMANDO,
     &BLOOD_BARON_OF_VIZKOPA,
+    &BOROS_BATTLESHAPER,
+    &BRED_FOR_THE_HUNT,
     &BRONZEBEAK_MOA,
+    &CARNAGE_GLADIATOR,
+    &COUNCIL_OF_THE_ABSOLUTE,
+    &DEADBRIDGE_CHANT,
+    &DEBT_TO_THE_DEATHLESS,
     &DEPUTY_OF_ACQUITTALS,
+    &DRAGONSHIFT,
     &DROWN_IN_FILTH,
     &EMMARA_TANDRIS,
     &EXAVA_RAKDOS_BLOOD_WITCH,
@@ -2805,36 +3212,66 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &FLUXCHARGER,
     &GAZE_OF_GRANITE,
     &GLEAM_OF_BATTLE,
+    &GOBLIN_TEST_PILOT,
     &GRUUL_WAR_CHANT,
     &HAUNTER_OF_NIGHTVEIL,
     &JELENN_SPHINX,
+    &KOROZDA_GORGON,
+    &KRASIS_INCUBATION,
+    &LAVINIA_OF_THE_TENTH,
+    &LEGION_S_INITIATIVE,
+    &MASTER_OF_CRUELTIES,
     &MAW_OF_THE_OBZEDAT,
+    &MELEK_IZZET_PARAGON,
+    &MIRKO_VOSK_MIND_DRINKER,
     &MORGUE_BURST,
     &NIVIX_CYCLOPS,
+    &NOTION_THIEF,
     &OBZEDATS_AID,
     &PILFERED_PLANS,
+    &PLASM_CAPTURE,
+    &PROGENITOR_MIMIC,
     &PUTREFY,
     &RAL_ZAREK,
+    &REAP_INTELLECT,
+    &RENDER_SILENT,
+    &RESTORE_THE_PEACE,
+    &ROT_FARM_SKELETON,
     &RURIC_THAR_THE_UNBOWED,
+    &SAVAGEBORN_HYDRA,
+    &SCAB_CLAN_GIANT,
     &SHOWSTOPPER,
     &SIN_COLLECTOR,
     &SIRE_OF_INSANITY,
     &SPECIES_GORGER,
     &SPIKE_JESTER,
     &TAJIC_BLADE_OF_THE_LEGION,
+    &TEYSA_ENVOY_OF_GHOSTS,
     &TITHE_DRINKER,
     &TROSTANIS_SUMMONER,
     &UNFLINCHING_COURAGE,
+    &VAROLZ_THE_SCAR_STRIPED,
     &VIASHINO_FIRSTBLADE,
     &VOICE_OF_RESURGENCE,
+    &VOREL_OF_THE_HULL_CLADE,
     &WARLEADERS_HELIX,
+    &WARPED_PHYSIQUE,
     &WOODLOT_CRAWLER,
+    &ZHUR_TAA_ANCIENT,
     &ZHUR_TAA_DRUID,
+    &ALIVE_WELL,
+    &ARMED_DANGEROUS,
+    &BECK_CALL,
+    &BREAKING_ENTERING,
+    &CATCH_RELEASE,
     &DOWN_DIRTY,
     &FAR_AWAY,
+    &FLESH_BLOOD,
+    &GIVE_TAKE,
     &PROFIT_LOSS,
     &PROTECT_SERVE,
     &READY_WILLING,
+    &TOIL_TROUBLE,
     &TURN_BURN,
     &WEAR_TEAR,
     &AZORIUS_CLUESTONE,
@@ -2847,6 +3284,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &RAKDOS_CLUESTONE,
     &SELESNYA_CLUESTONE,
     &SIMIC_CLUESTONE,
+    &MAZE_S_END,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[

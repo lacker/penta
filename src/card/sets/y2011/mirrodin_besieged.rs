@@ -1,6 +1,7 @@
 //! Mirrodin Besieged cards cataloged as cross-format rules-engine test cases.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
     CardArt, CardRules, CardSet, EffectDef, EffectRecipientDef, ManaColor, ReplacementEffectDef,
@@ -48,6 +49,8 @@ pub(in crate::card::sets) static CHOKING_FUMES: CardRecord = CardRecord::new(
     crate::card::CardSet::MirrodinBesieged,
     crate::card::CardRules::unsupported(),
 );
+
+// MBS 5 — Divine Offering (reprint)
 
 // MBS 6 — Frantic Salvage
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1539,6 +1542,26 @@ pub(in crate::card::sets) static INKMOTH_NEXUS: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// MBS 146 — Plains (reprint)
+
+// MBS 147 — Plains (alternate printing)
+
+// MBS 148 — Island (reprint)
+
+// MBS 149 — Island (alternate printing)
+
+// MBS 150 — Swamp (reprint)
+
+// MBS 151 — Swamp (alternate printing)
+
+// MBS 152 — Mountain (reprint)
+
+// MBS 153 — Mountain (alternate printing)
+
+// MBS 154 — Forest (reprint)
+
+// MBS 155 — Forest (alternate printing)
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ACCORDER_PALADIN,
     &ARDENT_RECRUIT,
@@ -1689,8 +1712,13 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
     PrintingRecord::reprint(&crate::card::sets::y1994::legends::DIVINE_OFFERING), // MBS 5
     PrintingRecord::reprint(&crate::card::sets::y1993::alpha::PLAINS),            // MBS 146
+    PrintingRecord::alternate(&catalog_lea::PLAINS, 1),                           // MBS 147
     PrintingRecord::reprint(&crate::card::sets::y1993::alpha::ISLAND),            // MBS 148
+    PrintingRecord::alternate(&catalog_lea::ISLAND, 1),                           // MBS 149
     PrintingRecord::reprint(&crate::card::sets::y1993::alpha::SWAMP),             // MBS 150
+    PrintingRecord::alternate(&catalog_lea::SWAMP, 1),                            // MBS 151
     PrintingRecord::reprint(&crate::card::sets::y1993::alpha::MOUNTAIN),          // MBS 152
+    PrintingRecord::alternate(&catalog_lea::MOUNTAIN, 1),                         // MBS 153
     PrintingRecord::reprint(&crate::card::sets::y1993::alpha::FOREST),            // MBS 154
+    PrintingRecord::alternate(&catalog_lea::FOREST, 1),                           // MBS 155
 ];

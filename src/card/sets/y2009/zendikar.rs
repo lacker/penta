@@ -173,6 +173,16 @@ pub(in crate::card::sets) static GOBLIN_BUSHWHACKER: CardRecord = CardRecord::ne
     crate::card::CardRules::unsupported(),
 );
 
+// ZEN 168 — Lotus Cobra
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static LOTUS_COBRA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("19adde22-e5eb-4815-beb6-c520b3274cc9"),
+    "Lotus Cobra",
+    crate::card::CardArt::new("19adde22-e5eb-4815-beb6-c520b3274cc9", "Chippy"),
+    crate::card::CardSet::Zendikar,
+    crate::card::CardRules::unsupported(),
+);
+
 // ZEN 193 — Vines of Vastwood
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static VINES_OF_VASTWOOD: CardRecord = CardRecord::new(
@@ -336,6 +346,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &VAMPIRE_LACERATOR,
     &BURST_LIGHTNING,
     &GOBLIN_BUSHWHACKER,
+    &LOTUS_COBRA,
     &VINES_OF_VASTWOOD,
     &BLAZING_TORCH,
     &EXPEDITION_MAP,

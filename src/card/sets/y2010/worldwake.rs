@@ -222,6 +222,16 @@ pub(in crate::card::sets) static JACE_THE_MIND_SCULPTOR: CardRecord =
             .with_abilities(&JACE_THE_MIND_SCULPTOR_ABILITIES),
     );
 
+// WWK 123 — Everflowing Chalice
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static EVERFLOWING_CHALICE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1fdcc0c3-4029-4fc3-a486-5d7f45c910bd"),
+    "Everflowing Chalice",
+    crate::card::CardArt::new("1fdcc0c3-4029-4fc3-a486-5d7f45c910bd", "Steve Argyle"),
+    crate::card::CardSet::Worldwake,
+    crate::card::CardRules::unsupported(),
+);
+
 // WWK 133 — Celestial Colonnade
 pub(in crate::card::sets) static CELESTIAL_COLONNADE: CardRecord = CardRecord::new_with_legacy_id(
     2239,
@@ -250,6 +260,16 @@ pub(in crate::card::sets) static CELESTIAL_COLONNADE: CardRecord = CardRecord::n
     ]),
 );
 
+// WWK 134 — Creeping Tar Pit
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CREEPING_TAR_PIT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0f427f0b-034c-4821-8758-e395c0042d8a"),
+    "Creeping Tar Pit",
+    crate::card::CardArt::new("0f427f0b-034c-4821-8758-e395c0042d8a", "Jason Felix"),
+    crate::card::CardSet::Worldwake,
+    crate::card::CardRules::unsupported(),
+);
+
 // WWK 140 — Quicksand
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static QUICKSAND: CardRecord = CardRecord::new(
@@ -263,7 +283,9 @@ pub(in crate::card::sets) static QUICKSAND: CardRecord = CardRecord::new(
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &STONEFORGE_MYSTIC,
     &JACE_THE_MIND_SCULPTOR,
+    &EVERFLOWING_CHALICE,
     &CELESTIAL_COLONNADE,
+    &CREEPING_TAR_PIT,
     &QUICKSAND,
 ];
 

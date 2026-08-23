@@ -38,6 +38,29 @@ static PREORDAIN_SCRY: TopCardSelectionDef = TopCardSelectionDef {
     selected_face_down: None,
 };
 
+// M11 30 — Silence
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SILENCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1559d660-8a9d-422b-95d3-710a046583dd"),
+    "Silence",
+    crate::card::CardArt::new("37b70d17-e4ec-4731-8892-b444f82be7a2", "Wayne Reynolds"),
+    crate::card::CardSet::Magic2011,
+    crate::card::CardRules::unsupported(),
+);
+
+// M11 66 — Merfolk Spy
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MERFOLK_SPY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b5ae05cc-116b-4268-ba78-709aeff36ab1"),
+    "Merfolk Spy",
+    crate::card::CardArt::new(
+        "b5ae05cc-116b-4268-ba78-709aeff36ab1",
+        "Matt Cavotta & Richard Whitters",
+    ),
+    crate::card::CardSet::Magic2011,
+    crate::card::CardRules::unsupported(),
+);
+
 // M11 70 — Preordain
 pub(in crate::card::sets) static PREORDAIN: CardRecord = CardRecord::new_with_legacy_id(
     2130,
@@ -83,12 +106,42 @@ static FETCH_TWO_LANDS: EffectDef = EffectDef::SearchZone {
     then: None,
 };
 
+// M11 74 — Stormtide Leviathan
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static STORMTIDE_LEVIATHAN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0e7f3fb6-93ce-4bc9-8efd-11af5a46218f"),
+    "Stormtide Leviathan",
+    crate::card::CardArt::new("0e7f3fb6-93ce-4bc9-8efd-11af5a46218f", "Karl Kopinski"),
+    crate::card::CardSet::Magic2011,
+    crate::card::CardRules::unsupported(),
+);
+
 // M11 104 — Liliana's Specter
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static LILIANA_S_SPECTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("33122581-39fd-44a0-b928-f73e39a0c0f1"),
     "Liliana's Specter",
     crate::card::CardArt::new("33122581-39fd-44a0-b928-f73e39a0c0f1", "Vance Kovacs"),
+    crate::card::CardSet::Magic2011,
+    crate::card::CardRules::unsupported(),
+);
+
+// M11 110 — Phylactery Lich
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PHYLACTERY_LICH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9d088983-92c1-4f4d-8abf-dd20347495b5"),
+    "Phylactery Lich",
+    crate::card::CardArt::new("9d088983-92c1-4f4d-8abf-dd20347495b5", "Michael Komarck"),
+    crate::card::CardSet::Magic2011,
+    crate::card::CardRules::unsupported(),
+);
+
+// M11 177 — Garruk's Packleader
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GARRUK_S_PACKLEADER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("dfaef299-7879-4f52-8ee4-701ed150b930"),
+    "Garruk's Packleader",
+    crate::card::CardArt::new("dfaef299-7879-4f52-8ee4-701ed150b930", "Nils Hamm"),
     crate::card::CardSet::Magic2011,
     crate::card::CardRules::unsupported(),
 );
@@ -112,7 +165,15 @@ pub(in crate::card::sets) static PRIMEVAL_TITAN: CardRecord = CardRecord::new_wi
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&PREORDAIN, &LILIANA_S_SPECTER, &PRIMEVAL_TITAN];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &SILENCE,
+    &MERFOLK_SPY,
+    &PREORDAIN,
+    &STORMTIDE_LEVIATHAN,
+    &LILIANA_S_SPECTER,
+    &PHYLACTERY_LICH,
+    &GARRUK_S_PACKLEADER,
+    &PRIMEVAL_TITAN,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

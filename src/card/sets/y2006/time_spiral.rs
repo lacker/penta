@@ -12,6 +12,16 @@ pub(in crate::card::sets) static MOMENTARY_BLINK: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// TSP 40 — Serra Avenger
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SERRA_AVENGER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9e9d7c1c-3bfd-4705-9bc2-5ca3f84cc32a"),
+    "Serra Avenger",
+    crate::card::CardArt::new("9e9d7c1c-3bfd-4705-9bc2-5ca3f84cc32a", "Scott M. Fischer"),
+    crate::card::CardSet::TimeSpiral,
+    crate::card::CardRules::unsupported(),
+);
+
 // TSP 66 — Looter il-Kor
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static LOOTER_IL_KOR: CardRecord = CardRecord::new(
@@ -42,11 +52,37 @@ pub(in crate::card::sets) static SULFUROUS_BLAST: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// TSP 251 — Chromatic Star
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CHROMATIC_STAR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1d7a1357-debd-49b0-9fd5-560d5b3f589e"),
+    "Chromatic Star",
+    crate::card::CardArt::new(
+        "1d7a1357-debd-49b0-9fd5-560d5b3f589e",
+        "Alex Horley-Orlandelli",
+    ),
+    crate::card::CardSet::TimeSpiral,
+    crate::card::CardRules::unsupported(),
+);
+
+// TSP 264 — Stuffy Doll
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static STUFFY_DOLL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("14ca7425-a499-4864-b955-369ef2577849"),
+    "Stuffy Doll",
+    crate::card::CardArt::new("14ca7425-a499-4864-b955-369ef2577849", "Dave Allsop"),
+    crate::card::CardSet::TimeSpiral,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &MOMENTARY_BLINK,
+    &SERRA_AVENGER,
     &LOOTER_IL_KOR,
     &DREAD_RETURN,
     &SULFUROUS_BLAST,
+    &CHROMATIC_STAR,
+    &STUFFY_DOLL,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

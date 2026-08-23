@@ -1,6 +1,6 @@
 //! Dragons of Tarkir cards cataloged as cross-format rules-engine test cases.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::TargetIndex;
 use crate::card::{
     AbilityCoverageDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardRules,
@@ -38,6 +38,16 @@ pub(in crate::card::sets) static ARTFUL_MANEUVER: CardRecord = CardRecord::new_w
     ),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&ARTFUL_MANEUVER];
+// DTK 224 — Kolaghan's Command
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static KOLAGHAN_S_COMMAND: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7c884e1e-fecb-4330-b3de-5fc2a60f7173"),
+    "Kolaghan's Command",
+    crate::card::CardArt::new("7c884e1e-fecb-4330-b3de-5fc2a60f7173", "Daarken"),
+    crate::card::CardSet::DragonsOfTarkir,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&ARTFUL_MANEUVER, &KOLAGHAN_S_COMMAND];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -1,6 +1,7 @@
 //! Scars of Mirrodin cards cataloged for the Vintage Cube pool.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::{
     AbilityCostDef, AbilityDef, AddManaEffectDef, CardArt, CardRules, CardSet, EffectDef,
     ManaColor, abilities,
@@ -34,6 +35,8 @@ pub(in crate::card::sets) static ABUNA_ACOLYTE: CardRecord = CardRecord::new(
     crate::card::CardSet::ScarsOfMirrodin,
     crate::card::CardRules::unsupported(),
 );
+
+// SOM 2 — Arrest (reprint)
 
 // SOM 3 — Auriok Edgewright
 // Audit: metadata-only — Card rules have not been implemented.
@@ -314,6 +317,8 @@ pub(in crate::card::sets) static DARKSLICK_DRAKE: CardRecord = CardRecord::new(
     crate::card::CardSet::ScarsOfMirrodin,
     crate::card::CardRules::unsupported(),
 );
+
+// SOM 31 — Disperse (reprint)
 
 // SOM 32 — Dissipation Field
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1028,6 +1033,8 @@ pub(in crate::card::sets) static SCORIA_ELEMENTAL: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// SOM 103 — Shatter (reprint)
+
 // SOM 104 — Spikeshot Elder
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIKESHOT_ELDER: CardRecord = CardRecord::new(
@@ -1047,6 +1054,8 @@ pub(in crate::card::sets) static TUNNEL_IGNUS: CardRecord = CardRecord::new(
     crate::card::CardSet::ScarsOfMirrodin,
     crate::card::CardRules::unsupported(),
 );
+
+// SOM 106 — Turn to Slag (reprint)
 
 // SOM 107 — Vulshok Heartstoker
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1337,6 +1346,8 @@ pub(in crate::card::sets) static VENSER_THE_SOJOURNER: CardRecord = CardRecord::
     crate::card::CardSet::ScarsOfMirrodin,
     crate::card::CardRules::unsupported(),
 );
+
+// SOM 136 — Accorder's Shield (reprint)
 
 // SOM 137 — Argentum Armor
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1940,6 +1951,8 @@ pub(in crate::card::sets) static PROTOTYPE_PORTAL: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// SOM 196 — Ratchet Bomb (reprint)
+
 // SOM 197 — Razorfield Thresher
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static RAZORFIELD_THRESHER: CardRecord = CardRecord::new(
@@ -2328,6 +2341,46 @@ pub(in crate::card::sets) static SEACHROME_COAST: CardRecord = CardRecord::new_w
     CardRules::new_land(&[]).with_abilities(&SEACHROME_COAST_ABILITIES),
 );
 
+// SOM 230 — Plains (reprint)
+
+// SOM 231 — Plains (alternate printing)
+
+// SOM 232 — Plains (alternate printing)
+
+// SOM 233 — Plains (alternate printing)
+
+// SOM 234 — Island (reprint)
+
+// SOM 235 — Island (alternate printing)
+
+// SOM 236 — Island (alternate printing)
+
+// SOM 237 — Island (alternate printing)
+
+// SOM 238 — Swamp (reprint)
+
+// SOM 239 — Swamp (alternate printing)
+
+// SOM 240 — Swamp (alternate printing)
+
+// SOM 241 — Swamp (alternate printing)
+
+// SOM 242 — Mountain (reprint)
+
+// SOM 243 — Mountain (alternate printing)
+
+// SOM 244 — Mountain (alternate printing)
+
+// SOM 245 — Mountain (alternate printing)
+
+// SOM 246 — Forest (reprint)
+
+// SOM 247 — Forest (alternate printing)
+
+// SOM 248 — Forest (alternate printing)
+
+// SOM 249 — Forest (alternate printing)
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ABUNA_ACOLYTE,
     &AURIOK_EDGEWRIGHT,
@@ -2562,8 +2615,23 @@ pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
     PrintingRecord::reprint(&crate::card::sets::y2013::magic_2014::ACCORDERS_SHIELD), // SOM 136
     PrintingRecord::reprint(&crate::card::sets::y2013::magic_2014::RATCHET_BOMB),  // SOM 196
     PrintingRecord::reprint(&crate::card::sets::y1993::alpha::PLAINS),             // SOM 230
+    PrintingRecord::alternate(&catalog_lea::PLAINS, 1),                            // SOM 231
+    PrintingRecord::alternate(&catalog_lea::PLAINS, 2),                            // SOM 232
+    PrintingRecord::alternate(&catalog_lea::PLAINS, 3),                            // SOM 233
     PrintingRecord::reprint(&crate::card::sets::y1993::alpha::ISLAND),             // SOM 234
+    PrintingRecord::alternate(&catalog_lea::ISLAND, 1),                            // SOM 235
+    PrintingRecord::alternate(&catalog_lea::ISLAND, 2),                            // SOM 236
+    PrintingRecord::alternate(&catalog_lea::ISLAND, 3),                            // SOM 237
     PrintingRecord::reprint(&crate::card::sets::y1993::alpha::SWAMP),              // SOM 238
+    PrintingRecord::alternate(&catalog_lea::SWAMP, 1),                             // SOM 239
+    PrintingRecord::alternate(&catalog_lea::SWAMP, 2),                             // SOM 240
+    PrintingRecord::alternate(&catalog_lea::SWAMP, 3),                             // SOM 241
     PrintingRecord::reprint(&crate::card::sets::y1993::alpha::MOUNTAIN),           // SOM 242
+    PrintingRecord::alternate(&catalog_lea::MOUNTAIN, 1),                          // SOM 243
+    PrintingRecord::alternate(&catalog_lea::MOUNTAIN, 2),                          // SOM 244
+    PrintingRecord::alternate(&catalog_lea::MOUNTAIN, 3),                          // SOM 245
     PrintingRecord::reprint(&crate::card::sets::y1993::alpha::FOREST),             // SOM 246
+    PrintingRecord::alternate(&catalog_lea::FOREST, 1),                            // SOM 247
+    PrintingRecord::alternate(&catalog_lea::FOREST, 2),                            // SOM 248
+    PrintingRecord::alternate(&catalog_lea::FOREST, 3),                            // SOM 249
 ];

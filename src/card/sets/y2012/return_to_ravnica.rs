@@ -1,6 +1,6 @@
-//! Return to Ravnica card records used by the built-in ISD–DGM Standard deck tranche.
+//! Return to Ravnica card records used by the built-in ISD–M14 Standard deck tranche.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::{y1993::alpha, y1999::mercadian_masques as mmq, y2012::magic_2013};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
@@ -106,7 +106,14 @@ pub(in crate::card::sets) static ANGEL_OF_SERENITY: CardRecord = CardRecord::new
 );
 
 // RTR 2 — Armory Guard
-// Audit: blocked — Needs a continuous Gate-control condition that grants vigilance only while a Gate remains under your control.
+// Audit: metadata-only — Needs a continuous Gate-control condition that grants vigilance only while a Gate remains under your control.
+pub(in crate::card::sets) static ARMORY_GUARD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c03498c1-b7f7-41fb-8e2a-1c087d4e9990"),
+    "Armory Guard",
+    crate::card::CardArt::new("c03498c1-b7f7-41fb-8e2a-1c087d4e9990", "Karl Kopinski"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 static DAMAGE_DEALER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
     ObjectPredicateDef::All(&[
@@ -114,6 +121,8 @@ static DAMAGE_DEALER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_
         ObjectPredicateDef::DealtDamageThisTurn,
     ]),
 )];
+
+// RTR 3 — Arrest (reprint)
 
 // RTR 4 — Avenging Arrow
 pub(in crate::card::sets) static AVENGING_ARROW: CardRecord = CardRecord::new_with_legacy_id(
@@ -408,7 +417,14 @@ pub(in crate::card::sets) static MARTIAL_LAW: CardRecord = CardRecord::new_with_
 );
 
 // RTR 15 — Palisade Giant
-// Audit: blocked — Needs a damage-redirection replacement covering you and every other permanent you control.
+// Audit: metadata-only — Needs a damage-redirection replacement covering you and every other permanent you control.
+pub(in crate::card::sets) static PALISADE_GIANT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fdfd37ca-e4c9-4674-a75f-15d8ebcce72b"),
+    "Palisade Giant",
+    crate::card::CardArt::new("fdfd37ca-e4c9-4674-a75f-15d8ebcce72b", "Greg Staples"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 static PHANTOM_GENERAL_TOKENS: EffectRecipientDef = EffectRecipientDef::matching_objects(
     ObjectPredicateDef::All(&[
@@ -528,7 +544,14 @@ pub(in crate::card::sets) static ROOTBORN_DEFENSES: CardRecord = CardRecord::new
 );
 
 // RTR 20 — Security Blockade
-// Audit: blocked — Needs a turn-long “prevent the next 1 damage” shield granted as a land activation.
+// Audit: metadata-only — Needs a turn-long “prevent the next 1 damage” shield granted as a land activation.
+pub(in crate::card::sets) static SECURITY_BLOCKADE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e6250b31-8592-48b2-a877-3637c9ee7d49"),
+    "Security Blockade",
+    crate::card::CardArt::new("e6250b31-8592-48b2-a877-3637c9ee7d49", "James Ryman"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 21 — Selesnya Sentry
 pub(in crate::card::sets) static SELESNYA_SENTRY: CardRecord = CardRecord::new_with_legacy_id(
@@ -572,10 +595,24 @@ pub(in crate::card::sets) static SELLER_OF_SONGBIRDS: CardRecord = CardRecord::n
 );
 
 // RTR 23 — Soul Tithe
-// Audit: blocked — Needs an upkeep payer derived from the enchanted permanent and an unless-payment amount equal to that permanent's mana value.
+// Audit: metadata-only — Needs an upkeep payer derived from the enchanted permanent and an unless-payment amount equal to that permanent's mana value.
+pub(in crate::card::sets) static SOUL_TITHE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("77e546ce-f498-4136-9015-bb262c301716"),
+    "Soul Tithe",
+    crate::card::CardArt::new("77e546ce-f498-4136-9015-bb262c301716", "Dave Kendall"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 24 — Sphere of Safety
-// Audit: blocked — Needs a per-attacker combat tax whose amount dynamically counts enchantments you control.
+// Audit: metadata-only — Needs a per-attacker combat tax whose amount dynamically counts enchantments you control.
+pub(in crate::card::sets) static SPHERE_OF_SAFETY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ce3bd0d8-7e44-4cf2-9012-8ff0bc39417f"),
+    "Sphere of Safety",
+    crate::card::CardArt::new("ce3bd0d8-7e44-4cf2-9012-8ff0bc39417f", "Slawomir Maniak"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 25 — Sunspire Griffin
 pub(in crate::card::sets) static SUNSPIRE_GRIFFIN: CardRecord = keyword_creature(
@@ -736,10 +773,24 @@ pub(in crate::card::sets) static CANCEL: CardRecord = CardRecord::new_with_legac
 );
 
 // RTR 32 — Chronic Flooding
-// Audit: blocked — Needs a trigger for the attached land becoming tapped and the attached land's controller as the mill recipient.
+// Audit: metadata-only — Needs a trigger for the attached land becoming tapped and the attached land's controller as the mill recipient.
+pub(in crate::card::sets) static CHRONIC_FLOODING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1a757425-3cf2-4aca-b415-5ec2d5f753fe"),
+    "Chronic Flooding",
+    crate::card::CardArt::new("1a757425-3cf2-4aca-b415-5ec2d5f753fe", "Scott Chou"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 33 — Conjured Currency
-// Audit: blocked — Needs an exchange-of-control procedure involving the source and a targeted permanent you neither own nor control.
+// Audit: metadata-only — Needs an exchange-of-control procedure involving the source and a targeted permanent you neither own nor control.
+pub(in crate::card::sets) static CONJURED_CURRENCY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a7c2ea6e-7d29-4526-b135-9bbb1eed9d4a"),
+    "Conjured Currency",
+    crate::card::CardArt::new("a7c2ea6e-7d29-4526-b135-9bbb1eed9d4a", "Steve Argyle"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 34 — Crosstown Courier
 pub(in crate::card::sets) static CROSSTOWN_COURIER: CardRecord = CardRecord::new_with_legacy_id(
@@ -902,7 +953,14 @@ pub(in crate::card::sets) static DOWNSIZE: CardRecord = CardRecord::new_with_leg
 );
 
 // RTR 39 — Faerie Impostor
-// Audit: blocked — Needs an ETB unless-payment whose cost returns another chosen creature you control to its owner's hand.
+// Audit: metadata-only — Needs an ETB unless-payment whose cost returns another chosen creature you control to its owner's hand.
+pub(in crate::card::sets) static FAERIE_IMPOSTOR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7dfddc9d-85f6-4b37-9973-14c69f6818ec"),
+    "Faerie Impostor",
+    crate::card::CardArt::new("7dfddc9d-85f6-4b37-9973-14c69f6818ec", "Johann Bodin"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 40 — Hover Barrier
 pub(in crate::card::sets) static HOVER_BARRIER: CardRecord = CardRecord::new_with_legacy_id(
@@ -1140,7 +1198,14 @@ pub(in crate::card::sets) static PARALYZING_GRASP: CardRecord = CardRecord::new_
 );
 
 // RTR 47 — Psychic Spiral
-// Audit: blocked — Needs to preserve the number of graveyard cards shuffled into the library for the later mill amount.
+// Audit: metadata-only — Needs to preserve the number of graveyard cards shuffled into the library for the later mill amount.
+pub(in crate::card::sets) static PSYCHIC_SPIRAL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("59b09c16-f611-4c90-a990-e22bf46bd0e2"),
+    "Psychic Spiral",
+    crate::card::CardArt::new("59b09c16-f611-4c90-a990-e22bf46bd0e2", "Ryan Pancoast"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 48 — Runewing
 pub(in crate::card::sets) static RUNEWING: CardRecord = CardRecord::new_with_legacy_id(
@@ -1166,7 +1231,14 @@ pub(in crate::card::sets) static RUNEWING: CardRecord = CardRecord::new_with_leg
 );
 
 // RTR 49 — Search the City
-// Audit: blocked — Needs source-linked top-card exile, name matching against those and the conditional extra-turn continuation.
+// Audit: metadata-only — Needs source-linked top-card exile, name matching against those and the conditional extra-turn continuation.
+pub(in crate::card::sets) static SEARCH_THE_CITY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9cd77575-fedc-45b1-a53b-dfed0f34c875"),
+    "Search the City",
+    crate::card::CardArt::new("9cd77575-fedc-45b1-a53b-dfed0f34c875", "Jack Wang"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 50 — Skyline Predator
 pub(in crate::card::sets) static SKYLINE_PREDATOR: CardRecord = CardRecord::new_with_legacy_id(
@@ -1209,7 +1281,14 @@ pub(in crate::card::sets) static SOULSWORN_SPIRIT: CardRecord = CardRecord::new_
 );
 
 // RTR 52 — Sphinx of the Chimes
-// Audit: blocked — Needs choosing two same-named nonland cards from hand as a single activation cost.
+// Audit: metadata-only — Needs choosing two same-named nonland cards from hand as a single activation cost.
+pub(in crate::card::sets) static SPHINX_OF_THE_CHIMES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("31a0cae5-925f-4d00-a4da-1db8bae5511b"),
+    "Sphinx of the Chimes",
+    crate::card::CardArt::new("31a0cae5-925f-4d00-a4da-1db8bae5511b", "Greg Staples"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 53 — Stealer of Secrets
 pub(in crate::card::sets) static STEALER_OF_SECRETS: CardRecord = CardRecord::new_with_legacy_id(
@@ -1393,7 +1472,14 @@ pub(in crate::card::sets) static DAGGERDROME_IMP: CardRecord = CardRecord::new_w
 );
 
 // RTR 61 — Dark Revenant
-// Audit: blocked — A dies trigger cannot address the card after it becomes a new graveyard object to move it onto its owner's library.
+// Audit: metadata-only — A dies trigger cannot address the card after it becomes a new graveyard object to move it onto its owner's library.
+pub(in crate::card::sets) static DARK_REVENANT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2167cc6d-ddb5-4f13-8905-a0c5123b852a"),
+    "Dark Revenant",
+    crate::card::CardArt::new("2167cc6d-ddb5-4f13-8905-a0c5123b852a", "Daarken"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 62 — Dead Reveler
 pub(in crate::card::sets) static DEAD_REVELER: CardRecord = CardRecord::new_with_legacy_id(
@@ -1453,7 +1539,14 @@ pub(in crate::card::sets) static DESECRATION_DEMON: CardRecord = CardRecord::new
 );
 
 // RTR 64 — Destroy the Evidence
-// Audit: blocked — Needs revealing and milling cards from a targeted land's controller until a land card is revealed.
+// Audit: metadata-only — Needs revealing and milling cards from a targeted land's controller until a land card is revealed.
+pub(in crate::card::sets) static DESTROY_THE_EVIDENCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("bca53097-108d-457e-831c-e3d6cb499a41"),
+    "Destroy the Evidence",
+    crate::card::CardArt::new("bca53097-108d-457e-831c-e3d6cb499a41", "Clint Cearley"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 static DEVIANT_GLEE_TRAMPLE: AbilityDef = AbilityDef::activated(
     "{R}: This creature gains trample until end of turn.",
@@ -1532,7 +1625,14 @@ pub(in crate::card::sets) static DRAINPIPE_VERMIN: CardRecord = CardRecord::new_
 );
 
 // RTR 67 — Grave Betrayal
-// Audit: blocked — Needs a delayed next-end-step return linked to each dead creature plus persistent color and Zombie type changes.
+// Audit: metadata-only — Needs a delayed next-end-step return linked to each dead creature plus persistent color and Zombie type changes.
+pub(in crate::card::sets) static GRAVE_BETRAYAL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("47b38c68-8e72-4afc-bb5e-0b40880fdda9"),
+    "Grave Betrayal",
+    crate::card::CardArt::new("47b38c68-8e72-4afc-bb5e-0b40880fdda9", "Lucas Graciano"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 68 — Grim Roustabout
 pub(in crate::card::sets) static GRIM_ROUSTABOUT: CardRecord = CardRecord::new_with_legacy_id(
@@ -1556,7 +1656,16 @@ pub(in crate::card::sets) static GRIM_ROUSTABOUT: CardRecord = CardRecord::new_w
 );
 
 // RTR 69 — Launch Party
-// Audit: blocked — Needs choosing and sacrificing a creature as an additional spell-casting cost.
+// Audit: metadata-only — Needs choosing and sacrificing a creature as an additional spell-casting cost.
+pub(in crate::card::sets) static LAUNCH_PARTY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("53f29821-902e-41bc-97a2-6fc7a710cbdb"),
+    "Launch Party",
+    crate::card::CardArt::new("53f29821-902e-41bc-97a2-6fc7a710cbdb", "Lucas Graciano"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
+
+// RTR 70 — Mind Rot (reprint)
 
 // RTR 71 — Necropolis Regent
 pub(in crate::card::sets) static NECROPOLIS_REGENT: CardRecord = CardRecord::new_with_legacy_id(
@@ -1618,7 +1727,14 @@ pub(in crate::card::sets) static OGRE_JAILBREAKER: CardRecord = CardRecord::new_
 );
 
 // RTR 73 — Pack Rat
-// Audit: blocked — Needs dynamic Rat-count power and toughness and creation of a copiable token copy of the source.
+// Audit: metadata-only — Needs dynamic Rat-count power and toughness and creation of a copiable token copy of the source.
+pub(in crate::card::sets) static PACK_RAT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("170693f5-13db-4191-99b1-e527ffb5b88e"),
+    "Pack Rat",
+    crate::card::CardArt::new("170693f5-13db-4191-99b1-e527ffb5b88e", "Kev Walker"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 74 — Perilous Shadow
 pub(in crate::card::sets) static PERILOUS_SHADOW: CardRecord = CardRecord::new_with_legacy_id(
@@ -1753,7 +1869,14 @@ pub(in crate::card::sets) static STAB_WOUND: CardRecord = CardRecord::new_with_l
 );
 
 // RTR 79 — Tavern Swindler
-// Audit: blocked — Coin flips and their replay-visible random outcomes are unavailable.
+// Audit: metadata-only — Coin flips and their replay-visible random outcomes are unavailable.
+pub(in crate::card::sets) static TAVERN_SWINDLER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("47240ed3-f256-45fb-ab38-7b07e672d2ed"),
+    "Tavern Swindler",
+    crate::card::CardArt::new("47240ed3-f256-45fb-ab38-7b07e672d2ed", "Cynthia Sheppard"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 80 — Terrus Wurm
 pub(in crate::card::sets) static TERRUS_WURM: CardRecord = CardRecord::new_with_legacy_id(
@@ -1857,10 +1980,24 @@ pub(in crate::card::sets) static ZANIKEV_LOCUST: CardRecord = CardRecord::new_wi
 );
 
 // RTR 85 — Annihilating Fire
-// Audit: blocked — Needs a damage-linked, turn-long replacement that exiles a creature if it dies after being dealt this damage.
+// Audit: metadata-only — Needs a damage-linked, turn-long replacement that exiles a creature if it dies after being dealt this damage.
+pub(in crate::card::sets) static ANNIHILATING_FIRE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ae12fd10-c13e-4777-a233-96204ec75ac1"),
+    "Annihilating Fire",
+    crate::card::CardArt::new("ae12fd10-c13e-4777-a233-96204ec75ac1", "Clint Cearley"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 86 — Ash Zealot
-// Audit: blocked — Needs a spell-cast trigger predicate that identifies spells cast specifically from a graveyard.
+// Audit: metadata-only — Needs a spell-cast trigger predicate that identifies spells cast specifically from a graveyard.
+pub(in crate::card::sets) static ASH_ZEALOT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1f61b1a3-4b3b-4490-a9dc-17aac258cbda"),
+    "Ash Zealot",
+    crate::card::CardArt::new("1f61b1a3-4b3b-4490-a9dc-17aac258cbda", "Eric Deschamps"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 static BATTERHORN_DESTROY: EffectDef = EffectDef::Destroy {
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -2106,7 +2243,14 @@ pub(in crate::card::sets) static GORE_HOUSE_CHAINWALKER: CardRecord =
     );
 
 // RTR 97 — Guild Feud
-// Audit: blocked — Needs two linked top-three selections, optional creature entries, graveyard placement, and a conditional fight between the chosen creatures.
+// Audit: metadata-only — Needs two linked top-three selections, optional creature entries, graveyard placement, and a conditional fight between the chosen creatures.
+pub(in crate::card::sets) static GUILD_FEUD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8e622878-0aea-4401-873e-d34bf05ee98d"),
+    "Guild Feud",
+    crate::card::CardArt::new("8e622878-0aea-4401-873e-d34bf05ee98d", "Karl Kopinski"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 98 — Guttersnipe
 pub(in crate::card::sets) static GUTTERSNIPE: CardRecord = CardRecord::new_with_legacy_id(
@@ -2561,7 +2705,14 @@ pub(in crate::card::sets) static ARCHWEAVER: CardRecord = CardRecord::new_with_l
 );
 
 // RTR 115 — Axebane Guardian
-// Audit: blocked — Needs a dynamic amount of mana distributed in an arbitrary combination of colors.
+// Audit: metadata-only — Needs a dynamic amount of mana distributed in an arbitrary combination of colors.
+pub(in crate::card::sets) static AXEBANE_GUARDIAN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("725584fe-9e97-4020-89b1-5e5b45a5beb2"),
+    "Axebane Guardian",
+    crate::card::CardArt::new("725584fe-9e97-4020-89b1-5e5b45a5beb2", "Slawomir Maniak"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 116 — Axebane Stag
 pub(in crate::card::sets) static AXEBANE_STAG: CardRecord = vanilla_creature(
@@ -2766,6 +2917,8 @@ pub(in crate::card::sets) static GATECREEPER_VINE: CardRecord = CardRecord::new_
     ]),
 );
 
+// RTR 125 — Giant Growth (reprint)
+
 // RTR 126 — Gobbling Ooze
 pub(in crate::card::sets) static GOBBLING_OOZE: CardRecord = CardRecord::new_with_legacy_id(
     1302,
@@ -2859,10 +3012,24 @@ pub(in crate::card::sets) static KOROZDA_MONITOR: CardRecord = CardRecord::new_w
 );
 
 // RTR 130 — Mana Bloom
-// Audit: blocked — Needs X entry counters, a remove-counter mana cost limited to once each turn, and a no-charge-counter upkeep condition.
+// Audit: metadata-only — Needs X entry counters, a remove-counter mana cost limited to once each turn, and a no-charge-counter upkeep condition.
+pub(in crate::card::sets) static MANA_BLOOM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d7592d88-64e8-4a31-b00a-f65d4b1867fc"),
+    "Mana Bloom",
+    crate::card::CardArt::new("d7592d88-64e8-4a31-b00a-f65d4b1867fc", "Mike Bierek"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 131 — Oak Street Innkeeper
-// Audit: blocked — Needs a continuous other-player-turn and tapped-state condition when granting hexproof.
+// Audit: metadata-only — Needs a continuous other-player-turn and tapped-state condition when granting hexproof.
+pub(in crate::card::sets) static OAK_STREET_INNKEEPER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("08274d1b-52b7-46c1-8f93-7631d2e21def"),
+    "Oak Street Innkeeper",
+    crate::card::CardArt::new("08274d1b-52b7-46c1-8f93-7631d2e21def", "Svetlin Velinov"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 132 — Rubbleback Rhino
 pub(in crate::card::sets) static RUBBLEBACK_RHINO: CardRecord = keyword_creature(
@@ -2936,7 +3103,14 @@ pub(in crate::card::sets) static SEEK_THE_HORIZON: CardRecord = CardRecord::new_
 );
 
 // RTR 135 — Slime Molding
-// Audit: blocked — Token creation cannot produce a token whose power and toughness are the chosen X value.
+// Audit: metadata-only — Token creation cannot produce a token whose power and toughness are the chosen X value.
+pub(in crate::card::sets) static SLIME_MOLDING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("44a439e8-d586-4995-abfc-3dee5c860968"),
+    "Slime Molding",
+    crate::card::CardArt::new("44a439e8-d586-4995-abfc-3dee5c860968", "Marco Nelor"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 136 — Stonefare Crocodile
 pub(in crate::card::sets) static STONEFARE_CROCODILE: CardRecord = CardRecord::new_with_legacy_id(
@@ -2971,10 +3145,24 @@ pub(in crate::card::sets) static TOWERING_INDRIK: CardRecord = keyword_creature(
 );
 
 // RTR 138 — Urban Burgeoning
-// Audit: blocked — Needs an Aura-granted untap action during each other player's untap step.
+// Audit: metadata-only — Needs an Aura-granted untap action during each other player's untap step.
+pub(in crate::card::sets) static URBAN_BURGEONING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("393c230f-5bc3-4b71-b5ac-81d5ce227df5"),
+    "Urban Burgeoning",
+    crate::card::CardArt::new("393c230f-5bc3-4b71-b5ac-81d5ce227df5", "Nic Klein"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 139 — Wild Beastmaster
-// Audit: blocked — Needs this creature's power captured as X when the attack trigger resolves so the resulting bonus remains fixed for the turn.
+// Audit: metadata-only — Needs this creature's power captured as X when the attack trigger resolves so the resulting bonus remains fixed for the turn.
+pub(in crate::card::sets) static WILD_BEASTMASTER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a4d4ef98-949b-49db-b4f9-a070f8b4ff47"),
+    "Wild Beastmaster",
+    crate::card::CardArt::new("a4d4ef98-949b-49db-b4f9-a070f8b4ff47", "Kev Walker"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 /// Both walks, because "from anywhere" needs both: the battlefield walk is
 /// what sees a permanent die, and only the graveyard walk sees a card that
@@ -3343,7 +3531,14 @@ pub(in crate::card::sets) static COMMON_BOND: CardRecord = CardRecord::new_with_
 );
 
 // RTR 152 — Corpsejack Menace
-// Audit: blocked — Needs a replacement effect that doubles +1/+1 counters placed on creatures you control.
+// Audit: metadata-only — Needs a replacement effect that doubles +1/+1 counters placed on creatures you control.
+pub(in crate::card::sets) static CORPSEJACK_MENACE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b35a8efe-2a3e-4060-9134-d4150e4bdf28"),
+    "Corpsejack Menace",
+    crate::card::CardArt::new("b35a8efe-2a3e-4060-9134-d4150e4bdf28", "Chris Rahn"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 153 — Counterflux
 pub(in crate::card::sets) static COUNTERFLUX: CardRecord = CardRecord::new_with_legacy_id(
@@ -3504,7 +3699,14 @@ pub(in crate::card::sets) static DREG_MANGLER: CardRecord = CardRecord::new_with
 );
 
 // RTR 159 — Epic Experiment
-// Audit: blocked — Needs linked top-X exile, permission to cast qualifying cards without paying their costs, and cleanup of the uncast cards.
+// Audit: metadata-only — Needs linked top-X exile, permission to cast qualifying cards without paying their costs, and cleanup of the uncast cards.
+pub(in crate::card::sets) static EPIC_EXPERIMENT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("42f0b68a-de4b-4c0c-98ac-a812017f88a7"),
+    "Epic Experiment",
+    crate::card::CardArt::new("42f0b68a-de4b-4c0c-98ac-a812017f88a7", "Dan Murayama Scott"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 160 — Essence Backlash
 // Audit: partial — TargetPower cannot read a creature spell's power, so the post-counter damage amount resolves as zero.
@@ -3559,7 +3761,14 @@ pub(in crate::card::sets) static FALL_OF_THE_GAVEL: CardRecord = CardRecord::new
 );
 
 // RTR 162 — Firemind's Foresight
-// Audit: blocked — Needs three sequential hidden-library searches with distinct exact mana-value predicates before one final shuffle.
+// Audit: metadata-only — Needs three sequential hidden-library searches with distinct exact mana-value predicates before one final shuffle.
+pub(in crate::card::sets) static FIREMIND_S_FORESIGHT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9cb5cb63-e7ec-4fc3-a389-4d8b5a4b96b9"),
+    "Firemind's Foresight",
+    crate::card::CardArt::new("9cb5cb63-e7ec-4fc3-a389-4d8b5a4b96b9", "Dan Murayama Scott"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 static INSTANT_OR_SORCERY: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
     ObjectPredicateDef::HasType(CardType::Instant),
@@ -3634,7 +3843,14 @@ pub(in crate::card::sets) static GRISLY_SALVAGE: CardRecord = CardRecord::new_wi
 );
 
 // RTR 166 — Havoc Festival
-// Audit: blocked — Needs a player-wide life-gain prohibition and an upkeep loss amount of half that player's life rounded up.
+// Audit: metadata-only — Needs a player-wide life-gain prohibition and an upkeep loss amount of half that player's life rounded up.
+pub(in crate::card::sets) static HAVOC_FESTIVAL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("04560623-c768-4273-a40d-7e3f39e832cf"),
+    "Havoc Festival",
+    crate::card::CardArt::new("04560623-c768-4273-a40d-7e3f39e832cf", "Johannes Voss"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 167 — Hellhole Flailer
 pub(in crate::card::sets) static HELLHOLE_FLAILER: CardRecord = CardRecord::new_with_legacy_id(
@@ -3692,7 +3908,14 @@ pub(in crate::card::sets) static HUSSAR_PATROL: CardRecord = CardRecord::new_wit
 );
 
 // RTR 170 — Hypersonic Dragon
-// Audit: blocked — Needs a static timing permission that lets every sorcery spell you cast be cast as though it had flash.
+// Audit: metadata-only — Needs a static timing permission that lets every sorcery spell you cast be cast as though it had flash.
+pub(in crate::card::sets) static HYPERSONIC_DRAGON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f024b19a-923a-4313-be06-e743d3fbab46"),
+    "Hypersonic Dragon",
+    crate::card::CardArt::new("f024b19a-923a-4313-be06-e743d3fbab46", "Dan Murayama Scott"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 171 — Isperia, Supreme Judge
 pub(in crate::card::sets) static ISPERIA_SUPREME_JUDGE: CardRecord = CardRecord::new_with_legacy_id(
@@ -3786,10 +4009,24 @@ pub(in crate::card::sets) static IZZET_STATICASTER: CardRecord = CardRecord::new
 );
 
 // RTR 174 — Jarad, Golgari Lich Lord
-// Audit: blocked — Needs a dynamic creature-card graveyard bonus and sacrifice costs whose chosen object's power and land subtypes drive linked effects.
+// Audit: metadata-only — Needs a dynamic creature-card graveyard bonus and sacrifice costs whose chosen object's power and land subtypes drive linked effects.
+pub(in crate::card::sets) static JARAD_GOLGARI_LICH_LORD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f6a2f10c-721c-40c7-8fe1-b4877a40fe96"),
+    "Jarad, Golgari Lich Lord",
+    crate::card::CardArt::new("02ef18d1-fd05-4dbc-9fa7-a383799b34e9", "Eric Deschamps"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 175 — Jarad's Orders
-// Audit: blocked — Needs a two-card hidden search followed by assigning one selected creature to hand and the other to graveyard.
+// Audit: metadata-only — Needs a two-card hidden search followed by assigning one selected creature to hand and the other to graveyard.
+pub(in crate::card::sets) static JARAD_S_ORDERS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c59171ce-7dc6-4dd9-a124-3c2c3028d93d"),
+    "Jarad's Orders",
+    crate::card::CardArt::new("c59171ce-7dc6-4dd9-a124-3c2c3028d93d", "Svetlin Velinov"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 /// One Saproling per point of toughness the sacrifice had.
 static KOROZDA_GUILDMAGE_PAYOFF: EffectDef =
@@ -3847,7 +4084,14 @@ pub(in crate::card::sets) static KOROZDA_GUILDMAGE: CardRecord = CardRecord::new
 );
 
 // RTR 177 — Lotleth Troll
-// Audit: blocked — Its discard-for-counter ability is expressible, but regeneration shields are not available for the whole card.
+// Audit: metadata-only — Its discard-for-counter ability is expressible, but regeneration shields are not available for the whole card.
+pub(in crate::card::sets) static LOTLETH_TROLL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3b628197-f26c-457a-b9a4-c1f1d3e02f3d"),
+    "Lotleth Troll",
+    crate::card::CardArt::new("3b628197-f26c-457a-b9a4-c1f1d3e02f3d", "Vincent Proce"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 178 — Loxodon Smiter
 pub(in crate::card::sets) static LOXODON_SMITER: CardRecord = CardRecord::new_with_legacy_id(
@@ -3907,7 +4151,14 @@ pub(in crate::card::sets) static LYEV_SKYKNIGHT: CardRecord = CardRecord::new_wi
 );
 
 // RTR 180 — Mercurial Chemister
-// Audit: blocked — The second ability needs the discarded card's mana value linked through its activation cost as the damage amount.
+// Audit: metadata-only — The second ability needs the discarded card's mana value linked through its activation cost as the damage amount.
+pub(in crate::card::sets) static MERCURIAL_CHEMISTER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("881728ce-4b18-410e-9cdb-4d439ce0b21d"),
+    "Mercurial Chemister",
+    crate::card::CardArt::new("881728ce-4b18-410e-9cdb-4d439ce0b21d", "Wesley Burt"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 181 — New Prahv Guildmage
 pub(in crate::card::sets) static NEW_PRAHV_GUILDMAGE: CardRecord = CardRecord::new_with_legacy_id(
@@ -3949,7 +4200,14 @@ pub(in crate::card::sets) static NEW_PRAHV_GUILDMAGE: CardRecord = CardRecord::n
 static NEW_PRAHV_FLYING: AbilityDef = abilities::flying();
 
 // RTR 182 — Nivix Guildmage
-// Audit: blocked — Its second activation needs copying a targeted instant or sorcery spell and optionally choosing new targets for the copy.
+// Audit: metadata-only — Its second activation needs copying a targeted instant or sorcery spell and optionally choosing new targets for the copy.
+pub(in crate::card::sets) static NIVIX_GUILDMAGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9d3fde47-8d9e-4a84-b8a5-dcfe0c1d443c"),
+    "Nivix Guildmage",
+    crate::card::CardArt::new("9d3fde47-8d9e-4a84-b8a5-dcfe0c1d443c", "Scott M. Fischer"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 183 — Niv-Mizzet, Dracogenius
 pub(in crate::card::sets) static NIV_MIZZET_DRACOGENIUS: CardRecord =
@@ -3991,7 +4249,14 @@ pub(in crate::card::sets) static NIV_MIZZET_DRACOGENIUS: CardRecord =
     );
 
 // RTR 184 — Rakdos Charm
-// Audit: blocked — Its third mode needs each creature to be the source of damage dealt to its own controller.
+// Audit: metadata-only — Its third mode needs each creature to be the source of damage dealt to its own controller.
+pub(in crate::card::sets) static RAKDOS_CHARM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0fcd4394-d22d-4eec-ad73-ffaf10ad60de"),
+    "Rakdos Charm",
+    crate::card::CardArt::new("0fcd4394-d22d-4eec-ad73-ffaf10ad60de", "Zoltan Boros"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 185 — Rakdos Ragemutt
 pub(in crate::card::sets) static RAKDOS_RAGEMUTT: CardRecord = CardRecord::new_with_legacy_id(
@@ -4035,10 +4300,24 @@ pub(in crate::card::sets) static RAKDOS_RINGLEADER: CardRecord = CardRecord::new
 );
 
 // RTR 187 — Rakdos, Lord of Riots
-// Audit: blocked — Needs a life-lost-this-turn cast restriction and a global creature-spell cost reduction derived from opponents' life loss.
+// Audit: metadata-only — Needs a life-lost-this-turn cast restriction and a global creature-spell cost reduction derived from opponents' life loss.
+pub(in crate::card::sets) static RAKDOS_LORD_OF_RIOTS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("04f3db71-802f-488c-b40d-ac90df2d660a"),
+    "Rakdos, Lord of Riots",
+    crate::card::CardArt::new("04f3db71-802f-488c-b40d-ac90df2d660a", "Vincent Proce"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 188 — Rakdos's Return
-// Audit: blocked — Targeting cannot restrict a player-or-planeswalker union to an opponent while routing the discard to that player or the planeswalker's controller.
+// Audit: metadata-only — Targeting cannot restrict a player-or-planeswalker union to an opponent while routing the discard to that player or the planeswalker's controller.
+pub(in crate::card::sets) static RAKDOS_S_RETURN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d72981c0-1632-4d64-9341-2a76047d9b36"),
+    "Rakdos's Return",
+    crate::card::CardArt::new("d72981c0-1632-4d64-9341-2a76047d9b36", "Daarken"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 /// "Its controller's hand", not the Aura controller's, so gifting the
 /// creature away moves the bonus and the extra draw with it.
@@ -4100,13 +4379,34 @@ pub(in crate::card::sets) static RISEN_SANCTUARY: CardRecord = keyword_creature(
 );
 
 // RTR 191 — Rites of Reaping
-// Audit: blocked — Needs two creature targets constrained to be different; ordinary target slots currently allow choosing the same creature twice.
+// Audit: metadata-only — Needs two creature targets constrained to be different; ordinary target slots currently allow choosing the same creature twice.
+pub(in crate::card::sets) static RITES_OF_REAPING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("115d504f-3aec-4374-8cd8-732d56c448f2"),
+    "Rites of Reaping",
+    crate::card::CardArt::new("115d504f-3aec-4374-8cd8-732d56c448f2", "David Rapoza"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 192 — Rix Maadi Guildmage
-// Audit: blocked — Its second activation needs a target-player predicate for a player who lost life this turn.
+// Audit: metadata-only — Its second activation needs a target-player predicate for a player who lost life this turn.
+pub(in crate::card::sets) static RIX_MAADI_GUILDMAGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("eb737465-5de8-4015-befe-2bf386da2a89"),
+    "Rix Maadi Guildmage",
+    crate::card::CardArt::new("eb737465-5de8-4015-befe-2bf386da2a89", "Karl Kopinski"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 193 — Search Warrant
-// Audit: blocked — Needs revealing a target player's hand and counting the cards in that player's hand for the life-gain amount.
+// Audit: metadata-only — Needs revealing a target player's hand and counting the cards in that player's hand for the life-gain amount.
+pub(in crate::card::sets) static SEARCH_WARRANT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d55f625a-6e9e-40ba-ae46-cf6bafc0a41b"),
+    "Search Warrant",
+    crate::card::CardArt::new("d55f625a-6e9e-40ba-ae46-cf6bafc0a41b", "Steven Belledin"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 194 — Selesnya Charm
 // Audit: partial — Its power target predicate ignores power changes from static continuous effects.
@@ -4220,7 +4520,14 @@ pub(in crate::card::sets) static SKYMARK_ROC: CardRecord = CardRecord::new_with_
 );
 
 // RTR 197 — Slaughter Games
-// Audit: blocked — Needs a nonland card-name choice and a name-linked search across an opponent's graveyard, hand, and library.
+// Audit: metadata-only — Needs a nonland card-name choice and a name-linked search across an opponent's graveyard, hand, and library.
+pub(in crate::card::sets) static SLAUGHTER_GAMES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("bf37391d-db35-40a7-908a-abb53895793c"),
+    "Slaughter Games",
+    crate::card::CardArt::new("bf37391d-db35-40a7-908a-abb53895793c", "Steve Prescott"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 198 — Sluiceway Scorpion
 pub(in crate::card::sets) static SLUICEWAY_SCORPION: CardRecord = CardRecord::new_with_legacy_id(
@@ -4594,7 +4901,14 @@ pub(in crate::card::sets) static WAYFARING_TEMPLE: CardRecord = CardRecord::new_
 );
 
 // RTR 210 — Azor's Elocutors
-// Audit: blocked — Needs filibuster counters, a five-counter win condition, and damage-to-player triggers that remove that custom counter kind.
+// Audit: metadata-only — Needs filibuster counters, a five-counter win condition, and damage-to-player triggers that remove that custom counter kind.
+pub(in crate::card::sets) static AZOR_S_ELOCUTORS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("61e82934-546b-4734-a715-b22ace4c5a9b"),
+    "Azor's Elocutors",
+    crate::card::CardArt::new("61e82934-546b-4734-a715-b22ace4c5a9b", "Johannes Voss"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 211 — Blistercoil Weird
 pub(in crate::card::sets) static BLISTERCOIL_WEIRD: CardRecord = CardRecord::new_with_legacy_id(
@@ -4627,7 +4941,14 @@ pub(in crate::card::sets) static BLISTERCOIL_WEIRD: CardRecord = CardRecord::new
 );
 
 // RTR 212 — Cryptborn Horror
-// Audit: blocked — Needs the total life lost by all opponents this turn as a dynamic enters-with-counter replacement value.
+// Audit: metadata-only — Needs the total life lost by all opponents this turn as a dynamic enters-with-counter replacement value.
+pub(in crate::card::sets) static CRYPTBORN_HORROR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8ffd77d7-3fe6-4493-96eb-f62183c0358d"),
+    "Cryptborn Horror",
+    crate::card::CardArt::new("8ffd77d7-3fe6-4493-96eb-f62183c0358d", "Richard Wright"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 213 — Deathrite Shaman
 // Audit: partial — A mana ability cannot both exile its graveyard target and produce a chosen color through the shared mana-ability path.
@@ -4708,7 +5029,14 @@ pub(in crate::card::sets) static DEATHRITE_SHAMAN: CardRecord = CardRecord::new_
 );
 
 // RTR 214 — Dryad Militant
-// Audit: blocked — The graveyard replacement event cannot filter the moving object to instant or sorcery cards.
+// Audit: metadata-only — The graveyard replacement event cannot filter the moving object to instant or sorcery cards.
+pub(in crate::card::sets) static DRYAD_MILITANT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2bb8cb8c-0d03-4cbf-b7f2-a97324817698"),
+    "Dryad Militant",
+    crate::card::CardArt::new("2bb8cb8c-0d03-4cbf-b7f2-a97324817698", "Terese Nielsen"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 215 — Frostburn Weird
 pub(in crate::card::sets) static FROSTBURN_WEIRD: CardRecord = CardRecord::new_with_legacy_id(
@@ -4781,7 +5109,14 @@ pub(in crate::card::sets) static JUDGES_FAMILIAR: CardRecord = CardRecord::new_w
 );
 
 // RTR 219 — Nivmagus Elemental
-// Audit: blocked — Needs exiling a chosen instant or sorcery spell you control from the stack as an activation cost.
+// Audit: metadata-only — Needs exiling a chosen instant or sorcery spell you control from the stack as an activation cost.
+pub(in crate::card::sets) static NIVMAGUS_ELEMENTAL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b1892003-2e4c-43bd-8a37-3a97a76f113a"),
+    "Nivmagus Elemental",
+    crate::card::CardArt::new("b1892003-2e4c-43bd-8a37-3a97a76f113a", "Mike Bierek"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 220 — Rakdos Cackler
 pub(in crate::card::sets) static RAKDOS_CACKLER: CardRecord = CardRecord::new_with_legacy_id(
@@ -5216,13 +5551,34 @@ pub(in crate::card::sets) static SELESNYA_KEYRUNE: CardRecord = CardRecord::new_
 );
 
 // RTR 234 — Street Sweeper
-// Audit: blocked — Needs selecting and destroying every Aura attached to the targeted land through an attachment-relationship predicate.
+// Audit: metadata-only — Needs selecting and destroying every Aura attached to the targeted land through an attachment-relationship predicate.
+pub(in crate::card::sets) static STREET_SWEEPER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4a62827a-183f-4bef-b6ce-20a4577f6d30"),
+    "Street Sweeper",
+    crate::card::CardArt::new("4a62827a-183f-4bef-b6ce-20a4577f6d30", "Izzy"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 235 — Tablet of the Guilds
-// Audit: blocked — Needs choosing and storing two colors, matching cast spells against both, and counting how many chosen colors match.
+// Audit: metadata-only — Needs choosing and storing two colors, matching cast spells against both, and counting how many chosen colors match.
+pub(in crate::card::sets) static TABLET_OF_THE_GUILDS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6b006384-6fb6-4129-b1d2-7674d1141f8f"),
+    "Tablet of the Guilds",
+    crate::card::CardArt::new("6b006384-6fb6-4129-b1d2-7674d1141f8f", "Nic Klein"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 236 — Volatile Rig
-// Audit: blocked — Needs coin flips with lose branches for both damage and death triggers.
+// Audit: metadata-only — Needs coin flips with lose branches for both damage and death triggers.
+pub(in crate::card::sets) static VOLATILE_RIG: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5055ed18-b234-4702-92eb-4d483431ff47"),
+    "Volatile Rig",
+    crate::card::CardArt::new("5055ed18-b234-4702-92eb-4d483431ff47", "Mathias Kollros"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 237 — Azorius Guildgate
 pub(in crate::card::sets) static AZORIUS_GUILDGATE: CardRecord = CardRecord::new_with_legacy_id(
@@ -5272,7 +5628,14 @@ pub(in crate::card::sets) static GOLGARI_GUILDGATE: CardRecord = CardRecord::new
 );
 
 // RTR 240 — Grove of the Guardian
-// Audit: blocked — Needs tapping two chosen untapped creatures you control as one activation cost.
+// Audit: metadata-only — Needs tapping two chosen untapped creatures you control as one activation cost.
+pub(in crate::card::sets) static GROVE_OF_THE_GUARDIAN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3cf60ca0-e01f-499c-8d04-d59050f38c33"),
+    "Grove of the Guardian",
+    crate::card::CardArt::new("3cf60ca0-e01f-499c-8d04-d59050f38c33", "Christine Choi"),
+    crate::card::CardSet::ReturnToRavnica,
+    crate::card::CardRules::unsupported(),
+);
 
 // RTR 241 — Hallowed Fountain
 pub(in crate::card::sets) static HALLOWED_FOUNTAIN: CardRecord = CardRecord::new_with_legacy_id(
@@ -5428,8 +5791,59 @@ pub(in crate::card::sets) static TRANSGUILD_PROMENADE: CardRecord = CardRecord::
     ]),
 );
 
+// RTR 250 — Plains (reprint)
+
+// RTR 251 — Plains (alternate printing)
+
+// RTR 252 — Plains (alternate printing)
+
+// RTR 253 — Plains (alternate printing)
+
+// RTR 254 — Plains (alternate printing)
+
+// RTR 255 — Island (reprint)
+
+// RTR 256 — Island (alternate printing)
+
+// RTR 257 — Island (alternate printing)
+
+// RTR 258 — Island (alternate printing)
+
+// RTR 259 — Island (alternate printing)
+
+// RTR 260 — Swamp (reprint)
+
+// RTR 261 — Swamp (alternate printing)
+
+// RTR 262 — Swamp (alternate printing)
+
+// RTR 263 — Swamp (alternate printing)
+
+// RTR 264 — Swamp (alternate printing)
+
+// RTR 265 — Mountain (reprint)
+
+// RTR 266 — Mountain (alternate printing)
+
+// RTR 267 — Mountain (alternate printing)
+
+// RTR 268 — Mountain (alternate printing)
+
+// RTR 269 — Mountain (alternate printing)
+
+// RTR 270 — Forest (reprint)
+
+// RTR 271 — Forest (alternate printing)
+
+// RTR 272 — Forest (alternate printing)
+
+// RTR 273 — Forest (alternate printing)
+
+// RTR 274 — Forest (alternate printing)
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ANGEL_OF_SERENITY,
+    &ARMORY_GUARD,
     &AVENGING_ARROW,
     &AZORIUS_ARRESTER,
     &AZORIUS_JUSTICIAR,
@@ -5441,12 +5855,16 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &KEENING_APPARITION,
     &KNIGHTLY_VALOR,
     &MARTIAL_LAW,
+    &PALISADE_GIANT,
     &PHANTOM_GENERAL,
     &PRECINCT_CAPTAIN,
     &REST_IN_PEACE,
     &ROOTBORN_DEFENSES,
+    &SECURITY_BLOCKADE,
     &SELESNYA_SENTRY,
     &SELLER_OF_SONGBIRDS,
+    &SOUL_TITHE,
+    &SPHERE_OF_SAFETY,
     &SUNSPIRE_GRIFFIN,
     &SWIFT_JUSTICE,
     &TRAINED_CARACAL,
@@ -5454,11 +5872,14 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AQUUS_STEED,
     &BLUSTERSQUALL,
     &CANCEL,
+    &CHRONIC_FLOODING,
+    &CONJURED_CURRENCY,
     &CROSSTOWN_COURIER,
     &CYCLONIC_RIFT,
     &DISPEL,
     &DOORKEEPER,
     &DOWNSIZE,
+    &FAERIE_IMPOSTOR,
     &HOVER_BARRIER,
     &INACTION_INJUNCTION,
     &INSPIRATION,
@@ -5466,9 +5887,12 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &JACE_ARCHITECT_OF_THOUGHT,
     &MIZZIUM_SKIN,
     &PARALYZING_GRASP,
+    &PSYCHIC_SPIRAL,
     &RUNEWING,
+    &SEARCH_THE_CITY,
     &SKYLINE_PREDATOR,
     &SOULSWORN_SPIRIT,
+    &SPHINX_OF_THE_CHIMES,
     &STEALER_OF_SECRETS,
     &SYNCOPATE,
     &TOWER_DRAKE,
@@ -5477,23 +5901,31 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CATACOMB_SLUG,
     &CREMATE,
     &DAGGERDROME_IMP,
+    &DARK_REVENANT,
     &DEAD_REVELER,
     &DESECRATION_DEMON,
+    &DESTROY_THE_EVIDENCE,
     &DEVIANT_GLEE,
     &DRAINPIPE_VERMIN,
+    &GRAVE_BETRAYAL,
     &GRIM_ROUSTABOUT,
+    &LAUNCH_PARTY,
     &NECROPOLIS_REGENT,
     &OGRE_JAILBREAKER,
+    &PACK_RAT,
     &PERILOUS_SHADOW,
     &SEWER_SHAMBLER,
     &SHRIEKING_AFFLICTION,
     &SLUM_REAPER,
     &STAB_WOUND,
+    &TAVERN_SWINDLER,
     &TERRUS_WURM,
     &THRILL_KILL_ASSASSIN,
     &ULTIMATE_PRICE,
     &UNDERWORLD_CONNECTIONS,
     &ZANIKEV_LOCUST,
+    &ANNIHILATING_FIRE,
+    &ASH_ZEALOT,
     &BATTERHORN,
     &BELLOWS_LIZARD,
     &BLOODFRAY_GIANT,
@@ -5504,6 +5936,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &EXPLOSIVE_IMPACT,
     &GOBLIN_RALLY,
     &GORE_HOUSE_CHAINWALKER,
+    &GUILD_FEUD,
     &GUTTERSNIPE,
     &LOBBER_CREW,
     &MINOTAUR_AGGRESSOR,
@@ -5521,6 +5954,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &VIASHINO_RACKETEER,
     &AERIAL_PREDATION,
     &ARCHWEAVER,
+    &AXEBANE_GUARDIAN,
     &AXEBANE_STAG,
     &BRUSHSTRIDER,
     &CENTAURS_HERALD,
@@ -5534,11 +5968,16 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GOLGARI_DECOY,
     &HORNCALLERS_CHANT,
     &KOROZDA_MONITOR,
+    &MANA_BLOOM,
+    &OAK_STREET_INNKEEPER,
     &RUBBLEBACK_RHINO,
     &SAVAGE_SURGE,
     &SEEK_THE_HORIZON,
+    &SLIME_MOLDING,
     &STONEFARE_CROCODILE,
     &TOWERING_INDRIK,
+    &URBAN_BURGEONING,
+    &WILD_BEASTMASTER,
     &WORLDSPINE_WURM,
     &ABRUPT_DECAY,
     &ARCHON_OF_THE_TRIUMVIRATE,
@@ -5551,35 +5990,52 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CHEMISTERS_TRICK,
     &COLLECTIVE_BLESSING,
     &COMMON_BOND,
+    &CORPSEJACK_MENACE,
     &COUNTERFLUX,
     &COURSERS_ACCORD,
     &DETENTION_SPHERE,
     &DRAMATIC_RESCUE,
     &DREADBORE,
     &DREG_MANGLER,
+    &EPIC_EXPERIMENT,
     &ESSENCE_BACKLASH,
     &FALL_OF_THE_GAVEL,
+    &FIREMIND_S_FORESIGHT,
     &GOBLIN_ELECTROMANCER,
     &GOLGARI_CHARM,
     &GRISLY_SALVAGE,
+    &HAVOC_FESTIVAL,
     &HELLHOLE_FLAILER,
     &HEROES_REUNION,
     &HUSSAR_PATROL,
+    &HYPERSONIC_DRAGON,
     &ISPERIA_SUPREME_JUDGE,
     &IZZET_CHARM,
     &IZZET_STATICASTER,
+    &JARAD_GOLGARI_LICH_LORD,
+    &JARAD_S_ORDERS,
     &KOROZDA_GUILDMAGE,
+    &LOTLETH_TROLL,
     &LOXODON_SMITER,
     &LYEV_SKYKNIGHT,
+    &MERCURIAL_CHEMISTER,
     &NEW_PRAHV_GUILDMAGE,
+    &NIVIX_GUILDMAGE,
     &NIV_MIZZET_DRACOGENIUS,
+    &RAKDOS_CHARM,
     &RAKDOS_RAGEMUTT,
     &RAKDOS_RINGLEADER,
+    &RAKDOS_LORD_OF_RIOTS,
+    &RAKDOS_S_RETURN,
     &RIGHTEOUS_AUTHORITY,
     &RISEN_SANCTUARY,
+    &RITES_OF_REAPING,
+    &RIX_MAADI_GUILDMAGE,
+    &SEARCH_WARRANT,
     &SELESNYA_CHARM,
     &SKULL_REND,
     &SKYMARK_ROC,
+    &SLAUGHTER_GAMES,
     &SLUICEWAY_SCORPION,
     &SPAWN_OF_RIX_MAADI,
     &SPHINXS_REVELATION,
@@ -5592,12 +6048,16 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &VITU_GHAZI_GUILDMAGE,
     &VRASKA_THE_UNSEEN,
     &WAYFARING_TEMPLE,
+    &AZOR_S_ELOCUTORS,
     &BLISTERCOIL_WEIRD,
+    &CRYPTBORN_HORROR,
     &DEATHRITE_SHAMAN,
+    &DRYAD_MILITANT,
     &FROSTBURN_WEIRD,
     &GOLGARI_LONGLEGS,
     &GROWING_RANKS,
     &JUDGES_FAMILIAR,
+    &NIVMAGUS_ELEMENTAL,
     &RAKDOS_CACKLER,
     &RAKDOS_SHRED_FREAK,
     &SLITHERHEAD,
@@ -5612,9 +6072,13 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PITHING_NEEDLE,
     &RAKDOS_KEYRUNE,
     &SELESNYA_KEYRUNE,
+    &STREET_SWEEPER,
+    &TABLET_OF_THE_GUILDS,
+    &VOLATILE_RIG,
     &AZORIUS_GUILDGATE,
     &BLOOD_CRYPT,
     &GOLGARI_GUILDGATE,
+    &GROVE_OF_THE_GUARDIAN,
     &HALLOWED_FOUNTAIN,
     &IZZET_GUILDGATE,
     &OVERGROWN_TOMB,

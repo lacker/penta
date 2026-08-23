@@ -1,6 +1,7 @@
 //! New Phyrexia cards used to exercise Phyrexian mana.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, EffectDef,
     EffectRecipientDef, ValueDef,
@@ -609,6 +610,8 @@ pub(in crate::card::sets) static ENTOMBER_EXARCH: CardRecord = CardRecord::new(
     crate::card::CardSet::NewPhyrexia,
     crate::card::CardRules::unsupported(),
 );
+
+// NPH 60 — Evil Presence (reprint)
 
 // NPH 61 — Geth's Verdict
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1515,6 +1518,8 @@ pub(in crate::card::sets) static PESTILENT_SOULEATER: CardRecord = CardRecord::n
     crate::card::CardRules::unsupported(),
 );
 
+// NPH 150 — Phyrexian Hulk (reprint)
+
 // NPH 151 — Pristine Talisman
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PRISTINE_TALISMAN: CardRecord = CardRecord::new(
@@ -1667,6 +1672,26 @@ pub(in crate::card::sets) static PHYREXIA_S_CORE: CardRecord = CardRecord::new(
     crate::card::CardSet::NewPhyrexia,
     crate::card::CardRules::unsupported(),
 );
+
+// NPH 166 — Plains (reprint)
+
+// NPH 167 — Plains (alternate printing)
+
+// NPH 168 — Island (reprint)
+
+// NPH 169 — Island (alternate printing)
+
+// NPH 170 — Swamp (reprint)
+
+// NPH 171 — Swamp (alternate printing)
+
+// NPH 172 — Mountain (reprint)
+
+// NPH 173 — Mountain (alternate printing)
+
+// NPH 174 — Forest (reprint)
+
+// NPH 175 — Forest (alternate printing)
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &KARN_LIBERATED,
@@ -1838,8 +1863,13 @@ pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
     PrintingRecord::reprint(&crate::card::sets::y1993::alpha::EVIL_PRESENCE), // NPH 60
     PrintingRecord::reprint(&crate::card::sets::y2012::magic_2013::PHYREXIAN_HULK), // NPH 150
     PrintingRecord::reprint(&crate::card::sets::y1993::alpha::PLAINS),        // NPH 166
+    PrintingRecord::alternate(&catalog_lea::PLAINS, 1),                       // NPH 167
     PrintingRecord::reprint(&crate::card::sets::y1993::alpha::ISLAND),        // NPH 168
+    PrintingRecord::alternate(&catalog_lea::ISLAND, 1),                       // NPH 169
     PrintingRecord::reprint(&crate::card::sets::y1993::alpha::SWAMP),         // NPH 170
+    PrintingRecord::alternate(&catalog_lea::SWAMP, 1),                        // NPH 171
     PrintingRecord::reprint(&crate::card::sets::y1993::alpha::MOUNTAIN),      // NPH 172
+    PrintingRecord::alternate(&catalog_lea::MOUNTAIN, 1),                     // NPH 173
     PrintingRecord::reprint(&crate::card::sets::y1993::alpha::FOREST),        // NPH 174
+    PrintingRecord::alternate(&catalog_lea::FOREST, 1),                       // NPH 175
 ];

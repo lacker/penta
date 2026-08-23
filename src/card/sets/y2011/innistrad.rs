@@ -1,6 +1,7 @@
-//! Innistrad card records used by the built-in ISD–DGM Standard deck tranche.
+//! Innistrad card records used by the built-in ISD–M14 Standard deck tranche.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::sets::y2007::lorwyn as catalog_lrw;
 use crate::card::sets::{y1993::alpha, y2002::onslaught, y2009::zendikar};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityPolicyHint, AbilityTargetDef,
@@ -78,7 +79,14 @@ pub(in crate::card::sets) static ANGEL_OF_FLIGHT_ALABASTER: CardRecord = CardRec
 );
 
 // ISD 3 — Angelic Overseer
-// Audit: blocked — Needs a continuous condition that grants hexproof and indestructible only while you control a Human.
+// Audit: metadata-only — Needs a continuous condition that grants hexproof and indestructible only while you control a Human.
+pub(in crate::card::sets) static ANGELIC_OVERSEER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("221d999c-dde1-4a0f-87cf-9e9f44969f94"),
+    "Angelic Overseer",
+    crate::card::CardArt::new("221d999c-dde1-4a0f-87cf-9e9f44969f94", "Jason Chan"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 4 — Avacynian Priest
 pub(in crate::card::sets) static AVACYNIAN_PRIEST: CardRecord = CardRecord::new_with_legacy_id(
@@ -107,7 +115,14 @@ pub(in crate::card::sets) static AVACYNIAN_PRIEST: CardRecord = CardRecord::new_
 );
 
 // ISD 5 — Bonds of Faith
-// Audit: blocked — Needs a subtype-conditional Aura effect that switches between +2/+2 and an attack-and-block prohibition.
+// Audit: metadata-only — Needs a subtype-conditional Aura effect that switches between +2/+2 and an attack-and-block prohibition.
+pub(in crate::card::sets) static BONDS_OF_FAITH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("cc8d1ce0-78c5-4e97-9cca-33e7b6ff3440"),
+    "Bonds of Faith",
+    crate::card::CardArt::new("cc8d1ce0-78c5-4e97-9cca-33e7b6ff3440", "Steve Argyle"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 6 — Champion of the Parish
 pub(in crate::card::sets) static CHAMPION_OF_THE_PARISH: CardRecord =
@@ -215,10 +230,24 @@ pub(in crate::card::sets) static CLOISTERED_YOUTH: CardRecord = CardRecord::new_
 .with_composition(cloistered_youth_composition);
 
 // ISD 9 — Dearly Departed
-// Audit: blocked — Needs a graveyard static ability that modifies how other Human creatures enter with counters.
+// Audit: metadata-only — Needs a graveyard static ability that modifies how other Human creatures enter with counters.
+pub(in crate::card::sets) static DEARLY_DEPARTED: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d008061f-cda4-4bcf-b6b3-d1b4a251cc66"),
+    "Dearly Departed",
+    crate::card::CardArt::new("d008061f-cda4-4bcf-b6b3-d1b4a251cc66", "Daniel Ljunggren"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 10 — Divine Reckoning
-// Audit: blocked — Needs simultaneous per-player creature choices followed by destroying every unchosen creature.
+// Audit: metadata-only — Needs simultaneous per-player creature choices followed by destroying every unchosen creature.
+pub(in crate::card::sets) static DIVINE_RECKONING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("446ea3a4-206a-4097-87c1-c04bb7812972"),
+    "Divine Reckoning",
+    crate::card::CardArt::new("446ea3a4-206a-4097-87c1-c04bb7812972", "Greg Staples"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 11 — Doomed Traveler
 pub(in crate::card::sets) static DOOMED_TRAVELER: CardRecord = CardRecord::new_with_legacy_id(
@@ -585,7 +614,14 @@ pub(in crate::card::sets) static MIDNIGHT_HAUNTING: CardRecord = CardRecord::new
 );
 
 // ISD 23 — Mikaeus, the Lunarch
-// Audit: blocked — Needs an X-valued enters-with-counters replacement and a counter-removal activation that buffs every other creature.
+// Audit: metadata-only — Needs an X-valued enters-with-counters replacement and a counter-removal activation that buffs every other creature.
+pub(in crate::card::sets) static MIKAEUS_THE_LUNARCH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("77976ca8-7c7a-469c-a99a-808de1b8bf71"),
+    "Mikaeus, the Lunarch",
+    crate::card::CardArt::new("c22dc283-ea54-4344-b1ca-fd6cc05080d9", "Steven Belledin"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 24 — Moment of Heroism
 pub(in crate::card::sets) static MOMENT_OF_HEROISM: CardRecord = CardRecord::new_with_legacy_id(
@@ -620,10 +656,24 @@ pub(in crate::card::sets) static MOMENT_OF_HEROISM: CardRecord = CardRecord::new
 );
 
 // ISD 25 — Nevermore
-// Audit: blocked — Needs a nonland card-name choice and a cast prohibition keyed to that stored name.
+// Audit: metadata-only — Needs a nonland card-name choice and a cast prohibition keyed to that stored name.
+pub(in crate::card::sets) static NEVERMORE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("67b610fe-36ee-4d58-8ed4-04e7a12587b2"),
+    "Nevermore",
+    crate::card::CardArt::new("67b610fe-36ee-4d58-8ed4-04e7a12587b2", "Jason A. Engle"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 26 — Paraselene
-// Audit: blocked — Needs a linked count of enchantments actually destroyed before gaining that much life.
+// Audit: metadata-only — Needs a linked count of enchantments actually destroyed before gaining that much life.
+pub(in crate::card::sets) static PARASELENE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("406380ab-2695-4084-99a5-f5560304f8cb"),
+    "Paraselene",
+    crate::card::CardArt::new("406380ab-2695-4084-99a5-f5560304f8cb", "Ryan Yee"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 27 — Purify the Grave
 pub(in crate::card::sets) static PURIFY_THE_GRAVE: CardRecord = CardRecord::new_with_legacy_id(
@@ -814,7 +864,14 @@ pub(in crate::card::sets) static SMITE_THE_MONSTROUS: CardRecord = CardRecord::n
 );
 
 // ISD 34 — Spare from Evil
-// Audit: blocked — Needs temporary protection from the class of all non-Human creatures.
+// Audit: metadata-only — Needs temporary protection from the class of all non-Human creatures.
+pub(in crate::card::sets) static SPARE_FROM_EVIL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d01b5d97-b5ae-42a7-944a-feb12febd63c"),
+    "Spare from Evil",
+    crate::card::CardArt::new("d01b5d97-b5ae-42a7-944a-feb12febd63c", "Jason Felix"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 35 — Spectral Rider
 pub(in crate::card::sets) static SPECTRAL_RIDER: CardRecord = CardRecord::new_with_legacy_id(
@@ -1037,7 +1094,14 @@ pub(in crate::card::sets) static ARMORED_SKAAB: CardRecord = CardRecord::new_wit
 );
 
 // ISD 44 — Back from the Brink
-// Audit: blocked — Needs a graveyard creature-card cost and a token-copy effect carrying the exiled card's copiable values.
+// Audit: metadata-only — Needs a graveyard creature-card cost and a token-copy effect carrying the exiled card's copiable values.
+pub(in crate::card::sets) static BACK_FROM_THE_BRINK: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b4bba140-5c06-4542-9ae0-b2517104ab7c"),
+    "Back from the Brink",
+    crate::card::CardArt::new("b4bba140-5c06-4542-9ae0-b2517104ab7c", "Anthony Palumbo"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 45 — Battleground Geist
 pub(in crate::card::sets) static BATTLEGROUND_GEIST: CardRecord = CardRecord::new_with_legacy_id(
@@ -1069,10 +1133,24 @@ pub(in crate::card::sets) static BATTLEGROUND_GEIST: CardRecord = CardRecord::ne
 );
 
 // ISD 46 — Cackling Counterpart
-// Audit: blocked — Needs creation of a token with the target creature's copiable values.
+// Audit: metadata-only — Needs creation of a token with the target creature's copiable values.
+pub(in crate::card::sets) static CACKLING_COUNTERPART: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8a2a2b93-94dc-4285-a6fd-455a796426bc"),
+    "Cackling Counterpart",
+    crate::card::CardArt::new("8a2a2b93-94dc-4285-a6fd-455a796426bc", "David Rapoza"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 47 — Civilized Scholar
-// Audit: blocked — Needs a discard choice linked to a creature-card test, conditional untap, and transform continuation.
+// Audit: metadata-only — Needs a discard choice linked to a creature-card test, conditional untap, and transform continuation.
+pub(in crate::card::sets) static CIVILIZED_SCHOLAR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7bf864db-4754-433d-9d77-6695f78f6c09"),
+    "Civilized Scholar",
+    crate::card::CardArt::new("7bf864db-4754-433d-9d77-6695f78f6c09", "Michael C. Hayes"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 48 — Claustrophobia
 pub(in crate::card::sets) static CLAUSTROPHOBIA: CardRecord = CardRecord::new_with_legacy_id(
@@ -1154,10 +1232,24 @@ pub(in crate::card::sets) static CURIOSITY: CardRecord = CardRecord::new_with_le
 );
 
 // ISD 50 — Curse of the Bloody Tome
-// Audit: blocked — Needs an Aura that targets and remains attached to a player, then derives upkeep from that player.
+// Audit: metadata-only — Needs an Aura that targets and remains attached to a player, then derives upkeep from that player.
+pub(in crate::card::sets) static CURSE_OF_THE_BLOODY_TOME: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c7865e11-263b-4d61-af54-907c1acbb54f"),
+    "Curse of the Bloody Tome",
+    crate::card::CardArt::new("c7865e11-263b-4d61-af54-907c1acbb54f", "Jaime Jones"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 51 — Delver of Secrets
-// Audit: blocked — Needs the optional top-card reveal procedure and a conditional transform based on the revealed card's type.
+// Audit: metadata-only — Needs the optional top-card reveal procedure and a conditional transform based on the revealed card's type.
+pub(in crate::card::sets) static DELVER_OF_SECRETS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("11bf83bb-c95b-4b4f-9a56-ce7a1816307a"),
+    "Delver of Secrets",
+    crate::card::CardArt::new("11bf83bb-c95b-4b4f-9a56-ce7a1816307a", "Nils Hamm"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 52 — Deranged Assistant
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1259,7 +1351,14 @@ pub(in crate::card::sets) static FORTRESS_CRAB: CardRecord = CardRecord::new_wit
 );
 
 // ISD 57 — Frightful Delusion
-// Audit: blocked — Needs a post-payment continuation so the discard occurs only after the counter-unless-payment decision finishes.
+// Audit: metadata-only — Needs a post-payment continuation so the discard occurs only after the counter-unless-payment decision finishes.
+pub(in crate::card::sets) static FRIGHTFUL_DELUSION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("38c9ba98-90b4-4c28-9eef-a4fe0913b921"),
+    "Frightful Delusion",
+    crate::card::CardArt::new("38c9ba98-90b4-4c28-9eef-a4fe0913b921", "Anthony Palumbo"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 58 — Grasp of Phantoms
 pub(in crate::card::sets) static GRASP_OF_PHANTOMS: CardRecord = CardRecord::new_with_legacy_id(
@@ -1331,7 +1430,14 @@ pub(in crate::card::sets) static INVISIBLE_STALKER: CardRecord = CardRecord::new
 );
 
 // ISD 61 — Laboratory Maniac
-// Audit: blocked — Needs a replacement for an empty-library draw that wins the game instead.
+// Audit: metadata-only — Needs a replacement for an empty-library draw that wins the game instead.
+pub(in crate::card::sets) static LABORATORY_MANIAC: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("809205f3-acf5-4244-b360-09ce4ba76795"),
+    "Laboratory Maniac",
+    crate::card::CardArt::new("809205f3-acf5-4244-b360-09ce4ba76795", "Jason Felix"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 62 — Lantern Spirit
 pub(in crate::card::sets) static LANTERN_SPIRIT: CardRecord = CardRecord::new_with_legacy_id(
@@ -1390,7 +1496,14 @@ pub(in crate::card::sets) static LOST_IN_THE_MIST: CardRecord = CardRecord::new_
 );
 
 // ISD 64 — Ludevic's Test Subject
-// Audit: blocked — Needs hatchling counters and an activation continuation that removes all five before transforming.
+// Audit: metadata-only — Needs hatchling counters and an activation continuation that removes all five before transforming.
+pub(in crate::card::sets) static LUDEVIC_S_TEST_SUBJECT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("340b660c-9aa1-4bd2-8c6f-d9af7fee5f4a"),
+    "Ludevic's Test Subject",
+    crate::card::CardArt::new("ebf5e16f-a8bd-419f-b5ca-8c7fce09c4f1", "Nils Hamm"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 /// "As an additional cost to cast this spell, exile a creature card from your
 /// graveyard."
@@ -1422,13 +1535,34 @@ pub(in crate::card::sets) static MAKESHIFT_MAULER: CardRecord = CardRecord::new_
 );
 
 // ISD 66 — Memory's Journey
-// Audit: blocked — Needs a linked target-player relation for up to three cards in that player's graveyard, then shuffling that library.
+// Audit: metadata-only — Needs a linked target-player relation for up to three cards in that player's graveyard, then shuffling that library.
+pub(in crate::card::sets) static MEMORY_S_JOURNEY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("265aaa73-1a1e-4282-a860-f7c422f21db3"),
+    "Memory's Journey",
+    crate::card::CardArt::new("265aaa73-1a1e-4282-a860-f7c422f21db3", "Slawomir Maniak"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 67 — Mindshrieker
-// Audit: blocked — Needs the mana value of the specific milled card as a linked temporary P/T value.
+// Audit: metadata-only — Needs the mana value of the specific milled card as a linked temporary P/T value.
+pub(in crate::card::sets) static MINDSHRIEKER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ab1e52af-6746-4ec6-afbf-008594c874f8"),
+    "Mindshrieker",
+    crate::card::CardArt::new("ab1e52af-6746-4ec6-afbf-008594c874f8", "Dave Kendall"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 68 — Mirror-Mad Phantasm
-// Audit: blocked — Needs self-shuffle followed by reveal-until-name and separate placement of the named and other revealed cards.
+// Audit: metadata-only — Needs self-shuffle followed by reveal-until-name and separate placement of the named and other revealed cards.
+pub(in crate::card::sets) static MIRROR_MAD_PHANTASM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b20eea41-9daf-4ac1-8bad-bb4aa211bb53"),
+    "Mirror-Mad Phantasm",
+    crate::card::CardArt::new("b20eea41-9daf-4ac1-8bad-bb4aa211bb53", "Howard Lyon"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 69 — Moon Heron
 pub(in crate::card::sets) static MOON_HERON: CardRecord = CardRecord::new_with_legacy_id(
@@ -1478,10 +1612,24 @@ pub(in crate::card::sets) static MURDER_OF_CROWS: CardRecord = CardRecord::new_w
 );
 
 // ISD 71 — Rooftop Storm
-// Audit: blocked — Needs a battlefield-wide alternative cost of {0} for Zombie creature spells you cast.
+// Audit: metadata-only — Needs a battlefield-wide alternative cost of {0} for Zombie creature spells you cast.
+pub(in crate::card::sets) static ROOFTOP_STORM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ab01d871-ba50-400a-95e7-09af9e34405f"),
+    "Rooftop Storm",
+    crate::card::CardArt::new("ab01d871-ba50-400a-95e7-09af9e34405f", "John Stanko"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 72 — Runic Repetition
-// Audit: blocked — Needs a predicate identifying exiled cards that have a flashback ability.
+// Audit: metadata-only — Needs a predicate identifying exiled cards that have a flashback ability.
+pub(in crate::card::sets) static RUNIC_REPETITION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("53e47ba6-3a55-41b4-b8fe-580041669408"),
+    "Runic Repetition",
+    crate::card::CardArt::new("53e47ba6-3a55-41b4-b8fe-580041669408", "Svetlin Velinov"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 73 — Selhoff Occultist
 pub(in crate::card::sets) static SELHOFF_OCCULTIST: CardRecord = CardRecord::new_with_legacy_id(
@@ -1598,7 +1746,14 @@ pub(in crate::card::sets) static SKAAB_GOLIATH: CardRecord = CardRecord::new_wit
 );
 
 // ISD 77 — Skaab Ruinator
-// Audit: blocked — Needs a three-card graveyard exile casting cost and permission to cast this card from your graveyard.
+// Audit: metadata-only — Needs a three-card graveyard exile casting cost and permission to cast this card from your graveyard.
+pub(in crate::card::sets) static SKAAB_RUINATOR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("44c40cdc-a11a-47df-b902-d8fbe9014d03"),
+    "Skaab Ruinator",
+    crate::card::CardArt::new("44c40cdc-a11a-47df-b902-d8fbe9014d03", "Chris Rahn"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 78 — Snapcaster Mage
 pub(in crate::card::sets) static SNAPCASTER_MAGE: CardRecord = CardRecord::new_with_legacy_id(
@@ -1779,7 +1934,14 @@ pub(in crate::card::sets) static THINK_TWICE: CardRecord = CardRecord::new_with_
 );
 
 // ISD 84 — Undead Alchemist
-// Audit: blocked — Needs a combat-damage replacement that mills instead, plus a linked library-to-graveyard creature-card trigger.
+// Audit: metadata-only — Needs a combat-damage replacement that mills instead, plus a linked library-to-graveyard creature-card trigger.
+pub(in crate::card::sets) static UNDEAD_ALCHEMIST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("717f4592-6c81-43ac-8975-f6d5d6710310"),
+    "Undead Alchemist",
+    crate::card::CardArt::new("717f4592-6c81-43ac-8975-f6d5d6710310", "Michael C. Hayes"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 85 — Abattoir Ghoul
 pub(in crate::card::sets) static ABATTOIR_GHOUL: CardRecord = CardRecord::new_with_legacy_id(
@@ -1864,7 +2026,14 @@ pub(in crate::card::sets) static ARMY_OF_THE_DAMNED: CardRecord = CardRecord::ne
 );
 
 // ISD 88 — Bitterheart Witch
-// Audit: blocked — Needs searching for a Curse and putting it onto the battlefield attached to a targeted player.
+// Audit: metadata-only — Needs searching for a Curse and putting it onto the battlefield attached to a targeted player.
+pub(in crate::card::sets) static BITTERHEART_WITCH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("cf2ff2b4-8f40-42c0-af3c-b55bfa8839be"),
+    "Bitterheart Witch",
+    crate::card::CardArt::new("cf2ff2b4-8f40-42c0-af3c-b55bfa8839be", "Karl Kopinski"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 89 — Bloodgift Demon
 pub(in crate::card::sets) static BLOODGIFT_DEMON: CardRecord = CardRecord::new_with_legacy_id(
@@ -1898,10 +2067,24 @@ pub(in crate::card::sets) static BLOODGIFT_DEMON: CardRecord = CardRecord::new_w
 );
 
 // ISD 90 — Bloodline Keeper
-// Audit: blocked — Needs an activation restriction based on controlling five Vampires before transforming.
+// Audit: metadata-only — Needs an activation restriction based on controlling five Vampires before transforming.
+pub(in crate::card::sets) static BLOODLINE_KEEPER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("13896468-e3d0-4bcb-b09e-b5c187aecb03"),
+    "Bloodline Keeper",
+    crate::card::CardArt::new("13896468-e3d0-4bcb-b09e-b5c187aecb03", "Jason Chan"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 91 — Brain Weevil
-// Audit: blocked — Needs the “activate only as a sorcery” timing restriction on its sacrifice-and-discard ability.
+// Audit: metadata-only — Needs the “activate only as a sorcery” timing restriction on its sacrifice-and-discard ability.
+pub(in crate::card::sets) static BRAIN_WEEVIL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("40e1bd88-939a-4adc-8693-210a7ba9a5a1"),
+    "Brain Weevil",
+    crate::card::CardArt::new("40e1bd88-939a-4adc-8693-210a7ba9a5a1", "Anthony Jones"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 92 — Bump in the Night
 pub(in crate::card::sets) static BUMP_IN_THE_NIGHT: CardRecord = CardRecord::new_with_legacy_id(
@@ -1925,13 +2108,40 @@ pub(in crate::card::sets) static BUMP_IN_THE_NIGHT: CardRecord = CardRecord::new
 );
 
 // ISD 93 — Corpse Lunge
-// Audit: blocked — Needs an exiled graveyard card as a casting cost and its linked power as the spell's damage amount.
+// Audit: metadata-only — Needs an exiled graveyard card as a casting cost and its linked power as the spell's damage amount.
+pub(in crate::card::sets) static CORPSE_LUNGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2a74b987-527a-4560-a018-19d6bdf7e8b7"),
+    "Corpse Lunge",
+    crate::card::CardArt::new(
+        "2a74b987-527a-4560-a018-19d6bdf7e8b7",
+        "Christopher Moeller",
+    ),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 94 — Curse of Death's Hold
-// Audit: blocked — Needs an Aura attached to a player and a static effect over creatures that enchanted player controls.
+// Audit: metadata-only — Needs an Aura attached to a player and a static effect over creatures that enchanted player controls.
+pub(in crate::card::sets) static CURSE_OF_DEATH_S_HOLD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1774d0a8-1cd3-4582-ace0-1caff92af0e7"),
+    "Curse of Death's Hold",
+    crate::card::CardArt::new("1774d0a8-1cd3-4582-ace0-1caff92af0e7", "Clint Cearley"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 95 — Curse of Oblivion
-// Audit: blocked — Needs a player Aura whose upkeep trigger makes that player choose two cards in their graveyard to exile.
+// Audit: metadata-only — Needs a player Aura whose upkeep trigger makes that player choose two cards in their graveyard to exile.
+pub(in crate::card::sets) static CURSE_OF_OBLIVION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c15cbd2f-8bbf-423a-81fe-521fd99bc8bf"),
+    "Curse of Oblivion",
+    crate::card::CardArt::new(
+        "c15cbd2f-8bbf-423a-81fe-521fd99bc8bf",
+        "Jana Schirmer & Johannes Voss",
+    ),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 96 — Dead Weight
 pub(in crate::card::sets) static DEAD_WEIGHT: CardRecord = CardRecord::new_with_legacy_id(
@@ -2136,7 +2346,14 @@ pub(in crate::card::sets) static GHOULCALLERS_CHANT: CardRecord = CardRecord::ne
 );
 
 // ISD 102 — Ghoulraiser
-// Audit: blocked — Needs deterministic random selection of a Zombie card from your graveyard.
+// Audit: metadata-only — Needs deterministic random selection of a Zombie card from your graveyard.
+pub(in crate::card::sets) static GHOULRAISER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("52c537d1-2d57-4a87-9dac-594d40d95633"),
+    "Ghoulraiser",
+    crate::card::CardArt::new("52c537d1-2d57-4a87-9dac-594d40d95633", "Steve Prescott"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 103 — Gruesome Deformity
 pub(in crate::card::sets) static GRUESOME_DEFORMITY: CardRecord = CardRecord::new_with_legacy_id(
@@ -2167,7 +2384,14 @@ pub(in crate::card::sets) static GRUESOME_DEFORMITY: CardRecord = CardRecord::ne
 );
 
 // ISD 104 — Heartless Summoning
-// Audit: blocked — Needs a battlefield-wide generic cost reduction for creature spells you cast.
+// Audit: metadata-only — Needs a battlefield-wide generic cost reduction for creature spells you cast.
+pub(in crate::card::sets) static HEARTLESS_SUMMONING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("14f8f638-b7fc-4e38-8623-ce7d2ebc82e6"),
+    "Heartless Summoning",
+    crate::card::CardArt::new("14f8f638-b7fc-4e38-8623-ce7d2ebc82e6", "Anthony Palumbo"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 static LILIANA_ULTIMATE_RESOLVER: CardAbilityResolver = CardAbilityResolver::new(
     "innistrad/liliana-of-the-veil/ultimate",
@@ -2386,10 +2610,27 @@ pub(in crate::card::sets) static MORKRUT_BANSHEE: CardRecord = CardRecord::new_w
 );
 
 // ISD 111 — Night Terrors
-// Audit: blocked — Needs revealing another player's hand, choosing a nonland card from it, and exiling that choice.
+// Audit: metadata-only — Needs revealing another player's hand, choosing a nonland card from it, and exiling that choice.
+pub(in crate::card::sets) static NIGHT_TERRORS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5091658c-0314-42ee-87d8-95d3f457c4ab"),
+    "Night Terrors",
+    crate::card::CardArt::new(
+        "5091658c-0314-42ee-87d8-95d3f457c4ab",
+        "Christopher Moeller",
+    ),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 112 — Reaper from the Abyss
-// Audit: blocked — Needs a morbid intervening-if check on each end step before choosing a non-Demon target.
+// Audit: metadata-only — Needs a morbid intervening-if check on each end step before choosing a non-Demon target.
+pub(in crate::card::sets) static REAPER_FROM_THE_ABYSS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f0d74c3e-8370-419b-808d-96b8d9306024"),
+    "Reaper from the Abyss",
+    crate::card::CardArt::new("f0d74c3e-8370-419b-808d-96b8d9306024", "Matt Stewart"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 113 — Rotting Fensnake
 pub(in crate::card::sets) static ROTTING_FENSNAKE: CardRecord = CardRecord::new_with_legacy_id(
@@ -2538,7 +2779,14 @@ pub(in crate::card::sets) static SKELETAL_GRIMACE: CardRecord = CardRecord::new_
 );
 
 // ISD 117 — Skirsdag High Priest
-// Audit: blocked — Needs tapping two separately chosen other creatures as an activation cost and a morbid activation restriction.
+// Audit: metadata-only — Needs tapping two separately chosen other creatures as an activation cost and a morbid activation restriction.
+pub(in crate::card::sets) static SKIRSDAG_HIGH_PRIEST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("09aa6b66-f69b-4f89-b802-e30c247f90e3"),
+    "Skirsdag High Priest",
+    crate::card::CardArt::new("09aa6b66-f69b-4f89-b802-e30c247f90e3", "Jason A. Engle"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 118 — Stromkirk Patrol
 pub(in crate::card::sets) static STROMKIRK_PATROL: CardRecord = CardRecord::new_with_legacy_id(
@@ -2600,7 +2848,14 @@ pub(in crate::card::sets) static TYPHOID_RATS: CardRecord = CardRecord::new_with
 );
 
 // ISD 121 — Unbreathing Horde
-// Audit: blocked — Needs a dynamic enters-with-counters count and a damage replacement that removes a counter instead.
+// Audit: metadata-only — Needs a dynamic enters-with-counters count and a damage replacement that removes a counter instead.
+pub(in crate::card::sets) static UNBREATHING_HORDE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1a91ea47-0c06-4333-a309-ac360c5cc9bd"),
+    "Unbreathing Horde",
+    crate::card::CardArt::new("1a91ea47-0c06-4333-a309-ac360c5cc9bd", "Dave Kendall"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 122 — Unburial Rites
 pub(in crate::card::sets) static UNBURIAL_RITES: CardRecord = CardRecord::new_with_legacy_id(
@@ -2731,7 +2986,14 @@ pub(in crate::card::sets) static ANCIENT_GRUDGE: CardRecord = CardRecord::new_wi
 );
 
 // ISD 128 — Ashmouth Hound
-// Audit: blocked — Needs a combat block/becomes-blocked trigger that identifies each opposing creature.
+// Audit: metadata-only — Needs a combat block/becomes-blocked trigger that identifies each opposing creature.
+pub(in crate::card::sets) static ASHMOUTH_HOUND: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("900ff07e-e5d2-4fe6-ad1a-d0d7e1a272ea"),
+    "Ashmouth Hound",
+    crate::card::CardArt::new("900ff07e-e5d2-4fe6-ad1a-d0d7e1a272ea", "Daarken"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 129 — Balefire Dragon
 pub(in crate::card::sets) static BALEFIRE_DRAGON: CardRecord = CardRecord::new_with_legacy_id(
@@ -2824,10 +3086,24 @@ pub(in crate::card::sets) static BRIMSTONE_VOLLEY: CardRecord = CardRecord::new_
 );
 
 // ISD 133 — Burning Vengeance
-// Audit: blocked — Needs spell-cast events to retain the zone from which the spell was cast.
+// Audit: metadata-only — Needs spell-cast events to retain the zone from which the spell was cast.
+pub(in crate::card::sets) static BURNING_VENGEANCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fd403810-840b-46ac-ae6e-5df23ce16fec"),
+    "Burning Vengeance",
+    crate::card::CardArt::new("fd403810-840b-46ac-ae6e-5df23ce16fec", "Raymond Swanland"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 134 — Charmbreaker Devils
-// Audit: blocked — Needs deterministic random selection of an instant or sorcery card from your graveyard.
+// Audit: metadata-only — Needs deterministic random selection of an instant or sorcery card from your graveyard.
+pub(in crate::card::sets) static CHARMBREAKER_DEVILS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a9197a67-6609-496c-9aae-825ede4f755b"),
+    "Charmbreaker Devils",
+    crate::card::CardArt::new("a9197a67-6609-496c-9aae-825ede4f755b", "Dan Murayama Scott"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 135 — Crossway Vampire
 pub(in crate::card::sets) static CROSSWAY_VAMPIRE: CardRecord = CardRecord::new_with_legacy_id(
@@ -2856,13 +3132,37 @@ pub(in crate::card::sets) static CROSSWAY_VAMPIRE: CardRecord = CardRecord::new_
 );
 
 // ISD 136 — Curse of Stalked Prey
-// Audit: blocked — Needs a player Aura and a combat-damage trigger derived from the enchanted player.
+// Audit: metadata-only — Needs a player Aura and a combat-damage trigger derived from the enchanted player.
+pub(in crate::card::sets) static CURSE_OF_STALKED_PREY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("11a18883-8990-40a0-bcb2-e01d0e82bfad"),
+    "Curse of Stalked Prey",
+    crate::card::CardArt::new(
+        "11a18883-8990-40a0-bcb2-e01d0e82bfad",
+        "Christopher Moeller",
+    ),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 137 — Curse of the Nightly Hunt
-// Audit: blocked — Needs a player Aura and an attack requirement over creatures that enchanted player controls.
+// Audit: metadata-only — Needs a player Aura and an attack requirement over creatures that enchanted player controls.
+pub(in crate::card::sets) static CURSE_OF_THE_NIGHTLY_HUNT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("49cbfcf2-462e-4bbf-a529-a70816eb1436"),
+    "Curse of the Nightly Hunt",
+    crate::card::CardArt::new("49cbfcf2-462e-4bbf-a529-a70816eb1436", "Daarken"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 138 — Curse of the Pierced Heart
-// Audit: blocked — Needs a player Aura whose upkeep trigger derives the enchanted player and their planeswalkers.
+// Audit: metadata-only — Needs a player Aura whose upkeep trigger derives the enchanted player and their planeswalkers.
+pub(in crate::card::sets) static CURSE_OF_THE_PIERCED_HEART: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("71010182-c004-4d18-adab-80319cd1e625"),
+    "Curse of the Pierced Heart",
+    crate::card::CardArt::new("71010182-c004-4d18-adab-80319cd1e625", "E. M. Gist"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 139 — Desperate Ravings
 pub(in crate::card::sets) static DESPERATE_RAVINGS: CardRecord = CardRecord::new_with_legacy_id(
@@ -3062,10 +3362,24 @@ pub(in crate::card::sets) static HANWEIR_WATCHKEEP: CardRecord = CardRecord::new
 .with_composition(hanweir_watchkeep_composition);
 
 // ISD 146 — Harvest Pyre
-// Audit: blocked — Needs choosing and exiling X graveyard cards as a casting cost linked to the damage amount.
+// Audit: metadata-only — Needs choosing and exiling X graveyard cards as a casting cost linked to the damage amount.
+pub(in crate::card::sets) static HARVEST_PYRE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4d6220b4-a5b8-45c8-9422-fab9eb32322c"),
+    "Harvest Pyre",
+    crate::card::CardArt::new("4d6220b4-a5b8-45c8-9422-fab9eb32322c", "Ryan Yee"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 147 — Heretic's Punishment
-// Audit: blocked — Needs the greatest mana value among three specifically milled cards.
+// Audit: metadata-only — Needs the greatest mana value among three specifically milled cards.
+pub(in crate::card::sets) static HERETIC_S_PUNISHMENT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d2c9e963-bb0c-4490-8238-9476b924abf7"),
+    "Heretic's Punishment",
+    crate::card::CardArt::new("d2c9e963-bb0c-4490-8238-9476b924abf7", "Vincent Proce"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 148 — Infernal Plunge
 pub(in crate::card::sets) static INFERNAL_PLUNGE: CardRecord = CardRecord::new_with_legacy_id(
@@ -3203,7 +3517,14 @@ pub(in crate::card::sets) static KESSIG_WOLF: CardRecord = CardRecord::new_with_
 );
 
 // ISD 152 — Kruin Outlaw
-// Audit: blocked — Needs menace as an executable minimum-blocker constraint granted to Werewolves on the back face.
+// Audit: metadata-only — Needs menace as an executable minimum-blocker constraint granted to Werewolves on the back face.
+pub(in crate::card::sets) static KRUIN_OUTLAW: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ec00d2d2-6597-474a-9353-345bbedfe57e"),
+    "Kruin Outlaw",
+    crate::card::CardArt::new("ec00d2d2-6597-474a-9353-345bbedfe57e", "David Rapoza"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 static NIGHT_REVELERS_HASTE: AbilityDef = abilities::haste();
 
@@ -3727,10 +4048,24 @@ pub(in crate::card::sets) static BRAMBLECRUSH: CardRecord = CardRecord::new_with
 );
 
 // ISD 173 — Caravan Vigil
-// Audit: blocked — Needs the searched card's destination to branch on morbid while preserving the hidden-zone search choice.
+// Audit: metadata-only — Needs the searched card's destination to branch on morbid while preserving the hidden-zone search choice.
+pub(in crate::card::sets) static CARAVAN_VIGIL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9a8dfb98-a975-41bf-8aac-c0001c9ddaa7"),
+    "Caravan Vigil",
+    crate::card::CardArt::new("9a8dfb98-a975-41bf-8aac-c0001c9ddaa7", "Drew Baker"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 174 — Creeping Renaissance
-// Audit: blocked — Needs a permanent-card-type choice and a graveyard sweep keyed to the chosen type.
+// Audit: metadata-only — Needs a permanent-card-type choice and a graveyard sweep keyed to the chosen type.
+pub(in crate::card::sets) static CREEPING_RENAISSANCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b965069d-8513-41ab-98f6-3fbd46c19e2d"),
+    "Creeping Renaissance",
+    crate::card::CardArt::new("b965069d-8513-41ab-98f6-3fbd46c19e2d", "Tomasz Jedruszek"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 175 — Darkthicket Wolf
 pub(in crate::card::sets) static DARKTHICKET_WOLF: CardRecord = CardRecord::new_with_legacy_id(
@@ -3912,7 +4247,14 @@ pub(in crate::card::sets) static ELDER_OF_LAURELS: CardRecord = CardRecord::new_
 );
 
 // ISD 178 — Essence of the Wild
-// Audit: blocked — Needs a battlefield entry replacement that copies the source's copiable values onto other creatures.
+// Audit: metadata-only — Needs a battlefield entry replacement that copies the source's copiable values onto other creatures.
+pub(in crate::card::sets) static ESSENCE_OF_THE_WILD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("dec48cba-1b5d-44e7-9e25-16922dedb67d"),
+    "Essence of the Wild",
+    crate::card::CardArt::new("dec48cba-1b5d-44e7-9e25-16922dedb67d", "Terese Nielsen"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 /// Morbid's entry bonus. The condition is checked as the creature enters, so
 /// a creature dying in response to the spell still counts.
@@ -4197,7 +4539,14 @@ pub(in crate::card::sets) static GATSTAF_SHEPHERD: CardRecord = CardRecord::new_
 .with_composition(gatstaf_shepherd_composition);
 
 // ISD 183 — Gnaw to the Bone
-// Audit: blocked — Needs multiplying the number of creature cards in your graveyard by two for a life-gain amount.
+// Audit: metadata-only — Needs multiplying the number of creature cards in your graveyard by two for a life-gain amount.
+pub(in crate::card::sets) static GNAW_TO_THE_BONE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("416148c8-13d3-46d3-ac93-6eb7cbab2881"),
+    "Gnaw to the Bone",
+    crate::card::CardArt::new("416148c8-13d3-46d3-ac93-6eb7cbab2881", "Scott Chou"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 184 — Grave Bramble
 pub(in crate::card::sets) static GRAVE_BRAMBLE: CardRecord = CardRecord::new_with_legacy_id(
@@ -4261,7 +4610,14 @@ pub(in crate::card::sets) static GRIZZLED_OUTCASTS: CardRecord = CardRecord::new
 .with_composition(grizzled_outcasts_composition);
 
 // ISD 186 — Gutter Grime
-// Audit: blocked — Needs slime counters and a source-linked Ooze token whose P/T tracks the source's counter count.
+// Audit: metadata-only — Needs slime counters and a source-linked Ooze token whose P/T tracks the source's counter count.
+pub(in crate::card::sets) static GUTTER_GRIME: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a9d007a2-163d-4e09-a70b-280a6fa3203b"),
+    "Gutter Grime",
+    crate::card::CardArt::new("a9d007a2-163d-4e09-a70b-280a6fa3203b", "Erica Yang"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 /// One printed clause, two trigger events: a creature cannot both attack and
 /// block, so exactly one of these fires and the bonus lands once.
@@ -4325,7 +4681,14 @@ pub(in crate::card::sets) static HOLLOWHENGE_SCAVENGER: CardRecord = CardRecord:
 );
 
 // ISD 189 — Kessig Cagebreakers
-// Audit: blocked — Needs a dynamic number of Wolf tokens entering tapped and attacking.
+// Audit: metadata-only — Needs a dynamic number of Wolf tokens entering tapped and attacking.
+pub(in crate::card::sets) static KESSIG_CAGEBREAKERS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fae22886-da03-49f2-873c-98a7ea2ee17d"),
+    "Kessig Cagebreakers",
+    crate::card::CardArt::new("fae22886-da03-49f2-873c-98a7ea2ee17d", "Wayne England"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 190 — Kindercatch
 pub(in crate::card::sets) static KINDERCATCH: CardRecord = CardRecord::new_with_legacy_id(
@@ -4361,7 +4724,14 @@ pub(in crate::card::sets) static LUMBERKNOT: CardRecord = CardRecord::new_with_l
 );
 
 // ISD 192 — Make a Wish
-// Audit: blocked — Needs deterministic random selection of two cards from your graveyard.
+// Audit: metadata-only — Needs deterministic random selection of two cards from your graveyard.
+pub(in crate::card::sets) static MAKE_A_WISH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d0a8508d-25a7-4fb2-8aa3-349275f80c42"),
+    "Make a Wish",
+    crate::card::CardArt::new("d0a8508d-25a7-4fb2-8aa3-349275f80c42", "Howard Lyon"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 static MAYOR_OF_AVABRUCK_FRONT_ABILITIES: [AbilityDef; 2] = [
     AbilityDef::static_ability(
@@ -4470,10 +4840,24 @@ pub(in crate::card::sets) static MAYOR_OF_AVABRUCK: CardRecord = CardRecord::new
 .with_composition(mayor_of_avabruck_composition);
 
 // ISD 194 — Moldgraf Monstrosity
-// Audit: blocked — Needs deterministic random selection of two creature cards from your graveyard after exiling the source.
+// Audit: metadata-only — Needs deterministic random selection of two creature cards from your graveyard after exiling the source.
+pub(in crate::card::sets) static MOLDGRAF_MONSTROSITY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f387c86a-702f-4f86-bcb9-d2bfa46fd211"),
+    "Moldgraf Monstrosity",
+    crate::card::CardArt::new("f387c86a-702f-4f86-bcb9-d2bfa46fd211", "Tomasz Jedruszek"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 195 — Moonmist
-// Audit: blocked — Needs transforming all Human double-faced permanents and selectively preventing combat damage from non-Werewolves and non-Wolves.
+// Audit: metadata-only — Needs transforming all Human double-faced permanents and selectively preventing combat damage from non-Werewolves and non-Wolves.
+pub(in crate::card::sets) static MOONMIST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("57153c3f-9e55-418c-b67b-36901f29f9c1"),
+    "Moonmist",
+    crate::card::CardArt::new("57153c3f-9e55-418c-b67b-36901f29f9c1", "Ryan Yee"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 196 — Mulch
 pub(in crate::card::sets) static MULCH: CardRecord = CardRecord::new_with_legacy_id(
@@ -4489,6 +4873,8 @@ pub(in crate::card::sets) static MULCH: CardRecord = CardRecord::new_with_legacy
         ),
     ),
 );
+
+// ISD 197 — Naturalize (reprint)
 
 // ISD 198 — Orchard Spirit
 pub(in crate::card::sets) static ORCHARD_SPIRIT: CardRecord = CardRecord::new_with_legacy_id(
@@ -4513,7 +4899,14 @@ pub(in crate::card::sets) static ORCHARD_SPIRIT: CardRecord = CardRecord::new_wi
 );
 
 // ISD 199 — Parallel Lives
-// Audit: blocked — Needs a token-creation replacement event that doubles the number of tokens an effect would create.
+// Audit: metadata-only — Needs a token-creation replacement event that doubles the number of tokens an effect would create.
+pub(in crate::card::sets) static PARALLEL_LIVES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("01033dae-fec1-41f2-b7f2-cc6a43331790"),
+    "Parallel Lives",
+    crate::card::CardArt::new("01033dae-fec1-41f2-b7f2-cc6a43331790", "Steve Prescott"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 200 — Prey Upon
 pub(in crate::card::sets) static PREY_UPON: CardRecord = CardRecord::new_with_legacy_id(
@@ -4701,7 +5094,14 @@ pub(in crate::card::sets) static TRAVEL_PREPARATIONS: CardRecord = CardRecord::n
 );
 
 // ISD 207 — Tree of Redemption
-// Audit: blocked — Needs exchanging the controller's life total with the source's current toughness.
+// Audit: metadata-only — Needs exchanging the controller's life total with the source's current toughness.
+pub(in crate::card::sets) static TREE_OF_REDEMPTION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c6110bba-5c2d-4183-9dd0-d85a4cc42753"),
+    "Tree of Redemption",
+    crate::card::CardArt::new("c6110bba-5c2d-4183-9dd0-d85a4cc42753", "Vincent Proce"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 const fn ulvenwald_mystics_front_rules() -> CardRules {
     CardRules::new_creature(
@@ -4792,7 +5192,14 @@ pub(in crate::card::sets) static VILLAGERS_OF_ESTWALD: CardRecord = CardRecord::
 .with_composition(villagers_of_estwald_composition);
 
 // ISD 210 — Woodland Sleuth
-// Audit: blocked — Needs deterministic random selection of a creature card from your graveyard under a morbid condition.
+// Audit: metadata-only — Needs deterministic random selection of a creature card from your graveyard under a morbid condition.
+pub(in crate::card::sets) static WOODLAND_SLEUTH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3088a924-58c6-4ab7-baf0-842d6688fcec"),
+    "Woodland Sleuth",
+    crate::card::CardArt::new("3088a924-58c6-4ab7-baf0-842d6688fcec", "Tomasz Jedruszek"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 211 — Wreath of Geists
 pub(in crate::card::sets) static WREATH_OF_GEISTS: CardRecord = CardRecord::new_with_legacy_id(
@@ -4823,16 +5230,44 @@ pub(in crate::card::sets) static WREATH_OF_GEISTS: CardRecord = CardRecord::new_
 );
 
 // ISD 212 — Evil Twin
-// Audit: blocked — Needs a copy-as-enters choice plus a retained same-name destruction ability.
+// Audit: metadata-only — Needs a copy-as-enters choice plus a retained same-name destruction ability.
+pub(in crate::card::sets) static EVIL_TWIN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3a53487a-c00b-42da-904c-f022a0c5b1ed"),
+    "Evil Twin",
+    crate::card::CardArt::new("3a53487a-c00b-42da-904c-f022a0c5b1ed", "Greg Staples"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 213 — Geist of Saint Traft
-// Audit: blocked — Needs a token entering tapped and attacking, linked to exile at end of combat.
+// Audit: metadata-only — Needs a token entering tapped and attacking, linked to exile at end of combat.
+pub(in crate::card::sets) static GEIST_OF_SAINT_TRAFT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("35b57113-b39a-460b-b4aa-02606b40bbd0"),
+    "Geist of Saint Traft",
+    crate::card::CardArt::new("35b57113-b39a-460b-b4aa-02606b40bbd0", "Igor Kieryluk"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 214 — Grimgrin, Corpse-Born
-// Audit: blocked — Needs an attack target restricted to the defending player's creatures and a linked destroy-then-counter continuation.
+// Audit: metadata-only — Needs an attack target restricted to the defending player's creatures and a linked destroy-then-counter continuation.
+pub(in crate::card::sets) static GRIMGRIN_CORPSE_BORN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a8648734-ed6c-471f-91a1-6b710bbaf370"),
+    "Grimgrin, Corpse-Born",
+    crate::card::CardArt::new("a8648734-ed6c-471f-91a1-6b710bbaf370", "Peter Mohrbacher"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 215 — Olivia Voldaren
-// Audit: blocked — Needs a permanent subtype-adding effect and control lasting only while the source remains controlled.
+// Audit: metadata-only — Needs a permanent subtype-adding effect and control lasting only while the source remains controlled.
+pub(in crate::card::sets) static OLIVIA_VOLDAREN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ed750692-ba6a-4a89-ad6d-92fda7edc2cb"),
+    "Olivia Voldaren",
+    crate::card::CardArt::new("ed750692-ba6a-4a89-ad6d-92fda7edc2cb", "Eric Deschamps"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 static EQUIPPED_CREATURE_IS_HUMAN: TriggerConditionDef =
     TriggerConditionDef::AttachedPermanentMatches {
@@ -4857,6 +5292,8 @@ static SILVER_INLAID_DAGGER_HUMAN: EffectDef = EffectDef::StaticApply {
     recipient: EffectRecipientDef::AttachedPermanent,
     effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(0)),
 };
+
+// ISD 216 — Blazing Torch (reprint)
 
 // ISD 217 — Butcher's Cleaver
 pub(in crate::card::sets) static BUTCHERS_CLEAVER: CardRecord = CardRecord::new_with_legacy_id(
@@ -4889,7 +5326,14 @@ pub(in crate::card::sets) static BUTCHERS_CLEAVER: CardRecord = CardRecord::new_
 );
 
 // ISD 218 — Cellar Door
-// Audit: blocked — Needs moving the bottom library card and branching on that moved card's creature type.
+// Audit: metadata-only — Needs moving the bottom library card and branching on that moved card's creature type.
+pub(in crate::card::sets) static CELLAR_DOOR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("97bdfb00-7773-4af6-895c-c90088a96b07"),
+    "Cellar Door",
+    crate::card::CardArt::new("97bdfb00-7773-4af6-895c-c90088a96b07", "Rob Alexander"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 static COBBLED_WINGS_FLYING: AbilityDef = abilities::flying();
 
@@ -4918,7 +5362,14 @@ pub(in crate::card::sets) static COBBLED_WINGS: CardRecord = CardRecord::new_wit
 );
 
 // ISD 220 — Creepy Doll
-// Audit: blocked — Needs a recorded coin flip after combat damage to a creature and a conditional destroy branch.
+// Audit: metadata-only — Needs a recorded coin flip after combat damage to a creature and a conditional destroy branch.
+pub(in crate::card::sets) static CREEPY_DOLL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("762a598b-8753-47ec-9dd6-2c3d8882fda6"),
+    "Creepy Doll",
+    crate::card::CardArt::new("762a598b-8753-47ec-9dd6-2c3d8882fda6", "Matt Stewart"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 static DEMONMAIL_HAUBERK_EQUIP_COST: [AbilityCostDef; 1] = [AbilityCostDef::SacrificePermanent {
     object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -5028,16 +5479,44 @@ pub(in crate::card::sets) static GHOULCALLERS_BELL: CardRecord = CardRecord::new
 );
 
 // ISD 225 — Graveyard Shovel
-// Audit: blocked — Needs the targeted player to choose one card from their graveyard and a creature-card test after exile.
+// Audit: metadata-only — Needs the targeted player to choose one card from their graveyard and a creature-card test after exile.
+pub(in crate::card::sets) static GRAVEYARD_SHOVEL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1a4b8888-a10c-48b1-ba19-c041e5667b29"),
+    "Graveyard Shovel",
+    crate::card::CardArt::new("1a4b8888-a10c-48b1-ba19-c041e5667b29", "Martina Pilcerova"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 226 — Grimoire of the Dead
-// Audit: blocked — Needs study counters and a graveyard sweep that changes returned creatures' colors and types.
+// Audit: metadata-only — Needs study counters and a graveyard sweep that changes returned creatures' colors and types.
+pub(in crate::card::sets) static GRIMOIRE_OF_THE_DEAD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d268d078-b854-47c1-bc7f-7698723405a2"),
+    "Grimoire of the Dead",
+    crate::card::CardArt::new("d268d078-b854-47c1-bc7f-7698723405a2", "Steven Belledin"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 227 — Inquisitor's Flail
-// Audit: blocked — Needs combat-damage replacement effects tied to an equipped creature.
+// Audit: metadata-only — Needs combat-damage replacement effects tied to an equipped creature.
+pub(in crate::card::sets) static INQUISITOR_S_FLAIL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3014f59d-9012-473a-8bb1-8085c6e91632"),
+    "Inquisitor's Flail",
+    crate::card::CardArt::new("3014f59d-9012-473a-8bb1-8085c6e91632", "Rob Alexander"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 228 — Manor Gargoyle
-// Audit: blocked — Needs indestructible to depend continuously on retaining defender while an activation temporarily removes defender.
+// Audit: metadata-only — Needs indestructible to depend continuously on retaining defender while an activation temporarily removes defender.
+pub(in crate::card::sets) static MANOR_GARGOYLE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6bb40965-9096-4a19-b71d-4da2a5b36baa"),
+    "Manor Gargoyle",
+    crate::card::CardArt::new("6bb40965-9096-4a19-b71d-4da2a5b36baa", "Matt Stewart"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 static MASK_OF_AVACYN_HEXPROOF: AbilityDef = abilities::hexproof();
 
@@ -5260,7 +5739,14 @@ pub(in crate::card::sets) static TREPANATION_BLADE: CardRecord = CardRecord::new
 );
 
 // ISD 236 — Witchbane Orb
-// Audit: blocked — Needs player hexproof and identifying and destroying all Curses attached to that player.
+// Audit: metadata-only — Needs player hexproof and identifying and destroying all Curses attached to that player.
+pub(in crate::card::sets) static WITCHBANE_ORB: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("53e0bf16-62f5-4b62-96e8-bc7e049bcf89"),
+    "Witchbane Orb",
+    crate::card::CardArt::new("53e0bf16-62f5-4b62-96e8-bc7e049bcf89", "John Avon"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 237 — Wooden Stake
 pub(in crate::card::sets) static WOODEN_STAKE: CardRecord = CardRecord::new_with_legacy_id(
@@ -5524,8 +6010,7 @@ pub(in crate::card::sets) static NEPHALIA_DROWNYARD: CardRecord = CardRecord::ne
     ]),
 );
 
-// ISD 246 — Shimmering Grotto
-// Audit: blocked — Its {1}, {T} mana ability is not executable because the mana runtime rejects mana abilities with a mana activation cost.
+// ISD 246 — Shimmering Grotto (reprint)
 
 // ISD 247 — Stensia Bloodhall
 pub(in crate::card::sets) static STENSIA_BLOODHALL: CardRecord = CardRecord::new_with_legacy_id(
@@ -5592,13 +6077,47 @@ pub(in crate::card::sets) static WOODLAND_CEMETERY: CardRecord = CardRecord::new
         ),
     ]),
 );
+// ISD 250 — Plains (reprint)
+
+// ISD 251 — Plains (alternate printing)
+
+// ISD 252 — Plains (alternate printing)
+
+// ISD 253 — Island (reprint)
+
+// ISD 254 — Island (alternate printing)
+
+// ISD 255 — Island (alternate printing)
+
+// ISD 256 — Swamp (reprint)
+
+// ISD 257 — Swamp (alternate printing)
+
+// ISD 258 — Swamp (alternate printing)
+
+// ISD 259 — Mountain (reprint)
+
+// ISD 260 — Mountain (alternate printing)
+
+// ISD 261 — Mountain (alternate printing)
+
+// ISD 262 — Forest (reprint)
+
+// ISD 263 — Forest (alternate printing)
+
+// ISD 264 — Forest (alternate printing)
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ABBEY_GRIFFIN,
     &ANGEL_OF_FLIGHT_ALABASTER,
+    &ANGELIC_OVERSEER,
     &AVACYNIAN_PRIEST,
+    &BONDS_OF_FAITH,
     &CHAMPION_OF_THE_PARISH,
     &CHAPEL_GEIST,
     &CLOISTERED_YOUTH,
+    &DEARLY_DEPARTED,
+    &DIVINE_RECKONING,
     &DOOMED_TRAVELER,
     &ELDER_CATHAR,
     &ELITE_INQUISITOR,
@@ -5611,7 +6130,10 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &MAUSOLEUM_GUARD,
     &MENTOR_OF_THE_MEEK,
     &MIDNIGHT_HAUNTING,
+    &MIKAEUS_THE_LUNARCH,
     &MOMENT_OF_HEROISM,
+    &NEVERMORE,
+    &PARASELENE,
     &PURIFY_THE_GRAVE,
     &RALLY_THE_PEASANTS,
     &REBUKE,
@@ -5619,6 +6141,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SILVERCHASE_FOX,
     &SLAYER_OF_THE_WICKED,
     &SMITE_THE_MONSTROUS,
+    &SPARE_FROM_EVIL,
     &SPECTRAL_RIDER,
     &STONY_SILENCE,
     &THRABEN_PUREBLOODS,
@@ -5628,68 +6151,101 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &VILLAGE_BELL_RINGER,
     &VOICELESS_SPIRIT,
     &ARMORED_SKAAB,
+    &BACK_FROM_THE_BRINK,
     &BATTLEGROUND_GEIST,
+    &CACKLING_COUNTERPART,
+    &CIVILIZED_SCHOLAR,
     &CLAUSTROPHOBIA,
     &CURIOSITY,
+    &CURSE_OF_THE_BLOODY_TOME,
+    &DELVER_OF_SECRETS,
     &DERANGED_ASSISTANT,
     &DISSIPATE,
     &DREAM_TWIST,
     &FORBIDDEN_ALCHEMY,
     &FORTRESS_CRAB,
+    &FRIGHTFUL_DELUSION,
     &GRASP_OF_PHANTOMS,
     &HYSTERICAL_BLINDNESS,
     &INVISIBLE_STALKER,
+    &LABORATORY_MANIAC,
     &LANTERN_SPIRIT,
     &LOST_IN_THE_MIST,
+    &LUDEVIC_S_TEST_SUBJECT,
     &MAKESHIFT_MAULER,
+    &MEMORY_S_JOURNEY,
+    &MINDSHRIEKER,
+    &MIRROR_MAD_PHANTASM,
     &MOON_HERON,
     &MURDER_OF_CROWS,
+    &ROOFTOP_STORM,
+    &RUNIC_REPETITION,
     &SELHOFF_OCCULTIST,
     &SENSORY_DEPRIVATION,
     &SILENT_DEPARTURE,
     &SKAAB_GOLIATH,
+    &SKAAB_RUINATOR,
     &SNAPCASTER_MAGE,
     &SPECTRAL_FLIGHT,
     &STITCHED_DRAKE,
     &STITCHERS_APPRENTICE,
     &STURMGEIST,
     &THINK_TWICE,
+    &UNDEAD_ALCHEMIST,
     &ABATTOIR_GHOUL,
     &ALTARS_REAP,
     &ARMY_OF_THE_DAMNED,
+    &BITTERHEART_WITCH,
     &BLOODGIFT_DEMON,
+    &BLOODLINE_KEEPER,
+    &BRAIN_WEEVIL,
     &BUMP_IN_THE_NIGHT,
+    &CORPSE_LUNGE,
+    &CURSE_OF_DEATH_S_HOLD,
+    &CURSE_OF_OBLIVION,
     &DEAD_WEIGHT,
     &DIREGRAF_GHOUL,
     &DISCIPLE_OF_GRISELBRAND,
     &ENDLESS_RANKS_OF_THE_DEAD,
     &FALKENRATH_NOBLE,
     &GHOULCALLERS_CHANT,
+    &GHOULRAISER,
     &GRUESOME_DEFORMITY,
+    &HEARTLESS_SUMMONING,
     &LILIANA_OF_THE_VEIL,
     &MANOR_SKELETON,
     &MARKOV_PATRICIAN,
     &MAW_OF_THE_MIRE,
     &MOAN_OF_THE_UNHALLOWED,
     &MORKRUT_BANSHEE,
+    &NIGHT_TERRORS,
+    &REAPER_FROM_THE_ABYSS,
     &ROTTING_FENSNAKE,
     &SCREECHING_BAT,
     &SEVER_THE_BLOODLINE,
     &SKELETAL_GRIMACE,
+    &SKIRSDAG_HIGH_PRIEST,
     &STROMKIRK_PATROL,
     &TRIBUTE_TO_HUNGER,
     &TYPHOID_RATS,
+    &UNBREATHING_HORDE,
     &UNBURIAL_RITES,
     &VAMPIRE_INTERLOPER,
     &VICTIM_OF_NIGHT,
     &VILLAGE_CANNIBALS,
     &WALKING_CORPSE,
     &ANCIENT_GRUDGE,
+    &ASHMOUTH_HOUND,
     &BALEFIRE_DRAGON,
     &BLASPHEMOUS_ACT,
     &BLOODCRAZED_NEONATE,
     &BRIMSTONE_VOLLEY,
+    &BURNING_VENGEANCE,
+    &CHARMBREAKER_DEVILS,
     &CROSSWAY_VAMPIRE,
+    &CURSE_OF_STALKED_PREY,
+    &CURSE_OF_THE_NIGHTLY_HUNT,
+    &CURSE_OF_THE_PIERCED_HEART,
     &DESPERATE_RAVINGS,
     &DEVILS_PLAY,
     &FALKENRATH_MARAUDERS,
@@ -5697,10 +6253,13 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &FUROR_OF_THE_BITTEN,
     &GEISTFLAME,
     &HANWEIR_WATCHKEEP,
+    &HARVEST_PYRE,
+    &HERETIC_S_PUNISHMENT,
     &INFERNAL_PLUNGE,
     &INSTIGATOR_GANG,
     &INTO_THE_MAW_OF_HELL,
     &KESSIG_WOLF,
+    &KRUIN_OUTLAW,
     &NIGHT_REVELERS,
     &NIGHTBIRDS_CLUTCHES,
     &PAST_IN_FLAMES,
@@ -5721,22 +6280,32 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AVACYNS_PILGRIM,
     &BONEYARD_WURM,
     &BRAMBLECRUSH,
+    &CARAVAN_VIGIL,
+    &CREEPING_RENAISSANCE,
     &DARKTHICKET_WOLF,
     &DAYBREAK_RANGER,
     &ELDER_OF_LAURELS,
+    &ESSENCE_OF_THE_WILD,
     &FESTERHIDE_BOAR,
     &FULL_MOONS_RISE,
     &GARRUK_RELENTLESS,
     &GATSTAF_SHEPHERD,
+    &GNAW_TO_THE_BONE,
     &GRAVE_BRAMBLE,
     &GRIZZLED_OUTCASTS,
+    &GUTTER_GRIME,
     &HAMLET_CAPTAIN,
     &HOLLOWHENGE_SCAVENGER,
+    &KESSIG_CAGEBREAKERS,
     &KINDERCATCH,
     &LUMBERKNOT,
+    &MAKE_A_WISH,
     &MAYOR_OF_AVABRUCK,
+    &MOLDGRAF_MONSTROSITY,
+    &MOONMIST,
     &MULCH,
     &ORCHARD_SPIRIT,
+    &PARALLEL_LIVES,
     &PREY_UPON,
     &RANGERS_GUILE,
     &SOMBERWALD_SPIDER,
@@ -5744,15 +6313,27 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SPIDERY_GRASP,
     &SPLINTERFRIGHT,
     &TRAVEL_PREPARATIONS,
+    &TREE_OF_REDEMPTION,
     &ULVENWALD_MYSTICS,
     &VILLAGERS_OF_ESTWALD,
+    &WOODLAND_SLEUTH,
     &WREATH_OF_GEISTS,
+    &EVIL_TWIN,
+    &GEIST_OF_SAINT_TRAFT,
+    &GRIMGRIN_CORPSE_BORN,
+    &OLIVIA_VOLDAREN,
     &BUTCHERS_CLEAVER,
+    &CELLAR_DOOR,
     &COBBLED_WINGS,
+    &CREEPY_DOLL,
     &DEMONMAIL_HAUBERK,
     &GALVANIC_JUGGERNAUT,
     &GEISTCATCHERS_RIG,
     &GHOULCALLERS_BELL,
+    &GRAVEYARD_SHOVEL,
+    &GRIMOIRE_OF_THE_DEAD,
+    &INQUISITOR_S_FLAIL,
+    &MANOR_GARGOYLE,
     &MASK_OF_AVACYN,
     &ONE_EYED_SCARECROW,
     &RUNECHANTERS_PIKE,
@@ -5760,6 +6341,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SILVER_INLAID_DAGGER,
     &TRAVELERS_AMULET,
     &TREPANATION_BLADE,
+    &WITCHBANE_ORB,
     &WOODEN_STAKE,
     &CLIFFTOP_RETREAT,
     &GAVONY_TOWNSHIP,
@@ -5777,6 +6359,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
     PrintingRecord::reprint(&onslaught::NATURALIZE), // ISD 197
     PrintingRecord::reprint(&zendikar::BLAZING_TORCH), // ISD 216
+    PrintingRecord::reprint(&catalog_lrw::SHIMMERING_GROTTO), // ISD 246
     PrintingRecord::reprint(&alpha::PLAINS),         // ISD 250
     PrintingRecord::alternate(&alpha::PLAINS, 1),    // ISD 251
     PrintingRecord::alternate(&alpha::PLAINS, 2),    // ISD 252

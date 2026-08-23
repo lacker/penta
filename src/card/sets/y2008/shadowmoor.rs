@@ -60,6 +60,16 @@ static MANAMORPHOSE_EFFECT: [EffectDef; 2] = [
     },
 ];
 
+// SHM 135 — Woodfall Primus
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WOODFALL_PRIMUS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("43aa7e35-55ee-4e02-a8aa-ea2b267055d1"),
+    "Woodfall Primus",
+    crate::card::CardArt::new("43aa7e35-55ee-4e02-a8aa-ea2b267055d1", "Adam Rex"),
+    crate::card::CardSet::Shadowmoor,
+    crate::card::CardRules::unsupported(),
+);
+
 // SHM 211 — Manamorphose
 pub(in crate::card::sets) static MANAMORPHOSE: CardRecord = CardRecord::new_with_legacy_id(
     2238,
@@ -102,7 +112,11 @@ pub(in crate::card::sets) static BARKSHELL_BLESSING: CardRecord = CardRecord::ne
     ),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&BESEECH_THE_QUEEN, &MANAMORPHOSE, &BARKSHELL_BLESSING];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &BESEECH_THE_QUEEN,
+    &WOODFALL_PRIMUS,
+    &MANAMORPHOSE,
+    &BARKSHELL_BLESSING,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

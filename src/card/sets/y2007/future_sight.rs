@@ -1,7 +1,6 @@
 //! Future Sight cards cataloged as cross-format rules-engine test cases.
 
-use super::{CardRecord, PrintingRecord};
-use crate::card::sets::PrintingAnchor;
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AddManaEffectDef,
     AppliedEffectDef, ArrivalAttachmentDef, CardArt, CardRules, CardSet, CardType, CounterKind,
@@ -41,6 +40,16 @@ pub(in crate::card::sets) static REALITY_STROBE: CardRecord = CardRecord::new_wi
             "Suspend's upkeep counter removal and free cast from exile need the shared exile-casting lifecycle.",
         )),
     ),
+);
+
+// FUT 76 — Shimian Specter
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SHIMIAN_SPECTER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e6faa406-aa7a-49ce-a42e-00e98f3fb74e"),
+    "Shimian Specter",
+    crate::card::CardArt::new("e6faa406-aa7a-49ce-a42e-00e98f3fb74e", "Anthony S. Waters"),
+    crate::card::CardSet::FutureSight,
+    crate::card::CardRules::unsupported(),
 );
 
 // FUT 138 — Sprout Swarm
@@ -247,6 +256,7 @@ pub(in crate::card::sets) static HORIZON_CANOPY: CardRecord = CardRecord::new_wi
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &REALITY_STROBE,
+    &SHIMIAN_SPECTER,
     &SPROUT_SWARM,
     &COALITION_RELIC,
     &SWORD_OF_THE_MEEK,

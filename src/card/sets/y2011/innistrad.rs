@@ -114,14 +114,52 @@ pub(in crate::card::sets) static AVACYNIAN_PRIEST: CardRecord = CardRecord::new_
     ),
 );
 
+static BONDS_OF_FAITH_PACIFIED: [AppliedEffectDef; 2] = [
+    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
+    AppliedEffectDef::Rule(AppliedRuleDef::CannotBlock),
+];
+
+static BONDS_OF_FAITH_HUMAN_BOOST: EffectDef = EffectDef::StaticApply {
+    recipient: EffectRecipientDef::AttachedPermanent,
+    effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
+};
+
+static ATTACHED_PERMANENT_IS_NOT_HUMAN: TriggerConditionDef =
+    TriggerConditionDef::AttachedPermanentMatches {
+        object: ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Human")),
+    };
+
+static BONDS_OF_FAITH_NON_HUMAN_RESTRICTIONS: EffectDef = EffectDef::StaticApply {
+    recipient: EffectRecipientDef::AttachedPermanent,
+    effect: AppliedEffectDef::Composite(&BONDS_OF_FAITH_PACIFIED),
+};
+
+static BONDS_OF_FAITH_STATIC_EFFECTS: [EffectDef; 2] = [
+    EffectDef::IfCondition {
+        condition: &ATTACHED_PERMANENT_IS_HUMAN,
+        then: &BONDS_OF_FAITH_HUMAN_BOOST,
+    },
+    EffectDef::IfCondition {
+        condition: &ATTACHED_PERMANENT_IS_NOT_HUMAN,
+        then: &BONDS_OF_FAITH_NON_HUMAN_RESTRICTIONS,
+    },
+];
+
 // ISD 5 — Bonds of Faith
-// Audit: metadata-only — Needs a subtype-conditional Aura effect that switches between +2/+2 and an attack-and-block prohibition.
 pub(in crate::card::sets) static BONDS_OF_FAITH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cc8d1ce0-78c5-4e97-9cca-33e7b6ff3440"),
     "Bonds of Faith",
-    crate::card::CardArt::new("cc8d1ce0-78c5-4e97-9cca-33e7b6ff3440", "Steve Argyle"),
-    crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cc8d1ce0-78c5-4e97-9cca-33e7b6ff3440", "Steve Argyle"),
+    CardSet::Innistrad,
+    CardRules::new_enchantment(mana_cost!("{1}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +2/+2 as long as it's a Human. Otherwise, it can't attack or block.",
+                EffectDef::Sequence(&BONDS_OF_FAITH_STATIC_EFFECTS),
+            ),
+        ]),
 );
 
 // ISD 6 — Champion of the Parish
@@ -5271,7 +5309,7 @@ pub(in crate::card::sets) static OLIVIA_VOLDAREN: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
-static EQUIPPED_CREATURE_IS_HUMAN: TriggerConditionDef =
+static ATTACHED_PERMANENT_IS_HUMAN: TriggerConditionDef =
     TriggerConditionDef::AttachedPermanentMatches {
         object: ObjectPredicateDef::Subtype("Human"),
     };
@@ -5319,7 +5357,7 @@ pub(in crate::card::sets) static BUTCHERS_CLEAVER: CardRecord = CardRecord::new_
             AbilityDef::static_ability(
                 "As long as equipped creature is a Human, it has lifelink.",
                 EffectDef::IfCondition {
-                    condition: &EQUIPPED_CREATURE_IS_HUMAN,
+                    condition: &ATTACHED_PERMANENT_IS_HUMAN,
                     then: &BUTCHERS_CLEAVER_HUMAN,
                 },
             ),
@@ -5640,7 +5678,7 @@ pub(in crate::card::sets) static SHARPENED_PITCHFORK: CardRecord = CardRecord::n
             AbilityDef::static_ability(
                 "As long as equipped creature is a Human, it gets +1/+1.",
                 EffectDef::IfCondition {
-                    condition: &EQUIPPED_CREATURE_IS_HUMAN,
+                    condition: &ATTACHED_PERMANENT_IS_HUMAN,
                     then: &SHARPENED_PITCHFORK_HUMAN,
                 },
             ),
@@ -5670,7 +5708,7 @@ pub(in crate::card::sets) static SILVER_INLAID_DAGGER: CardRecord = CardRecord::
             AbilityDef::static_ability(
                 "As long as equipped creature is a Human, it gets an additional +1/+0.",
                 EffectDef::IfCondition {
-                    condition: &EQUIPPED_CREATURE_IS_HUMAN,
+                    condition: &ATTACHED_PERMANENT_IS_HUMAN,
                     then: &SILVER_INLAID_DAGGER_HUMAN,
                 },
             ),

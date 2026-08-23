@@ -66,6 +66,7 @@ mod blocking_relation;
 mod blocking_relationship;
 mod board_conditioned_statics;
 mod board_sized_counter;
+mod bonds_of_faith;
 mod buyback;
 mod candelabra_of_tawnos;
 mod cannot_attack;

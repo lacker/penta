@@ -199,6 +199,26 @@ pub(in crate::card::sets) static UNDERWORLD_RAGE_HOUND: CardRecord = CardRecord:
     crate::card::CardRules::unsupported(),
 );
 
+// THB 229 — Uro, Titan of Nature's Wrath
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static URO_TITAN_OF_NATURE_S_WRATH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a0b6a71e-56cb-4d25-8f2b-7a4f1b60900d"),
+    "Uro, Titan of Nature's Wrath",
+    crate::card::CardArt::new("a0b6a71e-56cb-4d25-8f2b-7a4f1b60900d", "Vincent Proce"),
+    crate::card::CardSet::TherosBeyondDeath,
+    crate::card::CardRules::unsupported(),
+);
+
+// THB 237 — Soul-Guide Lantern
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SOUL_GUIDE_LANTERN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7c850b94-75c9-4457-8b5e-1193352d6fcb"),
+    "Soul-Guide Lantern",
+    crate::card::CardArt::new("7c850b94-75c9-4457-8b5e-1193352d6fcb", "Cliff Childs"),
+    crate::card::CardSet::TherosBeyondDeath,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &HELIOD_S_PILGRIM,
     &THASSAS_ORACLE,
@@ -208,6 +228,8 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BLOOD_ASPIRANT,
     &UNDERWORLD_BREACH,
     &UNDERWORLD_RAGE_HOUND,
+    &URO_TITAN_OF_NATURE_S_WRATH,
+    &SOUL_GUIDE_LANTERN,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -162,12 +162,35 @@ pub(in crate::card::sets) static UNWILLING_INGREDIENT: CardRecord = CardRecord::
     crate::card::CardRules::unsupported(),
 );
 
+// STX 186 — Expressive Iteration
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static EXPRESSIVE_ITERATION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("31b770cc-09e7-4c0b-b2a4-462ab4f7200d"),
+    "Expressive Iteration",
+    crate::card::CardArt::new(
+        "31b770cc-09e7-4c0b-b2a4-462ab4f7200d",
+        "Anastasia Ovchinnikova",
+    ),
+    crate::card::CardSet::StrixhavenSchoolOfMages,
+    crate::card::CardRules::unsupported(),
+);
+
 // STX 219 — Quandrix Pledgemage
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static QUANDRIX_PLEDGEMAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("07633b7f-4150-458b-89c3-d05dc0e3c4bd"),
     "Quandrix Pledgemage",
     crate::card::CardArt::new("07633b7f-4150-458b-89c3-d05dc0e3c4bd", "Caroline Gariba"),
+    crate::card::CardSet::StrixhavenSchoolOfMages,
+    crate::card::CardRules::unsupported(),
+);
+
+// STX 247 — Witherbloom Apprentice
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WITHERBLOOM_APPRENTICE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7f80a11b-188b-464c-b00d-c9d1cfb8ddee"),
+    "Witherbloom Apprentice",
+    crate::card::CardArt::new("7f80a11b-188b-464c-b00d-c9d1cfb8ddee", "Josh Hass"),
     crate::card::CardSet::StrixhavenSchoolOfMages,
     crate::card::CardRules::unsupported(),
 );
@@ -192,14 +215,27 @@ pub(in crate::card::sets) static WITHERBLOOM_CAMPUS: CardRecord = CardRecord::ne
     crate::card::CardRules::unsupported(),
 );
 
+// STX 306 — Sedgemoor Witch
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SEDGEMOOR_WITCH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("075bfaa8-3d54-4934-aaf6-72be43a87324"),
+    "Sedgemoor Witch",
+    crate::card::CardArt::new("075bfaa8-3d54-4934-aaf6-72be43a87324", "Igor Kieryluk"),
+    crate::card::CardSet::StrixhavenSchoolOfMages,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ELITE_SPELLBINDER,
     &FROST_TRICKSTER,
     &BALEFUL_MASTERY,
     &UNWILLING_INGREDIENT,
+    &EXPRESSIVE_ITERATION,
     &QUANDRIX_PLEDGEMAGE,
+    &WITHERBLOOM_APPRENTICE,
     &QUANDRIX_CAMPUS,
     &WITHERBLOOM_CAMPUS,
+    &SEDGEMOOR_WITCH,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

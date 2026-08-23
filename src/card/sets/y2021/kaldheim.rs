@@ -205,6 +205,16 @@ pub(in crate::card::sets) static SNAKESKIN_VEIL: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// KHM 315 — Esika's Chariot
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ESIKA_S_CHARIOT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("57a7d7e5-428d-4f42-8f13-9908fc65dcb4"),
+    "Esika's Chariot",
+    crate::card::CardArt::new("57a7d7e5-428d-4f42-8f13-9908fc65dcb4", "WolfSkullJack"),
+    crate::card::CardSet::Kaldheim,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BEHOLD_THE_MULTIVERSE,
     &VILLAGE_RITES,
@@ -213,6 +223,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &TUSKERI_FIREWALKER,
     &SARULF_S_PACKMATE,
     &SNAKESKIN_VEIL,
+    &ESIKA_S_CHARIOT,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

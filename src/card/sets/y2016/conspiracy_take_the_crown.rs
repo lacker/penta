@@ -107,11 +107,22 @@ pub(in crate::card::sets) static ENTOURAGE_OF_TREST: CardRecord = CardRecord::ne
     crate::card::CardRules::unsupported(),
 );
 
+// CN2 77 — Leovold, Emissary of Trest
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static LEOVOLD_EMISSARY_OF_TREST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("49bb0ad3-1082-41f1-82a4-52a4006cc9b6"),
+    "Leovold, Emissary of Trest",
+    crate::card::CardArt::new("49bb0ad3-1082-41f1-82a4-52a4006cc9b6", "Magali Villeneuve"),
+    crate::card::CardSet::ConspiracyTakeTheCrown,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PALACE_JAILER,
     &PALACE_SENTINELS,
     &THORN_OF_THE_BLACK_ROSE,
     &ENTOURAGE_OF_TREST,
+    &LEOVOLD_EMISSARY_OF_TREST,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

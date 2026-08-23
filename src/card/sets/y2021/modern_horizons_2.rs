@@ -188,6 +188,16 @@ static SUBTLETY_ABILITIES: [AbilityDef; 5] = [
     abilities::evoke_sacrifice("When this creature enters, if it was evoked, sacrifice it."),
 ];
 
+// MH2 32 — Solitude
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SOLITUDE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b648cc94-7880-456b-82ea-859746d52397"),
+    "Solitude",
+    crate::card::CardArt::new("47a6234f-309f-4e03-9263-66da48b57153", "Evan Shipard"),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
+);
+
 // MH2 36 — Unbounded Potential
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static UNBOUNDED_POTENTIAL: CardRecord = CardRecord::new(
@@ -369,6 +379,16 @@ pub(in crate::card::sets) static DAMN: CardRecord = CardRecord::new_with_legacy_
     ]),
 );
 
+// MH2 87 — Grief
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GRIEF: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("40d77804-b81f-4e89-8528-1f3970ef3cd6"),
+    "Grief",
+    crate::card::CardArt::new("e6befbc4-1320-4f26-bd9f-b1814fedda10", "Nicholas Gregory"),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
+);
+
 // MH2 91 — Loathsome Curator
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static LOATHSOME_CURATOR: CardRecord = CardRecord::new(
@@ -395,6 +415,16 @@ pub(in crate::card::sets) static VERMIN_GORGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d3166b10-5bc3-4db6-bb5b-81045d98e446"),
     "Vermin Gorger",
     crate::card::CardArt::new("d3166b10-5bc3-4db6-bb5b-81045d98e446", "Tobias Kwan"),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 121 — Dragon's Rage Channeler
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DRAGON_S_RAGE_CHANNELER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4ced112a-e775-4f97-97b3-74877e9dce12"),
+    "Dragon's Rage Channeler",
+    crate::card::CardArt::new("4ced112a-e775-4f97-97b3-74877e9dce12", "Martina Fačková"),
     crate::card::CardSet::ModernHorizons2,
     crate::card::CardRules::unsupported(),
 );
@@ -651,7 +681,14 @@ pub(in crate::card::sets) static CAPTURED_BY_LAGACS: CardRecord = CardRecord::ne
 );
 
 // MH2 202 — Grist, the Hunger Tide
-// Audit: blocked — Needs three capabilities at once: a resolution loop that repeats a step while reading what the previous iteration milled, a reflexive triggered ability that chooses its target when the optional sacrifice is actually made rather than on activation, and characteristics that apply in every zone except the battlefield.
+// Audit: metadata-only — Needs three capabilities at once: a resolution loop that repeats a step while reading what the previous iteration milled, a reflexive triggered ability that chooses its target when the optional sacrifice is actually made rather than on activation, and characteristics that apply in every zone except the battlefield.
+pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8eadbeaf-f01c-4c85-8eaf-6a569a1bdf64"),
+    "Grist, the Hunger Tide",
+    crate::card::CardArt::new("69af2825-18c2-4463-b6ba-42eaa070ccc1", "Yongjae Choi"),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
+);
 
 /// Domain: how many of the five basic land types are among your lands. A
 /// Kavu on a two-colour board is a 2/2, and one behind a full spread of
@@ -738,6 +775,16 @@ pub(in crate::card::sets) static TERRITORIAL_KAVU: CardRecord = CardRecord::new(
     ]),
 );
 
+// MH2 227 — Kaldra Compleat
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static KALDRA_COMPLEAT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9b6c6ad4-d5fb-4503-8b15-c2104f125990"),
+    "Kaldra Compleat",
+    crate::card::CardArt::new("87cc2855-6b14-44dd-a398-7dc2bbae081f", "Vincent Proce"),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
+);
+
 // MH2 231 — Nettlecyst
 pub(in crate::card::sets) static NETTLECYST: CardRecord = CardRecord::new_with_legacy_id(
     2126,
@@ -790,6 +837,26 @@ pub(in crate::card::sets) static YAVIMAYA_CRADLE_OF_GROWTH: CardRecord =
             )),
     );
 
+// MH2 355 — Ignoble Hierarch
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static IGNOBLE_HIERARCH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("404f83fb-0090-49d5-a4d0-c963adac2fb2"),
+    "Ignoble Hierarch",
+    crate::card::CardArt::new("3139cce8-3467-4c50-add2-5b78fb33b90a", "Mark Zug"),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 380 — Urza's Saga
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static URZA_S_SAGA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1cf96437-0943-40f9-b175-31a1504028ba"),
+    "Urza's Saga",
+    crate::card::CardArt::new("2138dfbb-a4e3-49db-b908-95d0b2b7e82f", "Titus Lunter"),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
+);
+
 // MH2 421 — Goblin Anarchomancer
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_ANARCHOMANCER: CardRecord = CardRecord::new(
@@ -800,8 +867,22 @@ pub(in crate::card::sets) static GOBLIN_ANARCHOMANCER: CardRecord = CardRecord::
     crate::card::CardRules::unsupported(),
 );
 
+// MH2 450 — Dauthi Voidwalker
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DAUTHI_VOIDWALKER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9b7029b0-cd20-4970-9355-a27611b817bc"),
+    "Dauthi Voidwalker",
+    crate::card::CardArt::new(
+        "29632951-3c3d-478c-8c5a-9a34f30a5c28",
+        "Sidharth Chaturvedi",
+    ),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PRISMATIC_ENDING,
+    &SOLITUDE,
     &UNBOUNDED_POTENTIAL,
     &HARD_EVIDENCE,
     &LOSE_FOCUS,
@@ -809,9 +890,11 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ARCHON_OF_CRUELTY,
     &BONE_SHARDS,
     &DAMN,
+    &GRIEF,
     &LOATHSOME_CURATOR,
     &NESTED_SHAMBLER,
     &VERMIN_GORGER,
+    &DRAGON_S_RAGE_CHANNELER,
     &FURY,
     &MINE_COLLAPSE,
     &RAGAVAN_NIMBLE_PILFERER,
@@ -821,10 +904,15 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ENDURANCE,
     &URBAN_DAGGERTOOTH,
     &CAPTURED_BY_LAGACS,
+    &GRIST_THE_HUNGER_TIDE,
     &TERRITORIAL_KAVU,
+    &KALDRA_COMPLEAT,
     &NETTLECYST,
     &YAVIMAYA_CRADLE_OF_GROWTH,
+    &IGNOBLE_HIERARCH,
+    &URZA_S_SAGA,
     &GOBLIN_ANARCHOMANCER,
+    &DAUTHI_VOIDWALKER,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

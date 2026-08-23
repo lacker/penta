@@ -124,6 +124,17 @@ pub(in crate::card::sets) static KARN_SCION_OF_URZA: CardRecord = CardRecord::ne
         .with_abilities(&KARN_ABILITIES),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&KARN_SCION_OF_URZA];
+// DOM 207 — Teferi, Hero of Dominaria
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TEFERI_HERO_OF_DOMINARIA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5d10b752-d9cb-419d-a5c4-d4ee1acb655e"),
+    "Teferi, Hero of Dominaria",
+    crate::card::CardArt::new("5d10b752-d9cb-419d-a5c4-d4ee1acb655e", "Chris Rallis"),
+    crate::card::CardSet::Dominaria,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&KARN_SCION_OF_URZA, &TEFERI_HERO_OF_DOMINARIA];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -203,6 +203,18 @@ pub(in crate::card::sets) static ZAGOTH_TRIOME: CardRecord = CardRecord::new_wit
     triome(&["Swamp", "Forest", "Island"]),
 );
 
+// IKO 355 — Lurrus of the Dream-Den (alternate printing)
+
+// IKO 356 — Lutri, the Spellchaser
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static LUTRI_THE_SPELLCHASER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("12c01a00-2128-4b6c-874f-a206eca3a756"),
+    "Lutri, the Spellchaser",
+    crate::card::CardArt::new("12c01a00-2128-4b6c-874f-a206eca3a756", "Lie Setiawan"),
+    crate::card::CardSet::Ikoria,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SPELLEATER_WOLVERINE,
     &RAM_THROUGH,
@@ -213,6 +225,9 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &RAUGRIN_TRIOME,
     &SAVAI_TRIOME,
     &ZAGOTH_TRIOME,
+    &LUTRI_THE_SPELLCHASER,
 ];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
+    PrintingRecord::alternate(&LURRUS_OF_THE_DREAM_DEN, 1), // IKO 355
+];

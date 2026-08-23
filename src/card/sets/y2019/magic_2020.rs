@@ -163,6 +163,16 @@ pub(in crate::card::sets) static MANIFOLD_KEY: CardRecord = CardRecord::new_with
     ]),
 );
 
+// M20 247 — Field of the Dead
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FIELD_OF_THE_DEAD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("470ca3f4-29aa-4c4c-8ff2-8cdd70c69943"),
+    "Field of the Dead",
+    crate::card::CardArt::new("470ca3f4-29aa-4c4c-8ff2-8cdd70c69943", "Kev Walker"),
+    crate::card::CardSet::Magic2020,
+    crate::card::CardRules::unsupported(),
+);
+
 // M20 297 — Wildfire Elemental
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static WILDFIRE_ELEMENTAL: CardRecord = CardRecord::new(
@@ -179,6 +189,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CLOUDKIN_SEER,
     &ELVISH_RECLAIMER,
     &MANIFOLD_KEY,
+    &FIELD_OF_THE_DEAD,
     &WILDFIRE_ELEMENTAL,
 ];
 

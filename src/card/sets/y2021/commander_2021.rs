@@ -1,6 +1,6 @@
 //! Commander 2021 cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, CardArt, CardRules, CardSet, CardSupertype, CounterKind, EffectDef,
     EffectRecipientDef, ExilePlayDurationDef, ObjectPredicateDef, PlayerRelation, TriggerEventDef,
@@ -63,6 +63,17 @@ pub(in crate::card::sets) static LAELIA_THE_BLADE_REFORGED: CardRecord =
             .with_abilities(&LAELIA_ABILITIES),
     );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&LAELIA_THE_BLADE_REFORGED];
+// C21 65 — Pest Infestation
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PEST_INFESTATION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4720b4f2-e6af-4223-9250-a0ed21ed5693"),
+    "Pest Infestation",
+    crate::card::CardArt::new("4720b4f2-e6af-4223-9250-a0ed21ed5693", "Brian Valeza"),
+    crate::card::CardSet::Commander2021,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&LAELIA_THE_BLADE_REFORGED, &PEST_INFESTATION];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

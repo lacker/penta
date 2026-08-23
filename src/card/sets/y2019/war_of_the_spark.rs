@@ -257,6 +257,16 @@ static BOLASS_CITADEL_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
+// WAR 61 — Narset, Parter of Veils
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static NARSET_PARTER_OF_VEILS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8c39f9b4-02b9-4d44-b8d6-4fd02ebbb0c5"),
+    "Narset, Parter of Veils",
+    crate::card::CardArt::new("8c39f9b4-02b9-4d44-b8d6-4fd02ebbb0c5", "Magali Villeneuve"),
+    crate::card::CardSet::WarOfTheSpark,
+    crate::card::CardRules::unsupported(),
+);
+
 // WAR 79 — Bolas's Citadel
 pub(in crate::card::sets) static BOLASS_CITADEL: CardRecord = CardRecord::new_with_legacy_id(
     2253,
@@ -498,6 +508,16 @@ static SAHEELI_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
+// WAR 221 — Teferi, Time Raveler
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TEFERI_TIME_RAVELER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5cb76266-ae50-4bbc-8f96-d98f309b02d3"),
+    "Teferi, Time Raveler",
+    crate::card::CardArt::new("5cb76266-ae50-4bbc-8f96-d98f309b02d3", "Chris Rallis"),
+    crate::card::CardSet::WarOfTheSpark,
+    crate::card::CardRules::unsupported(),
+);
+
 // WAR 222 — Tenth District Legionnaire
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static TENTH_DISTRICT_LEGIONNAIRE: CardRecord = CardRecord::new(
@@ -527,11 +547,13 @@ pub(in crate::card::sets) static SAHEELI_SUBLIME_ARTIFICER: CardRecord =
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &JACE_WIELDER_OF_MYSTERIES,
+    &NARSET_PARTER_OF_VEILS,
     &BOLASS_CITADEL,
     &DREADHORDE_ARCANIST,
     &GRIM_INITIATE,
     &NISSA_WHO_SHAKES_THE_WORLD,
     &TAMIYO_COLLECTOR_OF_TALES,
+    &TEFERI_TIME_RAVELER,
     &TENTH_DISTRICT_LEGIONNAIRE,
     &SAHEELI_SUBLIME_ARTIFICER,
 ];

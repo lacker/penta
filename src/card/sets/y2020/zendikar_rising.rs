@@ -43,6 +43,16 @@ pub(in crate::card::sets) static DAUNTLESS_UNITY: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// ZNR 39 — Skyclave Apparition
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SKYCLAVE_APPARITION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b83cfbaa-7890-4f6f-878b-4edb45677371"),
+    "Skyclave Apparition",
+    crate::card::CardArt::new("b83cfbaa-7890-4f6f-878b-4edb45677371", "Donato Giancola"),
+    crate::card::CardSet::ZendikarRising,
+    crate::card::CardRules::unsupported(),
+);
+
 /// "If it was kicked", asked as the arrival resolves. The kick is what the
 /// whole card is: unkicked he is a 2/1 flier and nothing else happens.
 static SKYDIVER_WAS_KICKED: TriggerConditionDef =
@@ -264,12 +274,27 @@ pub(in crate::card::sets) static OMNATH_LOCUS_OF_CREATION: CardRecord =
             .with_abilities(&OMNATH_ABILITIES),
     );
 
+// ZNR 319 — Luminarch Aspirant
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static LUMINARCH_ASPIRANT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ebe9427d-068f-487c-9263-b40366a164bc"),
+    "Luminarch Aspirant",
+    crate::card::CardArt::new("ebe9427d-068f-487c-9263-b40366a164bc", "Mads Ahm"),
+    crate::card::CardSet::ZendikarRising,
+    crate::card::CardRules::unsupported(),
+);
+
+// ZNR 335 — Thieving Skydiver (alternate printing)
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DAUNTLESS_UNITY,
-    &THIEVING_SKYDIVER,
+    &SKYCLAVE_APPARITION,
     &BLOODCHIEFS_THIRST,
     &GNARLID_COLONY,
     &OMNATH_LOCUS_OF_CREATION,
+    &LUMINARCH_ASPIRANT,
 ];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
+    PrintingRecord::alternate(&THIEVING_SKYDIVER, 1), // ZNR 335
+];

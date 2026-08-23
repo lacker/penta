@@ -71,6 +71,16 @@ pub(in crate::card::sets) static FAERIE_GUIDEMOTHER: CardRecord = CardRecord::ne
     crate::card::CardRules::unsupported(),
 );
 
+// ELD 39 — Brazen Borrower
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BRAZEN_BORROWER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c2089ec9-0665-448f-bfe9-d181de127814"),
+    "Brazen Borrower",
+    crate::card::CardArt::new("c2089ec9-0665-448f-bfe9-d181de127814", "Eric Deschamps"),
+    crate::card::CardSet::ThroneOfEldraine,
+    crate::card::CardRules::unsupported(),
+);
+
 // ELD 110 — Wishclaw Talisman
 pub(in crate::card::sets) static WISHCLAW_TALISMAN: CardRecord = CardRecord::new_with_legacy_id(
     2166,
@@ -528,9 +538,40 @@ pub(in crate::card::sets) static WITCH_S_COTTAGE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// ELD 342 — Emry, Lurker of the Loch
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static EMRY_LURKER_OF_THE_LOCH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("157f343d-8583-4827-a77d-d916e6a5caa1"),
+    "Emry, Lurker of the Loch",
+    crate::card::CardArt::new("157f343d-8583-4827-a77d-d916e6a5caa1", "Livia Prima"),
+    crate::card::CardSet::ThroneOfEldraine,
+    crate::card::CardRules::unsupported(),
+);
+
+// ELD 372 — Questing Beast
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static QUESTING_BEAST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5357e802-2d25-48d3-a188-101c142787b7"),
+    "Questing Beast",
+    crate::card::CardArt::new("5357e802-2d25-48d3-a188-101c142787b7", "Igor Kieryluk"),
+    crate::card::CardSet::ThroneOfEldraine,
+    crate::card::CardRules::unsupported(),
+);
+
+// ELD 391 — Fabled Passage
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FABLED_PASSAGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("57645743-27fa-4a75-9511-acfc32dd349a"),
+    "Fabled Passage",
+    crate::card::CardArt::new("57645743-27fa-4a75-9511-acfc32dd349a", "Howard Lyon"),
+    crate::card::CardSet::ThroneOfEldraine,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ARDENVALE_TACTICIAN,
     &FAERIE_GUIDEMOTHER,
+    &BRAZEN_BORROWER,
     &WISHCLAW_TALISMAN,
     &BONECRUSHER_GIANT,
     &EMBERETH_SHIELDBREAKER,
@@ -541,6 +582,9 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GINGERBRUTE,
     &MYSTIC_SANCTUARY,
     &WITCH_S_COTTAGE,
+    &EMRY_LURKER_OF_THE_LOCH,
+    &QUESTING_BEAST,
+    &FABLED_PASSAGE,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -154,6 +154,16 @@ pub(in crate::card::sets) static ECSTATIC_AWAKENER: CardRecord = CardRecord::new
     crate::card::CardRules::unsupported(),
 );
 
+// MID 107 — Infernal Grasp
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static INFERNAL_GRASP: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("17824929-f131-4b8d-addb-66c25323155e"),
+    "Infernal Grasp",
+    crate::card::CardArt::new("17824929-f131-4b8d-addb-66c25323155e", "Naomi Baker"),
+    crate::card::CardSet::InnistradMidnightHunt,
+    crate::card::CardRules::unsupported(),
+);
+
 // MID 128 — Ardent Elementalist
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ARDENT_ELEMENTALIST: CardRecord = CardRecord::new(
@@ -172,6 +182,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CONSIDER,
     &DIREGRAF_HORDE,
     &ECSTATIC_AWAKENER,
+    &INFERNAL_GRASP,
     &ARDENT_ELEMENTALIST,
 ];
 

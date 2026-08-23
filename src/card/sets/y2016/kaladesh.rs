@@ -213,6 +213,19 @@ pub(in crate::card::sets) static RENEGADE_FREIGHTER: CardRecord = CardRecord::ne
     crate::card::CardRules::unsupported(),
 );
 
+// KLD 235 — Smuggler's Copter
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SMUGGLER_S_COPTER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7832abb5-5107-4603-904e-491b221bd3e3"),
+    "Smuggler's Copter",
+    crate::card::CardArt::new(
+        "7832abb5-5107-4603-904e-491b221bd3e3",
+        "Florian de Gesincourt",
+    ),
+    crate::card::CardSet::Kaladesh,
+    crate::card::CardRules::unsupported(),
+);
+
 // KLD 243 — Blooming Marsh
 pub(in crate::card::sets) static BLOOMING_MARSH: CardRecord = CardRecord::new_with_legacy_id(
     2136,
@@ -309,6 +322,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &THRIVING_GRUBS,
     &FILIGREE_FAMILIAR,
     &RENEGADE_FREIGHTER,
+    &SMUGGLER_S_COPTER,
     &BLOOMING_MARSH,
     &BOTANICAL_SANCTUM,
     &CONCEALED_COURTYARD,

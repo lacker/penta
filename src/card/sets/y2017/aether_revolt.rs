@@ -89,6 +89,16 @@ pub(in crate::card::sets) static AETHER_CHASER: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// AER 87 — Kari Zev, Skyship Raider
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static KARI_ZEV_SKYSHIP_RAIDER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("72495879-39ce-449d-ad2f-ef32ea46f3aa"),
+    "Kari Zev, Skyship Raider",
+    crate::card::CardArt::new("72495879-39ce-449d-ad2f-ef32ea46f3aa", "Brad Rigney"),
+    crate::card::CardSet::AetherRevolt,
+    crate::card::CardRules::unsupported(),
+);
+
 // AER 101 — Wrangle
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static WRANGLE: CardRecord = CardRecord::new(
@@ -165,6 +175,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AETHER_POISONER,
     &FATAL_PUSH,
     &AETHER_CHASER,
+    &KARI_ZEV_SKYSHIP_RAIDER,
     &WRANGLE,
     &FOUNDRY_ASSEMBLER,
     &WALKING_BALLISTA,

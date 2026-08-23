@@ -74,6 +74,16 @@ pub(in crate::card::sets) static COVETED_JEWEL: CardRecord = CardRecord::new(
     CardRules::new_artifact(mana_cost!("{6}")).with_abilities(&COVETED_JEWEL_ABILITIES),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&COVETED_JEWEL];
+// C18 57 — Retrofitter Foundry
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RETROFITTER_FOUNDRY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5da578b8-19e6-4068-9336-e7cd33c585f1"),
+    "Retrofitter Foundry",
+    crate::card::CardArt::new("5da578b8-19e6-4068-9336-e7cd33c585f1", "Dmitry Burmak"),
+    crate::card::CardSet::Commander2018,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&COVETED_JEWEL, &RETROFITTER_FOUNDRY];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

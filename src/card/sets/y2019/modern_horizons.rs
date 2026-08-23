@@ -112,6 +112,16 @@ pub(in crate::card::sets) static EPHEMERATE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// MH1 13 — Giver of Runes
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GIVER_OF_RUNES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4e117771-5a8b-4812-b487-32ba34b7f724"),
+    "Giver of Runes",
+    crate::card::CardArt::new("4e117771-5a8b-4812-b487-32ba34b7f724", "Seb McKinnon"),
+    crate::card::CardSet::ModernHorizons1,
+    crate::card::CardRules::unsupported(),
+);
+
 // MH1 24 — Rhox Veteran
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static RHOX_VETERAN: CardRecord = CardRecord::new(
@@ -571,6 +581,16 @@ static SHINOBI_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
+// MH1 168 — Hexdrinker
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static HEXDRINKER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("89f5cc05-5d9d-4709-b3c5-a6249c294acc"),
+    "Hexdrinker",
+    crate::card::CardArt::new("89f5cc05-5d9d-4709-b3c5-a6249c294acc", "Forrest Imel"),
+    crate::card::CardSet::ModernHorizons1,
+    crate::card::CardRules::unsupported(),
+);
+
 // MH1 169 — Krosan Tusker
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static KROSAN_TUSKER: CardRecord = CardRecord::new(
@@ -792,6 +812,36 @@ static SUNBAKED_CANYON_COLORS: [ManaColor; 2] = [ManaColor::Red, ManaColor::Whit
 static SUNBAKED_CANYON_ABILITIES: [AbilityDef; 2] =
     abilities::horizon_land("{T}, Pay 1 life: Add {R} or {W}.", &SUNBAKED_CANYON_COLORS);
 
+// MH1 231 — Talisman of Creativity
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TALISMAN_OF_CREATIVITY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4d9dbadd-c1b6-44fe-92ac-6f69d7178342"),
+    "Talisman of Creativity",
+    crate::card::CardArt::new("4d9dbadd-c1b6-44fe-92ac-6f69d7178342", "Lindsey Look"),
+    crate::card::CardSet::ModernHorizons1,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH1 232 — Talisman of Curiosity
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TALISMAN_OF_CURIOSITY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fd52688a-39fd-430f-b950-cb56e0004396"),
+    "Talisman of Curiosity",
+    crate::card::CardArt::new("fd52688a-39fd-430f-b950-cb56e0004396", "Lindsey Look"),
+    crate::card::CardSet::ModernHorizons1,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH1 244 — Prismatic Vista
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PRISMATIC_VISTA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e37da81e-be12-45a2-9128-376f1ad7b3e8"),
+    "Prismatic Vista",
+    crate::card::CardArt::new("e37da81e-be12-45a2-9128-376f1ad7b3e8", "Sam Burley"),
+    crate::card::CardSet::ModernHorizons1,
+    crate::card::CardRules::unsupported(),
+);
+
 // MH1 247 — Sunbaked Canyon
 pub(in crate::card::sets) static SUNBAKED_CANYON: CardRecord = CardRecord::new_with_legacy_id(
     2230,
@@ -801,8 +851,19 @@ pub(in crate::card::sets) static SUNBAKED_CANYON: CardRecord = CardRecord::new_w
     CardRules::new_land(&[]).with_abilities(&SUNBAKED_CANYON_ABILITIES),
 );
 
+// MH1 249 — Waterlogged Grove
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WATERLOGGED_GROVE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0ab6bfbd-d2e1-4c4c-9f91-6f69c5b8e3bb"),
+    "Waterlogged Grove",
+    crate::card::CardArt::new("0ab6bfbd-d2e1-4c4c-9f91-6f69c5b8e3bb", "John Avon"),
+    crate::card::CardSet::ModernHorizons1,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &EPHEMERATE,
+    &GIVER_OF_RUNES,
     &RHOX_VETERAN,
     &SETTLE_BEYOND_REALITY,
     &WINDS_OF_ABANDON,
@@ -819,6 +880,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SEASONED_PYROMANCER,
     &COLLECTOR_OUPHE,
     &FORCE_OF_VIGOR,
+    &HEXDRINKER,
     &KROSAN_TUSKER,
     &MOTHER_BEAR,
     &TRUMPETING_HERD,
@@ -827,7 +889,11 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &WRENN_AND_SIX,
     &FARMSTEAD_GLEANER,
     &TALISMAN_OF_CONVICTION,
+    &TALISMAN_OF_CREATIVITY,
+    &TALISMAN_OF_CURIOSITY,
+    &PRISMATIC_VISTA,
     &SUNBAKED_CANYON,
+    &WATERLOGGED_GROVE,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

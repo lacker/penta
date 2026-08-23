@@ -248,6 +248,16 @@ pub(in crate::card::sets) static RECKLESS_IMPULSE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// VOW 182 — Voldaren Epicure
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static VOLDAREN_EPICURE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ae154e64-f626-45fb-bd52-840c1c27b2d3"),
+    "Voldaren Epicure",
+    crate::card::CardArt::new("ae154e64-f626-45fb-bd52-840c1c27b2d3", "Martina Fačková"),
+    crate::card::CardSet::InnistradCrimsonVow,
+    crate::card::CardRules::unsupported(),
+);
+
 // VOW 189 — Bramble Wurm
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static BRAMBLE_WURM: CardRecord = CardRecord::new(
@@ -271,13 +281,25 @@ pub(in crate::card::sets) static ULVENWALD_ODDITY: CardRecord = CardRecord::new(
 )
 .with_composition(ulvenwald_composition);
 
+// VOW 310 — Bloodtithe Harvester
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BLOODTITHE_HARVESTER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("01182501-2b50-4b87-835a-fea3c5e6e330"),
+    "Bloodtithe Harvester",
+    crate::card::CardArt::new("01182501-2b50-4b87-835a-fea3c5e6e330", "Sami Makkonen"),
+    crate::card::CardSet::InnistradCrimsonVow,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CRUEL_WITNESS,
     &BLOOD_FOUNTAIN,
     &CONCEALING_CURTAINS,
     &RECKLESS_IMPULSE,
+    &VOLDAREN_EPICURE,
     &BRAMBLE_WURM,
     &ULVENWALD_ODDITY,
+    &BLOODTITHE_HARVESTER,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

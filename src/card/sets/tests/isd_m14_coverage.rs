@@ -24,7 +24,7 @@ fn identity_fingerprint(names: &BTreeSet<String>) -> u64 {
 
 #[test]
 #[allow(clippy::too_many_lines)]
-fn every_incomplete_isd_dgm_identity_has_one_audited_capability_gap() {
+fn every_incomplete_isd_m14_identity_has_one_audited_capability_gap() {
     let catalog = crate::card::catalog().expect("built-in catalog");
     let mut audited = HashMap::new();
     let mut set_names = BTreeSet::new();
@@ -32,14 +32,14 @@ fn every_incomplete_isd_dgm_identity_has_one_audited_capability_gap() {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     for SourceAudit {
         name, status, gap, ..
-    } in source_audits_for_format(&root, &catalog, Format::IsdDgmStandard)
+    } in source_audits_for_format(&root, &catalog, Format::IsdM14Standard)
     {
         assert!(!gap.is_empty(), "{name} has no capability-gap explanation");
         assert!(
             audited
                 .insert(name.to_lowercase(), (name.clone(), status))
                 .is_none(),
-            "{name} appears more than once in the ISD-DGM audit"
+            "{name} appears more than once in the ISD-M14 audit"
         );
         set_names.insert(name.clone());
     }
@@ -47,7 +47,7 @@ fn every_incomplete_isd_dgm_identity_has_one_audited_capability_gap() {
     let mut complete = 0;
     let mut cataloged_incomplete = HashSet::new();
     for definition in catalog.definitions() {
-        if !catalog.is_allowed_in(definition.id, Format::IsdDgmStandard) {
+        if !catalog.is_allowed_in(definition.id, Format::IsdM14Standard) {
             continue;
         }
         let key = definition.name.to_lowercase();
@@ -99,12 +99,12 @@ fn every_incomplete_isd_dgm_identity_has_one_audited_capability_gap() {
     assert_eq!(
         complete + audited.len(),
         SET_IDENTITY_COUNT,
-        "the completed catalog and incomplete audit must partition every ISD-DGM identity"
+        "the completed catalog and incomplete audit must partition every ISD-M14 identity"
     );
     assert_eq!(set_names.len(), SET_IDENTITY_COUNT);
     assert_eq!(
         identity_fingerprint(&set_names),
         SET_IDENTITY_FINGERPRINT,
-        "the exact ISD-DGM set identity inventory changed"
+        "the exact ISD-M14 set identity inventory changed"
     );
 }

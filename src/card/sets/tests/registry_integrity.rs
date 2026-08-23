@@ -460,7 +460,7 @@ fn standard_records_are_unique_and_format_legal() {
     for record in records {
         assert!(names.insert(record.name));
         assert!(!record.rules.has_supertype(CardSupertype::Basic));
-        assert!(Format::IsdDgmStandard.allows_set(record.debut_set));
+        assert!(Format::IsdM14Standard.allows_set(record.debut_set));
         if let Some(behavior) = record.rules.special_behavior() {
             assert_eq!(behavior.rules(), &record.rules);
         }

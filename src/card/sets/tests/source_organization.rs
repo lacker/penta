@@ -10,6 +10,8 @@ use crate::{CardSet, Format};
 const DECLARATION_PREFIX: &str = "pub(in crate::card::sets) static ";
 const HEADER_PREFIX: &str = "// ";
 const HEADER_SEPARATOR: &str = " — ";
+const REPRINT_SUFFIX: &str = " (reprint)";
+const ALTERNATE_PRINTING_SUFFIX: &str = " (alternate printing)";
 const AUDIT_PREFIX: &str = "// Audit: ";
 const ADDITIONAL_REGISTRY_PREFIX: &str =
     "pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[";
@@ -19,6 +21,13 @@ struct SourceEntry {
     symbol: Option<String>,
     collector_number: String,
     audit: Option<SourceAudit>,
+    printing_kind: Option<PrintingKind>,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum PrintingKind {
+    Reprint,
+    Alternate,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -50,64 +59,13 @@ fn printed_set_sources_follow_collector_number_order() {
     let mut source_definitions = 0;
     let mut source_additional_printings = 0;
     for path in files {
-        let set_source = set_source_for_file(&path);
+        let (set, definitions, additional_printings) = validate_printed_set_source(&path);
         assert!(
-            source_sets.insert(set_source.set),
-            "{:?} has more than one printed set source",
-            set_source.set
+            source_sets.insert(set),
+            "{set:?} has more than one printed set source",
         );
-        let source = fs::read_to_string(&path).expect("a printed set source file is readable");
-        let entries = source_entries(&source, set_source, &path);
-        source_definitions += entries
-            .iter()
-            .filter(|entry| entry.symbol.is_some())
-            .count();
-
-        for cards in entries.windows(2) {
-            assert_eq!(
-                natural_collector_cmp(&cards[0].collector_number, &cards[1].collector_number),
-                Ordering::Less,
-                "{}: collector number {} is not before {}",
-                path.display(),
-                cards[0].collector_number,
-                cards[1].collector_number
-            );
-        }
-
-        let registry = registry_symbols(&source, &path);
-        let declaration_symbols = entries
-            .iter()
-            .filter_map(|card| card.symbol.as_deref())
-            .collect::<Vec<_>>();
-        assert_eq!(
-            registry,
-            declaration_symbols,
-            "{}: CARDS must exactly mirror declaration order",
-            path.display()
-        );
-
-        let additional_printings = additional_printings(&source, &path);
-        source_additional_printings += additional_printings.len();
-        if !additional_printings.is_empty() {
-            for printing in &additional_printings {
-                assert_eq!(
-                    printing.0,
-                    set_source.code,
-                    "{}: wrong set code on an ADDITIONAL_PRINTINGS entry",
-                    path.display()
-                );
-            }
-            for printings in additional_printings.windows(2) {
-                assert_ne!(
-                    natural_collector_cmp(printings[0].1, printings[1].1),
-                    Ordering::Greater,
-                    "{}: additional printing {} is after {}",
-                    path.display(),
-                    printings[0].1,
-                    printings[1].1
-                );
-            }
-        }
+        source_definitions += definitions;
+        source_additional_printings += additional_printings;
     }
 
     let registered_printed_modules = SET_MODULES
@@ -138,6 +96,89 @@ fn printed_set_sources_follow_collector_number_order() {
             .sum::<usize>(),
         "source and registered additional printings must correspond",
     );
+}
+
+fn validate_printed_set_source(path: &Path) -> (CardSet, usize, usize) {
+    let set_source = set_source_for_file(path);
+    let source = fs::read_to_string(path).expect("a printed set source file is readable");
+    let entries = source_entries(&source, set_source, path);
+
+    for cards in entries.windows(2) {
+        assert_eq!(
+            natural_collector_cmp(&cards[0].collector_number, &cards[1].collector_number),
+            Ordering::Less,
+            "{}: collector number {} is not before {}",
+            path.display(),
+            cards[0].collector_number,
+            cards[1].collector_number
+        );
+    }
+
+    let registry = registry_symbols(&source, path);
+    let declaration_symbols = entries
+        .iter()
+        .filter_map(|card| card.symbol.as_deref())
+        .collect::<Vec<_>>();
+    assert_eq!(
+        registry,
+        declaration_symbols,
+        "{}: CARDS must exactly mirror declaration order",
+        path.display()
+    );
+
+    let definitions = entries
+        .iter()
+        .filter(|entry| entry.symbol.is_some())
+        .count();
+    let additional_printings = validate_additional_printings(&source, &entries, set_source, path);
+    (set_source.set, definitions, additional_printings)
+}
+
+fn validate_additional_printings(
+    source: &str,
+    entries: &[SourceEntry],
+    set_source: SetSource,
+    path: &Path,
+) -> usize {
+    let additional_printings = additional_printings(source, path);
+    for printing in &additional_printings {
+        assert_eq!(
+            printing.set_code,
+            set_source.code,
+            "{}: wrong set code on an ADDITIONAL_PRINTINGS entry",
+            path.display()
+        );
+    }
+    for printings in additional_printings.windows(2) {
+        assert_ne!(
+            natural_collector_cmp(printings[0].collector_number, printings[1].collector_number,),
+            Ordering::Greater,
+            "{}: additional printing {} is after {}",
+            path.display(),
+            printings[0].collector_number,
+            printings[1].collector_number
+        );
+    }
+
+    let upper_printings = entries
+        .iter()
+        .filter_map(|entry| {
+            entry.printing_kind.map(|kind| AdditionalPrinting {
+                kind,
+                set_code: set_source.code,
+                collector_number: &entry.collector_number,
+            })
+        })
+        .collect::<Vec<_>>();
+    if !upper_printings.is_empty() {
+        assert_eq!(
+            upper_printings,
+            additional_printings,
+            "{}: upper reprint comments must exactly mirror ADDITIONAL_PRINTINGS",
+            path.display()
+        );
+    }
+    additional_printings.len()
 }
 
 fn printed_set_files(sets: &Path) -> Vec<PathBuf> {
@@ -354,6 +395,23 @@ fn set_source_for_file(path: &Path) -> SetSource {
         Some("teenage_mutant_ninja_turtles.rs") => {
             source(CardSet::TeenageMutantNinjaTurtles, "TLE")
         }
+        Some("portal_three_kingdoms.rs") => source(CardSet::PortalThreeKingdoms, "PTK"),
+        Some("coldsnap.rs") => source(CardSet::Coldsnap, "CSP"),
+        Some("born_of_the_gods.rs") => source(CardSet::BornOfTheGods, "BNG"),
+        Some("commander_2017.rs") => source(CardSet::Commander2017, "C17"),
+        Some("commander_2018.rs") => source(CardSet::Commander2018, "C18"),
+        Some("dominaria.rs") => source(CardSet::Dominaria, "DOM"),
+        Some("commander_legends.rs") => source(CardSet::CommanderLegends, "CMR"),
+        Some("dominaria_united_commander.rs") => source(CardSet::DominariaUnitedCommander, "DMC"),
+        Some("march_of_the_machine_commander.rs") => {
+            source(CardSet::MarchOfTheMachineCommander, "MOC")
+        }
+        Some("lost_caverns_of_ixalan_commander.rs") => {
+            source(CardSet::LostCavernsOfIxalanCommander, "LCC")
+        }
+        Some("edge_of_eternities_commander.rs") => {
+            source(CardSet::EdgeOfEternitiesCommander, "EOC")
+        }
         Some(name) => panic!(
             "{}: add {name} to the official set-code map",
             path.display()
@@ -395,6 +453,18 @@ pub(super) fn source_audits_for_format(
 
 fn source_entries(source: &str, set_source: SetSource, path: &Path) -> Vec<SourceEntry> {
     let lines = source.lines().collect::<Vec<_>>();
+    validate_source_annotations(&lines, path);
+    lines
+        .iter()
+        .enumerate()
+        .filter_map(|(index, line)| {
+            parse_header(line)
+                .map(|header| source_entry_for_header(&lines, index, header, set_source, path))
+        })
+        .collect()
+}
+
+fn validate_source_annotations(lines: &[&str], path: &Path) {
     for (index, line) in lines.iter().enumerate() {
         if line.starts_with(AUDIT_PREFIX) {
             assert!(
@@ -404,18 +474,23 @@ fn source_entries(source: &str, set_source: SetSource, path: &Path) -> Vec<Sourc
                 index + 1
             );
             assert!(
-                index > 0 && parse_header(lines[index - 1]).is_some(),
+                index > 0
+                    && parse_header(lines[index - 1])
+                        .is_some_and(|header| header.printing_kind.is_none()),
                 "{}:{}: an Audit comment must immediately follow a card header",
                 path.display(),
                 index + 1
             );
         }
         if let Some(symbol) = declaration_symbol(line) {
-            let directly_headered = index > 0 && parse_header(lines[index - 1]).is_some();
+            let directly_headered = index > 0
+                && parse_header(lines[index - 1])
+                    .is_some_and(|header| header.printing_kind.is_none());
             let audited_header = index > 1
                 && parse_audit(lines[index - 1])
                     .is_some_and(|(status, _)| status != AuditStatus::Blocked)
-                && parse_header(lines[index - 2]).is_some();
+                && parse_header(lines[index - 2])
+                    .is_some_and(|header| header.printing_kind.is_none());
             assert!(
                 directly_headered || audited_header,
                 "{}:{}: expected a card header, optionally followed by a partial or metadata-only Audit comment, immediately before {symbol}",
@@ -424,73 +499,84 @@ fn source_entries(source: &str, set_source: SetSource, path: &Path) -> Vec<Sourc
             );
         }
     }
+}
 
-    let mut entries = Vec::new();
-    for (index, line) in lines.iter().enumerate() {
-        let Some(header) = parse_header(line) else {
-            continue;
+fn source_entry_for_header(
+    lines: &[&str],
+    index: usize,
+    header: ParsedHeader<'_>,
+    set_source: SetSource,
+    path: &Path,
+) -> SourceEntry {
+    assert_eq!(
+        header.set_code,
+        set_source.code,
+        "{}:{}: wrong set code in card header",
+        path.display(),
+        index + 1
+    );
+
+    if let Some(printing_kind) = header.printing_kind {
+        return SourceEntry {
+            symbol: None,
+            collector_number: header.collector_number.to_string(),
+            audit: None,
+            printing_kind: Some(printing_kind),
         };
-        assert_eq!(
-            header.0,
-            set_source.code,
-            "{}:{}: wrong set code in card header",
-            path.display(),
-            index + 1
-        );
+    }
 
-        let (symbol, audit) = match lines.get(index + 1).copied() {
-            Some(next) if declaration_symbol(next).is_some() => {
-                let symbol = declaration_symbol(next).expect("the declaration was recognized");
-                validate_declaration(&lines, index + 1, symbol, header.2, path);
-                (Some(symbol.to_string()), None)
-            }
-            Some(next) if parse_audit(next).is_some() => {
-                let (status, gap) = parse_audit(next).expect("the Audit comment was recognized");
-                let declaration = lines
-                    .get(index + 2)
-                    .and_then(|line| declaration_symbol(line));
-                match status {
-                    AuditStatus::Blocked => assert!(
-                        declaration.is_none(),
-                        "{}:{}: a blocked Audit entry cannot have a CardRecord declaration",
-                        path.display(),
-                        index + 1
-                    ),
-                    AuditStatus::Partial | AuditStatus::MetadataOnly => assert!(
-                        declaration.is_some(),
-                        "{}:{}: a partial or metadata-only Audit entry must immediately precede a CardRecord declaration",
-                        path.display(),
-                        index + 1
-                    ),
-                }
-                if let Some(symbol) = declaration {
-                    validate_declaration(&lines, index + 2, symbol, header.2, path);
-                }
-                (
-                    declaration.map(str::to_string),
-                    Some(SourceAudit {
-                        set: set_source.set,
-                        name: header.2.to_string(),
-                        status,
-                        gap: gap.to_string(),
-                    }),
-                )
-            }
-            _ => {
-                panic!(
-                    "{}:{}: a card header must immediately precede either a CardRecord declaration or an Audit comment",
+    let (symbol, audit) = match lines.get(index + 1).copied() {
+        Some(next) if declaration_symbol(next).is_some() => {
+            let symbol = declaration_symbol(next).expect("the declaration was recognized");
+            validate_declaration(lines, index + 1, symbol, header.name, path);
+            (Some(symbol.to_string()), None)
+        }
+        Some(next) if parse_audit(next).is_some() => {
+            let (status, gap) = parse_audit(next).expect("the Audit comment was recognized");
+            let declaration = lines
+                .get(index + 2)
+                .and_then(|line| declaration_symbol(line));
+            match status {
+                AuditStatus::Blocked => assert!(
+                    declaration.is_none(),
+                    "{}:{}: a blocked Audit entry cannot have a CardRecord declaration",
                     path.display(),
                     index + 1
-                )
+                ),
+                AuditStatus::Partial | AuditStatus::MetadataOnly => assert!(
+                    declaration.is_some(),
+                    "{}:{}: a partial or metadata-only Audit entry must immediately precede a CardRecord declaration",
+                    path.display(),
+                    index + 1
+                ),
             }
-        };
-        entries.push(SourceEntry {
-            symbol,
-            collector_number: header.1.to_string(),
-            audit,
-        });
+            if let Some(symbol) = declaration {
+                validate_declaration(lines, index + 2, symbol, header.name, path);
+            }
+            (
+                declaration.map(str::to_string),
+                Some(SourceAudit {
+                    set: set_source.set,
+                    name: header.name.to_string(),
+                    status,
+                    gap: gap.to_string(),
+                }),
+            )
+        }
+        _ => {
+            panic!(
+                "{}:{}: a card header must immediately precede either a CardRecord declaration or an Audit comment",
+                path.display(),
+                index + 1
+            )
+        }
+    };
+    SourceEntry {
+        symbol,
+        collector_number: header.collector_number.to_string(),
+        audit,
+        printing_kind: None,
     }
-    entries
 }
 
 fn declaration_symbol(line: &str) -> Option<&str> {
@@ -551,10 +637,25 @@ fn validate_declaration(
     );
 }
 
-fn parse_header(line: &str) -> Option<(&str, &str, &str)> {
+#[derive(Clone, Copy)]
+struct ParsedHeader<'a> {
+    set_code: &'a str,
+    collector_number: &'a str,
+    name: &'a str,
+    printing_kind: Option<PrintingKind>,
+}
+
+fn parse_header(line: &str) -> Option<ParsedHeader<'_>> {
     let body = line.strip_prefix(HEADER_PREFIX)?;
     let (identity, name) = body.split_once(HEADER_SEPARATOR)?;
     let (set_code, collector_number) = identity.split_once(' ')?;
+    let (name, printing_kind) = if let Some(name) = name.strip_suffix(REPRINT_SUFFIX) {
+        (name, Some(PrintingKind::Reprint))
+    } else if let Some(name) = name.strip_suffix(ALTERNATE_PRINTING_SUFFIX) {
+        (name, Some(PrintingKind::Alternate))
+    } else {
+        (name, None)
+    };
     if set_code.is_empty()
         || !set_code
             .bytes()
@@ -565,7 +666,12 @@ fn parse_header(line: &str) -> Option<(&str, &str, &str)> {
     {
         return None;
     }
-    Some((set_code, collector_number, name))
+    Some(ParsedHeader {
+        set_code,
+        collector_number,
+        name,
+        printing_kind,
+    })
 }
 
 fn parse_audit(line: &str) -> Option<(AuditStatus, &str)> {
@@ -610,7 +716,14 @@ fn registry_symbols<'a>(source: &'a str, path: &Path) -> Vec<&'a str> {
         .collect()
 }
 
-fn additional_printings<'a>(source: &'a str, path: &Path) -> Vec<(&'a str, &'a str)> {
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+struct AdditionalPrinting<'a> {
+    kind: PrintingKind,
+    set_code: &'a str,
+    collector_number: &'a str,
+}
+
+fn additional_printings<'a>(source: &'a str, path: &Path) -> Vec<AdditionalPrinting<'a>> {
     let start = source.find(ADDITIONAL_REGISTRY_PREFIX).unwrap_or_else(|| {
         panic!(
             "{}: ADDITIONAL_PRINTINGS registry is missing",
@@ -649,10 +762,18 @@ fn additional_printings<'a>(source: &'a str, path: &Path) -> Vec<(&'a str, &'a s
                     path.display()
                 )
             });
+            let kind = if expression.starts_with("PrintingRecord::reprint(") {
+                PrintingKind::Reprint
+            } else if expression.starts_with("PrintingRecord::alternate(") {
+                PrintingKind::Alternate
+            } else {
+                panic!(
+                    "{}: malformed ADDITIONAL_PRINTINGS expression {expression:?}",
+                    path.display()
+                );
+            };
             assert!(
-                (expression.starts_with("PrintingRecord::reprint(")
-                    || expression.starts_with("PrintingRecord::alternate("))
-                    && expression.ends_with(')'),
+                expression.ends_with(')'),
                 "{}: malformed ADDITIONAL_PRINTINGS expression {expression:?}",
                 path.display()
             );
@@ -673,7 +794,11 @@ fn additional_printings<'a>(source: &'a str, path: &Path) -> Vec<(&'a str, &'a s
                 "{}: expected exact `// SET NUMBER` comment, got {comment:?}",
                 path.display()
             );
-            (set_code, collector_number)
+            AdditionalPrinting {
+                kind,
+                set_code,
+                collector_number,
+            }
         })
         .collect()
 }

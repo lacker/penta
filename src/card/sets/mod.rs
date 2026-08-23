@@ -856,6 +856,61 @@ const SET_MODULES: &[SetModule] = &[
         y2026::teenage_mutant_ninja_turtles::CARDS,
         y2026::teenage_mutant_ninja_turtles::ADDITIONAL_PRINTINGS,
     ),
+    SetModule::new(
+        CardSet::PortalThreeKingdoms,
+        y1999::portal_three_kingdoms::CARDS,
+        y1999::portal_three_kingdoms::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::Coldsnap,
+        y2006::coldsnap::CARDS,
+        y2006::coldsnap::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::BornOfTheGods,
+        y2014::born_of_the_gods::CARDS,
+        y2014::born_of_the_gods::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::Commander2017,
+        y2017::commander_2017::CARDS,
+        y2017::commander_2017::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::Commander2018,
+        y2018::commander_2018::CARDS,
+        y2018::commander_2018::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::Dominaria,
+        y2018::dominaria::CARDS,
+        y2018::dominaria::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::CommanderLegends,
+        y2020::commander_legends::CARDS,
+        y2020::commander_legends::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::DominariaUnitedCommander,
+        y2022::dominaria_united_commander::CARDS,
+        y2022::dominaria_united_commander::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::MarchOfTheMachineCommander,
+        y2023::march_of_the_machine_commander::CARDS,
+        y2023::march_of_the_machine_commander::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::LostCavernsOfIxalanCommander,
+        y2023::lost_caverns_of_ixalan_commander::CARDS,
+        y2023::lost_caverns_of_ixalan_commander::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::EdgeOfEternitiesCommander,
+        y2025::edge_of_eternities_commander::CARDS,
+        y2025::edge_of_eternities_commander::ADDITIONAL_PRINTINGS,
+    ),
 ];
 
 pub(super) fn definitions() -> Vec<CardDefinition> {

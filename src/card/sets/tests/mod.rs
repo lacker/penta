@@ -24,7 +24,7 @@ use crate::{
 };
 
 fn standard_records() -> Vec<&'static CardRecord> {
-    let allowed_sets = Format::IsdDgmStandard
+    let allowed_sets = Format::IsdM14Standard
         .set_definition()
         .expect("Standard is set based")
         .allowed_sets;
@@ -61,7 +61,7 @@ fn printings_for_set(set: CardSet) -> Vec<CardPrinting> {
 }
 
 mod catalog_report;
-mod isd_dgm_coverage;
+mod isd_m14_coverage;
 mod metadata_composition_mana;
 mod old_school_coverage;
 mod registry_integrity;

@@ -1,6 +1,6 @@
 //! Betrayers of Kamigawa cards cataloged for the Vintage Cube.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, CounterKind, EffectDef, EffectRecipientDef, ObjectPredicateDef,
@@ -46,6 +46,16 @@ static JITTE_MODES: &[AbilityDef] = &[
     ),
 ];
 
+// BOK 76 — Okiba-Gang Shinobi
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static OKIBA_GANG_SHINOBI: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5cd9297e-301e-4e70-af9b-3218eacacf8d"),
+    "Okiba-Gang Shinobi",
+    crate::card::CardArt::new("5cd9297e-301e-4e70-af9b-3218eacacf8d", "Mark Zug"),
+    crate::card::CardSet::BetrayersOfKamigawa,
+    crate::card::CardRules::unsupported(),
+);
+
 // BOK 163 — Umezawa's Jitte
 pub(in crate::card::sets) static UMEZAWAS_JITTE: CardRecord = CardRecord::new_with_legacy_id(
     2188,
@@ -82,6 +92,6 @@ pub(in crate::card::sets) static UMEZAWAS_JITTE: CardRecord = CardRecord::new_wi
         ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&UMEZAWAS_JITTE];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&OKIBA_GANG_SHINOBI, &UMEZAWAS_JITTE];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

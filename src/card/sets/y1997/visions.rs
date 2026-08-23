@@ -166,6 +166,16 @@ static NECROMANCY_REANIMATES: [EffectDef; 2] = [
     },
 ];
 
+// VIS 55 — Crypt Rats
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CRYPT_RATS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("736455f6-c1b3-4a5a-a91f-a0cd3986ed53"),
+    "Crypt Rats",
+    crate::card::CardArt::new("736455f6-c1b3-4a5a-a91f-a0cd3986ed53", "Paul Lee"),
+    crate::card::CardSet::Visions,
+    crate::card::CardRules::unsupported(),
+);
+
 // VIS 64 — Necromancy
 pub(in crate::card::sets) static NECROMANCY: CardRecord = CardRecord::new_with_legacy_id(
     2202,
@@ -394,14 +404,26 @@ pub(in crate::card::sets) static NATURAL_ORDER: CardRecord = CardRecord::new(
     ),
 );
 
+// VIS 118 — River Boa
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RIVER_BOA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2e9d5aaf-b7e8-4676-aec8-7d29a0169a2c"),
+    "River Boa",
+    crate::card::CardArt::new("2e9d5aaf-b7e8-4676-aec8-7d29a0169a2c", "Steve White"),
+    crate::card::CardSet::Visions,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &IMPULSE,
     &VISION_CHARM,
+    &CRYPT_RATS,
     &NECROMANCY,
     &VAMPIRIC_TUTOR,
     &FIREBLAST,
     &ELEPHANT_GRASS,
     &NATURAL_ORDER,
+    &RIVER_BOA,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

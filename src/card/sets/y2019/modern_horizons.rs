@@ -102,6 +102,36 @@ static WINDS_OVERLOADED: EffectDef = EffectDef::BindMatching {
     then: &EffectDef::Sequence(&WINDS_OVERLOADED_STEPS),
 };
 
+// MH1 7 — Ephemerate
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static EPHEMERATE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2da5f3f8-5eef-498f-ba2c-2f3fbc3745aa"),
+    "Ephemerate",
+    crate::card::CardArt::new("2da5f3f8-5eef-498f-ba2c-2f3fbc3745aa", "Bastien L. Deharme"),
+    crate::card::CardSet::ModernHorizons1,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH1 24 — Rhox Veteran
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RHOX_VETERAN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6384e266-d0dc-4af1-b3ab-ecaf9be2553c"),
+    "Rhox Veteran",
+    crate::card::CardArt::new("6384e266-d0dc-4af1-b3ab-ecaf9be2553c", "Milivoj Ćeran"),
+    crate::card::CardSet::ModernHorizons1,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH1 27 — Settle Beyond Reality
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SETTLE_BEYOND_REALITY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("72ed8e57-61bb-4e89-9484-ff2be800a449"),
+    "Settle Beyond Reality",
+    crate::card::CardArt::new("72ed8e57-61bb-4e89-9484-ff2be800a449", "Anthony Palumbo"),
+    crate::card::CardSet::ModernHorizons1,
+    crate::card::CardRules::unsupported(),
+);
+
 // MH1 37 — Winds of Abandon
 pub(in crate::card::sets) static WINDS_OF_ABANDON: CardRecord = CardRecord::new_with_legacy_id(
     2181,
@@ -186,6 +216,16 @@ static A_NONCREATURE_SPELL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_o
     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
 )];
 
+// MH1 51 — Faerie Seer
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FAERIE_SEER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d1fcfeb4-1818-4e08-be4c-27b8a9dc12e6"),
+    "Faerie Seer",
+    crate::card::CardArt::new("d1fcfeb4-1818-4e08-be4c-27b8a9dc12e6", "Colin Boyer"),
+    crate::card::CardSet::ModernHorizons1,
+    crate::card::CardRules::unsupported(),
+);
+
 // MH1 52 — Force of Negation
 pub(in crate::card::sets) static FORCE_OF_NEGATION: CardRecord = CardRecord::new_with_legacy_id(
     2268,
@@ -265,6 +305,16 @@ static URZA_DIG: [EffectDef; 2] = [
     },
 ];
 
+// MH1 55 — Man-o'-War
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MAN_O_WAR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4dbf9bf9-75cd-4b25-a3a1-43b7e029700b"),
+    "Man-o'-War",
+    crate::card::CardArt::new("5eaa4199-df9b-494a-af7a-2491e8b0ef70", "Jon J Muth"),
+    crate::card::CardSet::ModernHorizons1,
+    crate::card::CardRules::unsupported(),
+);
+
 // MH1 75 — Urza, Lord High Artificer
 pub(in crate::card::sets) static URZA_LORD_HIGH_ARTIFICER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9e7fb3c0-5159-4d1f-8490-ce4c9a60f567"),
@@ -301,6 +351,56 @@ pub(in crate::card::sets) static URZA_LORD_HIGH_ARTIFICER: CardRecord = CardReco
                 EffectDef::Sequence(&URZA_DIG),
             ),
         ]),
+);
+
+// MH1 81 — Carrion Feeder
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CARRION_FEEDER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("88042031-64af-4f84-85d5-95992b43aa6c"),
+    "Carrion Feeder",
+    crate::card::CardArt::new("0a19da90-880e-4eca-8cf7-6d7baf090d53", "Svetlin Velinov"),
+    crate::card::CardSet::ModernHorizons1,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH1 91 — First-Sphere Gargantua
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FIRST_SPHERE_GARGANTUA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a59f4e5c-fdc7-485f-aadb-2a71b3701dcc"),
+    "First-Sphere Gargantua",
+    crate::card::CardArt::new("a59f4e5c-fdc7-485f-aadb-2a71b3701dcc", "Randy Vargas"),
+    crate::card::CardSet::ModernHorizons1,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH1 101 — Putrid Goblin
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PUTRID_GOBLIN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("333406d5-abcc-4629-a33b-395d0662ba1b"),
+    "Putrid Goblin",
+    crate::card::CardArt::new("333406d5-abcc-4629-a33b-395d0662ba1b", "Winona Nelson"),
+    crate::card::CardSet::ModernHorizons1,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH1 120 — Bogardan Dragonheart
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BOGARDAN_DRAGONHEART: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("feb81f44-8f22-4d28-a452-a50bef69a3e3"),
+    "Bogardan Dragonheart",
+    crate::card::CardArt::new("feb81f44-8f22-4d28-a452-a50bef69a3e3", "Randy Vargas"),
+    crate::card::CardSet::ModernHorizons1,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH1 144 — Reckless Charge
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RECKLESS_CHARGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0938e686-345e-4411-b564-cf9324ec6b9d"),
+    "Reckless Charge",
+    crate::card::CardArt::new("1754a8db-060e-470f-94c0-37f12d82978a", "Steve Argyle"),
+    crate::card::CardSet::ModernHorizons1,
+    crate::card::CardRules::unsupported(),
 );
 
 // MH1 158 — Collector Ouphe
@@ -378,6 +478,46 @@ static SHINOBI_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
+// MH1 169 — Krosan Tusker
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static KROSAN_TUSKER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0b872f85-60c5-44c4-956d-a8aa8132908b"),
+    "Krosan Tusker",
+    crate::card::CardArt::new("6391ba8b-7d9a-4077-8eeb-1b2ced14d973", "Kev Walker"),
+    crate::card::CardSet::ModernHorizons1,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH1 171 — Mother Bear
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MOTHER_BEAR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("efae4d84-8134-461a-a352-a5bdff7259a7"),
+    "Mother Bear",
+    crate::card::CardArt::new("efae4d84-8134-461a-a352-a5bdff7259a7", "Winona Nelson"),
+    crate::card::CardSet::ModernHorizons1,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH1 187 — Trumpeting Herd
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TRUMPETING_HERD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b0f3b68e-f616-4687-bc2d-075165162cd1"),
+    "Trumpeting Herd",
+    crate::card::CardArt::new("b0f3b68e-f616-4687-bc2d-075165162cd1", "Lars Grant-West"),
+    crate::card::CardSet::ModernHorizons1,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH1 193 — Winding Way
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WINDING_WAY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4e5d9776-b6ce-4ad6-8acc-69115ba5de76"),
+    "Winding Way",
+    crate::card::CardArt::new("4e5d9776-b6ce-4ad6-8acc-69115ba5de76", "Adam Paquette"),
+    crate::card::CardSet::ModernHorizons1,
+    crate::card::CardRules::unsupported(),
+);
+
 // MH1 199 — Fallen Shinobi
 pub(in crate::card::sets) static FALLEN_SHINOBI: CardRecord = CardRecord::new_with_legacy_id(
     2178,
@@ -438,12 +578,26 @@ pub(in crate::card::sets) static SUNBAKED_CANYON: CardRecord = CardRecord::new_w
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &EPHEMERATE,
+    &RHOX_VETERAN,
+    &SETTLE_BEYOND_REALITY,
     &WINDS_OF_ABANDON,
     &ECHO_OF_EONS,
+    &FAERIE_SEER,
     &FORCE_OF_NEGATION,
+    &MAN_O_WAR,
     &URZA_LORD_HIGH_ARTIFICER,
+    &CARRION_FEEDER,
+    &FIRST_SPHERE_GARGANTUA,
+    &PUTRID_GOBLIN,
+    &BOGARDAN_DRAGONHEART,
+    &RECKLESS_CHARGE,
     &COLLECTOR_OUPHE,
     &FORCE_OF_VIGOR,
+    &KROSAN_TUSKER,
+    &MOTHER_BEAR,
+    &TRUMPETING_HERD,
+    &WINDING_WAY,
     &FALLEN_SHINOBI,
     &FARMSTEAD_GLEANER,
     &SUNBAKED_CANYON,

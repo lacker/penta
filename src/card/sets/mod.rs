@@ -18,6 +18,7 @@ mod y2002;
 mod y2003;
 mod y2004;
 mod y2005;
+mod y2006;
 mod y2007;
 mod y2008;
 mod y2009;
@@ -37,6 +38,7 @@ mod y2022;
 mod y2023;
 mod y2024;
 mod y2025;
+mod y2026;
 
 use super::record::{CardAbilityBinding, CardRecord, PrintingAnchor, PrintingRecord};
 use crate::AbilityOrigin;
@@ -710,9 +712,124 @@ const SET_MODULES: &[SetModule] = &[
         y2025::through_the_omenpaths::ADDITIONAL_PRINTINGS,
     ),
     SetModule::new(
+        CardSet::Homelands,
+        y1995::homelands::CARDS,
+        y1995::homelands::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::FifthEdition,
+        y1997::fifth_edition::CARDS,
+        y1997::fifth_edition::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::Exodus,
+        y1998::exodus::CARDS,
+        y1998::exodus::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::ClassicSixthEdition,
+        y1999::classic_sixth_edition::CARDS,
+        y1999::classic_sixth_edition::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::Prophecy,
+        y2000::prophecy::CARDS,
+        y2000::prophecy::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::SaviorsOfKamigawa,
+        y2005::saviors_of_kamigawa::CARDS,
+        y2005::saviors_of_kamigawa::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::Guildpact,
+        y2006::guildpact::CARDS,
+        y2006::guildpact::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::Dissension,
+        y2006::dissension::CARDS,
+        y2006::dissension::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::TimeSpiral,
+        y2006::time_spiral::CARDS,
+        y2006::time_spiral::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::AlaraReborn,
+        y2009::alara_reborn::CARDS,
+        y2009::alara_reborn::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::FateReforged,
+        y2015::fate_reforged::CARDS,
+        y2015::fate_reforged::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::BattleForZendikar,
+        y2015::battle_for_zendikar::CARDS,
+        y2015::battle_for_zendikar::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::MagicOrigins,
+        y2015::magic_origins::CARDS,
+        y2015::magic_origins::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::ShadowsOverInnistrad,
+        y2016::shadows_over_innistrad::CARDS,
+        y2016::shadows_over_innistrad::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::HourOfDevastation,
+        y2017::hour_of_devastation::CARDS,
+        y2017::hour_of_devastation::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::CoreSet2019,
+        y2018::core_set_2019::CARDS,
+        y2018::core_set_2019::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::RavnicaAllegiance,
+        y2019::ravnica_allegiance::CARDS,
+        y2019::ravnica_allegiance::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::Commander2020,
+        y2020::commander_2020::CARDS,
+        y2020::commander_2020::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::MagicFoundations,
+        y2024::magic_foundations::CARDS,
+        y2024::magic_foundations::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::AvatarTheLastAirbender,
+        y2025::avatar_the_last_airbender::CARDS,
+        y2025::avatar_the_last_airbender::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
         CardSet::EdgeOfEternities,
         y2025::edge_of_eternities::CARDS,
         y2025::edge_of_eternities::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::LorwynEclipsed,
+        y2026::lorwyn_eclipsed::CARDS,
+        y2026::lorwyn_eclipsed::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::SecretsOfStrixhaven,
+        y2026::secrets_of_strixhaven::CARDS,
+        y2026::secrets_of_strixhaven::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::TeenageMutantNinjaTurtles,
+        y2026::teenage_mutant_ninja_turtles::CARDS,
+        y2026::teenage_mutant_ninja_turtles::ADDITIONAL_PRINTINGS,
     ),
 ];
 

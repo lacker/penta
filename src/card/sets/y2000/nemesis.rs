@@ -1,6 +1,6 @@
 //! Nemesis cards used by the staged Premodern deck tranche.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
     BasicLandType, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype,
@@ -245,6 +245,16 @@ pub(in crate::card::sets) static SEAL_OF_FIRE: CardRecord = CardRecord::new_with
     )),
 );
 
+// NEM 102 — Blastoderm
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BLASTODERM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9db5d6c2-b11f-442a-b172-c0c99c9bec07"),
+    "Blastoderm",
+    crate::card::CardArt::new("9db5d6c2-b11f-442a-b172-c0c99c9bec07", "Eric Peterson"),
+    crate::card::CardSet::Nemesis,
+    crate::card::CardRules::unsupported(),
+);
+
 // NEM 141 — Kor Haven
 pub(in crate::card::sets) static KOR_HAVEN: CardRecord = CardRecord::new_with_legacy_id(
     308,
@@ -288,6 +298,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DAZE,
     &MOGG_SALVAGE,
     &SEAL_OF_FIRE,
+    &BLASTODERM,
     &KOR_HAVEN,
 ];
 

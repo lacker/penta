@@ -1,6 +1,6 @@
 //! Kaladesh cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     CardArt, CardRules, CardSet, CardSupertype, CardType, EffectDef, EffectRecipientDef, ManaColor,
@@ -183,6 +183,36 @@ static BLOOMING_MARSH_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
+// KLD 138 — Thriving Grubs
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static THRIVING_GRUBS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("bbc3184a-eeda-4f22-92de-257c20cff6e2"),
+    "Thriving Grubs",
+    crate::card::CardArt::new("bbc3184a-eeda-4f22-92de-257c20cff6e2", "Steve Prescott"),
+    crate::card::CardSet::Kaladesh,
+    crate::card::CardRules::unsupported(),
+);
+
+// KLD 212 — Filigree Familiar
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FILIGREE_FAMILIAR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9cc9ecfd-6cf0-4488-a14a-afec1bc0d253"),
+    "Filigree Familiar",
+    crate::card::CardArt::new("9cc9ecfd-6cf0-4488-a14a-afec1bc0d253", "Izzy"),
+    crate::card::CardSet::Kaladesh,
+    crate::card::CardRules::unsupported(),
+);
+
+// KLD 230 — Renegade Freighter
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RENEGADE_FREIGHTER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7a10e2c3-0132-4eb2-94f0-5915caca2a17"),
+    "Renegade Freighter",
+    crate::card::CardArt::new("7a10e2c3-0132-4eb2-94f0-5915caca2a17", "Izzy"),
+    crate::card::CardSet::Kaladesh,
+    crate::card::CardRules::unsupported(),
+);
+
 // KLD 243 — Blooming Marsh
 pub(in crate::card::sets) static BLOOMING_MARSH: CardRecord = CardRecord::new_with_legacy_id(
     2136,
@@ -276,6 +306,9 @@ pub(in crate::card::sets) static SPIREBLUFF_CANAL: CardRecord = CardRecord::new_
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PARADOXICAL_OUTCOME,
     &CHANDRA_TORCH_OF_DEFIANCE,
+    &THRIVING_GRUBS,
+    &FILIGREE_FAMILIAR,
+    &RENEGADE_FREIGHTER,
     &BLOOMING_MARSH,
     &BOTANICAL_SANCTUM,
     &CONCEALED_COURTYARD,

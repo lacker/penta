@@ -1,6 +1,6 @@
 //! Gatecrash card records used by the built-in ISD–DGM Standard decks.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     ActivationTimingDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
@@ -4404,7 +4404,14 @@ pub(in crate::card::sets) static ORZHOV_KEYRUNE: CardRecord = CardRecord::new_wi
 );
 
 // GTC 234 — Prophetic Prism
-// Audit: blocked — The mana-ability procedure cannot combine a mana payment with a tap cost before choosing one of five output colors.
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PROPHETIC_PRISM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("cfb90d44-8cb1-4b83-b2f2-92c19d6304fb"),
+    "Prophetic Prism",
+    crate::card::CardArt::new("b15b29a2-9e6f-45b7-8af5-f09779aae58e", "Daniel Ljunggren"),
+    crate::card::CardSet::Gatecrash,
+    crate::card::CardRules::unsupported(),
+);
 
 // GTC 235 — Razortip Whip
 pub(in crate::card::sets) static RAZORTIP_WHIP: CardRecord = CardRecord::new_with_legacy_id(
@@ -4847,6 +4854,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GRUUL_KEYRUNE,
     &MILLENNIAL_GARGOYLE,
     &ORZHOV_KEYRUNE,
+    &PROPHETIC_PRISM,
     &RAZORTIP_WHIP,
     &RIOT_GEAR,
     &SIMIC_KEYRUNE,

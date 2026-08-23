@@ -1,6 +1,6 @@
 //! Invasion cards used by the staged Premodern deck tranche.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardType, EffectDef,
@@ -30,6 +30,16 @@ static FACT_OR_FICTION_PILE_MOVES: EffectDef = EffectDef::Sequence(&[
         controller: None,
     },
 ]);
+
+// INV 56 — Exclude
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static EXCLUDE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("aeb359c8-209c-455f-84b2-970e5678a9fa"),
+    "Exclude",
+    crate::card::CardArt::new("aeb359c8-209c-455f-84b2-970e5678a9fa", "Mark Romanoski"),
+    crate::card::CardSet::Invasion,
+    crate::card::CardRules::unsupported(),
+);
 
 // INV 57 — Fact or Fiction
 pub(in crate::card::sets) static FACT_OR_FICTION: CardRecord = CardRecord::new_with_legacy_id(
@@ -209,6 +219,16 @@ static RESPONSE_EFFECT: EffectDef = EffectDef::Sequence(&[
     },
 ]);
 
+// INV 70 — Repulse
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static REPULSE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9a04e9be-48be-440e-9825-cfffd4c2b1a4"),
+    "Repulse",
+    crate::card::CardArt::new("9a04e9be-48be-440e-9825-cfffd4c2b1a4", "Aaron Boyd"),
+    crate::card::CardSet::Invasion,
+    crate::card::CardRules::unsupported(),
+);
+
 // INV 78 — Teferi's Response
 pub(in crate::card::sets) static TEFERIS_RESPONSE: CardRecord = CardRecord::new_with_legacy_id(
     2058,
@@ -245,6 +265,16 @@ pub(in crate::card::sets) static OVERLOAD: CardRecord = CardRecord::new_with_leg
             OVERLOAD_KICKED,
         ),
     ]),
+);
+
+// INV 229 — Armadillo Cloak
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ARMADILLO_CLOAK: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9d816f98-6cb6-432c-b0a4-a0eed21658ac"),
+    "Armadillo Cloak",
+    crate::card::CardArt::new("9d816f98-6cb6-432c-b0a4-a0eed21658ac", "Paolo Parente"),
+    crate::card::CardSet::Invasion,
+    crate::card::CardRules::unsupported(),
 );
 
 // INV 317 — Tsabo's Web
@@ -295,11 +325,14 @@ pub(in crate::card::sets) static COASTAL_TOWER: CardRecord = CardRecord::new_wit
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &EXCLUDE,
     &FACT_OR_FICTION,
     &OPT,
     &PROHIBIT,
+    &REPULSE,
     &TEFERIS_RESPONSE,
     &OVERLOAD,
+    &ARMADILLO_CLOAK,
     &TSABOS_WEB,
     &COASTAL_TOWER,
 ];

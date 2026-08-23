@@ -5,7 +5,18 @@ pub mod card;
 pub mod casting;
 pub mod deck;
 pub mod decks;
-pub mod format;
+pub mod formats;
+/// Backwards-compatible module path for callers compiled against `penta::format`.
+#[deprecated(note = "use penta::formats")]
+pub mod format {
+    pub use crate::formats::*;
+
+    /// Backwards-compatible path for the former Vintage Cube pool module.
+    #[deprecated(note = "use penta::formats::cubes::vintage")]
+    pub mod vintage_cube {
+        pub use crate::formats::cubes::vintage::*;
+    }
+}
 pub mod game;
 pub mod ids;
 pub mod poc;
@@ -58,7 +69,10 @@ pub use casting::{
     TargetReplacementError, TargetSelection,
 };
 pub use deck::{Deck, DeckError, ValidatedDeck};
-pub use format::{Format, FormatRules};
+pub use formats::{
+    CubeFormatDefinition, Format, FormatCategory, FormatDefinition, FormatRules,
+    SetFormatDefinition,
+};
 pub use game::{
     BattlefieldExit, DecisionObservation, DecisionOption, DecisionPreference, DecisionVisibility,
     DecisionZone, EmblemObservation, Game, GameError, GameEvent, GameResult, Mana, ManaPool,

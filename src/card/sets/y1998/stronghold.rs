@@ -31,6 +31,16 @@ static SACRIFICE_A_LAND: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
     1,
 );
 
+// STH 74 — Tortured Existence
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TORTURED_EXISTENCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1754b92b-d6f9-4503-af01-dee03f72a048"),
+    "Tortured Existence",
+    crate::card::CardArt::new("1754b92b-d6f9-4503-af01-dee03f72a048", "Keith Parkinson"),
+    crate::card::CardSet::Stronghold,
+    crate::card::CardRules::unsupported(),
+);
+
 // STH 104 — Constant Mists
 pub(in crate::card::sets) static CONSTANT_MISTS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("97a8a5fe-0391-489b-9556-0a1bf7e1900d"),
@@ -149,6 +159,7 @@ pub(in crate::card::sets) static MOX_DIAMOND: CardRecord = CardRecord::new_with_
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &MANA_LEAK,
+    &TORTURED_EXISTENCE,
     &CONSTANT_MISTS,
     &HERMIT_DRUID,
     &ENSNARING_BRIDGE,

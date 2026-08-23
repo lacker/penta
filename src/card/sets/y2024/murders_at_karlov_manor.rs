@@ -20,6 +20,16 @@ static ARTIFACTS_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
 ]);
 
+// MKM 29 — Novice Inspector
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static NOVICE_INSPECTOR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0ad38866-fc5f-4f62-89c1-afc0f50765aa"),
+    "Novice Inspector",
+    crate::card::CardArt::new("0ad38866-fc5f-4f62-89c1-afc0f50765aa", "Fajareka Setiawan"),
+    crate::card::CardSet::MurdersAtKarlovManor,
+    crate::card::CardRules::unsupported(),
+);
+
 // MKM 57 — Forensic Gadgeteer
 pub(in crate::card::sets) static FORENSIC_GADGETEER: CardRecord = CardRecord::new_with_legacy_id(
     2206,
@@ -94,6 +104,36 @@ const fn surveil_land(types: &'static [&'static str]) -> CardRules {
     CardRules::new_land(types).with_abilities(&SURVEIL_LAND_ABILITIES)
 }
 
+// MKM 105 — Snarling Gorehound
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SNARLING_GOREHOUND: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("93ab3e11-8584-406f-b9ae-9e1df4396cbc"),
+    "Snarling Gorehound",
+    crate::card::CardArt::new("93ab3e11-8584-406f-b9ae-9e1df4396cbc", "John Tedrick"),
+    crate::card::CardSet::MurdersAtKarlovManor,
+    crate::card::CardRules::unsupported(),
+);
+
+// MKM 174 — Rubblebelt Maverick
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RUBBLEBELT_MAVERICK: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("81c7ff67-b9e1-4d2e-b1ae-da9b946da00b"),
+    "Rubblebelt Maverick",
+    crate::card::CardArt::new("81c7ff67-b9e1-4d2e-b1ae-da9b946da00b", "Carissa Susilo"),
+    crate::card::CardSet::MurdersAtKarlovManor,
+    crate::card::CardRules::unsupported(),
+);
+
+// MKM 197 — Dog Walker
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DOG_WALKER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a6e0adb7-a030-4dcc-9284-cd91c7598a22"),
+    "Dog Walker",
+    crate::card::CardArt::new("a6e0adb7-a030-4dcc-9284-cd91c7598a22", "Milivoj Ćeran"),
+    crate::card::CardSet::MurdersAtKarlovManor,
+    crate::card::CardRules::unsupported(),
+);
+
 // MKM 259 — Commercial District
 pub(in crate::card::sets) static COMMERCIAL_DISTRICT: CardRecord = CardRecord::new_with_legacy_id(
     2275,
@@ -106,6 +146,19 @@ pub(in crate::card::sets) static COMMERCIAL_DISTRICT: CardRecord = CardRecord::n
     // The red-green half, which wants the graveyard less than the others and
     // plays it anyway because a tapped dual is what the mana costs.
     surveil_land(&["Mountain", "Forest"]),
+);
+
+// MKM 261 — Escape Tunnel
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ESCAPE_TUNNEL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("93ddde4f-d35e-4128-8f43-d0eadbd715de"),
+    "Escape Tunnel",
+    crate::card::CardArt::new(
+        "93ddde4f-d35e-4128-8f43-d0eadbd715de",
+        "Carlos Palma Cruchaga",
+    ),
+    crate::card::CardSet::MurdersAtKarlovManor,
+    crate::card::CardRules::unsupported(),
 );
 
 // MKM 263 — Lush Portico
@@ -154,8 +207,13 @@ pub(in crate::card::sets) static UNDERCITY_SEWERS: CardRecord = CardRecord::new(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &NOVICE_INSPECTOR,
     &FORENSIC_GADGETEER,
+    &SNARLING_GOREHOUND,
+    &RUBBLEBELT_MAVERICK,
+    &DOG_WALKER,
     &COMMERCIAL_DISTRICT,
+    &ESCAPE_TUNNEL,
     &LUSH_PORTICO,
     &METICULOUS_ARCHIVE,
     &THUNDERING_FALLS,

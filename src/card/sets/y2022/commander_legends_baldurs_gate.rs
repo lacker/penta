@@ -1,7 +1,7 @@
 //! Commander Legends: Battle for Baldur's Gate cards cataloged for the
 //! Vintage Cube.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCoverageDef, AbilityDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation,
@@ -39,6 +39,76 @@ static WHENEVER_YOU_ATTACK: TriggerEventDef = TriggerEventDef::attack_declared(
     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
     1,
     None,
+);
+
+// CLB 11 — Blessed Hippogriff
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BLESSED_HIPPOGRIFF: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b4590e53-ca8d-4896-a8cf-6af1e4bc456f"),
+    "Blessed Hippogriff",
+    crate::card::CardArt::new("b4590e53-ca8d-4896-a8cf-6af1e4bc456f", "Leanna Crossan"),
+    crate::card::CardSet::CommanderLegendsBattleForBaldursGate,
+    crate::card::CardRules::unsupported(),
+);
+
+// CLB 22 — Greatsword of Tyr
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GREATSWORD_OF_TYR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("50088a60-642b-47ed-a289-ef0b617b688f"),
+    "Greatsword of Tyr",
+    crate::card::CardArt::new("50088a60-642b-47ed-a289-ef0b617b688f", "Titus Lunter"),
+    crate::card::CardSet::CommanderLegendsBattleForBaldursGate,
+    crate::card::CardRules::unsupported(),
+);
+
+// CLB 99 — Sword Coast Serpent
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SWORD_COAST_SERPENT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0bbfb7ae-9a32-428d-903c-99d0d8669b8d"),
+    "Sword Coast Serpent",
+    crate::card::CardArt::new("0bbfb7ae-9a32-428d-903c-99d0d8669b8d", "Caio Monteiro"),
+    crate::card::CardSet::CommanderLegendsBattleForBaldursGate,
+    crate::card::CardRules::unsupported(),
+);
+
+// CLB 106 — Young Blue Dragon
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static YOUNG_BLUE_DRAGON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("56b0f66b-dca9-4a01-9394-20a513c2b225"),
+    "Young Blue Dragon",
+    crate::card::CardArt::new("56b0f66b-dca9-4a01-9394-20a513c2b225", "Tuan Duong Chu"),
+    crate::card::CardSet::CommanderLegendsBattleForBaldursGate,
+    crate::card::CardRules::unsupported(),
+);
+
+// CLB 113 — Arms of Hadar
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ARMS_OF_HADAR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("db1fd431-8f6d-4ca5-bc0c-53881c500da1"),
+    "Arms of Hadar",
+    crate::card::CardArt::new("db1fd431-8f6d-4ca5-bc0c-53881c500da1", "Mirko Failoni"),
+    crate::card::CardSet::CommanderLegendsBattleForBaldursGate,
+    crate::card::CardRules::unsupported(),
+);
+
+// CLB 119 — Cast Down
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CAST_DOWN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("116ce944-6871-4f51-a889-d9c4a5d7cff2"),
+    "Cast Down",
+    crate::card::CardArt::new("aba79021-39af-4e74-beb5-f2f508c865b2", "Tyler Walpole"),
+    crate::card::CardSet::CommanderLegendsBattleForBaldursGate,
+    crate::card::CardRules::unsupported(),
+);
+
+// CLB 130 — Guildsworn Prowler
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GUILDSWORN_PROWLER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d7efb10f-c760-431c-8ac6-904965d850dc"),
+    "Guildsworn Prowler",
+    crate::card::CardArt::new("d7efb10f-c760-431c-8ac6-904965d850dc", "Fariba Khamseh"),
+    crate::card::CardSet::CommanderLegendsBattleForBaldursGate,
+    crate::card::CardRules::unsupported(),
 );
 
 // CLB 180 — Gut, True Soul Zealot
@@ -106,6 +176,16 @@ static DELAYED_BLAST_FIREBALL_EFFECT: [EffectDef; 2] = [
     },
 ];
 
+// CLB 263 — You Meet in a Tavern
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static YOU_MEET_IN_A_TAVERN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("593aa59a-4025-4df8-9f27-188fc7712fde"),
+    "You Meet in a Tavern",
+    crate::card::CardArt::new("9fddbd7a-799c-4432-810c-d839c5c354b9", "Zoltan Boros"),
+    crate::card::CardSet::CommanderLegendsBattleForBaldursGate,
+    crate::card::CardRules::unsupported(),
+);
+
 // CLB 630 — Delayed Blast Fireball
 pub(in crate::card::sets) static DELAYED_BLAST_FIREBALL: CardRecord =
     CardRecord::new_with_legacy_id(
@@ -126,7 +206,39 @@ pub(in crate::card::sets) static DELAYED_BLAST_FIREBALL: CardRecord =
         ]),
     );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&GUT_TRUE_SOUL_ZEALOT, &DELAYED_BLAST_FIREBALL];
+// CLB 748 — Dauthi Horror
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DAUTHI_HORROR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c5a8bb3a-3a84-442f-8e31-8af2f04408ab"),
+    "Dauthi Horror",
+    crate::card::CardArt::new("7c41afe6-7eed-4cf5-9bbb-ccc9f82cb4fa", "Jeff Laubenstein"),
+    crate::card::CardSet::CommanderLegendsBattleForBaldursGate,
+    crate::card::CardRules::unsupported(),
+);
+
+// CLB 897 — Izzet Boilerworks
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static IZZET_BOILERWORKS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("666f455e-3a3d-475d-b67a-a1fdd74820eb"),
+    "Izzet Boilerworks",
+    crate::card::CardArt::new("c86e42c6-342b-443f-9b99-a68cf536ff45", "John Avon"),
+    crate::card::CardSet::CommanderLegendsBattleForBaldursGate,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &BLESSED_HIPPOGRIFF,
+    &GREATSWORD_OF_TYR,
+    &SWORD_COAST_SERPENT,
+    &YOUNG_BLUE_DRAGON,
+    &ARMS_OF_HADAR,
+    &CAST_DOWN,
+    &GUILDSWORN_PROWLER,
+    &GUT_TRUE_SOUL_ZEALOT,
+    &YOU_MEET_IN_A_TAVERN,
+    &DELAYED_BLAST_FIREBALL,
+    &DAUTHI_HORROR,
+    &IZZET_BOILERWORKS,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

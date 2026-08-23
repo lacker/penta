@@ -1,6 +1,6 @@
 //! Planeshift cards used by the staged Premodern deck tranche.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef,
     BattlefieldEntryChoiceDestinationDef, BattlefieldEntryScalarChoiceDef, CardArt, CardRules,
@@ -45,6 +45,16 @@ pub(in crate::card::sets) static QUIRION_DRYAD: CardRecord = CardRecord::new_wit
 static SPELLS_WITH_THE_CHOSEN_NAME: PlayRestrictionDef = PlayRestrictionDef::new(
     PlayActionMatcherDef::CastSpell,
     ObjectPredicateDef::HasSourcesChosenScalar(BattlefieldEntryChoiceDestinationDef::CardName),
+);
+
+// PLS 97 — Cavern Harpy
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CAVERN_HARPY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("adfb0804-50d6-4bca-8733-72e01030a543"),
+    "Cavern Harpy",
+    crate::card::CardArt::new("adfb0804-50d6-4bca-8733-72e01030a543", "Daren Bader"),
+    crate::card::CardSet::Planeshift,
+    crate::card::CardRules::unsupported(),
 );
 
 // PLS 116 — Meddling Mage
@@ -109,6 +119,16 @@ static CITY_EXILE_AND_UNTAP: EffectDef = EffectDef::Choose(ChooseDef {
         },
     ]),
 });
+
+// PLS 125 — Silver Drake
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SILVER_DRAKE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("726aa407-dadd-4575-aee2-b7888e67a722"),
+    "Silver Drake",
+    crate::card::CardArt::new("ac35ee86-96b2-47aa-a1ba-2988737f11ee", "Alan Pollack"),
+    crate::card::CardSet::Planeshift,
+    crate::card::CardRules::unsupported(),
+);
 
 // PLS 139 — Forsaken City
 pub(in crate::card::sets) static FORSAKEN_CITY: CardRecord = CardRecord::new_with_legacy_id(
@@ -191,7 +211,9 @@ static NON_LAIR_LAND_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &QUIRION_DRYAD,
+    &CAVERN_HARPY,
     &MEDDLING_MAGE,
+    &SILVER_DRAKE,
     &FORSAKEN_CITY,
     &TREVAS_RUINS,
 ];

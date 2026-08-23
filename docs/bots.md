@@ -1,9 +1,10 @@
 # Writing an AI bot for Penta
 
-penta is a deterministic engine for two-player constructed Magic. It currently
-ships Eternal Central Old School 93/94 and the final pre-Theros ISD–DGM
-Standard format. This guide is for writing a program that plays it: from
-Python, C, C++, or Rust, against the included bots or against itself.
+penta is a deterministic engine for two-player Magic across set-based formats
+and fixed-list cubes. Its profiles include Old School 93/94, Premodern, three
+historical Standard windows, and two cubes. This guide is for writing a program
+that plays it: from Python, C, C++, or Rust, against the included bots or
+against itself.
 
 This guide describes the current development wire contract, **protocol 28**,
 which retains protocol 22's open-world model. Ignore JSON object members your bot does not use;
@@ -388,7 +389,7 @@ world it can search.
 | `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v8`; ignore unknown entries |
 | `simulationFingerprint` | a conservative identity of simulation source and build requirements; pin it for training and require it for reconstruction |
 | `engineVersion` | package-release provenance; it is not an exact simulation identity |
-| `format` | the rules/deck profile slug, such as `"old-school-93-94"` or `"isd-dgm-standard"` |
+| `format` | the rules/deck profile slug: `"old-school-93-94"`, `"premodern"`, `"isd-dgm-standard"`, `"isd-m14-standard"`, `"som-m13-standard"`, `"vintage-cube"`, or `"pauper-cube"` |
 | `seat` | whose view this is: `"p1"` or `"p2"` |
 | `pregame` | true while mulligans are being settled |
 | `turn`, `activeTurn`, `activeSeat`, `prioritySeat`, `step` | where the game is; `activeTurn` counts turns started by the active player, including extra turns, and `step` is one of `Upkeep`, `Draw`, `PrecombatMain`, `BeginningOfCombat`, `DeclareAttackers`, `DeclareBlockers`, `CombatDamage`, `EndOfCombat`, `PostcombatMain`, `End`, `Cleanup` |
@@ -762,7 +763,7 @@ an additive catalog-content change, not a JSON-shape change; consumers must not
 assume the older catalog length or that definition 314 is the maximum ID.
 
 Definitions 607 through 1361 extended the compatible protocol-20 catalog growth
-with 736 card identities used by ISD–RTR Standard and nineteen supporting
+with 736 card identities used by Standard: ISD-DGM and nineteen supporting
 tokens. Together with in-format printings of existing definitions, Standard
 then exposed 878 legal identities: 839 `complete` and 39 `partial`. The inline
 audit partitioned all 1,686 identities in its eight sets and recorded a concrete

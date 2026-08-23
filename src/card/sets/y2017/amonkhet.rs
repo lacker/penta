@@ -23,6 +23,26 @@ static A_NON_DRAGON_THEY_CONTROL: [AbilityTargetDef; 1] = [AbilityTargetDef::exa
     },
 )];
 
+// AKH 75 — Vizier of Tumbling Sands
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static VIZIER_OF_TUMBLING_SANDS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ce4ff0f5-abee-4f3e-89ae-1b7ee771ec68"),
+    "Vizier of Tumbling Sands",
+    crate::card::CardArt::new("ce4ff0f5-abee-4f3e-89ae-1b7ee771ec68", "Josu Hernaiz"),
+    crate::card::CardSet::Amonkhet,
+    crate::card::CardRules::unsupported(),
+);
+
+// AKH 81 — Bone Picker
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BONE_PICKER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("bdc6a825-43f7-40a4-95f0-335dc538b6cd"),
+    "Bone Picker",
+    crate::card::CardArt::new("bdc6a825-43f7-40a4-95f0-335dc538b6cd", "Yeong-Hao Han"),
+    crate::card::CardSet::Amonkhet,
+    crate::card::CardRules::unsupported(),
+);
+
 // AKH 134 — Glorybringer
 pub(in crate::card::sets) static GLORYBRINGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3277ad99-5682-4baa-b106-de15721876a6"),
@@ -48,6 +68,21 @@ pub(in crate::card::sets) static GLORYBRINGER: CardRecord = CardRecord::new(
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&GLORYBRINGER];
+// AKH 241 — Cradle of the Accursed
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CRADLE_OF_THE_ACCURSED: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("41713e82-c3d3-4c2f-b075-f684cbd68ce8"),
+    "Cradle of the Accursed",
+    crate::card::CardArt::new("41713e82-c3d3-4c2f-b075-f684cbd68ce8", "Noah Bradley"),
+    crate::card::CardSet::Amonkhet,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &VIZIER_OF_TUMBLING_SANDS,
+    &BONE_PICKER,
+    &GLORYBRINGER,
+    &CRADLE_OF_THE_ACCURSED,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

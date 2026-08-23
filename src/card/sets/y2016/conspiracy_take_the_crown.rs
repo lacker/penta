@@ -1,6 +1,6 @@
 //! Conspiracy: Take the Crown cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardType, EffectDef,
     EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef, PlayerRefDef, PlayerRelation,
@@ -77,6 +77,41 @@ pub(in crate::card::sets) static PALACE_JAILER: CardRecord = CardRecord::new_wit
         .with_abilities(&JAILER_ABILITIES),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&PALACE_JAILER];
+// CN2 19 — Palace Sentinels
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PALACE_SENTINELS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3e002a99-eb2b-4cc3-992e-f3ee42245dba"),
+    "Palace Sentinels",
+    crate::card::CardArt::new("3e002a99-eb2b-4cc3-992e-f3ee42245dba", "Aaron Miller"),
+    crate::card::CardSet::ConspiracyTakeTheCrown,
+    crate::card::CardRules::unsupported(),
+);
+
+// CN2 48 — Thorn of the Black Rose
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static THORN_OF_THE_BLACK_ROSE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2e4829c6-50d4-4602-af78-59249486a97c"),
+    "Thorn of the Black Rose",
+    crate::card::CardArt::new("2e4829c6-50d4-4602-af78-59249486a97c", "David Gaillet"),
+    crate::card::CardSet::ConspiracyTakeTheCrown,
+    crate::card::CardRules::unsupported(),
+);
+
+// CN2 64 — Entourage of Trest
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ENTOURAGE_OF_TREST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3d7ee777-6113-43f8-883e-c7569eefb872"),
+    "Entourage of Trest",
+    crate::card::CardArt::new("3d7ee777-6113-43f8-883e-c7569eefb872", "Anthony Palumbo"),
+    crate::card::CardSet::ConspiracyTakeTheCrown,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &PALACE_JAILER,
+    &PALACE_SENTINELS,
+    &THORN_OF_THE_BLACK_ROSE,
+    &ENTOURAGE_OF_TREST,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

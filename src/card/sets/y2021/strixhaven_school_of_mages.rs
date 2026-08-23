@@ -1,6 +1,6 @@
 //! Strixhaven: School of Mages cards cataloged for the Vintage Cube.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef, CardArt,
     CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef,
@@ -119,6 +119,16 @@ static MASTERY_RESOLUTION: [EffectDef; 2] = [
     MASTERY_EXILE,
 ];
 
+// STX 43 — Frost Trickster
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FROST_TRICKSTER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fd79c9cc-0a8c-4d88-96e2-cb177134a18d"),
+    "Frost Trickster",
+    crate::card::CardArt::new("fd79c9cc-0a8c-4d88-96e2-cb177134a18d", "Uriah Voth"),
+    crate::card::CardSet::StrixhavenSchoolOfMages,
+    crate::card::CardRules::unsupported(),
+);
+
 // STX 64 — Baleful Mastery
 pub(in crate::card::sets) static BALEFUL_MASTERY: CardRecord = CardRecord::new_with_legacy_id(
     2201,
@@ -142,6 +152,54 @@ pub(in crate::card::sets) static BALEFUL_MASTERY: CardRecord = CardRecord::new_w
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&ELITE_SPELLBINDER, &BALEFUL_MASTERY];
+// STX 90 — Unwilling Ingredient
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static UNWILLING_INGREDIENT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("30448144-639a-43c7-a408-bd6ed543c231"),
+    "Unwilling Ingredient",
+    crate::card::CardArt::new("30448144-639a-43c7-a408-bd6ed543c231", "David Auden Nash"),
+    crate::card::CardSet::StrixhavenSchoolOfMages,
+    crate::card::CardRules::unsupported(),
+);
+
+// STX 219 — Quandrix Pledgemage
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static QUANDRIX_PLEDGEMAGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("07633b7f-4150-458b-89c3-d05dc0e3c4bd"),
+    "Quandrix Pledgemage",
+    crate::card::CardArt::new("07633b7f-4150-458b-89c3-d05dc0e3c4bd", "Caroline Gariba"),
+    crate::card::CardSet::StrixhavenSchoolOfMages,
+    crate::card::CardRules::unsupported(),
+);
+
+// STX 271 — Quandrix Campus
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static QUANDRIX_CAMPUS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f788da28-481b-41fa-a70c-b53db6b0f068"),
+    "Quandrix Campus",
+    crate::card::CardArt::new("f788da28-481b-41fa-a70c-b53db6b0f068", "Piotr Dura"),
+    crate::card::CardSet::StrixhavenSchoolOfMages,
+    crate::card::CardRules::unsupported(),
+);
+
+// STX 275 — Witherbloom Campus
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WITHERBLOOM_CAMPUS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7346fb2e-754e-47de-b33d-eb089b357ee4"),
+    "Witherbloom Campus",
+    crate::card::CardArt::new("7346fb2e-754e-47de-b33d-eb089b357ee4", "Alayna Danner"),
+    crate::card::CardSet::StrixhavenSchoolOfMages,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &ELITE_SPELLBINDER,
+    &FROST_TRICKSTER,
+    &BALEFUL_MASTERY,
+    &UNWILLING_INGREDIENT,
+    &QUANDRIX_PLEDGEMAGE,
+    &QUANDRIX_CAMPUS,
+    &WITHERBLOOM_CAMPUS,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

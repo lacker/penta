@@ -1,7 +1,7 @@
-# Vintage Cube implementation roadmap
+# Cube: Vintage implementation roadmap
 
 The MTGO Vintage Cube is a 534-card singleton list, recorded verbatim in
-[`src/format/vintage_cube.rs`](../src/format/vintage_cube.rs) as it stood on
+[`src/formats/cubes/vintage.rs`](../src/formats/cubes/vintage.rs) as it stood on
 2026-08-19. A cube is re-tuned between runs, so the pool is a dated snapshot
 rather than a claim about what is current.
 
@@ -23,9 +23,9 @@ no card Scryfall knows and were left out; the module records which.
 
 Forty-card minimum, one copy of each card, twenty life, seven-card opening
 hand, contemporary mana rules, and no ban or restricted list -- a card is
-either in the pool or it is not. `FormatRules::card_pool` carries the list, and
-`Format::allows_card` consults it instead of `allowed_sets`, which the cube
-leaves empty so nothing reads it as a set window by accident.
+either in the pool or it is not. `CubeFormatDefinition::cards` carries the
+list, while set windows and banned/restricted policy live only on
+`SetFormatDefinition`.
 
 ## Coverage
 

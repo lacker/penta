@@ -2,18 +2,23 @@
 
 [![CI](https://github.com/lacker/penta/actions/workflows/ci.yml/badge.svg)](https://github.com/lacker/penta/actions/workflows/ci.yml)
 
-Penta is a deterministic, headless simulator for two-player constructed Magic:
+Penta is a deterministic, headless simulator for two-player Magic:
 The Gathering, built for writing AI bots against. The Rust engine is available
 directly, through Python and C bindings, and in a local browser client compiled
 to WebAssembly.
 
-Penta currently ships two explicit format profiles:
+Penta currently ships seven explicit format profiles:
 
-- **Eternal Central Old School 93/94**, including mana burn and fifteen
+- **Old School 93/94**, using Eternal Central rules including mana burn and fifteen
   built-in archetypes.
-- **ISD–DGM Standard**, using the final pre-Theros legality snapshot and ten
+- **Premodern**, spanning Fourth Edition through Scourge with its own ban list.
+- **Standard: ISD-DGM**, using the final pre-Theros legality snapshot and ten
   built-in decks: the eight SCG Open Atlanta Top 8 lists plus two January 2013
   SCG matchup decks.
+- **Standard: ISD-M14**, the same window under its first-and-last-set label.
+- **Standard: SOM-M13**, combining Scars of Mirrodin and Innistrad blocks.
+- **Cube: Vintage** and **Cube: The Pauper Cube**, each defined by a dated fixed
+  card list rather than a set window.
 
 The project is growing incrementally toward a full Magic engine. It is playable
 end to end, but it does not yet implement the complete Comprehensive Rules or

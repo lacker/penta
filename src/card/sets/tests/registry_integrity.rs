@@ -2,11 +2,13 @@ use super::*;
 
 #[test]
 fn format_sets_and_card_records_have_catalog_modules() {
-    let format_sets = Format::OldSchool9394
-        .rules()
-        .allowed_sets
+    let set_formats = Format::ALL
         .iter()
-        .chain(Format::IsdDgmStandard.rules().allowed_sets)
+        .filter_map(|format| format.set_definition())
+        .collect::<Vec<_>>();
+    let format_sets = set_formats
+        .iter()
+        .flat_map(|definition| definition.allowed_sets)
         .copied()
         .collect::<Vec<_>>();
     let all_registered_sets = SET_MODULES
@@ -23,9 +25,12 @@ fn format_sets_and_card_records_have_catalog_modules() {
         "each set must have exactly one catalog module",
     );
     assert!(!all_registered_sets.contains(&CardSet::Token));
-    for format in [Format::OldSchool9394, Format::IsdDgmStandard] {
+    for format in Format::ALL {
+        let Some(definition) = format.set_definition() else {
+            continue;
+        };
         assert!(
-            !format.rules().allowed_sets.contains(&CardSet::Token),
+            !definition.allowed_sets.contains(&CardSet::Token),
             "no format may allow the token set"
         );
     }

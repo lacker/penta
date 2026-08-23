@@ -209,11 +209,22 @@ pub(in crate::card::sets) static BLOODBRAID_CHALLENGER: CardRecord = CardRecord:
         .with_abilities(&BLOODBRAID_CHALLENGER_ABILITIES),
 );
 
+// M3C 320 — Basilisk Gate
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BASILISK_GATE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4a306025-d429-4006-b7ed-bdb287e83f57"),
+    "Basilisk Gate",
+    crate::card::CardArt::new("935f3dfa-7d8d-459a-8ac2-37892cb9545f", "Jorge Jacinto"),
+    crate::card::CardSet::ModernHorizons3Commander,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ULALEK_FUSED_ATROCITY,
     &BARROWGOYF,
     &PYROGOYF,
     &BLOODBRAID_CHALLENGER,
+    &BASILISK_GATE,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

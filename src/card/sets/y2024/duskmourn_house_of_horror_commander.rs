@@ -120,7 +120,42 @@ pub(in crate::card::sets) static URSINE_MONSTROSITY: CardRecord = CardRecord::ne
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&METAMORPHOSIS_FANATIC, &URSINE_MONSTROSITY];
+// DSC 88 — Growth Spiral
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GROWTH_SPIRAL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("288ed3e9-4485-44ad-8561-efa09ed96f34"),
+    "Growth Spiral",
+    crate::card::CardArt::new("1e10e2b4-9639-41ae-8b8e-253224d3d513", "Nicholas Gregory"),
+    crate::card::CardSet::DuskmournHouseOfHorrorCommander,
+    crate::card::CardRules::unsupported(),
+);
+
+// DSC 270 — Dimir Aqueduct
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DIMIR_AQUEDUCT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("df3c3d56-8291-407e-87a1-94b7d12811fd"),
+    "Dimir Aqueduct",
+    crate::card::CardArt::new("84bf9d60-64b8-4209-acfe-e07eefc6bf1f", "John Avon"),
+    crate::card::CardSet::DuskmournHouseOfHorrorCommander,
+    crate::card::CardRules::unsupported(),
+);
+
+// DSC 279 — Golgari Rot Farm
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GOLGARI_ROT_FARM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("104364d5-ede8-4ac5-900f-19947f51bbc1"),
+    "Golgari Rot Farm",
+    crate::card::CardArt::new("725fab98-558b-4b0c-a0a4-ef0eec92eebb", "John Avon"),
+    crate::card::CardSet::DuskmournHouseOfHorrorCommander,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &METAMORPHOSIS_FANATIC,
+    &URSINE_MONSTROSITY,
+    &GROWTH_SPIRAL,
+    &DIMIR_AQUEDUCT,
+    &GOLGARI_ROT_FARM,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

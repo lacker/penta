@@ -49,6 +49,26 @@ static WISHCLAW_GRANTS_A_WISH: [EffectDef; 2] = [
     },
 ];
 
+// ELD 5 — Ardenvale Tactician
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ARDENVALE_TACTICIAN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("bd6ccd0b-5279-431f-b65a-7fdbdffd1a90"),
+    "Ardenvale Tactician",
+    crate::card::CardArt::new("c7d5e394-8e41-442e-ae97-a478a61e1b9d", "Jason Rainville"),
+    crate::card::CardSet::ThroneOfEldraine,
+    crate::card::CardRules::unsupported(),
+);
+
+// ELD 11 — Faerie Guidemother
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FAERIE_GUIDEMOTHER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e8bbece8-9620-44d9-b991-350fe952538a"),
+    "Faerie Guidemother",
+    crate::card::CardArt::new("e8bbece8-9620-44d9-b991-350fe952538a", "Mila Pesic"),
+    crate::card::CardSet::ThroneOfEldraine,
+    crate::card::CardRules::unsupported(),
+);
+
 // ELD 110 — Wishclaw Talisman
 pub(in crate::card::sets) static WISHCLAW_TALISMAN: CardRecord = CardRecord::new_with_legacy_id(
     2166,
@@ -242,6 +262,16 @@ pub(in crate::card::sets) static EMBERETH_SHIELDBREAKER: CardRecord =
     )
     .with_composition(embereth_shieldbreaker_composition);
 
+// ELD 137 — Rimrock Knight
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RIMROCK_KNIGHT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a3d13d84-01e4-4429-93db-e5afff811527"),
+    "Rimrock Knight",
+    crate::card::CardArt::new("a3d13d84-01e4-4429-93db-e5afff811527", "Chris Rallis"),
+    crate::card::CardSet::ThroneOfEldraine,
+    crate::card::CardRules::unsupported(),
+);
+
 // ELD 138 — Robber of the Rich
 // Audit: blocked — Needs three things. An intervening-if that compares two players' hand sizes rather than a count against a printed number; a permission to cast one exiled card that survives its source leaving the battlefield and is gated on having attacked with a Rogue that turn; and spending mana as though it were mana of any color, which already blocks North Star in Legends.
 
@@ -341,11 +371,47 @@ pub(in crate::card::sets) static OKO_THIEF_OF_CROWNS: CardRecord = CardRecord::n
         .with_abilities(&OKO_ABILITIES),
 );
 
+// ELD 219 — Gingerbrute
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GINGERBRUTE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f55fe038-c903-4d92-b689-72dd6d041a91"),
+    "Gingerbrute",
+    crate::card::CardArt::new("f55fe038-c903-4d92-b689-72dd6d041a91", "Vincent Proce"),
+    crate::card::CardSet::ThroneOfEldraine,
+    crate::card::CardRules::unsupported(),
+);
+
+// ELD 247 — Mystic Sanctuary
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MYSTIC_SANCTUARY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("170e792c-80d5-4775-ad95-37614574ab84"),
+    "Mystic Sanctuary",
+    crate::card::CardArt::new("170e792c-80d5-4775-ad95-37614574ab84", "Randy Vargas"),
+    crate::card::CardSet::ThroneOfEldraine,
+    crate::card::CardRules::unsupported(),
+);
+
+// ELD 249 — Witch's Cottage
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WITCH_S_COTTAGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b87891cd-b457-4dff-8d18-a7eaf6748fc6"),
+    "Witch's Cottage",
+    crate::card::CardArt::new("b87891cd-b457-4dff-8d18-a7eaf6748fc6", "Gabor Szikszai"),
+    crate::card::CardSet::ThroneOfEldraine,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &ARDENVALE_TACTICIAN,
+    &FAERIE_GUIDEMOTHER,
     &WISHCLAW_TALISMAN,
     &BONECRUSHER_GIANT,
     &EMBERETH_SHIELDBREAKER,
+    &RIMROCK_KNIGHT,
     &OKO_THIEF_OF_CROWNS,
+    &GINGERBRUTE,
+    &MYSTIC_SANCTUARY,
+    &WITCH_S_COTTAGE,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

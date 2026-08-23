@@ -217,9 +217,9 @@ make catalog-report
 
 The report derives repository-wide complete, partial, and metadata-only
 definitions from the built-in catalog. It also gives a mutually exclusive
-complete/partial/metadata-only/blocked partition for each supported set corpus,
+complete/partial/metadata-only/blocked partition for each set-based format,
 using the inline `// Audit:` rows to identify cards that are not yet cataloged,
-and a complete/partial/metadata-only/uncataloged partition for fixed card pools.
+and a complete/partial/metadata-only/uncataloged partition for every cube.
 Pass `CATALOG_REPORT_ARGS=--verbose` to list the individual fixed-pool cards in
 each status. The report output is intentionally not checked in: the source
 declarations remain authoritative, so adding a card does not require updating a

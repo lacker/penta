@@ -1,6 +1,6 @@
 //! Ikoria: Lair of Behemoths cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{AbilityDef, CardArt, CardRules, CardSet, abilities};
 use crate::mana_cost;
 
@@ -18,6 +18,26 @@ const TRIOME_ABILITIES: &[AbilityDef] = &[
 const fn triome(types: &'static [&'static str]) -> CardRules {
     CardRules::new_land(types).with_abilities(TRIOME_ABILITIES)
 }
+
+// IKO 137 — Spelleater Wolverine
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SPELLEATER_WOLVERINE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a5f03ffd-dcdb-441c-8dfc-4fe06a289b22"),
+    "Spelleater Wolverine",
+    crate::card::CardArt::new("a5f03ffd-dcdb-441c-8dfc-4fe06a289b22", "Uriah Voth"),
+    crate::card::CardSet::Ikoria,
+    crate::card::CardRules::unsupported(),
+);
+
+// IKO 170 — Ram Through
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RAM_THROUGH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ac0b24e7-14e7-45ee-b5d8-bdb8674b669c"),
+    "Ram Through",
+    crate::card::CardArt::new("ac0b24e7-14e7-45ee-b5d8-bdb8674b669c", "Zoltan Boros"),
+    crate::card::CardSet::Ikoria,
+    crate::card::CardRules::unsupported(),
+);
 
 // IKO 248 — Indatha Triome
 pub(in crate::card::sets) static INDATHA_TRIOME: CardRecord = CardRecord::new_with_legacy_id(
@@ -65,6 +85,8 @@ pub(in crate::card::sets) static ZAGOTH_TRIOME: CardRecord = CardRecord::new_wit
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &SPELLEATER_WOLVERINE,
+    &RAM_THROUGH,
     &INDATHA_TRIOME,
     &KETRIA_TRIOME,
     &RAUGRIN_TRIOME,

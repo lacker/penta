@@ -1,6 +1,6 @@
 //! Torment cards used by the staged Premodern deck tranche.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules,
     CardSet, EffectDef, EffectRecipientDef, ObjectPredicateDef, ValueDef,
@@ -10,6 +10,16 @@ use crate::{TargetIndex, mana_cost};
 static ANY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::AnyTarget,
 )];
+
+// TOR 60 — Faceless Butcher
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FACELESS_BUTCHER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4073be21-c54a-4eee-9109-f3adfe757c4e"),
+    "Faceless Butcher",
+    crate::card::CardArt::new("4073be21-c54a-4eee-9109-f3adfe757c4e", "Daren Bader"),
+    crate::card::CardSet::Torment,
+    crate::card::CardRules::unsupported(),
+);
 
 // TOR 100 — Grim Lavamancer
 pub(in crate::card::sets) static GRIM_LAVAMANCER: CardRecord = CardRecord::new_with_legacy_id(
@@ -39,6 +49,6 @@ pub(in crate::card::sets) static GRIM_LAVAMANCER: CardRecord = CardRecord::new_w
     ),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&GRIM_LAVAMANCER];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&FACELESS_BUTCHER, &GRIM_LAVAMANCER];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

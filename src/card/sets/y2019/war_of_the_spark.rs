@@ -324,6 +324,16 @@ pub(in crate::card::sets) static DREADHORDE_ARCANIST: CardRecord = CardRecord::n
         .with_abilities(&DREADHORDE_ARCANIST_ABILITIES),
 );
 
+// WAR 130 — Grim Initiate
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GRIM_INITIATE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("29b6ec9d-3861-48bf-a198-dc7efba5d89c"),
+    "Grim Initiate",
+    crate::card::CardArt::new("29b6ec9d-3861-48bf-a198-dc7efba5d89c", "Jason Felix"),
+    crate::card::CardSet::WarOfTheSpark,
+    crate::card::CardRules::unsupported(),
+);
+
 // WAR 169 — Nissa, Who Shakes the World
 pub(in crate::card::sets) static NISSA_WHO_SHAKES_THE_WORLD: CardRecord =
     CardRecord::new_with_legacy_id(
@@ -485,6 +495,19 @@ static SAHEELI_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
+// WAR 222 — Tenth District Legionnaire
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TENTH_DISTRICT_LEGIONNAIRE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("44f3090b-917b-4122-b522-27c30dca8e69"),
+    "Tenth District Legionnaire",
+    crate::card::CardArt::new(
+        "44f3090b-917b-4122-b522-27c30dca8e69",
+        "Victor Adame Minguez",
+    ),
+    crate::card::CardSet::WarOfTheSpark,
+    crate::card::CardRules::unsupported(),
+);
+
 // WAR 234 — Saheeli, Sublime Artificer
 pub(in crate::card::sets) static SAHEELI_SUBLIME_ARTIFICER: CardRecord =
     CardRecord::new_with_legacy_id(
@@ -503,8 +526,10 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &JACE_WIELDER_OF_MYSTERIES,
     &BOLASS_CITADEL,
     &DREADHORDE_ARCANIST,
+    &GRIM_INITIATE,
     &NISSA_WHO_SHAKES_THE_WORLD,
     &TAMIYO_COLLECTOR_OF_TALES,
+    &TENTH_DISTRICT_LEGIONNAIRE,
     &SAHEELI_SUBLIME_ARTIFICER,
 ];
 

@@ -23,7 +23,7 @@ test("server renders the Penta application shell", async () => {
   // dealt a game, so the shell is the deck picker and the loading state.
   assert.match(html, /Choose your deck/);
   assert.match(html, /Old School 93\/94/);
-  assert.match(html, /ISD–DGM Standard/);
+  assert.match(html, /Standard: ISD-DGM/);
   assert.match(html, /Card images/);
   assert.match(html, /<option value="full" selected="">Full cards<\/option>/);
   assert.match(html, /Waking the Rust engine/);

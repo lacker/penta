@@ -38,6 +38,36 @@ const fn fetch_land(text: &'static str, land_types: &'static [BasicLandType]) ->
     ))
 }
 
+// ZEN 14 — Journey to Nowhere
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static JOURNEY_TO_NOWHERE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("09cfe585-8a55-4b27-89e0-dfb6946fe1f3"),
+    "Journey to Nowhere",
+    crate::card::CardArt::new("09cfe585-8a55-4b27-89e0-dfb6946fe1f3", "Warren Mahy"),
+    crate::card::CardSet::Zendikar,
+    crate::card::CardRules::unsupported(),
+);
+
+// ZEN 23 — Kor Skyfisher
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static KOR_SKYFISHER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("bb2e9465-f5ba-4c7b-9f03-d40dc8394acd"),
+    "Kor Skyfisher",
+    crate::card::CardArt::new("bb2e9465-f5ba-4c7b-9f03-d40dc8394acd", "Dan Murayama Scott"),
+    crate::card::CardSet::Zendikar,
+    crate::card::CardRules::unsupported(),
+);
+
+// ZEN 48 — Into the Roil
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static INTO_THE_ROIL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5dba9972-dd8b-407b-9374-a8f0ed1a96db"),
+    "Into the Roil",
+    crate::card::CardArt::new("5dba9972-dd8b-407b-9374-a8f0ed1a96db", "Kieran Yanner"),
+    crate::card::CardSet::Zendikar,
+    crate::card::CardRules::unsupported(),
+);
+
 // ZEN 67 — Spell Pierce
 pub(in crate::card::sets) static SPELL_PIERCE: CardRecord = CardRecord::new_with_legacy_id(
     2115,
@@ -81,6 +111,16 @@ static ANY_PERMANENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     },
 )];
 
+// ZEN 87 — Disfigure
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DISFIGURE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b3842ad2-a449-4963-8c96-276554125757"),
+    "Disfigure",
+    crate::card::CardArt::new("b3842ad2-a449-4963-8c96-276554125757", "Justin Sweet"),
+    crate::card::CardSet::Zendikar,
+    crate::card::CardRules::unsupported(),
+);
+
 // ZEN 114 — Vampire Hexmage
 pub(in crate::card::sets) static VAMPIRE_HEXMAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("93d2c4d1-6205-404a-b03d-995b90a3a33a"),
@@ -101,6 +141,49 @@ pub(in crate::card::sets) static VAMPIRE_HEXMAGE: CardRecord = CardRecord::new(
             },
         ),
     ]),
+);
+
+// ZEN 115 — Vampire Lacerator
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static VAMPIRE_LACERATOR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("114eca6c-76de-4b87-8174-78e2d17ad0e3"),
+    "Vampire Lacerator",
+    crate::card::CardArt::new("114eca6c-76de-4b87-8174-78e2d17ad0e3", "Steve Argyle"),
+    crate::card::CardSet::Zendikar,
+    crate::card::CardRules::unsupported(),
+);
+
+// ZEN 119 — Burst Lightning
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BURST_LIGHTNING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2dc16614-5cf8-444d-a5ae-cac25018af68"),
+    "Burst Lightning",
+    crate::card::CardArt::new("2dc16614-5cf8-444d-a5ae-cac25018af68", "Vance Kovacs"),
+    crate::card::CardSet::Zendikar,
+    crate::card::CardRules::unsupported(),
+);
+
+// ZEN 125 — Goblin Bushwhacker
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GOBLIN_BUSHWHACKER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4085a5bf-a71b-4c73-9b39-0dcc328fe11b"),
+    "Goblin Bushwhacker",
+    crate::card::CardArt::new("4085a5bf-a71b-4c73-9b39-0dcc328fe11b", "Mark Tedin"),
+    crate::card::CardSet::Zendikar,
+    crate::card::CardRules::unsupported(),
+);
+
+// ZEN 193 — Vines of Vastwood
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static VINES_OF_VASTWOOD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e8bd8b10-de86-4bb6-b49f-6ccb5297c81c"),
+    "Vines of Vastwood",
+    crate::card::CardArt::new(
+        "e8bd8b10-de86-4bb6-b49f-6ccb5297c81c",
+        "Christopher Moeller",
+    ),
+    crate::card::CardSet::Zendikar,
+    crate::card::CardRules::unsupported(),
 );
 
 // ZEN 197 — Blazing Torch
@@ -221,6 +304,16 @@ pub(in crate::card::sets) static SCALDING_TARN: CardRecord = CardRecord::new_wit
     ),
 );
 
+// ZEN 226 — Teetering Peaks
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TEETERING_PEAKS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e56aca36-bb51-45e3-9ef9-9f9f2aa1e088"),
+    "Teetering Peaks",
+    crate::card::CardArt::new("e56aca36-bb51-45e3-9ef9-9f9f2aa1e088", "Fred Fields"),
+    crate::card::CardSet::Zendikar,
+    crate::card::CardRules::unsupported(),
+);
+
 // ZEN 229 — Verdant Catacombs
 pub(in crate::card::sets) static VERDANT_CATACOMBS: CardRecord = CardRecord::new_with_legacy_id(
     2095,
@@ -234,14 +327,23 @@ pub(in crate::card::sets) static VERDANT_CATACOMBS: CardRecord = CardRecord::new
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &JOURNEY_TO_NOWHERE,
+    &KOR_SKYFISHER,
+    &INTO_THE_ROIL,
     &SPELL_PIERCE,
+    &DISFIGURE,
     &VAMPIRE_HEXMAGE,
+    &VAMPIRE_LACERATOR,
+    &BURST_LIGHTNING,
+    &GOBLIN_BUSHWHACKER,
+    &VINES_OF_VASTWOOD,
     &BLAZING_TORCH,
     &EXPEDITION_MAP,
     &ARID_MESA,
     &MARSH_FLATS,
     &MISTY_RAINFOREST,
     &SCALDING_TARN,
+    &TEETERING_PEAKS,
     &VERDANT_CATACOMBS,
 ];
 

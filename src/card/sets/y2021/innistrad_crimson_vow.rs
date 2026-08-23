@@ -119,6 +119,26 @@ fn curtains_composition() -> CardComposition {
     }
 }
 
+// VOW 55 — Cruel Witness
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CRUEL_WITNESS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5bf2c686-efb0-46c7-b34e-c77987914b96"),
+    "Cruel Witness",
+    crate::card::CardArt::new("5bf2c686-efb0-46c7-b34e-c77987914b96", "Vincent Proce"),
+    crate::card::CardSet::InnistradCrimsonVow,
+    crate::card::CardRules::unsupported(),
+);
+
+// VOW 95 — Blood Fountain
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BLOOD_FOUNTAIN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("dd03651e-ada0-41dc-8722-0eba476943e3"),
+    "Blood Fountain",
+    crate::card::CardArt::new("dd03651e-ada0-41dc-8722-0eba476943e3", "Evyn Fong"),
+    crate::card::CardSet::InnistradCrimsonVow,
+    crate::card::CardRules::unsupported(),
+);
+
 // VOW 101 — Concealing Curtains
 pub(in crate::card::sets) static CONCEALING_CURTAINS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("612b2e6e-fe8d-49ad-b845-6fa7fa59ffd1"),
@@ -218,6 +238,26 @@ fn ulvenwald_composition() -> CardComposition {
     }
 }
 
+// VOW 174 — Reckless Impulse
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RECKLESS_IMPULSE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6943c07f-ab0d-4f5a-bbe9-c0a83dc98546"),
+    "Reckless Impulse",
+    crate::card::CardArt::new("6943c07f-ab0d-4f5a-bbe9-c0a83dc98546", "Mathias Kollros"),
+    crate::card::CardSet::InnistradCrimsonVow,
+    crate::card::CardRules::unsupported(),
+);
+
+// VOW 189 — Bramble Wurm
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BRAMBLE_WURM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8f16f137-4ceb-469c-a381-e575d58f456b"),
+    "Bramble Wurm",
+    crate::card::CardArt::new("8f16f137-4ceb-469c-a381-e575d58f456b", "Lars Grant-West"),
+    crate::card::CardSet::InnistradCrimsonVow,
+    crate::card::CardRules::unsupported(),
+);
+
 // VOW 225 — Ulvenwald Oddity
 pub(in crate::card::sets) static ULVENWALD_ODDITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5fdf5fc4-69c8-4a59-9095-c2feefb64371"),
@@ -231,6 +271,13 @@ pub(in crate::card::sets) static ULVENWALD_ODDITY: CardRecord = CardRecord::new(
 )
 .with_composition(ulvenwald_composition);
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&CONCEALING_CURTAINS, &ULVENWALD_ODDITY];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &CRUEL_WITNESS,
+    &BLOOD_FOUNTAIN,
+    &CONCEALING_CURTAINS,
+    &RECKLESS_IMPULSE,
+    &BRAMBLE_WURM,
+    &ULVENWALD_ODDITY,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -1,6 +1,6 @@
 //! Theros cards cataloged as cross-format rules-engine test cases.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, BasicLandType, CardArt, CardRules, CardSet, CardType, EffectDef,
@@ -8,6 +8,16 @@ use crate::card::{
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
+
+// THS 16 — Gods Willing
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GODS_WILLING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("abafabb3-b2e7-4d78-b4b7-d8f701d3ee8b"),
+    "Gods Willing",
+    crate::card::CardArt::new("abafabb3-b2e7-4d78-b4b7-d8f701d3ee8b", "Mark Winters"),
+    crate::card::CardSet::Theros,
+    crate::card::CardRules::unsupported(),
+);
 
 // THS 169 — Nylea's Presence
 pub(in crate::card::sets) static NYLEAS_PRESENCE: CardRecord = CardRecord::new_with_legacy_id(
@@ -74,6 +84,7 @@ pub(in crate::card::sets) static SYLVAN_CARYATID: CardRecord = CardRecord::new_w
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&NYLEAS_PRESENCE, &SYLVAN_CARYATID];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&GODS_WILLING, &NYLEAS_PRESENCE, &SYLVAN_CARYATID];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

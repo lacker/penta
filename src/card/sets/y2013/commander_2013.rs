@@ -1,6 +1,6 @@
 //! Commander 2013 cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType,
     EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation, ResolvedEffectDurationDef,
@@ -62,6 +62,17 @@ pub(in crate::card::sets) static TOXIC_DELUGE: CardRecord = CardRecord::new_with
     ),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&UNEXPECTEDLY_ABSENT, &TOXIC_DELUGE];
+// C13 279 — Boros Garrison
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BOROS_GARRISON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7dfe3f03-078f-44fb-89cd-efa3ebfaf637"),
+    "Boros Garrison",
+    crate::card::CardArt::new("c468dd1c-6f0a-4679-9d33-17e17db8841d", "John Avon"),
+    crate::card::CardSet::Commander2013,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&UNEXPECTEDLY_ABSENT, &TOXIC_DELUGE, &BOROS_GARRISON];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

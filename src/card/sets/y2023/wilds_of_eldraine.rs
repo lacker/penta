@@ -1,6 +1,6 @@
 //! Wilds of Eldraine cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityOperationDef, AbilityTargetDef, AbilityTargetPredicate,
     AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
@@ -105,6 +105,46 @@ static AGATHAS_SOUL_CAULDRON_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
+// WOE 62 — Mocking Sprite
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MOCKING_SPRITE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e595014d-4ff4-4561-b7f2-a9bd56300b01"),
+    "Mocking Sprite",
+    crate::card::CardArt::new("e595014d-4ff4-4561-b7f2-a9bd56300b01", "Ben Hill"),
+    crate::card::CardSet::WildsOfEldraine,
+    crate::card::CardRules::unsupported(),
+);
+
+// WOE 83 — Candy Grapple
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CANDY_GRAPPLE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("190d97bc-dbef-496d-9bd1-b785bdf8a964"),
+    "Candy Grapple",
+    crate::card::CardArt::new("190d97bc-dbef-496d-9bd1-b785bdf8a964", "Konstantin Porubov"),
+    crate::card::CardSet::WildsOfEldraine,
+    crate::card::CardRules::unsupported(),
+);
+
+// WOE 116 — Voracious Vermin
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static VORACIOUS_VERMIN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8059be65-3c73-49bb-a3b6-c346ce2f9fa4"),
+    "Voracious Vermin",
+    crate::card::CardArt::new("8059be65-3c73-49bb-a3b6-c346ce2f9fa4", "Milivoj Ćeran"),
+    crate::card::CardSet::WildsOfEldraine,
+    crate::card::CardRules::unsupported(),
+);
+
+// WOE 131 — Gnawing Crescendo
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GNAWING_CRESCENDO: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("254fc64a-9734-44a6-8869-ab03512f1a99"),
+    "Gnawing Crescendo",
+    crate::card::CardArt::new("254fc64a-9734-44a6-8869-ab03512f1a99", "Alexey Kruglov"),
+    crate::card::CardSet::WildsOfEldraine,
+    crate::card::CardRules::unsupported(),
+);
+
 // WOE 242 — Agatha's Soul Cauldron
 pub(in crate::card::sets) static AGATHAS_SOUL_CAULDRON: CardRecord = CardRecord::new_with_legacy_id(
     2251,
@@ -116,6 +156,23 @@ pub(in crate::card::sets) static AGATHAS_SOUL_CAULDRON: CardRecord = CardRecord:
         .with_abilities(&AGATHAS_SOUL_CAULDRON_ABILITIES),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&AGATHAS_SOUL_CAULDRON];
+// WOE 243 — Candy Trail
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CANDY_TRAIL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1a860925-d912-49e5-9ddc-41ab26916bb3"),
+    "Candy Trail",
+    crate::card::CardArt::new("1a860925-d912-49e5-9ddc-41ab26916bb3", "Alix Branwyn"),
+    crate::card::CardSet::WildsOfEldraine,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &MOCKING_SPRITE,
+    &CANDY_GRAPPLE,
+    &VORACIOUS_VERMIN,
+    &GNAWING_CRESCENDO,
+    &AGATHAS_SOUL_CAULDRON,
+    &CANDY_TRAIL,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -1,6 +1,6 @@
 //! Odyssey cards used by the staged Premodern deck tranche.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType, ComparisonDef,
@@ -217,6 +217,16 @@ pub(in crate::card::sets) static FIREBOLT: CardRecord = CardRecord::new_with_leg
     ]),
 );
 
+// ODY 277 — Sylvan Might
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SYLVAN_MIGHT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("576e3ccd-40a3-4ea9-8e76-5e70b2ef9123"),
+    "Sylvan Might",
+    crate::card::CardArt::new("576e3ccd-40a3-4ea9-8e76-5e70b2ef9123", "Arnie Swekel"),
+    crate::card::CardSet::Odyssey,
+    crate::card::CardRules::unsupported(),
+);
+
 // ODY 292 — Psychatog
 pub(in crate::card::sets) static PSYCHATOG: CardRecord = CardRecord::new_with_legacy_id(
     2040,
@@ -368,6 +378,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &HAUNTING_ECHOES,
     &SKELETAL_SCRYING,
     &FIREBOLT,
+    &SYLVAN_MIGHT,
     &PSYCHATOG,
     &BARBARIAN_RING,
     &CEPHALID_COLISEUM,

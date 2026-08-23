@@ -1,6 +1,6 @@
 //! Judgment cards used by the staged Premodern deck tranche.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
     AppliedEffectDef, CardArt, CardRules, CardSet, CardType, CharacteristicOperationDef,
@@ -42,6 +42,36 @@ static FLASH_OF_INSIGHT_LOOK: TopCardSelectionDef = TopCardSelectionDef {
     then: None,
     selected_face_down: None,
 };
+
+// JUD 3 — Battle Screech
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BATTLE_SCREECH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c3c38264-0d79-47d4-bca2-a20a991bbac9"),
+    "Battle Screech",
+    crate::card::CardArt::new("c3c38264-0d79-47d4-bca2-a20a991bbac9", "Randy Gallegos"),
+    crate::card::CardSet::Judgment,
+    crate::card::CardRules::unsupported(),
+);
+
+// JUD 17 — Phantom Nomad
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PHANTOM_NOMAD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6c5309f5-8b32-4a57-99f2-dcf7a8341898"),
+    "Phantom Nomad",
+    crate::card::CardArt::new("6c5309f5-8b32-4a57-99f2-dcf7a8341898", "Jim Nelson"),
+    crate::card::CardSet::Judgment,
+    crate::card::CardRules::unsupported(),
+);
+
+// JUD 18 — Prismatic Strands
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PRISMATIC_STRANDS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3454ef42-2e0b-4ce4-945f-e4ec3e83c39d"),
+    "Prismatic Strands",
+    crate::card::CardArt::new("3454ef42-2e0b-4ce4-945f-e4ec3e83c39d", "Eric Peterson"),
+    crate::card::CardSet::Judgment,
+    crate::card::CardRules::unsupported(),
+);
 
 // JUD 40 — Flash of Insight
 pub(in crate::card::sets) static FLASH_OF_INSIGHT: CardRecord = CardRecord::new_with_legacy_id(
@@ -225,6 +255,16 @@ pub(in crate::card::sets) static KROSAN_RECLAMATION: CardRecord = CardRecord::ne
     ]),
 );
 
+// JUD 129 — Phantom Tiger
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PHANTOM_TIGER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("32839296-e583-4f71-aa44-dbe16408665e"),
+    "Phantom Tiger",
+    crate::card::CardArt::new("32839296-e583-4f71-aa44-dbe16408665e", "Brian Snõddy"),
+    crate::card::CardSet::Judgment,
+    crate::card::CardRules::unsupported(),
+);
+
 // JUD 133 — Sylvan Safekeeper
 pub(in crate::card::sets) static SYLVAN_SAFEKEEPER: CardRecord = CardRecord::new_with_legacy_id(
     293,
@@ -254,10 +294,14 @@ pub(in crate::card::sets) static SYLVAN_SAFEKEEPER: CardRecord = CardRecord::new
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &BATTLE_SCREECH,
+    &PHANTOM_NOMAD,
+    &PRISMATIC_STRANDS,
     &FLASH_OF_INSIGHT,
     &CABAL_THERAPY,
     &SUTURED_GHOUL,
     &KROSAN_RECLAMATION,
+    &PHANTOM_TIGER,
     &SYLVAN_SAFEKEEPER,
 ];
 

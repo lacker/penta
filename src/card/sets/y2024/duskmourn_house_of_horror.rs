@@ -216,6 +216,16 @@ static OCULUS_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
+// DSK 36 — Trapped in the Screen
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TRAPPED_IN_THE_SCREEN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1fe95bfb-8ca7-434f-a2e7-a6b2e699584e"),
+    "Trapped in the Screen",
+    crate::card::CardArt::new("1fe95bfb-8ca7-434f-a2e7-a6b2e699584e", "Michael Phillippi"),
+    crate::card::CardSet::DuskmournHouseOfHorror,
+    crate::card::CardRules::unsupported(),
+);
+
 // DSK 42 — Abhorrent Oculus
 pub(in crate::card::sets) static ABHORRENT_OCULUS: CardRecord = CardRecord::new_with_legacy_id(
     2270,
@@ -225,6 +235,16 @@ pub(in crate::card::sets) static ABHORRENT_OCULUS: CardRecord = CardRecord::new_
     // A three-mana 5/5 flier for a deck that filled its own graveyard on
     // purpose, and a body every turn afterwards for nothing.
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Eye"], 5, 5).with_abilities(&OCULUS_ABILITIES),
+);
+
+// DSK 78 — Unable to Scream
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static UNABLE_TO_SCREAM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7c59e0cd-10a8-4a32-9c0a-a2c6ef1ed9a6"),
+    "Unable to Scream",
+    crate::card::CardArt::new("7c59e0cd-10a8-4a32-9c0a-a2c6ef1ed9a6", "Fariba Khamseh"),
+    crate::card::CardSet::DuskmournHouseOfHorror,
+    crate::card::CardRules::unsupported(),
 );
 
 // DSK 113 — Overlord of the Balemurk
@@ -392,6 +412,26 @@ fn walk_in_closet_composition() -> CardComposition {
     )
 }
 
+// DSK 178 — Flesh Burrower
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FLESH_BURROWER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("60499c90-a512-4abb-98eb-0735a7138421"),
+    "Flesh Burrower",
+    crate::card::CardArt::new("60499c90-a512-4abb-98eb-0735a7138421", "Maxime Minard"),
+    crate::card::CardSet::DuskmournHouseOfHorror,
+    crate::card::CardRules::unsupported(),
+);
+
+// DSK 191 — Monstrous Emergence
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MONSTROUS_EMERGENCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b999eb47-b842-47f1-be91-c79fc46e1896"),
+    "Monstrous Emergence",
+    crate::card::CardArt::new("b999eb47-b842-47f1-be91-c79fc46e1896", "Loïc Canavaggia"),
+    crate::card::CardSet::DuskmournHouseOfHorror,
+    crate::card::CardRules::unsupported(),
+);
+
 // DSK 205 — Walk-In Closet // Forgotten Cellar
 pub(in crate::card::sets) static WALK_IN_CLOSET_FORGOTTEN_CELLAR: CardRecord =
     CardRecord::new_with_legacy_id(
@@ -416,6 +456,16 @@ pub(in crate::card::sets) static GHOST_VACUUM: CardRecord = CardRecord::new_with
     // board, which is what keeps it in a cube where dead cards are the cost
     // of every sideboard card.
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&GHOST_VACUUM_ABILITIES),
+);
+
+// DSK 249 — Glimmerlight
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GLIMMERLIGHT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1071691c-5c65-42d4-ac96-d302185ca678"),
+    "Glimmerlight",
+    crate::card::CardArt::new("1071691c-5c65-42d4-ac96-d302185ca678", "Wero Gallo"),
+    crate::card::CardSet::DuskmournHouseOfHorror,
+    crate::card::CardRules::unsupported(),
 );
 
 /// The verge condition in this cycle's Gruul colours. Either type answers
@@ -458,13 +508,29 @@ pub(in crate::card::sets) static THORNSPIRE_VERGE: CardRecord = CardRecord::new(
     ]),
 );
 
+// DSK 295 — Clockwork Percussionist
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CLOCKWORK_PERCUSSIONIST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("10986e5a-9fc6-41e2-8352-289328245171"),
+    "Clockwork Percussionist",
+    crate::card::CardArt::new("e44340c7-d3bb-4cf9-a105-ebbf6ce3ace1", "Eric Wilkerson"),
+    crate::card::CardSet::DuskmournHouseOfHorror,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ENDURING_INNOCENCE,
+    &TRAPPED_IN_THE_SCREEN,
     &ABHORRENT_OCULUS,
+    &UNABLE_TO_SCREAM,
     &OVERLORD_OF_THE_BALEMURK,
+    &FLESH_BURROWER,
+    &MONSTROUS_EMERGENCE,
     &WALK_IN_CLOSET_FORGOTTEN_CELLAR,
     &GHOST_VACUUM,
+    &GLIMMERLIGHT,
     &THORNSPIRE_VERGE,
+    &CLOCKWORK_PERCUSSIONIST,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

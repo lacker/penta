@@ -29,6 +29,39 @@ static A_NONCREATURE_ARTIFACT_OR_ENCHANTMENT: [AbilityTargetDef; 1] =
         },
     )];
 
+// BRO 72 — Weakstone's Subjugation
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WEAKSTONE_S_SUBJUGATION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ef93ac79-8575-40f8-a222-63c2ffb30f60"),
+    "Weakstone's Subjugation",
+    crate::card::CardArt::new("ef93ac79-8575-40f8-a222-63c2ffb30f60", "Igor Kieryluk"),
+    crate::card::CardSet::TheBrothersWar,
+    crate::card::CardRules::unsupported(),
+);
+
+// BRO 98 — Gixian Infiltrator
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GIXIAN_INFILTRATOR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c94a3317-7d1f-4f29-8353-180f1ab48d18"),
+    "Gixian Infiltrator",
+    crate::card::CardArt::new("c94a3317-7d1f-4f29-8353-180f1ab48d18", "Peter Polach"),
+    crate::card::CardSet::TheBrothersWar,
+    crate::card::CardRules::unsupported(),
+);
+
+// BRO 164 — Scrapwork Mutt
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SCRAPWORK_MUTT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4742800a-4872-4c2d-b884-01e0ba16950c"),
+    "Scrapwork Mutt",
+    crate::card::CardArt::new(
+        "4742800a-4872-4c2d-b884-01e0ba16950c",
+        "Sidharth Chaturvedi",
+    ),
+    crate::card::CardSet::TheBrothersWar,
+    crate::card::CardRules::unsupported(),
+);
+
 // BRO 199 — Haywire Mite
 pub(in crate::card::sets) static HAYWIRE_MITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("847a175e-ead1-4596-baf3-5f7f57859e0b"),
@@ -138,6 +171,23 @@ pub(in crate::card::sets) static PORTAL_TO_PHYREXIA: CardRecord = CardRecord::ne
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&HAYWIRE_MITE, &PORTAL_TO_PHYREXIA];
+// BRO 266 — Tocasia's Dig Site
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TOCASIA_S_DIG_SITE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("23d4b90c-95b1-4828-bc08-7067da0d5364"),
+    "Tocasia's Dig Site",
+    crate::card::CardArt::new("23d4b90c-95b1-4828-bc08-7067da0d5364", "Nadia Hurianova"),
+    crate::card::CardSet::TheBrothersWar,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &WEAKSTONE_S_SUBJUGATION,
+    &GIXIAN_INFILTRATOR,
+    &SCRAPWORK_MUTT,
+    &HAYWIRE_MITE,
+    &PORTAL_TO_PHYREXIA,
+    &TOCASIA_S_DIG_SITE,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -52,6 +52,16 @@ static FATAL_PUSH_EFFECT: [EffectDef; 2] = [
     },
 ];
 
+// AER 51 — Aether Poisoner
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static AETHER_POISONER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c9b217f1-1621-40d1-8a98-24c1f7cba800"),
+    "Aether Poisoner",
+    crate::card::CardArt::new("c9b217f1-1621-40d1-8a98-24c1f7cba800", "Yongjae Choi"),
+    crate::card::CardSet::AetherRevolt,
+    crate::card::CardRules::unsupported(),
+);
+
 // AER 57 — Fatal Push
 pub(in crate::card::sets) static FATAL_PUSH: CardRecord = CardRecord::new_with_legacy_id(
     2233,
@@ -67,6 +77,26 @@ pub(in crate::card::sets) static FATAL_PUSH: CardRecord = CardRecord::new_with_l
         &A_CREATURE,
         EffectDef::Sequence(&FATAL_PUSH_EFFECT),
     )),
+);
+
+// AER 76 — Aether Chaser
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static AETHER_CHASER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("290cde84-d97a-4737-aff2-c443a4e43f7d"),
+    "Aether Chaser",
+    crate::card::CardArt::new("290cde84-d97a-4737-aff2-c443a4e43f7d", "Jason Rainville"),
+    crate::card::CardSet::AetherRevolt,
+    crate::card::CardRules::unsupported(),
+);
+
+// AER 101 — Wrangle
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WRANGLE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5ea93a49-5a7c-4d15-8548-a57c9460e0f0"),
+    "Wrangle",
+    crate::card::CardArt::new("5ea93a49-5a7c-4d15-8548-a57c9460e0f0", "Jason Rainville"),
+    crate::card::CardSet::AetherRevolt,
+    crate::card::CardRules::unsupported(),
 );
 
 // AER 151 — Foundry Assembler
@@ -131,7 +161,13 @@ pub(in crate::card::sets) static WALKING_BALLISTA: CardRecord = CardRecord::new_
         .with_abilities(&WALKING_BALLISTA_ABILITIES),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&FATAL_PUSH, &FOUNDRY_ASSEMBLER, &WALKING_BALLISTA];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &AETHER_POISONER,
+    &FATAL_PUSH,
+    &AETHER_CHASER,
+    &WRANGLE,
+    &FOUNDRY_ASSEMBLER,
+    &WALKING_BALLISTA,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

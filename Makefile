@@ -157,7 +157,7 @@ test-rust-full: ## Run every normal and slow Rust test in one pass.
 test-source-file-sizes: ## Enforce the repository-wide Rust source-file size limit.
 	cargo test --locked -p source-file-sizes
 
-catalog-report: ## Print catalog, inline-audit, and fixed-pool coverage derived from source.
+catalog-report: ## Print catalog and inline-audit coverage for every format category.
 	$(if $(filter-out --verbose,$(CATALOG_REPORT_ARGS)),$(error catalog-report accepts only CATALOG_REPORT_ARGS=--verbose))
 	PENTA_CATALOG_REPORT_VERBOSE=$(if $(filter --verbose,$(CATALOG_REPORT_ARGS)),1,0) \
 	cargo test --locked --profile quick-test -p penta --lib \

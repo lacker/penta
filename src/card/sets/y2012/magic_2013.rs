@@ -1,6 +1,6 @@
 //! Magic 2013 card records used by the built-in ISD–DGM Standard deck tranche.
 
-use super::{CardRecord, PrintingRecord, avacyn_restored, dark_ascension};
+use super::{CardRecord, PrintingAnchor, PrintingRecord, avacyn_restored, dark_ascension};
 use crate::card::sets::{
     y1993::alpha, y1994::the_dark, y1999::urzas_legacy, y2001::planeshift, y2002::onslaught,
     y2011::innistrad,
@@ -1018,7 +1018,14 @@ pub(in crate::card::sets) static FOG_BANK: CardRecord = CardRecord::new_with_leg
 );
 
 // M13 53 — Harbor Serpent
-// Audit: blocked — Islandwalk and an attack restriction based on the total Island count are unavailable.
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static HARBOR_SERPENT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("aa10b43f-eb63-4999-92a0-56826031b686"),
+    "Harbor Serpent",
+    crate::card::CardArt::new("af0f7357-08b0-403e-8913-8965662a905e", "Daarken"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 54 — Hydrosurge
 pub(in crate::card::sets) static HYDROSURGE: CardRecord = CardRecord::new_with_legacy_id(
@@ -1222,7 +1229,14 @@ pub(in crate::card::sets) static OMNISCIENCE: CardRecord = CardRecord::new_with_
 );
 
 // M13 64 — Redirect
-// Audit: blocked — No effect can retarget a spell on the stack.
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static REDIRECT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("60bae44b-c6f2-40bf-a427-aee5cfbdfea9"),
+    "Redirect",
+    crate::card::CardArt::new("0eef8431-f63c-44e0-940c-e1a38c338214", "Izzy"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 65 — Rewind
 // Audit: blocked — Needs a non-target choice of up to four lands made during resolution after the spell is countered.
@@ -2304,7 +2318,17 @@ pub(in crate::card::sets) static CANYON_MINOTAUR: CardRecord = CardRecord::new_w
 );
 
 // M13 123 — Chandra, the Firebrand
-// Audit: blocked — Needs a delayed next-instant-or-sorcery trigger that copies the spell and supports retargeting.
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CHANDRA_THE_FIREBRAND: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("efb37556-186f-4660-8b75-c52ef16a6d8f"),
+    "Chandra, the Firebrand",
+    crate::card::CardArt::new(
+        "beb039db-7367-4af1-8d85-4951f58e2732",
+        "D. Alexander Gregory",
+    ),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 124 — Chandra's Fury
 pub(in crate::card::sets) static CHANDRAS_FURY: CardRecord = CardRecord::new_with_legacy_id(
@@ -2743,7 +2767,14 @@ pub(in crate::card::sets) static RECKLESS_BRUTE: CardRecord = CardRecord::new_wi
 );
 
 // M13 145 — Reverberate
-// Audit: blocked — No effect can copy and optionally retarget an instant or sorcery spell.
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static REVERBERATE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("dd435013-0ab9-42f4-985c-66ea2b3760e9"),
+    "Reverberate",
+    crate::card::CardArt::new("5996feb4-02ac-45e8-a7f2-966cf74391dc", "jD"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 146 — Rummaging Goblin
 // Audit: partial — Discarding a card is not supported as an activated-ability cost.
@@ -2849,7 +2880,17 @@ pub(in crate::card::sets) static TRUMPET_BLAST: CardRecord = CardRecord::new_wit
 );
 
 // M13 153 — Turn to Slag
-// Audit: blocked — No effect can discover and destroy every Equipment attached to the damaged creature.
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TURN_TO_SLAG: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("66fd5b49-b4f2-40da-94d5-6d6fc69506f6"),
+    "Turn to Slag",
+    crate::card::CardArt::new(
+        "7275ede4-22d6-41db-91e9-3b0295abb8a9",
+        "Zoltan Boros & Gabor Szikszai",
+    ),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 154 — Volcanic Geyser
 pub(in crate::card::sets) static VOLCANIC_GEYSER: CardRecord = CardRecord::new_with_legacy_id(
@@ -3440,7 +3481,14 @@ pub(in crate::card::sets) static PRIMAL_HUNTBEAST: CardRecord = CardRecord::new_
 );
 
 // M13 183 — Primordial Hydra
-// Audit: blocked — Needs X entry counters, counter doubling each upkeep, and a counter-threshold trample grant.
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PRIMORDIAL_HYDRA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3dcc5521-df8f-4992-b93e-e430d8cc7715"),
+    "Primordial Hydra",
+    crate::card::CardArt::new("937deb52-8888-4298-9ae5-0361c6fdbba2", "Aleksi Briclot"),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 186 — Ranger's Path
 pub(in crate::card::sets) static RANGERS_PATH: CardRecord = CardRecord::new_with_legacy_id(
@@ -3813,7 +3861,17 @@ pub(in crate::card::sets) static DOOR_TO_NOTHINGNESS: CardRecord = CardRecord::n
 );
 
 // M13 204 — Elixir of Immortality
-// Audit: blocked — Needs a simultaneous source-and-graveyard library move followed by one shuffle.
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ELIXIR_OF_IMMORTALITY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("99bd4740-9b1f-40a6-a14d-2c0d642b848b"),
+    "Elixir of Immortality",
+    crate::card::CardArt::new(
+        "813d6a95-719d-474d-942a-b4c5156af7ba",
+        "Zoltan Boros & Gabor Szikszai",
+    ),
+    crate::card::CardSet::Magic2013,
+    crate::card::CardRules::unsupported(),
+);
 
 // M13 205 — Gem of Becoming
 // Audit: blocked — Needs three separate library searches for cards with three different names.
@@ -4339,6 +4397,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ESSENCE_SCATTER,
     &FAERIE_INVADERS,
     &FOG_BANK,
+    &HARBOR_SERPENT,
     &HYDROSURGE,
     &JACE_MEMORY_ADEPT,
     &KRAKEN_HATCHLING,
@@ -4346,6 +4405,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &MIND_SCULPT,
     &NEGATE,
     &OMNISCIENCE,
+    &REDIRECT,
     &SCROLL_THIEF,
     &SLEEP,
     &SPHINX_OF_UTHUUN,
@@ -4389,6 +4449,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ARMS_DEALER,
     &BLADETUSK_BOAR,
     &CANYON_MINOTAUR,
+    &CHANDRA_THE_FIREBRAND,
     &CHANDRAS_FURY,
     &CLEAVER_RIOT,
     &CRATERIZE,
@@ -4406,11 +4467,13 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &MAGMAQUAKE,
     &MARK_OF_MUTINY,
     &RECKLESS_BRUTE,
+    &REVERBERATE,
     &RUMMAGING_GOBLIN,
     &SEARING_SPEAR,
     &SMELT,
     &THUNDERMAW_HELLKITE,
     &TRUMPET_BLAST,
+    &TURN_TO_SLAG,
     &VOLCANIC_GEYSER,
     &VOLCANIC_STRENGTH,
     &WILD_GUESS,
@@ -4433,6 +4496,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PLUMMET,
     &PREDATORY_RAMPAGE,
     &PRIMAL_HUNTBEAST,
+    &PRIMORDIAL_HYDRA,
     &RANGERS_PATH,
     &REVIVE,
     &SENTINEL_SPIDER,
@@ -4448,6 +4512,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AKROMAS_MEMORIAL,
     &CHRONOMATON,
     &DOOR_TO_NOTHINGNESS,
+    &ELIXIR_OF_IMMORTALITY,
     &GILDED_LOTUS,
     &KITESAIL,
     &PHYREXIAN_HULK,

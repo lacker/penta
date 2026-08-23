@@ -1,6 +1,6 @@
 //! Magic 2011 cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, CardArt, CardRules, CardSet, CardType, EffectDef, EffectRecipientDef,
     ObjectPredicateDef, TopCardSelectionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
@@ -80,6 +80,16 @@ static FETCH_TWO_LANDS: EffectDef = EffectDef::SearchZone {
     then: None,
 };
 
+// M11 104 — Liliana's Specter
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static LILIANA_S_SPECTER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("33122581-39fd-44a0-b928-f73e39a0c0f1"),
+    "Liliana's Specter",
+    crate::card::CardArt::new("33122581-39fd-44a0-b928-f73e39a0c0f1", "Vance Kovacs"),
+    crate::card::CardSet::Magic2011,
+    crate::card::CardRules::unsupported(),
+);
+
 // M11 192 — Primeval Titan
 pub(in crate::card::sets) static PRIMEVAL_TITAN: CardRecord = CardRecord::new_with_legacy_id(
     2128,
@@ -99,6 +109,7 @@ pub(in crate::card::sets) static PRIMEVAL_TITAN: CardRecord = CardRecord::new_wi
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&PREORDAIN, &PRIMEVAL_TITAN];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&PREORDAIN, &LILIANA_S_SPECTER, &PRIMEVAL_TITAN];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

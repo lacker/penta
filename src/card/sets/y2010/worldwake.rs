@@ -1,6 +1,6 @@
 //! Worldwake cards cataloged for the Vintage Cube.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, CardArt, CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType,
@@ -247,10 +247,21 @@ pub(in crate::card::sets) static CELESTIAL_COLONNADE: CardRecord = CardRecord::n
     ]),
 );
 
+// WWK 140 — Quicksand
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static QUICKSAND: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("11370658-8d80-4d2f-afa5-ec6df6dee369"),
+    "Quicksand",
+    crate::card::CardArt::new("4e396df7-9931-43f6-b009-27cf93c4a3e5", "Matt Stewart"),
+    crate::card::CardSet::Worldwake,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &STONEFORGE_MYSTIC,
     &JACE_THE_MIND_SCULPTOR,
     &CELESTIAL_COLONNADE,
+    &QUICKSAND,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

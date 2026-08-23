@@ -1,6 +1,6 @@
 //! Dark Ascension card records used by the built-in ISD–DGM Standard deck tranche.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardComposition,
@@ -1632,7 +1632,14 @@ pub(in crate::card::sets) static FIRES_OF_UNDEATH: CardRecord = CardRecord::new_
 // Audit: blocked — Needs the triggering creature's power as a value and that creature, rather than this permanent, as the source of the damage.
 
 // DKA 90 — Fling
-// Audit: blocked — Needs a nonmana additional casting sacrifice whose last-known power is retained for the spell's damage amount.
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FLING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6b144452-2e91-4e46-abe9-ed76b39f8314"),
+    "Fling",
+    crate::card::CardArt::new("cf1ab466-44bb-45d5-a94f-21b8924f0d89", "Izzy"),
+    crate::card::CardSet::DarkAscension,
+    crate::card::CardRules::unsupported(),
+);
 
 // DKA 91 — Forge Devil
 pub(in crate::card::sets) static FORGE_DEVIL: CardRecord = CardRecord::new_with_legacy_id(
@@ -3149,7 +3156,14 @@ pub(in crate::card::sets) static GRIM_BACKWOODS: CardRecord = CardRecord::new_wi
 );
 
 // DKA 157 — Haunted Fengraf
-// Audit: blocked — Needs a deterministic random choice among creature cards in the controller's graveyard.
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static HAUNTED_FENGRAF: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("84bca9e1-c0b7-4dce-9ee4-370db2c322b6"),
+    "Haunted Fengraf",
+    crate::card::CardArt::new("84bca9e1-c0b7-4dce-9ee4-370db2c322b6", "Adam Paquette"),
+    crate::card::CardSet::DarkAscension,
+    crate::card::CardRules::unsupported(),
+);
 
 // DKA 158 — Vault of the Archangel
 pub(in crate::card::sets) static VAULT_OF_THE_ARCHANGEL: CardRecord = CardRecord::new_with_legacy_id(
@@ -3253,6 +3267,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ERDWAL_RIPPER,
     &FAITHLESS_LOOTING,
     &FIRES_OF_UNDEATH,
+    &FLING,
     &FORGE_DEVIL,
     &HECKLING_FIENDS,
     &HELLRIDER,
@@ -3296,6 +3311,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &WOLFHUNTERS_QUIVER,
     &EVOLVING_WILDS,
     &GRIM_BACKWOODS,
+    &HAUNTED_FENGRAF,
     &VAULT_OF_THE_ARCHANGEL,
 ];
 

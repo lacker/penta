@@ -1,0 +1,81 @@
+use super::{CONSTRUCTED_RULES, SetFormatDefinition};
+use crate::card::CardSet;
+
+/// The twenty-nine sets Premodern names, in release order. Portal and promo
+/// printings are excluded by the format rather than by the card.
+pub const ALLOWED_SETS: &[CardSet] = &[
+    CardSet::FourthEdition,
+    CardSet::IceAge,
+    CardSet::Chronicles,
+    CardSet::Homelands,
+    CardSet::Alliances,
+    CardSet::Mirage,
+    CardSet::Visions,
+    CardSet::FifthEdition,
+    CardSet::Weatherlight,
+    CardSet::Tempest,
+    CardSet::Stronghold,
+    CardSet::Exodus,
+    CardSet::UrzasSaga,
+    CardSet::UrzasLegacy,
+    CardSet::ClassicSixthEdition,
+    CardSet::UrzasDestiny,
+    CardSet::MercadianMasques,
+    CardSet::Nemesis,
+    CardSet::Prophecy,
+    CardSet::Invasion,
+    CardSet::Planeshift,
+    CardSet::SeventhEdition,
+    CardSet::Apocalypse,
+    CardSet::Odyssey,
+    CardSet::Torment,
+    CardSet::Judgment,
+    CardSet::Onslaught,
+    CardSet::Legions,
+    CardSet::Scourge,
+];
+
+pub const BANNED_CARDS: &[&str] = &[
+    "Amulet of Quoz",
+    "Balance",
+    "Brainstorm",
+    "Bronze Tablet",
+    "Channel",
+    "Demonic Consultation",
+    "Earthcraft",
+    "Entomb",
+    "Flash",
+    "Force of Will",
+    "Goblin Recruiter",
+    "Grim Monolith",
+    "Jeweled Bird",
+    "Land Tax",
+    "Mana Vault",
+    "Memory Jar",
+    "Mind Twist",
+    "Mind's Desire",
+    "Mystical Tutor",
+    "Necropotence",
+    "Parallax Tide",
+    "Rebirth",
+    "Strip Mine",
+    "Tempest Efreet",
+    "Tendrils of Agony",
+    "Time Spiral",
+    "Timmerian Fiends",
+    "Tolarian Academy",
+    "Vampiric Tutor",
+    "Windfall",
+    "Worldgorger Dragon",
+    "Yawgmoth's Bargain",
+    "Yawgmoth's Will",
+];
+
+pub const RESTRICTED_CARDS: &[&str] = &[];
+
+pub(super) const DEFINITION: SetFormatDefinition = SetFormatDefinition {
+    rules: CONSTRUCTED_RULES,
+    allowed_sets: ALLOWED_SETS,
+    banned_cards: BANNED_CARDS,
+    restricted_cards: RESTRICTED_CARDS,
+};

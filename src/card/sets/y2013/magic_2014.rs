@@ -1,6 +1,6 @@
 //! Magic 2014 card records used by the built-in ISD–DGM Standard decks.
 
-use super::{CardRecord, PrintingRecord, gatecrash};
+use super::{CardRecord, PrintingAnchor, PrintingRecord, gatecrash};
 use crate::card::sets::{
     y1993::alpha,
     y1994::antiquities,
@@ -1801,7 +1801,14 @@ pub(in crate::card::sets) static CHANDRAS_OUTRAGE: CardRecord = CardRecord::new_
 );
 
 // M14 134 — Chandra's Phoenix
-// Audit: blocked — Damage events cannot filter the source as a red instant, sorcery, or planeswalker and then return this card from the graveyard.
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CHANDRA_S_PHOENIX: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c7c319cd-74ed-4ad8-ac0f-efb932bf5813"),
+    "Chandra's Phoenix",
+    crate::card::CardArt::new("ca08d3ce-a3a7-49ca-aa2f-4dcdacbf923d", "Aleksi Briclot"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 // M14 135 — Cyclops Tyrant
 // Audit: blocked — Combat restrictions cannot compare a prospective attacker's effective power when deciding whether this creature may block it.
@@ -2286,7 +2293,14 @@ pub(in crate::card::sets) static ENLARGE: CardRecord = CardRecord::new_with_lega
 // Audit: blocked — The planeswalker modes need filtered multi-card top selection, a hand-to-battlefield choice, and an emblem carrying an optional creature tutor trigger.
 
 // M14 173 — Garruk's Horde
-// Audit: blocked — The engine cannot reveal the top library card continuously or offer creature spells there as castable play options.
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GARRUK_S_HORDE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3313f4ea-1275-4835-b4ff-73d3601c04e1"),
+    "Garruk's Horde",
+    crate::card::CardArt::new("88b24651-1814-440e-a415-a96c03e51544", "Steve Prescott"),
+    crate::card::CardSet::Magic2014,
+    crate::card::CardRules::unsupported(),
+);
 
 // M14 176 — Gladecover Scout
 pub(in crate::card::sets) static GLADECOVER_SCOUT: CardRecord = CardRecord::new_with_legacy_id(
@@ -3335,6 +3349,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BLUR_SLIVER,
     &BURNING_EARTH,
     &CHANDRAS_OUTRAGE,
+    &CHANDRA_S_PHOENIX,
     &DRAGON_EGG,
     &FLESHPULPER_GIANT,
     &GOBLIN_DIPLOMATS,
@@ -3354,6 +3369,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BRINDLE_BOAR,
     &ELVISH_MYSTIC,
     &ENLARGE,
+    &GARRUK_S_HORDE,
     &GLADECOVER_SCOUT,
     &GROUNDSHAKER_SLIVER,
     &HOWL_OF_THE_NIGHT_PACK,

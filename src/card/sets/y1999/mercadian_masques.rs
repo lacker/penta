@@ -1,6 +1,6 @@
 //! Mercadian Masques cards used by the staged Premodern deck tranche.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
     AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
@@ -178,6 +178,16 @@ pub(in crate::card::sets) static DUST_BOWL: CardRecord = CardRecord::new_with_le
     ]),
 );
 
+// MMQ 319 — Hickory Woodlot
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static HICKORY_WOODLOT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("af7aafb7-6870-4d09-a191-70786766c459"),
+    "Hickory Woodlot",
+    crate::card::CardArt::new("af7aafb7-6870-4d09-a191-70786766c459", "Sean McConnell"),
+    crate::card::CardSet::MercadianMasques,
+    crate::card::CardRules::unsupported(),
+);
+
 // MMQ 324 — Rishadan Port
 pub(in crate::card::sets) static RISHADAN_PORT: CardRecord = CardRecord::new_with_legacy_id(
     281,
@@ -208,6 +218,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &THWART,
     &SNUFF_OUT,
     &DUST_BOWL,
+    &HICKORY_WOODLOT,
     &RISHADAN_PORT,
 ];
 

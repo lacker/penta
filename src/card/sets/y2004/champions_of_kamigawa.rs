@@ -1,6 +1,6 @@
 //! Champions of Kamigawa cards cataloged for the Vintage Cube.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCoverageDef, AbilityDef, AppliedEffectDef, CardArt, CardChoiceSourceDef, CardRules,
     CardSet, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
@@ -73,6 +73,17 @@ pub(in crate::card::sets) static THROUGH_THE_BREACH: CardRecord = CardRecord::ne
         ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&THROUGH_THE_BREACH];
+// CHK 239 — Sakura-Tribe Elder
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SAKURA_TRIBE_ELDER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("91c7707a-bae0-4196-bf26-d276f57b7369"),
+    "Sakura-Tribe Elder",
+    crate::card::CardArt::new("91c7707a-bae0-4196-bf26-d276f57b7369", "Carl Critchlow"),
+    crate::card::CardSet::ChampionsOfKamigawa,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&THROUGH_THE_BREACH, &SAKURA_TRIBE_ELDER];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

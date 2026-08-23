@@ -1,6 +1,6 @@
 //! Tempest cards used by the staged Premodern deck tranche.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef,
     AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef, BattlefieldEntryModificationDef,
@@ -43,6 +43,16 @@ pub(in crate::card::sets) static HUMILITY: CardRecord = CardRecord::new_with_leg
     )),
 );
 
+// TMP 47 — Soltari Trooper
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SOLTARI_TROOPER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("32f74aa3-4003-4f53-b774-22b111935391"),
+    "Soltari Trooper",
+    crate::card::CardArt::new("32f74aa3-4003-4f53-b774-22b111935391", "Kev Walker"),
+    crate::card::CardSet::Tempest,
+    crate::card::CardRules::unsupported(),
+);
+
 // TMP 51 — Warmth
 pub(in crate::card::sets) static WARMTH: CardRecord = CardRecord::new_with_legacy_id(
     286,
@@ -60,6 +70,16 @@ pub(in crate::card::sets) static WARMTH: CardRecord = CardRecord::new_with_legac
             amount: ValueDef::Constant(2),
         },
     )),
+);
+
+// TMP 55 — Capsize
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CAPSIZE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e538b359-d893-422d-9d60-5f3e8ee0fa9e"),
+    "Capsize",
+    crate::card::CardArt::new("e538b359-d893-422d-9d60-5f3e8ee0fa9e", "Tom Wänerstrand"),
+    crate::card::CardSet::Tempest,
+    crate::card::CardRules::unsupported(),
 );
 
 // TMP 56 — Chill
@@ -229,6 +249,16 @@ pub(in crate::card::sets) static CORPSE_DANCE: CardRecord = CardRecord::new_with
     ]),
 );
 
+// TMP 126 — Dauthi Slayer
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DAUTHI_SLAYER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("652ccd79-aefd-4b45-b747-75190da0cfc6"),
+    "Dauthi Slayer",
+    crate::card::CardArt::new("652ccd79-aefd-4b45-b747-75190da0cfc6", "Dermot Power"),
+    crate::card::CardSet::Tempest,
+    crate::card::CardRules::unsupported(),
+);
+
 // TMP 151 — Reanimate
 pub(in crate::card::sets) static REANIMATE: CardRecord = CardRecord::new_with_legacy_id(
     305,
@@ -264,6 +294,16 @@ pub(in crate::card::sets) static REANIMATE: CardRecord = CardRecord::new_with_le
 static GOBLIN_BOMBARDMENT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::AnyTarget,
 )];
+
+// TMP 173 — Fireslinger
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FIRESLINGER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("de253d94-9968-47da-bb7a-9c8ebf50f4e0"),
+    "Fireslinger",
+    crate::card::CardArt::new("de253d94-9968-47da-bb7a-9c8ebf50f4e0", "Jeff Reitz"),
+    crate::card::CardSet::Tempest,
+    crate::card::CardRules::unsupported(),
+);
 
 // TMP 179 — Goblin Bombardment
 pub(in crate::card::sets) static GOBLIN_BOMBARDMENT: CardRecord = CardRecord::new_with_legacy_id(
@@ -324,6 +364,16 @@ pub(in crate::card::sets) static MOGG_FANATIC: CardRecord = CardRecord::new_with
             },
         ),
     ),
+);
+
+// TMP 198 — Rolling Thunder
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ROLLING_THUNDER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0bb07402-d526-4938-89a3-9174d5b5a4de"),
+    "Rolling Thunder",
+    crate::card::CardArt::new("0bb07402-d526-4938-89a3-9174d5b5a4de", "Richard Thomas"),
+    crate::card::CardSet::Tempest,
+    crate::card::CardRules::unsupported(),
 );
 
 // TMP 250 — Root Maze
@@ -492,15 +542,20 @@ pub(in crate::card::sets) static WASTELAND: CardRecord = CardRecord::new_with_le
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &HUMILITY,
+    &SOLTARI_TROOPER,
     &WARMTH,
+    &CAPSIZE,
     &CHILL,
     &INTUITION,
     &TIME_WARP,
     &CORPSE_DANCE,
+    &DAUTHI_SLAYER,
     &REANIMATE,
+    &FIRESLINGER,
     &GOBLIN_BOMBARDMENT,
     &JACKAL_PUP,
     &MOGG_FANATIC,
+    &ROLLING_THUNDER,
     &ROOT_MAZE,
     &CURSED_SCROLL,
     &LOTUS_PETAL,

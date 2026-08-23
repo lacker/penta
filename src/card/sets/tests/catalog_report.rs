@@ -4,7 +4,7 @@ use std::path::Path;
 use super::source_organization::{AuditStatus, source_audits_for_format};
 use super::*;
 use crate::card::CardDefinition;
-use crate::format::vintage_cube::VINTAGE_CUBE_POOL;
+use crate::{FormatCategory, FormatDefinition};
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 struct CatalogCoverage {
@@ -32,9 +32,32 @@ impl CatalogCoverage {
 }
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
-struct FormatCoverage {
+struct SetCoverage {
     catalog: CatalogCoverage,
     blocked: usize,
+}
+
+impl SetCoverage {
+    fn from_repository(root: &Path, catalog: &crate::card::CardCatalog, format: Format) -> Self {
+        let catalog_coverage = CatalogCoverage::from_definitions(
+            catalog
+                .definitions()
+                .into_iter()
+                .filter(|definition| catalog.is_allowed_in(definition.id, format)),
+        );
+        let blocked = source_audits_for_format(root, catalog, format)
+            .into_iter()
+            .filter(|audit| audit.status == AuditStatus::Blocked)
+            .count();
+        Self {
+            catalog: catalog_coverage,
+            blocked,
+        }
+    }
+
+    const fn total(self) -> usize {
+        self.catalog.total() + self.blocked
+    }
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -80,26 +103,20 @@ impl PoolCoverage {
     }
 }
 
-impl FormatCoverage {
-    fn from_repository(root: &Path, catalog: &crate::card::CardCatalog, format: Format) -> Self {
-        let catalog_coverage = CatalogCoverage::from_definitions(
-            catalog
-                .definitions()
-                .into_iter()
-                .filter(|definition| catalog.is_allowed_in(definition.id, format)),
-        );
-        let blocked = source_audits_for_format(root, catalog, format)
-            .into_iter()
-            .filter(|audit| audit.status == AuditStatus::Blocked)
-            .count();
-        Self {
-            catalog: catalog_coverage,
-            blocked,
-        }
-    }
+#[derive(Clone, Debug, Eq, PartialEq)]
+enum FormatCoverage {
+    Sets(SetCoverage),
+    Cube(PoolCoverage),
+}
 
-    const fn total(self) -> usize {
-        self.catalog.total() + self.blocked
+fn coverage_for(root: &Path, catalog: &crate::card::CardCatalog, format: Format) -> FormatCoverage {
+    match format.definition() {
+        FormatDefinition::Sets(_) => {
+            FormatCoverage::Sets(SetCoverage::from_repository(root, catalog, format))
+        }
+        FormatDefinition::Cube(definition) => {
+            FormatCoverage::Cube(PoolCoverage::from_catalog(catalog, definition.cards))
+        }
     }
 }
 
@@ -112,24 +129,6 @@ fn write_catalog_coverage(report: &mut String, coverage: CatalogCoverage) {
         .expect("writing to a String cannot fail");
 }
 
-fn write_format_coverage(
-    report: &mut String,
-    format: Format,
-    qualifier: Option<&str>,
-    coverage: FormatCoverage,
-) {
-    write!(report, "  {}", format.display_name()).expect("writing to a String cannot fail");
-    if let Some(qualifier) = qualifier {
-        write!(report, " ({qualifier})").expect("writing to a String cannot fail");
-    }
-    writeln!(report).expect("writing to a String cannot fail");
-    write_catalog_coverage(report, coverage.catalog);
-    writeln!(report, "    blocked        {:>6}", coverage.blocked)
-        .expect("writing to a String cannot fail");
-    writeln!(report, "    total          {:>6}", coverage.total())
-        .expect("writing to a String cannot fail");
-}
-
 fn write_pool_names(report: &mut String, status: &str, names: &[String]) {
     writeln!(report, "    {status} cards").expect("writing to a String cannot fail");
     for name in names {
@@ -137,103 +136,125 @@ fn write_pool_names(report: &mut String, status: &str, names: &[String]) {
     }
 }
 
-fn write_pool_coverage(report: &mut String, coverage: &PoolCoverage, verbose: bool) {
-    writeln!(report, "  Vintage Cube").expect("writing to a String cannot fail");
-    write_catalog_coverage(report, coverage.catalog_coverage());
-    writeln!(
-        report,
-        "    uncataloged    {:>6}",
-        coverage.uncataloged.len()
-    )
-    .expect("writing to a String cannot fail");
-    writeln!(report, "    total          {:>6}", coverage.total())
-        .expect("writing to a String cannot fail");
-
-    if verbose {
-        write_pool_names(report, "complete", &coverage.complete);
-        write_pool_names(report, "partial", &coverage.partial);
-        write_pool_names(report, "metadata-only", &coverage.metadata_only);
-        write_pool_names(report, "uncataloged", &coverage.uncataloged);
+fn write_format_coverage(
+    report: &mut String,
+    format: Format,
+    coverage: &FormatCoverage,
+    verbose: bool,
+) {
+    writeln!(report, "  {}", format.display_name()).expect("writing to a String cannot fail");
+    match coverage {
+        FormatCoverage::Sets(coverage) => {
+            write_catalog_coverage(report, coverage.catalog);
+            writeln!(report, "    blocked        {:>6}", coverage.blocked)
+                .expect("writing to a String cannot fail");
+            writeln!(report, "    total          {:>6}", coverage.total())
+                .expect("writing to a String cannot fail");
+        }
+        FormatCoverage::Cube(coverage) => {
+            write_catalog_coverage(report, coverage.catalog_coverage());
+            writeln!(
+                report,
+                "    uncataloged    {:>6}",
+                coverage.uncataloged.len()
+            )
+            .expect("writing to a String cannot fail");
+            writeln!(report, "    total          {:>6}", coverage.total())
+                .expect("writing to a String cannot fail");
+            if verbose {
+                write_pool_names(report, "complete", &coverage.complete);
+                write_pool_names(report, "partial", &coverage.partial);
+                write_pool_names(report, "metadata-only", &coverage.metadata_only);
+                write_pool_names(report, "uncataloged", &coverage.uncataloged);
+            }
+        }
     }
 }
 
 fn render_report(
     repository: CatalogCoverage,
-    old_school: FormatCoverage,
-    standard: FormatCoverage,
-    vintage_cube: &PoolCoverage,
+    categories: &[(FormatCategory, Vec<(Format, FormatCoverage)>)],
     verbose: bool,
 ) -> String {
     let mut report = String::new();
     writeln!(report, "Catalog coverage").expect("writing to a String cannot fail");
     writeln!(report, "================").expect("writing to a String cannot fail");
     writeln!(report).expect("writing to a String cannot fail");
-    writeln!(
-        report,
-        "Repository catalog definitions (all sets and synthetic objects)"
-    )
-    .expect("writing to a String cannot fail");
+    writeln!(report, "Repository catalog definitions").expect("writing to a String cannot fail");
     write_catalog_coverage(&mut report, repository);
     writeln!(report, "    total          {:>6}", repository.total())
         .expect("writing to a String cannot fail");
-    writeln!(report).expect("writing to a String cannot fail");
-    writeln!(report, "Audited set identity corpora").expect("writing to a String cannot fail");
-    write_format_coverage(
-        &mut report,
-        Format::OldSchool9394,
-        Some("including banned identities"),
-        old_school,
-    );
-    write_format_coverage(&mut report, Format::IsdDgmStandard, None, standard);
-    writeln!(report).expect("writing to a String cannot fail");
-    writeln!(report, "Fixed card pools").expect("writing to a String cannot fail");
-    write_pool_coverage(&mut report, vintage_cube, verbose);
+
+    for (category, formats) in categories {
+        writeln!(report).expect("writing to a String cannot fail");
+        writeln!(report, "{}", category.display_name()).expect("writing to a String cannot fail");
+        for (format, coverage) in formats {
+            write_format_coverage(&mut report, *format, coverage, verbose);
+        }
+    }
     report
 }
 
 fn repository_report(verbose: bool) -> String {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let catalog = crate::card::catalog().expect("built-in catalog");
+    let categories = FormatCategory::ALL
+        .iter()
+        .map(|category| {
+            (
+                *category,
+                category
+                    .formats()
+                    .iter()
+                    .map(|format| (*format, coverage_for(root, &catalog, *format)))
+                    .collect(),
+            )
+        })
+        .collect::<Vec<_>>();
     render_report(
         CatalogCoverage::from_definitions(catalog.definitions()),
-        FormatCoverage::from_repository(root, &catalog, Format::OldSchool9394),
-        FormatCoverage::from_repository(root, &catalog, Format::IsdDgmStandard),
-        &PoolCoverage::from_catalog(&catalog, VINTAGE_CUBE_POOL),
+        &categories,
         verbose,
     )
 }
 
 #[test]
-fn report_layout_includes_repository_formats_and_fixed_pools() {
-    let vintage_cube = PoolCoverage {
-        complete: vec!["Complete Card".to_owned()],
-        partial: vec!["Partial Card".to_owned()],
-        metadata_only: Vec::new(),
-        uncataloged: vec!["Missing Card".to_owned()],
-    };
+fn report_layout_is_derived_from_category_registries() {
+    let categories = vec![
+        (
+            FormatCategory::Standard,
+            vec![(
+                Format::SomM13Standard,
+                FormatCoverage::Sets(SetCoverage {
+                    catalog: CatalogCoverage {
+                        complete: 5,
+                        partial: 1,
+                        metadata_only: 7,
+                    },
+                    blocked: 0,
+                }),
+            )],
+        ),
+        (
+            FormatCategory::Cube,
+            vec![(
+                Format::PauperCube,
+                FormatCoverage::Cube(PoolCoverage {
+                    complete: vec!["Complete Card".to_owned()],
+                    partial: Vec::new(),
+                    metadata_only: vec!["Stub Card".to_owned()],
+                    uncataloged: Vec::new(),
+                }),
+            )],
+        ),
+    ];
     let report = render_report(
         CatalogCoverage {
             complete: 12,
             partial: 3,
-            metadata_only: 1,
+            metadata_only: 8,
         },
-        FormatCoverage {
-            catalog: CatalogCoverage {
-                complete: 7,
-                partial: 2,
-                metadata_only: 1,
-            },
-            blocked: 20,
-        },
-        FormatCoverage {
-            catalog: CatalogCoverage {
-                complete: 5,
-                partial: 1,
-                metadata_only: 0,
-            },
-            blocked: 10,
-        },
-        &vintage_cube,
+        &categories,
         false,
     );
 
@@ -243,33 +264,27 @@ fn report_layout_includes_repository_formats_and_fixed_pools() {
             "Catalog coverage\n",
             "================\n",
             "\n",
-            "Repository catalog definitions (all sets and synthetic objects)\n",
+            "Repository catalog definitions\n",
             "    complete           12\n",
             "    partial             3\n",
-            "    metadata-only       1\n",
-            "    total              16\n",
+            "    metadata-only       8\n",
+            "    total              23\n",
             "\n",
-            "Audited set identity corpora\n",
-            "  Old School 93/94 (including banned identities)\n",
-            "    complete            7\n",
-            "    partial             2\n",
-            "    metadata-only       1\n",
-            "    blocked            20\n",
-            "    total              30\n",
-            "  ISD-DGM Standard\n",
+            "Standard\n",
+            "  Standard: SOM-M13\n",
             "    complete            5\n",
             "    partial             1\n",
-            "    metadata-only       0\n",
-            "    blocked            10\n",
-            "    total              16\n",
+            "    metadata-only       7\n",
+            "    blocked             0\n",
+            "    total              13\n",
             "\n",
-            "Fixed card pools\n",
-            "  Vintage Cube\n",
+            "Cubes\n",
+            "  Cube: The Pauper Cube\n",
             "    complete            1\n",
-            "    partial             1\n",
-            "    metadata-only       0\n",
-            "    uncataloged         1\n",
-            "    total               3\n",
+            "    partial             0\n",
+            "    metadata-only       1\n",
+            "    uncataloged         0\n",
+            "    total               2\n",
         )
     );
 }

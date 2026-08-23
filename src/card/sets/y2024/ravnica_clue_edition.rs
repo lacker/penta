@@ -146,6 +146,64 @@ pub(in crate::card::sets) static UNRULY_KRASIS: CardRecord = CardRecord::new_wit
     .with_abilities(&UNRULY_KRASIS_ABILITIES),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&HEADLINER_SCARLETT, &UNRULY_KRASIS];
+// CLU 94 — Repeal
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static REPEAL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9e7dd929-4bba-46a6-86c9-b8ed853eb721"),
+    "Repeal",
+    crate::card::CardArt::new("265b80cd-2e9c-4e4b-a065-eafb29b3e07a", "Dan Murayama Scott"),
+    crate::card::CardSet::RavnicaClueEdition,
+    crate::card::CardRules::unsupported(),
+);
+
+// CLU 186 — Dimir Guildmage
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DIMIR_GUILDMAGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b9ab53af-749e-4559-85fa-f8d4181cf7da"),
+    "Dimir Guildmage",
+    crate::card::CardArt::new("0b963389-6231-4095-a1f4-33457ce51ff2", "Adam Rex"),
+    crate::card::CardSet::RavnicaClueEdition,
+    crate::card::CardRules::unsupported(),
+);
+
+// CLU 229 — Azorius Chancery
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static AZORIUS_CHANCERY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e58365d2-e4db-444b-b1a9-795668ad3038"),
+    "Azorius Chancery",
+    crate::card::CardArt::new("a9d629f3-24b0-400c-b054-b66250696708", "John Avon"),
+    crate::card::CardSet::RavnicaClueEdition,
+    crate::card::CardRules::unsupported(),
+);
+
+// CLU 241 — Orzhov Basilica
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ORZHOV_BASILICA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f9154d2a-3fc5-4fd6-9885-a810cb6b542a"),
+    "Orzhov Basilica",
+    crate::card::CardArt::new("7c14375a-98c1-4e57-bf0d-1bea89a6bbd9", "John Avon"),
+    crate::card::CardSet::RavnicaClueEdition,
+    crate::card::CardRules::unsupported(),
+);
+
+// CLU 246 — Selesnya Sanctuary
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SELESNYA_SANCTUARY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c5e51787-f9c9-4926-9df1-a384a3092676"),
+    "Selesnya Sanctuary",
+    crate::card::CardArt::new("fdc53c6a-8e28-4314-9bcf-b31b6c6f56d7", "John Avon"),
+    crate::card::CardSet::RavnicaClueEdition,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &HEADLINER_SCARLETT,
+    &UNRULY_KRASIS,
+    &REPEAL,
+    &DIMIR_GUILDMAGE,
+    &AZORIUS_CHANCERY,
+    &ORZHOV_BASILICA,
+    &SELESNYA_SANCTUARY,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

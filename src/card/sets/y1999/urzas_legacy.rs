@@ -125,6 +125,16 @@ pub(in crate::card::sets) static MISCALCULATION: CardRecord = CardRecord::new_wi
     ]),
 );
 
+// ULG 43 — Snap
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SNAP: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f7e0549e-2d23-4ea8-b8d1-ae21af2c9091"),
+    "Snap",
+    crate::card::CardArt::new("f7e0549e-2d23-4ea8-b8d1-ae21af2c9091", "Mike Raabe"),
+    crate::card::CardSet::UrzasLegacy,
+    crate::card::CardRules::unsupported(),
+);
+
 // ULG 51 — Engineered Plague
 pub(in crate::card::sets) static ENGINEERED_PLAGUE: CardRecord = CardRecord::new_with_legacy_id(
     2048,
@@ -344,6 +354,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &MOTHER_OF_RUNES,
     &FRANTIC_SEARCH,
     &MISCALCULATION,
+    &SNAP,
     &ENGINEERED_PLAGUE,
     &UNEARTH,
     &CROP_ROTATION,

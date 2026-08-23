@@ -1,6 +1,6 @@
 //! Ixalan cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, CardType,
     ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
@@ -84,6 +84,16 @@ static KITESAIL_FREEBOOTER_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
+// XLN 41 — Territorial Hammerskull
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TERRITORIAL_HAMMERSKULL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("af5a237a-31e7-43ee-8d47-3eb12dd1a60c"),
+    "Territorial Hammerskull",
+    crate::card::CardArt::new("af5a237a-31e7-43ee-8d47-3eb12dd1a60c", "Lars Grant-West"),
+    crate::card::CardSet::Ixalan,
+    crate::card::CardRules::unsupported(),
+);
+
 // XLN 110 — Kitesail Freebooter
 pub(in crate::card::sets) static KITESAIL_FREEBOOTER: CardRecord = CardRecord::new_with_legacy_id(
     2149,
@@ -94,6 +104,20 @@ pub(in crate::card::sets) static KITESAIL_FREEBOOTER: CardRecord = CardRecord::n
         .with_abilities(&KITESAIL_FREEBOOTER_ABILITIES),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&KITESAIL_FREEBOOTER];
+// XLN 194 — Jade Guardian
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static JADE_GUARDIAN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("aca83e48-6e32-477f-8714-6103e77c06df"),
+    "Jade Guardian",
+    crate::card::CardArt::new("aca83e48-6e32-477f-8714-6103e77c06df", "Chris Seaman"),
+    crate::card::CardSet::Ixalan,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &TERRITORIAL_HAMMERSKULL,
+    &KITESAIL_FREEBOOTER,
+    &JADE_GUARDIAN,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

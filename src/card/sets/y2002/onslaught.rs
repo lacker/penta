@@ -1,6 +1,6 @@
 //! Onslaught cards used by the staged Premodern deck tranche.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardType,
@@ -312,6 +312,16 @@ pub(in crate::card::sets) static SKIRK_PROSPECTOR: CardRecord = CardRecord::new_
     ),
 );
 
+// ONS 235 — Sparksmith
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SPARKSMITH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("15a4460d-3fe8-4b1f-9990-0a19c3345367"),
+    "Sparksmith",
+    crate::card::CardArt::new("15a4460d-3fe8-4b1f-9990-0a19c3345367", "Jim Nelson"),
+    crate::card::CardSet::Onslaught,
+    crate::card::CardRules::unsupported(),
+);
+
 // ONS 275 — Naturalize
 pub(in crate::card::sets) static NATURALIZE: CardRecord = CardRecord::new_with_legacy_id(
     270,
@@ -444,6 +454,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GOBLIN_PYROMANCER,
     &GOBLIN_SHARPSHOOTER,
     &SKIRK_PROSPECTOR,
+    &SPARKSMITH,
     &NATURALIZE,
     &BLOODSTAINED_MIRE,
     &FLOODED_STRAND,

@@ -1,6 +1,6 @@
 //! Kaldheim cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype,
     CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation, TriggerEventDef,
@@ -77,6 +77,26 @@ static MAGDA_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
+// KHM 46 — Behold the Multiverse
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BEHOLD_THE_MULTIVERSE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("27855a38-a682-4f97-ad22-ac625e86faec"),
+    "Behold the Multiverse",
+    crate::card::CardArt::new("27855a38-a682-4f97-ad22-ac625e86faec", "Magali Villeneuve"),
+    crate::card::CardSet::Kaldheim,
+    crate::card::CardRules::unsupported(),
+);
+
+// KHM 117 — Village Rites
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static VILLAGE_RITES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9c0f60a6-b5c8-4704-8b61-94e8fc463e5d"),
+    "Village Rites",
+    crate::card::CardArt::new("0fab9ee8-776a-48e5-b309-bcd381e67bf7", "Igor Kieryluk"),
+    crate::card::CardSet::Kaldheim,
+    crate::card::CardRules::unsupported(),
+);
+
 // KHM 142 — Magda, Brazen Outlaw
 pub(in crate::card::sets) static MAGDA_BRAZEN_OUTLAW: CardRecord = CardRecord::new_with_legacy_id(
     2298,
@@ -90,6 +110,46 @@ pub(in crate::card::sets) static MAGDA_BRAZEN_OUTLAW: CardRecord = CardRecord::n
         .with_abilities(&MAGDA_ABILITIES),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&MAGDA_BRAZEN_OUTLAW];
+// KHM 157 — Tuskeri Firewalker
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TUSKERI_FIREWALKER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a54d0170-a375-4e65-b98d-3e94a3aeef90"),
+    "Tuskeri Firewalker",
+    crate::card::CardArt::new(
+        "a54d0170-a375-4e65-b98d-3e94a3aeef90",
+        "Victor Adame Minguez",
+    ),
+    crate::card::CardSet::Kaldheim,
+    crate::card::CardRules::unsupported(),
+);
+
+// KHM 192 — Sarulf's Packmate
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SARULF_S_PACKMATE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6061113e-7dd8-4739-b4dd-55bb7f9e39a2"),
+    "Sarulf's Packmate",
+    crate::card::CardArt::new("6061113e-7dd8-4739-b4dd-55bb7f9e39a2", "Ilse Gort"),
+    crate::card::CardSet::Kaldheim,
+    crate::card::CardRules::unsupported(),
+);
+
+// KHM 194 — Snakeskin Veil
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SNAKESKIN_VEIL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e692c208-c171-4964-9207-43c2cbc62845"),
+    "Snakeskin Veil",
+    crate::card::CardArt::new("e692c208-c171-4964-9207-43c2cbc62845", "Matt Stewart"),
+    crate::card::CardSet::Kaldheim,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &BEHOLD_THE_MULTIVERSE,
+    &VILLAGE_RITES,
+    &MAGDA_BRAZEN_OUTLAW,
+    &TUSKERI_FIREWALKER,
+    &SARULF_S_PACKMATE,
+    &SNAKESKIN_VEIL,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -1,6 +1,6 @@
 //! Eventide cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, CreatureTypeSetDef,
     EffectDef, EffectRecipientDef, ObjectPredicateDef, ResolvedEffectDurationDef,
@@ -96,6 +96,26 @@ static FIGURE_OF_DESTINY_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
+// EVE 41 — Raven's Crime
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RAVEN_S_CRIME: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7ced5797-5de0-43ca-9dc9-e48912333a70"),
+    "Raven's Crime",
+    crate::card::CardArt::new("7ced5797-5de0-43ca-9dc9-e48912333a70", "Warren Mahy"),
+    crate::card::CardSet::Eventide,
+    crate::card::CardRules::unsupported(),
+);
+
+// EVE 119 — Desecrator Hag
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DESECRATOR_HAG: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("74d2e092-c805-447c-b784-1896b69524e0"),
+    "Desecrator Hag",
+    crate::card::CardArt::new("74d2e092-c805-447c-b784-1896b69524e0", "Fred Harper"),
+    crate::card::CardSet::Eventide,
+    crate::card::CardRules::unsupported(),
+);
+
 // EVE 139 — Figure of Destiny
 pub(in crate::card::sets) static FIGURE_OF_DESTINY: CardRecord = CardRecord::new_with_legacy_id(
     2260,
@@ -108,6 +128,7 @@ pub(in crate::card::sets) static FIGURE_OF_DESTINY: CardRecord = CardRecord::new
         .with_abilities(&FIGURE_OF_DESTINY_ABILITIES),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&FIGURE_OF_DESTINY];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&RAVEN_S_CRIME, &DESECRATOR_HAG, &FIGURE_OF_DESTINY];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

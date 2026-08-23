@@ -53,6 +53,66 @@ pub(in crate::card::sets) static MULTIVERSAL_PASSAGE: CardRecord = CardRecord::n
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&MULTIVERSAL_PASSAGE];
+// OM1 182 — Ominous Asylum
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static OMINOUS_ASYLUM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("371b03a1-7707-4a8a-8c0e-0272418c801f"),
+    "Ominous Asylum",
+    crate::card::CardArt::new("371b03a1-7707-4a8a-8c0e-0272418c801f", "Daniel Ljunggren"),
+    crate::card::CardSet::ThroughTheOmenpaths,
+    crate::card::CardRules::unsupported(),
+);
+
+// OM1 183 — Savage Mansion
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SAVAGE_MANSION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c172cdb5-aa2c-419d-b8ab-4795f4b7e160"),
+    "Savage Mansion",
+    crate::card::CardArt::new("c172cdb5-aa2c-419d-b8ab-4795f4b7e160", "Vincent Proce"),
+    crate::card::CardSet::ThroughTheOmenpaths,
+    crate::card::CardRules::unsupported(),
+);
+
+// OM1 184 — Sinister Hideout
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SINISTER_HIDEOUT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c417f8ce-e156-4c9a-af30-792606d861bd"),
+    "Sinister Hideout",
+    crate::card::CardArt::new(
+        "c417f8ce-e156-4c9a-af30-792606d861bd",
+        "Julian Kok Joon Wen",
+    ),
+    crate::card::CardSet::ThroughTheOmenpaths,
+    crate::card::CardRules::unsupported(),
+);
+
+// OM1 185 — Suburban Sanctuary
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SUBURBAN_SANCTUARY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("cabf021b-23e9-404d-90c6-eef629e1283e"),
+    "Suburban Sanctuary",
+    crate::card::CardArt::new("cabf021b-23e9-404d-90c6-eef629e1283e", "Victor Sales"),
+    crate::card::CardSet::ThroughTheOmenpaths,
+    crate::card::CardRules::unsupported(),
+);
+
+// OM1 186 — University Campus
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static UNIVERSITY_CAMPUS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("cd4b9fc5-fe3d-41d9-9d0e-77f1aebef618"),
+    "University Campus",
+    crate::card::CardArt::new("cd4b9fc5-fe3d-41d9-9d0e-77f1aebef618", "Randy Gallegos"),
+    crate::card::CardSet::ThroughTheOmenpaths,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &MULTIVERSAL_PASSAGE,
+    &OMINOUS_ASYLUM,
+    &SAVAGE_MANSION,
+    &SINISTER_HIDEOUT,
+    &SUBURBAN_SANCTUARY,
+    &UNIVERSITY_CAMPUS,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

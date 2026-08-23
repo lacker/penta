@@ -1,6 +1,6 @@
 //! Dominaria United cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     DrawEventMatcherDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
@@ -40,6 +40,19 @@ static CUT_DOWN_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_p
     ]),
 )];
 
+// DMU 72 — Tolarian Terror
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TOLARIAN_TERROR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("42f01cba-43d4-46ad-b7a5-d7631b0e1347"),
+    "Tolarian Terror",
+    crate::card::CardArt::new(
+        "42f01cba-43d4-46ad-b7a5-d7631b0e1347",
+        "Vincent Christiaens",
+    ),
+    crate::card::CardSet::DominariaUnited,
+    crate::card::CardRules::unsupported(),
+);
+
 // DMU 89 — Cut Down
 pub(in crate::card::sets) static CUT_DOWN: CardRecord = CardRecord::new_with_legacy_id(
     2204,
@@ -73,6 +86,21 @@ pub(in crate::card::sets) static SHEOLDRED_THE_APOCALYPSE: CardRecord =
             .with_abilities(&SHEOLDRED_ABILITIES),
     );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&CUT_DOWN, &SHEOLDRED_THE_APOCALYPSE];
+// DMU 137 — Lightning Strike
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static LIGHTNING_STRIKE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("bbb03f2e-2b92-4aa1-afae-301ed5d151d3"),
+    "Lightning Strike",
+    crate::card::CardArt::new("7d541125-bfb8-4f88-8bf3-ad7b6af7ad1d", "Marta Nael"),
+    crate::card::CardSet::DominariaUnited,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &TOLARIAN_TERROR,
+    &CUT_DOWN,
+    &SHEOLDRED_THE_APOCALYPSE,
+    &LIGHTNING_STRIKE,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

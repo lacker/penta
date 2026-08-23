@@ -2,5 +2,6 @@
 
 pub(super) mod invasion;
 pub(super) mod nemesis;
+pub(super) mod prophecy;
 
-pub(super) use super::{CardRecord, PrintingRecord};
+pub(super) use super::{CardRecord, PrintingAnchor, PrintingRecord};

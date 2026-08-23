@@ -1,6 +1,6 @@
 //! Zendikar Rising cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AddManaEffectDef, CardArt, CardRules, CardSet, CardSupertype,
     CardType, ComparisonDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
@@ -32,6 +32,16 @@ static THIRST_DESTROY: EffectDef = EffectDef::Destroy {
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
     can_regenerate: true,
 };
+
+// ZNR 9 — Dauntless Unity
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DAUNTLESS_UNITY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b12a4d17-68e6-4133-99fd-e501e24e6c6b"),
+    "Dauntless Unity",
+    crate::card::CardArt::new("b12a4d17-68e6-4133-99fd-e501e24e6c6b", "Josu Hernaiz"),
+    crate::card::CardSet::ZendikarRising,
+    crate::card::CardRules::unsupported(),
+);
 
 // ZNR 85 — Thieving Skydiver
 // Audit: blocked — Kicker here is a spell cast for more mana with different instructions, and the kicked clause has to carry those instructions. This card's kicker changes nothing about how the spell resolves; it changes whether a triggered ability fires afterwards and what that ability may target, which the kicked alternative has no way to say. It also needs a minimum on X, since casts are enumerated from zero and "X can't be 0" would otherwise let an unkicked-sized cast steal a nothing-cost artifact.
@@ -162,6 +172,16 @@ static OMNATH_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
+// ZNR 185 — Gnarlid Colony
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GNARLID_COLONY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7327289d-eed8-44b1-8495-7172e2b49d5f"),
+    "Gnarlid Colony",
+    crate::card::CardArt::new("7327289d-eed8-44b1-8495-7172e2b49d5f", "Izzy"),
+    crate::card::CardSet::ZendikarRising,
+    crate::card::CardRules::unsupported(),
+);
+
 // ZNR 232 — Omnath, Locus of Creation
 pub(in crate::card::sets) static OMNATH_LOCUS_OF_CREATION: CardRecord =
     CardRecord::new_with_legacy_id(
@@ -176,7 +196,11 @@ pub(in crate::card::sets) static OMNATH_LOCUS_OF_CREATION: CardRecord =
             .with_abilities(&OMNATH_ABILITIES),
     );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&BLOODCHIEFS_THIRST, &OMNATH_LOCUS_OF_CREATION];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &DAUNTLESS_UNITY,
+    &BLOODCHIEFS_THIRST,
+    &GNARLID_COLONY,
+    &OMNATH_LOCUS_OF_CREATION,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

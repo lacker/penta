@@ -1,6 +1,6 @@
 //! Mirrodin cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, EffectDef,
     EffectRecipientDef, abilities,
@@ -18,6 +18,16 @@ static GREAVES_GRANTS: [AppliedEffectDef; 2] = [
     AppliedEffectDef::add_ability(&GREAVES_HASTE),
     AppliedEffectDef::add_ability(&GREAVES_SHROUD),
 ];
+
+// MRD 146 — Bonesplitter
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BONESPLITTER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ae31d513-7412-4467-b497-a7183ff29a42"),
+    "Bonesplitter",
+    crate::card::CardArt::new("465a7990-c9f9-4716-a833-fd41458b9cee", "Darrell Riche"),
+    crate::card::CardSet::Mirrodin,
+    crate::card::CardRules::unsupported(),
+);
 
 // MRD 199 — Lightning Greaves
 pub(in crate::card::sets) static LIGHTNING_GREAVES: CardRecord = CardRecord::new_with_legacy_id(
@@ -41,6 +51,6 @@ pub(in crate::card::sets) static LIGHTNING_GREAVES: CardRecord = CardRecord::new
         ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&LIGHTNING_GREAVES];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&BONESPLITTER, &LIGHTNING_GREAVES];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -1,6 +1,6 @@
 //! Darksteel cards cataloged as cross-format rules-engine test cases.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet,
     EffectDef, EffectRecipientDef, ObjectPredicateDef, TriggerEventDef, ValueDef, ZoneKind,
@@ -22,6 +22,19 @@ pub(in crate::card::sets) static DARKSTEEL_INGOT: CardRecord = CardRecord::new_w
             EffectDef::AddMana(AddManaEffectDef::any_color()),
         ),
     ]),
+);
+
+// DST 127 — Leonin Bola
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static LEONIN_BOLA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a7eab112-20a6-414f-84c9-678580485420"),
+    "Leonin Bola",
+    crate::card::CardArt::new(
+        "a7eab112-20a6-414f-84c9-678580485420",
+        "Christopher Moeller",
+    ),
+    crate::card::CardSet::Darksteel,
+    crate::card::CardRules::unsupported(),
 );
 
 // DST 140 — Skullclamp
@@ -65,6 +78,21 @@ pub(in crate::card::sets) static SKULLCLAMP: CardRecord = CardRecord::new_with_l
         ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&DARKSTEEL_INGOT, &SKULLCLAMP];
+// DST 157 — Vulshok Morningstar
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static VULSHOK_MORNINGSTAR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("acf00de0-af24-4ef9-8ac2-135e6b53a8fd"),
+    "Vulshok Morningstar",
+    crate::card::CardArt::new("acf00de0-af24-4ef9-8ac2-135e6b53a8fd", "David Martin"),
+    crate::card::CardSet::Darksteel,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &DARKSTEEL_INGOT,
+    &LEONIN_BOLA,
+    &SKULLCLAMP,
+    &VULSHOK_MORNINGSTAR,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

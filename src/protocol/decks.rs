@@ -56,7 +56,10 @@ pub fn parse_format_slug(slug: &str) -> Result<Format, String> {
             Ok(Format::IsdDgmStandard)
         }
         "premodern" => Ok(Format::Premodern),
+        "isd-m14-standard" | "isd_m14_standard" => Ok(Format::IsdM14Standard),
+        "som-m13-standard" | "som_m13_standard" => Ok(Format::SomM13Standard),
         "vintage-cube" | "vintage_cube" => Ok(Format::VintageCube),
+        "pauper-cube" | "pauper_cube" => Ok(Format::PauperCube),
         _ => Err(format!("unknown format: {slug}")),
     }
 }
@@ -66,11 +69,11 @@ pub fn parse_format_slug(slug: &str) -> Result<Format, String> {
 pub fn deck_names_for_format(format: Format) -> Vec<&'static str> {
     match format {
         Format::OldSchool9394 => OLD_SCHOOL_DECK_NAMES.to_vec(),
-        Format::IsdDgmStandard => ISD_DGM_STANDARD_DECK_NAMES.to_vec(),
+        Format::IsdDgmStandard | Format::IsdM14Standard => ISD_DGM_STANDARD_DECK_NAMES.to_vec(),
         Format::Premodern => PREMODERN_DECK_NAMES.to_vec(),
         // The pool is still being cataloged, so there is nothing to offer
         // yet. A cube is drafted rather than picked from a menu in any case.
-        Format::VintageCube => Vec::new(),
+        Format::SomM13Standard | Format::VintageCube | Format::PauperCube => Vec::new(),
     }
 }
 
@@ -79,7 +82,7 @@ pub fn deck_names_for_format(format: Format) -> Vec<&'static str> {
 pub fn deck_by_name_for_format(format: Format, name: &str) -> Option<Deck> {
     let name = name.trim().to_ascii_lowercase();
     match format {
-        Format::VintageCube => None,
+        Format::SomM13Standard | Format::VintageCube | Format::PauperCube => None,
         Format::OldSchool9394 => match name.as_str() {
             "goblins" => Some(decks::old_school_93_94::goblins()),
             "sligh" => Some(decks::old_school_93_94::sligh()),
@@ -102,7 +105,7 @@ pub fn deck_by_name_for_format(format: Format, name: &str) -> Option<Deck> {
             }
             _ => None,
         },
-        Format::IsdDgmStandard => match name.as_str() {
+        Format::IsdDgmStandard | Format::IsdM14Standard => match name.as_str() {
             "briksza naya midrange"
             | "rudy briksza naya midrange"
             | "naya midrange rudy briksza"

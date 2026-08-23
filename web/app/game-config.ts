@@ -33,8 +33,8 @@ export const formatConfigs: Record<FormatId, FormatConfig> = {
     },
   },
   "isd-dgm-standard": {
-    name: "ISD–DGM Standard",
-    shortName: "ISD–DGM STANDARD · 2013",
+    name: "Standard: ISD-DGM",
+    shortName: "STANDARD · ISD-DGM · 2013",
     cardBackMark: "13",
     description: "Final pre-Theros pool · no mana burn · tournament and test decks · staged card effects",
     deckNotes: {

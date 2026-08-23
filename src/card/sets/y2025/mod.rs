@@ -1,6 +1,7 @@
 //! Card sets first released in 2025.
 
 pub(super) mod aetherdrift;
+pub(super) mod avatar_the_last_airbender;
 pub(super) mod edge_of_eternities;
 pub(super) mod final_fantasy;
 pub(super) mod final_fantasy_commander;

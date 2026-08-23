@@ -25,6 +25,16 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Changed
 
+- **Formats are organized by legality model and category.** Set-based formats
+  now carry set windows plus banned/restricted policy, while cubes carry fixed
+  card lists. Historical Standard adds `isd-m14-standard` and
+  `som-m13-standard`; cubes add `pauper-cube` from the dated 450-card Cube
+  Cobra snapshot. Display labels use `Standard: ...` and `Cube: ...` prefixes.
+  The catalog gains metadata-only audited stubs for every newly introduced
+  identity, and `make catalog-report` derives every section from the category
+  registry. These are additive format slugs and catalog values, so protocol 28,
+  checkpoint format 8, and replay version 2 are unchanged.
+
 - **Protocol 28 broadens flexible mana and adds announced payment choices.**
   Catalog `manaCost.hybrid[].symbol` values can now describe two-brid (`2/B`),
   Phyrexian (`R/P`), Phyrexian hybrid (`G/U/P`), and colorless hybrid (`C/W`)

@@ -1,6 +1,6 @@
 //! Fifth Dawn cards cataloged for the Vintage Cube.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
     CardArt, CardRules, CardSet, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef,
@@ -56,6 +56,26 @@ static WHISPER_EFFECT: [EffectDef; 2] = [
         amount: ValueDef::Constant(2),
     },
 ];
+
+// 5DN 27 — Condescend
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CONDESCEND: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e8303b80-e29a-46b8-90b0-c0cfe551b435"),
+    "Condescend",
+    crate::card::CardArt::new("e8303b80-e29a-46b8-90b0-c0cfe551b435", "Ron Spears"),
+    crate::card::CardSet::FifthDawn,
+    crate::card::CardRules::unsupported(),
+);
+
+// 5DN 36 — Serum Visions
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SERUM_VISIONS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("77e241f0-4cdc-4e37-b5b1-6f47f385d381"),
+    "Serum Visions",
+    crate::card::CardArt::new("4bc61952-88ba-447a-835a-f1e9643fcd0d", "Ben Thompson"),
+    crate::card::CardSet::FifthDawn,
+    crate::card::CardRules::unsupported(),
+);
 
 // 5DN 55 — Night's Whisper
 pub(in crate::card::sets) static NIGHTS_WHISPER: CardRecord = CardRecord::new_with_legacy_id(
@@ -113,7 +133,12 @@ pub(in crate::card::sets) static CRUCIBLE_OF_WORLDS: CardRecord = CardRecord::ne
     )),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&NIGHTS_WHISPER, &ETERNAL_WITNESS, &CRUCIBLE_OF_WORLDS];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &CONDESCEND,
+    &SERUM_VISIONS,
+    &NIGHTS_WHISPER,
+    &ETERNAL_WITNESS,
+    &CRUCIBLE_OF_WORLDS,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

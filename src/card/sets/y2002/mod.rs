@@ -4,4 +4,4 @@ pub(super) mod judgment;
 pub(super) mod onslaught;
 pub(super) mod torment;
 
-pub(super) use super::{CardRecord, PrintingRecord};
+pub(super) use super::{CardRecord, PrintingAnchor, PrintingRecord};

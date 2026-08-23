@@ -1,6 +1,6 @@
 //! Urza's Destiny cards used by the staged Premodern deck tranche.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType,
     CardTypeSet, CharacteristicOperationDef, CounterKind, EffectDef, EffectRecipientDef,
@@ -118,6 +118,16 @@ static KEG_FUSE: EffectDef = EffectDef::May {
     },
 };
 
+// UDS 124 — Yavimaya Elder
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static YAVIMAYA_ELDER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("325d9372-01c9-4e99-a966-13c8f8566e2e"),
+    "Yavimaya Elder",
+    crate::card::CardArt::new("325d9372-01c9-4e99-a966-13c8f8566e2e", "Ray Lago"),
+    crate::card::CardSet::UrzasDestiny,
+    crate::card::CardRules::unsupported(),
+);
+
 // UDS 136 — Powder Keg
 pub(in crate::card::sets) static POWDER_KEG: CardRecord = CardRecord::new_with_legacy_id(
     2053,
@@ -141,6 +151,7 @@ pub(in crate::card::sets) static POWDER_KEG: CardRecord = CardRecord::new_with_l
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&OPALESCENCE, &REPLENISH, &POWDER_KEG];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&OPALESCENCE, &REPLENISH, &YAVIMAYA_ELDER, &POWDER_KEG];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

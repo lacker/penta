@@ -30,6 +30,16 @@ static REPRIEVE_EFFECTS: [EffectDef; 2] = [
     },
 ];
 
+// LTR 7 — Eagles of the North
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static EAGLES_OF_THE_NORTH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c1bd3bc0-77bd-40fe-b4f1-835a04cb6e41"),
+    "Eagles of the North",
+    crate::card::CardArt::new("c1bd3bc0-77bd-40fe-b4f1-835a04cb6e41", "Axel Sauerwald"),
+    crate::card::CardSet::LordOfTheRings,
+    crate::card::CardRules::unsupported(),
+);
+
 // LTR 26 — Reprieve
 pub(in crate::card::sets) static REPRIEVE: CardRecord = CardRecord::new_with_legacy_id(
     2168,
@@ -224,6 +234,26 @@ static ANOTHER_CREATURE_YOU_CONTROL: [AbilityTargetDef; 1] =
         ]),
     )];
 
+// LTR 111 — Troll of Khazad-dûm
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TROLL_OF_KHAZAD_DUM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a6539e26-b63b-4725-9407-caaf451de084"),
+    "Troll of Khazad-dûm",
+    crate::card::CardArt::new("a6539e26-b63b-4725-9407-caaf451de084", "Simon Dominic"),
+    crate::card::CardSet::LordOfTheRings,
+    crate::card::CardRules::unsupported(),
+);
+
+// LTR 137 — Improvised Club
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static IMPROVISED_CLUB: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b8397d13-eeaf-4b4e-b3cd-9a9ac231873a"),
+    "Improvised Club",
+    crate::card::CardArt::new("b8397d13-eeaf-4b4e-b3cd-9a9ac231873a", "Pablo Mendoza"),
+    crate::card::CardSet::LordOfTheRings,
+    crate::card::CardRules::unsupported(),
+);
+
 // LTR 139 — Oliphaunt
 pub(in crate::card::sets) static OLIPHAUNT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6989018c-37b1-4282-a4af-9cc97f160b4d"),
@@ -252,6 +282,16 @@ pub(in crate::card::sets) static OLIPHAUNT: CardRecord = CardRecord::new(
             ObjectPredicateDef::Subtype("Mountain"),
         ),
     ]),
+);
+
+// LTR 142 — Rally at the Hornburg
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RALLY_AT_THE_HORNBURG: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ee7292f7-1c7e-449c-9c52-7584d6a14c2c"),
+    "Rally at the Hornburg",
+    crate::card::CardArt::new("ee7292f7-1c7e-449c-9c52-7584d6a14c2c", "Ekaterina Burmak"),
+    crate::card::CardSet::LordOfTheRings,
+    crate::card::CardRules::unsupported(),
 );
 
 // LTR 158 — Delighted Halfling
@@ -367,11 +407,15 @@ pub(in crate::card::sets) static FLAME_OF_ANOR: CardRecord = CardRecord::new_wit
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &EAGLES_OF_THE_NORTH,
     &REPRIEVE,
     &LORIEN_REVEALED,
     &STERN_SCOLDING,
     &ORCISH_BOWMASTERS,
+    &TROLL_OF_KHAZAD_DUM,
+    &IMPROVISED_CLUB,
     &OLIPHAUNT,
+    &RALLY_AT_THE_HORNBURG,
     &DELIGHTED_HALFLING,
     &GENEROUS_ENT,
     &FLAME_OF_ANOR,

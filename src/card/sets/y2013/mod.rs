@@ -6,4 +6,4 @@ pub(super) mod gatecrash;
 pub(super) mod magic_2014;
 pub(super) mod theros;
 
-pub(super) use super::{CardRecord, PrintingRecord};
+pub(super) use super::{CardRecord, PrintingAnchor, PrintingRecord};

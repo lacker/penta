@@ -180,6 +180,16 @@ pub(in crate::card::sets) static TRANQUIL_DOMAIN: CardRecord = CardRecord::new_w
     )),
 );
 
+// MIR 253 — Wall of Roots
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WALL_OF_ROOTS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("aeb151d2-c313-44d2-972e-33487f070c23"),
+    "Wall of Roots",
+    crate::card::CardArt::new("aeb151d2-c313-44d2-972e-33487f070c23", "John Matson"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
 // MIR 255 — Worldly Tutor
 pub(in crate::card::sets) static WORLDLY_TUTOR: CardRecord = CardRecord::new_with_legacy_id(
     314,
@@ -286,6 +296,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SHALLOW_GRAVE,
     &GOBLIN_TINKERER,
     &TRANQUIL_DOMAIN,
+    &WALL_OF_ROOTS,
     &WORLDLY_TUTOR,
     &CADAVEROUS_BLOOM,
     &CURSED_TOTEM,

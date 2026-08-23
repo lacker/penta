@@ -1,6 +1,6 @@
 //! Innistrad card records used by the built-in ISD–DGM Standard deck tranche.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::{y1993::alpha, y2002::onslaught, y2009::zendikar};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityPolicyHint, AbilityTargetDef,
@@ -1152,7 +1152,14 @@ pub(in crate::card::sets) static CURIOSITY: CardRecord = CardRecord::new_with_le
 // Audit: blocked — Needs the optional top-card reveal procedure and a conditional transform based on the revealed card's type.
 
 // ISD 52 — Deranged Assistant
-// Audit: blocked — Needs milling a card as an activation cost of a mana ability.
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DERANGED_ASSISTANT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a4c03171-5ff0-4f79-bb03-16decf7d34ce"),
+    "Deranged Assistant",
+    crate::card::CardArt::new("a4c03171-5ff0-4f79-bb03-16decf7d34ce", "Nils Hamm"),
+    crate::card::CardSet::Innistrad,
+    crate::card::CardRules::unsupported(),
+);
 
 // ISD 53 — Dissipate
 pub(in crate::card::sets) static DISSIPATE: CardRecord = CardRecord::new_with_legacy_id(
@@ -5619,6 +5626,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BATTLEGROUND_GEIST,
     &CLAUSTROPHOBIA,
     &CURIOSITY,
+    &DERANGED_ASSISTANT,
     &DISSIPATE,
     &DREAM_TWIST,
     &FORBIDDEN_ALCHEMY,

@@ -1,6 +1,6 @@
 //! Lorwyn cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, CardType,
     ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef, ObjectChoiceBindingDef,
@@ -111,6 +111,16 @@ static PONDER_LOOK: TopCardSelectionDef = TopCardSelectionDef {
     selected_face_down: None,
 };
 
+// LRW 76 — Mulldrifter
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MULLDRIFTER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a97cfefa-ade7-49f6-b2aa-1118b9db4935"),
+    "Mulldrifter",
+    crate::card::CardArt::new("a97cfefa-ade7-49f6-b2aa-1118b9db4935", "Eric Fortune"),
+    crate::card::CardSet::Lorwyn,
+    crate::card::CardRules::unsupported(),
+);
+
 // LRW 79 — Ponder
 pub(in crate::card::sets) static PONDER: CardRecord = CardRecord::new_with_legacy_id(
     2241,
@@ -183,6 +193,6 @@ pub(in crate::card::sets) static THOUGHTSEIZE: CardRecord = CardRecord::new_with
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&CRYPTIC_COMMAND, &PONDER, &THOUGHTSEIZE];
+    &[&CRYPTIC_COMMAND, &MULLDRIFTER, &PONDER, &THOUGHTSEIZE];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

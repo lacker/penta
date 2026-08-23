@@ -1,6 +1,6 @@
 //! Streets of New Capenna cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, CardArt, CardRules, CardSet, ComparisonDef, ObjectPredicateDef, PlayerRelation,
     QuantifierDef, TriggerConditionDef, TriggerEventDef, abilities,
@@ -47,6 +47,16 @@ static LEDGER_SHREDDER_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
+// SNC 26 — Raffine's Informant
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RAFFINE_S_INFORMANT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4e64ff87-2099-4360-94f6-164277b7b514"),
+    "Raffine's Informant",
+    crate::card::CardArt::new("4e64ff87-2099-4360-94f6-164277b7b514", "John Stanko"),
+    crate::card::CardSet::StreetsOfNewCapenna,
+    crate::card::CardRules::unsupported(),
+);
+
 // SNC 46 — Ledger Shredder
 pub(in crate::card::sets) static LEDGER_SHREDDER: CardRecord = CardRecord::new_with_legacy_id(
     2286,
@@ -57,6 +67,56 @@ pub(in crate::card::sets) static LEDGER_SHREDDER: CardRecord = CardRecord::new_w
     // the opponent's turn too.
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Bird", "Advisor"], 1, 3)
         .with_abilities(&LEDGER_SHREDDER_ABILITIES),
+);
+
+// SNC 66 — Witness Protection
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WITNESS_PROTECTION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a2be6f2c-8ad0-402d-a7ca-9fe817e83b72"),
+    "Witness Protection",
+    crate::card::CardArt::new("a2be6f2c-8ad0-402d-a7ca-9fe817e83b72", "Dominik Mayer"),
+    crate::card::CardSet::StreetsOfNewCapenna,
+    crate::card::CardRules::unsupported(),
+);
+
+// SNC 114 — Mayhem Patrol
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MAYHEM_PATROL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("50162cdd-ba30-48df-93ff-197c7f4a2913"),
+    "Mayhem Patrol",
+    crate::card::CardArt::new("50162cdd-ba30-48df-93ff-197c7f4a2913", "Johan Grenier"),
+    crate::card::CardSet::StreetsOfNewCapenna,
+    crate::card::CardRules::unsupported(),
+);
+
+// SNC 131 — Witty Roastmaster
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WITTY_ROASTMASTER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("71d13f19-482b-4a2e-9692-b7d7caf2f9f5"),
+    "Witty Roastmaster",
+    crate::card::CardArt::new("71d13f19-482b-4a2e-9692-b7d7caf2f9f5", "Joe Slucher"),
+    crate::card::CardSet::StreetsOfNewCapenna,
+    crate::card::CardRules::unsupported(),
+);
+
+// SNC 151 — Jewel Thief
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static JEWEL_THIEF: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("736e498e-1245-40c1-96a4-c9bcfd1cfe1f"),
+    "Jewel Thief",
+    crate::card::CardArt::new("736e498e-1245-40c1-96a4-c9bcfd1cfe1f", "Joe Slucher"),
+    crate::card::CardSet::StreetsOfNewCapenna,
+    crate::card::CardRules::unsupported(),
+);
+
+// SNC 168 — Body Dropper
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BODY_DROPPER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0fcb6d47-dccb-4b69-aed4-7a6215857606"),
+    "Body Dropper",
+    crate::card::CardArt::new("0fcb6d47-dccb-4b69-aed4-7a6215857606", "Jakub Kasper"),
+    crate::card::CardSet::StreetsOfNewCapenna,
+    crate::card::CardRules::unsupported(),
 );
 
 // SNC 250 — Jetmir's Garden
@@ -109,7 +169,13 @@ pub(in crate::card::sets) static ZIATORAS_PROVING_GROUND: CardRecord =
     );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &RAFFINE_S_INFORMANT,
     &LEDGER_SHREDDER,
+    &WITNESS_PROTECTION,
+    &MAYHEM_PATROL,
+    &WITTY_ROASTMASTER,
+    &JEWEL_THIEF,
+    &BODY_DROPPER,
     &JETMIRS_GARDEN,
     &RAFFINES_TOWER,
     &SPARAS_HEADQUARTERS,

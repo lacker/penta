@@ -1,0 +1,52 @@
+//! HOU card records required by supported formats.
+
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
+
+// HOU 48 — Striped Riverwinder
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static STRIPED_RIVERWINDER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("bbeef9ef-487c-400b-bcee-1c0e8ec94b6a"),
+    "Striped Riverwinder",
+    crate::card::CardArt::new("bbeef9ef-487c-400b-bcee-1c0e8ec94b6a", "Craig J Spearing"),
+    crate::card::CardSet::HourOfDevastation,
+    crate::card::CardRules::unsupported(),
+);
+
+// HOU 83 — Abrade
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ABRADE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("84319dfb-eaf7-4b98-8c4f-30f5e779591b"),
+    "Abrade",
+    crate::card::CardArt::new("84319dfb-eaf7-4b98-8c4f-30f5e779591b", "Jonas De Ro"),
+    crate::card::CardSet::HourOfDevastation,
+    crate::card::CardRules::unsupported(),
+);
+
+// HOU 92 — Firebrand Archer
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FIREBRAND_ARCHER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6ddc6b73-298b-4afa-990a-63706e77dd9f"),
+    "Firebrand Archer",
+    crate::card::CardArt::new("6ddc6b73-298b-4afa-990a-63706e77dd9f", "John Stanko"),
+    crate::card::CardSet::HourOfDevastation,
+    crate::card::CardRules::unsupported(),
+);
+
+// HOU 138 — Bloodwater Entity
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BLOODWATER_ENTITY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("474d0a04-b640-4d1d-b538-2d946c1ff913"),
+    "Bloodwater Entity",
+    crate::card::CardArt::new("474d0a04-b640-4d1d-b538-2d946c1ff913", "Viktor Titov"),
+    crate::card::CardSet::HourOfDevastation,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &STRIPED_RIVERWINDER,
+    &ABRADE,
+    &FIREBRAND_ARCHER,
+    &BLOODWATER_ENTITY,
+];
+
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

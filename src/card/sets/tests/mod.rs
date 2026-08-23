@@ -24,9 +24,13 @@ use crate::{
 };
 
 fn standard_records() -> Vec<&'static CardRecord> {
+    let allowed_sets = Format::IsdDgmStandard
+        .set_definition()
+        .expect("Standard is set based")
+        .allowed_sets;
     let mut records = SET_MODULES
         .iter()
-        .filter(|module| Format::IsdDgmStandard.allows_set(module.set))
+        .filter(|module| allowed_sets.contains(&module.set))
         .flat_map(|module| module.cards.iter().copied())
         .collect::<Vec<_>>();
     records.sort_unstable_by_key(|record| record.id());

@@ -1,6 +1,6 @@
 //! Innistrad: Midnight Hunt cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt,
     CardRules, CardSet, CardSupertype, CardType, EffectDef, EffectRecipientDef, ManaColor,
@@ -104,7 +104,75 @@ pub(in crate::card::sets) static CATHAR_COMMANDO: CardRecord = CardRecord::new_w
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&ADELINE_RESPLENDENT_CATHAR, &CATHAR_COMMANDO];
+// MID 24 — Homestead Courage
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static HOMESTEAD_COURAGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("73a9c49f-fcd3-4572-bac7-6eb06fdc0815"),
+    "Homestead Courage",
+    crate::card::CardArt::new("73a9c49f-fcd3-4572-bac7-6eb06fdc0815", "Colin Boyer"),
+    crate::card::CardSet::InnistradMidnightHunt,
+    crate::card::CardRules::unsupported(),
+);
+
+// MID 32 — Search Party Captain
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SEARCH_PARTY_CAPTAIN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("cb9006c1-2e6f-4bca-a1c4-3cf2a8b6e964"),
+    "Search Party Captain",
+    crate::card::CardArt::new("cb9006c1-2e6f-4bca-a1c4-3cf2a8b6e964", "Mike Bierek"),
+    crate::card::CardSet::InnistradMidnightHunt,
+    crate::card::CardRules::unsupported(),
+);
+
+// MID 44 — Consider
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CONSIDER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0b3f40a0-5f58-4157-aed9-b1a52e922c3c"),
+    "Consider",
+    crate::card::CardArt::new("a211d505-4d40-4914-a9da-220770d6ddbc", "Zezhou Chen"),
+    crate::card::CardSet::InnistradMidnightHunt,
+    crate::card::CardRules::unsupported(),
+);
+
+// MID 96 — Diregraf Horde
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DIREGRAF_HORDE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("153be768-ddad-44f2-bcdd-c40353c807d7"),
+    "Diregraf Horde",
+    crate::card::CardArt::new("153be768-ddad-44f2-bcdd-c40353c807d7", "Alex Negrea"),
+    crate::card::CardSet::InnistradMidnightHunt,
+    crate::card::CardRules::unsupported(),
+);
+
+// MID 100 — Ecstatic Awakener
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ECSTATIC_AWAKENER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("bbdad18e-e262-41f9-b252-1cbdcdd1b5f9"),
+    "Ecstatic Awakener",
+    crate::card::CardArt::new("bbdad18e-e262-41f9-b252-1cbdcdd1b5f9", "Tuan Duong Chu"),
+    crate::card::CardSet::InnistradMidnightHunt,
+    crate::card::CardRules::unsupported(),
+);
+
+// MID 128 — Ardent Elementalist
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ARDENT_ELEMENTALIST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f58592f7-1df5-428d-9dde-e6acd9a5d1d5"),
+    "Ardent Elementalist",
+    crate::card::CardArt::new("f58592f7-1df5-428d-9dde-e6acd9a5d1d5", "Miguel Mercado"),
+    crate::card::CardSet::InnistradMidnightHunt,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &ADELINE_RESPLENDENT_CATHAR,
+    &CATHAR_COMMANDO,
+    &HOMESTEAD_COURAGE,
+    &SEARCH_PARTY_CAPTAIN,
+    &CONSIDER,
+    &DIREGRAF_HORDE,
+    &ECSTATIC_AWAKENER,
+    &ARDENT_ELEMENTALIST,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

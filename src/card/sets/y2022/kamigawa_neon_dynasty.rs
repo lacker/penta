@@ -59,6 +59,16 @@ static LION_SASH_EXILE: [EffectDef; 2] = [
     },
 ];
 
+// NEO 17 — Imperial Oath
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static IMPERIAL_OATH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3d6750dd-2303-493b-885d-1bfb5787b16c"),
+    "Imperial Oath",
+    crate::card::CardArt::new("3d6750dd-2303-493b-885d-1bfb5787b16c", "Nicholas Elias"),
+    crate::card::CardSet::KamigawaNeonDynasty,
+    crate::card::CardRules::unsupported(),
+);
+
 // NEO 26 — Lion Sash
 pub(in crate::card::sets) static LION_SASH: CardRecord = CardRecord::new_with_legacy_id(
     2243,
@@ -92,6 +102,62 @@ pub(in crate::card::sets) static LION_SASH: CardRecord = CardRecord::new_with_le
                  creature. Reconfigure only as a sorcery. While attached, this isn't a creature.)",
             ),
         ]),
+);
+
+// NEO 63 — Mirrorshell Crab
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MIRRORSHELL_CRAB: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0394c8df-2e8a-4477-93b7-569934d7b936"),
+    "Mirrorshell Crab",
+    crate::card::CardArt::new("0394c8df-2e8a-4477-93b7-569934d7b936", "Cristi Balanescu"),
+    crate::card::CardSet::KamigawaNeonDynasty,
+    crate::card::CardRules::unsupported(),
+);
+
+// NEO 67 — Moon-Circuit Hacker
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MOON_CIRCUIT_HACKER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("75c43923-7280-4ccb-810b-e8c38dd8a26f"),
+    "Moon-Circuit Hacker",
+    crate::card::CardArt::new("c6e466d1-943d-41e6-a47d-c9d951ca4262", "Tia Masic"),
+    crate::card::CardSet::KamigawaNeonDynasty,
+    crate::card::CardRules::unsupported(),
+);
+
+// NEO 91 — Clawing Torment
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CLAWING_TORMENT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("621fce96-5933-4e2b-98ec-2589940e24cb"),
+    "Clawing Torment",
+    crate::card::CardArt::new("621fce96-5933-4e2b-98ec-2589940e24cb", "Rovina Cai"),
+    crate::card::CardSet::KamigawaNeonDynasty,
+    crate::card::CardRules::unsupported(),
+);
+
+// NEO 117 — Okiba Reckoner Raid
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static OKIBA_RECKONER_RAID: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4f0582b4-d951-4450-b158-4a34109e48cd"),
+    "Okiba Reckoner Raid",
+    crate::card::CardArt::new(
+        "4f0582b4-d951-4450-b158-4a34109e48cd",
+        "Victor Adame Minguez",
+    ),
+    crate::card::CardSet::KamigawaNeonDynasty,
+    crate::card::CardRules::unsupported(),
+);
+
+// NEO 148 — Ironhoof Boar
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static IRONHOOF_BOAR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("73abe574-6fb8-4809-9c18-0cf989f986f5"),
+    "Ironhoof Boar",
+    crate::card::CardArt::new(
+        "73abe574-6fb8-4809-9c18-0cf989f986f5",
+        "Antonio José Manzanedo",
+    ),
+    crate::card::CardSet::KamigawaNeonDynasty,
+    crate::card::CardRules::unsupported(),
 );
 
 // NEO 157 — Rabbit Battery
@@ -194,6 +260,26 @@ static TAMIYO_ABILITIES: [AbilityDef; 4] = [
     ),
 ];
 
+// NEO 189 — Greater Tanuki
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GREATER_TANUKI: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b4fbaee3-a10f-4b2d-b07e-d041a96a7e27"),
+    "Greater Tanuki",
+    crate::card::CardArt::new("b4fbaee3-a10f-4b2d-b07e-d041a96a7e27", "Ilse Gort"),
+    crate::card::CardSet::KamigawaNeonDynasty,
+    crate::card::CardRules::unsupported(),
+);
+
+// NEO 211 — Tamiyo's Safekeeping
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TAMIYO_S_SAFEKEEPING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fd4b7ee2-de65-4288-872d-486065a4f226"),
+    "Tamiyo's Safekeeping",
+    crate::card::CardArt::new("fd4b7ee2-de65-4288-872d-486065a4f226", "Aurore Folny"),
+    crate::card::CardSet::KamigawaNeonDynasty,
+    crate::card::CardRules::unsupported(),
+);
+
 // NEO 238 — Tamiyo, Compleated Sage
 // Audit: partial — Compleated and +1 are executable; −7 creates a Notebook whose cost reduction does not yet reduce announced X, and −X needs variable loyalty costs plus arbitrary graveyard-card copy tokens using last-known information.
 pub(in crate::card::sets) static TAMIYO_COMPLEATED_SAGE: CardRecord = CardRecord::new(
@@ -206,7 +292,29 @@ pub(in crate::card::sets) static TAMIYO_COMPLEATED_SAGE: CardRecord = CardRecord
         .with_abilities(&TAMIYO_ABILITIES),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&LION_SASH, &RABBIT_BATTERY, &TAMIYO_COMPLEATED_SAGE];
+// NEO 248 — Iron Apprentice
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static IRON_APPRENTICE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("13d6d9fc-509b-42db-8ac1-85066eb6e9c4"),
+    "Iron Apprentice",
+    crate::card::CardArt::new("13d6d9fc-509b-42db-8ac1-85066eb6e9c4", "Kekai Kotaki"),
+    crate::card::CardSet::KamigawaNeonDynasty,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &IMPERIAL_OATH,
+    &LION_SASH,
+    &MIRRORSHELL_CRAB,
+    &MOON_CIRCUIT_HACKER,
+    &CLAWING_TORMENT,
+    &OKIBA_RECKONER_RAID,
+    &IRONHOOF_BOAR,
+    &RABBIT_BATTERY,
+    &GREATER_TANUKI,
+    &TAMIYO_S_SAFEKEEPING,
+    &TAMIYO_COMPLEATED_SAGE,
+    &IRON_APPRENTICE,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

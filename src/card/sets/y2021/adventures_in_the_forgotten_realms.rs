@@ -1,7 +1,7 @@
 //! Adventures in the Forgotten Realms cards cataloged for the Vintage Cube
 //! pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, CardType,
     EffectDef, EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef, PlayerRelation,
@@ -77,6 +77,27 @@ pub(in crate::card::sets) static PORTABLE_HOLE: CardRecord = CardRecord::new_wit
     )),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&PORTABLE_HOLE];
+// AFR 42 — You Hear Something on Watch
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static YOU_HEAR_SOMETHING_ON_WATCH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("76e939ab-9d0c-4685-805c-c8bc4e6af163"),
+    "You Hear Something on Watch",
+    crate::card::CardArt::new("76e939ab-9d0c-4685-805c-c8bc4e6af163", "Zezhou Chen"),
+    crate::card::CardSet::AdventuresInTheForgottenRealms,
+    crate::card::CardRules::unsupported(),
+);
+
+// AFR 198 — Owlbear
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static OWLBEAR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("12b19309-a7f6-44da-b856-d12da11156e8"),
+    "Owlbear",
+    crate::card::CardArt::new("30e8a00f-8131-470d-8072-4c23b812281a", "Ilse Gort"),
+    crate::card::CardSet::AdventuresInTheForgottenRealms,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&PORTABLE_HOLE, &YOU_HEAR_SOMETHING_ON_WATCH, &OWLBEAR];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -1,6 +1,6 @@
 //! Phyrexia: All Will Be One cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardType, EffectDef,
     ObjectPredicateDef,
@@ -33,6 +33,36 @@ static CANKERBLOOM_COST: [AbilityCostDef; 2] = [
     AbilityCostDef::SacrificeSource,
 ];
 
+// ONE 28 — Planar Disruption
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PLANAR_DISRUPTION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8ee69a1f-aeed-4eb4-8987-fa720fc99715"),
+    "Planar Disruption",
+    crate::card::CardArt::new("8ee69a1f-aeed-4eb4-8987-fa720fc99715", "Campbell White"),
+    crate::card::CardSet::PhyrexiaAllWillBeOne,
+    crate::card::CardRules::unsupported(),
+);
+
+// ONE 121 — Barbed Batterfist
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BARBED_BATTERFIST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("de1d02d1-91dc-47d6-bdbe-87602428abfb"),
+    "Barbed Batterfist",
+    crate::card::CardArt::new("de1d02d1-91dc-47d6-bdbe-87602428abfb", "Randy Gallegos"),
+    crate::card::CardSet::PhyrexiaAllWillBeOne,
+    crate::card::CardRules::unsupported(),
+);
+
+// ONE 133 — Furnace Strider
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FURNACE_STRIDER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("aa625ab0-1e79-4497-a5da-98fe1abfd024"),
+    "Furnace Strider",
+    crate::card::CardArt::new("aa625ab0-1e79-4497-a5da-98fe1abfd024", "Denis Zhbankov"),
+    crate::card::CardSet::PhyrexiaAllWillBeOne,
+    crate::card::CardRules::unsupported(),
+);
+
 // ONE 161 — Cankerbloom
 pub(in crate::card::sets) static CANKERBLOOM: CardRecord = CardRecord::new_with_legacy_id(
     2292,
@@ -54,6 +84,22 @@ pub(in crate::card::sets) static CANKERBLOOM: CardRecord = CardRecord::new_with_
     ),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&CANKERBLOOM];
+// ONE 164 — Contagious Vorrac
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CONTAGIOUS_VORRAC: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("18af2c85-e58f-4043-99d3-e90121348aca"),
+    "Contagious Vorrac",
+    crate::card::CardArt::new("18af2c85-e58f-4043-99d3-e90121348aca", "Maxime Minard"),
+    crate::card::CardSet::PhyrexiaAllWillBeOne,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &PLANAR_DISRUPTION,
+    &BARBED_BATTERFIST,
+    &FURNACE_STRIDER,
+    &CANKERBLOOM,
+    &CONTAGIOUS_VORRAC,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

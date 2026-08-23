@@ -1,6 +1,6 @@
 //! Bloomburrow cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
     CardArt, CardRules, CardSet, CardType, ComparisonDef, CounterKind, EffectDef,
@@ -127,6 +127,41 @@ pub(in crate::card::sets) static STORMCHASERS_TALENT: CardRecord = CardRecord::n
         .with_abilities(&STORMCHASERS_TALENT_ABILITIES),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&STORMCHASERS_TALENT];
+// BLB 208 — Cindering Cutthroat
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CINDERING_CUTTHROAT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b2ea10dd-21ea-4622-be27-79d03a802b85"),
+    "Cindering Cutthroat",
+    crate::card::CardArt::new("b2ea10dd-21ea-4622-be27-79d03a802b85", "Wayne Reynolds"),
+    crate::card::CardSet::Bloomburrow,
+    crate::card::CardRules::unsupported(),
+);
+
+// BLB 235 — Tempest Angler
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TEMPEST_ANGLER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("850daae4-f0b7-4604-95e7-ad044ec165c3"),
+    "Tempest Angler",
+    crate::card::CardArt::new("850daae4-f0b7-4604-95e7-ad044ec165c3", "Raluca Marinescu"),
+    crate::card::CardSet::Bloomburrow,
+    crate::card::CardRules::unsupported(),
+);
+
+// BLB 254 — Hidden Grotto
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static HIDDEN_GROTTO: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4ba8f2e7-8357-4862-97dc-1942d066023a"),
+    "Hidden Grotto",
+    crate::card::CardArt::new("4ba8f2e7-8357-4862-97dc-1942d066023a", "Fiona Hsieh"),
+    crate::card::CardSet::Bloomburrow,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &STORMCHASERS_TALENT,
+    &CINDERING_CUTTHROAT,
+    &TEMPEST_ANGLER,
+    &HIDDEN_GROTTO,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -1,6 +1,6 @@
 //! Magic 2015 cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType, EffectDef,
     EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
@@ -73,6 +73,26 @@ static GOBLIN_RABBLEMASTER_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
+// M15 40 — Triplicate Spirits
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TRIPLICATE_SPIRITS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3d6498d3-bf1f-4bf1-a602-7c21fb44c106"),
+    "Triplicate Spirits",
+    crate::card::CardArt::new("3d6498d3-bf1f-4bf1-a602-7c21fb44c106", "Izzy"),
+    crate::card::CardSet::Magic2015,
+    crate::card::CardRules::unsupported(),
+);
+
+// M15 142 — Frenzied Goblin
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FRENZIED_GOBLIN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d307d8c7-b9b5-4f8f-933d-f1c64cbbf92f"),
+    "Frenzied Goblin",
+    crate::card::CardArt::new("7ddfe382-3a80-45f3-a022-54739c4b69a6", "Carl Critchlow"),
+    crate::card::CardSet::Magic2015,
+    crate::card::CardRules::unsupported(),
+);
+
 // M15 145 — Goblin Rabblemaster
 pub(in crate::card::sets) static GOBLIN_RABBLEMASTER: CardRecord = CardRecord::new_with_legacy_id(
     2263,
@@ -85,6 +105,7 @@ pub(in crate::card::sets) static GOBLIN_RABBLEMASTER: CardRecord = CardRecord::n
         .with_abilities(&GOBLIN_RABBLEMASTER_ABILITIES),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&GOBLIN_RABBLEMASTER];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&TRIPLICATE_SPIRITS, &FRENZIED_GOBLIN, &GOBLIN_RABBLEMASTER];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

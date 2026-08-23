@@ -197,6 +197,26 @@ static MALCOLM_TRIGGER: [EffectDef; 3] = [
     },
 ];
 
+// LCI 24 — Miner's Guidewing
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MINER_S_GUIDEWING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9048cd9d-df3f-4705-a5f4-e5b09760c631"),
+    "Miner's Guidewing",
+    crate::card::CardArt::new("9048cd9d-df3f-4705-a5f4-e5b09760c631", "Allen Douglas"),
+    crate::card::CardSet::LostCavernsOfIxalan,
+    crate::card::CardRules::unsupported(),
+);
+
+// LCI 30 — Petrify
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PETRIFY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("bbc5f28f-6361-455f-ac82-260a70e59316"),
+    "Petrify",
+    crate::card::CardArt::new("bbc5f28f-6361-455f-ac82-260a70e59316", "Samuel Araya"),
+    crate::card::CardSet::LostCavernsOfIxalan,
+    crate::card::CardRules::unsupported(),
+);
+
 // LCI 63 — Malcolm, Alluring Scoundrel
 pub(in crate::card::sets) static MALCOLM_ALLURING_SCOUNDREL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("19d6834d-afa3-4747-a62d-0654f4d9729f"),
@@ -315,6 +335,16 @@ static INTI_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
+// LCI 128 — Tithing Blade
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TITHING_BLADE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("dbaa9a2d-e9fd-4746-a26c-f99ae731f024"),
+    "Tithing Blade",
+    crate::card::CardArt::new("dbaa9a2d-e9fd-4746-a26c-f99ae731f024", "Michael Walsh"),
+    crate::card::CardSet::LostCavernsOfIxalan,
+    crate::card::CardRules::unsupported(),
+);
+
 // LCI 156 — Inti, Seneschal of the Sun
 pub(in crate::card::sets) static INTI_SENESCHAL_OF_THE_SUN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fa7a55aa-ae61-4933-b7a4-dcc55dac6fcd"),
@@ -367,9 +397,12 @@ pub(in crate::card::sets) static SENTINEL_OF_THE_NAMELESS_CITY: CardRecord = Car
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GET_LOST,
+    &MINER_S_GUIDEWING,
+    &PETRIFY,
     &MALCOLM_ALLURING_SCOUNDREL,
     &BITTER_TRIUMPH,
     &DEEP_CAVERN_BAT,
+    &TITHING_BLADE,
     &INTI_SENESCHAL_OF_THE_SUN,
     &SENTINEL_OF_THE_NAMELESS_CITY,
 ];

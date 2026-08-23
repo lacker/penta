@@ -17,6 +17,13 @@
 //! engine intends to implement; restore them here if a later snapshot
 //! resolves them.
 
+use super::super::{CUBE_RULES, CubeFormatDefinition};
+
+pub(in crate::formats) const DEFINITION: CubeFormatDefinition = CubeFormatDefinition {
+    rules: CUBE_RULES,
+    cards: VINTAGE_CUBE_POOL,
+};
+
 pub const VINTAGE_CUBE_POOL: &[&str] = &[
     "Abhorrent Oculus",
     "Abrade",

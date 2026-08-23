@@ -319,7 +319,32 @@ fn set_source_for_file(path: &Path) -> SetSource {
         Some("final_fantasy.rs") => source(CardSet::FinalFantasy, "FIN"),
         Some("final_fantasy_commander.rs") => source(CardSet::FinalFantasyCommander, "FIC"),
         Some("through_the_omenpaths.rs") => source(CardSet::ThroughTheOmenpaths, "OM1"),
+        Some("homelands.rs") => source(CardSet::Homelands, "HML"),
+        Some("fifth_edition.rs") => source(CardSet::FifthEdition, "5ED"),
+        Some("exodus.rs") => source(CardSet::Exodus, "EXO"),
+        Some("classic_sixth_edition.rs") => source(CardSet::ClassicSixthEdition, "6ED"),
+        Some("prophecy.rs") => source(CardSet::Prophecy, "PCY"),
+        Some("saviors_of_kamigawa.rs") => source(CardSet::SaviorsOfKamigawa, "SOK"),
+        Some("guildpact.rs") => source(CardSet::Guildpact, "GPT"),
+        Some("dissension.rs") => source(CardSet::Dissension, "DIS"),
+        Some("time_spiral.rs") => source(CardSet::TimeSpiral, "TSP"),
+        Some("alara_reborn.rs") => source(CardSet::AlaraReborn, "ARB"),
+        Some("fate_reforged.rs") => source(CardSet::FateReforged, "FRF"),
+        Some("battle_for_zendikar.rs") => source(CardSet::BattleForZendikar, "BFZ"),
+        Some("magic_origins.rs") => source(CardSet::MagicOrigins, "ORI"),
+        Some("shadows_over_innistrad.rs") => source(CardSet::ShadowsOverInnistrad, "SOI"),
+        Some("hour_of_devastation.rs") => source(CardSet::HourOfDevastation, "HOU"),
+        Some("core_set_2019.rs") => source(CardSet::CoreSet2019, "M19"),
+        Some("ravnica_allegiance.rs") => source(CardSet::RavnicaAllegiance, "RNA"),
+        Some("commander_2020.rs") => source(CardSet::Commander2020, "C20"),
+        Some("magic_foundations.rs") => source(CardSet::MagicFoundations, "FDN"),
+        Some("avatar_the_last_airbender.rs") => source(CardSet::AvatarTheLastAirbender, "TLA"),
         Some("edge_of_eternities.rs") => source(CardSet::EdgeOfEternities, "EOE"),
+        Some("lorwyn_eclipsed.rs") => source(CardSet::LorwynEclipsed, "ECL"),
+        Some("secrets_of_strixhaven.rs") => source(CardSet::SecretsOfStrixhaven, "SOS"),
+        Some("teenage_mutant_ninja_turtles.rs") => {
+            source(CardSet::TeenageMutantNinjaTurtles, "TLE")
+        }
         Some(name) => panic!(
             "{}: add {name} to the official set-code map",
             path.display()

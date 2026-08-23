@@ -162,6 +162,36 @@ pub(in crate::card::sets) static ELSPETH_KNIGHT_ERRANT: CardRecord = CardRecord:
         .with_abilities(&ELSPETH_ABILITIES),
 );
 
+// ALA 104 — Hissing Iguanar
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static HISSING_IGUANAR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4b8b8b90-cb6e-4910-bc40-d96b78b0d70c"),
+    "Hissing Iguanar",
+    crate::card::CardArt::new("4b8b8b90-cb6e-4910-bc40-d96b78b0d70c", "Brandon Kitkouski"),
+    crate::card::CardSet::ShardsOfAlara,
+    crate::card::CardRules::unsupported(),
+);
+
+// ALA 156 — Blightning
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BLIGHTNING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3c05e8a2-b7d0-4f24-b2ae-8e4db30e5842"),
+    "Blightning",
+    crate::card::CardArt::new("3c05e8a2-b7d0-4f24-b2ae-8e4db30e5842", "Thomas M. Baxa"),
+    crate::card::CardSet::ShardsOfAlara,
+    crate::card::CardRules::unsupported(),
+);
+
+// ALA 158 — Branching Bolt
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BRANCHING_BOLT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e7468876-f401-4a75-81c0-bed09cdda3e1"),
+    "Branching Bolt",
+    crate::card::CardArt::new("e7468876-f401-4a75-81c0-bed09cdda3e1", "Vance Kovacs"),
+    crate::card::CardSet::ShardsOfAlara,
+    crate::card::CardRules::unsupported(),
+);
+
 // ALA 202 — Tidehollow Sculler
 pub(in crate::card::sets) static TIDEHOLLOW_SCULLER: CardRecord = CardRecord::new_with_legacy_id(
     2145,
@@ -172,7 +202,12 @@ pub(in crate::card::sets) static TIDEHOLLOW_SCULLER: CardRecord = CardRecord::ne
         .with_abilities(&TIDEHOLLOW_SCULLER_ABILITIES),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&ELSPETH_KNIGHT_ERRANT, &TIDEHOLLOW_SCULLER];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &ELSPETH_KNIGHT_ERRANT,
+    &HISSING_IGUANAR,
+    &BLIGHTNING,
+    &BRANCHING_BOLT,
+    &TIDEHOLLOW_SCULLER,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

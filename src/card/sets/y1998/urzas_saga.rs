@@ -173,6 +173,16 @@ pub(in crate::card::sets) static GILDED_DRAKE: CardRecord = CardRecord::new_with
 static EXHUME_EACH_GRAVEYARD: [CardChoiceSourceDef; 1] =
     [CardChoiceSourceDef::Zone(ZoneKind::Graveyard)];
 
+// USG 88 — Peregrine Drake
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PEREGRINE_DRAKE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4951863f-1c16-4d09-ba9a-f57dc3d81a20"),
+    "Peregrine Drake",
+    crate::card::CardArt::new("4951863f-1c16-4d09-ba9a-f57dc3d81a20", "Bob Eggleton"),
+    crate::card::CardSet::UrzasSaga,
+    crate::card::CardRules::unsupported(),
+);
+
 // USG 103 — Time Spiral
 pub(in crate::card::sets) static TIME_SPIRAL: CardRecord = CardRecord::new_with_legacy_id(
     2290,
@@ -331,6 +341,16 @@ pub(in crate::card::sets) static EXPLORATION: CardRecord = CardRecord::new(
     )),
 );
 
+// USG 252 — Fertile Ground
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FERTILE_GROUND: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("091dda35-59e5-456d-8804-61513a610aed"),
+    "Fertile Ground",
+    crate::card::CardArt::new("091dda35-59e5-456d-8804-61513a610aed", "Heather Hudson"),
+    crate::card::CardSet::UrzasSaga,
+    crate::card::CardRules::unsupported(),
+);
+
 // USG 290 — Claws of Gix
 pub(in crate::card::sets) static CLAWS_OF_GIX: CardRecord = CardRecord::new_with_legacy_id(
     288,
@@ -409,12 +429,14 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ANNUL,
     &ATTUNEMENT,
     &GILDED_DRAKE,
+    &PEREGRINE_DRAKE,
     &TIME_SPIRAL,
     &EXHUME,
     &GOBLIN_LACKEY,
     &GOBLIN_MATRON,
     &GOBLIN_PATROL,
     &EXPLORATION,
+    &FERTILE_GROUND,
     &CLAWS_OF_GIX,
     &GAEAS_CRADLE,
     &TOLARIAN_ACADEMY,

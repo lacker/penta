@@ -1,6 +1,6 @@
 //! Avacyn Restored card records used by the built-in ISD–DGM Standard deck tranche.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y1993::alpha;
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
@@ -1149,7 +1149,14 @@ pub(in crate::card::sets) static GHOSTFORM: CardRecord = CardRecord::new_with_le
 );
 
 // AVR 57 — Ghostly Flicker
-// Audit: blocked — Linked exile returns stolen permanents under their owners rather than the spell controller, and the effect must preserve that controller for both targets.
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GHOSTLY_FLICKER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f0a44373-0c50-4e14-a7c6-0de66796b81e"),
+    "Ghostly Flicker",
+    crate::card::CardArt::new("f0a44373-0c50-4e14-a7c6-0de66796b81e", "Raymond Swanland"),
+    crate::card::CardSet::AvacynRestored,
+    crate::card::CardRules::unsupported(),
+);
 
 // AVR 58 — Ghostly Touch
 // Audit: blocked — Needs a tap-or-untap choice inside the triggered ability granted by an Aura.
@@ -4573,6 +4580,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GALVANIC_ALCHEMIST,
     &GEIST_SNATCH,
     &GHOSTFORM,
+    &GHOSTLY_FLICKER,
     &GRYFF_VANGUARD,
     &INTO_THE_VOID,
     &LATCH_SEEKER,

@@ -1,6 +1,6 @@
 //! Planar Chaos cards cataloged as cross-format rules-engine test cases.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AppliedEffectDef, BasicLandType, CardArt, CardRules, CardSet,
     CardSupertype, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
@@ -19,6 +19,16 @@ pub(in crate::card::sets) static MANA_TITHE: CardRecord = CardRecord::new_with_l
         &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
         abilities::counter_target_unless_paid(ValueDef::Constant(1)),
     )),
+);
+
+// PLC 31 — Sunlance
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SUNLANCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("46144ca5-aa81-4314-a1e5-1716f8565d70"),
+    "Sunlance",
+    crate::card::CardArt::new("46144ca5-aa81-4314-a1e5-1716f8565d70", "Volkan Baǵa"),
+    crate::card::CardSet::PlanarChaos,
+    crate::card::CardRules::unsupported(),
 );
 
 // PLC 165 — Urborg, Tomb of Yawgmoth
@@ -43,6 +53,7 @@ pub(in crate::card::sets) static URBORG_TOMB_OF_YAWGMOTH: CardRecord =
             )),
     );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&MANA_TITHE, &URBORG_TOMB_OF_YAWGMOTH];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&MANA_TITHE, &SUNLANCE, &URBORG_TOMB_OF_YAWGMOTH];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

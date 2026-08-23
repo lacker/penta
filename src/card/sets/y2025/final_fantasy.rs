@@ -1,6 +1,6 @@
 //! Final Fantasy cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, ActivationTimingDef, AddManaEffectDef, AppliedEffectDef, CardArt,
     CardComposition, CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype,
@@ -162,6 +162,16 @@ static TIFA_DOUBLES: [AbilityDef; 2] = [
     ),
 ];
 
+// FIN 114 — Resentful Revelation
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RESENTFUL_REVELATION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("945006ea-c6a1-4ee5-abb2-387c2b6d3123"),
+    "Resentful Revelation",
+    crate::card::CardArt::new("945006ea-c6a1-4ee5-abb2-387c2b6d3123", "Justyna Dura"),
+    crate::card::CardSet::FinalFantasy,
+    crate::card::CardRules::unsupported(),
+);
+
 // FIN 206 — Tifa Lockhart
 pub(in crate::card::sets) static TIFA_LOCKHART: CardRecord = CardRecord::new_with_legacy_id(
     2146,
@@ -228,7 +238,11 @@ pub(in crate::card::sets) static VIVI_ORNITIER: CardRecord = CardRecord::new_wit
         .with_abilities(&VIVI_ABILITIES),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&CECIL_DARK_KNIGHT, &TIFA_LOCKHART, &VIVI_ORNITIER];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &CECIL_DARK_KNIGHT,
+    &RESENTFUL_REVELATION,
+    &TIFA_LOCKHART,
+    &VIVI_ORNITIER,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

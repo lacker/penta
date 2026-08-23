@@ -1,6 +1,6 @@
 //! Conspiracy cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules,
     CardSet, CardSupertype, CardType, ControlDurationDef, DiscardSelectionDef, EffectDef,
@@ -100,6 +100,19 @@ static DACK_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
+// CNS 18 — Custodi Squire
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CUSTODI_SQUIRE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a9151422-8df1-409c-a686-0cd89247eb43"),
+    "Custodi Squire",
+    crate::card::CardArt::new(
+        "a9151422-8df1-409c-a686-0cd89247eb43",
+        "Alex Horley-Orlandelli",
+    ),
+    crate::card::CardSet::Conspiracy,
+    crate::card::CardRules::unsupported(),
+);
+
 // CNS 42 — Dack Fayden
 pub(in crate::card::sets) static DACK_FAYDEN: CardRecord = CardRecord::new_with_legacy_id(
     2219,
@@ -113,6 +126,7 @@ pub(in crate::card::sets) static DACK_FAYDEN: CardRecord = CardRecord::new_with_
         .with_abilities(&DACK_ABILITIES),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&COUNCILS_JUDGMENT, &DACK_FAYDEN];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&COUNCILS_JUDGMENT, &CUSTODI_SQUIRE, &DACK_FAYDEN];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

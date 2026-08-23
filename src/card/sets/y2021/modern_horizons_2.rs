@@ -187,6 +187,36 @@ static SUBTLETY_ABILITIES: [AbilityDef; 5] = [
     abilities::evoke_sacrifice("When this creature enters, if it was evoked, sacrifice it."),
 ];
 
+// MH2 36 — Unbounded Potential
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static UNBOUNDED_POTENTIAL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9955a344-dcd8-404d-9757-f62ed158ba22"),
+    "Unbounded Potential",
+    crate::card::CardArt::new("9955a344-dcd8-404d-9757-f62ed158ba22", "Iain McCaig"),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 46 — Hard Evidence
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static HARD_EVIDENCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("501599d6-1072-4124-b05d-01f96de153f3"),
+    "Hard Evidence",
+    crate::card::CardArt::new("501599d6-1072-4124-b05d-01f96de153f3", "Yeong-Hao Han"),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 49 — Lose Focus
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static LOSE_FOCUS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("985bdb0c-ce6c-4506-8163-76f3b2fdf5fb"),
+    "Lose Focus",
+    crate::card::CardArt::new("985bdb0c-ce6c-4506-8163-76f3b2fdf5fb", "Martina Fačková"),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
+);
+
 // MH2 67 — Subtlety
 pub(in crate::card::sets) static SUBTLETY: CardRecord = CardRecord::new_with_legacy_id(
     2236,
@@ -255,6 +285,36 @@ pub(in crate::card::sets) static DAMN: CardRecord = CardRecord::new_with_legacy_
             },
         ),
     ]),
+);
+
+// MH2 91 — Loathsome Curator
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static LOATHSOME_CURATOR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("11a59a6f-6ef0-4acc-8358-a4e2cebdb7d5"),
+    "Loathsome Curator",
+    crate::card::CardArt::new("11a59a6f-6ef0-4acc-8358-a4e2cebdb7d5", "Mila Pesic"),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 95 — Nested Shambler
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static NESTED_SHAMBLER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9851f290-f502-49f8-9b48-67f7966d4e34"),
+    "Nested Shambler",
+    crate::card::CardArt::new("9851f290-f502-49f8-9b48-67f7966d4e34", "Nicholas Gregory"),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 107 — Vermin Gorger
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static VERMIN_GORGER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d3166b10-5bc3-4db6-bb5b-81045d98e446"),
+    "Vermin Gorger",
+    crate::card::CardArt::new("d3166b10-5bc3-4db6-bb5b-81045d98e446", "Tobias Kwan"),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
 );
 
 // MH2 126 — Fury
@@ -403,6 +463,26 @@ static ENDURANCE_ABILITIES: [AbilityDef; 5] = [
     abilities::evoke_sacrifice("When this creature enters, if it was evoked, sacrifice it."),
 ];
 
+// MH2 147 — Abundant Harvest
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ABUNDANT_HARVEST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("16782095-0b7f-4489-8a97-b74f8efef352"),
+    "Abundant Harvest",
+    crate::card::CardArt::new("5ad86b17-3fed-418a-938c-c49adb409531", "Iris Compiet"),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 149 — Bannerhide Krushok
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BANNERHIDE_KRUSHOK: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1271251b-7d79-4cb4-80bb-98574aa63249"),
+    "Bannerhide Krushok",
+    crate::card::CardArt::new("1271251b-7d79-4cb4-80bb-98574aa63249", "Joe Slucher"),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
+);
+
 // MH2 157 — Endurance
 pub(in crate::card::sets) static ENDURANCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eb0e0404-4846-4891-acfa-bd0951ecf9c6"),
@@ -417,6 +497,26 @@ pub(in crate::card::sets) static ENDURANCE: CardRecord = CardRecord::new(
     // reason you are casting it.
     CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Elemental", "Incarnation"], 3, 4)
         .with_abilities(&ENDURANCE_ABILITIES),
+);
+
+// MH2 181 — Urban Daggertooth
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static URBAN_DAGGERTOOTH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4ab83a39-d90d-403e-b74d-fe99c8b2aacd"),
+    "Urban Daggertooth",
+    crate::card::CardArt::new("4ab83a39-d90d-403e-b74d-fe99c8b2aacd", "Randy Vargas"),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 188 — Captured by Lagacs
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CAPTURED_BY_LAGACS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7ce1c2a8-688b-4f63-8d58-e325efc6052a"),
+    "Captured by Lagacs",
+    crate::card::CardArt::new("7ce1c2a8-688b-4f63-8d58-e325efc6052a", "Andrew Mar"),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
 );
 
 // MH2 202 — Grist, the Hunger Tide
@@ -559,18 +659,39 @@ pub(in crate::card::sets) static YAVIMAYA_CRADLE_OF_GROWTH: CardRecord =
             )),
     );
 
+// MH2 421 — Goblin Anarchomancer
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GOBLIN_ANARCHOMANCER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("633a3423-501d-4b22-95a6-743233be521e"),
+    "Goblin Anarchomancer",
+    crate::card::CardArt::new("f7f07a80-05b5-4108-9e68-f8da05866acc", "Joe Slucher"),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PRISMATIC_ENDING,
+    &UNBOUNDED_POTENTIAL,
+    &HARD_EVIDENCE,
+    &LOSE_FOCUS,
     &SUBTLETY,
     &BONE_SHARDS,
     &DAMN,
+    &LOATHSOME_CURATOR,
+    &NESTED_SHAMBLER,
+    &VERMIN_GORGER,
     &FURY,
     &MINE_COLLAPSE,
     &UNHOLY_HEAT,
+    &ABUNDANT_HARVEST,
+    &BANNERHIDE_KRUSHOK,
     &ENDURANCE,
+    &URBAN_DAGGERTOOTH,
+    &CAPTURED_BY_LAGACS,
     &TERRITORIAL_KAVU,
     &NETTLECYST,
     &YAVIMAYA_CRADLE_OF_GROWTH,
+    &GOBLIN_ANARCHOMANCER,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

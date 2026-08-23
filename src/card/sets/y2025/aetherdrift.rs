@@ -98,6 +98,26 @@ static BRIGHTGLASS_GEARHULK_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
+// DFT 79 — Chitin Gravestalker
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CHITIN_GRAVESTALKER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("903b4141-04a3-44c4-9d3e-aa2a773d9883"),
+    "Chitin Gravestalker",
+    crate::card::CardArt::new("903b4141-04a3-44c4-9d3e-aa2a773d9883", "Slawomir Maniak"),
+    crate::card::CardSet::Aetherdrift,
+    crate::card::CardRules::unsupported(),
+);
+
+// DFT 88 — Grim Bauble
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GRIM_BAUBLE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9bfdf60a-6f67-4872-8961-d63776b192c3"),
+    "Grim Bauble",
+    crate::card::CardArt::new("9bfdf60a-6f67-4872-8961-d63776b192c3", "Wero Gallo"),
+    crate::card::CardSet::Aetherdrift,
+    crate::card::CardRules::unsupported(),
+);
+
 // DFT 191 — Brightglass Gearhulk
 pub(in crate::card::sets) static BRIGHTGLASS_GEARHULK: CardRecord = CardRecord::new_with_legacy_id(
     2301,
@@ -123,6 +143,16 @@ static RIVERPYRE_HAS_ITS_LAND: TriggerConditionDef = TriggerConditionDef::Object
     comparison: ComparisonDef::GreaterOrEqual,
     amount: 1,
 };
+
+// DFT 258 — Night Market
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static NIGHT_MARKET: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a8c1dce3-6136-4294-9d2b-5ef8527d733b"),
+    "Night Market",
+    crate::card::CardArt::new("a8c1dce3-6136-4294-9d2b-5ef8527d733b", "David Álvarez"),
+    crate::card::CardSet::Aetherdrift,
+    crate::card::CardRules::unsupported(),
+);
 
 // DFT 260 — Riverpyre Verge
 pub(in crate::card::sets) static RIVERPYRE_VERGE: CardRecord = CardRecord::new(
@@ -187,7 +217,10 @@ pub(in crate::card::sets) static WASTEWOOD_VERGE: CardRecord = CardRecord::new_w
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &STOCK_UP,
+    &CHITIN_GRAVESTALKER,
+    &GRIM_BAUBLE,
     &BRIGHTGLASS_GEARHULK,
+    &NIGHT_MARKET,
     &RIVERPYRE_VERGE,
     &WASTEWOOD_VERGE,
 ];

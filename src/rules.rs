@@ -5,7 +5,7 @@
 
 use crate::Format;
 
-pub use crate::format::{
+pub use crate::formats::{
     OLD_SCHOOL_BANNED_CARDS as BANNED_CARDS, OLD_SCHOOL_RESTRICTED_CARDS as RESTRICTED_CARDS,
 };
 

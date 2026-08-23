@@ -7,36 +7,45 @@ authoritative machine-readable account of card legality and coverage.
 
 ## Supported formats
 
-Penta currently ships three explicit format profiles:
+Penta currently ships seven explicit format profiles in four presentation
+categories:
 
-- **Eternal Central Old School 93/94**: the original card pool, EC banned and
+- **Old School 93/94**: the original card pool, EC banned and
   restricted lists, phase-boundary mana burn, and fifteen powered archetypes.
-- **ISD–DGM Standard (final pre-Theros snapshot)**: Innistrad, Dark Ascension,
-  Avacyn Restored, Magic 2013, Return to Ravnica, Gatecrash, Dragon's Maze,
-  and Magic 2014; no banned or restricted cards; modern mana-pool emptying with
-  no mana burn; and ten built-in decks from SCG events and testing in 2013.
 - **Premodern**: Fourth Edition through Scourge, the format's own ban list, no
   restricted list, modern mana rules, and the eight decks of the July 2026
   Sacred Torch Showdown Top 8.
+- **Standard: ISD-DGM (final pre-Theros snapshot)**: Innistrad, Dark Ascension,
+  Avacyn Restored, Magic 2013, Return to Ravnica, Gatecrash, Dragon's Maze,
+  and Magic 2014; no banned or restricted cards; modern mana-pool emptying with
+  no mana burn; and ten built-in decks from SCG events and testing in 2013.
+- **Standard: ISD-M14**: the same final pre-Theros eight-set window under its
+  first-and-last-set label. It shares the ten ISD–DGM built-in decks.
+- **Standard: SOM-M13**: Scars of Mirrodin, Mirrodin Besieged, New Phyrexia,
+  Magic 2012, Innistrad, Dark Ascension, Avacyn Restored, and Magic 2013.
+- **Cube: Vintage**: the dated 534-card MTGO Vintage Cube snapshot.
+- **Cube: The Pauper Cube**: the dated 450-card Cube Cobra list exported on
+  2026-08-22 from the source maintained as The Pauper Cube.
 
-All three use 20 starting life, 60-card minimum decks, sideboards of up to 15
-cards, and a four-copy limit except for basic lands. All three currently use
-London mulligans.
+The set-based formats use 20 starting life, 60-card minimum decks, sideboards
+of up to 15 cards, and a four-copy limit except for basic lands. Cubes use 20
+life, 40-card minimum decks, and singleton construction. Every profile
+currently uses London mulligans.
 
 The selected format is stored on each game. Format-specific construction and
 mana rules live in one profile rather than as global switches, so adding a
 format does not change existing games.
 
-## Planned formats
+## Cube formats
 
-The Vintage Cube is staged as the next expansion, and is the first format here
-whose legality is a fixed card list rather than a set window: `FormatRules`
-carries the pool, and a card is legal because the cube names it. The pool, its
-singleton forty-card profile, and the command for deriving its current coverage
-are documented in the [Vintage Cube roadmap](vintage-cube.md). The pool is not
-fully cataloged yet, so no decks are registered and the format is not offered
-in the web client. Drafting is deferred; the first goal is a pool complete
-enough to play fixed lists from.
+Cube legality is a fixed card list rather than a set window. The shared format
+module distinguishes `CubeFormatDefinition` from `SetFormatDefinition`, so a
+cube cannot accidentally be interpreted as an empty set window. Vintage Cube
+coverage is documented in the [Vintage Cube roadmap](vintage-cube.md). The
+Pauper Cube list lives in `src/formats/cubes/pauper.rs`; every member is
+cataloged, with newly introduced identities deliberately represented as
+metadata-only stubs. Neither cube has built-in decks or drafting support yet,
+so neither is offered in the web client.
 
 ### Old School 93/94
 
@@ -57,11 +66,18 @@ with the format's own thirty-three-card ban list, taken from the Premodern
 rules page. Its decks and per-card coverage are tracked in the
 [Premodern roadmap](premodern.md).
 
-### ISD–DGM Standard
+### Standard: ISD–DGM and Standard: ISD–M14
 
 The profile represents the final Standard environment before Theros. It uses
 its eight-set legality snapshot, empties mana after each step and phase, and has
 no mana burn.
+
+### Standard: SOM–M13
+
+This earlier historical window combines Scars of Mirrodin block and Magic 2012
+with Innistrad block and Magic 2013. Its newly introduced identities are
+cataloged as explicit metadata-only stubs rather than opportunistically
+implementing individual cards in this format-registration change.
 
 ## Engine coverage
 
@@ -87,11 +103,15 @@ The engine currently supports:
   set modules, with executable declarative records for the supported tranche
   and a collector-ordered, named engine-capability gap for every incomplete
   identity in the 93/94 set corpus, including banned cards;
-- an identity-complete ISD–DGM Standard implementation audit inline in its
+- an identity-complete Standard: ISD–DGM implementation audit inline in its
   eight printed set modules, with a concrete engine-capability gap for every
-  incomplete identity; and
-- fixed source-faithful decks with complete main-deck and sideboard lists
-  across both formats.
+  incomplete identity;
+- complete SOM, MBS, NPH, and M12 identity inventories, with every newly
+  introduced card represented by an explicitly audited metadata-only stub;
+- exact fixed card lists for Cube: Vintage and Cube: The Pauper Cube, with all
+  450 Pauper Cube identities cataloged; and
+- fixed source-faithful decks with complete main-deck and sideboard lists for
+  the formats that currently ship built-in decks.
 
 The engine is playable end to end but is not a general implementation of the
 Comprehensive Rules. Interactions are implemented to the depth required by the
@@ -163,7 +183,7 @@ Chaos Orb interaction: Guardian Beast can prevent the Orb's final destruction,
 but destroying the Beast with a successful flip removes that protection before
 the Orb's next instruction.
 
-### ISD–DGM Standard
+### Standard: ISD–DGM
 
 The profile contains the complete main deck and sideboard for each member of
 the [SCG Open Atlanta Top 8][scg-atlanta]:

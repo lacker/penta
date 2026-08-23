@@ -1,6 +1,6 @@
 //! Eldritch Moon cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
     CardSet, CardType, ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef,
@@ -94,6 +94,26 @@ static BRUTALITY_MODES: [AbilityDef; 3] = [
     ),
 ];
 
+// EMN 14 — Borrowed Grace
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BORROWED_GRACE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f0067567-3434-4c12-9d4d-04ffc98d012c"),
+    "Borrowed Grace",
+    crate::card::CardArt::new("f0067567-3434-4c12-9d4d-04ffc98d012c", "Volkan Baǵa"),
+    crate::card::CardSet::EldritchMoon,
+    crate::card::CardRules::unsupported(),
+);
+
+// EMN 55 — Displace
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DISPLACE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8ab850c5-6f5e-41b7-ab52-094579caca12"),
+    "Displace",
+    crate::card::CardArt::new("8ab850c5-6f5e-41b7-ab52-094579caca12", "Clint Cearley"),
+    crate::card::CardSet::EldritchMoon,
+    crate::card::CardRules::unsupported(),
+);
+
 // EMN 85 — Collective Brutality
 pub(in crate::card::sets) static COLLECTIVE_BRUTALITY: CardRecord = CardRecord::new_with_legacy_id(
     2244,
@@ -117,6 +137,21 @@ pub(in crate::card::sets) static COLLECTIVE_BRUTALITY: CardRecord = CardRecord::
     ),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&COLLECTIVE_BRUTALITY];
+// EMN 160 — Grapple with the Past
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GRAPPLE_WITH_THE_PAST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d44a77a6-e8a1-4706-886f-8ab3af56b342"),
+    "Grapple with the Past",
+    crate::card::CardArt::new("d44a77a6-e8a1-4706-886f-8ab3af56b342", "Howard Lyon"),
+    crate::card::CardSet::EldritchMoon,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &BORROWED_GRACE,
+    &DISPLACE,
+    &COLLECTIVE_BRUTALITY,
+    &GRAPPLE_WITH_THE_PAST,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

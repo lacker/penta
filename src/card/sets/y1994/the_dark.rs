@@ -179,7 +179,7 @@ pub(in crate::card::sets) static KNIGHTS_OF_THORN: CardRecord = CardRecord::new_
     CardArt::new("ae541c73-9903-49e6-997a-db4701135145", "Christopher Rush"),
     CardSet::TheDark,
     CardRules::new_creature(mana_cost!("{3}{W}"), &["Human", "Knight"], 2, 2).with_abilities(&[
-        abilities::protection_from(ManaColor::Red),
+        abilities::protection_from_color(ManaColor::Red),
         abilities::banding(),
     ]),
 );
@@ -1559,7 +1559,7 @@ pub(in crate::card::sets) static GOBLIN_WIZARD: CardRecord = CardRecord::new_wit
                 )],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    effect: AppliedEffectDef::add_ability(&abilities::protection_from(
+                    effect: AppliedEffectDef::add_ability(&abilities::protection_from_color(
                         ManaColor::White,
                     )),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,

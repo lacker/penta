@@ -1,6 +1,11 @@
 //! DIS card records required by supported formats.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::{
+    AbilityDef, CardArt, CardRules, CardSet, CardType, KeywordAbility, ObjectPredicateDef,
+    abilities,
+};
+use crate::mana_cost;
 
 // DIS 10 — Guardian of the Guildpact
 // Audit: metadata-only — Card rules have not been implemented.
@@ -20,6 +25,24 @@ pub(in crate::card::sets) static UTOPIA_SPRAWL: CardRecord = CardRecord::new(
     crate::card::CardArt::new("5047e271-fbf1-402c-9eb9-0806e5988f76", "Ron Spears"),
     crate::card::CardSet::Dissension,
     crate::card::CardRules::unsupported(),
+);
+
+// DIS 105 — Azorius First-Wing
+pub(in crate::card::sets) static AZORIUS_FIRST_WING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b675c1e6-add5-4959-a5be-f2571ccebcb4"),
+    "Azorius First-Wing",
+    CardArt::new(
+        "b675c1e6-add5-4959-a5be-f2571ccebcb4",
+        "Alex Horley-Orlandelli",
+    ),
+    CardSet::Dissension,
+    CardRules::new_creature(mana_cost!("{W}{U}"), &["Griffin"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::keyword(
+            "Protection from enchantments",
+            KeywordAbility::ProtectionFrom(&ObjectPredicateDef::HasType(CardType::Enchantment)),
+        ),
+    ]),
 );
 
 // DIS 107 — Coiling Oracle
@@ -55,6 +78,7 @@ pub(in crate::card::sets) static SIMIC_GROWTH_CHAMBER: CardRecord = CardRecord::
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GUARDIAN_OF_THE_GUILDPACT,
     &UTOPIA_SPRAWL,
+    &AZORIUS_FIRST_WING,
     &COILING_ORACLE,
     &RAKDOS_CARNARIUM,
     &SIMIC_GROWTH_CHAMBER,

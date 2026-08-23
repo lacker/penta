@@ -103,14 +103,11 @@ pub enum KeywordAbility {
     Landwalk(BasicLandType),
     /// Landwalk naming a land supertype.
     LegendaryLandwalk,
-    ProtectionFrom(ManaColor),
-    /// CR 702.16. Protection is really one keyword per quality, and a quality
-    /// need not be a color: "protection from Zombies" names a creature type
-    /// and behaves identically otherwise.
-    ProtectionFromCreatureType(ProtectedCreatureType),
-    /// Protection from the card type, which is one quality rather than a
-    /// family of them and so carries no parameter at all.
-    ProtectionFromCreatures,
+    /// CR 702.16. Protection is one keyword per quality, represented by the
+    /// predicate sources with that quality satisfy. Colors, card types,
+    /// subtypes, spell status, controllers, and compositions of those all use
+    /// the same D/E/B/T rules rather than growing parallel keyword variants.
+    ProtectionFrom(&'static ObjectPredicateDef),
     /// CR 702.90. Infect changes what this source's damage does rather than
     /// how much it deals: to a player it gives that many poison counters,
     /// and to a creature it puts that many -1/-1 counters on it. Neither is
@@ -130,34 +127,6 @@ pub enum KeywordAbility {
     /// with two fewer loyalty counters per such symbol. The payment count is
     /// recorded on the spell rather than inferred from mana spent.
     Compleated,
-    /// Protection from every object of two or more colors. Not the union of
-    /// the five color qualities: a monocolored source gets through, and a
-    /// two-color one is stopped even where neither of its colors alone would
-    /// have been.
-    ProtectionFromMulticolored,
-}
-
-/// The creature types a printed protection clause names. A closed set for the
-/// same reason [`BasicLandType`] is: every consumer that has to name one --
-/// the checkpoint tag among them -- stays exhaustive, and a new printing adds
-/// one variant here rather than an open string nobody can round-trip.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum ProtectedCreatureType {
-    Zombie,
-    Vampire,
-    Werewolf,
-}
-
-impl ProtectedCreatureType {
-    /// The subtype string as it appears on a creature's type line.
-    #[must_use]
-    pub const fn subtype(self) -> &'static str {
-        match self {
-            Self::Zombie => "Zombie",
-            Self::Vampire => "Vampire",
-            Self::Werewolf => "Werewolf",
-        }
-    }
 }
 
 impl KeywordAbility {
@@ -187,8 +156,9 @@ impl KeywordAbility {
             Self::Undying => 14,
             Self::Menace => 15,
             Self::AttacksEachCombatIfAble => 16,
-            Self::ProtectionFromCreatures => 17,
-            Self::ProtectionFromMulticolored => 27,
+            // 17 and 27 were the old dense bits for protection from creatures
+            // and multicolored. Protection qualities are predicates now and
+            // deliberately remain outside the simple-keyword bitset.
             Self::Indestructible => 18,
             Self::Shroud => 19,
             Self::Unleash => 26,
@@ -204,7 +174,6 @@ impl KeywordAbility {
             Self::Infect => 29,
             Self::Compleated => 31,
             Self::ProtectionFrom(_)
-            | Self::ProtectionFromCreatureType(_)
             // Never granted, never removed, and never asked about as part of
             // a set: split second is read off the one spell that has it.
             | Self::SplitSecond

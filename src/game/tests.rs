@@ -26,6 +26,16 @@ pub(super) use fixtures::*;
 
 mod token_fixtures;
 pub(super) use token_fixtures::*;
+
+fn protection_keyword(color: ManaColor) -> KeywordAbility {
+    let DeclarativeAbilityDef::Keyword(keyword) =
+        abilities::protection_from_color(color).definition
+    else {
+        unreachable!("protection constructor always returns a keyword ability")
+    };
+    keyword
+}
+
 mod declarative_draw_enchantments;
 
 mod ability_resolution;
@@ -114,6 +124,7 @@ mod discard_cost;
 mod disharmony;
 mod dka_stale_audits;
 mod elder_spawn;
+mod emrakul;
 mod energy_tap;
 mod entry_replacements;
 mod equipment;
@@ -217,6 +228,7 @@ mod prevention;
 mod prevention_modes;
 mod primordial_ooze;
 mod prohibition_cards;
+mod protection_predicates;
 mod quota_and_aura_upkeep;
 mod rabid_wombat;
 mod rampage;

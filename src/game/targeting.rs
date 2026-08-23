@@ -271,6 +271,7 @@ impl Game {
         behavior: CardBehavior,
         player: PlayerId,
         exact_count: Option<usize>,
+        source: GameObjectId,
     ) -> Vec<Vec<Target>> {
         self.printed_target_lists(behavior, exact_count)
             .into_iter()
@@ -285,19 +286,7 @@ impl Game {
                                 // target your own. Protection stops everyone,
                                 // including the permanent's own controller.
                                 (permanent.controller == player || !self.has_hexproof(permanent))
-                                    && !(self.is_protected_from_colors(
-                                        permanent,
-                                        behavior.rules().colors(),
-                                    ) || self.is_protected_from_multicolored(
-                                        permanent,
-                                        behavior.rules().colors(),
-                                    ) || self.is_protected_from_creature_types(
-                                        permanent,
-                                        behavior.rules().subtypes(),
-                                    ) || self.is_protected_from_creature(
-                                        permanent,
-                                        behavior.rules().types().contains(CardType::Creature),
-                                    ))
+                                    && !self.is_protected_from_object(permanent, source, true)
                             })
                     }
                     Target::Player(_) | Target::Card(_) | Target::Spell(_) => true,

@@ -518,6 +518,27 @@ pub(in crate::card::sets) static GINGERBRUTE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// ELD 235 — Stonecoil Serpent
+pub(in crate::card::sets) static STONECOIL_SERPENT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b34bf7fd-9fe3-43e2-8cfe-7ce7cff08afe"),
+    "Stonecoil Serpent",
+    CardArt::new("b34bf7fd-9fe3-43e2-8cfe-7ce7cff08afe", "Mark Poole"),
+    CardSet::ThroneOfEldraine,
+    CardRules::new_artifact_creature(mana_cost!("{X}"), &["Snake"], 0, 0).with_abilities(&[
+        AbilityDef::as_enters(
+            "This creature enters with X +1/+1 counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCastXCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                },
+            ),
+        ),
+        abilities::reach(),
+        abilities::trample(),
+        abilities::protection_from_multicolored(),
+    ]),
+);
+
 // ELD 247 — Mystic Sanctuary
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static MYSTIC_SANCTUARY: CardRecord = CardRecord::new(
@@ -580,6 +601,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ONCE_UPON_A_TIME,
     &OKO_THIEF_OF_CROWNS,
     &GINGERBRUTE,
+    &STONECOIL_SERPENT,
     &MYSTIC_SANCTUARY,
     &WITCH_S_COTTAGE,
     &EMRY_LURKER_OF_THE_LOCH,

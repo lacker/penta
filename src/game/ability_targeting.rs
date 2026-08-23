@@ -24,7 +24,8 @@ impl Game {
         x: u16,
     ) -> Vec<Target> {
         let previous = self.prospective_x.replace(Some(x));
-        let targets = self.ability_targets_matching(predicate, controller, source, context);
+        let targets =
+            self.ability_targets_matching_for(predicate, controller, source, context, true);
         self.prospective_x.set(previous);
         targets
     }
@@ -35,6 +36,22 @@ impl Game {
         controller: PlayerId,
         source: GameObjectId,
         context: TriggerContext,
+    ) -> Vec<Target> {
+        let source_is_spell = self
+            .stack
+            .iter()
+            .find(|object| object.id == source)
+            .is_some_and(|object| object.kind == StackObjectKind::Spell);
+        self.ability_targets_matching_for(predicate, controller, source, context, source_is_spell)
+    }
+
+    fn ability_targets_matching_for(
+        &self,
+        predicate: AbilityTargetPredicate,
+        controller: PlayerId,
+        source: GameObjectId,
+        context: TriggerContext,
+        source_is_spell: bool,
     ) -> Vec<Target> {
         match predicate {
             AbilityTargetPredicate::AnyTarget => {
@@ -48,7 +65,12 @@ impl Game {
                                 || self
                                     .permanent_types(permanent)
                                     .is_some_and(|types| types.contains(CardType::Planeswalker)))
-                                && self.permanent_can_be_targeted_by(permanent, controller, source)
+                                && self.permanent_can_be_targeted_by(
+                                    permanent,
+                                    controller,
+                                    source,
+                                    source_is_spell,
+                                )
                         })
                         .map(|permanent| Target::Permanent(permanent.card.id)),
                 );
@@ -69,7 +91,12 @@ impl Game {
                         .filter(|permanent| {
                             self.permanent_types(permanent)
                                 .is_some_and(|types| types.contains(CardType::Planeswalker))
-                                && self.permanent_can_be_targeted_by(permanent, controller, source)
+                                && self.permanent_can_be_targeted_by(
+                                    permanent,
+                                    controller,
+                                    source,
+                                    source_is_spell,
+                                )
                         })
                         .map(|permanent| Target::Permanent(permanent.card.id)),
                 );
@@ -82,9 +109,13 @@ impl Game {
                 })
                 .map(Target::Player)
                 .collect(),
-            AbilityTargetPredicate::Object { .. } => {
-                self.ability_object_targets_matching(predicate, controller, source, context)
-            }
+            AbilityTargetPredicate::Object { .. } => self.ability_object_targets_matching(
+                predicate,
+                controller,
+                source,
+                context,
+                source_is_spell,
+            ),
             // Spells and abilities alike, which is the whole difference from
             // the stack-zone object slot above.
             AbilityTargetPredicate::StackObject {
@@ -130,6 +161,7 @@ impl Game {
         controller: PlayerId,
         source: GameObjectId,
         context: TriggerContext,
+        source_is_spell: bool,
     ) -> Vec<Target> {
         let AbilityTargetPredicate::Object {
             object,
@@ -158,8 +190,12 @@ impl Game {
                         controller,
                         context,
                     )
-                }) && self.permanent_can_be_targeted_by(permanent, controller, source)
-                    && self.trigger_object_matches(object, &characteristics, source, false))
+                }) && self.permanent_can_be_targeted_by(
+                    permanent,
+                    controller,
+                    source,
+                    source_is_spell,
+                ) && self.trigger_object_matches(object, &characteristics, source, false))
                 .then_some(Target::Permanent(permanent.card.id))
             }));
         }

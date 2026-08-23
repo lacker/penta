@@ -669,7 +669,7 @@ fn negate_and_essence_scatter_split_the_stack_by_card_kind() {
         .push(spell(10_002, cards::LIGHTNING_BOLT, PlayerId::Two, 0));
 
     let spells_hit = |game: &Game, behavior| -> Vec<StackObjectId> {
-        game.legal_target_lists(behavior, PlayerId::One, None)
+        game.legal_target_lists(behavior, PlayerId::One, None, GameObjectId(0))
             .into_iter()
             .filter_map(|choice| match choice.first() {
                 Some(Target::Spell(id)) => Some(*id),

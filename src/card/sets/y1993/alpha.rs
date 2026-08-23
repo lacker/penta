@@ -1009,7 +1009,7 @@ pub(in crate::card::sets) static WHITE_KNIGHT: CardRecord = CardRecord::new_with
     CardSet::Alpha,
     CardRules::new_creature(mana_cost!("{W}{W}"), &["Human", "Knight"], 2, 2).with_abilities(&[
         abilities::first_strike(),
-        abilities::protection_from(ManaColor::Black),
+        abilities::protection_from_color(ManaColor::Black),
     ]),
 );
 
@@ -1995,7 +1995,7 @@ pub(in crate::card::sets) static BLACK_KNIGHT: CardRecord = CardRecord::new_with
     CardSet::Alpha,
     CardRules::new_creature(mana_cost!("{B}{B}"), &["Human", "Knight"], 2, 2).with_abilities(&[
         abilities::first_strike(),
-        abilities::protection_from(ManaColor::White),
+        abilities::protection_from_color(ManaColor::White),
     ]),
 );
 

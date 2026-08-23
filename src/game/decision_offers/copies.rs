@@ -218,7 +218,12 @@ impl Game {
                 return vec![signature.targets().to_vec()];
             };
             let mut choices = self
-                .legal_target_lists(behavior, player, Some(signature.iter_targets().count()))
+                .legal_target_lists(
+                    behavior,
+                    player,
+                    Some(signature.iter_targets().count()),
+                    spell.id,
+                )
                 .into_iter()
                 .map(|targets| {
                     if targets.is_empty() {

@@ -14,8 +14,8 @@ use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType, ComparisonDef,
-    DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    ObjectQueryDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    DiscardSelectionDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ResolvedEffectDurationDef, SpellAdditionalCostDef, SpendModeDef, TriggerConditionDef,
     TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
@@ -128,13 +128,17 @@ pub(in crate::card::sets) static BALANCING_ACT: CardRecord = CardRecord::new(
 );
 
 // ODY 11 — Beloved Chaplain
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static BELOVED_CHAPLAIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("decec62b-7ac4-4097-9215-5db18db2dec6"),
     "Beloved Chaplain",
-    crate::card::CardArt::new("decec62b-7ac4-4097-9215-5db18db2dec6", "Darrell Riche"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("decec62b-7ac4-4097-9215-5db18db2dec6", "Darrell Riche"),
+    CardSet::Odyssey,
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Cleric"], 1, 1).with_ability(
+        AbilityDef::keyword(
+            "Protection from creatures",
+            KeywordAbility::ProtectionFrom(&ObjectPredicateDef::HasType(CardType::Creature)),
+        ),
+    ),
 );
 
 // ODY 12 — Blessed Orator
@@ -197,14 +201,47 @@ pub(in crate::card::sets) static DELAYING_SHIELD: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+static DEVOTED_CARETAKER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::Any,
+        zones: &[ZoneKind::Battlefield],
+        controller: Some(PlayerRelation::You),
+        owner: None,
+    },
+)];
+
+static DEVOTED_CARETAKER_PROTECTION: AbilityDef = AbilityDef::keyword(
+    "Protection from instant spells and from sorcery spells",
+    KeywordAbility::ProtectionFrom(&ObjectPredicateDef::All(&[
+        ObjectPredicateDef::Spell,
+        ObjectPredicateDef::AnyOf(&[
+            ObjectPredicateDef::HasType(CardType::Instant),
+            ObjectPredicateDef::HasType(CardType::Sorcery),
+        ]),
+    ])),
+);
+
 // ODY 18 — Devoted Caretaker
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static DEVOTED_CARETAKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8d400b63-de3e-4805-a51d-c4c0dfbb7033"),
     "Devoted Caretaker",
-    crate::card::CardArt::new("8d400b63-de3e-4805-a51d-c4c0dfbb7033", "Clyde Caldwell"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8d400b63-de3e-4805-a51d-c4c0dfbb7033", "Clyde Caldwell"),
+    CardSet::Odyssey,
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Cleric"], 1, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{W}, {T}: Target permanent you control gains protection from instant spells and from sorcery spells until end of turn.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{W}")),
+                AbilityCostDef::TapSource,
+            ],
+            &DEVOTED_CARETAKER_TARGET,
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&DEVOTED_CARETAKER_PROTECTION),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // ODY 19 — Divine Sacrament

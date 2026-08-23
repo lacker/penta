@@ -438,7 +438,7 @@ pub(in crate::card::sets) static ORDER_OF_LEITBUR: CardRecord = CardRecord::new_
     CardSet::FallenEmpires,
     CardRules::new_creature(mana_cost!("{W}{W}"), &["Human", "Cleric", "Knight"], 2, 1)
         .with_abilities(&[
-            abilities::protection_from(ManaColor::Black),
+            abilities::protection_from_color(ManaColor::Black),
             AbilityDef::activated(
                 "{W}: This creature gains first strike until end of turn.",
                 &[AbilityCostDef::Mana(mana_cost!("{W}"))],
@@ -1120,7 +1120,7 @@ pub(in crate::card::sets) static ORDER_OF_THE_EBON_HAND: CardRecord =
         CardSet::FallenEmpires,
         CardRules::new_creature(mana_cost!("{B}{B}"), &["Cleric", "Knight"], 2, 1).with_abilities(
             &[
-                abilities::protection_from(ManaColor::White),
+                abilities::protection_from_color(ManaColor::White),
                 AbilityDef::activated(
                     "{B}: This creature gains first strike until end of turn.",
                     &[AbilityCostDef::Mana(mana_cost!("{B}"))],

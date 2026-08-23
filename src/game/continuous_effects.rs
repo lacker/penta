@@ -8,13 +8,12 @@ use super::{AbilityId, AbilityOrigin, ObjectCharacteristics};
 use super::{
     AbilityOperationDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
     AppliedRuleEffect, CardDefinitionId, CardRules, CardSet, CardType, CardTypeSet,
-    CharacteristicOperationDef, ColorSet, ContinuousEffectExpiration, ControlFlow,
-    DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EffectRecipientSetDef, Game,
+    CharacteristicContext, CharacteristicOperationDef, ColorSet, ContinuousEffectExpiration,
+    ControlFlow, DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EffectRecipientSetDef, Game,
     GameObjectId, GrantId, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectRefDef,
-    ObjectSetDef, Permanent, PlayerId, ProtectedCreatureType, ResolvedContinuousEffect,
-    ResolvedContinuousEffectKind, RetiredObject, SetOperationDef, StackAbilityResolver,
-    StackObject, StaticAppliedEffect, StaticEffectTraversal, Target, TargetIndex, TriggerContext,
-    ZoneKind,
+    ObjectSetDef, Permanent, PlayerId, ResolvedContinuousEffect, ResolvedContinuousEffectKind,
+    RetiredObject, SetOperationDef, StackAbilityResolver, StackObject, StaticAppliedEffect,
+    StaticEffectTraversal, Target, TargetIndex, TriggerContext, TriggerEventObject, ZoneKind,
 };
 
 thread_local! {
@@ -744,7 +743,6 @@ impl Game {
         if self.effective_rules(aura).is_none() {
             return false;
         }
-        let aura_colors = self.permanent_colors(aura);
         let Some(rules) = self.effective_rules(aura) else {
             return false;
         };
@@ -812,17 +810,11 @@ impl Game {
                         // what an Aura granting protection from its own color
                         // has to do to survive its own effect.
                         && (self.remains_attached_through_protection(aura)
-                            || !(self.is_protected_from_colors(host, aura_colors)
-                                || self.is_protected_from_multicolored(host, aura_colors)
-                                || self.is_protected_from_creature_types(
-                                    host,
-                                    &self.effective_subtypes(aura),
-                                )
-                                || self.is_protected_from_creature(
-                                    host,
-                                    self.permanent_types(aura)
-                                        .is_some_and(|types| types.contains(CardType::Creature)),
-                                )))
+                            || !self.is_protected_from_characteristics(
+                                host,
+                                &self.trigger_event_object(aura),
+                                false,
+                            ))
             }
             AbilityTargetPredicate::AnyTarget
             | AbilityTargetPredicate::PlayerOrPlaneswalker(_)

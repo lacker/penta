@@ -228,6 +228,11 @@ impl Game {
         choice: BattlefieldEntryScalarChoiceDef,
     ) -> (&'static str, Vec<String>) {
         let (prompt, mut choices, fallback) = match choice.list {
+            ScalarChoiceListDef::Players => (
+                "Choose a player",
+                vec!["You".to_owned(), "Opponent".to_owned()],
+                "You",
+            ),
             ScalarChoiceListDef::BasicLandTypes => (
                 "Choose a basic land type",
                 crate::card::BasicLandType::ALL

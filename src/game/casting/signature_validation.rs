@@ -288,7 +288,7 @@ impl Game {
             };
             if !has_legacy_shape
                 || !self
-                    .legal_target_lists(behavior, player, None)
+                    .legal_target_lists(behavior, player, None, card_id)
                     .contains(&flat_targets)
             {
                 return None;

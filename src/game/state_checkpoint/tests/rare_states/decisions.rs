@@ -519,6 +519,42 @@ fn a_permanent_that_named_a_card_reconstructs_while_naming_and_after() {
     assert_reconstructs(&game, "a permanent holding a chosen card name");
 }
 
+/// A chosen player shares the scalar entry continuation but lands in typed
+/// permanent state rather than free-form text.
+#[test]
+fn a_permanent_that_chose_a_player_reconstructs_while_choosing_and_after() {
+    let mut game = staged_modern_game();
+    game.put_onto_battlefield(
+        PlayerId::One,
+        crate::card::cards::TRUE_NAME_NEMESIS,
+    )
+    .expect("True-Name Nemesis is cataloged");
+
+    assert!(
+        matches!(
+            game.pending_decisions
+                .first()
+                .map(|pending| &pending.continuation),
+            Some(DecisionContinuation::BattlefieldEntryScalarChoice {
+                choice: crate::card::BattlefieldEntryScalarChoiceDef {
+                    destination: crate::card::BattlefieldEntryChoiceDestinationDef::Player,
+                    ..
+                },
+                ..
+            })
+        ),
+        "entering must ask for a player through the scalar choice continuation",
+    );
+    assert_reconstructs(&game, "a permanent choosing a player");
+
+    answer_with_first_option(&mut game);
+    assert!(game.battlefield.iter().any(|permanent| {
+        permanent.card.definition == crate::card::cards::TRUE_NAME_NEMESIS
+            && permanent.chosen_player == Some(PlayerId::One)
+    }));
+    assert_reconstructs(&game, "a permanent holding a chosen player");
+}
+
 /// Creature types use the same scalar entry-choice procedure as card names,
 /// while recording the answer in a distinct typed destination.
 #[test]

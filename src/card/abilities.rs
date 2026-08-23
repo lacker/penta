@@ -13,8 +13,8 @@ use super::model::{
     InstalledTriggerDef, KeywordAbility, ManaColor, ManaCost, ObjectChoiceBindingDef,
     ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
     OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PartitionItemsDef, PayOrDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ProtectedCreatureType, ReplacementAbilityDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, ScaledValueDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementAbilityDef, ReplacementEffectDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef,
     SpellAdditionalCostDef, SpellResolutionDestinationDef, SplitIntoPilesDef, TriggerConditionDef,
     TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
 };
@@ -78,6 +78,7 @@ pub const fn aura_spell(text: &'static str, targets: &'static [AbilityTargetDef]
 pub const fn attacks_each_combat_if_able(text: &'static str) -> AbilityDef {
     keyword(text, KeywordAbility::AttacksEachCombatIfAble)
 }
+
 const ENTER_TAPPED: [ReplacementEffectDef; 1] = [ReplacementEffectDef::ModifyBattlefieldEntry(
     BattlefieldEntryModificationDef::Tapped,
 )];
@@ -346,19 +347,6 @@ pub const fn forestwalk() -> AbilityDef {
     landwalk(BasicLandType::Forest)
 }
 
-#[must_use]
-pub const fn protection_from(color: ManaColor) -> AbilityDef {
-    let text = match color {
-        ManaColor::White => "Protection from white",
-        ManaColor::Blue => "Protection from blue",
-        ManaColor::Black => "Protection from black",
-        ManaColor::Red => "Protection from red",
-        ManaColor::Green => "Protection from green",
-        ManaColor::Colorless => "Protection from colorless",
-    };
-    keyword(text, KeywordAbility::ProtectionFrom(color))
-}
-
 /// "Whenever this creature deals damage to a player, that player gets N
 /// poison counters." Every printed form of this watches damage of any kind,
 /// not only combat damage, and the card supplies its own reminder text.
@@ -374,49 +362,16 @@ pub const fn poisonous_damage(amount: i32, text: &'static str) -> AbilityDef {
     )
 }
 
-/// "Protection from <creature type>s". The text is supplied by the caller
-/// because a card naming several types prints them as one clause.
-#[must_use]
-pub const fn protection_from_creature_type(
-    text: &'static str,
-    creature_type: ProtectedCreatureType,
-) -> AbilityDef {
-    keyword(
-        text,
-        KeywordAbility::ProtectionFromCreatureType(creature_type),
-    )
-}
-
-/// "Protection from creatures". Unlike the color and creature-type forms this
-/// quality has no parameter, so it reads the source's card type directly.
-#[must_use]
-pub const fn protection_from_creatures() -> AbilityDef {
-    keyword(
-        "Protection from creatures",
-        KeywordAbility::ProtectionFromCreatures,
-    )
-}
-
-/// "Protection from multicolored", read off the source's color count rather
-/// than any one color.
-#[must_use]
-pub const fn protection_from_multicolored() -> AbilityDef {
-    keyword(
-        "Protection from multicolored",
-        KeywordAbility::ProtectionFromMulticolored,
-    )
-}
-
 /// The granted protection and the self-retention exception for each printed
 /// Ward. `EffectDef::Sequence` holds its clauses by reference, and a sequence
 /// built from a parameter cannot be promoted to `'static`, so the five are
 /// named here rather than rebuilt per card.
 static WARD_PROTECTIONS: [AbilityDef; 5] = [
-    protection_from(ManaColor::White),
-    protection_from(ManaColor::Blue),
-    protection_from(ManaColor::Black),
-    protection_from(ManaColor::Red),
-    protection_from(ManaColor::Green),
+    protection_from_color(ManaColor::White),
+    protection_from_color(ManaColor::Blue),
+    protection_from_color(ManaColor::Black),
+    protection_from_color(ManaColor::Red),
+    protection_from_color(ManaColor::Green),
 ];
 
 static WARD_CLAUSES: [[EffectDef; 2]; 5] = [

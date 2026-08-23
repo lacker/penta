@@ -401,7 +401,7 @@ impl Game {
                                         x,
                                     )
                                 } else if Self::uses_legacy_behavior_targets(definition, option) {
-                                    self.legacy_target_selections(behavior, player)
+                                    self.legacy_target_selections(behavior, player, card.id)
                                 } else {
                                     self.legal_target_selections(&declared_slots, x)
                                 };
@@ -754,8 +754,9 @@ impl Game {
         &self,
         behavior: CardBehavior,
         player: PlayerId,
+        source: GameObjectId,
     ) -> Vec<Vec<TargetSelection>> {
-        self.legal_target_lists(behavior, player, None)
+        self.legal_target_lists(behavior, player, None, source)
             .into_iter()
             .map(|targets| {
                 if targets.is_empty() {
@@ -873,8 +874,9 @@ impl Game {
                                         &self.trigger_event_object(permanent),
                                         source,
                                         false,
-                                    ) && self
-                                        .permanent_can_be_targeted_by(permanent, controller, source)
+                                    ) && self.permanent_can_be_targeted_by(
+                                        permanent, controller, source, true,
+                                    )
                                 })
                                 .map(|permanent| Target::Permanent(permanent.card.id))
                                 .collect::<Vec<_>>()

@@ -527,7 +527,7 @@ pub(in crate::card::sets) static IVORY_GUARDIANS: CardRecord = CardRecord::new_w
     CardArt::new("9bf9cccd-fe97-4632-a90a-9eeb0d41135e", "Melissa A. Benson"),
     CardSet::Legends,
     CardRules::new_creature(mana_cost!("{4}{W}{W}"), &["Giant", "Cleric"], 3, 3).with_abilities(&[
-        abilities::protection_from(ManaColor::Red),
+        abilities::protection_from_color(ManaColor::Red),
         AbilityDef::static_ability(
             "Creatures named Ivory Guardians get +1/+1 as long as an opponent controls a nontoken \
              red permanent.",
@@ -926,7 +926,7 @@ pub(in crate::card::sets) static WALL_OF_LIGHT: CardRecord = CardRecord::new_wit
     CardSet::Legends,
     CardRules::new_creature(mana_cost!("{2}{W}"), &["Wall"], 1, 5).with_abilities(&[
         abilities::defender(),
-        abilities::protection_from(ManaColor::Black),
+        abilities::protection_from_color(ManaColor::Black),
     ]),
 );
 
@@ -2583,7 +2583,7 @@ pub(in crate::card::sets) static WALL_OF_PUTRID_FLESH: CardRecord = CardRecord::
     CardSet::Legends,
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Wall"], 2, 4).with_abilities(&[
         abilities::defender(),
-        abilities::protection_from(ManaColor::White),
+        abilities::protection_from_color(ManaColor::White),
         AbilityDef::static_ability(
             "Prevent all damage that would be dealt to this creature by enchanted creatures.",
             EffectDef::StaticApply {
@@ -2719,7 +2719,7 @@ pub(in crate::card::sets) static BEASTS_OF_BOGARDAN: CardRecord = CardRecord::ne
     CardArt::new("f885d776-2953-4ed4-b63f-91dc2b42783b", "Daniel Gelon"),
     CardSet::Legends,
     CardRules::new_creature(mana_cost!("{4}{R}"), &["Beast"], 3, 3).with_abilities(&[
-        abilities::protection_from(ManaColor::Red),
+        abilities::protection_from_color(ManaColor::Red),
         AbilityDef::static_ability(
             "This creature gets +1/+1 as long as an opponent controls a nontoken white permanent.",
             EffectDef::IfCondition {
@@ -3238,7 +3238,7 @@ pub(in crate::card::sets) static MOUNTAIN_YETI: CardRecord = CardRecord::new_wit
     CardSet::Legends,
     CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Yeti"], 3, 3).with_abilities(&[
         abilities::mountainwalk(),
-        abilities::protection_from(ManaColor::White),
+        abilities::protection_from_color(ManaColor::White),
     ]),
 );
 
@@ -4322,7 +4322,7 @@ pub(in crate::card::sets) static WHIRLING_DERVISH: CardRecord = CardRecord::new_
     CardSet::Legends,
     CardRules::new_creature(mana_cost!("{G}{G}"), &["Human", "Monk"], 1, 1)
         .with_abilities(&[
-            abilities::protection_from(ManaColor::Black),
+            abilities::protection_from_color(ManaColor::Black),
             AbilityDef::triggered_if(
                 "At the beginning of each end step, if this creature dealt damage to an opponent this turn, put a +1/+1 counter on it.",
                 TriggerEventDef::StepBegins {

@@ -1016,7 +1016,7 @@ pub(in crate::card::sets) static SKYLASHER: CardRecord = CardRecord::new_with_le
         abilities::flash(),
         abilities::cannot_be_countered(),
         abilities::reach(),
-        abilities::protection_from(ManaColor::Blue),
+        abilities::protection_from_color(ManaColor::Blue),
     ]),
 );
 
@@ -1143,8 +1143,8 @@ pub(in crate::card::sets) static BLOOD_BARON_OF_VIZKOPA: CardRecord = CardRecord
     )
     .with_abilities(&[
         abilities::lifelink(),
-        abilities::protection_from(ManaColor::White),
-        abilities::protection_from(ManaColor::Black),
+        abilities::protection_from_color(ManaColor::White),
+        abilities::protection_from_color(ManaColor::Black),
         AbilityDef::custom_full(
             "As long as you have 30 or more life and an opponent has 10 or less life, this creature gets +6/+6 and has flying.",
             CardBehavior::BloodBaronOfVizkopa,
@@ -2423,7 +2423,7 @@ pub(in crate::card::sets) static WOODLOT_CRAWLER: CardRecord = CardRecord::new_w
     CardSet::DragonsMaze,
     CardRules::new_creature(mana_cost!("{U}{B}"), &["Insect"], 2, 1).with_abilities(&[
         abilities::forestwalk(),
-        abilities::protection_from(ManaColor::Green),
+        abilities::protection_from_color(ManaColor::Green),
     ]),
 );
 

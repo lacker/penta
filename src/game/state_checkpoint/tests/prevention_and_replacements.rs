@@ -1,3 +1,10 @@
+fn keyword_from_ability(ability: &AbilityDef) -> KeywordAbility {
+    let crate::card::DeclarativeAbilityDef::Keyword(keyword) = ability.definition else {
+        unreachable!("protection constructor always returns a keyword ability")
+    };
+    keyword
+}
+
 #[test]
 fn every_runtime_keyword_has_a_stable_checkpoint_round_trip() {
     let mut keywords = vec![
@@ -31,8 +38,48 @@ fn every_runtime_keyword_has_a_stable_checkpoint_round_trip() {
             ManaColor::Green,
             ManaColor::Colorless,
         ]
-        .map(KeywordAbility::ProtectionFrom),
+        .map(|color| {
+            keyword_from_ability(&crate::card::abilities::protection_from_color(color))
+        }),
     );
+    keywords.extend([
+        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype("Zombie")),
+        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype("Vampire")),
+        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype("Werewolf")),
+        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::AnyOf(&[
+            ObjectPredicateDef::Subtype("Vampire"),
+            ObjectPredicateDef::Subtype("Werewolf"),
+            ObjectPredicateDef::Subtype("Zombie"),
+        ])),
+        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::HasType(
+            crate::card::CardType::Creature,
+        )),
+        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
+            ObjectPredicateDef::ColorCount(0),
+            ObjectPredicateDef::ColorCount(1),
+        ]))),
+        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(crate::card::CardType::Creature),
+            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Human")),
+        ])),
+        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::HasType(
+            crate::card::CardType::Enchantment,
+        )),
+        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::All(&[
+            ObjectPredicateDef::Spell,
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(crate::card::CardType::Instant),
+                ObjectPredicateDef::HasType(crate::card::CardType::Sorcery),
+            ]),
+        ])),
+        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::All(&[
+            ObjectPredicateDef::Spell,
+            ObjectPredicateDef::Not(&ObjectPredicateDef::ColorCount(0)),
+        ])),
+        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::ControlledBy(
+            PlayerRelation::ChosenPlayer,
+        )),
+    ]);
     for keyword in keywords {
         assert_eq!(parse_keyword(keyword_snapshot(keyword)), keyword);
     }

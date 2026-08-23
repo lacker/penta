@@ -336,7 +336,10 @@ pub(in crate::card::sets) static HOLD_THE_GATES: CardRecord = CardRecord::new_wi
     )),
 );
 
-static HOLY_MANTLE_PROTECTION: AbilityDef = abilities::protection_from_creatures();
+static HOLY_MANTLE_PROTECTION: AbilityDef = AbilityDef::keyword(
+    "Protection from creatures",
+    KeywordAbility::ProtectionFrom(&ObjectPredicateDef::HasType(CardType::Creature)),
+);
 
 static HOLY_MANTLE_GRANT: [AppliedEffectDef; 2] = [
     AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),

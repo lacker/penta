@@ -138,11 +138,11 @@ fn sylvan_safekeeper_sacrifices_a_land_and_grants_true_shroud() {
     let bolt_id = bolt.id;
     game.players[PlayerId::Two.index()].hand.push(bolt);
     assert!(
-        !game.permanent_can_be_targeted_by(protected, PlayerId::Two, bolt_id),
+        !game.permanent_can_be_targeted_by(protected, PlayerId::Two, bolt_id, true),
         "shroud prevents opponents from targeting the creature"
     );
     assert!(
-        !game.permanent_can_be_targeted_by(protected, PlayerId::One, bolt_id),
+        !game.permanent_can_be_targeted_by(protected, PlayerId::One, bolt_id, true),
         "unlike hexproof, shroud also prevents its controller from targeting it"
     );
 }

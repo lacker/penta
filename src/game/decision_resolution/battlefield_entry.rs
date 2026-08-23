@@ -129,6 +129,13 @@ impl Game {
                 if let Some(mut pending) = self.pending_events.pop_front() {
                     let ReplaceableEvent::BattlefieldEntry(entry) = &mut pending.event;
                     match choice.destination {
+                        BattlefieldEntryChoiceDestinationDef::Player => {
+                            entry.permanent.chosen_player = match selected.as_str() {
+                                "You" => Some(entry.permanent.controller),
+                                "Opponent" => Some(entry.permanent.controller.opponent()),
+                                _ => None,
+                            };
+                        }
                         BattlefieldEntryChoiceDestinationDef::CardName => {
                             entry.permanent.chosen_card_name = Some(selected);
                         }

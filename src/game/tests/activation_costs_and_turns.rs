@@ -412,7 +412,7 @@ fn javelineers_on_the_stack_retain_the_sources_last_known_color() {
         .find(|permanent| permanent.card.id == target_id)
         .expect("the target remains on the battlefield")
         .temporary_keywords
-        .push(KeywordAbility::ProtectionFrom(ManaColor::White));
+        .push(protection_keyword(ManaColor::White));
 
     pass_priority_pair(&mut game);
 

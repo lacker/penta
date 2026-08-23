@@ -88,7 +88,7 @@ fn protected_from(game: &Game, id: GameObjectId, color: ManaColor) -> bool {
         .iter()
         .find(|permanent| permanent.card.id == id)
         .is_some_and(|permanent| {
-            game.permanent_has_executable_keyword(permanent, KeywordAbility::ProtectionFrom(color))
+            game.permanent_has_executable_keyword(permanent, protection_keyword(color))
         })
 }
 
@@ -212,19 +212,13 @@ fn protection_from_colorless_does_not_stop_a_coloured_source() {
         .put_onto_battlefield(PlayerId::Two, cards::SERRA_ANGEL)
         .expect("cataloged");
     drain_pending(&mut game);
-    let colors = game.permanent_colors(
-        game.battlefield
-            .iter()
-            .find(|permanent| permanent.card.id == angel)
-            .expect("it is on the battlefield"),
-    );
     let protected = game
         .battlefield
         .iter()
         .find(|permanent| permanent.card.id == bears)
         .expect("the protected creature is there");
 
-    assert!(!game.is_protected_from_colors(protected, colors));
+    assert!(!game.is_protected_from_object(protected, angel, false));
 }
 
 /// "Another": she is not a legal target for her own ability.

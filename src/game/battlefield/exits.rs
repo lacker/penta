@@ -6,7 +6,7 @@
 // ordinary members of the same `impl Game`. The paths and imports are the
 // parent module's.
 
-use super::PlayerRelation;
+use super::{BattlefieldTriggerListener, PlayerRelation};
 
 /// One permanent on its way off the battlefield, as the exit batch collects
 /// it: what it was, what had damaged it, where it is going, whether undying
@@ -399,9 +399,23 @@ impl Game {
             .saturating_add(u16::try_from(died).unwrap_or(u16::MAX));
     }
 
+    fn extend_with_graveyard_arrival_listeners(
+        &self,
+        listeners: &mut Vec<BattlefieldTriggerListener>,
+        removed: &[RemovedBattlefieldObject],
+    ) {
+        for (permanent, _, _, destination, _, _) in removed {
+            if *destination == ZoneKind::Graveyard
+                && let Some(card) = permanent.card.clone().into_card()
+            {
+                self.extend_with_card_graveyard_trigger_listeners(listeners, &card);
+            }
+        }
+    }
+
     fn commit_battlefield_exit_batch(&mut self, batch: PendingBattlefieldExitBatch) {
         let completion = batch.completion;
-        let listeners = self.battlefield_trigger_listeners();
+        let mut listeners = self.battlefield_trigger_listeners();
         let exits = batch
             .moves
             .into_iter()
@@ -445,6 +459,13 @@ impl Game {
                 presented,
             ));
         }
+
+        // A destination-zone trigger is checked after the move. Freeze the
+        // printed graveyard abilities of cards about to arrive there so the
+        // simultaneous event can be published before their new identities
+        // are installed, just as the ordinary listener snapshot freezes the
+        // abilities of permanents about to leave.
+        self.extend_with_graveyard_arrival_listeners(&mut listeners, &removed);
 
         let events = Self::battlefield_exit_events(&removed);
         self.capture_battlefield_trigger_batch_from_snapshot(&listeners, &events);

@@ -1,10 +1,12 @@
 mod emblem;
+mod keyword;
 mod token;
 mod virtual_objects;
 
 pub(super) use crate::card::child_effects;
 use emblem::authored_emblems;
 pub(super) use emblem::{catalog_emblem_characteristics, emblem_characteristics_locator};
+pub(super) use keyword::{keyword_snapshot, parse_keyword};
 use token::authored_tokens;
 pub(super) use token::{
     catalog_token_characteristics, face_down_characteristics_from_snapshot,
@@ -17,16 +19,12 @@ use super::model::{
     AbilityLocator, AppliedEffectLocator, ManaPayloadLocator, ReplacementEffectLocator,
     ScopedEffectSnapshot,
 };
-use crate::card::BandingQuality;
-
-use super::model_keyword::KeywordSnapshot;
 use super::model_prevention::DamagePreventionLocator;
 use super::{AbilityOrigin, AbilitySourceRef, Mana, ScopedEffect};
 use crate::card::{
     AbilityDef, AbilityOperationDef, AbilityProgramDef, AbilityTargetDef, AddManaEffectDef,
-    AppliedEffectDef, BasicLandType, CharacteristicOperationDef, DamagePreventionDef,
-    DamageSourceMatcherDef, DeclarativeAbilityDef, EffectDef, KeywordAbility, ManaColor,
-    ManaSpendEffectDef, ObjectPredicateDef, ProtectedCreatureType, ReplacementEffectDef,
+    AppliedEffectDef, CharacteristicOperationDef, DamagePreventionDef, DamageSourceMatcherDef,
+    DeclarativeAbilityDef, EffectDef, ManaSpendEffectDef, ObjectPredicateDef, ReplacementEffectDef,
     SpellAbilityDef,
 };
 use crate::{CardCatalog, CardPartId};
@@ -829,132 +827,6 @@ fn collect_applied_abilities(effect: AppliedEffectDef, abilities: &mut Vec<&'sta
             AbilityOperationDef::Add(ability),
         )) => abilities.push(ability),
         AppliedEffectDef::Rule(_) | AppliedEffectDef::Characteristic(_) => {}
-    }
-}
-
-pub(super) const fn keyword_snapshot(keyword: KeywordAbility) -> KeywordSnapshot {
-    match keyword {
-        KeywordAbility::Convoke => KeywordSnapshot::Convoke,
-        KeywordAbility::Delve => KeywordSnapshot::Delve,
-        KeywordAbility::Improvise => KeywordSnapshot::Improvise,
-        KeywordAbility::Devoid => KeywordSnapshot::Devoid,
-        KeywordAbility::Compleated => KeywordSnapshot::Compleated,
-        KeywordAbility::SplitSecond => KeywordSnapshot::SplitSecond,
-        KeywordAbility::Infect => KeywordSnapshot::Infect,
-        KeywordAbility::Flying => KeywordSnapshot::Flying,
-        KeywordAbility::Trample => KeywordSnapshot::Trample,
-        KeywordAbility::Haste => KeywordSnapshot::Haste,
-        KeywordAbility::FirstStrike => KeywordSnapshot::FirstStrike,
-        KeywordAbility::DoubleStrike => KeywordSnapshot::DoubleStrike,
-        KeywordAbility::Banding => KeywordSnapshot::Banding,
-        KeywordAbility::BandsWithOther(BandingQuality::LegendaryCreatures) => {
-            KeywordSnapshot::BandsWithOtherLegendaryCreatures
-        }
-        KeywordAbility::BandsWithOther(BandingQuality::WolvesOfTheHunt) => {
-            KeywordSnapshot::BandsWithOtherWolvesOfTheHunt
-        }
-        KeywordAbility::Vigilance => KeywordSnapshot::Vigilance,
-        KeywordAbility::Defender => KeywordSnapshot::Defender,
-        KeywordAbility::Deathtouch => KeywordSnapshot::Deathtouch,
-        KeywordAbility::Lifelink => KeywordSnapshot::Lifelink,
-        KeywordAbility::Reach => KeywordSnapshot::Reach,
-        KeywordAbility::Flash => KeywordSnapshot::Flash,
-        KeywordAbility::Hexproof => KeywordSnapshot::Hexproof,
-        KeywordAbility::Shroud => KeywordSnapshot::Shroud,
-        KeywordAbility::Unleash => KeywordSnapshot::Unleash,
-        KeywordAbility::Intimidate => KeywordSnapshot::Intimidate,
-        KeywordAbility::Menace => KeywordSnapshot::Menace,
-        KeywordAbility::Undying => KeywordSnapshot::Undying,
-        KeywordAbility::Indestructible => KeywordSnapshot::Indestructible,
-        KeywordAbility::AttacksEachCombatIfAble => KeywordSnapshot::AttacksEachCombatIfAble,
-        KeywordAbility::LegendaryLandwalk => KeywordSnapshot::LegendaryLandwalk,
-        KeywordAbility::Landwalk(BasicLandType::Plains) => KeywordSnapshot::Plainswalk,
-        KeywordAbility::Landwalk(BasicLandType::Island) => KeywordSnapshot::Islandwalk,
-        KeywordAbility::Landwalk(BasicLandType::Swamp) => KeywordSnapshot::Swampwalk,
-        KeywordAbility::Landwalk(BasicLandType::Mountain) => KeywordSnapshot::Mountainwalk,
-        KeywordAbility::Landwalk(BasicLandType::Forest) => KeywordSnapshot::Forestwalk,
-        KeywordAbility::ProtectionFrom(ManaColor::White) => KeywordSnapshot::ProtectionFromWhite,
-        KeywordAbility::ProtectionFrom(ManaColor::Blue) => KeywordSnapshot::ProtectionFromBlue,
-        KeywordAbility::ProtectionFrom(ManaColor::Black) => KeywordSnapshot::ProtectionFromBlack,
-        KeywordAbility::ProtectionFrom(ManaColor::Red) => KeywordSnapshot::ProtectionFromRed,
-        KeywordAbility::ProtectionFrom(ManaColor::Green) => KeywordSnapshot::ProtectionFromGreen,
-        KeywordAbility::ProtectionFrom(ManaColor::Colorless) => {
-            KeywordSnapshot::ProtectionFromColorless
-        }
-        KeywordAbility::ProtectionFromCreatureType(ProtectedCreatureType::Zombie) => {
-            KeywordSnapshot::ProtectionFromZombies
-        }
-        KeywordAbility::ProtectionFromCreatureType(ProtectedCreatureType::Vampire) => {
-            KeywordSnapshot::ProtectionFromVampires
-        }
-        KeywordAbility::ProtectionFromCreatureType(ProtectedCreatureType::Werewolf) => {
-            KeywordSnapshot::ProtectionFromWerewolves
-        }
-        KeywordAbility::ProtectionFromCreatures => KeywordSnapshot::ProtectionFromCreatures,
-        KeywordAbility::ProtectionFromMulticolored => KeywordSnapshot::ProtectionFromMulticolored,
-    }
-}
-
-pub(super) const fn parse_keyword(value: KeywordSnapshot) -> KeywordAbility {
-    match value {
-        KeywordSnapshot::Convoke => KeywordAbility::Convoke,
-        KeywordSnapshot::Delve => KeywordAbility::Delve,
-        KeywordSnapshot::Improvise => KeywordAbility::Improvise,
-        KeywordSnapshot::Devoid => KeywordAbility::Devoid,
-        KeywordSnapshot::Compleated => KeywordAbility::Compleated,
-        KeywordSnapshot::SplitSecond => KeywordAbility::SplitSecond,
-        KeywordSnapshot::Infect => KeywordAbility::Infect,
-        KeywordSnapshot::Flying => KeywordAbility::Flying,
-        KeywordSnapshot::Trample => KeywordAbility::Trample,
-        KeywordSnapshot::Haste => KeywordAbility::Haste,
-        KeywordSnapshot::FirstStrike => KeywordAbility::FirstStrike,
-        KeywordSnapshot::DoubleStrike => KeywordAbility::DoubleStrike,
-        KeywordSnapshot::Banding => KeywordAbility::Banding,
-        KeywordSnapshot::BandsWithOtherLegendaryCreatures => {
-            KeywordAbility::BandsWithOther(BandingQuality::LegendaryCreatures)
-        }
-        KeywordSnapshot::BandsWithOtherWolvesOfTheHunt => {
-            KeywordAbility::BandsWithOther(BandingQuality::WolvesOfTheHunt)
-        }
-        KeywordSnapshot::Vigilance => KeywordAbility::Vigilance,
-        KeywordSnapshot::Defender => KeywordAbility::Defender,
-        KeywordSnapshot::Deathtouch => KeywordAbility::Deathtouch,
-        KeywordSnapshot::Lifelink => KeywordAbility::Lifelink,
-        KeywordSnapshot::Reach => KeywordAbility::Reach,
-        KeywordSnapshot::Flash => KeywordAbility::Flash,
-        KeywordSnapshot::Hexproof => KeywordAbility::Hexproof,
-        KeywordSnapshot::Shroud => KeywordAbility::Shroud,
-        KeywordSnapshot::Unleash => KeywordAbility::Unleash,
-        KeywordSnapshot::Intimidate => KeywordAbility::Intimidate,
-        KeywordSnapshot::Menace => KeywordAbility::Menace,
-        KeywordSnapshot::Undying => KeywordAbility::Undying,
-        KeywordSnapshot::Indestructible => KeywordAbility::Indestructible,
-        KeywordSnapshot::AttacksEachCombatIfAble => KeywordAbility::AttacksEachCombatIfAble,
-        KeywordSnapshot::LegendaryLandwalk => KeywordAbility::LegendaryLandwalk,
-        KeywordSnapshot::Plainswalk => KeywordAbility::Landwalk(BasicLandType::Plains),
-        KeywordSnapshot::Islandwalk => KeywordAbility::Landwalk(BasicLandType::Island),
-        KeywordSnapshot::Swampwalk => KeywordAbility::Landwalk(BasicLandType::Swamp),
-        KeywordSnapshot::Mountainwalk => KeywordAbility::Landwalk(BasicLandType::Mountain),
-        KeywordSnapshot::Forestwalk => KeywordAbility::Landwalk(BasicLandType::Forest),
-        KeywordSnapshot::ProtectionFromWhite => KeywordAbility::ProtectionFrom(ManaColor::White),
-        KeywordSnapshot::ProtectionFromBlue => KeywordAbility::ProtectionFrom(ManaColor::Blue),
-        KeywordSnapshot::ProtectionFromBlack => KeywordAbility::ProtectionFrom(ManaColor::Black),
-        KeywordSnapshot::ProtectionFromRed => KeywordAbility::ProtectionFrom(ManaColor::Red),
-        KeywordSnapshot::ProtectionFromGreen => KeywordAbility::ProtectionFrom(ManaColor::Green),
-        KeywordSnapshot::ProtectionFromCreatures => KeywordAbility::ProtectionFromCreatures,
-        KeywordSnapshot::ProtectionFromMulticolored => KeywordAbility::ProtectionFromMulticolored,
-        KeywordSnapshot::ProtectionFromZombies => {
-            KeywordAbility::ProtectionFromCreatureType(ProtectedCreatureType::Zombie)
-        }
-        KeywordSnapshot::ProtectionFromVampires => {
-            KeywordAbility::ProtectionFromCreatureType(ProtectedCreatureType::Vampire)
-        }
-        KeywordSnapshot::ProtectionFromWerewolves => {
-            KeywordAbility::ProtectionFromCreatureType(ProtectedCreatureType::Werewolf)
-        }
-        KeywordSnapshot::ProtectionFromColorless => {
-            KeywordAbility::ProtectionFrom(ManaColor::Colorless)
-        }
     }
 }
 

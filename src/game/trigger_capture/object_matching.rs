@@ -28,6 +28,7 @@ impl Game {
         object: GameObjectId,
         relation: PlayerRelation,
         controller: Option<PlayerId>,
+        source: GameObjectId,
     ) -> bool {
         let owner = self
             .battlefield
@@ -39,7 +40,7 @@ impl Game {
                     .map(|(_, card)| card.owner)
             });
         owner.zip(controller).is_some_and(|(owner, controller)| {
-            self.player_relation_matches(owner, relation, controller, TriggerContext::empty())
+            self.player_relation_matches_for_source(owner, relation, controller, source)
         })
     }
 
@@ -321,15 +322,16 @@ impl Game {
             .iter()
             .find(|permanent| permanent.card.id == source);
         match destination {
+            // Player relations and land types have dedicated predicates;
+            // neither is matched as a scalar against an object here.
+            BattlefieldEntryChoiceDestinationDef::Player
+            | BattlefieldEntryChoiceDestinationDef::BasicLandType => false,
             BattlefieldEntryChoiceDestinationDef::CardName => chooser
                 .and_then(|permanent| permanent.chosen_card_name.as_deref())
                 .is_some_and(|chosen| {
                     self.object_card_name(object.id)
                         .is_some_and(|actual| actual == chosen)
                 }),
-            // Nothing yet asks "is this object the chosen land type"; the
-            // one card that names one reads it as a characteristic instead.
-            BattlefieldEntryChoiceDestinationDef::BasicLandType => false,
             BattlefieldEntryChoiceDestinationDef::CreatureType => chooser
                 .and_then(|permanent| permanent.chosen_creature_type.as_deref())
                 .is_some_and(|chosen| {
@@ -432,14 +434,14 @@ impl Game {
                 self.current_or_last_known_counters(object.id, kind) > 0
             }
             ObjectPredicateDef::OwnedBy(relation) => {
-                self.object_owner_matches(object.id, relation, controller)
+                self.object_owner_matches(object.id, relation, controller, source)
             }
             ObjectPredicateDef::ControlledBy(relation) => controller.is_some_and(|controller| {
-                self.player_relation_matches(
+                self.player_relation_matches_for_source(
                     object.controller,
                     relation,
                     controller,
-                    TriggerContext::empty(),
+                    source,
                 )
             }),
             ObjectPredicateDef::Attacking
@@ -501,6 +503,31 @@ impl Game {
             // have. The triggers that name them resolve the relation where
             // the source is known.
             PlayerRelation::ChosenPlayer | PlayerRelation::ControllerOfAttachedPermanent => false,
+        }
+    }
+
+    /// Relations whose answer is recorded on an ability source rather than
+    /// supplied by an event. Ordinary relations still share the central
+    /// matcher; this wrapper supplies the two source-local cases to object
+    /// predicates such as protection from the chosen player.
+    fn player_relation_matches_for_source(
+        &self,
+        player: PlayerId,
+        relation: PlayerRelation,
+        controller: PlayerId,
+        source: GameObjectId,
+    ) -> bool {
+        match relation {
+            PlayerRelation::ChosenPlayer => self.chosen_player_of(source) == Some(player),
+            PlayerRelation::ControllerOfAttachedPermanent => {
+                self.attached_host_controller_of(source) == Some(player)
+            }
+            _ => self.player_relation_matches(
+                player,
+                relation,
+                controller,
+                TriggerContext::empty(),
+            ),
         }
     }
 

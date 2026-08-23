@@ -126,39 +126,68 @@ fn a_vampires_protection_ignores_zombies_entirely() {
     );
 }
 
-/// The Inquisitor names three types in one printed clause, which is three
-/// instances -- each has to work on its own.
+/// The Inquisitor's one printed protection ability carries one predicate that
+/// accepts each of its three named creature types.
 #[test]
-fn the_inquisitor_carries_all_three_instances() {
+fn the_inquisitor_carries_one_combined_protection_ability() {
     let mut game = ready();
+    let definition = game
+        .catalog
+        .get(cards::ELITE_INQUISITOR)
+        .expect("Elite Inquisitor is cataloged");
+    assert_eq!(definition.rules.ability_clauses().len(), 3);
+    assert_eq!(
+        definition.rules.ability_clauses()[2].text,
+        "Protection from Vampires, from Werewolves, and from Zombies",
+    );
     let inquisitor = creature(10_000, cards::ELITE_INQUISITOR, PlayerId::One);
     let inquisitor_id = inquisitor.card.id;
     game.battlefield.push(inquisitor);
 
-    for creature_type in [
-        ProtectedCreatureType::Vampire,
-        ProtectedCreatureType::Werewolf,
-        ProtectedCreatureType::Zombie,
-    ] {
-        assert!(
-            game.permanent_has_executable_keyword(
-                permanent(&game, inquisitor_id),
-                KeywordAbility::ProtectionFromCreatureType(creature_type),
+    assert!(game.permanent_has_executable_keyword(
+        permanent(&game, inquisitor_id),
+        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::AnyOf(&[
+            ObjectPredicateDef::Subtype("Vampire"),
+            ObjectPredicateDef::Subtype("Werewolf"),
+            ObjectPredicateDef::Subtype("Zombie"),
+        ])),
+    ));
+
+    for (subtype, source) in [
+        (
+            "Vampire",
+            token_permanent(
+                10_100,
+                tokens::creature(&["Vampire"], &[ManaColor::Black], 2, 2),
+                PlayerId::Two,
             ),
-            "{} should be among the qualities",
-            creature_type.subtype(),
+        ),
+        (
+            "Werewolf",
+            token_permanent(
+                10_101,
+                tokens::creature(&["Werewolf"], &[ManaColor::Black], 2, 2),
+                PlayerId::Two,
+            ),
+        ),
+        (
+            "Zombie",
+            token_permanent(
+                10_102,
+                tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2),
+                PlayerId::Two,
+            ),
+        ),
+    ] {
+        let source_id = source.card.id;
+        game.battlefield.push(source);
+        game.damage_target_from(Some(source_id), Some(Target::Permanent(inquisitor_id)), 2);
+        assert_eq!(
+            permanent(&game, inquisitor_id).damage,
+            0,
+            "the combined predicate includes {subtype}",
         );
     }
-
-    let zombie = token_permanent(
-        10_100,
-        tokens::creature(&["Zombie"], &[ManaColor::Black], 2, 2),
-        PlayerId::Two,
-    );
-    let zombie_id = zombie.card.id;
-    game.battlefield.push(zombie);
-    game.damage_target_from(Some(zombie_id), Some(Target::Permanent(inquisitor_id)), 2);
-    assert_eq!(permanent(&game, inquisitor_id).damage, 0);
 }
 
 /// The parameterless quality: nothing that is a creature gets through, of

@@ -35,6 +35,19 @@ distinguishes snapshots of the covered source and build inputs.
   Champion of Lambholt, Cyclops Tyrant, Seismic Stomp, Awe for the Guilds,
   Branded Brawlers, and Veteran Brawlers now use the shared runtime.
 
+- **Protection qualities are composable object predicates.** Colors, card
+  types, subtypes, spell status, color counts, controllers, and boolean
+  combinations now pass through the same damage, enchanting, blocking, and
+  targeting rules. Ordinary resolved ability grants can carry those qualities
+  for a duration, which implements **Spare from Evil**, **Azorius First-Wing**,
+  **Stonecoil Serpent**, **Beloved Chaplain**, and **Devoted Caretaker** without
+  card-local behavior. **True-Name Nemesis** adds a scalar "as this enters"
+  player choice and reads the chosen player through the same predicate path.
+  **Emrakul, the Aeons Torn** adds shared annihilator, using the attack event's
+  defending player, alongside its cast trigger, colored-spell protection, and
+  graveyard shuffle. New closed keyword checkpoint tags are additive;
+  checkpoint format 8, replay version 2, and protocol 29 are unchanged.
+
 - **Plot, and a `Plot` action.** The mirror of foretell's economics: a
   special action pays the plot cost to exile a card from your hand face up,
   and what it buys is a free cast on a later turn. Only the first half is new

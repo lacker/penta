@@ -168,9 +168,6 @@ pub(super) fn shared_keyword(keyword: KeywordAbility) -> bool {
             | KeywordAbility::BandsWithOther(_)
             | KeywordAbility::Unleash
             | KeywordAbility::ProtectionFrom(_)
-            | KeywordAbility::ProtectionFromCreatureType(_)
-            | KeywordAbility::ProtectionFromCreatures
-            | KeywordAbility::ProtectionFromMulticolored
             // The colourlessness is the card's printed colour set, so the
             // keyword itself has nothing left to execute.
             | KeywordAbility::Infect

@@ -68,7 +68,7 @@ fn protected_from(game: &Game, id: GameObjectId, color: ManaColor) -> bool {
         .iter()
         .find(|permanent| permanent.card.id == id)
         .is_some_and(|permanent| {
-            game.permanent_has_executable_keyword(permanent, KeywordAbility::ProtectionFrom(color))
+            game.permanent_has_executable_keyword(permanent, protection_keyword(color))
         })
 }
 

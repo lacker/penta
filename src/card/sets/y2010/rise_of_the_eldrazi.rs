@@ -2,8 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardType, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, ValueDef,
+    AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardSupertype, CardType, EffectDef,
+    EffectRecipientDef, KeywordAbility, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, PlayerRefDef, PlayerSetDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -11,14 +13,62 @@ static FLAME_SLASH_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_on
     ObjectPredicateDef::HasType(CardType::Creature),
 )];
 
+static EMRAKUL_GRAVEYARD_ZONES: [ZoneKind; 1] = [ZoneKind::Graveyard];
+
+static EMRAKUL_SHUFFLES_GRAVEYARD: [EffectDef; 2] = [
+    EffectDef::MoveToZone {
+        counters: None,
+        object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::owned_by(
+            ObjectPredicateDef::Any,
+            &[ZoneKind::Graveyard],
+            PlayerSetDef::One(PlayerRefDef::OwnerOf(ObjectRefDef::Source)),
+        ))),
+        zone: ZoneKind::Library,
+        controller: None,
+        placement: ZonePlacement::Top,
+        arrival_effect: None,
+        attachment: None,
+    },
+    EffectDef::ShuffleLibrary {
+        player: EffectRecipientDef::player(PlayerRefDef::OwnerOf(ObjectRefDef::Source)),
+    },
+];
+
+static EMRAKUL_ABILITIES: [AbilityDef; 6] = [
+    abilities::cannot_be_countered(),
+    AbilityDef::triggered(
+        "When you cast this spell, take an extra turn after this one.",
+        TriggerEventDef::SpellCast(ObjectPredicateDef::Source),
+        EffectDef::TakeExtraTurn {
+            player: EffectRecipientDef::Controller,
+        },
+    ),
+    abilities::flying(),
+    AbilityDef::keyword(
+        "Protection from spells that are one or more colors",
+        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::All(&[
+            ObjectPredicateDef::Spell,
+            ObjectPredicateDef::Not(&ObjectPredicateDef::ColorCount(0)),
+        ])),
+    ),
+    abilities::annihilator(6),
+    AbilityDef::triggered(
+        "When Emrakul is put into a graveyard from anywhere, its owner shuffles their graveyard into their library.",
+        TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Graveyard)),
+        EffectDef::Sequence(&EMRAKUL_SHUFFLES_GRAVEYARD),
+    )
+    .with_source_zones(&EMRAKUL_GRAVEYARD_ZONES),
+];
+
 // ROE 4 — Emrakul, the Aeons Torn
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static EMRAKUL_THE_AEONS_TORN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("67600383-bbb8-411c-b8e6-2296650bc747"),
     "Emrakul, the Aeons Torn",
-    crate::card::CardArt::new("67600383-bbb8-411c-b8e6-2296650bc747", "Mark Tedin"),
-    crate::card::CardSet::RiseOfTheEldrazi,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("67600383-bbb8-411c-b8e6-2296650bc747", "Mark Tedin"),
+    CardSet::RiseOfTheEldrazi,
+    CardRules::new_creature(mana_cost!("{15}"), &["Eldrazi"], 15, 15)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&EMRAKUL_ABILITIES),
 );
 
 // ROE 13 — Ulamog's Crusher

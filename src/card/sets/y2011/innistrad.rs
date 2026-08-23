@@ -10,13 +10,13 @@ use crate::card::{
     CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype, CardType,
     ComparisonDef, ConditionalValueDef, ControlDurationDef, CounterKind, DamageEventMatcherDef,
     DiscardSelectionDef, DoubleFacedKind, EffectDef, EffectExecutionDef, EffectPaymentDef,
-    EffectRecipientDef, HalvedValueDef, ManaColor, MillUntilDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, PayOrDef, PlayOptionDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ProtectedCreatureType, QuantifierDef, ReplacementConditionDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, RoundingDef, SacrificedAmountDef,
-    SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpellForm, SpendModeDef,
-    TargetConditionDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement, abilities,
+    EffectRecipientDef, HalvedValueDef, KeywordAbility, ManaColor, MillUntilDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef, PlayOptionDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, QuantifierDef, ReplacementConditionDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, RoundingDef, SacrificedAmountDef, SpellAdditionalCostCountDef,
+    SpellAdditionalCostDef, SpellForm, SpendModeDef, TargetConditionDef, TopCardSelectionDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneChangeEventMatcherDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::game::{
     CardAbilityResolver, CardRuntime, PileChoice, PileChosen, PileSplit, PilesSeparated,
@@ -352,22 +352,16 @@ pub(in crate::card::sets) static ELITE_INQUISITOR: CardRecord = CardRecord::new_
         "Jana Schirmer & Johannes Voss",
     ),
     CardSet::Innistrad,
-    // CR 702.16: one instance per quality, so the printed clause naming three
-    // is three abilities and each carries its own text.
     CardRules::new_creature(mana_cost!("{W}{W}"), &["Human", "Soldier"], 2, 2).with_abilities(&[
         abilities::first_strike(),
         abilities::vigilance(),
-        abilities::protection_from_creature_type(
-            "Protection from Vampires",
-            ProtectedCreatureType::Vampire,
-        ),
-        abilities::protection_from_creature_type(
-            "Protection from Werewolves",
-            ProtectedCreatureType::Werewolf,
-        ),
-        abilities::protection_from_creature_type(
-            "Protection from Zombies",
-            ProtectedCreatureType::Zombie,
+        AbilityDef::keyword(
+            "Protection from Vampires, from Werewolves, and from Zombies",
+            KeywordAbility::ProtectionFrom(&ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::Subtype("Vampire"),
+                ObjectPredicateDef::Subtype("Werewolf"),
+                ObjectPredicateDef::Subtype("Zombie"),
+            ])),
         ),
     ]),
 );
@@ -936,14 +930,32 @@ pub(in crate::card::sets) static SMITE_THE_MONSTROUS: CardRecord = CardRecord::n
     )),
 );
 
+static SPARE_FROM_EVIL_PROTECTION: AbilityDef = AbilityDef::keyword(
+    "Protection from non-Human creatures",
+    KeywordAbility::ProtectionFrom(&ObjectPredicateDef::All(&[
+        ObjectPredicateDef::HasType(CardType::Creature),
+        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Human")),
+    ])),
+);
+
 // ISD 34 — Spare from Evil
-// Audit: metadata-only — Needs temporary protection from the class of all non-Human creatures.
 pub(in crate::card::sets) static SPARE_FROM_EVIL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d01b5d97-b5ae-42a7-944a-feb12febd63c"),
     "Spare from Evil",
-    crate::card::CardArt::new("d01b5d97-b5ae-42a7-944a-feb12febd63c", "Jason Felix"),
-    crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d01b5d97-b5ae-42a7-944a-feb12febd63c", "Jason Felix"),
+    CardSet::Innistrad,
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell(
+        "Creatures you control gain protection from non-Human creatures until end of turn.",
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            effect: AppliedEffectDef::add_ability(&SPARE_FROM_EVIL_PROTECTION),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // ISD 35 — Spectral Rider
@@ -4632,9 +4644,9 @@ pub(in crate::card::sets) static GRAVE_BRAMBLE: CardRecord = CardRecord::new_wit
     // nor be blocked into it, and their damage does not land.
     CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Plant"], 3, 4).with_abilities(&[
         abilities::defender(),
-        abilities::protection_from_creature_type(
+        AbilityDef::keyword(
             "Protection from Zombies",
-            ProtectedCreatureType::Zombie,
+            KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype("Zombie")),
         ),
     ]),
 );

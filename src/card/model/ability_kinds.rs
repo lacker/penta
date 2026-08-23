@@ -2,7 +2,7 @@ use crate::ids::{ModeId, ObjectBindingIndex, TargetIndex};
 
 use super::{
     AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, BasicLandType, CardBehavior,
-    CardSupertype, CardType, ConditionDef, CounterKind, EffectDef, ImplementationStatus, ManaColor,
+    CardSupertype, CardType, ConditionDef, CounterKind, EffectDef, ImplementationStatus,
     ObjectPredicateDef, ObjectQueryDef, PlayerRelation, ReplacementConditionDef,
     ReplacementEffectDef, ReplacementEventDef, TriggerEventDef, ValueDef, ZoneKind,
 };

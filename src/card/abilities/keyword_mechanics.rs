@@ -103,6 +103,82 @@ pub const fn unleash_counter() -> AbilityDef {
     )
 }
 
+/// Annihilator N: when this creature attacks, the defending player sacrifices
+/// N permanents. The attack event carries that player as its event player, so
+/// the sacrifice resolves correctly even when a planeswalker was attacked.
+///
+/// # Panics
+///
+/// Panics when `count` has no authored static rules-text spelling.
+#[must_use]
+pub const fn annihilator(count: i32) -> AbilityDef {
+    let text = match count {
+        1 => "Annihilator 1",
+        2 => "Annihilator 2",
+        3 => "Annihilator 3",
+        4 => "Annihilator 4",
+        5 => "Annihilator 5",
+        6 => "Annihilator 6",
+        _ => panic!("annihilator count has no authored rules text"),
+    };
+    AbilityDef::triggered(
+        text,
+        TriggerEventDef::attacks(ObjectPredicateDef::Source),
+        EffectDef::SacrificeOfChoice {
+            player: EffectRecipientDef::EventPlayer,
+            object: ObjectPredicateDef::Any,
+            count: ValueDef::Constant(count),
+            then: None,
+            amount: SacrificedAmountDef::Power,
+            otherwise: None,
+            optional: false,
+        },
+    )
+}
+
+#[must_use]
+pub const fn protection_from_color(color: ManaColor) -> AbilityDef {
+    match color {
+        ManaColor::White => keyword(
+            "Protection from white",
+            KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Color(ManaColor::White)),
+        ),
+        ManaColor::Blue => keyword(
+            "Protection from blue",
+            KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Color(ManaColor::Blue)),
+        ),
+        ManaColor::Black => keyword(
+            "Protection from black",
+            KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Color(ManaColor::Black)),
+        ),
+        ManaColor::Red => keyword(
+            "Protection from red",
+            KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Color(ManaColor::Red)),
+        ),
+        ManaColor::Green => keyword(
+            "Protection from green",
+            KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Color(ManaColor::Green)),
+        ),
+        ManaColor::Colorless => keyword(
+            "Protection from colorless",
+            KeywordAbility::ProtectionFrom(&ObjectPredicateDef::ColorCount(0)),
+        ),
+    }
+}
+
+/// "Protection from multicolored", read off the source's color count rather
+/// than any one color.
+#[must_use]
+pub const fn protection_from_multicolored() -> AbilityDef {
+    keyword(
+        "Protection from multicolored",
+        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
+            ObjectPredicateDef::ColorCount(0),
+            ObjectPredicateDef::ColorCount(1),
+        ]))),
+    )
+}
+
 /// The reminder text every detain clause prints, so the cards agree on it.
 pub const DETAIN_REMINDER: &str = "(Until your next turn, that permanent can't attack or block \
                                    and its activated abilities can't be activated.)";

@@ -475,7 +475,7 @@ pub(in crate::card::sets) static KNIGHT_OF_GLORY: CardRecord = CardRecord::new_w
     CardArt::new("1646cb67-e0ac-4f2d-af21-618ff3613d69", "Peter Mohrbacher"),
     CardSet::Magic2013,
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Knight"], 2, 1).with_abilities(&[
-        abilities::protection_from(ManaColor::Black),
+        abilities::protection_from_color(ManaColor::Black),
         abilities::exalted(),
     ]),
 );
@@ -1996,7 +1996,7 @@ pub(in crate::card::sets) static KNIGHT_OF_INFAMY: CardRecord = CardRecord::new_
     CardArt::new("9e339853-5b6b-47b7-8d88-e9d3befb803f", "Peter Mohrbacher"),
     CardSet::Magic2013,
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Knight"], 2, 1).with_abilities(&[
-        abilities::protection_from(ManaColor::White),
+        abilities::protection_from_color(ManaColor::White),
         abilities::exalted(),
     ]),
 );
@@ -4018,8 +4018,8 @@ pub(in crate::card::sets) static AKROMAS_MEMORIAL: CardRecord = CardRecord::new_
                     AppliedEffectDef::add_ability(&abilities::vigilance()),
                     AppliedEffectDef::add_ability(&abilities::trample()),
                     AppliedEffectDef::add_ability(&abilities::haste()),
-                    AppliedEffectDef::add_ability(&abilities::protection_from(ManaColor::Black)),
-                    AppliedEffectDef::add_ability(&abilities::protection_from(ManaColor::Red)),
+                    AppliedEffectDef::add_ability(&abilities::protection_from_color(ManaColor::Black)),
+                    AppliedEffectDef::add_ability(&abilities::protection_from_color(ManaColor::Red)),
                 ]),
             },
         )),

@@ -3,8 +3,9 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType,
-    EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation, ResolvedEffectDurationDef,
-    SpellLifeCostDef, ValueDef, ZoneKind,
+    EffectDef, EffectRecipientDef, KeywordAbility, ObjectPredicateDef, PlayerRelation,
+    ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef, SpellLifeCostDef,
+    ValueDef, ZoneKind,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -34,6 +35,30 @@ pub(in crate::card::sets) static UNEXPECTEDLY_ABSENT: CardRecord = CardRecord::n
             depth: ValueDef::ChosenX,
         },
     )),
+);
+
+// C13 63 — True-Name Nemesis
+pub(in crate::card::sets) static TRUE_NAME_NEMESIS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e8c81cf6-e204-4fea-aaa1-4277366b31c7"),
+    "True-Name Nemesis",
+    CardArt::new("e8c81cf6-e204-4fea-aaa1-4277366b31c7", "Zack Stella"),
+    CardSet::Commander2013,
+    CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Merfolk", "Rogue"], 3, 1).with_abilities(
+        &[
+            AbilityDef::replacement(
+                "As this creature enters, choose a player.",
+                ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                    crate::card::BattlefieldEntryScalarChoiceDef::PLAYER,
+                )),
+            ),
+            AbilityDef::keyword(
+                "This creature has protection from the chosen player.",
+                KeywordAbility::ProtectionFrom(&ObjectPredicateDef::ControlledBy(
+                    PlayerRelation::ChosenPlayer,
+                )),
+            ),
+        ],
+    ),
 );
 
 // C13 96 — Toxic Deluge
@@ -72,7 +97,11 @@ pub(in crate::card::sets) static BOROS_GARRISON: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&UNEXPECTEDLY_ABSENT, &TOXIC_DELUGE, &BOROS_GARRISON];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &UNEXPECTEDLY_ABSENT,
+    &TRUE_NAME_NEMESIS,
+    &TOXIC_DELUGE,
+    &BOROS_GARRISON,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

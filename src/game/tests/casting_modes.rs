@@ -172,7 +172,7 @@ fn overloaded_mizzium_mortars_is_targetless_and_hits_hexproof_opposing_creatures
     let mut protected = creature(10_003, cards::SAVANNAH_LIONS, PlayerId::Two);
     protected
         .temporary_keywords
-        .push(KeywordAbility::ProtectionFrom(ManaColor::Red));
+        .push(protection_keyword(ManaColor::Red));
     let protected_id = protected.card.id;
     game.battlefield
         .extend([friendly, opposing, hexproof, protected]);

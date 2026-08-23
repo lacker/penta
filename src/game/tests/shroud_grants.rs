@@ -25,7 +25,7 @@ fn can_be_targeted_by(game: &Game, permanent: GameObjectId, player: PlayerId) ->
         .iter()
         .find(|candidate| candidate.card.id == permanent)
         .expect("still there");
-    game.permanent_can_be_targeted_by(candidate, player, GameObjectId(9_999))
+    game.permanent_can_be_targeted_by(candidate, player, GameObjectId(9_999), false)
 }
 
 #[test]

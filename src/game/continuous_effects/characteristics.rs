@@ -206,85 +206,35 @@ impl Game {
         self.effective_colors(permanent, &rules)
     }
 
-    pub(super) fn is_protected_from_colors(
+    /// Whether one source characteristic snapshot matches any protection
+    /// quality the permanent currently has. The protection holder is the
+    /// predicate source: qualities such as "the chosen player" read the
+    /// choice recorded on that permanent, while the object being tested is
+    /// the spell, ability source, blocker, Aura, or damage source.
+    pub(super) fn is_protected_from_characteristics(
         &self,
         permanent: &Permanent,
-        source_colors: [bool; 5],
+        source: &TriggerEventObject,
+        source_is_spell: bool,
     ) -> bool {
-        // CR 702.16: colourless is a quality like any other, and the one a
-        // source has by having no colour at all. So the match here is the
-        // absence of every colour rather than the presence of one.
-        if source_colors.iter().all(|has_color| !has_color)
-            && self.permanent_has_executable_keyword(
-                permanent,
-                KeywordAbility::ProtectionFrom(ManaColor::Colorless),
+        self.find_effective_ability(permanent, |effective| {
+            if !effective.ability.is_executable() {
+                return false;
+            }
+            let DeclarativeAbilityDef::Keyword(KeywordAbility::ProtectionFrom(predicate)) =
+                effective.ability.definition
+            else {
+                return false;
+            };
+            self.trigger_object_matches_for_controller(
+                *predicate,
+                source,
+                permanent.card.id,
+                source_is_spell,
+                Some(permanent.controller),
             )
-        {
-            return true;
-        }
-        [
-            ManaColor::White,
-            ManaColor::Blue,
-            ManaColor::Black,
-            ManaColor::Red,
-            ManaColor::Green,
-        ]
-        .into_iter()
-        .any(|color| {
-            source_colors[color
-                .color_index()
-                .expect("the iteration contains only colors")]
-                && self.permanent_has_executable_keyword(
-                    permanent,
-                    KeywordAbility::ProtectionFrom(color),
-                )
         })
-    }
-
-    /// Protection from a creature type, the other half of CR 702.16. The
-    /// qualities compose: a source matching either the colors or the types a
-    /// permanent is protected from is stopped by the same rules.
-    pub(super) fn is_protected_from_creature_types(
-        &self,
-        permanent: &Permanent,
-        source_subtypes: &[&'static str],
-    ) -> bool {
-        [
-            ProtectedCreatureType::Zombie,
-            ProtectedCreatureType::Vampire,
-            ProtectedCreatureType::Werewolf,
-        ]
-        .into_iter()
-        .any(|creature_type| {
-            source_subtypes.contains(&creature_type.subtype())
-                && self.permanent_has_executable_keyword(
-                    permanent,
-                    KeywordAbility::ProtectionFromCreatureType(creature_type),
-                )
-        })
-    }
-
-    /// The one quality with no parameter: the source is a creature.
-    pub(super) fn is_protected_from_creature(&self, permanent: &Permanent, is_creature: bool) -> bool {
-        is_creature
-            && self.permanent_has_executable_keyword(
-                permanent,
-                KeywordAbility::ProtectionFromCreatures,
-            )
-    }
-
-    /// Two or more colors, which is one quality on its own rather than the
-    /// union of the five single-color ones.
-    pub(super) fn is_protected_from_multicolored(
-        &self,
-        permanent: &Permanent,
-        source_colors: [bool; 5],
-    ) -> bool {
-        source_colors.iter().filter(|present| **present).count() >= 2
-            && self.permanent_has_executable_keyword(
-                permanent,
-                KeywordAbility::ProtectionFromMulticolored,
-            )
+        .is_some()
     }
 
     /// Every quality at once, for the sources that are whole objects rather
@@ -293,47 +243,63 @@ impl Game {
         &self,
         permanent: &Permanent,
         source: GameObjectId,
+        source_is_spell: bool,
     ) -> bool {
-        let colors = self.object_colors(source);
-        self.is_protected_from_colors(permanent, colors)
-            || self.is_protected_from_multicolored(permanent, colors)
-            || self.is_protected_from_creature_types(permanent, &self.object_subtypes(source))
-            || self.is_protected_from_creature(permanent, self.object_is_creature(source))
+        self.protection_source_characteristics(source)
+            .is_some_and(|characteristics| {
+                self.is_protected_from_characteristics(
+                    permanent,
+                    &characteristics,
+                    source_is_spell,
+                )
+            })
     }
 
-    /// Whether any object is a creature, wherever it is. Read the same way as
-    /// [`Self::object_subtypes`].
-    pub(super) fn object_is_creature(&self, object: GameObjectId) -> bool {
+    /// Characteristics for a protection source wherever the relevant event
+    /// can leave it. Stack abilities borrow their source presentation, while
+    /// a prospective spell still in hand uses its printed stack form.
+    fn protection_source_characteristics(
+        &self,
+        source: GameObjectId,
+    ) -> Option<TriggerEventObject> {
         if let Some(permanent) = self
             .battlefield
             .iter()
-            .find(|permanent| permanent.card.id == object)
+            .find(|permanent| permanent.card.id == source)
         {
-            return self
-                .permanent_types(permanent)
-                .is_some_and(|types| types.contains(CardType::Creature));
+            return Some(self.trigger_event_object(permanent));
         }
-        if let Some(stack) = self.stack.iter().find(|stack| stack.id == object) {
-            return self
-                .stack_trigger_event_object(stack)
-                .is_some_and(|event| event.types.contains(CardType::Creature));
+        if let Some(stack) = self.stack.iter().find(|stack| stack.id == source) {
+            return self.stack_object_event_object(stack);
         }
-        match self.retired_objects.get(&object) {
-            Some(RetiredObject::Permanent { permanent, .. }) => self
-                .permanent_types(permanent)
-                .is_some_and(|types| types.contains(CardType::Creature)),
-            Some(RetiredObject::Stack(stack)) => self
-                .stack_trigger_event_object(stack)
-                .is_some_and(|event| event.types.contains(CardType::Creature)),
-            Some(RetiredObject::Card(_)) | None => self
-                .object_definition(object)
-                .and_then(|definition| self.catalog.get(definition))
-                .is_some_and(|definition| definition.rules.types().contains(CardType::Creature)),
+        if let Some(retired) = self.retired_objects.get(&source) {
+            return match retired {
+                RetiredObject::Permanent { permanent, .. } => {
+                    Some(self.trigger_event_object(permanent))
+                }
+                RetiredObject::Stack(stack) => self.stack_object_event_object(stack),
+                RetiredObject::Card(card) => self.printed_trigger_event_object(
+                    source,
+                    card.definition,
+                    card.owner,
+                    &CharacteristicContext::Graveyard,
+                ),
+            };
         }
+        let (zone, card) = self.card_in_nonbattlefield_zone(source)?;
+        let context = match zone {
+            ZoneKind::Library => CharacteristicContext::Library,
+            ZoneKind::Hand => CharacteristicContext::Hand,
+            ZoneKind::Graveyard => CharacteristicContext::Graveyard,
+            ZoneKind::Exile => CharacteristicContext::Exile,
+            ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => return None,
+        };
+        self.printed_trigger_event_object(source, card.definition, card.owner, &context)
     }
 
     /// The subtypes of any object, wherever it is. The companion of
     /// [`Self::object_colors`], and read the same way.
+    #[cfg(test)]
     pub(super) fn object_subtypes(&self, object: GameObjectId) -> Vec<&'static str> {
         if let Some(permanent) = self
             .battlefield
@@ -369,8 +335,9 @@ impl Game {
         permanent: &Permanent,
         controller: PlayerId,
         source: GameObjectId,
+        source_is_spell: bool,
     ) -> bool {
-        !(self.is_protected_from_object(permanent, source)
+        !(self.is_protected_from_object(permanent, source, source_is_spell)
             || self.permanent_has_executable_keyword(permanent, KeywordAbility::Shroud)
             || permanent.controller != controller
                 && self.permanent_has_executable_keyword(permanent, KeywordAbility::Hexproof)
@@ -489,11 +456,6 @@ impl Game {
             .map_or([false; 5], |definition| definition.rules.colors())
     }
     pub(super) fn combat_is_protected(&self, blocker: &Permanent, attacker: &Permanent) -> bool {
-        self.is_protected_from_colors(attacker, self.permanent_colors(blocker))
-            || self.is_protected_from_multicolored(attacker, self.permanent_colors(blocker))
-            || self.is_protected_from_creature_types(attacker, &self.effective_subtypes(blocker))
-            // A blocker is always a creature, so the parameterless quality
-            // needs no lookup here.
-            || self.is_protected_from_creature(attacker, true)
+        self.is_protected_from_characteristics(attacker, &self.trigger_event_object(blocker), false)
     }
 }

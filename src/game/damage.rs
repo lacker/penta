@@ -674,7 +674,7 @@ impl Game {
                         .find(|permanent| permanent.card.id == id)
                         .is_some_and(|permanent| {
                             source.is_some_and(|source| {
-                                self.is_protected_from_object(permanent, source)
+                                self.is_protected_from_object(permanent, source, source_is_spell)
                             })
                         }),
                     Target::Player(_) | Target::Card(_) | Target::Spell(_) => false,

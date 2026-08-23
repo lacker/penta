@@ -12,11 +12,10 @@ use crate::card::{
     DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef, DividedTotal,
     EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor, ManaRestrictionDef,
     ManaSpendEffectDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ProtectedCreatureType, ReplacementChoiceDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef,
-    SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement,
-    abilities,
+    PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostCountDef,
+    SpellAdditionalCostDef, SpendModeDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -549,9 +548,9 @@ pub(in crate::card::sets) static MIDNIGHT_DUELIST: CardRecord = CardRecord::new_
     CardArt::new("2371bd0c-ca38-4a62-b525-bef4d1ca0646", "Bud Cook"),
     CardSet::AvacynRestored,
     CardRules::new_creature(mana_cost!("{W}"), &["Human", "Soldier"], 1, 2).with_ability(
-        abilities::protection_from_creature_type(
+        AbilityDef::keyword(
             "Protection from Vampires",
-            ProtectedCreatureType::Vampire,
+            KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype("Vampire")),
         ),
     ),
 );
@@ -3711,9 +3710,9 @@ pub(in crate::card::sets) static DESCENDANTS_PATH: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
-static DIREGRAF_ESCORT_GRANTED: AbilityDef = abilities::protection_from_creature_type(
+static DIREGRAF_ESCORT_GRANTED: AbilityDef = AbilityDef::keyword(
     "Protection from Zombies",
-    ProtectedCreatureType::Zombie,
+    KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype("Zombie")),
 );
 
 static DIREGRAF_ESCORT_BONUS: EffectDef = EffectDef::StaticApply {

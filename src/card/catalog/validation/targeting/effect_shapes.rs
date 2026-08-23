@@ -439,7 +439,8 @@ fn validate_replacement_effect_target_shapes(
         ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(choice)) => {
             if matches!(
                 (choice.list, choice.destination),
-                (
+                (ScalarChoiceListDef::Players, BattlefieldEntryChoiceDestinationDef::Player)
+                | (
                     ScalarChoiceListDef::CardNames | ScalarChoiceListDef::NonlandCardNames,
                     BattlefieldEntryChoiceDestinationDef::CardName
                 ) | (

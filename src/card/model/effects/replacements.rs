@@ -121,6 +121,11 @@ pub enum BattlefieldEntryModificationDef {
 /// The catalog-derived vocabulary presented by a scalar entry choice.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum ScalarChoiceListDef {
+    /// The two players, presented relative to the entering permanent's
+    /// controller. Kept in the scalar entry-choice path so the prospective
+    /// entry and its checkpoint continuation use the same public decision
+    /// machinery as card-name and creature-type choices.
+    Players,
     /// Every independently nameable card part in the catalog, including split
     /// halves and back faces rather than only top-level card identities.
     CardNames,
@@ -137,6 +142,7 @@ pub enum ScalarChoiceListDef {
 /// The field on an entering permanent that receives a scalar choice.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum BattlefieldEntryChoiceDestinationDef {
+    Player,
     CardName,
     CreatureType,
     /// A basic land type, which the permanent then *is* rather than merely
@@ -157,6 +163,11 @@ pub struct BattlefieldEntryScalarChoiceDef {
 }
 
 impl BattlefieldEntryScalarChoiceDef {
+    pub const PLAYER: Self = Self {
+        list: ScalarChoiceListDef::Players,
+        destination: BattlefieldEntryChoiceDestinationDef::Player,
+    };
+
     pub const CARD_NAME: Self = Self {
         list: ScalarChoiceListDef::CardNames,
         destination: BattlefieldEntryChoiceDestinationDef::CardName,

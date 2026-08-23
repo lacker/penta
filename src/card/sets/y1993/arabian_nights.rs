@@ -202,7 +202,7 @@ pub(in crate::card::sets) static REPENTANT_BLACKSMITH: CardRecord = CardRecord::
     CardArt::new("61fc30b6-1355-425b-a86f-18f59f83141c", "Drew Tucker"),
     CardSet::ArabianNights,
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human"], 1, 2)
-        .with_abilities(&[abilities::protection_from(ManaColor::Red)]),
+        .with_abilities(&[abilities::protection_from_color(ManaColor::Red)]),
 );
 
 // ARN 10 — Shahrazad

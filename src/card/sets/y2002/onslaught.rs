@@ -2190,7 +2190,7 @@ pub(in crate::card::sets) static GOBLIN_PILEDRIVER: CardRecord = CardRecord::new
     // Protection from blue is half the card: it walks past the format's
     // blue blockers while the rest of the team makes it enormous.
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin", "Warrior"], 1, 2).with_abilities(&[
-        abilities::protection_from(ManaColor::Blue),
+        abilities::protection_from_color(ManaColor::Blue),
         AbilityDef::triggered(
             "Whenever this creature attacks, it gets +2/+0 until end of turn for each other attacking Goblin.",
             TriggerEventDef::attacks(ObjectPredicateDef::Source),

@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, CardArt, CardRules, CardSet, CardType, EffectDef, EffectRecipientDef,
-    ObjectPredicateDef, TopCardSelectionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AbilityDef, CardArt, CardRules, CardSet, CardType, DiscardSelectionDef, EffectDef,
+    EffectRecipientDef, ObjectPredicateDef, TopCardSelectionDef, TriggerEventDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::mana_cost;
 
@@ -117,13 +117,28 @@ pub(in crate::card::sets) static STORMTIDE_LEVIATHAN: CardRecord = CardRecord::n
 );
 
 // M11 104 — Liliana's Specter
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static LILIANA_S_SPECTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("33122581-39fd-44a0-b928-f73e39a0c0f1"),
     "Liliana's Specter",
     crate::card::CardArt::new("33122581-39fd-44a0-b928-f73e39a0c0f1", "Vance Kovacs"),
     crate::card::CardSet::Magic2011,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Specter"], 2, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered(
+            "When this creature enters, each opponent discards a card.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Opponent,
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // M11 110 — Phylactery Lich

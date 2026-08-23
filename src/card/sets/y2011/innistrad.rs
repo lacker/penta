@@ -614,13 +614,54 @@ pub(in crate::card::sets) static MIDNIGHT_HAUNTING: CardRecord = CardRecord::new
 );
 
 // ISD 23 — Mikaeus, the Lunarch
-// Audit: metadata-only — Needs an X-valued enters-with-counters replacement and a counter-removal activation that buffs every other creature.
 pub(in crate::card::sets) static MIKAEUS_THE_LUNARCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("77976ca8-7c7a-469c-a99a-808de1b8bf71"),
     "Mikaeus, the Lunarch",
     crate::card::CardArt::new("c22dc283-ea54-4344-b1ca-fd6cc05080d9", "Steven Belledin"),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{X}{W}"), &["Human", "Cleric"], 0, 0)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::as_enters(
+                "Mikaeus enters with X +1/+1 counters on it.",
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::AddCastXCounters {
+                        kind: CounterKind::PlusOnePlusOne,
+                    },
+                ),
+            ),
+            AbilityDef::activated(
+                "{T}: Put a +1/+1 counter on Mikaeus.",
+                &[AbilityCostDef::TapSource],
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+            AbilityDef::activated(
+                "{T}, Remove a +1/+1 counter from Mikaeus: Put a +1/+1 counter on each other creature you control.",
+                &[
+                    AbilityCostDef::TapSource,
+                    AbilityCostDef::RemoveCountersFromSource {
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: 1,
+                    },
+                ],
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // ISD 24 — Moment of Heroism

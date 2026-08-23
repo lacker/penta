@@ -1,9 +1,6 @@
-//! Built-in card records, grouped by release year and set.
-//!
-//! Each canonical card is defined in one set module. Records default to a
-//! complete implementation and explicitly carry a reason when they are partial
-//! or metadata-only. Reprints and alternate-art variants point back to that
-//! canonical record from their own set module.
+//! Built-in card records grouped by release year and set.
+//! Canonical cards live in one set module; reprints and alternate art point back to it.
+//! Partial and metadata-only entries carry explicit coverage reasons.
 
 mod y1993;
 mod y1994;
@@ -797,11 +794,6 @@ const SET_MODULES: &[SetModule] = &[
         y2017::hour_of_devastation::ADDITIONAL_PRINTINGS,
     ),
     SetModule::new(
-        CardSet::Dominaria,
-        y2018::dominaria::CARDS,
-        y2018::dominaria::ADDITIONAL_PRINTINGS,
-    ),
-    SetModule::new(
         CardSet::CoreSet2019,
         y2018::core_set_2019::CARDS,
         y2018::core_set_2019::ADDITIONAL_PRINTINGS,
@@ -877,11 +869,6 @@ const SET_MODULES: &[SetModule] = &[
         y2017::commander_2017::ADDITIONAL_PRINTINGS,
     ),
     SetModule::new(
-        CardSet::Commander2018,
-        y2018::commander_2018::CARDS,
-        y2018::commander_2018::ADDITIONAL_PRINTINGS,
-    ),
-    SetModule::new(
         CardSet::Dominaria,
         y2018::dominaria::CARDS,
         y2018::dominaria::ADDITIONAL_PRINTINGS,
@@ -905,11 +892,6 @@ const SET_MODULES: &[SetModule] = &[
         CardSet::LostCavernsOfIxalanCommander,
         y2023::lost_caverns_of_ixalan_commander::CARDS,
         y2023::lost_caverns_of_ixalan_commander::ADDITIONAL_PRINTINGS,
-    ),
-    SetModule::new(
-        CardSet::EdgeOfEternitiesCommander,
-        y2025::edge_of_eternities_commander::CARDS,
-        y2025::edge_of_eternities_commander::ADDITIONAL_PRINTINGS,
     ),
 ];
 

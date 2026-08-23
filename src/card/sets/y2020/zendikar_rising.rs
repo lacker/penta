@@ -289,6 +289,7 @@ pub(in crate::card::sets) static LUMINARCH_ASPIRANT: CardRecord = CardRecord::ne
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DAUNTLESS_UNITY,
     &SKYCLAVE_APPARITION,
+    &THIEVING_SKYDIVER,
     &BLOODCHIEFS_THIRST,
     &GNARLID_COLONY,
     &OMNATH_LOCUS_OF_CREATION,

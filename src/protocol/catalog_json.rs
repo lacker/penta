@@ -208,13 +208,10 @@ const fn card_set_slug(set: CardSet) -> &'static str {
         CardSet::Coldsnap => "coldsnap",
         CardSet::BornOfTheGods => "born-of-the-gods",
         CardSet::Commander2017 => "commander-2017",
-        CardSet::Commander2018 => "commander-2018",
-        CardSet::Dominaria => "dominaria",
         CardSet::CommanderLegends => "commander-legends",
         CardSet::DominariaUnitedCommander => "dominaria-united-commander",
         CardSet::MarchOfTheMachineCommander => "march-of-the-machine-commander",
         CardSet::LostCavernsOfIxalanCommander => "lost-caverns-of-ixalan-commander",
-        CardSet::EdgeOfEternitiesCommander => "edge-of-eternities-commander",
         CardSet::Token => "token",
     }
 }

@@ -611,6 +611,7 @@ static OPT_SELECTION: TopCardSelectionDef = TopCardSelectionDef {
     rest_zone: ZoneKind::Library,
     rest_placement: ZonePlacement::Top,
     rest_random_order: false,
+    rest_counters: None,
     selected_order_follows_choice: false,
     then: Some(&OPT_DRAW),
     selected_hidden: false,
@@ -2923,26 +2924,6 @@ pub(in crate::card::sets) static URBORG_DRAKE: CardRecord = CardRecord::new(
     crate::card::CardSet::Invasion,
     crate::card::CardRules::unsupported(),
 );
-
-static OPT_SELECTION: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(1),
-    object: None,
-    minimum: 0,
-    maximum: 1,
-    select_all_matching: false,
-    reveal_selected: false,
-    selected_zone: ZoneKind::Library,
-    selected_placement: ZonePlacement::Bottom,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Top,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: Some(&OPT_DRAW),
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
 
 // INV 284 — Vicious Kavu
 // Audit: metadata-only — Card rules have not been implemented.

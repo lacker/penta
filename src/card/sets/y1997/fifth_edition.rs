@@ -1349,7 +1349,7 @@ pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
     PrintingRecord::reprint(&catalog_lea::THRONE_OF_BONE),  // 5ED 403
     PrintingRecord::reprint(&catalog_ice::TIME_BOMB),       // 5ED 404
     PrintingRecord::reprint(&catalog_atq::URZA_S_AVENGER),  // 5ED 405
-    PrintingRecord::reprint(&catalog_ice::URZA_S_BAUBLE),   // 5ED 406
+    PrintingRecord::reprint(&catalog_ice::URZAS_BAUBLE),    // 5ED 406
     PrintingRecord::reprint(&catalog_atq::WALL_OF_SPEARS),  // 5ED 407
     PrintingRecord::reprint(&catalog_lea::WINTER_ORB),      // 5ED 408
     PrintingRecord::reprint(&catalog_lea::WOODEN_SPHERE),   // 5ED 409

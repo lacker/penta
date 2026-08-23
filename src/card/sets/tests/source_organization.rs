@@ -399,8 +399,6 @@ fn set_source_for_file(path: &Path) -> SetSource {
         Some("coldsnap.rs") => source(CardSet::Coldsnap, "CSP"),
         Some("born_of_the_gods.rs") => source(CardSet::BornOfTheGods, "BNG"),
         Some("commander_2017.rs") => source(CardSet::Commander2017, "C17"),
-        Some("commander_2018.rs") => source(CardSet::Commander2018, "C18"),
-        Some("dominaria.rs") => source(CardSet::Dominaria, "DOM"),
         Some("commander_legends.rs") => source(CardSet::CommanderLegends, "CMR"),
         Some("dominaria_united_commander.rs") => source(CardSet::DominariaUnitedCommander, "DMC"),
         Some("march_of_the_machine_commander.rs") => {
@@ -408,9 +406,6 @@ fn set_source_for_file(path: &Path) -> SetSource {
         }
         Some("lost_caverns_of_ixalan_commander.rs") => {
             source(CardSet::LostCavernsOfIxalanCommander, "LCC")
-        }
-        Some("edge_of_eternities_commander.rs") => {
-            source(CardSet::EdgeOfEternitiesCommander, "EOC")
         }
         Some(name) => panic!(
             "{}: add {name} to the official set-code map",

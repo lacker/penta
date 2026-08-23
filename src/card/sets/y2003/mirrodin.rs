@@ -22,6 +22,28 @@ static A_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_perman
     ObjectPredicateDef::HasType(CardType::Creature),
 )];
 
+static GREAVES_HASTE: AbilityDef = abilities::haste();
+
+static GREAVES_SHROUD: AbilityDef = abilities::shroud();
+
+/// The two halves are why the card is played: haste makes the creature useful
+/// the turn it arrives, and shroud makes it hard to answer -- including by
+/// its own controller, who cannot target it either.
+static GREAVES_GRANTS: [AppliedEffectDef; 2] = [
+    AppliedEffectDef::add_ability(&GREAVES_HASTE),
+    AppliedEffectDef::add_ability(&GREAVES_SHROUD),
+];
+
+// MRD 57 — Barter in Blood
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BARTER_IN_BLOOD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("beccbb2c-ca1d-4b72-9eca-a64a313fd830"),
+    "Barter in Blood",
+    crate::card::CardArt::new("beccbb2c-ca1d-4b72-9eca-a64a313fd830", "Paolo Parente"),
+    crate::card::CardSet::Mirrodin,
+    crate::card::CardRules::unsupported(),
+);
+
 // MRD 141 — Aether Spellbomb
 pub(in crate::card::sets) static AETHER_SPELLBOMB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f3792e8b-4ad7-4e2d-994c-c4eaac0fa55f"),
@@ -55,30 +77,6 @@ pub(in crate::card::sets) static AETHER_SPELLBOMB: CardRecord = CardRecord::new(
         ),
     ]),
 );
-
-static GREAVES_HASTE: AbilityDef = abilities::haste();
-
-static GREAVES_SHROUD: AbilityDef = abilities::shroud();
-
-/// The two halves are why the card is played: haste makes the creature useful
-/// the turn it arrives, and shroud makes it hard to answer -- including by
-/// its own controller, who cannot target it either.
-static GREAVES_GRANTS: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::add_ability(&GREAVES_HASTE),
-    AppliedEffectDef::add_ability(&GREAVES_SHROUD),
-];
-
-// MRD 57 — Barter in Blood
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static BARTER_IN_BLOOD: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("beccbb2c-ca1d-4b72-9eca-a64a313fd830"),
-    "Barter in Blood",
-    crate::card::CardArt::new("beccbb2c-ca1d-4b72-9eca-a64a313fd830", "Paolo Parente"),
-    crate::card::CardSet::Mirrodin,
-    crate::card::CardRules::unsupported(),
-);
-
-// MRD 141 — Aether Spellbomb
 
 // MRD 146 — Bonesplitter
 // Audit: metadata-only — Card rules have not been implemented.

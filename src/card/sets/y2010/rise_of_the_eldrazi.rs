@@ -2,10 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardSupertype, CardType, EffectDef,
-    EffectRecipientDef, KeywordAbility, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PlayerRefDef, PlayerSetDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerSetDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -72,13 +72,15 @@ pub(in crate::card::sets) static EMRAKUL_THE_AEONS_TORN: CardRecord = CardRecord
 );
 
 // ROE 13 — Ulamog's Crusher
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ULAMOG_S_CRUSHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("76bacedb-9fa8-4a21-b0eb-e7ead64360b4"),
     "Ulamog's Crusher",
     crate::card::CardArt::new("76bacedb-9fa8-4a21-b0eb-e7ead64360b4", "Todd Lockwood"),
     crate::card::CardSet::RiseOfTheEldrazi,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{8}"), &["Eldrazi"], 8, 8).with_abilities(&[
+        abilities::annihilator(2),
+        abilities::attacks_each_combat_if_able("This creature attacks each combat if able."),
+    ]),
 );
 
 // ROE 40 — Oust
@@ -149,14 +151,34 @@ pub(in crate::card::sets) static RAID_BOMBARDMENT: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+static ELDRAZI_SPAWN_ABILITIES: [AbilityDef; 1] = [AbilityDef::activated_mana(
+    "Sacrifice this creature: Add {C}.",
+    &[AbilityCostDef::SacrificeSource],
+    EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+)];
+
 // ROE 201 — Nest Invader
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static NEST_INVADER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("24517d9c-6cde-41e8-9e82-ee73f069379a"),
     "Nest Invader",
-    crate::card::CardArt::new("24517d9c-6cde-41e8-9e82-ee73f069379a", "Trevor Claxton"),
-    crate::card::CardSet::RiseOfTheEldrazi,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("24517d9c-6cde-41e8-9e82-ee73f069379a", "Trevor Claxton"),
+    CardSet::RiseOfTheEldrazi,
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Eldrazi", "Drone"], 2, 2).with_ability(
+        AbilityDef::triggered(
+            "When this creature enters, create a 0/1 colorless Eldrazi Spawn creature token. It has \"Sacrifice this token: Add {C}.\"",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::create_creature_token(&["Eldrazi", "Spawn"], &[], 0, 1)
+                .with_abilities(&ELDRAZI_SPAWN_ABILITIES)
+                .with_art(CardArt::new(
+                    "d0da4f8d-cce9-4d08-8d11-792e0b2af7d0",
+                    "Véronique Meignaud",
+                )),
+        ),
+    ),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

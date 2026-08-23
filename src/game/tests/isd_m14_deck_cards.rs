@@ -350,34 +350,6 @@ fn increasing_ambition_searches_for_exactly_one_card_from_hand() {
 }
 
 #[test]
-fn increasing_ambition_stays_hand_only_when_flashback_is_granted() {
-    let mut game = isd_m14_game();
-    let ambition = card(24_200, cards::INCREASING_AMBITION, PlayerId::One);
-    game.players[0].graveyard.push(ambition.clone());
-    game.players[0].mana_pool = ManaPool {
-        white: 10,
-        blue: 10,
-        black: 10,
-        red: 10,
-        green: 10,
-        colorless: 10,
-    };
-    game.temporary_ability_grants.push(TemporaryAbilityGrant {
-        object: ambition.id,
-        ability: CARD_COST_FLASHBACK,
-    });
-
-    assert!(game.legal_actions(PlayerId::One).into_iter().all(|action| {
-        !matches!(action, Action::CastSpell { card, .. } if card == ambition.id)
-    }));
-    let definition = game.catalog.get(cards::INCREASING_AMBITION).unwrap();
-    assert_eq!(
-        definition.play_options[0].restriction,
-        PlayRestriction::FromHandOnly
-    );
-}
-
-#[test]
 fn temporal_mastery_schedules_an_extra_turn_and_exiles_itself() {
     let mut game = isd_m14_game();
     let mastery = card(24_300, cards::TEMPORAL_MASTERY, PlayerId::One);

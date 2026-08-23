@@ -1442,55 +1442,70 @@ pub(in crate::card::sets) static HIGHBORN_GHOUL: CardRecord = CardRecord::new_wi
         .with_ability(abilities::intimidate()),
 );
 
+static INCREASING_AMBITION_FROM_GRAVEYARD: TriggerConditionDef =
+    TriggerConditionDef::SourceCastFrom(ZoneKind::Graveyard);
+
+static INCREASING_AMBITION_SEARCH_ONE: EffectDef = EffectDef::SearchZone {
+    player: EffectRecipientDef::Controller,
+    source: ZoneKind::Library,
+    object: ObjectPredicateDef::Any,
+    minimum: 1,
+    maximum: ValueDef::Constant(1),
+    reveal: false,
+    destination: ZoneKind::Hand,
+    placement: ZonePlacement::Top,
+    shuffle: true,
+    enters_tapped: false,
+    binding: None,
+    then: None,
+};
+
+static INCREASING_AMBITION_SEARCH_TWO: EffectDef = EffectDef::SearchZone {
+    player: EffectRecipientDef::Controller,
+    source: ZoneKind::Library,
+    object: ObjectPredicateDef::Any,
+    minimum: 2,
+    maximum: ValueDef::Constant(2),
+    reveal: false,
+    destination: ZoneKind::Hand,
+    placement: ZonePlacement::Top,
+    shuffle: true,
+    enters_tapped: false,
+    binding: None,
+    then: None,
+};
+
+static INCREASING_AMBITION_EFFECT: [EffectDef; 2] = [
+    EffectDef::IfCondition {
+        condition: &INCREASING_AMBITION_FROM_GRAVEYARD,
+        then: &INCREASING_AMBITION_SEARCH_TWO,
+    },
+    EffectDef::IfCondition {
+        condition: &TriggerConditionDef::Not(&INCREASING_AMBITION_FROM_GRAVEYARD),
+        then: &INCREASING_AMBITION_SEARCH_ONE,
+    },
+];
+
 static INCREASING_AMBITION_ABILITIES: [AbilityDef; 2] = [
     AbilityDef::spell(
-            "Search your library for a card and put that card into your hand. If this spell was cast from a graveyard, instead search your library for two cards and put those cards into your hand. Then shuffle.",
-            EffectDef::SearchZone {
-                player: EffectRecipientDef::Controller,
-                source: ZoneKind::Library,
-                object: ObjectPredicateDef::Any,
-                minimum: 1,
-                maximum: ValueDef::Constant(1),
-                reveal: false,
-                destination: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-                shuffle: true,
-                enters_tapped: false,
-                binding: None,
-                then: None,
-            },
-        )
-        .with_coverage(AbilityCoverageDef::partial(
-            "The one-card search is executable from hand, but the effect cannot replace it with a two-card search based on the spell's cast origin.",
-        )),
-    abilities::flashback(mana_cost!("{7}{B}")).with_coverage(AbilityCoverageDef::metadata_only(
-        "Flashback is withheld because the two-card replacement search is not executable.",
-    )),
+        "Search your library for a card and put that card into your hand. If this spell was cast from a graveyard, instead search your library for two cards and put those cards into your hand. Then shuffle.",
+        EffectDef::Sequence(&INCREASING_AMBITION_EFFECT),
+    ),
+    abilities::flashback(mana_cost!("{7}{B}")),
 ];
 
 const fn increasing_ambition_rules() -> CardRules {
     CardRules::new_sorcery(mana_cost!("{4}{B}")).with_abilities(&INCREASING_AMBITION_ABILITIES)
 }
 
-fn increasing_ambition_composition() -> CardComposition {
-    let mut composition =
-        CardComposition::single("Increasing Ambition", increasing_ambition_rules());
-    // A runtime-granted flashback permission must not bypass the missing
-    // cast-origin branch and resolve the ordinary one-card search.
-    composition.play_options[0] = composition.play_options[0].clone().restricted_to_hand();
-    composition
-}
-
 // DKA 69 — Increasing Ambition
-// Audit: partial — The one-card hand-cast search is executable; the two-card replacement cannot branch on the spell's cast origin.
 pub(in crate::card::sets) static INCREASING_AMBITION: CardRecord = CardRecord::new_with_legacy_id(
     1692,
     "Increasing Ambition",
     CardArt::new("c8f508dc-7c7d-47e8-a4ef-0e8fd99cbd74", "Volkan Baǵa"),
     CardSet::DarkAscension,
     increasing_ambition_rules(),
-)
-.with_composition(increasing_ambition_composition);
+);
 
 // DKA 70 — Mikaeus, the Unhallowed
 // Audit: metadata-only — Needs a damage trigger keyed to Human sources plus a continuous effect that both excludes Humans and grants undying to other creatures.

@@ -3021,7 +3021,6 @@ pub(in crate::card::sets) static DWARVEN_DEMOLITION_TEAM: CardRecord =
     );
 
 // LEA 143 — Dwarven Warriors
-// Audit: partial — The target's power omits modifiers from static continuous effects.
 pub(in crate::card::sets) static DWARVEN_WARRIORS: CardRecord = CardRecord::new_with_legacy_id(
     462,
     "Dwarven Warriors",
@@ -3044,10 +3043,7 @@ pub(in crate::card::sets) static DWARVEN_WARRIORS: CardRecord = CardRecord::new_
                 )),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
-        )
-        .with_coverage(AbilityCoverageDef::partial(
-            "The target's power omits modifiers from static continuous effects.",
-        )),
+        ),
     ]),
 );
 
@@ -3650,7 +3646,6 @@ static STONE_GIANT_THROW: [EffectDef; 2] = [
 static STONE_GIANT_FLYING: AbilityDef = abilities::flying();
 
 // LEA 176 — Stone Giant
-// Audit: partial — The source's power and target's toughness omit modifiers from static continuous effects.
 pub(in crate::card::sets) static STONE_GIANT: CardRecord = CardRecord::new_with_legacy_id(
     18,
     "Stone Giant",
@@ -3663,10 +3658,7 @@ pub(in crate::card::sets) static STONE_GIANT: CardRecord = CardRecord::new_with_
                 &[AbilityCostDef::TapSource],
                 &STONE_GIANT_TARGET,
                 EffectDef::Sequence(&STONE_GIANT_THROW),
-            )
-            .with_coverage(AbilityCoverageDef::partial(
-                "The source's power and target's toughness omit modifiers from static continuous effects.",
-            )),
+            ),
         ]),
 );
 

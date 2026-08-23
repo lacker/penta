@@ -1580,7 +1580,6 @@ pub(in crate::card::sets) static TAWNOS_S_COFFIN: CardRecord = CardRecord::new(
 );
 
 // ATQ 69 — Tawnos's Wand
-// Audit: partial — Its power predicate omits modifiers from static continuous effects.
 pub(in crate::card::sets) static TAWNOSS_WAND: CardRecord = CardRecord::new_with_legacy_id(
     392,
     "Tawnos's Wand",
@@ -1606,10 +1605,7 @@ pub(in crate::card::sets) static TAWNOSS_WAND: CardRecord = CardRecord::new_with
                 )),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
-        )
-        .with_coverage(AbilityCoverageDef::partial(
-            "The power predicate omits modifiers from static continuous effects.",
-        )),
+        ),
     ]),
 );
 

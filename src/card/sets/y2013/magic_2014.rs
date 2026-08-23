@@ -19,17 +19,16 @@ use crate::card::sets::{
     y2012::{avacyn_restored, dark_ascension, magic_2013, return_to_ravnica},
 };
 use crate::card::{
-    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
-    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorChoiceOperationDef, ComparisonDef,
-    CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DiscardSelectionDef, EffectDef,
-    EffectRecipientDef, HalvedValueDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, RoundingDef,
-    SacrificedAmountDef, ScaledValueDef, TargetConditionDef, TopCardSelectionDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities, tokens,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt,
+    CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef,
+    ColorChoiceOperationDef, ColorSet, ComparisonDef, CounterKind, CreatureTypeSetDef,
+    DamageEventMatcherDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, HalvedValueDef,
+    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, RoundingDef, SacrificedAmountDef,
+    ScaledValueDef, TargetConditionDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -1585,8 +1584,18 @@ pub(in crate::card::sets) static NIGHTWING_SHADE: CardRecord = CardRecord::new_w
     ]),
 );
 
+static QUAG_SICKNESS_SWAMPS: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::Subtype("Swamp"),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::You,
+);
+
+static QUAG_SICKNESS_PENALTY: ValueDef = ValueDef::Scaled(&ScaledValueDef::new(
+    ValueDef::CountMatchingObjects(&QUAG_SICKNESS_SWAMPS),
+    -1,
+));
+
 // M14 110 — Quag Sickness
-// Audit: partial — Static power/toughness modifiers cannot negate a dynamic count of Swamps you control.
 pub(in crate::card::sets) static QUAG_SICKNESS: CardRecord = CardRecord::new_with_legacy_id(
     1189,
     "Quag Sickness",
@@ -1604,9 +1613,15 @@ pub(in crate::card::sets) static QUAG_SICKNESS: CardRecord = CardRecord::new_wit
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
             ),
-            AbilityDef::not_implemented(
+            AbilityDef::static_ability(
                 "Enchanted creature gets -1/-1 for each Swamp you control.",
-                "Static power/toughness modifiers cannot negate a dynamic battlefield-object count.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        QUAG_SICKNESS_PENALTY,
+                        QUAG_SICKNESS_PENALTY,
+                    ),
+                },
             ),
         ]),
 );
@@ -1862,8 +1877,15 @@ pub(in crate::card::sets) static ACADEMY_RAIDER: CardRecord = CardRecord::new(
 
 // M14 125 — Act of Treason (reprint)
 
+static AWAKEN_THE_ANCIENT_EFFECTS: [AppliedEffectDef; 5] = [
+    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+    AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Giant"])),
+    AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Red])),
+    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(7), ValueDef::Constant(7)),
+    AppliedEffectDef::add_ability(&abilities::haste()),
+];
+
 // M14 126 — Awaken the Ancient
-// Audit: partial — Static effects cannot animate an attached land while preserving its land characteristics through the shared runtime.
 pub(in crate::card::sets) static AWAKEN_THE_ANCIENT: CardRecord = CardRecord::new_with_legacy_id(
     1195,
     "Awaken the Ancient",
@@ -1884,9 +1906,12 @@ pub(in crate::card::sets) static AWAKEN_THE_ANCIENT: CardRecord = CardRecord::ne
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
             ),
-            AbilityDef::not_implemented(
+            AbilityDef::static_ability(
                 "Enchanted Mountain is a 7/7 red Giant creature with haste. It's still a land.",
-                "Animating an attached land through a static effect is outside the shared continuous-effect runtime.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&AWAKEN_THE_ANCIENT_EFFECTS),
+                },
             ),
         ]),
 );
@@ -2082,7 +2107,6 @@ pub(in crate::card::sets) static DRAGON_EGG: CardRecord = CardRecord::new_with_l
 // M14 139 — Flames of the Firebrand (reprint)
 
 // M14 140 — Fleshpulper Giant
-// Audit: partial — The toughness target predicate does not yet account for continuous static power/toughness effects.
 pub(in crate::card::sets) static FLESHPULPER_GIANT: CardRecord = CardRecord::new_with_legacy_id(
     1201,
     "Fleshpulper Giant",
@@ -2094,11 +2118,17 @@ pub(in crate::card::sets) static FLESHPULPER_GIANT: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{5}{R}{R}"), &["Giant"], 4, 4).with_ability(
         AbilityDef::triggered_with_targets(
             "When this creature enters, you may destroy target creature with toughness 2 or less.",
-            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)),
-            &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::ToughnessLessThan(ValueDef::Constant(3)),
-            ]))],
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ToughnessLessThan(ValueDef::Constant(3)),
+                ]),
+            )],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::Destroy {
@@ -2106,10 +2136,7 @@ pub(in crate::card::sets) static FLESHPULPER_GIANT: CardRecord = CardRecord::new
                     can_regenerate: true,
                 },
             },
-        )
-        .with_coverage(AbilityCoverageDef::partial(
-            "The toughness target predicate does not yet account for continuous static power/toughness effects.",
-        )),
+        ),
     ),
 );
 

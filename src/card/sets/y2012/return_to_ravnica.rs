@@ -11,8 +11,9 @@ use crate::card::{
     EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    SacrificedAmountDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneChangeEventMatcherDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
+    SacrificedAmountDef, SpellResolutionDestinationDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement,
+    abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -2653,16 +2654,26 @@ pub(in crate::card::sets) static VANDALBLAST: CardRecord = CardRecord::new_with_
 );
 
 // RTR 112 — Viashino Racketeer
-// Audit: partial — Discarding a card is not supported as an optional triggered-ability payment.
 pub(in crate::card::sets) static VIASHINO_RACKETEER: CardRecord = CardRecord::new_with_legacy_id(
     1294,
     "Viashino Racketeer",
     CardArt::new("bf4c2d22-9c36-42cc-854d-f96410bb5cf1", "Slawomir Maniak"),
     CardSet::ReturnToRavnica,
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Lizard", "Rogue"], 2, 1).with_ability(
-        AbilityDef::not_implemented(
+        AbilityDef::triggered(
             "When this creature enters, you may discard a card. If you do, draw a card.",
-            "Discarding a card is not supported as an optional triggered-ability payment.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::PayOr(PayOrDef::optional(
+                EffectPaymentDef::discard(PlayerSetDef::Related(PlayerRelation::You), 1),
+                &EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            )),
         ),
     ),
 );
@@ -4410,7 +4421,6 @@ pub(in crate::card::sets) static SEARCH_WARRANT: CardRecord = CardRecord::new(
 );
 
 // RTR 194 — Selesnya Charm
-// Audit: partial — Its power target predicate ignores power changes from static continuous effects.
 pub(in crate::card::sets) static SELESNYA_CHARM: CardRecord = CardRecord::new_with_legacy_id(
     209,
     "Selesnya Charm",
@@ -4442,9 +4452,7 @@ pub(in crate::card::sets) static SELESNYA_CHARM: CardRecord = CardRecord::new_wi
                     placement: ZonePlacement::Top,
                     arrival_effect: None,
                     attachment: None,
-                }).with_coverage(AbilityCoverageDef::partial(
-                    "PowerAtLeast reads resolved power changes but not power changes supplied by static continuous effects.",
-                )),
+                }),
             AbilityDef::spell(
                 "Create a 2/2 white Knight creature token with vigilance",
                 EffectDef::create_creature_token(&["Knight"], &[ManaColor::White], 2, 2).with_abilities(&[abilities::vigilance()]).with_art(CardArt::new("67d3d039-248a-4eb8-be5c-12959b458fea", "Matt Stewart")),
@@ -4487,7 +4495,6 @@ static SKYMARK_ROC_RETURN: EffectDef = EffectDef::MoveToZone {
 };
 
 // RTR 196 — Skymark Roc
-// Audit: partial — Its toughness target predicate ignores changes from static continuous effects.
 pub(in crate::card::sets) static SKYMARK_ROC: CardRecord = CardRecord::new_with_legacy_id(
     1325,
     "Skymark Roc",
@@ -4513,10 +4520,7 @@ pub(in crate::card::sets) static SKYMARK_ROC: CardRecord = CardRecord::new_with_
                 player: EffectRecipientDef::Controller,
                 effect: &SKYMARK_ROC_RETURN,
             },
-        )
-        .with_coverage(AbilityCoverageDef::partial(
-            "ToughnessLessThan reads resolved power/toughness changes but not changes supplied by static continuous effects.",
-        )),
+        ),
     ]),
 );
 
@@ -4670,23 +4674,22 @@ pub(in crate::card::sets) static THOUGHTFLARE: CardRecord = CardRecord::new_with
 );
 
 // RTR 204 — Treasured Find
-// Audit: partial — MoveToZone cannot move the resolving source spell from the stack to exile, so it goes to the graveyard normally.
 pub(in crate::card::sets) static TREASURED_FIND: CardRecord = CardRecord::new_with_legacy_id(
     1328,
     "Treasured Find",
     CardArt::new("a2c0e00b-2290-493f-a3fc-3b9bff2830cc", "Jason Chan"),
     CardSet::ReturnToRavnica,
-    CardRules::new_sorcery(mana_cost!("{B}{G}")).with_ability(AbilityDef::spell_with_targets(
-        "Return target card from your graveyard to your hand. Exile Treasured Find.",
-        &[AbilityTargetDef::exactly_one(
-            AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Any,
-                zones: &[ZoneKind::Graveyard],
-                controller: None,
-                owner: Some(PlayerRelation::You),
-            },
-        )],
-        EffectDef::Sequence(&[
+    CardRules::new_sorcery(mana_cost!("{B}{G}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Return target card from your graveyard to your hand. Exile Treasured Find.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -4696,20 +4699,9 @@ pub(in crate::card::sets) static TREASURED_FIND: CardRecord = CardRecord::new_wi
                 arrival_effect: None,
                 attachment: None,
             },
-            EffectDef::MoveToZone {
-                counters: None,
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Exile,
-                controller: None,
-                placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-            },
-        ]),
-    )
-    .with_coverage(AbilityCoverageDef::partial(
-        "MoveToZone supports permanents and cards in nonbattlefield zones, but not the resolving source spell on the stack.",
-    ))),
+        )
+        .with_resolution_destination(SpellResolutionDestinationDef::Exile),
+    ),
 );
 
 // RTR 205 — Trestle Troll

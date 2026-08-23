@@ -663,7 +663,6 @@ pub(in crate::card::sets) static NEARHEATH_PILGRIM: CardRecord = CardRecord::new
 );
 
 // AVR 32 — Restoration Angel
-// Audit: partial — Linked exile returns a blinked permanent under its owner rather than this ability's controller when the target was stolen.
 pub(in crate::card::sets) static RESTORATION_ANGEL: CardRecord = CardRecord::new_with_legacy_id(
     203,
     "Restoration Angel",
@@ -690,9 +689,7 @@ pub(in crate::card::sets) static RESTORATION_ANGEL: CardRecord = CardRecord::new
             },
         )], // The exile links the card to this Angel and the return drains
             // that link immediately, so the creature blinks within one
-            // resolution. The card comes back under its owner's control,
-            // which is the printed controller for every creature this can
-            // legally target unless control of it was already stolen.
+            // resolution.
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::Sequence(&[
@@ -705,15 +702,12 @@ pub(in crate::card::sets) static RESTORATION_ANGEL: CardRecord = CardRecord::new
                         arrival_effect: None,
                         zone: ZoneKind::Battlefield,
                         grant: None,
-                        controller: None,
+                        controller: Some(PlayerRelation::You),
                         transformed: false,
                     },
                 ]),
             },
-        )
-            .with_coverage(AbilityCoverageDef::partial(
-                "Linked exile returns a stolen target under its owner rather than this ability's controller.",
-            )),
+        ),
     ]),
 );
 

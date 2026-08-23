@@ -10,9 +10,9 @@ use crate::card::{
     ChoiceVisibilityDef, ChooseDef, ColorSet, ComparisonDef, ControlDurationDef, CounterKind,
     CreatureTypeSetDef, DamageEventMatcherDef, DamagePreventionDef, DamageRecipientMatcherDef,
     DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef,
-    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PayOrDef, PlayOptionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, SpellForm, TriggerConditionDef,
+    LikelihoodDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, PayOrDef, PlayOptionDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef, SpellForm, TriggerConditionDef,
     TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{CardPartId, ObjectBindingIndex, PlayOptionId, TargetIndex};
@@ -25,16 +25,6 @@ static MULTICOLORED: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
     ObjectPredicateDef::ColorCount(5),
 ]);
 
-static BATTALION_CONDITION: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: ObjectQueryDef::matching(
-        ObjectPredicateDef::Attacking,
-        &[ZoneKind::Battlefield],
-        PlayerRelation::You,
-    ),
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 3,
-};
-
 static TWO_GATES_CONDITION: TriggerConditionDef = TriggerConditionDef::ObjectCount {
     query: ObjectQueryDef::matching(
         ObjectPredicateDef::Subtype("Gate"),
@@ -46,26 +36,21 @@ static TWO_GATES_CONDITION: TriggerConditionDef = TriggerConditionDef::ObjectCou
 };
 
 // DGM 1 — Boros Mastiff
-// Audit: partial — Battalion's attack-count restriction is rechecked on resolution as though it were an intervening-if condition.
 pub(in crate::card::sets) static BOROS_MASTIFF: CardRecord = CardRecord::new_with_legacy_id(
     607,
     "Boros Mastiff",
     CardArt::new("27a3bfb6-3843-4bda-bbcb-905e4b351dea", "Kev Walker"),
     CardSet::DragonsMaze,
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Dog"], 2, 2).with_ability(
-        AbilityDef::triggered_if(
+        AbilityDef::triggered(
             "Battalion — Whenever this creature and at least two other creatures attack, this creature gains lifelink until end of turn.",
-            TriggerEventDef::attacks(ObjectPredicateDef::Source),
-            &BATTALION_CONDITION,
+            TriggerEventDef::attacks_in_declaration(ObjectPredicateDef::Source, 3, None),
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::add_ability(&abilities::lifelink()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
-        )
-        .with_coverage(AbilityCoverageDef::partial(
-            "The attack-count condition is incorrectly rechecked when the trigger resolves.",
-        )),
+        ),
     ),
 );
 
@@ -1841,8 +1826,45 @@ pub(in crate::card::sets) static PUTREFY: CardRecord = CardRecord::new_with_lega
     )),
 );
 
+static RAL_ZAREK_EXTRA_TURN: EffectDef = EffectDef::TakeExtraTurn {
+    player: EffectRecipientDef::Controller,
+};
+
+static RAL_ZAREK_FLIP_ONE: EffectDef = EffectDef::Randomized {
+    likelihood: LikelihoodDef::new(0.5),
+    on_success: &RAL_ZAREK_EXTRA_TURN,
+    on_failure: &EffectDef::None,
+};
+
+static RAL_ZAREK_FLIP_TWO_SUCCESS: [EffectDef; 2] = [RAL_ZAREK_EXTRA_TURN, RAL_ZAREK_FLIP_ONE];
+static RAL_ZAREK_FLIP_TWO: EffectDef = EffectDef::Randomized {
+    likelihood: LikelihoodDef::new(0.5),
+    on_success: &EffectDef::Sequence(&RAL_ZAREK_FLIP_TWO_SUCCESS),
+    on_failure: &RAL_ZAREK_FLIP_ONE,
+};
+
+static RAL_ZAREK_FLIP_THREE_SUCCESS: [EffectDef; 2] = [RAL_ZAREK_EXTRA_TURN, RAL_ZAREK_FLIP_TWO];
+static RAL_ZAREK_FLIP_THREE: EffectDef = EffectDef::Randomized {
+    likelihood: LikelihoodDef::new(0.5),
+    on_success: &EffectDef::Sequence(&RAL_ZAREK_FLIP_THREE_SUCCESS),
+    on_failure: &RAL_ZAREK_FLIP_TWO,
+};
+
+static RAL_ZAREK_FLIP_FOUR_SUCCESS: [EffectDef; 2] = [RAL_ZAREK_EXTRA_TURN, RAL_ZAREK_FLIP_THREE];
+static RAL_ZAREK_FLIP_FOUR: EffectDef = EffectDef::Randomized {
+    likelihood: LikelihoodDef::new(0.5),
+    on_success: &EffectDef::Sequence(&RAL_ZAREK_FLIP_FOUR_SUCCESS),
+    on_failure: &RAL_ZAREK_FLIP_THREE,
+};
+
+static RAL_ZAREK_FLIP_FIVE_SUCCESS: [EffectDef; 2] = [RAL_ZAREK_EXTRA_TURN, RAL_ZAREK_FLIP_FOUR];
+static RAL_ZAREK_FLIP_FIVE: EffectDef = EffectDef::Randomized {
+    likelihood: LikelihoodDef::new(0.5),
+    on_success: &EffectDef::Sequence(&RAL_ZAREK_FLIP_FIVE_SUCCESS),
+    on_failure: &RAL_ZAREK_FLIP_FOUR,
+};
+
 // DGM 94 — Ral Zarek
-// Audit: partial — The damage ability is complete, but the tap/untap targets are not constrained to different permanents and coin flips plus extra-turn scheduling are unavailable.
 pub(in crate::card::sets) static RAL_ZAREK: CardRecord = CardRecord::new_with_legacy_id(
     650,
     "Ral Zarek",
@@ -1856,7 +1878,7 @@ pub(in crate::card::sets) static RAL_ZAREK: CardRecord = CardRecord::new_with_le
                 &[AbilityCostDef::Loyalty(1)],
                 &[
                     AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any),
-                    AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any),
+                    AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any).another(),
                 ],
                 EffectDef::Sequence(&[
                     EffectDef::Tap {
@@ -1866,10 +1888,7 @@ pub(in crate::card::sets) static RAL_ZAREK: CardRecord = CardRecord::new_with_le
                         object: EffectRecipientDef::Target(TargetIndex(1)),
                     },
                 ]),
-            )
-            .with_coverage(AbilityCoverageDef::partial(
-                "The target system cannot require the two target slots to name different permanents.",
-            )),
+            ),
             AbilityDef::activated_with_targets(
                 "−2: Ral Zarek deals 3 damage to any target.",
                 &[AbilityCostDef::Loyalty(-2)],
@@ -1879,9 +1898,10 @@ pub(in crate::card::sets) static RAL_ZAREK: CardRecord = CardRecord::new_with_le
                     amount: ValueDef::Constant(3),
                 },
             ),
-            AbilityDef::not_implemented(
+            AbilityDef::activated(
                 "−7: Flip five coins. Take an extra turn after this one for each coin that comes up heads.",
-                "Coin flips and extra-turn scheduling are not available declaratively.",
+                &[AbilityCostDef::Loyalty(-7)],
+                RAL_ZAREK_FLIP_FIVE,
             ),
         ]),
 );
@@ -2088,8 +2108,33 @@ pub(in crate::card::sets) static SIRE_OF_INSANITY: CardRecord = CardRecord::new_
     ),
 );
 
+static SPECIES_GORGER_RETURN: EffectDef = EffectDef::MoveToZone {
+    counters: None,
+    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+    zone: ZoneKind::Hand,
+    controller: None,
+    placement: ZonePlacement::Top,
+    arrival_effect: None,
+    attachment: None,
+};
+
+static SPECIES_GORGER_CHOICE: EffectDef = EffectDef::Choose(ChooseDef {
+    binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+    unchosen: None,
+    chooser: PlayerRefDef::EffectController,
+    candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+        ObjectPredicateDef::HasType(CardType::Creature),
+        &[ZoneKind::Battlefield],
+        PlayerRelation::You,
+    )),
+    exclude: None,
+    minimum: 1,
+    maximum: 1,
+    visibility: ChoiceVisibilityDef::Public,
+    then: &SPECIES_GORGER_RETURN,
+});
+
 // DGM 105 — Species Gorger
-// Audit: partial — Needs a mandatory non-target creature choice followed by returning that chosen permanent to its owner's hand.
 pub(in crate::card::sets) static SPECIES_GORGER: CardRecord = CardRecord::new_with_legacy_id(
     653,
     "Species Gorger",
@@ -2102,11 +2147,8 @@ pub(in crate::card::sets) static SPECIES_GORGER: CardRecord = CardRecord::new_wi
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::Special("Choose a creature you control and return it to its owner's hand"),
-        )
-        .with_coverage(AbilityCoverageDef::metadata_only(
-            "A mandatory non-target object choice followed by a zone move is not available.",
-        )),
+            SPECIES_GORGER_CHOICE,
+        ),
     ),
 );
 
@@ -2121,7 +2163,6 @@ pub(in crate::card::sets) static SPIKE_JESTER: CardRecord = CardRecord::new_with
 );
 
 // DGM 107 — Tajic, Blade of the Legion
-// Audit: partial — Battalion's attack-count restriction is rechecked on resolution as though it were an intervening-if condition.
 pub(in crate::card::sets) static TAJIC_BLADE_OF_THE_LEGION: CardRecord = CardRecord::new_with_legacy_id(
     655,
     "Tajic, Blade of the Legion",
@@ -2131,19 +2172,15 @@ pub(in crate::card::sets) static TAJIC_BLADE_OF_THE_LEGION: CardRecord = CardRec
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             abilities::indestructible(),
-            AbilityDef::triggered_if(
+            AbilityDef::triggered(
                 "Battalion — Whenever this creature and at least two other creatures attack, this creature gets +5/+5 until end of turn.",
-                TriggerEventDef::attacks(ObjectPredicateDef::Source),
-                &BATTALION_CONDITION,
+                TriggerEventDef::attacks_in_declaration(ObjectPredicateDef::Source, 3, None),
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Source,
                     effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(5), ValueDef::Constant(5)),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
-            )
-            .with_coverage(AbilityCoverageDef::partial(
-                "The attack-count condition is incorrectly rechecked when the trigger resolves.",
-            )),
+            ),
         ]),
 );
 

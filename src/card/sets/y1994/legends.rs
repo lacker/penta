@@ -1903,7 +1903,6 @@ pub(in crate::card::sets) static COSMIC_HORROR: CardRecord = CardRecord::new(
 );
 
 // LEG 93 — Cyclopean Mummy
-// Audit: partial — Its death trigger cannot address the new card object created in the graveyard.
 pub(in crate::card::sets) static CYCLOPEAN_MUMMY: CardRecord = CardRecord::new_with_legacy_id(
     420,
     "Cyclopean Mummy",
@@ -1915,7 +1914,11 @@ pub(in crate::card::sets) static CYCLOPEAN_MUMMY: CardRecord = CardRecord::new_w
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Zombie"], 2, 1).with_ability(
         AbilityDef::triggered(
             "When this creature dies, exile it.",
-            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, Some(ZoneKind::Battlefield), Some(ZoneKind::Graveyard)),
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                Some(ZoneKind::Battlefield),
+                Some(ZoneKind::Graveyard),
+            ),
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Source,
@@ -1925,10 +1928,7 @@ pub(in crate::card::sets) static CYCLOPEAN_MUMMY: CardRecord = CardRecord::new_w
                 attachment: None,
                 controller: None,
             },
-        )
-        .with_coverage(AbilityCoverageDef::partial(
-            "The trigger remembers the old battlefield incarnation but cannot address the new card object in the graveyard.",
-        )),
+        ),
     ),
 );
 
@@ -6240,7 +6240,6 @@ pub(in crate::card::sets) static MOUNTAIN_STRONGHOLD: CardRecord = CardRecord::n
 );
 
 // LEG 305 — Pendelhaven
-// Audit: partial — The target's power and toughness omit modifiers from static continuous effects.
 pub(in crate::card::sets) static PENDELHAVEN: CardRecord = CardRecord::new_with_legacy_id(
     120,
     "Pendelhaven",
@@ -6262,10 +6261,7 @@ pub(in crate::card::sets) static PENDELHAVEN: CardRecord = CardRecord::new_with_
                     ),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
-            )
-            .with_coverage(AbilityCoverageDef::partial(
-                "The target's power and toughness omit modifiers from static continuous effects.",
-            )),
+            ),
         ]),
 );
 

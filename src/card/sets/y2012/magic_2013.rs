@@ -21,10 +21,10 @@ use crate::card::{
     CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ColorSet,
     ComparisonDef, ControlDurationDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef,
     DamageKindDef, DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
-    DiscardSelectionDef, DividedTotal, EffectDef, EffectExecutionDef, EffectRecipientDef,
-    KeywordAbility, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
+    DiscardFollowUpDef, DiscardSelectionDef, DividedTotal, EffectDef, EffectExecutionDef,
+    EffectRecipientDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
     SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef, TriggerConditionDef,
     TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
@@ -2922,16 +2922,22 @@ pub(in crate::card::sets) static REVERBERATE: CardRecord = CardRecord::new(
 );
 
 // M13 146 — Rummaging Goblin
-// Audit: partial — Discarding a card is not supported as an activated-ability cost.
 pub(in crate::card::sets) static RUMMAGING_GOBLIN: CardRecord = CardRecord::new_with_legacy_id(
     1023,
     "Rummaging Goblin",
     CardArt::new("cc5b622c-83a4-477e-a99c-2674e2bd6bb9", "Karl Kopinski"),
     CardSet::Magic2013,
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Rogue"], 1, 1).with_ability(
-        AbilityDef::not_implemented(
+        AbilityDef::activated(
             "{T}, Discard a card: Draw a card.",
-            "Discarding a card is not supported as an activated-ability cost.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
         ),
     ),
 );
@@ -3922,8 +3928,34 @@ pub(in crate::card::sets) static YEVAS_FORCEMAGE: CardRecord = CardRecord::new_w
     ),
 );
 
+static NICOL_BOLAS_SACRIFICE_SEVEN: EffectDef = EffectDef::SacrificeOfChoice {
+    player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+    object: ObjectPredicateDef::Any,
+    count: ValueDef::Constant(7),
+    then: None,
+    amount: SacrificedAmountDef::Power,
+    otherwise: None,
+    optional: false,
+};
+
+static NICOL_BOLAS_ULTIMATE: EffectDef = EffectDef::Sequence(&[
+    EffectDef::DealDamage {
+        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        amount: ValueDef::Constant(7),
+    },
+    EffectDef::Discard {
+        recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+        amount: ValueDef::Constant(7),
+        selection: DiscardSelectionDef::RecipientChooses,
+        then: Some(DiscardFollowUpDef {
+            counted: ObjectPredicateDef::Any,
+            bound: None,
+            effect: &NICOL_BOLAS_SACRIFICE_SEVEN,
+        }),
+    },
+]);
+
 // M13 199 — Nicol Bolas, Planeswalker
-// Audit: partial — Needs indefinite control change plus linked seven-card discard and seven-permanent sacrifice choices.
 pub(in crate::card::sets) static NICOL_BOLAS_PLANESWALKER: CardRecord = CardRecord::new_with_legacy_id(
     1700,
     "Nicol Bolas, Planeswalker",
@@ -3950,20 +3982,18 @@ pub(in crate::card::sets) static NICOL_BOLAS_PLANESWALKER: CardRecord = CardReco
                 "−2: Gain control of target creature.",
                 &[AbilityCostDef::Loyalty(-2)],
                 &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))],
-                EffectDef::Special("Gain control of target creature"),
-            )
-            .with_coverage(AbilityCoverageDef::metadata_only(
-                "A permanent-control-changing effect is not available declaratively.",
-            )),
+                EffectDef::GainControl {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    controller: PlayerRefDef::EffectController,
+                    duration: ControlDurationDef::Indefinitely,
+                },
+            ),
             AbilityDef::activated_with_targets(
                 "−9: Nicol Bolas deals 7 damage to target player or planeswalker. That player or that planeswalker's controller discards seven then sacrifices seven permanents of their choice.",
                 &[AbilityCostDef::Loyalty(-9)],
                 &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any))],
-                EffectDef::Special("Deal 7 damage to the target, then its player discards seven cards and sacrifices seven permanents"),
-            )
-            .with_coverage(AbilityCoverageDef::metadata_only(
-                "Choosing and sacrificing seven permanents simultaneously is not available declaratively.",
-            )),
+                NICOL_BOLAS_ULTIMATE,
+            ),
         ]),
 );
 

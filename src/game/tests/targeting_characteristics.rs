@@ -7,6 +7,7 @@
 //! resolution and so gets the real values, which is what these pin.
 
 use super::*;
+use crate::ImplementationStatus;
 
 fn legal_targets(game: &Game, source: GameObjectId) -> Vec<GameObjectId> {
     let mut found = game
@@ -90,4 +91,107 @@ fn a_statically_pumped_creature_leaves_a_power_ceiling() {
         !legal_targets(&game, warriors_id).contains(&bear_id),
         "the statics pushed it past the ceiling"
     );
+}
+
+#[test]
+fn a_static_toughness_bonus_moves_a_creature_out_of_range() {
+    let mut game = ready_game();
+    let source = creature(10_000, cards::FLESHPULPER_GIANT, PlayerId::One);
+    let source_id = source.card.id;
+    game.battlefield.push(source);
+    let lions = creature(10_001, cards::SAVANNAH_LIONS, PlayerId::Two);
+    let lions_id = lions.card.id;
+    game.battlefield.push(lions);
+
+    let predicate = AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::ToughnessLessThan(ValueDef::Constant(3)),
+        zones: &[ZoneKind::Battlefield],
+        controller: Some(PlayerRelation::Opponent),
+        owner: None,
+    };
+    assert!(
+        game.ability_targets_matching(
+            predicate,
+            PlayerId::One,
+            source_id,
+            TriggerContext::empty(),
+        )
+        .contains(&Target::Permanent(lions_id)),
+        "one toughness is below three",
+    );
+
+    game.battlefield
+        .push(creature(10_002, cards::CRUSADE, PlayerId::Two));
+    game.battlefield
+        .push(creature(10_003, cards::CRUSADE, PlayerId::Two));
+
+    assert!(
+        !game
+            .ability_targets_matching(predicate, PlayerId::One, source_id, TriggerContext::empty(),)
+            .contains(&Target::Permanent(lions_id)),
+        "two static bonuses make its toughness three",
+    );
+}
+
+#[test]
+fn a_static_source_power_bonus_widens_a_relative_target_predicate() {
+    let mut game = ready_game();
+    let source = creature(10_000, cards::ICATIAN_JAVELINEERS, PlayerId::One);
+    let source_id = source.card.id;
+    game.battlefield.push(source);
+    let bears = creature(10_001, cards::GRIZZLY_BEARS, PlayerId::One);
+    let bears_id = bears.card.id;
+    game.battlefield.push(bears);
+    let predicate = AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::ToughnessLessThan(ValueDef::SourcePower),
+        zones: &[ZoneKind::Battlefield],
+        controller: Some(PlayerRelation::You),
+        owner: None,
+    };
+
+    assert!(
+        !game
+            .ability_targets_matching(predicate, PlayerId::One, source_id, TriggerContext::empty(),)
+            .contains(&Target::Permanent(bears_id)),
+        "two toughness is not below one power",
+    );
+
+    game.battlefield
+        .push(creature(10_002, cards::CRUSADE, PlayerId::One));
+    game.battlefield
+        .push(creature(10_003, cards::CRUSADE, PlayerId::One));
+
+    assert!(
+        game.ability_targets_matching(
+            predicate,
+            PlayerId::One,
+            source_id,
+            TriggerContext::empty(),
+        )
+        .contains(&Target::Permanent(bears_id)),
+        "the statics raise the source to three power",
+    );
+}
+
+#[test]
+fn every_live_stat_target_card_reports_complete_coverage() {
+    let catalog = poc::catalog().expect("catalog builds");
+    for definition in [
+        cards::DWARVEN_WARRIORS,
+        cards::STONE_GIANT,
+        cards::TAWNOSS_WAND,
+        cards::PENDELHAVEN,
+        cards::SMITE_THE_MONSTROUS,
+        cards::SELESNYA_CHARM,
+        cards::SKYMARK_ROC,
+        cards::FLESHPULPER_GIANT,
+    ] {
+        let card = catalog.get(definition).expect("the card is cataloged");
+        assert_eq!(
+            card.rules.implementation_status(),
+            ImplementationStatus::Complete,
+            "{} should be fully executable",
+            card.name,
+        );
+    }
 }

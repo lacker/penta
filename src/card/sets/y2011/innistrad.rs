@@ -842,25 +842,19 @@ pub(in crate::card::sets) static SLAYER_OF_THE_WICKED: CardRecord = CardRecord::
 );
 
 // ISD 33 — Smite the Monstrous
-// Audit: partial — PowerAtLeast does not include power changes from static continuous effects when checking target legality.
 pub(in crate::card::sets) static SMITE_THE_MONSTROUS: CardRecord = CardRecord::new_with_legacy_id(
     864,
     "Smite the Monstrous",
     CardArt::new("0103f3b1-88c2-4cbf-a67c-49420f92970f", "Jason Felix"),
     CardSet::Innistrad,
-    CardRules::new_instant(mana_cost!("{3}{W}")).with_ability(
-        AbilityDef::destroy_target(
-            "Destroy target creature with power 4 or greater.",
-            &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::PowerAtLeast(4),
-            ])),
-            true,
-        )
-        .with_coverage(AbilityCoverageDef::partial(
-            "PowerAtLeast reads resolved power changes but not power changes supplied by static continuous effects.",
-        )),
-    ),
+    CardRules::new_instant(mana_cost!("{3}{W}")).with_ability(AbilityDef::destroy_target(
+        "Destroy target creature with power 4 or greater.",
+        &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::PowerAtLeast(4),
+        ])),
+        true,
+    )),
 );
 
 // ISD 34 — Spare from Evil

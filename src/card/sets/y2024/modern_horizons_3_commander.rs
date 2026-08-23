@@ -209,6 +209,16 @@ pub(in crate::card::sets) static BLOODBRAID_CHALLENGER: CardRecord = CardRecord:
         .with_abilities(&BLOODBRAID_CHALLENGER_ABILITIES),
 );
 
+// M3C 134 — Talon Gates of Madara
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TALON_GATES_OF_MADARA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c565f8fe-acf7-40dd-8100-8f692d1e232c"),
+    "Talon Gates of Madara",
+    crate::card::CardArt::new("c565f8fe-acf7-40dd-8100-8f692d1e232c", "Steven Belledin"),
+    crate::card::CardSet::ModernHorizons3Commander,
+    crate::card::CardRules::unsupported(),
+);
+
 // M3C 320 — Basilisk Gate
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static BASILISK_GATE: CardRecord = CardRecord::new(
@@ -224,6 +234,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BARROWGOYF,
     &PYROGOYF,
     &BLOODBRAID_CHALLENGER,
+    &TALON_GATES_OF_MADARA,
     &BASILISK_GATE,
 ];
 

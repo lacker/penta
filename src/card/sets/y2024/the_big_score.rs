@@ -53,6 +53,16 @@ static LEGION_EXTRUDER_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
+// BIG 9 — Harvester of Misery
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static HARVESTER_OF_MISERY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a3012af9-621d-4fae-b00d-079a89ae35fe"),
+    "Harvester of Misery",
+    crate::card::CardArt::new("a3012af9-621d-4fae-b00d-079a89ae35fe", "Jorge Jacinto"),
+    crate::card::CardSet::TheBigScore,
+    crate::card::CardRules::unsupported(),
+);
+
 // BIG 12 — Legion Extruder
 pub(in crate::card::sets) static LEGION_EXTRUDER: CardRecord = CardRecord::new_with_legacy_id(
     2288,
@@ -126,6 +136,35 @@ pub(in crate::card::sets) static LOOT_THE_PATHFINDER: CardRecord = CardRecord::n
         .with_abilities(&LOOT_ABILITIES),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&LEGION_EXTRUDER, &LOOT_THE_PATHFINDER];
+// BIG 41 — Generous Plunderer
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GENEROUS_PLUNDERER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("351eea06-f5be-4044-b3b3-cc6bf805abb1"),
+    "Generous Plunderer",
+    crate::card::CardArt::new(
+        "351eea06-f5be-4044-b3b3-cc6bf805abb1",
+        "Josiah \"Jo\" Cameron",
+    ),
+    crate::card::CardSet::TheBigScore,
+    crate::card::CardRules::unsupported(),
+);
+
+// BIG 85 — Vaultborn Tyrant
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static VAULTBORN_TYRANT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("07ca436a-e992-40a9-978a-501a82e443ed"),
+    "Vaultborn Tyrant",
+    crate::card::CardArt::new("07ca436a-e992-40a9-978a-501a82e443ed", "Loïc Canavaggia"),
+    crate::card::CardSet::TheBigScore,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &HARVESTER_OF_MISERY,
+    &LEGION_EXTRUDER,
+    &LOOT_THE_PATHFINDER,
+    &GENEROUS_PLUNDERER,
+    &VAULTBORN_TYRANT,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

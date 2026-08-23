@@ -188,6 +188,26 @@ static A_CREATURE_CARD_IN_A_GRAVEYARD: [AbilityTargetDef; 1] = [AbilityTargetDef
     },
 )];
 
+// BRO 223 — Third Path Iconoclast
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static THIRD_PATH_ICONOCLAST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f1a21287-e244-4960-84fb-c4f6e5c346d9"),
+    "Third Path Iconoclast",
+    crate::card::CardArt::new("f1a21287-e244-4960-84fb-c4f6e5c346d9", "Manuel Castañón"),
+    crate::card::CardSet::TheBrothersWar,
+    crate::card::CardRules::unsupported(),
+);
+
+// BRO 238 — The Mightstone and Weakstone
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static THE_MIGHTSTONE_AND_WEAKSTONE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("02aea379-b444-46a3-82f4-3038f698d4f4"),
+    "The Mightstone and Weakstone",
+    crate::card::CardArt::new("02aea379-b444-46a3-82f4-3038f698d4f4", "Ryan Pancoast"),
+    crate::card::CardSet::TheBrothersWar,
+    crate::card::CardRules::unsupported(),
+);
+
 // BRO 240 — Portal to Phyrexia
 pub(in crate::card::sets) static PORTAL_TO_PHYREXIA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5f608efc-0dbc-4cc3-aadd-ed473bfc29ab"),
@@ -251,6 +271,8 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GIXIAN_INFILTRATOR,
     &SCRAPWORK_MUTT,
     &HAYWIRE_MITE,
+    &THIRD_PATH_ICONOCLAST,
+    &THE_MIGHTSTONE_AND_WEAKSTONE,
     &PORTAL_TO_PHYREXIA,
     &TOCASIA_S_DIG_SITE,
 ];

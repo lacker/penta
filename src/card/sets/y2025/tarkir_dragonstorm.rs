@@ -398,6 +398,28 @@ pub(in crate::card::sets) static SAGU_WILDLING: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// TDM 343 — Cori-Steel Cutter
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CORI_STEEL_CUTTER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("470dd3c8-07c9-42ef-aa9e-3c73b23607ff"),
+    "Cori-Steel Cutter",
+    crate::card::CardArt::new("470dd3c8-07c9-42ef-aa9e-3c73b23607ff", "Tomas Duchek"),
+    crate::card::CardSet::TarkirDragonstorm,
+    crate::card::CardRules::unsupported(),
+);
+
+// TDM 398 — Elspeth, Storm Slayer
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ELSPETH_STORM_SLAYER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1fdf9438-fd5f-4638-8f41-dae35ae8f257"),
+    "Elspeth, Storm Slayer",
+    crate::card::CardArt::new("1fdf9438-fd5f-4638-8f41-dae35ae8f257", "Jeremy Wilson"),
+    crate::card::CardSet::TarkirDragonstorm,
+    crate::card::CardRules::unsupported(),
+);
+
+// TDM 409 — Ugin, Eye of the Storms (alternate printing)
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &UGIN_EYE_OF_THE_STORMS,
     &DESCENDANT_OF_STORMS,
@@ -411,6 +433,10 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AINOK_WAYFARER,
     &CHAMPION_OF_DUSAN,
     &SAGU_WILDLING,
+    &CORI_STEEL_CUTTER,
+    &ELSPETH_STORM_SLAYER,
 ];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
+    PrintingRecord::alternate(&UGIN_EYE_OF_THE_STORMS, 1), // TDM 409
+];

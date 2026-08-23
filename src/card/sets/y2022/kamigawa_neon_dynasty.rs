@@ -529,6 +529,38 @@ pub(in crate::card::sets) static IRON_APPRENTICE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// NEO 271 — Otawara, Soaring City
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static OTAWARA_SOARING_CITY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("486d7edc-d983-41f0-8b78-c99aecd72996"),
+    "Otawara, Soaring City",
+    crate::card::CardArt::new("486d7edc-d983-41f0-8b78-c99aecd72996", "Alayna Danner"),
+    crate::card::CardSet::KamigawaNeonDynasty,
+    crate::card::CardRules::unsupported(),
+);
+
+// NEO 357 — Fable of the Mirror-Breaker
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FABLE_OF_THE_MIRROR_BREAKER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0b696cd1-0d72-4df5-bacc-dc77e62f9a13"),
+    "Fable of the Mirror-Breaker",
+    crate::card::CardArt::new("0b696cd1-0d72-4df5-bacc-dc77e62f9a13", "akio"),
+    crate::card::CardSet::KamigawaNeonDynasty,
+    crate::card::CardRules::unsupported(),
+);
+
+// NEO 412 — Boseiju, Who Endures
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BOSEIJU_WHO_ENDURES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0055ea30-20fb-4324-a632-8fed87628f05"),
+    "Boseiju, Who Endures",
+    crate::card::CardArt::new("0055ea30-20fb-4324-a632-8fed87628f05", "Esuthio"),
+    crate::card::CardSet::KamigawaNeonDynasty,
+    crate::card::CardRules::unsupported(),
+);
+
+// NEO 418 — The Wandering Emperor (alternate printing)
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &IMPERIAL_OATH,
     &LION_SASH,
@@ -544,6 +576,11 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &TAMIYO_S_SAFEKEEPING,
     &TAMIYO_COMPLEATED_SAGE,
     &IRON_APPRENTICE,
+    &OTAWARA_SOARING_CITY,
+    &FABLE_OF_THE_MIRROR_BREAKER,
+    &BOSEIJU_WHO_ENDURES,
 ];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
+    PrintingRecord::alternate(&THE_WANDERING_EMPEROR, 1), // NEO 418
+];

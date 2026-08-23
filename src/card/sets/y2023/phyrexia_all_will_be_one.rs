@@ -43,6 +43,16 @@ pub(in crate::card::sets) static PLANAR_DISRUPTION: CardRecord = CardRecord::new
     crate::card::CardRules::unsupported(),
 );
 
+// ONE 108 — Sheoldred's Edict
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SHEOLDRED_S_EDICT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a9225cc3-90f0-448f-a8d9-7c6c2796d077"),
+    "Sheoldred's Edict",
+    crate::card::CardArt::new("a9225cc3-90f0-448f-a8d9-7c6c2796d077", "Helge C. Balzer"),
+    crate::card::CardSet::PhyrexiaAllWillBeOne,
+    crate::card::CardRules::unsupported(),
+);
+
 // ONE 121 — Barbed Batterfist
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static BARBED_BATTERFIST: CardRecord = CardRecord::new(
@@ -94,12 +104,24 @@ pub(in crate::card::sets) static CONTAGIOUS_VORRAC: CardRecord = CardRecord::new
     crate::card::CardRules::unsupported(),
 );
 
+// ONE 196 — Atraxa, Grand Unifier
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ATRAXA_GRAND_UNIFIER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4a1f905f-1d55-4d02-9d24-e58070793d3f"),
+    "Atraxa, Grand Unifier",
+    crate::card::CardArt::new("4a1f905f-1d55-4d02-9d24-e58070793d3f", "Marta Nael"),
+    crate::card::CardSet::PhyrexiaAllWillBeOne,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PLANAR_DISRUPTION,
+    &SHEOLDRED_S_EDICT,
     &BARBED_BATTERFIST,
     &FURNACE_STRIDER,
     &CANKERBLOOM,
     &CONTAGIOUS_VORRAC,
+    &ATRAXA_GRAND_UNIFIER,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

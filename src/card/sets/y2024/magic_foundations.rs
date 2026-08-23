@@ -42,6 +42,16 @@ pub(in crate::card::sets) static GOBLIN_SURPRISE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// FDN 330 — Kellan, Planar Trailblazer
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static KELLAN_PLANAR_TRAILBLAZER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0e413f37-b59a-4302-86d3-2abce81edc78"),
+    "Kellan, Planar Trailblazer",
+    crate::card::CardArt::new("0e413f37-b59a-4302-86d3-2abce81edc78", "Aaron J. Riley"),
+    crate::card::CardSet::MagicFoundations,
+    crate::card::CardRules::unsupported(),
+);
+
 // FDN 528 — Undying Malice
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static UNDYING_MALICE: CardRecord = CardRecord::new(
@@ -67,6 +77,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &TREETOP_SNARESPINNER,
     &FANATICAL_FIREBRAND,
     &GOBLIN_SURPRISE,
+    &KELLAN_PLANAR_TRAILBLAZER,
     &UNDYING_MALICE,
     &SHIPWRECK_DOWSER,
 ];

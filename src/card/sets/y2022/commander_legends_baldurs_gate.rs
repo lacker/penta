@@ -186,6 +186,26 @@ pub(in crate::card::sets) static YOU_MEET_IN_A_TAVERN: CardRecord = CardRecord::
     crate::card::CardRules::unsupported(),
 );
 
+// CLB 285 — Minsc & Boo, Timeless Heroes
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MINSC_BOO_TIMELESS_HEROES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("928036c9-11b8-493e-b9f2-8fbd3487cd19"),
+    "Minsc & Boo, Timeless Heroes",
+    crate::card::CardArt::new("928036c9-11b8-493e-b9f2-8fbd3487cd19", "Andreas Zafiratos"),
+    crate::card::CardSet::CommanderLegendsBattleForBaldursGate,
+    crate::card::CardRules::unsupported(),
+);
+
+// CLB 560 — Displacer Kitten
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DISPLACER_KITTEN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9a53e8fc-bfd2-4866-a61c-f3204b0a98bf"),
+    "Displacer Kitten",
+    crate::card::CardArt::new("9a53e8fc-bfd2-4866-a61c-f3204b0a98bf", "Campbell White"),
+    crate::card::CardSet::CommanderLegendsBattleForBaldursGate,
+    crate::card::CardRules::unsupported(),
+);
+
 // CLB 630 — Delayed Blast Fireball
 pub(in crate::card::sets) static DELAYED_BLAST_FIREBALL: CardRecord =
     CardRecord::new_with_legacy_id(
@@ -236,6 +256,8 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GUILDSWORN_PROWLER,
     &GUT_TRUE_SOUL_ZEALOT,
     &YOU_MEET_IN_A_TAVERN,
+    &MINSC_BOO_TIMELESS_HEROES,
+    &DISPLACER_KITTEN,
     &DELAYED_BLAST_FIREBALL,
     &DAUTHI_HORROR,
     &IZZET_BOILERWORKS,

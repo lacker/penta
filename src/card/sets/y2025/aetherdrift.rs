@@ -147,6 +147,16 @@ static RIVERPYRE_HAS_ITS_LAND: TriggerConditionDef = TriggerConditionDef::Object
     amount: 1,
 };
 
+// DFT 250 — Bleachbone Verge
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BLEACHBONE_VERGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("52dcdabd-a186-45fe-9fee-6c0f1afeaf16"),
+    "Bleachbone Verge",
+    crate::card::CardArt::new("52dcdabd-a186-45fe-9fee-6c0f1afeaf16", "Mark Tedin"),
+    crate::card::CardSet::Aetherdrift,
+    crate::card::CardRules::unsupported(),
+);
+
 // DFT 258 — Night Market
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static NIGHT_MARKET: CardRecord = CardRecord::new(
@@ -195,6 +205,16 @@ static VERGE_HAS_ITS_LAND: TriggerConditionDef = TriggerConditionDef::ObjectCoun
     amount: 1,
 };
 
+// DFT 264 — Sunbillow Verge
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SUNBILLOW_VERGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("94ed132f-b818-4dbf-9b4a-e5acb067e0a4"),
+    "Sunbillow Verge",
+    crate::card::CardArt::new("94ed132f-b818-4dbf-9b4a-e5acb067e0a4", "Pete Venters"),
+    crate::card::CardSet::Aetherdrift,
+    crate::card::CardRules::unsupported(),
+);
+
 // DFT 268 — Wastewood Verge
 pub(in crate::card::sets) static WASTEWOOD_VERGE: CardRecord = CardRecord::new_with_legacy_id(
     2196,
@@ -223,8 +243,10 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CHITIN_GRAVESTALKER,
     &GRIM_BAUBLE,
     &BRIGHTGLASS_GEARHULK,
+    &BLEACHBONE_VERGE,
     &NIGHT_MARKET,
     &RIVERPYRE_VERGE,
+    &SUNBILLOW_VERGE,
     &WASTEWOOD_VERGE,
 ];
 

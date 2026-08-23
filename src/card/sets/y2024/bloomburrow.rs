@@ -115,6 +115,16 @@ static STORMCHASERS_TALENT_ABILITIES: [AbilityDef; 5] = [
     ),
 ];
 
+// BLB 54 — Kitsa, Otterball Elite
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static KITSA_OTTERBALL_ELITE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c8ff751a-ec64-41d5-b22c-2a483ad9a9b2"),
+    "Kitsa, Otterball Elite",
+    crate::card::CardArt::new("c8ff751a-ec64-41d5-b22c-2a483ad9a9b2", "Zoltan Boros"),
+    crate::card::CardSet::Bloomburrow,
+    crate::card::CardRules::unsupported(),
+);
+
 // BLB 75 — Stormchaser's Talent
 pub(in crate::card::sets) static STORMCHASERS_TALENT: CardRecord = CardRecord::new_with_legacy_id(
     2232,
@@ -241,12 +251,28 @@ pub(in crate::card::sets) static HIDDEN_GROTTO: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// BLB 307 — Thundertrap Trainer (alternate printing)
+
+// BLB 322 — Keen-Eyed Curator
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static KEEN_EYED_CURATOR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("004a67ce-60ef-4cc2-9f4d-f30e3029d80a"),
+    "Keen-Eyed Curator",
+    crate::card::CardArt::new("004a67ce-60ef-4cc2-9f4d-f30e3029d80a", "Mariah Tekulve"),
+    crate::card::CardSet::Bloomburrow,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &KITSA_OTTERBALL_ELITE,
     &STORMCHASERS_TALENT,
     &THUNDERTRAP_TRAINER,
     &CINDERING_CUTTHROAT,
     &TEMPEST_ANGLER,
     &HIDDEN_GROTTO,
+    &KEEN_EYED_CURATOR,
 ];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
+    PrintingRecord::alternate(&THUNDERTRAP_TRAINER, 1), // BLB 307
+];

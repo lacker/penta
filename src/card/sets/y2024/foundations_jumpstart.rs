@@ -1,6 +1,7 @@
 //! Foundations Jumpstart cards cataloged for the Vintage Cube pool.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::sets::y2005::ravnica_city_of_guilds as catalog_rav;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
     AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType, ComparisonDef,
@@ -216,6 +217,8 @@ pub(in crate::card::sets) static IVORA_INSATIABLE_HEIR: CardRecord = CardRecord:
         .with_abilities(&IVORA_ABILITIES),
 );
 
+// J25 114 — Dark Confidant (reprint)
+
 // J25 212 — Inspiring Overseer
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static INSPIRING_OVERSEER: CardRecord = CardRecord::new(
@@ -235,6 +238,16 @@ pub(in crate::card::sets) static PESTERMITE: CardRecord = CardRecord::new(
         "4c8b4f64-244c-4944-b23f-c383039d9767",
         "Christopher Moeller",
     ),
+    crate::card::CardSet::FoundationsJumpstart,
+    crate::card::CardRules::unsupported(),
+);
+
+// J25 349 — Remand
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static REMAND: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("581f3780-c480-48c6-b15c-1618f2feccb9"),
+    "Remand",
+    crate::card::CardArt::new("36de9999-8d0a-4174-8e38-549bacdc128b", "Mark A. Nelson"),
     crate::card::CardSet::FoundationsJumpstart,
     crate::card::CardRules::unsupported(),
 );
@@ -277,9 +290,12 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &IVORA_INSATIABLE_HEIR,
     &INSPIRING_OVERSEER,
     &PESTERMITE,
+    &REMAND,
     &BUSHWHACK,
     &LLANOWAR_VISIONARY,
     &GUARDIAN_IDOL,
 ];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
+    PrintingRecord::reprint(&catalog_rav::DARK_CONFIDANT), // J25 114
+];

@@ -63,6 +63,17 @@ pub(in crate::card::sets) static KAPPA_CANNONEER: CardRecord = CardRecord::new(
         ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&KAPPA_CANNONEER];
+// NEC 76 — Shorikai, Genesis Engine
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SHORIKAI_GENESIS_ENGINE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0347cf84-42f5-4674-99de-619b0ae51d62"),
+    "Shorikai, Genesis Engine",
+    crate::card::CardArt::new("0347cf84-42f5-4674-99de-619b0ae51d62", "Wisnu Tan"),
+    crate::card::CardSet::KamigawaNeonDynastyCommander,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&KAPPA_CANNONEER, &SHORIKAI_GENESIS_ENGINE];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

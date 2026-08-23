@@ -785,6 +785,42 @@ pub(in crate::card::sets) static CLOCKWORK_PERCUSSIONIST: CardRecord = CardRecor
     crate::card::CardRules::unsupported(),
 );
 
+// DSK 314 — Chainsaw
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CHAINSAW: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1c8d0f4e-6b1e-4444-8851-adf857273964"),
+    "Chainsaw",
+    crate::card::CardArt::new("1c8d0f4e-6b1e-4444-8851-adf857273964", "Alexis Ziritt"),
+    crate::card::CardSet::DuskmournHouseOfHorror,
+    crate::card::CardRules::unsupported(),
+);
+
+// DSK 316 — Fear of Missing Out (alternate printing)
+
+// DSK 329 — Blazemire Verge (alternate printing)
+
+// DSK 348 — Screaming Nemesis
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SCREAMING_NEMESIS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ad3f4c72-ff6e-4d7f-8eb8-45a0a9605fc0"),
+    "Screaming Nemesis",
+    crate::card::CardArt::new("ad3f4c72-ff6e-4d7f-8eb8-45a0a9605fc0", "Inkognit"),
+    crate::card::CardSet::DuskmournHouseOfHorror,
+    crate::card::CardRules::unsupported(),
+);
+
+// DSK 387 — Overlord of the Mistmoors
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static OVERLORD_OF_THE_MISTMOORS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1951ed76-16a1-4639-b824-08dfc3d6d098"),
+    "Overlord of the Mistmoors",
+    crate::card::CardArt::new("1951ed76-16a1-4639-b824-08dfc3d6d098", "Takeuchi Moto"),
+    crate::card::CardSet::DuskmournHouseOfHorror,
+    crate::card::CardRules::unsupported(),
+);
+
+// DSK 409 — Kaito, Bane of Nightmares (alternate printing)
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ENDURING_INNOCENCE,
     &TRAPPED_IN_THE_SCREEN,
@@ -801,6 +837,13 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BLAZEMIRE_VERGE,
     &THORNSPIRE_VERGE,
     &CLOCKWORK_PERCUSSIONIST,
+    &CHAINSAW,
+    &SCREAMING_NEMESIS,
+    &OVERLORD_OF_THE_MISTMOORS,
 ];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
+    PrintingRecord::alternate(&FEAR_OF_MISSING_OUT, 1), // DSK 316
+    PrintingRecord::alternate(&BLAZEMIRE_VERGE, 1),     // DSK 329
+    PrintingRecord::alternate(&KAITO_BANE_OF_NIGHTMARES, 1), // DSK 409
+];

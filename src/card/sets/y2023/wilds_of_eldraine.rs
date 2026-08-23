@@ -145,6 +145,16 @@ pub(in crate::card::sets) static GNAWING_CRESCENDO: CardRecord = CardRecord::new
     crate::card::CardRules::unsupported(),
 );
 
+// WOE 142 — Monstrous Rage
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MONSTROUS_RAGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("eef5a0ae-5907-42c9-a097-3f973737e392"),
+    "Monstrous Rage",
+    crate::card::CardArt::new("eef5a0ae-5907-42c9-a097-3f973737e392", "Borja Pindado"),
+    crate::card::CardSet::WildsOfEldraine,
+    crate::card::CardRules::unsupported(),
+);
+
 // WOE 242 — Agatha's Soul Cauldron
 pub(in crate::card::sets) static AGATHAS_SOUL_CAULDRON: CardRecord = CardRecord::new_with_legacy_id(
     2251,
@@ -166,13 +176,25 @@ pub(in crate::card::sets) static CANDY_TRAIL: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// WOE 277 — Virtue of Loyalty
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static VIRTUE_OF_LOYALTY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9622e597-dc7c-4198-9ce5-4df53bb0c96c"),
+    "Virtue of Loyalty",
+    crate::card::CardArt::new("9622e597-dc7c-4198-9ce5-4df53bb0c96c", "Keith Garletts"),
+    crate::card::CardSet::WildsOfEldraine,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &MOCKING_SPRITE,
     &CANDY_GRAPPLE,
     &VORACIOUS_VERMIN,
     &GNAWING_CRESCENDO,
+    &MONSTROUS_RAGE,
     &AGATHAS_SOUL_CAULDRON,
     &CANDY_TRAIL,
+    &VIRTUE_OF_LOYALTY,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

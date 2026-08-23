@@ -500,6 +500,16 @@ pub(in crate::card::sets) static EMPEROR_OF_BONES: CardRecord = CardRecord::new_
         .with_abilities(&EMPEROR_OF_BONES_ABILITIES),
 );
 
+// MH3 103 — Nethergoyf
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static NETHERGOYF: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3ee3945e-5089-4751-b7b3-5961c39d2a33"),
+    "Nethergoyf",
+    crate::card::CardArt::new("3ee3945e-5089-4751-b7b3-5961c39d2a33", "Xavier Ribeiro"),
+    crate::card::CardSet::ModernHorizons3,
+    crate::card::CardRules::unsupported(),
+);
+
 // MH3 106 — Retrofitted Transmogrant
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static RETROFITTED_TRANSMOGRANT: CardRecord = CardRecord::new(
@@ -682,6 +692,16 @@ pub(in crate::card::sets) static EVOLUTION_WITNESS: CardRecord = CardRecord::new
     PrintingAnchor::scryfall("4b4ecfa6-5e38-4c0a-91e2-f93cb492f374"),
     "Evolution Witness",
     crate::card::CardArt::new("4d89283e-9783-4006-9294-4ae0473d2ce6", "Nereida"),
+    crate::card::CardSet::ModernHorizons3,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 152 — Fanatic of Rhonas
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FANATIC_OF_RHONAS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1f9fb33a-3b39-4aff-93b8-aedafe0ea694"),
+    "Fanatic of Rhonas",
+    crate::card::CardArt::new("1f9fb33a-3b39-4aff-93b8-aedafe0ea694", "Scott Murphy"),
     crate::card::CardSet::ModernHorizons3,
     crate::card::CardRules::unsupported(),
 );
@@ -1108,6 +1128,16 @@ static PHLAGE_ABILITIES: [AbilityDef; 3] = [
     )
     .with_alternative_additional_cost(&EXILE_FIVE_OTHER_CARDS),
 ];
+
+// MH3 171 — Springheart Nantuko
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SPRINGHEART_NANTUKO: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("54a3ea87-005e-4985-b2a5-21711d0b71c0"),
+    "Springheart Nantuko",
+    crate::card::CardArt::new("54a3ea87-005e-4985-b2a5-21711d0b71c0", "Valera Lutfullina"),
+    crate::card::CardSet::ModernHorizons3,
+    crate::card::CardRules::unsupported(),
+);
 
 // MH3 172 — Temperamental Oozewagg
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1608,6 +1638,16 @@ pub(in crate::card::sets) static WITCH_ENCHANTER: CardRecord = CardRecord::new(
 )
 .with_composition(witch_enchanter_composition);
 
+// MH3 241 — Sink into Stupor
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SINK_INTO_STUPOR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5358b87a-1a29-426d-b165-40c97da2c14d"),
+    "Sink into Stupor",
+    crate::card::CardArt::new("5358b87a-1a29-426d-b165-40c97da2c14d", "Peter Polach"),
+    crate::card::CardSet::ModernHorizons3,
+    crate::card::CardRules::unsupported(),
+);
+
 // MH3 284 — Annoyed Altisaur
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ANNOYED_ALTISAUR: CardRecord = CardRecord::new(
@@ -1628,6 +1668,91 @@ pub(in crate::card::sets) static PRIEST_OF_TITANIA: CardRecord = CardRecord::new
     crate::card::CardRules::unsupported(),
 );
 
+// MH3 351 — Arena of Glory
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ARENA_OF_GLORY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3d7d07bb-b875-4a6d-8b87-4187e823af75"),
+    "Arena of Glory",
+    crate::card::CardArt::new("3d7d07bb-b875-4a6d-8b87-4187e823af75", "Piotr Dura"),
+    crate::card::CardSet::ModernHorizons3,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 377 — Nadu, Winged Wisdom
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static NADU_WINGED_WISDOM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8281df8a-2fde-454a-813c-d9f86bb35d36"),
+    "Nadu, Winged Wisdom",
+    crate::card::CardArt::new("8281df8a-2fde-454a-813c-d9f86bb35d36", "Gossip Goblin"),
+    crate::card::CardSet::ModernHorizons3,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 443 — Tamiyo, Inquisitive Student
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1b234fee-a2b6-4661-9f98-4da6fc26aebc"),
+    "Tamiyo, Inquisitive Student",
+    crate::card::CardArt::new("1b234fee-a2b6-4661-9f98-4da6fc26aebc", "Evyn Fong"),
+    crate::card::CardSet::ModernHorizons3,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 444 — Sorin of House Markov
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SORIN_OF_HOUSE_MARKOV: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0347bf13-1ccb-4d4d-a5f2-68181d494b85"),
+    "Sorin of House Markov",
+    crate::card::CardArt::new("0347bf13-1ccb-4d4d-a5f2-68181d494b85", "Livia Prima"),
+    crate::card::CardSet::ModernHorizons3,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 448 — Guide of Souls
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GUIDE_OF_SOULS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("298de33f-cb39-47c5-9579-54d91eb34414"),
+    "Guide of Souls",
+    crate::card::CardArt::new("298de33f-cb39-47c5-9579-54d91eb34414", "Ryan Valle"),
+    crate::card::CardSet::ModernHorizons3,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 452 — Crabomination
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CRABOMINATION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b6ac511f-6c28-45f9-968b-9ac72872641b"),
+    "Crabomination",
+    crate::card::CardArt::new("b6ac511f-6c28-45f9-968b-9ac72872641b", "Nicholas Gregory"),
+    crate::card::CardSet::ModernHorizons3,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 457 — Detective's Phoenix
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DETECTIVE_S_PHOENIX: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("db16e02b-1b7f-4976-b9eb-41350337616c"),
+    "Detective's Phoenix",
+    crate::card::CardArt::new(
+        "db16e02b-1b7f-4976-b9eb-41350337616c",
+        "Deruchenko Alexander",
+    ),
+    crate::card::CardSet::ModernHorizons3,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 460 — Wight of the Reliquary
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WIGHT_OF_THE_RELIQUARY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("915715f7-5487-47aa-ada5-de1bce282164"),
+    "Wight of the Reliquary",
+    crate::card::CardArt::new("915715f7-5487-47aa-ada5-de1bce282164", "Scott Murphy"),
+    crate::card::CardSet::ModernHorizons3,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 484 — Six (alternate printing)
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AERIE_AUXILIARY,
     &DOG_UMBRA,
@@ -1640,6 +1765,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SERUM_VISIONARY,
     &ACCURSED_MARAUDER,
     &EMPEROR_OF_BONES,
+    &NETHERGOYF,
     &RETROFITTED_TRANSMOGRANT,
     &SCURRILOUS_SENTRY,
     &WITHER_AND_BLOOM,
@@ -1650,11 +1776,13 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &COLOSSAL_DREADMASK,
     &ELDRAZI_REPURPOSER,
     &EVOLUTION_WITNESS,
+    &FANATIC_OF_RHONAS,
     &HORRIFIC_ASSAULT,
     &MALEVOLENT_RUMBLE,
     &NYXBORN_HYDRA,
     &SIX,
     &SOWING_MYCOSPAWN,
+    &SPRINGHEART_NANTUKO,
     &TEMPERAMENTAL_OOZEWAGG,
     &CONDUIT_GOBLIN,
     &EXPANDING_OOZE,
@@ -1676,8 +1804,19 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &TWISTED_LANDSCAPE,
     &AJANI_NACATL_PARIAH,
     &WITCH_ENCHANTER,
+    &SINK_INTO_STUPOR,
     &ANNOYED_ALTISAUR,
     &PRIEST_OF_TITANIA,
+    &ARENA_OF_GLORY,
+    &NADU_WINGED_WISDOM,
+    &TAMIYO_INQUISITIVE_STUDENT,
+    &SORIN_OF_HOUSE_MARKOV,
+    &GUIDE_OF_SOULS,
+    &CRABOMINATION,
+    &DETECTIVE_S_PHOENIX,
+    &WIGHT_OF_THE_RELIQUARY,
 ];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
+    PrintingRecord::alternate(&SIX, 1), // MH3 484
+];

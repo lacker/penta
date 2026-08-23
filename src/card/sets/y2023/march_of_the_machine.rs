@@ -148,6 +148,16 @@ pub(in crate::card::sets) static WRENN_S_RESOLVE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// MOM 298 — Etali, Primal Conqueror
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ETALI_PRIMAL_CONQUEROR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3e97c609-3932-4428-96d4-1c97e61f0abb"),
+    "Etali, Primal Conqueror",
+    crate::card::CardArt::new("3e97c609-3932-4428-96d4-1c97e61f0abb", "Yeong-Hao Han"),
+    crate::card::CardSet::MarchOfTheMachine,
+    crate::card::CardRules::unsupported(),
+);
+
 // MOM 328 — Zephyr Winder
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ZEPHYR_WINDER: CardRecord = CardRecord::new(
@@ -165,6 +175,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &MEETING_OF_MINDS,
     &PREENING_CHAMPION,
     &WRENN_S_RESOLVE,
+    &ETALI_PRIMAL_CONQUEROR,
     &ZEPHYR_WINDER,
 ];
 

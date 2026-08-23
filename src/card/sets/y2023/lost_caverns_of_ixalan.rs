@@ -397,6 +397,26 @@ pub(in crate::card::sets) static SENTINEL_OF_THE_NAMELESS_CITY: CardRecord = Car
         ]),
 );
 
+// LCI 335 — Tishana's Tidebinder
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TISHANA_S_TIDEBINDER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("604e2bfc-655d-4d3e-98aa-374780ca4016"),
+    "Tishana's Tidebinder",
+    crate::card::CardArt::new("604e2bfc-655d-4d3e-98aa-374780ca4016", "LeDania"),
+    crate::card::CardSet::LostCavernsOfIxalan,
+    crate::card::CardRules::unsupported(),
+);
+
+// LCI 367 — Preacher of the Schism
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PREACHER_OF_THE_SCHISM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3a0db433-7ca2-48d6-b60c-0a9a9149378a"),
+    "Preacher of the Schism",
+    crate::card::CardArt::new("3a0db433-7ca2-48d6-b60c-0a9a9149378a", "Donato Giancola"),
+    crate::card::CardSet::LostCavernsOfIxalan,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GET_LOST,
     &MINER_S_GUIDEWING,
@@ -407,6 +427,8 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &TITHING_BLADE,
     &INTI_SENESCHAL_OF_THE_SUN,
     &SENTINEL_OF_THE_NAMELESS_CITY,
+    &TISHANA_S_TIDEBINDER,
+    &PREACHER_OF_THE_SCHISM,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

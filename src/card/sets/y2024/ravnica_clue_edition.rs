@@ -133,6 +133,16 @@ pub(in crate::card::sets) static HEADLINER_SCARLETT: CardRecord = CardRecord::ne
         .with_abilities(&SCARLETT_ABILITIES),
 );
 
+// CLU 26 — Carnage Interpreter
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CARNAGE_INTERPRETER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f6fb576e-a4a4-496b-b553-3f81cc651210"),
+    "Carnage Interpreter",
+    crate::card::CardArt::new("f6fb576e-a4a4-496b-b553-3f81cc651210", "Justine Cruz"),
+    crate::card::CardSet::RavnicaClueEdition,
+    crate::card::CardRules::unsupported(),
+);
+
 // CLU 50 — Unruly Krasis
 pub(in crate::card::sets) static UNRULY_KRASIS: CardRecord = CardRecord::new_with_legacy_id(
     2144,
@@ -200,6 +210,7 @@ pub(in crate::card::sets) static SELESNYA_SANCTUARY: CardRecord = CardRecord::ne
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &HEADLINER_SCARLETT,
+    &CARNAGE_INTERPRETER,
     &UNRULY_KRASIS,
     &REPEAL,
     &DIMIR_GUILDMAGE,

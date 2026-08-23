@@ -364,6 +364,18 @@ pub(in crate::card::sets) static ERODED_CANYON: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// OTJ 335 — Slickshot Show-Off
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SLICKSHOT_SHOW_OFF: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("304523e7-f332-4c1d-9590-ff9a70daff26"),
+    "Slickshot Show-Off",
+    crate::card::CardArt::new("304523e7-f332-4c1d-9590-ff9a70daff26", "Augusto Quirino"),
+    crate::card::CardSet::OutlawsOfThunderJunction,
+    crate::card::CardRules::unsupported(),
+);
+
+// OTJ 359 — Pillage the Bog (alternate printing)
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DUELIST_OF_THE_MIND,
     &PHANTOM_INTERFERENCE,
@@ -376,6 +388,9 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BRISTLING_BACKWOODS,
     &CONDUIT_PYLONS,
     &ERODED_CANYON,
+    &SLICKSHOT_SHOW_OFF,
 ];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
+    PrintingRecord::alternate(&PILLAGE_THE_BOG, 1), // OTJ 359
+];

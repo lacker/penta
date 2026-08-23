@@ -30,6 +30,16 @@ static REPRIEVE_EFFECTS: [EffectDef; 2] = [
     },
 ];
 
+// LTR 0 — The One Ring
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static THE_ONE_RING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("93de9042-cc62-4ade-8d8d-68fdbc84bfae"),
+    "The One Ring",
+    crate::card::CardArt::new("93de9042-cc62-4ade-8d8d-68fdbc84bfae", "Veli Nyström"),
+    crate::card::CardSet::LordOfTheRings,
+    crate::card::CardRules::unsupported(),
+);
+
 // LTR 7 — Eagles of the North
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static EAGLES_OF_THE_NORTH: CardRecord = CardRecord::new(
@@ -388,6 +398,16 @@ static FLAME_OF_ANOR_CREATURE_TARGET: [AbilityTargetDef; 1] =
         ObjectPredicateDef::HasType(CardType::Creature),
     )];
 
+// LTR 193 — Arwen, Mortal Queen
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ARWEN_MORTAL_QUEEN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("547f92d4-cd1d-4ca7-a6e2-6473b4d3c832"),
+    "Arwen, Mortal Queen",
+    crate::card::CardArt::new("547f92d4-cd1d-4ca7-a6e2-6473b4d3c832", "Miranda Meeks"),
+    crate::card::CardSet::LordOfTheRings,
+    crate::card::CardRules::unsupported(),
+);
+
 // LTR 203 — Flame of Anor
 pub(in crate::card::sets) static FLAME_OF_ANOR: CardRecord = CardRecord::new_with_legacy_id(
     2163,
@@ -407,6 +427,7 @@ pub(in crate::card::sets) static FLAME_OF_ANOR: CardRecord = CardRecord::new_wit
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &THE_ONE_RING,
     &EAGLES_OF_THE_NORTH,
     &REPRIEVE,
     &LORIEN_REVEALED,
@@ -418,6 +439,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &RALLY_AT_THE_HORNBURG,
     &DELIGHTED_HALFLING,
     &GENEROUS_ENT,
+    &ARWEN_MORTAL_QUEEN,
     &FLAME_OF_ANOR,
 ];
 

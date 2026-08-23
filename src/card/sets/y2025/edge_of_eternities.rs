@@ -77,6 +77,26 @@ static CONSULT_EFFECT: [EffectDef; 2] = [
     },
 ];
 
+// EOE 2 — Tezzeret, Cruel Captain
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TEZZERET_CRUEL_CAPTAIN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("02e8e540-8aa3-4e6a-9a11-c3949cab5f0f"),
+    "Tezzeret, Cruel Captain",
+    crate::card::CardArt::new("02e8e540-8aa3-4e6a-9a11-c3949cab5f0f", "Chris Rahn"),
+    crate::card::CardSet::EdgeOfEternities,
+    crate::card::CardRules::unsupported(),
+);
+
+// EOE 9 — Cosmogrand Zenith
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static COSMOGRAND_ZENITH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b3c1e5e3-4e6b-456a-958c-7a75c38f8183"),
+    "Cosmogrand Zenith",
+    crate::card::CardArt::new("b3c1e5e3-4e6b-456a-958c-7a75c38f8183", "Anna Steinbauer"),
+    crate::card::CardSet::EdgeOfEternities,
+    crate::card::CardRules::unsupported(),
+);
+
 // EOE 18 — Focus Fire
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static FOCUS_FIRE: CardRecord = CardRecord::new(
@@ -261,7 +281,39 @@ pub(in crate::card::sets) static PINNACLE_KILL_SHIP: CardRecord = CardRecord::ne
     crate::card::CardRules::unsupported(),
 );
 
+// EOE 297 — Mightform Harmonizer
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MIGHTFORM_HARMONIZER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("29bc9be4-4fc3-440a-a851-0c7f8989c9b5"),
+    "Mightform Harmonizer",
+    crate::card::CardArt::new("29bc9be4-4fc3-440a-a851-0c7f8989c9b5", "Jessica Fong"),
+    crate::card::CardSet::EdgeOfEternities,
+    crate::card::CardRules::unsupported(),
+);
+
+// EOE 362 — Icetill Explorer
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ICETILL_EXPLORER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("895e5e9b-84dd-4741-8a2c-442165ea9b15"),
+    "Icetill Explorer",
+    crate::card::CardArt::new("895e5e9b-84dd-4741-8a2c-442165ea9b15", "Raimaru"),
+    crate::card::CardSet::EdgeOfEternities,
+    crate::card::CardRules::unsupported(),
+);
+
+// EOE 391 — The Endstone
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static THE_ENDSTONE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1227eb7f-c2a5-4112-98d0-70275a63c26a"),
+    "The Endstone",
+    crate::card::CardArt::new("1227eb7f-c2a5-4112-98d0-70275a63c26a", "Hidetaka Tenjin"),
+    crate::card::CardSet::EdgeOfEternities,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &TEZZERET_CRUEL_CAPTAIN,
+    &COSMOGRAND_ZENITH,
     &FOCUS_FIRE,
     &CONSULT_THE_STAR_CHARTS,
     &CRYOGEN_RELIC,
@@ -272,6 +324,9 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PLASMA_BOLT,
     &OUROBOROID,
     &PINNACLE_KILL_SHIP,
+    &MIGHTFORM_HARMONIZER,
+    &ICETILL_EXPLORER,
+    &THE_ENDSTONE,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

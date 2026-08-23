@@ -165,12 +165,52 @@ pub(in crate::card::sets) static LIGHTNING_STRIKE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// DMU 183 — Tear Asunder
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TEAR_ASUNDER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("629aa907-9533-4681-9bf2-9e56450a4cc2"),
+    "Tear Asunder",
+    crate::card::CardArt::new("629aa907-9533-4681-9bf2-9e56450a4cc2", "Dave Kendall"),
+    crate::card::CardSet::DominariaUnited,
+    crate::card::CardRules::unsupported(),
+);
+
+// DMU 339 — Ertai Resurrected
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ERTAI_RESURRECTED: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2c46a2ca-27fd-44d4-80d0-7c83ed0a564e"),
+    "Ertai Resurrected",
+    crate::card::CardArt::new(
+        "2c46a2ca-27fd-44d4-80d0-7c83ed0a564e",
+        "Justin Hernandez & Alexis Hernandez",
+    ),
+    crate::card::CardSet::DominariaUnited,
+    crate::card::CardRules::unsupported(),
+);
+
+// DMU 387 — Leyline Binding (alternate printing)
+
+// DMU 388 — Serra Paragon
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SERRA_PARAGON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("69284b53-f712-418c-94a0-4e5638117256"),
+    "Serra Paragon",
+    crate::card::CardArt::new("69284b53-f712-418c-94a0-4e5638117256", "Heonhwa"),
+    crate::card::CardSet::DominariaUnited,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &LEYLINE_BINDING,
     &TOLARIAN_TERROR,
     &CUT_DOWN,
     &SHEOLDRED_THE_APOCALYPSE,
     &LIGHTNING_STRIKE,
+    &TEAR_ASUNDER,
+    &ERTAI_RESURRECTED,
+    &SERRA_PARAGON,
 ];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
+    PrintingRecord::alternate(&LEYLINE_BINDING, 1), // DMU 387
+];

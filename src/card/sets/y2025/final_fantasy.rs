@@ -172,6 +172,16 @@ pub(in crate::card::sets) static RESENTFUL_REVELATION: CardRecord = CardRecord::
     crate::card::CardRules::unsupported(),
 );
 
+// FIN 164 — Suplex
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SUPLEX: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f61693a2-7042-44e0-85ba-9bf12ab94e7e"),
+    "Suplex",
+    crate::card::CardArt::new("f61693a2-7042-44e0-85ba-9bf12ab94e7e", "Fang Xinyu"),
+    crate::card::CardSet::FinalFantasy,
+    crate::card::CardRules::unsupported(),
+);
+
 // FIN 206 — Tifa Lockhart
 pub(in crate::card::sets) static TIFA_LOCKHART: CardRecord = CardRecord::new_with_legacy_id(
     2146,
@@ -238,11 +248,45 @@ pub(in crate::card::sets) static VIVI_ORNITIER: CardRecord = CardRecord::new_wit
         .with_abilities(&VIVI_ABILITIES),
 );
 
+// FIN 289 — Starting Town
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static STARTING_TOWN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fc7d1912-7e27-49ef-bd98-375d975a42b0"),
+    "Starting Town",
+    crate::card::CardArt::new("fc7d1912-7e27-49ef-bd98-375d975a42b0", "Hristo D. Chukov"),
+    crate::card::CardSet::FinalFantasy,
+    crate::card::CardRules::unsupported(),
+);
+
+// FIN 551c — Traveling Chocobo
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TRAVELING_CHOCOBO: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("156cfd45-1556-4804-becf-039cfff7de3d"),
+    "Traveling Chocobo",
+    crate::card::CardArt::new("156cfd45-1556-4804-becf-039cfff7de3d", "Toni Infante"),
+    crate::card::CardSet::FinalFantasy,
+    crate::card::CardRules::unsupported(),
+);
+
+// FIN 581 — Astrologian's Planisphere
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ASTROLOGIAN_S_PLANISPHERE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a0f6e2d7-58b5-4a7d-8c42-e25185cd173f"),
+    "Astrologian's Planisphere",
+    crate::card::CardArt::new("a0f6e2d7-58b5-4a7d-8c42-e25185cd173f", "Josephine Chang"),
+    crate::card::CardSet::FinalFantasy,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CECIL_DARK_KNIGHT,
     &RESENTFUL_REVELATION,
+    &SUPLEX,
     &TIFA_LOCKHART,
     &VIVI_ORNITIER,
+    &STARTING_TOWN,
+    &TRAVELING_CHOCOBO,
+    &ASTROLOGIAN_S_PLANISPHERE,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

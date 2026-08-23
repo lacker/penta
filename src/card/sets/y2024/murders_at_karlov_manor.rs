@@ -137,6 +137,16 @@ pub(in crate::card::sets) static DOG_WALKER: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// MKM 221 — No More Lies
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static NO_MORE_LIES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1e0c695d-62f9-4805-9e2f-7032e8464136"),
+    "No More Lies",
+    crate::card::CardArt::new("1e0c695d-62f9-4805-9e2f-7032e8464136", "Liiga Smilshkalne"),
+    crate::card::CardSet::MurdersAtKarlovManor,
+    crate::card::CardRules::unsupported(),
+);
+
 // MKM 259 — Commercial District
 pub(in crate::card::sets) static COMMERCIAL_DISTRICT: CardRecord = CardRecord::new_with_legacy_id(
     2275,
@@ -160,6 +170,16 @@ pub(in crate::card::sets) static ESCAPE_TUNNEL: CardRecord = CardRecord::new(
         "93ddde4f-d35e-4128-8f43-d0eadbd715de",
         "Carlos Palma Cruchaga",
     ),
+    crate::card::CardSet::MurdersAtKarlovManor,
+    crate::card::CardRules::unsupported(),
+);
+
+// MKM 262 — Hedge Maze
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static HEDGE_MAZE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5260f8ae-805b-4eae-badf-62de0f768867"),
+    "Hedge Maze",
+    crate::card::CardArt::new("5260f8ae-805b-4eae-badf-62de0f768867", "Andrew Mar"),
     crate::card::CardSet::MurdersAtKarlovManor,
     crate::card::CardRules::unsupported(),
 );
@@ -209,18 +229,64 @@ pub(in crate::card::sets) static UNDERCITY_SEWERS: CardRecord = CardRecord::new(
     surveil_land(&["Island", "Swamp"]),
 );
 
+// MKM 329 — Raucous Theater
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RAUCOUS_THEATER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2faf0337-c7a3-45a0-bb14-c431526da2cd"),
+    "Raucous Theater",
+    crate::card::CardArt::new("2faf0337-c7a3-45a0-bb14-c431526da2cd", "Sergey Glushakov"),
+    crate::card::CardSet::MurdersAtKarlovManor,
+    crate::card::CardRules::unsupported(),
+);
+
+// MKM 330 — Shadowy Backstreet
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SHADOWY_BACKSTREET: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("27eae4ce-e0b3-482b-9136-6fc17333877e"),
+    "Shadowy Backstreet",
+    crate::card::CardArt::new("27eae4ce-e0b3-482b-9136-6fc17333877e", "Sergey Glushakov"),
+    crate::card::CardSet::MurdersAtKarlovManor,
+    crate::card::CardRules::unsupported(),
+);
+
+// MKM 333 — Underground Mortuary
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static UNDERGROUND_MORTUARY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0d8938e4-bfa5-47e1-8c71-9c6583346300"),
+    "Underground Mortuary",
+    crate::card::CardArt::new("0d8938e4-bfa5-47e1-8c71-9c6583346300", "Sergey Glushakov"),
+    crate::card::CardSet::MurdersAtKarlovManor,
+    crate::card::CardRules::unsupported(),
+);
+
+// MKM 396 — Proft's Eidetic Memory
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PROFT_S_EIDETIC_MEMORY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a3472756-0305-4567-b425-f7dbf9b3cc7f"),
+    "Proft's Eidetic Memory",
+    crate::card::CardArt::new("a3472756-0305-4567-b425-f7dbf9b3cc7f", "Julie Dillon"),
+    crate::card::CardSet::MurdersAtKarlovManor,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &NOVICE_INSPECTOR,
     &FORENSIC_GADGETEER,
     &SNARLING_GOREHOUND,
     &RUBBLEBELT_MAVERICK,
     &DOG_WALKER,
+    &NO_MORE_LIES,
     &COMMERCIAL_DISTRICT,
     &ESCAPE_TUNNEL,
+    &HEDGE_MAZE,
     &LUSH_PORTICO,
     &METICULOUS_ARCHIVE,
     &THUNDERING_FALLS,
     &UNDERCITY_SEWERS,
+    &RAUCOUS_THEATER,
+    &SHADOWY_BACKSTREET,
+    &UNDERGROUND_MORTUARY,
+    &PROFT_S_EIDETIC_MEMORY,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

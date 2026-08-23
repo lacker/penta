@@ -43,6 +43,30 @@ pub(in crate::card::sets) static GLIMMER_LENS: CardRecord = CardRecord::new(
         ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&GLIMMER_LENS];
+// ONC 39 — Otharri, Suns' Glory
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static OTHARRI_SUNS_GLORY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("348e0927-1d8f-4723-879d-f7e95ac60c27"),
+    "Otharri, Suns' Glory",
+    crate::card::CardArt::new("348e0927-1d8f-4723-879d-f7e95ac60c27", "Marta Nael"),
+    crate::card::CardSet::PhyrexiaAllWillBeOneCommander,
+    crate::card::CardRules::unsupported(),
+);
+
+// ONC 48 — Staff of the Storyteller
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static STAFF_OF_THE_STORYTELLER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("17be11f2-f2db-40c4-8fc1-2ed7173f9a1a"),
+    "Staff of the Storyteller",
+    crate::card::CardArt::new("17be11f2-f2db-40c4-8fc1-2ed7173f9a1a", "Dan Murayama Scott"),
+    crate::card::CardSet::PhyrexiaAllWillBeOneCommander,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &GLIMMER_LENS,
+    &OTHARRI_SUNS_GLORY,
+    &STAFF_OF_THE_STORYTELLER,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

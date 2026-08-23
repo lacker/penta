@@ -57,6 +57,26 @@ static REFLEXES_EFFECT: [EffectDef; 2] = [
     },
 ];
 
+// LTC 56 — Forth Eorlingas!
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FORTH_EORLINGAS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("06c053d3-028e-4961-93a5-5b7bb5a8601c"),
+    "Forth Eorlingas!",
+    crate::card::CardArt::new("06c053d3-028e-4961-93a5-5b7bb5a8601c", "Filipe Pagliuso"),
+    crate::card::CardSet::LordOfTheRingsCommander,
+    crate::card::CardRules::unsupported(),
+);
+
+// LTC 159 — Relic of Sauron
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RELIC_OF_SAURON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("15c5d6cd-8af6-4852-8043-e6b1ef771ce6"),
+    "Relic of Sauron",
+    crate::card::CardArt::new("15c5d6cd-8af6-4852-8043-e6b1ef771ce6", "Anton Solovianchyk"),
+    crate::card::CardSet::LordOfTheRingsCommander,
+    crate::card::CardRules::unsupported(),
+);
+
 // LTC 493 — Legolas's Quick Reflexes
 pub(in crate::card::sets) static LEGOLASS_QUICK_REFLEXES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("851c0167-04ba-4d15-b0fa-c211bd8826f1"),
@@ -77,6 +97,7 @@ pub(in crate::card::sets) static LEGOLASS_QUICK_REFLEXES: CardRecord = CardRecor
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&LEGOLASS_QUICK_REFLEXES];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&FORTH_EORLINGAS, &RELIC_OF_SAURON, &LEGOLASS_QUICK_REFLEXES];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -1,5 +1,5 @@
 use std::cmp::Ordering;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -32,6 +32,7 @@ enum PrintingKind {
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) enum AuditStatus {
+    Custom,
     Partial,
     MetadataOnly,
     Blocked,
@@ -430,6 +431,50 @@ pub(super) fn all_source_audits(root: &Path) -> Vec<SourceAudit> {
         .collect()
 }
 
+#[test]
+fn complete_custom_definitions_have_migration_audits() {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let catalog = crate::card::catalog().expect("built-in catalog");
+    let mut custom_audits = HashMap::new();
+    for audit in all_source_audits(&root)
+        .into_iter()
+        .filter(|audit| audit.status == AuditStatus::Custom)
+    {
+        assert!(
+            audit.gap.starts_with("Needs "),
+            "{} custom audit should name the declarative migration work",
+            audit.name
+        );
+        assert!(
+            custom_audits
+                .insert(audit.name.to_lowercase(), audit)
+                .is_none(),
+            "a complete-custom definition has more than one custom audit"
+        );
+    }
+
+    for definition in catalog.definitions() {
+        let expected = definition.implementation_status() == crate::ImplementationStatus::Complete
+            && super::definition_uses_custom_execution(definition);
+        let audit = custom_audits.remove(&definition.name.to_lowercase());
+        assert_eq!(
+            audit.is_some(),
+            expected,
+            "{} should have a custom audit exactly when it is complete and uses custom execution",
+            definition.name
+        );
+    }
+    assert!(
+        custom_audits.is_empty(),
+        "custom audits must name cataloged definitions: {}",
+        custom_audits
+            .into_values()
+            .map(|audit| audit.name)
+            .collect::<Vec<_>>()
+            .join(", ")
+    );
+}
+
 pub(super) fn source_audits_for_format(
     root: &Path,
     catalog: &CardCatalog,
@@ -464,7 +509,7 @@ fn validate_source_annotations(lines: &[&str], path: &Path) {
         if line.starts_with(AUDIT_PREFIX) {
             assert!(
                 parse_audit(line).is_some(),
-                "{}:{}: expected exact `// Audit: blocked|partial|metadata-only — GAP` comment",
+                "{}:{}: expected exact `// Audit: custom|blocked|partial|metadata-only — GAP` comment",
                 path.display(),
                 index + 1
             );
@@ -538,9 +583,9 @@ fn source_entry_for_header(
                     path.display(),
                     index + 1
                 ),
-                AuditStatus::Partial | AuditStatus::MetadataOnly => assert!(
+                AuditStatus::Custom | AuditStatus::Partial | AuditStatus::MetadataOnly => assert!(
                     declaration.is_some(),
-                    "{}:{}: a partial or metadata-only Audit entry must immediately precede a CardRecord declaration",
+                    "{}:{}: a custom, partial, or metadata-only Audit entry must immediately precede a CardRecord declaration",
                     path.display(),
                     index + 1
                 ),
@@ -676,6 +721,7 @@ fn parse_audit(line: &str) -> Option<(AuditStatus, &str)> {
         return None;
     }
     let status = match status {
+        "custom" => AuditStatus::Custom,
         "blocked" => AuditStatus::Blocked,
         "partial" => AuditStatus::Partial,
         "metadata-only" => AuditStatus::MetadataOnly,

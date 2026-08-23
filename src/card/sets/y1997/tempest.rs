@@ -3331,6 +3331,7 @@ pub(in crate::card::sets) static PINE_BARRENS: CardRecord = CardRecord::new(
 );
 
 // TMP 322 — Reflecting Pool
+// Audit: custom — Needs declarative mana production derived from the mana types its controller's lands could produce.
 pub(in crate::card::sets) static REFLECTING_POOL: CardRecord = CardRecord::new_with_legacy_id(
     2073,
     "Reflecting Pool",

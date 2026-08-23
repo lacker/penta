@@ -1405,6 +1405,7 @@ pub(in crate::card::sets) static GOBLIN_FLOTILLA: CardRecord = CardRecord::new(
 );
 
 // FEM 56a — Goblin Grenade
+// Audit: custom — Needs migration to a declarative Goblin sacrifice additional cost, any target, and fixed damage effect.
 pub(in crate::card::sets) static GOBLIN_GRENADE: CardRecord = CardRecord::new_with_legacy_id(
     26,
     "Goblin Grenade",

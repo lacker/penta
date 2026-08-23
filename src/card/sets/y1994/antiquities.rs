@@ -1659,6 +1659,7 @@ pub(in crate::card::sets) static TAWNOSS_WEAPONRY: CardRecord = CardRecord::new_
 // ATQ 70† — Tawnos's Weaponry (alternate printing)
 
 // ATQ 71 — Tetravus
+// Audit: custom — Needs declarative variable counter-to-token exchange and creator-linked token selection for the reverse exchange.
 pub(in crate::card::sets) static TETRAVUS: CardRecord = CardRecord::new_with_legacy_id(
     126,
     "Tetravus",

@@ -17,11 +17,13 @@ order. Compare numeric portions numerically (`8`, `8a`, `8b`, `16`), not
 lexicographically. Introduce each declaration with an identifying comment in
 the form `// LEA 230 — Ankh of Mishra`, using the canonical printing's uppercase
 set code, collector number, and card name. Ordinarily the header immediately
-precedes the declaration. In the inline Old School audit, an incomplete
-identity puts `// Audit: blocked — Needs ...` on the next line, using `partial`
-or `metadata-only` when applicable. Partial and metadata-only audit lines
-immediately precede their declarations; blocked header-and-audit pairs stand
-alone at the identity's collector position. Keep every identity header in
+precedes the declaration. A complete definition that still uses custom
+execution puts `// Audit: custom — Needs ...` on the next line, naming the work
+required to migrate it to declarative execution. An incomplete identity uses
+`blocked`, `partial`, or `metadata-only` as applicable. Custom, partial, and
+metadata-only audit lines immediately precede their canonical declarations;
+blocked header-and-audit pairs stand alone at the identity's collector
+position. Reprints do not repeat the audit. Keep every identity header in
 natural collector order. The header identifies the canonical printing in that
 module's set even when presentation art intentionally comes from another
 printing.
@@ -95,6 +97,13 @@ closed effect selector, independent coverage, and explanation beside the clause
 even when its handler remains centralized. Unsupported cards may exist in
 catalogs and hidden zones, but the engine does not offer play options that
 would resolve as silent no-ops.
+
+The custom audit is a discoverable migration plan, not a second execution
+switch. Catalog tests derive custom status from every part and modal clause,
+require a matching canonical audit, and reject stale custom audits after the
+last custom execution path is removed. The audit explanation should identify
+the declarative primitive or concrete migration still needed rather than merely
+repeat that the card has custom code.
 
 When complete fidelity is too large for the current increment, implement the
 working portion, mark the remainder accurately, and state the follow-up. A

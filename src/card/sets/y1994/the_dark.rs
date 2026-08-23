@@ -55,6 +55,7 @@ pub(in crate::card::sets) static CLEANSING: CardRecord = CardRecord::new(
 );
 
 // DRK 5 — Dust to Dust
+// Audit: custom — Needs migration to declarative exact-two artifact targeting and exile resolution.
 pub(in crate::card::sets) static DUST_TO_DUST: CardRecord = CardRecord::new_with_legacy_id(
     112,
     "Dust to Dust",
@@ -2304,6 +2305,7 @@ pub(in crate::card::sets) static DIABOLIC_MACHINE: CardRecord = CardRecord::new_
 );
 
 // DRK 102 — Fellwar Stone
+// Audit: custom — Needs declarative mana production derived from the colors an opponent's lands could produce.
 pub(in crate::card::sets) static FELLWAR_STONE: CardRecord = CardRecord::new_with_legacy_id(
     48,
     "Fellwar Stone",

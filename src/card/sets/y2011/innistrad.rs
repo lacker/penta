@@ -2462,6 +2462,7 @@ fn liliana_pile_chosen(runtime: &mut CardRuntime<'_>, choice: PileChoice) {
 }
 
 // ISD 105 — Liliana of the Veil
+// Audit: custom — Needs declarative pile separation, opponent pile choice, and simultaneous sacrifice of the chosen pile.
 pub(in crate::card::sets) static LILIANA_OF_THE_VEIL: CardRecord = CardRecord::new_with_legacy_id(
     184,
     "Liliana of the Veil",
@@ -4860,6 +4861,7 @@ pub(in crate::card::sets) static MOONMIST: CardRecord = CardRecord::new(
 );
 
 // ISD 196 — Mulch
+// Audit: custom — Needs declarative top-N reveal that moves all matching lands to hand and the remainder to the graveyard.
 pub(in crate::card::sets) static MULCH: CardRecord = CardRecord::new_with_legacy_id(
     188,
     "Mulch",

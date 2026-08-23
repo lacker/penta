@@ -846,6 +846,7 @@ pub(in crate::card::sets) static HURR_JACKAL: CardRecord = CardRecord::new_with_
 );
 
 // ARN 40 — Kird Ape
+// Audit: custom — Needs a declarative characteristic bonus conditioned on its controller controlling a land with a specified basic land type.
 pub(in crate::card::sets) static KIRD_APE: CardRecord = CardRecord::new_with_legacy_id(
     117,
     "Kird Ape",
@@ -1705,6 +1706,7 @@ pub(in crate::card::sets) static ISLAND_OF_WAK_WAK: CardRecord = CardRecord::new
 );
 
 // ARN 76 — Library of Alexandria
+// Audit: custom — Needs a declarative activated-ability restriction that checks for exactly seven cards in its controller's hand.
 pub(in crate::card::sets) static LIBRARY_OF_ALEXANDRIA: CardRecord = CardRecord::new_with_legacy_id(
     79,
     "Library of Alexandria",

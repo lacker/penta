@@ -34,6 +34,9 @@ fn every_incomplete_isd_m14_identity_has_one_audited_capability_gap() {
         name, status, gap, ..
     } in source_audits_for_format(&root, &catalog, Format::IsdM14Standard)
     {
+        if status == AuditStatus::Custom {
+            continue;
+        }
         assert!(!gap.is_empty(), "{name} has no capability-gap explanation");
         assert!(
             audited

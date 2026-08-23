@@ -3155,6 +3155,7 @@ pub(in crate::card::sets) static MALIGNUS: CardRecord = CardRecord::new(
 );
 
 // AVR 149 — Pillar of Flame
+// Audit: custom — Needs a declarative damage-linked replacement that exiles a damaged creature if it would die that turn.
 pub(in crate::card::sets) static PILLAR_OF_FLAME: CardRecord = CardRecord::new_with_legacy_id(
     195,
     "Pillar of Flame",

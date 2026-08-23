@@ -1404,6 +1404,7 @@ pub(in crate::card::sets) static PUPPET_MASTER: CardRecord = CardRecord::new(
 );
 
 // LEG 70 — Recall
+// Audit: custom — Needs a declarative resolution procedure that discards X, returns that many cards including those discarded, and exiles the source.
 pub(in crate::card::sets) static RECALL: CardRecord = CardRecord::new_with_legacy_id(
     89,
     "Recall",
@@ -2764,6 +2765,7 @@ pub(in crate::card::sets) static CAVERNS_OF_DESPAIR: CardRecord = CardRecord::ne
 );
 
 // LEG 137 — Chain Lightning
+// Audit: custom — Needs declarative opponent payment followed by optional spell copying and retargeting for the copy.
 pub(in crate::card::sets) static CHAIN_LIGHTNING: CardRecord = CardRecord::new_with_legacy_id(
     6,
     "Chain Lightning",

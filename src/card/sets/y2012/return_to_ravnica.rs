@@ -3828,6 +3828,7 @@ pub(in crate::card::sets) static GOLGARI_CHARM: CardRecord = CardRecord::new_wit
 );
 
 // RTR 165 — Grisly Salvage
+// Audit: custom — Needs declarative top-five selection of a creature or land with the unchosen cards moved to the graveyard.
 pub(in crate::card::sets) static GRISLY_SALVAGE: CardRecord = CardRecord::new_with_legacy_id(
     173,
     "Grisly Salvage",
@@ -4555,6 +4556,7 @@ pub(in crate::card::sets) static SPAWN_OF_RIX_MAADI: CardRecord = CardRecord::ne
 );
 
 // RTR 200 — Sphinx's Revelation
+// Audit: custom — Needs migration to declarative life gain and card draw that both use the spell's chosen X value.
 pub(in crate::card::sets) static SPHINXS_REVELATION: CardRecord = CardRecord::new_with_legacy_id(
     216,
     "Sphinx's Revelation",

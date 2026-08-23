@@ -880,6 +880,7 @@ pub(in crate::card::sets) static ARCTIC_AVEN: CardRecord = CardRecord::new_with_
 );
 
 // M13 43 — Augur of Bolas
+// Audit: custom — Needs declarative top-three selection of an instant or sorcery with the unchosen cards ordered onto the library bottom.
 pub(in crate::card::sets) static AUGUR_OF_BOLAS: CardRecord = CardRecord::new_with_legacy_id(
     135,
     "Augur of Bolas",
@@ -1014,6 +1015,7 @@ pub(in crate::card::sets) static ENCRUST: CardRecord = CardRecord::new_with_lega
 );
 
 // M13 50 — Essence Scatter
+// Audit: custom — Needs migration to a declarative counter effect targeting a creature spell.
 pub(in crate::card::sets) static ESSENCE_SCATTER: CardRecord = CardRecord::new_with_legacy_id(
     162,
     "Essence Scatter",
@@ -1244,6 +1246,7 @@ pub(in crate::card::sets) static MIND_SCULPT: CardRecord = CardRecord::new_with_
 );
 
 // M13 62 — Negate
+// Audit: custom — Needs migration to a declarative counter effect targeting a noncreature spell.
 pub(in crate::card::sets) static NEGATE: CardRecord = CardRecord::new_with_legacy_id(
     191,
     "Negate",

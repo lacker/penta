@@ -102,6 +102,7 @@ pub(in crate::card::sets) static ARMAGEDDON: CardRecord = CardRecord::new_with_l
 );
 
 // LEA 3 — Balance
+// Audit: custom — Needs a declarative multi-player equalization procedure that resolves lands, hands, and creatures in order without leaking simultaneous choices.
 pub(in crate::card::sets) static BALANCE: CardRecord = CardRecord::new_with_legacy_id(
     60,
     "Balance",
@@ -3119,6 +3120,7 @@ pub(in crate::card::sets) static FIRE_ELEMENTAL: CardRecord = CardRecord::new_wi
 );
 
 // LEA 149 — Fireball
+// Audit: custom — Needs declarative variable target count, per-extra-target casting cost, and damage division frozen from the cast target count.
 pub(in crate::card::sets) static FIREBALL: CardRecord = CardRecord::new_with_legacy_id(
     9,
     "Fireball",
@@ -3523,6 +3525,7 @@ pub(in crate::card::sets) static ROCK_HYDRA: CardRecord = CardRecord::new(
 );
 
 // LEA 172 — Sedge Troll
+// Audit: custom — Needs a declarative characteristic bonus conditioned on its controller controlling a land with a specified basic land type.
 pub(in crate::card::sets) static SEDGE_TROLL: CardRecord = CardRecord::new_with_legacy_id(
     123,
     "Sedge Troll",

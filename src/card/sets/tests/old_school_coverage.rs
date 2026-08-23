@@ -40,6 +40,9 @@ fn every_incomplete_old_school_set_identity_has_one_audited_capability_gap() {
         name, status, gap, ..
     } in source_audits_for_format(&root, &catalog, Format::OldSchool9394)
     {
+        if status == AuditStatus::Custom {
+            continue;
+        }
         assert!(!gap.is_empty(), "{name} has no capability-gap explanation");
         assert!(
             audited

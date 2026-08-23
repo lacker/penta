@@ -1131,6 +1131,7 @@ pub(in crate::card::sets) static BLAZE_COMMANDO: CardRecord = CardRecord::new(
 );
 
 // DGM 57 — Blood Baron of Vizkopa
+// Audit: custom — Needs a declarative continuous effect conditioned on both its controller's and an opponent's life totals.
 pub(in crate::card::sets) static BLOOD_BARON_OF_VIZKOPA: CardRecord = CardRecord::new_with_legacy_id(
     142,
     "Blood Baron of Vizkopa",

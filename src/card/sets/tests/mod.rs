@@ -7,21 +7,37 @@ use super::{
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityOperationDef, AbilityPredicateDef, AbilityProcedureDef,
     AbilityProgramDef, AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, BasicLandType,
-    CardChoiceSourceDef, CardPrinting, CardPrintingId, CardStructure, CardSupertype, CardType,
-    CharacteristicOperationDef, ComparisonDef, ConditionDef, DamagePreventionCapacityDef,
-    DamagePreventionFollowUpDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
-    DeclarativeAbilityDef, DoubleFacedKind, EffectDef, EffectExecutionDef, EffectPaymentDef,
-    EffectRecipientDef, EffectRecipientSetDef, ImplementationStatus, KeywordAbility, ManaColor,
-    ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PayOrDef, PlayActionKind, PlayRestriction, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementEffectDef,
-    ReplacementEventDef, ResolvedEffectDurationDef, SetOperationDef, SpellForm, TargetPredicate,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef,
-    ZonePlacement, cards,
+    CardChoiceSourceDef, CardDefinition, CardPrinting, CardPrintingId, CardStructure,
+    CardSupertype, CardType, CharacteristicOperationDef, ComparisonDef, ConditionDef,
+    DamagePreventionCapacityDef, DamagePreventionFollowUpDef, DamageRecipientMatcherDef,
+    DamageSourceMatcherDef, DeclarativeAbilityDef, DoubleFacedKind, EffectDef, EffectExecutionDef,
+    EffectPaymentDef, EffectRecipientDef, EffectRecipientSetDef, ImplementationStatus,
+    KeywordAbility, ManaColor, ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayActionKind,
+    PlayRestriction, PlayerRefDef, PlayerRelation, PlayerSetDef, PowerToughnessOperationDef,
+    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SetOperationDef,
+    SpellForm, TargetPredicate, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, ZoneMoveCauseDef, ZonePlacement, cards,
 };
 use crate::{
     CardDefinitionId, CardPartId, CardSet, Format, ManaCost, ModeId, PlayOptionId, TargetSlotId,
 };
+
+fn ability_uses_custom_execution(ability: &AbilityDef) -> bool {
+    ability.effect.execution != EffectExecutionDef::Declarative
+        || ability
+            .modal()
+            .is_some_and(|modal| modal.modes.iter().any(ability_uses_custom_execution))
+}
+
+fn definition_uses_custom_execution(definition: &CardDefinition) -> bool {
+    definition.parts.iter().any(|part| {
+        part.rules
+            .ability_clauses()
+            .iter()
+            .any(ability_uses_custom_execution)
+    })
+}
 
 fn standard_records() -> Vec<&'static CardRecord> {
     let allowed_sets = Format::IsdM14Standard

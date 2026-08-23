@@ -114,6 +114,19 @@ pub(in crate::card::sets) static ETERNAL_WITNESS: CardRecord = CardRecord::new_w
     ),
 );
 
+// 5DN 110 — Clock of Omens
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CLOCK_OF_OMENS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0ffce71b-eb60-4649-a62b-a1b4acaa9d2d"),
+    "Clock of Omens",
+    crate::card::CardArt::new(
+        "0ffce71b-eb60-4649-a62b-a1b4acaa9d2d",
+        "Alex Horley-Orlandelli",
+    ),
+    crate::card::CardSet::FifthDawn,
+    crate::card::CardRules::unsupported(),
+);
+
 // 5DN 114 — Crucible of Worlds
 pub(in crate::card::sets) static CRUCIBLE_OF_WORLDS: CardRecord = CardRecord::new_with_legacy_id(
     2203,
@@ -133,12 +146,24 @@ pub(in crate::card::sets) static CRUCIBLE_OF_WORLDS: CardRecord = CardRecord::ne
     )),
 );
 
+// 5DN 143 — Pentad Prism
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PENTAD_PRISM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("672b9b16-daef-44e6-9a3a-cfd9f3c78bc7"),
+    "Pentad Prism",
+    crate::card::CardArt::new("672b9b16-daef-44e6-9a3a-cfd9f3c78bc7", "David Martin"),
+    crate::card::CardSet::FifthDawn,
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CONDESCEND,
     &SERUM_VISIONS,
     &NIGHTS_WHISPER,
     &ETERNAL_WITNESS,
+    &CLOCK_OF_OMENS,
     &CRUCIBLE_OF_WORLDS,
+    &PENTAD_PRISM,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

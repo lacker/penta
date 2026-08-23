@@ -68,12 +68,34 @@ static GREAVES_GRANTS: [AppliedEffectDef; 2] = [
     AppliedEffectDef::add_ability(&GREAVES_SHROUD),
 ];
 
+// MRD 57 — Barter in Blood
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BARTER_IN_BLOOD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("beccbb2c-ca1d-4b72-9eca-a64a313fd830"),
+    "Barter in Blood",
+    crate::card::CardArt::new("beccbb2c-ca1d-4b72-9eca-a64a313fd830", "Paolo Parente"),
+    crate::card::CardSet::Mirrodin,
+    crate::card::CardRules::unsupported(),
+);
+
+// MRD 141 — Aether Spellbomb
+
 // MRD 146 — Bonesplitter
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static BONESPLITTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ae31d513-7412-4467-b497-a7183ff29a42"),
     "Bonesplitter",
     crate::card::CardArt::new("465a7990-c9f9-4716-a833-fd41458b9cee", "Darrell Riche"),
+    crate::card::CardSet::Mirrodin,
+    crate::card::CardRules::unsupported(),
+);
+
+// MRD 152 — Chrome Mox
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CHROME_MOX: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6a058e68-70af-4a64-859c-c881e5578368"),
+    "Chrome Mox",
+    crate::card::CardArt::new("6a058e68-70af-4a64-859c-c881e5578368", "Donato Giancola"),
     crate::card::CardSet::Mirrodin,
     crate::card::CardRules::unsupported(),
 );
@@ -100,7 +122,34 @@ pub(in crate::card::sets) static LIGHTNING_GREAVES: CardRecord = CardRecord::new
         ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&AETHER_SPELLBOMB, &BONESPLITTER, &LIGHTNING_GREAVES];
+// MRD 253 — Talisman of Dominance
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TALISMAN_OF_DOMINANCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("991037a2-fea2-49f5-8ace-ebbf9f678cff"),
+    "Talisman of Dominance",
+    crate::card::CardArt::new("991037a2-fea2-49f5-8ace-ebbf9f678cff", "Mike Dringenberg"),
+    crate::card::CardSet::Mirrodin,
+    crate::card::CardRules::unsupported(),
+);
+
+// MRD 256 — Talisman of Progress
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TALISMAN_OF_PROGRESS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("41ff849e-2439-4690-8aa4-769039b6da4c"),
+    "Talisman of Progress",
+    crate::card::CardArt::new("41ff849e-2439-4690-8aa4-769039b6da4c", "Mike Dringenberg"),
+    crate::card::CardSet::Mirrodin,
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &BARTER_IN_BLOOD,
+    &AETHER_SPELLBOMB,
+    &BONESPLITTER,
+    &CHROME_MOX,
+    &LIGHTNING_GREAVES,
+    &TALISMAN_OF_DOMINANCE,
+    &TALISMAN_OF_PROGRESS,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

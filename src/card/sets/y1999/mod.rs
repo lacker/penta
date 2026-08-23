@@ -2,6 +2,7 @@
 
 pub(super) mod classic_sixth_edition;
 pub(super) mod mercadian_masques;
+pub(super) mod portal_three_kingdoms;
 pub(super) mod urzas_destiny;
 pub(super) mod urzas_legacy;
 

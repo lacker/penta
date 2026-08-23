@@ -1,4 +1,4 @@
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
@@ -64,8 +64,21 @@ pub(in crate::card::sets) static COMBAT_MEDIC: CardRecord = CardRecord::new_with
         )),
 );
 
+// FEM 1b — Combat Medic (alternate printing)
+
+// FEM 1c — Combat Medic (alternate printing)
+
+// FEM 1d — Combat Medic (alternate printing)
+
 // FEM 2 — Farrel's Mantle
-// Audit: blocked — Needs a combat declaration or damage-assignment constraint for “Whenever enchanted creature attacks and isn't blocked, its controller may have it deal damage equal to its power plus 2 to another target creature. If that player does, the attacking…”.
+// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “Whenever enchanted creature attacks and isn't blocked, its controller may have it deal damage equal to its power plus 2 to another target creature. If that player does, the attacking…”.
+pub(in crate::card::sets) static FARREL_S_MANTLE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("af092da3-8713-4a59-86d3-827b942d6456"),
+    "Farrel's Mantle",
+    crate::card::CardArt::new("af092da3-8713-4a59-86d3-827b942d6456", "Anthony S. Waters"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 static FARRELS_ZEALOT_STRIKE: [EffectDef; 2] = [
     EffectDef::DealDamage {
@@ -110,14 +123,39 @@ pub(in crate::card::sets) static FARRELS_ZEALOT: CardRecord = CardRecord::new_wi
     ),
 );
 
+// FEM 3b — Farrel's Zealot (alternate printing)
+
+// FEM 3c — Farrel's Zealot (alternate printing)
+
 // FEM 4 — Farrelite Priest
-// Audit: blocked — Needs the mana-ability runtime to pay this ability's mana activation cost for “{1}: Add {W}. If this ability has been activated four or more times this turn, sacrifice this creature at the beginning of the next end step”.
+// Audit: metadata-only — Needs the mana-ability runtime to pay this ability's mana activation cost for “{1}: Add {W}. If this ability has been activated four or more times this turn, sacrifice this creature at the beginning of the next end step”.
+pub(in crate::card::sets) static FARRELITE_PRIEST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e11bf79b-a951-4d0c-acdf-d8ba5290a648"),
+    "Farrelite Priest",
+    crate::card::CardArt::new("e11bf79b-a951-4d0c-acdf-d8ba5290a648", "Phil Foglio"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 // FEM 5 — Hand of Justice
-// Audit: blocked — Needs a persistent tap/untap restriction or event relation for “{T}, Tap three untapped white creatures you control: Destroy target creature”.
+// Audit: metadata-only — Needs a persistent tap/untap restriction or event relation for “{T}, Tap three untapped white creatures you control: Destroy target creature”.
+pub(in crate::card::sets) static HAND_OF_JUSTICE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7a899b2d-825c-4929-a769-f4df70bf6a17"),
+    "Hand of Justice",
+    crate::card::CardArt::new("7a899b2d-825c-4929-a769-f4df70bf6a17", "Melissa A. Benson"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 // FEM 6 — Heroism
-// Audit: blocked — Needs a per-creature optional payment offered to the opposing controller, repeated for each attacking red creature; preventing one creature's combat damage is already expressible.
+// Audit: metadata-only — Needs a per-creature optional payment offered to the opposing controller, repeated for each attacking red creature; preventing one creature's combat damage is already expressible.
+pub(in crate::card::sets) static HEROISM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("08ee87a0-a7eb-4472-9045-85d11e8a1501"),
+    "Heroism",
+    crate::card::CardArt::new("08ee87a0-a7eb-4472-9045-85d11e8a1501", "Mark Poole"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 // FEM 7a — Icatian Infantry
 pub(in crate::card::sets) static ICATIAN_INFANTRY: CardRecord = CardRecord::new_with_legacy_id(
@@ -149,6 +187,12 @@ pub(in crate::card::sets) static ICATIAN_INFANTRY: CardRecord = CardRecord::new_
         ),
     ]),
 );
+
+// FEM 7b — Icatian Infantry (alternate printing)
+
+// FEM 7c — Icatian Infantry (alternate printing)
+
+// FEM 7d — Icatian Infantry (alternate printing)
 
 // FEM 8a — Icatian Javelineers
 pub(in crate::card::sets) static ICATIAN_JAVELINEERS: CardRecord = CardRecord::new_with_legacy_id(
@@ -185,6 +229,10 @@ pub(in crate::card::sets) static ICATIAN_JAVELINEERS: CardRecord = CardRecord::n
         ),
     ]),
 );
+
+// FEM 8b — Icatian Javelineers (alternate printing)
+
+// FEM 8c — Icatian Javelineers (alternate printing)
 
 // FEM 9 — Icatian Lieutenant
 pub(in crate::card::sets) static ICATIAN_LIEUTENANT: CardRecord = CardRecord::new_with_legacy_id(
@@ -267,6 +315,10 @@ pub(in crate::card::sets) static ICATIAN_MONEYCHANGER: CardRecord = CardRecord::
     ]),
 );
 
+// FEM 10b — Icatian Moneychanger (alternate printing)
+
+// FEM 10c — Icatian Moneychanger (alternate printing)
+
 // FEM 11 — Icatian Phalanx
 pub(in crate::card::sets) static ICATIAN_PHALANX: CardRecord = CardRecord::new_with_legacy_id(
     1776,
@@ -328,6 +380,12 @@ pub(in crate::card::sets) static ICATIAN_SCOUT: CardRecord = CardRecord::new_wit
             },
         )]),
 );
+
+// FEM 13b — Icatian Scout (alternate printing)
+
+// FEM 13c — Icatian Scout (alternate printing)
+
+// FEM 13d — Icatian Scout (alternate printing)
 
 // FEM 14 — Icatian Skirmishers
 pub(in crate::card::sets) static ICATIAN_SKIRMISHERS: CardRecord = CardRecord::new_with_legacy_id(
@@ -433,6 +491,10 @@ static DEEP_SPAWN_SACRIFICE: EffectDef = EffectDef::Sacrifice {
     object: EffectRecipientDef::Source,
 };
 
+// FEM 16b — Order of Leitbur (alternate printing)
+
+// FEM 16c — Order of Leitbur (alternate printing)
+
 // FEM 17 — Deep Spawn
 pub(in crate::card::sets) static DEEP_SPAWN: CardRecord = CardRecord::new_with_legacy_id(
     1834,
@@ -464,7 +526,14 @@ pub(in crate::card::sets) static DEEP_SPAWN: CardRecord = CardRecord::new_with_l
 );
 
 // FEM 18a — High Tide
-// Audit: blocked — Needs cost/mana provenance or dynamic payment support for “Until end of turn, whenever a player taps an Island for mana, that player adds an additional {U}”.
+// Audit: metadata-only — Needs cost/mana provenance or dynamic payment support for “Until end of turn, whenever a player taps an Island for mana, that player adds an additional {U}”.
+pub(in crate::card::sets) static HIGH_TIDE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4686bbb9-517f-4cce-aa7a-5db41e22c02b"),
+    "High Tide",
+    crate::card::CardArt::new("4686bbb9-517f-4cce-aa7a-5db41e22c02b", "Drew Tucker"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 static HOMARID_ONE_TIDE: TriggerConditionDef = TriggerConditionDef::SourceCounters {
     kind: CounterKind::Tide,
@@ -496,6 +565,10 @@ static HOMARID_GROW: EffectDef = EffectDef::StaticApply {
     recipient: EffectRecipientDef::Source,
     effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
 };
+
+// FEM 18b — High Tide (alternate printing)
+
+// FEM 18c — High Tide (alternate printing)
 
 // FEM 19a — Homarid
 pub(in crate::card::sets) static HOMARID: CardRecord = CardRecord::new_with_legacy_id(
@@ -552,6 +625,12 @@ pub(in crate::card::sets) static HOMARID: CardRecord = CardRecord::new_with_lega
     ]),
 );
 
+// FEM 19b — Homarid (alternate printing)
+
+// FEM 19c — Homarid (alternate printing)
+
+// FEM 19d — Homarid (alternate printing)
+
 // FEM 20 — Homarid Shaman
 pub(in crate::card::sets) static HOMARID_SHAMAN: CardRecord = CardRecord::new_with_legacy_id(
     583,
@@ -576,7 +655,14 @@ pub(in crate::card::sets) static HOMARID_SHAMAN: CardRecord = CardRecord::new_wi
 );
 
 // FEM 21 — Homarid Spawning Bed
-// Audit: blocked — Needs Camarid token creation whose count is the sacrificed creature's mana value.
+// Audit: metadata-only — Needs Camarid token creation whose count is the sacrificed creature's mana value.
+pub(in crate::card::sets) static HOMARID_SPAWNING_BED: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2cbb62fc-3cd9-41a6-804a-4ff9a766897f"),
+    "Homarid Spawning Bed",
+    crate::card::CardArt::new("2cbb62fc-3cd9-41a6-804a-4ff9a766897f", "Douglas Shuler"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 // FEM 22a — Homarid Warrior
 pub(in crate::card::sets) static HOMARID_WARRIOR: CardRecord = CardRecord::new_with_legacy_id(
@@ -607,8 +693,25 @@ pub(in crate::card::sets) static HOMARID_WARRIOR: CardRecord = CardRecord::new_w
     ),
 );
 
-// FEM 23a — Merseine
-// Audit: blocked — Needs an activation cost that is another permanent's mana cost rather than a printed one, and a restriction naming the enchanted creature's controller as the only player who may activate. The untap prohibition, the counter check, and entering with counters are all available.
+// FEM 22b — Homarid Warrior (alternate printing)
+
+// FEM 22c — Homarid Warrior (alternate printing)
+
+// FEM 23a — Merseine (alternate printing)
+
+// FEM 23b — Merseine (alternate printing)
+
+// FEM 23c — Merseine
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MERSEINE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2dd197f8-ced0-461a-9672-2720a7b70803"),
+    "Merseine",
+    crate::card::CardArt::new("2dd197f8-ced0-461a-9672-2720a7b70803", "Drew Tucker"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
+
+// FEM 23d — Merseine (alternate printing)
 
 // FEM 24 — River Merfolk
 pub(in crate::card::sets) static RIVER_MERFOLK: CardRecord = CardRecord::new_with_legacy_id(
@@ -630,7 +733,14 @@ pub(in crate::card::sets) static RIVER_MERFOLK: CardRecord = CardRecord::new_wit
 );
 
 // FEM 25 — Seasinger
-// Audit: blocked — Needs duration-aware control-changing continuous effects for “{T}: Gain control of target creature whose controller controls an Island for as long as you control this creature and this creature remains tapped”.
+// Audit: metadata-only — Needs duration-aware control-changing continuous effects for “{T}: Gain control of target creature whose controller controls an Island for as long as you control this creature and this creature remains tapped”.
+pub(in crate::card::sets) static SEASINGER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c5266aa1-e2ea-46b9-91ab-b94a7bb7e9f9"),
+    "Seasinger",
+    crate::card::CardArt::new("c5266aa1-e2ea-46b9-91ab-b94a7bb7e9f9", "Amy Weber"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 // FEM 26 — Svyelunite Priest
 pub(in crate::card::sets) static SVYELUNITE_PRIEST: CardRecord = CardRecord::new_with_legacy_id(
@@ -662,10 +772,28 @@ pub(in crate::card::sets) static SVYELUNITE_PRIEST: CardRecord = CardRecord::new
 static SHROUD: AbilityDef = abilities::shroud();
 
 // FEM 27a — Tidal Flats
-// Audit: blocked — Needs a combat declaration or damage-assignment constraint for “{U}{U}: For each attacking creature without flying, its controller may pay {1}. If that player doesn't, creatures you control blocking that creature gain first strike until end of turn”.
+// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “{U}{U}: For each attacking creature without flying, its controller may pay {1}. If that player doesn't, creatures you control blocking that creature gain first strike until end of turn”.
+pub(in crate::card::sets) static TIDAL_FLATS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2e820f3f-434e-4d09-91b9-0ebd6966b393"),
+    "Tidal Flats",
+    crate::card::CardArt::new("2e820f3f-434e-4d09-91b9-0ebd6966b393", "Rob Alexander"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
+
+// FEM 27b — Tidal Flats (alternate printing)
+
+// FEM 27c — Tidal Flats (alternate printing)
 
 // FEM 28 — Tidal Influence
-// Audit: blocked — Needs card-specific counter state and counter-consuming effects for “As long as there are exactly three tide counters on this enchantment, all blue creatures get +2/+0”.
+// Audit: metadata-only — Needs card-specific counter state and counter-consuming effects for “As long as there are exactly three tide counters on this enchantment, all blue creatures get +2/+0”.
+pub(in crate::card::sets) static TIDAL_INFLUENCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b2192c7b-ef6f-4ff6-9017-b1a125340517"),
+    "Tidal Influence",
+    crate::card::CardArt::new("b2192c7b-ef6f-4ff6-9017-b1a125340517", "Tom Wänerstrand"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 // FEM 29 — Vodalian Knights
 pub(in crate::card::sets) static VODALIAN_KNIGHTS: CardRecord = CardRecord::new_with_legacy_id(
@@ -711,6 +839,10 @@ pub(in crate::card::sets) static VODALIAN_MAGE: CardRecord = CardRecord::new_wit
     ]),
 );
 
+// FEM 30b — Vodalian Mage (alternate printing)
+
+// FEM 30c — Vodalian Mage (alternate printing)
+
 // FEM 31a — Vodalian Soldiers
 pub(in crate::card::sets) static VODALIAN_SOLDIERS: CardRecord = CardRecord::new_with_legacy_id(
     586,
@@ -720,8 +852,21 @@ pub(in crate::card::sets) static VODALIAN_SOLDIERS: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Merfolk", "Soldier"], 1, 2),
 );
 
+// FEM 31b — Vodalian Soldiers (alternate printing)
+
+// FEM 31c — Vodalian Soldiers (alternate printing)
+
+// FEM 31d — Vodalian Soldiers (alternate printing)
+
 // FEM 32 — Vodalian War Machine
-// Audit: blocked — Needs the permanents tapped to pay this card's own costs recorded for the turn, for “When this creature dies, destroy all Merfolk tapped this turn to pay for its abilities”. Tapping another creature as a cost and attacking despite defender are both available.
+// Audit: metadata-only — Needs the permanents tapped to pay this card's own costs recorded for the turn, for “When this creature dies, destroy all Merfolk tapped this turn to pay for its abilities”. Tapping another creature as a cost and attacking despite defender are both available.
+pub(in crate::card::sets) static VODALIAN_WAR_MACHINE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("cd962ff0-4aa6-453e-931e-bd36fc034273"),
+    "Vodalian War Machine",
+    crate::card::CardArt::new("cd962ff0-4aa6-453e-931e-bd36fc034273", "Amy Weber"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 // FEM 33a — Armor Thrull
 pub(in crate::card::sets) static ARMOR_THRULL: CardRecord = CardRecord::new_with_legacy_id(
@@ -745,6 +890,12 @@ pub(in crate::card::sets) static ARMOR_THRULL: CardRecord = CardRecord::new_with
     ),
 );
 
+// FEM 33b — Armor Thrull (alternate printing)
+
+// FEM 33c — Armor Thrull (alternate printing)
+
+// FEM 33d — Armor Thrull (alternate printing)
+
 // FEM 34a — Basal Thrull
 pub(in crate::card::sets) static BASAL_THRULL: CardRecord = CardRecord::new_with_legacy_id(
     587,
@@ -759,6 +910,12 @@ pub(in crate::card::sets) static BASAL_THRULL: CardRecord = CardRecord::new_with
         ),
     ]),
 );
+
+// FEM 34b — Basal Thrull (alternate printing)
+
+// FEM 34c — Basal Thrull (alternate printing)
+
+// FEM 34d — Basal Thrull (alternate printing)
 
 // FEM 35 — Breeding Pit
 pub(in crate::card::sets) static BREEDING_PIT: CardRecord = CardRecord::new_with_legacy_id(
@@ -815,7 +972,17 @@ pub(in crate::card::sets) static DERELOR: CardRecord = CardRecord::new_with_lega
 );
 
 // FEM 37 — Ebon Praetor
-// Audit: blocked — Needs card-specific counter state and counter-consuming effects for “Sacrifice a creature: Remove a -2/-2 counter from this creature. If the sacrificed creature was a Thrull, put a +1/+0 counter on this creature. Activate only during your upkeep and only…”.
+// Audit: metadata-only — Needs card-specific counter state and counter-consuming effects for “Sacrifice a creature: Remove a -2/-2 counter from this creature. If the sacrificed creature was a Thrull, put a +1/+0 counter on this creature. Activate only during your upkeep and only…”.
+pub(in crate::card::sets) static EBON_PRAETOR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("40451f7a-692a-422d-99d3-d93a4d9315e0"),
+    "Ebon Praetor",
+    crate::card::CardArt::new(
+        "40451f7a-692a-422d-99d3-d93a4d9315e0",
+        "Randy Asplund-Faith",
+    ),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 // FEM 38a — Hymn to Tourach
 pub(in crate::card::sets) static HYMN_TO_TOURACH: CardRecord = CardRecord::new_with_legacy_id(
@@ -837,8 +1004,13 @@ pub(in crate::card::sets) static HYMN_TO_TOURACH: CardRecord = CardRecord::new_w
     )]),
 );
 
-// FEM 39a — Initiates of the Ebon Hand
-// Audit: blocked — Needs the mana-ability runtime to pay this ability's mana activation cost for “{1}: Add {B}. If this ability has been activated four or more times this turn, sacrifice this creature at the beginning of the next end step”.
+// FEM 38b — Hymn to Tourach (alternate printing)
+
+// FEM 38c — Hymn to Tourach (alternate printing)
+
+// FEM 38d — Hymn to Tourach (alternate printing)
+
+// FEM 39a — Initiates of the Ebon Hand (alternate printing)
 
 static MINDSTAB_THRULL_STRIKE: [EffectDef; 2] = [
     EffectDef::Sacrifice {
@@ -851,6 +1023,18 @@ static MINDSTAB_THRULL_STRIKE: [EffectDef; 2] = [
         then: None,
     },
 ];
+
+// FEM 39b — Initiates of the Ebon Hand
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static INITIATES_OF_THE_EBON_HAND: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("03c7dc01-46d0-42be-a1a9-48f69c846d12"),
+    "Initiates of the Ebon Hand",
+    crate::card::CardArt::new("03c7dc01-46d0-42be-a1a9-48f69c846d12", "Liz Danforth"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
+
+// FEM 39c — Initiates of the Ebon Hand (alternate printing)
 
 // FEM 40a — Mindstab Thrull
 pub(in crate::card::sets) static MINDSTAB_THRULL: CardRecord = CardRecord::new_with_legacy_id(
@@ -897,6 +1081,10 @@ static NECRITE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     },
 )];
 
+// FEM 40b — Mindstab Thrull (alternate printing)
+
+// FEM 40c — Mindstab Thrull (alternate printing)
+
 // FEM 41a — Necrite
 pub(in crate::card::sets) static NECRITE: CardRecord = CardRecord::new_with_legacy_id(
     1580,
@@ -918,6 +1106,10 @@ pub(in crate::card::sets) static NECRITE: CardRecord = CardRecord::new_with_lega
         ),
     ),
 );
+
+// FEM 41b — Necrite (alternate printing)
+
+// FEM 41c — Necrite (alternate printing)
 
 // FEM 42a — Order of the Ebon Hand
 pub(in crate::card::sets) static ORDER_OF_THE_EBON_HAND: CardRecord =
@@ -954,8 +1146,19 @@ pub(in crate::card::sets) static ORDER_OF_THE_EBON_HAND: CardRecord =
         ),
     );
 
+// FEM 42b — Order of the Ebon Hand (alternate printing)
+
+// FEM 42c — Order of the Ebon Hand (alternate printing)
+
 // FEM 43 — Soul Exchange
-// Audit: blocked — Needs a zone-object query and identity-preserving continuation for “As an additional cost to cast this spell, exile a creature you control”.
+// Audit: metadata-only — Needs a zone-object query and identity-preserving continuation for “As an additional cost to cast this spell, exile a creature you control”.
+pub(in crate::card::sets) static SOUL_EXCHANGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9f73597d-f453-4d37-b2ef-c54ef683a884"),
+    "Soul Exchange",
+    crate::card::CardArt::new("9f73597d-f453-4d37-b2ef-c54ef683a884", "Anthony S. Waters"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 // FEM 44 — Thrull Champion
 pub(in crate::card::sets) static THRULL_CHAMPION: CardRecord = CardRecord::new_with_legacy_id(
@@ -1029,13 +1232,37 @@ pub(in crate::card::sets) static THRULL_RETAINER: CardRecord = CardRecord::new_w
 );
 
 // FEM 46 — Thrull Wizard
-// Audit: blocked — Needs an unless-payment offering a choice between two mana costs. Reading a spell's color is available.
+// Audit: metadata-only — Needs an unless-payment offering a choice between two mana costs. Reading a spell's color is available.
+pub(in crate::card::sets) static THRULL_WIZARD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c4e732fb-cbef-4fd8-b704-e4d513a6cf2d"),
+    "Thrull Wizard",
+    crate::card::CardArt::new("c4e732fb-cbef-4fd8-b704-e4d513a6cf2d", "Anson Maddocks"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 // FEM 47 — Tourach's Chant
-// Audit: blocked — Needs card-specific counter state and counter-consuming effects for “Whenever a player puts a Forest onto the battlefield, this enchantment deals 3 damage to that player unless they put a -1/-1 counter on a creature they control”.
+// Audit: metadata-only — Needs card-specific counter state and counter-consuming effects for “Whenever a player puts a Forest onto the battlefield, this enchantment deals 3 damage to that player unless they put a -1/-1 counter on a creature they control”.
+pub(in crate::card::sets) static TOURACH_S_CHANT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("06883fd2-eccd-47c6-8c34-10d95e923685"),
+    "Tourach's Chant",
+    crate::card::CardArt::new(
+        "06883fd2-eccd-47c6-8c34-10d95e923685",
+        "Richard Kane Ferguson",
+    ),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 // FEM 48 — Tourach's Gate
-// Audit: blocked — Needs the clause's conditional recipient set or dynamic modifier value for “Tap enchanted land: Attacking creatures you control get +2/-1 until end of turn. Activate only if enchanted land is untapped”.
+// Audit: metadata-only — Needs the clause's conditional recipient set or dynamic modifier value for “Tap enchanted land: Attacking creatures you control get +2/-1 until end of turn. Activate only if enchanted land is untapped”.
+pub(in crate::card::sets) static TOURACH_S_GATE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d77f6401-a9fb-449c-b511-6fb837055bb4"),
+    "Tourach's Gate",
+    crate::card::CardArt::new("d77f6401-a9fb-449c-b511-6fb837055bb4", "Sandra Everingham"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 // FEM 49a — Brassclaw Orcs
 pub(in crate::card::sets) static BRASSCLAW_ORCS: CardRecord = CardRecord::new_with_legacy_id(
@@ -1056,11 +1283,31 @@ pub(in crate::card::sets) static BRASSCLAW_ORCS: CardRecord = CardRecord::new_wi
     ),
 );
 
+// FEM 49b — Brassclaw Orcs (alternate printing)
+
+// FEM 49c — Brassclaw Orcs (alternate printing)
+
+// FEM 49d — Brassclaw Orcs (alternate printing)
+
 // FEM 50 — Dwarven Armorer
-// Audit: blocked — Needs card-specific counter state and counter-consuming effects for “{R}, {T}, Discard a card: Put a +0/+1 counter or a +1/+0 counter on target creature”.
+// Audit: metadata-only — Needs card-specific counter state and counter-consuming effects for “{R}, {T}, Discard a card: Put a +0/+1 counter or a +1/+0 counter on target creature”.
+pub(in crate::card::sets) static DWARVEN_ARMORER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1d50bf06-97ab-4874-a484-9289f41dc98e"),
+    "Dwarven Armorer",
+    crate::card::CardArt::new("1d50bf06-97ab-4874-a484-9289f41dc98e", "Bryon Wackwitz"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 // FEM 51 — Dwarven Catapult
-// Audit: blocked — Needs damage divided evenly with downward rounding across a dynamically counted opponent creature set.
+// Audit: metadata-only — Needs damage divided evenly with downward rounding across a dynamically counted opponent creature set.
+pub(in crate::card::sets) static DWARVEN_CATAPULT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8c1c6932-638a-4df7-bf9b-8d921f7484d9"),
+    "Dwarven Catapult",
+    crate::card::CardArt::new("8c1c6932-638a-4df7-bf9b-8d921f7484d9", "Jeff A. Menges"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 // FEM 52 — Dwarven Lieutenant
 pub(in crate::card::sets) static DWARVEN_LIEUTENANT: CardRecord = CardRecord::new_with_legacy_id(
@@ -1116,6 +1363,10 @@ pub(in crate::card::sets) static DWARVEN_SOLDIER: CardRecord = CardRecord::new_w
     ),
 );
 
+// FEM 53b — Dwarven Soldier (alternate printing)
+
+// FEM 53c — Dwarven Soldier (alternate printing)
+
 // FEM 54a — Goblin Chirurgeon
 pub(in crate::card::sets) static GOBLIN_CHIRURGEON: CardRecord = CardRecord::new_with_legacy_id(
     1431,
@@ -1139,8 +1390,19 @@ pub(in crate::card::sets) static GOBLIN_CHIRURGEON: CardRecord = CardRecord::new
     ]),
 );
 
+// FEM 54b — Goblin Chirurgeon (alternate printing)
+
+// FEM 54c — Goblin Chirurgeon (alternate printing)
+
 // FEM 55 — Goblin Flotilla
-// Audit: blocked — Needs a combat declaration or damage-assignment constraint for “At the beginning of each combat, unless you pay {R}, whenever this creature blocks or becomes blocked by a creature this combat, that creature gains first strike until end of turn”.
+// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “At the beginning of each combat, unless you pay {R}, whenever this creature blocks or becomes blocked by a creature this combat, that creature gains first strike until end of turn”.
+pub(in crate::card::sets) static GOBLIN_FLOTILLA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("87024efe-4a74-49fe-a43a-480bed0a650a"),
+    "Goblin Flotilla",
+    crate::card::CardArt::new("87024efe-4a74-49fe-a43a-480bed0a650a", "Tom Wänerstrand"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 // FEM 56a — Goblin Grenade
 pub(in crate::card::sets) static GOBLIN_GRENADE: CardRecord = CardRecord::new_with_legacy_id(
@@ -1200,6 +1462,10 @@ static GOBLIN_KITES_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_o
     },
 )];
 
+// FEM 56b — Goblin Grenade (alternate printing)
+
+// FEM 56c — Goblin Grenade (alternate printing)
+
 // FEM 57 — Goblin Kites
 pub(in crate::card::sets) static GOBLIN_KITES: CardRecord = CardRecord::new_with_legacy_id(
     1800,
@@ -1239,8 +1505,21 @@ pub(in crate::card::sets) static GOBLIN_WAR_DRUMS: CardRecord = CardRecord::new_
     )),
 );
 
+// FEM 58b — Goblin War Drums (alternate printing)
+
+// FEM 58c — Goblin War Drums (alternate printing)
+
+// FEM 58d — Goblin War Drums (alternate printing)
+
 // FEM 59 — Goblin Warrens
-// Audit: blocked — Needs an activated cost that selects and sacrifices two Goblins; only one chosen permanent can currently be sacrificed as a cost.
+// Audit: metadata-only — Needs an activated cost that selects and sacrifices two Goblins; only one chosen permanent can currently be sacrificed as a cost.
+pub(in crate::card::sets) static GOBLIN_WARRENS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("bbec4aa5-3319-43dc-8347-5633edbd7018"),
+    "Goblin Warrens",
+    crate::card::CardArt::new("bbec4aa5-3319-43dc-8347-5633edbd7018", "Dan Frazier"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 // FEM 60 — Orcish Captain
 pub(in crate::card::sets) static ORCISH_CAPTAIN: CardRecord = CardRecord::new_with_legacy_id(
@@ -1340,6 +1619,10 @@ static NOT_A_BIG_WHITE_CREATURE: ObjectPredicateDef =
         ObjectPredicateDef::PowerAtLeast(2),
     ]));
 
+// FEM 61b — Orcish Spy (alternate printing)
+
+// FEM 61c — Orcish Spy (alternate printing)
+
 // FEM 62a — Orcish Veteran
 pub(in crate::card::sets) static ORCISH_VETERAN: CardRecord = CardRecord::new_with_legacy_id(
     1730,
@@ -1379,6 +1662,12 @@ static ORGG_DETERRENT: ObjectQueryDef = ObjectQueryDef::matching(
     PlayerRelation::Opponent,
 );
 
+// FEM 62b — Orcish Veteran (alternate printing)
+
+// FEM 62c — Orcish Veteran (alternate printing)
+
+// FEM 62d — Orcish Veteran (alternate printing)
+
 // FEM 63 — Orgg
 pub(in crate::card::sets) static ORGG: CardRecord = CardRecord::new_with_legacy_id(
     1713,
@@ -1405,7 +1694,14 @@ pub(in crate::card::sets) static ORGG: CardRecord = CardRecord::new_with_legacy_
 );
 
 // FEM 64 — Raiding Party
-// Audit: blocked — Needs a persistent tap/untap restriction or event relation for “Sacrifice an Orc: Each player may tap any number of untapped white creatures they control. For each creature tapped this way, that player chooses up to two Plains. Then destroy all…”.
+// Audit: metadata-only — Needs a persistent tap/untap restriction or event relation for “Sacrifice an Orc: Each player may tap any number of untapped white creatures they control. For each creature tapped this way, that player chooses up to two Plains. Then destroy all…”.
+pub(in crate::card::sets) static RAIDING_PARTY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("907a3396-706b-4ca2-9973-bca758986032"),
+    "Raiding Party",
+    crate::card::CardArt::new("907a3396-706b-4ca2-9973-bca758986032", "Quinton Hoover"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 // FEM 65a — Elven Fortress
 pub(in crate::card::sets) static ELVEN_FORTRESS: CardRecord = CardRecord::new_with_legacy_id(
@@ -1435,6 +1731,12 @@ pub(in crate::card::sets) static ELVEN_FORTRESS: CardRecord = CardRecord::new_wi
         ),
     ]),
 );
+
+// FEM 65b — Elven Fortress (alternate printing)
+
+// FEM 65c — Elven Fortress (alternate printing)
+
+// FEM 65d — Elven Fortress (alternate printing)
 
 // FEM 66 — Elvish Farmer
 pub(in crate::card::sets) static ELVISH_FARMER: CardRecord = CardRecord::new_with_legacy_id(
@@ -1543,6 +1845,10 @@ static ELVISH_SCOUT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_o
     },
 )];
 
+// FEM 67b — Elvish Hunter (alternate printing)
+
+// FEM 67c — Elvish Hunter (alternate printing)
+
 // FEM 68a — Elvish Scout
 pub(in crate::card::sets) static ELVISH_SCOUT: CardRecord = CardRecord::new_with_legacy_id(
     1737,
@@ -1562,6 +1868,10 @@ pub(in crate::card::sets) static ELVISH_SCOUT: CardRecord = CardRecord::new_with
         ),
     ),
 );
+
+// FEM 68b — Elvish Scout (alternate printing)
+
+// FEM 68c — Elvish Scout (alternate printing)
 
 // FEM 69 — Feral Thallid
 pub(in crate::card::sets) static FERAL_THALLID: CardRecord = CardRecord::new_with_legacy_id(
@@ -1613,7 +1923,14 @@ pub(in crate::card::sets) static FUNGAL_BLOOM: CardRecord = CardRecord::new_with
 );
 
 // FEM 71a — Night Soil
-// Audit: blocked — Needs a zone-object query and identity-preserving continuation for “{1}, Exile two creature cards from a single graveyard: Create a 1/1 green Saproling creature token”.
+// Audit: metadata-only — Needs a zone-object query and identity-preserving continuation for “{1}, Exile two creature cards from a single graveyard: Create a 1/1 green Saproling creature token”.
+pub(in crate::card::sets) static NIGHT_SOIL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4cda6d18-d4b1-4b8a-a72e-f90115adf4c3"),
+    "Night Soil",
+    crate::card::CardArt::new("4cda6d18-d4b1-4b8a-a72e-f90115adf4c3", "Sandra Everingham"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 /// Three clauses in printed order. The tap comes first so it reaches the
 /// blockers while they are still blocking; the skip is separate from it,
@@ -1643,6 +1960,10 @@ static SPORE_CLOUD_EFFECT: [EffectDef; 3] = [
     },
 ];
 
+// FEM 71b — Night Soil (alternate printing)
+
+// FEM 71c — Night Soil (alternate printing)
+
 // FEM 72a — Spore Cloud
 pub(in crate::card::sets) static SPORE_CLOUD: CardRecord = CardRecord::new_with_legacy_id(
     1842,
@@ -1656,6 +1977,10 @@ pub(in crate::card::sets) static SPORE_CLOUD: CardRecord = CardRecord::new_with_
         EffectDef::Sequence(&SPORE_CLOUD_EFFECT),
     )),
 );
+
+// FEM 72b — Spore Cloud (alternate printing)
+
+// FEM 72c — Spore Cloud (alternate printing)
 
 // FEM 73 — Spore Flower
 pub(in crate::card::sets) static SPORE_FLOWER: CardRecord = CardRecord::new_with_legacy_id(
@@ -1725,6 +2050,12 @@ pub(in crate::card::sets) static THALLID: CardRecord = CardRecord::new_with_lega
         ]),
 );
 
+// FEM 74b — Thallid (alternate printing)
+
+// FEM 74c — Thallid (alternate printing)
+
+// FEM 74d — Thallid (alternate printing)
+
 // FEM 75 — Thallid Devourer
 pub(in crate::card::sets) static THALLID_DEVOURER: CardRecord = CardRecord::new_with_legacy_id(
     1456,
@@ -1774,10 +2105,24 @@ pub(in crate::card::sets) static THALLID_DEVOURER: CardRecord = CardRecord::new_
 );
 
 // FEM 76 — Thelon's Chant
-// Audit: blocked — Needs card-specific counter state and counter-consuming effects for “Whenever a player puts a Swamp onto the battlefield, this enchantment deals 3 damage to that player unless the player puts a -1/-1 counter on a creature they control”.
+// Audit: metadata-only — Needs card-specific counter state and counter-consuming effects for “Whenever a player puts a Swamp onto the battlefield, this enchantment deals 3 damage to that player unless the player puts a -1/-1 counter on a creature they control”.
+pub(in crate::card::sets) static THELON_S_CHANT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9d970195-0a09-4cb4-a2c0-c16fcab5c859"),
+    "Thelon's Chant",
+    crate::card::CardArt::new("9d970195-0a09-4cb4-a2c0-c16fcab5c859", "Melissa A. Benson"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 // FEM 77 — Thelon's Curse
-// Audit: blocked — Needs a persistent tap/untap restriction or event relation for “At the beginning of each player's upkeep, that player may choose any number of tapped blue creatures they control and pay {U} for each creature chosen this way. If the player does, untap…”.
+// Audit: metadata-only — Needs a persistent tap/untap restriction or event relation for “At the beginning of each player's upkeep, that player may choose any number of tapped blue creatures they control and pay {U} for each creature chosen this way. If the player does, untap…”.
+pub(in crate::card::sets) static THELON_S_CURSE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9b868846-cc3c-4756-a5dd-2335bb380567"),
+    "Thelon's Curse",
+    crate::card::CardArt::new("9b868846-cc3c-4756-a5dd-2335bb380567", "Pete Venters"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 static THELONITE_DRUID_ANIMATION: [AppliedEffectDef; 2] = [
     AppliedEffectDef::add_card_types(crate::card::CardTypeSet::single(CardType::Creature)),
@@ -1818,7 +2163,14 @@ pub(in crate::card::sets) static THELONITE_DRUID: CardRecord = CardRecord::new_w
 );
 
 // FEM 79 — Thelonite Monk
-// Audit: blocked — Needs its permanent-duration target-land characteristic effect and green-creature sacrifice cost authored and tested.
+// Audit: metadata-only — Needs its permanent-duration target-land characteristic effect and green-creature sacrifice cost authored and tested.
+pub(in crate::card::sets) static THELONITE_MONK: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5400ff25-c70e-4095-a228-190601b86043"),
+    "Thelonite Monk",
+    crate::card::CardArt::new("5400ff25-c70e-4095-a228-190601b86043", "Bryon Wackwitz"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 // FEM 80a — Thorn Thallid
 pub(in crate::card::sets) static THORN_THALLID: CardRecord = CardRecord::new_with_legacy_id(
@@ -1853,6 +2205,12 @@ pub(in crate::card::sets) static THORN_THALLID: CardRecord = CardRecord::new_wit
     ]),
 );
 
+// FEM 80b — Thorn Thallid (alternate printing)
+
+// FEM 80c — Thorn Thallid (alternate printing)
+
+// FEM 80d — Thorn Thallid (alternate printing)
+
 // FEM 81 — Aeolipile
 pub(in crate::card::sets) static AEOLIPILE: CardRecord = CardRecord::new_with_legacy_id(
     593,
@@ -1879,16 +2237,47 @@ pub(in crate::card::sets) static AEOLIPILE: CardRecord = CardRecord::new_with_le
 );
 
 // FEM 82 — Balm of Restoration
-// Audit: blocked — Needs modal activated abilities: modes are chosen only while casting a spell, so an activated ability has no mode selection to freeze. Both of its modes are available.
+// Audit: metadata-only — Needs modal activated abilities: modes are chosen only while casting a spell, so an activated ability has no mode selection to freeze. Both of its modes are available.
+pub(in crate::card::sets) static BALM_OF_RESTORATION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7f95de4a-7fae-42bc-9660-39ea7685ca02"),
+    "Balm of Restoration",
+    crate::card::CardArt::new(
+        "7f95de4a-7fae-42bc-9660-39ea7685ca02",
+        "Margaret Organ-Kean",
+    ),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 // FEM 83 — Conch Horn
-// Audit: blocked — Needs ordered-library inspection, selection, and visibility handling for “{1}, {T}, Sacrifice this artifact: Draw two then put a card from your hand on top of your library”.
+// Audit: metadata-only — Needs ordered-library inspection, selection, and visibility handling for “{1}, {T}, Sacrifice this artifact: Draw two then put a card from your hand on top of your library”.
+pub(in crate::card::sets) static CONCH_HORN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("860a9ba3-e4c4-4af9-bdfe-1ada39289fd5"),
+    "Conch Horn",
+    crate::card::CardArt::new("860a9ba3-e4c4-4af9-bdfe-1ada39289fd5", "Phil Foglio"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 // FEM 84 — Delif's Cone
-// Audit: blocked — Needs a combat declaration or damage-assignment constraint for “{T}, Sacrifice this artifact: This turn, when target creature you control attacks and isn't blocked, you may gain life equal to its power. If you do, it assigns no combat damage this turn”.
+// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “{T}, Sacrifice this artifact: This turn, when target creature you control attacks and isn't blocked, you may gain life equal to its power. If you do, it assigns no combat damage this turn”.
+pub(in crate::card::sets) static DELIF_S_CONE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("262b8788-c5a0-4c8e-9d58-b769b1b0a2ff"),
+    "Delif's Cone",
+    crate::card::CardArt::new("262b8788-c5a0-4c8e-9d58-b769b1b0a2ff", "Mark Tedin"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 // FEM 85 — Delif's Cube
-// Audit: blocked — Needs a combat declaration or damage-assignment constraint for “{2}, {T}: This turn, when target creature you control attacks and isn't blocked, it assigns no combat damage this turn and you put a cube counter on this artifact”.
+// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “{2}, {T}: This turn, when target creature you control attacks and isn't blocked, it assigns no combat damage this turn and you put a cube counter on this artifact”.
+pub(in crate::card::sets) static DELIF_S_CUBE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("14749600-9eca-4122-b04f-30ddda091b74"),
+    "Delif's Cube",
+    crate::card::CardArt::new("14749600-9eca-4122-b04f-30ddda091b74", "Mark Tedin"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 // FEM 86 — Draconian Cylix
 pub(in crate::card::sets) static DRACONIAN_CYLIX: CardRecord = CardRecord::new_with_legacy_id(
@@ -2296,7 +2685,14 @@ pub(in crate::card::sets) static ICATIAN_STORE: CardRecord = CardRecord::new_wit
 );
 
 // FEM 99 — Rainbow Vale
-// Audit: blocked — Needs duration-aware control-changing continuous effects for “{T}: Add one mana of any color. An opponent gains control of this land at the beginning of the next end step”.
+// Audit: metadata-only — Needs duration-aware control-changing continuous effects for “{T}: Add one mana of any color. An opponent gains control of this land at the beginning of the next end step”.
+pub(in crate::card::sets) static RAINBOW_VALE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c1b138e1-f8fc-435c-9aed-98004768479c"),
+    "Rainbow Vale",
+    crate::card::CardArt::new("c1b138e1-f8fc-435c-9aed-98004768479c", "Kaja Foglio"),
+    crate::card::CardSet::FallenEmpires,
+    crate::card::CardRules::unsupported(),
+);
 
 // FEM 100 — Ruins of Trokair
 pub(in crate::card::sets) static RUINS_OF_TROKAIR: CardRecord = CardRecord::new_with_legacy_id(
@@ -2387,7 +2783,11 @@ pub(in crate::card::sets) static SVYELUNITE_TEMPLE: CardRecord = CardRecord::new
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &COMBAT_MEDIC,
+    &FARREL_S_MANTLE,
     &FARRELS_ZEALOT,
+    &FARRELITE_PRIEST,
+    &HAND_OF_JUSTICE,
+    &HEROISM,
     &ICATIAN_INFANTRY,
     &ICATIAN_JAVELINEERS,
     &ICATIAN_LIEUTENANT,
@@ -2399,48 +2799,74 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ICATIAN_TOWN,
     &ORDER_OF_LEITBUR,
     &DEEP_SPAWN,
+    &HIGH_TIDE,
     &HOMARID,
     &HOMARID_SHAMAN,
+    &HOMARID_SPAWNING_BED,
     &HOMARID_WARRIOR,
+    &MERSEINE,
     &RIVER_MERFOLK,
+    &SEASINGER,
     &SVYELUNITE_PRIEST,
+    &TIDAL_FLATS,
+    &TIDAL_INFLUENCE,
     &VODALIAN_KNIGHTS,
     &VODALIAN_MAGE,
     &VODALIAN_SOLDIERS,
+    &VODALIAN_WAR_MACHINE,
     &ARMOR_THRULL,
     &BASAL_THRULL,
     &BREEDING_PIT,
     &DERELOR,
+    &EBON_PRAETOR,
     &HYMN_TO_TOURACH,
+    &INITIATES_OF_THE_EBON_HAND,
     &MINDSTAB_THRULL,
     &NECRITE,
     &ORDER_OF_THE_EBON_HAND,
+    &SOUL_EXCHANGE,
     &THRULL_CHAMPION,
     &THRULL_RETAINER,
+    &THRULL_WIZARD,
+    &TOURACH_S_CHANT,
+    &TOURACH_S_GATE,
     &BRASSCLAW_ORCS,
+    &DWARVEN_ARMORER,
+    &DWARVEN_CATAPULT,
     &DWARVEN_LIEUTENANT,
     &DWARVEN_SOLDIER,
     &GOBLIN_CHIRURGEON,
+    &GOBLIN_FLOTILLA,
     &GOBLIN_GRENADE,
     &GOBLIN_KITES,
     &GOBLIN_WAR_DRUMS,
+    &GOBLIN_WARRENS,
     &ORCISH_CAPTAIN,
     &ORCISH_SPY,
     &ORCISH_VETERAN,
     &ORGG,
+    &RAIDING_PARTY,
     &ELVEN_FORTRESS,
     &ELVISH_FARMER,
     &ELVISH_HUNTER,
     &ELVISH_SCOUT,
     &FERAL_THALLID,
     &FUNGAL_BLOOM,
+    &NIGHT_SOIL,
     &SPORE_CLOUD,
     &SPORE_FLOWER,
     &THALLID,
     &THALLID_DEVOURER,
+    &THELON_S_CHANT,
+    &THELON_S_CURSE,
     &THELONITE_DRUID,
+    &THELONITE_MONK,
     &THORN_THALLID,
     &AEOLIPILE,
+    &BALM_OF_RESTORATION,
+    &CONCH_HORN,
+    &DELIF_S_CONE,
+    &DELIF_S_CUBE,
     &DRACONIAN_CYLIX,
     &ELVEN_LYRE,
     &IMPLEMENTS_OF_SACRIFICE,
@@ -2454,9 +2880,96 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &HAVENWOOD_BATTLEGROUND,
     &HOLLOW_TREES,
     &ICATIAN_STORE,
+    &RAINBOW_VALE,
     &RUINS_OF_TROKAIR,
     &SAND_SILOS,
     &SVYELUNITE_TEMPLE,
 ];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
+    PrintingRecord::alternate(&COMBAT_MEDIC, 1),     // FEM 1b
+    PrintingRecord::alternate(&COMBAT_MEDIC, 2),     // FEM 1c
+    PrintingRecord::alternate(&COMBAT_MEDIC, 3),     // FEM 1d
+    PrintingRecord::alternate(&FARRELS_ZEALOT, 1),   // FEM 3b
+    PrintingRecord::alternate(&FARRELS_ZEALOT, 2),   // FEM 3c
+    PrintingRecord::alternate(&ICATIAN_INFANTRY, 1), // FEM 7b
+    PrintingRecord::alternate(&ICATIAN_INFANTRY, 2), // FEM 7c
+    PrintingRecord::alternate(&ICATIAN_INFANTRY, 3), // FEM 7d
+    PrintingRecord::alternate(&ICATIAN_JAVELINEERS, 1), // FEM 8b
+    PrintingRecord::alternate(&ICATIAN_JAVELINEERS, 2), // FEM 8c
+    PrintingRecord::alternate(&ICATIAN_MONEYCHANGER, 1), // FEM 10b
+    PrintingRecord::alternate(&ICATIAN_MONEYCHANGER, 2), // FEM 10c
+    PrintingRecord::alternate(&ICATIAN_SCOUT, 1),    // FEM 13b
+    PrintingRecord::alternate(&ICATIAN_SCOUT, 2),    // FEM 13c
+    PrintingRecord::alternate(&ICATIAN_SCOUT, 3),    // FEM 13d
+    PrintingRecord::alternate(&ORDER_OF_LEITBUR, 1), // FEM 16b
+    PrintingRecord::alternate(&ORDER_OF_LEITBUR, 2), // FEM 16c
+    PrintingRecord::alternate(&HIGH_TIDE, 1),        // FEM 18b
+    PrintingRecord::alternate(&HIGH_TIDE, 2),        // FEM 18c
+    PrintingRecord::alternate(&HOMARID, 1),          // FEM 19b
+    PrintingRecord::alternate(&HOMARID, 2),          // FEM 19c
+    PrintingRecord::alternate(&HOMARID, 3),          // FEM 19d
+    PrintingRecord::alternate(&HOMARID_WARRIOR, 1),  // FEM 22b
+    PrintingRecord::alternate(&HOMARID_WARRIOR, 2),  // FEM 22c
+    PrintingRecord::alternate(&MERSEINE, 1),         // FEM 23a
+    PrintingRecord::alternate(&MERSEINE, 2),         // FEM 23b
+    PrintingRecord::alternate(&MERSEINE, 3),         // FEM 23d
+    PrintingRecord::alternate(&TIDAL_FLATS, 1),      // FEM 27b
+    PrintingRecord::alternate(&TIDAL_FLATS, 2),      // FEM 27c
+    PrintingRecord::alternate(&VODALIAN_MAGE, 1),    // FEM 30b
+    PrintingRecord::alternate(&VODALIAN_MAGE, 2),    // FEM 30c
+    PrintingRecord::alternate(&VODALIAN_SOLDIERS, 1), // FEM 31b
+    PrintingRecord::alternate(&VODALIAN_SOLDIERS, 2), // FEM 31c
+    PrintingRecord::alternate(&VODALIAN_SOLDIERS, 3), // FEM 31d
+    PrintingRecord::alternate(&ARMOR_THRULL, 1),     // FEM 33b
+    PrintingRecord::alternate(&ARMOR_THRULL, 2),     // FEM 33c
+    PrintingRecord::alternate(&ARMOR_THRULL, 3),     // FEM 33d
+    PrintingRecord::alternate(&BASAL_THRULL, 1),     // FEM 34b
+    PrintingRecord::alternate(&BASAL_THRULL, 2),     // FEM 34c
+    PrintingRecord::alternate(&BASAL_THRULL, 3),     // FEM 34d
+    PrintingRecord::alternate(&HYMN_TO_TOURACH, 1),  // FEM 38b
+    PrintingRecord::alternate(&HYMN_TO_TOURACH, 2),  // FEM 38c
+    PrintingRecord::alternate(&HYMN_TO_TOURACH, 3),  // FEM 38d
+    PrintingRecord::alternate(&INITIATES_OF_THE_EBON_HAND, 1), // FEM 39a
+    PrintingRecord::alternate(&INITIATES_OF_THE_EBON_HAND, 2), // FEM 39c
+    PrintingRecord::alternate(&MINDSTAB_THRULL, 1),  // FEM 40b
+    PrintingRecord::alternate(&MINDSTAB_THRULL, 2),  // FEM 40c
+    PrintingRecord::alternate(&NECRITE, 1),          // FEM 41b
+    PrintingRecord::alternate(&NECRITE, 2),          // FEM 41c
+    PrintingRecord::alternate(&ORDER_OF_THE_EBON_HAND, 1), // FEM 42b
+    PrintingRecord::alternate(&ORDER_OF_THE_EBON_HAND, 2), // FEM 42c
+    PrintingRecord::alternate(&BRASSCLAW_ORCS, 1),   // FEM 49b
+    PrintingRecord::alternate(&BRASSCLAW_ORCS, 2),   // FEM 49c
+    PrintingRecord::alternate(&BRASSCLAW_ORCS, 3),   // FEM 49d
+    PrintingRecord::alternate(&DWARVEN_SOLDIER, 1),  // FEM 53b
+    PrintingRecord::alternate(&DWARVEN_SOLDIER, 2),  // FEM 53c
+    PrintingRecord::alternate(&GOBLIN_CHIRURGEON, 1), // FEM 54b
+    PrintingRecord::alternate(&GOBLIN_CHIRURGEON, 2), // FEM 54c
+    PrintingRecord::alternate(&GOBLIN_GRENADE, 1),   // FEM 56b
+    PrintingRecord::alternate(&GOBLIN_GRENADE, 2),   // FEM 56c
+    PrintingRecord::alternate(&GOBLIN_WAR_DRUMS, 1), // FEM 58b
+    PrintingRecord::alternate(&GOBLIN_WAR_DRUMS, 2), // FEM 58c
+    PrintingRecord::alternate(&GOBLIN_WAR_DRUMS, 3), // FEM 58d
+    PrintingRecord::alternate(&ORCISH_SPY, 1),       // FEM 61b
+    PrintingRecord::alternate(&ORCISH_SPY, 2),       // FEM 61c
+    PrintingRecord::alternate(&ORCISH_VETERAN, 1),   // FEM 62b
+    PrintingRecord::alternate(&ORCISH_VETERAN, 2),   // FEM 62c
+    PrintingRecord::alternate(&ORCISH_VETERAN, 3),   // FEM 62d
+    PrintingRecord::alternate(&ELVEN_FORTRESS, 1),   // FEM 65b
+    PrintingRecord::alternate(&ELVEN_FORTRESS, 2),   // FEM 65c
+    PrintingRecord::alternate(&ELVEN_FORTRESS, 3),   // FEM 65d
+    PrintingRecord::alternate(&ELVISH_HUNTER, 1),    // FEM 67b
+    PrintingRecord::alternate(&ELVISH_HUNTER, 2),    // FEM 67c
+    PrintingRecord::alternate(&ELVISH_SCOUT, 1),     // FEM 68b
+    PrintingRecord::alternate(&ELVISH_SCOUT, 2),     // FEM 68c
+    PrintingRecord::alternate(&NIGHT_SOIL, 1),       // FEM 71b
+    PrintingRecord::alternate(&NIGHT_SOIL, 2),       // FEM 71c
+    PrintingRecord::alternate(&SPORE_CLOUD, 1),      // FEM 72b
+    PrintingRecord::alternate(&SPORE_CLOUD, 2),      // FEM 72c
+    PrintingRecord::alternate(&THALLID, 1),          // FEM 74b
+    PrintingRecord::alternate(&THALLID, 2),          // FEM 74c
+    PrintingRecord::alternate(&THALLID, 3),          // FEM 74d
+    PrintingRecord::alternate(&THORN_THALLID, 1),    // FEM 80b
+    PrintingRecord::alternate(&THORN_THALLID, 2),    // FEM 80c
+    PrintingRecord::alternate(&THORN_THALLID, 3),    // FEM 80d
+];

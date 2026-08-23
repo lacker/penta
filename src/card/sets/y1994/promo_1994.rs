@@ -9,13 +9,27 @@ use crate::card::{
 };
 use crate::mana_cost;
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 
 // P94 1 — Arena
-// Audit: blocked — Needs a fight effect that deals simultaneous reciprocal power damage after the linked target choices for “{3}, {T}: Tap target creature you control and target creature of an opponent's choice they control. Those creatures fight each other”.
+// Audit: metadata-only — Needs a fight effect that deals simultaneous reciprocal power damage after the linked target choices for “{3}, {T}: Tap target creature you control and target creature of an opponent's choice they control. Those creatures fight each other”.
+pub(in crate::card::sets) static ARENA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2f989fda-2e54-427c-9154-4820c48abb02"),
+    "Arena",
+    CardArt::new("2f989fda-2e54-427c-9154-4820c48abb02", "Rob Alexander"),
+    CardSet::Promo1994,
+    CardRules::unsupported(),
+);
 
 // P94 2 — Sewers of Estark
-// Audit: blocked — Needs a duration-scoped replacement/prevention effect for “Choose target creature. If it's attacking, it can't be blocked this turn. If it's blocking, prevent all combat damage that would be dealt this combat by it and each creature it's blocking”.
+// Audit: metadata-only — Needs a duration-scoped replacement/prevention effect for “Choose target creature. If it's attacking, it can't be blocked this turn. If it's blocking, prevent all combat damage that would be dealt this combat by it and each creature it's blocking”.
+pub(in crate::card::sets) static SEWERS_OF_ESTARK: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b0da11d4-3603-4f59-8f61-7204bf04e165"),
+    "Sewers of Estark",
+    CardArt::new("b0da11d4-3603-4f59-8f61-7204bf04e165", "Melissa A. Benson"),
+    CardSet::Promo1994,
+    CardRules::unsupported(),
+);
 
 /// The pump is the whole ability: the fourth activation in a turn installs the
 /// delayed sacrifice, the way Dragon Whelp's does.
@@ -63,6 +77,7 @@ pub(in crate::card::sets) static NALATHNI_DRAGON: CardRecord = CardRecord::new_w
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&NALATHNI_DRAGON];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&ARENA, &SEWERS_OF_ESTARK, &NALATHNI_DRAGON];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

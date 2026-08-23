@@ -174,7 +174,14 @@ pub(in crate::card::sets) static CLEANSE: CardRecord = CardRecord::new_with_lega
 );
 
 // LEG 6 — Clergy of the Holy Nimbus
-// Audit: blocked — Needs a would-be-destroyed replacement that regenerates the source, and an activation restricted to opponents. The turn-scoped regeneration prohibition its second clause applies is available.
+// Audit: metadata-only — Needs a would-be-destroyed replacement that regenerates the source, and an activation restricted to opponents. The turn-scoped regeneration prohibition its second clause applies is available.
+pub(in crate::card::sets) static CLERGY_OF_THE_HOLY_NIMBUS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("db1f578f-fa3b-4447-953b-1490852b6c80"),
+    "Clergy of the Holy Nimbus",
+    crate::card::CardArt::new("db1f578f-fa3b-4447-953b-1490852b6c80", "Daniel Gelon"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 7 — D'Avenant Archer
 pub(in crate::card::sets) static DAVENANT_ARCHER: CardRecord = CardRecord::new_with_legacy_id(
@@ -200,7 +207,14 @@ pub(in crate::card::sets) static DAVENANT_ARCHER: CardRecord = CardRecord::new_w
 );
 
 // LEG 8 — Divine Intervention
-// Audit: blocked — Needs card-specific counter state and counter-consuming effects for “When you remove the last intervention counter from this enchantment, the game is a draw”.
+// Audit: metadata-only — Needs card-specific counter state and counter-consuming effects for “When you remove the last intervention counter from this enchantment, the game is a draw”.
+pub(in crate::card::sets) static DIVINE_INTERVENTION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9eae0ba1-1383-4505-b4e7-4f17dd8f20c5"),
+    "Divine Intervention",
+    crate::card::CardArt::new("9eae0ba1-1383-4505-b4e7-4f17dd8f20c5", "Amy Weber"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 9 — Divine Offering
 pub(in crate::card::sets) static DIVINE_OFFERING: CardRecord = CardRecord::new_with_legacy_id(
@@ -309,7 +323,14 @@ pub(in crate::card::sets) static ENCHANTED_BEING: CardRecord = CardRecord::new_w
 );
 
 // LEG 13 — Equinox
-// Audit: blocked — Needs a granted ability that can target a spell by prospectively determining whether that spell would destroy one of its controller's lands.
+// Audit: metadata-only — Needs a granted ability that can target a spell by prospectively determining whether that spell would destroy one of its controller's lands.
+pub(in crate::card::sets) static EQUINOX: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("840c6586-a7a9-4ae8-96be-a995a0693eb6"),
+    "Equinox",
+    crate::card::CardArt::new("840c6586-a7a9-4ae8-96be-a995a0693eb6", "Susan Van Camp"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 /// Both halves of one clause: the bonus and the keyword arrive together, so
 /// they are one applied effect rather than two abilities.
@@ -343,7 +364,14 @@ pub(in crate::card::sets) static FORTIFIED_AREA: CardRecord = CardRecord::new_wi
 );
 
 // LEG 15 — Glyph of Life
-// Audit: blocked — Needs a combat declaration or damage-assignment constraint for “Choose target Wall creature. Whenever that creature is dealt damage by an attacking creature this turn, you gain that much life”.
+// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “Choose target Wall creature. Whenever that creature is dealt damage by an attacking creature this turn, you gain that much life”.
+pub(in crate::card::sets) static GLYPH_OF_LIFE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ba1384e5-d140-4074-9548-250af09cb413"),
+    "Glyph of Life",
+    crate::card::CardArt::new("ba1384e5-d140-4074-9548-250af09cb413", "Susan Van Camp"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 16 — Great Defender
 pub(in crate::card::sets) static GREAT_DEFENDER: CardRecord = CardRecord::new_with_legacy_id(
@@ -459,7 +487,14 @@ pub(in crate::card::sets) static INDESTRUCTIBLE_AURA: CardRecord = CardRecord::n
 );
 
 // LEG 22 — Infinite Authority
-// Audit: blocked — Needs a combat declaration or damage-assignment constraint for “Whenever enchanted creature blocks or becomes blocked by a creature with toughness 3 or less, destroy the other creature at end of combat. At the beginning of the next end step, if that…”.
+// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “Whenever enchanted creature blocks or becomes blocked by a creature with toughness 3 or less, destroy the other creature at end of combat. At the beginning of the next end step, if that…”.
+pub(in crate::card::sets) static INFINITE_AUTHORITY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("dc60077f-d577-4a6c-a78f-697317024c40"),
+    "Infinite Authority",
+    crate::card::CardArt::new("dc60077f-d577-4a6c-a78f-697317024c40", "Douglas Shuler"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 static AN_OPPONENT_CONTROLS_A_NONTOKEN_RED_PERMANENT: TriggerConditionDef =
     TriggerConditionDef::ObjectCount {
@@ -539,7 +574,14 @@ pub(in crate::card::sets) static KISMET: CardRecord = CardRecord::new_with_legac
 );
 
 // LEG 26 — Land Tax
-// Audit: blocked — Needs ordered-library inspection, selection, and visibility handling for “At the beginning of your upkeep, if an opponent controls more lands than you, you may search your library for up to three basic land reveal them, put them into your hand, then shuffle”.
+// Audit: metadata-only — Needs ordered-library inspection, selection, and visibility handling for “At the beginning of your upkeep, if an opponent controls more lands than you, you may search your library for up to three basic land reveal them, put them into your hand, then shuffle”.
+pub(in crate::card::sets) static LAND_TAX: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d53b20b0-67bc-4587-817b-efbf21cb2512"),
+    "Land Tax",
+    crate::card::CardArt::new("d53b20b0-67bc-4587-817b-efbf21cb2512", "Brian Snõddy"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 27 — Lifeblood
 pub(in crate::card::sets) static LIFEBLOOD: CardRecord = CardRecord::new_with_legacy_id(
@@ -631,7 +673,14 @@ pub(in crate::card::sets) static OSAI_VULTURES: CardRecord = CardRecord::new_wit
 );
 
 // LEG 30 — Petra Sphinx
-// Audit: blocked — Needs ordered-library inspection, selection, and visibility handling for “{T}: Target player chooses a card name, then reveals the top card of their library. If that card has the chosen name, that player puts it into their hand. If it doesn't, the player puts…”.
+// Audit: metadata-only — Needs ordered-library inspection, selection, and visibility handling for “{T}: Target player chooses a card name, then reveals the top card of their library. If that card has the chosen name, that player puts it into their hand. If it doesn't, the player puts…”.
+pub(in crate::card::sets) static PETRA_SPHINX: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5ef99f07-c987-451a-b18a-2719eea654cd"),
+    "Petra Sphinx",
+    crate::card::CardArt::new("5ef99f07-c987-451a-b18a-2719eea654cd", "Sandra Everingham"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 31 — Presence of the Master
 pub(in crate::card::sets) static PRESENCE_OF_THE_MASTER: CardRecord =
@@ -651,10 +700,24 @@ pub(in crate::card::sets) static PRESENCE_OF_THE_MASTER: CardRecord =
     );
 
 // LEG 32 — Rapid Fire
-// Audit: blocked — Needs a conditional grant that checks whether the target already has rampage before granting rampage 2, and a cast restriction limiting the spell to before blockers are declared.
+// Audit: metadata-only — Needs a conditional grant that checks whether the target already has rampage before granting rampage 2, and a cast restriction limiting the spell to before blockers are declared.
+pub(in crate::card::sets) static RAPID_FIRE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e26e7c9c-e6de-47f4-8394-7e853408f84c"),
+    "Rapid Fire",
+    crate::card::CardArt::new("e26e7c9c-e6de-47f4-8394-7e853408f84c", "Justin Hampton"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 33 — Remove Enchantments
-// Audit: blocked — Needs a combat declaration or damage-assignment constraint for “Return to your hand all enchantments you both own and control, all Auras you own attached to permanents you control, and all Auras you own attached to attacking creatures your opponents…”.
+// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “Return to your hand all enchantments you both own and control, all Auras you own attached to permanents you control, and all Auras you own attached to attacking creatures your opponents…”.
+pub(in crate::card::sets) static REMOVE_ENCHANTMENTS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("bf2e3a8a-b386-474d-b8e9-4c2d56a2b742"),
+    "Remove Enchantments",
+    crate::card::CardArt::new("bf2e3a8a-b386-474d-b8e9-4c2d56a2b742", "Brian Snõddy"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 34 — Righteous Avengers
 pub(in crate::card::sets) static RIGHTEOUS_AVENGERS: CardRecord = CardRecord::new_with_legacy_id(
@@ -850,7 +913,14 @@ pub(in crate::card::sets) static VISIONS: CardRecord = CardRecord::new_with_lega
 );
 
 // LEG 42 — Wall of Caltrops
-// Audit: blocked — Needs an intervening-if that counts the other creatures blocking the same attacker by subtype for “if at least one other Wall creature is blocking that creature and no non-Wall creatures are blocking that creature”. Granting banding is implemented.
+// Audit: metadata-only — Needs an intervening-if that counts the other creatures blocking the same attacker by subtype for “if at least one other Wall creature is blocking that creature and no non-Wall creatures are blocking that creature”. Granting banding is implemented.
+pub(in crate::card::sets) static WALL_OF_CALTROPS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("664ad588-3002-4f63-93bd-38663171018f"),
+    "Wall of Caltrops",
+    crate::card::CardArt::new("664ad588-3002-4f63-93bd-38663171018f", "Brian Snõddy"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 43 — Wall of Light
 pub(in crate::card::sets) static WALL_OF_LIGHT: CardRecord = CardRecord::new_with_legacy_id(
@@ -884,7 +954,14 @@ pub(in crate::card::sets) static ACID_RAIN: CardRecord = CardRecord::new_with_le
 );
 
 // LEG 45 — Anti-Magic Aura
-// Audit: blocked — Needs the card's exact Aura targeting/attachment restriction rather than the broader existing cannot-be-enchanted effect for “Enchanted creature can't be the target of spells and can't be enchanted by other Auras”.
+// Audit: metadata-only — Needs the card's exact Aura targeting/attachment restriction rather than the broader existing cannot-be-enchanted effect for “Enchanted creature can't be the target of spells and can't be enchanted by other Auras”.
+pub(in crate::card::sets) static ANTI_MAGIC_AURA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ff78eef1-efaa-4a12-bf5d-fec83c14aff8"),
+    "Anti-Magic Aura",
+    crate::card::CardArt::new("ff78eef1-efaa-4a12-bf5d-fec83c14aff8", "Douglas Shuler"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 46 — Azure Drake
 pub(in crate::card::sets) static AZURE_DRAKE: CardRecord = CardRecord::new_with_legacy_id(
@@ -897,7 +974,14 @@ pub(in crate::card::sets) static AZURE_DRAKE: CardRecord = CardRecord::new_with_
 );
 
 // LEG 47 — Backfire
-// Audit: blocked — Needs damage-history/source tracking or card-specific damage processing for “Whenever enchanted creature deals damage to you, this Aura deals that much damage to that creature's controller”.
+// Audit: metadata-only — Needs damage-history/source tracking or card-specific damage processing for “Whenever enchanted creature deals damage to you, this Aura deals that much damage to that creature's controller”.
+pub(in crate::card::sets) static BACKFIRE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("04bc57aa-d4d9-4bd9-ba09-984370c7e23b"),
+    "Backfire",
+    crate::card::CardArt::new("04bc57aa-d4d9-4bd9-ba09-984370c7e23b", "Brian Snõddy"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 48 — Boomerang
 pub(in crate::card::sets) static BOOMERANG: CardRecord = CardRecord::new_with_legacy_id(
@@ -923,7 +1007,14 @@ pub(in crate::card::sets) static BOOMERANG: CardRecord = CardRecord::new_with_le
 );
 
 // LEG 49 — Brine Hag
-// Audit: blocked — Needs a characteristic-layer effect or dynamic value for “When this creature dies, change the base power and toughness of all creatures that dealt damage to it this turn to 0/2”.
+// Audit: metadata-only — Needs a characteristic-layer effect or dynamic value for “When this creature dies, change the base power and toughness of all creatures that dealt damage to it this turn to 0/2”.
+pub(in crate::card::sets) static BRINE_HAG: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2a1e7796-fbfb-4976-879f-bb748429d5c7"),
+    "Brine Hag",
+    crate::card::CardArt::new("2a1e7796-fbfb-4976-879f-bb748429d5c7", "Quinton Hoover"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 50 — Devouring Deep
 pub(in crate::card::sets) static DEVOURING_DEEP: CardRecord = CardRecord::new_with_legacy_id(
@@ -936,7 +1027,14 @@ pub(in crate::card::sets) static DEVOURING_DEEP: CardRecord = CardRecord::new_wi
 );
 
 // LEG 51 — Dream Coat
-// Audit: blocked — Needs a per-object, per-turn activation quota for “{0}: Enchanted creature becomes the color or colors of your choice. Activate only once each turn”.
+// Audit: metadata-only — Needs a per-object, per-turn activation quota for “{0}: Enchanted creature becomes the color or colors of your choice. Activate only once each turn”.
+pub(in crate::card::sets) static DREAM_COAT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("07edbbf4-c3d6-4ec1-ae9b-4ae202fb6998"),
+    "Dream Coat",
+    crate::card::CardArt::new("07edbbf4-c3d6-4ec1-ae9b-4ae202fb6998", "Anthony S. Waters"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 /// The declined branch: the Spawn goes and takes six with it. Reached when
 /// the controller says no *and* when there is no Island to say yes with.
@@ -991,7 +1089,14 @@ pub(in crate::card::sets) static ELDER_SPAWN: CardRecord = CardRecord::new_with_
 );
 
 // LEG 53 — Enchantment Alteration
-// Audit: blocked — Needs Aura reattachment targeting, enchant-legality validation, and attachment movement for “Attach target Aura attached to a creature or land to another permanent of that type”.
+// Audit: metadata-only — Needs Aura reattachment targeting, enchant-legality validation, and attachment movement for “Attach target Aura attached to a creature or land to another permanent of that type”.
+pub(in crate::card::sets) static ENCHANTMENT_ALTERATION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("bf52f8a0-d027-47f1-bb91-508ef1a74409"),
+    "Enchantment Alteration",
+    crate::card::CardArt::new("bf52f8a0-d027-47f1-bb91-508ef1a74409", "Brian Snõddy"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 /// "Untapped creature you control", so the tap always lands and the mana
 /// always follows: an already-tapped creature is not a legal target.
@@ -1033,7 +1138,14 @@ pub(in crate::card::sets) static ENERGY_TAP: CardRecord = CardRecord::new_with_l
 );
 
 // LEG 55 — Field of Dreams
-// Audit: blocked — Needs ordered-library inspection, selection, and visibility handling for “Players play with the top card of their libraries revealed”.
+// Audit: metadata-only — Needs ordered-library inspection, selection, and visibility handling for “Players play with the top card of their libraries revealed”.
+pub(in crate::card::sets) static FIELD_OF_DREAMS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6a63e119-3b1b-4964-a4b9-b10170ff542b"),
+    "Field of Dreams",
+    crate::card::CardArt::new("6a63e119-3b1b-4964-a4b9-b10170ff542b", "Kaja Foglio"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 56 — Flash Counter
 pub(in crate::card::sets) static FLASH_COUNTER: CardRecord = CardRecord::new_with_legacy_id(
@@ -1146,19 +1258,54 @@ pub(in crate::card::sets) static GASEOUS_FORM: CardRecord = CardRecord::new_with
 );
 
 // LEG 60 — Glyph of Delusion
-// Audit: blocked — Needs a combat declaration or damage-assignment constraint for “Put X glyph counters on target creature that target Wall blocked this turn, where X is the power of that blocked creature. The creature gains "This creature doesn't untap during your…”.
+// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “Put X glyph counters on target creature that target Wall blocked this turn, where X is the power of that blocked creature. The creature gains "This creature doesn't untap during your…”.
+pub(in crate::card::sets) static GLYPH_OF_DELUSION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ee39da13-4b8a-4796-a7c2-aaa11992d573"),
+    "Glyph of Delusion",
+    crate::card::CardArt::new("ee39da13-4b8a-4796-a7c2-aaa11992d573", "Susan Van Camp"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 61 — In the Eye of Chaos
-// Audit: blocked — Needs a cast trigger that counters an instant unless its controller pays that spell's dynamically read mana value.
+// Audit: metadata-only — Needs a cast trigger that counters an instant unless its controller pays that spell's dynamically read mana value.
+pub(in crate::card::sets) static IN_THE_EYE_OF_CHAOS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("733933dd-c871-4f75-8b08-d7c010dddbe6"),
+    "In the Eye of Chaos",
+    crate::card::CardArt::new("733933dd-c871-4f75-8b08-d7c010dddbe6", "Brian Snõddy"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 62 — Invoke Prejudice
-// Audit: blocked — Needs cross-object color comparison and a mana-value-based counter-unless payment on the triggering creature spell.
+// Audit: metadata-only — Needs cross-object color comparison and a mana-value-based counter-unless payment on the triggering creature spell.
+pub(in crate::card::sets) static INVOKE_PREJUDICE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("903d9fde-d7da-4a0e-a337-b63023c6d74b"),
+    "Invoke Prejudice",
+    crate::card::CardArt::new("903d9fde-d7da-4a0e-a337-b63023c6d74b", "Harold McNeill"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 63 — Juxtapose
-// Audit: blocked — Needs duration-aware control-changing continuous effects for “You and target player exchange control of the creature you each control with the greatest mana value. Then exchange control of artifacts the same way. If two or more permanents a player…”.
+// Audit: metadata-only — Needs duration-aware control-changing continuous effects for “You and target player exchange control of the creature you each control with the greatest mana value. Then exchange control of artifacts the same way. If two or more permanents a player…”.
+pub(in crate::card::sets) static JUXTAPOSE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c48d78db-d982-4c28-9308-2d57dc2b947e"),
+    "Juxtapose",
+    crate::card::CardArt::new("c48d78db-d982-4c28-9308-2d57dc2b947e", "Justin Hampton"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 64 — Land Equilibrium
-// Audit: blocked — Needs a duration-scoped replacement/prevention effect for “If an opponent who controls at least as many lands as you do would put a land onto the battlefield, that player instead puts that land onto the battlefield then sacrifices a land of…”.
+// Audit: metadata-only — Needs a duration-scoped replacement/prevention effect for “If an opponent who controls at least as many lands as you do would put a land onto the battlefield, that player instead puts that land onto the battlefield then sacrifices a land of…”.
+pub(in crate::card::sets) static LAND_EQUILIBRIUM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9c406b25-03f8-4aaa-9ea7-48bf754166b7"),
+    "Land Equilibrium",
+    crate::card::CardArt::new("9c406b25-03f8-4aaa-9ea7-48bf754166b7", "Jesper Myrfors"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 65 — Mana Drain
 pub(in crate::card::sets) static MANA_DRAIN: CardRecord = CardRecord::new_with_legacy_id(
@@ -1237,10 +1384,24 @@ pub(in crate::card::sets) static PSIONIC_ENTITY: CardRecord = CardRecord::new_wi
 );
 
 // LEG 68 — Psychic Purge
-// Audit: blocked — Needs a hidden-zone decision and continuation for “When a spell or ability an opponent controls causes you to discard this card, that player loses 5 life”.
+// Audit: metadata-only — Needs a hidden-zone decision and continuation for “When a spell or ability an opponent controls causes you to discard this card, that player loses 5 life”.
+pub(in crate::card::sets) static PSYCHIC_PURGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b1103d4d-b50a-4e2c-b18a-a181bc819881"),
+    "Psychic Purge",
+    crate::card::CardArt::new("b1103d4d-b50a-4e2c-b18a-a181bc819881", "Susan Van Camp"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 69 — Puppet Master
-// Audit: blocked — Needs a zone-object query and identity-preserving continuation for “When enchanted creature dies, return that card to its owner's hand. If that card is returned to its owner's hand this way, you may pay {U}{U}{U}. If you do, return this card to its…”.
+// Audit: metadata-only — Needs a zone-object query and identity-preserving continuation for “When enchanted creature dies, return that card to its owner's hand. If that card is returned to its owner's hand this way, you may pay {U}{U}{U}. If you do, return this card to its…”.
+pub(in crate::card::sets) static PUPPET_MASTER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b5d26ddc-ad1e-4a97-85fb-34da685c3142"),
+    "Puppet Master",
+    crate::card::CardArt::new("b5d26ddc-ad1e-4a97-85fb-34da685c3142", "Sandra Everingham"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 70 — Recall
 pub(in crate::card::sets) static RECALL: CardRecord = CardRecord::new_with_legacy_id(
@@ -1355,7 +1516,14 @@ pub(in crate::card::sets) static RESET: CardRecord = CardRecord::new_with_legacy
 );
 
 // LEG 74 — Reverberation
-// Audit: blocked — Needs a duration-scoped replacement/prevention effect for “All damage that would be dealt this turn by target sorcery spell is dealt to that spell's controller instead”.
+// Audit: metadata-only — Needs a duration-scoped replacement/prevention effect for “All damage that would be dealt this turn by target sorcery spell is dealt to that spell's controller instead”.
+pub(in crate::card::sets) static REVERBERATION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a3d1f470-058d-41b7-acaf-4f68431de9ed"),
+    "Reverberation",
+    crate::card::CardArt::new("a3d1f470-058d-41b7-acaf-4f68431de9ed", "Justin Hampton"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 75 — Sea Kings' Blessing
 pub(in crate::card::sets) static SEA_KINGS_BLESSING: CardRecord = CardRecord::new_with_legacy_id(
@@ -1388,7 +1556,14 @@ pub(in crate::card::sets) static SEGOVIAN_LEVIATHAN: CardRecord = CardRecord::ne
 );
 
 // LEG 77 — Silhouette
-// Audit: blocked — Needs a duration-scoped replacement/prevention effect for “Choose target creature. If a spell or ability that targets that creature would cause a source to deal damage to that creature this turn, prevent that damage”.
+// Audit: metadata-only — Needs a duration-scoped replacement/prevention effect for “Choose target creature. If a spell or ability that targets that creature would cause a source to deal damage to that creature this turn, prevent that damage”.
+pub(in crate::card::sets) static SILHOUETTE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e6d6fac6-9a23-465f-a813-92e1ed1cd742"),
+    "Silhouette",
+    crate::card::CardArt::new("e6d6fac6-9a23-465f-a813-92e1ed1cd742", "Kaja Foglio"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 static SPECTRAL_SHROUD: AbilityDef = abilities::shroud();
 
@@ -1480,7 +1655,14 @@ pub(in crate::card::sets) static TELEPORT: CardRecord = CardRecord::new_with_leg
 );
 
 // LEG 81 — Time Elemental
-// Audit: blocked — Needs a zone-object query and identity-preserving continuation for “{2}{U}{U}, {T}: Return target permanent that isn't enchanted to its owner's hand”.
+// Audit: metadata-only — Needs a zone-object query and identity-preserving continuation for “{2}{U}{U}, {T}: Return target permanent that isn't enchanted to its owner's hand”.
+pub(in crate::card::sets) static TIME_ELEMENTAL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("61510e88-97d0-410a-9431-ebf12990e33d"),
+    "Time Elemental",
+    crate::card::CardArt::new("61510e88-97d0-410a-9431-ebf12990e33d", "Amy Weber"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 82 — Undertow
 pub(in crate::card::sets) static UNDERTOW: CardRecord = CardRecord::new_with_legacy_id(
@@ -1647,7 +1829,14 @@ pub(in crate::card::sets) static ABOMINATION: CardRecord = CardRecord::new_with_
 );
 
 // LEG 88 — All Hallow's Eve
-// Audit: blocked — Needs card-specific counter state and counter-consuming effects for “At the beginning of your upkeep, if this card is exiled with a scream counter on it, remove a scream counter from it. If there are no more scream counters on it, put it into your…”.
+// Audit: metadata-only — Needs card-specific counter state and counter-consuming effects for “At the beginning of your upkeep, if this card is exiled with a scream counter on it, remove a scream counter from it. If there are no more scream counters on it, put it into your…”.
+pub(in crate::card::sets) static ALL_HALLOW_S_EVE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("18787a2d-6688-47e9-94bc-ccf229df823f"),
+    "All Hallow's Eve",
+    crate::card::CardArt::new("18787a2d-6688-47e9-94bc-ccf229df823f", "Christopher Rush"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 89 — Blight
 pub(in crate::card::sets) static BLIGHT: CardRecord = CardRecord::new_with_legacy_id(
@@ -1693,10 +1882,24 @@ pub(in crate::card::sets) static CARRION_ANTS: CardRecord = CardRecord::new_with
 );
 
 // LEG 91 — Chains of Mephistopheles
-// Audit: blocked — Needs a duration-scoped replacement/prevention effect for “If a player would draw a card except the first one they draw in each of their draw steps, that player discards a card instead. If the player discards a card this way, they draw a card.…”.
+// Audit: metadata-only — Needs a duration-scoped replacement/prevention effect for “If a player would draw a card except the first one they draw in each of their draw steps, that player discards a card instead. If the player discards a card this way, they draw a card.…”.
+pub(in crate::card::sets) static CHAINS_OF_MEPHISTOPHELES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2bb0e884-5bb4-41f3-b04b-6f638357c166"),
+    "Chains of Mephistopheles",
+    crate::card::CardArt::new("2bb0e884-5bb4-41f3-b04b-6f638357c166", "Heather Hudson"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 92 — Cosmic Horror
-// Audit: blocked — Needs an unless-paid destruction sequence that deals damage only when this ability actually destroys its source.
+// Audit: metadata-only — Needs an unless-paid destruction sequence that deals damage only when this ability actually destroys its source.
+pub(in crate::card::sets) static COSMIC_HORROR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("18bc6ac2-19e0-4765-852b-e303a5bb4040"),
+    "Cosmic Horror",
+    crate::card::CardArt::new("18bc6ac2-19e0-4765-852b-e303a5bb4040", "Jesper Myrfors"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 93 — Cyclopean Mummy
 // Audit: partial — Its death trigger cannot address the new card object created in the graveyard.
@@ -1861,10 +2064,24 @@ pub(in crate::card::sets) static GHOSTS_OF_THE_DAMNED: CardRecord = CardRecord::
 );
 
 // LEG 99 — Giant Slug
-// Audit: blocked — Needs a delayed upkeep trigger that makes a basic-land-type choice on resolution and grants the matching walk; granting a named walk is available.
+// Audit: metadata-only — Needs a delayed upkeep trigger that makes a basic-land-type choice on resolution and grants the matching walk; granting a named walk is available.
+pub(in crate::card::sets) static GIANT_SLUG: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("43a612e5-a680-4c5b-8ce7-432a86240a6c"),
+    "Giant Slug",
+    crate::card::CardArt::new("43a612e5-a680-4c5b-8ce7-432a86240a6c", "Anson Maddocks"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 100 — Glyph of Doom
-// Audit: blocked — Needs a combat declaration or damage-assignment constraint for “Choose target Wall creature. At this turn's next end of combat, destroy all creatures that were blocked by that creature this turn”.
+// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “Choose target Wall creature. At this turn's next end of combat, destroy all creatures that were blocked by that creature this turn”.
+pub(in crate::card::sets) static GLYPH_OF_DOOM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("332bfce9-052d-42e9-a407-4a1dd59e0f2a"),
+    "Glyph of Doom",
+    crate::card::CardArt::new("332bfce9-052d-42e9-a407-4a1dd59e0f2a", "Susan Van Camp"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 101 — Greed
 pub(in crate::card::sets) static GREED: CardRecord = CardRecord::new_with_legacy_id(
@@ -1957,7 +2174,14 @@ pub(in crate::card::sets) static HELLS_CARETAKER: CardRecord = CardRecord::new_w
 );
 
 // LEG 105 — Hellfire
-// Audit: blocked — Needs damage-history/source tracking or card-specific damage processing for “Destroy all nonblack creatures. Hellfire deals X plus 3 damage to you, where X is the number of creatures that died this way”.
+// Audit: metadata-only — Needs damage-history/source tracking or card-specific damage processing for “Destroy all nonblack creatures. Hellfire deals X plus 3 damage to you, where X is the number of creatures that died this way”.
+pub(in crate::card::sets) static HELLFIRE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("362f1fe9-20af-434c-9957-7a1a564d89e6"),
+    "Hellfire",
+    crate::card::CardArt::new("362f1fe9-20af-434c-9957-7a1a564d89e6", "Pete Venters"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 106 — Horror of Horrors
 pub(in crate::card::sets) static HORROR_OF_HORRORS: CardRecord = CardRecord::new_with_legacy_id(
@@ -1988,7 +2212,14 @@ static BLACK_CREATURE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly
 )];
 
 // LEG 107 — Imprison
-// Audit: blocked — Needs a combat declaration or damage-assignment constraint for “Whenever enchanted creature attacks or blocks, you may pay {1}. If you do, tap the creature, remove it from combat, and creatures it was blocking that had become blocked by only that…”.
+// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “Whenever enchanted creature attacks or blocks, you may pay {1}. If you do, tap the creature, remove it from combat, and creatures it was blocking that had become blocked by only that…”.
+pub(in crate::card::sets) static IMPRISON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("12671381-beb7-41b8-9484-97f8aca5c981"),
+    "Imprison",
+    crate::card::CardArt::new("12671381-beb7-41b8-9484-97f8aca5c981", "Christopher Rush"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 108 — Infernal Medusa
 pub(in crate::card::sets) static INFERNAL_MEDUSA: CardRecord = CardRecord::new_with_legacy_id(
@@ -2022,10 +2253,24 @@ pub(in crate::card::sets) static INFERNAL_MEDUSA: CardRecord = CardRecord::new_w
 );
 
 // LEG 109 — Jovial Evil
-// Audit: blocked — Needs a dynamic count of white creatures controlled by the targeted opponent and multiplication for the damage value.
+// Audit: metadata-only — Needs a dynamic count of white creatures controlled by the targeted opponent and multiplication for the damage value.
+pub(in crate::card::sets) static JOVIAL_EVIL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c993c74c-a574-423b-81c8-96b0a7a6e529"),
+    "Jovial Evil",
+    crate::card::CardArt::new("c993c74c-a574-423b-81c8-96b0a7a6e529", "Christopher Rush"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 110 — Lesser Werewolf
-// Audit: blocked — Needs a combat declaration or damage-assignment constraint for “{B}: If this creature's power is 1 or more, it gets -1/-0 until end of turn and put a -0/-1 counter on target creature blocking or blocked by this creature. Activate only during the…”.
+// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “{B}: If this creature's power is 1 or more, it gets -1/-0 until end of turn and put a -0/-1 counter on target creature blocking or blocked by this creature. Activate only during the…”.
+pub(in crate::card::sets) static LESSER_WEREWOLF: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("baae02e4-7db9-4a7b-a4ee-ecb22fcb77bd"),
+    "Lesser Werewolf",
+    crate::card::CardArt::new("baae02e4-7db9-4a7b-a4ee-ecb22fcb77bd", "Quinton Hoover"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 111 — Lost Soul
 pub(in crate::card::sets) static LOST_SOUL: CardRecord = CardRecord::new_with_legacy_id(
@@ -2041,7 +2286,14 @@ pub(in crate::card::sets) static LOST_SOUL: CardRecord = CardRecord::new_with_le
 );
 
 // LEG 112 — Mold Demon
-// Audit: blocked — Needs linked sacrifice/destruction accounting for “When this creature enters, sacrifice it unless you sacrifice two Swamps”.
+// Audit: metadata-only — Needs linked sacrifice/destruction accounting for “When this creature enters, sacrifice it unless you sacrifice two Swamps”.
+pub(in crate::card::sets) static MOLD_DEMON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("649a33aa-7eac-4161-ae1a-fcbc758abccf"),
+    "Mold Demon",
+    crate::card::CardArt::new("649a33aa-7eac-4161-ae1a-fcbc758abccf", "Jesper Myrfors"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 113 — Nether Void
 // Audit: partial — Its counter-unless-payment trigger is executable, but the world-rule state-based action is not implemented.
@@ -2147,10 +2399,24 @@ pub(in crate::card::sets) static SPIRIT_SHACKLE: CardRecord = CardRecord::new_wi
 );
 
 // LEG 118 — Syphon Soul
-// Audit: blocked — Needs damage-history/source tracking or card-specific damage processing for “Syphon Soul deals 2 damage to each other player. You gain life equal to the damage dealt this way”.
+// Audit: metadata-only — Needs damage-history/source tracking or card-specific damage processing for “Syphon Soul deals 2 damage to each other player. You gain life equal to the damage dealt this way”.
+pub(in crate::card::sets) static SYPHON_SOUL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f3020304-7a39-411e-b055-3ade72b4bff8"),
+    "Syphon Soul",
+    crate::card::CardArt::new("f3020304-7a39-411e-b055-3ade72b4bff8", "Melissa A. Benson"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 119 — Takklemaggot
-// Audit: blocked — Needs duration-aware control-changing continuous effects for “When enchanted creature dies, that creature's controller chooses a creature that this card could enchant. If the player does, return this card to the battlefield under your control…”.
+// Audit: metadata-only — Needs duration-aware control-changing continuous effects for “When enchanted creature dies, that creature's controller chooses a creature that this card could enchant. If the player does, return this card to the battlefield under your control…”.
+pub(in crate::card::sets) static TAKKLEMAGGOT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d8f49b3d-7fcb-4169-9298-cdf7a1dbe3f5"),
+    "Takklemaggot",
+    crate::card::CardArt::new("d8f49b3d-7fcb-4169-9298-cdf7a1dbe3f5", "Daniel Gelon"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 static THE_ABYSS_DESTROY_CHOICE: EffectDef = EffectDef::Destroy {
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
@@ -2264,7 +2530,14 @@ pub(in crate::card::sets) static TRANSMUTATION: CardRecord = CardRecord::new_wit
 );
 
 // LEG 124 — Underworld Dreams
-// Audit: blocked — Needs an opponent-draw event trigger that deals damage to the exact player who drew.
+// Audit: metadata-only — Needs an opponent-draw event trigger that deals damage to the exact player who drew.
+pub(in crate::card::sets) static UNDERWORLD_DREAMS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a0e8f8d8-eac0-451c-a167-be84667a8e3d"),
+    "Underworld Dreams",
+    crate::card::CardArt::new("a0e8f8d8-eac0-451c-a167-be84667a8e3d", "Julie Baroh"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 125 — Vampire Bats
 pub(in crate::card::sets) static VAMPIRE_BATS: CardRecord = CardRecord::new_with_legacy_id(
@@ -2353,7 +2626,14 @@ pub(in crate::card::sets) static WALL_OF_SHADOWS: CardRecord = CardRecord::new_w
 );
 
 // LEG 129 — Wall of Tombstones
-// Audit: blocked — Needs a zone-object query and identity-preserving continuation for “At the beginning of your upkeep, change this creature's base toughness to 1 plus the number of creature cards in your graveyard”.
+// Audit: metadata-only — Needs a zone-object query and identity-preserving continuation for “At the beginning of your upkeep, change this creature's base toughness to 1 plus the number of creature cards in your graveyard”.
+pub(in crate::card::sets) static WALL_OF_TOMBSTONES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("55da1e86-fe18-486a-b510-f941e6f6e378"),
+    "Wall of Tombstones",
+    crate::card::CardArt::new("55da1e86-fe18-486a-b510-f941e6f6e378", "Dan Frazier"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 130 — Active Volcano
 pub(in crate::card::sets) static ACTIVE_VOLCANO: CardRecord = CardRecord::new_with_legacy_id(
@@ -2405,7 +2685,14 @@ pub(in crate::card::sets) static AERATHI_BERSERKER: CardRecord = CardRecord::new
 );
 
 // LEG 132 — Backdraft
-// Audit: blocked — Needs damage-history/source tracking or card-specific damage processing for “Choose a player who cast one or more sorcery spells this turn. Backdraft deals damage to that player equal to half the damage dealt by one of those sorcery spells this turn, rounded down”.
+// Audit: metadata-only — Needs damage-history/source tracking or card-specific damage processing for “Choose a player who cast one or more sorcery spells this turn. Backdraft deals damage to that player equal to half the damage dealt by one of those sorcery spells this turn, rounded down”.
+pub(in crate::card::sets) static BACKDRAFT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("58d5b9fe-b66a-48c9-94c4-db783e605f37"),
+    "Backdraft",
+    crate::card::CardArt::new("58d5b9fe-b66a-48c9-94c4-db783e605f37", "Brian Snõddy"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 /// Nontoken, so a board of white tokens across the table leaves the Beasts at
 /// their printed size.
@@ -2447,13 +2734,34 @@ pub(in crate::card::sets) static BEASTS_OF_BOGARDAN: CardRecord = CardRecord::ne
 );
 
 // LEG 134 — Blazing Effigy
-// Audit: blocked — Needs damage-history/source tracking or card-specific damage processing for “When this creature dies, it deals X damage to target creature, where X is 3 plus the amount of damage dealt to this creature this turn by other sources named Blazing Effigy”.
+// Audit: metadata-only — Needs damage-history/source tracking or card-specific damage processing for “When this creature dies, it deals X damage to target creature, where X is 3 plus the amount of damage dealt to this creature this turn by other sources named Blazing Effigy”.
+pub(in crate::card::sets) static BLAZING_EFFIGY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("921011ff-1696-4575-9198-abe993a0ee7a"),
+    "Blazing Effigy",
+    crate::card::CardArt::new("921011ff-1696-4575-9198-abe993a0ee7a", "Susan Van Camp"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 135 — Blood Lust
-// Audit: blocked — Needs a characteristic-layer effect or dynamic value for “If target creature has toughness 5 or greater, it gets +4/-4 until end of turn. Otherwise, it gets +4/-X until end of turn, where X is its toughness minus 1”.
+// Audit: metadata-only — Needs a characteristic-layer effect or dynamic value for “If target creature has toughness 5 or greater, it gets +4/-4 until end of turn. Otherwise, it gets +4/-X until end of turn, where X is its toughness minus 1”.
+pub(in crate::card::sets) static BLOOD_LUST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fbbf1a9c-8b94-4ee7-92db-65b531149990"),
+    "Blood Lust",
+    crate::card::CardArt::new("fbbf1a9c-8b94-4ee7-92db-65b531149990", "Anson Maddocks"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 136 — Caverns of Despair
-// Audit: blocked — Needs a combat declaration or damage-assignment constraint for “No more than two creatures can attack each combat”.
+// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “No more than two creatures can attack each combat”.
+pub(in crate::card::sets) static CAVERNS_OF_DESPAIR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("209f7479-b3a0-4c27-9602-78babb8d2e99"),
+    "Caverns of Despair",
+    crate::card::CardArt::new("209f7479-b3a0-4c27-9602-78babb8d2e99", "Harold McNeill"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 137 — Chain Lightning
 pub(in crate::card::sets) static CHAIN_LIGHTNING: CardRecord = CardRecord::new_with_legacy_id(
@@ -2625,13 +2933,34 @@ pub(in crate::card::sets) static ETERNAL_WARRIOR: CardRecord = CardRecord::new_w
 );
 
 // LEG 145 — Falling Star
-// Audit: blocked — Needs the EC physical flip, overlap, and landing evaluation needed to choose which creatures take damage and become tapped.
+// Audit: metadata-only — Needs the EC physical flip, overlap, and landing evaluation needed to choose which creatures take damage and become tapped.
+pub(in crate::card::sets) static FALLING_STAR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f2b9983e-20d4-4d12-9e2c-ec6d9a345787"),
+    "Falling Star",
+    crate::card::CardArt::new("f2b9983e-20d4-4d12-9e2c-ec6d9a345787", "Douglas Shuler"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 146 — Feint
-// Audit: blocked — Needs a duration-scoped replacement/prevention effect for “Tap all creatures blocking target attacking creature. Prevent all combat damage that would be dealt this turn by that creature and each creature blocking it”.
+// Audit: metadata-only — Needs a duration-scoped replacement/prevention effect for “Tap all creatures blocking target attacking creature. Prevent all combat damage that would be dealt this turn by that creature and each creature blocking it”.
+pub(in crate::card::sets) static FEINT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("95b265bc-a94d-403b-8232-8fdfa0f8d9d5"),
+    "Feint",
+    crate::card::CardArt::new("95b265bc-a94d-403b-8232-8fdfa0f8d9d5", "Brian Snõddy"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 147 — Firestorm Phoenix
-// Audit: blocked — Needs ordered-library inspection, selection, and visibility handling for “If this creature would die, return it to its owner's hand instead. Until that player's next turn, that player plays with that card revealed in their hand and can't play it”.
+// Audit: metadata-only — Needs ordered-library inspection, selection, and visibility handling for “If this creature would die, return it to its owner's hand instead. Until that player's next turn, that player plays with that card revealed in their hand and can't play it”.
+pub(in crate::card::sets) static FIRESTORM_PHOENIX: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3247a7dd-f48c-4cb4-8475-4864acccef7a"),
+    "Firestorm Phoenix",
+    crate::card::CardArt::new("3247a7dd-f48c-4cb4-8475-4864acccef7a", "Jeff A. Menges"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 148 — Frost Giant
 pub(in crate::card::sets) static FROST_GIANT: CardRecord = CardRecord::new_with_legacy_id(
@@ -2756,7 +3085,14 @@ pub(in crate::card::sets) static GRAVITY_SPHERE: CardRecord = CardRecord::new_wi
 );
 
 // LEG 152 — Hyperion Blacksmith
-// Audit: blocked — Needs a persistent tap/untap restriction or event relation for “{T}: You may tap or untap target artifact an opponent controls”.
+// Audit: metadata-only — Needs a persistent tap/untap restriction or event relation for “{T}: You may tap or untap target artifact an opponent controls”.
+pub(in crate::card::sets) static HYPERION_BLACKSMITH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("44d499a9-fe7c-4a1a-9eb3-a7fd9f85ae08"),
+    "Hyperion Blacksmith",
+    crate::card::CardArt::new("44d499a9-fe7c-4a1a-9eb3-a7fd9f85ae08", "Dan Frazier"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 153 — Immolation
 pub(in crate::card::sets) static IMMOLATION: CardRecord = CardRecord::new_with_legacy_id(
@@ -2887,7 +3223,14 @@ pub(in crate::card::sets) static KOBOLDS_OF_KHER_KEEP: CardRecord = CardRecord::
 );
 
 // LEG 158 — Land's Edge
-// Audit: blocked — Needs an ability any player may activate and a conditional keyed to the type of the card the discard cost actually took.
+// Audit: metadata-only — Needs an ability any player may activate and a conditional keyed to the type of the card the discard cost actually took.
+pub(in crate::card::sets) static LAND_S_EDGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fb3d9b29-948c-4768-b5ea-db2512817c30"),
+    "Land's Edge",
+    crate::card::CardArt::new("fb3d9b29-948c-4768-b5ea-db2512817c30", "Brian Snõddy"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 159 — Mountain Yeti
 pub(in crate::card::sets) static MOUNTAIN_YETI: CardRecord = CardRecord::new_with_legacy_id(
@@ -2978,7 +3321,14 @@ pub(in crate::card::sets) static PYROTECHNICS: CardRecord = CardRecord::new_with
 );
 
 // LEG 162 — Quarum Trench Gnomes
-// Audit: blocked — Needs a duration-scoped replacement/prevention effect for “{T}: If target Plains is tapped for mana, it produces colorless mana instead of white mana”.
+// Audit: metadata-only — Needs a duration-scoped replacement/prevention effect for “{T}: If target Plains is tapped for mana, it produces colorless mana instead of white mana”.
+pub(in crate::card::sets) static QUARUM_TRENCH_GNOMES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1c3b33bf-3074-406e-86f3-2a9843cf4862"),
+    "Quarum Trench Gnomes",
+    crate::card::CardArt::new("1c3b33bf-3074-406e-86f3-2a9843cf4862", "Dan Frazier"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 163 — Raging Bull
 pub(in crate::card::sets) static RAGING_BULL: CardRecord = CardRecord::new_with_legacy_id(
@@ -3017,10 +3367,24 @@ pub(in crate::card::sets) static SPINAL_VILLAIN: CardRecord = CardRecord::new_wi
 );
 
 // LEG 165 — Storm World
-// Audit: blocked — Needs damage-history/source tracking or card-specific damage processing for “At the beginning of each player's upkeep, this enchantment deals X damage to that player, where X is 4 minus the number of cards in their hand”.
+// Audit: metadata-only — Needs damage-history/source tracking or card-specific damage processing for “At the beginning of each player's upkeep, this enchantment deals X damage to that player, where X is 4 minus the number of cards in their hand”.
+pub(in crate::card::sets) static STORM_WORLD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("cdf0afa6-7003-454d-9b8a-e3328aaf29ed"),
+    "Storm World",
+    crate::card::CardArt::new("cdf0afa6-7003-454d-9b8a-e3328aaf29ed", "Christopher Rush"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 166 — Tempest Efreet
-// Audit: blocked — Needs random hand reveal, an opponent life-payment choice, and a permanent ownership exchange between cards in different zones.
+// Audit: metadata-only — Needs random hand reveal, an opponent life-payment choice, and a permanent ownership exchange between cards in different zones.
+pub(in crate::card::sets) static TEMPEST_EFREET: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("eb562143-fdf0-4eed-83ac-551627c576d2"),
+    "Tempest Efreet",
+    crate::card::CardArt::new("eb562143-fdf0-4eed-83ac-551627c576d2", "NéNé Thomas"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 167 — The Brute
 pub(in crate::card::sets) static THE_BRUTE: CardRecord = CardRecord::new_with_legacy_id(
@@ -3053,7 +3417,14 @@ pub(in crate::card::sets) static THE_BRUTE: CardRecord = CardRecord::new_with_le
 );
 
 // LEG 168 — Wall of Dust
-// Audit: blocked — Needs a combat declaration or damage-assignment constraint for “Whenever this creature blocks a creature, that creature can't attack during its controller's next turn”.
+// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “Whenever this creature blocks a creature, that creature can't attack during its controller's next turn”.
+pub(in crate::card::sets) static WALL_OF_DUST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("aaf53dfe-5d48-4811-b2f5-5a5c1cb462ca"),
+    "Wall of Dust",
+    crate::card::CardArt::new("aaf53dfe-5d48-4811-b2f5-5a5c1cb462ca", "Richard Thomas"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 169 — Wall of Earth
 pub(in crate::card::sets) static WALL_OF_EARTH: CardRecord = CardRecord::new_with_legacy_id(
@@ -3099,7 +3470,14 @@ pub(in crate::card::sets) static WALL_OF_OPPOSITION: CardRecord = CardRecord::ne
 );
 
 // LEG 172 — Winds of Change
-// Audit: blocked — Needs a hidden-zone decision and continuation for “Each player shuffles the cards from their hand into their library, then draws that many cards”.
+// Audit: metadata-only — Needs a hidden-zone decision and continuation for “Each player shuffles the cards from their hand into their library, then draws that many cards”.
+pub(in crate::card::sets) static WINDS_OF_CHANGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("186fd917-8d65-4de5-8546-a32a5f6d3bab"),
+    "Winds of Change",
+    crate::card::CardArt::new("186fd917-8d65-4de5-8546-a32a5f6d3bab", "Justin Hampton"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 173 — Aisling Leprechaun
 pub(in crate::card::sets) static AISLING_LEPRECHAUN: CardRecord = CardRecord::new_with_legacy_id(
@@ -3125,10 +3503,24 @@ pub(in crate::card::sets) static AISLING_LEPRECHAUN: CardRecord = CardRecord::ne
 );
 
 // LEG 174 — Arboria
-// Audit: blocked — Needs a combat declaration or damage-assignment constraint for “Creatures can't attack a player unless that player cast a spell or put a nontoken permanent onto the battlefield during their last turn”.
+// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “Creatures can't attack a player unless that player cast a spell or put a nontoken permanent onto the battlefield during their last turn”.
+pub(in crate::card::sets) static ARBORIA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("095078b0-0f26-442f-9d3b-45e30cdb33c4"),
+    "Arboria",
+    crate::card::CardArt::new("095078b0-0f26-442f-9d3b-45e30cdb33c4", "Daniel Gelon"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 175 — Avoid Fate
-// Audit: blocked — Needs a spell-on-stack target predicate that expresses the printed instant/Aura restriction for “Counter target instant or Aura spell that targets a permanent you control”.
+// Audit: metadata-only — Needs a spell-on-stack target predicate that expresses the printed instant/Aura restriction for “Counter target instant or Aura spell that targets a permanent you control”.
+pub(in crate::card::sets) static AVOID_FATE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("92f1509e-6ed5-4009-a031-ea84b43cbd1b"),
+    "Avoid Fate",
+    crate::card::CardArt::new("92f1509e-6ed5-4009-a031-ea84b43cbd1b", "Phil Foglio"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 176 — Barbary Apes
 pub(in crate::card::sets) static BARBARY_APES: CardRecord = CardRecord::new_with_legacy_id(
@@ -3366,7 +3758,14 @@ pub(in crate::card::sets) static EMERALD_DRAGONFLY: CardRecord = CardRecord::new
 );
 
 // LEG 185 — Eureka
-// Audit: blocked — Needs a hidden-zone decision and continuation for “Starting with you, each player may put a permanent card from their hand onto the battlefield. Repeat this process until no one puts a card onto the battlefield”.
+// Audit: metadata-only — Needs a hidden-zone decision and continuation for “Starting with you, each player may put a permanent card from their hand onto the battlefield. Repeat this process until no one puts a card onto the battlefield”.
+pub(in crate::card::sets) static EUREKA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("520db5fb-d961-45a3-af74-6f054b8be3ab"),
+    "Eureka",
+    crate::card::CardArt::new("520db5fb-d961-45a3-af74-6f054b8be3ab", "Kaja Foglio"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 186 — Fire Sprites
 pub(in crate::card::sets) static FIRE_SPRITES: CardRecord = CardRecord::new_with_legacy_id(
@@ -3461,7 +3860,14 @@ pub(in crate::card::sets) static GIANT_TURTLE: CardRecord = CardRecord::new_with
 );
 
 // LEG 189 — Glyph of Reincarnation
-// Audit: blocked — Needs a duration-scoped prohibition on creating or applying regeneration shields for “Destroy all creatures that were blocked by target Wall this turn. They can't be regenerated. For each creature that died this way, put a creature card from the graveyard of the player…”.
+// Audit: metadata-only — Needs a duration-scoped prohibition on creating or applying regeneration shields for “Destroy all creatures that were blocked by target Wall this turn. They can't be regenerated. For each creature that died this way, put a creature card from the graveyard of the player…”.
+pub(in crate::card::sets) static GLYPH_OF_REINCARNATION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a67e8214-a192-4143-9d5e-d0e254e1bf6e"),
+    "Glyph of Reincarnation",
+    crate::card::CardArt::new("a67e8214-a192-4143-9d5e-d0e254e1bf6e", "Susan Van Camp"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 190 — Hornet Cobra
 pub(in crate::card::sets) static HORNET_COBRA: CardRecord = CardRecord::new_with_legacy_id(
@@ -3474,7 +3880,14 @@ pub(in crate::card::sets) static HORNET_COBRA: CardRecord = CardRecord::new_with
 );
 
 // LEG 191 — Ichneumon Druid
-// Audit: blocked — Needs per-player, per-turn instant-cast counts in the triggering condition.
+// Audit: metadata-only — Needs per-player, per-turn instant-cast counts in the triggering condition.
+pub(in crate::card::sets) static ICHNEUMON_DRUID: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("cf2313bb-6f9b-49d6-b069-9f3b77b6e107"),
+    "Ichneumon Druid",
+    crate::card::CardArt::new("cf2313bb-6f9b-49d6-b069-9f3b77b6e107", "Melissa A. Benson"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 192 — Killer Bees
 pub(in crate::card::sets) static KILLER_BEES: CardRecord = CardRecord::new_with_legacy_id(
@@ -3663,16 +4076,47 @@ pub(in crate::card::sets) static RADJAN_SPIRIT: CardRecord = CardRecord::new_wit
 );
 
 // LEG 200 — Rebirth
-// Audit: blocked — Needs a separate optional ante choice for each player and a conditional life-total-setting continuation for each player who antes.
+// Audit: metadata-only — Needs a separate optional ante choice for each player and a conditional life-total-setting continuation for each player who antes.
+pub(in crate::card::sets) static REBIRTH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a0d3ce01-e344-4608-b709-320be3600019"),
+    "Rebirth",
+    crate::card::CardArt::new("a0d3ce01-e344-4608-b709-320be3600019", "Mark Tedin"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 201 — Reincarnation
-// Audit: blocked — Needs duration-aware control-changing continuous effects for “Choose target creature. When that creature dies this turn, return a creature card from its owner's graveyard to the battlefield under the control of that creature's owner”.
+// Audit: metadata-only — Needs duration-aware control-changing continuous effects for “Choose target creature. When that creature dies this turn, return a creature card from its owner's graveyard to the battlefield under the control of that creature's owner”.
+pub(in crate::card::sets) static REINCARNATION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("969c104e-daf4-480d-99a2-dd93c498b48e"),
+    "Reincarnation",
+    crate::card::CardArt::new(
+        "969c104e-daf4-480d-99a2-dd93c498b48e",
+        "Edward P. Beard, Jr.",
+    ),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 202 — Revelation
-// Audit: blocked — Needs ordered-library inspection, selection, and visibility handling for “Players play with their hands revealed”.
+// Audit: metadata-only — Needs ordered-library inspection, selection, and visibility handling for “Players play with their hands revealed”.
+pub(in crate::card::sets) static REVELATION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("07892b6c-08d2-47b5-8d64-0e4d1bdc3080"),
+    "Revelation",
+    crate::card::CardArt::new("07892b6c-08d2-47b5-8d64-0e4d1bdc3080", "Kaja Foglio"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 203 — Rust
-// Audit: blocked — Needs stack targeting and countering of ability objects for “Counter target activated ability from an artifact source”.
+// Audit: metadata-only — Needs stack targeting and countering of ability objects for “Counter target activated ability from an artifact source”.
+pub(in crate::card::sets) static RUST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ad4974c8-34c5-4290-b325-7586a67f6d56"),
+    "Rust",
+    crate::card::CardArt::new("ad4974c8-34c5-4290-b325-7586a67f6d56", "Liz Danforth"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 204 — Shelkin Brownie
 pub(in crate::card::sets) static SHELKIN_BROWNIE: CardRecord = CardRecord::new_with_legacy_id(
@@ -3697,7 +4141,14 @@ pub(in crate::card::sets) static SHELKIN_BROWNIE: CardRecord = CardRecord::new_w
 );
 
 // LEG 205 — Storm Seeker
-// Audit: blocked — Needs damage-history/source tracking or card-specific damage processing for “Storm Seeker deals damage to target player equal to the number of cards in that player's hand”.
+// Audit: metadata-only — Needs damage-history/source tracking or card-specific damage processing for “Storm Seeker deals damage to target player equal to the number of cards in that player's hand”.
+pub(in crate::card::sets) static STORM_SEEKER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3b66d0cc-84d7-41ad-b0e7-74ebf604543f"),
+    "Storm Seeker",
+    crate::card::CardArt::new("3b66d0cc-84d7-41ad-b0e7-74ebf604543f", "Mark Poole"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 static SUBDUE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
     ObjectPredicateDef::HasType(CardType::Creature),
@@ -3924,7 +4375,14 @@ pub(in crate::card::sets) static WILLOW_SATYR: CardRecord = CardRecord::new_with
 );
 
 // LEG 213 — Winter Blast
-// Audit: blocked — Needs one chosen-X target set with a flying-dependent damage follow-up linked to the creatures it tapped.
+// Audit: metadata-only — Needs one chosen-X target set with a flying-dependent damage follow-up linked to the creatures it tapped.
+pub(in crate::card::sets) static WINTER_BLAST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fb846366-2105-4999-8af1-a11687f42e17"),
+    "Winter Blast",
+    crate::card::CardArt::new("fb846366-2105-4999-8af1-a11687f42e17", "Kaja Foglio"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 214 — Wolverine Pack
 pub(in crate::card::sets) static WOLVERINE_PACK: CardRecord = CardRecord::new_with_legacy_id(
@@ -3938,7 +4396,14 @@ pub(in crate::card::sets) static WOLVERINE_PACK: CardRecord = CardRecord::new_wi
 );
 
 // LEG 215 — Wood Elemental
-// Audit: blocked — Needs a characteristic-layer effect or dynamic value for “Wood Elemental's power and toughness are each equal to the number of Forests sacrificed as it entered”.
+// Audit: metadata-only — Needs a characteristic-layer effect or dynamic value for “Wood Elemental's power and toughness are each equal to the number of Forests sacrificed as it entered”.
+pub(in crate::card::sets) static WOOD_ELEMENTAL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("edc71122-2951-43eb-8ca8-1cda6d231013"),
+    "Wood Elemental",
+    crate::card::CardArt::new("edc71122-2951-43eb-8ca8-1cda6d231013", "Brian Snõddy"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 216 — Adun Oakenshield
 pub(in crate::card::sets) static ADUN_OAKENSHIELD: CardRecord = CardRecord::new_with_legacy_id(
@@ -4107,7 +4572,14 @@ pub(in crate::card::sets) static AXELROD_GUNNARSON: CardRecord = CardRecord::new
 );
 
 // LEG 220 — Ayesha Tanaka
-// Audit: blocked — Needs stack targeting and countering of ability objects for “{T}: Counter target activated ability from an artifact source unless that ability's controller pays {W}”.
+// Audit: metadata-only — Needs stack targeting and countering of ability objects for “{T}: Counter target activated ability from an artifact source unless that ability's controller pays {W}”.
+pub(in crate::card::sets) static AYESHA_TANAKA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("03bd3d4b-d01a-475d-bf3b-cf96f43bc9ef"),
+    "Ayesha Tanaka",
+    crate::card::CardArt::new("03bd3d4b-d01a-475d-bf3b-cf96f43bc9ef", "Bryon Wackwitz"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 221 — Barktooth Warbeard
 pub(in crate::card::sets) static BARKTOOTH_WARBEARD: CardRecord = CardRecord::new_with_legacy_id(
@@ -4120,7 +4592,14 @@ pub(in crate::card::sets) static BARKTOOTH_WARBEARD: CardRecord = CardRecord::ne
 );
 
 // LEG 222 — Bartel Runeaxe
-// Audit: blocked — Needs the card's exact Aura targeting/attachment restriction rather than the broader existing cannot-be-enchanted effect for “Bartel Runeaxe can't be the target of Aura spells”.
+// Audit: metadata-only — Needs the card's exact Aura targeting/attachment restriction rather than the broader existing cannot-be-enchanted effect for “Bartel Runeaxe can't be the target of Aura spells”.
+pub(in crate::card::sets) static BARTEL_RUNEAXE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f1a42691-98bb-4234-9b56-085e6677f3e4"),
+    "Bartel Runeaxe",
+    crate::card::CardArt::new("f1a42691-98bb-4234-9b56-085e6677f3e4", "Andi Rusu"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 223 — Boris Devilboon
 pub(in crate::card::sets) static BORIS_DEVILBOON: CardRecord = CardRecord::new_with_legacy_id(
@@ -4210,7 +4689,14 @@ static LANDS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
 );
 
 // LEG 226 — Gabriel Angelfire
-// Audit: blocked — Needs a random choice among four named abilities and a grant of the chosen one; the randomized effect vocabulary selects between two branches, not among four.
+// Audit: metadata-only — Needs a random choice among four named abilities and a grant of the chosen one; the randomized effect vocabulary selects between two branches, not among four.
+pub(in crate::card::sets) static GABRIEL_ANGELFIRE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3b4ce350-b6ed-4e0e-8c70-efc6e5f18a5d"),
+    "Gabriel Angelfire",
+    crate::card::CardArt::new("3b4ce350-b6ed-4e0e-8c70-efc6e5f18a5d", "Daniel Gelon"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 227 — Gosta Dirk
 pub(in crate::card::sets) static GOSTA_DIRK: CardRecord = CardRecord::new_with_legacy_id(
@@ -4256,10 +4742,27 @@ pub(in crate::card::sets) static GWENDLYN_DI_CORCI: CardRecord = CardRecord::new
 );
 
 // LEG 229 — Halfdane
-// Audit: blocked — Needs a characteristic-layer effect or dynamic value for “At the beginning of your upkeep, change Halfdane's base power and toughness to the power and toughness of target creature other than Halfdane until the end of your next upkeep”.
+// Audit: metadata-only — Needs a characteristic-layer effect or dynamic value for “At the beginning of your upkeep, change Halfdane's base power and toughness to the power and toughness of target creature other than Halfdane until the end of your next upkeep”.
+pub(in crate::card::sets) static HALFDANE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2e939761-3542-4044-9038-d1d30c6a38fc"),
+    "Halfdane",
+    crate::card::CardArt::new("2e939761-3542-4044-9038-d1d30c6a38fc", "Melissa A. Benson"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 230 — Hazezon Tamar
-// Audit: blocked — Needs delayed token creation that determines X at the future upkeep for “When Hazezon enters, create X 1/1 Sand Warrior creature tokens that are red, green, and white at the beginning of your next upkeep, where X is the number of lands you control at that time”.
+// Audit: metadata-only — Needs delayed token creation that determines X at the future upkeep for “When Hazezon enters, create X 1/1 Sand Warrior creature tokens that are red, green, and white at the beginning of your next upkeep, where X is the number of lands you control at that time”.
+pub(in crate::card::sets) static HAZEZON_TAMAR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("17fc3a85-c6b9-4fd2-a6a2-d3210708e5ea"),
+    "Hazezon Tamar",
+    crate::card::CardArt::new(
+        "17fc3a85-c6b9-4fd2-a6a2-d3210708e5ea",
+        "Richard Kane Ferguson",
+    ),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 231 — Hunding Gjornersen
 pub(in crate::card::sets) static HUNDING_GJORNERSEN: CardRecord = CardRecord::new_with_legacy_id(
@@ -4335,7 +4838,14 @@ pub(in crate::card::sets) static JERRARD_OF_THE_CLOSED_FIST: CardRecord =
     );
 
 // LEG 236 — Johan
-// Audit: blocked — Needs a combat declaration or damage-assignment constraint for “At the beginning of combat on your turn, you may have Johan gain "Johan can't attack" until end of combat. If you do, attacking doesn't cause creatures you control to tap this combat if…”.
+// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “At the beginning of combat on your turn, you may have Johan gain "Johan can't attack" until end of combat. If you do, attacking doesn't cause creatures you control to tap this combat if…”.
+pub(in crate::card::sets) static JOHAN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b851d5b4-7991-49d4-8a52-bf233f960cbf"),
+    "Johan",
+    crate::card::CardArt::new("b851d5b4-7991-49d4-8a52-bf233f960cbf", "Mark Tedin"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 237 — Kasimir the Lone Wolf
 pub(in crate::card::sets) static KASIMIR_THE_LONE_WOLF: CardRecord = CardRecord::new_with_legacy_id(
@@ -4484,7 +4994,17 @@ pub(in crate::card::sets) static MARHAULT_ELSDRAGON: CardRecord = CardRecord::ne
 );
 
 // LEG 245 — Nebuchadnezzar
-// Audit: blocked — Needs seeded random selection with replay-visible provenance for “{X}, {T}: Choose a card name. Target opponent reveals X cards at random from their hand. Then that player discards all cards with that name revealed this way. Activate only during your turn”.
+// Audit: metadata-only — Needs seeded random selection with replay-visible provenance for “{X}, {T}: Choose a card name. Target opponent reveals X cards at random from their hand. Then that player discards all cards with that name revealed this way. Activate only during your turn”.
+pub(in crate::card::sets) static NEBUCHADNEZZAR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e3f17ce3-711b-4bd9-addf-dd440fa7d2b7"),
+    "Nebuchadnezzar",
+    crate::card::CardArt::new(
+        "e3f17ce3-711b-4bd9-addf-dd440fa7d2b7",
+        "Richard Kane Ferguson",
+    ),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 246 — Nicol Bolas
 pub(in crate::card::sets) static NICOL_BOLAS: CardRecord = CardRecord::new_with_legacy_id(
@@ -4665,7 +5185,14 @@ pub(in crate::card::sets) static RAMSES_OVERDARK: CardRecord = CardRecord::new_w
 );
 
 // LEG 253 — Rasputin Dreamweaver
-// Audit: blocked — Needs dream counters that both pay for and restore themselves across several abilities. Each individual prevention and mana effect is available.
+// Audit: metadata-only — Needs dream counters that both pay for and restore themselves across several abilities. Each individual prevention and mana effect is available.
+pub(in crate::card::sets) static RASPUTIN_DREAMWEAVER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("503256f8-3aab-49d0-b78b-6502aa29ce52"),
+    "Rasputin Dreamweaver",
+    crate::card::CardArt::new("503256f8-3aab-49d0-b78b-6502aa29ce52", "Andi Rusu"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 254 — Riven Turnbull
 pub(in crate::card::sets) static RIVEN_TURNBULL: CardRecord = CardRecord::new_with_legacy_id(
@@ -4682,7 +5209,17 @@ pub(in crate::card::sets) static RIVEN_TURNBULL: CardRecord = CardRecord::new_wi
 );
 
 // LEG 255 — Rohgahh of Kher Keep
-// Audit: blocked — Needs duration-aware control-changing continuous effects for “At the beginning of your upkeep, you may pay {R}{R}{R}. If you don't, tap Rohgahh and all creatures named Kobolds of Kher Keep, then an opponent gains control of them”.
+// Audit: metadata-only — Needs duration-aware control-changing continuous effects for “At the beginning of your upkeep, you may pay {R}{R}{R}. If you don't, tap Rohgahh and all creatures named Kobolds of Kher Keep, then an opponent gains control of them”.
+pub(in crate::card::sets) static ROHGAHH_OF_KHER_KEEP: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ea0891f0-83ce-4eb7-b0a9-cbc8168bafff"),
+    "Rohgahh of Kher Keep",
+    crate::card::CardArt::new(
+        "ea0891f0-83ce-4eb7-b0a9-cbc8168bafff",
+        "Edward P. Beard, Jr.",
+    ),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 256 — Rubinia Soulsinger
 pub(in crate::card::sets) static RUBINIA_SOULSINGER: CardRecord = CardRecord::new_with_legacy_id(
@@ -4765,7 +5302,14 @@ pub(in crate::card::sets) static SOLKANAR_THE_SWAMP_KING: CardRecord =
     );
 
 // LEG 260 — Stangg
-// Audit: blocked — Needs a zone-object query and identity-preserving continuation for “When Stangg enters, create Stangg Twin, a legendary 3/4 red and green Human Warrior creature token. Exile that token when Stangg leaves the battlefield. Sacrifice Stangg when that token…”.
+// Audit: metadata-only — Needs a zone-object query and identity-preserving continuation for “When Stangg enters, create Stangg Twin, a legendary 3/4 red and green Human Warrior creature token. Exile that token when Stangg leaves the battlefield. Sacrifice Stangg when that token…”.
+pub(in crate::card::sets) static STANGG: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a277775a-6b48-4238-a618-3ae94c4cc85c"),
+    "Stangg",
+    crate::card::CardArt::new("a277775a-6b48-4238-a618-3ae94c4cc85c", "Mark Poole"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 261 — Sunastian Falconer
 pub(in crate::card::sets) static SUNASTIAN_FALCONER: CardRecord = CardRecord::new_with_legacy_id(
@@ -5102,13 +5646,34 @@ pub(in crate::card::sets) static ARENA_OF_THE_ANCIENTS: CardRecord = CardRecord:
 );
 
 // LEG 274 — Black Mana Battery
-// Audit: blocked — Needs the mana-ability runtime to pay this ability's mana activation cost for “{T}, Remove any number of charge counters from this artifact: Add {B}, then add an additional {B} for each charge counter removed this way”.
+// Audit: metadata-only — Needs the mana-ability runtime to pay this ability's mana activation cost for “{T}, Remove any number of charge counters from this artifact: Add {B}, then add an additional {B} for each charge counter removed this way”.
+pub(in crate::card::sets) static BLACK_MANA_BATTERY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d0c66e64-e357-457d-8302-b3a1fc0c56ce"),
+    "Black Mana Battery",
+    crate::card::CardArt::new("d0c66e64-e357-457d-8302-b3a1fc0c56ce", "Anson Maddocks"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 275 — Blue Mana Battery
-// Audit: blocked — Needs the mana-ability runtime to pay this ability's mana activation cost for “{T}, Remove any number of charge counters from this artifact: Add {U}, then add an additional {U} for each charge counter removed this way”.
+// Audit: metadata-only — Needs the mana-ability runtime to pay this ability's mana activation cost for “{T}, Remove any number of charge counters from this artifact: Add {U}, then add an additional {U} for each charge counter removed this way”.
+pub(in crate::card::sets) static BLUE_MANA_BATTERY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("35393661-2c53-46f0-bb33-2390d552b060"),
+    "Blue Mana Battery",
+    crate::card::CardArt::new("35393661-2c53-46f0-bb33-2390d552b060", "Amy Weber"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 276 — Bronze Horse
-// Audit: blocked — Needs a duration-scoped replacement/prevention effect for “As long as you control another creature, prevent all damage that would be dealt to this creature by spells that target it”.
+// Audit: metadata-only — Needs a duration-scoped replacement/prevention effect for “As long as you control another creature, prevent all damage that would be dealt to this creature by spells that target it”.
+pub(in crate::card::sets) static BRONZE_HORSE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("936a03a5-73ba-436c-9d49-70e176d118e6"),
+    "Bronze Horse",
+    crate::card::CardArt::new("936a03a5-73ba-436c-9d49-70e176d118e6", "Mark Poole"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 static FORETHOUGHT_AMULET_SPELL_DAMAGE: DamageEventMatcherDef = DamageEventMatcherDef {
     kind: DamageKindDef::Any,
@@ -5156,10 +5721,24 @@ pub(in crate::card::sets) static FORETHOUGHT_AMULET: CardRecord = CardRecord::ne
 );
 
 // LEG 278 — Gauntlets of Chaos
-// Audit: blocked — Needs duration-aware control-changing continuous effects for “{5}, Sacrifice this artifact: Exchange control of target artifact, creature, or land you control and target permanent an opponent controls that shares one of those types with it. If…”.
+// Audit: metadata-only — Needs duration-aware control-changing continuous effects for “{5}, Sacrifice this artifact: Exchange control of target artifact, creature, or land you control and target permanent an opponent controls that shares one of those types with it. If…”.
+pub(in crate::card::sets) static GAUNTLETS_OF_CHAOS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6f8f11b5-3ba8-4913-b76a-fb469a74864d"),
+    "Gauntlets of Chaos",
+    crate::card::CardArt::new("6f8f11b5-3ba8-4913-b76a-fb469a74864d", "Dan Frazier"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 279 — Green Mana Battery
-// Audit: blocked — Needs the mana-ability runtime to pay this ability's mana activation cost for “{T}, Remove any number of charge counters from this artifact: Add {G}, then add an additional {G} for each charge counter removed this way”.
+// Audit: metadata-only — Needs the mana-ability runtime to pay this ability's mana activation cost for “{T}, Remove any number of charge counters from this artifact: Add {G}, then add an additional {G} for each charge counter removed this way”.
+pub(in crate::card::sets) static GREEN_MANA_BATTERY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4671fa01-4a9e-4cd9-8154-b0d45e11b702"),
+    "Green Mana Battery",
+    crate::card::CardArt::new("4671fa01-4a9e-4cd9-8154-b0d45e11b702", "Christopher Rush"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 280 — Horn of Deafening
 pub(in crate::card::sets) static HORN_OF_DEAFENING: CardRecord = CardRecord::new_with_legacy_id(
@@ -5186,7 +5765,14 @@ pub(in crate::card::sets) static HORN_OF_DEAFENING: CardRecord = CardRecord::new
 );
 
 // LEG 281 — Knowledge Vault
-// Audit: blocked — Needs ordered-library inspection, selection, and visibility handling for “{2}, {T}: Exile the top card of your library face down”.
+// Audit: metadata-only — Needs ordered-library inspection, selection, and visibility handling for “{2}, {T}: Exile the top card of your library face down”.
+pub(in crate::card::sets) static KNOWLEDGE_VAULT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("65947312-75c2-4baa-805c-238a154156ef"),
+    "Knowledge Vault",
+    crate::card::CardArt::new("65947312-75c2-4baa-805c-238a154156ef", "Amy Weber"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 static KRY_SHIELD_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Object {
@@ -5261,7 +5847,14 @@ pub(in crate::card::sets) static LIFE_CHISEL: CardRecord = CardRecord::new_with_
 );
 
 // LEG 284 — Life Matrix
-// Audit: blocked — Needs granting a counter-consuming activated ability to a targeted creature and an activation window restricted to your upkeep for “{4}, {T}: Put a matrix counter on target creature and that creature gains "Remove a matrix counter from this creature: Regenerate this creature." Activate only during your upkeep”.
+// Audit: metadata-only — Needs granting a counter-consuming activated ability to a targeted creature and an activation window restricted to your upkeep for “{4}, {T}: Put a matrix counter on target creature and that creature gains "Remove a matrix counter from this creature: Regenerate this creature." Activate only during your upkeep”.
+pub(in crate::card::sets) static LIFE_MATRIX: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c99a3abc-e2a3-4eee-8f72-b1b25dcd1d0b"),
+    "Life Matrix",
+    crate::card::CardArt::new("c99a3abc-e2a3-4eee-8f72-b1b25dcd1d0b", "Amy Weber"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 static INSTANT_OR_ENCHANTMENT: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
     ObjectPredicateDef::HasType(CardType::Instant),
@@ -5313,13 +5906,34 @@ pub(in crate::card::sets) static MARBLE_PRIEST: CardRecord = CardRecord::new_wit
 );
 
 // LEG 287 — Mirror Universe
-// Audit: blocked — Needs linked sacrifice/destruction accounting for “{T}, Sacrifice this artifact: Exchange life totals with target opponent. Activate only during your upkeep”.
+// Audit: metadata-only — Needs linked sacrifice/destruction accounting for “{T}, Sacrifice this artifact: Exchange life totals with target opponent. Activate only during your upkeep”.
+pub(in crate::card::sets) static MIRROR_UNIVERSE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a8f05d5e-bb7d-4554-b880-f0c6b4688357"),
+    "Mirror Universe",
+    crate::card::CardArt::new("a8f05d5e-bb7d-4554-b880-f0c6b4688357", "Phil Foglio"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 288 — North Star
-// Audit: blocked — Needs cost/mana provenance or dynamic payment support for “{4}, {T}: For one spell this turn, you may spend mana as though it were mana of any type to pay that spell's mana cost”.
+// Audit: metadata-only — Needs cost/mana provenance or dynamic payment support for “{4}, {T}: For one spell this turn, you may spend mana as though it were mana of any type to pay that spell's mana cost”.
+pub(in crate::card::sets) static NORTH_STAR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("daac2a6b-27c8-4567-9e0c-7b262628d331"),
+    "North Star",
+    crate::card::CardArt::new("daac2a6b-27c8-4567-9e0c-7b262628d331", "Kaja Foglio"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 289 — Nova Pentacle
-// Audit: blocked — Needs a shield keyed to a source chosen as the ability resolves; prevention shields attach to a recipient and spend on the next damage from any source, not from one named source for “{3}, {T}: The next time a source of your choice would deal damage to you this turn, that damage is dealt to target creature of an opponent's choice instead”.
+// Audit: metadata-only — Needs a shield keyed to a source chosen as the ability resolves; prevention shields attach to a recipient and spend on the next damage from any source, not from one named source for “{3}, {T}: The next time a source of your choice would deal damage to you this turn, that damage is dealt to target creature of an opponent's choice instead”.
+pub(in crate::card::sets) static NOVA_PENTACLE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("bc60e209-aa29-48aa-9128-9bb175403c0c"),
+    "Nova Pentacle",
+    crate::card::CardArt::new("bc60e209-aa29-48aa-9128-9bb175403c0c", "Richard Thomas"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 290 — Planar Gate
 pub(in crate::card::sets) static PLANAR_GATE: CardRecord = CardRecord::new_with_legacy_id(
@@ -5338,7 +5952,14 @@ pub(in crate::card::sets) static PLANAR_GATE: CardRecord = CardRecord::new_with_
 );
 
 // LEG 291 — Red Mana Battery
-// Audit: blocked — Needs the mana-ability runtime to pay this ability's mana activation cost for “{T}, Remove any number of charge counters from this artifact: Add {R}, then add an additional {R} for each charge counter removed this way”.
+// Audit: metadata-only — Needs the mana-ability runtime to pay this ability's mana activation cost for “{T}, Remove any number of charge counters from this artifact: Add {R}, then add an additional {R} for each charge counter removed this way”.
+pub(in crate::card::sets) static RED_MANA_BATTERY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("363cc5d6-70f8-4a3c-92bd-8f49774bdce2"),
+    "Red Mana Battery",
+    crate::card::CardArt::new("363cc5d6-70f8-4a3c-92bd-8f49774bdce2", "Mark Tedin"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 292 — Relic Barrier
 pub(in crate::card::sets) static RELIC_BARRIER: CardRecord = CardRecord::new_with_legacy_id(
@@ -5366,7 +5987,14 @@ pub(in crate::card::sets) static RELIC_BARRIER: CardRecord = CardRecord::new_wit
 );
 
 // LEG 293 — Ring of Immortals
-// Audit: blocked — Needs a spell-on-stack target predicate that expresses the printed instant/Aura restriction for “{3}, {T}: Counter target instant or Aura spell that targets a permanent you control”.
+// Audit: metadata-only — Needs a spell-on-stack target predicate that expresses the printed instant/Aura restriction for “{3}, {T}: Counter target instant or Aura spell that targets a permanent you control”.
+pub(in crate::card::sets) static RING_OF_IMMORTALS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("61706102-67fd-4167-bd7d-ec6da41db362"),
+    "Ring of Immortals",
+    crate::card::CardArt::new("61706102-67fd-4167-bd7d-ec6da41db362", "Melissa A. Benson"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 /// The printed "blocking or blocked by this creature" is the two one-sided
 /// relationships together: what the Sentinel is blocking, and what is
@@ -5434,16 +6062,44 @@ pub(in crate::card::sets) static SERPENT_GENERATOR: CardRecord = CardRecord::new
 );
 
 // LEG 296 — Sword of the Ages
-// Audit: blocked — Needs a characteristic-layer effect or dynamic value for “{T}, Sacrifice this artifact and any number of creatures you control: This artifact deals X damage to any target, where X is the total power of the creatures sacrificed this way, then…”.
+// Audit: metadata-only — Needs a characteristic-layer effect or dynamic value for “{T}, Sacrifice this artifact and any number of creatures you control: This artifact deals X damage to any target, where X is the total power of the creatures sacrificed this way, then…”.
+pub(in crate::card::sets) static SWORD_OF_THE_AGES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b37fd4cc-ab5c-4c65-80ff-8f905b31e801"),
+    "Sword of the Ages",
+    crate::card::CardArt::new("b37fd4cc-ab5c-4c65-80ff-8f905b31e801", "Dan Frazier"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 297 — Triassic Egg
-// Audit: blocked — Needs card-specific counter state and counter-consuming effects for “Sacrifice this artifact: Choose one. Activate only if there are two or more hatchling counters on this artifact”.
+// Audit: metadata-only — Needs card-specific counter state and counter-consuming effects for “Sacrifice this artifact: Choose one. Activate only if there are two or more hatchling counters on this artifact”.
+pub(in crate::card::sets) static TRIASSIC_EGG: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ce3756f7-0d99-4562-b32d-66de18a58fdf"),
+    "Triassic Egg",
+    crate::card::CardArt::new("ce3756f7-0d99-4562-b32d-66de18a58fdf", "Dan Frazier"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 298 — Voodoo Doll
-// Audit: blocked — Needs a mana activation cost whose amount is read from the source rather than printed, for “{X}{X}, {T}: ... X is the number of pin counters on this artifact”. The upkeep tick, the untapped intervening-if, and damage equal to a counter count are all available.
+// Audit: metadata-only — Needs a mana activation cost whose amount is read from the source rather than printed, for “{X}{X}, {T}: ... X is the number of pin counters on this artifact”. The upkeep tick, the untapped intervening-if, and damage equal to a counter count are all available.
+pub(in crate::card::sets) static VOODOO_DOLL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0418672d-056e-416d-91b4-8ee6e47201dc"),
+    "Voodoo Doll",
+    crate::card::CardArt::new("0418672d-056e-416d-91b4-8ee6e47201dc", "Sandra Everingham"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 299 — White Mana Battery
-// Audit: blocked — Needs the mana-ability runtime to pay this ability's mana activation cost for “{T}, Remove any number of charge counters from this artifact: Add {W}, then add an additional {W} for each charge counter removed this way”.
+// Audit: metadata-only — Needs the mana-ability runtime to pay this ability's mana activation cost for “{T}, Remove any number of charge counters from this artifact: Add {W}, then add an additional {W} for each charge counter removed this way”.
+pub(in crate::card::sets) static WHITE_MANA_BATTERY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("35fbbe41-d21b-4028-905f-054c44d30eb2"),
+    "White Mana Battery",
+    crate::card::CardArt::new("35fbbe41-d21b-4028-905f-054c44d30eb2", "Anthony S. Waters"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 /// The clause the five Legends band lands grant. One static rather than five,
 /// because the lands differ only in which color of legend they reach.
@@ -5500,7 +6156,14 @@ pub(in crate::card::sets) static CATHEDRAL_OF_SERRA: CardRecord = CardRecord::ne
 );
 
 // LEG 302 — Hammerheim
-// Audit: blocked — Needs removing every ability of a class from a target for a duration; the vocabulary grants named abilities but does not take them away.
+// Audit: metadata-only — Needs removing every ability of a class from a target for a duration; the vocabulary grants named abilities but does not take them away.
+pub(in crate::card::sets) static HAMMERHEIM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2816d30e-1e52-4323-b30e-1688fba23368"),
+    "Hammerheim",
+    crate::card::CardArt::new("2816d30e-1e52-4323-b30e-1688fba23368", "Bryon Wackwitz"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 // LEG 303 — Karakas
 pub(in crate::card::sets) static KARAKAS: CardRecord = CardRecord::new_with_legacy_id(
@@ -5719,7 +6382,14 @@ pub(in crate::card::sets) static UNHOLY_CITADEL: CardRecord = CardRecord::new_wi
 );
 
 // LEG 310 — Urborg
-// Audit: blocked — Needs a modal choice between two named abilities and the removal of the chosen one; the vocabulary grants named abilities but does not take them away.
+// Audit: metadata-only — Needs a modal choice between two named abilities and the removal of the chosen one; the vocabulary grants named abilities but does not take them away.
+pub(in crate::card::sets) static URBORG: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d0a261d0-7678-46f7-9285-d541486567d8"),
+    "Urborg",
+    crate::card::CardArt::new("d0a261d0-7678-46f7-9285-d541486567d8", "Bryon Wackwitz"),
+    crate::card::CardSet::Legends,
+    crate::card::CardRules::unsupported(),
+);
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AKRON_LEGIONNAIRE,
@@ -5727,25 +6397,34 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AMROU_KITHKIN,
     &ANGELIC_VOICES,
     &CLEANSE,
+    &CLERGY_OF_THE_HOLY_NIMBUS,
     &DAVENANT_ARCHER,
+    &DIVINE_INTERVENTION,
     &DIVINE_OFFERING,
     &DIVINE_TRANSFORMATION,
     &ELDER_LAND_WURM,
     &ENCHANTED_BEING,
+    &EQUINOX,
     &FORTIFIED_AREA,
+    &GLYPH_OF_LIFE,
     &GREAT_DEFENDER,
     &GREAT_WALL,
     &GREATER_REALM_OF_PRESERVATION,
     &HEAVENS_GATE,
     &HOLY_DAY,
     &INDESTRUCTIBLE_AURA,
+    &INFINITE_AUTHORITY,
     &IVORY_GUARDIANS,
     &KEEPERS_OF_THE_FAITH,
     &KISMET,
+    &LAND_TAX,
     &LIFEBLOOD,
     &MOAT,
     &OSAI_VULTURES,
+    &PETRA_SPHINX,
     &PRESENCE_OF_THE_MASTER,
+    &RAPID_FIRE,
+    &REMOVE_ENCHANTMENTS,
     &RIGHTEOUS_AVENGERS,
     &SEEKER,
     &SHIELD_WALL,
@@ -5754,66 +6433,101 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &THUNDER_SPIRIT,
     &TUNDRA_WOLVES,
     &VISIONS,
+    &WALL_OF_CALTROPS,
     &WALL_OF_LIGHT,
     &ACID_RAIN,
+    &ANTI_MAGIC_AURA,
     &AZURE_DRAKE,
+    &BACKFIRE,
     &BOOMERANG,
+    &BRINE_HAG,
     &DEVOURING_DEEP,
+    &DREAM_COAT,
     &ELDER_SPAWN,
+    &ENCHANTMENT_ALTERATION,
     &ENERGY_TAP,
+    &FIELD_OF_DREAMS,
     &FLASH_COUNTER,
     &FLASH_FLOOD,
     &FORCE_SPIKE,
     &GASEOUS_FORM,
+    &GLYPH_OF_DELUSION,
+    &IN_THE_EYE_OF_CHAOS,
+    &INVOKE_PREJUDICE,
+    &JUXTAPOSE,
+    &LAND_EQUILIBRIUM,
     &MANA_DRAIN,
     &PART_WATER,
     &PSIONIC_ENTITY,
+    &PSYCHIC_PURGE,
+    &PUPPET_MASTER,
     &RECALL,
     &RELIC_BIND,
     &REMOVE_SOUL,
     &RESET,
+    &REVERBERATION,
     &SEA_KINGS_BLESSING,
     &SEGOVIAN_LEVIATHAN,
+    &SILHOUETTE,
     &SPECTRAL_CLOAK,
     &TELEKINESIS,
     &TELEPORT,
+    &TIME_ELEMENTAL,
     &UNDERTOW,
     &VENARIAN_GOLD,
     &WALL_OF_VAPOR,
     &WALL_OF_WONDER,
     &ZEPHYR_FALCON,
     &ABOMINATION,
+    &ALL_HALLOW_S_EVE,
     &BLIGHT,
     &CARRION_ANTS,
+    &CHAINS_OF_MEPHISTOPHELES,
+    &COSMIC_HORROR,
     &CYCLOPEAN_MUMMY,
     &DARKNESS,
     &DEMONIC_TORMENT,
     &EVIL_EYE_OF_ORMS_BY_GORE,
     &FALLEN_ANGEL,
     &GHOSTS_OF_THE_DAMNED,
+    &GIANT_SLUG,
+    &GLYPH_OF_DOOM,
     &GREED,
     &HEADLESS_HORSEMAN,
     &HELL_SWARM,
     &HELLS_CARETAKER,
+    &HELLFIRE,
     &HORROR_OF_HORRORS,
+    &IMPRISON,
     &INFERNAL_MEDUSA,
+    &JOVIAL_EVIL,
+    &LESSER_WEREWOLF,
     &LOST_SOUL,
+    &MOLD_DEMON,
     &NETHER_VOID,
     &PIT_SCORPION,
     &QUAGMIRE,
     &SHIMIAN_NIGHT_STALKER,
     &SPIRIT_SHACKLE,
+    &SYPHON_SOUL,
+    &TAKKLEMAGGOT,
     &THE_ABYSS,
     &THE_WRETCHED,
     &TOUCH_OF_DARKNESS,
     &TRANSMUTATION,
+    &UNDERWORLD_DREAMS,
     &VAMPIRE_BATS,
     &WALKING_DEAD,
     &WALL_OF_PUTRID_FLESH,
     &WALL_OF_SHADOWS,
+    &WALL_OF_TOMBSTONES,
     &ACTIVE_VOLCANO,
     &AERATHI_BERSERKER,
+    &BACKDRAFT,
     &BEASTS_OF_BOGARDAN,
+    &BLAZING_EFFIGY,
+    &BLOOD_LUST,
+    &CAVERNS_OF_DESPAIR,
     &CHAIN_LIGHTNING,
     &CREVASSE,
     &CRIMSON_KOBOLDS,
@@ -5822,25 +6536,37 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DISHARMONY,
     &DWARVEN_SONG,
     &ETERNAL_WARRIOR,
+    &FALLING_STAR,
+    &FEINT,
+    &FIRESTORM_PHOENIX,
     &FROST_GIANT,
     &GIANT_STRENGTH,
     &GLYPH_OF_DESTRUCTION,
     &GRAVITY_SPHERE,
+    &HYPERION_BLACKSMITH,
     &IMMOLATION,
     &KOBOLD_DRILL_SERGEANT,
     &KOBOLD_OVERLORD,
     &KOBOLD_TASKMASTER,
     &KOBOLDS_OF_KHER_KEEP,
+    &LAND_S_EDGE,
     &MOUNTAIN_YETI,
     &PRIMORDIAL_OOZE,
     &PYROTECHNICS,
+    &QUARUM_TRENCH_GNOMES,
     &RAGING_BULL,
     &SPINAL_VILLAIN,
+    &STORM_WORLD,
+    &TEMPEST_EFREET,
     &THE_BRUTE,
+    &WALL_OF_DUST,
     &WALL_OF_EARTH,
     &WALL_OF_HEAT,
     &WALL_OF_OPPOSITION,
+    &WINDS_OF_CHANGE,
     &AISLING_LEPRECHAUN,
+    &ARBORIA,
+    &AVOID_FATE,
     &BARBARY_APES,
     &CAT_WARRIORS,
     &COCOON,
@@ -5850,10 +6576,13 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DURKWOOD_BOARS,
     &ELVEN_RIDERS,
     &EMERALD_DRAGONFLY,
+    &EUREKA,
     &FIRE_SPRITES,
     &FLORAL_SPUZZEM,
     &GIANT_TURTLE,
+    &GLYPH_OF_REINCARNATION,
     &HORNET_COBRA,
+    &ICHNEUMON_DRUID,
     &KILLER_BEES,
     &LIVING_PLANE,
     &MASTER_OF_THE_HUNT,
@@ -5862,7 +6591,12 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PRADESH_GYPSIES,
     &RABID_WOMBAT,
     &RADJAN_SPIRIT,
+    &REBIRTH,
+    &REINCARNATION,
+    &REVELATION,
+    &RUST,
     &SHELKIN_BROWNIE,
+    &STORM_SEEKER,
     &SUBDUE,
     &SYLVAN_LIBRARY,
     &SYLVAN_PARADISE,
@@ -5870,22 +6604,30 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &UNTAMED_WILDS,
     &WHIRLING_DERVISH,
     &WILLOW_SATYR,
+    &WINTER_BLAST,
     &WOLVERINE_PACK,
+    &WOOD_ELEMENTAL,
     &ADUN_OAKENSHIELD,
     &ANGUS_MACKENZIE,
     &ARCADES_SABBOTH,
     &AXELROD_GUNNARSON,
+    &AYESHA_TANAKA,
     &BARKTOOTH_WARBEARD,
+    &BARTEL_RUNEAXE,
     &BORIS_DEVILBOON,
     &CHROMIUM,
     &DAKKON_BLACKBLADE,
+    &GABRIEL_ANGELFIRE,
     &GOSTA_DIRK,
     &GWENDLYN_DI_CORCI,
+    &HALFDANE,
+    &HAZEZON_TAMAR,
     &HUNDING_GJORNERSEN,
     &JACQUES_LE_VERT,
     &JASMINE_BOREAL,
     &JEDIT_OJANEN,
     &JERRARD_OF_THE_CLOSED_FIST,
+    &JOHAN,
     &KASIMIR_THE_LONE_WOLF,
     &KEI_TAKAHASHI,
     &LADY_CALERIA,
@@ -5894,6 +6636,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &LIVONYA_SILONE,
     &LORD_MAGNUS,
     &MARHAULT_ELSDRAGON,
+    &NEBUCHADNEZZAR,
     &NICOL_BOLAS,
     &PALLADIA_MORS,
     &PAVEL_MALIKI,
@@ -5901,11 +6644,14 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &RAGNAR,
     &RAMIREZ_DEPIETRO,
     &RAMSES_OVERDARK,
+    &RASPUTIN_DREAMWEAVER,
     &RIVEN_TURNBULL,
+    &ROHGAHH_OF_KHER_KEEP,
     &RUBINIA_SOULSINGER,
     &SIR_SHANDLAR_OF_EBERYN,
     &SIVITRI_SCARZAM,
     &SOLKANAR_THE_SWAMP_KING,
+    &STANGG,
     &SUNASTIAN_FALCONER,
     &TETSUO_UMEZAWA,
     &THE_LADY_OF_THE_MOUNTAIN,
@@ -5919,18 +6665,35 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AL_ABARAS_CARPET,
     &ALCHORS_TOMB,
     &ARENA_OF_THE_ANCIENTS,
+    &BLACK_MANA_BATTERY,
+    &BLUE_MANA_BATTERY,
+    &BRONZE_HORSE,
     &FORETHOUGHT_AMULET,
+    &GAUNTLETS_OF_CHAOS,
+    &GREEN_MANA_BATTERY,
     &HORN_OF_DEAFENING,
+    &KNOWLEDGE_VAULT,
     &KRY_SHIELD,
     &LIFE_CHISEL,
+    &LIFE_MATRIX,
     &MANA_MATRIX,
     &MARBLE_PRIEST,
+    &MIRROR_UNIVERSE,
+    &NORTH_STAR,
+    &NOVA_PENTACLE,
     &PLANAR_GATE,
+    &RED_MANA_BATTERY,
     &RELIC_BARRIER,
+    &RING_OF_IMMORTALS,
     &SENTINEL,
     &SERPENT_GENERATOR,
+    &SWORD_OF_THE_AGES,
+    &TRIASSIC_EGG,
+    &VOODOO_DOLL,
+    &WHITE_MANA_BATTERY,
     &ADVENTURERS_GUILDHOUSE,
     &CATHEDRAL_OF_SERRA,
+    &HAMMERHEIM,
     &KARAKAS,
     &MOUNTAIN_STRONGHOLD,
     &PENDELHAVEN,
@@ -5938,6 +6701,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &THE_TABERNACLE_AT_PENDRELL_VALE,
     &TOLARIA,
     &UNHOLY_CITADEL,
+    &URBORG,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

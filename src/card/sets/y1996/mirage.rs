@@ -1,6 +1,14 @@
 //! Mirage cards used by the staged Premodern deck tranche.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::sets::y1993::alpha as catalog_lea;
+use crate::card::sets::y1993::arabian_nights as catalog_arn;
+use crate::card::sets::y1994::legends as catalog_leg;
+use crate::card::sets::y1995::homelands as catalog_hml;
+use crate::card::sets::y1995::ice_age as catalog_ice;
+use crate::card::sets::y2011::innistrad as catalog_isd;
+use crate::card::sets::y2011::magic_2012 as catalog_m12;
+use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef,
     AppliedRuleDef, CardArt, CardRules, CardSet, CardType, EffectDef, EffectPaymentCostDef,
@@ -10,6 +18,120 @@ use crate::card::{
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
+
+// MIR 1 — Afterlife
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static AFTERLIFE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4644694d-52e6-4d00-8cad-748899eeea84"),
+    "Afterlife",
+    crate::card::CardArt::new("4644694d-52e6-4d00-8cad-748899eeea84", "Pete Venters"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 2 — Alarum
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ALARUM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("155f2aa6-6c47-4a06-b0ef-2d9205cd133e"),
+    "Alarum",
+    crate::card::CardArt::new("155f2aa6-6c47-4a06-b0ef-2d9205cd133e", "Andrew Robinson"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 3 — Auspicious Ancestor
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static AUSPICIOUS_ANCESTOR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7f6f9ec3-6033-4cd4-a52e-31a559559a93"),
+    "Auspicious Ancestor",
+    crate::card::CardArt::new("7f6f9ec3-6033-4cd4-a52e-31a559559a93", "Zina Saunders"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 4 — Benevolent Unicorn
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BENEVOLENT_UNICORN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2a243bd7-af98-4e44-af6e-3b0b71d4837b"),
+    "Benevolent Unicorn",
+    crate::card::CardArt::new("2a243bd7-af98-4e44-af6e-3b0b71d4837b", "David A. Cherry"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 5 — Blinding Light
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BLINDING_LIGHT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("99b2192a-78a5-4579-94ce-cccf773a809d"),
+    "Blinding Light",
+    crate::card::CardArt::new("99b2192a-78a5-4579-94ce-cccf773a809d", "Hannibal King"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 6 — Celestial Dawn
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CELESTIAL_DAWN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("89fb4c4a-ccdd-4f3c-80cf-356ab7836e16"),
+    "Celestial Dawn",
+    crate::card::CardArt::new("89fb4c4a-ccdd-4f3c-80cf-356ab7836e16", "Liz Danforth"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 7 — Civic Guildmage
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CIVIC_GUILDMAGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a9319039-db2f-47bf-9ef0-8d3a381d54fb"),
+    "Civic Guildmage",
+    crate::card::CardArt::new("a9319039-db2f-47bf-9ef0-8d3a381d54fb", "Andrew Robinson"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 8 — Dazzling Beauty
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DAZZLING_BEAUTY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ad0ece98-5506-4a18-b900-8d1a6cd87385"),
+    "Dazzling Beauty",
+    crate::card::CardArt::new("ad0ece98-5506-4a18-b900-8d1a6cd87385", "Harold McNeill"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 9 — Disempower
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DISEMPOWER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3a86a2ae-aaf3-4d4d-ae06-ec3d4a539550"),
+    "Disempower",
+    crate::card::CardArt::new("3a86a2ae-aaf3-4d4d-ae06-ec3d4a539550", "John Matson"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 10 — Disenchant (reprint)
+
+// MIR 11 — Divine Offering (reprint)
+
+// MIR 12 — Divine Retribution
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DIVINE_RETRIBUTION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("75629aa3-426e-4e25-a7ab-71e03436e061"),
+    "Divine Retribution",
+    crate::card::CardArt::new("75629aa3-426e-4e25-a7ab-71e03436e061", "Charles Gillespie"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 13 — Ekundu Griffin
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static EKUNDU_GRIFFIN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3a32778b-e6ff-45ca-8b22-dc97a406faa4"),
+    "Ekundu Griffin",
+    crate::card::CardArt::new("3a32778b-e6ff-45ca-8b22-dc97a406faa4", "David A. Cherry"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
 
 // MIR 14 — Enlightened Tutor
 pub(in crate::card::sets) static ENLIGHTENED_TUTOR: CardRecord = CardRecord::new_with_legacy_id(
@@ -65,6 +187,622 @@ static GRAVE_ARRIVAL: AppliedEffectDef = AppliedEffectDef::Composite(&[
     AppliedEffectDef::add_ability(&GRAVE_EXILE_AT_END),
 ]);
 
+// MIR 15 — Ethereal Champion
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ETHEREAL_CHAMPION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("88f2d15e-490b-4754-8197-ac91653698f7"),
+    "Ethereal Champion",
+    crate::card::CardArt::new("88f2d15e-490b-4754-8197-ac91653698f7", "Terese Nielsen"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 16 — Favorable Destiny
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FAVORABLE_DESTINY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e5657403-7c86-4eb6-84b0-75eedb04a5a2"),
+    "Favorable Destiny",
+    crate::card::CardArt::new("e5657403-7c86-4eb6-84b0-75eedb04a5a2", "Thomas Gianni"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 17 — Femeref Healer
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FEMEREF_HEALER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("90dedd5e-e2ee-46ec-8541-27f1548b2a2a"),
+    "Femeref Healer",
+    crate::card::CardArt::new("90dedd5e-e2ee-46ec-8541-27f1548b2a2a", "Steve Luke"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 18 — Femeref Knight
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FEMEREF_KNIGHT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("915a2e07-b449-4d94-93e3-e756e891c542"),
+    "Femeref Knight",
+    crate::card::CardArt::new("915a2e07-b449-4d94-93e3-e756e891c542", "Tony Roberts"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 19 — Femeref Scouts
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FEMEREF_SCOUTS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("60192ded-689b-4cc5-9293-bff52924089b"),
+    "Femeref Scouts",
+    crate::card::CardArt::new("60192ded-689b-4cc5-9293-bff52924089b", "Zak Plucinski"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 20 — Healing Salve (reprint)
+
+// MIR 21 — Illumination
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ILLUMINATION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("eb28f6e5-c9ef-416e-b315-967d857e7600"),
+    "Illumination",
+    crate::card::CardArt::new("eb28f6e5-c9ef-416e-b315-967d857e7600", "David O'Connor"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 22 — Iron Tusk Elephant
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static IRON_TUSK_ELEPHANT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d7c8e952-f040-4e5b-88f3-f80ad4b3f2f1"),
+    "Iron Tusk Elephant",
+    crate::card::CardArt::new("d7c8e952-f040-4e5b-88f3-f80ad4b3f2f1", "Tony Roberts"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 23 — Ivory Charm
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static IVORY_CHARM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0706acf6-587e-4f29-944a-fdf25aeacb6d"),
+    "Ivory Charm",
+    crate::card::CardArt::new("0706acf6-587e-4f29-944a-fdf25aeacb6d", "Gerry Grace"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 24 — Jabari's Influence
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static JABARI_S_INFLUENCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c9f764d7-4c18-40ef-8373-ef1e2a88007e"),
+    "Jabari's Influence",
+    crate::card::CardArt::new("c9f764d7-4c18-40ef-8373-ef1e2a88007e", "Gerry Grace"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 25 — Mangara's Blessing
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MANGARA_S_BLESSING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b0125f79-ff68-4fb9-b309-8d277259f323"),
+    "Mangara's Blessing",
+    crate::card::CardArt::new("b0125f79-ff68-4fb9-b309-8d277259f323", "David A. Cherry"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 26 — Mangara's Equity
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MANGARA_S_EQUITY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6d796153-3f7f-4d94-8ad4-5a4b2c8e09bb"),
+    "Mangara's Equity",
+    crate::card::CardArt::new("6d796153-3f7f-4d94-8ad4-5a4b2c8e09bb", "Alan Rabinowitz"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 27 — Melesse Spirit
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MELESSE_SPIRIT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8292b6e7-92ac-4bbb-906c-1fe47e260a24"),
+    "Melesse Spirit",
+    crate::card::CardArt::new("8292b6e7-92ac-4bbb-906c-1fe47e260a24", "Gerry Grace"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 28 — Mtenda Griffin
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MTENDA_GRIFFIN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("162dd988-0beb-48e4-9eaa-a08ddb835648"),
+    "Mtenda Griffin",
+    crate::card::CardArt::new("162dd988-0beb-48e4-9eaa-a08ddb835648", "Janine Johnston"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 29 — Mtenda Herder
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MTENDA_HERDER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("51f30a3d-1421-4706-b17f-39a9ec7a0d8b"),
+    "Mtenda Herder",
+    crate::card::CardArt::new("51f30a3d-1421-4706-b17f-39a9ec7a0d8b", "Zina Saunders"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 30 — Noble Elephant
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static NOBLE_ELEPHANT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("65f399cb-dddb-422a-8d36-938b82b59e10"),
+    "Noble Elephant",
+    crate::card::CardArt::new("65f399cb-dddb-422a-8d36-938b82b59e10", "Tony Roberts"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 31 — Null Chamber
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static NULL_CHAMBER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("814f8976-6612-438f-a04a-8edb63edb1e7"),
+    "Null Chamber",
+    crate::card::CardArt::new("814f8976-6612-438f-a04a-8edb63edb1e7", "Douglas Shuler"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 32 — Pacifism (reprint)
+
+// MIR 33 — Pearl Dragon
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PEARL_DRAGON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("41ac3411-3286-4698-b5d9-d4bb2db30770"),
+    "Pearl Dragon",
+    crate::card::CardArt::new("41ac3411-3286-4698-b5d9-d4bb2db30770", "Ian Miller"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 34 — Prismatic Circle
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PRISMATIC_CIRCLE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8d4e3de4-f173-4bcc-a5fb-089eee7108d3"),
+    "Prismatic Circle",
+    crate::card::CardArt::new("8d4e3de4-f173-4bcc-a5fb-089eee7108d3", "Pete Venters"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 35 — Rashida Scalebane
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RASHIDA_SCALEBANE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ebb48053-da60-477a-b1eb-a9ab9ea682af"),
+    "Rashida Scalebane",
+    crate::card::CardArt::new("ebb48053-da60-477a-b1eb-a9ab9ea682af", "Randy Gallegos"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 36 — Ritual of Steel
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RITUAL_OF_STEEL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("21205189-0d00-44d5-9772-820e607dba25"),
+    "Ritual of Steel",
+    crate::card::CardArt::new("21205189-0d00-44d5-9772-820e607dba25", "Mark Poole"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 37 — Sacred Mesa
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SACRED_MESA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6622f325-6bc3-49dc-ba8e-154e70772dd5"),
+    "Sacred Mesa",
+    crate::card::CardArt::new(
+        "6622f325-6bc3-49dc-ba8e-154e70772dd5",
+        "Margaret Organ-Kean",
+    ),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 38 — Shadowbane
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SHADOWBANE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0fbe8fa5-5ca8-43ce-863e-61802126e485"),
+    "Shadowbane",
+    crate::card::CardArt::new("0fbe8fa5-5ca8-43ce-863e-61802126e485", "Douglas Shuler"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 39 — Sidar Jabari
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SIDAR_JABARI: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("743f0d06-cd14-49f3-ad3c-0d419a0c30bc"),
+    "Sidar Jabari",
+    crate::card::CardArt::new("743f0d06-cd14-49f3-ad3c-0d419a0c30bc", "Gerry Grace"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 40 — Soul Echo
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SOUL_ECHO: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("cb6f9427-ef5c-49fd-81e1-ddf130d69da0"),
+    "Soul Echo",
+    crate::card::CardArt::new("cb6f9427-ef5c-49fd-81e1-ddf130d69da0", "Ron Spencer"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 41 — Spectral Guardian
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SPECTRAL_GUARDIAN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2a0bea61-8fd2-4802-90b4-651bebbe9638"),
+    "Spectral Guardian",
+    crate::card::CardArt::new("2a0bea61-8fd2-4802-90b4-651bebbe9638", "Mike Dringenberg"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 42 — Sunweb
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SUNWEB: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4b4dc838-3022-42f1-bc92-8e8358c27ea4"),
+    "Sunweb",
+    crate::card::CardArt::new("4b4dc838-3022-42f1-bc92-8e8358c27ea4", "Dan Frazier"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 43 — Teremko Griffin
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TEREMKO_GRIFFIN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("96267012-24da-43ae-97af-69ca3d7704f8"),
+    "Teremko Griffin",
+    crate::card::CardArt::new("96267012-24da-43ae-97af-69ca3d7704f8", "Martin McKenna"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 44 — Unyaro Griffin
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static UNYARO_GRIFFIN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d6db3573-2cc5-47ca-b65f-080aab7fdddc"),
+    "Unyaro Griffin",
+    crate::card::CardArt::new("d6db3573-2cc5-47ca-b65f-080aab7fdddc", "Al Davidson"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 45 — Vigilant Martyr
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static VIGILANT_MARTYR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a02e3c10-cc21-4e06-a987-b03aee61bd50"),
+    "Vigilant Martyr",
+    crate::card::CardArt::new("a02e3c10-cc21-4e06-a987-b03aee61bd50", "Rebecca Guay"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 46 — Wall of Resistance
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WALL_OF_RESISTANCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fd25787d-b90c-4b25-8259-1ac41d4dcd15"),
+    "Wall of Resistance",
+    crate::card::CardArt::new("fd25787d-b90c-4b25-8259-1ac41d4dcd15", "Harold McNeill"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 47 — Ward of Lights
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WARD_OF_LIGHTS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6d389daf-c7d8-4bd1-b4ea-5082f5d280c0"),
+    "Ward of Lights",
+    crate::card::CardArt::new("6d389daf-c7d8-4bd1-b4ea-5082f5d280c0", "Mike Dringenberg"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 48 — Yare
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static YARE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9a14343d-c2cd-4a67-ae54-6b6a4677ca85"),
+    "Yare",
+    crate::card::CardArt::new("9a14343d-c2cd-4a67-ae54-6b6a4677ca85", "Ron Spencer"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 49 — Zhalfirin Commander
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ZHALFIRIN_COMMANDER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("cb0e63cb-6da5-4f65-a976-e79d201e9fc7"),
+    "Zhalfirin Commander",
+    crate::card::CardArt::new("cb0e63cb-6da5-4f65-a976-e79d201e9fc7", "Stuart Griffin"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 50 — Zhalfirin Knight
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ZHALFIRIN_KNIGHT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("eb65d104-bd50-481e-a70e-62aeb2f2c12b"),
+    "Zhalfirin Knight",
+    crate::card::CardArt::new("eb65d104-bd50-481e-a70e-62aeb2f2c12b", "John Bolton"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 51 — Zuberi, Golden Feather
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ZUBERI_GOLDEN_FEATHER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c1b24a80-b5e1-484f-9e21-886cb6b5db48"),
+    "Zuberi, Golden Feather",
+    crate::card::CardArt::new("c1b24a80-b5e1-484f-9e21-886cb6b5db48", "Alan Rabinowitz"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 52 — Ancestral Memories
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ANCESTRAL_MEMORIES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b1d1298b-9f56-4540-8d6b-7eecfe38cf62"),
+    "Ancestral Memories",
+    crate::card::CardArt::new("b1d1298b-9f56-4540-8d6b-7eecfe38cf62", "William Donohoe"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 53 — Azimaet Drake
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static AZIMAET_DRAKE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("854ba4e0-f6f3-4b6c-b6cb-ab2b93d64601"),
+    "Azimaet Drake",
+    crate::card::CardArt::new("854ba4e0-f6f3-4b6c-b6cb-ab2b93d64601", "Gerry Grace"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 54 — Bay Falcon
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BAY_FALCON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("df45268a-b757-4ad2-bab0-869058ee9186"),
+    "Bay Falcon",
+    crate::card::CardArt::new("df45268a-b757-4ad2-bab0-869058ee9186", "Una Fricker"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 55 — Bazaar of Wonders
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BAZAAR_OF_WONDERS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("78e7a165-e135-4b85-943d-8352b6e65870"),
+    "Bazaar of Wonders",
+    crate::card::CardArt::new("78e7a165-e135-4b85-943d-8352b6e65870", "Liz Danforth"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 56 — Boomerang (reprint)
+
+// MIR 57 — Cerulean Wyvern
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CERULEAN_WYVERN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5c599f95-c0dd-4dd8-a8d7-9481df0cf649"),
+    "Cerulean Wyvern",
+    crate::card::CardArt::new("5c599f95-c0dd-4dd8-a8d7-9481df0cf649", "Gerry Grace"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 58 — Cloak of Invisibility
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CLOAK_OF_INVISIBILITY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3f6e21e6-fb3e-49c1-b5a0-499faf66d279"),
+    "Cloak of Invisibility",
+    crate::card::CardArt::new("3f6e21e6-fb3e-49c1-b5a0-499faf66d279", "John Coulthart"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 59 — Coral Fighters
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CORAL_FIGHTERS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("08f9dfa0-bdb3-4419-ae4b-cc394552af74"),
+    "Coral Fighters",
+    crate::card::CardArt::new("08f9dfa0-bdb3-4419-ae4b-cc394552af74", "Steve Luke"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 60 — Daring Apprentice
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DARING_APPRENTICE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f87b3c06-5479-4060-8d3a-d161fd5830c1"),
+    "Daring Apprentice",
+    crate::card::CardArt::new("f87b3c06-5479-4060-8d3a-d161fd5830c1", "Kaja Foglio"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 61 — Dissipate (reprint)
+
+// MIR 62 — Dream Cache
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DREAM_CACHE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b599422e-5f78-4d4f-bc67-684caf69458f"),
+    "Dream Cache",
+    crate::card::CardArt::new(
+        "b599422e-5f78-4d4f-bc67-684caf69458f",
+        "D. Alexander Gregory",
+    ),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 63 — Dream Fighter
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DREAM_FIGHTER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("aec06bc9-553c-4e01-8b43-a4eeaa511b4d"),
+    "Dream Fighter",
+    crate::card::CardArt::new("aec06bc9-553c-4e01-8b43-a4eeaa511b4d", "Drew Tucker"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 64 — Energy Vortex
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ENERGY_VORTEX: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("87e060d7-42ed-49ab-bc5c-2f3210cbd0d1"),
+    "Energy Vortex",
+    crate::card::CardArt::new("87e060d7-42ed-49ab-bc5c-2f3210cbd0d1", "Tom Wänerstrand"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 65 — Ether Well
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ETHER_WELL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0a2cf195-01bf-4076-a0c6-ca5403d84f7d"),
+    "Ether Well",
+    crate::card::CardArt::new("0a2cf195-01bf-4076-a0c6-ca5403d84f7d", "Charles Gillespie"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 66 — Flash
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FLASH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("63af3c26-5b1f-46f6-9aa2-036c615bf5ea"),
+    "Flash",
+    crate::card::CardArt::new("63af3c26-5b1f-46f6-9aa2-036c615bf5ea", "David Ho"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 67 — Floodgate
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FLOODGATE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fb2f594d-e608-444b-b81f-836de2452868"),
+    "Floodgate",
+    crate::card::CardArt::new("fb2f594d-e608-444b-b81f-836de2452868", "Jeff Miracola"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 68 — Hakim, Loreweaver
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static HAKIM_LOREWEAVER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8192bca7-03e5-4ea1-ae77-8bc811c19417"),
+    "Hakim, Loreweaver",
+    crate::card::CardArt::new("8192bca7-03e5-4ea1-ae77-8bc811c19417", "Alan Rabinowitz"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 69 — Harmattan Efreet
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static HARMATTAN_EFREET: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b6673d49-c3f6-41f6-84c6-1957fff71509"),
+    "Harmattan Efreet",
+    crate::card::CardArt::new("b6673d49-c3f6-41f6-84c6-1957fff71509", "Drew Tucker"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 70 — Jolt
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static JOLT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3e0c085a-e17d-4003-bb58-f97555365fcf"),
+    "Jolt",
+    crate::card::CardArt::new("3e0c085a-e17d-4003-bb58-f97555365fcf", "John Matson"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 71 — Kukemssa Pirates
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static KUKEMSSA_PIRATES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d10b5ce7-16c9-48f3-a1da-8a91092d053a"),
+    "Kukemssa Pirates",
+    crate::card::CardArt::new("d10b5ce7-16c9-48f3-a1da-8a91092d053a", "Jock"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 72 — Kukemssa Serpent
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static KUKEMSSA_SERPENT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9099eacf-1898-493c-ae87-d5ff4a3646a2"),
+    "Kukemssa Serpent",
+    crate::card::CardArt::new("9099eacf-1898-493c-ae87-d5ff4a3646a2", "Ian Miller"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 73 — Meddle
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MEDDLE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0245553c-b483-47df-940b-5d7deb108642"),
+    "Meddle",
+    crate::card::CardArt::new("0245553c-b483-47df-940b-5d7deb108642", "Brian Snõddy"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 74 — Memory Lapse (reprint)
+
+// MIR 75 — Merfolk Raiders
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MERFOLK_RAIDERS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d0f34166-8946-4bcc-84af-3540c42ac7f7"),
+    "Merfolk Raiders",
+    crate::card::CardArt::new("d0f34166-8946-4bcc-84af-3540c42ac7f7", "Steve Luke"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 76 — Merfolk Seer
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MERFOLK_SEER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("63139890-e860-4791-9bb6-b79bb361ef8b"),
+    "Merfolk Seer",
+    crate::card::CardArt::new("63139890-e860-4791-9bb6-b79bb361ef8b", "Steve Luke"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 77 — Mind Bend
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MIND_BEND: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("952eb6ae-a530-4f4f-92f0-a6602beaa7b2"),
+    "Mind Bend",
+    crate::card::CardArt::new("952eb6ae-a530-4f4f-92f0-a6602beaa7b2", "Mike Dringenberg"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 78 — Mind Harness
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MIND_HARNESS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5bf17780-801d-4ab8-91f4-a803ede51395"),
+    "Mind Harness",
+    crate::card::CardArt::new("5bf17780-801d-4ab8-91f4-a803ede51395", "John Malloy"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 79 — Mist Dragon
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MIST_DRAGON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3b9b4be4-74c8-4fe5-a5e4-de57c11e8ec1"),
+    "Mist Dragon",
+    crate::card::CardArt::new("3b9b4be4-74c8-4fe5-a5e4-de57c11e8ec1", "Al Davidson"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
 // MIR 80 — Mystical Tutor
 pub(in crate::card::sets) static MYSTICAL_TUTOR: CardRecord = CardRecord::new_with_legacy_id(
     2107,
@@ -93,6 +831,576 @@ pub(in crate::card::sets) static MYSTICAL_TUTOR: CardRecord = CardRecord::new_wi
     )),
 );
 
+// MIR 81 — Political Trickery
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static POLITICAL_TRICKERY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3e56e720-5e8b-4685-969c-e073de78b9a1"),
+    "Political Trickery",
+    crate::card::CardArt::new("3e56e720-5e8b-4685-969c-e073de78b9a1", "Scott Kirschner"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 82 — Polymorph
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static POLYMORPH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fbae8702-a152-4c53-8a76-691a221f2475"),
+    "Polymorph",
+    crate::card::CardArt::new("fbae8702-a152-4c53-8a76-691a221f2475", "Robert Bliss"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 83 — Power Sink (reprint)
+
+// MIR 84 — Prismatic Lace
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PRISMATIC_LACE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d1129585-6d59-4217-9404-747a100f1e8c"),
+    "Prismatic Lace",
+    crate::card::CardArt::new("d1129585-6d59-4217-9404-747a100f1e8c", "David O'Connor"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 85 — Psychic Transfer
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PSYCHIC_TRANSFER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5507c474-5c4b-4292-b7bc-3ab4b48ea290"),
+    "Psychic Transfer",
+    crate::card::CardArt::new("5507c474-5c4b-4292-b7bc-3ab4b48ea290", "Dom!"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 86 — Ray of Command (reprint)
+
+// MIR 87 — Reality Ripple
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static REALITY_RIPPLE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c5b94eed-2a45-4a6b-a06b-a2021b174bc5"),
+    "Reality Ripple",
+    crate::card::CardArt::new("c5b94eed-2a45-4a6b-a06b-a2021b174bc5", "Alan Rabinowitz"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 87† — Reality Ripple (alternate printing)
+
+// MIR 88 — Sandbar Crocodile
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SANDBAR_CROCODILE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("450b79d9-5ab8-4699-8052-a278c316a5c3"),
+    "Sandbar Crocodile",
+    crate::card::CardArt::new("450b79d9-5ab8-4699-8052-a278c316a5c3", "Una Fricker"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 89 — Sapphire Charm
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SAPPHIRE_CHARM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2944e5df-eef9-42be-a591-5ac15e306ad8"),
+    "Sapphire Charm",
+    crate::card::CardArt::new("2944e5df-eef9-42be-a591-5ac15e306ad8", "Steve Luke"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 90 — Sea Scryer
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SEA_SCRYER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("124308ac-1bf6-4a79-8aaa-f3be8eeb3e78"),
+    "Sea Scryer",
+    crate::card::CardArt::new("124308ac-1bf6-4a79-8aaa-f3be8eeb3e78", "Martin McKenna"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 91 — Shaper Guildmage
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SHAPER_GUILDMAGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4a9304e1-f403-404d-9fe9-169da75e0d62"),
+    "Shaper Guildmage",
+    crate::card::CardArt::new(
+        "4a9304e1-f403-404d-9fe9-169da75e0d62",
+        "D. Alexander Gregory",
+    ),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 92 — Shimmer
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SHIMMER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5c892daa-57fe-4712-b64a-6099d531bb26"),
+    "Shimmer",
+    crate::card::CardArt::new("5c892daa-57fe-4712-b64a-6099d531bb26", "David A. Cherry"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 93 — Soar
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SOAR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("bd3666dd-a90e-43c2-bd78-ea9c1af08a0e"),
+    "Soar",
+    crate::card::CardArt::new("bd3666dd-a90e-43c2-bd78-ea9c1af08a0e", "Tony Roberts"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 94 — Suq'Ata Firewalker
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SUQ_ATA_FIREWALKER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b8a7c22e-fe96-4960-96d4-ee85abec3281"),
+    "Suq'Ata Firewalker",
+    crate::card::CardArt::new("b8a7c22e-fe96-4960-96d4-ee85abec3281", "David O'Connor"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 95 — Taniwha
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TANIWHA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("72d12315-4220-470d-9628-b9a3ea904ca7"),
+    "Taniwha",
+    crate::card::CardArt::new("72d12315-4220-470d-9628-b9a3ea904ca7", "Ian Miller"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 96 — Teferi's Curse
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TEFERI_S_CURSE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fb813ef5-8441-4024-a585-1ea24145e1bd"),
+    "Teferi's Curse",
+    crate::card::CardArt::new("fb813ef5-8441-4024-a585-1ea24145e1bd", "Robert Bliss"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 97 — Teferi's Drake
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TEFERI_S_DRAKE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c24823df-5651-4578-a0c8-f9f52f66abe4"),
+    "Teferi's Drake",
+    crate::card::CardArt::new("c24823df-5651-4578-a0c8-f9f52f66abe4", "Kari Johnson"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 98 — Teferi's Imp
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TEFERI_S_IMP: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("048f2368-0e2f-4197-b977-353d38b38ccc"),
+    "Teferi's Imp",
+    crate::card::CardArt::new("048f2368-0e2f-4197-b977-353d38b38ccc", "Una Fricker"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 99 — Thirst
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static THIRST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("12630ac5-a6c4-4852-abd9-5a0bc71bbf83"),
+    "Thirst",
+    crate::card::CardArt::new("12630ac5-a6c4-4852-abd9-5a0bc71bbf83", "Roger Raupp"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 100 — Tidal Wave
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TIDAL_WAVE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("49a9689b-bf1e-404e-ba08-0b04de4288fb"),
+    "Tidal Wave",
+    crate::card::CardArt::new("49a9689b-bf1e-404e-ba08-0b04de4288fb", "Brian Snõddy"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 101 — Vaporous Djinn
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static VAPOROUS_DJINN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e7ea65e2-68d8-429f-9be7-e6e5e12a2a4d"),
+    "Vaporous Djinn",
+    crate::card::CardArt::new("e7ea65e2-68d8-429f-9be7-e6e5e12a2a4d", "Adam Rex"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 102 — Wave Elemental
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WAVE_ELEMENTAL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("111ee762-72cb-43e3-88a1-6f1f0b9ee66e"),
+    "Wave Elemental",
+    crate::card::CardArt::new("111ee762-72cb-43e3-88a1-6f1f0b9ee66e", "Zak Plucinski"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 103 — Abyssal Hunter
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ABYSSAL_HUNTER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("08798c53-46f3-4a51-9284-491730605b2b"),
+    "Abyssal Hunter",
+    crate::card::CardArt::new("08798c53-46f3-4a51-9284-491730605b2b", "Steve Luke"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 104 — Ashen Powder
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ASHEN_POWDER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("686aebd0-0d34-47e3-bbbd-ad08d2a3a864"),
+    "Ashen Powder",
+    crate::card::CardArt::new("686aebd0-0d34-47e3-bbbd-ad08d2a3a864", "Geofrey Darrow"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 105 — Barbed-Back Wurm
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BARBED_BACK_WURM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1b96810d-72d3-4dee-a29f-cdf85ea5ce6f"),
+    "Barbed-Back Wurm",
+    crate::card::CardArt::new("1b96810d-72d3-4dee-a29f-cdf85ea5ce6f", "Gary Leach"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 106 — Binding Agony
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BINDING_AGONY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b620a9f4-358d-4436-85b8-b0c16602ff57"),
+    "Binding Agony",
+    crate::card::CardArt::new("b620a9f4-358d-4436-85b8-b0c16602ff57", "Robert Bliss"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 107 — Blighted Shaman
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BLIGHTED_SHAMAN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b5f2b33c-8d4d-406e-98de-b92d92a3012a"),
+    "Blighted Shaman",
+    crate::card::CardArt::new("b5f2b33c-8d4d-406e-98de-b92d92a3012a", "Ian Miller"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 108 — Bone Harvest
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BONE_HARVEST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1cfde1ca-52f9-477d-a36e-6e4f7ca2e4d8"),
+    "Bone Harvest",
+    crate::card::CardArt::new("1cfde1ca-52f9-477d-a36e-6e4f7ca2e4d8", "Greg Simanson"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 109 — Breathstealer
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BREATHSTEALER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0cd9da69-5e57-4719-a712-630c9464fada"),
+    "Breathstealer",
+    crate::card::CardArt::new("0cd9da69-5e57-4719-a712-630c9464fada", "Cliff Nielsen"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 110 — Cadaverous Knight
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CADAVEROUS_KNIGHT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("06e954b2-c8ce-4b6c-a118-4a14ffa72063"),
+    "Cadaverous Knight",
+    crate::card::CardArt::new("06e954b2-c8ce-4b6c-a118-4a14ffa72063", "Dermot Power"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 111 — Carrion
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CARRION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9e6c7750-bc3b-4790-bc9d-88e2cf16881e"),
+    "Carrion",
+    crate::card::CardArt::new("9e6c7750-bc3b-4790-bc9d-88e2cf16881e", "Geofrey Darrow"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 112 — Catacomb Dragon
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CATACOMB_DRAGON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("46daebe4-199e-4580-8a52-1aebc8492d8c"),
+    "Catacomb Dragon",
+    crate::card::CardArt::new("46daebe4-199e-4580-8a52-1aebc8492d8c", "David O'Connor"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 113 — Choking Sands
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CHOKING_SANDS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e41c15fb-01a1-446e-9e88-71e8e95d9bce"),
+    "Choking Sands",
+    crate::card::CardArt::new("e41c15fb-01a1-446e-9e88-71e8e95d9bce", "Roger Raupp"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 114 — Crypt Cobra
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CRYPT_COBRA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4f7bcd36-13e2-4ac7-a449-246cecb3fc0f"),
+    "Crypt Cobra",
+    crate::card::CardArt::new("4f7bcd36-13e2-4ac7-a449-246cecb3fc0f", "Ron Spencer"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 115 — Dark Banishing (reprint)
+
+// MIR 116 — Dark Ritual (reprint)
+
+// MIR 117 — Dirtwater Wraith
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DIRTWATER_WRAITH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fcc3fa22-a4c4-423d-969b-98c65b23e782"),
+    "Dirtwater Wraith",
+    crate::card::CardArt::new("fcc3fa22-a4c4-423d-969b-98c65b23e782", "Steve Luke"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 118 — Drain Life (reprint)
+
+// MIR 119 — Dread Specter
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DREAD_SPECTER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("00c48e08-9a77-4ba2-8041-90998f7e3812"),
+    "Dread Specter",
+    crate::card::CardArt::new("00c48e08-9a77-4ba2-8041-90998f7e3812", "Kathryn Rathke"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 120 — Ebony Charm (alternate printing)
+
+// MIR 120† — Ebony Charm
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static EBONY_CHARM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("72bf17a8-d30d-4ac4-b052-7226de1b9679"),
+    "Ebony Charm",
+    crate::card::CardArt::new("72bf17a8-d30d-4ac4-b052-7226de1b9679", "Gerry Grace"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 121 — Enfeeblement
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ENFEEBLEMENT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("bf808509-c6c2-4dcb-b35b-e61291faf5d9"),
+    "Enfeeblement",
+    crate::card::CardArt::new("bf808509-c6c2-4dcb-b35b-e61291faf5d9", "John Bolton"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 122 — Feral Shadow
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FERAL_SHADOW: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("672e2d34-1aae-47c7-8b7a-e3354bbbd662"),
+    "Feral Shadow",
+    crate::card::CardArt::new("672e2d34-1aae-47c7-8b7a-e3354bbbd662", "Cliff Nielsen"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 123 — Fetid Horror
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FETID_HORROR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4be39d50-1e36-4dac-a923-81fc9f229b8d"),
+    "Fetid Horror",
+    crate::card::CardArt::new("4be39d50-1e36-4dac-a923-81fc9f229b8d", "Gary Leach"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 124 — Forbidden Crypt
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FORBIDDEN_CRYPT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c6168af2-e49b-4c57-91c0-2cac9290a560"),
+    "Forbidden Crypt",
+    crate::card::CardArt::new(
+        "c6168af2-e49b-4c57-91c0-2cac9290a560",
+        "D. Alexander Gregory",
+    ),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 125 — Forsaken Wastes
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FORSAKEN_WASTES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c9dbfc7c-164d-47b8-8f05-987864fca89b"),
+    "Forsaken Wastes",
+    crate::card::CardArt::new("c9dbfc7c-164d-47b8-8f05-987864fca89b", "Kev Walker"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 126 — Grave Servitude
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GRAVE_SERVITUDE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fbe072da-0524-492b-af3d-7c2600e915ab"),
+    "Grave Servitude",
+    crate::card::CardArt::new("fbe072da-0524-492b-af3d-7c2600e915ab", "Adrian Smith"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 127 — Gravebane Zombie
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GRAVEBANE_ZOMBIE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6e16f8bc-3200-4a0a-b298-c7e7b4e8376c"),
+    "Gravebane Zombie",
+    crate::card::CardArt::new("6e16f8bc-3200-4a0a-b298-c7e7b4e8376c", "Gary Leach"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 128 — Harbinger of Night
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static HARBINGER_OF_NIGHT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("33124133-ed2c-4b86-a135-ac76f4fe4da5"),
+    "Harbinger of Night",
+    crate::card::CardArt::new("33124133-ed2c-4b86-a135-ac76f4fe4da5", "Tom Kyffin"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 129 — Infernal Contract
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static INFERNAL_CONTRACT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e62c43bd-59fe-46e3-83f8-c4b37cbc4931"),
+    "Infernal Contract",
+    crate::card::CardArt::new("e62c43bd-59fe-46e3-83f8-c4b37cbc4931", "Roger Raupp"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 130 — Kaervek's Hex
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static KAERVEK_S_HEX: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("097910fb-7c48-4535-8ffc-b521d08294b0"),
+    "Kaervek's Hex",
+    crate::card::CardArt::new("097910fb-7c48-4535-8ffc-b521d08294b0", "Ian Miller"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 131 — Mire Shade
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MIRE_SHADE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("120822b8-02ae-411f-bda5-a774c21db66c"),
+    "Mire Shade",
+    crate::card::CardArt::new("120822b8-02ae-411f-bda5-a774c21db66c", "Randy Gallegos"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 132 — Nocturnal Raid
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static NOCTURNAL_RAID: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0015fee8-068a-421e-9143-bcb575371f9a"),
+    "Nocturnal Raid",
+    crate::card::CardArt::new("0015fee8-068a-421e-9143-bcb575371f9a", "John Matson"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 133 — Painful Memories
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PAINFUL_MEMORIES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("79223c17-ecb1-47f1-8e24-eea464cc9b1e"),
+    "Painful Memories",
+    crate::card::CardArt::new("79223c17-ecb1-47f1-8e24-eea464cc9b1e", "John Coulthart"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 134 — Phyrexian Tribute
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PHYREXIAN_TRIBUTE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("bfc55d48-6d6f-429d-8281-e66a9996d574"),
+    "Phyrexian Tribute",
+    crate::card::CardArt::new("bfc55d48-6d6f-429d-8281-e66a9996d574", "John Matson"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 135 — Purraj of Urborg
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PURRAJ_OF_URBORG: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4704bf02-c6be-4983-9bc7-a1d464d21b31"),
+    "Purraj of Urborg",
+    crate::card::CardArt::new("4704bf02-c6be-4983-9bc7-a1d464d21b31", "John Matson"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 136 — Ravenous Vampire
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RAVENOUS_VAMPIRE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5ee67033-7f0f-49b4-8472-3bc4fbb8ffe1"),
+    "Ravenous Vampire",
+    crate::card::CardArt::new("5ee67033-7f0f-49b4-8472-3bc4fbb8ffe1", "John Bolton"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 137 — Reign of Terror
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static REIGN_OF_TERROR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7bd83049-aec1-4911-bc70-39adba04b174"),
+    "Reign of Terror",
+    crate::card::CardArt::new("7bd83049-aec1-4911-bc70-39adba04b174", "Gary Leach"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 138 — Restless Dead
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RESTLESS_DEAD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a237cff4-af6f-4745-bda1-e3ed2267fa89"),
+    "Restless Dead",
+    crate::card::CardArt::new("a237cff4-af6f-4745-bda1-e3ed2267fa89", "Ian Miller"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 139 — Sewer Rats
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SEWER_RATS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("42fe08c3-5024-486c-ba03-19d371ceccb0"),
+    "Sewer Rats",
+    crate::card::CardArt::new("42fe08c3-5024-486c-ba03-19d371ceccb0", "Martin McKenna"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 140 — Shadow Guildmage
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SHADOW_GUILDMAGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ba3fc11e-db36-430c-920b-31195913c16a"),
+    "Shadow Guildmage",
+    crate::card::CardArt::new("ba3fc11e-db36-430c-920b-31195913c16a", "Mike Kimble"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
 // MIR 141 — Shallow Grave
 pub(in crate::card::sets) static SHALLOW_GRAVE: CardRecord = CardRecord::new_with_legacy_id(
     2072,
@@ -116,6 +1424,376 @@ pub(in crate::card::sets) static SHALLOW_GRAVE: CardRecord = CardRecord::new_wit
             controller: None,
         },
     )),
+);
+
+// MIR 142 — Shauku, Endbringer
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SHAUKU_ENDBRINGER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("06d94b21-7568-4e5c-a8ec-ff5bb48a4f36"),
+    "Shauku, Endbringer",
+    crate::card::CardArt::new("06d94b21-7568-4e5c-a8ec-ff5bb48a4f36", "Pete Venters"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 143 — Skulking Ghost
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SKULKING_GHOST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f8ca7e96-0545-4f36-85c0-944d5c0b760a"),
+    "Skulking Ghost",
+    crate::card::CardArt::new("f8ca7e96-0545-4f36-85c0-944d5c0b760a", "Robert Bliss"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 144 — Soul Rend
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SOUL_REND: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7fa084e1-05c2-4691-b9fe-3e3c717e5c9d"),
+    "Soul Rend",
+    crate::card::CardArt::new("7fa084e1-05c2-4691-b9fe-3e3c717e5c9d", "Jeff Miracola"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 145 — Soulshriek
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SOULSHRIEK: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5c3bf717-2b88-4704-a7e9-f62dbb3d3d3d"),
+    "Soulshriek",
+    crate::card::CardArt::new("5c3bf717-2b88-4704-a7e9-f62dbb3d3d3d", "John Bolton"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 146 — Spirit of the Night
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SPIRIT_OF_THE_NIGHT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("845c4b06-090f-4217-acb2-8900b7dab37c"),
+    "Spirit of the Night",
+    crate::card::CardArt::new("845c4b06-090f-4217-acb2-8900b7dab37c", "Cliff Nielsen"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 147 — Stupor
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static STUPOR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0fed2498-20ce-48ad-a56e-2c7e297c0c66"),
+    "Stupor",
+    crate::card::CardArt::new("0fed2498-20ce-48ad-a56e-2c7e297c0c66", "Mike Kimble"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 148 — Tainted Specter
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TAINTED_SPECTER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("74feb223-784a-4540-8a8e-6007d10a9505"),
+    "Tainted Specter",
+    crate::card::CardArt::new("74feb223-784a-4540-8a8e-6007d10a9505", "Chippy"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 149 — Tombstone Stairwell
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TOMBSTONE_STAIRWELL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f8fe2f99-7ec2-490c-8ec3-aa2fb4680826"),
+    "Tombstone Stairwell",
+    crate::card::CardArt::new("f8fe2f99-7ec2-490c-8ec3-aa2fb4680826", "Dom!"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 150 — Urborg Panther
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static URBORG_PANTHER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("edc9ff0f-adec-4d39-b281-98c5862f506b"),
+    "Urborg Panther",
+    crate::card::CardArt::new("edc9ff0f-adec-4d39-b281-98c5862f506b", "Cliff Nielsen"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 151 — Wall of Corpses
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WALL_OF_CORPSES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("dde6d3d1-75db-445f-9f17-632ee0292211"),
+    "Wall of Corpses",
+    crate::card::CardArt::new("dde6d3d1-75db-445f-9f17-632ee0292211", "Gary Leach"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 152 — Withering Boon
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WITHERING_BOON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6e6499cb-6073-4c94-8c82-47f489094df5"),
+    "Withering Boon",
+    crate::card::CardArt::new("6e6499cb-6073-4c94-8c82-47f489094df5", "Robert Bliss"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 153 — Zombie Mob
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ZOMBIE_MOB: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ab85551f-c9cc-409c-9fb5-a45de695e521"),
+    "Zombie Mob",
+    crate::card::CardArt::new("ab85551f-c9cc-409c-9fb5-a45de695e521", "Terese Nielsen"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 154 — Agility
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static AGILITY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5694cb42-7489-40c5-b21a-aeb36636015f"),
+    "Agility",
+    crate::card::CardArt::new("5694cb42-7489-40c5-b21a-aeb36636015f", "Drew Tucker"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 155 — Aleatory
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ALEATORY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7380af0a-8a8f-44fd-9456-14a68a2830d3"),
+    "Aleatory",
+    crate::card::CardArt::new("7380af0a-8a8f-44fd-9456-14a68a2830d3", "Kev Walker"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 156 — Armorer Guildmage
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ARMORER_GUILDMAGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e999fdc3-9269-44d7-9015-e16f5e5b73eb"),
+    "Armorer Guildmage",
+    crate::card::CardArt::new("e999fdc3-9269-44d7-9015-e16f5e5b73eb", "Martin McKenna"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 157 — Barreling Attack
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BARRELING_ATTACK: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a3a2955e-e714-419e-9e3d-7ae3d7fae041"),
+    "Barreling Attack",
+    crate::card::CardArt::new("a3a2955e-e714-419e-9e3d-7ae3d7fae041", "Ian Miller"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 158 — Blind Fury
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BLIND_FURY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0ff91a17-0a5f-456f-a431-8505ba29e679"),
+    "Blind Fury",
+    crate::card::CardArt::new("0ff91a17-0a5f-456f-a431-8505ba29e679", "John Coulthart"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 159 — Blistering Barrier
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BLISTERING_BARRIER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("56d000d8-24e1-4cf3-bed9-e68a89c8f569"),
+    "Blistering Barrier",
+    crate::card::CardArt::new("56d000d8-24e1-4cf3-bed9-e68a89c8f569", "David Ho"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 160 — Builder's Bane
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BUILDER_S_BANE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fb398027-5a29-4c81-aab5-b1a2b82fd655"),
+    "Builder's Bane",
+    crate::card::CardArt::new("fb398027-5a29-4c81-aab5-b1a2b82fd655", "Charles Gillespie"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 161 — Burning Palm Efreet
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BURNING_PALM_EFREET: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a194488a-1d6f-4bc3-8f30-82e2c3c91389"),
+    "Burning Palm Efreet",
+    crate::card::CardArt::new("a194488a-1d6f-4bc3-8f30-82e2c3c91389", "Dermot Power"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 162 — Burning Shield Askari
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BURNING_SHIELD_ASKARI: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("486547cd-d2e7-4c46-9f7b-81c4267d65cc"),
+    "Burning Shield Askari",
+    crate::card::CardArt::new("486547cd-d2e7-4c46-9f7b-81c4267d65cc", "Dan Frazier"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 163 — Chaos Charm
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CHAOS_CHARM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ebf8ccb8-57fb-491c-b07d-93348b33a765"),
+    "Chaos Charm",
+    crate::card::CardArt::new("ebf8ccb8-57fb-491c-b07d-93348b33a765", "Steve Luke"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 164 — Chaosphere
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CHAOSPHERE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("bd41cb92-578b-4fc8-b1e6-56604088fcd5"),
+    "Chaosphere",
+    crate::card::CardArt::new("bd41cb92-578b-4fc8-b1e6-56604088fcd5", "Steve Luke"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 165 — Cinder Cloud
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CINDER_CLOUD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f044c470-50ce-4a6c-b8ab-665357c3c11e"),
+    "Cinder Cloud",
+    crate::card::CardArt::new("f044c470-50ce-4a6c-b8ab-665357c3c11e", "Jock"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 166 — Consuming Ferocity
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CONSUMING_FEROCITY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("05835e35-f4f8-4513-b5a1-9e31b21168f0"),
+    "Consuming Ferocity",
+    crate::card::CardArt::new("05835e35-f4f8-4513-b5a1-9e31b21168f0", "Scott Kirschner"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 167 — Crimson Hellkite
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CRIMSON_HELLKITE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("694f2314-67fe-4a31-8015-9762edf15187"),
+    "Crimson Hellkite",
+    crate::card::CardArt::new("694f2314-67fe-4a31-8015-9762edf15187", "Gerry Grace"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 168 — Crimson Roc
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CRIMSON_ROC: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2e63836c-37af-49c1-84a1-8650ed072805"),
+    "Crimson Roc",
+    crate::card::CardArt::new("2e63836c-37af-49c1-84a1-8650ed072805", "Ian Miller"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 169 — Dwarven Miner
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DWARVEN_MINER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b7142196-c379-4932-9402-97642ad2ebdb"),
+    "Dwarven Miner",
+    crate::card::CardArt::new("b7142196-c379-4932-9402-97642ad2ebdb", "Jock"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 170 — Dwarven Nomad
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DWARVEN_NOMAD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("30b09e65-5e69-48f8-be9b-a1e9706f18bf"),
+    "Dwarven Nomad",
+    crate::card::CardArt::new("30b09e65-5e69-48f8-be9b-a1e9706f18bf", "Mike Kimble"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 171 — Ekundu Cyclops
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static EKUNDU_CYCLOPS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9047d292-8f5c-4a6b-b74e-c8dbf3e0ab24"),
+    "Ekundu Cyclops",
+    crate::card::CardArt::new("9047d292-8f5c-4a6b-b74e-c8dbf3e0ab24", "Robert Bliss"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 172 — Emberwilde Djinn
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static EMBERWILDE_DJINN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c9e8c9f5-61dd-4dcc-bd40-8f366374ea18"),
+    "Emberwilde Djinn",
+    crate::card::CardArt::new("c9e8c9f5-61dd-4dcc-bd40-8f366374ea18", "Mike Dringenberg"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 173 — Final Fortune
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FINAL_FORTUNE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("83589c25-58a2-4172-8f60-6033a61f34c6"),
+    "Final Fortune",
+    crate::card::CardArt::new(
+        "83589c25-58a2-4172-8f60-6033a61f34c6",
+        "D. Alexander Gregory",
+    ),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 174 — Firebreathing (reprint)
+
+// MIR 175 — Flame Elemental
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FLAME_ELEMENTAL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("498e813d-b0b3-4040-b87a-4fa2be681ec5"),
+    "Flame Elemental",
+    crate::card::CardArt::new(
+        "498e813d-b0b3-4040-b87a-4fa2be681ec5",
+        "Richard Kane Ferguson",
+    ),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 176 — Flare (reprint)
+
+// MIR 177 — Goblin Elite Infantry
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GOBLIN_ELITE_INFANTRY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("12b9c6b8-9f87-41f1-9e81-b5995e3ed6b7"),
+    "Goblin Elite Infantry",
+    crate::card::CardArt::new("12b9c6b8-9f87-41f1-9e81-b5995e3ed6b7", "Robert Bliss"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 178 — Goblin Scouts
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GOBLIN_SCOUTS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a4b87068-aaa6-41de-9b9a-76ca4210a485"),
+    "Goblin Scouts",
+    crate::card::CardArt::new("a4b87068-aaa6-41de-9b9a-76ca4210a485", "Geofrey Darrow"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 179 — Goblin Soothsayer
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GOBLIN_SOOTHSAYER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("686b847c-242c-4b91-9fa9-69c9c9f187a7"),
+    "Goblin Soothsayer",
+    crate::card::CardArt::new("686b847c-242c-4b91-9fa9-69c9c9f187a7", "Robert Bliss"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
 );
 
 // MIR 180 — Goblin Tinkerer
@@ -155,6 +1833,591 @@ static GOBLIN_TINKERER_PROGRAM: [EffectDef; 2] = [
     },
 ];
 
+// MIR 181 — Hammer of Bogardan
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static HAMMER_OF_BOGARDAN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f7285f52-5df0-4f90-9cf7-a57295d90fd4"),
+    "Hammer of Bogardan",
+    crate::card::CardArt::new("f7285f52-5df0-4f90-9cf7-a57295d90fd4", "Ron Spencer"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 182 — Hivis of the Scale
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static HIVIS_OF_THE_SCALE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ee84e61e-d99a-489b-a3b1-cb45fc81bce6"),
+    "Hivis of the Scale",
+    crate::card::CardArt::new("ee84e61e-d99a-489b-a3b1-cb45fc81bce6", "Andrew Robinson"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 183 — Illicit Auction
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ILLICIT_AUCTION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9c3f633f-538c-4581-b3cc-9285ed6bc4fe"),
+    "Illicit Auction",
+    crate::card::CardArt::new("9c3f633f-538c-4581-b3cc-9285ed6bc4fe", "Scott Kirschner"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 184 — Incinerate (reprint)
+
+// MIR 185 — Kaervek's Torch
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static KAERVEK_S_TORCH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0a1624ab-e50e-48a3-acf7-457069914616"),
+    "Kaervek's Torch",
+    crate::card::CardArt::new("0a1624ab-e50e-48a3-acf7-457069914616", "John Coulthart"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 186 — Lightning Reflexes
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static LIGHTNING_REFLEXES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("271febe5-98ea-403d-87be-7865cf9f426d"),
+    "Lightning Reflexes",
+    crate::card::CardArt::new("271febe5-98ea-403d-87be-7865cf9f426d", "Tom Kyffin"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 187 — Pyric Salamander
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PYRIC_SALAMANDER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7f2dc1a7-4b70-4643-90a8-fdc7877c01ca"),
+    "Pyric Salamander",
+    crate::card::CardArt::new("7f2dc1a7-4b70-4643-90a8-fdc7877c01ca", "Tony Roberts"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 188 — Raging Spirit
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RAGING_SPIRIT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a196c21b-e9f5-4ae8-8a1e-668685ef4cf0"),
+    "Raging Spirit",
+    crate::card::CardArt::new("a196c21b-e9f5-4ae8-8a1e-668685ef4cf0", "Scott M. Fischer"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 189 — Reckless Embermage
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RECKLESS_EMBERMAGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9e41febe-6fad-451e-afe8-20d3ca3c88a4"),
+    "Reckless Embermage",
+    crate::card::CardArt::new("9e41febe-6fad-451e-afe8-20d3ca3c88a4", "Tom Kyffin"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 190 — Reign of Chaos
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static REIGN_OF_CHAOS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9285b14a-fc8e-457a-b803-202e05be41e5"),
+    "Reign of Chaos",
+    crate::card::CardArt::new("9285b14a-fc8e-457a-b803-202e05be41e5", "Kathryn Rathke"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 191 — Searing Spear Askari
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SEARING_SPEAR_ASKARI: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5cf66916-7f6b-412f-acd6-f96ad4539a46"),
+    "Searing Spear Askari",
+    crate::card::CardArt::new(
+        "5cf66916-7f6b-412f-acd6-f96ad4539a46",
+        "Richard Kane Ferguson",
+    ),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 192 — Sirocco
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SIROCCO: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ce37492e-4f07-4171-97d4-84f28fb4e2be"),
+    "Sirocco",
+    crate::card::CardArt::new("ce37492e-4f07-4171-97d4-84f28fb4e2be", "Alan Rabinowitz"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 193 — Spitting Earth
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SPITTING_EARTH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e6b774d2-1272-4cd2-b5f8-dfe3ca6e41ee"),
+    "Spitting Earth",
+    crate::card::CardArt::new("e6b774d2-1272-4cd2-b5f8-dfe3ca6e41ee", "Brian Snõddy"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 194 — Stone Rain (reprint)
+
+// MIR 195 — Subterranean Spirit
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SUBTERRANEAN_SPIRIT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("132e8aac-9698-45fa-8d64-b460fd5deffc"),
+    "Subterranean Spirit",
+    crate::card::CardArt::new("132e8aac-9698-45fa-8d64-b460fd5deffc", "John Bolton"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 196 — Talruum Minotaur
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TALRUUM_MINOTAUR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("51657034-2c30-40a2-a215-a00277f01642"),
+    "Talruum Minotaur",
+    crate::card::CardArt::new("51657034-2c30-40a2-a215-a00277f01642", "Pete Venters"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 197 — Telim'Tor
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TELIM_TOR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("33cc89c8-a3ea-469e-b499-f48acec4f538"),
+    "Telim'Tor",
+    crate::card::CardArt::new("33cc89c8-a3ea-469e-b499-f48acec4f538", "Kev Walker"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 198 — Telim'Tor's Edict
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TELIM_TOR_S_EDICT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("088a60f0-2224-4e00-a06a-1d376c8d82a4"),
+    "Telim'Tor's Edict",
+    crate::card::CardArt::new("088a60f0-2224-4e00-a06a-1d376c8d82a4", "Kev Walker"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 199 — Torrent of Lava
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TORRENT_OF_LAVA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("19528a24-4968-4742-a2d1-06f94e60f290"),
+    "Torrent of Lava",
+    crate::card::CardArt::new("19528a24-4968-4742-a2d1-06f94e60f290", "Kathryn Rathke"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 200 — Viashino Warrior
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static VIASHINO_WARRIOR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4947cbf9-69dc-44e3-a22e-a6129f331f3c"),
+    "Viashino Warrior",
+    crate::card::CardArt::new("4947cbf9-69dc-44e3-a22e-a6129f331f3c", "Roger Raupp"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 201 — Volcanic Dragon (reprint)
+
+// MIR 202 — Volcanic Geyser (reprint)
+
+// MIR 203 — Wildfire Emissary
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WILDFIRE_EMISSARY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6d99204c-b42d-48bc-9a93-fae5660665c7"),
+    "Wildfire Emissary",
+    crate::card::CardArt::new(
+        "6d99204c-b42d-48bc-9a93-fae5660665c7",
+        "Richard Kane Ferguson",
+    ),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 204 — Zirilan of the Claw
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ZIRILAN_OF_THE_CLAW: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a105b7f4-c93b-4b54-acf8-7212907d9cd6"),
+    "Zirilan of the Claw",
+    crate::card::CardArt::new("a105b7f4-c93b-4b54-acf8-7212907d9cd6", "Andrew Robinson"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 205 — Afiya Grove
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static AFIYA_GROVE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c495e1f3-0845-4556-83e6-de8b9d518d1d"),
+    "Afiya Grove",
+    crate::card::CardArt::new("c495e1f3-0845-4556-83e6-de8b9d518d1d", "Stuart Griffin"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 206 — Armor of Thorns
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ARMOR_OF_THORNS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("dacdb9e7-d79e-4d24-8678-a37ab6e3a413"),
+    "Armor of Thorns",
+    crate::card::CardArt::new("dacdb9e7-d79e-4d24-8678-a37ab6e3a413", "Alan Rabinowitz"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 207 — Barbed Foliage
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BARBED_FOLIAGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1220fdd1-e4b0-4175-9b8a-178f6a84b8e6"),
+    "Barbed Foliage",
+    crate::card::CardArt::new("1220fdd1-e4b0-4175-9b8a-178f6a84b8e6", "Mark Poole"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 208 — Brushwagg
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BRUSHWAGG: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6c20edc3-5ad0-42c1-a5ec-3e680fb03297"),
+    "Brushwagg",
+    crate::card::CardArt::new("6c20edc3-5ad0-42c1-a5ec-3e680fb03297", "Ian Miller"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 209 — Canopy Dragon
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CANOPY_DRAGON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("20c5e4d6-b716-4994-b226-b1eb799bec25"),
+    "Canopy Dragon",
+    crate::card::CardArt::new("20c5e4d6-b716-4994-b226-b1eb799bec25", "Alan Rabinowitz"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 210 — Crash of Rhinos
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CRASH_OF_RHINOS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d74e0337-d9ac-4bf2-b2b5-aadc97433030"),
+    "Crash of Rhinos",
+    crate::card::CardArt::new("d74e0337-d9ac-4bf2-b2b5-aadc97433030", "Steve White"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 211 — Cycle of Life
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CYCLE_OF_LIFE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("49b53861-97aa-4fff-9526-7d496d1717a4"),
+    "Cycle of Life",
+    crate::card::CardArt::new("49b53861-97aa-4fff-9526-7d496d1717a4", "Chippy"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 212 — Decomposition
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DECOMPOSITION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b0ea46a1-ea65-4802-812c-4f0e0f3088d2"),
+    "Decomposition",
+    crate::card::CardArt::new("b0ea46a1-ea65-4802-812c-4f0e0f3088d2", "Drew Tucker"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 213 — Early Harvest
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static EARLY_HARVEST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4f4e18b5-baef-4fe9-807e-097b972c879f"),
+    "Early Harvest",
+    crate::card::CardArt::new("4f4e18b5-baef-4fe9-807e-097b972c879f", "Janine Johnston"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 214 — Fallow Earth
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FALLOW_EARTH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1482c390-69cf-484e-a06c-8d63f770c7de"),
+    "Fallow Earth",
+    crate::card::CardArt::new("1482c390-69cf-484e-a06c-8d63f770c7de", "Janine Johnston"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 215 — Femeref Archers
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FEMEREF_ARCHERS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e859180f-084c-4023-848a-96f22b8f9698"),
+    "Femeref Archers",
+    crate::card::CardArt::new("e859180f-084c-4023-848a-96f22b8f9698", "William Donohoe"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 216 — Fog (reprint)
+
+// MIR 217 — Foratog
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FORATOG: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b2e1195d-443f-4826-a748-bc6e7e24153a"),
+    "Foratog",
+    crate::card::CardArt::new("b2e1195d-443f-4826-a748-bc6e7e24153a", "Mark Poole"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 218 — Giant Mantis
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GIANT_MANTIS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2b56c895-37d3-4475-a542-dc6d21c46f06"),
+    "Giant Mantis",
+    crate::card::CardArt::new("2b56c895-37d3-4475-a542-dc6d21c46f06", "Randy Gallegos"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 219 — Gibbering Hyenas
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GIBBERING_HYENAS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a252a1f5-bba5-4525-8141-57caea9624e9"),
+    "Gibbering Hyenas",
+    crate::card::CardArt::new("a252a1f5-bba5-4525-8141-57caea9624e9", "Una Fricker"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 220 — Granger Guildmage
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GRANGER_GUILDMAGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3f495b27-3eed-4962-b69a-b86f9fc6a9a7"),
+    "Granger Guildmage",
+    crate::card::CardArt::new("3f495b27-3eed-4962-b69a-b86f9fc6a9a7", "Dan Frazier"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 221 — Hall of Gemstone
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static HALL_OF_GEMSTONE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("18e4551f-9f6c-4421-ad66-a270df6d3463"),
+    "Hall of Gemstone",
+    crate::card::CardArt::new("18e4551f-9f6c-4421-ad66-a270df6d3463", "David A. Cherry"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 222 — Jolrael's Centaur
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static JOLRAEL_S_CENTAUR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("31588ea3-31d2-4118-9b9f-4ce820c16a15"),
+    "Jolrael's Centaur",
+    crate::card::CardArt::new("31588ea3-31d2-4118-9b9f-4ce820c16a15", "Junior Tomlin"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 223 — Jungle Patrol
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static JUNGLE_PATROL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("91c343b8-bbfd-4bc5-b80a-4bc4565cdd40"),
+    "Jungle Patrol",
+    crate::card::CardArt::new("91c343b8-bbfd-4bc5-b80a-4bc4565cdd40", "Mark Poole"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 224 — Jungle Wurm
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static JUNGLE_WURM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f17f81b9-1fa1-4062-a9b3-048179274c05"),
+    "Jungle Wurm",
+    crate::card::CardArt::new("f17f81b9-1fa1-4062-a9b3-048179274c05", "Tom Kyffin"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 225 — Karoo Meerkat
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static KAROO_MEERKAT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("16396594-4f59-4600-8e39-d99544062265"),
+    "Karoo Meerkat",
+    crate::card::CardArt::new("16396594-4f59-4600-8e39-d99544062265", "Janine Johnston"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 226 — Locust Swarm
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static LOCUST_SWARM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("bd269842-4c31-4398-9451-be0d941397ac"),
+    "Locust Swarm",
+    crate::card::CardArt::new("bd269842-4c31-4398-9451-be0d941397ac", "William Donohoe"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 227 — Lure of Prey
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static LURE_OF_PREY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7165f1d8-7b31-4a81-aab4-c6cd4ff2e67d"),
+    "Lure of Prey",
+    crate::card::CardArt::new("7165f1d8-7b31-4a81-aab4-c6cd4ff2e67d", "Andrew Robinson"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 228 — Maro
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MARO: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("bcfec2de-cff3-4015-9a43-a58be525a2da"),
+    "Maro",
+    crate::card::CardArt::new("bcfec2de-cff3-4015-9a43-a58be525a2da", "Stuart Griffin"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 229 — Mindbender Spores
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MINDBENDER_SPORES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f41066eb-be5e-4a6d-9156-64f5e56c7ab3"),
+    "Mindbender Spores",
+    crate::card::CardArt::new("f41066eb-be5e-4a6d-9156-64f5e56c7ab3", "Ian Miller"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 230 — Mtenda Lion
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MTENDA_LION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("cb05cf5b-2a0d-432a-b8e7-10335c2a18e8"),
+    "Mtenda Lion",
+    crate::card::CardArt::new("cb05cf5b-2a0d-432a-b8e7-10335c2a18e8", "Stuart Griffin"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 231 — Natural Balance
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static NATURAL_BALANCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b0f7c47c-416e-4f73-89ec-024a29dfb5e9"),
+    "Natural Balance",
+    crate::card::CardArt::new("b0f7c47c-416e-4f73-89ec-024a29dfb5e9", "John Malloy"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 232 — Nettletooth Djinn
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static NETTLETOOTH_DJINN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7b5aa60d-91aa-4eee-9d13-55a357c8eced"),
+    "Nettletooth Djinn",
+    crate::card::CardArt::new("7b5aa60d-91aa-4eee-9d13-55a357c8eced", "Janine Johnston"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 233 — Preferred Selection
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PREFERRED_SELECTION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("59ce9668-78ef-44a5-ba9c-49fa740b8cb5"),
+    "Preferred Selection",
+    crate::card::CardArt::new("59ce9668-78ef-44a5-ba9c-49fa740b8cb5", "Kev Walker"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 234 — Quirion Elves
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static QUIRION_ELVES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("be9a64fb-1e8d-4ed8-b4c5-3d44db9c1d3b"),
+    "Quirion Elves",
+    crate::card::CardArt::new("be9a64fb-1e8d-4ed8-b4c5-3d44db9c1d3b", "Randy Gallegos"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 235 — Rampant Growth (reprint)
+
+// MIR 236 — Regeneration (reprint)
+
+// MIR 237 — Roots of Life
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ROOTS_OF_LIFE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("26724a51-87dd-4159-b012-71598e4cf5eb"),
+    "Roots of Life",
+    crate::card::CardArt::new("26724a51-87dd-4159-b012-71598e4cf5eb", "Tony Roberts"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 238 — Sabertooth Cobra
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SABERTOOTH_COBRA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("48ead72b-f3f5-4065-a33c-0992cf1fdb34"),
+    "Sabertooth Cobra",
+    crate::card::CardArt::new("48ead72b-f3f5-4065-a33c-0992cf1fdb34", "Andrew Robinson"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 239 — Sandstorm (reprint)
+
+// MIR 240 — Seedling Charm
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SEEDLING_CHARM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e42746e1-f422-4453-a860-3993d5796479"),
+    "Seedling Charm",
+    crate::card::CardArt::new("e42746e1-f422-4453-a860-3993d5796479", "Stuart Griffin"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 241 — Seeds of Innocence
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SEEDS_OF_INNOCENCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f9c868f5-0f90-4f7e-bafb-c45d2372fe06"),
+    "Seeds of Innocence",
+    crate::card::CardArt::new("f9c868f5-0f90-4f7e-bafb-c45d2372fe06", "Junior Tomlin"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 242 — Serene Heart
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SERENE_HEART: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("aff19d9d-8069-4f8d-a81b-e2fcd94c13b3"),
+    "Serene Heart",
+    crate::card::CardArt::new(
+        "aff19d9d-8069-4f8d-a81b-e2fcd94c13b3",
+        "D. Alexander Gregory",
+    ),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 243 — Stalking Tiger
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static STALKING_TIGER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f12cc4e9-010a-4ff7-a026-dcb6113a36fb"),
+    "Stalking Tiger",
+    crate::card::CardArt::new("f12cc4e9-010a-4ff7-a026-dcb6113a36fb", "Terese Nielsen"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 244 — Superior Numbers
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SUPERIOR_NUMBERS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("43d90914-ddfc-49c2-8e58-fdc3693040f2"),
+    "Superior Numbers",
+    crate::card::CardArt::new("43d90914-ddfc-49c2-8e58-fdc3693040f2", "Geofrey Darrow"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
 // MIR 245 — Tranquil Domain
 pub(in crate::card::sets) static TRANQUIL_DOMAIN: CardRecord = CardRecord::new_with_legacy_id(
     285,
@@ -180,12 +2443,95 @@ pub(in crate::card::sets) static TRANQUIL_DOMAIN: CardRecord = CardRecord::new_w
     )),
 );
 
+// MIR 246 — Tropical Storm
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TROPICAL_STORM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("cd5f473c-e11e-4047-91f9-81b80f0a3562"),
+    "Tropical Storm",
+    crate::card::CardArt::new(
+        "cd5f473c-e11e-4047-91f9-81b80f0a3562",
+        "Richard Kane Ferguson",
+    ),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 247 — Uktabi Faerie
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static UKTABI_FAERIE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c3cdee9f-7ea9-4397-a230-ce610be5d3af"),
+    "Uktabi Faerie",
+    crate::card::CardArt::new("c3cdee9f-7ea9-4397-a230-ce610be5d3af", "Junior Tomlin"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 248 — Uktabi Wildcats
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static UKTABI_WILDCATS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d0f287ff-1b1b-454a-9360-fac34c8e1f24"),
+    "Uktabi Wildcats",
+    crate::card::CardArt::new("d0f287ff-1b1b-454a-9360-fac34c8e1f24", "John Matson"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 249 — Unseen Walker
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static UNSEEN_WALKER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0861a73d-8810-42f7-b20a-a6dd53586220"),
+    "Unseen Walker",
+    crate::card::CardArt::new("0861a73d-8810-42f7-b20a-a6dd53586220", "Alan Rabinowitz"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 250 — Unyaro Bee Sting
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static UNYARO_BEE_STING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("71bdd944-e86c-4e5e-b75c-9bbf4fb27ccd"),
+    "Unyaro Bee Sting",
+    crate::card::CardArt::new("71bdd944-e86c-4e5e-b75c-9bbf4fb27ccd", "Pat Lewis"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 251 — Village Elder
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static VILLAGE_ELDER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("253a1d97-ec45-41c9-ba81-bbb6ab584b2b"),
+    "Village Elder",
+    crate::card::CardArt::new("253a1d97-ec45-41c9-ba81-bbb6ab584b2b", "Donato Giancola"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 252 — Waiting in the Weeds
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WAITING_IN_THE_WEEDS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5f91ec4e-6818-46f4-94da-f3f8c4489fb2"),
+    "Waiting in the Weeds",
+    crate::card::CardArt::new("5f91ec4e-6818-46f4-94da-f3f8c4489fb2", "Susan Van Camp"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
 // MIR 253 — Wall of Roots
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static WALL_OF_ROOTS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("aeb151d2-c313-44d2-972e-33487f070c23"),
     "Wall of Roots",
     crate::card::CardArt::new("aeb151d2-c313-44d2-972e-33487f070c23", "John Matson"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 254 — Wild Elephant
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WILD_ELEPHANT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7809131c-747c-4c33-a3ca-13e573a92b66"),
+    "Wild Elephant",
+    crate::card::CardArt::new("7809131c-747c-4c33-a3ca-13e573a92b66", "Junior Tomlin"),
     crate::card::CardSet::Mirage,
     crate::card::CardRules::unsupported(),
 );
@@ -215,6 +2561,26 @@ pub(in crate::card::sets) static WORLDLY_TUTOR: CardRecord = CardRecord::new_wit
     )),
 );
 
+// MIR 256 — Asmira, Holy Avenger
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ASMIRA_HOLY_AVENGER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a7d64600-84fc-42a5-a6a6-b26f98fac0a4"),
+    "Asmira, Holy Avenger",
+    crate::card::CardArt::new("a7d64600-84fc-42a5-a6a6-b26f98fac0a4", "Rebecca Guay"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 257 — Benthic Djinn
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BENTHIC_DJINN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("95b03586-8d04-4114-a7ce-b8c8ab5ff857"),
+    "Benthic Djinn",
+    crate::card::CardArt::new("95b03586-8d04-4114-a7ce-b8c8ab5ff857", "Adam Rex"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
 // MIR 258 — Cadaverous Bloom
 pub(in crate::card::sets) static CADAVEROUS_BLOOM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c9bef70b-61c7-4df5-b4df-09cd6ab2015c"),
@@ -228,6 +2594,420 @@ pub(in crate::card::sets) static CADAVEROUS_BLOOM: CardRecord = CardRecord::new(
             AddManaEffectDef::choice(&[ManaColor::Black, ManaColor::Green]).with_amount(2),
         ),
     )),
+);
+
+// MIR 259 — Circle of Despair
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CIRCLE_OF_DESPAIR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ef9d2c05-0d2f-4d02-aef3-e1078d78e5ff"),
+    "Circle of Despair",
+    crate::card::CardArt::new("ef9d2c05-0d2f-4d02-aef3-e1078d78e5ff", "Scott M. Fischer"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 260 — Delirium
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DELIRIUM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c52981ea-1173-4f4b-a929-705a11c6e381"),
+    "Delirium",
+    crate::card::CardArt::new("c52981ea-1173-4f4b-a929-705a11c6e381", "Terese Nielsen"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 261 — Discordant Spirit
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DISCORDANT_SPIRIT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("be67b950-dfe3-4159-aa53-63df25d2a926"),
+    "Discordant Spirit",
+    crate::card::CardArt::new("be67b950-dfe3-4159-aa53-63df25d2a926", "Alan Rabinowitz"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 262 — Emberwilde Caliph
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static EMBERWILDE_CALIPH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9598a9b4-15bb-4645-92ed-8eedef75dc24"),
+    "Emberwilde Caliph",
+    crate::card::CardArt::new("9598a9b4-15bb-4645-92ed-8eedef75dc24", "Jennifer Law"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 263 — Energy Bolt
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ENERGY_BOLT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("711f4cff-0256-44b2-a2fe-1cae6e9edb2b"),
+    "Energy Bolt",
+    crate::card::CardArt::new("711f4cff-0256-44b2-a2fe-1cae6e9edb2b", "Scott Kirschner"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 264 — Frenetic Efreet
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FRENETIC_EFREET: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("50d4468b-f7de-44fe-898a-4125d26d242f"),
+    "Frenetic Efreet",
+    crate::card::CardArt::new("50d4468b-f7de-44fe-898a-4125d26d242f", "Thomas Gianni"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 265 — Grim Feast
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GRIM_FEAST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a69dc4ac-7354-465e-b859-d8556f3b1498"),
+    "Grim Feast",
+    crate::card::CardArt::new("a69dc4ac-7354-465e-b859-d8556f3b1498", "Mike Kimble"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 266 — Harbor Guardian
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static HARBOR_GUARDIAN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("78a2359f-6586-42a6-a855-c0049b448cb9"),
+    "Harbor Guardian",
+    crate::card::CardArt::new("78a2359f-6586-42a6-a855-c0049b448cb9", "Stuart Beel"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 267 — Haunting Apparition
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static HAUNTING_APPARITION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8ce9c58f-6470-4e0f-8f6b-457fbaac7451"),
+    "Haunting Apparition",
+    crate::card::CardArt::new("8ce9c58f-6470-4e0f-8f6b-457fbaac7451", "Chippy"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 268 — Hazerider Drake
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static HAZERIDER_DRAKE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("68d2ae5c-58b9-4690-8039-d50cca9ef6cf"),
+    "Hazerider Drake",
+    crate::card::CardArt::new("68d2ae5c-58b9-4690-8039-d50cca9ef6cf", "Zina Saunders"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 269 — Jungle Troll
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static JUNGLE_TROLL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("59fb9591-399a-4196-a52d-f2954d287a10"),
+    "Jungle Troll",
+    crate::card::CardArt::new("59fb9591-399a-4196-a52d-f2954d287a10", "John Bolton"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 270 — Kaervek's Purge
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static KAERVEK_S_PURGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7a42ef95-92ec-40fe-ab30-a476f012a525"),
+    "Kaervek's Purge",
+    crate::card::CardArt::new(
+        "7a42ef95-92ec-40fe-ab30-a476f012a525",
+        "Richard Kane Ferguson",
+    ),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 271 — Leering Gargoyle
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static LEERING_GARGOYLE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a05d1cac-7012-4d22-82d3-0f82b168fe68"),
+    "Leering Gargoyle",
+    crate::card::CardArt::new("a05d1cac-7012-4d22-82d3-0f82b168fe68", "Dermot Power"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 272 — Malignant Growth
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MALIGNANT_GROWTH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("760b6703-ac92-45f6-8c32-60f760eba866"),
+    "Malignant Growth",
+    crate::card::CardArt::new("760b6703-ac92-45f6-8c32-60f760eba866", "Scott M. Fischer"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 273 — Phyrexian Purge
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PHYREXIAN_PURGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("312bbc1b-4c2a-44c1-8e62-c0f94fd2ba8e"),
+    "Phyrexian Purge",
+    crate::card::CardArt::new("312bbc1b-4c2a-44c1-8e62-c0f94fd2ba8e", "Robert Bliss"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 274 — Prismatic Boon
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PRISMATIC_BOON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fb774a9b-d29f-4f41-9fb8-a0189205e16f"),
+    "Prismatic Boon",
+    crate::card::CardArt::new("fb774a9b-d29f-4f41-9fb8-a0189205e16f", "Thomas Gianni"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 275 — Purgatory
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PURGATORY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9ed5e58b-46f3-437c-89ac-24235a65bd1f"),
+    "Purgatory",
+    crate::card::CardArt::new("9ed5e58b-46f3-437c-89ac-24235a65bd1f", "Mike Dringenberg"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 276 — Radiant Essence
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RADIANT_ESSENCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d9b1853c-d5b9-4361-8a2f-36946a62847b"),
+    "Radiant Essence",
+    crate::card::CardArt::new("d9b1853c-d5b9-4361-8a2f-36946a62847b", "Jennifer Law"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 277 — Reflect Damage
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static REFLECT_DAMAGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3a2bf39b-9665-426b-b618-eb731d24a1ee"),
+    "Reflect Damage",
+    crate::card::CardArt::new("3a2bf39b-9665-426b-b618-eb731d24a1ee", "Ron Spencer"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 278 — Reparations
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static REPARATIONS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0a9edf28-79c0-42a5-af0f-6df9c3a1f546"),
+    "Reparations",
+    crate::card::CardArt::new("0a9edf28-79c0-42a5-af0f-6df9c3a1f546", "Douglas Shuler"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 279 — Rock Basilisk
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ROCK_BASILISK: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("79949237-dcce-4ac1-bdc6-7c6d8b5f5fde"),
+    "Rock Basilisk",
+    crate::card::CardArt::new("79949237-dcce-4ac1-bdc6-7c6d8b5f5fde", "Ian Miller"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 280 — Savage Twister (alternate printing)
+
+// MIR 280† — Savage Twister
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SAVAGE_TWISTER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("025dfd44-f611-42e3-9e22-f630599f0591"),
+    "Savage Twister",
+    crate::card::CardArt::new("025dfd44-f611-42e3-9e22-f630599f0591", "Bob Eggleton"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 281 — Sawback Manticore
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SAWBACK_MANTICORE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c24e74e9-ce88-48af-a113-b4fe76f963d4"),
+    "Sawback Manticore",
+    crate::card::CardArt::new("c24e74e9-ce88-48af-a113-b4fe76f963d4", "Martin McKenna"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 282 — Sealed Fate
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SEALED_FATE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("36cf9da8-f078-4f6e-8077-bb24a7ed487f"),
+    "Sealed Fate",
+    crate::card::CardArt::new("36cf9da8-f078-4f6e-8077-bb24a7ed487f", "Terese Nielsen"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 283 — Shauku's Minion
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SHAUKU_S_MINION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6e9743dc-031b-4932-80a6-1c8ec1dea069"),
+    "Shauku's Minion",
+    crate::card::CardArt::new("6e9743dc-031b-4932-80a6-1c8ec1dea069", "Greg Simanson"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 284 — Spatial Binding
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SPATIAL_BINDING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("176d625f-1410-4ad6-a279-9a184fac6507"),
+    "Spatial Binding",
+    crate::card::CardArt::new("176d625f-1410-4ad6-a279-9a184fac6507", "Dom!"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 285 — Unfulfilled Desires
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static UNFULFILLED_DESIRES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3389d6c7-2a8a-48d6-a09d-aa195d830576"),
+    "Unfulfilled Desires",
+    crate::card::CardArt::new(
+        "3389d6c7-2a8a-48d6-a09d-aa195d830576",
+        "D. Alexander Gregory",
+    ),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 286 — Vitalizing Cascade
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static VITALIZING_CASCADE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5fe8a5b8-1a87-46f5-920f-fbbb05bfd563"),
+    "Vitalizing Cascade",
+    crate::card::CardArt::new("5fe8a5b8-1a87-46f5-920f-fbbb05bfd563", "Rebecca Guay"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 287 — Warping Wurm
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WARPING_WURM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a2c41d0f-f1db-4797-b245-7de12ffa3a0d"),
+    "Warping Wurm",
+    crate::card::CardArt::new("a2c41d0f-f1db-4797-b245-7de12ffa3a0d", "Scott M. Fischer"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 288 — Wellspring
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WELLSPRING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c69ba095-dd78-4999-87a9-63f7165846e4"),
+    "Wellspring",
+    crate::card::CardArt::new("c69ba095-dd78-4999-87a9-63f7165846e4", "Susan Van Camp"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 289 — Windreaper Falcon
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WINDREAPER_FALCON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("65285030-0714-43bf-bb91-a79dcba1ccc5"),
+    "Windreaper Falcon",
+    crate::card::CardArt::new("65285030-0714-43bf-bb91-a79dcba1ccc5", "Tony Roberts"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 290 — Zebra Unicorn
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ZEBRA_UNICORN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a663ee9d-78f1-4c89-af9e-c788e165fa91"),
+    "Zebra Unicorn",
+    crate::card::CardArt::new(
+        "a663ee9d-78f1-4c89-af9e-c788e165fa91",
+        "Margaret Organ-Kean",
+    ),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 291 — Acidic Dagger
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ACIDIC_DAGGER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6dfdea79-2a7c-489d-8466-e6090c2a0919"),
+    "Acidic Dagger",
+    crate::card::CardArt::new("6dfdea79-2a7c-489d-8466-e6090c2a0919", "Stuart Beel"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 292 — Amber Prison
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static AMBER_PRISON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("046475e5-36d1-4b5f-af31-6df715c7a368"),
+    "Amber Prison",
+    crate::card::CardArt::new("046475e5-36d1-4b5f-af31-6df715c7a368", "Donato Giancola"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 293 — Amulet of Unmaking
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static AMULET_OF_UNMAKING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fdbd94c8-611c-4b20-99ca-dd2d7661d644"),
+    "Amulet of Unmaking",
+    crate::card::CardArt::new("fdbd94c8-611c-4b20-99ca-dd2d7661d644", "Kaja Foglio"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 294 — Basalt Golem
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BASALT_GOLEM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5ff538f9-10b4-4327-aea6-a86759daf488"),
+    "Basalt Golem",
+    crate::card::CardArt::new("5ff538f9-10b4-4327-aea6-a86759daf488", "Scott Kirschner"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 295 — Bone Mask
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BONE_MASK: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1f46aea3-ea00-46c4-b207-522ceeeae68b"),
+    "Bone Mask",
+    crate::card::CardArt::new(
+        "1f46aea3-ea00-46c4-b207-522ceeeae68b",
+        "D. Alexander Gregory",
+    ),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 296 — Charcoal Diamond
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CHARCOAL_DIAMOND: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2a81b3f1-babc-4bd7-8b87-754c8389ae85"),
+    "Charcoal Diamond",
+    crate::card::CardArt::new("2a81b3f1-babc-4bd7-8b87-754c8389ae85", "Drew Tucker"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 297 — Chariot of the Sun
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CHARIOT_OF_THE_SUN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2e3bc470-cfcc-4835-b46f-c08d698ee1ab"),
+    "Chariot of the Sun",
+    crate::card::CardArt::new("2e3bc470-cfcc-4835-b46f-c08d698ee1ab", "Gerry Grace"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 298 — Crystal Golem
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CRYSTAL_GOLEM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4b1d3280-f3e1-42ea-93e1-dbab7336fb73"),
+    "Crystal Golem",
+    crate::card::CardArt::new("4b1d3280-f3e1-42ea-93e1-dbab7336fb73", "Mike Dringenberg"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
 );
 
 // MIR 299 — Cursed Totem
@@ -267,6 +3047,162 @@ static DREADNOUGHT_COST: PayOrDef = PayOrDef::unless(
     },
 );
 
+// MIR 300 — Elixir of Vitality
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ELIXIR_OF_VITALITY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("60450239-6055-4561-9f8c-565b4e4d9cb1"),
+    "Elixir of Vitality",
+    crate::card::CardArt::new("60450239-6055-4561-9f8c-565b4e4d9cb1", "Douglas Shuler"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 301 — Ersatz Gnomes
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ERSATZ_GNOMES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5a2747ab-00c8-4f59-b9a6-54ff4e99f6c8"),
+    "Ersatz Gnomes",
+    crate::card::CardArt::new("5a2747ab-00c8-4f59-b9a6-54ff4e99f6c8", "Ron Spencer"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 302 — Fire Diamond
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FIRE_DIAMOND: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("bcca5bbe-df01-45ea-a6ac-4e3d1cf237c8"),
+    "Fire Diamond",
+    crate::card::CardArt::new("bcca5bbe-df01-45ea-a6ac-4e3d1cf237c8", "Richard Thomas"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 303 — Grinning Totem
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GRINNING_TOTEM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f3558ddf-2bc6-4870-bd24-2467d870ffe5"),
+    "Grinning Totem",
+    crate::card::CardArt::new("f3558ddf-2bc6-4870-bd24-2467d870ffe5", "Donato Giancola"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 304 — Horrible Hordes
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static HORRIBLE_HORDES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("cf04f2cd-d9f8-4e0c-adaf-6d38bc14dd7a"),
+    "Horrible Hordes",
+    crate::card::CardArt::new("cf04f2cd-d9f8-4e0c-adaf-6d38bc14dd7a", "Ian Miller"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 305 — Igneous Golem
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static IGNEOUS_GOLEM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f44c5e24-98f9-4a4d-9ecc-c862363eb66d"),
+    "Igneous Golem",
+    crate::card::CardArt::new("f44c5e24-98f9-4a4d-9ecc-c862363eb66d", "Adam Rex"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 306 — Lead Golem
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static LEAD_GOLEM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("dc9afb9e-eab3-4969-9a44-2c01bf730e68"),
+    "Lead Golem",
+    crate::card::CardArt::new("dc9afb9e-eab3-4969-9a44-2c01bf730e68", "Hannibal King"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 307 — Lion's Eye Diamond
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static LION_S_EYE_DIAMOND: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("63bacc32-d6ba-420c-9b49-299c08e5fb39"),
+    "Lion's Eye Diamond",
+    crate::card::CardArt::new(
+        "63bacc32-d6ba-420c-9b49-299c08e5fb39",
+        "Margaret Organ-Kean",
+    ),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 308 — Mana Prism
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MANA_PRISM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("81137c17-18b8-484e-8334-28f143c08177"),
+    "Mana Prism",
+    crate::card::CardArt::new(
+        "81137c17-18b8-484e-8334-28f143c08177",
+        "Margaret Organ-Kean",
+    ),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 309 — Mangara's Tome
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MANGARA_S_TOME: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("557ebacf-4a8f-4548-a142-533b7adfdac3"),
+    "Mangara's Tome",
+    crate::card::CardArt::new("557ebacf-4a8f-4548-a142-533b7adfdac3", "John Bolton"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 310 — Marble Diamond
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MARBLE_DIAMOND: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4731eb16-3088-4d4d-80a4-7e39d00c1a87"),
+    "Marble Diamond",
+    crate::card::CardArt::new("4731eb16-3088-4d4d-80a4-7e39d00c1a87", "Jeff Miracola"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 311 — Misers' Cage
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MISERS_CAGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f4c00691-26b1-4e7a-bdf5-4b15f0eb45ce"),
+    "Misers' Cage",
+    crate::card::CardArt::new("f4c00691-26b1-4e7a-bdf5-4b15f0eb45ce", "Jeff Miracola"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 312 — Moss Diamond
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MOSS_DIAMOND: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("87cea56a-b64f-452a-8e4b-40363aabb452"),
+    "Moss Diamond",
+    crate::card::CardArt::new("87cea56a-b64f-452a-8e4b-40363aabb452", "Donato Giancola"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 313 — Patagia Golem
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PATAGIA_GOLEM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("89920b7a-fd56-4fa8-96c9-fb66c2af6fbf"),
+    "Patagia Golem",
+    crate::card::CardArt::new("89920b7a-fd56-4fa8-96c9-fb66c2af6fbf", "Scott Kirschner"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 314 — Paupers' Cage
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PAUPERS_CAGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3411c350-a940-4172-b558-f5dc44b4fb33"),
+    "Paupers' Cage",
+    crate::card::CardArt::new("3411c350-a940-4172-b558-f5dc44b4fb33", "Mike Kimble"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
 // MIR 315 — Phyrexian Dreadnought
 pub(in crate::card::sets) static PHYREXIAN_DREADNOUGHT: CardRecord = CardRecord::new_with_legacy_id(
     2085,
@@ -290,17 +3226,554 @@ pub(in crate::card::sets) static PHYREXIAN_DREADNOUGHT: CardRecord = CardRecord:
         ]),
 );
 
+// MIR 316 — Phyrexian Vault
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PHYREXIAN_VAULT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0966a4e7-bf0f-4880-a4ba-8641fb7e4519"),
+    "Phyrexian Vault",
+    crate::card::CardArt::new("0966a4e7-bf0f-4880-a4ba-8641fb7e4519", "Hannibal King"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 317 — Razor Pendulum
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RAZOR_PENDULUM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("72562860-6097-4c63-9858-ae130805f4d6"),
+    "Razor Pendulum",
+    crate::card::CardArt::new("72562860-6097-4c63-9858-ae130805f4d6", "Zak Plucinski"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 318 — Sand Golem
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SAND_GOLEM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("84e4a955-ce9a-4386-b6ac-c00fd25de882"),
+    "Sand Golem",
+    crate::card::CardArt::new("84e4a955-ce9a-4386-b6ac-c00fd25de882", "John Matson"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 319 — Sky Diamond
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SKY_DIAMOND: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8959aef9-77bb-45a3-939e-324bd59aec89"),
+    "Sky Diamond",
+    crate::card::CardArt::new(
+        "8959aef9-77bb-45a3-939e-324bd59aec89",
+        "D. Alexander Gregory",
+    ),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 320 — Teeka's Dragon
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TEEKA_S_DRAGON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("57e8971d-baeb-4e4f-8c4d-0e8109e4505e"),
+    "Teeka's Dragon",
+    crate::card::CardArt::new("57e8971d-baeb-4e4f-8c4d-0e8109e4505e", "Liz Danforth"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 321 — Telim'Tor's Darts
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TELIM_TOR_S_DARTS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("59733b76-3b44-4543-8bb2-a160232cee27"),
+    "Telim'Tor's Darts",
+    crate::card::CardArt::new("59733b76-3b44-4543-8bb2-a160232cee27", "Kev Walker"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 322 — Unerring Sling
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static UNERRING_SLING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ecf946b8-8574-406a-83fd-966ed912921f"),
+    "Unerring Sling",
+    crate::card::CardArt::new("ecf946b8-8574-406a-83fd-966ed912921f", "Zak Plucinski"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 323 — Ventifact Bottle
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static VENTIFACT_BOTTLE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("520f4a24-fb1a-4964-887c-2f08a752fae2"),
+    "Ventifact Bottle",
+    crate::card::CardArt::new("520f4a24-fb1a-4964-887c-2f08a752fae2", "Ron Spencer"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 324 — Bad River
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BAD_RIVER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7a78abdb-d1ac-49cb-a74b-9de21c06364a"),
+    "Bad River",
+    crate::card::CardArt::new("7a78abdb-d1ac-49cb-a74b-9de21c06364a", "Terese Nielsen"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 325 — Crystal Vein
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CRYSTAL_VEIN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1afb6e29-058e-44c5-a3fa-56c462f070a0"),
+    "Crystal Vein",
+    crate::card::CardArt::new("1afb6e29-058e-44c5-a3fa-56c462f070a0", "Pat Lewis"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 326 — Flood Plain
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FLOOD_PLAIN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7b7610f3-f182-404e-80b9-ccd94e174db0"),
+    "Flood Plain",
+    crate::card::CardArt::new("7b7610f3-f182-404e-80b9-ccd94e174db0", "Pat Lewis"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 327 — Grasslands
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GRASSLANDS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("65f5efac-ef98-4be2-abcc-1aa38bf66b06"),
+    "Grasslands",
+    crate::card::CardArt::new("65f5efac-ef98-4be2-abcc-1aa38bf66b06", "John Avon"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 328 — Mountain Valley
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MOUNTAIN_VALLEY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ded4e5c2-4f03-47c1-9843-b98c239ccfea"),
+    "Mountain Valley",
+    crate::card::CardArt::new("ded4e5c2-4f03-47c1-9843-b98c239ccfea", "Kari Johnson"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 329 — Rocky Tar Pit
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ROCKY_TAR_PIT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1e21c347-7aaf-42ae-abf3-f1283c5b54e6"),
+    "Rocky Tar Pit",
+    crate::card::CardArt::new("1e21c347-7aaf-42ae-abf3-f1283c5b54e6", "Jeff Miracola"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 330 — Teferi's Isle
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TEFERI_S_ISLE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b6ed7ca8-fd91-46e3-9149-a3de23c7078e"),
+    "Teferi's Isle",
+    crate::card::CardArt::new("b6ed7ca8-fd91-46e3-9149-a3de23c7078e", "Gerry Grace"),
+    crate::card::CardSet::Mirage,
+    crate::card::CardRules::unsupported(),
+);
+
+// MIR 331 — Plains (reprint)
+
+// MIR 332 — Plains (alternate printing)
+
+// MIR 333 — Plains (alternate printing)
+
+// MIR 334 — Plains (alternate printing)
+
+// MIR 335 — Island (reprint)
+
+// MIR 336 — Island (alternate printing)
+
+// MIR 337 — Island (alternate printing)
+
+// MIR 338 — Island (alternate printing)
+
+// MIR 339 — Swamp (reprint)
+
+// MIR 340 — Swamp (alternate printing)
+
+// MIR 341 — Swamp (alternate printing)
+
+// MIR 342 — Swamp (alternate printing)
+
+// MIR 343 — Mountain (reprint)
+
+// MIR 344 — Mountain (alternate printing)
+
+// MIR 345 — Mountain (alternate printing)
+
+// MIR 346 — Mountain (alternate printing)
+
+// MIR 347 — Forest (reprint)
+
+// MIR 348 — Forest (alternate printing)
+
+// MIR 349 — Forest (alternate printing)
+
+// MIR 350 — Forest (alternate printing)
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &AFTERLIFE,
+    &ALARUM,
+    &AUSPICIOUS_ANCESTOR,
+    &BENEVOLENT_UNICORN,
+    &BLINDING_LIGHT,
+    &CELESTIAL_DAWN,
+    &CIVIC_GUILDMAGE,
+    &DAZZLING_BEAUTY,
+    &DISEMPOWER,
+    &DIVINE_RETRIBUTION,
+    &EKUNDU_GRIFFIN,
     &ENLIGHTENED_TUTOR,
+    &ETHEREAL_CHAMPION,
+    &FAVORABLE_DESTINY,
+    &FEMEREF_HEALER,
+    &FEMEREF_KNIGHT,
+    &FEMEREF_SCOUTS,
+    &ILLUMINATION,
+    &IRON_TUSK_ELEPHANT,
+    &IVORY_CHARM,
+    &JABARI_S_INFLUENCE,
+    &MANGARA_S_BLESSING,
+    &MANGARA_S_EQUITY,
+    &MELESSE_SPIRIT,
+    &MTENDA_GRIFFIN,
+    &MTENDA_HERDER,
+    &NOBLE_ELEPHANT,
+    &NULL_CHAMBER,
+    &PEARL_DRAGON,
+    &PRISMATIC_CIRCLE,
+    &RASHIDA_SCALEBANE,
+    &RITUAL_OF_STEEL,
+    &SACRED_MESA,
+    &SHADOWBANE,
+    &SIDAR_JABARI,
+    &SOUL_ECHO,
+    &SPECTRAL_GUARDIAN,
+    &SUNWEB,
+    &TEREMKO_GRIFFIN,
+    &UNYARO_GRIFFIN,
+    &VIGILANT_MARTYR,
+    &WALL_OF_RESISTANCE,
+    &WARD_OF_LIGHTS,
+    &YARE,
+    &ZHALFIRIN_COMMANDER,
+    &ZHALFIRIN_KNIGHT,
+    &ZUBERI_GOLDEN_FEATHER,
+    &ANCESTRAL_MEMORIES,
+    &AZIMAET_DRAKE,
+    &BAY_FALCON,
+    &BAZAAR_OF_WONDERS,
+    &CERULEAN_WYVERN,
+    &CLOAK_OF_INVISIBILITY,
+    &CORAL_FIGHTERS,
+    &DARING_APPRENTICE,
+    &DREAM_CACHE,
+    &DREAM_FIGHTER,
+    &ENERGY_VORTEX,
+    &ETHER_WELL,
+    &FLASH,
+    &FLOODGATE,
+    &HAKIM_LOREWEAVER,
+    &HARMATTAN_EFREET,
+    &JOLT,
+    &KUKEMSSA_PIRATES,
+    &KUKEMSSA_SERPENT,
+    &MEDDLE,
+    &MERFOLK_RAIDERS,
+    &MERFOLK_SEER,
+    &MIND_BEND,
+    &MIND_HARNESS,
+    &MIST_DRAGON,
     &MYSTICAL_TUTOR,
+    &POLITICAL_TRICKERY,
+    &POLYMORPH,
+    &PRISMATIC_LACE,
+    &PSYCHIC_TRANSFER,
+    &REALITY_RIPPLE,
+    &SANDBAR_CROCODILE,
+    &SAPPHIRE_CHARM,
+    &SEA_SCRYER,
+    &SHAPER_GUILDMAGE,
+    &SHIMMER,
+    &SOAR,
+    &SUQ_ATA_FIREWALKER,
+    &TANIWHA,
+    &TEFERI_S_CURSE,
+    &TEFERI_S_DRAKE,
+    &TEFERI_S_IMP,
+    &THIRST,
+    &TIDAL_WAVE,
+    &VAPOROUS_DJINN,
+    &WAVE_ELEMENTAL,
+    &ABYSSAL_HUNTER,
+    &ASHEN_POWDER,
+    &BARBED_BACK_WURM,
+    &BINDING_AGONY,
+    &BLIGHTED_SHAMAN,
+    &BONE_HARVEST,
+    &BREATHSTEALER,
+    &CADAVEROUS_KNIGHT,
+    &CARRION,
+    &CATACOMB_DRAGON,
+    &CHOKING_SANDS,
+    &CRYPT_COBRA,
+    &DIRTWATER_WRAITH,
+    &DREAD_SPECTER,
+    &EBONY_CHARM,
+    &ENFEEBLEMENT,
+    &FERAL_SHADOW,
+    &FETID_HORROR,
+    &FORBIDDEN_CRYPT,
+    &FORSAKEN_WASTES,
+    &GRAVE_SERVITUDE,
+    &GRAVEBANE_ZOMBIE,
+    &HARBINGER_OF_NIGHT,
+    &INFERNAL_CONTRACT,
+    &KAERVEK_S_HEX,
+    &MIRE_SHADE,
+    &NOCTURNAL_RAID,
+    &PAINFUL_MEMORIES,
+    &PHYREXIAN_TRIBUTE,
+    &PURRAJ_OF_URBORG,
+    &RAVENOUS_VAMPIRE,
+    &REIGN_OF_TERROR,
+    &RESTLESS_DEAD,
+    &SEWER_RATS,
+    &SHADOW_GUILDMAGE,
     &SHALLOW_GRAVE,
+    &SHAUKU_ENDBRINGER,
+    &SKULKING_GHOST,
+    &SOUL_REND,
+    &SOULSHRIEK,
+    &SPIRIT_OF_THE_NIGHT,
+    &STUPOR,
+    &TAINTED_SPECTER,
+    &TOMBSTONE_STAIRWELL,
+    &URBORG_PANTHER,
+    &WALL_OF_CORPSES,
+    &WITHERING_BOON,
+    &ZOMBIE_MOB,
+    &AGILITY,
+    &ALEATORY,
+    &ARMORER_GUILDMAGE,
+    &BARRELING_ATTACK,
+    &BLIND_FURY,
+    &BLISTERING_BARRIER,
+    &BUILDER_S_BANE,
+    &BURNING_PALM_EFREET,
+    &BURNING_SHIELD_ASKARI,
+    &CHAOS_CHARM,
+    &CHAOSPHERE,
+    &CINDER_CLOUD,
+    &CONSUMING_FEROCITY,
+    &CRIMSON_HELLKITE,
+    &CRIMSON_ROC,
+    &DWARVEN_MINER,
+    &DWARVEN_NOMAD,
+    &EKUNDU_CYCLOPS,
+    &EMBERWILDE_DJINN,
+    &FINAL_FORTUNE,
+    &FLAME_ELEMENTAL,
+    &GOBLIN_ELITE_INFANTRY,
+    &GOBLIN_SCOUTS,
+    &GOBLIN_SOOTHSAYER,
     &GOBLIN_TINKERER,
+    &HAMMER_OF_BOGARDAN,
+    &HIVIS_OF_THE_SCALE,
+    &ILLICIT_AUCTION,
+    &KAERVEK_S_TORCH,
+    &LIGHTNING_REFLEXES,
+    &PYRIC_SALAMANDER,
+    &RAGING_SPIRIT,
+    &RECKLESS_EMBERMAGE,
+    &REIGN_OF_CHAOS,
+    &SEARING_SPEAR_ASKARI,
+    &SIROCCO,
+    &SPITTING_EARTH,
+    &SUBTERRANEAN_SPIRIT,
+    &TALRUUM_MINOTAUR,
+    &TELIM_TOR,
+    &TELIM_TOR_S_EDICT,
+    &TORRENT_OF_LAVA,
+    &VIASHINO_WARRIOR,
+    &WILDFIRE_EMISSARY,
+    &ZIRILAN_OF_THE_CLAW,
+    &AFIYA_GROVE,
+    &ARMOR_OF_THORNS,
+    &BARBED_FOLIAGE,
+    &BRUSHWAGG,
+    &CANOPY_DRAGON,
+    &CRASH_OF_RHINOS,
+    &CYCLE_OF_LIFE,
+    &DECOMPOSITION,
+    &EARLY_HARVEST,
+    &FALLOW_EARTH,
+    &FEMEREF_ARCHERS,
+    &FORATOG,
+    &GIANT_MANTIS,
+    &GIBBERING_HYENAS,
+    &GRANGER_GUILDMAGE,
+    &HALL_OF_GEMSTONE,
+    &JOLRAEL_S_CENTAUR,
+    &JUNGLE_PATROL,
+    &JUNGLE_WURM,
+    &KAROO_MEERKAT,
+    &LOCUST_SWARM,
+    &LURE_OF_PREY,
+    &MARO,
+    &MINDBENDER_SPORES,
+    &MTENDA_LION,
+    &NATURAL_BALANCE,
+    &NETTLETOOTH_DJINN,
+    &PREFERRED_SELECTION,
+    &QUIRION_ELVES,
+    &ROOTS_OF_LIFE,
+    &SABERTOOTH_COBRA,
+    &SEEDLING_CHARM,
+    &SEEDS_OF_INNOCENCE,
+    &SERENE_HEART,
+    &STALKING_TIGER,
+    &SUPERIOR_NUMBERS,
     &TRANQUIL_DOMAIN,
+    &TROPICAL_STORM,
+    &UKTABI_FAERIE,
+    &UKTABI_WILDCATS,
+    &UNSEEN_WALKER,
+    &UNYARO_BEE_STING,
+    &VILLAGE_ELDER,
+    &WAITING_IN_THE_WEEDS,
     &WALL_OF_ROOTS,
+    &WILD_ELEPHANT,
     &WORLDLY_TUTOR,
+    &ASMIRA_HOLY_AVENGER,
+    &BENTHIC_DJINN,
     &CADAVEROUS_BLOOM,
+    &CIRCLE_OF_DESPAIR,
+    &DELIRIUM,
+    &DISCORDANT_SPIRIT,
+    &EMBERWILDE_CALIPH,
+    &ENERGY_BOLT,
+    &FRENETIC_EFREET,
+    &GRIM_FEAST,
+    &HARBOR_GUARDIAN,
+    &HAUNTING_APPARITION,
+    &HAZERIDER_DRAKE,
+    &JUNGLE_TROLL,
+    &KAERVEK_S_PURGE,
+    &LEERING_GARGOYLE,
+    &MALIGNANT_GROWTH,
+    &PHYREXIAN_PURGE,
+    &PRISMATIC_BOON,
+    &PURGATORY,
+    &RADIANT_ESSENCE,
+    &REFLECT_DAMAGE,
+    &REPARATIONS,
+    &ROCK_BASILISK,
+    &SAVAGE_TWISTER,
+    &SAWBACK_MANTICORE,
+    &SEALED_FATE,
+    &SHAUKU_S_MINION,
+    &SPATIAL_BINDING,
+    &UNFULFILLED_DESIRES,
+    &VITALIZING_CASCADE,
+    &WARPING_WURM,
+    &WELLSPRING,
+    &WINDREAPER_FALCON,
+    &ZEBRA_UNICORN,
+    &ACIDIC_DAGGER,
+    &AMBER_PRISON,
+    &AMULET_OF_UNMAKING,
+    &BASALT_GOLEM,
+    &BONE_MASK,
+    &CHARCOAL_DIAMOND,
+    &CHARIOT_OF_THE_SUN,
+    &CRYSTAL_GOLEM,
     &CURSED_TOTEM,
+    &ELIXIR_OF_VITALITY,
+    &ERSATZ_GNOMES,
+    &FIRE_DIAMOND,
+    &GRINNING_TOTEM,
+    &HORRIBLE_HORDES,
+    &IGNEOUS_GOLEM,
+    &LEAD_GOLEM,
+    &LION_S_EYE_DIAMOND,
+    &MANA_PRISM,
+    &MANGARA_S_TOME,
+    &MARBLE_DIAMOND,
+    &MISERS_CAGE,
+    &MOSS_DIAMOND,
+    &PATAGIA_GOLEM,
+    &PAUPERS_CAGE,
     &PHYREXIAN_DREADNOUGHT,
+    &PHYREXIAN_VAULT,
+    &RAZOR_PENDULUM,
+    &SAND_GOLEM,
+    &SKY_DIAMOND,
+    &TEEKA_S_DRAGON,
+    &TELIM_TOR_S_DARTS,
+    &UNERRING_SLING,
+    &VENTIFACT_BOTTLE,
+    &BAD_RIVER,
+    &CRYSTAL_VEIN,
+    &FLOOD_PLAIN,
+    &GRASSLANDS,
+    &MOUNTAIN_VALLEY,
+    &ROCKY_TAR_PIT,
+    &TEFERI_S_ISLE,
 ];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
+    PrintingRecord::reprint(&catalog_lea::DISENCHANT), // MIR 10
+    PrintingRecord::reprint(&catalog_leg::DIVINE_OFFERING), // MIR 11
+    PrintingRecord::reprint(&catalog_lea::HEALING_SALVE), // MIR 20
+    PrintingRecord::reprint(&catalog_m13::PACIFISM),   // MIR 32
+    PrintingRecord::reprint(&catalog_leg::BOOMERANG),  // MIR 56
+    PrintingRecord::reprint(&catalog_isd::DISSIPATE),  // MIR 61
+    PrintingRecord::reprint(&catalog_hml::MEMORY_LAPSE), // MIR 74
+    PrintingRecord::reprint(&catalog_lea::POWER_SINK), // MIR 83
+    PrintingRecord::reprint(&catalog_ice::RAY_OF_COMMAND), // MIR 86
+    PrintingRecord::alternate(&REALITY_RIPPLE, 1),     // MIR 87†
+    PrintingRecord::reprint(&catalog_ice::DARK_BANISHING), // MIR 115
+    PrintingRecord::reprint(&catalog_lea::DARK_RITUAL), // MIR 116
+    PrintingRecord::reprint(&catalog_lea::DRAIN_LIFE), // MIR 118
+    PrintingRecord::alternate(&EBONY_CHARM, 1),        // MIR 120
+    PrintingRecord::reprint(&catalog_lea::FIREBREATHING), // MIR 174
+    PrintingRecord::reprint(&catalog_ice::FLARE),      // MIR 176
+    PrintingRecord::reprint(&catalog_ice::INCINERATE), // MIR 184
+    PrintingRecord::reprint(&catalog_lea::STONE_RAIN), // MIR 194
+    PrintingRecord::reprint(&catalog_m12::VOLCANIC_DRAGON), // MIR 201
+    PrintingRecord::reprint(&catalog_m13::VOLCANIC_GEYSER), // MIR 202
+    PrintingRecord::reprint(&catalog_lea::FOG),        // MIR 216
+    PrintingRecord::reprint(&catalog_m12::RAMPANT_GROWTH), // MIR 235
+    PrintingRecord::reprint(&catalog_lea::REGENERATION), // MIR 236
+    PrintingRecord::reprint(&catalog_arn::SANDSTORM),  // MIR 239
+    PrintingRecord::alternate(&SAVAGE_TWISTER, 1),     // MIR 280
+    PrintingRecord::reprint(&catalog_lea::PLAINS),     // MIR 331
+    PrintingRecord::alternate(&catalog_lea::PLAINS, 1), // MIR 332
+    PrintingRecord::alternate(&catalog_lea::PLAINS, 2), // MIR 333
+    PrintingRecord::alternate(&catalog_lea::PLAINS, 3), // MIR 334
+    PrintingRecord::reprint(&catalog_lea::ISLAND),     // MIR 335
+    PrintingRecord::alternate(&catalog_lea::ISLAND, 1), // MIR 336
+    PrintingRecord::alternate(&catalog_lea::ISLAND, 2), // MIR 337
+    PrintingRecord::alternate(&catalog_lea::ISLAND, 3), // MIR 338
+    PrintingRecord::reprint(&catalog_lea::SWAMP),      // MIR 339
+    PrintingRecord::alternate(&catalog_lea::SWAMP, 1), // MIR 340
+    PrintingRecord::alternate(&catalog_lea::SWAMP, 2), // MIR 341
+    PrintingRecord::alternate(&catalog_lea::SWAMP, 3), // MIR 342
+    PrintingRecord::reprint(&catalog_lea::MOUNTAIN),   // MIR 343
+    PrintingRecord::alternate(&catalog_lea::MOUNTAIN, 1), // MIR 344
+    PrintingRecord::alternate(&catalog_lea::MOUNTAIN, 2), // MIR 345
+    PrintingRecord::alternate(&catalog_lea::MOUNTAIN, 3), // MIR 346
+    PrintingRecord::reprint(&catalog_lea::FOREST),     // MIR 347
+    PrintingRecord::alternate(&catalog_lea::FOREST, 1), // MIR 348
+    PrintingRecord::alternate(&catalog_lea::FOREST, 2), // MIR 349
+    PrintingRecord::alternate(&catalog_lea::FOREST, 3), // MIR 350
+];

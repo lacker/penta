@@ -3,11 +3,11 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, CardArt, CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType,
-    CardTypeSet, ColorSet, CreatureTypeSetDef, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, TopCardSelectionDef, TriggerEventDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    AppliedEffectDef, AppliedRuleDef, CardArt, CardChoiceSourceDef, CardRules, CardSet,
+    CardSupertype, CardType, CardTypeSet, ColorSet, CreatureTypeSetDef, EffectDef,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TopCardSelectionDef, TriggerEventDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -90,6 +90,28 @@ static COLONNADE_ANIMATION: [AppliedEffectDef; 6] = [
 ];
 
 static COLONNADE_COLORS: [ManaColor; 2] = [ManaColor::White, ManaColor::Blue];
+
+static TAR_PIT_ANIMATION: [AppliedEffectDef; 5] = [
+    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+    AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Elemental"])),
+    AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Blue, ManaColor::Black])),
+    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(3), ValueDef::Constant(2)),
+    AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
+        ObjectPredicateDef::Any,
+    )),
+];
+
+static TAR_PIT_COLORS: [ManaColor; 2] = [ManaColor::Blue, ManaColor::Black];
+
+static QUICKSAND_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+    ObjectPredicateDef::All(&[
+        ObjectPredicateDef::HasType(CardType::Creature),
+        ObjectPredicateDef::Attacking,
+        ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+            crate::card::KeywordAbility::Flying,
+        )),
+    ]),
+)];
 
 static A_PLAYER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Player(PlayerRelation::Any),
@@ -261,23 +283,56 @@ pub(in crate::card::sets) static CELESTIAL_COLONNADE: CardRecord = CardRecord::n
 );
 
 // WWK 134 — Creeping Tar Pit
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CREEPING_TAR_PIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0f427f0b-034c-4821-8758-e395c0042d8a"),
     "Creeping Tar Pit",
     crate::card::CardArt::new("0f427f0b-034c-4821-8758-e395c0042d8a", "Jason Felix"),
     crate::card::CardSet::Worldwake,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped("This land enters tapped."),
+        AbilityDef::activated_mana(
+            "{T}: Add {U} or {B}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&TAR_PIT_COLORS)),
+        ),
+        AbilityDef::activated(
+            "{1}{U}{B}: Until end of turn, this land becomes a 3/2 blue and black Elemental creature. It's still a land. It can't be blocked this turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}{U}{B}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Composite(&TAR_PIT_ANIMATION),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // WWK 140 — Quicksand
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static QUICKSAND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("11370658-8d80-4d2f-afa5-ec6df6dee369"),
     "Quicksand",
     crate::card::CardArt::new("4e396df7-9931-43f6-b009-27cf93c4a3e5", "Matt Stewart"),
     crate::card::CardSet::Worldwake,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::activated_mana(
+            "{T}: Add {C}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+        ),
+        AbilityDef::activated_with_targets(
+            "{T}, Sacrifice this land: Target attacking creature without flying gets -1/-2 until end of turn.",
+            &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+            &QUICKSAND_TARGET,
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(-2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

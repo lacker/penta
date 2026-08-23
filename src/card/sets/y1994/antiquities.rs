@@ -1952,19 +1952,6 @@ const fn controls_named(name: &'static str) -> ConditionDef {
     ))
 }
 
-static URZAS_MINE_ASSEMBLED: [ConditionDef; 2] = [
-    controls_named("Urza's Power Plant"),
-    controls_named("Urza's Tower"),
-];
-static URZAS_POWER_PLANT_ASSEMBLED: [ConditionDef; 2] = [
-    controls_named("Urza's Mine"),
-    controls_named("Urza's Tower"),
-];
-static URZAS_TOWER_ASSEMBLED: [ConditionDef; 2] = [
-    controls_named("Urza's Mine"),
-    controls_named("Urza's Power Plant"),
-];
-
 // ATQ 82b — Strip Mine (alternate printing)
 
 // ATQ 82c — Strip Mine (alternate printing)
@@ -1982,8 +1969,13 @@ pub(in crate::card::sets) static URZA_S_MINE: CardRecord = CardRecord::new_with_
          instead.",
         &[AbilityCostDef::TapSource],
         EffectDef::AddMana(
-            AddManaEffectDef::one(ManaColor::Colorless)
-                .with_amount_override(ConditionDef::All(&URZAS_MINE_ASSEMBLED), 2),
+            AddManaEffectDef::one(ManaColor::Colorless).with_amount_override(
+                ConditionDef::All(&[
+                    controls_named("Urza's Power Plant"),
+                    controls_named("Urza's Tower"),
+                ]),
+                2,
+            ),
         ),
     )),
 );
@@ -2004,8 +1996,13 @@ pub(in crate::card::sets) static URZA_S_POWER_PLANT: CardRecord = CardRecord::ne
         "{T}: Add {C}. If you control an Urza's Mine and an Urza's Tower, add {C}{C} instead.",
         &[AbilityCostDef::TapSource],
         EffectDef::AddMana(
-            AddManaEffectDef::one(ManaColor::Colorless)
-                .with_amount_override(ConditionDef::All(&URZAS_POWER_PLANT_ASSEMBLED), 2),
+            AddManaEffectDef::one(ManaColor::Colorless).with_amount_override(
+                ConditionDef::All(&[
+                    controls_named("Urza's Mine"),
+                    controls_named("Urza's Tower"),
+                ]),
+                2,
+            ),
         ),
     )),
 );
@@ -2027,8 +2024,13 @@ pub(in crate::card::sets) static URZA_S_TOWER: CardRecord = CardRecord::new_with
          instead.",
         &[AbilityCostDef::TapSource],
         EffectDef::AddMana(
-            AddManaEffectDef::one(ManaColor::Colorless)
-                .with_amount_override(ConditionDef::All(&URZAS_TOWER_ASSEMBLED), 3),
+            AddManaEffectDef::one(ManaColor::Colorless).with_amount_override(
+                ConditionDef::All(&[
+                    controls_named("Urza's Mine"),
+                    controls_named("Urza's Power Plant"),
+                ]),
+                3,
+            ),
         ),
     )),
 );

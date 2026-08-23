@@ -72,7 +72,7 @@ fn an_allowed_reprint_makes_the_canonical_identity_format_legal() {
 
     assert_eq!(catalog.get(id).unwrap().debut_set, CardSet::Alpha);
     assert!(catalog.is_allowed_in(id, Format::OldSchool9394));
-    assert!(catalog.is_allowed_in(id, Format::IsdDgmStandard));
+    assert!(catalog.is_allowed_in(id, Format::IsdM14Standard));
 }
 
 #[test]

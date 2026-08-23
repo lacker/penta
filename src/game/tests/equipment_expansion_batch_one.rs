@@ -1,4 +1,4 @@
-//! The first ISD–DGM Equipment completion batch: a nonmana equip cost,
+//! The first ISD–M14 Equipment completion batch: a nonmana equip cost,
 //! attachment-scoped characteristic changes, and triggers that watch the
 //! creature currently carrying an Equipment.
 

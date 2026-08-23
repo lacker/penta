@@ -1,4 +1,4 @@
-//! The second ISD–DGM Equipment completion batch: live affected-color
+//! The second ISD–M14 Equipment completion batch: live affected-color
 //! values, two-sided block matching, subtype removal and attachment SBAs,
 //! and an Equipment that unattaches itself before transforming.
 

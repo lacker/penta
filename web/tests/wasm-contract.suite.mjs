@@ -33,7 +33,7 @@ test("card coverage comes from ability definitions rather than play gates", asyn
     "Handcrafted",
     true,
     2,
-    "isd-dgm-standard",
+    "isd-m14-standard",
   );
   const opening = JSON.parse(game.state_json());
   const pilgrim = opening.human.hand.find(
@@ -355,7 +355,7 @@ test("every deck the picker offers is one the engine can build", async () => {
       "White Weenie", "Erhnamgeddon", "Counterburn", "Lions DIB",
       "Lion Dib Bolt", "BWR Aggro", "GR Aggro", "Troll Disk", "Jeskai Aggro",
     ],
-    "isd-dgm-standard": [
+    "isd-m14-standard": [
       "Briksza Naya Midrange", "Greer G/R Aggro", "Fyrberg B/G Midrange",
       "Smith Naya Midrange", "McDuffie U/W/R Flash", "Lorren U/W Flash",
       "Arch U/W Flash", "Kuenzinger Junk Reanimator",
@@ -384,7 +384,7 @@ test("every deck the picker offers is one the engine can build", async () => {
   }
 
   assert.throws(
-    () => new WebGame("Goblins", "Goblins", "Handcrafted", true, 1, "isd-dgm-standard"),
+    () => new WebGame("Goblins", "Goblins", "Handcrafted", true, 1, "isd-m14-standard"),
     /unknown deck for format/,
     "a deck from another format cannot leak into Standard",
   );
@@ -396,6 +396,11 @@ test("every deck the picker offers is one the engine can build", async () => {
   assert.throws(
     () => new WebGame("Goblins", "Goblins", "Handcrafted", true, 1, "not-a-format"),
     /unknown format/,
+  );
+  assert.throws(
+    () => new WebGame("Smith Naya Midrange", "Smith Naya Midrange", "Handcrafted", true, 1, "isd-dgm-standard"),
+    /unknown format/,
+    "the removed ISD-DGM profile is rejected",
   );
 });
 

@@ -12,7 +12,7 @@ Penta currently ships seven explicit format profiles:
 - **Old School 93/94**, using Eternal Central rules including mana burn and fifteen
   built-in archetypes.
 - **Premodern**, spanning Fourth Edition through Scourge with its own ban list.
-- **Standard: ISD-DGM**, using the final pre-Theros legality snapshot and ten
+- **Standard: ISD-M14**, using the final pre-Theros legality snapshot and ten
   built-in decks: the eight SCG Open Atlanta Top 8 lists plus two January 2013
   SCG matchup decks.
 - **Standard: ISD-M14**, the same window under its first-and-last-set label.

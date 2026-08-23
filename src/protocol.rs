@@ -82,10 +82,11 @@ use observation_json::{decision_json, stack_object_json};
 /// 22 establishes open-world JSON objects, advertises
 /// named capabilities and a simulation fingerprint, and separates
 /// checkpoint/replay formats from the bot wire. Version 23 renames the
-/// canonical final pre-Theros format slug from `isd-rtr-standard` to
-/// `isd-dgm-standard`. Version 24 makes a permanent's `blocking` an array of
-/// attacker ids rather than one id or null, because a creature can block a
-/// band as a group and can be allowed more than one block. Version 25 renames
+/// canonical Innistrad-through-Dragon's-Maze format slug from
+/// `isd-rtr-standard` to `isd-dgm-standard`. Version 24 makes a permanent's
+/// `blocking` an array of attacker ids rather than one id or null, because a
+/// creature can block a band as a group and can be allowed more than one block.
+/// Version 25 renames
 /// an activated ability's singular `costObject` to the `costObjects` array.
 /// Version 26 removes synthetic card-definition identities from tokens and
 /// reports their creator-owned inline characteristics instead. Version 27
@@ -93,8 +94,9 @@ use observation_json::{decision_json, stack_object_json};
 /// characteristics travel inline while their physical card keeps its real
 /// definition identity. Version 28 broadens catalog mana symbols beyond
 /// ordinary two-color hybrid and records explicitly announced flexible-mana
-/// alternatives on cast actions.
-pub const PROTOCOL_VERSION: u32 = 28;
+/// alternatives on cast actions. Version 29 removes the `isd-dgm-standard`
+/// format value; use the final pre-Theros `isd-m14-standard` profile.
+pub const PROTOCOL_VERSION: u32 = 29;
 
 /// The engine package release. This is ordinary Cargo `SemVer`, not an exact
 /// ruleset identity; use [`SIMULATION_FINGERPRINT`] for replay and model

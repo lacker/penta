@@ -7,7 +7,7 @@ authoritative machine-readable account of card legality and coverage.
 
 ## Supported formats
 
-Penta currently ships seven explicit format profiles in four presentation
+Penta currently ships six explicit format profiles in four presentation
 categories:
 
 - **Old School 93/94**: the original card pool, EC banned and
@@ -15,12 +15,10 @@ categories:
 - **Premodern**: Fourth Edition through Scourge, the format's own ban list, no
   restricted list, modern mana rules, and the eight decks of the July 2026
   Sacred Torch Showdown Top 8.
-- **Standard: ISD-DGM (final pre-Theros snapshot)**: Innistrad, Dark Ascension,
-  Avacyn Restored, Magic 2013, Return to Ravnica, Gatecrash, Dragon's Maze,
-  and Magic 2014; no banned or restricted cards; modern mana-pool emptying with
-  no mana burn; and ten built-in decks from SCG events and testing in 2013.
-- **Standard: ISD-M14**: the same final pre-Theros eight-set window under its
-  first-and-last-set label. It shares the ten ISD–DGM built-in decks.
+- **Standard: ISD-M14 (final pre-Theros snapshot)**: Innistrad, Dark Ascension,
+  Avacyn Restored, Magic 2013, Return to Ravnica, Gatecrash, Dragon's Maze, and
+  Magic 2014. It exposes all ten built-in decks from SCG events and testing in
+  2013.
 - **Standard: SOM-M13**: Scars of Mirrodin, Mirrodin Besieged, New Phyrexia,
   Magic 2012, Innistrad, Dark Ascension, Avacyn Restored, and Magic 2013.
 - **Cube: Vintage**: the dated 534-card MTGO Vintage Cube snapshot.
@@ -44,7 +42,9 @@ cube cannot accidentally be interpreted as an empty set window. Vintage Cube
 coverage is documented in the [Vintage Cube roadmap](vintage-cube.md). The
 Pauper Cube list lives in `src/formats/cubes/pauper.rs`; every member is
 cataloged, with newly introduced identities deliberately represented as
-metadata-only stubs. Neither cube has built-in decks or drafting support yet,
+metadata-only stubs. The Vintage Cube pool is likewise identity-complete, with
+unsupported members represented explicitly rather than left uncataloged.
+Neither cube has built-in decks or drafting support yet,
 so neither is offered in the web client.
 
 ### Old School 93/94
@@ -66,11 +66,10 @@ with the format's own thirty-three-card ban list, taken from the Premodern
 rules page. Its decks and per-card coverage are tracked in the
 [Premodern roadmap](premodern.md).
 
-### Standard: ISD–DGM and Standard: ISD–M14
+### Standard: ISD–M14
 
-The profile represents the final Standard environment before Theros. It uses
-its eight-set legality snapshot, empties mana after each step and phase, and has
-no mana burn.
+This eight-set profile represents the final Standard environment before
+Theros. It empties mana after each step and phase and has no mana burn.
 
 ### Standard: SOM–M13
 
@@ -103,13 +102,14 @@ The engine currently supports:
   set modules, with executable declarative records for the supported tranche
   and a collector-ordered, named engine-capability gap for every incomplete
   identity in the 93/94 set corpus, including banned cards;
-- an identity-complete Standard: ISD–DGM implementation audit inline in its
-  eight printed set modules, with a concrete engine-capability gap for every
-  incomplete identity;
-- complete SOM, MBS, NPH, and M12 identity inventories, with every newly
-  introduced card represented by an explicitly audited metadata-only stub;
-- exact fixed card lists for Cube: Vintage and Cube: The Pauper Cube, with all
-  450 Pauper Cube identities cataloged; and
+- an identity-complete Standard: ISD–M14 implementation audit inline in its
+  eight-set window, with a concrete engine-capability gap for every incomplete
+  identity;
+- identity-complete inventories for the full Premodern and SOM–M13 set windows,
+  with every unsupported identity represented by an explicitly audited
+  metadata-only stub;
+- exact, fully cataloged fixed card lists for Cube: Vintage and Cube: The
+  Pauper Cube; and
 - fixed source-faithful decks with complete main-deck and sideboard lists for
   the formats that currently ship built-in decks.
 
@@ -183,10 +183,10 @@ Chaos Orb interaction: Guardian Beast can prevent the Orb's final destruction,
 but destroying the Beast with a successful flip removes that protection before
 the Orb's next instruction.
 
-### Standard: ISD–DGM
+### Standard: ISD–M14 decks
 
-The profile contains the complete main deck and sideboard for each member of
-the [SCG Open Atlanta Top 8][scg-atlanta]:
+The ISD–M14 profile contains the complete main deck and sideboard for each
+member of the [SCG Open Atlanta Top 8][scg-atlanta]:
 
 - Rudy Briksza — Naya Midrange
 - Joseph Greer — G/R Aggro
@@ -197,7 +197,7 @@ the [SCG Open Atlanta Top 8][scg-atlanta]:
 - Clayton Arch — U/W Flash
 - Drew Kuenzinger — Junk Reanimator
 
-It also contains both complete lists from the January 2013
+The profile also contains both complete lists from the January 2013
 [Todd Anderson vs. Brian Braun-Duin matchup][scg-matchup]:
 
 - Todd Anderson — Omnidoor Thragfire

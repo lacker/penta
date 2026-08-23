@@ -1,12 +1,12 @@
 # Writing an AI bot for Penta
 
 penta is a deterministic engine for two-player Magic across set-based formats
-and fixed-list cubes. Its profiles include Old School 93/94, Premodern, three
+and fixed-list cubes. Its profiles include Old School 93/94, Premodern, two
 historical Standard windows, and two cubes. This guide is for writing a program
 that plays it: from Python, C, C++, or Rust, against the included bots or
 against itself.
 
-This guide describes the current development wire contract, **protocol 28**,
+This guide describes the current development wire contract, **protocol 29**,
 which retains protocol 22's open-world model. Ignore JSON object members your bot does not use;
 the epoch changes only when an existing field or tag is removed, renamed,
 retyped, or reinterpreted. Additive fields and different legal actions expressed
@@ -78,7 +78,7 @@ game = penta.Game(
     "Briksza Naya Midrange",
     "Greer G/R Aggro",
     opponent="external",
-    format="isd-dgm-standard",
+    format="isd-m14-standard",
     seed=42,
 )
 ```
@@ -147,7 +147,7 @@ use penta::{Format, PlayerId};
 
 fn main() -> Result<(), String> {
     let mut game = BotGame::new_with_format(
-        Format::IsdDgmStandard,
+        Format::IsdM14Standard,
         "Briksza Naya Midrange",
         "Greer G/R Aggro",
         Opponent::Handcrafted,
@@ -385,11 +385,11 @@ world it can search.
 
 | field | meaning |
 | --- | --- |
-| `protocolVersion` | the breaking bot-wire epoch; protocol 28 objects are open-world, but an epoch mismatch requires migration |
+| `protocolVersion` | the breaking bot-wire epoch; protocol 29 objects are open-world, but an epoch mismatch requires migration |
 | `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v8`; ignore unknown entries |
 | `simulationFingerprint` | a conservative identity of simulation source and build requirements; pin it for training and require it for reconstruction |
 | `engineVersion` | package-release provenance; it is not an exact simulation identity |
-| `format` | the rules/deck profile slug: `"old-school-93-94"`, `"premodern"`, `"isd-dgm-standard"`, `"isd-m14-standard"`, `"som-m13-standard"`, `"vintage-cube"`, or `"pauper-cube"` |
+| `format` | the rules/deck profile slug: `"old-school-93-94"`, `"premodern"`, `"isd-m14-standard"`, `"som-m13-standard"`, `"vintage-cube"`, or `"pauper-cube"` |
 | `seat` | whose view this is: `"p1"` or `"p2"` |
 | `pregame` | true while mulligans are being settled |
 | `turn`, `activeTurn`, `activeSeat`, `prioritySeat`, `step` | where the game is; `activeTurn` counts turns started by the active player, including extra turns, and `step` is one of `Upkeep`, `Draw`, `PrecombatMain`, `BeginningOfCombat`, `DeclareAttackers`, `DeclareBlockers`, `CombatDamage`, `EndOfCombat`, `PostcombatMain`, `End`, `Cleanup` |
@@ -763,12 +763,13 @@ an additive catalog-content change, not a JSON-shape change; consumers must not
 assume the older catalog length or that definition 314 is the maximum ID.
 
 Definitions 607 through 1361 extended the compatible protocol-20 catalog growth
-with 736 card identities used by Standard: ISD-DGM and nineteen supporting
-tokens. Together with in-format printings of existing definitions, Standard
-then exposed 878 legal identities: 839 `complete` and 39 `partial`. The inline
-audit partitioned all 1,686 identities in its eight sets and recorded a concrete
-engine-capability gap for every one of the 847 incomplete identities, including
-808 blocked cards that had no catalog definition. The definition IDs are
+with 736 card identities used by the historical Standard tranche and nineteen
+supporting tokens. Together with in-format printings of existing definitions,
+Standard then exposed 878 legal identities: 839 `complete` and 39 `partial`.
+The inline audit partitioned all 1,686 identities in the eight-set ISD–M14
+window and recorded a concrete engine-capability gap for every one of the 847
+incomplete identities, including 808 blocked cards that had no catalog
+definition. The definition IDs are
 append-only and the catalog,
 observation, action, and decision JSON shapes are unchanged, so this does not
 bump protocol 20. Consumers must not assume definition 606 remains the maximum
@@ -883,16 +884,23 @@ protocol 7's one-off numeric `whiteRedHybrid` field with this general array.
 The shape is used everywhere the catalog reports a cost, including parts,
 play options, alternative costs, and additional costs.
 
+### Migrating from protocol 28
+
+Protocol 29 removes the closed `isd-dgm-standard` format value and its
+`isd-rtr-standard` compatibility spellings. Use `isd-m14-standard` for the
+final pre-Theros profile and rewrite stored game configurations before starting
+them. Catalog and observation JSON shapes are unchanged. Browser replay version
+2 is unchanged because replay acceptance also requires the exact simulation
+fingerprint, which changes with the supported format registry.
+
 ### Migrating from protocol 22
 
-Protocol 23 renames the final pre-Theros format's canonical wire identifier
-from `isd-rtr-standard` to `isd-dgm-standard`, naming the Innistrad and Return
-to Ravnica block endpoints while retaining the M13 and M14 core sets. Catalogs
-and observations always emit the new slug. Game configuration continues to
-accept `isd-rtr-standard` and `isd_rtr_standard` as input-only compatibility
-aliases; persist the canonical slug from output when rewriting configuration.
-Browser replay journals carrying the renamed configuration use replay version
-2. Checkpoint format 3 and `reconstruction.checkpoint.v3` are unchanged.
+Protocol 23 renames the Innistrad-through-Dragon's-Maze format's canonical wire
+identifier from `isd-rtr-standard` to `isd-dgm-standard`. Protocol 29 removes
+that historical profile and its compatibility spellings; migrate directly to
+`isd-m14-standard`. Browser replay journals carrying the protocol-23 rename use
+replay version 2. Checkpoint format 3 and `reconstruction.checkpoint.v3` are
+unchanged.
 
 The accompanying cards and built-in decks are append-only catalog and
 simulation changes. They do not move the wire epoch independently and are

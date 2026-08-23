@@ -146,7 +146,7 @@ fn old_school_ring_offers_owned_exile_and_sideboard_then_resumes_the_draws() {
 #[test]
 fn non_old_school_ring_uses_oracle_outside_game_source_only() {
     let mut game = ready_game();
-    game.format = Format::IsdDgmStandard;
+    game.format = Format::IsdM14Standard;
     set_outside_game(&mut game, PlayerId::One, &[cards::SERRA_ANGEL]);
     let exiled_ring = resolve_ring_activation(&mut game);
 
@@ -177,7 +177,7 @@ fn non_old_school_ring_uses_oracle_outside_game_source_only() {
 #[test]
 fn an_impossible_ring_choice_still_replaces_the_draw_without_decking() {
     let mut game = ready_game();
-    game.format = Format::IsdDgmStandard;
+    game.format = Format::IsdM14Standard;
     game.players[0].outside_game.clear();
     game.players[0].library.clear();
     resolve_ring_activation(&mut game);

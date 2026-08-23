@@ -115,7 +115,7 @@ fn observation_json_carries_interwave_state_and_presented_card_part() {
     let catalog = poc::catalog().expect("catalog builds");
     let observation = observation_with_printed_and_token_permanents();
     let value =
-        observation_json_for_format(&catalog, Format::IsdDgmStandard, &observation, false, &[]);
+        observation_json_for_format(&catalog, Format::IsdM14Standard, &observation, false, &[]);
     assert_eq!(value["regularCombatDamagePending"], true);
     assert_eq!(value["battlefield"][0]["objectId"], 30);
     assert_eq!(value["battlefield"][0]["presentedPartId"], 1);

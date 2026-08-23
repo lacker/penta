@@ -1,4 +1,4 @@
-//! The third ISD–DGM Equipment completion batch: a granted ability that
+//! The third ISD–M14 Equipment completion batch: a granted ability that
 //! sacrifices and attributes damage to its granting Equipment, and an attack
 //! trigger that reveals/mills the defending player's library into a bound
 //! same-resolution count.

@@ -30,44 +30,44 @@ fn tranches() -> [(Format, Vec<(&'static str, Deck)>); 2] {
             ],
         ),
         (
-            Format::IsdDgmStandard,
+            Format::IsdM14Standard,
             vec![
                 (
                     "Briksza Naya",
-                    decks::isd_dgm_standard::naya_midrange_rudy_briksza(),
+                    decks::isd_m14_standard::naya_midrange_rudy_briksza(),
                 ),
                 (
                     "Greer G/R",
-                    decks::isd_dgm_standard::gr_aggro_joseph_greer(),
+                    decks::isd_m14_standard::gr_aggro_joseph_greer(),
                 ),
                 (
                     "Fyrberg B/G",
-                    decks::isd_dgm_standard::bg_midrange_mike_fyrberg(),
+                    decks::isd_m14_standard::bg_midrange_mike_fyrberg(),
                 ),
                 (
                     "Smith Naya",
-                    decks::isd_dgm_standard::naya_midrange_jimmie_smith(),
+                    decks::isd_m14_standard::naya_midrange_jimmie_smith(),
                 ),
                 (
                     "McDuffie UWR",
-                    decks::isd_dgm_standard::uwr_flash_korey_mcduffie(),
+                    decks::isd_m14_standard::uwr_flash_korey_mcduffie(),
                 ),
                 (
                     "Lorren U/W",
-                    decks::isd_dgm_standard::uw_flash_phillip_lorren(),
+                    decks::isd_m14_standard::uw_flash_phillip_lorren(),
                 ),
-                ("Arch U/W", decks::isd_dgm_standard::uw_flash_clayton_arch()),
+                ("Arch U/W", decks::isd_m14_standard::uw_flash_clayton_arch()),
                 (
                     "Kuenzinger Junk",
-                    decks::isd_dgm_standard::junk_reanimator_drew_kuenzinger(),
+                    decks::isd_m14_standard::junk_reanimator_drew_kuenzinger(),
                 ),
                 (
                     "Anderson Omnidoor",
-                    decks::isd_dgm_standard::omnidoor_thragfire_todd_anderson(),
+                    decks::isd_m14_standard::omnidoor_thragfire_todd_anderson(),
                 ),
                 (
                     "Braun-Duin Naya",
-                    decks::isd_dgm_standard::naya_midrange_brian_braun_duin(),
+                    decks::isd_m14_standard::naya_midrange_brian_braun_duin(),
                 ),
             ],
         ),

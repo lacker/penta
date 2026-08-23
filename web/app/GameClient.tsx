@@ -70,9 +70,6 @@ const resolveDeck = (format: FormatId, choice: string) => {
 
 const initialFormat = () => {
   const requested = new URLSearchParams(window.location.search).get("format");
-  if (requested === "isd-rtr-standard" || requested === "isd_rtr_standard") {
-    return "isd-dgm-standard";
-  }
   return isFormatId(requested) ? requested : defaultFormat;
 };
 

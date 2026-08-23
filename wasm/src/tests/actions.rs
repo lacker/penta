@@ -8,7 +8,7 @@ fn cast_action_labels_distinguish_normal_flashback_and_overload() {
         "Handcrafted",
         true,
         2,
-        Some("isd-dgm-standard".into()),
+        Some("isd-m14-standard".into()),
     )
     .unwrap();
     let mut observation = game.session.engine().observe(game.human);
@@ -79,7 +79,7 @@ fn cast_action_labels_distinguish_optional_buyback() {
         "Handcrafted",
         true,
         2,
-        Some("isd-dgm-standard".into()),
+        Some("isd-m14-standard".into()),
     )
     .unwrap();
     let mut observation = game.session.engine().observe(game.human);
@@ -264,7 +264,7 @@ fn activated_action_labels_show_distinct_x_and_every_selected_target() {
         "Handcrafted",
         true,
         2,
-        Some("isd-dgm-standard".into()),
+        Some("isd-m14-standard".into()),
     )
     .unwrap();
     let source = game
@@ -528,7 +528,7 @@ fn visible_card_coverage_comes_from_ability_implementations() {
         "Handcrafted",
         true,
         2,
-        Some("isd-dgm-standard".into()),
+        Some("isd-m14-standard".into()),
     )
     .unwrap();
     let snapshot = game.snapshot_value(false);

@@ -1,6 +1,6 @@
 use super::*;
 
-fn isd_dgm_game() -> Game {
+fn isd_m14_game() -> Game {
     let mut game = ready_game();
     game.catalog = crate::card::catalog().unwrap();
     game
@@ -8,7 +8,7 @@ fn isd_dgm_game() -> Game {
 
 #[test]
 fn griselbrand_pays_seven_life_then_draws_seven_cards() {
-    let mut game = isd_dgm_game();
+    let mut game = isd_m14_game();
     let griselbrand = creature(20_000, cards::GRISELBRAND, PlayerId::One);
     let source = griselbrand.card.id;
     game.battlefield.push(griselbrand);
@@ -40,7 +40,7 @@ fn griselbrand_pays_seven_life_then_draws_seven_cards() {
 
 #[test]
 fn planar_cleansing_destroys_nonlands_but_leaves_both_players_lands() {
-    let mut game = isd_dgm_game();
+    let mut game = isd_m14_game();
     let cleansing = card(21_000, cards::PLANAR_CLEANSING, PlayerId::One);
     let mountain = creature(21_001, cards::MOUNTAIN, PlayerId::One);
     let lantern = creature(21_002, cards::CHROMATIC_LANTERN, PlayerId::One);
@@ -88,7 +88,7 @@ fn planar_cleansing_destroys_nonlands_but_leaves_both_players_lands() {
 
 #[test]
 fn door_to_nothingness_makes_its_target_lose() {
-    let mut game = isd_dgm_game();
+    let mut game = isd_m14_game();
     let door = creature(22_000, cards::DOOR_TO_NOTHINGNESS, PlayerId::One);
     let source = door.card.id;
     game.battlefield.push(door);
@@ -133,7 +133,7 @@ fn door_to_nothingness_makes_its_target_lose() {
 
 #[test]
 fn chromatic_lantern_grants_colored_mana_and_gilded_lotus_adds_three() {
-    let mut game = isd_dgm_game();
+    let mut game = isd_m14_game();
     let lantern = creature(23_000, cards::CHROMATIC_LANTERN, PlayerId::One);
     let mountain = creature(23_001, cards::MOUNTAIN, PlayerId::One);
     let forest = creature(23_002, cards::FOREST, PlayerId::Two);
@@ -181,7 +181,7 @@ fn chromatic_lantern_grants_colored_mana_and_gilded_lotus_adds_three() {
         "the Lantern does not grant an ability to an opponent's land"
     );
 
-    let mut lotus_game = isd_dgm_game();
+    let mut lotus_game = isd_m14_game();
     let lotus = creature(23_100, cards::GILDED_LOTUS, PlayerId::One);
     let lotus_id = lotus.card.id;
     lotus_game.battlefield.push(lotus);
@@ -202,7 +202,7 @@ fn chromatic_lantern_grants_colored_mana_and_gilded_lotus_adds_three() {
 
 #[test]
 fn garruk_offers_only_supported_modes_and_makes_one_wurm_per_controlled_land() {
-    let mut game = isd_dgm_game();
+    let mut game = isd_m14_game();
     let garruk = game
         .put_onto_battlefield(PlayerId::One, cards::GARRUK_PRIMAL_HUNTER)
         .expect("Garruk is cataloged");
@@ -275,7 +275,7 @@ fn garruk_offers_only_supported_modes_and_makes_one_wurm_per_controlled_land() {
 
 #[test]
 fn increasing_ambition_searches_for_exactly_one_card_from_hand() {
-    let mut game = isd_dgm_game();
+    let mut game = isd_m14_game();
     game.players[0].library.clear();
     game.players[0].library.extend([
         card(24_101, cards::MOUNTAIN, PlayerId::One),
@@ -351,7 +351,7 @@ fn increasing_ambition_searches_for_exactly_one_card_from_hand() {
 
 #[test]
 fn increasing_ambition_stays_hand_only_when_flashback_is_granted() {
-    let mut game = isd_dgm_game();
+    let mut game = isd_m14_game();
     let ambition = card(24_200, cards::INCREASING_AMBITION, PlayerId::One);
     game.players[0].graveyard.push(ambition.clone());
     game.players[0].mana_pool = ManaPool {
@@ -379,7 +379,7 @@ fn increasing_ambition_stays_hand_only_when_flashback_is_granted() {
 
 #[test]
 fn temporal_mastery_schedules_an_extra_turn_and_exiles_itself() {
-    let mut game = isd_dgm_game();
+    let mut game = isd_m14_game();
     let mastery = card(24_300, cards::TEMPORAL_MASTERY, PlayerId::One);
     game.players[0].hand.push(mastery.clone());
     game.players[0].mana_pool.blue = 2;
@@ -406,7 +406,7 @@ fn temporal_mastery_schedules_an_extra_turn_and_exiles_itself() {
 
 #[test]
 fn supported_searches_and_metadata_only_spells_have_the_right_cast_availability() {
-    let mut game = isd_dgm_game();
+    let mut game = isd_m14_game();
     game.players[0].hand.extend([
         card(24_000, cards::FOG, PlayerId::One),
         card(24_001, cards::WORLDFIRE, PlayerId::One),
@@ -448,7 +448,7 @@ fn supported_searches_and_metadata_only_spells_have_the_right_cast_availability(
 
 #[test]
 fn rangers_path_puts_two_forest_cards_onto_the_battlefield_tapped() {
-    let mut game = isd_dgm_game();
+    let mut game = isd_m14_game();
     let path = card(24_400, cards::RANGERS_PATH, PlayerId::One);
     game.players[0].hand.push(path.clone());
     game.players[0].library.extend([

@@ -1,4 +1,4 @@
-export type FormatId = "old-school-93-94" | "isd-dgm-standard" | "premodern";
+export type FormatId = "old-school-93-94" | "isd-m14-standard" | "premodern";
 
 type FormatConfig = {
   name: string;
@@ -32,9 +32,9 @@ export const formatConfigs: Record<FormatId, FormatConfig> = {
       "Jeskai Aggro": "Blue-white-red tempo · Burn and permission",
     },
   },
-  "isd-dgm-standard": {
-    name: "Standard: ISD-DGM",
-    shortName: "STANDARD · ISD-DGM · 2013",
+  "isd-m14-standard": {
+    name: "Standard: ISD-M14",
+    shortName: "STANDARD · ISD-M14 · 2013",
     cardBackMark: "13",
     description: "Final pre-Theros pool · no mana burn · tournament and test decks · staged card effects",
     deckNotes: {
@@ -72,7 +72,7 @@ export const formatConfigs: Record<FormatId, FormatConfig> = {
 
 export const formatIds: FormatId[] = [
   "old-school-93-94",
-  "isd-dgm-standard",
+  "isd-m14-standard",
   "premodern",
 ];
 

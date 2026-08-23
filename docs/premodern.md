@@ -31,9 +31,9 @@ Marvin's Angry Hermit.
 `Format::Premodern` is in place: the twenty-nine-set window from Fourth
 Edition through Scourge, the format's own thirty-three-card ban list, no
 restricted list, and contemporary mana rules. All three are taken from the
-[Premodern rules page][rules]. `CardSet` gained the fifteen sets in the window
-it was missing, so the window can be stated in full even where no card has
-been authored from a set yet.
+[Premodern rules page][rules]. Every identity in those twenty-nine sets now has
+an ordered source entry and catalog representation; unimplemented cards are
+explicit metadata-only stubs.
 
 The format is offered in the web client, and its picker lists exactly the
 decks the engine has registered. Whole-game coverage matches the other two
@@ -42,10 +42,9 @@ result and rebuild sampled Premodern positions from their observations.
 
 ## Remaining format work
 
-- Add the missing printed-set modules and canonical printings. Definition IDs
-  remain append-only even when a card belongs to an older set.
-- Add accurate characteristics and Oracle clauses for uncataloged cards.
-  Unsupported clauses must be metadata-only rather than executable no-ops.
+- Replace metadata-only inventory stubs with accurate characteristics and
+  Oracle clauses. Unsupported clauses must remain explicit rather than become
+  executable no-ops.
 - Implement reusable mechanics before card-local behavior. Cycling and
   typecycling, flashback, split cards, tutors, alternative costs that exile a
   card from hand, and single-card reanimation are all in place. One named

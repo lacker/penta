@@ -25,7 +25,7 @@ fn reach_next_human_draw(definition: CardDefinitionId, autopass: bool) -> WebGam
         "Handcrafted",
         true,
         2_013,
-        Some("isd-dgm-standard".into()),
+        Some("isd-m14-standard".into()),
     )
     .expect("the standard game starts");
     act_matching(&mut game, |action| matches!(action, Action::KeepHand));
@@ -78,7 +78,7 @@ fn reach_external_opponent_miracle() -> WebGame {
         "External",
         true,
         2_013,
-        Some("isd-dgm-standard".into()),
+        Some("isd-m14-standard".into()),
     )
     .expect("the hosted standard game starts");
     act_matching(&mut game, |action| matches!(action, Action::KeepHand));

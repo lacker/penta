@@ -18,9 +18,9 @@ Observations and catalogs also advertise named additive capabilities. Replay
 and reconstruction payloads carry their own format versions instead of moving
 the bot-wire epoch.
 
-## 0.7.0 — protocol 28
+## 0.7.0 — protocol 29
 
-This release reports engine 0.7.0 and protocol 28. The simulation fingerprint
+This release reports engine 0.7.0 and protocol 29. The simulation fingerprint
 distinguishes snapshots of the covered source and build inputs.
 
 ### Added
@@ -91,11 +91,15 @@ distinguishes snapshots of the covered source and build inputs.
   now carry set windows plus banned/restricted policy, while cubes carry fixed
   card lists. Historical Standard adds `isd-m14-standard` and
   `som-m13-standard`; cubes add `pauper-cube` from the dated 450-card Cube
-  Cobra snapshot. Display labels use `Standard: ...` and `Cube: ...` prefixes.
+  Cobra snapshot. The redundant `isd-dgm-standard` profile and its old
+  `isd-rtr-standard` input aliases are removed; use `isd-m14-standard` for the
+  final pre-Theros window and its ten built-in decks. Display labels use
+  `Standard: ...` and `Cube: ...` prefixes.
   The catalog gains metadata-only audited stubs for every newly introduced
   identity, and `make catalog-report` derives every section from the category
-  registry. These are additive format slugs and catalog values, so protocol 28,
-  checkpoint format 8, and replay version 2 are unchanged.
+  registry. Removing the closed format value advances protocol 28 to 29.
+  Checkpoint format 8 and replay version 2 are unchanged; replay compatibility
+  still requires the new simulation fingerprint.
 
 - **Protocol 28 broadens flexible mana and adds announced payment choices.**
   Catalog `manaCost.hybrid[].symbol` values can now describe two-brid (`2/B`),

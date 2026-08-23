@@ -51,6 +51,13 @@ effect or mechanism that creates them, are not card definitions, and remain
 outside these conventions. Move card-local helpers with the definition they
 support.
 
+Mirror every nonempty `ADDITIONAL_PRINTINGS` entry in the collector-ordered
+upper portion of the set file. Use `// M14 1 — Ajani, Caller of the Pride
+(reprint)` for the default printing and `// SET NUMBER — Name (alternate
+printing)` for another art or variant. These standalone comments make the set
+inventory readable from top to bottom; the source-organization test checks
+that a file which uses them mirrors its additional-printing registry exactly.
+
 Start new and migrated work with the card's ordered `AbilityDef` clauses. Each
 printed clause should carry its explicit timing category and, where applicable,
 its costs, targets, effect, execution, and coverage. Displayed rules text and
@@ -107,6 +114,38 @@ logic through unrelated engine paths.
 5. Run final focused native checks for the changed behavior before handoff.
    Add browser validation only when the card work also changes a browser-facing
    contract or web code; leave aggregate integration coverage to PR CI.
+
+## Adding a set or fixed card pool
+
+Treat registration and catalog inventory as one change, even when card rules
+will be implemented later:
+
+1. Establish the complete legal set list from the format's authority and put
+   that list in its `SetFormatDefinition`. For a cube, preserve the exact fixed
+   list in its `CubeFormatDefinition` instead of inferring legality from sets.
+2. Query the local Scryfall index for every paper printing in each newly legal
+   set. Work in natural collector-number order and keep alternate-art collector
+   numbers distinct. For a cube card, resolve its earliest paper printing and
+   freeze that exact UUID as its identity anchor.
+3. Leave an existing `CardRecord` unchanged. If the identity is already
+   declared elsewhere, add a `PrintingRecord::reprint` (and `alternate` records
+   for further variants) plus the corresponding ordered upper comments.
+4. If an identity has only a standalone blocked audit row, either replace that
+   row with the reprint comment and printing record, or turn it into a
+   `metadata-only` audit followed by a `CardRecord::new` whose rules are
+   `CardRules::unsupported()`. Preserve a useful existing capability-gap
+   explanation. When there was no row, add the same metadata-only declaration
+   with `Card rules have not been implemented.` as its honest initial audit.
+5. Put a new identity in its debut or otherwise representative printed-set
+   module and anchor it to the exact earliest paper printing. Add a `CardSet`,
+   set module, registry entry, source-code mapping, and catalog JSON code when
+   no modeled set can truthfully own the declaration. Append-only catalog
+   growth does not require a protocol-version bump.
+6. Make `CARDS` exactly mirror declaration order and
+   `ADDITIONAL_PRINTINGS` mirror the ordered reprint comments. Run the focused
+   source-organization and format-coverage tests, then `make catalog-report`.
+   Every set format should account for its whole legal identity corpus, and a
+   fixed cube should have no uncataloged names.
 
 The [development guide](development.md) maps repository paths to validation
 workflows. Current format and card coverage is described in

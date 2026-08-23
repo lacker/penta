@@ -56,7 +56,7 @@ fn a_reconstructed_game_stays_in_step_with_the_host_as_both_play_forward() {
     // and picks up the rest as they are promoted.
     let formats = [
         crate::Format::OldSchool9394,
-        crate::Format::IsdDgmStandard,
+        crate::Format::IsdM14Standard,
         crate::Format::Premodern,
     ];
     for (format_index, format) in formats.into_iter().enumerate() {

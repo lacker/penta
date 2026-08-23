@@ -66,7 +66,7 @@ fn sampled_game_decisions_reconstruct_from_their_observations() {
 
     let formats = [
         crate::Format::OldSchool9394,
-        crate::Format::IsdDgmStandard,
+        crate::Format::IsdM14Standard,
         crate::Format::Premodern,
     ];
     for (format_index, format) in formats.into_iter().enumerate() {

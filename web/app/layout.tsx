@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Penta — Magic Format Simulator",
   description:
-    "Play deterministic Old School 93/94 and Standard: ISD–DGM Magic against Rust-powered bots.",
+    "Play deterministic Old School 93/94 and Standard: ISD–M14 Magic against Rust-powered bots.",
   openGraph: {
     title: "Penta",
     description: "Classic formats. Deterministic games. Rust-powered rules.",

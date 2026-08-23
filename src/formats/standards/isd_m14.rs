@@ -1,6 +1,8 @@
 use super::super::{CONSTRUCTED_RULES, SetFormatDefinition};
 use crate::card::CardSet;
 
+pub const BANNED_CARDS: &[&str] = &[];
+pub const RESTRICTED_CARDS: &[&str] = &[];
 pub const ALLOWED_SETS: &[CardSet] = &[
     CardSet::Innistrad,
     CardSet::DarkAscension,
@@ -15,6 +17,6 @@ pub const ALLOWED_SETS: &[CardSet] = &[
 pub(in crate::formats) const DEFINITION: SetFormatDefinition = SetFormatDefinition {
     rules: CONSTRUCTED_RULES,
     allowed_sets: ALLOWED_SETS,
-    banned_cards: &[],
-    restricted_cards: &[],
+    banned_cards: BANNED_CARDS,
+    restricted_cards: RESTRICTED_CARDS,
 };

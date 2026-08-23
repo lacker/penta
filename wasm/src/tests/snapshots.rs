@@ -315,7 +315,7 @@ fn standard_visible_cards_include_nested_scryfall_metadata() {
         "Handcrafted",
         true,
         2_013,
-        Some("isd-dgm-standard".into()),
+        Some("isd-m14-standard".into()),
     )
     .unwrap();
     let snapshot = game.snapshot_value(false);
@@ -344,7 +344,7 @@ fn shock_land_entry_stays_prospective_until_the_browser_choice_commits_it() {
         "Handcrafted",
         true,
         2,
-        Some("isd-dgm-standard".into()),
+        Some("isd-m14-standard".into()),
     )
     .unwrap();
     act_matching(&mut game, |action| matches!(action, Action::KeepHand));

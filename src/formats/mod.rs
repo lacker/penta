@@ -17,17 +17,10 @@ pub use premodern::{
     ALLOWED_SETS as PREMODERN_ALLOWED_SETS, BANNED_CARDS as PREMODERN_BANNED_CARDS,
     RESTRICTED_CARDS as PREMODERN_RESTRICTED_CARDS,
 };
-pub use standards::isd_dgm::{
-    ALLOWED_SETS as ISD_DGM_STANDARD_ALLOWED_SETS, BANNED_CARDS as ISD_DGM_STANDARD_BANNED_CARDS,
-    RESTRICTED_CARDS as ISD_DGM_STANDARD_RESTRICTED_CARDS,
+pub use standards::isd_m14::{
+    ALLOWED_SETS as ISD_M14_STANDARD_ALLOWED_SETS, BANNED_CARDS as ISD_M14_STANDARD_BANNED_CARDS,
+    RESTRICTED_CARDS as ISD_M14_STANDARD_RESTRICTED_CARDS,
 };
-
-#[deprecated(note = "use ISD_DGM_STANDARD_BANNED_CARDS")]
-pub const ISD_RTR_STANDARD_BANNED_CARDS: &[&str] = ISD_DGM_STANDARD_BANNED_CARDS;
-#[deprecated(note = "use ISD_DGM_STANDARD_RESTRICTED_CARDS")]
-pub const ISD_RTR_STANDARD_RESTRICTED_CARDS: &[&str] = ISD_DGM_STANDARD_RESTRICTED_CARDS;
-#[deprecated(note = "use ISD_DGM_STANDARD_ALLOWED_SETS")]
-pub const ISD_RTR_STANDARD_ALLOWED_SETS: &[CardSet] = ISD_DGM_STANDARD_ALLOWED_SETS;
 
 /// A supported format.
 ///
@@ -38,7 +31,6 @@ pub enum Format {
     #[default]
     OldSchool9394,
     Premodern,
-    IsdDgmStandard,
     IsdM14Standard,
     SomM13Standard,
     VintageCube,
@@ -73,11 +65,7 @@ impl FormatCategory {
         match self {
             Self::OldSchool => &[Format::OldSchool9394],
             Self::Premodern => &[Format::Premodern],
-            Self::Standard => &[
-                Format::IsdDgmStandard,
-                Format::IsdM14Standard,
-                Format::SomM13Standard,
-            ],
+            Self::Standard => &[Format::IsdM14Standard, Format::SomM13Standard],
             Self::Cube => &[Format::VintageCube, Format::PauperCube],
         }
     }
@@ -142,16 +130,10 @@ pub enum FormatDefinition {
 }
 
 impl Format {
-    /// Source-compatible alias for the former format name.
-    #[allow(non_upper_case_globals)]
-    #[deprecated(note = "use Format::IsdDgmStandard")]
-    pub const IsdRtrStandard: Self = Self::IsdDgmStandard;
-
     /// Every supported format, grouped in [`FormatCategory`] order.
     pub const ALL: &'static [Self] = &[
         Self::OldSchool9394,
         Self::Premodern,
-        Self::IsdDgmStandard,
         Self::IsdM14Standard,
         Self::SomM13Standard,
         Self::VintageCube,
@@ -163,9 +145,7 @@ impl Format {
         match self {
             Self::OldSchool9394 => FormatCategory::OldSchool,
             Self::Premodern => FormatCategory::Premodern,
-            Self::IsdDgmStandard | Self::IsdM14Standard | Self::SomM13Standard => {
-                FormatCategory::Standard
-            }
+            Self::IsdM14Standard | Self::SomM13Standard => FormatCategory::Standard,
             Self::VintageCube | Self::PauperCube => FormatCategory::Cube,
         }
     }
@@ -175,7 +155,6 @@ impl Format {
         match self {
             Self::OldSchool9394 => FormatDefinition::Sets(&old_school_9394::DEFINITION),
             Self::Premodern => FormatDefinition::Sets(&premodern::DEFINITION),
-            Self::IsdDgmStandard => FormatDefinition::Sets(&standards::isd_dgm::DEFINITION),
             Self::IsdM14Standard => FormatDefinition::Sets(&standards::isd_m14::DEFINITION),
             Self::SomM13Standard => FormatDefinition::Sets(&standards::som_m13::DEFINITION),
             Self::VintageCube => FormatDefinition::Cube(&cubes::vintage::DEFINITION),
@@ -212,7 +191,6 @@ impl Format {
         match self {
             Self::OldSchool9394 => "old-school-93-94",
             Self::Premodern => "premodern",
-            Self::IsdDgmStandard => "isd-dgm-standard",
             Self::IsdM14Standard => "isd-m14-standard",
             Self::SomM13Standard => "som-m13-standard",
             Self::VintageCube => "vintage-cube",
@@ -225,7 +203,6 @@ impl Format {
         match self {
             Self::OldSchool9394 => "Old School 93/94",
             Self::Premodern => "Premodern",
-            Self::IsdDgmStandard => "Standard: ISD-DGM",
             Self::IsdM14Standard => "Standard: ISD-M14",
             Self::SomM13Standard => "Standard: SOM-M13",
             Self::VintageCube => "Cube: Vintage",

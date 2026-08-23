@@ -101,10 +101,16 @@ fn standards_have_the_expected_windows_and_categorical_labels() {
             .set_definition()
             .expect("a set format")
             .allowed_sets,
-        Format::IsdDgmStandard
-            .set_definition()
-            .expect("a set format")
-            .allowed_sets
+        &[
+            CardSet::Innistrad,
+            CardSet::DarkAscension,
+            CardSet::AvacynRestored,
+            CardSet::Magic2013,
+            CardSet::ReturnToRavnica,
+            CardSet::Gatecrash,
+            CardSet::DragonsMaze,
+            CardSet::Magic2014,
+        ]
     );
     for &format in FormatCategory::Standard.formats() {
         assert!(format.display_name().starts_with("Standard: "));
@@ -140,9 +146,9 @@ fn formats_allow_only_their_sets_but_share_basic_lands() {
 
     assert!(Format::OldSchool9394.allows_card(&old_spell));
     assert!(!Format::OldSchool9394.allows_card(&standard_spell));
-    assert!(Format::IsdDgmStandard.allows_card(&standard_spell));
-    assert!(!Format::IsdDgmStandard.allows_card(&old_spell));
-    assert!(Format::IsdDgmStandard.allows_card(&basic));
+    assert!(Format::IsdM14Standard.allows_card(&standard_spell));
+    assert!(!Format::IsdM14Standard.allows_card(&old_spell));
+    assert!(Format::IsdM14Standard.allows_card(&basic));
     assert!(Format::OldSchool9394.allows_card(&basic));
 }
 
@@ -160,7 +166,7 @@ fn any_allowed_reprint_makes_the_canonical_card_identity_legal() {
         .push(CardPrinting::new(id, CardSet::Magic2014));
 
     assert!(Format::OldSchool9394.allows_card(&card));
-    assert!(Format::IsdDgmStandard.allows_card(&card));
+    assert!(Format::IsdM14Standard.allows_card(&card));
 }
 
 #[test]

@@ -4978,13 +4978,33 @@ pub(in crate::card::sets) static ORZHOV_KEYRUNE: CardRecord = CardRecord::new_wi
 );
 
 // GTC 234 — Prophetic Prism
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PROPHETIC_PRISM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cfb90d44-8cb1-4b83-b2f2-92c19d6304fb"),
     "Prophetic Prism",
-    crate::card::CardArt::new("b15b29a2-9e6f-45b7-8af5-f09779aae58e", "Daniel Ljunggren"),
-    crate::card::CardSet::Gatecrash,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b15b29a2-9e6f-45b7-8af5-f09779aae58e", "Daniel Ljunggren"),
+    CardSet::Gatecrash,
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        AbilityDef::triggered(
+            "When this artifact enters, draw a card.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{1}, {T}: Add one mana of any color.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+    ]),
 );
 
 // GTC 235 — Razortip Whip

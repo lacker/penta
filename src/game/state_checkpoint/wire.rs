@@ -658,7 +658,6 @@ fn parse_permanent(
         .detained_until_turn_of
         .map(|(player, turns)| player_from_index(player).map(|player| (player, turns)))
         .transpose()?;
-    permanent.destroy_at_end_of_combat = state.destroy_at_end_of_combat;
     permanent.skipped_untap_steps = state.skipped_untap_steps;
     permanent.control_reverts_to = state
         .control_reverts_to

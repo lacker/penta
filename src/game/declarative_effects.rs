@@ -139,8 +139,7 @@ impl Game {
             | EffectDef::LoseTheGame { .. } => {
                 self.resolve_player_state_effect(scoped, object, &context);
             }
-            EffectDef::DestroyAtEndOfCombat { .. }
-            | EffectDef::AddCounters { .. }
+            EffectDef::AddCounters { .. }
             | EffectDef::DoubleCounters { .. }
             | EffectDef::RemoveCounters { .. }
             | EffectDef::RemoveAllCounters { .. }

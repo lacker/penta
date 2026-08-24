@@ -173,7 +173,6 @@ fn validate_effect_references(
         | EffectDef::Regenerate { object }
         | EffectDef::Tap { object }
         | EffectDef::RemoveFromCombat { object }
-        | EffectDef::DestroyAtEndOfCombat { object, .. }
         | EffectDef::SkipNextUntapSteps { object, .. }
         | EffectDef::DoubleCounters { object, .. }
         | EffectDef::RemoveAllCounters { object, .. }

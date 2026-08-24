@@ -90,23 +90,57 @@ fn the_dwarven_soldier_ignores_everything_else() {
 }
 
 #[test]
-fn the_battering_ram_marks_the_wall_that_blocked_it() {
+fn the_battering_ram_installs_a_delayed_trigger_for_the_wall_that_blocked_it() {
     let (game, _ram, wall) = blocked_attack(cards::BATTERING_RAM, cards::WALL_OF_STONE);
 
-    let wall = permanent(&game, wall).expect("still there for now");
-    assert!(
-        wall.destroy_at_end_of_combat,
-        "the Wall is marked, and dies when combat ends"
+    assert!(permanent(&game, wall).is_some(), "the Wall is still there");
+    assert_eq!(
+        game.installed_triggers.len(),
+        1,
+        "the blocking trigger created a one-shot end-of-combat trigger"
     );
 }
 
-/// The control: an ordinary blocker is not a Wall, so nothing is marked.
+/// The control: an ordinary blocker is not a Wall, so no trigger is installed.
 #[test]
 fn the_battering_ram_leaves_a_non_wall_blocker_alone() {
     let (game, _ram, blocker) = blocked_attack(cards::BATTERING_RAM, cards::SEDGE_TROLL);
 
     let blocker = permanent(&game, blocker).expect("still there");
-    assert!(!blocker.destroy_at_end_of_combat);
+    assert_eq!(blocker.card.definition, cards::SEDGE_TROLL);
+    assert!(game.installed_triggers.is_empty());
+}
+
+#[test]
+fn the_battering_rams_delayed_destruction_uses_the_stack_and_can_be_countered() {
+    let (mut game, _ram, wall) = blocked_attack(cards::BATTERING_RAM, cards::WALL_OF_STONE);
+
+    game.step = Step::EndOfCombat;
+    game.capture_battlefield_triggers(&CommittedTriggerEvent::StepBegins {
+        step: TurnStepDef::EndOfCombat,
+        player: game.active_player,
+    });
+    game.finish_rules_procedure();
+
+    assert!(
+        game.installed_triggers.is_empty(),
+        "the one-shot listener fired"
+    );
+    assert_eq!(game.stack.len(), 1, "the delayed ability is on the stack");
+    assert_eq!(game.stack[0].kind, StackObjectKind::TriggeredAbility);
+    assert!(game.can_be_countered(&game.stack[0]));
+    assert!(
+        permanent(&game, wall).is_some(),
+        "nothing happened at the boundary"
+    );
+
+    let delayed = game.stack[0].id;
+    game.counter_spell(delayed);
+    assert!(game.stack.is_empty());
+    assert!(
+        permanent(&game, wall).is_some(),
+        "countering the delayed trigger saves the Wall"
+    );
 }
 
 /// "Has base power 0" is half of a base-setting effect: the toughness under

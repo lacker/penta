@@ -6,10 +6,9 @@ use crate::card::{
     CardTypeSet, ChoiceVisibilityDef, ConditionDef, CounterKind, CreatureTypeSetDef,
     DamageEventMatcherDef, DamagePreventionDef, DamageSourceGroupDef, DiscardSelectionDef,
     EffectDef, EffectExecutionDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef,
-    KeywordAbility, ManaColor, ManaRestrictionDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, PayOrDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, ScaledValueDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    KeywordAbility, ManaColor, ManaRestrictionDef, ObjectPredicateDef, ObjectQueryDef, PayOrDef,
+    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, ScaledValueDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -982,9 +981,7 @@ pub(in crate::card::sets) static BATTERING_RAM: CardRecord = CardRecord::new_wit
             TriggerEventDef::BecomesBlockedBy {
                 blocker: ObjectPredicateDef::Subtype("Wall"),
             },
-            EffectDef::DestroyAtEndOfCombat {
-                object: EffectRecipientDef::object(ObjectRefDef::TriggeringObject),
-            },
+            abilities::destroy_triggering_object_at_end_of_combat(),
         ),
     ]),
 );

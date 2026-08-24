@@ -91,7 +91,6 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::DealDamageFrom { .. }
         | EffectDef::DealDamageAndApply { .. }
         | EffectDef::Destroy { .. }
-        | EffectDef::DestroyAtEndOfCombat { .. }
         | EffectDef::Detain { .. }
         | EffectDef::DiscardCards { .. }
         | EffectDef::DrainLife { .. }

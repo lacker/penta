@@ -32,10 +32,15 @@ fn on_battlefield(game: &Game, id: GameObjectId) -> bool {
         .any(|permanent| permanent.card.id == id)
 }
 
-/// Reaching the end of combat is what resolves the delayed destruction.
+/// Begin the end-of-combat step, put its delayed triggers on the stack, and
+/// let them resolve while combat is still in progress.
 fn end_combat(game: &mut Game) {
     game.step = Step::EndOfCombat;
-    game.advance_step();
+    game.capture_battlefield_triggers(&CommittedTriggerEvent::StepBegins {
+        step: TurnStepDef::EndOfCombat,
+        player: game.active_player,
+    });
+    game.finish_rules_procedure();
     drain_pending(game);
 }
 

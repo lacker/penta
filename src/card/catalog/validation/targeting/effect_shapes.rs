@@ -244,7 +244,6 @@ fn validate_effect_target_shapes(
         | EffectDef::Unattach { object }
         | EffectDef::PairWithSource { object }
         | EffectDef::Destroy { object, .. }
-        | EffectDef::DestroyAtEndOfCombat { object }
         | EffectDef::Detain { object }
         | EffectDef::DoubleCounters { object, .. }
         | EffectDef::RemoveAllCounters { object, .. }

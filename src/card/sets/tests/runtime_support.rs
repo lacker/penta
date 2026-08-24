@@ -709,7 +709,6 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::Regenerate { .. }
                     | EffectDef::Tap { .. }
                     | EffectDef::RemoveFromCombat { .. }
-                    | EffectDef::DestroyAtEndOfCombat { .. }
                     | EffectDef::SkipNextUntapSteps { .. }
                     | EffectDef::DoubleCounters { .. }
                     | EffectDef::RemoveAllCounters { .. }

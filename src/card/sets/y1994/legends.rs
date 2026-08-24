@@ -1821,9 +1821,7 @@ pub(in crate::card::sets) static ABOMINATION: CardRecord = CardRecord::new_with_
                     ObjectPredicateDef::Color(ManaColor::White),
                 ]),
             },
-            EffectDef::DestroyAtEndOfCombat {
-                object: EffectRecipientDef::TriggeringObject,
-            },
+            abilities::destroy_triggering_object_at_end_of_combat(),
         ),
     ),
 );
@@ -2230,9 +2228,7 @@ pub(in crate::card::sets) static INFERNAL_MEDUSA: CardRecord = CardRecord::new_w
             TriggerEventDef::Blocks {
                 blocked: ObjectPredicateDef::HasType(CardType::Creature),
             },
-            EffectDef::DestroyAtEndOfCombat {
-                object: EffectRecipientDef::TriggeringObject,
-            },
+            abilities::destroy_triggering_object_at_end_of_combat(),
         ),
         AbilityDef::triggered(
             "Whenever this creature becomes blocked by a non-Wall creature, destroy that \
@@ -2240,9 +2236,7 @@ pub(in crate::card::sets) static INFERNAL_MEDUSA: CardRecord = CardRecord::new_w
             TriggerEventDef::BecomesBlockedBy {
                 blocker: ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Wall")),
             },
-            EffectDef::DestroyAtEndOfCombat {
-                object: EffectRecipientDef::TriggeringObject,
-            },
+            abilities::destroy_triggering_object_at_end_of_combat(),
         ),
     ]),
 );

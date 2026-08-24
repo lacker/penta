@@ -395,9 +395,6 @@ pub(super) struct PermanentSnapshot {
     /// Detained until this seat's next turn, with the turn count it landed on.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(super) detained_until_turn_of: Option<(usize, u32)>,
-    /// Whether this permanent is destroyed as the current combat phase ends.
-    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
-    pub(super) destroy_at_end_of_combat: bool,
     /// Untap steps this permanent still owes before it untaps normally.
     #[serde(default, skip_serializing_if = "is_zero_u8")]
     pub(super) skipped_untap_steps: u8,

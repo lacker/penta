@@ -328,10 +328,6 @@ pub enum EffectDef {
         object: EffectRecipientDef,
         can_regenerate: bool,
     },
-    /// The object is destroyed when this combat phase ends.
-    DestroyAtEndOfCombat {
-        object: EffectRecipientDef,
-    },
     /// Until the resolving controller's next turn, the permanent cannot
     /// attack, block, or activate its activated abilities.
     Detain {

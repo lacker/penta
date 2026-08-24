@@ -26,13 +26,17 @@ fn blocked_by(attacker: CardDefinitionId, blocker: CardDefinitionId) -> (Game, [
     (game, [attacker_id, blocker_id])
 }
 
-/// Commits the block and runs combat through to the end-of-combat step,
-/// which is where the delayed destruction lands.
+/// Commits the block, begins the end-of-combat step, and resolves the delayed
+/// triggers created by the blocking abilities.
 fn resolve_blocks(game: &mut Game) {
     game.finish_declaring_blockers();
     drain_pending(game);
     game.step = Step::EndOfCombat;
-    game.advance_step();
+    game.capture_battlefield_triggers(&CommittedTriggerEvent::StepBegins {
+        step: TurnStepDef::EndOfCombat,
+        player: game.active_player,
+    });
+    game.finish_rules_procedure();
     drain_pending(game);
 }
 

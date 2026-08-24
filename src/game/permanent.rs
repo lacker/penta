@@ -64,8 +64,6 @@ struct Permanent {
     /// Detained until this player's next turn begins, recorded with how many
     /// turns they had taken when it landed so "next" means the one after.
     detained_until_turn_of: Option<(PlayerId, u32)>,
-    /// Whether this permanent is destroyed as the current combat phase ends.
-    destroy_at_end_of_combat: bool,
     /// How many of this permanent's controller's untap steps it still has to
     /// sit out. Counted rather than flagged because Telekinesis names two.
     skipped_untap_steps: u8,
@@ -281,7 +279,6 @@ impl Permanent {
             emblem_source: None,
             activated_loyalty_this_turn: false,
             detained_until_turn_of: None,
-            destroy_at_end_of_combat: false,
             skipped_untap_steps: 0,
             control_reverts_to: None,
             control_source: None,

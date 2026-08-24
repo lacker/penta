@@ -2049,9 +2049,7 @@ static VENOMOUS_TOUCH: AbilityDef = AbilityDef::triggered(
         creature: ObjectPredicateDef::Source,
         other: ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Wall")),
     },
-    EffectDef::DestroyAtEndOfCombat {
-        object: EffectRecipientDef::TriggeringObject,
-    },
+    abilities::destroy_triggering_object_at_end_of_combat(),
 );
 
 pub(in crate::card::sets) static VENOM: CardRecord = CardRecord::new_with_legacy_id(

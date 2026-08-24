@@ -224,7 +224,6 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::Regenerate { .. }
         | EffectDef::Tap { .. }
         | EffectDef::RemoveFromCombat { .. }
-        | EffectDef::DestroyAtEndOfCombat { .. }
         | EffectDef::SkipNextUntapSteps { .. }
         | EffectDef::DoubleCounters { .. }
         | EffectDef::RemoveAllCounters { .. }

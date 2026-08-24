@@ -604,7 +604,6 @@ impl Game {
                 | EffectDef::Regenerate { .. }
                 | EffectDef::Tap { .. }
                 | EffectDef::RemoveFromCombat { .. }
-                | EffectDef::DestroyAtEndOfCombat { .. }
                 | EffectDef::SkipNextUntapSteps { .. }
                 | EffectDef::DoubleCounters { .. }
                 | EffectDef::RemoveAllCounters { .. }

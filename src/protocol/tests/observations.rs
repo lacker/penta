@@ -42,6 +42,7 @@ fn observation_with_printed_and_token_permanents() -> PlayerObservation {
                     crate::CardPartId(1),
                 ),
                 token: false,
+                has_individual_state: false,
                 controller: PlayerId::One,
                 face_down: false,
                 physical_face: Some(crate::PhysicalFaceObservation {
@@ -76,6 +77,7 @@ fn observation_with_printed_and_token_permanents() -> PlayerObservation {
                     crate::CardPartId::PRIMARY,
                 ),
                 token: true,
+                has_individual_state: false,
                 controller: PlayerId::One,
                 face_down: false,
                 physical_face: None,
@@ -119,6 +121,7 @@ fn observation_json_carries_interwave_state_and_presented_card_part() {
     assert_eq!(value["regularCombatDamagePending"], true);
     assert_eq!(value["battlefield"][0]["objectId"], 30);
     assert_eq!(value["battlefield"][0]["presentedPartId"], 1);
+    assert_eq!(value["battlefield"][0]["hasIndividualState"], false);
     assert_eq!(
         value["battlefield"][0]["characteristics"]["kind"],
         "printed"
@@ -133,6 +136,7 @@ fn observation_json_carries_interwave_state_and_presented_card_part() {
     let token = &value["battlefield"][1];
     assert_eq!(token["name"], "Test Servo");
     assert_eq!(token["token"], true);
+    assert_eq!(token["hasIndividualState"], false);
     assert!(token.get("physicalFace").is_none());
     assert!(token.get("definition").is_none());
     assert!(token.get("presentedPartId").is_none());
@@ -441,6 +445,7 @@ fn decision_json_exposes_trigger_procedure_and_resolution_order_semantics() {
         player: PlayerId::One,
         kind: DecisionKind::TriggerOrder,
         order_semantics: Some(DecisionOrderSemantics::Resolution),
+        source: None,
         prompt: "Choose the order your triggers resolve".into(),
         visibility: crate::game::DecisionVisibility::Public,
         preference: crate::game::DecisionPreference::Neutral,
@@ -488,10 +493,20 @@ fn decision_json_exposes_trigger_procedure_and_resolution_order_semantics() {
         value["options"][0]["abilityText"],
         "First frozen trigger text"
     );
+    assert!(value["sourceObjectId"].is_null());
+
+    let associated = DecisionObservation {
+        kind: DecisionKind::Choice,
+        order_semantics: None,
+        source: Some(GameObjectId(81)),
+        ..decision.clone()
+    };
+    assert_eq!(decision_json(&catalog, &associated)["sourceObjectId"], 81);
 
     let ordinary = DecisionObservation {
         kind: DecisionKind::Choice,
         order_semantics: None,
+        source: None,
         ..decision
     };
     assert!(
@@ -531,6 +546,7 @@ fn decision_json_names_outside_game_card_provenance() {
         player: PlayerId::One,
         kind: DecisionKind::Choice,
         order_semantics: None,
+        source: None,
         prompt: "Choose a sideboard card".into(),
         visibility: crate::game::DecisionVisibility::Private,
         preference: crate::game::DecisionPreference::Neutral,

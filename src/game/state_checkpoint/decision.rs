@@ -939,6 +939,11 @@ fn parse_decision_observation(
                 _ => Err("unknown decision order semantics".to_owned()),
             })
             .transpose()?,
+        source: value
+            .get("sourceObjectId")
+            .filter(|source| !source.is_null())
+            .map(|_| u32_field(value, "sourceObjectId").map(GameObjectId))
+            .transpose()?,
         prompt: str_field(value, "prompt")?.to_owned(),
         visibility: match str_field(value, "visibility")? {
             "Public" => DecisionVisibility::Public,

@@ -173,6 +173,11 @@ pub struct PermanentObservation {
     pub characteristics: ObjectCharacteristics,
     /// Tokens retain this status even while copying a printed card.
     pub token: bool,
+    /// This object carries or is subject to state that a presentation cannot
+    /// safely compare from its compact characteristics alone. Battlefield
+    /// clients may still render it beside similar objects, but must not
+    /// collapse it into a shared visual pile.
+    pub has_individual_state: bool,
     pub controller: PlayerId,
     /// Whether this permanent is phased out. It is public information --
     /// both players can see it -- and the rules merely treat it as though it

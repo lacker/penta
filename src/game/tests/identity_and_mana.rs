@@ -367,3 +367,32 @@ fn declarative_mana_production_drives_generic_mana_sources() {
     assert_eq!(game.players[0].mana_pool.blue, 1);
     assert!(game.battlefield[0].tapped);
 }
+
+#[test]
+fn observations_keep_permanents_with_object_specific_state_out_of_shared_piles() {
+    let mut game = ready_game();
+    game.battlefield
+        .push(creature(10_100, cards::MANA_VAULT, PlayerId::One));
+    game.battlefield
+        .push(creature(10_101, cards::MANA_VAULT, PlayerId::One));
+
+    let pristine = game.observe(PlayerId::One);
+    assert!(
+        pristine
+            .battlefield
+            .iter()
+            .all(|permanent| !permanent.has_individual_state),
+        "a permanent's own printed static ability is shared card state",
+    );
+
+    game.battlefield[0].skipped_untap_steps = 1;
+    let affected = game.observe(PlayerId::One);
+    assert!(affected.battlefield[0].has_individual_state);
+    assert!(!affected.battlefield[1].has_individual_state);
+
+    let first = game.battlefield[0].card.id;
+    game.battlefield[1].attached_to = Some(first);
+    let attached = game.observe(PlayerId::One);
+    assert!(attached.battlefield[0].has_individual_state);
+    assert!(attached.battlefield[1].has_individual_state);
+}

@@ -88,6 +88,9 @@ pub struct DecisionObservation {
     pub player: PlayerId,
     pub kind: DecisionKind,
     pub order_semantics: Option<DecisionOrderSemantics>,
+    /// Battlefield object whose resolving ability created this decision.
+    /// Absent for turn procedures and spell-originated choices.
+    pub source: Option<GameObjectId>,
     pub prompt: String,
     pub visibility: DecisionVisibility,
     pub preference: DecisionPreference,

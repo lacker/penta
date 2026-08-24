@@ -97,6 +97,13 @@ export type Card = {
     kind: "transforming" | "modal";
     side: "front" | "back";
   };
+  /** A token remains a token even while copying printed characteristics. */
+  token?: boolean;
+  faceDown?: boolean;
+  phasedOut?: boolean;
+  /** Attachments and object-specific effects make this permanent unsafe to
+   * collapse with another object whose compact card happens to look alike. */
+  hasIndividualState?: boolean;
   name: string;
   art: CardArtMetadata | null;
   kind: string;
@@ -119,6 +126,7 @@ export type Card = {
   owner?: Owner;
   chosenCardName?: string | null;
   chosenCreatureType?: string | null;
+  chosenBasicLandType?: string | null;
   tapped?: boolean;
   power?: number | null;
   toughness?: number | null;
@@ -135,6 +143,7 @@ export type Card = {
   /** Whether it has blocked at all this combat. This is the one to read to
    * ask whether it is a blocking creature. */
   blockingThisCombat?: boolean;
+  attackingBand?: number | null;
   flying?: boolean;
   canAttack?: boolean;
   enteredThisTurn?: boolean;
@@ -219,6 +228,8 @@ export type DecisionState = {
   kind: DecisionKind;
   /** Trigger-order submissions are always listed in desired resolution order. */
   orderSemantics?: "resolution";
+  /** Battlefield object whose resolving ability created this decision. */
+  sourceId?: number | null;
   prompt: string;
   minimum: number;
   maximum: number;

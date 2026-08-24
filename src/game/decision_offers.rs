@@ -54,6 +54,7 @@ impl Game {
                 player,
                 kind: DecisionKind::Choice,
                 order_semantics: None,
+                source: None,
                 prompt: prompt.into(),
                 visibility,
                 preference,
@@ -105,6 +106,18 @@ impl Game {
                 otherwise,
             },
         );
+        self.associate_latest_decision_with(object);
+    }
+
+    /// A resolving ability has already left the stack by the time its choice
+    /// is observed. Preserve the battlefield source explicitly so clients do
+    /// not have to guess which same-name permanent the choice belongs to.
+    fn associate_latest_decision_with(&mut self, object: &StackObject) {
+        if let Some(source) = object.source
+            && let Some(decision) = self.pending_decisions.last_mut()
+        {
+            decision.observation.source = Some(source);
+        }
     }
 
     /// Applies a payment decision's answer: option zero declines, and every
@@ -883,6 +896,7 @@ impl Game {
                 effect,
             },
         );
+        self.associate_latest_decision_with(object);
     }
 
     pub(super) fn target_label(&self, viewer: PlayerId, target: Target) -> String {

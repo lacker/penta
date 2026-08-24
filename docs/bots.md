@@ -400,7 +400,7 @@ world it can search.
 | `opponentHandSize` | their current hidden hand as a count; learned snapshots are reported separately in `lastSeenHand` |
 | `revealedLibraryTop` | null unless something lets you look at the top card of your own library, such as Bolas's Citadel; a one-card list in the same shape as `hand` when it does |
 | `lastSeenHand` | null or the most recently revealed hand snapshot as `{seat, cards}`; it records known information and can outlive later hand changes |
-| `battlefield` | every permanent, including its current-zone object ID and authoritative tagged `characteristics`; catalog-backed cards retain definition/part IDs, while tokens and face-down objects carry their display characteristics inline. A physical double-faced permanent also reports `physicalFace`; a planeswalker reports `loyalty` and `loyaltyAbilityUsedThisTurn` |
+| `battlefield` | every permanent, including its current-zone object ID and authoritative tagged `characteristics`; catalog-backed cards retain definition/part IDs, while tokens and face-down objects carry their display characteristics inline. `token` records token status independently of copied values, and `hasIndividualState` tells compact presentation clients not to collapse an attachment or otherwise object-specific affected permanent with a lookalike. A physical double-faced permanent also reports `physicalFace`; a planeswalker reports `loyalty` and `loyaltyAbilityUsedThisTurn` |
 | `checkpoint` | the hidden-safe typed rules snapshot used by `Game.from_observation`, including its independent `version` and `simulationFingerprint`, deferred execution, dynamic objects, exact mana units, and reachable LKI; it never contains host RNG state or hidden-zone card identities |
 | `emblems` | command-zone emblems, each with its controller, creator-owned name and clause texts, and the granting ability |
 | `stack` | pending spells, activated abilities, and triggered abilities, bottom to top; entries expose the source object ID, tagged characteristics and ability origin/text, controller, counterability, targets, chosen permanents, X, and a locked cast signature when applicable |
@@ -662,7 +662,9 @@ Every decision has a `kind`:
 
 These arrive as a `decision` object with `id`, chooser `seat`, `prompt`,
 `visibility` (`Public` or `Private`), `minimum`/`maximum` counts,
-`cancellable`, and `options`. Each option has its own `id`, `label`, nullable
+`cancellable`, and `options`. When a resolving permanent ability created the
+choice, additive `sourceObjectId` names that battlefield object even though
+the ability has already left the stack. Each option has its own `id`, `label`, nullable
 card and `abilityText`, and a `zone`. A card-backed option uses the same tagged
 `characteristics` shape as battlefield and stack objects, so an offered token
 needs no catalog definition. They also arrive as `ChooseDecision`

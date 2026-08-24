@@ -152,6 +152,7 @@ impl Game {
                     player: trigger.controller,
                     kind: DecisionKind::TriggerPlacement,
                     order_semantics: None,
+                    source: Some(trigger.source.object),
                     prompt: format!("{source_name}: choose {}", target.label()),
                     visibility: DecisionVisibility::Public,
                     preference,
@@ -227,6 +228,7 @@ impl Game {
                         player: trigger.controller,
                         kind: DecisionKind::TriggerPlacement,
                         order_semantics: None,
+                        source: Some(trigger.source.object),
                         prompt: if required == 1 {
                             format!("{source_name}: choose one")
                         } else {
@@ -321,6 +323,7 @@ impl Game {
                     player: trigger.controller,
                     kind: DecisionKind::TriggerPlacement,
                     order_semantics: None,
+                    source: Some(trigger.source.object),
                     prompt: format!("{source_name}: divide the total"),
                     visibility: DecisionVisibility::Public,
                     preference: DecisionPreference::Neutral,
@@ -375,6 +378,7 @@ impl Game {
                     player: batch.controller,
                     kind: DecisionKind::TriggerOrder,
                     order_semantics: Some(DecisionOrderSemantics::Resolution),
+                    source: None,
                     prompt: "Choose triggered ability resolution order".into(),
                     visibility: DecisionVisibility::Public,
                     preference: DecisionPreference::Neutral,

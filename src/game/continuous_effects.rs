@@ -40,6 +40,7 @@ impl Drop for StaticSetCharacteristicLayerGuard {
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) enum StaticEffectKind {
+    Any,
     Rules,
     CardTypes,
     Colors,
@@ -52,7 +53,10 @@ impl StaticEffectKind {
     const fn includes(self, effect: AppliedEffectDef) -> bool {
         matches!(
             (self, effect),
-            (Self::Rules, AppliedEffectDef::Rule(_))
+            (
+                Self::Any,
+                AppliedEffectDef::Rule(_) | AppliedEffectDef::Characteristic(_)
+            ) | (Self::Rules, AppliedEffectDef::Rule(_))
                 | (
                     Self::CardTypes,
                     AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(_)),

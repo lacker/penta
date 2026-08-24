@@ -1,10 +1,11 @@
+use super::continuous_effects::StaticEffectKind;
 use super::{
     AbilityDef, AbilityOrigin, Action, ActionError, ActivationChoices, CardStructure, CardType,
-    CharacteristicContext, CombatDamageStage, CounterKind, DecisionVisibility, DoubleFacedKind,
-    EmblemObservation, Game, GameEvent, GameObjectId, GameResult, ManaActivationChoices,
-    ObjectCharacteristics, ObjectKind, Permanent, PermanentObservation, PhysicalFaceObservation,
-    PhysicalFaceSide, PlayerId, PlayerObservation, Pregame, StackObservation, Step, WinReason,
-    ZoneKind, combinations, public_cards,
+    CharacteristicContext, CombatDamageStage, ControlFlow, CounterKind, DecisionVisibility,
+    DoubleFacedKind, EmblemObservation, Game, GameEvent, GameObjectId, GameResult,
+    ManaActivationChoices, ObjectCharacteristics, ObjectKind, Permanent, PermanentObservation,
+    PhysicalFaceObservation, PhysicalFaceSide, PlayerId, PlayerObservation, Pregame,
+    StackObservation, Step, WinReason, ZoneKind, combinations, public_cards,
 };
 
 impl Game {
@@ -552,6 +553,7 @@ impl Game {
             id: permanent.card.id,
             characteristics,
             token: permanent.card.definition.is_token(),
+            has_individual_state: self.permanent_has_individual_state(permanent),
             controller: permanent.controller,
             types,
             face_down: permanent.face_down.is_some(),
@@ -582,6 +584,63 @@ impl Game {
             entered_this_turn: self.turns_started[permanent.controller.index()]
                 == permanent.entered_controller_turn,
         }
+    }
+
+    /// Whether this permanent carries a relationship or live effect whose
+    /// identity matters even when the compact card presentation happens to
+    /// match another permanent. This is deliberately conservative: keeping
+    /// two cards apart is harmless, while merging unlike game objects hides
+    /// which one an action, trigger, or attachment belongs to.
+    fn permanent_has_individual_state(&self, permanent: &Permanent) -> bool {
+        let id = permanent.card.id;
+        let attached = permanent.attached_to.is_some()
+            || self
+                .battlefield
+                .iter()
+                .any(|candidate| candidate.attached_to == Some(id));
+        let stored_effect = permanent
+            .resolved_continuous_effects
+            .iter()
+            .any(|effect| self.resolved_continuous_effect_is_active(effect));
+        let stateful = attached
+            || stored_effect
+            || permanent.detained_until_turn_of.is_some()
+            || permanent.skipped_untap_steps > 0
+            || permanent.control_reverts_to.is_some()
+            || permanent.control_source.is_some()
+            || permanent.destroy_at_end
+            || !permanent.temporary_keywords.is_empty()
+            || !permanent.keywords_until_upkeep_of.is_empty()
+            || !permanent.activations_this_turn.is_empty()
+            || !permanent.exhausted.is_empty()
+            || !permanent.triggers_this_turn.is_empty()
+            || !permanent.resolutions_this_turn.is_empty()
+            || permanent.counters.iter().any(|count| *count > 0)
+            || permanent.reconfigured_timestamp.is_some()
+            || permanent.exile_instead_of_dying
+            || permanent.copy_effect.is_some()
+            || permanent.copy_expiration.is_some()
+            || permanent.copied_from.is_some()
+            || !permanent.text_changes.is_empty()
+            || permanent.regeneration_shields > 0
+            || permanent.exerted
+            || permanent.saddled
+            || !permanent.damage_sources.is_empty()
+            || permanent.paired_with.is_some()
+            || permanent.created_by.is_some()
+            || permanent.chosen_player.is_some();
+        if stateful {
+            return true;
+        }
+
+        self.visit_static_applied_effects(permanent, StaticEffectKind::Any, |effect| {
+            if effect.source == id {
+                ControlFlow::Continue(())
+            } else {
+                ControlFlow::Break(())
+            }
+        })
+        .is_break()
     }
 
     pub fn observe(&self, viewer: PlayerId) -> PlayerObservation {

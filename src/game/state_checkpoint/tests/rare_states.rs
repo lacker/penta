@@ -457,6 +457,7 @@ fn ordinary_pay_or_rejects_payer_and_payment_splices() {
     let mut game = staged_game();
     let mut vault = creature(11_300, crate::card::cards::MANA_VAULT, PlayerId::One);
     vault.tapped = true;
+    let vault_id = vault.card.id;
     game.battlefield.push(vault);
     for id in 11_301..11_305 {
         game.battlefield
@@ -486,6 +487,13 @@ fn ordinary_pay_or_rejects_payer_and_payment_splices() {
     assert_reconstructs(&game, "an ordinary frozen pay-or choice");
 
     let observation = game.observe(PlayerId::One);
+    assert_eq!(
+        observation
+            .decision
+            .as_ref()
+            .and_then(|decision| decision.source),
+        Some(vault_id)
+    );
     let actions = crate::protocol::protocol_actions(&observation);
     let wire = crate::protocol::observation_json_for_format(
         &game.catalog,
@@ -495,6 +503,7 @@ fn ordinary_pay_or_rejects_payer_and_payment_splices() {
         &actions,
     );
     let hidden = true_hidden_hypothesis(&game, PlayerId::One);
+    assert_eq!(wire["decision"]["sourceObjectId"], vault_id.0);
     for (label, mut edited) in [
         ("payer", wire.clone()),
         ("payment", wire.clone()),

@@ -5,6 +5,11 @@ import { createPortal } from "react-dom";
 import { CardArt } from "./CardArt";
 import { isScryfallId, type CardArtMode } from "./card-art-mode";
 import {
+  battlefieldWithObservedUntap,
+  cardPileStateKey,
+  duplicatePermanentMarkers,
+} from "./card-visible-state.mjs";
+import {
   createEngineGame,
   publishDevHandle,
   initializeEngine,
@@ -336,13 +341,9 @@ export function GameClient({
     });
     // The untap step belongs to the turn being announced, so the banner's held
     // frame shows the incoming player's permanents straightening.
-    const withUntap = (held: GameState, active: string): GameState => ({
+    const withUntap = (held: GameState, incoming: GameState): GameState => ({
       ...held,
-      battlefield: held.battlefield.map((card) =>
-        card.tapped && card.owner === (active === "You" ? "human" : "opponent")
-          ? { ...card, tapped: false }
-          : card,
-      ),
+      battlefield: battlefieldWithObservedUntap(held.battlefield, incoming.battlefield),
     });
     const steps: PresentationStep[] = [];
     let cursor = displayedState.current;
@@ -364,7 +365,7 @@ export function GameClient({
         steps.push({
           kind: "banner",
           banner: bannerFor(action.state),
-          state: cursor ? withUntap(cursor, action.state.active) : action.state,
+          state: cursor ? withUntap(cursor, action.state) : action.state,
         });
       }
       // A turn beat is only there to be announced; the banner above already
@@ -378,7 +379,7 @@ export function GameClient({
       steps.push({
         kind: "banner",
         banner: bannerFor(snapshot),
-        state: cursor ? withUntap(cursor, snapshot.active) : snapshot,
+        state: cursor ? withUntap(cursor, snapshot) : snapshot,
       });
     }
     if (steps.length > 0) {
@@ -1180,6 +1181,16 @@ export function GameClient({
     state?.battlefield.filter((card) => card.owner === "opponent") ?? [];
   const humanPermanents =
     state?.battlefield.filter((card) => card.owner === "human") ?? [];
+  const permanentMarkers = duplicatePermanentMarkers(state?.battlefield ?? []);
+  const decisionSourceId = state?.decision?.sourceId ?? null;
+  const decisionSource =
+    decisionSourceId === null
+      ? null
+      : state?.battlefield.find((card) => card.id === decisionSourceId) ?? null;
+  const individualizedPermanentIds = new Set(
+    state?.stack.flatMap((item) => item.targetCardIds) ?? [],
+  );
+  if (decisionSourceId !== null) individualizedPermanentIds.add(decisionSourceId);
 
   const cardActions = (id: number) => {
     if (watchingOpponent) return 0;
@@ -1876,6 +1887,9 @@ export function GameClient({
 
             <Zone
               cards={opponentPermanents}
+              permanentMarkers={permanentMarkers}
+              decisionSourceId={decisionSourceId}
+              individualizedPermanentIds={individualizedPermanentIds}
               cardArtMode={cardArtMode}
               label="Opponent battlefield"
               actionCount={cardActions}
@@ -1963,6 +1977,9 @@ export function GameClient({
                       onDragLeaveTarget={handleTargetDragLeave}
                       onDropTarget={handleTargetDrop}
                       compact
+                      objectMarker={
+                        item.sourceId == null ? null : permanentMarkers.get(item.sourceId) ?? null
+                      }
                     />
                     {item.manaCost?.x ? (
                       <span className="stack-x-badge">X = {item.x}</span>
@@ -1978,6 +1995,9 @@ export function GameClient({
 
             <Zone
               cards={humanPermanents}
+              permanentMarkers={permanentMarkers}
+              decisionSourceId={decisionSourceId}
+              individualizedPermanentIds={individualizedPermanentIds}
               cardArtMode={cardArtMode}
               label="Your battlefield"
               actionCount={cardActions}
@@ -2212,6 +2232,12 @@ export function GameClient({
                       <span>
                         Arrange the abilities in resolution order. The first resolves first.
                       </span>
+                      {decisionSource && (
+                        <DecisionSourceLabel
+                          card={decisionSource}
+                          marker={permanentMarkers.get(decisionSource.id) ?? null}
+                        />
+                      )}
                     </div>
                     <ol className="trigger-order-list">
                       {triggerResolutionOrder.map((optionId, index) => {
@@ -2229,6 +2255,9 @@ export function GameClient({
                               <strong title={triggerLabel}>{triggerLabel}</strong>
                               <small>
                                 {option.cardName ?? "Triggered ability"}
+                                {option.cardId != null && permanentMarkers.has(option.cardId)
+                                  ? ` #${permanentMarkers.get(option.cardId)}`
+                                  : ""}
                                 {option.zone !== "None" ? ` · ${option.zone}` : ""}
                               </small>
                             </span>
@@ -2292,6 +2321,12 @@ export function GameClient({
                           : ""}
                         {state.decision.visibility === "Private" ? " · Private" : ""}
                       </span>
+                      {decisionSource && (
+                        <DecisionSourceLabel
+                          card={decisionSource}
+                          marker={permanentMarkers.get(decisionSource.id) ?? null}
+                        />
+                      )}
                     </div>
                     <div className="decision-options">
                       {state.decision.options.map((option) => (
@@ -2880,8 +2915,20 @@ function BlockArrows({
   );
 }
 
+function DecisionSourceLabel({ card, marker }: { card: Card; marker: string | null }) {
+  return (
+    <span className="decision-source-label">
+      Source: {card.name}
+      {marker && <b className="inline-object-marker">#{marker}</b>}
+    </span>
+  );
+}
+
 function Zone({
   cards,
+  permanentMarkers,
+  decisionSourceId,
+  individualizedPermanentIds,
   cardArtMode,
   label,
   actionCount,
@@ -2901,6 +2948,9 @@ function Zone({
   opponent = false,
 }: {
   cards: Card[];
+  permanentMarkers: Map<number, string>;
+  decisionSourceId: number | null;
+  individualizedPermanentIds: Set<number>;
   cardArtMode: CardArtMode;
   label: string;
   actionCount(id: number): number;
@@ -2922,10 +2972,12 @@ function Zone({
   const lands = cards.filter((card) => card.isLand);
   const nonlands = cards.filter((card) => !card.isLand);
   const renderCards = (laneCards: Card[]) =>
-    groupCardsIntoPiles(laneCards).map((pile) => (
+    groupCardsIntoPiles(laneCards, individualizedPermanentIds).map((pile) => (
       <CardPile
         key={pile.key}
         cards={pile.cards}
+        permanentMarkers={permanentMarkers}
+        decisionSourceId={decisionSourceId}
         cardArtMode={cardArtMode}
         actionCount={actionCount}
         isDraggable={isDraggable}
@@ -2959,20 +3011,14 @@ function Zone({
   );
 }
 
-function groupCardsIntoPiles(cards: Card[]) {
+function groupCardsIntoPiles(cards: Card[], individualizedPermanentIds: Set<number>) {
   const piles = new Map<string, Card[]>();
   for (const card of cards) {
     // Visually different game states must remain in separate piles. Identical
     // cards in the same state can safely collapse while retaining each card id.
-    const key = [
-      card.name,
-      card.kind,
-      card.tapped ? "tapped" : "ready",
-      card.attacking ? "attacking" : "idle",
-      (card.blocking ?? []).join(","),
-      card.damage ?? 0,
-      card.enteredThisTurn ? "entered" : "old",
-    ].join(":");
+    const key = `${cardPileStateKey(card)}:${
+      individualizedPermanentIds.has(card.id) ? card.id : ""
+    }`;
     const pile = piles.get(key) ?? [];
     pile.push(card);
     piles.set(key, pile);
@@ -2993,6 +3039,8 @@ function groupCardsIntoPiles(cards: Card[]) {
 
 function CardPile({
   cards,
+  permanentMarkers,
+  decisionSourceId,
   cardArtMode,
   actionCount,
   isDraggable,
@@ -3010,6 +3058,8 @@ function CardPile({
   onDropTarget,
 }: {
   cards: Card[];
+  permanentMarkers: Map<number, string>;
+  decisionSourceId: number | null;
   cardArtMode: CardArtMode;
   actionCount(id: number): number;
   isDraggable(id: number): boolean;
@@ -3083,6 +3133,8 @@ function CardPile({
               onDragLeaveTarget={onDragLeaveTarget}
               onDropTarget={onDropTarget}
               compact
+              objectMarker={permanentMarkers.get(card.id) ?? null}
+              associatedWithDecision={card.id === decisionSourceId}
             />
           </div>
         );
@@ -3256,6 +3308,8 @@ function GameCard({
   onPaymentPreviewEnd,
   onHoverChange,
   compact = false,
+  objectMarker = null,
+  associatedWithDecision = false,
 }: {
   card: Card;
   cardArtMode: CardArtMode;
@@ -3279,6 +3333,8 @@ function GameCard({
   onPaymentPreviewEnd?(): void;
   onHoverChange?(hovered: boolean): void;
   compact?: boolean;
+  objectMarker?: string | null;
+  associatedWithDecision?: boolean;
 }) {
   const [previewPosition, setPreviewPosition] = useState<{
     left: number;
@@ -3292,6 +3348,7 @@ function GameCard({
   const renderedCardArtMode =
     artRequestKey && artRequestKey === failedArtRequest ? "off" : cardArtMode;
   const hasFullArt = renderedCardArtMode === "full" && validArtId !== null;
+  const markedName = objectMarker ? `${card.name} #${objectMarker}` : card.name;
   const currentKind = card.kind.replace("artifactcreature", "artifact creature");
   const type =
     card.isLand && !card.kind.includes("land")
@@ -3395,13 +3452,14 @@ function GameCard({
           dragOverTarget ? "is-drag-over-target" : "",
           animating ? "is-opponent-action-card" : "",
           previewMana ? "is-autotap-preview" : "",
+          associatedWithDecision ? "is-decision-source" : "",
         ].join(" ")}
         aria-label={
           targetable
-            ? `Target ${card.name}`
+            ? `Target ${markedName}`
             : actionable
-              ? actionAriaLabel ?? `Choose an action for ${card.name}`
-              : `Inspect ${card.name}`
+              ? actionAriaLabel ?? `Choose an action for ${markedName}`
+              : `Inspect ${markedName}`
         }
         aria-describedby={previewPosition ? previewId : undefined}
         data-card-owner={card.owner ?? "human"}
@@ -3451,6 +3509,9 @@ function GameCard({
           if (actionable) onSelect(card.id);
         }}
       >
+        {objectMarker && (
+          <span className="object-marker" aria-hidden="true">#{objectMarker}</span>
+        )}
         <span className={`card-header ${manaSymbolCount >= 3 ? "card-header-dense" : ""}`}>
           <span className="card-title">{card.name}</span>
           {card.manaCost && !card.isLand && (

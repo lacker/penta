@@ -376,6 +376,18 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Fixed
 
+- **Same-name permanents stay visually distinct when their game state does.**
+  The browser's battlefield piles now compare the complete public permanent
+  presentation, token status, and an engine-supplied conservative marker for
+  attachments and object-specific effects. Cards targeted by a stack object
+  stay separate as well. The turn banner previews the engine's actual untap
+  result instead of straightening every permanent, so Mana Vault and other
+  restricted permanents no longer briefly merge with an untapped copy. When a
+  permanent ability suspends on a choice after leaving the stack, the additive
+  decision `sourceObjectId` keeps its exact source available; the browser marks
+  same-name objects `#1`, `#2`, and so on, repeats that marker on triggers and
+  decisions, and highlights the relevant permanent. Protocol 29 is unchanged.
+
 - **"You may play that card" is no longer free.** The clause that exiles the
   top of a library and lets you play what it finds granted the free-play
   permission whatever the card said, so Laelia's attack trigger was handing

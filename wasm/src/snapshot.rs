@@ -212,6 +212,10 @@ impl WebGame {
                 let mut value = json!({
                     "id": permanent.id.0,
                     "partId": permanent.characteristics.part().0,
+                    "token": permanent.token,
+                    "hasIndividualState": permanent.has_individual_state,
+                    "faceDown": permanent.face_down,
+                    "phasedOut": permanent.phased_out,
                     "name": presentation.name,
                     "art": card_art_value(presentation.art.as_ref()),
                     "kind": current_kind,
@@ -456,6 +460,7 @@ impl WebGame {
                     DecisionKind::TriggerOrder => "TriggerOrder",
                     DecisionKind::TriggerPlacement => "TriggerPlacement",
                 },
+                "sourceId": decision.source.map(|source| source.0),
                 "prompt": decision.prompt,
                 "minimum": decision.minimum,
                 "maximum": decision.maximum,

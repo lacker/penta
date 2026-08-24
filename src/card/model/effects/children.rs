@@ -29,9 +29,12 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::BindMatching { then: effect, .. }
         | EffectDef::ChooseCardName { then: effect, .. }
         | EffectDef::RevealAtRandomFromHand { then: effect, .. }
-        | EffectDef::DestroyThen { then: effect, .. }
         | EffectDef::PutOntoBattlefieldThen { then: effect, .. }
         | EffectDef::ReturnWithHasteAndFinality { then: effect, .. } => vec![*effect],
+        EffectDef::Destroy {
+            then: Some(follow_up),
+            ..
+        } => vec![*follow_up.effect],
         EffectDef::IfFormat {
             then, otherwise, ..
         } => vec![*then, *otherwise],
@@ -91,7 +94,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::DealDamage { .. }
         | EffectDef::DealDamageFrom { .. }
         | EffectDef::DealDamageAndApply { .. }
-        | EffectDef::Destroy { .. }
+        | EffectDef::Destroy { then: None, .. }
         | EffectDef::Detain { .. }
         | EffectDef::DiscardCards { .. }
         | EffectDef::DrainLife { .. }
@@ -157,7 +160,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
 mod tests {
     use super::*;
     use crate::card::{
-        CreatedTokensDef, EffectRecipientDef, MillUntilDef, ObjectPredicateDef,
+        CreatedTokensDef, DestroyFollowUpDef, EffectRecipientDef, MillUntilDef, ObjectPredicateDef,
         TokenCharacteristics, ValueDef, ZoneKind,
     };
     use crate::ids::ObjectSetBindingIndex;
@@ -186,6 +189,24 @@ mod tests {
             vec![CHILD],
         );
         assert!(child_effects(create(None)).is_empty());
+    }
+
+    #[test]
+    fn destroy_continuation_is_a_child() {
+        let destroy = |then| EffectDef::Destroy {
+            object: EffectRecipientDef::Source,
+            can_regenerate: true,
+            then,
+        };
+
+        assert_eq!(
+            child_effects(destroy(Some(DestroyFollowUpDef {
+                binding: ObjectSetBindingIndex::PRIMARY,
+                effect: &CHILD,
+            }))),
+            vec![CHILD],
+        );
+        assert!(child_effects(destroy(None)).is_empty());
     }
 
     #[test]

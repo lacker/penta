@@ -327,14 +327,9 @@ pub enum EffectDef {
     Destroy {
         object: EffectRecipientDef,
         can_regenerate: bool,
-    },
-    /// Destroys the recipients, binds only those actually put into a graveyard, then continues.
-    /// Indestructible, regenerated, and zone-change-replaced permanents are absent.
-    DestroyThen {
-        object: EffectRecipientDef,
-        can_regenerate: bool,
-        binding: ObjectSetBindingIndex,
-        then: &'static EffectDef,
+        /// Binds only recipients actually put into a graveyard, then continues.
+        /// Indestructible, regenerated, and zone-change-replaced permanents are absent.
+        then: Option<DestroyFollowUpDef>,
     },
     /// Until the resolving controller's next turn, the permanent cannot
     /// attack, block, or activate its activated abilities.

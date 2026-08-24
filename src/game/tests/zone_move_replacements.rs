@@ -1,5 +1,6 @@
 use super::*;
 use crate::ObjectSetBindingIndex;
+use crate::card::DestroyFollowUpDef;
 
 fn setup_nexus_and_rest_in_peace() -> (Game, GameObjectId, GameObjectId) {
     let mut game = ready_game();
@@ -244,15 +245,17 @@ fn destroy_outcome_followup_waits_for_replacements_and_counts_only_graveyard_mov
             amount: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
         },
     ];
-    const DESTROY_AND_COUNT: EffectDef = EffectDef::DestroyThen {
+    const DESTROY_AND_COUNT: EffectDef = EffectDef::Destroy {
         object: EffectRecipientDef::matching_objects(
             ObjectPredicateDef::HasType(CardType::Artifact),
             &[ZoneKind::Battlefield],
             PlayerRelation::Any,
         ),
         can_regenerate: true,
-        binding: ObjectSetBindingIndex::PRIMARY,
-        then: &EffectDef::Sequence(&FOLLOWUP_EFFECTS),
+        then: Some(DestroyFollowUpDef {
+            binding: ObjectSetBindingIndex::PRIMARY,
+            effect: &EffectDef::Sequence(&FOLLOWUP_EFFECTS),
+        }),
     };
 
     let (mut game, _nexus, rest) = setup_nexus_and_rest_in_peace();
@@ -314,6 +317,7 @@ fn custom_spell_followup_waits_for_ugins_nexus_replacement_choice() {
             PlayerRelation::Any,
         ),
         can_regenerate: true,
+        then: None,
     };
 
     let (mut game, nexus, rest) = setup_nexus_and_rest_in_peace();

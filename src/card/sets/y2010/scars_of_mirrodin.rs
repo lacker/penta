@@ -1279,6 +1279,7 @@ pub(in crate::card::sets) static OXIDDA_SCRAPMELTER: CardRecord = CardRecord::ne
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ),
@@ -1582,6 +1583,7 @@ pub(in crate::card::sets) static SLICE_IN_TWAIN: CardRecord = CardRecord::new(
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,

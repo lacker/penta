@@ -332,6 +332,7 @@ pub(in crate::card::sets) static CURSEBREAK: CardRecord = CardRecord::new_with_l
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
@@ -1884,6 +1885,7 @@ pub(in crate::card::sets) static BONE_SPLINTERS: CardRecord = CardRecord::new_wi
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: true,
+            then: None,
         },
     )),
 );
@@ -2415,6 +2417,7 @@ pub(in crate::card::sets) static POLLUTED_DEAD: CardRecord = CardRecord::new_wit
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ),
@@ -3900,6 +3903,7 @@ pub(in crate::card::sets) static NATURAL_END: CardRecord = CardRecord::new_with_
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
@@ -4002,6 +4006,7 @@ pub(in crate::card::sets) static RAIN_OF_THORNS: CardRecord = CardRecord::new_wi
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     can_regenerate: true,
+                    then: None,
                 },
             ),
             AbilityDef::spell_with_targets(
@@ -4012,6 +4017,7 @@ pub(in crate::card::sets) static RAIN_OF_THORNS: CardRecord = CardRecord::new_wi
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     can_regenerate: true,
+                    then: None,
                 },
             ),
             AbilityDef::spell_with_targets(
@@ -4022,6 +4028,7 @@ pub(in crate::card::sets) static RAIN_OF_THORNS: CardRecord = CardRecord::new_wi
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     can_regenerate: true,
+                    then: None,
                 },
             ),
         ],

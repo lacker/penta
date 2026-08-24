@@ -191,9 +191,15 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         EffectDef::RevealAtRandomFromHand { then, .. } => {
             shared_stack_effect_at_position(*then, deferred_decision_allowed)
         }
-        EffectDef::DestroyThen { object, then, .. } => {
+        EffectDef::Destroy { object, then, .. } => {
             shared_effect_recipient(object)
-                && shared_stack_effect_at_position(*then, deferred_decision_allowed)
+                && match then {
+                    Some(follow_up) => shared_stack_effect_at_position(
+                        *follow_up.effect,
+                        deferred_decision_allowed,
+                    ),
+                    None => true,
+                }
         }
         EffectDef::PayOr(payment) => {
             deferred_decision_allowed
@@ -438,7 +444,6 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::RemoveAllCounters { object, .. }
         | EffectDef::Untap { object }
         | EffectDef::Saddle { object }
-        | EffectDef::Destroy { object, .. }
         | EffectDef::Sacrifice { object }
         | EffectDef::DiscardCards { object }
         | EffectDef::ExileLinkedToSource { object }

@@ -535,6 +535,7 @@ pub(in crate::card::sets) static GO_FOR_THE_THROAT: CardRecord = CardRecord::new
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: true,
+            then: None,
         },
     )),
 );
@@ -759,6 +760,7 @@ pub(in crate::card::sets) static CRUSH: CardRecord = CardRecord::new(
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: true,
+            then: None,
         },
     )),
 );
@@ -937,6 +939,7 @@ pub(in crate::card::sets) static CREEPING_CORROSION: CardRecord = CardRecord::ne
                 PlayerRelation::Any,
             ),
             can_regenerate: true,
+            then: None,
         },
     )),
 );
@@ -1135,6 +1138,7 @@ pub(in crate::card::sets) static VIRIDIAN_CORRUPTER: CardRecord = CardRecord::ne
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ]),

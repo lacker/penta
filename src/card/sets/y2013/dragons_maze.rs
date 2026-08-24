@@ -1517,6 +1517,7 @@ pub(in crate::card::sets) static GAZE_OF_GRANITE: CardRecord = CardRecord::new_w
                 PlayerRelation::Any,
             ),
             can_regenerate: true,
+            then: None,
         },
     )),
 );

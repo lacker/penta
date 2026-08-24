@@ -81,6 +81,7 @@ pub(in crate::card::sets) static AKROMAS_VENGEANCE: CardRecord = CardRecord::new
                     PlayerRelation::Any,
                 ),
                 can_regenerate: true,
+                then: None,
             },
         ),
         abilities::cycling(
@@ -2272,6 +2273,7 @@ pub(in crate::card::sets) static GOBLIN_PYROMANCER: CardRecord = CardRecord::new
                     PlayerRelation::Any,
                 ),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ]),

@@ -106,6 +106,7 @@ pub(in crate::card::sets) static EXORCIST: CardRecord = CardRecord::new_with_leg
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ]),
@@ -236,6 +237,7 @@ pub(in crate::card::sets) static MIRACLE_WORKER: CardRecord = CardRecord::new_wi
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ),
@@ -308,6 +310,7 @@ pub(in crate::card::sets) static TIVADARS_CRUSADE: CardRecord = CardRecord::new_
                 PlayerRelation::Any,
             ),
             can_regenerate: true,
+            then: None,
         },
     )]),
 );
@@ -626,6 +629,7 @@ pub(in crate::card::sets) static MERFOLK_ASSASSIN: CardRecord = CardRecord::new_
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         )],
     ),
@@ -1402,6 +1406,7 @@ pub(in crate::card::sets) static GOBLIN_DIGGING_TEAM: CardRecord = CardRecord::n
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ]),
@@ -1878,6 +1883,7 @@ pub(in crate::card::sets) static SAVAEN_ELVES: CardRecord = CardRecord::new_with
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ),
@@ -1952,6 +1958,7 @@ pub(in crate::card::sets) static SCAVENGER_FOLK: CardRecord = CardRecord::new_wi
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ]),

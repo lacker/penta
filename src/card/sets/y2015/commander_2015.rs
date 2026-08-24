@@ -104,6 +104,7 @@ static FIERY_CONFLUENCE_MODES: [AbilityDef; 3] = [
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: true,
+            then: None,
         },
     ),
 ];

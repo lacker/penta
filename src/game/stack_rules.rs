@@ -72,13 +72,16 @@ impl Game {
             | EffectDef::SearchZone {
                 then: Some(then), ..
             }
-            | EffectDef::BindMatching { then, .. }
-            | EffectDef::DestroyThen { then, .. } => {
+            | EffectDef::BindMatching { then, .. } => {
                 Self::effect_applies_to_source(*then, expected)
             }
             EffectDef::SimultaneousChoose(choice) => {
                 Self::effect_applies_to_source(*choice.then, expected)
             }
+            EffectDef::Destroy {
+                then: Some(follow_up),
+                ..
+            } => Self::effect_applies_to_source(*follow_up.effect, expected),
             EffectDef::PayOr(payment) => payment
                 .if_paid
                 .iter()
@@ -120,7 +123,7 @@ impl Game {
             | EffectDef::Unattach { .. }
             | EffectDef::PhaseOut { .. }
             | EffectDef::PairWithSource { .. }
-            | EffectDef::Destroy { .. }
+            | EffectDef::Destroy { then: None, .. }
             | EffectDef::Sacrifice { .. }
             | EffectDef::SacrificeOfChoice { .. }
             | EffectDef::ExileTopOfLibraryToPlay { .. }

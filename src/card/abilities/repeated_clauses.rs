@@ -42,6 +42,7 @@ static DESTROY_AT_END_OF_COMBAT: EffectDef = EffectDef::Destroy {
         END_OF_COMBAT_DESTROY_BINDING,
     )),
     can_regenerate: true,
+    then: None,
 };
 static END_OF_COMBAT_DESTROY_TRIGGER: AbilityDef = AbilityDef::triggered(
     "At end of combat, destroy that creature.",

@@ -176,6 +176,7 @@ pub(in crate::card::sets) static CLEANSE: CardRecord = CardRecord::new_with_lega
                 PlayerRelation::Any,
             ),
             can_regenerate: true,
+            then: None,
         },
     )),
 );
@@ -238,6 +239,7 @@ pub(in crate::card::sets) static DIVINE_OFFERING: CardRecord = CardRecord::new_w
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
@@ -953,6 +955,7 @@ pub(in crate::card::sets) static ACID_RAIN: CardRecord = CardRecord::new_with_le
                 PlayerRelation::Any,
             ),
             can_regenerate: true,
+            then: None,
         },
     )),
 );
@@ -1180,6 +1183,7 @@ pub(in crate::card::sets) static FLASH_FLOOD: CardRecord = CardRecord::new_with_
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     can_regenerate: true,
+                    then: None,
                 },
             ),
             AbilityDef::spell_with_targets(
@@ -1853,6 +1857,7 @@ pub(in crate::card::sets) static BLIGHT: CardRecord = CardRecord::new_with_legac
                 EffectDef::Destroy {
                     object: EffectRecipientDef::AttachedPermanent,
                     can_regenerate: true,
+                    then: None,
                 },
             ),
         ]),
@@ -2413,6 +2418,7 @@ pub(in crate::card::sets) static TAKKLEMAGGOT: CardRecord = CardRecord::new(
 static THE_ABYSS_DESTROY_CHOICE: EffectDef = EffectDef::Destroy {
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
     can_regenerate: false,
+    then: None,
 };
 
 pub(in crate::card::sets) static THE_ABYSS: CardRecord = CardRecord::new_with_legacy_id(
@@ -2642,6 +2648,7 @@ pub(in crate::card::sets) static ACTIVE_VOLCANO: CardRecord = CardRecord::new_wi
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     can_regenerate: true,
+                    then: None,
                 },
             ),
             AbilityDef::spell_with_targets(
@@ -3023,6 +3030,7 @@ static GLYPH_OF_DESTRUCTION_EFFECT: [EffectDef; 3] = [
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: true,
+            then: None,
         },
     ))),
 ];
@@ -3352,6 +3360,7 @@ pub(in crate::card::sets) static SPINAL_VILLAIN: CardRecord = CardRecord::new_wi
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ),
@@ -3777,6 +3786,7 @@ static FLORAL_SPUZZEM_STRIKE: [EffectDef; 2] = [
     EffectDef::Destroy {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         can_regenerate: true,
+        then: None,
     },
     EffectDef::Apply {
         recipient: EffectRecipientDef::Source,
@@ -5166,6 +5176,7 @@ pub(in crate::card::sets) static RAMSES_OVERDARK: CardRecord = CardRecord::new_w
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         )),
 );
@@ -5346,6 +5357,7 @@ pub(in crate::card::sets) static TETSUO_UMEZAWA: CardRecord = CardRecord::new_wi
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     can_regenerate: true,
+                    then: None,
                 },
             ),
         ]),
@@ -6276,6 +6288,7 @@ static TABERNACLE_UPKEEP_ABILITY: AbilityDef = AbilityDef::triggered(
         &EffectDef::Destroy {
             object: EffectRecipientDef::Source,
             can_regenerate: true,
+            then: None,
         },
     )),
 );

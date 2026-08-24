@@ -1065,6 +1065,7 @@ static NECRITE_STRIKE: [EffectDef; 2] = [
     EffectDef::Destroy {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         can_regenerate: false,
+        then: None,
     },
 ];
 

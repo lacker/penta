@@ -566,6 +566,7 @@ pub(in crate::card::sets) static PLANAR_CLEANSING: CardRecord = CardRecord::new_
                 PlayerRelation::Any,
             ),
             can_regenerate: true,
+            then: None,
         },
     )),
 );
@@ -780,6 +781,7 @@ pub(in crate::card::sets) static WAR_PRIEST_OF_THUNE: CardRecord = CardRecord::n
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ]),
@@ -3109,6 +3111,7 @@ pub(in crate::card::sets) static ACIDIC_SLIME: CardRecord = CardRecord::new_with
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ]),
@@ -3505,6 +3508,7 @@ pub(in crate::card::sets) static PLUMMET: CardRecord = CardRecord::new_with_lega
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: true,
+            then: None,
         },
     )),
 );
@@ -3873,6 +3877,7 @@ pub(in crate::card::sets) static NICOL_BOLAS_PLANESWALKER: CardRecord = CardReco
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     can_regenerate: true,
+                    then: None,
                 },
             ),
             AbilityDef::activated_with_targets(

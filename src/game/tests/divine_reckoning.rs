@@ -28,6 +28,7 @@ fn uses_simultaneous_choice_then_standard_destroy() {
         EffectDef::Destroy {
             object: EffectRecipientDef::objects(ObjectSetDef::Binding(choice.unchosen)),
             can_regenerate: true,
+            then: None,
         }
     );
 }

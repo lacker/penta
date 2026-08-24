@@ -41,6 +41,7 @@ static GET_LOST_EFFECT: [EffectDef; 2] = [
     EffectDef::Destroy {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         can_regenerate: true,
+        then: None,
     },
     TWO_MAPS_FOR_ITS_CONTROLLER,
 ];

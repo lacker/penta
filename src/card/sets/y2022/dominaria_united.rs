@@ -108,6 +108,7 @@ pub(in crate::card::sets) static CUT_DOWN: CardRecord = CardRecord::new_with_leg
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: true,
+            then: None,
         },
     )),
 );
@@ -267,6 +268,7 @@ static ERTAI_MODES: [AbilityDef; 2] = [
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),

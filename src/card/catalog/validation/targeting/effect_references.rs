@@ -36,15 +36,14 @@ fn validate_effect_references(
             let nested = scope.with_object_set(binding)?;
             validate_effect_references(*then, target_count, nested)
         }
-        EffectDef::DestroyThen {
+        EffectDef::Destroy {
             object,
-            binding,
-            then,
+            then: Some(follow_up),
             ..
         } => {
             validate_recipient_target_references(object, target_count, scope)?;
-            let nested = scope.with_object_set(binding)?;
-            validate_effect_references(*then, target_count, nested)
+            let nested = scope.with_object_set(follow_up.binding)?;
+            validate_effect_references(*follow_up.effect, target_count, nested)
         }
         EffectDef::ChooseCardName {
             chooser,
@@ -195,7 +194,9 @@ fn validate_effect_references(
         | EffectDef::Reconfigure { object }
         | EffectDef::Unattach { object }
         | EffectDef::PairWithSource { object }
-        | EffectDef::Destroy { object, .. }
+        | EffectDef::Destroy {
+            object, then: None, ..
+        }
         | EffectDef::Sacrifice { object }
         | EffectDef::DiscardCards { object }
         | EffectDef::ChangeTextBasicLandType { object }

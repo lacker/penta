@@ -114,6 +114,7 @@ fn hydroblast_and_pyroblast_are_complete_opposite_color_modal_answers() {
             modes[1].effect.definition,
             AbilityProgramDef::Effects(EffectDef::Destroy {
                 can_regenerate: true,
+                then: None,
                 ..
             })
         ));

@@ -331,6 +331,7 @@ fn nested_choice_payment_preserves_its_binding_and_outer_sequence_tail() {
     static DESTROY_CHOSEN: EffectDef = EffectDef::Destroy {
         object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
         can_regenerate: false,
+        then: None,
     };
     static PAY_TO_DESTROY: EffectDef = EffectDef::PayOr(PayOrDef::optional(
         EffectPaymentDef::mana(

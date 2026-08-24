@@ -1457,6 +1457,7 @@ static KEG_DETONATION: EffectDef = EffectDef::Destroy {
         PlayerRelation::Any,
     ),
     can_regenerate: true,
+    then: None,
 };
 
 /// The counter is optional, so the Keg can be held at whatever size the board

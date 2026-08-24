@@ -201,6 +201,14 @@ pub struct CreatedTokensDef {
     pub then: &'static EffectDef,
 }
 
+/// What follows a destruction, with the permanents actually put into graveyards saved for it.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct DestroyFollowUpDef {
+    /// The destroyed permanents, under the identities they have after moving.
+    pub binding: ObjectSetBindingIndex,
+    pub effect: &'static EffectDef,
+}
+
 /// What follows a discard, and what it counts among the cards that went.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct DiscardFollowUpDef {

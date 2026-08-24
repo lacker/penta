@@ -35,6 +35,7 @@ fn wrath_and_supreme_verdict_use_equivalent_declarative_creature_sweepers() {
             let AbilityProgramDef::Effects(EffectDef::Destroy {
                 object,
                 can_regenerate: actual,
+                then: None,
             }) = ability.effect.definition
             else {
                 return false;
@@ -92,6 +93,7 @@ fn nevinyrrals_disk_declares_shared_costs_and_a_global_destroy_effect() {
     let AbilityProgramDef::Effects(EffectDef::Destroy {
         object,
         can_regenerate,
+        then: None,
     }) = ability.effect.definition
     else {
         panic!("the Disk uses the shared global destruction effect")
@@ -206,6 +208,7 @@ fn object_queries_can_constrain_controller_and_owner_independently() {
                 owner: Some(PlayerSetDef::Related(PlayerRelation::Opponent)),
             })),
             can_regenerate: true,
+            then: None,
         }),
         &object,
         TriggerContext::empty(),

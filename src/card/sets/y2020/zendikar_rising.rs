@@ -124,6 +124,7 @@ static THIRST_ANY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one
 static THIRST_DESTROY: EffectDef = EffectDef::Destroy {
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
     can_regenerate: true,
+    then: None,
 };
 
 pub(in crate::card::sets) static BLOODCHIEFS_THIRST: CardRecord = CardRecord::new_with_legacy_id(

@@ -250,7 +250,9 @@ fn validate_effect_target_shapes(
         | EffectDef::Reconfigure { object }
         | EffectDef::Unattach { object }
         | EffectDef::PairWithSource { object }
-        | EffectDef::Destroy { object, .. }
+        | EffectDef::Destroy {
+            object, then: None, ..
+        }
         | EffectDef::Detain { object }
         | EffectDef::DoubleCounters { object, .. }
         | EffectDef::RemoveAllCounters { object, .. }
@@ -273,8 +275,15 @@ fn validate_effect_target_shapes(
         | EffectDef::Endure { object, .. } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Object)
         }
-        EffectDef::DestroyThen { object, then, .. }
-        | EffectDef::PutOntoBattlefieldThen { object, then, .. }
+        EffectDef::Destroy {
+            object,
+            then: Some(follow_up),
+            ..
+        } => {
+            validate_recipient_shape(object, targets, RecipientExpectation::Object)?;
+            validate_effect_target_shapes(*follow_up.effect, targets, triggering_object_zone)
+        }
+        EffectDef::PutOntoBattlefieldThen { object, then, .. }
         | EffectDef::ReturnWithHasteAndFinality { object, then, .. } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Object)?;
             validate_effect_target_shapes(*then, targets, triggering_object_zone)

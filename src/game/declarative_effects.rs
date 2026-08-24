@@ -211,21 +211,6 @@ impl Game {
             EffectDef::Destroy {
                 object: recipient,
                 can_regenerate,
-            } => {
-                let permanents = self
-                    .effect_recipients(recipient, object, &context, scoped)
-                    .into_iter()
-                    .filter_map(|target| match target {
-                        Target::Permanent(permanent) => Some(permanent),
-                        Target::Player(_) | Target::Card(_) | Target::Spell(_) => None,
-                    })
-                    .collect::<Vec<_>>();
-                self.destroy_permanents(&permanents, can_regenerate);
-            }
-            EffectDef::DestroyThen {
-                object: recipient,
-                can_regenerate,
-                binding,
                 then,
             } => {
                 let permanents = self
@@ -236,17 +221,14 @@ impl Game {
                         Target::Player(_) | Target::Card(_) | Target::Spell(_) => None,
                     })
                     .collect::<Vec<_>>();
-                self.destroy_permanents_then(
-                    &permanents,
-                    can_regenerate,
-                    Some(BattlefieldExitCompletion::DestroyFollowup {
-                        candidates: permanents.clone(),
-                        binding,
-                        object: Box::new(object.clone()),
-                        context,
-                        effect: scoped.with_effect(*then),
-                    }),
-                );
+                let completion = then.map(|follow_up| BattlefieldExitCompletion::DestroyFollowup {
+                    candidates: permanents.clone(),
+                    binding: follow_up.binding,
+                    object: Box::new(object.clone()),
+                    context,
+                    effect: scoped.with_effect(*follow_up.effect),
+                });
+                self.destroy_permanents_then(&permanents, can_regenerate, completion);
             }
             EffectDef::Sacrifice { object: recipient } => {
                 let permanents = self

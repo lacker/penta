@@ -18,6 +18,7 @@ impl EffectDef {
         Self::Destroy {
             object: EffectRecipientDef::Target(target),
             can_regenerate,
+            then: None,
         }
     }
 }

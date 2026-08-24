@@ -172,6 +172,7 @@ fn modal_spell_semantics_derive_their_presentation_modes() {
         Some(EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: true,
+            then: None,
         })
     );
     assert_eq!(rules.rules_text(), "Choose one.");

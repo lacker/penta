@@ -47,6 +47,7 @@ static WITH_REVOLT: [TriggerConditionDef; 2] = [REVOLT, A_BIGGER_CREATURE];
 static PUSH_IT: EffectDef = EffectDef::Destroy {
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
     can_regenerate: true,
+    then: None,
 };
 
 /// The revolt clause replaces the threshold rather than adding to it, so the

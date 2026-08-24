@@ -270,6 +270,7 @@ pub(in crate::card::sets) static BONE_SHARDS: CardRecord = CardRecord::new_with_
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ),
@@ -295,6 +296,7 @@ pub(in crate::card::sets) static DAMN: CardRecord = CardRecord::new_with_legacy_
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: false,
+                then: None,
             },
         ),
         AbilityDef::alternative_cast(
@@ -308,6 +310,7 @@ pub(in crate::card::sets) static DAMN: CardRecord = CardRecord::new_with_legacy_
                     PlayerRelation::Any,
                 ),
                 can_regenerate: false,
+                then: None,
             },
         ),
     ]),

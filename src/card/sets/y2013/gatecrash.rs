@@ -1473,6 +1473,7 @@ pub(in crate::card::sets) static GRISLY_SPECTACLE: CardRecord = CardRecord::new_
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     can_regenerate: true,
+                    then: None,
                 },
                 EffectDef::Mill {
                     player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
@@ -1566,6 +1567,7 @@ pub(in crate::card::sets) static KILLING_GLARE: CardRecord = CardRecord::new_wit
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: true,
+            then: None,
         },
     )),
 );
@@ -3598,6 +3600,7 @@ static FRENZIED_TILLING_PROGRAM: [EffectDef; 2] = [
     EffectDef::Destroy {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         can_regenerate: true,
+        then: None,
     },
     // Tapped, so the land it fetches does not pay for anything this turn --
     // which is the whole reason a five-mana Stone Rain is playable.
@@ -3734,6 +3737,7 @@ pub(in crate::card::sets) static HIGH_PRIEST_OF_PENANCE: CardRecord =
                     effect: &EffectDef::Destroy {
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         can_regenerate: true,
+                        then: None,
                     },
                 },
             ),

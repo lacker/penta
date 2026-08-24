@@ -87,6 +87,7 @@ pub(in crate::card::sets) static ARMAGEDDON: CardRecord = CardRecord::new_with_l
                 PlayerRelation::Any,
             ),
             can_regenerate: true,
+            then: None,
         },
     )]),
 );
@@ -406,6 +407,7 @@ pub(in crate::card::sets) static DISENCHANT: CardRecord = CardRecord::new_with_l
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: true,
+            then: None,
         },
     )]),
 );
@@ -726,6 +728,7 @@ pub(in crate::card::sets) static NORTHERN_PALADIN: CardRecord = CardRecord::new_
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ]),
@@ -1027,6 +1030,7 @@ pub(in crate::card::sets) static WRATH_OF_GOD: CardRecord = CardRecord::new_with
                 PlayerRelation::Any,
             ),
             can_regenerate: false,
+            then: None,
         },
     )),
 );
@@ -2557,6 +2561,7 @@ pub(in crate::card::sets) static ROYAL_ASSASSIN: CardRecord = CardRecord::new_wi
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ),
@@ -2707,6 +2712,7 @@ pub(in crate::card::sets) static SINKHOLE: CardRecord = CardRecord::new_with_leg
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: true,
+            then: None,
         },
     )]),
 );
@@ -2734,6 +2740,7 @@ pub(in crate::card::sets) static TERROR: CardRecord = CardRecord::new_with_legac
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: false,
+            then: None,
         },
     )]),
 );
@@ -3002,6 +3009,7 @@ pub(in crate::card::sets) static DWARVEN_DEMOLITION_TEAM: CardRecord =
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     can_regenerate: true,
+                    then: None,
                 },
             ),
         ]),
@@ -3165,6 +3173,7 @@ pub(in crate::card::sets) static FLASHFIRES: CardRecord = CardRecord::new_with_l
                 PlayerRelation::Any,
             ),
             can_regenerate: true,
+            then: None,
         },
     )]),
 );
@@ -3559,6 +3568,7 @@ pub(in crate::card::sets) static SHATTER: CardRecord = CardRecord::new_with_lega
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: true,
+            then: None,
         },
     )]),
 );
@@ -3634,6 +3644,7 @@ static STONE_GIANT_THROW: [EffectDef; 2] = [
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: true,
+            then: None,
         },
     ))),
 ];
@@ -3675,6 +3686,7 @@ pub(in crate::card::sets) static STONE_RAIN: CardRecord = CardRecord::new_with_l
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: true,
+            then: None,
         },
     )]),
 );
@@ -3853,6 +3865,7 @@ static BERSERK_EFFECT: [EffectDef; 2] = [
             then: &EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         },
     ))),
@@ -4527,6 +4540,7 @@ pub(in crate::card::sets) static TRANQUILITY: CardRecord = CardRecord::new_with_
                 PlayerRelation::Any,
             ),
             can_regenerate: true,
+            then: None,
         },
     )]),
 );
@@ -4546,6 +4560,7 @@ pub(in crate::card::sets) static TSUNAMI: CardRecord = CardRecord::new_with_lega
                 PlayerRelation::Any,
             ),
             can_regenerate: true,
+            then: None,
         },
     )]),
 );
@@ -4797,6 +4812,7 @@ pub(in crate::card::sets) static CELESTIAL_PRISM: CardRecord = CardRecord::new_w
 static CHAOS_ORB_FLIP_SUCCESS: EffectDef = EffectDef::Destroy {
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
     can_regenerate: true,
+    then: None,
 };
 
 static CHAOS_ORB_FLIP: EffectDef = EffectDef::Randomized {
@@ -4810,6 +4826,7 @@ static CHAOS_ORB_PRESENT_RESOLUTION: EffectDef = EffectDef::Sequence(&[
     EffectDef::Destroy {
         object: EffectRecipientDef::Source,
         can_regenerate: true,
+        then: None,
     },
 ]);
 
@@ -5465,6 +5482,7 @@ pub(in crate::card::sets) static NEVINYRRALS_DISK: CardRecord = CardRecord::new_
                     PlayerRelation::Any,
                 ),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ]),

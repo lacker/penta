@@ -863,7 +863,6 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::Unattach { .. } => "Unattach",
         EffectDef::PairWithSource { .. } => "PairWithSource",
         EffectDef::Destroy { .. } => "Destroy",
-        EffectDef::DestroyThen { .. } => "DestroyThen",
         EffectDef::Detain { .. } => "Detain",
         EffectDef::Regenerate { .. } => "Regenerate",
         EffectDef::Sacrifice { .. } => "Sacrifice",

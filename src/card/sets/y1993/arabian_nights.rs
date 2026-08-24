@@ -61,6 +61,7 @@ pub(in crate::card::sets) static ABU_JAFAR: CardRecord = CardRecord::new_with_le
             EffectDef::Destroy {
                 object: ABU_JAFARS_COMPANIONS,
                 can_regenerate: false,
+                then: None,
             },
         ),
     ),
@@ -140,6 +141,7 @@ pub(in crate::card::sets) static KING_SULEIMAN: CardRecord = CardRecord::new_wit
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ]),

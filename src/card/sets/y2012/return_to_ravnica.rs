@@ -165,6 +165,7 @@ pub(in crate::card::sets) static AVENGING_ARROW: CardRecord = CardRecord::new_wi
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: true,
+            then: None,
         },
     )),
 );
@@ -352,6 +353,7 @@ pub(in crate::card::sets) static KEENING_APPARITION: CardRecord = CardRecord::ne
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ),
@@ -1386,6 +1388,7 @@ pub(in crate::card::sets) static ASSASSINS_STRIKE: CardRecord = CardRecord::new_
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
             EffectDef::Discard {
                 recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
@@ -1976,6 +1979,7 @@ pub(in crate::card::sets) static ASH_ZEALOT: CardRecord = CardRecord::new(
 static BATTERHORN_DESTROY: EffectDef = EffectDef::Destroy {
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
     can_regenerate: true,
+    then: None,
 };
 
 pub(in crate::card::sets) static BATTERHORN: CardRecord = CardRecord::new_with_legacy_id(
@@ -2499,6 +2503,7 @@ pub(in crate::card::sets) static SURVEY_THE_WRECKAGE: CardRecord = CardRecord::n
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
             EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1).with_art(
                 CardArt::new(
@@ -2596,6 +2601,7 @@ pub(in crate::card::sets) static VANDALBLAST: CardRecord = CardRecord::new_with_
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         ),
         abilities::overload(
@@ -2608,6 +2614,7 @@ pub(in crate::card::sets) static VANDALBLAST: CardRecord = CardRecord::new_with_
                     PlayerRelation::NotYou,
                 ),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ]),
@@ -2651,6 +2658,7 @@ pub(in crate::card::sets) static AERIAL_PREDATION: CardRecord = CardRecord::new_
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
@@ -3211,6 +3219,7 @@ pub(in crate::card::sets) static ABRUPT_DECAY: CardRecord = CardRecord::new_with
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ]),
@@ -4525,6 +4534,7 @@ pub(in crate::card::sets) static SUPREME_VERDICT: CardRecord = CardRecord::new_w
                     PlayerRelation::Any,
                 ),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ]),
@@ -4733,6 +4743,7 @@ static VRASKA_RETALIATION: AbilityDef = AbilityDef::triggered(
     EffectDef::Destroy {
         object: EffectRecipientDef::TriggeringObject,
         can_regenerate: true,
+        then: None,
     },
 );
 
@@ -4761,6 +4772,7 @@ static VRASKA_ABILITIES: [AbilityDef; 3] = [
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: true,
+            then: None,
         },
     ),
     AbilityDef::activated(
@@ -5100,6 +5112,7 @@ static SUNDERING_GROWTH_EFFECTS: [EffectDef; 2] = [
     EffectDef::Destroy {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         can_regenerate: true,
+        then: None,
     },
     abilities::populate(),
 ];

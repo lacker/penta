@@ -356,6 +356,7 @@ pub(in crate::card::sets) static GATE_TO_PHYREXIA: CardRecord = CardRecord::new_
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         )
         .with_activation_timing(ActivationTimingDef::YourUpkeep)
@@ -526,6 +527,7 @@ static DETONATE_EFFECT: [EffectDef; 2] = [
     EffectDef::Destroy {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         can_regenerate: false,
+        then: None,
     },
     EffectDef::DealDamage {
         recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
@@ -632,6 +634,7 @@ pub(in crate::card::sets) static SHATTERSTORM: CardRecord = CardRecord::new_with
                 PlayerRelation::Any,
             ),
             can_regenerate: false,
+            then: None,
         },
     )]),
 );
@@ -726,6 +729,7 @@ pub(in crate::card::sets) static CRUMBLE: CardRecord = CardRecord::new_with_lega
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     can_regenerate: false,
+                    then: None,
                 },
                 EffectDef::GainLife {
                     recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
@@ -1930,6 +1934,7 @@ pub(in crate::card::sets) static STRIP_MINE: CardRecord = CardRecord::new_with_l
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ]),

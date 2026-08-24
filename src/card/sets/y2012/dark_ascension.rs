@@ -439,6 +439,7 @@ pub(in crate::card::sets) static RAY_OF_REVELATION: CardRecord = CardRecord::new
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         ),
         abilities::flashback(mana_cost!("{G}")),
@@ -1271,6 +1272,7 @@ static DEATHS_CARESS_PROGRAM: [EffectDef; 2] = [
     EffectDef::Destroy {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         can_regenerate: true,
+        then: None,
     },
     EffectDef::GainLife {
         recipient: EffectRecipientDef::Controller,
@@ -1568,6 +1570,7 @@ pub(in crate::card::sets) static SKIRSDAG_FLAYER: CardRecord = CardRecord::new_w
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ),
@@ -2098,6 +2101,7 @@ pub(in crate::card::sets) static SCORCH_THE_FIELDS: CardRecord = CardRecord::new
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
             EffectDef::DealDamage {
                 recipient: EffectRecipientDef::matching_objects(
@@ -2185,6 +2189,7 @@ pub(in crate::card::sets) static TORCH_FIEND: CardRecord = CardRecord::new_with_
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ),
@@ -2284,6 +2289,7 @@ static CRUSHING_VINES_MODES: [AbilityDef; 2] = [
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: true,
+            then: None,
         },
     ),
     AbilityDef::spell_with_targets(
@@ -2294,6 +2300,7 @@ static CRUSHING_VINES_MODES: [AbilityDef; 2] = [
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: true,
+            then: None,
         },
     ),
 ];

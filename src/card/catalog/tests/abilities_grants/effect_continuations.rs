@@ -1,7 +1,15 @@
 // Recursive continuations share the same catalog obligations as their roots.
 
-fn continuation_effects(child: &'static EffectDef) -> [EffectDef; 4] {
+fn continuation_effects(child: &'static EffectDef) -> [EffectDef; 5] {
     [
+        EffectDef::Destroy {
+            object: EffectRecipientDef::Source,
+            can_regenerate: true,
+            then: Some(crate::card::DestroyFollowUpDef {
+                binding: ObjectSetBindingIndex::PRIMARY,
+                effect: child,
+            }),
+        },
         EffectDef::Discard {
             recipient: EffectRecipientDef::Controller,
             amount: ValueDef::Constant(1),

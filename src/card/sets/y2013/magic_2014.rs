@@ -525,6 +525,7 @@ pub(in crate::card::sets) static SOLEMN_OFFERING: CardRecord = CardRecord::new_w
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
@@ -1531,6 +1532,7 @@ pub(in crate::card::sets) static LITURGY_OF_BLOOD: CardRecord = CardRecord::new_
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Black).with_amount(3)),
         ]),
@@ -1695,6 +1697,7 @@ pub(in crate::card::sets) static SHADOWBORN_DEMON: CardRecord = CardRecord::new_
         )], EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             }),
         AbilityDef::triggered_if(
             "At the beginning of your upkeep, if there are fewer than six creature cards in your graveyard, sacrifice a creature.",
@@ -2126,6 +2129,7 @@ pub(in crate::card::sets) static FLESHPULPER_GIANT: CardRecord = CardRecord::new
                 effect: &EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     can_regenerate: true,
+                    then: None,
                 },
             },
         ),
@@ -3401,6 +3405,7 @@ pub(in crate::card::sets) static RATCHET_BOMB: CardRecord = CardRecord::new_with
                         )),
                     ]), &[ZoneKind::Battlefield], PlayerRelation::Any),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ]),
@@ -3676,6 +3681,7 @@ pub(in crate::card::sets) static ENCROACHING_WASTES: CardRecord = CardRecord::ne
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ]),

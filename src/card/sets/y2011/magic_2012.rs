@@ -159,6 +159,7 @@ pub(in crate::card::sets) static DAY_OF_JUDGMENT: CardRecord = CardRecord::new(
                 PlayerRelation::Any,
             ),
             can_regenerate: true,
+            then: None,
         },
     )),
 );
@@ -177,6 +178,7 @@ pub(in crate::card::sets) static DEMYSTIFY: CardRecord = CardRecord::new(
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: true,
+            then: None,
         },
     )),
 );
@@ -998,6 +1000,7 @@ pub(in crate::card::sets) static DEATHMARK: CardRecord = CardRecord::new(
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: true,
+            then: None,
         },
     )),
 );
@@ -1580,6 +1583,7 @@ pub(in crate::card::sets) static MANIC_VANDAL: CardRecord = CardRecord::new(
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
         ),
     ),

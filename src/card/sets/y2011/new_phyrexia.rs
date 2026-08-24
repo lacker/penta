@@ -1423,6 +1423,7 @@ pub(in crate::card::sets) static VICTORIOUS_DESTRUCTION: CardRecord = CardRecord
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
             EffectDef::LoseLife {
                 recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
@@ -1494,6 +1495,7 @@ pub(in crate::card::sets) static BEAST_WITHIN: CardRecord = CardRecord::new(
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
             EffectDef::create_creature_token(&["Beast"], &[ManaColor::Green], 3, 3)
                 .with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
@@ -1608,6 +1610,7 @@ pub(in crate::card::sets) static GLISSA_S_SCORN: CardRecord = CardRecord::new(
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
+                then: None,
             },
             EffectDef::LoseLife {
                 recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(

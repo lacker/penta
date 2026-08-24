@@ -901,6 +901,7 @@ static RESPONSE_EFFECT: EffectDef = EffectDef::Sequence(&[
             TargetIndex::PRIMARY,
         )),
         can_regenerate: true,
+        then: None,
     },
     EffectDef::DrawCards {
         recipient: EffectRecipientDef::Controller,
@@ -1675,6 +1676,7 @@ static TARGET_ARTIFACT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_p
 static DESTROY_TARGET_ARTIFACT: EffectDef = EffectDef::Destroy {
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
     can_regenerate: true,
+    then: None,
 };
 
 static ARTIFACT_SMALL_ENOUGH: TriggerConditionDef = TriggerConditionDef::TargetMatches {

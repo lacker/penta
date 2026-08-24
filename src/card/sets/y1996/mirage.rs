@@ -1859,6 +1859,7 @@ static GOBLIN_TINKERER_PROGRAM: [EffectDef; 2] = [
     EffectDef::Destroy {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         can_regenerate: true,
+        then: None,
     },
     EffectDef::DealDamage {
         recipient: EffectRecipientDef::Source,
@@ -2494,6 +2495,7 @@ pub(in crate::card::sets) static TRANQUIL_DOMAIN: CardRecord = CardRecord::new_w
                 PlayerRelation::Any,
             ),
             can_regenerate: true,
+            then: None,
         },
     )),
 );

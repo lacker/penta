@@ -727,7 +727,6 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::Endure { .. }
                     | EffectDef::CreateMyriadTokens
                     | EffectDef::Destroy { .. }
-                    | EffectDef::DestroyThen { .. }
                     | EffectDef::Sacrifice { .. }
                     | EffectDef::SacrificeOfChoice { .. }
                     | EffectDef::ExileTopOfLibraryToPlay { .. }

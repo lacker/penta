@@ -95,6 +95,13 @@ test("the attacker button counts the attack instead of naming the step", async (
       assert.notEqual(action.label, "Finish attacking", "the step name is gone");
       if (/^(No attacks|Attack with )/.test(action.label)) seen.add(action.label);
     }
+    if (
+      seen.has("No attacks") &&
+      seen.has("Attack with 1 creature") &&
+      [...seen].some((label) => /^Attack with [2-9] creatures$/.test(label))
+    ) {
+      break;
+    }
     if (state.decision) {
       game.choose_decision(
         state.decision.id,

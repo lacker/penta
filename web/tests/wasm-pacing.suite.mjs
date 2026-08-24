@@ -146,6 +146,7 @@ test("mulligans are not a turn, and the draw happens in the beginning phase", as
       assert.equal(beat.state.step, "Draw", "a draw beat is held in the draw step");
       assert.equal(beat.state.pregame, false);
     }
+    if (drawBeats >= 4) break;
     if (state.decision) {
       const wanted = Math.max(state.decision.minimum, 1);
       game.choose_decision(

@@ -76,15 +76,33 @@ impl Game {
     /// characteristics. A copy's copiable rules take precedence over the
     /// physical card's presented part.
     pub(super) fn effective_rules(&self, permanent: &Permanent) -> Option<CardRules> {
+        self.with_effective_rules(permanent, |rules| *rules)
+    }
+
+    /// Visits the printed rules currently supplying baseline permanent
+    /// characteristics without copying the comparatively large rules value.
+    pub(super) fn with_effective_rules<R>(
+        &self,
+        permanent: &Permanent,
+        visitor: impl FnOnce(&CardRules) -> R,
+    ) -> Option<R> {
         match Self::effective_rules_source(permanent) {
             ObjectCharacteristics::Card { definition, part } => self
                 .catalog
                 .get(definition)?
                 .part(part)
-                .map(|part| part.rules),
-            ObjectCharacteristics::Token { token, part } => token.part(part).map(|part| part.rules),
-            ObjectCharacteristics::Emblem { emblem } => Some(emblem.rules_view()),
-            ObjectCharacteristics::FaceDown { face_down } => Some(face_down.rules()),
+                .map(|part| visitor(&part.rules)),
+            ObjectCharacteristics::Token { token, part } => {
+                token.part(part).map(|part| visitor(&part.rules))
+            }
+            ObjectCharacteristics::Emblem { emblem } => {
+                let rules = emblem.rules_view();
+                Some(visitor(&rules))
+            }
+            ObjectCharacteristics::FaceDown { face_down } => {
+                let rules = face_down.rules();
+                Some(visitor(&rules))
+            }
         }
     }
 

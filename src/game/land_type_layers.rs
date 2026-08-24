@@ -166,7 +166,7 @@ impl Game {
     }
 
     fn supplies_land_type_effect(&self, source: &Permanent) -> bool {
-        self.effective_rules(source).is_some_and(|rules| {
+        self.with_effective_rules(source, |rules| {
             rules
                 .ability_clauses()
                 .iter()
@@ -186,6 +186,7 @@ impl Game {
                             .is_some_and(Self::effect_contains_land_type_operation)
                 })
         })
+        .unwrap_or(false)
     }
 
     fn effect_contains_land_type_operation(effect: EffectDef) -> bool {

@@ -1000,6 +1000,7 @@ pub(in crate::card::sets) static GREEN_SUN_S_ZENITH: CardRecord = CardRecord::ne
                 placement: ZonePlacement::Top,
                 shuffle: true,
                 enters_tapped: false,
+                attachment: None,
                 binding: None,
                 then: None,
             },

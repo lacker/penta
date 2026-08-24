@@ -667,10 +667,7 @@ pub enum EffectDef {
         /// time the next effect ran, nothing would name it. Lasts as long as
         /// the permanent does.
         arrival_effect: Option<&'static AppliedEffectDef>,
-        /// Which way an attachment goes as the permanent arrives, if it is
-        /// attached at all. The attachment rides the arrival for the same
-        /// reason the effect above does: what enters is a new object, and a
-        /// following effect would have nothing left to name.
+        /// Which way an attachment participates in the battlefield arrival.
         attachment: Option<ArrivalAttachmentDef>,
         /// Counters the permanent arrives carrying. Separate from
         /// `arrival_effect` because a counter is not a continuous effect: it
@@ -914,9 +911,7 @@ pub enum EffectDef {
         /// Whether a permanent this search puts onto the battlefield arrives
         /// tapped.
         enters_tapped: bool,
-        /// How a permanent this search puts onto the battlefield arrives
-        /// attached, if at all. An attached-player arrival also constrains
-        /// the search to cards that can legally enchant that player.
+        /// Which way an attachment participates in the battlefield arrival.
         attachment: Option<ArrivalAttachmentDef>,
         /// Where the cards this search found are saved, for the follow-up
         /// below to speak about. Scoped to `then` exactly the way every

@@ -474,7 +474,7 @@ fn recipient_uses_binding(recipient: EffectRecipientDef, binding: ObjectChoiceBi
     }
 }
 
-fn effect_removes_binding(effect: EffectDef, binding: ObjectChoiceBindingDef) -> bool {
+pub(super) fn effect_removes_binding(effect: EffectDef, binding: ObjectChoiceBindingDef) -> bool {
     match effect {
         EffectDef::Destroy { object, .. }
         | EffectDef::Sacrifice { object }
@@ -497,6 +497,9 @@ fn effect_removes_binding(effect: EffectDef, binding: ObjectChoiceBindingDef) ->
                 || effect_removes_binding(*on_failure, binding)
         }
         EffectDef::Choose(definition) => effect_removes_binding(*definition.then, binding),
+        EffectDef::SimultaneousChoose(definition) => {
+            effect_removes_binding(*definition.then, binding)
+        }
         EffectDef::PayOr(definition) => {
             definition
                 .if_paid

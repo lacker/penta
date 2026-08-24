@@ -173,6 +173,19 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                 && shared_choose(choice)
                 && shared_stack_effect_at_position(*choice.then, true)
         }
+        EffectDef::SimultaneousChoose(choice) => {
+            deferred_decision_allowed
+                && !choice.one_of_each.is_empty()
+                && choice.chosen != choice.unchosen
+                && shared_effect_recipient(choice.player)
+                && shared_object_predicate(choice.candidates)
+                && choice
+                    .one_of_each
+                    .iter()
+                    .copied()
+                    .all(shared_object_predicate)
+                && shared_stack_effect_at_position(*choice.then, true)
+        }
         // The reveal itself asks nothing, so it opens no decision window;
         // what follows it is still bound by whatever this position allows.
         EffectDef::RevealAtRandomFromHand { then, .. } => {
@@ -216,16 +229,6 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
             mana: ManaSelectionDef::Choice(_) | ManaSelectionDef::Combination(_),
             ..
         }) => deferred_decision_allowed && shared_mana_effect(effect, true),
-        // Each type is asked separately, so the run needs a resolution that
-        // is allowed to stop and ask.
-        EffectDef::SacrificeKeepingOnePerType { player, types } => {
-            deferred_decision_allowed && shared_effect_recipient(player) && !types.is_empty()
-        }
-        EffectDef::DestroyAllButOnePerPlayer { player, object, .. } => {
-            deferred_decision_allowed
-                && shared_effect_recipient(player)
-                && shared_object_predicate(object)
-        }
         EffectDef::AddMana(_) => shared_mana_effect(effect, false),
         EffectDef::DealDamageFrom {
             source, recipient, ..

@@ -1,7 +1,7 @@
 use crate::action::{AbilityOrigin, ManaColor, Target};
 use crate::card::{
-    AbilityDef, BattlefieldEntryScalarChoiceDef, CardType, CardTypeSet, ColorChoiceOperationDef,
-    ColorSet, EffectDef, ManaCost, ModalSpellDef, ObjectChoiceBindingDef, ObjectPredicateDef,
+    AbilityDef, BattlefieldEntryScalarChoiceDef, CardTypeSet, ColorChoiceOperationDef, ColorSet,
+    EffectDef, ManaCost, ModalSpellDef, ObjectChoiceBindingDef, ObjectPredicateDef,
     ReplacementEffectDef, TopCardSelectionDef, TurnKindDef, ZoneKind, ZonePlacement,
 };
 use crate::casting::TargetSelection;
@@ -314,26 +314,17 @@ pub(super) enum DecisionContinuation {
         /// Which colours the printed clause allows. "Any color" is all five.
         choosable: ColorSet,
     },
-    /// One step of "keep one of each of these types, then sacrifice the
-    /// rest". Each type is asked separately, and what has been kept so far
-    /// travels with the question; the sacrifice happens once the last type
-    /// has been answered.
-    KeepOnePerType {
-        /// Who is choosing, and whose permanents are at stake.
-        player: PlayerId,
-        /// Who the sacrifice is attributed to.
-        controller: PlayerId,
-        /// The types still to be asked about, this one first.
-        remaining: Vec<CardType>,
-        kept: Vec<GameObjectId>,
-    },
-    /// One player is choosing the permanent they keep; every player's
-    /// candidates remain frozen until the last APNAP-ordered choice is made.
-    DestroyAllButOnePerPlayer {
-        remaining: Vec<(PlayerId, Vec<GameObjectId>)>,
+    /// One step of a declarative multi-player choice. All chosen permanents
+    /// travel together until every player has answered, then the definition
+    /// binds both halves and resumes its ordinary nested effect.
+    SimultaneousChoose {
+        definition: ScopedEffect,
+        task: usize,
+        players: Vec<PlayerId>,
+        chosen: Vec<GameObjectId>,
+        object: Box<StackObject>,
+        context: EffectResolutionContext,
         candidates: Vec<GameObjectId>,
-        kept: Vec<GameObjectId>,
-        can_regenerate: bool,
     },
     ChainLightning {
         player: PlayerId,

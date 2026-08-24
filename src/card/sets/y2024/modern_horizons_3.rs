@@ -12,10 +12,10 @@ use crate::card::{
     HalvedValueDef, InstalledTriggerDef, InstalledTriggerLifetimeDef, ManaColor,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
     PayOrDef, PlayOptionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, RoundingDef, SpellAdditionalCostCountDef, SpellAdditionalCostDef,
-    SpellForm, SpendModeDef, TargetConditionDef, TokenCopyExceptionsDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
-    tokens,
+    ResolvedEffectDurationDef, RoundingDef, SimultaneousChooseDef, SpellAdditionalCostCountDef,
+    SpellAdditionalCostDef, SpellForm, SpendModeDef, TargetConditionDef, TokenCopyExceptionsDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities, tokens,
 };
 use crate::ids::{CardPartId, ObjectBindingIndex, ObjectSetBindingIndex, PlayOptionId};
 use crate::{TargetIndex, mana_cost};
@@ -1500,14 +1500,27 @@ static AJANI_BURN_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one
     AbilityTargetPredicate::AnyTarget,
 )];
 
-/// The four types the ultimate lets each opponent keep one of. Order is the
-/// printed order, which is the order the questions are asked in.
-static AJANI_SPARED_TYPES: [CardType; 4] = [
-    CardType::Artifact,
-    CardType::Creature,
-    CardType::Enchantment,
-    CardType::Planeswalker,
+/// The four roles the ultimate lets each opponent fill. Order is printed
+/// order, which is also APNAP choice order within one player's selection.
+static AJANI_SPARED_KINDS: [ObjectPredicateDef; 4] = [
+    ObjectPredicateDef::HasType(CardType::Artifact),
+    ObjectPredicateDef::HasType(CardType::Creature),
+    ObjectPredicateDef::HasType(CardType::Enchantment),
+    ObjectPredicateDef::HasType(CardType::Planeswalker),
 ];
+
+static AJANI_SACRIFICE_REST: EffectDef = EffectDef::Sacrifice {
+    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::new(1))),
+};
+
+static AJANI_CHOOSE_SURVIVORS: SimultaneousChooseDef = SimultaneousChooseDef {
+    player: EffectRecipientDef::Opponent,
+    candidates: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+    one_of_each: &AJANI_SPARED_KINDS,
+    chosen: ObjectSetBindingIndex::PRIMARY,
+    unchosen: ObjectSetBindingIndex::new(1),
+    then: &AJANI_SACRIFICE_REST,
+};
 
 static AJANI_TURNS_OVER_SEQUENCE: EffectDef = EffectDef::Sequence(&AJANI_TURNS_OVER);
 
@@ -1555,10 +1568,7 @@ static AJANI_AVENGER_ABILITIES: [AbilityDef; 3] = [
     AbilityDef::activated(
         "−4: Each opponent chooses an artifact, a creature, an enchantment, and a planeswalker from among the nonland permanents they control, then sacrifices the rest.",
         &AJANI_MINUS_FOUR_COST,
-        EffectDef::SacrificeKeepingOnePerType {
-            player: EffectRecipientDef::Opponent,
-            types: &AJANI_SPARED_TYPES,
-        },
+        EffectDef::SimultaneousChoose(AJANI_CHOOSE_SURVIVORS),
     ),
 ];
 

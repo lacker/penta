@@ -26,6 +26,7 @@ impl Game {
             EffectDef::None
             | EffectDef::Randomized { .. }
             | EffectDef::Choose(_)
+            | EffectDef::SimultaneousChoose(_)
             | EffectDef::ChooseCardName { .. }
             | EffectDef::BindMatching { .. }
             | EffectDef::ForEachInBinding { .. }
@@ -60,8 +61,6 @@ impl Game {
             | EffectDef::Saddle { .. }
             | EffectDef::Destroy { .. }
             | EffectDef::Sacrifice { .. }
-            | EffectDef::SacrificeKeepingOnePerType { .. }
-            | EffectDef::DestroyAllButOnePerPlayer { .. }
             | EffectDef::SacrificeOfChoice { .. }
             | EffectDef::ExileTopOfLibraryToPlay { .. }
             | EffectDef::ExileAtRandomFromGraveyardToPlay { .. }

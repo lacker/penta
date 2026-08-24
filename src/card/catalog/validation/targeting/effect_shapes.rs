@@ -136,16 +136,19 @@ fn validate_effect_target_shapes(
             player, then: None, ..
         }
         | EffectDef::ChooseCards { player, .. }
-        | EffectDef::SacrificeKeepingOnePerType { player, .. }
         | EffectDef::TakeExtraTurn { player }
         | EffectDef::LookAtHand { player }
         | EffectDef::LookAtRandomCardInHand { player }
         | EffectDef::RevealHand { player } => {
             validate_recipient_shape(player, targets, RecipientExpectation::Player)
         }
-        EffectDef::DestroyAllButOnePerPlayer { player, object, .. } => {
-            validate_recipient_shape(player, targets, RecipientExpectation::Player)?;
-            validate_object_predicate_shape(object, targets)
+        EffectDef::SimultaneousChoose(choice) => {
+            validate_recipient_shape(choice.player, targets, RecipientExpectation::Player)?;
+            validate_object_predicate_shape(choice.candidates, targets)?;
+            for selector in choice.one_of_each {
+                validate_object_predicate_shape(*selector, targets)?;
+            }
+            validate_effect_target_shapes(*choice.then, targets, triggering_object_zone)
         }
         EffectDef::BecomeMonarch { player } => validate_player_reference_shape(player, targets),
         EffectDef::SacrificeOfChoice {

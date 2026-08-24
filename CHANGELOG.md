@@ -31,13 +31,15 @@ distinguishes snapshots of the covered source and build inputs.
   one mode is executable, and a trigger placed with no mode goes onto the
   stack carrying nothing. Ertai Resurrected is the first card to print it.
 
-- **Declarative per-player survivor choices.** A shared destruction effect now
-  asks affected players in APNAP order to keep one matching permanent each,
-  freezes every public choice, and destroys the rest in one batch with the
-  authored regeneration rule. **Divine Reckoning** uses it together with the
-  existing Flashback ability. The new pending-decision checkpoint tag is
-  additive; checkpoint format 8, replay version 2, and protocol 29 are
-  unchanged.
+- **Declarative simultaneous permanent choices.** A shared choice now asks
+  affected players in APNAP order to choose matching permanents, binds the
+  chosen and unchosen sets after every public choice is frozen, and continues
+  into an ordinary nested effect. **Divine Reckoning** applies standard
+  destruction to the unchosen creatures and uses the existing Flashback
+  ability; **Ajani, Nacatl Avenger** now expresses its ultimate through the
+  same choice followed by standard sacrifice. The new pending-decision
+  checkpoint tag is additive; checkpoint format 8, replay version 2, and
+  protocol 29 are unchanged.
 
 - **Predicate-driven blocking restrictions and declaration costs.** Blocking
   now uses the same declarative shape as attacking: a rule records which side

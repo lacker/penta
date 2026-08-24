@@ -75,6 +75,9 @@ impl Game {
             | EffectDef::BindMatching { then, .. } => {
                 Self::effect_applies_to_source(*then, expected)
             }
+            EffectDef::SimultaneousChoose(choice) => {
+                Self::effect_applies_to_source(*choice.then, expected)
+            }
             EffectDef::PayOr(payment) => payment
                 .if_paid
                 .iter()
@@ -119,8 +122,6 @@ impl Game {
             | EffectDef::PairWithSource { .. }
             | EffectDef::Destroy { .. }
             | EffectDef::Sacrifice { .. }
-            | EffectDef::SacrificeKeepingOnePerType { .. }
-            | EffectDef::DestroyAllButOnePerPlayer { .. }
             | EffectDef::SacrificeOfChoice { .. }
             | EffectDef::ExileTopOfLibraryToPlay { .. }
             | EffectDef::ExileAtRandomFromGraveyardToPlay { .. }

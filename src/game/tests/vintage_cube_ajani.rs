@@ -305,6 +305,30 @@ fn the_zero_makes_a_cat_and_nothing_else_without_red() {
 /// The ultimate lets the opponent keep one of each named type and takes the
 /// rest, leaving their lands alone.
 #[test]
+fn the_ultimate_uses_simultaneous_choice_then_standard_sacrifice() {
+    let game = ready_game();
+    let avenger = game
+        .catalog
+        .get(cards::AJANI_NACATL_PARIAH)
+        .expect("Ajani is cataloged")
+        .part(CardPartId(1))
+        .expect("Ajani's back face is cataloged");
+    let EffectDef::SimultaneousChoose(choice) = avenger.rules.ability_clauses()[2]
+        .declarative_effect()
+        .expect("Ajani's ultimate is declarative")
+    else {
+        panic!("Ajani's ultimate starts with a simultaneous choice");
+    };
+    assert_eq!(choice.one_of_each.len(), 4);
+    assert_eq!(
+        *choice.then,
+        EffectDef::Sacrifice {
+            object: EffectRecipientDef::objects(ObjectSetDef::Binding(choice.unchosen)),
+        }
+    );
+}
+
+#[test]
 fn the_ultimate_spares_one_of_each_type_and_every_land() {
     let (mut game, _ajani) = ajani_on_battlefield();
     for id in 91_200..91_203 {

@@ -66,44 +66,6 @@ fn parse_continuation(
                 })
                 .transpose()?,
         },
-        DecisionContinuationSnapshot::KeepOnePerType {
-            player: chooser,
-            controller,
-            remaining,
-            kept,
-        } => DecisionContinuation::KeepOnePerType {
-            player: player(*chooser)?,
-            controller: player(*controller)?,
-            remaining: remaining
-                .iter()
-                .map(|index| {
-                    crate::card::CardType::ALL
-                        .get(*index)
-                        .copied()
-                        .ok_or("card-type index is out of range")
-                })
-                .collect::<Result<Vec<_>, _>>()?,
-            kept: kept.iter().copied().map(GameObjectId).collect(),
-        },
-        DecisionContinuationSnapshot::DestroyAllButOnePerPlayer {
-            remaining,
-            candidates,
-            kept,
-            can_regenerate,
-        } => DecisionContinuation::DestroyAllButOnePerPlayer {
-            remaining: remaining
-                .iter()
-                .map(|choice| {
-                    Ok((
-                        player(choice.player)?,
-                        choice.candidates.iter().copied().map(GameObjectId).collect(),
-                    ))
-                })
-                .collect::<Result<Vec<_>, String>>()?,
-            candidates: candidates.iter().copied().map(GameObjectId).collect(),
-            kept: kept.iter().copied().map(GameObjectId).collect(),
-            can_regenerate: *can_regenerate,
-        },
         DecisionContinuationSnapshot::ChosenColorMana {
             controller,
             prototype,
@@ -415,6 +377,73 @@ fn parse_continuation(
                 context: continuation.context,
                 candidates: state.candidates,
                 effect: continuation.effect.with_effect(*definition.then),
+            }
+        }
+        DecisionContinuationSnapshot::SimultaneousChoose {
+            continuation: snapshot,
+            task,
+            players,
+            chosen,
+        } => {
+            let continuation = parse_effect_continuation(snapshot, game)?;
+            if !ability_locator_matches_origin(&snapshot.ability, &continuation.object) {
+                return Err(
+                    "simultaneous-choice locator disagrees with its resolving ability".into(),
+                );
+            }
+            let EffectDef::SimultaneousChoose(definition) = continuation.effect.effect else {
+                return Err(
+                    "simultaneous-choice locator does not identify an authored choice".into(),
+                );
+            };
+            let players = players
+                .iter()
+                .copied()
+                .map(player)
+                .collect::<Result<Vec<_>, _>>()?;
+            let expected = game.simultaneous_choice_players(
+                definition,
+                &continuation.object,
+                &continuation.context,
+                continuation.effect,
+            );
+            if players != expected {
+                return Err("simultaneous-choice players disagree with the authored choice".into());
+            }
+            let chosen = chosen.iter().copied().map(GameObjectId).collect::<Vec<_>>();
+            let state = game
+                .simultaneous_choice_decision_state(
+                    definition,
+                    *task,
+                    &players,
+                    &chosen,
+                    &continuation.object,
+                )
+                .ok_or("simultaneous-choice task is out of range")?;
+            if state.candidates.len() <= 1 {
+                return Err(
+                    "simultaneous-choice checkpoint encodes an automatic choice".into(),
+                );
+            }
+            validate_authored_decision(
+                observation,
+                state.chooser,
+                "Choose a permanent",
+                DecisionVisibility::Public,
+                state.preference,
+                1,
+                1,
+                &state.options,
+                "simultaneous choice",
+            )?;
+            DecisionContinuation::SimultaneousChoose {
+                definition: continuation.effect,
+                task: *task,
+                players,
+                chosen,
+                object: continuation.object,
+                context: continuation.context,
+                candidates: state.candidates,
             }
         }
         DecisionContinuationSnapshot::PayOr {

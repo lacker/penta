@@ -340,6 +340,9 @@ impl HandcraftedPolicy {
             EffectDef::Choose(choice) => {
                 Self::collect_spell_effect_profile(*choice.then, x, targets, profile);
             }
+            EffectDef::SimultaneousChoose(choice) => {
+                Self::collect_spell_effect_profile(*choice.then, x, targets, profile);
+            }
             EffectDef::ChooseCardName { then, .. }
             | EffectDef::SearchZone { then: Some(then), .. }
             | EffectDef::BindMatching { then, .. } => {
@@ -445,8 +448,6 @@ impl HandcraftedPolicy {
             | EffectDef::LoseLife { .. }
             | EffectDef::Regenerate { .. }
             | EffectDef::Sacrifice { .. }
-            | EffectDef::SacrificeKeepingOnePerType { .. }
-            | EffectDef::DestroyAllButOnePerPlayer { .. }
             | EffectDef::SacrificeOfChoice { .. }
             | EffectDef::DiscardCards { .. }
             | EffectDef::ExileTopOfLibraryToPlay { .. }

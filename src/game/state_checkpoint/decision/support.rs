@@ -166,20 +166,16 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
         }
         // The prototype names the object its mana came from, which is a
         // provenance rather than a reference the decision has to keep alive.
-        DecisionContinuation::KeepOnePerType { kept, .. } => ids.extend(kept.iter().copied()),
-        DecisionContinuation::DestroyAllButOnePerPlayer {
-            remaining,
+        DecisionContinuation::SimultaneousChoose {
+            object,
+            context,
             candidates,
-            kept,
+            chosen,
             ..
         } => {
-            ids.extend(
-                remaining
-                    .iter()
-                    .flat_map(|(_, candidates)| candidates.iter().copied()),
-            );
+            extend_stack_continuation_ids(&mut ids, object, context);
             ids.extend(candidates.iter().copied());
-            ids.extend(kept.iter().copied());
+            ids.extend(chosen.iter().copied());
         }
         DecisionContinuation::ChosenColorMana { .. }
         | DecisionContinuation::SearchZone { .. }

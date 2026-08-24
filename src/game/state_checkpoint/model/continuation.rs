@@ -11,8 +11,8 @@ use super::{
     ApplicableBeginTurnReplacementSnapshot, ApplicableReplacementSnapshot, BalancePhaseSnapshot,
     BalanceTaskSnapshot, DecisionOptionSnapshot, DeferredBeginTurnEffectSnapshot,
     DetachedCardSnapshot, DetachedStackSnapshot, DiscardChoiceSnapshot, DrawReplacementSnapshot,
-    EffectContinuationSnapshot, EffectResolutionContextSnapshot, KeepOnePlayerSnapshot,
-    ManaSnapshot, PendingTriggerSnapshot, PileSplitSnapshot, ReplacementEffectContextSnapshot,
+    EffectContinuationSnapshot, EffectResolutionContextSnapshot, ManaSnapshot,
+    PendingTriggerSnapshot, PileSplitSnapshot, ReplacementEffectContextSnapshot,
     ReplacementEffectLocator, ResolvedEffectPaymentSnapshot, ScopedEffectSnapshot,
     TargetSelectionSnapshot, TargetSnapshot, TriggerPlacementBatchSnapshot, TurnKindSnapshot,
     ZoneKindSnapshot, ZoneMoveCauseSnapshot, ZonePlacementSnapshot,
@@ -155,6 +155,12 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
     ChooseForEffect {
         continuation: EffectContinuationSnapshot,
     },
+    SimultaneousChoose {
+        continuation: EffectContinuationSnapshot,
+        task: usize,
+        players: Vec<usize>,
+        chosen: Vec<u32>,
+    },
     PayOr {
         player: usize,
         payment: ResolvedEffectPaymentSnapshot,
@@ -280,21 +286,6 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
     ChooseColor {
         continuation: Box<EffectContinuationSnapshot>,
         targets: Vec<TargetSnapshot>,
-    },
-    KeepOnePerType {
-        player: usize,
-        controller: usize,
-        /// Indices into `CardType::ALL`, in the order the printed clause
-        /// names them. The same positional encoding a copied entry's added
-        /// types already uses.
-        remaining: Vec<usize>,
-        kept: Vec<u32>,
-    },
-    DestroyAllButOnePerPlayer {
-        remaining: Vec<KeepOnePlayerSnapshot>,
-        candidates: Vec<u32>,
-        kept: Vec<u32>,
-        can_regenerate: bool,
     },
     ChosenColorMana {
         controller: usize,

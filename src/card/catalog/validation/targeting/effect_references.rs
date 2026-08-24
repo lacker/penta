@@ -287,14 +287,19 @@ fn validate_effect_references(
         EffectDef::BecomeMonarch { player } => {
             validate_player_reference(player, target_count, scope)
         }
+        EffectDef::SimultaneousChoose(choice) => {
+            validate_recipient_target_references(choice.player, target_count, scope)?;
+            let nested = scope
+                .with_object_set(choice.chosen)?
+                .with_object_set(choice.unchosen)?;
+            validate_effect_references(*choice.then, target_count, nested)
+        }
         EffectDef::SearchZonesAndExileRest { player, .. }
         | EffectDef::ExileTopOfLibraryToPlay { player, .. }
         | EffectDef::ExileAtRandomFromGraveyardToPlay { player }
         | EffectDef::ExileFromTopUntil { player, .. }
         | EffectDef::ManifestDread { player }
         | EffectDef::ChooseCards { player, .. }
-        | EffectDef::SacrificeKeepingOnePerType { player, .. }
-        | EffectDef::DestroyAllButOnePerPlayer { player, .. }
         | EffectDef::TakeExtraTurn { player }
         | EffectDef::LookAtHand { player }
         | EffectDef::LookAtRandomCardInHand { player }

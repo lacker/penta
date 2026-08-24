@@ -66,38 +66,33 @@ impl Game {
             } => self.resolve_card_name_choice(
                 &choices, searched, zone, binding, &object, context, effect, options,
             ),
-            DecisionContinuation::KeepOnePerType {
-                player: chooser,
-                controller,
-                remaining,
-                mut kept,
-            } => {
-                kept.extend(
-                    pending
-                        .observation
-                        .options
-                        .iter()
-                        .filter(|option| options.contains(&option.id))
-                        .filter_map(|option| option.card.map(|(card, _)| card)),
-                );
-                let rest = remaining.get(1..).unwrap_or_default().to_vec();
-                self.queue_keep_one_per_type(chooser, controller, rest, kept);
-            }
-            DecisionContinuation::DestroyAllButOnePerPlayer {
-                remaining,
+            DecisionContinuation::SimultaneousChoose {
+                definition,
+                task,
+                players,
+                mut chosen,
+                object,
+                context,
                 candidates,
-                mut kept,
-                can_regenerate,
             } => {
-                kept.extend(
+                chosen.extend(
                     pending
                         .observation
                         .options
                         .iter()
                         .filter(|option| options.contains(&option.id))
-                        .filter_map(|option| option.card.map(|(card, _)| card)),
+                        .filter_map(|option| option.card.map(|(card, _)| card))
+                        .filter(|card| candidates.contains(card)),
                 );
-                self.queue_next_destroy_all_but_one(remaining, candidates, kept, can_regenerate);
+                self.queue_next_simultaneous_choice(
+                    definition,
+                    task + 1,
+                    players,
+                    chosen,
+                    &object,
+                    context,
+                    true,
+                );
             }
             DecisionContinuation::ChosenColorMana {
                 controller,

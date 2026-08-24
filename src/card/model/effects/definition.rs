@@ -834,22 +834,9 @@ pub enum EffectDef {
     Sacrifice {
         object: EffectRecipientDef,
     },
-    /// "Each opponent chooses an artifact, a creature, an enchantment, and a
-    /// planeswalker from among the nonland permanents they control, then
-    /// sacrifices the rest." The keeping is a run of choices rather than one
-    /// selection: a player may keep at most one of each named type, and a
-    /// single multi-select could not say that.
-    SacrificeKeepingOnePerType {
-        player: EffectRecipientDef,
-        types: &'static [crate::card::CardType],
-    },
-    /// Each recipient player chooses one matching permanent they control;
-    /// every APNAP-ordered choice freezes before the rest are destroyed together.
-    DestroyAllButOnePerPlayer {
-        player: EffectRecipientDef,
-        object: ObjectPredicateDef,
-        can_regenerate: bool,
-    },
+    /// Several players make non-targeting permanent choices before the
+    /// resulting partition is exposed to an ordinary nested effect.
+    SimultaneousChoose(super::SimultaneousChooseDef),
     /// Each recipient player chooses one permanent they control that matches,
     /// and sacrifices it. This remains a dedicated simultaneous procedure:
     /// every affected player's APNAP-ordered choice is frozen before any

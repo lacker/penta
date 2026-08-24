@@ -1,5 +1,37 @@
 use super::*;
 
+fn divine_reckoning_effect(game: &Game) -> EffectDef {
+    game.catalog
+        .get(cards::DIVINE_RECKONING)
+        .expect("Divine Reckoning is cataloged")
+        .rules
+        .ability_clauses()[0]
+        .declarative_effect()
+        .expect("Divine Reckoning uses a resolving effect program")
+}
+
+#[test]
+fn uses_simultaneous_choice_then_standard_destroy() {
+    let game = ready_game();
+    let EffectDef::SimultaneousChoose(choice) = divine_reckoning_effect(&game) else {
+        panic!("Divine Reckoning starts with a simultaneous choice");
+    };
+    assert_eq!(choice.player, EffectRecipientDef::EachPlayer);
+    assert_eq!(
+        choice.candidates,
+        ObjectPredicateDef::HasType(CardType::Creature)
+    );
+    assert_eq!(choice.one_of_each, &[ObjectPredicateDef::Any]);
+    assert_ne!(choice.chosen, choice.unchosen);
+    assert_eq!(
+        *choice.then,
+        EffectDef::Destroy {
+            object: EffectRecipientDef::objects(ObjectSetDef::Binding(choice.unchosen)),
+            can_regenerate: true,
+        }
+    );
+}
+
 fn choose_permanent(game: &mut Game, permanent: GameObjectId) {
     let decision = game
         .pending_decisions
@@ -88,12 +120,9 @@ fn an_unchosen_creature_can_regenerate() {
     game.battlefield.extend([kept, troll]);
 
     let source = spell(10_012, cards::DIVINE_RECKONING, PlayerId::One, 0);
+    let effect = divine_reckoning_effect(&game);
     game.resolve_effect_def(
-        ScopedEffect::primary(EffectDef::DestroyAllButOnePerPlayer {
-            player: EffectRecipientDef::EachPlayer,
-            object: ObjectPredicateDef::HasType(CardType::Creature),
-            can_regenerate: true,
-        }),
+        ScopedEffect::primary(effect),
         &source,
         TriggerContext::empty(),
     );

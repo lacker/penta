@@ -40,6 +40,23 @@ pub struct ChooseDef {
     pub then: &'static EffectDef,
 }
 
+/// Each affected player chooses one permanent they control for every
+/// predicate in `one_of_each`. Choices are locked in APNAP order before the
+/// chosen and unchosen unions are bound and the nested effect continues.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct SimultaneousChooseDef {
+    pub player: EffectRecipientDef,
+    /// The complete universe divided into `chosen` and `unchosen`.
+    pub candidates: ObjectPredicateDef,
+    /// One distinct matching permanent is chosen for each predicate when one
+    /// exists. A permanent already chosen for an earlier predicate is not
+    /// offered again.
+    pub one_of_each: &'static [ObjectPredicateDef],
+    pub chosen: ObjectSetBindingIndex,
+    pub unchosen: ObjectSetBindingIndex,
+    pub then: &'static EffectDef,
+}
+
 /// What a named colour is used for once it has been chosen.
 ///
 /// An operation rather than a general effect: the colour has to reach a

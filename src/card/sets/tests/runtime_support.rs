@@ -682,6 +682,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     EffectDef::AddManaEqualTo { .. }
                     | EffectDef::Randomized { .. }
                     | EffectDef::Choose(_)
+                    | EffectDef::SimultaneousChoose(_)
                     | EffectDef::ChooseCardName { .. }
                     | EffectDef::BindMatching { .. }
                     | EffectDef::ForEachInBinding { .. }
@@ -728,8 +729,6 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::CreateMyriadTokens
                     | EffectDef::Destroy { .. }
                     | EffectDef::Sacrifice { .. }
-                    | EffectDef::SacrificeKeepingOnePerType { .. }
-                    | EffectDef::DestroyAllButOnePerPlayer { .. }
                     | EffectDef::SacrificeOfChoice { .. }
                     | EffectDef::ExileTopOfLibraryToPlay { .. }
                     | EffectDef::ExileAtRandomFromGraveyardToPlay { .. }

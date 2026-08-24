@@ -933,6 +933,13 @@ pub(super) struct DiscardChoiceSnapshot {
     pub(super) count: usize,
 }
 
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct KeepOnePlayerSnapshot {
+    pub(super) player: usize,
+    pub(super) candidates: Vec<u32>,
+}
+
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct DetachedCardSnapshot {

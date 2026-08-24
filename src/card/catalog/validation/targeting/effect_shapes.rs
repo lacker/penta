@@ -143,6 +143,10 @@ fn validate_effect_target_shapes(
         | EffectDef::RevealHand { player } => {
             validate_recipient_shape(player, targets, RecipientExpectation::Player)
         }
+        EffectDef::DestroyAllButOnePerPlayer { player, object, .. } => {
+            validate_recipient_shape(player, targets, RecipientExpectation::Player)?;
+            validate_object_predicate_shape(object, targets)
+        }
         EffectDef::BecomeMonarch { player } => validate_player_reference_shape(player, targets),
         EffectDef::SacrificeOfChoice {
             count,

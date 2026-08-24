@@ -327,6 +327,14 @@ pub(super) enum DecisionContinuation {
         remaining: Vec<CardType>,
         kept: Vec<GameObjectId>,
     },
+    /// One player is choosing the permanent they keep; every player's
+    /// candidates remain frozen until the last APNAP-ordered choice is made.
+    DestroyAllButOnePerPlayer {
+        remaining: Vec<(PlayerId, Vec<GameObjectId>)>,
+        candidates: Vec<GameObjectId>,
+        kept: Vec<GameObjectId>,
+        can_regenerate: bool,
+    },
     ChainLightning {
         player: PlayerId,
         spell: StackObject,

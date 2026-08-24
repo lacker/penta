@@ -83,6 +83,22 @@ impl Game {
                 let rest = remaining.get(1..).unwrap_or_default().to_vec();
                 self.queue_keep_one_per_type(chooser, controller, rest, kept);
             }
+            DecisionContinuation::DestroyAllButOnePerPlayer {
+                remaining,
+                candidates,
+                mut kept,
+                can_regenerate,
+            } => {
+                kept.extend(
+                    pending
+                        .observation
+                        .options
+                        .iter()
+                        .filter(|option| options.contains(&option.id))
+                        .filter_map(|option| option.card.map(|(card, _)| card)),
+                );
+                self.queue_next_destroy_all_but_one(remaining, candidates, kept, can_regenerate);
+            }
             DecisionContinuation::ChosenColorMana {
                 controller,
                 mut prototype,

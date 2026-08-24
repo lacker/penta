@@ -85,6 +85,25 @@ fn parse_continuation(
                 .collect::<Result<Vec<_>, _>>()?,
             kept: kept.iter().copied().map(GameObjectId).collect(),
         },
+        DecisionContinuationSnapshot::DestroyAllButOnePerPlayer {
+            remaining,
+            candidates,
+            kept,
+            can_regenerate,
+        } => DecisionContinuation::DestroyAllButOnePerPlayer {
+            remaining: remaining
+                .iter()
+                .map(|choice| {
+                    Ok((
+                        player(choice.player)?,
+                        choice.candidates.iter().copied().map(GameObjectId).collect(),
+                    ))
+                })
+                .collect::<Result<Vec<_>, String>>()?,
+            candidates: candidates.iter().copied().map(GameObjectId).collect(),
+            kept: kept.iter().copied().map(GameObjectId).collect(),
+            can_regenerate: *can_regenerate,
+        },
         DecisionContinuationSnapshot::ChosenColorMana {
             controller,
             prototype,

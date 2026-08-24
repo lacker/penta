@@ -1,3 +1,44 @@
+/// Divine Reckoning records each public survivor in APNAP order and cannot
+/// destroy anything until the last player has answered.
+#[test]
+fn a_multi_player_keep_choice_reconstructs_between_answers() {
+    let mut game = staged_modern_game();
+    for (player, base) in [(PlayerId::One, 10_000), (PlayerId::Two, 11_000)] {
+        game.battlefield.push(creature(
+            base,
+            crate::card::cards::SAVANNAH_LIONS,
+            player,
+        ));
+        game.battlefield.push(creature(
+            base + 1,
+            crate::card::cards::SERRA_ANGEL,
+            player,
+        ));
+    }
+    let reckoning = card(
+        12_000,
+        crate::card::cards::DIVINE_RECKONING,
+        PlayerId::One,
+    );
+    game.players[0].hand.push(reckoning.clone());
+    fill_mana(&mut game, PlayerId::One, 4);
+    let cast = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| matches!(action, Action::CastSpell { card, .. } if *card == reckoning.id))
+        .expect("Divine Reckoning is castable");
+    game.apply(PlayerId::One, cast)
+        .expect("Divine Reckoning is cast");
+    resolve_top_of_stack(&mut game);
+
+    assert_eq!(game.decision_player(), Some(PlayerId::One));
+    assert_reconstructs(&game, "Divine Reckoning before any survivor is chosen");
+    answer_with_first_option(&mut game);
+    assert_eq!(game.decision_player(), Some(PlayerId::Two));
+    assert_eq!(game.battlefield.len(), 4, "the first choice moves nothing");
+    assert_reconstructs(&game, "Divine Reckoning between survivor choices");
+}
+
 /// Liliana's +1 asks both players at once. Between the two answers the engine
 /// holds one seat's committed discard while the other is still choosing, which
 /// is a choice the waiting seat must not be able to read out of its own

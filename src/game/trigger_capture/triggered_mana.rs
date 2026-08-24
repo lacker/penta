@@ -60,7 +60,8 @@ impl Game {
             | EffectDef::Saddle { .. }
             | EffectDef::Destroy { .. }
             | EffectDef::Sacrifice { .. }
-        | EffectDef::SacrificeKeepingOnePerType { .. }
+            | EffectDef::SacrificeKeepingOnePerType { .. }
+            | EffectDef::DestroyAllButOnePerPlayer { .. }
             | EffectDef::SacrificeOfChoice { .. }
             | EffectDef::ExileTopOfLibraryToPlay { .. }
             | EffectDef::ExileAtRandomFromGraveyardToPlay { .. }

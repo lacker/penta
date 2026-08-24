@@ -868,6 +868,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::Regenerate { .. } => "Regenerate",
         EffectDef::Sacrifice { .. } => "Sacrifice",
         EffectDef::SacrificeKeepingOnePerType { .. } => "SacrificeKeepingOnePerType",
+        EffectDef::DestroyAllButOnePerPlayer { .. } => "DestroyAllButOnePerPlayer",
         EffectDef::SacrificeOfChoice { .. } => "SacrificeOfChoice",
         EffectDef::ExileTopOfLibraryToPlay { .. } => "ExileTopOfLibraryToPlay",
         EffectDef::ExileAtRandomFromGraveyardToPlay { .. } => "ExileAtRandomFromGraveyardToPlay",

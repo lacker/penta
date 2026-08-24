@@ -843,6 +843,13 @@ pub enum EffectDef {
         player: EffectRecipientDef,
         types: &'static [crate::card::CardType],
     },
+    /// Each recipient player chooses one matching permanent they control;
+    /// every APNAP-ordered choice freezes before the rest are destroyed together.
+    DestroyAllButOnePerPlayer {
+        player: EffectRecipientDef,
+        object: ObjectPredicateDef,
+        can_regenerate: bool,
+    },
     /// Each recipient player chooses one permanent they control that matches,
     /// and sacrifices it. This remains a dedicated simultaneous procedure:
     /// every affected player's APNAP-ordered choice is frozen before any

@@ -294,6 +294,7 @@ fn validate_effect_references(
         | EffectDef::ManifestDread { player }
         | EffectDef::ChooseCards { player, .. }
         | EffectDef::SacrificeKeepingOnePerType { player, .. }
+        | EffectDef::DestroyAllButOnePerPlayer { player, .. }
         | EffectDef::TakeExtraTurn { player }
         | EffectDef::LookAtHand { player }
         | EffectDef::LookAtRandomCardInHand { player }

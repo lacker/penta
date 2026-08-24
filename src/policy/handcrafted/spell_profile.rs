@@ -445,7 +445,8 @@ impl HandcraftedPolicy {
             | EffectDef::LoseLife { .. }
             | EffectDef::Regenerate { .. }
             | EffectDef::Sacrifice { .. }
-        | EffectDef::SacrificeKeepingOnePerType { .. }
+            | EffectDef::SacrificeKeepingOnePerType { .. }
+            | EffectDef::DestroyAllButOnePerPlayer { .. }
             | EffectDef::SacrificeOfChoice { .. }
             | EffectDef::DiscardCards { .. }
             | EffectDef::ExileTopOfLibraryToPlay { .. }

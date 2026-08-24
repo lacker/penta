@@ -221,6 +221,11 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         EffectDef::SacrificeKeepingOnePerType { player, types } => {
             deferred_decision_allowed && shared_effect_recipient(player) && !types.is_empty()
         }
+        EffectDef::DestroyAllButOnePerPlayer { player, object, .. } => {
+            deferred_decision_allowed
+                && shared_effect_recipient(player)
+                && shared_object_predicate(object)
+        }
         EffectDef::AddMana(_) => shared_mana_effect(effect, false),
         EffectDef::DealDamageFrom {
             source, recipient, ..

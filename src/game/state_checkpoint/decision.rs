@@ -23,7 +23,7 @@ use super::model::{
     DecisionCardSnapshot, DecisionContinuationSnapshot, DecisionOptionSnapshot,
     DecisionPreferenceSnapshot, DecisionStateSnapshot, DecisionZoneSnapshot,
     DeferredBeginTurnEffectSnapshot, DetachedCardSnapshot, DiscardChoiceSnapshot,
-    EffectContinuationSnapshot, PendingTriggerSnapshot, PileSplitSnapshot,
+    EffectContinuationSnapshot, KeepOnePlayerSnapshot, PendingTriggerSnapshot, PileSplitSnapshot,
     ReplacementEffectContextSnapshot, ReplacementEffectLocator, TriggerPlacementBatchSnapshot,
     TurnKindSnapshot, ZoneMoveCauseSnapshot, ZonePlacementSnapshot,
 };
@@ -721,6 +721,23 @@ fn continuation_snapshot(
                 })
                 .collect::<Option<Vec<_>>>()?,
             kept: kept.iter().map(|id| id.0).collect(),
+        },
+        DecisionContinuation::DestroyAllButOnePerPlayer {
+            remaining,
+            candidates,
+            kept,
+            can_regenerate,
+        } => DecisionContinuationSnapshot::DestroyAllButOnePerPlayer {
+            remaining: remaining
+                .iter()
+                .map(|(player, candidates)| KeepOnePlayerSnapshot {
+                    player: player.index(),
+                    candidates: candidates.iter().map(|id| id.0).collect(),
+                })
+                .collect(),
+            candidates: candidates.iter().map(|id| id.0).collect(),
+            kept: kept.iter().map(|id| id.0).collect(),
+            can_regenerate: *can_regenerate,
         },
         DecisionContinuation::ChosenColorMana {
             controller,

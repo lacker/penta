@@ -244,6 +244,7 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::Destroy { .. }
         | EffectDef::Sacrifice { .. }
         | EffectDef::SacrificeKeepingOnePerType { .. }
+        | EffectDef::DestroyAllButOnePerPlayer { .. }
         | EffectDef::SacrificeOfChoice { .. }
         | EffectDef::ExileTopOfLibraryToPlay { .. }
         | EffectDef::ExileAtRandomFromGraveyardToPlay { .. }

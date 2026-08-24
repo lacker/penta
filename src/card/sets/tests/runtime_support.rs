@@ -729,6 +729,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::Destroy { .. }
                     | EffectDef::Sacrifice { .. }
                     | EffectDef::SacrificeKeepingOnePerType { .. }
+                    | EffectDef::DestroyAllButOnePerPlayer { .. }
                     | EffectDef::SacrificeOfChoice { .. }
                     | EffectDef::ExileTopOfLibraryToPlay { .. }
                     | EffectDef::ExileAtRandomFromGraveyardToPlay { .. }

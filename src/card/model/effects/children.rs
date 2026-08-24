@@ -139,6 +139,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::ReturnLinkedExiles { .. }
         | EffectDef::Sacrifice { .. }
         | EffectDef::SacrificeKeepingOnePerType { .. }
+        | EffectDef::DestroyAllButOnePerPlayer { .. }
         | EffectDef::ScheduleTurnPhases(_)
         | EffectDef::BuryGraveyard { .. }
         | EffectDef::ShuffleLibrary { .. }

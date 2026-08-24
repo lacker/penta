@@ -356,6 +356,26 @@ impl Game {
                     }
                 }
             }
+            EffectDef::DestroyAllButOnePerPlayer {
+                player: recipient,
+                object: predicate,
+                can_regenerate,
+            } => {
+                let players = self
+                    .effect_recipients(recipient, object, &context, scoped)
+                    .into_iter()
+                    .filter_map(|target| match target {
+                        Target::Player(player) => Some(player),
+                        _ => None,
+                    })
+                    .collect();
+                self.queue_destroy_all_but_one_per_player(
+                    players,
+                    predicate,
+                    object.source.unwrap_or(object.id),
+                    can_regenerate,
+                );
+            }
             EffectDef::PutOntoBattlefieldThen {
                 object: recipient,
                 binding,

@@ -122,6 +122,7 @@ mod detain;
 mod dgm_stale_audits;
 mod discard_cost;
 mod disharmony;
+mod divine_reckoning;
 mod dka_stale_audits;
 mod elder_spawn;
 mod emrakul;

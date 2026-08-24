@@ -7,6 +7,141 @@ fn isd_m14_game() -> Game {
 }
 
 #[test]
+fn frightful_delusion_is_a_complete_declarative_sequence() {
+    let game = isd_m14_game();
+    let definition = game.catalog.get(cards::FRIGHTFUL_DELUSION).unwrap();
+
+    assert_eq!(
+        definition.implementation_status(),
+        crate::ImplementationStatus::Complete,
+    );
+    assert_eq!(definition.rules.special_behavior(), None);
+    assert!(matches!(
+        definition.rules.ability_clauses()[0].declarative_effect(),
+        Some(EffectDef::Sequence([
+            EffectDef::PayOr(_),
+            EffectDef::Discard { .. },
+        ])),
+    ));
+}
+
+fn frightful_delusion_payment_game() -> (Game, GameObjectId, GameObjectId) {
+    let mut game = isd_m14_game();
+    let bolt = card(19_100, cards::LIGHTNING_BOLT, PlayerId::Two);
+    let bolt_id = bolt.id;
+    let discarded = card(19_101, cards::MOUNTAIN, PlayerId::Two);
+    let discarded_id = discarded.id;
+    game.players[PlayerId::Two.index()]
+        .hand
+        .extend([bolt, discarded]);
+    game.players[PlayerId::Two.index()].mana_pool.red = 1;
+    game.players[PlayerId::Two.index()].mana_pool.colorless = 1;
+    game.priority = PlayerId::Two;
+    game.apply(
+        PlayerId::Two,
+        cast_action(bolt_id, vec![Target::Player(PlayerId::One)], Vec::new(), 0),
+    )
+    .expect("the opponent casts the target spell");
+    let target = game.stack.last().expect("the target is on the stack").id;
+    game.apply(PlayerId::Two, Action::PassPriority).unwrap();
+
+    let delusion = card(19_102, cards::FRIGHTFUL_DELUSION, PlayerId::One);
+    let delusion_id = delusion.id;
+    game.players[PlayerId::One.index()].hand.push(delusion);
+    game.players[PlayerId::One.index()].mana_pool.blue = 1;
+    game.players[PlayerId::One.index()].mana_pool.colorless = 2;
+    game.apply(
+        PlayerId::One,
+        cast_action(delusion_id, vec![Target::Spell(target)], Vec::new(), 0),
+    )
+    .expect("Frightful Delusion targets the spell");
+    pass_priority_pair(&mut game);
+
+    (game, target, discarded_id)
+}
+
+#[test]
+fn frightful_delusion_discards_after_its_controller_pays() {
+    let (mut game, target, discarded) = frightful_delusion_payment_game();
+    let decision = game
+        .observe(PlayerId::Two)
+        .decision
+        .expect("the target spell's controller may pay one");
+    assert!(
+        game.players[PlayerId::Two.index()]
+            .hand
+            .iter()
+            .any(|card| card.id == discarded),
+        "the later discard waits for the payment decision",
+    );
+    let pay = decision
+        .options
+        .iter()
+        .find(|option| option.label == "Pay the cost")
+        .expect("paying is offered")
+        .id;
+    game.apply(
+        PlayerId::Two,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options: vec![pay],
+        },
+    )
+    .expect("the controller pays the tax");
+
+    assert!(game.stack.iter().any(|object| object.id == target));
+    assert!(
+        game.players[PlayerId::Two.index()]
+            .graveyard
+            .iter()
+            .any(|card| card.definition == cards::MOUNTAIN),
+        "paying saves the spell but does not prevent the discard",
+    );
+    assert_eq!(
+        game.players[PlayerId::Two.index()].mana_pool,
+        ManaPool::default(),
+    );
+}
+
+#[test]
+fn frightful_delusion_counters_and_discards_after_payment_is_declined() {
+    let (mut game, target, _discarded) = frightful_delusion_payment_game();
+    let decision = game
+        .observe(PlayerId::Two)
+        .decision
+        .expect("the target spell's controller may decline");
+    let decline = decision
+        .options
+        .iter()
+        .find(|option| option.label == "Decline")
+        .expect("declining is offered")
+        .id;
+    game.apply(
+        PlayerId::Two,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options: vec![decline],
+        },
+    )
+    .expect("the controller declines the tax");
+
+    assert!(game.stack.iter().all(|object| object.id != target));
+    assert!(
+        game.players[PlayerId::Two.index()]
+            .graveyard
+            .iter()
+            .any(|card| card.definition == cards::LIGHTNING_BOLT)
+    );
+    assert!(
+        game.players[PlayerId::Two.index()]
+            .graveyard
+            .iter()
+            .any(|card| card.definition == cards::MOUNTAIN)
+    );
+    assert_eq!(game.players[PlayerId::Two.index()].mana_pool.colorless, 1);
+}
+
+#[test]
 fn griselbrand_pays_seven_life_then_draws_seven_cards() {
     let mut game = isd_m14_game();
     let griselbrand = creature(20_000, cards::GRISELBRAND, PlayerId::One);

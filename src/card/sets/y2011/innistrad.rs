@@ -1528,13 +1528,24 @@ pub(in crate::card::sets) static FORTRESS_CRAB: CardRecord = CardRecord::new_wit
 );
 
 // ISD 57 — Frightful Delusion
-// Audit: metadata-only — Needs a post-payment continuation so the discard occurs only after the counter-unless-payment decision finishes.
 pub(in crate::card::sets) static FRIGHTFUL_DELUSION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("38c9ba98-90b4-4c28-9eef-a4fe0913b921"),
     "Frightful Delusion",
-    crate::card::CardArt::new("38c9ba98-90b4-4c28-9eef-a4fe0913b921", "Anthony Palumbo"),
-    crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("38c9ba98-90b4-4c28-9eef-a4fe0913b921", "Anthony Palumbo"),
+    CardSet::Innistrad,
+    CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Counter target spell unless its controller pays {1}. That player discards a card.",
+        &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+        EffectDef::Sequence(&[
+            abilities::counter_target_unless_paid(ValueDef::Constant(1)),
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ]),
+    )),
 );
 
 // ISD 58 — Grasp of Phantoms

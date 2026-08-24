@@ -665,6 +665,11 @@ pub struct TriggeredAbilityDef {
     /// capped ability past its count simply does not trigger.
     pub trigger_limit: Option<u8>,
     pub targets: &'static [AbilityTargetDef],
+    /// An Oracle exception to rule 608.2b: the ability continues resolving
+    /// even when every target has become illegal. Illegal targets remain
+    /// unaffected; only the ordinary all-targets-illegal early exit is
+    /// suppressed.
+    pub resolves_with_illegal_targets: bool,
     pub procedure: AbilityProcedureDef,
     /// Held by reference so that this definition stays small enough to pass
     /// around by value alongside a captured trigger.
@@ -675,59 +680,6 @@ pub struct TriggeredAbilityDef {
     /// resolves. Exactly one mode: a trigger carries one effect, so a
     /// clause choosing two would have nowhere to put the second.
     pub modes: Option<ModalSpellDef>,
-}
-
-impl TriggeredAbilityDef {
-    #[must_use]
-    pub const fn new(event: TriggerEventDef) -> Self {
-        Self {
-            source_zones: &[ZoneKind::Battlefield],
-            event,
-            targets: &[],
-            procedure: AbilityProcedureDef::Shared,
-            trigger_limit: None,
-            condition: None,
-            modes: None,
-        }
-    }
-
-    /// "Choose one --", for a trigger that prints modes.
-    #[must_use]
-    pub const fn with_modes(mut self, modes: ModalSpellDef) -> Self {
-        self.modes = Some(modes);
-        self
-    }
-
-    /// "This ability triggers only once each turn."
-    #[must_use]
-    pub const fn triggering_at_most(mut self, times: u8) -> Self {
-        self.trigger_limit = Some(times);
-        self
-    }
-
-    #[must_use]
-    pub const fn with_condition(mut self, condition: &'static TriggerConditionDef) -> Self {
-        self.condition = Some(condition);
-        self
-    }
-
-    #[must_use]
-    pub const fn with_source_zones(mut self, source_zones: &'static [ZoneKind]) -> Self {
-        self.source_zones = source_zones;
-        self
-    }
-
-    #[must_use]
-    pub const fn with_targets(mut self, targets: &'static [AbilityTargetDef]) -> Self {
-        self.targets = targets;
-        self
-    }
-
-    #[must_use]
-    pub const fn with_procedure(mut self, procedure: AbilityProcedureDef) -> Self {
-        self.procedure = procedure;
-        self
-    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -996,3 +948,4 @@ impl AbilityCoverageDef {
 
 include!("ability_kinds/conditions.rs");
 include!("ability_kinds/keywords.rs");
+include!("ability_kinds/triggered.rs");

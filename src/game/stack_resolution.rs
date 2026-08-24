@@ -426,7 +426,8 @@ impl Game {
             })
             .expect("ability stack objects freeze their complete payload");
         match resolver {
-            StackAbilityResolver::Declarative(effect) => {
+            StackAbilityResolver::Declarative(effect)
+            | StackAbilityResolver::DeclarativeIgnoringTargetFizzle(effect) => {
                 let mut effects = Vec::with_capacity(mode_effects.len() + 1);
                 effects.push(effect);
                 effects.extend_from_slice(mode_effects);
@@ -626,6 +627,12 @@ impl Game {
         let Some(ability) = &object.ability else {
             return false;
         };
+        if matches!(
+            ability.resolver,
+            StackAbilityResolver::DeclarativeIgnoringTargetFizzle(_)
+        ) {
+            return false;
+        }
         let mut had_target = false;
         let mut has_legal_target = false;
         for selection in &ability.targets {

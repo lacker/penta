@@ -57,6 +57,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
             .into_iter()
             .map(|follow_up| *follow_up.effect)
             .collect(),
+        EffectDef::ExchangeControl { otherwise, .. } => otherwise.into_iter().copied().collect(),
 
         EffectDef::AddCounters { .. }
         | EffectDef::AddMana(_)
@@ -104,7 +105,6 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::MayPlayWithoutPaying { .. }
         | EffectDef::ExileGrantingOwnerPlay { .. }
         | EffectDef::GainControl { .. }
-        | EffectDef::ExchangeControl { .. }
         | EffectDef::GainLife { .. }
         | EffectDef::GrantFlashToNextSorcery
         | EffectDef::SearchZonesAndExileRest { .. }
@@ -163,7 +163,7 @@ mod tests {
         CreatedTokensDef, DestroyFollowUpDef, EffectRecipientDef, MillUntilDef, ObjectPredicateDef,
         TokenCharacteristics, ValueDef, ZoneKind,
     };
-    use crate::ids::ObjectSetBindingIndex;
+    use crate::ids::{ObjectSetBindingIndex, TargetIndex};
 
     static CHILD: EffectDef = EffectDef::None;
     static TOKEN: TokenCharacteristics =
@@ -207,6 +207,18 @@ mod tests {
             vec![CHILD],
         );
         assert!(child_effects(destroy(None)).is_empty());
+    }
+
+    #[test]
+    fn impossible_exchange_continuation_is_a_child() {
+        assert_eq!(
+            child_effects(EffectDef::ExchangeControl {
+                first: EffectRecipientDef::Source,
+                second: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                otherwise: Some(&CHILD),
+            }),
+            vec![CHILD],
+        );
     }
 
     #[test]

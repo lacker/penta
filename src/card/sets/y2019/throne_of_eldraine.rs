@@ -493,6 +493,7 @@ static OKO_ABILITIES: [AbilityDef; 3] = [
         EffectDef::ExchangeControl {
             first: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             second: EffectRecipientDef::Target(TargetIndex(1)),
+            otherwise: None,
         },
     ),
 ];

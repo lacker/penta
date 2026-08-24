@@ -86,6 +86,15 @@ mod tests {
             unreachable!()
         };
         assert_eq!(targeted_enters.targets, TARGETS);
+        assert!(!targeted_enters.resolves_with_illegal_targets);
+        let DeclarativeAbilityDef::Triggered(unfizzling_enters) =
+            enters_trigger_with_targets("When this enters, test target.", &TARGETS, effect)
+                .resolves_with_illegal_targets()
+                .definition
+        else {
+            unreachable!()
+        };
+        assert!(unfizzling_enters.resolves_with_illegal_targets);
 
         let DeclarativeAbilityDef::Triggered(dies) =
             dies_trigger("When this dies, test.", effect).definition

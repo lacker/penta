@@ -445,6 +445,103 @@ fn gilded_drake_sacrifices_itself_with_nothing_to_exchange() {
     );
 }
 
+fn gilded_drake_with_targeted_trigger() -> (Game, GameObjectId, GameObjectId) {
+    let mut game = ready_game();
+    game.battlefield
+        .push(creature(10_010, cards::SERRA_ANGEL, PlayerId::Two));
+    let angel = game.battlefield[0].card.id;
+    let drake = card(10_000, cards::GILDED_DRAKE, PlayerId::One);
+    let drake_id = drake.id;
+    game.players[PlayerId::One.index()].hand.push(drake);
+    game.players[PlayerId::One.index()].mana_pool.blue = 1;
+    game.players[PlayerId::One.index()].mana_pool.colorless = 1;
+    game.priority = PlayerId::One;
+    game.apply(
+        PlayerId::One,
+        cast_action(drake_id, Vec::new(), Vec::new(), 0),
+    )
+    .expect("two mana casts it");
+    pass_until_decision(&mut game);
+    let decision = game
+        .observe(PlayerId::One)
+        .decision
+        .expect("the trigger asks which creature to take");
+    let target = decision
+        .options
+        .iter()
+        .find(|option| option.card.is_some_and(|(card, _)| card == angel))
+        .expect("the Angel is a legal target")
+        .id;
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options: vec![target],
+        },
+    )
+    .expect("the trigger names the Angel");
+    let drake = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.definition == cards::GILDED_DRAKE)
+        .expect("the Drake entered before its trigger was placed")
+        .card
+        .id;
+    (game, drake, angel)
+}
+
+/// Gilded Drake's Oracle exception keeps the trigger resolving after its only
+/// target leaves, so the failed exchange reaches the sacrifice instruction.
+#[test]
+fn gilded_drake_sacrifices_itself_when_its_target_leaves() {
+    let (mut game, drake, angel) = gilded_drake_with_targeted_trigger();
+    game.destroy_permanent(angel);
+    drain_pending(&mut game);
+
+    assert!(
+        game.battlefield
+            .iter()
+            .all(|permanent| permanent.card.id != drake),
+        "the trigger resolved and sacrificed the Drake",
+    );
+    assert!(game.events.iter().any(|event| matches!(
+        event,
+        GameEvent::TriggeredAbilityResolved { source, .. } if *source == drake
+    )));
+    assert!(!game.events.iter().any(|event| matches!(
+        event,
+        GameEvent::TriggeredAbilityFizzled { source, .. } if *source == drake
+    )));
+}
+
+/// An illegal target can still exist. The unfizzling trigger must ignore it,
+/// fail the exchange, and sacrifice rather than swapping same-seat objects.
+#[test]
+fn gilded_drake_sacrifices_itself_when_its_target_changes_sides() {
+    let (mut game, drake, angel) = gilded_drake_with_targeted_trigger();
+    game.battlefield
+        .iter_mut()
+        .find(|permanent| permanent.card.id == angel)
+        .expect("the Angel is still on the battlefield")
+        .controller = PlayerId::One;
+    drain_pending(&mut game);
+
+    assert!(
+        game.battlefield
+            .iter()
+            .all(|permanent| permanent.card.id != drake),
+        "the impossible exchange sacrificed the Drake",
+    );
+    assert_eq!(
+        game.battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == angel)
+            .map(|permanent| permanent.controller),
+        Some(PlayerId::One),
+        "the illegal target was not affected",
+    );
+}
+
 /// With nothing to feed it, the Dreadnought sacrifices itself and the payer
 /// is never asked.
 #[test]

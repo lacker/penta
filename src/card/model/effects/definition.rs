@@ -406,10 +406,12 @@ pub enum EffectDef {
     /// Swap who controls two permanents, reading both controllers before
     /// either moves. Two ordinary control changes cannot say this: whichever
     /// ran first would change the answer the second one needs, so an
-    /// exchange is one effect rather than a pair.
+    /// exchange is one effect rather than a pair. If the entire exchange is
+    /// impossible, `otherwise` runs without applying either control change.
     ExchangeControl {
         first: EffectRecipientDef,
         second: EffectRecipientDef,
+        otherwise: Option<&'static EffectDef>,
     },
     GainLife {
         recipient: EffectRecipientDef,

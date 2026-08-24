@@ -856,5 +856,5 @@ impl AbilityDef {
         }
     }
 }
-
 include!("ability/alternative_casts.rs");
+include!("ability/target_resolution.rs");

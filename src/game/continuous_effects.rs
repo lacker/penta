@@ -900,6 +900,7 @@ impl Game {
         let ability = object.ability.as_ref()?;
         let primary = match ability.resolver {
             StackAbilityResolver::Declarative(effect)
+            | StackAbilityResolver::DeclarativeIgnoringTargetFizzle(effect)
             | StackAbilityResolver::DeclarativeWithCustomFollowup { effect, .. } => Some(effect),
             StackAbilityResolver::Custom(_)
             | StackAbilityResolver::CardOwned(_)

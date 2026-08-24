@@ -419,6 +419,17 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
             shared_stack_effect_at_position(*then, deferred_decision_allowed)
                 && shared_stack_effect_at_position(*otherwise, deferred_decision_allowed)
         }
+        EffectDef::ExchangeControl {
+            first,
+            second,
+            otherwise,
+        } => {
+            shared_effect_recipient(first)
+                && shared_effect_recipient(second)
+                && otherwise.is_none_or(|otherwise| {
+                    shared_stack_effect_at_position(*otherwise, deferred_decision_allowed)
+                })
+        }
         // Only the two destinations the return path knows.
         EffectDef::ReturnLinkedExiles { zone, .. } => {
             matches!(zone, ZoneKind::Battlefield | ZoneKind::Hand)
@@ -450,7 +461,6 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::ExileGrantingOwnerPlay { object, .. }
         | EffectDef::Detain { object }
         | EffectDef::GainControl { object, .. }
-        | EffectDef::ExchangeControl { first: object, .. }
         | EffectDef::AddCounters { object, .. }
         | EffectDef::RemoveCounters { object, .. }
         | EffectDef::Attach { object }

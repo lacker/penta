@@ -96,6 +96,20 @@ fn validate_effect_target_shapes(
             validate_recipient_shape(recipient, targets, RecipientExpectation::Any)?;
             validate_value_shape(amount, targets)
         }
+        EffectDef::ExchangeControl {
+            first,
+            second,
+            otherwise,
+        } => {
+            validate_recipient_shape(first, targets, RecipientExpectation::Object)?;
+            validate_recipient_shape(second, targets, RecipientExpectation::Object)?;
+            match otherwise {
+                Some(otherwise) => {
+                    validate_effect_target_shapes(*otherwise, targets, triggering_object_zone)
+                }
+                None => Ok(()),
+            }
+        }
         EffectDef::GainLife { recipient, amount }
         | EffectDef::AddPoisonCounters { recipient, amount }
         | EffectDef::AddEnergyCounters { recipient, amount }
@@ -264,7 +278,6 @@ fn validate_effect_target_shapes(
         | EffectDef::ExileLinkedToSource { object }
         | EffectDef::ExileGrantingOwnerPlay { object, .. }
         | EffectDef::GainControl { object, .. }
-        | EffectDef::ExchangeControl { first: object, .. }
         | EffectDef::Transform { object }
         | EffectDef::PutIntoLibraryBeneathTop { object, .. }
         | EffectDef::MoveToZone { object, .. }
@@ -542,6 +555,21 @@ mod recipient_shape_tests {
                 recipient: EffectRecipientDef::Source,
                 expected: EffectSubjectKind::Player,
             }),
+        );
+        assert_eq!(
+            validate_ability_targets(
+                &[],
+                EffectDef::ExchangeControl {
+                    first: EffectRecipientDef::Source,
+                    second: EffectRecipientDef::Controller,
+                    otherwise: None,
+                },
+            ),
+            Err(GrantedAbilityValidationError::EffectRecipientKindMismatch {
+                recipient: EffectRecipientDef::Controller,
+                expected: EffectSubjectKind::Object,
+            }),
+            "both sides of an exchange are validated",
         );
     }
 

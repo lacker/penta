@@ -172,6 +172,18 @@ fn validate_effect_references(
             validate_recipient_target_references(recipient, target_count, scope)?;
             validate_value_target_references(amount, target_count, scope)
         }
+        EffectDef::ExchangeControl {
+            first,
+            second,
+            otherwise,
+        } => {
+            validate_recipient_target_references(first, target_count, scope)?;
+            validate_recipient_target_references(second, target_count, scope)?;
+            match otherwise {
+                Some(otherwise) => validate_effect_references(*otherwise, target_count, scope),
+                None => Ok(()),
+            }
+        }
         EffectDef::MayCastTargetWithoutPaying { object, .. }
         | EffectDef::Explore { object }
         | EffectDef::LoseTheGame { player: object }
@@ -206,7 +218,6 @@ fn validate_effect_references(
         | EffectDef::ExileGrantingOwnerPlay { object, .. }
         | EffectDef::Detain { object }
         | EffectDef::GainControl { object, .. }
-        | EffectDef::ExchangeControl { first: object, .. }
         | EffectDef::Transform { object }
         | EffectDef::PutIntoLibraryBeneathTop { object, .. }
         | EffectDef::MoveToZone { object, .. }

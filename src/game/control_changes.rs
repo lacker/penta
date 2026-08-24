@@ -210,14 +210,14 @@ impl Game {
         object: &StackObject,
         context: &EffectResolutionContext,
         scoped: ScopedEffect,
-    ) {
+    ) -> bool {
         let one = self.single_permanent_recipient(first, object, context, scoped);
         let other = self.single_permanent_recipient(second, object, context, scoped);
         let (Some(one), Some(other)) = (one, other) else {
-            return;
+            return false;
         };
         if one == other {
-            return;
+            return false;
         }
         let controllers = [one, other].map(|id| {
             self.battlefield
@@ -234,8 +234,11 @@ impl Game {
                     .is_some_and(|permanent| self.cannot_change_controller(permanent))
             }),
         ) else {
-            return;
+            return false;
         };
+        if one_controller == other_controller {
+            return false;
+        }
         for (id, controller) in [(one, other_controller), (other, one_controller)] {
             let turns_started = self.turns_started[controller.index()];
             let Some(permanent) = self
@@ -252,6 +255,7 @@ impl Game {
             // summoning sick.
             permanent.entered_controller_turn = turns_started;
         }
+        true
     }
 
     fn single_permanent_recipient(

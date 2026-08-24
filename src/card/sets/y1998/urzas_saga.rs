@@ -13,8 +13,8 @@ use crate::card::{
     AppliedRuleDef, CardArt, CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType,
     ChoiceVisibilityDef, ChooseDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, SpellResolutionDestinationDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    PlayerRelation, PlayerSetDef, SpellResolutionDestinationDef, TriggerEventDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -725,34 +725,14 @@ pub(in crate::card::sets) static ENERGY_FIELD: CardRecord = CardRecord::new(
 
 // USG 76 — Gilded Drake
 /// One effect rather than two control changes: both controllers are read
-/// before either permanent moves, which is the only way "exchange" can mean
-/// what it says.
-static DRAKE_EXCHANGE: EffectDef = EffectDef::ExchangeControl {
+/// before either permanent moves, and failure runs the printed sacrifice.
+static DRAKE_ENTERS: EffectDef = EffectDef::ExchangeControl {
     first: EffectRecipientDef::Source,
     second: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+    otherwise: Some(&EffectDef::Sacrifice {
+        object: EffectRecipientDef::Source,
+    }),
 };
-
-/// "If you don't or can't make an exchange, sacrifice this creature." The two
-/// halves are complementary conditions on the same fact rather than an
-/// effect with two branches, so each reads the way its own clause does.
-static DRAKE_ENTERS: EffectDef = EffectDef::Sequence(&[
-    EffectDef::IfCondition {
-        condition: &TriggerConditionDef::TargetMatches {
-            slot: TargetIndex::PRIMARY,
-            object: ObjectPredicateDef::Any,
-        },
-        then: &DRAKE_EXCHANGE,
-    },
-    EffectDef::IfCondition {
-        condition: &TriggerConditionDef::Not(&TriggerConditionDef::TargetMatches {
-            slot: TargetIndex::PRIMARY,
-            object: ObjectPredicateDef::Any,
-        }),
-        then: &EffectDef::Sacrifice {
-            object: EffectRecipientDef::Source,
-        },
-    },
-]);
 
 static A_CREATURE_AN_OPPONENT_CONTROLS: ObjectPredicateDef = ObjectPredicateDef::All(&[
     ObjectPredicateDef::HasType(CardType::Creature),
@@ -768,7 +748,7 @@ pub(in crate::card::sets) static GILDED_DRAKE: CardRecord = CardRecord::new_with
     // flier. Against a board with nothing worth taking it simply dies.
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Drake"], 3, 3).with_abilities(&[
         abilities::flying(),
-        abilities::enters_trigger_with_targets("When this creature enters, exchange control of this creature and up to one target creature an opponent controls. If you don't or can't make an exchange, sacrifice this creature.", &[AbilityTargetDef::up_to(
+        abilities::enters_trigger_with_targets("When this creature enters, exchange control of this creature and up to one target creature an opponent controls. If you don't or can't make an exchange, sacrifice this creature. This ability still resolves if its target becomes illegal.", &[AbilityTargetDef::up_to(
                 AbilityTargetPredicate::Object {
                     object: A_CREATURE_AN_OPPONENT_CONTROLS,
                     zones: &[ZoneKind::Battlefield],
@@ -776,7 +756,8 @@ pub(in crate::card::sets) static GILDED_DRAKE: CardRecord = CardRecord::new_with
                     owner: None,
                 },
                 1,
-            )], DRAKE_ENTERS),
+            )], DRAKE_ENTERS)
+            .resolves_with_illegal_targets(),
     ]),
 );
 

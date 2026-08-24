@@ -36,6 +36,11 @@ pub enum CostDef {
     /// Discard the card that carries this ability from its owner's hand.
     DiscardSource,
     PayLife(u16),
+    /// Put exactly this many cards from the top of the payer's library into
+    /// their graveyard. Unlike milling as an effect, a cost cannot be paid
+    /// partially: the library must contain the full amount before the
+    /// ability can be activated.
+    MillCards(u8),
     DiscardCards(u8),
     /// Discard that many cards chosen at random from the payer's hand. Unlike
     /// [`Self::DiscardCards`] nobody chooses, so paying it needs no decision:

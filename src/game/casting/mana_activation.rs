@@ -49,6 +49,7 @@ impl Game {
                 | AbilityCostDef::DiscardCards(_)
                 | AbilityCostDef::DiscardCardMatching(_)
                 | AbilityCostDef::DiscardCardsAtRandom(_)
+                | AbilityCostDef::MillCards(_)
                 | AbilityCostDef::ReturnUnblockedAttackerToHand
                 | AbilityCostDef::TapPermanent { .. }
                 | AbilityCostDef::TapCreaturesWithTotalPower { .. }

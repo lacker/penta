@@ -332,6 +332,9 @@ impl Game {
                         AbilityCostDef::DiscardCardsAtRandom(amount) => {
                             self.players[player.index()].hand.len() < usize::from(*amount)
                         }
+                        AbilityCostDef::MillCards(amount) => {
+                            self.players[player.index()].library.len() < usize::from(*amount)
+                        }
                         // Crew and saddle: what makes it payable is whether
                         // the other untapped creatures add up.
                         AbilityCostDef::TapCreaturesWithTotalPower { minimum } => !self
@@ -789,6 +792,7 @@ impl Game {
                         | AbilityCostDef::RemoveCountersFromSource { .. }
                         | AbilityCostDef::RemoveAnyNumberOfCountersFromSource(_)
                         | AbilityCostDef::PayLife(_)
+                        | AbilityCostDef::MillCards(_)
                         | AbilityCostDef::DiscardCards(_)
                         | AbilityCostDef::DiscardCardMatching(_)
                         | AbilityCostDef::ExileCardFromHand(_)
@@ -899,6 +903,7 @@ impl Game {
                             | AbilityCostDef::RemoveCountersFromSource { .. }
                             | AbilityCostDef::RemoveAnyNumberOfCountersFromSource(_)
                             | AbilityCostDef::PayLife(_)
+                            | AbilityCostDef::MillCards(_)
                             | AbilityCostDef::DiscardSource
                             | AbilityCostDef::DiscardCards(_)
                             | AbilityCostDef::DiscardCardMatching(_)

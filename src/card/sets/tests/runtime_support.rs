@@ -428,8 +428,10 @@ pub(super) fn shared_activated_costs(source_zones: &[ZoneKind], costs: &[Ability
             | AbilityCostDef::PayLife(_)
             | AbilityCostDef::Loyalty(_)
             // Nobody chooses which cards go, so a random discard needs no
-            // decision procedure -- only a permanent to activate from.
+            // decision procedure -- only a permanent to activate from. A
+            // mill cost similarly names the top cards without a choice.
             | AbilityCostDef::DiscardCardsAtRandom(_)
+            | AbilityCostDef::MillCards(_)
             // Crew and saddle name no predicate: what may pay is every other
             // untapped creature the payer controls, and the decision that
             // asks reads the battlefield directly.

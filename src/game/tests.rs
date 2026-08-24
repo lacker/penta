@@ -117,6 +117,7 @@ mod declarative_attack_restrictions;
 mod declarative_block_restrictions;
 mod deep_spawn;
 mod delayed_triggers;
+mod deranged_assistant;
 mod derelor;
 mod detain;
 mod dgm_stale_audits;

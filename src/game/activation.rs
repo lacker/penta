@@ -159,6 +159,7 @@ impl Game {
                 | AbilityCostDef::RemoveCountersFromSource { .. }
                 | AbilityCostDef::RemoveAnyNumberOfCountersFromSource(_)
                 | AbilityCostDef::PayLife(_)
+                | AbilityCostDef::MillCards(_)
                 | AbilityCostDef::DiscardSource
                 | AbilityCostDef::DiscardCards(_)
                 | AbilityCostDef::DiscardCardMatching(_)
@@ -387,6 +388,7 @@ impl Game {
                     | AbilityCostDef::RemoveCountersFromSource { .. }
                     | AbilityCostDef::RemoveAnyNumberOfCountersFromSource(_)
                     | AbilityCostDef::PayLife(_)
+                    | AbilityCostDef::MillCards(_)
                     | AbilityCostDef::DiscardCards(_)
                     | AbilityCostDef::DiscardCardMatching(_)
                     | AbilityCostDef::ExileCardFromHand(_)
@@ -664,6 +666,15 @@ impl Game {
                     }
                     AbilityCostDef::DiscardCardsAtRandom(amount) => {
                         self.discard_at_random(player, usize::from(*amount));
+                    }
+                    AbilityCostDef::MillCards(amount) => {
+                        let milled = self.take_top_of_library(player, usize::from(*amount));
+                        assert_eq!(
+                            milled.len(),
+                            usize::from(*amount),
+                            "a legal activation can still pay its mill cost",
+                        );
+                        self.bury_cards(player, milled);
                     }
                     AbilityCostDef::DiscardCards(_) | AbilityCostDef::Special(_) => {
                         unreachable!("unsupported costs are not offered as legal actions")

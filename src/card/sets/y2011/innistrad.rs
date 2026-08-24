@@ -1428,13 +1428,18 @@ pub(in crate::card::sets) static DELVER_OF_SECRETS: CardRecord = CardRecord::new
 );
 
 // ISD 52 — Deranged Assistant
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static DERANGED_ASSISTANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a4c03171-5ff0-4f79-bb03-16decf7d34ce"),
     "Deranged Assistant",
-    crate::card::CardArt::new("a4c03171-5ff0-4f79-bb03-16decf7d34ce", "Nils Hamm"),
-    crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a4c03171-5ff0-4f79-bb03-16decf7d34ce", "Nils Hamm"),
+    CardSet::Innistrad,
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Human", "Wizard"], 1, 1).with_ability(
+        AbilityDef::activated(
+            "{T}, Mill a card: Add {C}.",
+            &[AbilityCostDef::TapSource, AbilityCostDef::MillCards(1)],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+        ),
+    ),
 );
 
 // ISD 53 — Dissipate

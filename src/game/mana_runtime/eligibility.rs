@@ -33,6 +33,7 @@ impl Game {
                 .all(|cost| Self::mana_ability_cost_is_supported(definition, cost))
             && definition.costs.iter().all(|cost| match cost {
                 AbilityCostDef::Mana(cost) => self.pool_covers_cost(permanent.controller, *cost),
+                AbilityCostDef::MillCards(_) => false,
                 AbilityCostDef::PayLife(amount) => {
                     self.players[permanent.controller.index()].life
                         >= i16::try_from(*amount).unwrap_or(i16::MAX)
@@ -136,6 +137,7 @@ impl Game {
             | AbilityCostDef::DiscardCards(_)
             | AbilityCostDef::DiscardCardMatching(_)
             | AbilityCostDef::DiscardCardsAtRandom(_)
+            | AbilityCostDef::MillCards(_)
             | AbilityCostDef::ReturnUnblockedAttackerToHand
                 | AbilityCostDef::TapPermanent { .. }
             | AbilityCostDef::TapCreaturesWithTotalPower { .. }

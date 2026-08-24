@@ -8,6 +8,30 @@ use crate::card::{
 };
 use crate::mana_cost;
 
+// M11 30 — Silence
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SILENCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1559d660-8a9d-422b-95d3-710a046583dd"),
+    "Silence",
+    crate::card::CardArt::new("37b70d17-e4ec-4731-8892-b444f82be7a2", "Wayne Reynolds"),
+    crate::card::CardSet::Magic2011,
+    crate::card::CardRules::unsupported(),
+);
+
+// M11 66 — Merfolk Spy
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MERFOLK_SPY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b5ae05cc-116b-4268-ba78-709aeff36ab1"),
+    "Merfolk Spy",
+    crate::card::CardArt::new(
+        "b5ae05cc-116b-4268-ba78-709aeff36ab1",
+        "Matt Cavotta & Richard Whitters",
+    ),
+    crate::card::CardSet::Magic2011,
+    crate::card::CardRules::unsupported(),
+);
+
+// M11 70 — Preordain
 static PREORDAIN_DRAW: EffectDef = EffectDef::DrawCards {
     recipient: EffectRecipientDef::Controller,
     amount: ValueDef::Constant(1),
@@ -38,30 +62,6 @@ static PREORDAIN_SCRY: TopCardSelectionDef = TopCardSelectionDef {
     selected_face_down: None,
 };
 
-// M11 30 — Silence
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static SILENCE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("1559d660-8a9d-422b-95d3-710a046583dd"),
-    "Silence",
-    crate::card::CardArt::new("37b70d17-e4ec-4731-8892-b444f82be7a2", "Wayne Reynolds"),
-    crate::card::CardSet::Magic2011,
-    crate::card::CardRules::unsupported(),
-);
-
-// M11 66 — Merfolk Spy
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static MERFOLK_SPY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b5ae05cc-116b-4268-ba78-709aeff36ab1"),
-    "Merfolk Spy",
-    crate::card::CardArt::new(
-        "b5ae05cc-116b-4268-ba78-709aeff36ab1",
-        "Matt Cavotta & Richard Whitters",
-    ),
-    crate::card::CardSet::Magic2011,
-    crate::card::CardRules::unsupported(),
-);
-
-// M11 70 — Preordain
 pub(in crate::card::sets) static PREORDAIN: CardRecord = CardRecord::new_with_legacy_id(
     2130,
     "Preordain",
@@ -76,35 +76,6 @@ pub(in crate::card::sets) static PREORDAIN: CardRecord = CardRecord::new_with_le
         },
     )),
 );
-
-/// One printed ability with two ways in, not two abilities: the card says
-/// "enters or attacks", and a Titan that does both in a turn triggers twice
-/// for the same reason it would have anyway.
-static ENTERS_OR_ATTACKS: [TriggerEventDef; 2] = [
-    TriggerEventDef::zone_changed(
-        ObjectPredicateDef::Source,
-        None,
-        Some(ZoneKind::Battlefield),
-    ),
-    TriggerEventDef::attacks(ObjectPredicateDef::Source),
-];
-
-/// Any land card, not just a basic: the two it finds are usually the two the
-/// deck was built around.
-static FETCH_TWO_LANDS: EffectDef = EffectDef::SearchZone {
-    player: EffectRecipientDef::Controller,
-    source: ZoneKind::Library,
-    object: ObjectPredicateDef::HasType(CardType::Land),
-    minimum: 0,
-    maximum: ValueDef::Constant(2),
-    reveal: false,
-    destination: ZoneKind::Battlefield,
-    placement: ZonePlacement::Top,
-    shuffle: true,
-    enters_tapped: true,
-    binding: None,
-    then: None,
-};
 
 // M11 74 — Stormtide Leviathan
 // Audit: metadata-only — Card rules have not been implemented.
@@ -162,6 +133,35 @@ pub(in crate::card::sets) static GARRUK_S_PACKLEADER: CardRecord = CardRecord::n
 );
 
 // M11 192 — Primeval Titan
+/// One printed ability with two ways in, not two abilities: the card says
+/// "enters or attacks", and a Titan that does both in a turn triggers twice
+/// for the same reason it would have anyway.
+static ENTERS_OR_ATTACKS: [TriggerEventDef; 2] = [
+    TriggerEventDef::zone_changed(
+        ObjectPredicateDef::Source,
+        None,
+        Some(ZoneKind::Battlefield),
+    ),
+    TriggerEventDef::attacks(ObjectPredicateDef::Source),
+];
+
+/// Any land card, not just a basic: the two it finds are usually the two the
+/// deck was built around.
+static FETCH_TWO_LANDS: EffectDef = EffectDef::SearchZone {
+    player: EffectRecipientDef::Controller,
+    source: ZoneKind::Library,
+    object: ObjectPredicateDef::HasType(CardType::Land),
+    minimum: 0,
+    maximum: ValueDef::Constant(2),
+    reveal: false,
+    destination: ZoneKind::Battlefield,
+    placement: ZonePlacement::Top,
+    shuffle: true,
+    enters_tapped: true,
+    binding: None,
+    then: None,
+};
+
 pub(in crate::card::sets) static PRIMEVAL_TITAN: CardRecord = CardRecord::new_with_legacy_id(
     2128,
     "Primeval Titan",

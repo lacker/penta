@@ -14,22 +14,6 @@ use crate::card::{
 use crate::mana_cost;
 use crate::{ObjectSetBindingIndex, TargetIndex};
 
-static REPRIEVE_TARGET: [AbilityTargetDef; 1] =
-    [AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)];
-
-/// Returning the spell is not countering it, so a spell that cannot be
-/// countered is answered all the same -- and its controller keeps the card,
-/// which is the price. Drawing pays for the tempo either way.
-static REPRIEVE_EFFECTS: [EffectDef; 2] = [
-    EffectDef::ReturnSpellToHand {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    },
-];
-
 // LTR 0 — The One Ring
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static THE_ONE_RING: CardRecord = CardRecord::new(
@@ -51,6 +35,22 @@ pub(in crate::card::sets) static EAGLES_OF_THE_NORTH: CardRecord = CardRecord::n
 );
 
 // LTR 26 — Reprieve
+static REPRIEVE_TARGET: [AbilityTargetDef; 1] =
+    [AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)];
+
+/// Returning the spell is not countering it, so a spell that cannot be
+/// countered is answered all the same -- and its controller keeps the card,
+/// which is the price. Drawing pays for the tempo either way.
+static REPRIEVE_EFFECTS: [EffectDef; 2] = [
+    EffectDef::ReturnSpellToHand {
+        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+    },
+    EffectDef::DrawCards {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::Constant(1),
+    },
+];
+
 pub(in crate::card::sets) static REPRIEVE: CardRecord = CardRecord::new_with_legacy_id(
     2168,
     "Reprieve",
@@ -62,18 +62,6 @@ pub(in crate::card::sets) static REPRIEVE: CardRecord = CardRecord::new_with_leg
         EffectDef::Sequence(&REPRIEVE_EFFECTS),
     )),
 );
-
-/// "Power or toughness 2 or less" is a disjunction, not a pair of bounds: a
-/// 5/1 is small enough and a 1/5 is too. Written as "less than 3" because
-/// that is the comparison the predicate offers.
-static STERN_SCOLDING_TARGET: AbilityTargetDef =
-    AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::PowerLessThan(ValueDef::Constant(3)),
-            ObjectPredicateDef::ToughnessLessThan(ValueDef::Constant(3)),
-        ]),
-    ]));
 
 // LTR 60 — Lórien Revealed
 pub(in crate::card::sets) static LORIEN_REVEALED: CardRecord = CardRecord::new_with_legacy_id(
@@ -101,6 +89,18 @@ pub(in crate::card::sets) static LORIEN_REVEALED: CardRecord = CardRecord::new_w
 );
 
 // LTR 71 — Stern Scolding
+/// "Power or toughness 2 or less" is a disjunction, not a pair of bounds: a
+/// 5/1 is small enough and a 1/5 is too. Written as "less than 3" because
+/// that is the comparison the predicate offers.
+static STERN_SCOLDING_TARGET: AbilityTargetDef =
+    AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::All(&[
+        ObjectPredicateDef::HasType(CardType::Creature),
+        ObjectPredicateDef::AnyOf(&[
+            ObjectPredicateDef::PowerLessThan(ValueDef::Constant(3)),
+            ObjectPredicateDef::ToughnessLessThan(ValueDef::Constant(3)),
+        ]),
+    ]));
+
 pub(in crate::card::sets) static STERN_SCOLDING: CardRecord = CardRecord::new_with_legacy_id(
     2125,
     "Stern Scolding",
@@ -112,6 +112,7 @@ pub(in crate::card::sets) static STERN_SCOLDING: CardRecord = CardRecord::new_wi
     )),
 );
 
+// LTR 103 — Orcish Bowmasters
 static BOWMASTERS_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::AnyTarget,
 )];
@@ -201,7 +202,6 @@ static BOWMASTERS_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
-// LTR 103 — Orcish Bowmasters
 pub(in crate::card::sets) static ORCISH_BOWMASTERS: CardRecord = CardRecord::new_with_legacy_id(
     2215,
     "Orcish Bowmasters",
@@ -213,37 +213,7 @@ pub(in crate::card::sets) static ORCISH_BOWMASTERS: CardRecord = CardRecord::new
         .with_abilities(&BOWMASTERS_ABILITIES),
 );
 
-static HALFLING_MANA_RESTRICTIONS: [ManaRestrictionDef; 1] = [ManaRestrictionDef::CastSpell(
-    ObjectPredicateDef::Supertype(CardSupertype::Legendary),
-)];
-
-/// The rider is the reason the card is played: uncounterable is not a
-/// property of the Halfling but of whatever its mana paid for.
-static HALFLING_MANA_SPEND_EFFECTS: [ManaSpendEffectDef; 1] =
-    [ManaSpendEffectDef::ApplyToPaidSpell(
-        AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered),
-    )];
-
-static OLIPHAUNT_TRAMPLE: AbilityDef = abilities::trample();
-
-/// What the charge lends: the same trample the Oliphaunt already has, and
-/// two more power to push it through with.
-static OLIPHAUNT_CHARGE: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(0)),
-    AppliedEffectDef::add_ability(&OLIPHAUNT_TRAMPLE),
-];
-
-/// "Another": the Oliphaunt cannot lend itself the bonus, which is why the
-/// trigger does nothing when it attacks alone.
-static ANOTHER_CREATURE_YOU_CONTROL: [AbilityTargetDef; 1] =
-    [AbilityTargetDef::exactly_one_permanent(
-        ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-        ]),
-    )];
-
+// LTR 111 — Troll of Khazad-dûm
 static TROLL_ABILITIES: [AbilityDef; 2] = [
     // Menace with a bigger number, which is why it is written out rather
     // than printed as the keyword.
@@ -262,7 +232,6 @@ static TROLL_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
-// LTR 111 — Troll of Khazad-dûm
 pub(in crate::card::sets) static TROLL_OF_KHAZAD_DUM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a6539e26-b63b-4725-9407-caaf451de084"),
     "Troll of Khazad-dûm",
@@ -285,6 +254,26 @@ pub(in crate::card::sets) static IMPROVISED_CLUB: CardRecord = CardRecord::new(
 );
 
 // LTR 139 — Oliphaunt
+static OLIPHAUNT_TRAMPLE: AbilityDef = abilities::trample();
+
+/// What the charge lends: the same trample the Oliphaunt already has, and
+/// two more power to push it through with.
+static OLIPHAUNT_CHARGE: [AppliedEffectDef; 2] = [
+    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(0)),
+    AppliedEffectDef::add_ability(&OLIPHAUNT_TRAMPLE),
+];
+
+/// "Another": the Oliphaunt cannot lend itself the bonus, which is why the
+/// trigger does nothing when it attacks alone.
+static ANOTHER_CREATURE_YOU_CONTROL: [AbilityTargetDef; 1] =
+    [AbilityTargetDef::exactly_one_permanent(
+        ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+        ]),
+    )];
+
 pub(in crate::card::sets) static OLIPHAUNT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6989018c-37b1-4282-a4af-9cc97f160b4d"),
     "Oliphaunt",
@@ -325,6 +314,17 @@ pub(in crate::card::sets) static RALLY_AT_THE_HORNBURG: CardRecord = CardRecord:
 );
 
 // LTR 158 — Delighted Halfling
+static HALFLING_MANA_RESTRICTIONS: [ManaRestrictionDef; 1] = [ManaRestrictionDef::CastSpell(
+    ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+)];
+
+/// The rider is the reason the card is played: uncounterable is not a
+/// property of the Halfling but of whatever its mana paid for.
+static HALFLING_MANA_SPEND_EFFECTS: [ManaSpendEffectDef; 1] =
+    [ManaSpendEffectDef::ApplyToPaidSpell(
+        AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered),
+    )];
+
 pub(in crate::card::sets) static DELIGHTED_HALFLING: CardRecord = CardRecord::new_with_legacy_id(
     2153,
     "Delighted Halfling",
@@ -374,6 +374,17 @@ pub(in crate::card::sets) static GENEROUS_ENT: CardRecord = CardRecord::new_with
     ]),
 );
 
+// LTR 193 — Arwen, Mortal Queen
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ARWEN_MORTAL_QUEEN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("547f92d4-cd1d-4ca7-a6e2-6473b4d3c832"),
+    "Arwen, Mortal Queen",
+    crate::card::CardArt::new("547f92d4-cd1d-4ca7-a6e2-6473b4d3c832", "Miranda Meeks"),
+    crate::card::CardSet::LordOfTheRings,
+    crate::card::CardRules::unsupported(),
+);
+
+// LTR 203 — Flame of Anor
 /// The condition is read as the spell is cast, not as it resolves, so a
 /// Wizard that dies in response has already done its work.
 static FLAME_OF_ANOR_WIZARD: ConditionDef = ConditionDef::Exists(ObjectQueryDef::controlled_by(
@@ -418,17 +429,6 @@ static FLAME_OF_ANOR_CREATURE_TARGET: [AbilityTargetDef; 1] =
         ObjectPredicateDef::HasType(CardType::Creature),
     )];
 
-// LTR 193 — Arwen, Mortal Queen
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static ARWEN_MORTAL_QUEEN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("547f92d4-cd1d-4ca7-a6e2-6473b4d3c832"),
-    "Arwen, Mortal Queen",
-    crate::card::CardArt::new("547f92d4-cd1d-4ca7-a6e2-6473b4d3c832", "Miranda Meeks"),
-    crate::card::CardSet::LordOfTheRings,
-    crate::card::CardRules::unsupported(),
-);
-
-// LTR 203 — Flame of Anor
 pub(in crate::card::sets) static FLAME_OF_ANOR: CardRecord = CardRecord::new_with_legacy_id(
     2163,
     "Flame of Anor",

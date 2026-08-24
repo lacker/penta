@@ -11,6 +11,17 @@ use crate::card::{
 use crate::ids::ObjectBindingIndex;
 use crate::{TargetIndex, mana_cost};
 
+// MRD 57 — Barter in Blood
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BARTER_IN_BLOOD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("beccbb2c-ca1d-4b72-9eca-a64a313fd830"),
+    "Barter in Blood",
+    crate::card::CardArt::new("beccbb2c-ca1d-4b72-9eca-a64a313fd830", "Paolo Parente"),
+    crate::card::CardSet::Mirrodin,
+    crate::card::CardRules::unsupported(),
+);
+
+// MRD 141 — Aether Spellbomb
 static SPELLBOMB_BOUNCE_COST: [AbilityCostDef; 2] = [
     AbilityCostDef::Mana(mana_cost!("{U}")),
     AbilityCostDef::SacrificeSource,
@@ -25,29 +36,6 @@ static A_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_perman
     ObjectPredicateDef::HasType(CardType::Creature),
 )];
 
-static GREAVES_HASTE: AbilityDef = abilities::haste();
-
-static GREAVES_SHROUD: AbilityDef = abilities::shroud();
-
-/// The two halves are why the card is played: haste makes the creature useful
-/// the turn it arrives, and shroud makes it hard to answer -- including by
-/// its own controller, who cannot target it either.
-static GREAVES_GRANTS: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::add_ability(&GREAVES_HASTE),
-    AppliedEffectDef::add_ability(&GREAVES_SHROUD),
-];
-
-// MRD 57 — Barter in Blood
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static BARTER_IN_BLOOD: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("beccbb2c-ca1d-4b72-9eca-a64a313fd830"),
-    "Barter in Blood",
-    crate::card::CardArt::new("beccbb2c-ca1d-4b72-9eca-a64a313fd830", "Paolo Parente"),
-    crate::card::CardSet::Mirrodin,
-    crate::card::CardRules::unsupported(),
-);
-
-// MRD 141 — Aether Spellbomb
 pub(in crate::card::sets) static AETHER_SPELLBOMB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f3792e8b-4ad7-4e2d-994c-c4eaac0fa55f"),
     "Aether Spellbomb",
@@ -91,6 +79,8 @@ pub(in crate::card::sets) static BONESPLITTER: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// MRD 152 — Chrome Mox
+// Audit: metadata-only — Card rules have not been implemented.
 /// "A nonartifact, nonland card from your hand": the two types it may not
 /// take are the ones that would make it free twice over.
 static A_NONARTIFACT_NONLAND_CARD_IN_YOUR_HAND: ObjectQueryDef = ObjectQueryDef::matching(
@@ -142,8 +132,6 @@ static CHROME_MOX_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
-// MRD 152 — Chrome Mox
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CHROME_MOX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6a058e68-70af-4a64-859c-c881e5578368"),
     "Chrome Mox",
@@ -156,6 +144,18 @@ pub(in crate::card::sets) static CHROME_MOX: CardRecord = CardRecord::new(
 );
 
 // MRD 199 — Lightning Greaves
+static GREAVES_HASTE: AbilityDef = abilities::haste();
+
+static GREAVES_SHROUD: AbilityDef = abilities::shroud();
+
+/// The two halves are why the card is played: haste makes the creature useful
+/// the turn it arrives, and shroud makes it hard to answer -- including by
+/// its own controller, who cannot target it either.
+static GREAVES_GRANTS: [AppliedEffectDef; 2] = [
+    AppliedEffectDef::add_ability(&GREAVES_HASTE),
+    AppliedEffectDef::add_ability(&GREAVES_SHROUD),
+];
+
 pub(in crate::card::sets) static LIGHTNING_GREAVES: CardRecord = CardRecord::new_with_legacy_id(
     2170,
     "Lightning Greaves",
@@ -187,6 +187,7 @@ pub(in crate::card::sets) static TALISMAN_OF_DOMINANCE: CardRecord = CardRecord:
     crate::card::CardRules::unsupported(),
 );
 
+// MRD 256 — Talisman of Progress
 static TALISMAN_TAP: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
 
 /// The pair this Talisman is for. Which of the two an activation makes
@@ -207,7 +208,6 @@ static TALISMAN_OF_PROGRESS_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
-// MRD 256 — Talisman of Progress
 pub(in crate::card::sets) static TALISMAN_OF_PROGRESS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("41ff849e-2439-4690-8aa4-769039b6da4c"),
     "Talisman of Progress",

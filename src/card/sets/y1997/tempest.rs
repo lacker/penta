@@ -24,14 +24,6 @@ use crate::card::{
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
 use crate::{TargetIndex, mana_cost};
 
-/// Everything at once, in one static effect: the abilities go in layer 6 and
-/// the stats are set in layer 7b, and a creature that arrives later is caught
-/// by the same continuous effect rather than needing its own.
-static HUMBLED: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::remove_abilities(AbilityPredicateDef::Any),
-    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
-];
-
 // TMP 1 — Advance Scout
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ADVANCE_SCOUT: CardRecord = CardRecord::new(
@@ -221,6 +213,14 @@ pub(in crate::card::sets) static HERO_S_RESOLVE: CardRecord = CardRecord::new(
 );
 
 // TMP 24 — Humility
+/// Everything at once, in one static effect: the abilities go in layer 6 and
+/// the stats are set in layer 7b, and a creature that arrives later is caught
+/// by the same continuous effect rather than needing its own.
+static HUMBLED: [AppliedEffectDef; 2] = [
+    AppliedEffectDef::remove_abilities(AbilityPredicateDef::Any),
+    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
+];
+
 pub(in crate::card::sets) static HUMILITY: CardRecord = CardRecord::new_with_legacy_id(
     2055,
     "Humility",
@@ -573,52 +573,6 @@ pub(in crate::card::sets) static CHILL: CardRecord = CardRecord::new_with_legacy
     )),
 );
 
-/// The one the opponent hands over, and the two they keep back. Both halves
-/// are one partition of the three that were found, which is why the choice
-/// names the rest as well as the pick.
-static INTUITION_DISTRIBUTE: EffectDef = EffectDef::Sequence(&[
-    EffectDef::MoveToZone {
-        counters: None,
-        object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-        zone: ZoneKind::Hand,
-        placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-    },
-    EffectDef::MoveToZone {
-        counters: None,
-        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-        zone: ZoneKind::Graveyard,
-        placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-    },
-]);
-
-/// The opponent picks which of the three is worth giving up, out of the
-/// cards the search found rather than out of the library it found them in.
-static INTUITION_CHOICE: EffectDef = EffectDef::Choose(ChooseDef {
-    binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
-    unchosen: Some(ObjectSetBindingIndex::PRIMARY),
-    chooser: PlayerRefDef::Target(TargetIndex::PRIMARY),
-    candidates: ObjectSetDef::Binding(INTUITION_FOUND),
-    exclude: None,
-    minimum: 1,
-    maximum: 1,
-    visibility: ChoiceVisibilityDef::Public,
-    then: &INTUITION_DISTRIBUTE,
-});
-
-/// The three the search turned up, kept apart from the partition bindings so
-/// that "the rest" is measured against them rather than against itself.
-static INTUITION_FOUND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
-
-static INTUITION_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-)];
-
 // TMP 57 — Counterspell (reprint)
 
 // TMP 58 — Dismiss
@@ -726,6 +680,52 @@ pub(in crate::card::sets) static INTERDICT: CardRecord = CardRecord::new(
 );
 
 // TMP 70 — Intuition
+/// The one the opponent hands over, and the two they keep back. Both halves
+/// are one partition of the three that were found, which is why the choice
+/// names the rest as well as the pick.
+static INTUITION_DISTRIBUTE: EffectDef = EffectDef::Sequence(&[
+    EffectDef::MoveToZone {
+        counters: None,
+        object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+        zone: ZoneKind::Hand,
+        placement: ZonePlacement::Top,
+        arrival_effect: None,
+        attachment: None,
+        controller: None,
+    },
+    EffectDef::MoveToZone {
+        counters: None,
+        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+        zone: ZoneKind::Graveyard,
+        placement: ZonePlacement::Top,
+        arrival_effect: None,
+        attachment: None,
+        controller: None,
+    },
+]);
+
+/// The opponent picks which of the three is worth giving up, out of the
+/// cards the search found rather than out of the library it found them in.
+static INTUITION_CHOICE: EffectDef = EffectDef::Choose(ChooseDef {
+    binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+    unchosen: Some(ObjectSetBindingIndex::PRIMARY),
+    chooser: PlayerRefDef::Target(TargetIndex::PRIMARY),
+    candidates: ObjectSetDef::Binding(INTUITION_FOUND),
+    exclude: None,
+    minimum: 1,
+    maximum: 1,
+    visibility: ChoiceVisibilityDef::Public,
+    then: &INTUITION_DISTRIBUTE,
+});
+
+/// The three the search turned up, kept apart from the partition bindings so
+/// that "the rest" is measured against them rather than against itself.
+static INTUITION_FOUND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
+
+static INTUITION_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+)];
+
 pub(in crate::card::sets) static INTUITION: CardRecord = CardRecord::new_with_legacy_id(
     2084,
     "Intuition",
@@ -753,10 +753,6 @@ pub(in crate::card::sets) static INTUITION: CardRecord = CardRecord::new_with_le
         },
     )),
 );
-
-static TIME_WARP_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
 
 // TMP 71 — Legacy's Allure
 // Audit: metadata-only — Card rules have not been implemented.
@@ -998,6 +994,10 @@ pub(in crate::card::sets) static THALAKOS_SENTRY: CardRecord = CardRecord::new(
 // TMP 96 — Time Ebb (reprint)
 
 // TMP 97 — Time Warp
+static TIME_WARP_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Player(PlayerRelation::Any),
+)];
+
 pub(in crate::card::sets) static TIME_WARP: CardRecord = CardRecord::new_with_legacy_id(
     2109,
     "Time Warp",
@@ -1011,32 +1011,6 @@ pub(in crate::card::sets) static TIME_WARP: CardRecord = CardRecord::new_with_le
         },
     )),
 );
-
-static DANCE_HASTE: AbilityDef = abilities::haste();
-
-/// The creature exiles itself rather than being named by a delayed trigger:
-/// it is the object that arrived, and it carries the clause with it.
-static DANCE_EXILE_AT_END: AbilityDef = AbilityDef::triggered(
-    "At the beginning of the next end step, exile this creature.",
-    TriggerEventDef::StepBegins {
-        step: TurnStepDef::End,
-        player: PlayerRelation::Any,
-    },
-    EffectDef::MoveToZone {
-        counters: None,
-        object: EffectRecipientDef::Source,
-        zone: ZoneKind::Exile,
-        placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-    },
-);
-
-static DANCE_ARRIVAL: AppliedEffectDef = AppliedEffectDef::Composite(&[
-    AppliedEffectDef::add_ability(&DANCE_HASTE),
-    AppliedEffectDef::add_ability(&DANCE_EXILE_AT_END),
-]);
 
 // TMP 98 — Tradewind Rider
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1203,6 +1177,32 @@ pub(in crate::card::sets) static COMMANDER_GREVEN_IL_VEC: CardRecord = CardRecor
 );
 
 // TMP 116 — Corpse Dance
+static DANCE_HASTE: AbilityDef = abilities::haste();
+
+/// The creature exiles itself rather than being named by a delayed trigger:
+/// it is the object that arrived, and it carries the clause with it.
+static DANCE_EXILE_AT_END: AbilityDef = AbilityDef::triggered(
+    "At the beginning of the next end step, exile this creature.",
+    TriggerEventDef::StepBegins {
+        step: TurnStepDef::End,
+        player: PlayerRelation::Any,
+    },
+    EffectDef::MoveToZone {
+        counters: None,
+        object: EffectRecipientDef::Source,
+        zone: ZoneKind::Exile,
+        placement: ZonePlacement::Top,
+        arrival_effect: None,
+        attachment: None,
+        controller: None,
+    },
+);
+
+static DANCE_ARRIVAL: AppliedEffectDef = AppliedEffectDef::Composite(&[
+    AppliedEffectDef::add_ability(&DANCE_HASTE),
+    AppliedEffectDef::add_ability(&DANCE_EXILE_AT_END),
+]);
+
 pub(in crate::card::sets) static CORPSE_DANCE: CardRecord = CardRecord::new_with_legacy_id(
     2187,
     "Corpse Dance",
@@ -1563,10 +1563,6 @@ pub(in crate::card::sets) static REANIMATE: CardRecord = CardRecord::new_with_le
     )),
 );
 
-static GOBLIN_BOMBARDMENT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::AnyTarget,
-)];
-
 // TMP 152 — Reckless Spite
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static RECKLESS_SPITE: CardRecord = CardRecord::new(
@@ -1833,6 +1829,10 @@ pub(in crate::card::sets) static FURNACE_OF_RATH: CardRecord = CardRecord::new(
 // TMP 178 — Giant Strength (reprint)
 
 // TMP 179 — Goblin Bombardment
+static GOBLIN_BOMBARDMENT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::AnyTarget,
+)];
+
 pub(in crate::card::sets) static GOBLIN_BOMBARDMENT: CardRecord = CardRecord::new_with_legacy_id(
     2110,
     "Goblin Bombardment",
@@ -2565,40 +2565,6 @@ pub(in crate::card::sets) static ROOT_MAZE: CardRecord = CardRecord::new_with_le
     )),
 );
 
-/// Naming a card is modelled as picking one of the cards in hand. Every name
-/// worth choosing is one of those -- naming something you do not hold can
-/// only fail -- and the choice is public either way, so nothing is hidden and
-/// nothing achievable is lost.
-static NAMED_CARD: ObjectBindingIndex = ObjectBindingIndex::PRIMARY;
-static REVEALED_CARD: ObjectBindingIndex = ObjectBindingIndex::new(1);
-
-static SCROLL_NAMES_MATCH: TriggerConditionDef = TriggerConditionDef::BoundObjectsShareName {
-    first: NAMED_CARD,
-    second: REVEALED_CARD,
-};
-
-static SCROLL_SHOT: EffectDef = EffectDef::DealDamage {
-    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    amount: ValueDef::Constant(2),
-};
-
-static SCROLL_IF_MATCHED: EffectDef = EffectDef::IfCondition {
-    condition: &SCROLL_NAMES_MATCH,
-    then: &SCROLL_SHOT,
-};
-
-static SCROLL_REVEAL: EffectDef = EffectDef::RevealAtRandomFromHand {
-    player: EffectRecipientDef::Controller,
-    binding: REVEALED_CARD,
-    then: &SCROLL_IF_MATCHED,
-};
-
-static CARDS_IN_YOUR_HAND: ObjectQueryDef = ObjectQueryDef::owned_by(
-    ObjectPredicateDef::Any,
-    &[ZoneKind::Hand],
-    PlayerSetDef::Related(PlayerRelation::You),
-);
-
 // TMP 251 — Rootbreaker Wurm
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ROOTBREAKER_WURM: CardRecord = CardRecord::new(
@@ -2887,6 +2853,45 @@ pub(in crate::card::sets) static COLD_STORAGE: CardRecord = CardRecord::new(
 );
 
 // TMP 281 — Cursed Scroll
+/// Naming a card is modelled as picking one of the cards in hand. Every name
+/// worth choosing is one of those -- naming something you do not hold can
+/// only fail -- and the choice is public either way, so nothing is hidden and
+/// nothing achievable is lost.
+static NAMED_CARD: ObjectBindingIndex = ObjectBindingIndex::PRIMARY;
+
+static REVEALED_CARD: ObjectBindingIndex = ObjectBindingIndex::new(1);
+
+static SCROLL_NAMES_MATCH: TriggerConditionDef = TriggerConditionDef::BoundObjectsShareName {
+    first: NAMED_CARD,
+    second: REVEALED_CARD,
+};
+
+static SCROLL_SHOT: EffectDef = EffectDef::DealDamage {
+    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+    amount: ValueDef::Constant(2),
+};
+
+static SCROLL_IF_MATCHED: EffectDef = EffectDef::IfCondition {
+    condition: &SCROLL_NAMES_MATCH,
+    then: &SCROLL_SHOT,
+};
+
+static SCROLL_REVEAL: EffectDef = EffectDef::RevealAtRandomFromHand {
+    player: EffectRecipientDef::Controller,
+    binding: REVEALED_CARD,
+    then: &SCROLL_IF_MATCHED,
+};
+
+static CARDS_IN_YOUR_HAND: ObjectQueryDef = ObjectQueryDef::owned_by(
+    ObjectPredicateDef::Any,
+    &[ZoneKind::Hand],
+    PlayerSetDef::Related(PlayerRelation::You),
+);
+
+static SCROLL_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::AnyTarget,
+)];
+
 pub(in crate::card::sets) static CURSED_SCROLL: CardRecord = CardRecord::new_with_legacy_id(
     2037,
     "Cursed Scroll",
@@ -2917,10 +2922,6 @@ pub(in crate::card::sets) static CURSED_SCROLL: CardRecord = CardRecord::new_wit
         }),
     )),
 );
-
-static SCROLL_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::AnyTarget,
-)];
 
 // TMP 282 — Echo Chamber
 // Audit: metadata-only — Card rules have not been implemented.

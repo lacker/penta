@@ -9,16 +9,11 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
-/// Every creature, whoever controls it, and the amount is the life its caster
-/// was willing to spend. Held behind a reference because a negated value is
-/// one word wider than the value it negates.
-static TOXIC_DELUGE_AMOUNT: ValueDef = ValueDef::Negate(&ValueDef::ChosenX);
-
+// C13 25 — Unexpectedly Absent
 static ABSENT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
 )];
 
-// C13 25 — Unexpectedly Absent
 pub(in crate::card::sets) static UNEXPECTEDLY_ABSENT: CardRecord = CardRecord::new_with_legacy_id(
     2182,
     "Unexpectedly Absent",
@@ -62,6 +57,11 @@ pub(in crate::card::sets) static TRUE_NAME_NEMESIS: CardRecord = CardRecord::new
 );
 
 // C13 96 — Toxic Deluge
+/// Every creature, whoever controls it, and the amount is the life its caster
+/// was willing to spend. Held behind a reference because a negated value is
+/// one word wider than the value it negates.
+static TOXIC_DELUGE_AMOUNT: ValueDef = ValueDef::Negate(&ValueDef::ChosenX);
+
 pub(in crate::card::sets) static TOXIC_DELUGE: CardRecord = CardRecord::new_with_legacy_id(
     2164,
     "Toxic Deluge",

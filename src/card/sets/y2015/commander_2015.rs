@@ -9,6 +9,7 @@ use crate::card::{
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
+// C15 14 — Mystic Confluence
 static A_SPELL: [AbilityTargetDef; 1] =
     [AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)];
 
@@ -47,7 +48,6 @@ static MYSTIC_CONFLUENCE_MODES: [AbilityDef; 3] = [
     ),
 ];
 
-// C15 14 — Mystic Confluence
 pub(in crate::card::sets) static MYSTIC_CONFLUENCE: CardRecord = CardRecord::new_with_legacy_id(
     2229,
     "Mystic Confluence",
@@ -66,6 +66,7 @@ pub(in crate::card::sets) static MYSTIC_CONFLUENCE: CardRecord = CardRecord::new
     )),
 );
 
+// C15 26 — Fiery Confluence
 /// "Deals 1 damage to each creature": everything on the battlefield, yours
 /// included, which is what makes the sweeper half a cost as well as an
 /// answer.
@@ -107,7 +108,6 @@ static FIERY_CONFLUENCE_MODES: [AbilityDef; 3] = [
     ),
 ];
 
-// C15 26 — Fiery Confluence
 pub(in crate::card::sets) static FIERY_CONFLUENCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7b61c9bc-16e8-417f-99e7-8bd83d4666c5"),
     "Fiery Confluence",

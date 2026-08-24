@@ -8,6 +8,7 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
+// SHM 57 — Beseech the Queen
 /// The lands the caster controls when Beseech the Queen resolves.
 static BESEECH_LANDS: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasType(CardType::Land),
@@ -15,7 +16,6 @@ static BESEECH_LANDS: ObjectQueryDef = ObjectQueryDef::matching(
     PlayerRelation::You,
 );
 
-// SHM 57 — Beseech the Queen
 pub(in crate::card::sets) static BESEECH_THE_QUEEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("64ee0a93-0f6d-42be-bdca-1de5422d8d54"),
     "Beseech the Queen",
@@ -42,6 +42,17 @@ pub(in crate::card::sets) static BESEECH_THE_QUEEN: CardRecord = CardRecord::new
     )),
 );
 
+// SHM 135 — Woodfall Primus
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static WOODFALL_PRIMUS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("43aa7e35-55ee-4e02-a8aa-ea2b267055d1"),
+    "Woodfall Primus",
+    crate::card::CardArt::new("43aa7e35-55ee-4e02-a8aa-ea2b267055d1", "Adam Rex"),
+    crate::card::CardSet::Shadowmoor,
+    crate::card::CardRules::unsupported(),
+);
+
+// SHM 211 — Manamorphose
 static EVERY_COLOR: [ManaColor; 5] = [
     ManaColor::White,
     ManaColor::Blue,
@@ -60,17 +71,6 @@ static MANAMORPHOSE_EFFECT: [EffectDef; 2] = [
     },
 ];
 
-// SHM 135 — Woodfall Primus
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static WOODFALL_PRIMUS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("43aa7e35-55ee-4e02-a8aa-ea2b267055d1"),
-    "Woodfall Primus",
-    crate::card::CardArt::new("43aa7e35-55ee-4e02-a8aa-ea2b267055d1", "Adam Rex"),
-    crate::card::CardSet::Shadowmoor,
-    crate::card::CardRules::unsupported(),
-);
-
-// SHM 211 — Manamorphose
 pub(in crate::card::sets) static MANAMORPHOSE: CardRecord = CardRecord::new_with_legacy_id(
     2238,
     "Manamorphose",

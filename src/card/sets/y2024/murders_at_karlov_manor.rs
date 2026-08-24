@@ -8,57 +8,6 @@ use crate::card::{
 };
 use crate::mana_cost;
 
-/// An artifact spell you cast, which is the whole of the trigger: what it
-/// does is not part of the condition.
-static AN_ARTIFACT_SPELL_YOU_CAST: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Artifact),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-]);
-
-static ARTIFACTS_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Artifact),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-]);
-
-// MKM 29 — Novice Inspector
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static NOVICE_INSPECTOR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("0ad38866-fc5f-4f62-89c1-afc0f50765aa"),
-    "Novice Inspector",
-    crate::card::CardArt::new("0ad38866-fc5f-4f62-89c1-afc0f50765aa", "Fajareka Setiawan"),
-    crate::card::CardSet::MurdersAtKarlovManor,
-    crate::card::CardRules::unsupported(),
-);
-
-// MKM 57 — Forensic Gadgeteer
-pub(in crate::card::sets) static FORENSIC_GADGETEER: CardRecord = CardRecord::new_with_legacy_id(
-    2206,
-    "Forensic Gadgeteer",
-    CardArt::new("97d08a15-e61c-4421-a541-c68a4f87cb74", "Volkan Baǵa"),
-    CardSet::MurdersAtKarlovManor,
-    // Every artifact you cast is a card later, and every artifact you
-    // already have is cheaper to use -- including the Clues it just made.
-    CardRules::new_creature(mana_cost!("{2}{U}"), &["Vedalken", "Artificer", "Detective"], 2, 3)
-        .with_abilities(&[
-            AbilityDef::triggered(
-                "Whenever you cast an artifact spell, investigate. (Create a Clue token. It's an artifact with \"{2}, Sacrifice this token: Draw a card.\")",
-                TriggerEventDef::SpellCast(AN_ARTIFACT_SPELL_YOU_CAST),
-                EffectDef::create_token(tokens::clue()).with_art(CardArt::new(
-                    "ef607895-d6d2-44ab-a6b4-84af55fce593",
-                    "Daneen Wilkerson",
-                )),
-            ),
-            AbilityDef::static_ability(
-                "Activated abilities of artifacts you control cost {1} less to activate. This effect can't reduce the mana in that cost to less than one mana.",
-                EffectDef::ModifyCost(CostModificationDef::AbilityReduction {
-                    permanent: ARTIFACTS_YOU_CONTROL,
-                    amount: ValueDef::Constant(1),
-                    minimum: 1,
-                }),
-            ),
-        ]),
-);
-
 /// Surveil 1: look at the top card and choose whether to bin it. Nothing is
 /// revealed and nothing has to go, so the minimum is zero and the card that
 /// stays goes back where it came from.
@@ -106,6 +55,57 @@ static SURVEIL_LAND_ABILITIES: [AbilityDef; 2] = [
 const fn surveil_land(types: &'static [&'static str]) -> CardRules {
     CardRules::new_land(types).with_abilities(&SURVEIL_LAND_ABILITIES)
 }
+
+// MKM 29 — Novice Inspector
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static NOVICE_INSPECTOR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0ad38866-fc5f-4f62-89c1-afc0f50765aa"),
+    "Novice Inspector",
+    crate::card::CardArt::new("0ad38866-fc5f-4f62-89c1-afc0f50765aa", "Fajareka Setiawan"),
+    crate::card::CardSet::MurdersAtKarlovManor,
+    crate::card::CardRules::unsupported(),
+);
+
+// MKM 57 — Forensic Gadgeteer
+/// An artifact spell you cast, which is the whole of the trigger: what it
+/// does is not part of the condition.
+static AN_ARTIFACT_SPELL_YOU_CAST: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::HasType(CardType::Artifact),
+    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+]);
+
+static ARTIFACTS_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::HasType(CardType::Artifact),
+    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+]);
+
+pub(in crate::card::sets) static FORENSIC_GADGETEER: CardRecord = CardRecord::new_with_legacy_id(
+    2206,
+    "Forensic Gadgeteer",
+    CardArt::new("97d08a15-e61c-4421-a541-c68a4f87cb74", "Volkan Baǵa"),
+    CardSet::MurdersAtKarlovManor,
+    // Every artifact you cast is a card later, and every artifact you
+    // already have is cheaper to use -- including the Clues it just made.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Vedalken", "Artificer", "Detective"], 2, 3)
+        .with_abilities(&[
+            AbilityDef::triggered(
+                "Whenever you cast an artifact spell, investigate. (Create a Clue token. It's an artifact with \"{2}, Sacrifice this token: Draw a card.\")",
+                TriggerEventDef::SpellCast(AN_ARTIFACT_SPELL_YOU_CAST),
+                EffectDef::create_token(tokens::clue()).with_art(CardArt::new(
+                    "ef607895-d6d2-44ab-a6b4-84af55fce593",
+                    "Daneen Wilkerson",
+                )),
+            ),
+            AbilityDef::static_ability(
+                "Activated abilities of artifacts you control cost {1} less to activate. This effect can't reduce the mana in that cost to less than one mana.",
+                EffectDef::ModifyCost(CostModificationDef::AbilityReduction {
+                    permanent: ARTIFACTS_YOU_CONTROL,
+                    amount: ValueDef::Constant(1),
+                    minimum: 1,
+                }),
+            ),
+        ]),
+);
 
 // MKM 105 — Snarling Gorehound
 // Audit: metadata-only — Card rules have not been implemented.

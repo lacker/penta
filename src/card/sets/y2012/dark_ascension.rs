@@ -16,6 +16,43 @@ use crate::card::{
 use crate::ids::{CardPartId, PlayOptionId, TargetIndex};
 use crate::mana_cost;
 
+static FATEFUL_HOUR: TriggerConditionDef = TriggerConditionDef::ControllerLifeAtMost(5);
+
+/// "As an additional cost to cast this spell, exile a creature card from your
+/// graveyard."
+static EXILE_A_CREATURE_CARD: SpellAdditionalCostDef = SpellAdditionalCostDef {
+    or_life: None,
+    object: ObjectPredicateDef::HasType(CardType::Creature),
+    zone: ZoneKind::Graveyard,
+    count: 1,
+    counted: SpellAdditionalCostCountDef::Printed,
+    spend: SpendModeDef::ByZone,
+    or: None,
+};
+
+static MORBID_A_CREATURE_DIED: TriggerConditionDef = TriggerConditionDef::CreatureDiedThisTurn;
+
+/// "Search your library for a basic land card, put it onto the battlefield
+/// tapped, then shuffle."
+static FETCH_A_BASIC_TAPPED: EffectDef = EffectDef::SearchZone {
+    player: EffectRecipientDef::Controller,
+    source: ZoneKind::Library,
+    object: ObjectPredicateDef::All(&[
+        ObjectPredicateDef::HasType(CardType::Land),
+        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+    ]),
+    minimum: 0,
+    maximum: ValueDef::Constant(1),
+    reveal: false,
+    destination: ZoneKind::Battlefield,
+    placement: ZonePlacement::Top,
+    shuffle: true,
+    enters_tapped: true,
+    binding: None,
+    then: None,
+};
+
+// DKA 1 — Archangel's Light
 static ARCHANGELS_LIGHT_GRAVEYARD: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::Any,
     &[ZoneKind::Graveyard],
@@ -54,7 +91,6 @@ static ARCHANGELS_LIGHT_EFFECTS: [EffectDef; 3] = [
     },
 ];
 
-// DKA 1 — Archangel's Light
 pub(in crate::card::sets) static ARCHANGELS_LIGHT: CardRecord = CardRecord::new_with_legacy_id(
     1878,
     "Archangel's Light",
@@ -90,8 +126,7 @@ pub(in crate::card::sets) static BAR_THE_DOOR: CardRecord = CardRecord::new_with
     )),
 );
 
-static FATEFUL_HOUR: TriggerConditionDef = TriggerConditionDef::ControllerLifeAtMost(5);
-
+// DKA 3 — Break of Day
 static BREAK_OF_DAY_INDESTRUCTIBLE: AbilityDef = abilities::indestructible();
 
 static BREAK_OF_DAY_CREATURES: EffectRecipientDef = EffectRecipientDef::matching_objects(
@@ -123,7 +158,6 @@ static BREAK_OF_DAY_EFFECTS: [EffectDef; 2] = [
     },
 ];
 
-// DKA 3 — Break of Day
 pub(in crate::card::sets) static BREAK_OF_DAY: CardRecord = CardRecord::new_with_legacy_id(
     1880,
     "Break of Day",
@@ -136,6 +170,7 @@ pub(in crate::card::sets) static BREAK_OF_DAY: CardRecord = CardRecord::new_with
     )),
 );
 
+// DKA 4 — Burden of Guilt
 static BURDEN_OF_GUILT_TAP: AbilityDef = AbilityDef::activated(
     "{1}: Tap enchanted creature.",
     &[AbilityCostDef::Mana(mana_cost!("{1}"))],
@@ -144,7 +179,6 @@ static BURDEN_OF_GUILT_TAP: AbilityDef = AbilityDef::activated(
     },
 );
 
-// DKA 4 — Burden of Guilt
 pub(in crate::card::sets) static BURDEN_OF_GUILT: CardRecord = CardRecord::new_with_legacy_id(
     681,
     "Burden of Guilt",
@@ -211,12 +245,12 @@ pub(in crate::card::sets) static FAITH_S_SHIELD: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// DKA 8 — Gather the Townsfolk
 /// "Instead", so this is one token-creation of a chosen size rather than two
 /// creations one of which is skipped.
 static GATHER_THE_TOWNSFOLK_COUNT: LifeConditionDef =
     LifeConditionDef::new(5, ValueDef::Constant(5), ValueDef::Constant(2));
 
-// DKA 8 — Gather the Townsfolk
 pub(in crate::card::sets) static GATHER_THE_TOWNSFOLK: CardRecord = CardRecord::new_with_legacy_id(
     1882,
     "Gather the Townsfolk",
@@ -236,6 +270,7 @@ pub(in crate::card::sets) static GATHER_THE_TOWNSFOLK: CardRecord = CardRecord::
     )),
 );
 
+// DKA 9 — Gavony Ironwright
 static GAVONY_IRONWRIGHT_ANTHEM: EffectDef = EffectDef::StaticApply {
     recipient: EffectRecipientDef::matching_objects(
         ObjectPredicateDef::All(&[
@@ -248,7 +283,6 @@ static GAVONY_IRONWRIGHT_ANTHEM: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(4)),
 };
 
-// DKA 9 — Gavony Ironwright
 pub(in crate::card::sets) static GAVONY_IRONWRIGHT: CardRecord = CardRecord::new_with_legacy_id(
     1881,
     "Gavony Ironwright",
@@ -539,6 +573,7 @@ pub(in crate::card::sets) static THALIA_GUARDIAN_OF_THRABEN: CardRecord =
             ]),
     );
 
+// DKA 25 — Thraben Doomsayer
 static THRABEN_DOOMSAYER_ANTHEM: EffectDef = EffectDef::StaticApply {
     recipient: EffectRecipientDef::matching_objects(
         ObjectPredicateDef::All(&[
@@ -551,7 +586,6 @@ static THRABEN_DOOMSAYER_ANTHEM: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
 };
 
-// DKA 25 — Thraben Doomsayer
 pub(in crate::card::sets) static THRABEN_DOOMSAYER: CardRecord = CardRecord::new_with_legacy_id(
     1883,
     "Thraben Doomsayer",
@@ -876,18 +910,6 @@ pub(in crate::card::sets) static HAVENGUL_RUNEBINDER: CardRecord = CardRecord::n
     ),
 );
 
-/// "As an additional cost to cast this spell, exile a creature card from your
-/// graveyard."
-static EXILE_A_CREATURE_CARD: SpellAdditionalCostDef = SpellAdditionalCostDef {
-    or_life: None,
-    object: ObjectPredicateDef::HasType(CardType::Creature),
-    zone: ZoneKind::Graveyard,
-    count: 1,
-    counted: SpellAdditionalCostCountDef::Printed,
-    spend: SpendModeDef::ByZone,
-    or: None,
-};
-
 // DKA 40 — Headless Skaab
 pub(in crate::card::sets) static HEADLESS_SKAAB: CardRecord = CardRecord::new_with_legacy_id(
     1605,
@@ -1087,6 +1109,7 @@ pub(in crate::card::sets) static SOUL_SEIZER: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// DKA 51 — Stormbound Geist
 /// "This creature can block only creatures with flying."
 static BLOCKS_ONLY_FLYERS: EffectDef = EffectDef::StaticApply {
     recipient: EffectRecipientDef::Source,
@@ -1095,7 +1118,6 @@ static BLOCKS_ONLY_FLYERS: EffectDef = EffectDef::StaticApply {
     )),
 };
 
-// DKA 51 — Stormbound Geist
 pub(in crate::card::sets) static STORMBOUND_GEIST: CardRecord = CardRecord::new_with_legacy_id(
     1598,
     "Stormbound Geist",
@@ -1234,6 +1256,7 @@ pub(in crate::card::sets) static CURSE_OF_THIRST: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// DKA 58 — Deadly Allure
 /// Deathtouch and the requirement are the point of each other: anything
 /// forced to block it dies for having done so.
 static DEADLY_ALLURE_LURE: [AppliedEffectDef; 2] = [
@@ -1243,7 +1266,6 @@ static DEADLY_ALLURE_LURE: [AppliedEffectDef; 2] = [
     )),
 ];
 
-// DKA 58 — Deadly Allure
 pub(in crate::card::sets) static DEADLY_ALLURE: CardRecord = CardRecord::new_with_legacy_id(
     1739,
     "Deadly Allure",
@@ -1266,6 +1288,7 @@ pub(in crate::card::sets) static DEADLY_ALLURE: CardRecord = CardRecord::new_wit
     ]),
 );
 
+// DKA 59 — Death's Caress
 /// "If that creature was a Human" is read after the destruction, so both the
 /// subtype and the toughness are last-known -- which is exactly what the
 /// target slot still remembers.
@@ -1287,7 +1310,6 @@ static DEATHS_CARESS_PROGRAM: [EffectDef; 2] = [
     },
 ];
 
-// DKA 59 — Death's Caress
 pub(in crate::card::sets) static DEATHS_CARESS: CardRecord = CardRecord::new_with_legacy_id(
     1975,
     "Death's Caress",
@@ -1442,6 +1464,7 @@ pub(in crate::card::sets) static HIGHBORN_GHOUL: CardRecord = CardRecord::new_wi
         .with_ability(abilities::intimidate()),
 );
 
+// DKA 69 — Increasing Ambition
 static INCREASING_AMBITION_FROM_GRAVEYARD: TriggerConditionDef =
     TriggerConditionDef::SourceCastFrom(ZoneKind::Graveyard);
 
@@ -1498,7 +1521,6 @@ const fn increasing_ambition_rules() -> CardRules {
     CardRules::new_sorcery(mana_cost!("{4}{B}")).with_abilities(&INCREASING_AMBITION_ABILITIES)
 }
 
-// DKA 69 — Increasing Ambition
 pub(in crate::card::sets) static INCREASING_AMBITION: CardRecord = CardRecord::new_with_legacy_id(
     1692,
     "Increasing Ambition",
@@ -1603,6 +1625,7 @@ pub(in crate::card::sets) static SPITEFUL_SHADOWS: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// DKA 76 — Tragic Slip
 /// Morbid replaces the amount rather than adding a second effect, so both
 /// printed clauses come down to which number this picks.
 const TRAGIC_SLIP_AMOUNT: ValueDef = ValueDef::IfCreatureDiedThisTurn(&ConditionalValueDef {
@@ -1610,7 +1633,6 @@ const TRAGIC_SLIP_AMOUNT: ValueDef = ValueDef::IfCreatureDiedThisTurn(&Condition
     otherwise: ValueDef::Constant(-1),
 });
 
-// DKA 76 — Tragic Slip
 pub(in crate::card::sets) static TRAGIC_SLIP: CardRecord = CardRecord::new_with_legacy_id(
     229,
     "Tragic Slip",
@@ -1669,8 +1691,6 @@ pub(in crate::card::sets) static VENGEFUL_VAMPIRE: CardRecord = CardRecord::new_
     CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Vampire"], 3, 2)
         .with_abilities(&[abilities::flying(), abilities::undying()]),
 );
-
-static MORBID_A_CREATURE_DIED: TriggerConditionDef = TriggerConditionDef::CreatureDiedThisTurn;
 
 // DKA 79 — Wakedancer
 pub(in crate::card::sets) static WAKEDANCER: CardRecord = CardRecord::new_with_legacy_id(
@@ -2012,6 +2032,16 @@ pub(in crate::card::sets) static MARKOV_BLADEMASTER: CardRecord = CardRecord::ne
 );
 
 // DKA 97 — Markov Warlord
+static UP_TO_TWO_CREATURES: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
+    AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::HasType(CardType::Creature),
+        zones: &[ZoneKind::Battlefield],
+        controller: None,
+        owner: None,
+    },
+    2,
+)];
+
 pub(in crate::card::sets) static MARKOV_WARLORD: CardRecord = CardRecord::new_with_legacy_id(
     1516,
     "Markov Warlord",
@@ -2035,16 +2065,6 @@ pub(in crate::card::sets) static MARKOV_WARLORD: CardRecord = CardRecord::new_wi
         ),
     ]),
 );
-
-static UP_TO_TWO_CREATURES: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-    2,
-)];
 
 // DKA 98 — Mondronen Shaman
 // Audit: metadata-only — Needs a complete transforming Werewolf composition plus a back-face trigger that damages an opponent whenever they cast a spell.
@@ -2156,6 +2176,7 @@ pub(in crate::card::sets) static SHATTERED_PERCEPTION: CardRecord = CardRecord::
     crate::card::CardRules::unsupported(),
 );
 
+// DKA 105 — Talons of Falkenrath
 static TALONS_OF_FALKENRATH_PUMP: AbilityDef = AbilityDef::activated(
     "{1}{R}: This creature gets +2/+0 until end of turn.",
     &[AbilityCostDef::Mana(mana_cost!("{1}{R}"))],
@@ -2169,7 +2190,6 @@ static TALONS_OF_FALKENRATH_PUMP: AbilityDef = AbilityDef::activated(
     },
 );
 
-// DKA 105 — Talons of Falkenrath
 pub(in crate::card::sets) static TALONS_OF_FALKENRATH: CardRecord = CardRecord::new_with_legacy_id(
     729,
     "Talons of Falkenrath",
@@ -2262,6 +2282,7 @@ pub(in crate::card::sets) static BRIARPACK_ALPHA: CardRecord = CardRecord::new_w
     ]),
 );
 
+// DKA 109 — Clinging Mists
 static CLINGING_MISTS_ATTACKERS: EffectRecipientDef = EffectRecipientDef::matching_objects(
     ObjectPredicateDef::Attacking,
     &[ZoneKind::Battlefield],
@@ -2294,7 +2315,6 @@ static CLINGING_MISTS_EFFECTS: [EffectDef; 2] = [
     },
 ];
 
-// DKA 109 — Clinging Mists
 pub(in crate::card::sets) static CLINGING_MISTS: CardRecord = CardRecord::new_with_legacy_id(
     1884,
     "Clinging Mists",
@@ -2308,6 +2328,7 @@ pub(in crate::card::sets) static CLINGING_MISTS: CardRecord = CardRecord::new_wi
     )),
 );
 
+// DKA 110 — Crushing Vines
 static CRUSHING_VINES_MODES: [AbilityDef; 2] = [
     AbilityDef::spell_with_targets(
         "Destroy target creature with flying",
@@ -2334,7 +2355,6 @@ static CRUSHING_VINES_MODES: [AbilityDef; 2] = [
     ),
 ];
 
-// DKA 110 — Crushing Vines
 pub(in crate::card::sets) static CRUSHING_VINES: CardRecord = CardRecord::new_with_legacy_id(
     732,
     "Crushing Vines",
@@ -2345,26 +2365,6 @@ pub(in crate::card::sets) static CRUSHING_VINES: CardRecord = CardRecord::new_wi
         &CRUSHING_VINES_MODES,
     )),
 );
-
-/// "Search your library for a basic land card, put it onto the battlefield
-/// tapped, then shuffle."
-static FETCH_A_BASIC_TAPPED: EffectDef = EffectDef::SearchZone {
-    player: EffectRecipientDef::Controller,
-    source: ZoneKind::Library,
-    object: ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Land),
-        ObjectPredicateDef::Supertype(CardSupertype::Basic),
-    ]),
-    minimum: 0,
-    maximum: ValueDef::Constant(1),
-    reveal: false,
-    destination: ZoneKind::Battlefield,
-    placement: ZonePlacement::Top,
-    shuffle: true,
-    enters_tapped: true,
-    binding: None,
-    then: None,
-};
 
 // DKA 111 — Dawntreader Elk
 pub(in crate::card::sets) static DAWNTREADER_ELK: CardRecord = CardRecord::new_with_legacy_id(
@@ -2426,6 +2426,7 @@ pub(in crate::card::sets) static FAVOR_OF_THE_WOODS: CardRecord = CardRecord::ne
     crate::card::CardRules::unsupported(),
 );
 
+// DKA 114 — Feed the Pack
 /// One Wolf per point of toughness, which is why the food of choice is a
 /// Wall: the pack it makes is worth far more than what fed it.
 static FEED_THE_PACK_PAYOFF: EffectDef =
@@ -2436,7 +2437,6 @@ static FEED_THE_PACK_PAYOFF: EffectDef =
         ))
         .with_count(ValueDef::TriggerEventAmount);
 
-// DKA 114 — Feed the Pack
 pub(in crate::card::sets) static FEED_THE_PACK: CardRecord = CardRecord::new_with_legacy_id(
     1971,
     "Feed the Pack",
@@ -2524,13 +2524,13 @@ pub(in crate::card::sets) static HOLLOWHENGE_BEAST: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Beast"], 5, 5),
 );
 
+// DKA 119 — Hunger of the Howlpack
 const HUNGER_OF_THE_HOWLPACK_AMOUNT: ValueDef =
     ValueDef::IfCreatureDiedThisTurn(&ConditionalValueDef {
         then: ValueDef::Constant(3),
         otherwise: ValueDef::Constant(1),
     });
 
-// DKA 119 — Hunger of the Howlpack
 pub(in crate::card::sets) static HUNGER_OF_THE_HOWLPACK: CardRecord = CardRecord::new_with_legacy_id(
     737,
     "Hunger of the Howlpack",
@@ -2705,6 +2705,7 @@ pub(in crate::card::sets) static ULVENWALD_BEAR: CardRecord = CardRecord::new_wi
     ),
 );
 
+// DKA 130 — Village Survivors
 static VILLAGE_SURVIVORS_VIGILANCE: AbilityDef = abilities::vigilance();
 
 static VILLAGE_SURVIVORS_GRANT: EffectDef = EffectDef::StaticApply {
@@ -2719,7 +2720,6 @@ static VILLAGE_SURVIVORS_GRANT: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::add_ability(&VILLAGE_SURVIVORS_VIGILANCE),
 };
 
-// DKA 130 — Village Survivors
 pub(in crate::card::sets) static VILLAGE_SURVIVORS: CardRecord = CardRecord::new_with_legacy_id(
     1885,
     "Village Survivors",
@@ -2929,6 +2929,7 @@ pub(in crate::card::sets) static HAVENGUL_LICH: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// DKA 140 — Huntmaster of the Fells
 const fn huntmaster_front_rules() -> CardRules {
     CardRules::new_creature(mana_cost!("{2}{R}{G}"), &["Human", "Werewolf"], 2, 2)
         .with_abilities(&HUNTMASTER_FRONT_ABILITIES)
@@ -3068,7 +3069,6 @@ fn huntmaster_composition() -> CardComposition {
     }
 }
 
-// DKA 140 — Huntmaster of the Fells
 pub(in crate::card::sets) static HUNTMASTER_OF_THE_FELLS: CardRecord =
     CardRecord::new_with_legacy_id(
         176,
@@ -3157,6 +3157,7 @@ pub(in crate::card::sets) static ALTAR_OF_THE_LOST: CardRecord = CardRecord::new
     crate::card::CardRules::unsupported(),
 );
 
+// DKA 145 — Avacyn's Collar
 static AVACYNS_COLLAR_VIGILANCE: AbilityDef = abilities::vigilance();
 
 static AVACYNS_COLLAR_BONUS: [AppliedEffectDef; 2] = [
@@ -3164,7 +3165,6 @@ static AVACYNS_COLLAR_BONUS: [AppliedEffectDef; 2] = [
     AppliedEffectDef::add_ability(&AVACYNS_COLLAR_VIGILANCE),
 ];
 
-// DKA 145 — Avacyn's Collar
 pub(in crate::card::sets) static AVACYNS_COLLAR: CardRecord = CardRecord::new_with_legacy_id(
     2307,
     "Avacyn's Collar",
@@ -3209,6 +3209,8 @@ pub(in crate::card::sets) static CHALICE_OF_LIFE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// DKA 147 — Elbrus, the Binding Blade
+// Audit: partial — Withengar's player-loses trigger is metadata-only because Penta's supported two-player game terminates as soon as a player loses.
 static ELBRUS_UNATTACH_AND_TRANSFORM: [EffectDef; 2] = [
     EffectDef::Unattach {
         object: EffectRecipientDef::Source,
@@ -3284,8 +3286,6 @@ fn elbrus_composition() -> CardComposition {
     }
 }
 
-// DKA 147 — Elbrus, the Binding Blade
-// Audit: partial — Withengar's player-loses trigger is metadata-only because Penta's supported two-player game terminates as soon as a player loses.
 pub(in crate::card::sets) static ELBRUS_THE_BINDING_BLADE: CardRecord =
     CardRecord::new_with_legacy_id(
         2313,
@@ -3296,9 +3296,9 @@ pub(in crate::card::sets) static ELBRUS_THE_BINDING_BLADE: CardRecord =
     )
     .with_composition(elbrus_composition);
 
+// DKA 148 — Executioner's Hood
 static EXECUTIONERS_HOOD_INTIMIDATE: AbilityDef = abilities::intimidate();
 
-// DKA 148 — Executioner's Hood
 pub(in crate::card::sets) static EXECUTIONERS_HOOD: CardRecord = CardRecord::new_with_legacy_id(
     1924,
     "Executioner's Hood",
@@ -3332,6 +3332,7 @@ pub(in crate::card::sets) static GRAFDIGGER_S_CAGE: CardRecord = CardRecord::new
     crate::card::CardRules::unsupported(),
 );
 
+// DKA 150 — Heavy Mattock
 static EQUIPPED_CREATURE_IS_HUMAN: TriggerConditionDef =
     TriggerConditionDef::AttachedPermanentMatches {
         object: ObjectPredicateDef::Subtype("Human"),
@@ -3344,7 +3345,6 @@ static HEAVY_MATTOCK_HUMAN_BONUS: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
 };
 
-// DKA 150 — Heavy Mattock
 pub(in crate::card::sets) static HEAVY_MATTOCK: CardRecord = CardRecord::new_with_legacy_id(
     1925,
     "Heavy Mattock",
@@ -3455,6 +3455,7 @@ pub(in crate::card::sets) static WARDEN_OF_THE_WALL: CardRecord = CardRecord::ne
     crate::card::CardRules::unsupported(),
 );
 
+// DKA 154 — Wolfhunter's Quiver
 static WOLFHUNTERS_QUIVER_SHOT: AbilityDef = AbilityDef::activated_with_targets(
     "{T}: This creature deals 1 damage to any target.",
     &[AbilityCostDef::TapSource],
@@ -3492,7 +3493,6 @@ static WOLFHUNTERS_QUIVER_GRANT: [AppliedEffectDef; 2] = [
     AppliedEffectDef::add_ability(&WOLFHUNTERS_QUIVER_VOLLEY),
 ];
 
-// DKA 154 — Wolfhunter's Quiver
 pub(in crate::card::sets) static WOLFHUNTERS_QUIVER: CardRecord = CardRecord::new_with_legacy_id(
     1930,
     "Wolfhunter's Quiver",

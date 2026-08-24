@@ -8,6 +8,7 @@ use crate::card::{
 };
 use crate::mana_cost;
 
+// C18 54 — Coveted Jewel
 /// "One or more creatures an opponent controls attack you and aren't
 /// blocked": one trigger for the whole unblocked crew, not one apiece, and
 /// only for an attack aimed at you rather than at something you control.
@@ -63,7 +64,6 @@ static COVETED_JEWEL_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
-// C18 54 — Coveted Jewel
 pub(in crate::card::sets) static COVETED_JEWEL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f83ed433-fae3-4fa5-acad-bb8a5b535ce3"),
     "Coveted Jewel",

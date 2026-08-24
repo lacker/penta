@@ -7,6 +7,7 @@ use crate::card::{
     PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
 };
 
+// OM1 181 — Multiversal Passage
 /// Declining is what makes it a tapped land, so the branch that pays does
 /// nothing at all and the branch that does not is the whole cost.
 static PASSAGE_ENTERS_TAPPED: [ReplacementEffectDef; 1] =
@@ -27,7 +28,6 @@ static PASSAGE_ENTRY: [ReplacementEffectDef; 2] = [
     },
 ];
 
-// OM1 181 — Multiversal Passage
 pub(in crate::card::sets) static MULTIVERSAL_PASSAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("21502958-a8e3-494a-9be9-bebbbb1dd9dc"),
     "Multiversal Passage",

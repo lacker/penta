@@ -9,6 +9,7 @@ use crate::card::{
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
+// CON 15 — Path to Exile
 /// Any creature, including one of your own: the compensation is what keeps
 /// the printed cost at one mana, not a restriction on whom it may hit.
 static PATH_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
@@ -50,7 +51,6 @@ static PATH_STEPS: [EffectDef; 2] = [
     },
 ];
 
-// CON 15 — Path to Exile
 pub(in crate::card::sets) static PATH_TO_EXILE: CardRecord = CardRecord::new_with_legacy_id(
     2189,
     "Path to Exile",
@@ -63,6 +63,7 @@ pub(in crate::card::sets) static PATH_TO_EXILE: CardRecord = CardRecord::new_wit
     )),
 );
 
+// CON 87 — Noble Hierarch
 static HIERARCH_MANA_COST: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
 
 static NOBLE_HIERARCH_ABILITIES: [AbilityDef; 2] = [
@@ -78,7 +79,6 @@ static NOBLE_HIERARCH_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
-// CON 87 — Noble Hierarch
 pub(in crate::card::sets) static NOBLE_HIERARCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6adfe928-1305-444d-b709-1e714544daaf"),
     "Noble Hierarch",

@@ -10,6 +10,17 @@ use crate::card::{
 use crate::ids::ObjectBindingIndex;
 use crate::{TargetIndex, mana_cost};
 
+// XLN 41 — Territorial Hammerskull
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TERRITORIAL_HAMMERSKULL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("af5a237a-31e7-43ee-8d47-3eb12dd1a60c"),
+    "Territorial Hammerskull",
+    crate::card::CardArt::new("af5a237a-31e7-43ee-8d47-3eb12dd1a60c", "Lars Grant-West"),
+    crate::card::CardSet::Ixalan,
+    crate::card::CardRules::unsupported(),
+);
+
+// XLN 110 — Kitesail Freebooter
 /// "Until this creature leaves the battlefield" is one printed ability, so
 /// the return is a delayed trigger installed by the same resolution rather
 /// than a second clause the card does not print.
@@ -84,17 +95,6 @@ static KITESAIL_FREEBOOTER_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
-// XLN 41 — Territorial Hammerskull
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static TERRITORIAL_HAMMERSKULL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("af5a237a-31e7-43ee-8d47-3eb12dd1a60c"),
-    "Territorial Hammerskull",
-    crate::card::CardArt::new("af5a237a-31e7-43ee-8d47-3eb12dd1a60c", "Lars Grant-West"),
-    crate::card::CardSet::Ixalan,
-    crate::card::CardRules::unsupported(),
-);
-
-// XLN 110 — Kitesail Freebooter
 pub(in crate::card::sets) static KITESAIL_FREEBOOTER: CardRecord = CardRecord::new_with_legacy_id(
     2149,
     "Kitesail Freebooter",

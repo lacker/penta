@@ -11,44 +11,6 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
-/// Fading counts down rather than up: the upkeep that cannot pay a counter
-/// is the one that ends the permanent. Five counters is five of its
-/// controller's turns, and spending them faster is the whole point of the
-/// card -- each one exiles a creature instead.
-static WAVE_FADES: EffectDef = EffectDef::IfCondition {
-    condition: &TriggerConditionDef::SourceCounters {
-        kind: CounterKind::Fade,
-        comparison: ComparisonDef::GreaterOrEqual,
-        amount: 1,
-    },
-    then: &EffectDef::RemoveCounters {
-        object: EffectRecipientDef::Source,
-        kind: CounterKind::Fade,
-        amount: ValueDef::Constant(1),
-    },
-};
-
-/// "If you can't, sacrifice it." Checked as its own clause because the
-/// removal above is what fails, and a permanent with no counters left has to
-/// go rather than simply skip a turn.
-static WAVE_EXPIRES: EffectDef = EffectDef::IfCondition {
-    condition: &TriggerConditionDef::SourceCounters {
-        kind: CounterKind::Fade,
-        comparison: ComparisonDef::LessOrEqual,
-        amount: 0,
-    },
-    then: &EffectDef::Sacrifice {
-        object: EffectRecipientDef::Source,
-    },
-};
-
-static WAVE_UPKEEP: EffectDef = EffectDef::Sequence(&[WAVE_EXPIRES, WAVE_FADES]);
-
-static WAVE_EXILE_COST: [AbilityCostDef; 1] = [AbilityCostDef::RemoveCountersFromSource {
-    kind: CounterKind::Fade,
-    amount: 1,
-}];
-
 // NEM 1 — Angelic Favor
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ANGELIC_FAVOR: CardRecord = CardRecord::new(
@@ -216,6 +178,44 @@ pub(in crate::card::sets) static ORACLE_S_ATTENDANTS: CardRecord = CardRecord::n
 );
 
 // NEM 17 — Parallax Wave
+/// Fading counts down rather than up: the upkeep that cannot pay a counter
+/// is the one that ends the permanent. Five counters is five of its
+/// controller's turns, and spending them faster is the whole point of the
+/// card -- each one exiles a creature instead.
+static WAVE_FADES: EffectDef = EffectDef::IfCondition {
+    condition: &TriggerConditionDef::SourceCounters {
+        kind: CounterKind::Fade,
+        comparison: ComparisonDef::GreaterOrEqual,
+        amount: 1,
+    },
+    then: &EffectDef::RemoveCounters {
+        object: EffectRecipientDef::Source,
+        kind: CounterKind::Fade,
+        amount: ValueDef::Constant(1),
+    },
+};
+
+/// "If you can't, sacrifice it." Checked as its own clause because the
+/// removal above is what fails, and a permanent with no counters left has to
+/// go rather than simply skip a turn.
+static WAVE_EXPIRES: EffectDef = EffectDef::IfCondition {
+    condition: &TriggerConditionDef::SourceCounters {
+        kind: CounterKind::Fade,
+        comparison: ComparisonDef::LessOrEqual,
+        amount: 0,
+    },
+    then: &EffectDef::Sacrifice {
+        object: EffectRecipientDef::Source,
+    },
+};
+
+static WAVE_UPKEEP: EffectDef = EffectDef::Sequence(&[WAVE_EXPIRES, WAVE_FADES]);
+
+static WAVE_EXILE_COST: [AbilityCostDef; 1] = [AbilityCostDef::RemoveCountersFromSource {
+    kind: CounterKind::Fade,
+    amount: 1,
+}];
+
 pub(in crate::card::sets) static PARALLAX_WAVE: CardRecord = CardRecord::new_with_legacy_id(
     2081,
     "Parallax Wave",
@@ -294,24 +294,6 @@ pub(in crate::card::sets) static SEAL_OF_CLEANSING: CardRecord = CardRecord::new
         ),
     ),
 );
-
-/// One Island back to hand, which is what makes the card free on turn one and
-/// a real cost on turn six.
-static DAZE_COST: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
-    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
-    ZoneKind::Battlefield,
-    1,
-)
-.spent(SpendModeDef::ReturnToHand);
-
-static DAZE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::Spell,
-        zones: &[ZoneKind::Stack],
-        controller: None,
-        owner: None,
-    },
-)];
 
 // NEM 19 — Silkenfist Fighter
 // Audit: metadata-only — Card rules have not been implemented.
@@ -427,6 +409,24 @@ pub(in crate::card::sets) static CLOUDSKATE: CardRecord = CardRecord::new(
 );
 
 // NEM 30 — Daze
+/// One Island back to hand, which is what makes the card free on turn one and
+/// a real cost on turn six.
+static DAZE_COST: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
+    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+    ZoneKind::Battlefield,
+    1,
+)
+.spent(SpendModeDef::ReturnToHand);
+
+static DAZE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::Spell,
+        zones: &[ZoneKind::Stack],
+        controller: None,
+        owner: None,
+    },
+)];
+
 pub(in crate::card::sets) static DAZE: CardRecord = CardRecord::new_with_legacy_id(
     2044,
     "Daze",
@@ -447,34 +447,6 @@ pub(in crate::card::sets) static DAZE: CardRecord = CardRecord::new_with_legacy_
         .with_alternative_additional_cost(&DAZE_COST),
     ]),
 );
-
-/// "If an opponent controls an Island and you control a Mountain" -- one
-/// condition made of two, checked where the free cast is offered rather than
-/// where it resolves.
-static AN_OPPONENTS_ISLAND: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::Opponent,
-);
-
-static YOUR_MOUNTAIN: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
-static SALVAGE_WINDOW: TriggerConditionDef = TriggerConditionDef::All(&[
-    TriggerConditionDef::ObjectCount {
-        query: AN_OPPONENTS_ISLAND,
-        comparison: ComparisonDef::GreaterOrEqual,
-        amount: 1,
-    },
-    TriggerConditionDef::ObjectCount {
-        query: YOUR_MOUNTAIN,
-        comparison: ComparisonDef::GreaterOrEqual,
-        amount: 1,
-    },
-]);
 
 // NEM 31 — Dominate
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1128,6 +1100,34 @@ pub(in crate::card::sets) static MOGG_ALARM: CardRecord = CardRecord::new(
 );
 
 // NEM 94 — Mogg Salvage
+/// "If an opponent controls an Island and you control a Mountain" -- one
+/// condition made of two, checked where the free cast is offered rather than
+/// where it resolves.
+static AN_OPPONENTS_ISLAND: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::Opponent,
+);
+
+static YOUR_MOUNTAIN: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::You,
+);
+
+static SALVAGE_WINDOW: TriggerConditionDef = TriggerConditionDef::All(&[
+    TriggerConditionDef::ObjectCount {
+        query: AN_OPPONENTS_ISLAND,
+        comparison: ComparisonDef::GreaterOrEqual,
+        amount: 1,
+    },
+    TriggerConditionDef::ObjectCount {
+        query: YOUR_MOUNTAIN,
+        comparison: ComparisonDef::GreaterOrEqual,
+        amount: 1,
+    },
+]);
+
 pub(in crate::card::sets) static MOGG_SALVAGE: CardRecord = CardRecord::new_with_legacy_id(
     2047,
     "Mogg Salvage",

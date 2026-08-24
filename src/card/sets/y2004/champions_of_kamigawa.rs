@@ -9,6 +9,7 @@ use crate::card::{
 };
 use crate::mana_cost;
 
+// CHK 193 — Through the Breach
 static A_CREATURE_CARD_IN_HAND: [CardChoiceSourceDef; 1] =
     [CardChoiceSourceDef::Zone(ZoneKind::Hand)];
 
@@ -48,7 +49,6 @@ static BREACH_PUT_ONTO_BATTLEFIELD: EffectDef = EffectDef::ChooseCards {
     arrival_effect: Some(&BREACH_ARRIVAL),
 };
 
-// CHK 193 — Through the Breach
 pub(in crate::card::sets) static THROUGH_THE_BREACH: CardRecord = CardRecord::new_with_legacy_id(
     2190,
     "Through the Breach",
@@ -84,6 +84,7 @@ pub(in crate::card::sets) static SAKURA_TRIBE_ELDER: CardRecord = CardRecord::ne
     crate::card::CardRules::unsupported(),
 );
 
+// CHK 268 — Sensei's Divining Top
 /// Every card looked at is selected, which is what makes the choice an
 /// ordering rather than a filter: all three go back on top, in the order
 /// they were named.
@@ -126,7 +127,6 @@ static TOP_DRAWS_AND_LEAVES: [EffectDef; 2] = [
     },
 ];
 
-// CHK 268 — Sensei's Divining Top
 pub(in crate::card::sets) static SENSEIS_DIVINING_TOP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4a08ca06-58db-4ce6-b490-be4bea8956a1"),
     "Sensei's Divining Top",

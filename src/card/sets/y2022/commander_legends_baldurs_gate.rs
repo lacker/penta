@@ -10,38 +10,6 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
-/// "Another creature or an artifact." Gut is neither an artifact nor another
-/// creature, so the exclusion covers both halves without saying so twice.
-static ANOTHER_CREATURE_OR_AN_ARTIFACT: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::AnyOf(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::HasType(CardType::Artifact),
-    ]),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-]);
-
-/// The token arrives already attacking, which is the whole point: it was
-/// never declared, so nothing that watches a declaration sees it, and it
-/// still connects this combat.
-static GUT_MAKES_A_SKELETON: EffectDef =
-    EffectDef::create_creature_token(&["Skeleton"], &[ManaColor::Black], 4, 1)
-        .with_abilities(&[abilities::menace()])
-        .with_art(CardArt::new(
-            "cf4c245f-af2f-46a7-81f3-670a04940901",
-            "David Astruga",
-        ))
-        .entering_tapped()
-        .entering_attacking();
-
-/// "Whenever you attack" is one or more creatures you control attacking,
-/// counted once for the declaration rather than once per attacker.
-static WHENEVER_YOU_ATTACK: TriggerEventDef = TriggerEventDef::attack_declared(
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-    1,
-    None,
-);
-
 // CLB 11 — Blessed Hippogriff
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static BLESSED_HIPPOGRIFF: CardRecord = CardRecord::new(
@@ -113,6 +81,38 @@ pub(in crate::card::sets) static GUILDSWORN_PROWLER: CardRecord = CardRecord::ne
 );
 
 // CLB 180 — Gut, True Soul Zealot
+/// "Another creature or an artifact." Gut is neither an artifact nor another
+/// creature, so the exclusion covers both halves without saying so twice.
+static ANOTHER_CREATURE_OR_AN_ARTIFACT: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::AnyOf(&[
+        ObjectPredicateDef::HasType(CardType::Creature),
+        ObjectPredicateDef::HasType(CardType::Artifact),
+    ]),
+    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+]);
+
+/// The token arrives already attacking, which is the whole point: it was
+/// never declared, so nothing that watches a declaration sees it, and it
+/// still connects this combat.
+static GUT_MAKES_A_SKELETON: EffectDef =
+    EffectDef::create_creature_token(&["Skeleton"], &[ManaColor::Black], 4, 1)
+        .with_abilities(&[abilities::menace()])
+        .with_art(CardArt::new(
+            "cf4c245f-af2f-46a7-81f3-670a04940901",
+            "David Astruga",
+        ))
+        .entering_tapped()
+        .entering_attacking();
+
+/// "Whenever you attack" is one or more creatures you control attacking,
+/// counted once for the declaration rather than once per attacker.
+static WHENEVER_YOU_ATTACK: TriggerEventDef = TriggerEventDef::attack_declared(
+    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+    1,
+    None,
+);
+
 pub(in crate::card::sets) static GUT_TRUE_SOUL_ZEALOT: CardRecord = CardRecord::new_with_legacy_id(
     2211,
     "Gut, True Soul Zealot",
@@ -147,36 +147,6 @@ pub(in crate::card::sets) static GUT_TRUE_SOUL_ZEALOT: CardRecord = CardRecord::
         ]),
 );
 
-/// Two damage as the baseline and five when it was foretold, which is the
-/// whole of the card: the two mana spent a turn earlier buy three damage and
-/// one mana off the price.
-static FIREBALL_FOR_TWO: EffectDef = EffectDef::DealDamage {
-    recipient: EffectRecipientDef::EachOpponentAndTheirCreatures,
-    amount: ValueDef::Constant(2),
-};
-
-static FIREBALL_FOR_FIVE: EffectDef = EffectDef::DealDamage {
-    recipient: EffectRecipientDef::EachOpponentAndTheirCreatures,
-    amount: ValueDef::Constant(5),
-};
-
-static CAST_FROM_EXILE: TriggerConditionDef = TriggerConditionDef::SourceCastFrom(ZoneKind::Exile);
-
-/// "Instead": the two branches are exclusive, so each names the condition
-/// and the smaller one names its negation. Written this way rather than as
-/// one conditional with an else because that is what the card says -- a
-/// baseline, and a replacement for it.
-static DELAYED_BLAST_FIREBALL_EFFECT: [EffectDef; 2] = [
-    EffectDef::IfCondition {
-        condition: &CAST_FROM_EXILE,
-        then: &FIREBALL_FOR_FIVE,
-    },
-    EffectDef::IfCondition {
-        condition: &TriggerConditionDef::Not(&CAST_FROM_EXILE),
-        then: &FIREBALL_FOR_TWO,
-    },
-];
-
 // CLB 263 — You Meet in a Tavern
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static YOU_MEET_IN_A_TAVERN: CardRecord = CardRecord::new(
@@ -197,6 +167,7 @@ pub(in crate::card::sets) static MINSC_BOO_TIMELESS_HEROES: CardRecord = CardRec
     crate::card::CardRules::unsupported(),
 );
 
+// CLB 560 — Displacer Kitten
 /// A noncreature spell you cast. What it does is no part of the condition:
 /// the Kitten reads the type line and nothing else.
 static A_NONCREATURE_SPELL_YOU_CAST: ObjectPredicateDef = ObjectPredicateDef::All(&[
@@ -233,7 +204,6 @@ static KITTEN_BLINKS: [EffectDef; 2] = [
     },
 ];
 
-// CLB 560 — Displacer Kitten
 pub(in crate::card::sets) static DISPLACER_KITTEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9a53e8fc-bfd2-4866-a61c-f3204b0a98bf"),
     "Displacer Kitten",
@@ -255,6 +225,36 @@ pub(in crate::card::sets) static DISPLACER_KITTEN: CardRecord = CardRecord::new(
 );
 
 // CLB 630 — Delayed Blast Fireball
+/// Two damage as the baseline and five when it was foretold, which is the
+/// whole of the card: the two mana spent a turn earlier buy three damage and
+/// one mana off the price.
+static FIREBALL_FOR_TWO: EffectDef = EffectDef::DealDamage {
+    recipient: EffectRecipientDef::EachOpponentAndTheirCreatures,
+    amount: ValueDef::Constant(2),
+};
+
+static FIREBALL_FOR_FIVE: EffectDef = EffectDef::DealDamage {
+    recipient: EffectRecipientDef::EachOpponentAndTheirCreatures,
+    amount: ValueDef::Constant(5),
+};
+
+static CAST_FROM_EXILE: TriggerConditionDef = TriggerConditionDef::SourceCastFrom(ZoneKind::Exile);
+
+/// "Instead": the two branches are exclusive, so each names the condition
+/// and the smaller one names its negation. Written this way rather than as
+/// one conditional with an else because that is what the card says -- a
+/// baseline, and a replacement for it.
+static DELAYED_BLAST_FIREBALL_EFFECT: [EffectDef; 2] = [
+    EffectDef::IfCondition {
+        condition: &CAST_FROM_EXILE,
+        then: &FIREBALL_FOR_FIVE,
+    },
+    EffectDef::IfCondition {
+        condition: &TriggerConditionDef::Not(&CAST_FROM_EXILE),
+        then: &FIREBALL_FOR_TWO,
+    },
+];
+
 pub(in crate::card::sets) static DELAYED_BLAST_FIREBALL: CardRecord =
     CardRecord::new_with_legacy_id(
         2299,

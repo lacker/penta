@@ -15,6 +15,37 @@ use crate::card::{
 };
 use crate::{CardPartId, PlayOptionId, TargetIndex, mana_cost};
 
+// ELD 5 — Ardenvale Tactician
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ARDENVALE_TACTICIAN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("bd6ccd0b-5279-431f-b65a-7fdbdffd1a90"),
+    "Ardenvale Tactician",
+    crate::card::CardArt::new("c7d5e394-8e41-442e-ae97-a478a61e1b9d", "Jason Rainville"),
+    crate::card::CardSet::ThroneOfEldraine,
+    crate::card::CardRules::unsupported(),
+);
+
+// ELD 11 — Faerie Guidemother
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FAERIE_GUIDEMOTHER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e8bbece8-9620-44d9-b991-350fe952538a"),
+    "Faerie Guidemother",
+    crate::card::CardArt::new("e8bbece8-9620-44d9-b991-350fe952538a", "Mila Pesic"),
+    crate::card::CardSet::ThroneOfEldraine,
+    crate::card::CardRules::unsupported(),
+);
+
+// ELD 39 — Brazen Borrower
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BRAZEN_BORROWER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c2089ec9-0665-448f-bfe9-d181de127814"),
+    "Brazen Borrower",
+    crate::card::CardArt::new("c2089ec9-0665-448f-bfe9-d181de127814", "Eric Deschamps"),
+    crate::card::CardSet::ThroneOfEldraine,
+    crate::card::CardRules::unsupported(),
+);
+
+// ELD 110 — Wishclaw Talisman
 static WISHCLAW_COSTS: [AbilityCostDef; 3] = [
     AbilityCostDef::Mana(mana_cost!("{1}")),
     AbilityCostDef::TapSource,
@@ -51,37 +82,6 @@ static WISHCLAW_GRANTS_A_WISH: [EffectDef; 2] = [
     },
 ];
 
-// ELD 5 — Ardenvale Tactician
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static ARDENVALE_TACTICIAN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("bd6ccd0b-5279-431f-b65a-7fdbdffd1a90"),
-    "Ardenvale Tactician",
-    crate::card::CardArt::new("c7d5e394-8e41-442e-ae97-a478a61e1b9d", "Jason Rainville"),
-    crate::card::CardSet::ThroneOfEldraine,
-    crate::card::CardRules::unsupported(),
-);
-
-// ELD 11 — Faerie Guidemother
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static FAERIE_GUIDEMOTHER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("e8bbece8-9620-44d9-b991-350fe952538a"),
-    "Faerie Guidemother",
-    crate::card::CardArt::new("e8bbece8-9620-44d9-b991-350fe952538a", "Mila Pesic"),
-    crate::card::CardSet::ThroneOfEldraine,
-    crate::card::CardRules::unsupported(),
-);
-
-// ELD 39 — Brazen Borrower
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static BRAZEN_BORROWER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c2089ec9-0665-448f-bfe9-d181de127814"),
-    "Brazen Borrower",
-    crate::card::CardArt::new("c2089ec9-0665-448f-bfe9-d181de127814", "Eric Deschamps"),
-    crate::card::CardSet::ThroneOfEldraine,
-    crate::card::CardRules::unsupported(),
-);
-
-// ELD 110 — Wishclaw Talisman
 pub(in crate::card::sets) static WISHCLAW_TALISMAN: CardRecord = CardRecord::new_with_legacy_id(
     2166,
     "Wishclaw Talisman",
@@ -109,6 +109,7 @@ pub(in crate::card::sets) static WISHCLAW_TALISMAN: CardRecord = CardRecord::new
     ]),
 );
 
+// ELD 115 — Bonecrusher Giant
 static STOMP_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::AnyTarget,
 )];
@@ -187,7 +188,6 @@ fn bonecrusher_composition() -> CardComposition {
     .with_derived_spell_targets()
 }
 
-// ELD 115 — Bonecrusher Giant
 pub(in crate::card::sets) static BONECRUSHER_GIANT: CardRecord = CardRecord::new_with_legacy_id(
     2167,
     "Bonecrusher Giant",
@@ -200,6 +200,7 @@ pub(in crate::card::sets) static BONECRUSHER_GIANT: CardRecord = CardRecord::new
 )
 .with_composition(bonecrusher_composition);
 
+// ELD 122 — Embereth Shieldbreaker
 static BATTLE_DISPLAY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
     ObjectPredicateDef::HasType(CardType::Artifact),
 )];
@@ -263,7 +264,6 @@ fn embereth_shieldbreaker_composition() -> CardComposition {
     .with_derived_spell_targets()
 }
 
-// ELD 122 — Embereth Shieldbreaker
 pub(in crate::card::sets) static EMBERETH_SHIELDBREAKER: CardRecord =
     CardRecord::new_with_legacy_id(
         2208,
@@ -284,6 +284,7 @@ pub(in crate::card::sets) static RIMROCK_KNIGHT: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// ELD 138 — Robber of the Rich
 /// "If defending player has more cards in hand than you", which is two hand
 /// sizes compared rather than either measured: a hand above nothing is the
 /// whole of it.
@@ -302,7 +303,6 @@ static THEY_HAVE_MORE_CARDS: ValueComparisonDef = ValueComparisonDef {
 static ROBBER_STEALS_IF_THEY_ARE_RICHER: TriggerConditionDef =
     TriggerConditionDef::ValueComparison(&THEY_HAVE_MORE_CARDS);
 
-// ELD 138 — Robber of the Rich
 pub(in crate::card::sets) static ROBBER_OF_THE_RICH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0ecbe097-ba51-42e5-957c-382eb66c08f0"),
     "Robber of the Rich",
@@ -342,6 +342,77 @@ pub(in crate::card::sets) static ROBBER_OF_THE_RICH: CardRecord = CardRecord::ne
         ]),
 );
 
+// ELD 169 — Once Upon a Time
+/// "You may reveal a creature or land card from among them": the two types
+/// the deck casting this on turn one is actually short of.
+static A_CREATURE_OR_LAND_CARD: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
+    ObjectPredicateDef::HasType(CardType::Creature),
+    ObjectPredicateDef::HasType(CardType::Land),
+]);
+
+static ONCE_UPON_A_TIME_DIGS: TopCardSelectionDef = TopCardSelectionDef {
+    count: ValueDef::Constant(5),
+    object: Some(A_CREATURE_OR_LAND_CARD),
+    minimum: 0,
+    maximum: 1,
+    select_all_matching: false,
+    reveal_selected: true,
+    selected_zone: ZoneKind::Hand,
+    selected_placement: ZonePlacement::Top,
+    selected_hidden: false,
+    selected_linked_to_source: false,
+    selected_face_down: None,
+    rest_zone: ZoneKind::Library,
+    rest_placement: ZonePlacement::Bottom,
+    rest_random_order: true,
+    rest_counters: None,
+    selected_order_follows_choice: false,
+    then: None,
+};
+
+/// The spell asking is counted as it goes on the stack, so a spell that is
+/// the first one asks about a tally still standing at zero.
+static NOTHING_CAST_YET: ValueComparisonDef = ValueComparisonDef {
+    left: ValueDef::SpellsCastThisGame(PlayerRelation::You),
+    comparison: ComparisonDef::Equal,
+    right: ValueDef::Constant(0),
+};
+
+static IT_IS_YOUR_FIRST_SPELL: TriggerConditionDef =
+    TriggerConditionDef::ValueComparison(&NOTHING_CAST_YET);
+
+pub(in crate::card::sets) static ONCE_UPON_A_TIME: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4034e5ba-9974-43e3-bde7-8d9b4586c3a4"),
+    "Once Upon a Time",
+    CardArt::new("4034e5ba-9974-43e3-bde7-8d9b4586c3a4", "Matt Stewart"),
+    CardSet::ThroneOfEldraine,
+    // A free spell that finds a land or a creature, which is why every green
+    // deck played it and why it is banned in the format it was printed for.
+    CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{0}"),
+            AlternativeCastKindDef::AlternativeCost,
+            Some(
+                "If this spell is the first spell you've cast this game, you may cast it without \
+                 paying its mana cost.",
+            ),
+            EffectDef::None,
+        )
+        .with_alternative_condition(&IT_IS_YOUR_FIRST_SPELL),
+        AbilityDef::spell(
+            "Look at the top five cards of your library. You may reveal a creature or land card \
+             from among them and put it into your hand. Put the rest on the bottom of your \
+             library in a random order.",
+            EffectDef::LookAtTopAndSelect {
+                player: EffectRecipientDef::Controller,
+                looker: EffectRecipientDef::Controller,
+                selection: &ONCE_UPON_A_TIME_DIGS,
+            },
+        ),
+    ]),
+);
+
+// ELD 197 — Oko, Thief of Crowns
 /// "Loses all abilities and becomes a green Elk creature with base power and
 /// toughness 3/3." Five operations in one clause, and no duration at all:
 /// what Oko does to a Mox is permanent.
@@ -424,77 +495,6 @@ static OKO_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
-/// "You may reveal a creature or land card from among them": the two types
-/// the deck casting this on turn one is actually short of.
-static A_CREATURE_OR_LAND_CARD: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::HasType(CardType::Land),
-]);
-
-static ONCE_UPON_A_TIME_DIGS: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(5),
-    object: Some(A_CREATURE_OR_LAND_CARD),
-    minimum: 0,
-    maximum: 1,
-    select_all_matching: false,
-    reveal_selected: true,
-    selected_zone: ZoneKind::Hand,
-    selected_placement: ZonePlacement::Top,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Bottom,
-    rest_random_order: true,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-};
-
-/// The spell asking is counted as it goes on the stack, so a spell that is
-/// the first one asks about a tally still standing at zero.
-static NOTHING_CAST_YET: ValueComparisonDef = ValueComparisonDef {
-    left: ValueDef::SpellsCastThisGame(PlayerRelation::You),
-    comparison: ComparisonDef::Equal,
-    right: ValueDef::Constant(0),
-};
-
-static IT_IS_YOUR_FIRST_SPELL: TriggerConditionDef =
-    TriggerConditionDef::ValueComparison(&NOTHING_CAST_YET);
-
-// ELD 169 — Once Upon a Time
-pub(in crate::card::sets) static ONCE_UPON_A_TIME: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4034e5ba-9974-43e3-bde7-8d9b4586c3a4"),
-    "Once Upon a Time",
-    CardArt::new("4034e5ba-9974-43e3-bde7-8d9b4586c3a4", "Matt Stewart"),
-    CardSet::ThroneOfEldraine,
-    // A free spell that finds a land or a creature, which is why every green
-    // deck played it and why it is banned in the format it was printed for.
-    CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[
-        AbilityDef::alternative_cast(
-            mana_cost!("{0}"),
-            AlternativeCastKindDef::AlternativeCost,
-            Some(
-                "If this spell is the first spell you've cast this game, you may cast it without \
-                 paying its mana cost.",
-            ),
-            EffectDef::None,
-        )
-        .with_alternative_condition(&IT_IS_YOUR_FIRST_SPELL),
-        AbilityDef::spell(
-            "Look at the top five cards of your library. You may reveal a creature or land card \
-             from among them and put it into your hand. Put the rest on the bottom of your \
-             library in a random order.",
-            EffectDef::LookAtTopAndSelect {
-                player: EffectRecipientDef::Controller,
-                looker: EffectRecipientDef::Controller,
-                selection: &ONCE_UPON_A_TIME_DIGS,
-            },
-        ),
-    ]),
-);
-
-// ELD 197 — Oko, Thief of Crowns
 pub(in crate::card::sets) static OKO_THIEF_OF_CROWNS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3462a3d0-5552-49fa-9eb7-100960c55891"),
     "Oko, Thief of Crowns",

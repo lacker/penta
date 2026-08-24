@@ -7,32 +7,6 @@ use crate::card::{
 };
 use crate::mana_cost;
 
-static AN_ARTIFACT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Artifact),
-)];
-
-static AN_ENCHANTMENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Enchantment),
-)];
-
-/// Two of the three answer something and the third answers nothing, which is
-/// the point: a mode that only needs a counter on the board is what keeps
-/// the card from being dead against a deck with no artifacts.
-static CANKERBLOOM_MODES: [AbilityDef; 3] = [
-    AbilityDef::destroy_target("Destroy target artifact.", &AN_ARTIFACT[0], true),
-    AbilityDef::destroy_target("Destroy target enchantment.", &AN_ENCHANTMENT[0], true),
-    AbilityDef::spell(
-        "Proliferate. (Choose any number of permanents and/or players, then give each another \
-         counter of each kind already there.)",
-        EffectDef::Proliferate,
-    ),
-];
-
-static CANKERBLOOM_COST: [AbilityCostDef; 2] = [
-    AbilityCostDef::Mana(mana_cost!("{1}")),
-    AbilityCostDef::SacrificeSource,
-];
-
 // ONE 28 — Planar Disruption
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PLANAR_DISRUPTION: CardRecord = CardRecord::new(
@@ -74,6 +48,32 @@ pub(in crate::card::sets) static FURNACE_STRIDER: CardRecord = CardRecord::new(
 );
 
 // ONE 161 — Cankerbloom
+static AN_ARTIFACT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+    ObjectPredicateDef::HasType(CardType::Artifact),
+)];
+
+static AN_ENCHANTMENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+    ObjectPredicateDef::HasType(CardType::Enchantment),
+)];
+
+/// Two of the three answer something and the third answers nothing, which is
+/// the point: a mode that only needs a counter on the board is what keeps
+/// the card from being dead against a deck with no artifacts.
+static CANKERBLOOM_MODES: [AbilityDef; 3] = [
+    AbilityDef::destroy_target("Destroy target artifact.", &AN_ARTIFACT[0], true),
+    AbilityDef::destroy_target("Destroy target enchantment.", &AN_ENCHANTMENT[0], true),
+    AbilityDef::spell(
+        "Proliferate. (Choose any number of permanents and/or players, then give each another \
+         counter of each kind already there.)",
+        EffectDef::Proliferate,
+    ),
+];
+
+static CANKERBLOOM_COST: [AbilityCostDef; 2] = [
+    AbilityCostDef::Mana(mana_cost!("{1}")),
+    AbilityCostDef::SacrificeSource,
+];
+
 pub(in crate::card::sets) static CANKERBLOOM: CardRecord = CardRecord::new_with_legacy_id(
     2292,
     "Cankerbloom",

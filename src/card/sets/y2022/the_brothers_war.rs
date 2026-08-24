@@ -9,26 +9,7 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
-/// "Noncreature artifact or noncreature enchantment." The two types are
-/// alternatives and the exclusion applies to both, so it sits outside the
-/// choice rather than inside it -- which is what leaves a creature that
-/// happens to be an artifact alone.
-static A_NONCREATURE_ARTIFACT_OR_ENCHANTMENT: [AbilityTargetDef; 1] =
-    [AbilityTargetDef::exactly_one(
-        AbilityTargetPredicate::Object {
-            object: ObjectPredicateDef::All(&[
-                ObjectPredicateDef::AnyOf(&[
-                    ObjectPredicateDef::HasType(CardType::Artifact),
-                    ObjectPredicateDef::HasType(CardType::Enchantment),
-                ]),
-                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
-            ]),
-            zones: &[ZoneKind::Battlefield],
-            controller: None,
-            owner: None,
-        },
-    )];
-
+// BRO 12 — Loran of the Third Path
 /// "Up to one target artifact or enchantment": an Loran with nothing worth
 /// answering still arrives as a 2/1 that draws.
 static UP_TO_ONE_ARTIFACT_OR_ENCHANTMENT: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
@@ -62,7 +43,6 @@ static LORAN_DRAWS: [EffectDef; 2] = [
     },
 ];
 
-// BRO 12 — Loran of the Third Path
 pub(in crate::card::sets) static LORAN_OF_THE_THIRD_PATH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("59faa45d-868b-4bc7-934c-0e077642e129"),
     "Loran of the Third Path",
@@ -127,6 +107,26 @@ pub(in crate::card::sets) static SCRAPWORK_MUTT: CardRecord = CardRecord::new(
 );
 
 // BRO 199 — Haywire Mite
+/// "Noncreature artifact or noncreature enchantment." The two types are
+/// alternatives and the exclusion applies to both, so it sits outside the
+/// choice rather than inside it -- which is what leaves a creature that
+/// happens to be an artifact alone.
+static A_NONCREATURE_ARTIFACT_OR_ENCHANTMENT: [AbilityTargetDef; 1] =
+    [AbilityTargetDef::exactly_one(
+        AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                ]),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+            ]),
+            zones: &[ZoneKind::Battlefield],
+            controller: None,
+            owner: None,
+        },
+    )];
+
 pub(in crate::card::sets) static HAYWIRE_MITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("847a175e-ead1-4596-baf3-5f7f57859e0b"),
     "Haywire Mite",
@@ -169,25 +169,6 @@ pub(in crate::card::sets) static HAYWIRE_MITE: CardRecord = CardRecord::new(
     ]),
 );
 
-/// "It's a Phyrexian in addition to its other types." Added rather than set:
-/// what comes back through the Portal keeps whatever it already was, and is
-/// a Phyrexian as well.
-static AS_A_PHYREXIAN: AppliedEffectDef =
-    AppliedEffectDef::Characteristic(CharacteristicOperationDef::CreatureTypes(
-        SetOperationDef::Add(CreatureTypeSetDef::named(&["Phyrexian"])),
-    ));
-
-/// Any graveyard, not only yours: the Portal is as happy to take back what
-/// it made an opponent sacrifice as anything of your own.
-static A_CREATURE_CARD_IN_A_GRAVEYARD: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Graveyard],
-        controller: None,
-        owner: None,
-    },
-)];
-
 // BRO 223 — Third Path Iconoclast
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static THIRD_PATH_ICONOCLAST: CardRecord = CardRecord::new(
@@ -209,6 +190,25 @@ pub(in crate::card::sets) static THE_MIGHTSTONE_AND_WEAKSTONE: CardRecord = Card
 );
 
 // BRO 240 — Portal to Phyrexia
+/// "It's a Phyrexian in addition to its other types." Added rather than set:
+/// what comes back through the Portal keeps whatever it already was, and is
+/// a Phyrexian as well.
+static AS_A_PHYREXIAN: AppliedEffectDef =
+    AppliedEffectDef::Characteristic(CharacteristicOperationDef::CreatureTypes(
+        SetOperationDef::Add(CreatureTypeSetDef::named(&["Phyrexian"])),
+    ));
+
+/// Any graveyard, not only yours: the Portal is as happy to take back what
+/// it made an opponent sacrifice as anything of your own.
+static A_CREATURE_CARD_IN_A_GRAVEYARD: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::HasType(CardType::Creature),
+        zones: &[ZoneKind::Graveyard],
+        controller: None,
+        owner: None,
+    },
+)];
+
 pub(in crate::card::sets) static PORTAL_TO_PHYREXIA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5f608efc-0dbc-4cc3-aadd-ed473bfc29ab"),
     "Portal to Phyrexia",

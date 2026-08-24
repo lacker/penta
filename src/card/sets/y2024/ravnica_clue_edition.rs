@@ -11,6 +11,81 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
+// CLU 4 — Headliner Scarlett
+/// "Creatures target player controls." Read as the trigger resolves, so a
+/// creature that arrives afterwards blocks perfectly well -- which is what
+/// makes this a tempo card rather than an evasion one.
+static CREATURES_THAT_PLAYER_CONTROLS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Player(PlayerRelation::Any),
+)];
+
+static SCARLETT_ABILITIES: [AbilityDef; 3] = [
+    abilities::haste(),
+    AbilityDef::triggered_with_targets(
+        "When Headliner Scarlett enters, creatures target player controls can't block this turn.",
+        TriggerEventDef::zone_changed(
+            ObjectPredicateDef::Source,
+            None,
+            Some(ZoneKind::Battlefield),
+        ),
+        &CREATURES_THAT_PLAYER_CONTROLS,
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                ObjectQueryDef::controlled_by(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                ),
+            )),
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    ),
+    // Face down, so the card is hers to see and nobody else's to plan
+    // around, and at its own cost: what the upkeep buys is a card a turn,
+    // not a free one.
+    AbilityDef::triggered(
+        "At the beginning of your upkeep, exile the top card of your library face down. You may \
+         look at and play that card this turn.",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::Upkeep,
+            player: PlayerRelation::You,
+        },
+        EffectDef::ExileTopOfLibraryToPlay {
+            player: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(1),
+            free: false,
+            face_down: true,
+            duration: ExilePlayDurationDef::ThisTurn,
+            spend_any_color: false,
+            play_condition: None,
+        },
+    ),
+];
+
+pub(in crate::card::sets) static HEADLINER_SCARLETT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("be77b98a-dd79-477c-8ab2-7ebf5637a89e"),
+    "Headliner Scarlett",
+    CardArt::new("be77b98a-dd79-477c-8ab2-7ebf5637a89e", "Heonhwa"),
+    CardSet::RavnicaClueEdition,
+    // Four mana that attacks the turn it lands into a board that cannot
+    // block, and then draws an extra card every turn it survives.
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Human", "Warlock"], 3, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&SCARLETT_ABILITIES),
+);
+
+// CLU 26 — Carnage Interpreter
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CARNAGE_INTERPRETER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f6fb576e-a4a4-496b-b553-3f81cc651210"),
+    "Carnage Interpreter",
+    crate::card::CardArt::new("f6fb576e-a4a4-496b-b553-3f81cc651210", "Justine Cruz"),
+    crate::card::CardSet::RavnicaClueEdition,
+    crate::card::CardRules::unsupported(),
+);
+
+// CLU 50 — Unruly Krasis
 static ANOTHER_CREATURE_YOU_CONTROL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Object {
         object: ObjectPredicateDef::All(&[
@@ -69,81 +144,6 @@ static UNRULY_KRASIS_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
-/// "Creatures target player controls." Read as the trigger resolves, so a
-/// creature that arrives afterwards blocks perfectly well -- which is what
-/// makes this a tempo card rather than an evasion one.
-static CREATURES_THAT_PLAYER_CONTROLS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
-
-static SCARLETT_ABILITIES: [AbilityDef; 3] = [
-    abilities::haste(),
-    AbilityDef::triggered_with_targets(
-        "When Headliner Scarlett enters, creatures target player controls can't block this turn.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
-        &CREATURES_THAT_PLAYER_CONTROLS,
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
-                ObjectQueryDef::controlled_by(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    &[ZoneKind::Battlefield],
-                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-                ),
-            )),
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
-    ),
-    // Face down, so the card is hers to see and nobody else's to plan
-    // around, and at its own cost: what the upkeep buys is a card a turn,
-    // not a free one.
-    AbilityDef::triggered(
-        "At the beginning of your upkeep, exile the top card of your library face down. You may \
-         look at and play that card this turn.",
-        TriggerEventDef::StepBegins {
-            step: TurnStepDef::Upkeep,
-            player: PlayerRelation::You,
-        },
-        EffectDef::ExileTopOfLibraryToPlay {
-            player: EffectRecipientDef::Controller,
-            amount: ValueDef::Constant(1),
-            free: false,
-            face_down: true,
-            duration: ExilePlayDurationDef::ThisTurn,
-            spend_any_color: false,
-            play_condition: None,
-        },
-    ),
-];
-
-// CLU 4 — Headliner Scarlett
-pub(in crate::card::sets) static HEADLINER_SCARLETT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("be77b98a-dd79-477c-8ab2-7ebf5637a89e"),
-    "Headliner Scarlett",
-    CardArt::new("be77b98a-dd79-477c-8ab2-7ebf5637a89e", "Heonhwa"),
-    CardSet::RavnicaClueEdition,
-    // Four mana that attacks the turn it lands into a board that cannot
-    // block, and then draws an extra card every turn it survives.
-    CardRules::new_creature(mana_cost!("{3}{R}"), &["Human", "Warlock"], 3, 3)
-        .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&SCARLETT_ABILITIES),
-);
-
-// CLU 26 — Carnage Interpreter
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static CARNAGE_INTERPRETER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f6fb576e-a4a4-496b-b553-3f81cc651210"),
-    "Carnage Interpreter",
-    crate::card::CardArt::new("f6fb576e-a4a4-496b-b553-3f81cc651210", "Justine Cruz"),
-    crate::card::CardSet::RavnicaClueEdition,
-    crate::card::CardRules::unsupported(),
-);
-
-// CLU 50 — Unruly Krasis
 pub(in crate::card::sets) static UNRULY_KRASIS: CardRecord = CardRecord::new_with_legacy_id(
     2144,
     "Unruly Krasis",

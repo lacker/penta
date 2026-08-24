@@ -8,21 +8,6 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
-/// "Target non-Dragon creature an opponent controls." The exclusion is why
-/// the card does not simply answer another Glorybringer, which is the whole
-/// reason it is printed that way.
-static A_NON_DRAGON_THEY_CONTROL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Dragon")),
-        ]),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::Opponent),
-        owner: None,
-    },
-)];
-
 // AKH 75 — Vizier of Tumbling Sands
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static VIZIER_OF_TUMBLING_SANDS: CardRecord = CardRecord::new(
@@ -44,6 +29,21 @@ pub(in crate::card::sets) static BONE_PICKER: CardRecord = CardRecord::new(
 );
 
 // AKH 134 — Glorybringer
+/// "Target non-Dragon creature an opponent controls." The exclusion is why
+/// the card does not simply answer another Glorybringer, which is the whole
+/// reason it is printed that way.
+static A_NON_DRAGON_THEY_CONTROL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Dragon")),
+        ]),
+        zones: &[ZoneKind::Battlefield],
+        controller: Some(PlayerRelation::Opponent),
+        owner: None,
+    },
+)];
+
 pub(in crate::card::sets) static GLORYBRINGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3277ad99-5682-4baa-b106-de15721876a6"),
     "Glorybringer",

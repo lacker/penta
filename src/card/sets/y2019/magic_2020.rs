@@ -9,19 +9,6 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
-/// "Another" excludes the Key itself, which is what stops it untapping
-/// itself for free every turn.
-static ANOTHER_ARTIFACT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Artifact),
-        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-    ]),
-)];
-
-static A_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Creature),
-)];
-
 // M20 3 — Ancestral Blade
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ANCESTRAL_BLADE: CardRecord = CardRecord::new(
@@ -55,6 +42,7 @@ pub(in crate::card::sets) static CLOUDKIN_SEER: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// M20 169 — Elvish Reclaimer
 /// "Three or more land cards in your graveyard": the fetchlands that made
 /// him a 3/4 are the same ones his own ability puts there, which is why he
 /// grows on the turn he is used.
@@ -84,7 +72,6 @@ static RECLAIMER_FETCH_COST: [AbilityCostDef; 3] = [
     },
 ];
 
-// M20 169 — Elvish Reclaimer
 pub(in crate::card::sets) static ELVISH_RECLAIMER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("39c431d7-d94b-46c4-bb89-f3db56214ab4"),
     "Elvish Reclaimer",
@@ -128,6 +115,19 @@ pub(in crate::card::sets) static ELVISH_RECLAIMER: CardRecord = CardRecord::new(
 );
 
 // M20 230 — Manifold Key
+/// "Another" excludes the Key itself, which is what stops it untapping
+/// itself for free every turn.
+static ANOTHER_ARTIFACT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+    ObjectPredicateDef::All(&[
+        ObjectPredicateDef::HasType(CardType::Artifact),
+        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+    ]),
+)];
+
+static A_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+    ObjectPredicateDef::HasType(CardType::Creature),
+)];
+
 pub(in crate::card::sets) static MANIFOLD_KEY: CardRecord = CardRecord::new_with_legacy_id(
     2207,
     "Manifold Key",

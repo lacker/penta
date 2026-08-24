@@ -10,10 +10,10 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
-static REALITY_STROBE_TIME_COUNTERS: [(CounterKind, u16); 1] = [(CounterKind::Time, 3)];
-
 // FUT 43 — Reality Strobe
 // Audit: partial — Its spell effect and self-exile with time counters are executable, but suspend's upkeep counter removal and free cast from exile need the shared exile-casting lifecycle.
+static REALITY_STROBE_TIME_COUNTERS: [(CounterKind, u16); 1] = [(CounterKind::Time, 3)];
+
 pub(in crate::card::sets) static REALITY_STROBE: CardRecord = CardRecord::new_with_legacy_id(
     1709,
     "Reality Strobe",
@@ -68,6 +68,7 @@ pub(in crate::card::sets) static SPROUT_SWARM: CardRecord = CardRecord::new(
     ]),
 );
 
+// FUT 161 — Coalition Relic
 /// The printed clause removes the counters and then adds the mana, but the
 /// amount is read off the counters, so the two steps are written the other
 /// way round. One resolution, no priority in between, and nothing else in
@@ -84,7 +85,6 @@ static RELIC_CASHES_IN: [EffectDef; 2] = [
     },
 ];
 
-// FUT 161 — Coalition Relic
 pub(in crate::card::sets) static COALITION_RELIC: CardRecord = CardRecord::new_with_legacy_id(
     2197,
     "Coalition Relic",
@@ -118,6 +118,7 @@ pub(in crate::card::sets) static COALITION_RELIC: CardRecord = CardRecord::new_w
     ]),
 );
 
+// FUT 165 — Sword of the Meek
 /// Read as the creature enters, so a 1/1 that is only a 1/1 because of what
 /// is already on the battlefield still counts, and a 2/2 shrunk to 1/1 does
 /// too.
@@ -170,7 +171,6 @@ static SWORD_OF_THE_MEEK_ABILITIES: [AbilityDef; 3] = [
     .with_source_zones(&[ZoneKind::Graveyard]),
 ];
 
-// FUT 165 — Sword of the Meek
 pub(in crate::card::sets) static SWORD_OF_THE_MEEK: CardRecord = CardRecord::new_with_legacy_id(
     2220,
     "Sword of the Meek",
@@ -237,12 +237,12 @@ pub(in crate::card::sets) static DRYAD_ARBOR: CardRecord = CardRecord::new_with_
         .printed_colors(&[ManaColor::Green]),
 );
 
+// FUT 177 — Horizon Canopy
 static HORIZON_CANOPY_COLORS: [ManaColor; 2] = [ManaColor::Green, ManaColor::White];
 
 static HORIZON_CANOPY_ABILITIES: [AbilityDef; 2] =
     abilities::horizon_land("{T}, Pay 1 life: Add {G} or {W}.", &HORIZON_CANOPY_COLORS);
 
-// FUT 177 — Horizon Canopy
 pub(in crate::card::sets) static HORIZON_CANOPY: CardRecord = CardRecord::new_with_legacy_id(
     2285,
     "Horizon Canopy",

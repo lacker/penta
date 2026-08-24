@@ -14,6 +14,22 @@ use crate::card::{
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
 
+static TARGET_PLAYER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Player(PlayerRelation::Any),
+)];
+
+/// Read live off the attachment, so a land that stops being a Mountain --
+/// or an Aura that moves -- switches the anthem off at once.
+static ENCHANTED_LAND_IS_A_BASIC_MOUNTAIN: TriggerConditionDef =
+    TriggerConditionDef::AttachedPermanentMatches {
+        object: ObjectPredicateDef::All(&[
+            ObjectPredicateDef::Supertype(CardSupertype::Basic),
+            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+        ]),
+    };
+
+static FROM_YOUR_HAND: [CardChoiceSourceDef; 1] = [CardChoiceSourceDef::Zone(ZoneKind::Hand)];
+
 // DRK 1 — Angry Mob
 // Audit: metadata-only — Needs a characteristic-layer effect or dynamic value for “During your turn, Angry Mob's power and toughness are each equal to 2 plus the number of Swamps your opponents control. During turns other than yours, Angry Mob's power and toughness are…”.
 pub(in crate::card::sets) static ANGRY_MOB: CardRecord = CardRecord::new(
@@ -194,6 +210,7 @@ pub(in crate::card::sets) static MARTYR_S_CRY: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// DRK 13 — Miracle Worker
 /// "Attached to a creature you control": the Aura may be either player's, but
 /// the creature under it has to be one of yours.
 static MIRACLE_WORKER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
@@ -206,7 +223,6 @@ static MIRACLE_WORKER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly
     ]),
 )];
 
-// DRK 13 — Miracle Worker
 pub(in crate::card::sets) static MIRACLE_WORKER: CardRecord = CardRecord::new_with_legacy_id(
     1678,
     "Miracle Worker",
@@ -341,6 +357,7 @@ pub(in crate::card::sets) static WITCH_HUNTER: CardRecord = CardRecord::new_with
     ]),
 );
 
+// DRK 20 — Amnesia
 static AMNESIA_STRIKE: [EffectDef; 2] = [
     EffectDef::RevealHand {
         player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -357,11 +374,6 @@ static AMNESIA_STRIKE: [EffectDef; 2] = [
     },
 ];
 
-static TARGET_PLAYER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
-
-// DRK 20 — Amnesia
 pub(in crate::card::sets) static AMNESIA: CardRecord = CardRecord::new_with_legacy_id(
     1727,
     "Amnesia",
@@ -518,6 +530,7 @@ pub(in crate::card::sets) static GHOST_SHIP: CardRecord = CardRecord::new_with_l
     ]),
 );
 
+// DRK 29 — Giant Shark
 static GIANT_SHARK_DEFENDER_HAS_AN_ISLAND: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
     &[ZoneKind::Battlefield],
@@ -541,7 +554,6 @@ static GIANT_SHARK_FRENZY: [AppliedEffectDef; 2] = [
     AppliedEffectDef::add_ability(&GIANT_SHARK_TRAMPLE),
 ];
 
-// DRK 29 — Giant Shark
 pub(in crate::card::sets) static GIANT_SHARK: CardRecord = CardRecord::new_with_legacy_id(
     1904,
     "Giant Shark",
@@ -599,6 +611,13 @@ pub(in crate::card::sets) static MANA_VORTEX: CardRecord = CardRecord::new(
 );
 
 // DRK 32 — Merfolk Assassin
+static ISLANDWALKER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+    ObjectPredicateDef::All(&[
+        ObjectPredicateDef::HasType(CardType::Creature),
+        ObjectPredicateDef::HasKeyword(KeywordAbility::Landwalk(BasicLandType::Island)),
+    ]),
+)];
+
 pub(in crate::card::sets) static MERFOLK_ASSASSIN: CardRecord = CardRecord::new_with_legacy_id(
     1436,
     "Merfolk Assassin",
@@ -616,13 +635,6 @@ pub(in crate::card::sets) static MERFOLK_ASSASSIN: CardRecord = CardRecord::new_
         )],
     ),
 );
-
-static ISLANDWALKER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::HasKeyword(KeywordAbility::Landwalk(BasicLandType::Island)),
-    ]),
-)];
 
 // DRK 33 — Mind Bomb
 // Audit: metadata-only — Needs an ordered choice for each player to discard up to three cards and damage derived from each actual discard count.
@@ -708,12 +720,7 @@ pub(in crate::card::sets) static SUNKEN_CITY: CardRecord = CardRecord::new_with_
     ]),
 );
 
-static WATER_WURM_OPPONENT_ISLAND: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasAnyBasicLandType(&[crate::card::BasicLandType::Island]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::Opponent,
-);
-
+// DRK 37 — Tangle Kelp
 /// The condition sits on the recipient rather than on the Aura, so the Kelp
 /// holds a creature down only on the untap step after it swung. A creature
 /// that stayed home unties itself.
@@ -726,7 +733,6 @@ static TANGLE_KELP_HOST_THAT_ATTACKED: EffectRecipientDef = EffectRecipientDef::
     PlayerRelation::Any,
 );
 
-// DRK 37 — Tangle Kelp
 pub(in crate::card::sets) static TANGLE_KELP: CardRecord = CardRecord::new_with_legacy_id(
     1724,
     "Tangle Kelp",
@@ -759,6 +765,12 @@ pub(in crate::card::sets) static TANGLE_KELP: CardRecord = CardRecord::new_with_
 );
 
 // DRK 38 — Water Wurm
+static WATER_WURM_OPPONENT_ISLAND: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::HasAnyBasicLandType(&[crate::card::BasicLandType::Island]),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::Opponent,
+);
+
 pub(in crate::card::sets) static WATER_WURM: CardRecord = CardRecord::new_with_legacy_id(
     575,
     "Water Wurm",
@@ -860,6 +872,7 @@ pub(in crate::card::sets) static BOG_RATS: CardRecord = CardRecord::new_with_leg
     ]),
 );
 
+// DRK 43 — Curse Artifact
 /// The declined branch. "That player" is the artifact's controller, so
 /// stealing the artifact moves both the choice and the damage with it.
 static CURSE_ARTIFACT_TOLL: EffectDef = EffectDef::DealDamage {
@@ -869,7 +882,6 @@ static CURSE_ARTIFACT_TOLL: EffectDef = EffectDef::DealDamage {
     amount: ValueDef::Constant(2),
 };
 
-// DRK 43 — Curse Artifact
 pub(in crate::card::sets) static CURSE_ARTIFACT: CardRecord = CardRecord::new_with_legacy_id(
     1966,
     "Curse Artifact",
@@ -959,6 +971,7 @@ pub(in crate::card::sets) static GRAVE_ROBBERS: CardRecord = CardRecord::new_wit
     ]),
 );
 
+// DRK 47 — Inquisition
 /// Counted after the reveal, from the hand itself: the damage is whatever is
 /// there when the spell resolves, not what the caster saw earlier.
 static WHITE_CARDS_IN_TARGETS_HAND: ObjectQueryDef = ObjectQueryDef::owned_by(
@@ -977,7 +990,6 @@ static INQUISITION_STRIKE: [EffectDef; 2] = [
     },
 ];
 
-// DRK 47 — Inquisition
 pub(in crate::card::sets) static INQUISITION: CardRecord = CardRecord::new_with_legacy_id(
     1728,
     "Inquisition",
@@ -1048,6 +1060,7 @@ pub(in crate::card::sets) static NAMELESS_RACE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// DRK 51 — Rag Man
 static RAG_MAN_CREATURE_CARD: ObjectPredicateDef = ObjectPredicateDef::HasType(CardType::Creature);
 
 /// The reveal is what makes the discard public: without it the opponent would
@@ -1064,7 +1077,6 @@ static RAG_MAN_STRIKE: [EffectDef; 2] = [
     },
 ];
 
-// DRK 51 — Rag Man
 pub(in crate::card::sets) static RAG_MAN: CardRecord = CardRecord::new_with_legacy_id(
     1809,
     "Rag Man",
@@ -1126,6 +1138,7 @@ pub(in crate::card::sets) static UNCLE_ISTVAN: CardRecord = CardRecord::new_with
     ]),
 );
 
+// DRK 55 — Word of Binding
 /// "X target creatures": the count is the X that was paid, so an X larger
 /// than the number of creatures on the battlefield has no legal declaration
 /// rather than tapping fewer than were paid for.
@@ -1138,7 +1151,6 @@ static WORD_OF_BINDING_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exact
     },
 )];
 
-// DRK 55 — Word of Binding
 pub(in crate::card::sets) static WORD_OF_BINDING: CardRecord = CardRecord::new_with_legacy_id(
     1833,
     "Word of Binding",
@@ -1273,6 +1285,7 @@ pub(in crate::card::sets) static CAVE_PEOPLE: CardRecord = CardRecord::new_with_
     ]),
 );
 
+// DRK 61 — Eternal Flame
 static ETERNAL_FLAME_MOUNTAINS: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
     &[ZoneKind::Battlefield],
@@ -1297,7 +1310,6 @@ static ETERNAL_FLAME_EFFECTS: [EffectDef; 2] = [
     },
 ];
 
-// DRK 61 — Eternal Flame
 pub(in crate::card::sets) static ETERNAL_FLAME: CardRecord = CardRecord::new_with_legacy_id(
     1921,
     "Eternal Flame",
@@ -1353,16 +1365,7 @@ pub(in crate::card::sets) static FISSURE: CardRecord = CardRecord::new_with_lega
     )]),
 );
 
-/// Read live off the attachment, so a land that stops being a Mountain --
-/// or an Aura that moves -- switches the anthem off at once.
-static ENCHANTED_LAND_IS_A_BASIC_MOUNTAIN: TriggerConditionDef =
-    TriggerConditionDef::AttachedPermanentMatches {
-        object: ObjectPredicateDef::All(&[
-            ObjectPredicateDef::Supertype(CardSupertype::Basic),
-            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
-        ]),
-    };
-
+// DRK 64 — Goblin Caves
 static GOBLIN_CAVES_ANTHEM: EffectDef = EffectDef::StaticApply {
     recipient: EffectRecipientDef::matching_objects(
         ObjectPredicateDef::Subtype("Goblin"),
@@ -1372,7 +1375,6 @@ static GOBLIN_CAVES_ANTHEM: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(0), ValueDef::Constant(2)),
 };
 
-// DRK 64 — Goblin Caves
 pub(in crate::card::sets) static GOBLIN_CAVES: CardRecord = CardRecord::new_with_legacy_id(
     1916,
     "Goblin Caves",
@@ -1424,19 +1426,7 @@ pub(in crate::card::sets) static GOBLIN_HERO: CardRecord = CardRecord::new_with_
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin"], 2, 2),
 );
 
-/// Any Dwarf you control at all, which is why this is a count of at least one
-/// rather than an exact number.
-static GOBLINS_OF_THE_FLARG_DWARF_CONDITION: TriggerConditionDef =
-    TriggerConditionDef::ObjectCount {
-        query: ObjectQueryDef::matching(
-            ObjectPredicateDef::Subtype("Dwarf"),
-            &[ZoneKind::Battlefield],
-            PlayerRelation::You,
-        ),
-        comparison: ComparisonDef::GreaterOrEqual,
-        amount: 1,
-    };
-
+// DRK 67 — Goblin Rock Sled
 static ROCK_SLED_THAT_ATTACKED: EffectRecipientDef = EffectRecipientDef::matching_objects(
     ObjectPredicateDef::All(&[
         ObjectPredicateDef::Source,
@@ -1452,7 +1442,6 @@ static DEFENDER_CONTROLS_A_MOUNTAIN: ObjectQueryDef = ObjectQueryDef::matching(
     PlayerRelation::Opponent,
 );
 
-// DRK 67 — Goblin Rock Sled
 pub(in crate::card::sets) static GOBLIN_ROCK_SLED: CardRecord = CardRecord::new_with_legacy_id(
     1723,
     "Goblin Rock Sled",
@@ -1475,6 +1464,7 @@ pub(in crate::card::sets) static GOBLIN_ROCK_SLED: CardRecord = CardRecord::new_
     ]),
 );
 
+// DRK 68 — Goblin Shrine
 static GOBLIN_SHRINE_ANTHEM: EffectDef = EffectDef::StaticApply {
     recipient: EffectRecipientDef::matching_objects(
         ObjectPredicateDef::Subtype("Goblin"),
@@ -1484,7 +1474,6 @@ static GOBLIN_SHRINE_ANTHEM: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(0)),
 };
 
-// DRK 68 — Goblin Shrine
 pub(in crate::card::sets) static GOBLIN_SHRINE: CardRecord = CardRecord::new_with_legacy_id(
     1917,
     "Goblin Shrine",
@@ -1522,8 +1511,7 @@ pub(in crate::card::sets) static GOBLIN_SHRINE: CardRecord = CardRecord::new_wit
         ]),
 );
 
-static FROM_YOUR_HAND: [CardChoiceSourceDef; 1] = [CardChoiceSourceDef::Zone(ZoneKind::Hand)];
-
+// DRK 69 — Goblin Wizard
 /// A minimum of zero is the "you may": the choice is offered and may be
 /// answered with nothing.
 static GOBLIN_WIZARD_CHOICE: EffectDef = EffectDef::ChooseCards {
@@ -1538,7 +1526,6 @@ static GOBLIN_WIZARD_CHOICE: EffectDef = EffectDef::ChooseCards {
     arrival_effect: None,
 };
 
-// DRK 69 — Goblin Wizard
 pub(in crate::card::sets) static GOBLIN_WIZARD: CardRecord = CardRecord::new_with_legacy_id(
     2005,
     "Goblin Wizard",
@@ -1570,6 +1557,19 @@ pub(in crate::card::sets) static GOBLIN_WIZARD: CardRecord = CardRecord::new_wit
 );
 
 // DRK 70 — Goblins of the Flarg
+/// Any Dwarf you control at all, which is why this is a count of at least one
+/// rather than an exact number.
+static GOBLINS_OF_THE_FLARG_DWARF_CONDITION: TriggerConditionDef =
+    TriggerConditionDef::ObjectCount {
+        query: ObjectQueryDef::matching(
+            ObjectPredicateDef::Subtype("Dwarf"),
+            &[ZoneKind::Battlefield],
+            PlayerRelation::You,
+        ),
+        comparison: ComparisonDef::GreaterOrEqual,
+        amount: 1,
+    };
+
 pub(in crate::card::sets) static GOBLINS_OF_THE_FLARG: CardRecord = CardRecord::new_with_legacy_id(
     28,
     "Goblins of the Flarg",
@@ -1706,6 +1706,7 @@ pub(in crate::card::sets) static ELVES_OF_DEEP_SHADOW: CardRecord = CardRecord::
     ),
 );
 
+// DRK 77 — Gaea's Touch
 /// A basic Forest specifically, so a nonbasic that happens to make green
 /// mana is not on offer.
 static GAEAS_TOUCH_CHOICE: EffectDef = EffectDef::ChooseCards {
@@ -1723,7 +1724,6 @@ static GAEAS_TOUCH_CHOICE: EffectDef = EffectDef::ChooseCards {
     arrival_effect: None,
 };
 
-// DRK 77 — Gaea's Touch
 pub(in crate::card::sets) static GAEAS_TOUCH: CardRecord = CardRecord::new_with_legacy_id(
     2006,
     "Gaea's Touch",
@@ -1833,6 +1833,12 @@ pub(in crate::card::sets) static NIALL_SILVAIN: CardRecord = CardRecord::new_wit
 
 // DRK 83 — People of the Woods
 // Audit: partial — Its toughness is a battlefield-only continuous effect rather than a characteristic-defining ability, so it reads as printed in every other zone.
+static FORESTS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::You,
+);
+
 pub(in crate::card::sets) static PEOPLE_OF_THE_WOODS: CardRecord = CardRecord::new_with_legacy_id(
     1470,
     "People of the Woods",
@@ -1858,12 +1864,7 @@ pub(in crate::card::sets) static PEOPLE_OF_THE_WOODS: CardRecord = CardRecord::n
     ),
 );
 
-static FORESTS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
+// DRK 84 — Savaen Elves
 static SAVAEN_ELVES_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
     ObjectPredicateDef::All(&[
         ObjectPredicateDef::Subtype("Aura"),
@@ -1871,7 +1872,6 @@ static SAVAEN_ELVES_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_o
     ]),
 )];
 
-// DRK 84 — Savaen Elves
 pub(in crate::card::sets) static SAVAEN_ELVES: CardRecord = CardRecord::new_with_legacy_id(
     1679,
     "Savaen Elves",
@@ -1967,6 +1967,7 @@ pub(in crate::card::sets) static SCAVENGER_FOLK: CardRecord = CardRecord::new_wi
     ]),
 );
 
+// DRK 88 — Spitting Slug
 static SPITTING_SLUG_FIRST_STRIKE: AbilityDef = abilities::first_strike();
 
 static SPITTING_SLUG_KEEPS_IT: EffectDef = EffectDef::Apply {
@@ -1989,7 +1990,6 @@ static SPITTING_SLUG_OPPONENTS: EffectDef = EffectDef::Apply {
     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
 };
 
-// DRK 88 — Spitting Slug
 pub(in crate::card::sets) static SPITTING_SLUG: CardRecord = CardRecord::new_with_legacy_id(
     1900,
     "Spitting Slug",
@@ -2048,6 +2048,7 @@ pub(in crate::card::sets) static TRACKER: CardRecord = CardRecord::new_with_lega
     ]),
 );
 
+// DRK 90 — Venom
 /// Handed to the host rather than kept on the Aura, so "this creature" in the
 /// trigger is the enchanted creature and the pair it is part of is the one
 /// being read.
@@ -2063,7 +2064,6 @@ static VENOMOUS_TOUCH: AbilityDef = AbilityDef::triggered(
     },
 );
 
-// DRK 90 — Venom
 pub(in crate::card::sets) static VENOM: CardRecord = CardRecord::new_with_legacy_id(
     1734,
     "Venom",
@@ -2095,29 +2095,11 @@ pub(in crate::card::sets) static WHIPPOORWILL: CardRecord = CardRecord::new(
 );
 
 // DRK 92 — Wormwood Treefolk
-pub(in crate::card::sets) static WORMWOOD_TREEFOLK: CardRecord = CardRecord::new_with_legacy_id(
-    1437,
-    "Wormwood Treefolk",
-    CardArt::new("2fa20173-e88a-4b14-9c54-14567ca5571c", "Jesper Myrfors"),
-    CardSet::TheDark,
-    CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Treefolk"], 4, 4).with_abilities(&[
-        AbilityDef::activated(
-            "{G}{G}: This creature gains forestwalk until end of turn and deals 2 damage to you.",
-            &[AbilityCostDef::Mana(mana_cost!("{G}{G}"))],
-            EffectDef::Sequence(&WORMWOOD_FORESTWALK),
-        ),
-        AbilityDef::activated(
-            "{B}{B}: This creature gains swampwalk until end of turn and deals 2 damage to you.",
-            &[AbilityCostDef::Mana(mana_cost!("{B}{B}"))],
-            EffectDef::Sequence(&WORMWOOD_SWAMPWALK),
-        ),
-    ]),
-);
-
 /// The two clauses differ only in the land type they name, so each is the
 /// same pair: grant the walk for the turn, then take the two damage that
 /// paying for it costs beyond the mana.
 static WORMWOOD_FORESTWALK: [EffectDef; 2] = wormwood_clause(BasicLandType::Forest);
+
 static WORMWOOD_SWAMPWALK: [EffectDef; 2] = wormwood_clause(BasicLandType::Swamp);
 
 const fn wormwood_clause(land_type: BasicLandType) -> [EffectDef; 2] {
@@ -2138,7 +2120,27 @@ const fn wormwood_clause(land_type: BasicLandType) -> [EffectDef; 2] {
 }
 
 static FORESTWALK: AbilityDef = abilities::landwalk(BasicLandType::Forest);
+
 static SWAMPWALK: AbilityDef = abilities::landwalk(BasicLandType::Swamp);
+
+pub(in crate::card::sets) static WORMWOOD_TREEFOLK: CardRecord = CardRecord::new_with_legacy_id(
+    1437,
+    "Wormwood Treefolk",
+    CardArt::new("2fa20173-e88a-4b14-9c54-14567ca5571c", "Jesper Myrfors"),
+    CardSet::TheDark,
+    CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Treefolk"], 4, 4).with_abilities(&[
+        AbilityDef::activated(
+            "{G}{G}: This creature gains forestwalk until end of turn and deals 2 damage to you.",
+            &[AbilityCostDef::Mana(mana_cost!("{G}{G}"))],
+            EffectDef::Sequence(&WORMWOOD_FORESTWALK),
+        ),
+        AbilityDef::activated(
+            "{B}{B}: This creature gains swampwalk until end of turn and deals 2 damage to you.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}{B}"))],
+            EffectDef::Sequence(&WORMWOOD_SWAMPWALK),
+        ),
+    ]),
+);
 
 // DRK 93 — Marsh Goblins
 pub(in crate::card::sets) static MARSH_GOBLINS: CardRecord = CardRecord::new_with_legacy_id(
@@ -2265,6 +2267,18 @@ pub(in crate::card::sets) static COAL_GOLEM: CardRecord = CardRecord::new_with_l
 );
 
 // DRK 100 — Dark Sphere
+static DARK_SPHERE_SHIELD: EffectDef = EffectDef::PreventDamage {
+    prevention: DamagePreventionDef::events(
+        DamageEventMatcherDef {
+            recipient: DamageRecipientMatcherDef::Recipients(EffectRecipientDef::Controller),
+            ..DamageEventMatcherDef::from(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY))
+        },
+        1,
+    )
+    .with_coverage(DamageCoverageDef::HalfRoundedDown),
+    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+};
+
 pub(in crate::card::sets) static DARK_SPHERE: CardRecord = CardRecord::new_with_legacy_id(
     1454,
     "Dark Sphere",
@@ -2277,18 +2291,6 @@ pub(in crate::card::sets) static DARK_SPHERE: CardRecord = CardRecord::new_with_
         abilities::shield_against_a_chosen_source(ObjectPredicateDef::Any, &DARK_SPHERE_SHIELD),
     )),
 );
-
-static DARK_SPHERE_SHIELD: EffectDef = EffectDef::PreventDamage {
-    prevention: DamagePreventionDef::events(
-        DamageEventMatcherDef {
-            recipient: DamageRecipientMatcherDef::Recipients(EffectRecipientDef::Controller),
-            ..DamageEventMatcherDef::from(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY))
-        },
-        1,
-    )
-    .with_coverage(DamageCoverageDef::HalfRoundedDown),
-    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-};
 
 // DRK 101 — Diabolic Machine
 pub(in crate::card::sets) static DIABOLIC_MACHINE: CardRecord = CardRecord::new_with_legacy_id(
@@ -2522,6 +2524,37 @@ pub(in crate::card::sets) static TOWER_OF_COIREALL: CardRecord = CardRecord::new
     )),
 );
 
+// DRK 114 — Wand of Ith
+// Audit: metadata-only — Needs seeded random selection with replay-visible provenance for “{3}, {T}: Target player reveals a card at random from their hand. If it's a land card, that player discards it unless they pay 1 life. If it isn't a land card, the player discards it…”.
+pub(in crate::card::sets) static WAND_OF_ITH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("80c9070a-8c70-480e-a476-e00f8e2c71b9"),
+    "Wand of Ith",
+    crate::card::CardArt::new("80c9070a-8c70-480e-a476-e00f8e2c71b9", "Quinton Hoover"),
+    crate::card::CardSet::TheDark,
+    crate::card::CardRules::unsupported(),
+);
+
+// DRK 115 — War Barge
+// Audit: metadata-only — Needs a duration-scoped prohibition on creating or applying regeneration shields for “{3}: Target creature gains islandwalk until end of turn. When this artifact leaves the battlefield this turn, destroy that creature. A creature destroyed this way can't be regenerated”.
+pub(in crate::card::sets) static WAR_BARGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9023c078-4169-498b-8626-a4862e0631f8"),
+    "War Barge",
+    crate::card::CardArt::new("9023c078-4169-498b-8626-a4862e0631f8", "Tom Wänerstrand"),
+    crate::card::CardSet::TheDark,
+    crate::card::CardRules::unsupported(),
+);
+
+// DRK 116 — City of Shadows
+// Audit: metadata-only — Needs the mana-ability runtime to pay this ability's mana activation cost for “{T}: Add {C} for each storage counter on this land”.
+pub(in crate::card::sets) static CITY_OF_SHADOWS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("76e5ee8a-34e5-4a2e-a04e-9fcdc7e53dda"),
+    "City of Shadows",
+    crate::card::CardArt::new("76e5ee8a-34e5-4a2e-a04e-9fcdc7e53dda", "Tom Wänerstrand"),
+    crate::card::CardSet::TheDark,
+    crate::card::CardRules::unsupported(),
+);
+
+// DRK 117 — Maze of Ith
 /// The Maze does not remove the creature from combat: it stays an attacker,
 /// keeps whatever is blocking it, and simply exchanges no combat damage.
 static MAZE_OF_ITH_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
@@ -2556,37 +2589,6 @@ static MAZE_OF_ITH_EFFECT: [EffectDef; 2] = [
     ]),
 ];
 
-// DRK 114 — Wand of Ith
-// Audit: metadata-only — Needs seeded random selection with replay-visible provenance for “{3}, {T}: Target player reveals a card at random from their hand. If it's a land card, that player discards it unless they pay 1 life. If it isn't a land card, the player discards it…”.
-pub(in crate::card::sets) static WAND_OF_ITH: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("80c9070a-8c70-480e-a476-e00f8e2c71b9"),
-    "Wand of Ith",
-    crate::card::CardArt::new("80c9070a-8c70-480e-a476-e00f8e2c71b9", "Quinton Hoover"),
-    crate::card::CardSet::TheDark,
-    crate::card::CardRules::unsupported(),
-);
-
-// DRK 115 — War Barge
-// Audit: metadata-only — Needs a duration-scoped prohibition on creating or applying regeneration shields for “{3}: Target creature gains islandwalk until end of turn. When this artifact leaves the battlefield this turn, destroy that creature. A creature destroyed this way can't be regenerated”.
-pub(in crate::card::sets) static WAR_BARGE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9023c078-4169-498b-8626-a4862e0631f8"),
-    "War Barge",
-    crate::card::CardArt::new("9023c078-4169-498b-8626-a4862e0631f8", "Tom Wänerstrand"),
-    crate::card::CardSet::TheDark,
-    crate::card::CardRules::unsupported(),
-);
-
-// DRK 116 — City of Shadows
-// Audit: metadata-only — Needs the mana-ability runtime to pay this ability's mana activation cost for “{T}: Add {C} for each storage counter on this land”.
-pub(in crate::card::sets) static CITY_OF_SHADOWS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("76e5ee8a-34e5-4a2e-a04e-9fcdc7e53dda"),
-    "City of Shadows",
-    crate::card::CardArt::new("76e5ee8a-34e5-4a2e-a04e-9fcdc7e53dda", "Tom Wänerstrand"),
-    crate::card::CardSet::TheDark,
-    crate::card::CardRules::unsupported(),
-);
-
-// DRK 117 — Maze of Ith
 pub(in crate::card::sets) static MAZE_OF_ITH: CardRecord = CardRecord::new_with_legacy_id(
     81,
     "Maze of Ith",

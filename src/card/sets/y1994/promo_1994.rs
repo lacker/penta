@@ -31,6 +31,7 @@ pub(in crate::card::sets) static SEWERS_OF_ESTARK: CardRecord = CardRecord::new(
     CardRules::unsupported(),
 );
 
+// P94 3 — Nalathni Dragon
 /// The pump is the whole ability: the fourth activation in a turn installs the
 /// delayed sacrifice, the way Dragon Whelp's does.
 static NALATHNI_DRAGON_PUMP: [EffectDef; 2] = [
@@ -60,7 +61,6 @@ static NALATHNI_DRAGON_PUMP: [EffectDef; 2] = [
     },
 ];
 
-// P94 3 — Nalathni Dragon
 pub(in crate::card::sets) static NALATHNI_DRAGON: CardRecord = CardRecord::new_with_legacy_id(
     1781,
     "Nalathni Dragon",

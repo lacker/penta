@@ -9,38 +9,7 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
-/// Two clauses rather than one symmetrical one, because they are not
-/// symmetrical: yours gains and theirs loses, and a card that made both
-/// players lose would read very differently.
-static SHEOLDRED_ABILITIES: [AbilityDef; 3] = [
-    abilities::deathtouch(),
-    AbilityDef::triggered(
-        "Whenever you draw a card, you gain 2 life.",
-        TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::You)),
-        EffectDef::GainLife {
-            recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::Constant(2),
-        },
-    ),
-    AbilityDef::triggered(
-        "Whenever an opponent draws a card, they lose 2 life.",
-        TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::Opponent)),
-        EffectDef::LoseLife {
-            recipient: EffectRecipientDef::EventPlayer,
-            amount: ValueDef::Constant(2),
-        },
-    ),
-];
-
-/// "Total power and toughness 5 or less" is read live, so a creature that
-/// was in range stops being a legal target the moment anything pumps it.
-static CUT_DOWN_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::TotalPowerAndToughnessAtMost(5),
-    ]),
-)];
-
+// DMU 24 — Leyline Binding
 /// "Until this enchantment leaves the battlefield" is one printed clause, so
 /// the return rides on a delayed trigger rather than appearing as a second
 /// ability the card does not print.
@@ -79,7 +48,6 @@ static BINDING_EXILES_IT: [EffectDef; 2] = [
     EffectDef::InstallTrigger(InstalledTriggerDef::once(&BINDING_RETURNS_IT)),
 ];
 
-// DMU 24 — Leyline Binding
 pub(in crate::card::sets) static LEYLINE_BINDING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3c3ac3dd-35db-447f-8674-37b4680a1ef7"),
     "Leyline Binding",
@@ -123,6 +91,15 @@ pub(in crate::card::sets) static TOLARIAN_TERROR: CardRecord = CardRecord::new(
 );
 
 // DMU 89 — Cut Down
+/// "Total power and toughness 5 or less" is read live, so a creature that
+/// was in range stops being a legal target the moment anything pumps it.
+static CUT_DOWN_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+    ObjectPredicateDef::All(&[
+        ObjectPredicateDef::HasType(CardType::Creature),
+        ObjectPredicateDef::TotalPowerAndToughnessAtMost(5),
+    ]),
+)];
+
 pub(in crate::card::sets) static CUT_DOWN: CardRecord = CardRecord::new_with_legacy_id(
     2204,
     "Cut Down",
@@ -141,6 +118,29 @@ pub(in crate::card::sets) static CUT_DOWN: CardRecord = CardRecord::new_with_leg
 );
 
 // DMU 107 — Sheoldred, the Apocalypse
+/// Two clauses rather than one symmetrical one, because they are not
+/// symmetrical: yours gains and theirs loses, and a card that made both
+/// players lose would read very differently.
+static SHEOLDRED_ABILITIES: [AbilityDef; 3] = [
+    abilities::deathtouch(),
+    AbilityDef::triggered(
+        "Whenever you draw a card, you gain 2 life.",
+        TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::You)),
+        EffectDef::GainLife {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(2),
+        },
+    ),
+    AbilityDef::triggered(
+        "Whenever an opponent draws a card, they lose 2 life.",
+        TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::Opponent)),
+        EffectDef::LoseLife {
+            recipient: EffectRecipientDef::EventPlayer,
+            amount: ValueDef::Constant(2),
+        },
+    ),
+];
+
 pub(in crate::card::sets) static SHEOLDRED_THE_APOCALYPSE: CardRecord =
     CardRecord::new_with_legacy_id(
         2180,

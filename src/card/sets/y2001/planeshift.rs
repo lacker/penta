@@ -948,13 +948,6 @@ pub(in crate::card::sets) static QUIRION_DRYAD: CardRecord = CardRecord::new_wit
     ),
 );
 
-/// The lock is a player-facing rule rather than an object one: it names the
-/// action, and the predicate reads the name the Mage chose on the way in.
-static SPELLS_WITH_THE_CHOSEN_NAME: PlayRestrictionDef = PlayRestrictionDef::new(
-    PlayActionMatcherDef::CastSpell,
-    ObjectPredicateDef::HasSourcesChosenScalar(BattlefieldEntryChoiceDestinationDef::CardName),
-);
-
 // PLS 90 — Quirion Explorer
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static QUIRION_EXPLORER: CardRecord = CardRecord::new(
@@ -1218,6 +1211,13 @@ pub(in crate::card::sets) static MARSH_CROCODILE: CardRecord = CardRecord::new(
 );
 
 // PLS 116 — Meddling Mage
+/// The lock is a player-facing rule rather than an object one: it names the
+/// action, and the predicate reads the name the Mage chose on the way in.
+static SPELLS_WITH_THE_CHOSEN_NAME: PlayRestrictionDef = PlayRestrictionDef::new(
+    PlayActionMatcherDef::CastSpell,
+    ObjectPredicateDef::HasSourcesChosenScalar(BattlefieldEntryChoiceDestinationDef::CardName),
+);
+
 pub(in crate::card::sets) static MEDDLING_MAGE: CardRecord = CardRecord::new_with_legacy_id(
     2050,
     "Meddling Mage",
@@ -1246,39 +1246,6 @@ pub(in crate::card::sets) static MEDDLING_MAGE: CardRecord = CardRecord::new_wit
         ),
     ]),
 );
-
-/// A card from your own hand, whichever you can spare. The exile is the
-/// upkeep cost of a land that would otherwise stay tapped forever.
-static A_CARD_IN_YOUR_HAND: ObjectQueryDef = ObjectQueryDef::owned_by(
-    ObjectPredicateDef::Any,
-    &[ZoneKind::Hand],
-    PlayerSetDef::Related(PlayerRelation::You),
-);
-
-static CITY_EXILE_AND_UNTAP: EffectDef = EffectDef::Choose(ChooseDef {
-    binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
-    unchosen: None,
-    chooser: PlayerRefDef::EffectController,
-    candidates: ObjectSetDef::Query(A_CARD_IN_YOUR_HAND),
-    exclude: None,
-    minimum: 1,
-    maximum: 1,
-    visibility: ChoiceVisibilityDef::Public,
-    then: &EffectDef::Sequence(&[
-        EffectDef::MoveToZone {
-            counters: None,
-            object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-            zone: ZoneKind::Exile,
-            controller: None,
-            placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-        },
-        EffectDef::Untap {
-            object: EffectRecipientDef::Source,
-        },
-    ]),
-});
 
 // PLS 117 — Natural Emergence
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1506,6 +1473,39 @@ pub(in crate::card::sets) static DROMAR_S_CAVERN: CardRecord = CardRecord::new(
 );
 
 // PLS 139 — Forsaken City
+/// A card from your own hand, whichever you can spare. The exile is the
+/// upkeep cost of a land that would otherwise stay tapped forever.
+static A_CARD_IN_YOUR_HAND: ObjectQueryDef = ObjectQueryDef::owned_by(
+    ObjectPredicateDef::Any,
+    &[ZoneKind::Hand],
+    PlayerSetDef::Related(PlayerRelation::You),
+);
+
+static CITY_EXILE_AND_UNTAP: EffectDef = EffectDef::Choose(ChooseDef {
+    binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+    unchosen: None,
+    chooser: PlayerRefDef::EffectController,
+    candidates: ObjectSetDef::Query(A_CARD_IN_YOUR_HAND),
+    exclude: None,
+    minimum: 1,
+    maximum: 1,
+    visibility: ChoiceVisibilityDef::Public,
+    then: &EffectDef::Sequence(&[
+        EffectDef::MoveToZone {
+            counters: None,
+            object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+            zone: ZoneKind::Exile,
+            controller: None,
+            placement: ZonePlacement::Top,
+            arrival_effect: None,
+            attachment: None,
+        },
+        EffectDef::Untap {
+            object: EffectRecipientDef::Source,
+        },
+    ]),
+});
+
 pub(in crate::card::sets) static FORSAKEN_CITY: CardRecord = CardRecord::new_with_legacy_id(
     2059,
     "Forsaken City",
@@ -1571,6 +1571,16 @@ pub(in crate::card::sets) static TERMINAL_MORAINE: CardRecord = CardRecord::new(
 );
 
 // PLS 143 — Treva's Ruins
+static TREVA_COLORS: [ManaColor; 3] = [ManaColor::Green, ManaColor::White, ManaColor::Blue];
+
+/// The Lair itself is excluded by its own subtype, so a second one cannot pay
+/// for the first.
+static NON_LAIR_LAND_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::HasType(CardType::Land),
+    ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Lair")),
+    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+]);
+
 pub(in crate::card::sets) static TREVAS_RUINS: CardRecord = CardRecord::new_with_legacy_id(
     2060,
     "Treva's Ruins",
@@ -1603,16 +1613,6 @@ pub(in crate::card::sets) static TREVAS_RUINS: CardRecord = CardRecord::new_with
         ),
     ]),
 );
-
-static TREVA_COLORS: [ManaColor; 3] = [ManaColor::Green, ManaColor::White, ManaColor::Blue];
-
-/// The Lair itself is excluded by its own subtype, so a second one cannot pay
-/// for the first.
-static NON_LAIR_LAND_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Land),
-    ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Lair")),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-]);
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AURA_BLAST,

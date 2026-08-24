@@ -584,32 +584,6 @@ pub(in crate::card::sets) static ANNUL: CardRecord = CardRecord::new_with_legacy
     )),
 );
 
-/// "A Goblin permanent card": Gempalm Incinerator is a Goblin card that is
-/// also a creature, and nothing in the pool is a Goblin instant, but the
-/// clause names permanents rather than creatures and so does this.
-static A_GOBLIN_PERMANENT_IN_HAND: [CardChoiceSourceDef; 1] =
-    [CardChoiceSourceDef::Zone(ZoneKind::Hand)];
-
-/// A minimum of zero is the "you may": the offer may be answered with
-/// nothing, and with no Goblin in hand it is never made at all.
-static GOBLIN_LACKEY_TRIGGER: EffectDef = EffectDef::ChooseCards {
-    player: EffectRecipientDef::Controller,
-    sources: &A_GOBLIN_PERMANENT_IN_HAND,
-    object: ObjectPredicateDef::All(&[
-        ObjectPredicateDef::Subtype("Goblin"),
-        ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::HasType(CardType::Instant),
-            ObjectPredicateDef::HasType(CardType::Sorcery),
-        ])),
-    ]),
-    minimum: 0,
-    maximum: 1,
-    reveal: false,
-    destination: ZoneKind::Battlefield,
-    placement: ZonePlacement::Top,
-    arrival_effect: None,
-};
-
 // USG 60 — Arcane Laboratory
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ARCANE_LABORATORY: CardRecord = CardRecord::new(
@@ -645,41 +619,6 @@ pub(in crate::card::sets) static ATTUNEMENT: CardRecord = CardRecord::new_with_l
         ]),
     )),
 );
-
-/// One effect rather than two control changes: both controllers are read
-/// before either permanent moves, which is the only way "exchange" can mean
-/// what it says.
-static DRAKE_EXCHANGE: EffectDef = EffectDef::ExchangeControl {
-    first: EffectRecipientDef::Source,
-    second: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-};
-
-/// "If you don't or can't make an exchange, sacrifice this creature." The two
-/// halves are complementary conditions on the same fact rather than an
-/// effect with two branches, so each reads the way its own clause does.
-static DRAKE_ENTERS: EffectDef = EffectDef::Sequence(&[
-    EffectDef::IfCondition {
-        condition: &TriggerConditionDef::TargetMatches {
-            slot: TargetIndex::PRIMARY,
-            object: ObjectPredicateDef::Any,
-        },
-        then: &DRAKE_EXCHANGE,
-    },
-    EffectDef::IfCondition {
-        condition: &TriggerConditionDef::Not(&TriggerConditionDef::TargetMatches {
-            slot: TargetIndex::PRIMARY,
-            object: ObjectPredicateDef::Any,
-        }),
-        then: &EffectDef::Sacrifice {
-            object: EffectRecipientDef::Source,
-        },
-    },
-]);
-
-static A_CREATURE_AN_OPPONENT_CONTROLS: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
-]);
 
 // USG 62 — Back to Basics
 // Audit: metadata-only — Card rules have not been implemented.
@@ -790,6 +729,41 @@ pub(in crate::card::sets) static ENERGY_FIELD: CardRecord = CardRecord::new(
 // USG 75 — Fog Bank (reprint)
 
 // USG 76 — Gilded Drake
+/// One effect rather than two control changes: both controllers are read
+/// before either permanent moves, which is the only way "exchange" can mean
+/// what it says.
+static DRAKE_EXCHANGE: EffectDef = EffectDef::ExchangeControl {
+    first: EffectRecipientDef::Source,
+    second: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+};
+
+/// "If you don't or can't make an exchange, sacrifice this creature." The two
+/// halves are complementary conditions on the same fact rather than an
+/// effect with two branches, so each reads the way its own clause does.
+static DRAKE_ENTERS: EffectDef = EffectDef::Sequence(&[
+    EffectDef::IfCondition {
+        condition: &TriggerConditionDef::TargetMatches {
+            slot: TargetIndex::PRIMARY,
+            object: ObjectPredicateDef::Any,
+        },
+        then: &DRAKE_EXCHANGE,
+    },
+    EffectDef::IfCondition {
+        condition: &TriggerConditionDef::Not(&TriggerConditionDef::TargetMatches {
+            slot: TargetIndex::PRIMARY,
+            object: ObjectPredicateDef::Any,
+        }),
+        then: &EffectDef::Sacrifice {
+            object: EffectRecipientDef::Source,
+        },
+    },
+]);
+
+static A_CREATURE_AN_OPPONENT_CONTROLS: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::HasType(CardType::Creature),
+    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+]);
+
 pub(in crate::card::sets) static GILDED_DRAKE: CardRecord = CardRecord::new_with_legacy_id(
     2083,
     "Gilded Drake",
@@ -819,12 +793,6 @@ pub(in crate::card::sets) static GILDED_DRAKE: CardRecord = CardRecord::new_with
         ),
     ]),
 );
-
-/// Each player looks only at their own graveyard, and what they find arrives
-/// under their own control: the choice is asked of each of them in turn
-/// rather than made once by the caster.
-static EXHUME_EACH_GRAVEYARD: [CardChoiceSourceDef; 1] =
-    [CardChoiceSourceDef::Zone(ZoneKind::Graveyard)];
 
 // USG 77 — Great Whale
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1079,6 +1047,34 @@ pub(in crate::card::sets) static TELEPATHY: CardRecord = CardRecord::new(
 );
 
 // USG 103 — Time Spiral
+static UNTAP_THE_CHOSEN_LANDS: EffectDef = EffectDef::Untap {
+    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+};
+
+/// "Up to six", and not your own: the lands are chosen as the spell resolves
+/// rather than targeted, and nothing in the clause says who controls them.
+/// A minimum of none is what "up to" means.
+static UNTAP_UP_TO_SIX_LANDS: EffectDef = EffectDef::Choose(ChooseDef {
+    binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+    unchosen: None,
+    chooser: PlayerRefDef::EffectController,
+    candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+        ObjectPredicateDef::HasType(CardType::Land),
+        &[ZoneKind::Battlefield],
+        PlayerRelation::Any,
+    )),
+    exclude: None,
+    minimum: 0,
+    maximum: 6,
+    visibility: ChoiceVisibilityDef::Public,
+    then: &UNTAP_THE_CHOSEN_LANDS,
+});
+
+static TIME_SPIRAL_EFFECT: [EffectDef; 2] = [
+    abilities::shuffle_back_and_draw_seven(),
+    UNTAP_UP_TO_SIX_LANDS,
+];
+
 pub(in crate::card::sets) static TIME_SPIRAL: CardRecord = CardRecord::new_with_legacy_id(
     2290,
     "Time Spiral",
@@ -1391,6 +1387,12 @@ pub(in crate::card::sets) static EASTERN_PALADIN: CardRecord = CardRecord::new(
 );
 
 // USG 134 — Exhume
+/// Each player looks only at their own graveyard, and what they find arrives
+/// under their own control: the choice is asked of each of them in turn
+/// rather than made once by the caster.
+static EXHUME_EACH_GRAVEYARD: [CardChoiceSourceDef; 1] =
+    [CardChoiceSourceDef::Zone(ZoneKind::Graveyard)];
+
 pub(in crate::card::sets) static EXHUME: CardRecord = CardRecord::new_with_legacy_id(
     2267,
     "Exhume",
@@ -1975,6 +1977,32 @@ pub(in crate::card::sets) static GOBLIN_CADETS: CardRecord = CardRecord::new(
 );
 
 // USG 190 — Goblin Lackey
+/// "A Goblin permanent card": Gempalm Incinerator is a Goblin card that is
+/// also a creature, and nothing in the pool is a Goblin instant, but the
+/// clause names permanents rather than creatures and so does this.
+static A_GOBLIN_PERMANENT_IN_HAND: [CardChoiceSourceDef; 1] =
+    [CardChoiceSourceDef::Zone(ZoneKind::Hand)];
+
+/// A minimum of zero is the "you may": the offer may be answered with
+/// nothing, and with no Goblin in hand it is never made at all.
+static GOBLIN_LACKEY_TRIGGER: EffectDef = EffectDef::ChooseCards {
+    player: EffectRecipientDef::Controller,
+    sources: &A_GOBLIN_PERMANENT_IN_HAND,
+    object: ObjectPredicateDef::All(&[
+        ObjectPredicateDef::Subtype("Goblin"),
+        ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
+            ObjectPredicateDef::HasType(CardType::Instant),
+            ObjectPredicateDef::HasType(CardType::Sorcery),
+        ])),
+    ]),
+    minimum: 0,
+    maximum: 1,
+    reveal: false,
+    destination: ZoneKind::Battlefield,
+    placement: ZonePlacement::Top,
+    arrival_effect: None,
+};
+
 pub(in crate::card::sets) static GOBLIN_LACKEY: CardRecord = CardRecord::new_with_legacy_id(
     2017,
     "Goblin Lackey",
@@ -2024,34 +2052,6 @@ pub(in crate::card::sets) static GOBLIN_MATRON: CardRecord = CardRecord::new_wit
         ),
     ),
 );
-
-static UNTAP_THE_CHOSEN_LANDS: EffectDef = EffectDef::Untap {
-    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-};
-
-/// "Up to six", and not your own: the lands are chosen as the spell resolves
-/// rather than targeted, and nothing in the clause says who controls them.
-/// A minimum of none is what "up to" means.
-static UNTAP_UP_TO_SIX_LANDS: EffectDef = EffectDef::Choose(ChooseDef {
-    binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
-    unchosen: None,
-    chooser: PlayerRefDef::EffectController,
-    candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
-        ObjectPredicateDef::HasType(CardType::Land),
-        &[ZoneKind::Battlefield],
-        PlayerRelation::Any,
-    )),
-    exclude: None,
-    minimum: 0,
-    maximum: 6,
-    visibility: ChoiceVisibilityDef::Public,
-    then: &UNTAP_THE_CHOSEN_LANDS,
-});
-
-static TIME_SPIRAL_EFFECT: [EffectDef; 2] = [
-    abilities::shuffle_back_and_draw_seven(),
-    UNTAP_UP_TO_SIX_LANDS,
-];
 
 // USG 192 — Goblin Offensive
 // Audit: metadata-only — Card rules have not been implemented.
@@ -3047,12 +3047,6 @@ pub(in crate::card::sets) static CLAWS_OF_GIX: CardRecord = CardRecord::new_with
     )),
 );
 
-static CREATURES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Creature),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
 // USG 291 — Copper Gnomes
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static COPPER_GNOMES: CardRecord = CardRecord::new(
@@ -3355,6 +3349,12 @@ pub(in crate::card::sets) static DRIFTING_MEADOW: CardRecord = CardRecord::new(
 );
 
 // USG 321 — Gaea's Cradle
+static CREATURES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::HasType(CardType::Creature),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::You,
+);
+
 pub(in crate::card::sets) static GAEAS_CRADLE: CardRecord = CardRecord::new_with_legacy_id(
     2111,
     "Gaea's Cradle",
@@ -3370,12 +3370,6 @@ pub(in crate::card::sets) static GAEAS_CRADLE: CardRecord = CardRecord::new_with
                 amount: ValueDef::CountMatchingObjects(&CREATURES_YOU_CONTROL),
             },
         )),
-);
-
-static ARTIFACTS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Artifact),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
 );
 
 // USG 322 — Phyrexian Tower
@@ -3459,6 +3453,12 @@ pub(in crate::card::sets) static THRAN_QUARRY: CardRecord = CardRecord::new(
 );
 
 // USG 330 — Tolarian Academy
+static ARTIFACTS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::HasType(CardType::Artifact),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::You,
+);
+
 pub(in crate::card::sets) static TOLARIAN_ACADEMY: CardRecord = CardRecord::new_with_legacy_id(
     2112,
     "Tolarian Academy",

@@ -12,10 +12,6 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
-static GUT_SHOT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::AnyTarget,
-)];
-
 // NPH 1 — Karn Liberated
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static KARN_LIBERATED: CardRecord = CardRecord::new(
@@ -195,6 +191,7 @@ pub(in crate::card::sets) static FORCED_WORSHIP: CardRecord = CardRecord::new(
         ]),
 );
 
+// NPH 12 — Inquisitor Exarch
 static INQUISITOR_EXARCH_MODES: [AbilityDef; 2] = [
     AbilityDef::spell(
         "You gain 2 life.",
@@ -215,7 +212,6 @@ static INQUISITOR_EXARCH_MODES: [AbilityDef; 2] = [
     ),
 ];
 
-// NPH 12 — Inquisitor Exarch
 pub(in crate::card::sets) static INQUISITOR_EXARCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("49e241a0-a027-494b-8187-6ecb006d1d33"),
     "Inquisitor Exarch",
@@ -1208,13 +1204,13 @@ pub(in crate::card::sets) static FURNACE_SCAMP: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// NPH 85 — Geosurge
 static GEOSURGE_MANA_RESTRICTIONS: [ManaRestrictionDef; 1] =
     [ManaRestrictionDef::CastSpell(ObjectPredicateDef::AnyOf(&[
         ObjectPredicateDef::HasType(CardType::Artifact),
         ObjectPredicateDef::HasType(CardType::Creature),
     ]))];
 
-// NPH 85 — Geosurge
 pub(in crate::card::sets) static GEOSURGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("118b7aa3-bb05-4691-978e-51486435bf05"),
     "Geosurge",
@@ -1231,6 +1227,10 @@ pub(in crate::card::sets) static GEOSURGE: CardRecord = CardRecord::new(
 );
 
 // NPH 86 — Gut Shot
+static GUT_SHOT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::AnyTarget,
+)];
+
 pub(in crate::card::sets) static GUT_SHOT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a54a2a30-b96a-49c7-9151-1f4b0d4a4413"),
     "Gut Shot",

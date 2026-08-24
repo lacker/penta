@@ -18,49 +18,6 @@ use crate::card::{
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
 
-/// Creatures of whatever type the Plague named. The chosen type lives on the
-/// enchantment, so the predicate reads it from the ability's source rather
-/// than naming a tribe the way a printed lord does.
-static CREATURES_OF_THE_CHOSEN_TYPE: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::HasSourcesChosenScalar(BattlefieldEntryChoiceDestinationDef::CreatureType),
-]);
-
-/// Any lands, not only your own: the printed clause names no controller,
-/// which is what lets it untap a land an opponent's effect left tapped.
-static ANY_LANDS: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Land),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::Any,
-);
-
-/// The untap follows the discard rather than preceding it, which is the
-/// printed order and the reason the card is free: the lands it untaps can
-/// pay for the spell it just found.
-static SEARCH_UNTAP: EffectDef = EffectDef::Untap {
-    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-};
-
-static SEARCH_DISCARD_THEN_UNTAP: EffectDef = EffectDef::Sequence(&[
-    EffectDef::Discard {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(2),
-        selection: DiscardSelectionDef::RecipientChooses,
-        then: None,
-    },
-    EffectDef::Choose(ChooseDef {
-        binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
-        unchosen: None,
-        chooser: PlayerRefDef::EffectController,
-        candidates: ObjectSetDef::Query(ANY_LANDS),
-        exclude: None,
-        minimum: 0,
-        maximum: 3,
-        visibility: ChoiceVisibilityDef::Public,
-        then: &SEARCH_UNTAP,
-    }),
-]);
-
 // ULG 1 — Angelic Curator
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ANGELIC_CURATOR: CardRecord = CardRecord::new(
@@ -184,6 +141,15 @@ pub(in crate::card::sets) static MARTYR_S_CAUSE: CardRecord = CardRecord::new(
 );
 
 // ULG 14 — Mother of Runes
+static MOTHER_OF_RUNES_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::HasType(CardType::Creature),
+        zones: &[ZoneKind::Battlefield],
+        controller: Some(PlayerRelation::You),
+        owner: None,
+    },
+)];
+
 pub(in crate::card::sets) static MOTHER_OF_RUNES: CardRecord = CardRecord::new_with_legacy_id(
     2119,
     "Mother of Runes",
@@ -202,15 +168,6 @@ pub(in crate::card::sets) static MOTHER_OF_RUNES: CardRecord = CardRecord::new_w
         ),
     ),
 );
-
-static MOTHER_OF_RUNES_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::You),
-        owner: None,
-    },
-)];
 
 // ULG 15 — Opal Avenger
 // Audit: metadata-only — Card rules have not been implemented.
@@ -389,6 +346,41 @@ pub(in crate::card::sets) static FLEETING_IMAGE: CardRecord = CardRecord::new(
 );
 
 // ULG 32 — Frantic Search
+/// Any lands, not only your own: the printed clause names no controller,
+/// which is what lets it untap a land an opponent's effect left tapped.
+static ANY_LANDS: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::HasType(CardType::Land),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::Any,
+);
+
+/// The untap follows the discard rather than preceding it, which is the
+/// printed order and the reason the card is free: the lands it untaps can
+/// pay for the spell it just found.
+static SEARCH_UNTAP: EffectDef = EffectDef::Untap {
+    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+};
+
+static SEARCH_DISCARD_THEN_UNTAP: EffectDef = EffectDef::Sequence(&[
+    EffectDef::Discard {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::Constant(2),
+        selection: DiscardSelectionDef::RecipientChooses,
+        then: None,
+    },
+    EffectDef::Choose(ChooseDef {
+        binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+        unchosen: None,
+        chooser: PlayerRefDef::EffectController,
+        candidates: ObjectSetDef::Query(ANY_LANDS),
+        exclude: None,
+        minimum: 0,
+        maximum: 3,
+        visibility: ChoiceVisibilityDef::Public,
+        then: &SEARCH_UNTAP,
+    }),
+]);
+
 pub(in crate::card::sets) static FRANTIC_SEARCH: CardRecord = CardRecord::new_with_legacy_id(
     2078,
     "Frantic Search",
@@ -585,6 +577,14 @@ pub(in crate::card::sets) static BRINK_OF_MADNESS: CardRecord = CardRecord::new(
 );
 
 // ULG 51 — Engineered Plague
+/// Creatures of whatever type the Plague named. The chosen type lives on the
+/// enchantment, so the predicate reads it from the ability's source rather
+/// than naming a tribe the way a printed lord does.
+static CREATURES_OF_THE_CHOSEN_TYPE: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::HasType(CardType::Creature),
+    ObjectPredicateDef::HasSourcesChosenScalar(BattlefieldEntryChoiceDestinationDef::CreatureType),
+]);
+
 pub(in crate::card::sets) static ENGINEERED_PLAGUE: CardRecord = CardRecord::new_with_legacy_id(
     2048,
     "Engineered Plague",
@@ -616,36 +616,6 @@ pub(in crate::card::sets) static ENGINEERED_PLAGUE: CardRecord = CardRecord::new
         ),
     ]),
 );
-
-static RANCOR_GRANT: AbilityDef = abilities::trample();
-
-/// Sacrificing a land is what makes this an instant-speed tutor rather than a
-/// ramp spell: the land you give up pays for the one you go and get, so the
-/// board count never moves.
-static SACRIFICE_A_LAND: SpellAdditionalCostDef = SpellAdditionalCostDef {
-    or_life: None,
-    object: ObjectPredicateDef::HasType(CardType::Land),
-    zone: ZoneKind::Battlefield,
-    count: 1,
-    counted: SpellAdditionalCostCountDef::Printed,
-    spend: SpendModeDef::ByZone,
-    or: None,
-};
-
-/// "Creature card with mana value 3 or less" in your own graveyard. The
-/// bound is what keeps a one-mana reanimation honest: it buys back the
-/// creature you were going to cast anyway, not the one you cheated in.
-static A_SMALL_CREATURE_IN_YOUR_GRAVEYARD: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::ManaValueAtMost(3),
-        ]),
-        zones: &[ZoneKind::Graveyard],
-        controller: None,
-        owner: Some(PlayerRelation::You),
-    },
-)];
 
 // ULG 52 — Eviscerator
 // Audit: metadata-only — Card rules have not been implemented.
@@ -848,6 +818,21 @@ pub(in crate::card::sets) static TREACHEROUS_LINK: CardRecord = CardRecord::new(
 );
 
 // ULG 72 — Unearth
+/// "Creature card with mana value 3 or less" in your own graveyard. The
+/// bound is what keeps a one-mana reanimation honest: it buys back the
+/// creature you were going to cast anyway, not the one you cheated in.
+static A_SMALL_CREATURE_IN_YOUR_GRAVEYARD: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::ManaValueAtMost(3),
+        ]),
+        zones: &[ZoneKind::Graveyard],
+        controller: None,
+        owner: Some(PlayerRelation::You),
+    },
+)];
+
 pub(in crate::card::sets) static UNEARTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b6cb2549-e485-44d6-9d65-7605c568909e"),
     "Unearth",
@@ -1126,6 +1111,19 @@ pub(in crate::card::sets) static BLOATED_TOAD: CardRecord = CardRecord::new(
 );
 
 // ULG 98 — Crop Rotation
+/// Sacrificing a land is what makes this an instant-speed tutor rather than a
+/// ramp spell: the land you give up pays for the one you go and get, so the
+/// board count never moves.
+static SACRIFICE_A_LAND: SpellAdditionalCostDef = SpellAdditionalCostDef {
+    or_life: None,
+    object: ObjectPredicateDef::HasType(CardType::Land),
+    zone: ZoneKind::Battlefield,
+    count: 1,
+    counted: SpellAdditionalCostCountDef::Printed,
+    spend: SpendModeDef::ByZone,
+    or: None,
+};
+
 pub(in crate::card::sets) static CROP_ROTATION: CardRecord = CardRecord::new_with_legacy_id(
     2143,
     "Crop Rotation",
@@ -1260,6 +1258,13 @@ pub(in crate::card::sets) static MULTANI_S_PRESENCE: CardRecord = CardRecord::ne
 );
 
 // ULG 110 — Rancor
+static RANCOR_GRANT: AbilityDef = abilities::trample();
+
+static RANCOR_BONUS: [AppliedEffectDef; 2] = [
+    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(0)),
+    AppliedEffectDef::add_ability(&RANCOR_GRANT),
+];
+
 pub(in crate::card::sets) static RANCOR: CardRecord = CardRecord::new_with_legacy_id(
     2124,
     "Rancor",
@@ -1299,11 +1304,6 @@ pub(in crate::card::sets) static RANCOR: CardRecord = CardRecord::new_with_legac
             ),
         ]),
 );
-
-static RANCOR_BONUS: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(0)),
-    AppliedEffectDef::add_ability(&RANCOR_GRANT),
-];
 
 // ULG 111 — Repopulate
 // Audit: metadata-only — Card rules have not been implemented.

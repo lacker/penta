@@ -9,6 +9,7 @@ use crate::card::{
 };
 use crate::mana_cost;
 
+// DTK 4 — Artful Maneuver
 static ARTFUL_MANEUVER_STEPS: [EffectDef; 2] = [
     EffectDef::Apply {
         recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -21,7 +22,6 @@ static ARTFUL_MANEUVER_STEPS: [EffectDef; 2] = [
     abilities::rebound_offer(),
 ];
 
-// DTK 4 — Artful Maneuver
 pub(in crate::card::sets) static ARTFUL_MANEUVER: CardRecord = CardRecord::new_with_legacy_id(
     1710,
     "Artful Maneuver",

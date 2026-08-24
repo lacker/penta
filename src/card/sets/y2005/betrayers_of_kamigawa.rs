@@ -9,6 +9,17 @@ use crate::card::{
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
+// BOK 76 — Okiba-Gang Shinobi
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static OKIBA_GANG_SHINOBI: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5cd9297e-301e-4e70-af9b-3218eacacf8d"),
+    "Okiba-Gang Shinobi",
+    crate::card::CardArt::new("5cd9297e-301e-4e70-af9b-3218eacacf8d", "Mark Zug"),
+    crate::card::CardSet::BetrayersOfKamigawa,
+    crate::card::CardRules::unsupported(),
+);
+
+// BOK 163 — Umezawa's Jitte
 /// The three modes of the Jitte's counter-spending ability. Each is a clause
 /// of its own with its own targets, chosen as the ability is activated.
 static JITTE_MODES: &[AbilityDef] = &[
@@ -46,17 +57,6 @@ static JITTE_MODES: &[AbilityDef] = &[
     ),
 ];
 
-// BOK 76 — Okiba-Gang Shinobi
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static OKIBA_GANG_SHINOBI: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5cd9297e-301e-4e70-af9b-3218eacacf8d"),
-    "Okiba-Gang Shinobi",
-    crate::card::CardArt::new("5cd9297e-301e-4e70-af9b-3218eacacf8d", "Mark Zug"),
-    crate::card::CardSet::BetrayersOfKamigawa,
-    crate::card::CardRules::unsupported(),
-);
-
-// BOK 163 — Umezawa's Jitte
 pub(in crate::card::sets) static UMEZAWAS_JITTE: CardRecord = CardRecord::new_with_legacy_id(
     2188,
     "Umezawa's Jitte",

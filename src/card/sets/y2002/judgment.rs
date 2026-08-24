@@ -16,39 +16,6 @@ use crate::card::{
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
 
-static SAFEKEEPER_SHROUD: AbilityDef = abilities::shroud();
-
-/// X blue cards from your own graveyard, exiled to pay. The count is the same
-/// X the spell is cast for, which is what makes the flashback expensive
-/// exactly when it is worth casting big.
-static EXILE_X_BLUE_CARDS: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
-    ObjectPredicateDef::Color(ManaColor::Blue),
-    ZoneKind::Graveyard,
-    0,
-)
-.counted_in_x()
-.spent(SpendModeDef::Exile);
-
-static FLASH_OF_INSIGHT_LOOK: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::ChosenX,
-    object: None,
-    minimum: 1,
-    maximum: 1,
-    select_all_matching: false,
-    reveal_selected: false,
-    selected_zone: ZoneKind::Hand,
-    selected_placement: ZonePlacement::Top,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Bottom,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
-
 // JUD 1 — Ancestor's Chosen
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ANCESTOR_S_CHOSEN: CardRecord = CardRecord::new(
@@ -428,6 +395,37 @@ pub(in crate::card::sets) static ENVELOP: CardRecord = CardRecord::new(
 );
 
 // JUD 40 — Flash of Insight
+/// X blue cards from your own graveyard, exiled to pay. The count is the same
+/// X the spell is cast for, which is what makes the flashback expensive
+/// exactly when it is worth casting big.
+static EXILE_X_BLUE_CARDS: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
+    ObjectPredicateDef::Color(ManaColor::Blue),
+    ZoneKind::Graveyard,
+    0,
+)
+.counted_in_x()
+.spent(SpendModeDef::Exile);
+
+static FLASH_OF_INSIGHT_LOOK: TopCardSelectionDef = TopCardSelectionDef {
+    count: ValueDef::ChosenX,
+    object: None,
+    minimum: 1,
+    maximum: 1,
+    select_all_matching: false,
+    reveal_selected: false,
+    selected_zone: ZoneKind::Hand,
+    selected_placement: ZonePlacement::Top,
+    rest_zone: ZoneKind::Library,
+    rest_placement: ZonePlacement::Bottom,
+    rest_random_order: false,
+    rest_counters: None,
+    selected_order_follows_choice: false,
+    then: None,
+    selected_hidden: false,
+    selected_linked_to_source: false,
+    selected_face_down: None,
+};
+
 pub(in crate::card::sets) static FLASH_OF_INSIGHT: CardRecord = CardRecord::new_with_legacy_id(
     2064,
     "Flash of Insight",
@@ -453,27 +451,6 @@ pub(in crate::card::sets) static FLASH_OF_INSIGHT: CardRecord = CardRecord::new_
         .with_alternative_additional_cost(&EXILE_X_BLUE_CARDS),
     ]),
 );
-
-/// Everything of the named card in the target's hand, revealed first so the
-/// choice is answered honestly and then taken all at once.
-static THERAPY_TAKE: EffectDef = EffectDef::Sequence(&[
-    EffectDef::RevealHand {
-        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::DiscardCards {
-        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-    },
-]);
-
-static THERAPY_SACRIFICE: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ZoneKind::Battlefield,
-    1,
-);
-
-static THERAPY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
 
 // JUD 41 — Grip of Amnesia
 // Audit: metadata-only — Card rules have not been implemented.
@@ -686,6 +663,27 @@ pub(in crate::card::sets) static BALTHOR_THE_DEFILED: CardRecord = CardRecord::n
 );
 
 // JUD 62 — Cabal Therapy
+/// Everything of the named card in the target's hand, revealed first so the
+/// choice is answered honestly and then taken all at once.
+static THERAPY_TAKE: EffectDef = EffectDef::Sequence(&[
+    EffectDef::RevealHand {
+        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+    },
+    EffectDef::DiscardCards {
+        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+    },
+]);
+
+static THERAPY_SACRIFICE: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
+    ObjectPredicateDef::HasType(CardType::Creature),
+    ZoneKind::Battlefield,
+    1,
+);
+
+static THERAPY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Player(PlayerRelation::Any),
+)];
+
 pub(in crate::card::sets) static CABAL_THERAPY: CardRecord = CardRecord::new_with_legacy_id(
     2068,
     "Cabal Therapy",
@@ -714,50 +712,6 @@ pub(in crate::card::sets) static CABAL_THERAPY: CardRecord = CardRecord::new_wit
         )
         .with_alternative_additional_cost(&THERAPY_SACRIFICE),
     ]),
-);
-
-/// The chosen shuffled back in. The shuffle follows the move so the
-/// library the cards join is the one that gets randomized.
-static RECLAMATION_SHUFFLE: EffectDef = EffectDef::Sequence(&[
-    EffectDef::MoveToZone {
-        counters: None,
-        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-        zone: ZoneKind::Library,
-        placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-    },
-    EffectDef::ShuffleLibrary {
-        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-]);
-
-/// The graveyard the cards come out of belongs to the targeted player, which
-/// is what makes the choice a resolution choice here rather than a second
-/// target: the constraint is "from their graveyard", and choosing on
-/// resolution states it exactly.
-static RECLAMATION_CANDIDATES: ObjectQueryDef = ObjectQueryDef::owned_by(
-    ObjectPredicateDef::Any,
-    &[ZoneKind::Graveyard],
-    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-);
-
-static RECLAMATION_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
-
-/// A body assembled from the graveyard, read live off the pile rather than
-/// fixed as it entered: a characteristic-defining ability keeps answering.
-/// A body assembled from the graveyard, read live off the pile rather than
-/// fixed as it entered: a characteristic-defining ability keeps answering.
-/// This sets the base rather than adding to it, which is what a printed
-/// */* says.
-static GHOUL_BODY: AppliedEffectDef = AppliedEffectDef::Characteristic(
-    CharacteristicOperationDef::PowerToughness(PowerToughnessOperationDef::SetBase {
-        power: ValueDef::TotalPowerOfLinkedExiles,
-        toughness: ValueDef::TotalToughnessOfLinkedExiles,
-    }),
 );
 
 // JUD 63 — Cabal Trainee
@@ -861,6 +815,19 @@ pub(in crate::card::sets) static STITCH_TOGETHER: CardRecord = CardRecord::new(
 );
 
 // JUD 73 — Sutured Ghoul
+/// A body assembled from the graveyard, read live off the pile rather than
+/// fixed as it entered: a characteristic-defining ability keeps answering.
+/// A body assembled from the graveyard, read live off the pile rather than
+/// fixed as it entered: a characteristic-defining ability keeps answering.
+/// This sets the base rather than adding to it, which is what a printed
+/// */* says.
+static GHOUL_BODY: AppliedEffectDef = AppliedEffectDef::Characteristic(
+    CharacteristicOperationDef::PowerToughness(PowerToughnessOperationDef::SetBase {
+        power: ValueDef::TotalPowerOfLinkedExiles,
+        toughness: ValueDef::TotalToughnessOfLinkedExiles,
+    }),
+);
+
 pub(in crate::card::sets) static SUTURED_GHOUL: CardRecord = CardRecord::new_with_legacy_id(
     2089,
     "Sutured Ghoul",
@@ -1371,6 +1338,37 @@ pub(in crate::card::sets) static IRONSHELL_BEETLE: CardRecord = CardRecord::new(
 );
 
 // JUD 122 — Krosan Reclamation
+/// The chosen shuffled back in. The shuffle follows the move so the
+/// library the cards join is the one that gets randomized.
+static RECLAMATION_SHUFFLE: EffectDef = EffectDef::Sequence(&[
+    EffectDef::MoveToZone {
+        counters: None,
+        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+        zone: ZoneKind::Library,
+        placement: ZonePlacement::Top,
+        arrival_effect: None,
+        attachment: None,
+        controller: None,
+    },
+    EffectDef::ShuffleLibrary {
+        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+    },
+]);
+
+/// The graveyard the cards come out of belongs to the targeted player, which
+/// is what makes the choice a resolution choice here rather than a second
+/// target: the constraint is "from their graveyard", and choosing on
+/// resolution states it exactly.
+static RECLAMATION_CANDIDATES: ObjectQueryDef = ObjectQueryDef::owned_by(
+    ObjectPredicateDef::Any,
+    &[ZoneKind::Graveyard],
+    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+);
+
+static RECLAMATION_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Player(PlayerRelation::Any),
+)];
+
 pub(in crate::card::sets) static KROSAN_RECLAMATION: CardRecord = CardRecord::new_with_legacy_id(
     2074,
     "Krosan Reclamation",
@@ -1507,6 +1505,8 @@ pub(in crate::card::sets) static SUDDEN_STRENGTH: CardRecord = CardRecord::new(
 );
 
 // JUD 133 — Sylvan Safekeeper
+static SAFEKEEPER_SHROUD: AbilityDef = abilities::shroud();
+
 pub(in crate::card::sets) static SYLVAN_SAFEKEEPER: CardRecord = CardRecord::new_with_legacy_id(
     293,
     "Sylvan Safekeeper",

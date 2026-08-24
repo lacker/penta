@@ -21,6 +21,31 @@ use crate::card::{
 };
 use crate::{TargetIndex, TurnStepDef, mana_cost};
 
+const fn fetch_land(text: &'static str, land_types: &'static [BasicLandType]) -> CardRules {
+    CardRules::new_land(&[]).with_ability(AbilityDef::activated(
+        text,
+        &[
+            AbilityCostDef::TapSource,
+            AbilityCostDef::PayLife(1),
+            AbilityCostDef::SacrificeSource,
+        ],
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::HasAnyBasicLandType(land_types),
+            minimum: 0,
+            maximum: ValueDef::Constant(1),
+            reveal: false,
+            destination: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: false,
+            binding: None,
+            then: None,
+        },
+    ))
+}
+
 // ONS 1 — Akroma's Blessing
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static AKROMA_S_BLESSING: CardRecord = CardRecord::new(
@@ -64,45 +89,6 @@ pub(in crate::card::sets) static AKROMAS_VENGEANCE: CardRecord = CardRecord::new
         ),
     ]),
 );
-
-/// "Each other attacking Goblin", so the Piledriver never counts itself and
-/// a lone one gets nothing.
-static OTHER_ATTACKING_GOBLINS: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::Subtype("Goblin"),
-        ObjectPredicateDef::Attacking,
-        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-    ]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::Any,
-);
-
-static GOBLIN_PILEDRIVER_BONUS: ScaledValueDef = ScaledValueDef {
-    value: ValueDef::CountMatchingObjects(&OTHER_ATTACKING_GOBLINS),
-    factor: 2,
-};
-
-/// A land of their choice, sacrificed by whoever just had a permanent
-/// bounced. Paying buys the copy, which is what turns one Chain of Vapor into
-/// a board sweep in a deck holding the lands to spend.
-static CHAIN_OF_VAPOR_REBOUND: EffectDef = EffectDef::PayOr(PayOrDef::optional(
-    EffectPaymentDef {
-        payer: PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
-            TargetIndex::PRIMARY,
-        ))),
-        cost: EffectPaymentCostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
-            CardType::Land,
-        )),
-    },
-    &EffectDef::CopyResolvingSpell {
-        chooser: PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
-        count: ValueDef::Constant(1),
-    },
-));
-
-static A_NONLAND_PERMANENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-)];
 
 // ONS 3 — Ancestor's Prophet
 // Audit: metadata-only — Card rules have not been implemented.
@@ -817,6 +803,28 @@ pub(in crate::card::sets) static CALLOUS_OPPRESSOR: CardRecord = CardRecord::new
 );
 
 // ONS 73 — Chain of Vapor
+/// A land of their choice, sacrificed by whoever just had a permanent
+/// bounced. Paying buys the copy, which is what turns one Chain of Vapor into
+/// a board sweep in a deck holding the lands to spend.
+static CHAIN_OF_VAPOR_REBOUND: EffectDef = EffectDef::PayOr(PayOrDef::optional(
+    EffectPaymentDef {
+        payer: PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+            TargetIndex::PRIMARY,
+        ))),
+        cost: EffectPaymentCostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
+            CardType::Land,
+        )),
+    },
+    &EffectDef::CopyResolvingSpell {
+        chooser: PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+        count: ValueDef::Constant(1),
+    },
+));
+
+static A_NONLAND_PERMANENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+)];
+
 pub(in crate::card::sets) static CHAIN_OF_VAPOR: CardRecord = CardRecord::new_with_legacy_id(
     2062,
     "Chain of Vapor",
@@ -841,21 +849,6 @@ pub(in crate::card::sets) static CHAIN_OF_VAPOR: CardRecord = CardRecord::new_wi
         ]),
     )),
 );
-
-static CHAIN_OF_SMOG_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
-
-/// The copy costs nothing here, unlike Chain of Vapor's land. Whoever was
-/// just hit decides whether to pass it on, and picks the next target -- which
-/// is why the chain usually stops at whoever cannot afford to keep it going.
-static CHAIN_OF_SMOG_REBOUND: EffectDef = EffectDef::May {
-    player: EffectRecipientDef::player(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-    effect: &EffectDef::CopyResolvingSpell {
-        chooser: PlayerRefDef::Target(TargetIndex::PRIMARY),
-        count: ValueDef::Constant(1),
-    },
-};
 
 // ONS 74 — Choking Tethers
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1443,6 +1436,21 @@ pub(in crate::card::sets) static CABAL_SLAVER: CardRecord = CardRecord::new(
 );
 
 // ONS 132 — Chain of Smog
+static CHAIN_OF_SMOG_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Player(PlayerRelation::Any),
+)];
+
+/// The copy costs nothing here, unlike Chain of Vapor's land. Whoever was
+/// just hit decides whether to pass it on, and picks the next target -- which
+/// is why the chain usually stops at whoever cannot afford to keep it going.
+static CHAIN_OF_SMOG_REBOUND: EffectDef = EffectDef::May {
+    player: EffectRecipientDef::player(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+    effect: &EffectDef::CopyResolvingSpell {
+        chooser: PlayerRefDef::Target(TargetIndex::PRIMARY),
+        count: ValueDef::Constant(1),
+    },
+};
+
 pub(in crate::card::sets) static CHAIN_OF_SMOG: CardRecord = CardRecord::new_with_legacy_id(
     2155,
     "Chain of Smog",
@@ -2182,6 +2190,23 @@ pub(in crate::card::sets) static GOBLIN_MACHINIST: CardRecord = CardRecord::new(
 );
 
 // ONS 205 — Goblin Piledriver
+/// "Each other attacking Goblin", so the Piledriver never counts itself and
+/// a lone one gets nothing.
+static OTHER_ATTACKING_GOBLINS: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::All(&[
+        ObjectPredicateDef::Subtype("Goblin"),
+        ObjectPredicateDef::Attacking,
+        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+    ]),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::Any,
+);
+
+static GOBLIN_PILEDRIVER_BONUS: ScaledValueDef = ScaledValueDef {
+    value: ValueDef::CountMatchingObjects(&OTHER_ATTACKING_GOBLINS),
+    factor: 2,
+};
+
 pub(in crate::card::sets) static GOBLIN_PILEDRIVER: CardRecord = CardRecord::new_with_legacy_id(
     2019,
     "Goblin Piledriver",
@@ -2989,31 +3014,6 @@ pub(in crate::card::sets) static NATURALIZE: CardRecord = CardRecord::new_with_l
         true,
     )),
 );
-
-const fn fetch_land(text: &'static str, land_types: &'static [BasicLandType]) -> CardRules {
-    CardRules::new_land(&[]).with_ability(AbilityDef::activated(
-        text,
-        &[
-            AbilityCostDef::TapSource,
-            AbilityCostDef::PayLife(1),
-            AbilityCostDef::SacrificeSource,
-        ],
-        EffectDef::SearchZone {
-            player: EffectRecipientDef::Controller,
-            source: ZoneKind::Library,
-            object: ObjectPredicateDef::HasAnyBasicLandType(land_types),
-            minimum: 0,
-            maximum: ValueDef::Constant(1),
-            reveal: false,
-            destination: ZoneKind::Battlefield,
-            placement: ZonePlacement::Top,
-            shuffle: true,
-            enters_tapped: false,
-            binding: None,
-            then: None,
-        },
-    ))
-}
 
 // ONS 276 — Overwhelming Instinct
 // Audit: metadata-only — Card rules have not been implemented.

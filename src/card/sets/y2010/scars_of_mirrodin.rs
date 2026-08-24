@@ -17,18 +17,6 @@ static FAST_LAND_ENTERS: AbilityDef = abilities::fast_land_enters(
     "This land enters tapped unless you control two or fewer other lands.",
 );
 
-static BLACKCLEAVE_CLIFFS_ABILITIES: [AbilityDef; 2] = [
-    FAST_LAND_ENTERS,
-    AbilityDef::activated_mana(
-        "{T}: Add {B} or {R}.",
-        &[AbilityCostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::choice(&[
-            ManaColor::Black,
-            ManaColor::Red,
-        ])),
-    ),
-];
-
 // SOM 1 — Abuna Acolyte
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ABUNA_ACOLYTE: CardRecord = CardRecord::new(
@@ -2775,6 +2763,18 @@ pub(in crate::card::sets) static WURMCOIL_ENGINE: CardRecord = CardRecord::new(
 );
 
 // SOM 224 — Blackcleave Cliffs
+static BLACKCLEAVE_CLIFFS_ABILITIES: [AbilityDef; 2] = [
+    FAST_LAND_ENTERS,
+    AbilityDef::activated_mana(
+        "{T}: Add {B} or {R}.",
+        &[AbilityCostDef::TapSource],
+        EffectDef::AddMana(AddManaEffectDef::choice(&[
+            ManaColor::Black,
+            ManaColor::Red,
+        ])),
+    ),
+];
+
 pub(in crate::card::sets) static BLACKCLEAVE_CLIFFS: CardRecord = CardRecord::new_with_legacy_id(
     2131,
     "Blackcleave Cliffs",
@@ -2783,6 +2783,7 @@ pub(in crate::card::sets) static BLACKCLEAVE_CLIFFS: CardRecord = CardRecord::ne
     CardRules::new_land(&[]).with_abilities(&BLACKCLEAVE_CLIFFS_ABILITIES),
 );
 
+// SOM 225 — Copperline Gorge
 static COPPERLINE_GORGE_ABILITIES: [AbilityDef; 2] = [
     FAST_LAND_ENTERS,
     AbilityDef::activated_mana(
@@ -2795,7 +2796,6 @@ static COPPERLINE_GORGE_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
-// SOM 225 — Copperline Gorge
 pub(in crate::card::sets) static COPPERLINE_GORGE: CardRecord = CardRecord::new_with_legacy_id(
     2132,
     "Copperline Gorge",
@@ -2807,6 +2807,7 @@ pub(in crate::card::sets) static COPPERLINE_GORGE: CardRecord = CardRecord::new_
     CardRules::new_land(&[]).with_abilities(&COPPERLINE_GORGE_ABILITIES),
 );
 
+// SOM 226 — Darkslick Shores
 static DARKSLICK_SHORES_ABILITIES: [AbilityDef; 2] = [
     FAST_LAND_ENTERS,
     AbilityDef::activated_mana(
@@ -2819,7 +2820,6 @@ static DARKSLICK_SHORES_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
-// SOM 226 — Darkslick Shores
 pub(in crate::card::sets) static DARKSLICK_SHORES: CardRecord = CardRecord::new_with_legacy_id(
     2133,
     "Darkslick Shores",
@@ -2827,18 +2827,6 @@ pub(in crate::card::sets) static DARKSLICK_SHORES: CardRecord = CardRecord::new_
     CardSet::ScarsOfMirrodin,
     CardRules::new_land(&[]).with_abilities(&DARKSLICK_SHORES_ABILITIES),
 );
-
-static RAZORVERGE_THICKET_ABILITIES: [AbilityDef; 2] = [
-    FAST_LAND_ENTERS,
-    AbilityDef::activated_mana(
-        "{T}: Add {G} or {W}.",
-        &[AbilityCostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::choice(&[
-            ManaColor::Green,
-            ManaColor::White,
-        ])),
-    ),
-];
 
 // SOM 227 — Glimmerpost
 // Audit: metadata-only — Card rules have not been implemented.
@@ -2851,6 +2839,18 @@ pub(in crate::card::sets) static GLIMMERPOST: CardRecord = CardRecord::new(
 );
 
 // SOM 228 — Razorverge Thicket
+static RAZORVERGE_THICKET_ABILITIES: [AbilityDef; 2] = [
+    FAST_LAND_ENTERS,
+    AbilityDef::activated_mana(
+        "{T}: Add {G} or {W}.",
+        &[AbilityCostDef::TapSource],
+        EffectDef::AddMana(AddManaEffectDef::choice(&[
+            ManaColor::Green,
+            ManaColor::White,
+        ])),
+    ),
+];
+
 pub(in crate::card::sets) static RAZORVERGE_THICKET: CardRecord = CardRecord::new_with_legacy_id(
     2134,
     "Razorverge Thicket",
@@ -2859,6 +2859,7 @@ pub(in crate::card::sets) static RAZORVERGE_THICKET: CardRecord = CardRecord::ne
     CardRules::new_land(&[]).with_abilities(&RAZORVERGE_THICKET_ABILITIES),
 );
 
+// SOM 229 — Seachrome Coast
 static SEACHROME_COAST_ABILITIES: [AbilityDef; 2] = [
     FAST_LAND_ENTERS,
     AbilityDef::activated_mana(
@@ -2871,7 +2872,6 @@ static SEACHROME_COAST_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
-// SOM 229 — Seachrome Coast
 pub(in crate::card::sets) static SEACHROME_COAST: CardRecord = CardRecord::new_with_legacy_id(
     2135,
     "Seachrome Coast",

@@ -9,13 +9,13 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
+// CNS 16 — Council's Judgment
 /// "A nonland permanent you don't control" is read against the spell's
 /// controller for every voter, so both players choose from the same ballot.
 /// The vote machinery supplies the "you don't control" half.
 static JUDGMENT_BALLOT: ObjectPredicateDef =
     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land));
 
-// CNS 16 — Council's Judgment
 pub(in crate::card::sets) static COUNCILS_JUDGMENT: CardRecord = CardRecord::new_with_legacy_id(
     2175,
     "Council's Judgment",
@@ -32,6 +32,20 @@ pub(in crate::card::sets) static COUNCILS_JUDGMENT: CardRecord = CardRecord::new
     )),
 );
 
+// CNS 18 — Custodi Squire
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CUSTODI_SQUIRE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a9151422-8df1-409c-a686-0cd89247eb43"),
+    "Custodi Squire",
+    crate::card::CardArt::new(
+        "a9151422-8df1-409c-a686-0cd89247eb43",
+        "Alex Horley-Orlandelli",
+    ),
+    crate::card::CardSet::Conspiracy,
+    crate::card::CardRules::unsupported(),
+);
+
+// CNS 42 — Dack Fayden
 static DACK_PLAYER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Player(PlayerRelation::Any),
 )];
@@ -100,20 +114,6 @@ static DACK_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
-// CNS 18 — Custodi Squire
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static CUSTODI_SQUIRE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a9151422-8df1-409c-a686-0cd89247eb43"),
-    "Custodi Squire",
-    crate::card::CardArt::new(
-        "a9151422-8df1-409c-a686-0cd89247eb43",
-        "Alex Horley-Orlandelli",
-    ),
-    crate::card::CardSet::Conspiracy,
-    crate::card::CardRules::unsupported(),
-);
-
-// CNS 42 — Dack Fayden
 pub(in crate::card::sets) static DACK_FAYDEN: CardRecord = CardRecord::new_with_legacy_id(
     2219,
     "Dack Fayden",

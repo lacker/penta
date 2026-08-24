@@ -9,6 +9,7 @@ use crate::card::{
 };
 use crate::mana_cost;
 
+// DFT 67 — Stock Up
 /// Impulse's shape, one card deeper and one card wider. The rest going to
 /// the bottom rather than the graveyard is what keeps it from being a
 /// self-mill, which matters to the decks that play it.
@@ -32,7 +33,6 @@ static STOCK_UP_SELECTION: TopCardSelectionDef = TopCardSelectionDef {
     selected_face_down: None,
 };
 
-// DFT 67 — Stock Up
 pub(in crate::card::sets) static STOCK_UP: CardRecord = CardRecord::new_with_legacy_id(
     2179,
     "Stock Up",
@@ -50,6 +50,27 @@ pub(in crate::card::sets) static STOCK_UP: CardRecord = CardRecord::new_with_leg
     )),
 );
 
+// DFT 79 — Chitin Gravestalker
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static CHITIN_GRAVESTALKER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("903b4141-04a3-44c4-9d3e-aa2a773d9883"),
+    "Chitin Gravestalker",
+    crate::card::CardArt::new("903b4141-04a3-44c4-9d3e-aa2a773d9883", "Slawomir Maniak"),
+    crate::card::CardSet::Aetherdrift,
+    crate::card::CardRules::unsupported(),
+);
+
+// DFT 88 — Grim Bauble
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GRIM_BAUBLE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9bfdf60a-6f67-4872-8961-d63776b192c3"),
+    "Grim Bauble",
+    crate::card::CardArt::new("9bfdf60a-6f67-4872-8961-d63776b192c3", "Wero Gallo"),
+    crate::card::CardSet::Aetherdrift,
+    crate::card::CardRules::unsupported(),
+);
+
+// DFT 191 — Brightglass Gearhulk
 /// "Artifact, creature, and/or enchantment cards with mana value 1 or less."
 /// The three types are alternatives and the mana value applies to all of
 /// them, so the bound is outside the choice rather than inside it.
@@ -101,27 +122,6 @@ static BRIGHTGLASS_GEARHULK_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
-// DFT 79 — Chitin Gravestalker
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static CHITIN_GRAVESTALKER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("903b4141-04a3-44c4-9d3e-aa2a773d9883"),
-    "Chitin Gravestalker",
-    crate::card::CardArt::new("903b4141-04a3-44c4-9d3e-aa2a773d9883", "Slawomir Maniak"),
-    crate::card::CardSet::Aetherdrift,
-    crate::card::CardRules::unsupported(),
-);
-
-// DFT 88 — Grim Bauble
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static GRIM_BAUBLE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9bfdf60a-6f67-4872-8961-d63776b192c3"),
-    "Grim Bauble",
-    crate::card::CardArt::new("9bfdf60a-6f67-4872-8961-d63776b192c3", "Wero Gallo"),
-    crate::card::CardSet::Aetherdrift,
-    crate::card::CardRules::unsupported(),
-);
-
-// DFT 191 — Brightglass Gearhulk
 pub(in crate::card::sets) static BRIGHTGLASS_GEARHULK: CardRecord = CardRecord::new_with_legacy_id(
     2301,
     "Brightglass Gearhulk",
@@ -132,20 +132,6 @@ pub(in crate::card::sets) static BRIGHTGLASS_GEARHULK: CardRecord = CardRecord::
     CardRules::new_artifact_creature(mana_cost!("{G}{G}{W}{W}"), &["Construct"], 4, 4)
         .with_abilities(&BRIGHTGLASS_GEARHULK_ABILITIES),
 );
-
-/// The same verge condition in this cycle's other pair of colours: either
-/// type answers it, so a Volcanic Island is both halves at once.
-static AN_ISLAND_OR_A_MOUNTAIN_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island, BasicLandType::Mountain]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
-static RIVERPYRE_HAS_ITS_LAND: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: AN_ISLAND_OR_A_MOUNTAIN_YOU_CONTROL,
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 1,
-};
 
 // DFT 250 — Bleachbone Verge
 // Audit: metadata-only — Card rules have not been implemented.
@@ -168,6 +154,20 @@ pub(in crate::card::sets) static NIGHT_MARKET: CardRecord = CardRecord::new(
 );
 
 // DFT 260 — Riverpyre Verge
+/// The same verge condition in this cycle's other pair of colours: either
+/// type answers it, so a Volcanic Island is both halves at once.
+static AN_ISLAND_OR_A_MOUNTAIN_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island, BasicLandType::Mountain]),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::You,
+);
+
+static RIVERPYRE_HAS_ITS_LAND: TriggerConditionDef = TriggerConditionDef::ObjectCount {
+    query: AN_ISLAND_OR_A_MOUNTAIN_YOU_CONTROL,
+    comparison: ComparisonDef::GreaterOrEqual,
+    amount: 1,
+};
+
 pub(in crate::card::sets) static RIVERPYRE_VERGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("57a93a71-d77c-417f-85d0-cd420f573331"),
     "Riverpyre Verge",
@@ -190,6 +190,17 @@ pub(in crate::card::sets) static RIVERPYRE_VERGE: CardRecord = CardRecord::new(
     ]),
 );
 
+// DFT 264 — Sunbillow Verge
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SUNBILLOW_VERGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("94ed132f-b818-4dbf-9b4a-e5acb067e0a4"),
+    "Sunbillow Verge",
+    crate::card::CardArt::new("94ed132f-b818-4dbf-9b4a-e5acb067e0a4", "Pete Venters"),
+    crate::card::CardSet::Aetherdrift,
+    crate::card::CardRules::unsupported(),
+);
+
+// DFT 268 — Wastewood Verge
 /// The verge condition: any land you control with either type answers it,
 /// so a Bayou is both halves at once and a land whose types were changed
 /// counts for what it is now rather than what it was printed as.
@@ -205,17 +216,6 @@ static VERGE_HAS_ITS_LAND: TriggerConditionDef = TriggerConditionDef::ObjectCoun
     amount: 1,
 };
 
-// DFT 264 — Sunbillow Verge
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static SUNBILLOW_VERGE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("94ed132f-b818-4dbf-9b4a-e5acb067e0a4"),
-    "Sunbillow Verge",
-    crate::card::CardArt::new("94ed132f-b818-4dbf-9b4a-e5acb067e0a4", "Pete Venters"),
-    crate::card::CardSet::Aetherdrift,
-    crate::card::CardRules::unsupported(),
-);
-
-// DFT 268 — Wastewood Verge
 pub(in crate::card::sets) static WASTEWOOD_VERGE: CardRecord = CardRecord::new_with_legacy_id(
     2196,
     "Wastewood Verge",

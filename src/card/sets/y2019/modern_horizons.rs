@@ -14,6 +14,118 @@ use crate::card::{
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
 
+/// "If it's not your turn" gates only the free cast. The printed cost is
+/// always available, which is why this is a condition on the alternative
+/// rather than a restriction on the card.
+static NOT_YOUR_TURN: TriggerConditionDef =
+    TriggerConditionDef::ActivePlayer(PlayerRelation::Opponent);
+
+// MH1 7 — Ephemerate
+/// The blink, and then rebound's own clause. Exiling links the creature to
+/// the spell, which is what lets the return name the card it just made.
+static EPHEMERATE_BLINKS: [EffectDef; 3] = [
+    EffectDef::ExileLinkedToSource {
+        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+    },
+    EffectDef::ReturnLinkedExiles {
+        object: ObjectPredicateDef::Any,
+        counters: None,
+        arrival_effect: None,
+        zone: ZoneKind::Battlefield,
+        grant: None,
+        controller: None,
+        transformed: false,
+    },
+    abilities::rebound_offer(),
+];
+
+static A_CREATURE_YOU_CONTROL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::HasType(CardType::Creature),
+        zones: &[ZoneKind::Battlefield],
+        controller: Some(PlayerRelation::You),
+        owner: None,
+    },
+)];
+
+pub(in crate::card::sets) static EPHEMERATE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2da5f3f8-5eef-498f-ba2c-2f3fbc3745aa"),
+    "Ephemerate",
+    CardArt::new("2da5f3f8-5eef-498f-ba2c-2f3fbc3745aa", "Bastien L. Deharme"),
+    CardSet::ModernHorizons1,
+    // One white mana for two enter triggers, a turn apart. What it costs is
+    // that the creature has to survive until the second one.
+    CardRules::new_instant(mana_cost!("{W}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Exile target creature you control, then return it to the battlefield under its \
+             owner's control.",
+            &A_CREATURE_YOU_CONTROL,
+            EffectDef::Sequence(&EPHEMERATE_BLINKS),
+        )
+        .with_resolution_destination(SpellResolutionDestinationDef::ExileIfCastFromHand),
+    ),
+);
+
+// MH1 13 — Giver of Runes
+/// "Another target creature you control": she may not protect herself, which
+/// is the whole difference between her and her mother.
+static ANOTHER_CREATURE_YOU_CONTROL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+        ]),
+        zones: &[ZoneKind::Battlefield],
+        controller: Some(PlayerRelation::You),
+        owner: None,
+    },
+)];
+
+static GIVER_OF_RUNES_COST: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
+
+pub(in crate::card::sets) static GIVER_OF_RUNES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4e117771-5a8b-4812-b487-32ba34b7f724"),
+    "Giver of Runes",
+    CardArt::new("4e117771-5a8b-4812-b487-32ba34b7f724", "Seb McKinnon"),
+    CardSet::ModernHorizons1,
+    // Mother of Runes who cannot save herself, and in exchange answers the
+    // colourless removal her mother could not.
+    CardRules::new_creature(mana_cost!("{W}"), &["Kor", "Cleric"], 1, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Another target creature you control gains protection from colorless or from \
+             the color of your choice until end of turn.",
+            &GIVER_OF_RUNES_COST,
+            &ANOTHER_CREATURE_YOU_CONTROL,
+            EffectDef::ChooseColor {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                operation: ColorChoiceOperationDef::ProtectionFromChosenColorOrColorless,
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
+);
+
+// MH1 24 — Rhox Veteran
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RHOX_VETERAN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6384e266-d0dc-4af1-b3ab-ecaf9be2553c"),
+    "Rhox Veteran",
+    crate::card::CardArt::new("6384e266-d0dc-4af1-b3ab-ecaf9be2553c", "Milivoj Ćeran"),
+    crate::card::CardSet::ModernHorizons1,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH1 27 — Settle Beyond Reality
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SETTLE_BEYOND_REALITY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("72ed8e57-61bb-4e89-9484-ff2be800a449"),
+    "Settle Beyond Reality",
+    crate::card::CardArt::new("72ed8e57-61bb-4e89-9484-ff2be800a449", "Anthony Palumbo"),
+    crate::card::CardSet::ModernHorizons1,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH1 37 — Winds of Abandon
 /// "You don't control" is a constraint on the slot rather than on the object:
 /// a spell being cast is not a permanent, so a predicate that compares
 /// controllers has nothing to compare against yet.
@@ -103,112 +215,6 @@ static WINDS_OVERLOADED: EffectDef = EffectDef::BindMatching {
     then: &EffectDef::Sequence(&WINDS_OVERLOADED_STEPS),
 };
 
-/// The blink, and then rebound's own clause. Exiling links the creature to
-/// the spell, which is what lets the return name the card it just made.
-static EPHEMERATE_BLINKS: [EffectDef; 3] = [
-    EffectDef::ExileLinkedToSource {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::ReturnLinkedExiles {
-        object: ObjectPredicateDef::Any,
-        counters: None,
-        arrival_effect: None,
-        zone: ZoneKind::Battlefield,
-        grant: None,
-        controller: None,
-        transformed: false,
-    },
-    abilities::rebound_offer(),
-];
-
-static A_CREATURE_YOU_CONTROL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::You),
-        owner: None,
-    },
-)];
-
-// MH1 7 — Ephemerate
-pub(in crate::card::sets) static EPHEMERATE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("2da5f3f8-5eef-498f-ba2c-2f3fbc3745aa"),
-    "Ephemerate",
-    CardArt::new("2da5f3f8-5eef-498f-ba2c-2f3fbc3745aa", "Bastien L. Deharme"),
-    CardSet::ModernHorizons1,
-    // One white mana for two enter triggers, a turn apart. What it costs is
-    // that the creature has to survive until the second one.
-    CardRules::new_instant(mana_cost!("{W}")).with_ability(
-        AbilityDef::spell_with_targets(
-            "Exile target creature you control, then return it to the battlefield under its \
-             owner's control.",
-            &A_CREATURE_YOU_CONTROL,
-            EffectDef::Sequence(&EPHEMERATE_BLINKS),
-        )
-        .with_resolution_destination(SpellResolutionDestinationDef::ExileIfCastFromHand),
-    ),
-);
-
-/// "Another target creature you control": she may not protect herself, which
-/// is the whole difference between her and her mother.
-static ANOTHER_CREATURE_YOU_CONTROL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-        ]),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::You),
-        owner: None,
-    },
-)];
-
-static GIVER_OF_RUNES_COST: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
-
-// MH1 13 — Giver of Runes
-pub(in crate::card::sets) static GIVER_OF_RUNES: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4e117771-5a8b-4812-b487-32ba34b7f724"),
-    "Giver of Runes",
-    CardArt::new("4e117771-5a8b-4812-b487-32ba34b7f724", "Seb McKinnon"),
-    CardSet::ModernHorizons1,
-    // Mother of Runes who cannot save herself, and in exchange answers the
-    // colourless removal her mother could not.
-    CardRules::new_creature(mana_cost!("{W}"), &["Kor", "Cleric"], 1, 2).with_ability(
-        AbilityDef::activated_with_targets(
-            "{T}: Another target creature you control gains protection from colorless or from \
-             the color of your choice until end of turn.",
-            &GIVER_OF_RUNES_COST,
-            &ANOTHER_CREATURE_YOU_CONTROL,
-            EffectDef::ChooseColor {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                operation: ColorChoiceOperationDef::ProtectionFromChosenColorOrColorless,
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
-        ),
-    ),
-);
-
-// MH1 24 — Rhox Veteran
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static RHOX_VETERAN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("6384e266-d0dc-4af1-b3ab-ecaf9be2553c"),
-    "Rhox Veteran",
-    crate::card::CardArt::new("6384e266-d0dc-4af1-b3ab-ecaf9be2553c", "Milivoj Ćeran"),
-    crate::card::CardSet::ModernHorizons1,
-    crate::card::CardRules::unsupported(),
-);
-
-// MH1 27 — Settle Beyond Reality
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static SETTLE_BEYOND_REALITY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("72ed8e57-61bb-4e89-9484-ff2be800a449"),
-    "Settle Beyond Reality",
-    crate::card::CardArt::new("72ed8e57-61bb-4e89-9484-ff2be800a449", "Anthony Palumbo"),
-    crate::card::CardSet::ModernHorizons1,
-    crate::card::CardRules::unsupported(),
-);
-
-// MH1 37 — Winds of Abandon
 pub(in crate::card::sets) static WINDS_OF_ABANDON: CardRecord = CardRecord::new_with_legacy_id(
     2181,
     "Winds of Abandon",
@@ -250,34 +256,17 @@ pub(in crate::card::sets) static ECHO_OF_EONS: CardRecord = CardRecord::new_with
     ]),
 );
 
-/// Exiled rather than discarded: the card is spent without ever becoming a
-/// graveyard card, which is what "exile a green card" means.
-static EXILE_A_GREEN_CARD: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
-    ObjectPredicateDef::Color(ManaColor::Green),
-    ZoneKind::Hand,
-    1,
-)
-.spent(SpendModeDef::Exile);
+// MH1 51 — Faerie Seer
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FAERIE_SEER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d1fcfeb4-1818-4e08-be4c-27b8a9dc12e6"),
+    "Faerie Seer",
+    crate::card::CardArt::new("d1fcfeb4-1818-4e08-be4c-27b8a9dc12e6", "Colin Boyer"),
+    crate::card::CardSet::ModernHorizons1,
+    crate::card::CardRules::unsupported(),
+);
 
-/// "If it's not your turn" gates only the free cast. The printed cost is
-/// always available, which is why this is a condition on the alternative
-/// rather than a restriction on the card.
-static NOT_YOUR_TURN: TriggerConditionDef =
-    TriggerConditionDef::ActivePlayer(PlayerRelation::Opponent);
-
-static FORCE_OF_VIGOR_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::HasType(CardType::Artifact),
-            ObjectPredicateDef::HasType(CardType::Enchantment),
-        ]),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-    2,
-)];
-
+// MH1 52 — Force of Negation
 /// Exiled rather than discarded, the same way the green half of the cycle
 /// spends its card: what pays is gone without ever becoming a graveyard
 /// card.
@@ -292,17 +281,6 @@ static A_NONCREATURE_SPELL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_o
     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
 )];
 
-// MH1 51 — Faerie Seer
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static FAERIE_SEER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("d1fcfeb4-1818-4e08-be4c-27b8a9dc12e6"),
-    "Faerie Seer",
-    crate::card::CardArt::new("d1fcfeb4-1818-4e08-be4c-27b8a9dc12e6", "Colin Boyer"),
-    crate::card::CardSet::ModernHorizons1,
-    crate::card::CardRules::unsupported(),
-);
-
-// MH1 52 — Force of Negation
 pub(in crate::card::sets) static FORCE_OF_NEGATION: CardRecord = CardRecord::new_with_legacy_id(
     2268,
     "Force of Negation",
@@ -337,6 +315,17 @@ pub(in crate::card::sets) static FORCE_OF_NEGATION: CardRecord = CardRecord::new
     ]),
 );
 
+// MH1 55 — Man-o'-War
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MAN_O_WAR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4dbf9bf9-75cd-4b25-a3a1-43b7e029700b"),
+    "Man-o'-War",
+    crate::card::CardArt::new("5eaa4199-df9b-494a-af7a-2491e8b0ef70", "Jon J Muth"),
+    crate::card::CardSet::ModernHorizons1,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH1 75 — Urza, Lord High Artificer
 /// "This token gets +1/+1 for each artifact you control", which counts the
 /// token itself: a lone Construct is a 1/1, and every artifact after it is
 /// another point in both directions.
@@ -383,17 +372,6 @@ static URZA_DIG: [EffectDef; 2] = [
     },
 ];
 
-// MH1 55 — Man-o'-War
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static MAN_O_WAR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4dbf9bf9-75cd-4b25-a3a1-43b7e029700b"),
-    "Man-o'-War",
-    crate::card::CardArt::new("5eaa4199-df9b-494a-af7a-2491e8b0ef70", "Jon J Muth"),
-    crate::card::CardSet::ModernHorizons1,
-    crate::card::CardRules::unsupported(),
-);
-
-// MH1 75 — Urza, Lord High Artificer
 pub(in crate::card::sets) static URZA_LORD_HIGH_ARTIFICER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9e7fb3c0-5159-4d1f-8490-ce4c9a60f567"),
     "Urza, Lord High Artificer",
@@ -481,6 +459,7 @@ pub(in crate::card::sets) static RECKLESS_CHARGE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// MH1 145 — Seasoned Pyromancer
 /// A 1/1 red Elemental, which is what both halves of him make: the arrival
 /// pays one per nonland card it threw away, and the graveyard ability pays
 /// two flat.
@@ -557,7 +536,6 @@ static SEASONED_PYROMANCER_ABILITIES: [AbilityDef; 2] = [
     .with_source_zones(&[ZoneKind::Graveyard]),
 ];
 
-// MH1 145 — Seasoned Pyromancer
 pub(in crate::card::sets) static SEASONED_PYROMANCER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2e139ad1-1079-49e9-babd-6399c44ad333"),
     "Seasoned Pyromancer",
@@ -592,6 +570,28 @@ pub(in crate::card::sets) static COLLECTOR_OUPHE: CardRecord = CardRecord::new_w
 );
 
 // MH1 164 — Force of Vigor
+/// Exiled rather than discarded: the card is spent without ever becoming a
+/// graveyard card, which is what "exile a green card" means.
+static EXILE_A_GREEN_CARD: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
+    ObjectPredicateDef::Color(ManaColor::Green),
+    ZoneKind::Hand,
+    1,
+)
+.spent(SpendModeDef::Exile);
+
+static FORCE_OF_VIGOR_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
+    AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::AnyOf(&[
+            ObjectPredicateDef::HasType(CardType::Artifact),
+            ObjectPredicateDef::HasType(CardType::Enchantment),
+        ]),
+        zones: &[ZoneKind::Battlefield],
+        controller: None,
+        owner: None,
+    },
+    2,
+)];
+
 pub(in crate::card::sets) static FORCE_OF_VIGOR: CardRecord = CardRecord::new_with_legacy_id(
     2127,
     "Force of Vigor",
@@ -618,34 +618,6 @@ pub(in crate::card::sets) static FORCE_OF_VIGOR: CardRecord = CardRecord::new_wi
         ),
     ]),
 );
-
-static SHINOBI_NINJUTSU_COST: [AbilityCostDef; 2] = [
-    AbilityCostDef::Mana(mana_cost!("{2}{U}{B}")),
-    AbilityCostDef::ReturnUnblockedAttackerToHand,
-];
-
-static SHINOBI_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::activated(
-        "Ninjutsu {2}{U}{B} ({2}{U}{B}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)",
-        &SHINOBI_NINJUTSU_COST,
-        EffectDef::PutSourceOntoBattlefieldAttacking,
-    )
-    .with_source_zones(&[ZoneKind::Hand])
-    .with_activation_timing(ActivationTimingDef::AfterAttackersDeclared),
-    AbilityDef::triggered(
-        "Whenever this creature deals combat damage to a player, that player exiles the top two cards of their library. Until end of turn, you may play those cards without paying their mana costs.",
-        TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
-        EffectDef::ExileTopOfLibraryToPlay {
-            player: EffectRecipientDef::EventPlayer,
-            amount: ValueDef::Constant(2),
-            free: true,
-            face_down: false,
-            duration: ExilePlayDurationDef::ThisTurn,
-            spend_any_color: false,
-            play_condition: None,
-        },
-    ),
-];
 
 // MH1 168 — Hexdrinker
 // Audit: metadata-only — Card rules have not been implemented.
@@ -698,6 +670,34 @@ pub(in crate::card::sets) static WINDING_WAY: CardRecord = CardRecord::new(
 );
 
 // MH1 199 — Fallen Shinobi
+static SHINOBI_NINJUTSU_COST: [AbilityCostDef; 2] = [
+    AbilityCostDef::Mana(mana_cost!("{2}{U}{B}")),
+    AbilityCostDef::ReturnUnblockedAttackerToHand,
+];
+
+static SHINOBI_ABILITIES: [AbilityDef; 2] = [
+    AbilityDef::activated(
+        "Ninjutsu {2}{U}{B} ({2}{U}{B}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)",
+        &SHINOBI_NINJUTSU_COST,
+        EffectDef::PutSourceOntoBattlefieldAttacking,
+    )
+    .with_source_zones(&[ZoneKind::Hand])
+    .with_activation_timing(ActivationTimingDef::AfterAttackersDeclared),
+    AbilityDef::triggered(
+        "Whenever this creature deals combat damage to a player, that player exiles the top two cards of their library. Until end of turn, you may play those cards without paying their mana costs.",
+        TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+        EffectDef::ExileTopOfLibraryToPlay {
+            player: EffectRecipientDef::EventPlayer,
+            amount: ValueDef::Constant(2),
+            free: true,
+            face_down: false,
+            duration: ExilePlayDurationDef::ThisTurn,
+            spend_any_color: false,
+            play_condition: None,
+        },
+    ),
+];
+
 pub(in crate::card::sets) static FALLEN_SHINOBI: CardRecord = CardRecord::new_with_legacy_id(
     2178,
     "Fallen Shinobi",
@@ -710,28 +710,7 @@ pub(in crate::card::sets) static FALLEN_SHINOBI: CardRecord = CardRecord::new_wi
         .with_abilities(&SHINOBI_ABILITIES),
 );
 
-static FARMSTEAD_GLEANER_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::static_ability(
-        "This creature doesn't untap during your untap step.",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::Source,
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
-        },
-    ),
-    AbilityDef::activated(
-        "{2}, {Q}: Put a +1/+1 counter on this creature. ({Q} is the untap symbol.)",
-        &[
-            AbilityCostDef::Mana(mana_cost!("{2}")),
-            AbilityCostDef::UntapSource,
-        ],
-        EffectDef::AddCounters {
-            object: EffectRecipientDef::Source,
-            kind: CounterKind::PlusOnePlusOne,
-            amount: ValueDef::Constant(1),
-        },
-    ),
-];
-
+// MH1 217 — Wrenn and Six
 /// Retrace's own cost: the card's mana cost, plus a land out of your hand.
 /// Discarding is what an ordinary hand cost does, so nothing else has to be
 /// said about how the land is spent.
@@ -819,7 +798,6 @@ static WRENN_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
-// MH1 217 — Wrenn and Six
 pub(in crate::card::sets) static WRENN_AND_SIX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4a706ecf-3277-40e3-871c-4ba4ead16e20"),
     "Wrenn and Six",
@@ -833,6 +811,28 @@ pub(in crate::card::sets) static WRENN_AND_SIX: CardRecord = CardRecord::new(
 );
 
 // MH1 222 — Farmstead Gleaner
+static FARMSTEAD_GLEANER_ABILITIES: [AbilityDef; 2] = [
+    AbilityDef::static_ability(
+        "This creature doesn't untap during your untap step.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::Source,
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
+        },
+    ),
+    AbilityDef::activated(
+        "{2}, {Q}: Put a +1/+1 counter on this creature. ({Q} is the untap symbol.)",
+        &[
+            AbilityCostDef::Mana(mana_cost!("{2}")),
+            AbilityCostDef::UntapSource,
+        ],
+        EffectDef::AddCounters {
+            object: EffectRecipientDef::Source,
+            kind: CounterKind::PlusOnePlusOne,
+            amount: ValueDef::Constant(1),
+        },
+    ),
+];
+
 pub(in crate::card::sets) static FARMSTEAD_GLEANER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("edafd52f-2dda-4981-baee-404f47ee8969"),
     "Farmstead Gleaner",
@@ -842,6 +842,7 @@ pub(in crate::card::sets) static FARMSTEAD_GLEANER: CardRecord = CardRecord::new
         .with_abilities(&FARMSTEAD_GLEANER_ABILITIES),
 );
 
+// MH1 230 — Talisman of Conviction
 /// The Talisman cycle's two halves: colorless for nothing, or the pair of
 /// colours the card is for at a life apiece. Which colour is chosen belongs
 /// to the activation, so the two are one printed ability.
@@ -862,7 +863,6 @@ static TALISMAN_OF_CONVICTION_ABILITIES: [AbilityDef; 2] = [
 
 static TALISMAN_TAP: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
 
-// MH1 230 — Talisman of Conviction
 pub(in crate::card::sets) static TALISMAN_OF_CONVICTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("71148fd3-0c2c-459e-b8f5-735a0a8dd87f"),
     "Talisman of Conviction",
@@ -872,11 +872,6 @@ pub(in crate::card::sets) static TALISMAN_OF_CONVICTION: CardRecord = CardRecord
     // colorless is what the next spell wants.
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&TALISMAN_OF_CONVICTION_ABILITIES),
 );
-
-static SUNBAKED_CANYON_COLORS: [ManaColor; 2] = [ManaColor::Red, ManaColor::White];
-
-static SUNBAKED_CANYON_ABILITIES: [AbilityDef; 2] =
-    abilities::horizon_land("{T}, Pay 1 life: Add {R} or {W}.", &SUNBAKED_CANYON_COLORS);
 
 // MH1 231 — Talisman of Creativity
 // Audit: metadata-only — Card rules have not been implemented.
@@ -909,6 +904,11 @@ pub(in crate::card::sets) static PRISMATIC_VISTA: CardRecord = CardRecord::new(
 );
 
 // MH1 247 — Sunbaked Canyon
+static SUNBAKED_CANYON_COLORS: [ManaColor; 2] = [ManaColor::Red, ManaColor::White];
+
+static SUNBAKED_CANYON_ABILITIES: [AbilityDef; 2] =
+    abilities::horizon_land("{T}, Pay 1 life: Add {R} or {W}.", &SUNBAKED_CANYON_COLORS);
+
 pub(in crate::card::sets) static SUNBAKED_CANYON: CardRecord = CardRecord::new_with_legacy_id(
     2230,
     "Sunbaked Canyon",

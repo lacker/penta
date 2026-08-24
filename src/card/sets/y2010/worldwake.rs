@@ -11,6 +11,7 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
+// WWK 20 — Stoneforge Mystic
 static AN_EQUIPMENT_IN_HAND: [CardChoiceSourceDef; 1] = [CardChoiceSourceDef::Zone(ZoneKind::Hand)];
 
 /// The second half of the card, and the reason the first half is worth
@@ -30,7 +31,6 @@ static MYSTIC_PUT_EQUIPMENT_DOWN: EffectDef = EffectDef::ChooseCards {
     arrival_effect: None,
 };
 
-// WWK 20 — Stoneforge Mystic
 pub(in crate::card::sets) static STONEFORGE_MYSTIC: CardRecord = CardRecord::new_with_legacy_id(
     2191,
     "Stoneforge Mystic",
@@ -74,45 +74,7 @@ pub(in crate::card::sets) static STONEFORGE_MYSTIC: CardRecord = CardRecord::new
         ]),
 );
 
-static COLONNADE_FLYING: AbilityDef = abilities::flying();
-
-static COLONNADE_VIGILANCE: AbilityDef = abilities::vigilance();
-
-/// "It's still a land" is the type being added rather than set: everything
-/// else about the animation replaces, and the land stays a land.
-static COLONNADE_ANIMATION: [AppliedEffectDef; 6] = [
-    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
-    AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Elemental"])),
-    AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::White, ManaColor::Blue])),
-    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(4), ValueDef::Constant(4)),
-    AppliedEffectDef::add_ability(&COLONNADE_FLYING),
-    AppliedEffectDef::add_ability(&COLONNADE_VIGILANCE),
-];
-
-static COLONNADE_COLORS: [ManaColor; 2] = [ManaColor::White, ManaColor::Blue];
-
-static TAR_PIT_ANIMATION: [AppliedEffectDef; 5] = [
-    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
-    AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Elemental"])),
-    AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Blue, ManaColor::Black])),
-    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(3), ValueDef::Constant(2)),
-    AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
-        ObjectPredicateDef::Any,
-    )),
-];
-
-static TAR_PIT_COLORS: [ManaColor; 2] = [ManaColor::Blue, ManaColor::Black];
-
-static QUICKSAND_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::Attacking,
-        ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
-            crate::card::KeywordAbility::Flying,
-        )),
-    ]),
-)];
-
+// WWK 31 — Jace, the Mind Sculptor
 static A_PLAYER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Player(PlayerRelation::Any),
 )];
@@ -229,7 +191,6 @@ static JACE_THE_MIND_SCULPTOR_ABILITIES: [AbilityDef; 4] = [
     ),
 ];
 
-// WWK 31 — Jace, the Mind Sculptor
 pub(in crate::card::sets) static JACE_THE_MIND_SCULPTOR: CardRecord =
     CardRecord::new_with_legacy_id(
         2291,
@@ -255,6 +216,23 @@ pub(in crate::card::sets) static EVERFLOWING_CHALICE: CardRecord = CardRecord::n
 );
 
 // WWK 133 — Celestial Colonnade
+static COLONNADE_FLYING: AbilityDef = abilities::flying();
+
+static COLONNADE_VIGILANCE: AbilityDef = abilities::vigilance();
+
+/// "It's still a land" is the type being added rather than set: everything
+/// else about the animation replaces, and the land stays a land.
+static COLONNADE_ANIMATION: [AppliedEffectDef; 6] = [
+    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+    AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Elemental"])),
+    AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::White, ManaColor::Blue])),
+    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(4), ValueDef::Constant(4)),
+    AppliedEffectDef::add_ability(&COLONNADE_FLYING),
+    AppliedEffectDef::add_ability(&COLONNADE_VIGILANCE),
+];
+
+static COLONNADE_COLORS: [ManaColor; 2] = [ManaColor::White, ManaColor::Blue];
+
 pub(in crate::card::sets) static CELESTIAL_COLONNADE: CardRecord = CardRecord::new_with_legacy_id(
     2239,
     "Celestial Colonnade",
@@ -283,6 +261,18 @@ pub(in crate::card::sets) static CELESTIAL_COLONNADE: CardRecord = CardRecord::n
 );
 
 // WWK 134 — Creeping Tar Pit
+static TAR_PIT_ANIMATION: [AppliedEffectDef; 5] = [
+    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+    AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Elemental"])),
+    AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Blue, ManaColor::Black])),
+    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(3), ValueDef::Constant(2)),
+    AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
+        ObjectPredicateDef::Any,
+    )),
+];
+
+static TAR_PIT_COLORS: [ManaColor; 2] = [ManaColor::Blue, ManaColor::Black];
+
 pub(in crate::card::sets) static CREEPING_TAR_PIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0f427f0b-034c-4821-8758-e395c0042d8a"),
     "Creeping Tar Pit",
@@ -308,6 +298,16 @@ pub(in crate::card::sets) static CREEPING_TAR_PIT: CardRecord = CardRecord::new(
 );
 
 // WWK 140 — Quicksand
+static QUICKSAND_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+    ObjectPredicateDef::All(&[
+        ObjectPredicateDef::HasType(CardType::Creature),
+        ObjectPredicateDef::Attacking,
+        ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+            crate::card::KeywordAbility::Flying,
+        )),
+    ]),
+)];
+
 pub(in crate::card::sets) static QUICKSAND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("11370658-8d80-4d2f-afa5-ec6df6dee369"),
     "Quicksand",

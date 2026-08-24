@@ -35,6 +35,76 @@ static TWO_GATES_CONDITION: TriggerConditionDef = TriggerConditionDef::ObjectCou
     amount: 2,
 };
 
+static INSTANT_OR_SORCERY_YOU_CAST: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+    ObjectPredicateDef::AnyOf(&[
+        ObjectPredicateDef::HasType(CardType::Instant),
+        ObjectPredicateDef::HasType(CardType::Sorcery),
+    ]),
+]);
+
+static ANY_PLAYER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Player(PlayerRelation::Any),
+)];
+
+static CREATURE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+    ObjectPredicateDef::HasType(CardType::Creature),
+)];
+
+#[allow(clippy::large_types_passed_by_value)]
+fn split_fuse_composition(
+    first_name: &str,
+    first: CardRules,
+    second_name: &str,
+    second: CardRules,
+    fused_cost: ManaCost,
+) -> CardComposition {
+    let combined_name = format!("{first_name} // {second_name}");
+    CardComposition {
+        parts: vec![
+            CardPart::new(CardPartId::PRIMARY, first_name, first),
+            CardPart::new(CardPartId(1), second_name, second),
+        ],
+        structure: CardStructure::Split {
+            parts: vec![CardPartId::PRIMARY, CardPartId(1)],
+            fused: Some(PlayOptionId(2)),
+        },
+        play_options: vec![
+            PlayOptionDef::cast(
+                PlayOptionId::DEFAULT,
+                first_name,
+                SpellForm::Part(CardPartId::PRIMARY),
+                first
+                    .mana_cost()
+                    .expect("a split-card first half has a printed mana cost"),
+                CardEffectStatus::Implemented,
+            ),
+            PlayOptionDef::cast(
+                PlayOptionId(1),
+                second_name,
+                SpellForm::Part(CardPartId(1)),
+                second
+                    .mana_cost()
+                    .expect("a split-card second half has a printed mana cost"),
+                CardEffectStatus::Implemented,
+            ),
+            PlayOptionDef::cast(
+                PlayOptionId(2),
+                combined_name,
+                SpellForm::Combined(vec![CardPartId::PRIMARY, CardPartId(1)]),
+                fused_cost,
+                CardEffectStatus::Implemented,
+            )
+            .restricted_to_hand(),
+        ],
+    }
+    .with_derived_spell_targets()
+}
+
+const fn cluestone_rules(abilities: &'static [AbilityDef]) -> CardRules {
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(abilities)
+}
+
 // DGM 1 — Boros Mastiff
 pub(in crate::card::sets) static BOROS_MASTIFF: CardRecord = CardRecord::new_with_legacy_id(
     607,
@@ -89,6 +159,16 @@ pub(in crate::card::sets) static HAAZDA_SNARE_SQUAD: CardRecord = CardRecord::ne
 );
 
 // DGM 3 — Lyev Decree
+static LYEV_DECREE_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
+    AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::HasType(CardType::Creature),
+        zones: &[ZoneKind::Battlefield],
+        controller: Some(PlayerRelation::Opponent),
+        owner: None,
+    },
+    2,
+)];
+
 pub(in crate::card::sets) static LYEV_DECREE: CardRecord = CardRecord::new_with_legacy_id(
     1543,
     "Lyev Decree",
@@ -102,16 +182,6 @@ pub(in crate::card::sets) static LYEV_DECREE: CardRecord = CardRecord::new_with_
         },
     )),
 );
-
-static LYEV_DECREE_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::Opponent),
-        owner: None,
-    },
-    2,
-)];
 
 // DGM 4 — Maze Sentinel
 pub(in crate::card::sets) static MAZE_SENTINEL: CardRecord = CardRecord::new_with_legacy_id(
@@ -155,13 +225,13 @@ pub(in crate::card::sets) static RENOUNCE_THE_GUILDS: CardRecord = CardRecord::n
     )),
 );
 
+// DGM 6 — Riot Control
 static RIOT_CONTROL_OPPONENT_CREATURES: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasType(CardType::Creature),
     &[ZoneKind::Battlefield],
     PlayerRelation::Opponent,
 );
 
-// DGM 6 — Riot Control
 pub(in crate::card::sets) static RIOT_CONTROL: CardRecord = CardRecord::new_with_legacy_id(
     1499,
     "Riot Control",
@@ -534,6 +604,7 @@ pub(in crate::card::sets) static MAZE_ABOMINATION: CardRecord = CardRecord::new_
     ]),
 );
 
+// DGM 27 — Pontiff of Blight
 static PONTIFF_OF_BLIGHT_EXTORT: AbilityDef = abilities::extort();
 
 /// Each granted copy is its own instance, so one spell offers one payment per
@@ -550,7 +621,6 @@ static PONTIFF_OF_BLIGHT_GRANT: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::add_ability(&PONTIFF_OF_BLIGHT_EXTORT),
 };
 
-// DGM 27 — Pontiff of Blight
 pub(in crate::card::sets) static PONTIFF_OF_BLIGHT: CardRecord = CardRecord::new_with_legacy_id(
     1896,
     "Pontiff of Blight",
@@ -826,12 +896,12 @@ pub(in crate::card::sets) static SMELT_WARD_GATEKEEPERS: CardRecord = CardRecord
     ),
 );
 
+// DGM 40 — Weapon Surge
 static WEAPON_SURGE_PUMP: AppliedEffectDef = AppliedEffectDef::Composite(&[
     AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(0)),
     AppliedEffectDef::add_ability(&abilities::first_strike()),
 ]);
 
-// DGM 40 — Weapon Surge
 pub(in crate::card::sets) static WEAPON_SURGE: CardRecord = CardRecord::new_with_legacy_id(
     630,
     "Weapon Surge",
@@ -1073,9 +1143,9 @@ pub(in crate::card::sets) static ASCENDED_LAWMAGE: CardRecord = CardRecord::new_
         .with_abilities(&[abilities::flying(), abilities::hexproof()]),
 );
 
+// DGM 54 — Beetleform Mage
 static BEETLE_WINGS: AbilityDef = abilities::flying();
 
-// DGM 54 — Beetleform Mage
 pub(in crate::card::sets) static BEETLEFORM_MAGE: CardRecord = CardRecord::new_with_legacy_id(
     1661,
     "Beetleform Mage",
@@ -1283,15 +1353,16 @@ pub(in crate::card::sets) static DRAGONSHIFT: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// DGM 67 — Drown in Filth
 static DROWN_IN_FILTH_LANDS: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasType(CardType::Land),
     &[ZoneKind::Graveyard],
     PlayerRelation::You,
 );
+
 static DROWN_IN_FILTH_PENALTY: ValueDef =
     ValueDef::Negate(&ValueDef::CountMatchingObjects(&DROWN_IN_FILTH_LANDS));
 
-// DGM 67 — Drown in Filth
 pub(in crate::card::sets) static DROWN_IN_FILTH: CardRecord = CardRecord::new_with_legacy_id(
     641,
     "Drown in Filth",
@@ -1320,6 +1391,7 @@ pub(in crate::card::sets) static DROWN_IN_FILTH: CardRecord = CardRecord::new_wi
     ),
 );
 
+// DGM 68 — Emmara Tandris
 /// A shield installed on each token rather than one rule watching the board,
 /// so a token that arrives later is covered and one that leaves is not.
 static EMMARA_TANDRIS_SHIELD: AppliedEffectDef =
@@ -1328,7 +1400,6 @@ static EMMARA_TANDRIS_SHIELD: AppliedEffectDef =
         ..DamageEventMatcherDef::ANY
     }));
 
-// DGM 68 — Emmara Tandris
 pub(in crate::card::sets) static EMMARA_TANDRIS: CardRecord = CardRecord::new_with_legacy_id(
     1898,
     "Emmara Tandris",
@@ -1354,6 +1425,7 @@ pub(in crate::card::sets) static EMMARA_TANDRIS: CardRecord = CardRecord::new_wi
         )),
 );
 
+// DGM 69 — Exava, Rakdos Blood Witch
 static EXAVA_OTHER_COUNTERED_CREATURES: [ObjectPredicateDef; 3] = [
     ObjectPredicateDef::HasType(CardType::Creature),
     ObjectPredicateDef::HasCounter(CounterKind::PlusOnePlusOne),
@@ -1362,7 +1434,6 @@ static EXAVA_OTHER_COUNTERED_CREATURES: [ObjectPredicateDef; 3] = [
 
 static EXAVA_HASTE: AbilityDef = abilities::haste();
 
-// DGM 69 — Exava, Rakdos Blood Witch
 pub(in crate::card::sets) static EXAVA_RAKDOS_BLOOD_WITCH: CardRecord =
     CardRecord::new_with_legacy_id(
         1630,
@@ -1489,12 +1560,12 @@ pub(in crate::card::sets) static GOBLIN_TEST_PILOT: CardRecord = CardRecord::new
     crate::card::CardRules::unsupported(),
 );
 
+// DGM 75 — Gruul War Chant
 static GRUUL_WAR_CHANT_EFFECT: [AppliedEffectDef; 2] = [
     AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(0)),
     AppliedEffectDef::add_ability(&abilities::menace()),
 ];
 
-// DGM 75 — Gruul War Chant
 pub(in crate::card::sets) static GRUUL_WAR_CHANT: CardRecord = CardRecord::new_with_legacy_id(
     1759,
     "Gruul War Chant",
@@ -1696,6 +1767,7 @@ pub(in crate::card::sets) static MORGUE_BURST: CardRecord = CardRecord::new_with
     ),
 );
 
+// DGM 87 — Nivix Cyclops
 /// The pump and the permission arrive together and end together, so one
 /// Apply carries both. The Cyclops keeps defender throughout; what it gets
 /// is leave to ignore it for the turn.
@@ -1704,15 +1776,6 @@ static NIVIX_CYCLOPS_CHARGE: [AppliedEffectDef; 2] = [
     AppliedEffectDef::Rule(AppliedRuleDef::MayAttackDespiteDefender),
 ];
 
-static INSTANT_OR_SORCERY_YOU_CAST: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-    ObjectPredicateDef::AnyOf(&[
-        ObjectPredicateDef::HasType(CardType::Instant),
-        ObjectPredicateDef::HasType(CardType::Sorcery),
-    ]),
-]);
-
-// DGM 87 — Nivix Cyclops
 pub(in crate::card::sets) static NIVIX_CYCLOPS: CardRecord = CardRecord::new_with_legacy_id(
     1741,
     "Nivix Cyclops",
@@ -1839,6 +1902,7 @@ pub(in crate::card::sets) static PUTREFY: CardRecord = CardRecord::new_with_lega
     )),
 );
 
+// DGM 94 — Ral Zarek
 static RAL_ZAREK_EXTRA_TURN: EffectDef = EffectDef::TakeExtraTurn {
     player: EffectRecipientDef::Controller,
 };
@@ -1850,6 +1914,7 @@ static RAL_ZAREK_FLIP_ONE: EffectDef = EffectDef::Randomized {
 };
 
 static RAL_ZAREK_FLIP_TWO_SUCCESS: [EffectDef; 2] = [RAL_ZAREK_EXTRA_TURN, RAL_ZAREK_FLIP_ONE];
+
 static RAL_ZAREK_FLIP_TWO: EffectDef = EffectDef::Randomized {
     likelihood: LikelihoodDef::new(0.5),
     on_success: &EffectDef::Sequence(&RAL_ZAREK_FLIP_TWO_SUCCESS),
@@ -1857,6 +1922,7 @@ static RAL_ZAREK_FLIP_TWO: EffectDef = EffectDef::Randomized {
 };
 
 static RAL_ZAREK_FLIP_THREE_SUCCESS: [EffectDef; 2] = [RAL_ZAREK_EXTRA_TURN, RAL_ZAREK_FLIP_TWO];
+
 static RAL_ZAREK_FLIP_THREE: EffectDef = EffectDef::Randomized {
     likelihood: LikelihoodDef::new(0.5),
     on_success: &EffectDef::Sequence(&RAL_ZAREK_FLIP_THREE_SUCCESS),
@@ -1864,6 +1930,7 @@ static RAL_ZAREK_FLIP_THREE: EffectDef = EffectDef::Randomized {
 };
 
 static RAL_ZAREK_FLIP_FOUR_SUCCESS: [EffectDef; 2] = [RAL_ZAREK_EXTRA_TURN, RAL_ZAREK_FLIP_THREE];
+
 static RAL_ZAREK_FLIP_FOUR: EffectDef = EffectDef::Randomized {
     likelihood: LikelihoodDef::new(0.5),
     on_success: &EffectDef::Sequence(&RAL_ZAREK_FLIP_FOUR_SUCCESS),
@@ -1871,13 +1938,13 @@ static RAL_ZAREK_FLIP_FOUR: EffectDef = EffectDef::Randomized {
 };
 
 static RAL_ZAREK_FLIP_FIVE_SUCCESS: [EffectDef; 2] = [RAL_ZAREK_EXTRA_TURN, RAL_ZAREK_FLIP_FOUR];
+
 static RAL_ZAREK_FLIP_FIVE: EffectDef = EffectDef::Randomized {
     likelihood: LikelihoodDef::new(0.5),
     on_success: &EffectDef::Sequence(&RAL_ZAREK_FLIP_FIVE_SUCCESS),
     on_failure: &RAL_ZAREK_FLIP_FOUR,
 };
 
-// DGM 94 — Ral Zarek
 pub(in crate::card::sets) static RAL_ZAREK: CardRecord = CardRecord::new_with_legacy_id(
     650,
     "Ral Zarek",
@@ -2009,6 +2076,7 @@ pub(in crate::card::sets) static SCAB_CLAN_GIANT: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// DGM 102 — Showstopper
 static SHOWSTOPPER_DIES_ABILITY: AbilityDef = AbilityDef::triggered_with_targets(
     "When this creature dies, it deals 2 damage to target creature an opponent controls.",
     TriggerEventDef::zone_changed(
@@ -2030,7 +2098,6 @@ static SHOWSTOPPER_DIES_ABILITY: AbilityDef = AbilityDef::triggered_with_targets
     },
 );
 
-// DGM 102 — Showstopper
 pub(in crate::card::sets) static SHOWSTOPPER: CardRecord = CardRecord::new_with_legacy_id(
     651,
     "Showstopper",
@@ -2046,6 +2113,7 @@ pub(in crate::card::sets) static SHOWSTOPPER: CardRecord = CardRecord::new_with_
     )),
 );
 
+// DGM 103 — Sin Collector
 static SIN_COLLECTOR_EXILE: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
@@ -2080,7 +2148,6 @@ static SIN_COLLECTOR_EFFECTS: [EffectDef; 2] = [
     }),
 ];
 
-// DGM 103 — Sin Collector
 pub(in crate::card::sets) static SIN_COLLECTOR: CardRecord = CardRecord::new_with_legacy_id(
     214,
     "Sin Collector",
@@ -2121,6 +2188,7 @@ pub(in crate::card::sets) static SIRE_OF_INSANITY: CardRecord = CardRecord::new_
     ),
 );
 
+// DGM 105 — Species Gorger
 static SPECIES_GORGER_RETURN: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
@@ -2147,7 +2215,6 @@ static SPECIES_GORGER_CHOICE: EffectDef = EffectDef::Choose(ChooseDef {
     then: &SPECIES_GORGER_RETURN,
 });
 
-// DGM 105 — Species Gorger
 pub(in crate::card::sets) static SPECIES_GORGER: CardRecord = CardRecord::new_with_legacy_id(
     653,
     "Species Gorger",
@@ -2314,6 +2381,7 @@ pub(in crate::card::sets) static VIASHINO_FIRSTBLADE: CardRecord = CardRecord::n
     ),
 );
 
+// DGM 114 — Voice of Resurgence
 static VOICE_OF_RESURGENCE_DURING_YOUR_TURN: TriggerConditionDef =
     TriggerConditionDef::ActivePlayer(PlayerRelation::You);
 
@@ -2342,7 +2410,6 @@ static VOICE_OF_RESURGENCE_TOKEN: EffectDef =
             "Mark Winters",
         ));
 
-// DGM 114 — Voice of Resurgence
 pub(in crate::card::sets) static VOICE_OF_RESURGENCE: CardRecord = CardRecord::new_with_legacy_id(
     238,
     "Voice of Resurgence",
@@ -2506,12 +2573,7 @@ pub(in crate::card::sets) static CATCH_RELEASE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
-static ANY_PLAYER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
-static CREATURE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Creature),
-)];
+// DGM 126 — Down // Dirty
 static OWN_GRAVEYARD_CARD_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Object {
         object: ObjectPredicateDef::Any,
@@ -2520,16 +2582,6 @@ static OWN_GRAVEYARD_CARD_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exa
         owner: Some(PlayerRelation::You),
     },
 )];
-
-// DGM 126 — Down // Dirty
-pub(in crate::card::sets) static DOWN_DIRTY: CardRecord = CardRecord::new_with_legacy_id(
-    660,
-    "Down // Dirty",
-    CardArt::new("c35c63c1-6344-4d8c-8f7d-cd253d12f9ae", "Svetlin Velinov"),
-    CardSet::DragonsMaze,
-    down_rules(),
-)
-.with_composition(down_dirty_composition);
 
 const fn down_rules() -> CardRules {
     CardRules::new_sorcery(mana_cost!("{3}{B}")).with_ability(AbilityDef::spell_with_targets(
@@ -2563,16 +2615,16 @@ fn down_dirty_composition() -> CardComposition {
     split_fuse_composition("Down", down, "Dirty", dirty, mana_cost!("{5}{B}{G}"))
 }
 
-// DGM 127 — Far // Away
-pub(in crate::card::sets) static FAR_AWAY: CardRecord = CardRecord::new_with_legacy_id(
-    661,
-    "Far // Away",
-    CardArt::new("d13cdb71-a499-41db-84e6-95f84650c524", "Greg Staples"),
+pub(in crate::card::sets) static DOWN_DIRTY: CardRecord = CardRecord::new_with_legacy_id(
+    660,
+    "Down // Dirty",
+    CardArt::new("c35c63c1-6344-4d8c-8f7d-cd253d12f9ae", "Svetlin Velinov"),
     CardSet::DragonsMaze,
-    far_rules(),
+    down_rules(),
 )
-.with_composition(far_away_composition);
+.with_composition(down_dirty_composition);
 
+// DGM 127 — Far // Away
 const fn far_rules() -> CardRules {
     CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Return target creature to its owner's hand.",
@@ -2608,6 +2660,15 @@ fn far_away_composition() -> CardComposition {
     split_fuse_composition("Far", far, "Away", away, mana_cost!("{3}{U}{B}"))
 }
 
+pub(in crate::card::sets) static FAR_AWAY: CardRecord = CardRecord::new_with_legacy_id(
+    661,
+    "Far // Away",
+    CardArt::new("d13cdb71-a499-41db-84e6-95f84650c524", "Greg Staples"),
+    CardSet::DragonsMaze,
+    far_rules(),
+)
+.with_composition(far_away_composition);
+
 // DGM 128 — Flesh // Blood
 // Audit: metadata-only — Needs fuse spell composition and a value carrying the exiled graveyard card's power into Flesh's counter effect.
 pub(in crate::card::sets) static FLESH_BLOOD: CardRecord = CardRecord::new(
@@ -2629,15 +2690,6 @@ pub(in crate::card::sets) static GIVE_TAKE: CardRecord = CardRecord::new(
 );
 
 // DGM 130 — Profit // Loss
-pub(in crate::card::sets) static PROFIT_LOSS: CardRecord = CardRecord::new_with_legacy_id(
-    662,
-    "Profit // Loss",
-    CardArt::new("0eb3ce46-ddd2-43b3-9e45-019ae91df686", "Kev Walker"),
-    CardSet::DragonsMaze,
-    profit_rules(),
-)
-.with_composition(profit_loss_composition);
-
 const fn profit_rules() -> CardRules {
     CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell(
         "Creatures you control get +1/+1 until end of turn.",
@@ -2676,16 +2728,16 @@ fn profit_loss_composition() -> CardComposition {
     split_fuse_composition("Profit", profit, "Loss", loss, mana_cost!("{3}{W}{B}"))
 }
 
-// DGM 131 — Protect // Serve
-pub(in crate::card::sets) static PROTECT_SERVE: CardRecord = CardRecord::new_with_legacy_id(
-    663,
-    "Protect // Serve",
-    CardArt::new("9b8acd7d-f3e2-4358-91ab-40901b68d64c", "Ryan Barger"),
+pub(in crate::card::sets) static PROFIT_LOSS: CardRecord = CardRecord::new_with_legacy_id(
+    662,
+    "Profit // Loss",
+    CardArt::new("0eb3ce46-ddd2-43b3-9e45-019ae91df686", "Kev Walker"),
     CardSet::DragonsMaze,
-    protect_rules(),
+    profit_rules(),
 )
-.with_composition(protect_serve_composition);
+.with_composition(profit_loss_composition);
 
+// DGM 131 — Protect // Serve
 const fn protect_rules() -> CardRules {
     CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(AbilityDef::spell_with_targets(
         "Target creature gets +2/+4 until end of turn.",
@@ -2719,17 +2771,18 @@ fn protect_serve_composition() -> CardComposition {
     split_fuse_composition("Protect", protect, "Serve", serve, mana_cost!("{3}{W}{U}"))
 }
 
-// DGM 132 — Ready // Willing
-pub(in crate::card::sets) static READY_WILLING: CardRecord = CardRecord::new_with_legacy_id(
-    664,
-    "Ready // Willing",
-    CardArt::new("22081f95-dc8e-41ed-b609-b6a22ee5428b", "Zoltan Boros"),
+pub(in crate::card::sets) static PROTECT_SERVE: CardRecord = CardRecord::new_with_legacy_id(
+    663,
+    "Protect // Serve",
+    CardArt::new("9b8acd7d-f3e2-4358-91ab-40901b68d64c", "Ryan Barger"),
     CardSet::DragonsMaze,
-    ready_rules(),
+    protect_rules(),
 )
-.with_composition(ready_willing_composition);
+.with_composition(protect_serve_composition);
 
+// DGM 132 — Ready // Willing
 static READY_INDESTRUCTIBLE: AbilityDef = abilities::indestructible();
+
 static READY_EFFECTS: [EffectDef; 2] = [
     EffectDef::Apply {
         recipient: EffectRecipientDef::matching_objects(
@@ -2748,8 +2801,11 @@ static READY_EFFECTS: [EffectDef; 2] = [
         ),
     },
 ];
+
 static WILLING_DEATHTOUCH: AbilityDef = abilities::deathtouch();
+
 static WILLING_LIFELINK: AbilityDef = abilities::lifelink();
+
 static WILLING_KEYWORDS: [AppliedEffectDef; 2] = [
     AppliedEffectDef::add_ability(&WILLING_DEATHTOUCH),
     AppliedEffectDef::add_ability(&WILLING_LIFELINK),
@@ -2785,55 +2841,14 @@ fn ready_willing_composition() -> CardComposition {
     )
 }
 
-#[allow(clippy::large_types_passed_by_value)]
-fn split_fuse_composition(
-    first_name: &str,
-    first: CardRules,
-    second_name: &str,
-    second: CardRules,
-    fused_cost: ManaCost,
-) -> CardComposition {
-    let combined_name = format!("{first_name} // {second_name}");
-    CardComposition {
-        parts: vec![
-            CardPart::new(CardPartId::PRIMARY, first_name, first),
-            CardPart::new(CardPartId(1), second_name, second),
-        ],
-        structure: CardStructure::Split {
-            parts: vec![CardPartId::PRIMARY, CardPartId(1)],
-            fused: Some(PlayOptionId(2)),
-        },
-        play_options: vec![
-            PlayOptionDef::cast(
-                PlayOptionId::DEFAULT,
-                first_name,
-                SpellForm::Part(CardPartId::PRIMARY),
-                first
-                    .mana_cost()
-                    .expect("a split-card first half has a printed mana cost"),
-                CardEffectStatus::Implemented,
-            ),
-            PlayOptionDef::cast(
-                PlayOptionId(1),
-                second_name,
-                SpellForm::Part(CardPartId(1)),
-                second
-                    .mana_cost()
-                    .expect("a split-card second half has a printed mana cost"),
-                CardEffectStatus::Implemented,
-            ),
-            PlayOptionDef::cast(
-                PlayOptionId(2),
-                combined_name,
-                SpellForm::Combined(vec![CardPartId::PRIMARY, CardPartId(1)]),
-                fused_cost,
-                CardEffectStatus::Implemented,
-            )
-            .restricted_to_hand(),
-        ],
-    }
-    .with_derived_spell_targets()
-}
+pub(in crate::card::sets) static READY_WILLING: CardRecord = CardRecord::new_with_legacy_id(
+    664,
+    "Ready // Willing",
+    CardArt::new("22081f95-dc8e-41ed-b609-b6a22ee5428b", "Zoltan Boros"),
+    CardSet::DragonsMaze,
+    ready_rules(),
+)
+.with_composition(ready_willing_composition);
 
 // DGM 133 — Toil // Trouble
 // Audit: metadata-only — Needs fuse spell composition and a value for the targeted player's current hand size.
@@ -2845,6 +2860,7 @@ pub(in crate::card::sets) static TOIL_TROUBLE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// DGM 134 — Turn // Burn
 /// Turn repaints the characteristics it names while leaving the target's
 /// other card types and subtype categories intact.
 static TURN_CHARACTERISTICS: [AppliedEffectDef; 5] = [
@@ -2863,6 +2879,7 @@ static TURN_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
         owner: None,
     },
 )];
+
 static BURN_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::AnyTarget,
 )];
@@ -2928,7 +2945,6 @@ fn turn_burn_composition() -> CardComposition {
     .with_derived_spell_targets()
 }
 
-// DGM 134 — Turn // Burn
 pub(in crate::card::sets) static TURN_BURN: CardRecord = CardRecord::new_with_legacy_id(
     230,
     "Turn // Burn",
@@ -2939,17 +2955,9 @@ pub(in crate::card::sets) static TURN_BURN: CardRecord = CardRecord::new_with_le
 .with_composition(turn_burn_composition);
 
 // DGM 135 — Wear // Tear
-pub(in crate::card::sets) static WEAR_TEAR: CardRecord = CardRecord::new_with_legacy_id(
-    665,
-    "Wear // Tear",
-    CardArt::new("d169a3b2-18ae-4414-98ef-d879676fdcc0", "Ryan Pancoast"),
-    CardSet::DragonsMaze,
-    wear_rules(),
-)
-.with_composition(wear_tear_composition);
-
 static ARTIFACT_TARGET: AbilityTargetDef =
     AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Artifact));
+
 static ENCHANTMENT_TARGET: AbilityTargetDef =
     AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Enchantment));
 
@@ -2970,6 +2978,15 @@ fn wear_tear_composition() -> CardComposition {
     ));
     split_fuse_composition("Wear", wear, "Tear", tear, mana_cost!("{1}{R}{W}"))
 }
+
+pub(in crate::card::sets) static WEAR_TEAR: CardRecord = CardRecord::new_with_legacy_id(
+    665,
+    "Wear // Tear",
+    CardArt::new("d169a3b2-18ae-4414-98ef-d879676fdcc0", "Ryan Pancoast"),
+    CardSet::DragonsMaze,
+    wear_rules(),
+)
+.with_composition(wear_tear_composition);
 
 macro_rules! cluestone_abilities {
     ($name:ident, $colors:expr, $mana_text:literal, $draw_text:literal, $draw_cost:literal) => {
@@ -3065,10 +3082,6 @@ cluestone_abilities!(
     "{G}{U}, {T}, Sacrifice this artifact: Draw a card.",
     "{G}{U}"
 );
-
-const fn cluestone_rules(abilities: &'static [AbilityDef]) -> CardRules {
-    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(abilities)
-}
 
 // DGM 136 — Azorius Cluestone
 pub(in crate::card::sets) static AZORIUS_CLUESTONE: CardRecord = CardRecord::new_with_legacy_id(

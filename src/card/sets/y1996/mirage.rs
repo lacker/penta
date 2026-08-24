@@ -161,32 +161,6 @@ pub(in crate::card::sets) static ENLIGHTENED_TUTOR: CardRecord = CardRecord::new
     )),
 );
 
-static GRAVE_HASTE: AbilityDef = abilities::haste();
-
-/// The creature exiles itself rather than being named by a delayed trigger:
-/// it is the object that arrived, and it carries the clause with it.
-static GRAVE_EXILE_AT_END: AbilityDef = AbilityDef::triggered(
-    "At the beginning of the next end step, exile this creature.",
-    TriggerEventDef::StepBegins {
-        step: TurnStepDef::End,
-        player: PlayerRelation::Any,
-    },
-    EffectDef::MoveToZone {
-        counters: None,
-        object: EffectRecipientDef::Source,
-        zone: ZoneKind::Exile,
-        placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-    },
-);
-
-static GRAVE_ARRIVAL: AppliedEffectDef = AppliedEffectDef::Composite(&[
-    AppliedEffectDef::add_ability(&GRAVE_HASTE),
-    AppliedEffectDef::add_ability(&GRAVE_EXILE_AT_END),
-]);
-
 // MIR 15 — Ethereal Champion
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ETHEREAL_CHAMPION: CardRecord = CardRecord::new(
@@ -1402,6 +1376,32 @@ pub(in crate::card::sets) static SHADOW_GUILDMAGE: CardRecord = CardRecord::new(
 );
 
 // MIR 141 — Shallow Grave
+static GRAVE_HASTE: AbilityDef = abilities::haste();
+
+/// The creature exiles itself rather than being named by a delayed trigger:
+/// it is the object that arrived, and it carries the clause with it.
+static GRAVE_EXILE_AT_END: AbilityDef = AbilityDef::triggered(
+    "At the beginning of the next end step, exile this creature.",
+    TriggerEventDef::StepBegins {
+        step: TurnStepDef::End,
+        player: PlayerRelation::Any,
+    },
+    EffectDef::MoveToZone {
+        counters: None,
+        object: EffectRecipientDef::Source,
+        zone: ZoneKind::Exile,
+        placement: ZonePlacement::Top,
+        arrival_effect: None,
+        attachment: None,
+        controller: None,
+    },
+);
+
+static GRAVE_ARRIVAL: AppliedEffectDef = AppliedEffectDef::Composite(&[
+    AppliedEffectDef::add_ability(&GRAVE_HASTE),
+    AppliedEffectDef::add_ability(&GRAVE_EXILE_AT_END),
+]);
+
 pub(in crate::card::sets) static SHALLOW_GRAVE: CardRecord = CardRecord::new_with_legacy_id(
     2072,
     "Shallow Grave",
@@ -1797,6 +1797,20 @@ pub(in crate::card::sets) static GOBLIN_SOOTHSAYER: CardRecord = CardRecord::new
 );
 
 // MIR 180 — Goblin Tinkerer
+/// The damage is read after the destruction, from the target slot's own
+/// last-known information: the artifact is already in a graveyard by then,
+/// which is the only time the reading is interesting.
+static GOBLIN_TINKERER_PROGRAM: [EffectDef; 2] = [
+    EffectDef::Destroy {
+        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        can_regenerate: true,
+    },
+    EffectDef::DealDamage {
+        recipient: EffectRecipientDef::Source,
+        amount: ValueDef::TargetManaValue(TargetIndex::PRIMARY),
+    },
+];
+
 pub(in crate::card::sets) static GOBLIN_TINKERER: CardRecord = CardRecord::new_with_legacy_id(
     2022,
     "Goblin Tinkerer",
@@ -1818,20 +1832,6 @@ pub(in crate::card::sets) static GOBLIN_TINKERER: CardRecord = CardRecord::new_w
         ),
     ),
 );
-
-/// The damage is read after the destruction, from the target slot's own
-/// last-known information: the artifact is already in a graveyard by then,
-/// which is the only time the reading is interesting.
-static GOBLIN_TINKERER_PROGRAM: [EffectDef; 2] = [
-    EffectDef::Destroy {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        can_regenerate: true,
-    },
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::Source,
-        amount: ValueDef::TargetManaValue(TargetIndex::PRIMARY),
-    },
-];
 
 // MIR 181 — Hammer of Bogardan
 // Audit: metadata-only — Card rules have not been implemented.
@@ -3034,19 +3034,6 @@ pub(in crate::card::sets) static CURSED_TOTEM: CardRecord = CardRecord::new_with
     )),
 );
 
-/// Twelve power, paid in creatures. A board that cannot reach it is never
-/// asked, which is the ordinary case: the deck plays this to be answered by
-/// its own Stifle, not to be paid for.
-static DREADNOUGHT_COST: PayOrDef = PayOrDef::unless(
-    EffectPaymentDef {
-        payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-        cost: EffectPaymentCostDef::SacrificeCreaturesWithTotalPower(12),
-    },
-    &EffectDef::Sacrifice {
-        object: EffectRecipientDef::Source,
-    },
-);
-
 // MIR 300 — Elixir of Vitality
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ELIXIR_OF_VITALITY: CardRecord = CardRecord::new(
@@ -3204,6 +3191,19 @@ pub(in crate::card::sets) static PAUPERS_CAGE: CardRecord = CardRecord::new(
 );
 
 // MIR 315 — Phyrexian Dreadnought
+/// Twelve power, paid in creatures. A board that cannot reach it is never
+/// asked, which is the ordinary case: the deck plays this to be answered by
+/// its own Stifle, not to be paid for.
+static DREADNOUGHT_COST: PayOrDef = PayOrDef::unless(
+    EffectPaymentDef {
+        payer: PlayerSetDef::One(PlayerRefDef::EffectController),
+        cost: EffectPaymentCostDef::SacrificeCreaturesWithTotalPower(12),
+    },
+    &EffectDef::Sacrifice {
+        object: EffectRecipientDef::Source,
+    },
+);
+
 pub(in crate::card::sets) static PHYREXIAN_DREADNOUGHT: CardRecord = CardRecord::new_with_legacy_id(
     2085,
     "Phyrexian Dreadnought",

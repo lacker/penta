@@ -13,6 +13,7 @@ use crate::card::{
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
 
+// WAR 54 — Jace, Wielder of Mysteries
 /// Your own library, empty. Written as a count rather than a dedicated
 /// question so the same shape answers "no cards in it" and any other bound.
 static YOUR_LIBRARY_IS_EMPTY: TriggerConditionDef = TriggerConditionDef::ObjectCount {
@@ -88,7 +89,6 @@ static JACE_MILL_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Player(PlayerRelation::Any),
 )];
 
-// WAR 54 — Jace, Wielder of Mysteries
 pub(in crate::card::sets) static JACE_WIELDER_OF_MYSTERIES: CardRecord =
     CardRecord::new_with_legacy_id(
         2160,
@@ -100,6 +100,137 @@ pub(in crate::card::sets) static JACE_WIELDER_OF_MYSTERIES: CardRecord =
             .with_abilities(&JACE_ABILITIES),
     );
 
+// WAR 61 — Narset, Parter of Veils
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static NARSET_PARTER_OF_VEILS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8c39f9b4-02b9-4d44-b8d6-4fd02ebbb0c5"),
+    "Narset, Parter of Veils",
+    crate::card::CardArt::new("8c39f9b4-02b9-4d44-b8d6-4fd02ebbb0c5", "Magali Villeneuve"),
+    crate::card::CardSet::WarOfTheSpark,
+    crate::card::CardRules::unsupported(),
+);
+
+// WAR 79 — Bolas's Citadel
+/// Anything at all, which is what "lands and spells" comes to once the top
+/// of the library is the only place being named.
+static CITADEL_PERMISSION: PlayRestrictionDef =
+    PlayRestrictionDef::new(PlayActionMatcherDef::Any, ObjectPredicateDef::Any);
+
+static CITADEL_SACRIFICE: [AbilityCostDef; 2] = [
+    AbilityCostDef::TapSource,
+    AbilityCostDef::SacrificePermanents {
+        object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+        controller: PlayerRelation::You,
+        count: 10,
+    },
+];
+
+static BOLASS_CITADEL_ABILITIES: [AbilityDef; 3] = [
+    AbilityDef::static_ability(
+        "You may look at the top card of your library any time.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::You)),
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::MayLookAtTopOfLibrary),
+        },
+    ),
+    AbilityDef::static_ability(
+        "You may play lands and cast spells from the top of your library. If you cast a spell \
+         this way, pay life equal to its mana value rather than pay its mana cost.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::You)),
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromTopOfLibrary {
+                restriction: CITADEL_PERMISSION,
+                cost: TopOfLibraryCostDef::LifeEqualToManaValue,
+            }),
+        },
+    ),
+    AbilityDef::activated(
+        "{T}, Sacrifice ten nonland permanents: Each opponent loses 10 life.",
+        &CITADEL_SACRIFICE,
+        EffectDef::LoseLife {
+            recipient: EffectRecipientDef::Opponent,
+            amount: ValueDef::Constant(10),
+        },
+    ),
+];
+
+pub(in crate::card::sets) static BOLASS_CITADEL: CardRecord = CardRecord::new_with_legacy_id(
+    2253,
+    "Bolas's Citadel",
+    CardArt::new("d2124603-d20e-40eb-97f0-a66323397ac2", "Jonas De Ro"),
+    CardSet::WarOfTheSpark,
+    // Six mana to turn a library into a hand and a life total into mana.
+    // The ten-permanent ability is the finish, not the plan.
+    CardRules::new_artifact(mana_cost!("{3}{B}{B}{B}"))
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&BOLASS_CITADEL_ABILITIES),
+);
+
+// WAR 125 — Dreadhorde Arcanist
+/// "Mana value less than or equal to this creature's power" is read live off
+/// the Arcanist, so a counter or a pump changes what it can reach.
+static ARCANIST_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::All(&[
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Instant),
+                ObjectPredicateDef::HasType(CardType::Sorcery),
+            ]),
+            ObjectPredicateDef::ManaValueAtMostValue(ValueDef::SourcePower),
+        ]),
+        zones: &[ZoneKind::Graveyard],
+        controller: None,
+        owner: Some(PlayerRelation::You),
+    },
+)];
+
+/// What the card is lent while the offer stands. The kind says both halves
+/// of the printed clause at once: the cast costs nothing, and the card is
+/// exiled rather than buried afterwards.
+static ARCANIST_FREE_CAST: AbilityDef = AbilityDef::alternative_cast(
+    mana_cost!("{0}"),
+    AlternativeCastKindDef::WithoutPayingManaCost,
+    Some("Cast without paying its mana cost, then exile it."),
+    EffectDef::None,
+);
+
+static DREADHORDE_ARCANIST_ABILITIES: [AbilityDef; 2] = [
+    abilities::trample(),
+    AbilityDef::triggered_with_targets(
+        "Whenever this creature attacks, you may cast target instant or sorcery card with mana \
+         value less than or equal to this creature's power from your graveyard without paying \
+         its mana cost. If that spell would be put into your graveyard, exile it instead.",
+        TriggerEventDef::attacks(ObjectPredicateDef::Source),
+        &ARCANIST_TARGET,
+        EffectDef::MayCastTargetWithoutPaying {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ability: &ARCANIST_FREE_CAST,
+        },
+    ),
+];
+
+pub(in crate::card::sets) static DREADHORDE_ARCANIST: CardRecord = CardRecord::new_with_legacy_id(
+    2279,
+    "Dreadhorde Arcanist",
+    CardArt::new("fd97b3cf-924e-4f77-bb82-0bf19592389f", "G-host Lee"),
+    CardSet::WarOfTheSpark,
+    // A 1/3 that only buys back one-mana spells until something makes it
+    // bigger, which in the cube is most of what the deck is doing anyway.
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Zombie", "Wizard"], 1, 3)
+        .with_abilities(&DREADHORDE_ARCANIST_ABILITIES),
+);
+
+// WAR 130 — Grim Initiate
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GRIM_INITIATE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("29b6ec9d-3861-48bf-a198-dc7efba5d89c"),
+    "Grim Initiate",
+    crate::card::CardArt::new("29b6ec9d-3861-48bf-a198-dc7efba5d89c", "Jason Felix"),
+    crate::card::CardSet::WarOfTheSpark,
+    crate::card::CardRules::unsupported(),
+);
+
+// WAR 169 — Nissa, Who Shakes the World
 /// "You tap a Forest for mana" is the tap transition carrying its purpose,
 /// so an ordinary tap does not fire it and a mana tap does.
 static NISSA_FOREST: ObjectPredicateDef = ObjectPredicateDef::All(&[
@@ -214,137 +345,6 @@ static NISSA_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
-/// Anything at all, which is what "lands and spells" comes to once the top
-/// of the library is the only place being named.
-static CITADEL_PERMISSION: PlayRestrictionDef =
-    PlayRestrictionDef::new(PlayActionMatcherDef::Any, ObjectPredicateDef::Any);
-
-static CITADEL_SACRIFICE: [AbilityCostDef; 2] = [
-    AbilityCostDef::TapSource,
-    AbilityCostDef::SacrificePermanents {
-        object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-        controller: PlayerRelation::You,
-        count: 10,
-    },
-];
-
-static BOLASS_CITADEL_ABILITIES: [AbilityDef; 3] = [
-    AbilityDef::static_ability(
-        "You may look at the top card of your library any time.",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::You)),
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::MayLookAtTopOfLibrary),
-        },
-    ),
-    AbilityDef::static_ability(
-        "You may play lands and cast spells from the top of your library. If you cast a spell \
-         this way, pay life equal to its mana value rather than pay its mana cost.",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::You)),
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromTopOfLibrary {
-                restriction: CITADEL_PERMISSION,
-                cost: TopOfLibraryCostDef::LifeEqualToManaValue,
-            }),
-        },
-    ),
-    AbilityDef::activated(
-        "{T}, Sacrifice ten nonland permanents: Each opponent loses 10 life.",
-        &CITADEL_SACRIFICE,
-        EffectDef::LoseLife {
-            recipient: EffectRecipientDef::Opponent,
-            amount: ValueDef::Constant(10),
-        },
-    ),
-];
-
-// WAR 61 — Narset, Parter of Veils
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static NARSET_PARTER_OF_VEILS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8c39f9b4-02b9-4d44-b8d6-4fd02ebbb0c5"),
-    "Narset, Parter of Veils",
-    crate::card::CardArt::new("8c39f9b4-02b9-4d44-b8d6-4fd02ebbb0c5", "Magali Villeneuve"),
-    crate::card::CardSet::WarOfTheSpark,
-    crate::card::CardRules::unsupported(),
-);
-
-// WAR 79 — Bolas's Citadel
-pub(in crate::card::sets) static BOLASS_CITADEL: CardRecord = CardRecord::new_with_legacy_id(
-    2253,
-    "Bolas's Citadel",
-    CardArt::new("d2124603-d20e-40eb-97f0-a66323397ac2", "Jonas De Ro"),
-    CardSet::WarOfTheSpark,
-    // Six mana to turn a library into a hand and a life total into mana.
-    // The ten-permanent ability is the finish, not the plan.
-    CardRules::new_artifact(mana_cost!("{3}{B}{B}{B}"))
-        .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&BOLASS_CITADEL_ABILITIES),
-);
-
-/// "Mana value less than or equal to this creature's power" is read live off
-/// the Arcanist, so a counter or a pump changes what it can reach.
-static ARCANIST_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::All(&[
-            ObjectPredicateDef::AnyOf(&[
-                ObjectPredicateDef::HasType(CardType::Instant),
-                ObjectPredicateDef::HasType(CardType::Sorcery),
-            ]),
-            ObjectPredicateDef::ManaValueAtMostValue(ValueDef::SourcePower),
-        ]),
-        zones: &[ZoneKind::Graveyard],
-        controller: None,
-        owner: Some(PlayerRelation::You),
-    },
-)];
-
-/// What the card is lent while the offer stands. The kind says both halves
-/// of the printed clause at once: the cast costs nothing, and the card is
-/// exiled rather than buried afterwards.
-static ARCANIST_FREE_CAST: AbilityDef = AbilityDef::alternative_cast(
-    mana_cost!("{0}"),
-    AlternativeCastKindDef::WithoutPayingManaCost,
-    Some("Cast without paying its mana cost, then exile it."),
-    EffectDef::None,
-);
-
-static DREADHORDE_ARCANIST_ABILITIES: [AbilityDef; 2] = [
-    abilities::trample(),
-    AbilityDef::triggered_with_targets(
-        "Whenever this creature attacks, you may cast target instant or sorcery card with mana \
-         value less than or equal to this creature's power from your graveyard without paying \
-         its mana cost. If that spell would be put into your graveyard, exile it instead.",
-        TriggerEventDef::attacks(ObjectPredicateDef::Source),
-        &ARCANIST_TARGET,
-        EffectDef::MayCastTargetWithoutPaying {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            ability: &ARCANIST_FREE_CAST,
-        },
-    ),
-];
-
-// WAR 125 — Dreadhorde Arcanist
-pub(in crate::card::sets) static DREADHORDE_ARCANIST: CardRecord = CardRecord::new_with_legacy_id(
-    2279,
-    "Dreadhorde Arcanist",
-    CardArt::new("fd97b3cf-924e-4f77-bb82-0bf19592389f", "G-host Lee"),
-    CardSet::WarOfTheSpark,
-    // A 1/3 that only buys back one-mana spells until something makes it
-    // bigger, which in the cube is most of what the deck is doing anyway.
-    CardRules::new_creature(mana_cost!("{1}{R}"), &["Zombie", "Wizard"], 1, 3)
-        .with_abilities(&DREADHORDE_ARCANIST_ABILITIES),
-);
-
-// WAR 130 — Grim Initiate
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static GRIM_INITIATE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("29b6ec9d-3861-48bf-a198-dc7efba5d89c"),
-    "Grim Initiate",
-    crate::card::CardArt::new("29b6ec9d-3861-48bf-a198-dc7efba5d89c", "Jason Felix"),
-    crate::card::CardSet::WarOfTheSpark,
-    crate::card::CardRules::unsupported(),
-);
-
-// WAR 169 — Nissa, Who Shakes the World
 pub(in crate::card::sets) static NISSA_WHO_SHAKES_THE_WORLD: CardRecord =
     CardRecord::new_with_legacy_id(
         2172,
@@ -361,6 +361,7 @@ pub(in crate::card::sets) static NISSA_WHO_SHAKES_THE_WORLD: CardRecord =
         "f857bbe4-5619-4733-a0c7-69700f2ef4f3",
     ));
 
+// WAR 220 — Tamiyo, Collector of Tales
 /// Two prohibitions in one printed sentence, which is why they are a
 /// sequence rather than one effect: other cards state only one of them.
 static TAMIYO_PROTECTIONS: [EffectDef; 2] = [
@@ -443,7 +444,6 @@ static TAMIYO_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
-// WAR 220 — Tamiyo, Collector of Tales
 pub(in crate::card::sets) static TAMIYO_COLLECTOR_OF_TALES: CardRecord =
     CardRecord::new_with_legacy_id(
         2186,
@@ -461,6 +461,30 @@ pub(in crate::card::sets) static TAMIYO_COLLECTOR_OF_TALES: CardRecord =
         "76776b24-a2e1-4590-88e7-8a421baf2fc4",
     ));
 
+// WAR 221 — Teferi, Time Raveler
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TEFERI_TIME_RAVELER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5cb76266-ae50-4bbc-8f96-d98f309b02d3"),
+    "Teferi, Time Raveler",
+    crate::card::CardArt::new("5cb76266-ae50-4bbc-8f96-d98f309b02d3", "Chris Rallis"),
+    crate::card::CardSet::WarOfTheSpark,
+    crate::card::CardRules::unsupported(),
+);
+
+// WAR 222 — Tenth District Legionnaire
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TENTH_DISTRICT_LEGIONNAIRE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("44f3090b-917b-4122-b522-27c30dca8e69"),
+    "Tenth District Legionnaire",
+    crate::card::CardArt::new(
+        "44f3090b-917b-4122-b522-27c30dca8e69",
+        "Victor Adame Minguez",
+    ),
+    crate::card::CardSet::WarOfTheSpark,
+    crate::card::CardRules::unsupported(),
+);
+
+// WAR 234 — Saheeli, Sublime Artificer
 static A_NONCREATURE_SPELL_YOU_CAST: ObjectPredicateDef = ObjectPredicateDef::All(&[
     ObjectPredicateDef::NoncreatureSpell,
     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
@@ -508,30 +532,6 @@ static SAHEELI_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
-// WAR 221 — Teferi, Time Raveler
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static TEFERI_TIME_RAVELER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5cb76266-ae50-4bbc-8f96-d98f309b02d3"),
-    "Teferi, Time Raveler",
-    crate::card::CardArt::new("5cb76266-ae50-4bbc-8f96-d98f309b02d3", "Chris Rallis"),
-    crate::card::CardSet::WarOfTheSpark,
-    crate::card::CardRules::unsupported(),
-);
-
-// WAR 222 — Tenth District Legionnaire
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static TENTH_DISTRICT_LEGIONNAIRE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("44f3090b-917b-4122-b522-27c30dca8e69"),
-    "Tenth District Legionnaire",
-    crate::card::CardArt::new(
-        "44f3090b-917b-4122-b522-27c30dca8e69",
-        "Victor Adame Minguez",
-    ),
-    crate::card::CardSet::WarOfTheSpark,
-    crate::card::CardRules::unsupported(),
-);
-
-// WAR 234 — Saheeli, Sublime Artificer
 pub(in crate::card::sets) static SAHEELI_SUBLIME_ARTIFICER: CardRecord =
     CardRecord::new_with_legacy_id(
         2247,

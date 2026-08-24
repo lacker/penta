@@ -9,6 +9,17 @@ use crate::card::{
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
+// AER 51 — Aether Poisoner
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static AETHER_POISONER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c9b217f1-1621-40d1-8a98-24c1f7cba800"),
+    "Aether Poisoner",
+    crate::card::CardArt::new("c9b217f1-1621-40d1-8a98-24c1f7cba800", "Yongjae Choi"),
+    crate::card::CardSet::AetherRevolt,
+    crate::card::CardRules::unsupported(),
+);
+
+// AER 57 — Fatal Push
 static A_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
     ObjectPredicateDef::HasType(CardType::Creature),
 )];
@@ -52,17 +63,6 @@ static FATAL_PUSH_EFFECT: [EffectDef; 2] = [
     },
 ];
 
-// AER 51 — Aether Poisoner
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static AETHER_POISONER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c9b217f1-1621-40d1-8a98-24c1f7cba800"),
-    "Aether Poisoner",
-    crate::card::CardArt::new("c9b217f1-1621-40d1-8a98-24c1f7cba800", "Yongjae Choi"),
-    crate::card::CardSet::AetherRevolt,
-    crate::card::CardRules::unsupported(),
-);
-
-// AER 57 — Fatal Push
 pub(in crate::card::sets) static FATAL_PUSH: CardRecord = CardRecord::new_with_legacy_id(
     2233,
     "Fatal Push",
@@ -119,6 +119,7 @@ pub(in crate::card::sets) static FOUNDRY_ASSEMBLER: CardRecord = CardRecord::new
         .with_ability(crate::card::abilities::improvise()),
 );
 
+// AER 181 — Walking Ballista
 static ANY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::AnyTarget,
 )];
@@ -159,7 +160,6 @@ static WALKING_BALLISTA_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
-// AER 181 — Walking Ballista
 pub(in crate::card::sets) static WALKING_BALLISTA: CardRecord = CardRecord::new_with_legacy_id(
     2237,
     "Walking Ballista",

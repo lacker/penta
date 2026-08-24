@@ -497,29 +497,6 @@ pub(in crate::card::sets) static PHYREXIAN_ARENA: CardRecord = CardRecord::new_w
     )),
 );
 
-/// Four cards deep, every Goblin among them taken, and no question asked:
-/// the clause is mandatory and unbounded, so the selection takes all matches
-/// rather than offering a bounded choice.
-static RINGLEADER_DIG: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(4),
-    object: Some(ObjectPredicateDef::Subtype("Goblin")),
-    minimum: 0,
-    maximum: 4,
-    select_all_matching: true,
-    reveal_selected: true,
-    selected_zone: ZoneKind::Hand,
-    selected_placement: ZonePlacement::Top,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Bottom,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
-
 // APC 48 — Phyrexian Gargantua
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PHYREXIAN_GARGANTUA: CardRecord = CardRecord::new(
@@ -656,6 +633,29 @@ pub(in crate::card::sets) static DWARVEN_PATROL: CardRecord = CardRecord::new(
 );
 
 // APC 62 — Goblin Ringleader
+/// Four cards deep, every Goblin among them taken, and no question asked:
+/// the clause is mandatory and unbounded, so the selection takes all matches
+/// rather than offering a bounded choice.
+static RINGLEADER_DIG: TopCardSelectionDef = TopCardSelectionDef {
+    count: ValueDef::Constant(4),
+    object: Some(ObjectPredicateDef::Subtype("Goblin")),
+    minimum: 0,
+    maximum: 4,
+    select_all_matching: true,
+    reveal_selected: true,
+    selected_zone: ZoneKind::Hand,
+    selected_placement: ZonePlacement::Top,
+    rest_zone: ZoneKind::Library,
+    rest_placement: ZonePlacement::Bottom,
+    rest_random_order: false,
+    rest_counters: None,
+    selected_order_follows_choice: false,
+    then: None,
+    selected_hidden: false,
+    selected_linked_to_source: false,
+    selected_face_down: None,
+};
+
 pub(in crate::card::sets) static GOBLIN_RINGLEADER: CardRecord = CardRecord::new_with_legacy_id(
     2027,
     "Goblin Ringleader",
@@ -680,23 +680,6 @@ pub(in crate::card::sets) static GOBLIN_RINGLEADER: CardRecord = CardRecord::new
         ),
     ]),
 );
-
-/// Three life a land, counted among the two cards that actually went. The
-/// discard is the opponent's choice, so the payoff cannot be known until
-/// they have made it.
-static VERDICT_LIFE: EffectDef = EffectDef::GainLife {
-    recipient: EffectRecipientDef::Controller,
-    amount: ValueDef::Scaled(&VERDICT_PER_LAND),
-};
-
-static VERDICT_PER_LAND: ScaledValueDef = ScaledValueDef {
-    value: ValueDef::MatchedCount,
-    factor: 3,
-};
-
-static VERDICT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
 
 // APC 63 — Illuminate
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1084,6 +1067,23 @@ pub(in crate::card::sets) static GAEA_S_SKYFOLK: CardRecord = CardRecord::new(
 );
 
 // APC 102 — Gerrard's Verdict
+/// Three life a land, counted among the two cards that actually went. The
+/// discard is the opponent's choice, so the payoff cannot be known until
+/// they have made it.
+static VERDICT_LIFE: EffectDef = EffectDef::GainLife {
+    recipient: EffectRecipientDef::Controller,
+    amount: ValueDef::Scaled(&VERDICT_PER_LAND),
+};
+
+static VERDICT_PER_LAND: ScaledValueDef = ScaledValueDef {
+    value: ValueDef::MatchedCount,
+    factor: 3,
+};
+
+static VERDICT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Player(PlayerRelation::Any),
+)];
+
 pub(in crate::card::sets) static GERRARDS_VERDICT: CardRecord = CardRecord::new_with_legacy_id(
     2067,
     "Gerrard's Verdict",
@@ -1365,6 +1365,17 @@ pub(in crate::card::sets) static VINDICATE: CardRecord = CardRecord::new_with_le
     )),
 );
 
+// APC 127 — Yavimaya's Embrace
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static YAVIMAYA_S_EMBRACE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("36b41ff1-240a-447b-bb47-1b9be53ab3e6"),
+    "Yavimaya's Embrace",
+    crate::card::CardArt::new("36b41ff1-240a-447b-bb47-1b9be53ab3e6", "Eric Peterson"),
+    crate::card::CardSet::Apocalypse,
+    crate::card::CardRules::unsupported(),
+);
+
+// APC 128 — Fire // Ice
 static FIRE_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef {
     predicate: AbilityTargetPredicate::AnyTarget,
     minimum: 1,
@@ -1438,17 +1449,6 @@ fn fire_ice_composition() -> CardComposition {
     .with_derived_spell_targets()
 }
 
-// APC 127 — Yavimaya's Embrace
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static YAVIMAYA_S_EMBRACE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("36b41ff1-240a-447b-bb47-1b9be53ab3e6"),
-    "Yavimaya's Embrace",
-    crate::card::CardArt::new("36b41ff1-240a-447b-bb47-1b9be53ab3e6", "Eric Peterson"),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
-);
-
-// APC 128 — Fire // Ice
 pub(in crate::card::sets) static FIRE_ICE: CardRecord = CardRecord::new_with_legacy_id(
     306,
     "Fire // Ice",
@@ -1461,6 +1461,20 @@ pub(in crate::card::sets) static FIRE_ICE: CardRecord = CardRecord::new_with_leg
 )
 .with_composition(fire_ice_composition);
 
+// APC 129 — Illusion // Reality
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ILLUSION_REALITY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8e7dd90a-4f93-43aa-b503-18289fdd571e"),
+    "Illusion // Reality",
+    crate::card::CardArt::new(
+        "8e7dd90a-4f93-43aa-b503-18289fdd571e",
+        "John Avon & David Martin",
+    ),
+    crate::card::CardSet::Apocalypse,
+    crate::card::CardRules::unsupported(),
+);
+
+// APC 130 — Life // Death
 /// "They're still lands" is not flavour: adding the creature type rather
 /// than replacing the land one is what keeps them tapping for mana, and what
 /// makes a board wipe answer the whole mana base.
@@ -1550,20 +1564,6 @@ fn life_death_composition() -> CardComposition {
     .with_derived_spell_targets()
 }
 
-// APC 129 — Illusion // Reality
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static ILLUSION_REALITY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8e7dd90a-4f93-43aa-b503-18289fdd571e"),
-    "Illusion // Reality",
-    crate::card::CardArt::new(
-        "8e7dd90a-4f93-43aa-b503-18289fdd571e",
-        "John Avon & David Martin",
-    ),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
-);
-
-// APC 130 — Life // Death
 pub(in crate::card::sets) static LIFE_DEATH: CardRecord = CardRecord::new_with_legacy_id(
     2123,
     "Life // Death",

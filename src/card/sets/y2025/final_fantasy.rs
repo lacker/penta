@@ -11,6 +11,7 @@ use crate::card::{
 };
 use crate::{CardPartId, PlayOptionId, mana_cost};
 
+// FIN 91 — Cecil, Dark Knight
 /// The front half's payoff, and the reason the card is played: hitting hard
 /// enough to halve your own life is what turns Cecil over. Untapping is part
 /// of the same clause, so a Cecil that traded its attack for the transform
@@ -127,7 +128,6 @@ fn cecil_composition() -> CardComposition {
     }
 }
 
-// FIN 91 — Cecil, Dark Knight
 pub(in crate::card::sets) static CECIL_DARK_KNIGHT: CardRecord = CardRecord::new_with_legacy_id(
     2129,
     "Cecil, Dark Knight",
@@ -137,6 +137,27 @@ pub(in crate::card::sets) static CECIL_DARK_KNIGHT: CardRecord = CardRecord::new
 )
 .with_composition(cecil_composition);
 
+// FIN 114 — Resentful Revelation
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RESENTFUL_REVELATION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("945006ea-c6a1-4ee5-abb2-387c2b6d3123"),
+    "Resentful Revelation",
+    crate::card::CardArt::new("945006ea-c6a1-4ee5-abb2-387c2b6d3123", "Justyna Dura"),
+    crate::card::CardSet::FinalFantasy,
+    crate::card::CardRules::unsupported(),
+);
+
+// FIN 164 — Suplex
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SUPLEX: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f61693a2-7042-44e0-85ba-9bf12ab94e7e"),
+    "Suplex",
+    crate::card::CardArt::new("f61693a2-7042-44e0-85ba-9bf12ab94e7e", "Fang Xinyu"),
+    crate::card::CardSet::FinalFantasy,
+    crate::card::CardRules::unsupported(),
+);
+
+// FIN 206 — Tifa Lockhart
 /// A land you control, not any land: the opponent's fetchland does nothing
 /// for her.
 static A_LAND_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
@@ -162,27 +183,6 @@ static TIFA_DOUBLES: [AbilityDef; 2] = [
     ),
 ];
 
-// FIN 114 — Resentful Revelation
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static RESENTFUL_REVELATION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("945006ea-c6a1-4ee5-abb2-387c2b6d3123"),
-    "Resentful Revelation",
-    crate::card::CardArt::new("945006ea-c6a1-4ee5-abb2-387c2b6d3123", "Justyna Dura"),
-    crate::card::CardSet::FinalFantasy,
-    crate::card::CardRules::unsupported(),
-);
-
-// FIN 164 — Suplex
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static SUPLEX: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f61693a2-7042-44e0-85ba-9bf12ab94e7e"),
-    "Suplex",
-    crate::card::CardArt::new("f61693a2-7042-44e0-85ba-9bf12ab94e7e", "Fang Xinyu"),
-    crate::card::CardSet::FinalFantasy,
-    crate::card::CardRules::unsupported(),
-);
-
-// FIN 206 — Tifa Lockhart
 pub(in crate::card::sets) static TIFA_LOCKHART: CardRecord = CardRecord::new_with_legacy_id(
     2146,
     "Tifa Lockhart",
@@ -193,6 +193,7 @@ pub(in crate::card::sets) static TIFA_LOCKHART: CardRecord = CardRecord::new_wit
         .with_abilities(&TIFA_DOUBLES),
 );
 
+// FIN 248 — Vivi Ornitier
 /// "Add X mana in any combination of {U} and/or {R}" divides one amount
 /// across two types, so the runtime offers the ability once per division.
 /// Vivi enters with no power at all, so the first activation worth making
@@ -237,7 +238,6 @@ static VIVI_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
-// FIN 248 — Vivi Ornitier
 pub(in crate::card::sets) static VIVI_ORNITIER: CardRecord = CardRecord::new_with_legacy_id(
     2162,
     "Vivi Ornitier",

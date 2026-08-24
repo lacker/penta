@@ -11,6 +11,7 @@ use crate::card::{
 use crate::ids::ObjectBindingIndex;
 use crate::mana_cost;
 
+// DOM 1 — Karn, Scion of Urza
 /// The opponent chooses which of the two you keep, so what Karn draws is
 /// always the worse half -- and the better one waits in exile for his minus.
 static KARN_REVEALS_TWO: TopCardSelectionDef = TopCardSelectionDef {
@@ -110,7 +111,6 @@ static KARN_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
-// DOM 1 — Karn, Scion of Urza
 pub(in crate::card::sets) static KARN_SCION_OF_URZA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("07a3d9e8-8597-498b-869c-cff79e0df516"),
     "Karn, Scion of Urza",

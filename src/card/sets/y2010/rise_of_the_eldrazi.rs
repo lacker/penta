@@ -9,10 +9,7 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
-static FLAME_SLASH_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Creature),
-)];
-
+// ROE 4 — Emrakul, the Aeons Torn
 static EMRAKUL_GRAVEYARD_ZONES: [ZoneKind; 1] = [ZoneKind::Graveyard];
 
 static EMRAKUL_SHUFFLES_GRAVEYARD: [EffectDef; 2] = [
@@ -60,7 +57,6 @@ static EMRAKUL_ABILITIES: [AbilityDef; 6] = [
     .with_source_zones(&EMRAKUL_GRAVEYARD_ZONES),
 ];
 
-// ROE 4 — Emrakul, the Aeons Torn
 pub(in crate::card::sets) static EMRAKUL_THE_AEONS_TORN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("67600383-bbb8-411c-b8e6-2296650bc747"),
     "Emrakul, the Aeons Torn",
@@ -124,6 +120,10 @@ pub(in crate::card::sets) static VENDETTA: CardRecord = CardRecord::new(
 );
 
 // ROE 145 — Flame Slash
+static FLAME_SLASH_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+    ObjectPredicateDef::HasType(CardType::Creature),
+)];
+
 pub(in crate::card::sets) static FLAME_SLASH: CardRecord = CardRecord::new_with_legacy_id(
     2184,
     "Flame Slash",
@@ -151,13 +151,13 @@ pub(in crate::card::sets) static RAID_BOMBARDMENT: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// ROE 201 — Nest Invader
 static ELDRAZI_SPAWN_ABILITIES: [AbilityDef; 1] = [AbilityDef::activated_mana(
     "Sacrifice this creature: Add {C}.",
     &[AbilityCostDef::SacrificeSource],
     EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
 )];
 
-// ROE 201 — Nest Invader
 pub(in crate::card::sets) static NEST_INVADER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("24517d9c-6cde-41e8-9e82-ee73f069379a"),
     "Nest Invader",

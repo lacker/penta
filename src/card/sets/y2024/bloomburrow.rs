@@ -11,6 +11,17 @@ use crate::card::{
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
+// BLB 54 — Kitsa, Otterball Elite
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static KITSA_OTTERBALL_ELITE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c8ff751a-ec64-41d5-b22c-2a483ad9a9b2"),
+    "Kitsa, Otterball Elite",
+    crate::card::CardArt::new("c8ff751a-ec64-41d5-b22c-2a483ad9a9b2", "Zoltan Boros"),
+    crate::card::CardSet::Bloomburrow,
+    crate::card::CardRules::unsupported(),
+);
+
+// BLB 75 — Stormchaser's Talent
 static AN_INSTANT_OR_SORCERY: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
     ObjectPredicateDef::HasType(CardType::Instant),
     ObjectPredicateDef::HasType(CardType::Sorcery),
@@ -115,17 +126,6 @@ static STORMCHASERS_TALENT_ABILITIES: [AbilityDef; 5] = [
     ),
 ];
 
-// BLB 54 — Kitsa, Otterball Elite
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static KITSA_OTTERBALL_ELITE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c8ff751a-ec64-41d5-b22c-2a483ad9a9b2"),
-    "Kitsa, Otterball Elite",
-    crate::card::CardArt::new("c8ff751a-ec64-41d5-b22c-2a483ad9a9b2", "Zoltan Boros"),
-    crate::card::CardSet::Bloomburrow,
-    crate::card::CardRules::unsupported(),
-);
-
-// BLB 75 — Stormchaser's Talent
 pub(in crate::card::sets) static STORMCHASERS_TALENT: CardRecord = CardRecord::new_with_legacy_id(
     2232,
     "Stormchaser's Talent",
@@ -138,6 +138,7 @@ pub(in crate::card::sets) static STORMCHASERS_TALENT: CardRecord = CardRecord::n
         .with_abilities(&STORMCHASERS_TALENT_ABILITIES),
 );
 
+// BLB 78 — Thundertrap Trainer
 /// "If you do, when this creature enters": the arrival asks what the cast
 /// paid, which the permanent recorded as it arrived.
 static TRAINER_HAD_OFFSPRING: TriggerConditionDef =
@@ -183,7 +184,6 @@ static TRAINER_ARRIVES: TriggerEventDef = TriggerEventDef::zone_changed(
     Some(ZoneKind::Battlefield),
 );
 
-// BLB 78 — Thundertrap Trainer
 pub(in crate::card::sets) static THUNDERTRAP_TRAINER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9cf3af94-b7c8-415c-a5a1-d89967fd0bba"),
     "Thundertrap Trainer",

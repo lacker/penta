@@ -8,6 +8,7 @@ use crate::card::{
 };
 use crate::mana_cost;
 
+// C21 53 — Laelia, the Blade Reforged
 /// "From your library and/or your graveyard": one clause naming two zones,
 /// so either answers it and a move that takes cards from both is still one
 /// trigger.
@@ -49,7 +50,6 @@ static LAELIA_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
-// C21 53 — Laelia, the Blade Reforged
 pub(in crate::card::sets) static LAELIA_THE_BLADE_REFORGED: CardRecord =
     CardRecord::new_with_legacy_id(
         2302,

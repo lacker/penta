@@ -10,10 +10,6 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
-static ANY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::AnyTarget,
-)];
-
 // TOR 1 — Angel of Retribution
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ANGEL_OF_RETRIBUTION: CardRecord = CardRecord::new(
@@ -1008,6 +1004,10 @@ pub(in crate::card::sets) static FLASH_OF_DEFIANCE: CardRecord = CardRecord::new
 );
 
 // TOR 100 — Grim Lavamancer
+static ANY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::AnyTarget,
+)];
+
 pub(in crate::card::sets) static GRIM_LAVAMANCER: CardRecord = CardRecord::new_with_legacy_id(
     2036,
     "Grim Lavamancer",

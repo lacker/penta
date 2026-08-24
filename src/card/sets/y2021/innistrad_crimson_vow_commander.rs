@@ -7,6 +7,7 @@ use crate::card::{
 };
 use crate::mana_cost;
 
+// VOC 14 — Occult Epiphany
 /// A Spirit for every card type the discard turned up. Every discarded card
 /// is counted, so the predicate is anything at all; what the value counts is
 /// the types between them rather than the cards.
@@ -38,7 +39,6 @@ static OCCULT_EPIPHANY_EFFECT: [EffectDef; 2] = [
     },
 ];
 
-// VOC 14 — Occult Epiphany
 pub(in crate::card::sets) static OCCULT_EPIPHANY: CardRecord = CardRecord::new_with_legacy_id(
     2235,
     "Occult Epiphany",

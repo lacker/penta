@@ -46,21 +46,7 @@ pub(in crate::card::sets) static RAM_THROUGH: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
-/// "Abilities you activate", which the shared vocabulary reaches as the
-/// abilities of permanents you control. Cycling and the rest of the
-/// abilities a card in hand or a graveyard prints are outside it.
-static PERMANENTS_YOU_CONTROL: ObjectPredicateDef =
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You);
-
-static ZIRDA_BLOCK_COST: [AbilityCostDef; 2] = [
-    AbilityCostDef::Mana(mana_cost!("{1}")),
-    AbilityCostDef::TapSource,
-];
-
-static A_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Creature),
-)];
-
+// IKO 226 — Lurrus of the Dream-Den
 /// "A permanent spell with mana value 2 or less." The action is a cast, so a
 /// land card in the graveyard is not among them: lands are played rather
 /// than cast, which is what keeps this from being a Crucible.
@@ -77,7 +63,6 @@ static LURRUS_PERMISSION: PlayRestrictionDef = PlayRestrictionDef::new(
     ]),
 );
 
-// IKO 226 — Lurrus of the Dream-Den
 pub(in crate::card::sets) static LURRUS_OF_THE_DREAM_DEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5ad36fb2-c44e-4085-ba0d-54277841ad3a"),
     "Lurrus of the Dream-Den",
@@ -112,6 +97,21 @@ pub(in crate::card::sets) static LURRUS_OF_THE_DREAM_DEN: CardRecord = CardRecor
 );
 
 // IKO 233 — Zirda, the Dawnwaker
+/// "Abilities you activate", which the shared vocabulary reaches as the
+/// abilities of permanents you control. Cycling and the rest of the
+/// abilities a card in hand or a graveyard prints are outside it.
+static PERMANENTS_YOU_CONTROL: ObjectPredicateDef =
+    ObjectPredicateDef::ControlledBy(PlayerRelation::You);
+
+static ZIRDA_BLOCK_COST: [AbilityCostDef; 2] = [
+    AbilityCostDef::Mana(mana_cost!("{1}")),
+    AbilityCostDef::TapSource,
+];
+
+static A_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+    ObjectPredicateDef::HasType(CardType::Creature),
+)];
+
 pub(in crate::card::sets) static ZIRDA_THE_DAWNWAKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1bd8e61c-2ee8-4243-a848-7008810db8a0"),
     "Zirda, the Dawnwaker",

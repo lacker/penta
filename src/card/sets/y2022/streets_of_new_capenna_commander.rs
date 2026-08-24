@@ -12,6 +12,7 @@ use crate::card::{
 use crate::ids::ObjectBindingIndex;
 use crate::mana_cost;
 
+// NCC 81 — Currency Converter
 /// "That card", which is the card as it now lies in the graveyard: the
 /// discard is over by the time this resolves, so what the trigger points at
 /// is the graveyard object rather than the one that was in hand.
@@ -115,7 +116,6 @@ static CURRENCY_CONVERTER_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
-// NCC 81 — Currency Converter
 pub(in crate::card::sets) static CURRENCY_CONVERTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("187b6719-e5ed-4615-a00b-3313ceca055b"),
     "Currency Converter",

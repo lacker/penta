@@ -11,37 +11,6 @@ use crate::card::{
 };
 use crate::mana_cost;
 
-static MILL_UNTIL_1: MillUntilDef = MillUntilDef {
-    player: EffectRecipientDef::EventPlayer,
-    object: ObjectPredicateDef::HasType(CardType::Creature),
-    matched_zone: ZoneKind::Battlefield,
-    binding: None,
-    then: None,
-};
-
-static CREATURES_THE_UPKEEP_PLAYER_CONTROLS: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Creature),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::EventPlayer,
-);
-
-static CREATURES_THEIR_OPPONENT_CONTROLS: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Creature),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::NotEventPlayer,
-);
-
-static THE_UPKEEP_PLAYER_IS_BEHIND: ValueComparisonDef = ValueComparisonDef {
-    left: ValueDef::CountMatchingObjects(&CREATURES_THE_UPKEEP_PLAYER_CONTROLS),
-    comparison: ComparisonDef::Less,
-    right: ValueDef::CountMatchingObjects(&CREATURES_THEIR_OPPONENT_CONTROLS),
-};
-
-static OATH_CONDITION: TriggerConditionDef =
-    TriggerConditionDef::ValueComparison(&THE_UPKEEP_PLAYER_IS_BEHIND);
-
-static OATH_DIGS_FOR_A_CREATURE: EffectDef = EffectDef::MillUntil(&MILL_UNTIL_1);
-
 // EXO 1 — Allay
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ALLAY: CardRecord = CardRecord::new(
@@ -1185,6 +1154,37 @@ pub(in crate::card::sets) static MIRRI_CAT_WARRIOR: CardRecord = CardRecord::new
 );
 
 // EXO 115 — Oath of Druids
+static MILL_UNTIL_1: MillUntilDef = MillUntilDef {
+    player: EffectRecipientDef::EventPlayer,
+    object: ObjectPredicateDef::HasType(CardType::Creature),
+    matched_zone: ZoneKind::Battlefield,
+    binding: None,
+    then: None,
+};
+
+static CREATURES_THE_UPKEEP_PLAYER_CONTROLS: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::HasType(CardType::Creature),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::EventPlayer,
+);
+
+static CREATURES_THEIR_OPPONENT_CONTROLS: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::HasType(CardType::Creature),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::NotEventPlayer,
+);
+
+static THE_UPKEEP_PLAYER_IS_BEHIND: ValueComparisonDef = ValueComparisonDef {
+    left: ValueDef::CountMatchingObjects(&CREATURES_THE_UPKEEP_PLAYER_CONTROLS),
+    comparison: ComparisonDef::Less,
+    right: ValueDef::CountMatchingObjects(&CREATURES_THEIR_OPPONENT_CONTROLS),
+};
+
+static OATH_CONDITION: TriggerConditionDef =
+    TriggerConditionDef::ValueComparison(&THE_UPKEEP_PLAYER_IS_BEHIND);
+
+static OATH_DIGS_FOR_A_CREATURE: EffectDef = EffectDef::MillUntil(&MILL_UNTIL_1);
+
 pub(in crate::card::sets) static OATH_OF_DRUIDS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cf14de50-d123-400c-862e-2c95fd2aa23f"),
     "Oath of Druids",

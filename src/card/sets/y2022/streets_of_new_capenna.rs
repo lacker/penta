@@ -22,6 +22,17 @@ const fn triome(types: &'static [&'static str]) -> CardRules {
     CardRules::new_land(types).with_abilities(TRIOME_ABILITIES)
 }
 
+// SNC 26 — Raffine's Informant
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static RAFFINE_S_INFORMANT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4e64ff87-2099-4360-94f6-164277b7b514"),
+    "Raffine's Informant",
+    crate::card::CardArt::new("4e64ff87-2099-4360-94f6-164277b7b514", "John Stanko"),
+    crate::card::CardSet::StreetsOfNewCapenna,
+    crate::card::CardRules::unsupported(),
+);
+
+// SNC 46 — Ledger Shredder
 /// Exactly the second, not the second or later: the spell that caused the
 /// trigger has already been counted by the time this is read. "Their"
 /// second, so the count is the casting player's own rather than anybody's.
@@ -47,17 +58,6 @@ static LEDGER_SHREDDER_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
-// SNC 26 — Raffine's Informant
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static RAFFINE_S_INFORMANT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4e64ff87-2099-4360-94f6-164277b7b514"),
-    "Raffine's Informant",
-    crate::card::CardArt::new("4e64ff87-2099-4360-94f6-164277b7b514", "John Stanko"),
-    crate::card::CardSet::StreetsOfNewCapenna,
-    crate::card::CardRules::unsupported(),
-);
-
-// SNC 46 — Ledger Shredder
 pub(in crate::card::sets) static LEDGER_SHREDDER: CardRecord = CardRecord::new_with_legacy_id(
     2286,
     "Ledger Shredder",

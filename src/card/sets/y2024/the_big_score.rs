@@ -12,6 +12,17 @@ static ANY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::AnyTarget,
 )];
 
+// BIG 9 — Harvester of Misery
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static HARVESTER_OF_MISERY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a3012af9-621d-4fae-b00d-079a89ae35fe"),
+    "Harvester of Misery",
+    crate::card::CardArt::new("a3012af9-621d-4fae-b00d-079a89ae35fe", "Jorge Jacinto"),
+    crate::card::CardSet::TheBigScore,
+    crate::card::CardRules::unsupported(),
+);
+
+// BIG 12 — Legion Extruder
 /// Another one: the Extruder is an artifact itself and may not eat itself,
 /// which is what stops a two-mana artifact from being a Golem on its own.
 static ANOTHER_ARTIFACT: ObjectPredicateDef = ObjectPredicateDef::All(&[
@@ -53,17 +64,6 @@ static LEGION_EXTRUDER_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
-// BIG 9 — Harvester of Misery
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static HARVESTER_OF_MISERY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a3012af9-621d-4fae-b00d-079a89ae35fe"),
-    "Harvester of Misery",
-    crate::card::CardArt::new("a3012af9-621d-4fae-b00d-079a89ae35fe", "Jorge Jacinto"),
-    crate::card::CardSet::TheBigScore,
-    crate::card::CardRules::unsupported(),
-);
-
-// BIG 12 — Legion Extruder
 pub(in crate::card::sets) static LEGION_EXTRUDER: CardRecord = CardRecord::new_with_legacy_id(
     2288,
     "Legion Extruder",
@@ -75,6 +75,7 @@ pub(in crate::card::sets) static LEGION_EXTRUDER: CardRecord = CardRecord::new_w
     CardRules::new_artifact(mana_cost!("{1}{R}")).with_abilities(&LEGION_EXTRUDER_ABILITIES),
 );
 
+// BIG 21 — Loot, the Pathfinder
 static LOOT_ABILITIES: [AbilityDef; 6] = [
     abilities::double_strike(),
     abilities::vigilance(),
@@ -122,7 +123,6 @@ static LOOT_RED_COST: [AbilityCostDef; 2] = [
     AbilityCostDef::TapSource,
 ];
 
-// BIG 21 — Loot, the Pathfinder
 pub(in crate::card::sets) static LOOT_THE_PATHFINDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fb169fa2-c92e-45f7-89a2-0ca0e3910a1c"),
     "Loot, the Pathfinder",

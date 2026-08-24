@@ -8,6 +8,7 @@ use crate::card::{
 };
 use crate::mana_cost;
 
+// EOC 13 — Baloth Prime
 /// "Enters tapped with six stun counters on it" is one clause about the way
 /// he arrives, so it is one replacement with two parts rather than two
 /// abilities: a 10/10 for four that owes six untaps.
@@ -69,7 +70,6 @@ static BALOTH_PRIME_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
-// EOC 13 — Baloth Prime
 pub(in crate::card::sets) static BALOTH_PRIME: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2c723fc9-d5c9-4126-a9a6-f80c247a4b6b"),
     "Baloth Prime",

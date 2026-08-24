@@ -13,74 +13,7 @@ use crate::card::{
 use crate::ids::{ObjectSetBindingIndex, TargetIndex};
 use crate::mana_cost;
 
-/// The tokens go away at the next end step, and it has to be exactly the
-/// ones this attack made: by then nothing about the board could tell them
-/// apart from the pair the last attack made, or from a Warrior that arrived
-/// some other way. So they are bound as they are created and the delayed
-/// clause names the binding.
-static MOBILIZE_SACRIFICE: EffectDef =
-    EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-        "At the beginning of the next end step, sacrifice those tokens.",
-        TriggerEventDef::StepBegins {
-            step: TurnStepDef::End,
-            player: PlayerRelation::Any,
-        },
-        EffectDef::Sacrifice {
-            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                ObjectSetBindingIndex::PRIMARY,
-            )),
-        },
-    )));
-
-/// Mobilize 2 (CR 702.180a). Written out rather than abbreviated: the
-/// keyword is a shorthand for a triggered ability, and this is that ability.
-static MOBILIZE_TWO: AbilityDef = AbilityDef::triggered(
-    "Mobilize 2 (Whenever this creature attacks, create two tapped and attacking 1/1 red Warrior \
-     creature tokens. Sacrifice them at the beginning of the next end step.)",
-    TriggerEventDef::attacks(ObjectPredicateDef::Source),
-    EffectDef::create_creature_token(&["Warrior"], &[ManaColor::Red], 1, 1)
-        .with_art(CardArt::new(
-            "7edc0515-a130-45a7-aa09-0e23bba41587",
-            "Forrest Imel",
-        ))
-        .with_amount(2)
-        .entering_tapped()
-        .entering_attacking()
-        .with_created_tokens(CreatedTokensDef {
-            binding: ObjectSetBindingIndex::PRIMARY,
-            then: &MOBILIZE_SACRIFICE,
-        }),
-);
-
-static NO_SPELLS: PlayRestrictionDef =
-    PlayRestrictionDef::new(PlayActionMatcherDef::CastSpell, ObjectPredicateDef::Any);
-
-/// "During your turn" is the whole of the clause's timing, and it gates the
-/// restriction rather than narrowing who it names: on their own turn the
-/// same opponents may cast whatever they like.
-static SILENCE_ON_YOUR_TURN: EffectDef = EffectDef::StaticApply {
-    recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::Opponent)),
-    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(NO_SPELLS)),
-};
-
-static VOICE_OF_VICTORY_ABILITIES: [AbilityDef; 2] = [
-    MOBILIZE_TWO,
-    AbilityDef::static_ability(
-        "Your opponents can't cast spells during your turn.",
-        EffectDef::IfCondition {
-            condition: &TriggerConditionDef::ActivePlayer(PlayerRelation::You),
-            then: &SILENCE_ON_YOUR_TURN,
-        },
-    ),
-];
-
-/// "It endures 1": the counter or the Spirit, and the attacking body is
-/// what either one is about.
-static DESCENDANT_ENDURES: EffectDef = EffectDef::Endure {
-    object: EffectRecipientDef::Source,
-    amount: ValueDef::Constant(1),
-};
-
+// TDM 1 — Ugin, Eye of the Storms
 /// "Up to one target permanent that's one or more colors": colorless is what
 /// Ugin does not touch, which is the whole bargain of the deck built around
 /// him -- your own artifacts and Eldrazi are safe from every one of these
@@ -188,7 +121,6 @@ static UGIN_ABILITIES: [AbilityDef; 5] = [
     ),
 ];
 
-// TDM 1 — Ugin, Eye of the Storms
 pub(in crate::card::sets) static UGIN_EYE_OF_THE_STORMS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("64a5d494-efa1-446b-bebe-2ad36e154376"),
     "Ugin, Eye of the Storms",
@@ -203,6 +135,13 @@ pub(in crate::card::sets) static UGIN_EYE_OF_THE_STORMS: CardRecord = CardRecord
 );
 
 // TDM 8 — Descendant of Storms
+/// "It endures 1": the counter or the Spirit, and the attacking body is
+/// what either one is about.
+static DESCENDANT_ENDURES: EffectDef = EffectDef::Endure {
+    object: EffectRecipientDef::Source,
+    amount: ValueDef::Constant(1),
+};
+
 pub(in crate::card::sets) static DESCENDANT_OF_STORMS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f632be90-9e7f-41f8-a52e-a2952354d730"),
     "Descendant of Storms",
@@ -257,6 +196,67 @@ pub(in crate::card::sets) static SALT_ROAD_PACKBEAST: CardRecord = CardRecord::n
 );
 
 // TDM 33 — Voice of Victory
+/// The tokens go away at the next end step, and it has to be exactly the
+/// ones this attack made: by then nothing about the board could tell them
+/// apart from the pair the last attack made, or from a Warrior that arrived
+/// some other way. So they are bound as they are created and the delayed
+/// clause names the binding.
+static MOBILIZE_SACRIFICE: EffectDef =
+    EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+        "At the beginning of the next end step, sacrifice those tokens.",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::End,
+            player: PlayerRelation::Any,
+        },
+        EffectDef::Sacrifice {
+            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                ObjectSetBindingIndex::PRIMARY,
+            )),
+        },
+    )));
+
+/// Mobilize 2 (CR 702.180a). Written out rather than abbreviated: the
+/// keyword is a shorthand for a triggered ability, and this is that ability.
+static MOBILIZE_TWO: AbilityDef = AbilityDef::triggered(
+    "Mobilize 2 (Whenever this creature attacks, create two tapped and attacking 1/1 red Warrior \
+     creature tokens. Sacrifice them at the beginning of the next end step.)",
+    TriggerEventDef::attacks(ObjectPredicateDef::Source),
+    EffectDef::create_creature_token(&["Warrior"], &[ManaColor::Red], 1, 1)
+        .with_art(CardArt::new(
+            "7edc0515-a130-45a7-aa09-0e23bba41587",
+            "Forrest Imel",
+        ))
+        .with_amount(2)
+        .entering_tapped()
+        .entering_attacking()
+        .with_created_tokens(CreatedTokensDef {
+            binding: ObjectSetBindingIndex::PRIMARY,
+            then: &MOBILIZE_SACRIFICE,
+        }),
+);
+
+static NO_SPELLS: PlayRestrictionDef =
+    PlayRestrictionDef::new(PlayActionMatcherDef::CastSpell, ObjectPredicateDef::Any);
+
+/// "During your turn" is the whole of the clause's timing, and it gates the
+/// restriction rather than narrowing who it names: on their own turn the
+/// same opponents may cast whatever they like.
+static SILENCE_ON_YOUR_TURN: EffectDef = EffectDef::StaticApply {
+    recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::Opponent)),
+    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(NO_SPELLS)),
+};
+
+static VOICE_OF_VICTORY_ABILITIES: [AbilityDef; 2] = [
+    MOBILIZE_TWO,
+    AbilityDef::static_ability(
+        "Your opponents can't cast spells during your turn.",
+        EffectDef::IfCondition {
+            condition: &TriggerConditionDef::ActivePlayer(PlayerRelation::You),
+            then: &SILENCE_ON_YOUR_TURN,
+        },
+    ),
+];
+
 pub(in crate::card::sets) static VOICE_OF_VICTORY: CardRecord = CardRecord::new_with_legacy_id(
     2282,
     "Voice of Victory",
@@ -268,6 +268,30 @@ pub(in crate::card::sets) static VOICE_OF_VICTORY: CardRecord = CardRecord::new_
         .with_abilities(&VOICE_OF_VICTORY_ABILITIES),
 );
 
+// TDM 119 — Seize Opportunity
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SEIZE_OPPORTUNITY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f7818d28-b9a5-4341-9adc-666070b8878d"),
+    "Seize Opportunity",
+    crate::card::CardArt::new(
+        "f7818d28-b9a5-4341-9adc-666070b8878d",
+        "Josiah \"Jo\" Cameron",
+    ),
+    crate::card::CardSet::TarkirDragonstorm,
+    crate::card::CardRules::unsupported(),
+);
+
+// TDM 120 — Shock Brigade
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SHOCK_BRIGADE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("66940466-8e9d-4a85-bfb0-e92189b7a121"),
+    "Shock Brigade",
+    crate::card::CardArt::new("66940466-8e9d-4a85-bfb0-e92189b7a121", "Fajareka Setiawan"),
+    crate::card::CardSet::TarkirDragonstorm,
+    crate::card::CardRules::unsupported(),
+);
+
+// TDM 127 — Tersa Lightshatter
 /// "Discard up to two cards, then draw that many." The size is the player's
 /// to choose, so the discard is a choice with a floor of none rather than a
 /// fixed number, and what is drawn is however many that turned out to be.
@@ -331,30 +355,6 @@ static TERSA_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
-// TDM 119 — Seize Opportunity
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static SEIZE_OPPORTUNITY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f7818d28-b9a5-4341-9adc-666070b8878d"),
-    "Seize Opportunity",
-    crate::card::CardArt::new(
-        "f7818d28-b9a5-4341-9adc-666070b8878d",
-        "Josiah \"Jo\" Cameron",
-    ),
-    crate::card::CardSet::TarkirDragonstorm,
-    crate::card::CardRules::unsupported(),
-);
-
-// TDM 120 — Shock Brigade
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static SHOCK_BRIGADE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("66940466-8e9d-4a85-bfb0-e92189b7a121"),
-    "Shock Brigade",
-    crate::card::CardArt::new("66940466-8e9d-4a85-bfb0-e92189b7a121", "Fajareka Setiawan"),
-    crate::card::CardSet::TarkirDragonstorm,
-    crate::card::CardRules::unsupported(),
-);
-
-// TDM 127 — Tersa Lightshatter
 pub(in crate::card::sets) static TERSA_LIGHTSHATTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("39f07b5b-d764-4c88-920b-36b0ba1c62b0"),
     "Tersa Lightshatter",

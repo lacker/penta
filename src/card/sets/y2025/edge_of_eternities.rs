@@ -10,6 +10,37 @@ use crate::card::{
 };
 use crate::mana_cost;
 
+// EOE 2 — Tezzeret, Cruel Captain
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TEZZERET_CRUEL_CAPTAIN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("02e8e540-8aa3-4e6a-9a11-c3949cab5f0f"),
+    "Tezzeret, Cruel Captain",
+    crate::card::CardArt::new("02e8e540-8aa3-4e6a-9a11-c3949cab5f0f", "Chris Rahn"),
+    crate::card::CardSet::EdgeOfEternities,
+    crate::card::CardRules::unsupported(),
+);
+
+// EOE 9 — Cosmogrand Zenith
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static COSMOGRAND_ZENITH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b3c1e5e3-4e6b-456a-958c-7a75c38f8183"),
+    "Cosmogrand Zenith",
+    crate::card::CardArt::new("b3c1e5e3-4e6b-456a-958c-7a75c38f8183", "Anna Steinbauer"),
+    crate::card::CardSet::EdgeOfEternities,
+    crate::card::CardRules::unsupported(),
+);
+
+// EOE 18 — Focus Fire
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FOCUS_FIRE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a9ddfcbc-0f84-4315-aaa3-ca54ff64d7de"),
+    "Focus Fire",
+    crate::card::CardArt::new("a9ddfcbc-0f84-4315-aaa3-ca54ff64d7de", "Borja Pindado"),
+    crate::card::CardSet::EdgeOfEternities,
+    crate::card::CardRules::unsupported(),
+);
+
+// EOE 51 — Consult the Star Charts
 /// "Where X is the number of lands you control", which is the whole reason
 /// the card is playable: it looks at more the longer the game goes.
 static LANDS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
@@ -45,6 +76,7 @@ const fn consult_selection(cards: u8) -> TopCardSelectionDef {
 }
 
 static CONSULT_ONE: TopCardSelectionDef = consult_selection(1);
+
 static CONSULT_TWO: TopCardSelectionDef = consult_selection(2);
 
 static CONSULT_WAS_KICKED: TriggerConditionDef =
@@ -77,37 +109,6 @@ static CONSULT_EFFECT: [EffectDef; 2] = [
     },
 ];
 
-// EOE 2 — Tezzeret, Cruel Captain
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static TEZZERET_CRUEL_CAPTAIN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("02e8e540-8aa3-4e6a-9a11-c3949cab5f0f"),
-    "Tezzeret, Cruel Captain",
-    crate::card::CardArt::new("02e8e540-8aa3-4e6a-9a11-c3949cab5f0f", "Chris Rahn"),
-    crate::card::CardSet::EdgeOfEternities,
-    crate::card::CardRules::unsupported(),
-);
-
-// EOE 9 — Cosmogrand Zenith
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static COSMOGRAND_ZENITH: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b3c1e5e3-4e6b-456a-958c-7a75c38f8183"),
-    "Cosmogrand Zenith",
-    crate::card::CardArt::new("b3c1e5e3-4e6b-456a-958c-7a75c38f8183", "Anna Steinbauer"),
-    crate::card::CardSet::EdgeOfEternities,
-    crate::card::CardRules::unsupported(),
-);
-
-// EOE 18 — Focus Fire
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static FOCUS_FIRE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a9ddfcbc-0f84-4315-aaa3-ca54ff64d7de"),
-    "Focus Fire",
-    crate::card::CardArt::new("a9ddfcbc-0f84-4315-aaa3-ca54ff64d7de", "Borja Pindado"),
-    crate::card::CardSet::EdgeOfEternities,
-    crate::card::CardRules::unsupported(),
-);
-
-// EOE 51 — Consult the Star Charts
 pub(in crate::card::sets) static CONSULT_THE_STAR_CHARTS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a16a6555-2e3a-4587-aacd-0307d696b26c"),
     "Consult the Star Charts",
@@ -165,6 +166,7 @@ pub(in crate::card::sets) static MECHANOZOA: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// EOE 72 — Quantum Riddler
 /// "As long as you have one or fewer cards in hand, if you would draw one
 /// or more cards, you draw that many cards plus one instead." One
 /// replacement of the whole instruction: a draw of three becomes a draw of
@@ -176,7 +178,6 @@ static RIDDLER_EXTRA_CARD: ReplacementAbilityDef = ReplacementAbilityDef::new()
     })
     .with_condition(ReplacementConditionDef::ControllerHandAtMost(1));
 
-// EOE 72 — Quantum Riddler
 pub(in crate::card::sets) static QUANTUM_RIDDLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("120be808-ff3b-4fca-96a1-4db6b9825856"),
     "Quantum Riddler",
@@ -234,6 +235,7 @@ pub(in crate::card::sets) static PLASMA_BOLT: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// EOE 201 — Ouroboroid
 /// "Each creature you control" includes the Wurm itself, so the counters it
 /// hands out make the next round of them bigger.
 static CREATURES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
@@ -242,7 +244,6 @@ static CREATURES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
     PlayerRelation::You,
 );
 
-// EOE 201 — Ouroboroid
 pub(in crate::card::sets) static OUROBOROID: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("209c591a-4ab2-4e89-9523-a7b766cf4e51"),
     "Ouroboroid",

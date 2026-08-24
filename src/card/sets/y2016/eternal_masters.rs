@@ -8,34 +8,6 @@ use crate::card::{
 };
 use crate::mana_cost;
 
-/// Losing the flip is the whole cost of the card, and it is paid to the
-/// artifact itself: three damage from a source its controller chose to keep
-/// around.
-static MANA_CRYPT_TOLL: EffectDef = EffectDef::DealDamage {
-    recipient: EffectRecipientDef::Controller,
-    amount: ValueDef::Constant(3),
-};
-
-static MANA_CRYPT_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::triggered(
-        "At the beginning of your upkeep, flip a coin. If you lose the flip, this artifact deals 3 damage to you.",
-        TriggerEventDef::StepBegins {
-            step: TurnStepDef::Upkeep,
-            player: PlayerRelation::You,
-        },
-        EffectDef::Randomized {
-            likelihood: LikelihoodDef::new(0.5),
-            on_success: &EffectDef::None,
-            on_failure: &MANA_CRYPT_TOLL,
-        },
-    ),
-    AbilityDef::activated_mana(
-        "{T}: Add {C}{C}.",
-        &[AbilityCostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless).with_amount(2)),
-    ),
-];
-
 // EMA 6 — Coalition Honor Guard
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static COALITION_HONOR_GUARD: CardRecord = CardRecord::new(
@@ -87,6 +59,34 @@ pub(in crate::card::sets) static WEREBEAR: CardRecord = CardRecord::new(
 );
 
 // EMA 225 — Mana Crypt
+/// Losing the flip is the whole cost of the card, and it is paid to the
+/// artifact itself: three damage from a source its controller chose to keep
+/// around.
+static MANA_CRYPT_TOLL: EffectDef = EffectDef::DealDamage {
+    recipient: EffectRecipientDef::Controller,
+    amount: ValueDef::Constant(3),
+};
+
+static MANA_CRYPT_ABILITIES: [AbilityDef; 2] = [
+    AbilityDef::triggered(
+        "At the beginning of your upkeep, flip a coin. If you lose the flip, this artifact deals 3 damage to you.",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::Upkeep,
+            player: PlayerRelation::You,
+        },
+        EffectDef::Randomized {
+            likelihood: LikelihoodDef::new(0.5),
+            on_success: &EffectDef::None,
+            on_failure: &MANA_CRYPT_TOLL,
+        },
+    ),
+    AbilityDef::activated_mana(
+        "{T}: Add {C}{C}.",
+        &[AbilityCostDef::TapSource],
+        EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless).with_amount(2)),
+    ),
+];
+
 pub(in crate::card::sets) static MANA_CRYPT: CardRecord = CardRecord::new_with_legacy_id(
     2142,
     "Mana Crypt",

@@ -18,6 +18,7 @@ use crate::card::{
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
 
+// DSK 6 — Enduring Innocence
 /// "Other creatures you control with power 2 or less", read as each one
 /// enters. The cap below is what makes a batch of them draw one card.
 static A_SMALL_CREATURE_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
@@ -77,7 +78,6 @@ static ENDURING_INNOCENCE_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
-// DSK 6 — Enduring Innocence
 pub(in crate::card::sets) static ENDURING_INNOCENCE: CardRecord = CardRecord::new_with_legacy_id(
     2222,
     "Enduring Innocence",
@@ -89,6 +89,67 @@ pub(in crate::card::sets) static ENDURING_INNOCENCE: CardRecord = CardRecord::ne
         .with_abilities(&ENDURING_INNOCENCE_ABILITIES),
 );
 
+// DSK 36 — Trapped in the Screen
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TRAPPED_IN_THE_SCREEN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1fe95bfb-8ca7-434f-a2e7-a6b2e699584e"),
+    "Trapped in the Screen",
+    crate::card::CardArt::new("1fe95bfb-8ca7-434f-a2e7-a6b2e699584e", "Michael Phillippi"),
+    crate::card::CardSet::DuskmournHouseOfHorror,
+    crate::card::CardRules::unsupported(),
+);
+
+// DSK 42 — Abhorrent Oculus
+/// Six cards out of your own graveyard, exiled to pay. Nothing is chosen
+/// after the fact: the additional cost travels with the cast.
+static EXILE_SIX_CARDS: SpellAdditionalCostDef =
+    SpellAdditionalCostDef::new(ObjectPredicateDef::Any, ZoneKind::Graveyard, 6)
+        .spent(SpendModeDef::Exile);
+
+static OCULUS_ABILITIES: [AbilityDef; 3] = [
+    AbilityDef::spell_with_additional_cost(
+        "As an additional cost to cast this spell, exile six cards from your graveyard.",
+        &[],
+        EXILE_SIX_CARDS,
+        EffectDef::None,
+    ),
+    abilities::flying(),
+    AbilityDef::triggered(
+        "At the beginning of each opponent's upkeep, manifest dread. (Look at the top two cards \
+         of your library. Put one onto the battlefield face down as a 2/2 creature and the other \
+         into your graveyard. Turn it face up any time for its mana cost if it's a creature \
+         card.)",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::Upkeep,
+            player: PlayerRelation::Opponent,
+        },
+        EffectDef::ManifestDread {
+            player: EffectRecipientDef::Controller,
+        },
+    ),
+];
+
+pub(in crate::card::sets) static ABHORRENT_OCULUS: CardRecord = CardRecord::new_with_legacy_id(
+    2270,
+    "Abhorrent Oculus",
+    CardArt::new("d2705b43-a94a-44c0-8740-82e0b296820c", "Bryan Sola"),
+    CardSet::DuskmournHouseOfHorror,
+    // A three-mana 5/5 flier for a deck that filled its own graveyard on
+    // purpose, and a body every turn afterwards for nothing.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Eye"], 5, 5).with_abilities(&OCULUS_ABILITIES),
+);
+
+// DSK 78 — Unable to Scream
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static UNABLE_TO_SCREAM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7c59e0cd-10a8-4a32-9c0a-a2c6ef1ed9a6"),
+    "Unable to Scream",
+    crate::card::CardArt::new("7c59e0cd-10a8-4a32-9c0a-a2c6ef1ed9a6", "Fariba Khamseh"),
+    crate::card::CardSet::DuskmournHouseOfHorror,
+    crate::card::CardRules::unsupported(),
+);
+
+// DSK 113 — Overlord of the Balemurk
 /// "A non-Avatar creature card or a planeswalker card." The Overlord itself
 /// is an Avatar, which is what the exclusion is there for: it cannot buy
 /// itself back.
@@ -188,67 +249,6 @@ static OVERLORD_ABILITIES: [AbilityDef; 4] = [
     ),
 ];
 
-/// Six cards out of your own graveyard, exiled to pay. Nothing is chosen
-/// after the fact: the additional cost travels with the cast.
-static EXILE_SIX_CARDS: SpellAdditionalCostDef =
-    SpellAdditionalCostDef::new(ObjectPredicateDef::Any, ZoneKind::Graveyard, 6)
-        .spent(SpendModeDef::Exile);
-
-static OCULUS_ABILITIES: [AbilityDef; 3] = [
-    AbilityDef::spell_with_additional_cost(
-        "As an additional cost to cast this spell, exile six cards from your graveyard.",
-        &[],
-        EXILE_SIX_CARDS,
-        EffectDef::None,
-    ),
-    abilities::flying(),
-    AbilityDef::triggered(
-        "At the beginning of each opponent's upkeep, manifest dread. (Look at the top two cards \
-         of your library. Put one onto the battlefield face down as a 2/2 creature and the other \
-         into your graveyard. Turn it face up any time for its mana cost if it's a creature \
-         card.)",
-        TriggerEventDef::StepBegins {
-            step: TurnStepDef::Upkeep,
-            player: PlayerRelation::Opponent,
-        },
-        EffectDef::ManifestDread {
-            player: EffectRecipientDef::Controller,
-        },
-    ),
-];
-
-// DSK 36 — Trapped in the Screen
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static TRAPPED_IN_THE_SCREEN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("1fe95bfb-8ca7-434f-a2e7-a6b2e699584e"),
-    "Trapped in the Screen",
-    crate::card::CardArt::new("1fe95bfb-8ca7-434f-a2e7-a6b2e699584e", "Michael Phillippi"),
-    crate::card::CardSet::DuskmournHouseOfHorror,
-    crate::card::CardRules::unsupported(),
-);
-
-// DSK 42 — Abhorrent Oculus
-pub(in crate::card::sets) static ABHORRENT_OCULUS: CardRecord = CardRecord::new_with_legacy_id(
-    2270,
-    "Abhorrent Oculus",
-    CardArt::new("d2705b43-a94a-44c0-8740-82e0b296820c", "Bryan Sola"),
-    CardSet::DuskmournHouseOfHorror,
-    // A three-mana 5/5 flier for a deck that filled its own graveyard on
-    // purpose, and a body every turn afterwards for nothing.
-    CardRules::new_creature(mana_cost!("{2}{U}"), &["Eye"], 5, 5).with_abilities(&OCULUS_ABILITIES),
-);
-
-// DSK 78 — Unable to Scream
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static UNABLE_TO_SCREAM: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7c59e0cd-10a8-4a32-9c0a-a2c6ef1ed9a6"),
-    "Unable to Scream",
-    crate::card::CardArt::new("7c59e0cd-10a8-4a32-9c0a-a2c6ef1ed9a6", "Fariba Khamseh"),
-    crate::card::CardSet::DuskmournHouseOfHorror,
-    crate::card::CardRules::unsupported(),
-);
-
-// DSK 113 — Overlord of the Balemurk
 pub(in crate::card::sets) static OVERLORD_OF_THE_BALEMURK: CardRecord =
     CardRecord::new_with_legacy_id(
         2234,
@@ -261,70 +261,98 @@ pub(in crate::card::sets) static OVERLORD_OF_THE_BALEMURK: CardRecord =
             .with_abilities(&OVERLORD_ABILITIES),
     );
 
-/// Either graveyard: the Vacuum is as happy eating your own escape targets
-/// as theirs, and the second ability does not care whose card it was.
-static A_CARD_IN_A_GRAVEYARD: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::Any,
-        zones: &[ZoneKind::Graveyard],
-        controller: None,
-        owner: None,
-    },
-)];
-
-static VACUUM_CASH_IN_COST: [AbilityCostDef; 3] = [
-    AbilityCostDef::Mana(mana_cost!("{6}")),
-    AbilityCostDef::TapSource,
-    AbilityCostDef::SacrificeSource,
-];
-
-/// "Each of them is a 1/1 Spirit in addition to its other types." Adding the
-/// subtype rather than setting it is what "in addition" means: a Griselbrand
-/// that comes back this way is a Demon Spirit, and a 1/1 one.
-static AS_A_ONE_ONE_SPIRIT: AppliedEffectDef = AppliedEffectDef::Composite(&[
-    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
-    AppliedEffectDef::Characteristic(CharacteristicOperationDef::CreatureTypes(
-        SetOperationDef::Add(CreatureTypeSetDef::named(&["Spirit"])),
-    )),
-]);
-
-static A_FLYING_COUNTER: TokenCountersDef = TokenCountersDef {
-    kind: CounterKind::Flying,
-    amount: ValueDef::Constant(1),
+// DSK 136 — Fear of Missing Out
+/// Delirium: four or more card types among the cards in your graveyard,
+/// counted as the trigger is placed and again as it resolves. The discard
+/// his own arrival asks for is often what turns it on.
+static DELIRIUM: ValueComparisonDef = ValueComparisonDef {
+    left: ValueDef::CardTypesAmongGraveyards(PlayerRelation::You),
+    comparison: ComparisonDef::GreaterOrEqual,
+    right: ValueDef::Constant(4),
 };
 
-static GHOST_VACUUM_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::activated_with_targets(
-        "{T}: Exile target card from a graveyard.",
-        &[AbilityCostDef::TapSource],
-        &A_CARD_IN_A_GRAVEYARD,
-        // Linked rather than exiled outright: the second ability names what
-        // this one took, and by then nothing else could tell those cards
-        // apart from anything else in exile.
-        EffectDef::ExileLinkedToSource {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        },
-    ),
-    AbilityDef::activated(
-        "{6}, {T}, Sacrifice this artifact: Put each creature card exiled with this artifact onto \
-         the battlefield under your control with a flying counter on it. Each of them is a 1/1 \
-         Spirit in addition to its other types. Activate only as a sorcery.",
-        &VACUUM_CASH_IN_COST,
-        EffectDef::ReturnLinkedExiles {
-            // Only the creature cards: a Brainstorm the Vacuum ate stays
-            // exiled, still linked to a source that is no longer there.
-            object: ObjectPredicateDef::HasType(CardType::Creature),
-            zone: ZoneKind::Battlefield,
-            grant: None,
-            counters: Some(A_FLYING_COUNTER),
-            arrival_effect: Some(&AS_A_ONE_ONE_SPIRIT),
-            transformed: false,
-            controller: Some(PlayerRelation::You),
-        },
-    )
-    .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+static FOUR_TYPES_IN_YOUR_GRAVEYARD: TriggerConditionDef =
+    TriggerConditionDef::ValueComparison(&DELIRIUM);
+
+static A_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+    ObjectPredicateDef::HasType(CardType::Creature),
+)];
+
+/// Untapping is what makes the extra combat worth having: the creature that
+/// just attacked can attack again.
+static FOMO_UNTAPS_AND_REPEATS: [EffectDef; 2] = [
+    EffectDef::Untap {
+        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+    },
+    EffectDef::ScheduleTurnPhases(&[TurnPhaseDef::Combat]),
 ];
 
+static FOMO_LOOTS: [EffectDef; 2] = [
+    EffectDef::Discard {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::Constant(1),
+        selection: DiscardSelectionDef::RecipientChooses,
+        then: None,
+    },
+    EffectDef::DrawCards {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::Constant(1),
+    },
+];
+
+pub(in crate::card::sets) static FEAR_OF_MISSING_OUT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9d48aaff-46ab-411b-9456-171d4709f951"),
+    "Fear of Missing Out",
+    CardArt::new("9d48aaff-46ab-411b-9456-171d4709f951", "John Stanko"),
+    CardSet::DuskmournHouseOfHorror,
+    // Two mana for a body that fills its own graveyard on the way in and
+    // then, once the graveyard is deep enough, hands the whole team a second
+    // attack.
+    CardRules::new_enchantment_creature(mana_cost!("{1}{R}"), &["Nightmare"], 2, 3).with_abilities(
+        &[
+            AbilityDef::triggered(
+                "When this creature enters, discard a card, then draw a card.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::Sequence(&FOMO_LOOTS),
+            ),
+            AbilityDef::triggered_if_with_targets(
+                "Delirium — Whenever this creature attacks for the first time each turn, if there \
+                 are four or more card types among cards in your graveyard, untap target \
+                 creature. After this phase, there is an additional combat phase.",
+                TriggerEventDef::attacks_first_time_this_turn(ObjectPredicateDef::Source),
+                &FOUR_TYPES_IN_YOUR_GRAVEYARD,
+                &A_CREATURE,
+                EffectDef::Sequence(&FOMO_UNTAPS_AND_REPEATS),
+            ),
+        ],
+    ),
+);
+
+// DSK 178 — Flesh Burrower
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FLESH_BURROWER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("60499c90-a512-4abb-98eb-0735a7138421"),
+    "Flesh Burrower",
+    crate::card::CardArt::new("60499c90-a512-4abb-98eb-0735a7138421", "Maxime Minard"),
+    crate::card::CardSet::DuskmournHouseOfHorror,
+    crate::card::CardRules::unsupported(),
+);
+
+// DSK 191 — Monstrous Emergence
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MONSTROUS_EMERGENCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b999eb47-b842-47f1-be91-c79fc46e1896"),
+    "Monstrous Emergence",
+    crate::card::CardArt::new("b999eb47-b842-47f1-be91-c79fc46e1896", "Loïc Canavaggia"),
+    crate::card::CardSet::DuskmournHouseOfHorror,
+    crate::card::CardRules::unsupported(),
+);
+
+// DSK 205 — Walk-In Closet // Forgotten Cellar
 /// Crucible of Worlds' line, and the door of the pair that asks nothing of
 /// you afterwards: a permission in the same vocabulary a prohibition uses.
 static CLOSET_PERMISSION: PlayRestrictionDef = PlayRestrictionDef::new(
@@ -391,7 +419,9 @@ const FORGOTTEN_CELLAR_DOOR: AbilityDef = AbilityDef::triggered(
 );
 
 static WALK_IN_CLOSET_ABILITIES: [AbilityDef; 1] = [WALK_IN_CLOSET_DOOR];
+
 static FORGOTTEN_CELLAR_ABILITIES: [AbilityDef; 1] = [FORGOTTEN_CELLAR_DOOR];
+
 /// What the permanent is once both doors are open: the two text boxes at
 /// once, for the two costs added up (CR 714.2b).
 static BOTH_DOORS_ABILITIES: [AbilityDef; 2] = [WALK_IN_CLOSET_DOOR, FORGOTTEN_CELLAR_DOOR];
@@ -417,98 +447,6 @@ fn walk_in_closet_composition() -> CardComposition {
     )
 }
 
-/// Delirium: four or more card types among the cards in your graveyard,
-/// counted as the trigger is placed and again as it resolves. The discard
-/// his own arrival asks for is often what turns it on.
-static DELIRIUM: ValueComparisonDef = ValueComparisonDef {
-    left: ValueDef::CardTypesAmongGraveyards(PlayerRelation::You),
-    comparison: ComparisonDef::GreaterOrEqual,
-    right: ValueDef::Constant(4),
-};
-
-static FOUR_TYPES_IN_YOUR_GRAVEYARD: TriggerConditionDef =
-    TriggerConditionDef::ValueComparison(&DELIRIUM);
-
-static A_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Creature),
-)];
-
-/// Untapping is what makes the extra combat worth having: the creature that
-/// just attacked can attack again.
-static FOMO_UNTAPS_AND_REPEATS: [EffectDef; 2] = [
-    EffectDef::Untap {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::ScheduleTurnPhases(&[TurnPhaseDef::Combat]),
-];
-
-static FOMO_LOOTS: [EffectDef; 2] = [
-    EffectDef::Discard {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-        selection: DiscardSelectionDef::RecipientChooses,
-        then: None,
-    },
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    },
-];
-
-// DSK 136 — Fear of Missing Out
-pub(in crate::card::sets) static FEAR_OF_MISSING_OUT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9d48aaff-46ab-411b-9456-171d4709f951"),
-    "Fear of Missing Out",
-    CardArt::new("9d48aaff-46ab-411b-9456-171d4709f951", "John Stanko"),
-    CardSet::DuskmournHouseOfHorror,
-    // Two mana for a body that fills its own graveyard on the way in and
-    // then, once the graveyard is deep enough, hands the whole team a second
-    // attack.
-    CardRules::new_enchantment_creature(mana_cost!("{1}{R}"), &["Nightmare"], 2, 3).with_abilities(
-        &[
-            AbilityDef::triggered(
-                "When this creature enters, discard a card, then draw a card.",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::Source,
-                    None,
-                    Some(ZoneKind::Battlefield),
-                ),
-                EffectDef::Sequence(&FOMO_LOOTS),
-            ),
-            AbilityDef::triggered_if_with_targets(
-                "Delirium — Whenever this creature attacks for the first time each turn, if there \
-                 are four or more card types among cards in your graveyard, untap target \
-                 creature. After this phase, there is an additional combat phase.",
-                TriggerEventDef::attacks_first_time_this_turn(ObjectPredicateDef::Source),
-                &FOUR_TYPES_IN_YOUR_GRAVEYARD,
-                &A_CREATURE,
-                EffectDef::Sequence(&FOMO_UNTAPS_AND_REPEATS),
-            ),
-        ],
-    ),
-);
-
-// DSK 178 — Flesh Burrower
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static FLESH_BURROWER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("60499c90-a512-4abb-98eb-0735a7138421"),
-    "Flesh Burrower",
-    crate::card::CardArt::new("60499c90-a512-4abb-98eb-0735a7138421", "Maxime Minard"),
-    crate::card::CardSet::DuskmournHouseOfHorror,
-    crate::card::CardRules::unsupported(),
-);
-
-// DSK 191 — Monstrous Emergence
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static MONSTROUS_EMERGENCE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b999eb47-b842-47f1-be91-c79fc46e1896"),
-    "Monstrous Emergence",
-    crate::card::CardArt::new("b999eb47-b842-47f1-be91-c79fc46e1896", "Loïc Canavaggia"),
-    crate::card::CardSet::DuskmournHouseOfHorror,
-    crate::card::CardRules::unsupported(),
-);
-
-// DSK 205 — Walk-In Closet // Forgotten Cellar
 pub(in crate::card::sets) static WALK_IN_CLOSET_FORGOTTEN_CELLAR: CardRecord =
     CardRecord::new_with_legacy_id(
         2305,
@@ -522,6 +460,7 @@ pub(in crate::card::sets) static WALK_IN_CLOSET_FORGOTTEN_CELLAR: CardRecord =
     )
     .with_composition(walk_in_closet_composition);
 
+// DSK 220 — Kaito, Bane of Nightmares
 /// He is a creature only while it is your turn and only while he still has
 /// loyalty: the pair of conditions is what keeps him from being a creature
 /// anyone can answer on their own turn.
@@ -662,7 +601,6 @@ static KAITO_ABILITIES: [AbilityDef; 5] = [
     ),
 ];
 
-// DSK 220 — Kaito, Bane of Nightmares
 pub(in crate::card::sets) static KAITO_BANE_OF_NIGHTMARES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("55a14f30-4ff9-4472-90a6-c3139f1c18e5"),
     "Kaito, Bane of Nightmares",
@@ -677,6 +615,70 @@ pub(in crate::card::sets) static KAITO_BANE_OF_NIGHTMARES: CardRecord = CardReco
 );
 
 // DSK 248 — Ghost Vacuum
+/// Either graveyard: the Vacuum is as happy eating your own escape targets
+/// as theirs, and the second ability does not care whose card it was.
+static A_CARD_IN_A_GRAVEYARD: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::Any,
+        zones: &[ZoneKind::Graveyard],
+        controller: None,
+        owner: None,
+    },
+)];
+
+static VACUUM_CASH_IN_COST: [AbilityCostDef; 3] = [
+    AbilityCostDef::Mana(mana_cost!("{6}")),
+    AbilityCostDef::TapSource,
+    AbilityCostDef::SacrificeSource,
+];
+
+/// "Each of them is a 1/1 Spirit in addition to its other types." Adding the
+/// subtype rather than setting it is what "in addition" means: a Griselbrand
+/// that comes back this way is a Demon Spirit, and a 1/1 one.
+static AS_A_ONE_ONE_SPIRIT: AppliedEffectDef = AppliedEffectDef::Composite(&[
+    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
+    AppliedEffectDef::Characteristic(CharacteristicOperationDef::CreatureTypes(
+        SetOperationDef::Add(CreatureTypeSetDef::named(&["Spirit"])),
+    )),
+]);
+
+static A_FLYING_COUNTER: TokenCountersDef = TokenCountersDef {
+    kind: CounterKind::Flying,
+    amount: ValueDef::Constant(1),
+};
+
+static GHOST_VACUUM_ABILITIES: [AbilityDef; 2] = [
+    AbilityDef::activated_with_targets(
+        "{T}: Exile target card from a graveyard.",
+        &[AbilityCostDef::TapSource],
+        &A_CARD_IN_A_GRAVEYARD,
+        // Linked rather than exiled outright: the second ability names what
+        // this one took, and by then nothing else could tell those cards
+        // apart from anything else in exile.
+        EffectDef::ExileLinkedToSource {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        },
+    ),
+    AbilityDef::activated(
+        "{6}, {T}, Sacrifice this artifact: Put each creature card exiled with this artifact onto \
+         the battlefield under your control with a flying counter on it. Each of them is a 1/1 \
+         Spirit in addition to its other types. Activate only as a sorcery.",
+        &VACUUM_CASH_IN_COST,
+        EffectDef::ReturnLinkedExiles {
+            // Only the creature cards: a Brainstorm the Vacuum ate stays
+            // exiled, still linked to a source that is no longer there.
+            object: ObjectPredicateDef::HasType(CardType::Creature),
+            zone: ZoneKind::Battlefield,
+            grant: None,
+            counters: Some(A_FLYING_COUNTER),
+            arrival_effect: Some(&AS_A_ONE_ONE_SPIRIT),
+            transformed: false,
+            controller: Some(PlayerRelation::You),
+        },
+    )
+    .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+];
+
 pub(in crate::card::sets) static GHOST_VACUUM: CardRecord = CardRecord::new_with_legacy_id(
     2289,
     "Ghost Vacuum",
@@ -698,6 +700,7 @@ pub(in crate::card::sets) static GLIMMERLIGHT: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// DSK 256 — Blazemire Verge
 /// The same condition in this cycle's Rakdos colours. Either type answers
 /// it, so a Badlands is both halves at once.
 static A_SWAMP_OR_A_MOUNTAIN_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
@@ -712,7 +715,6 @@ static BLAZEMIRE_HAS_ITS_LAND: TriggerConditionDef = TriggerConditionDef::Object
     amount: 1,
 };
 
-// DSK 256 — Blazemire Verge
 pub(in crate::card::sets) static BLAZEMIRE_VERGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d151c8e2-d715-470d-868a-f45191db9fa0"),
     "Blazemire Verge",
@@ -735,6 +737,7 @@ pub(in crate::card::sets) static BLAZEMIRE_VERGE: CardRecord = CardRecord::new(
     ]),
 );
 
+// DSK 270 — Thornspire Verge
 /// The verge condition in this cycle's Gruul colours. Either type answers
 /// it, so a Taiga is both halves at once.
 static A_MOUNTAIN_OR_A_FOREST_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
@@ -749,7 +752,6 @@ static THORNSPIRE_HAS_ITS_LAND: TriggerConditionDef = TriggerConditionDef::Objec
     amount: 1,
 };
 
-// DSK 270 — Thornspire Verge
 pub(in crate::card::sets) static THORNSPIRE_VERGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7e1cdc03-6faa-4138-9a52-caafbe34fb59"),
     "Thornspire Verge",
@@ -785,6 +787,7 @@ pub(in crate::card::sets) static CLOCKWORK_PERCUSSIONIST: CardRecord = CardRecor
     crate::card::CardRules::unsupported(),
 );
 
+// DSK 314 — Chainsaw
 /// "Up to one target creature": the Equipment arrives whether or not there
 /// is anything worth shooting.
 static CHAINSAW_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
@@ -839,7 +842,6 @@ static CHAINSAW_ABILITIES: [AbilityDef; 4] = [
 
 static CHAINSAW_EQUIP_COST: [AbilityCostDef; 1] = [AbilityCostDef::Mana(mana_cost!("{3}"))];
 
-// DSK 314 — Chainsaw
 pub(in crate::card::sets) static CHAINSAW: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1c8d0f4e-6b1e-4444-8851-adf857273964"),
     "Chainsaw",

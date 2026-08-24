@@ -10,30 +10,6 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
-static CREATURE_OR_PLANESWALKER: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::HasType(CardType::Planeswalker),
-]);
-
-/// The mana-value bound is part of what may be targeted rather than something
-/// checked on resolution, so an unkicked Thirst never points at anything
-/// bigger in the first place.
-static THIRST_SMALL_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::All(&[
-        CREATURE_OR_PLANESWALKER,
-        ObjectPredicateDef::ManaValueAtMost(2),
-    ]),
-)];
-
-static THIRST_ANY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    CREATURE_OR_PLANESWALKER,
-)];
-
-static THIRST_DESTROY: EffectDef = EffectDef::Destroy {
-    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    can_regenerate: true,
-};
-
 // ZNR 9 — Dauntless Unity
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static DAUNTLESS_UNITY: CardRecord = CardRecord::new(
@@ -54,6 +30,7 @@ pub(in crate::card::sets) static SKYCLAVE_APPARITION: CardRecord = CardRecord::n
     crate::card::CardRules::unsupported(),
 );
 
+// ZNR 85 — Thieving Skydiver
 /// "If it was kicked", asked as the arrival resolves. The kick is what the
 /// whole card is: unkicked he is a 2/1 flier and nothing else happens.
 static SKYDIVER_WAS_KICKED: TriggerConditionDef =
@@ -89,7 +66,6 @@ static SKYDIVER_STEALS: [EffectDef; 2] = [
     },
 ];
 
-// ZNR 85 — Thieving Skydiver
 pub(in crate::card::sets) static THIEVING_SKYDIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ff84ea71-e477-44f7-a3f8-77fef708efeb"),
     "Thieving Skydiver",
@@ -126,6 +102,30 @@ pub(in crate::card::sets) static THIEVING_SKYDIVER: CardRecord = CardRecord::new
 );
 
 // ZNR 94 — Bloodchief's Thirst
+static CREATURE_OR_PLANESWALKER: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
+    ObjectPredicateDef::HasType(CardType::Creature),
+    ObjectPredicateDef::HasType(CardType::Planeswalker),
+]);
+
+/// The mana-value bound is part of what may be targeted rather than something
+/// checked on resolution, so an unkicked Thirst never points at anything
+/// bigger in the first place.
+static THIRST_SMALL_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+    ObjectPredicateDef::All(&[
+        CREATURE_OR_PLANESWALKER,
+        ObjectPredicateDef::ManaValueAtMost(2),
+    ]),
+)];
+
+static THIRST_ANY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+    CREATURE_OR_PLANESWALKER,
+)];
+
+static THIRST_DESTROY: EffectDef = EffectDef::Destroy {
+    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+    can_regenerate: true,
+};
+
 pub(in crate::card::sets) static BLOODCHIEFS_THIRST: CardRecord = CardRecord::new_with_legacy_id(
     2165,
     "Bloodchief's Thirst",
@@ -149,6 +149,17 @@ pub(in crate::card::sets) static BLOODCHIEFS_THIRST: CardRecord = CardRecord::ne
     ]),
 );
 
+// ZNR 185 — Gnarlid Colony
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GNARLID_COLONY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7327289d-eed8-44b1-8495-7172e2b49d5f"),
+    "Gnarlid Colony",
+    crate::card::CardArt::new("7327289d-eed8-44b1-8495-7172e2b49d5f", "Izzy"),
+    crate::card::CardSet::ZendikarRising,
+    crate::card::CardRules::unsupported(),
+);
+
+// ZNR 232 — Omnath, Locus of Creation
 /// A land arriving under its controller. Landfall watches the battlefield
 /// rather than the land drop, so a land put onto the battlefield by a fetch
 /// or a search counts the same way one played from hand does.
@@ -172,7 +183,9 @@ const fn omnath_resolution(amount: u8) -> TriggerConditionDef {
 
 /// The count includes the resolution asking, so the first time reads one.
 static OMNATH_FIRST_TIME: TriggerConditionDef = omnath_resolution(1);
+
 static OMNATH_SECOND_TIME: TriggerConditionDef = omnath_resolution(2);
+
 static OMNATH_THIRD_TIME: TriggerConditionDef = omnath_resolution(3);
 
 static OMNATH_GAINS_FOUR: EffectDef = EffectDef::GainLife {
@@ -251,17 +264,6 @@ static OMNATH_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
-// ZNR 185 — Gnarlid Colony
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static GNARLID_COLONY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7327289d-eed8-44b1-8495-7172e2b49d5f"),
-    "Gnarlid Colony",
-    crate::card::CardArt::new("7327289d-eed8-44b1-8495-7172e2b49d5f", "Izzy"),
-    crate::card::CardSet::ZendikarRising,
-    crate::card::CardRules::unsupported(),
-);
-
-// ZNR 232 — Omnath, Locus of Creation
 pub(in crate::card::sets) static OMNATH_LOCUS_OF_CREATION: CardRecord =
     CardRecord::new_with_legacy_id(
         2264,
@@ -275,6 +277,7 @@ pub(in crate::card::sets) static OMNATH_LOCUS_OF_CREATION: CardRecord =
             .with_abilities(&OMNATH_ABILITIES),
     );
 
+// ZNR 319 — Luminarch Aspirant
 /// "Target creature you control" -- including herself, which is what makes
 /// an unanswered Aspirant a clock rather than a lord.
 static A_CREATURE_YOU_CONTROL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
@@ -284,7 +287,6 @@ static A_CREATURE_YOU_CONTROL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactl
     ]),
 )];
 
-// ZNR 319 — Luminarch Aspirant
 pub(in crate::card::sets) static LUMINARCH_ASPIRANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ebe9427d-068f-487c-9263-b40366a164bc"),
     "Luminarch Aspirant",

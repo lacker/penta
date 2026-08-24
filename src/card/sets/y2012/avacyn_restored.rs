@@ -19,6 +19,61 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
+/// Exile and return in one resolution, and the return names your control
+/// rather than the card's owner. The two differ exactly when the creature
+/// was stolen, which is when a blink is worth the mana.
+static BLINK_UNDER_YOUR_CONTROL: [EffectDef; 2] = [
+    EffectDef::ExileLinkedToSource {
+        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+    },
+    EffectDef::ReturnLinkedExiles {
+        object: ObjectPredicateDef::Any,
+        counters: None,
+        arrival_effect: None,
+        zone: ZoneKind::Battlefield,
+        grant: None,
+        controller: Some(PlayerRelation::You),
+        transformed: false,
+    },
+];
+
+/// "This creature can block only creatures with flying."
+static BLOCKS_ONLY_FLYERS: EffectDef = EffectDef::StaticApply {
+    recipient: EffectRecipientDef::Source,
+    effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
+        ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+    )),
+};
+
+static ANY_CREATURE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+    ObjectPredicateDef::HasType(CardType::Creature),
+)];
+
+/// "If you control the creature with the greatest power or tied for the
+/// greatest power." A tie counts, so this asks whether anything is strictly
+/// bigger rather than whether one creature stands alone.
+static CONTROLS_THE_BIGGEST: TriggerConditionDef =
+    TriggerConditionDef::ControlsGreatestPowerCreature;
+
+/// "Creatures with power less than this creature's power can't block it."
+/// The comparison is against the source's current power, so pumping it widens
+/// the restriction.
+static WEAKER_THAN_SOURCE: ObjectPredicateDef =
+    ObjectPredicateDef::PowerLessThan(ValueDef::SourcePower);
+
+static SOULBOND_ABILITIES: [AbilityDef; 2] = abilities::soulbond();
+
+/// "Both creatures" and "each of those creatures" name the same pair: the
+/// soulbond creature and whatever it is bonded to.
+static SOULBOND_PAIR_RECIPIENT: EffectRecipientDef = EffectRecipientDef::matching_objects(
+    ObjectPredicateDef::AnyOf(&[
+        ObjectPredicateDef::Source,
+        ObjectPredicateDef::PairedWithSource,
+    ]),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::You,
+);
+
 // AVR 1 — Angel of Glory's Rise
 // Audit: metadata-only — Needs simultaneous batch movement for all Zombies and all returned Humans rather than processing each object as a separate zone change.
 pub(in crate::card::sets) static ANGEL_OF_GLORY_S_RISE: CardRecord = CardRecord::new(
@@ -227,6 +282,7 @@ pub(in crate::card::sets) static CLOUDSHIFT: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// AVR 13 — Commander's Authority
 static COMMANDERS_AUTHORITY_UPKEEP: AbilityDef = AbilityDef::triggered(
     "At the beginning of your upkeep, create a 1/1 white Human creature token.",
     TriggerEventDef::StepBegins {
@@ -239,7 +295,6 @@ static COMMANDERS_AUTHORITY_UPKEEP: AbilityDef = AbilityDef::triggered(
     )),
 );
 
-// AVR 13 — Commander's Authority
 pub(in crate::card::sets) static COMMANDERS_AUTHORITY: CardRecord = CardRecord::new_with_legacy_id(
     757,
     "Commander's Authority",
@@ -291,6 +346,7 @@ pub(in crate::card::sets) static CURSEBREAK: CardRecord = CardRecord::new_with_l
     )),
 );
 
+// AVR 15 — Defang
 /// Every damage event the creature is the source of, not only the combat
 /// ones: a Defanged creature's activated abilities are as harmless as its
 /// attacks.
@@ -300,7 +356,6 @@ static DEFANG_SHIELD: DamageEventMatcherDef = DamageEventMatcherDef {
     recipient: DamageRecipientMatcherDef::Any,
 };
 
-// AVR 15 — Defang
 pub(in crate::card::sets) static DEFANG: CardRecord = CardRecord::new_with_legacy_id(
     1749,
     "Defang",
@@ -420,6 +475,7 @@ pub(in crate::card::sets) static GOLDNIGHT_COMMANDER: CardRecord = CardRecord::n
     )),
 );
 
+// AVR 23 — Goldnight Redeemer
 /// "Other creatures you control", so the Redeemer's own arrival is not among
 /// them even though it is on the battlefield as the trigger resolves.
 static GOLDNIGHT_REDEEMER_OTHERS: ObjectQueryDef = ObjectQueryDef::matching(
@@ -436,7 +492,6 @@ static GOLDNIGHT_REDEEMER_AMOUNT: ScaledValueDef = ScaledValueDef::new(
     2,
 );
 
-// AVR 23 — Goldnight Redeemer
 pub(in crate::card::sets) static GOLDNIGHT_REDEEMER: CardRecord = CardRecord::new_with_legacy_id(
     1876,
     "Goldnight Redeemer",
@@ -469,12 +524,12 @@ pub(in crate::card::sets) static HERALD_OF_WAR: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// AVR 25 — Holy Justiciar
 static HOLY_JUSTICIAR_ZOMBIE: TriggerConditionDef = TriggerConditionDef::TargetMatches {
     slot: TargetIndex::PRIMARY,
     object: ObjectPredicateDef::Subtype("Zombie"),
 };
 
-// AVR 25 — Holy Justiciar
 pub(in crate::card::sets) static HOLY_JUSTICIAR: CardRecord = CardRecord::new_with_legacy_id(
     761,
     "Holy Justiciar",
@@ -511,7 +566,9 @@ pub(in crate::card::sets) static HOLY_JUSTICIAR: CardRecord = CardRecord::new_wi
     ),
 );
 
+// AVR 26 — Leap of Faith
 static LEAP_OF_FAITH_FLYING: AbilityDef = abilities::flying();
+
 static LEAP_OF_FAITH_EFFECTS: [EffectDef; 2] = [
     EffectDef::Apply {
         recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -526,7 +583,6 @@ static LEAP_OF_FAITH_EFFECTS: [EffectDef; 2] = [
     },
 ];
 
-// AVR 26 — Leap of Faith
 pub(in crate::card::sets) static LEAP_OF_FAITH: CardRecord = CardRecord::new_with_legacy_id(
     1496,
     "Leap of Faith",
@@ -634,6 +690,7 @@ pub(in crate::card::sets) static MOORLAND_INQUISITOR: CardRecord = CardRecord::n
     ),
 );
 
+// AVR 31 — Nearheath Pilgrim
 static NEARHEATH_PILGRIM_GRANTED: AbilityDef = abilities::lifelink();
 
 static NEARHEATH_PILGRIM_BONUS: EffectDef = EffectDef::StaticApply {
@@ -641,7 +698,6 @@ static NEARHEATH_PILGRIM_BONUS: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::add_ability(&NEARHEATH_PILGRIM_GRANTED),
 };
 
-// AVR 31 — Nearheath Pilgrim
 pub(in crate::card::sets) static NEARHEATH_PILGRIM: CardRecord = CardRecord::new_with_legacy_id(
     1943,
     "Nearheath Pilgrim",
@@ -751,6 +807,7 @@ pub(in crate::card::sets) static SERAPH_OF_DAWN: CardRecord = CardRecord::new_wi
         .with_abilities(&[abilities::flying(), abilities::lifelink()]),
 );
 
+// AVR 36 — Silverblade Paladin
 static SILVERBLADE_PALADIN_GRANTED: AbilityDef = abilities::double_strike();
 
 static SILVERBLADE_PALADIN_BONUS: EffectDef = EffectDef::StaticApply {
@@ -758,7 +815,6 @@ static SILVERBLADE_PALADIN_BONUS: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::add_ability(&SILVERBLADE_PALADIN_GRANTED),
 };
 
-// AVR 36 — Silverblade Paladin
 pub(in crate::card::sets) static SILVERBLADE_PALADIN: CardRecord = CardRecord::new_with_legacy_id(
     1932,
     "Silverblade Paladin",
@@ -778,6 +834,7 @@ pub(in crate::card::sets) static SILVERBLADE_PALADIN: CardRecord = CardRecord::n
     ]),
 );
 
+// AVR 37 — Spectral Gateguards
 static SPECTRAL_GATEGUARDS_GRANTED: AbilityDef = abilities::vigilance();
 
 static SPECTRAL_GATEGUARDS_BONUS: EffectDef = EffectDef::StaticApply {
@@ -785,7 +842,6 @@ static SPECTRAL_GATEGUARDS_BONUS: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::add_ability(&SPECTRAL_GATEGUARDS_GRANTED),
 };
 
-// AVR 37 — Spectral Gateguards
 pub(in crate::card::sets) static SPECTRAL_GATEGUARDS: CardRecord = CardRecord::new_with_legacy_id(
     1933,
     "Spectral Gateguards",
@@ -918,6 +974,7 @@ pub(in crate::card::sets) static AMASS_THE_COMPONENTS: CardRecord = CardRecord::
     crate::card::CardRules::unsupported(),
 );
 
+// AVR 44 — Arcane Melee
 /// The only one of these that discounts both sides of the table, which is
 /// what the caster relation is for.
 static ARCANE_MELEE_SPELLS: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
@@ -925,7 +982,6 @@ static ARCANE_MELEE_SPELLS: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
     ObjectPredicateDef::HasType(CardType::Sorcery),
 ]);
 
-// AVR 44 — Arcane Melee
 pub(in crate::card::sets) static ARCANE_MELEE: CardRecord = CardRecord::new_with_legacy_id(
     1761,
     "Arcane Melee",
@@ -951,6 +1007,7 @@ pub(in crate::card::sets) static CAPTAIN_OF_THE_MISTS: CardRecord = CardRecord::
     crate::card::CardRules::unsupported(),
 );
 
+// AVR 46 — Crippling Chill
 /// The tap and the skip are separate: a creature already tapped still owes
 /// the untap step it misses, which is what the second clause is for.
 static CRIPPLING_CHILL_EFFECT: [EffectDef; 3] = [
@@ -967,7 +1024,6 @@ static CRIPPLING_CHILL_EFFECT: [EffectDef; 3] = [
     },
 ];
 
-// AVR 46 — Crippling Chill
 pub(in crate::card::sets) static CRIPPLING_CHILL: CardRecord = CardRecord::new_with_legacy_id(
     1849,
     "Crippling Chill",
@@ -1003,13 +1059,13 @@ pub(in crate::card::sets) static DEVASTATION_TIDE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// AVR 49 — Dreadwaters
 static DREADWATERS_LANDS: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasType(CardType::Land),
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
 );
 
-// AVR 49 — Dreadwaters
 pub(in crate::card::sets) static DREADWATERS: CardRecord = CardRecord::new_with_legacy_id(
     770,
     "Dreadwaters",
@@ -1029,6 +1085,7 @@ pub(in crate::card::sets) static DREADWATERS: CardRecord = CardRecord::new_with_
     )),
 );
 
+// AVR 50 — Elgaud Shieldmate
 static ELGAUD_SHIELDMATE_GRANTED: AbilityDef = abilities::hexproof();
 
 static ELGAUD_SHIELDMATE_BONUS: EffectDef = EffectDef::StaticApply {
@@ -1036,7 +1093,6 @@ static ELGAUD_SHIELDMATE_BONUS: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::add_ability(&ELGAUD_SHIELDMATE_GRANTED),
 };
 
-// AVR 50 — Elgaud Shieldmate
 pub(in crate::card::sets) static ELGAUD_SHIELDMATE: CardRecord = CardRecord::new_with_legacy_id(
     1934,
     "Elgaud Shieldmate",
@@ -1081,6 +1137,7 @@ pub(in crate::card::sets) static FAVORABLE_WINDS: CardRecord = CardRecord::new_w
     )),
 );
 
+// AVR 52 — Fettergeist
 static FETTERGEIST_OTHERS: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::All(&[
         ObjectPredicateDef::HasType(CardType::Creature),
@@ -1094,7 +1151,6 @@ static FETTERGEIST_SACRIFICE: EffectDef = EffectDef::Sacrifice {
     object: EffectRecipientDef::Source,
 };
 
-// AVR 52 — Fettergeist
 pub(in crate::card::sets) static FETTERGEIST: CardRecord = CardRecord::new_with_legacy_id(
     1877,
     "Fettergeist",
@@ -1152,6 +1208,7 @@ pub(in crate::card::sets) static FLEETING_DISTRACTION: CardRecord = CardRecord::
     )),
 );
 
+// AVR 54 — Galvanic Alchemist
 /// Granted to each creature separately, so each pays its own {2}{U} and
 /// untaps only itself.
 static GALVANIC_ALCHEMIST_GRANTED: AbilityDef = AbilityDef::activated(
@@ -1167,7 +1224,6 @@ static GALVANIC_ALCHEMIST_BONUS: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::add_ability(&GALVANIC_ALCHEMIST_GRANTED),
 };
 
-// AVR 54 — Galvanic Alchemist
 pub(in crate::card::sets) static GALVANIC_ALCHEMIST: CardRecord = CardRecord::new_with_legacy_id(
     1944,
     "Galvanic Alchemist",
@@ -1388,13 +1444,13 @@ pub(in crate::card::sets) static LUNAR_MYSTIC: CardRecord = CardRecord::new_with
     ),
 );
 
+// AVR 66 — Mass Appeal
 static MASS_APPEAL_HUMANS: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::Subtype("Human"),
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
 );
 
-// AVR 66 — Mass Appeal
 pub(in crate::card::sets) static MASS_APPEAL: CardRecord = CardRecord::new_with_legacy_id(
     778,
     "Mass Appeal",
@@ -1452,24 +1508,6 @@ pub(in crate::card::sets) static MISTHOLLOW_GRIFFIN: CardRecord = CardRecord::ne
     crate::card::CardSet::AvacynRestored,
     crate::card::CardRules::unsupported(),
 );
-
-/// Exile and return in one resolution, and the return names your control
-/// rather than the card's owner. The two differ exactly when the creature
-/// was stolen, which is when a blink is worth the mana.
-static BLINK_UNDER_YOUR_CONTROL: [EffectDef; 2] = [
-    EffectDef::ExileLinkedToSource {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::ReturnLinkedExiles {
-        object: ObjectPredicateDef::Any,
-        counters: None,
-        arrival_effect: None,
-        zone: ZoneKind::Battlefield,
-        grant: None,
-        controller: Some(PlayerRelation::You),
-        transformed: false,
-    },
-];
 
 // AVR 69 — Nephalia Smuggler
 pub(in crate::card::sets) static NEPHALIA_SMUGGLER: CardRecord = CardRecord::new_with_legacy_id(
@@ -1584,14 +1622,6 @@ pub(in crate::card::sets) static ROTCROWN_GHOUL: CardRecord = CardRecord::new_wi
     ),
 );
 
-/// "This creature can block only creatures with flying."
-static BLOCKS_ONLY_FLYERS: EffectDef = EffectDef::StaticApply {
-    recipient: EffectRecipientDef::Source,
-    effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
-        ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
-    )),
-};
-
 // AVR 73 — Scrapskin Drake
 pub(in crate::card::sets) static SCRAPSKIN_DRAKE: CardRecord = CardRecord::new_with_legacy_id(
     1599,
@@ -1637,6 +1667,7 @@ pub(in crate::card::sets) static SPIRIT_AWAY: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// AVR 77 — Stern Mentor
 static STERN_MENTOR_GRANTED: AbilityDef = AbilityDef::activated_with_targets(
     "{T}: Target player mills two cards.",
     &[AbilityCostDef::TapSource],
@@ -1656,7 +1687,6 @@ static STERN_MENTOR_BONUS: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::add_ability(&STERN_MENTOR_GRANTED),
 };
 
-// AVR 77 — Stern Mentor
 pub(in crate::card::sets) static STERN_MENTOR: CardRecord = CardRecord::new_with_legacy_id(
     1945,
     "Stern Mentor",
@@ -1696,6 +1726,7 @@ pub(in crate::card::sets) static TAMIYO_THE_MOON_SAGE: CardRecord = CardRecord::
     crate::card::CardRules::unsupported(),
 );
 
+// AVR 80 — Tandem Lookout
 /// Damage of any kind to an opponent, not only combat damage, and granted to
 /// each creature so either connecting draws.
 static TANDEM_LOOKOUT_GRANTED: AbilityDef = AbilityDef::triggered(
@@ -1712,7 +1743,6 @@ static TANDEM_LOOKOUT_BONUS: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::add_ability(&TANDEM_LOOKOUT_GRANTED),
 };
 
-// AVR 80 — Tandem Lookout
 pub(in crate::card::sets) static TANDEM_LOOKOUT: CardRecord = CardRecord::new_with_legacy_id(
     1946,
     "Tandem Lookout",
@@ -1776,6 +1806,7 @@ pub(in crate::card::sets) static VANISHMENT: CardRecord = CardRecord::new_with_l
     ]),
 );
 
+// AVR 83 — Wingcrafter
 static WINGCRAFTER_GRANTED: AbilityDef = abilities::flying();
 
 static WINGCRAFTER_BONUS: EffectDef = EffectDef::StaticApply {
@@ -1783,7 +1814,6 @@ static WINGCRAFTER_BONUS: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::add_ability(&WINGCRAFTER_GRANTED),
 };
 
-// AVR 83 — Wingcrafter
 pub(in crate::card::sets) static WINGCRAFTER: CardRecord = CardRecord::new_with_legacy_id(
     1935,
     "Wingcrafter",
@@ -1864,6 +1894,7 @@ pub(in crate::card::sets) static BLOODFLOW_CONNOISSEUR: CardRecord = CardRecord:
     ),
 );
 
+// AVR 88 — Bone Splinters
 static SACRIFICE_A_CREATURE: SpellAdditionalCostDef = SpellAdditionalCostDef {
     or_life: None,
     object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -1874,7 +1905,6 @@ static SACRIFICE_A_CREATURE: SpellAdditionalCostDef = SpellAdditionalCostDef {
     or: None,
 };
 
-// AVR 88 — Bone Splinters
 pub(in crate::card::sets) static BONE_SPLINTERS: CardRecord = CardRecord::new_with_legacy_id(
     1962,
     "Bone Splinters",
@@ -1983,6 +2013,7 @@ pub(in crate::card::sets) static DEATH_WIND: CardRecord = CardRecord::new_with_l
     )),
 );
 
+// AVR 94 — Demonic Rising
 /// The printed intervening-if condition is checked both as the end step begins
 /// and again when the trigger resolves.
 static EXACTLY_ONE_CREATURE: TriggerConditionDef = TriggerConditionDef::ObjectCount {
@@ -1995,7 +2026,6 @@ static EXACTLY_ONE_CREATURE: TriggerConditionDef = TriggerConditionDef::ObjectCo
     amount: 1,
 };
 
-// AVR 94 — Demonic Rising
 pub(in crate::card::sets) static DEMONIC_RISING: CardRecord = CardRecord::new_with_legacy_id(
     151,
     "Demonic Rising",
@@ -2064,6 +2094,7 @@ pub(in crate::card::sets) static DESCENT_INTO_MADNESS: CardRecord = CardRecord::
     crate::card::CardRules::unsupported(),
 );
 
+// AVR 98 — Dread Slaver
 /// "In addition to its other colors and types", so both leaves add rather
 /// than set. It travels with the move because the permanent that arrives is
 /// a new object: nothing following the move would still name it.
@@ -2072,7 +2103,6 @@ static A_BLACK_ZOMBIE_AS_WELL: AppliedEffectDef = AppliedEffectDef::Composite(&[
     AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Zombie"])),
 ]);
 
-// AVR 98 — Dread Slaver
 pub(in crate::card::sets) static DREAD_SLAVER: CardRecord = CardRecord::new_with_legacy_id(
     2004,
     "Dread Slaver",
@@ -2135,6 +2165,7 @@ pub(in crate::card::sets) static DRIVER_OF_THE_DEAD: CardRecord = CardRecord::ne
     ),
 );
 
+// AVR 100 — Essence Harvest
 /// The largest power among your creatures, which is one creature's size
 /// rather than a count of them.
 static GREATEST_POWER_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
@@ -2155,7 +2186,6 @@ static ESSENCE_HARVEST_DRAIN: [EffectDef; 2] = [
     },
 ];
 
-// AVR 100 — Essence Harvest
 pub(in crate::card::sets) static ESSENCE_HARVEST: CardRecord = CardRecord::new_with_legacy_id(
     1978,
     "Essence Harvest",
@@ -2255,6 +2285,7 @@ pub(in crate::card::sets) static GRISELBRAND: CardRecord = CardRecord::new_with_
         ]),
 );
 
+// AVR 107 — Harvester of Souls
 /// "Another nontoken creature", so a token dying is not a card and the Demon
 /// stays quiet; the exclusion of itself is the other half.
 static HARVESTER_OF_SOULS_DEATH: ObjectPredicateDef = ObjectPredicateDef::All(&[
@@ -2263,7 +2294,6 @@ static HARVESTER_OF_SOULS_DEATH: ObjectPredicateDef = ObjectPredicateDef::All(&[
     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
 ]);
 
-// AVR 107 — Harvester of Souls
 pub(in crate::card::sets) static HARVESTER_OF_SOULS: CardRecord = CardRecord::new_with_legacy_id(
     1891,
     "Harvester of Souls",
@@ -2314,10 +2344,6 @@ pub(in crate::card::sets) static HUMAN_FRAILTY: CardRecord = CardRecord::new_wit
         true,
     )),
 );
-
-static ANY_CREATURE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Creature),
-)];
 
 // AVR 110 — Hunted Ghoul
 pub(in crate::card::sets) static HUNTED_GHOUL: CardRecord = CardRecord::new_with_legacy_id(
@@ -2398,6 +2424,17 @@ pub(in crate::card::sets) static MENTAL_AGONY: CardRecord = CardRecord::new(
 );
 
 // AVR 115 — Necrobite
+static NECROBITE_EFFECTS: [EffectDef; 2] = [
+    EffectDef::Apply {
+        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        effect: AppliedEffectDef::add_ability(&abilities::deathtouch()),
+        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+    },
+    EffectDef::Regenerate {
+        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+    },
+];
+
 pub(in crate::card::sets) static NECROBITE: CardRecord = CardRecord::new_with_legacy_id(
     1434,
     "Necrobite",
@@ -2411,17 +2448,6 @@ pub(in crate::card::sets) static NECROBITE: CardRecord = CardRecord::new_with_le
         EffectDef::Sequence(&NECROBITE_EFFECTS),
     )),
 );
-
-static NECROBITE_EFFECTS: [EffectDef; 2] = [
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        effect: AppliedEffectDef::add_ability(&abilities::deathtouch()),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-    EffectDef::Regenerate {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-];
 
 // AVR 116 — Polluted Dead
 pub(in crate::card::sets) static POLLUTED_DEAD: CardRecord = CardRecord::new_with_legacy_id(
@@ -2518,12 +2544,6 @@ pub(in crate::card::sets) static TREACHEROUS_PIT_DWELLER: CardRecord = CardRecor
     crate::card::CardSet::AvacynRestored,
     crate::card::CardRules::unsupported(),
 );
-
-/// "If you control the creature with the greatest power or tied for the
-/// greatest power." A tie counts, so this asks whether anything is strictly
-/// bigger rather than whether one creature stands alone.
-static CONTROLS_THE_BIGGEST: TriggerConditionDef =
-    TriggerConditionDef::ControlsGreatestPowerCreature;
 
 // AVR 122 — Triumph of Cruelty
 pub(in crate::card::sets) static TRIUMPH_OF_CRUELTY: CardRecord = CardRecord::new_with_legacy_id(
@@ -2656,13 +2676,13 @@ pub(in crate::card::sets) static BANNERS_RAISED: CardRecord = CardRecord::new_wi
     )),
 );
 
+// AVR 128 — Battle Hymn
 static BATTLE_HYMN_CREATURES: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasType(CardType::Creature),
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
 );
 
-// AVR 128 — Battle Hymn
 pub(in crate::card::sets) static BATTLE_HYMN: CardRecord = CardRecord::new_with_legacy_id(
     801,
     "Battle Hymn",
@@ -2866,6 +2886,7 @@ pub(in crate::card::sets) static GUISE_OF_FIRE: CardRecord = CardRecord::new_wit
         ]),
 );
 
+// AVR 138 — Hanweir Lancer
 static HANWEIR_LANCER_GRANTED: AbilityDef = abilities::first_strike();
 
 static HANWEIR_LANCER_BONUS: EffectDef = EffectDef::StaticApply {
@@ -2873,7 +2894,6 @@ static HANWEIR_LANCER_BONUS: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::add_ability(&HANWEIR_LANCER_GRANTED),
 };
 
-// AVR 138 — Hanweir Lancer
 pub(in crate::card::sets) static HANWEIR_LANCER: CardRecord = CardRecord::new_with_legacy_id(
     1936,
     "Hanweir Lancer",
@@ -2958,13 +2978,13 @@ pub(in crate::card::sets) static HOUND_OF_GRISELBRAND: CardRecord = CardRecord::
         .with_abilities(&[abilities::double_strike(), abilities::undying()]),
 );
 
+// AVR 142 — Kessig Malcontents
 static KESSIG_MALCONTENTS_HUMANS: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::Subtype("Human"),
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
 );
 
-// AVR 142 — Kessig Malcontents
 pub(in crate::card::sets) static KESSIG_MALCONTENTS: CardRecord = CardRecord::new_with_legacy_id(
     809,
     "Kessig Malcontents",
@@ -3011,6 +3031,7 @@ pub(in crate::card::sets) static KRUIN_STRIKER: CardRecord = CardRecord::new_wit
     ),
 );
 
+// AVR 144 — Lightning Mauler
 static LIGHTNING_MAULER_GRANTED: AbilityDef = abilities::haste();
 
 static LIGHTNING_MAULER_BONUS: EffectDef = EffectDef::StaticApply {
@@ -3018,7 +3039,6 @@ static LIGHTNING_MAULER_BONUS: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::add_ability(&LIGHTNING_MAULER_GRANTED),
 };
 
-// AVR 144 — Lightning Mauler
 pub(in crate::card::sets) static LIGHTNING_MAULER: CardRecord = CardRecord::new_with_legacy_id(
     1937,
     "Lightning Mauler",
@@ -3038,6 +3058,7 @@ pub(in crate::card::sets) static LIGHTNING_MAULER: CardRecord = CardRecord::new_
     ]),
 );
 
+// AVR 145 — Lightning Prowess
 static LIGHTNING_PROWESS_PING: AbilityDef = AbilityDef::activated_with_targets(
     "{T}: This creature deals 1 damage to any target.",
     &[AbilityCostDef::TapSource],
@@ -3050,7 +3071,6 @@ static LIGHTNING_PROWESS_PING: AbilityDef = AbilityDef::activated_with_targets(
     },
 );
 
-// AVR 145 — Lightning Prowess
 pub(in crate::card::sets) static LIGHTNING_PROWESS: CardRecord = CardRecord::new_with_legacy_id(
     811,
     "Lightning Prowess",
@@ -3104,6 +3124,7 @@ pub(in crate::card::sets) static MAD_PROPHET: CardRecord = CardRecord::new_with_
     ]),
 );
 
+// AVR 147 — Malicious Intent
 /// Granted to the host rather than kept on the Aura, so the tap cost is the
 /// creature's own and "this turn" is measured from wherever it resolves.
 static MALICIOUS_INTENT_ABILITY: AbilityDef = AbilityDef::activated_with_targets(
@@ -3117,7 +3138,6 @@ static MALICIOUS_INTENT_ABILITY: AbilityDef = AbilityDef::activated_with_targets
     },
 );
 
-// AVR 147 — Malicious Intent
 pub(in crate::card::sets) static MALICIOUS_INTENT: CardRecord = CardRecord::new_with_legacy_id(
     1744,
     "Malicious Intent",
@@ -3281,6 +3301,7 @@ pub(in crate::card::sets) static SOMBERWALD_VIGILANTE: CardRecord = CardRecord::
     ),
 );
 
+// AVR 157 — Stonewright
 static STONEWRIGHT_GRANTED: AbilityDef = AbilityDef::activated(
     "{R}: This creature gets +1/+0 until end of turn.",
     &[AbilityCostDef::Mana(mana_cost!("{R}"))],
@@ -3299,7 +3320,6 @@ static STONEWRIGHT_BONUS: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::add_ability(&STONEWRIGHT_GRANTED),
 };
 
-// AVR 157 — Stonewright
 pub(in crate::card::sets) static STONEWRIGHT: CardRecord = CardRecord::new_with_legacy_id(
     1947,
     "Stonewright",
@@ -3472,11 +3492,11 @@ pub(in crate::card::sets) static VIGILANTE_JUSTICE: CardRecord = CardRecord::new
     ),
 );
 
+// AVR 166 — Zealous Conscripts
 /// Haste matters here because the permanent has not been under its new
 /// controller's control since the turn began.
 static HASTE_GRANT: AbilityDef = abilities::haste();
 
-// AVR 166 — Zealous Conscripts
 pub(in crate::card::sets) static ZEALOUS_CONSCRIPTS: CardRecord = CardRecord::new_with_legacy_id(
     244,
     "Zealous Conscripts",
@@ -3512,13 +3532,13 @@ pub(in crate::card::sets) static ZEALOUS_CONSCRIPTS: CardRecord = CardRecord::ne
     ]),
 );
 
+// AVR 167 — Abundant Growth
 static ABUNDANT_GROWTH_MANA: AbilityDef = AbilityDef::activated_mana(
     "{T}: Add one mana of any color.",
     &[AbilityCostDef::TapSource],
     EffectDef::AddMana(AddManaEffectDef::any_color()),
 );
 
-// AVR 167 — Abundant Growth
 pub(in crate::card::sets) static ABUNDANT_GROWTH: CardRecord = CardRecord::new_with_legacy_id(
     819,
     "Abundant Growth",
@@ -3671,13 +3691,13 @@ pub(in crate::card::sets) static CHAMPION_OF_LAMBHOLT: CardRecord = CardRecord::
         ]),
 );
 
+// AVR 172 — Craterhoof Behemoth
 static CRATERHOOF_CREATURES: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasType(CardType::Creature),
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
 );
 
-// AVR 172 — Craterhoof Behemoth
 pub(in crate::card::sets) static CRATERHOOF_BEHEMOTH: CardRecord = CardRecord::new_with_legacy_id(
     821,
     "Craterhoof Behemoth",
@@ -3710,6 +3730,7 @@ pub(in crate::card::sets) static DESCENDANTS_PATH: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// AVR 174 — Diregraf Escort
 static DIREGRAF_ESCORT_GRANTED: AbilityDef = AbilityDef::keyword(
     "Protection from Zombies",
     KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype("Zombie")),
@@ -3720,7 +3741,6 @@ static DIREGRAF_ESCORT_BONUS: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::add_ability(&DIREGRAF_ESCORT_GRANTED),
 };
 
-// AVR 174 — Diregraf Escort
 pub(in crate::card::sets) static DIREGRAF_ESCORT: CardRecord = CardRecord::new_with_legacy_id(
     1948,
     "Diregraf Escort",
@@ -3740,12 +3760,12 @@ pub(in crate::card::sets) static DIREGRAF_ESCORT: CardRecord = CardRecord::new_w
     ]),
 );
 
+// AVR 175 — Druid's Familiar
 static DRUIDS_FAMILIAR_BONUS: EffectDef = EffectDef::StaticApply {
     recipient: SOULBOND_PAIR_RECIPIENT,
     effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
 };
 
-// AVR 175 — Druid's Familiar
 pub(in crate::card::sets) static DRUIDS_FAMILIAR: CardRecord = CardRecord::new_with_legacy_id(
     1938,
     "Druid's Familiar",
@@ -3805,6 +3825,7 @@ pub(in crate::card::sets) static EATEN_BY_SPIDERS: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// AVR 178 — Flowering Lumberknot
 /// Only a creature with soulbond can start a pairing, so every pair contains
 /// one -- which makes "paired at all" and "paired with a soulbond creature"
 /// the same question for a Treefolk that has no soulbond of its own.
@@ -3822,7 +3843,6 @@ static FLOWERING_LUMBERKNOT_RESTRICTION: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::Composite(&FLOWERING_LUMBERKNOT_SIDELINED),
 };
 
-// AVR 178 — Flowering Lumberknot
 pub(in crate::card::sets) static FLOWERING_LUMBERKNOT: CardRecord = CardRecord::new_with_legacy_id(
     1949,
     "Flowering Lumberknot",
@@ -3842,6 +3862,7 @@ pub(in crate::card::sets) static FLOWERING_LUMBERKNOT: CardRecord = CardRecord::
     ),
 );
 
+// AVR 179 — Geist Trappers
 static GEIST_TRAPPERS_GRANTED: AbilityDef = abilities::reach();
 
 static GEIST_TRAPPERS_BONUS: EffectDef = EffectDef::StaticApply {
@@ -3849,7 +3870,6 @@ static GEIST_TRAPPERS_BONUS: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::add_ability(&GEIST_TRAPPERS_GRANTED),
 };
 
-// AVR 179 — Geist Trappers
 pub(in crate::card::sets) static GEIST_TRAPPERS: CardRecord = CardRecord::new_with_legacy_id(
     1939,
     "Geist Trappers",
@@ -3913,12 +3933,6 @@ pub(in crate::card::sets) static GROUNDED: CardRecord = CardRecord::new_with_leg
             ),
         ]),
 );
-
-/// "Creatures with power less than this creature's power can't block it."
-/// The comparison is against the source's current power, so pumping it widens
-/// the restriction.
-static WEAKER_THAN_SOURCE: ObjectPredicateDef =
-    ObjectPredicateDef::PowerLessThan(ValueDef::SourcePower);
 
 // AVR 182 — Howlgeist
 pub(in crate::card::sets) static HOWLGEIST: CardRecord = CardRecord::new_with_legacy_id(
@@ -3999,6 +4013,7 @@ pub(in crate::card::sets) static NETTLE_SWINE: CardRecord = CardRecord::new_with
     CardRules::new_creature(mana_cost!("{3}{G}"), &["Boar"], 4, 3),
 );
 
+// AVR 187 — Nightshade Peddler
 static NIGHTSHADE_PEDDLER_GRANTED: AbilityDef = abilities::deathtouch();
 
 static NIGHTSHADE_PEDDLER_BONUS: EffectDef = EffectDef::StaticApply {
@@ -4006,7 +4021,6 @@ static NIGHTSHADE_PEDDLER_BONUS: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::add_ability(&NIGHTSHADE_PEDDLER_GRANTED),
 };
 
-// AVR 187 — Nightshade Peddler
 pub(in crate::card::sets) static NIGHTSHADE_PEDDLER: CardRecord = CardRecord::new_with_legacy_id(
     1940,
     "Nightshade Peddler",
@@ -4026,6 +4040,7 @@ pub(in crate::card::sets) static NIGHTSHADE_PEDDLER: CardRecord = CardRecord::ne
     ]),
 );
 
+// AVR 188 — Pathbreaker Wurm
 static PATHBREAKER_WURM_GRANTED: AbilityDef = abilities::trample();
 
 static PATHBREAKER_WURM_BONUS: EffectDef = EffectDef::StaticApply {
@@ -4033,7 +4048,6 @@ static PATHBREAKER_WURM_BONUS: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::add_ability(&PATHBREAKER_WURM_GRANTED),
 };
 
-// AVR 188 — Pathbreaker Wurm
 pub(in crate::card::sets) static PATHBREAKER_WURM: CardRecord = CardRecord::new_with_legacy_id(
     1941,
     "Pathbreaker Wurm",
@@ -4122,6 +4136,7 @@ pub(in crate::card::sets) static REVENGE_OF_THE_HUNTED: CardRecord = CardRecord:
     crate::card::CardRules::unsupported(),
 );
 
+// AVR 192 — Sheltering Word
 /// The grant and the life are one resolution, and the life is read from the
 /// same slot the hexproof went to.
 static SHELTERING_WORD_PROGRAM: [EffectDef; 2] = [
@@ -4136,7 +4151,6 @@ static SHELTERING_WORD_PROGRAM: [EffectDef; 2] = [
     },
 ];
 
-// AVR 192 — Sheltering Word
 pub(in crate::card::sets) static SHELTERING_WORD: CardRecord = CardRecord::new_with_legacy_id(
     1973,
     "Sheltering Word",
@@ -4181,11 +4195,11 @@ pub(in crate::card::sets) static SNARE_THE_SKIES: CardRecord = CardRecord::new_w
     )),
 );
 
+// AVR 194 — Somberwald Sage
 static SOMBERWALD_SAGE_RESTRICTIONS: [ManaRestrictionDef; 1] = [ManaRestrictionDef::CastSpell(
     ObjectPredicateDef::HasType(CardType::Creature),
 )];
 
-// AVR 194 — Somberwald Sage
 pub(in crate::card::sets) static SOMBERWALD_SAGE: CardRecord = CardRecord::new_with_legacy_id(
     828,
     "Somberwald Sage",
@@ -4204,6 +4218,7 @@ pub(in crate::card::sets) static SOMBERWALD_SAGE: CardRecord = CardRecord::new_w
     ),
 );
 
+// AVR 195 — Soul of the Harvest
 static SOUL_OF_THE_HARVEST_ENTRY: ObjectPredicateDef = ObjectPredicateDef::All(&[
     ObjectPredicateDef::HasType(CardType::Creature),
     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
@@ -4211,7 +4226,6 @@ static SOUL_OF_THE_HARVEST_ENTRY: ObjectPredicateDef = ObjectPredicateDef::All(&
     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
 ]);
 
-// AVR 195 — Soul of the Harvest
 pub(in crate::card::sets) static SOUL_OF_THE_HARVEST: CardRecord = CardRecord::new_with_legacy_id(
     1892,
     "Soul of the Harvest",
@@ -4306,25 +4320,12 @@ pub(in crate::card::sets) static TRIUMPH_OF_FEROCITY: CardRecord = CardRecord::n
     )),
 );
 
-static SOULBOND_ABILITIES: [AbilityDef; 2] = abilities::soulbond();
-
-/// "Both creatures" and "each of those creatures" name the same pair: the
-/// soulbond creature and whatever it is bonded to.
-static SOULBOND_PAIR_RECIPIENT: EffectRecipientDef = EffectRecipientDef::matching_objects(
-    ObjectPredicateDef::AnyOf(&[
-        ObjectPredicateDef::Source,
-        ObjectPredicateDef::PairedWithSource,
-    ]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
+// AVR 199 — Trusted Forcemage
 static TRUSTED_FORCEMAGE_BONUS: EffectDef = EffectDef::StaticApply {
     recipient: SOULBOND_PAIR_RECIPIENT,
     effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
 };
 
-// AVR 199 — Trusted Forcemage
 pub(in crate::card::sets) static TRUSTED_FORCEMAGE: CardRecord = CardRecord::new_with_legacy_id(
     1931,
     "Trusted Forcemage",
@@ -4420,12 +4421,12 @@ pub(in crate::card::sets) static WOLFIR_AVENGER: CardRecord = CardRecord::new_wi
     ]),
 );
 
+// AVR 206 — Wolfir Silverheart
 static WOLFIR_SILVERHEART_BONUS: EffectDef = EffectDef::StaticApply {
     recipient: SOULBOND_PAIR_RECIPIENT,
     effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(4), ValueDef::Constant(4)),
 };
 
-// AVR 206 — Wolfir Silverheart
 pub(in crate::card::sets) static WOLFIR_SILVERHEART: CardRecord = CardRecord::new_with_legacy_id(
     1942,
     "Wolfir Silverheart",
@@ -4520,6 +4521,7 @@ pub(in crate::card::sets) static ANGEL_S_TOMB: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// AVR 212 — Angelic Armaments
 static ANGELIC_ARMAMENTS_FLYING: AbilityDef = abilities::flying();
 
 static ANGELIC_ARMAMENTS_BONUS: [AppliedEffectDef; 4] = [
@@ -4529,7 +4531,6 @@ static ANGELIC_ARMAMENTS_BONUS: [AppliedEffectDef; 4] = [
     AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Angel"])),
 ];
 
-// AVR 212 — Angelic Armaments
 pub(in crate::card::sets) static ANGELIC_ARMAMENTS: CardRecord = CardRecord::new_with_legacy_id(
     2308,
     "Angelic Armaments",
@@ -4556,6 +4557,7 @@ pub(in crate::card::sets) static ANGELIC_ARMAMENTS: CardRecord = CardRecord::new
         ]),
 );
 
+// AVR 213 — Bladed Bracers
 static BLADED_BRACERS_VIGILANCE: AbilityDef = abilities::vigilance();
 
 static EQUIPPED_CREATURE_IS_HUMAN_OR_ANGEL: TriggerConditionDef =
@@ -4571,7 +4573,6 @@ static BLADED_BRACERS_VIGILANCE_GRANT: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::add_ability(&BLADED_BRACERS_VIGILANCE),
 };
 
-// AVR 213 — Bladed Bracers
 pub(in crate::card::sets) static BLADED_BRACERS: CardRecord = CardRecord::new_with_legacy_id(
     1926,
     "Bladed Bracers",
@@ -4656,9 +4657,9 @@ pub(in crate::card::sets) static HAUNTED_GUARDIAN: CardRecord = CardRecord::new_
         .with_abilities(&[abilities::defender(), abilities::first_strike()]),
 );
 
+// AVR 217 — Moonsilver Spear
 static MOONSILVER_SPEAR_FIRST_STRIKE: AbilityDef = abilities::first_strike();
 
-// AVR 217 — Moonsilver Spear
 pub(in crate::card::sets) static MOONSILVER_SPEAR: CardRecord = CardRecord::new_with_legacy_id(
     2309,
     "Moonsilver Spear",
@@ -4737,6 +4738,7 @@ pub(in crate::card::sets) static OTHERWORLD_ATLAS: CardRecord = CardRecord::new_
         ]),
 );
 
+// AVR 220 — Scroll of Avacyn
 static CONTROLS_AN_ANGEL: TriggerConditionDef = TriggerConditionDef::ObjectCount {
     query: ObjectQueryDef::matching(
         ObjectPredicateDef::Subtype("Angel"),
@@ -4747,7 +4749,6 @@ static CONTROLS_AN_ANGEL: TriggerConditionDef = TriggerConditionDef::ObjectCount
     amount: 1,
 };
 
-// AVR 220 — Scroll of Avacyn
 pub(in crate::card::sets) static SCROLL_OF_AVACYN: CardRecord = CardRecord::new_with_legacy_id(
     835,
     "Scroll of Avacyn",
@@ -4785,6 +4786,7 @@ pub(in crate::card::sets) static SCROLL_OF_GRISELBRAND: CardRecord = CardRecord:
     crate::card::CardRules::unsupported(),
 );
 
+// AVR 222 — Tormentor's Trident
 static TORMENTORS_TRIDENT_REQUIREMENT: AbilityDef =
     abilities::attacks_each_combat_if_able("Attacks each combat if able");
 
@@ -4793,7 +4795,6 @@ static TORMENTORS_TRIDENT_BONUS: [AppliedEffectDef; 2] = [
     AppliedEffectDef::add_ability(&TORMENTORS_TRIDENT_REQUIREMENT),
 ];
 
-// AVR 222 — Tormentor's Trident
 pub(in crate::card::sets) static TORMENTORS_TRIDENT: CardRecord = CardRecord::new_with_legacy_id(
     1928,
     "Tormentor's Trident",
@@ -4819,12 +4820,12 @@ pub(in crate::card::sets) static TORMENTORS_TRIDENT: CardRecord = CardRecord::ne
         ]),
 );
 
+// AVR 223 — Vanguard's Shield
 static VANGUARDS_SHIELD_BONUS: [AppliedEffectDef; 2] = [
     AppliedEffectDef::modify_power_toughness(ValueDef::Constant(0), ValueDef::Constant(3)),
     AppliedEffectDef::Rule(AppliedRuleDef::MayBlockAdditionalCreatures(1)),
 ];
 
-// AVR 223 — Vanguard's Shield
 pub(in crate::card::sets) static VANGUARDS_SHIELD: CardRecord = CardRecord::new_with_legacy_id(
     1929,
     "Vanguard's Shield",
@@ -4908,6 +4909,7 @@ pub(in crate::card::sets) static ALCHEMISTS_REFUGE: CardRecord = CardRecord::new
     ]),
 );
 
+// AVR 226 — Cavern of Souls
 static CAVERN_COLORED_MANA_RESTRICTIONS: [ManaRestrictionDef; 1] =
     [ManaRestrictionDef::CastCreatureSpellOfChosenType];
 
@@ -4916,7 +4918,6 @@ static CAVERN_COLORED_MANA_SPEND_EFFECTS: [ManaSpendEffectDef; 1] =
         AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered),
     )];
 
-// AVR 226 — Cavern of Souls
 pub(in crate::card::sets) static CAVERN_OF_SOULS: CardRecord = CardRecord::new_with_legacy_id(
     147,
     "Cavern of Souls",

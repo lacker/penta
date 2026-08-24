@@ -10,19 +10,6 @@ use crate::card::{
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
-/// Every Goblin on the battlefield, whoever controls it -- the count is of
-/// the board, not of your side of it.
-static GOBLINS_ON_THE_BATTLEFIELD: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::Subtype("Goblin"),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::Any,
-);
-
-static INCINERATE_FOR_EACH_GOBLIN: EffectDef = EffectDef::DealDamage {
-    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    amount: ValueDef::CountMatchingObjects(&GOBLINS_ON_THE_BATTLEFIELD),
-};
-
 // LGN 1 — Akroma, Angel of Wrath
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static AKROMA_ANGEL_OF_WRATH: CardRecord = CardRecord::new(
@@ -973,6 +960,19 @@ pub(in crate::card::sets) static FRENETIC_RAPTOR: CardRecord = CardRecord::new(
 );
 
 // LGN 94 — Gempalm Incinerator
+/// Every Goblin on the battlefield, whoever controls it -- the count is of
+/// the board, not of your side of it.
+static GOBLINS_ON_THE_BATTLEFIELD: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::Subtype("Goblin"),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::Any,
+);
+
+static INCINERATE_FOR_EACH_GOBLIN: EffectDef = EffectDef::DealDamage {
+    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+    amount: ValueDef::CountMatchingObjects(&GOBLINS_ON_THE_BATTLEFIELD),
+};
+
 pub(in crate::card::sets) static GEMPALM_INCINERATOR: CardRecord = CardRecord::new_with_legacy_id(
     2026,
     "Gempalm Incinerator",

@@ -12,41 +12,6 @@ use crate::card::{
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
-/// One printed ability with two ways in, which is what "when it enters and
-/// whenever it deals combat damage" says. Splitting it would make her two
-/// triggered abilities where the card has one.
-static IVORA_MAKES_BLOOD: [TriggerEventDef; 2] = [
-    TriggerEventDef::zone_changed(
-        ObjectPredicateDef::Source,
-        None,
-        Some(ZoneKind::Battlefield),
-    ),
-    TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
-];
-
-static IVORA_ABILITIES: [AbilityDef; 3] = [
-    abilities::trample(),
-    AbilityDef::triggered(
-        "When Ivora enters and whenever it deals combat damage to a player, create a Blood token.",
-        TriggerEventDef::AnyOf(&IVORA_MAKES_BLOOD),
-        EffectDef::create_token(tokens::blood()).with_art(CardArt::new(
-            "6b563165-b97f-42c6-82a8-65d8ee69e381",
-            "Stephen Andrade",
-        )),
-    ),
-    // Any discard, including one paid as a cost -- which is how her own Blood
-    // token feeds her.
-    AbilityDef::triggered(
-        "Whenever you discard a card, put a +1/+1 counter on Ivora.",
-        TriggerEventDef::Discarded(PlayerRelation::You),
-        EffectDef::AddCounters {
-            object: EffectRecipientDef::Source,
-            kind: CounterKind::PlusOnePlusOne,
-            amount: ValueDef::Constant(1),
-        },
-    ),
-];
-
 // J25 19 — Scholar of Combustion
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SCHOLAR_OF_COMBUSTION: CardRecord = CardRecord::new(
@@ -57,6 +22,7 @@ pub(in crate::card::sets) static SCHOLAR_OF_COMBUSTION: CardRecord = CardRecord:
     crate::card::CardRules::unsupported(),
 );
 
+// J25 24 — Scythecat Cub
 /// A land arriving under your control, which is what landfall watches: a
 /// land put onto the battlefield by a search counts exactly as one played
 /// from hand does.
@@ -110,7 +76,6 @@ static CUB_LANDFALL: [EffectDef; 2] = [
     },
 ];
 
-// J25 24 — Scythecat Cub
 pub(in crate::card::sets) static SCYTHECAT_CUB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b3dd3c7d-4685-4579-b483-14ddaaaddf5b"),
     "Scythecat Cub",
@@ -142,6 +107,7 @@ pub(in crate::card::sets) static SHARDLESS_OUTLANDER: CardRecord = CardRecord::n
     crate::card::CardRules::unsupported(),
 );
 
+// J25 37 — Plagon, Lord of the Beach
 /// "Each creature you control with toughness greater than its power": the
 /// comparison is between one creature's own two numbers, which is what makes
 /// a board of defensive bodies into a handful of cards.
@@ -165,7 +131,6 @@ static PLAGON_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 
 static PLAGON_COST: [AbilityCostDef; 1] = [AbilityCostDef::Mana(mana_cost!("{W/U}"))];
 
-// J25 37 — Plagon, Lord of the Beach
 pub(in crate::card::sets) static PLAGON_LORD_OF_THE_BEACH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7f8a6bfe-6033-4f6b-ab45-6b553f8b51a1"),
     "Plagon, Lord of the Beach",
@@ -207,6 +172,41 @@ pub(in crate::card::sets) static PLAGON_LORD_OF_THE_BEACH: CardRecord = CardReco
 );
 
 // J25 50 — Ivora, Insatiable Heir
+/// One printed ability with two ways in, which is what "when it enters and
+/// whenever it deals combat damage" says. Splitting it would make her two
+/// triggered abilities where the card has one.
+static IVORA_MAKES_BLOOD: [TriggerEventDef; 2] = [
+    TriggerEventDef::zone_changed(
+        ObjectPredicateDef::Source,
+        None,
+        Some(ZoneKind::Battlefield),
+    ),
+    TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+];
+
+static IVORA_ABILITIES: [AbilityDef; 3] = [
+    abilities::trample(),
+    AbilityDef::triggered(
+        "When Ivora enters and whenever it deals combat damage to a player, create a Blood token.",
+        TriggerEventDef::AnyOf(&IVORA_MAKES_BLOOD),
+        EffectDef::create_token(tokens::blood()).with_art(CardArt::new(
+            "6b563165-b97f-42c6-82a8-65d8ee69e381",
+            "Stephen Andrade",
+        )),
+    ),
+    // Any discard, including one paid as a cost -- which is how her own Blood
+    // token feeds her.
+    AbilityDef::triggered(
+        "Whenever you discard a card, put a +1/+1 counter on Ivora.",
+        TriggerEventDef::Discarded(PlayerRelation::You),
+        EffectDef::AddCounters {
+            object: EffectRecipientDef::Source,
+            kind: CounterKind::PlusOnePlusOne,
+            amount: ValueDef::Constant(1),
+        },
+    ),
+];
+
 pub(in crate::card::sets) static IVORA_INSATIABLE_HEIR: CardRecord = CardRecord::new_with_legacy_id(
     2148,
     "Ivora, Insatiable Heir",

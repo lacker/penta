@@ -11,6 +11,27 @@ use crate::card::{
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
 
+// EMN 14 — Borrowed Grace
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BORROWED_GRACE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f0067567-3434-4c12-9d4d-04ffc98d012c"),
+    "Borrowed Grace",
+    crate::card::CardArt::new("f0067567-3434-4c12-9d4d-04ffc98d012c", "Volkan Baǵa"),
+    crate::card::CardSet::EldritchMoon,
+    crate::card::CardRules::unsupported(),
+);
+
+// EMN 55 — Displace
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DISPLACE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8ab850c5-6f5e-41b7-ab52-094579caca12"),
+    "Displace",
+    crate::card::CardArt::new("8ab850c5-6f5e-41b7-ab52-094579caca12", "Clint Cearley"),
+    crate::card::CardSet::EldritchMoon,
+    crate::card::CardRules::unsupported(),
+);
+
+// EMN 85 — Collective Brutality
 /// Escalate: one discard for every mode past the first, so one mode is free
 /// and all three cost two cards.
 static ESCALATE_DISCARD: SpellAdditionalCostDef =
@@ -94,27 +115,6 @@ static BRUTALITY_MODES: [AbilityDef; 3] = [
     ),
 ];
 
-// EMN 14 — Borrowed Grace
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static BORROWED_GRACE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f0067567-3434-4c12-9d4d-04ffc98d012c"),
-    "Borrowed Grace",
-    crate::card::CardArt::new("f0067567-3434-4c12-9d4d-04ffc98d012c", "Volkan Baǵa"),
-    crate::card::CardSet::EldritchMoon,
-    crate::card::CardRules::unsupported(),
-);
-
-// EMN 55 — Displace
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static DISPLACE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8ab850c5-6f5e-41b7-ab52-094579caca12"),
-    "Displace",
-    crate::card::CardArt::new("8ab850c5-6f5e-41b7-ab52-094579caca12", "Clint Cearley"),
-    crate::card::CardSet::EldritchMoon,
-    crate::card::CardRules::unsupported(),
-);
-
-// EMN 85 — Collective Brutality
 pub(in crate::card::sets) static COLLECTIVE_BRUTALITY: CardRecord = CardRecord::new_with_legacy_id(
     2244,
     "Collective Brutality",

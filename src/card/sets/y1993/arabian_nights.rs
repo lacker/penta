@@ -33,10 +33,7 @@ static YOU_CONTROL_NO_ISLANDS: TriggerConditionDef = TriggerConditionDef::Object
     amount: 0,
 };
 
-static ELEPHANT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::Subtype("Elephant"),
-)];
-
+// ARN 1 — Abu Ja'far
 /// Both sides of whatever block it was in. One direction is read off the
 /// candidate and the other off Abu Ja'far, whose own record is last-known by
 /// the time the trigger resolves -- it is dead, which is what set this off.
@@ -52,7 +49,6 @@ static ABU_JAFARS_COMPANIONS: EffectRecipientDef = EffectRecipientDef::matching_
     PlayerRelation::Any,
 );
 
-// ARN 1 — Abu Ja'far
 pub(in crate::card::sets) static ABU_JAFAR: CardRecord = CardRecord::new_with_legacy_id(
     1736,
     "Abu Ja'far",
@@ -503,6 +499,7 @@ pub(in crate::card::sets) static EL_HAJJAJ: CardRecord = CardRecord::new_with_le
     ),
 );
 
+// ARN 25 — Erg Raiders
 /// Two facts about the permanent itself, read at the end step: whether it went
 /// to war, and whether it has been here long enough to be asked. The turn it
 /// arrives is free, which is what stops it punishing a player who could not
@@ -519,7 +516,6 @@ static ERG_RAIDERS_TOLL: EffectDef = EffectDef::DealDamage {
     amount: ValueDef::Constant(2),
 };
 
-// ARN 25 — Erg Raiders
 pub(in crate::card::sets) static ERG_RAIDERS: CardRecord = CardRecord::new_with_legacy_id(
     1813,
     "Erg Raiders",
@@ -539,6 +535,9 @@ pub(in crate::card::sets) static ERG_RAIDERS: CardRecord = CardRecord::new_with_
     ),
 );
 
+// ARN 25† — Erg Raiders (alternate printing)
+
+// ARN 26 — Guardian Beast
 static GUARDIAN_BEAST_ARTIFACTS: ObjectPredicateDef = ObjectPredicateDef::All(&[
     ObjectPredicateDef::HasType(CardType::Artifact),
     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
@@ -557,9 +556,6 @@ static GUARDIAN_BEAST_PROTECTION: EffectDef = EffectDef::StaticApply {
     ]),
 };
 
-// ARN 25† — Erg Raiders (alternate printing)
-
-// ARN 26 — Guardian Beast
 pub(in crate::card::sets) static GUARDIAN_BEAST: CardRecord = CardRecord::new_with_legacy_id(
     606,
     "Guardian Beast",
@@ -774,6 +770,7 @@ pub(in crate::card::sets) static ALI_BABA: CardRecord = CardRecord::new_with_leg
     ]),
 );
 
+// ARN 36 — Ali from Cairo
 /// Every source and every kind: the printed text names no exception.
 static ALI_FROM_CAIRO_ANY_DAMAGE: DamageEventMatcherDef = DamageEventMatcherDef {
     kind: DamageKindDef::Any,
@@ -781,7 +778,6 @@ static ALI_FROM_CAIRO_ANY_DAMAGE: DamageEventMatcherDef = DamageEventMatcherDef 
     recipient: DamageRecipientMatcherDef::Any,
 };
 
-// ARN 36 — Ali from Cairo
 pub(in crate::card::sets) static ALI_FROM_CAIRO: CardRecord = CardRecord::new_with_legacy_id(
     1716,
     "Ali from Cairo",
@@ -881,6 +877,7 @@ pub(in crate::card::sets) static MAGNETIC_MOUNTAIN: CardRecord = CardRecord::new
     crate::card::CardRules::unsupported(),
 );
 
+// ARN 42 — Mijae Djinn
 /// The losing branch: out of combat, and tapped as if it had attacked.
 static MIJAE_DJINN_LOST: EffectDef = EffectDef::Sequence(&[
     EffectDef::RemoveFromCombat {
@@ -891,7 +888,6 @@ static MIJAE_DJINN_LOST: EffectDef = EffectDef::Sequence(&[
     },
 ]);
 
-// ARN 42 — Mijae Djinn
 pub(in crate::card::sets) static MIJAE_DJINN: CardRecord = CardRecord::new_with_legacy_id(
     1662,
     "Mijae Djinn",
@@ -950,6 +946,7 @@ pub(in crate::card::sets) static YDWEN_EFREET: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// ARN 45 — Cyclone
 /// The damage is one number dealt twice over: every creature and every
 /// player, including its own controller and their own board.
 static CYCLONE_SWEEP: [EffectDef; 2] = [
@@ -995,7 +992,6 @@ static CYCLONE_UPKEEP: [EffectDef; 2] = [
     }),
 ];
 
-// ARN 45 — Cyclone
 pub(in crate::card::sets) static CYCLONE: CardRecord = CardRecord::new_with_legacy_id(
     1840,
     "Cyclone",
@@ -1027,6 +1023,17 @@ pub(in crate::card::sets) static DESERT_TWISTER: CardRecord = CardRecord::new_wi
     )]),
 );
 
+// ARN 47 — Drop of Honey
+// Audit: metadata-only — Needs a duration-scoped prohibition on creating or applying regeneration shields for “At the beginning of your upkeep, destroy the creature with the least power. It can't be regenerated. If two or more creatures are tied for least power, you choose one of them”.
+pub(in crate::card::sets) static DROP_OF_HONEY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("26e090d4-e7fe-403c-9aca-05c1b45ed238"),
+    "Drop of Honey",
+    crate::card::CardArt::new("26e090d4-e7fe-403c-9aca-05c1b45ed238", "Anson Maddocks"),
+    crate::card::CardSet::ArabianNights,
+    crate::card::CardRules::unsupported(),
+);
+
+// ARN 48 — Erhnam Djinn
 /// The gift is compulsory and goes to an opponent's creature, which is the
 /// drawback the Djinn is priced around.
 static ERHNAM_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
@@ -1043,17 +1050,6 @@ static ERHNAM_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 
 static ERHNAM_FORESTWALK: AbilityDef = abilities::forestwalk();
 
-// ARN 47 — Drop of Honey
-// Audit: metadata-only — Needs a duration-scoped prohibition on creating or applying regeneration shields for “At the beginning of your upkeep, destroy the creature with the least power. It can't be regenerated. If two or more creatures are tied for least power, you choose one of them”.
-pub(in crate::card::sets) static DROP_OF_HONEY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("26e090d4-e7fe-403c-9aca-05c1b45ed238"),
-    "Drop of Honey",
-    crate::card::CardArt::new("26e090d4-e7fe-403c-9aca-05c1b45ed238", "Anson Maddocks"),
-    crate::card::CardSet::ArabianNights,
-    crate::card::CardRules::unsupported(),
-);
-
-// ARN 48 — Erhnam Djinn
 pub(in crate::card::sets) static ERHNAM_DJINN: CardRecord = CardRecord::new_with_legacy_id(
     73,
     "Erhnam Djinn",
@@ -1085,6 +1081,7 @@ pub(in crate::card::sets) static GHAZBAN_OGRE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// ARN 50 — Ifh-Bíff Efreet
 /// Hurricane in miniature, and it catches the Efreet too: it flies, so its
 /// own ability hits it.
 static IFH_BIFF_STRIKE: [EffectDef; 2] = [
@@ -1105,7 +1102,6 @@ static IFH_BIFF_STRIKE: [EffectDef; 2] = [
     },
 ];
 
-// ARN 50 — Ifh-Bíff Efreet
 pub(in crate::card::sets) static IFH_BIFF_EFREET: CardRecord = CardRecord::new_with_legacy_id(
     1816,
     "Ifh-Bíff Efreet",
@@ -1217,23 +1213,6 @@ pub(in crate::card::sets) static WYLULI_WOLF: CardRecord = CardRecord::new_with_
     ]),
 );
 
-/// "Nontoken" needs no clause of its own: a token was printed in no
-/// expansion, so it never has a name originally printed in this one.
-static BOTTLED: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::DebutSet(CardSet::ArabianNights),
-    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-]);
-
-/// The casting prohibition has no "other": City in a Bottle was itself
-/// printed in Arabian Nights, so a second copy cannot be cast either.
-static FROM_THE_BOTTLE: ObjectPredicateDef = ObjectPredicateDef::DebutSet(CardSet::ArabianNights);
-
-static BOTTLED_PERMANENTS_EXIST: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: ObjectQueryDef::matching(BOTTLED, &[ZoneKind::Battlefield], PlayerRelation::Any),
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 1,
-};
-
 // ARN 55† — Wyluli Wolf (alternate printing)
 
 // ARN 56 — Aladdin's Lamp
@@ -1271,6 +1250,15 @@ pub(in crate::card::sets) static ALADDINS_RING: CardRecord = CardRecord::new_wit
 );
 
 // ARN 58 — Bottle of Suleiman
+static BOTTLE_OF_SULEIMAN_WON: EffectDef =
+    EffectDef::create_artifact_creature_token(&["Djinn"], &[], 5, 5)
+        .with_abilities(&[abilities::flying()]);
+
+static BOTTLE_OF_SULEIMAN_LOST: EffectDef = EffectDef::DealDamage {
+    recipient: EffectRecipientDef::Controller,
+    amount: ValueDef::Constant(5),
+};
+
 pub(in crate::card::sets) static BOTTLE_OF_SULEIMAN: CardRecord = CardRecord::new_with_legacy_id(
     1483,
     "Bottle of Suleiman",
@@ -1291,15 +1279,6 @@ pub(in crate::card::sets) static BOTTLE_OF_SULEIMAN: CardRecord = CardRecord::ne
         },
     )),
 );
-
-static BOTTLE_OF_SULEIMAN_WON: EffectDef =
-    EffectDef::create_artifact_creature_token(&["Djinn"], &[], 5, 5)
-        .with_abilities(&[abilities::flying()]);
-
-static BOTTLE_OF_SULEIMAN_LOST: EffectDef = EffectDef::DealDamage {
-    recipient: EffectRecipientDef::Controller,
-    amount: ValueDef::Constant(5),
-};
 
 // ARN 59 — Brass Man
 pub(in crate::card::sets) static BRASS_MAN: CardRecord = CardRecord::new_with_legacy_id(
@@ -1335,6 +1314,23 @@ pub(in crate::card::sets) static BRASS_MAN: CardRecord = CardRecord::new_with_le
 );
 
 // ARN 60 — City in a Bottle
+/// "Nontoken" needs no clause of its own: a token was printed in no
+/// expansion, so it never has a name originally printed in this one.
+static BOTTLED: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::DebutSet(CardSet::ArabianNights),
+    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+]);
+
+/// The casting prohibition has no "other": City in a Bottle was itself
+/// printed in Arabian Nights, so a second copy cannot be cast either.
+static FROM_THE_BOTTLE: ObjectPredicateDef = ObjectPredicateDef::DebutSet(CardSet::ArabianNights);
+
+static BOTTLED_PERMANENTS_EXIST: TriggerConditionDef = TriggerConditionDef::ObjectCount {
+    query: ObjectQueryDef::matching(BOTTLED, &[ZoneKind::Battlefield], PlayerRelation::Any),
+    comparison: ComparisonDef::GreaterOrEqual,
+    amount: 1,
+};
+
 pub(in crate::card::sets) static CITY_IN_A_BOTTLE: CardRecord = CardRecord::new_with_legacy_id(
     110,
     "City in a Bottle",
@@ -1500,11 +1496,14 @@ pub(in crate::card::sets) static PYRAMIDS: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// ARN 68 — Ring of Ma'rûf
 static RING_ORACLE_SOURCES: [CardChoiceSourceDef; 1] = [CardChoiceSourceDef::OutsideGame];
+
 static RING_OLD_SCHOOL_SOURCES: [CardChoiceSourceDef; 2] = [
     CardChoiceSourceDef::Zone(ZoneKind::Exile),
     CardChoiceSourceDef::OutsideGame,
 ];
+
 static RING_ORACLE_CHOICE: EffectDef = EffectDef::ChooseCards {
     player: EffectRecipientDef::Controller,
     sources: &RING_ORACLE_SOURCES,
@@ -1516,6 +1515,7 @@ static RING_ORACLE_CHOICE: EffectDef = EffectDef::ChooseCards {
     placement: ZonePlacement::Top,
     arrival_effect: None,
 };
+
 static RING_OLD_SCHOOL_CHOICE: EffectDef = EffectDef::ChooseCards {
     player: EffectRecipientDef::Controller,
     sources: &RING_OLD_SCHOOL_SOURCES,
@@ -1527,13 +1527,13 @@ static RING_OLD_SCHOOL_CHOICE: EffectDef = EffectDef::ChooseCards {
     placement: ZonePlacement::Top,
     arrival_effect: None,
 };
+
 static RING_FORMAT_CHOICE: EffectDef = EffectDef::IfFormat {
     format: Format::OldSchool9394,
     then: &RING_OLD_SCHOOL_CHOICE,
     otherwise: &RING_ORACLE_CHOICE,
 };
 
-// ARN 68 — Ring of Ma'rûf
 pub(in crate::card::sets) static RING_OF_MARUF: CardRecord = CardRecord::new_with_legacy_id(
     1362,
     "Ring of Ma'rûf",
@@ -1610,6 +1610,7 @@ pub(in crate::card::sets) static CITY_OF_BRASS: CardRecord = CardRecord::new_wit
     ]),
 );
 
+// ARN 72 — Desert
 /// "Target attacking creature", which the end-of-combat window still has
 /// standing in front of it: combat damage is dealt, but nothing is removed
 /// from combat until the step finishes.
@@ -1620,7 +1621,6 @@ static DESERT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_per
     ]),
 )];
 
-// ARN 72 — Desert
 pub(in crate::card::sets) static DESERT: CardRecord = CardRecord::new_with_legacy_id(
     1805,
     "Desert",
@@ -1644,6 +1644,7 @@ pub(in crate::card::sets) static DESERT: CardRecord = CardRecord::new_with_legac
         ]),
 );
 
+// ARN 73 — Diamond Valley
 /// The life is whatever the creature's toughness was, which is last-known by
 /// the time this runs -- the creature is already gone, which is the point.
 static DIAMOND_VALLEY_PAYOFF: EffectDef = EffectDef::GainLife {
@@ -1651,7 +1652,6 @@ static DIAMOND_VALLEY_PAYOFF: EffectDef = EffectDef::GainLife {
     amount: ValueDef::TriggerEventAmount,
 };
 
-// ARN 73 — Diamond Valley
 pub(in crate::card::sets) static DIAMOND_VALLEY: CardRecord = CardRecord::new_with_legacy_id(
     1764,
     "Diamond Valley",
@@ -1673,6 +1673,10 @@ pub(in crate::card::sets) static DIAMOND_VALLEY: CardRecord = CardRecord::new_wi
 );
 
 // ARN 74 — Elephant Graveyard
+static ELEPHANT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+    ObjectPredicateDef::Subtype("Elephant"),
+)];
+
 pub(in crate::card::sets) static ELEPHANT_GRAVEYARD: CardRecord = CardRecord::new_with_legacy_id(
     1422,
     "Elephant Graveyard",
@@ -1691,6 +1695,7 @@ pub(in crate::card::sets) static ELEPHANT_GRAVEYARD: CardRecord = CardRecord::ne
     ]),
 );
 
+// ARN 75 — Island of Wak-Wak
 static ISLAND_OF_WAK_WAK_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
     ObjectPredicateDef::All(&[
         ObjectPredicateDef::HasType(CardType::Creature),
@@ -1698,7 +1703,6 @@ static ISLAND_OF_WAK_WAK_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exac
     ]),
 )];
 
-// ARN 75 — Island of Wak-Wak
 pub(in crate::card::sets) static ISLAND_OF_WAK_WAK: CardRecord = CardRecord::new_with_legacy_id(
     1806,
     "Island of Wak-Wak",

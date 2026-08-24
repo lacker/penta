@@ -9,6 +9,7 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
+// AFR 33 — Portable Hole
 /// "Until this artifact leaves the battlefield" is one printed ability, so
 /// the return rides on the same resolution as a delayed trigger rather than
 /// appearing as a second clause the card does not print. Leaves, not dies:
@@ -54,7 +55,6 @@ static HOLE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     },
 )];
 
-// AFR 33 — Portable Hole
 pub(in crate::card::sets) static PORTABLE_HOLE: CardRecord = CardRecord::new_with_legacy_id(
     2256,
     "Portable Hole",

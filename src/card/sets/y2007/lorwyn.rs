@@ -12,6 +12,7 @@ use crate::card::{
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
 
+// LRW 56 — Cryptic Command
 static A_SPELL: [AbilityTargetDef; 1] =
     [AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)];
 
@@ -58,7 +59,6 @@ static CRYPTIC_COMMAND_MODES: [AbilityDef; 4] = [
     ),
 ];
 
-// LRW 56 — Cryptic Command
 pub(in crate::card::sets) static CRYPTIC_COMMAND: CardRecord = CardRecord::new_with_legacy_id(
     2272,
     "Cryptic Command",
@@ -77,6 +77,17 @@ pub(in crate::card::sets) static CRYPTIC_COMMAND: CardRecord = CardRecord::new_w
     )),
 );
 
+// LRW 76 — Mulldrifter
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static MULLDRIFTER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a97cfefa-ade7-49f6-b2aa-1118b9db4935"),
+    "Mulldrifter",
+    crate::card::CardArt::new("a97cfefa-ade7-49f6-b2aa-1118b9db4935", "Eric Fortune"),
+    crate::card::CardSet::Lorwyn,
+    crate::card::CardRules::unsupported(),
+);
+
+// LRW 79 — Ponder
 /// The shuffle is the caster's call and comes after the look: having seen
 /// the three, you decide whether to keep the arrangement or wash it away.
 /// The draw is last either way, so a shuffled Ponder still finds a card.
@@ -116,17 +127,6 @@ static PONDER_LOOK: TopCardSelectionDef = TopCardSelectionDef {
     selected_face_down: None,
 };
 
-// LRW 76 — Mulldrifter
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static MULLDRIFTER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a97cfefa-ade7-49f6-b2aa-1118b9db4935"),
-    "Mulldrifter",
-    crate::card::CardArt::new("a97cfefa-ade7-49f6-b2aa-1118b9db4935", "Eric Fortune"),
-    crate::card::CardSet::Lorwyn,
-    crate::card::CardRules::unsupported(),
-);
-
-// LRW 79 — Ponder
 pub(in crate::card::sets) static PONDER: CardRecord = CardRecord::new_with_legacy_id(
     2241,
     "Ponder",
@@ -145,6 +145,7 @@ pub(in crate::card::sets) static PONDER: CardRecord = CardRecord::new_with_legac
     )),
 );
 
+// LRW 145 — Thoughtseize
 static A_PLAYER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Player(PlayerRelation::Any),
 )];
@@ -181,7 +182,6 @@ static THOUGHTSEIZE_EFFECT: [EffectDef; 3] = [
     },
 ];
 
-// LRW 145 — Thoughtseize
 pub(in crate::card::sets) static THOUGHTSEIZE: CardRecord = CardRecord::new_with_legacy_id(
     2240,
     "Thoughtseize",
@@ -217,6 +217,7 @@ pub(in crate::card::sets) static WILD_RICOCHET: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// LRW 272 — Shelldock Isle
 /// Hideaway's look: four cards, one of them exiled face down and linked to
 /// the land that took it, and the rest back under the library in an order
 /// nobody knows.
@@ -264,7 +265,6 @@ static SHELLDOCK_UNLOCK_COST: [AbilityCostDef; 2] = [
     AbilityCostDef::TapSource,
 ];
 
-// LRW 272 — Shelldock Isle
 pub(in crate::card::sets) static SHELLDOCK_ISLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4216656e-90e8-45fc-a0f6-0d0d79d0a021"),
     "Shelldock Isle",

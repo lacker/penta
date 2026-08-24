@@ -13,88 +13,7 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
-/// "Artifact and/or enchantment" is one query rather than two sums: a
-/// permanent that is both is counted once, and Nettlecyst counts itself.
-static ARTIFACTS_AND_ENCHANTMENTS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::AnyOf(&[
-        ObjectPredicateDef::HasType(CardType::Artifact),
-        ObjectPredicateDef::HasType(CardType::Enchantment),
-    ]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
-/// Four damage split however the caster likes, over creatures and
-/// planeswalkers alike. Every target must be assigned at least one, so four
-/// is the most it can ever cover.
-static FURY_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef {
-    predicate: AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::HasType(CardType::Planeswalker),
-        ]),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-    minimum: 1,
-    maximum: AbilityTargetDef::UNLIMITED,
-    divided_total: Some(DividedTotal::Fixed(4)),
-    another: false,
-}];
-
-static EXILE_A_RED_CARD: SpellAdditionalCostDef =
-    SpellAdditionalCostDef::new(ObjectPredicateDef::Color(ManaColor::Red), ZoneKind::Hand, 1)
-        .spent(SpendModeDef::Exile);
-
-static FURY_ABILITIES: [AbilityDef; 4] = [
-    abilities::double_strike(),
-    AbilityDef::triggered_with_targets(
-        "When this creature enters, it deals 4 damage divided as you choose among any number of target creatures and/or planeswalkers.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
-        &FURY_TARGETS,
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::DividedAmongTargets,
-        },
-    ),
-    AbilityDef::alternative_cast(
-        mana_cost!("{0}"),
-        AlternativeCastKindDef::AlternativeCost,
-        Some("Evoke—Exile a red card from your hand."),
-        EffectDef::None,
-    )
-    .with_alternative_additional_cost(&EXILE_A_RED_CARD),
-    // Evoke's own sacrifice. It is a separate trigger because it happens
-    // after the Elemental has arrived, alongside the damage trigger rather
-    // than instead of it -- which is why an evoked Fury still burns.
-    abilities::evoke_sacrifice("When this creature enters, if it was evoked, sacrifice it."),
-];
-
-/// The second half of "sacrifice a creature or discard a card". Which half
-/// is paid is settled as the spell is cast: both spend a card the caster
-/// already had, and the enumeration offers every one of them.
-static BONE_SHARDS_DISCARD: SpellAdditionalCostDef =
-    SpellAdditionalCostDef::new(ObjectPredicateDef::Any, ZoneKind::Hand, 1);
-
-static BONE_SHARDS_COST: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ZoneKind::Battlefield,
-    1,
-)
-.or(&BONE_SHARDS_DISCARD);
-
-static BONE_SHARDS_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::AnyOf(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::HasType(CardType::Planeswalker),
-    ]),
-)];
-
+// MH2 25 — Prismatic Ending
 /// A nonland permanent of any size may be targeted; whether it is actually
 /// exiled is settled on resolution, against what paid for the spell.
 static ENDING_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
@@ -116,7 +35,6 @@ static ENDING_EXILE: EffectDef = EffectDef::MoveToZone {
     attachment: None,
 };
 
-// MH2 25 — Prismatic Ending
 pub(in crate::card::sets) static PRISMATIC_ENDING: CardRecord = CardRecord::new_with_legacy_id(
     2193,
     "Prismatic Ending",
@@ -136,10 +54,47 @@ pub(in crate::card::sets) static PRISMATIC_ENDING: CardRecord = CardRecord::new_
         )),
 );
 
-static DAMN_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Creature),
-)];
+// MH2 32 — Solitude
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static SOLITUDE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b648cc94-7880-456b-82ea-859746d52397"),
+    "Solitude",
+    crate::card::CardArt::new("47a6234f-309f-4e03-9263-66da48b57153", "Evan Shipard"),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
+);
 
+// MH2 36 — Unbounded Potential
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static UNBOUNDED_POTENTIAL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9955a344-dcd8-404d-9757-f62ed158ba22"),
+    "Unbounded Potential",
+    crate::card::CardArt::new("9955a344-dcd8-404d-9757-f62ed158ba22", "Iain McCaig"),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 46 — Hard Evidence
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static HARD_EVIDENCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("501599d6-1072-4124-b05d-01f96de153f3"),
+    "Hard Evidence",
+    crate::card::CardArt::new("501599d6-1072-4124-b05d-01f96de153f3", "Yeong-Hao Han"),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 49 — Lose Focus
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static LOSE_FOCUS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("985bdb0c-ce6c-4506-8163-76f3b2fdf5fb"),
+    "Lose Focus",
+    crate::card::CardArt::new("985bdb0c-ce6c-4506-8163-76f3b2fdf5fb", "Martina Fačková"),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 67 — Subtlety
 static EXILE_A_BLUE_CARD: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
     ObjectPredicateDef::Color(ManaColor::Blue),
     ZoneKind::Hand,
@@ -189,47 +144,6 @@ static SUBTLETY_ABILITIES: [AbilityDef; 5] = [
     abilities::evoke_sacrifice("When this creature enters, if it was evoked, sacrifice it."),
 ];
 
-// MH2 32 — Solitude
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static SOLITUDE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b648cc94-7880-456b-82ea-859746d52397"),
-    "Solitude",
-    crate::card::CardArt::new("47a6234f-309f-4e03-9263-66da48b57153", "Evan Shipard"),
-    crate::card::CardSet::ModernHorizons2,
-    crate::card::CardRules::unsupported(),
-);
-
-// MH2 36 — Unbounded Potential
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static UNBOUNDED_POTENTIAL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9955a344-dcd8-404d-9757-f62ed158ba22"),
-    "Unbounded Potential",
-    crate::card::CardArt::new("9955a344-dcd8-404d-9757-f62ed158ba22", "Iain McCaig"),
-    crate::card::CardSet::ModernHorizons2,
-    crate::card::CardRules::unsupported(),
-);
-
-// MH2 46 — Hard Evidence
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static HARD_EVIDENCE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("501599d6-1072-4124-b05d-01f96de153f3"),
-    "Hard Evidence",
-    crate::card::CardArt::new("501599d6-1072-4124-b05d-01f96de153f3", "Yeong-Hao Han"),
-    crate::card::CardSet::ModernHorizons2,
-    crate::card::CardRules::unsupported(),
-);
-
-// MH2 49 — Lose Focus
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static LOSE_FOCUS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("985bdb0c-ce6c-4506-8163-76f3b2fdf5fb"),
-    "Lose Focus",
-    crate::card::CardArt::new("985bdb0c-ce6c-4506-8163-76f3b2fdf5fb", "Martina Fačková"),
-    crate::card::CardSet::ModernHorizons2,
-    crate::card::CardRules::unsupported(),
-);
-
-// MH2 67 — Subtlety
 pub(in crate::card::sets) static SUBTLETY: CardRecord = CardRecord::new_with_legacy_id(
     2236,
     "Subtlety",
@@ -244,6 +158,7 @@ pub(in crate::card::sets) static SUBTLETY: CardRecord = CardRecord::new_with_leg
         .with_abilities(&SUBTLETY_ABILITIES),
 );
 
+// MH2 75 — Archon of Cruelty
 /// One printed ability with two ways in: he arrives, or he attacks. Two
 /// abilities would make him trigger twice on a turn he does both, which the
 /// card does not say -- and would count as two triggered abilities where the
@@ -303,7 +218,6 @@ static ARCHON_REWARD: [EffectDef; 2] = [
     },
 ];
 
-// MH2 75 — Archon of Cruelty
 pub(in crate::card::sets) static ARCHON_OF_CRUELTY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1be9d9a4-d7ee-4854-abc2-85cabf993ec9"),
     "Archon of Cruelty",
@@ -326,6 +240,26 @@ pub(in crate::card::sets) static ARCHON_OF_CRUELTY: CardRecord = CardRecord::new
 );
 
 // MH2 76 — Bone Shards
+/// The second half of "sacrifice a creature or discard a card". Which half
+/// is paid is settled as the spell is cast: both spend a card the caster
+/// already had, and the enumeration offers every one of them.
+static BONE_SHARDS_DISCARD: SpellAdditionalCostDef =
+    SpellAdditionalCostDef::new(ObjectPredicateDef::Any, ZoneKind::Hand, 1);
+
+static BONE_SHARDS_COST: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
+    ObjectPredicateDef::HasType(CardType::Creature),
+    ZoneKind::Battlefield,
+    1,
+)
+.or(&BONE_SHARDS_DISCARD);
+
+static BONE_SHARDS_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+    ObjectPredicateDef::AnyOf(&[
+        ObjectPredicateDef::HasType(CardType::Creature),
+        ObjectPredicateDef::HasType(CardType::Planeswalker),
+    ]),
+)];
+
 pub(in crate::card::sets) static BONE_SHARDS: CardRecord = CardRecord::new_with_legacy_id(
     2169,
     "Bone Shards",
@@ -347,6 +281,10 @@ pub(in crate::card::sets) static BONE_SHARDS: CardRecord = CardRecord::new_with_
 );
 
 // MH2 80 — Damn
+static DAMN_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+    ObjectPredicateDef::HasType(CardType::Creature),
+)];
+
 pub(in crate::card::sets) static DAMN: CardRecord = CardRecord::new_with_legacy_id(
     2192,
     "Damn",
@@ -431,6 +369,57 @@ pub(in crate::card::sets) static DRAGON_S_RAGE_CHANNELER: CardRecord = CardRecor
 );
 
 // MH2 126 — Fury
+/// Four damage split however the caster likes, over creatures and
+/// planeswalkers alike. Every target must be assigned at least one, so four
+/// is the most it can ever cover.
+static FURY_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef {
+    predicate: AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::AnyOf(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::HasType(CardType::Planeswalker),
+        ]),
+        zones: &[ZoneKind::Battlefield],
+        controller: None,
+        owner: None,
+    },
+    minimum: 1,
+    maximum: AbilityTargetDef::UNLIMITED,
+    divided_total: Some(DividedTotal::Fixed(4)),
+    another: false,
+}];
+
+static EXILE_A_RED_CARD: SpellAdditionalCostDef =
+    SpellAdditionalCostDef::new(ObjectPredicateDef::Color(ManaColor::Red), ZoneKind::Hand, 1)
+        .spent(SpendModeDef::Exile);
+
+static FURY_ABILITIES: [AbilityDef; 4] = [
+    abilities::double_strike(),
+    AbilityDef::triggered_with_targets(
+        "When this creature enters, it deals 4 damage divided as you choose among any number of target creatures and/or planeswalkers.",
+        TriggerEventDef::zone_changed(
+            ObjectPredicateDef::Source,
+            None,
+            Some(ZoneKind::Battlefield),
+        ),
+        &FURY_TARGETS,
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::DividedAmongTargets,
+        },
+    ),
+    AbilityDef::alternative_cast(
+        mana_cost!("{0}"),
+        AlternativeCastKindDef::AlternativeCost,
+        Some("Evoke—Exile a red card from your hand."),
+        EffectDef::None,
+    )
+    .with_alternative_additional_cost(&EXILE_A_RED_CARD),
+    // Evoke's own sacrifice. It is a separate trigger because it happens
+    // after the Elemental has arrived, alongside the damage trigger rather
+    // than instead of it -- which is why an evoked Fury still burns.
+    abilities::evoke_sacrifice("When this creature enters, if it was evoked, sacrifice it."),
+];
+
 pub(in crate::card::sets) static FURY: CardRecord = CardRecord::new_with_legacy_id(
     2157,
     "Fury",
@@ -440,16 +429,7 @@ pub(in crate::card::sets) static FURY: CardRecord = CardRecord::new_with_legacy_
         .with_abilities(&FURY_ABILITIES),
 );
 
-/// Delirium changes the amount, not the effect, so it is a conditional value
-/// rather than a second clause: four card types in your own graveyard, and
-/// the same spell deals six.
-static UNHOLY_HEAT_AMOUNT: GraveyardTypeConditionDef = GraveyardTypeConditionDef {
-    player: PlayerRelation::You,
-    minimum: 4,
-    then: ValueDef::Constant(6),
-    otherwise: ValueDef::Constant(2),
-};
-
+// MH2 135 — Mine Collapse
 /// A Mountain, not a red source: what the cost names is the land type, so a
 /// Sacred Foundry pays it and a Mountain that has stopped being one does not.
 static SACRIFICE_A_MOUNTAIN: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
@@ -475,7 +455,6 @@ static MINE_COLLAPSE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_
     },
 )];
 
-// MH2 135 — Mine Collapse
 pub(in crate::card::sets) static MINE_COLLAPSE: CardRecord = CardRecord::new_with_legacy_id(
     2261,
     "Mine Collapse",
@@ -507,18 +486,7 @@ pub(in crate::card::sets) static MINE_COLLAPSE: CardRecord = CardRecord::new_wit
     ]),
 );
 
-static UNHOLY_HEAT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::HasType(CardType::Planeswalker),
-        ]),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-)];
-
+// MH2 138 — Ragavan, Nimble Pilferer
 static RAGAVAN_CONNECTS: [EffectDef; 2] = [
     EffectDef::create_token(tokens::treasure()).with_art(CardArt::new(
         "630c0d1c-9ddb-4e76-a82a-9cdd8a5b487b",
@@ -554,7 +522,6 @@ static RAGAVAN_ABILITIES: [AbilityDef; 4] = [
     abilities::dashed_return(),
 ];
 
-// MH2 138 — Ragavan, Nimble Pilferer
 pub(in crate::card::sets) static RAGAVAN_NIMBLE_PILFERER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a9738cda-adb1-47fb-9f4c-ecd930228c4d"),
     "Ragavan, Nimble Pilferer",
@@ -569,6 +536,28 @@ pub(in crate::card::sets) static RAGAVAN_NIMBLE_PILFERER: CardRecord = CardRecor
 );
 
 // MH2 145 — Unholy Heat
+/// Delirium changes the amount, not the effect, so it is a conditional value
+/// rather than a second clause: four card types in your own graveyard, and
+/// the same spell deals six.
+static UNHOLY_HEAT_AMOUNT: GraveyardTypeConditionDef = GraveyardTypeConditionDef {
+    player: PlayerRelation::You,
+    minimum: 4,
+    then: ValueDef::Constant(6),
+    otherwise: ValueDef::Constant(2),
+};
+
+static UNHOLY_HEAT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::AnyOf(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::HasType(CardType::Planeswalker),
+        ]),
+        zones: &[ZoneKind::Battlefield],
+        controller: None,
+        owner: None,
+    },
+)];
+
 pub(in crate::card::sets) static UNHOLY_HEAT: CardRecord = CardRecord::new_with_legacy_id(
     2159,
     "Unholy Heat",
@@ -584,6 +573,27 @@ pub(in crate::card::sets) static UNHOLY_HEAT: CardRecord = CardRecord::new_with_
     )),
 );
 
+// MH2 147 — Abundant Harvest
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ABUNDANT_HARVEST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("16782095-0b7f-4489-8a97-b74f8efef352"),
+    "Abundant Harvest",
+    crate::card::CardArt::new("5ad86b17-3fed-418a-938c-c49adb409531", "Iris Compiet"),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 149 — Bannerhide Krushok
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static BANNERHIDE_KRUSHOK: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1271251b-7d79-4cb4-80bb-98574aa63249"),
+    "Bannerhide Krushok",
+    crate::card::CardArt::new("1271251b-7d79-4cb4-80bb-98574aa63249", "Joe Slucher"),
+    crate::card::CardSet::ModernHorizons2,
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 157 — Endurance
 static EXILE_A_GREEN_CARD: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
     ObjectPredicateDef::Color(ManaColor::Green),
     ZoneKind::Hand,
@@ -625,27 +635,6 @@ static ENDURANCE_ABILITIES: [AbilityDef; 5] = [
     abilities::evoke_sacrifice("When this creature enters, if it was evoked, sacrifice it."),
 ];
 
-// MH2 147 — Abundant Harvest
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static ABUNDANT_HARVEST: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("16782095-0b7f-4489-8a97-b74f8efef352"),
-    "Abundant Harvest",
-    crate::card::CardArt::new("5ad86b17-3fed-418a-938c-c49adb409531", "Iris Compiet"),
-    crate::card::CardSet::ModernHorizons2,
-    crate::card::CardRules::unsupported(),
-);
-
-// MH2 149 — Bannerhide Krushok
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static BANNERHIDE_KRUSHOK: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("1271251b-7d79-4cb4-80bb-98574aa63249"),
-    "Bannerhide Krushok",
-    crate::card::CardArt::new("1271251b-7d79-4cb4-80bb-98574aa63249", "Joe Slucher"),
-    crate::card::CardSet::ModernHorizons2,
-    crate::card::CardRules::unsupported(),
-);
-
-// MH2 157 — Endurance
 pub(in crate::card::sets) static ENDURANCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eb0e0404-4846-4891-acfa-bd0951ecf9c6"),
     "Endurance",
@@ -691,6 +680,7 @@ pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord:
     crate::card::CardRules::unsupported(),
 );
 
+// MH2 216 — Territorial Kavu
 /// Domain: how many of the five basic land types are among your lands. A
 /// Kavu on a two-colour board is a 2/2, and one behind a full spread of
 /// fetched duals is a 5/5.
@@ -745,7 +735,6 @@ static KAVU_MODES: [AbilityDef; 2] = [
     ),
 ];
 
-// MH2 216 — Territorial Kavu
 pub(in crate::card::sets) static TERRITORIAL_KAVU: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2605df98-0b02-4aab-bc36-01e93c693743"),
     "Territorial Kavu",
@@ -776,6 +765,7 @@ pub(in crate::card::sets) static TERRITORIAL_KAVU: CardRecord = CardRecord::new(
     ]),
 );
 
+// MH2 227 — Kaldra Compleat
 /// The clause the equipped creature gains, not one Kaldra has itself: "that
 /// creature" is the one that took the damage, which is a different object
 /// from the one that dealt it.
@@ -800,8 +790,11 @@ static KALDRA_EXILES_WHAT_IT_HITS: AbilityDef = AbilityDef::triggered(
 );
 
 static KALDRA_FIRST_STRIKE: AbilityDef = abilities::first_strike();
+
 static KALDRA_TRAMPLE: AbilityDef = abilities::trample();
+
 static KALDRA_INDESTRUCTIBLE: AbilityDef = abilities::indestructible();
+
 static KALDRA_HASTE: AbilityDef = abilities::haste();
 
 static KALDRA_GRANTS: [AppliedEffectDef; 6] = [
@@ -833,7 +826,6 @@ static KALDRA_COMPLEAT_ABILITIES: [AbilityDef; 4] = [
     abilities::equip(&KALDRA_EQUIP_COST, "Equip {7}"),
 ];
 
-// MH2 227 — Kaldra Compleat
 pub(in crate::card::sets) static KALDRA_COMPLEAT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9b6c6ad4-d5fb-4503-8b15-c2104f125990"),
     "Kaldra Compleat",
@@ -849,6 +841,17 @@ pub(in crate::card::sets) static KALDRA_COMPLEAT: CardRecord = CardRecord::new(
 );
 
 // MH2 231 — Nettlecyst
+/// "Artifact and/or enchantment" is one query rather than two sums: a
+/// permanent that is both is counted once, and Nettlecyst counts itself.
+static ARTIFACTS_AND_ENCHANTMENTS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::AnyOf(&[
+        ObjectPredicateDef::HasType(CardType::Artifact),
+        ObjectPredicateDef::HasType(CardType::Enchantment),
+    ]),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::You,
+);
+
 pub(in crate::card::sets) static NETTLECYST: CardRecord = CardRecord::new_with_legacy_id(
     2126,
     "Nettlecyst",

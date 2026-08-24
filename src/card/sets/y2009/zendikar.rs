@@ -83,22 +83,17 @@ pub(in crate::card::sets) static SPELL_PIERCE: CardRecord = CardRecord::new_with
     )),
 );
 
-static BLAZING_TORCH_GRANTED_ABILITY: AbilityDef = AbilityDef::activated_with_targets(
-    "{T}, Sacrifice Blazing Torch: Blazing Torch deals 2 damage to any target.",
-    &[
-        AbilityCostDef::TapSource,
-        AbilityCostDef::SacrificeObject(ObjectRefDef::AbilityGrantSource),
-    ],
-    &[AbilityTargetDef::exactly_one(
-        AbilityTargetPredicate::AnyTarget,
-    )],
-    EffectDef::DealDamageFrom {
-        source: ObjectRefDef::AbilityGrantSource,
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(2),
-    },
+// ZEN 87 — Disfigure
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DISFIGURE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b3842ad2-a449-4963-8c96-276554125757"),
+    "Disfigure",
+    crate::card::CardArt::new("b3842ad2-a449-4963-8c96-276554125757", "Justin Sweet"),
+    crate::card::CardSet::Zendikar,
+    crate::card::CardRules::unsupported(),
 );
 
+// ZEN 114 — Vampire Hexmage
 /// Any permanent, which is the point: what it takes off a planeswalker is
 /// the loyalty, and a planeswalker with no loyalty is put into a graveyard
 /// by the ordinary state-based action.
@@ -111,17 +106,6 @@ static ANY_PERMANENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     },
 )];
 
-// ZEN 87 — Disfigure
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static DISFIGURE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b3842ad2-a449-4963-8c96-276554125757"),
-    "Disfigure",
-    crate::card::CardArt::new("b3842ad2-a449-4963-8c96-276554125757", "Justin Sweet"),
-    crate::card::CardSet::Zendikar,
-    crate::card::CardRules::unsupported(),
-);
-
-// ZEN 114 — Vampire Hexmage
 pub(in crate::card::sets) static VAMPIRE_HEXMAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("93d2c4d1-6205-404a-b03d-995b90a3a33a"),
     "Vampire Hexmage",
@@ -197,6 +181,22 @@ pub(in crate::card::sets) static VINES_OF_VASTWOOD: CardRecord = CardRecord::new
 );
 
 // ZEN 197 — Blazing Torch
+static BLAZING_TORCH_GRANTED_ABILITY: AbilityDef = AbilityDef::activated_with_targets(
+    "{T}, Sacrifice Blazing Torch: Blazing Torch deals 2 damage to any target.",
+    &[
+        AbilityCostDef::TapSource,
+        AbilityCostDef::SacrificeObject(ObjectRefDef::AbilityGrantSource),
+    ],
+    &[AbilityTargetDef::exactly_one(
+        AbilityTargetPredicate::AnyTarget,
+    )],
+    EffectDef::DealDamageFrom {
+        source: ObjectRefDef::AbilityGrantSource,
+        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        amount: ValueDef::Constant(2),
+    },
+);
+
 pub(in crate::card::sets) static BLAZING_TORCH: CardRecord = CardRecord::new_with_legacy_id(
     2314,
     "Blazing Torch",
@@ -232,6 +232,12 @@ pub(in crate::card::sets) static BLAZING_TORCH: CardRecord = CardRecord::new_wit
 );
 
 // ZEN 201 — Expedition Map
+static EXPEDITION_MAP_COST: [AbilityCostDef; 3] = [
+    AbilityCostDef::Mana(mana_cost!("{2}")),
+    AbilityCostDef::TapSource,
+    AbilityCostDef::SacrificeSource,
+];
+
 pub(in crate::card::sets) static EXPEDITION_MAP: CardRecord = CardRecord::new_with_legacy_id(
     2245,
     "Expedition Map",
@@ -259,12 +265,6 @@ pub(in crate::card::sets) static EXPEDITION_MAP: CardRecord = CardRecord::new_wi
         },
     )),
 );
-
-static EXPEDITION_MAP_COST: [AbilityCostDef; 3] = [
-    AbilityCostDef::Mana(mana_cost!("{2}")),
-    AbilityCostDef::TapSource,
-    AbilityCostDef::SacrificeSource,
-];
 
 // ZEN 211 — Arid Mesa
 pub(in crate::card::sets) static ARID_MESA: CardRecord = CardRecord::new_with_legacy_id(

@@ -7,26 +7,6 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
-static SLEIGHT_SELECTION: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(2),
-    object: None,
-    minimum: 1,
-    maximum: 1,
-    select_all_matching: false,
-    reveal_selected: false,
-    selected_zone: ZoneKind::Hand,
-    selected_placement: ZonePlacement::Top,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Bottom,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
-
 // P02 8 — Angel of Mercy
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ANGEL_OF_MERCY: CardRecord = CardRecord::new(
@@ -78,6 +58,26 @@ pub(in crate::card::sets) static EXHAUSTION: CardRecord = CardRecord::new(
 );
 
 // P02 46 — Sleight of Hand
+static SLEIGHT_SELECTION: TopCardSelectionDef = TopCardSelectionDef {
+    count: ValueDef::Constant(2),
+    object: None,
+    minimum: 1,
+    maximum: 1,
+    select_all_matching: false,
+    reveal_selected: false,
+    selected_zone: ZoneKind::Hand,
+    selected_placement: ZonePlacement::Top,
+    rest_zone: ZoneKind::Library,
+    rest_placement: ZonePlacement::Bottom,
+    rest_random_order: false,
+    rest_counters: None,
+    selected_order_follows_choice: false,
+    then: None,
+    selected_hidden: false,
+    selected_linked_to_source: false,
+    selected_face_down: None,
+};
+
 pub(in crate::card::sets) static SLEIGHT_OF_HAND: CardRecord = CardRecord::new_with_legacy_id(
     311,
     "Sleight of Hand",

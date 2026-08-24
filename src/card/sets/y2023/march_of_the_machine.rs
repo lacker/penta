@@ -10,6 +10,17 @@ use crate::card::{
 use crate::ids::ObjectSetBindingIndex;
 use crate::mana_cost;
 
+// MOM 3 — Alabaster Host Intercessor
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static ALABASTER_HOST_INTERCESSOR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("165357cc-ec74-490f-aec3-7048bb43c8f9"),
+    "Alabaster Host Intercessor",
+    crate::card::CardArt::new("165357cc-ec74-490f-aec3-7048bb43c8f9", "Konstantin Porubov"),
+    crate::card::CardSet::MarchOfTheMachine,
+    crate::card::CardRules::unsupported(),
+);
+
+// MOM 40 — Sunfall
 /// Everyone's, which is what "all creatures" means.
 static EVERY_CREATURE: ObjectQueryDef = ObjectQueryDef::new(
     ObjectPredicateDef::HasType(CardType::Creature),
@@ -48,17 +59,6 @@ static SUNFALL_EXILES_THEN_INCUBATES: EffectDef = EffectDef::BindMatching {
     then: &EffectDef::Sequence(&SUNFALL_STEPS),
 };
 
-// MOM 3 — Alabaster Host Intercessor
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static ALABASTER_HOST_INTERCESSOR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("165357cc-ec74-490f-aec3-7048bb43c8f9"),
-    "Alabaster Host Intercessor",
-    crate::card::CardArt::new("165357cc-ec74-490f-aec3-7048bb43c8f9", "Konstantin Porubov"),
-    crate::card::CardSet::MarchOfTheMachine,
-    crate::card::CardRules::unsupported(),
-);
-
-// MOM 40 — Sunfall
 pub(in crate::card::sets) static SUNFALL: CardRecord = CardRecord::new_with_legacy_id(
     2258,
     "Sunfall",
@@ -77,6 +77,7 @@ pub(in crate::card::sets) static SUNFALL: CardRecord = CardRecord::new_with_lega
     )),
 );
 
+// MOM 58 — Faerie Mastermind
 static FAERIE_MASTERMIND_ABILITIES: [AbilityDef; 4] = [
     abilities::flash(),
     abilities::flying(),
@@ -105,7 +106,6 @@ static FAERIE_MASTERMIND_ABILITIES: [AbilityDef; 4] = [
     ),
 ];
 
-// MOM 58 — Faerie Mastermind
 pub(in crate::card::sets) static FAERIE_MASTERMIND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("52d3005f-a1c7-4ef5-911f-ccc0752f4181"),
     "Faerie Mastermind",

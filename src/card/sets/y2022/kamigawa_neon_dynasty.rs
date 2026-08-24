@@ -12,6 +12,17 @@ use crate::card::{
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
+// NEO 17 — Imperial Oath
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static IMPERIAL_OATH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3d6750dd-2303-493b-885d-1bfb5787b16c"),
+    "Imperial Oath",
+    crate::card::CardArt::new("3d6750dd-2303-493b-885d-1bfb5787b16c", "Nicholas Elias"),
+    crate::card::CardSet::KamigawaNeonDynasty,
+    crate::card::CardRules::unsupported(),
+);
+
+// NEO 26 — Lion Sash
 /// A card in anybody's graveyard, which is what "from a graveyard" means:
 /// yours as readily as theirs.
 static A_CARD_IN_A_GRAVEYARD: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
@@ -61,17 +72,6 @@ static LION_SASH_EXILE: [EffectDef; 2] = [
     },
 ];
 
-// NEO 17 — Imperial Oath
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static IMPERIAL_OATH: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("3d6750dd-2303-493b-885d-1bfb5787b16c"),
-    "Imperial Oath",
-    crate::card::CardArt::new("3d6750dd-2303-493b-885d-1bfb5787b16c", "Nicholas Elias"),
-    crate::card::CardSet::KamigawaNeonDynasty,
-    crate::card::CardRules::unsupported(),
-);
-
-// NEO 26 — Lion Sash
 pub(in crate::card::sets) static LION_SASH: CardRecord = CardRecord::new_with_legacy_id(
     2243,
     "Lion Sash",
@@ -106,6 +106,7 @@ pub(in crate::card::sets) static LION_SASH: CardRecord = CardRecord::new_with_le
         ]),
 );
 
+// NEO 40 — Touch the Spirit Realm
 /// "Until this enchantment leaves the battlefield" is one printed clause, so
 /// the return rides on a delayed trigger rather than appearing as a second
 /// ability the card does not print.
@@ -186,7 +187,6 @@ static TOUCH_CHANNEL_COST: AbilityCostList = AbilityCostList::two(
     AbilityCostDef::DiscardSource,
 );
 
-// NEO 40 — Touch the Spirit Realm
 pub(in crate::card::sets) static TOUCH_THE_SPIRIT_REALM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e16ab44e-4257-4c0c-b705-8ac1e9c1d835"),
     "Touch the Spirit Realm",
@@ -218,6 +218,7 @@ pub(in crate::card::sets) static TOUCH_THE_SPIRIT_REALM: CardRecord = CardRecord
     ]),
 );
 
+// NEO 42 — The Wandering Emperor
 /// "As long as The Wandering Emperor entered this turn": the permission is
 /// hers for the turn she lands and no longer, which is what makes flashing
 /// her in at the end of a turn a plan rather than a waste.
@@ -317,7 +318,6 @@ static WANDERING_EMPEROR_ABILITIES: [AbilityDef; 5] = [
     ),
 ];
 
-// NEO 42 — The Wandering Emperor
 pub(in crate::card::sets) static THE_WANDERING_EMPEROR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fab2d8a9-ab4c-4225-a570-22636293c17d"),
     "The Wandering Emperor",
@@ -416,6 +416,28 @@ pub(in crate::card::sets) static RABBIT_BATTERY: CardRecord = CardRecord::new_wi
         ]),
 );
 
+// NEO 189 — Greater Tanuki
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static GREATER_TANUKI: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b4fbaee3-a10f-4b2d-b07e-d041a96a7e27"),
+    "Greater Tanuki",
+    crate::card::CardArt::new("b4fbaee3-a10f-4b2d-b07e-d041a96a7e27", "Ilse Gort"),
+    crate::card::CardSet::KamigawaNeonDynasty,
+    crate::card::CardRules::unsupported(),
+);
+
+// NEO 211 — Tamiyo's Safekeeping
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static TAMIYO_S_SAFEKEEPING: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fd4b7ee2-de65-4288-872d-486065a4f226"),
+    "Tamiyo's Safekeeping",
+    crate::card::CardArt::new("fd4b7ee2-de65-4288-872d-486065a4f226", "Aurore Folny"),
+    crate::card::CardSet::KamigawaNeonDynasty,
+    crate::card::CardRules::unsupported(),
+);
+
+// NEO 238 — Tamiyo, Compleated Sage
+// Audit: partial — Compleated and +1 are executable; −7 creates a Notebook whose cost reduction does not yet reduce announced X, and −X needs variable loyalty costs plus arbitrary graveyard-card copy tokens using last-known information.
 static TAMIYO_PLUS_ONE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
     AbilityTargetPredicate::Object {
         object: ObjectPredicateDef::AnyOf(&[
@@ -487,28 +509,6 @@ static TAMIYO_ABILITIES: [AbilityDef; 4] = [
     ),
 ];
 
-// NEO 189 — Greater Tanuki
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static GREATER_TANUKI: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b4fbaee3-a10f-4b2d-b07e-d041a96a7e27"),
-    "Greater Tanuki",
-    crate::card::CardArt::new("b4fbaee3-a10f-4b2d-b07e-d041a96a7e27", "Ilse Gort"),
-    crate::card::CardSet::KamigawaNeonDynasty,
-    crate::card::CardRules::unsupported(),
-);
-
-// NEO 211 — Tamiyo's Safekeeping
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static TAMIYO_S_SAFEKEEPING: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("fd4b7ee2-de65-4288-872d-486065a4f226"),
-    "Tamiyo's Safekeeping",
-    crate::card::CardArt::new("fd4b7ee2-de65-4288-872d-486065a4f226", "Aurore Folny"),
-    crate::card::CardSet::KamigawaNeonDynasty,
-    crate::card::CardRules::unsupported(),
-);
-
-// NEO 238 — Tamiyo, Compleated Sage
-// Audit: partial — Compleated and +1 are executable; −7 creates a Notebook whose cost reduction does not yet reduce announced X, and −X needs variable loyalty costs plus arbitrary graveyard-card copy tokens using last-known information.
 pub(in crate::card::sets) static TAMIYO_COMPLEATED_SAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("222a736e-d819-452d-aeda-eb848c4b2302"),
     "Tamiyo, Compleated Sage",

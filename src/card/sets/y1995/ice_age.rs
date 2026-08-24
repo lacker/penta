@@ -689,56 +689,6 @@ pub(in crate::card::sets) static HYDROBLAST: CardRecord = CardRecord::new_with_l
     )),
 );
 
-/// Three cards named in the order they go back, so the whole arrangement is
-/// one decision rather than three. Every inspected card is selected, which is
-/// what makes the choice an ordering rather than a filter.
-static PORTENT_LOOK: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(3),
-    object: None,
-    minimum: 3,
-    maximum: 3,
-    select_all_matching: false,
-    reveal_selected: false,
-    selected_zone: ZoneKind::Library,
-    selected_placement: ZonePlacement::Top,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Top,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: true,
-    then: Some(&PORTENT_SHUFFLE_AND_DRAW),
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
-
-/// The shuffle comes after the look and is the caster's call: having seen the
-/// three, you decide whether to leave them arranged or wash them away. The
-/// draw is delayed a turn, which is the price the card pays for costing one.
-static PORTENT_SHUFFLE_AND_DRAW: EffectDef = EffectDef::Sequence(&[
-    EffectDef::May {
-        player: EffectRecipientDef::Controller,
-        effect: &EffectDef::ShuffleLibrary {
-            player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        },
-    },
-    EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-        "At the beginning of the next turn's upkeep, draw a card.",
-        TriggerEventDef::StepBegins {
-            step: TurnStepDef::Upkeep,
-            player: PlayerRelation::Any,
-        },
-        EffectDef::DrawCards {
-            recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::Constant(1),
-        },
-    ))),
-]);
-
-static PORTENT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
-
 // ICE 73 — Iceberg
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ICEBERG: CardRecord = CardRecord::new(
@@ -910,6 +860,56 @@ pub(in crate::card::sets) static POLAR_KRAKEN: CardRecord = CardRecord::new(
 );
 
 // ICE 90 — Portent
+/// Three cards named in the order they go back, so the whole arrangement is
+/// one decision rather than three. Every inspected card is selected, which is
+/// what makes the choice an ordering rather than a filter.
+static PORTENT_LOOK: TopCardSelectionDef = TopCardSelectionDef {
+    count: ValueDef::Constant(3),
+    object: None,
+    minimum: 3,
+    maximum: 3,
+    select_all_matching: false,
+    reveal_selected: false,
+    selected_zone: ZoneKind::Library,
+    selected_placement: ZonePlacement::Top,
+    rest_zone: ZoneKind::Library,
+    rest_placement: ZonePlacement::Top,
+    rest_random_order: false,
+    rest_counters: None,
+    selected_order_follows_choice: true,
+    then: Some(&PORTENT_SHUFFLE_AND_DRAW),
+    selected_hidden: false,
+    selected_linked_to_source: false,
+    selected_face_down: None,
+};
+
+/// The shuffle comes after the look and is the caster's call: having seen the
+/// three, you decide whether to leave them arranged or wash them away. The
+/// draw is delayed a turn, which is the price the card pays for costing one.
+static PORTENT_SHUFFLE_AND_DRAW: EffectDef = EffectDef::Sequence(&[
+    EffectDef::May {
+        player: EffectRecipientDef::Controller,
+        effect: &EffectDef::ShuffleLibrary {
+            player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        },
+    },
+    EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+        "At the beginning of the next turn's upkeep, draw a card.",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::Upkeep,
+            player: PlayerRelation::Any,
+        },
+        EffectDef::DrawCards {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(1),
+        },
+    ))),
+]);
+
+static PORTENT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Player(PlayerRelation::Any),
+)];
+
 pub(in crate::card::sets) static PORTENT: CardRecord = CardRecord::new_with_legacy_id(
     2051,
     "Portent",
@@ -3438,6 +3438,7 @@ pub(in crate::card::sets) static TIME_BOMB: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// ICE 343 — Urza's Bauble
 /// "You draw a card at the beginning of the next turn's upkeep": a delayed
 /// draw rather than a cantrip, which is what makes the Bauble free to play
 /// and slow to pay.
@@ -3467,7 +3468,6 @@ static A_PLAYER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Player(PlayerRelation::Any),
 )];
 
-// ICE 343 — Urza's Bauble
 pub(in crate::card::sets) static URZAS_BAUBLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("58c9e9a7-e170-4361-b7d5-22fc0771c489"),
     "Urza's Bauble",

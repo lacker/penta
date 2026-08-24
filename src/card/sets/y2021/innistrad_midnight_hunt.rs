@@ -9,6 +9,7 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
+// MID 1 — Adeline, Resplendent Cathar
 static CREATURES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasType(CardType::Creature),
     &[ZoneKind::Battlefield],
@@ -60,7 +61,6 @@ static ADELINE_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
-// MID 1 — Adeline, Resplendent Cathar
 pub(in crate::card::sets) static ADELINE_RESPLENDENT_CATHAR: CardRecord =
     CardRecord::new_with_legacy_id(
         2280,
@@ -74,6 +74,7 @@ pub(in crate::card::sets) static ADELINE_RESPLENDENT_CATHAR: CardRecord =
             .with_abilities(&ADELINE_ABILITIES),
     );
 
+// MID 10 — Cathar Commando
 static AN_ARTIFACT_OR_ENCHANTMENT: [AbilityTargetDef; 1] =
     [AbilityTargetDef::exactly_one_permanent(
         ObjectPredicateDef::AnyOf(&[
@@ -82,7 +83,6 @@ static AN_ARTIFACT_OR_ENCHANTMENT: [AbilityTargetDef; 1] =
         ]),
     )];
 
-// MID 10 — Cathar Commando
 pub(in crate::card::sets) static CATHAR_COMMANDO: CardRecord = CardRecord::new_with_legacy_id(
     2273,
     "Cathar Commando",

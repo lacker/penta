@@ -7,6 +7,7 @@ use crate::card::{
 };
 use crate::mana_cost;
 
+// RAV 81 — Dark Confidant
 /// "You lose life equal to its mana value." The card is in your hand by the
 /// time this is asked, so what the reveal hands on is the number rather than
 /// the card.
@@ -38,7 +39,6 @@ static CONFIDANT_REVEAL: TopCardSelectionDef = TopCardSelectionDef {
     then: Some(&CONFIDANT_PAYMENT),
 };
 
-// RAV 81 — Dark Confidant
 pub(in crate::card::sets) static DARK_CONFIDANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("94f7a441-bf2d-46fb-a7b6-9bd6137f86d9"),
     "Dark Confidant",

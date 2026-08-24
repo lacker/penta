@@ -9,6 +9,7 @@ use crate::card::{
 };
 use crate::mana_cost;
 
+// BLC 9 — Jacked Rabbit
 /// Ravenous reads the X the spell was cast for, which the permanent recorded
 /// as it arrived: the entering object is a new one, so the X the spell chose
 /// is not on it any more.
@@ -56,7 +57,6 @@ static JACKED_RABBIT_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
-// BLC 9 — Jacked Rabbit
 pub(in crate::card::sets) static JACKED_RABBIT: CardRecord = CardRecord::new_with_legacy_id(
     2250,
     "Jacked Rabbit",

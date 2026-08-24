@@ -9,6 +9,7 @@ use crate::card::{
 };
 use crate::mana_cost;
 
+// NEC 14 — Kappa Cannoneer
 /// "This creature or another artifact you control": the Cannoneer's own
 /// arrival counts, and so does every artifact after it -- including the ones
 /// that are not creatures.
@@ -42,7 +43,6 @@ static CANNONEER_GROWS: [EffectDef; 2] = [
     },
 ];
 
-// NEC 14 — Kappa Cannoneer
 pub(in crate::card::sets) static KAPPA_CANNONEER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("85a89077-b384-4fca-9d26-7297962c1541"),
     "Kappa Cannoneer",

@@ -23,13 +23,16 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
-/// Three prohibitions, applied together for the same duration, so the Aura
-/// leaving gives all three back at once.
-static ARREST_PROHIBITIONS: [AppliedEffectDef; 3] = [
-    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
-    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
-    AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
-];
+/// Islands you control, returned rather than sacrificed: what the cycle buys
+/// is tempo, not card advantage, and the lands are back in hand to replay.
+const fn return_islands(count: u8) -> SpellAdditionalCostDef {
+    SpellAdditionalCostDef::new(
+        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+        ZoneKind::Battlefield,
+        count,
+    )
+    .spent(SpendModeDef::ReturnToHand)
+}
 
 // MMQ 1 — Afterlife (reprint)
 
@@ -54,6 +57,14 @@ pub(in crate::card::sets) static ARMISTICE: CardRecord = CardRecord::new(
 );
 
 // MMQ 4 — Arrest
+/// Three prohibitions, applied together for the same duration, so the Aura
+/// leaving gives all three back at once.
+static ARREST_PROHIBITIONS: [AppliedEffectDef; 3] = [
+    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
+    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+    AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
+];
+
 pub(in crate::card::sets) static ARREST: CardRecord = CardRecord::new_with_legacy_id(
     1952,
     "Arrest",
@@ -75,34 +86,6 @@ pub(in crate::card::sets) static ARREST: CardRecord = CardRecord::new_with_legac
             ),
         ]),
 );
-
-static NONBASIC_LAND: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Land),
-    ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Basic)),
-]);
-
-/// Islands you control, returned rather than sacrificed: what the cycle buys
-/// is tempo, not card advantage, and the lands are back in hand to replay.
-const fn return_islands(count: u8) -> SpellAdditionalCostDef {
-    SpellAdditionalCostDef::new(
-        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
-        ZoneKind::Battlefield,
-        count,
-    )
-    .spent(SpendModeDef::ReturnToHand)
-}
-
-static GUSH_COST: SpellAdditionalCostDef = return_islands(2);
-static THWART_COST: SpellAdditionalCostDef = return_islands(3);
-
-static TARGET_SPELL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::Spell,
-        zones: &[ZoneKind::Stack],
-        controller: None,
-        owner: None,
-    },
-)];
 
 // MMQ 5 — Ballista Squad
 // Audit: metadata-only — Card rules have not been implemented.
@@ -848,6 +831,8 @@ pub(in crate::card::sets) static GLOWING_ANEMONE: CardRecord = CardRecord::new(
 );
 
 // MMQ 82 — Gush
+static GUSH_COST: SpellAdditionalCostDef = return_islands(2);
+
 pub(in crate::card::sets) static GUSH: CardRecord = CardRecord::new_with_legacy_id(
     2045,
     "Gush",
@@ -1128,6 +1113,17 @@ pub(in crate::card::sets) static STINGING_BARRIER: CardRecord = CardRecord::new(
 );
 
 // MMQ 108 — Thwart
+static THWART_COST: SpellAdditionalCostDef = return_islands(3);
+
+static TARGET_SPELL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::Spell,
+        zones: &[ZoneKind::Stack],
+        controller: None,
+        owner: None,
+    },
+)];
+
 pub(in crate::card::sets) static THWART: CardRecord = CardRecord::new_with_legacy_id(
     2046,
     "Thwart",
@@ -1144,24 +1140,6 @@ pub(in crate::card::sets) static THWART: CardRecord = CardRecord::new_with_legac
         .with_alternative_additional_cost(&THWART_COST),
     ]),
 );
-
-/// A Swamp on the battlefield, which is what the free cast is gated on.
-static YOU_CONTROL_A_SWAMP: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: ObjectQueryDef::matching(
-        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
-        &[ZoneKind::Battlefield],
-        PlayerRelation::You,
-    ),
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 1,
-};
-
-static SNUFF_OUT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
-    ]),
-)];
 
 // MMQ 109 — Tidal Bore
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1691,6 +1669,24 @@ pub(in crate::card::sets) static SKULKING_FUGITIVE: CardRecord = CardRecord::new
 );
 
 // MMQ 162 — Snuff Out
+/// A Swamp on the battlefield, which is what the free cast is gated on.
+static YOU_CONTROL_A_SWAMP: TriggerConditionDef = TriggerConditionDef::ObjectCount {
+    query: ObjectQueryDef::matching(
+        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
+        &[ZoneKind::Battlefield],
+        PlayerRelation::You,
+    ),
+    comparison: ComparisonDef::GreaterOrEqual,
+    amount: 1,
+};
+
+static SNUFF_OUT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+    ObjectPredicateDef::All(&[
+        ObjectPredicateDef::HasType(CardType::Creature),
+        ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+    ]),
+)];
+
 pub(in crate::card::sets) static SNUFF_OUT: CardRecord = CardRecord::new_with_legacy_id(
     2158,
     "Snuff Out",
@@ -2557,6 +2553,7 @@ pub(in crate::card::sets) static HUNTED_WUMPUS: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// MMQ 254 — Invigorate
 static YOU_CONTROL_A_FOREST: TriggerConditionDef = TriggerConditionDef::ObjectCount {
     query: ObjectQueryDef::matching(
         ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
@@ -2571,7 +2568,6 @@ static INVIGORATE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one
     ObjectPredicateDef::HasType(CardType::Creature),
 )];
 
-// MMQ 254 — Invigorate
 pub(in crate::card::sets) static INVIGORATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("406b343c-90b5-4a4d-91c3-2fddcc9a0e05"),
     "Invigorate",
@@ -3189,6 +3185,11 @@ pub(in crate::card::sets) static WORRY_BEADS: CardRecord = CardRecord::new(
 );
 
 // MMQ 316 — Dust Bowl
+static NONBASIC_LAND: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::HasType(CardType::Land),
+    ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Basic)),
+]);
+
 pub(in crate::card::sets) static DUST_BOWL: CardRecord = CardRecord::new_with_legacy_id(
     280,
     "Dust Bowl",

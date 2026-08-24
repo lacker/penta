@@ -246,43 +246,6 @@ pub(in crate::card::sets) static WHITE_SUNS_ZENITH: CardRecord = CardRecord::new
     ),
 );
 
-/// Revealed and shuffled back rather than exiled, so the deck keeps it and
-/// nothing gets to answer it permanently. The reveal is what makes the
-/// shuffle honest: everyone knows the card went back in.
-static COLOSSUS_RETURNS: [ReplacementEffectDef; 2] = [
-    ReplacementEffectDef::MoveToZone(ZoneKind::Library),
-    ReplacementEffectDef::Perform(&EffectDef::ShuffleLibrary {
-        player: EffectRecipientDef::Controller,
-    }),
-];
-
-/// Watched from everywhere the card can be, because "from anywhere" is the
-/// point: countered on the stack, discarded from hand, and milled from the
-/// library all come back the same way.
-static COLOSSUS_ZONES: [ZoneKind; 5] = [
-    ZoneKind::Battlefield,
-    ZoneKind::Stack,
-    ZoneKind::Hand,
-    ZoneKind::Library,
-    ZoneKind::Graveyard,
-];
-
-static COLOSSUS_ABILITIES: [AbilityDef; 4] = [
-    abilities::trample(),
-    abilities::infect(),
-    abilities::indestructible(),
-    AbilityDef::replacement_for(
-        "If this creature would be put into a graveyard from anywhere, reveal it and shuffle it into its owner's library instead.",
-        ReplacementEventDef::WouldMove {
-            from: None,
-            to: ZoneKind::Graveyard,
-            cause: ZoneMoveCauseDef::Any,
-        },
-        ReplacementEffectDef::Sequence(&COLOSSUS_RETURNS),
-    )
-    .with_source_zones(&COLOSSUS_ZONES),
-];
-
 // MBS 20 — Blue Sun's Zenith
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static BLUE_SUN_S_ZENITH: CardRecord = CardRecord::new(
@@ -1268,6 +1231,43 @@ pub(in crate::card::sets) static BLADED_SENTINEL: CardRecord = CardRecord::new(
 );
 
 // MBS 99 — Blightsteel Colossus
+/// Revealed and shuffled back rather than exiled, so the deck keeps it and
+/// nothing gets to answer it permanently. The reveal is what makes the
+/// shuffle honest: everyone knows the card went back in.
+static COLOSSUS_RETURNS: [ReplacementEffectDef; 2] = [
+    ReplacementEffectDef::MoveToZone(ZoneKind::Library),
+    ReplacementEffectDef::Perform(&EffectDef::ShuffleLibrary {
+        player: EffectRecipientDef::Controller,
+    }),
+];
+
+/// Watched from everywhere the card can be, because "from anywhere" is the
+/// point: countered on the stack, discarded from hand, and milled from the
+/// library all come back the same way.
+static COLOSSUS_ZONES: [ZoneKind; 5] = [
+    ZoneKind::Battlefield,
+    ZoneKind::Stack,
+    ZoneKind::Hand,
+    ZoneKind::Library,
+    ZoneKind::Graveyard,
+];
+
+static COLOSSUS_ABILITIES: [AbilityDef; 4] = [
+    abilities::trample(),
+    abilities::infect(),
+    abilities::indestructible(),
+    AbilityDef::replacement_for(
+        "If this creature would be put into a graveyard from anywhere, reveal it and shuffle it into its owner's library instead.",
+        ReplacementEventDef::WouldMove {
+            from: None,
+            to: ZoneKind::Graveyard,
+            cause: ZoneMoveCauseDef::Any,
+        },
+        ReplacementEffectDef::Sequence(&COLOSSUS_RETURNS),
+    )
+    .with_source_zones(&COLOSSUS_ZONES),
+];
+
 pub(in crate::card::sets) static BLIGHTSTEEL_COLOSSUS: CardRecord = CardRecord::new_with_legacy_id(
     2183,
     "Blightsteel Colossus",

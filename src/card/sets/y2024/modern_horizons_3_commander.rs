@@ -11,6 +11,8 @@ use crate::card::{
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
 
+// M3C 4 — Ulalek, Fused Atrocity
+// Audit: metadata-only — Its creature body and Devoid are catalog metadata; the mass spell-and-ability copy trigger is not executable.
 static ULALEK_ABILITIES: [AbilityDef; 2] = [
     abilities::devoid().with_coverage(AbilityCoverageDef::metadata_only(
         "Ulalek's colorlessness is represented directly in its printed color metadata.",
@@ -21,8 +23,6 @@ static ULALEK_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
-// M3C 4 — Ulalek, Fused Atrocity
-// Audit: metadata-only — Its creature body and Devoid are catalog metadata; the mass spell-and-ability copy trigger is not executable.
 pub(in crate::card::sets) static ULALEK_FUSED_ATROCITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fdad1b0e-d3cc-4d76-ae7e-fee12558cf2c"),
     "Ulalek, Fused Atrocity",
@@ -35,6 +35,88 @@ pub(in crate::card::sets) static ULALEK_FUSED_ATROCITY: CardRecord = CardRecord:
         .with_abilities(&ULALEK_ABILITIES),
 );
 
+// M3C 50 — Barrowgoyf
+/// "From among them" is what the mill just put there, not what the
+/// graveyard already held -- and only a creature card among those.
+static A_MILLED_CREATURE_CARD: ObjectSetDef = ObjectSetDef::MatchingBinding {
+    binding: ObjectSetBindingIndex::PRIMARY,
+    object: ObjectPredicateDef::HasType(CardType::Creature),
+};
+
+static BARROWGOYF_TAKES_ONE: EffectDef = EffectDef::MoveToZone {
+    counters: None,
+    object: EffectRecipientDef::objects(ObjectSetDef::Binding(BARROWGOYF_TAKEN)),
+    zone: ZoneKind::Hand,
+    placement: ZonePlacement::Top,
+    controller: None,
+    arrival_effect: None,
+    attachment: None,
+};
+
+/// Where the chosen card is saved, kept apart from the milled pile so that
+/// "them" and "the one you took" are two different sets.
+static BARROWGOYF_TAKEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
+
+/// A minimum of zero is the second "you may": milling and taking nothing is
+/// a legal answer, and a pile with no creature in it never asks.
+static BARROWGOYF_CHOOSES: EffectDef = EffectDef::Choose(ChooseDef {
+    binding: ObjectChoiceBindingDef::Objects(BARROWGOYF_TAKEN),
+    unchosen: None,
+    chooser: PlayerRefDef::EffectController,
+    candidates: A_MILLED_CREATURE_CARD,
+    exclude: None,
+    minimum: 0,
+    maximum: 1,
+    visibility: ChoiceVisibilityDef::Public,
+    then: &BARROWGOYF_TAKES_ONE,
+});
+
+static BARROWGOYF_MILLS: EffectDef = EffectDef::Mill {
+    player: EffectRecipientDef::Controller,
+    amount: ValueDef::TriggerEventAmount,
+    binding: Some(ObjectSetBindingIndex::PRIMARY),
+    then: Some(&BARROWGOYF_CHOOSES),
+};
+
+pub(in crate::card::sets) static BARROWGOYF: CardRecord = CardRecord::new_with_legacy_id(
+    2213,
+    "Barrowgoyf",
+    CardArt::new("f979fc86-2c7e-49b3-965e-607a203cbfb1", "Igor Kieryluk"),
+    CardSet::ModernHorizons3Commander,
+    // Deathtouch and lifelink on a body that grows with every graveyard,
+    // and every hit digs for the next one.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Lhurgoyf"], 0, 1).with_abilities(&[
+        abilities::deathtouch(),
+        abilities::lifelink(),
+        AbilityDef::static_ability(
+            "Barrowgoyf's power is equal to the number of card types among cards in all graveyards and its toughness is equal to that number plus 1.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                // The printed toughness carries the "plus 1", so the counted
+                // part is the same number on both sides.
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::CardTypesAmongGraveyards(PlayerRelation::Any),
+                    ValueDef::CardTypesAmongGraveyards(PlayerRelation::Any),
+                ),
+            },
+        )
+        .with_coverage(AbilityCoverageDef::partial(
+            "A characteristic-defining ability sets power and toughness in every zone. This is a \
+             battlefield-only continuous effect, so the value is right wherever the card is \
+             played and absent for anything reading it in another zone.",
+        )),
+        AbilityDef::triggered(
+            "Whenever this creature deals combat damage to a player, you may mill that many cards. If you do, you may put a creature card from among them into your hand.",
+            TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &BARROWGOYF_MILLS,
+            },
+        ),
+    ]),
+);
+
+// M3C 59 — Pyrogoyf
 /// A Lhurgoyf you control -- this one included, which is what "this creature
 /// or another" comes to.
 static A_LHURGOYF_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
@@ -82,88 +164,6 @@ static PYROGOYF_ABILITIES: [AbilityDef; 2] = [
     )),
 ];
 
-/// "From among them" is what the mill just put there, not what the
-/// graveyard already held -- and only a creature card among those.
-static A_MILLED_CREATURE_CARD: ObjectSetDef = ObjectSetDef::MatchingBinding {
-    binding: ObjectSetBindingIndex::PRIMARY,
-    object: ObjectPredicateDef::HasType(CardType::Creature),
-};
-
-static BARROWGOYF_TAKES_ONE: EffectDef = EffectDef::MoveToZone {
-    counters: None,
-    object: EffectRecipientDef::objects(ObjectSetDef::Binding(BARROWGOYF_TAKEN)),
-    zone: ZoneKind::Hand,
-    placement: ZonePlacement::Top,
-    controller: None,
-    arrival_effect: None,
-    attachment: None,
-};
-
-/// Where the chosen card is saved, kept apart from the milled pile so that
-/// "them" and "the one you took" are two different sets.
-static BARROWGOYF_TAKEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
-
-/// A minimum of zero is the second "you may": milling and taking nothing is
-/// a legal answer, and a pile with no creature in it never asks.
-static BARROWGOYF_CHOOSES: EffectDef = EffectDef::Choose(ChooseDef {
-    binding: ObjectChoiceBindingDef::Objects(BARROWGOYF_TAKEN),
-    unchosen: None,
-    chooser: PlayerRefDef::EffectController,
-    candidates: A_MILLED_CREATURE_CARD,
-    exclude: None,
-    minimum: 0,
-    maximum: 1,
-    visibility: ChoiceVisibilityDef::Public,
-    then: &BARROWGOYF_TAKES_ONE,
-});
-
-static BARROWGOYF_MILLS: EffectDef = EffectDef::Mill {
-    player: EffectRecipientDef::Controller,
-    amount: ValueDef::TriggerEventAmount,
-    binding: Some(ObjectSetBindingIndex::PRIMARY),
-    then: Some(&BARROWGOYF_CHOOSES),
-};
-
-// M3C 50 — Barrowgoyf
-pub(in crate::card::sets) static BARROWGOYF: CardRecord = CardRecord::new_with_legacy_id(
-    2213,
-    "Barrowgoyf",
-    CardArt::new("f979fc86-2c7e-49b3-965e-607a203cbfb1", "Igor Kieryluk"),
-    CardSet::ModernHorizons3Commander,
-    // Deathtouch and lifelink on a body that grows with every graveyard,
-    // and every hit digs for the next one.
-    CardRules::new_creature(mana_cost!("{2}{B}"), &["Lhurgoyf"], 0, 1).with_abilities(&[
-        abilities::deathtouch(),
-        abilities::lifelink(),
-        AbilityDef::static_ability(
-            "Barrowgoyf's power is equal to the number of card types among cards in all graveyards and its toughness is equal to that number plus 1.",
-            EffectDef::StaticApply {
-                recipient: EffectRecipientDef::Source,
-                // The printed toughness carries the "plus 1", so the counted
-                // part is the same number on both sides.
-                effect: AppliedEffectDef::modify_power_toughness(
-                    ValueDef::CardTypesAmongGraveyards(PlayerRelation::Any),
-                    ValueDef::CardTypesAmongGraveyards(PlayerRelation::Any),
-                ),
-            },
-        )
-        .with_coverage(AbilityCoverageDef::partial(
-            "A characteristic-defining ability sets power and toughness in every zone. This is a \
-             battlefield-only continuous effect, so the value is right wherever the card is \
-             played and absent for anything reading it in another zone.",
-        )),
-        AbilityDef::triggered(
-            "Whenever this creature deals combat damage to a player, you may mill that many cards. If you do, you may put a creature card from among them into your hand.",
-            TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
-            EffectDef::May {
-                player: EffectRecipientDef::Controller,
-                effect: &BARROWGOYF_MILLS,
-            },
-        ),
-    ]),
-);
-
-// M3C 59 — Pyrogoyf
 pub(in crate::card::sets) static PYROGOYF: CardRecord = CardRecord::new_with_legacy_id(
     2141,
     "Pyrogoyf",
@@ -175,6 +175,7 @@ pub(in crate::card::sets) static PYROGOYF: CardRecord = CardRecord::new_with_leg
         .with_abilities(&PYROGOYF_ABILITIES),
 );
 
+// M3C 70 — Bloodbraid Challenger
 /// Three cards out of your own graveyard, exiled to pay. The card being cast
 /// is on the stack by the time costs are paid, so "other" takes care of
 /// itself: it is not there to be chosen.
@@ -197,7 +198,6 @@ static BLOODBRAID_CHALLENGER_ABILITIES: [AbilityDef; 3] = [
     .with_alternative_additional_cost(&EXILE_THREE_OTHER_CARDS),
 ];
 
-// M3C 70 — Bloodbraid Challenger
 pub(in crate::card::sets) static BLOODBRAID_CHALLENGER: CardRecord = CardRecord::new_with_legacy_id(
     2255,
     "Bloodbraid Challenger",

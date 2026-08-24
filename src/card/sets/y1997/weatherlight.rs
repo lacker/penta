@@ -14,12 +14,7 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
-/// The tax names spells an opponent casts, so it never touches your own.
-static OPPONENTS_ARTIFACTS_AND_ENCHANTMENTS: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
-    ObjectPredicateDef::HasType(CardType::Artifact),
-    ObjectPredicateDef::HasType(CardType::Enchantment),
-]);
-
+// WTH 1 — Abeyance
 /// Both halves of the same lock, applied to the same player for the same
 /// turn: no instants or sorceries, and no activations but mana abilities.
 static ABEYANCE_LOCK: [AppliedEffectDef; 2] = [
@@ -36,7 +31,10 @@ static ABEYANCE_LOCK: [AppliedEffectDef; 2] = [
     ))),
 ];
 
-// WTH 1 — Abeyance
+static ABEYANCE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Player(PlayerRelation::Any),
+)];
+
 pub(in crate::card::sets) static ABEYANCE: CardRecord = CardRecord::new_with_legacy_id(
     2086,
     "Abeyance",
@@ -60,10 +58,6 @@ pub(in crate::card::sets) static ABEYANCE: CardRecord = CardRecord::new_with_leg
         ]),
     )),
 );
-
-static ABEYANCE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
 
 // WTH 2 — Alabaster Dragon
 // Audit: metadata-only — Card rules have not been implemented.
@@ -116,6 +110,12 @@ pub(in crate::card::sets) static ARGIVIAN_FIND: CardRecord = CardRecord::new(
 );
 
 // WTH 7 — Aura of Silence
+/// The tax names spells an opponent casts, so it never touches your own.
+static OPPONENTS_ARTIFACTS_AND_ENCHANTMENTS: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
+    ObjectPredicateDef::HasType(CardType::Artifact),
+    ObjectPredicateDef::HasType(CardType::Enchantment),
+]);
+
 pub(in crate::card::sets) static AURA_OF_SILENCE: CardRecord = CardRecord::new_with_legacy_id(
     2042,
     "Aura of Silence",
@@ -145,52 +145,6 @@ pub(in crate::card::sets) static AURA_OF_SILENCE: CardRecord = CardRecord::new_w
         ),
     ]),
 );
-
-/// The artifact has to belong to the player being attacked, which in a
-/// two-player game is the only opponent there is.
-static DEFENDERS_ARTIFACT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Artifact),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::Opponent),
-        owner: None,
-    },
-)];
-
-/// Paying trades the hit for the artifact: the Vandal connects, and then
-/// deals nothing because it spent the swing breaking something instead.
-static VANDAL_TRADE: EffectDef = EffectDef::Sequence(&[
-    EffectDef::Destroy {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        can_regenerate: true,
-    },
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::Source,
-        effect: AppliedEffectDef::Rule(AppliedRuleDef::AssignsNoCombatDamage),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-]);
-
-/// Half the life you have, rounded up: at twenty that is ten, and the deck
-/// casting this intends to win before losing the other ten.
-static DOOMSDAY_LIFE: HalvedValueDef =
-    HalvedValueDef::new(ValueDef::LifeTotal(PlayerRelation::You), RoundingDef::Up);
-
-/// The search and the life are one clause resolving in order, and the order
-/// matters: the five cards are chosen while the library still exists.
-static DOOMSDAY_STEPS: [EffectDef; 2] = [
-    EffectDef::SearchZonesAndExileRest {
-        player: EffectRecipientDef::Controller,
-        zones: &DOOMSDAY_ZONES,
-        count: 5,
-    },
-    EffectDef::LoseLife {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Halved(&DOOMSDAY_LIFE),
-    },
-];
-
-static DOOMSDAY_ZONES: [ZoneKind; 2] = [ZoneKind::Library, ZoneKind::Graveyard];
 
 // WTH 8 — Benalish Infantry
 // Audit: metadata-only — Card rules have not been implemented.
@@ -774,6 +728,27 @@ pub(in crate::card::sets) static COILS_OF_THE_MEDUSA: CardRecord = CardRecord::n
 );
 
 // WTH 66 — Doomsday
+/// Half the life you have, rounded up: at twenty that is ten, and the deck
+/// casting this intends to win before losing the other ten.
+static DOOMSDAY_LIFE: HalvedValueDef =
+    HalvedValueDef::new(ValueDef::LifeTotal(PlayerRelation::You), RoundingDef::Up);
+
+/// The search and the life are one clause resolving in order, and the order
+/// matters: the five cards are chosen while the library still exists.
+static DOOMSDAY_STEPS: [EffectDef; 2] = [
+    EffectDef::SearchZonesAndExileRest {
+        player: EffectRecipientDef::Controller,
+        zones: &DOOMSDAY_ZONES,
+        count: 5,
+    },
+    EffectDef::LoseLife {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::Halved(&DOOMSDAY_LIFE),
+    },
+];
+
+static DOOMSDAY_ZONES: [ZoneKind; 2] = [ZoneKind::Library, ZoneKind::Graveyard];
+
 pub(in crate::card::sets) static DOOMSDAY: CardRecord = CardRecord::new_with_legacy_id(
     2185,
     "Doomsday",
@@ -1161,6 +1136,31 @@ pub(in crate::card::sets) static GOBLIN_GRENADIERS: CardRecord = CardRecord::new
 );
 
 // WTH 105 — Goblin Vandal
+/// The artifact has to belong to the player being attacked, which in a
+/// two-player game is the only opponent there is.
+static DEFENDERS_ARTIFACT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::HasType(CardType::Artifact),
+        zones: &[ZoneKind::Battlefield],
+        controller: Some(PlayerRelation::Opponent),
+        owner: None,
+    },
+)];
+
+/// Paying trades the hit for the artifact: the Vandal connects, and then
+/// deals nothing because it spent the swing breaking something instead.
+static VANDAL_TRADE: EffectDef = EffectDef::Sequence(&[
+    EffectDef::Destroy {
+        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        can_regenerate: true,
+    },
+    EffectDef::Apply {
+        recipient: EffectRecipientDef::Source,
+        effect: AppliedEffectDef::Rule(AppliedRuleDef::AssignsNoCombatDamage),
+        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+    },
+]);
+
 pub(in crate::card::sets) static GOBLIN_VANDAL: CardRecord = CardRecord::new_with_legacy_id(
     2032,
     "Goblin Vandal",
@@ -1183,38 +1183,6 @@ pub(in crate::card::sets) static GOBLIN_VANDAL: CardRecord = CardRecord::new_wit
         ),
     ),
 );
-
-/// Any card in any graveyard, which is what the sacrifice mode reaches. The
-/// tap mode needs no target beyond the player, because a graveyard has only
-/// one bottom card.
-static A_CARD_IN_A_GRAVEYARD: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::Any,
-        zones: &[ZoneKind::Graveyard],
-        controller: None,
-        owner: None,
-    },
-)];
-
-static A_PLAYER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
-
-static FURNACE_EXILE_AND_DRAW: EffectDef = EffectDef::Sequence(&[
-    EffectDef::MoveToZone {
-        counters: None,
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        zone: ZoneKind::Exile,
-        controller: None,
-        placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-    },
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    },
-]);
 
 // WTH 106 — Heart of Bogardan
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1728,6 +1696,38 @@ pub(in crate::card::sets) static NULL_ROD: CardRecord = CardRecord::new_with_leg
 );
 
 // WTH 155 — Phyrexian Furnace
+/// Any card in any graveyard, which is what the sacrifice mode reaches. The
+/// tap mode needs no target beyond the player, because a graveyard has only
+/// one bottom card.
+static A_CARD_IN_A_GRAVEYARD: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::Any,
+        zones: &[ZoneKind::Graveyard],
+        controller: None,
+        owner: None,
+    },
+)];
+
+static A_PLAYER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Player(PlayerRelation::Any),
+)];
+
+static FURNACE_EXILE_AND_DRAW: EffectDef = EffectDef::Sequence(&[
+    EffectDef::MoveToZone {
+        counters: None,
+        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        zone: ZoneKind::Exile,
+        controller: None,
+        placement: ZonePlacement::Top,
+        arrival_effect: None,
+        attachment: None,
+    },
+    EffectDef::DrawCards {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::Constant(1),
+    },
+]);
+
 pub(in crate::card::sets) static PHYREXIAN_FURNACE: CardRecord = CardRecord::new_with_legacy_id(
     2054,
     "Phyrexian Furnace",
@@ -1848,6 +1848,14 @@ pub(in crate::card::sets) static XANTHIC_STATUE: CardRecord = CardRecord::new(
 );
 
 // WTH 164 — Gemstone Mine
+static GEMSTONE_MINE_COSTS: [AbilityCostDef; 2] = [
+    AbilityCostDef::TapSource,
+    AbilityCostDef::RemoveCountersFromSource {
+        kind: CounterKind::Mining,
+        amount: 1,
+    },
+];
+
 pub(in crate::card::sets) static GEMSTONE_MINE: CardRecord = CardRecord::new_with_legacy_id(
     2049,
     "Gemstone Mine",
@@ -1874,14 +1882,6 @@ pub(in crate::card::sets) static GEMSTONE_MINE: CardRecord = CardRecord::new_wit
         ),
     ]),
 );
-
-static GEMSTONE_MINE_COSTS: [AbilityCostDef; 2] = [
-    AbilityCostDef::TapSource,
-    AbilityCostDef::RemoveCountersFromSource {
-        kind: CounterKind::Mining,
-        amount: 1,
-    },
-];
 
 // WTH 165 — Lotus Vale
 // Audit: metadata-only — Card rules have not been implemented.

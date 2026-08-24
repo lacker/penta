@@ -17,16 +17,24 @@ order. Compare numeric portions numerically (`8`, `8a`, `8b`, `16`), not
 lexicographically. Introduce each declaration with an identifying comment in
 the form `// LEA 230 — Ankh of Mishra`, using the canonical printing's uppercase
 set code, collector number, and card name. Ordinarily the header immediately
-precedes the declaration. A complete definition that still uses custom
-execution puts `// Audit: custom — Needs ...` on the next line, naming the work
-required to migrate it to declarative execution. An incomplete identity uses
-`blocked`, `partial`, or `metadata-only` as applicable. Custom, partial, and
-metadata-only audit lines immediately precede their canonical declarations;
-blocked header-and-audit pairs stand alone at the identity's collector
-position. Reprints do not repeat the audit. Keep every identity header in
-natural collector order. The header identifies the canonical printing in that
-module's set even when presentation art intentionally comes from another
-printing.
+starts the declaration block. Keep every helper constant, static, or function
+used by only that card inside the block, after the header and before the
+`CardRecord`, so the declaration and the vocabulary it composes remain readable
+together. A complete definition that still uses custom execution puts
+`// Audit: custom — Needs ...` immediately below the header, naming the work
+required to migrate it to declarative execution; card-local helpers follow the
+audit. An incomplete identity uses `blocked`, `partial`, or `metadata-only` as
+applicable. Blocked header-and-audit pairs stand alone at the identity's
+collector position. Reprints do not repeat the audit. Keep every identity
+header in natural collector order. The header identifies the canonical
+printing in that module's set even when presentation art intentionally comes
+from another printing.
+
+Helpers used by more than one card are set-level vocabulary rather than part of
+one declaration block. Keep them at the top of the set module before the first
+identity header, or promote generally reusable behavior to `card::abilities` as
+appropriate. Do not leave card-local helpers in the shared preamble or between
+other cards' blocks.
 
 Existing definitions use `CardRecord::new_with_legacy_id`, with their historic
 numeric value written beside the record. Never allocate another sequential
@@ -50,8 +58,7 @@ as `// LEB 233`: uppercase target set code and collector number, without the
 card name. Empty registries need no comments. Creator-owned token and emblem
 characteristics and rules-owned face-down characteristics are built by the
 effect or mechanism that creates them, are not card definitions, and remain
-outside these conventions. Move card-local helpers with the definition they
-support.
+outside these conventions.
 
 Mirror every nonempty `ADDITIONAL_PRINTINGS` entry in the collector-ordered
 upper portion of the set file. Use `// M14 1 — Ajani, Caller of the Pride

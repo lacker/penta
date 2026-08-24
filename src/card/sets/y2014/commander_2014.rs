@@ -9,6 +9,7 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
+// C14 5 — Containment Priest
 /// A nontoken creature that was not cast. Tokens are exempt because the card
 /// says so; everything else that arrives without going through the stack --
 /// reanimation, Show and Tell, a fetched Natural Order target -- is not.
@@ -17,7 +18,6 @@ static AN_UNCAST_CREATURE: ObjectPredicateDef = ObjectPredicateDef::All(&[
     ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
 ]);
 
-// C14 5 — Containment Priest
 pub(in crate::card::sets) static CONTAINMENT_PRIEST: CardRecord = CardRecord::new_with_legacy_id(
     2156,
     "Containment Priest",
@@ -39,6 +39,7 @@ pub(in crate::card::sets) static CONTAINMENT_PRIEST: CardRecord = CardRecord::ne
     ]),
 );
 
+// C14 50 — Titania, Protector of Argoth
 static A_LAND_CARD_IN_YOUR_GRAVEYARD: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Object {
         object: ObjectPredicateDef::HasType(CardType::Land),
@@ -89,7 +90,6 @@ static TITANIA_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
-// C14 50 — Titania, Protector of Argoth
 pub(in crate::card::sets) static TITANIA_PROTECTOR_OF_ARGOTH: CardRecord =
     CardRecord::new_with_legacy_id(
         2296,

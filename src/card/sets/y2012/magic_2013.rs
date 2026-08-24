@@ -31,6 +31,14 @@ use crate::card::{
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
 
+/// The largest power among your creatures, which is one creature's size
+/// rather than a count of them.
+static GREATEST_POWER_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::HasType(CardType::Creature),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::You,
+);
+
 // M13 1 — Ajani, Caller of the Pride
 pub(in crate::card::sets) static AJANI_CALLER_OF_THE_PRIDE: CardRecord =
     CardRecord::new_with_legacy_id(
@@ -103,6 +111,10 @@ pub(in crate::card::sets) static AJANIS_SUNSTRIKER: CardRecord = CardRecord::new
 // M13 3 — Angel's Mercy (reprint)
 
 // M13 4 — Angelic Benediction
+static ANGELIC_BENEDICTION_TAP: EffectDef = EffectDef::Tap {
+    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+};
+
 pub(in crate::card::sets) static ANGELIC_BENEDICTION: CardRecord = CardRecord::new_with_legacy_id(
     1501,
     "Angelic Benediction",
@@ -127,10 +139,6 @@ pub(in crate::card::sets) static ANGELIC_BENEDICTION: CardRecord = CardRecord::n
         ),
     ]),
 );
-
-static ANGELIC_BENEDICTION_TAP: EffectDef = EffectDef::Tap {
-    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-};
 
 // M13 5 — Attended Knight
 pub(in crate::card::sets) static ATTENDED_KNIGHT: CardRecord = CardRecord::new_with_legacy_id(
@@ -255,13 +263,13 @@ pub(in crate::card::sets) static CAPTAINS_CALL: CardRecord = CardRecord::new_wit
     )),
 );
 
+// M13 10 — Crusader of Odric
 static CRUSADER_CREATURES: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasType(CardType::Creature),
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
 );
 
-// M13 10 — Crusader of Odric
 pub(in crate::card::sets) static CRUSADER_OF_ODRIC: CardRecord = CardRecord::new_with_legacy_id(
     970,
     "Crusader of Odric",
@@ -526,6 +534,7 @@ pub(in crate::card::sets) static ODRIC_MASTER_TACTICIAN: CardRecord = CardRecord
     crate::card::CardRules::unsupported(),
 );
 
+// M13 24 — Pacifism
 /// Two prohibitions rather than one: nothing in the vocabulary bars combat
 /// wholesale, and nothing needs to -- attacking and blocking are separate
 /// declarations, so barring each is barring both.
@@ -534,7 +543,6 @@ static PACIFIED: [AppliedEffectDef; 2] = [
     AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
 ];
 
-// M13 24 — Pacifism
 pub(in crate::card::sets) static PACIFISM: CardRecord = CardRecord::new_with_legacy_id(
     1750,
     "Pacifism",
@@ -582,13 +590,13 @@ pub(in crate::card::sets) static PLANAR_CLEANSING: CardRecord = CardRecord::new_
     )),
 );
 
+// M13 27 — Prized Elephant
 static PRIZED_ELEPHANT_FORESTS: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
 );
 
-// M13 27 — Prized Elephant
 pub(in crate::card::sets) static PRIZED_ELEPHANT: CardRecord = CardRecord::new_with_legacy_id(
     1352,
     "Prized Elephant",
@@ -711,6 +719,7 @@ pub(in crate::card::sets) static SILVERCOAT_LION: CardRecord = CardRecord::new_w
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Cat"], 2, 2),
 );
 
+// M13 36 — Sublime Archangel
 static SUBLIME_ARCHANGEL_EXALTED: AbilityDef = abilities::exalted();
 
 /// Each granted copy is its own instance, so attacking alone into a board of
@@ -727,7 +736,6 @@ static SUBLIME_ARCHANGEL_GRANT: EffectDef = EffectDef::StaticApply {
     effect: AppliedEffectDef::add_ability(&SUBLIME_ARCHANGEL_EXALTED),
 };
 
-// M13 36 — Sublime Archangel
 pub(in crate::card::sets) static SUBLIME_ARCHANGEL: CardRecord = CardRecord::new_with_legacy_id(
     1895,
     "Sublime Archangel",
@@ -843,13 +851,13 @@ pub(in crate::card::sets) static ARCHAEOMANCER: CardRecord = CardRecord::new_wit
     ),
 );
 
+// M13 42 — Arctic Aven
 static PLAINS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Plains]),
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
 );
 
-// M13 42 — Arctic Aven
 pub(in crate::card::sets) static ARCTIC_AVEN: CardRecord = CardRecord::new_with_legacy_id(
     985,
     "Arctic Aven",
@@ -905,6 +913,7 @@ pub(in crate::card::sets) static AUGUR_OF_BOLAS: CardRecord = CardRecord::new_wi
     ]),
 );
 
+// M13 44 — Battle of Wits
 static BATTLE_OF_WITS_CONDITION: TriggerConditionDef = TriggerConditionDef::ObjectCount {
     query: ObjectQueryDef::matching(
         ObjectPredicateDef::Any,
@@ -915,7 +924,6 @@ static BATTLE_OF_WITS_CONDITION: TriggerConditionDef = TriggerConditionDef::Obje
     amount: 200,
 };
 
-// M13 44 — Battle of Wits
 pub(in crate::card::sets) static BATTLE_OF_WITS: CardRecord = CardRecord::new_with_legacy_id(
     1353,
     "Battle of Wits",
@@ -973,6 +981,7 @@ pub(in crate::card::sets) static DOWNPOUR: CardRecord = CardRecord::new_with_leg
     )),
 );
 
+// M13 49 — Encrust
 static ENCHANT_ARTIFACT_OR_CREATURE_TARGET: [AbilityTargetDef; 1] =
     [AbilityTargetDef::exactly_one_permanent(
         ObjectPredicateDef::AnyOf(&[
@@ -988,7 +997,6 @@ static ENCRUST_PROHIBITIONS: [AppliedEffectDef; 2] = [
     AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
 ];
 
-// M13 49 — Encrust
 pub(in crate::card::sets) static ENCRUST: CardRecord = CardRecord::new_with_legacy_id(
     1953,
     "Encrust",
@@ -1038,6 +1046,7 @@ pub(in crate::card::sets) static FAERIE_INVADERS: CardRecord = CardRecord::new_w
         .with_abilities(&[abilities::flash(), abilities::flying()]),
 );
 
+// M13 52 — Fog Bank
 /// Both directions of the same clause: nothing it deals lands and nothing
 /// dealt to it lands, so it blocks anything and survives, and kills nothing.
 static FOG_BANK_SHIELD: [AppliedEffectDef; 2] = [
@@ -1053,7 +1062,6 @@ static FOG_BANK_SHIELD: [AppliedEffectDef; 2] = [
     })),
 ];
 
-// M13 52 — Fog Bank
 pub(in crate::card::sets) static FOG_BANK: CardRecord = CardRecord::new_with_legacy_id(
     1912,
     "Fog Bank",
@@ -1185,6 +1193,7 @@ pub(in crate::card::sets) static KRAKEN_HATCHLING: CardRecord = CardRecord::new_
     CardRules::new_creature(mana_cost!("{U}"), &["Kraken"], 0, 4),
 );
 
+// M13 59 — Master of the Pearl Trident
 /// "Other Merfolk creatures you control": narrower than Lord of Atlantis,
 /// which reaches every Merfolk on the battlefield including the opponent's.
 static MASTER_OF_THE_PEARL_TRIDENT_OTHERS: ObjectPredicateDef = ObjectPredicateDef::All(&[
@@ -1201,7 +1210,6 @@ static MASTER_OF_THE_PEARL_TRIDENT_GRANT: [AppliedEffectDef; 2] = [
 static MASTER_OF_THE_PEARL_TRIDENT_ISLANDWALK: AbilityDef =
     abilities::landwalk(BasicLandType::Island);
 
-// M13 59 — Master of the Pearl Trident
 pub(in crate::card::sets) static MASTER_OF_THE_PEARL_TRIDENT: CardRecord =
     CardRecord::new_with_legacy_id(
         1859,
@@ -1259,19 +1267,6 @@ pub(in crate::card::sets) static NEGATE: CardRecord = CardRecord::new_with_legac
     )),
 );
 
-/// X is read off the sacrificed creature, so both halves take the power the
-/// sacrifice recorded rather than counting anything on the board.
-static DISCIPLE_OF_BOLAS_PAYOFF: EffectDef = EffectDef::Sequence(&[
-    EffectDef::GainLife {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::TriggerEventAmount,
-    },
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::TriggerEventAmount,
-    },
-]);
-
 // M13 63 — Omniscience
 // Audit: metadata-only — No static permission waives mana costs for spells cast from hand.
 pub(in crate::card::sets) static OMNISCIENCE: CardRecord = CardRecord::new_with_legacy_id(
@@ -1325,6 +1320,7 @@ pub(in crate::card::sets) static SCROLL_THIEF: CardRecord = CardRecord::new_with
     ),
 );
 
+// M13 67 — Sleep
 /// Both clauses reach the same set, so the skip lands on exactly the
 /// creatures the tap found rather than on whatever is tapped later.
 static SLEEP_THEIR_CREATURES: EffectRecipientDef = EffectRecipientDef::objects_controlled_by_target(
@@ -1342,7 +1338,6 @@ static SLEEP_EFFECTS: [EffectDef; 2] = [
     },
 ];
 
-// M13 67 — Sleep
 pub(in crate::card::sets) static SLEEP: CardRecord = CardRecord::new_with_legacy_id(
     1860,
     "Sleep",
@@ -1368,6 +1363,7 @@ pub(in crate::card::sets) static SPELLTWINE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// M13 69 — Sphinx of Uthuun
 static SPHINX_OF_UTHUUN_PILE_MOVES: EffectDef = EffectDef::Sequence(&[
     EffectDef::MoveToZone {
         counters: None,
@@ -1389,7 +1385,6 @@ static SPHINX_OF_UTHUUN_PILE_MOVES: EffectDef = EffectDef::Sequence(&[
     },
 ]);
 
-// M13 69 — Sphinx of Uthuun
 pub(in crate::card::sets) static SPHINX_OF_UTHUUN: CardRecord = CardRecord::new_with_legacy_id(
     1354,
     "Sphinx of Uthuun",
@@ -1686,12 +1681,12 @@ pub(in crate::card::sets) static COWER_IN_FEAR: CardRecord = CardRecord::new_wit
     )),
 );
 
+// M13 85 — Crippling Blight
 static CRIPPLING_BLIGHT_EFFECT: [AppliedEffectDef; 2] = [
     AppliedEffectDef::modify_power_toughness(ValueDef::Constant(-1), ValueDef::Constant(-1)),
     AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
 ];
 
-// M13 85 — Crippling Blight
 pub(in crate::card::sets) static CRIPPLING_BLIGHT: CardRecord = CardRecord::new_with_legacy_id(
     1751,
     "Crippling Blight",
@@ -1782,6 +1777,19 @@ pub(in crate::card::sets) static DIABOLIC_REVELATION: CardRecord = CardRecord::n
 );
 
 // M13 88 — Disciple of Bolas
+/// X is read off the sacrificed creature, so both halves take the power the
+/// sacrifice recorded rather than counting anything on the board.
+static DISCIPLE_OF_BOLAS_PAYOFF: EffectDef = EffectDef::Sequence(&[
+    EffectDef::GainLife {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::TriggerEventAmount,
+    },
+    EffectDef::DrawCards {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::TriggerEventAmount,
+    },
+]);
+
 pub(in crate::card::sets) static DISCIPLE_OF_BOLAS: CardRecord = CardRecord::new_with_legacy_id(
     154,
     "Disciple of Bolas",
@@ -1843,11 +1851,11 @@ pub(in crate::card::sets) static DISENTOMB: CardRecord = CardRecord::new_with_le
     )),
 );
 
+// M13 90 — Duress
 static DURESS_DISCARD: EffectDef = EffectDef::DiscardCards {
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
 };
 
-// M13 90 — Duress
 pub(in crate::card::sets) static DURESS: CardRecord = CardRecord::new_with_legacy_id(
     159,
     "Duress",
@@ -1883,13 +1891,6 @@ pub(in crate::card::sets) static DURESS: CardRecord = CardRecord::new_with_legac
         ]),
     )),
 );
-
-/// Mutilate scales with your Swamps, and reads the same count twice.
-static SWAMPS_YOU_CONTROL: ValueDef = ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-    ObjectPredicateDef::Subtype("Swamp"),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-));
 
 // M13 91 — Duskmantle Prowler
 pub(in crate::card::sets) static DUSKMANTLE_PROWLER: CardRecord = CardRecord::new_with_legacy_id(
@@ -1952,13 +1953,13 @@ pub(in crate::card::sets) static GIANT_SCORPION: CardRecord = CardRecord::new_wi
         .with_abilities(&[abilities::deathtouch()]),
 );
 
+// M13 95 — Harbor Bandit
 static HARBOR_BANDIT_ISLANDS: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
 );
 
-// M13 95 — Harbor Bandit
 pub(in crate::card::sets) static HARBOR_BANDIT: CardRecord = CardRecord::new_with_legacy_id(
     1357,
     "Harbor Bandit",
@@ -2125,6 +2126,13 @@ pub(in crate::card::sets) static MURDER: CardRecord = CardRecord::new_with_legac
 );
 
 // M13 102 — Mutilate
+/// Mutilate scales with your Swamps, and reads the same count twice.
+static SWAMPS_YOU_CONTROL: ValueDef = ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+    ObjectPredicateDef::Subtype("Swamp"),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::You,
+));
+
 pub(in crate::card::sets) static MUTILATE: CardRecord = CardRecord::new_with_legacy_id(
     190,
     "Mutilate",
@@ -2196,6 +2204,7 @@ pub(in crate::card::sets) static RAVENOUS_RATS: CardRecord = CardRecord::new_wit
     ),
 );
 
+// M13 107 — Rise from the Grave
 /// "In addition to its other colors and types", so both leaves add rather
 /// than set.
 static A_BLACK_ZOMBIE_AS_WELL: AppliedEffectDef = AppliedEffectDef::Composite(&[
@@ -2203,7 +2212,6 @@ static A_BLACK_ZOMBIE_AS_WELL: AppliedEffectDef = AppliedEffectDef::Composite(&[
     AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Zombie"])),
 ]);
 
-// M13 107 — Rise from the Grave
 pub(in crate::card::sets) static RISE_FROM_THE_GRAVE: CardRecord = CardRecord::new_with_legacy_id(
     2002,
     "Rise from the Grave",
@@ -2268,6 +2276,7 @@ pub(in crate::card::sets) static SIGN_IN_BLOOD: CardRecord = CardRecord::new_wit
     )]),
 );
 
+// M13 111 — Tormented Soul
 /// The two halves point opposite ways: one keeps it out of blocks it would
 /// join, the other out of blocks it would be caught by.
 static TORMENTED_SOUL_COMBAT: [AppliedEffectDef; 2] = [
@@ -2275,7 +2284,6 @@ static TORMENTED_SOUL_COMBAT: [AppliedEffectDef; 2] = [
     AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
 ];
 
-// M13 111 — Tormented Soul
 pub(in crate::card::sets) static TORMENTED_SOUL: CardRecord = CardRecord::new_with_legacy_id(
     1752,
     "Tormented Soul",
@@ -2519,13 +2527,13 @@ pub(in crate::card::sets) static CRATERIZE: CardRecord = CardRecord::new_with_le
     )),
 );
 
+// M13 127 — Crimson Muckwader
 static CRIMSON_MUCKWADER_SWAMPS: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
 );
 
-// M13 127 — Crimson Muckwader
 pub(in crate::card::sets) static CRIMSON_MUCKWADER: CardRecord = CardRecord::new_with_legacy_id(
     1489,
     "Crimson Muckwader",
@@ -2629,13 +2637,6 @@ pub(in crate::card::sets) static FLAMES_OF_THE_FIREBRAND: CardRecord = CardRecor
     ),
 );
 
-/// The damage and the tap name the same creatures, so both clauses ask the
-/// same question.
-const OPPOSING_FLIERS: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
-]);
-
 // M13 133 — Furnace Whelp
 pub(in crate::card::sets) static FURNACE_WHELP: CardRecord = CardRecord::new_with_legacy_id(
     1016,
@@ -2687,12 +2688,12 @@ pub(in crate::card::sets) static GOBLIN_ARSONIST: CardRecord = CardRecord::new_w
     ),
 );
 
+// M13 135 — Goblin Battle Jester
 static GOBLIN_BATTLE_JESTER_RED_SPELL: ObjectPredicateDef = ObjectPredicateDef::All(&[
     ObjectPredicateDef::Color(ManaColor::Red),
     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
 ]);
 
-// M13 135 — Goblin Battle Jester
 pub(in crate::card::sets) static GOBLIN_BATTLE_JESTER: CardRecord = CardRecord::new_with_legacy_id(
     1873,
     "Goblin Battle Jester",
@@ -2716,13 +2717,13 @@ pub(in crate::card::sets) static GOBLIN_BATTLE_JESTER: CardRecord = CardRecord::
     ),
 );
 
+// M13 136 — Hamletback Goliath
 static HAMLETBACK_GOLIATH_COUNTERS: EffectDef = EffectDef::AddCounters {
     object: EffectRecipientDef::Source,
     kind: CounterKind::PlusOnePlusOne,
     amount: ValueDef::TriggeringObjectPower,
 };
 
-// M13 136 — Hamletback Goliath
 pub(in crate::card::sets) static HAMLETBACK_GOLIATH: CardRecord = CardRecord::new_with_legacy_id(
     1871,
     "Hamletback Goliath",
@@ -2778,6 +2779,7 @@ pub(in crate::card::sets) static KINDLED_FURY: CardRecord = CardRecord::new_with
     )),
 );
 
+// M13 138 — Krenko, Mob Boss
 static KRENKO_GOBLINS: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::All(&[
         ObjectPredicateDef::HasType(CardType::Creature),
@@ -2787,7 +2789,6 @@ static KRENKO_GOBLINS: ObjectQueryDef = ObjectQueryDef::matching(
     PlayerRelation::You,
 );
 
-// M13 138 — Krenko, Mob Boss
 pub(in crate::card::sets) static KRENKO_MOB_BOSS: CardRecord = CardRecord::new_with_legacy_id(
     1019,
     "Krenko, Mob Boss",
@@ -2984,6 +2985,13 @@ pub(in crate::card::sets) static SMELT: CardRecord = CardRecord::new_with_legacy
 );
 
 // M13 150 — Thundermaw Hellkite
+/// The damage and the tap name the same creatures, so both clauses ask the
+/// same question.
+const OPPOSING_FLIERS: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::HasType(CardType::Creature),
+    ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+]);
+
 pub(in crate::card::sets) static THUNDERMAW_HELLKITE: CardRecord = CardRecord::new_with_legacy_id(
     228,
     "Thundermaw Hellkite",
@@ -3105,6 +3113,9 @@ pub(in crate::card::sets) static VOLCANIC_STRENGTH: CardRecord = CardRecord::new
     ]),
 );
 
+// M13 156 — Wall of Fire (reprint)
+
+// M13 157 — Wild Guess
 static DISCARD_A_CARD: SpellAdditionalCostDef = SpellAdditionalCostDef {
     or_life: None,
     object: ObjectPredicateDef::Any,
@@ -3115,9 +3126,6 @@ static DISCARD_A_CARD: SpellAdditionalCostDef = SpellAdditionalCostDef {
     or: None,
 };
 
-// M13 156 — Wall of Fire (reprint)
-
-// M13 157 — Wild Guess
 pub(in crate::card::sets) static WILD_GUESS: CardRecord = CardRecord::new_with_legacy_id(
     1608,
     "Wild Guess",
@@ -3206,14 +3214,6 @@ pub(in crate::card::sets) static ARBOR_ELF: CardRecord = CardRecord::new_with_le
     ]),
 );
 
-/// A second Mountain does not make the bonus bigger, so this is asked as a
-/// condition rather than counted.
-static MOUNTAIN_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::Subtype("Mountain"),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
 // M13 161 — Bond Beetle
 pub(in crate::card::sets) static BOND_BEETLE: CardRecord = CardRecord::new_with_legacy_id(
     1029,
@@ -3240,6 +3240,7 @@ pub(in crate::card::sets) static BOND_BEETLE: CardRecord = CardRecord::new_with_
     ),
 );
 
+// M13 162 — Boundless Realms
 /// The lands you already control, which is what the search is sized by.
 static BOUNDLESS_REALMS_LANDS: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasType(CardType::Land),
@@ -3247,7 +3248,6 @@ static BOUNDLESS_REALMS_LANDS: ObjectQueryDef = ObjectQueryDef::matching(
     PlayerRelation::You,
 );
 
-// M13 162 — Boundless Realms
 pub(in crate::card::sets) static BOUNDLESS_REALMS: CardRecord = CardRecord::new_with_legacy_id(
     1982,
     "Boundless Realms",
@@ -3277,13 +3277,13 @@ pub(in crate::card::sets) static BOUNDLESS_REALMS: CardRecord = CardRecord::new_
     )),
 );
 
+// M13 163 — Bountiful Harvest
 static BOUNTIFUL_HARVEST_LANDS: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasType(CardType::Land),
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
 );
 
-// M13 163 — Bountiful Harvest
 pub(in crate::card::sets) static BOUNTIFUL_HARVEST: CardRecord = CardRecord::new_with_legacy_id(
     1030,
     "Bountiful Harvest",
@@ -3337,6 +3337,7 @@ pub(in crate::card::sets) static ELDERSCALE_WURM: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// M13 168 — Elvish Archdruid
 static ELVISH_ARCHDRUID_ELVES: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::Subtype("Elf"),
     &[ZoneKind::Battlefield],
@@ -3349,7 +3350,6 @@ static ELVISH_ARCHDRUID_OTHER_ELVES: ObjectPredicateDef = ObjectPredicateDef::Al
     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
 ]);
 
-// M13 168 — Elvish Archdruid
 pub(in crate::card::sets) static ELVISH_ARCHDRUID: CardRecord = CardRecord::new_with_legacy_id(
     1872,
     "Elvish Archdruid",
@@ -3439,6 +3439,14 @@ pub(in crate::card::sets) static FARSEEK: CardRecord = CardRecord::new_with_lega
 );
 
 // M13 171 — Flinthoof Boar
+/// A second Mountain does not make the bonus bigger, so this is asked as a
+/// condition rather than counted.
+static MOUNTAIN_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::Subtype("Mountain"),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::You,
+);
+
 pub(in crate::card::sets) static FLINTHOOF_BOAR: CardRecord = CardRecord::new_with_legacy_id(
     164,
     "Flinthoof Boar",
@@ -3467,14 +3475,6 @@ pub(in crate::card::sets) static FLINTHOOF_BOAR: CardRecord = CardRecord::new_wi
     ]),
 );
 
-/// The largest power among your creatures, which is one creature's size
-/// rather than a count of them.
-static GREATEST_POWER_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Creature),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
 // M13 172 — Fog (reprint)
 
 // M13 173 — Fungal Sprouting
@@ -3489,13 +3489,13 @@ pub(in crate::card::sets) static FUNGAL_SPROUTING: CardRecord = CardRecord::new_
     )),
 );
 
+// M13 174 — Garruk, Primal Hunter
 static LANDS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasType(CardType::Land),
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
 );
 
-// M13 174 — Garruk, Primal Hunter
 pub(in crate::card::sets) static GARRUK_PRIMAL_HUNTER: CardRecord = CardRecord::new_with_legacy_id(
     1698,
     "Garruk, Primal Hunter",
@@ -3602,6 +3602,7 @@ pub(in crate::card::sets) static PLUMMET: CardRecord = CardRecord::new_with_lega
     )),
 );
 
+// M13 180 — Predatory Rampage
 /// The two clauses point at opposite boards, which is the whole card: yours
 /// get bigger and theirs are forced in front of them.
 static PREDATORY_RAMPAGE_EFFECTS: [EffectDef; 2] = [
@@ -3628,7 +3629,6 @@ static PREDATORY_RAMPAGE_EFFECTS: [EffectDef; 2] = [
     },
 ];
 
-// M13 180 — Predatory Rampage
 pub(in crate::card::sets) static PREDATORY_RAMPAGE: CardRecord = CardRecord::new_with_legacy_id(
     1874,
     "Predatory Rampage",
@@ -3828,6 +3828,7 @@ pub(in crate::card::sets) static THRAGTUSK: CardRecord = CardRecord::new_with_le
     ]),
 );
 
+// M13 194 — Timberpack Wolf
 static OTHER_TIMBERPACK_WOLVES: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::All(&[
         ObjectPredicateDef::HasType(CardType::Creature),
@@ -3838,7 +3839,6 @@ static OTHER_TIMBERPACK_WOLVES: ObjectQueryDef = ObjectQueryDef::matching(
     PlayerRelation::You,
 );
 
-// M13 194 — Timberpack Wolf
 pub(in crate::card::sets) static TIMBERPACK_WOLF: CardRecord = CardRecord::new_with_legacy_id(
     1040,
     "Timberpack Wolf",
@@ -3928,6 +3928,7 @@ pub(in crate::card::sets) static YEVAS_FORCEMAGE: CardRecord = CardRecord::new_w
     ),
 );
 
+// M13 199 — Nicol Bolas, Planeswalker
 static NICOL_BOLAS_SACRIFICE_SEVEN: EffectDef = EffectDef::SacrificeOfChoice {
     player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
     object: ObjectPredicateDef::Any,
@@ -3955,7 +3956,6 @@ static NICOL_BOLAS_ULTIMATE: EffectDef = EffectDef::Sequence(&[
     },
 ]);
 
-// M13 199 — Nicol Bolas, Planeswalker
 pub(in crate::card::sets) static NICOL_BOLAS_PLANESWALKER: CardRecord = CardRecord::new_with_legacy_id(
     1700,
     "Nicol Bolas, Planeswalker",
@@ -4110,6 +4110,9 @@ pub(in crate::card::sets) static GILDED_LOTUS: CardRecord = CardRecord::new_with
     )),
 );
 
+// M13 207 — Jayemdae Tome (reprint)
+
+// M13 208 — Kitesail
 static KITESAIL_FLYING: AbilityDef = abilities::flying();
 
 static KITESAIL_BONUS: [AppliedEffectDef; 2] = [
@@ -4117,9 +4120,6 @@ static KITESAIL_BONUS: [AppliedEffectDef; 2] = [
     AppliedEffectDef::add_ability(&KITESAIL_FLYING),
 ];
 
-// M13 207 — Jayemdae Tome (reprint)
-
-// M13 208 — Kitesail
 pub(in crate::card::sets) static KITESAIL: CardRecord = CardRecord::new_with_legacy_id(
     1923,
     "Kitesail",
@@ -4157,6 +4157,7 @@ pub(in crate::card::sets) static PHYREXIAN_HULK: CardRecord = CardRecord::new_wi
 
 // M13 210 — Primal Clay (reprint)
 
+// M13 211 — Ring of Evos Isle
 static EVOS_ISLE_HEXPROOF: AbilityDef = abilities::hexproof();
 
 static RING_OF_EVOS_ISLE_IS_BLUE: TriggerConditionDef =
@@ -4164,7 +4165,6 @@ static RING_OF_EVOS_ISLE_IS_BLUE: TriggerConditionDef =
         object: ObjectPredicateDef::Color(ManaColor::Blue),
     };
 
-// M13 211 — Ring of Evos Isle
 pub(in crate::card::sets) static RING_OF_EVOS_ISLE: CardRecord = CardRecord::new_with_legacy_id(
     1686,
     "Ring of Evos Isle",
@@ -4200,6 +4200,7 @@ pub(in crate::card::sets) static RING_OF_EVOS_ISLE: CardRecord = CardRecord::new
         ]),
 );
 
+// M13 212 — Ring of Kalonia
 static KALONIA_TRAMPLE: AbilityDef = abilities::trample();
 
 static RING_OF_KALONIA_IS_GREEN: TriggerConditionDef =
@@ -4207,7 +4208,6 @@ static RING_OF_KALONIA_IS_GREEN: TriggerConditionDef =
         object: ObjectPredicateDef::Color(ManaColor::Green),
     };
 
-// M13 212 — Ring of Kalonia
 pub(in crate::card::sets) static RING_OF_KALONIA: CardRecord = CardRecord::new_with_legacy_id(
     1687,
     "Ring of Kalonia",
@@ -4241,6 +4241,7 @@ pub(in crate::card::sets) static RING_OF_KALONIA: CardRecord = CardRecord::new_w
         ]),
 );
 
+// M13 213 — Ring of Thune
 static THUNE_VIGILANCE: AbilityDef = abilities::vigilance();
 
 static RING_OF_THUNE_IS_WHITE: TriggerConditionDef =
@@ -4248,7 +4249,6 @@ static RING_OF_THUNE_IS_WHITE: TriggerConditionDef =
         object: ObjectPredicateDef::Color(ManaColor::White),
     };
 
-// M13 213 — Ring of Thune
 pub(in crate::card::sets) static RING_OF_THUNE: CardRecord = CardRecord::new_with_legacy_id(
     1688,
     "Ring of Thune",
@@ -4282,13 +4282,13 @@ pub(in crate::card::sets) static RING_OF_THUNE: CardRecord = CardRecord::new_wit
         ]),
 );
 
+// M13 214 — Ring of Valkas
 static VALKAS_HASTE: AbilityDef = abilities::haste();
 
 static RING_OF_VALKAS_IS_RED: TriggerConditionDef = TriggerConditionDef::AttachedPermanentMatches {
     object: ObjectPredicateDef::Color(ManaColor::Red),
 };
 
-// M13 214 — Ring of Valkas
 pub(in crate::card::sets) static RING_OF_VALKAS: CardRecord = CardRecord::new_with_legacy_id(
     1689,
     "Ring of Valkas",
@@ -4322,12 +4322,12 @@ pub(in crate::card::sets) static RING_OF_VALKAS: CardRecord = CardRecord::new_wi
         ]),
 );
 
+// M13 215 — Ring of Xathrid
 static RING_OF_XATHRID_IS_BLACK: TriggerConditionDef =
     TriggerConditionDef::AttachedPermanentMatches {
         object: ObjectPredicateDef::Color(ManaColor::Black),
     };
 
-// M13 215 — Ring of Xathrid
 pub(in crate::card::sets) static RING_OF_XATHRID: CardRecord = CardRecord::new_with_legacy_id(
     1690,
     "Ring of Xathrid",

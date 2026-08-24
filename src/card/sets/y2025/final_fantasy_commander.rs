@@ -8,6 +8,7 @@ use crate::card::{
 };
 use crate::mana_cost;
 
+// FIC 55 — Gau, Feral Youth
 /// An intervening-if, so it is checked twice: once when the end step begins
 /// and again as the ability resolves. A graveyard that gave a card up and
 /// then got it back is still a graveyard a card left.
@@ -43,7 +44,6 @@ static GAU_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
-// FIC 55 — Gau, Feral Youth
 pub(in crate::card::sets) static GAU_FERAL_YOUTH: CardRecord = CardRecord::new_with_legacy_id(
     2304,
     "Gau, Feral Youth",

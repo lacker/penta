@@ -8,10 +8,6 @@ use crate::card::{
 };
 use crate::mana_cost;
 
-static TAKE_EXTRA_TURN_CONTROLLER: EffectDef = EffectDef::TakeExtraTurn {
-    player: EffectRecipientDef::Controller,
-};
-
 // KTK 3 — Ainok Bond-Kin
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static AINOK_BOND_KIN: CardRecord = CardRecord::new(
@@ -91,6 +87,10 @@ pub(in crate::card::sets) static HOOTING_MANDRILLS: CardRecord = CardRecord::new
 );
 
 // KTK 227 — Ugin's Nexus
+static TAKE_EXTRA_TURN_CONTROLLER: EffectDef = EffectDef::TakeExtraTurn {
+    player: EffectRecipientDef::Controller,
+};
+
 pub(in crate::card::sets) static UGINS_NEXUS: CardRecord = CardRecord::new_with_legacy_id(
     1368,
     "Ugin's Nexus",

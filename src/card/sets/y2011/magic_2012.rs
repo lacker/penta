@@ -12,36 +12,6 @@ use crate::card::{
 use crate::ids::{AbilityId, TargetIndex};
 use crate::mana_cost;
 
-/// The copy keeps the Image's own subtype line and its own second ability:
-/// the card is printed as an Illusion and prints the sacrifice clause, so
-/// "except it's an Illusion in addition to its other types and it has ..."
-/// names nothing the card does not already say.
-static PHANTASMAL_IMAGE_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::replacement(
-        "You may have this creature enter as a copy of any creature on the battlefield, except \
-         it's an Illusion in addition to its other types and it has \"When this creature becomes \
-         the target of a spell or ability, sacrifice it.\"",
-        ReplacementEffectDef::CopyEntering {
-            object: ObjectPredicateDef::HasType(CardType::Creature),
-            added_types: CardTypeSet::empty(),
-            retain_printed_subtypes: true,
-            retained_abilities: &[AbilityId(1)],
-        },
-    ),
-    // Printed on the Image rather than granted by the copy, which is what
-    // lets the copy hand it back: an Image that enters as itself is a 0/0
-    // and dies before this matters.
-    AbilityDef::triggered(
-        "When this creature becomes the target of a spell or ability, sacrifice it.",
-        // The predicate reads the spell or ability doing the pointing, not
-        // the permanent being pointed at: anything at all sets this off.
-        TriggerEventDef::BecomesTargetOfSpellOrAbility(ObjectPredicateDef::Any),
-        EffectDef::Sacrifice {
-            object: EffectRecipientDef::Source,
-        },
-    ),
-];
-
 // M12 1 — Aegis Angel
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static AEGIS_ANGEL: CardRecord = CardRecord::new(
@@ -851,6 +821,36 @@ pub(in crate::card::sets) static PHANTASMAL_DRAGON: CardRecord = CardRecord::new
 );
 
 // M12 72 — Phantasmal Image
+/// The copy keeps the Image's own subtype line and its own second ability:
+/// the card is printed as an Illusion and prints the sacrifice clause, so
+/// "except it's an Illusion in addition to its other types and it has ..."
+/// names nothing the card does not already say.
+static PHANTASMAL_IMAGE_ABILITIES: [AbilityDef; 2] = [
+    AbilityDef::replacement(
+        "You may have this creature enter as a copy of any creature on the battlefield, except \
+         it's an Illusion in addition to its other types and it has \"When this creature becomes \
+         the target of a spell or ability, sacrifice it.\"",
+        ReplacementEffectDef::CopyEntering {
+            object: ObjectPredicateDef::HasType(CardType::Creature),
+            added_types: CardTypeSet::empty(),
+            retain_printed_subtypes: true,
+            retained_abilities: &[AbilityId(1)],
+        },
+    ),
+    // Printed on the Image rather than granted by the copy, which is what
+    // lets the copy hand it back: an Image that enters as itself is a 0/0
+    // and dies before this matters.
+    AbilityDef::triggered(
+        "When this creature becomes the target of a spell or ability, sacrifice it.",
+        // The predicate reads the spell or ability doing the pointing, not
+        // the permanent being pointed at: anything at all sets this off.
+        TriggerEventDef::BecomesTargetOfSpellOrAbility(ObjectPredicateDef::Any),
+        EffectDef::Sacrifice {
+            object: EffectRecipientDef::Source,
+        },
+    ),
+];
+
 pub(in crate::card::sets) static PHANTASMAL_IMAGE: CardRecord = CardRecord::new_with_legacy_id(
     2276,
     "Phantasmal Image",

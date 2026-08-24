@@ -8,6 +8,7 @@ use crate::card::{
 };
 use crate::mana_cost;
 
+// PIP 23 — Securitron Squadron
 /// A creature token you control arriving, whichever ability made it -- this
 /// card's own squad copies included, if squad ever pays.
 static A_CREATURE_TOKEN_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
@@ -44,7 +45,6 @@ static SECURITRON_SQUADRON_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
-// PIP 23 — Securitron Squadron
 pub(in crate::card::sets) static SECURITRON_SQUADRON: CardRecord = CardRecord::new_with_legacy_id(
     2151,
     "Securitron Squadron",

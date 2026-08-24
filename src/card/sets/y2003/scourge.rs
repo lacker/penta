@@ -16,25 +16,9 @@ use crate::card::{
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
-static GOBLIN_SPELLS: ObjectPredicateDef = ObjectPredicateDef::Subtype("Goblin");
-
-/// The cycling half: X is settled by the payment rather than by a cast, so
-/// the branch that makes the tokens reads back what was actually paid.
-static DECREE_SOLDIERS: EffectDef =
-    EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1)
-        .with_count(ValueDef::PaidAmount)
-        .with_art(CardArt::new(
-            "70205fb6-7722-4974-a8c6-8909dbb1c96d",
-            "Bachzim",
-        ));
-
-static DECREE_CYCLING_TRIGGER: EffectDef = EffectDef::PayOr(PayOrDef::optional(
-    EffectPaymentDef {
-        payer: PlayerSetDef::Related(PlayerRelation::You),
-        cost: EffectPaymentCostDef::ChosenGenericMana,
-    },
-    &DECREE_SOLDIERS,
-));
+static A_PLAYER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Player(PlayerRelation::Any),
+)];
 
 // SCG 1 — Ageless Sentinels
 // Audit: metadata-only — Card rules have not been implemented.
@@ -107,6 +91,24 @@ pub(in crate::card::sets) static DAWN_ELEMENTAL: CardRecord = CardRecord::new(
 );
 
 // SCG 8 — Decree of Justice
+/// The cycling half: X is settled by the payment rather than by a cast, so
+/// the branch that makes the tokens reads back what was actually paid.
+static DECREE_SOLDIERS: EffectDef =
+    EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1)
+        .with_count(ValueDef::PaidAmount)
+        .with_art(CardArt::new(
+            "70205fb6-7722-4974-a8c6-8909dbb1c96d",
+            "Bachzim",
+        ));
+
+static DECREE_CYCLING_TRIGGER: EffectDef = EffectDef::PayOr(PayOrDef::optional(
+    EffectPaymentDef {
+        payer: PlayerSetDef::Related(PlayerRelation::You),
+        cost: EffectPaymentCostDef::ChosenGenericMana,
+    },
+    &DECREE_SOLDIERS,
+));
+
 pub(in crate::card::sets) static DECREE_OF_JUSTICE: CardRecord = CardRecord::new_with_legacy_id(
     2056,
     "Decree of Justice",
@@ -201,17 +203,6 @@ pub(in crate::card::sets) static ETERNAL_DRAGON: CardRecord = CardRecord::new_wi
         ),
     ]),
 );
-
-/// Storm, as one clause: the copies are made when the spell is cast, and each
-/// is offered its own target because the printed reminder text says so.
-static BRAIN_FREEZE_STORM: EffectDef = EffectDef::CopyResolvingSpell {
-    chooser: PlayerRefDef::EffectController,
-    count: ValueDef::SpellsCastBeforeThisTurn,
-};
-
-static A_PLAYER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
 
 // SCG 13 — Exiled Doomsayer
 // Audit: metadata-only — Card rules have not been implemented.
@@ -378,6 +369,13 @@ pub(in crate::card::sets) static APHETTO_RUNECASTER: CardRecord = CardRecord::ne
 );
 
 // SCG 29 — Brain Freeze
+/// Storm, as one clause: the copies are made when the spell is cast, and each
+/// is offered its own target because the printed reminder text says so.
+static BRAIN_FREEZE_STORM: EffectDef = EffectDef::CopyResolvingSpell {
+    chooser: PlayerRefDef::EffectController,
+    count: ValueDef::SpellsCastBeforeThisTurn,
+};
+
 pub(in crate::card::sets) static BRAIN_FREEZE: CardRecord = CardRecord::new_with_legacy_id(
     2063,
     "Brain Freeze",
@@ -404,6 +402,27 @@ pub(in crate::card::sets) static BRAIN_FREEZE: CardRecord = CardRecord::new_with
     ]),
 );
 
+// SCG 30 — Coast Watcher
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static COAST_WATCHER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6bbbc67d-99d0-4277-a8f2-64509e59ec00"),
+    "Coast Watcher",
+    crate::card::CardArt::new("6bbbc67d-99d0-4277-a8f2-64509e59ec00", "Luca Zontini"),
+    crate::card::CardSet::Scourge,
+    crate::card::CardRules::unsupported(),
+);
+
+// SCG 31 — Day of the Dragons
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static DAY_OF_THE_DRAGONS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("366a934c-eb01-48c6-8393-c2fe0708ff91"),
+    "Day of the Dragons",
+    crate::card::CardArt::new("366a934c-eb01-48c6-8393-c2fe0708ff91", "Matthew D. Wilson"),
+    crate::card::CardSet::Scourge,
+    crate::card::CardRules::unsupported(),
+);
+
+// SCG 32 — Decree of Silence
 /// Counter the spell, mark the enchantment, and go when the third mark
 /// lands. The sacrifice is checked in the same resolution rather than as a
 /// state trigger, which is what the printed clause says.
@@ -432,27 +451,6 @@ static DECREE_OF_SILENCE_ANSWER: EffectDef = EffectDef::Sequence(&[
 static AN_OPPONENTS_SPELL: ObjectPredicateDef =
     ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent);
 
-// SCG 30 — Coast Watcher
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static COAST_WATCHER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("6bbbc67d-99d0-4277-a8f2-64509e59ec00"),
-    "Coast Watcher",
-    crate::card::CardArt::new("6bbbc67d-99d0-4277-a8f2-64509e59ec00", "Luca Zontini"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
-);
-
-// SCG 31 — Day of the Dragons
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static DAY_OF_THE_DRAGONS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("366a934c-eb01-48c6-8393-c2fe0708ff91"),
-    "Day of the Dragons",
-    crate::card::CardArt::new("366a934c-eb01-48c6-8393-c2fe0708ff91", "Matthew D. Wilson"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
-);
-
-// SCG 32 — Decree of Silence
 pub(in crate::card::sets) static DECREE_OF_SILENCE: CardRecord = CardRecord::new_with_legacy_id(
     2082,
     "Decree of Silence",
@@ -484,14 +482,6 @@ pub(in crate::card::sets) static DECREE_OF_SILENCE: CardRecord = CardRecord::new
         ),
     ]),
 );
-
-static STIFLE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::StackObject {
-        object: ObjectPredicateDef::Any,
-        controller: None,
-        kind: StackTargetKindDef::AbilityOnly,
-    },
-)];
 
 // SCG 33 — Dispersal Shield
 // Audit: metadata-only — Card rules have not been implemented.
@@ -687,6 +677,14 @@ pub(in crate::card::sets) static SHORELINE_RANGER: CardRecord = CardRecord::new(
 );
 
 // SCG 52 — Stifle
+static STIFLE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::StackObject {
+        object: ObjectPredicateDef::Any,
+        controller: None,
+        kind: StackTargetKindDef::AbilityOnly,
+    },
+)];
+
 pub(in crate::card::sets) static STIFLE: CardRecord = CardRecord::new_with_legacy_id(
     2071,
     "Stifle",
@@ -703,37 +701,6 @@ pub(in crate::card::sets) static STIFLE: CardRecord = CardRecord::new_with_legac
         },
     )),
 );
-
-static DRAGON_BREATH_HASTE: AbilityDef = abilities::haste();
-
-/// Six or more, which the deck reaches by assembling a creature rather than
-/// by paying for one: the Ghoul arrives enormous and the Breath comes back
-/// attached to give it haste.
-static A_BIG_CREATURE_ENTERING: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMostValue(
-        ValueDef::Constant(5),
-    )),
-]);
-
-/// Life loss rather than damage: nothing prevents it, nothing watching for
-/// damage sees it, and the two life you gain is a flat two however little
-/// they had left to lose.
-static TENDRILS_DRAINS: EffectDef = EffectDef::Sequence(&[
-    EffectDef::LoseLife {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(2),
-    },
-    EffectDef::GainLife {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(2),
-    },
-]);
-
-static TENDRILS_STORM: EffectDef = EffectDef::CopyResolvingSpell {
-    chooser: PlayerRefDef::EffectController,
-    count: ValueDef::SpellsCastBeforeThisTurn,
-};
 
 // SCG 53 — Temporal Fissure
 // Audit: metadata-only — Card rules have not been implemented.
@@ -946,6 +913,25 @@ pub(in crate::card::sets) static SOUL_COLLECTOR: CardRecord = CardRecord::new(
 );
 
 // SCG 75 — Tendrils of Agony
+/// Life loss rather than damage: nothing prevents it, nothing watching for
+/// damage sees it, and the two life you gain is a flat two however little
+/// they had left to lose.
+static TENDRILS_DRAINS: EffectDef = EffectDef::Sequence(&[
+    EffectDef::LoseLife {
+        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        amount: ValueDef::Constant(2),
+    },
+    EffectDef::GainLife {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::Constant(2),
+    },
+]);
+
+static TENDRILS_STORM: EffectDef = EffectDef::CopyResolvingSpell {
+    chooser: PlayerRefDef::EffectController,
+    count: ValueDef::SpellsCastBeforeThisTurn,
+};
+
 pub(in crate::card::sets) static TENDRILS_OF_AGONY: CardRecord = CardRecord::new_with_legacy_id(
     2223,
     "Tendrils of Agony",
@@ -1075,6 +1061,18 @@ pub(in crate::card::sets) static DECREE_OF_ANNIHILATION: CardRecord = CardRecord
 );
 
 // SCG 86 — Dragon Breath
+static DRAGON_BREATH_HASTE: AbilityDef = abilities::haste();
+
+/// Six or more, which the deck reaches by assembling a creature rather than
+/// by paying for one: the Ghoul arrives enormous and the Breath comes back
+/// attached to give it haste.
+static A_BIG_CREATURE_ENTERING: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::HasType(CardType::Creature),
+    ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMostValue(
+        ValueDef::Constant(5),
+    )),
+]);
+
 pub(in crate::card::sets) static DRAGON_BREATH: CardRecord = CardRecord::new_with_legacy_id(
     2088,
     "Dragon Breath",
@@ -1217,6 +1215,8 @@ pub(in crate::card::sets) static GOBLIN_PSYCHOPATH: CardRecord = CardRecord::new
 // SCG 96 — Goblin War Strike (reprint)
 
 // SCG 97 — Goblin Warchief
+static GOBLIN_SPELLS: ObjectPredicateDef = ObjectPredicateDef::Subtype("Goblin");
+
 pub(in crate::card::sets) static GOBLIN_WARCHIEF: CardRecord = CardRecord::new_with_legacy_id(
     2020,
     "Goblin Warchief",

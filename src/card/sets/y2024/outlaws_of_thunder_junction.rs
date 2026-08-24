@@ -10,46 +10,7 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
-static BILL_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Creature),
-)];
-
-static BILL_DOUBLE_COST: [AbilityCostDef; 1] = [AbilityCostDef::Mana(mana_cost!("{3}{G}{G}"))];
-
-static BILL_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::triggered_with_targets(
-        "Landfall — Whenever a land you control enters, put a +1/+1 counter on target creature.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Land),
-                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-            ]),
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
-        &BILL_TARGET,
-        EffectDef::AddCounters {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            kind: CounterKind::PlusOnePlusOne,
-            amount: ValueDef::Constant(1),
-        },
-    ),
-    // Each creature doubles its own, so a board of one-counter creatures
-    // gains one apiece and a single large one gains everything it has.
-    AbilityDef::activated(
-        "{3}{G}{G}: Double the number of +1/+1 counters on each creature you control.",
-        &BILL_DOUBLE_COST,
-        EffectDef::DoubleCounters {
-            object: EffectRecipientDef::matching_objects(
-                ObjectPredicateDef::HasType(CardType::Creature),
-                &[ZoneKind::Battlefield],
-                PlayerRelation::You,
-            ),
-            kind: CounterKind::PlusOnePlusOne,
-        },
-    ),
-];
-
+// OTJ 45 — Duelist of the Mind
 /// "Draw a card. If you do, discard a card." A draw from an empty library
 /// does not happen, so the discard is conditional on the draw rather than
 /// sequenced after it.
@@ -97,7 +58,6 @@ static DUELIST_ABILITIES: [AbilityDef; 4] = [
     .triggering_at_most(1),
 ];
 
-// OTJ 45 — Duelist of the Mind
 pub(in crate::card::sets) static DUELIST_OF_THE_MIND: CardRecord = CardRecord::new_with_legacy_id(
     2200,
     "Duelist of the Mind",
@@ -109,6 +69,17 @@ pub(in crate::card::sets) static DUELIST_OF_THE_MIND: CardRecord = CardRecord::n
         .with_abilities(&DUELIST_ABILITIES),
 );
 
+// OTJ 61 — Phantom Interference
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PHANTOM_INTERFERENCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("00bf4dd1-5468-4594-9c7b-0737610f19d4"),
+    "Phantom Interference",
+    crate::card::CardArt::new("00bf4dd1-5468-4594-9c7b-0737610f19d4", "Ruxing Gao"),
+    crate::card::CardSet::OutlawsOfThunderJunction,
+    crate::card::CardRules::unsupported(),
+);
+
+// OTJ 82 — Caustic Bronco
 /// "You lose life equal to that card's mana value if this creature isn't
 /// saddled. Otherwise, each opponent loses that much life." Two clauses
 /// reading one number, which is the mana value of the card the reveal just
@@ -165,17 +136,6 @@ static BRONCO_REVEAL: TopCardSelectionDef = TopCardSelectionDef {
     then: Some(&BRONCO_PAYMENT_SEQUENCE),
 };
 
-// OTJ 61 — Phantom Interference
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static PHANTOM_INTERFERENCE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("00bf4dd1-5468-4594-9c7b-0737610f19d4"),
-    "Phantom Interference",
-    crate::card::CardArt::new("00bf4dd1-5468-4594-9c7b-0737610f19d4", "Ruxing Gao"),
-    crate::card::CardSet::OutlawsOfThunderJunction,
-    crate::card::CardRules::unsupported(),
-);
-
-// OTJ 82 — Caustic Bronco
 pub(in crate::card::sets) static CAUSTIC_BRONCO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e9a268ba-c442-4fe4-90b4-2810c8474f4e"),
     "Caustic Bronco",
@@ -205,6 +165,46 @@ pub(in crate::card::sets) static CAUSTIC_BRONCO: CardRecord = CardRecord::new(
 );
 
 // OTJ 157 — Bristly Bill, Spine Sower
+static BILL_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+    ObjectPredicateDef::HasType(CardType::Creature),
+)];
+
+static BILL_DOUBLE_COST: [AbilityCostDef; 1] = [AbilityCostDef::Mana(mana_cost!("{3}{G}{G}"))];
+
+static BILL_ABILITIES: [AbilityDef; 2] = [
+    AbilityDef::triggered_with_targets(
+        "Landfall — Whenever a land you control enters, put a +1/+1 counter on target creature.",
+        TriggerEventDef::zone_changed(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Land),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ]),
+            None,
+            Some(ZoneKind::Battlefield),
+        ),
+        &BILL_TARGET,
+        EffectDef::AddCounters {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            kind: CounterKind::PlusOnePlusOne,
+            amount: ValueDef::Constant(1),
+        },
+    ),
+    // Each creature doubles its own, so a board of one-counter creatures
+    // gains one apiece and a single large one gains everything it has.
+    AbilityDef::activated(
+        "{3}{G}{G}: Double the number of +1/+1 counters on each creature you control.",
+        &BILL_DOUBLE_COST,
+        EffectDef::DoubleCounters {
+            object: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            kind: CounterKind::PlusOnePlusOne,
+        },
+    ),
+];
+
 pub(in crate::card::sets) static BRISTLY_BILL_SPINE_SOWER: CardRecord =
     CardRecord::new_with_legacy_id(
         2177,
@@ -217,14 +217,6 @@ pub(in crate::card::sets) static BRISTLY_BILL_SPINE_SOWER: CardRecord =
             .with_supertype(CardSupertype::Legendary)
             .with_abilities(&BILL_ABILITIES),
     );
-
-/// Ward reads as one clause on the Boots, so the granted ability carries the
-/// whole of the printed reminder rather than a paraphrase of it.
-static LAVASPUR_WARD: AbilityDef = abilities::ward(
-    1,
-    "Ward {1} (Whenever this creature becomes the target of a spell or ability an opponent \
-     controls, counter it unless that player pays {1}.)",
-);
 
 // OTJ 188 — Voracious Varmint
 // Audit: metadata-only — Card rules have not been implemented.
@@ -239,6 +231,7 @@ pub(in crate::card::sets) static VORACIOUS_VARMINT: CardRecord = CardRecord::new
     crate::card::CardRules::unsupported(),
 );
 
+// OTJ 224 — Pillage the Bog
 /// "Twice the number of lands you control", which is what makes the card a
 /// land-count payoff rather than a fixed dig: six lands look at twelve.
 static LANDS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
@@ -273,7 +266,6 @@ static PILLAGE_THE_BOG_LOOK: TopCardSelectionDef = TopCardSelectionDef {
     then: None,
 };
 
-// OTJ 224 — Pillage the Bog
 pub(in crate::card::sets) static PILLAGE_THE_BOG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fa3b415f-7901-4ab4-84fe-60b90d40ac90"),
     "Pillage the Bog",
@@ -298,6 +290,14 @@ pub(in crate::card::sets) static PILLAGE_THE_BOG: CardRecord = CardRecord::new(
 );
 
 // OTJ 243 — Lavaspur Boots
+/// Ward reads as one clause on the Boots, so the granted ability carries the
+/// whole of the printed reminder rather than a paraphrase of it.
+static LAVASPUR_WARD: AbilityDef = abilities::ward(
+    1,
+    "Ward {1} (Whenever this creature becomes the target of a spell or ability an opponent \
+     controls, counter it unless that player pays {1}.)",
+);
+
 pub(in crate::card::sets) static LAVASPUR_BOOTS: CardRecord = CardRecord::new_with_legacy_id(
     2252,
     "Lavaspur Boots",

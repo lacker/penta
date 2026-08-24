@@ -8,6 +8,7 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
+// CN2 18 — Palace Jailer
 static JAILER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
     ObjectPredicateDef::All(&[
         ObjectPredicateDef::HasType(CardType::Creature),
@@ -65,7 +66,6 @@ static JAILER_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
-// CN2 18 — Palace Jailer
 pub(in crate::card::sets) static PALACE_JAILER: CardRecord = CardRecord::new_with_legacy_id(
     2171,
     "Palace Jailer",

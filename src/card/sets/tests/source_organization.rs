@@ -523,17 +523,13 @@ fn validate_source_annotations(lines: &[&str], path: &Path) {
             );
         }
         if let Some(symbol) = declaration_symbol(line) {
-            let directly_headered = index > 0
-                && parse_header(lines[index - 1])
-                    .is_some_and(|header| header.printing_kind.is_none());
-            let audited_header = index > 1
-                && parse_audit(lines[index - 1])
-                    .is_some_and(|(status, _)| status != AuditStatus::Blocked)
-                && parse_header(lines[index - 2])
-                    .is_some_and(|header| header.printing_kind.is_none());
+            let header = lines[..index]
+                .iter()
+                .rposition(|candidate| parse_header(candidate).is_some())
+                .and_then(|header_index| parse_header(lines[header_index]));
             assert!(
-                directly_headered || audited_header,
-                "{}:{}: expected a card header, optionally followed by a partial or metadata-only Audit comment, immediately before {symbol}",
+                header.is_some_and(|header| header.printing_kind.is_none()),
+                "{}:{}: expected {symbol} inside a canonical card header block",
                 path.display(),
                 index + 1
             );
@@ -565,52 +561,37 @@ fn source_entry_for_header(
         };
     }
 
-    let (symbol, audit) = match lines.get(index + 1).copied() {
-        Some(next) if declaration_symbol(next).is_some() => {
-            let symbol = declaration_symbol(next).expect("the declaration was recognized");
-            validate_declaration(lines, index + 1, symbol, header.name, path);
-            (Some(symbol.to_string()), None)
-        }
-        Some(next) if parse_audit(next).is_some() => {
-            let (status, gap) = parse_audit(next).expect("the Audit comment was recognized");
-            let declaration = lines
-                .get(index + 2)
-                .and_then(|line| declaration_symbol(line));
-            match status {
-                AuditStatus::Blocked => assert!(
-                    declaration.is_none(),
-                    "{}:{}: a blocked Audit entry cannot have a CardRecord declaration",
-                    path.display(),
-                    index + 1
-                ),
-                AuditStatus::Custom | AuditStatus::Partial | AuditStatus::MetadataOnly => assert!(
-                    declaration.is_some(),
-                    "{}:{}: a custom, partial, or metadata-only Audit entry must immediately precede a CardRecord declaration",
-                    path.display(),
-                    index + 1
-                ),
-            }
-            if let Some(symbol) = declaration {
-                validate_declaration(lines, index + 2, symbol, header.name, path);
-            }
-            (
-                declaration.map(str::to_string),
-                Some(SourceAudit {
-                    set: set_source.set,
-                    name: header.name.to_string(),
-                    status,
-                    gap: gap.to_string(),
-                }),
-            )
-        }
-        _ => {
-            panic!(
-                "{}:{}: a card header must immediately precede either a CardRecord declaration or an Audit comment",
-                path.display(),
-                index + 1
-            )
-        }
-    };
+    let audit = lines.get(index + 1).and_then(|line| parse_audit(line));
+    let block_end = lines[index + 1..]
+        .iter()
+        .position(|line| parse_header(line).is_some())
+        .map_or(lines.len(), |offset| index + 1 + offset);
+    let declarations = lines[index + 1..block_end]
+        .iter()
+        .enumerate()
+        .filter_map(|(offset, line)| {
+            declaration_symbol(line).map(|symbol| (index + 1 + offset, symbol))
+        })
+        .collect::<Vec<_>>();
+
+    let should_have_declaration = !matches!(audit, Some((AuditStatus::Blocked, _)));
+    assert_eq!(
+        declarations.len(),
+        usize::from(should_have_declaration),
+        "{}:{}: a canonical card block must contain exactly one CardRecord declaration unless it is blocked",
+        path.display(),
+        index + 1
+    );
+    let symbol = declarations.first().map(|(line, symbol)| {
+        validate_declaration(lines, *line, symbol, header.name, path);
+        (*symbol).to_string()
+    });
+    let audit = audit.map(|(status, gap)| SourceAudit {
+        set: set_source.set,
+        name: header.name.to_string(),
+        status,
+        gap: gap.to_string(),
+    });
     SourceEntry {
         symbol,
         collector_number: header.collector_number.to_string(),

@@ -14,19 +14,18 @@ use crate::card::{
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
-static ENERGY_FLUX_GRANTED_ABILITY: AbilityDef = AbilityDef::triggered(
-    "At the beginning of your upkeep, sacrifice this artifact unless you pay {2}.",
-    TriggerEventDef::StepBegins {
-        step: TurnStepDef::Upkeep,
-        player: PlayerRelation::You,
-    },
-    EffectDef::PayOr(PayOrDef::unless_mana(
-        mana_cost!("{2}"),
-        &EffectDef::Sacrifice {
-            object: EffectRecipientDef::Source,
-        },
-    )),
-);
+/// Each land names the other two, and a name predicate compares the name a
+/// record carries. That is "Urza's Power Plant" without a hyphen, which is
+/// both the printed name and the current Oracle one; the reference text of
+/// the other two lands still hyphenates it, and the rules text here follows
+/// the record so that what a reader sees and what the engine matches agree.
+const fn controls_named(name: &'static str) -> ConditionDef {
+    ConditionDef::Exists(ObjectQueryDef::matching(
+        ObjectPredicateDef::Named(name),
+        &[ZoneKind::Battlefield],
+        PlayerRelation::You,
+    ))
+}
 
 // ATQ 1 — Argivian Archaeologist
 pub(in crate::card::sets) static ARGIVIAN_ARCHAEOLOGIST: CardRecord =
@@ -130,6 +129,7 @@ pub(in crate::card::sets) static DAMPING_FIELD: CardRecord = CardRecord::new_wit
     )),
 );
 
+// ATQ 6 — Martyrs of Korlis
 /// "As long as this creature is untapped": the condition rides on the
 /// recipient, so tapping it turns the redirection off and untapping turns it
 /// back on without the creature being touched.
@@ -142,7 +142,6 @@ static MARTYRS_UNTAPPED: EffectRecipientDef = EffectRecipientDef::matching_objec
     PlayerRelation::Any,
 );
 
-// ATQ 6 — Martyrs of Korlis
 pub(in crate::card::sets) static MARTYRS_OF_KORLIS: CardRecord = CardRecord::new_with_legacy_id(
     1685,
     "Martyrs of Korlis",
@@ -165,6 +164,7 @@ pub(in crate::card::sets) static MARTYRS_OF_KORLIS: CardRecord = CardRecord::new
     ),
 );
 
+// ATQ 7 — Reverse Polarity
 /// Only what artifacts dealt counts, and it counts twice.
 static REVERSE_POLARITY_DOUBLED: ScaledValueDef = ScaledValueDef::new(
     ValueDef::DamageTakenThisTurn {
@@ -174,7 +174,6 @@ static REVERSE_POLARITY_DOUBLED: ScaledValueDef = ScaledValueDef::new(
     2,
 );
 
-// ATQ 7 — Reverse Polarity
 pub(in crate::card::sets) static REVERSE_POLARITY: CardRecord = CardRecord::new_with_legacy_id(
     1715,
     "Reverse Polarity",
@@ -201,6 +200,20 @@ pub(in crate::card::sets) static DRAFNA_S_RESTORATION: CardRecord = CardRecord::
 );
 
 // ATQ 9 — Energy Flux
+static ENERGY_FLUX_GRANTED_ABILITY: AbilityDef = AbilityDef::triggered(
+    "At the beginning of your upkeep, sacrifice this artifact unless you pay {2}.",
+    TriggerEventDef::StepBegins {
+        step: TurnStepDef::Upkeep,
+        player: PlayerRelation::You,
+    },
+    EffectDef::PayOr(PayOrDef::unless_mana(
+        mana_cost!("{2}"),
+        &EffectDef::Sacrifice {
+            object: EffectRecipientDef::Source,
+        },
+    )),
+);
+
 pub(in crate::card::sets) static ENERGY_FLUX: CardRecord = CardRecord::new_with_legacy_id(
     113,
     "Energy Flux",
@@ -361,11 +374,11 @@ pub(in crate::card::sets) static HAUNTING_WIND: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// ATQ 18 — Phyrexian Gremlins
 static GREMLIN_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
     ObjectPredicateDef::HasType(CardType::Artifact),
 )];
 
-// ATQ 18 — Phyrexian Gremlins
 pub(in crate::card::sets) static PHYREXIAN_GREMLINS: CardRecord = CardRecord::new_with_legacy_id(
     1682,
     "Phyrexian Gremlins",
@@ -410,6 +423,7 @@ pub(in crate::card::sets) static PRIEST_OF_YAWGMOTH: CardRecord = CardRecord::ne
     crate::card::CardRules::unsupported(),
 );
 
+// ATQ 20 — Xenic Poltergeist
 /// Animation is a type and a base size together. Both numbers are the same
 /// value, read off the artifact the ability pointed at, and frozen as the
 /// ability resolves -- an artifact's mana value does not move afterwards.
@@ -428,7 +442,6 @@ static XENIC_POLTERGEIST_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exac
     ]),
 )];
 
-// ATQ 20 — Xenic Poltergeist
 pub(in crate::card::sets) static XENIC_POLTERGEIST: CardRecord = CardRecord::new_with_legacy_id(
     1815,
     "Xenic Poltergeist",
@@ -496,6 +509,9 @@ pub(in crate::card::sets) static ATOG: CardRecord = CardRecord::new_with_legacy_
     ]),
 );
 
+// ATQ 23† — Atog (alternate printing)
+
+// ATQ 24 — Detonate
 /// The mana value is read off the spell's own X, so what Detonate can hit
 /// depends on what was paid for it.
 static DETONATE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
@@ -518,9 +534,6 @@ static DETONATE_EFFECT: [EffectDef; 2] = [
     },
 ];
 
-// ATQ 23† — Atog (alternate printing)
-
-// ATQ 24 — Detonate
 pub(in crate::card::sets) static DETONATE: CardRecord = CardRecord::new_with_legacy_id(
     8,
     "Detonate",
@@ -624,6 +637,7 @@ pub(in crate::card::sets) static SHATTERSTORM: CardRecord = CardRecord::new_with
     )]),
 );
 
+// ATQ 29 — Argothian Pixies
 /// Both halves of the Pixies read the same set, so the blocking restriction
 /// and the prevention cannot drift apart.
 static ARTIFACT_CREATURE: ObjectPredicateDef = ObjectPredicateDef::All(&[
@@ -631,7 +645,6 @@ static ARTIFACT_CREATURE: ObjectPredicateDef = ObjectPredicateDef::All(&[
     ObjectPredicateDef::HasType(CardType::Creature),
 ]);
 
-// ATQ 29 — Argothian Pixies
 pub(in crate::card::sets) static ARGOTHIAN_PIXIES: CardRecord = CardRecord::new_with_legacy_id(
     108,
     "Argothian Pixies",
@@ -726,6 +739,12 @@ pub(in crate::card::sets) static CRUMBLE: CardRecord = CardRecord::new_with_lega
 
 // ATQ 33 — Gaea's Avenger
 // Audit: partial — Its power and toughness are a battlefield-only continuous effect rather than a characteristic-defining ability, so they read as printed in every other zone.
+static ARTIFACTS_YOUR_OPPONENTS_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::HasType(CardType::Artifact),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::Opponent,
+);
+
 pub(in crate::card::sets) static GAEAS_AVENGER: CardRecord = CardRecord::new_with_legacy_id(
     1468,
     "Gaea's Avenger",
@@ -751,12 +770,6 @@ pub(in crate::card::sets) static GAEAS_AVENGER: CardRecord = CardRecord::new_wit
              played and absent for anything reading it in another zone.",
         )),
     ),
-);
-
-static ARTIFACTS_YOUR_OPPONENTS_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Artifact),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::Opponent,
 );
 
 // ATQ 34 — Powerleech
@@ -903,6 +916,7 @@ pub(in crate::card::sets) static ASHNODS_BATTLE_GEAR: CardRecord = CardRecord::n
     ]),
 );
 
+// ATQ 40 — Ashnod's Transmogrant
 /// A counter and a type, both permanent: the artifact is gone by the time
 /// either lands, so nothing is scoped to it surviving.
 static ASHNODS_TRANSMOGRANT_EFFECT: [EffectDef; 2] = [
@@ -926,7 +940,6 @@ static ASHNODS_TRANSMOGRANT_TARGET: [AbilityTargetDef; 1] =
         ]),
     )];
 
-// ATQ 40 — Ashnod's Transmogrant
 pub(in crate::card::sets) static ASHNODS_TRANSMOGRANT: CardRecord = CardRecord::new_with_legacy_id(
     1810,
     "Ashnod's Transmogrant",
@@ -941,9 +954,9 @@ pub(in crate::card::sets) static ASHNODS_TRANSMOGRANT: CardRecord = CardRecord::
     )),
 );
 
+// ATQ 41 — Battering Ram
 static BATTERING_RAM_BANDING: AbilityDef = abilities::banding();
 
-// ATQ 41 — Battering Ram
 pub(in crate::card::sets) static BATTERING_RAM: CardRecord = CardRecord::new_with_legacy_id(
     1797,
     "Battering Ram",
@@ -986,6 +999,7 @@ pub(in crate::card::sets) static BRONZE_TABLET: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// ATQ 43 — Candelabra of Tawnos
 /// "X target lands": the count is the X that was paid, not a range chosen
 /// afterwards, so an X larger than the number of lands on the battlefield
 /// offers no declaration at all.
@@ -998,7 +1012,6 @@ static CANDELABRA_X_LANDS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_ch
     },
 )];
 
-// ATQ 43 — Candelabra of Tawnos
 pub(in crate::card::sets) static CANDELABRA_OF_TAWNOS: CardRecord = CardRecord::new_with_legacy_id(
     1829,
     "Candelabra of Tawnos",
@@ -1131,18 +1144,6 @@ pub(in crate::card::sets) static DRAGON_ENGINE: CardRecord = CardRecord::new_wit
 );
 
 // ATQ 50 — Feldon's Cane
-pub(in crate::card::sets) static FELDONS_CANE: CardRecord = CardRecord::new_with_legacy_id(
-    1480,
-    "Feldon's Cane",
-    CardArt::new("bb6af436-bcfd-4d47-a1aa-e84b587a725a", "Mark Tedin"),
-    CardSet::Antiquities,
-    CardRules::new_artifact(mana_cost!("{1}")).with_ability(AbilityDef::activated(
-        "{T}, Exile this artifact: Shuffle your graveyard into your library.",
-        &[AbilityCostDef::TapSource, AbilityCostDef::ExileSource],
-        EffectDef::Sequence(&FELDONS_CANE_SHUFFLE),
-    )),
-);
-
 /// The documented composition: move the then shuffle the library they
 /// arrived in.
 static FELDONS_CANE_SHUFFLE: [EffectDef; 2] = [
@@ -1163,6 +1164,18 @@ static FELDONS_CANE_SHUFFLE: [EffectDef; 2] = [
         player: EffectRecipientDef::Controller,
     },
 ];
+
+pub(in crate::card::sets) static FELDONS_CANE: CardRecord = CardRecord::new_with_legacy_id(
+    1480,
+    "Feldon's Cane",
+    CardArt::new("bb6af436-bcfd-4d47-a1aa-e84b587a725a", "Mark Tedin"),
+    CardSet::Antiquities,
+    CardRules::new_artifact(mana_cost!("{1}")).with_ability(AbilityDef::activated(
+        "{T}, Exile this artifact: Shuffle your graveyard into your library.",
+        &[AbilityCostDef::TapSource, AbilityCostDef::ExileSource],
+        EffectDef::Sequence(&FELDONS_CANE_SHUFFLE),
+    )),
+);
 
 // ATQ 51 — Golgothian Sylex
 // Audit: partial — Its expansion predicate follows physical identity rather than the permanent's current copied name.
@@ -1317,6 +1330,7 @@ pub(in crate::card::sets) static MILLSTONE: CardRecord = CardRecord::new_with_le
     ]),
 );
 
+// ATQ 57 — Mishra's War Machine
 /// The declined branch, which is one clause rather than two: "if it deals
 /// damage to you this way" is only ever true here, so the tap belongs to the
 /// same branch as the damage instead of watching for it.
@@ -1333,7 +1347,6 @@ static MISHRAS_WAR_MACHINE_UNPAID: [EffectDef; 2] = [
 static MISHRAS_WAR_MACHINE_UNPAID_SEQUENCE: EffectDef =
     EffectDef::Sequence(&MISHRAS_WAR_MACHINE_UNPAID);
 
-// ATQ 57 — Mishra's War Machine
 pub(in crate::card::sets) static MISHRA_S_WAR_MACHINE: CardRecord = CardRecord::new_with_legacy_id(
     1835,
     "Mishra's War Machine",
@@ -1434,6 +1447,7 @@ pub(in crate::card::sets) static PRIMAL_CLAY: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// ATQ 62 — Rakalite
 static RAKALITE_SHIELD: [EffectDef; 2] = [
     EffectDef::PreventDamage {
         prevention: DamagePreventionDef::amount(
@@ -1460,7 +1474,6 @@ static RAKALITE_SHIELD: [EffectDef; 2] = [
     ))),
 ];
 
-// ATQ 62 — Rakalite
 pub(in crate::card::sets) static RAKALITE: CardRecord = CardRecord::new_with_legacy_id(
     1583,
     "Rakalite",
@@ -1609,13 +1622,6 @@ pub(in crate::card::sets) static TAWNOSS_WAND: CardRecord = CardRecord::new_with
     ]),
 );
 
-/// Both of Tetravus's assembly triggers fire at the same moment, so its
-/// controller orders them and can answer both in one upkeep.
-const UPKEEP: TriggerEventDef = TriggerEventDef::StepBegins {
-    step: TurnStepDef::Upkeep,
-    player: PlayerRelation::You,
-};
-
 // ATQ 70 — Tawnos's Weaponry
 pub(in crate::card::sets) static TAWNOSS_WEAPONRY: CardRecord = CardRecord::new_with_legacy_id(
     1665,
@@ -1656,6 +1662,13 @@ pub(in crate::card::sets) static TAWNOSS_WEAPONRY: CardRecord = CardRecord::new_
 
 // ATQ 71 — Tetravus
 // Audit: custom — Needs declarative variable counter-to-token exchange and creator-linked token selection for the reverse exchange.
+/// Both of Tetravus's assembly triggers fire at the same moment, so its
+/// controller orders them and can answer both in one upkeep.
+const UPKEEP: TriggerEventDef = TriggerEventDef::StepBegins {
+    step: TurnStepDef::Upkeep,
+    player: PlayerRelation::You,
+};
+
 pub(in crate::card::sets) static TETRAVUS: CardRecord = CardRecord::new_with_legacy_id(
     126,
     "Tetravus",
@@ -1827,6 +1840,7 @@ pub(in crate::card::sets) static YOTIAN_SOLDIER: CardRecord = CardRecord::new_wi
         .with_abilities(&[abilities::vigilance()]),
 );
 
+// ATQ 80a — Mishra's Factory
 /// Animating keeps the land: the creature and artifact types are added on
 /// top of what is printed.
 static MISHRAS_FACTORY_ANIMATION: [AppliedEffectDef; 3] = [
@@ -1851,7 +1865,6 @@ static MISHRAS_FACTORY_PUMP_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::e
     },
 )];
 
-// ATQ 80a — Mishra's Factory
 pub(in crate::card::sets) static MISHRA_S_FACTORY: CardRecord = CardRecord::new_with_legacy_id(
     31,
     "Mishra's Factory",
@@ -1881,10 +1894,6 @@ pub(in crate::card::sets) static MISHRA_S_FACTORY: CardRecord = CardRecord::new_
     ]),
 );
 
-static MISHRA_S_WORKSHOP_RESTRICTIONS: [ManaRestrictionDef; 1] = [ManaRestrictionDef::CastSpell(
-    ObjectPredicateDef::HasType(CardType::Artifact),
-)];
-
 // ATQ 80b — Mishra's Factory (alternate printing)
 
 // ATQ 80c — Mishra's Factory (alternate printing)
@@ -1892,6 +1901,10 @@ static MISHRA_S_WORKSHOP_RESTRICTIONS: [ManaRestrictionDef; 1] = [ManaRestrictio
 // ATQ 80d — Mishra's Factory (alternate printing)
 
 // ATQ 81 — Mishra's Workshop
+static MISHRA_S_WORKSHOP_RESTRICTIONS: [ManaRestrictionDef; 1] = [ManaRestrictionDef::CastSpell(
+    ObjectPredicateDef::HasType(CardType::Artifact),
+)];
+
 pub(in crate::card::sets) static MISHRA_S_WORKSHOP: CardRecord = CardRecord::new_with_legacy_id(
     83,
     "Mishra's Workshop",
@@ -1934,19 +1947,6 @@ pub(in crate::card::sets) static STRIP_MINE: CardRecord = CardRecord::new_with_l
         ),
     ]),
 );
-
-/// Each land names the other two, and a name predicate compares the name a
-/// record carries. That is "Urza's Power Plant" without a hyphen, which is
-/// both the printed name and the current Oracle one; the reference text of
-/// the other two lands still hyphenates it, and the rules text here follows
-/// the record so that what a reader sees and what the engine matches agree.
-const fn controls_named(name: &'static str) -> ConditionDef {
-    ConditionDef::Exists(ObjectQueryDef::matching(
-        ObjectPredicateDef::Named(name),
-        &[ZoneKind::Battlefield],
-        PlayerRelation::You,
-    ))
-}
 
 // ATQ 82b — Strip Mine (alternate printing)
 

@@ -23,27 +23,6 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
-static FACT_OR_FICTION_PILE_MOVES: EffectDef = EffectDef::Sequence(&[
-    EffectDef::MoveToZone {
-        counters: None,
-        object: abilities::CHOSEN_PILE,
-        zone: ZoneKind::Hand,
-        placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-    },
-    EffectDef::MoveToZone {
-        counters: None,
-        object: abilities::UNCHOSEN_PILE,
-        zone: ZoneKind::Graveyard,
-        placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-    },
-]);
-
 // INV 1 — Alabaster Leech
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ALABASTER_LEECH: CardRecord = CardRecord::new(
@@ -577,6 +556,27 @@ pub(in crate::card::sets) static EXCLUDE: CardRecord = CardRecord::new(
 );
 
 // INV 57 — Fact or Fiction
+static FACT_OR_FICTION_PILE_MOVES: EffectDef = EffectDef::Sequence(&[
+    EffectDef::MoveToZone {
+        counters: None,
+        object: abilities::CHOSEN_PILE,
+        zone: ZoneKind::Hand,
+        placement: ZonePlacement::Top,
+        arrival_effect: None,
+        attachment: None,
+        controller: None,
+    },
+    EffectDef::MoveToZone {
+        counters: None,
+        object: abilities::UNCHOSEN_PILE,
+        zone: ZoneKind::Graveyard,
+        placement: ZonePlacement::Top,
+        arrival_effect: None,
+        attachment: None,
+        controller: None,
+    },
+]);
+
 pub(in crate::card::sets) static FACT_OR_FICTION: CardRecord = CardRecord::new_with_legacy_id(
     277,
     "Fact or Fiction",
@@ -593,31 +593,6 @@ pub(in crate::card::sets) static FACT_OR_FICTION: CardRecord = CardRecord::new_w
         ),
     )),
 );
-
-static OPT_DRAW: EffectDef = EffectDef::DrawCards {
-    recipient: EffectRecipientDef::Controller,
-    amount: ValueDef::Constant(1),
-};
-
-static OPT_SELECTION: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(1),
-    object: None,
-    minimum: 0,
-    maximum: 1,
-    select_all_matching: false,
-    reveal_selected: false,
-    selected_zone: ZoneKind::Library,
-    selected_placement: ZonePlacement::Bottom,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Top,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: Some(&OPT_DRAW),
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
 
 // INV 58 — Faerie Squadron
 // Audit: metadata-only — Card rules have not been implemented.
@@ -680,6 +655,31 @@ pub(in crate::card::sets) static METATHRAN_ZOMBIE: CardRecord = CardRecord::new(
 );
 
 // INV 64 — Opt
+static OPT_DRAW: EffectDef = EffectDef::DrawCards {
+    recipient: EffectRecipientDef::Controller,
+    amount: ValueDef::Constant(1),
+};
+
+static OPT_SELECTION: TopCardSelectionDef = TopCardSelectionDef {
+    count: ValueDef::Constant(1),
+    object: None,
+    minimum: 0,
+    maximum: 1,
+    select_all_matching: false,
+    reveal_selected: false,
+    selected_zone: ZoneKind::Library,
+    selected_placement: ZonePlacement::Bottom,
+    rest_zone: ZoneKind::Library,
+    rest_placement: ZonePlacement::Top,
+    rest_random_order: false,
+    rest_counters: None,
+    selected_order_follows_choice: false,
+    then: Some(&OPT_DRAW),
+    selected_hidden: false,
+    selected_linked_to_source: false,
+    selected_face_down: None,
+};
+
 pub(in crate::card::sets) static OPT: CardRecord = CardRecord::new_with_legacy_id(
     312,
     "Opt",
@@ -695,6 +695,19 @@ pub(in crate::card::sets) static OPT: CardRecord = CardRecord::new_with_legacy_i
     )),
 );
 
+// INV 65 — Phantasmal Terrain (reprint)
+
+// INV 66 — Probe
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static PROBE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a2a58d18-3d52-4178-86b2-7590d4164e76"),
+    "Probe",
+    crate::card::CardArt::new("a2a58d18-3d52-4178-86b2-7590d4164e76", "Eric Peterson"),
+    crate::card::CardSet::Invasion,
+    crate::card::CardRules::unsupported(),
+);
+
+// INV 67 — Prohibit
 /// Prohibit targets any spell and then asks how big it was, so a five-drop
 /// can be named and simply survives. Both halves share the target; only the
 /// ceiling moves.
@@ -732,19 +745,6 @@ static PROHIBIT_KICKED: EffectDef = EffectDef::IfCondition {
     then: &COUNTER_TARGET_SPELL,
 };
 
-// INV 65 — Phantasmal Terrain (reprint)
-
-// INV 66 — Probe
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static PROBE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a2a58d18-3d52-4178-86b2-7590d4164e76"),
-    "Probe",
-    crate::card::CardArt::new("a2a58d18-3d52-4178-86b2-7590d4164e76", "Eric Peterson"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
-);
-
-// INV 67 — Prohibit
 pub(in crate::card::sets) static PROHIBIT: CardRecord = CardRecord::new_with_legacy_id(
     2030,
     "Prohibit",
@@ -764,70 +764,6 @@ pub(in crate::card::sets) static PROHIBIT: CardRecord = CardRecord::new_with_leg
         ),
     ]),
 );
-
-static TARGET_ARTIFACT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Artifact),
-)];
-
-static DESTROY_TARGET_ARTIFACT: EffectDef = EffectDef::Destroy {
-    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    can_regenerate: true,
-};
-
-static ARTIFACT_SMALL_ENOUGH: TriggerConditionDef = TriggerConditionDef::TargetMatches {
-    slot: TargetIndex::PRIMARY,
-    object: ObjectPredicateDef::ManaValueAtMost(2),
-};
-
-static ARTIFACT_SMALL_ENOUGH_KICKED: TriggerConditionDef = TriggerConditionDef::TargetMatches {
-    slot: TargetIndex::PRIMARY,
-    object: ObjectPredicateDef::ManaValueAtMost(5),
-};
-
-static OVERLOAD_UNKICKED: EffectDef = EffectDef::IfCondition {
-    condition: &ARTIFACT_SMALL_ENOUGH,
-    then: &DESTROY_TARGET_ARTIFACT,
-};
-
-static OVERLOAD_KICKED: EffectDef = EffectDef::IfCondition {
-    condition: &ARTIFACT_SMALL_ENOUGH_KICKED,
-    then: &DESTROY_TARGET_ARTIFACT,
-};
-
-/// A land you control, read off what the spell or ability already targets.
-static A_LAND_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Land),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-]);
-
-static RESPONSE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::StackObject {
-        object: ObjectPredicateDef::TargetsObjectMatching(&A_LAND_YOU_CONTROL),
-        controller: Some(PlayerRelation::Opponent),
-        kind: StackTargetKindDef::SpellOrAbility,
-    },
-)];
-
-/// The destroy follows the counter rather than preceding it: the countered
-/// ability is retired with its source recorded, so the permanent is still
-/// findable afterwards, and a spell -- which has no such source -- leaves
-/// nothing to destroy.
-static RESPONSE_EFFECT: EffectDef = EffectDef::Sequence(&[
-    EffectDef::Counter {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        zone: ZoneKind::Graveyard,
-    },
-    EffectDef::Destroy {
-        object: EffectRecipientDef::object(ObjectRefDef::SourceOfTargetedStackObject(
-            TargetIndex::PRIMARY,
-        )),
-        can_regenerate: true,
-    },
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(2),
-    },
-]);
 
 // INV 68 — Psychic Battle
 // Audit: metadata-only — Card rules have not been implemented.
@@ -934,6 +870,41 @@ pub(in crate::card::sets) static SWAY_OF_ILLUSION: CardRecord = CardRecord::new(
 );
 
 // INV 78 — Teferi's Response
+/// A land you control, read off what the spell or ability already targets.
+static A_LAND_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::HasType(CardType::Land),
+    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+]);
+
+static RESPONSE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::StackObject {
+        object: ObjectPredicateDef::TargetsObjectMatching(&A_LAND_YOU_CONTROL),
+        controller: Some(PlayerRelation::Opponent),
+        kind: StackTargetKindDef::SpellOrAbility,
+    },
+)];
+
+/// The destroy follows the counter rather than preceding it: the countered
+/// ability is retired with its source recorded, so the permanent is still
+/// findable afterwards, and a spell -- which has no such source -- leaves
+/// nothing to destroy.
+static RESPONSE_EFFECT: EffectDef = EffectDef::Sequence(&[
+    EffectDef::Counter {
+        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        zone: ZoneKind::Graveyard,
+    },
+    EffectDef::Destroy {
+        object: EffectRecipientDef::object(ObjectRefDef::SourceOfTargetedStackObject(
+            TargetIndex::PRIMARY,
+        )),
+        can_regenerate: true,
+    },
+    EffectDef::DrawCards {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::Constant(2),
+    },
+]);
+
 pub(in crate::card::sets) static TEFERIS_RESPONSE: CardRecord = CardRecord::new_with_legacy_id(
     2058,
     "Teferi's Response",
@@ -1694,6 +1665,35 @@ pub(in crate::card::sets) static OBLITERATE: CardRecord = CardRecord::new(
 );
 
 // INV 157 — Overload
+static TARGET_ARTIFACT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+    ObjectPredicateDef::HasType(CardType::Artifact),
+)];
+
+static DESTROY_TARGET_ARTIFACT: EffectDef = EffectDef::Destroy {
+    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+    can_regenerate: true,
+};
+
+static ARTIFACT_SMALL_ENOUGH: TriggerConditionDef = TriggerConditionDef::TargetMatches {
+    slot: TargetIndex::PRIMARY,
+    object: ObjectPredicateDef::ManaValueAtMost(2),
+};
+
+static ARTIFACT_SMALL_ENOUGH_KICKED: TriggerConditionDef = TriggerConditionDef::TargetMatches {
+    slot: TargetIndex::PRIMARY,
+    object: ObjectPredicateDef::ManaValueAtMost(5),
+};
+
+static OVERLOAD_UNKICKED: EffectDef = EffectDef::IfCondition {
+    condition: &ARTIFACT_SMALL_ENOUGH,
+    then: &DESTROY_TARGET_ARTIFACT,
+};
+
+static OVERLOAD_KICKED: EffectDef = EffectDef::IfCondition {
+    condition: &ARTIFACT_SMALL_ENOUGH_KICKED,
+    then: &DESTROY_TARGET_ARTIFACT,
+};
+
 pub(in crate::card::sets) static OVERLOAD: CardRecord = CardRecord::new_with_legacy_id(
     2029,
     "Overload",

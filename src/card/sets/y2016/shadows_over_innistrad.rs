@@ -17,6 +17,7 @@ pub(in crate::card::sets) static THRABEN_INSPECTOR: CardRecord = CardRecord::new
     crate::card::CardRules::unsupported(),
 );
 
+// SOI 233 — Tireless Tracker
 /// A land you control arriving, which is what landfall is: the Tracker's
 /// own arrival is not one, and neither is a land somebody else plays.
 static A_LAND_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
@@ -24,7 +25,6 @@ static A_LAND_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
 ]);
 
-// SOI 233 — Tireless Tracker
 pub(in crate::card::sets) static TIRELESS_TRACKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ee8e9928-d9b2-4570-adb8-44b34115decd"),
     "Tireless Tracker",

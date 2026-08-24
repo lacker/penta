@@ -11,6 +11,7 @@ use crate::card::{
 use crate::ids::ObjectBindingIndex;
 use crate::{TargetIndex, mana_cost};
 
+// STX 17 — Elite Spellbinder
 /// Not linked to the Spellbinder: killing it does not give the card back,
 /// and the tax outlives it. What the owner keeps is the card itself, one
 /// turn later and two mana worse.
@@ -64,7 +65,6 @@ static ELITE_SPELLBINDER_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
-// STX 17 — Elite Spellbinder
 pub(in crate::card::sets) static ELITE_SPELLBINDER: CardRecord = CardRecord::new_with_legacy_id(
     2274,
     "Elite Spellbinder",
@@ -76,6 +76,17 @@ pub(in crate::card::sets) static ELITE_SPELLBINDER: CardRecord = CardRecord::new
         .with_abilities(&ELITE_SPELLBINDER_ABILITIES),
 );
 
+// STX 43 — Frost Trickster
+// Audit: metadata-only — Card rules have not been implemented.
+pub(in crate::card::sets) static FROST_TRICKSTER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fd79c9cc-0a8c-4d88-96e2-cb177134a18d"),
+    "Frost Trickster",
+    crate::card::CardArt::new("fd79c9cc-0a8c-4d88-96e2-cb177134a18d", "Uriah Voth"),
+    crate::card::CardSet::StrixhavenSchoolOfMages,
+    crate::card::CardRules::unsupported(),
+);
+
+// STX 64 — Baleful Mastery
 static MASTERY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Object {
         object: ObjectPredicateDef::AnyOf(&[
@@ -119,17 +130,6 @@ static MASTERY_RESOLUTION: [EffectDef; 2] = [
     MASTERY_EXILE,
 ];
 
-// STX 43 — Frost Trickster
-// Audit: metadata-only — Card rules have not been implemented.
-pub(in crate::card::sets) static FROST_TRICKSTER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("fd79c9cc-0a8c-4d88-96e2-cb177134a18d"),
-    "Frost Trickster",
-    crate::card::CardArt::new("fd79c9cc-0a8c-4d88-96e2-cb177134a18d", "Uriah Voth"),
-    crate::card::CardSet::StrixhavenSchoolOfMages,
-    crate::card::CardRules::unsupported(),
-);
-
-// STX 64 — Baleful Mastery
 pub(in crate::card::sets) static BALEFUL_MASTERY: CardRecord = CardRecord::new_with_legacy_id(
     2201,
     "Baleful Mastery",

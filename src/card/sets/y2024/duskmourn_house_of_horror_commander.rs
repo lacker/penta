@@ -9,6 +9,7 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
+// DSC 21 — Metamorphosis Fanatic
 /// "Up to one target creature card from your graveyard." Your own, so this
 /// never reaches across the table the way an opponent-facing reanimator
 /// would, and choosing none is already a legal declaration.
@@ -30,7 +31,6 @@ static A_LIFELINK_COUNTER: TokenCountersDef = TokenCountersDef {
     amount: ValueDef::Constant(1),
 };
 
-// DSC 21 — Metamorphosis Fanatic
 pub(in crate::card::sets) static METAMORPHOSIS_FANATIC: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("16448d95-ee21-4def-b880-26f6f159c213"),
     "Metamorphosis Fanatic",
@@ -64,6 +64,7 @@ pub(in crate::card::sets) static METAMORPHOSIS_FANATIC: CardRecord = CardRecord:
     ]),
 );
 
+// DSC 36 — Ursine Monstrosity
 static MONSTROSITY_INDESTRUCTIBLE: AbilityDef = abilities::indestructible();
 
 /// "This creature attacks that player this combat if able." In a two-player
@@ -99,7 +100,6 @@ static MONSTROSITY_COMBAT: [EffectDef; 2] = [
     },
 ];
 
-// DSC 36 — Ursine Monstrosity
 pub(in crate::card::sets) static URSINE_MONSTROSITY: CardRecord = CardRecord::new_with_legacy_id(
     2195,
     "Ursine Monstrosity",

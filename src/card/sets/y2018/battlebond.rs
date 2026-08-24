@@ -7,6 +7,7 @@ use crate::card::{
 };
 use crate::mana_cost;
 
+// BBD 41 — Spellseeker
 /// A cheap instant or sorcery: the body is beside the point, and what it
 /// fetches is whichever answer the board is asking for.
 static A_CHEAP_SPELL: ObjectPredicateDef = ObjectPredicateDef::All(&[
@@ -32,7 +33,6 @@ static SPELLSEEKER_SEARCH: EffectDef = EffectDef::SearchZone {
     then: None,
 };
 
-// BBD 41 — Spellseeker
 pub(in crate::card::sets) static SPELLSEEKER: CardRecord = CardRecord::new_with_legacy_id(
     2150,
     "Spellseeker",

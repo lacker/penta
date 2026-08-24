@@ -10,6 +10,14 @@ use crate::card::{
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
 
+/// The fastland cycle: untapped while the board is still small, an expensive
+/// tapped land after that. Every one of the ten prints this same clause, and
+/// only the colour pair below it differs.
+static FAST_LAND_ENTERS: AbilityDef = abilities::fast_land_enters(
+    "This land enters tapped unless you control two or fewer other lands.",
+);
+
+// KLD 60 — Paradoxical Outcome
 /// A permanent that is neither a land nor a token. The slot names the
 /// controller, so the predicate only has to say what kind of thing it is.
 static A_NONLAND_NONTOKEN_PERMANENT: ObjectPredicateDef = ObjectPredicateDef::All(&[
@@ -69,7 +77,6 @@ static OUTCOME_EFFECT: EffectDef = EffectDef::BindMatching {
     then: &OUTCOME_COUNT_YOURS,
 };
 
-// KLD 60 — Paradoxical Outcome
 pub(in crate::card::sets) static PARADOXICAL_OUTCOME: CardRecord = CardRecord::new_with_legacy_id(
     2242,
     "Paradoxical Outcome",
@@ -86,6 +93,7 @@ pub(in crate::card::sets) static PARADOXICAL_OUTCOME: CardRecord = CardRecord::n
     )),
 );
 
+// KLD 110 — Chandra, Torch of Defiance
 /// "If you don't" is the whole of the first ability's tension: the exile
 /// happens either way, and the card is either spent now at its own cost or
 /// traded for two damage.
@@ -150,7 +158,6 @@ static CHANDRA_ABILITIES: [AbilityDef; 4] = [
     ),
 ];
 
-// KLD 110 — Chandra, Torch of Defiance
 pub(in crate::card::sets) static CHANDRA_TORCH_OF_DEFIANCE: CardRecord =
     CardRecord::new_with_legacy_id(
         2217,
@@ -163,25 +170,6 @@ pub(in crate::card::sets) static CHANDRA_TORCH_OF_DEFIANCE: CardRecord =
             .with_supertype(CardSupertype::Legendary)
             .with_abilities(&CHANDRA_ABILITIES),
     );
-
-/// The fastland cycle: untapped while the board is still small, an expensive
-/// tapped land after that. Every one of the ten prints this same clause, and
-/// only the colour pair below it differs.
-static FAST_LAND_ENTERS: AbilityDef = abilities::fast_land_enters(
-    "This land enters tapped unless you control two or fewer other lands.",
-);
-
-static BLOOMING_MARSH_ABILITIES: [AbilityDef; 2] = [
-    FAST_LAND_ENTERS,
-    AbilityDef::activated_mana(
-        "{T}: Add {B} or {G}.",
-        &[AbilityCostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::choice(&[
-            ManaColor::Black,
-            ManaColor::Green,
-        ])),
-    ),
-];
 
 // KLD 138 — Thriving Grubs
 // Audit: metadata-only — Card rules have not been implemented.
@@ -227,6 +215,18 @@ pub(in crate::card::sets) static SMUGGLER_S_COPTER: CardRecord = CardRecord::new
 );
 
 // KLD 243 — Blooming Marsh
+static BLOOMING_MARSH_ABILITIES: [AbilityDef; 2] = [
+    FAST_LAND_ENTERS,
+    AbilityDef::activated_mana(
+        "{T}: Add {B} or {G}.",
+        &[AbilityCostDef::TapSource],
+        EffectDef::AddMana(AddManaEffectDef::choice(&[
+            ManaColor::Black,
+            ManaColor::Green,
+        ])),
+    ),
+];
+
 pub(in crate::card::sets) static BLOOMING_MARSH: CardRecord = CardRecord::new_with_legacy_id(
     2136,
     "Blooming Marsh",
@@ -235,6 +235,7 @@ pub(in crate::card::sets) static BLOOMING_MARSH: CardRecord = CardRecord::new_wi
     CardRules::new_land(&[]).with_abilities(&BLOOMING_MARSH_ABILITIES),
 );
 
+// KLD 244 — Botanical Sanctum
 static BOTANICAL_SANCTUM_ABILITIES: [AbilityDef; 2] = [
     FAST_LAND_ENTERS,
     AbilityDef::activated_mana(
@@ -247,7 +248,6 @@ static BOTANICAL_SANCTUM_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
-// KLD 244 — Botanical Sanctum
 pub(in crate::card::sets) static BOTANICAL_SANCTUM: CardRecord = CardRecord::new_with_legacy_id(
     2137,
     "Botanical Sanctum",
@@ -256,6 +256,7 @@ pub(in crate::card::sets) static BOTANICAL_SANCTUM: CardRecord = CardRecord::new
     CardRules::new_land(&[]).with_abilities(&BOTANICAL_SANCTUM_ABILITIES),
 );
 
+// KLD 245 — Concealed Courtyard
 static CONCEALED_COURTYARD_ABILITIES: [AbilityDef; 2] = [
     FAST_LAND_ENTERS,
     AbilityDef::activated_mana(
@@ -268,7 +269,6 @@ static CONCEALED_COURTYARD_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
-// KLD 245 — Concealed Courtyard
 pub(in crate::card::sets) static CONCEALED_COURTYARD: CardRecord = CardRecord::new_with_legacy_id(
     2138,
     "Concealed Courtyard",
@@ -277,6 +277,7 @@ pub(in crate::card::sets) static CONCEALED_COURTYARD: CardRecord = CardRecord::n
     CardRules::new_land(&[]).with_abilities(&CONCEALED_COURTYARD_ABILITIES),
 );
 
+// KLD 246 — Inspiring Vantage
 static INSPIRING_VANTAGE_ABILITIES: [AbilityDef; 2] = [
     FAST_LAND_ENTERS,
     AbilityDef::activated_mana(
@@ -289,7 +290,6 @@ static INSPIRING_VANTAGE_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
-// KLD 246 — Inspiring Vantage
 pub(in crate::card::sets) static INSPIRING_VANTAGE: CardRecord = CardRecord::new_with_legacy_id(
     2139,
     "Inspiring Vantage",
@@ -298,6 +298,7 @@ pub(in crate::card::sets) static INSPIRING_VANTAGE: CardRecord = CardRecord::new
     CardRules::new_land(&[]).with_abilities(&INSPIRING_VANTAGE_ABILITIES),
 );
 
+// KLD 249 — Spirebluff Canal
 static SPIREBLUFF_CANAL_ABILITIES: [AbilityDef; 2] = [
     FAST_LAND_ENTERS,
     AbilityDef::activated_mana(
@@ -307,7 +308,6 @@ static SPIREBLUFF_CANAL_ABILITIES: [AbilityDef; 2] = [
     ),
 ];
 
-// KLD 249 — Spirebluff Canal
 pub(in crate::card::sets) static SPIREBLUFF_CANAL: CardRecord = CardRecord::new_with_legacy_id(
     2140,
     "Spirebluff Canal",

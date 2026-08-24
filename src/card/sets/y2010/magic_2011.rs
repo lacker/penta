@@ -154,6 +154,7 @@ static FETCH_TWO_LANDS: EffectDef = EffectDef::SearchZone {
     placement: ZonePlacement::Top,
     shuffle: true,
     enters_tapped: true,
+    attachment: None,
     binding: None,
     then: None,
 };

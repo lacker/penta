@@ -33,6 +33,7 @@ fn parse_continuation(
             reveal,
             shuffle,
             enters_tapped,
+            attached_player,
             binding,
             follow_up,
         } => DecisionContinuation::SearchZone {
@@ -43,6 +44,7 @@ fn parse_continuation(
             reveal: *reveal,
             shuffle: *shuffle,
             enters_tapped: *enters_tapped,
+            attached_player: attached_player.map(player).transpose()?,
             binding: binding
                 .map(|index| {
                     u8::try_from(index)

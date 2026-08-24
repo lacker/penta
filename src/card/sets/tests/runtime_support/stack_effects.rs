@@ -1,7 +1,7 @@
 use super::*;
 use crate::card::{
-    ChooseDef, DiscardSelectionDef, EffectPaymentDef, ObjectChoiceBindingDef, PartitionItemsDef,
-    SplitIntoPilesDef, ValueDef,
+    ArrivalAttachmentDef, ChooseDef, DiscardSelectionDef, EffectPaymentDef, ObjectChoiceBindingDef,
+    PartitionItemsDef, SplitIntoPilesDef, ValueDef,
 };
 
 pub(in super::super) fn shared_stack_effect(effect: EffectDef) -> bool {
@@ -346,6 +346,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
             maximum,
             destination,
             shuffle,
+            attachment,
             ..
         } => {
             // A constant maximum is still checked against the minimum and
@@ -363,6 +364,17 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                 && (destination != ZoneKind::Library
                     || constant_maximum.is_some_and(|bound| bound <= 1))
                 && (!shuffle || source == ZoneKind::Library)
+                && match attachment {
+                    None => true,
+                    Some(ArrivalAttachmentDef::ArrivalToPlayer(player)) => {
+                        destination == ZoneKind::Battlefield
+                            && shared_effect_recipient(EffectRecipientDef::player(player))
+                    }
+                    Some(
+                        ArrivalAttachmentDef::SourceToArrival
+                        | ArrivalAttachmentDef::ArrivalToHost(_),
+                    ) => false,
+                }
                 && matches!(
                     source,
                     ZoneKind::Library | ZoneKind::Hand | ZoneKind::Graveyard | ZoneKind::Exile
@@ -585,7 +597,12 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         } => shared_resolving_apply(recipient, effect, duration),
         // Only the moves the runtime actually performs are inside the
         // boundary. A move to the stack or command zone is still a seam.
-        EffectDef::MoveToZone { object, zone, .. } => {
+        EffectDef::MoveToZone {
+            object,
+            zone,
+            attachment,
+            ..
+        } => {
             matches!(
                 zone,
                 ZoneKind::Battlefield
@@ -594,6 +611,15 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                     | ZoneKind::Exile
                     | ZoneKind::Library
             ) && shared_effect_recipient(object)
+                && match attachment {
+                    None | Some(ArrivalAttachmentDef::SourceToArrival) => true,
+                    Some(ArrivalAttachmentDef::ArrivalToHost(host)) => {
+                        shared_effect_recipient(EffectRecipientDef::object(host))
+                    }
+                    Some(ArrivalAttachmentDef::ArrivalToPlayer(player)) => {
+                        shared_effect_recipient(EffectRecipientDef::player(player))
+                    }
+                }
         }
         EffectDef::None
         | EffectDef::StaticApply { .. }

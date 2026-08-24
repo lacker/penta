@@ -70,6 +70,7 @@ static WISHCLAW_GRANTS_A_WISH: [EffectDef; 2] = [
         placement: ZonePlacement::Top,
         shuffle: true,
         enters_tapped: false,
+        attachment: None,
         binding: None,
         then: None,
     },

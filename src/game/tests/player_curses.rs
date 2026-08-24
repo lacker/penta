@@ -50,6 +50,88 @@ fn an_enchant_player_spell_targets_and_attaches_to_that_player() {
 }
 
 #[test]
+fn bitterheart_witch_finds_a_curse_and_has_it_arrive_attached() {
+    let mut game = ready_game();
+    game.battlefield.clear();
+    game.players[PlayerId::One.index()].library.clear();
+    let witch = creature(10_000, cards::BITTERHEART_WITCH, PlayerId::One);
+    let witch_id = witch.card.id;
+    game.battlefield.push(witch);
+    game.players[PlayerId::One.index()].library.extend([
+        card(10_001, cards::LIGHTNING_BOLT, PlayerId::One),
+        card(10_002, cards::CURSE_OF_DEATH_S_HOLD, PlayerId::One),
+    ]);
+
+    game.move_permanents_to_graveyard(&[witch_id]);
+    game.finish_rules_procedure();
+
+    let pending = game
+        .pending_decisions
+        .first()
+        .expect("the dies trigger asks for its target player");
+    let target_index = match &pending.continuation {
+        DecisionContinuation::TriggerPlacement { candidates, .. } => candidates
+            .iter()
+            .position(|target| *target == Target::Player(PlayerId::Two))
+            .expect("the opponent is a legal target"),
+        other => panic!("expected trigger placement, found {other:?}"),
+    };
+    let target_decision = pending.observation.clone();
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: target_decision.id,
+            options: vec![target_decision.options[target_index].id],
+        },
+    )
+    .expect("the opponent is chosen");
+    pass_priority_pair(&mut game);
+
+    let search = game
+        .observe(PlayerId::One)
+        .decision
+        .expect("the Witch searches its controller's library");
+    assert_eq!((search.minimum, search.maximum), (0, 1));
+    let offered = search
+        .options
+        .iter()
+        .filter_map(|option| option.card)
+        .collect::<Vec<_>>();
+    assert_eq!(
+        offered.len(),
+        1,
+        "only the qualified player-enchanting Curse is offered",
+    );
+    assert_eq!(
+        offered[0].1.card_definition(),
+        Some(cards::CURSE_OF_DEATH_S_HOLD),
+    );
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: search.id,
+            options: vec![search.options[0].id],
+        },
+    )
+    .expect("the Curse is selected");
+    drain_pending(&mut game);
+
+    let curse = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.definition == cards::CURSE_OF_DEATH_S_HOLD)
+        .expect("the selected Curse entered");
+    assert_eq!(curse.controller, PlayerId::One);
+    assert_eq!(curse.attached_player, Some(PlayerId::Two));
+    assert_eq!(curse.attached_to, None);
+    assert_eq!(
+        game.players[PlayerId::One.index()].library.len(),
+        1,
+        "the non-Curse stayed in the shuffled library",
+    );
+}
+
+#[test]
 fn bloody_tome_mills_only_on_the_enchanted_players_upkeep() {
     let mut game = ready_game();
     game.battlefield.push(attached_curse(
@@ -252,6 +334,7 @@ fn thirst_counts_every_curse_attached_to_the_same_player() {
 fn curse_coverage_is_complete_or_explicitly_partial() {
     let catalog = poc::catalog().expect("catalog builds");
     for definition in [
+        cards::BITTERHEART_WITCH,
         cards::CURSE_OF_THE_BLOODY_TOME,
         cards::CURSE_OF_DEATH_S_HOLD,
         cards::CURSE_OF_OBLIVION,

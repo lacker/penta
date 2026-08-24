@@ -40,6 +40,7 @@ const fn fetch_land(text: &'static str, land_types: &'static [BasicLandType]) ->
             placement: ZonePlacement::Top,
             shuffle: true,
             enters_tapped: false,
+            attachment: None,
             binding: None,
             then: None,
         },

@@ -608,6 +608,7 @@ impl StackObject {
 pub(super) enum ArrivalAttachment {
     SourceToArrival(GameObjectId),
     ArrivalToHost(GameObjectId),
+    ArrivalToPlayer(PlayerId),
 }
 
 /// How a card arrives when an effect puts it onto the battlefield.
@@ -702,6 +703,12 @@ impl BattlefieldArrival {
     /// What arrives attaches to a permanent already on the battlefield.
     pub(super) const fn attached_to(mut self, host: GameObjectId) -> Self {
         self.attachment = Some(ArrivalAttachment::ArrivalToHost(host));
+        self
+    }
+
+    /// What arrives is an Aura attached to a player already in the game.
+    pub(super) const fn attached_to_player(mut self, player: PlayerId) -> Self {
+        self.attachment = Some(ArrivalAttachment::ArrivalToPlayer(player));
         self
     }
 

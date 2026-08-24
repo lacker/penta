@@ -11,10 +11,10 @@ use super::{
     CharacteristicContext, CharacteristicOperationDef, ColorSet, ContinuousEffectExpiration,
     ControlFlow, DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EffectRecipientSetDef, Game,
     GameObjectId, GrantId, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectRefDef,
-    ObjectSetDef, Permanent, PlayerId, ResolvedContinuousEffect, ResolvedContinuousEffectKind,
-    RetiredObject, SetOperationDef, StackAbilityResolver, StackObject, StaticAppliedEffect,
-    StaticEffectTraversal, Target, TargetIndex, TriggerConditionDef, TriggerContext,
-    TriggerEventObject, ZoneKind,
+    ObjectSetDef, Permanent, PlayerId, PlayerRelation, ResolvedContinuousEffect,
+    ResolvedContinuousEffectKind, RetiredObject, SetOperationDef, StackAbilityResolver,
+    StackObject, StaticAppliedEffect, StaticEffectTraversal, Target, TargetIndex,
+    TriggerConditionDef, TriggerContext, TriggerEventObject, ZoneKind,
 };
 
 thread_local! {

@@ -1411,6 +1411,7 @@ pub(in crate::card::sets) static ENTOMB: CardRecord = CardRecord::new_with_legac
             placement: ZonePlacement::Top,
             shuffle: true,
             enters_tapped: false,
+            attachment: None,
             binding: None,
             then: None,
         },

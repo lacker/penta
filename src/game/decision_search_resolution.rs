@@ -20,6 +20,7 @@ pub(super) struct SearchResolution {
     pub(super) reveal: bool,
     pub(super) shuffle: bool,
     pub(super) enters_tapped: bool,
+    pub(super) attached_player: Option<PlayerId>,
     pub(super) binding: Option<crate::ids::ObjectSetBindingIndex>,
     pub(super) follow_up: Option<Box<SearchFollowUp>>,
 }
@@ -39,6 +40,7 @@ impl Game {
             reveal,
             shuffle,
             enters_tapped,
+            attached_player,
             binding,
             follow_up,
         } = resolution;
@@ -92,11 +94,13 @@ impl Game {
                     destination,
                     ZoneMoveCause::Effect { controller },
                     (destination == ZoneKind::Battlefield).then(|| {
-                        if enters_tapped {
+                        let arrival = if enters_tapped {
                             BattlefieldArrival::tapped_under(player)
                         } else {
                             BattlefieldArrival::under(player)
-                        }
+                        };
+                        attached_player
+                            .map_or(arrival, |attached| arrival.attached_to_player(attached))
                     }),
                 );
                 if let Some((landed, _)) = landed {

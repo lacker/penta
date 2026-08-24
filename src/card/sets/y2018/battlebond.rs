@@ -29,6 +29,7 @@ static SPELLSEEKER_SEARCH: EffectDef = EffectDef::SearchZone {
     placement: ZonePlacement::Top,
     shuffle: true,
     enters_tapped: false,
+    attachment: None,
     binding: None,
     then: None,
 };

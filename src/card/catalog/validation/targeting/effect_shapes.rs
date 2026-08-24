@@ -21,10 +21,30 @@ fn validate_effect_target_shapes(
         }
         EffectDef::SearchZone {
             player,
-            then: Some(then),
+            object,
+            attachment,
+            then,
             ..
+        } => {
+            validate_recipient_shape(player, targets, RecipientExpectation::Player)?;
+            validate_object_predicate_shape(object, targets)?;
+            if let Some(attachment) = attachment {
+                match attachment {
+                    ArrivalAttachmentDef::SourceToArrival => {}
+                    ArrivalAttachmentDef::ArrivalToHost(host) => {
+                        validate_object_reference_shape(host, targets)?;
+                    }
+                    ArrivalAttachmentDef::ArrivalToPlayer(player) => {
+                        validate_player_reference_shape(player, targets)?;
+                    }
+                }
+            }
+            if let Some(then) = then {
+                validate_effect_target_shapes(*then, targets, triggering_object_zone)?;
+            }
+            Ok(())
         }
-        | EffectDef::RevealAtRandomFromHand { player, then, .. } => {
+        EffectDef::RevealAtRandomFromHand { player, then, .. } => {
             validate_recipient_shape(player, targets, RecipientExpectation::Player)?;
             validate_effect_target_shapes(*then, targets, triggering_object_zone)
         }
@@ -146,9 +166,6 @@ fn validate_effect_target_shapes(
         | EffectDef::EmptyManaPool { player }
         | EffectDef::LoseTheGame { player }
         | EffectDef::WinTheGame { player }
-        | EffectDef::SearchZone {
-            player, then: None, ..
-        }
         | EffectDef::ChooseCards { player, .. }
         | EffectDef::TakeExtraTurn { player }
         | EffectDef::LookAtHand { player }
@@ -279,13 +296,26 @@ fn validate_effect_target_shapes(
         | EffectDef::GainControl { object, .. }
         | EffectDef::Transform { object }
         | EffectDef::PutIntoLibraryBeneathTop { object, .. }
-        | EffectDef::MoveToZone { object, .. }
         | EffectDef::Counter { object, .. }
         | EffectDef::ReturnSpellToHand { object }
         | EffectDef::PutSpellIntoOwnersLibrary { object }
         | EffectDef::CreateTokenCopyOf { object, .. }
         | EffectDef::Endure { object, .. } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Object)
+        }
+        EffectDef::MoveToZone {
+            object, attachment, ..
+        } => {
+            validate_recipient_shape(object, targets, RecipientExpectation::Object)?;
+            match attachment {
+                None | Some(ArrivalAttachmentDef::SourceToArrival) => Ok(()),
+                Some(ArrivalAttachmentDef::ArrivalToHost(host)) => {
+                    validate_object_reference_shape(host, targets)
+                }
+                Some(ArrivalAttachmentDef::ArrivalToPlayer(player)) => {
+                    validate_player_reference_shape(player, targets)
+                }
+            }
         }
         EffectDef::Destroy {
             object,

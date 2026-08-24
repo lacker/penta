@@ -1158,7 +1158,7 @@ pub(in crate::card::sets) static VIRIDIAN_EMISSARY: CardRecord = CardRecord::new
                 object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Land), ObjectPredicateDef::Supertype(CardSupertype::Basic)]),
                 minimum: 0, maximum: ValueDef::Constant(1), reveal: true,
                 destination: ZoneKind::Battlefield, placement: ZonePlacement::Top,
-                shuffle: true, enters_tapped: true, binding: None, then: None,
+                shuffle: true, enters_tapped: true, attachment: None, binding: None, then: None,
             }),
     ),
 );

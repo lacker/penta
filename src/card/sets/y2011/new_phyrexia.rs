@@ -2085,7 +2085,7 @@ pub(in crate::card::sets) static MYCOSYNTH_WELLSPRING: CardRecord = CardRecord::
             player: EffectRecipientDef::Controller, source: ZoneKind::Library,
             object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Land), ObjectPredicateDef::Supertype(CardSupertype::Basic)]),
             minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top,
-            shuffle: true, enters_tapped: false, binding: None, then: None,
+            shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None,
         },
     )),
 );

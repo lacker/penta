@@ -23,6 +23,7 @@ impl Game {
         binding: Option<crate::ids::ObjectSetBindingIndex>,
         follow_up: Option<(StackObject, EffectResolutionContext, ScopedEffect)>,
         enters_tapped: bool,
+        attached_player: Option<PlayerId>,
         source: GameObjectId,
         controller: PlayerId,
     ) {
@@ -49,6 +50,11 @@ impl Game {
         let options: Vec<_> = cards
             .iter()
             .filter(|card| self.card_object_matches(predicate, card, source_zone, source))
+            .filter(|card| {
+                attached_player.is_none_or(|player| {
+                    self.card_can_enchant_player(card.definition, controller, player)
+                })
+            })
             .enumerate()
             .map(|(index, card)| DecisionOption {
                 id: u32::try_from(index).unwrap_or(u32::MAX),
@@ -93,6 +99,7 @@ impl Game {
                 reveal,
                 shuffle,
                 enters_tapped,
+                attached_player,
                 binding,
                 follow_up: follow_up.map(|(object, context, effect)| {
                     Box::new(SearchFollowUp {

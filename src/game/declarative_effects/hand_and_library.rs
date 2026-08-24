@@ -8,7 +8,7 @@ use super::super::{
     PlayerId, ScopedEffect, StackObject, Target, ZoneKind, ZoneMoveCause, public_cards,
     remove_card,
 };
-use crate::card::{ExilePlayDurationDef, ObjectPredicateDef};
+use crate::card::{ArrivalAttachmentDef, ExilePlayDurationDef, ObjectPredicateDef};
 
 /// Manifest dread (CR 701.34, 702.169): look at the top two, one goes down
 /// face down as a 2/2 and the other goes to the graveyard. The procedure is
@@ -666,10 +666,29 @@ impl Game {
                 placement,
                 shuffle,
                 enters_tapped,
+                attachment,
                 binding,
                 then,
             } => {
                 let source = object.source.unwrap_or(object.id);
+                let attached_player = match attachment {
+                    None => None,
+                    Some(ArrivalAttachmentDef::ArrivalToPlayer(reference)) => {
+                        let Some(player) =
+                            self.player_reference(reference, object, context, scoped)
+                        else {
+                            return;
+                        };
+                        Some(player)
+                    }
+                    // Search arrivals currently support the player-attached
+                    // direction. The catalog boundary rejects the other
+                    // attachment directions for this effect shape.
+                    Some(
+                        ArrivalAttachmentDef::SourceToArrival
+                        | ArrivalAttachmentDef::ArrivalToHost(_),
+                    ) => return,
+                };
                 // A computed mana-value bound belongs to this resolution, not
                 // merely to the source object. Freeze it while the search is
                 // created so values such as "the number of lands you
@@ -706,6 +725,7 @@ impl Game {
                                 (object.clone(), context.clone(), scoped.with_effect(*effect))
                             }),
                             enters_tapped,
+                            attached_player,
                             source,
                             object.controller,
                         );

@@ -169,7 +169,7 @@ fn paying_three_keeps_the_spell() {
         vec![ObjectKind::Card(cards::SERRA_ANGEL)],
         "the Angel resolved",
     );
-    assert!(game.players[1].exile.is_empty(), "and nothing was exiled",);
+    assert!(game.players[1].exile.is_empty(), "and nothing was exiled");
     assert_eq!(
         game.players[1].mana_pool.total(),
         before - 5 - 3,

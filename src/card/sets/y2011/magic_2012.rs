@@ -1878,6 +1878,7 @@ pub(in crate::card::sets) static RAMPANT_GROWTH: CardRecord = CardRecord::new(
             placement: ZonePlacement::Top,
             shuffle: true,
             enters_tapped: true,
+            attachment: None,
             binding: None,
             then: None,
         },

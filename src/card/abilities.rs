@@ -775,6 +775,7 @@ pub const fn typecycling(
             placement: ZonePlacement::Top,
             shuffle: true,
             enters_tapped: false,
+            attachment: None,
             binding: None,
             then: None,
         },

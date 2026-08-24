@@ -906,6 +906,10 @@ pub enum EffectDef {
         /// Whether a permanent this search puts onto the battlefield arrives
         /// tapped.
         enters_tapped: bool,
+        /// How a permanent this search puts onto the battlefield arrives
+        /// attached, if at all. An attached-player arrival also constrains
+        /// the search to cards that can legally enchant that player.
+        attachment: Option<ArrivalAttachmentDef>,
         /// Where the cards this search found are saved, for the follow-up
         /// below to speak about. Scoped to `then` exactly the way every
         /// other binding is scoped to the effect it introduces.

@@ -582,6 +582,10 @@ pub enum ArrivalAttachmentDef {
     /// creature" moves the Equipment, so the host is what it is named
     /// against.
     ArrivalToHost(ObjectRefDef),
+    /// Attach what arrived to a player. An Aura put directly onto the
+    /// battlefield has to choose a player it could legally enchant, and the
+    /// attachment must be established as part of that arrival.
+    ArrivalToPlayer(PlayerRefDef),
 }
 
 /// A matcher over one card reaching a player's hand as a draw.

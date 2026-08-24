@@ -4315,6 +4315,7 @@ pub(in crate::card::sets) static UNTAMED_WILDS: CardRecord = CardRecord::new_wit
             placement: ZonePlacement::Top,
             shuffle: true,
             enters_tapped: false,
+            attachment: None,
             binding: None,
             then: None,
         },

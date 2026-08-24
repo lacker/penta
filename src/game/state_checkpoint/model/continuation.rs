@@ -43,6 +43,9 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         /// no flag and reconstructs as an untapped arrival.
         #[serde(default, skip_serializing_if = "std::ops::Not::not")]
         enters_tapped: bool,
+        /// Additive: ordinary searches carry no player attachment.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        attached_player: Option<usize>,
         /// Where the results are saved for the follow-up. Absent from a
         /// payload written before any search had one.
         #[serde(default, skip_serializing_if = "Option::is_none")]

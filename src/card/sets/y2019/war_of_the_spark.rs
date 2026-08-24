@@ -305,6 +305,7 @@ static NISSA_ULTIMATE: [EffectDef; 2] = [
         placement: ZonePlacement::Top,
         shuffle: true,
         enters_tapped: true,
+        attachment: None,
         binding: None,
         then: None,
     },

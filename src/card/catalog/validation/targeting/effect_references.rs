@@ -220,13 +220,26 @@ fn validate_effect_references(
         | EffectDef::GainControl { object, .. }
         | EffectDef::Transform { object }
         | EffectDef::PutIntoLibraryBeneathTop { object, .. }
-        | EffectDef::MoveToZone { object, .. }
         | EffectDef::Counter { object, .. }
         | EffectDef::ReturnSpellToHand { object }
         | EffectDef::PutSpellIntoOwnersLibrary { object }
         | EffectDef::CreateTokenCopyOf { object, .. }
         | EffectDef::Endure { object, .. } => {
             validate_recipient_target_references(object, target_count, scope)
+        }
+        EffectDef::MoveToZone {
+            object, attachment, ..
+        } => {
+            validate_recipient_target_references(object, target_count, scope)?;
+            match attachment {
+                None | Some(ArrivalAttachmentDef::SourceToArrival) => Ok(()),
+                Some(ArrivalAttachmentDef::ArrivalToHost(host)) => {
+                    validate_object_reference(host, target_count, scope)
+                }
+                Some(ArrivalAttachmentDef::ArrivalToPlayer(player)) => {
+                    validate_player_reference(player, target_count, scope)
+                }
+            }
         }
         EffectDef::Discard {
             recipient,
@@ -288,11 +301,25 @@ fn validate_effect_references(
         }
         EffectDef::SearchZone {
             player,
+            object,
+            attachment,
             binding,
             then,
             ..
         } => {
             validate_recipient_target_references(player, target_count, scope)?;
+            validate_object_predicate_references(object, target_count, scope)?;
+            if let Some(attachment) = attachment {
+                match attachment {
+                    ArrivalAttachmentDef::SourceToArrival => {}
+                    ArrivalAttachmentDef::ArrivalToHost(host) => {
+                        validate_object_reference(host, target_count, scope)?;
+                    }
+                    ArrivalAttachmentDef::ArrivalToPlayer(player) => {
+                        validate_player_reference(player, target_count, scope)?;
+                    }
+                }
+            }
             let Some(then) = then else {
                 return Ok(());
             };

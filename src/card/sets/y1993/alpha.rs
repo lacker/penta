@@ -2121,6 +2121,7 @@ pub(in crate::card::sets) static DEMONIC_TUTOR: CardRecord = CardRecord::new_wit
             placement: ZonePlacement::Top,
             shuffle: true,
             enters_tapped: false,
+            attachment: None,
             binding: None,
             then: None,
         },

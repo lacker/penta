@@ -200,6 +200,8 @@ pub(super) enum DecisionContinuation {
         /// top card does not: the rest of the library was never disturbed.
         shuffle: bool,
         enters_tapped: bool,
+        /// A searched Aura enters attached to this player.
+        attached_player: Option<PlayerId>,
         /// Where the cards found are saved for the follow-up below.
         binding: Option<ObjectSetBindingIndex>,
         /// What runs once the search is answered, with the found cards

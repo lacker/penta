@@ -116,6 +116,16 @@ distinguishes snapshots of the covered source and build inputs.
   Phoenix now use the shared runtime. Checkpoint format 8, replay version 2,
   and protocol 29 are unchanged.
 
+- **Zone searches compose with attached arrivals.** `SearchZone` can carry the
+  same declarative arrival attachment used by ordinary zone moves. A
+  player-attached battlefield arrival intersects the search's ordinary card
+  predicates with the cards that can legally enchant the chosen player, then
+  establishes the attachment as the card enters. **Bitterheart Witch** is
+  complete and declarative with deathtouch and a library search for an Aura
+  Curse attached to its dies trigger's target. The pending search's attached
+  player is an additive checkpoint member; checkpoint format 8, replay version
+  2, and protocol 29 are unchanged.
+
 - **Predicate-driven blocking restrictions and declaration costs.** Blocking
   now uses the same declarative shape as attacking: a rule records which side
   of the block carries it, predicates the creature on the other side, and can

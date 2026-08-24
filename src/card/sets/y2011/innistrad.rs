@@ -6,19 +6,19 @@ use crate::card::sets::{y1993::alpha, y2002::onslaught, y2009::zendikar};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityPolicyHint, AbilityPredicateDef,
     AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef,
-    CardAbilityBinding, CardArt, CardBehavior, CardChoiceSourceDef, CardComposition,
-    CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype, CardType,
-    ComparisonDef, ConditionalValueDef, ControlDurationDef, CostModificationDef, CounterKind,
-    DamageEventMatcherDef, DestroyFollowUpDef, DiscardSelectionDef, DoubleFacedKind, EffectDef,
-    EffectExecutionDef, EffectPaymentDef, EffectRecipientDef, HalvedValueDef, KeywordAbility,
-    ManaColor, MillUntilDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PayOrDef, PlayOptionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef,
-    ReplacementConditionDef, ReplacementEffectDef, ResolvedEffectDurationDef, RoundingDef,
-    SacrificedAmountDef, SimultaneousChooseDef, SpellAdditionalCostCountDef,
-    SpellAdditionalCostDef, SpellForm, SpendModeDef, TargetConditionDef, TopCardSelectionDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneChangeEventMatcherDef,
-    ZoneKind, ZonePlacement, abilities,
+    AppliedEffectDef, AppliedRuleDef, ArrivalAttachmentDef, BasicLandType,
+    BattlefieldEntryModificationDef, CardAbilityBinding, CardArt, CardBehavior,
+    CardChoiceSourceDef, CardComposition, CardEffectStatus, CardPart, CardRules, CardSet,
+    CardStructure, CardSupertype, CardType, ComparisonDef, ConditionalValueDef, ControlDurationDef,
+    CostModificationDef, CounterKind, DamageEventMatcherDef, DestroyFollowUpDef,
+    DiscardSelectionDef, DoubleFacedKind, EffectDef, EffectExecutionDef, EffectPaymentDef,
+    EffectRecipientDef, HalvedValueDef, KeywordAbility, ManaColor, MillUntilDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayOptionDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef, ReplacementConditionDef,
+    ReplacementEffectDef, ResolvedEffectDurationDef, RoundingDef, SacrificedAmountDef,
+    SimultaneousChooseDef, SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpellForm,
+    SpendModeDef, TargetConditionDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::game::{
     CardAbilityResolver, CardRuntime, PileChoice, PileChosen, PileSplit, PilesSeparated,
@@ -2561,13 +2561,40 @@ pub(in crate::card::sets) static ARMY_OF_THE_DAMNED: CardRecord = CardRecord::ne
 );
 
 // ISD 88 — Bitterheart Witch
-// Audit: metadata-only — Needs searching for a Curse and putting it onto the battlefield attached to a targeted player.
 pub(in crate::card::sets) static BITTERHEART_WITCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cf2ff2b4-8f40-42c0-af3c-b55bfa8839be"),
     "Bitterheart Witch",
     crate::card::CardArt::new("cf2ff2b4-8f40-42c0-af3c-b55bfa8839be", "Karl Kopinski"),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{B}"), &["Human", "Shaman"], 1, 2).with_abilities(&[
+        abilities::deathtouch(),
+        abilities::dies_trigger_with_targets(
+            "When this creature dies, you may search your library for a Curse card, put it onto the battlefield attached to target player, then shuffle.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+                PlayerRelation::Any,
+            ))],
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Subtype("Aura"),
+                    ObjectPredicateDef::Subtype("Curse"),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: Some(ArrivalAttachmentDef::ArrivalToPlayer(
+                    PlayerRefDef::Target(TargetIndex::PRIMARY),
+                )),
+                binding: None,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // ISD 89 — Bloodgift Demon
@@ -4961,6 +4988,7 @@ static GARRUK_TUTOR: EffectDef = EffectDef::SearchZone {
     placement: ZonePlacement::Top,
     shuffle: true,
     enters_tapped: false,
+    attachment: None,
     binding: None,
     then: None,
 };
@@ -6261,6 +6289,7 @@ pub(in crate::card::sets) static TRAVELERS_AMULET: CardRecord = CardRecord::new_
             placement: ZonePlacement::Top,
             shuffle: true,
             enters_tapped: false,
+            attachment: None,
             binding: None,
             then: None,
         },
@@ -6441,6 +6470,7 @@ pub(in crate::card::sets) static GHOST_QUARTER: CardRecord = CardRecord::new_wit
                     placement: ZonePlacement::Top,
                     shuffle: true,
                         enters_tapped: false,
+                        attachment: None,
                         binding: None,
                         then: None,
                     },

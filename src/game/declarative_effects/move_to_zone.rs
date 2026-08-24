@@ -34,6 +34,7 @@ fn battlefield_arrival(
     let arrival = match attachment {
         Some(ArrivalAttachment::SourceToArrival(source)) => arrival.attaching(source),
         Some(ArrivalAttachment::ArrivalToHost(host)) => arrival.attached_to(host),
+        Some(ArrivalAttachment::ArrivalToPlayer(player)) => arrival.attached_to_player(player),
         None => arrival,
     };
     Some(arrival.with_counters(counters))
@@ -83,6 +84,9 @@ impl Game {
                     Target::Permanent(host) => Some(ArrivalAttachment::ArrivalToHost(host)),
                     _ => None,
                 }),
+            ArrivalAttachmentDef::ArrivalToPlayer(reference) => self
+                .player_reference(reference, object, context, scoped)
+                .map(ArrivalAttachment::ArrivalToPlayer),
         });
         let arriving_controller = controller.map(|relation| {
             if self.player_relation_matches(

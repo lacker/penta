@@ -49,6 +49,7 @@ static FETCH_A_BASIC_TAPPED: EffectDef = EffectDef::SearchZone {
     placement: ZonePlacement::Top,
     shuffle: true,
     enters_tapped: true,
+    attachment: None,
     binding: None,
     then: None,
 };
@@ -1498,6 +1499,7 @@ static INCREASING_AMBITION_SEARCH_ONE: EffectDef = EffectDef::SearchZone {
     placement: ZonePlacement::Top,
     shuffle: true,
     enters_tapped: false,
+    attachment: None,
     binding: None,
     then: None,
 };
@@ -1513,6 +1515,7 @@ static INCREASING_AMBITION_SEARCH_TWO: EffectDef = EffectDef::SearchZone {
     placement: ZonePlacement::Top,
     shuffle: true,
     enters_tapped: false,
+    attachment: None,
     binding: None,
     then: None,
 };

@@ -154,6 +154,7 @@ static MAGDA_ABILITIES: [AbilityDef; 3] = [
             placement: ZonePlacement::Top,
             shuffle: true,
             enters_tapped: false,
+            attachment: None,
             binding: None,
             then: None,
         },

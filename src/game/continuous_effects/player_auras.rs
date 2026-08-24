@@ -1,4 +1,49 @@
 impl Game {
+    fn aura_player_relation(rules: &CardRules) -> Option<PlayerRelation> {
+        rules.ability_clauses().iter().find_map(|ability| {
+            if !ability.is_executable() {
+                return None;
+            }
+            let target = Self::immediate_attachment_target(ability.declarative_effect()?)?;
+            let DeclarativeAbilityDef::Spell(spell) = ability.definition else {
+                return None;
+            };
+            match spell.targets().get(target.index())?.predicate {
+                AbilityTargetPredicate::Player(relation) => Some(relation),
+                AbilityTargetPredicate::AnyTarget
+                | AbilityTargetPredicate::PlayerOrPlaneswalker(_)
+                | AbilityTargetPredicate::ControlledByTargetOf { .. }
+                | AbilityTargetPredicate::OwnedByTargetPlayer { .. }
+                | AbilityTargetPredicate::Object { .. }
+                | AbilityTargetPredicate::StackObject { .. } => None,
+            }
+        })
+    }
+
+    /// Whether a card outside the battlefield is an Aura that could legally
+    /// enchant `player` if an effect put it there under `controller`'s
+    /// control. This is the search-time half of an attached arrival: cards
+    /// that could not make the requested attachment are not legal choices.
+    pub(super) fn card_can_enchant_player(
+        &self,
+        definition: CardDefinitionId,
+        controller: PlayerId,
+        player: PlayerId,
+    ) -> bool {
+        let Some(rules) = self.catalog.get(definition).map(|card| &card.rules) else {
+            return false;
+        };
+        rules.has_subtype("Aura")
+            && Self::aura_player_relation(rules).is_some_and(|relation| {
+                self.player_relation_matches(
+                    player,
+                    relation,
+                    controller,
+                    TriggerContext::empty(),
+                )
+            })
+    }
+
     /// Whether a player-enchanting Aura may stay attached to `player`.
     /// Targeting protections matter only while the spell is choosing that
     /// player; the enchant restriction itself is the live attachment rule.
@@ -6,29 +51,14 @@ impl Game {
         let Some(rules) = self.effective_rules(aura) else {
             return false;
         };
-        let Some(target) = rules.ability_clauses().iter().find_map(|ability| {
-            let target = Self::immediate_attachment_target(ability.declarative_effect()?)?;
-            match ability.definition {
-                DeclarativeAbilityDef::Spell(spell) => spell.targets().get(target.index()),
-                _ => None,
-            }
-        }) else {
-            return false;
-        };
-        match target.predicate {
-            AbilityTargetPredicate::Player(relation) => self.player_relation_matches(
+        Self::aura_player_relation(&rules).is_some_and(|relation| {
+            self.player_relation_matches(
                 player,
                 relation,
                 aura.controller,
                 TriggerContext::empty(),
-            ),
-            AbilityTargetPredicate::AnyTarget
-            | AbilityTargetPredicate::PlayerOrPlaneswalker(_)
-            | AbilityTargetPredicate::ControlledByTargetOf { .. }
-            | AbilityTargetPredicate::OwnedByTargetPlayer { .. }
-            | AbilityTargetPredicate::Object { .. }
-            | AbilityTargetPredicate::StackObject { .. } => false,
-        }
+            )
+        })
     }
 
     /// The player an Aura spell targeted, read off the same attachment clause

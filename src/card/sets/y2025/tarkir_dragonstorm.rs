@@ -84,6 +84,7 @@ static UGIN_SEARCH: EffectDef = EffectDef::SearchZone {
     placement: ZonePlacement::Top,
     shuffle: true,
     enters_tapped: false,
+    attachment: None,
     binding: Some(ObjectSetBindingIndex::PRIMARY),
     then: Some(&UGIN_MAY_CAST_THEM),
 };

@@ -1,6 +1,8 @@
 use super::runtime_support::*;
 use super::*;
-use crate::card::{AppliedRuleDef, InstalledTriggerDef, PartitionItemsDef, SplitIntoPilesDef};
+use crate::card::{
+    AppliedRuleDef, ArrivalAttachmentDef, InstalledTriggerDef, PartitionItemsDef, SplitIntoPilesDef,
+};
 use crate::{
     BattlefieldEntryModificationDef, CounterKind, DamageEventMatcherDef, ObjectSetBindingIndex,
     ReplacementConditionDef, TargetIndex, ZoneChangeEventMatcherDef,
@@ -256,6 +258,7 @@ fn decision_effects_suspend_inside_shared_stack_sequences() {
         placement: ZonePlacement::Top,
         shuffle: true,
         enters_tapped: false,
+        attachment: None,
         binding: None,
         then: None,
     };
@@ -319,7 +322,7 @@ fn pile_split_runtime_support_requires_singleton_player_roles() {
 
 #[test]
 fn zone_search_boundary_rejects_ambiguous_or_incoherent_shapes() {
-    let search = |source, destination, maximum, shuffle| EffectDef::SearchZone {
+    let search = |source, destination, maximum, shuffle, attachment| EffectDef::SearchZone {
         player: EffectRecipientDef::Controller,
         source,
         object: ObjectPredicateDef::Any,
@@ -330,6 +333,7 @@ fn zone_search_boundary_rejects_ambiguous_or_incoherent_shapes() {
         placement: ZonePlacement::Top,
         shuffle,
         enters_tapped: false,
+        attachment,
         binding: None,
         then: None,
     };
@@ -339,30 +343,60 @@ fn zone_search_boundary_rejects_ambiguous_or_incoherent_shapes() {
         ZoneKind::Hand,
         ValueDef::Constant(2),
         true,
+        None,
     )));
     assert!(shared_stack_effect(search(
         ZoneKind::Library,
         ZoneKind::Battlefield,
         ValueDef::Constant(1),
         true,
+        None,
     )));
     assert!(shared_stack_effect(search(
         ZoneKind::Library,
         ZoneKind::Battlefield,
         ValueDef::Constant(2),
         true,
+        None,
     )));
     assert!(!shared_stack_effect(search(
         ZoneKind::Library,
         ZoneKind::Library,
         ValueDef::Constant(2),
         true,
+        None,
     )));
     assert!(!shared_stack_effect(search(
         ZoneKind::Graveyard,
         ZoneKind::Hand,
         ValueDef::Constant(1),
         true,
+        None,
+    )));
+    assert!(shared_stack_effect(search(
+        ZoneKind::Library,
+        ZoneKind::Battlefield,
+        ValueDef::Constant(1),
+        true,
+        Some(ArrivalAttachmentDef::ArrivalToPlayer(
+            PlayerRefDef::EffectController,
+        )),
+    )));
+    assert!(!shared_stack_effect(search(
+        ZoneKind::Library,
+        ZoneKind::Hand,
+        ValueDef::Constant(1),
+        true,
+        Some(ArrivalAttachmentDef::ArrivalToPlayer(
+            PlayerRefDef::EffectController,
+        )),
+    )));
+    assert!(!shared_stack_effect(search(
+        ZoneKind::Library,
+        ZoneKind::Battlefield,
+        ValueDef::Constant(1),
+        true,
+        Some(ArrivalAttachmentDef::SourceToArrival),
     )));
 }
 

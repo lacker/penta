@@ -752,6 +752,7 @@ pub(in crate::card::sets) static INTUITION: CardRecord = CardRecord::new_with_le
             placement: ZonePlacement::Top,
             shuffle: true,
             enters_tapped: false,
+            attachment: None,
             binding: Some(INTUITION_FOUND),
             then: Some(&INTUITION_CHOICE),
         },

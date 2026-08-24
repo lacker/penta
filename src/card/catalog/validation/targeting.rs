@@ -3,15 +3,15 @@ use crate::card::catalog::{EffectSubjectKind, GrantedAbilityValidationError};
 use crate::card::{
     AbilityOperationDef, AbilityProcedureDef, AbilityProgramDef, AbilityTargetDef,
     AbilityTargetPredicate, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef,
-    AttackDefenderScopeDef, AttackRestrictionDef, BattlefieldEntryChoiceDestinationDef,
-    BlockRestrictionDef, BlockRestrictionMatchDef, CharacteristicOperationDef, ConditionDef,
-    CostModificationDef, DamageEventMatcherDef, DamagePreventionCapacityDef,
-    DamageRecipientMatcherDef, DamageSourceMatcherDef, DeclarativeAbilityDef, EffectDef,
-    EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, EffectRecipientSetDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, PowerToughnessOperationDef, ReplacementChoiceDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, ScalarChoiceListDef, TriggerConditionDef, TriggerEventDef, ValueDef,
-    ZoneChangeEventMatcherDef, ZoneKind,
+    ArrivalAttachmentDef, AttackDefenderScopeDef, AttackRestrictionDef,
+    BattlefieldEntryChoiceDestinationDef, BlockRestrictionDef, BlockRestrictionMatchDef,
+    CharacteristicOperationDef, ConditionDef, CostModificationDef, DamageEventMatcherDef,
+    DamagePreventionCapacityDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
+    DeclarativeAbilityDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
+    EffectRecipientSetDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementChoiceDef,
+    ReplacementEffectDef, ResolvedEffectDurationDef, ScalarChoiceListDef, TriggerConditionDef,
+    TriggerEventDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind,
 };
 use crate::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
 

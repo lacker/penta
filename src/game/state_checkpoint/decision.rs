@@ -197,6 +197,7 @@ fn continuation_snapshot(
             reveal,
             shuffle,
             enters_tapped,
+            attached_player,
             binding,
             follow_up,
         } => DecisionContinuationSnapshot::SearchZone {
@@ -207,6 +208,7 @@ fn continuation_snapshot(
             reveal: *reveal,
             shuffle: *shuffle,
             enters_tapped: *enters_tapped,
+            attached_player: attached_player.map(PlayerId::index),
             binding: binding.map(crate::ids::ObjectSetBindingIndex::index),
             follow_up: match follow_up {
                 // A search whose follow-up cannot be relocated is one this

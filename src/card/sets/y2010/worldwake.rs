@@ -51,6 +51,7 @@ pub(in crate::card::sets) static STONEFORGE_MYSTIC: CardRecord = CardRecord::new
                         placement: ZonePlacement::Top,
                         shuffle: true,
                         enters_tapped: false,
+                        attachment: None,
                         binding: None,
                         then: None,
                     },

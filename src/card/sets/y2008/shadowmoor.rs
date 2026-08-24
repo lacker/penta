@@ -36,6 +36,7 @@ pub(in crate::card::sets) static BESEECH_THE_QUEEN: CardRecord = CardRecord::new
             placement: ZonePlacement::Top,
             shuffle: true,
             enters_tapped: false,
+            attachment: None,
             binding: None,
             then: None,
         },

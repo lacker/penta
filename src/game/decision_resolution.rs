@@ -705,6 +705,7 @@ impl Game {
                 reveal,
                 shuffle,
                 enters_tapped,
+                attached_player,
                 binding,
                 follow_up,
             } => {
@@ -720,6 +721,7 @@ impl Game {
                         reveal,
                         shuffle,
                         enters_tapped,
+                        attached_player,
                         binding,
                         follow_up,
                     },

@@ -107,6 +107,7 @@ pub(in crate::card::sets) static ELVISH_RECLAIMER: CardRecord = CardRecord::new(
                 placement: ZonePlacement::Top,
                 shuffle: true,
                 enters_tapped: true,
+                attachment: None,
                 binding: None,
                 then: None,
             },

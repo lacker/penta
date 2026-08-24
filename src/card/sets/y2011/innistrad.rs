@@ -5,18 +5,19 @@ use crate::card::sets::y2007::lorwyn as catalog_lrw;
 use crate::card::sets::{y1993::alpha, y2002::onslaught, y2009::zendikar};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityPolicyHint, AbilityTargetDef,
-    AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
-    BattlefieldEntryModificationDef, CardAbilityBinding, CardArt, CardBehavior, CardComposition,
-    CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype, CardType,
-    ComparisonDef, ConditionalValueDef, ControlDurationDef, CounterKind, DamageEventMatcherDef,
-    DestroyFollowUpDef, DiscardSelectionDef, DoubleFacedKind, EffectDef, EffectExecutionDef,
-    EffectPaymentDef, EffectRecipientDef, HalvedValueDef, KeywordAbility, ManaColor, MillUntilDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayOptionDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef, ReplacementConditionDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, RoundingDef, SacrificedAmountDef,
-    SimultaneousChooseDef, SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpellForm,
-    SpendModeDef, TargetConditionDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement, abilities,
+    AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef, AppliedEffectDef,
+    AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardAbilityBinding, CardArt,
+    CardBehavior, CardComposition, CardEffectStatus, CardPart, CardRules, CardSet, CardStructure,
+    CardSupertype, CardType, ComparisonDef, ConditionalValueDef, ControlDurationDef, CounterKind,
+    DamageEventMatcherDef, DestroyFollowUpDef, DiscardSelectionDef, DoubleFacedKind, EffectDef,
+    EffectExecutionDef, EffectPaymentDef, EffectRecipientDef, HalvedValueDef, KeywordAbility,
+    ManaColor, MillUntilDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PayOrDef, PlayOptionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef,
+    ReplacementConditionDef, ReplacementEffectDef, ResolvedEffectDurationDef, RoundingDef,
+    SacrificedAmountDef, SimultaneousChooseDef, SpellAdditionalCostCountDef,
+    SpellAdditionalCostDef, SpellForm, SpendModeDef, TargetConditionDef, TopCardSelectionDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneChangeEventMatcherDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::game::{
     CardAbilityResolver, CardRuntime, PileChoice, PileChosen, PileSplit, PilesSeparated,
@@ -2413,13 +2414,28 @@ pub(in crate::card::sets) static BLOODLINE_KEEPER: CardRecord = CardRecord::new(
 );
 
 // ISD 91 — Brain Weevil
-// Audit: metadata-only — Needs the “activate only as a sorcery” timing restriction on its sacrifice-and-discard ability.
 pub(in crate::card::sets) static BRAIN_WEEVIL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("40e1bd88-939a-4adc-8693-210a7ba9a5a1"),
     "Brain Weevil",
     crate::card::CardArt::new("40e1bd88-939a-4adc-8693-210a7ba9a5a1", "Anthony Jones"),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Insect"], 1, 1).with_abilities(&[
+        abilities::intimidate(),
+        AbilityDef::activated_with_targets(
+            "Sacrifice this creature: Target player discards two cards. Activate only as a sorcery.",
+            &[AbilityCostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+    ]),
 );
 
 // ISD 92 — Bump in the Night

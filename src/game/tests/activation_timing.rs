@@ -125,6 +125,7 @@ fn every_timing_restricted_identity_reports_complete_coverage() {
         cards::DWARVEN_WEAPONSMITH,
         cards::SVYELUNITE_PRIEST,
         cards::GWENDLYN_DI_CORCI,
+        cards::BRAIN_WEEVIL,
     ] {
         let card = catalog.get(definition).expect("the card is cataloged");
         assert_eq!(
@@ -134,6 +135,97 @@ fn every_timing_restricted_identity_reports_complete_coverage() {
             card.name,
         );
     }
+}
+
+fn brain_weevil_game() -> (Game, GameObjectId) {
+    let mut game = ready_game();
+    let weevil = creature(10_000, cards::BRAIN_WEEVIL, PlayerId::One);
+    let weevil_id = weevil.card.id;
+    game.battlefield.push(weevil);
+    game.players[PlayerId::Two.index()].hand.extend([
+        card(10_500, cards::SEDGE_TROLL, PlayerId::Two),
+        card(10_501, cards::LIGHTNING_BOLT, PlayerId::Two),
+    ]);
+    (game, weevil_id)
+}
+
+fn brain_weevil_activation(game: &Game, source: GameObjectId) -> Option<Action> {
+    game.legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| {
+            matches!(
+                action,
+                Action::ActivateAbility { source: actual, targets, .. }
+                    if *actual == source
+                        && targets.iter().flat_map(TargetSelection::targets)
+                            .any(|target| *target == Target::Player(PlayerId::Two))
+            )
+        })
+}
+
+/// "As a sorcery" is the conjunction of three restrictions: your turn, a
+/// main phase, and an empty stack. Brain Weevil uses the shared activation
+/// window, so each closed boundary withholds the action altogether.
+#[test]
+fn brain_weevil_is_offered_only_in_a_sorcery_window() {
+    let (mut game, weevil_id) = brain_weevil_game();
+    assert!(
+        brain_weevil_activation(&game, weevil_id).is_some(),
+        "the empty main phase on its controller's turn is open",
+    );
+
+    game.active_player = PlayerId::Two;
+    assert!(
+        brain_weevil_activation(&game, weevil_id).is_none(),
+        "the opponent's turn is closed",
+    );
+
+    game.active_player = PlayerId::One;
+    game.step = Step::Upkeep;
+    assert!(
+        brain_weevil_activation(&game, weevil_id).is_none(),
+        "its controller's upkeep is not a main phase",
+    );
+
+    game.step = Step::PrecombatMain;
+    game.stack
+        .push(spell(20_000, cards::LIGHTNING_BOLT, PlayerId::Two, 0));
+    assert!(
+        brain_weevil_activation(&game, weevil_id).is_none(),
+        "a nonempty stack closes the sorcery window",
+    );
+}
+
+#[test]
+fn brain_weevil_pays_its_sacrifice_and_discards_two() {
+    let (mut game, weevil_id) = brain_weevil_game();
+    let activate = brain_weevil_activation(&game, weevil_id)
+        .expect("the sorcery-speed activation aimed at the opponent is offered");
+
+    game.apply(PlayerId::One, activate)
+        .expect("the offered activation is legal");
+    assert!(
+        !game
+            .battlefield
+            .iter()
+            .any(|permanent| permanent.card.id == weevil_id),
+        "the Weevil is sacrificed as the cost",
+    );
+    assert!(
+        game.players[PlayerId::One.index()]
+            .graveyard
+            .iter()
+            .any(|card| card.definition == cards::BRAIN_WEEVIL),
+    );
+
+    drain_pending(&mut game);
+
+    assert!(game.players[PlayerId::Two.index()].hand.is_empty());
+    assert_eq!(
+        game.players[PlayerId::Two.index()].graveyard.len(),
+        2,
+        "the targeted player chose and discarded both cards",
+    );
 }
 
 /// Printed "only once each turn" caps. The engine already counted every

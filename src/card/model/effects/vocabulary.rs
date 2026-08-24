@@ -108,9 +108,12 @@ pub enum CostModificationDef {
     /// A permanent offering a different mana cost for matching spells. This
     /// replaces only the spell's mana cost: additional costs and the ordinary
     /// increase/reduction pass still apply afterwards (CR 118.9d, 601.2f).
+    /// `zones` describes where the card being cast must currently be; the
+    /// alternative does not itself grant permission to cast from those zones.
     SpellAlternative {
         spell: ObjectPredicateDef,
         caster: PlayerRelation,
+        zones: &'static [ZoneKind],
         cost: ManaCost,
     },
     /// Matching spells cost that much less generic mana to cast, read off a

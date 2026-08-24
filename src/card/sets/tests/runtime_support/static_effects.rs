@@ -7,6 +7,31 @@
 use super::*;
 use crate::ControlDurationDef;
 
+fn cast_source_zones_supported(zones: &[ZoneKind]) -> bool {
+    !zones.is_empty()
+        && zones.iter().all(|zone| {
+            matches!(
+                zone,
+                ZoneKind::Library | ZoneKind::Hand | ZoneKind::Graveyard | ZoneKind::Exile
+            )
+        })
+}
+
+fn shared_spell_alternative(
+    source_zones: &[ZoneKind],
+    spell: ObjectPredicateDef,
+    caster: PlayerRelation,
+    zones: &[ZoneKind],
+) -> bool {
+    battlefield_only(source_zones)
+        && cast_source_zones_supported(zones)
+        && shared_object_predicate(spell)
+        && matches!(
+            caster,
+            PlayerRelation::Any | PlayerRelation::You | PlayerRelation::Opponent
+        )
+}
+
 /// The remaining static effects that are not an `Apply`.
 pub(in super::super) fn shared_static_non_apply_effect(
     source_zones: &[ZoneKind],
@@ -70,16 +95,12 @@ pub(in super::super) fn shared_static_non_apply_effect(
                         | crate::card::PlayerRelation::NonactivePlayer
                 )
         }
-        EffectDef::ModifyCost(CostModificationDef::SpellAlternative { spell, caster, .. }) => {
-            battlefield_only(source_zones)
-                && shared_object_predicate(spell)
-                && matches!(
-                    caster,
-                    crate::card::PlayerRelation::Any
-                        | crate::card::PlayerRelation::You
-                        | crate::card::PlayerRelation::Opponent
-                )
-        }
+        EffectDef::ModifyCost(CostModificationDef::SpellAlternative {
+            spell,
+            caster,
+            zones,
+            ..
+        }) => shared_spell_alternative(source_zones, spell, caster, zones),
         // Read off a permanent rather than the card in hand, so the spell
         // predicate and the caster relation are what have to be shared.
         EffectDef::ModifyCost(CostModificationDef::SpellReduction {

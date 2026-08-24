@@ -19,14 +19,15 @@ use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardBehavior,
     CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ColorSet,
-    ComparisonDef, ControlDurationDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef,
-    DamageKindDef, DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
-    DiscardFollowUpDef, DiscardSelectionDef, DividedTotal, EffectDef, EffectExecutionDef,
-    EffectRecipientDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ComparisonDef, ControlDurationDef, CostModificationDef, CounterKind, CreatureTypeSetDef,
+    DamageEventMatcherDef, DamageKindDef, DamagePreventionDef, DamageRecipientMatcherDef,
+    DamageSourceMatcherDef, DiscardFollowUpDef, DiscardSelectionDef, DividedTotal, EffectDef,
+    EffectExecutionDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    SacrificedAmountDef, SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -1236,7 +1237,6 @@ pub(in crate::card::sets) static NEGATE: CardRecord = CardRecord::new_with_legac
 );
 
 // M13 63 — Omniscience
-// Audit: metadata-only — No static permission waives mana costs for spells cast from hand.
 pub(in crate::card::sets) static OMNISCIENCE: CardRecord = CardRecord::new_with_legacy_id(
     1695,
     "Omniscience",
@@ -1245,13 +1245,13 @@ pub(in crate::card::sets) static OMNISCIENCE: CardRecord = CardRecord::new_with_
     CardRules::new_enchantment(mana_cost!("{7}{U}{U}{U}")).with_ability(
         AbilityDef::static_ability(
             "You may cast spells from your hand without paying their mana costs.",
-            EffectDef::Special(
-                "Allow spells from your hand to be cast without paying their mana costs",
-            ),
-        )
-        .with_coverage(AbilityCoverageDef::metadata_only(
-            "Casting spells without paying their mana costs is not an available alternative cost.",
-        )),
+            EffectDef::ModifyCost(CostModificationDef::SpellAlternative {
+                spell: ObjectPredicateDef::Any,
+                caster: PlayerRelation::You,
+                zones: &[ZoneKind::Hand],
+                cost: mana_cost!("{0}"),
+            }),
+        ),
     ),
 );
 

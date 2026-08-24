@@ -29,6 +29,7 @@ impl Game {
                 let Some(EffectDef::ModifyCost(CostModificationDef::SpellAlternative {
                     spell,
                     caster,
+                    zones,
                     cost,
                 })) = ability.declarative_effect()
                 else {
@@ -39,7 +40,8 @@ impl Game {
                     caster,
                     permanent.controller,
                     TriggerContext::empty(),
-                ) || !self.card_object_matches(spell, card, zone, permanent.card.id)
+                ) || !zones.contains(&zone)
+                    || !self.card_object_matches(spell, card, zone, permanent.card.id)
                     || costs.contains(&cost)
                 {
                     continue;

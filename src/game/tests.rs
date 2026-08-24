@@ -203,6 +203,7 @@ mod old_school_interactions;
 mod old_school_permanents;
 mod old_school_spells;
 mod old_school_upkeep;
+mod omniscience;
 mod one_sided_block_triggers;
 mod open_activation;
 mod osai_vultures;

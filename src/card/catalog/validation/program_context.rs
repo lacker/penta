@@ -207,9 +207,24 @@ fn static_ability_increase_supported(
 
 fn static_spell_cost_modification_supported(modification: CostModificationDef) -> bool {
     match modification {
-        CostModificationDef::SpellIncrease { spell, caster, .. }
-        | CostModificationDef::SpellAlternative { spell, caster, .. } => {
+        CostModificationDef::SpellIncrease { spell, caster, .. } => {
             static_object_predicate_supported(spell) && static_player_relation_supported(caster)
+        }
+        CostModificationDef::SpellAlternative {
+            spell,
+            caster,
+            zones,
+            ..
+        } => {
+            !zones.is_empty()
+                && zones.iter().all(|zone| {
+                    matches!(
+                        zone,
+                        ZoneKind::Library | ZoneKind::Hand | ZoneKind::Graveyard | ZoneKind::Exile
+                    )
+                })
+                && static_object_predicate_supported(spell)
+                && static_player_relation_supported(caster)
         }
         CostModificationDef::SpellReduction {
             spell,

@@ -84,7 +84,7 @@ fn a_stolen_phantasm_uses_its_owners_library_and_returns_under_their_control() {
 }
 
 #[test]
-fn a_source_removed_before_resolution_still_shuffles_and_reveals() {
+fn a_source_removed_before_resolution_skips_the_shuffle_and_reveal() {
     let mut game = ready();
     game.players[0]
         .library
@@ -98,15 +98,22 @@ fn a_source_removed_before_resolution_still_shuffles_and_reveals() {
     drain_pending(&mut game);
 
     assert_eq!(game.players[0].hand.len(), 1, "the Phantasm stayed in hand");
-    assert!(game.players[0].library.is_empty());
     assert_eq!(
         game.players[0]
-            .graveyard
+            .library
             .iter()
             .map(|card| card.definition)
             .collect::<Vec<_>>(),
         vec![cards::LIGHTNING_BOLT],
-        "CR 701.24c still shuffles the library, so the mandatory cost was started and the reveal follows",
+        "the unavailable mandatory cost skips its conditional remainder",
+    );
+    assert!(game.players[0].graveyard.is_empty());
+    assert!(
+        !game
+            .events
+            .iter()
+            .any(|event| matches!(event, GameEvent::CardRevealed { .. })),
+        "no cards are revealed when the resolution cost cannot begin",
     );
 }
 

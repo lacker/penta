@@ -1729,9 +1729,6 @@ static MIRROR_MAD_REVEAL: MillUntilDef = MillUntilDef {
     then: None,
 };
 
-/// The source move and the library shuffle are separate instructions. Under
-/// CR 701.24c the library is still shuffled when the source is no longer on
-/// the battlefield, and CR 118.12 then treats the mandatory cost as started.
 static MIRROR_MAD_STEPS: [EffectDef; 3] = [
     EffectDef::MoveToZone {
         object: EffectRecipientDef::matching_objects(
@@ -1752,6 +1749,14 @@ static MIRROR_MAD_STEPS: [EffectDef; 3] = [
     EffectDef::MillUntil(&MIRROR_MAD_REVEAL),
 ];
 
+/// CR 118.12 makes shuffling the source into its owner's library a mandatory
+/// cost paid during resolution. If that object has already left the
+/// battlefield, the cost cannot begin and the conditional remainder is skipped.
+static MIRROR_MAD_IF_PRESENT: EffectDef = EffectDef::IfCondition {
+    condition: &TriggerConditionDef::SourceOnBattlefield,
+    then: &EffectDef::Sequence(&MIRROR_MAD_STEPS),
+};
+
 pub(in crate::card::sets) static MIRROR_MAD_PHANTASM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b20eea41-9daf-4ac1-8bad-bb4aa211bb53"),
     "Mirror-Mad Phantasm",
@@ -1762,7 +1767,7 @@ pub(in crate::card::sets) static MIRROR_MAD_PHANTASM: CardRecord = CardRecord::n
         AbilityDef::activated(
             "{1}{U}: This creature's owner shuffles it into their library. If that player does, they reveal cards from the top of that library until a card named Mirror-Mad Phantasm is revealed. The player puts that card onto the battlefield and all other cards revealed this way into their graveyard.",
             &[AbilityCostDef::Mana(mana_cost!("{1}{U}"))],
-            EffectDef::Sequence(&MIRROR_MAD_STEPS),
+            MIRROR_MAD_IF_PRESENT,
         ),
     ]),
 );

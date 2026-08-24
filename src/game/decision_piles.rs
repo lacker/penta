@@ -177,8 +177,8 @@ impl Game {
         scoped: ScopedEffect,
     ) {
         let (chosen, rest) = piles;
-        let (count, mana_value) = self.selected_card_totals(&chosen);
         let hider = object.source.unwrap_or(object.id);
+        let (count, mana_value) = self.selected_card_totals(&chosen, selection.counted, hider);
         self.finish_top_card_selection_from(player, chosen, rest, selection, Some(hider));
         if let Some(then) = selection.then {
             let mut context = context;
@@ -191,10 +191,23 @@ impl Game {
     /// How many cards a selection took and what they add up to in mana
     /// value. Read before they move: a card in a hand is no longer something
     /// the resolution can find.
-    pub(super) fn selected_card_totals(&self, chosen: &[CardInstance]) -> (u16, u16) {
-        let count = u16::try_from(chosen.len()).unwrap_or(u16::MAX);
-        let mana_value = chosen
+    pub(super) fn selected_card_totals(
+        &self,
+        chosen: &[CardInstance],
+        counted: Option<ObjectPredicateDef>,
+        source: GameObjectId,
+    ) -> (u16, u16) {
+        let counted = chosen
             .iter()
+            .filter(|card| {
+                counted.is_none_or(|predicate| {
+                    self.card_object_matches(predicate, card, ZoneKind::Library, source)
+                })
+            })
+            .collect::<Vec<_>>();
+        let count = u16::try_from(counted.len()).unwrap_or(u16::MAX);
+        let mana_value = counted
+            .into_iter()
             .filter_map(|card| self.catalog.get(card.definition))
             .map(|definition| definition.rules.printed_mana_cost().mana_value())
             .fold(0_u16, u16::saturating_add);

@@ -413,6 +413,7 @@ static FLASH_OF_INSIGHT_LOOK: TopCardSelectionDef = TopCardSelectionDef {
     maximum: 1,
     select_all_matching: false,
     reveal_selected: false,
+    counted: None,
     selected_zone: ZoneKind::Hand,
     selected_placement: ZonePlacement::Top,
     rest_zone: ZoneKind::Library,

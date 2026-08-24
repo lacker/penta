@@ -20,6 +20,7 @@ static MANIFEST_DREAD: crate::card::TopCardSelectionDef = crate::card::TopCardSe
     maximum: 1,
     select_all_matching: false,
     reveal_selected: false,
+    counted: None,
     selected_zone: ZoneKind::Battlefield,
     selected_placement: crate::card::ZonePlacement::Top,
     selected_hidden: false,

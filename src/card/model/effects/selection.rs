@@ -31,6 +31,12 @@ pub struct TopCardSelectionDef {
     /// Reveal selected cards before moving them, for effects that instruct
     /// the player to reveal what they took.
     pub reveal_selected: bool,
+    /// Restrict which selected cards [`ValueDef::MatchedCount`] and
+    /// [`ValueDef::MatchedManaValue`] describe in `then`. `None` counts every
+    /// selected card. This is independent from `object`: a card may let the
+    /// player reveal any inspected card, then care only when what they chose
+    /// has a particular quality.
+    pub counted: Option<ObjectPredicateDef>,
     pub selected_zone: ZoneKind,
     pub selected_placement: ZonePlacement,
     /// Whether the selected cards lie face down where they land, which only

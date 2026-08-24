@@ -95,6 +95,7 @@ static TOP_LOOK: TopCardSelectionDef = TopCardSelectionDef {
     maximum: 3,
     select_all_matching: false,
     reveal_selected: false,
+    counted: None,
     selected_zone: ZoneKind::Library,
     selected_placement: ZonePlacement::Top,
     selected_hidden: false,

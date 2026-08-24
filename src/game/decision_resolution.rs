@@ -232,8 +232,8 @@ impl Game {
                             .unwrap_or(usize::MAX)
                     });
                 }
-                let matched = self.selected_card_totals(&chosen);
                 let hider = object.source.unwrap_or(object.id);
+                let matched = self.selected_card_totals(&chosen, selection.counted, hider);
                 self.finish_top_card_selection_from(player, chosen, rest, selection, Some(hider));
                 if let Some(then) = selection.then {
                     let mut context = context;

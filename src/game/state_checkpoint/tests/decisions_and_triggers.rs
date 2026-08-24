@@ -424,6 +424,7 @@ fn a_revealing_top_card_selection_round_trips_and_resumes() {
         DecisionContinuation::TopCardSelection {
             selection: crate::card::TopCardSelectionDef {
                 reveal_selected: true,
+                counted: None,
                 ..
             },
             ..

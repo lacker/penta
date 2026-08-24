@@ -666,6 +666,7 @@ mod recipient_shape_tests {
             maximum: 1,
             select_all_matching: false,
             reveal_selected: false,
+            counted: None,
             selected_zone: ZoneKind::Hand,
             selected_placement: ZonePlacement::Top,
             rest_zone: ZoneKind::Library,
@@ -684,6 +685,7 @@ mod recipient_shape_tests {
             maximum: 1,
             select_all_matching: false,
             reveal_selected: false,
+            counted: None,
             selected_zone: ZoneKind::Hand,
             selected_placement: ZonePlacement::Top,
             // The battlefield is a fine place for what was taken and not for

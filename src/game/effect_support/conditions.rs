@@ -192,8 +192,16 @@ impl Game {
                 // is the only way "X or more cards in your library" can be
                 // said: neither amount is a printed number.
                 TriggerConditionDef::ValueComparison(values) => {
-                    let left = self.condition_value(values.left, source, controller, context);
-                    let right = self.condition_value(values.right, source, controller, context);
+                    let value = |value| {
+                        object.map_or_else(
+                            || self.condition_value(value, source, controller, context),
+                            |(object, scoped, effect_context)| {
+                                self.effect_value(value, object, effect_context, scoped)
+                            },
+                        )
+                    };
+                    let left = value(values.left);
+                    let right = value(values.right);
                     compare(&left, values.comparison, &right)
                 }
                 TriggerConditionDef::SourceOnBattlefield => self

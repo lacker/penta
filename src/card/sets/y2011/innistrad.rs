@@ -1418,14 +1418,83 @@ pub(in crate::card::sets) static CURSE_OF_THE_BLOODY_TOME: CardRecord = CardReco
 );
 
 // ISD 51 — Delver of Secrets // Insectile Aberration
-// Audit: metadata-only — Needs the optional top-card reveal procedure and a conditional transform based on the revealed card's type.
+static DELVER_REVEALED_INSTANT_OR_SORCERY: TriggerConditionDef =
+    TriggerConditionDef::ValueComparison(&crate::card::ValueComparisonDef {
+        left: ValueDef::MatchedCount,
+        comparison: ComparisonDef::GreaterOrEqual,
+        right: ValueDef::Constant(1),
+    });
+
+static DELVER_TRANSFORM: EffectDef = EffectDef::IfCondition {
+    condition: &DELVER_REVEALED_INSTANT_OR_SORCERY,
+    then: &EffectDef::Transform {
+        object: EffectRecipientDef::Source,
+    },
+};
+
+static DELVER_LOOK: TopCardSelectionDef = TopCardSelectionDef {
+    count: ValueDef::Constant(1),
+    object: None,
+    minimum: 0,
+    maximum: 1,
+    select_all_matching: false,
+    reveal_selected: true,
+    counted: Some(ObjectPredicateDef::AnyOf(&[
+        ObjectPredicateDef::HasType(CardType::Instant),
+        ObjectPredicateDef::HasType(CardType::Sorcery),
+    ])),
+    selected_zone: ZoneKind::Library,
+    selected_placement: ZonePlacement::Top,
+    selected_hidden: false,
+    selected_linked_to_source: false,
+    selected_face_down: None,
+    rest_zone: ZoneKind::Library,
+    rest_placement: ZonePlacement::Top,
+    rest_random_order: false,
+    rest_counters: None,
+    selected_order_follows_choice: false,
+    then: Some(&DELVER_TRANSFORM),
+};
+
+const fn delver_of_secrets_rules() -> CardRules {
+    CardRules::new_creature(mana_cost!("{U}"), &["Human", "Wizard"], 1, 1).with_ability(
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, look at the top card of your library. You may reveal that card. If an instant or sorcery card is revealed this way, transform this creature.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::LookAtTopAndSelect {
+                player: EffectRecipientDef::Controller,
+                looker: EffectRecipientDef::Controller,
+                selection: &DELVER_LOOK,
+            },
+        ),
+    )
+}
+
+const fn insectile_aberration_rules() -> CardRules {
+    CardRules::new_creature_without_mana_cost(&["Human", "Insect"], 3, 2)
+        .printed_colors(&[ManaColor::Blue])
+        .with_ability(abilities::flying())
+}
+
 pub(in crate::card::sets) static DELVER_OF_SECRETS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("11bf83bb-c95b-4b4f-9a56-ce7a1816307a"),
     "Delver of Secrets",
-    crate::card::CardArt::new("11bf83bb-c95b-4b4f-9a56-ce7a1816307a", "Nils Hamm"),
-    crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
-);
+    CardArt::new("11bf83bb-c95b-4b4f-9a56-ce7a1816307a", "Nils Hamm"),
+    CardSet::Innistrad,
+    delver_of_secrets_rules(),
+)
+.with_composition(|| {
+    two_face_creature_composition(
+        "Delver of Secrets",
+        "Insectile Aberration",
+        delver_of_secrets_rules(),
+        insectile_aberration_rules(),
+        mana_cost!("{U}"),
+    )
+});
 
 // ISD 52 — Deranged Assistant
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1487,6 +1556,7 @@ static FORBIDDEN_ALCHEMY_SELECTION: TopCardSelectionDef = TopCardSelectionDef {
     maximum: 1,
     select_all_matching: false,
     reveal_selected: false,
+    counted: None,
     selected_zone: ZoneKind::Hand,
     selected_placement: ZonePlacement::Top,
     rest_zone: ZoneKind::Graveyard,

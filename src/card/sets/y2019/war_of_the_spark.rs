@@ -378,6 +378,7 @@ static TAMIYO_SORT_THE_FOUR: TopCardSelectionDef = TopCardSelectionDef {
     maximum: 4,
     select_all_matching: true,
     reveal_selected: true,
+    counted: None,
     selected_zone: ZoneKind::Hand,
     selected_placement: ZonePlacement::Top,
     rest_zone: ZoneKind::Graveyard,

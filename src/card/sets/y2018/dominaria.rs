@@ -21,6 +21,7 @@ static KARN_REVEALS_TWO: TopCardSelectionDef = TopCardSelectionDef {
     maximum: 1,
     select_all_matching: false,
     reveal_selected: true,
+    counted: None,
     selected_zone: ZoneKind::Hand,
     selected_placement: ZonePlacement::Top,
     selected_hidden: false,

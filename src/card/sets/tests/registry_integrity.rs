@@ -1,4 +1,6 @@
 use super::*;
+use crate::ControlDurationDef;
+use crate::card::child_effects;
 
 #[test]
 fn format_sets_and_card_records_have_catalog_modules() {
@@ -438,6 +440,54 @@ fn every_non_declarative_clause_explains_its_implementation() {
                         ability.text
                     );
                 }
+            }
+        }
+    }
+}
+
+#[test]
+fn attached_control_changes_are_static_abilities() {
+    fn changes_attached_control(effect: EffectDef) -> bool {
+        matches!(
+            effect,
+            EffectDef::GainControl {
+                object: EffectRecipientDef::AttachedPermanent,
+                duration: ControlDurationDef::WhileSourceRemains {
+                    while_tapped: false,
+                },
+                ..
+            }
+        ) || child_effects(effect)
+            .into_iter()
+            .any(changes_attached_control)
+    }
+
+    fn audit_ability(card: &str, ability: &AbilityDef) {
+        if ability
+            .declarative_effect()
+            .is_some_and(changes_attached_control)
+        {
+            assert!(
+                matches!(ability.definition, DeclarativeAbilityDef::Static(_)),
+                "{card} models attached-permanent control as a nonstatic ability: {}",
+                ability.text
+            );
+        }
+        if let Some(modal) = ability.modal() {
+            for mode in modal.modes {
+                audit_ability(card, mode);
+            }
+        }
+    }
+
+    for record in SET_MODULES
+        .iter()
+        .flat_map(|module| module.cards.iter().copied())
+    {
+        let definition = record.definition();
+        for part in &definition.parts {
+            for ability in part.rules.ability_clauses() {
+                audit_ability(record.name, ability);
             }
         }
     }

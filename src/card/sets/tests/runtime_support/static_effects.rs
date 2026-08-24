@@ -5,6 +5,7 @@
 //! continuously, to whom, and for how long.
 
 use super::*;
+use crate::ControlDurationDef;
 
 /// The remaining static effects that are not an `Apply`.
 pub(in super::super) fn shared_static_non_apply_effect(
@@ -18,7 +19,15 @@ pub(in super::super) fn shared_static_non_apply_effect(
         | EffectDef::CannotBeForcedToDiscard
         | EffectDef::GainClassLevel { .. }
         | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
-        | EffectDef::LandwalkCanBeBlocked(_) => battlefield_only(source_zones),
+        | EffectDef::LandwalkCanBeBlocked(_)
+        | EffectDef::GainControl {
+            object: EffectRecipientDef::AttachedPermanent,
+            controller: PlayerRefDef::EffectController,
+            duration:
+                ControlDurationDef::WhileSourceRemains {
+                    while_tapped: false,
+                },
+        } => battlefield_only(source_zones),
         // Read while attackers are declared, over the battlefield, so only
         // the object predicate is left to check.
         EffectDef::CannotAttackUnless(query) | EffectDef::CannotAttackIf(query) => {
@@ -114,6 +123,7 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::LandwalkCanBeBlocked(_)
         | EffectDef::CannotAttackUnless(_)
         | EffectDef::CannotAttackIf(_)
+        | EffectDef::GainControl { .. }
         | EffectDef::Sequence(_) => shared_static_non_apply_effect(source_zones, effect),
         EffectDef::StaticApply { recipient, effect } => {
             let battlefield_recipient_is_supported = match recipient.0 {
@@ -200,7 +210,6 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::ExileGrantingOwnerPlay { .. }
         | EffectDef::ReturnLinkedExiles { .. }
         | EffectDef::Detain { .. }
-        | EffectDef::GainControl { .. }
         | EffectDef::ExchangeControl { .. }
         | EffectDef::InstallTrigger(_)
         | EffectDef::None

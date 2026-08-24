@@ -1,16 +1,147 @@
-//! Taking control of a permanent, for a turn or for as long as something
-//! holds it.
+//! Taking control of a permanent through resolving and static effects.
 //!
-//! Both printed forms share a body; they differ only in what ends them, which
-//! is recorded on the permanent and checked elsewhere -- cleanup for the
-//! turn-scoped form, state-based actions for the held one.
+//! Resolving effects record what ends them -- cleanup or a source remaining in
+//! the required state. Static attachment effects are instead reconciled live
+//! before priority, using the attachment timestamp to select the newest one.
 
 use super::{
-    ControlDurationDef, EffectRecipientDef, EffectResolutionContext, Game, GameObjectId, PlayerId,
-    ScopedEffect, StackObject, Target,
+    ControlDurationDef, DeclarativeAbilityDef, EffectDef, EffectRecipientDef,
+    EffectResolutionContext, Game, GameObjectId, PlayerId, PlayerRefDef, ScopedEffect, StackObject,
+    Target,
 };
 
+#[derive(Clone, Copy)]
+struct StaticControlClaim {
+    source: GameObjectId,
+    target: GameObjectId,
+    controller: PlayerId,
+    timestamp: super::ContinuousEffectTimestamp,
+}
+
 impl Game {
+    const fn is_attached_static_control(effect: EffectDef) -> bool {
+        matches!(
+            effect,
+            EffectDef::GainControl {
+                object: EffectRecipientDef::AttachedPermanent,
+                controller: PlayerRefDef::EffectController,
+                duration: ControlDurationDef::WhileSourceRemains {
+                    while_tapped: false,
+                },
+            }
+        )
+    }
+
+    fn attached_static_control_claims(&self) -> Vec<StaticControlClaim> {
+        let mut claims = Vec::new();
+        for source in &self.battlefield {
+            let Some(target) = source.attached_to else {
+                continue;
+            };
+            if !self
+                .battlefield
+                .iter()
+                .any(|permanent| permanent.card.id == target)
+            {
+                continue;
+            }
+            self.for_each_effective_ability(source, |effective| {
+                if matches!(
+                    effective.ability.definition,
+                    DeclarativeAbilityDef::Static(_)
+                ) && effective
+                    .ability
+                    .declarative_effect()
+                    .is_some_and(Self::is_attached_static_control)
+                {
+                    claims.push(StaticControlClaim {
+                        source: source.card.id,
+                        target,
+                        controller: source.controller,
+                        timestamp: source.timestamp,
+                    });
+                }
+            });
+        }
+        claims.sort_by_key(|claim| claim.timestamp);
+        claims
+    }
+
+    /// Reconciles layer-2 control effects supplied by static abilities. These
+    /// never resolve and never use the stack: the newest applicable Aura
+    /// controls what it is attached to for exactly as long as that ability
+    /// remains applicable to that attachment.
+    pub(super) fn reconcile_static_control_changes(&mut self) {
+        let claims = self.attached_static_control_claims();
+        let mut winners: Vec<StaticControlClaim> = Vec::new();
+        for claim in claims {
+            if let Some(current) = winners
+                .iter_mut()
+                .find(|current| current.target == claim.target)
+            {
+                *current = claim;
+            } else {
+                winners.push(claim);
+            }
+        }
+
+        for permanent in &mut self.battlefield {
+            if !permanent.control_requires_source_attached {
+                continue;
+            }
+            let Some(source) = permanent.control_source else {
+                debug_assert!(false, "an attachment-held control change has a source");
+                permanent.control_requires_source_attached = false;
+                continue;
+            };
+            let still_winning = winners
+                .iter()
+                .any(|claim| claim.source == source && claim.target == permanent.card.id);
+            if still_winning {
+                continue;
+            }
+            permanent.control_source = None;
+            permanent.control_requires_source_tapped = false;
+            permanent.control_requires_source_attached = false;
+            if let Some(previous) = permanent.control_reverts_to.take() {
+                permanent.controller = previous;
+                permanent.entered_controller_turn = self.turns_started[previous.index()];
+            }
+        }
+
+        for claim in winners {
+            let Some(index) = self
+                .battlefield
+                .iter()
+                .position(|permanent| permanent.card.id == claim.target)
+            else {
+                continue;
+            };
+            let held_by_another_effect = self.battlefield[index]
+                .control_source
+                .is_some_and(|source| source != claim.source)
+                || (self.battlefield[index].control_source.is_none()
+                    && self.battlefield[index].control_reverts_to.is_some());
+            if held_by_another_effect
+                || (self.battlefield[index].controller != claim.controller
+                    && self.cannot_change_controller(&self.battlefield[index]))
+            {
+                continue;
+            }
+            let permanent = &mut self.battlefield[index];
+            if permanent.controller != claim.controller {
+                permanent
+                    .control_reverts_to
+                    .get_or_insert(permanent.controller);
+                permanent.controller = claim.controller;
+                permanent.entered_controller_turn = self.turns_started[claim.controller.index()];
+            }
+            permanent.control_source = Some(claim.source);
+            permanent.control_requires_source_tapped = false;
+            permanent.control_requires_source_attached = true;
+        }
+    }
+
     /// The shared body of both control-change durations.
     pub(super) fn take_control_of(
         &mut self,
@@ -58,6 +189,7 @@ impl Game {
             permanent.controller = controller;
             permanent.control_source = holder.map(|(id, _)| id);
             permanent.control_requires_source_tapped = holder.is_some_and(|(_, tapped)| tapped);
+            permanent.control_requires_source_attached = false;
             // It has not been under its new controller's control since their
             // turn began, so it is summoning sick unless something grants
             // haste. This is why the cards that steal a creature almost always

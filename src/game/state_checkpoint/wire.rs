@@ -665,6 +665,7 @@ fn parse_permanent(
         .transpose()?;
     permanent.control_source = state.control_source.map(GameObjectId);
     permanent.control_requires_source_tapped = state.control_requires_source_tapped;
+    permanent.control_requires_source_attached = state.control_requires_source_attached;
     permanent.reconfigured_timestamp = state
         .reconfigured_timestamp
         .map(super::super::ContinuousEffectTimestamp);

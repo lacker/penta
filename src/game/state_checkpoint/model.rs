@@ -406,6 +406,10 @@ pub(super) struct PermanentSnapshot {
     /// Whether that holder also has to stay tapped.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub(super) control_requires_source_tapped: bool,
+    /// Whether the control source has to remain attached to this permanent.
+    /// Additive: older checkpoints contain no static attachment control state.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub(super) control_requires_source_attached: bool,
     pub(super) chosen_player: Option<usize>,
     /// The X the spell that made this permanent was cast for.
     #[serde(default, skip_serializing_if = "is_zero_u16")]

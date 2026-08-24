@@ -1170,10 +1170,8 @@ pub(in crate::card::sets) static CONTROL_MAGIC: CardRecord = CardRecord::new_wit
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
-            abilities::enters_trigger(
-                "You control enchanted creature.", // The printed clause is a static, and the Aura leaving is
-                // what ends it either way: an Aura with nothing under it is
-                // put into its owner's graveyard.
+            AbilityDef::static_ability(
+                "You control enchanted creature.",
                 EffectDef::GainControl {
                     object: EffectRecipientDef::AttachedPermanent,
                     duration: ControlDurationDef::WhileSourceRemains {
@@ -1742,7 +1740,7 @@ pub(in crate::card::sets) static STEAL_ARTIFACT: CardRecord = CardRecord::new_wi
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             aura_spell("Enchant artifact", &abilities::ENCHANT_ARTIFACT_TARGET),
-            abilities::enters_trigger(
+            AbilityDef::static_ability(
                 "You control enchanted artifact.",
                 EffectDef::GainControl {
                     object: EffectRecipientDef::AttachedPermanent,

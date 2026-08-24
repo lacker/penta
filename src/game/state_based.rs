@@ -36,6 +36,7 @@ impl Game {
 
     pub(super) fn check_state_based_actions(&mut self) {
         self.end_expired_control_changes();
+        self.reconcile_static_control_changes();
         if self.check_player_loss_conditions() {
             return;
         }
@@ -317,8 +318,12 @@ impl Game {
                     .iter()
                     .find(|candidate| candidate.card.id == holder)
                     .is_some_and(|candidate| {
-                        candidate.controller == permanent.controller
-                            && (!permanent.control_requires_source_tapped || candidate.tapped)
+                        if permanent.control_requires_source_attached {
+                            candidate.attached_to == Some(permanent.card.id)
+                        } else {
+                            candidate.controller == permanent.controller
+                                && (!permanent.control_requires_source_tapped || candidate.tapped)
+                        }
                     });
                 (!held).then_some(permanent.card.id)
             })
@@ -333,6 +338,7 @@ impl Game {
             };
             permanent.control_source = None;
             permanent.control_requires_source_tapped = false;
+            permanent.control_requires_source_attached = false;
             if let Some(owner) = permanent.control_reverts_to.take() {
                 permanent.controller = owner;
                 permanent.entered_controller_turn = self.turns_started[owner.index()];

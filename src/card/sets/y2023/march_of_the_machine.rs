@@ -34,11 +34,13 @@ static SUNFALL_STEPS: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+        from: None,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
         controller: None,
         arrival_effect: None,
         attachment: None,
+        tapped: false,
     },
     // Incubate X. One token however large X is, and X of zero still makes
     // one: the keyword creates the token unconditionally.

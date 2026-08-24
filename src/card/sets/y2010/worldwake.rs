@@ -119,22 +119,26 @@ static JACE_ULTIMATE: [EffectDef; 3] = [
         object: EffectRecipientDef::objects(crate::card::ObjectSetDef::Query(
             THE_TARGET_PLAYERS_LIBRARY,
         )),
+        from: None,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
         controller: None,
         arrival_effect: None,
         attachment: None,
+        tapped: false,
     },
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::objects(crate::card::ObjectSetDef::Query(
             THE_TARGET_PLAYERS_HAND,
         )),
+        from: None,
         zone: ZoneKind::Library,
         placement: ZonePlacement::Top,
         controller: None,
         arrival_effect: None,
         attachment: None,
+        tapped: false,
     },
     // The shuffle is what leaves them a library at all, so it is the whole
     // difference between this and drawing from nothing next upkeep.
@@ -168,11 +172,13 @@ static JACE_THE_MIND_SCULPTOR_ABILITIES: [AbilityDef; 4] = [
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            from: None,
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             controller: None,
             arrival_effect: None,
             attachment: None,
+            tapped: false,
         },
     ),
     AbilityDef::activated_with_targets(

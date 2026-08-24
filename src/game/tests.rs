@@ -151,6 +151,7 @@ mod ghouls;
 mod giant_shark;
 mod gloom;
 mod granted_ability_cards;
+mod graveyard_effect_cards;
 mod greatest_power;
 mod guardian_angel;
 mod guardian_beast;

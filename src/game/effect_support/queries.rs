@@ -5,8 +5,82 @@
 #![allow(clippy::wildcard_imports)]
 
 use super::*;
+use crate::card::ZoneRelativePositionDef;
 
 impl Game {
+    fn ordered_zone_position(&self, object: GameObjectId) -> Option<(ZoneKind, PlayerId, usize)> {
+        for player in [PlayerId::One, PlayerId::Two] {
+            let zones = [
+                (ZoneKind::Library, &self.players[player.index()].library),
+                (ZoneKind::Graveyard, &self.players[player.index()].graveyard),
+            ];
+            for (zone, cards) in zones {
+                if let Some(position) = cards.iter().position(|card| card.id == object) {
+                    return Some((zone, player, position));
+                }
+            }
+        }
+        None
+    }
+
+    fn query_reference_object(
+        &self,
+        reference: ObjectRefDef,
+        source: GameObjectId,
+        context: TriggerContext,
+        effect_context: Option<(&StackObject, ScopedEffect, &EffectResolutionContext)>,
+    ) -> Option<GameObjectId> {
+        match reference {
+            ObjectRefDef::Source => Some(source),
+            ObjectRefDef::TriggeringObject => context.object,
+            ObjectRefDef::DamagedObject => context.damaged_object,
+            _ => effect_context.and_then(|(object, scoped, resolution)| {
+                self.object_reference_target(reference, object, resolution, scoped)
+                    .and_then(|target| match target {
+                        Target::Permanent(id) | Target::Card(id) | Target::Spell(id) => Some(id),
+                        Target::Player(_) => None,
+                    })
+            }),
+        }
+    }
+
+    fn query_relative_position_matches(
+        &self,
+        candidate: GameObjectId,
+        relative: ZoneRelativePositionDef,
+        source: GameObjectId,
+        context: TriggerContext,
+        effect_context: Option<(&StackObject, ScopedEffect, &EffectResolutionContext)>,
+    ) -> bool {
+        let reference = match relative {
+            ZoneRelativePositionDef::Above(reference)
+            | ZoneRelativePositionDef::Below(reference) => reference,
+        };
+        let Some(mut anchor) =
+            self.query_reference_object(reference, source, context, effect_context)
+        else {
+            return false;
+        };
+        if self.ordered_zone_position(anchor).is_none()
+            && let Some(successor) = self.final_successor(anchor)
+        {
+            anchor = successor;
+        }
+        let (Some(candidate), Some(anchor)) = (
+            self.ordered_zone_position(candidate),
+            self.ordered_zone_position(anchor),
+        ) else {
+            return false;
+        };
+        if candidate.0 != anchor.0 || candidate.1 != anchor.1 {
+            return false;
+        }
+        match relative {
+            ZoneRelativePositionDef::Above(_) => candidate.2 > anchor.2,
+            ZoneRelativePositionDef::Below(_) => candidate.2 < anchor.2,
+        }
+    }
+
     /// Finds objects using only zone, relation, and effective-characteristic
     /// predicates. Unlike target enumeration, this does not apply hexproof,
     /// protection, or any other targeting restriction.
@@ -212,7 +286,7 @@ impl Game {
         effect_context: Option<(&StackObject, ScopedEffect, &EffectResolutionContext)>,
         mut visitor: impl FnMut(Target) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
-        if query.zones.contains(&ZoneKind::Battlefield) {
+        if query.relative_position.is_none() && query.zones.contains(&ZoneKind::Battlefield) {
             for permanent in &self.battlefield {
                 if !self.query_player_constraints_match(
                     Some(permanent.controller),
@@ -237,7 +311,7 @@ impl Game {
                 }
             }
         }
-        if query.zones.contains(&ZoneKind::Stack) {
+        if query.relative_position.is_none() && query.zones.contains(&ZoneKind::Stack) {
             for candidate in self.stack.iter() {
                 if candidate.kind != StackObjectKind::Spell
                     || !self.query_player_constraints_match(
@@ -274,6 +348,17 @@ impl Game {
                 continue;
             }
             for card in self.cards_in_zone(zone) {
+                if !query.relative_position.is_none_or(|relative| {
+                    self.query_relative_position_matches(
+                        card.id,
+                        relative,
+                        source,
+                        context,
+                        effect_context,
+                    )
+                }) {
+                    continue;
+                }
                 if self.query_player_constraints_match(
                     None,
                     card.owner,

@@ -1,3 +1,4 @@
+use crate::card::ZoneRelativePositionDef;
 use crate::card::catalog::{EffectSubjectKind, GrantedAbilityValidationError};
 use crate::card::{
     AbilityOperationDef, AbilityProcedureDef, AbilityProgramDef, AbilityTargetDef,

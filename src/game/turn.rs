@@ -459,6 +459,7 @@ impl Game {
         self.turn_phase_resume = None;
         self.spells_cast_last_turn = self.spells_cast_this_turn;
         self.spells_cast_this_turn = [0; 2];
+        self.spell_cast_history_this_turn.clear();
         self.cards_drawn_this_turn = [0; 2];
         self.life_gained_this_turn = [0; 2];
         self.lost_life_this_turn = [false; 2];

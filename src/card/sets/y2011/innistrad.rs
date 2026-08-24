@@ -180,12 +180,14 @@ pub(in crate::card::sets) static ANGEL_OF_FLIGHT_ALABASTER: CardRecord = CardRec
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                from: None,
                 zone: ZoneKind::Hand,
                 controller: None,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
                 attachment: None,
-            },
+                            tapped: false,
+},
         ),
     ]),
 );
@@ -410,14 +412,38 @@ pub(in crate::card::sets) static CLOISTERED_YOUTH: CardRecord = CardRecord::new_
 )
 .with_composition(cloistered_youth_composition);
 
+static DEARLY_DEPARTED_HUMAN_ENTERS: AbilityDef = AbilityDef::as_enters(
+    "This creature enters with an additional +1/+1 counter on it.",
+    ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::AddCounters {
+        kind: CounterKind::PlusOnePlusOne,
+        amount: 1,
+    }),
+);
+
 // ISD 9 — Dearly Departed
-// Audit: metadata-only — Needs a graveyard static ability that modifies how other Human creatures enter with counters.
 pub(in crate::card::sets) static DEARLY_DEPARTED: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d008061f-cda4-4bcf-b6b3-d1b4a251cc66"),
     "Dearly Departed",
     crate::card::CardArt::new("d008061f-cda4-4bcf-b6b3-d1b4a251cc66", "Daniel Ljunggren"),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{W}{W}"), &["Spirit"], 5, 5).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "As long as this card is in your graveyard, each Human creature you control enters with an additional +1/+1 counter on it.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Human"),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::add_ability(&DEARLY_DEPARTED_HUMAN_ENTERS),
+            },
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]),
+    ]),
 );
 
 // ISD 10 — Divine Reckoning
@@ -926,11 +952,13 @@ pub(in crate::card::sets) static PURIFY_THE_GRAVE: CardRecord = CardRecord::new_
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                from: None,
                 zone: ZoneKind::Exile,
                 controller: None,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
                 attachment: None,
+                tapped: false,
             },
         ),
         abilities::flashback(mana_cost!("{W}")),
@@ -1027,11 +1055,13 @@ pub(in crate::card::sets) static SILVERCHASE_FOX: CardRecord = CardRecord::new_w
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                from: None,
                 zone: ZoneKind::Exile,
                 controller: None,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
                 attachment: None,
+                tapped: false,
             },
         ),
     ),
@@ -1699,11 +1729,13 @@ pub(in crate::card::sets) static GRASP_OF_PHANTOMS: CardRecord = CardRecord::new
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                from: None,
                 zone: ZoneKind::Library,
                 controller: None,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
                 attachment: None,
+                tapped: false,
             },
         ),
         abilities::flashback(mana_cost!("{7}{U}")),
@@ -1777,11 +1809,13 @@ pub(in crate::card::sets) static LANTERN_SPIRIT: CardRecord = CardRecord::new_wi
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Source,
+                from: None,
                 zone: ZoneKind::Hand,
                 controller: None,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
                 attachment: None,
+                tapped: false,
             },
         ),
     ]),
@@ -1810,11 +1844,13 @@ pub(in crate::card::sets) static LOST_IN_THE_MIST: CardRecord = CardRecord::new_
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex(1)),
+                from: None,
                 zone: ZoneKind::Hand,
                 controller: None,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
                 attachment: None,
+                tapped: false,
             },
         ]),
     )),
@@ -1931,12 +1967,14 @@ pub(in crate::card::sets) static MEMORY_S_JOURNEY: CardRecord = CardRecord::new(
             EffectDef::Sequence(&[
                 EffectDef::MoveToZone {
                     object: EffectRecipientDef::Target(TargetIndex(1)),
+                    from: None,
                     zone: ZoneKind::Library,
                     placement: ZonePlacement::Top,
                     controller: None,
                     arrival_effect: None,
                     attachment: None,
                     counters: None,
+                    tapped: false,
                 },
                 EffectDef::ShuffleLibrary {
                     player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -1996,12 +2034,14 @@ static MIRROR_MAD_STEPS: [EffectDef; 3] = [
             &[ZoneKind::Battlefield],
             PlayerRelation::Any,
         ),
+        from: None,
         zone: ZoneKind::Library,
         placement: ZonePlacement::Top,
         controller: None,
         arrival_effect: None,
         attachment: None,
         counters: None,
+        tapped: false,
     },
     EffectDef::ShuffleLibrary {
         player: EffectRecipientDef::player(PlayerRefDef::OwnerOf(ObjectRefDef::Source)),
@@ -2123,11 +2163,13 @@ pub(in crate::card::sets) static RUNIC_REPETITION: CardRecord = CardRecord::new(
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            from: Some(ZoneKind::Exile),
             zone: ZoneKind::Hand,
             controller: None,
             placement: ZonePlacement::Top,
             arrival_effect: None,
             attachment: None,
+            tapped: false,
         },
     )),
 );
@@ -2205,11 +2247,13 @@ pub(in crate::card::sets) static SILENT_DEPARTURE: CardRecord = CardRecord::new_
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                from: None,
                 zone: ZoneKind::Hand,
                 controller: None,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
                 attachment: None,
+                tapped: false,
             },
         ),
         abilities::flashback(mana_cost!("{4}{U}")),
@@ -2859,11 +2903,13 @@ static GHOULCALLERS_CHANT_MODES: [AbilityDef; 2] = [
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            from: None,
             zone: ZoneKind::Hand,
             controller: None,
             placement: ZonePlacement::Top,
             arrival_effect: None,
             attachment: None,
+            tapped: false,
         },
     ),
     AbilityDef::spell_with_targets(
@@ -2872,11 +2918,13 @@ static GHOULCALLERS_CHANT_MODES: [AbilityDef; 2] = [
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            from: None,
             zone: ZoneKind::Hand,
             controller: None,
             placement: ZonePlacement::Top,
             arrival_effect: None,
             attachment: None,
+            tapped: false,
         },
     ),
 ];
@@ -3256,11 +3304,13 @@ pub(in crate::card::sets) static SEVER_THE_BLOODLINE: CardRecord = CardRecord::n
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::ObjectsSharingNameWithTarget(TargetIndex::PRIMARY),
+                from: None,
                 zone: ZoneKind::Exile,
                 controller: None,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
                 attachment: None,
+                tapped: false,
             },
         ),
         abilities::flashback(mana_cost!("{5}{B}{B}")),
@@ -3398,11 +3448,13 @@ pub(in crate::card::sets) static UNBURIAL_RITES: CardRecord = CardRecord::new_wi
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                from: None,
                 zone: ZoneKind::Battlefield,
                 controller: None,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
                 attachment: None,
+                tapped: false,
             },
         ),
         abilities::flashback(mana_cost!("{3}{W}")),

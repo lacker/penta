@@ -212,6 +212,7 @@ const fn card_set_slug(set: CardSet) -> &'static str {
         CardSet::DominariaUnitedCommander => "dominaria-united-commander",
         CardSet::MarchOfTheMachineCommander => "march-of-the-machine-commander",
         CardSet::LostCavernsOfIxalanCommander => "lost-caverns-of-ixalan-commander",
+        CardSet::GuildsOfRavnica => "guilds-of-ravnica",
         CardSet::Token => "token",
     }
 }

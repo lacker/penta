@@ -687,20 +687,24 @@ static INTUITION_DISTRIBUTE: EffectDef = EffectDef::Sequence(&[
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+        from: None,
         zone: ZoneKind::Hand,
         placement: ZonePlacement::Top,
         arrival_effect: None,
         attachment: None,
         controller: None,
+        tapped: false,
     },
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+        from: None,
         zone: ZoneKind::Graveyard,
         placement: ZonePlacement::Top,
         arrival_effect: None,
         attachment: None,
         controller: None,
+        tapped: false,
     },
 ]);
 
@@ -1190,11 +1194,13 @@ static DANCE_EXILE_AT_END: AbilityDef = AbilityDef::triggered(
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::Source,
+        from: None,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
         arrival_effect: None,
         attachment: None,
         controller: None,
+        tapped: false,
     },
 );
 
@@ -1221,12 +1227,14 @@ pub(in crate::card::sets) static CORPSE_DANCE: CardRecord = CardRecord::new_with
                     player: PlayerRefDef::EffectController,
                     object: ObjectPredicateDef::HasType(CardType::Creature),
                 }),
+                from: None,
                 zone: ZoneKind::Battlefield,
                 placement: ZonePlacement::Top,
                 arrival_effect: Some(&DANCE_ARRIVAL),
                 attachment: None,
                 controller: None,
-            },
+                            tapped: false,
+},
         ),
     ]),
 );
@@ -1549,12 +1557,14 @@ pub(in crate::card::sets) static REANIMATE: CardRecord = CardRecord::new_with_le
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                from: None,
                 zone: ZoneKind::Battlefield,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
                 attachment: None,
                 controller: Some(PlayerRelation::You),
-            },
+                            tapped: false,
+},
             EffectDef::LoseLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::TargetManaValue(TargetIndex::PRIMARY),

@@ -7,7 +7,7 @@ use std::cell::Cell;
 use super::{AbilityId, AbilityOrigin, ObjectCharacteristics};
 use super::{
     AbilityOperationDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
-    AppliedRuleEffect, CardDefinitionId, CardRules, CardSet, CardType, CardTypeSet,
+    AppliedRuleEffect, CardDefinitionId, CardPartId, CardRules, CardSet, CardType, CardTypeSet,
     CharacteristicContext, CharacteristicOperationDef, ColorSet, ContinuousEffectExpiration,
     ControlFlow, DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EffectRecipientSetDef, Game,
     GameObjectId, GrantId, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectRefDef,
@@ -215,55 +215,34 @@ impl Game {
         // are walked alongside the battlefield and nowhere else.
         let land_type_sources = self.land_type_effect_sources(None);
         for source in self.battlefield.iter().chain(self.emblems.iter()) {
-            let Some(rules) = self.effective_rules(source) else {
-                continue;
-            };
-            let source_presentation = Self::effective_rules_source(source);
-            let supplies_static_effect = rules.ability_clauses().iter().any(|ability| {
-                ability.is_executable()
-                    && matches!(ability.definition, DeclarativeAbilityDef::Static(_))
-                    && ability.declarative_effect().is_some()
-            });
-            if !supplies_static_effect {
-                continue;
-            }
             if self.rules_text_abilities_removed_from_sources(source, &land_type_sources) {
                 continue;
             }
-            for attached in rules.indexed_abilities() {
-                if !attached.definition.is_executable()
-                    || !matches!(
-                        attached.definition.definition,
-                        DeclarativeAbilityDef::Static(_)
-                    )
-                {
-                    continue;
-                }
-                if !self.ability_survives_resolved_operations(
-                    source,
-                    Self::authored_ability_origin(source_presentation, attached.id),
-                ) {
-                    continue;
-                }
-                let Some(effect) = attached.definition.declarative_effect() else {
-                    continue;
-                };
-                let mut traversal = StaticEffectTraversal {
-                    source,
-                    source_timestamp: source.timestamp,
-                    source_presentation,
-                    source_origin: Self::authored_ability_origin(source_presentation, attached.id),
+            if self
+                .visit_static_source_effects(
+                    StaticEffectSource::battlefield(source, source.timestamp),
                     affected,
-                    prospective: None,
-                    next_grant: 0,
-                    next_component_order: 0,
-                };
-                if self
-                    .visit_static_effect(effect, &mut traversal, kind, &mut visitor)
-                    .is_break()
-                {
-                    return ControlFlow::Break(());
-                }
+                    None,
+                    kind,
+                    &mut visitor,
+                )
+                .is_break()
+            {
+                return ControlFlow::Break(());
+            }
+        }
+        for source in self.graveyard_static_sources() {
+            if self
+                .visit_static_source_effects(
+                    StaticEffectSource::graveyard(&source),
+                    affected,
+                    None,
+                    kind,
+                    &mut visitor,
+                )
+                .is_break()
+            {
+                return ControlFlow::Break(());
             }
         }
         ControlFlow::Continue(())
@@ -279,63 +258,43 @@ impl Game {
         let prospective_source = (prospective.card.id == affected.card.id).then_some(prospective);
         let land_type_sources = self.land_type_effect_sources(prospective_source);
         for source in self.battlefield.iter().chain(prospective_source) {
-            let Some(rules) = self.effective_rules(source) else {
-                continue;
-            };
-            let source_presentation = Self::effective_rules_source(source);
-            let supplies_static_effect = rules.ability_clauses().iter().any(|ability| {
-                ability.is_executable()
-                    && matches!(ability.definition, DeclarativeAbilityDef::Static(_))
-                    && ability.declarative_effect().is_some()
-            });
-            if !supplies_static_effect {
-                continue;
-            }
             let rules_text_removed =
                 self.rules_text_abilities_removed_from_sources(source, &land_type_sources);
             if rules_text_removed {
                 continue;
             }
-            for attached in rules.indexed_abilities() {
-                if !attached.definition.is_executable()
-                    || !matches!(
-                        attached.definition.definition,
-                        DeclarativeAbilityDef::Static(_)
-                    )
-                {
-                    continue;
-                }
-                if !self.ability_survives_resolved_operations(
-                    source,
-                    Self::authored_ability_origin(source_presentation, attached.id),
-                ) {
-                    continue;
-                }
-                let Some(effect) = attached.definition.declarative_effect() else {
-                    continue;
-                };
-                let mut traversal = StaticEffectTraversal {
-                    source,
-                    source_timestamp: if prospective_source
-                        .is_some_and(|prospective| std::ptr::eq(source, prospective))
-                    {
-                        self.prospective_continuous_effect_timestamp()
-                    } else {
-                        source.timestamp
-                    },
-                    source_presentation,
-                    source_origin: Self::authored_ability_origin(source_presentation, attached.id),
+            let timestamp = if prospective_source
+                .is_some_and(|prospective| std::ptr::eq(source, prospective))
+            {
+                self.prospective_continuous_effect_timestamp()
+            } else {
+                source.timestamp
+            };
+            if self
+                .visit_static_source_effects(
+                    StaticEffectSource::battlefield(source, timestamp),
                     affected,
-                    prospective: prospective_source,
-                    next_grant: 0,
-                    next_component_order: 0,
-                };
-                if self
-                    .visit_static_effect(effect, &mut traversal, kind, &mut visitor)
-                    .is_break()
-                {
-                    return ControlFlow::Break(());
-                }
+                    prospective_source,
+                    kind,
+                    &mut visitor,
+                )
+                .is_break()
+            {
+                return ControlFlow::Break(());
+            }
+        }
+        for source in self.graveyard_static_sources() {
+            if self
+                .visit_static_source_effects(
+                    StaticEffectSource::graveyard(&source),
+                    affected,
+                    prospective_source,
+                    kind,
+                    &mut visitor,
+                )
+                .is_break()
+            {
+                return ControlFlow::Break(());
             }
         }
         ControlFlow::Continue(())
@@ -991,5 +950,6 @@ impl Game {
 }
 
 include!("continuous_effects/characteristics.rs");
+include!("continuous_effects/graveyard_sources.rs");
 include!("continuous_effects/static_predicates.rs");
 include!("continuous_effects/player_auras.rs");

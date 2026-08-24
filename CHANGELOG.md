@@ -104,6 +104,18 @@ distinguishes snapshots of the covered source and build inputs.
   is an ordinary named counter in the card definition rather than a new engine
   enum variant.
 
+- **Declarative graveyard-origin effects.** Static and triggered abilities can
+  now operate from a card's graveyard while retaining exact source identity,
+  graveyard order, entry-replacement discovery, and last-known ownership.
+  Object queries can constrain matches above or below another object in an
+  ordered zone; generic zone moves can require an origin zone and carry tapped
+  battlefield arrival; value comparisons can read life totals and
+  predicate-filtered spell-cast history. The cast history is checkpointed as
+  an additive field. Dearly Departed, Bridge from Below, Riftstone Portal,
+  Reassembling Skeleton, Nether Shadow, Ichorid, Bloodghast, and Arclight
+  Phoenix now use the shared runtime. Checkpoint format 8, replay version 2,
+  and protocol 29 are unchanged.
+
 - **Predicate-driven blocking restrictions and declaration costs.** Blocking
   now uses the same declarative shape as attacking: a rule records which side
   of the block carries it, predicates the creature on the other side, and can

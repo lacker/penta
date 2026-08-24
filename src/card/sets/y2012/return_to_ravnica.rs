@@ -505,11 +505,13 @@ pub(in crate::card::sets) static REST_IN_PEACE: CardRecord = CardRecord::new_wit
                     &[ZoneKind::Graveyard],
                     PlayerRelation::Any,
                 ),
+                from: None,
                 zone: ZoneKind::Exile,
                 controller: None,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
                 attachment: None,
+                tapped: false,
             },
         ),
         AbilityDef::replacement_for(
@@ -674,11 +676,13 @@ static TROSTANIS_JUDGMENT_EFFECTS: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        from: None,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
         arrival_effect: None,
         attachment: None,
         controller: None,
+        tapped: false,
     },
     abilities::populate(),
 ];
@@ -835,11 +839,13 @@ pub(in crate::card::sets) static CYCLONIC_RIFT: CardRecord = CardRecord::new_wit
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                from: None,
                 zone: ZoneKind::Hand,
                 controller: None,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
                 attachment: None,
+                tapped: false,
             },
         ),
         abilities::overload(
@@ -852,11 +858,13 @@ pub(in crate::card::sets) static CYCLONIC_RIFT: CardRecord = CardRecord::new_wit
                     &[ZoneKind::Battlefield],
                     PlayerRelation::NotYou,
                 ),
+                from: None,
                 zone: ZoneKind::Hand,
                 controller: None,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
                 attachment: None,
+                tapped: false,
             },
         ),
     ]),
@@ -1095,20 +1103,24 @@ static JACE_ARCHITECT_PILE_MOVES: EffectDef = EffectDef::Sequence(&[
     EffectDef::MoveToZone {
         counters: None,
         object: abilities::CHOSEN_PILE,
+        from: None,
         zone: ZoneKind::Hand,
         placement: ZonePlacement::Top,
         arrival_effect: None,
         attachment: None,
         controller: None,
+        tapped: false,
     },
     EffectDef::MoveToZone {
         counters: None,
         object: abilities::UNCHOSEN_PILE,
+        from: None,
         zone: ZoneKind::Library,
         placement: ZonePlacement::Bottom,
         arrival_effect: None,
         attachment: None,
         controller: None,
+        tapped: false,
     },
 ]);
 
@@ -1341,11 +1353,13 @@ pub(in crate::card::sets) static TOWER_DRAKE: CardRecord = CardRecord::new_with_
 static VOIDWIELDER_RETURN: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+    from: None,
     zone: ZoneKind::Hand,
     controller: None,
     placement: ZonePlacement::Top,
     arrival_effect: None,
     attachment: None,
+    tapped: false,
 };
 
 pub(in crate::card::sets) static VOIDWIELDER: CardRecord = CardRecord::new_with_legacy_id(
@@ -1431,11 +1445,13 @@ pub(in crate::card::sets) static CREMATE: CardRecord = CardRecord::new_with_lega
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                from: None,
                 zone: ZoneKind::Exile,
                 controller: None,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
                 attachment: None,
+                tapped: false,
             },
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
@@ -3144,11 +3160,13 @@ static WURM_SHUFFLES_ITSELF_BACK: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::Source,
+        from: None,
         zone: ZoneKind::Library,
         placement: ZonePlacement::Top,
         controller: None,
         arrival_effect: None,
         attachment: None,
+        tapped: false,
     },
     EffectDef::ShuffleLibrary {
         player: EffectRecipientDef::players(PlayerSetDef::One(PlayerRefDef::OwnerOf(
@@ -3329,12 +3347,14 @@ pub(in crate::card::sets) static AZORIUS_CHARM: CardRecord = CardRecord::new_wit
             )], EffectDef::MoveToZone {
                 counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    from: None,
                     zone: ZoneKind::Library,
                     controller: None,
                     placement: ZonePlacement::Top,
                     arrival_effect: None,
                     attachment: None,
-                }),
+                                    tapped: false,
+}),
         ],
     )),
 );
@@ -3610,11 +3630,13 @@ pub(in crate::card::sets) static DRAMATIC_RESCUE: CardRecord = CardRecord::new_w
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                from: None,
                 zone: ZoneKind::Hand,
                 controller: None,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
                 attachment: None,
+                tapped: false,
             },
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
@@ -4390,12 +4412,14 @@ pub(in crate::card::sets) static SELESNYA_CHARM: CardRecord = CardRecord::new_wi
             )], EffectDef::MoveToZone {
                 counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    from: None,
                     zone: ZoneKind::Exile,
                     controller: None,
                     placement: ZonePlacement::Top,
                     arrival_effect: None,
                     attachment: None,
-                }),
+                                    tapped: false,
+}),
             AbilityDef::spell(
                 "Create a 2/2 white Knight creature token with vigilance",
                 EffectDef::create_creature_token(&["Knight"], &[ManaColor::White], 2, 2).with_abilities(&[abilities::vigilance()]).with_art(CardArt::new("67d3d039-248a-4eb8-be5c-12959b458fea", "Matt Stewart")),
@@ -4431,11 +4455,13 @@ pub(in crate::card::sets) static SKULL_REND: CardRecord = CardRecord::new_with_l
 static SKYMARK_ROC_RETURN: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+    from: None,
     zone: ZoneKind::Hand,
     controller: None,
     placement: ZonePlacement::Top,
     arrival_effect: None,
     attachment: None,
+    tapped: false,
 };
 
 pub(in crate::card::sets) static SKYMARK_ROC: CardRecord = CardRecord::new_with_legacy_id(
@@ -4637,11 +4663,13 @@ pub(in crate::card::sets) static TREASURED_FIND: CardRecord = CardRecord::new_wi
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                from: None,
                 zone: ZoneKind::Hand,
                 controller: None,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
                 attachment: None,
+                tapped: false,
             },
         )
         .with_resolution_destination(SpellResolutionDestinationDef::Exile),
@@ -4924,12 +4952,14 @@ pub(in crate::card::sets) static DEATHRITE_SHAMAN: CardRecord = CardRecord::new_
                 EffectDef::MoveToZone {
                     counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    from: None,
                     zone: ZoneKind::Exile,
                     controller: None,
                     placement: ZonePlacement::Top,
                     arrival_effect: None,
                     attachment: None,
-                },
+                                    tapped: false,
+},
                 EffectDef::LoseLife {
                     recipient: EffectRecipientDef::Opponent,
                     amount: ValueDef::Constant(2),
@@ -4954,12 +4984,14 @@ pub(in crate::card::sets) static DEATHRITE_SHAMAN: CardRecord = CardRecord::new_
                 EffectDef::MoveToZone {
                     counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    from: None,
                     zone: ZoneKind::Exile,
                     controller: None,
                     placement: ZonePlacement::Top,
                     arrival_effect: None,
                     attachment: None,
-                },
+                                    tapped: false,
+},
                 EffectDef::GainLife {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(2),
@@ -5273,12 +5305,14 @@ pub(in crate::card::sets) static CODEX_SHREDDER: CardRecord = CardRecord::new_wi
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                from: None,
                 zone: ZoneKind::Hand,
                 controller: None,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
                 attachment: None,
-            },
+                            tapped: false,
+},
         ),
     ]),
 );

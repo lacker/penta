@@ -1444,11 +1444,13 @@ static GRAVE_EXILE_AT_END: AbilityDef = AbilityDef::triggered(
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::Source,
+        from: None,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
         arrival_effect: None,
         attachment: None,
         controller: None,
+        tapped: false,
     },
 );
 
@@ -1472,12 +1474,14 @@ pub(in crate::card::sets) static SHALLOW_GRAVE: CardRecord = CardRecord::new_wit
                 player: PlayerRefDef::EffectController,
                 object: ObjectPredicateDef::HasType(CardType::Creature),
             }),
+            from: None,
             zone: ZoneKind::Battlefield,
             placement: ZonePlacement::Top,
             arrival_effect: Some(&GRAVE_ARRIVAL),
             attachment: None,
             controller: None,
-        },
+                    tapped: false,
+},
     )),
 );
 

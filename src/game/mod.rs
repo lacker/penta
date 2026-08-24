@@ -889,6 +889,10 @@ pub struct Game {
     /// ended, which is only knowable if it was counted while it happened.
     spells_cast_this_turn: [u16; 2],
     spells_cast_last_turn: [u16; 2],
+    /// The stack incarnations of spells cast this turn. Their locked stack
+    /// characteristics let declarative queries filter the history by type,
+    /// color, subtype, or any other object predicate.
+    spell_cast_history_this_turn: Vec<GameObjectId>,
     /// How many spells each player has cast this game. Not reset with the
     /// turn: "the first spell you've cast this game" is a question about the
     /// whole game, and only a running tally can answer it.

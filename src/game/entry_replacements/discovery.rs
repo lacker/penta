@@ -131,6 +131,33 @@ impl Game {
                 break;
             }
         }
+        if !source {
+            for player in [crate::PlayerId::One, crate::PlayerId::Two] {
+                for card in &self.players[player.index()].graveyard {
+                    self.for_each_printed_card_ability(
+                        card,
+                        &super::super::CharacteristicContext::Graveyard,
+                        |effective| {
+                            let ability = &effective.ability;
+                            let DeclarativeAbilityDef::Static(definition) = ability.definition
+                            else {
+                                return;
+                            };
+                            if definition.source_zones.contains(&ZoneKind::Graveyard) {
+                                source |=
+                                    Self::static_grant_entry_replacement_possibilities(ability).0;
+                            }
+                        },
+                    );
+                    if source {
+                        break;
+                    }
+                }
+                if source {
+                    break;
+                }
+            }
+        }
         (source, external)
     }
 }

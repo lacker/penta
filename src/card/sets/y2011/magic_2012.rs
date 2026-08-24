@@ -6,8 +6,8 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     CardTypeSet, DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef, TriggerEventDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    ObjectRefDef, PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef, TriggerEventDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{AbilityId, TargetIndex};
 use crate::mana_cost;
@@ -72,12 +72,14 @@ pub(in crate::card::sets) static ARCHON_OF_JUSTICE: CardRecord = CardRecord::new
             )],
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                from: None,
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
                 counters: None,
                 controller: None,
                 arrival_effect: None,
                 attachment: None,
+                tapped: false,
             },
         ),
     ]),
@@ -134,12 +136,14 @@ pub(in crate::card::sets) static CELESTIAL_PURGE: CardRecord = CardRecord::new(
         )],
         EffectDef::MoveToZone {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            from: None,
             zone: ZoneKind::Exile,
             placement: ZonePlacement::Top,
             counters: None,
             controller: None,
             arrival_effect: None,
             attachment: None,
+            tapped: false,
         },
     )),
 );
@@ -501,12 +505,14 @@ pub(in crate::card::sets) static AETHER_ADEPT: CardRecord = CardRecord::new(
             )],
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                from: None,
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 counters: None,
                 controller: None,
                 arrival_effect: None,
                 attachment: None,
+                tapped: false,
             },
         ),
     ),
@@ -1144,13 +1150,29 @@ pub(in crate::card::sets) static ONYX_MAGE: CardRecord = CardRecord::new(
 );
 
 // M12 104 — Reassembling Skeleton
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static REASSEMBLING_SKELETON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("655f983e-3b23-48ee-89d5-d01d469d5a6f"),
     "Reassembling Skeleton",
     crate::card::CardArt::new("75c219bc-a140-4ecd-953a-eef2cc552d58", "Austin Hsu"),
     crate::card::CardSet::Magic2012,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Skeleton", "Warrior"], 1, 1).with_ability(
+        AbilityDef::activated(
+            "{1}{B}: Return this card from your graveyard to the battlefield tapped.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}{B}"))],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::object(ObjectRefDef::Source),
+                from: Some(ZoneKind::Graveyard),
+                zone: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                controller: None,
+                arrival_effect: None,
+                attachment: None,
+                counters: None,
+                tapped: true,
+            },
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]),
+    ),
 );
 
 // M12 105 — Royal Assassin (reprint)
@@ -1880,12 +1902,14 @@ pub(in crate::card::sets) static RECLAIM: CardRecord = CardRecord::new(
         )],
         EffectDef::MoveToZone {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            from: None,
             zone: ZoneKind::Library,
             placement: ZonePlacement::Top,
             counters: None,
             controller: None,
             arrival_effect: None,
             attachment: None,
+            tapped: false,
         },
     )),
 );

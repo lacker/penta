@@ -840,11 +840,13 @@ static SIX_TAKEN_LAND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
 static SIX_TAKES_IT: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::objects(ObjectSetDef::Binding(SIX_TAKEN_LAND)),
+    from: None,
     zone: ZoneKind::Hand,
     placement: ZonePlacement::Top,
     controller: None,
     arrival_effect: None,
     attachment: None,
+    tapped: false,
 };
 
 /// A minimum of zero is the "you may": milling three and taking nothing is a
@@ -944,11 +946,13 @@ static MYCOSPAWN_ABILITIES: [AbilityDef; 4] = [
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            from: None,
             zone: ZoneKind::Exile,
             controller: None,
             placement: ZonePlacement::Top,
             arrival_effect: None,
             attachment: None,
+            tapped: false,
         },
     ),
 ];
@@ -1893,11 +1897,13 @@ static TAMIYO_RETURNS_AND_REBATES: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        from: None,
         zone: ZoneKind::Hand,
         placement: ZonePlacement::Top,
         arrival_effect: None,
         attachment: None,
         controller: None,
+        tapped: false,
     },
     EffectDef::AddMana(
         AddManaEffectDef::any_color()

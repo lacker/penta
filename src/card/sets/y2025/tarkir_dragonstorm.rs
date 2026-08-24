@@ -32,11 +32,13 @@ static UP_TO_ONE_COLORED_PERMANENT: [AbilityTargetDef; 1] = [AbilityTargetDef::u
 static UGIN_EXILES_IT: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+    from: None,
     zone: ZoneKind::Exile,
     placement: ZonePlacement::Top,
     controller: None,
     arrival_effect: None,
     attachment: None,
+    tapped: false,
 };
 
 /// A colorless spell you cast, which is every spell the deck around him is

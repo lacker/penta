@@ -808,11 +808,13 @@ pub(in crate::card::sets) static RESURRECTION: CardRecord = CardRecord::new_with
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                from: None,
                 zone: ZoneKind::Battlefield,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
                 attachment: None,
                 controller: None,
+                tapped: false,
             },
         ),
     ]),
@@ -929,11 +931,13 @@ pub(in crate::card::sets) static SWORDS_TO_PLOWSHARES: CardRecord = CardRecord::
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                from: None,
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
                 attachment: None,
                 controller: None,
+                tapped: false,
             },
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
@@ -1854,11 +1858,13 @@ pub(in crate::card::sets) static UNSUMMON: CardRecord = CardRecord::new_with_leg
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            from: None,
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             arrival_effect: None,
             attachment: None,
             controller: None,
+            tapped: false,
         },
     )]),
 );
@@ -2356,14 +2362,52 @@ pub(in crate::card::sets) static MIND_TWIST: CardRecord = CardRecord::new_with_l
     )]),
 );
 
+static NETHER_SHADOW_CREATURES_ABOVE: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::HasType(CardType::Creature),
+    &[ZoneKind::Graveyard],
+    PlayerRelation::You,
+)
+.above(ObjectRefDef::Source);
+
+static NETHER_SHADOW_HAS_THREE_CREATURES_ABOVE: TriggerConditionDef =
+    TriggerConditionDef::ObjectCount {
+        query: NETHER_SHADOW_CREATURES_ABOVE,
+        comparison: ComparisonDef::GreaterOrEqual,
+        amount: 3,
+    };
+
 // LEA 116 — Nether Shadow
-// Audit: metadata-only — Needs a zone-object query and identity-preserving continuation for “At the beginning of your upkeep, if this card is in your graveyard with three or more creature cards above it, you may put this card onto the battlefield”.
 pub(in crate::card::sets) static NETHER_SHADOW: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f13ad58a-6f9b-420a-bac1-40929f5e616a"),
     "Nether Shadow",
     crate::card::CardArt::new("f13ad58a-6f9b-420a-bac1-40929f5e616a", "Christopher Rush"),
     crate::card::CardSet::Alpha,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{B}{B}"), &["Spirit"], 1, 1).with_abilities(&[
+        abilities::haste(),
+        AbilityDef::triggered_if(
+            "At the beginning of your upkeep, if this card is in your graveyard with three or more creature cards above it, you may put this card onto the battlefield.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            &NETHER_SHADOW_HAS_THREE_CREATURES_ABOVE,
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Source,
+                    from: Some(ZoneKind::Graveyard),
+                    zone: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    controller: None,
+                    arrival_effect: None,
+                    attachment: None,
+                    counters: None,
+                    tapped: false,
+                },
+            },
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]),
+    ]),
 );
 
 // LEA 117 — Nettling Imp
@@ -2529,11 +2573,13 @@ pub(in crate::card::sets) static RAISE_DEAD: CardRecord = CardRecord::new_with_l
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            from: None,
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             arrival_effect: None,
             attachment: None,
             controller: None,
+            tapped: false,
         },
     )]),
 );
@@ -4447,11 +4493,13 @@ pub(in crate::card::sets) static REGROWTH: CardRecord = CardRecord::new_with_leg
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            from: None,
             zone: ZoneKind::Hand,
             controller: None,
             placement: ZonePlacement::Top,
             arrival_effect: None,
             attachment: None,
+            tapped: false,
         },
     )]),
 );

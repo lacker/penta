@@ -7,8 +7,8 @@
 
 use super::{
     AbilityProcedureDef, AbilitySourceRef, BattlefieldTriggerListener, CardPartId,
-    CharacteristicContext, DeclarativeAbilityDef, EffectDef, Game, ObjectCharacteristics, PlayerId,
-    TriggerCapture, TriggerContext, ZoneKind,
+    CharacteristicContext, CommittedTriggerEvent, DeclarativeAbilityDef, EffectDef, Game,
+    ObjectCharacteristics, PlayerId, TriggerCapture, TriggerContext, ZoneKind,
 };
 use crate::game::CardInstance;
 
@@ -59,6 +59,25 @@ impl Game {
                 },
             });
         });
+    }
+
+    pub(in crate::game) fn extend_with_card_graveyard_arrival_trigger_listeners(
+        &self,
+        listeners: &mut Vec<BattlefieldTriggerListener>,
+        card: &CardInstance,
+        arrival: &CommittedTriggerEvent,
+    ) {
+        let first_new_listener = listeners.len();
+        self.extend_with_card_graveyard_trigger_listeners(listeners, card);
+        let arrivals = listeners.split_off(first_new_listener);
+        listeners.extend(arrivals.into_iter().filter(|listener| {
+            self.trigger_event_matches_for_controller(
+                listener.event,
+                arrival,
+                listener.capture.source.object,
+                Some(card.owner),
+            )
+        }));
     }
 
     pub(super) fn extend_with_graveyard_trigger_listeners(

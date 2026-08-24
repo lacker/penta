@@ -113,15 +113,7 @@ impl Game {
         controller: Option<PlayerId>,
         source: GameObjectId,
     ) -> bool {
-        let owner = self
-            .battlefield
-            .iter()
-            .find(|permanent| permanent.card.id == object)
-            .map(|permanent| permanent.card.owner)
-            .or_else(|| {
-                self.card_in_nonbattlefield_zone(object)
-                    .map(|(_, card)| card.owner)
-            });
+        let owner = self.current_or_last_known_owner(object);
         owner.zip(controller).is_some_and(|(owner, controller)| {
             self.player_relation_matches_for_source(
                 owner,

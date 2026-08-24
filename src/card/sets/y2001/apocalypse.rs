@@ -1505,11 +1505,13 @@ static DEATH_EFFECTS: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        from: None,
         zone: ZoneKind::Battlefield,
         placement: ZonePlacement::Top,
         arrival_effect: None,
         attachment: None,
         controller: Some(PlayerRelation::You),
+        tapped: false,
     },
     EffectDef::LoseLife {
         recipient: EffectRecipientDef::Controller,

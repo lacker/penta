@@ -176,12 +176,14 @@ pub(in crate::card::sets) static FORCED_WORSHIP: CardRecord = CardRecord::new(
                 &[AbilityCostDef::Mana(mana_cost!("{2}{W}"))],
                 EffectDef::MoveToZone {
                     object: EffectRecipientDef::Source,
+                    from: None,
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                     counters: None,
                     controller: None,
                     arrival_effect: None,
                     attachment: None,
+                    tapped: false,
                 },
             ),
         ]),
@@ -717,12 +719,14 @@ pub(in crate::card::sets) static VAPOR_SNAG: CardRecord = CardRecord::new(
         EffectDef::Sequence(&[
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                from: None,
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 counters: None,
                 controller: None,
                 arrival_effect: None,
                 attachment: None,
+                tapped: false,
             },
             EffectDef::LoseLife {
                 recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
@@ -1730,12 +1734,14 @@ pub(in crate::card::sets) static NOXIOUS_REVIVAL: CardRecord = CardRecord::new(
         )],
         EffectDef::MoveToZone {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            from: None,
             zone: ZoneKind::Library,
             placement: ZonePlacement::Top,
             counters: None,
             controller: None,
             arrival_effect: None,
             attachment: None,
+            tapped: false,
         },
     )),
 );

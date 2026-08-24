@@ -5,8 +5,8 @@ use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AddManaEffectDef,
     AppliedEffectDef, ArrivalAttachmentDef, CardArt, CardRules, CardSet, CardType, CounterKind,
     CreatureStats, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectRefDef,
-    PlayerRelation, ResolvedEffectDurationDef, SpellResolutionDestinationDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    PlayerRelation, ResolvedEffectDurationDef, SpellResolutionDestinationDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -26,12 +26,14 @@ pub(in crate::card::sets) static REALITY_STROBE: CardRecord = CardRecord::new_wi
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                from: None,
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
                 attachment: None,
                 controller: None,
-            },
+                            tapped: false,
+},
         )
         .with_resolution_destination(SpellResolutionDestinationDef::ExileWithCounters(
             &REALITY_STROBE_TIME_COUNTERS,
@@ -50,6 +52,65 @@ pub(in crate::card::sets) static SHIMIAN_SPECTER: CardRecord = CardRecord::new(
     crate::card::CardArt::new("e6faa406-aa7a-49ce-a42e-00e98f3fb74e", "Anthony S. Waters"),
     crate::card::CardSet::FutureSight,
     crate::card::CardRules::unsupported(),
+);
+
+static BRIDGE_FROM_BELOW_IS_IN_GRAVEYARD: TriggerConditionDef =
+    TriggerConditionDef::SourceInZone(ZoneKind::Graveyard);
+
+static BRIDGE_FROM_BELOW_OWN_NONTOKEN_CREATURE: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::HasType(CardType::Creature),
+    ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+    ObjectPredicateDef::OwnedBy(PlayerRelation::You),
+]);
+
+static BRIDGE_FROM_BELOW_OPPONENT_CREATURE: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::HasType(CardType::Creature),
+    ObjectPredicateDef::OwnedBy(PlayerRelation::Opponent),
+]);
+
+// FUT 81 — Bridge from Below
+pub(in crate::card::sets) static BRIDGE_FROM_BELOW: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("52c44610-6d4b-4c14-839f-2c085badec90"),
+    "Bridge from Below",
+    CardArt::new(
+        "52c44610-6d4b-4c14-839f-2c085badec90",
+        "Greg Hildebrandt & Tim Hildebrandt",
+    ),
+    CardSet::FutureSight,
+    CardRules::new_enchantment(mana_cost!("{B}{B}{B}")).with_abilities(&[
+        AbilityDef::triggered_if(
+            "Whenever a nontoken creature is put into your graveyard from the battlefield, if this card is in your graveyard, create a 2/2 black Zombie creature token.",
+            TriggerEventDef::zone_changed(
+                BRIDGE_FROM_BELOW_OWN_NONTOKEN_CREATURE,
+                Some(ZoneKind::Battlefield),
+                Some(ZoneKind::Graveyard),
+            ),
+            &BRIDGE_FROM_BELOW_IS_IN_GRAVEYARD,
+            EffectDef::create_creature_token(&["Zombie"], &[ManaColor::Black], 2, 2),
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]),
+        AbilityDef::triggered_if(
+            "When a creature is put into an opponent's graveyard from the battlefield, if this card is in your graveyard, exile this card.",
+            TriggerEventDef::zone_changed(
+                BRIDGE_FROM_BELOW_OPPONENT_CREATURE,
+                Some(ZoneKind::Battlefield),
+                Some(ZoneKind::Graveyard),
+            ),
+            &BRIDGE_FROM_BELOW_IS_IN_GRAVEYARD,
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Source,
+                from: None,
+                zone: ZoneKind::Exile,
+                placement: ZonePlacement::Top,
+                controller: None,
+                arrival_effect: None,
+                attachment: None,
+                counters: None,
+                            tapped: false,
+},
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]),
+    ]),
 );
 
 // FUT 138 — Sprout Swarm
@@ -135,6 +196,7 @@ static A_ONE_ONE_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
 static SWORD_RETURNS_AND_EQUIPS: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::Source,
+    from: None,
     zone: ZoneKind::Battlefield,
     placement: ZonePlacement::Top,
     controller: None,
@@ -142,6 +204,7 @@ static SWORD_RETURNS_AND_EQUIPS: EffectDef = EffectDef::MoveToZone {
     attachment: Some(ArrivalAttachmentDef::ArrivalToHost(
         ObjectRefDef::TriggeringObject,
     )),
+    tapped: false,
 };
 
 static SWORD_OF_THE_MEEK_ABILITIES: [AbilityDef; 3] = [
@@ -257,6 +320,7 @@ pub(in crate::card::sets) static HORIZON_CANOPY: CardRecord = CardRecord::new_wi
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &REALITY_STROBE,
     &SHIMIAN_SPECTER,
+    &BRIDGE_FROM_BELOW,
     &SPROUT_SWARM,
     &COALITION_RELIC,
     &SWORD_OF_THE_MEEK,

@@ -283,6 +283,13 @@ fn validate_query(
     if let Some(related_player) = query.related_player {
         validate_player_set(related_player, target_count, scope)?;
     }
+    if let Some(relative) = query.relative_position {
+        let reference = match relative {
+            ZoneRelativePositionDef::Above(reference)
+            | ZoneRelativePositionDef::Below(reference) => reference,
+        };
+        validate_object_reference(reference, target_count, scope)?;
+    }
     Ok(())
 }
 
@@ -332,6 +339,7 @@ fn validate_trigger_condition(
         | TriggerConditionDef::BoundObjectsShareName { .. }
         | TriggerConditionDef::SourceArrivedSinceControllersLastUpkeep
         | TriggerConditionDef::SourceOnBattlefield
+        | TriggerConditionDef::SourceInZone(_)
         | TriggerConditionDef::SourceUntapped
         | TriggerConditionDef::SourceIsPaired
         | TriggerConditionDef::ActivePlayer(_)
@@ -345,7 +353,6 @@ fn validate_trigger_condition(
         | TriggerConditionDef::SourceCastWith(_)
         | TriggerConditionDef::SourceCastFrom(_)
         | TriggerConditionDef::SourceCastAtInstantSpeed
-        | TriggerConditionDef::ValueComparison(_)
         | TriggerConditionDef::SourceLoyalty { .. }
         | TriggerConditionDef::SourceActivationsThisTurn { .. }
         | TriggerConditionDef::SourceResolutionsThisTurn { .. }
@@ -355,6 +362,10 @@ fn validate_trigger_condition(
         | TriggerConditionDef::ControllerLifeAtMost(_)
         | TriggerConditionDef::PlayerHasMostLife(_)
         | TriggerConditionDef::ControllerLifeAtMostHalfStartingLife => Ok(()),
+        TriggerConditionDef::ValueComparison(values) => {
+            validate_value_target_references(values.left, target_count, scope)?;
+            validate_value_target_references(values.right, target_count, scope)
+        }
     }
 }
 
@@ -450,7 +461,8 @@ fn validate_value_target_references(
         | ValueDef::TargetToughness(target)
         | ValueDef::TargetLibrarySize(target)
         | ValueDef::TargetManaValue(target) => validate_target_index(target, target_count),
-        ValueDef::Constant(_)
+        ValueDef::CountSpellsCastThisTurn(_)
+        | ValueDef::Constant(_)
         | ValueDef::ChosenX
         | ValueDef::SourceCastX
         | ValueDef::SourcePower

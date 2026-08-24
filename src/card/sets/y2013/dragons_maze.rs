@@ -1324,12 +1324,14 @@ pub(in crate::card::sets) static DEPUTY_OF_ACQUITTALS: CardRecord = CardRecord::
                 effect: &EffectDef::MoveToZone {
                     counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    from: None,
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                     arrival_effect: None,
                     attachment: None,
                     controller: None,
-                },
+                                    tapped: false,
+},
             }),
     ]),
 );
@@ -1746,12 +1748,14 @@ pub(in crate::card::sets) static MORGUE_BURST: CardRecord = CardRecord::new_with
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                from: None,
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
                 attachment: None,
                 controller: None,
-            },
+                            tapped: false,
+},
         )
         .with_coverage(AbilityCoverageDef::partial(
             "TargetPower reads permanents but not a card target that moved from the graveyard to hand.",
@@ -1823,11 +1827,13 @@ pub(in crate::card::sets) static OBZEDATS_AID: CardRecord = CardRecord::new_with
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            from: None,
             zone: ZoneKind::Battlefield,
             placement: ZonePlacement::Top,
             arrival_effect: None,
             attachment: None,
             controller: None,
+            tapped: false,
         },
     )),
 );
@@ -2104,11 +2110,13 @@ pub(in crate::card::sets) static SHOWSTOPPER: CardRecord = CardRecord::new_with_
 static SIN_COLLECTOR_EXILE: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+    from: None,
     zone: ZoneKind::Exile,
     placement: ZonePlacement::Top,
     arrival_effect: None,
     attachment: None,
     controller: None,
+    tapped: false,
 };
 
 static SIN_COLLECTOR_EFFECTS: [EffectDef; 2] = [
@@ -2179,11 +2187,13 @@ pub(in crate::card::sets) static SIRE_OF_INSANITY: CardRecord = CardRecord::new_
 static SPECIES_GORGER_RETURN: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+    from: None,
     zone: ZoneKind::Hand,
     controller: None,
     placement: ZonePlacement::Top,
     arrival_effect: None,
     attachment: None,
+    tapped: false,
 };
 
 static SPECIES_GORGER_CHOICE: EffectDef = EffectDef::Choose(ChooseDef {
@@ -2579,11 +2589,13 @@ fn down_dirty_composition() -> CardComposition {
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                from: None,
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
                 attachment: None,
                 controller: None,
+                tapped: false,
             },
         ));
     split_fuse_composition("Down", down, "Dirty", dirty, mana_cost!("{5}{B}{G}"))
@@ -2606,11 +2618,13 @@ const fn far_rules() -> CardRules {
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            from: None,
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             arrival_effect: None,
             attachment: None,
             controller: None,
+            tapped: false,
         },
     ))
 }

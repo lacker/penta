@@ -410,6 +410,7 @@ impl HandcraftedPolicy {
             }
             EffectDef::MoveToZone {
                 object,
+                from: None,
                 zone: ZoneKind::Exile,
                 ..
             } if object.legal_target().is_some_and(|target| {
@@ -548,6 +549,7 @@ impl HandcraftedPolicy {
             | ValueDef::DamageTakenThisTurn { .. }
             | ValueDef::CountMatchingObjects(_)
             | ValueDef::CountMatchingPlayerAttachments(_)
+            | ValueDef::CountSpellsCastThisTurn(_)
             | ValueDef::GreatestPowerAmong(_)
             | ValueDef::AnyMatchingObject(_)
             | ValueDef::CountersOnSource(_)

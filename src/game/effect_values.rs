@@ -3,6 +3,7 @@ use super::{
     PlayerId, PlayerRelation, RetiredObject, ScopedEffect, StackObject, Target, TriggerContext,
     ValueDef,
 };
+use crate::card::SpellCastQueryDef;
 
 /// How many symbols of one colour a printed mana cost carries. A hybrid
 /// symbol counts once for each colour it offers, which is what makes a
@@ -26,6 +27,48 @@ fn devotion_symbols(cost: crate::card::ManaCost, color: crate::card::ManaColor) 
 }
 
 impl Game {
+    pub(super) fn spells_cast_matching_this_turn(
+        &self,
+        query: SpellCastQueryDef,
+        evaluation_controller: PlayerId,
+        source: GameObjectId,
+        context: TriggerContext,
+    ) -> i32 {
+        let count =
+            self.spell_cast_history_this_turn
+                .iter()
+                .filter_map(|id| {
+                    self.stack
+                        .iter()
+                        .find(|object| object.id == *id)
+                        .or_else(|| match self.retired_objects.get(id) {
+                            Some(RetiredObject::Stack(object)) => Some(object.as_ref()),
+                            Some(RetiredObject::Card(_) | RetiredObject::Permanent { .. })
+                            | None => None,
+                        })
+                })
+                .filter(|spell| {
+                    self.player_relation_matches(
+                        spell.controller,
+                        query.player,
+                        evaluation_controller,
+                        context,
+                    )
+                })
+                .filter_map(|spell| self.stack_trigger_event_object(spell))
+                .filter(|spell| {
+                    self.trigger_object_matches_for_controller(
+                        query.spell,
+                        spell,
+                        source,
+                        true,
+                        Some(evaluation_controller),
+                    )
+                })
+                .count();
+        i32::try_from(count).unwrap_or(i32::MAX)
+    }
+
     /// The values that read a player rather than an object: what they are
     /// devoted to, and how much library they have left. Shared by the
     /// resolving path and by the conditions that compare two of them.
@@ -326,6 +369,12 @@ impl Game {
                 )
                 .unwrap_or(i32::MAX)
             }
+            ValueDef::CountSpellsCastThisTurn(query) => self.spells_cast_matching_this_turn(
+                *query,
+                object.controller,
+                object.source.unwrap_or(object.id),
+                context.trigger,
+            ),
             // Zero when nothing matches, which is what "the greatest power
             // among creatures you control" is worth with no creatures.
             ValueDef::GreatestPowerAmong(query) => self

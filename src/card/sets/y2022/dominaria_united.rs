@@ -202,11 +202,13 @@ static A_NONLAND_PERMANENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_o
 static TEAR_ASUNDER_EXILES: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+    from: None,
     zone: ZoneKind::Exile,
     placement: ZonePlacement::Top,
     arrival_effect: None,
     attachment: None,
     controller: None,
+    tapped: false,
 };
 
 // DMU 183 — Tear Asunder

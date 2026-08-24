@@ -595,6 +595,9 @@ fn a_checkpoint_missing_any_required_field_is_rejected_by_name() {
         // Defaults to nobody having cast a spell yet, which is where every
         // game starts.
         "spellsCastThisGame",
+        // Defaults to no predicate-filterable cast history, matching a
+        // checkpoint written before that event history existed.
+        "spellCastHistoryThisTurn",
     ];
 
     let fixture = Fixture::played(120, 8_101);

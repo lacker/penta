@@ -49,12 +49,14 @@ pub(in crate::card::sets) static BANISHMENT_DECREE: CardRecord = CardRecord::new
         )],
         EffectDef::MoveToZone {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            from: None,
             zone: ZoneKind::Library,
             placement: ZonePlacement::Top,
             counters: None,
             controller: None,
             arrival_effect: None,
             attachment: None,
+            tapped: false,
         },
     )),
 );

@@ -47,11 +47,13 @@ static YOUR_SILVER_CARDS: ObjectQueryDef = ObjectQueryDef::owned_by(
 static KARN_RETURNS_IT: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+    from: None,
     zone: ZoneKind::Hand,
     placement: ZonePlacement::Top,
     controller: None,
     arrival_effect: None,
     attachment: None,
+    tapped: false,
 };
 
 /// "This token gets +1/+1 for each artifact you control", which counts the

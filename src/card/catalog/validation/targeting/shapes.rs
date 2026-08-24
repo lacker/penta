@@ -229,6 +229,13 @@ fn validate_query_shape(
     {
         validate_player_set_shape(players, targets)?;
     }
+    if let Some(relative) = query.relative_position {
+        let reference = match relative {
+            ZoneRelativePositionDef::Above(reference)
+            | ZoneRelativePositionDef::Below(reference) => reference,
+        };
+        validate_object_reference_shape(reference, targets)?;
+    }
     validate_object_predicate_shape(query.object, targets)
 }
 
@@ -343,7 +350,8 @@ fn validate_value_shape(
         | ValueDef::TargetManaValue(target) => {
             validate_target_shape(target, targets, RecipientExpectation::Object, true)
         }
-        ValueDef::CreaturesDiedThisTurn
+        ValueDef::CountSpellsCastThisTurn(_)
+        | ValueDef::CreaturesDiedThisTurn
         | ValueDef::OpponentsWhoLostLifeThisTurn
         | ValueDef::CardTypesAmongGraveyards(_)
         | ValueDef::IfCardTypesAmongGraveyards(_)
@@ -476,6 +484,7 @@ fn validate_trigger_condition_shape(
         | TriggerConditionDef::BoundObjectsShareName { .. }
         | TriggerConditionDef::SourceArrivedSinceControllersLastUpkeep
         | TriggerConditionDef::SourceOnBattlefield
+        | TriggerConditionDef::SourceInZone(_)
         | TriggerConditionDef::SourceUntapped
         | TriggerConditionDef::SourceIsPaired
         | TriggerConditionDef::ActivePlayer(_)
@@ -484,7 +493,6 @@ fn validate_trigger_condition_shape(
         | TriggerConditionDef::SourceCastWith(_)
         | TriggerConditionDef::SourceCastFrom(_)
         | TriggerConditionDef::SourceCastAtInstantSpeed
-        | TriggerConditionDef::ValueComparison(_)
         | TriggerConditionDef::SourceLoyalty { .. }
         | TriggerConditionDef::SourceActivationsThisTurn { .. }
         | TriggerConditionDef::SourceResolutionsThisTurn { .. }
@@ -496,6 +504,10 @@ fn validate_trigger_condition_shape(
         | TriggerConditionDef::ControllerLifeAtMostHalfStartingLife
         | TriggerConditionDef::ControlsGreatestPowerCreature
         | TriggerConditionDef::SourceCounters { .. } => Ok(()),
+        TriggerConditionDef::ValueComparison(values) => {
+            validate_value_shape(values.left, targets)?;
+            validate_value_shape(values.right, targets)
+        }
     }
 }
 

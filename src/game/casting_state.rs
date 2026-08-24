@@ -2,7 +2,17 @@ use crate::action::AbilityOrigin;
 use crate::card::AbilityTargetDef;
 use crate::ids::{GameObjectId, PlayerId};
 
-use super::ScopedEffect;
+use super::{Game, ScopedEffect};
+
+impl Game {
+    pub(super) fn record_spell_cast(&mut self, player: PlayerId, spell: GameObjectId) {
+        self.spells_cast_this_turn[player.index()] =
+            self.spells_cast_this_turn[player.index()].saturating_add(1);
+        self.spell_cast_history_this_turn.push(spell);
+        self.total_spells_cast[player.index()] =
+            self.total_spells_cast[player.index()].saturating_add(1);
+    }
+}
 
 /// The executable target/effect layout obtained after one concrete set of
 /// spell modes has been selected. Building both vectors together keeps their

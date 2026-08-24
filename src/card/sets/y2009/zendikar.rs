@@ -3,9 +3,9 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
-    AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardType, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, ObjectRefDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardType, ComparisonDef, EffectDef,
+    EffectRecipientDef, ObjectPredicateDef, ObjectRefDef, PlayerRelation, TriggerConditionDef,
+    TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -81,6 +81,71 @@ pub(in crate::card::sets) static SPELL_PIERCE: CardRecord = CardRecord::new_with
         )],
         abilities::counter_target_unless_paid(ValueDef::Constant(2)),
     )),
+);
+
+static BLOODGHAST_OPPONENT_AT_TEN_VALUES: ValueComparisonDef = ValueComparisonDef {
+    left: ValueDef::LifeTotal(PlayerRelation::Opponent),
+    comparison: ComparisonDef::LessOrEqual,
+    right: ValueDef::Constant(10),
+};
+
+static BLOODGHAST_OPPONENT_AT_TEN: TriggerConditionDef =
+    TriggerConditionDef::ValueComparison(&BLOODGHAST_OPPONENT_AT_TEN_VALUES);
+
+static BLOODGHAST_LAND_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::HasType(CardType::Land),
+    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+]);
+
+// ZEN 83 — Bloodghast
+pub(in crate::card::sets) static BLOODGHAST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("63870c81-63bf-4a9a-aeb5-74c6eaded9f1"),
+    "Bloodghast",
+    CardArt::new("63870c81-63bf-4a9a-aeb5-74c6eaded9f1", "Daarken"),
+    CardSet::Zendikar,
+    CardRules::new_creature(mana_cost!("{B}{B}"), &["Vampire", "Spirit"], 2, 1)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "This creature can't block.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                },
+            ),
+            AbilityDef::static_ability(
+                "This creature has haste as long as an opponent has 10 or less life.",
+                EffectDef::IfCondition {
+                    condition: &BLOODGHAST_OPPONENT_AT_TEN,
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                    },
+                },
+            ),
+            AbilityDef::triggered(
+                "Landfall — Whenever a land you control enters, you may return this card from your graveyard to the battlefield.",
+                TriggerEventDef::zone_changed(
+                    BLOODGHAST_LAND_YOU_CONTROL,
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Source,
+                        from: Some(ZoneKind::Graveyard),
+                        zone: ZoneKind::Battlefield,
+                        placement: ZonePlacement::Top,
+                        controller: None,
+                        arrival_effect: None,
+                        attachment: None,
+                        counters: None,
+                        tapped: false,
+                    },
+                },
+            )
+            .with_source_zones(&[ZoneKind::Graveyard]),
+        ]),
 );
 
 // ZEN 87 — Disfigure
@@ -341,6 +406,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &KOR_SKYFISHER,
     &INTO_THE_ROIL,
     &SPELL_PIERCE,
+    &BLOODGHAST,
     &DISFIGURE,
     &VAMPIRE_HEXMAGE,
     &VAMPIRE_LACERATOR,

@@ -16,15 +16,21 @@ use crate::card::{
 /// "Under your control" and "attach this to it" both belong to the arrival:
 /// what enters is a new object, so neither can wait for a later step.
 fn battlefield_arrival(
-    object: &StackObject,
+    owner: crate::PlayerId,
     arriving_controller: Option<crate::PlayerId>,
     attachment: Option<ArrivalAttachment>,
     counters: Option<(CounterKind, u16)>,
+    tapped: bool,
 ) -> Option<BattlefieldArrival> {
-    if arriving_controller.is_none() && attachment.is_none() && counters.is_none() {
+    if arriving_controller.is_none() && attachment.is_none() && counters.is_none() && !tapped {
         return None;
     }
-    let arrival = BattlefieldArrival::under(arriving_controller.unwrap_or(object.controller));
+    let controller = arriving_controller.unwrap_or(owner);
+    let arrival = if tapped {
+        BattlefieldArrival::tapped_under(controller)
+    } else {
+        BattlefieldArrival::under(controller)
+    };
     let arrival = match attachment {
         Some(ArrivalAttachment::SourceToArrival(source)) => arrival.attaching(source),
         Some(ArrivalAttachment::ArrivalToHost(host)) => arrival.attached_to(host),
@@ -38,12 +44,14 @@ fn battlefield_arrival(
 #[derive(Clone, Copy)]
 pub(super) struct MoveToZoneClause {
     pub(super) recipient: EffectRecipientDef,
+    pub(super) from: Option<ZoneKind>,
     pub(super) zone: ZoneKind,
     pub(super) controller: Option<PlayerRelation>,
     pub(super) placement: ZonePlacement,
     pub(super) arrival_effect: Option<&'static AppliedEffectDef>,
     pub(super) attachment: Option<ArrivalAttachmentDef>,
     pub(super) counters: Option<TokenCountersDef>,
+    pub(super) tapped: bool,
 }
 
 impl Game {
@@ -56,12 +64,14 @@ impl Game {
     ) {
         let MoveToZoneClause {
             recipient,
+            from,
             zone,
             controller,
             placement,
             arrival_effect,
             attachment,
             counters,
+            tapped,
         } = clause;
         let attachment = attachment.and_then(|attachment| match attachment {
             ArrivalAttachmentDef::SourceToArrival => {
@@ -99,6 +109,29 @@ impl Game {
             )
         });
         for target in self.effect_recipients(recipient, object, context, scoped) {
+            let (actual_zone, owner) = match target {
+                Target::Permanent(id) => self
+                    .battlefield
+                    .iter()
+                    .find(|permanent| permanent.card.id == id)
+                    .map_or((None, None), |permanent| {
+                        (Some(ZoneKind::Battlefield), Some(permanent.card.owner))
+                    }),
+                Target::Spell(id) => self
+                    .stack
+                    .iter()
+                    .find(|candidate| candidate.id == id)
+                    .map_or((None, None), |candidate| {
+                        (Some(ZoneKind::Stack), Some(candidate.card.owner))
+                    }),
+                Target::Card(id) => self
+                    .card_in_nonbattlefield_zone(id)
+                    .map_or((None, None), |(zone, card)| (Some(zone), Some(card.owner))),
+                Target::Player(_) => (None, None),
+            };
+            if from.is_some_and(|expected| actual_zone != Some(expected)) {
+                continue;
+            }
             let arrived = self.move_target_to_zone(
                 target,
                 zone,
@@ -108,7 +141,13 @@ impl Game {
                 // "Under your control" and "attach this to it" both belong to
                 // the arrival: a permanent that enters is a new object, so
                 // neither can wait for a later step.
-                battlefield_arrival(object, arriving_controller, attachment, arriving_counters),
+                battlefield_arrival(
+                    owner.unwrap_or(object.controller),
+                    arriving_controller,
+                    attachment,
+                    arriving_counters,
+                    tapped,
+                ),
                 placement,
             );
             // Applied as the move happens: the identity a permanent gets on

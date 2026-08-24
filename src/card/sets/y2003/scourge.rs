@@ -187,12 +187,14 @@ pub(in crate::card::sets) static ETERNAL_DRAGON: CardRecord = CardRecord::new_wi
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Source,
+                from: None,
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 controller: None,
                 arrival_effect: None,
                 attachment: None,
-            },
+                            tapped: false,
+},
         )
         .with_source_zones(&[ZoneKind::Graveyard])
         .with_activation_timing(ActivationTimingDef::YourUpkeep),

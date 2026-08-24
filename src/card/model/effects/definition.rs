@@ -639,6 +639,10 @@ pub enum EffectDef {
     },
     MoveToZone {
         object: EffectRecipientDef,
+        /// When present, move the object only if it is still in this zone.
+        /// This keeps a resolving instruction from following a zone-change
+        /// successor out of the zone the card text named.
+        from: Option<ZoneKind>,
         zone: ZoneKind,
         /// Which end of a library the card lands on. Meaningless for every
         /// other destination.
@@ -665,6 +669,8 @@ pub enum EffectDef {
         /// sits on the permanent and outlives every duration, which is the
         /// whole point of "with a lifelink counter on it".
         counters: Option<TokenCountersDef>,
+        /// Whether a permanent moved to the battlefield arrives tapped.
+        tapped: bool,
     },
     /// "Look at a card at random in target player's hand." Private to the
     /// looker rather than published, and one card rather than the hand.

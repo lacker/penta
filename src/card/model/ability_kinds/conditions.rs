@@ -25,6 +25,11 @@ pub enum TriggerConditionDef {
     Not(&'static TriggerConditionDef),
     /// Whether the original source object is still on the battlefield.
     SourceOnBattlefield,
+    /// Whether the original source object is still a card in the named
+    /// nonbattlefield zone.
+    /// Graveyard triggers use this for intervening-if clauses whose source
+    /// may have moved again before the trigger resolves.
+    SourceInZone(ZoneKind),
     /// Whether two bound objects share a card name. Naming a card and then
     /// revealing one is a comparison of names rather than of identity: a
     /// second copy of the named card is still the named card.

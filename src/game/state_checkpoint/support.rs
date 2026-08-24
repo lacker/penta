@@ -12,6 +12,10 @@ fn visible_decision_rebinding_ids(
         .unwrap_or_default()
 }
 
+fn object_ids_snapshot(values: &[GameObjectId]) -> Vec<u32> {
+    values.iter().map(|value| value.0).collect()
+}
+
 const fn zone_kind_snapshot(zone: ZoneKind) -> ZoneKindSnapshot {
     match zone {
         ZoneKind::Library => ZoneKindSnapshot::Library,

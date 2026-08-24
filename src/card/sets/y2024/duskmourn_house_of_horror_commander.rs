@@ -48,11 +48,13 @@ pub(in crate::card::sets) static METAMORPHOSIS_FANATIC: CardRecord = CardRecord:
             EffectDef::MoveToZone {
                 counters: Some(A_LIFELINK_COUNTER),
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                from: None,
                 zone: ZoneKind::Battlefield,
                 controller: None,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
                 attachment: None,
+                tapped: false,
             },
         ),
         abilities::miracle(mana_cost!("{1}{B}")),

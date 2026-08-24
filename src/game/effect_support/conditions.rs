@@ -75,6 +75,15 @@ impl Game {
                     .len(),
             )
             .unwrap_or(i32::MAX),
+            crate::card::ValueDef::CountSpellsCastThisTurn(query) => {
+                self.spells_cast_matching_this_turn(*query, controller, source, context)
+            }
+            crate::card::ValueDef::LifeTotal(relation) => [PlayerId::One, PlayerId::Two]
+                .into_iter()
+                .find(|player| {
+                    self.player_relation_matches(*player, relation, controller, context)
+                })
+                .map_or(0, |player| i32::from(self.players[player.index()].life)),
             crate::card::ValueDef::DevotionTo(_)
             | crate::card::ValueDef::LibrarySize(_)
             | crate::card::ValueDef::SpellsCastThisGame(_)
@@ -208,6 +217,9 @@ impl Game {
                     .battlefield
                     .iter()
                     .any(|permanent| permanent.card.id == source),
+                TriggerConditionDef::SourceInZone(zone) => self
+                    .card_in_nonbattlefield_zone(source)
+                    .is_some_and(|(actual, _)| actual == *zone),
                 // Names, not identities: a second copy of the named card is
                 // still the named card, so the definitions are compared.
                 TriggerConditionDef::BoundObjectsShareName { first, second } => {

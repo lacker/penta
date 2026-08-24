@@ -893,6 +893,11 @@ const SET_MODULES: &[SetModule] = &[
         y2023::lost_caverns_of_ixalan_commander::CARDS,
         y2023::lost_caverns_of_ixalan_commander::ADDITIONAL_PRINTINGS,
     ),
+    SetModule::new(
+        CardSet::GuildsOfRavnica,
+        y2018::guilds_of_ravnica::CARDS,
+        y2018::guilds_of_ravnica::ADDITIONAL_PRINTINGS,
+    ),
 ];
 
 pub(super) fn definitions() -> Vec<CardDefinition> {

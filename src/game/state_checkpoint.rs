@@ -275,6 +275,7 @@ impl Game {
                     .iter()
                     .map(|permission| permission.source.object),
             )
+            .chain(self.spell_cast_history_this_turn.iter().copied())
             .chain(
                 self.damage_redirects
                     .iter()
@@ -524,6 +525,7 @@ impl Game {
             spells_cast_this_turn: self.spells_cast_this_turn,
             spells_cast_this_game: self.total_spells_cast,
             spells_cast_last_turn: self.spells_cast_last_turn,
+            spell_cast_history_this_turn: object_ids_snapshot(&self.spell_cast_history_this_turn),
             cards_drawn_this_turn: self.cards_drawn_this_turn,
             citys_blessing: self.citys_blessing,
             permanent_left_battlefield_this_turn: self.permanent_left_battlefield_this_turn,
@@ -868,6 +870,7 @@ impl Game {
             spells_cast_this_turn: checkpoint.spells_cast_this_turn,
             total_spells_cast: checkpoint.spells_cast_this_game,
             spells_cast_last_turn: checkpoint.spells_cast_last_turn,
+            spell_cast_history_this_turn: ids(&checkpoint.spell_cast_history_this_turn),
             cards_drawn_this_turn: checkpoint.cards_drawn_this_turn,
             citys_blessing: checkpoint.citys_blessing,
             permanent_left_battlefield_this_turn: checkpoint.permanent_left_battlefield_this_turn,

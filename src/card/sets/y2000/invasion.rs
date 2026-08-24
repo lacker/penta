@@ -560,20 +560,24 @@ static FACT_OR_FICTION_PILE_MOVES: EffectDef = EffectDef::Sequence(&[
     EffectDef::MoveToZone {
         counters: None,
         object: abilities::CHOSEN_PILE,
+        from: None,
         zone: ZoneKind::Hand,
         placement: ZonePlacement::Top,
         arrival_effect: None,
         attachment: None,
         controller: None,
+        tapped: false,
     },
     EffectDef::MoveToZone {
         counters: None,
         object: abilities::UNCHOSEN_PILE,
+        from: None,
         zone: ZoneKind::Graveyard,
         placement: ZonePlacement::Top,
         arrival_effect: None,
         attachment: None,
         controller: None,
+        tapped: false,
     },
 ]);
 

@@ -7,6 +7,47 @@
 //! holds.
 
 use super::*;
+use crate::card::ZoneRelativePositionDef;
+
+fn shared_query(query: ObjectQueryDef) -> bool {
+    let relative_supported = query.relative_position.is_none_or(|relative| {
+        query
+            .zones
+            .iter()
+            .all(|zone| matches!(zone, ZoneKind::Library | ZoneKind::Graveyard))
+            && matches!(
+                relative,
+                ZoneRelativePositionDef::Above(
+                    ObjectRefDef::Source
+                        | ObjectRefDef::TriggeringObject
+                        | ObjectRefDef::DamagedObject
+                ) | ZoneRelativePositionDef::Below(
+                    ObjectRefDef::Source
+                        | ObjectRefDef::TriggeringObject
+                        | ObjectRefDef::DamagedObject
+                )
+            )
+    });
+    relative_supported && shared_object_predicate(query.object)
+}
+
+fn shared_condition_value(value: ValueDef, static_context: bool) -> bool {
+    match value {
+        ValueDef::Constant(_) | ValueDef::LifeTotal(_) => true,
+        ValueDef::CountSpellsCastThisTurn(query) => shared_object_predicate(query.spell),
+        ValueDef::CountMatchingObjects(query) => {
+            (!static_context || query.relative_position.is_none()) && shared_query(*query)
+        }
+        ValueDef::DevotionTo(_)
+        | ValueDef::LibrarySize(_)
+        | ValueDef::SpellsCastThisGame(_)
+        | ValueDef::BasicLandTypesControlled(_)
+        | ValueDef::CardTypesAmongGraveyards(_)
+        | ValueDef::CardsInHandAbove { .. }
+        | ValueDef::SourceCastX => !static_context,
+        _ => false,
+    }
+}
 
 pub(in super::super) fn shared_trigger_condition(condition: TriggerConditionDef) -> bool {
     match condition {
@@ -14,7 +55,7 @@ pub(in super::super) fn shared_trigger_condition(condition: TriggerConditionDef)
             conditions.iter().copied().all(shared_trigger_condition)
         }
         TriggerConditionDef::Not(condition) => shared_trigger_condition(*condition),
-        TriggerConditionDef::ObjectCount { query, .. } => shared_object_predicate(query.object),
+        TriggerConditionDef::ObjectCount { query, .. } => shared_query(query),
         TriggerConditionDef::TargetMatches { object, .. }
         | TriggerConditionDef::BoundObjectMatches { object, .. }
         | TriggerConditionDef::SourceMatches { object }
@@ -30,13 +71,13 @@ pub(in super::super) fn shared_trigger_condition(condition: TriggerConditionDef)
         | TriggerConditionDef::BoundObjectsShareName { .. }
         | TriggerConditionDef::SourceArrivedSinceControllersLastUpkeep
         | TriggerConditionDef::SourceOnBattlefield
+        | TriggerConditionDef::SourceInZone(_)
         | TriggerConditionDef::SourceUntapped
         | TriggerConditionDef::SourceIsPaired
         | TriggerConditionDef::ActivePlayer(_)
         | TriggerConditionDef::SourceCastWith(_)
         | TriggerConditionDef::SourceCastFrom(_)
         | TriggerConditionDef::SourceCastAtInstantSpeed
-        | TriggerConditionDef::ValueComparison(_)
         | TriggerConditionDef::SourceLoyalty { .. }
         | TriggerConditionDef::SourceCounters { .. }
         | TriggerConditionDef::ControlsGreatestPowerCreature
@@ -50,6 +91,10 @@ pub(in super::super) fn shared_trigger_condition(condition: TriggerConditionDef)
         | TriggerConditionDef::ControllerLifeAtMostHalfStartingLife
         | TriggerConditionDef::SpellsCastThisTurn { .. }
         | TriggerConditionDef::SpellsCastLastTurn { .. } => true,
+        TriggerConditionDef::ValueComparison(values) => {
+            shared_condition_value(values.left, false)
+                && shared_condition_value(values.right, false)
+        }
     }
 }
 
@@ -81,7 +126,11 @@ pub(in super::super) fn shared_static_trigger_condition(condition: TriggerCondit
     // way "as long as" asks. The predicate still has to be one that does not
     // read back into the layer being computed.
     if let TriggerConditionDef::ObjectCount { query, .. } = condition {
-        return shared_object_predicate(query.object);
+        return query.relative_position.is_none() && shared_query(query);
+    }
+    if let TriggerConditionDef::ValueComparison(values) = condition {
+        return shared_condition_value(values.left, true)
+            && shared_condition_value(values.right, true);
     }
     matches!(
         condition,

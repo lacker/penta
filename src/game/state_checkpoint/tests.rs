@@ -340,6 +340,61 @@ fn player_aura_attachment_round_trips() {
     );
 }
 
+#[test]
+fn checkpoint_preserves_predicate_filterable_cast_history() {
+    let mut game = crate::game::tests::ready_game();
+    let spell = crate::game::tests::card(94_000, crate::card::cards::THINK_TWICE, PlayerId::One);
+    let card_id = spell.id;
+    game.players[PlayerId::One.index()].hand.push(spell);
+    game.players[PlayerId::One.index()].mana_pool.blue = 1;
+    game.players[PlayerId::One.index()].mana_pool.colorless = 1;
+    let cast = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| matches!(action, Action::CastSpell { card, .. } if *card == card_id))
+        .expect("Think Twice can be cast");
+    game.apply(PlayerId::One, cast).expect("the cast succeeds");
+    let spell_id = game.stack.last().expect("the spell is on the stack").id;
+    for _ in 0..4 {
+        if game.stack.is_empty() {
+            break;
+        }
+        let player = game.priority;
+        game.apply(player, Action::PassPriority)
+            .expect("priority can be passed");
+    }
+    assert!(game.stack.is_empty(), "Think Twice resolved");
+    assert!(
+        matches!(
+            game.retired_objects.get(&spell_id),
+            Some(RetiredObject::Stack(_))
+        ),
+        "the history points at the locked retired spell"
+    );
+
+    let (wire, rebuilt) = rebuild_current_checkpoint(&game, PlayerId::One, 94);
+    assert_eq!(
+        wire["checkpoint"]["spellCastHistoryThisTurn"],
+        json!([spell_id.0]),
+    );
+    assert_eq!(rebuilt.spell_cast_history_this_turn, vec![spell_id]);
+
+    let mut legacy = wire;
+    legacy["checkpoint"]
+        .as_object_mut()
+        .expect("the checkpoint is an object")
+        .remove("spellCastHistoryThisTurn");
+    let rebuilt = Game::from_observation_checkpoint(
+        game.catalog.clone(),
+        game.format,
+        &legacy,
+        &true_hidden_hypothesis(&game, PlayerId::One),
+        95,
+    )
+    .expect("an older checkpoint defaults the additive history");
+    assert!(rebuilt.spell_cast_history_this_turn.is_empty());
+}
+
 include!("tests/resolved_effects.rs");
 
 include!("tests/prevention_and_replacements.rs");

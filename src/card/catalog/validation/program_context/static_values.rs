@@ -33,6 +33,7 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         // A per-turn tally the game keeps and clears with the turn, read the
         // same way and just as live.
         | ValueDef::CardsDrawnThisTurn(_)
+        | ValueDef::CountSpellsCastThisTurn(_)
         // Counters on the effect's own source: plain state on a permanent the
         // layer already has, so reading it cannot re-enter the walk.
         | ValueDef::CountersOnSource(_)
@@ -134,11 +135,48 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
         | ValueDef::BoundObjectCount(_)
         | ValueDef::SpellsCastBeforeThisTurn
         | ValueDef::SpellsCastThisGame(_)
+        | ValueDef::CountSpellsCastThisTurn(_)
         | ValueDef::TargetPower(_)
         | ValueDef::TargetToughness(_)
         | ValueDef::TargetLibrarySize(_)
         | ValueDef::LifeTotal(_)
         | ValueDef::TargetManaValue(_)
         | ValueDef::DividedAmongTargets => false,
+    }
+}
+
+fn static_spell_cost_modification_supported(modification: CostModificationDef) -> bool {
+    match modification {
+        CostModificationDef::SpellIncrease { spell, caster, .. } => {
+            static_object_predicate_supported(spell) && static_player_relation_supported(caster)
+        }
+        CostModificationDef::SpellAlternative {
+            spell,
+            caster,
+            zones,
+            ..
+        } => {
+            !zones.is_empty()
+                && zones.iter().all(|zone| {
+                    matches!(
+                        zone,
+                        ZoneKind::Library | ZoneKind::Hand | ZoneKind::Graveyard | ZoneKind::Exile
+                    )
+                })
+                && static_object_predicate_supported(spell)
+                && static_player_relation_supported(caster)
+        }
+        CostModificationDef::SpellReduction {
+            spell,
+            caster,
+            amount,
+        } => {
+            static_object_predicate_supported(spell)
+                && static_player_relation_supported(caster)
+                && static_cost_reduction_value_supported(amount)
+        }
+        CostModificationDef::AbilityIncrease { .. }
+        | CostModificationDef::SourceAbilityIncrease { .. }
+        | CostModificationDef::AbilityReduction { .. } => false,
     }
 }

@@ -5,11 +5,11 @@ use crate::card::sets::y1993::arabian_nights as catalog_arn;
 use crate::card::sets::y1997::weatherlight as catalog_wth;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
-    AppliedEffectDef, CardArt, CardRules, CardSet, CardType, CharacteristicOperationDef,
-    ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementChoiceDef,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType,
+    CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef,
+    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementChoiceDef,
     ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef, SpendModeDef,
     TopCardSelectionDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
@@ -1345,11 +1345,13 @@ static RECLAMATION_SHUFFLE: EffectDef = EffectDef::Sequence(&[
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+        from: None,
         zone: ZoneKind::Library,
         placement: ZonePlacement::Top,
         arrival_effect: None,
         attachment: None,
         controller: None,
+        tapped: false,
     },
     EffectDef::ShuffleLibrary {
         player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -1625,14 +1627,36 @@ pub(in crate::card::sets) static NANTUKO_MONASTERY: CardRecord = CardRecord::new
     crate::card::CardRules::unsupported(),
 );
 
+static RIFTSTONE_PORTAL_GRANTED_MANA: AbilityDef = AbilityDef::activated_mana(
+    "{T}: Add {G} or {W}.",
+    &[AbilityCostDef::TapSource],
+    EffectDef::AddMana(AddManaEffectDef::choice(&[
+        ManaColor::Green,
+        ManaColor::White,
+    ])),
+);
+
 // JUD 143 — Riftstone Portal
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static RIFTSTONE_PORTAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("92ece630-e484-4221-911f-e32048894f23"),
     "Riftstone Portal",
     crate::card::CardArt::new("92ece630-e484-4221-911f-e32048894f23", "Don Hazeltine"),
     crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::static_ability(
+            "As long as this card is in your graveyard, lands you control have \"{T}: Add {G} or {W}.\"",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::add_ability(&RIFTSTONE_PORTAL_GRANTED_MANA),
+            },
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

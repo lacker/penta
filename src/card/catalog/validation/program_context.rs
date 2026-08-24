@@ -109,7 +109,7 @@ fn validate_static_effect(
             Ok(())
         }
         EffectDef::IfCondition { condition, then }
-            if source_zones == [ZoneKind::Battlefield]
+            if matches!(source_zones, [ZoneKind::Battlefield | ZoneKind::Graveyard])
                 && static_trigger_condition_supported(*condition) =>
         {
             validate_static_effect(
@@ -205,42 +205,6 @@ fn static_ability_increase_supported(
         && static_object_predicate_supported(matcher)
 }
 
-fn static_spell_cost_modification_supported(modification: CostModificationDef) -> bool {
-    match modification {
-        CostModificationDef::SpellIncrease { spell, caster, .. } => {
-            static_object_predicate_supported(spell) && static_player_relation_supported(caster)
-        }
-        CostModificationDef::SpellAlternative {
-            spell,
-            caster,
-            zones,
-            ..
-        } => {
-            !zones.is_empty()
-                && zones.iter().all(|zone| {
-                    matches!(
-                        zone,
-                        ZoneKind::Library | ZoneKind::Hand | ZoneKind::Graveyard | ZoneKind::Exile
-                    )
-                })
-                && static_object_predicate_supported(spell)
-                && static_player_relation_supported(caster)
-        }
-        CostModificationDef::SpellReduction {
-            spell,
-            caster,
-            amount,
-        } => {
-            static_object_predicate_supported(spell)
-                && static_player_relation_supported(caster)
-                && static_cost_reduction_value_supported(amount)
-        }
-        CostModificationDef::AbilityIncrease { .. }
-        | CostModificationDef::SourceAbilityIncrease { .. }
-        | CostModificationDef::AbilityReduction { .. } => false,
-    }
-}
-
 fn validate_static_apply(
     source_zones: &[ZoneKind],
     recipient: EffectRecipientDef,
@@ -255,7 +219,7 @@ fn validate_static_apply(
             Err("StaticApply outside its supported stack-source shape")
         };
     }
-    if source_zones != [ZoneKind::Battlefield] {
+    if !matches!(source_zones, [ZoneKind::Battlefield | ZoneKind::Graveyard]) {
         return Err("StaticApply from unsupported source zones");
     }
     match recipient.0 {
@@ -650,6 +614,7 @@ fn static_object_set_supported(objects: ObjectSetDef) -> bool {
 
 fn static_query_supported(query: ObjectQueryDef) -> bool {
     !query.zones.is_empty()
+        && query.relative_position.is_none()
         && [query.related_player, query.controller, query.owner]
             .into_iter()
             .flatten()
@@ -826,6 +791,7 @@ fn static_trigger_condition_supported(condition: TriggerConditionDef) -> bool {
         | TriggerConditionDef::BoundObjectsShareName { .. }
         | TriggerConditionDef::SourceArrivedSinceControllersLastUpkeep
         | TriggerConditionDef::SourceOnBattlefield
+        | TriggerConditionDef::SourceInZone(_)
         | TriggerConditionDef::SourceUntapped
         | TriggerConditionDef::SourceIsPaired
         | TriggerConditionDef::SourceCounters { .. }

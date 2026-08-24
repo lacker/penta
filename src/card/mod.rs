@@ -64,14 +64,14 @@ pub use model::{
     ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef,
     ResolvedEffectDurationDef, RoundingDef, SacrificedAmountDef, ScalarChoiceListDef,
     ScaledValueDef, SetOperationDef, SimultaneousChooseDef, SpecialActionDef, SpellAbilityDef,
-    SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpellForm, SpellLifeCostDef,
-    SpellResolutionDestinationDef, SpendModeDef, SplitIntoPilesDef, StackTargetKindDef,
-    StaticAbilityDef, SumValueDef, TapEventMatcherDef, TapPurposeDef, TargetConditionDef,
-    TargetPredicate, TargetSlotDef, TokenCharacteristics, TokenCopyExceptionsDef, TokenCountersDef,
-    TokenPart, TokenStructure, TopCardSelectionDef, TopOfLibraryCostDef, TriggerConditionDef,
-    TriggerEventDef, TriggeredAbilityDef, TurnKindDef, TurnPhaseDef, TurnStepDef,
-    ValueComparisonDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZoneMoveCauseDef,
-    ZonePlacement,
+    SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpellCastQueryDef, SpellForm,
+    SpellLifeCostDef, SpellResolutionDestinationDef, SpendModeDef, SplitIntoPilesDef,
+    StackTargetKindDef, StaticAbilityDef, SumValueDef, TapEventMatcherDef, TapPurposeDef,
+    TargetConditionDef, TargetPredicate, TargetSlotDef, TokenCharacteristics,
+    TokenCopyExceptionsDef, TokenCountersDef, TokenPart, TokenStructure, TopCardSelectionDef,
+    TopOfLibraryCostDef, TriggerConditionDef, TriggerEventDef, TriggeredAbilityDef, TurnKindDef,
+    TurnPhaseDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind,
+    ZoneMoveCauseDef, ZonePlacement, ZoneRelativePositionDef,
 };
 
 /// The built-in catalog, validated once per process. Construction walks every

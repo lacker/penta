@@ -175,6 +175,9 @@ pub(super) struct GameSnapshot {
     pub(super) resolved_play_permissions: Vec<ResolvedPlayPermissionSnapshot>,
     pub(super) spells_cast_this_turn: [u16; 2],
     pub(super) spells_cast_last_turn: [u16; 2],
+    /// Additive: older checkpoints have no predicate-filterable cast history.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(super) spell_cast_history_this_turn: Vec<u32>,
     /// Spells cast over the whole game. Additive: a checkpoint written before
     /// it was counted restores a game in which nobody has cast anything,
     /// which is only wrong for a card that asks, and only until one is cast.

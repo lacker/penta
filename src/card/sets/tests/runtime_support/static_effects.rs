@@ -213,9 +213,10 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
                 ) => false,
             };
             let battlefield_effect_is_supported = shared_static_applied_effect(recipient, effect);
-            let battlefield_effect = battlefield_only(source_zones)
-                && battlefield_recipient_is_supported
-                && battlefield_effect_is_supported;
+            let battlefield_effect =
+                matches!(source_zones, [ZoneKind::Battlefield | ZoneKind::Graveyard])
+                    && battlefield_recipient_is_supported
+                    && battlefield_effect_is_supported;
             let stack_source_effect = source_zones == [ZoneKind::Stack]
                 && recipient == EffectRecipientDef::Source
                 && shared_cannot_be_countered_effect(effect);

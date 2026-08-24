@@ -133,10 +133,11 @@ fn shared_static_player_set(players: PlayerSetDef) -> bool {
 }
 
 fn shared_static_query(query: ObjectQueryDef) -> bool {
-    [query.related_player, query.controller, query.owner]
-        .into_iter()
-        .flatten()
-        .all(shared_static_player_set)
+    query.relative_position.is_none()
+        && [query.related_player, query.controller, query.owner]
+            .into_iter()
+            .flatten()
+            .all(shared_static_player_set)
 }
 
 pub(super) fn shared_keyword(keyword: KeywordAbility) -> bool {

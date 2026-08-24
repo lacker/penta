@@ -4,7 +4,24 @@ use super::super::{
     BasicLandType, ComparisonDef, CounterKind, ManaColor, ObjectPredicateDef, PlayerRelation,
     ZoneKind,
 };
-use super::{DamageSourceGroupDef, PlayerSetDef};
+use super::{DamageSourceGroupDef, ObjectRefDef, PlayerSetDef};
+
+/// Where an object must sit relative to another object in the same ordered
+/// zone. Libraries and graveyards are stored bottom/oldest first, so `Above`
+/// means a larger zone index and `Below` a smaller one.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum ZoneRelativePositionDef {
+    Above(ObjectRefDef),
+    Below(ObjectRefDef),
+}
+
+/// Spells cast during the current turn, filtered by who cast them and by the
+/// characteristics they had on the stack.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct SpellCastQueryDef {
+    pub player: PlayerRelation,
+    pub spell: ObjectPredicateDef,
+}
 
 /// The two branches of a conditional value.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -75,6 +92,8 @@ pub struct ObjectQueryDef {
     pub related_player: Option<PlayerSetDef>,
     pub controller: Option<PlayerSetDef>,
     pub owner: Option<PlayerSetDef>,
+    /// A position relative to another object in the same ordered zone.
+    pub relative_position: Option<ZoneRelativePositionDef>,
 }
 
 /// Permanents attached to a player in one relation and matching one object
@@ -102,6 +121,7 @@ impl ObjectQueryDef {
             related_player: None,
             controller: None,
             owner: None,
+            relative_position: None,
         }
     }
 
@@ -117,6 +137,7 @@ impl ObjectQueryDef {
             related_player: None,
             controller: Some(controller),
             owner: None,
+            relative_position: None,
         }
     }
 
@@ -132,6 +153,7 @@ impl ObjectQueryDef {
             related_player: None,
             controller: None,
             owner: Some(owner),
+            relative_position: None,
         }
     }
 
@@ -150,7 +172,20 @@ impl ObjectQueryDef {
             related_player: Some(PlayerSetDef::Related(controller_or_owner)),
             controller: None,
             owner: None,
+            relative_position: None,
         }
+    }
+
+    #[must_use]
+    pub const fn above(mut self, object: ObjectRefDef) -> Self {
+        self.relative_position = Some(ZoneRelativePositionDef::Above(object));
+        self
+    }
+
+    #[must_use]
+    pub const fn below(mut self, object: ObjectRefDef) -> Self {
+        self.relative_position = Some(ZoneRelativePositionDef::Below(object));
+        self
     }
 
     /// Lands a matching player controls with the named effective basic land
@@ -220,6 +255,8 @@ pub enum ValueDef {
     CountMatchingObjects(&'static ObjectQueryDef),
     /// How many matching permanents are attached to the named player.
     CountMatchingPlayerAttachments(&'static PlayerAttachmentQueryDef),
+    /// How many spells matching the query have been cast this turn.
+    CountSpellsCastThisTurn(&'static SpellCastQueryDef),
     /// One when at least one object matches, zero otherwise. "As long as you
     /// control a Mountain" is a condition rather than a count, so counting
     /// matches would pay a second Mountain twice.

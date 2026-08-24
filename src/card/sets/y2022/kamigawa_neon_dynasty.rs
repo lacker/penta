@@ -64,11 +64,13 @@ static LION_SASH_EXILE: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        from: None,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
         controller: None,
         arrival_effect: None,
         attachment: None,
+        tapped: false,
     },
 ];
 
@@ -266,11 +268,13 @@ static EMPEROR_EXILE_AND_GAIN: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        from: None,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
         controller: None,
         arrival_effect: None,
         attachment: None,
+        tapped: false,
     },
     EffectDef::GainLife {
         recipient: EffectRecipientDef::Controller,

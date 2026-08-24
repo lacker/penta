@@ -142,11 +142,13 @@ static WINDS_SINGLE: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        from: None,
         zone: ZoneKind::Exile,
         controller: None,
         placement: ZonePlacement::Top,
         arrival_effect: None,
         attachment: None,
+        tapped: false,
     },
     // The searcher is the creature's controller, read from the announced
     // target: by now the creature is in exile and cannot be asked.
@@ -184,11 +186,13 @@ static WINDS_OVERLOADED_STEPS: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+        from: None,
         zone: ZoneKind::Exile,
         controller: None,
         placement: ZonePlacement::Top,
         arrival_effect: None,
         attachment: None,
+        tapped: false,
     },
     EffectDef::SearchZone {
         player: EffectRecipientDef::Opponent,
@@ -761,11 +765,13 @@ static WRENN_ABILITIES: [AbilityDef; 3] = [
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            from: None,
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             arrival_effect: None,
             attachment: None,
             controller: None,
+            tapped: false,
         },
     ),
     AbilityDef::activated_with_targets(

@@ -28,11 +28,13 @@ static ENDING_SMALL_ENOUGH: TriggerConditionDef = TriggerConditionDef::TargetMat
 static ENDING_EXILE: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+    from: None,
     zone: ZoneKind::Exile,
     placement: ZonePlacement::Top,
     controller: None,
     arrival_effect: None,
     attachment: None,
+    tapped: false,
 };
 
 pub(in crate::card::sets) static PRISMATIC_ENDING: CardRecord = CardRecord::new_with_legacy_id(
@@ -714,11 +716,13 @@ static KAVU_MODES: [AbilityDef; 2] = [
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            from: None,
             zone: ZoneKind::Exile,
             placement: ZonePlacement::Top,
             arrival_effect: None,
             attachment: None,
             controller: None,
+            tapped: false,
         },
     ),
 ];
@@ -769,11 +773,13 @@ static KALDRA_EXILES_WHAT_IT_HITS: AbilityDef = AbilityDef::triggered(
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::object(ObjectRefDef::DamagedObject),
+        from: None,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
         arrival_effect: None,
         attachment: None,
         controller: None,
+        tapped: false,
     },
 );
 

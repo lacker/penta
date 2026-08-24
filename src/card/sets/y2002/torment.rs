@@ -6,8 +6,12 @@ use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2016::eternal_masters as catalog_ema;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules,
-    CardSet, EffectDef, EffectRecipientDef, ObjectPredicateDef, ValueDef,
+    CardSet, CardType, ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PlayerRefDef, PlayerRelation, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
+use crate::ids::ObjectBindingIndex;
 use crate::{TargetIndex, mana_cost};
 
 // TOR 1 — Angel of Retribution
@@ -663,14 +667,90 @@ pub(in crate::card::sets) static HYPNOX: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+static ICHORID_IS_IN_GRAVEYARD: TriggerConditionDef =
+    TriggerConditionDef::SourceInZone(ZoneKind::Graveyard);
+
+static ICHORID_EXILE_CHOSEN_CREATURE: [EffectDef; 2] = [
+    EffectDef::MoveToZone {
+        object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+        from: None,
+        zone: ZoneKind::Exile,
+        placement: ZonePlacement::Top,
+        controller: None,
+        arrival_effect: None,
+        attachment: None,
+        counters: None,
+        tapped: false,
+    },
+    EffectDef::MoveToZone {
+        object: EffectRecipientDef::Source,
+        from: Some(ZoneKind::Graveyard),
+        zone: ZoneKind::Battlefield,
+        placement: ZonePlacement::Top,
+        controller: None,
+        arrival_effect: None,
+        attachment: None,
+        counters: None,
+        tapped: false,
+    },
+];
+
+static ICHORID_CHOSE_A_CREATURE: TriggerConditionDef = TriggerConditionDef::BoundObjectMatches {
+    binding: ObjectBindingIndex::PRIMARY,
+    object: ObjectPredicateDef::Any,
+};
+
+static ICHORID_RETURN_IF_PAID: EffectDef = EffectDef::IfCondition {
+    condition: &ICHORID_CHOSE_A_CREATURE,
+    then: &EffectDef::Sequence(&ICHORID_EXILE_CHOSEN_CREATURE),
+};
+
 // TOR 65 — Ichorid
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ICHORID: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("97431dca-54ca-47ef-ab00-943140e8e758"),
     "Ichorid",
     crate::card::CardArt::new("97431dca-54ca-47ef-ab00-943140e8e758", "rk post"),
     crate::card::CardSet::Torment,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Horror"], 3, 1).with_abilities(&[
+        abilities::haste(),
+        AbilityDef::triggered(
+            "At the beginning of the end step, sacrifice this creature.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::End,
+                player: PlayerRelation::Any,
+            },
+            EffectDef::Sacrifice {
+                object: EffectRecipientDef::Source,
+            },
+        ),
+        AbilityDef::triggered_if(
+            "At the beginning of your upkeep, if this card is in your graveyard, you may exile a black creature card other than this card from your graveyard. If you do, return this card to the battlefield.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            &ICHORID_IS_IN_GRAVEYARD,
+            EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Color(ManaColor::Black),
+                    ]),
+                    &[ZoneKind::Graveyard],
+                    PlayerRelation::You,
+                )),
+                exclude: Some(ObjectRefDef::Source),
+                minimum: 0,
+                maximum: 1,
+                visibility: ChoiceVisibilityDef::Public,
+                then: &ICHORID_RETURN_IF_PAID,
+            }),
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]),
+    ]),
 );
 
 // TOR 66 — Insidious Dreams

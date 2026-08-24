@@ -348,6 +348,7 @@ fn set_source_for_file(path: &Path) -> SetSource {
         Some("zendikar_rising.rs") => source(CardSet::ZendikarRising, "ZNR"),
         Some("kaldheim.rs") => source(CardSet::Kaldheim, "KHM"),
         Some("commander_2018.rs") => source(CardSet::Commander2018, "C18"),
+        Some("guilds_of_ravnica.rs") => source(CardSet::GuildsOfRavnica, "GRN"),
         Some("commander_2021.rs") => source(CardSet::Commander2021, "C21"),
         Some("strixhaven_school_of_mages.rs") => source(CardSet::StrixhavenSchoolOfMages, "STX"),
         Some("modern_horizons_2.rs") => source(CardSet::ModernHorizons2, "MH2"),

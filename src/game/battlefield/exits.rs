@@ -405,12 +405,13 @@ impl Game {
         &self,
         listeners: &mut Vec<BattlefieldTriggerListener>,
         removed: &[RemovedBattlefieldObject],
+        events: &[CommittedTriggerEvent],
     ) {
-        for (permanent, _, _, destination, _, _) in removed {
+        for ((permanent, _, _, destination, _, _), event) in removed.iter().zip(events) {
             if *destination == ZoneKind::Graveyard
                 && let Some(card) = permanent.card.clone().into_card()
             {
-                self.extend_with_card_graveyard_trigger_listeners(listeners, &card);
+                self.extend_with_card_graveyard_arrival_trigger_listeners(listeners, &card, event);
             }
         }
     }
@@ -472,9 +473,8 @@ impl Game {
         // simultaneous event can be published before their new identities
         // are installed, just as the ordinary listener snapshot freezes the
         // abilities of permanents about to leave.
-        self.extend_with_graveyard_arrival_listeners(&mut listeners, &removed);
-
         let events = Self::battlefield_exit_events(&removed);
+        self.extend_with_graveyard_arrival_listeners(&mut listeners, &removed, &events);
         self.capture_battlefield_trigger_batch_from_snapshot(&listeners, &events);
 
         for ((permanent, snapshot, _, to, undying, presented), event) in

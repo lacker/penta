@@ -20,11 +20,13 @@ static PATH_STEPS: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        from: None,
         zone: ZoneKind::Exile,
         controller: None,
         placement: ZonePlacement::Top,
         arrival_effect: None,
         attachment: None,
+        tapped: false,
     },
     // The searcher is the creature's controller, read from the announced
     // target: by now the creature is in exile and cannot be asked. A minimum

@@ -2542,13 +2542,73 @@ pub(in crate::card::sets) static BLOODGIFT_DEMON: CardRecord = CardRecord::new_w
 );
 
 // ISD 90 — Bloodline Keeper // Lord of Lineage
-// Audit: metadata-only — Needs an activation restriction based on controlling five Vampires before transforming.
-pub(in crate::card::sets) static BLOODLINE_KEEPER: CardRecord = CardRecord::new(
+static BLOODLINE_KEEPER_FIVE_VAMPIRES: TriggerConditionDef = TriggerConditionDef::ObjectCount {
+    query: ObjectQueryDef::matching(
+        ObjectPredicateDef::Subtype("Vampire"),
+        &[ZoneKind::Battlefield],
+        PlayerRelation::You,
+    ),
+    comparison: ComparisonDef::GreaterOrEqual,
+    amount: 5,
+};
+
+static BLOODLINE_KEEPER_CREATE_VAMPIRE: AbilityDef = AbilityDef::activated(
+    "{T}: Create a 2/2 black Vampire creature token with flying.",
+    &[AbilityCostDef::TapSource],
+    EffectDef::create_creature_token(&["Vampire"], &[ManaColor::Black], 2, 2)
+        .with_abilities(&[abilities::flying()]),
+);
+
+pub(in crate::card::sets) static BLOODLINE_KEEPER: CardRecord = CardRecord::new_dfc(
     PrintingAnchor::scryfall("13896468-e3d0-4bcb-b09e-b5c187aecb03"),
-    "Bloodline Keeper",
-    crate::card::CardArt::new("13896468-e3d0-4bcb-b09e-b5c187aecb03", "Jason Chan"),
-    crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    "Bloodline Keeper // Lord of Lineage",
+    CardArt::new("13896468-e3d0-4bcb-b09e-b5c187aecb03", "Jason Chan"),
+    CardSet::Innistrad,
+    &[
+        (
+            "Bloodline Keeper",
+            CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Vampire"], 3, 3)
+                .with_abilities(&[
+                    abilities::flying(),
+                    BLOODLINE_KEEPER_CREATE_VAMPIRE,
+                    AbilityDef::activated(
+                        "{B}: Transform this creature. Activate only if you control five or more Vampires.",
+                        &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+                        EffectDef::Transform {
+                            object: EffectRecipientDef::Source,
+                        },
+                    )
+                    .with_activation_condition(&BLOODLINE_KEEPER_FIVE_VAMPIRES),
+                ]),
+        ),
+        (
+            "Lord of Lineage",
+            CardRules::new_creature_without_mana_cost(&["Vampire"], 5, 5)
+                .printed_colors(&[ManaColor::Black])
+                .with_abilities(&[
+                    abilities::flying(),
+                    AbilityDef::static_ability(
+                        "Other Vampire creatures you control get +2/+2.",
+                        EffectDef::StaticApply {
+                            recipient: EffectRecipientDef::matching_objects(
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::Subtype("Vampire"),
+                                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                                ]),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                            effect: AppliedEffectDef::modify_power_toughness(
+                                ValueDef::Constant(2),
+                                ValueDef::Constant(2),
+                            ),
+                        },
+                    ),
+                    BLOODLINE_KEEPER_CREATE_VAMPIRE,
+                ]),
+        ),
+    ],
 );
 
 // ISD 91 — Brain Weevil

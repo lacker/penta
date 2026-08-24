@@ -5,7 +5,7 @@ use super::source_organization::{AuditStatus, SourceAudit, source_audits_for_for
 use super::*;
 
 const SET_IDENTITY_COUNT: usize = 1_686;
-const SET_IDENTITY_FINGERPRINT: u64 = 13_959_149_328_030_186_448;
+const SET_IDENTITY_FINGERPRINT: u64 = 13_259_587_399_791_788_135;
 fn identity_fingerprint(names: &BTreeSet<String>) -> u64 {
     const FNV_OFFSET_BASIS: u64 = 14_695_981_039_346_656_037;
     const FNV_PRIME: u64 = 1_099_511_628_211;

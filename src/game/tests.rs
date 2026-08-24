@@ -161,6 +161,7 @@ mod howling_mine;
 mod identity_and_mana;
 mod instill_energy;
 mod into_the_wilds;
+mod isd_bloodline_keeper;
 mod isd_delver_of_secrets;
 mod isd_m14_deck_cards;
 mod isd_memorys_journey;

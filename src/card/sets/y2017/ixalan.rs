@@ -109,10 +109,27 @@ pub(in crate::card::sets) static JADE_GUARDIAN: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// XLN 248 — Sorcerous Spyglass
+pub(in crate::card::sets) static SORCEROUS_SPYGLASS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("85506a24-8d60-475c-9f43-65994caca7d4"),
+    "Sorcerous Spyglass",
+    crate::card::CardArt::new("85506a24-8d60-475c-9f43-65994caca7d4", "Kieran Yanner"),
+    crate::card::CardSet::Ixalan,
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        abilities::look_at_opponent_hand_then_choose_card_name_as_enters(
+            "As this artifact enters, look at an opponent's hand, then choose any card name.",
+        ),
+        abilities::cannot_activate_nonmana_abilities_with_chosen_name(
+            "Activated abilities of sources with the chosen name can't be activated unless they're mana abilities.",
+        ),
+    ]),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &TERRITORIAL_HAMMERSKULL,
     &KITESAIL_FREEBOOTER,
     &JADE_GUARDIAN,
+    &SORCEROUS_SPYGLASS,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

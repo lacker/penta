@@ -196,7 +196,7 @@ impl Game {
         {
             return Self::activated_ability_mana_cost(&definition).map(|cost| {
                 (
-                    cost,
+                    self.ability_mana_cost_for_source(source, cost),
                     x,
                     ManaPlanOptions::default(),
                     ManaPaymentPurpose::Ability {
@@ -238,8 +238,14 @@ impl Game {
                 cost_objects,
                 animates_source,
             );
-            return Self::activated_ability_mana_cost(&definition)
-                .map(|cost| (cost, x, options, purpose));
+            return Self::activated_ability_mana_cost(&definition).map(|cost| {
+                (
+                    self.ability_mana_cost_for_source(source, cost),
+                    x,
+                    options,
+                    purpose,
+                )
+            });
         }
 
         None

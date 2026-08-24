@@ -652,6 +652,7 @@ fn collect_replacement_effects(
         | ReplacementEffectDef::MultiplyEventAmount(_)
         | ReplacementEffectDef::AddToEventAmount(_)
         | ReplacementEffectDef::Choose(_)
+        | ReplacementEffectDef::LookAtHand(_)
         | ReplacementEffectDef::CopyEntering { .. } => {}
     }
 }
@@ -699,6 +700,7 @@ pub(super) fn replacement_child_effects(effect: ReplacementEffectDef) -> Vec<Eff
         | ReplacementEffectDef::MultiplyEventAmount(_)
         | ReplacementEffectDef::AddToEventAmount(_)
         | ReplacementEffectDef::Choose(_)
+        | ReplacementEffectDef::LookAtHand(_)
         | ReplacementEffectDef::CopyEntering { .. } => Vec::new(),
     }
 }

@@ -13,13 +13,13 @@ use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::sets::y2022::commander_legends_baldurs_gate as catalog_clb;
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef,
-    AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef, BattlefieldEntryModificationDef,
-    CardArt, CardBehavior, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef,
-    ChooseDef, CostModificationDef, EffectDef, EffectExecutionDef, EffectRecipientDef, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef,
+    BattlefieldEntryModificationDef, CardArt, CardBehavior, CardRules, CardSet, CardSupertype,
+    CardType, ChoiceVisibilityDef, ChooseDef, CostModificationDef, DrawEventMatcherDef, EffectDef,
+    EffectExecutionDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
 use crate::{TargetIndex, mana_cost};
@@ -2813,13 +2813,52 @@ pub(in crate::card::sets) static ALTAR_OF_DEMENTIA: CardRecord = CardRecord::new
 );
 
 // TMP 277 — Booby Trap
-// Audit: metadata-only — Card rules have not been implemented.
+static BOOBY_TRAP_ENTRY_CHOICES: [ReplacementEffectDef; 2] = [
+    ReplacementEffectDef::Choose(ReplacementChoiceDef::Player(PlayerRelation::Opponent)),
+    ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+        crate::card::BattlefieldEntryScalarChoiceDef::CARD_NAME_OTHER_THAN_BASIC_LAND,
+    )),
+];
+
+static BOOBY_TRAP_SACRIFICES_AND_HITS: [EffectDef; 2] = [
+    EffectDef::Sacrifice {
+        object: EffectRecipientDef::Source,
+    },
+    EffectDef::DealDamage {
+        recipient: EffectRecipientDef::EventPlayer,
+        amount: ValueDef::Constant(10),
+    },
+];
+
 pub(in crate::card::sets) static BOOBY_TRAP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bfedc78e-47dc-43e3-aed7-2d5c8e97fdac"),
     "Booby Trap",
     crate::card::CardArt::new("bfedc78e-47dc-43e3-aed7-2d5c8e97fdac", "Doug Chaffee"),
     crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{6}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "As this artifact enters, choose an opponent and a card name other than a basic land card name.",
+            ReplacementEffectDef::Sequence(&BOOBY_TRAP_ENTRY_CHOICES),
+        ),
+        AbilityDef::static_ability(
+            "The chosen player reveals each card they draw.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::players(PlayerSetDef::Related(
+                    PlayerRelation::ChosenPlayer,
+                )),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::RevealsDrawnCards),
+            },
+        ),
+        AbilityDef::triggered_if(
+            "When the chosen player draws a card with the chosen name, sacrifice this artifact. If you do, it deals 10 damage to that player.",
+            TriggerEventDef::DrewCard(DrawEventMatcherDef::matching(
+                PlayerRelation::ChosenPlayer,
+                abilities::SOURCES_CHOSEN_CARD_NAME,
+            )),
+            &TriggerConditionDef::SourceOnBattlefield,
+            EffectDef::Sequence(&BOOBY_TRAP_SACRIFICES_AND_HITS),
+        ),
+    ]),
 );
 
 // TMP 278 — Bottle Gnomes

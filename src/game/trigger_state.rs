@@ -304,6 +304,7 @@ pub(super) enum CommittedTriggerEvent {
     /// the hand -- a draw that was replaced never happened.
     DrewCard {
         player: PlayerId,
+        card: TriggerEventObject,
         /// Whether this was the first card the player drew during their own
         /// draw step. Orcish Bowmasters is the reason the event carries it:
         /// nothing about the game state afterwards distinguishes the
@@ -526,6 +527,9 @@ impl CommittedTriggerEvent {
                 amount: None,
                 damaged_object: None,
             },
+            // A drawn card snapshot belongs to trigger matching only. The
+            // draw does not reveal it, so these player-only events carry no
+            // hidden-zone identity into resolution or a public checkpoint.
             Self::StepBegins { player, .. }
             | Self::CommittedCrime { player }
             | Self::CardsDiscarded { player }

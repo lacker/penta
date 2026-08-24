@@ -237,6 +237,7 @@ impl Game {
             | ReplacementEffectDef::MultiplyEventAmount(_)
             | ReplacementEffectDef::AddToEventAmount(_)
             | ReplacementEffectDef::Choose(_)
+            | ReplacementEffectDef::LookAtHand(_)
             | ReplacementEffectDef::CopyEntering { .. } => false,
         }
     }
@@ -277,6 +278,7 @@ impl Game {
             | ReplacementEffectDef::MultiplyEventAmount(_)
             | ReplacementEffectDef::AddToEventAmount(_)
             | ReplacementEffectDef::Choose(_)
+            | ReplacementEffectDef::LookAtHand(_)
             | ReplacementEffectDef::CopyEntering { .. } => false,
         }
     }

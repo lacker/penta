@@ -3,13 +3,11 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
-    BattlefieldEntryChoiceDestinationDef, BattlefieldEntryScalarChoiceDef, CardArt, CardRules,
-    CardSet, CardType, ChoiceVisibilityDef, ChooseDef, CounterKind, EffectDef,
+    CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, CounterKind, EffectDef,
     EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayActionMatcherDef,
-    PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
-    ReplacementEffectDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ObjectBindingIndex;
 use crate::mana_cost;
@@ -1211,13 +1209,6 @@ pub(in crate::card::sets) static MARSH_CROCODILE: CardRecord = CardRecord::new(
 );
 
 // PLS 116 — Meddling Mage
-/// The lock is a player-facing rule rather than an object one: it names the
-/// action, and the predicate reads the name the Mage chose on the way in.
-static SPELLS_WITH_THE_CHOSEN_NAME: PlayRestrictionDef = PlayRestrictionDef::new(
-    PlayActionMatcherDef::CastSpell,
-    ObjectPredicateDef::HasSourcesChosenScalar(BattlefieldEntryChoiceDestinationDef::CardName),
-);
-
 pub(in crate::card::sets) static MEDDLING_MAGE: CardRecord = CardRecord::new_with_legacy_id(
     2050,
     "Meddling Mage",
@@ -1229,20 +1220,12 @@ pub(in crate::card::sets) static MEDDLING_MAGE: CardRecord = CardRecord::new_wit
     // Both players, which is why the mirror is miserable: the Mage does not
     // care who was going to cast the card it named.
     CardRules::new_creature(mana_cost!("{W}{U}"), &["Human", "Wizard"], 2, 2).with_abilities(&[
-        AbilityDef::replacement(
+        abilities::choose_card_name_as_enters(
             "As this creature enters, choose a nonland card name.",
-            ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
-                BattlefieldEntryScalarChoiceDef::NONLAND_CARD_NAME,
-            )),
+            crate::card::BattlefieldEntryScalarChoiceDef::NONLAND_CARD_NAME,
         ),
-        AbilityDef::static_ability(
+        abilities::cannot_cast_spells_with_chosen_name(
             "Spells with the chosen name can't be cast.",
-            EffectDef::StaticApply {
-                recipient: EffectRecipientDef::EachPlayer,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
-                    SPELLS_WITH_THE_CHOSEN_NAME,
-                )),
-            },
         ),
     ]),
 );

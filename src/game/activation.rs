@@ -138,17 +138,19 @@ impl Game {
             taps_source: false,
             leaves_source: true,
         };
+        let priced_mana_cost = self.priced_ability_mana_cost(source, definition.costs.as_slice());
         for cost in definition.costs.as_slice() {
             match cost {
                 AbilityCostDef::Mana(cost) => {
+                    let cost = priced_mana_cost.unwrap_or(*cost);
                     self.activate_mana_for_cost_avoiding_for(
                         player,
-                        *cost,
+                        cost,
                         x,
                         None,
                         &payment_purpose,
                     );
-                    let _ = self.pay_player_cost_for(player, *cost, x, &payment_purpose);
+                    let _ = self.pay_player_cost_for(player, cost, x, &payment_purpose);
                 }
                 AbilityCostDef::ExileSource => self.exile_graveyard_source(player, source),
                 AbilityCostDef::TapSource
@@ -322,17 +324,20 @@ impl Game {
                 taps_source: false,
                 leaves_source: false,
             };
+            let priced_mana_cost =
+                self.priced_ability_mana_cost(source, definition.costs.as_slice());
             for cost in definition.costs.as_slice() {
                 match cost {
                     AbilityCostDef::Mana(cost) => {
+                        let cost = priced_mana_cost.unwrap_or(*cost);
                         self.activate_mana_for_cost_avoiding_for(
                             player,
-                            *cost,
+                            cost,
                             x,
                             None,
                             &payment_purpose,
                         );
-                        let _ = self.pay_player_cost_for(player, *cost, x, &payment_purpose);
+                        let _ = self.pay_player_cost_for(player, cost, x, &payment_purpose);
                     }
                     AbilityCostDef::DiscardSource => {
                         let discarded = remove_card(&mut self.players[player.index()].hand, source)
@@ -552,11 +557,7 @@ impl Game {
                     AbilityCostDef::Mana(cost) => {
                         // Read through any increase on the battlefield, so
                         // what is paid is what the offer was priced at.
-                        let cost = self
-                            .battlefield
-                            .iter()
-                            .find(|permanent| permanent.card.id == source)
-                            .map_or(*cost, |permanent| self.ability_mana_cost(permanent, *cost));
+                        let cost = self.ability_mana_cost_for_source(source, *cost);
                         let payment_purpose = ManaPaymentPurpose::Ability {
                             source,
                             taps_source,

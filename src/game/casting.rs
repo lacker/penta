@@ -12,6 +12,7 @@ use super::{
 mod signature_validation;
 include!("casting/life_costs.rs");
 include!("casting/mana_activation.rs");
+include!("casting/scalar_choices.rs");
 
 use crate::card::{
     BattlefieldEntryScalarChoiceDef, CardSet, ScalarChoiceListDef, SpellLifeCostDef, SpendModeDef,
@@ -220,63 +221,6 @@ impl Game {
                 choices,
             },
         );
-    }
-
-    pub(super) fn entry_scalar_choices(
-        &self,
-        player: PlayerId,
-        choice: BattlefieldEntryScalarChoiceDef,
-    ) -> (&'static str, Vec<String>) {
-        let (prompt, mut choices, fallback) = match choice.list {
-            ScalarChoiceListDef::Players => (
-                "Choose a player",
-                vec!["You".to_owned(), "Opponent".to_owned()],
-                "You",
-            ),
-            ScalarChoiceListDef::BasicLandTypes => (
-                "Choose a basic land type",
-                crate::card::BasicLandType::ALL
-                    .into_iter()
-                    .map(|land_type| land_type.subtype().to_owned())
-                    .collect::<Vec<_>>(),
-                crate::card::BasicLandType::Plains.subtype(),
-            ),
-            ScalarChoiceListDef::CardNames | ScalarChoiceListDef::NonlandCardNames => {
-                let nonland_only = choice.list == ScalarChoiceListDef::NonlandCardNames;
-                let mut names = self
-                    .catalog
-                    .definitions()
-                    .into_iter()
-                    .filter(|definition| definition.debut_set != CardSet::Token)
-                    .flat_map(|definition| definition.parts.iter())
-                    // A split card is nameable half by half, so the land test
-                    // belongs to the part rather than to the whole card.
-                    .filter(|part| !nonland_only || !part.rules.types().contains(CardType::Land))
-                    .map(|part| part.name.clone())
-                    .collect::<Vec<_>>();
-                names.sort();
-                names.dedup();
-                (
-                    if nonland_only {
-                        "Choose a nonland card name"
-                    } else {
-                        "Choose a card name"
-                    },
-                    names,
-                    "Black Lotus",
-                )
-            }
-            ScalarChoiceListDef::CreatureTypes => (
-                "Choose a creature type",
-                self.creature_type_choices(player),
-                "Human",
-            ),
-        };
-        // A deliberately tiny catalog must not strand an entry procedure.
-        if choices.is_empty() {
-            choices.push(fallback.into());
-        }
-        (prompt, choices)
     }
 
     pub(super) fn activate_mana_source(

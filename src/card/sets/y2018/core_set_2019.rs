@@ -1,6 +1,12 @@
 //! M19 card records required by supported formats.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::{
+    AbilityCostDef, AbilityDef, AbilityPredicateDef, AddManaEffectDef, AppliedEffectDef, CardRules,
+    CardType, CharacteristicOperationDef, EffectDef, EffectRecipientDef, LAND_SUBTYPES,
+    ObjectPredicateDef, PlayerRelation, SetOperationDef, ZoneKind, abilities,
+};
+use crate::mana_cost;
 
 // M19 29 — Militia Bugler
 // Audit: metadata-only — Card rules have not been implemented.
@@ -20,6 +26,48 @@ pub(in crate::card::sets) static VAMPIRE_SOVEREIGN: CardRecord = CardRecord::new
     crate::card::CardArt::new("ee338221-ead9-4b89-8b0c-12745c4ca13d", "Volkan Baǵa"),
     crate::card::CardSet::CoreSet2019,
     crate::card::CardRules::unsupported(),
+);
+
+static ALPINE_MOON_MANA: AbilityDef = AbilityDef::activated_mana(
+    "{T}: Add one mana of any color.",
+    &[AbilityCostDef::TapSource],
+    EffectDef::AddMana(AddManaEffectDef::any_color()),
+);
+
+static ALPINE_MOON_CHANGES: [AppliedEffectDef; 3] = [
+    AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(
+        SetOperationDef::Remove(LAND_SUBTYPES),
+    )),
+    AppliedEffectDef::remove_abilities(AbilityPredicateDef::Any),
+    AppliedEffectDef::add_ability(&ALPINE_MOON_MANA),
+];
+
+// M19 128 — Alpine Moon
+pub(in crate::card::sets) static ALPINE_MOON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2435c810-2baf-4e3b-80ce-542b94694901"),
+    "Alpine Moon",
+    crate::card::CardArt::new("2435c810-2baf-4e3b-80ce-542b94694901", "Alayna Danner"),
+    crate::card::CardSet::CoreSet2019,
+    CardRules::new_enchantment(mana_cost!("{R}")).with_abilities(&[
+        abilities::choose_card_name_as_enters(
+            "As this enchantment enters, choose a nonbasic land card name.",
+            crate::card::BattlefieldEntryScalarChoiceDef::NONBASIC_LAND_CARD_NAME,
+        ),
+        AbilityDef::static_ability(
+            "Lands your opponents control with the chosen name lose all land types and abilities, and they gain \"{T}: Add one mana of any color.\"",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        abilities::SOURCES_CHOSEN_CARD_NAME,
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Opponent,
+                ),
+                effect: AppliedEffectDef::Composite(&ALPINE_MOON_CHANGES),
+            },
+        ),
+    ]),
 );
 
 // M19 134 — Dark-Dweller Oracle
@@ -48,6 +96,7 @@ pub(in crate::card::sets) static GOBLIN_MOTIVATOR: CardRecord = CardRecord::new(
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &MILITIA_BUGLER,
     &VAMPIRE_SOVEREIGN,
+    &ALPINE_MOON,
     &DARK_DWELLER_ORACLE,
     &GOBLIN_MOTIVATOR,
 ];

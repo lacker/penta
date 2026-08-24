@@ -4,10 +4,10 @@ use super::{
     DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
     DeclarativeAbilityDef, EffectDef, EffectPaymentDef, EffectResolutionContext, EntryCompletion,
     Game, GameEvent, Mana, ManaColor, ObjectCountConditionDef, PendingBattlefieldEntry,
-    PendingEvent, PendingReplacementEffect, PlayerId, ReplaceableEvent, ReplacementChoiceDef,
-    ReplacementConditionDef, ReplacementEffectContext, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, ResolvedEffectPayment, ScopedEffect, StackObject, StackObjectKind,
-    Target, TriggerContext, ZoneKind,
+    PendingEvent, PendingReplacementEffect, PlayerId, PlayerRelation, ReplaceableEvent,
+    ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectContext, ReplacementEffectDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, ResolvedEffectPayment, ScopedEffect,
+    StackObject, StackObjectKind, Target, TriggerContext, ZoneKind, public_cards,
 };
 
 mod discovery;
@@ -201,8 +201,6 @@ impl Game {
                 retain_printed_subtypes,
                 retained_abilities,
             ),
-            // With two players every relation this appears on names exactly
-            // one candidate, so the choice is recorded rather than asked.
             // Any number of cards, so this one has to be asked rather than
             // recorded: the entry waits behind the choice and resumes with
             // the pile linked to the permanent that is arriving.
@@ -221,19 +219,13 @@ impl Game {
                 self.queue_entry_exile_choice(controller, &name, entering, &candidates);
                 None
             }
+            // With two players every relation this appears on names exactly
+            // one candidate, so the choice is recorded rather than asked.
             ReplacementEffectDef::Choose(ReplacementChoiceDef::Player(relation)) => {
-                let controller = Self::pending_event_controller(&pending);
-                let chosen = [PlayerId::One, PlayerId::Two].into_iter().find(|player| {
-                    self.player_relation_matches(
-                        *player,
-                        relation,
-                        controller,
-                        TriggerContext::empty(),
-                    )
-                });
-                let ReplaceableEvent::BattlefieldEntry(entry) = &mut pending.event;
-                entry.permanent.chosen_player = chosen;
-                Some(pending)
+                Some(self.record_chosen_entry_player(pending, relation))
+            }
+            ReplacementEffectDef::LookAtHand(relation) => {
+                Some(self.record_entry_hand_look(pending, relation))
             }
             ReplacementEffectDef::Sequence(effects) => {
                 Self::push_replacement_effects(&mut pending, context, effects);
@@ -288,6 +280,35 @@ impl Game {
             | ReplacementEffectDef::MultiplyEventAmount(_)
             | ReplacementEffectDef::AddToEventAmount(_) => Some(pending),
         }
+    }
+
+    fn record_chosen_entry_player(
+        &self,
+        mut pending: PendingEvent,
+        relation: PlayerRelation,
+    ) -> PendingEvent {
+        let controller = Self::pending_event_controller(&pending);
+        let chosen = [PlayerId::One, PlayerId::Two].into_iter().find(|player| {
+            self.player_relation_matches(*player, relation, controller, TriggerContext::empty())
+        });
+        let ReplaceableEvent::BattlefieldEntry(entry) = &mut pending.event;
+        entry.permanent.chosen_player = chosen;
+        pending
+    }
+
+    fn record_entry_hand_look(
+        &mut self,
+        pending: PendingEvent,
+        relation: PlayerRelation,
+    ) -> PendingEvent {
+        let controller = Self::pending_event_controller(&pending);
+        if let Some(seen) = [PlayerId::One, PlayerId::Two].into_iter().find(|player| {
+            self.player_relation_matches(*player, relation, controller, TriggerContext::empty())
+        }) {
+            self.last_seen_hands[controller.index()] =
+                Some((seen, public_cards(&self.players[seen.index()].hand)));
+        }
+        pending
     }
 
     pub(super) fn push_replacement_effects(

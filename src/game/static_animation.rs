@@ -39,6 +39,7 @@ impl Game {
             ObjectPredicateDef::Any
             | ObjectPredicateDef::Source
             | ObjectPredicateDef::AttachedToSource
+            | ObjectPredicateDef::HasSourcesChosenScalar(_)
             | ObjectPredicateDef::HasAnyBasicLandType(_)
             | ObjectPredicateDef::HasType(
                 CardType::Land | CardType::Enchantment | CardType::Artifact,

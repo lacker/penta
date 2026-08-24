@@ -7,6 +7,7 @@ use super::{
     ObjectPredicateDef, ObjectRefDef, ObjectSetDef, Permanent, ResolvedContinuousEffectKind,
     SetOperationDef, TriggerContext, ZoneKind,
 };
+use crate::card::LAND_SUBTYPES;
 
 #[derive(Clone)]
 enum SubtypeLayerOperation {
@@ -18,30 +19,6 @@ enum SubtypeLayerOperation {
     /// interned per game rather than authored as a static slice.
     AddedNamed(Vec<&'static str>),
 }
-
-/// Land subtype vocabulary from CR 205.3i. Type-setting effects must remove
-/// every land subtype while preserving subtypes belonging to the object's
-/// other card types.
-const LAND_SUBTYPES: &[&str] = &[
-    "Cave",
-    "Desert",
-    "Forest",
-    "Gate",
-    "Island",
-    "Lair",
-    "Locus",
-    "Mine",
-    "Mountain",
-    "Plains",
-    "Planet",
-    "Power-Plant",
-    "Sphere",
-    "Swamp",
-    "Tower",
-    "Town",
-    "Urza's",
-    "Urza’s",
-];
 
 impl Game {
     fn land_type_operations(
@@ -514,6 +491,12 @@ impl Game {
             ObjectPredicateDef::Not(predicate) => {
                 !self.land_type_object_predicate_matches(*predicate, source, affected)
             }
+            ObjectPredicateDef::HasSourcesChosenScalar(
+                crate::card::BattlefieldEntryChoiceDestinationDef::CardName,
+            ) => source.chosen_card_name.as_deref().is_some_and(|chosen| {
+                self.object_card_name(affected.card.id)
+                    .is_some_and(|actual| actual == chosen)
+            }),
             ObjectPredicateDef::HasAnyBasicLandType(_)
             | ObjectPredicateDef::Spell
             | ObjectPredicateDef::NoncreatureSpell

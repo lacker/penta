@@ -137,6 +137,14 @@ pub enum ScalarChoiceListDef {
     /// restriction on Meddling Mage rather than flavor: naming a land would
     /// otherwise lock out a fetch that was never castable anyway.
     NonlandCardNames,
+    /// Only nonbasic lands. Alpine Moon cannot name a spell, a basic land,
+    /// or a nonland permanent even though all of them are ordinary card
+    /// names elsewhere.
+    NonbasicLandCardNames,
+    /// Every card name except a basic land card name. Booby Trap may name a
+    /// nonbasic land or any nonland card, which is deliberately wider than
+    /// [`Self::NonlandCardNames`].
+    CardNamesOtherThanBasicLands,
     /// Every creature subtype available to the current game.
     CreatureTypes,
     /// The five basic land types, which are fixed rather than catalog-derived.
@@ -179,6 +187,16 @@ impl BattlefieldEntryScalarChoiceDef {
 
     pub const NONLAND_CARD_NAME: Self = Self {
         list: ScalarChoiceListDef::NonlandCardNames,
+        destination: BattlefieldEntryChoiceDestinationDef::CardName,
+    };
+
+    pub const NONBASIC_LAND_CARD_NAME: Self = Self {
+        list: ScalarChoiceListDef::NonbasicLandCardNames,
+        destination: BattlefieldEntryChoiceDestinationDef::CardName,
+    };
+
+    pub const CARD_NAME_OTHER_THAN_BASIC_LAND: Self = Self {
+        list: ScalarChoiceListDef::CardNamesOtherThanBasicLands,
         destination: BattlefieldEntryChoiceDestinationDef::CardName,
     };
 
@@ -234,6 +252,10 @@ pub enum ReplacementEffectDef {
     AddToEventAmount(u16),
     /// Record a choice on the object that is entering.
     Choose(ReplacementChoiceDef),
+    /// Privately show the entering permanent's controller the named player's
+    /// hand before the entry procedure continues. In the two-player engine an
+    /// opponent relation identifies one player without another choice.
+    LookAtHand(PlayerRelation),
     /// Optionally use another permanent's copiable values for the entering
     /// object, retaining the named card types in addition to the copy.
     CopyEntering {

@@ -860,13 +860,20 @@ pub(in crate::card::sets) static MOMENT_OF_HEROISM: CardRecord = CardRecord::new
 );
 
 // ISD 25 — Nevermore
-// Audit: metadata-only — Needs a nonland card-name choice and a cast prohibition keyed to that stored name.
 pub(in crate::card::sets) static NEVERMORE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("67b610fe-36ee-4d58-8ed4-04e7a12587b2"),
     "Nevermore",
     crate::card::CardArt::new("67b610fe-36ee-4d58-8ed4-04e7a12587b2", "Jason A. Engle"),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{W}{W}")).with_abilities(&[
+        abilities::choose_card_name_as_enters(
+            "As this enchantment enters, choose a nonland card name.",
+            crate::card::BattlefieldEntryScalarChoiceDef::NONLAND_CARD_NAME,
+        ),
+        abilities::cannot_cast_spells_with_chosen_name(
+            "Spells with the chosen name can't be cast.",
+        ),
+    ]),
 );
 
 // ISD 26 — Paraselene

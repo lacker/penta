@@ -181,9 +181,10 @@ impl Game {
 
     #[allow(clippy::too_many_lines)]
     pub(super) fn add_ability_actions(&self, player: PlayerId, actions: &mut Vec<Action>) {
-        // Mana abilities are enumerated elsewhere, so a prohibition on
-        // activating anything else takes this whole walk with it.
-        if self.cannot_activate_nonmana_abilities(player) {
+        // Mana abilities are enumerated elsewhere. Split second prohibits
+        // every nonmana activation, while ordinary static restrictions are
+        // matched against each prospective source below.
+        if self.split_second_is_active() {
             return;
         }
         for permanent in self.battlefield.iter().filter(|permanent| {
@@ -191,9 +192,7 @@ impl Game {
             // abilities printed as open to everyone.
             permanent.controller == player || self.has_open_activated_ability(permanent)
         }) {
-            // Mana abilities are exempt, and they are enumerated elsewhere,
-            // so a named source contributes no actions from here at all.
-            if self.activated_abilities_are_named(permanent) {
+            if self.nonmana_ability_activation_is_prohibited(player, permanent) {
                 continue;
             }
             // A permanent-wide prohibition stops every activation it could
@@ -763,6 +762,13 @@ impl Game {
 
     pub(super) fn add_hand_ability_actions(&self, player: PlayerId, actions: &mut Vec<Action>) {
         for card in &self.players[player.index()].hand {
+            if self.nonbattlefield_ability_activation_is_prohibited(
+                player,
+                card,
+                &CharacteristicContext::Hand,
+            ) {
+                continue;
+            }
             self.for_each_printed_card_ability(card, &CharacteristicContext::Hand, |effective| {
                 let ability = effective.ability;
                 let DeclarativeAbilityDef::Activated(definition) = ability.definition else {
@@ -807,6 +813,7 @@ impl Game {
                         | AbilityCostDef::Special(_) => supported = false,
                     }
                 }
+                mana_cost = self.ability_mana_cost_for_source(card.id, mana_cost);
                 let payment_purpose = ManaPaymentPurpose::Ability {
                     source: card.id,
                     taps_source: false,
@@ -870,6 +877,13 @@ impl Game {
         actions: &mut Vec<Action>,
     ) {
         for card in &self.players[player.index()].graveyard {
+            if self.nonbattlefield_ability_activation_is_prohibited(
+                player,
+                card,
+                &CharacteristicContext::Graveyard,
+            ) {
+                continue;
+            }
             self.for_each_printed_card_ability(
                 card,
                 &CharacteristicContext::Graveyard,
@@ -926,6 +940,7 @@ impl Game {
                     };
                     // Nothing offers a graveyard activation more than once, so
                     // a variable X would silently be chosen as zero.
+                    mana_cost = self.ability_mana_cost_for_source(card.id, mana_cost);
                     if !supported
                         || mana_cost.variable_x
                         || !self.can_pay_cost_for(player, mana_cost, 0, &payment_purpose)

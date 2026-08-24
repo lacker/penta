@@ -44,11 +44,22 @@ impl Game {
         };
         let (card, _zone_change) = self.zone_change_card(card);
         let card_id = card.id;
+        let definition = card.definition;
         self.players[player.index()].hand.push(card);
         self.events.push(GameEvent::CardDrawn {
             player,
             card: card_id,
         });
+        if self.player_rule_applies(player, crate::card::AppliedRuleDef::RevealsDrawnCards) {
+            self.events.push(GameEvent::CardRevealed {
+                player,
+                card: card_id,
+                definition,
+            });
+            for viewer in &mut self.last_seen_hands {
+                *viewer = Some((player, vec![(card_id, definition)]));
+            }
+        }
         let drawn = &mut self.cards_drawn_this_turn[player.index()];
         *drawn = drawn.saturating_add(1);
         self.drawn_this_turn[player.index()].push(card_id);
@@ -65,8 +76,17 @@ impl Game {
         if first_in_draw_step {
             self.draw_step_draw_taken[player.index()] = true;
         }
+        let card = self
+            .printed_trigger_event_object(
+                card_id,
+                definition,
+                player,
+                &crate::CharacteristicContext::Hand,
+            )
+            .expect("a drawn catalog card has hand characteristics");
         self.capture_battlefield_triggers(&CommittedTriggerEvent::DrewCard {
             player,
+            card,
             first_in_draw_step,
             nth_this_turn: self.cards_drawn_this_turn[player.index()],
         });

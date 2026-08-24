@@ -202,6 +202,30 @@ pub enum BasicLandType {
     Forest,
 }
 
+/// Every land subtype in CR 205.3i. Effects that remove "all land types"
+/// use this vocabulary while leaving creature, artifact, enchantment, and
+/// other subtype families untouched.
+pub const LAND_SUBTYPES: &[&str] = &[
+    "Cave",
+    "Desert",
+    "Forest",
+    "Gate",
+    "Island",
+    "Lair",
+    "Locus",
+    "Mine",
+    "Mountain",
+    "Plains",
+    "Planet",
+    "Power-Plant",
+    "Sphere",
+    "Swamp",
+    "Tower",
+    "Town",
+    "Urza's",
+    "Urza’s",
+];
+
 impl BasicLandType {
     pub const ALL: [Self; 5] = [
         Self::Plains,

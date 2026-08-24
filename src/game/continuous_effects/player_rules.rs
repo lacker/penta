@@ -12,12 +12,13 @@ use std::ops::ControlFlow;
 use crate::card::{
     AppliedEffectDef, AppliedRuleDef, AttackDefenderScopeDef, DamageEventMatcherDef,
     DamageLimitDef, DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EffectRecipientSetDef,
-    PlayerRefDef, PlayerSetDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef,
 };
 use crate::ids::{GameObjectId, PlayerId};
 
 use super::super::{
-    AppliedAttackRestriction, AppliedPlayRestriction, Game, Permanent, TriggerContext,
+    AppliedAttackRestriction, AppliedPlayRestriction, CardInstance, CharacteristicContext, Game,
+    Permanent, TriggerContext, TriggerEventObject,
 };
 
 impl Game {
@@ -535,6 +536,9 @@ impl Game {
             EffectRecipientSetDef::Players(PlayerSetDef::One(PlayerRefDef::Opponent)) => {
                 affected_player == source.controller.opponent()
             }
+            EffectRecipientSetDef::Players(PlayerSetDef::Related(PlayerRelation::ChosenPlayer)) => {
+                self.chosen_player_of(source.card.id) == Some(affected_player)
+            }
             EffectRecipientSetDef::Players(PlayerSetDef::Related(relation)) => self
                 .player_relation_matches(
                     affected_player,
@@ -582,20 +586,52 @@ impl Game {
         })
     }
 
-    pub(in crate::game) fn cannot_activate_nonmana_abilities(&self, player: PlayerId) -> bool {
-        if self.split_second_is_active() {
-            return true;
-        }
+    /// Whether a player-facing prohibition names this permanent's nonmana
+    /// activated abilities. The object predicate matters: Abeyance names any
+    /// source, while Pithing Needle names only the card name it chose.
+    pub(in crate::game) fn nonmana_ability_activation_is_prohibited(
+        &self,
+        player: PlayerId,
+        permanent: &Permanent,
+    ) -> bool {
+        self.nonmana_ability_activation_of_object_is_prohibited(
+            player,
+            &self.trigger_event_object(permanent),
+        )
+    }
+
+    pub(in crate::game) fn nonmana_ability_activation_of_object_is_prohibited(
+        &self,
+        player: PlayerId,
+        object: &TriggerEventObject,
+    ) -> bool {
         self.visit_play_restrictions(player, |applied| {
-            if matches!(
-                applied.restriction.action,
-                crate::card::PlayActionMatcherDef::ActivateNonManaAbility
-            ) {
+            if applied.restriction.action
+                == crate::card::PlayActionMatcherDef::ActivateNonManaAbility
+                && self.trigger_object_matches(
+                    applied.restriction.object,
+                    object,
+                    applied.source,
+                    false,
+                )
+            {
                 ControlFlow::Break(())
             } else {
                 ControlFlow::Continue(())
             }
         })
         .is_break()
+    }
+
+    pub(in crate::game) fn nonbattlefield_ability_activation_is_prohibited(
+        &self,
+        player: PlayerId,
+        card: &CardInstance,
+        context: &CharacteristicContext,
+    ) -> bool {
+        self.printed_trigger_event_object(card.id, card.definition, player, context)
+            .is_some_and(|object| {
+                self.nonmana_ability_activation_of_object_is_prohibited(player, &object)
+            })
     }
 }

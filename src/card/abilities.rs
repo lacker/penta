@@ -21,7 +21,6 @@ use super::model::{
     ZonePlacement,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
-
 /// The target an "Enchant creature" Aura spell chooses.
 pub static ENCHANT_CREATURE_TARGET: [AbilityTargetDef; 1] =
     [AbilityTargetDef::exactly_one_permanent(
@@ -997,4 +996,5 @@ include!("abilities/repeated_clauses.rs");
 include!("abilities/keyword_mechanics.rs");
 include!("abilities/convoke_buyback.rs");
 include!("abilities/attachment.rs");
+include!("abilities/named_cards.rs");
 include!("abilities/tests.rs");

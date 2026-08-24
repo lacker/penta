@@ -1169,6 +1169,29 @@ pub(in crate::card::sets) static WRITHING_CHRYSALIS: CardRecord = CardRecord::ne
     crate::card::CardRules::unsupported(),
 );
 
+// MH3 209 — Disruptor Flute
+pub(in crate::card::sets) static DISRUPTOR_FLUTE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5cad8671-4761-4014-a8a3-af45627e6e79"),
+    "Disruptor Flute",
+    crate::card::CardArt::new("5cad8671-4761-4014-a8a3-af45627e6e79", "Xavier Ribeiro"),
+    crate::card::CardSet::ModernHorizons3,
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        abilities::flash(),
+        abilities::choose_card_name_as_enters(
+            "As this artifact enters, choose a card name.",
+            crate::card::BattlefieldEntryScalarChoiceDef::CARD_NAME,
+        ),
+        abilities::chosen_name_spell_cost_increase(
+            "Spells with the chosen name cost {3} more to cast.",
+            PlayerRelation::Any,
+            mana_cost!("{3}"),
+        ),
+        abilities::cannot_activate_nonmana_abilities_with_chosen_name(
+            "Activated abilities of sources with the chosen name can't be activated unless they're mana abilities.",
+        ),
+    ]),
+);
+
 // MH3 217 — Bountiful Landscape
 /// A basic one, not merely a card with the type: the tri-fetch cycle names
 /// three basics and finds nothing else, which is what separates it from the
@@ -2073,6 +2096,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PSYCHIC_FROG,
     &SNAPPING_VOIDCRAW,
     &WRITHING_CHRYSALIS,
+    &DISRUPTOR_FLUTE,
     &BOUNTIFUL_LANDSCAPE,
     &CONTAMINATED_LANDSCAPE,
     &DECEPTIVE_LANDSCAPE,

@@ -214,6 +214,7 @@ pub(super) fn shared_entry_replacement_effect(effect: ReplacementEffectDef) -> b
     match effect {
         ReplacementEffectDef::ModifyBattlefieldEntry(_)
         | ReplacementEffectDef::Choose(_)
+        | ReplacementEffectDef::LookAtHand(_)
         | ReplacementEffectDef::CopyEntering { .. }
         // The entering card goes somewhere else instead. Only the zones a
         // card can actually be sent to are inside the boundary; a redirect
@@ -284,6 +285,7 @@ pub(in super::super) fn shared_begin_turn_replacement_effect(effect: Replacement
         | ReplacementEffectDef::MultiplyEventAmount(_)
         | ReplacementEffectDef::AddToEventAmount(_)
         | ReplacementEffectDef::Choose(_)
+        | ReplacementEffectDef::LookAtHand(_)
         | ReplacementEffectDef::CopyEntering { .. }
         | ReplacementEffectDef::Conditional { .. }
         | ReplacementEffectDef::PayOr { .. } => false,
@@ -370,6 +372,7 @@ pub(in super::super) fn shared_battlefield_exit_replacement_effect(
         | ReplacementEffectDef::MultiplyEventAmount(_)
         | ReplacementEffectDef::AddToEventAmount(_)
         | ReplacementEffectDef::Choose(_)
+        | ReplacementEffectDef::LookAtHand(_)
         | ReplacementEffectDef::CopyEntering { .. }
         | ReplacementEffectDef::Conditional { .. }
         | ReplacementEffectDef::PayOr { .. } => false,
@@ -476,6 +479,7 @@ pub(in super::super) fn assert_nested_replacement_definition_abilities(
         | ReplacementEffectDef::MultiplyEventAmount(_)
         | ReplacementEffectDef::AddToEventAmount(_)
         | ReplacementEffectDef::Choose(_)
+        | ReplacementEffectDef::LookAtHand(_)
         | ReplacementEffectDef::CopyEntering { .. } => {}
     }
 }

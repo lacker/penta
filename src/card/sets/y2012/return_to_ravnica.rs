@@ -10,10 +10,9 @@ use crate::card::{
     DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
     EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    SacrificedAmountDef, SpellResolutionDestinationDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement,
-    abilities,
+    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
+    SpellResolutionDestinationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneChangeEventMatcherDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -5385,21 +5384,13 @@ pub(in crate::card::sets) static PITHING_NEEDLE: CardRecord = CardRecord::new_wi
     CardArt::new("786c1e91-9d75-46a3-9e0d-56d29fcb01a7", "Anthony Palumbo"),
     CardSet::ReturnToRavnica,
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
-        AbilityDef::replacement(
+        abilities::choose_card_name_as_enters(
             "As this artifact enters, choose a card name.",
-            ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
-                crate::card::BattlefieldEntryScalarChoiceDef::CARD_NAME,
-            )),
+            crate::card::BattlefieldEntryScalarChoiceDef::CARD_NAME,
         ),
-        // The named card's abilities are locked by the action generator, the
-        // same place every other activation restriction is enforced.
-        AbilityDef::static_ability(
+        abilities::cannot_activate_nonmana_abilities_with_chosen_name(
             "Activated abilities of sources with the chosen name can't be activated unless they're mana abilities.",
-            EffectDef::None,
-        )
-        .with_coverage(AbilityCoverageDef::explained_complete(
-            "The activation lock is enforced where activated abilities are offered.",
-        )),
+        ),
     ]),
 );
 

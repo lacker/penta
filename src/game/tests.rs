@@ -197,6 +197,7 @@ mod morbid;
 mod morbid_entry;
 mod multi_block;
 mod must_block;
+mod named_card_mechanics;
 mod old_school_interactions;
 mod old_school_permanents;
 mod old_school_spells;

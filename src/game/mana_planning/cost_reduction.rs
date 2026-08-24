@@ -147,6 +147,14 @@ impl Game {
                     })) if self.ability_cost_effect_applies(matcher, permanent, other) => {
                         total = add_mana_cost(total, amount);
                     }
+                    Some(EffectDef::ModifyCost(
+                        CostModificationDef::SourceAbilityIncrease {
+                            source: matcher,
+                            amount,
+                        },
+                    )) if self.ability_cost_effect_applies(matcher, permanent, other) => {
+                        total = add_mana_cost(total, amount);
+                    }
                     Some(EffectDef::ModifyCost(CostModificationDef::AbilityReduction {
                         permanent: matcher,
                         amount,
@@ -164,6 +172,80 @@ impl Game {
             total = Self::reduce_ability_cost(total, amount, minimum);
         }
         total
+    }
+
+    pub(super) fn nonbattlefield_ability_mana_cost(
+        &self,
+        object: &crate::game::TriggerEventObject,
+        cost: ManaCost,
+    ) -> ManaCost {
+        let mut total = cost;
+        for permanent in &self.battlefield {
+            let Some(rules) = self.effective_rules(permanent) else {
+                continue;
+            };
+            for ability in rules.ability_clauses() {
+                let Some(EffectDef::ModifyCost(
+                    CostModificationDef::SourceAbilityIncrease { source, amount },
+                )) = ability
+                    .is_executable()
+                    .then(|| ability.declarative_effect())
+                    .flatten()
+                else {
+                    continue;
+                };
+                if self.trigger_object_matches(source, object, permanent.card.id, false) {
+                    total = add_mana_cost(total, amount);
+                }
+            }
+        }
+        total
+    }
+
+    pub(super) fn ability_mana_cost_for_source(
+        &self,
+        source: crate::ids::GameObjectId,
+        cost: ManaCost,
+    ) -> ManaCost {
+        if let Some(permanent) = self
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == source)
+        {
+            return self.ability_mana_cost(permanent, cost);
+        }
+        let Some((zone, card)) = self.card_in_nonbattlefield_zone(source) else {
+            return cost;
+        };
+        let context = match zone {
+            crate::card::ZoneKind::Hand => crate::CharacteristicContext::Hand,
+            crate::card::ZoneKind::Graveyard => crate::CharacteristicContext::Graveyard,
+            crate::card::ZoneKind::Exile => crate::CharacteristicContext::Exile,
+            crate::card::ZoneKind::Library => crate::CharacteristicContext::Library,
+            crate::card::ZoneKind::Battlefield
+            | crate::card::ZoneKind::Command
+            | crate::card::ZoneKind::Stack => return cost,
+        };
+        self.printed_trigger_event_object(
+            card.id,
+            card.definition,
+            card.owner,
+            &context,
+        )
+        .map_or(cost, |object| {
+            self.nonbattlefield_ability_mana_cost(&object, cost)
+        })
+    }
+
+    pub(super) fn priced_ability_mana_cost(
+        &self,
+        source: GameObjectId,
+        costs: &[AbilityCostDef],
+    ) -> Option<ManaCost> {
+        costs.iter().find_map(|cost| match cost {
+            AbilityCostDef::Mana(cost) => Some(self.ability_mana_cost_for_source(source, *cost)),
+            _ => None,
+        })
     }
 
     fn ability_cost_effect_applies(

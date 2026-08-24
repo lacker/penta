@@ -163,11 +163,8 @@ fn validate_static_effect(
         // The increase carries a whole mana cost rather than a value, so
         // there is nothing here to check beyond the predicate and the player
         // relation the discount beside it also checks.
-        EffectDef::ModifyCost(CostModificationDef::AbilityIncrease {
-            permanent: matcher, ..
-        }) if position == StaticPosition::Root
-            && source_zones == [ZoneKind::Battlefield]
-            && static_object_predicate_supported(matcher) =>
+        EffectDef::ModifyCost(modification)
+            if static_ability_increase_supported(modification, source_zones, position) =>
         {
             Ok(())
         }
@@ -204,6 +201,21 @@ fn validate_static_effect(
         }
         _ => Err(effect_operation_name(effect)),
     }
+}
+
+fn static_ability_increase_supported(
+    modification: CostModificationDef,
+    source_zones: &[ZoneKind],
+    position: StaticPosition,
+) -> bool {
+    let matcher = match modification {
+        CostModificationDef::AbilityIncrease { permanent, .. } => permanent,
+        CostModificationDef::SourceAbilityIncrease { source, .. } => source,
+        _ => return false,
+    };
+    position == StaticPosition::Root
+        && source_zones == [ZoneKind::Battlefield]
+        && static_object_predicate_supported(matcher)
 }
 
 fn validate_static_apply(
@@ -319,6 +331,7 @@ fn static_player_applied_effect_supported(effect: AppliedEffectDef) -> bool {
             | AppliedRuleDef::MaySpendManaAsAnyColorForCreatureAbilities
             | AppliedRuleDef::MayPlayAdditionalLands(_)
             | AppliedRuleDef::NoMaximumHandSize
+            | AppliedRuleDef::RevealsDrawnCards
             | AppliedRuleDef::DoublesTokensCreated,
         ) => true,
         AppliedEffectDef::Characteristic(_) | AppliedEffectDef::Rule(_) => false,
@@ -383,8 +396,10 @@ fn static_object_characteristic_supported(
             types == crate::card::CardTypeSet::single(CardType::Creature)
                 && static_type_animation_query_supported(recipient)
         }
-        CharacteristicOperationDef::Colors(_) => static_animation_query_supported(recipient),
-        CharacteristicOperationDef::CreatureTypes(_) | CharacteristicOperationDef::Subtypes(_) => {
+        CharacteristicOperationDef::Colors(_) | CharacteristicOperationDef::Subtypes(_) => {
+            static_animation_query_supported(recipient)
+        }
+        CharacteristicOperationDef::CreatureTypes(_) => {
             static_direct_characteristic_recipient(recipient)
         }
         CharacteristicOperationDef::CardTypes(
@@ -429,6 +444,7 @@ fn static_object_rule_supported(recipient: EffectRecipientDef, rule: AppliedRule
         | AppliedRuleDef::MaySpendManaAsAnyColorForCreatureAbilities
         | AppliedRuleDef::MayPlayAdditionalLands(_)
         | AppliedRuleDef::NoMaximumHandSize
+        | AppliedRuleDef::RevealsDrawnCards
         | AppliedRuleDef::DoublesTokensCreated
         | AppliedRuleDef::CannotPlay(_)
         | AppliedRuleDef::MayPlayFromGraveyard(_)
@@ -572,6 +588,7 @@ fn static_player_relation_supported(relation: PlayerRelation) -> bool {
             | PlayerRelation::Opponent
             | PlayerRelation::ActivePlayer
             | PlayerRelation::NonactivePlayer
+            | PlayerRelation::ChosenPlayer
     )
 }
 
@@ -657,6 +674,7 @@ fn static_animation_predicate_supported(predicate: ObjectPredicateDef, creature:
         ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::AttachedToSource
+        | ObjectPredicateDef::HasSourcesChosenScalar(_)
         | ObjectPredicateDef::HasAnyBasicLandType(_)
         | ObjectPredicateDef::HasType(
             CardType::Land | CardType::Enchantment | CardType::Artifact,

@@ -241,24 +241,8 @@ impl Game {
             ) => *object == source && *level == wanted,
             (
                 TriggerEventDef::DrewCard(matcher),
-                CommittedTriggerEvent::DrewCard {
-                    player,
-                    first_in_draw_step,
-                    nth_this_turn,
-                },
-            ) => {
-                let controller = controller.unwrap_or(*player);
-                !(matcher.except_first_in_draw_step && *first_in_draw_step)
-                    && matcher
-                        .nth_this_turn
-                        .is_none_or(|wanted| wanted == *nth_this_turn)
-                    && self.player_relation_matches(
-                        *player,
-                        matcher.player,
-                        controller,
-                        event.context(),
-                    )
-            }
+                event @ CommittedTriggerEvent::DrewCard { .. },
+            ) => self.draw_trigger_matches(matcher, event, source, controller),
             // The card the discard put into the graveyard is carried for
             // the clause that goes on to name it; which card it was does not
             // narrow the trigger, which asks only whose discard it was.

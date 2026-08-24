@@ -94,6 +94,7 @@ fn collect_replacement_ability_grants(
         | ReplacementEffectDef::MultiplyEventAmount(_)
         | ReplacementEffectDef::AddToEventAmount(_)
         | ReplacementEffectDef::Choose(_)
+        | ReplacementEffectDef::LookAtHand(_)
         | ReplacementEffectDef::CopyEntering { .. } => {}
     }
 }
@@ -172,6 +173,7 @@ fn replacement_ability_grant_sites(effect: ReplacementEffectDef) -> usize {
         | ReplacementEffectDef::MultiplyEventAmount(_)
         | ReplacementEffectDef::AddToEventAmount(_)
         | ReplacementEffectDef::Choose(_)
+        | ReplacementEffectDef::LookAtHand(_)
         | ReplacementEffectDef::CopyEntering { .. } => 0,
     }
 }

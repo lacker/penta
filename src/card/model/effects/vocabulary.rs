@@ -74,6 +74,14 @@ pub enum CostModificationDef {
         permanent: ObjectPredicateDef,
         amount: ManaCost,
     },
+    /// A permanent making activated abilities of matching sources cost more,
+    /// including sources outside the battlefield. Anointed Peacekeeper says
+    /// "sources" rather than "permanents", so cycling and graveyard
+    /// activations with the chosen name are taxed too.
+    SourceAbilityIncrease {
+        source: ObjectPredicateDef,
+        amount: ManaCost,
+    },
     /// A permanent making matching permanents' activated abilities cost less
     /// to activate. The mirror of [`Self::AbilityIncrease`], and like a
     /// spell discount it touches generic mana only.

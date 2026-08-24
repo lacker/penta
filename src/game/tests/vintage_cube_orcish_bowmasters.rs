@@ -107,6 +107,36 @@ fn each_extra_draw_grows_the_same_army() {
     );
 }
 
+/// The drawn card's characteristics are available while matching the event,
+/// but an ordinary draw does not publish that hidden card into the trigger's
+/// resolving context or checkpoint.
+#[test]
+fn an_unrevealed_draw_does_not_bind_the_drawn_card_to_the_trigger() {
+    let mut game = staged();
+
+    let drawn = game
+        .draw_card(PlayerId::Two)
+        .expect("the opponent has a card to draw");
+    let [trigger] = game.pending_triggers.as_slice() else {
+        panic!("the extra draw created one Bowmasters trigger");
+    };
+    assert_eq!(trigger.context.trigger.object, None);
+    assert_eq!(trigger.context.trigger.object_controller, None);
+    assert_eq!(trigger.context.trigger.event_player, Some(PlayerId::Two));
+
+    let checkpoint = game.checkpoint_json(PlayerId::One);
+    assert_eq!(
+        checkpoint["pendingTriggers"][0]["context"]["trigger"]["object"],
+        serde_json::Value::Null,
+    );
+    assert!(game.events_for(PlayerId::One).iter().all(|event| {
+        !matches!(
+            event,
+            GameEvent::CardRevealed { card, .. } if *card == drawn
+        )
+    }));
+}
+
 /// Your own draws are not an opponent's, however many you take.
 #[test]
 fn your_own_draws_are_not_shot_at() {

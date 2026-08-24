@@ -755,23 +755,6 @@ impl Game {
     /// during your own main phase with an empty stack, and only one loyalty
     /// ability per planeswalker per turn. CR 606.5: the cost cannot remove
     /// more counters than the permanent has.
-    /// CR 602.5c as Pithing Needle writes it: a non-mana activated ability
-    /// cannot be activated while something has named its source's card. The
-    /// name is matched against the object's effective card part, so transformed
-    /// faces and copies answer to the name whose abilities they currently
-    /// present.
-    pub(super) fn activated_abilities_are_named(&self, permanent: &Permanent) -> bool {
-        let Some(name) = self.effective_permanent_name(permanent) else {
-            return false;
-        };
-        self.battlefield.iter().any(|candidate| {
-            candidate
-                .chosen_card_name
-                .as_deref()
-                .is_some_and(|chosen| chosen == name.as_ref())
-        })
-    }
-
     /// Whether a permission on this planeswalker opens its loyalty abilities
     /// to instant speed.
     fn loyalty_may_be_activated_any_time(&self, permanent: &Permanent) -> bool {

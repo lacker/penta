@@ -471,7 +471,10 @@ fn validate_replacement_effect_target_shapes(
                 (choice.list, choice.destination),
                 (ScalarChoiceListDef::Players, BattlefieldEntryChoiceDestinationDef::Player)
                 | (
-                    ScalarChoiceListDef::CardNames | ScalarChoiceListDef::NonlandCardNames,
+                    ScalarChoiceListDef::CardNames
+                        | ScalarChoiceListDef::NonlandCardNames
+                        | ScalarChoiceListDef::NonbasicLandCardNames
+                        | ScalarChoiceListDef::CardNamesOtherThanBasicLands,
                     BattlefieldEntryChoiceDestinationDef::CardName
                 ) | (
                     ScalarChoiceListDef::CreatureTypes,
@@ -494,6 +497,7 @@ fn validate_replacement_effect_target_shapes(
         | ReplacementEffectDef::ModifyBattlefieldEntry(_)
         | ReplacementEffectDef::MultiplyEventAmount(_)
         | ReplacementEffectDef::AddToEventAmount(_)
+        | ReplacementEffectDef::LookAtHand(_)
         | ReplacementEffectDef::Choose(
             ReplacementChoiceDef::Player(_)
             | ReplacementChoiceDef::ExileMatchingFromGraveyard(_),

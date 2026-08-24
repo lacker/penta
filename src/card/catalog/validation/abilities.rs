@@ -730,6 +730,7 @@ fn validate_entry_replacement_program(effect: ReplacementEffectDef) -> Result<()
     match effect {
         ReplacementEffectDef::ModifyBattlefieldEntry(_)
         | ReplacementEffectDef::Choose(_)
+        | ReplacementEffectDef::LookAtHand(_)
         // Sending the entering card somewhere else instead, which is how an
         // unpaid Mox Diamond reaches its owner's graveyard.
         | ReplacementEffectDef::MoveToZone(_)
@@ -805,6 +806,7 @@ fn validate_begin_turn_replacement_program(
         | ReplacementEffectDef::MultiplyEventAmount(_)
         | ReplacementEffectDef::AddToEventAmount(_)
         | ReplacementEffectDef::Choose(_)
+        | ReplacementEffectDef::LookAtHand(_)
         | ReplacementEffectDef::CopyEntering { .. }
         | ReplacementEffectDef::Conditional { .. }
         | ReplacementEffectDef::PayOr { .. } => Err(replacement_operation_name(effect)),
@@ -853,6 +855,7 @@ fn validate_battlefield_exit_replacement_program(
         | ReplacementEffectDef::MultiplyEventAmount(_)
         | ReplacementEffectDef::AddToEventAmount(_)
         | ReplacementEffectDef::Choose(_)
+        | ReplacementEffectDef::LookAtHand(_)
         | ReplacementEffectDef::CopyEntering { .. }
         | ReplacementEffectDef::Conditional { .. }
         | ReplacementEffectDef::PayOr { .. } => Err(replacement_operation_name(effect)),
@@ -869,6 +872,7 @@ const fn replacement_operation_name(effect: ReplacementEffectDef) -> &'static st
         ReplacementEffectDef::MultiplyEventAmount(_) => "MultiplyEventAmount",
         ReplacementEffectDef::AddToEventAmount(_) => "AddToEventAmount",
         ReplacementEffectDef::Choose(_) => "Choose",
+        ReplacementEffectDef::LookAtHand(_) => "LookAtHand",
         ReplacementEffectDef::CopyEntering { .. } => "CopyEntering",
         ReplacementEffectDef::Conditional { .. } => "Conditional",
         ReplacementEffectDef::PayOr { .. } => "PayOr",

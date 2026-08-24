@@ -688,7 +688,7 @@ static THERAPY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 pub(in crate::card::sets) static CABAL_THERAPY: CardRecord = CardRecord::new_with_legacy_id(
     2068,
     "Cabal Therapy",
-    CardArt::new("0a5df970-6c2b-4e7f-9a3d-1b8e5c2f4d6a", "Ron Spencer"),
+    CardArt::new("0a5df970-c6ba-4824-b8ba-67244aec2b82", "Ron Spencer"),
     CardSet::Judgment,
     // A guess for one mana, and the same guess again later for a creature
     // that has already attacked.

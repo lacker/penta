@@ -585,6 +585,10 @@ pub enum ArrivalAttachmentDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct DrawEventMatcherDef {
     pub player: PlayerRelation,
+    /// The card that was drawn, captured with its hand characteristics before
+    /// anything can move it. Most draw triggers accept any card; Booby Trap
+    /// is the recurring rules shape that names one.
+    pub card: ObjectPredicateDef,
     /// Whether the card a player is handed at the start of their own draw
     /// step is spared. Orcish Bowmasters prints "except the first one they
     /// draw in each of their draw steps", which exempts the turn-based draw
@@ -602,6 +606,7 @@ impl DrawEventMatcherDef {
     pub const fn any(player: PlayerRelation) -> Self {
         Self {
             player,
+            card: ObjectPredicateDef::Any,
             except_first_in_draw_step: false,
             nth_this_turn: None,
         }
@@ -613,6 +618,7 @@ impl DrawEventMatcherDef {
     pub const fn nth_each_turn(player: PlayerRelation, nth: u16) -> Self {
         Self {
             player,
+            card: ObjectPredicateDef::Any,
             except_first_in_draw_step: false,
             nth_this_turn: Some(nth),
         }
@@ -622,7 +628,18 @@ impl DrawEventMatcherDef {
     pub const fn except_first_in_draw_step(player: PlayerRelation) -> Self {
         Self {
             player,
+            card: ObjectPredicateDef::Any,
             except_first_in_draw_step: true,
+            nth_this_turn: None,
+        }
+    }
+
+    #[must_use]
+    pub const fn matching(player: PlayerRelation, card: ObjectPredicateDef) -> Self {
+        Self {
+            player,
+            card,
+            except_first_in_draw_step: false,
             nth_this_turn: None,
         }
     }

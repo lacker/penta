@@ -17,6 +17,7 @@ use super::{
 };
 
 mod graveyard;
+include!("trigger_capture/drawing.rs");
 
 impl Game {
     pub(super) fn capture_battlefield_triggers(&mut self, event: &CommittedTriggerEvent) {

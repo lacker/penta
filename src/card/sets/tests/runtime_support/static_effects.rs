@@ -41,6 +41,9 @@ pub(in super::super) fn shared_static_non_apply_effect(
         EffectDef::ModifyCost(CostModificationDef::AbilityIncrease { permanent, .. }) => {
             battlefield_only(source_zones) && shared_object_predicate(permanent)
         }
+        EffectDef::ModifyCost(CostModificationDef::SourceAbilityIncrease { source, .. }) => {
+            battlefield_only(source_zones) && shared_object_predicate(source)
+        }
         // The discount beside it does carry a value, read off the board the
         // same way a spell discount's is.
         EffectDef::ModifyCost(CostModificationDef::AbilityReduction {
@@ -360,12 +363,12 @@ pub(in super::super) fn shared_static_applied_effect(
             types == crate::card::CardTypeSet::single(CardType::Creature)
                 && shared_static_type_animation_query(recipient)
         }
-        AppliedEffectDef::Characteristic(CharacteristicOperationDef::Colors(_)) => {
-            shared_static_animation_query(recipient)
-        }
         AppliedEffectDef::Characteristic(
-            CharacteristicOperationDef::CreatureTypes(_) | CharacteristicOperationDef::Subtypes(_),
-        ) => shared_direct_characteristic_recipient(recipient),
+            CharacteristicOperationDef::Colors(_) | CharacteristicOperationDef::Subtypes(_),
+        ) => shared_static_animation_query(recipient),
+        AppliedEffectDef::Characteristic(CharacteristicOperationDef::CreatureTypes(_)) => {
+            shared_direct_characteristic_recipient(recipient)
+        }
         AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(
             SetOperationDef::Remove(_) | SetOperationDef::Set(_),
         )) => false,

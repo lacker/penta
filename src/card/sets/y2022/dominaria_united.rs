@@ -9,6 +9,29 @@ use crate::card::{
 };
 use crate::{TargetIndex, mana_cost};
 
+// DMU 2 — Anointed Peacekeeper
+pub(in crate::card::sets) static ANOINTED_PEACEKEEPER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5b8127b5-3a65-411a-84bc-54e5c1be1477"),
+    "Anointed Peacekeeper",
+    crate::card::CardArt::new("5b8127b5-3a65-411a-84bc-54e5c1be1477", "Tia Masic"),
+    crate::card::CardSet::DominariaUnited,
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 3, 3).with_abilities(&[
+        abilities::vigilance(),
+        abilities::look_at_opponent_hand_then_choose_card_name_as_enters(
+            "As this creature enters, look at an opponent's hand, then choose any card name.",
+        ),
+        abilities::chosen_name_spell_cost_increase(
+            "Spells your opponents cast with the chosen name cost {2} more to cast.",
+            PlayerRelation::Opponent,
+            mana_cost!("{2}"),
+        ),
+        abilities::chosen_name_ability_cost_increase(
+            "Activated abilities of sources with the chosen name cost {2} more to activate unless they're mana abilities.",
+            mana_cost!("{2}"),
+        ),
+    ]),
+);
+
 // DMU 24 — Leyline Binding
 /// "Until this enchantment leaves the battlefield" is one printed clause, so
 /// the return rides on a delayed trigger rather than appearing as a second
@@ -324,6 +347,7 @@ pub(in crate::card::sets) static SERRA_PARAGON: CardRecord = CardRecord::new(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &ANOINTED_PEACEKEEPER,
     &LEYLINE_BINDING,
     &TOLARIAN_TERROR,
     &CUT_DOWN,

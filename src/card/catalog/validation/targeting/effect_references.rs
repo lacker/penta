@@ -527,6 +527,7 @@ fn validate_replacement_effect_target_references(
         | ReplacementEffectDef::MultiplyEventAmount(_)
         | ReplacementEffectDef::AddToEventAmount(_)
         | ReplacementEffectDef::Choose(_)
+        | ReplacementEffectDef::LookAtHand(_)
         | ReplacementEffectDef::CopyEntering { .. } => Ok(()),
     }
 }

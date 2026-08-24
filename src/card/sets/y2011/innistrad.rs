@@ -1820,14 +1820,71 @@ pub(in crate::card::sets) static LOST_IN_THE_MIST: CardRecord = CardRecord::new_
 );
 
 // ISD 64 — Ludevic's Test Subject // Ludevic's Abomination
-// Audit: metadata-only — Needs hatchling counters and an activation continuation that removes all five before transforming.
+static LUDEVIC_HAS_FIVE_HATCHLING_COUNTERS: TriggerConditionDef =
+    TriggerConditionDef::SourceCounters {
+        kind: CounterKind::Hatchling,
+        comparison: ComparisonDef::GreaterOrEqual,
+        amount: 5,
+    };
+
+static LUDEVIC_HATCHES: EffectDef = EffectDef::Sequence(&[
+    EffectDef::RemoveAllCounters {
+        object: EffectRecipientDef::Source,
+        kind: Some(CounterKind::Hatchling),
+    },
+    EffectDef::Transform {
+        object: EffectRecipientDef::Source,
+    },
+]);
+
+static LUDEVIC_HATCHLING_ABILITY: AbilityDef = AbilityDef::activated(
+    "{1}{U}: Put a hatchling counter on this creature. Then if there are five or more hatchling counters on it, remove all of them and transform it.",
+    &[AbilityCostDef::Mana(mana_cost!("{1}{U}"))],
+    EffectDef::Sequence(&[
+        EffectDef::AddCounters {
+            object: EffectRecipientDef::Source,
+            kind: CounterKind::Hatchling,
+            amount: ValueDef::Constant(1),
+        },
+        EffectDef::IfCondition {
+            condition: &LUDEVIC_HAS_FIVE_HATCHLING_COUNTERS,
+            then: &LUDEVIC_HATCHES,
+        },
+    ]),
+);
+
+static LUDEVIC_FRONT_ABILITIES: [AbilityDef; 2] =
+    [abilities::defender(), LUDEVIC_HATCHLING_ABILITY];
+
+const fn ludevics_test_subject_rules() -> CardRules {
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Lizard", "Egg"], 0, 3)
+        .with_abilities(&LUDEVIC_FRONT_ABILITIES)
+}
+
+const fn ludevics_abomination_rules() -> CardRules {
+    CardRules::new_creature_without_mana_cost(&["Lizard", "Horror"], 13, 13)
+        .printed_colors(&[ManaColor::Blue])
+        .with_ability(abilities::trample())
+}
+
+fn ludevics_test_subject_composition() -> CardComposition {
+    two_face_creature_composition(
+        "Ludevic's Test Subject",
+        "Ludevic's Abomination",
+        ludevics_test_subject_rules(),
+        ludevics_abomination_rules(),
+        mana_cost!("{1}{U}"),
+    )
+}
+
 pub(in crate::card::sets) static LUDEVIC_S_TEST_SUBJECT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("340b660c-9aa1-4bd2-8c6f-d9af7fee5f4a"),
     "Ludevic's Test Subject",
-    crate::card::CardArt::new("ebf5e16f-a8bd-419f-b5ca-8c7fce09c4f1", "Nils Hamm"),
-    crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
-);
+    CardArt::new("ebf5e16f-a8bd-419f-b5ca-8c7fce09c4f1", "Nils Hamm"),
+    CardSet::Innistrad,
+    ludevics_test_subject_rules(),
+)
+.with_composition(ludevics_test_subject_composition);
 
 // ISD 65 — Makeshift Mauler
 pub(in crate::card::sets) static MAKESHIFT_MAULER: CardRecord = CardRecord::new_with_legacy_id(

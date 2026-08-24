@@ -103,10 +103,13 @@ pub enum CounterKind {
     /// The Chainsaw's rev counter, which is a tally and nothing else: what
     /// it does is what the Equipment's own static clause says it does.
     Rev,
+    /// Ludevic's Test Subject's hatchling counter, counting how close the Egg
+    /// is to breaking open. Five or more are removed together when it does.
+    Hatchling,
 }
 
 impl CounterKind {
-    pub const COUNT: usize = 34;
+    pub const COUNT: usize = 35;
 
     pub const ALL: [Self; Self::COUNT] = [
         Self::PlusOnePlusOne,
@@ -143,6 +146,7 @@ impl CounterKind {
         Self::Silver,
         Self::Stun,
         Self::Rev,
+        Self::Hatchling,
     ];
 
     /// What one counter of this kind adds to power and toughness. The kinds
@@ -184,7 +188,8 @@ impl CounterKind {
             | Self::Chorus
             | Self::Silver
             | Self::Stun
-            | Self::Rev => (0, 0),
+            | Self::Rev
+            | Self::Hatchling => (0, 0),
         }
     }
 
@@ -225,6 +230,7 @@ impl CounterKind {
             Self::Silver => 31,
             Self::Stun => 32,
             Self::Rev => 33,
+            Self::Hatchling => 34,
         }
     }
 
@@ -265,6 +271,7 @@ impl CounterKind {
             Self::Silver => "silver",
             Self::Stun => "stun",
             Self::Rev => "rev",
+            Self::Hatchling => "hatchling",
         }
     }
 

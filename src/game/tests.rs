@@ -175,6 +175,7 @@ mod landwalk;
 mod life_and_death_amounts;
 mod living_artifact;
 mod looking_at_another_library;
+mod ludevics_test_subject;
 mod m13_more_stale;
 mod m13_stale_audits;
 mod m14_stale_audits;

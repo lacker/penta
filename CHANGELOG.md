@@ -76,6 +76,13 @@ distinguishes snapshots of the covered source and build inputs.
   for their unsupported copy, search-and-attach, and damage-replacement
   clauses. Checkpoint format 8, replay version 2, and protocol 29 are unchanged.
 
+- **Ludevic's Test Subject.** Its repeatable activation now adds hatchling
+  counters, checks the resulting total, removes the whole clutch at five or
+  more, and transforms it into Ludevic's Abomination. The card composes shared
+  declarative counter, condition, sequence, and transform effects; hatchling
+  is appended to the stable counter-kind array, so existing counter positions,
+  protocol 29, checkpoint format 8, and replay version 2 are unchanged.
+
 - **Predicate-driven blocking restrictions and declaration costs.** Blocking
   now uses the same declarative shape as attacking: a rule records which side
   of the block carries it, predicates the creature on the other side, and can

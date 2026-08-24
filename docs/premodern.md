@@ -16,7 +16,6 @@ carry out.
   GAT, Bryan Gulotta's Replenish, Drew Glauberg's Stasis, Chris Danis's BW
   Control, TentacleFan's Landstill, Andy Dominguez's RG Goblins, and Ryan
   Marvin's Angry Hermit. Nothing in any of them is metadata-only or partial
-- per-card catalog and interaction-audit status tracked in the inventory below
 
 Nothing is outstanding: every card in the tranche is cataloged, and every
 list is registered and playable.
@@ -101,158 +100,14 @@ result and rebuild sampled Premodern positions from their observations.
   `web/app/game-config.ts` and the deck names in `src/protocol/decks.rs` are
   checked against each other by the browser contract suite.
 
-## Card inventory
+## Coverage
 
-Already cataloged (status annotations record the completed interaction audits;
-older unannotated definitions still require one):
-
-- `Abeyance` — complete; the lock spares mana abilities and nothing else
-- `Adarkar Wastes` — complete
-- `Akroma's Vengeance` — complete
-- `Ancient Tomb` — complete
-- `Annul` — complete
-- `Arcane Denial` — complete; both draws wait a turn
-- `Armageddon`
-- `Attunement` — complete; the enchantment is the cost and comes back to be it again
-- `Aura of Silence` — complete
-- `Barbarian Ring` — complete
-- `Black Vise`
-- `Blue Elemental Blast`
-- `Brain Freeze` — complete; storm copies what came before it
-- `Cabal Therapy` — complete; the guess takes every copy of the name
-- `Caves of Koilos` — complete
-- `Cephalid Coliseum` — complete
-- `Chain of Vapor` — complete; the chain is the opponent's to continue
-- `Chill` — complete
-- `Circle of Protection: Red` — complete; Fourth Edition brings it inside the window
-- `City of Brass`
-- `Claws of Gix` — complete
-- `Coastal Tower` — complete
-- `Counterspell`
-- `Cursed Scroll` — complete; naming a card is modelled as naming one held
-- `Cursed Totem` — complete
-- `Daze` — complete
-- `Decree of Justice` — complete; cycling buys Soldiers by the mana
-- `Decree of Silence` — complete; three answered spells is as many as it gets
-- `Defense Grid` — complete; the tax falls on the seat holding up an answer
-- `Disenchant`
-- `Dragon Breath` — complete; it listens from the graveyard and returns attached
-- `Duress`
-- `Dust Bowl` — complete
-- `Earthquake`
-- `Engineered Plague` — complete
-- `Enlightened Tutor` — complete
-- `Eternal Dragon` — complete
-- `Exalted Angel` — complete; face down for three, face up for its morph cost
-- `Fact or Fiction` — complete
-- `Fire // Ice` — complete
-- `Fireblast` — complete
-- `Flash of Insight` — complete; the flashback exiles X blue cards
-- `Flooded Strand` — complete
-- `Forest`
-- `Forsaken City` — complete
-- `Frantic Search` — complete; the lands untap after the discard
-- `Gempalm Incinerator` — complete
-- `Gemstone Mine` — complete
-- `Gerrard's Verdict` — complete; the life is counted after the discard
-- `Gilded Drake` — complete; the exchange reads both seats before either moves
-- `Goblin Lackey` — complete
-- `Goblin Matron` — complete
-- `Goblin Patrol` — complete
-- `Goblin Piledriver` — complete
-- `Goblin Pyromancer` — complete
-- `Goblin Ringleader` — complete
-- `Goblin Sharpshooter` — complete
-- `Goblin Tinkerer` — complete
-- `Goblin Vandal` — complete
-- `Goblin Warchief` — complete
-- `Grim Lavamancer` — complete
-- `Gush` — complete
-- `Haunting Echoes` — complete; the library copies follow what the graveyard lost
-- `Hermit Druid` — complete; a library with no basic land empties
-- `Humility` — complete
-- `Hydroblast` — complete
-- `Impulse` — complete
-- `Incinerate` — complete; the rider follows the damage, not the target
-- `Intuition` — complete; the opponent picks out of the three that were found
-- `Island`
-- `Jackal Pup` — complete
-- `Karplusan Forest` — complete
-- `Kor Haven` — complete
-- `Krosan Reclamation` — complete; the cards are picked out of the targeted graveyard on resolution
-- `Lightning Bolt`
-- `Llanowar Wastes` — complete
-- `Lotus Petal` — complete
-- `Mana Leak` — complete
-- `Mana Short` — complete
-- `Meddling Mage` — complete; the lock is symmetric and leaves with it
-- `Mishra's Factory`
-- `Mogg Fanatic` — complete
-- `Mogg Salvage` — complete
-- `Monk Realist` — complete
-- `Mountain`
-- `Mox Diamond` — complete; an unpaid entry is replaced, not undone
-- `Naturalize` — complete
-- `Opalescence` — complete; each other enchantment is the size of its own cost
-- `Opt` — complete
-- `Overload` — complete
-- `Parallax Wave` — complete; fading spent on creatures, and all of them return
-- `Phyrexian Arena` — complete
-- `Phyrexian Dreadnought` — complete; twelve power fed one creature at a time
-- `Phyrexian Furnace` — complete; the tap mode eats the oldest card
-- `Plains`
-- `Portent` — complete; the arrangement is the order the cards are named
-- `Powder Keg` — complete
-- `Presence of the Master` — complete
-- `Prohibit` — complete
-- `Psychatog` — complete
-- `Pyroblast` — complete
-- `Pyrokinesis` — complete
-- `Quirion Dryad` — complete
-- `Ray of Revelation`
-- `Reanimate` — complete
-- `Red Elemental Blast`
-- `Reflecting Pool` — complete; a type rather than a colour, from your own lands
-- `Replenish` — complete; every enchantment card you own, all at once
-- `Rishadan Port` — complete
-- `Root Maze` — complete
-- `Seal of Cleansing` — complete
-- `Seal of Fire` — complete
-- `Secluded Steppe` — complete
-- `Shallow Grave` — complete; the creature carries its own end-step exile
-- `Siege-Gang Commander` — complete
-- `Skeletal Scrying` — complete; the graveyard pays for the cards
-- `Skirk Prospector` — complete
-- `Skycloud Expanse` — complete; two unlike mana from one activation
-- `Sleight of Hand` — complete
-- `Standstill` — complete
-- `Stasis` — complete
-- `Stifle` — complete; an ability only, never a spell
-- `Sutured Ghoul` — complete; its body is the pile it exiled on the way in
-- `Swamp`
-- `Swords to Plowshares`
-- `Sylvan Safekeeper` — complete
-- `Syncopate`
-- `Teferi's Response` — complete; the countered ability's source dies with it
-- `Thawing Glaciers` — complete; the return is a cleanup-step trigger
-- `Thwart` — complete
-- `Tormod's Crypt` — complete
-- `Tranquil Domain` — complete
-- `Treva's Ruins` — complete
-- `Tsabo's Web` — complete
-- `Underground River` — complete
-- `Upheaval` — complete
-- `Vindicate` — complete
-- `Vision Charm` — complete; all three modes, including phasing
-- `Volcanic Hammer` — complete
-- `Warmth` — complete
-- `Wasteland` — complete
-- `Wooded Foothills` — complete
-- `Worldly Tutor` — complete
-- `Wrath of God`
-- `Yavimaya Coast` — complete
-
-Not yet cataloged: none.
+The card declarations and their inline `// Audit:` entries are the authoritative
+implementation inventory. Run `make catalog-report` for current Premodern
+coverage counts. The report partitions the format's full twenty-nine-set legal
+window into declarative, custom, partial, metadata-only, and blocked cards, so
+it gives a rough picture of how much of Premodern is implemented rather than an
+interaction audit limited to these eight decks.
 
 [tournament]: https://melee.gg/Tournament/View/441083
 [rules]: https://premodernmagic.com/

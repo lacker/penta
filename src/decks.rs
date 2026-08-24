@@ -451,7 +451,7 @@ mod tests {
 
     type DeckBuilder = fn() -> Deck;
 
-    const STAGED_PREMODERN_TOP_8: &[(&str, &str, usize)] = &[
+    const PREMODERN_TOP_8: &[(&str, &str, usize)] = &[
         (
             "Sligh — Neal Sacks",
             include_str!("../decks/premodern/sligh_neal_sacks.yaml"),
@@ -655,11 +655,10 @@ mod tests {
     }
 
     #[test]
-    fn staged_premodern_top_8_lists_and_backlog_stay_in_sync() {
-        let roadmap = include_str!("../docs/premodern.md");
+    fn premodern_top_8_lists_retain_their_sources_and_submitted_sizes() {
         let mut unique_cards = BTreeSet::new();
 
-        for (deck_name, yaml, expected_main) in STAGED_PREMODERN_TOP_8 {
+        for (deck_name, yaml, expected_main) in PREMODERN_TOP_8 {
             assert!(
                 yaml.contains("# Source: https://melee.gg/Decklist/View/"),
                 "{deck_name} must retain its submitted-list source"
@@ -671,11 +670,5 @@ mod tests {
         }
 
         assert_eq!(unique_cards.len(), 145);
-        for name in unique_cards {
-            assert!(
-                roadmap.contains(&format!("`{name}`")),
-                "Premodern roadmap is missing {name}"
-            );
-        }
     }
 }

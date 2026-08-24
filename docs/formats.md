@@ -63,8 +63,8 @@ have no meaning in the simulator.
 
 The profile is the twenty-nine-set window from Fourth Edition through Scourge
 with the format's own thirty-three-card ban list, taken from the Premodern
-rules page. Its decks and per-card coverage are tracked in the
-[Premodern roadmap](premodern.md).
+rules page. Its first playable tranche and the generated coverage workflow are
+described in the [Premodern roadmap](premodern.md).
 
 ### Standard: ISD–M14
 

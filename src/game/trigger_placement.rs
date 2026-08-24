@@ -1,9 +1,9 @@
 use super::{
-    CardPartId, DecisionContinuation, DecisionKind, DecisionObservation, DecisionOption,
-    DecisionOrderSemantics, DecisionPreference, DecisionVisibility, DecisionZone, EffectDef, Game,
-    GameEvent, GameObjectId, ObjectCharacteristics, PendingDecision, PendingTrigger,
-    StackAbilityPayload, StackObject, StackObjectKind, Target, TargetSelection, TargetSlotId,
-    TriggerPlacementBatch, ZoneKind,
+    AbilityTargetDef, CardPartId, DecisionContinuation, DecisionKind, DecisionObservation,
+    DecisionOption, DecisionOrderSemantics, DecisionPreference, DecisionVisibility, DecisionZone,
+    EffectDef, Game, GameEvent, GameObjectId, ObjectCharacteristics, PendingDecision,
+    PendingTrigger, StackAbilityPayload, StackObject, StackObjectKind, Target, TargetSelection,
+    TargetSlotId, TriggerPlacementBatch, ZoneKind,
 };
 
 impl Game {
@@ -74,20 +74,7 @@ impl Game {
         remaining: Vec<TriggerPlacementBatch>,
     ) {
         let target = trigger.target_defs[trigger.targets.len()];
-        let candidates = self
-            .targets_owned_by_target_player(
-                target.predicate,
-                &trigger.targets,
-                trigger.source.object,
-            )
-            .unwrap_or_else(|| {
-                self.ability_targets_matching(
-                    target.predicate,
-                    trigger.controller,
-                    trigger.source.object,
-                    trigger.context.trigger,
-                )
-            });
+        let candidates = self.trigger_target_candidates(&trigger, target);
         if candidates.len() < usize::from(target.minimum) {
             // A triggered ability with no legal choice for a required target
             // is removed from the stack as the placement procedure completes.
@@ -176,6 +163,26 @@ impl Game {
                 },
             },
         );
+    }
+
+    fn trigger_target_candidates(
+        &self,
+        trigger: &PendingTrigger,
+        target: AbilityTargetDef,
+    ) -> Vec<Target> {
+        self.targets_owned_by_target_player(
+            target.predicate,
+            &trigger.targets,
+            trigger.source.object,
+        )
+        .unwrap_or_else(|| {
+            self.ability_targets_matching(
+                target.predicate,
+                trigger.controller,
+                trigger.source.object,
+                trigger.context.trigger,
+            )
+        })
     }
 
     /// Asks which mode a modal trigger was put onto the stack with. Only

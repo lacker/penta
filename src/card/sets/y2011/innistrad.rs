@@ -1721,13 +1721,50 @@ pub(in crate::card::sets) static MINDSHRIEKER: CardRecord = CardRecord::new(
 );
 
 // ISD 68 — Mirror-Mad Phantasm
-// Audit: metadata-only — Needs self-shuffle followed by reveal-until-name and separate placement of the named and other revealed cards.
+static MIRROR_MAD_REVEAL: MillUntilDef = MillUntilDef {
+    player: EffectRecipientDef::player(PlayerRefDef::OwnerOf(ObjectRefDef::Source)),
+    object: ObjectPredicateDef::Named("Mirror-Mad Phantasm"),
+    matched_zone: ZoneKind::Battlefield,
+    binding: None,
+    then: None,
+};
+
+/// The source move and the library shuffle are separate instructions. Under
+/// CR 701.24c the library is still shuffled when the source is no longer on
+/// the battlefield, and CR 118.12 then treats the mandatory cost as started.
+static MIRROR_MAD_STEPS: [EffectDef; 3] = [
+    EffectDef::MoveToZone {
+        object: EffectRecipientDef::matching_objects(
+            ObjectPredicateDef::Source,
+            &[ZoneKind::Battlefield],
+            PlayerRelation::Any,
+        ),
+        zone: ZoneKind::Library,
+        placement: ZonePlacement::Top,
+        controller: None,
+        arrival_effect: None,
+        attachment: None,
+        counters: None,
+    },
+    EffectDef::ShuffleLibrary {
+        player: EffectRecipientDef::player(PlayerRefDef::OwnerOf(ObjectRefDef::Source)),
+    },
+    EffectDef::MillUntil(&MIRROR_MAD_REVEAL),
+];
+
 pub(in crate::card::sets) static MIRROR_MAD_PHANTASM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b20eea41-9daf-4ac1-8bad-bb4aa211bb53"),
     "Mirror-Mad Phantasm",
     crate::card::CardArt::new("b20eea41-9daf-4ac1-8bad-bb4aa211bb53", "Howard Lyon"),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}{U}"), &["Spirit"], 5, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{1}{U}: This creature's owner shuffles it into their library. If that player does, they reveal cards from the top of that library until a card named Mirror-Mad Phantasm is revealed. The player puts that card onto the battlefield and all other cards revealed this way into their graveyard.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}{U}"))],
+            EffectDef::Sequence(&MIRROR_MAD_STEPS),
+        ),
+    ]),
 );
 
 // ISD 69 — Moon Heron

@@ -329,6 +329,33 @@ impl Game {
             // turn that metadata into an executable vanilla permanent.
             return false;
         }
+        // Reveal-until removes the prospective card from the library before
+        // asking whether it is the stopping card. Name predicates therefore
+        // have to read the card being considered rather than rediscover its
+        // object ID in a zone. Recurse here as well so a named predicate
+        // remains correct when composed with another card characteristic.
+        match predicate {
+            ObjectPredicateDef::Named(name) => {
+                return self
+                    .catalog
+                    .get(card.definition)
+                    .is_some_and(|definition| definition.name == name);
+            }
+            ObjectPredicateDef::All(predicates) => {
+                return predicates
+                    .iter()
+                    .all(|predicate| self.card_object_matches(*predicate, card, zone, source));
+            }
+            ObjectPredicateDef::AnyOf(predicates) => {
+                return predicates
+                    .iter()
+                    .any(|predicate| self.card_object_matches(*predicate, card, zone, source));
+            }
+            ObjectPredicateDef::Not(predicate) => {
+                return !self.card_object_matches(*predicate, card, zone, source);
+            }
+            _ => {}
+        }
         let context = match zone {
             ZoneKind::Library => CharacteristicContext::Library,
             ZoneKind::Hand => CharacteristicContext::Hand,

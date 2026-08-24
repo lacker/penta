@@ -434,9 +434,14 @@ impl Game {
                     return;
                 };
                 let mut buried = Vec::new();
+                let mut matched_count = 0_u16;
+                let mut matched_mana_value = 0_u16;
                 for target in self.effect_recipients(recipient, object, context, scoped) {
                     if let Target::Player(player) = target {
                         let milled = self.take_top_of_library(player, count);
+                        let totals = self.card_totals(&milled);
+                        matched_count = matched_count.saturating_add(totals.0);
+                        matched_mana_value = matched_mana_value.saturating_add(totals.1);
                         // Bound by the identity the cards have in the
                         // graveyard: burying them mints new objects, and
                         // "from among them" means the ones lying there now.
@@ -456,6 +461,8 @@ impl Game {
                 if let Some(binding) = binding {
                     context.bind_object_group(binding, buried);
                 }
+                context.matched_count = Some(matched_count);
+                context.matched_mana_value = Some(matched_mana_value);
                 self.resolve_effect_def(scoped.with_effect(*then), object, context);
             }
             EffectDef::ExileAtRandomFromGraveyardToPlay { player: recipient } => {

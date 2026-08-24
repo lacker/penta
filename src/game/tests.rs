@@ -185,6 +185,7 @@ mod menace;
 mod mentor_of_the_meek;
 mod mikaeus_the_lunarch;
 mod mill_until_land;
+mod mindshrieker;
 mod miracle;
 mod mishras_war_machine;
 mod modal_effects;

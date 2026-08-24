@@ -1792,13 +1792,36 @@ pub(in crate::card::sets) static MEMORY_S_JOURNEY: CardRecord = CardRecord::new(
 );
 
 // ISD 67 — Mindshrieker
-// Audit: metadata-only — Needs the mana value of the specific milled card as a linked temporary P/T value.
+static MINDSHRIEKER_PUMP: EffectDef = EffectDef::Apply {
+    recipient: EffectRecipientDef::Source,
+    effect: AppliedEffectDef::modify_power_toughness(
+        ValueDef::MatchedManaValue,
+        ValueDef::MatchedManaValue,
+    ),
+    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+};
+
 pub(in crate::card::sets) static MINDSHRIEKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ab1e52af-6746-4ec6-afbf-008594c874f8"),
     "Mindshrieker",
-    crate::card::CardArt::new("ab1e52af-6746-4ec6-afbf-008594c874f8", "Dave Kendall"),
-    crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ab1e52af-6746-4ec6-afbf-008594c874f8", "Dave Kendall"),
+    CardSet::Innistrad,
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Spirit", "Bird"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated_with_targets(
+            "{2}: Target player mills a card. This creature gets +X/+X until end of turn, where X is the milled card's mana value.",
+            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+                PlayerRelation::Any,
+            ))],
+            EffectDef::Mill {
+                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+                binding: None,
+                then: Some(&MINDSHRIEKER_PUMP),
+            },
+        ),
+    ]),
 );
 
 // ISD 68 — Mirror-Mad Phantasm

@@ -237,7 +237,8 @@ pub enum ValueDef {
     MatchedCardTypes,
     /// What those same matched objects add up to in mana value. "You lose
     /// life equal to that card's mana value" reads the card the step before
-    /// it revealed, which is gone into a hand by the time this is asked --
+    /// it revealed, and a mill follow-up reads the cards the mill just moved.
+    /// Those cards are gone from their old zone by the time this is asked,
     /// so the number travels rather than the card.
     MatchedManaValue,
     /// How many objects an earlier step in this resolution bound. "For each

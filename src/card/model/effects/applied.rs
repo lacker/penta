@@ -341,10 +341,6 @@ pub enum AppliedRuleDef {
     /// combat or characteristics reads it, and what it produces is a state
     /// change rather than a continuous effect.
     Ascend,
-    /// "If you would draw a card while your library has no cards in it, you
-    /// win the game instead." A player rule rather than a permanent's,
-    /// because the draw it replaces belongs to the player.
-    WinsInsteadOfDrawingFromEmptyLibrary,
     /// "You may activate her loyalty abilities any time you could cast an
     /// instant." A permission on the affected planeswalker rather than a
     /// timing printed on each ability: what it lifts is the sorcery-speed

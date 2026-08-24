@@ -7,10 +7,10 @@ use super::super::{
     AbilityDef, AbilityOrigin, AbilitySourceRef, AlternativeCastKindDef, CardDefinitionId,
     CardPartId, CommittedTriggerEvent, DecisionContinuation, DecisionOption, DecisionPreference,
     DecisionVisibility, DecisionZone, DeclarativeAbilityDef, EffectDef, Game, GameEvent,
-    GameObjectId, GameResult, ObjectCharacteristics, PendingProcedure, Permanent, PlayerId,
+    GameObjectId, ObjectCharacteristics, PendingProcedure, Permanent, PlayerId,
     ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ScopedEffect,
     StackAbilityPayload, StackAbilityResolver, StackObject, StackObjectKind, Step, TriggerCapture,
-    TriggerContext, WinReason, ZoneKind,
+    TriggerContext, ZoneKind,
 };
 
 impl Game {
@@ -39,15 +39,6 @@ impl Game {
 
     pub(in crate::game) fn commit_draw_card(&mut self, player: PlayerId) -> Option<GameObjectId> {
         let Some(card) = self.players[player.index()].library.pop() else {
-            // Jace, Wielder of Mysteries turns the loss into a win. The draw
-            // is replaced, so the flag that would end the game is never set.
-            if self.player_wins_on_empty_library_draw(player) {
-                self.finish(GameResult::Winner {
-                    winner: player,
-                    reason: WinReason::OpponentLostToAnEffect,
-                });
-                return None;
-            }
             self.players[player.index()].tried_to_draw_from_empty_library = true;
             return None;
         };
@@ -158,21 +149,9 @@ impl Game {
                 let Some(effect) = Self::draw_replacement_performed_effect(program) else {
                     return;
                 };
-                let condition_matches = match definition.condition {
-                    None => true,
-                    Some(ReplacementConditionDef::SourceTapped) => permanent.tapped,
-                    Some(ReplacementConditionDef::CreatureDiedThisTurn) => {
-                        self.creature_died_this_turn
-                    }
-                    // A hand size is counted where the whole instruction is
-                    // rather than once per card, and this walk is the
-                    // per-card one; how a spell was paid for is a question
-                    // about an entry rather than a draw.
-                    Some(
-                        ReplacementConditionDef::SourceCastWith(_)
-                        | ReplacementConditionDef::ControllerHandAtMost(_),
-                    ) => false,
-                };
+                let condition_matches = definition.condition.is_none_or(|condition| {
+                    self.per_card_draw_replacement_condition_matches(permanent, condition)
+                });
                 let event_context = TriggerContext {
                     event_player: Some(player),
                     ..TriggerContext::empty()
@@ -239,6 +218,26 @@ impl Game {
             });
         }
         replacements
+    }
+
+    /// Conditions read for each prospective card draw. A hand-size condition
+    /// belongs to the whole instruction instead, while cast information
+    /// belongs to a battlefield entry.
+    fn per_card_draw_replacement_condition_matches(
+        &self,
+        permanent: &Permanent,
+        condition: ReplacementConditionDef,
+    ) -> bool {
+        match condition {
+            ReplacementConditionDef::SourceTapped => permanent.tapped,
+            ReplacementConditionDef::CreatureDiedThisTurn => self.creature_died_this_turn,
+            ReplacementConditionDef::ControllerLibraryEmpty => self.players
+                [permanent.controller.index()]
+            .library
+            .is_empty(),
+            ReplacementConditionDef::SourceCastWith(_)
+            | ReplacementConditionDef::ControllerHandAtMost(_) => false,
+        }
     }
 
     fn draw_replacement_relation_matches(
@@ -447,7 +446,8 @@ impl Game {
                     Some(
                         ReplacementConditionDef::SourceTapped
                         | ReplacementConditionDef::CreatureDiedThisTurn
-                        | ReplacementConditionDef::SourceCastWith(_),
+                        | ReplacementConditionDef::SourceCastWith(_)
+                        | ReplacementConditionDef::ControllerLibraryEmpty,
                     ) => false,
                 };
                 let event_context = TriggerContext {

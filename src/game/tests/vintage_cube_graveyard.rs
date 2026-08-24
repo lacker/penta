@@ -85,18 +85,22 @@ fn jace_turns_an_empty_library_draw_into_a_win() {
         game.draw_card(PlayerId::One);
         game.check_state_based_actions();
 
-        match game.result() {
-            Some(GameResult::Winner { winner, .. }) => assert_eq!(
-                winner,
-                if jace_out {
+        assert_eq!(
+            game.result(),
+            Some(GameResult::Winner {
+                winner: if jace_out {
                     PlayerId::One
                 } else {
                     PlayerId::Two
                 },
-                "an empty draw with Jace out wins, and without him loses",
-            ),
-            other => panic!("the game should have ended (Jace out: {jace_out}): {other:?}"),
-        }
+                reason: if jace_out {
+                    WinReason::WonByAnEffect
+                } else {
+                    WinReason::OpponentTriedToDrawFromEmptyLibrary
+                },
+            }),
+            "an empty draw with Jace out wins, and without him loses",
+        );
     }
 }
 
@@ -142,14 +146,12 @@ fn jaces_ultimate_wins_once_it_has_emptied_the_library() {
         0,
         "seven cards out of a seven-card library",
     );
-    assert!(
-        matches!(
-            game.result(),
-            Some(GameResult::Winner {
-                winner: PlayerId::One,
-                ..
-            })
-        ),
+    assert_eq!(
+        game.result(),
+        Some(GameResult::Winner {
+            winner: PlayerId::One,
+            reason: WinReason::WonByAnEffect,
+        }),
         "and the ultimate's own check wins on the spot",
     );
 }

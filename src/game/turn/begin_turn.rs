@@ -86,10 +86,11 @@ impl Game {
                     }
                     // How a permanent's spell was paid for is a fact about
                     // the entry, so nothing about a turn beginning asks it.
-                    // The same of a hand size, which only a draw asks about.
+                    // Hand and library sizes are likewise facts about draws.
                     Some(
                         ReplacementConditionDef::SourceCastWith(_)
-                        | ReplacementConditionDef::ControllerHandAtMost(_),
+                        | ReplacementConditionDef::ControllerHandAtMost(_)
+                        | ReplacementConditionDef::ControllerLibraryEmpty,
                     ) => false,
                 };
                 if applied.contains(&source)

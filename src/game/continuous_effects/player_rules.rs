@@ -427,19 +427,6 @@ impl Game {
         }
     }
 
-    /// Whether any live static ability tells `affected_player` that drawing
-    /// from an empty library wins the game rather than losing it. Walked the
-    /// same way as the hand-size rule above.
-    pub(in crate::game) fn player_wins_on_empty_library_draw(
-        &self,
-        affected_player: PlayerId,
-    ) -> bool {
-        self.player_static_rule_applies(
-            affected_player,
-            AppliedEffectDef::Rule(AppliedRuleDef::WinsInsteadOfDrawingFromEmptyLibrary),
-        )
-    }
-
     fn collect_static_play_restrictions(
         &self,
         effect: EffectDef,

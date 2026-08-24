@@ -26,13 +26,8 @@ static YOUR_LIBRARY_IS_EMPTY: TriggerConditionDef = TriggerConditionDef::ObjectC
     amount: 0,
 };
 
-/// In a two-player game winning is the opponent losing, which is the shape
-/// the engine has. The recorded reason is therefore an effect rather than a
-/// dedicated win, which nothing in the supported pool reads.
-static YOU_WIN: EffectDef = EffectDef::LoseTheGame {
-    player: EffectRecipientDef::players(crate::card::PlayerSetDef::Related(
-        PlayerRelation::Opponent,
-    )),
+static YOU_WIN: EffectDef = EffectDef::WinTheGame {
+    player: EffectRecipientDef::Controller,
 };
 
 static JACE_MILLS_AND_DRAWS: [EffectDef; 2] = [
@@ -60,18 +55,7 @@ static JACE_DRAWS_SEVEN: [EffectDef; 2] = [
 ];
 
 static JACE_ABILITIES: [AbilityDef; 3] = [
-    // The static is the card: without it the seven-card draw and the mill
-    // are just a slow Jace, and with it an empty library is a win rather
-    // than the usual loss.
-    AbilityDef::static_ability(
-        "If you would draw a card while your library has no cards in it, you win the game instead.",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::players(crate::card::PlayerSetDef::Related(
-                PlayerRelation::You,
-            )),
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::WinsInsteadOfDrawingFromEmptyLibrary),
-        },
-    ),
+    abilities::empty_library_draw_wins(),
     AbilityDef::activated_with_targets(
         "+1: Target player mills two cards. Draw a card.",
         &[AbilityCostDef::Loyalty(1)],

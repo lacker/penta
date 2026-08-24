@@ -128,3 +128,36 @@ fn colorless_permanents_add_no_devotion() {
         "neither artifact prints a blue mana symbol",
     );
 }
+
+/// Devotion is counted when the trigger resolves. If Oracle has left by then,
+/// X is zero on an otherwise empty board: that still wins against an empty
+/// library, but it does not reach a library containing one card.
+#[test]
+fn devotion_is_recounted_if_oracle_leaves_before_its_trigger_resolves() {
+    for (library, expected_result) in [
+        (
+            0,
+            Some(GameResult::Winner {
+                winner: PlayerId::One,
+                reason: WinReason::WonByAnEffect,
+            }),
+        ),
+        (1, None),
+    ] {
+        let mut game = staged(library, &[]);
+        let oracle = game
+            .put_onto_battlefield(PlayerId::One, cards::THASSAS_ORACLE)
+            .expect("cataloged");
+        game.battlefield
+            .retain(|permanent| permanent.card.id != oracle);
+
+        settle(&mut game);
+        drain_pending(&mut game);
+
+        assert_eq!(
+            game.result(),
+            expected_result,
+            "zero devotion against a library of {library}",
+        );
+    }
+}

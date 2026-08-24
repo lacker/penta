@@ -1607,13 +1607,13 @@ pub(in crate::card::sets) static INVISIBLE_STALKER: CardRecord = CardRecord::new
 );
 
 // ISD 61 — Laboratory Maniac
-// Audit: metadata-only — Needs a replacement for an empty-library draw that wins the game instead.
 pub(in crate::card::sets) static LABORATORY_MANIAC: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("809205f3-acf5-4244-b360-09ce4ba76795"),
     "Laboratory Maniac",
     crate::card::CardArt::new("809205f3-acf5-4244-b360-09ce4ba76795", "Jason Felix"),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 2, 2)
+        .with_ability(abilities::empty_library_draw_wins()),
 );
 
 // ISD 62 — Lantern Spirit

@@ -478,9 +478,10 @@ impl Game {
                 entry.permanent.card.id == source && entry.permanent.cast_alternative == Some(kind)
             }
             ReplacementConditionDef::CreatureDiedThisTurn => self.creature_died_this_turn,
-            // A hand size is a fact about a draw, so nothing about an entry
-            // asks it.
-            ReplacementConditionDef::ControllerHandAtMost(_) => false,
+            // Hand and library sizes are facts about a draw, so nothing
+            // about an entry asks them.
+            ReplacementConditionDef::ControllerHandAtMost(_)
+            | ReplacementConditionDef::ControllerLibraryEmpty => false,
         }
     }
 

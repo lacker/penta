@@ -719,8 +719,7 @@ fn validate_applied_effect_shapes(
             | AppliedRuleDef::MaySpendManaAsAnyColorForCreatureAbilities
             | AppliedRuleDef::MayPlayAdditionalLands(_)
             | AppliedRuleDef::NoMaximumHandSize
-            | AppliedRuleDef::DoublesTokensCreated
-            | AppliedRuleDef::WinsInsteadOfDrawingFromEmptyLibrary,
+            | AppliedRuleDef::DoublesTokensCreated,
         ) => validate_recipient_shape(recipient, targets, RecipientExpectation::Player),
         // The cap names the players it applies to; the predicate picks out
         // which of their permanents it covers.

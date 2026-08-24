@@ -315,6 +315,24 @@ pub(in super::super) fn shared_draw_replacement_effect(effect: ReplacementEffect
             == 1
 }
 
+/// The draw engine evaluates an amount-changing replacement once per
+/// instruction and a replacement-with-effect once per card. Keep conditions
+/// paired with the level where the runtime can answer them.
+pub(in super::super) fn shared_draw_replacement_program(
+    condition: Option<ReplacementConditionDef>,
+    effect: ReplacementEffectDef,
+) -> bool {
+    let condition_supported = if matches!(effect, ReplacementEffectDef::AddToEventAmount(_)) {
+        condition.is_none_or(|condition| {
+            matches!(condition, ReplacementConditionDef::ControllerHandAtMost(_))
+        })
+    } else {
+        condition
+            .is_none_or(|condition| condition == ReplacementConditionDef::ControllerLibraryEmpty)
+    };
+    condition_supported && shared_draw_replacement_effect(effect)
+}
+
 pub(in super::super) fn shared_battlefield_exit_replacement_effect(
     effect: ReplacementEffectDef,
 ) -> bool {

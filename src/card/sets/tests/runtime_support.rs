@@ -544,12 +544,8 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     && shared_begin_turn_replacement_effect(effect)
             }
             ReplacementEventDef::WouldDraw { .. } => {
-                // A hand size is read where the draw instruction is, which
-                // is the one condition this walk can answer.
-                definition.condition.is_none_or(|condition| {
-                    matches!(condition, ReplacementConditionDef::ControllerHandAtMost(_))
-                }) && battlefield_only(definition.source_zones)
-                    && shared_draw_replacement_effect(effect)
+                battlefield_only(definition.source_zones)
+                    && shared_draw_replacement_program(definition.condition, effect)
             }
             ReplacementEventDef::Special(_) => false,
         };

@@ -178,10 +178,11 @@ impl Game {
                             self.creature_died_this_turn
                         }
                         // How a permanent's spell was paid for is asked as
-                        // it enters, and a hand size as a draw would happen;
-                        // neither is a question about leaving.
+                        // it enters, and hand or library size as a draw would
+                        // happen; none is a question about leaving.
                         ReplacementConditionDef::SourceCastWith(_)
-                        | ReplacementConditionDef::ControllerHandAtMost(_) => false,
+                        | ReplacementConditionDef::ControllerHandAtMost(_)
+                        | ReplacementConditionDef::ControllerLibraryEmpty => false,
                     }
                 } else {
                     true

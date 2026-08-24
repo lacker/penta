@@ -99,6 +99,10 @@ pub enum ReplacementConditionDef {
     /// fewer cards in hand" is a condition on the event rather than on the
     /// permanent, which is why it lives here.
     ControllerHandAtMost(u8),
+    /// The replacement source's controller has no cards in their library as
+    /// the draw would happen. Laboratory Maniac and Jace use this to replace
+    /// only the otherwise-losing draw, not every draw while they are present.
+    ControllerLibraryEmpty,
 }
 
 /// A typed modification to the permanent an object would become as it enters

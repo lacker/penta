@@ -14,9 +14,9 @@ use super::model::{
     KeywordAbility, ManaColor, ManaCost, ObjectChoiceBindingDef, ObjectCountConditionDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
     OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PartitionItemsDef, PayOrDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementAbilityDef, ReplacementEffectDef,
-    ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef,
-    SpellAdditionalCostDef, SpellResolutionDestinationDef, SplitIntoPilesDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementAbilityDef, ReplacementConditionDef,
+    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
+    ScaledValueDef, SpellAdditionalCostDef, SpellResolutionDestinationDef, SplitIntoPilesDef,
     TokenCopyExceptionsDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
     ZonePlacement,
 };

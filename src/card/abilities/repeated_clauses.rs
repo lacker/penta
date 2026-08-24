@@ -5,6 +5,36 @@
 // card to say it does not re-derive it. Included textually into
 // `abilities.rs`, so the imports here are the parent module's.
 
+/// The outright win that replaces an empty-library draw. Keeping this as an
+/// ordinary effect inside the replacement program gives it the same outcome
+/// and reporting as every other effect that says its controller wins.
+static EMPTY_LIBRARY_DRAW_WIN: EffectDef = EffectDef::WinTheGame {
+    player: EffectRecipientDef::Controller,
+};
+
+static EMPTY_LIBRARY_DRAW_REPLACEMENT: [ReplacementEffectDef; 2] = [
+    ReplacementEffectDef::ReplaceEventWithNothing,
+    ReplacementEffectDef::Perform(&EMPTY_LIBRARY_DRAW_WIN),
+];
+
+/// "If you would draw a card while your library has no cards in it, you win
+/// the game instead." Shared by Laboratory Maniac and Jace, Wielder of
+/// Mysteries as a true replacement so it competes correctly with other draw
+/// replacements.
+#[must_use]
+pub const fn empty_library_draw_wins() -> AbilityDef {
+    AbilityDef::defined_replacement(
+        "If you would draw a card while your library has no cards in it, you win the game instead.",
+        ReplacementAbilityDef::new()
+            .with_event(ReplacementEventDef::WouldDraw {
+                player: PlayerRelation::You,
+                during_own_draw_step: false,
+            })
+            .with_condition(ReplacementConditionDef::ControllerLibraryEmpty),
+        ReplacementEffectDef::Sequence(&EMPTY_LIBRARY_DRAW_REPLACEMENT),
+    )
+}
+
 /// Brainstorm's clause, which Jace, the Mind Sculptor prints again word for
 /// word as his zero: draw three cards, then put two cards from your hand on
 /// top of your library in any order.

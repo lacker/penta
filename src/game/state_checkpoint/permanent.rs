@@ -74,6 +74,7 @@ pub(super) fn permanent_snapshot(
         control_reverts_to: permanent.control_reverts_to.map(PlayerId::index),
         control_source: permanent.control_source.map(|id| id.0),
         control_requires_source_tapped: permanent.control_requires_source_tapped,
+        control_requires_source_attached: permanent.control_requires_source_attached,
         chosen_player: permanent.chosen_player.map(PlayerId::index),
         cast_x: permanent.cast_x,
         cast_from_zone: permanent.cast_from_zone.map(|zone| zone.label().to_owned()),

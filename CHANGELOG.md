@@ -25,6 +25,14 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **Static attachment control.** `GainControl` can now execute as a live static
+  ability over the attached permanent, using attachment timestamps rather than
+  a fabricated enters-the-battlefield trigger. Control Magic and Steal Artifact
+  therefore take their hosts without using the stack, follow a moved Aura, and
+  stop applying when the Aura or its ability leaves. The source-attached marker
+  is an additive checkpoint member; checkpoint format 8, replay version 2, and
+  protocol 29 are unchanged.
+
 - **Predicate-driven blocking restrictions and declaration costs.** Blocking
   now uses the same declarative shape as attacking: a rule records which side
   of the block carries it, predicates the creature on the other side, and can

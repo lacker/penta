@@ -1,9 +1,8 @@
 //! Auras that take the permanent they are on.
 //!
-//! The printed clause is a static, and the engine's control change is a
-//! resolving effect that lasts while its source remains. For an Aura those
-//! come to the same thing: an Aura with nothing under it is put into its
-//! owner's graveyard, so "while the Aura remains" is "while it is attached".
+//! The printed clause is a live static control effect: it starts applying as
+//! soon as the Aura is attached, never uses the stack, and follows the Aura if
+//! another effect moves it to a different legal host.
 
 use super::*;
 use crate::ImplementationStatus;
@@ -29,9 +28,11 @@ fn stolen(aura: CardDefinitionId, host: CardDefinitionId) -> (Game, GameObjectId
         .expect("the Aura is castable onto it");
     game.apply(PlayerId::One, action)
         .expect("the cast is legal");
-    drain_pending(&mut game);
-    // Resolving gives the Aura a battlefield object of its own, which is the
-    // one the control effect is scoped to.
+    pass_priority_pair(&mut game);
+    assert!(
+        game.stack.is_empty() && game.pending_triggers.is_empty(),
+        "the static control clause must not create a triggered ability"
+    );
     let aura_id = game
         .battlefield
         .iter()
@@ -81,6 +82,69 @@ fn steal_artifact_takes_the_artifact() {
     let (game, artifact_id, _aura) = stolen(cards::STEAL_ARTIFACT, cards::JUGGERNAUT);
 
     assert_eq!(controller(&game, artifact_id), Some(PlayerId::One));
+}
+
+#[test]
+fn moving_control_magic_moves_its_static_control_effect() {
+    let (mut game, first_id, aura_id) = stolen(cards::CONTROL_MAGIC, cards::SERRA_ANGEL);
+    let second = creature(10_001, cards::GRIZZLY_BEARS, PlayerId::Two);
+    let second_id = second.card.id;
+    game.battlefield.push(second);
+
+    assert!(game.try_attach(aura_id, second_id));
+    game.check_state_based_actions();
+
+    assert_eq!(controller(&game, first_id), Some(PlayerId::Two));
+    assert_eq!(controller(&game, second_id), Some(PlayerId::One));
+    assert!(game.stack.is_empty() && game.pending_triggers.is_empty());
+}
+
+#[test]
+fn removing_control_magics_ability_ends_its_control_effect() {
+    let (mut game, creature_id, aura_id) = stolen(cards::CONTROL_MAGIC, cards::SERRA_ANGEL);
+    attach_constant_resolved_characteristics(
+        &mut game,
+        aura_id,
+        &[AppliedEffectDef::remove_abilities(AbilityPredicateDef::Any)],
+        ContinuousEffectExpiration::Never,
+    );
+
+    game.check_state_based_actions();
+
+    assert_eq!(controller(&game, creature_id), Some(PlayerId::Two));
+}
+
+#[test]
+fn newer_static_control_effect_wins_by_attachment_timestamp() {
+    let (mut game, creature_id, first_aura) = stolen(cards::CONTROL_MAGIC, cards::SERRA_ANGEL);
+    let second_aura = creature(10_001, cards::CONTROL_MAGIC, PlayerId::Two);
+    let second_aura_id = second_aura.card.id;
+    game.battlefield.push(second_aura);
+
+    assert!(game.try_attach(second_aura_id, creature_id));
+    game.check_state_based_actions();
+    assert_eq!(controller(&game, creature_id), Some(PlayerId::Two));
+
+    game.destroy_permanent(second_aura_id);
+    drain_pending(&mut game);
+    game.check_state_based_actions();
+    assert_eq!(controller(&game, creature_id), Some(PlayerId::One));
+    assert!(game.battlefield.iter().any(|permanent| {
+        permanent.card.id == first_aura && permanent.attached_to == Some(creature_id)
+    }));
+}
+
+#[test]
+fn both_control_clauses_are_static_abilities() {
+    let catalog = poc::catalog().expect("catalog builds");
+    for definition in [cards::CONTROL_MAGIC, cards::STEAL_ARTIFACT] {
+        let card = catalog.get(definition).expect("the card is cataloged");
+        let control = card.rules.ability_clauses().get(1).expect("control clause");
+        assert!(matches!(
+            control.definition,
+            DeclarativeAbilityDef::Static(_)
+        ));
+    }
 }
 
 #[test]

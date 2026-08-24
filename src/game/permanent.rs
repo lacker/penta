@@ -78,6 +78,10 @@ struct Permanent {
     control_source: Option<GameObjectId>,
     /// Whether that holder also has to stay tapped to keep the change.
     control_requires_source_tapped: bool,
+    /// Whether the holder has to remain attached to this permanent. Static
+    /// Aura control effects use this instead of merely requiring their source
+    /// to remain on the battlefield.
+    control_requires_source_attached: bool,
     /// Whether this attacker was blocked. A blocked creature stays blocked
     /// even if every blocker leaves, so this cannot be recomputed from the
     /// blockers still on the battlefield.
@@ -286,6 +290,7 @@ impl Permanent {
             control_reverts_to: None,
             control_source: None,
             control_requires_source_tapped: false,
+            control_requires_source_attached: false,
             blocked: false,
             blocking: Vec::new(),
             blocking_this_combat: false,

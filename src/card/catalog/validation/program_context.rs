@@ -81,6 +81,7 @@ fn resolving_source_zones(ability: &AbilityDef) -> &'static [ZoneKind] {
     }
 }
 
+#[allow(clippy::too_many_lines)]
 fn validate_static_effect(
     effect: EffectDef,
     source_zones: &[ZoneKind],
@@ -121,6 +122,14 @@ fn validate_static_effect(
         EffectDef::StaticApply { recipient, effect } => {
             validate_static_apply(source_zones, recipient, effect)
         }
+        EffectDef::GainControl {
+            object: EffectRecipientDef::AttachedPermanent,
+            controller: PlayerRefDef::EffectController,
+            duration:
+                crate::card::ControlDurationDef::WhileSourceRemains {
+                    while_tapped: false,
+                },
+        } if position == StaticPosition::Root && source_zones == [ZoneKind::Battlefield] => Ok(()),
         // A prohibition holds wherever a static clause states it, including
         // one of several the same printed sentence states -- Tamiyo says
         // "discard cards or sacrifice permanents" in one breath.

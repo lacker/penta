@@ -649,3 +649,32 @@ fn duress_choice_checkpoint_rejects_ineligible_hand_card_splices() {
         "unexpected error: {error}",
     );
 }
+
+#[test]
+fn static_attachment_control_reconstructs_and_reverts_with_its_source() {
+    let mut game = ready_game();
+    let host = creature(10_000, crate::card::cards::SERRA_ANGEL, PlayerId::Two);
+    let creature_id = host.card.id;
+    game.battlefield.push(host);
+    let aura = creature(10_001, crate::card::cards::CONTROL_MAGIC, PlayerId::One);
+    let aura_id = aura.card.id;
+    game.battlefield.push(aura);
+    assert!(game.try_attach(aura_id, creature_id));
+    game.check_state_based_actions();
+
+    let mut rebuilt = rebuild_from_truth(&game, 4_249);
+    assert_eq!(
+        rebuilt.controller_of_object(creature_id),
+        Some(PlayerId::One)
+    );
+
+    rebuilt
+        .battlefield
+        .retain(|permanent| permanent.card.id != aura_id);
+    rebuilt.check_state_based_actions();
+    assert_eq!(
+        rebuilt.controller_of_object(creature_id),
+        Some(PlayerId::Two),
+        "the additive attachment-held marker survives reconstruction"
+    );
+}

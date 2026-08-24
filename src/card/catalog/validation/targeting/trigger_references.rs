@@ -208,9 +208,10 @@ fn validate_trigger_player_reference(
 ) -> Result<(), GrantedAbilityValidationError> {
     validate_player_reference(reference, target_count, scope)?;
     match reference {
-        PlayerRefDef::EffectController | PlayerRefDef::EventPlayer | PlayerRefDef::Opponent => {
-            Ok(())
-        }
+        PlayerRefDef::EffectController
+        | PlayerRefDef::EnchantedPlayer
+        | PlayerRefDef::EventPlayer
+        | PlayerRefDef::Opponent => Ok(()),
         PlayerRefDef::ControllerOf(reference) | PlayerRefDef::OwnerOf(reference) => {
             validate_trigger_object_reference(reference, event, target_count, scope)
         }

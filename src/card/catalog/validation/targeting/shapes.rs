@@ -195,9 +195,10 @@ fn validate_player_reference_shape(
         PlayerRefDef::ControllerOf(reference) | PlayerRefDef::OwnerOf(reference) => {
             validate_object_reference_shape(reference, targets)
         }
-        PlayerRefDef::EffectController | PlayerRefDef::EventPlayer | PlayerRefDef::Opponent => {
-            Ok(())
-        }
+        PlayerRefDef::EffectController
+        | PlayerRefDef::EnchantedPlayer
+        | PlayerRefDef::EventPlayer
+        | PlayerRefDef::Opponent => Ok(()),
     }
 }
 
@@ -328,6 +329,9 @@ fn validate_value_shape(
         ValueDef::CountMatchingObjects(query)
         | ValueDef::AnyMatchingObject(query)
         | ValueDef::GreatestPowerAmong(query) => validate_query_shape(*query, targets),
+        ValueDef::CountMatchingPlayerAttachments(query) => {
+            validate_object_predicate_shape(query.object, targets)
+        }
         ValueDef::TargetLibrarySize(target) => {
             validate_target_shape(target, targets, RecipientExpectation::Player, true)
         }
@@ -709,8 +713,11 @@ fn validate_applied_effect_shapes(
                                     | PlayerRelation::Opponent
                                     | PlayerRelation::ActivePlayer
                                     | PlayerRelation::NonactivePlayer
+                                    | PlayerRelation::EnchantedPlayer
                             )
-                            | PlayerSetDef::One(PlayerRefDef::EffectController)
+                            | PlayerSetDef::One(
+                                PlayerRefDef::EffectController | PlayerRefDef::EnchantedPlayer
+                            )
                     )
                 )
             {

@@ -83,6 +83,7 @@ pub(super) fn permanent_snapshot(
         destroy_at_end: permanent.destroy_at_end,
         counters: permanent.counters.to_vec(),
         attached_to: permanent.attached_to.map(|id| id.0),
+        attached_player: permanent.attached_player.map(PlayerId::index),
         reconfigured_timestamp: permanent
             .reconfigured_timestamp
             .map(|timestamp| timestamp.0),

@@ -542,6 +542,9 @@ impl Game {
     ) -> Option<PlayerId> {
         match reference {
             PlayerRefDef::EffectController => controller,
+            PlayerRefDef::EnchantedPlayer => {
+                self.current_or_last_known_enchanted_player(ability_source)
+            }
             PlayerRefDef::Opponent => controller.map(PlayerId::opponent),
             PlayerRefDef::EventPlayer => event.context().event_player,
             PlayerRefDef::ControllerOf(reference) => self

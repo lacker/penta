@@ -41,7 +41,13 @@ impl Game {
                     .map(|(_, card)| card.owner)
             });
         owner.zip(controller).is_some_and(|(owner, controller)| {
-            self.player_relation_matches_for_source(owner, relation, controller, source)
+            self.player_relation_matches_for_source(
+                owner,
+                relation,
+                controller,
+                source,
+                TriggerContext::empty(),
+            )
         })
     }
 
@@ -443,6 +449,7 @@ impl Game {
                     relation,
                     controller,
                     source,
+                    TriggerContext::empty(),
                 )
             }),
             ObjectPredicateDef::Attacking
@@ -503,7 +510,9 @@ impl Game {
             // Both of these live on the ability's source, which this does not
             // have. The triggers that name them resolve the relation where
             // the source is known.
-            PlayerRelation::ChosenPlayer | PlayerRelation::ControllerOfAttachedPermanent => false,
+            PlayerRelation::ChosenPlayer
+            | PlayerRelation::ControllerOfAttachedPermanent
+            | PlayerRelation::EnchantedPlayer => false,
         }
     }
 
@@ -511,23 +520,27 @@ impl Game {
     /// supplied by an event. Ordinary relations still share the central
     /// matcher; this wrapper supplies the two source-local cases to object
     /// predicates such as protection from the chosen player.
-    fn player_relation_matches_for_source(
+    pub(super) fn player_relation_matches_for_source(
         &self,
         player: PlayerId,
         relation: PlayerRelation,
         controller: PlayerId,
         source: GameObjectId,
+        context: TriggerContext,
     ) -> bool {
         match relation {
             PlayerRelation::ChosenPlayer => self.chosen_player_of(source) == Some(player),
             PlayerRelation::ControllerOfAttachedPermanent => {
                 self.attached_host_controller_of(source) == Some(player)
             }
+            PlayerRelation::EnchantedPlayer => {
+                self.current_or_last_known_enchanted_player(source) == Some(player)
+            }
             _ => self.player_relation_matches(
                 player,
                 relation,
                 controller,
-                TriggerContext::empty(),
+                context,
             ),
         }
     }

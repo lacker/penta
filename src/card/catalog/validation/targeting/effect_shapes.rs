@@ -257,7 +257,6 @@ fn validate_effect_target_shapes(
         | EffectDef::RemoveFromCombat { object }
         | EffectDef::Untap { object }
         | EffectDef::Saddle { object }
-        | EffectDef::Attach { object }
         | EffectDef::AttachToSource { object }
         | EffectDef::PhaseOut { object }
         | EffectDef::ReturnAttached { object, .. }
@@ -296,6 +295,10 @@ fn validate_effect_target_shapes(
             validate_recipient_shape(object, targets, RecipientExpectation::Object)?;
             validate_effect_target_shapes(*follow_up.effect, targets, triggering_object_zone)
         }
+        EffectDef::Attach { object }
+        | EffectDef::MayCastTargetWithoutPaying { object, .. } => {
+            validate_recipient_shape(object, targets, RecipientExpectation::Any)
+        }
         EffectDef::PutOntoBattlefieldThen { object, then, .. }
         | EffectDef::ReturnWithHasteAndFinality { object, then, .. } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Object)?;
@@ -327,9 +330,6 @@ fn validate_effect_target_shapes(
         } => {
             validate_effect_target_shapes(*then, targets, triggering_object_zone)?;
             validate_effect_target_shapes(*otherwise, targets, triggering_object_zone)
-        }
-        EffectDef::MayCastTargetWithoutPaying { object, .. } => {
-            validate_recipient_shape(object, targets, RecipientExpectation::Any)
         }
         EffectDef::ExileTopAndMayCast { player, otherwise } => {
             validate_recipient_shape(player, targets, RecipientExpectation::Player)?;

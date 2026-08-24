@@ -1,6 +1,7 @@
 use super::{
     CardType, CardTypeSet, EffectResolutionContext, Game, GameObjectId, ObjectPredicateDef,
-    PlayerId, PlayerRelation, RetiredObject, ScopedEffect, StackObject, Target, ValueDef,
+    PlayerId, PlayerRelation, RetiredObject, ScopedEffect, StackObject, Target, TriggerContext,
+    ValueDef,
 };
 
 /// How many symbols of one colour a printed mana cost carries. A hybrid
@@ -300,6 +301,31 @@ impl Game {
                     .len(),
             )
             .unwrap_or(i32::MAX),
+            ValueDef::CountMatchingPlayerAttachments(query) => {
+                let source = object.source.unwrap_or(object.id);
+                i32::try_from(
+                    self.battlefield
+                        .iter()
+                        .filter(|permanent| {
+                            permanent.attached_player.is_some_and(|player| {
+                                self.player_relation_matches_for_source(
+                                    player,
+                                    query.player,
+                                    object.controller,
+                                    source,
+                                    TriggerContext::empty(),
+                                )
+                            }) && self.trigger_object_matches(
+                                query.object,
+                                &self.trigger_event_object(permanent),
+                                source,
+                                false,
+                            )
+                        })
+                        .count(),
+                )
+                .unwrap_or(i32::MAX)
+            }
             // Zero when nothing matches, which is what "the greatest power
             // among creatures you control" is worth with no creatures.
             ValueDef::GreatestPowerAmong(query) => self

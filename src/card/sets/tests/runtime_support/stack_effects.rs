@@ -404,7 +404,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                 // battlefield, which the choice continuation has always done,
                 // or onto either end of its owner's library, which is what
                 // "put two cards from your hand on top of your library" is.
-                && (destination == ZoneKind::Hand
+                && (matches!(destination, ZoneKind::Hand | ZoneKind::Exile)
                     || (matches!(destination, ZoneKind::Battlefield | ZoneKind::Library)
                         && sources
                             .iter()

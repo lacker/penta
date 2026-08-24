@@ -569,7 +569,9 @@ fn applied_effect_adds_ability(effect: AppliedEffectDef) -> bool {
 fn static_player_set_supported(players: PlayerSetDef) -> bool {
     match players {
         PlayerSetDef::All
-        | PlayerSetDef::One(PlayerRefDef::EffectController | PlayerRefDef::Opponent) => true,
+        | PlayerSetDef::One(
+            PlayerRefDef::EffectController | PlayerRefDef::Opponent | PlayerRefDef::EnchantedPlayer,
+        ) => true,
         PlayerSetDef::Related(relation) => static_player_relation_supported(relation),
         PlayerSetDef::LegalTargets(_)
         | PlayerSetDef::One(
@@ -591,6 +593,7 @@ fn static_player_relation_supported(relation: PlayerRelation) -> bool {
             | PlayerRelation::ActivePlayer
             | PlayerRelation::NonactivePlayer
             | PlayerRelation::ChosenPlayer
+            | PlayerRelation::EnchantedPlayer
     )
 }
 

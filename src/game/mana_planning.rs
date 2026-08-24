@@ -494,6 +494,8 @@ impl Game {
                 return ControlFlow::Continue(());
             }
             if applied.restriction.action.matches(option.action)
+                && self.spells_cast_this_turn[controller.index()]
+                    >= applied.restriction.minimum_spells_cast_this_turn
                 && self.trigger_object_matches(
                     applied.restriction.object,
                     &object,

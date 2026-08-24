@@ -142,10 +142,13 @@ struct Permanent {
     /// [`CounterKind::index`]. Only +1/+1 counters have rules meaning on their
     /// own; the rest are markers the cards that place them interpret.
     counters: [u16; CounterKind::COUNT],
-    /// What this Aura is attached to. `None` for everything that is not an
-    /// Aura. State-based actions put it into its owner's graveyard if the
-    /// referenced host leaves or stops being legal.
+    /// Which permanent this Aura, Equipment, or Fortification is attached to.
+    /// Player-enchanting Auras use `attached_player` instead.
     attached_to: Option<GameObjectId>,
+    /// Which player this Aura enchants. Kept separate from `chosen_player`:
+    /// targeting a player is an attachment relation, not an enters choice,
+    /// and effects may move that attachment later.
+    attached_player: Option<PlayerId>,
     /// The timestamped layer-4 operation created by reconfigure. It lasts
     /// only for this attachment incarnation and therefore clears whenever
     /// the Equipment becomes unattached.
@@ -306,6 +309,7 @@ impl Permanent {
             resolutions_this_turn: Vec::new(),
             counters: [0; CounterKind::COUNT],
             attached_to: None,
+            attached_player: None,
             reconfigured_timestamp: None,
             exile_instead_of_dying: false,
             combat_damage_assignment: Vec::new(),

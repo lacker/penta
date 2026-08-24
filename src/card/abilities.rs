@@ -39,21 +39,6 @@ pub static ENCHANT_ENCHANTMENT_TARGET: [AbilityTargetDef; 1] =
         ObjectPredicateDef::HasType(CardType::Enchantment),
     )];
 
-/// An Aura's "at the beginning of the upkeep of enchanted <thing>'s
-/// controller" trigger. The host's controller is the one whose upkeep this
-/// watches, which is not the Aura's controller once a host changes hands.
-#[must_use]
-pub const fn enchanted_controller_upkeep(text: &'static str, effect: EffectDef) -> AbilityDef {
-    AbilityDef::triggered(
-        text,
-        TriggerEventDef::StepBegins {
-            step: TurnStepDef::Upkeep,
-            player: PlayerRelation::ControllerOfAttachedPermanent,
-        },
-        effect,
-    )
-}
-
 /// A source permanent's own enters-the-battlefield trigger.
 #[must_use]
 pub const fn enters_trigger(text: &'static str, effect: EffectDef) -> AbilityDef {

@@ -321,6 +321,10 @@ impl Game {
                 if player == PlayerRelation::ControllerOfAttachedPermanent {
                     return self.attached_host_controller_of(source) == Some(*actual_player);
                 }
+                if player == PlayerRelation::EnchantedPlayer {
+                    return self.current_or_last_known_enchanted_player(source)
+                        == Some(*actual_player);
+                }
                 let controller = controller
                     .or_else(|| self.current_or_last_known_controller(source))
                     .unwrap_or(*actual_player);

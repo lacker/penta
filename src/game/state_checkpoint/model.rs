@@ -427,6 +427,10 @@ pub(super) struct PermanentSnapshot {
     pub(super) destroy_at_end: bool,
     pub(super) counters: Vec<u16>,
     pub(super) attached_to: Option<u32>,
+    /// The player a player-enchanting Aura is attached to. Additive: older
+    /// checkpoints restore no such Auras because none were executable then.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(super) attached_player: Option<usize>,
     pub(super) reconfigured_timestamp: Option<u64>,
     pub(super) exile_instead_of_dying: bool,
     pub(super) combat_damage_assignment: Vec<CombatDamageAssignmentSnapshot>,

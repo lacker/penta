@@ -309,6 +309,21 @@ impl TriggerEventDef {
         })
     }
 
+    /// Combat damage from a matching source to one player relation.
+    #[must_use]
+    pub const fn combat_damage_to_related_player(
+        source: ObjectPredicateDef,
+        player: PlayerRelation,
+    ) -> Self {
+        Self::DamageDealt(DamageEventMatcherDef {
+            kind: DamageKindDef::Combat,
+            source: Self::damage_source(source),
+            recipient: DamageRecipientMatcherDef::Recipients(EffectRecipientDef::players(
+                PlayerSetDef::Related(player),
+            )),
+        })
+    }
+
     /// "Whenever this creature deals combat damage to a player or
     /// planeswalker." One event either way, so one trigger rather than two.
     #[must_use]

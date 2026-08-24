@@ -179,11 +179,47 @@ impl Game {
             return false;
         };
         permanent.attached_to = Some(host);
+        permanent.attached_player = None;
         // "It becomes an Aura" happens in the same resolution that attaches
         // it, so the two are recorded together and it stays one afterwards.
         permanent.became_aura = became_aura;
         permanent.timestamp = timestamp;
         permanent.reconfigured_timestamp = reconfigured.then_some(timestamp);
+        true
+    }
+
+    /// Attach one existing Aura to an eligible player. Reattaching it moves
+    /// the same permanent and gives the changed relation a new timestamp.
+    pub(super) fn try_attach_to_player(
+        &mut self,
+        attachment: GameObjectId,
+        player: crate::ids::PlayerId,
+    ) -> bool {
+        let Some(permanent) = self
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == attachment)
+            .cloned()
+        else {
+            return false;
+        };
+        if permanent.attached_player == Some(player)
+            || !self.is_legal_aura_player(&permanent, player)
+        {
+            return false;
+        }
+        let timestamp = self.allocate_continuous_effect_timestamp();
+        let Some(permanent) = self
+            .battlefield
+            .iter_mut()
+            .find(|permanent| permanent.card.id == attachment)
+        else {
+            return false;
+        };
+        permanent.attached_to = None;
+        permanent.attached_player = Some(player);
+        permanent.timestamp = timestamp;
+        permanent.reconfigured_timestamp = None;
         true
     }
 
@@ -197,10 +233,11 @@ impl Game {
         else {
             return false;
         };
-        if permanent.attached_to.is_none() {
+        if permanent.attached_to.is_none() && permanent.attached_player.is_none() {
             return false;
         }
         permanent.attached_to = None;
+        permanent.attached_player = None;
         permanent.reconfigured_timestamp = None;
         permanent.timestamp = timestamp;
         true

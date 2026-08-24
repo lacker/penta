@@ -545,6 +545,9 @@ pub struct PlayRestrictionDef {
     /// moments a sorcery could not be cast, which is every moment except the
     /// player's own main phase with an empty stack.
     pub only_at_sorcery_speed: bool,
+    /// The restriction starts after this many spells have already been cast
+    /// by the affected player this turn. Zero is an unconditional ban.
+    pub minimum_spells_cast_this_turn: u16,
 }
 
 /// What a spell cast off the top of a library costs its caster.
@@ -606,6 +609,7 @@ impl PlayRestrictionDef {
             action,
             object,
             only_at_sorcery_speed: false,
+            minimum_spells_cast_this_turn: 0,
         }
     }
 
@@ -615,6 +619,13 @@ impl PlayRestrictionDef {
     #[must_use]
     pub const fn only_at_sorcery_speed(mut self) -> Self {
         self.only_at_sorcery_speed = true;
+        self
+    }
+
+    /// Begin prohibiting matching plays after `amount` spells this turn.
+    #[must_use]
+    pub const fn after_spells_cast(mut self, amount: u16) -> Self {
+        self.minimum_spells_cast_this_turn = amount;
         self
     }
 }

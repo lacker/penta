@@ -7,17 +7,17 @@ use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityPolicyHint, AbilityTargetDef,
     AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef, AppliedEffectDef,
     AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardAbilityBinding, CardArt,
-    CardBehavior, CardComposition, CardEffectStatus, CardPart, CardRules, CardSet, CardStructure,
-    CardSupertype, CardType, ComparisonDef, ConditionalValueDef, ControlDurationDef, CounterKind,
-    DamageEventMatcherDef, DestroyFollowUpDef, DiscardSelectionDef, DoubleFacedKind, EffectDef,
-    EffectExecutionDef, EffectPaymentDef, EffectRecipientDef, HalvedValueDef, KeywordAbility,
-    ManaColor, MillUntilDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PayOrDef, PlayOptionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef,
-    ReplacementConditionDef, ReplacementEffectDef, ResolvedEffectDurationDef, RoundingDef,
-    SacrificedAmountDef, SimultaneousChooseDef, SpellAdditionalCostCountDef,
-    SpellAdditionalCostDef, SpellForm, SpendModeDef, TargetConditionDef, TopCardSelectionDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneChangeEventMatcherDef,
-    ZoneKind, ZonePlacement, abilities,
+    CardBehavior, CardChoiceSourceDef, CardComposition, CardEffectStatus, CardPart, CardRules,
+    CardSet, CardStructure, CardSupertype, CardType, ComparisonDef, ConditionalValueDef,
+    ControlDurationDef, CounterKind, DamageEventMatcherDef, DestroyFollowUpDef,
+    DiscardSelectionDef, DoubleFacedKind, EffectDef, EffectExecutionDef, EffectPaymentDef,
+    EffectRecipientDef, HalvedValueDef, KeywordAbility, ManaColor, MillUntilDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayOptionDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef, ReplacementConditionDef,
+    ReplacementEffectDef, ResolvedEffectDurationDef, RoundingDef, SacrificedAmountDef,
+    SimultaneousChooseDef, SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpellForm,
+    SpendModeDef, TargetConditionDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::game::{
     CardAbilityResolver, CardRuntime, PileChoice, PileChosen, PileSplit, PilesSeparated,
@@ -1456,13 +1456,25 @@ pub(in crate::card::sets) static CURIOSITY: CardRecord = CardRecord::new_with_le
 );
 
 // ISD 50 — Curse of the Bloody Tome
-// Audit: metadata-only — Needs an Aura that targets and remains attached to a player, then derives upkeep from that player.
 pub(in crate::card::sets) static CURSE_OF_THE_BLOODY_TOME: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c7865e11-263b-4d61-af54-907c1acbb54f"),
     "Curse of the Bloody Tome",
     crate::card::CardArt::new("c7865e11-263b-4d61-af54-907c1acbb54f", "Jaime Jones"),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{U}"))
+        .with_subtypes(&["Aura", "Curse"])
+        .with_abilities(&[
+            abilities::aura_spell("Enchant player", &abilities::ENCHANT_PLAYER_TARGET),
+            abilities::enchanted_player_upkeep(
+                "At the beginning of enchanted player's upkeep, that player mills two cards.",
+                EffectDef::Mill {
+                    player: EffectRecipientDef::EnchantedPlayer,
+                    amount: ValueDef::Constant(2),
+                    binding: None,
+                    then: None,
+                },
+            ),
+        ]),
 );
 
 // ISD 51 — Delver of Secrets // Insectile Aberration
@@ -2480,17 +2492,40 @@ pub(in crate::card::sets) static CORPSE_LUNGE: CardRecord = CardRecord::new(
 );
 
 // ISD 94 — Curse of Death's Hold
-// Audit: metadata-only — Needs an Aura attached to a player and a static effect over creatures that enchanted player controls.
+static CURSE_OF_DEATHS_HOLD_CREATURES: ObjectQueryDef = ObjectQueryDef::new(
+    ObjectPredicateDef::All(&[
+        ObjectPredicateDef::HasType(CardType::Creature),
+        ObjectPredicateDef::ControlledBy(PlayerRelation::EnchantedPlayer),
+    ]),
+    &[ZoneKind::Battlefield],
+);
 pub(in crate::card::sets) static CURSE_OF_DEATH_S_HOLD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1774d0a8-1cd3-4582-ace0-1caff92af0e7"),
     "Curse of Death's Hold",
     crate::card::CardArt::new("1774d0a8-1cd3-4582-ace0-1caff92af0e7", "Clint Cearley"),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{3}{B}{B}"))
+        .with_subtypes(&["Aura", "Curse"])
+        .with_abilities(&[
+            abilities::aura_spell("Enchant player", &abilities::ENCHANT_PLAYER_TARGET),
+            AbilityDef::static_ability(
+                "Creatures enchanted player controls get -1/-1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        CURSE_OF_DEATHS_HOLD_CREATURES,
+                    )),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(-1),
+                        ValueDef::Constant(-1),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // ISD 95 — Curse of Oblivion
-// Audit: metadata-only — Needs a player Aura whose upkeep trigger makes that player choose two cards in their graveyard to exile.
+static CURSE_OF_OBLIVION_GRAVEYARD: [CardChoiceSourceDef; 1] =
+    [CardChoiceSourceDef::Zone(ZoneKind::Graveyard)];
 pub(in crate::card::sets) static CURSE_OF_OBLIVION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c15cbd2f-8bbf-423a-81fe-521fd99bc8bf"),
     "Curse of Oblivion",
@@ -2499,7 +2534,25 @@ pub(in crate::card::sets) static CURSE_OF_OBLIVION: CardRecord = CardRecord::new
         "Jana Schirmer & Johannes Voss",
     ),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{3}{B}"))
+        .with_subtypes(&["Aura", "Curse"])
+        .with_abilities(&[
+            abilities::aura_spell("Enchant player", &abilities::ENCHANT_PLAYER_TARGET),
+            abilities::enchanted_player_upkeep(
+                "At the beginning of enchanted player's upkeep, that player exiles two cards from their graveyard.",
+                EffectDef::ChooseCards {
+                    player: EffectRecipientDef::EnchantedPlayer,
+                    sources: &CURSE_OF_OBLIVION_GRAVEYARD,
+                    object: ObjectPredicateDef::Any,
+                    minimum: 2,
+                    maximum: 2,
+                    reveal: false,
+                    destination: ZoneKind::Exile,
+                    placement: ZonePlacement::Top,
+                    arrival_effect: None,
+                },
+            ),
+        ]),
 );
 
 // ISD 96 — Dead Weight
@@ -3460,7 +3513,6 @@ pub(in crate::card::sets) static CROSSWAY_VAMPIRE: CardRecord = CardRecord::new_
 );
 
 // ISD 136 — Curse of Stalked Prey
-// Audit: metadata-only — Needs a player Aura and a combat-damage trigger derived from the enchanted player.
 pub(in crate::card::sets) static CURSE_OF_STALKED_PREY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("11a18883-8990-40a0-bcb2-e01d0e82bfad"),
     "Curse of Stalked Prey",
@@ -3469,27 +3521,83 @@ pub(in crate::card::sets) static CURSE_OF_STALKED_PREY: CardRecord = CardRecord:
         "Christopher Moeller",
     ),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{R}"))
+        .with_subtypes(&["Aura", "Curse"])
+        .with_abilities(&[
+            abilities::aura_spell("Enchant player", &abilities::ENCHANT_PLAYER_TARGET),
+            AbilityDef::triggered(
+                "Whenever a creature deals combat damage to enchanted player, put a +1/+1 counter on that creature.",
+                TriggerEventDef::combat_damage_to_related_player(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    PlayerRelation::EnchantedPlayer,
+                ),
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::TriggeringObject,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // ISD 137 — Curse of the Nightly Hunt
-// Audit: metadata-only — Needs a player Aura and an attack requirement over creatures that enchanted player controls.
+static CURSE_OF_THE_NIGHTLY_HUNT_CREATURES: ObjectQueryDef = ObjectQueryDef::new(
+    ObjectPredicateDef::All(&[
+        ObjectPredicateDef::HasType(CardType::Creature),
+        ObjectPredicateDef::ControlledBy(PlayerRelation::EnchantedPlayer),
+    ]),
+    &[ZoneKind::Battlefield],
+);
+static CURSE_OF_THE_NIGHTLY_HUNT_ATTACKS: AbilityDef =
+    abilities::attacks_each_combat_if_able("This creature attacks each combat if able.");
 pub(in crate::card::sets) static CURSE_OF_THE_NIGHTLY_HUNT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("49cbfcf2-462e-4bbf-a529-a70816eb1436"),
     "Curse of the Nightly Hunt",
     crate::card::CardArt::new("49cbfcf2-462e-4bbf-a529-a70816eb1436", "Daarken"),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{R}"))
+        .with_subtypes(&["Aura", "Curse"])
+        .with_abilities(&[
+            abilities::aura_spell("Enchant player", &abilities::ENCHANT_PLAYER_TARGET),
+            AbilityDef::static_ability(
+                "Creatures enchanted player controls attack each combat if able.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        CURSE_OF_THE_NIGHTLY_HUNT_CREATURES,
+                    )),
+                    effect: AppliedEffectDef::add_ability(&CURSE_OF_THE_NIGHTLY_HUNT_ATTACKS),
+                },
+            ),
+        ]),
 );
 
 // ISD 138 — Curse of the Pierced Heart
-// Audit: metadata-only — Needs a player Aura whose upkeep trigger derives the enchanted player and their planeswalkers.
 pub(in crate::card::sets) static CURSE_OF_THE_PIERCED_HEART: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("71010182-c004-4d18-adab-80319cd1e625"),
     "Curse of the Pierced Heart",
     crate::card::CardArt::new("71010182-c004-4d18-adab-80319cd1e625", "E. M. Gist"),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{R}"))
+        .with_subtypes(&["Aura", "Curse"])
+        .with_abilities(&[
+            abilities::aura_spell("Enchant player", &abilities::ENCHANT_PLAYER_TARGET),
+            AbilityDef::triggered_with_targets(
+                "At the beginning of enchanted player's upkeep, this Aura deals 1 damage to that player or a planeswalker that player controls.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::Upkeep,
+                    player: PlayerRelation::EnchantedPlayer,
+                },
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::PlayerOrPlaneswalker(
+                        PlayerRelation::EnchantedPlayer,
+                    ),
+                )],
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // ISD 139 — Desperate Ravings

@@ -539,11 +539,15 @@ impl Game {
             EffectRecipientSetDef::Players(PlayerSetDef::Related(PlayerRelation::ChosenPlayer)) => {
                 self.chosen_player_of(source.card.id) == Some(affected_player)
             }
+            EffectRecipientSetDef::Players(PlayerSetDef::One(PlayerRefDef::EnchantedPlayer)) => {
+                source.attached_player == Some(affected_player)
+            }
             EffectRecipientSetDef::Players(PlayerSetDef::Related(relation)) => self
-                .player_relation_matches(
+                .player_relation_matches_for_source(
                     affected_player,
                     relation,
                     source.controller,
+                    source.card.id,
                     TriggerContext::empty(),
                 ),
             EffectRecipientSetDef::LegalTargets(_)

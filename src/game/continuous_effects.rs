@@ -992,3 +992,4 @@ impl Game {
 
 include!("continuous_effects/characteristics.rs");
 include!("continuous_effects/static_predicates.rs");
+include!("continuous_effects/player_auras.rs");

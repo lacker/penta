@@ -7,7 +7,8 @@ use crate::card::{
     CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype, CardType,
     ComparisonDef, ConditionalValueDef, CostModificationDef, CounterKind, DamageEventMatcherDef,
     DamagePreventionDef, DiscardSelectionDef, DoubleFacedKind, EffectDef, EffectRecipientDef,
-    KeywordAbility, LifeConditionDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayOptionDef,
+    KeywordAbility, LifeConditionDef, ManaColor, ObjectPredicateDef, ObjectQueryDef,
+    PlayActionMatcherDef, PlayOptionDef, PlayRestrictionDef, PlayerAttachmentQueryDef,
     PlayerRelation, QuantifierDef, ReplacementEffectDef, ResolvedEffectDurationDef,
     SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostCountDef, SpellAdditionalCostDef,
     SpellForm, SpendModeDef, TargetConditionDef, TopCardSelectionDef, TriggerConditionDef,
@@ -201,13 +202,29 @@ pub(in crate::card::sets) static BURDEN_OF_GUILT: CardRecord = CardRecord::new_w
 );
 
 // DKA 5 — Curse of Exhaustion
-// Audit: metadata-only — Needs Auras that target and attach to players, plus a per-turn spell-casting limit for the enchanted player.
 pub(in crate::card::sets) static CURSE_OF_EXHAUSTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b737a959-e974-4b2a-8dca-a257da6084b0"),
     "Curse of Exhaustion",
     crate::card::CardArt::new("b737a959-e974-4b2a-8dca-a257da6084b0", "Slawomir Maniak"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{W}{W}"))
+        .with_subtypes(&["Aura", "Curse"])
+        .with_abilities(&[
+            abilities::aura_spell("Enchant player", &abilities::ENCHANT_PLAYER_TARGET),
+            AbilityDef::static_ability(
+                "Enchanted player can't cast more than one spell each turn.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::EnchantedPlayer,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
+                        PlayRestrictionDef::new(
+                            PlayActionMatcherDef::CastSpell,
+                            ObjectPredicateDef::Any,
+                        )
+                        .after_spells_cast(1),
+                    )),
+                },
+            ),
+        ]),
 );
 
 // DKA 6 — Elgaud Inquisitor
@@ -765,13 +782,21 @@ pub(in crate::card::sets) static COUNTERLASH: CardRecord = CardRecord::new(
 );
 
 // DKA 34 — Curse of Echoes
-// Audit: metadata-only — Needs player-attached Auras and optional spell copies with independently reselectable targets for every other player.
+// Audit: partial — Needs optional copies of a triggering spell with independently reselectable targets for every other player.
 pub(in crate::card::sets) static CURSE_OF_ECHOES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("147dbe42-665a-4e21-b405-d17554d5efcf"),
     "Curse of Echoes",
     crate::card::CardArt::new("147dbe42-665a-4e21-b405-d17554d5efcf", "Slawomir Maniak"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{4}{U}"))
+        .with_subtypes(&["Aura", "Curse"])
+        .with_abilities(&[
+            abilities::aura_spell("Enchant player", &abilities::ENCHANT_PLAYER_TARGET),
+            AbilityDef::not_implemented(
+                "Whenever enchanted player casts an instant or sorcery spell, each other player may copy that spell and may choose new targets for the copy they control.",
+                "Copying another spell once for each other player with independently reselectable targets is not implemented.",
+            ),
+        ]),
 );
 
 // DKA 35 — Divination
@@ -1203,17 +1228,28 @@ pub(in crate::card::sets) static CHOSEN_OF_MARKOV: CardRecord = CardRecord::new(
 );
 
 // DKA 56 — Curse of Misfortunes
-// Audit: metadata-only — Needs player-attached Auras and a library search predicate that excludes Curse names already attached to that player.
+// Audit: partial — Needs a library search predicate excluding Curse names already attached to the enchanted player and an attached battlefield arrival.
 pub(in crate::card::sets) static CURSE_OF_MISFORTUNES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c531d218-ff1c-4333-a19d-446d709b1e28"),
     "Curse of Misfortunes",
     crate::card::CardArt::new("c531d218-ff1c-4333-a19d-446d709b1e28", "Terese Nielsen"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{4}{B}"))
+        .with_subtypes(&["Aura", "Curse"])
+        .with_abilities(&[
+            abilities::aura_spell("Enchant player", &abilities::ENCHANT_PLAYER_TARGET),
+            AbilityDef::not_implemented(
+                "At the beginning of your upkeep, you may search your library for a Curse card that doesn't have the same name as a Curse attached to enchanted player, put it onto the battlefield attached to that player, then shuffle.",
+                "Searching by names absent from the enchanted player's attached Curses and attaching the battlefield arrival are not implemented.",
+            ),
+        ]),
 );
 
 // DKA 57 — Curse of Thirst
-// Audit: metadata-only — Needs player-attached Auras and a count of Curses attached to the enchanted player.
+static CURSE_OF_THIRST_ATTACHED_CURSES: PlayerAttachmentQueryDef = PlayerAttachmentQueryDef::new(
+    PlayerRelation::EnchantedPlayer,
+    ObjectPredicateDef::Subtype("Curse"),
+);
 pub(in crate::card::sets) static CURSE_OF_THIRST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2fa2b4ac-a62f-45c6-88fb-6ad44c6af28c"),
     "Curse of Thirst",
@@ -1222,7 +1258,20 @@ pub(in crate::card::sets) static CURSE_OF_THIRST: CardRecord = CardRecord::new(
         "Christopher Moeller",
     ),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{4}{B}"))
+        .with_subtypes(&["Aura", "Curse"])
+        .with_abilities(&[
+            abilities::aura_spell("Enchant player", &abilities::ENCHANT_PLAYER_TARGET),
+            abilities::enchanted_player_upkeep(
+                "At the beginning of enchanted player's upkeep, this Aura deals damage to that player equal to the number of Curses attached to them.",
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::EnchantedPlayer,
+                    amount: ValueDef::CountMatchingPlayerAttachments(
+                        &CURSE_OF_THIRST_ATTACHED_CURSES,
+                    ),
+                },
+            ),
+        ]),
 );
 
 // DKA 58 — Deadly Allure
@@ -1764,13 +1813,21 @@ pub(in crate::card::sets) static BURNING_OIL: CardRecord = CardRecord::new_with_
 );
 
 // DKA 85 — Curse of Bloodletting
-// Audit: metadata-only — Needs an Aura attached to a player so its damage-doubling replacement can be scoped to that enchanted player.
+// Audit: partial — Needs a damage-event replacement that doubles damage to the enchanted player with replacement-order choices.
 pub(in crate::card::sets) static CURSE_OF_BLOODLETTING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9dc4ac6f-0005-47f8-bee9-10429cc542e4"),
     "Curse of Bloodletting",
     crate::card::CardArt::new("9dc4ac6f-0005-47f8-bee9-10429cc542e4", "Michael C. Hayes"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{3}{R}{R}"))
+        .with_subtypes(&["Aura", "Curse"])
+        .with_abilities(&[
+            abilities::aura_spell("Enchant player", &abilities::ENCHANT_PLAYER_TARGET),
+            AbilityDef::not_implemented(
+                "If a source would deal damage to enchanted player, it deals double that damage to that player instead.",
+                "Damage-event multiplication and replacement-order choices are not implemented.",
+            ),
+        ]),
 );
 
 // DKA 86 — Erdwal Ripper

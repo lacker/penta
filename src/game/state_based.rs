@@ -53,13 +53,17 @@ impl Game {
                 // no longer a legal host, is put into its owner's graveyard.
                 // 704.5p does the milder thing for Equipment: it comes loose
                 // and stays where it is.
-                if self.is_aura_permanent(permanent)
-                    && permanent
-                        .attached_to
-                        .is_none_or(|host| !self.is_legal_aura_host(permanent, host))
-                {
-                    die.push(permanent.card.id);
-                    continue;
+                if self.is_aura_permanent(permanent) {
+                    let legal_attachment = match (permanent.attached_to, permanent.attached_player)
+                    {
+                        (Some(host), None) => self.is_legal_aura_host(permanent, host),
+                        (None, Some(player)) => self.is_legal_aura_player(permanent, player),
+                        (None, None) | (Some(_), Some(_)) => false,
+                    };
+                    if !legal_attachment {
+                        die.push(permanent.card.id);
+                        continue;
+                    }
                 }
                 if self
                     .permanent_types(permanent)

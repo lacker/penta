@@ -65,6 +65,17 @@ distinguishes snapshots of the covered source and build inputs.
   protocol 29 are unchanged. A catalog-wide integrity check rejects any future
   attached-permanent control effect modeled outside a root static ability.
 
+- **Auras can enchant players.** Player attachments are now first-class
+  permanent state with legal resolution, reattachment, state-based checks,
+  last-known information, declarative player relations, and additive
+  checkpoint persistence. The shared machinery completes Curse of the Bloody
+  Tome, Curse of Death's Hold, Curse of Oblivion, Curse of Stalked Prey, Curse
+  of the Nightly Hunt, Curse of the Pierced Heart, Curse of Exhaustion, and
+  Curse of Thirst. Curse of Echoes, Curse of Misfortunes, and Curse of
+  Bloodletting now model their Aura half and retain explicit partial coverage
+  for their unsupported copy, search-and-attach, and damage-replacement
+  clauses. Checkpoint format 8, replay version 2, and protocol 29 are unchanged.
+
 - **Predicate-driven blocking restrictions and declaration costs.** Blocking
   now uses the same declarative shape as attacking: a rule records which side
   of the block carries it, predicates the creature on the other side, and can

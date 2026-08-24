@@ -51,6 +51,7 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         // A conditional amount belongs to a resolving effect, not to the
         // static power-and-toughness layer.
         ValueDef::IfCardTypesAmongGraveyards(_)
+        | ValueDef::CountMatchingPlayerAttachments(_)
         | ValueDef::CreaturesDiedThisTurn
         | ValueDef::OpponentsWhoLostLifeThisTurn
         | ValueDef::ChosenX
@@ -95,6 +96,7 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
                 && static_cost_reduction_value_supported(sum.right)
         }
         ValueDef::CreaturesDiedThisTurn
+        | ValueDef::CountMatchingPlayerAttachments(_)
         | ValueDef::OpponentsWhoLostLifeThisTurn
         | ValueDef::CardTypesAmongGraveyards(_)
         | ValueDef::IfCardTypesAmongGraveyards(_)

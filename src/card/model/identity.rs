@@ -484,4 +484,7 @@ pub enum PlayerRelation {
     /// An Aura's own upkeep trigger fires on its host's turn, not its
     /// controller's, and the two differ the moment a host changes hands.
     ControllerOfAttachedPermanent,
+    /// The player the ability's source Aura is attached to. Unlike a chosen
+    /// player, this is a live attachment relation and can move.
+    EnchantedPlayer,
 }

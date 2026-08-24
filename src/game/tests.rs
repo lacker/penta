@@ -208,6 +208,7 @@ mod osai_vultures;
 mod paralyze;
 mod part_water;
 mod play_from_hand;
+mod player_curses;
 mod poison;
 mod populate;
 mod populate_cards;

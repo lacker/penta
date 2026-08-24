@@ -35,6 +35,8 @@ pub enum ObjectRefDef {
 pub enum PlayerRefDef {
     /// The controller captured by the resolving spell or ability.
     EffectController,
+    /// The player the resolving ability's source Aura enchants.
+    EnchantedPlayer,
     EventPlayer,
     /// A target slot that directly names a player.
     Target(TargetIndex),
@@ -149,6 +151,7 @@ impl EffectRecipientDef {
     pub const Source: Self = Self::object(ObjectRefDef::Source);
     pub const AttachedPermanent: Self = Self::object(ObjectRefDef::AttachedToSource);
     pub const Controller: Self = Self::player(PlayerRefDef::EffectController);
+    pub const EnchantedPlayer: Self = Self::player(PlayerRefDef::EnchantedPlayer);
     pub const Opponent: Self = Self::players(PlayerSetDef::Related(PlayerRelation::Opponent));
     pub const EachPlayer: Self = Self::players(PlayerSetDef::All);
     pub const EachOpponentAndTheirCreatures: Self = Self(

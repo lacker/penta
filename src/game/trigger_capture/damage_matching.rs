@@ -209,6 +209,9 @@ impl Game {
             PlayerSetDef::Related(PlayerRelation::ChosenPlayer) => {
                 self.chosen_player_of(ability_source) == Some(recipient)
             }
+            PlayerSetDef::Related(PlayerRelation::EnchantedPlayer) => {
+                self.current_or_last_known_enchanted_player(ability_source) == Some(recipient)
+            }
             PlayerSetDef::Related(relation) => controller.is_some_and(|controller| {
                 self.player_relation_matches(recipient, relation, controller, event.context())
             }),

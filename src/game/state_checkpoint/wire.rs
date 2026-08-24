@@ -754,6 +754,7 @@ fn parse_permanent(
     permanent.destroy_at_end = state.destroy_at_end;
     permanent.counters = counters;
     permanent.attached_to = state.attached_to.map(GameObjectId);
+    permanent.attached_player = state.attached_player.map(player_from_index).transpose()?;
     permanent.exile_instead_of_dying = state.exile_instead_of_dying;
     permanent.regeneration_shields = state.regeneration_shields;
     permanent.attacked_this_turn = state.attacked_this_turn;

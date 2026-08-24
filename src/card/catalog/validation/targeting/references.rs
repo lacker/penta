@@ -179,9 +179,10 @@ fn validate_player_reference(
         PlayerRefDef::ControllerOf(reference) | PlayerRefDef::OwnerOf(reference) => {
             validate_object_reference(reference, target_count, scope)
         }
-        PlayerRefDef::EffectController | PlayerRefDef::EventPlayer | PlayerRefDef::Opponent => {
-            Ok(())
-        }
+        PlayerRefDef::EffectController
+        | PlayerRefDef::EnchantedPlayer
+        | PlayerRefDef::EventPlayer
+        | PlayerRefDef::Opponent => Ok(()),
     }
 }
 
@@ -441,6 +442,9 @@ fn validate_value_target_references(
         | ValueDef::AnyMatchingObject(query)
         | ValueDef::GreatestPowerAmong(query) => {
             validate_query(*query, target_count, scope)
+        }
+        ValueDef::CountMatchingPlayerAttachments(query) => {
+            validate_object_predicate_references(query.object, target_count, scope)
         }
         ValueDef::TargetPower(target)
         | ValueDef::TargetToughness(target)

@@ -6,8 +6,8 @@
 
 use super::{
     AbilityTargetPredicate, CardInstance, CardType, CharacteristicContext, Game, GameObjectId,
-    ObjectPredicateDef, PlayerId, StackObjectKind, StackTargetKindDef, Target, TargetSelection,
-    TriggerContext, ZoneKind,
+    ObjectPredicateDef, PlayerId, PlayerRelation, StackObjectKind, StackTargetKindDef, Target,
+    TargetSelection, TriggerContext, ZoneKind,
 };
 
 impl Game {
@@ -128,35 +128,20 @@ impl Game {
             }
             AbilityTargetPredicate::ControlledByTargetOf { .. }
             | AbilityTargetPredicate::OwnedByTargetPlayer { .. } => Vec::new(),
-            AbilityTargetPredicate::PlayerOrPlaneswalker(relation) => {
-                let mut targets = [PlayerId::One, PlayerId::Two]
-                    .into_iter()
-                    .filter(|player| {
-                        self.player_relation_matches(*player, relation, controller, context)
-                    })
-                    .map(Target::Player)
-                    .collect::<Vec<_>>();
-                targets.extend(
-                    self.battlefield
-                        .iter()
-                        .filter(|permanent| {
-                            self.permanent_types(permanent)
-                                .is_some_and(|types| types.contains(CardType::Planeswalker))
-                                && self.permanent_can_be_targeted_by(
-                                    permanent,
-                                    controller,
-                                    source,
-                                    source_is_spell,
-                                )
-                        })
-                        .map(|permanent| Target::Permanent(permanent.card.id)),
-                );
-                targets
-            }
+            AbilityTargetPredicate::PlayerOrPlaneswalker(relation) => self
+                .player_or_planeswalker_targets_matching(
+                    relation,
+                    controller,
+                    source,
+                    context,
+                    source_is_spell,
+                ),
             AbilityTargetPredicate::Player(relation) => [PlayerId::One, PlayerId::Two]
                 .into_iter()
                 .filter(|player| {
-                    self.player_relation_matches(*player, relation, controller, context)
+                    self.player_relation_matches_for_source(
+                        *player, relation, controller, source, context,
+                    )
                 })
                 .map(Target::Player)
                 .collect(),
@@ -204,6 +189,48 @@ impl Game {
                 })
                 .collect(),
         }
+    }
+
+    fn player_or_planeswalker_targets_matching(
+        &self,
+        relation: PlayerRelation,
+        controller: PlayerId,
+        source: GameObjectId,
+        context: TriggerContext,
+        source_is_spell: bool,
+    ) -> Vec<Target> {
+        let mut targets = [PlayerId::One, PlayerId::Two]
+            .into_iter()
+            .filter(|player| {
+                self.player_relation_matches_for_source(
+                    *player, relation, controller, source, context,
+                )
+            })
+            .map(Target::Player)
+            .collect::<Vec<_>>();
+        targets.extend(
+            self.battlefield
+                .iter()
+                .filter(|permanent| {
+                    self.permanent_types(permanent)
+                        .is_some_and(|types| types.contains(CardType::Planeswalker))
+                        && self.player_relation_matches_for_source(
+                            permanent.controller,
+                            relation,
+                            controller,
+                            source,
+                            context,
+                        )
+                        && self.permanent_can_be_targeted_by(
+                            permanent,
+                            controller,
+                            source,
+                            source_is_spell,
+                        )
+                })
+                .map(|permanent| Target::Permanent(permanent.card.id)),
+        );
+        targets
     }
 
     pub(super) fn ability_object_targets_matching(

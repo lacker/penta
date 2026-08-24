@@ -309,6 +309,37 @@ fn rebuild_current_checkpoint(game: &Game, viewer: PlayerId, seed: u64) -> (Valu
     (wire, rebuilt)
 }
 
+#[test]
+fn player_aura_attachment_round_trips() {
+    let mut game = crate::game::tests::ready_game();
+    let mut curse = crate::game::tests::creature(
+        90_100,
+        crate::card::cards::CURSE_OF_THE_BLOODY_TOME,
+        PlayerId::One,
+    );
+    let curse_id = curse.card.id;
+    curse.attached_player = Some(PlayerId::Two);
+    game.battlefield.push(curse);
+
+    let (wire, rebuilt) = rebuild_current_checkpoint(&game, PlayerId::One, 90_101);
+    let checkpoint_curse = wire["checkpoint"]["battlefield"]
+        .as_array()
+        .expect("the checkpoint has a battlefield")
+        .iter()
+        .find(|permanent| permanent["objectId"] == curse_id.0)
+        .expect("the Curse is checkpointed");
+    assert_eq!(checkpoint_curse["attachedPlayer"], PlayerId::Two.index());
+    assert_eq!(
+        rebuilt
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == curse_id)
+            .expect("the Curse reconstructs")
+            .attached_player,
+        Some(PlayerId::Two),
+    );
+}
+
 include!("tests/resolved_effects.rs");
 
 include!("tests/prevention_and_replacements.rs");

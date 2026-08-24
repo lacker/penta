@@ -77,6 +77,22 @@ pub struct ObjectQueryDef {
     pub owner: Option<PlayerSetDef>,
 }
 
+/// Permanents attached to a player in one relation and matching one object
+/// predicate. Held behind a reference by `ValueDef` so ordinary values remain
+/// compact.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct PlayerAttachmentQueryDef {
+    pub player: PlayerRelation,
+    pub object: ObjectPredicateDef,
+}
+
+impl PlayerAttachmentQueryDef {
+    #[must_use]
+    pub const fn new(player: PlayerRelation, object: ObjectPredicateDef) -> Self {
+        Self { player, object }
+    }
+}
+
 impl ObjectQueryDef {
     #[must_use]
     pub const fn new(object: ObjectPredicateDef, zones: &'static [ZoneKind]) -> Self {
@@ -202,6 +218,8 @@ pub enum ValueDef {
     /// How many objects match, for the "for each" clauses. Held by reference
     /// so that `ValueDef` stays small enough to embed freely.
     CountMatchingObjects(&'static ObjectQueryDef),
+    /// How many matching permanents are attached to the named player.
+    CountMatchingPlayerAttachments(&'static PlayerAttachmentQueryDef),
     /// One when at least one object matches, zero otherwise. "As long as you
     /// control a Mountain" is a condition rather than a count, so counting
     /// matches would pay a second Mountain twice.

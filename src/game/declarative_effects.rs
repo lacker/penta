@@ -821,13 +821,14 @@ impl Game {
                     return;
                 };
                 for target in self.effect_recipients(recipient, object, &context, scoped) {
-                    let Target::Permanent(id) = target else {
-                        continue;
-                    };
-                    let attached = if onto_source {
-                        self.try_attach(id, source)
-                    } else {
-                        self.try_attach(source, id)
+                    let attached = match (onto_source, target) {
+                        (true, Target::Permanent(id)) => self.try_attach(id, source),
+                        (false, Target::Permanent(id)) => self.try_attach(source, id),
+                        (false, Target::Player(player)) => {
+                            self.try_attach_to_player(source, player)
+                        }
+                        (true, Target::Player(_) | Target::Card(_) | Target::Spell(_))
+                        | (false, Target::Card(_) | Target::Spell(_)) => false,
                     };
                     if attached && !onto_source {
                         break;

@@ -255,6 +255,9 @@ impl Game {
     ) -> Option<PlayerId> {
         match reference {
             PlayerRefDef::EffectController => Some(object.controller),
+            PlayerRefDef::EnchantedPlayer => object
+                .source
+                .and_then(|source| self.current_or_last_known_enchanted_player(source)),
             PlayerRefDef::Opponent => Some(object.controller.opponent()),
             PlayerRefDef::EventPlayer => context.trigger.event_player,
             PlayerRefDef::Target(target) => {
@@ -327,10 +330,11 @@ impl Game {
             PlayerSetDef::Related(relation) => [object.controller, object.controller.opponent()]
                 .into_iter()
                 .filter(|candidate| {
-                    self.player_relation_matches(
+                    self.player_relation_matches_for_source(
                         *candidate,
                         relation,
                         object.controller,
+                        object.source.unwrap_or(object.id),
                         context.trigger,
                     )
                 })

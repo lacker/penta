@@ -71,11 +71,13 @@ impl Game {
             .stack_spell_types(&object)
             .unwrap_or_else(|| behavior.types());
         let aura_host = Self::aura_host_for(&object);
-        let aura_fizzles =
-            spell_types.is_permanent() && aura_host.is_some() && self.spell_fizzles(&object);
+        let aura_player = Self::aura_player_for(&object);
+        let aura_fizzles = spell_types.is_permanent()
+            && (aura_host.is_some() || aura_player.is_some())
+            && self.spell_fizzles(&object);
         if spell_types.is_permanent() && !aura_fizzles {
-            let chosen_player = match object.first_target() {
-                Some(Target::Player(player)) => Some(player),
+            let chosen_player = match (aura_player, object.first_target()) {
+                (None, Some(Target::Player(player))) => Some(player),
                 _ => None,
             };
             let presented = object
@@ -119,6 +121,7 @@ impl Game {
             permanent.cast_from_zone = object.cast_from_zone;
             permanent.text_changes = object.text_changes;
             permanent.attached_to = aura_host;
+            permanent.attached_player = aura_player;
             self.enqueue_battlefield_entry(PendingBattlefieldEntry {
                 permanent,
                 from: ZoneKind::Stack,

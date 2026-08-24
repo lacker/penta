@@ -5,6 +5,39 @@
 // readable; these are ordinary members of `abilities`. Included textually, so
 // the imports here are the parent module's.
 
+/// The target an "Enchant player" Aura spell chooses.
+pub static ENCHANT_PLAYER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Player(PlayerRelation::Any),
+)];
+
+/// An Aura's "at the beginning of the upkeep of enchanted <thing>'s
+/// controller" trigger. The host's controller is the one whose upkeep this
+/// watches, which is not the Aura's controller once a host changes hands.
+#[must_use]
+pub const fn enchanted_controller_upkeep(text: &'static str, effect: EffectDef) -> AbilityDef {
+    AbilityDef::triggered(
+        text,
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::Upkeep,
+            player: PlayerRelation::ControllerOfAttachedPermanent,
+        },
+        effect,
+    )
+}
+
+/// An Aura's "at the beginning of enchanted player's upkeep" trigger.
+#[must_use]
+pub const fn enchanted_player_upkeep(text: &'static str, effect: EffectDef) -> AbilityDef {
+    AbilityDef::triggered(
+        text,
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::Upkeep,
+            player: PlayerRelation::EnchantedPlayer,
+        },
+        effect,
+    )
+}
+
 /// The target an equip ability chooses: a creature its controller controls.
 static EQUIP_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Object {

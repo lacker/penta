@@ -135,7 +135,11 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
                 ))
                 | EffectRecipientSetDef::Players(
                     PlayerSetDef::All
-                    | PlayerSetDef::One(PlayerRefDef::EffectController | PlayerRefDef::Opponent)
+                    | PlayerSetDef::One(
+                        PlayerRefDef::EffectController
+                        | PlayerRefDef::Opponent
+                        | PlayerRefDef::EnchantedPlayer,
+                    )
                     | PlayerSetDef::Related(_),
                 ) => true,
                 EffectRecipientSetDef::Objects(ObjectSetDef::Query(query)) => {

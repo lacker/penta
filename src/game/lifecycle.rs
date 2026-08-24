@@ -395,6 +395,23 @@ impl Game {
             })
     }
 
+    /// The player an Aura enchanted immediately before it left the
+    /// battlefield. A triggered ability remains independent of its source,
+    /// so removing the Curse in response must not erase who it enchanted.
+    pub(super) fn current_or_last_known_enchanted_player(
+        &self,
+        object: GameObjectId,
+    ) -> Option<PlayerId> {
+        self.battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == object)
+            .and_then(|permanent| permanent.attached_player)
+            .or_else(|| match self.retired_objects.get(&object) {
+                Some(RetiredObject::Permanent { permanent, .. }) => permanent.attached_player,
+                Some(RetiredObject::Card(_) | RetiredObject::Stack(_)) | None => None,
+            })
+    }
+
     /// What a permanent was blocking, using last-known information once it
     /// has left the battlefield. A creature that died in combat still knows
     /// what it had blocked, which is what a death trigger reading "creatures

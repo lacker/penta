@@ -2602,14 +2602,14 @@ pub(in crate::card::sets) static SCAVENGING_GHOUL: CardRecord = CardRecord::new_
             },
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
-                kind: CounterKind::Corpse,
+                kind: CounterKind::named("corpse"),
                 amount: ValueDef::CreaturesDiedThisTurn,
             },
         ),
         AbilityDef::activated(
             "Remove a corpse counter from this creature: Regenerate this creature.",
             &[AbilityCostDef::RemoveCountersFromSource {
-                kind: CounterKind::Corpse,
+                kind: CounterKind::named("corpse"),
                 amount: 1,
             }],
             EffectDef::Regenerate {
@@ -4276,7 +4276,7 @@ pub(in crate::card::sets) static LIFELACE: CardRecord = CardRecord::new_with_leg
 
 // LEA 208 — Living Artifact
 static LIVING_ARTIFACT_BANKED: TriggerConditionDef = TriggerConditionDef::SourceCounters {
-    kind: CounterKind::Vitality,
+    kind: CounterKind::named("vitality"),
     comparison: ComparisonDef::GreaterOrEqual,
     amount: 1,
 };
@@ -4287,7 +4287,7 @@ static LIVING_ARTIFACT_BANKED: TriggerConditionDef = TriggerConditionDef::Source
 static LIVING_ARTIFACT_SPEND: [EffectDef; 2] = [
     EffectDef::RemoveCounters {
         object: EffectRecipientDef::Source,
-        kind: CounterKind::Vitality,
+        kind: CounterKind::named("vitality"),
         amount: ValueDef::Constant(1),
     },
     EffectDef::GainLife {
@@ -4317,7 +4317,7 @@ pub(in crate::card::sets) static LIVING_ARTIFACT: CardRecord = CardRecord::new_w
                 TriggerEventDef::damage_to_player(ObjectPredicateDef::Any, PlayerRelation::You),
                 EffectDef::AddCounters {
                     object: EffectRecipientDef::Source,
-                    kind: CounterKind::Vitality,
+                    kind: CounterKind::named("vitality"),
                     amount: ValueDef::TriggerEventAmount,
                 },
             ),

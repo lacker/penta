@@ -30,7 +30,7 @@ static KARN_REVEALS_TWO: TopCardSelectionDef = TopCardSelectionDef {
     rest_zone: ZoneKind::Exile,
     rest_placement: ZonePlacement::Top,
     rest_random_order: false,
-    rest_counters: Some((CounterKind::Silver, 1)),
+    rest_counters: Some((CounterKind::named("silver"), 1)),
     selected_order_follows_choice: false,
     then: None,
 };
@@ -39,7 +39,7 @@ static KARN_REVEALS_TWO: TopCardSelectionDef = TopCardSelectionDef {
 /// what makes the pile nameable at all, since exile holds everything anybody
 /// has ever put there.
 static YOUR_SILVER_CARDS: ObjectQueryDef = ObjectQueryDef::owned_by(
-    ObjectPredicateDef::HasCounter(CounterKind::Silver),
+    ObjectPredicateDef::HasCounter(CounterKind::named("silver")),
     &[ZoneKind::Exile],
     PlayerSetDef::Related(PlayerRelation::You),
 );

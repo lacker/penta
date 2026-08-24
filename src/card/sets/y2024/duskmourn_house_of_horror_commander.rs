@@ -23,7 +23,7 @@ static A_CREATURE_IN_YOUR_GRAVEYARD: [AbilityTargetDef; 1] = [AbilityTargetDef::
     1,
 )];
 
-/// A counter rather than a granted keyword (CR 122.1e): what comes back has
+/// A counter rather than a granted keyword (CR 122.1b): what comes back has
 /// lifelink for exactly as long as the counter is on it, which outlives
 /// every duration a spell could have named.
 static A_LIFELINK_COUNTER: TokenCountersDef = TokenCountersDef {

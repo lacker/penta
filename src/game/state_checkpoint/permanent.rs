@@ -81,7 +81,14 @@ pub(super) fn permanent_snapshot(
             .cast_alternative
             .map(|kind| kind.label().to_owned()),
         destroy_at_end: permanent.destroy_at_end,
-        counters: permanent.counters.to_vec(),
+        counters: permanent
+            .counters
+            .iter()
+            .map(|(kind, count)| CounterSnapshot {
+                name: kind.name().to_owned(),
+                count,
+            })
+            .collect(),
         attached_to: permanent.attached_to.map(|id| id.0),
         attached_player: permanent.attached_player.map(PlayerId::index),
         reconfigured_timestamp: permanent

@@ -103,7 +103,7 @@ pub(super) fn card(
         owner,
         backing: ObjectBacking::None,
         characteristics: CharacteristicSource::Card(definition),
-        counters: [0; CounterKind::COUNT],
+        counters: crate::game::counters::Counters::new(),
     })
 }
 
@@ -537,13 +537,15 @@ fn parse_permanent(
                 .into(),
         );
     }
-    // Counter kinds are appended rather than inserted, so a checkpoint
-    // written before a kind existed simply carries none of it.
-    if state.counters.len() > CounterKind::COUNT {
-        return Err("counter vector has the wrong length".into());
+    let mut counters = crate::game::counters::Counters::new();
+    for counter in &state.counters {
+        let kind = CounterKind::from_name(&counter.name)
+            .ok_or_else(|| format!("unknown counter name {}", counter.name))?;
+        if counter.count == 0 || counters.count(kind) != 0 {
+            return Err("checkpoint counter entries must be unique and nonzero".into());
+        }
+        counters.set(kind, counter.count);
     }
-    let mut counters = [0; CounterKind::COUNT];
-    counters[..state.counters.len()].copy_from_slice(&state.counters);
     let owner = player_from_index(state.owner)?;
     let copy_effect = state
         .copy_effect
@@ -633,7 +635,7 @@ fn parse_permanent(
         owner,
         backing: ObjectBacking::None,
         characteristics,
-        counters: [0; CounterKind::COUNT],
+        counters: crate::game::counters::Counters::new(),
     };
     let mut permanent = Permanent::entering(
         object,

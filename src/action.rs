@@ -57,7 +57,7 @@ pub enum AbilityOrigin {
         ability: AbilityId,
     },
     IntrinsicBasicLand(BasicLandType),
-    /// A keyword a counter on the permanent grants (CR 122.1e). Like the
+    /// A keyword a counter on the permanent grants (CR 122.1b). Like the
     /// land one above it is nobody's printed ability: the permanent has it
     /// because of what is sitting on it.
     IntrinsicCounter(CounterKind),

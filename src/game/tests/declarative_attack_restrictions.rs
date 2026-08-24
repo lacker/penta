@@ -256,7 +256,7 @@ fn elephant_grass_cumulative_upkeep_counts_age_and_sacrifices_when_unpaid() {
             .iter()
             .find(|permanent| permanent.card.id == grass_id)
             .unwrap()
-            .counters(CounterKind::Age),
+            .counters(CounterKind::named("age")),
         1
     );
 

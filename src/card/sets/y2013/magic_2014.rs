@@ -3388,7 +3388,7 @@ pub(in crate::card::sets) static RATCHET_BOMB: CardRecord = CardRecord::new_with
             &[AbilityCostDef::TapSource],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
-                kind: CounterKind::Charge,
+                kind: CounterKind::named("charge"),
                 amount: ValueDef::Constant(1),
             },
         ),
@@ -3401,7 +3401,7 @@ pub(in crate::card::sets) static RATCHET_BOMB: CardRecord = CardRecord::new_with
                         // The Bomb is already gone by the time this resolves,
                         // so the count comes from last-known information.
                         ObjectPredicateDef::ManaValueEqualTo(ValueDef::CountersOnSource(
-                            CounterKind::Charge,
+                            CounterKind::named("charge"),
                         )),
                     ]), &[ZoneKind::Battlefield], PlayerRelation::Any),
                 can_regenerate: true,

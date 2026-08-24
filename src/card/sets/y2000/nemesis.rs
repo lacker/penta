@@ -184,13 +184,13 @@ pub(in crate::card::sets) static ORACLE_S_ATTENDANTS: CardRecord = CardRecord::n
 /// card -- each one exiles a creature instead.
 static WAVE_FADES: EffectDef = EffectDef::IfCondition {
     condition: &TriggerConditionDef::SourceCounters {
-        kind: CounterKind::Fade,
+        kind: CounterKind::named("fade"),
         comparison: ComparisonDef::GreaterOrEqual,
         amount: 1,
     },
     then: &EffectDef::RemoveCounters {
         object: EffectRecipientDef::Source,
-        kind: CounterKind::Fade,
+        kind: CounterKind::named("fade"),
         amount: ValueDef::Constant(1),
     },
 };
@@ -200,7 +200,7 @@ static WAVE_FADES: EffectDef = EffectDef::IfCondition {
 /// go rather than simply skip a turn.
 static WAVE_EXPIRES: EffectDef = EffectDef::IfCondition {
     condition: &TriggerConditionDef::SourceCounters {
-        kind: CounterKind::Fade,
+        kind: CounterKind::named("fade"),
         comparison: ComparisonDef::LessOrEqual,
         amount: 0,
     },
@@ -212,7 +212,7 @@ static WAVE_EXPIRES: EffectDef = EffectDef::IfCondition {
 static WAVE_UPKEEP: EffectDef = EffectDef::Sequence(&[WAVE_EXPIRES, WAVE_FADES]);
 
 static WAVE_EXILE_COST: [AbilityCostDef; 1] = [AbilityCostDef::RemoveCountersFromSource {
-    kind: CounterKind::Fade,
+    kind: CounterKind::named("fade"),
     amount: 1,
 }];
 
@@ -228,7 +228,7 @@ pub(in crate::card::sets) static PARALLAX_WAVE: CardRecord = CardRecord::new_wit
             "Fading 5 (This enchantment enters with five fade counters on it. At the beginning of your upkeep, remove a fade counter from it. If you can't, sacrifice it.)",
             ReplacementEffectDef::ModifyBattlefieldEntry(
                 BattlefieldEntryModificationDef::AddCounters {
-                    kind: CounterKind::Fade,
+                    kind: CounterKind::named("fade"),
                     amount: 5,
                 },
             ),

@@ -122,7 +122,7 @@ fn the_opponent_chooses_and_the_rest_is_banked() {
         .expect("the other card is exiled");
     assert_eq!(exiled.definition, cards::LIGHTNING_BOLT);
     assert_eq!(
-        exiled.counters(CounterKind::Silver),
+        exiled.counters(CounterKind::named("silver")),
         1,
         "and it carries the silver counter that names it later",
     );

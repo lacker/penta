@@ -1,289 +1,391 @@
 use super::{KeywordAbility, ManaColor};
 
-/// A kind of counter a game object can carry. Most are named markers that
-/// the cards putting them there give meaning to; the ones with rules meaning
-/// of their own are the two that change power and toughness, the finality
-/// counter, and the keyword counters.
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-pub enum CounterKind {
-    PlusOnePlusOne,
-    Javelin,
-    Muster,
-    Charge,
-    Loyalty,
-    Spore,
-    // Appended rather than inserted: `index` positions counters in a
-    // serialized array, so the existing kinds keep theirs.
-    /// CR 121.3: this and [`Self::PlusOnePlusOne`] annihilate in pairs as a
-    /// state-based action, so a permanent never carries both.
-    MinusOneMinusOne,
-    PlusOnePlusTwo,
-    Credit,
-    Tide,
-    /// Spirit Shackle's counter: toughness only, so it does not annihilate
-    /// with a +1/+1 counter the way [`Self::MinusOneMinusOne`] does.
-    MinusZeroMinusTwo,
-    /// Suspend's counter, which can sit on a card in exile rather than a
-    /// permanent on the battlefield.
-    Time,
-    /// Armageddon Clock's counter, which measures how much it is about to
-    /// deal to everybody.
-    Doom,
-    /// Osai Vultures' counter, one for each turn something died.
-    Carrion,
-    /// Cocoon's counter, counting down the turns until it opens.
-    Pupa,
-    /// Venarian Gold's counter. Unlike the rest of the Aura counters this one
-    /// sits on the creature rather than on the Aura.
-    Sleep,
-    /// Living Artifact's counter, banked from damage and spent for life.
-    Vitality,
-    /// Scavenging Ghoul's counter, banked from deaths and spent to
-    /// regenerate.
-    Corpse,
-    /// Cyclone's counter. It only ever grows, so what it counts is how many
-    /// upkeeps the enchantment has survived.
-    Wind,
-    /// The storage lands' counter, banked one per upkeep and spent all at
-    /// once for that much mana.
-    Storage,
-    /// Gemstone Mine's counter, which counts how much the land has left to
-    /// give: it enters with three and spends itself dry.
-    Mining,
-    /// Powder Keg's counter, which is both its timer and its dial: how many
-    /// have accumulated is exactly the mana value it goes off on.
-    Fuse,
-    /// Decree of Silence's counter, one per spell it has answered. Three is
-    /// as many as it gets: the counters are the enchantment's own clock
-    /// rather than a resource anyone spends.
-    Depletion,
-    /// A fading permanent's counter. Fading counts down rather than up, and
-    /// the permanent is sacrificed on the upkeep it cannot pay one, so a
-    /// card with fading N lasts N of its controller's turns.
-    Fade,
-    /// Wishclaw Talisman's counter, which is how many tutors are left in it
-    /// -- though its controller rarely gets to spend more than the first,
-    /// having handed the artifact away to do so.
-    Wish,
-    /// A Class enchantment's level counter. A Class is level 1 with none on
-    /// it and one level higher for each counter (CR 717.3), so what the card
-    /// prints as "Level 2" is one counter here.
-    Level,
-    /// A finality counter (CR 122.1c). Unlike the markers above this one has
-    /// a rules meaning of its own: a creature carrying it is exiled rather
-    /// than put into a graveyard when it would die, which is what stops a
-    /// reanimated body from being reanimated again.
-    Finality,
-    /// A flying counter (CR 122.1e). A keyword counter is not a marker
-    /// either: the permanent carrying it has that keyword for as long as the
-    /// counter is there, which is what makes it survive everything a
-    /// duration-scoped grant would not.
-    Flying,
-    /// A lifelink counter (CR 122.1e), the same kind of thing a flying
-    /// counter is. Metamorphosis Fanatic puts one on what it reanimates,
-    /// which is why the body it brings back keeps the lifelink after every
-    /// duration a spell could have given it would have run out.
-    Lifelink,
-    /// Cumulative upkeep's counter (CR 702.24). Its count determines the
-    /// upkeep payment rather than changing the permanent by itself.
-    Age,
-    /// Malcolm's counter, which counts how many times he has connected. The
-    /// fourth is the one that matters: from then on the card he made you
-    /// discard is one you may cast for nothing.
-    Chorus,
-    /// Karn's silver counter, which is a marker and nothing else: what it
-    /// does is let his minus name exactly the cards his plus exiled, out of
-    /// an exile that may hold anything.
-    Silver,
-    /// A stun counter (CR 122.1f). Like the keyword counters this one has a
-    /// rules meaning of its own: a permanent carrying one that would become
-    /// untapped removes it instead and stays tapped, so what the counters
-    /// measure is how many untaps the permanent still owes.
-    Stun,
-    /// The Chainsaw's rev counter, which is a tally and nothing else: what
-    /// it does is what the Equipment's own static clause says it does.
-    Rev,
-    /// Ludevic's Test Subject's hatchling counter, counting how close the Egg
-    /// is to breaking open. Five or more are removed together when it does.
-    Hatchling,
+/// A named counter whose meaning is supplied by the rules or by the cards
+/// that refer to that name. Counter names are open vocabulary, not an engine
+/// enum: adding an ordinary named counter does not change the representation
+/// of every object that can carry counters (CR 122.1).
+const COUNTER_FAMILY_SHIFT: u32 = 62;
+const COUNTER_PAYLOAD_MASK: u64 = (1_u64 << COUNTER_FAMILY_SHIFT) - 1;
+
+const fn counter_name_key(name: &str) -> u64 {
+    let bytes = name.as_bytes();
+    let mut hash = 0xcbf2_9ce4_8422_2325_u64;
+    let mut index = 0;
+    while index < bytes.len() {
+        hash ^= bytes[index] as u64;
+        hash = hash.wrapping_mul(0x0000_0100_0000_01b3);
+        index += 1;
+    }
+    hash & COUNTER_PAYLOAD_MASK
 }
 
-impl CounterKind {
-    pub const COUNT: usize = 35;
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct CounterName(u64);
 
-    pub const ALL: [Self; Self::COUNT] = [
+impl CounterName {
+    #[must_use]
+    pub const fn new(name: &'static str) -> Self {
+        Self(counter_name_key(name))
+    }
+
+    #[must_use]
+    pub const fn key(self) -> u64 {
+        self.0
+    }
+}
+
+/// The signed power/toughness modification carried by one power/toughness
+/// counter (CR 122.1a). Its polarity is retained separately so `-0/-2`
+/// remains distinct from `+0/+2` even though signed integer zero has no sign.
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct PowerToughnessCounter {
+    negative: bool,
+    power: u16,
+    toughness: u16,
+}
+
+impl PowerToughnessCounter {
+    #[must_use]
+    /// Builds one of the rules' `+X/+Y` or `-X/-Y` counters.
+    ///
+    /// # Panics
+    ///
+    /// Panics when the two nonzero components have opposing signs or either
+    /// component is `i16::MIN`, which cannot be represented as a magnitude.
+    pub const fn new(power: i16, toughness: i16) -> Self {
+        assert!(power != i16::MIN && toughness != i16::MIN);
+        let has_positive = power > 0 || toughness > 0;
+        let has_negative = power < 0 || toughness < 0;
+        assert!(!(has_positive && has_negative));
+        Self {
+            negative: has_negative,
+            power: power.unsigned_abs(),
+            toughness: toughness.unsigned_abs(),
+        }
+    }
+
+    #[must_use]
+    pub const fn bonus(self) -> (i16, i16) {
+        let power = self.power.cast_signed();
+        let toughness = self.toughness.cast_signed();
+        if self.negative {
+            (-power, -toughness)
+        } else {
+            (power, toughness)
+        }
+    }
+}
+
+/// The keyword abilities the Comprehensive Rules permit keyword counters to
+/// grant (CR 122.1b). This family is deliberately closed by the rules even
+/// though ordinary named counter vocabulary is open.
+#[repr(u8)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub enum KeywordCounter {
+    Deathtouch,
+    DoubleStrike,
+    FirstStrike,
+    Flying,
+    Haste,
+    Hexproof,
+    Indestructible,
+    Lifelink,
+    Menace,
+    Reach,
+    Trample,
+    Vigilance,
+}
+
+impl KeywordCounter {
+    pub const ALL: [Self; 12] = [
+        Self::Deathtouch,
+        Self::DoubleStrike,
+        Self::FirstStrike,
+        Self::Flying,
+        Self::Haste,
+        Self::Hexproof,
+        Self::Indestructible,
+        Self::Lifelink,
+        Self::Menace,
+        Self::Reach,
+        Self::Trample,
+        Self::Vigilance,
+    ];
+
+    #[must_use]
+    pub const fn name(self) -> &'static str {
+        match self {
+            Self::Deathtouch => "deathtouch",
+            Self::DoubleStrike => "double strike",
+            Self::FirstStrike => "first strike",
+            Self::Flying => "flying",
+            Self::Haste => "haste",
+            Self::Hexproof => "hexproof",
+            Self::Indestructible => "indestructible",
+            Self::Lifelink => "lifelink",
+            Self::Menace => "menace",
+            Self::Reach => "reach",
+            Self::Trample => "trample",
+            Self::Vigilance => "vigilance",
+        }
+    }
+
+    #[must_use]
+    pub const fn ability(self) -> KeywordAbility {
+        match self {
+            Self::Deathtouch => KeywordAbility::Deathtouch,
+            Self::DoubleStrike => KeywordAbility::DoubleStrike,
+            Self::FirstStrike => KeywordAbility::FirstStrike,
+            Self::Flying => KeywordAbility::Flying,
+            Self::Haste => KeywordAbility::Haste,
+            Self::Hexproof => KeywordAbility::Hexproof,
+            Self::Indestructible => KeywordAbility::Indestructible,
+            Self::Lifelink => KeywordAbility::Lifelink,
+            Self::Menace => KeywordAbility::Menace,
+            Self::Reach => KeywordAbility::Reach,
+            Self::Trample => KeywordAbility::Trample,
+            Self::Vigilance => KeywordAbility::Vigilance,
+        }
+    }
+
+    const fn from_index(index: u8) -> Self {
+        Self::ALL[index as usize]
+    }
+}
+
+/// A counter's rules-shaped identity. Power/toughness counters and keyword
+/// counters are families with intrinsic behavior; everything else is named.
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub enum CounterFamily {
+    PowerToughness(PowerToughnessCounter),
+    Keyword(KeywordCounter),
+    Named(CounterName),
+}
+
+/// Compact counter identity stored throughout the rules AST and game state.
+/// The upper bits identify the rules family; ordinary named counters use a
+/// stable 62-bit key derived from their name.
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct CounterKind(u64);
+
+#[allow(non_upper_case_globals)]
+impl CounterKind {
+    pub const PlusOnePlusOne: Self = Self::power_toughness(1, 1);
+    pub const MinusOneMinusOne: Self = Self::power_toughness(-1, -1);
+    pub const PlusOnePlusTwo: Self = Self::power_toughness(1, 2);
+    pub const MinusZeroMinusTwo: Self = Self::power_toughness(0, -2);
+
+    pub const Deathtouch: Self = Self::keyword(KeywordCounter::Deathtouch);
+    pub const DoubleStrike: Self = Self::keyword(KeywordCounter::DoubleStrike);
+    pub const FirstStrike: Self = Self::keyword(KeywordCounter::FirstStrike);
+    pub const Flying: Self = Self::keyword(KeywordCounter::Flying);
+    pub const Haste: Self = Self::keyword(KeywordCounter::Haste);
+    pub const Hexproof: Self = Self::keyword(KeywordCounter::Hexproof);
+    pub const Indestructible: Self = Self::keyword(KeywordCounter::Indestructible);
+    pub const Lifelink: Self = Self::keyword(KeywordCounter::Lifelink);
+    pub const Menace: Self = Self::keyword(KeywordCounter::Menace);
+    pub const Reach: Self = Self::keyword(KeywordCounter::Reach);
+    pub const Trample: Self = Self::keyword(KeywordCounter::Trample);
+    pub const Vigilance: Self = Self::keyword(KeywordCounter::Vigilance);
+
+    pub const Loyalty: Self = Self::named("loyalty");
+    pub const Finality: Self = Self::named("finality");
+    pub const Stun: Self = Self::named("stun");
+    pub const Poison: Self = Self::named("poison");
+    pub const Energy: Self = Self::named("energy");
+
+    /// The counter names currently authored in the catalog or interpreted by
+    /// the engine. This is a serialization registry, not a storage layout:
+    /// its order has no rules or checkpoint meaning.
+    pub const KNOWN: [Self; 47] = [
         Self::PlusOnePlusOne,
-        Self::Javelin,
-        Self::Muster,
-        Self::Charge,
+        Self::named("javelin"),
+        Self::named("muster"),
+        Self::named("charge"),
         Self::Loyalty,
-        Self::Spore,
+        Self::named("spore"),
         Self::MinusOneMinusOne,
         Self::PlusOnePlusTwo,
-        Self::Credit,
-        Self::Tide,
+        Self::named("credit"),
+        Self::named("tide"),
         Self::MinusZeroMinusTwo,
-        Self::Time,
-        Self::Doom,
-        Self::Carrion,
-        Self::Pupa,
-        Self::Sleep,
-        Self::Vitality,
-        Self::Corpse,
-        Self::Wind,
-        Self::Storage,
-        Self::Mining,
-        Self::Fuse,
-        Self::Fade,
-        Self::Depletion,
-        Self::Wish,
-        Self::Level,
+        Self::named("time"),
+        Self::named("doom"),
+        Self::named("carrion"),
+        Self::named("pupa"),
+        Self::named("sleep"),
+        Self::named("vitality"),
+        Self::named("corpse"),
+        Self::named("wind"),
+        Self::named("storage"),
+        Self::named("mining"),
+        Self::named("fuse"),
+        Self::named("fade"),
+        Self::named("depletion"),
+        Self::named("wish"),
+        Self::named("level"),
         Self::Finality,
+        Self::Deathtouch,
+        Self::DoubleStrike,
+        Self::FirstStrike,
         Self::Flying,
+        Self::Haste,
+        Self::Hexproof,
+        Self::Indestructible,
         Self::Lifelink,
-        Self::Age,
-        Self::Chorus,
-        Self::Silver,
+        Self::Menace,
+        Self::Reach,
+        Self::Trample,
+        Self::Vigilance,
+        Self::named("age"),
+        Self::named("chorus"),
+        Self::named("silver"),
         Self::Stun,
-        Self::Rev,
-        Self::Hatchling,
+        Self::named("rev"),
+        Self::named("hatchling"),
+        Self::Poison,
+        Self::Energy,
     ];
+
+    const KNOWN_NAMES: [&'static str; 47] = [
+        "+1/+1",
+        "javelin",
+        "muster",
+        "charge",
+        "loyalty",
+        "spore",
+        "-1/-1",
+        "+1/+2",
+        "credit",
+        "tide",
+        "-0/-2",
+        "time",
+        "doom",
+        "carrion",
+        "pupa",
+        "sleep",
+        "vitality",
+        "corpse",
+        "wind",
+        "storage",
+        "mining",
+        "fuse",
+        "fade",
+        "depletion",
+        "wish",
+        "level",
+        "finality",
+        "deathtouch",
+        "double strike",
+        "first strike",
+        "flying",
+        "haste",
+        "hexproof",
+        "indestructible",
+        "lifelink",
+        "menace",
+        "reach",
+        "trample",
+        "vigilance",
+        "age",
+        "chorus",
+        "silver",
+        "stun",
+        "rev",
+        "hatchling",
+        "poison",
+        "energy",
+    ];
+
+    #[must_use]
+    pub const fn named(name: &'static str) -> Self {
+        Self(CounterName::new(name).key())
+    }
+
+    #[must_use]
+    pub const fn power_toughness(power: i16, toughness: i16) -> Self {
+        let counter = PowerToughnessCounter::new(power, toughness);
+        Self(
+            (1_u64 << COUNTER_FAMILY_SHIFT)
+                | ((counter.negative as u64) << 32)
+                | ((counter.power as u64) << 16)
+                | counter.toughness as u64,
+        )
+    }
+
+    #[must_use]
+    pub const fn keyword(keyword: KeywordCounter) -> Self {
+        Self((2_u64 << COUNTER_FAMILY_SHIFT) | keyword as u64)
+    }
+
+    #[must_use]
+    /// Returns this key's rules family.
+    ///
+    /// # Panics
+    ///
+    /// Panics only if internal code constructs a key with an unassigned
+    /// family tag. Public constructors cannot create one.
+    pub const fn family(self) -> CounterFamily {
+        let bytes = self.0.to_le_bytes();
+        match self.0 >> COUNTER_FAMILY_SHIFT {
+            0 => CounterFamily::Named(CounterName(self.0 & COUNTER_PAYLOAD_MASK)),
+            1 => CounterFamily::PowerToughness(PowerToughnessCounter {
+                negative: ((self.0 >> 32) & 1) != 0,
+                power: u16::from_le_bytes([bytes[2], bytes[3]]),
+                toughness: u16::from_le_bytes([bytes[0], bytes[1]]),
+            }),
+            2 => CounterFamily::Keyword(KeywordCounter::from_index(bytes[0])),
+            _ => panic!("invalid counter family"),
+        }
+    }
 
     /// What one counter of this kind adds to power and toughness. The kinds
     /// that are only markers add nothing; the card putting them there gives
     /// them whatever meaning they have.
     #[must_use]
     pub const fn power_toughness_bonus(self) -> (i16, i16) {
-        match self {
-            Self::PlusOnePlusOne => (1, 1),
-            Self::MinusOneMinusOne => (-1, -1),
-            Self::PlusOnePlusTwo => (1, 2),
-            Self::MinusZeroMinusTwo => (0, -2),
-            Self::Javelin
-            | Self::Muster
-            | Self::Charge
-            | Self::Loyalty
-            | Self::Spore
-            | Self::Credit
-            | Self::Tide
-            | Self::Time
-            | Self::Doom
-            | Self::Carrion
-            | Self::Pupa
-            | Self::Sleep
-            | Self::Vitality
-            | Self::Corpse
-            | Self::Wind
-            | Self::Storage
-            | Self::Mining
-            | Self::Fuse
-            | Self::Fade
-            | Self::Depletion
-            | Self::Wish
-            | Self::Level
-            | Self::Finality
-            | Self::Flying
-            | Self::Lifelink
-            | Self::Age
-            | Self::Chorus
-            | Self::Silver
-            | Self::Stun
-            | Self::Rev
-            | Self::Hatchling => (0, 0),
+        match self.family() {
+            CounterFamily::PowerToughness(counter) => counter.bonus(),
+            CounterFamily::Keyword(_) | CounterFamily::Named(_) => (0, 0),
         }
     }
 
     #[must_use]
-    pub const fn index(self) -> usize {
-        match self {
-            Self::PlusOnePlusOne => 0,
-            Self::Javelin => 1,
-            Self::Muster => 2,
-            Self::Charge => 3,
-            Self::Loyalty => 4,
-            Self::Spore => 5,
-            Self::MinusOneMinusOne => 6,
-            Self::PlusOnePlusTwo => 7,
-            Self::Credit => 8,
-            Self::Tide => 9,
-            Self::MinusZeroMinusTwo => 10,
-            Self::Time => 11,
-            Self::Doom => 12,
-            Self::Carrion => 13,
-            Self::Pupa => 14,
-            Self::Sleep => 15,
-            Self::Vitality => 16,
-            Self::Corpse => 17,
-            Self::Wind => 18,
-            Self::Storage => 19,
-            Self::Mining => 20,
-            Self::Fuse => 21,
-            Self::Fade => 22,
-            Self::Depletion => 23,
-            Self::Wish => 24,
-            Self::Level => 25,
-            Self::Finality => 26,
-            Self::Flying => 27,
-            Self::Lifelink => 28,
-            Self::Age => 29,
-            Self::Chorus => 30,
-            Self::Silver => 31,
-            Self::Stun => 32,
-            Self::Rev => 33,
-            Self::Hatchling => 34,
+    /// Returns the canonical name registered for this counter key.
+    ///
+    /// # Panics
+    ///
+    /// Panics when a named or power/toughness key has not been added to the
+    /// serialization registry. Card-authored counter names must be registered
+    /// before they can enter a game.
+    pub fn name(self) -> &'static str {
+        if let CounterFamily::Keyword(counter) = self.family() {
+            return counter.name();
         }
+        for (known, name) in Self::KNOWN.into_iter().zip(Self::KNOWN_NAMES) {
+            if self == known {
+                return name;
+            }
+        }
+        panic!("counter name is absent from the serialization registry")
     }
 
     #[must_use]
-    pub const fn name(self) -> &'static str {
-        match self {
-            Self::PlusOnePlusOne => "+1/+1",
-            Self::Javelin => "javelin",
-            Self::Muster => "muster",
-            Self::Charge => "charge",
-            Self::Loyalty => "loyalty",
-            Self::Spore => "spore",
-            Self::MinusOneMinusOne => "-1/-1",
-            Self::PlusOnePlusTwo => "+1/+2",
-            Self::Credit => "credit",
-            Self::Tide => "tide",
-            Self::MinusZeroMinusTwo => "-0/-2",
-            Self::Time => "time",
-            Self::Doom => "doom",
-            Self::Carrion => "carrion",
-            Self::Pupa => "pupa",
-            Self::Sleep => "sleep",
-            Self::Vitality => "vitality",
-            Self::Corpse => "corpse",
-            Self::Wind => "wind",
-            Self::Storage => "storage",
-            Self::Mining => "mining",
-            Self::Fuse => "fuse",
-            Self::Fade => "fade",
-            Self::Depletion => "depletion",
-            Self::Wish => "wish",
-            Self::Level => "level",
-            Self::Finality => "finality",
-            Self::Flying => "flying",
-            Self::Lifelink => "lifelink",
-            Self::Age => "age",
-            Self::Chorus => "chorus",
-            Self::Silver => "silver",
-            Self::Stun => "stun",
-            Self::Rev => "rev",
-            Self::Hatchling => "hatchling",
-        }
+    pub fn from_name(name: &str) -> Option<Self> {
+        Self::KNOWN_NAMES
+            .into_iter()
+            .position(|known| known == name)
+            .map(|index| Self::KNOWN[index])
     }
 
-    /// The keyword a keyword counter grants (CR 122.1e), if this is one.
+    /// The keyword a keyword counter grants (CR 122.1b), if this is one.
     /// Nothing about it is a grant with a duration: the permanent has the
     /// keyword exactly while the counter is on it.
     #[must_use]
     pub const fn granted_keyword(self) -> Option<KeywordAbility> {
-        match self {
-            Self::Flying => Some(KeywordAbility::Flying),
-            Self::Lifelink => Some(KeywordAbility::Lifelink),
-            _ => None,
+        match self.family() {
+            CounterFamily::Keyword(counter) => Some(counter.ability()),
+            CounterFamily::PowerToughness(_) | CounterFamily::Named(_) => None,
         }
     }
 }

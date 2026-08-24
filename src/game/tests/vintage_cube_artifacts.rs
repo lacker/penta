@@ -339,7 +339,7 @@ fn wishclaw_talisman_enters_with_three_wishes_and_waits_for_your_turn() {
         .find(|permanent| permanent.card.definition == cards::WISHCLAW_TALISMAN)
         .expect("it is on the battlefield");
     let talisman_id = talisman.card.id;
-    assert_eq!(talisman.counters(CounterKind::Wish), 3);
+    assert_eq!(talisman.counters(CounterKind::named("wish")), 3);
 
     game.players[0].mana_pool.colorless = 1;
     assert!(
@@ -361,7 +361,7 @@ fn wishclaw_talisman_tutors_then_hands_itself_to_the_opponent() {
     let mut game = ready_game();
     game.battlefield.clear();
     let mut talisman = creature(79_010, cards::WISHCLAW_TALISMAN, PlayerId::One);
-    talisman.add_counters(CounterKind::Wish, 3);
+    talisman.add_counters(CounterKind::named("wish"), 3);
     let talisman_id = talisman.card.id;
     game.battlefield.push(talisman);
     game.players[0]
@@ -393,7 +393,7 @@ fn wishclaw_talisman_tutors_then_hands_itself_to_the_opponent() {
         "and the opponent controls it now",
     );
     assert_eq!(
-        talisman.counters(CounterKind::Wish),
+        talisman.counters(CounterKind::named("wish")),
         2,
         "with the two wishes that are left",
     );

@@ -3,8 +3,8 @@ use serde_json::Value;
 use crate::{CardCatalog, CardPartId, GameObjectId};
 
 use super::super::{
-    CharacteristicSource, ContinuousEffectTimestamp, CounterKind, Game, ObjectBacking,
-    ObjectInstance, ObjectKind, Permanent,
+    CharacteristicSource, ContinuousEffectTimestamp, Game, ObjectBacking, ObjectInstance,
+    ObjectKind, Permanent,
 };
 use super::model::EmblemSnapshot;
 use super::semantics::{
@@ -76,7 +76,7 @@ pub(super) fn parse_emblems(
                 owner,
                 backing: ObjectBacking::None,
                 characteristics: CharacteristicSource::Emblem(characteristics),
-                counters: [0; CounterKind::COUNT],
+                counters: crate::game::counters::Counters::new(),
             };
             let mut emblem = Permanent::entering(
                 card,

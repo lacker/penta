@@ -2,12 +2,12 @@ use std::borrow::Cow;
 
 use super::{
     CardInstance, CardPartId, CastOffer, CastOfferCost, CastSourceZone, CharacteristicContext,
-    CharacteristicSource, ColorSet, DecisionContinuation, DecisionKind, DecisionObservation,
-    DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone, DeclarativeAbilityDef,
-    EffectResolutionContext, FORK_COPY_COLOR, Game, ManaCost, ObjectCharacteristics,
-    PendingDecision, PlayerId, ResolvedEffectPayment, ScopedEffect, StackObject, Target,
-    TargetSelection, TargetSlotId, TemporaryAbilityGrant, TriggerContext, ZoneKind, ZoneMoveCause,
-    ZonePlacement, flatten_target_selections, target_combinations,
+    CharacteristicSource, ColorSet, CounterKind, DecisionContinuation, DecisionKind,
+    DecisionObservation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
+    DeclarativeAbilityDef, EffectResolutionContext, FORK_COPY_COLOR, Game, ManaCost,
+    ObjectCharacteristics, PendingDecision, PlayerId, ResolvedEffectPayment, ScopedEffect,
+    StackObject, Target, TargetSelection, TargetSlotId, TemporaryAbilityGrant, TriggerContext,
+    ZoneKind, ZoneMoveCause, ZonePlacement, flatten_target_selections, target_combinations,
 };
 use crate::card::{
     AbilityDef, AlternativeCastKindDef, ChoiceVisibilityDef, EffectDef, ObjectPredicateDef,
@@ -268,7 +268,12 @@ impl Game {
                 .is_ok_and(|amount| self.players[player.index()].life >= amount),
             // Unlike life, energy cannot be spent past nothing: a player
             // short of the amount cannot pay at all.
-            ResolvedEffectPayment::Energy(amount) => self.players[player.index()].energy >= amount,
+            ResolvedEffectPayment::Energy(amount) => {
+                self.players[player.index()]
+                    .counters
+                    .count(CounterKind::Energy)
+                    >= amount
+            }
             // A short library is not a failure to pay, so this is always
             // affordable. Running out of cards is answered by the draw that
             // finds none, not by refusing the payment.

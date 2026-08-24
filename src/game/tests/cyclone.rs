@@ -16,7 +16,7 @@ fn blowing(wind: u16, green: u16) -> (Game, GameObjectId, GameObjectId, GameObje
     game.active_player = PlayerId::One;
 
     let mut cyclone = creature(10_000, cards::CYCLONE, PlayerId::One);
-    cyclone.set_counters(CounterKind::Wind, wind);
+    cyclone.set_counters(CounterKind::named("wind"), wind);
     let cyclone_id = cyclone.card.id;
     game.battlefield.push(cyclone);
 
@@ -82,7 +82,7 @@ fn wind(game: &Game, cyclone: GameObjectId) -> u16 {
         .iter()
         .find(|permanent| permanent.card.id == cyclone)
         .expect("still there")
-        .counters(CounterKind::Wind)
+        .counters(CounterKind::named("wind"))
 }
 
 /// The counter lands before the bill arrives, so a fresh Cyclone is already

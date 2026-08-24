@@ -25,7 +25,7 @@ static MANA_AND_TAP_ELF_EQUIP_ABILITIES: [AbilityDef; 1] = [abilities::equip(
 )];
 
 static COUNTER_MANA_ELF_COSTS: [AbilityCostDef; 1] = [AbilityCostDef::RemoveCountersFromSource {
-    kind: CounterKind::Charge,
+    kind: CounterKind::named("charge"),
     amount: 1,
 }];
 
@@ -241,7 +241,7 @@ fn a_non_tapping_mana_ability_can_share_the_equip_tap_cost_payer() {
     let host = creature(10_001, cards::GRIZZLY_BEARS, PlayerId::One);
     let host_id = host.card.id;
     let mut mana_elf = creature(10_002, COUNTER_MANA_ELF_ID, PlayerId::One);
-    mana_elf.counters[CounterKind::Charge.index()] = 1;
+    mana_elf.counters.set(CounterKind::named("charge"), 1);
     let mana_elf_id = mana_elf.card.id;
     game.battlefield.extend([equipment, host, mana_elf]);
 
@@ -260,7 +260,7 @@ fn a_non_tapping_mana_ability_can_share_the_equip_tap_cost_payer() {
         .find(|permanent| permanent.card.id == mana_elf_id)
         .expect("the counter-only mana ability preserves its source");
     assert!(mana_elf.tapped);
-    assert_eq!(mana_elf.counters(CounterKind::Charge), 0);
+    assert_eq!(mana_elf.counters(CounterKind::named("charge")), 0);
     assert_eq!(game.players[PlayerId::One.index()].mana_pool.green, 0);
 
     drain_pending(&mut game);

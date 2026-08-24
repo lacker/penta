@@ -68,7 +68,9 @@ fn level_counters(game: &Game, talent: GameObjectId) -> u16 {
     game.battlefield
         .iter()
         .find(|permanent| permanent.card.id == talent)
-        .map_or(0, |permanent| permanent.counters(CounterKind::Level))
+        .map_or(0, |permanent| {
+            permanent.counters(CounterKind::named("level"))
+        })
 }
 
 /// Every way of levelling the Class that is on offer right now.
@@ -155,7 +157,7 @@ fn level_three_makes_an_otter_per_spell() {
         .iter_mut()
         .find(|permanent| permanent.card.id == talent)
     {
-        permanent.set_counters(CounterKind::Level, 2);
+        permanent.set_counters(CounterKind::named("level"), 2);
     }
 
     cast_a_cantrip(&mut game, 1);
@@ -177,7 +179,7 @@ fn a_level_is_bought_only_once() {
         .iter_mut()
         .find(|permanent| permanent.card.id == talent)
     {
-        permanent.set_counters(CounterKind::Level, 2);
+        permanent.set_counters(CounterKind::named("level"), 2);
     }
 
     assert!(

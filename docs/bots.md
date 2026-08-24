@@ -217,7 +217,7 @@ A clone forks the *true* state, hidden zones included. That is right for
 self-play but wrong for a search bot in a hosted match: its rollouts must use
 worlds consistent with its observation, not cards only the host knows.
 
-The optional `reconstruction.checkpoint.v8` capability advertises a hidden-safe
+The optional `reconstruction.checkpoint.v9` capability advertises a hidden-safe
 current-state checkpoint in each observation. The checkpoint was introduced in
 protocol 19, expanded in protocol 21 into the complete typed snapshot described
 below, and given its own nested format version in protocol 22. Protocol 26's
@@ -226,7 +226,9 @@ semantic paths to their printed creating abilities, without synthetic card
 definition IDs. Protocol 27's format 7 also preserves the standardized
 rules-owned characteristics of face-down spells and permanents. Format 8 adds
 semantic draw-replacement continuations, resumable object-set iteration, and
-resolved player attack restrictions.
+resolved player attack restrictions. Format 9 names sparse counter entries
+rather than assigning counter names positions in a catalog-wide array, and
+reconstructs the open named counter collections carried by players.
 Supply a hypothesis for the zones the observation intentionally redacts, then
 construct a live local game:
 
@@ -386,7 +388,7 @@ world it can search.
 | field | meaning |
 | --- | --- |
 | `protocolVersion` | the breaking bot-wire epoch; protocol 29 objects are open-world, but an epoch mismatch requires migration |
-| `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v8`; ignore unknown entries |
+| `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v9`; ignore unknown entries |
 | `simulationFingerprint` | a conservative identity of simulation source and build requirements; pin it for training and require it for reconstruction |
 | `engineVersion` | package-release provenance; it is not an exact simulation identity |
 | `format` | the rules/deck profile slug: `"old-school-93-94"`, `"premodern"`, `"isd-m14-standard"`, `"som-m13-standard"`, `"vintage-cube"`, or `"pauper-cube"` |
@@ -395,17 +397,19 @@ world it can search.
 | `turn`, `activeTurn`, `activeSeat`, `prioritySeat`, `step` | where the game is; `activeTurn` counts turns started by the active player, including extra turns, and `step` is one of `Upkeep`, `Draw`, `PrecombatMain`, `BeginningOfCombat`, `DeclareAttackers`, `DeclareBlockers`, `CombatDamage`, `EndOfCombat`, `PostcombatMain`, `End`, `Cleanup` |
 | `regularCombatDamagePending` | true during the priority window after first-strike damage and before regular combat damage; both damage waves otherwise use `step: "CombatDamage"` |
 | `life`, `poison`, `energy`, `manaPools`, `librarySizes` | two-element arrays, indexed p1 then p2. Ten or more `poison` is a loss; `energy` is a resource and no amount of it wins or loses anything |
+| `playerCounters` | two sparse arrays, indexed p1 then p2, of `{name, count}` entries for every counter each player carries. `poison` and `energy` remain compatibility projections |
 | `monarch` | who holds the crown (CR 720) as `"p1"` or `"p2"`, or null while nobody does. The monarch draws a card at the beginning of their end step, and a creature that deals combat damage to them hands the crown to its controller |
 | `hand` | your cards: `{objectId, instance, definition, name}`; `instance` is a compatibility alias for `objectId` |
 | `opponentHandSize` | their current hidden hand as a count; learned snapshots are reported separately in `lastSeenHand` |
 | `revealedLibraryTop` | null unless something lets you look at the top card of your own library, such as Bolas's Citadel; a one-card list in the same shape as `hand` when it does |
 | `lastSeenHand` | null or the most recently revealed hand snapshot as `{seat, cards}`; it records known information and can outlive later hand changes |
-| `battlefield` | every permanent, including its current-zone object ID and authoritative tagged `characteristics`; catalog-backed cards retain definition/part IDs, while tokens and face-down objects carry their display characteristics inline. `token` records token status independently of copied values, and `hasIndividualState` tells compact presentation clients not to collapse an attachment or otherwise object-specific affected permanent with a lookalike. A physical double-faced permanent also reports `physicalFace`; a planeswalker reports `loyalty` and `loyaltyAbilityUsedThisTurn` |
+| `battlefield` | every permanent, including its current-zone object ID, authoritative tagged `characteristics`, and sparse `{name, count}` `counters`; catalog-backed cards retain definition/part IDs, while tokens and face-down objects carry their display characteristics inline. `token` records token status independently of copied values, and `hasIndividualState` tells compact presentation clients not to collapse an attachment or otherwise object-specific affected permanent with a lookalike. A physical double-faced permanent also reports `physicalFace`; a planeswalker reports `loyalty` and `loyaltyAbilityUsedThisTurn` |
 | `checkpoint` | the hidden-safe typed rules snapshot used by `Game.from_observation`, including its independent `version` and `simulationFingerprint`, deferred execution, dynamic objects, exact mana units, and reachable LKI; it never contains host RNG state or hidden-zone card identities |
 | `emblems` | command-zone emblems, each with its controller, creator-owned name and clause texts, and the granting ability |
 | `stack` | pending spells, activated abilities, and triggered abilities, bottom to top; entries expose the source object ID, tagged characteristics and ability origin/text, controller, counterability, targets, chosen permanents, X, and a locked cast signature when applicable |
 | `graveyards`, `exiles` | public zones, both players; a card lying face down in exile is absent from the nonowner's view rather than shown, and counted by `faceDownExileSizes` instead |
 | `faceDownExileSizes` | how many cards lie face down in each player's exile, the way `opponentHandSize` counts a hand; only their owner knows what they are |
+| `cardCounters` | sparse counter state for visible cards outside the battlefield, as `{objectId, counters: [{name, count}]}` entries; suspend time counters are the common case |
 | `decision` | a pending choice (see below), or null |
 | `result` | null while running, else `{winner, reason}`; `reason` is `OpponentConceded`, `OpponentLostAllLife`, `OpponentTriedToDrawFromEmptyLibrary`, `OpponentLostToAnEffect`, `OpponentRanOutOfTime`, or `OpponentPoisoned` |
 | `legalActions` | what you can do, each with an `index` |
@@ -1042,6 +1046,21 @@ colorless hybrid (`C/W`). Treat the string as an open display value. Cast
 actions can also include the optional `choices.manaPayment` array described
 above. Replay version 2 is unchanged.
 
+### Migrating checkpoint format 8 to 9
+
+Protocol 29 and replay format 2 remain in place. Checkpoint format 9 replaces
+the positional `counters` array on each permanent with sparse
+`{name, count}` entries and serializes intrinsic keyword-counter ability
+origins by counter name. It also reads the observation's open
+`playerCounters` collection while retaining the `poison` and `energy` arrays
+as compatibility projections for ordinary protocol consumers.
+
+A format-8 checkpoint depends on the old catalog-wide counter order and cannot
+represent an ordinary counter name without first extending that layout.
+Reconstruction consumers should require `reconstruction.checkpoint.v9`, keep
+checking the exact simulation fingerprint, and regenerate format-8 checkpoints
+with the current engine.
+
 ### Migrating checkpoint format 7 to 8
 
 Protocol 28 and replay format 2 remain in place. Checkpoint format 8 records
@@ -1099,7 +1118,7 @@ Protocol 22 splits wire compatibility from conservative source identity:
   `requiredSimulationFingerprint` to refuse a different simulation before it
   is listed or assigned.
 
-The current optional capability is `reconstruction.checkpoint.v8`. An ordinary
+The current optional capability is `reconstruction.checkpoint.v9`. An ordinary
 hosted bot that only reads `legalActions` should declare an empty capability
 list; do not copy the server's advertised capabilities without implementing
 them.

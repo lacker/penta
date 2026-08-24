@@ -91,7 +91,9 @@ fn is_a_creature(game: &Game) -> bool {
 }
 
 fn time_counters(game: &Game) -> u16 {
-    on_battlefield(game).map_or(0, |permanent| permanent.counters(CounterKind::Time))
+    on_battlefield(game).map_or(0, |permanent| {
+        permanent.counters(CounterKind::named("time"))
+    })
 }
 
 /// Runs Player One's end step.

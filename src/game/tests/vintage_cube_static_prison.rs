@@ -149,7 +149,7 @@ fn declining_frees_the_prisoner() {
 #[test]
 fn a_player_out_of_energy_cannot_pay_at_all() {
     let (mut game, prison, _angel_id) = jailed();
-    game.players[0].energy = 0;
+    game.players[0].counters.set(CounterKind::Energy, 0);
 
     game.capture_battlefield_triggers(&CommittedTriggerEvent::StepBegins {
         step: TurnStepDef::PrecombatMain,

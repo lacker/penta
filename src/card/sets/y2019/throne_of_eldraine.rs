@@ -50,7 +50,7 @@ static WISHCLAW_COSTS: [AbilityCostDef; 3] = [
     AbilityCostDef::Mana(mana_cost!("{1}")),
     AbilityCostDef::TapSource,
     AbilityCostDef::RemoveCountersFromSource {
-        kind: CounterKind::Wish,
+        kind: CounterKind::named("wish"),
         amount: 1,
     },
 ];
@@ -95,7 +95,7 @@ pub(in crate::card::sets) static WISHCLAW_TALISMAN: CardRecord = CardRecord::new
             "This artifact enters with three wish counters on it.",
             ReplacementEffectDef::ModifyBattlefieldEntry(
                 BattlefieldEntryModificationDef::AddCounters {
-                    kind: CounterKind::Wish,
+                    kind: CounterKind::named("wish"),
                     amount: 3,
                 },
             ),

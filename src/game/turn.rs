@@ -1,9 +1,9 @@
 use super::{
     Action, CardBehavior, CombatDamageStage, CommittedTriggerEvent, ContinuousEffectExpiration,
-    DeclarativeAbilityDef, DeferredBeginTurnEffect, EffectResolutionContext, Game, GameEvent,
-    GameObjectId, GameResult, InstalledTriggerLifetime, ManaPool, PendingProcedure, PlayerId,
-    ReplacementEffectDef, ReplacementEventDef, Step, TriggerContext, TurnPhaseDef, TurnPhaseResume,
-    TurnStepDef, one_or_none,
+    CounterKind, DeclarativeAbilityDef, DeferredBeginTurnEffect, EffectResolutionContext, Game,
+    GameEvent, GameObjectId, GameResult, InstalledTriggerLifetime, ManaPool, PendingProcedure,
+    PlayerId, ReplacementEffectDef, ReplacementEventDef, Step, TriggerContext, TurnPhaseDef,
+    TurnPhaseResume, TurnStepDef, one_or_none,
 };
 
 mod begin_turn;
@@ -134,8 +134,9 @@ impl Game {
         if amount == 0 {
             return;
         }
-        self.players[player.index()].poison =
-            self.players[player.index()].poison.saturating_add(amount);
+        self.players[player.index()]
+            .counters
+            .add(CounterKind::Poison, amount);
     }
 
     /// "You get {E}". Energy is spent rather than counted down to anything,
@@ -144,18 +145,25 @@ impl Game {
         if amount == 0 {
             return;
         }
-        self.players[player.index()].energy =
-            self.players[player.index()].energy.saturating_add(amount);
+        self.players[player.index()]
+            .counters
+            .add(CounterKind::Energy, amount);
     }
 
     /// Spends energy, all of it or none. A payment that cannot be made in
     /// full is not made at all, which is what makes "unless you pay {E}" a
     /// real choice rather than a partial one.
     pub(super) fn spend_energy(&mut self, player: PlayerId, amount: u16) -> bool {
-        if self.players[player.index()].energy < amount {
+        if self.players[player.index()]
+            .counters
+            .count(CounterKind::Energy)
+            < amount
+        {
             return false;
         }
-        self.players[player.index()].energy -= amount;
+        self.players[player.index()]
+            .counters
+            .remove(CounterKind::Energy, amount);
         true
     }
 

@@ -14,7 +14,7 @@ use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 static REMOVE_THREE_SPORES: [AbilityCostDef; 1] = [AbilityCostDef::RemoveCountersFromSource {
-    kind: CounterKind::Spore,
+    kind: CounterKind::named("spore"),
     amount: 3,
 }];
 
@@ -187,7 +187,7 @@ pub(in crate::card::sets) static ICATIAN_JAVELINEERS: CardRecord = CardRecord::n
             "This creature enters with a javelin counter on it.",
             ReplacementEffectDef::ModifyBattlefieldEntry(
                 BattlefieldEntryModificationDef::AddCounters {
-                    kind: CounterKind::Javelin,
+                    kind: CounterKind::named("javelin"),
                     amount: 1,
                 },
             ),
@@ -197,7 +197,7 @@ pub(in crate::card::sets) static ICATIAN_JAVELINEERS: CardRecord = CardRecord::n
             &[
                 AbilityCostDef::TapSource,
                 AbilityCostDef::RemoveCountersFromSource {
-                    kind: CounterKind::Javelin,
+                    kind: CounterKind::named("javelin"),
                     amount: 1,
                 },
             ],
@@ -255,7 +255,7 @@ pub(in crate::card::sets) static ICATIAN_MONEYCHANGER: CardRecord = CardRecord::
             "This creature enters with three credit counters on it.",
             ReplacementEffectDef::ModifyBattlefieldEntry(
                 BattlefieldEntryModificationDef::AddCounters {
-                    kind: CounterKind::Credit,
+                    kind: CounterKind::named("credit"),
                     amount: 3,
                 },
             ),
@@ -275,7 +275,7 @@ pub(in crate::card::sets) static ICATIAN_MONEYCHANGER: CardRecord = CardRecord::
             },
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
-                kind: CounterKind::Credit,
+                kind: CounterKind::named("credit"),
                 amount: ValueDef::Constant(1),
             },
         ),
@@ -285,7 +285,7 @@ pub(in crate::card::sets) static ICATIAN_MONEYCHANGER: CardRecord = CardRecord::
             &[AbilityCostDef::SacrificeSource],
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::CountersOnSource(CounterKind::Credit),
+                amount: ValueDef::CountersOnSource(CounterKind::named("credit")),
             },
         )
         .with_activation_timing(ActivationTimingDef::YourUpkeep),
@@ -518,19 +518,19 @@ pub(in crate::card::sets) static HIGH_TIDE: CardRecord = CardRecord::new(
 
 // FEM 19a — Homarid
 static HOMARID_ONE_TIDE: TriggerConditionDef = TriggerConditionDef::SourceCounters {
-    kind: CounterKind::Tide,
+    kind: CounterKind::named("tide"),
     comparison: ComparisonDef::Equal,
     amount: 1,
 };
 
 static HOMARID_THREE_TIDE: TriggerConditionDef = TriggerConditionDef::SourceCounters {
-    kind: CounterKind::Tide,
+    kind: CounterKind::named("tide"),
     comparison: ComparisonDef::Equal,
     amount: 3,
 };
 
 static HOMARID_FOUR_TIDE: TriggerConditionDef = TriggerConditionDef::SourceCounters {
-    kind: CounterKind::Tide,
+    kind: CounterKind::named("tide"),
     comparison: ComparisonDef::GreaterOrEqual,
     amount: 4,
 };
@@ -558,7 +558,7 @@ pub(in crate::card::sets) static HOMARID: CardRecord = CardRecord::new_with_lega
             "This creature enters with a tide counter on it.",
             ReplacementEffectDef::ModifyBattlefieldEntry(
                 BattlefieldEntryModificationDef::AddCounters {
-                    kind: CounterKind::Tide,
+                    kind: CounterKind::named("tide"),
                     amount: 1,
                 },
             ),
@@ -571,7 +571,7 @@ pub(in crate::card::sets) static HOMARID: CardRecord = CardRecord::new_with_lega
             },
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
-                kind: CounterKind::Tide,
+                kind: CounterKind::named("tide"),
                 amount: ValueDef::Constant(1),
             },
         ),
@@ -596,7 +596,7 @@ pub(in crate::card::sets) static HOMARID: CardRecord = CardRecord::new_with_lega
             &HOMARID_FOUR_TIDE,
             EffectDef::RemoveAllCounters {
                 object: EffectRecipientDef::Source,
-                kind: Some(CounterKind::Tide),
+                kind: Some(CounterKind::named("tide")),
             },
         ),
     ]),
@@ -1751,7 +1751,7 @@ pub(in crate::card::sets) static ELVISH_FARMER: CardRecord = CardRecord::new_wit
                 },
                 EffectDef::AddCounters {
                     object: EffectRecipientDef::Source,
-                    kind: CounterKind::Spore,
+                    kind: CounterKind::named("spore"),
                     amount: ValueDef::Constant(1),
                 },
             ),
@@ -1883,7 +1883,7 @@ pub(in crate::card::sets) static FERAL_THALLID: CardRecord = CardRecord::new_wit
             },
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
-                kind: CounterKind::Spore,
+                kind: CounterKind::named("spore"),
                 amount: ValueDef::Constant(1),
             },
         ),
@@ -1914,7 +1914,7 @@ pub(in crate::card::sets) static FUNGAL_BLOOM: CardRecord = CardRecord::new_with
             &FUNGUS_TARGET,
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                kind: CounterKind::Spore,
+                kind: CounterKind::named("spore"),
                 amount: ValueDef::Constant(1),
             },
         ),
@@ -1997,7 +1997,7 @@ pub(in crate::card::sets) static SPORE_FLOWER: CardRecord = CardRecord::new_with
                 },
                 EffectDef::AddCounters {
                     object: EffectRecipientDef::Source,
-                    kind: CounterKind::Spore,
+                    kind: CounterKind::named("spore"),
                     amount: ValueDef::Constant(1),
                 },
             ),
@@ -2028,7 +2028,7 @@ pub(in crate::card::sets) static THALLID: CardRecord = CardRecord::new_with_lega
                 },
                 EffectDef::AddCounters {
                     object: EffectRecipientDef::Source,
-                    kind: CounterKind::Spore,
+                    kind: CounterKind::named("spore"),
                     amount: ValueDef::Constant(1),
                 },
             ),
@@ -2070,7 +2070,7 @@ pub(in crate::card::sets) static THALLID_DEVOURER: CardRecord = CardRecord::new_
                 },
                 EffectDef::AddCounters {
                     object: EffectRecipientDef::Source,
-                    kind: CounterKind::Spore,
+                    kind: CounterKind::named("spore"),
                     amount: ValueDef::Constant(1),
                 },
             ),
@@ -2186,7 +2186,7 @@ pub(in crate::card::sets) static THORN_THALLID: CardRecord = CardRecord::new_wit
             },
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
-                kind: CounterKind::Spore,
+                kind: CounterKind::named("spore"),
                 amount: ValueDef::Constant(1),
             },
         ),
@@ -2476,7 +2476,7 @@ pub(in crate::card::sets) static BOTTOMLESS_VAULT: CardRecord = CardRecord::new_
             &TriggerConditionDef::SourceIsTapped,
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
-                kind: CounterKind::Storage,
+                kind: CounterKind::named("storage"),
                 amount: ValueDef::Constant(1),
             },
         ),
@@ -2484,7 +2484,7 @@ pub(in crate::card::sets) static BOTTOMLESS_VAULT: CardRecord = CardRecord::new_
             "{T}, Remove any number of storage counters from this land: Add {B} for each storage counter removed this way.",
             &[
                 AbilityCostDef::TapSource,
-                AbilityCostDef::RemoveAnyNumberOfCountersFromSource(CounterKind::Storage),
+                AbilityCostDef::RemoveAnyNumberOfCountersFromSource(CounterKind::named("storage")),
             ],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Black)),
         ),
@@ -2515,7 +2515,7 @@ pub(in crate::card::sets) static DWARVEN_HOLD: CardRecord = CardRecord::new_with
             &TriggerConditionDef::SourceIsTapped,
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
-                kind: CounterKind::Storage,
+                kind: CounterKind::named("storage"),
                 amount: ValueDef::Constant(1),
             },
         ),
@@ -2523,7 +2523,7 @@ pub(in crate::card::sets) static DWARVEN_HOLD: CardRecord = CardRecord::new_with
             "{T}, Remove any number of storage counters from this land: Add {R} for each storage counter removed this way.",
             &[
                 AbilityCostDef::TapSource,
-                AbilityCostDef::RemoveAnyNumberOfCountersFromSource(CounterKind::Storage),
+                AbilityCostDef::RemoveAnyNumberOfCountersFromSource(CounterKind::named("storage")),
             ],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red)),
         ),
@@ -2629,7 +2629,7 @@ pub(in crate::card::sets) static HOLLOW_TREES: CardRecord = CardRecord::new_with
             &TriggerConditionDef::SourceIsTapped,
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
-                kind: CounterKind::Storage,
+                kind: CounterKind::named("storage"),
                 amount: ValueDef::Constant(1),
             },
         ),
@@ -2637,7 +2637,7 @@ pub(in crate::card::sets) static HOLLOW_TREES: CardRecord = CardRecord::new_with
             "{T}, Remove any number of storage counters from this land: Add {G} for each storage counter removed this way.",
             &[
                 AbilityCostDef::TapSource,
-                AbilityCostDef::RemoveAnyNumberOfCountersFromSource(CounterKind::Storage),
+                AbilityCostDef::RemoveAnyNumberOfCountersFromSource(CounterKind::named("storage")),
             ],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
         ),
@@ -2668,7 +2668,7 @@ pub(in crate::card::sets) static ICATIAN_STORE: CardRecord = CardRecord::new_wit
             &TriggerConditionDef::SourceIsTapped,
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
-                kind: CounterKind::Storage,
+                kind: CounterKind::named("storage"),
                 amount: ValueDef::Constant(1),
             },
         ),
@@ -2676,7 +2676,7 @@ pub(in crate::card::sets) static ICATIAN_STORE: CardRecord = CardRecord::new_wit
             "{T}, Remove any number of storage counters from this land: Add {W} for each storage counter removed this way.",
             &[
                 AbilityCostDef::TapSource,
-                AbilityCostDef::RemoveAnyNumberOfCountersFromSource(CounterKind::Storage),
+                AbilityCostDef::RemoveAnyNumberOfCountersFromSource(CounterKind::named("storage")),
             ],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::White)),
         ),
@@ -2741,7 +2741,7 @@ pub(in crate::card::sets) static SAND_SILOS: CardRecord = CardRecord::new_with_l
             &TriggerConditionDef::SourceIsTapped,
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
-                kind: CounterKind::Storage,
+                kind: CounterKind::named("storage"),
                 amount: ValueDef::Constant(1),
             },
         ),
@@ -2749,7 +2749,7 @@ pub(in crate::card::sets) static SAND_SILOS: CardRecord = CardRecord::new_with_l
             "{T}, Remove any number of storage counters from this land: Add {U} for each storage counter removed this way.",
             &[
                 AbilityCostDef::TapSource,
-                AbilityCostDef::RemoveAnyNumberOfCountersFromSource(CounterKind::Storage),
+                AbilityCostDef::RemoveAnyNumberOfCountersFromSource(CounterKind::named("storage")),
             ],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Blue)),
         ),

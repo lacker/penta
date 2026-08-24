@@ -1,6 +1,30 @@
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, Serializer, de::Error as _};
 
-use crate::CardDefinitionId;
+use crate::{CardDefinitionId, CounterKind};
+
+#[derive(Clone, Copy, Debug)]
+pub(super) struct CounterKindSnapshot(pub(super) CounterKind);
+
+impl Serialize for CounterKindSnapshot {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(self.0.name())
+    }
+}
+
+impl<'de> Deserialize<'de> for CounterKindSnapshot {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let name = String::deserialize(deserializer)?;
+        CounterKind::from_name(&name)
+            .map(Self)
+            .ok_or_else(|| D::Error::custom(format!("unknown counter name {name}")))
+    }
+}
 
 // serde hands `skip_serializing_if` a reference, so this signature is fixed.
 #[allow(clippy::trivially_copy_pass_by_ref)]
@@ -298,9 +322,7 @@ pub(super) enum AbilityOriginSnapshot {
         land_type: BasicLandTypeSnapshot,
     },
     IntrinsicCounter {
-        /// The counter's serialized position, which is the same index the
-        /// counter array beside it is written at.
-        counter: usize,
+        counter: CounterKindSnapshot,
     },
     Granted {
         source: u32,
@@ -356,6 +378,13 @@ pub(super) enum CombatDamageStageSnapshot {
     RegularAfterFirstStrike {
         combatants: Vec<u32>,
     },
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct CounterSnapshot {
+    pub(super) name: String,
+    pub(super) count: u16,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -425,7 +454,7 @@ pub(super) struct PermanentSnapshot {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(super) cast_from_zone: Option<String>,
     pub(super) destroy_at_end: bool,
-    pub(super) counters: Vec<u16>,
+    pub(super) counters: Vec<CounterSnapshot>,
     pub(super) attached_to: Option<u32>,
     /// The player a player-enchanting Aura is attached to. Additive: older
     /// checkpoints restore no such Auras because none were executable then.

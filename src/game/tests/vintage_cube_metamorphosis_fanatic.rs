@@ -100,7 +100,7 @@ fn what_comes_back_has_a_lifelink_counter() {
     assert_eq!(bear.counters(CounterKind::Lifelink), 1);
     assert!(
         game.permanent_has_executable_keyword(bear, KeywordAbility::Lifelink),
-        "the counter is what gives it the keyword (CR 122.1e)",
+        "the counter is what gives it the keyword (CR 122.1b)",
     );
 }
 

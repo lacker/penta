@@ -18,7 +18,7 @@ fn enchanted(banked: u16) -> (Game, GameObjectId) {
     game.battlefield.push(host);
     let mut aura = creature(10_001, cards::LIVING_ARTIFACT, PlayerId::One);
     aura.attached_to = Some(host_id);
-    aura.set_counters(CounterKind::Vitality, banked);
+    aura.set_counters(CounterKind::named("vitality"), banked);
     let aura_id = aura.card.id;
     game.battlefield.push(aura);
     (game, aura_id)
@@ -29,7 +29,7 @@ fn vitality_on(game: &Game, aura: GameObjectId) -> u16 {
         .iter()
         .find(|permanent| permanent.card.id == aura)
         .expect("still there")
-        .counters(CounterKind::Vitality)
+        .counters(CounterKind::named("vitality"))
 }
 
 /// Answers every waiting decision by taking the last option, which for a

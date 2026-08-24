@@ -176,7 +176,9 @@ fn triskelion_cannot_activate_without_a_plus_one_counter() {
         |action| matches!(action, Action::ActivateAbility { source: candidate, .. } if *candidate == source)
     ));
 
-    game.battlefield[0].counters[CounterKind::PlusOnePlusOne.index()] = 1;
+    game.battlefield[0]
+        .counters
+        .set(CounterKind::PlusOnePlusOne, 1);
     assert!(game.legal_actions(PlayerId::One).iter().any(
         |action| matches!(action, Action::ActivateAbility { source: candidate, .. } if *candidate == source)
     ));

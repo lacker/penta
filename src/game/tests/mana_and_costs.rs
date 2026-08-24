@@ -881,7 +881,7 @@ fn strip_mine_can_be_activated_in_response_to_strip_mine() {
 fn icatian_javelineers_cannot_activate_until_their_controller_turn() {
     let mut game = ready_game();
     let mut javeliners = creature(10_000, cards::ICATIAN_JAVELINEERS, PlayerId::One);
-    javeliners.counters[CounterKind::Javelin.index()] = 1;
+    javeliners.counters.set(CounterKind::named("javelin"), 1);
     javeliners.entered_controller_turn = game.turns_started[PlayerId::One.index()];
     let source = javeliners.card.id;
     game.battlefield = vec![javeliners];
@@ -914,7 +914,7 @@ fn icatian_javelineers_counter_cost_preserves_white_source_targeting() {
     let mut game = ready_game();
     game.turns_started[PlayerId::One.index()] = 1;
     let mut javelineers = creature(10_000, cards::ICATIAN_JAVELINEERS, PlayerId::One);
-    javelineers.counters[CounterKind::Javelin.index()] = 1;
+    javelineers.counters.set(CounterKind::named("javelin"), 1);
     let source = javelineers.card.id;
     let knight = creature(10_001, cards::BLACK_KNIGHT, PlayerId::Two);
     let knight_id = knight.card.id;
@@ -950,7 +950,7 @@ fn icatian_javelineers_counter_cost_preserves_white_source_targeting() {
         .find(|permanent| permanent.card.id == source)
         .expect("paying the counter cost leaves the source on the battlefield");
     assert!(javelineers.tapped);
-    assert_eq!(javelineers.counters(CounterKind::Javelin), 0);
+    assert_eq!(javelineers.counters(CounterKind::named("javelin")), 0);
     assert!(!game.legal_actions(PlayerId::One).iter().any(
         |action| matches!(action, Action::ActivateAbility { source: candidate, .. } if *candidate == source)
     ));

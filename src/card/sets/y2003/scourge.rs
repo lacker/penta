@@ -434,12 +434,12 @@ static DECREE_OF_SILENCE_ANSWER: EffectDef = EffectDef::Sequence(&[
     },
     EffectDef::AddCounters {
         object: EffectRecipientDef::Source,
-        kind: CounterKind::Depletion,
+        kind: CounterKind::named("depletion"),
         amount: ValueDef::Constant(1),
     },
     EffectDef::IfCondition {
         condition: &TriggerConditionDef::SourceCounters {
-            kind: CounterKind::Depletion,
+            kind: CounterKind::named("depletion"),
             comparison: ComparisonDef::GreaterOrEqual,
             amount: 3,
         },

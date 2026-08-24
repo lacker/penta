@@ -275,7 +275,7 @@ fn parallax_wave_exiles_with_its_fade_counters_and_gives_them_back() {
         game.battlefield
             .iter()
             .find(|permanent| permanent.card.id == wave_id)
-            .map(|permanent| permanent.counters(CounterKind::Fade)),
+            .map(|permanent| permanent.counters(CounterKind::named("fade"))),
         Some(5),
         "fading 5 means five counters on arrival",
     );
@@ -309,7 +309,7 @@ fn parallax_wave_exiles_with_its_fade_counters_and_gives_them_back() {
         game.battlefield
             .iter()
             .find(|permanent| permanent.card.id == wave_id)
-            .map(|permanent| permanent.counters(CounterKind::Fade)),
+            .map(|permanent| permanent.counters(CounterKind::named("fade"))),
         Some(4),
         "and the counter is spent",
     );
@@ -334,7 +334,7 @@ fn a_faded_parallax_wave_sacrifices_itself() {
     let survives_upkeep = |counters: u16| {
         let mut game = ready_game();
         let mut wave = creature(10_000, cards::PARALLAX_WAVE, PlayerId::One);
-        wave.set_counters(CounterKind::Fade, counters);
+        wave.set_counters(CounterKind::named("fade"), counters);
         game.battlefield.push(wave);
         let wave_id = game.battlefield[0].card.id;
 
@@ -346,7 +346,7 @@ fn a_faded_parallax_wave_sacrifices_itself() {
         game.battlefield
             .iter()
             .find(|permanent| permanent.card.id == wave_id)
-            .map(|permanent| permanent.counters(CounterKind::Fade))
+            .map(|permanent| permanent.counters(CounterKind::named("fade")))
     };
 
     assert_eq!(
@@ -391,7 +391,7 @@ fn decree_of_silence_counters_until_its_third_depletion_counter() {
             game.battlefield
                 .iter()
                 .find(|permanent| permanent.card.id == decree)
-                .map(|permanent| permanent.counters(CounterKind::Depletion)),
+                .map(|permanent| permanent.counters(CounterKind::named("depletion"))),
             Some(expected),
             "the spell is answered and the enchantment marked",
         );

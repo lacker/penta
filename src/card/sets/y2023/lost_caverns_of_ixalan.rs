@@ -100,7 +100,7 @@ static MALCOLM_CAST_THE_DISCARD: EffectDef = EffectDef::MayCastTargetWithoutPayi
 /// Read after the counter has been added, so the connection that makes it
 /// four is itself the one that pays.
 static MALCOLM_IS_A_CHORUS: TriggerConditionDef = TriggerConditionDef::SourceCounters {
-    kind: CounterKind::Chorus,
+    kind: CounterKind::named("chorus"),
     comparison: ComparisonDef::GreaterOrEqual,
     amount: 4,
 };
@@ -113,7 +113,7 @@ static MALCOLM_MAYBE_CAST: EffectDef = EffectDef::IfCondition {
 static MALCOLM_TRIGGER: [EffectDef; 3] = [
     EffectDef::AddCounters {
         object: EffectRecipientDef::Source,
-        kind: CounterKind::Chorus,
+        kind: CounterKind::named("chorus"),
         amount: ValueDef::Constant(1),
     },
     EffectDef::DrawCards {

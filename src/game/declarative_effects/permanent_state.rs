@@ -25,11 +25,11 @@ impl Game {
         else {
             return;
         };
-        let current = permanent.counters(CounterKind::Level);
+        let current = permanent.counters(CounterKind::named("level"));
         if current >= wanted {
             return;
         }
-        permanent.set_counters(CounterKind::Level, wanted);
+        permanent.set_counters(CounterKind::named("level"), wanted);
         // One event per level crossed, so a Class taken from one to three by
         // a single effect fires both of its clauses.
         for reached in current + 1..=wanted {
@@ -74,13 +74,13 @@ impl Game {
                         .iter_mut()
                         .find(|permanent| permanent.card.id == id)
                     {
-                        // No kind named is every kind, which is what
-                        // "remove all counters" says.
-                        for kind in
-                            kind.map_or_else(|| CounterKind::ALL.to_vec(), |kind| vec![kind])
-                        {
+                        if let Some(kind) = kind {
                             let held = permanent.counters(kind);
                             permanent.remove_counters(kind, held);
+                        } else {
+                            // No kind named is every kind, including names no
+                            // other card in the current catalog happens to use.
+                            permanent.counters.clear();
                         }
                     }
                 }

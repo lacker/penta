@@ -50,7 +50,7 @@ fn a_plus_one_plus_two_counter_adds_different_amounts() {
     assert_eq!(stats(&game, troll_id), (Some(4), Some(6)));
 }
 
-/// CR 121.3. The pair cancels, so the permanent is left with neither rather
+/// CR 122.3. The pair cancels, so the permanent is left with neither rather
 /// than with both quietly summing to zero.
 #[test]
 fn opposing_counters_annihilate_in_pairs() {

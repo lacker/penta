@@ -40,7 +40,7 @@ fn land(definition: CardDefinitionId, counters: u16, tapped: bool) -> (Game, Gam
         .iter_mut()
         .find(|permanent| permanent.card.id == id)
         .expect("still there")
-        .set_counters(CounterKind::Storage, counters);
+        .set_counters(CounterKind::named("storage"), counters);
     (game, id)
 }
 
@@ -69,7 +69,7 @@ fn the_upkeep_trigger_reads_whether_the_land_is_tapped() {
             .iter()
             .find(|permanent| permanent.card.id == id)
             .expect("still there")
-            .counters(CounterKind::Storage)
+            .counters(CounterKind::named("storage"))
     };
 
     let (mut game, id) = land(cards::BOTTOMLESS_VAULT, 0, true);
@@ -146,7 +146,7 @@ fn cashing_in_spends_the_counters_and_pays_that_colour() {
             .find(|permanent| permanent.card.id == id)
             .expect("still there");
         assert_eq!(
-            permanent.counters(CounterKind::Storage),
+            permanent.counters(CounterKind::named("storage")),
             0,
             "{definition:?} spent every counter",
         );

@@ -653,7 +653,7 @@ pub(in crate::card::sets) static OSAI_VULTURES: CardRecord = CardRecord::new_wit
             &OSAI_VULTURES_CARRION,
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
-                kind: CounterKind::Carrion,
+                kind: CounterKind::named("carrion"),
                 amount: ValueDef::Constant(1),
             },
         ),
@@ -661,7 +661,7 @@ pub(in crate::card::sets) static OSAI_VULTURES: CardRecord = CardRecord::new_wit
             "Remove two carrion counters from this creature: This creature gets +1/+1 until \
              end of turn.",
             &[AbilityCostDef::RemoveCountersFromSource {
-                kind: CounterKind::Carrion,
+                kind: CounterKind::named("carrion"),
                 amount: 2,
             }],
             EffectDef::Apply {
@@ -1698,7 +1698,7 @@ static VENARIAN_GOLD_SLEEP: [EffectDef; 2] = [
     },
     EffectDef::AddCounters {
         object: EffectRecipientDef::AttachedPermanent,
-        kind: CounterKind::Sleep,
+        kind: CounterKind::named("sleep"),
         amount: ValueDef::SourceCastX,
     },
 ];
@@ -1706,7 +1706,7 @@ static VENARIAN_GOLD_SLEEP: [EffectDef; 2] = [
 /// The counters are on the creature rather than on the Aura, so the condition
 /// asks what the Aura is attached to rather than what it carries itself.
 static VENARIAN_GOLD_ASLEEP: TriggerConditionDef = TriggerConditionDef::AttachedPermanentMatches {
-    object: ObjectPredicateDef::HasCounter(CounterKind::Sleep),
+    object: ObjectPredicateDef::HasCounter(CounterKind::named("sleep")),
 };
 
 static VENARIAN_GOLD_HOLDS_IT_DOWN: EffectDef = EffectDef::StaticApply {
@@ -1746,7 +1746,7 @@ pub(in crate::card::sets) static VENARIAN_GOLD: CardRecord = CardRecord::new_wit
                 },
                 EffectDef::RemoveCounters {
                     object: EffectRecipientDef::AttachedPermanent,
-                    kind: CounterKind::Sleep,
+                    kind: CounterKind::named("sleep"),
                     amount: ValueDef::Constant(1),
                 },
             ),
@@ -3558,19 +3558,19 @@ static COCOON_WRAPPED: [EffectDef; 2] = [
     },
     EffectDef::AddCounters {
         object: EffectRecipientDef::Source,
-        kind: CounterKind::Pupa,
+        kind: CounterKind::named("pupa"),
         amount: ValueDef::Constant(3),
     },
 ];
 
 static COCOON_STILL_WRAPPED: TriggerConditionDef = TriggerConditionDef::SourceCounters {
-    kind: CounterKind::Pupa,
+    kind: CounterKind::named("pupa"),
     comparison: ComparisonDef::GreaterOrEqual,
     amount: 1,
 };
 
 static COCOON_EMPTY: TriggerConditionDef = TriggerConditionDef::SourceCounters {
-    kind: CounterKind::Pupa,
+    kind: CounterKind::named("pupa"),
     comparison: ComparisonDef::Equal,
     amount: 0,
 };
@@ -3604,7 +3604,7 @@ static COCOON_HATCH_SEQUENCE: EffectDef = EffectDef::Sequence(&COCOON_HATCH);
 
 static COCOON_SHED: EffectDef = EffectDef::RemoveCounters {
     object: EffectRecipientDef::Source,
-    kind: CounterKind::Pupa,
+    kind: CounterKind::named("pupa"),
     amount: ValueDef::Constant(1),
 };
 

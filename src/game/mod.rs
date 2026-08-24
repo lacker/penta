@@ -41,6 +41,8 @@ use crate::rng::ReplayRng;
 use crate::rules;
 use crate::{AttackDefender, Format};
 
+use self::counters::Counters;
+
 mod ability_actions;
 mod ability_layers;
 mod ability_targeting;
@@ -63,6 +65,7 @@ mod combat_state;
 mod continuous_effects;
 mod continuous_state;
 mod control_changes;
+mod counters;
 mod creature_characteristics;
 mod crime;
 mod damage;
@@ -138,8 +141,9 @@ use event::TurnPhaseResume;
 pub use event::{BattlefieldExit, GameEvent, GameResult, StackObjectKind, Step, WinReason};
 pub use mana::{Mana, ManaPool, ManaSource};
 pub use observation::{
-    EmblemObservation, ObjectCharacteristics, PermanentObservation, PhysicalFaceObservation,
-    PhysicalFaceSide, PlayerObservation, StackObservation, ZoneCard, ZoneError,
+    CardCounterObservation, CounterObservation, EmblemObservation, ObjectCharacteristics,
+    PermanentObservation, PhysicalFaceObservation, PhysicalFaceSide, PlayerObservation,
+    StackObservation, ZoneCard, ZoneError,
 };
 
 pub(crate) use card_runtime::{
@@ -240,17 +244,16 @@ struct CardInstance {
     /// Counters on a card outside the battlefield, such as suspend's time
     /// counters. Zone changes clear this along with every other object-local
     /// property.
-    counters: [u16; CounterKind::COUNT],
+    counters: Counters,
 }
 
 impl CardInstance {
-    const fn add_counters(&mut self, kind: CounterKind, amount: u16) {
-        let index = kind.index();
-        self.counters[index] = self.counters[index].saturating_add(amount);
+    fn add_counters(&mut self, kind: CounterKind, amount: u16) {
+        self.counters.add(kind, amount);
     }
 
-    const fn counters(&self, kind: CounterKind) -> u16 {
-        self.counters[kind.index()]
+    fn counters(&self, kind: CounterKind) -> u16 {
+        self.counters.count(kind)
     }
 }
 
@@ -304,7 +307,7 @@ struct ObjectInstance {
     owner: PlayerId,
     backing: ObjectBacking,
     characteristics: CharacteristicSource,
-    counters: [u16; CounterKind::COUNT],
+    counters: Counters,
 }
 
 impl From<CardInstance> for ObjectInstance {
@@ -729,13 +732,9 @@ struct PlayerState {
     /// than a flag because Exploration exists: the ordinary allowance is
     /// one, and a static ability can raise it.
     lands_played_this_turn: u16,
-    /// Poison counters this player has been given. Ten of them is a loss,
-    /// checked as a state-based action alongside life and library.
-    poison: u16,
-    /// Energy counters this player has (CR 122.1a). Unlike poison it is a
-    /// resource rather than a clock: it is spent, no amount of it wins or
-    /// loses anything, and it persists between turns.
-    energy: u16,
+    /// Counters the player carries. Poison has a state-based loss condition;
+    /// energy is a resource; other named player counters need no new field.
+    counters: Counters,
 }
 
 #[derive(Clone, Debug)]

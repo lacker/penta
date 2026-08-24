@@ -1,6 +1,6 @@
 use super::{
     ArrivalAttachment, BattlefieldArrival, CardDefinitionId, CardInstance, CardPartId,
-    CardStructure, CharacteristicContext, CharacteristicSource, CommittedTriggerEvent, CounterKind,
+    CardStructure, CharacteristicContext, CharacteristicSource, CommittedTriggerEvent,
     DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EntryCompletion, Game, GameEvent,
     GameObjectId, KeywordAbility, ObjectBacking, PendingBattlefieldEntry, Permanent, PlayerId,
     PublicCard, ReplacementEffectDef, ReplacementEventDef, Target, TriggerContext, ZoneCard,
@@ -281,7 +281,7 @@ impl Game {
                     // provenance, which only meld and copy effects consult.
                     backing: ObjectBacking::None,
                     characteristics: CharacteristicSource::Card(*definition),
-                    counters: [0; CounterKind::COUNT],
+                    counters: crate::game::counters::Counters::new(),
                 })
             })
             .collect()

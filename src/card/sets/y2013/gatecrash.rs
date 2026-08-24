@@ -2969,10 +2969,10 @@ pub(in crate::card::sets) static ASSEMBLE_THE_LEGION: CardRecord = CardRecord::n
             EffectDef::Sequence(&[
                 EffectDef::AddCounters {
                     object: EffectRecipientDef::Source,
-                    kind: CounterKind::Muster,
+                    kind: CounterKind::named("muster"),
                     amount: ValueDef::Constant(1),
                 },
-                EffectDef::create_creature_token(&["Soldier"], &[ManaColor::Red, ManaColor::White], 1, 1).with_abilities(&[abilities::haste()]).with_art(CardArt::new("aae7bdfe-fe14-4a18-b2b0-16e9175a0441", "Justine Cruz")).with_count(ValueDef::CountersOnSource(CounterKind::Muster)),
+                EffectDef::create_creature_token(&["Soldier"], &[ManaColor::Red, ManaColor::White], 1, 1).with_abilities(&[abilities::haste()]).with_art(CardArt::new("aae7bdfe-fe14-4a18-b2b0-16e9175a0441", "Justine Cruz")).with_count(ValueDef::CountersOnSource(CounterKind::named("muster"))),
             ]),
         ),
     ),

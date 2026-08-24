@@ -150,14 +150,15 @@ impl Game {
         permanent: &Permanent,
         costs: &[AbilityCostDef],
     ) -> bool {
-        let mut required = [0_u32; CounterKind::COUNT];
+        let mut required = std::collections::BTreeMap::<CounterKind, u32>::new();
         for cost in costs {
             if let AbilityCostDef::RemoveCountersFromSource { kind, amount } = cost {
-                required[kind.index()] = required[kind.index()].saturating_add(u32::from(*amount));
+                let held = required.entry(*kind).or_default();
+                *held = held.saturating_add(u32::from(*amount));
             }
         }
-        CounterKind::ALL
+        required
             .into_iter()
-            .all(|kind| u32::from(permanent.counters(kind)) >= required[kind.index()])
+            .all(|(kind, amount)| u32::from(permanent.counters(kind)) >= amount)
     }
 }

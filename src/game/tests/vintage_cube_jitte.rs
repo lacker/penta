@@ -92,7 +92,7 @@ fn combat_damage_to_anything_puts_two_charge_counters_on_the_jitte() {
     drain_pending(&mut game);
 
     assert_eq!(
-        permanent(&game, jitte_id).counters(CounterKind::Charge),
+        permanent(&game, jitte_id).counters(CounterKind::named("charge")),
         2,
         "two counters per damage event, not per point",
     );
@@ -115,7 +115,7 @@ fn the_first_mode_pumps_the_equipped_creature() {
         "a 2/2 with +2/+2",
     );
     assert_eq!(
-        permanent(&game, jitte_id).counters(CounterKind::Charge),
+        permanent(&game, jitte_id).counters(CounterKind::named("charge")),
         1,
         "one of the two counters was spent",
     );
@@ -141,7 +141,10 @@ fn the_second_mode_shrinks_a_target_creature_to_death() {
             .all(|permanent| permanent.card.id != mouse_id),
         "a 2/1 loses its last toughness",
     );
-    assert_eq!(permanent(&game, jitte_id).counters(CounterKind::Charge), 1);
+    assert_eq!(
+        permanent(&game, jitte_id).counters(CounterKind::named("charge")),
+        1
+    );
 }
 
 /// The third mode touches no permanent at all.
@@ -156,7 +159,10 @@ fn the_third_mode_gains_two_life() {
     spend_counter(&mut game, jitte_id, 2, None);
 
     assert_eq!(game.players[PlayerId::One.index()].life, life + 2);
-    assert_eq!(permanent(&game, jitte_id).counters(CounterKind::Charge), 1);
+    assert_eq!(
+        permanent(&game, jitte_id).counters(CounterKind::named("charge")),
+        1
+    );
 }
 
 /// One printed ability, three offers: the mode is chosen as the ability is

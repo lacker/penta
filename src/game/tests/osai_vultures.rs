@@ -14,7 +14,7 @@ fn vultures_out(carrion: u16) -> (Game, GameObjectId) {
     game.turns_started[PlayerId::Two.index()] = 5;
     game.active_player = PlayerId::One;
     let mut vultures = creature(10_000, cards::OSAI_VULTURES, PlayerId::One);
-    vultures.set_counters(CounterKind::Carrion, carrion);
+    vultures.set_counters(CounterKind::named("carrion"), carrion);
     let vultures_id = vultures.card.id;
     game.battlefield.push(vultures);
     (game, vultures_id)
@@ -33,7 +33,7 @@ fn carrion_on(game: &Game, vultures: GameObjectId) -> u16 {
         .iter()
         .find(|permanent| permanent.card.id == vultures)
         .expect("still there")
-        .counters(CounterKind::Carrion)
+        .counters(CounterKind::named("carrion"))
 }
 
 #[test]

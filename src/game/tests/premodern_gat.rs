@@ -152,7 +152,7 @@ fn mining_counters(game: &Game, id: GameObjectId) -> Option<u16> {
     game.battlefield
         .iter()
         .find(|permanent| permanent.card.id == id)
-        .map(|permanent| permanent.counters(CounterKind::Mining))
+        .map(|permanent| permanent.counters(CounterKind::named("mining")))
 }
 
 /// Taps the Mine for one mana of `color`, then untaps it so the next

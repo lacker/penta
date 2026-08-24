@@ -3,6 +3,8 @@
 
 use super::*;
 
+const HATCHLING_COUNTER: CounterKind = CounterKind::named("hatchling");
+
 fn staged(activations: u16) -> (Game, GameObjectId) {
     let mut game = ready_game();
     game.battlefield.clear();
@@ -57,7 +59,24 @@ fn the_first_four_activations_store_hatchling_counters() {
     for expected in 1..=4 {
         activate_and_resolve(&mut game, subject);
         let subject = permanent(&game, subject);
-        assert_eq!(subject.counters(CounterKind::Hatchling), expected);
+        assert_eq!(subject.counters(HATCHLING_COUNTER), expected);
+        let observed = game
+            .observe(PlayerId::One)
+            .battlefield
+            .into_iter()
+            .find(|permanent| permanent.id == subject.card.id)
+            .expect("the subject is public");
+        assert_eq!(
+            observed.counters,
+            vec![CounterObservation {
+                name: "hatchling".to_owned(),
+                count: expected,
+            }]
+        );
+        assert!(
+            observed.has_individual_state,
+            "a counter-bearing permanent must not collapse with a lookalike"
+        );
         assert_eq!(
             game.effective_permanent_name(subject).as_deref(),
             Some("Ludevic's Test Subject"),
@@ -73,7 +92,7 @@ fn the_fifth_counter_is_removed_before_the_subject_transforms() {
     }
 
     let abomination = permanent(&game, subject);
-    assert_eq!(abomination.counters(CounterKind::Hatchling), 0);
+    assert_eq!(abomination.counters(HATCHLING_COUNTER), 0);
     assert_eq!(
         game.effective_permanent_name(abomination).as_deref(),
         Some("Ludevic's Abomination"),
@@ -96,12 +115,12 @@ fn five_counters_already_present_still_means_remove_all_after_adding_one() {
         .iter_mut()
         .find(|permanent| permanent.card.id == subject)
         .expect("it is on the battlefield")
-        .set_counters(CounterKind::Hatchling, 5);
+        .set_counters(HATCHLING_COUNTER, 5);
 
     activate_and_resolve(&mut game, subject);
 
     let abomination = permanent(&game, subject);
-    assert_eq!(abomination.counters(CounterKind::Hatchling), 0);
+    assert_eq!(abomination.counters(HATCHLING_COUNTER), 0);
     assert_eq!(
         game.effective_permanent_name(abomination).as_deref(),
         Some("Ludevic's Abomination"),

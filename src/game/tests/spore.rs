@@ -20,7 +20,9 @@ fn spores(game: &Game, id: GameObjectId) -> u16 {
     game.battlefield
         .iter()
         .find(|permanent| permanent.card.id == id)
-        .map_or(0, |permanent| permanent.counters(CounterKind::Spore))
+        .map_or(0, |permanent| {
+            permanent.counters(CounterKind::named("spore"))
+        })
 }
 
 fn take_upkeep(game: &mut Game) {
@@ -68,7 +70,7 @@ fn the_spore_ability_is_not_offered_until_three_counters_are_stored() {
         .iter_mut()
         .find(|permanent| permanent.card.id == thallid)
     {
-        permanent.set_counters(CounterKind::Spore, 2);
+        permanent.set_counters(CounterKind::named("spore"), 2);
     }
     assert!(
         spore_ability(&game, thallid).is_none(),
@@ -80,7 +82,7 @@ fn the_spore_ability_is_not_offered_until_three_counters_are_stored() {
         .iter_mut()
         .find(|permanent| permanent.card.id == thallid)
     {
-        permanent.set_counters(CounterKind::Spore, 3);
+        permanent.set_counters(CounterKind::named("spore"), 3);
     }
     assert!(spore_ability(&game, thallid).is_some(), "three pays for it");
 }
@@ -94,7 +96,7 @@ fn spending_three_counters_makes_a_saproling() {
         .iter_mut()
         .find(|permanent| permanent.card.id == thallid)
     {
-        permanent.set_counters(CounterKind::Spore, 3);
+        permanent.set_counters(CounterKind::named("spore"), 3);
     }
 
     let action = spore_ability(&game, thallid).expect("the ability is available");

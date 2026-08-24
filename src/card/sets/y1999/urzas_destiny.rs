@@ -1447,7 +1447,7 @@ static MATCHING_ARTIFACTS_AND_CREATURES: ObjectPredicateDef = ObjectPredicateDef
         ObjectPredicateDef::HasType(CardType::Artifact),
         ObjectPredicateDef::HasType(CardType::Creature),
     ]),
-    ObjectPredicateDef::ManaValueEqualTo(ValueDef::CountersOnSource(CounterKind::Fuse)),
+    ObjectPredicateDef::ManaValueEqualTo(ValueDef::CountersOnSource(CounterKind::named("fuse"))),
 ]);
 
 static KEG_DETONATION: EffectDef = EffectDef::Destroy {
@@ -1466,7 +1466,7 @@ static KEG_FUSE: EffectDef = EffectDef::May {
     player: EffectRecipientDef::Controller,
     effect: &EffectDef::AddCounters {
         object: EffectRecipientDef::Source,
-        kind: CounterKind::Fuse,
+        kind: CounterKind::named("fuse"),
         amount: ValueDef::Constant(1),
     },
 };

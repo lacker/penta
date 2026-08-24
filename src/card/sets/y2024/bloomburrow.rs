@@ -57,13 +57,13 @@ static MAKE_AN_OTTER: EffectDef =
 /// counter and to three takes two. Each level is bought separately and only
 /// at sorcery speed (CR 717.2b), and only from below it.
 static BELOW_LEVEL_TWO: TriggerConditionDef = TriggerConditionDef::SourceCounters {
-    kind: CounterKind::Level,
+    kind: CounterKind::named("level"),
     comparison: ComparisonDef::Less,
     amount: 1,
 };
 
 static BELOW_LEVEL_THREE: TriggerConditionDef = TriggerConditionDef::SourceCounters {
-    kind: CounterKind::Level,
+    kind: CounterKind::named("level"),
     comparison: ComparisonDef::Less,
     amount: 2,
 };
@@ -73,7 +73,7 @@ static BELOW_LEVEL_THREE: TriggerConditionDef = TriggerConditionDef::SourceCount
 /// resolves -- so a Class knocked back down between the two does not make
 /// the Otter.
 static AT_LEVEL_THREE: TriggerConditionDef = TriggerConditionDef::SourceCounters {
-    kind: CounterKind::Level,
+    kind: CounterKind::named("level"),
     comparison: ComparisonDef::GreaterOrEqual,
     amount: 2,
 };

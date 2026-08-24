@@ -224,7 +224,7 @@ static OVERLORD_ABILITIES: [AbilityDef; 4] = [
         ReplacementConditionDef::SourceCastWith(AlternativeCastKindDef::Impending),
         ReplacementEffectDef::ModifyBattlefieldEntry(
             BattlefieldEntryModificationDef::AddCounters {
-                kind: CounterKind::Time,
+                kind: CounterKind::named("time"),
                 amount: 5,
             },
         ),
@@ -237,7 +237,7 @@ static OVERLORD_ABILITIES: [AbilityDef; 4] = [
         },
         EffectDef::RemoveCounters {
             object: EffectRecipientDef::Source,
-            kind: CounterKind::Time,
+            kind: CounterKind::named("time"),
             amount: ValueDef::Constant(1),
         },
     ),
@@ -814,7 +814,7 @@ static CHAINSAW_ABILITIES: [AbilityDef; 4] = [
         },
         EffectDef::AddCounters {
             object: EffectRecipientDef::Source,
-            kind: CounterKind::Rev,
+            kind: CounterKind::named("rev"),
             amount: ValueDef::Constant(1),
         },
     ),
@@ -823,7 +823,7 @@ static CHAINSAW_ABILITIES: [AbilityDef; 4] = [
         EffectDef::StaticApply {
             recipient: EffectRecipientDef::AttachedPermanent,
             effect: AppliedEffectDef::modify_power_toughness(
-                ValueDef::CountersOnSource(CounterKind::Rev),
+                ValueDef::CountersOnSource(CounterKind::named("rev")),
                 ValueDef::Constant(0),
             ),
         },

@@ -4,6 +4,28 @@
 // Grouped together because they share a shape rather than a subject --
 // each is one keyword the card prints and one clause the engine runs.
 
+/// What a keyword counter hands the permanent it sits on (CR 122.1b). No
+/// card wrote the clause down, so the counter says which keyword and this
+/// says how that keyword is written.
+#[must_use]
+pub const fn keyword_counter_ability(kind: CounterKind) -> Option<AbilityDef> {
+    match kind.granted_keyword() {
+        Some(KeywordAbility::Deathtouch) => Some(deathtouch()),
+        Some(KeywordAbility::DoubleStrike) => Some(double_strike()),
+        Some(KeywordAbility::FirstStrike) => Some(first_strike()),
+        Some(KeywordAbility::Flying) => Some(flying()),
+        Some(KeywordAbility::Haste) => Some(haste()),
+        Some(KeywordAbility::Hexproof) => Some(hexproof()),
+        Some(KeywordAbility::Indestructible) => Some(indestructible()),
+        Some(KeywordAbility::Lifelink) => Some(lifelink()),
+        Some(KeywordAbility::Menace) => Some(menace()),
+        Some(KeywordAbility::Reach) => Some(reach()),
+        Some(KeywordAbility::Trample) => Some(trample()),
+        Some(KeywordAbility::Vigilance) => Some(vigilance()),
+        _ => None,
+    }
+}
+
 /// Exalted. It is written as a keyword but defined as a triggered ability, so
 /// each printed instance is its own clause and several on one board each
 /// trigger -- which is why this returns an ordinary trigger rather than a

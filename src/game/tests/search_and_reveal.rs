@@ -570,7 +570,7 @@ fn migrated_upkeep_and_death_triggers_resolve_from_the_stack() {
         .iter()
         .find(|permanent| permanent.card.id == vampire_id)
         .unwrap();
-    assert_eq!(vampire.counters[CounterKind::PlusOnePlusOne.index()], 1);
+    assert_eq!(vampire.counters.count(CounterKind::PlusOnePlusOne), 1);
     assert_eq!(game.power(vampire), Some(5));
 }
 

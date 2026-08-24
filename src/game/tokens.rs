@@ -25,7 +25,7 @@ impl Game {
             owner,
             backing: ObjectBacking::None,
             characteristics,
-            counters: [0; CounterKind::COUNT],
+            counters: crate::game::counters::Counters::new(),
         }
     }
 

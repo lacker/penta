@@ -61,7 +61,9 @@ fn staged(charges: u16) -> (Game, GameObjectId) {
         .iter_mut()
         .find(|permanent| permanent.card.id == relic)
     {
-        permanent.counters[CounterKind::Charge.index()] = charges;
+        permanent
+            .counters
+            .set(CounterKind::named("charge"), charges);
     }
     (game, relic)
 }
@@ -100,7 +102,7 @@ fn the_second_ability_puts_a_charge_counter_on_instead_of_making_mana() {
         .iter()
         .find(|permanent| permanent.card.id == relic)
         .expect("still there");
-    assert_eq!(relic.counters(CounterKind::Charge), 1);
+    assert_eq!(relic.counters(CounterKind::named("charge")), 1);
     assert_eq!(game.players[0].mana_pool.total(), 0, "no mana yet");
 }
 
@@ -121,7 +123,7 @@ fn the_counters_cash_in_for_one_mana_each_of_chosen_colors() {
         game.battlefield
             .iter()
             .find(|permanent| permanent.card.id == relic)
-            .map(|permanent| permanent.counters(CounterKind::Charge)),
+            .map(|permanent| permanent.counters(CounterKind::named("charge"))),
         Some(0),
         "and the counters are gone",
     );

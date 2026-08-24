@@ -101,7 +101,7 @@ fn chorus(game: &Game, malcolm: GameObjectId) -> u16 {
         .iter()
         .find(|permanent| permanent.card.id == malcolm)
         .expect("he is there")
-        .counters(CounterKind::Chorus)
+        .counters(CounterKind::named("chorus"))
 }
 
 /// Flash and flying.

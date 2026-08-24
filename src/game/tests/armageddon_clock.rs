@@ -15,7 +15,7 @@ fn clock_out(counters: u16, mana: u16) -> (Game, GameObjectId) {
     game.turns_started[PlayerId::One.index()] = 5;
     game.turns_started[PlayerId::Two.index()] = 5;
     let mut clock = creature(10_000, cards::ARMAGEDDON_CLOCK, PlayerId::One);
-    clock.set_counters(CounterKind::Doom, counters);
+    clock.set_counters(CounterKind::named("doom"), counters);
     let clock_id = clock.card.id;
     game.battlefield.push(clock);
     for player in [PlayerId::One, PlayerId::Two] {
@@ -29,7 +29,7 @@ fn doom_on(game: &Game, clock: GameObjectId) -> u16 {
         .iter()
         .find(|permanent| permanent.card.id == clock)
         .expect("still there")
-        .counters(CounterKind::Doom)
+        .counters(CounterKind::named("doom"))
 }
 
 fn winding(game: &Game, player: PlayerId, clock: GameObjectId) -> Option<Action> {

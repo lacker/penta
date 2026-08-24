@@ -128,7 +128,7 @@ fn rev_counters(game: &Game, saw: GameObjectId) -> u16 {
         .iter()
         .find(|permanent| permanent.card.id == saw)
         .expect("it is on the battlefield")
-        .counters(CounterKind::Rev)
+        .counters(CounterKind::named("rev"))
 }
 
 /// Kills every creature player Two controls at once.

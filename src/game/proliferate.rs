@@ -21,11 +21,7 @@ impl Game {
         let mut candidates = self
             .battlefield
             .iter()
-            .filter(|permanent| {
-                CounterKind::ALL
-                    .iter()
-                    .any(|kind| permanent.counters(*kind) > 0)
-            })
+            .filter(|permanent| !permanent.counters.is_empty())
             .map(|permanent| Target::Permanent(permanent.card.id))
             .collect::<Vec<_>>();
         candidates.extend(
@@ -37,12 +33,9 @@ impl Game {
         candidates
     }
 
-    /// How many kinds of counter this player has. Poison and energy are the
-    /// two a player can carry here; a player with neither is not something
-    /// another counter could be given to.
+    /// How many kinds of counter this player has.
     fn player_counter_kinds(&self, player: PlayerId) -> usize {
-        let state = &self.players[player.index()];
-        usize::from(state.poison > 0) + usize::from(state.energy > 0)
+        self.players[player.index()].counters.iter().count()
     }
 
     /// "Choose any number": a minimum of none, and the whole list on offer.
@@ -119,9 +112,10 @@ impl Game {
                         .iter()
                         .find(|permanent| permanent.card.id == *id)
                         .map(|permanent| {
-                            CounterKind::ALL
-                                .into_iter()
-                                .filter(|kind| permanent.counters(*kind) > 0)
+                            permanent
+                                .counters
+                                .iter()
+                                .map(|(kind, _)| kind)
                                 .collect::<Vec<_>>()
                         })
                         .unwrap_or_default();
@@ -130,12 +124,13 @@ impl Game {
                     }
                 }
                 Target::Player(player) => {
-                    let state = &mut self.players[player.index()];
-                    if state.poison > 0 {
-                        state.poison = state.poison.saturating_add(1);
-                    }
-                    if state.energy > 0 {
-                        state.energy = state.energy.saturating_add(1);
+                    let kinds = self.players[player.index()]
+                        .counters
+                        .iter()
+                        .map(|(kind, _)| kind)
+                        .collect::<Vec<_>>();
+                    for kind in kinds {
+                        self.players[player.index()].counters.add(kind, 1);
                     }
                 }
                 Target::Card(_) | Target::Spell(_) => {}

@@ -15,7 +15,7 @@ fn synthetic_double_faced_token(
             owner: PlayerId::One,
             backing: ObjectBacking::None,
             characteristics: CharacteristicSource::Copy(cards::SERRA_ANGEL),
-            counters: [0; CounterKind::COUNT],
+            counters: crate::game::counters::Counters::new(),
         },
         CardPartId::PRIMARY,
         PlayerId::One,

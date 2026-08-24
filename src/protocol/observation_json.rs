@@ -187,6 +187,10 @@ fn permanent_observation_json(
         "power": permanent.power,
         "toughness": permanent.toughness,
         "damage": permanent.damage,
+        "counters": permanent.counters.iter().map(|counter| json!({
+            "name": counter.name,
+            "count": counter.count,
+        })).collect::<Vec<_>>(),
         "loyalty": permanent.loyalty,
         "loyaltyAbilityUsedThisTurn": permanent.loyalty_ability_used_this_turn,
         "attacking": permanent.attacking,
@@ -268,6 +272,10 @@ pub fn observation_json_for_format(
         "life": observation.life_totals,
         "poison": observation.poison_counters,
         "energy": observation.energy_counters,
+        "playerCounters": observation.counters.each_ref().map(|counters| counters.iter().map(|counter| json!({
+            "name": counter.name,
+            "count": counter.count,
+        })).collect::<Vec<_>>()),
         // Optional, and present only while someone holds the crown. A game
         // in which nobody ever becomes the monarch has the shape it always
         // had.
@@ -298,6 +306,13 @@ pub fn observation_json_for_format(
         // rather than shown, so it is counted here instead -- the same way a
         // hand is a size rather than a list.
         "faceDownExileSizes": observation.face_down_exile_sizes,
+        "cardCounters": observation.card_counters.iter().map(|object| json!({
+            "objectId": object.object.0,
+            "counters": object.counters.iter().map(|counter| json!({
+                "name": counter.name,
+                "count": counter.count,
+            })).collect::<Vec<_>>(),
+        })).collect::<Vec<_>>(),
         "battlefield": observation.battlefield.iter().map(|permanent| permanent_observation_json(catalog, permanent)).collect::<Vec<_>>(),
         "emblems": observation.emblems.iter().map(emblem_observation_json).collect::<Vec<_>>(),
         "stack": observation

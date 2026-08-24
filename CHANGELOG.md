@@ -40,6 +40,17 @@ distinguishes snapshots of the covered source and build inputs.
   condition to use it asks whether a player has the most life or is tied for
   it. Preacher of the Schism prints both.
 
+- **Rules-shaped counter handling.** Counter identity now distinguishes
+  power/toughness counters, the rules' closed family of keyword counters, and
+  open named counters. Permanents, cards outside the battlefield, and players
+  store only the counter kinds they actually carry; proliferate, remove-all,
+  characteristic layers, counter costs, stun/finality/loyalty rules, poison,
+  and energy all read the same sparse collection. Public observations expose
+  named counter entries while retaining the existing loyalty, poison, and
+  energy projections. Checkpoint format 9 serializes counter names instead of
+  catalog positions and is advertised as `reconstruction.checkpoint.v9`;
+  protocol 29 and replay version 2 are unchanged.
+
 - **"Choose up to one" on a triggered ability.** A modal trigger settles its
   mode as it is put onto the stack, and a minimum of zero now makes declining
   every mode an answer in its own right: the question is asked even when only
@@ -80,8 +91,8 @@ distinguishes snapshots of the covered source and build inputs.
   counters, checks the resulting total, removes the whole clutch at five or
   more, and transforms it into Ludevic's Abomination. The card composes shared
   declarative counter, condition, sequence, and transform effects; hatchling
-  is appended to the stable counter-kind array, so existing counter positions,
-  protocol 29, checkpoint format 8, and replay version 2 are unchanged.
+  is an ordinary named counter in the card definition rather than a new engine
+  enum variant.
 
 - **Predicate-driven blocking restrictions and declaration costs.** Blocking
   now uses the same declarative shape as attacking: a rule records which side

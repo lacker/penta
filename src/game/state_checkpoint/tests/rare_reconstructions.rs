@@ -566,6 +566,12 @@ fn a_choice_that_puts_a_permanent_onto_the_battlefield_reconstructs_unanswered()
 fn a_run_of_chosen_color_mana_reconstructs_between_answers() {
     let mut game = staged_game();
     game.battlefield.clear();
+    game.players[PlayerId::Two.index()]
+        .counters
+        .set(CounterKind::named("charge"), 2);
+    let mut suspended = card(98_765, cards::REALITY_STROBE, PlayerId::Two);
+    suspended.add_counters(CounterKind::named("time"), 3);
+    game.players[PlayerId::Two.index()].exile.push(suspended);
     let relic = game
         .put_onto_battlefield(PlayerId::One, cards::COALITION_RELIC)
         .expect("Coalition Relic is cataloged");
@@ -574,7 +580,9 @@ fn a_run_of_chosen_color_mana_reconstructs_between_answers() {
         .iter_mut()
         .find(|permanent| permanent.card.id == relic)
     {
-        permanent.counters[crate::game::CounterKind::Charge.index()] = 3;
+        permanent
+            .counters
+            .set(crate::game::CounterKind::named("charge"), 3);
     }
 
     game.capture_battlefield_triggers(&crate::game::CommittedTriggerEvent::StepBegins {

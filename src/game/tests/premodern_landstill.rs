@@ -109,7 +109,7 @@ fn powder_keg_destroys_what_its_fuse_counters_name() {
         .iter_mut()
         .find(|permanent| permanent.card.id == keg_id)
     {
-        permanent.add_counters(CounterKind::Fuse, 2);
+        permanent.add_counters(CounterKind::named("fuse"), 2);
     }
     let two_drop = creature(10_001, cards::QUIRION_DRYAD, PlayerId::Two);
     let two_drop_id = two_drop.card.id;

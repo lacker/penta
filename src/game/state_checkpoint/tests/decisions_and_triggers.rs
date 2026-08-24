@@ -877,7 +877,7 @@ fn a_retired_card_direct_target_reconstructs_as_dangling_and_fizzles() {
         .iter()
         .find(|permanent| permanent.card.id == ooze)
         .expect("the Ooze remains")
-        .counters[crate::CounterKind::PlusOnePlusOne.index()];
+        .counters.count(crate::CounterKind::PlusOnePlusOne);
 
     let viewer = game.decision_player().expect("the game awaits priority");
     let (wire, mut rebuilt) = rebuild_current_checkpoint(&game, viewer, 95_101);
@@ -909,7 +909,7 @@ fn a_retired_card_direct_target_reconstructs_as_dangling_and_fizzles() {
                 .iter()
                 .find(|permanent| permanent.card.id == ooze)
                 .expect("the Ooze remains")
-                .counters[crate::CounterKind::PlusOnePlusOne.index()],
+                .counters.count(crate::CounterKind::PlusOnePlusOne),
             counters_after_first,
             "the stale lower activation fizzles instead of using retired-card LKI",
         );

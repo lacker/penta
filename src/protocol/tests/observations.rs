@@ -11,6 +11,7 @@ fn test_token() -> crate::TokenCharacteristics {
     TEST_TOKEN
 }
 
+#[allow(clippy::too_many_lines)]
 fn observation_with_printed_and_token_permanents() -> PlayerObservation {
     PlayerObservation {
         viewer: PlayerId::One,
@@ -20,8 +21,15 @@ fn observation_with_printed_and_token_permanents() -> PlayerObservation {
         priority: PlayerId::One,
         step: crate::game::Step::CombatDamage,
         regular_combat_damage_pending: true,
-        energy_counters: [0, 0],
+        energy_counters: [2, 0],
         poison_counters: [0, 0],
+        counters: [
+            vec![crate::CounterObservation {
+                name: "energy".to_owned(),
+                count: 2,
+            }],
+            Vec::new(),
+        ],
         monarch: None,
         life_totals: [20, 20],
         mana_pools: [crate::ManaPool::default(); 2],
@@ -33,6 +41,13 @@ fn observation_with_printed_and_token_permanents() -> PlayerObservation {
         graveyards: [Vec::new(), Vec::new()],
         exiles: [Vec::new(), Vec::new()],
         face_down_exile_sizes: [0, 0],
+        card_counters: vec![crate::CardCounterObservation {
+            object: GameObjectId(40),
+            counters: vec![crate::CounterObservation {
+                name: "time".to_owned(),
+                count: 3,
+            }],
+        }],
         emblems: Vec::new(),
         battlefield: vec![
             crate::game::PermanentObservation {
@@ -58,6 +73,10 @@ fn observation_with_printed_and_token_permanents() -> PlayerObservation {
                 power: Some(4),
                 toughness: Some(4),
                 damage: 0,
+                counters: vec![crate::CounterObservation {
+                    name: "hatchling".to_owned(),
+                    count: 4,
+                }],
                 loyalty: None,
                 loyalty_ability_used_this_turn: false,
                 attack_defender: None,
@@ -91,6 +110,7 @@ fn observation_with_printed_and_token_permanents() -> PlayerObservation {
                 power: Some(1),
                 toughness: Some(1),
                 damage: 0,
+                counters: Vec::new(),
                 loyalty: None,
                 loyalty_ability_used_this_turn: false,
                 attack_defender: None,
@@ -133,6 +153,21 @@ fn observation_json_carries_interwave_state_and_presented_card_part() {
     );
     assert_eq!(value["battlefield"][0]["name"], "Ravager of the Fells");
     assert_eq!(value["battlefield"][0]["chosenCreatureType"], "Werewolf");
+    assert_eq!(
+        value["battlefield"][0]["counters"],
+        json!([{ "name": "hatchling", "count": 4 }])
+    );
+    assert_eq!(
+        value["playerCounters"][0],
+        json!([{ "name": "energy", "count": 2 }])
+    );
+    assert_eq!(
+        value["cardCounters"],
+        json!([{
+            "objectId": 40,
+            "counters": [{ "name": "time", "count": 3 }],
+        }])
+    );
     let token = &value["battlefield"][1];
     assert_eq!(token["name"], "Test Servo");
     assert_eq!(token["token"], true);

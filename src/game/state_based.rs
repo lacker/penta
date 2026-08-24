@@ -170,7 +170,7 @@ impl Game {
         }
     }
 
-    /// CR 121.3: a permanent with both +1/+1 and -1/-1 counters loses an
+    /// CR 122.3: a permanent with both +1/+1 and -1/-1 counters loses an
     /// equal number of each, so it never carries both at once.
     fn annihilate_opposing_counters(&mut self) {
         for permanent in &mut self.battlefield {
@@ -193,8 +193,8 @@ impl Game {
             .each_mut()
             .map(|player| std::mem::take(&mut player.tried_to_draw_from_empty_library));
         let poisoned = [
-            self.players[0].poison >= LETHAL_POISON,
-            self.players[1].poison >= LETHAL_POISON,
+            self.players[0].counters.count(CounterKind::Poison) >= LETHAL_POISON,
+            self.players[1].counters.count(CounterKind::Poison) >= LETHAL_POISON,
         ];
         let lost = [
             self.players[0].life <= 0 || tried_to_draw_from_empty[0] || poisoned[0],

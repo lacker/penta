@@ -18,7 +18,7 @@ fn homarid_at(tide: u16) -> (Game, GameObjectId) {
         .iter_mut()
         .find(|permanent| permanent.card.id == homarid_id)
         .expect("just pushed")
-        .add_counters(CounterKind::Tide, tide);
+        .add_counters(CounterKind::named("tide"), tide);
     (game, homarid_id)
 }
 
@@ -60,7 +60,7 @@ fn four_counters_clears_them() {
             .iter()
             .find(|permanent| permanent.card.id == homarid)
             .expect("still there")
-            .counters(CounterKind::Tide),
+            .counters(CounterKind::named("tide")),
         0,
         "the state trigger removed them all"
     );
@@ -85,7 +85,7 @@ fn the_moneychanger_pays_out_per_counter() {
         .iter_mut()
         .find(|permanent| permanent.card.id == changer_id)
         .expect("just pushed")
-        .add_counters(CounterKind::Credit, 4);
+        .add_counters(CounterKind::named("credit"), 4);
     let before = game.players[PlayerId::One.index()].life;
 
     let action = game

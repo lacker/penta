@@ -58,7 +58,7 @@ fn it_taps_the_creature_and_puts_x_counters_on_it() {
     let host = host_of(&game, host);
     assert!(host.tapped);
     assert_eq!(
-        host.counters(CounterKind::Sleep),
+        host.counters(CounterKind::named("sleep")),
         2,
         "the counters are on the creature, and there are X of them",
     );
@@ -70,7 +70,10 @@ fn it_taps_the_creature_and_puts_x_counters_on_it() {
 fn a_bigger_x_holds_it_longer() {
     let (game, host) = gilded(4);
 
-    assert_eq!(host_of(&game, host).counters(CounterKind::Sleep), 4);
+    assert_eq!(
+        host_of(&game, host).counters(CounterKind::named("sleep")),
+        4
+    );
 }
 
 /// The countdown runs on the creature's controller's upkeep, which is the
@@ -81,13 +84,16 @@ fn the_hosts_controller_is_the_one_who_counts_down() {
 
     take_an_upkeep(&mut game, PlayerId::One);
     assert_eq!(
-        host_of(&game, host).counters(CounterKind::Sleep),
+        host_of(&game, host).counters(CounterKind::named("sleep")),
         2,
         "the Aura controller's upkeep is not the one that counts",
     );
 
     take_an_upkeep(&mut game, PlayerId::Two);
-    assert_eq!(host_of(&game, host).counters(CounterKind::Sleep), 1);
+    assert_eq!(
+        host_of(&game, host).counters(CounterKind::named("sleep")),
+        1
+    );
     assert!(
         host_of(&game, host).tapped,
         "and a counter still remains, so it stays down",
@@ -100,7 +106,10 @@ fn it_wakes_up_when_the_counters_run_out() {
     let (mut game, host) = gilded(1);
 
     take_an_upkeep(&mut game, PlayerId::Two);
-    assert_eq!(host_of(&game, host).counters(CounterKind::Sleep), 0);
+    assert_eq!(
+        host_of(&game, host).counters(CounterKind::named("sleep")),
+        0
+    );
 
     take_an_upkeep(&mut game, PlayerId::Two);
     assert!(!host_of(&game, host).tapped, "nothing is holding it now");

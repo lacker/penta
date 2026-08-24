@@ -607,7 +607,7 @@ fn ability_object(
         owner,
         backing: ObjectBacking::None,
         characteristics,
-        counters: [0; super::CounterKind::COUNT],
+        counters: crate::game::counters::Counters::new(),
     }
 }
 
@@ -820,9 +820,7 @@ pub(super) fn parse_ability_origin(value: &Value) -> Result<AbilityOrigin, Strin
         )),
         "intrinsicCounter" => {
             let counter = str_field(value, "counter")?;
-            let kind = super::CounterKind::ALL
-                .into_iter()
-                .find(|kind| kind.name() == counter)
+            let kind = super::CounterKind::from_name(counter)
                 .ok_or_else(|| format!("unknown intrinsic counter kind {counter}"))?;
             Ok(AbilityOrigin::IntrinsicCounter(kind))
         }

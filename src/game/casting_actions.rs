@@ -3,13 +3,13 @@ use super::{
     AdditionalCostId, AlternativeCastAbilityDef, AlternativeCastKindDef, AlternativeCostId,
     CardBehavior, CardDefinition, CardDefinitionId, CardEffectStatus, CardPartId, CardType,
     CardTypeSet, CastChoices, CastCostContext, CastOffer, CastOfferCost, CastSignature,
-    CastSourceZone, ControlFlow, CostConfiguration, DeclarativeAbilityDef, DividedTotal, Game,
-    GameObjectId, KeywordAbility, ManaCost, ManaPaymentPurpose, ModeId, ObjectCharacteristics,
-    OptionalAdditionalCostKindDef, PlayActionKind, PlayOptionDef, PlayOptionId, PlayRestriction,
-    PlayerId, ScopedEffect, SelectedSpellPlan, StackAbilityPayload, StackAbilityResolver, Target,
-    TargetSelection, TargetSlotDef, TargetSlotId, TemporaryAbilityGrant, TriggerContext,
-    add_generic, add_mana_cost, extra_target_cost, mode_id_selections, positive_compositions,
-    reduce_generic, target_combinations,
+    CastSourceZone, ControlFlow, CostConfiguration, CounterKind, DeclarativeAbilityDef,
+    DividedTotal, Game, GameObjectId, KeywordAbility, ManaCost, ManaPaymentPurpose, ModeId,
+    ObjectCharacteristics, OptionalAdditionalCostKindDef, PlayActionKind, PlayOptionDef,
+    PlayOptionId, PlayRestriction, PlayerId, ScopedEffect, SelectedSpellPlan, StackAbilityPayload,
+    StackAbilityResolver, Target, TargetSelection, TargetSlotDef, TargetSlotId,
+    TemporaryAbilityGrant, TriggerContext, add_generic, add_mana_cost, extra_target_cost,
+    mode_id_selections, positive_compositions, reduce_generic, target_combinations,
 };
 
 use crate::card::{AlternateSpellKind, CardStructure, ModeSetDef, SpellForm, ZoneKind};
@@ -179,7 +179,12 @@ impl Game {
             // nobody has the energy for is not castable at all.
             if self
                 .exile_energy_cost(card.id, player)
-                .is_some_and(|energy| energy > self.players[player.index()].energy)
+                .is_some_and(|energy| {
+                    energy
+                        > self.players[player.index()]
+                            .counters
+                            .count(CounterKind::Energy)
+                })
             {
                 continue;
             }

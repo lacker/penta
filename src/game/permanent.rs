@@ -138,10 +138,9 @@ struct Permanent {
     /// resolution begins, so an ability asking whether this is the first
     /// time counts itself. Cleared alongside the two above.
     resolutions_this_turn: Vec<(AbilityOrigin, u8)>,
-    /// Every kind of counter this permanent carries, indexed by
-    /// [`CounterKind::index`]. Only +1/+1 counters have rules meaning on their
-    /// own; the rest are markers the cards that place them interpret.
-    counters: [u16; CounterKind::COUNT],
+    /// Every counter this permanent carries. The sparse collection preserves
+    /// counter identity without coupling object layout to a catalog-wide enum.
+    counters: Counters,
     /// Which permanent this Aura, Equipment, or Fortification is attached to.
     /// Player-enchanting Auras use `attached_player` instead.
     attached_to: Option<GameObjectId>,
@@ -307,7 +306,7 @@ impl Permanent {
             exhausted: Vec::new(),
             triggers_this_turn: Vec::new(),
             resolutions_this_turn: Vec::new(),
-            counters: [0; CounterKind::COUNT],
+            counters: crate::game::counters::Counters::new(),
             attached_to: None,
             attached_player: None,
             reconfigured_timestamp: None,
@@ -364,7 +363,7 @@ impl Permanent {
         })
     }
 
-    /// Untaps, unless a stun counter replaces it (CR 122.1f): a permanent
+    /// Untaps, unless a stun counter replaces it (CR 122.1d): a permanent
     /// carrying one removes it and stays tapped instead. A permanent that is
     /// already untapped is not becoming untapped, so nothing is replaced and
     /// no counter comes off.
@@ -379,21 +378,19 @@ impl Permanent {
         }
     }
 
-    const fn counters(&self, kind: CounterKind) -> u16 {
-        self.counters[kind.index()]
+    fn counters(&self, kind: CounterKind) -> u16 {
+        self.counters.count(kind)
     }
 
-    const fn add_counters(&mut self, kind: CounterKind, amount: u16) {
-        let index = kind.index();
-        self.counters[index] = self.counters[index].saturating_add(amount);
+    fn add_counters(&mut self, kind: CounterKind, amount: u16) {
+        self.counters.add(kind, amount);
     }
 
-    const fn remove_counters(&mut self, kind: CounterKind, amount: u16) {
-        let index = kind.index();
-        self.counters[index] = self.counters[index].saturating_sub(amount);
+    fn remove_counters(&mut self, kind: CounterKind, amount: u16) {
+        self.counters.remove(kind, amount);
     }
 
-    const fn set_counters(&mut self, kind: CounterKind, amount: u16) {
-        self.counters[kind.index()] = amount;
+    fn set_counters(&mut self, kind: CounterKind, amount: u16) {
+        self.counters.set(kind, amount);
     }
 }

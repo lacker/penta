@@ -10,7 +10,7 @@ fn card(id: u32, definition: CardDefinitionId, owner: PlayerId) -> CardInstance 
         owner,
         backing: ObjectBacking::Cards(vec![PhysicalCardId(id)]),
         characteristics: CharacteristicSource::Card(definition),
-        counters: [0; CounterKind::COUNT],
+        counters: crate::game::counters::Counters::new(),
     }
 }
 

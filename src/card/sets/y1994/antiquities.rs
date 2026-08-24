@@ -840,7 +840,7 @@ pub(in crate::card::sets) static ARMAGEDDON_CLOCK: CardRecord = CardRecord::new_
             },
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
-                kind: CounterKind::Doom,
+                kind: CounterKind::named("doom"),
                 amount: ValueDef::Constant(1),
             },
         ),
@@ -853,7 +853,7 @@ pub(in crate::card::sets) static ARMAGEDDON_CLOCK: CardRecord = CardRecord::new_
             },
             EffectDef::DealDamage {
                 recipient: EffectRecipientDef::EachPlayer,
-                amount: ValueDef::CountersOnSource(CounterKind::Doom),
+                amount: ValueDef::CountersOnSource(CounterKind::named("doom")),
             },
         ),
         // Everyone can wind it back, and only in an upkeep -- which is after
@@ -864,7 +864,7 @@ pub(in crate::card::sets) static ARMAGEDDON_CLOCK: CardRecord = CardRecord::new_
             &[AbilityCostDef::Mana(mana_cost!("{4}"))],
             EffectDef::RemoveCounters {
                 object: EffectRecipientDef::Source,
-                kind: CounterKind::Doom,
+                kind: CounterKind::named("doom"),
                 amount: ValueDef::Constant(1),
             },
         )

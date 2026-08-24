@@ -218,7 +218,7 @@ fn scavenging_ooze_only_grows_on_a_creature_card() {
             .iter()
             .find(|permanent| permanent.card.id == ooze)
             .expect("still there");
-        let counters = ooze.counters[CounterKind::PlusOnePlusOne.index()];
+        let counters = ooze.counters.count(CounterKind::PlusOnePlusOne);
         assert_eq!(counters, u16::from(expect_growth), "{definition:?}");
         assert_eq!(
             game.players[0].life - life_before,

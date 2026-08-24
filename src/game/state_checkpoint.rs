@@ -33,6 +33,7 @@ use crate::{
     ObjectCharacteristics, PlayOptionId, Target, TargetSlotId,
 };
 
+mod counter;
 mod decision;
 mod emblem;
 mod event;
@@ -55,6 +56,7 @@ mod wire;
 mod wire_decision;
 include!("state_checkpoint/compatibility.rs");
 
+use counter::{player_counters, restore_visible_card_counters};
 use decision::{
     decision_referenced_object_ids, decision_snapshot, mana_cost_from_snapshot, mana_cost_snapshot,
     parse_pending_decision, parse_pending_trigger, pending_trigger_snapshot,
@@ -70,14 +72,14 @@ use model::{
     ApplicableReplacementSnapshot, AttackDefenderSnapshot, BasicLandTypeSnapshot,
     CombatDamageAssignmentSnapshot, CombatDamageStageSnapshot, ContinuousEffectExpirationSnapshot,
     CopiableAbilitySnapshot, CopiableCharacteristicsSnapshot, CopiedFromSnapshot,
-    DetachedCardSnapshot, DetachedPermanentSnapshot, DoubleFacedCopiableCharacteristicsSnapshot,
-    EntryCompletionSnapshot, GameSnapshot, ManaColorSnapshot, ManaSnapshot, ManaSourceSnapshot,
-    ObjectKindSnapshot, PendingBattlefieldEntrySnapshot, PendingEventSnapshot,
-    PendingReplacementEffectSnapshot, PermanentSnapshot, PregameSnapshot,
-    ReplacementEffectContextSnapshot, ReplacementEffectLocator, ResolvedContinuousEffectSnapshot,
-    ResolvedContinuousOperationSnapshot, RetiredObjectSnapshot, SetOperationSnapshot,
-    SuccessorSnapshot, TemporaryAbilityGrantSnapshot, TurnPhaseResumeSnapshot, TurnPhaseSnapshot,
-    ZoneKindSnapshot,
+    CounterKindSnapshot, CounterSnapshot, DetachedCardSnapshot, DetachedPermanentSnapshot,
+    DoubleFacedCopiableCharacteristicsSnapshot, EntryCompletionSnapshot, GameSnapshot,
+    ManaColorSnapshot, ManaSnapshot, ManaSourceSnapshot, ObjectKindSnapshot,
+    PendingBattlefieldEntrySnapshot, PendingEventSnapshot, PendingReplacementEffectSnapshot,
+    PermanentSnapshot, PregameSnapshot, ReplacementEffectContextSnapshot, ReplacementEffectLocator,
+    ResolvedContinuousEffectSnapshot, ResolvedContinuousOperationSnapshot, RetiredObjectSnapshot,
+    SetOperationSnapshot, SuccessorSnapshot, TemporaryAbilityGrantSnapshot,
+    TurnPhaseResumeSnapshot, TurnPhaseSnapshot, ZoneKindSnapshot,
 };
 use model_keyword::UpkeepKeywordSnapshot;
 use ongoing_effect::{ongoing_effect_snapshot, parse_ongoing_effect};
@@ -665,16 +667,21 @@ impl Game {
         let [outside_one, outside_two] = outside_game;
         let mut outside_game = [outside_one?, outside_two?];
 
-        let graveyards = parse_two_public_zones(field(observation, "graveyards")?, &catalog)?;
-        let exiles = parse_two_public_zones(field(observation, "exiles")?, &catalog)?;
+        let mut graveyards = parse_two_public_zones(field(observation, "graveyards")?, &catalog)?;
+        let mut exiles = parse_two_public_zones(field(observation, "exiles")?, &catalog)?;
         let life = i16_pair(field(observation, "life")?)?;
-        let poison = poison_pair(observation)?;
-        let energy = energy_pair(observation)?;
+        let player_counters = player_counters(observation)?;
         let mut checkpoint_hands = if viewer == PlayerId::One {
             [own_hand, opponent_hand]
         } else {
             [opponent_hand, own_hand]
         };
+        restore_visible_card_counters(
+            observation,
+            &mut checkpoint_hands,
+            &mut graveyards,
+            &mut exiles,
+        )?;
         let mut libraries = [library_one, library_two];
         // Before the decision's own rebinding: a stack source names a
         // position in the hypothesis, and the decision pass may reorder the
@@ -726,8 +733,7 @@ impl Game {
             mana_pool: mana_pools[player.index()],
             mana: mana[player.index()].clone(),
             lands_played_this_turn: lands_played[player.index()],
-            poison: poison[player.index()],
-            energy: energy[player.index()],
+            counters: player_counters[player.index()].clone(),
         });
 
         let turns_started = checkpoint.turns_started;

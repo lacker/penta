@@ -107,7 +107,7 @@ fn scavenging_ghoul_banks_corpse_counters_instead() {
     destroy(&mut game, &victims[..2]);
     run_end_step(&mut game);
 
-    assert_eq!(counters(&game, ghoul, CounterKind::Corpse), 2);
+    assert_eq!(counters(&game, ghoul, CounterKind::named("corpse")), 2);
     let permanent = game
         .battlefield
         .iter()
@@ -137,7 +137,7 @@ fn a_corpse_counter_buys_one_regeneration() {
     drain_pending(&mut game);
 
     assert_eq!(
-        counters(&game, ghoul, CounterKind::Corpse),
+        counters(&game, ghoul, CounterKind::named("corpse")),
         1,
         "one counter spent, one left",
     );

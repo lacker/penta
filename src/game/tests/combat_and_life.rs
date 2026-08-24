@@ -99,7 +99,7 @@ fn archangel_of_thune_grows_the_team_on_its_own_lifelink_damage() {
         game.battlefield
             .iter()
             .find(|permanent| permanent.card.id == CardInstanceId(id))
-            .map(|permanent| permanent.counters[CounterKind::PlusOnePlusOne.index()])
+            .map(|permanent| permanent.counters.count(CounterKind::PlusOnePlusOne))
     };
     assert_eq!(counters(10_000), Some(1), "the Angel counts itself");
     assert_eq!(counters(10_001), Some(1));

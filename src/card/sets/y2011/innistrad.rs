@@ -1820,9 +1820,11 @@ pub(in crate::card::sets) static LOST_IN_THE_MIST: CardRecord = CardRecord::new_
 );
 
 // ISD 64 — Ludevic's Test Subject // Ludevic's Abomination
+const HATCHLING_COUNTER: CounterKind = CounterKind::named("hatchling");
+
 static LUDEVIC_HAS_FIVE_HATCHLING_COUNTERS: TriggerConditionDef =
     TriggerConditionDef::SourceCounters {
-        kind: CounterKind::Hatchling,
+        kind: HATCHLING_COUNTER,
         comparison: ComparisonDef::GreaterOrEqual,
         amount: 5,
     };
@@ -1830,7 +1832,7 @@ static LUDEVIC_HAS_FIVE_HATCHLING_COUNTERS: TriggerConditionDef =
 static LUDEVIC_HATCHES: EffectDef = EffectDef::Sequence(&[
     EffectDef::RemoveAllCounters {
         object: EffectRecipientDef::Source,
-        kind: Some(CounterKind::Hatchling),
+        kind: Some(HATCHLING_COUNTER),
     },
     EffectDef::Transform {
         object: EffectRecipientDef::Source,
@@ -1843,7 +1845,7 @@ static LUDEVIC_HATCHLING_ABILITY: AbilityDef = AbilityDef::activated(
     EffectDef::Sequence(&[
         EffectDef::AddCounters {
             object: EffectRecipientDef::Source,
-            kind: CounterKind::Hatchling,
+            kind: HATCHLING_COUNTER,
             amount: ValueDef::Constant(1),
         },
         EffectDef::IfCondition {

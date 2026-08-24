@@ -73,14 +73,14 @@ pub(in crate::card::sets) static UMEZAWAS_JITTE: CardRecord = CardRecord::new_wi
                 TriggerEventDef::combat_damage_dealt_by(ObjectPredicateDef::AttachedToSource),
                 EffectDef::AddCounters {
                     object: EffectRecipientDef::Source,
-                    kind: CounterKind::Charge,
+                    kind: CounterKind::named("charge"),
                     amount: ValueDef::Constant(2),
                 },
             ),
             AbilityDef::modal_activated(
                 "Remove a charge counter from Umezawa's Jitte: Choose one —\n• Equipped creature gets +2/+2 until end of turn.\n• Target creature gets -1/-1 until end of turn.\n• You gain 2 life.",
                 &[AbilityCostDef::RemoveCountersFromSource {
-                    kind: CounterKind::Charge,
+                    kind: CounterKind::named("charge"),
                     amount: 1,
                 }],
                 JITTE_MODES,

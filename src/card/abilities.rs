@@ -124,18 +124,6 @@ const fn keyword(text: &'static str, keyword: KeywordAbility) -> AbilityDef {
     AbilityDef::keyword(text, keyword)
 }
 
-/// What a keyword counter hands the permanent it sits on (CR 122.1e). No
-/// card wrote the clause down, so the counter says which keyword and this
-/// says how that keyword is written.
-#[must_use]
-pub const fn keyword_counter_ability(kind: CounterKind) -> Option<AbilityDef> {
-    match kind.granted_keyword() {
-        Some(KeywordAbility::Flying) => Some(flying()),
-        Some(KeywordAbility::Lifelink) => Some(lifelink()),
-        _ => None,
-    }
-}
-
 #[must_use]
 pub const fn flying() -> AbilityDef {
     keyword("Flying", KeywordAbility::Flying)

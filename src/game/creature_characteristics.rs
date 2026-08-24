@@ -3,11 +3,10 @@ use std::cell::Cell;
 use super::continuous_effects::StaticEffectKind;
 use super::{
     AppliedEffectDef, BasicLandType, CardBehavior, CardSupertype, CardType,
-    CharacteristicOperationDef, ContinuousEffectTimestamp, ControlFlow, CounterKind,
-    DeclarativeAbilityDef, EffectDef, Game, GameObjectId, KeywordAbility, ObjectPredicateDef,
-    ObjectQueryDef, Permanent, PlayerId, PlayerRelation, PowerToughnessOperationDef,
-    ResolvedContinuousEffectKind, ResolvedPowerToughnessOperation, RetiredObject, TriggerContext,
-    ValueDef,
+    CharacteristicOperationDef, ContinuousEffectTimestamp, ControlFlow, DeclarativeAbilityDef,
+    EffectDef, Game, GameObjectId, KeywordAbility, ObjectPredicateDef, ObjectQueryDef, Permanent,
+    PlayerId, PlayerRelation, PowerToughnessOperationDef, ResolvedContinuousEffectKind,
+    ResolvedPowerToughnessOperation, RetiredObject, TriggerContext, ValueDef,
 };
 
 type BaseStatSetter = (ContinuousEffectTimestamp, u16, Option<i16>, Option<i16>);
@@ -153,17 +152,20 @@ impl Game {
     /// Most kinds are markers and add nothing; the ones that do carry their
     /// own amounts rather than being special-cased here.
     pub(super) fn counter_stat_bonus(permanent: &Permanent) -> (i16, i16) {
-        CounterKind::ALL.into_iter().fold((0, 0), |total, kind| {
-            let (power, toughness) = kind.power_toughness_bonus();
-            if power == 0 && toughness == 0 {
-                return total;
-            }
-            let count = i16::try_from(permanent.counters(kind)).unwrap_or(i16::MAX);
-            (
-                total.0.saturating_add(power.saturating_mul(count)),
-                total.1.saturating_add(toughness.saturating_mul(count)),
-            )
-        })
+        permanent
+            .counters
+            .iter()
+            .fold((0, 0), |total, (kind, held)| {
+                let (power, toughness) = kind.power_toughness_bonus();
+                if power == 0 && toughness == 0 {
+                    return total;
+                }
+                let count = i16::try_from(held).unwrap_or(i16::MAX);
+                (
+                    total.0.saturating_add(power.saturating_mul(count)),
+                    total.1.saturating_add(toughness.saturating_mul(count)),
+                )
+            })
     }
 
     /// Whether any permanent on the battlefield matches, which is what an "as

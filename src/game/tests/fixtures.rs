@@ -187,7 +187,7 @@ pub(in crate::game) fn card(
         owner,
         backing: ObjectBacking::Cards(vec![PhysicalCardId(id)]),
         characteristics: CharacteristicSource::Card(definition),
-        counters: [0; CounterKind::COUNT],
+        counters: crate::game::counters::Counters::new(),
     }
 }
 
@@ -216,7 +216,7 @@ pub(in crate::game) fn token_permanent(
         owner: controller,
         backing: ObjectBacking::None,
         characteristics: CharacteristicSource::Token(token),
-        counters: [0; CounterKind::COUNT],
+        counters: crate::game::counters::Counters::new(),
     };
     Permanent::entering_token(object, token, controller, 0, 0)
 }

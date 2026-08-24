@@ -1852,7 +1852,7 @@ pub(in crate::card::sets) static XANTHIC_STATUE: CardRecord = CardRecord::new(
 static GEMSTONE_MINE_COSTS: [AbilityCostDef; 2] = [
     AbilityCostDef::TapSource,
     AbilityCostDef::RemoveCountersFromSource {
-        kind: CounterKind::Mining,
+        kind: CounterKind::named("mining"),
         amount: 1,
     },
 ];
@@ -1869,7 +1869,7 @@ pub(in crate::card::sets) static GEMSTONE_MINE: CardRecord = CardRecord::new_wit
             "This land enters with three mining counters on it.",
             ReplacementEffectDef::ModifyBattlefieldEntry(
                 BattlefieldEntryModificationDef::AddCounters {
-                    kind: CounterKind::Mining,
+                    kind: CounterKind::named("mining"),
                     amount: 3,
                 },
             ),
@@ -1878,7 +1878,7 @@ pub(in crate::card::sets) static GEMSTONE_MINE: CardRecord = CardRecord::new_wit
             "{T}, Remove a mining counter from this land: Add one mana of any color. If there are no mining counters on this land, sacrifice it.",
             &GEMSTONE_MINE_COSTS,
             EffectDef::AddMana(
-                AddManaEffectDef::any_color().sacrificing_source_when_out_of(CounterKind::Mining),
+                AddManaEffectDef::any_color().sacrificing_source_when_out_of(CounterKind::named("mining")),
             ),
         ),
     ]),

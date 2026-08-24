@@ -22,7 +22,8 @@ fn infect_damage_to_a_player_is_poison() {
 
     assert_eq!(game.players[1].life, life, "no life is lost");
     assert_eq!(
-        game.players[1].poison, 11,
+        game.players[1].counters.count(CounterKind::Poison),
+        11,
         "eleven poison, one short of the ten it takes to lose",
     );
 }

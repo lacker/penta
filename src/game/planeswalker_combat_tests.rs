@@ -253,7 +253,7 @@ fn player_damage_behaviors_do_not_trigger_when_a_planeswalker_is_hit() {
         owner: PlayerId::Two,
         backing: ObjectBacking::Cards(vec![PhysicalCardId(10_002)]),
         characteristics: CharacteristicSource::Card(cards::MOUNTAIN),
-        counters: [0; CounterKind::COUNT],
+        counters: crate::game::counters::Counters::new(),
     });
 
     game.deal_combat_damage();

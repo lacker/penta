@@ -1,14 +1,40 @@
 use super::continuous_effects::StaticEffectKind;
 use super::{
-    AbilityDef, AbilityOrigin, Action, ActionError, ActivationChoices, CardStructure, CardType,
-    CharacteristicContext, CombatDamageStage, ControlFlow, CounterKind, DecisionVisibility,
-    DoubleFacedKind, EmblemObservation, Game, GameEvent, GameObjectId, GameResult,
-    ManaActivationChoices, ObjectCharacteristics, ObjectKind, Permanent, PermanentObservation,
-    PhysicalFaceObservation, PhysicalFaceSide, PlayerId, PlayerObservation, Pregame,
-    StackObservation, Step, WinReason, ZoneKind, combinations, public_cards,
+    AbilityDef, AbilityOrigin, Action, ActionError, ActivationChoices, CardCounterObservation,
+    CardStructure, CardType, CharacteristicContext, CombatDamageStage, ControlFlow, CounterKind,
+    CounterObservation, DecisionVisibility, DoubleFacedKind, EmblemObservation, Game, GameEvent,
+    GameObjectId, GameResult, ManaActivationChoices, ObjectCharacteristics, ObjectKind, Permanent,
+    PermanentObservation, PhysicalFaceObservation, PhysicalFaceSide, PlayerId, PlayerObservation,
+    Pregame, StackObservation, Step, WinReason, ZoneKind, combinations, public_cards,
 };
 
 impl Game {
+    fn observed_card_counters(&self, viewer: PlayerId) -> Vec<CardCounterObservation> {
+        self.players[viewer.index()]
+            .hand
+            .iter()
+            .chain(self.players.iter().flat_map(|player| &player.graveyard))
+            .chain(
+                self.players
+                    .iter()
+                    .flat_map(|player| &player.exile)
+                    .filter(|card| card.owner == viewer || !self.exiled_card_is_face_down(card.id)),
+            )
+            .filter(|card| !card.counters.is_empty())
+            .map(|card| CardCounterObservation {
+                object: card.id,
+                counters: card
+                    .counters
+                    .iter()
+                    .map(|(kind, count)| CounterObservation {
+                        name: kind.name().to_owned(),
+                        count,
+                    })
+                    .collect(),
+            })
+            .collect()
+    }
+
     #[must_use]
     pub const fn result(&self) -> Option<GameResult> {
         self.result
@@ -569,6 +595,14 @@ impl Game {
             power,
             toughness,
             damage: permanent.damage,
+            counters: permanent
+                .counters
+                .iter()
+                .map(|(kind, count)| CounterObservation {
+                    name: kind.name().to_owned(),
+                    count,
+                })
+                .collect(),
             loyalty: types
                 .contains(CardType::Planeswalker)
                 .then(|| permanent.counters(CounterKind::Loyalty)),
@@ -615,7 +649,7 @@ impl Game {
             || !permanent.exhausted.is_empty()
             || !permanent.triggers_this_turn.is_empty()
             || !permanent.resolutions_this_turn.is_empty()
-            || permanent.counters.iter().any(|count| *count > 0)
+            || !permanent.counters.is_empty()
             || permanent.reconfigured_timestamp.is_some()
             || permanent.exile_instead_of_dying
             || permanent.copy_effect.is_some()
@@ -655,8 +689,24 @@ impl Game {
             step: self.step,
             regular_combat_damage_pending: self.regular_combat_damage_pending(),
             life_totals: [self.players[0].life, self.players[1].life],
-            poison_counters: [self.players[0].poison, self.players[1].poison],
-            energy_counters: [self.players[0].energy, self.players[1].energy],
+            poison_counters: [
+                self.players[0].counters.count(CounterKind::Poison),
+                self.players[1].counters.count(CounterKind::Poison),
+            ],
+            energy_counters: [
+                self.players[0].counters.count(CounterKind::Energy),
+                self.players[1].counters.count(CounterKind::Energy),
+            ],
+            counters: [PlayerId::One, PlayerId::Two].map(|player| {
+                self.players[player.index()]
+                    .counters
+                    .iter()
+                    .map(|(kind, count)| CounterObservation {
+                        name: kind.name().to_owned(),
+                        count,
+                    })
+                    .collect()
+            }),
             monarch: self.monarch,
             mana_pools: [self.players[0].mana_pool, self.players[1].mana_pool],
             hand: player
@@ -687,6 +737,7 @@ impl Game {
                 self.face_down_exile_size(PlayerId::One),
                 self.face_down_exile_size(PlayerId::Two),
             ],
+            card_counters: self.observed_card_counters(viewer),
             // Phased-out permanents come last and carry a flag: they are
             // visible to both players, and only the rules treat them as
             // absent. Reconstruction relies on this order.

@@ -46,7 +46,7 @@ fn pupa_on(game: &Game, aura: GameObjectId) -> Option<u16> {
     game.battlefield
         .iter()
         .find(|permanent| permanent.card.id == aura)
-        .map(|permanent| permanent.counters(CounterKind::Pupa))
+        .map(|permanent| permanent.counters(CounterKind::named("pupa")))
 }
 
 /// Runs one of player one's upkeeps.

@@ -164,6 +164,22 @@ pub struct PhysicalFaceObservation {
     pub side: PhysicalFaceSide,
 }
 
+/// One public counter kind and how many of it an object or player carries.
+/// Names are the stable rules vocabulary; the vector containing these is
+/// sparse and omits zero counts.
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+pub struct CounterObservation {
+    pub name: String,
+    pub count: u16,
+}
+
+/// Counter state for a visible card outside the battlefield.
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+pub struct CardCounterObservation {
+    pub object: GameObjectId,
+    pub counters: Vec<CounterObservation>,
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[allow(clippy::struct_excessive_bools)]
 pub struct PermanentObservation {
@@ -203,6 +219,9 @@ pub struct PermanentObservation {
     pub power: Option<i16>,
     pub toughness: Option<i16>,
     pub damage: u16,
+    /// Every counter on this permanent, including ordinary card-defined
+    /// names and counters with intrinsic rules meaning.
+    pub counters: Vec<CounterObservation>,
     /// Loyalty counters, present only for planeswalkers.
     pub loyalty: Option<u16>,
     pub loyalty_ability_used_this_turn: bool,
@@ -271,6 +290,9 @@ pub struct PlayerObservation {
     /// Energy counters each seat has, in seat order. Public information,
     /// like any other counter a player holds.
     pub energy_counters: [u16; 2],
+    /// Every counter each player carries, in seat order. `poison_counters`
+    /// and `energy_counters` remain compatibility projections of this data.
+    pub counters: [Vec<CounterObservation>; 2],
     /// Who holds the crown (CR 720), if anyone. Public information: both
     /// players know, and so does anything reading the observation.
     pub monarch: Option<PlayerId>,
@@ -290,6 +312,8 @@ pub struct PlayerObservation {
     /// How many cards lie face down in each player's exile. Both players may
     /// count them; only their owner knows what they are.
     pub face_down_exile_sizes: [usize; 2],
+    /// Sparse counter state for visible cards in nonbattlefield zones.
+    pub card_counters: Vec<CardCounterObservation>,
     pub battlefield: Vec<PermanentObservation>,
     pub emblems: Vec<EmblemObservation>,
     pub stack: Vec<StackObservation>,

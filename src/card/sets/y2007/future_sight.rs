@@ -12,7 +12,7 @@ use crate::{TargetIndex, mana_cost};
 
 // FUT 43 — Reality Strobe
 // Audit: partial — Its spell effect and self-exile with time counters are executable, but suspend's upkeep counter removal and free cast from exile need the shared exile-casting lifecycle.
-static REALITY_STROBE_TIME_COUNTERS: [(CounterKind, u16); 1] = [(CounterKind::Time, 3)];
+static REALITY_STROBE_TIME_COUNTERS: [(CounterKind, u16); 1] = [(CounterKind::named("time"), 3)];
 
 pub(in crate::card::sets) static REALITY_STROBE: CardRecord = CardRecord::new_with_legacy_id(
     1709,
@@ -77,11 +77,11 @@ pub(in crate::card::sets) static SPROUT_SWARM: CardRecord = CardRecord::new(
 static RELIC_CASHES_IN: [EffectDef; 2] = [
     EffectDef::AddMana(
         AddManaEffectDef::any_color()
-            .with_variable_amount(ValueDef::CountersOnSource(CounterKind::Charge)),
+            .with_variable_amount(ValueDef::CountersOnSource(CounterKind::named("charge"))),
     ),
     EffectDef::RemoveAllCounters {
         object: EffectRecipientDef::Source,
-        kind: Some(CounterKind::Charge),
+        kind: Some(CounterKind::named("charge")),
     },
 ];
 
@@ -103,7 +103,7 @@ pub(in crate::card::sets) static COALITION_RELIC: CardRecord = CardRecord::new_w
             &[AbilityCostDef::TapSource],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
-                kind: CounterKind::Charge,
+                kind: CounterKind::named("charge"),
                 amount: ValueDef::Constant(1),
             },
         ),

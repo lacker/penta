@@ -292,7 +292,7 @@ fn categories(game: &Game, wire: &Value) -> Vec<&'static str> {
         "damage-sources",
     );
     note(
-        battlefield().any(|permanent| permanent.counters.iter().any(|count| *count != 0)),
+        battlefield().any(|permanent| !permanent.counters.is_empty()),
         "counters",
     );
     note(

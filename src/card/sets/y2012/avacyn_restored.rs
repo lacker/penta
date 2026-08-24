@@ -3711,14 +3711,14 @@ pub(in crate::card::sets) static DRUIDS_REPOSITORY: CardRecord = CardRecord::new
             ])),
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
-                kind: CounterKind::Charge,
+                kind: CounterKind::named("charge"),
                 amount: ValueDef::Constant(1),
             },
         ),
         AbilityDef::activated_mana(
             "Remove a charge counter from this enchantment: Add one mana of any color.",
             &[AbilityCostDef::RemoveCountersFromSource {
-                kind: CounterKind::Charge,
+                kind: CounterKind::named("charge"),
                 amount: 1,
             }],
             EffectDef::AddMana(AddManaEffectDef::any_color()),
@@ -4633,7 +4633,7 @@ pub(in crate::card::sets) static OTHERWORLD_ATLAS: CardRecord = CardRecord::new_
                 &[AbilityCostDef::TapSource],
                 EffectDef::AddCounters {
                     object: EffectRecipientDef::Source,
-                    kind: CounterKind::Charge,
+                    kind: CounterKind::named("charge"),
                     amount: ValueDef::Constant(1),
                 },
             ),
@@ -4642,7 +4642,7 @@ pub(in crate::card::sets) static OTHERWORLD_ATLAS: CardRecord = CardRecord::new_
                 &[AbilityCostDef::TapSource],
                 EffectDef::DrawCards {
                     recipient: EffectRecipientDef::EachPlayer,
-                    amount: ValueDef::CountersOnSource(CounterKind::Charge),
+                    amount: ValueDef::CountersOnSource(CounterKind::named("charge")),
                 },
             ),
         ]),

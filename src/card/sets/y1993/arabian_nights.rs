@@ -949,11 +949,11 @@ static CYCLONE_SWEEP: [EffectDef; 2] = [
             &[ZoneKind::Battlefield],
             PlayerRelation::Any,
         ),
-        amount: ValueDef::CountersOnSource(CounterKind::Wind),
+        amount: ValueDef::CountersOnSource(CounterKind::named("wind")),
     },
     EffectDef::DealDamage {
         recipient: EffectRecipientDef::EachPlayer,
-        amount: ValueDef::CountersOnSource(CounterKind::Wind),
+        amount: ValueDef::CountersOnSource(CounterKind::named("wind")),
     },
 ];
 
@@ -968,7 +968,7 @@ static CYCLONE_SACRIFICE: EffectDef = EffectDef::Sacrifice {
 static CYCLONE_UPKEEP: [EffectDef; 2] = [
     EffectDef::AddCounters {
         object: EffectRecipientDef::Source,
-        kind: CounterKind::Wind,
+        kind: CounterKind::named("wind"),
         amount: ValueDef::Constant(1),
     },
     EffectDef::PayOr(PayOrDef {
@@ -976,7 +976,7 @@ static CYCLONE_UPKEEP: [EffectDef; 2] = [
             payer: PlayerSetDef::Related(PlayerRelation::You),
             cost: EffectPaymentCostDef::ColoredMana {
                 color: ManaColor::Green,
-                amount: ValueDef::CountersOnSource(CounterKind::Wind),
+                amount: ValueDef::CountersOnSource(CounterKind::named("wind")),
             },
         },
         if_paid: Some(&CYCLONE_SWEEP_SEQUENCE),

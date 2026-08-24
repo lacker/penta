@@ -171,7 +171,7 @@ fn proliferate_adds_one_of_each_kind_already_there() {
         .find(|permanent| permanent.card.id == bears)
     {
         permanent.set_counters(CounterKind::PlusOnePlusOne, 2);
-        permanent.set_counters(CounterKind::Charge, 1);
+        permanent.set_counters(CounterKind::named("charge"), 1);
     }
     game.priority = PlayerId::One;
 
@@ -205,7 +205,7 @@ fn proliferate_adds_one_of_each_kind_already_there() {
         "one more of the kind that was there",
     );
     assert_eq!(
-        bears.counters(CounterKind::Charge),
+        bears.counters(CounterKind::named("charge")),
         2,
         "and one more of the other kind too",
     );
@@ -233,7 +233,7 @@ fn a_permanent_with_no_counters_is_not_a_candidate() {
 #[test]
 fn proliferate_reaches_a_player_with_counters() {
     let (mut game, bloom) = staged(&[]);
-    game.players[1].poison = 3;
+    game.players[1].counters.set(CounterKind::Poison, 3);
 
     activate(&mut game, bloom, 2, None);
     let seat = deciding(&game).expect("it asks");
@@ -254,14 +254,18 @@ fn proliferate_reaches_a_player_with_counters() {
     .expect("the answer is legal");
     settle(&mut game);
 
-    assert_eq!(game.players[1].poison, 4, "one more poison counter");
+    assert_eq!(
+        game.players[1].counters.count(CounterKind::Poison),
+        4,
+        "one more poison counter"
+    );
 }
 
 /// "Any number" includes none.
 #[test]
 fn proliferating_nothing_is_allowed() {
     let (mut game, bloom) = staged(&[]);
-    game.players[1].poison = 3;
+    game.players[1].counters.set(CounterKind::Poison, 3);
 
     activate(&mut game, bloom, 2, None);
     let seat = deciding(&game).expect("it asks");
@@ -277,5 +281,9 @@ fn proliferating_nothing_is_allowed() {
     .expect("the empty answer is legal");
     settle(&mut game);
 
-    assert_eq!(game.players[1].poison, 3, "and nothing was added");
+    assert_eq!(
+        game.players[1].counters.count(CounterKind::Poison),
+        3,
+        "and nothing was added"
+    );
 }

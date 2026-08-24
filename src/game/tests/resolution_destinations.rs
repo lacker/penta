@@ -177,7 +177,18 @@ fn reality_strobe_keeps_its_time_counters_when_flashback_resolves() {
         .iter()
         .find(|card| card.definition == cards::REALITY_STROBE)
         .expect("Reality Strobe is exiled by its own resolution");
-    assert_eq!(exiled.counters(CounterKind::Time), 3);
+    assert_eq!(exiled.counters(CounterKind::named("time")), 3);
+    let observed = game.observe(PlayerId::One);
+    assert_eq!(
+        observed.card_counters,
+        vec![CardCounterObservation {
+            object: exiled.id,
+            counters: vec![CounterObservation {
+                name: "time".to_owned(),
+                count: 3,
+            }],
+        }]
+    );
 }
 
 #[test]

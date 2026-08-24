@@ -1262,13 +1262,13 @@ static ELEPHANT_GRASS_SACRIFICE: EffectDef = EffectDef::Sacrifice {
 static ELEPHANT_GRASS_UPKEEP_STEPS: [EffectDef; 2] = [
     EffectDef::AddCounters {
         object: EffectRecipientDef::Source,
-        kind: CounterKind::Age,
+        kind: CounterKind::named("age"),
         amount: ValueDef::Constant(1),
     },
     EffectDef::PayOr(PayOrDef::unless(
         EffectPaymentDef::generic_mana(
             PlayerSetDef::One(PlayerRefDef::EffectController),
-            ValueDef::CountersOnSource(CounterKind::Age),
+            ValueDef::CountersOnSource(CounterKind::named("age")),
         ),
         &ELEPHANT_GRASS_SACRIFICE,
     )),

@@ -356,7 +356,7 @@ pub(in crate::card::sets) static CLAWING_TORMENT: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
-// NEO 117 — Okiba Reckoner Raid
+// NEO 117 — Okiba Reckoner Raid // Nezumi Road Captain
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static OKIBA_RECKONER_RAID: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4f0582b4-d951-4450-b158-4a34109e48cd"),
@@ -534,7 +534,7 @@ pub(in crate::card::sets) static OTAWARA_SOARING_CITY: CardRecord = CardRecord::
     crate::card::CardRules::unsupported(),
 );
 
-// NEO 357 — Fable of the Mirror-Breaker
+// NEO 357 — Fable of the Mirror-Breaker // Reflection of Kiki-Jiki
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static FABLE_OF_THE_MIRROR_BREAKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0b696cd1-0d72-4df5-bacc-dc77e62f9a13"),

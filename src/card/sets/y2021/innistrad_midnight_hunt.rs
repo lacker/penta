@@ -144,7 +144,7 @@ pub(in crate::card::sets) static DIREGRAF_HORDE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
-// MID 100 — Ecstatic Awakener
+// MID 100 — Ecstatic Awakener // Awoken Demon
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ECSTATIC_AWAKENER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bbdad18e-e262-41f9-b252-1cbdcdd1b5f9"),

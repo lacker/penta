@@ -266,7 +266,7 @@ pub(in crate::card::sets) static DEEP_CAVERN_BAT: CardRecord = CardRecord::new_w
         .with_abilities(&DEEP_CAVERN_BAT_ABILITIES),
 );
 
-// LCI 128 — Tithing Blade
+// LCI 128 — Tithing Blade // Consuming Sepulcher
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static TITHING_BLADE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dbaa9a2d-e9fd-4746-a26c-f99ae731f024"),

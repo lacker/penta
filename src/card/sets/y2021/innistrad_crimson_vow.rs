@@ -34,7 +34,7 @@ pub(in crate::card::sets) static BLOOD_FOUNTAIN: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
-// VOW 101 — Concealing Curtains
+// VOW 101 — Concealing Curtains // Revealing Eye
 /// What the Eye does with the card it picked. Written as a walk over the
 /// chosen set rather than a plain sequence, because "if you do" gates the
 /// draw as well as the discard: an Eye that looked and took nothing leaves
@@ -181,7 +181,7 @@ pub(in crate::card::sets) static BRAMBLE_WURM: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
-// VOW 225 — Ulvenwald Oddity
+// VOW 225 — Ulvenwald Oddity // Ulvenwald Behemoth
 static ODDITY_TRAMPLE: AbilityDef = abilities::trample();
 
 static ODDITY_HASTE: AbilityDef = abilities::haste();

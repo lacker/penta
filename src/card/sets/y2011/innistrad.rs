@@ -310,7 +310,7 @@ pub(in crate::card::sets) static CHAPEL_GEIST: CardRecord = CardRecord::new_with
         .with_ability(abilities::flying()),
 );
 
-// ISD 8 — Cloistered Youth
+// ISD 8 — Cloistered Youth // Unholy Fiend
 const fn cloistered_youth_front_rules() -> CardRules {
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human"], 1, 1).with_ability(
         AbilityDef::triggered(
@@ -1074,7 +1074,7 @@ pub(in crate::card::sets) static THRABEN_PUREBLOODS: CardRecord = CardRecord::ne
     CardRules::new_creature(mana_cost!("{4}{W}"), &["Dog"], 3, 5),
 );
 
-// ISD 38 — Thraben Sentry
+// ISD 38 — Thraben Sentry // Thraben Militia
 static THRABEN_SENTRY_FRONT_ABILITIES: [AbilityDef; 2] = [
     abilities::vigilance(),
     AbilityDef::triggered(
@@ -1292,7 +1292,7 @@ pub(in crate::card::sets) static CACKLING_COUNTERPART: CardRecord = CardRecord::
     crate::card::CardRules::unsupported(),
 );
 
-// ISD 47 — Civilized Scholar
+// ISD 47 — Civilized Scholar // Homicidal Brute
 // Audit: metadata-only — Needs a discard choice linked to a creature-card test, conditional untap, and transform continuation.
 pub(in crate::card::sets) static CIVILIZED_SCHOLAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7bf864db-4754-433d-9d77-6695f78f6c09"),
@@ -1386,7 +1386,7 @@ pub(in crate::card::sets) static CURSE_OF_THE_BLOODY_TOME: CardRecord = CardReco
     crate::card::CardRules::unsupported(),
 );
 
-// ISD 51 — Delver of Secrets
+// ISD 51 — Delver of Secrets // Insectile Aberration
 // Audit: metadata-only — Needs the optional top-card reveal procedure and a conditional transform based on the revealed card's type.
 pub(in crate::card::sets) static DELVER_OF_SECRETS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("11bf83bb-c95b-4b4f-9a56-ce7a1816307a"),
@@ -1642,7 +1642,7 @@ pub(in crate::card::sets) static LOST_IN_THE_MIST: CardRecord = CardRecord::new_
     )),
 );
 
-// ISD 64 — Ludevic's Test Subject
+// ISD 64 — Ludevic's Test Subject // Ludevic's Abomination
 // Audit: metadata-only — Needs hatchling counters and an activation continuation that removes all five before transforming.
 pub(in crate::card::sets) static LUDEVIC_S_TEST_SUBJECT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("340b660c-9aa1-4bd2-8c6f-d9af7fee5f4a"),
@@ -2191,7 +2191,7 @@ pub(in crate::card::sets) static BLOODGIFT_DEMON: CardRecord = CardRecord::new_w
     ]),
 );
 
-// ISD 90 — Bloodline Keeper
+// ISD 90 — Bloodline Keeper // Lord of Lineage
 // Audit: metadata-only — Needs an activation restriction based on controlling five Vampires before transforming.
 pub(in crate::card::sets) static BLOODLINE_KEEPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("13896468-e3d0-4bcb-b09e-b5c187aecb03"),
@@ -2765,7 +2765,7 @@ pub(in crate::card::sets) static ROTTING_FENSNAKE: CardRecord = CardRecord::new_
     CardRules::new_creature(mana_cost!("{3}{B}"), &["Zombie", "Snake"], 5, 1),
 );
 
-// ISD 114 — Screeching Bat
+// ISD 114 — Screeching Bat // Stalking Vampire
 static SCREECHING_BAT_TRANSFORM: EffectDef = EffectDef::Transform {
     object: EffectRecipientDef::Source,
 };
@@ -3411,7 +3411,7 @@ pub(in crate::card::sets) static GEISTFLAME: CardRecord = CardRecord::new_with_l
     ]),
 );
 
-// ISD 145 — Hanweir Watchkeep
+// ISD 145 — Hanweir Watchkeep // Bane of Hanweir
 static HANWEIR_WATCHKEEP_FRONT_ABILITIES: [AbilityDef; 2] =
     [abilities::defender(), WEREWOLF_FRONT_TRANSFORM];
 
@@ -3491,7 +3491,7 @@ pub(in crate::card::sets) static INFERNAL_PLUNGE: CardRecord = CardRecord::new_w
     )),
 );
 
-// ISD 149 — Instigator Gang
+// ISD 149 — Instigator Gang // Wildblood Pack
 static INSTIGATOR_GANG_FRONT_ABILITIES: [AbilityDef; 2] = [
     AbilityDef::static_ability(
         "Attacking creatures you control get +1/+0.",
@@ -3611,7 +3611,7 @@ pub(in crate::card::sets) static KESSIG_WOLF: CardRecord = CardRecord::new_with_
     ),
 );
 
-// ISD 152 — Kruin Outlaw
+// ISD 152 — Kruin Outlaw // Terror of Kruin Pass
 // Audit: metadata-only — Needs menace as an executable minimum-blocker constraint granted to Werewolves on the back face.
 pub(in crate::card::sets) static KRUIN_OUTLAW: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ec00d2d2-6597-474a-9353-345bbedfe57e"),
@@ -3776,7 +3776,7 @@ pub(in crate::card::sets) static RAKISH_HEIR: CardRecord = CardRecord::new_with_
     ),
 );
 
-// ISD 159 — Reckless Waif
+// ISD 159 — Reckless Waif // Merciless Predator
 const fn reckless_waif_front_rules() -> CardRules {
     CardRules::new_creature(mana_cost!("{R}"), &["Human", "Rogue", "Werewolf"], 1, 1)
         .with_ability(WEREWOLF_FRONT_TRANSFORM)
@@ -3926,7 +3926,7 @@ pub(in crate::card::sets) static STROMKIRK_NOBLE: CardRecord = CardRecord::new_w
     ]),
 );
 
-// ISD 165 — Tormented Pariah
+// ISD 165 — Tormented Pariah // Rampaging Werewolf
 const fn tormented_pariah_front_rules() -> CardRules {
     CardRules::new_creature(
         mana_cost!("{3}{R}"),
@@ -4038,7 +4038,7 @@ pub(in crate::card::sets) static VAMPIRIC_FURY: CardRecord = CardRecord::new_wit
     )),
 );
 
-// ISD 168 — Village Ironsmith
+// ISD 168 — Village Ironsmith // Ironfang
 static VILLAGE_IRONSMITH_FRONT_ABILITIES: [AbilityDef; 2] =
     [abilities::first_strike(), WEREWOLF_FRONT_TRANSFORM];
 
@@ -4175,7 +4175,7 @@ pub(in crate::card::sets) static DARKTHICKET_WOLF: CardRecord = CardRecord::new_
     ]),
 );
 
-// ISD 176 — Daybreak Ranger
+// ISD 176 — Daybreak Ranger // Nightfall Predator
 static DAYBREAK_RANGER_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
     ObjectPredicateDef::All(&[
         ObjectPredicateDef::HasType(CardType::Creature),
@@ -4367,7 +4367,7 @@ pub(in crate::card::sets) static FULL_MOONS_RISE: CardRecord = CardRecord::new_w
     ]),
 );
 
-// ISD 181 — Garruk Relentless
+// ISD 181 — Garruk Relentless // Garruk, the Veil-Cursed
 static GARRUK_FRONT_ABILITIES: [AbilityDef; 3] = [
     AbilityDef::triggered_if(
         "When Garruk has two or fewer loyalty counters on him, transform him.",
@@ -4528,7 +4528,7 @@ pub(in crate::card::sets) static GARRUK_RELENTLESS: CardRecord = CardRecord::new
 )
 .with_composition(garruk_composition);
 
-// ISD 182 — Gatstaf Shepherd
+// ISD 182 — Gatstaf Shepherd // Gatstaf Howler
 const fn gatstaf_shepherd_front_rules() -> CardRules {
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Human", "Werewolf"], 2, 2)
         .with_ability(WEREWOLF_FRONT_TRANSFORM)
@@ -4602,7 +4602,7 @@ pub(in crate::card::sets) static GRAVE_BRAMBLE: CardRecord = CardRecord::new_wit
     ]),
 );
 
-// ISD 185 — Grizzled Outcasts
+// ISD 185 — Grizzled Outcasts // Krallenhorde Wantons
 const fn grizzled_outcasts_front_rules() -> CardRules {
     CardRules::new_creature(mana_cost!("{4}{G}"), &["Human", "Werewolf"], 4, 4)
         .with_ability(WEREWOLF_FRONT_TRANSFORM)
@@ -4770,7 +4770,7 @@ pub(in crate::card::sets) static MAKE_A_WISH: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
-// ISD 193 — Mayor of Avabruck
+// ISD 193 — Mayor of Avabruck // Howlpack Alpha
 static MAYOR_OF_AVABRUCK_FRONT_ABILITIES: [AbilityDef; 2] = [
     AbilityDef::static_ability(
         "Other Human creatures you control get +1/+1.",
@@ -5141,7 +5141,7 @@ pub(in crate::card::sets) static TREE_OF_REDEMPTION: CardRecord = CardRecord::ne
     crate::card::CardRules::unsupported(),
 );
 
-// ISD 208 — Ulvenwald Mystics
+// ISD 208 — Ulvenwald Mystics // Ulvenwald Primordials
 const fn ulvenwald_mystics_front_rules() -> CardRules {
     CardRules::new_creature(
         mana_cost!("{2}{G}{G}"),
@@ -5185,7 +5185,7 @@ pub(in crate::card::sets) static ULVENWALD_MYSTICS: CardRecord = CardRecord::new
 )
 .with_composition(ulvenwald_mystics_composition);
 
-// ISD 209 — Villagers of Estwald
+// ISD 209 — Villagers of Estwald // Howlpack of Estwald
 const fn villagers_of_estwald_front_rules() -> CardRules {
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Human", "Werewolf"], 2, 3)
         .with_ability(WEREWOLF_FRONT_TRANSFORM)

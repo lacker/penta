@@ -338,7 +338,7 @@ pub(in crate::card::sets) static LINGERING_SOULS: CardRecord = CardRecord::new_w
     ]),
 );
 
-// DKA 13 — Loyal Cathar
+// DKA 13 — Loyal Cathar // Unhallowed Cathar
 // Audit: metadata-only — Needs a delayed end-step return that brings the dead card back transformed and tapped.
 pub(in crate::card::sets) static LOYAL_CATHAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cb09041b-4d09-4cae-9e85-b859edae885b"),
@@ -1075,7 +1075,7 @@ pub(in crate::card::sets) static SHRIEKGEIST: CardRecord = CardRecord::new_with_
     ]),
 );
 
-// DKA 50 — Soul Seizer
+// DKA 50 — Soul Seizer // Ghastly Haunting
 // Audit: metadata-only — Needs transforming a creature into an Aura, attaching the transformed permanent to the damaged player, and granting permanent control of that player's creature.
 pub(in crate::card::sets) static SOUL_SEIZER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f500cb95-d5ea-4cf2-920a-f1df45a9059b"),
@@ -1190,7 +1190,7 @@ pub(in crate::card::sets) static BLACK_CAT: CardRecord = CardRecord::new_with_le
     ),
 );
 
-// DKA 55 — Chosen of Markov
+// DKA 55 — Chosen of Markov // Markov's Servant
 // Audit: metadata-only — Needs an activated cost that taps a different untapped Vampire you control before transforming this permanent.
 pub(in crate::card::sets) static CHOSEN_OF_MARKOV: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7c5a3c09-5656-4975-ba03-2d809903ed18"),
@@ -1496,7 +1496,7 @@ pub(in crate::card::sets) static MIKAEUS_THE_UNHALLOWED: CardRecord = CardRecord
     crate::card::CardRules::unsupported(),
 );
 
-// DKA 71 — Ravenous Demon
+// DKA 71 — Ravenous Demon // Archdemon of Greed
 // Audit: metadata-only — Needs a transformed-face upkeep procedure that offers a Human sacrifice and otherwise transforms the source and makes its controller lose 9 life.
 pub(in crate::card::sets) static RAVENOUS_DEMON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("abbbb466-31ef-42dd-9993-124f7ec3d8ae"),
@@ -1684,7 +1684,7 @@ pub(in crate::card::sets) static ZOMBIE_APOCALYPSE: CardRecord = CardRecord::new
     crate::card::CardRules::unsupported(),
 );
 
-// DKA 81 — Afflicted Deserter
+// DKA 81 — Afflicted Deserter // Werewolf Ransacker
 // Audit: metadata-only — Needs a reusable complete double-faced Werewolf composition plus the back face's transform trigger that destroys an artifact and damages its controller.
 pub(in crate::card::sets) static AFFLICTED_DESERTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a2c044c0-3625-4bdf-9445-b462394cecae"),
@@ -1939,7 +1939,7 @@ pub(in crate::card::sets) static HELLRIDER: CardRecord = CardRecord::new_with_le
     ]),
 );
 
-// DKA 94 — Hinterland Hermit
+// DKA 94 — Hinterland Hermit // Hinterland Scourge
 // Audit: metadata-only — Needs a complete transforming Werewolf composition plus the back face's restriction that it can't be blocked by more than one creature.
 pub(in crate::card::sets) static HINTERLAND_HERMIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b6edac85-78e7-4e90-b538-b67c88bb5c62"),
@@ -2013,7 +2013,7 @@ pub(in crate::card::sets) static MARKOV_WARLORD: CardRecord = CardRecord::new_wi
     ]),
 );
 
-// DKA 98 — Mondronen Shaman
+// DKA 98 — Mondronen Shaman // Tovolar's Magehunter
 // Audit: metadata-only — Needs a complete transforming Werewolf composition plus a back-face trigger that damages an opponent whenever they cast a spell.
 pub(in crate::card::sets) static MONDRONEN_SHAMAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("98fc475a-809d-4278-be03-86eab62b46ce"),
@@ -2520,7 +2520,7 @@ pub(in crate::card::sets) static KESSIG_RECLUSE: CardRecord = CardRecord::new_wi
         .with_abilities(&[abilities::reach(), abilities::deathtouch()]),
 );
 
-// DKA 122 — Lambholt Elder
+// DKA 122 — Lambholt Elder // Silverpelt Werewolf
 // Audit: metadata-only — Needs a complete transforming Werewolf composition plus the back face's combat-damage card-draw trigger.
 pub(in crate::card::sets) static LAMBHOLT_ELDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("932d753d-9584-4ad8-9a5e-a3524184f961"),
@@ -2576,7 +2576,7 @@ pub(in crate::card::sets) static PREDATOR_OOZE: CardRecord = CardRecord::new_wit
     ]),
 );
 
-// DKA 125 — Scorned Villager
+// DKA 125 — Scorned Villager // Moonscarred Werewolf
 // Audit: metadata-only — Needs a complete transforming Werewolf composition whose two faces expose different mana abilities while sharing the upkeep transforms.
 pub(in crate::card::sets) static SCORNED_VILLAGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6f35e364-81d9-4888-993b-acc7a53d963c"),
@@ -2727,7 +2727,7 @@ pub(in crate::card::sets) static WILD_HUNGER: CardRecord = CardRecord::new_with_
     ]),
 );
 
-// DKA 133 — Wolfbitten Captive
+// DKA 133 — Wolfbitten Captive // Krallenhorde Killer
 // Audit: metadata-only — Needs a once-per-turn activation limit shared with each face's distinct self-pump ability in a transforming Werewolf composition.
 pub(in crate::card::sets) static WOLFBITTEN_CAPTIVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1303e02a-ef69-4817-bca5-02c74774b811"),
@@ -2871,7 +2871,7 @@ pub(in crate::card::sets) static HAVENGUL_LICH: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
-// DKA 140 — Huntmaster of the Fells
+// DKA 140 — Huntmaster of the Fells // Ravager of the Fells
 const fn huntmaster_front_rules() -> CardRules {
     CardRules::new_creature(mana_cost!("{2}{R}{G}"), &["Human", "Werewolf"], 2, 2)
         .with_abilities(&HUNTMASTER_FRONT_ABILITIES)
@@ -3136,7 +3136,7 @@ pub(in crate::card::sets) static AVACYNS_COLLAR: CardRecord = CardRecord::new_wi
         ]),
 );
 
-// DKA 146 — Chalice of Life
+// DKA 146 — Chalice of Life // Chalice of Death
 // Audit: metadata-only — Needs an activation-resolution life-total threshold that transforms the source, plus the complete back-face mana ability.
 pub(in crate::card::sets) static CHALICE_OF_LIFE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9d9c1c46-7aa7-464c-87b0-b29b9663daef"),
@@ -3146,7 +3146,7 @@ pub(in crate::card::sets) static CHALICE_OF_LIFE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
-// DKA 147 — Elbrus, the Binding Blade
+// DKA 147 — Elbrus, the Binding Blade // Withengar Unbound
 // Audit: partial — Withengar's player-loses trigger is metadata-only because Penta's supported two-player game terminates as soon as a player loses.
 static ELBRUS_UNATTACH_AND_TRANSFORM: [EffectDef; 2] = [
     EffectDef::Unattach {

@@ -4,7 +4,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use super::SET_MODULES;
-use crate::card::CardCatalog;
+use crate::card::{CardCatalog, CardStructure};
 use crate::{CardSet, Format};
 
 const DECLARATION_PREFIX: &str = "pub(in crate::card::sets) static ";
@@ -20,6 +20,7 @@ const ADDITIONAL_REGISTRY_PREFIX: &str =
 struct SourceEntry {
     symbol: Option<String>,
     collector_number: String,
+    header_name: String,
     audit: Option<SourceAudit>,
     printing_kind: Option<PrintingKind>,
 }
@@ -104,6 +105,8 @@ fn validate_printed_set_source(path: &Path) -> (CardSet, usize, usize) {
     let source = fs::read_to_string(path).expect("a printed set source file is readable");
     let entries = source_entries(&source, set_source, path);
 
+    validate_double_faced_headers(&entries, set_source, path);
+
     for cards in entries.windows(2) {
         assert_eq!(
             natural_collector_cmp(&cards[0].collector_number, &cards[1].collector_number),
@@ -133,6 +136,45 @@ fn validate_printed_set_source(path: &Path) -> (CardSet, usize, usize) {
         .count();
     let additional_printings = validate_additional_printings(&source, &entries, set_source, path);
     (set_source.set, definitions, additional_printings)
+}
+
+fn validate_double_faced_headers(entries: &[SourceEntry], set_source: SetSource, path: &Path) {
+    let records = SET_MODULES
+        .iter()
+        .find(|module| module.set == set_source.set)
+        .expect("a printed source has a registered set module")
+        .cards;
+    let declarations = entries
+        .iter()
+        .filter(|entry| entry.symbol.is_some())
+        .collect::<Vec<_>>();
+    assert_eq!(
+        declarations.len(),
+        records.len(),
+        "{}: source declarations and registered definitions must correspond",
+        path.display()
+    );
+
+    for (entry, record) in declarations.into_iter().zip(records) {
+        let definition = record.definition();
+        let CardStructure::DoubleFaced { front, back, .. } = &definition.structure else {
+            continue;
+        };
+        let front_name = &definition
+            .part(*front)
+            .expect("a double-faced definition has its front part")
+            .name;
+        let back_name = &definition
+            .part(*back)
+            .expect("a double-faced definition has its back part")
+            .name;
+        assert_eq!(
+            entry.header_name,
+            format!("{front_name} // {back_name}"),
+            "{}: double-faced card headers must list front and back face names",
+            path.display()
+        );
+    }
 }
 
 fn validate_additional_printings(
@@ -556,6 +598,7 @@ fn source_entry_for_header(
         return SourceEntry {
             symbol: None,
             collector_number: header.collector_number.to_string(),
+            header_name: header.name.to_string(),
             audit: None,
             printing_kind: Some(printing_kind),
         };
@@ -582,19 +625,23 @@ fn source_entry_for_header(
         path.display(),
         index + 1
     );
-    let symbol = declarations.first().map(|(line, symbol)| {
-        validate_declaration(lines, *line, symbol, header.name, path);
-        (*symbol).to_string()
+    let declaration = declarations.first().map(|(line, symbol)| {
+        let name = validate_declaration(lines, *line, symbol, header.name, path);
+        ((*symbol).to_string(), name)
     });
+    let symbol = declaration.as_ref().map(|(symbol, _)| symbol.clone());
     let audit = audit.map(|(status, gap)| SourceAudit {
         set: set_source.set,
-        name: header.name.to_string(),
+        name: declaration
+            .map_or(header.name, |(_, name)| name)
+            .to_string(),
         status,
         gap: gap.to_string(),
     });
     SourceEntry {
         symbol,
         collector_number: header.collector_number.to_string(),
+        header_name: header.name.to_string(),
         audit,
         printing_kind: None,
     }
@@ -607,13 +654,13 @@ fn declaration_symbol(line: &str) -> Option<&str> {
         .map(|(symbol, _)| symbol)
 }
 
-fn validate_declaration(
-    lines: &[&str],
+fn validate_declaration<'a>(
+    lines: &[&'a str],
     index: usize,
     _symbol: &str,
     header_name: &str,
     path: &Path,
-) {
+) -> &'a str {
     let initializer_index = (index..lines.len().min(index + 3))
         .find(|candidate| lines[*candidate].trim().ends_with('('))
         .unwrap_or_else(|| {
@@ -649,13 +696,17 @@ fn validate_declaration(
                 initializer_index + 3
             )
         });
-    assert_eq!(
-        header_name,
-        name,
-        "{}:{}: header name must match CardRecord name",
+    assert!(
+        header_name == name
+            || header_name
+                .strip_prefix(name)
+                .and_then(|suffix| suffix.strip_prefix(" // "))
+                .is_some_and(|back_name| !back_name.is_empty()),
+        "{}:{}: header name must match the CardRecord name, optionally followed by a double-faced back name",
         path.display(),
-        index + 1
+        index + 1,
     );
+    name
 }
 
 #[derive(Clone, Copy)]

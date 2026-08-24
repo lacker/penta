@@ -11,7 +11,7 @@ use crate::card::{
 };
 use crate::{CardPartId, PlayOptionId, mana_cost};
 
-// FIN 91 — Cecil, Dark Knight
+// FIN 91 — Cecil, Dark Knight // Cecil, Redeemed Paladin
 /// The front half's payoff, and the reason the card is played: hitting hard
 /// enough to halve your own life is what turns Cecil over. Untapping is part
 /// of the same clause, so a Cecil that traded its attack for the transform

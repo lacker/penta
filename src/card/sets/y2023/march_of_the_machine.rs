@@ -148,7 +148,7 @@ pub(in crate::card::sets) static WRENN_S_RESOLVE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
-// MOM 298 — Etali, Primal Conqueror
+// MOM 298 — Etali, Primal Conqueror // Etali, Primal Sickness
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ETALI_PRIMAL_CONQUEROR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3e97c609-3932-4428-96d4-1c97e61f0abb"),

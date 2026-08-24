@@ -16,8 +16,11 @@ natural collector-number order, with `CARDS` exactly mirroring declaration
 order. Compare numeric portions numerically (`8`, `8a`, `8b`, `16`), not
 lexicographically. Introduce each declaration with an identifying comment in
 the form `// LEA 230 — Ankh of Mishra`, using the canonical printing's uppercase
-set code, collector number, and card name. Ordinarily the header immediately
-starts the declaration block. Keep every helper constant, static, or function
+set code, collector number, and card name. For a double-faced card, list both
+faces in front-to-back order, such as `// ISD 51 — Delver of Secrets //
+Insectile Aberration`; the `CardRecord` itself remains named for the front
+face. Ordinarily the header immediately starts the declaration block. Keep
+every helper constant, static, or function
 used by only that card inside the block, after the header and before the
 `CardRecord`, so the declaration and the vocabulary it composes remain readable
 together. A complete definition that still uses custom execution puts

@@ -1423,7 +1423,7 @@ pub(in crate::card::sets) static TWISTED_LANDSCAPE: CardRecord = CardRecord::new
     crate::card::CardRules::unsupported(),
 );
 
-// MH3 237 — Ajani, Nacatl Pariah
+// MH3 237 — Ajani, Nacatl Pariah // Ajani, Nacatl Avenger
 /// The Cats that matter are the other ones: Ajani dying alongside them does
 /// not turn him over, and neither does his own death.
 static ANOTHER_CAT_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
@@ -1619,7 +1619,7 @@ pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord = CardRecord::n
 )
 .with_composition(ajani_composition);
 
-// MH3 239 — Witch Enchanter
+// MH3 239 — Witch Enchanter // Witch-Blessed Meadow
 /// "Target artifact or enchantment an opponent controls": two types and a
 /// controller, which together are the whole restriction.
 static ENCHANTER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
@@ -1725,7 +1725,7 @@ pub(in crate::card::sets) static WITCH_ENCHANTER: CardRecord = CardRecord::new(
 )
 .with_composition(witch_enchanter_composition);
 
-// MH3 241 — Sink into Stupor
+// MH3 241 — Sink into Stupor // Soporific Springs
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SINK_INTO_STUPOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5358b87a-1a29-426d-b165-40c97da2c14d"),
@@ -1775,7 +1775,7 @@ pub(in crate::card::sets) static NADU_WINGED_WISDOM: CardRecord = CardRecord::ne
     crate::card::CardRules::unsupported(),
 );
 
-// MH3 443 — Tamiyo, Inquisitive Student
+// MH3 443 — Tamiyo, Inquisitive Student // Tamiyo, Seasoned Scholar
 /// Exile and return, which is how a permanent turns over into a new object
 /// rather than merely flipping: the Tamiyo that comes back has no counters,
 /// no summoning history, and a fresh set of loyalty.
@@ -1980,7 +1980,7 @@ pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRe
 )
 .with_composition(tamiyo_composition);
 
-// MH3 444 — Sorin of House Markov
+// MH3 444 — Sorin of House Markov // Sorin, Ravenous Neonate
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SORIN_OF_HOUSE_MARKOV: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0347bf13-1ccb-4d4d-a5f2-68181d494b85"),

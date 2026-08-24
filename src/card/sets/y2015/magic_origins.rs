@@ -2,7 +2,7 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 
-// ORI 60 — Jace, Vryn's Prodigy
+// ORI 60 — Jace, Vryn's Prodigy // Jace, Telepath Unbound
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static JACE_VRYN_S_PRODIGY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e7b5705f-dc56-41af-a781-8a41aaa7c5b8"),

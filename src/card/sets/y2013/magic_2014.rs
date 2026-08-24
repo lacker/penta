@@ -102,16 +102,12 @@ pub(in crate::card::sets) static AURAMANCER: CardRecord = CardRecord::new_with_l
     CardArt::new("0a3dc4ab-1c45-4495-91b6-27d62087380c", "Rebecca Guay"),
     CardSet::Magic2014,
     CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Wizard"], 2, 2).with_ability(
-        AbilityDef::triggered_with_targets(
-            "When this creature enters, you may return target enchantment card from your graveyard to your hand.",
-            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)),
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+        abilities::enters_trigger_with_targets("When this creature enters, you may return target enchantment card from your graveyard to your hand.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::HasType(CardType::Enchantment),
                 zones: &[ZoneKind::Graveyard],
                 controller: None,
                 owner: Some(PlayerRelation::You),
-            })],
-            EffectDef::May {
+            })], EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::MoveToZone {
                     counters: None,
@@ -122,8 +118,7 @@ pub(in crate::card::sets) static AURAMANCER: CardRecord = CardRecord::new_with_l
                     arrival_effect: None,
                     attachment: None,
                 },
-            },
-        ),
+            }),
     ),
 );
 
@@ -854,13 +849,8 @@ pub(in crate::card::sets) static MESSENGER_DRAKE: CardRecord = CardRecord::new_w
     CardSet::Magic2014,
     CardRules::new_creature(mana_cost!("{3}{U}{U}"), &["Drake"], 3, 3).with_abilities(&[
         abilities::flying(),
-        AbilityDef::triggered(
+        abilities::dies_trigger(
             "When this creature dies, draw a card.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                Some(ZoneKind::Battlefield),
-                Some(ZoneKind::Graveyard),
-            ),
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
@@ -1490,7 +1480,7 @@ pub(in crate::card::sets) static LIFEBANE_ZOMBIE: CardRecord = CardRecord::new_w
     )
     .with_abilities(&[
         abilities::intimidate(),
-        AbilityDef::triggered_with_targets("When this creature enters, target opponent reveals their hand. You choose a green or white creature card from it and exile that card.", TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)), &[AbilityTargetDef::exactly_one(
+        abilities::enters_trigger_with_targets("When this creature enters, target opponent reveals their hand. You choose a green or white creature card from it and exile that card.", &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Player(PlayerRelation::Opponent),
         )], EffectDef::Sequence(&LIFEBANE_EFFECTS)),
     ]),
@@ -1696,7 +1686,7 @@ pub(in crate::card::sets) static SHADOWBORN_DEMON: CardRecord = CardRecord::new_
     )
     .with_abilities(&[
         abilities::flying(),
-        AbilityDef::triggered_with_targets("When this creature enters, destroy target non-Demon creature.", TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)), &[AbilityTargetDef::exactly_one_permanent(
+        abilities::enters_trigger_with_targets("When this creature enters, destroy target non-Demon creature.", &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Creature),
                 ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Demon")),
@@ -2099,16 +2089,12 @@ pub(in crate::card::sets) static DRAGON_EGG: CardRecord = CardRecord::new_with_l
     CardSet::Magic2014,
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Dragon", "Egg"], 0, 2).with_abilities(&[
         abilities::defender(),
-        AbilityDef::triggered(
-            "When this creature dies, create a 2/2 red Dragon creature token with flying and \"{R}: This token gets +1/+0 until end of turn.\"",
-            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, Some(ZoneKind::Battlefield), Some(ZoneKind::Graveyard)),
-            EffectDef::create_creature_token(&["Dragon"], &[ManaColor::Red], 2, 2)
+        abilities::dies_trigger("When this creature dies, create a 2/2 red Dragon creature token with flying and \"{R}: This token gets +1/+0 until end of turn.\"", EffectDef::create_creature_token(&["Dragon"], &[ManaColor::Red], 2, 2)
                 .with_abilities(&[abilities::flying(), tokens::dragon_pump()])
                 .with_art(CardArt::new(
                     "0efaa5b5-984d-4eff-81b6-9b4989f149eb",
                     "Jack Wang",
-                )),
-        ),
+                ))),
     ]),
 );
 
@@ -2126,13 +2112,8 @@ pub(in crate::card::sets) static FLESHPULPER_GIANT: CardRecord = CardRecord::new
     ),
     CardSet::Magic2014,
     CardRules::new_creature(mana_cost!("{5}{R}{R}"), &["Giant"], 4, 4).with_ability(
-        AbilityDef::triggered_with_targets(
+        abilities::enters_trigger_with_targets(
             "When this creature enters, you may destroy target creature with toughness 2 or less.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -2182,13 +2163,8 @@ pub(in crate::card::sets) static GOBLIN_SHORTCUTTER: CardRecord = CardRecord::ne
     CardArt::new("71bccbec-6e1e-43d5-b0dc-eddf942fa798", "Jesper Ejsing"),
     CardSet::Magic2014,
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin", "Scout"], 2, 1).with_ability(
-        AbilityDef::triggered_with_targets(
+        abilities::enters_trigger_with_targets(
             "When this creature enters, target creature can't block this turn.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],

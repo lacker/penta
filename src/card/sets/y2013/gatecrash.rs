@@ -466,10 +466,7 @@ pub(in crate::card::sets) static LUMINATE_PRIMORDIAL: CardRecord = CardRecord::n
     CardSet::Gatecrash,
     CardRules::new_creature(mana_cost!("{5}{W}{W}"), &["Avatar"], 4, 7).with_abilities(&[
         abilities::vigilance(),
-        AbilityDef::triggered_with_targets(
-            "When this creature enters, for each opponent, exile up to one target creature that player controls and that player gains life equal to its power.",
-            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)),
-            &[AbilityTargetDef::up_to(
+        abilities::enters_trigger_with_targets("When this creature enters, for each opponent, exile up to one target creature that player controls and that player gains life equal to its power.", &[AbilityTargetDef::up_to(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::HasType(CardType::Creature),
                     zones: &[ZoneKind::Battlefield],
@@ -477,8 +474,7 @@ pub(in crate::card::sets) static LUMINATE_PRIMORDIAL: CardRecord = CardRecord::n
                     owner: None,
                 },
                 1,
-            )],
-            EffectDef::Sequence(&[
+            )], EffectDef::Sequence(&[
                 EffectDef::MoveToZone {
                     counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -492,8 +488,7 @@ pub(in crate::card::sets) static LUMINATE_PRIMORDIAL: CardRecord = CardRecord::n
                     recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
                     amount: ValueDef::TargetPower(TargetIndex::PRIMARY),
                 },
-            ]),
-        ),
+            ])),
     ]),
 );
 
@@ -612,13 +607,8 @@ pub(in crate::card::sets) static URBIS_PROTECTOR: CardRecord = CardRecord::new_w
     CardArt::new("acf932ac-5ea5-491b-b555-5e9ea971d93d", "Steve Argyle"),
     CardSet::Gatecrash,
     CardRules::new_creature(mana_cost!("{4}{W}{W}"), &["Human", "Cleric"], 1, 1).with_ability(
-        AbilityDef::triggered(
+        abilities::enters_trigger(
             "When this creature enters, create a 4/4 white Angel creature token with flying.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             EffectDef::create_creature_token(&["Angel"], &[ManaColor::White], 4, 4)
                 .with_abilities(&[abilities::flying()])
                 .with_art(CardArt::new(
@@ -888,13 +878,8 @@ pub(in crate::card::sets) static KEYMASTER_ROGUE: CardRecord = CardRecord::new_w
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
             },
         ),
-        AbilityDef::triggered(
+        abilities::enters_trigger(
             "When this creature enters, return a creature you control to its owner's hand.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             KEYMASTER_ROGUE_CHOICE,
         ),
     ]),
@@ -951,13 +936,8 @@ pub(in crate::card::sets) static MINDEYE_DRAKE: CardRecord = CardRecord::new_wit
     CardSet::Gatecrash,
     CardRules::new_creature(mana_cost!("{4}{U}"), &["Drake"], 2, 5).with_abilities(&[
         abilities::flying(),
-        AbilityDef::triggered_with_targets(
+        abilities::dies_trigger_with_targets(
             "When this creature dies, target player mills five cards.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                Some(ZoneKind::Battlefield),
-                Some(ZoneKind::Graveyard),
-            ),
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Player(PlayerRelation::Any),
             )],
@@ -1260,18 +1240,9 @@ pub(in crate::card::sets) static BALUSTRADE_SPY: CardRecord = CardRecord::new_wi
     CardSet::Gatecrash,
     CardRules::new_creature(mana_cost!("{3}{B}"), &["Vampire", "Rogue"], 2, 3).with_abilities(&[
         abilities::flying(),
-        AbilityDef::triggered_with_targets(
-            "When this creature enters, target player reveals cards from the top of their library until they reveal a land card, then puts those cards into their graveyard.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+        abilities::enters_trigger_with_targets("When this creature enters, target player reveals cards from the top of their library until they reveal a land card, then puts those cards into their graveyard.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
                 PlayerRelation::Any,
-            ))],
-            MILL_TO_THE_FIRST_LAND,
-        ),
+            ))], MILL_TO_THE_FIRST_LAND),
     ]),
 );
 
@@ -1690,7 +1661,7 @@ pub(in crate::card::sets) static SEPULCHRAL_PRIMORDIAL: CardRecord = CardRecord:
     )
     .with_abilities(&[
         abilities::intimidate(),
-        AbilityDef::triggered_with_targets("When this creature enters, for each opponent, you may put up to one target creature card from that player's graveyard onto the battlefield under your control.", TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)), &[AbilityTargetDef::up_to(
+        abilities::enters_trigger_with_targets("When this creature enters, for each opponent, you may put up to one target creature card from that player's graveyard onto the battlefield under your control.", &[AbilityTargetDef::up_to(
             AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::HasType(CardType::Creature),
                 zones: &[ZoneKind::Graveyard],
@@ -2169,10 +2140,7 @@ pub(in crate::card::sets) static MOLTEN_PRIMORDIAL: CardRecord = CardRecord::new
     CardSet::Gatecrash,
     CardRules::new_creature(mana_cost!("{5}{R}{R}"), &["Avatar"], 6, 4).with_abilities(&[
         abilities::haste(),
-        AbilityDef::triggered_with_targets(
-            "When this creature enters, for each opponent, gain control of up to one target creature that player controls until end of turn. Untap those creatures. They gain haste until end of turn.",
-            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)),
-            &[AbilityTargetDef::up_to(
+        abilities::enters_trigger_with_targets("When this creature enters, for each opponent, gain control of up to one target creature that player controls until end of turn. Untap those creatures. They gain haste until end of turn.", &[AbilityTargetDef::up_to(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::HasType(CardType::Creature),
                     zones: &[ZoneKind::Battlefield],
@@ -2180,8 +2148,7 @@ pub(in crate::card::sets) static MOLTEN_PRIMORDIAL: CardRecord = CardRecord::new
                     owner: None,
                 },
                 1,
-            )],
-            EffectDef::Sequence(&[
+            )], EffectDef::Sequence(&[
                 EffectDef::GainControl {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     duration: ControlDurationDef::UntilEndOfTurn,
@@ -2195,8 +2162,7 @@ pub(in crate::card::sets) static MOLTEN_PRIMORDIAL: CardRecord = CardRecord::new
                     effect: AppliedEffectDef::add_ability(&abilities::haste()),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
-            ]),
-        ),
+            ])),
     ]),
 );
 
@@ -3299,13 +3265,9 @@ pub(in crate::card::sets) static DINROVA_HORROR: CardRecord = CardRecord::new_wi
     CardArt::new("398df5e6-6bda-467a-81e2-91be7e21d715", "Johann Bodin"),
     CardSet::Gatecrash,
     CardRules::new_creature(mana_cost!("{4}{U}{B}"), &["Horror"], 4, 4).with_ability(
-        AbilityDef::triggered_with_targets(
-            "When this creature enters, return target permanent to its owner's hand, then that player discards a card.",
-            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)),
-            &[AbilityTargetDef::exactly_one_permanent(
+        abilities::enters_trigger_with_targets("When this creature enters, return target permanent to its owner's hand, then that player discards a card.", &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::Any,
-            )],
-            EffectDef::Sequence(&[
+            )], EffectDef::Sequence(&[
                 EffectDef::MoveToZone {
                     counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -3321,8 +3283,7 @@ pub(in crate::card::sets) static DINROVA_HORROR: CardRecord = CardRecord::new_wi
                     selection: DiscardSelectionDef::RecipientChooses,
                     then: None,
                 },
-            ]),
-        ),
+            ])),
     ),
 );
 
@@ -3606,15 +3567,10 @@ pub(in crate::card::sets) static FOUNDRY_CHAMPION: CardRecord = CardRecord::new_
         4,
     )
     .with_abilities(&[
-        AbilityDef::triggered_with_targets(
-            "When this creature enters, it deals damage to any target equal to the number of creatures you control.",
-            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)),
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
-            EffectDef::DealDamage {
+        abilities::enters_trigger_with_targets("When this creature enters, it deals damage to any target equal to the number of creatures you control.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)], EffectDef::DealDamage {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::CountMatchingObjects(&FOUNDRY_CHAMPION_CREATURES),
-            },
-        ),
+            }),
         AbilityDef::activated(
             "{R}: This creature gets +1/+0 until end of turn.",
             &[AbilityCostDef::Mana(mana_cost!("{R}"))],
@@ -3883,13 +3839,8 @@ pub(in crate::card::sets) static MORTUS_STRIDER: CardRecord = CardRecord::new_wi
     CardArt::new("d644eb6e-cc49-4834-bc2c-53f6a4ceb451", "Tomasz Jedruszek"),
     CardSet::Gatecrash,
     CardRules::new_creature(mana_cost!("{1}{U}{B}"), &["Skeleton"], 1, 1).with_ability(
-        AbilityDef::triggered(
+        abilities::dies_trigger(
             "When this creature dies, return it to its owner's hand.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                Some(ZoneKind::Battlefield),
-                Some(ZoneKind::Graveyard),
-            ),
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::TriggeringObject,
@@ -3937,7 +3888,7 @@ pub(in crate::card::sets) static OBZEDAT_GHOST_COUNCIL: CardRecord = CardRecord:
     )
     .with_supertype(CardSupertype::Legendary)
     .with_abilities(&[
-        AbilityDef::triggered_with_targets("When Obzedat enters, target opponent loses 2 life and you gain 2 life.", TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)), &[AbilityTargetDef::exactly_one(
+        abilities::enters_trigger_with_targets("When Obzedat enters, target opponent loses 2 life and you gain 2 life.", &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Player(PlayerRelation::Opponent),
         )], EffectDef::Sequence(&[
                 EffectDef::LoseLife {
@@ -4614,13 +4565,8 @@ pub(in crate::card::sets) static BURNING_TREE_EMISSARY: CardRecord = CardRecord:
     CardArt::new("899d5f35-3613-4c69-9176-13baf442fb50", "Izzy"),
     CardSet::Gatecrash,
     CardRules::new_creature(mana_cost!("{R/G}{R/G}"), &["Human", "Shaman"], 2, 2).with_ability(
-        AbilityDef::triggered(
+        abilities::enters_trigger(
             "When this creature enters, add {R}{G}.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             EffectDef::Sequence(&[
                 EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red)),
                 EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
@@ -4996,13 +4942,8 @@ pub(in crate::card::sets) static PROPHETIC_PRISM: CardRecord = CardRecord::new(
     CardArt::new("b15b29a2-9e6f-45b7-8af5-f09779aae58e", "Daniel Ljunggren"),
     CardSet::Gatecrash,
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
-        AbilityDef::triggered(
+        abilities::enters_trigger(
             "When this artifact enters, draw a card.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),

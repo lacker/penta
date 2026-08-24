@@ -196,14 +196,9 @@ pub(in crate::card::sets) static TOUCH_THE_SPIRIT_REALM: CardRecord = CardRecord
     // or two from hand to blink one of yours -- which is why it is never
     // quite dead.
     CardRules::new_enchantment(mana_cost!("{2}{W}")).with_abilities(&[
-        AbilityDef::triggered_with_targets(
+        abilities::enters_trigger_with_targets(
             "When this enchantment enters, exile up to one target artifact or creature until this \
              enchantment leaves the battlefield.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             &UP_TO_ONE_ARTIFACT_OR_CREATURE,
             EffectDef::Sequence(&TOUCH_EXILES_IT),
         ),

@@ -5,8 +5,8 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef, CardArt,
     CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerConditionDef, TriggerEventDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerConditionDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::ObjectBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -51,15 +51,10 @@ static AN_OPPONENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 
 static ELITE_SPELLBINDER_ABILITIES: [AbilityDef; 2] = [
     abilities::flying(),
-    AbilityDef::triggered_with_targets(
+    abilities::enters_trigger_with_targets(
         "When this creature enters, look at target opponent's hand. You may exile a nonland card \
          from it. For as long as that card remains exiled, its owner may play it. A spell cast \
          this way costs {2} more to cast.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         &AN_OPPONENT,
         EffectDef::Sequence(&SPELLBINDER_TAKES_A_CARD),
     ),

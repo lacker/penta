@@ -79,13 +79,8 @@ static AT_LEVEL_THREE: TriggerConditionDef = TriggerConditionDef::SourceCounters
 };
 
 static STORMCHASERS_TALENT_ABILITIES: [AbilityDef; 5] = [
-    AbilityDef::triggered(
+    abilities::enters_trigger(
         "When this Class enters, create a 1/1 blue and red Otter creature token with prowess.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         MAKE_AN_OTTER,
     ),
     AbilityDef::activated(

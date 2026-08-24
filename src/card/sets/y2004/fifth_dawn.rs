@@ -5,7 +5,7 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
     CardArt, CardRules, CardSet, CardType, EffectDef, EffectRecipientDef,
     GraveyardPlayPermissionDef, ObjectPredicateDef, PlayActionMatcherDef, PlayRestrictionDef,
-    PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
+    PlayerRelation, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -93,14 +93,9 @@ pub(in crate::card::sets) static ETERNAL_WITNESS: CardRecord = CardRecord::new_w
     // A 2/1 body nobody plays it for. What it is worth is the card, and
     // every way of making it enter again is worth another one.
     CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Human", "Shaman"], 2, 1).with_ability(
-        AbilityDef::triggered_with_targets(
+        abilities::enters_trigger_with_targets(
             "When this creature enters, you may return target card from your graveyard to your \
              hand.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             &A_CARD_IN_YOUR_GRAVEYARD,
             WITNESS_MAY_RETURN,
         ),

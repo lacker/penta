@@ -13,9 +13,9 @@ use crate::card::{
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
     PayOrDef, PlayOptionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, RoundingDef, SpellAdditionalCostCountDef, SpellAdditionalCostDef,
-    SpellForm, SpendModeDef, TargetConditionDef, TokenCharacteristics, TokenCopyExceptionsDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities, tokens,
+    SpellForm, SpendModeDef, TargetConditionDef, TokenCopyExceptionsDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    tokens,
 };
 use crate::ids::{CardPartId, ObjectBindingIndex, ObjectSetBindingIndex, PlayOptionId};
 use crate::{TargetIndex, mana_cost};
@@ -260,16 +260,7 @@ pub(in crate::card::sets) static STATIC_PRISON: CardRecord = CardRecord::new_wit
     // One white answers anything, and the two energy it comes with buy two
     // more turns of holding it. After that the prison opens.
     CardRules::new_enchantment(mana_cost!("{W}")).with_abilities(&[
-        AbilityDef::triggered_with_targets(
-            "When this enchantment enters, exile target nonland permanent an opponent controls until this enchantment leaves the battlefield. You get {E}{E} (two energy counters).",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
-            &PRISON_TARGET,
-            EffectDef::Sequence(&PRISON_ENTERS),
-        ),
+        abilities::enters_trigger_with_targets("When this enchantment enters, exile target nonland permanent an opponent controls until this enchantment leaves the battlefield. You get {E}{E} (two energy counters).", &PRISON_TARGET, EffectDef::Sequence(&PRISON_ENTERS)),
         AbilityDef::triggered(
             "At the beginning of your first main phase, sacrifice this enchantment unless you pay {E}.",
             TriggerEventDef::StepBegins {
@@ -536,16 +527,11 @@ static RAPTOR_ENTERS: [EffectDef; 2] = [
 
 static AMPED_RAPTOR_ABILITIES: [AbilityDef; 2] = [
     abilities::first_strike(),
-    AbilityDef::triggered(
+    abilities::enters_trigger(
         "When this creature enters, you get {E}{E} (two energy counters). Then if you cast it \
          from your hand, exile cards from the top of your library until you exile a nonland card. \
          You may cast that card by paying an amount of {E} equal to its mana value rather than \
          paying its mana cost.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         EffectDef::Sequence(&RAPTOR_ENTERS),
     ),
 ];
@@ -670,13 +656,7 @@ pub(in crate::card::sets) static COLOSSAL_DREADMASK: CardRecord = CardRecord::ne
     CardRules::new_artifact(mana_cost!("{4}{G}{G}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
-            abilities::living_weapon(
-                TokenCharacteristics::creature(&["Phyrexian", "Germ"], &[ManaColor::Black], 0, 0)
-                    .with_art(CardArt::new(
-                        "5ec719dc-6b07-4b1d-a79c-84ebced33422",
-                        "Igor Kieryluk",
-                    )),
-            ),
+            abilities::living_weapon(),
             AbilityDef::static_ability(
                 "Equipped creature gets +6/+6 and has trample.",
                 EffectDef::StaticApply {
@@ -1532,13 +1512,8 @@ static AJANI_SPARED_TYPES: [CardType; 4] = [
 static AJANI_TURNS_OVER_SEQUENCE: EffectDef = EffectDef::Sequence(&AJANI_TURNS_OVER);
 
 static AJANI_PARIAH_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::triggered(
+    abilities::enters_trigger(
         "When Ajani enters, create a 2/1 white Cat Warrior creature token.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         EffectDef::create_creature_token(&["Cat", "Warrior"], &[ManaColor::White], 2, 1).with_art(
             CardArt::new("ce5c5bcf-1fdd-4d73-a92b-223292da00ca", "Ben Wootten"),
         ),
@@ -1657,13 +1632,8 @@ static ENCHANTER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_
     ]),
 )];
 
-static ENCHANTER_ABILITIES: [AbilityDef; 1] = [AbilityDef::triggered_with_targets(
+static ENCHANTER_ABILITIES: [AbilityDef; 1] = [abilities::enters_trigger_with_targets(
     "When this creature enters, destroy target artifact or enchantment an opponent controls.",
-    TriggerEventDef::zone_changed(
-        ObjectPredicateDef::Source,
-        None,
-        Some(ZoneKind::Battlefield),
-    ),
     &ENCHANTER_TARGET,
     EffectDef::destroy_target(TargetIndex::PRIMARY, true),
 )];

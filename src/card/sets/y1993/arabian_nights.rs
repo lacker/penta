@@ -55,14 +55,9 @@ pub(in crate::card::sets) static ABU_JAFAR: CardRecord = CardRecord::new_with_le
     CardArt::new("949634bd-2f5a-4be7-ad24-d7039a57b6d6", "Ken Meyer, Jr."),
     CardSet::ArabianNights,
     CardRules::new_creature(mana_cost!("{W}"), &["Human"], 0, 1).with_ability(
-        AbilityDef::triggered(
+        abilities::dies_trigger(
             "When this creature dies, destroy all creatures blocking or blocked by it. They \
              can't be regenerated.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                Some(ZoneKind::Battlefield),
-                Some(ZoneKind::Graveyard),
-            ),
             EffectDef::Destroy {
                 object: ABU_JAFARS_COMPANIONS,
                 can_regenerate: false,
@@ -914,10 +909,7 @@ pub(in crate::card::sets) static RUKH_EGG: CardRecord = CardRecord::new_with_leg
     CardArt::new("b28f9e63-e5e4-44b5-a17e-8301ff17c623", "Christopher Rush"),
     CardSet::ArabianNights,
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Bird", "Egg"], 0, 3).with_abilities(&[
-        AbilityDef::triggered(
-            "When this creature dies, create a 4/4 red Bird creature token with flying at the beginning of the next end step.",
-            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, Some(ZoneKind::Battlefield), Some(ZoneKind::Graveyard)),
-            EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+        abilities::dies_trigger("When this creature dies, create a 4/4 red Bird creature token with flying at the beginning of the next end step.", EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
                 "At the beginning of the next end step, create a 4/4 red Bird creature token with flying.",
                 TriggerEventDef::StepBegins {
                     step: TurnStepDef::End,
@@ -929,8 +921,7 @@ pub(in crate::card::sets) static RUKH_EGG: CardRecord = CardRecord::new_with_leg
                         "b5489e26-6aec-4706-9c3e-8454878fa6c3",
                         "Edward P. Beard, Jr.",
                     )),
-            ))),
-        ),
+            )))),
     ]),
 );
 

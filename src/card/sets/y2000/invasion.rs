@@ -18,8 +18,8 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardType,
     EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectRefDef, PlayerRelation,
-    StackTargetKindDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    StackTargetKindDef, TopCardSelectionDef, TriggerConditionDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -3333,14 +3333,10 @@ pub(in crate::card::sets) static TSABOS_WEB: CardRecord = CardRecord::new_with_l
     CardArt::new("0dee69f8-cceb-41b9-a0ee-6b2ac9f4bad9", "Carl Critchlow"),
     CardSet::Invasion,
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
-        AbilityDef::triggered(
-            "When this artifact enters, draw a card.",
-            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)),
-            EffectDef::DrawCards {
+        abilities::enters_trigger("When this artifact enters, draw a card.", EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
-            },
-        ),
+            }),
         AbilityDef::static_ability(
             "Each land with an activated ability that isn't a mana ability doesn't untap during its controller's untap step.",
             EffectDef::StaticApply {

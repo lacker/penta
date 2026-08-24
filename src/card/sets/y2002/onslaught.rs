@@ -2241,13 +2241,8 @@ pub(in crate::card::sets) static GOBLIN_PYROMANCER: CardRecord = CardRecord::new
     ),
     CardSet::Onslaught,
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Goblin", "Wizard"], 2, 2).with_abilities(&[
-        AbilityDef::triggered(
+        abilities::enters_trigger(
             "When this creature enters, Goblin creatures get +3/+0 until end of turn.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             EffectDef::Apply {
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[

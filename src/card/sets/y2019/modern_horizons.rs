@@ -383,14 +383,9 @@ pub(in crate::card::sets) static URZA_LORD_HIGH_ARTIFICER: CardRecord = CardReco
     CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Human", "Artificer"], 1, 4)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
-            AbilityDef::triggered(
+            abilities::enters_trigger(
                 "When this creature enters, create a 0/0 colorless Construct artifact creature \
                  token with \"This token gets +1/+1 for each artifact you control.\"",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::Source,
-                    None,
-                    Some(ZoneKind::Battlefield),
-                ),
                 EffectDef::create_token(URZA_CONSTRUCT).with_art(CardArt::new(
                     "85f212cd-4fc6-42fe-b268-22d8e3b2b7eb",
                     "Victor Adame Minguez",
@@ -507,14 +502,9 @@ static PYROMANCER_MAKES_TWO: EffectDef = EffectDef::CreateToken {
 };
 
 static SEASONED_PYROMANCER_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::triggered(
+    abilities::enters_trigger(
         "When this creature enters, discard two cards, then draw two cards. For each nonland card \
          discarded this way, create a 1/1 red Elemental creature token.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         EffectDef::Discard {
             recipient: EffectRecipientDef::Controller,
             amount: ValueDef::Constant(2),

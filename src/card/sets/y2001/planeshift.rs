@@ -9,7 +9,7 @@ use crate::card::{
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayActionMatcherDef,
     PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
     ReplacementEffectDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement,
+    ZonePlacement, abilities,
 };
 use crate::ids::ObjectBindingIndex;
 use crate::mana_cost;
@@ -1589,14 +1589,7 @@ pub(in crate::card::sets) static TREVAS_RUINS: CardRecord = CardRecord::new_with
     // Three colours for the price of a land drop you already made: the Lair
     // costs tempo rather than cards.
     CardRules::new_land(&["Lair"]).with_abilities(&[
-        AbilityDef::triggered(
-            "When this land enters, sacrifice it unless you return a non-Lair land you control to its owner's hand.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
-            EffectDef::PayOr(PayOrDef::unless(
+        abilities::enters_trigger("When this land enters, sacrifice it unless you return a non-Lair land you control to its owner's hand.", EffectDef::PayOr(PayOrDef::unless(
                 EffectPaymentDef {
                     payer: PlayerSetDef::Related(PlayerRelation::You),
                     cost: EffectPaymentCostDef::ReturnPermanentMatching(NON_LAIR_LAND_YOU_CONTROL),
@@ -1604,8 +1597,7 @@ pub(in crate::card::sets) static TREVAS_RUINS: CardRecord = CardRecord::new_with
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
-            )),
-        ),
+            ))),
         AbilityDef::activated_mana(
             "{T}: Add {G}, {W}, or {U}.",
             &[AbilityCostDef::TapSource],

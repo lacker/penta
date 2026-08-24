@@ -142,14 +142,9 @@ pub(in crate::card::sets) static PLAGON_LORD_OF_THE_BEACH: CardRecord = CardReco
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Starfish", "Wizard"], 0, 3)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
-            AbilityDef::triggered(
+            abilities::enters_trigger(
                 "When Plagon enters, draw a card for each creature you control with toughness \
                  greater than its power.",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::Source,
-                    None,
-                    Some(ZoneKind::Battlefield),
-                ),
                 EffectDef::DrawCards {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::CountMatchingObjects(&YOUR_DEFENSIVE_CREATURES),

@@ -480,13 +480,9 @@ pub(in crate::card::sets) static RUNNERS_BANE: CardRecord = CardRecord::new_with
             .with_coverage(AbilityCoverageDef::partial(
                 "Power-based target and attachment legality ignores continuous static power modifiers.",
             )),
-            AbilityDef::triggered(
-                "When this Aura enters, tap enchanted creature.",
-                TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)),
-                EffectDef::Tap {
+            abilities::enters_trigger("When this Aura enters, tap enchanted creature.", EffectDef::Tap {
                     object: EffectRecipientDef::AttachedPermanent,
-                },
-            ),
+                }),
             AbilityDef::static_ability(
                 "Enchanted creature doesn't untap during its controller's untap step.",
                 EffectDef::StaticApply {
@@ -1313,10 +1309,7 @@ pub(in crate::card::sets) static DEPUTY_OF_ACQUITTALS: CardRecord = CardRecord::
     CardSet::DragonsMaze,
     CardRules::new_creature(mana_cost!("{W}{U}"), &["Human", "Wizard"], 2, 2).with_abilities(&[
         abilities::flash(),
-        AbilityDef::triggered_with_targets(
-            "When this creature enters, you may return another target creature you control to its owner's hand.",
-            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)),
-            &[AbilityTargetDef::exactly_one(
+        abilities::enters_trigger_with_targets("When this creature enters, you may return another target creature you control to its owner's hand.", &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
@@ -1326,8 +1319,7 @@ pub(in crate::card::sets) static DEPUTY_OF_ACQUITTALS: CardRecord = CardRecord::
                     controller: Some(PlayerRelation::You),
                     owner: None,
                 },
-            )],
-            EffectDef::May {
+            )], EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::MoveToZone {
                     counters: None,
@@ -1338,8 +1330,7 @@ pub(in crate::card::sets) static DEPUTY_OF_ACQUITTALS: CardRecord = CardRecord::
                     attachment: None,
                     controller: None,
                 },
-            },
-        ),
+            }),
     ]),
 );
 
@@ -2077,13 +2068,8 @@ pub(in crate::card::sets) static SCAB_CLAN_GIANT: CardRecord = CardRecord::new(
 );
 
 // DGM 102 — Showstopper
-static SHOWSTOPPER_DIES_ABILITY: AbilityDef = AbilityDef::triggered_with_targets(
+static SHOWSTOPPER_DIES_ABILITY: AbilityDef = abilities::dies_trigger_with_targets(
     "When this creature dies, it deals 2 damage to target creature an opponent controls.",
-    TriggerEventDef::zone_changed(
-        ObjectPredicateDef::Source,
-        Some(ZoneKind::Battlefield),
-        Some(ZoneKind::Graveyard),
-    ),
     &[AbilityTargetDef::exactly_one(
         AbilityTargetPredicate::Object {
             object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -2159,7 +2145,7 @@ pub(in crate::card::sets) static SIN_COLLECTOR: CardRecord = CardRecord::new_wit
         2,
         1,
     )
-    .with_abilities(&[AbilityDef::triggered_with_targets("When this creature enters, target opponent reveals their hand. You choose an instant or sorcery card from it and exile that card.", TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)), &[AbilityTargetDef::exactly_one(
+    .with_abilities(&[abilities::enters_trigger_with_targets("When this creature enters, target opponent reveals their hand. You choose an instant or sorcery card from it and exile that card.", &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Player(PlayerRelation::Opponent),
         )], EffectDef::Sequence(&SIN_COLLECTOR_EFFECTS)),
     ]),
@@ -2291,15 +2277,11 @@ pub(in crate::card::sets) static TROSTANIS_SUMMONER: CardRecord = CardRecord::ne
     CardArt::new("1921fa4e-2256-4ef1-b2fe-874f9fbbcdf3", "Howard Lyon"),
     CardSet::DragonsMaze,
     CardRules::new_creature(mana_cost!("{5}{G}{W}"), &["Elf", "Shaman"], 1, 1).with_ability(
-        AbilityDef::triggered(
-            "When this creature enters, create a 2/2 white Knight creature token with vigilance, a 3/3 green Centaur creature token, and a 4/4 green Rhino creature token with trample.",
-            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)),
-            EffectDef::Sequence(&[
+        abilities::enters_trigger("When this creature enters, create a 2/2 white Knight creature token with vigilance, a 3/3 green Centaur creature token, and a 4/4 green Rhino creature token with trample.", EffectDef::Sequence(&[
                 EffectDef::create_creature_token(&["Knight"], &[ManaColor::White], 2, 2).with_abilities(&[abilities::vigilance()]).with_art(CardArt::new("67d3d039-248a-4eb8-be5c-12959b458fea", "Matt Stewart")),
                 EffectDef::create_creature_token(&["Centaur"], &[ManaColor::Green], 3, 3).with_art(CardArt::new("880d5dc1-ceec-4c5f-93c2-c88b7dbfcac2", "Slawomir Maniak")),
                 EffectDef::create_creature_token(&["Rhino"], &[ManaColor::Green], 4, 4).with_abilities(&[abilities::trample()]).with_art(CardArt::new("1331008a-ae86-4640-b823-a73be766ac16", "Tomasz Jedruszek")),
-            ]),
-        ),
+            ])),
     ),
 );
 
@@ -2361,13 +2343,8 @@ pub(in crate::card::sets) static VIASHINO_FIRSTBLADE: CardRecord = CardRecord::n
     CardRules::new_creature(mana_cost!("{1}{R}{W}"), &["Lizard", "Soldier"], 2, 2).with_abilities(
         &[
             abilities::haste(),
-            AbilityDef::triggered(
+            abilities::enters_trigger(
                 "When this creature enters, it gets +2/+2 until end of turn.",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::Source,
-                    None,
-                    Some(ZoneKind::Battlefield),
-                ),
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Source,
                     effect: AppliedEffectDef::modify_power_toughness(
@@ -2430,11 +2407,7 @@ pub(in crate::card::sets) static VOICE_OF_RESURGENCE: CardRecord = CardRecord::n
             &VOICE_OF_RESURGENCE_DURING_YOUR_TURN,
             VOICE_OF_RESURGENCE_TOKEN,
         ),
-        AbilityDef::triggered(
-            "When this creature dies, create a green and white Elemental creature token with \"This token's power and toughness are each equal to the number of creatures you control.\"",
-            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, Some(ZoneKind::Battlefield), Some(ZoneKind::Graveyard)),
-            VOICE_OF_RESURGENCE_TOKEN,
-        ),
+        abilities::dies_trigger("When this creature dies, create a green and white Elemental creature token with \"This token's power and toughness are each equal to the number of creatures you control.\"", VOICE_OF_RESURGENCE_TOKEN),
     ]),
 );
 

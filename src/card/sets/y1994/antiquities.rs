@@ -1412,13 +1412,8 @@ pub(in crate::card::sets) static ONULET: CardRecord = CardRecord::new_with_legac
     CardArt::new("d77fe8e2-8438-473e-ace5-01baddd2c4ed", "Anson Maddocks"),
     CardSet::Antiquities,
     CardRules::new_artifact_creature(mana_cost!("{3}"), &["Construct"], 2, 2).with_abilities(&[
-        AbilityDef::triggered(
+        abilities::dies_trigger(
             "When this creature dies, you gain 2 life.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                Some(ZoneKind::Battlefield),
-                Some(ZoneKind::Graveyard),
-            ),
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(2),
@@ -1545,13 +1540,8 @@ pub(in crate::card::sets) static SU_CHI: CardRecord = CardRecord::new_with_legac
     CardArt::new("a64d4f93-0c04-4078-aec0-7e9de92f260f", "Christopher Rush"),
     CardSet::Antiquities,
     CardRules::new_artifact_creature(mana_cost!("{4}"), &["Construct"], 4, 4).with_abilities(&[
-        AbilityDef::triggered(
+        abilities::dies_trigger(
             "When this creature dies, add {C}{C}{C}{C}.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                Some(ZoneKind::Battlefield),
-                Some(ZoneKind::Graveyard),
-            ),
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless).with_amount(4)),
         ),
     ]),

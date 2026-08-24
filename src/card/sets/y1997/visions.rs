@@ -775,16 +775,7 @@ pub(in crate::card::sets) static NECROMANCY: CardRecord = CardRecord::new_with_l
             // reads the keyword, and nothing in the pool reads an
             // enchantment's.
             abilities::flash(),
-            AbilityDef::triggered_with_targets(
-                "When this enchantment enters, if it's on the battlefield, it becomes an Aura with \"enchant creature put onto the battlefield with Necromancy.\" Put target creature card from a graveyard onto the battlefield under your control and attach this enchantment to it.",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::Source,
-                    None,
-                    Some(ZoneKind::Battlefield),
-                ),
-                &NECROMANCY_TARGET,
-                EffectDef::Sequence(&NECROMANCY_REANIMATES),
-            ),
+            abilities::enters_trigger_with_targets("When this enchantment enters, if it's on the battlefield, it becomes an Aura with \"enchant creature put onto the battlefield with Necromancy.\" Put target creature card from a graveyard onto the battlefield under your control and attach this enchantment to it.", &NECROMANCY_TARGET, EffectDef::Sequence(&NECROMANCY_REANIMATES)),
             AbilityDef::triggered(
                 "When this enchantment leaves the battlefield, that creature's controller sacrifices it.",
                 TriggerEventDef::zone_changed(

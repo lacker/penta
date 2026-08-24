@@ -5,7 +5,7 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, CardType,
     EffectDef, EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef, PlayerRelation,
-    TriggerEventDef, ZoneKind,
+    TriggerEventDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -64,17 +64,14 @@ pub(in crate::card::sets) static PORTABLE_HOLE: CardRecord = CardRecord::new_wit
     // answers it at instant speed on the other player's turn only because
     // somebody flashed it in -- otherwise the Hole is simply the cheapest
     // unconditional removal a white deck gets.
-    CardRules::new_artifact(mana_cost!("{W}")).with_ability(AbilityDef::triggered_with_targets(
-        "When this artifact enters, exile target nonland permanent an opponent controls with \
+    CardRules::new_artifact(mana_cost!("{W}")).with_ability(
+        abilities::enters_trigger_with_targets(
+            "When this artifact enters, exile target nonland permanent an opponent controls with \
          mana value 2 or less until this artifact leaves the battlefield.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
+            &HOLE_TARGET,
+            EffectDef::Sequence(&HOLE_SWALLOWS_IT),
         ),
-        &HOLE_TARGET,
-        EffectDef::Sequence(&HOLE_SWALLOWS_IT),
-    )),
+    ),
 );
 
 // AFR 42 — You Hear Something on Watch

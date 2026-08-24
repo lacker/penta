@@ -8,8 +8,8 @@ use crate::card::{
     DamageSourceMatcherDef, DiscardFollowUpDef, DiscardSelectionDef, DividedTotal, EffectDef,
     EffectRecipientDef, ExilePlayDurationDef, GraveyardTypeConditionDef, ManaColor,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PlayerRelation, SacrificedAmountDef,
-    SpellAdditionalCostDef, SpendModeDef, TokenCharacteristics, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    SpellAdditionalCostDef, SpendModeDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities, tokens,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -121,14 +121,9 @@ static SUBTLETY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
 static SUBTLETY_ABILITIES: [AbilityDef; 5] = [
     abilities::flash(),
     abilities::flying(),
-    AbilityDef::triggered_with_targets(
+    abilities::enters_trigger_with_targets(
         "When this creature enters, choose up to one target creature spell or planeswalker \
          spell. Its owner puts it on their choice of the top or bottom of their library.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         &SUBTLETY_TARGET,
         EffectDef::PutSpellIntoOwnersLibrary {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -394,13 +389,8 @@ static EXILE_A_RED_CARD: SpellAdditionalCostDef =
 
 static FURY_ABILITIES: [AbilityDef; 4] = [
     abilities::double_strike(),
-    AbilityDef::triggered_with_targets(
+    abilities::enters_trigger_with_targets(
         "When this creature enters, it deals 4 damage divided as you choose among any number of target creatures and/or planeswalkers.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         &FURY_TARGETS,
         EffectDef::DealDamage {
             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -612,14 +602,9 @@ static ENDURANCE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
 static ENDURANCE_ABILITIES: [AbilityDef; 5] = [
     abilities::flash(),
     abilities::reach(),
-    AbilityDef::triggered_with_targets(
+    abilities::enters_trigger_with_targets(
         "When this creature enters, up to one target player puts all the cards from their \
          graveyard on the bottom of their library in a random order.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         &ENDURANCE_TARGET,
         EffectDef::BuryGraveyard {
             player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -809,11 +794,7 @@ static KALDRA_GRANTS: [AppliedEffectDef; 6] = [
 static KALDRA_EQUIP_COST: [AbilityCostDef; 1] = [AbilityCostDef::Mana(mana_cost!("{7}"))];
 
 static KALDRA_COMPLEAT_ABILITIES: [AbilityDef; 4] = [
-    abilities::living_weapon(
-        TokenCharacteristics::creature(&["Phyrexian", "Germ"], &[ManaColor::Black], 0, 0).with_art(
-            CardArt::new("b53e0681-603e-4180-bc86-3dadf214e61a", "Igor Kieryluk"),
-        ),
-    ),
+    abilities::living_weapon(),
     abilities::indestructible(),
     AbilityDef::static_ability(
         "Equipped creature gets +5/+5 and has first strike, trample, indestructible, haste, and \
@@ -860,13 +841,7 @@ pub(in crate::card::sets) static NETTLECYST: CardRecord = CardRecord::new_with_l
     CardRules::new_artifact(mana_cost!("{3}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
-            abilities::living_weapon(
-                TokenCharacteristics::creature(&["Phyrexian", "Germ"], &[ManaColor::Black], 0, 0)
-                    .with_art(CardArt::new(
-                        "b53e0681-603e-4180-bc86-3dadf214e61a",
-                        "Igor Kieryluk",
-                    )),
-            ),
+            abilities::living_weapon(),
             AbilityDef::static_ability(
                 "Equipped creature gets +1/+1 for each artifact and/or enchantment you control.",
                 EffectDef::StaticApply {

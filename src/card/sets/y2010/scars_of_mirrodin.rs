@@ -138,13 +138,8 @@ pub(in crate::card::sets) static KEMBA_S_SKYGUARD: CardRecord = CardRecord::new(
     crate::card::CardSet::ScarsOfMirrodin,
     CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Cat", "Knight"], 2, 2).with_abilities(&[
         abilities::flying(),
-        AbilityDef::triggered(
+        abilities::enters_trigger(
             "When this creature enters, you gain 2 life.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(2),
@@ -386,13 +381,8 @@ pub(in crate::card::sets) static DARKSLICK_DRAKE: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Phyrexian", "Drake"], 2, 4).with_abilities(
         &[
             abilities::flying(),
-            AbilityDef::triggered(
+            abilities::dies_trigger(
                 "When this creature dies, draw a card.",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::Source,
-                    Some(ZoneKind::Battlefield),
-                    Some(ZoneKind::Graveyard),
-                ),
                 EffectDef::DrawCards {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(1),
@@ -549,13 +539,8 @@ pub(in crate::card::sets) static SKY_EEL_SCHOOL: CardRecord = CardRecord::new(
     crate::card::CardSet::ScarsOfMirrodin,
     CardRules::new_creature(mana_cost!("{3}{U}{U}"), &["Fish"], 3, 3).with_abilities(&[
         abilities::flying(),
-        AbilityDef::triggered(
+        abilities::enters_trigger(
             "When this creature enters, draw a card, then discard a card.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             EffectDef::Sequence(&[
                 EffectDef::DrawCards {
                     recipient: EffectRecipientDef::Controller,
@@ -710,13 +695,8 @@ pub(in crate::card::sets) static BLISTERGRUB: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Phyrexian", "Horror"], 2, 2).with_abilities(
         &[
             abilities::landwalk(BasicLandType::Swamp),
-            AbilityDef::triggered(
+            abilities::dies_trigger(
                 "When this creature dies, each opponent loses 2 life.",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::Source,
-                    Some(ZoneKind::Battlefield),
-                    Some(ZoneKind::Graveyard),
-                ),
                 EffectDef::LoseLife {
                     recipient: EffectRecipientDef::Opponent,
                     amount: ValueDef::Constant(2),
@@ -913,13 +893,8 @@ pub(in crate::card::sets) static NECROGEN_SCUDDER: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Phyrexian", "Horror"], 3, 3).with_abilities(
         &[
             abilities::flying(),
-            AbilityDef::triggered(
+            abilities::enters_trigger(
                 "When this creature enters, you lose 3 life.",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::Source,
-                    None,
-                    Some(ZoneKind::Battlefield),
-                ),
                 EffectDef::LoseLife {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(3),
@@ -1001,13 +976,8 @@ pub(in crate::card::sets) static SKINRENDER: CardRecord = CardRecord::new(
     crate::card::CardArt::new("be358357-2abe-4ead-bb18-76cad8274489", "David Rapoza"),
     crate::card::CardSet::ScarsOfMirrodin,
     CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Phyrexian", "Zombie"], 3, 3).with_ability(
-        AbilityDef::triggered_with_targets(
+        abilities::enters_trigger_with_targets(
             "When this creature enters, put three -1/-1 counters on target creature.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -1301,13 +1271,8 @@ pub(in crate::card::sets) static OXIDDA_SCRAPMELTER: CardRecord = CardRecord::ne
     crate::card::CardArt::new("c64fe85b-e471-489a-8c38-2357da1c7969", "Igor Kieryluk"),
     crate::card::CardSet::ScarsOfMirrodin,
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Beast"], 3, 3).with_ability(
-        AbilityDef::triggered_with_targets(
+        abilities::enters_trigger_with_targets(
             "When this creature enters, destroy target artifact.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Artifact),
             )],
@@ -1370,13 +1335,8 @@ pub(in crate::card::sets) static VULSHOK_HEARTSTOKER: CardRecord = CardRecord::n
     crate::card::CardArt::new("9d3152bc-5c59-4e98-95de-a51de05a3c98", "Shelly Wan"),
     crate::card::CardSet::ScarsOfMirrodin,
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Shaman"], 2, 2).with_ability(
-        AbilityDef::triggered_with_targets(
+        abilities::enters_trigger_with_targets(
             "When this creature enters, target creature gets +2/+0 until end of turn.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -2399,13 +2359,8 @@ pub(in crate::card::sets) static PERILOUS_MYR: CardRecord = CardRecord::new(
     crate::card::CardArt::new("4b942605-eb4a-452d-9b07-a4f912f96958", "Jason Felix"),
     crate::card::CardSet::ScarsOfMirrodin,
     CardRules::new_artifact_creature(mana_cost!("{2}"), &["Phyrexian", "Myr"], 1, 1).with_ability(
-        AbilityDef::triggered_with_targets(
+        abilities::dies_trigger_with_targets(
             "When this creature dies, it deals 2 damage to any target.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                Some(ZoneKind::Battlefield),
-                Some(ZoneKind::Graveyard),
-            ),
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],

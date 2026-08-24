@@ -1317,13 +1317,8 @@ pub(in crate::card::sets) static SIEGE_GANG_COMMANDER: CardRecord = CardRecord::
     // Four bodies for five mana, and the ability turns any of them --
     // including itself -- into two damage anywhere.
     CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Goblin"], 2, 2).with_abilities(&[
-        AbilityDef::triggered(
+        abilities::enters_trigger(
             "When this creature enters, create three 1/1 red Goblin creature tokens.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1)
                 .with_amount(3)
                 .with_art(CardArt::new(

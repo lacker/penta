@@ -2,8 +2,7 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, CardArt, CardRules, CardSet, EffectDef, EffectRecipientDef, ObjectPredicateDef,
-    TriggerEventDef, ValueDef, ZoneKind, abilities,
+    CardArt, CardRules, CardSet, EffectDef, EffectRecipientDef, ValueDef, abilities,
 };
 use crate::mana_cost;
 
@@ -18,13 +17,8 @@ pub(in crate::card::sets) static BALEFUL_STRIX: CardRecord = CardRecord::new(
     CardRules::new_artifact_creature(mana_cost!("{U}{B}"), &["Bird"], 1, 1).with_abilities(&[
         abilities::flying(),
         abilities::deathtouch(),
-        AbilityDef::triggered(
+        abilities::enters_trigger(
             "When this creature enters, draw a card.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),

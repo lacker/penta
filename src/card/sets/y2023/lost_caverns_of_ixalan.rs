@@ -250,13 +250,8 @@ static BAT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 static DEEP_CAVERN_BAT_ABILITIES: [AbilityDef; 3] = [
     abilities::flying(),
     abilities::lifelink(),
-    AbilityDef::triggered_with_targets(
+    abilities::enters_trigger_with_targets(
         "When this creature enters, look at target opponent's hand. You may exile a nonland card from it until this creature leaves the battlefield.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         &BAT_TARGET,
         EffectDef::Sequence(&BAT_LOOKS_AND_MAY_TAKE),
     ),

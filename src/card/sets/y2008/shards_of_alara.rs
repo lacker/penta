@@ -162,13 +162,8 @@ static SCULLER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 )];
 
 static TIDEHOLLOW_SCULLER_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::triggered_with_targets(
+    abilities::enters_trigger_with_targets(
         "When this creature enters, target opponent reveals their hand and you choose a nonland card from it. Exile that card.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         &SCULLER_TARGET,
         EffectDef::Sequence(&SCULLER_TAKES_A_CARD),
     ),

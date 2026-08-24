@@ -447,13 +447,8 @@ pub(in crate::card::sets) static ELECTRIC_EEL: CardRecord = CardRecord::new_with
     CardArt::new("b8834c18-0e4e-4785-9d15-b33345e3789b", "Anson Maddocks"),
     CardSet::TheDark,
     CardRules::new_creature(mana_cost!("{U}"), &["Fish"], 1, 1).with_abilities(&[
-        AbilityDef::triggered(
+        abilities::enters_trigger(
             "When this creature enters, it deals 1 damage to you.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             EffectDef::DealDamage {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
@@ -742,13 +737,8 @@ pub(in crate::card::sets) static TANGLE_KELP: CardRecord = CardRecord::new_with_
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
-            AbilityDef::triggered(
+            abilities::enters_trigger(
                 "When this Aura enters, tap enchanted creature.",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::Source,
-                    None,
-                    Some(ZoneKind::Battlefield),
-                ),
                 EffectDef::Tap {
                     object: EffectRecipientDef::AttachedPermanent,
                 },

@@ -63,14 +63,9 @@ pub(in crate::card::sets) static LEYLINE_BINDING: CardRecord = CardRecord::new(
             EffectDef::ReduceGenericCostBy(ValueDef::BasicLandTypesControlled(PlayerRelation::You)),
         )
         .with_source_zones(&[ZoneKind::Hand]),
-        AbilityDef::triggered_with_targets(
+        abilities::enters_trigger_with_targets(
             "When this enchantment enters, exile target nonland permanent an opponent controls \
              until this enchantment leaves the battlefield.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             &A_NONLAND_PERMANENT_THEY_CONTROL,
             EffectDef::Sequence(&BINDING_EXILES_IT),
         ),

@@ -5,8 +5,7 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef, CardArt,
     CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef,
     ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    ObjectSetDef, PlayerRefDef, PlayerRelation, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ObjectBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -115,14 +114,9 @@ static MOX_IMPRINTS: EffectDef = EffectDef::Choose(ChooseDef {
 static MOX_TAP: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
 
 static CHROME_MOX_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::triggered(
+    abilities::enters_trigger(
         "Imprint — When this artifact enters, you may exile a nonartifact, nonland card from \
          your hand.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         MOX_IMPRINTS,
     ),
     AbilityDef::activated_mana(

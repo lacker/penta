@@ -336,13 +336,8 @@ static SEVEN_IN_YOUR_GRAVEYARD: TriggerConditionDef = TriggerConditionDef::Objec
 
 static TERSA_ABILITIES: [AbilityDef; 3] = [
     abilities::haste(),
-    AbilityDef::triggered(
+    abilities::enters_trigger(
         "When Tersa Lightshatter enters, discard up to two cards, then draw that many cards.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         TERSA_LOOT,
     ),
     AbilityDef::triggered_if(

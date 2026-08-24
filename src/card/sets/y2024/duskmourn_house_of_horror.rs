@@ -310,13 +310,8 @@ pub(in crate::card::sets) static FEAR_OF_MISSING_OUT: CardRecord = CardRecord::n
     // attack.
     CardRules::new_enchantment_creature(mana_cost!("{1}{R}"), &["Nightmare"], 2, 3).with_abilities(
         &[
-            AbilityDef::triggered(
+            abilities::enters_trigger(
                 "When this creature enters, discard a card, then draw a card.",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::Source,
-                    None,
-                    Some(ZoneKind::Battlefield),
-                ),
                 EffectDef::Sequence(&FOMO_LOOTS),
             ),
             AbilityDef::triggered_if_with_targets(
@@ -801,13 +796,8 @@ static CHAINSAW_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
 )];
 
 static CHAINSAW_ABILITIES: [AbilityDef; 4] = [
-    AbilityDef::triggered_with_targets(
+    abilities::enters_trigger_with_targets(
         "When this Equipment enters, it deals 3 damage to up to one target creature.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         &CHAINSAW_TARGET,
         EffectDef::DealDamage {
             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),

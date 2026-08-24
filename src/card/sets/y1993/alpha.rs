@@ -1170,14 +1170,8 @@ pub(in crate::card::sets) static CONTROL_MAGIC: CardRecord = CardRecord::new_wit
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
-            AbilityDef::triggered(
-                "You control enchanted creature.",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::Source,
-                    None,
-                    Some(ZoneKind::Battlefield),
-                ),
-                // The printed clause is a static, and the Aura leaving is
+            abilities::enters_trigger(
+                "You control enchanted creature.", // The printed clause is a static, and the Aura leaving is
                 // what ends it either way: an Aura with nothing under it is
                 // put into its owner's graveyard.
                 EffectDef::GainControl {
@@ -1748,13 +1742,8 @@ pub(in crate::card::sets) static STEAL_ARTIFACT: CardRecord = CardRecord::new_wi
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             aura_spell("Enchant artifact", &abilities::ENCHANT_ARTIFACT_TARGET),
-            AbilityDef::triggered(
+            abilities::enters_trigger(
                 "You control enchanted artifact.",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::Source,
-                    None,
-                    Some(ZoneKind::Battlefield),
-                ),
                 EffectDef::GainControl {
                     object: EffectRecipientDef::AttachedPermanent,
                     duration: ControlDurationDef::WhileSourceRemains {
@@ -2409,13 +2398,8 @@ pub(in crate::card::sets) static PARALYZE: CardRecord = CardRecord::new_with_leg
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
-            AbilityDef::triggered(
+            abilities::enters_trigger(
                 "When this Aura enters, tap enchanted creature.",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::Source,
-                    None,
-                    Some(ZoneKind::Battlefield),
-                ),
                 EffectDef::Tap {
                     object: EffectRecipientDef::AttachedPermanent,
                 },

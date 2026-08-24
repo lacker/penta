@@ -4,8 +4,8 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AddManaEffectDef, BasicLandType, CardArt, CardRules, CardSet,
     CardType, ComparisonDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    ObjectQueryDef, PlayerRelation, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    ObjectQueryDef, PlayerRelation, TopCardSelectionDef, TriggerConditionDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::mana_cost;
 
@@ -106,15 +106,10 @@ static BRIGHTGLASS_GEARHULK_ABILITIES: [AbilityDef; 3] = [
     // "You may" on top of a search that already allows none: declining and
     // finding nothing look the same from the outside, and the card offers
     // both because a library nobody wants to shuffle is a real answer.
-    AbilityDef::triggered(
+    abilities::enters_trigger(
         "When this creature enters, you may search your library for up to two artifact, creature, \
          and/or enchantment cards with mana value 1 or less, reveal them, put them into your \
          hand, then shuffle.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         EffectDef::May {
             player: EffectRecipientDef::Controller,
             effect: &GEARHULK_SEARCH,

@@ -33,14 +33,9 @@ static SURVEIL_ONE: TopCardSelectionDef = TopCardSelectionDef {
 
 static SURVEIL_LAND_ABILITIES: [AbilityDef; 2] = [
     abilities::enters_tapped("This land enters tapped."),
-    AbilityDef::triggered(
+    abilities::enters_trigger(
         "When this land enters, surveil 1. (Look at the top card of your library. You may put it \
          into your graveyard.)",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         EffectDef::LookAtTopAndSelect {
             player: EffectRecipientDef::Controller,
             looker: EffectRecipientDef::Controller,

@@ -54,13 +54,8 @@ pub(in crate::card::sets) static LORAN_OF_THE_THIRD_PATH: CardRecord = CardRecor
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             abilities::vigilance(),
-            AbilityDef::triggered_with_targets(
+            abilities::enters_trigger_with_targets(
                 "When this creature enters, destroy up to one target artifact or enchantment.",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::Source,
-                    None,
-                    Some(ZoneKind::Battlefield),
-                ),
                 &UP_TO_ONE_ARTIFACT_OR_ENCHANTMENT,
                 EffectDef::destroy_target(TargetIndex::PRIMARY, true),
             ),
@@ -136,13 +131,8 @@ pub(in crate::card::sets) static HAYWIRE_MITE: CardRecord = CardRecord::new(
     // or enchantment the format is afraid of this week, and every deck can
     // cast it whether or not it can pay the green.
     CardRules::new_artifact_creature(mana_cost!("{1}"), &["Insect"], 1, 1).with_abilities(&[
-        AbilityDef::triggered(
+        abilities::dies_trigger(
             "When this creature dies, you gain 2 life.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                Some(ZoneKind::Battlefield),
-                Some(ZoneKind::Graveyard),
-            ),
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(2),
@@ -217,13 +207,8 @@ pub(in crate::card::sets) static PORTAL_TO_PHYREXIA: CardRecord = CardRecord::ne
     // Nine mana, and the game is over: three of their creatures die on the
     // way in and one comes back for you every upkeep afterwards.
     CardRules::new_artifact(mana_cost!("{9}")).with_abilities(&[
-        AbilityDef::triggered(
+        abilities::enters_trigger(
             "When this artifact enters, each opponent sacrifices three creatures of their choice.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             EffectDef::SacrificeOfChoice {
                 player: EffectRecipientDef::Opponent,
                 object: ObjectPredicateDef::HasType(CardType::Creature),

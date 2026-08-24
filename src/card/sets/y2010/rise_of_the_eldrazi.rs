@@ -164,20 +164,12 @@ pub(in crate::card::sets) static NEST_INVADER: CardRecord = CardRecord::new(
     CardArt::new("24517d9c-6cde-41e8-9e82-ee73f069379a", "Trevor Claxton"),
     CardSet::RiseOfTheEldrazi,
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Eldrazi", "Drone"], 2, 2).with_ability(
-        AbilityDef::triggered(
-            "When this creature enters, create a 0/1 colorless Eldrazi Spawn creature token. It has \"Sacrifice this token: Add {C}.\"",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
-            EffectDef::create_creature_token(&["Eldrazi", "Spawn"], &[], 0, 1)
+        abilities::enters_trigger("When this creature enters, create a 0/1 colorless Eldrazi Spawn creature token. It has \"Sacrifice this token: Add {C}.\"", EffectDef::create_creature_token(&["Eldrazi", "Spawn"], &[], 0, 1)
                 .with_abilities(&ELDRAZI_SPAWN_ABILITIES)
                 .with_art(CardArt::new(
                     "d0da4f8d-cce9-4d08-8d11-792e0b2af7d0",
                     "Véronique Meignaud",
-                )),
-        ),
+                ))),
     ),
 );
 

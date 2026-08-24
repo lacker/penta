@@ -218,13 +218,8 @@ pub(in crate::card::sets) static ELGAUD_INQUISITOR: CardRecord = CardRecord::new
     CardSet::DarkAscension,
     CardRules::new_creature(mana_cost!("{3}{W}"), &["Human", "Cleric"], 2, 2).with_abilities(&[
         abilities::lifelink(),
-        AbilityDef::triggered(
+        abilities::dies_trigger(
             "When this creature dies, create a 1/1 white Spirit creature token with flying.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                Some(ZoneKind::Battlefield),
-                Some(ZoneKind::Graveyard),
-            ),
             EffectDef::create_creature_token(&["Spirit"], &[ManaColor::White], 1, 1)
                 .with_abilities(&[abilities::flying()])
                 .with_art(CardArt::new(
@@ -385,13 +380,8 @@ pub(in crate::card::sets) static NIBLIS_OF_THE_MIST: CardRecord = CardRecord::ne
     CardSet::DarkAscension,
     CardRules::new_creature(mana_cost!("{2}{W}"), &["Spirit"], 2, 1).with_abilities(&[
         abilities::flying(),
-        AbilityDef::triggered_with_targets(
+        abilities::enters_trigger_with_targets(
             "When this creature enters, you may tap target creature.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -807,19 +797,14 @@ pub(in crate::card::sets) static DUNGEON_GEISTS: CardRecord = CardRecord::new_wi
     CardSet::DarkAscension,
     CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Spirit"], 3, 3).with_abilities(&[
         abilities::flying(),
-        AbilityDef::triggered_with_targets(
-            "When this creature enters, tap target creature an opponent controls. That creature doesn't untap during its controller's untap step for as long as you control this creature.",
-            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)),
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+        abilities::enters_trigger_with_targets("When this creature enters, tap target creature an opponent controls. That creature doesn't untap during its controller's untap step for as long as you control this creature.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::HasType(CardType::Creature),
                 zones: &[ZoneKind::Battlefield],
                 controller: Some(PlayerRelation::Opponent),
                 owner: None,
-            })],
-            EffectDef::Tap {
+            })], EffectDef::Tap {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            },
-        )
+            })
         .with_coverage(AbilityCoverageDef::partial(
             "The target is tapped, but applying a does-not-untap effect to it until this source leaves is not supported by the shared runtime.",
         )),
@@ -834,13 +819,8 @@ pub(in crate::card::sets) static GERALFS_MINDCRUSHER: CardRecord = CardRecord::n
     CardSet::DarkAscension,
     CardRules::new_creature(mana_cost!("{4}{U}{U}"), &["Zombie", "Horror"], 5, 5).with_abilities(
         &[
-            AbilityDef::triggered_with_targets(
+            abilities::enters_trigger_with_targets(
                 "When this creature enters, target player mills five cards.",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::Source,
-                    None,
-                    Some(ZoneKind::Battlefield),
-                ),
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Player(PlayerRelation::Any),
                 )],
@@ -1052,13 +1032,8 @@ pub(in crate::card::sets) static SCREECHING_SKAAB: CardRecord = CardRecord::new_
     CardArt::new("3c40a2c7-df7a-41a6-a49e-5f7db808b810", "Clint Cearley"),
     CardSet::DarkAscension,
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Zombie"], 2, 1).with_ability(
-        AbilityDef::triggered(
+        abilities::enters_trigger(
             "When this creature enters, mill two cards.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             EffectDef::Mill {
                 player: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(2),
@@ -1168,10 +1143,7 @@ pub(in crate::card::sets) static TOWER_GEIST: CardRecord = CardRecord::new_with_
     CardSet::DarkAscension,
     CardRules::new_creature(mana_cost!("{3}{U}"), &["Spirit"], 2, 2).with_abilities(&[
         abilities::flying(),
-        AbilityDef::triggered(
-            "When this creature enters, look at the top two cards of your library. Put one of them into your hand and the other into your graveyard.",
-            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)),
-            EffectDef::LookAtTopAndSelect {
+        abilities::enters_trigger("When this creature enters, look at the top two cards of your library. Put one of them into your hand and the other into your graveyard.", EffectDef::LookAtTopAndSelect {
                 player: EffectRecipientDef::Controller,
                 looker: EffectRecipientDef::Controller,
                 selection: &TopCardSelectionDef {
@@ -1192,8 +1164,7 @@ pub(in crate::card::sets) static TOWER_GEIST: CardRecord = CardRecord::new_with_
                 selected_hidden: false,
                 selected_linked_to_source: false,
                 selected_face_down: None,},
-            },
-        ),
+            }),
     ]),
 );
 
@@ -1204,13 +1175,8 @@ pub(in crate::card::sets) static BLACK_CAT: CardRecord = CardRecord::new_with_le
     CardArt::new("bb1c6379-69d5-48aa-8d06-257c0592794e", "David Palumbo"),
     CardSet::DarkAscension,
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Zombie", "Cat"], 1, 1).with_ability(
-        AbilityDef::triggered_with_targets(
+        abilities::dies_trigger_with_targets(
             "When this creature dies, target opponent discards a card at random.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                Some(ZoneKind::Battlefield),
-                Some(ZoneKind::Graveyard),
-            ),
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Player(PlayerRelation::Opponent),
             )],
@@ -1342,13 +1308,8 @@ pub(in crate::card::sets) static FARBOG_BONEFLINGER: CardRecord = CardRecord::ne
     CardArt::new("98d45316-b44a-4cf6-8cbe-b02fe6545141", "Tomasz Jedruszek"),
     CardSet::DarkAscension,
     CardRules::new_creature(mana_cost!("{4}{B}"), &["Zombie"], 2, 2).with_ability(
-        AbilityDef::triggered_with_targets(
+        abilities::enters_trigger_with_targets(
             "When this creature enters, target creature gets -2/-2 until end of turn.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -1382,13 +1343,8 @@ pub(in crate::card::sets) static GERALFS_MESSENGER: CardRecord = CardRecord::new
     CardSet::DarkAscension,
     CardRules::new_creature(mana_cost!("{B}{B}{B}"), &["Zombie"], 3, 2).with_abilities(&[
         abilities::enters_tapped("This creature enters tapped."),
-        AbilityDef::triggered_with_targets(
+        abilities::enters_trigger_with_targets(
             "When this creature enters, target opponent loses 2 life.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Player(PlayerRelation::Opponent),
             )],
@@ -1910,13 +1866,8 @@ pub(in crate::card::sets) static FORGE_DEVIL: CardRecord = CardRecord::new_with_
     CardArt::new("63b565a5-d706-47b4-bfa2-deebcc0e2e60", "Austin Hsu"),
     CardSet::DarkAscension,
     CardRules::new_creature(mana_cost!("{R}"), &["Devil"], 1, 1).with_ability(
-        AbilityDef::triggered_with_targets(
+        abilities::enters_trigger_with_targets(
             "When this creature enters, it deals 1 damage to target creature and 1 damage to you.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -2050,13 +2001,8 @@ pub(in crate::card::sets) static MARKOV_WARLORD: CardRecord = CardRecord::new_wi
     CardSet::DarkAscension,
     CardRules::new_creature(mana_cost!("{5}{R}"), &["Vampire", "Warrior"], 4, 4).with_abilities(&[
         abilities::haste(),
-        AbilityDef::triggered_with_targets(
+        abilities::enters_trigger_with_targets(
             "When this creature enters, up to two target creatures can't block this turn.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             &UP_TO_TWO_CREATURES,
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -2261,13 +2207,8 @@ pub(in crate::card::sets) static BRIARPACK_ALPHA: CardRecord = CardRecord::new_w
     CardSet::DarkAscension,
     CardRules::new_creature(mana_cost!("{3}{G}"), &["Wolf"], 3, 3).with_abilities(&[
         abilities::flash(),
-        AbilityDef::triggered_with_targets(
+        abilities::enters_trigger_with_targets(
             "When this creature enters, target creature gets +2/+2 until end of turn.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -2939,13 +2880,8 @@ const fn huntmaster_front_rules() -> CardRules {
 /// Entering and transforming into this face do the same thing, so the printed
 /// sentence is two triggers watching two different events.
 static HUNTMASTER_FRONT_ABILITIES: [AbilityDef; 3] = [
-    AbilityDef::triggered(
+    abilities::enters_trigger(
         "Whenever this creature enters, create a 2/2 green Wolf creature token and you gain 2 life.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         HUNTMASTER_WOLF_AND_LIFE,
     ),
     AbilityDef::triggered(
@@ -3420,10 +3356,7 @@ pub(in crate::card::sets) static HELVAULT: CardRecord = CardRecord::new_with_leg
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
             ),
-            AbilityDef::triggered(
-                "When Helvault is put into a graveyard from the battlefield, return all cards exiled with it to the battlefield under their owners' control.",
-                TriggerEventDef::zone_changed(ObjectPredicateDef::Source, Some(ZoneKind::Battlefield), Some(ZoneKind::Graveyard)),
-                EffectDef::ReturnLinkedExiles {
+            abilities::dies_trigger("When Helvault is put into a graveyard from the battlefield, return all cards exiled with it to the battlefield under their owners' control.", EffectDef::ReturnLinkedExiles {
                     object: ObjectPredicateDef::Any,
                     counters: None,
                     arrival_effect: None,
@@ -3431,8 +3364,7 @@ pub(in crate::card::sets) static HELVAULT: CardRecord = CardRecord::new_with_leg
                     grant: None,
                     controller: None,
                     transformed: false,
-                },
-            ),
+                }),
         ]),
 );
 

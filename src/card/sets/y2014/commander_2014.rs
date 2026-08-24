@@ -58,13 +58,8 @@ static A_LAND_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
 ]);
 
 static TITANIA_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::triggered_with_targets(
+    abilities::enters_trigger_with_targets(
         "When Titania enters, return target land card from your graveyard to the battlefield.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         &A_LAND_CARD_IN_YOUR_GRAVEYARD,
         EffectDef::MoveToZone {
             counters: None,

@@ -56,14 +56,9 @@ pub(in crate::card::sets) static FLICKERWISP: CardRecord = CardRecord::new(
     // own permanents that would rather enter again.
     CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Elemental"], 3, 1).with_abilities(&[
         abilities::flying(),
-        AbilityDef::triggered_with_targets(
+        abilities::enters_trigger_with_targets(
             "When this creature enters, exile another target permanent. Return that card to the \
              battlefield under its owner's control at the beginning of the next end step.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             &ANOTHER_PERMANENT,
             EffectDef::Sequence(&FLICKERWISP_EXILE),
         ),

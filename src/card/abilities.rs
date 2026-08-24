@@ -55,6 +55,58 @@ pub const fn enchanted_controller_upkeep(text: &'static str, effect: EffectDef) 
     )
 }
 
+/// A source permanent's own enters-the-battlefield trigger.
+#[must_use]
+pub const fn enters_trigger(text: &'static str, effect: EffectDef) -> AbilityDef {
+    enters_trigger_with_targets(text, &[], effect)
+}
+
+/// A targeted source permanent's own enters-the-battlefield trigger.
+#[must_use]
+pub const fn enters_trigger_with_targets(
+    text: &'static str,
+    targets: &'static [AbilityTargetDef],
+    effect: EffectDef,
+) -> AbilityDef {
+    AbilityDef::triggered_with_targets(
+        text,
+        TriggerEventDef::zone_changed(
+            ObjectPredicateDef::Source,
+            None,
+            Some(ZoneKind::Battlefield),
+        ),
+        targets,
+        effect,
+    )
+}
+
+/// A source permanent's own battlefield-to-graveyard trigger. The helper is
+/// named for the common creature wording, but it also fits noncreature
+/// permanents that trigger when put into a graveyard from the battlefield.
+#[must_use]
+pub const fn dies_trigger(text: &'static str, effect: EffectDef) -> AbilityDef {
+    dies_trigger_with_targets(text, &[], effect)
+}
+
+/// A targeted source permanent's own battlefield-to-graveyard trigger.
+#[must_use]
+pub const fn dies_trigger_with_targets(
+    text: &'static str,
+    targets: &'static [AbilityTargetDef],
+    effect: EffectDef,
+) -> AbilityDef {
+    AbilityDef::triggered_with_targets(
+        text,
+        TriggerEventDef::zone_changed(
+            ObjectPredicateDef::Source,
+            Some(ZoneKind::Battlefield),
+            Some(ZoneKind::Graveyard),
+        ),
+        targets,
+        effect,
+    )
+}
+
 /// The target an "Enchant land" Aura spell chooses.
 pub static ENCHANT_LAND_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
     ObjectPredicateDef::HasType(CardType::Land),

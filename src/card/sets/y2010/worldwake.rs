@@ -6,8 +6,8 @@ use crate::card::{
     AppliedEffectDef, AppliedRuleDef, CardArt, CardChoiceSourceDef, CardRules, CardSet,
     CardSupertype, CardType, CardTypeSet, ColorSet, CreatureTypeSetDef, EffectDef,
     EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TopCardSelectionDef, TriggerEventDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TopCardSelectionDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -38,14 +38,7 @@ pub(in crate::card::sets) static STONEFORGE_MYSTIC: CardRecord = CardRecord::new
     CardSet::Worldwake,
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Kor", "Artificer"], 1, 2)
         .with_abilities(&[
-            AbilityDef::triggered(
-                "When this creature enters, you may search your library for an Equipment card, reveal it, put it into your hand, then shuffle.",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::Source,
-                    None,
-                    Some(ZoneKind::Battlefield),
-                ),
-                EffectDef::May {
+            abilities::enters_trigger("When this creature enters, you may search your library for an Equipment card, reveal it, put it into your hand, then shuffle.", EffectDef::May {
                     player: EffectRecipientDef::Controller,
                     effect: &EffectDef::SearchZone {
                         player: EffectRecipientDef::Controller,
@@ -61,8 +54,7 @@ pub(in crate::card::sets) static STONEFORGE_MYSTIC: CardRecord = CardRecord::new
                         binding: None,
                         then: None,
                     },
-                },
-            ),
+                }),
             AbilityDef::activated(
                 "{1}{W}, {T}: You may put an Equipment card from your hand onto the battlefield.",
                 &[

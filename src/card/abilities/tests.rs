@@ -1,19 +1,105 @@
 #[cfg(test)]
 mod tests {
     use super::{
-        banding, bloodrush, check_land_enters, double_strike, first_strike, flashback,
+        banding, bloodrush, check_land_enters, dies_trigger, dies_trigger_with_targets,
+        double_strike, enters_trigger, enters_trigger_with_targets, first_strike, flashback,
         flashback_for_card_mana_cost, flying, intimidate, overload, pain_land, shock_land_enters,
-        tap_for, EQUIP_TARGET, equip,
+        tap_for, EQUIP_TARGET, equip, living_weapon,
     };
     use crate::card::{
-        AbilityCostDef, AbilityCostList, AbilityCoverageDef, AbilityDef, ActivationTimingDef,
-        AddManaEffectDef, AlternativeCastKindDef, AlternativeCastManaCostDef, BasicLandType,
-        CardRules, ConditionDef, DeclarativeAbilityDef, EffectDef, EffectPaymentCostDef,
-        EffectRecipientDef, KeywordAbility, ManaColor, ManaCost, ObjectPredicateDef,
-        PlayerRelation, PlayerSetDef, ReplacementEffectDef, ZoneKind,
+        AbilityCostDef, AbilityCostList, AbilityCoverageDef, AbilityDef, AbilityTargetDef,
+        ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef,
+        AlternativeCastManaCostDef, BasicLandType, CardRules, CardType, ConditionDef,
+        DeclarativeAbilityDef, EffectDef, EffectPaymentCostDef, EffectRecipientDef, KeywordAbility,
+        ManaColor, ManaCost, ObjectPredicateDef, PlayerRelation, PlayerSetDef,
+        ReplacementEffectDef, TriggerEventDef, ZoneKind,
     };
     use crate::TargetIndex;
     use crate::mana_cost;
+
+    #[test]
+    fn living_weapon_owns_its_rules_defined_germ() {
+        let Some(EffectDef::CreateAttachedToken { token }) = living_weapon().declarative_effect()
+        else {
+            panic!("living weapon should create and attach its Germ")
+        };
+        let rules = token.rules();
+
+        assert_eq!(token.name(), "Phyrexian Germ");
+        assert!(rules.has_type(CardType::Creature));
+        assert_eq!(rules.subtypes(), &["Phyrexian", "Germ"]);
+        assert_eq!(rules.colors(), [false, false, true, false, false]);
+        assert_eq!(rules.creature_stats().map(|stats| (stats.power, stats.toughness)), Some((0, 0)));
+    }
+
+    #[test]
+    fn common_source_zone_triggers_use_shared_events_and_preserve_targets() {
+        static TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::Any,
+        )];
+        let effect = EffectDef::Special("Test common source trigger");
+
+        for ability in [
+            enters_trigger("When this enters, test.", effect),
+            enters_trigger_with_targets("When this enters, test target.", &TARGETS, effect),
+        ] {
+            let DeclarativeAbilityDef::Triggered(definition) = ability.definition else {
+                panic!("enters helpers should build triggered abilities")
+            };
+            assert_eq!(
+                definition.event,
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    None,
+                    Some(ZoneKind::Battlefield),
+                )
+            );
+        }
+
+        for ability in [
+            dies_trigger("When this dies, test.", effect),
+            dies_trigger_with_targets("When this dies, test target.", &TARGETS, effect),
+        ] {
+            let DeclarativeAbilityDef::Triggered(definition) = ability.definition else {
+                panic!("dies helpers should build triggered abilities")
+            };
+            assert_eq!(
+                definition.event,
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    Some(ZoneKind::Battlefield),
+                    Some(ZoneKind::Graveyard),
+                )
+            );
+        }
+
+        let DeclarativeAbilityDef::Triggered(enters) =
+            enters_trigger("When this enters, test.", effect).definition
+        else {
+            unreachable!()
+        };
+        assert!(enters.targets.is_empty());
+        let DeclarativeAbilityDef::Triggered(targeted_enters) =
+            enters_trigger_with_targets("When this enters, test target.", &TARGETS, effect)
+                .definition
+        else {
+            unreachable!()
+        };
+        assert_eq!(targeted_enters.targets, TARGETS);
+
+        let DeclarativeAbilityDef::Triggered(dies) =
+            dies_trigger("When this dies, test.", effect).definition
+        else {
+            unreachable!()
+        };
+        assert!(dies.targets.is_empty());
+        let DeclarativeAbilityDef::Triggered(targeted_dies) =
+            dies_trigger_with_targets("When this dies, test target.", &TARGETS, effect).definition
+        else {
+            unreachable!()
+        };
+        assert_eq!(targeted_dies.targets, TARGETS);
+    }
 
     #[test]
     fn tap_for_builds_a_complete_executable_mana_ability() {

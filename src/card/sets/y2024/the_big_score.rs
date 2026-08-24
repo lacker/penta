@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     CardArt, CardRules, CardSet, CardSupertype, CardType, EffectDef, EffectRecipientDef,
-    ObjectPredicateDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, abilities,
+    ObjectPredicateDef, PlayerRelation, ValueDef, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -40,13 +40,8 @@ static EXTRUDER_GOLEM_COST: [AbilityCostDef; 3] = [
 ];
 
 static LEGION_EXTRUDER_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::triggered_with_targets(
+    abilities::enters_trigger_with_targets(
         "When this artifact enters, it deals 2 damage to any target.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         &ANY_TARGET,
         EffectDef::DealDamage {
             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),

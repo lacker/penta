@@ -238,13 +238,8 @@ static OMNATH_LANDFALL: [EffectDef; 3] = [
 ];
 
 static OMNATH_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::triggered(
+    abilities::enters_trigger(
         "When Omnath enters, draw a card.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         EffectDef::DrawCards {
             recipient: EffectRecipientDef::Controller,
             amount: ValueDef::Constant(1),

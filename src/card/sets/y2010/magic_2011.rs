@@ -95,13 +95,8 @@ pub(in crate::card::sets) static LILIANA_S_SPECTER: CardRecord = CardRecord::new
     crate::card::CardSet::Magic2011,
     CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Specter"], 2, 1).with_abilities(&[
         abilities::flying(),
-        AbilityDef::triggered(
+        abilities::enters_trigger(
             "When this creature enters, each opponent discards a card.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             EffectDef::Discard {
                 recipient: EffectRecipientDef::Opponent,
                 amount: ValueDef::Constant(1),

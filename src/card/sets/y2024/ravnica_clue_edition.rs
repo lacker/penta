@@ -21,13 +21,8 @@ static CREATURES_THAT_PLAYER_CONTROLS: [AbilityTargetDef; 1] = [AbilityTargetDef
 
 static SCARLETT_ABILITIES: [AbilityDef; 3] = [
     abilities::haste(),
-    AbilityDef::triggered_with_targets(
+    abilities::enters_trigger_with_targets(
         "When Headliner Scarlett enters, creatures target player controls can't block this turn.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         &CREATURES_THAT_PLAYER_CONTROLS,
         EffectDef::Apply {
             recipient: EffectRecipientDef::objects(ObjectSetDef::Query(

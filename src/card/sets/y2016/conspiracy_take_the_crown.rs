@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardType, EffectDef,
     EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef, PlayerRefDef, PlayerRelation,
-    TriggerEventDef, ZoneKind,
+    TriggerEventDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -43,24 +43,14 @@ static JAILER_JAILS: [EffectDef; 2] = [
 ];
 
 static JAILER_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::triggered(
+    abilities::enters_trigger(
         "When this creature enters, you become the monarch.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         EffectDef::BecomeMonarch {
             player: PlayerRefDef::EffectController,
         },
     ),
-    AbilityDef::triggered_with_targets(
+    abilities::enters_trigger_with_targets(
         "When this creature enters, exile target creature an opponent controls until an opponent becomes the monarch.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         &JAILER_TARGET,
         EffectDef::Sequence(&JAILER_JAILS),
     ),

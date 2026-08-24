@@ -149,19 +149,28 @@ pub const fn fortify(mana_cost: ManaCost, text: &'static str) -> AbilityDef {
     .with_activation_timing(ActivationTimingDef::SorcerySpeed)
 }
 
+/// The rules-defined 0/0 black Phyrexian Germ created by every instance of
+/// living weapon. Its illustration is the earliest indexed printing of the
+/// current Phyrexian Germ token identity.
+const GERM: crate::TokenCharacteristics = crate::TokenCharacteristics::creature(
+    &["Phyrexian", "Germ"],
+    &[ManaColor::Black],
+    0,
+    0,
+)
+.with_art(crate::card::CardArt::new(
+    "b53e0681-603e-4180-bc86-3dadf214e61a",
+    "Igor Kieryluk",
+));
+
 /// Living weapon's enter-the-battlefield trigger. The effect's entry
-/// continuation attaches the Equipment to the token's exact resulting
-/// permanent before state-based actions are checked.
+/// continuation attaches the rules-defined Germ to the Equipment before
+/// state-based actions are checked.
 #[must_use]
-pub const fn living_weapon(token: crate::TokenCharacteristics) -> AbilityDef {
-    AbilityDef::triggered(
+pub const fn living_weapon() -> AbilityDef {
+    enters_trigger(
         "Living weapon (When this Equipment enters, create a 0/0 black Phyrexian Germ creature token, then attach this to it.)",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
-        EffectDef::CreateAttachedToken { token },
+        EffectDef::CreateAttachedToken { token: GERM },
     )
 }
 
@@ -180,13 +189,8 @@ const REBEL: crate::TokenCharacteristics =
 /// where it stands.
 #[must_use]
 pub const fn for_mirrodin() -> AbilityDef {
-    AbilityDef::triggered(
+    enters_trigger(
         "For Mirrodin! (When this Equipment enters, create a 2/2 red Rebel creature token, then attach this to it.)",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         EffectDef::CreateAttachedToken { token: REBEL },
     )
 }

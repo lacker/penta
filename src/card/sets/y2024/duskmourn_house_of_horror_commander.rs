@@ -41,14 +41,9 @@ pub(in crate::card::sets) static METAMORPHOSIS_FANATIC: CardRecord = CardRecord:
     // a cube -- and the body it brings back is the half that wins games.
     CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Human", "Cleric"], 4, 4).with_abilities(&[
         abilities::lifelink(),
-        AbilityDef::triggered_with_targets(
+        abilities::enters_trigger_with_targets(
             "When this creature enters, return up to one target creature card from your graveyard \
              to the battlefield with a lifelink counter on it.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             &A_CREATURE_IN_YOUR_GRAVEYARD,
             EffectDef::MoveToZone {
                 counters: Some(A_LIFELINK_COUNTER),

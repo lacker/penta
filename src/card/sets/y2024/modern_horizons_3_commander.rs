@@ -230,13 +230,8 @@ static TALON_GATES_FILTER: [AbilityCostDef; 2] = [
 static TALON_GATES_CRASH: [AbilityCostDef; 1] = [AbilityCostDef::Mana(mana_cost!("{4}"))];
 
 static TALON_GATES_ABILITIES: [AbilityDef; 4] = [
-    AbilityDef::triggered_with_targets(
+    abilities::enters_trigger_with_targets(
         "When this land enters, up to one target creature phases out.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         &TALON_GATES_TARGET,
         EffectDef::PhaseOut {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),

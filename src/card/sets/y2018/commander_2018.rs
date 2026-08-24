@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AddManaEffectDef, CardArt, CardRules, CardSet, CardType,
     ControlDurationDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRefDef,
-    PlayerRelation, TriggerEventDef, ValueDef, ZoneKind,
+    PlayerRelation, TriggerEventDef, ValueDef, abilities,
 };
 use crate::mana_cost;
 
@@ -39,13 +39,8 @@ static THEY_TAKE_THE_JEWEL: [EffectDef; 3] = [
 ];
 
 static COVETED_JEWEL_ABILITIES: [AbilityDef; 3] = [
-    AbilityDef::triggered(
+    abilities::enters_trigger(
         "When this artifact enters, draw three cards.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         EffectDef::DrawCards {
             recipient: EffectRecipientDef::Controller,
             amount: ValueDef::Constant(3),

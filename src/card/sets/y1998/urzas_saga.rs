@@ -202,13 +202,8 @@ pub(in crate::card::sets) static MONK_REALIST: CardRecord = CardRecord::new_with
     CardArt::new("7a7fe9f1-f3c0-43e4-aa30-d0bdab4ae94d", "Daren Bader"),
     CardSet::UrzasSaga,
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Monk", "Cleric"], 1, 1).with_ability(
-        AbilityDef::triggered_with_targets(
+        abilities::enters_trigger_with_targets(
             "When this creature enters, destroy target enchantment.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Enchantment),
             )],
@@ -773,14 +768,7 @@ pub(in crate::card::sets) static GILDED_DRAKE: CardRecord = CardRecord::new_with
     // flier. Against a board with nothing worth taking it simply dies.
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Drake"], 3, 3).with_abilities(&[
         abilities::flying(),
-        AbilityDef::triggered_with_targets(
-            "When this creature enters, exchange control of this creature and up to one target creature an opponent controls. If you don't or can't make an exchange, sacrifice this creature.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
-            &[AbilityTargetDef::up_to(
+        abilities::enters_trigger_with_targets("When this creature enters, exchange control of this creature and up to one target creature an opponent controls. If you don't or can't make an exchange, sacrifice this creature.", &[AbilityTargetDef::up_to(
                 AbilityTargetPredicate::Object {
                     object: A_CREATURE_AN_OPPONENT_CONTROLS,
                     zones: &[ZoneKind::Battlefield],
@@ -788,9 +776,7 @@ pub(in crate::card::sets) static GILDED_DRAKE: CardRecord = CardRecord::new_with
                     owner: None,
                 },
                 1,
-            )],
-            DRAKE_ENTERS,
-        ),
+            )], DRAKE_ENTERS),
     ]),
 );
 
@@ -2028,14 +2014,7 @@ pub(in crate::card::sets) static GOBLIN_MATRON: CardRecord = CardRecord::new_wit
     // Any Goblin card, so it fetches the answer rather than the biggest
     // body: Tinkerer against artifacts, Ringleader for more cards.
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin"], 1, 1).with_ability(
-        AbilityDef::triggered(
-            "When this creature enters, you may search your library for a Goblin card, reveal that card, put it into your hand, then shuffle.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
-            EffectDef::SearchZone {
+        abilities::enters_trigger("When this creature enters, you may search your library for a Goblin card, reveal that card, put it into your hand, then shuffle.", EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
                 object: ObjectPredicateDef::Subtype("Goblin"),
@@ -2048,8 +2027,7 @@ pub(in crate::card::sets) static GOBLIN_MATRON: CardRecord = CardRecord::new_wit
                 enters_tapped: false,
                 binding: None,
                 then: None,
-            },
-        ),
+            }),
     ),
 );
 

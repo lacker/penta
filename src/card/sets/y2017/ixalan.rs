@@ -83,13 +83,8 @@ static FREEBOOTER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one
 
 static KITESAIL_FREEBOOTER_ABILITIES: [AbilityDef; 2] = [
     abilities::flying(),
-    AbilityDef::triggered_with_targets(
+    abilities::enters_trigger_with_targets(
         "When this creature enters, target opponent reveals their hand. You choose a noncreature, nonland card from it. Exile that card until this creature leaves the battlefield.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         &FREEBOOTER_TARGET,
         EffectDef::Sequence(&FREEBOOTER_TAKES_A_CARD),
     ),

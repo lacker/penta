@@ -352,18 +352,10 @@ pub(in crate::card::sets) static GENEROUS_ENT: CardRecord = CardRecord::new_with
     CardSet::LordOfTheRings,
     CardRules::new_creature(mana_cost!("{5}{G}"), &["Treefolk"], 5, 7).with_abilities(&[
         abilities::reach(),
-        AbilityDef::triggered(
-            "When this creature enters, create a Food token.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
-            EffectDef::create_token(tokens::food()).with_art(CardArt::new(
+        abilities::enters_trigger("When this creature enters, create a Food token.", EffectDef::create_token(tokens::food()).with_art(CardArt::new(
                 "4a029bdc-92e3-4d85-8af5-e33429a5f017",
                 "L J Koh",
-            )),
-        ),
+            ))),
         // Six mana is not what this card is for. Forestcycling is: one mana
         // from hand, and the Ent becomes the land the draw did not give you.
         abilities::typecycling(

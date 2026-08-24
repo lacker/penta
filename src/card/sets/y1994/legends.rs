@@ -1718,13 +1718,8 @@ pub(in crate::card::sets) static VENARIAN_GOLD: CardRecord = CardRecord::new_wit
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
-            AbilityDef::triggered(
+            abilities::enters_trigger(
                 "When this Aura enters, tap enchanted creature and put X sleep counters on it.",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::Source,
-                    None,
-                    Some(ZoneKind::Battlefield),
-                ),
                 EffectDef::Sequence(&VENARIAN_GOLD_SLEEP),
             ),
             AbilityDef::static_ability(
@@ -1916,13 +1911,8 @@ pub(in crate::card::sets) static CYCLOPEAN_MUMMY: CardRecord = CardRecord::new_w
     ),
     CardSet::Legends,
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Zombie"], 2, 1).with_ability(
-        AbilityDef::triggered(
+        abilities::dies_trigger(
             "When this creature dies, exile it.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                Some(ZoneKind::Battlefield),
-                Some(ZoneKind::Graveyard),
-            ),
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Source,
@@ -3636,14 +3626,9 @@ pub(in crate::card::sets) static COCOON: CardRecord = CardRecord::new_with_legac
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             abilities::aura_spell("Enchant creature you control", &COCOON_TARGET),
-            AbilityDef::triggered(
+            abilities::enters_trigger(
                 "When this Aura enters, tap enchanted creature and put three pupa counters \
                  on this Aura.",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::Source,
-                    None,
-                    Some(ZoneKind::Battlefield),
-                ),
                 EffectDef::Sequence(&COCOON_WRAPPED),
             ),
             AbilityDef::static_ability(
@@ -5638,16 +5623,12 @@ pub(in crate::card::sets) static ARENA_OF_THE_ANCIENTS: CardRecord = CardRecord:
             "Legendary creatures don't untap during their controllers' untap steps.",
             "Current untap suppression is discovered only on the permanent's own static abilities; an external static effect cannot suppress a matching set without granting an executable static ability, which requires fixed-point ability-layer evaluation.",
         ),
-        AbilityDef::triggered(
-            "When this artifact enters, tap all legendary creatures.",
-            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)),
-            EffectDef::Tap {
+        abilities::enters_trigger("When this artifact enters, tap all legendary creatures.", EffectDef::Tap {
                 object: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::Supertype(CardSupertype::Legendary),
                     ]), &[ZoneKind::Battlefield], PlayerRelation::Any),
-            },
-        ),
+            }),
     ]),
 );
 

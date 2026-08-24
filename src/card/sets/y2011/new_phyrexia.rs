@@ -49,11 +49,7 @@ pub(in crate::card::sets) static BLADE_SPLICER: CardRecord = CardRecord::new(
     crate::card::CardArt::new("b8e56a28-713b-4a13-a601-1128cf117539", "Greg Staples"),
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_creature(mana_cost!("{2}{W}"), &["Phyrexian", "Human", "Artificer"], 1, 1).with_abilities(&[
-        AbilityDef::triggered(
-            "When this creature enters, create a 3/3 colorless Phyrexian Golem artifact creature token.",
-            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)),
-            EffectDef::create_artifact_creature_token(&["Phyrexian", "Golem"], &[], 3, 3),
-        ),
+        abilities::enters_trigger("When this creature enters, create a 3/3 colorless Phyrexian Golem artifact creature token.", EffectDef::create_artifact_creature_token(&["Phyrexian", "Golem"], &[], 3, 3)),
         AbilityDef::static_ability(
             "Golems you control have first strike.",
             EffectDef::StaticApply {
@@ -283,11 +279,7 @@ pub(in crate::card::sets) static MASTER_SPLICER: CardRecord = CardRecord::new(
     crate::card::CardArt::new("859d2b91-63af-4700-8ca5-b1756aa6639b", "Chippy"),
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_creature(mana_cost!("{3}{W}"), &["Phyrexian", "Human", "Artificer"], 1, 1).with_abilities(&[
-        AbilityDef::triggered(
-            "When this creature enters, create a 3/3 colorless Phyrexian Golem artifact creature token.",
-            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)),
-            EffectDef::create_artifact_creature_token(&["Phyrexian", "Golem"], &[], 3, 3),
-        ),
+        abilities::enters_trigger("When this creature enters, create a 3/3 colorless Phyrexian Golem artifact creature token.", EffectDef::create_artifact_creature_token(&["Phyrexian", "Golem"], &[], 3, 3)),
         AbilityDef::static_ability(
             "Golems you control get +1/+1.",
             EffectDef::StaticApply {
@@ -355,11 +347,7 @@ pub(in crate::card::sets) static SENSOR_SPLICER: CardRecord = CardRecord::new(
     crate::card::CardArt::new("79076264-d71c-4b30-aac9-702a4d229933", "Izzy"),
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_creature(mana_cost!("{4}{W}"), &["Phyrexian", "Artificer"], 1, 1).with_abilities(&[
-        AbilityDef::triggered(
-            "When this creature enters, create a 3/3 colorless Phyrexian Golem artifact creature token.",
-            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)),
-            EffectDef::create_artifact_creature_token(&["Phyrexian", "Golem"], &[], 3, 3),
-        ),
+        abilities::enters_trigger("When this creature enters, create a 3/3 colorless Phyrexian Golem artifact creature token.", EffectDef::create_artifact_creature_token(&["Phyrexian", "Golem"], &[], 3, 3)),
         AbilityDef::static_ability(
             "Golem creatures you control have vigilance.",
             EffectDef::StaticApply {
@@ -763,11 +751,7 @@ pub(in crate::card::sets) static WING_SPLICER: CardRecord = CardRecord::new(
     crate::card::CardArt::new("e2dbfb1b-092c-44a3-932d-a8b27be0a72b", "Kev Walker"),
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_creature(mana_cost!("{3}{U}"), &["Phyrexian", "Human", "Artificer"], 1, 1).with_abilities(&[
-        AbilityDef::triggered(
-            "When this creature enters, create a 3/3 colorless Phyrexian Golem artifact creature token.",
-            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)),
-            EffectDef::create_artifact_creature_token(&["Phyrexian", "Golem"], &[], 3, 3),
-        ),
+        abilities::enters_trigger("When this creature enters, create a 3/3 colorless Phyrexian Golem artifact creature token.", EffectDef::create_artifact_creature_token(&["Phyrexian", "Golem"], &[], 3, 3)),
         AbilityDef::static_ability(
             "Golem creatures you control have flying.",
             EffectDef::StaticApply {
@@ -1009,13 +993,8 @@ pub(in crate::card::sets) static PITH_DRILLER: CardRecord = CardRecord::new(
     crate::card::CardArt::new("28e960c6-6da0-4679-87eb-55bac890e0c6", "Nils Hamm"),
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_artifact_creature(mana_cost!("{4}{B/P}"), &["Phyrexian", "Horror"], 2, 4)
-        .with_ability(AbilityDef::triggered_with_targets(
+        .with_ability(abilities::enters_trigger_with_targets(
             "When this creature enters, put a -1/-1 counter on target creature.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -1303,13 +1282,8 @@ pub(in crate::card::sets) static PRIEST_OF_URABRASK: CardRecord = CardRecord::ne
         2,
         1,
     )
-    .with_ability(AbilityDef::triggered(
+    .with_ability(abilities::enters_trigger(
         "When this creature enters, add {R}{R}{R}.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
         EffectDef::AddMana(AddManaEffectDef::combination(&[ManaColor::Red], 3)),
     )),
 );
@@ -1682,11 +1656,7 @@ pub(in crate::card::sets) static MAUL_SPLICER: CardRecord = CardRecord::new(
     crate::card::CardArt::new("2d2c6a6d-5b59-47d7-b290-df3640d9555f", "Jason Chan"),
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_creature(mana_cost!("{6}{G}"), &["Phyrexian", "Human", "Artificer"], 1, 1).with_abilities(&[
-        AbilityDef::triggered(
-            "When this creature enters, create two 3/3 colorless Phyrexian Golem artifact creature tokens.",
-            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)),
-            EffectDef::create_artifact_creature_token(&["Phyrexian", "Golem"], &[], 3, 3).with_amount(2),
-        ),
+        abilities::enters_trigger("When this creature enters, create two 3/3 colorless Phyrexian Golem artifact creature tokens.", EffectDef::create_artifact_creature_token(&["Phyrexian", "Golem"], &[], 3, 3).with_amount(2)),
         AbilityDef::static_ability(
             "Golem creatures you control have trample.",
             EffectDef::StaticApply {

@@ -6,8 +6,8 @@ use crate::card::{
     AddManaEffectDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
     ComparisonDef, EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    PlayerSetDef, TopCardSelectionDef, TriggerConditionDef, ValueComparisonDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -273,14 +273,9 @@ pub(in crate::card::sets) static SHELLDOCK_ISLE: CardRecord = CardRecord::new(
     // A tapped Island that hides your best card until the game is nearly
     // over, and then plays it for nothing.
     CardRules::new_land(&[]).with_abilities(&[
-        AbilityDef::triggered(
+        abilities::enters_trigger(
             "Hideaway 4 (When this land enters, look at the top four cards of your library, \
              exile one face down, then put the rest on the bottom in a random order.)",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
             EffectDef::LookAtTopAndSelect {
                 player: EffectRecipientDef::Controller,
                 looker: EffectRecipientDef::Controller,

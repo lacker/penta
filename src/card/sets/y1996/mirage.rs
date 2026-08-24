@@ -3269,15 +3269,7 @@ pub(in crate::card::sets) static PHYREXIAN_DREADNOUGHT: CardRecord = CardRecord:
     CardRules::new_artifact_creature(mana_cost!("{1}"), &["Phyrexian", "Dreadnought"], 12, 12)
         .with_abilities(&[
             abilities::trample(),
-            AbilityDef::triggered(
-                "When this creature enters, sacrifice it unless you sacrifice any number of creatures with total power 12 or greater.",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::Source,
-                    None,
-                    Some(ZoneKind::Battlefield),
-                ),
-                EffectDef::PayOr(DREADNOUGHT_COST),
-            ),
+            abilities::enters_trigger("When this creature enters, sacrifice it unless you sacrifice any number of creatures with total power 12 or greater.", EffectDef::PayOr(DREADNOUGHT_COST)),
         ]),
 );
 

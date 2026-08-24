@@ -665,19 +665,11 @@ pub(in crate::card::sets) static GOBLIN_RINGLEADER: CardRecord = CardRecord::new
     // Ringleader tends to find the next one.
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Goblin"], 2, 2).with_abilities(&[
         abilities::haste(),
-        AbilityDef::triggered(
-            "When this creature enters, reveal the top four cards of your library. Put all Goblin cards revealed this way into your hand and the rest on the bottom of your library in any order.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
-            EffectDef::LookAtTopAndSelect {
+        abilities::enters_trigger("When this creature enters, reveal the top four cards of your library. Put all Goblin cards revealed this way into your hand and the rest on the bottom of your library in any order.", EffectDef::LookAtTopAndSelect {
                 player: EffectRecipientDef::Controller,
                 looker: EffectRecipientDef::Controller,
                 selection: &RINGLEADER_DIG,
-            },
-        ),
+            }),
     ]),
 );
 

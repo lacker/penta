@@ -3,13 +3,12 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, ActivationTimingDef, AddManaEffectDef, AppliedEffectDef, CardArt,
-    CardComposition, CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype,
-    CardType, CounterKind, DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef,
-    DamageSourceMatcherDef, DoubleFacedKind, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, ObjectRefDef, PlayOptionDef, PlayerRelation, ResolvedEffectDurationDef,
-    SpellForm, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
+    CardRules, CardSet, CardSupertype, CardType, CounterKind, DamageEventMatcherDef, DamageKindDef,
+    DamageRecipientMatcherDef, DamageSourceMatcherDef, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectPredicateDef, ObjectRefDef, PlayerRelation, ResolvedEffectDurationDef,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
 };
-use crate::{CardPartId, PlayOptionId, mana_cost};
+use crate::mana_cost;
 
 // FIN 91 — Cecil, Dark Knight // Cecil, Redeemed Paladin
 /// The front half's payoff, and the reason the card is played: hitting hard
@@ -99,43 +98,16 @@ const fn cecil_redeemed_paladin_rules() -> CardRules {
         .with_abilities(&CECIL_REDEEMED_PALADIN_ABILITIES)
 }
 
-fn cecil_composition() -> CardComposition {
-    CardComposition {
-        parts: vec![
-            CardPart::new(
-                CardPartId::PRIMARY,
-                "Cecil, Dark Knight",
-                cecil_dark_knight_rules(),
-            ),
-            CardPart::new(
-                CardPartId(1),
-                "Cecil, Redeemed Paladin",
-                cecil_redeemed_paladin_rules(),
-            ),
-        ],
-        structure: CardStructure::DoubleFaced {
-            front: CardPartId::PRIMARY,
-            back: CardPartId(1),
-            kind: DoubleFacedKind::Transforming,
-        },
-        play_options: vec![PlayOptionDef::cast(
-            PlayOptionId::DEFAULT,
-            "Cecil, Dark Knight",
-            SpellForm::Part(CardPartId::PRIMARY),
-            mana_cost!("{B}"),
-            CardEffectStatus::Implemented,
-        )],
-    }
-}
-
-pub(in crate::card::sets) static CECIL_DARK_KNIGHT: CardRecord = CardRecord::new_with_legacy_id(
+pub(in crate::card::sets) static CECIL_DARK_KNIGHT: CardRecord = CardRecord::new_dfc_with_legacy_id(
     2129,
-    "Cecil, Dark Knight",
+    "Cecil, Dark Knight // Cecil, Redeemed Paladin",
     CardArt::new("026e7167-d665-43d0-a51e-8df2d68cdb5e", "Josu Hernaiz"),
     CardSet::FinalFantasy,
-    cecil_dark_knight_rules(),
-)
-.with_composition(cecil_composition);
+    &[
+        ("Cecil, Dark Knight", cecil_dark_knight_rules()),
+        ("Cecil, Redeemed Paladin", cecil_redeemed_paladin_rules()),
+    ],
+);
 
 // FIN 114 — Resentful Revelation
 // Audit: metadata-only — Card rules have not been implemented.

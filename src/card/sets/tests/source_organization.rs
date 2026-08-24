@@ -168,10 +168,17 @@ fn validate_double_faced_headers(entries: &[SourceEntry], set_source: SetSource,
             .part(*back)
             .expect("a double-faced definition has its back part")
             .name;
+        let combined_name = format!("{front_name} // {back_name}");
         assert_eq!(
             entry.header_name,
-            format!("{front_name} // {back_name}"),
+            combined_name,
             "{}: double-faced card headers must list front and back face names",
+            path.display()
+        );
+        assert_eq!(
+            definition.name,
+            combined_name,
+            "{}: modeled double-faced CardRecord names must list front and back faces",
             path.display()
         );
     }

@@ -1,11 +1,21 @@
 use super::{
     AbilityDef, CardArt, CardComposition, CardDefinition, CardPrinting, CardRules, CardSet,
+    DoubleFacedKind,
 };
 use crate::game::CardAbilityResolver;
 use crate::{AbilityId, CardDefinitionId, CardPartId, TargetSlotId};
 use sha2::{Digest, Sha256};
 
 type CompositionBuilder = fn() -> CardComposition;
+
+#[derive(Clone, Copy)]
+enum CompositionSource {
+    Builder(CompositionBuilder),
+    DoubleFaced {
+        faces: &'static [(&'static str, CardRules); 2],
+        kind: DoubleFacedKind,
+    },
+}
 
 /// Immutable exact first-printing anchor from which a new definition ID is derived.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -95,7 +105,7 @@ pub(super) struct CardRecord {
     pub(super) art: CardArt,
     pub(super) debut_set: CardSet,
     pub(super) rules: CardRules,
-    composition: Option<CompositionBuilder>,
+    composition: Option<CompositionSource>,
     pub(crate) ability_bindings: &'static [CardAbilityBinding],
 }
 
@@ -147,6 +157,88 @@ impl CardRecord {
         }
     }
 
+    /// Defines a double-faced card whose ID is derived from its immutable
+    /// first-printing anchor.
+    const fn new_double_faced(
+        legacy_id: Option<CardDefinitionId>,
+        identity_anchor: PrintingAnchor,
+        name: &'static str,
+        art: CardArt,
+        debut_set: CardSet,
+        faces: &'static [(&'static str, CardRules); 2],
+        kind: DoubleFacedKind,
+    ) -> Self {
+        Self {
+            legacy_id,
+            identity_anchor,
+            name,
+            art,
+            debut_set,
+            rules: faces[0].1,
+            composition: Some(CompositionSource::DoubleFaced { faces, kind }),
+            ability_bindings: &[],
+        }
+    }
+
+    /// Defines a transforming double-faced card whose ID is derived from its
+    /// immutable first-printing anchor.
+    pub(super) const fn new_dfc(
+        identity_anchor: PrintingAnchor,
+        name: &'static str,
+        art: CardArt,
+        debut_set: CardSet,
+        faces: &'static [(&'static str, CardRules); 2],
+    ) -> Self {
+        Self::new_double_faced(
+            None,
+            identity_anchor,
+            name,
+            art,
+            debut_set,
+            faces,
+            DoubleFacedKind::Transforming,
+        )
+    }
+
+    /// Defines a modal double-faced card whose ID is derived from its
+    /// immutable first-printing anchor.
+    pub(super) const fn new_mdfc(
+        identity_anchor: PrintingAnchor,
+        name: &'static str,
+        art: CardArt,
+        debut_set: CardSet,
+        faces: &'static [(&'static str, CardRules); 2],
+    ) -> Self {
+        Self::new_double_faced(
+            None,
+            identity_anchor,
+            name,
+            art,
+            debut_set,
+            faces,
+            DoubleFacedKind::Modal,
+        )
+    }
+
+    /// Preserves an existing numeric ID for a double-faced card.
+    pub(super) const fn new_dfc_with_legacy_id(
+        legacy_id: u64,
+        name: &'static str,
+        art: CardArt,
+        debut_set: CardSet,
+        faces: &'static [(&'static str, CardRules); 2],
+    ) -> Self {
+        Self::new_double_faced(
+            Some(CardDefinitionId::new(legacy_id)),
+            PrintingAnchor::scryfall(art.scryfall_id),
+            name,
+            art,
+            debut_set,
+            faces,
+            DoubleFacedKind::Transforming,
+        )
+    }
+
     /// Uses an identity printing distinct from the chosen presentation art.
     #[must_use]
     pub(super) const fn with_identity_anchor(mut self, anchor: PrintingAnchor) -> Self {
@@ -180,7 +272,7 @@ impl CardRecord {
     /// Supplies logical parts and play options for a structured or modal card.
     #[must_use]
     pub(super) const fn with_composition(mut self, builder: CompositionBuilder) -> Self {
-        self.composition = Some(builder);
+        self.composition = Some(CompositionSource::Builder(builder));
         self
     }
 
@@ -197,10 +289,13 @@ impl CardRecord {
 
     pub(super) fn definition(&self) -> CardDefinition {
         let id = self.id();
-        let composition = self.composition.map_or_else(
-            || CardComposition::single(self.name, self.rules),
-            |builder| builder(),
-        );
+        let composition = match self.composition {
+            None => CardComposition::single(self.name, self.rules),
+            Some(CompositionSource::Builder(builder)) => builder(),
+            Some(CompositionSource::DoubleFaced { faces, kind }) => {
+                CardComposition::double_faced(faces, kind)
+            }
+        };
         CardDefinition {
             id,
             name: self.name.into(),

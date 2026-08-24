@@ -3,15 +3,12 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AppliedEffectDef, CardArt, CardComposition, CardEffectStatus, CardPart, CardRules, CardSet,
-    CardStructure, CardType, ChoiceVisibilityDef, ChooseDef, DoubleFacedKind, EffectDef,
-    EffectRecipientDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PlayOptionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, SpellForm,
-    TriggerEventDef, ValueDef, ZoneKind, abilities,
+    AppliedEffectDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
+    EffectDef, EffectRecipientDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerEventDef,
+    ValueDef, ZoneKind, abilities,
 };
-use crate::ids::{
-    CardPartId, ObjectBindingIndex, ObjectSetBindingIndex, PlayOptionId, TargetIndex,
-};
+use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
 use crate::mana_cost;
 
 // VOW 55 — Cruel Witness
@@ -115,41 +112,16 @@ const fn revealing_eye_rules() -> CardRules {
         .with_abilities(&REVEALING_EYE_ABILITIES)
 }
 
-fn curtains_composition() -> CardComposition {
-    CardComposition {
-        parts: vec![
-            CardPart::new(
-                CardPartId::PRIMARY,
-                "Concealing Curtains",
-                concealing_curtains_rules(),
-            ),
-            CardPart::new(CardPartId(1), "Revealing Eye", revealing_eye_rules()),
-        ],
-        structure: CardStructure::DoubleFaced {
-            front: CardPartId::PRIMARY,
-            back: CardPartId(1),
-            kind: DoubleFacedKind::Transforming,
-        },
-        play_options: vec![PlayOptionDef::cast(
-            PlayOptionId::DEFAULT,
-            "Concealing Curtains",
-            SpellForm::Part(CardPartId::PRIMARY),
-            mana_cost!("{B}"),
-            CardEffectStatus::Implemented,
-        )],
-    }
-}
-
-pub(in crate::card::sets) static CONCEALING_CURTAINS: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static CONCEALING_CURTAINS: CardRecord = CardRecord::new_dfc(
     PrintingAnchor::scryfall("612b2e6e-fe8d-49ad-b845-6fa7fa59ffd1"),
-    "Concealing Curtains",
+    "Concealing Curtains // Revealing Eye",
     CardArt::new("612b2e6e-fe8d-49ad-b845-6fa7fa59ffd1", "Brian Valeza"),
     CardSet::InnistradCrimsonVow,
-    // A one-mana wall that holds the ground early and, three mana later,
-    // turns into a menacing body that empties the hand it was hiding from.
-    concealing_curtains_rules(),
-)
-.with_composition(curtains_composition);
+    &[
+        ("Concealing Curtains", concealing_curtains_rules()),
+        ("Revealing Eye", revealing_eye_rules()),
+    ],
+);
 
 // VOW 174 — Reckless Impulse
 // Audit: metadata-only — Card rules have not been implemented.
@@ -241,46 +213,16 @@ const fn ulvenwald_behemoth_rules() -> CardRules {
         .with_abilities(&BEHEMOTH_ABILITIES)
 }
 
-fn ulvenwald_composition() -> CardComposition {
-    CardComposition {
-        parts: vec![
-            CardPart::new(
-                CardPartId::PRIMARY,
-                "Ulvenwald Oddity",
-                ulvenwald_oddity_rules(),
-            ),
-            CardPart::new(
-                CardPartId(1),
-                "Ulvenwald Behemoth",
-                ulvenwald_behemoth_rules(),
-            ),
-        ],
-        structure: CardStructure::DoubleFaced {
-            front: CardPartId::PRIMARY,
-            back: CardPartId(1),
-            kind: DoubleFacedKind::Transforming,
-        },
-        play_options: vec![PlayOptionDef::cast(
-            PlayOptionId::DEFAULT,
-            "Ulvenwald Oddity",
-            SpellForm::Part(CardPartId::PRIMARY),
-            mana_cost!("{2}{G}{G}"),
-            CardEffectStatus::Implemented,
-        )],
-    }
-}
-
-pub(in crate::card::sets) static ULVENWALD_ODDITY: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ULVENWALD_ODDITY: CardRecord = CardRecord::new_dfc(
     PrintingAnchor::scryfall("5fdf5fc4-69c8-4a59-9095-c2feefb64371"),
-    "Ulvenwald Oddity",
+    "Ulvenwald Oddity // Ulvenwald Behemoth",
     CardArt::new("5fdf5fc4-69c8-4a59-9095-c2feefb64371", "Brent Hollowell"),
     CardSet::InnistradCrimsonVow,
-    // Four mana for a hasty trampling 4/4, and a mana sink that turns it
-    // into an 8/8 that makes every other creature bigger and hasty too.
-    // Nothing about it asks for anything but lands.
-    ulvenwald_oddity_rules(),
-)
-.with_composition(ulvenwald_composition);
+    &[
+        ("Ulvenwald Oddity", ulvenwald_oddity_rules()),
+        ("Ulvenwald Behemoth", ulvenwald_behemoth_rules()),
+    ],
+);
 
 // VOW 310 — Bloodtithe Harvester
 // Audit: metadata-only — Card rules have not been implemented.

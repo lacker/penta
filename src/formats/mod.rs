@@ -2,7 +2,7 @@
 
 use std::fmt;
 
-use crate::card::{CardDefinition, CardSet};
+use crate::card::{CardDefinition, CardSet, CardStructure};
 
 pub mod cubes;
 mod old_school_9394;
@@ -224,7 +224,13 @@ impl Format {
             return true;
         }
         match self.definition() {
-            FormatDefinition::Cube(definition) => contains_name(definition.cards, &card.name),
+            FormatDefinition::Cube(definition) => {
+                contains_name(definition.cards, &card.name)
+                    || matches!(card.structure, CardStructure::DoubleFaced { .. })
+                        && card
+                            .primary_part()
+                            .is_some_and(|part| contains_name(definition.cards, &part.name))
+            }
             FormatDefinition::Sets(definition) => card
                 .printings
                 .iter()

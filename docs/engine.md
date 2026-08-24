@@ -254,11 +254,13 @@ for debugging and UI use.
 
 Each built-in canonical card is declared once in the `CARDS` registry of its
 representative or debut set module, under the set's release-year module. Its
-`CardRecord` keeps identity and its primary `CardRules` together: name, cost,
-types, creature stats, and ordered ability clauses can all be understood at
-the card's declaration. Structured cards attach a `CardComposition` containing
-their parts, topology, and play options; an ordinary record receives an
-equivalent one-part composition automatically.
+`CardRecord` keeps identity and its rules together: name, cost, types, creature
+stats, and ordered ability clauses can all be understood at the card's
+declaration. Double-faced records use `CardRecord::new_dfc` or
+`CardRecord::new_mdfc` to declare both named faces together and derive their
+parts, topology, and play options. Other structured cards attach a
+`CardComposition`; an ordinary record receives an equivalent one-part
+composition automatically.
 
 An `AbilityDef` owns one rules-text clause together with its explicit timing
 category, costs, targets, structured effect, effect execution, and coverage.

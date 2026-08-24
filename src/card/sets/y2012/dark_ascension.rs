@@ -3,18 +3,17 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardComposition,
-    CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype, CardType,
-    ComparisonDef, ConditionalValueDef, CostModificationDef, CounterKind, DamageEventMatcherDef,
-    DamagePreventionDef, DiscardSelectionDef, DoubleFacedKind, EffectDef, EffectRecipientDef,
+    AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, ComparisonDef, ConditionalValueDef, CostModificationDef, CounterKind,
+    DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
     KeywordAbility, LifeConditionDef, ManaColor, ObjectPredicateDef, ObjectQueryDef,
-    PlayActionMatcherDef, PlayOptionDef, PlayRestrictionDef, PlayerAttachmentQueryDef,
-    PlayerRelation, QuantifierDef, ReplacementEffectDef, ResolvedEffectDurationDef,
-    SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostCountDef, SpellAdditionalCostDef,
-    SpellForm, SpendModeDef, TargetConditionDef, TopCardSelectionDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    PlayActionMatcherDef, PlayRestrictionDef, PlayerAttachmentQueryDef, PlayerRelation,
+    QuantifierDef, ReplacementEffectDef, ResolvedEffectDurationDef, SacrificedAmountDef,
+    ScaledValueDef, SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef,
+    TargetConditionDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::{CardPartId, PlayOptionId, TargetIndex};
+use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 static FATEFUL_HOUR: TriggerConditionDef = TriggerConditionDef::ControllerLifeAtMost(5);
@@ -3059,40 +3058,17 @@ const fn huntmaster_back_rules() -> CardRules {
         .with_abilities(&HUNTMASTER_BACK_ABILITIES)
 }
 
-fn huntmaster_composition() -> CardComposition {
-    let front = huntmaster_front_rules();
-    let back = huntmaster_back_rules();
-    CardComposition {
-        parts: vec![
-            CardPart::new(CardPartId::PRIMARY, "Huntmaster of the Fells", front),
-            CardPart::new(CardPartId(1), "Ravager of the Fells", back),
-        ],
-        structure: CardStructure::DoubleFaced {
-            front: CardPartId::PRIMARY,
-            back: CardPartId(1),
-            kind: DoubleFacedKind::Transforming,
-        },
-        play_options: vec![PlayOptionDef::cast(
-            PlayOptionId::DEFAULT,
-            "Huntmaster of the Fells",
-            SpellForm::Part(CardPartId::PRIMARY),
-            front
-                .mana_cost()
-                .expect("Huntmaster of the Fells has a printed mana cost"),
-            CardEffectStatus::MetadataOnly,
-        )],
-    }
-}
-
 pub(in crate::card::sets) static HUNTMASTER_OF_THE_FELLS: CardRecord =
-    CardRecord::new_with_legacy_id(
+    CardRecord::new_dfc_with_legacy_id(
         176,
-        "Huntmaster of the Fells",
+        "Huntmaster of the Fells // Ravager of the Fells",
         CardArt::new("aae6fb12-b252-453b-bca7-1ea2a0d6c8dc", "Chris Rahn"),
         CardSet::DarkAscension,
-        huntmaster_front_rules(),
-    )
-    .with_composition(huntmaster_composition);
+        &[
+            ("Huntmaster of the Fells", huntmaster_front_rules()),
+            ("Ravager of the Fells", huntmaster_back_rules()),
+        ],
+    );
 
 // DKA 141 — Immerwolf
 // Audit: metadata-only — Needs a continuous prohibition preventing non-Human Werewolves you control from transforming.
@@ -3278,38 +3254,17 @@ const fn withengar_back_rules() -> CardRules {
         .with_abilities(&WITHENGAR_ABILITIES)
 }
 
-fn elbrus_composition() -> CardComposition {
-    let front = elbrus_front_rules();
-    let back = withengar_back_rules();
-    CardComposition {
-        parts: vec![
-            CardPart::new(CardPartId::PRIMARY, "Elbrus, the Binding Blade", front),
-            CardPart::new(CardPartId(1), "Withengar Unbound", back),
-        ],
-        structure: CardStructure::DoubleFaced {
-            front: CardPartId::PRIMARY,
-            back: CardPartId(1),
-            kind: DoubleFacedKind::Transforming,
-        },
-        play_options: vec![PlayOptionDef::cast(
-            PlayOptionId::DEFAULT,
-            "Elbrus, the Binding Blade",
-            SpellForm::Part(CardPartId::PRIMARY),
-            mana_cost!("{7}"),
-            CardEffectStatus::Implemented,
-        )],
-    }
-}
-
 pub(in crate::card::sets) static ELBRUS_THE_BINDING_BLADE: CardRecord =
-    CardRecord::new_with_legacy_id(
+    CardRecord::new_dfc_with_legacy_id(
         2313,
-        "Elbrus, the Binding Blade",
+        "Elbrus, the Binding Blade // Withengar Unbound",
         CardArt::new("683af377-c491-4f62-900c-6b83d75c33c9", "Eric Deschamps"),
         CardSet::DarkAscension,
-        elbrus_front_rules(),
-    )
-    .with_composition(elbrus_composition);
+        &[
+            ("Elbrus, the Binding Blade", elbrus_front_rules()),
+            ("Withengar Unbound", withengar_back_rules()),
+        ],
+    );
 
 // DKA 148 — Executioner's Hood
 static EXECUTIONERS_HOOD_INTIMIDATE: AbilityDef = abilities::intimidate();

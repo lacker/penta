@@ -32,7 +32,7 @@ standard_catalog_payload = json.loads(penta.catalog(format="isd-m14-standard"))
 assert standard_catalog_payload["format"] == "isd-m14-standard"
 assert standard_catalog_payload["simulationFingerprint"] == fingerprint
 assert any(
-    card["name"] == "Huntmaster of the Fells"
+    card["name"] == "Huntmaster of the Fells // Ravager of the Fells"
     for card in standard_catalog_payload["cards"]
 )
 

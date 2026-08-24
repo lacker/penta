@@ -5,9 +5,7 @@ use super::source_organization::{AuditStatus, SourceAudit, source_audits_for_for
 use super::*;
 
 const SET_IDENTITY_COUNT: usize = 1_686;
-// The catalog names transforming identities by their front face, while the
-// reference inventory names the same identities with both face names.
-const SET_IDENTITY_FINGERPRINT: u64 = 17_770_363_390_521_155_439;
+const SET_IDENTITY_FINGERPRINT: u64 = 13_959_149_328_030_186_448;
 fn identity_fingerprint(names: &BTreeSet<String>) -> u64 {
     const FNV_OFFSET_BASIS: u64 = 14_695_981_039_346_656_037;
     const FNV_PRIME: u64 = 1_099_511_628_211;

@@ -30,7 +30,7 @@ fn standard_records_have_complete_unique_scryfall_metadata() {
 #[test]
 fn structured_records_expose_parts_and_play_options_without_losing_primary_rules() {
     let garruk = y2011::innistrad::GARRUK_RELENTLESS.definition();
-    assert_eq!(garruk.name, "Garruk Relentless");
+    assert_eq!(garruk.name, "Garruk Relentless // Garruk, the Veil-Cursed");
     assert_eq!(garruk.rules, garruk.primary_part().unwrap().rules);
     assert_eq!(garruk.parts.len(), 2);
     assert_eq!(garruk.parts[1].name, "Garruk, the Veil-Cursed");
@@ -59,6 +59,19 @@ fn structured_records_expose_parts_and_play_options_without_losing_primary_rules
             .rules
             .has_executable_keyword(KeywordAbility::Trample)
     );
+
+    let witch = y2024::modern_horizons_3::WITCH_ENCHANTER.definition();
+    assert_eq!(witch.name, "Witch Enchanter // Witch-Blessed Meadow");
+    assert!(matches!(
+        witch.structure,
+        CardStructure::DoubleFaced {
+            kind: DoubleFacedKind::Modal,
+            ..
+        }
+    ));
+    assert_eq!(witch.play_options.len(), 2);
+    assert_eq!(witch.play_options[0].action, PlayActionKind::CastSpell);
+    assert_eq!(witch.play_options[1].action, PlayActionKind::PlayLand);
 
     let turn_burn = y2013::dragons_maze::TURN_BURN.definition();
     assert_eq!(turn_burn.name, "Turn // Burn");

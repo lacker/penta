@@ -4,8 +4,9 @@ use crate::ids::{
 
 use super::{
     CardBehavior, CardEffectStatus, CardPart, CardPrinting, CardRules, CardSet, CardStructure,
-    CardSupertype, CardType, DeclarativeAbilityDef, ImplementationStatus, ManaCost, ModeSetDef,
-    PlayActionKind, PlayRestriction, PrintedManaCost, SpellForm, TargetSlotDef,
+    CardSupertype, CardType, DeclarativeAbilityDef, DoubleFacedKind, ImplementationStatus,
+    ManaCost, ModeSetDef, PlayActionKind, PlayRestriction, PrintedManaCost, SpellForm,
+    TargetSlotDef,
 };
 
 /// A named alternative to the cost supplied by a play option.
@@ -170,17 +171,49 @@ pub struct CardComposition {
 }
 
 impl CardComposition {
+    fn effect_status(rules: &CardRules) -> CardEffectStatus {
+        match rules.implementation_status() {
+            ImplementationStatus::MetadataOnly => CardEffectStatus::MetadataOnly,
+            ImplementationStatus::Complete | ImplementationStatus::Partial => {
+                CardEffectStatus::Implemented
+            }
+        }
+    }
+
+    fn face_play_option(
+        id: PlayOptionId,
+        part: CardPartId,
+        name: &'static str,
+        rules: &CardRules,
+    ) -> PlayOptionDef {
+        let mut option = if rules.has_type(CardType::Land) {
+            PlayOptionDef::play_land(id, name, part, Self::effect_status(rules))
+        } else {
+            PlayOptionDef::cast_with_printed_mana_cost(
+                id,
+                name,
+                SpellForm::Part(part),
+                rules.printed_mana_cost,
+                Self::effect_status(rules),
+            )
+            .with_alternative_cast_costs(rules)
+            .with_optional_additional_costs(rules)
+        };
+        if rules.play_restriction() != PlayRestriction::Normal {
+            option.restriction = rules.play_restriction();
+        }
+        if let Some(modes) = rules.presentation_spell_modes() {
+            option = option.with_modes(modes);
+        }
+        option
+    }
+
     #[must_use]
     pub fn single(name: impl Into<String>, rules: CardRules) -> Self {
         let printed_mana_cost = rules.printed_mana_cost;
         let name = name.into();
         let is_land = rules.has_type(CardType::Land);
-        let effect_status = match rules.implementation_status() {
-            ImplementationStatus::MetadataOnly => CardEffectStatus::MetadataOnly,
-            ImplementationStatus::Complete | ImplementationStatus::Partial => {
-                CardEffectStatus::Implemented
-            }
-        };
+        let effect_status = Self::effect_status(&rules);
         let part = CardPart::new(CardPartId::PRIMARY, name.clone(), rules);
         let mut option = if is_land {
             PlayOptionDef::play_land(
@@ -212,6 +245,43 @@ impl CardComposition {
                 main: CardPartId::PRIMARY,
             },
             play_options: vec![option],
+        }
+        .with_derived_spell_targets()
+    }
+
+    /// Materializes the parts, topology, and legal play options of a
+    /// double-faced card from its two face definitions.
+    #[must_use]
+    pub fn double_faced(
+        faces: &'static [(&'static str, CardRules); 2],
+        kind: DoubleFacedKind,
+    ) -> Self {
+        let [(front_name, front_rules), (back_name, back_rules)] = *faces;
+        let mut play_options = vec![Self::face_play_option(
+            PlayOptionId::DEFAULT,
+            CardPartId::PRIMARY,
+            front_name,
+            &front_rules,
+        )];
+        if kind == DoubleFacedKind::Modal {
+            play_options.push(Self::face_play_option(
+                PlayOptionId(1),
+                CardPartId(1),
+                back_name,
+                &back_rules,
+            ));
+        }
+        Self {
+            parts: vec![
+                CardPart::new(CardPartId::PRIMARY, front_name, front_rules),
+                CardPart::new(CardPartId(1), back_name, back_rules),
+            ],
+            structure: CardStructure::DoubleFaced {
+                front: CardPartId::PRIMARY,
+                back: CardPartId(1),
+                kind,
+            },
+            play_options,
         }
         .with_derived_spell_targets()
     }

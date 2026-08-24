@@ -18,8 +18,13 @@ lexicographically. Introduce each declaration with an identifying comment in
 the form `// LEA 230 — Ankh of Mishra`, using the canonical printing's uppercase
 set code, collector number, and card name. For a double-faced card, list both
 faces in front-to-back order, such as `// ISD 51 — Delver of Secrets //
-Insectile Aberration`; the `CardRecord` itself remains named for the front
-face. Ordinarily the header immediately starts the declaration block. Keep
+Insectile Aberration`. A modeled double-faced `CardRecord` uses the same
+combined `front // back` name while the catalog retains the front name as a
+deck-list lookup alias. Define both modeled faces together with
+`CardRecord::new_dfc` for a transforming card or `CardRecord::new_mdfc` for a
+modal double-faced card; pass their named face rules directly to those
+constructors so they can derive the parts, topology, and play options.
+Ordinarily the header immediately starts the declaration block. Keep
 every helper constant, static, or function
 used by only that card inside the block, after the header and before the
 `CardRecord`, so the declaration and the vocabulary it composes remain readable

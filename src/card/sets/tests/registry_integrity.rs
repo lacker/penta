@@ -183,6 +183,15 @@ fn built_in_catalog_indexes_definitions_and_printings_separately() {
         );
     }
     assert_eq!(catalog.find_by_name("Plains"), Some(cards::PLAINS));
+    assert_eq!(
+        catalog.find_by_name("Delver of Secrets // Insectile Aberration"),
+        Some(cards::DELVER_OF_SECRETS),
+    );
+    assert_eq!(
+        catalog.find_by_name("Delver of Secrets"),
+        Some(cards::DELVER_OF_SECRETS),
+    );
+    assert!(catalog.is_allowed_in(cards::WITCH_ENCHANTER, Format::VintageCube));
 }
 
 #[test]

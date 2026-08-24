@@ -5,19 +5,18 @@ use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef,
     AttackEventMatcherDef, BasicLandType, BattlefieldEntryModificationDef, CardArt,
-    CardChoiceSourceDef, CardComposition, CardEffectStatus, CardPart, CardRules, CardSet,
-    CardStructure, CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef,
-    ComparisonDef, CounterKind, DoubleFacedKind, DrawEventMatcherDef, EffectDef,
+    CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, CardTypeSet,
+    ChoiceVisibilityDef, ChooseDef, ComparisonDef, CounterKind, DrawEventMatcherDef, EffectDef,
     EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, EmblemCharacteristics,
     HalvedValueDef, InstalledTriggerDef, InstalledTriggerLifetimeDef, ManaColor,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PayOrDef, PlayOptionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
+    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, RoundingDef, SimultaneousChooseDef, SpellAdditionalCostCountDef,
-    SpellAdditionalCostDef, SpellForm, SpendModeDef, TargetConditionDef, TokenCopyExceptionsDef,
+    SpellAdditionalCostDef, SpendModeDef, TargetConditionDef, TokenCopyExceptionsDef,
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
     ZonePlacement, abilities, tokens,
 };
-use crate::ids::{CardPartId, ObjectBindingIndex, ObjectSetBindingIndex, PlayOptionId};
+use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
 use crate::{TargetIndex, mana_cost};
 
 static LANDSCAPE_FETCH_COST: [AbilityCostDef; 2] =
@@ -1621,43 +1620,17 @@ const fn ajani_nacatl_avenger_rules() -> CardRules {
         .with_abilities(&AJANI_AVENGER_ABILITIES)
 }
 
-fn ajani_composition() -> CardComposition {
-    CardComposition {
-        parts: vec![
-            CardPart::new(
-                CardPartId::PRIMARY,
-                "Ajani, Nacatl Pariah",
-                ajani_nacatl_pariah_rules(),
-            ),
-            CardPart::new(
-                CardPartId(1),
-                "Ajani, Nacatl Avenger",
-                ajani_nacatl_avenger_rules(),
-            ),
+pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord =
+    CardRecord::new_dfc_with_legacy_id(
+        2199,
+        "Ajani, Nacatl Pariah // Ajani, Nacatl Avenger",
+        CardArt::new("0d16e8e0-31b2-4389-afd6-783c501f6fa0", "Chris Rallis"),
+        CardSet::ModernHorizons3,
+        &[
+            ("Ajani, Nacatl Pariah", ajani_nacatl_pariah_rules()),
+            ("Ajani, Nacatl Avenger", ajani_nacatl_avenger_rules()),
         ],
-        structure: CardStructure::DoubleFaced {
-            front: CardPartId::PRIMARY,
-            back: CardPartId(1),
-            kind: DoubleFacedKind::Transforming,
-        },
-        play_options: vec![PlayOptionDef::cast(
-            PlayOptionId::DEFAULT,
-            "Ajani, Nacatl Pariah",
-            SpellForm::Part(CardPartId::PRIMARY),
-            mana_cost!("{1}{W}"),
-            CardEffectStatus::Implemented,
-        )],
-    }
-}
-
-pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord = CardRecord::new_with_legacy_id(
-    2199,
-    "Ajani, Nacatl Pariah",
-    CardArt::new("0d16e8e0-31b2-4389-afd6-783c501f6fa0", "Chris Rallis"),
-    CardSet::ModernHorizons3,
-    ajani_nacatl_pariah_rules(),
-)
-.with_composition(ajani_composition);
+    );
 
 // MH3 239 — Witch Enchanter // Witch-Blessed Meadow
 /// "Target artifact or enchantment an opponent controls": two types and a
@@ -1714,56 +1687,16 @@ const fn witch_blessed_meadow_rules() -> CardRules {
     CardRules::new_land(&[]).with_abilities(&MEADOW_ABILITIES)
 }
 
-/// A modal double-faced card: the two faces are alternatives chosen as it is
-/// played rather than states it turns between, so the back has a play option
-/// of its own and nothing ever transforms.
-fn witch_enchanter_composition() -> CardComposition {
-    CardComposition {
-        parts: vec![
-            CardPart::new(
-                CardPartId::PRIMARY,
-                "Witch Enchanter",
-                witch_enchanter_rules(),
-            ),
-            CardPart::new(
-                CardPartId(1),
-                "Witch-Blessed Meadow",
-                witch_blessed_meadow_rules(),
-            ),
-        ],
-        structure: CardStructure::DoubleFaced {
-            front: CardPartId::PRIMARY,
-            back: CardPartId(1),
-            kind: DoubleFacedKind::Modal,
-        },
-        play_options: vec![
-            PlayOptionDef::cast(
-                PlayOptionId::DEFAULT,
-                "Witch Enchanter",
-                SpellForm::Part(CardPartId::PRIMARY),
-                mana_cost!("{3}{W}"),
-                CardEffectStatus::Implemented,
-            ),
-            PlayOptionDef::play_land(
-                PlayOptionId(1),
-                "Witch-Blessed Meadow",
-                CardPartId(1),
-                CardEffectStatus::Implemented,
-            ),
-        ],
-    }
-}
-
-pub(in crate::card::sets) static WITCH_ENCHANTER: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static WITCH_ENCHANTER: CardRecord = CardRecord::new_mdfc(
     PrintingAnchor::scryfall("62061e7c-cf19-4f03-b8fa-2bdba62d6b0b"),
-    "Witch Enchanter",
+    "Witch Enchanter // Witch-Blessed Meadow",
     CardArt::new("62061e7c-cf19-4f03-b8fa-2bdba62d6b0b", "Tyler Walpole"),
     CardSet::ModernHorizons3,
-    // Four mana and a Disenchant, or the land the deck was short of. Which
-    // one it is is decided in hand, which is the whole appeal.
-    witch_enchanter_rules(),
-)
-.with_composition(witch_enchanter_composition);
+    &[
+        ("Witch Enchanter", witch_enchanter_rules()),
+        ("Witch-Blessed Meadow", witch_blessed_meadow_rules()),
+    ],
+);
 
 // MH3 241 — Sink into Stupor // Soporific Springs
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1982,45 +1915,19 @@ const fn tamiyo_seasoned_scholar_rules() -> CardRules {
         .with_abilities(&TAMIYO_SCHOLAR_ABILITIES)
 }
 
-fn tamiyo_composition() -> CardComposition {
-    CardComposition {
-        parts: vec![
-            CardPart::new(
-                CardPartId::PRIMARY,
-                "Tamiyo, Inquisitive Student",
-                tamiyo_inquisitive_student_rules(),
-            ),
-            CardPart::new(
-                CardPartId(1),
-                "Tamiyo, Seasoned Scholar",
-                tamiyo_seasoned_scholar_rules(),
-            ),
-        ],
-        structure: CardStructure::DoubleFaced {
-            front: CardPartId::PRIMARY,
-            back: CardPartId(1),
-            kind: DoubleFacedKind::Transforming,
-        },
-        play_options: vec![PlayOptionDef::cast(
-            PlayOptionId::DEFAULT,
-            "Tamiyo, Inquisitive Student",
-            SpellForm::Part(CardPartId::PRIMARY),
-            mana_cost!("{U}"),
-            CardEffectStatus::Implemented,
-        )],
-    }
-}
-
-pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRecord::new_dfc(
     PrintingAnchor::scryfall("1b234fee-a2b6-4661-9f98-4da6fc26aebc"),
-    "Tamiyo, Inquisitive Student",
+    "Tamiyo, Inquisitive Student // Tamiyo, Seasoned Scholar",
     CardArt::new("1b234fee-a2b6-4661-9f98-4da6fc26aebc", "Evyn Fong"),
     CardSet::ModernHorizons3,
-    // One blue mana for a body that blocks, draws, and turns into a
-    // planeswalker on the turn the deck does what it was built to do.
-    tamiyo_inquisitive_student_rules(),
-)
-.with_composition(tamiyo_composition);
+    &[
+        (
+            "Tamiyo, Inquisitive Student",
+            tamiyo_inquisitive_student_rules(),
+        ),
+        ("Tamiyo, Seasoned Scholar", tamiyo_seasoned_scholar_rules()),
+    ],
+);
 
 // MH3 444 — Sorin of House Markov // Sorin, Ravenous Neonate
 // Audit: metadata-only — Card rules have not been implemented.

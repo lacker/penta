@@ -8,25 +8,22 @@ use crate::card::{
     AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, ArrivalAttachmentDef, BasicLandType,
     BattlefieldEntryModificationDef, CardAbilityBinding, CardArt, CardBehavior,
-    CardChoiceSourceDef, CardComposition, CardEffectStatus, CardPart, CardRules, CardSet,
-    CardStructure, CardSupertype, CardType, ComparisonDef, ConditionalValueDef, ControlDurationDef,
-    CostModificationDef, CounterKind, DamageEventMatcherDef, DestroyFollowUpDef,
-    DiscardSelectionDef, DoubleFacedKind, EffectDef, EffectExecutionDef, EffectPaymentDef,
-    EffectRecipientDef, HalvedValueDef, KeywordAbility, ManaColor, MillUntilDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayOptionDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef, ReplacementConditionDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, RoundingDef, SacrificedAmountDef,
-    SimultaneousChooseDef, SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpellForm,
-    SpendModeDef, TargetConditionDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement, abilities,
+    CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, ComparisonDef,
+    ConditionalValueDef, ControlDurationDef, CostModificationDef, CounterKind,
+    DamageEventMatcherDef, DestroyFollowUpDef, DiscardSelectionDef, EffectDef, EffectExecutionDef,
+    EffectPaymentDef, EffectRecipientDef, HalvedValueDef, KeywordAbility, ManaColor, MillUntilDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, QuantifierDef, ReplacementConditionDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, RoundingDef, SacrificedAmountDef, SimultaneousChooseDef,
+    SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef, TargetConditionDef,
+    TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::game::{
     CardAbilityResolver, CardRuntime, PileChoice, PileChosen, PileSplit, PilesSeparated,
     ResolvedAbility,
 };
-use crate::ids::{
-    AbilityId, CardPartId, ObjectSetBindingIndex, PlayOptionId, TargetIndex, TargetSlotId,
-};
+use crate::ids::{AbilityId, CardPartId, ObjectSetBindingIndex, TargetIndex, TargetSlotId};
 use crate::mana_cost;
 
 static CREATURES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
@@ -58,34 +55,6 @@ static SACRIFICE_A_CREATURE: SpellAdditionalCostDef = SpellAdditionalCostDef {
 };
 
 static ISD_MORBID_A_CREATURE_DIED: TriggerConditionDef = TriggerConditionDef::CreatureDiedThisTurn;
-
-#[allow(clippy::large_types_passed_by_value)]
-fn two_face_creature_composition(
-    front_name: &'static str,
-    back_name: &'static str,
-    front: CardRules,
-    back: CardRules,
-    mana_cost: crate::card::ManaCost,
-) -> CardComposition {
-    CardComposition {
-        parts: vec![
-            CardPart::new(CardPartId::PRIMARY, front_name, front),
-            CardPart::new(CardPartId(1), back_name, back),
-        ],
-        structure: CardStructure::DoubleFaced {
-            front: CardPartId::PRIMARY,
-            back: CardPartId(1),
-            kind: DoubleFacedKind::Transforming,
-        },
-        play_options: vec![PlayOptionDef::cast(
-            PlayOptionId::DEFAULT,
-            front_name,
-            SpellForm::Part(CardPartId::PRIMARY),
-            mana_cost,
-            CardEffectStatus::Implemented,
-        )],
-    }
-}
 
 static CREATURE_CARDS_IN_YOUR_GRAVEYARD: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasType(CardType::Creature),
@@ -380,37 +349,16 @@ const fn unholy_fiend_rules() -> CardRules {
         ))
 }
 
-fn cloistered_youth_composition() -> CardComposition {
-    let front = cloistered_youth_front_rules();
-    let back = unholy_fiend_rules();
-    CardComposition {
-        parts: vec![
-            CardPart::new(CardPartId::PRIMARY, "Cloistered Youth", front),
-            CardPart::new(CardPartId(1), "Unholy Fiend", back),
-        ],
-        structure: CardStructure::DoubleFaced {
-            front: CardPartId::PRIMARY,
-            back: CardPartId(1),
-            kind: DoubleFacedKind::Transforming,
-        },
-        play_options: vec![PlayOptionDef::cast(
-            PlayOptionId::DEFAULT,
-            "Cloistered Youth",
-            SpellForm::Part(CardPartId::PRIMARY),
-            mana_cost!("{1}{W}"),
-            CardEffectStatus::Implemented,
-        )],
-    }
-}
-
-pub(in crate::card::sets) static CLOISTERED_YOUTH: CardRecord = CardRecord::new_with_legacy_id(
+pub(in crate::card::sets) static CLOISTERED_YOUTH: CardRecord = CardRecord::new_dfc_with_legacy_id(
     848,
-    "Cloistered Youth",
+    "Cloistered Youth // Unholy Fiend",
     CardArt::new("f8b8f0b4-71e1-4822-99a1-b1b3c2f10cb2", "Igor Kieryluk"),
     CardSet::Innistrad,
-    cloistered_youth_front_rules(),
-)
-.with_composition(cloistered_youth_composition);
+    &[
+        ("Cloistered Youth", cloistered_youth_front_rules()),
+        ("Unholy Fiend", unholy_fiend_rules()),
+    ],
+);
 
 static DEARLY_DEPARTED_HUMAN_ENTERS: AbilityDef = AbilityDef::as_enters(
     "This creature enters with an additional +1/+1 counter on it.",
@@ -1217,37 +1165,16 @@ const fn thraben_militia_rules() -> CardRules {
         .with_ability(abilities::trample())
 }
 
-fn thraben_sentry_composition() -> CardComposition {
-    let front = thraben_sentry_front_rules();
-    let back = thraben_militia_rules();
-    CardComposition {
-        parts: vec![
-            CardPart::new(CardPartId::PRIMARY, "Thraben Sentry", front),
-            CardPart::new(CardPartId(1), "Thraben Militia", back),
-        ],
-        structure: CardStructure::DoubleFaced {
-            front: CardPartId::PRIMARY,
-            back: CardPartId(1),
-            kind: DoubleFacedKind::Transforming,
-        },
-        play_options: vec![PlayOptionDef::cast(
-            PlayOptionId::DEFAULT,
-            "Thraben Sentry",
-            SpellForm::Part(CardPartId::PRIMARY),
-            mana_cost!("{3}{W}"),
-            CardEffectStatus::Implemented,
-        )],
-    }
-}
-
-pub(in crate::card::sets) static THRABEN_SENTRY: CardRecord = CardRecord::new_with_legacy_id(
+pub(in crate::card::sets) static THRABEN_SENTRY: CardRecord = CardRecord::new_dfc_with_legacy_id(
     867,
-    "Thraben Sentry",
+    "Thraben Sentry // Thraben Militia",
     CardArt::new("58ae9cbc-d88d-42df-ab76-63ab5d05c023", "David Rapoza"),
     CardSet::Innistrad,
-    thraben_sentry_front_rules(),
-)
-.with_composition(thraben_sentry_composition);
+    &[
+        ("Thraben Sentry", thraben_sentry_front_rules()),
+        ("Thraben Militia", thraben_militia_rules()),
+    ],
+);
 
 // ISD 39 — Unruly Mob
 pub(in crate::card::sets) static UNRULY_MOB: CardRecord = CardRecord::new_with_legacy_id(
@@ -1570,22 +1497,16 @@ const fn insectile_aberration_rules() -> CardRules {
         .with_ability(abilities::flying())
 }
 
-pub(in crate::card::sets) static DELVER_OF_SECRETS: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static DELVER_OF_SECRETS: CardRecord = CardRecord::new_dfc(
     PrintingAnchor::scryfall("11bf83bb-c95b-4b4f-9a56-ce7a1816307a"),
-    "Delver of Secrets",
+    "Delver of Secrets // Insectile Aberration",
     CardArt::new("11bf83bb-c95b-4b4f-9a56-ce7a1816307a", "Nils Hamm"),
     CardSet::Innistrad,
-    delver_of_secrets_rules(),
-)
-.with_composition(|| {
-    two_face_creature_composition(
-        "Delver of Secrets",
-        "Insectile Aberration",
-        delver_of_secrets_rules(),
-        insectile_aberration_rules(),
-        mana_cost!("{U}"),
-    )
-});
+    &[
+        ("Delver of Secrets", delver_of_secrets_rules()),
+        ("Insectile Aberration", insectile_aberration_rules()),
+    ],
+);
 
 // ISD 52 — Deranged Assistant
 pub(in crate::card::sets) static DERANGED_ASSISTANT: CardRecord = CardRecord::new(
@@ -1906,24 +1827,16 @@ const fn ludevics_abomination_rules() -> CardRules {
         .with_ability(abilities::trample())
 }
 
-fn ludevics_test_subject_composition() -> CardComposition {
-    two_face_creature_composition(
-        "Ludevic's Test Subject",
-        "Ludevic's Abomination",
-        ludevics_test_subject_rules(),
-        ludevics_abomination_rules(),
-        mana_cost!("{1}{U}"),
-    )
-}
-
-pub(in crate::card::sets) static LUDEVIC_S_TEST_SUBJECT: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static LUDEVIC_S_TEST_SUBJECT: CardRecord = CardRecord::new_dfc(
     PrintingAnchor::scryfall("340b660c-9aa1-4bd2-8c6f-d9af7fee5f4a"),
-    "Ludevic's Test Subject",
+    "Ludevic's Test Subject // Ludevic's Abomination",
     CardArt::new("ebf5e16f-a8bd-419f-b5ca-8c7fce09c4f1", "Nils Hamm"),
     CardSet::Innistrad,
-    ludevics_test_subject_rules(),
-)
-.with_composition(ludevics_test_subject_composition);
+    &[
+        ("Ludevic's Test Subject", ludevics_test_subject_rules()),
+        ("Ludevic's Abomination", ludevics_abomination_rules()),
+    ],
+);
 
 // ISD 65 — Makeshift Mauler
 pub(in crate::card::sets) static MAKESHIFT_MAULER: CardRecord = CardRecord::new_with_legacy_id(
@@ -3298,24 +3211,16 @@ const fn stalking_vampire_rules() -> CardRules {
         .with_ability(SCREECHING_BAT_UPKEEP_ABILITY)
 }
 
-fn screeching_bat_composition() -> CardComposition {
-    two_face_creature_composition(
-        "Screeching Bat",
-        "Stalking Vampire",
-        screeching_bat_front_rules(),
-        stalking_vampire_rules(),
-        mana_cost!("{2}{B}"),
-    )
-}
-
-pub(in crate::card::sets) static SCREECHING_BAT: CardRecord = CardRecord::new_with_legacy_id(
+pub(in crate::card::sets) static SCREECHING_BAT: CardRecord = CardRecord::new_dfc_with_legacy_id(
     901,
-    "Screeching Bat",
+    "Screeching Bat // Stalking Vampire",
     CardArt::new("88db324f-11f1-43d3-a897-f4e3caf8d642", "Slawomir Maniak"),
     CardSet::Innistrad,
-    screeching_bat_front_rules(),
-)
-.with_composition(screeching_bat_composition);
+    &[
+        ("Screeching Bat", screeching_bat_front_rules()),
+        ("Stalking Vampire", stalking_vampire_rules()),
+    ],
+);
 
 // ISD 115 — Sever the Bloodline
 pub(in crate::card::sets) static SEVER_THE_BLOODLINE: CardRecord = CardRecord::new_with_legacy_id(
@@ -3994,24 +3899,16 @@ const fn bane_of_hanweir_rules() -> CardRules {
         .with_abilities(&BANE_OF_HANWEIR_ABILITIES)
 }
 
-fn hanweir_watchkeep_composition() -> CardComposition {
-    two_face_creature_composition(
-        "Hanweir Watchkeep",
-        "Bane of Hanweir",
-        hanweir_watchkeep_front_rules(),
-        bane_of_hanweir_rules(),
-        mana_cost!("{2}{R}"),
-    )
-}
-
-pub(in crate::card::sets) static HANWEIR_WATCHKEEP: CardRecord = CardRecord::new_with_legacy_id(
+pub(in crate::card::sets) static HANWEIR_WATCHKEEP: CardRecord = CardRecord::new_dfc_with_legacy_id(
     918,
-    "Hanweir Watchkeep",
+    "Hanweir Watchkeep // Bane of Hanweir",
     CardArt::new("2b14ed17-1a35-4c49-ac46-3cad42d46c14", "Wayne Reynolds"),
     CardSet::Innistrad,
-    hanweir_watchkeep_front_rules(),
-)
-.with_composition(hanweir_watchkeep_composition);
+    &[
+        ("Hanweir Watchkeep", hanweir_watchkeep_front_rules()),
+        ("Bane of Hanweir", bane_of_hanweir_rules()),
+    ],
+);
 
 // ISD 146 — Harvest Pyre
 // Audit: metadata-only — Needs choosing and exiling X graveyard cards as a casting cost linked to the damage amount.
@@ -4104,24 +4001,16 @@ const fn wildblood_pack_rules() -> CardRules {
         .with_abilities(&WILDBLOOD_PACK_ABILITIES)
 }
 
-fn instigator_gang_composition() -> CardComposition {
-    two_face_creature_composition(
-        "Instigator Gang",
-        "Wildblood Pack",
-        instigator_gang_front_rules(),
-        wildblood_pack_rules(),
-        mana_cost!("{3}{R}"),
-    )
-}
-
-pub(in crate::card::sets) static INSTIGATOR_GANG: CardRecord = CardRecord::new_with_legacy_id(
+pub(in crate::card::sets) static INSTIGATOR_GANG: CardRecord = CardRecord::new_dfc_with_legacy_id(
     919,
-    "Instigator Gang",
+    "Instigator Gang // Wildblood Pack",
     CardArt::new("bb90a6f1-c7f2-4c2e-ab1e-59c5c7937841", "Greg Staples"),
     CardSet::Innistrad,
-    instigator_gang_front_rules(),
-)
-.with_composition(instigator_gang_composition);
+    &[
+        ("Instigator Gang", instigator_gang_front_rules()),
+        ("Wildblood Pack", wildblood_pack_rules()),
+    ],
+);
 
 // ISD 150 — Into the Maw of Hell
 pub(in crate::card::sets) static INTO_THE_MAW_OF_HELL: CardRecord = CardRecord::new_with_legacy_id(
@@ -4347,24 +4236,16 @@ const fn merciless_predator_rules() -> CardRules {
         .with_ability(WEREWOLF_BACK_TRANSFORM)
 }
 
-fn reckless_waif_composition() -> CardComposition {
-    two_face_creature_composition(
-        "Reckless Waif",
-        "Merciless Predator",
-        reckless_waif_front_rules(),
-        merciless_predator_rules(),
-        mana_cost!("{R}"),
-    )
-}
-
-pub(in crate::card::sets) static RECKLESS_WAIF: CardRecord = CardRecord::new_with_legacy_id(
+pub(in crate::card::sets) static RECKLESS_WAIF: CardRecord = CardRecord::new_dfc_with_legacy_id(
     926,
-    "Reckless Waif",
+    "Reckless Waif // Merciless Predator",
     CardArt::new("028aeebc-4073-4595-94da-02f9f96ea148", "Michael C. Hayes"),
     CardSet::Innistrad,
-    reckless_waif_front_rules(),
-)
-.with_composition(reckless_waif_composition);
+    &[
+        ("Reckless Waif", reckless_waif_front_rules()),
+        ("Merciless Predator", merciless_predator_rules()),
+    ],
+);
 
 // ISD 160 — Riot Devils
 pub(in crate::card::sets) static RIOT_DEVILS: CardRecord = CardRecord::new_with_legacy_id(
@@ -4502,24 +4383,16 @@ const fn rampaging_werewolf_rules() -> CardRules {
         .with_ability(WEREWOLF_BACK_TRANSFORM)
 }
 
-fn tormented_pariah_composition() -> CardComposition {
-    two_face_creature_composition(
-        "Tormented Pariah",
-        "Rampaging Werewolf",
-        tormented_pariah_front_rules(),
-        rampaging_werewolf_rules(),
-        mana_cost!("{3}{R}"),
-    )
-}
-
-pub(in crate::card::sets) static TORMENTED_PARIAH: CardRecord = CardRecord::new_with_legacy_id(
+pub(in crate::card::sets) static TORMENTED_PARIAH: CardRecord = CardRecord::new_dfc_with_legacy_id(
     932,
-    "Tormented Pariah",
+    "Tormented Pariah // Rampaging Werewolf",
     CardArt::new("6151cae7-92a4-4891-a952-21def412d3e4", "Bud Cook"),
     CardSet::Innistrad,
-    tormented_pariah_front_rules(),
-)
-.with_composition(tormented_pariah_composition);
+    &[
+        ("Tormented Pariah", tormented_pariah_front_rules()),
+        ("Rampaging Werewolf", rampaging_werewolf_rules()),
+    ],
+);
 
 // ISD 166 — Traitorous Blood
 pub(in crate::card::sets) static TRAITOROUS_BLOOD: CardRecord = CardRecord::new_with_legacy_id(
@@ -4614,27 +4487,19 @@ const fn ironfang_rules() -> CardRules {
         .with_abilities(&IRONFANG_ABILITIES)
 }
 
-fn village_ironsmith_composition() -> CardComposition {
-    two_face_creature_composition(
-        "Village Ironsmith",
-        "Ironfang",
-        village_ironsmith_front_rules(),
-        ironfang_rules(),
-        mana_cost!("{1}{R}"),
-    )
-}
-
-pub(in crate::card::sets) static VILLAGE_IRONSMITH: CardRecord = CardRecord::new_with_legacy_id(
+pub(in crate::card::sets) static VILLAGE_IRONSMITH: CardRecord = CardRecord::new_dfc_with_legacy_id(
     935,
-    "Village Ironsmith",
+    "Village Ironsmith // Ironfang",
     CardArt::new(
         "cd5435d0-789f-4c42-8efc-165c072404a2",
         "Christopher Moeller",
     ),
     CardSet::Innistrad,
-    village_ironsmith_front_rules(),
-)
-.with_composition(village_ironsmith_composition);
+    &[
+        ("Village Ironsmith", village_ironsmith_front_rules()),
+        ("Ironfang", ironfang_rules()),
+    ],
+);
 
 // ISD 169 — Ambush Viper
 pub(in crate::card::sets) static AMBUSH_VIPER: CardRecord = CardRecord::new_with_legacy_id(
@@ -4798,37 +4663,16 @@ const fn nightfall_predator_rules() -> CardRules {
         .with_abilities(&NIGHTFALL_PREDATOR_ABILITIES)
 }
 
-fn daybreak_ranger_composition() -> CardComposition {
-    let front = daybreak_ranger_front_rules();
-    let back = nightfall_predator_rules();
-    CardComposition {
-        parts: vec![
-            CardPart::new(CardPartId::PRIMARY, "Daybreak Ranger", front),
-            CardPart::new(CardPartId(1), "Nightfall Predator", back),
-        ],
-        structure: CardStructure::DoubleFaced {
-            front: CardPartId::PRIMARY,
-            back: CardPartId(1),
-            kind: DoubleFacedKind::Transforming,
-        },
-        play_options: vec![PlayOptionDef::cast(
-            PlayOptionId::DEFAULT,
-            "Daybreak Ranger",
-            SpellForm::Part(CardPartId::PRIMARY),
-            mana_cost!("{2}{G}"),
-            CardEffectStatus::Implemented,
-        )],
-    }
-}
-
-pub(in crate::card::sets) static DAYBREAK_RANGER: CardRecord = CardRecord::new_with_legacy_id(
+pub(in crate::card::sets) static DAYBREAK_RANGER: CardRecord = CardRecord::new_dfc_with_legacy_id(
     939,
-    "Daybreak Ranger",
+    "Daybreak Ranger // Nightfall Predator",
     CardArt::new("25b54a1d-e201-453b-9173-b04e06ee6fb7", "Steve Prescott"),
     CardSet::Innistrad,
-    daybreak_ranger_front_rules(),
-)
-.with_composition(daybreak_ranger_composition);
+    &[
+        ("Daybreak Ranger", daybreak_ranger_front_rules()),
+        ("Nightfall Predator", nightfall_predator_rules()),
+    ],
+);
 
 // ISD 177 — Elder of Laurels
 pub(in crate::card::sets) static ELDER_OF_LAURELS: CardRecord = CardRecord::new_with_legacy_id(
@@ -5051,42 +4895,23 @@ static GARRUK_PUMP_PARTS: [AppliedEffectDef; 2] = [
 
 static GARRUK_PUMP: AppliedEffectDef = AppliedEffectDef::Composite(&GARRUK_PUMP_PARTS);
 
-fn garruk_composition() -> CardComposition {
-    let front = garruk_front_rules();
-    let back = CardRules::new_planeswalker_without_mana_cost(&["Garruk"])
+const fn garruk_back_rules() -> CardRules {
+    CardRules::new_planeswalker_without_mana_cost(&["Garruk"])
         .with_supertype(CardSupertype::Legendary)
         .printed_colors(&[ManaColor::Black, ManaColor::Green])
-        .with_abilities(&GARRUK_BACK_ABILITIES);
-    CardComposition {
-        parts: vec![
-            CardPart::new(CardPartId::PRIMARY, "Garruk Relentless", front),
-            CardPart::new(CardPartId(1), "Garruk, the Veil-Cursed", back),
-        ],
-        structure: CardStructure::DoubleFaced {
-            front: CardPartId::PRIMARY,
-            back: CardPartId(1),
-            kind: DoubleFacedKind::Transforming,
-        },
-        play_options: vec![PlayOptionDef::cast(
-            PlayOptionId::DEFAULT,
-            "Garruk Relentless",
-            SpellForm::Part(CardPartId::PRIMARY),
-            front
-                .mana_cost()
-                .expect("Garruk Relentless has a printed mana cost"),
-            CardEffectStatus::Implemented,
-        )],
-    }
+        .with_abilities(&GARRUK_BACK_ABILITIES)
 }
 
-pub(in crate::card::sets) static GARRUK_RELENTLESS: CardRecord = CardRecord::new_with_legacy_id(
+pub(in crate::card::sets) static GARRUK_RELENTLESS: CardRecord = CardRecord::new_dfc_with_legacy_id(
     165,
-    "Garruk Relentless",
+    "Garruk Relentless // Garruk, the Veil-Cursed",
     CardArt::new("b4160322-ff40-41a4-887a-73cd6b85ae45", "Eric Deschamps"),
     CardSet::Innistrad,
-    garruk_front_rules(),
-)
-.with_composition(garruk_composition);
+    &[
+        ("Garruk Relentless", garruk_front_rules()),
+        ("Garruk, the Veil-Cursed", garruk_back_rules()),
+    ],
+);
 
 // ISD 182 — Gatstaf Shepherd // Gatstaf Howler
 const fn gatstaf_shepherd_front_rules() -> CardRules {
@@ -5103,37 +4928,16 @@ const fn gatstaf_howler_rules() -> CardRules {
         .with_abilities(&GATSTAF_HOWLER_ABILITIES)
 }
 
-fn gatstaf_shepherd_composition() -> CardComposition {
-    let front = gatstaf_shepherd_front_rules();
-    let back = gatstaf_howler_rules();
-    CardComposition {
-        parts: vec![
-            CardPart::new(CardPartId::PRIMARY, "Gatstaf Shepherd", front),
-            CardPart::new(CardPartId(1), "Gatstaf Howler", back),
-        ],
-        structure: CardStructure::DoubleFaced {
-            front: CardPartId::PRIMARY,
-            back: CardPartId(1),
-            kind: DoubleFacedKind::Transforming,
-        },
-        play_options: vec![PlayOptionDef::cast(
-            PlayOptionId::DEFAULT,
-            "Gatstaf Shepherd",
-            SpellForm::Part(CardPartId::PRIMARY),
-            mana_cost!("{1}{G}"),
-            CardEffectStatus::Implemented,
-        )],
-    }
-}
-
-pub(in crate::card::sets) static GATSTAF_SHEPHERD: CardRecord = CardRecord::new_with_legacy_id(
+pub(in crate::card::sets) static GATSTAF_SHEPHERD: CardRecord = CardRecord::new_dfc_with_legacy_id(
     941,
-    "Gatstaf Shepherd",
+    "Gatstaf Shepherd // Gatstaf Howler",
     CardArt::new("57f0907f-74f4-4d86-93df-f2e50c9d0b2f", "Mark Evans"),
     CardSet::Innistrad,
-    gatstaf_shepherd_front_rules(),
-)
-.with_composition(gatstaf_shepherd_composition);
+    &[
+        ("Gatstaf Shepherd", gatstaf_shepherd_front_rules()),
+        ("Gatstaf Howler", gatstaf_howler_rules()),
+    ],
+);
 
 // ISD 183 — Gnaw to the Bone
 // Audit: metadata-only — Needs multiplying the number of creature cards in your graveyard by two for a life-gain amount.
@@ -5174,37 +4978,16 @@ const fn krallenhorde_wantons_rules() -> CardRules {
         .with_ability(WEREWOLF_BACK_TRANSFORM)
 }
 
-fn grizzled_outcasts_composition() -> CardComposition {
-    let front = grizzled_outcasts_front_rules();
-    let back = krallenhorde_wantons_rules();
-    CardComposition {
-        parts: vec![
-            CardPart::new(CardPartId::PRIMARY, "Grizzled Outcasts", front),
-            CardPart::new(CardPartId(1), "Krallenhorde Wantons", back),
-        ],
-        structure: CardStructure::DoubleFaced {
-            front: CardPartId::PRIMARY,
-            back: CardPartId(1),
-            kind: DoubleFacedKind::Transforming,
-        },
-        play_options: vec![PlayOptionDef::cast(
-            PlayOptionId::DEFAULT,
-            "Grizzled Outcasts",
-            SpellForm::Part(CardPartId::PRIMARY),
-            mana_cost!("{4}{G}"),
-            CardEffectStatus::Implemented,
-        )],
-    }
-}
-
-pub(in crate::card::sets) static GRIZZLED_OUTCASTS: CardRecord = CardRecord::new_with_legacy_id(
+pub(in crate::card::sets) static GRIZZLED_OUTCASTS: CardRecord = CardRecord::new_dfc_with_legacy_id(
     942,
-    "Grizzled Outcasts",
+    "Grizzled Outcasts // Krallenhorde Wantons",
     CardArt::new("4b43b0cb-a5a3-47b4-9b6b-9d2638222bb6", "Randy Gallegos"),
     CardSet::Innistrad,
-    grizzled_outcasts_front_rules(),
-)
-.with_composition(grizzled_outcasts_composition);
+    &[
+        ("Grizzled Outcasts", grizzled_outcasts_front_rules()),
+        ("Krallenhorde Wantons", krallenhorde_wantons_rules()),
+    ],
+);
 
 // ISD 186 — Gutter Grime
 // Audit: metadata-only — Needs slime counters and a source-linked Ooze token whose P/T tracks the source's counter count.
@@ -5404,37 +5187,16 @@ const fn howlpack_alpha_rules() -> CardRules {
         .with_abilities(&HOWLPACK_ALPHA_ABILITIES)
 }
 
-fn mayor_of_avabruck_composition() -> CardComposition {
-    let front = mayor_of_avabruck_front_rules();
-    let back = howlpack_alpha_rules();
-    CardComposition {
-        parts: vec![
-            CardPart::new(CardPartId::PRIMARY, "Mayor of Avabruck", front),
-            CardPart::new(CardPartId(1), "Howlpack Alpha", back),
-        ],
-        structure: CardStructure::DoubleFaced {
-            front: CardPartId::PRIMARY,
-            back: CardPartId(1),
-            kind: DoubleFacedKind::Transforming,
-        },
-        play_options: vec![PlayOptionDef::cast(
-            PlayOptionId::DEFAULT,
-            "Mayor of Avabruck",
-            SpellForm::Part(CardPartId::PRIMARY),
-            mana_cost!("{1}{G}"),
-            CardEffectStatus::Implemented,
-        )],
-    }
-}
-
-pub(in crate::card::sets) static MAYOR_OF_AVABRUCK: CardRecord = CardRecord::new_with_legacy_id(
+pub(in crate::card::sets) static MAYOR_OF_AVABRUCK: CardRecord = CardRecord::new_dfc_with_legacy_id(
     945,
-    "Mayor of Avabruck",
+    "Mayor of Avabruck // Howlpack Alpha",
     CardArt::new("dd8ca448-f734-4cb9-b1d5-790eed9a4b2d", "Svetlin Velinov"),
     CardSet::Innistrad,
-    mayor_of_avabruck_front_rules(),
-)
-.with_composition(mayor_of_avabruck_composition);
+    &[
+        ("Mayor of Avabruck", mayor_of_avabruck_front_rules()),
+        ("Howlpack Alpha", howlpack_alpha_rules()),
+    ],
+);
 
 // ISD 194 — Moldgraf Monstrosity
 // Audit: metadata-only — Needs deterministic random selection of two creature cards from your graveyard after exiling the source.
@@ -5726,24 +5488,16 @@ const fn ulvenwald_primordials_rules() -> CardRules {
         .with_abilities(&ULVENWALD_PRIMORDIALS_ABILITIES)
 }
 
-fn ulvenwald_mystics_composition() -> CardComposition {
-    two_face_creature_composition(
-        "Ulvenwald Mystics",
-        "Ulvenwald Primordials",
-        ulvenwald_mystics_front_rules(),
-        ulvenwald_primordials_rules(),
-        mana_cost!("{2}{G}{G}"),
-    )
-}
-
-pub(in crate::card::sets) static ULVENWALD_MYSTICS: CardRecord = CardRecord::new_with_legacy_id(
+pub(in crate::card::sets) static ULVENWALD_MYSTICS: CardRecord = CardRecord::new_dfc_with_legacy_id(
     1488,
-    "Ulvenwald Mystics",
+    "Ulvenwald Mystics // Ulvenwald Primordials",
     CardArt::new("8325c570-4d74-4e65-891c-3e153abf4bf9", "Dan Murayama Scott"),
     CardSet::Innistrad,
-    ulvenwald_mystics_front_rules(),
-)
-.with_composition(ulvenwald_mystics_composition);
+    &[
+        ("Ulvenwald Mystics", ulvenwald_mystics_front_rules()),
+        ("Ulvenwald Primordials", ulvenwald_primordials_rules()),
+    ],
+);
 
 // ISD 209 — Villagers of Estwald // Howlpack of Estwald
 const fn villagers_of_estwald_front_rules() -> CardRules {
@@ -5757,37 +5511,17 @@ const fn howlpack_of_estwald_rules() -> CardRules {
         .with_ability(WEREWOLF_BACK_TRANSFORM)
 }
 
-fn villagers_of_estwald_composition() -> CardComposition {
-    let front = villagers_of_estwald_front_rules();
-    let back = howlpack_of_estwald_rules();
-    CardComposition {
-        parts: vec![
-            CardPart::new(CardPartId::PRIMARY, "Villagers of Estwald", front),
-            CardPart::new(CardPartId(1), "Howlpack of Estwald", back),
+pub(in crate::card::sets) static VILLAGERS_OF_ESTWALD: CardRecord =
+    CardRecord::new_dfc_with_legacy_id(
+        953,
+        "Villagers of Estwald // Howlpack of Estwald",
+        CardArt::new("e42a0a3d-a987-4b24-b9d4-27380a12e093", "Kev Walker"),
+        CardSet::Innistrad,
+        &[
+            ("Villagers of Estwald", villagers_of_estwald_front_rules()),
+            ("Howlpack of Estwald", howlpack_of_estwald_rules()),
         ],
-        structure: CardStructure::DoubleFaced {
-            front: CardPartId::PRIMARY,
-            back: CardPartId(1),
-            kind: DoubleFacedKind::Transforming,
-        },
-        play_options: vec![PlayOptionDef::cast(
-            PlayOptionId::DEFAULT,
-            "Villagers of Estwald",
-            SpellForm::Part(CardPartId::PRIMARY),
-            mana_cost!("{2}{G}"),
-            CardEffectStatus::Implemented,
-        )],
-    }
-}
-
-pub(in crate::card::sets) static VILLAGERS_OF_ESTWALD: CardRecord = CardRecord::new_with_legacy_id(
-    953,
-    "Villagers of Estwald",
-    CardArt::new("e42a0a3d-a987-4b24-b9d4-27380a12e093", "Kev Walker"),
-    CardSet::Innistrad,
-    villagers_of_estwald_front_rules(),
-)
-.with_composition(villagers_of_estwald_composition);
+    );
 
 // ISD 210 — Woodland Sleuth
 // Audit: metadata-only — Needs deterministic random selection of a creature card from your graveyard under a morbid condition.

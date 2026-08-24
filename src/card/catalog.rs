@@ -7,7 +7,7 @@ use std::sync::Arc;
 
 use self::name::normalize_name;
 use self::validation::validate_composition;
-use super::{CardDefinition, CardPrinting, CardPrintingId, CardSet};
+use super::{CardDefinition, CardPrinting, CardPrintingId, CardSet, CardStructure};
 use crate::{CardDefinitionId, Format};
 
 pub use self::error::{
@@ -125,6 +125,19 @@ impl CardCatalog {
                 return Err(CatalogError::DuplicateName(definition.name));
             }
             validate_composition(&definition)?;
+            let front_alias = if matches!(definition.structure, CardStructure::DoubleFaced { .. }) {
+                definition.primary_part().map(|part| part.name.clone())
+            } else {
+                None
+            };
+            if let Some(front_alias) = &front_alias {
+                let normalized_alias = normalize_name(front_alias);
+                if normalized_alias != normalized_name
+                    && entries.ids_by_name.contains_key(&normalized_alias)
+                {
+                    return Err(CatalogError::DuplicateName(front_alias.clone()));
+                }
+            }
             let supplied_printings = std::mem::take(&mut definition.printings);
             definition_printings.extend(
                 supplied_printings
@@ -132,6 +145,11 @@ impl CardCatalog {
                     .map(|printing| (definition.id, printing)),
             );
             entries.ids_by_name.insert(normalized_name, definition.id);
+            if let Some(front_alias) = front_alias {
+                entries
+                    .ids_by_name
+                    .insert(normalize_name(&front_alias), definition.id);
+            }
             entries.insert_definition(definition);
         }
 
@@ -166,7 +184,9 @@ impl CardCatalog {
         definitions
     }
 
-    /// Looks up a card definition ID by its case-insensitive printed name.
+    /// Looks up a card definition ID by its case-insensitive canonical name.
+    /// Double-faced cards also accept their front-face name for deck-list
+    /// compatibility.
     #[must_use]
     pub fn find_by_name(&self, name: &str) -> Option<CardDefinitionId> {
         self.entries.ids_by_name.get(&normalize_name(name)).copied()

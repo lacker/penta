@@ -158,6 +158,7 @@ mod identity_and_mana;
 mod instill_energy;
 mod into_the_wilds;
 mod isd_m14_deck_cards;
+mod isd_memorys_journey;
 mod isd_token_cards;
 mod jade_statue;
 mod keymaster_rogue;

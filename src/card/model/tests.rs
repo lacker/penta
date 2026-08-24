@@ -232,6 +232,24 @@ fn semantic_target_labels_are_derived_from_predicates() {
         "semantic-only targets still have decision labels without a legacy projection",
     );
 
+    let linked_graveyard = AbilityTargetDef::up_to(
+        AbilityTargetPredicate::OwnedByTargetPlayer {
+            object: ObjectPredicateDef::Any,
+            zones: &[ZoneKind::Graveyard],
+            slot: TargetIndex::PRIMARY,
+        },
+        3,
+    );
+    assert_eq!(
+        linked_graveyard.label(),
+        "target card in that player's graveyard"
+    );
+    assert!(
+        linked_graveyard
+            .presentation(crate::TargetSlotId(1))
+            .is_none()
+    );
+
     let blue_spell =
         AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Color(ManaColor::Blue));
     let presentation = blue_spell

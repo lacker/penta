@@ -407,7 +407,8 @@ fn presentation_target_predicate(predicate: AbilityTargetPredicate) -> Option<Ta
         // Presented as a spell slot: a client has no narrower kind, and the
         // ability half is the rarer reading.
         AbilityTargetPredicate::StackObject { .. } => Some(TargetPredicate::Spell),
-        AbilityTargetPredicate::Object { .. } => None,
+        AbilityTargetPredicate::OwnedByTargetPlayer { .. }
+        | AbilityTargetPredicate::Object { .. } => None,
     }
 }
 
@@ -429,6 +430,20 @@ impl AbilityTargetDef {
                     .expect("dependent targets always project to a permanent target");
                 let subject = object_target_subject(object, predicate);
                 format!("target {subject} that player or that planeswalker's controller controls")
+            }
+            AbilityTargetPredicate::OwnedByTargetPlayer { object, zones, .. } => {
+                let subject = semantic_card_subject(object);
+                match zones {
+                    [ZoneKind::Graveyard] => {
+                        format!("target {subject} in that player's graveyard")
+                    }
+                    [ZoneKind::Hand] => format!("target {subject} in that player's hand"),
+                    [ZoneKind::Library] => {
+                        format!("target {subject} in that player's library")
+                    }
+                    [ZoneKind::Exile] => format!("target {subject} that player owns in exile"),
+                    _ => format!("target {subject} that player owns"),
+                }
             }
             AbilityTargetPredicate::Player(relation) => player_target_label(relation).into(),
             AbilityTargetPredicate::StackObject { controller, .. } => {

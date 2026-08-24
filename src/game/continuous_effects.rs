@@ -886,6 +886,7 @@ impl Game {
             AbilityTargetPredicate::AnyTarget
             | AbilityTargetPredicate::PlayerOrPlaneswalker(_)
             | AbilityTargetPredicate::ControlledByTargetOf { .. }
+            | AbilityTargetPredicate::OwnedByTargetPlayer { .. }
             // An Aura attaches to a permanent, so a stack slot never names one.
             | AbilityTargetPredicate::StackObject { .. }
             | AbilityTargetPredicate::Player(_) => false,

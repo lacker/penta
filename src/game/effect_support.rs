@@ -710,6 +710,27 @@ impl Game {
                 Target::Spell(id) => self.stack.iter().any(|candidate| candidate.id == id),
             };
         }
+        if let AbilityTargetPredicate::OwnedByTargetPlayer {
+            object: predicate,
+            zones,
+            slot: owner_slot,
+        } = definition.predicate
+        {
+            let Some(owner) = ability
+                .targets
+                .get(owner_slot.index())
+                .and_then(|selection| selection.targets().first())
+                .and_then(|target| match target {
+                    Target::Player(player) => Some(*player),
+                    Target::Card(_) | Target::Permanent(_) | Target::Spell(_) => None,
+                })
+            else {
+                return false;
+            };
+            return self
+                .targets_owned_by_player_matching(predicate, zones, owner, source)
+                .contains(&target);
+        }
         self.ability_targets_matching(
             definition.predicate,
             object.controller,

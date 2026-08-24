@@ -187,21 +187,31 @@ impl Game {
                 let Some(slot) = slots.get(original.slot().index()) else {
                     return vec![signature.targets().to_vec()];
                 };
-                let mut replacements = target_combinations(
-                    &self.ability_targets_matching(slot.predicate, player, spell.id, context),
-                    original.targets().len(),
-                )
-                .into_iter()
-                .map(|targets| TargetSelection::new(original.slot(), targets))
-                .collect::<Vec<_>>();
-                // Copy effects may keep the original target even if it has
-                // since become illegal; normal resolution will then apply
-                // the usual target-legality rules to the copy.
-                replacements.push(original.clone());
-                replacements.sort_unstable_by_key(|selection| selection.targets().to_vec());
-                replacements.dedup();
                 let mut combined = Vec::new();
                 for prefix in &choices {
+                    let candidates = self
+                        .targets_owned_by_target_player(slot.predicate, prefix, spell.id)
+                        .unwrap_or_else(|| {
+                            self.ability_targets_matching(
+                                slot.predicate,
+                                player,
+                                spell.id,
+                                context,
+                            )
+                        });
+                    let mut replacements = target_combinations(
+                        &candidates,
+                        original.targets().len(),
+                    )
+                    .into_iter()
+                    .map(|targets| TargetSelection::new(original.slot(), targets))
+                    .collect::<Vec<_>>();
+                    // Copy effects may keep the original target even if it has
+                    // since become illegal; normal resolution will then apply
+                    // the usual target-legality rules to the copy.
+                    replacements.push(original.clone());
+                    replacements.sort_unstable_by_key(|selection| selection.targets().to_vec());
+                    replacements.dedup();
                     for replacement in &replacements {
                         let mut selected = prefix.clone();
                         selected.push(replacement.clone());

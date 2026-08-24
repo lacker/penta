@@ -1701,13 +1701,44 @@ pub(in crate::card::sets) static MAKESHIFT_MAULER: CardRecord = CardRecord::new_
 );
 
 // ISD 66 — Memory's Journey
-// Audit: metadata-only — Needs a linked target-player relation for up to three cards in that player's graveyard, then shuffling that library.
 pub(in crate::card::sets) static MEMORY_S_JOURNEY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("265aaa73-1a1e-4282-a860-f7c422f21db3"),
     "Memory's Journey",
     crate::card::CardArt::new("265aaa73-1a1e-4282-a860-f7c422f21db3", "Slawomir Maniak"),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Target player shuffles up to three target cards from their graveyard into their library.",
+            &[
+                AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+                    PlayerRelation::Any,
+                )),
+                AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::OwnedByTargetPlayer {
+                        object: ObjectPredicateDef::Any,
+                        zones: &[ZoneKind::Graveyard],
+                        slot: TargetIndex::PRIMARY,
+                    },
+                    3,
+                ),
+            ],
+            EffectDef::Sequence(&[
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex(1)),
+                    zone: ZoneKind::Library,
+                    placement: ZonePlacement::Top,
+                    controller: None,
+                    arrival_effect: None,
+                    attachment: None,
+                    counters: None,
+                },
+                EffectDef::ShuffleLibrary {
+                    player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ]),
+        ),
+        abilities::flashback(mana_cost!("{G}")),
+    ]),
 );
 
 // ISD 67 — Mindshrieker

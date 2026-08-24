@@ -66,13 +66,30 @@ impl Game {
             && target_defs.iter().enumerate().zip(choices.targets()).all(
                 |((index, slot), selection)| {
                     let count = selection.targets().len();
-                    let legal = self.ability_targets_matching_at(
-                        slot.predicate,
-                        player,
-                        card_id,
-                        TriggerContext::empty(),
-                        choices.x(),
-                    );
+                    let legal = match slot.predicate {
+                        crate::card::AbilityTargetPredicate::OwnedByTargetPlayer {
+                            object,
+                            zones,
+                            slot: owner_slot,
+                        } => choices
+                            .targets()
+                            .get(owner_slot.index())
+                            .and_then(|selection| selection.targets().first())
+                            .and_then(|target| match target {
+                                Target::Player(owner) => Some(*owner),
+                                Target::Card(_) | Target::Permanent(_) | Target::Spell(_) => None,
+                            })
+                            .map_or_else(Vec::new, |owner| {
+                                self.targets_owned_by_player_matching(object, zones, owner, card_id)
+                            }),
+                        _ => self.ability_targets_matching_at(
+                            slot.predicate,
+                            player,
+                            card_id,
+                            TriggerContext::empty(),
+                            choices.x(),
+                        ),
+                    };
                     // Read through the same sentinel the enumerator used, so
                     // a slot counted by X is checked against the X this cast
                     // actually chose rather than against the sentinel.

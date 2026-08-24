@@ -6,11 +6,61 @@
 
 use super::{
     AbilityTargetPredicate, CardInstance, CardType, CharacteristicContext, Game, GameObjectId,
-    ObjectPredicateDef, PlayerId, StackObjectKind, StackTargetKindDef, Target, TriggerContext,
-    ZoneKind,
+    ObjectPredicateDef, PlayerId, StackObjectKind, StackTargetKindDef, Target, TargetSelection,
+    TriggerContext, ZoneKind,
 };
 
 impl Game {
+    pub(super) fn targets_owned_by_player_matching(
+        &self,
+        object: ObjectPredicateDef,
+        zones: &'static [ZoneKind],
+        owner: PlayerId,
+        source: GameObjectId,
+    ) -> Vec<Target> {
+        zones
+            .iter()
+            .copied()
+            .filter(|zone| {
+                matches!(
+                    zone,
+                    ZoneKind::Library | ZoneKind::Hand | ZoneKind::Graveyard | ZoneKind::Exile
+                )
+            })
+            .flat_map(|zone| {
+                self.cards_in_zone(zone).filter_map(move |card| {
+                    (card.owner == owner && self.card_object_matches(object, card, zone, source))
+                        .then_some(Target::Card(card.id))
+                })
+            })
+            .collect()
+    }
+
+    pub(super) fn targets_owned_by_target_player(
+        &self,
+        predicate: AbilityTargetPredicate,
+        selections: &[TargetSelection],
+        source: GameObjectId,
+    ) -> Option<Vec<Target>> {
+        let AbilityTargetPredicate::OwnedByTargetPlayer {
+            object,
+            zones,
+            slot,
+        } = predicate
+        else {
+            return None;
+        };
+        let owner = selections
+            .iter()
+            .find(|selection| selection.slot().index() == slot.index())
+            .and_then(|selection| selection.targets().first())
+            .and_then(|target| match target {
+                Target::Player(player) => Some(*player),
+                Target::Card(_) | Target::Permanent(_) | Target::Spell(_) => None,
+            })?;
+        Some(self.targets_owned_by_player_matching(object, zones, owner, source))
+    }
+
     /// The same, considered at a particular X. A spell being cast has no
     /// stack object yet, so a predicate that reads its chosen X -- "target
     /// creature with power X or less" -- has nothing to read it from; the
@@ -76,7 +126,8 @@ impl Game {
                 );
                 targets
             }
-            AbilityTargetPredicate::ControlledByTargetOf { .. } => Vec::new(),
+            AbilityTargetPredicate::ControlledByTargetOf { .. }
+            | AbilityTargetPredicate::OwnedByTargetPlayer { .. } => Vec::new(),
             AbilityTargetPredicate::PlayerOrPlaneswalker(relation) => {
                 let mut targets = [PlayerId::One, PlayerId::Two]
                     .into_iter()

@@ -4,6 +4,7 @@ impl Game {
             AbilityTargetPredicate::AnyTarget
             | AbilityTargetPredicate::PlayerOrPlaneswalker(_)
             | AbilityTargetPredicate::ControlledByTargetOf { .. }
+            | AbilityTargetPredicate::OwnedByTargetPlayer { .. }
             | AbilityTargetPredicate::Player(_) => false,
             AbilityTargetPredicate::Object { object, .. }
             | AbilityTargetPredicate::StackObject { object, .. } => {

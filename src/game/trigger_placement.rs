@@ -74,12 +74,20 @@ impl Game {
         remaining: Vec<TriggerPlacementBatch>,
     ) {
         let target = trigger.target_defs[trigger.targets.len()];
-        let candidates = self.ability_targets_matching(
-            target.predicate,
-            trigger.controller,
-            trigger.source.object,
-            trigger.context.trigger,
-        );
+        let candidates = self
+            .targets_owned_by_target_player(
+                target.predicate,
+                &trigger.targets,
+                trigger.source.object,
+            )
+            .unwrap_or_else(|| {
+                self.ability_targets_matching(
+                    target.predicate,
+                    trigger.controller,
+                    trigger.source.object,
+                    trigger.context.trigger,
+                )
+            });
         if candidates.len() < usize::from(target.minimum) {
             // A triggered ability with no legal choice for a required target
             // is removed from the stack as the placement procedure completes.

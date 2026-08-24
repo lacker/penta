@@ -852,52 +852,25 @@ impl Game {
                 .expect("validated ability targets fit the runtime slot space");
             // A slot that reads an earlier slot's choice has to be enumerated
             // once per prefix, because its candidates are different for each.
-            if let AbilityTargetPredicate::ControlledByTargetOf {
-                object,
-                slot: other,
-            } = slot.predicate
-            {
-                let other = TargetSlotId::from_index(other.index())
-                    .expect("validated dependent target fits the runtime slot space");
-                let mut combined = Vec::new();
-                for prefix in &selections {
-                    let candidates = prefix
-                        .iter()
-                        .find(|selection: &&TargetSelection| selection.slot() == other)
-                        .and_then(|selection| selection.targets().first().copied())
-                        .and_then(|target| match target {
-                            Target::Player(player) => Some(player),
-                            Target::Permanent(id) | Target::Card(id) | Target::Spell(id) => {
-                                self.current_or_last_known_controller(id)
-                            }
-                        })
-                        .map_or_else(Vec::new, |owner| {
-                            self.battlefield
-                                .iter()
-                                .filter(|permanent| permanent.controller == owner)
-                                .filter(|permanent| {
-                                    self.trigger_object_matches(
-                                        object,
-                                        &self.trigger_event_object(permanent),
-                                        source,
-                                        false,
-                                    ) && self.permanent_can_be_targeted_by(
-                                        permanent, controller, source, true,
-                                    )
-                                })
-                                .map(|permanent| Target::Permanent(permanent.card.id))
-                                .collect::<Vec<_>>()
-                        });
-                    let (minimum, maximum) = slot.count_bounds(x);
-                    for count in minimum..=maximum {
-                        for targets in target_combinations(&candidates, usize::from(count)) {
-                            let mut selected = prefix.clone();
-                            selected.push(TargetSelection::new(id, targets));
-                            combined.push(selected);
-                        }
-                    }
-                }
-                selections = combined;
+            if matches!(
+                slot.predicate,
+                AbilityTargetPredicate::ControlledByTargetOf { .. }
+            ) {
+                selections = self.controlled_target_selections(
+                    &selections,
+                    *slot,
+                    id,
+                    controller,
+                    source,
+                    x,
+                );
+                continue;
+            }
+            if matches!(
+                slot.predicate,
+                AbilityTargetPredicate::OwnedByTargetPlayer { .. }
+            ) {
+                selections = self.linked_owner_target_selections(&selections, *slot, id, source, x);
                 continue;
             }
             let candidates =
@@ -954,6 +927,8 @@ impl Game {
         selections
     }
 }
+
+include!("casting_actions/dependent_target_selections.rs");
 
 /// Whether a slot's choice names anything the slots before it already did.
 fn names_an_earlier_target(prefix: &[TargetSelection], choice: &TargetSelection) -> bool {

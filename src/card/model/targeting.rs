@@ -213,6 +213,15 @@ pub enum AbilityTargetPredicate {
         object: ObjectPredicateDef,
         slot: TargetIndex,
     },
+    /// A card in one of these nonbattlefield zones owned by the player named
+    /// by an earlier target slot. This is the linked "cards from that player's graveyard"
+    /// relation: choosing the player first narrows every later card target to
+    /// that player's private zones.
+    OwnedByTargetPlayer {
+        object: ObjectPredicateDef,
+        zones: &'static [ZoneKind],
+        slot: TargetIndex,
+    },
     Player(PlayerRelation),
     /// A spell or an ability waiting on the stack. [`Self::Object`] over a
     /// stack zone names only spells, because that is what "target spell"

@@ -9,7 +9,7 @@ use crate::card::{
     AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardAbilityBinding, CardArt,
     CardBehavior, CardChoiceSourceDef, CardComposition, CardEffectStatus, CardPart, CardRules,
     CardSet, CardStructure, CardSupertype, CardType, ComparisonDef, ConditionalValueDef,
-    ControlDurationDef, CounterKind, DamageEventMatcherDef, DestroyFollowUpDef,
+    ControlDurationDef, CostModificationDef, CounterKind, DamageEventMatcherDef, DestroyFollowUpDef,
     DiscardSelectionDef, DoubleFacedKind, EffectDef, EffectExecutionDef, EffectPaymentDef,
     EffectRecipientDef, HalvedValueDef, KeywordAbility, ManaColor, MillUntilDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayOptionDef,
@@ -2020,13 +2020,22 @@ pub(in crate::card::sets) static MURDER_OF_CROWS: CardRecord = CardRecord::new_w
 );
 
 // ISD 71 — Rooftop Storm
-// Audit: metadata-only — Needs a battlefield-wide alternative cost of {0} for Zombie creature spells you cast.
 pub(in crate::card::sets) static ROOFTOP_STORM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ab01d871-ba50-400a-95e7-09af9e34405f"),
     "Rooftop Storm",
-    crate::card::CardArt::new("ab01d871-ba50-400a-95e7-09af9e34405f", "John Stanko"),
-    crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ab01d871-ba50-400a-95e7-09af9e34405f", "John Stanko"),
+    CardSet::Innistrad,
+    CardRules::new_enchantment(mana_cost!("{5}{U}")).with_ability(AbilityDef::static_ability(
+        "You may pay {0} rather than pay the mana cost for Zombie creature spells you cast.",
+        EffectDef::ModifyCost(CostModificationDef::SpellAlternative {
+            spell: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Subtype("Zombie"),
+            ]),
+            caster: PlayerRelation::You,
+            cost: mana_cost!("{0}"),
+        }),
+    )),
 );
 
 // ISD 72 — Runic Repetition

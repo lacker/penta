@@ -581,12 +581,33 @@ impl WebGame {
                             .iter()
                             .find(|cost| cost.id == alternative)
                     });
-                    let alternative_label = printed.map_or("Flashback", |cost| cost.label.as_str());
+                    let temporary = cast_option.and_then(|option| {
+                        (u8::MIN..=u8::MAX)
+                            .rev()
+                            .map(penta::AlternativeCostId)
+                            .find(|candidate| {
+                                option
+                                    .alternative_costs
+                                    .iter()
+                                    .all(|cost| cost.id != *candidate)
+                            })
+                    });
+                    let alternative_label = printed.map_or_else(
+                        || {
+                            if temporary == Some(alternative) {
+                                "Flashback"
+                            } else {
+                                "Alternative cost"
+                            }
+                        },
+                        |cost| cost.label.as_str(),
+                    );
                     let _ = write!(label, " via {alternative_label}");
-                    if let Some(cost) = printed
-                        .map(|cost| cost.mana_cost)
-                        .or_else(|| cast_option.and_then(|option| option.mana_cost))
-                    {
+                    if let Some(cost) = printed.map(|cost| cost.mana_cost).or_else(|| {
+                        (temporary == Some(alternative))
+                            .then(|| cast_option.and_then(|option| option.mana_cost))
+                            .flatten()
+                    }) {
                         let _ = write!(label, " {}", mana_cost_label(cost));
                     }
                 }

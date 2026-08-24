@@ -296,6 +296,7 @@ impl Game {
                                 return ControlFlow::Continue(());
                             }
                             let Some(cost) = self.configured_cast_mana_cost(
+                                player,
                                 card.id,
                                 option,
                                 &costs,

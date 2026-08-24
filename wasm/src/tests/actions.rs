@@ -72,6 +72,37 @@ fn cast_action_labels_distinguish_normal_flashback_and_overload() {
 }
 
 #[test]
+fn cast_action_labels_name_a_battlefield_granted_alternative_without_calling_it_flashback() {
+    let game = WebGame::new(
+        "Briksza Naya Midrange",
+        "Greer G/R Aggro",
+        "Handcrafted",
+        true,
+        2,
+        Some("isd-m14-standard".into()),
+    )
+    .unwrap();
+    let mut observation = game.session.engine().observe(game.human);
+    let zombie = CardInstanceId(90_004);
+    observation
+        .hand
+        .push((zombie, penta::card::cards::WALKING_CORPSE));
+    let rooftop_storm_cast = Action::CastSpell {
+        card: zombie,
+        choices: penta::CastChoices::default().with_costs(penta::CostConfiguration::new(
+            Some(penta::AlternativeCostId(u8::MAX - 1)),
+            Vec::new(),
+        )),
+        sacrifices: Vec::new(),
+    };
+
+    assert_eq!(
+        game.action_label(&observation, &rooftop_storm_cast),
+        "Cast Walking Corpse via Alternative cost"
+    );
+}
+
+#[test]
 fn cast_action_labels_distinguish_optional_buyback() {
     let game = WebGame::new(
         "Briksza Naya Midrange",

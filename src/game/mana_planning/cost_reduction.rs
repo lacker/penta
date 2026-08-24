@@ -6,6 +6,50 @@
 // `mana_planning.rs`, so the imports here are the parent module's.
 
 impl Game {
+    /// Alternative mana costs that battlefield statics offer for this spell.
+    /// Equivalent costs are one choice even when several permanents offer
+    /// them; choosing which Rooftop Storm supplied `{0}` has no rules meaning.
+    pub(super) fn battlefield_spell_alternative_costs(
+        &self,
+        player: PlayerId,
+        source: GameObjectId,
+    ) -> Vec<ManaCost> {
+        let Some((zone, card)) = self.card_in_nonbattlefield_zone(source) else {
+            return Vec::new();
+        };
+        let mut costs = Vec::new();
+        for permanent in &self.battlefield {
+            let Some(rules) = self.effective_rules(permanent) else {
+                continue;
+            };
+            for ability in rules.ability_clauses() {
+                if !ability.is_executable() {
+                    continue;
+                }
+                let Some(EffectDef::ModifyCost(CostModificationDef::SpellAlternative {
+                    spell,
+                    caster,
+                    cost,
+                })) = ability.declarative_effect()
+                else {
+                    continue;
+                };
+                if !self.player_relation_matches(
+                    player,
+                    caster,
+                    permanent.controller,
+                    TriggerContext::empty(),
+                ) || !self.card_object_matches(spell, card, zone, permanent.card.id)
+                    || costs.contains(&cost)
+                {
+                    continue;
+                }
+                costs.push(cost);
+            }
+        }
+        costs
+    }
+
     /// How much generic mana this card's own static clauses take off its
     /// cost. Read from the hand, which is where casting reads it.
     pub(super) fn spell_cost_reduction(

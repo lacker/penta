@@ -60,7 +60,7 @@ pub enum ChoiceVisibilityDef {
 
 /// One static modification to what something costs.
 ///
-/// Four spellings of a single idea, kept together because every consumer
+/// Five spellings of a single idea, kept together because every consumer
 /// takes them together: the mana planner prices a spell against all of them
 /// at once, and every clause that is not about cost passes over the whole
 /// family in one arm.
@@ -104,6 +104,14 @@ pub enum CostModificationDef {
         spell: ObjectPredicateDef,
         caster: PlayerRelation,
         amount: ManaCost,
+    },
+    /// A permanent offering a different mana cost for matching spells. This
+    /// replaces only the spell's mana cost: additional costs and the ordinary
+    /// increase/reduction pass still apply afterwards (CR 118.9d, 601.2f).
+    SpellAlternative {
+        spell: ObjectPredicateDef,
+        caster: PlayerRelation,
+        cost: ManaCost,
     },
     /// Matching spells cost that much less generic mana to cast, read off a
     /// permanent rather than off the card being cast.

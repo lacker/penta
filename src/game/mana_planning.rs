@@ -66,7 +66,8 @@ impl Game {
                     .and_then(|pending| pending.continuation.cast_offer())
                     .filter(|offer| offer.player == player && offer.card == *card)
                     .map(|offer| offer.cost);
-                let cost = self.configured_cast_mana_cost(*card, option, choices.costs(), offer)?;
+                let cost =
+                    self.configured_cast_mana_cost(player, *card, option, choices.costs(), offer)?;
                 let increased = add_mana_cost(
                     add_generic(
                         cost,

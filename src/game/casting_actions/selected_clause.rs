@@ -102,20 +102,26 @@ impl Game {
         offer: Option<CastOfferCost>,
     ) -> Option<AlternativeCastKindDef> {
         let selected = costs.alternative()?;
-        if Some(selected) == Self::temporary_alternative_cost_id(option)
-            && let Some((_, alternative, _)) = self.granted_alternative_cast(
-                card,
-                option,
-                match offer {
-                    Some(CastOfferCost::GrantedAlternative(grant)) => Some(grant),
-                    None | Some(CastOfferCost::Any) => None,
-                    Some(CastOfferCost::PrintedAlternative(_)) => return None,
-                },
-            )
-        {
-            return Some(alternative.kind);
+        if Some(selected) == Self::temporary_alternative_cost_id(option) {
+            return self
+                .granted_alternative_cast(
+                    card,
+                    option,
+                    match offer {
+                        Some(CastOfferCost::GrantedAlternative(grant)) => Some(grant),
+                        None | Some(CastOfferCost::Any) => None,
+                        Some(CastOfferCost::PrintedAlternative(_)) => return None,
+                    },
+                )
+                .map(|(_, alternative, _)| alternative.kind);
         }
-        Self::alternative_cast_ability(definition, option, selected).map(|(_, _, kind)| kind)
+        Self::alternative_cast_ability(definition, option, selected)
+            .map(|(_, _, kind)| kind)
+            // A runtime alternative has no printed clause to recover. Its ID
+            // was validated while the cast was announced, and the signature
+            // must keep saying "alternative cost" even after its battlefield
+            // source is gone.
+            .or(Some(AlternativeCastKindDef::AlternativeCost))
     }
 
     /// The smallest X the selected alternative may be cast for. "Kicker
@@ -140,14 +146,48 @@ impl Game {
     pub(super) fn temporary_alternative_cost_id(
         option: &PlayOptionDef,
     ) -> Option<AlternativeCostId> {
+        Self::external_alternative_cost_id(option, 0)
+    }
+
+    /// A stable ID for an alternative supplied outside the printed card.
+    /// Slot zero remains the one-shot/graveyard grant; battlefield alternatives
+    /// use later slots so their reconstruction never collides with it.
+    fn external_alternative_cost_id(
+        option: &PlayOptionDef,
+        slot: usize,
+    ) -> Option<AlternativeCostId> {
         (u8::MIN..=u8::MAX)
             .rev()
             .map(AlternativeCostId)
-            .find(|candidate| {
+            .filter(|candidate| {
                 option
                     .alternative_costs
                     .iter()
                     .all(|cost| cost.id != *candidate)
+            })
+            .nth(slot)
+    }
+
+    pub(super) fn battlefield_alternative_cost_id(
+        option: &PlayOptionDef,
+        index: usize,
+    ) -> Option<AlternativeCostId> {
+        Self::external_alternative_cost_id(option, index.saturating_add(1))
+    }
+
+    pub(super) fn battlefield_spell_alternative_cost_for_id(
+        &self,
+        player: PlayerId,
+        card: GameObjectId,
+        option: &PlayOptionDef,
+        selected: AlternativeCostId,
+    ) -> Option<ManaCost> {
+        self.battlefield_spell_alternative_costs(player, card)
+            .into_iter()
+            .enumerate()
+            .find_map(|(index, cost)| {
+                (Self::battlefield_alternative_cost_id(option, index) == Some(selected))
+                    .then_some(cost)
             })
     }
 

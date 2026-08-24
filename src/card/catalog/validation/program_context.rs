@@ -179,23 +179,10 @@ fn validate_static_effect(
         {
             Ok(())
         }
-        EffectDef::ModifyCost(CostModificationDef::SpellIncrease { spell, caster, .. })
+        EffectDef::ModifyCost(modification)
             if position == StaticPosition::Root
                 && source_zones == [ZoneKind::Battlefield]
-                && static_object_predicate_supported(spell)
-                && static_player_relation_supported(caster) =>
-        {
-            Ok(())
-        }
-        EffectDef::ModifyCost(CostModificationDef::SpellReduction {
-            spell,
-            caster,
-            amount,
-        }) if position == StaticPosition::Root
-            && source_zones == [ZoneKind::Battlefield]
-            && static_object_predicate_supported(spell)
-            && static_player_relation_supported(caster)
-            && static_cost_reduction_value_supported(amount) =>
+                && static_spell_cost_modification_supported(modification) =>
         {
             Ok(())
         }
@@ -216,6 +203,27 @@ fn static_ability_increase_supported(
     position == StaticPosition::Root
         && source_zones == [ZoneKind::Battlefield]
         && static_object_predicate_supported(matcher)
+}
+
+fn static_spell_cost_modification_supported(modification: CostModificationDef) -> bool {
+    match modification {
+        CostModificationDef::SpellIncrease { spell, caster, .. }
+        | CostModificationDef::SpellAlternative { spell, caster, .. } => {
+            static_object_predicate_supported(spell) && static_player_relation_supported(caster)
+        }
+        CostModificationDef::SpellReduction {
+            spell,
+            caster,
+            amount,
+        } => {
+            static_object_predicate_supported(spell)
+                && static_player_relation_supported(caster)
+                && static_cost_reduction_value_supported(amount)
+        }
+        CostModificationDef::AbilityIncrease { .. }
+        | CostModificationDef::SourceAbilityIncrease { .. }
+        | CostModificationDef::AbilityReduction { .. } => false,
+    }
 }
 
 fn validate_static_apply(

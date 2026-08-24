@@ -70,6 +70,16 @@ pub(in super::super) fn shared_static_non_apply_effect(
                         | crate::card::PlayerRelation::NonactivePlayer
                 )
         }
+        EffectDef::ModifyCost(CostModificationDef::SpellAlternative { spell, caster, .. }) => {
+            battlefield_only(source_zones)
+                && shared_object_predicate(spell)
+                && matches!(
+                    caster,
+                    crate::card::PlayerRelation::Any
+                        | crate::card::PlayerRelation::You
+                        | crate::card::PlayerRelation::Opponent
+                )
+        }
         // Read off a permanent rather than the card in hand, so the spell
         // predicate and the caster relation are what have to be shared.
         EffectDef::ModifyCost(CostModificationDef::SpellReduction {

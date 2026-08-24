@@ -253,6 +253,7 @@ mod revealed_hands;
 mod ring_of_maruf;
 mod rings;
 mod rise_from_the_grave;
+mod rooftop_storm;
 mod rules_partial_sweep;
 mod rules_partial_sweep_dgm;
 mod sacrifice_costs;

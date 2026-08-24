@@ -23,6 +23,15 @@ pub(in crate::game) struct CastScale {
     pub(in crate::game) offer: Option<CastOfferCost>,
 }
 
+#[derive(Clone, Copy)]
+struct PrintedAlternativeRequest<'a> {
+    definition: &'a CardDefinition,
+    card: GameObjectId,
+    player: PlayerId,
+    option: &'a PlayOptionDef,
+    context: CastCostContext,
+}
+
 impl Game {
     pub(in crate::game) fn selected_object_additional_costs(
         &self,
@@ -464,8 +473,10 @@ impl Game {
     ) -> ControlFlow<()> {
         let CastCostContext { source_zone, offer } = context;
         let mut selected_additional = Vec::with_capacity(option.additional_costs.len());
+        let printed_cost_available =
+            self.printed_cost_is_available_from(source_zone, card, player, option);
         if matches!(offer, None | Some(CastOfferCost::Any))
-            && self.printed_cost_is_available_from(source_zone, card, player, option)
+            && printed_cost_available
             && Self::visit_additional_cost_configurations(
                 option,
                 None,
@@ -477,6 +488,74 @@ impl Game {
         {
             return ControlFlow::Break(());
         }
+        if self
+            .visit_printed_alternative_configurations(
+                PrintedAlternativeRequest {
+                    definition,
+                    card,
+                    player,
+                    option,
+                    context,
+                },
+                &mut selected_additional,
+                &mut visitor,
+            )
+            .is_break()
+        {
+            return ControlFlow::Break(());
+        }
+        if matches!(offer, None | Some(CastOfferCost::Any))
+            && printed_cost_available
+            && option.mana_cost.is_some()
+            && self
+                .visit_battlefield_alternative_configurations(
+                    player,
+                    card,
+                    option,
+                    &mut selected_additional,
+                    &mut visitor,
+                )
+                .is_break()
+        {
+            return ControlFlow::Break(());
+        }
+        // A lent cast comes from wherever the clause that lent it put the
+        // card: a graveyard for the ones that buy a spell back, exile for
+        // rebound's own.
+        if matches!(
+            source_zone,
+            CastSourceZone::Graveyard | CastSourceZone::Exile
+        ) && let Some((_, _granted_alternative, _)) =
+            self.granted_alternative_for_offer(card, option, offer)
+            && let Some(granted) = Self::temporary_alternative_cost_id(option)
+            && Self::visit_additional_cost_configurations(
+                option,
+                Some(granted),
+                option.additional_costs.len(),
+                &mut selected_additional,
+                &mut visitor,
+            )
+            .is_break()
+        {
+            return ControlFlow::Break(());
+        }
+
+        ControlFlow::Continue(())
+    }
+
+    fn visit_printed_alternative_configurations(
+        &self,
+        request: PrintedAlternativeRequest<'_>,
+        selected_additional: &mut Vec<AdditionalCostId>,
+        visitor: &mut impl FnMut(CostConfiguration) -> ControlFlow<()>,
+    ) -> ControlFlow<()> {
+        let PrintedAlternativeRequest {
+            definition,
+            card,
+            player,
+            option,
+            context,
+        } = request;
         for cost in &option.alternative_costs {
             let (origin, kind) = match Self::alternative_cast_clause(definition, option, cost.id) {
                 Some((origin, ability, kind)) if ability.is_executable() => {
@@ -485,7 +564,7 @@ impl Game {
                 Some(_) => continue,
                 None => (None, None),
             };
-            if match offer {
+            if match context.offer {
                 Some(CastOfferCost::PrintedAlternative(required)) => origin != Some(required),
                 Some(CastOfferCost::GrantedAlternative(_)) => true,
                 None | Some(CastOfferCost::Any) => false,
@@ -493,14 +572,11 @@ impl Game {
                 continue;
             }
             // A free cast gated on the board is not offered while its
-            // condition is false, the same way an "activate only if" ability
-            // is not offered.
+            // condition is false. CR 118.4 also means life cannot be paid
+            // down to zero, so an unaffordable life alternative is absent.
             let gated = match Self::alternative_cast_clause(definition, option, cost.id) {
                 Some((origin, ability, _)) => match ability.definition {
                     DeclarativeAbilityDef::AlternativeCast(alternative) => {
-                        // CR 118.4: life can only be paid down to zero, so an
-                        // alternative that costs more life than the player
-                        // has is not on offer at all.
                         i16::try_from(alternative.life).unwrap_or(i16::MAX)
                             > self.players[player.index()].life
                             || alternative.condition.is_some_and(|condition| {
@@ -527,42 +603,51 @@ impl Game {
                 },
                 None => false,
             };
-            let available =
-                !gated && Self::alternative_is_castable_from(context, kind, origin, from_graveyard);
-            if available
+            if !gated
+                && Self::alternative_is_castable_from(context, kind, origin, from_graveyard)
                 && Self::visit_additional_cost_configurations(
                     option,
                     Some(cost.id),
                     option.additional_costs.len(),
-                    &mut selected_additional,
-                    &mut visitor,
+                    selected_additional,
+                    visitor,
                 )
                 .is_break()
             {
                 return ControlFlow::Break(());
             }
         }
-        // A lent cast comes from wherever the clause that lent it put the
-        // card: a graveyard for the ones that buy a spell back, exile for
-        // rebound's own.
-        if matches!(
-            source_zone,
-            CastSourceZone::Graveyard | CastSourceZone::Exile
-        ) && let Some((_, _granted_alternative, _)) =
-            self.granted_alternative_for_offer(card, option, offer)
-            && let Some(granted) = Self::temporary_alternative_cost_id(option)
-            && Self::visit_additional_cost_configurations(
+        ControlFlow::Continue(())
+    }
+
+    fn visit_battlefield_alternative_configurations(
+        &self,
+        player: PlayerId,
+        card: GameObjectId,
+        option: &PlayOptionDef,
+        selected_additional: &mut Vec<AdditionalCostId>,
+        visitor: &mut impl FnMut(CostConfiguration) -> ControlFlow<()>,
+    ) -> ControlFlow<()> {
+        for (index, _) in self
+            .battlefield_spell_alternative_costs(player, card)
+            .into_iter()
+            .enumerate()
+        {
+            let Some(alternative) = Self::battlefield_alternative_cost_id(option, index) else {
+                break;
+            };
+            if Self::visit_additional_cost_configurations(
                 option,
-                Some(granted),
+                Some(alternative),
                 option.additional_costs.len(),
-                &mut selected_additional,
-                &mut visitor,
+                selected_additional,
+                visitor,
             )
             .is_break()
-        {
-            return ControlFlow::Break(());
+            {
+                return ControlFlow::Break(());
+            }
         }
-
         ControlFlow::Continue(())
     }
 
@@ -603,6 +688,7 @@ impl Game {
 
     pub(in crate::game) fn configured_cast_mana_cost(
         &self,
+        player: PlayerId,
         card: GameObjectId,
         option: &PlayOptionDef,
         configuration: &CostConfiguration,
@@ -613,10 +699,12 @@ impl Game {
             && configuration.alternative() == granted)
             .then(|| self.granted_alternative_for_offer(card, option, offer))
             .flatten();
-        let mut cost = granted_alternative.map_or_else(
-            || configured_base_mana_cost(option, configuration),
-            |(_, _, mana_cost)| Some(mana_cost),
-        )?;
+        let battlefield_alternative = configuration.alternative().and_then(|selected| {
+            self.battlefield_spell_alternative_cost_for_id(player, card, option, selected)
+        });
+        let mut cost = battlefield_alternative
+            .or_else(|| granted_alternative.map(|(_, _, mana_cost)| mana_cost))
+            .or_else(|| configured_base_mana_cost(option, configuration))?;
         // "Without paying its mana cost" and "rather than paying its mana
         // cost" replace the base or alternative cost, not optional
         // additional costs (CR 118.9d).

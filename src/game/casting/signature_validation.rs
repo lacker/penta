@@ -254,6 +254,7 @@ impl Game {
             return None;
         }
         let mut cost = self.configured_cast_mana_cost(
+            player,
             card_id,
             option,
             choices.costs(),

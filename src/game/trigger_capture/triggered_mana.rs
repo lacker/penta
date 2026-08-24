@@ -59,6 +59,7 @@ impl Game {
             | EffectDef::Untap { .. }
             | EffectDef::Saddle { .. }
             | EffectDef::Destroy { .. }
+            | EffectDef::DestroyThen { .. }
             | EffectDef::Sacrifice { .. }
             | EffectDef::SacrificeOfChoice { .. }
             | EffectDef::ExileTopOfLibraryToPlay { .. }

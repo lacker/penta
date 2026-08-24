@@ -221,6 +221,86 @@ fn planar_cleansing_destroys_nonlands_but_leaves_both_players_lands() {
     );
 }
 
+fn cast_paraselene(game: &mut Game, object: u32) {
+    let spell = card(object, cards::PARASELENE, PlayerId::One);
+    game.players[0].hand.push(spell.clone());
+    game.players[0].mana_pool.white = 1;
+    game.players[0].mana_pool.colorless = 2;
+    game.apply(
+        PlayerId::One,
+        cast_action(spell.id, Vec::new(), Vec::new(), 0),
+    )
+    .unwrap();
+    pass_priority_pair(game);
+}
+
+#[test]
+fn paraselene_gains_life_for_each_enchantment_it_destroys() {
+    let mut game = isd_m14_game();
+    game.put_onto_battlefield(PlayerId::One, cards::ENERGY_FLUX)
+        .unwrap();
+    game.put_onto_battlefield(PlayerId::Two, cards::ENERGY_FLUX)
+        .unwrap();
+    let creature = game
+        .put_onto_battlefield(PlayerId::Two, cards::SAVANNAH_LIONS)
+        .unwrap();
+
+    cast_paraselene(&mut game, 21_100);
+
+    assert_eq!(game.players[0].life, 22);
+    assert_eq!(
+        game.battlefield
+            .iter()
+            .map(|permanent| permanent.card.id)
+            .collect::<Vec<_>>(),
+        vec![creature],
+    );
+}
+
+#[test]
+fn paraselene_does_not_count_a_regenerated_enchantment() {
+    let mut game = isd_m14_game();
+    let regenerated = game
+        .put_onto_battlefield(PlayerId::One, cards::ENERGY_FLUX)
+        .unwrap();
+    game.put_onto_battlefield(PlayerId::Two, cards::ENERGY_FLUX)
+        .unwrap();
+    game.add_regeneration_shield(regenerated);
+
+    cast_paraselene(&mut game, 21_200);
+
+    assert_eq!(game.players[0].life, 21);
+    let survivor = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.id == regenerated)
+        .expect("the regeneration shield prevents the destruction");
+    assert!(survivor.tapped, "regeneration taps the enchantment");
+}
+
+#[test]
+fn paraselene_does_not_count_enchantments_exiled_instead() {
+    let mut game = isd_m14_game();
+    game.put_onto_battlefield(PlayerId::One, cards::REST_IN_PEACE)
+        .unwrap();
+    game.put_onto_battlefield(PlayerId::Two, cards::ENERGY_FLUX)
+        .unwrap();
+    game.pending_triggers.clear();
+
+    cast_paraselene(&mut game, 21_300);
+
+    assert_eq!(game.players[0].life, 20);
+    assert!(game.battlefield.is_empty());
+    assert_eq!(
+        game.players
+            .iter()
+            .flat_map(|player| player.exile.iter())
+            .filter(|card| { matches!(card.definition, cards::REST_IN_PEACE | cards::ENERGY_FLUX) })
+            .count(),
+        2,
+    );
+}
+
 #[test]
 fn door_to_nothingness_makes_its_target_lose() {
     let mut game = isd_m14_game();

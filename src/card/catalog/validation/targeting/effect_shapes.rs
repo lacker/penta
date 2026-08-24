@@ -273,7 +273,8 @@ fn validate_effect_target_shapes(
         | EffectDef::Endure { object, .. } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Object)
         }
-        EffectDef::PutOntoBattlefieldThen { object, then, .. }
+        EffectDef::DestroyThen { object, then, .. }
+        | EffectDef::PutOntoBattlefieldThen { object, then, .. }
         | EffectDef::ReturnWithHasteAndFinality { object, then, .. } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Object)?;
             validate_effect_target_shapes(*then, targets, triggering_object_zone)

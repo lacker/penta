@@ -869,13 +869,29 @@ pub(in crate::card::sets) static NEVERMORE: CardRecord = CardRecord::new(
 );
 
 // ISD 26 — Paraselene
-// Audit: metadata-only — Needs a linked count of enchantments actually destroyed before gaining that much life.
+static PARASELENE_GAIN_LIFE: EffectDef = EffectDef::GainLife {
+    recipient: EffectRecipientDef::Controller,
+    amount: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
+};
+
 pub(in crate::card::sets) static PARASELENE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("406380ab-2695-4084-99a5-f5560304f8cb"),
     "Paraselene",
-    crate::card::CardArt::new("406380ab-2695-4084-99a5-f5560304f8cb", "Ryan Yee"),
-    crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("406380ab-2695-4084-99a5-f5560304f8cb", "Ryan Yee"),
+    CardSet::Innistrad,
+    CardRules::new_sorcery(mana_cost!("{2}{W}")).with_ability(AbilityDef::spell(
+        "Destroy all enchantments. You gain 1 life for each enchantment destroyed this way.",
+        EffectDef::DestroyThen {
+            object: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Enchantment),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            can_regenerate: true,
+            binding: ObjectSetBindingIndex::PRIMARY,
+            then: &PARASELENE_GAIN_LIFE,
+        },
+    )),
 );
 
 // ISD 27 — Purify the Grave

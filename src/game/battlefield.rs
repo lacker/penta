@@ -4,13 +4,15 @@ use super::{
     AbilitySourceRef, ApplicableZoneMoveReplacement, AppliedRuleDef, BattlefieldArrival,
     BattlefieldExit, BattlefieldExitCompletion, BattlefieldExitSnapshot, CardInstance, CardPartId,
     CommittedTriggerEvent, CounterKind, DecisionContinuation, DecisionOption, DecisionPreference,
-    DecisionVisibility, DecisionZone, DeclarativeAbilityDef, EffectDef, EntryCompletion,
-    FrozenZoneMoveReplacement, Game, GameEvent, GameObjectId, KeywordAbility, ObjectInstance,
-    PendingBattlefieldEntry, PendingBattlefieldExitBatch, PendingBattlefieldExitMove, Permanent,
-    PlayerId, ReplacementConditionDef, ReplacementEffectContext, ReplacementEffectDef,
-    ReplacementEventDef, RetiredObject, ScopedEffect, StackObject, StackObjectKind, Step, Target,
-    TargetSlotId, TriggerContext, ZoneKind, ZoneMoveCauseDef, ZonePlacement, remove_card,
+    DecisionVisibility, DecisionZone, DeclarativeAbilityDef, EffectDef, EffectResolutionContext,
+    EntryCompletion, FrozenZoneMoveReplacement, Game, GameEvent, GameObjectId, KeywordAbility,
+    ObjectInstance, PendingBattlefieldEntry, PendingBattlefieldExitBatch,
+    PendingBattlefieldExitMove, Permanent, PlayerId, ReplacementConditionDef,
+    ReplacementEffectContext, ReplacementEffectDef, ReplacementEventDef, RetiredObject,
+    ScopedEffect, StackObject, StackObjectKind, Step, Target, TargetSlotId, TriggerContext,
+    ZoneKind, ZoneMoveCauseDef, ZonePlacement, remove_card,
 };
+use crate::ObjectSetBindingIndex;
 
 impl Game {
     /// Every battlefield permanent whose printed name matches the chosen
@@ -313,7 +315,7 @@ impl Game {
             .collect::<Vec<_>>();
         if moves.is_empty() {
             if let Some(completion) = completion {
-                self.resume_battlefield_exit_completion(completion);
+                self.resume_battlefield_exit_completion(completion, &[]);
             }
             return;
         }

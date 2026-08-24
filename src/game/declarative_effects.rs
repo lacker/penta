@@ -1,9 +1,10 @@
 use super::{
-    AbilityProcedureDef, AbilitySourceRef, ArrivalAttachment, BattlefieldArrival, CardPartId,
-    CopiableAbility, CounteredSpellZone, DeclarativeAbilityDef, EffectDef, EffectResolutionContext,
-    Game, InstalledTrigger, InstalledTriggerLifetime, Permanent, ResolvedOngoingEffect,
-    SacrificeDeclined, SacrificeFollowup, ScopedEffect, StackAbilityResolver, StackObject, Target,
-    TriggerCapture, ZoneKind, ZoneMoveCause, ZonePlacement,
+    AbilityProcedureDef, AbilitySourceRef, ArrivalAttachment, BattlefieldArrival,
+    BattlefieldExitCompletion, CardPartId, CopiableAbility, CounteredSpellZone,
+    DeclarativeAbilityDef, EffectDef, EffectResolutionContext, Game, InstalledTrigger,
+    InstalledTriggerLifetime, Permanent, ResolvedOngoingEffect, SacrificeDeclined,
+    SacrificeFollowup, ScopedEffect, StackAbilityResolver, StackObject, Target, TriggerCapture,
+    ZoneKind, ZoneMoveCause, ZonePlacement,
 };
 use crate::card::{ArrivalAttachmentDef, InstalledTriggerLifetimeDef};
 use move_to_zone::MoveToZoneClause;
@@ -220,6 +221,32 @@ impl Game {
                     })
                     .collect::<Vec<_>>();
                 self.destroy_permanents(&permanents, can_regenerate);
+            }
+            EffectDef::DestroyThen {
+                object: recipient,
+                can_regenerate,
+                binding,
+                then,
+            } => {
+                let permanents = self
+                    .effect_recipients(recipient, object, &context, scoped)
+                    .into_iter()
+                    .filter_map(|target| match target {
+                        Target::Permanent(permanent) => Some(permanent),
+                        Target::Player(_) | Target::Card(_) | Target::Spell(_) => None,
+                    })
+                    .collect::<Vec<_>>();
+                self.destroy_permanents_then(
+                    &permanents,
+                    can_regenerate,
+                    Some(BattlefieldExitCompletion::DestroyFollowup {
+                        candidates: permanents.clone(),
+                        binding,
+                        object: Box::new(object.clone()),
+                        context,
+                        effect: scoped.with_effect(*then),
+                    }),
+                );
             }
             EffectDef::Sacrifice { object: recipient } => {
                 let permanents = self

@@ -191,6 +191,10 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         EffectDef::RevealAtRandomFromHand { then, .. } => {
             shared_stack_effect_at_position(*then, deferred_decision_allowed)
         }
+        EffectDef::DestroyThen { object, then, .. } => {
+            shared_effect_recipient(object)
+                && shared_stack_effect_at_position(*then, deferred_decision_allowed)
+        }
         EffectDef::PayOr(payment) => {
             deferred_decision_allowed
                 && shared_effect_payment(payment.payment)

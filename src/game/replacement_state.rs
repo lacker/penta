@@ -1,5 +1,5 @@
 use crate::card::{ManaCost, ReplacementAbilityDef, ReplacementEffectDef, SpendModeDef, ZoneKind};
-use crate::ids::{CardDefinitionId, GameObjectId, PlayerId};
+use crate::ids::{CardDefinitionId, GameObjectId, ObjectSetBindingIndex, PlayerId};
 
 use super::{
     AbilitySourceRef, BalancePhase, BalanceTask, EffectResolutionContext, FrozenActivatedAbility,
@@ -94,6 +94,13 @@ pub(super) enum BattlefieldExitCompletion {
         object: Box<StackObject>,
         context: EffectResolutionContext,
         effects: Vec<ScopedEffect>,
+    },
+    DestroyFollowup {
+        candidates: Vec<GameObjectId>,
+        binding: ObjectSetBindingIndex,
+        object: Box<StackObject>,
+        context: EffectResolutionContext,
+        effect: ScopedEffect,
     },
     FinishStackResolution {
         object: Box<StackObject>,

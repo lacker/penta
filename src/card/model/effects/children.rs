@@ -29,6 +29,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::BindMatching { then: effect, .. }
         | EffectDef::ChooseCardName { then: effect, .. }
         | EffectDef::RevealAtRandomFromHand { then: effect, .. }
+        | EffectDef::DestroyThen { then: effect, .. }
         | EffectDef::PutOntoBattlefieldThen { then: effect, .. }
         | EffectDef::ReturnWithHasteAndFinality { then: effect, .. } => vec![*effect],
         EffectDef::IfFormat {

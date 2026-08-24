@@ -72,7 +72,8 @@ impl Game {
             | EffectDef::SearchZone {
                 then: Some(then), ..
             }
-            | EffectDef::BindMatching { then, .. } => {
+            | EffectDef::BindMatching { then, .. }
+            | EffectDef::DestroyThen { then, .. } => {
                 Self::effect_applies_to_source(*then, expected)
             }
             EffectDef::SimultaneousChoose(choice) => {

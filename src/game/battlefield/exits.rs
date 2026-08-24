@@ -440,6 +440,11 @@ impl Game {
                     })
             })
             .collect::<Vec<_>>();
+        let moved_to_graveyard = exits
+            .iter()
+            .filter(|(_, _, _, destination, _, _)| *destination == ZoneKind::Graveyard)
+            .map(|(object, _, _, _, _, _)| *object)
+            .collect::<Vec<_>>();
 
         self.record_exits_for_the_turn(&exits);
         let mut removed = Vec::new();
@@ -514,33 +519,38 @@ impl Game {
         }
 
         if let Some(completion) = completion {
-            self.resume_battlefield_exit_completion(*completion);
+            self.resume_battlefield_exit_completion(*completion, &moved_to_graveyard);
         }
     }
 
-    fn resume_battlefield_exit_completion(&mut self, completion: BattlefieldExitCompletion) {
+    fn resume_battlefield_exit_completion(
+        &mut self,
+        completion: BattlefieldExitCompletion,
+        moved_to_graveyard: &[GameObjectId],
+    ) {
         match completion {
             BattlefieldExitCompletion::Completions(completions) => {
-                let mut completions = completions.into_iter();
-                while let Some(completion) = completions.next() {
-                    let pending_before = self.pending_decisions.len();
-                    self.resume_battlefield_exit_completion(completion);
-                    let remaining = completions.as_slice();
-                    if !remaining.is_empty()
-                        && self.defer_after_battlefield_exit(
-                            pending_before,
-                            BattlefieldExitCompletion::Completions(remaining.to_vec()),
-                        )
-                    {
-                        return;
-                    }
-                }
+                self.resume_battlefield_exit_completions(completions, moved_to_graveyard);
             }
             BattlefieldExitCompletion::ResolveEffects {
                 object,
                 context,
                 effects,
             } => self.resolve_effect_defs(effects, &object, &context),
+            BattlefieldExitCompletion::DestroyFollowup {
+                candidates,
+                binding,
+                object,
+                context,
+                effect,
+            } => self.resume_destroy_followup(
+                &candidates,
+                binding,
+                &object,
+                context,
+                effect,
+                moved_to_graveyard,
+            ),
             BattlefieldExitCompletion::FinishStackResolution { object, resolved } => {
                 self.finish_stack_resolution(&object, resolved);
             }
@@ -607,5 +617,47 @@ impl Game {
                 next_activation,
             ),
         }
+    }
+
+    fn resume_battlefield_exit_completions(
+        &mut self,
+        completions: Vec<BattlefieldExitCompletion>,
+        moved_to_graveyard: &[GameObjectId],
+    ) {
+        let mut completions = completions.into_iter();
+        while let Some(completion) = completions.next() {
+            let pending_before = self.pending_decisions.len();
+            self.resume_battlefield_exit_completion(completion, moved_to_graveyard);
+            let remaining = completions.as_slice();
+            if !remaining.is_empty()
+                && self.defer_after_battlefield_exit(
+                    pending_before,
+                    BattlefieldExitCompletion::Completions(remaining.to_vec()),
+                )
+            {
+                return;
+            }
+        }
+    }
+
+    fn resume_destroy_followup(
+        &mut self,
+        candidates: &[GameObjectId],
+        binding: ObjectSetBindingIndex,
+        object: &StackObject,
+        mut context: EffectResolutionContext,
+        effect: ScopedEffect,
+        moved_to_graveyard: &[GameObjectId],
+    ) {
+        context.bind_object_group(
+            binding,
+            moved_to_graveyard
+                .iter()
+                .copied()
+                .filter(|object| candidates.contains(object))
+                .map(Target::Permanent)
+                .collect(),
+        );
+        self.resolve_effect_def(effect, object, context);
     }
 }

@@ -36,6 +36,16 @@ fn validate_effect_references(
             let nested = scope.with_object_set(binding)?;
             validate_effect_references(*then, target_count, nested)
         }
+        EffectDef::DestroyThen {
+            object,
+            binding,
+            then,
+            ..
+        } => {
+            validate_recipient_target_references(object, target_count, scope)?;
+            let nested = scope.with_object_set(binding)?;
+            validate_effect_references(*then, target_count, nested)
+        }
         EffectDef::ChooseCardName {
             chooser,
             matched_in,

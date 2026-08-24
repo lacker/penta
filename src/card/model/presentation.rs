@@ -8,9 +8,9 @@ use super::presentation_predicates::{
     predicate_subtype,
 };
 use super::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardEffectStatus, CardSupertype,
-    CardType, ConditionalModeMaximumDef, DeclarativeAbilityDef, DividedTotal, ManaColor,
-    ObjectPredicateDef, PlayerRelation, TargetPredicate, ZoneKind,
+    AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, CardEffectStatus,
+    CardSupertype, CardType, ConditionalModeMaximumDef, DeclarativeAbilityDef, DividedTotal,
+    ManaColor, ObjectPredicateDef, PlayerRelation, TargetPredicate, ZoneKind,
 };
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -122,6 +122,7 @@ fn predicate_negates(predicate: ObjectPredicateDef, expected: ObjectPredicateDef
         | ObjectPredicateDef::TargetsObjectMatching(_)
         | ObjectPredicateDef::AttackingOrBlocking
         | ObjectPredicateDef::HasKeyword(_)
+        | ObjectPredicateDef::HasAbility(_)
         | ObjectPredicateDef::HasCounter(_)
         | ObjectPredicateDef::HasNonManaActivatedAbility
         | ObjectPredicateDef::AnyOf(_)
@@ -247,7 +248,12 @@ fn semantic_card_subject(object: ObjectPredicateDef) -> String {
     if let Some(subject) = simple_disjunction_subject(object) {
         return format!("{subject} card");
     }
-    if object_predicate_implies(object, ObjectPredicateDef::HasType(CardType::Creature)) {
+    if object_predicate_implies(
+        object,
+        ObjectPredicateDef::HasAbility(AbilityPredicateDef::Flashback),
+    ) {
+        "card with flashback".into()
+    } else if object_predicate_implies(object, ObjectPredicateDef::HasType(CardType::Creature)) {
         "creature card".into()
     } else if let Some(subtype) = predicate_subtype(object) {
         format!("{subtype} card")

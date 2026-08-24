@@ -25,9 +25,10 @@ use crate::Format;
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
 
 use super::{
-    AbilityDef, AddManaEffectDef, BasicLandType, CardTypeSet, ColorSet, ComparisonDef, CounterKind,
-    KeywordAbility, ManaColor, ManaCost, ObjectPredicateDef, PlayActionKind, PlayerRelation,
-    TokenCharacteristics, TriggerConditionDef, ZoneKind, ZonePlacement,
+    AbilityDef, AddManaEffectDef, AlternativeCastKindDef, BasicLandType, CardTypeSet, ColorSet,
+    ComparisonDef, CounterKind, DeclarativeAbilityDef, KeywordAbility, ManaColor, ManaCost,
+    ObjectPredicateDef, PlayActionKind, PlayerRelation, TokenCharacteristics, TriggerConditionDef,
+    ZoneKind, ZonePlacement,
 };
 
 // Effect subjects, lifetimes, and event matchers form the shared vocabulary

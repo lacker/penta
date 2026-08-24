@@ -61,6 +61,7 @@ pub(super) fn shared_object_predicate(predicate: ObjectPredicateDef) -> bool {
         | ObjectPredicateDef::TargetsObjectMatching(_)
         | ObjectPredicateDef::AttackingOrBlocking
         | ObjectPredicateDef::HasKeyword(_)
+        | ObjectPredicateDef::HasAbility(_)
         | ObjectPredicateDef::HasCounter(_)
         | ObjectPredicateDef::HasNonManaActivatedAbility
         | ObjectPredicateDef::Tapped

@@ -1,19 +1,20 @@
 use crate::CharacteristicContext;
 use crate::card::{
-    AttackDeclarationRangeDef, AttackEventMatcherDef, BattlefieldEntryChoiceDestinationDef,
-    DamageSourceGroupDef,
+    AbilityPredicateDef, AttackDeclarationRangeDef, AttackEventMatcherDef,
+    BattlefieldEntryChoiceDestinationDef, DamageSourceGroupDef,
 };
 
 use super::{
     AbilityDef, AbilityId, AbilityOrigin, AbilityProcedureDef, AbilitySourceRef, AddManaEffectDef,
-    BattlefieldTriggerListener, CardPartId, CardType, CommittedTriggerEvent, DamageEventMatcherDef,
-    DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DeclarativeAbilityDef,
-    EffectDef, EffectRecipientSetDef, EffectResolutionContext, EffectiveAbility,
-    FrozenActivatedAbility, Game, GameEvent, GameObjectId, GrantId, InstalledTriggerLifetime,
-    KeywordAbility, Mana, ManaSelectionDef, ManaSource, ObjectCharacteristics, ObjectPredicateDef,
-    ObjectRefDef, ObjectSetDef, PendingTrigger, Permanent, PlayerId, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, RetiredObject, ScopedEffect, StackAbilityResolver, TapPurposeDef, Target,
-    TriggerCapture, TriggerContext, TriggerEventDef, TriggerEventObject, ZoneKind,
+    BattlefieldTriggerListener, CardDefinitionId, CardPartId, CardType, CommittedTriggerEvent,
+    DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
+    DeclarativeAbilityDef, EffectDef, EffectRecipientSetDef, EffectResolutionContext,
+    EffectiveAbility, FrozenActivatedAbility, Game, GameEvent, GameObjectId, GrantId,
+    InstalledTriggerLifetime, KeywordAbility, Mana, ManaSelectionDef, ManaSource,
+    ObjectCharacteristics, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PendingTrigger,
+    Permanent, PlayerId, PlayerRefDef, PlayerRelation, PlayerSetDef, RetiredObject, ScopedEffect,
+    StackAbilityResolver, TapPurposeDef, Target, TriggerCapture, TriggerContext, TriggerEventDef,
+    TriggerEventObject, ZoneKind,
 };
 
 mod graveyard;

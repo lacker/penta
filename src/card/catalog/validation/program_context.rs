@@ -737,7 +737,7 @@ fn static_object_predicate_supported(predicate: ObjectPredicateDef) -> bool {
         | ObjectPredicateDef::PowerGreaterThan(value)
         | ObjectPredicateDef::ToughnessGreaterThan(value)
         | ObjectPredicateDef::PowerLessThan(value) => static_source_value_supported(value),
-        ObjectPredicateDef::Special(_) => false,
+        ObjectPredicateDef::HasAbility(_) | ObjectPredicateDef::Special(_) => false,
         ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Token

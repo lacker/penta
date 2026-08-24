@@ -1,4 +1,86 @@
 impl Game {
+    fn definition_has_ability(
+        &self,
+        definition: CardDefinitionId,
+        context: &CharacteristicContext,
+        predicate: AbilityPredicateDef,
+    ) -> bool {
+        let Some(definition) = self.catalog.get(definition) else {
+            return false;
+        };
+        let Ok(parts) = crate::card::applicable_part_ids(definition, context) else {
+            return false;
+        };
+        parts.into_iter().any(|part| {
+            definition.part(part).is_some_and(|part| {
+                part.rules
+                    .ability_clauses()
+                    .iter()
+                    .any(|ability| predicate.matches(ability))
+            })
+        })
+    }
+
+    fn object_has_ability(
+        &self,
+        object: GameObjectId,
+        predicate: AbilityPredicateDef,
+    ) -> bool {
+        // A face-down exiled card has no abilities, even when its owner can
+        // look at it and knows that its front face has a matching ability.
+        if self.exiled_card_is_face_down(object) {
+            return false;
+        }
+
+        if self
+            .temporary_ability_grants
+            .iter()
+            .any(|grant| grant.object == object && predicate.matches(&grant.ability))
+        {
+            return true;
+        }
+
+        if let Some(permanent) = self
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == object)
+        {
+            return self
+                .effective_abilities(permanent)
+                .into_iter()
+                .any(|ability| predicate.matches(&ability.ability));
+        }
+
+        if let Some(stack) = self.stack.iter().find(|stack| stack.id == object) {
+            let Some(signature) = &stack.signature else {
+                return false;
+            };
+            let Some(definition) = stack.presentation().card_definition() else {
+                return false;
+            };
+            return self.definition_has_ability(
+                definition,
+                &CharacteristicContext::Stack {
+                    form: signature.form().clone(),
+                },
+                predicate,
+            );
+        }
+
+        let Some((zone, card)) = self.card_in_nonbattlefield_zone(object) else {
+            return false;
+        };
+        let context = match zone {
+            ZoneKind::Library => CharacteristicContext::Library,
+            ZoneKind::Hand => CharacteristicContext::Hand,
+            ZoneKind::Graveyard => CharacteristicContext::Graveyard,
+            ZoneKind::Exile => CharacteristicContext::Exile,
+            ZoneKind::Command => CharacteristicContext::Command,
+            ZoneKind::Battlefield | ZoneKind::Stack => return false,
+        };
+        self.definition_has_ability(card.definition, &context, predicate)
+    }
+
     fn trigger_event_object_reference(
         &self,
         reference: ObjectRefDef,
@@ -434,6 +516,9 @@ impl Game {
             ObjectPredicateDef::HasKeyword(keyword) => keyword
                 .simple_index()
                 .is_some_and(|index| object.keywords & (1 << index) != 0),
+            ObjectPredicateDef::HasAbility(ability) => {
+                self.object_has_ability(object.id, ability)
+            }
             // Counters are permanent state rather than a characteristic, so
             // reading them live cannot feed back into the layer being
             // computed the way a keyword or a stat could.

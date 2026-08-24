@@ -525,6 +525,7 @@ impl Game {
             | ObjectPredicateDef::TargetsObjectMatching(_)
             | ObjectPredicateDef::AttackingOrBlocking
             | ObjectPredicateDef::HasKeyword(_)
+            | ObjectPredicateDef::HasAbility(_)
             | ObjectPredicateDef::HasCounter(_)
             | ObjectPredicateDef::Tapped
             | ObjectPredicateDef::WasDealtDamageThisTurn

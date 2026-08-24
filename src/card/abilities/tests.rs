@@ -7,8 +7,8 @@ mod tests {
         tap_for, EQUIP_TARGET, equip, living_weapon,
     };
     use crate::card::{
-        AbilityCostDef, AbilityCostList, AbilityCoverageDef, AbilityDef, AbilityTargetDef,
-        ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef,
+        AbilityCostDef, AbilityCostList, AbilityCoverageDef, AbilityDef, AbilityPredicateDef,
+        AbilityTargetDef, ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef,
         AlternativeCastManaCostDef, BasicLandType, CardRules, CardType, ConditionDef,
         DeclarativeAbilityDef, EffectDef, EffectPaymentCostDef, EffectRecipientDef, KeywordAbility,
         ManaColor, ManaCost, ObjectPredicateDef, PlayerRelation, PlayerSetDef,
@@ -252,6 +252,8 @@ mod tests {
                     && definition.mana_cost
                         == AlternativeCastManaCostDef::Fixed(mana_cost!("{2}{U}"))
         ));
+        assert!(AbilityPredicateDef::Flashback.matches(&flashback));
+        assert!(!AbilityPredicateDef::Flashback.matches(&overload));
         assert_eq!(
             flashback.rules_text(),
             "Flashback {2}{U} (You may cast this card from your graveyard for its flashback cost. Then exile it.)",

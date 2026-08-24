@@ -4,20 +4,21 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y2007::lorwyn as catalog_lrw;
 use crate::card::sets::{y1993::alpha, y2002::onslaught, y2009::zendikar};
 use crate::card::{
-    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityPolicyHint, AbilityTargetDef,
-    AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef, AppliedEffectDef,
-    AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardAbilityBinding, CardArt,
-    CardBehavior, CardChoiceSourceDef, CardComposition, CardEffectStatus, CardPart, CardRules,
-    CardSet, CardStructure, CardSupertype, CardType, ComparisonDef, ConditionalValueDef,
-    ControlDurationDef, CostModificationDef, CounterKind, DamageEventMatcherDef,
-    DestroyFollowUpDef, DiscardSelectionDef, DoubleFacedKind, EffectDef, EffectExecutionDef,
-    EffectPaymentDef, EffectRecipientDef, HalvedValueDef, KeywordAbility, ManaColor, MillUntilDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayOptionDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef, ReplacementConditionDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, RoundingDef, SacrificedAmountDef,
-    SimultaneousChooseDef, SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpellForm,
-    SpendModeDef, TargetConditionDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement, abilities,
+    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityPolicyHint, AbilityPredicateDef,
+    AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
+    AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef,
+    CardAbilityBinding, CardArt, CardBehavior, CardChoiceSourceDef, CardComposition,
+    CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype, CardType,
+    ComparisonDef, ConditionalValueDef, ControlDurationDef, CostModificationDef, CounterKind,
+    DamageEventMatcherDef, DestroyFollowUpDef, DiscardSelectionDef, DoubleFacedKind, EffectDef,
+    EffectExecutionDef, EffectPaymentDef, EffectRecipientDef, HalvedValueDef, KeywordAbility,
+    ManaColor, MillUntilDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PayOrDef, PlayOptionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef,
+    ReplacementConditionDef, ReplacementEffectDef, ResolvedEffectDurationDef, RoundingDef,
+    SacrificedAmountDef, SimultaneousChooseDef, SpellAdditionalCostCountDef,
+    SpellAdditionalCostDef, SpellForm, SpendModeDef, TargetConditionDef, TopCardSelectionDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneChangeEventMatcherDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::game::{
     CardAbilityResolver, CardRuntime, PileChoice, PileChosen, PileSplit, PilesSeparated,
@@ -2045,13 +2046,31 @@ pub(in crate::card::sets) static ROOFTOP_STORM: CardRecord = CardRecord::new(
 );
 
 // ISD 72 — Runic Repetition
-// Audit: metadata-only — Needs a predicate identifying exiled cards that have a flashback ability.
 pub(in crate::card::sets) static RUNIC_REPETITION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("53e47ba6-3a55-41b4-b8fe-580041669408"),
     "Runic Repetition",
     crate::card::CardArt::new("53e47ba6-3a55-41b4-b8fe-580041669408", "Svetlin Velinov"),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Return target exiled card with flashback you own to your hand.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasAbility(AbilityPredicateDef::Flashback),
+                zones: &[ZoneKind::Exile],
+                controller: None,
+                owner: Some(PlayerRelation::You),
+            },
+        )],
+        EffectDef::MoveToZone {
+            counters: None,
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            zone: ZoneKind::Hand,
+            controller: None,
+            placement: ZonePlacement::Top,
+            arrival_effect: None,
+            attachment: None,
+        },
+    )),
 );
 
 // ISD 73 — Selhoff Occultist

@@ -65,7 +65,8 @@ fn validate_trigger_object_predicate(
                 Err(unsupported_trigger_event(event))
             }
         }
-        ObjectPredicateDef::ControlledBy(
+        ObjectPredicateDef::HasAbility(_)
+        | ObjectPredicateDef::ControlledBy(
             PlayerRelation::ChosenPlayer | PlayerRelation::EventPlayer,
         )
         | ObjectPredicateDef::Special(_) => Err(unsupported_trigger_event(event)),
@@ -165,6 +166,7 @@ fn trigger_predicate_requires_live_battlefield(predicate: ObjectPredicateDef) ->
         | ObjectPredicateDef::TargetsObjectMatching(_)
         | ObjectPredicateDef::AttackingOrBlocking
         | ObjectPredicateDef::HasKeyword(_)
+        | ObjectPredicateDef::HasAbility(_)
         | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::Attacking
         | ObjectPredicateDef::Saddled

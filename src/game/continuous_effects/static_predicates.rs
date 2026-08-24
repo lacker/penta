@@ -162,6 +162,7 @@ impl Game {
         | ObjectPredicateDef::HasChosenName
             | ObjectPredicateDef::AttackingOrBlocking
             | ObjectPredicateDef::HasKeyword(_)
+            | ObjectPredicateDef::HasAbility(_)
             | ObjectPredicateDef::HasNonManaActivatedAbility
             | ObjectPredicateDef::Attacking
             | ObjectPredicateDef::Saddled

@@ -12,18 +12,45 @@ pub enum SacrificedAmountDef {
     Toughness,
 }
 
-/// A reusable selector for ability-removing continuous effects.
+/// A reusable selector for structural abilities.
 ///
-/// `Any` supports ordinary "loses all abilities" effects. The keyword form is
-/// also the seam needed by text-changing cards that replace one landwalk
-/// ability with another without treating the whole rules box as opaque text.
+/// Object predicates use this to ask what a card has, while continuous effects
+/// use the same vocabulary to remove matching abilities. `Any` supports
+/// ordinary "loses all abilities" effects. The keyword form is also the seam
+/// needed by text-changing cards that replace one landwalk ability with
+/// another without treating the whole rules box as opaque text.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum AbilityPredicateDef {
     Any,
     Keyword(KeywordAbility),
+    /// A flashback alternative-cast ability, whatever cost it names.
+    Flashback,
     /// Every "bands with other" ability, whatever quality it names. Two cards
     /// strip them all at once, and neither says which qualities it means.
     AnyBandsWithOther,
+}
+
+impl AbilityPredicateDef {
+    /// Whether one structural ability satisfies this selector.
+    #[must_use]
+    pub(crate) fn matches(self, ability: &AbilityDef) -> bool {
+        match self {
+            Self::Any => true,
+            Self::Keyword(expected) => matches!(
+                ability.definition,
+                DeclarativeAbilityDef::Keyword(actual) if actual == expected
+            ),
+            Self::Flashback => matches!(
+                ability.definition,
+                DeclarativeAbilityDef::AlternativeCast(alternative)
+                    if alternative.kind == AlternativeCastKindDef::Flashback
+            ),
+            Self::AnyBandsWithOther => matches!(
+                ability.definition,
+                DeclarativeAbilityDef::Keyword(KeywordAbility::BandsWithOther(_))
+            ),
+        }
+    }
 }
 /// An event that a replacement ability can modify before it is committed.
 ///

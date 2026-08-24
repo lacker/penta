@@ -1,8 +1,9 @@
 use crate::ids::TargetIndex;
 
 use super::{
-    BasicLandType, BattlefieldEntryChoiceDestinationDef, CardSet, CardSupertype, CardType,
-    CounterKind, KeywordAbility, ManaColor, PlayerRelation, ValueDef, ZoneKind,
+    AbilityPredicateDef, BasicLandType, BattlefieldEntryChoiceDestinationDef, CardSet,
+    CardSupertype, CardType, CounterKind, KeywordAbility, ManaColor, PlayerRelation, ValueDef,
+    ZoneKind,
 };
 
 /// A composable predicate over a card or game object.
@@ -132,6 +133,10 @@ pub enum ObjectPredicateDef {
     /// does not is a static ability that grants or removes abilities choosing
     /// its own recipients, which is answered from the layer below itself.
     HasKeyword(KeywordAbility),
+    /// Has an ability satisfying this selector among those that apply to the
+    /// card in its current zone. This asks about the ability itself rather
+    /// than whether its costs can be paid now.
+    HasAbility(AbilityPredicateDef),
     /// Has at least one ordinary activated ability rather than only mana
     /// abilities. This is the distinction Tsabo's Web asks for.
     HasNonManaActivatedAbility,

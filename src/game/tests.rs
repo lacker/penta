@@ -257,6 +257,7 @@ mod rise_from_the_grave;
 mod rooftop_storm;
 mod rules_partial_sweep;
 mod rules_partial_sweep_dgm;
+mod runic_repetition;
 mod sacrifice_costs;
 mod sacrificed_toughness;
 mod scavenge;

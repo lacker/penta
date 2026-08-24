@@ -1,6 +1,5 @@
 use std::cell::Cell;
 
-use crate::card::AbilityPredicateDef;
 use crate::ids::GrantId;
 
 use super::continuous_effects::StaticEffectKind;
@@ -294,7 +293,7 @@ impl Game {
                 abilities.push(EffectiveAbility { origin, ability });
             }
             AbilityLayerOperationKind::Remove(predicate) => {
-                abilities.retain(|ability| !Self::ability_predicate_matches(predicate, ability));
+                abilities.retain(|ability| !predicate.matches(&ability.ability));
             }
         }
     }
@@ -401,23 +400,6 @@ impl Game {
             order: applied.component_order,
             kind,
         })
-    }
-
-    fn ability_predicate_matches(
-        predicate: AbilityPredicateDef,
-        ability: &EffectiveAbility,
-    ) -> bool {
-        match predicate {
-            AbilityPredicateDef::Any => true,
-            AbilityPredicateDef::Keyword(expected) => matches!(
-                ability.ability.definition,
-                DeclarativeAbilityDef::Keyword(actual) if actual == expected
-            ),
-            AbilityPredicateDef::AnyBandsWithOther => matches!(
-                ability.ability.definition,
-                DeclarativeAbilityDef::Keyword(KeywordAbility::BandsWithOther(_))
-            ),
-        }
     }
 
     pub(super) fn visit_effective_replacement_abilities_with_prospective(

@@ -74,6 +74,7 @@ impl Game {
             | ObjectPredicateDef::EnteredThisTurn
             | ObjectPredicateDef::AttackedDuringControllersLastTurn
             | ObjectPredicateDef::HasKeyword(_)
+            | ObjectPredicateDef::HasAbility(_)
             | ObjectPredicateDef::HasCounter(_)
             | ObjectPredicateDef::HasNonManaActivatedAbility => false,
         }

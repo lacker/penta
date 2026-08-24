@@ -189,13 +189,44 @@ pub(in crate::card::sets) static ANGEL_OF_FLIGHT_ALABASTER: CardRecord = CardRec
 );
 
 // ISD 3 — Angelic Overseer
-// Audit: metadata-only — Needs a continuous condition that grants hexproof and indestructible only while you control a Human.
+static ANGELIC_OVERSEER_CONTROLS_A_HUMAN: TriggerConditionDef = TriggerConditionDef::ObjectCount {
+    query: ObjectQueryDef::matching(
+        ObjectPredicateDef::Subtype("Human"),
+        &[ZoneKind::Battlefield],
+        PlayerRelation::You,
+    ),
+    comparison: ComparisonDef::GreaterOrEqual,
+    amount: 1,
+};
+
+static ANGELIC_OVERSEER_HEXPROOF: AbilityDef = abilities::hexproof();
+static ANGELIC_OVERSEER_INDESTRUCTIBLE: AbilityDef = abilities::indestructible();
+
+static ANGELIC_OVERSEER_GRANTS: [AppliedEffectDef; 2] = [
+    AppliedEffectDef::add_ability(&ANGELIC_OVERSEER_HEXPROOF),
+    AppliedEffectDef::add_ability(&ANGELIC_OVERSEER_INDESTRUCTIBLE),
+];
+
+static ANGELIC_OVERSEER_BONUS: EffectDef = EffectDef::StaticApply {
+    recipient: EffectRecipientDef::Source,
+    effect: AppliedEffectDef::Composite(&ANGELIC_OVERSEER_GRANTS),
+};
+
 pub(in crate::card::sets) static ANGELIC_OVERSEER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("221d999c-dde1-4a0f-87cf-9e9f44969f94"),
     "Angelic Overseer",
-    crate::card::CardArt::new("221d999c-dde1-4a0f-87cf-9e9f44969f94", "Jason Chan"),
-    crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("221d999c-dde1-4a0f-87cf-9e9f44969f94", "Jason Chan"),
+    CardSet::Innistrad,
+    CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Angel"], 5, 3).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "As long as you control a Human, this creature has hexproof and indestructible.",
+            EffectDef::IfCondition {
+                condition: &ANGELIC_OVERSEER_CONTROLS_A_HUMAN,
+                then: &ANGELIC_OVERSEER_BONUS,
+            },
+        ),
+    ]),
 );
 
 // ISD 4 — Avacynian Priest

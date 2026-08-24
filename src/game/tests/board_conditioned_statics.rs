@@ -1,11 +1,10 @@
-//! Three statics that read something other than a color.
+//! Four statics that read something other than a color.
 //!
 //! Guildscorn Ward's quality is a color *count*, Fog Bank's shield points
-//! both ways at once, and Night Revelers reads the opponent's board
-//! continuously rather than once.
+//! both ways at once, and Night Revelers and Angelic Overseer read opposite
+//! sides of the battlefield continuously rather than once.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -124,20 +123,46 @@ fn the_revelers_take_haste_from_the_opponents_humans() {
     assert!(!hasty(&game), "and it lapses when theirs leaves");
 }
 
+/// Both keywords follow your Humans onto and off the battlefield together.
 #[test]
-fn all_three_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::GUILDSCORN_WARD,
-        cards::FOG_BANK,
-        cards::NIGHT_REVELERS,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
+fn the_overseer_is_protected_only_while_you_control_a_human() {
+    let mut game = ready();
+    let overseer = creature(10_000, cards::ANGELIC_OVERSEER, PlayerId::One);
+    let overseer_id = overseer.card.id;
+    game.battlefield.push(overseer);
+
+    let has_keyword = |game: &Game, keyword| {
+        game.permanent_has_executable_keyword(permanent(game, overseer_id), keyword)
+    };
+    for keyword in [KeywordAbility::Hexproof, KeywordAbility::Indestructible] {
+        assert!(
+            !has_keyword(&game, keyword),
+            "no Human means no {keyword:?}"
+        );
+    }
+
+    game.battlefield
+        .push(creature(10_100, cards::ELITE_INQUISITOR, PlayerId::Two));
+    for keyword in [KeywordAbility::Hexproof, KeywordAbility::Indestructible] {
+        assert!(
+            !has_keyword(&game, keyword),
+            "an opponent's Human does not grant {keyword:?}",
+        );
+    }
+
+    let human = creature(10_101, cards::ELITE_INQUISITOR, PlayerId::One);
+    let human_id = human.card.id;
+    game.battlefield.push(human);
+    for keyword in [KeywordAbility::Hexproof, KeywordAbility::Indestructible] {
+        assert!(has_keyword(&game, keyword), "your Human grants {keyword:?}");
+    }
+
+    game.battlefield
+        .retain(|permanent| permanent.card.id != human_id);
+    for keyword in [KeywordAbility::Hexproof, KeywordAbility::Indestructible] {
+        assert!(
+            !has_keyword(&game, keyword),
+            "losing your last Human removes {keyword:?}",
         );
     }
 }

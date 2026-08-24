@@ -4,6 +4,34 @@ use super::{
 };
 
 impl HandcraftedPolicy {
+    /// Fireball should not spend a card on no target or mark damage that cannot
+    /// kill a creature. The policy has no same-turn combination planner that
+    /// could establish a payoff for letting that creature survive.
+    fn fireball_is_wasted(
+        observation: &PlayerObservation,
+        choices: &CastChoices,
+        amount: u16,
+    ) -> bool {
+        choices.iter_targets().next().is_none()
+            || choices.iter_targets().any(|target| {
+                let Target::Permanent(id) = target else {
+                    return false;
+                };
+                observation
+                    .battlefield
+                    .iter()
+                    .find(|permanent| permanent.id == *id)
+                    .is_some_and(|permanent| {
+                        let Some(toughness) = permanent.toughness else {
+                            return false;
+                        };
+                        let remaining = toughness
+                            .saturating_sub(i16::try_from(permanent.damage).unwrap_or(i16::MAX));
+                        i16::try_from(amount).unwrap_or(i16::MAX) < remaining
+                    })
+            })
+    }
+
     pub(super) fn cast_target_score(
         observation: &PlayerObservation,
         target: Target,
@@ -73,18 +101,25 @@ impl HandcraftedPolicy {
             .and_then(|id| self.catalog.get(id))
             .map(|card| card.rules.types());
         let x = choices.x();
+        let target_count = choices.iter_targets().count();
         // Passing scores 0, so anything below it means hold the card instead.
         if x == 0 && definition.is_some_and(|id| self.is_empty_at_zero_x(id, declarative)) {
+            return -10_000;
+        }
+        let fireball_damage = (behavior == Some(CardBehavior::Fireball)).then(|| {
+            x.checked_div(u16::try_from(target_count).unwrap_or(u16::MAX))
+                .unwrap_or(0)
+        });
+        if fireball_damage
+            .is_some_and(|amount| Self::fireball_is_wasted(observation, choices, amount))
+        {
             return -10_000;
         }
         let damage = match behavior {
             Some(CardBehavior::ChainLightning) => Some(3),
             Some(CardBehavior::PillarOfFlame) => Some(2),
             Some(CardBehavior::GoblinGrenade) => Some(5),
-            Some(CardBehavior::Fireball) => Some(
-                x.checked_div(u16::try_from(choices.iter_targets().count()).unwrap_or(u16::MAX))
-                    .unwrap_or(0),
-            ),
+            Some(CardBehavior::Fireball) => fireball_damage,
             _ => declarative.and_then(|profile| profile.damage),
         };
         let cards_drawn = declarative.and_then(|profile| profile.cards_drawn);

@@ -407,6 +407,77 @@ fn handcrafted_holds_an_x_draw_spell_rather_than_casting_it_for_zero() {
 }
 
 #[test]
+fn handcrafted_holds_fireball_when_it_cannot_kill_the_creature_target() {
+    let catalog = poc::catalog().unwrap();
+    let fireball = CardInstanceId(1);
+    let su_chi = CardInstanceId(2);
+    let cast_at_su_chi = Action::CastSpell {
+        card: fireball,
+        choices: CastChoices::default()
+            .with_x(1)
+            .with_targets(vec![TargetSelection::new(
+                TargetSlotId(0),
+                vec![Target::Permanent(su_chi)],
+            )]),
+        sacrifices: Vec::new(),
+    };
+    let targetless_cast = Action::CastSpell {
+        card: fireball,
+        choices: CastChoices::default().with_x(1),
+        sacrifices: Vec::new(),
+    };
+    let mut observation = policy_observation(
+        vec![permanent(
+            su_chi.0,
+            cards::SU_CHI,
+            PlayerId::Two,
+            Some(4),
+            Some(4),
+        )],
+        vec![Action::PassPriority, targetless_cast, cast_at_su_chi],
+    );
+    observation.hand = vec![(fireball, cards::FIREBALL)];
+    let mut policy = HandcraftedPolicy::new(catalog);
+
+    assert_eq!(
+        policy.choose_action(&observation),
+        Some(Action::PassPriority),
+        "one damage cannot kill an undamaged Su-Chi, so the bot should hold Fireball",
+    );
+}
+
+#[test]
+fn handcrafted_still_fireballs_a_creature_for_lethal_damage() {
+    let catalog = poc::catalog().unwrap();
+    let fireball = CardInstanceId(1);
+    let su_chi = CardInstanceId(2);
+    let cast_at_su_chi = Action::CastSpell {
+        card: fireball,
+        choices: CastChoices::default()
+            .with_x(4)
+            .with_targets(vec![TargetSelection::new(
+                TargetSlotId(0),
+                vec![Target::Permanent(su_chi)],
+            )]),
+        sacrifices: Vec::new(),
+    };
+    let mut observation = policy_observation(
+        vec![permanent(
+            su_chi.0,
+            cards::SU_CHI,
+            PlayerId::Two,
+            Some(4),
+            Some(4),
+        )],
+        vec![Action::PassPriority, cast_at_su_chi.clone()],
+    );
+    observation.hand = vec![(fireball, cards::FIREBALL)];
+    let mut policy = HandcraftedPolicy::new(catalog);
+
+    assert_eq!(policy.choose_action(&observation), Some(cast_at_su_chi));
+}
+
+#[test]
 fn handcrafted_still_casts_detonate_for_zero_to_destroy_a_mox() {
     let catalog = poc::catalog().unwrap();
     let detonate = CardInstanceId(1);

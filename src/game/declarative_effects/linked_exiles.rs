@@ -1,12 +1,13 @@
-//! Exile that remembers who did it, and the clauses that read it back.
+//! Exile operations that must keep the new object's identity.
 //!
-//! Split out of the parent module for the source-size budget. What belongs
-//! here is the three clauses that share one piece of state: the pile a
-//! source has sent to exile, which nothing about the cards themselves
-//! records.
+//! Split out of the parent module for the source-size budget. Linked exile
+//! remembers which source moved a card; play permissions instead attach to
+//! the new card created by the zone change. Both must happen during the move,
+//! before an ordinary continuation loses the old object's identity.
 
 use super::super::{EffectResolutionContext, Game, ScopedEffect, StackObject, Target};
-use crate::card::EffectDef;
+use crate::card::{EffectDef, EffectRecipientDef};
+use crate::game::GameObjectId;
 
 impl Game {
     pub(super) fn resolve_linked_exile_effect(
@@ -18,35 +19,26 @@ impl Game {
         match scoped.effect {
             EffectDef::ExileLinkedToSource { object: recipient } => {
                 let source = object.source.unwrap_or(object.id);
-                for target in self.effect_recipients(recipient, object, context, scoped) {
-                    let exiled = match target {
-                        Target::Permanent(id) => self.exile_permanent_returning_card(id),
-                        Target::Card(id) => self.exile_card_returning_card(id),
-                        Target::Player(_) | Target::Spell(_) => None,
-                    };
-                    if let Some(exiled) = exiled {
-                        self.linked_exiles.push((source, exiled));
-                    }
+                for exiled in self.exile_effect_objects(recipient, object, context, scoped) {
+                    self.linked_exiles.push((source, exiled));
                 }
             }
             EffectDef::ExileGrantingOwnerPlay {
                 object: recipient,
                 surcharge,
             } => {
-                for target in self.effect_recipients(recipient, object, context, scoped) {
-                    let exiled = match target {
-                        Target::Permanent(id) => self.exile_permanent_returning_card(id),
-                        Target::Card(id) => self.exile_card_returning_card(id),
-                        Target::Player(_) | Target::Spell(_) => None,
-                    };
+                for exiled in self.exile_effect_objects(recipient, object, context, scoped) {
                     // Its owner, not the exiler: what the clause hands back
                     // is the card's own player's ability to play it.
-                    if let Some(exiled) = exiled
-                        && let Some((_, instance)) = self.card_in_nonbattlefield_zone(exiled)
-                    {
+                    if let Some((_, instance)) = self.card_in_nonbattlefield_zone(exiled) {
                         let owner = instance.owner;
                         self.permit_owner_play_while_exiled(exiled, owner, surcharge);
                     }
+                }
+            }
+            EffectDef::ExileGrantingControllerPlayThisTurn { object: recipient } => {
+                for exiled in self.exile_effect_objects(recipient, object, context, scoped) {
+                    self.permit_cast_this_turn(exiled, object.controller);
                 }
             }
             EffectDef::MayPlayWithoutPaying { objects } => {
@@ -120,6 +112,24 @@ impl Game {
             _ => {}
         }
     }
+
+    fn exile_effect_objects(
+        &mut self,
+        recipient: EffectRecipientDef,
+        object: &StackObject,
+        context: &EffectResolutionContext,
+        scoped: ScopedEffect,
+    ) -> Vec<GameObjectId> {
+        self.effect_recipients(recipient, object, context, scoped)
+            .into_iter()
+            .filter_map(|target| match target {
+                Target::Permanent(id) => self.exile_permanent_returning_card(id),
+                Target::Card(id) => self.exile_card_returning_card(id),
+                Target::Player(_) | Target::Spell(_) => None,
+            })
+            .collect()
+    }
+
     /// "You may play those cards without paying their mana costs." The
     /// permission lasts the turn it was granted on, which is the turn the
     /// ability resolved.

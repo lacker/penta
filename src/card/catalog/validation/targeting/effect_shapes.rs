@@ -136,9 +136,30 @@ fn validate_effect_target_shapes(
             }
             Ok(())
         }
+        EffectDef::SelectAtRandomFromZone {
+            player,
+            source,
+            object,
+            then,
+            ..
+        } => {
+            if !matches!(
+                source,
+                ZoneKind::Hand | ZoneKind::Library | ZoneKind::Graveyard | ZoneKind::Exile
+            ) {
+                return Err(
+                    GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                        context: "resolving",
+                        operation: "SelectAtRandomFromZone with an unsupported zone",
+                    },
+                );
+            }
+            validate_recipient_shape(player, targets, RecipientExpectation::Player)?;
+            validate_object_predicate_shape(object, targets)?;
+            validate_effect_target_shapes(*then, targets, triggering_object_zone)
+        }
         EffectDef::SearchZonesAndExileRest { player, .. }
         | EffectDef::ExileTopOfLibraryToPlay { player, .. }
-        | EffectDef::ExileAtRandomFromGraveyardToPlay { player }
         | EffectDef::ExileFromTopUntil { player, .. }
         | EffectDef::ManifestDread { player }
         |         EffectDef::ShuffleLibrary { player }
@@ -277,6 +298,7 @@ fn validate_effect_target_shapes(
         | EffectDef::BecomeCopyOf { object, .. }
         | EffectDef::ExileLinkedToSource { object }
         | EffectDef::ExileGrantingOwnerPlay { object, .. }
+        | EffectDef::ExileGrantingControllerPlayThisTurn { object }
         | EffectDef::GainControl { object, .. }
         | EffectDef::Transform { object }
         | EffectDef::PutIntoLibraryBeneathTop { object, .. }

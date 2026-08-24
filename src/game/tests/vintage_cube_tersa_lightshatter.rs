@@ -2,6 +2,7 @@
 //! fresh one, and turns a full graveyard into a card each attack.
 
 use super::*;
+use crate::ObjectSetBindingIndex;
 
 /// Tersa on the battlefield with `graveyard` behind her, ready to attack.
 fn staged(graveyard: &[CardDefinitionId]) -> (Game, GameObjectId) {
@@ -118,6 +119,34 @@ fn the_permission_ends_with_the_turn() {
             .into_iter()
             .all(|action| !matches!(action, Action::PlayLand { card, .. } if card == exiled)),
         "\"this turn\" was this turn",
+    );
+}
+
+#[test]
+fn random_selection_is_composed_with_the_exile_operation() {
+    let catalog = poc::catalog().expect("catalog builds");
+    let tersa = catalog
+        .get(cards::TERSA_LIGHTSHATTER)
+        .expect("Tersa is cataloged");
+    let effect = tersa.rules.ability_clauses()[2]
+        .declarative_effect()
+        .expect("the attack trigger is declarative");
+    let EffectDef::SelectAtRandomFromZone {
+        source,
+        binding,
+        then,
+        ..
+    } = effect
+    else {
+        panic!("Tersa should select randomly before exiling");
+    };
+    assert_eq!(source, ZoneKind::Graveyard);
+    assert_eq!(binding, ObjectSetBindingIndex::PRIMARY);
+    assert_eq!(
+        *then,
+        EffectDef::ExileGrantingControllerPlayThisTurn {
+            object: EffectRecipientDef::objects(ObjectSetDef::Binding(binding)),
+        }
     );
 }
 

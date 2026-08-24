@@ -72,7 +72,8 @@ impl Game {
             | EffectDef::SearchZone {
                 then: Some(then), ..
             }
-            | EffectDef::BindMatching { then, .. } => {
+            | EffectDef::BindMatching { then, .. }
+            | EffectDef::SelectAtRandomFromZone { then, .. } => {
                 Self::effect_applies_to_source(*then, expected)
             }
             EffectDef::SimultaneousChoose(choice) => {
@@ -127,7 +128,6 @@ impl Game {
             | EffectDef::Sacrifice { .. }
             | EffectDef::SacrificeOfChoice { .. }
             | EffectDef::ExileTopOfLibraryToPlay { .. }
-            | EffectDef::ExileAtRandomFromGraveyardToPlay { .. }
             | EffectDef::ExileTopAndMayCast { .. }
             | EffectDef::MayCastTargetWithoutPaying { .. }
             | EffectDef::Mill { .. }
@@ -175,6 +175,7 @@ impl Game {
             | EffectDef::ExileLinkedToSource { .. }
             | EffectDef::MayPlayWithoutPaying { .. }
             | EffectDef::ExileGrantingOwnerPlay { .. }
+            | EffectDef::ExileGrantingControllerPlayThisTurn { .. }
             | EffectDef::ReturnLinkedExiles { .. }
             | EffectDef::Detain { .. }
             | EffectDef::GainControl { .. }

@@ -201,6 +201,17 @@ pub enum EffectDef {
         binding: ObjectSetBindingIndex,
         then: &'static EffectDef,
     },
+    /// Picks one matching card from a player's zone with the recorded RNG,
+    /// binds that card, and continues. Nothing moves: the continuation says
+    /// what happens to the selected card. When nothing matches, it binds an
+    /// empty set and still continues.
+    SelectAtRandomFromZone {
+        player: EffectRecipientDef,
+        source: ZoneKind,
+        object: ObjectPredicateDef,
+        binding: ObjectSetBindingIndex,
+        then: &'static EffectDef,
+    },
     /// Names a card while this effect resolves, binds every card of that name
     /// where it looks, and continues. "Discards all cards with that name" is
     /// the follow-up naming that binding. Distinct from the entry choice a
@@ -390,6 +401,12 @@ pub enum EffectDef {
         /// cost. Empty is a legal value and means the card is simply
         /// castable from where it now sits.
         surcharge: ManaCost,
+    },
+    /// Exiles the recipient and lets this effect's controller play the new
+    /// exiled object this turn. Moving and granting permission are one zone
+    /// operation because the card in exile has a new identity.
+    ExileGrantingControllerPlayThisTurn {
+        object: EffectRecipientDef,
     },
     /// Move control of the recipient for the stated duration. Source-bound
     /// durations also remember whether the source must remain tapped.
@@ -603,17 +620,6 @@ pub enum EffectDef {
         /// What has to be true where the card is played, asked there rather
         /// than where it was granted.
         play_condition: Option<ExilePlayConditionDef>,
-    },
-    /// "Exile a card at random from your graveyard. You may play that card
-    /// this turn."
-    ///
-    /// Nobody chooses, so this is a procedure rather than a
-    /// [`Self::Choose`]: the game picks with the recorded seed the way a
-    /// random discard does. What the permission grants is that exile is a
-    /// legal place to play it from -- the cost is still owed, unlike the
-    /// library clause above.
-    ExileAtRandomFromGraveyardToPlay {
-        player: EffectRecipientDef,
     },
     /// "Exile the top card of your library. You may cast that card. If you
     /// don't, ..." The card is cast during this resolution rather than at

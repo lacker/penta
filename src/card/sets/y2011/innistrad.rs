@@ -2682,13 +2682,34 @@ pub(in crate::card::sets) static GHOULCALLERS_CHANT: CardRecord = CardRecord::ne
 );
 
 // ISD 102 — Ghoulraiser
-// Audit: metadata-only — Needs deterministic random selection of a Zombie card from your graveyard.
+static GHOULRAISER_ZOMBIE_CARD: ObjectPredicateDef = ObjectPredicateDef::Subtype("Zombie");
+static GHOULRAISER_RETURN: EffectDef = EffectDef::MoveToZone {
+    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+    zone: ZoneKind::Hand,
+    controller: None,
+    placement: ZonePlacement::Top,
+    arrival_effect: None,
+    attachment: None,
+    counters: None,
+};
+
 pub(in crate::card::sets) static GHOULRAISER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("52c537d1-2d57-4a87-9dac-594d40d95633"),
     "Ghoulraiser",
-    crate::card::CardArt::new("52c537d1-2d57-4a87-9dac-594d40d95633", "Steve Prescott"),
-    crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("52c537d1-2d57-4a87-9dac-594d40d95633", "Steve Prescott"),
+    CardSet::Innistrad,
+    CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Zombie"], 2, 2).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, return a Zombie card at random from your graveyard to your hand.",
+            EffectDef::SelectAtRandomFromZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Graveyard,
+                object: GHOULRAISER_ZOMBIE_CARD,
+                binding: ObjectSetBindingIndex::PRIMARY,
+                then: &GHOULRAISER_RETURN,
+            },
+        ),
+    ),
 );
 
 // ISD 103 — Gruesome Deformity
@@ -3406,13 +3427,56 @@ pub(in crate::card::sets) static BURNING_VENGEANCE: CardRecord = CardRecord::new
 );
 
 // ISD 134 — Charmbreaker Devils
-// Audit: metadata-only — Needs deterministic random selection of an instant or sorcery card from your graveyard.
+static CHARMBREAKER_INSTANT_OR_SORCERY: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
+    ObjectPredicateDef::HasType(CardType::Instant),
+    ObjectPredicateDef::HasType(CardType::Sorcery),
+]);
+static CHARMBREAKER_RETURN: EffectDef = EffectDef::MoveToZone {
+    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+    zone: ZoneKind::Hand,
+    controller: None,
+    placement: ZonePlacement::Top,
+    arrival_effect: None,
+    attachment: None,
+    counters: None,
+};
+
 pub(in crate::card::sets) static CHARMBREAKER_DEVILS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a9197a67-6609-496c-9aae-825ede4f755b"),
     "Charmbreaker Devils",
-    crate::card::CardArt::new("a9197a67-6609-496c-9aae-825ede4f755b", "Dan Murayama Scott"),
-    crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a9197a67-6609-496c-9aae-825ede4f755b", "Dan Murayama Scott"),
+    CardSet::Innistrad,
+    CardRules::new_creature(mana_cost!("{5}{R}"), &["Devil"], 4, 4).with_abilities(&[
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, return an instant or sorcery card at random from your graveyard to your hand.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::SelectAtRandomFromZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Graveyard,
+                object: CHARMBREAKER_INSTANT_OR_SORCERY,
+                binding: ObjectSetBindingIndex::PRIMARY,
+                then: &CHARMBREAKER_RETURN,
+            },
+        ),
+        AbilityDef::triggered(
+            "Whenever you cast an instant or sorcery spell, this creature gets +4/+0 until end of turn.",
+            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+                CHARMBREAKER_INSTANT_OR_SORCERY,
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ])),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(4),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // ISD 135 — Crossway Vampire

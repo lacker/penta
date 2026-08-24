@@ -159,7 +159,7 @@ impl Game {
             | EffectDef::DiscardCards { .. }
             | EffectDef::Mill { .. }
             | EffectDef::ExileTopOfLibraryToPlay { .. }
-            | EffectDef::ExileAtRandomFromGraveyardToPlay { .. }
+            | EffectDef::SelectAtRandomFromZone { .. }
             | EffectDef::ExileTopAndMayCast { .. }
             | EffectDef::MillUntil { .. }
             | EffectDef::ExileFromTopUntil { .. }
@@ -495,6 +495,7 @@ impl Game {
             }
             EffectDef::ExileLinkedToSource { .. }
             | EffectDef::ExileGrantingOwnerPlay { .. }
+            | EffectDef::ExileGrantingControllerPlayThisTurn { .. }
             | EffectDef::MayPlayWithoutPaying { .. }
             | EffectDef::ReturnLinkedExiles { .. } => {
                 self.resolve_linked_exile_effect(scoped, object, &context);

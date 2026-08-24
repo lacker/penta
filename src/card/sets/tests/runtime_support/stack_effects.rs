@@ -230,6 +230,16 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::BindMatching { then, .. } => {
             deferred_decision_allowed && shared_stack_effect_at_position(*then, true)
         }
+        EffectDef::SelectAtRandomFromZone {
+            player,
+            object,
+            then,
+            ..
+        } => {
+            shared_effect_recipient(player)
+                && shared_object_predicate(object)
+                && shared_stack_effect_at_position(*then, deferred_decision_allowed)
+        }
         // A resolving ability names each mana as it is added, one question
         // per mana, so both a choice of colour and a combination are
         // supported here as long as the resolution is allowed to ask. What
@@ -263,7 +273,6 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::ExileTopOfLibraryToPlay {
             player: recipient, ..
         }
-        | EffectDef::ExileAtRandomFromGraveyardToPlay { player: recipient }
         // Every card in the named zones is offered, so there is no predicate
         // to check -- only who is searching.
         | EffectDef::SearchZonesAndExileRest {
@@ -459,6 +468,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::DiscardCards { object }
         | EffectDef::ExileLinkedToSource { object }
         | EffectDef::ExileGrantingOwnerPlay { object, .. }
+        | EffectDef::ExileGrantingControllerPlayThisTurn { object }
         | EffectDef::Detain { object }
         | EffectDef::GainControl { object, .. }
         | EffectDef::AddCounters { object, .. }

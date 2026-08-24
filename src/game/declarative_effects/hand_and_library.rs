@@ -465,29 +465,42 @@ impl Game {
                 context.matched_mana_value = Some(matched_mana_value);
                 self.resolve_effect_def(scoped.with_effect(*then), object, context);
             }
-            EffectDef::ExileAtRandomFromGraveyardToPlay { player: recipient } => {
-                let controller = object.controller;
+            EffectDef::SelectAtRandomFromZone {
+                player: recipient,
+                source,
+                object: predicate,
+                binding,
+                then,
+            } => {
+                let effect_source = object.source.unwrap_or(object.id);
+                let mut selected = Vec::new();
                 for target in self.effect_recipients(recipient, object, context, scoped) {
                     let Target::Player(player) = target else {
                         continue;
                     };
-                    let graveyard = &self.players[player.index()].graveyard;
-                    if graveyard.is_empty() {
+                    let cards = match source {
+                        ZoneKind::Hand => &self.players[player.index()].hand,
+                        ZoneKind::Library => &self.players[player.index()].library,
+                        ZoneKind::Graveyard => &self.players[player.index()].graveyard,
+                        ZoneKind::Exile => &self.players[player.index()].exile,
+                        ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => continue,
+                    };
+                    let matching = cards
+                        .iter()
+                        .filter(|card| {
+                            self.card_object_matches(predicate, card, source, effect_source)
+                        })
+                        .map(|card| card.id)
+                        .collect::<Vec<_>>();
+                    if matching.is_empty() {
                         continue;
                     }
-                    let index = self
-                        .rng
-                        .index_below(self.players[player.index()].graveyard.len());
-                    let card = self.players[player.index()].graveyard.remove(index);
-                    // A zone change mints a new object, and the permission
-                    // has to name the card that ended up in exile.
-                    let (card, _zone_change) = self.zone_change_card(card);
-                    let exiled = card.id;
-                    self.players[player.index()].exile.push(card.clone());
-                    self.note_card_left_graveyard(player);
-                    self.capture_cards_exiled(&[card], ZoneKind::Graveyard);
-                    self.permit_cast_this_turn(exiled, controller);
+                    let chosen = matching[self.rng.index_below(matching.len())];
+                    selected.push(Target::Card(chosen));
                 }
+                let mut context = context.clone();
+                context.bind_object_group(binding, selected);
+                self.resolve_effect_def(scoped.with_effect(*then), object, context);
             }
             EffectDef::ExileTopOfLibraryToPlay {
                 player: recipient,

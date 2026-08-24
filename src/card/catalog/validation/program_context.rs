@@ -826,7 +826,6 @@ fn static_damage_object_reference_supported(reference: ObjectRefDef) -> bool {
         ObjectRefDef::Source | ObjectRefDef::AttachedToSource
     )
 }
-
 // A table that only grows: one line per effect, and nothing to factor.
 #[allow(clippy::too_many_lines)]
 const fn effect_operation_name(effect: EffectDef) -> &'static str {
@@ -837,6 +836,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::Choose(_) | EffectDef::ChooseCardName { .. } => "Choose",
         EffectDef::ForEachInBinding { .. } => "ForEachInBinding",
         EffectDef::BindMatching { .. } => "BindMatching",
+        EffectDef::SelectAtRandomFromZone { .. } => "SelectAtRandomFromZone",
         EffectDef::PayOr(_) => "PayOr",
         EffectDef::SplitIntoPiles(_) => "SplitIntoPiles",
         EffectDef::PreventDamage { .. } => "PreventDamage",
@@ -879,7 +879,6 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::SimultaneousChoose(_) => "SimultaneousChoose",
         EffectDef::SacrificeOfChoice { .. } => "SacrificeOfChoice",
         EffectDef::ExileTopOfLibraryToPlay { .. } => "ExileTopOfLibraryToPlay",
-        EffectDef::ExileAtRandomFromGraveyardToPlay { .. } => "ExileAtRandomFromGraveyardToPlay",
         EffectDef::ExileTopAndMayCast { .. } => "ExileTopAndMayCast",
         EffectDef::MayCastTargetWithoutPaying { .. } => "MayCastTargetWithoutPaying",
         EffectDef::Mill { .. } => "Mill",
@@ -921,6 +920,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::ExileLinkedToSource { .. } => "ExileLinkedToSource",
         EffectDef::MayPlayWithoutPaying { .. } => "MayPlayWithoutPaying",
         EffectDef::ExileGrantingOwnerPlay { .. } => "ExileGrantingOwnerPlay",
+        EffectDef::ExileGrantingControllerPlayThisTurn { .. } => "ExileToPlayThisTurn",
         EffectDef::ReturnLinkedExiles { .. } => "ReturnLinkedExiles",
         EffectDef::GainControl { .. } | EffectDef::ExchangeControl { .. } => "GainControl",
         EffectDef::IfCondition { .. } => "IfCondition",

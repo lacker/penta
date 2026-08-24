@@ -334,6 +334,10 @@ static SEVEN_IN_YOUR_GRAVEYARD: TriggerConditionDef = TriggerConditionDef::Objec
     amount: 7,
 };
 
+static TERSA_EXILE_AND_PLAY: EffectDef = EffectDef::ExileGrantingControllerPlayThisTurn {
+    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+};
+
 static TERSA_ABILITIES: [AbilityDef; 3] = [
     abilities::haste(),
     abilities::enters_trigger(
@@ -345,8 +349,12 @@ static TERSA_ABILITIES: [AbilityDef; 3] = [
          exile a card at random from your graveyard. You may play that card this turn.",
         TriggerEventDef::attacks(ObjectPredicateDef::Source),
         &SEVEN_IN_YOUR_GRAVEYARD,
-        EffectDef::ExileAtRandomFromGraveyardToPlay {
+        EffectDef::SelectAtRandomFromZone {
             player: EffectRecipientDef::Controller,
+            source: ZoneKind::Graveyard,
+            object: ObjectPredicateDef::Any,
+            binding: ObjectSetBindingIndex::PRIMARY,
+            then: &TERSA_EXILE_AND_PLAY,
         },
     ),
 ];

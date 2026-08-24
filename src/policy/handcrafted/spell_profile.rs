@@ -345,7 +345,8 @@ impl HandcraftedPolicy {
             }
             EffectDef::ChooseCardName { then, .. }
             | EffectDef::SearchZone { then: Some(then), .. }
-            | EffectDef::BindMatching { then, .. } => {
+            | EffectDef::BindMatching { then, .. }
+            | EffectDef::SelectAtRandomFromZone { then, .. } => {
                 Self::collect_spell_effect_profile(*then, x, targets, profile);
             }
             EffectDef::PayOr(payment) => {
@@ -455,7 +456,6 @@ impl HandcraftedPolicy {
             | EffectDef::SacrificeOfChoice { .. }
             | EffectDef::DiscardCards { .. }
             | EffectDef::ExileTopOfLibraryToPlay { .. }
-            | EffectDef::ExileAtRandomFromGraveyardToPlay { .. }
             | EffectDef::ExileTopAndMayCast { .. }
             | EffectDef::MayCastTargetWithoutPaying { .. }
             | EffectDef::Mill { .. }
@@ -499,6 +499,7 @@ impl HandcraftedPolicy {
             | EffectDef::ExileLinkedToSource { .. }
             | EffectDef::MayPlayWithoutPaying { .. }
             | EffectDef::ExileGrantingOwnerPlay { .. }
+            | EffectDef::ExileGrantingControllerPlayThisTurn { .. }
             | EffectDef::ReturnLinkedExiles { .. }
             | EffectDef::Detain { .. }
             | EffectDef::GainControl { .. }

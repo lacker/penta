@@ -27,6 +27,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::ReplaceNextDrawThisTurn { effect, .. }
         | EffectDef::IfCondition { then: effect, .. }
         | EffectDef::BindMatching { then: effect, .. }
+        | EffectDef::SelectAtRandomFromZone { then: effect, .. }
         | EffectDef::ChooseCardName { then: effect, .. }
         | EffectDef::RevealAtRandomFromHand { then: effect, .. }
         | EffectDef::PutOntoBattlefieldThen { then: effect, .. }
@@ -104,6 +105,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::ExileLinkedToSource { .. }
         | EffectDef::MayPlayWithoutPaying { .. }
         | EffectDef::ExileGrantingOwnerPlay { .. }
+        | EffectDef::ExileGrantingControllerPlayThisTurn { .. }
         | EffectDef::GainControl { .. }
         | EffectDef::GainLife { .. }
         | EffectDef::GrantFlashToNextSorcery
@@ -123,7 +125,6 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::ManifestDread { .. }
         | EffectDef::Cascade
         | EffectDef::ExileTopOfLibraryToPlay { .. }
-        | EffectDef::ExileAtRandomFromGraveyardToPlay { .. }
         | EffectDef::MayCastTargetWithoutPaying { .. }
         | EffectDef::MoveToZone { .. }
         | EffectDef::RevealHand { .. }

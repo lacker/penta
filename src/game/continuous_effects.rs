@@ -586,6 +586,7 @@ impl Game {
                 | EffectDef::SimultaneousChoose(_)
                 | EffectDef::ChooseCardName { .. }
                 | EffectDef::BindMatching { .. }
+                | EffectDef::SelectAtRandomFromZone { .. }
                 | EffectDef::PayOr(_)
                 | EffectDef::SplitIntoPiles(_)
                 | EffectDef::PreventDamage { .. }
@@ -648,6 +649,7 @@ impl Game {
                 | EffectDef::DamageCannotBePreventedThisTurn
                 | EffectDef::GrantFlashToNextSorcery
                 | EffectDef::ExileLinkedToSource { .. }
+                | EffectDef::ExileGrantingControllerPlayThisTurn { .. }
                 | EffectDef::MayPlayWithoutPaying { .. }
                 | EffectDef::ReturnLinkedExiles { .. }
                 | EffectDef::Detain { .. }

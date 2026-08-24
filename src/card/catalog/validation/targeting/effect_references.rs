@@ -36,6 +36,17 @@ fn validate_effect_references(
             let nested = scope.with_object_set(binding)?;
             validate_effect_references(*then, target_count, nested)
         }
+        EffectDef::SelectAtRandomFromZone {
+            player,
+            object,
+            binding,
+            then,
+            ..
+        } => {
+            validate_recipient_target_references(player, target_count, scope)?;
+            validate_object_predicate_references(object, target_count, scope)?;
+            validate_effect_references(*then, target_count, scope.with_object_set(binding)?)
+        }
         EffectDef::Destroy {
             object,
             then: Some(follow_up),
@@ -216,6 +227,7 @@ fn validate_effect_references(
         | EffectDef::BecomeCopyOf { object, .. }
         | EffectDef::ExileLinkedToSource { object }
         | EffectDef::ExileGrantingOwnerPlay { object, .. }
+        | EffectDef::ExileGrantingControllerPlayThisTurn { object }
         | EffectDef::Detain { object }
         | EffectDef::GainControl { object, .. }
         | EffectDef::Transform { object }
@@ -317,7 +329,6 @@ fn validate_effect_references(
         }
         EffectDef::SearchZonesAndExileRest { player, .. }
         | EffectDef::ExileTopOfLibraryToPlay { player, .. }
-        | EffectDef::ExileAtRandomFromGraveyardToPlay { player }
         | EffectDef::ExileFromTopUntil { player, .. }
         | EffectDef::ManifestDread { player }
         | EffectDef::ChooseCards { player, .. }

@@ -47,7 +47,8 @@ distinguishes snapshots of the covered source and build inputs.
   therefore take their hosts without using the stack, follow a moved Aura, and
   stop applying when the Aura or its ability leaves. The source-attached marker
   is an additive checkpoint member; checkpoint format 8, replay version 2, and
-  protocol 29 are unchanged.
+  protocol 29 are unchanged. A catalog-wide integrity check rejects any future
+  attached-permanent control effect modeled outside a root static ability.
 
 - **Predicate-driven blocking restrictions and declaration costs.** Blocking
   now uses the same declarative shape as attacking: a rule records which side

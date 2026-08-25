@@ -21,16 +21,12 @@ pub enum EffectDef {
     GainClassLevel {
         level: u8,
     },
-    /// Poison counters given to a player; ten cause a state-based loss.
-    AddPoisonCounters {
+    /// Add counters to a player. Poison's state-based loss and energy's
+    /// payment semantics are consumers of the counter kind rather than
+    /// separate effect operations.
+    AddPlayerCounters {
         recipient: EffectRecipientDef,
-        amount: ValueDef,
-    },
-    /// "You get {E}{E}." Energy is a resource rather than a clock: nothing
-    /// checks how much of it a player has, it persists between turns, and it
-    /// leaves only by being spent.
-    AddEnergyCounters {
-        recipient: EffectRecipientDef,
+        kind: CounterKind,
         amount: ValueDef,
     },
     Apply {

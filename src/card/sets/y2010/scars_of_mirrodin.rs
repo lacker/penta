@@ -38,24 +38,18 @@ static METALCRAFT: TriggerConditionDef = TriggerConditionDef::ObjectCount {
     amount: 3,
 };
 
-/// Metalcraft: an amount rather than a second effect, which is what
-/// "instead" means. Read as the spell resolves, so an artifact that left in
-/// response takes the four with it.
-static METALCRAFT_DAMAGE: CountConditionDef = CountConditionDef {
-    query: ARTIFACTS_YOU_CONTROL,
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 3,
-    then: ValueDef::Constant(4),
-    otherwise: ValueDef::Constant(2),
-};
-
-static METALCRAFT_SACRIFICE_COUNT: CountConditionDef = CountConditionDef {
-    query: ARTIFACTS_YOU_CONTROL,
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 3,
-    then: ValueDef::Constant(2),
-    otherwise: ValueDef::Constant(1),
-};
+/// A value-level branch over Metalcraft's shared three-artifact threshold.
+/// Each card supplies its own amounts, and the count is read as the effect
+/// resolves.
+const fn metalcraft_value(then: i32, otherwise: i32) -> CountConditionDef {
+    CountConditionDef {
+        query: ARTIFACTS_YOU_CONTROL,
+        comparison: ComparisonDef::GreaterOrEqual,
+        amount: 3,
+        then: ValueDef::Constant(then),
+        otherwise: ValueDef::Constant(otherwise),
+    }
+}
 
 static ALL_CREATURES: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasType(CardType::Creature),
@@ -78,28 +72,6 @@ static SOURCE_IS_EQUIPPED: TriggerConditionDef = TriggerConditionDef::ObjectCoun
     comparison: ComparisonDef::GreaterOrEqual,
     amount: 1,
 };
-
-static TWICE_EQUIPMENT_ATTACHED_TO_SOURCE: ScaledValueDef = ScaledValueDef::new(
-    ValueDef::CountMatchingObjects(&EQUIPMENT_ATTACHED_TO_SOURCE),
-    2,
-);
-
-static RETURN_LINKED_EXILES_AT_NEXT_END_STEP: AbilityDef = AbilityDef::triggered(
-    "At the beginning of the next end step, return the exiled card to the battlefield under its owner's control.",
-    TriggerEventDef::StepBegins {
-        step: TurnStepDef::End,
-        player: PlayerRelation::Any,
-    },
-    EffectDef::ReturnLinkedExiles {
-        object: ObjectPredicateDef::Any,
-        counters: None,
-        arrival_effect: None,
-        zone: ZoneKind::Battlefield,
-        grant: None,
-        controller: None,
-        transformed: false,
-    },
-);
 
 // SOM 1 — Abuna Acolyte
 pub(in crate::card::sets) static ABUNA_ACOLYTE: CardRecord = CardRecord::new(
@@ -201,7 +173,7 @@ pub(in crate::card::sets) static DISPENSE_JUSTICE: CardRecord = CardRecord::new(
                 PlayerRelation::Any,
             ))],
             EffectDef::SacrificeOfChoice {
-                count: ValueDef::IfMatchingObjectCount(&METALCRAFT_SACRIFICE_COUNT),
+                count: ValueDef::IfMatchingObjectCount(&metalcraft_value(2, 1)),
                 player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -314,7 +286,7 @@ pub(in crate::card::sets) static GLIMMERPOINT_STAG: CardRecord = CardRecord::new
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
                 EffectDef::InstallTrigger(InstalledTriggerDef::once(
-                    &RETURN_LINKED_EXILES_AT_NEXT_END_STEP,
+                    &abilities::return_linked_exiles_at_next_end_step(ObjectPredicateDef::Any),
                 )),
             ]),
         ),
@@ -334,9 +306,10 @@ pub(in crate::card::sets) static GLINT_HAWK: CardRecord = CardRecord::new(
             EffectDef::PayOr(PayOrDef::unless(
                 EffectPaymentDef {
                     payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: EffectPaymentCostDef::ReturnPermanentMatching(
-                        ObjectPredicateDef::HasType(CardType::Artifact),
-                    ),
+                    cost: EffectPaymentCostDef::MovePermanentMatching {
+                        object: ObjectPredicateDef::HasType(CardType::Artifact),
+                        zone: ZoneKind::Hand,
+                    },
                 },
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
@@ -723,7 +696,7 @@ pub(in crate::card::sets) static ARGENT_SPHINX: CardRecord = CardRecord::new(
                     object: EffectRecipientDef::Source,
                 },
                 EffectDef::InstallTrigger(InstalledTriggerDef::once(
-                    &RETURN_LINKED_EXILES_AT_NEXT_END_STEP,
+                    &abilities::return_linked_exiles_at_next_end_step(ObjectPredicateDef::Any),
                 )),
             ]),
         )
@@ -741,15 +714,7 @@ pub(in crate::card::sets) static BONDS_OF_QUICKSILVER: CardRecord = CardRecord::
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             abilities::flash(),
-            AbilityDef::spell_with_targets(
-                "Enchant creature",
-                &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                )],
-                EffectDef::Attach {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                },
-            ),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature doesn't untap during its controller's untap step.",
                 EffectDef::StaticApply {
@@ -1570,8 +1535,9 @@ pub(in crate::card::sets) static HAND_OF_THE_PRAETORS: CardRecord = CardRecord::
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
                 PlayerRelation::Opponent,
             ))],
-            EffectDef::AddPoisonCounters {
+            EffectDef::AddPlayerCounters {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::Poison,
                 amount: ValueDef::Constant(1),
             },
         ),
@@ -1589,8 +1555,9 @@ pub(in crate::card::sets) static ICHOR_RATS: CardRecord = CardRecord::new(
             abilities::infect(),
             abilities::enters_trigger(
                 "When this creature enters, each player gets a poison counter.",
-                EffectDef::AddPoisonCounters {
+                EffectDef::AddPlayerCounters {
                     recipient: EffectRecipientDef::players(PlayerSetDef::All),
+                    kind: CounterKind::Poison,
                     amount: ValueDef::Constant(1),
                 },
             ),
@@ -1800,8 +1767,9 @@ pub(in crate::card::sets) static RELIC_PUTRESCENCE: CardRecord = CardRecord::new
             AbilityDef::triggered(
                 "Whenever enchanted artifact becomes tapped, its controller gets a poison counter.",
                 TriggerEventDef::tapped(ObjectPredicateDef::AttachedToSource),
-                EffectDef::AddPoisonCounters {
+                EffectDef::AddPlayerCounters {
                     recipient: EffectRecipientDef::ControllerOfTriggeringObject,
+                    kind: CounterKind::Poison,
                     amount: ValueDef::Constant(1),
                 },
             ),
@@ -2137,7 +2105,7 @@ pub(in crate::card::sets) static GALVANIC_BLAST: CardRecord = CardRecord::new(
         )],
         EffectDef::DealDamage {
             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::IfMatchingObjectCount(&METALCRAFT_DAMAGE),
+            amount: ValueDef::IfMatchingObjectCount(&metalcraft_value(4, 2)),
         },
     )),
 );
@@ -2155,7 +2123,10 @@ pub(in crate::card::sets) static GOBLIN_GAVELEER: CardRecord = CardRecord::new(
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
-                    ValueDef::Scaled(&TWICE_EQUIPMENT_ATTACHED_TO_SOURCE),
+                    ValueDef::Scaled(&ScaledValueDef::new(
+                        ValueDef::CountMatchingObjects(&EQUIPMENT_ATTACHED_TO_SOURCE),
+                        2,
+                    )),
                     ValueDef::Constant(0),
                 ),
             },
@@ -3035,24 +3006,22 @@ pub(in crate::card::sets) static VIRIDIAN_REVEL: CardRecord = CardRecord::new(
     "Viridian Revel",
     crate::card::CardArt::new("2d7f565e-0fb8-40c8-9540-213d35af846a", "rk post"),
     crate::card::CardSet::ScarsOfMirrodin,
-    CardRules::new_enchantment(mana_cost!("{1}{G}{G}")).with_ability(AbilityDef::triggered(
-        "Whenever an artifact is put into an opponent's graveyard from the battlefield, you may draw a card.",
-        TriggerEventDef::zone_changed(
+    CardRules::new_enchantment(mana_cost!("{1}{G}{G}")).with_ability(
+        abilities::dies_trigger_matching(
+            "Whenever an artifact is put into an opponent's graveyard from the battlefield, you may draw a card.",
             ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Artifact),
                 ObjectPredicateDef::OwnedBy(PlayerRelation::Opponent),
             ]),
-            Some(ZoneKind::Battlefield),
-            Some(ZoneKind::Graveyard),
-        ),
-        EffectDef::May {
-            player: EffectRecipientDef::Controller,
-            effect: &EffectDef::DrawCards {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
             },
-        },
-    )),
+        ),
+    ),
 );
 
 // SOM 133 — Wing Puncture

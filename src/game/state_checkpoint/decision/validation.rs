@@ -63,8 +63,8 @@ fn resolved_effect_payment(
         EffectPaymentCostDef::SacrificeCreaturesWithTotalPower(total) => {
             super::super::ResolvedEffectPayment::SacrificeCreaturesWithTotalPower(total)
         }
-        EffectPaymentCostDef::ReturnPermanentMatching(predicate) => {
-            super::super::ResolvedEffectPayment::ReturnPermanentMatching(predicate)
+        EffectPaymentCostDef::MovePermanentMatching { object, zone } => {
+            super::super::ResolvedEffectPayment::MovePermanentMatching { object, zone }
         }
         EffectPaymentCostDef::DiscardMatching(predicate) => {
             super::super::ResolvedEffectPayment::DiscardMatching(predicate)

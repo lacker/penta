@@ -731,7 +731,7 @@ impl Game {
         let has_infect = source_has_keyword(KeywordAbility::Infect);
         let dealt_damage = match target {
             Some(Target::Player(player)) if has_infect => {
-                self.add_poison_counters(player, amount);
+                self.add_player_counters(player, CounterKind::Poison, amount);
                 true
             }
             Some(Target::Player(player)) => {

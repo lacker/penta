@@ -125,29 +125,13 @@ impl Game {
         self.handle_upkeep_triggers();
     }
 
-    /// Commits every life gain in one place so replacement and triggered
-    /// abilities observe spells, lifelink, and card-specific drains through
-    /// the same event path. Gaining nothing is not a life-gain event.
-    /// Poison counters accumulate; nothing in the supported card pool removes
-    /// them, and reaching ten is checked with the other state-based losses.
-    pub(super) fn add_poison_counters(&mut self, player: PlayerId, amount: u16) {
+    /// Adds one kind of counter to a player. Poison's state-based loss and
+    /// energy's payment semantics read the same counter store independently.
+    pub(super) fn add_player_counters(&mut self, player: PlayerId, kind: CounterKind, amount: u16) {
         if amount == 0 {
             return;
         }
-        self.players[player.index()]
-            .counters
-            .add(CounterKind::Poison, amount);
-    }
-
-    /// "You get {E}". Energy is spent rather than counted down to anything,
-    /// so nothing checks it as a state-based action.
-    pub(super) fn add_energy(&mut self, player: PlayerId, amount: u16) {
-        if amount == 0 {
-            return;
-        }
-        self.players[player.index()]
-            .counters
-            .add(CounterKind::Energy, amount);
+        self.players[player.index()].counters.add(kind, amount);
     }
 
     /// Spends energy, all of it or none. A payment that cannot be made in

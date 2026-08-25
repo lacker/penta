@@ -5,6 +5,44 @@
 // readable; these are ordinary members of `abilities`. Included textually, so
 // the imports here are the parent module's.
 
+/// The target an "Enchant creature" Aura spell chooses.
+pub static ENCHANT_CREATURE_TARGET: [AbilityTargetDef; 1] =
+    [AbilityTargetDef::exactly_one_permanent(
+        ObjectPredicateDef::HasType(CardType::Creature),
+    )];
+
+/// The target an "Enchant artifact" Aura spell chooses.
+pub static ENCHANT_ARTIFACT_TARGET: [AbilityTargetDef; 1] =
+    [AbilityTargetDef::exactly_one_permanent(
+        ObjectPredicateDef::HasType(CardType::Artifact),
+    )];
+
+/// The target an "Enchant enchantment" Aura spell chooses.
+pub static ENCHANT_ENCHANTMENT_TARGET: [AbilityTargetDef; 1] =
+    [AbilityTargetDef::exactly_one_permanent(
+        ObjectPredicateDef::HasType(CardType::Enchantment),
+    )];
+
+/// An Aura's own spell clause: it targets what it will enchant, and attaching
+/// is what the spell does when it resolves. Every Aura prints one, so it
+/// belongs here rather than once per set module.
+#[must_use]
+pub const fn aura_spell(text: &'static str, targets: &'static [AbilityTargetDef]) -> AbilityDef {
+    AbilityDef::spell_with_targets(
+        text,
+        targets,
+        EffectDef::Attach {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        },
+    )
+}
+
+/// The overwhelmingly common Aura spell clause: "Enchant creature."
+#[must_use]
+pub const fn enchant_creature() -> AbilityDef {
+    aura_spell("Enchant creature", &ENCHANT_CREATURE_TARGET)
+}
+
 /// The target an "Enchant player" Aura spell chooses.
 pub static ENCHANT_PLAYER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Player(PlayerRelation::Any),

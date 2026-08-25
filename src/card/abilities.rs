@@ -21,23 +21,6 @@ use super::model::{
     ValueDef, ZoneKind, ZonePlacement,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
-/// The target an "Enchant creature" Aura spell chooses.
-pub static ENCHANT_CREATURE_TARGET: [AbilityTargetDef; 1] =
-    [AbilityTargetDef::exactly_one_permanent(
-        ObjectPredicateDef::HasType(CardType::Creature),
-    )];
-
-/// The target an "Enchant artifact" Aura spell chooses.
-pub static ENCHANT_ARTIFACT_TARGET: [AbilityTargetDef; 1] =
-    [AbilityTargetDef::exactly_one_permanent(
-        ObjectPredicateDef::HasType(CardType::Artifact),
-    )];
-
-/// The target an "Enchant enchantment" Aura spell chooses.
-pub static ENCHANT_ENCHANTMENT_TARGET: [AbilityTargetDef; 1] =
-    [AbilityTargetDef::exactly_one_permanent(
-        ObjectPredicateDef::HasType(CardType::Enchantment),
-    )];
 
 /// A source permanent's own enters-the-battlefield trigger.
 #[must_use]
@@ -69,7 +52,7 @@ pub const fn enters_trigger_with_targets(
 /// permanents that trigger when put into a graveyard from the battlefield.
 #[must_use]
 pub const fn dies_trigger(text: &'static str, effect: EffectDef) -> AbilityDef {
-    dies_trigger_with_targets(text, &[], effect)
+    dies_trigger_matching(text, ObjectPredicateDef::Source, effect)
 }
 
 /// A targeted source permanent's own battlefield-to-graveyard trigger.
@@ -79,10 +62,34 @@ pub const fn dies_trigger_with_targets(
     targets: &'static [AbilityTargetDef],
     effect: EffectDef,
 ) -> AbilityDef {
+    dies_trigger_matching_with_targets(text, ObjectPredicateDef::Source, targets, effect)
+}
+
+/// A battlefield-to-graveyard trigger for any permanent matching `object`.
+/// Despite the common creature shorthand in the helper's name, this also
+/// covers printed clauses that watch artifacts or other noncreature
+/// permanents go to a graveyard from the battlefield.
+#[must_use]
+pub const fn dies_trigger_matching(
+    text: &'static str,
+    object: ObjectPredicateDef,
+    effect: EffectDef,
+) -> AbilityDef {
+    dies_trigger_matching_with_targets(text, object, &[], effect)
+}
+
+/// A targeted battlefield-to-graveyard trigger for any matching permanent.
+#[must_use]
+pub const fn dies_trigger_matching_with_targets(
+    text: &'static str,
+    object: ObjectPredicateDef,
+    targets: &'static [AbilityTargetDef],
+    effect: EffectDef,
+) -> AbilityDef {
     AbilityDef::triggered_with_targets(
         text,
         TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
+            object,
             Some(ZoneKind::Battlefield),
             Some(ZoneKind::Graveyard),
         ),
@@ -95,20 +102,6 @@ pub const fn dies_trigger_with_targets(
 pub static ENCHANT_LAND_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
     ObjectPredicateDef::HasType(CardType::Land),
 )];
-
-/// An Aura's own spell clause: it targets what it will enchant, and attaching
-/// is what the spell does when it resolves. Every Aura prints one, so it
-/// belongs here rather than once per set module.
-#[must_use]
-pub const fn aura_spell(text: &'static str, targets: &'static [AbilityTargetDef]) -> AbilityDef {
-    AbilityDef::spell_with_targets(
-        text,
-        targets,
-        EffectDef::Attach {
-            object: EffectRecipientDef::Target(crate::ids::TargetIndex::PRIMARY),
-        },
-    )
-}
 
 /// "Attacks each combat if able." Cards state this in their own words rather
 /// than as a printed keyword, so the text is supplied by the caller.
@@ -403,8 +396,9 @@ pub const fn poisonous_damage(amount: i32, text: &'static str) -> AbilityDef {
     AbilityDef::triggered(
         text,
         TriggerEventDef::damage_to_player(ObjectPredicateDef::Source, PlayerRelation::Any),
-        EffectDef::AddPoisonCounters {
+        EffectDef::AddPlayerCounters {
             recipient: EffectRecipientDef::EventPlayer,
+            kind: CounterKind::Poison,
             amount: ValueDef::Constant(amount),
         },
     )

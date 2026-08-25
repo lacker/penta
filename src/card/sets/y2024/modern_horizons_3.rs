@@ -242,8 +242,9 @@ static PRISON_ENTERS: [EffectDef; 3] = [
     EffectDef::InstallTrigger(InstalledTriggerDef::once(&PRISON_RETURNS_IT)),
     // The energy arrives with the exile rather than paying for it: the first
     // upkeep tax is already covered, and the second is not.
-    EffectDef::AddEnergyCounters {
+    EffectDef::AddPlayerCounters {
         recipient: EffectRecipientDef::Controller,
+        kind: CounterKind::Energy,
         amount: ValueDef::Constant(2),
     },
 ];
@@ -558,8 +559,9 @@ static RAPTOR_DIGS: EffectDef = EffectDef::ExileFromTopUntil {
 /// intervening-if: a Raptor put onto the battlefield gets the energy and
 /// nothing else.
 static RAPTOR_ENTERS: [EffectDef; 2] = [
-    EffectDef::AddEnergyCounters {
+    EffectDef::AddPlayerCounters {
         recipient: EffectRecipientDef::Controller,
+        kind: CounterKind::Energy,
         amount: ValueDef::Constant(2),
     },
     EffectDef::IfCondition {

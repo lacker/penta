@@ -83,6 +83,15 @@ fn trevas_ruins_returns_a_land_or_sacrifices_itself() {
             .observe(PlayerId::One)
             .decision
             .expect("the Lair asks for its land");
+        let (wire, hidden) = checkpoint_fixture(&game, PlayerId::One);
+        let mut game = Game::from_observation_checkpoint(
+            game.catalog.clone(),
+            game.format,
+            &wire,
+            &hidden,
+            10_002,
+        )
+        .expect("the matching-permanent move payment reconstructs");
         let option = if pay {
             decision
                 .options

@@ -133,26 +133,6 @@ static TOUCH_RETURNS_IT: AbilityDef = AbilityDef::triggered(
     },
 );
 
-/// The channel half gives it back at the beginning of the next end step
-/// instead, which is a blink rather than an answer.
-static TOUCH_RETURNS_IT_AT_END: AbilityDef = AbilityDef::triggered(
-    "At the beginning of the next end step, return the exiled card to the battlefield under its \
-     owner's control.",
-    TriggerEventDef::StepBegins {
-        step: TurnStepDef::End,
-        player: PlayerRelation::Any,
-    },
-    EffectDef::ReturnLinkedExiles {
-        object: ObjectPredicateDef::Any,
-        counters: None,
-        arrival_effect: None,
-        zone: ZoneKind::Battlefield,
-        grant: None,
-        controller: None,
-        transformed: false,
-    },
-);
-
 static AN_ARTIFACT_OR_CREATURE: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
     ObjectPredicateDef::HasType(CardType::Artifact),
     ObjectPredicateDef::HasType(CardType::Creature),
@@ -183,7 +163,9 @@ static TOUCH_CHANNEL_EXILES_IT: [EffectDef; 2] = [
     EffectDef::ExileLinkedToSource {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
     },
-    EffectDef::InstallTrigger(InstalledTriggerDef::once(&TOUCH_RETURNS_IT_AT_END)),
+    EffectDef::InstallTrigger(InstalledTriggerDef::once(
+        &abilities::return_linked_exiles_at_next_end_step(ObjectPredicateDef::Any),
+    )),
 ];
 
 static TOUCH_CHANNEL_COST: AbilityCostList = AbilityCostList::two(

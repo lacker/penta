@@ -144,7 +144,10 @@ impl Game {
                 let _spent = self.pay_player_cost(player, cost, 0);
                 Some(amount)
             }
-            ResolvedEffectPayment::ReturnPermanentMatching(predicate) => {
+            ResolvedEffectPayment::MovePermanentMatching {
+                object: predicate,
+                zone,
+            } => {
                 let permanent = options
                     .iter()
                     .find(|option| option.id == chosen)
@@ -158,7 +161,7 @@ impl Game {
                 }
                 self.move_target_to_zone(
                     Target::Permanent(permanent),
-                    ZoneKind::Hand,
+                    zone,
                     ZoneMoveCause::Effect { controller: player },
                     None,
                     ZonePlacement::Top,
@@ -299,7 +302,9 @@ impl Game {
             ResolvedEffectPayment::SacrificeCreaturesWithTotalPower(total) => {
                 self.total_creature_power_controlled(player) >= i32::from(total)
             }
-            ResolvedEffectPayment::ReturnPermanentMatching(predicate)
+            ResolvedEffectPayment::MovePermanentMatching {
+                object: predicate, ..
+            }
             | ResolvedEffectPayment::SacrificePermanentMatching(predicate) => !self
                 .matching_permanents_controlled(player, predicate)
                 .is_empty(),
@@ -392,35 +397,19 @@ impl Game {
                     });
                 }
             }
-            ResolvedEffectPayment::ReturnPermanentMatching(predicate)
-            | ResolvedEffectPayment::SacrificePermanentMatching(predicate) => {
-                let returning =
-                    matches!(payment, ResolvedEffectPayment::ReturnPermanentMatching(_));
-                for (index, permanent) in self
-                    .matching_permanents_controlled(player, predicate)
-                    .into_iter()
-                    .enumerate()
-                {
-                    let name = self
-                        .permanent_card_name(permanent)
-                        .map_or_else(|| "a permanent".to_string(), std::borrow::Cow::into_owned);
-                    options.push(DecisionOption {
-                        id: u32::try_from(index + 1).unwrap_or(u32::MAX),
-                        label: if returning {
-                            format!("Return {name}")
-                        } else {
-                            format!("Sacrifice {name}")
-                        },
-                        card: self
-                            .battlefield
-                            .iter()
-                            .find(|candidate| candidate.card.id == permanent)
-                            .map(|candidate| (permanent, Self::effective_rules_source(candidate))),
-                        members: Vec::new(),
-                        ability_text: None,
-                        zone: DecisionZone::Battlefield,
-                    });
-                }
+            ResolvedEffectPayment::MovePermanentMatching {
+                object: predicate,
+                zone,
+            } => {
+                let verb = if zone == ZoneKind::Hand {
+                    "Return"
+                } else {
+                    "Move"
+                };
+                options.extend(self.permanent_payment_options(player, predicate, verb));
+            }
+            ResolvedEffectPayment::SacrificePermanentMatching(predicate) => {
+                options.extend(self.permanent_payment_options(player, predicate, "Sacrifice"));
             }
             ResolvedEffectPayment::DiscardMatching(predicate) => {
                 for (index, card) in self
@@ -457,6 +446,35 @@ impl Game {
         options
     }
 
+    fn permanent_payment_options(
+        &self,
+        player: PlayerId,
+        predicate: ObjectPredicateDef,
+        verb: &str,
+    ) -> Vec<DecisionOption> {
+        self.matching_permanents_controlled(player, predicate)
+            .into_iter()
+            .enumerate()
+            .map(|(index, permanent)| {
+                let name = self
+                    .permanent_card_name(permanent)
+                    .map_or_else(|| "a permanent".to_string(), std::borrow::Cow::into_owned);
+                DecisionOption {
+                    id: u32::try_from(index + 1).unwrap_or(u32::MAX),
+                    label: format!("{verb} {name}"),
+                    card: self
+                        .battlefield
+                        .iter()
+                        .find(|candidate| candidate.card.id == permanent)
+                        .map(|candidate| (permanent, Self::effective_rules_source(candidate))),
+                    members: Vec::new(),
+                    ability_text: None,
+                    zone: DecisionZone::Battlefield,
+                }
+            })
+            .collect()
+    }
+
     pub(super) fn pay_effect_payment(
         &mut self,
         player: PlayerId,
@@ -491,7 +509,7 @@ impl Game {
             // means a caller lost that answer.
             ResolvedEffectPayment::DiscardMatching(_)
             | ResolvedEffectPayment::ChosenGenericMana
-            | ResolvedEffectPayment::ReturnPermanentMatching(_)
+            | ResolvedEffectPayment::MovePermanentMatching { .. }
             | ResolvedEffectPayment::SacrificePermanentMatching(_)
             // Named one creature at a time by its own decision, which is
             // queued once the payer has already chosen to pay.
@@ -535,8 +553,12 @@ impl Game {
             // the prompt the decision is introduced with.
             ResolvedEffectPayment::DiscardMatching(_) => "Discard a matching card".to_string(),
             ResolvedEffectPayment::ChosenGenericMana => "Pay {X}".to_string(),
-            ResolvedEffectPayment::ReturnPermanentMatching(_) => {
-                "Return a matching permanent".to_string()
+            ResolvedEffectPayment::MovePermanentMatching { zone, .. } => {
+                if zone == ZoneKind::Hand {
+                    "Return a matching permanent".to_string()
+                } else {
+                    "Move a matching permanent".to_string()
+                }
             }
             ResolvedEffectPayment::SacrificePermanentMatching(_) => {
                 "Sacrifice a matching permanent".to_string()

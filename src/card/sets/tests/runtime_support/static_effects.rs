@@ -261,8 +261,7 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::DealDamageAndApply { .. }
         | EffectDef::DrainLife { .. }
         | EffectDef::GainLife { .. }
-        | EffectDef::AddPoisonCounters { .. }
-        | EffectDef::AddEnergyCounters { .. }
+        | EffectDef::AddPlayerCounters { .. }
         | EffectDef::DrawCards { .. }
         | EffectDef::Discard { .. }
         | EffectDef::DiscardCards { .. }

@@ -713,8 +713,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::DealDamageAndApply { .. }
                     | EffectDef::DrainLife { .. }
                     | EffectDef::GainLife { .. }
-                    | EffectDef::AddPoisonCounters { .. }
-                    | EffectDef::AddEnergyCounters { .. }
+                    | EffectDef::AddPlayerCounters { .. }
                     | EffectDef::DrawCards { .. }
                     | EffectDef::Discard { .. }
                     | EffectDef::DiscardCards { .. }

@@ -5,6 +5,29 @@
 // card to say it does not re-derive it. Included textually into
 // `abilities.rs`, so the imports here are the parent module's.
 
+/// The delayed trigger shared by temporary exile effects such as
+/// Glimmerpoint Stag and Flickerwisp. The installing effect links the exiled
+/// objects to its source; `object` narrows which of those linked cards return.
+#[must_use]
+pub const fn return_linked_exiles_at_next_end_step(object: ObjectPredicateDef) -> AbilityDef {
+    AbilityDef::triggered(
+        "At the beginning of the next end step, return the exiled card to the battlefield under its owner's control.",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::End,
+            player: PlayerRelation::Any,
+        },
+        EffectDef::ReturnLinkedExiles {
+            object,
+            counters: None,
+            arrival_effect: None,
+            zone: ZoneKind::Battlefield,
+            grant: None,
+            controller: None,
+            transformed: false,
+        },
+    )
+}
+
 /// The outright win that replaces an empty-library draw. Keeping this as an
 /// ordinary effect inside the replacement program gives it the same outcome
 /// and reporting as every other effect that says its controller wins.

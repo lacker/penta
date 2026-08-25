@@ -4,8 +4,7 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardRules, CardSet,
     CreatureTypeSetDef, EffectDef, EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef,
-    PlayerRelation, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, abilities,
+    ResolvedEffectDurationDef, TriggerConditionDef, ValueDef, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -18,32 +17,13 @@ static ANOTHER_PERMANENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one
     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
 )];
 
-/// The delayed half, installed by the arrival rather than printed as its own
-/// clause: it fires once, at the next end step, whoever's turn that is, and
-/// it fires whether or not the Wisp is still around to see it.
-static FLICKERWISP_RETURN: AbilityDef = AbilityDef::triggered(
-    "Return that card to the battlefield under its owner's control at the beginning of the next \
-     end step.",
-    TriggerEventDef::StepBegins {
-        step: TurnStepDef::End,
-        player: PlayerRelation::Any,
-    },
-    EffectDef::ReturnLinkedExiles {
-        object: ObjectPredicateDef::Any,
-        zone: ZoneKind::Battlefield,
-        grant: None,
-        counters: None,
-        arrival_effect: None,
-        transformed: false,
-        controller: None,
-    },
-);
-
 static FLICKERWISP_EXILE: [EffectDef; 2] = [
     EffectDef::ExileLinkedToSource {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
     },
-    EffectDef::InstallTrigger(InstalledTriggerDef::once(&FLICKERWISP_RETURN)),
+    EffectDef::InstallTrigger(InstalledTriggerDef::once(
+        &abilities::return_linked_exiles_at_next_end_step(ObjectPredicateDef::Any),
+    )),
 ];
 
 pub(in crate::card::sets) static FLICKERWISP: CardRecord = CardRecord::new(

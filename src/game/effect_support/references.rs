@@ -136,7 +136,9 @@ impl Game {
             Cost::SacrificeCreaturesWithTotalPower(total) => {
                 Resolved::SacrificeCreaturesWithTotalPower(total)
             }
-            Cost::ReturnPermanentMatching(predicate) => Resolved::ReturnPermanentMatching(predicate),
+            Cost::MovePermanentMatching { object, zone } => {
+                Resolved::MovePermanentMatching { object, zone }
+            }
             Cost::ChosenGenericMana => Resolved::ChosenGenericMana,
             Cost::DiscardMatching(predicate) => Resolved::DiscardMatching(predicate),
         }

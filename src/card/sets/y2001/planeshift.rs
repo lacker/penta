@@ -1577,7 +1577,10 @@ pub(in crate::card::sets) static TREVAS_RUINS: CardRecord = CardRecord::new_with
         abilities::enters_trigger("When this land enters, sacrifice it unless you return a non-Lair land you control to its owner's hand.", EffectDef::PayOr(PayOrDef::unless(
                 EffectPaymentDef {
                     payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: EffectPaymentCostDef::ReturnPermanentMatching(NON_LAIR_LAND_YOU_CONTROL),
+                    cost: EffectPaymentCostDef::MovePermanentMatching {
+                        object: NON_LAIR_LAND_YOU_CONTROL,
+                        zone: ZoneKind::Hand,
+                    },
                 },
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,

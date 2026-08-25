@@ -6,7 +6,7 @@
 
 use super::{
     ChoiceVisibilityDef, EffectDef, EffectRecipientDef, ManaColor, ManaCost, ObjectPredicateDef,
-    PlayerRefDef, PlayerSetDef, ValueDef,
+    PlayerRefDef, PlayerSetDef, ValueDef, ZoneKind,
 };
 
 /// The supported cost of an optional effect payment.
@@ -63,10 +63,13 @@ pub enum EffectPaymentCostDef {
     /// Offered only when the payer's creatures could reach the total at all,
     /// so a board that cannot pay takes the other branch without being asked.
     SacrificeCreaturesWithTotalPower(u16),
-    /// Return one matching permanent its payer controls to its owner's hand,
-    /// named as part of the payment. Treva's Ruins asks for a land that is
-    /// not another Lair, so a second copy cannot pay for the first.
-    ReturnPermanentMatching(ObjectPredicateDef),
+    /// Move one matching permanent its payer controls to a named zone as the
+    /// payment. The choice and move are one atomic cost rather than a
+    /// `MoveToZone` effect after the paid branch has already been selected.
+    MovePermanentMatching {
+        object: ObjectPredicateDef,
+        zone: ZoneKind,
+    },
     /// Discard one card the predicate matches. Mox Diamond's "you may discard
     /// a land card instead" is a real restriction, so a hand with nothing
     /// matching cannot pay at all even though it holds plenty of cards.

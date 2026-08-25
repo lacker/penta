@@ -136,8 +136,7 @@ impl Game {
             }
             EffectDef::GainLife { .. }
             | EffectDef::LoseLife { .. }
-            | EffectDef::AddEnergyCounters { .. }
-            | EffectDef::AddPoisonCounters { .. }
+            | EffectDef::AddPlayerCounters { .. }
             | EffectDef::EmptyManaPool { .. }
             | EffectDef::WinTheGame { .. }
             | EffectDef::LoseTheGame { .. } => {

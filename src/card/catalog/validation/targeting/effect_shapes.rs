@@ -131,8 +131,9 @@ fn validate_effect_target_shapes(
             }
         }
         EffectDef::GainLife { recipient, amount }
-        | EffectDef::AddPoisonCounters { recipient, amount }
-        | EffectDef::AddEnergyCounters { recipient, amount }
+        | EffectDef::AddPlayerCounters {
+            recipient, amount, ..
+        }
         | EffectDef::DrawCards { recipient, amount }
         | EffectDef::LoseLife { recipient, amount } => {
             validate_recipient_shape(recipient, targets, RecipientExpectation::Player)?;

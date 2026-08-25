@@ -57,8 +57,11 @@ pub(super) enum ResolvedEffectPayment {
     DiscardMatching(ObjectPredicateDef),
     /// Generic mana in an amount the payer chooses, named the same way.
     ChosenGenericMana,
-    /// One matching permanent, returned to its owner's hand.
-    ReturnPermanentMatching(ObjectPredicateDef),
+    /// One matching permanent, moved to the named zone.
+    MovePermanentMatching {
+        object: ObjectPredicateDef,
+        zone: ZoneKind,
+    },
     /// One matching permanent, sacrificed.
     SacrificePermanentMatching(ObjectPredicateDef),
     /// Creatures sacrificed one at a time until their power reaches this

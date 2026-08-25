@@ -676,7 +676,9 @@ pub(super) enum ResolvedEffectPaymentSnapshot {
     /// Likewise: how much can be paid is read off the payer's mana rather
     /// than written down, because the options are rebuilt from it.
     ChosenGenericMana,
-    /// And likewise for the permanents a return payment can name.
+    /// Compatibility spelling for the matching-permanent move payment. The
+    /// authored effect restores its destination, so the old hand-only tag can
+    /// represent the generalized internal cost without changing wire data.
     ReturnPermanentMatching,
     /// The same, for the one it sacrifices.
     SacrificePermanentMatching,

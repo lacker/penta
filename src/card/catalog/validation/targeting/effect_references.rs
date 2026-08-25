@@ -167,8 +167,9 @@ fn validate_effect_references(
         }
         | EffectDef::DrainLife { recipient, amount }
         | EffectDef::GainLife { recipient, amount }
-        | EffectDef::AddPoisonCounters { recipient, amount }
-        | EffectDef::AddEnergyCounters { recipient, amount }
+        | EffectDef::AddPlayerCounters {
+            recipient, amount, ..
+        }
         | EffectDef::DrawCards { recipient, amount }
         | EffectDef::LoseLife { recipient, amount } => {
             validate_recipient_target_references(recipient, target_count, scope)?;

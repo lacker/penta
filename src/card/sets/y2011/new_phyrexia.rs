@@ -809,8 +809,9 @@ pub(in crate::card::sets) static CARESS_OF_PHYREXIA: CardRecord = CardRecord::ne
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(3),
             },
-            EffectDef::AddPoisonCounters {
+            EffectDef::AddPlayerCounters {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::Poison,
                 amount: ValueDef::Constant(3),
             },
         ]),

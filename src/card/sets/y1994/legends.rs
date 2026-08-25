@@ -258,15 +258,7 @@ pub(in crate::card::sets) static DIVINE_TRANSFORMATION: CardRecord = CardRecord:
     CardRules::new_enchantment(mana_cost!("{2}{W}{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            AbilityDef::spell_with_targets(
-                "Enchant creature",
-                &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                )],
-                EffectDef::Attach {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                },
-            ),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets +3/+3.",
                 EffectDef::StaticApply {
@@ -743,15 +735,7 @@ pub(in crate::card::sets) static SEEKER: CardRecord = CardRecord::new_with_legac
     CardRules::new_enchantment(mana_cost!("{2}{W}{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            AbilityDef::spell_with_targets(
-                "Enchant creature",
-                &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                )],
-                EffectDef::Attach {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                },
-            ),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature can't be blocked except by artifact creatures and/or white creatures.",
                 EffectDef::StaticApply {
@@ -2923,15 +2907,7 @@ pub(in crate::card::sets) static ETERNAL_WARRIOR: CardRecord = CardRecord::new_w
     CardRules::new_enchantment(mana_cost!("{R}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            AbilityDef::spell_with_targets(
-                "Enchant creature",
-                &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                )],
-                EffectDef::Attach {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                },
-            ),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature has vigilance.",
                 EffectDef::StaticApply {
@@ -2992,15 +2968,7 @@ pub(in crate::card::sets) static GIANT_STRENGTH: CardRecord = CardRecord::new_wi
     CardRules::new_enchantment(mana_cost!("{R}{R}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            AbilityDef::spell_with_targets(
-                "Enchant creature",
-                &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                )],
-                EffectDef::Attach {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                },
-            ),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets +2/+2.",
                 EffectDef::StaticApply {
@@ -3114,15 +3082,7 @@ pub(in crate::card::sets) static IMMOLATION: CardRecord = CardRecord::new_with_l
     CardRules::new_enchantment(mana_cost!("{R}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            AbilityDef::spell_with_targets(
-                "Enchant creature",
-                &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                )],
-                EffectDef::Attach {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                },
-            ),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets +2/-2.",
                 EffectDef::StaticApply {

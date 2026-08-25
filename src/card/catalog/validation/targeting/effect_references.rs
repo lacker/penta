@@ -304,7 +304,6 @@ fn validate_effect_references(
             Ok(())
         }
         EffectDef::PutOntoBattlefieldThen {
-            grant: _,
             object,
             binding,
             then,

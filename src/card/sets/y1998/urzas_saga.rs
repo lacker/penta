@@ -12,10 +12,10 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
     AppliedRuleDef, CardArt, CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType,
     ChoiceVisibilityDef, ChooseDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
-    GraveyardPlayPermissionDef, InstalledTriggerDef, KeywordAbility, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    OngoingEffectDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    GraveyardPlayPermissionDef, InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, OngoingEffectDef,
+    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
     SpellResolutionDestinationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
     abilities,
 };
@@ -2366,13 +2366,16 @@ static SNEAK_SACRIFICES_IT: AbilityDef = AbilityDef::triggered(
 static SNEAK_SACRIFICE_LATER: EffectDef =
     EffectDef::InstallTrigger(InstalledTriggerDef::once(&SNEAK_SACRIFICES_IT));
 
-/// Haste rides along with the arrival rather than being applied to what
-/// arrived: the permanent is a new object, and this is the same grant a
-/// returning creature carries.
+static SNEAK_HASTE: AbilityDef = abilities::haste();
+static SNEAK_ARRIVAL_EFFECT: AppliedEffectDef = AppliedEffectDef::add_ability(&SNEAK_HASTE);
+
+/// Haste rides along with the arrival rather than being applied afterward:
+/// the permanent entering the battlefield is a new object.
 static SNEAK_PUTS_IT_IN: EffectDef = EffectDef::PutOntoBattlefieldThen {
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
     binding: SNEAK_ARRIVAL,
-    grant: Some(KeywordAbility::Haste),
+    counters: None,
+    arrival_effect: Some(&SNEAK_ARRIVAL_EFFECT),
     then: &SNEAK_SACRIFICE_LATER,
 };
 

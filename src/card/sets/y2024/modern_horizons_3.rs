@@ -1116,9 +1116,9 @@ static NANTUKO_ABILITIES: [AbilityDef; 3] = [
              enchant creature. It becomes a creature again if it's not attached to a creature.)",
         ),
         &abilities::ENCHANT_CREATURE_TARGET,
-        EffectDef::Attachment(AttachmentDef::Attach {
+        EffectDef::Attach {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        }),
+        },
     ),
     // Only while it is an Aura (CR 702.103d): as a creature it enchants
     // nothing and the clause names nothing.

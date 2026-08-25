@@ -304,6 +304,54 @@ impl Game {
         Ok(())
     }
 
+    /// Applies an action validated
+    /// against a legal-action list the caller just enumerated.
+    ///
+    /// `apply` validates with `is_legal_action`, which for an ordinary
+    /// action is `self.legal_actions(player).contains(action)` -- a full
+    /// re-enumeration. A search picks its move FROM that same list a moment
+    /// earlier, so every ply enumerates twice and throws one away.
+    /// Enumeration is the most expensive thing in the loop: profiled on
+    /// protocol 29, `legal_actions` is 28% of search time and `apply` another
+    /// 44%, over 44000 plies per episode.
+    ///
+    /// This is the same shortcut [`Self::apply_observed_action`] already
+    /// takes for callers holding a `PlayerObservation`, offered to callers
+    /// holding only the action list. A native search does not want to build
+    /// an observation for a ply it has no choice at, so it has the list but
+    /// not the observation.
+    ///
+    /// The caller must not mutate the game between enumerating `legal` and
+    /// this call, exactly as with `apply_observed_action`.
+    ///
+    /// `ChooseDecision` still goes through full validation: a decision
+    /// observation exposes a bounded selection schema rather than every
+    /// combination, so the submitted options have to be checked directly.
+    ///
+    /// # Errors
+    /// [`ActionError::NotLegal`] when `action` is not in `legal`, and
+    /// [`ActionError::GameAlreadyFinished`] after a result.
+    pub fn apply_enumerated(
+        &mut self,
+        player: PlayerId,
+        legal: &[Action],
+        action: Action,
+    ) -> Result<(), ActionError> {
+        if self.result.is_some() {
+            return Err(ActionError::GameAlreadyFinished);
+        }
+        let ok = if matches!(action, Action::ChooseDecision { .. }) {
+            self.is_legal_action(player, &action)
+        } else {
+            legal.contains(&action)
+        };
+        if !ok {
+            return Err(ActionError::NotLegal { player, action });
+        }
+        self.apply_legal_action(player, action);
+        Ok(())
+    }
+
     /// Applies an action chosen from an observation made immediately before
     /// this call. Synchronous engine runners can reuse that observation's
     /// enumerated actions instead of regenerating them in [`Self::apply`].

@@ -9,11 +9,11 @@ use crate::card::{
     CardPart, CardRules, CardSet, CardStructure, CardSupertype, CardType, CardTypeSet,
     ChoiceVisibilityDef, ChooseDef, ColorSet, ComparisonDef, ControlDurationDef, CounterKind,
     CreatureTypeSetDef, DamageEventMatcherDef, DamagePreventionDef, DamageRecipientMatcherDef,
-    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef,
-    LikelihoodDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PayOrDef, PlayOptionDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef, SpellForm, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, LikelihoodDef, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PayOrDef, PlayOptionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
+    SacrificedAmountDef, SpellForm, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{CardPartId, ObjectBindingIndex, PlayOptionId, TargetIndex};
 use crate::mana_cost;
@@ -318,29 +318,7 @@ pub(in crate::card::sets) static AETHERLING: CardRecord = CardRecord::new_with_l
         AbilityDef::activated(
             "{U}: Exile this creature. Return it to the battlefield under its owner's control at the beginning of the next end step.",
             &[AbilityCostDef::Mana(mana_cost!("{U}"))],
-            EffectDef::Sequence(&[
-                EffectDef::ExileLinkedToSource {
-                    object: EffectRecipientDef::Source,
-                },
-                // The next end step belongs to whoever's turn it is, which
-                // may well be the opponent.
-                EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-                    "At the beginning of the next end step, return the exiled cards to the battlefield under their owner's control.",
-                    TriggerEventDef::StepBegins {
-                        step: TurnStepDef::End,
-                        player: PlayerRelation::Any,
-                    },
-                    EffectDef::ReturnLinkedExiles {
-                        object: ObjectPredicateDef::Any,
-                        counters: None,
-                        arrival_effect: None,
-                        zone: ZoneKind::Battlefield,
-                        grant: None,
-                        controller: None,
-                        transformed: false,
-                    },
-                ))),
-            ]),
+            abilities::exile_until_next_end_step(EffectRecipientDef::Source),
         ),
         AbilityDef::activated(
             "{U}: This creature can't be blocked this turn.",

@@ -792,6 +792,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::DamageCannotBePreventedThisTurn
                     | EffectDef::GrantFlashToNextSorcery
                     | EffectDef::ExileLinkedToSource { .. }
+                    | EffectDef::ExileUntilNextEndStep { .. }
                     | EffectDef::MayPlayWithoutPaying { .. }
                     | EffectDef::ExileGrantingOwnerPlay { .. }
                     | EffectDef::ExileGrantingControllerPlayThisTurn { .. }

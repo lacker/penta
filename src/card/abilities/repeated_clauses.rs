@@ -5,27 +5,61 @@
 // card to say it does not re-derive it. Included textually into
 // `abilities.rs`, so the imports here are the parent module's.
 
-/// The delayed trigger shared by temporary exile effects such as
-/// Glimmerpoint Stag and Flickerwisp. The installing effect links the exiled
-/// objects to its source; `object` narrows which of those linked cards return.
+static RETURN_EXILE_AT_NEXT_END_STEP: AbilityDef = AbilityDef::triggered(
+    "At the beginning of the next end step, return the exiled card to the battlefield under its owner's control.",
+    TriggerEventDef::StepBegins {
+        step: TurnStepDef::End,
+        player: PlayerRelation::Any,
+    },
+    EffectDef::ReturnLinkedExiles {
+        object: ObjectPredicateDef::Any,
+        counters: None,
+        arrival_effect: None,
+        zone: ZoneKind::Battlefield,
+        grant: None,
+        controller: None,
+        transformed: false,
+    },
+);
+
+static RETURN_EXILE_AT_NEXT_END_STEP_UNDER_YOUR_CONTROL: AbilityDef = AbilityDef::triggered(
+    "At the beginning of the next end step, return the exiled card to the battlefield under your control.",
+    TriggerEventDef::StepBegins {
+        step: TurnStepDef::End,
+        player: PlayerRelation::Any,
+    },
+    EffectDef::ReturnLinkedExiles {
+        object: ObjectPredicateDef::Any,
+        counters: None,
+        arrival_effect: None,
+        zone: ZoneKind::Battlefield,
+        grant: None,
+        controller: Some(PlayerRelation::You),
+        transformed: false,
+    },
+);
+
+/// Exile one object and install the delayed trigger that returns it under its
+/// owner's control at the next end step. Linking, exile, and trigger
+/// installation are deliberately hidden from the caller.
 #[must_use]
-pub const fn return_linked_exiles_at_next_end_step(object: ObjectPredicateDef) -> AbilityDef {
-    AbilityDef::triggered(
-        "At the beginning of the next end step, return the exiled card to the battlefield under its owner's control.",
-        TriggerEventDef::StepBegins {
-            step: TurnStepDef::End,
-            player: PlayerRelation::Any,
-        },
-        EffectDef::ReturnLinkedExiles {
-            object,
-            counters: None,
-            arrival_effect: None,
-            zone: ZoneKind::Battlefield,
-            grant: None,
-            controller: None,
-            transformed: false,
-        },
-    )
+pub const fn exile_until_next_end_step(object: EffectRecipientDef) -> EffectDef {
+    EffectDef::ExileUntilNextEndStep {
+        object,
+        return_ability: &RETURN_EXILE_AT_NEXT_END_STEP,
+    }
+}
+
+/// Venser's variant of [`exile_until_next_end_step`], which returns the card
+/// under the effect controller's control instead of its owner's.
+#[must_use]
+pub const fn exile_until_next_end_step_under_your_control(
+    object: EffectRecipientDef,
+) -> EffectDef {
+    EffectDef::ExileUntilNextEndStep {
+        object,
+        return_ability: &RETURN_EXILE_AT_NEXT_END_STEP_UNDER_YOUR_CONTROL,
+    }
 }
 
 /// The outright win that replaces an empty-library draw. Keeping this as an

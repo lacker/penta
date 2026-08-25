@@ -228,6 +228,7 @@ fn validate_effect_references(
         | EffectDef::ChooseColor { object, .. }
         | EffectDef::BecomeCopyOf { object, .. }
         | EffectDef::ExileLinkedToSource { object }
+        | EffectDef::ExileUntilNextEndStep { object, .. }
         | EffectDef::ExileGrantingOwnerPlay { object, .. }
         | EffectDef::ExileGrantingControllerPlayThisTurn { object }
         | EffectDef::Detain { object }

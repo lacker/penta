@@ -812,6 +812,9 @@ fn collect_effect_abilities(effect: EffectDef, abilities: &mut Vec<&'static Abil
             collect_applied_abilities(applied, abilities);
         }
         EffectDef::InstallTrigger(installed) => abilities.push(installed.ability),
+        EffectDef::ExileUntilNextEndStep { return_ability, .. } => {
+            abilities.push(return_ability);
+        }
         EffectDef::CreateOngoingEffect(ongoing) => abilities.push(ongoing.ability),
         EffectDef::MayCastTargetWithoutPaying { ability, .. } => abilities.push(ability),
         _ => {}

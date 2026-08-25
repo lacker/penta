@@ -97,6 +97,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::GrantFlashToNextSorcery => "GrantFlashToNextSorcery",
         EffectDef::May { .. } => "May",
         EffectDef::ExileLinkedToSource { .. } => "ExileLinkedToSource",
+        EffectDef::ExileUntilNextEndStep { .. } => "ExileUntilNextEndStep",
         EffectDef::MayPlayWithoutPaying { .. } => "MayPlayWithoutPaying",
         EffectDef::ExileGrantingOwnerPlay { .. } => "ExileGrantingOwnerPlay",
         EffectDef::ExileGrantingControllerPlayThisTurn { .. } => "ExileToPlayThisTurn",

@@ -9,12 +9,12 @@ use crate::card::{
     CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorSet, ComparisonDef, ControlDurationDef,
     CountConditionDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamagePreventionDef,
     DestroyFollowUpDef, DiscardFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentCostDef,
-    EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostDef,
-    TokenCopyExceptionsDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostDef, TokenCopyExceptionsDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -281,14 +281,9 @@ pub(in crate::card::sets) static GLIMMERPOINT_STAG: CardRecord = CardRecord::new
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
             )],
-            EffectDef::Sequence(&[
-                EffectDef::ExileLinkedToSource {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                },
-                EffectDef::InstallTrigger(InstalledTriggerDef::once(
-                    &abilities::return_linked_exiles_at_next_end_step(ObjectPredicateDef::Any),
-                )),
-            ]),
+            abilities::exile_until_next_end_step(EffectRecipientDef::Target(
+                TargetIndex::PRIMARY,
+            )),
         ),
     ]),
 );
@@ -691,14 +686,7 @@ pub(in crate::card::sets) static ARGENT_SPHINX: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "Metalcraft — {U}: Exile this creature. Return it to the battlefield under its owner's control at the beginning of the next end step. Activate only if you control three or more artifacts.",
             &[AbilityCostDef::Mana(mana_cost!("{U}"))],
-            EffectDef::Sequence(&[
-                EffectDef::ExileLinkedToSource {
-                    object: EffectRecipientDef::Source,
-                },
-                EffectDef::InstallTrigger(InstalledTriggerDef::once(
-                    &abilities::return_linked_exiles_at_next_end_step(ObjectPredicateDef::Any),
-                )),
-            ]),
+            abilities::exile_until_next_end_step(EffectRecipientDef::Source),
         )
         .with_activation_condition(&METALCRAFT),
     ]),
@@ -3054,23 +3042,6 @@ pub(in crate::card::sets) static WITHSTAND_DEATH: CardRecord = CardRecord::new(
 );
 
 // SOM 135 — Venser, the Sojourner
-static VENSER_RETURNS_AT_NEXT_END_STEP: AbilityDef = AbilityDef::triggered(
-    "At the beginning of the next end step, return the exiled card to the battlefield under your control.",
-    TriggerEventDef::StepBegins {
-        step: TurnStepDef::End,
-        player: PlayerRelation::Any,
-    },
-    EffectDef::ReturnLinkedExiles {
-        object: ObjectPredicateDef::Any,
-        counters: None,
-        arrival_effect: None,
-        zone: ZoneKind::Battlefield,
-        grant: None,
-        controller: Some(PlayerRelation::You),
-        transformed: false,
-    },
-);
-
 static VENSER_EMBLEM_ABILITY: AbilityDef = AbilityDef::triggered_with_targets(
     "Whenever you cast a spell, exile target permanent.",
     TriggerEventDef::SpellCast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
@@ -3111,14 +3082,9 @@ pub(in crate::card::sets) static VENSER_THE_SOJOURNER: CardRecord = CardRecord::
                         owner: Some(PlayerRelation::You),
                     },
                 )],
-                EffectDef::Sequence(&[
-                    EffectDef::ExileLinkedToSource {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    },
-                    EffectDef::InstallTrigger(InstalledTriggerDef::once(
-                        &VENSER_RETURNS_AT_NEXT_END_STEP,
-                    )),
-                ]),
+                abilities::exile_until_next_end_step_under_your_control(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ),
             ),
             AbilityDef::activated(
                 "−1: Creatures you control can't be blocked this turn.",

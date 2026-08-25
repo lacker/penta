@@ -246,6 +246,7 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::Apply { .. }
         | EffectDef::May { .. }
         | EffectDef::ExileLinkedToSource { .. }
+        | EffectDef::ExileUntilNextEndStep { .. }
         | EffectDef::MayPlayWithoutPaying { .. }
         | EffectDef::ExileGrantingOwnerPlay { .. }
         | EffectDef::ExileGrantingControllerPlayThisTurn { .. }

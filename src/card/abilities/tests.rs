@@ -3,8 +3,9 @@ mod tests {
     use super::{
         banding, bloodrush, check_land_enters, dies_trigger, dies_trigger_matching,
         dies_trigger_with_targets, double_strike, enchant_creature, enters_trigger,
-        enters_trigger_with_targets, first_strike, flashback, flashback_for_card_mana_cost, flying,
-        intimidate, living_weapon, overload, pain_land, return_linked_exiles_at_next_end_step,
+        enters_trigger_with_targets, exile_until_next_end_step,
+        exile_until_next_end_step_under_your_control, first_strike, flashback,
+        flashback_for_card_mana_cost, flying, intimidate, living_weapon, overload, pain_land,
         shock_land_enters, tap_for, EQUIP_TARGET, equip,
     };
     use crate::card::{
@@ -141,9 +142,20 @@ mod tests {
             })
         );
 
-        let delayed = return_linked_exiles_at_next_end_step(ObjectPredicateDef::Any);
-        let DeclarativeAbilityDef::Triggered(trigger) = delayed.definition else {
-            panic!("the delayed return should be a triggered ability")
+        let blink = exile_until_next_end_step(EffectRecipientDef::Target(TargetIndex::PRIMARY));
+        let EffectDef::ExileUntilNextEndStep {
+            object,
+            return_ability,
+        } = blink
+        else {
+            panic!("the blink helper should own the complete exile-and-return clause")
+        };
+        assert_eq!(
+            object,
+            EffectRecipientDef::Target(TargetIndex::PRIMARY)
+        );
+        let DeclarativeAbilityDef::Triggered(trigger) = return_ability.definition else {
+            panic!("the nested return should be a triggered ability")
         };
         assert_eq!(
             trigger.event,
@@ -153,11 +165,29 @@ mod tests {
             }
         );
         assert!(matches!(
-            delayed.declarative_effect(),
+            return_ability.declarative_effect(),
             Some(EffectDef::ReturnLinkedExiles {
                 object: ObjectPredicateDef::Any,
                 zone: ZoneKind::Battlefield,
                 controller: None,
+                ..
+            })
+        ));
+
+        let controlled = exile_until_next_end_step_under_your_control(EffectRecipientDef::Source);
+        let EffectDef::ExileUntilNextEndStep {
+            object: EffectRecipientDef::Source,
+            return_ability,
+        } = controlled
+        else {
+            panic!("Venser's blink helper should use the same complete abstraction")
+        };
+        assert!(matches!(
+            return_ability.declarative_effect(),
+            Some(EffectDef::ReturnLinkedExiles {
+                object: ObjectPredicateDef::Any,
+                zone: ZoneKind::Battlefield,
+                controller: Some(PlayerRelation::You),
                 ..
             })
         ));

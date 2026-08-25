@@ -159,15 +159,6 @@ static TOUCH_EXILES_IT: [EffectDef; 2] = [
     EffectDef::InstallTrigger(InstalledTriggerDef::once(&TOUCH_RETURNS_IT)),
 ];
 
-static TOUCH_CHANNEL_EXILES_IT: [EffectDef; 2] = [
-    EffectDef::ExileLinkedToSource {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::InstallTrigger(InstalledTriggerDef::once(
-        &abilities::return_linked_exiles_at_next_end_step(ObjectPredicateDef::Any),
-    )),
-];
-
 static TOUCH_CHANNEL_COST: AbilityCostList = AbilityCostList::two(
     AbilityCostDef::Mana(mana_cost!("{1}{W}")),
     AbilityCostDef::DiscardSource,
@@ -193,7 +184,7 @@ pub(in crate::card::sets) static TOUCH_THE_SPIRIT_REALM: CardRecord = CardRecord
              the battlefield under its owner's control at the beginning of the next end step.",
             TOUCH_CHANNEL_COST,
             &ONE_ARTIFACT_OR_CREATURE,
-            EffectDef::Sequence(&TOUCH_CHANNEL_EXILES_IT),
+            abilities::exile_until_next_end_step(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
         )
         .with_source_zones(&[ZoneKind::Hand]),
     ]),

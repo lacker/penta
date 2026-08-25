@@ -6,10 +6,37 @@
 //! before an ordinary continuation loses the old object's identity.
 
 use super::super::{EffectResolutionContext, Game, ScopedEffect, StackObject, Target};
-use crate::card::{EffectDef, EffectRecipientDef};
+use crate::card::{EffectDef, EffectRecipientDef, InstalledTriggerDef};
 use crate::game::GameObjectId;
 
 impl Game {
+    pub(super) fn resolve_exile_until_next_end_step(
+        &mut self,
+        scoped: ScopedEffect,
+        object: &StackObject,
+        context: EffectResolutionContext,
+    ) {
+        let EffectDef::ExileUntilNextEndStep {
+            object: recipient,
+            return_ability,
+        } = scoped.effect
+        else {
+            return;
+        };
+        self.resolve_linked_exile_effect(
+            scoped.with_effect(EffectDef::ExileLinkedToSource { object: recipient }),
+            object,
+            &context,
+        );
+        self.resolve_effect_def(
+            scoped.with_effect(EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                return_ability,
+            ))),
+            object,
+            context,
+        );
+    }
+
     pub(super) fn resolve_linked_exile_effect(
         &mut self,
         scoped: ScopedEffect,

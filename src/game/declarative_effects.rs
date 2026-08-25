@@ -512,6 +512,9 @@ impl Game {
                     self.offer_granted_cast(object.controller, card, ability);
                 }
             }
+            EffectDef::ExileUntilNextEndStep { .. } => {
+                self.resolve_exile_until_next_end_step(scoped, object, context);
+            }
             EffectDef::ExileLinkedToSource { .. }
             | EffectDef::ExileGrantingOwnerPlay { .. }
             | EffectDef::ExileGrantingControllerPlayThisTurn { .. }

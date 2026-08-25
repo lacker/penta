@@ -319,6 +319,10 @@ impl HandcraftedPolicy {
             EffectDef::SplitIntoPiles(partition) => Self::effect_is_a_wash(*partition.then),
             EffectDef::ExileLinkedToSource {
                 object: EffectRecipientDef::Source,
+            }
+            | EffectDef::ExileUntilNextEndStep {
+                object: EffectRecipientDef::Source,
+                ..
             } => true,
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,

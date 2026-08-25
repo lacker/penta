@@ -319,6 +319,7 @@ fn validate_effect_target_shapes(
         | EffectDef::ChooseColor { object, .. }
         | EffectDef::BecomeCopyOf { object, .. }
         | EffectDef::ExileLinkedToSource { object }
+        | EffectDef::ExileUntilNextEndStep { object, .. }
         | EffectDef::ExileGrantingOwnerPlay { object, .. }
         | EffectDef::ExileGrantingControllerPlayThisTurn { object }
         | EffectDef::GainControl { object, .. }

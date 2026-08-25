@@ -383,6 +383,14 @@ pub enum EffectDef {
     ExileLinkedToSource {
         object: EffectRecipientDef,
     },
+    /// Exile the recipient, link the new card to this effect's source, and
+    /// install the one-shot delayed trigger that returns it at the next end
+    /// step. The return ability is carried inside the abstraction so callers
+    /// name only the object being blinked.
+    ExileUntilNextEndStep {
+        object: EffectRecipientDef,
+        return_ability: &'static AbilityDef,
+    },
     /// Exiles, and leaves the card's own owner able to play it from there
     /// for as long as it stays exiled -- for a surcharge, which is what
     /// distinguishes the clause from plain theft.

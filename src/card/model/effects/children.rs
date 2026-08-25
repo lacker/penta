@@ -103,6 +103,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::DrawCards { .. }
         | EffectDef::EmptyManaPool { .. }
         | EffectDef::ExileLinkedToSource { .. }
+        | EffectDef::ExileUntilNextEndStep { .. }
         | EffectDef::MayPlayWithoutPaying { .. }
         | EffectDef::ExileGrantingOwnerPlay { .. }
         | EffectDef::ExileGrantingControllerPlayThisTurn { .. }

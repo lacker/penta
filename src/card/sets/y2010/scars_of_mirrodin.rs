@@ -4,12 +4,13 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef, CountConditionDef,
+    AddManaEffectDef, AppliedEffectDef, BasicLandType, BattlefieldEntryModificationDef, CardArt,
+    CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef,
+    CountConditionDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef,
     DiscardSelectionDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef,
-    PlayerRelation, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -21,36 +22,120 @@ static FAST_LAND_ENTERS: AbilityDef = abilities::fast_land_enters(
     "This land enters tapped unless you control two or fewer other lands.",
 );
 
+static ARTIFACTS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::HasType(CardType::Artifact),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::You,
+);
+
+static METALCRAFT: TriggerConditionDef = TriggerConditionDef::ObjectCount {
+    query: ARTIFACTS_YOU_CONTROL,
+    comparison: ComparisonDef::GreaterOrEqual,
+    amount: 3,
+};
+
+/// Metalcraft: an amount rather than a second effect, which is what
+/// "instead" means. Read as the spell resolves, so an artifact that left in
+/// response takes the four with it.
+static METALCRAFT_DAMAGE: CountConditionDef = CountConditionDef {
+    query: ARTIFACTS_YOU_CONTROL,
+    comparison: ComparisonDef::GreaterOrEqual,
+    amount: 3,
+    then: ValueDef::Constant(4),
+    otherwise: ValueDef::Constant(2),
+};
+
+static ALL_CREATURES: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::HasType(CardType::Creature),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::Any,
+);
+
 // SOM 1 — Abuna Acolyte
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ABUNA_ACOLYTE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9e17bbf7-00c0-46f2-9718-2762fd7388d3"),
     "Abuna Acolyte",
     crate::card::CardArt::new("9e17bbf7-00c0-46f2-9718-2762fd7388d3", "Igor Kieryluk"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Cat", "Cleric"], 1, 1).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "{T}: Prevent the next 1 damage that would be dealt to any target this turn.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::PreventDamage {
+                prevention: DamagePreventionDef::amount(
+                    DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "{T}: Prevent the next 2 damage that would be dealt to target artifact creature this turn.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                ObjectPredicateDef::HasType(CardType::Creature),
+            ]))],
+            EffectDef::PreventDamage {
+                prevention: DamagePreventionDef::amount(
+                    DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // SOM 2 — Arrest (reprint)
 
 // SOM 3 — Auriok Edgewright
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static AURIOK_EDGEWRIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0f76b18a-396b-41f5-b34b-ac232b7f316b"),
     "Auriok Edgewright",
     crate::card::CardArt::new("0f76b18a-396b-41f5-b34b-ac232b7f316b", "Mike Bierek"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{W}{W}"), &["Human", "Soldier"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "Metalcraft — This creature has double strike as long as you control three or more artifacts.",
+            EffectDef::IfCondition {
+                condition: &METALCRAFT,
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&abilities::double_strike()),
+                },
+            },
+        ),
+    ),
 );
 
 // SOM 4 — Auriok Sunchaser
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static AURIOK_SUNCHASER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e274a8b3-2d92-43d9-a436-d3f6f619ca95"),
     "Auriok Sunchaser",
     crate::card::CardArt::new("e274a8b3-2d92-43d9-a436-d3f6f619ca95", "James Ryman"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Soldier"], 1, 1).with_ability(
+        AbilityDef::static_ability(
+            "Metalcraft — As long as you control three or more artifacts, this creature gets +2/+2 and has flying.",
+            EffectDef::IfCondition {
+                condition: &METALCRAFT,
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::flying()),
+                    ]),
+                },
+            },
+        ),
+    ),
 );
 
 // SOM 5 — Dispense Justice
@@ -84,13 +169,26 @@ pub(in crate::card::sets) static FULGENT_DISTRACTION: CardRecord = CardRecord::n
 );
 
 // SOM 8 — Ghalma's Warden
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static GHALMA_S_WARDEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("efbf5ff1-6539-4116-ad4f-ce412ae20640"),
     "Ghalma's Warden",
     crate::card::CardArt::new("efbf5ff1-6539-4116-ad4f-ce412ae20640", "Mike Bierek"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Elephant", "Soldier"], 2, 4).with_ability(
+        AbilityDef::static_ability(
+            "Metalcraft — This creature gets +2/+2 as long as you control three or more artifacts.",
+            EffectDef::IfCondition {
+                condition: &METALCRAFT,
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                },
+            },
+        ),
+    ),
 );
 
 // SOM 9 — Glimmerpoint Stag
@@ -114,13 +212,28 @@ pub(in crate::card::sets) static GLINT_HAWK: CardRecord = CardRecord::new(
 );
 
 // SOM 11 — Indomitable Archangel
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static INDOMITABLE_ARCHANGEL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a50e72a2-1e94-43cf-a605-bf3bb456d12f"),
     "Indomitable Archangel",
     crate::card::CardArt::new("a50e72a2-1e94-43cf-a605-bf3bb456d12f", "Allen Williams"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Angel"], 4, 4).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "Metalcraft — Artifacts you control have shroud as long as you control three or more artifacts.",
+            EffectDef::IfCondition {
+                condition: &METALCRAFT,
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::add_ability(&abilities::shroud()),
+                },
+            },
+        ),
+    ]),
 );
 
 // SOM 12 — Kemba, Kha Regent
@@ -264,13 +377,29 @@ pub(in crate::card::sets) static SOUL_PARRY: CardRecord = CardRecord::new(
 );
 
 // SOM 22 — Sunblast Angel
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SUNBLAST_ANGEL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("32217d3b-8a44-40e3-a4fd-c849fdffc1e4"),
     "Sunblast Angel",
     crate::card::CardArt::new("32217d3b-8a44-40e3-a4fd-c849fdffc1e4", "Jason Chan"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{W}{W}"), &["Angel"], 4, 5).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, destroy all tapped creatures.",
+            EffectDef::Destroy {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Tapped,
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                can_regenerate: true,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // SOM 23 — Sunspear Shikari
@@ -445,13 +574,16 @@ pub(in crate::card::sets) static HALT_ORDER: CardRecord = CardRecord::new(
 );
 
 // SOM 35 — Inexorable Tide
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static INEXORABLE_TIDE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8f41e281-fcbb-450b-8a67-7b072c55c6f0"),
     "Inexorable Tide",
     crate::card::CardArt::new("8f41e281-fcbb-450b-8a67-7b072c55c6f0", "Dave Kendall"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{3}{U}{U}")).with_ability(AbilityDef::triggered(
+        "Whenever you cast a spell, proliferate.",
+        TriggerEventDef::SpellCast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
+        EffectDef::Proliferate,
+    )),
 );
 
 // SOM 36 — Lumengrid Drake
@@ -563,13 +695,21 @@ pub(in crate::card::sets) static SKY_EEL_SCHOOL: CardRecord = CardRecord::new(
 );
 
 // SOM 45 — Steady Progress
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static STEADY_PROGRESS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6fe212ed-31cb-4f10-8ba7-e97af1d30d24"),
     "Steady Progress",
     crate::card::CardArt::new("6fe212ed-31cb-4f10-8ba7-e97af1d30d24", "Efrem Palacios"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell(
+        "Proliferate.\nDraw a card.",
+        EffectDef::Sequence(&[
+            EffectDef::Proliferate,
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
+    )),
 );
 
 // SOM 46 — Stoic Rebuttal
@@ -583,13 +723,20 @@ pub(in crate::card::sets) static STOIC_REBUTTAL: CardRecord = CardRecord::new(
 );
 
 // SOM 47 — Thrummingbird
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static THRUMMINGBIRD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dc2dd336-e457-49a1-88ae-c35f0c846e99"),
     "Thrummingbird",
     crate::card::CardArt::new("dc2dd336-e457-49a1-88ae-c35f0c846e99", "Efrem Palacios"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Phyrexian", "Bird", "Horror"], 1, 1)
+        .with_abilities(&[
+            abilities::flying(),
+            AbilityDef::triggered(
+                "Whenever this creature deals combat damage to a player, proliferate.",
+                TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+                EffectDef::Proliferate,
+            ),
+        ]),
 );
 
 // SOM 48 — Trinket Mage
@@ -742,13 +889,29 @@ pub(in crate::card::sets) static CORRUPTED_HARVESTER: CardRecord = CardRecord::n
 );
 
 // SOM 60 — Dross Hopper
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static DROSS_HOPPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1a0656f6-a016-479a-a003-72e106e986b0"),
     "Dross Hopper",
     crate::card::CardArt::new("1a0656f6-a016-479a-a003-72e106e986b0", "Dave Allsop"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{1}{B}"),
+        &["Phyrexian", "Insect", "Horror"],
+        2,
+        1,
+    )
+    .with_ability(AbilityDef::activated(
+        "Sacrifice a creature: This creature gains flying until end of turn.",
+        &[AbilityCostDef::SacrificePermanent {
+            object: ObjectPredicateDef::HasType(CardType::Creature),
+            controller: PlayerRelation::You,
+        }],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Source,
+            effect: AppliedEffectDef::add_ability(&abilities::flying()),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // SOM 61 — Exsanguinate
@@ -996,13 +1159,35 @@ pub(in crate::card::sets) static SKINRENDER: CardRecord = CardRecord::new(
 );
 
 // SOM 79 — Skithiryx, the Blight Dragon
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SKITHIRYX_THE_BLIGHT_DRAGON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c930c9cc-1b64-4f36-afe2-6bf120a74ce2"),
     "Skithiryx, the Blight Dragon",
     crate::card::CardArt::new("c930c9cc-1b64-4f36-afe2-6bf120a74ce2", "Chippy"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{3}{B}{B}"),
+        &["Phyrexian", "Dragon", "Skeleton"],
+        4,
+        4,
+    )
+    .with_supertype(CardSupertype::Legendary)
+    .with_abilities(&[
+        abilities::flying(),
+        abilities::infect(),
+        AbilityDef::activated(
+            "{B}: Skithiryx gains haste until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::regenerate_self(
+            "{B}{B}: Regenerate Skithiryx.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}{B}"))],
+        ),
+    ]),
 );
 
 // SOM 80 — Tainted Strike
@@ -1060,13 +1245,30 @@ pub(in crate::card::sets) static ASSAULT_STROBE: CardRecord = CardRecord::new(
 );
 
 // SOM 83 — Barrage Ogre
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static BARRAGE_OGRE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e02c6f71-2448-47e1-9133-7af6a4d4577a"),
     "Barrage Ogre",
     crate::card::CardArt::new("e02c6f71-2448-47e1-9133-7af6a4d4577a", "David Rapoza"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Ogre", "Warrior"], 3, 3).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}, Sacrifice an artifact: This creature deals 2 damage to any target.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ),
 );
 
 // SOM 84 — Blade-Tribe Berserkers
@@ -1110,13 +1312,31 @@ pub(in crate::card::sets) static EMBERSMITH: CardRecord = CardRecord::new(
 );
 
 // SOM 88 — Ferrovore
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static FERROVORE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8dcc7170-38d9-4b9e-a5f9-73ac1208c439"),
     "Ferrovore",
     crate::card::CardArt::new("8dcc7170-38d9-4b9e-a5f9-73ac1208c439", "Austin Hsu"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Beast"], 2, 2).with_ability(
+        AbilityDef::activated(
+            "{R}, Sacrifice an artifact: This creature gets +3/+0 until end of turn.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{R}")),
+                AbilityCostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(3),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // SOM 89 — Flameborn Hellion
@@ -1140,23 +1360,6 @@ pub(in crate::card::sets) static FURNACE_CELEBRATION: CardRecord = CardRecord::n
     crate::card::CardSet::ScarsOfMirrodin,
     crate::card::CardRules::unsupported(),
 );
-
-static ARTIFACTS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Artifact),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
-/// Metalcraft: an amount rather than a second effect, which is what
-/// "instead" means. Read as the spell resolves, so an artifact that left in
-/// response takes the four with it.
-static METALCRAFT_DAMAGE: CountConditionDef = CountConditionDef {
-    query: ARTIFACTS_YOU_CONTROL,
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 3,
-    then: ValueDef::Constant(4),
-    otherwise: ValueDef::Constant(2),
-};
 
 // SOM 91 — Galvanic Blast
 pub(in crate::card::sets) static GALVANIC_BLAST: CardRecord = CardRecord::new(
@@ -1260,13 +1463,25 @@ pub(in crate::card::sets) static OGRE_GEARGRABBER: CardRecord = CardRecord::new(
 );
 
 // SOM 100 — Oxidda Daredevil
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static OXIDDA_DAREDEVIL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4b0bde7b-dc2d-45d2-b124-69b4b51ef3d9"),
     "Oxidda Daredevil",
     crate::card::CardArt::new("4b0bde7b-dc2d-45d2-b124-69b4b51ef3d9", "Pete Venters"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin", "Artificer"], 2, 1).with_ability(
+        AbilityDef::activated(
+            "Sacrifice an artifact: This creature gains haste until end of turn.",
+            &[AbilityCostDef::SacrificePermanent {
+                object: ObjectPredicateDef::HasType(CardType::Artifact),
+                controller: PlayerRelation::You,
+            }],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // SOM 101 — Oxidda Scrapmelter
@@ -1413,23 +1628,47 @@ pub(in crate::card::sets) static BLIGHT_MAMBA: CardRecord = CardRecord::new(
 );
 
 // SOM 113 — Blunt the Assault
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static BLUNT_THE_ASSAULT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6ecff12a-37d5-4a7b-b615-4c5e3bd950bb"),
     "Blunt the Assault",
     crate::card::CardArt::new("6ecff12a-37d5-4a7b-b615-4c5e3bd950bb", "Matt Stewart"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{3}{G}")).with_ability(AbilityDef::spell(
+        "You gain 1 life for each creature on the battlefield. Prevent all combat damage that would be dealt this turn.",
+        EffectDef::Sequence(&[
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::CountMatchingObjects(&ALL_CREATURES),
+            },
+            EffectDef::PreventDamage {
+                prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::COMBAT),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ]),
+    )),
 );
 
 // SOM 114 — Carapace Forger
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CARAPACE_FORGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e9948e4c-d583-4fde-a305-df926cf00199"),
     "Carapace Forger",
     crate::card::CardArt::new("e9948e4c-d583-4fde-a305-df926cf00199", "Matt Cavotta"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Elf", "Artificer"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "Metalcraft — This creature gets +2/+2 as long as you control three or more artifacts.",
+            EffectDef::IfCondition {
+                condition: &METALCRAFT,
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                },
+            },
+        ),
+    ),
 );
 
 // SOM 115 — Carrion Call
@@ -1561,13 +1800,27 @@ pub(in crate::card::sets) static MOLDER_BEAST: CardRecord = CardRecord::new(
 );
 
 // SOM 126 — Putrefax
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PUTREFAX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b2b2c3f9-a831-4fd2-80e8-b67b0df3e98b"),
     "Putrefax",
     crate::card::CardArt::new("b2b2c3f9-a831-4fd2-80e8-b67b0df3e98b", "Steven Belledin"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Phyrexian", "Horror"], 5, 3)
+        .with_abilities(&[
+            abilities::trample(),
+            abilities::haste(),
+            abilities::infect(),
+            AbilityDef::triggered(
+                "At the beginning of the end step, sacrifice this creature.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::End,
+                    player: PlayerRelation::Any,
+                },
+                EffectDef::Sacrifice {
+                    object: EffectRecipientDef::Source,
+                },
+            ),
+        ]),
 );
 
 // SOM 127 — Slice in Twain
@@ -1979,13 +2232,36 @@ pub(in crate::card::sets) static GOLD_MYR: CardRecord = CardRecord::new(
 );
 
 // SOM 158 — Golden Urn
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static GOLDEN_URN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ec7abeca-da01-4962-b107-dd7a77469753"),
     "Golden Urn",
     crate::card::CardArt::new("ec7abeca-da01-4962-b107-dd7a77469753", "Charles Urbach"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, you may put a charge counter on this artifact.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::named("charge"),
+                    amount: ValueDef::Constant(1),
+                },
+            },
+        ),
+        AbilityDef::activated(
+            "{T}, Sacrifice this artifact: You gain life equal to the number of charge counters on this artifact.",
+            &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::CountersOnSource(CounterKind::named("charge")),
+            },
+        ),
+    ]),
 );
 
 // SOM 159 — Golem Artisan
@@ -2038,13 +2314,35 @@ pub(in crate::card::sets) static GRAFTED_EXOSKELETON: CardRecord = CardRecord::n
 );
 
 // SOM 163 — Grindclock
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static GRINDCLOCK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a6df2e7f-e46e-4808-8125-42a3aa66377c"),
     "Grindclock",
     crate::card::CardArt::new("a6df2e7f-e46e-4808-8125-42a3aa66377c", "Nils Hamm"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        AbilityDef::activated(
+            "{T}: Put a charge counter on this artifact.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::named("charge"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "{T}: Target player mills X cards, where X is the number of charge counters on this artifact.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+                PlayerRelation::Any,
+            ))],
+            EffectDef::Mill {
+                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::CountersOnSource(CounterKind::named("charge")),
+                binding: None,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // SOM 164 — Heavy Arbalest
@@ -2160,13 +2458,40 @@ pub(in crate::card::sets) static LIVEWIRE_LASH: CardRecord = CardRecord::new(
 );
 
 // SOM 173 — Lux Cannon
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static LUX_CANNON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("95e274ea-e8f6-48ea-a877-c84b77c96d0c"),
     "Lux Cannon",
     crate::card::CardArt::new("95e274ea-e8f6-48ea-a877-c84b77c96d0c", "Martina Pilcerova"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
+        AbilityDef::activated(
+            "{T}: Put a charge counter on this artifact.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::named("charge"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "{T}, Remove three charge counters from this artifact: Destroy target permanent.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("charge"),
+                    amount: 3,
+                },
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Any,
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                can_regenerate: true,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // SOM 174 — Memnite
@@ -2222,15 +2547,7 @@ pub(in crate::card::sets) static MORIOK_REPLICA: CardRecord = CardRecord::new(
 );
 
 // SOM 179 — Mox Opal
-/// The same three artifacts Galvanic Blast counts, asked as a gate rather
-/// than as an amount. The Mox is one of them: it counts itself, which is
-/// what makes two other artifacts enough.
-static METALCRAFT: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: ARTIFACTS_YOU_CONTROL,
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 3,
-};
-
+/// The Mox counts itself, which is what makes two other artifacts enough.
 static MOX_OPAL_TAP: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
 
 pub(in crate::card::sets) static MOX_OPAL: CardRecord = CardRecord::new(
@@ -2364,13 +2681,39 @@ pub(in crate::card::sets) static MYR_RESERVOIR: CardRecord = CardRecord::new(
 );
 
 // SOM 184 — Necrogen Censer
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static NECROGEN_CENSER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4f707119-ede9-4697-b723-d6cea96e6f2b"),
     "Necrogen Censer",
     crate::card::CardArt::new("4f707119-ede9-4697-b723-d6cea96e6f2b", "Pete Venters"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "This artifact enters with two charge counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::named("charge"),
+                    amount: 2,
+                },
+            ),
+        ),
+        AbilityDef::activated_with_targets(
+            "{T}, Remove a charge counter from this artifact: Target player loses 2 life.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("charge"),
+                    amount: 1,
+                },
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ]),
 );
 
 // SOM 185 — Necropede
@@ -2721,73 +3064,306 @@ pub(in crate::card::sets) static TOWER_OF_CALAMITIES: CardRecord = CardRecord::n
 );
 
 // SOM 213 — Trigon of Corruption
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static TRIGON_OF_CORRUPTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("26e215e0-836c-4b37-8f9a-9093a535bff1"),
     "Trigon of Corruption",
     crate::card::CardArt::new("26e215e0-836c-4b37-8f9a-9093a535bff1", "Nils Hamm"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "This artifact enters with three charge counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::named("charge"),
+                    amount: 3,
+                },
+            ),
+        ),
+        AbilityDef::activated(
+            "{B}{B}, {T}: Put a charge counter on this artifact.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{B}{B}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::named("charge"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "{2}, {T}, Remove a charge counter from this artifact: Put a -1/-1 counter on target creature.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("charge"),
+                    amount: 1,
+                },
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::MinusOneMinusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // SOM 214 — Trigon of Infestation
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static TRIGON_OF_INFESTATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("be409a80-846c-4883-8aee-c2e3f973fc0f"),
     "Trigon of Infestation",
     crate::card::CardArt::new("be409a80-846c-4883-8aee-c2e3f973fc0f", "Dave Allsop"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "This artifact enters with three charge counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::named("charge"),
+                    amount: 3,
+                },
+            ),
+        ),
+        AbilityDef::activated(
+            "{G}{G}, {T}: Put a charge counter on this artifact.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{G}{G}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::named("charge"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated(
+            "{2}, {T}, Remove a charge counter from this artifact: Create a 1/1 green Phyrexian Insect creature token with infect.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("charge"),
+                    amount: 1,
+                },
+            ],
+            EffectDef::create_creature_token(
+                &["Phyrexian", "Insect"],
+                &[ManaColor::Green],
+                1,
+                1,
+            )
+            .with_abilities(&[abilities::infect()]),
+        ),
+    ]),
 );
 
 // SOM 215 — Trigon of Mending
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static TRIGON_OF_MENDING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("241142e0-3a79-4bce-8535-18ae7e392f5e"),
     "Trigon of Mending",
     crate::card::CardArt::new("241142e0-3a79-4bce-8535-18ae7e392f5e", "Igor Kieryluk"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "This artifact enters with three charge counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::named("charge"),
+                    amount: 3,
+                },
+            ),
+        ),
+        AbilityDef::activated(
+            "{W}{W}, {T}: Put a charge counter on this artifact.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{W}{W}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::named("charge"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "{2}, {T}, Remove a charge counter from this artifact: Target player gains 3 life.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("charge"),
+                    amount: 1,
+                },
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(3),
+            },
+        ),
+    ]),
 );
 
 // SOM 216 — Trigon of Rage
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static TRIGON_OF_RAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1135f3b7-8c6b-47ff-b895-b7127836b0bf"),
     "Trigon of Rage",
     crate::card::CardArt::new("1135f3b7-8c6b-47ff-b895-b7127836b0bf", "Marc Simonetti"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "This artifact enters with three charge counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::named("charge"),
+                    amount: 3,
+                },
+            ),
+        ),
+        AbilityDef::activated(
+            "{R}{R}, {T}: Put a charge counter on this artifact.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{R}{R}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::named("charge"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "{2}, {T}, Remove a charge counter from this artifact: Target creature gets +3/+0 until end of turn.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("charge"),
+                    amount: 1,
+                },
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(3),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // SOM 217 — Trigon of Thought
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static TRIGON_OF_THOUGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f8da37ba-52e3-417e-8d7b-6c3e060552a4"),
     "Trigon of Thought",
     crate::card::CardArt::new("f8da37ba-52e3-417e-8d7b-6c3e060552a4", "Mike Bierek"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{5}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "This artifact enters with three charge counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::named("charge"),
+                    amount: 3,
+                },
+            ),
+        ),
+        AbilityDef::activated(
+            "{U}{U}, {T}: Put a charge counter on this artifact.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{U}{U}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::named("charge"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated(
+            "{2}, {T}, Remove a charge counter from this artifact: Draw a card.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("charge"),
+                    amount: 1,
+                },
+            ],
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // SOM 218 — Tumble Magnet
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static TUMBLE_MAGNET: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e6478389-15be-405f-b755-108c942d72ec"),
     "Tumble Magnet",
     crate::card::CardArt::new("e6478389-15be-405f-b755-108c942d72ec", "Drew Baker"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "This artifact enters with three charge counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::named("charge"),
+                    amount: 3,
+                },
+            ),
+        ),
+        AbilityDef::activated_with_targets(
+            "{T}, Remove a charge counter from this artifact: Tap target artifact or creature.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("charge"),
+                    amount: 1,
+                },
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                ]),
+            )],
+            EffectDef::Tap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ]),
 );
 
 // SOM 219 — Vector Asp
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static VECTOR_ASP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7ffe86e1-ad47-4ccb-aa55-119dc681d370"),
     "Vector Asp",
     crate::card::CardArt::new("7ffe86e1-ad47-4ccb-aa55-119dc681d370", "Erica Yang"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{1}"), &["Phyrexian", "Snake"], 1, 1)
+        .with_ability(AbilityDef::activated(
+            "{B}: This creature gains infect until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&abilities::infect()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )),
 );
 
 // SOM 220 — Venser's Journal
@@ -2913,13 +3489,29 @@ pub(in crate::card::sets) static DARKSLICK_SHORES: CardRecord = CardRecord::new_
 );
 
 // SOM 227 — Glimmerpost
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static GLIMMERPOST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8b63efb6-249c-4f57-9af1-baffe938520c"),
     "Glimmerpost",
     crate::card::CardArt::new("8b63efb6-249c-4f57-9af1-baffe938520c", "Matt Cavotta"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&["Locus"]).with_abilities(&[
+        abilities::enters_trigger(
+            "When this land enters, you gain 1 life for each Locus on the battlefield.",
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::Subtype("Locus"),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                )),
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {C}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+        ),
+    ]),
 );
 
 // SOM 228 — Razorverge Thicket

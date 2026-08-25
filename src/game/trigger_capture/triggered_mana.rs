@@ -75,7 +75,9 @@ EffectDef::ReduceGenericCostBy(_) | EffectDef::ModifyCost(_) |
 EffectDef::LandwalkCanBeBlocked(_) | EffectDef::CannotAttackUnless(_) |
 EffectDef::CannotAttackIf(_) | EffectDef::PutIntoLibraryBeneathTop { .. } |
 EffectDef::MoveToZone { .. } |
-EffectDef::Attachment(_) | EffectDef::PhaseOut { .. } |
+EffectDef::Attach { .. } | EffectDef::AttachToSource { .. } |
+EffectDef::PairWithSource { .. } | EffectDef::Reconfigure { .. } |
+EffectDef::Unattach { .. } | EffectDef::PhaseOut { .. } |
 EffectDef::CreateToken { .. } | EffectDef::CreateAttachedToken { .. } |
 EffectDef::CreateTokenCopyOf { .. } | EffectDef::Endure { .. } |
 EffectDef::CreateMyriadTokens |

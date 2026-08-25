@@ -218,13 +218,11 @@ fn validate_effect_references(
         | EffectDef::RemoveAllCounters { object, .. }
         | EffectDef::Untap { object }
         | EffectDef::Saddle { object }
-        | EffectDef::Attachment(
-            AttachmentDef::Attach { object }
-            | AttachmentDef::AttachToSource { object }
-            | AttachmentDef::Reconfigure { object }
-            | AttachmentDef::Unattach { object }
-            | AttachmentDef::PairWithSource { object },
-        )
+        | EffectDef::Attach { object }
+        | EffectDef::AttachToSource { object }
+        | EffectDef::Reconfigure { object }
+        | EffectDef::Unattach { object }
+        | EffectDef::PairWithSource { object }
         | EffectDef::PhaseOut { object }
         | EffectDef::Destroy {
             object, then: None, ..

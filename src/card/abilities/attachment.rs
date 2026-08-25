@@ -46,9 +46,9 @@ pub const fn aura_spell(text: &'static str, targets: &'static [AbilityTargetDef]
     AbilityDef::spell_with_targets(
         text,
         targets,
-        EffectDef::Attachment(AttachmentDef::Attach{
+        EffectDef::Attach {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        }),
+        },
     )
 }
 
@@ -170,9 +170,9 @@ pub const fn equip(costs: &'static [AbilityCostDef], text: &'static str) -> Abil
         text,
         AbilityCostList::borrowed(costs),
         &EQUIP_TARGET,
-        EffectDef::Attachment(AttachmentDef::Attach{
+        EffectDef::Attach {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        }),
+        },
     )
     .with_activation_timing(ActivationTimingDef::SorcerySpeed)
 }
@@ -189,9 +189,9 @@ static SOULBOND_PARTNER: ObjectSetDef = ObjectSetDef::Query(ObjectQueryDef::cont
     PlayerSetDef::Related(PlayerRelation::You),
 ));
 
-static SOULBOND_PAIR: EffectDef = EffectDef::Attachment(AttachmentDef::PairWithSource{
+static SOULBOND_PAIR: EffectDef = EffectDef::PairWithSource {
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-});
+};
 
 /// The optional pairing choice both halves of soulbond offer. Zero is a legal
 /// number to choose, which is how "you may" is expressed.
@@ -261,9 +261,9 @@ pub const fn fortify(mana_cost: ManaCost, text: &'static str) -> AbilityDef {
         text,
         AbilityCostList::one(AbilityCostDef::Mana(mana_cost)),
         &FORTIFY_TARGET,
-        EffectDef::Attachment(AttachmentDef::Attach{
+        EffectDef::Attach {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        }),
+        },
     )
     .with_activation_timing(ActivationTimingDef::SorcerySpeed)
 }
@@ -327,9 +327,9 @@ pub const fn reconfigure(mana_cost: ManaCost, text: &'static str) -> AbilityDef 
         text,
         AbilityCostList::one(AbilityCostDef::Mana(mana_cost)),
         &RECONFIGURE_TARGET,
-        EffectDef::Attachment(AttachmentDef::Reconfigure{
+        EffectDef::Reconfigure {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        }),
+        },
     )
     .with_activation_timing(ActivationTimingDef::SorcerySpeed)
 }

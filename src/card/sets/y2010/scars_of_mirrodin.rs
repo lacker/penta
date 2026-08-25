@@ -4,17 +4,17 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    ActivationTimingDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, AttachmentDef,
-    BasicLandType, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorSet, ComparisonDef,
-    ControlDurationDef, CountConditionDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef,
-    DamagePreventionDef, DestroyFollowUpDef, DiscardFollowUpDef, DiscardSelectionDef, EffectDef,
-    EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostDef,
-    TokenCopyExceptionsDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    ActivationTimingDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
+    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorSet, ComparisonDef, ControlDurationDef,
+    CountConditionDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamagePreventionDef,
+    DestroyFollowUpDef, DiscardFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentCostDef,
+    EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostDef, TokenCopyExceptionsDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -1174,9 +1174,9 @@ pub(in crate::card::sets) static VOLITION_REINS: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::Any,
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach {
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             AbilityDef::triggered_if(
                 "When this Aura enters, if enchanted permanent is tapped, untap it.",
@@ -1748,9 +1748,9 @@ pub(in crate::card::sets) static RELIC_PUTRESCENCE: CardRecord = CardRecord::new
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Artifact),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach {
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             AbilityDef::triggered(
                 "Whenever enchanted artifact becomes tapped, its controller gets a poison counter.",

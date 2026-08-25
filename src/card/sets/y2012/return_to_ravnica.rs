@@ -4,9 +4,9 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::{y1993::alpha, y1999::mercadian_masques as mmq, y2012::magic_2013};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, AttachmentDef, BasicLandType, CardArt,
-    CardBehavior, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ColorSet,
-    ComparisonDef, ControlDurationDef, CostModificationDef, CounterKind, CreatureTypeSetDef,
+    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardBehavior,
+    CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ColorSet, ComparisonDef,
+    ControlDurationDef, CostModificationDef, CounterKind, CreatureTypeSetDef,
     DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
     EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
@@ -373,9 +373,9 @@ pub(in crate::card::sets) static KNIGHTLY_VALOR: CardRecord = CardRecord::new_wi
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach {
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             abilities::enters_trigger(
                 "When this Aura enters, create a 2/2 white Knight creature token with vigilance.",
@@ -1194,9 +1194,9 @@ pub(in crate::card::sets) static PARALYZING_GRASP: CardRecord = CardRecord::new_
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach {
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             AbilityDef::static_ability(
                 "Enchanted creature doesn't untap during its controller's untap step.",
@@ -1573,9 +1573,9 @@ pub(in crate::card::sets) static DEVIANT_GLEE: CardRecord = CardRecord::new_with
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach{
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             AbilityDef::static_ability(
                 "Enchanted creature gets +2/+1 and has \"{R}: This creature gains trample until end of turn.\"",
@@ -1942,9 +1942,9 @@ pub(in crate::card::sets) static UNDERWORLD_CONNECTIONS: CardRecord =
                             owner: None,
                         },
                     )],
-                    EffectDef::Attachment(AttachmentDef::Attach {
+                    EffectDef::Attach {
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    }),
+                    },
                 ),
                 AbilityDef::static_ability(
                     "Enchanted land has \"{T}, Pay 1 life: Draw a card.\"",
@@ -2364,9 +2364,9 @@ pub(in crate::card::sets) static PURSUIT_OF_FLIGHT: CardRecord = CardRecord::new
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach{
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             AbilityDef::static_ability(
                 "Enchanted creature gets +2/+2 and has \"{U}: This creature gains flying until end of turn.\"",
@@ -2431,9 +2431,9 @@ pub(in crate::card::sets) static RACECOURSE_FURY: CardRecord = CardRecord::new_w
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Land),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach {
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             AbilityDef::static_ability(
                 "Enchanted land has \"{T}: Target creature gains haste until end of turn.\"",

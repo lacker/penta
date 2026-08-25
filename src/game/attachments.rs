@@ -5,7 +5,7 @@
 //! which belongs here rather than being inferred independently by every
 //! resolving effect and state-based action.
 
-use super::{AttachmentDef, CardType, Game, GameObjectId, Permanent};
+use super::{CardType, Game, GameObjectId, Permanent};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) enum AttachmentKind {
@@ -42,10 +42,7 @@ impl Game {
     }
 
     pub(super) const fn effect_is_reconfigure(effect: super::EffectDef) -> bool {
-        matches!(
-            effect,
-            super::EffectDef::Attachment(AttachmentDef::Reconfigure { .. })
-        )
+        matches!(effect, super::EffectDef::Reconfigure { .. })
     }
 
     /// Whether `attachment` may attach to `host` under its current

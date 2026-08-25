@@ -3,16 +3,15 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AppliedEffectDef, AppliedRuleDef, AttachmentDef, BattlefieldEntryModificationDef, CardArt,
-    CardRules, CardSet, CardSupertype, CardType, ComparisonDef, ConditionalValueDef,
-    CostModificationDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef,
-    DiscardSelectionDef, EffectDef, EffectRecipientDef, KeywordAbility, LifeConditionDef,
-    ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayActionMatcherDef, PlayRestrictionDef,
-    PlayerAttachmentQueryDef, PlayerRelation, QuantifierDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostCountDef,
-    SpellAdditionalCostDef, SpendModeDef, TargetConditionDef, TopCardSelectionDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, ComparisonDef, ConditionalValueDef, CostModificationDef, CounterKind,
+    DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
+    KeywordAbility, LifeConditionDef, ManaColor, ObjectPredicateDef, ObjectQueryDef,
+    PlayActionMatcherDef, PlayRestrictionDef, PlayerAttachmentQueryDef, PlayerRelation,
+    QuantifierDef, ReplacementEffectDef, ResolvedEffectDurationDef, SacrificedAmountDef,
+    ScaledValueDef, SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef,
+    TargetConditionDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -196,9 +195,9 @@ pub(in crate::card::sets) static BURDEN_OF_GUILT: CardRecord = CardRecord::new_w
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach {
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             BURDEN_OF_GUILT_TAP,
         ]),
@@ -739,9 +738,9 @@ pub(in crate::card::sets) static CHANT_OF_THE_SKIFSANG: CardRecord = CardRecord:
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach {
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             AbilityDef::static_ability(
                 "Enchanted creature gets -13/-0.",
@@ -2228,9 +2227,9 @@ pub(in crate::card::sets) static TALONS_OF_FALKENRATH: CardRecord = CardRecord::
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach {
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             AbilityDef::static_ability(
                 "Enchanted creature has \"{1}{R}: This creature gets +2/+0 until end of turn.\"",
@@ -3206,9 +3205,9 @@ pub(in crate::card::sets) static CHALICE_OF_LIFE: CardRecord = CardRecord::new(
 // DKA 147 — Elbrus, the Binding Blade // Withengar Unbound
 // Audit: partial — Withengar's player-loses trigger is metadata-only because Penta's supported two-player game terminates as soon as a player loses.
 static ELBRUS_UNATTACH_AND_TRANSFORM: [EffectDef; 2] = [
-    EffectDef::Attachment(AttachmentDef::Unattach {
+    EffectDef::Unattach {
         object: EffectRecipientDef::Source,
-    }),
+    },
     EffectDef::Transform {
         object: EffectRecipientDef::Source,
     },

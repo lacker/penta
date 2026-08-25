@@ -400,9 +400,9 @@ pub(in crate::card::sets) static RUNNERS_BANE: CardRecord = CardRecord::new_with
                         ObjectPredicateDef::Not(&ObjectPredicateDef::PowerAtLeast(4)),
                     ]),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach{
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             )
             .with_coverage(AbilityCoverageDef::partial(
                 "Power-based target and attachment legality ignores continuous static power modifiers.",
@@ -2239,9 +2239,9 @@ pub(in crate::card::sets) static UNFLINCHING_COURAGE: CardRecord = CardRecord::n
                 controller: None,
                 owner: None,
             },
-        )], EffectDef::Attachment(AttachmentDef::Attach{
+        )], EffectDef::Attach {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            })),
+            }),
         AbilityDef::static_ability(
             "Enchanted creature gets +2/+2 and has trample and lifelink. (Damage dealt by the creature also causes its controller to gain that much life.)",
             EffectDef::Sequence(&[

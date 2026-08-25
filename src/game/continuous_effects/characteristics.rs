@@ -424,7 +424,7 @@ impl Game {
 
     pub(super) fn effect_attaches(effect: EffectDef) -> bool {
         match effect {
-            EffectDef::Attachment(AttachmentDef::Attach{ .. }) => true,
+            EffectDef::Attach { .. } => true,
             EffectDef::Sequence(effects) => effects.iter().copied().any(Self::effect_attaches),
             EffectDef::May { effect, .. } => Self::effect_attaches(*effect),
             _ => false,

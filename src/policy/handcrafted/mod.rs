@@ -11,10 +11,10 @@ use self::spell_profile::DeclarativeSpellProfile;
 use super::Policy;
 use crate::card::{
     AbilityCostDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
-    AppliedEffectDef, AttachmentDef, BasicLandType, CardBehavior, CardCatalog, CardSupertype,
-    CardType, CardTypeSet, CharacteristicOperationDef, DeclarativeAbilityDef, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, PlayerRelation, PowerToughnessOperationDef,
-    SetOperationDef, SpellForm, ValueDef, ZoneKind,
+    AppliedEffectDef, BasicLandType, CardBehavior, CardCatalog, CardSupertype, CardType,
+    CardTypeSet, CharacteristicOperationDef, DeclarativeAbilityDef, EffectDef, EffectRecipientDef,
+    ObjectPredicateDef, PlayerRelation, PowerToughnessOperationDef, SetOperationDef, SpellForm,
+    ValueDef, ZoneKind,
 };
 use crate::game::{
     DecisionObservation, DecisionOption, DecisionPreference, DecisionZone, PlayerObservation,

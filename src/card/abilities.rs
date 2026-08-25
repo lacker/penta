@@ -6,7 +6,7 @@
 use super::model::{
     AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef,
-    AppliedRuleDef, AttachmentDef, BandingQuality, BasicLandType, BattlefieldEntryModificationDef,
+    AppliedRuleDef, BandingQuality, BasicLandType, BattlefieldEntryModificationDef,
     CardChoiceSourceDef, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorSet,
     ComparisonDef, ConditionDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef,
     DamageRecipientMatcherDef, DiscardFollowUpDef, DiscardSelectionDef, EffectDef,

@@ -12,9 +12,9 @@ static ENCHANT_PERMANENT_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exa
 static ENCHANT_PERMANENT_ABILITIES: [AbilityDef; 1] = [AbilityDef::spell_with_targets(
     "Enchant permanent",
     &ENCHANT_PERMANENT_TARGETS,
-    EffectDef::Attachment(AttachmentDef::Attach {
+    EffectDef::Attach {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    }),
+    },
 )];
 
 #[test]

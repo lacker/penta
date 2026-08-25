@@ -3,7 +3,7 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, AttachmentDef,
+    AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef,
     AttackEventMatcherDef, BasicLandType, BattlefieldEntryModificationDef, CardArt,
     CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, CardTypeSet,
     ChoiceVisibilityDef, ChooseDef, ComparisonDef, CounterKind, DrawEventMatcherDef, EffectDef,
@@ -667,9 +667,9 @@ static PHOENIX_ABILITIES: [AbilityDef; 5] = [
              with total mana value 6 or greater from your graveyard.)",
         ),
         &abilities::ENCHANT_CREATURE_TARGET,
-        EffectDef::Attachment(AttachmentDef::Attach {
+        EffectDef::Attach {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        }),
+        },
     )
     .with_alternative_additional_cost(&COLLECT_EVIDENCE_SIX)
     .with_alternative_from_graveyard(),

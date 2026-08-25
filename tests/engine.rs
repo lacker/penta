@@ -1,6 +1,4 @@
-use penta::card::{
-    AttachmentDef, CardBehavior, CardCatalog, CardDefinition, CardPrinting, CardSet,
-};
+use penta::card::{CardBehavior, CardCatalog, CardDefinition, CardPrinting, CardSet};
 use penta::deck::{Deck, DeckError};
 use penta::game::{GameResult, WinReason};
 use penta::poc;
@@ -778,9 +776,9 @@ fn aura_sequence_attaches_to_its_indexed_semantic_target() {
     const MOUNTAIN: CardDefinitionId = CardDefinitionId::new(1);
     const CREATURE: CardDefinitionId = CardDefinitionId::new(6);
     const AURA: CardDefinitionId = CardDefinitionId::new(7);
-    static ATTACH_SEQUENCE: [EffectDef; 1] = [EffectDef::Attachment(AttachmentDef::Attach {
+    static ATTACH_SEQUENCE: [EffectDef; 1] = [EffectDef::Attach {
         object: EffectRecipientDef::Target(TargetIndex(1)),
-    })];
+    }];
     static FLYING: AbilityDef = penta::card::abilities::flying();
     static AURA_ABILITIES: [AbilityDef; 2] = [
         AbilityDef::spell_with_targets(

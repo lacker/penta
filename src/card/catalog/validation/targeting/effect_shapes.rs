@@ -339,12 +339,10 @@ fn validate_effect_target_shapes(
         | EffectDef::RemoveFromCombat { object }
         | EffectDef::Untap { object }
         | EffectDef::Saddle { object }
-        | EffectDef::Attachment(
-            AttachmentDef::AttachToSource { object }
-            | AttachmentDef::Reconfigure { object }
-            | AttachmentDef::Unattach { object }
-            | AttachmentDef::PairWithSource { object },
-        )
+        | EffectDef::AttachToSource { object }
+        | EffectDef::Reconfigure { object }
+        | EffectDef::Unattach { object }
+        | EffectDef::PairWithSource { object }
         | EffectDef::PhaseOut { object }
         | EffectDef::Destroy {
             object, then: None, ..
@@ -390,7 +388,7 @@ fn validate_effect_target_shapes(
             validate_recipient_shape(object, targets, RecipientExpectation::Object)?;
             validate_effect_target_shapes(*follow_up.effect, targets, triggering_object_zone)
         }
-        EffectDef::Attachment(AttachmentDef::Attach{ object })
+        EffectDef::Attach { object }
         | EffectDef::MayCastTargetWithoutPaying { object, .. } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Any)
         }

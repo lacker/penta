@@ -484,13 +484,11 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::GainControl { object, .. }
         | EffectDef::AddCounters { object, .. }
         | EffectDef::RemoveCounters { object, .. }
-        | EffectDef::Attachment(
-            AttachmentDef::Attach { object }
-            | AttachmentDef::AttachToSource { object }
-            | AttachmentDef::Reconfigure { object }
-            | AttachmentDef::Unattach { object }
-            | AttachmentDef::PairWithSource { object },
-        )
+        | EffectDef::Attach { object }
+        | EffectDef::AttachToSource { object }
+        | EffectDef::Reconfigure { object }
+        | EffectDef::Unattach { object }
+        | EffectDef::PairWithSource { object }
         | EffectDef::PhaseOut { object }
         | EffectDef::ChangeTextBasicLandType { object }
         // The colour is named at resolution, so the declaration only has to

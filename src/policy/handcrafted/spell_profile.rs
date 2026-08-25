@@ -1,8 +1,8 @@
 use super::{
     AbilityCostDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
-    AttachmentDef, BasicLandType, CardBehavior, CardDefinitionId, CardType, CardTypeSet,
-    CastChoices, DeclarativeAbilityDef, EffectDef, EffectRecipientDef, HandcraftedPolicy,
-    ObjectPredicateDef, PlayerRelation, SpellForm, ValueDef, ZoneKind,
+    BasicLandType, CardBehavior, CardDefinitionId, CardType, CardTypeSet, CastChoices,
+    DeclarativeAbilityDef, EffectDef, EffectRecipientDef, HandcraftedPolicy, ObjectPredicateDef,
+    PlayerRelation, SpellForm, ValueDef, ZoneKind,
 };
 use crate::PlayerSetDef;
 
@@ -518,13 +518,11 @@ impl HandcraftedPolicy {
             | EffectDef::CannotAttackIf(_)
             | EffectDef::PutIntoLibraryBeneathTop { .. }
             | EffectDef::MoveToZone { .. }
-            | EffectDef::Attachment(
-                AttachmentDef::Attach { .. }
-                | AttachmentDef::AttachToSource { .. }
-                | AttachmentDef::Reconfigure { .. }
-                | AttachmentDef::Unattach { .. }
-                | AttachmentDef::PairWithSource { .. },
-            )
+            | EffectDef::Attach { .. }
+            | EffectDef::AttachToSource { .. }
+            | EffectDef::Reconfigure { .. }
+            | EffectDef::Unattach { .. }
+            | EffectDef::PairWithSource { .. }
             | EffectDef::PhaseOut { .. }
             | EffectDef::CreateToken { .. }
             | EffectDef::CreateAttachedToken { .. }

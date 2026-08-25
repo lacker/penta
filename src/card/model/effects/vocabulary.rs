@@ -151,33 +151,3 @@ pub enum CostModificationDef {
         amount: ValueDef,
     },
 }
-
-/// What a clause does to an attachment: which object moves onto which host,
-/// or comes off one.
-///
-/// The five spellings live together because every consumer takes them
-/// together. The attachment rules walk all of them to decide what is legally
-/// attached to what, and each exhaustive match that is not about attachment
-/// listed all five only to pass them over.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum AttachmentDef {
-    /// An Aura spell attaching itself to what it enchants. The permanent the
-    /// spell becomes is what attaches, so this is only meaningful on the spell
-    /// clause of an Aura.
-    Attach { object: EffectRecipientDef },
-    /// The mirror of [`Self::Attach`]: the named permanent moves onto this
-    /// ability's own source, which is what "attach it to this creature" says.
-    AttachToSource { object: EffectRecipientDef },
-    /// Soulbond's pairing. The chosen creature and the ability's source
-    /// record each other; the pair is symmetric and survives until one of
-    /// them stops being a creature its controller controls.
-    PairWithSource { object: EffectRecipientDef },
-    /// Reconfigure's paired attach/unattach procedure. A selected creature
-    /// becomes the new host; selecting none ends this attachment incarnation.
-    Reconfigure { object: EffectRecipientDef },
-    /// Detach the named Equipment or Fortification without moving it. This is
-    /// a rules action rather than a zone change: Elbrus does it immediately
-    /// before transforming, while the host and both objects remain otherwise
-    /// unchanged.
-    Unattach { object: EffectRecipientDef },
-}

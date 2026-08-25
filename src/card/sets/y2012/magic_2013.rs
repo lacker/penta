@@ -17,17 +17,17 @@ use crate::card::sets::{
 };
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, AttachmentDef, BasicLandType, CardArt,
-    CardBehavior, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef,
-    ColorSet, ComparisonDef, ControlDurationDef, CostModificationDef, CounterKind,
-    CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef, DamagePreventionDef,
-    DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardFollowUpDef, DiscardSelectionDef,
-    DividedTotal, EffectDef, EffectExecutionDef, EffectRecipientDef, KeywordAbility, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, SpellAdditionalCostCountDef,
-    SpellAdditionalCostDef, SpendModeDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardBehavior,
+    CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ColorSet,
+    ComparisonDef, ControlDurationDef, CostModificationDef, CounterKind, CreatureTypeSetDef,
+    DamageEventMatcherDef, DamageKindDef, DamagePreventionDef, DamageRecipientMatcherDef,
+    DamageSourceMatcherDef, DiscardFollowUpDef, DiscardSelectionDef, DividedTotal, EffectDef,
+    EffectExecutionDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    SacrificedAmountDef, SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -286,9 +286,9 @@ pub(in crate::card::sets) static DIVINE_FAVOR: CardRecord = CardRecord::new_with
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach {
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             abilities::enters_trigger(
                 "When this Aura enters, you gain 3 life.",
@@ -1447,9 +1447,9 @@ pub(in crate::card::sets) static TRICKS_OF_THE_TRADE: CardRecord = CardRecord::n
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach {
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             AbilityDef::static_ability(
                 "Enchanted creature gets +2/+0 and can't be blocked.",
@@ -1689,9 +1689,9 @@ pub(in crate::card::sets) static DARK_FAVOR: CardRecord = CardRecord::new_with_l
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach {
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             abilities::enters_trigger(
                 "When this Aura enters, you lose 1 life.",
@@ -2032,9 +2032,9 @@ pub(in crate::card::sets) static MARK_OF_THE_VAMPIRE: CardRecord = CardRecord::n
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach {
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             AbilityDef::static_ability(
                 "Enchanted creature gets +2/+2 and has lifelink.",
@@ -3045,9 +3045,9 @@ pub(in crate::card::sets) static VOLCANIC_STRENGTH: CardRecord = CardRecord::new
                 controller: None,
                 owner: None,
             },
-        )], EffectDef::Attachment(AttachmentDef::Attach{
+        )], EffectDef::Attach {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            })),
+            }),
         AbilityDef::static_ability(
             "Enchanted creature gets +2/+2 and has mountainwalk. (It can't be blocked as long as defending player controls a Mountain.)",
             EffectDef::Sequence(&[

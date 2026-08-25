@@ -13,8 +13,8 @@ pub(super) use stack_effects::shared_stack_effect;
 
 use crate::Game;
 use crate::card::{
-    ActivatedAbilityDef, AppliedRuleDef, AttachmentDef, BlockRestrictionMatchDef,
-    CostModificationDef, ReplacementConditionDef,
+    ActivatedAbilityDef, AppliedRuleDef, BlockRestrictionMatchDef, CostModificationDef,
+    ReplacementConditionDef,
 };
 
 use super::*;
@@ -645,13 +645,11 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::RemoveAllCounters { .. }
                     | EffectDef::Untap { .. }
                     | EffectDef::Saddle { .. }
-                    | EffectDef::Attachment(
-                        AttachmentDef::Attach { .. }
-                        | AttachmentDef::AttachToSource { .. }
-                        | AttachmentDef::Reconfigure { .. }
-                        | AttachmentDef::Unattach { .. }
-                        | AttachmentDef::PairWithSource { .. },
-                    )
+                    | EffectDef::Attach { .. }
+                    | EffectDef::AttachToSource { .. }
+                    | EffectDef::Reconfigure { .. }
+                    | EffectDef::Unattach { .. }
+                    | EffectDef::PairWithSource { .. }
                     | EffectDef::PhaseOut { .. }
                     | EffectDef::CreateToken { .. }
                     | EffectDef::CreateAttachedToken { .. }

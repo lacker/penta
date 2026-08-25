@@ -13,9 +13,9 @@ use crate::poc::{self, cards};
 use crate::{
     AbilityCoverageDef, AbilityTargetDef, AbilityTargetPredicate, AdditionalCostDef,
     AdditionalCostId, AlternativeCastManaCostDef, AlternativeCostDef, AlternativeCostId,
-    AttachmentDef, BattlefieldEntryModificationDef, CardComposition, CardDefinition,
-    CardEffectStatus, CardInstanceId, CardPart, CardPartId, CardPrinting, CardRules, CardStructure,
-    CastChoices, DoubleFacedKind, EffectExecutionDef, ManaSpendEffectDef, ModeDef, ModeSetDef,
+    BattlefieldEntryModificationDef, CardComposition, CardDefinition, CardEffectStatus,
+    CardInstanceId, CardPart, CardPartId, CardPrinting, CardRules, CardStructure, CastChoices,
+    DoubleFacedKind, EffectExecutionDef, ManaSpendEffectDef, ModeDef, ModeSetDef,
     ObjectBindingIndex, ObjectSetDef, PlayOptionDef, PlayOptionId, PlayerRelation,
     ReplacementEffectDef, ReplacementEventDef, SpellForm, StackObjectId, TargetIndex,
     TargetPredicate, TargetSelection, TargetSlotDef, TargetSlotId, ZonePlacement,

@@ -6,7 +6,7 @@ use crate::card::sets::{y1993::alpha, y2002::onslaught, y2009::zendikar};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityPolicyHint, AbilityPredicateDef,
     AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, ArrivalAttachmentDef, AttachmentDef, BasicLandType,
+    AppliedEffectDef, AppliedRuleDef, ArrivalAttachmentDef, BasicLandType,
     BattlefieldEntryModificationDef, CardAbilityBinding, CardArt, CardBehavior,
     CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, ComparisonDef,
     ConditionalValueDef, ControlDurationDef, CostModificationDef, CounterKind,
@@ -1355,9 +1355,9 @@ pub(in crate::card::sets) static CLAUSTROPHOBIA: CardRecord = CardRecord::new_wi
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach {
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             abilities::enters_trigger(
                 "When this Aura enters, tap enchanted creature.",
@@ -1401,9 +1401,9 @@ pub(in crate::card::sets) static CURIOSITY: CardRecord = CardRecord::new_with_le
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach {
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             AbilityDef::static_ability(
                 "Whenever enchanted creature deals damage to an opponent, you may draw a card.",
@@ -2134,9 +2134,9 @@ pub(in crate::card::sets) static SENSORY_DEPRIVATION: CardRecord = CardRecord::n
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach {
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             AbilityDef::static_ability(
                 "Enchanted creature gets -3/-0.",
@@ -2295,9 +2295,9 @@ pub(in crate::card::sets) static SPECTRAL_FLIGHT: CardRecord = CardRecord::new_w
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach {
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             AbilityDef::static_ability(
                 "Enchanted creature gets +2/+2 and has flying.",
@@ -2782,9 +2782,9 @@ pub(in crate::card::sets) static DEAD_WEIGHT: CardRecord = CardRecord::new_with_
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach {
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             AbilityDef::static_ability(
                 "Enchanted creature gets -2/-2.",
@@ -3022,9 +3022,9 @@ pub(in crate::card::sets) static GRUESOME_DEFORMITY: CardRecord = CardRecord::ne
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach {
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             AbilityDef::static_ability(
                 "Enchanted creature has intimidate.",
@@ -3988,9 +3988,9 @@ pub(in crate::card::sets) static FUROR_OF_THE_BITTEN: CardRecord = CardRecord::n
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach {
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             AbilityDef::static_ability(
                 "Enchanted creature gets +2/+2 and attacks each combat if able.",
@@ -5709,9 +5709,9 @@ pub(in crate::card::sets) static WREATH_OF_GEISTS: CardRecord = CardRecord::new_
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach{
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             AbilityDef::static_ability(
                 "Enchanted creature gets +X/+X, where X is the number of creature cards in your graveyard.",

@@ -20,16 +20,15 @@ use crate::card::sets::{
 };
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, AttachmentDef, BasicLandType,
-    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorChoiceOperationDef, ColorSet, ComparisonDef,
-    CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DiscardSelectionDef, EffectDef,
-    EffectRecipientDef, HalvedValueDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, RoundingDef,
-    SacrificedAmountDef, ScaledValueDef, TargetConditionDef, TopCardSelectionDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities, tokens,
+    AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt,
+    CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef,
+    ColorChoiceOperationDef, ColorSet, ComparisonDef, CounterKind, CreatureTypeSetDef,
+    DamageEventMatcherDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, HalvedValueDef,
+    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, RoundingDef, SacrificedAmountDef,
+    ScaledValueDef, TargetConditionDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -409,9 +408,9 @@ pub(in crate::card::sets) static INDESTRUCTIBILITY: CardRecord = CardRecord::new
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::Any,
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach {
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             AbilityDef::static_ability(
                 "Enchanted permanent has indestructible.",
@@ -1616,9 +1615,9 @@ pub(in crate::card::sets) static QUAG_SICKNESS: CardRecord = CardRecord::new_wit
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach {
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             AbilityDef::static_ability(
                 "Enchanted creature gets -1/-1 for each Swamp you control.",
@@ -1910,9 +1909,9 @@ pub(in crate::card::sets) static AWAKEN_THE_ANCIENT: CardRecord = CardRecord::ne
                         ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
                     ]),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach {
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             AbilityDef::static_ability(
                 "Enchanted Mountain is a 7/7 red Giant creature with haste. It's still a land.",
@@ -2228,9 +2227,9 @@ pub(in crate::card::sets) static LIGHTNING_TALONS: CardRecord = CardRecord::new_
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::Attachment(AttachmentDef::Attach {
+                EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+                },
             ),
             AbilityDef::static_ability(
                 "Enchanted creature gets +3/+0 and has first strike.",

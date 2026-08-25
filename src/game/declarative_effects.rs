@@ -834,8 +834,20 @@ impl Game {
                 &context,
                 scoped,
             ),
-            EffectDef::Attachment(attachment) => {
-                self.resolve_attachment_effect(attachment, object, &context, scoped);
+            EffectDef::Attach { object: recipient } => {
+                self.resolve_attach_effect(recipient, false, object, &context, scoped);
+            }
+            EffectDef::AttachToSource { object: recipient } => {
+                self.resolve_attach_effect(recipient, true, object, &context, scoped);
+            }
+            EffectDef::PairWithSource { object: recipient } => {
+                self.resolve_pair_with_source(recipient, object, &context, scoped);
+            }
+            EffectDef::Reconfigure { object: recipient } => {
+                self.resolve_reconfigure_effect(recipient, object, &context, scoped);
+            }
+            EffectDef::Unattach { object: recipient } => {
+                self.resolve_unattach_effect(recipient, object, &context, scoped);
             }
             EffectDef::None
             | EffectDef::CreateMyriadTokens

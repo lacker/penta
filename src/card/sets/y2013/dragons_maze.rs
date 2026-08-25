@@ -2494,26 +2494,27 @@ static OWN_GRAVEYARD_CARD_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exa
     },
 )];
 
-const fn down_rules() -> CardRules {
-    CardRules::new_sorcery(mana_cost!("{3}{B}")).with_ability(AbilityDef::spell_with_targets(
-        "Target player discards two cards.",
-        &ANY_PLAYER_TARGET,
-        EffectDef::Discard {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(2),
-            selection: DiscardSelectionDef::RecipientChooses,
-            then: None,
-        },
-    ))
-}
-
 pub(in crate::card::sets) static DOWN_DIRTY: CardRecord = CardRecord::new_fuse_with_legacy_id(
     660,
     "Down // Dirty",
     CardArt::new("c35c63c1-6344-4d8c-8f7d-cd253d12f9ae", "Svetlin Velinov"),
     CardSet::DragonsMaze,
     &[
-        ("Down", down_rules()),
+        (
+            "Down",
+            CardRules::new_sorcery(mana_cost!("{3}{B}")).with_ability(
+                AbilityDef::spell_with_targets(
+                    "Target player discards two cards.",
+                    &ANY_PLAYER_TARGET,
+                    EffectDef::Discard {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(2),
+                        selection: DiscardSelectionDef::RecipientChooses,
+                        then: None,
+                    },
+                ),
+            ),
+        ),
         (
             "Dirty",
             CardRules::new_sorcery(mana_cost!("{2}{G}")).with_ability(
@@ -2539,31 +2540,32 @@ pub(in crate::card::sets) static DOWN_DIRTY: CardRecord = CardRecord::new_fuse_w
 );
 
 // DGM 127 — Far // Away
-const fn far_rules() -> CardRules {
-    CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
-        "Return target creature to its owner's hand.",
-        &CREATURE_TARGET,
-        EffectDef::MoveToZone {
-            counters: None,
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            controller: None,
-            tapped: false,
-        },
-    ))
-}
-
 pub(in crate::card::sets) static FAR_AWAY: CardRecord = CardRecord::new_fuse_with_legacy_id(
     661,
     "Far // Away",
     CardArt::new("d13cdb71-a499-41db-84e6-95f84650c524", "Greg Staples"),
     CardSet::DragonsMaze,
     &[
-        ("Far", far_rules()),
+        (
+            "Far",
+            CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(
+                AbilityDef::spell_with_targets(
+                    "Return target creature to its owner's hand.",
+                    &CREATURE_TARGET,
+                    EffectDef::MoveToZone {
+                        counters: None,
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        from: None,
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                        arrival_effect: None,
+                        attachment: None,
+                        controller: None,
+                        tapped: false,
+                    },
+                ),
+            ),
+        ),
         (
             "Away",
             CardRules::new_instant(mana_cost!("{2}{B}")).with_ability(
@@ -2607,31 +2609,30 @@ pub(in crate::card::sets) static GIVE_TAKE: CardRecord = CardRecord::new(
 );
 
 // DGM 130 — Profit // Loss
-const fn profit_rules() -> CardRules {
-    CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell(
-        "Creatures you control get +1/+1 until end of turn.",
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::matching_objects(
-                ObjectPredicateDef::HasType(CardType::Creature),
-                &[ZoneKind::Battlefield],
-                PlayerRelation::You,
-            ),
-            effect: AppliedEffectDef::modify_power_toughness(
-                ValueDef::Constant(1),
-                ValueDef::Constant(1),
-            ),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
-    ))
-}
-
 pub(in crate::card::sets) static PROFIT_LOSS: CardRecord = CardRecord::new_fuse_with_legacy_id(
     662,
     "Profit // Loss",
     CardArt::new("0eb3ce46-ddd2-43b3-9e45-019ae91df686", "Kev Walker"),
     CardSet::DragonsMaze,
     &[
-        ("Profit", profit_rules()),
+        (
+            "Profit",
+            CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell(
+                "Creatures you control get +1/+1 until end of turn.",
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            )),
+        ),
         (
             "Loss",
             CardRules::new_instant(mana_cost!("{2}{B}")).with_ability(AbilityDef::spell(
@@ -2655,28 +2656,29 @@ pub(in crate::card::sets) static PROFIT_LOSS: CardRecord = CardRecord::new_fuse_
 );
 
 // DGM 131 — Protect // Serve
-const fn protect_rules() -> CardRules {
-    CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(AbilityDef::spell_with_targets(
-        "Target creature gets +2/+4 until end of turn.",
-        &CREATURE_TARGET,
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            effect: AppliedEffectDef::modify_power_toughness(
-                ValueDef::Constant(2),
-                ValueDef::Constant(4),
-            ),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
-    ))
-}
-
 pub(in crate::card::sets) static PROTECT_SERVE: CardRecord = CardRecord::new_fuse_with_legacy_id(
     663,
     "Protect // Serve",
     CardArt::new("9b8acd7d-f3e2-4358-91ab-40901b68d64c", "Ryan Barger"),
     CardSet::DragonsMaze,
     &[
-        ("Protect", protect_rules()),
+        (
+            "Protect",
+            CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(
+                AbilityDef::spell_with_targets(
+                    "Target creature gets +2/+4 until end of turn.",
+                    &CREATURE_TARGET,
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(4),
+                        ),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ),
+            ),
+        ),
         (
             "Serve",
             CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(
@@ -2729,20 +2731,19 @@ static WILLING_KEYWORDS: [AppliedEffectDef; 2] = [
     AppliedEffectDef::add_ability(&WILLING_LIFELINK),
 ];
 
-const fn ready_rules() -> CardRules {
-    CardRules::new_instant(mana_cost!("{1}{G}{W}")).with_ability(AbilityDef::spell(
-        "Creatures you control gain indestructible until end of turn. Untap each creature you control.",
-        EffectDef::Sequence(&READY_EFFECTS),
-    ))
-}
-
 pub(in crate::card::sets) static READY_WILLING: CardRecord = CardRecord::new_fuse_with_legacy_id(
     664,
     "Ready // Willing",
     CardArt::new("22081f95-dc8e-41ed-b609-b6a22ee5428b", "Zoltan Boros"),
     CardSet::DragonsMaze,
     &[
-        ("Ready", ready_rules()),
+        (
+            "Ready",
+            CardRules::new_instant(mana_cost!("{1}{G}{W}")).with_ability(AbilityDef::spell(
+                "Creatures you control gain indestructible until end of turn. Untap each creature you control.",
+                EffectDef::Sequence(&READY_EFFECTS),
+            )),
+        ),
         (
             "Willing",
             CardRules::new_instant(mana_cost!("{1}{W}{B}")).with_ability(AbilityDef::spell(
@@ -2796,25 +2797,26 @@ static BURN_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::AnyTarget,
 )];
 
-const fn turn_rules() -> CardRules {
-    CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell_with_targets(
-        "Until end of turn, target creature loses all abilities and becomes a red Weird with base power and toughness 0/1.\nFuse (You may cast one or both halves of this card from your hand.)",
-        &TURN_TARGETS,
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            effect: AppliedEffectDef::Composite(&TURN_CHARACTERISTICS),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
-    ))
-}
-
 pub(in crate::card::sets) static TURN_BURN: CardRecord = CardRecord::new_fuse_with_legacy_id(
     230,
     "Turn // Burn",
     CardArt::new("8d7fdd59-6d76-4a0c-ac75-816345ef4a39", "Ryan Barger"),
     CardSet::DragonsMaze,
     &[
-        ("Turn", turn_rules()),
+        (
+            "Turn",
+            CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(
+                AbilityDef::spell_with_targets(
+                    "Until end of turn, target creature loses all abilities and becomes a red Weird with base power and toughness 0/1.\nFuse (You may cast one or both halves of this card from your hand.)",
+                    &TURN_TARGETS,
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::Composite(&TURN_CHARACTERISTICS),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ),
+            ),
+        ),
         (
             "Burn",
             CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(
@@ -2839,32 +2841,30 @@ static ARTIFACT_TARGET: AbilityTargetDef =
 static ENCHANTMENT_TARGET: AbilityTargetDef =
     AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Enchantment));
 
-const fn wear_rules() -> CardRules {
-    CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(AbilityDef::destroy_target(
-        "Destroy target artifact.",
-        &ARTIFACT_TARGET,
-        true,
-    ))
-}
-
-pub(in crate::card::sets) static WEAR_TEAR: CardRecord = CardRecord::new_fuse_with_legacy_id(
-    665,
-    "Wear // Tear",
-    CardArt::new("d169a3b2-18ae-4414-98ef-d879676fdcc0", "Ryan Pancoast"),
-    CardSet::DragonsMaze,
-    &[
-        ("Wear", wear_rules()),
-        (
-            "Tear",
-            CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::destroy_target(
-                "Destroy target enchantment.",
-                &ENCHANTMENT_TARGET,
-                true,
-            )),
-        ),
-    ],
-    mana_cost!("{1}{R}{W}"),
-);
+pub(in crate::card::sets) static WEAR_TEAR: CardRecord =
+    CardRecord::new_fuse_with_legacy_id(
+        665,
+        "Wear // Tear",
+        CardArt::new("d169a3b2-18ae-4414-98ef-d879676fdcc0", "Ryan Pancoast"),
+        CardSet::DragonsMaze,
+        &[
+            (
+                "Wear",
+                CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(
+                    AbilityDef::destroy_target("Destroy target artifact.", &ARTIFACT_TARGET, true),
+                ),
+            ),
+            (
+                "Tear",
+                CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::destroy_target(
+                    "Destroy target enchantment.",
+                    &ENCHANTMENT_TARGET,
+                    true,
+                )),
+            ),
+        ],
+        mana_cost!("{1}{R}{W}"),
+    );
 
 macro_rules! cluestone_abilities {
     ($name:ident, $colors:expr, $mana_text:literal, $draw_text:literal, $draw_cost:literal) => {

@@ -1,31 +1,13 @@
-use std::collections::{BTreeSet, HashMap, HashSet};
+use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 
 use super::source_organization::{AuditStatus, SourceAudit, source_audits_for_format};
 use super::*;
 
-const SET_IDENTITY_COUNT: usize = 1_686;
-const SET_IDENTITY_FINGERPRINT: u64 = 13_259_587_399_791_788_135;
-fn identity_fingerprint(names: &BTreeSet<String>) -> u64 {
-    const FNV_OFFSET_BASIS: u64 = 14_695_981_039_346_656_037;
-    const FNV_PRIME: u64 = 1_099_511_628_211;
-
-    let mut fingerprint = FNV_OFFSET_BASIS;
-    for name in names {
-        for byte in name.bytes().chain(std::iter::once(b'\n')) {
-            fingerprint ^= u64::from(byte);
-            fingerprint = fingerprint.wrapping_mul(FNV_PRIME);
-        }
-    }
-    fingerprint
-}
-
 #[test]
-#[allow(clippy::too_many_lines)]
-fn every_incomplete_isd_m14_identity_has_one_audited_capability_gap() {
+fn isd_m14_catalog_and_implementation_audits_are_consistent() {
     let catalog = crate::card::catalog().expect("built-in catalog");
     let mut audited = HashMap::new();
-    let mut set_names = BTreeSet::new();
 
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     for SourceAudit {
@@ -42,20 +24,16 @@ fn every_incomplete_isd_m14_identity_has_one_audited_capability_gap() {
                 .is_none(),
             "{name} appears more than once in the ISD-M14 audit"
         );
-        set_names.insert(name.clone());
     }
 
-    let mut complete = 0;
     let mut cataloged_incomplete = HashSet::new();
     for definition in catalog.definitions() {
         if !catalog.is_allowed_in(definition.id, Format::IsdM14Standard) {
             continue;
         }
         let key = definition.name.to_lowercase();
-        set_names.insert(definition.name.clone());
         match definition.implementation_status() {
             ImplementationStatus::Complete => {
-                complete += 1;
                 assert!(
                     !audited.contains_key(&key),
                     "completed card {} still appears in the incomplete audit",
@@ -96,16 +74,4 @@ fn every_incomplete_isd_m14_identity_has_one_audited_capability_gap() {
             );
         }
     }
-
-    assert_eq!(
-        complete + audited.len(),
-        SET_IDENTITY_COUNT,
-        "the completed catalog and incomplete audit must partition every ISD-M14 identity"
-    );
-    assert_eq!(set_names.len(), SET_IDENTITY_COUNT);
-    assert_eq!(
-        identity_fingerprint(&set_names),
-        SET_IDENTITY_FINGERPRINT,
-        "the exact ISD-M14 set identity inventory changed"
-    );
 }

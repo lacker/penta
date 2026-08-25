@@ -1412,8 +1412,6 @@ const fn ice_rules() -> CardRules {
     ))
 }
 
-static FIRE_ICE_HALVES: [(&str, CardRules); 2] = [("Fire", fire_rules()), ("Ice", ice_rules())];
-
 pub(in crate::card::sets) static FIRE_ICE: CardRecord = CardRecord::new_split_with_legacy_id(
     306,
     "Fire // Ice",
@@ -1422,7 +1420,7 @@ pub(in crate::card::sets) static FIRE_ICE: CardRecord = CardRecord::new_split_wi
         "David Martin & Franz Vohwinkel",
     ),
     CardSet::Apocalypse,
-    &FIRE_ICE_HALVES,
+    &[("Fire", fire_rules()), ("Ice", ice_rules())],
 );
 
 // APC 129 — Illusion // Reality
@@ -1498,9 +1496,6 @@ const fn death_rules() -> CardRules {
     ))
 }
 
-static LIFE_DEATH_HALVES: [(&str, CardRules); 2] =
-    [("Life", life_rules()), ("Death", death_rules())];
-
 pub(in crate::card::sets) static LIFE_DEATH: CardRecord = CardRecord::new_split_with_legacy_id(
     2123,
     "Life // Death",
@@ -1509,7 +1504,7 @@ pub(in crate::card::sets) static LIFE_DEATH: CardRecord = CardRecord::new_split_
         "Anthony S. Waters & Edward P. Beard, Jr.",
     ),
     CardSet::Apocalypse,
-    &LIFE_DEATH_HALVES,
+    &[("Life", life_rules()), ("Death", death_rules())],
 );
 
 // APC 131 — Night // Day

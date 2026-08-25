@@ -5,6 +5,43 @@
 // card to say it does not re-derive it. Included textually into
 // `abilities.rs`, so the imports here are the parent module's.
 
+static RETURN_EXILE_WHEN_SOURCE_LEAVES: AbilityDef = AbilityDef::triggered(
+    "When this permanent leaves the battlefield, return the exiled card to the battlefield under \
+     its owner's control.",
+    TriggerEventDef::zone_changed(
+        ObjectPredicateDef::Source,
+        Some(ZoneKind::Battlefield),
+        None,
+    ),
+    EffectDef::ReturnLinkedExiles {
+        object: ObjectPredicateDef::Any,
+        counters: None,
+        arrival_effect: None,
+        zone: ZoneKind::Battlefield,
+        grant: None,
+        controller: None,
+        transformed: false,
+    },
+);
+
+static INSTALL_RETURN_EXILE_WHEN_SOURCE_LEAVES: EffectDef =
+    EffectDef::InstallTrigger(InstalledTriggerDef::once(
+        &RETURN_EXILE_WHEN_SOURCE_LEAVES,
+    ));
+
+/// Exile one object until the source permanent leaves the battlefield, then
+/// return that linked card under its owner's control. The return is installed
+/// by the same resolving ability because modern "until" wording is one clause,
+/// not a separately printed leaves-the-battlefield ability.
+#[must_use]
+pub const fn exile_until_source_leaves(object: EffectRecipientDef) -> EffectDef {
+    EffectDef::ExileLinkedToSource {
+        object,
+        face_down: false,
+        then: Some(&INSTALL_RETURN_EXILE_WHEN_SOURCE_LEAVES),
+    }
+}
+
 static RETURN_EXILE_AT_NEXT_END_STEP: AbilityDef = AbilityDef::triggered(
     "At the beginning of the next end step, return the exiled card to the battlefield under its owner's control.",
     TriggerEventDef::StepBegins {

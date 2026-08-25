@@ -614,7 +614,7 @@ impl Game {
             // chosen land type is read live off the permanent that made the
             // choice.
             CharacteristicOperationDef::Abilities(
-                AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles,
+                AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles(_),
             )
             | CharacteristicOperationDef::ChosenBasicLandType => return None,
             CharacteristicOperationDef::BasicLandTypes(operation) => {

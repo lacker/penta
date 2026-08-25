@@ -48,6 +48,7 @@ fn shared_condition_value(value: ValueDef, static_context: bool) -> bool {
         | ValueDef::BasicLandTypesControlled(_)
         | ValueDef::CardTypesAmongGraveyards(_)
         | ValueDef::CardsInHandAbove { .. }
+        | ValueDef::PlayerCounters { .. }
         | ValueDef::SourceCastX => !static_context,
         _ => false,
     }

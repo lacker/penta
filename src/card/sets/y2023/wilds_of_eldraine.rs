@@ -204,7 +204,9 @@ static AGATHAS_SOUL_CAULDRON_ABILITIES: [AbilityDef; 3] = [
                 COUNTERED_CREATURES_YOU_CONTROL,
             )),
             effect: AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
-                AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles,
+                AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                ),
             )),
         },
     ),

@@ -395,8 +395,10 @@ pub(in super::super) fn shared_static_applied_effect(
         AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(
             SetOperationDef::Add(types),
         )) => {
-            types == crate::card::CardTypeSet::single(CardType::Creature)
-                && shared_static_type_animation_query(recipient)
+            types != crate::card::CardTypeSet::EMPTY
+                && (shared_direct_characteristic_recipient(recipient)
+                    || types == crate::card::CardTypeSet::single(CardType::Creature)
+                        && shared_static_type_animation_query(recipient))
         }
         AppliedEffectDef::Characteristic(
             CharacteristicOperationDef::Colors(_) | CharacteristicOperationDef::Subtypes(_),
@@ -418,11 +420,11 @@ pub(in super::super) fn shared_static_applied_effect(
         // the catalog's own validation as an ability of its own card. "This
         // land is the chosen type" carries nothing to check either: which
         // type it is comes from the choice made on the way in.
+        AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
+            AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles(object),
+        )) => shared_object_predicate(object),
         AppliedEffectDef::Characteristic(
-            CharacteristicOperationDef::Abilities(
-                AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles
-                | AbilityOperationDef::Remove(_),
-            )
+            CharacteristicOperationDef::Abilities(AbilityOperationDef::Remove(_))
             | CharacteristicOperationDef::PowerToughness(PowerToughnessOperationDef::Switch)
             | CharacteristicOperationDef::ChosenBasicLandType,
         ) => true,

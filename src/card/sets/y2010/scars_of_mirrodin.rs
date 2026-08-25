@@ -26,22 +26,26 @@ static FAST_LAND_ENTERS: AbilityDef = abilities::fast_land_enters(
     "This land enters tapped unless you control two or fewer other lands.",
 );
 
-static ARTIFACTS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
+pub(in crate::card::sets) static ARTIFACTS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasType(CardType::Artifact),
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
 );
 
-static METALCRAFT: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: ARTIFACTS_YOU_CONTROL,
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 3,
-};
+pub(in crate::card::sets) static METALCRAFT: TriggerConditionDef =
+    TriggerConditionDef::ObjectCount {
+        query: ARTIFACTS_YOU_CONTROL,
+        comparison: ComparisonDef::GreaterOrEqual,
+        amount: 3,
+    };
 
 /// A value-level branch over Metalcraft's shared three-artifact threshold.
 /// Each card supplies its own amounts, and the count is read as the effect
 /// resolves.
-const fn metalcraft_value(then: i32, otherwise: i32) -> CountConditionDef {
+pub(in crate::card::sets) const fn metalcraft_value(
+    then: i32,
+    otherwise: i32,
+) -> CountConditionDef {
     CountConditionDef {
         query: ARTIFACTS_YOU_CONTROL,
         comparison: ComparisonDef::GreaterOrEqual,

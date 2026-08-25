@@ -40,12 +40,12 @@ impl CreatureTypeSetDef {
 pub enum AbilityOperationDef {
     Add(&'static AbilityDef),
     Remove(AbilityPredicateDef),
-    /// Every activated ability of every creature card exiled with the
-    /// granting object. Agatha's Soul Cauldron hands out a set the board
-    /// decides rather than a clause anyone could write down, so unlike
-    /// [`Self::Add`] the abilities are read at the moment the layer is walked
-    /// and each one keeps its own grant identity.
-    AddActivatedAbilitiesOfLinkedExiles,
+    /// Every activated ability of each matching card exiled with the granting
+    /// object. Agatha's Soul Cauldron names creature cards, while Myr Welder
+    /// names every card in its linked pile. Unlike [`Self::Add`], the abilities
+    /// are read at the moment the layer is walked and each one keeps its own
+    /// grant identity.
+    AddActivatedAbilitiesOfLinkedExiles(ObjectPredicateDef),
 }
 
 /// One layer-7 operation over power and toughness.

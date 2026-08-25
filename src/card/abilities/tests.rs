@@ -4,7 +4,8 @@ mod tests {
         banding, bloodrush, check_land_enters, dies_trigger, dies_trigger_matching,
         dies_trigger_with_targets, double_strike, enchant_creature, enters_trigger,
         enters_trigger_with_targets, exile_and_return_transformed, exile_until_next_end_step,
-        exile_until_next_end_step_under_your_control, first_strike, flashback,
+        exile_until_next_end_step_under_your_control, exile_until_source_leaves, first_strike,
+        flashback,
         flashback_for_card_mana_cost, flying, intimidate, living_weapon, overload, pain_land,
         shock_land_enters, tap_for, EQUIP_TARGET, equip,
     };
@@ -218,6 +219,44 @@ mod tests {
                 transformed: true,
                 ..
             }
+        ));
+    }
+
+    #[test]
+    fn until_source_leaves_builds_one_linked_exile_clause() {
+        let effect =
+            exile_until_source_leaves(EffectRecipientDef::Target(TargetIndex::PRIMARY));
+        let EffectDef::ExileLinkedToSource {
+            object,
+            then: Some(return_trigger),
+            ..
+        } = effect
+        else {
+            panic!("the helper should own the complete linked clause")
+        };
+        assert_eq!(object, EffectRecipientDef::Target(TargetIndex::PRIMARY));
+        let EffectDef::InstallTrigger(installed) = *return_trigger else {
+            panic!("the helper should install its return trigger")
+        };
+        let DeclarativeAbilityDef::Triggered(trigger) = installed.ability.definition else {
+            panic!("the nested return should be a triggered ability")
+        };
+        assert_eq!(
+            trigger.event,
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                Some(ZoneKind::Battlefield),
+                None,
+            )
+        );
+        assert!(matches!(
+            installed.ability.declarative_effect(),
+            Some(EffectDef::ReturnLinkedExiles {
+                object: ObjectPredicateDef::Any,
+                zone: ZoneKind::Battlefield,
+                controller: None,
+                ..
+            })
         ));
     }
 

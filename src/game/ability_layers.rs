@@ -308,7 +308,7 @@ impl Game {
         if matches!(
             applied.effect,
             AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
-                AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles,
+                AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles(_),
             ))
         ) {
             self.push_linked_exile_ability_grants(applied, operations);
@@ -317,7 +317,7 @@ impl Game {
         operations.extend(Self::static_ability_layer_operation(applied));
     }
 
-    /// One Add operation for each activated ability of each creature card
+    /// One Add operation for each activated ability of each matching card
     /// exiled with the granting object, in exile order. The grant identity is
     /// that position, which is stable because the pile only ever grows while
     /// the granting object is on the battlefield: an ability keeps the same
@@ -327,24 +327,35 @@ impl Game {
         applied: &StaticAppliedEffect,
         operations: &mut Vec<AbilityLayerOperation>,
     ) {
+        let AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
+            AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles(predicate),
+        )) = applied.effect
+        else {
+            return;
+        };
         let mut position = 0_usize;
         for (_, exiled) in self
             .linked_exiles
             .iter()
             .filter(|(source, _)| *source == applied.source)
         {
+            let Some((zone, card)) = self.card_in_nonbattlefield_zone(*exiled) else {
+                continue;
+            };
+            if !self.card_object_matches(predicate, card, zone, applied.source) {
+                continue;
+            }
             let Some(rules) = self
-                .card_in_nonbattlefield_zone(*exiled)
-                .and_then(|(_, card)| self.catalog.get(card.definition))
+                .catalog
+                .get(card.definition)
                 .map(|definition| &definition.rules)
-                .filter(|rules| rules.has_type(CardType::Creature))
             else {
                 continue;
             };
             for attached in rules.indexed_abilities() {
                 if !matches!(
                     attached.definition.definition,
-                    DeclarativeAbilityDef::Activated(_)
+                    DeclarativeAbilityDef::Activated(_) | DeclarativeAbilityDef::ActivatedMana(_)
                 ) {
                     continue;
                 }

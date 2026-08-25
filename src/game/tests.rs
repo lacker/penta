@@ -196,6 +196,7 @@ mod mikaeus_the_lunarch;
 mod mill_until_land;
 mod mindshrieker;
 mod miracle;
+mod mirrodin_besieged;
 mod mirror_mad_phantasm;
 mod mishras_war_machine;
 mod modal_effects;

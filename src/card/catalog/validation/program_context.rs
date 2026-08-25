@@ -282,6 +282,11 @@ fn static_player_applied_effect_supported(effect: AppliedEffectDef) -> bool {
         AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromGraveyard(permission)) => {
             static_object_predicate_supported(permission.restriction.object)
         }
+        // Read where a cast is offered, against the card being cast, just
+        // like the other player-facing play permissions above.
+        AppliedEffectDef::Rule(AppliedRuleDef::MayCastAsThoughItHadFlash(object)) => {
+            static_object_predicate_supported(object)
+        }
         // Both predicates are read against an object the trigger walk
         // already has in hand: what arrived, and what carries the ability.
         AppliedEffectDef::Rule(AppliedRuleDef::TriggersAnAdditionalTime(doubling)) => {
@@ -390,8 +395,10 @@ fn static_object_characteristic_supported(
         // cannot feed back into its own selection; a group query must avoid
         // reading the characteristics it supplies.
         CharacteristicOperationDef::CardTypes(SetOperationDef::Add(types)) => {
-            types == crate::card::CardTypeSet::single(CardType::Creature)
-                && static_type_animation_query_supported(recipient)
+            types != crate::card::CardTypeSet::EMPTY
+                && (static_direct_characteristic_recipient(recipient)
+                    || types == crate::card::CardTypeSet::single(CardType::Creature)
+                        && static_type_animation_query_supported(recipient))
         }
         CharacteristicOperationDef::Colors(_) | CharacteristicOperationDef::Subtypes(_) => {
             static_animation_query_supported(recipient)

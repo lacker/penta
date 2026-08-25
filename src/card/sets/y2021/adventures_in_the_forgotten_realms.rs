@@ -3,46 +3,12 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, CardType,
-    EffectDef, EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef, PlayerRelation,
-    TriggerEventDef, ZoneKind, abilities,
+    AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, CardType,
+    EffectRecipientDef, ObjectPredicateDef, PlayerRelation, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
 // AFR 33 — Portable Hole
-/// "Until this artifact leaves the battlefield" is one printed ability, so
-/// the return rides on the same resolution as a delayed trigger rather than
-/// appearing as a second clause the card does not print. Leaves, not dies:
-/// bouncing or exiling the Hole gives the permanent back just as destroying
-/// it does.
-static HOLE_GIVES_IT_BACK: AbilityDef = AbilityDef::triggered(
-    "When this artifact leaves the battlefield, return the exiled card to the battlefield under \
-     its owner's control.",
-    TriggerEventDef::zone_changed(
-        ObjectPredicateDef::Source,
-        Some(ZoneKind::Battlefield),
-        None,
-    ),
-    EffectDef::ReturnLinkedExiles {
-        object: ObjectPredicateDef::Any,
-        counters: None,
-        arrival_effect: None,
-        zone: ZoneKind::Battlefield,
-        grant: None,
-        controller: None,
-        transformed: false,
-    },
-);
-
-static HOLE_SWALLOWS_IT: [EffectDef; 2] = [
-    EffectDef::ExileLinkedToSource {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        face_down: false,
-        then: None,
-    },
-    EffectDef::InstallTrigger(InstalledTriggerDef::once(&HOLE_GIVES_IT_BACK)),
-];
-
 /// A cheap nonland permanent across the table. Mana value is read off the
 /// card, so a token is a zero and qualifies.
 static HOLE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
@@ -71,7 +37,7 @@ pub(in crate::card::sets) static PORTABLE_HOLE: CardRecord = CardRecord::new_wit
             "When this artifact enters, exile target nonland permanent an opponent controls with \
          mana value 2 or less until this artifact leaves the battlefield.",
             &HOLE_TARGET,
-            EffectDef::Sequence(&HOLE_SWALLOWS_IT),
+            abilities::exile_until_source_leaves(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
         ),
     ),
 );

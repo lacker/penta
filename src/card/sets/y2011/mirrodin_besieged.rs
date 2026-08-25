@@ -2,34 +2,84 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y1993::alpha as catalog_lea;
-use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CounterKind, DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    PlayerRelation, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    SpellResolutionDestinationDef, TriggerEventDef, ValueDef, ZoneKind, ZoneMoveCauseDef,
-    ZonePlacement, abilities,
+use crate::card::sets::y2010::scars_of_mirrodin::{
+    ARTIFACTS_YOU_CONTROL, METALCRAFT, metalcraft_value,
 };
-use crate::{TargetIndex, mana_cost};
+use crate::card::{
+    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityOperationDef, AbilityTargetDef,
+    AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef,
+    BattlefieldEntryModificationDef, BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, CardTypeSet, CharacteristicOperationDef, ComparisonDef,
+    ControlDurationDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DestroyFollowUpDef,
+    DiscardSelectionDef, DividedTotal, DrawEventMatcherDef, EffectDef, EffectPaymentCostDef,
+    EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayActionMatcherDef, PlayRestrictionDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, ScaledValueDef, SpellAdditionalCostCountDef,
+    SpellAdditionalCostDef, SpellResolutionDestinationDef, SpendModeDef, TokenCopyExceptionsDef,
+    TokenStatsDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef,
+    ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
+};
+use crate::{ObjectSetBindingIndex, TargetIndex, mana_cost};
+
+/// Battle cry is confined to Mirrodin Besieged in the catalog. Each printed
+/// instance triggers independently and boosts only the other creatures
+/// attacking alongside its source.
+#[must_use]
+const fn battle_cry() -> AbilityDef {
+    AbilityDef::triggered(
+        "Battle cry (Whenever this creature attacks, each other attacking creature gets +1/+0 until end of turn.)",
+        TriggerEventDef::attacks(ObjectPredicateDef::Source),
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Attacking,
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(1),
+                ValueDef::Constant(0),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )
+}
 
 // MBS 1 — Accorder Paladin
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ACCORDER_PALADIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("df0a4370-729d-40e7-b68b-21902648492d"),
     "Accorder Paladin",
     crate::card::CardArt::new("df0a4370-729d-40e7-b68b-21902648492d", "Kekai Kotaki"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Knight"], 3, 1)
+        .with_ability(battle_cry()),
 );
 
 // MBS 2 — Ardent Recruit
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ARDENT_RECRUIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("69c42dac-f0b3-41aa-b3b2-f203e265131d"),
     "Ardent Recruit",
     crate::card::CardArt::new("69c42dac-f0b3-41aa-b3b2-f203e265131d", "Mike Bierek"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Soldier"], 1, 1).with_ability(
+        AbilityDef::static_ability(
+            "Metalcraft — This creature gets +2/+2 as long as you control three or more artifacts.",
+            EffectDef::IfCondition {
+                condition: &METALCRAFT,
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                },
+            },
+        ),
+    ),
 );
 
 // MBS 3 — Banishment Decree
@@ -87,7 +137,7 @@ pub(in crate::card::sets) static CHOKING_FUMES: CardRecord = CardRecord::new(
 // MBS 5 — Divine Offering (reprint)
 
 // MBS 6 — Frantic Salvage
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs an ordered multi-target graveyard move so the controller can choose the relative order of any number of artifact cards placed on top of the library before drawing.
 pub(in crate::card::sets) static FRANTIC_SALVAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("aff909bc-0bda-4e8a-b7a3-ebc963552246"),
     "Frantic Salvage",
@@ -97,27 +147,69 @@ pub(in crate::card::sets) static FRANTIC_SALVAGE: CardRecord = CardRecord::new(
 );
 
 // MBS 7 — Gore Vassal
-// Audit: metadata-only — Card rules have not been implemented.
+static GORE_VASSAL_TARGET_SURVIVES: TriggerConditionDef =
+    TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+        left: ValueDef::TargetToughness(TargetIndex::PRIMARY),
+        comparison: ComparisonDef::GreaterOrEqual,
+        right: ValueDef::Constant(1),
+    });
+
 pub(in crate::card::sets) static GORE_VASSAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c2889bba-58a8-46e1-959c-0fd38c1732f9"),
     "Gore Vassal",
     crate::card::CardArt::new("c2889bba-58a8-46e1-959c-0fd38c1732f9", "Matt Cavotta"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Phyrexian", "Dog"], 2, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "Sacrifice this creature: Put a -1/-1 counter on target creature. Then if that creature's toughness is 1 or greater, regenerate it.",
+            &[AbilityCostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::MinusOneMinusOne,
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::IfCondition {
+                    condition: &GORE_VASSAL_TARGET_SURVIVES,
+                    then: &EffectDef::Regenerate {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    },
+                },
+            ]),
+        ),
+    ),
 );
 
 // MBS 8 — Hero of Bladehold
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: partial — The attack trigger creates tapped attackers against the defending player; token creation cannot offer a defending player or planeswalker choice for each token.
 pub(in crate::card::sets) static HERO_OF_BLADEHOLD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8829efa0-498a-43ca-91aa-f9caeeafe298"),
     "Hero of Bladehold",
     crate::card::CardArt::new("8a3853ec-e307-46e0-96d7-0706b5c45c5e", "Austin Hsu"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Human", "Knight"], 3, 4).with_abilities(
+        &[
+            battle_cry(),
+            AbilityDef::triggered(
+                "Whenever this creature attacks, create two 1/1 white Soldier creature tokens that are tapped and attacking.",
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1)
+                    .with_amount(2)
+                    .entering_tapped()
+                    .entering_attacking(),
+            )
+            .with_coverage(AbilityCoverageDef::partial(
+                "The tokens attack the defending player; the effect cannot offer a separate defending player or planeswalker choice for each token.",
+            )),
+        ],
+    ),
 );
 
 // MBS 9 — Kemba's Legion
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Attached Equipment can be queried, but AppliedRuleDef::MayBlockAdditionalCreatures accepts only a fixed u8 rather than a ValueDef that can count those attachments.
 pub(in crate::card::sets) static KEMBA_S_LEGION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("30731756-81a8-480b-938f-48c1d0cb95d7"),
     "Kemba's Legion",
@@ -127,13 +219,29 @@ pub(in crate::card::sets) static KEMBA_S_LEGION: CardRecord = CardRecord::new(
 );
 
 // MBS 10 — Leonin Relic-Warder
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static LEONIN_RELIC_WARDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dd0900e1-df78-466d-b747-33f22c273d67"),
     "Leonin Relic-Warder",
     crate::card::CardArt::new("dd0900e1-df78-466d-b747-33f22c273d67", "Greg Staples"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{W}{W}"), &["Cat", "Cleric"], 2, 2).with_ability(
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, you may exile target artifact or enchantment until this \
+             creature leaves the battlefield.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                ]),
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &abilities::exile_until_source_leaves(EffectRecipientDef::Target(
+                    TargetIndex::PRIMARY,
+                )),
+            },
+        ),
+    ),
 );
 
 // MBS 11 — Leonin Skyhunter
@@ -155,17 +263,8 @@ pub(in crate::card::sets) static LOXODON_PARTISAN: CardRecord = CardRecord::new(
     "Loxodon Partisan",
     crate::card::CardArt::new("a4a76016-96a1-40f5-9002-4b3bed65cd5c", "Matt Stewart"),
     crate::card::CardSet::MirrodinBesieged,
-    CardRules::new_creature(mana_cost!("{4}{W}"), &["Elephant", "Soldier"], 3, 4).with_ability(
-        AbilityDef::triggered(
-            "Battle cry (Whenever this creature attacks, each other attacking creature gets +1/+0 until end of turn.)",
-            TriggerEventDef::attacks(ObjectPredicateDef::Source),
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Attacking, ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]), &[ZoneKind::Battlefield], PlayerRelation::You),
-                effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(0)),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
-        ),
-    ),
+    CardRules::new_creature(mana_cost!("{4}{W}"), &["Elephant", "Soldier"], 3, 4)
+        .with_ability(battle_cry()),
 );
 
 // MBS 13 — Master's Call
@@ -194,13 +293,35 @@ pub(in crate::card::sets) static MIRRAN_CRUSADER: CardRecord = CardRecord::new(
 );
 
 // MBS 15 — Phyrexian Rebirth
-// Audit: metadata-only — Card rules have not been implemented.
+static PHYREXIAN_REBIRTH_TOKEN_STATS: TokenStatsDef = TokenStatsDef {
+    power: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
+    toughness: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
+};
+
+static PHYREXIAN_REBIRTH_TOKEN: EffectDef =
+    EffectDef::create_artifact_creature_token(&["Phyrexian", "Horror"], &[], 0, 0)
+        .with_variable_token_stats(&PHYREXIAN_REBIRTH_TOKEN_STATS);
+
 pub(in crate::card::sets) static PHYREXIAN_REBIRTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("36b7536d-6b0b-4906-ba88-7fcfe9b854ee"),
     "Phyrexian Rebirth",
     crate::card::CardArt::new("36b7536d-6b0b-4906-ba88-7fcfe9b854ee", "Scott Chou"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{4}{W}{W}")).with_ability(AbilityDef::spell(
+        "Destroy all creatures, then create an X/X colorless Phyrexian Horror artifact creature token, where X is the number of creatures destroyed this way.",
+        EffectDef::Destroy {
+            object: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            can_regenerate: true,
+            then: Some(DestroyFollowUpDef {
+                binding: ObjectSetBindingIndex::PRIMARY,
+                effect: &PHYREXIAN_REBIRTH_TOKEN,
+            }),
+        },
+    )),
 );
 
 // MBS 16 — Priests of Norn
@@ -224,13 +345,33 @@ pub(in crate::card::sets) static TINE_SHRIKE: CardRecord = CardRecord::new(
 );
 
 // MBS 18 — Victory's Herald
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static VICTORY_S_HERALD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ac76f857-faf6-482d-a82e-7ff681f8007b"),
     "Victory's Herald",
     crate::card::CardArt::new("ac76f857-faf6-482d-a82e-7ff681f8007b", "rk post"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}{W}{W}"), &["Angel"], 4, 4).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered(
+            "Whenever this creature attacks, attacking creatures gain flying and lifelink until end of turn.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Attacking,
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_ability(&abilities::flying()),
+                    AppliedEffectDef::add_ability(&abilities::lifelink()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MBS 19 — White Sun's Zenith
@@ -249,47 +390,113 @@ pub(in crate::card::sets) static WHITE_SUNS_ZENITH: CardRecord = CardRecord::new
 );
 
 // MBS 20 — Blue Sun's Zenith
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static BLUE_SUN_S_ZENITH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a8150f78-e187-4949-9746-fec64d1675d1"),
     "Blue Sun's Zenith",
     crate::card::CardArt::new("a8150f78-e187-4949-9746-fec64d1675d1", "Izzy"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{X}{U}{U}{U}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Target player draws X cards. Shuffle Blue Sun's Zenith into its owner's library.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::ChosenX,
+            },
+        )
+        .with_resolution_destination(SpellResolutionDestinationDef::LibraryShuffled),
+    ),
 );
 
 // MBS 21 — Consecrated Sphinx
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CONSECRATED_SPHINX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b7f6b20c-9871-433c-8557-44493447e914"),
     "Consecrated Sphinx",
     crate::card::CardArt::new("b7f6b20c-9871-433c-8557-44493447e914", "Mark Zug"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{U}{U}"), &["Sphinx"], 4, 6).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered(
+            "Whenever an opponent draws a card, you may draw two cards.",
+            TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::Opponent)),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(2),
+                },
+            },
+        ),
+    ]),
 );
 
 // MBS 22 — Corrupted Conscience
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CORRUPTED_CONSCIENCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7276c584-76ed-4c20-a5ea-627c8f7751e6"),
     "Corrupted Conscience",
     crate::card::CardArt::new("7276c584-76ed-4c20-a5ea-627c8f7751e6", "Jason Chan"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{3}{U}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "You control enchanted creature.",
+                EffectDef::GainControl {
+                    object: EffectRecipientDef::AttachedPermanent,
+                    controller: PlayerRefDef::EffectController,
+                    duration: ControlDurationDef::WhileSourceRemains {
+                        while_tapped: false,
+                    },
+                },
+            ),
+            AbilityDef::static_ability(
+                "Enchanted creature has infect.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&abilities::infect()),
+                },
+            ),
+        ]),
 );
 
 // MBS 23 — Cryptoplasm
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CRYPTOPLASM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("15a31710-c1d6-45e4-9dbe-a75453a74da0"),
     "Cryptoplasm",
     crate::card::CardArt::new("15a31710-c1d6-45e4-9dbe-a75453a74da0", "Eric Deschamps"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Shapeshifter"], 2, 2).with_ability(
+        AbilityDef::triggered_with_targets(
+            "At the beginning of your upkeep, you may have this creature become a copy of another target creature, except it has this ability.",
+            TriggerEventDef::StepBegins {
+                step: crate::card::TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                ]),
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::BecomeCopyOf {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    copier: None,
+                    retain_source_ability: true,
+                    added_types: CardTypeSet::EMPTY,
+                    duration: None,
+                },
+            },
+        ),
+    ),
 );
 
 // MBS 24 — Distant Memories
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a searched card exiled and linked to the spell, followed by an opponent-controlled yes/no choice that either returns that exact card or causes three cards to be drawn.
 pub(in crate::card::sets) static DISTANT_MEMORIES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("158da0aa-8317-498b-89ed-2f84317fe256"),
     "Distant Memories",
@@ -299,27 +506,57 @@ pub(in crate::card::sets) static DISTANT_MEMORIES: CardRecord = CardRecord::new(
 );
 
 // MBS 25 — Fuel for the Cause
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static FUEL_FOR_THE_CAUSE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4126e0e5-9b23-496f-8a09-7a35499f9a09"),
     "Fuel for the Cause",
     crate::card::CardArt::new("4126e0e5-9b23-496f-8a09-7a35499f9a09", "Steven Belledin"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{U}{U}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Counter target spell, then proliferate. (Choose any number of permanents and/or players, then give each another counter of each kind already there.)",
+            &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+            EffectDef::Sequence(&[
+                EffectDef::Counter {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Graveyard,
+                    placement: ZonePlacement::Top,
+                },
+                EffectDef::Proliferate,
+            ]),
+        ),
+    ),
 );
 
 // MBS 26 — Mirran Spy
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static MIRRAN_SPY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("50e576ad-3e03-424c-8857-88ec8898a92e"),
     "Mirran Spy",
     crate::card::CardArt::new("50e576ad-3e03-424c-8857-88ec8898a92e", "Dave Kendall"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Drone"], 1, 3).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered_with_targets(
+            "Whenever you cast an artifact spell, you may untap target creature.",
+            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Spell,
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ])),
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::Untap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            },
+        ),
+    ]),
 );
 
 // MBS 27 — Mitotic Manipulation
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a top-seven selection predicate that compares each revealed card's name with every permanent on the battlefield, then orders the remainder on the library bottom.
 pub(in crate::card::sets) static MITOTIC_MANIPULATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2abd4521-62c8-4b2f-a406-a8ddfa8f475a"),
     "Mitotic Manipulation",
@@ -329,13 +566,25 @@ pub(in crate::card::sets) static MITOTIC_MANIPULATION: CardRecord = CardRecord::
 );
 
 // MBS 28 — Neurok Commando
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static NEUROK_COMMANDO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("aa7084f3-9335-401f-9a62-6f131351338d"),
     "Neurok Commando",
     crate::card::CardArt::new("aa7084f3-9335-401f-9a62-6f131351338d", "Matt Stewart"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Human", "Rogue"], 2, 1).with_abilities(&[
+        abilities::shroud(),
+        AbilityDef::triggered(
+            "Whenever this creature deals combat damage to a player, you may draw a card.",
+            TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            },
+        ),
+    ]),
 );
 
 // MBS 29 — Oculus
@@ -359,13 +608,34 @@ pub(in crate::card::sets) static OCULUS: CardRecord = CardRecord::new(
 );
 
 // MBS 30 — Quicksilver Geyser
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static QUICKSILVER_GEYSER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fb209cf5-ac7b-4521-b488-ef72451e3a25"),
     "Quicksilver Geyser",
     crate::card::CardArt::new("fb209cf5-ac7b-4521-b488-ef72451e3a25", "Erica Yang"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{4}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Return up to two target nonland permanents to their owners' hands.",
+        &[AbilityTargetDef::up_to(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+            2,
+        )],
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            from: Some(ZoneKind::Battlefield),
+            zone: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            counters: None,
+            controller: None,
+            arrival_effect: None,
+            attachment: None,
+            tapped: false,
+        },
+    )),
 );
 
 // MBS 31 — Serum Raker
@@ -391,33 +661,104 @@ pub(in crate::card::sets) static SERUM_RAKER: CardRecord = CardRecord::new(
 );
 
 // MBS 32 — Spire Serpent
-// Audit: metadata-only — Card rules have not been implemented.
+static SPIRE_SERPENT_METALCRAFT: EffectDef = EffectDef::StaticApply {
+    recipient: EffectRecipientDef::Source,
+    effect: AppliedEffectDef::Composite(&[
+        AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
+        AppliedEffectDef::Rule(AppliedRuleDef::MayAttackDespiteDefender),
+    ]),
+};
+
 pub(in crate::card::sets) static SPIRE_SERPENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9a14e2a4-484b-46e4-a5a1-c66cb13be178"),
     "Spire Serpent",
     crate::card::CardArt::new("9a14e2a4-484b-46e4-a5a1-c66cb13be178", "Johann Bodin"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{U}"), &["Serpent"], 3, 5).with_abilities(&[
+        abilities::defender(),
+        AbilityDef::static_ability(
+            "Metalcraft — As long as you control three or more artifacts, this creature gets +2/+2 and can attack as though it didn't have defender.",
+            EffectDef::IfCondition {
+                condition: &METALCRAFT,
+                then: &SPIRE_SERPENT_METALCRAFT,
+            },
+        ),
+    ]),
 );
 
 // MBS 33 — Steel Sabotage
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static STEEL_SABOTAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bb40de7c-1905-4615-844b-4abc231fb01e"),
     "Steel Sabotage",
     crate::card::CardArt::new("bb40de7c-1905-4615-844b-4abc231fb01e", "Daarken"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —\n• Counter target artifact spell.\n• Return target artifact to its owner's hand.",
+        &[
+            AbilityDef::spell_with_targets(
+                "Counter target artifact spell",
+                &[AbilityTargetDef::exactly_one_spell(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                )],
+                EffectDef::Counter {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Graveyard,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Return target artifact to its owner's hand",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                )],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    from: Some(ZoneKind::Battlefield),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    counters: None,
+                    controller: None,
+                    arrival_effect: None,
+                    attachment: None,
+                    tapped: false,
+                },
+            ),
+        ],
+        1,
+        1,
+        false,
+    )),
 );
 
 // MBS 34 — Treasure Mage
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static TREASURE_MAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6fe4fea1-bb23-46e4-b7b0-e83f8b99ce5d"),
     "Treasure Mage",
     crate::card::CardArt::new("6fe4fea1-bb23-46e4-b7b0-e83f8b99ce5d", "Ryan Pancoast"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 2, 2).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, you may search your library for an artifact card with mana value 6 or greater, reveal it, put it into your hand, then shuffle.",
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(5)),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+    ),
 );
 
 // MBS 35 — Turn the Tide
@@ -444,7 +785,7 @@ pub(in crate::card::sets) static TURN_THE_TIDE: CardRecord = CardRecord::new(
 );
 
 // MBS 36 — Vedalken Anatomist
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs an in-resolution choice to tap or untap the already-targeted creature after placing its -1/-1 counter.
 pub(in crate::card::sets) static VEDALKEN_ANATOMIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0c13bb9b-c4e9-4b82-852a-dbd5602b1aa9"),
     "Vedalken Anatomist",
@@ -454,33 +795,81 @@ pub(in crate::card::sets) static VEDALKEN_ANATOMIST: CardRecord = CardRecord::ne
 );
 
 // MBS 37 — Vedalken Infuser
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static VEDALKEN_INFUSER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1e4f4db7-913c-4dd2-931e-630d90eb98ab"),
     "Vedalken Infuser",
     crate::card::CardArt::new("1e4f4db7-913c-4dd2-931e-630d90eb98ab", "Ryan Pancoast"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Vedalken", "Wizard"], 1, 4).with_ability(
+        AbilityDef::triggered_with_targets(
+            "At the beginning of your upkeep, you may put a charge counter on target artifact.",
+            TriggerEventDef::StepBegins {
+                step: crate::card::TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::named("charge"),
+                    amount: ValueDef::Constant(1),
+                },
+            },
+        ),
+    ),
 );
 
 // MBS 38 — Vivisection
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static VIVISECTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("684a3631-f2d6-4a64-a04a-893f452e3a60"),
     "Vivisection",
     crate::card::CardArt::new("684a3631-f2d6-4a64-a04a-893f452e3a60", "Anthony Francisco"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{U}")).with_ability(
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, sacrifice a creature.\nDraw three cards.",
+            &[],
+            SpellAdditionalCostDef {
+                or_life: None,
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zone: ZoneKind::Battlefield,
+                count: 1,
+                counted: SpellAdditionalCostCountDef::Printed,
+                spend: SpendModeDef::ByZone,
+                or: None,
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(3),
+            },
+        ),
+    ),
 );
 
 // MBS 39 — Black Sun's Zenith
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static BLACK_SUN_S_ZENITH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("03bdcf52-50b8-42c0-9665-931d83f5f314"),
     "Black Sun's Zenith",
     crate::card::CardArt::new("03bdcf52-50b8-42c0-9665-931d83f5f314", "Daniel Ljunggren"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{X}{B}{B}")).with_ability(
+        AbilityDef::spell(
+            "Put X -1/-1 counters on each creature. Shuffle Black Sun's Zenith into its owner's library.",
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                kind: CounterKind::MinusOneMinusOne,
+                amount: ValueDef::ChosenX,
+            },
+        )
+        .with_resolution_destination(SpellResolutionDestinationDef::LibraryShuffled),
+    ),
 );
 
 // MBS 40 — Caustic Hound
@@ -511,13 +900,30 @@ pub(in crate::card::sets) static FLENSERMITE: CardRecord = CardRecord::new(
 );
 
 // MBS 42 — Flesh-Eater Imp
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static FLESH_EATER_IMP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6d5ee9f3-80fe-43b0-be5b-0c93103e1077"),
     "Flesh-Eater Imp",
     crate::card::CardArt::new("6d5ee9f3-80fe-43b0-be5b-0c93103e1077", "Johann Bodin"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Phyrexian", "Imp"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::infect(),
+        AbilityDef::activated(
+            "Sacrifice a creature: This creature gets +1/+1 until end of turn.",
+            &[AbilityCostDef::SacrificePermanent {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                controller: PlayerRelation::You,
+            }],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MBS 43 — Go for the Throat
@@ -543,7 +949,7 @@ pub(in crate::card::sets) static GO_FOR_THE_THROAT: CardRecord = CardRecord::new
 );
 
 // MBS 44 — Gruesome Encore
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a graveyard target put onto the battlefield under a different controller with both a leave-battlefield exile replacement and a delayed end-step exile linked to that new object.
 pub(in crate::card::sets) static GRUESOME_ENCORE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3f7f31fb-af96-4c8c-80fa-219ebd7c3d4d"),
     "Gruesome Encore",
@@ -553,53 +959,143 @@ pub(in crate::card::sets) static GRUESOME_ENCORE: CardRecord = CardRecord::new(
 );
 
 // MBS 45 — Horrifying Revelation
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static HORRIFYING_REVELATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("27ff5fbd-7ce8-4188-8228-0eab0d69a7a1"),
     "Horrifying Revelation",
     crate::card::CardArt::new("27ff5fbd-7ce8-4188-8228-0eab0d69a7a1", "Shelly Wan"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Target player discards a card, then mills a card.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+            EffectDef::Mill {
+                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+                binding: None,
+                then: None,
+            },
+        ]),
+    )),
 );
 
 // MBS 46 — Massacre Wurm
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static MASSACRE_WURM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cdd32ec2-02a8-41fc-bf45-c9585bb2b3ee"),
     "Massacre Wurm",
     crate::card::CardArt::new("cdd32ec2-02a8-41fc-bf45-c9585bb2b3ee", "Jason Chan"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}{B}{B}"), &["Phyrexian", "Wurm"], 6, 5)
+        .with_abilities(&[
+            abilities::enters_trigger(
+                "When this creature enters, creatures your opponents control get -2/-2 until end of turn.",
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Opponent,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(-2),
+                        ValueDef::Constant(-2),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            abilities::dies_trigger_matching(
+                "Whenever a creature an opponent controls dies, that player loses 2 life.",
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                ]),
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::ControllerOfTriggeringObject,
+                    amount: ValueDef::Constant(2),
+                },
+            ),
+        ]),
 );
 
 // MBS 47 — Morbid Plunder
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static MORBID_PLUNDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bd6a8817-05fc-400e-9464-b7d925c5c312"),
     "Morbid Plunder",
     crate::card::CardArt::new("bd6a8817-05fc-400e-9464-b7d925c5c312", "Mike Bierek"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{B}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Return up to two target creature cards from your graveyard to your hand.",
+        &[AbilityTargetDef::up_to(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: Some(PlayerRelation::You),
+            },
+            2,
+        )],
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            from: Some(ZoneKind::Graveyard),
+            zone: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            counters: None,
+            controller: None,
+            arrival_effect: None,
+            attachment: None,
+            tapped: false,
+        },
+    )),
 );
 
 // MBS 48 — Nested Ghoul
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static NESTED_GHOUL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c035ff58-9df3-4db4-b9d0-97d58080ecfe"),
     "Nested Ghoul",
     crate::card::CardArt::new("c035ff58-9df3-4db4-b9d0-97d58080ecfe", "Dave Kendall"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{3}{B}{B}"),
+        &["Phyrexian", "Zombie", "Warrior"],
+        4,
+        2,
+    )
+    .with_ability(AbilityDef::triggered(
+        "Whenever a source deals damage to this creature, create a 2/2 black Phyrexian Zombie creature token.",
+        TriggerEventDef::DamageDealt(DamageEventMatcherDef::to(EffectRecipientDef::Source)),
+        EffectDef::create_creature_token(
+            &["Phyrexian", "Zombie"],
+            &[ManaColor::Black],
+            2,
+            2,
+        ),
+    )),
 );
 
 // MBS 49 — Phyresis
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PHYRESIS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0059d21b-0725-4806-8691-2451db36787f"),
     "Phyresis",
     crate::card::CardArt::new("0059d21b-0725-4806-8691-2451db36787f", "Izzy"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has infect. (It deals damage to creatures in the form of -1/-1 counters and to players in the form of poison counters.)",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&abilities::infect()),
+                },
+            ),
+        ]),
 );
 
 // MBS 50 — Phyrexian Crusader
@@ -646,23 +1142,65 @@ pub(in crate::card::sets) static PHYREXIAN_RAGER: CardRecord = CardRecord::new(
 );
 
 // MBS 52 — Phyrexian Vatmother
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PHYREXIAN_VATMOTHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f0024556-0317-4c28-83c3-0a6020d72a2b"),
     "Phyrexian Vatmother",
     crate::card::CardArt::new("f0024556-0317-4c28-83c3-0a6020d72a2b", "Stephan Martiniere"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Phyrexian", "Horror"], 4, 5)
+        .with_abilities(&[
+            abilities::infect(),
+            AbilityDef::triggered(
+                "At the beginning of your upkeep, you get a poison counter.",
+                TriggerEventDef::StepBegins {
+                    step: crate::card::TurnStepDef::Upkeep,
+                    player: PlayerRelation::You,
+                },
+                EffectDef::AddPlayerCounters {
+                    recipient: EffectRecipientDef::Controller,
+                    kind: CounterKind::Poison,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // MBS 53 — Sangromancer
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SANGROMANCER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9c374193-4ebb-4f33-a24d-e567aea57b01"),
     "Sangromancer",
     crate::card::CardArt::new("9c374193-4ebb-4f33-a24d-e567aea57b01", "Igor Kieryluk"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Vampire", "Shaman"], 3, 3).with_abilities(
+        &[
+            abilities::flying(),
+            abilities::dies_trigger_matching(
+                "Whenever a creature an opponent controls dies, you may gain 3 life.",
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                ]),
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(3),
+                    },
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever an opponent discards a card, you may gain 3 life.",
+                TriggerEventDef::Discarded(PlayerRelation::Opponent),
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(3),
+                    },
+                },
+            ),
+        ],
+    ),
 );
 
 // MBS 54 — Scourge Servant
@@ -676,27 +1214,67 @@ pub(in crate::card::sets) static SCOURGE_SERVANT: CardRecord = CardRecord::new(
 );
 
 // MBS 55 — Septic Rats
-// Audit: metadata-only — Card rules have not been implemented.
+static DEFENDING_PLAYER_IS_POISONED: TriggerConditionDef =
+    TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+        left: ValueDef::PlayerCounters {
+            player: PlayerRelation::EventPlayer,
+            kind: CounterKind::Poison,
+        },
+        comparison: ComparisonDef::GreaterOrEqual,
+        right: ValueDef::Constant(1),
+    });
+
 pub(in crate::card::sets) static SEPTIC_RATS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8e7915d9-b941-4675-9a1b-18e579977144"),
     "Septic Rats",
     crate::card::CardArt::new("8e7915d9-b941-4675-9a1b-18e579977144", "Cos Koniotis"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Phyrexian", "Rat"], 2, 2).with_abilities(
+        &[
+            abilities::infect(),
+            AbilityDef::triggered_if(
+                "Whenever this creature attacks, if defending player is poisoned, it gets +1/+1 until end of turn.",
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                &DEFENDING_PLAYER_IS_POISONED,
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ],
+    ),
 );
 
 // MBS 56 — Spread the Sickness
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SPREAD_THE_SICKNESS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("de42a771-4f5c-4295-b070-8cb857a0279e"),
     "Spread the Sickness",
     crate::card::CardArt::new("de42a771-4f5c-4295-b070-8cb857a0279e", "Jaime Jones"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{4}{B}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Destroy target creature, then proliferate. (Choose any number of permanents and/or players, then give each another counter of each kind already there.)",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    can_regenerate: true,
+                    then: None,
+                },
+                EffectDef::Proliferate,
+            ]),
+        ),
+    ),
 );
 
 // MBS 57 — Virulent Wound
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a turn-scoped delayed death trigger bound to the targeted creature so its last known controller receives a poison counter if it dies after resolution.
 pub(in crate::card::sets) static VIRULENT_WOUND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7ae09e1a-c257-45e9-88c8-7b1a7a6d714b"),
     "Virulent Wound",
@@ -726,23 +1304,72 @@ pub(in crate::card::sets) static BLISTERSTICK_SHAMAN: CardRecord = CardRecord::n
 );
 
 // MBS 59 — Burn the Impure
-// Audit: metadata-only — Card rules have not been implemented.
+static BURN_THE_IMPURE_TARGET_HAS_INFECT: TriggerConditionDef =
+    TriggerConditionDef::TargetMatches {
+        slot: TargetIndex::PRIMARY,
+        object: ObjectPredicateDef::HasKeyword(KeywordAbility::Infect),
+    };
+
 pub(in crate::card::sets) static BURN_THE_IMPURE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b5641730-428d-4484-866e-ec1ac669537f"),
     "Burn the Impure",
     crate::card::CardArt::new("b5641730-428d-4484-866e-ec1ac669537f", "Nic Klein"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Burn the Impure deals 3 damage to target creature. If that creature has infect, Burn the Impure deals 3 damage to that creature's controller.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(3),
+            },
+            EffectDef::IfCondition {
+                condition: &BURN_THE_IMPURE_TARGET_HAS_INFECT,
+                then: &EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(3),
+                },
+            },
+        ]),
+    )),
 );
 
 // MBS 60 — Concussive Bolt
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CONCUSSIVE_BOLT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("41b68e85-a381-441d-aa18-491f9e202a10"),
     "Concussive Bolt",
     crate::card::CardArt::new("41b68e85-a381-441d-aa18-491f9e202a10", "Johann Bodin"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{R}{R}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Concussive Bolt deals 4 damage to target player. Metalcraft — If you control three or more artifacts, creatures controlled by that player can't block this turn.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+                PlayerRelation::Any,
+            ))],
+            EffectDef::Sequence(&[
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(4),
+                },
+                EffectDef::IfCondition {
+                    condition: &METALCRAFT,
+                    then: &EffectDef::Apply {
+                        recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                            ObjectQueryDef::controlled_by(
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                &[ZoneKind::Battlefield],
+                                PlayerSetDef::LegalTargets(TargetIndex::PRIMARY),
+                            ),
+                        )),
+                        effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                },
+            ]),
+        ),
+    ),
 );
 
 // MBS 61 — Crush
@@ -768,7 +1395,7 @@ pub(in crate::card::sets) static CRUSH: CardRecord = CardRecord::new(
 );
 
 // MBS 62 — Galvanoth
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a private top-card inspection followed by an optional reveal and a cast of that exact instant or sorcery without paying its mana cost.
 pub(in crate::card::sets) static GALVANOTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fc1a696b-642a-419f-bd43-09af39a9401b"),
     "Galvanoth",
@@ -778,53 +1405,122 @@ pub(in crate::card::sets) static GALVANOTH: CardRecord = CardRecord::new(
 );
 
 // MBS 63 — Gnathosaur
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static GNATHOSAUR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("27dcb0c8-e6d5-4f6b-a74f-e495b5e42606"),
     "Gnathosaur",
     crate::card::CardArt::new("27dcb0c8-e6d5-4f6b-a74f-e495b5e42606", "Jason Chan"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{R}{R}"), &["Dinosaur"], 5, 4).with_ability(
+        AbilityDef::activated(
+            "Sacrifice an artifact: This creature gains trample until end of turn.",
+            &[AbilityCostDef::SacrificePermanent {
+                object: ObjectPredicateDef::HasType(CardType::Artifact),
+                controller: PlayerRelation::You,
+            }],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&abilities::trample()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MBS 64 — Goblin Wardriver
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_WARDRIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2e220c87-1223-4998-b0e5-23e2d930fa6b"),
     "Goblin Wardriver",
     crate::card::CardArt::new("2e220c87-1223-4998-b0e5-23e2d930fa6b", "Chippy"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{R}{R}"), &["Goblin", "Warrior"], 2, 2)
+        .with_ability(battle_cry()),
 );
 
 // MBS 65 — Hellkite Igniter
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static HELLKITE_IGNITER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("83715873-9330-4d29-b106-cf1e6a66d1e9"),
     "Hellkite Igniter",
     crate::card::CardArt::new("83715873-9330-4d29-b106-cf1e6a66d1e9", "Jason Chan"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{R}{R}"), &["Dragon"], 5, 5).with_abilities(&[
+        abilities::flying(),
+        abilities::haste(),
+        AbilityDef::activated(
+            "{1}{R}: This creature gets +X/+0 until end of turn, where X is the number of artifacts you control.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::CountMatchingObjects(&ARTIFACTS_YOU_CONTROL),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MBS 66 — Hero of Oxid Ridge
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static HERO_OF_OXID_RIDGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1a516bce-3d2d-4e0f-afc7-27be3d88848c"),
     "Hero of Oxid Ridge",
     crate::card::CardArt::new("1a516bce-3d2d-4e0f-afc7-27be3d88848c", "Eric Deschamps"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Human", "Knight"], 4, 2).with_abilities(&[
+        abilities::haste(),
+        battle_cry(),
+        AbilityDef::triggered(
+            "Whenever this creature attacks, creatures with power 1 or less can't block this turn.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::PowerAtLeast(2)),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MBS 67 — Into the Core
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static INTO_THE_CORE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9cb91ecb-1962-4cd1-80c1-c9e2485822ae"),
     "Into the Core",
     crate::card::CardArt::new("9cb91ecb-1962-4cd1-80c1-c9e2485822ae", "Whit Brachna"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{R}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Exile two target artifacts.",
+        &[AbilityTargetDef {
+            predicate: AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Artifact),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+            minimum: 2,
+            maximum: 2,
+            divided_total: None,
+            another: false,
+            excludes_source: false,
+        }],
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            from: Some(ZoneKind::Battlefield),
+            zone: ZoneKind::Exile,
+            placement: ZonePlacement::Top,
+            counters: None,
+            controller: None,
+            arrival_effect: None,
+            attachment: None,
+            tapped: false,
+        },
+    )),
 );
 
 // MBS 68 — Koth's Courier
@@ -838,33 +1534,80 @@ pub(in crate::card::sets) static KOTH_S_COURIER: CardRecord = CardRecord::new(
 );
 
 // MBS 69 — Kuldotha Flamefiend
-// Audit: metadata-only — Card rules have not been implemented.
+static KULDOTHA_FLAMEFIEND_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef {
+    predicate: AbilityTargetPredicate::AnyTarget,
+    minimum: 0,
+    maximum: AbilityTargetDef::UNLIMITED,
+    divided_total: Some(DividedTotal::Fixed(4)),
+    another: false,
+    excludes_source: false,
+}];
+
 pub(in crate::card::sets) static KULDOTHA_FLAMEFIEND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("189fea03-24db-4574-bbc2-4d3bc9e629a5"),
     "Kuldotha Flamefiend",
     crate::card::CardArt::new("189fea03-24db-4574-bbc2-4d3bc9e629a5", "Raymond Swanland"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{R}{R}"), &["Elemental"], 4, 4).with_ability(
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, you may sacrifice an artifact. If you do, this creature deals 4 damage divided as you choose among any number of targets.",
+            &KULDOTHA_FLAMEFIEND_TARGETS,
+            EffectDef::PayOr(PayOrDef::optional(
+                EffectPaymentDef {
+                    payer: PlayerSetDef::Related(PlayerRelation::You),
+                    cost: EffectPaymentCostDef::SacrificePermanentMatching(
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                    ),
+                },
+                &EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::DividedAmongTargets,
+                },
+            )),
+        ),
+    ),
 );
 
 // MBS 70 — Kuldotha Ringleader
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static KULDOTHA_RINGLEADER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3cda5434-c0a5-4551-8e30-b1923f0001b8"),
     "Kuldotha Ringleader",
     crate::card::CardArt::new("3cda5434-c0a5-4551-8e30-b1923f0001b8", "Greg Staples"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{R}"), &["Giant", "Berserker"], 4, 4).with_abilities(&[
+        battle_cry(),
+        abilities::attacks_each_combat_if_able("This creature attacks each combat if able."),
+    ]),
 );
 
 // MBS 71 — Metallic Mastery
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static METALLIC_MASTERY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b939ded0-7033-4fee-864c-9e235d8720bb"),
     "Metallic Mastery",
     crate::card::CardArt::new("b939ded0-7033-4fee-864c-9e235d8720bb", "Erica Yang"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{R}"))
+        .with_ability(AbilityDef::spell_with_targets(
+            "Gain control of target artifact until end of turn. Untap that artifact. It gains haste until end of turn.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::GainControl {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    controller: PlayerRefDef::EffectController,
+                    duration: ControlDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::Untap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ]),
+        )),
 );
 
 // MBS 72 — Ogre Resister
@@ -877,43 +1620,105 @@ pub(in crate::card::sets) static OGRE_RESISTER: CardRecord = CardRecord::new(
 );
 
 // MBS 73 — Rally the Forces
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static RALLY_THE_FORCES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8f251c71-0e83-424d-9e0e-85790289087c"),
     "Rally the Forces",
     crate::card::CardArt::new("8f251c71-0e83-424d-9e0e-85790289087c", "Steven Belledin"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell(
+        "Attacking creatures get +1/+0 and gain first strike until end of turn.",
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Attacking,
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+                AppliedEffectDef::add_ability(&abilities::first_strike()),
+            ]),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // MBS 74 — Red Sun's Zenith
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static RED_SUN_S_ZENITH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("373eb109-0e30-41c1-b2df-6bc78d968890"),
     "Red Sun's Zenith",
     crate::card::CardArt::new("373eb109-0e30-41c1-b2df-6bc78d968890", "Svetlin Velinov"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{X}{R}"))
+        .with_ability(AbilityDef::spell_with_targets(
+            "Red Sun's Zenith deals X damage to any target. If a creature dealt damage this way would die this turn, exile it instead.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
+            EffectDef::DealDamageAndApply {
+                amount: ValueDef::ChosenX,
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                applied: AppliedEffectDef::Rule(AppliedRuleDef::ExileInsteadOfDying),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .with_resolution_destination(SpellResolutionDestinationDef::LibraryShuffled)),
 );
 
 // MBS 75 — Slagstorm
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SLAGSTORM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9e318b03-2aad-462b-a2a9-8b6bdf0e93d6"),
     "Slagstorm",
     crate::card::CardArt::new("9e318b03-2aad-462b-a2a9-8b6bdf0e93d6", "Dan Murayama Scott"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{R}{R}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —\n• Slagstorm deals 3 damage to each creature.\n• Slagstorm deals 3 damage to each player.",
+        &[
+            AbilityDef::spell(
+                "Slagstorm deals 3 damage to each creature",
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    amount: ValueDef::Constant(3),
+                },
+            ),
+            AbilityDef::spell(
+                "Slagstorm deals 3 damage to each player",
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::EachPlayer,
+                    amount: ValueDef::Constant(3),
+                },
+            ),
+        ],
+        1,
+        1,
+        false,
+    )),
 );
 
 // MBS 76 — Spiraling Duelist
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIRALING_DUELIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("81ac77ab-e51a-4c5c-ab6b-3fb610a5fa27"),
     "Spiraling Duelist",
     crate::card::CardArt::new("81ac77ab-e51a-4c5c-ab6b-3fb610a5fa27", "Karl Kopinski"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Human", "Berserker"], 3, 1)
+        .with_ability(AbilityDef::static_ability(
+            "Metalcraft — This creature has double strike as long as you control three or more artifacts.",
+            EffectDef::IfCondition {
+                condition: &METALCRAFT,
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&abilities::double_strike()),
+                },
+            },
+        )),
 );
 
 // MBS 77 — Blightwidow
@@ -947,13 +1752,24 @@ pub(in crate::card::sets) static CREEPING_CORROSION: CardRecord = CardRecord::ne
 );
 
 // MBS 79 — Fangren Marauder
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static FANGREN_MARAUDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f5cf62a2-d03a-495d-924a-bf79524175fa"),
     "Fangren Marauder",
     crate::card::CardArt::new("f5cf62a2-d03a-495d-924a-bf79524175fa", "James Ryman"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{G}"), &["Beast"], 5, 5).with_ability(
+        abilities::dies_trigger_matching(
+            "Whenever an artifact is put into a graveyard from the battlefield, you may gain 5 life.",
+            ObjectPredicateDef::HasType(CardType::Artifact),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(5),
+                },
+            },
+        ),
+    ),
 );
 
 // MBS 80 — Glissa's Courier
@@ -1010,17 +1826,44 @@ pub(in crate::card::sets) static GREEN_SUN_S_ZENITH: CardRecord = CardRecord::ne
 );
 
 // MBS 82 — Lead the Stampede
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static LEAD_THE_STAMPEDE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("66ed14c8-38c6-4da5-a6ee-f814478161d2"),
     "Lead the Stampede",
     crate::card::CardArt::new("66ed14c8-38c6-4da5-a6ee-f814478161d2", "Efrem Palacios"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{G}")).with_ability(AbilityDef::spell(
+        "Look at the top five cards of your library. You may reveal any number of creature cards from among them and put the revealed cards into your hand. Put the rest on the bottom of your library in any order.",
+        EffectDef::LookAtTopAndSelect {
+            player: EffectRecipientDef::Controller,
+            looker: EffectRecipientDef::Controller,
+            selection: &TopCardSelectionDef {
+                count: ValueDef::Constant(5),
+                object: Some(ObjectPredicateDef::HasType(CardType::Creature)),
+                minimum: 0,
+                maximum: AbilityTargetDef::UNLIMITED,
+                select_all_matching: false,
+                select_one_of_each_type: false,
+                reveal_inspected: false,
+                reveal_selected: true,
+                counted: None,
+                selected_zone: ZoneKind::Hand,
+                selected_placement: ZonePlacement::Top,
+                rest_zone: ZoneKind::Library,
+                rest_placement: ZonePlacement::Bottom,
+                rest_random_order: false,
+                rest_counters: None,
+                selected_order_follows_choice: false,
+                then: None,
+                selected_hidden: false,
+                selected_linked_to_source: false,
+                selected_face_down: None,
+            },
+        },
+    )),
 );
 
 // MBS 83 — Melira's Keepers
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a continuous rule preventing every kind of counter from being placed on this permanent, including replacement and cost paths.
 pub(in crate::card::sets) static MELIRA_S_KEEPERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d9a935b4-347c-46d9-a7c5-8c5079948959"),
     "Melira's Keepers",
@@ -1030,17 +1873,29 @@ pub(in crate::card::sets) static MELIRA_S_KEEPERS: CardRecord = CardRecord::new(
 );
 
 // MBS 84 — Mirran Mettle
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static MIRRAN_METTLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("edbb5778-fa9a-4a1f-be4f-627630c3e3ca"),
     "Mirran Mettle",
     crate::card::CardArt::new("edbb5778-fa9a-4a1f-be4f-627630c3e3ca", "Karl Kopinski"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature gets +2/+2 until end of turn.\nMetalcraft — That creature gets +4/+4 until end of turn instead if you control three or more artifacts.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::IfMatchingObjectCount(&metalcraft_value(4, 2)),
+                ValueDef::IfMatchingObjectCount(&metalcraft_value(4, 2)),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // MBS 85 — Phyrexian Hydra
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a damage replacement that prevents the event and converts its exact prevented amount into that many -1/-1 counters on this creature.
 pub(in crate::card::sets) static PHYREXIAN_HYDRA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cb135aa1-9f46-4d60-a1a4-97aa0e852ced"),
     "Phyrexian Hydra",
@@ -1050,33 +1905,84 @@ pub(in crate::card::sets) static PHYREXIAN_HYDRA: CardRecord = CardRecord::new(
 );
 
 // MBS 86 — Pistus Strike
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PISTUS_STRIKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1a2918d6-50f7-4bc1-aef2-930a5c84be8d"),
     "Pistus Strike",
     crate::card::CardArt::new("1a2918d6-50f7-4bc1-aef2-930a5c84be8d", "Jaime Jones"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target creature with flying. Its controller gets a poison counter.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::HasKeyword(crate::card::KeywordAbility::Flying),
+            ]),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                can_regenerate: true,
+                then: None,
+            },
+            EffectDef::AddPlayerCounters {
+                recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                kind: CounterKind::Poison,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
+    )),
 );
 
 // MBS 87 — Plaguemaw Beast
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PLAGUEMAW_BEAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("52341830-8cea-421f-b901-9229004f2d45"),
     "Plaguemaw Beast",
     crate::card::CardArt::new("52341830-8cea-421f-b901-9229004f2d45", "Whit Brachna"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Phyrexian", "Beast"], 4, 3)
+        .with_ability(AbilityDef::activated(
+            "{T}, Sacrifice a creature: Proliferate. (Choose any number of permanents and/or players, then give each another counter of each kind already there.)",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            EffectDef::Proliferate,
+        )),
 );
 
 // MBS 88 — Praetor's Counsel
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: partial — Returning the graveyard and exiling the spell are executable; resolved player effects cannot persist “no maximum hand size” for the rest of the game.
 pub(in crate::card::sets) static PRAETOR_S_COUNSEL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b67c8bea-d4c9-4759-8a37-10546b234472"),
     "Praetor's Counsel",
     crate::card::CardArt::new("b67c8bea-d4c9-4759-8a37-10546b234472", "Daarken"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{5}{G}{G}{G}"))
+        .with_ability(AbilityDef::spell(
+            "Return all cards from your graveyard to your hand. Exile this spell. You have no maximum hand size for the rest of the game.",
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Graveyard],
+                    PlayerRelation::You,
+                ),
+                from: Some(ZoneKind::Graveyard),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                counters: None,
+                controller: None,
+                arrival_effect: None,
+                attachment: None,
+                tapped: false,
+            },
+        )
+        .with_coverage(AbilityCoverageDef::partial(
+            "The rest-of-game no-maximum-hand-size player effect is not implemented.",
+        ))
+        .with_resolution_destination(SpellResolutionDestinationDef::Exile)),
 );
 
 // MBS 89 — Quilled Slagwurm
@@ -1089,13 +1995,33 @@ pub(in crate::card::sets) static QUILLED_SLAGWURM: CardRecord = CardRecord::new(
 );
 
 // MBS 90 — Rot Wolf
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ROT_WOLF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7a81dfcf-a7c4-41a4-b1e9-b9e9c3f75742"),
     "Rot Wolf",
     crate::card::CardArt::new("7a81dfcf-a7c4-41a4-b1e9-b9e9c3f75742", "Nils Hamm"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Phyrexian", "Wolf"], 2, 2)
+        .with_abilities(&[
+            abilities::infect(),
+            AbilityDef::triggered(
+                "Whenever a creature dealt damage by this creature this turn dies, you may draw a card.",
+                TriggerEventDef::ZoneChanged(
+                    ZoneChangeEventMatcherDef::new(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        Some(ZoneKind::Battlefield),
+                        Some(ZoneKind::Graveyard),
+                    )
+                    .previously_damaged_by(ObjectRefDef::Source),
+                ),
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                },
+            ),
+        ]),
 );
 
 // MBS 91 — Tangle Mantis
@@ -1197,23 +2123,126 @@ pub(in crate::card::sets) static VIRIDIAN_EMISSARY: CardRecord = CardRecord::new
 );
 
 // MBS 96 — Glissa, the Traitor
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static GLISSA_THE_TRAITOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9e293b2d-5eae-43c3-bb1f-4c0ed2b0bd21"),
     "Glissa, the Traitor",
     crate::card::CardArt::new("755e0fbf-4f00-4b05-a535-27e78e96d6b6", "Chris Rahn"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{B}{G}{G}"), &["Phyrexian", "Zombie", "Elf"], 3, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::first_strike(),
+            abilities::deathtouch(),
+            abilities::dies_trigger_matching_with_targets(
+                "Whenever a creature an opponent controls dies, you may return target artifact card from your graveyard to your hand.",
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                ]),
+                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                })],
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        from: Some(ZoneKind::Graveyard),
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                        counters: None,
+                        controller: None,
+                        arrival_effect: None,
+                        attachment: None,
+                        tapped: false,
+                    },
+                },
+            ),
+        ]),
 );
 
 // MBS 97 — Tezzeret, Agent of Bolas
-// Audit: metadata-only — Card rules have not been implemented.
+static TWICE_YOUR_ARTIFACTS: ValueDef = ValueDef::Scaled(&ScaledValueDef::new(
+    ValueDef::CountMatchingObjects(&ARTIFACTS_YOU_CONTROL),
+    2,
+));
+
 pub(in crate::card::sets) static TEZZERET_AGENT_OF_BOLAS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0f3c8470-1cc8-4383-8782-c022867d46e8"),
     "Tezzeret, Agent of Bolas",
     crate::card::CardArt::new("0f3c8470-1cc8-4383-8782-c022867d46e8", "Aleksi Briclot"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_planeswalker(mana_cost!("{2}{U}{B}"), &["Tezzeret"], 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::activated(
+                "+1: Look at the top five cards of your library. You may reveal an artifact card from among them and put it into your hand. Put the rest on the bottom of your library in any order.",
+                &[AbilityCostDef::Loyalty(1)],
+                EffectDef::LookAtTopAndSelect {
+                    player: EffectRecipientDef::Controller,
+                    looker: EffectRecipientDef::Controller,
+                    selection: &TopCardSelectionDef {
+                        count: ValueDef::Constant(5),
+                        object: Some(ObjectPredicateDef::HasType(CardType::Artifact)),
+                        minimum: 0,
+                        maximum: 1,
+                        select_all_matching: false,
+                        select_one_of_each_type: false,
+                        reveal_inspected: false,
+                        reveal_selected: true,
+                        counted: None,
+                        selected_zone: ZoneKind::Hand,
+                        selected_placement: ZonePlacement::Top,
+                        rest_zone: ZoneKind::Library,
+                        rest_placement: ZonePlacement::Bottom,
+                        rest_random_order: false,
+                        rest_counters: None,
+                        selected_order_follows_choice: false,
+                        then: None,
+                        selected_hidden: false,
+                        selected_linked_to_source: false,
+                        selected_face_down: None,
+                    },
+                },
+            ),
+            AbilityDef::activated_with_targets(
+                "−1: Target artifact becomes an artifact creature with base power and toughness 5/5.",
+                &[AbilityCostDef::Loyalty(-1)],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                        AppliedEffectDef::set_base_power_toughness(
+                            ValueDef::Constant(5),
+                            ValueDef::Constant(5),
+                        ),
+                    ]),
+                    duration: ResolvedEffectDurationDef::Permanent,
+                },
+            ),
+            AbilityDef::activated_with_targets(
+                "−4: Target player loses X life and you gain X life, where X is twice the number of artifacts you control.",
+                &[AbilityCostDef::Loyalty(-4)],
+                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+                    PlayerRelation::Any,
+                ))],
+                EffectDef::Sequence(&[
+                    EffectDef::LoseLife {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: TWICE_YOUR_ARTIFACTS,
+                    },
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: TWICE_YOUR_ARTIFACTS,
+                    },
+                ]),
+            ),
+        ]),
 );
 
 // MBS 98 — Bladed Sentinel
@@ -1286,17 +2315,37 @@ pub(in crate::card::sets) static BLIGHTSTEEL_COLOSSUS: CardRecord = CardRecord::
 );
 
 // MBS 100 — Bonehoard
-// Audit: metadata-only — Card rules have not been implemented.
+static CREATURE_CARDS_IN_ALL_GRAVEYARDS: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::HasType(CardType::Creature),
+    &[ZoneKind::Graveyard],
+    PlayerRelation::Any,
+);
+
 pub(in crate::card::sets) static BONEHOARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e14613bc-0083-48d6-ac10-b2839657e84b"),
     "Bonehoard",
     crate::card::CardArt::new("e14613bc-0083-48d6-ac10-b2839657e84b", "Chippy"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{4}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            abilities::living_weapon(),
+            AbilityDef::static_ability(
+                "Equipped creature gets +X/+X, where X is the number of creature cards in all graveyards.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::CountMatchingObjects(&CREATURE_CARDS_IN_ALL_GRAVEYARDS),
+                        ValueDef::CountMatchingObjects(&CREATURE_CARDS_IN_ALL_GRAVEYARDS),
+                    ),
+                },
+            ),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
+        ]),
 );
 
 // MBS 101 — Brass Squire
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a two-target attachment operation that attaches the targeted Equipment, rather than the ability's source, to the targeted creature.
 pub(in crate::card::sets) static BRASS_SQUIRE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("37928b90-ab31-4c73-99b2-fe31feb2afea"),
     "Brass Squire",
@@ -1335,13 +2384,19 @@ pub(in crate::card::sets) static COPPER_CARAPACE: CardRecord = CardRecord::new(
 );
 
 // MBS 103 — Core Prowler
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CORE_PROWLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("05414ba7-0f59-4c73-931c-e599d149d3ba"),
     "Core Prowler",
     crate::card::CardArt::new("05414ba7-0f59-4c73-931c-e599d149d3ba", "Dave Allsop"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{4}"), &["Phyrexian", "Horror"], 2, 2)
+        .with_abilities(&[
+            abilities::infect(),
+            abilities::dies_trigger(
+                "When this creature dies, proliferate. (Choose any number of permanents and/or players, then give each another counter of each kind already there.)",
+                EffectDef::Proliferate,
+            ),
+        ]),
 );
 
 // MBS 104 — Darksteel Plate
@@ -1366,13 +2421,38 @@ pub(in crate::card::sets) static DARKSTEEL_PLATE: CardRecord = CardRecord::new(
 );
 
 // MBS 105 — Decimator Web
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static DECIMATOR_WEB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fa1fe29f-cf84-45d3-b8fe-e4de1d2bebbf"),
     "Decimator Web",
     crate::card::CardArt::new("fa1fe29f-cf84-45d3-b8fe-e4de1d2bebbf", "Daniel Ljunggren"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{4}")).with_ability(AbilityDef::activated_with_targets(
+        "{4}, {T}: Target opponent loses 2 life, gets a poison counter, then mills six cards.",
+        &[
+            AbilityCostDef::Mana(mana_cost!("{4}")),
+            AbilityCostDef::TapSource,
+        ],
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+            EffectDef::AddPlayerCounters {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::Poison,
+                amount: ValueDef::Constant(1),
+            },
+            EffectDef::Mill {
+                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(6),
+                binding: None,
+                then: None,
+            },
+        ]),
+    )),
 );
 
 // MBS 106 — Dross Ripper
@@ -1398,13 +2478,27 @@ pub(in crate::card::sets) static DROSS_RIPPER: CardRecord = CardRecord::new(
 );
 
 // MBS 107 — Flayer Husk
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static FLAYER_HUSK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cbd47a02-5a6e-4daa-9877-f65c8639c569"),
     "Flayer Husk",
     crate::card::CardArt::new("cbd47a02-5a6e-4daa-9877-f65c8639c569", "Igor Kieryluk"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            abilities::living_weapon(),
+            AbilityDef::static_ability(
+                "Equipped creature gets +1/+1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                },
+            ),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
+        ]),
 );
 
 // MBS 108 — Gust-Skimmer
@@ -1463,7 +2557,7 @@ pub(in crate::card::sets) static ICHOR_WELLSPRING: CardRecord = CardRecord::new(
 );
 
 // MBS 111 — Knowledge Pool
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs linked mass exile of the top three cards of every library, spell-cast interception, and a choice among nonland cards exiled by this specific permanent to cast without paying mana.
 pub(in crate::card::sets) static KNOWLEDGE_POOL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("393454c2-b256-4a6e-9bc2-56a47cab5073"),
     "Knowledge Pool",
@@ -1483,23 +2577,54 @@ pub(in crate::card::sets) static LUMENGRID_GARGOYLE: CardRecord = CardRecord::ne
 );
 
 // MBS 113 — Magnetic Mine
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static MAGNETIC_MINE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5ed2f7dc-3ada-4490-8c1f-1d03bd4840f5"),
     "Magnetic Mine",
     crate::card::CardArt::new("5ed2f7dc-3ada-4490-8c1f-1d03bd4840f5", "David Rapoza"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{4}")).with_ability(abilities::dies_trigger_matching(
+        "Whenever another artifact is put into a graveyard from the battlefield, this artifact deals 2 damage to that artifact's controller.",
+        ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Artifact),
+            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+        ]),
+        EffectDef::DealDamage {
+            amount: ValueDef::Constant(2),
+            recipient: EffectRecipientDef::ControllerOfTriggeringObject,
+        },
+    )),
 );
 
 // MBS 114 — Mirrorworks
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static MIRRORWORKS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cade6dde-1edf-44b8-a37e-a22f9207db51"),
     "Mirrorworks",
     crate::card::CardArt::new("cade6dde-1edf-44b8-a37e-a22f9207db51", "John Avon"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{5}")).with_ability(AbilityDef::triggered(
+        "Whenever another nontoken artifact you control enters, you may pay {2}. If you do, create a token that's a copy of that artifact.",
+        TriggerEventDef::zone_changed(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+            ]),
+            None,
+            Some(ZoneKind::Battlefield),
+        ),
+        EffectDef::PayOr(PayOrDef::optional(
+            EffectPaymentDef::mana(
+                PlayerSetDef::Related(PlayerRelation::You),
+                mana_cost!("{2}"),
+            ),
+            &EffectDef::CreateTokenCopyOf {
+                object: EffectRecipientDef::TriggeringObject,
+                exceptions: TokenCopyExceptionsDef::NONE,
+                created: None,
+            },
+        )),
+    )),
 );
 
 // MBS 115 — Mortarpod
@@ -1549,7 +2674,7 @@ pub(in crate::card::sets) static MYR_SIRE: CardRecord = CardRecord::new(
 );
 
 // MBS 117 — Myr Turbine
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs one activation cost that selects and taps exactly five distinct other untapped Myr; activated abilities with more than one object-selecting cost are not offered by the planner.
 pub(in crate::card::sets) static MYR_TURBINE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("71a76840-47f7-4e1e-b68b-00cb7da98cdf"),
     "Myr Turbine",
@@ -1559,13 +2684,41 @@ pub(in crate::card::sets) static MYR_TURBINE: CardRecord = CardRecord::new(
 );
 
 // MBS 118 — Myr Welder
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static MYR_WELDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eff75f16-413c-4618-b766-67bd8ff4d161"),
     "Myr Welder",
     crate::card::CardArt::new("eff75f16-413c-4618-b766-67bd8ff4d161", "Austin Hsu"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Myr"], 1, 4).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "Imprint — {T}: Exile target artifact card from a graveyard.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::ExileLinkedToSource {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                face_down: false,
+                then: None,
+            },
+        ),
+        AbilityDef::static_ability(
+            "This creature has all activated abilities of all cards exiled with it.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
+                    AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles(
+                        ObjectPredicateDef::Any,
+                    ),
+                )),
+            },
+        ),
+    ]),
 );
 
 // MBS 119 — Peace Strider
@@ -1608,13 +2761,46 @@ pub(in crate::card::sets) static PHYREXIAN_JUGGERNAUT: CardRecord = CardRecord::
 );
 
 // MBS 122 — Phyrexian Revoker
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: partial — The chosen-name restriction covers every nonmana activation and battlefield mana abilities; player-facing restrictions cannot yet suppress mana abilities of sources outside the battlefield.
+static PHYREXIAN_REVOKER_RESTRICTIONS: [EffectDef; 2] = [
+    EffectDef::StaticApply {
+        recipient: EffectRecipientDef::matching_objects(
+            ObjectPredicateDef::HasChosenName,
+            &[ZoneKind::Battlefield],
+            PlayerRelation::Any,
+        ),
+        effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
+    },
+    EffectDef::StaticApply {
+        recipient: EffectRecipientDef::EachPlayer,
+        effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(PlayRestrictionDef::new(
+            PlayActionMatcherDef::ActivateNonManaAbility,
+            ObjectPredicateDef::HasChosenName,
+        ))),
+    },
+];
+
 pub(in crate::card::sets) static PHYREXIAN_REVOKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7c7bec21-61b0-4e72-848b-82f38e1910e0"),
     "Phyrexian Revoker",
     crate::card::CardArt::new("7c7bec21-61b0-4e72-848b-82f38e1910e0", "Kev Walker"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{2}"), &["Phyrexian", "Horror"], 2, 1)
+        .with_abilities(&[
+            AbilityDef::replacement(
+                "As this creature enters, choose a nonland card name.",
+                ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                    BattlefieldEntryScalarChoiceDef::NONLAND_CARD_NAME,
+                )),
+            ),
+            AbilityDef::static_ability(
+                "Activated abilities of sources with the chosen name can't be activated.",
+                EffectDef::Sequence(&PHYREXIAN_REVOKER_RESTRICTIONS),
+            )
+            .with_coverage(AbilityCoverageDef::partial(
+                "Mana abilities of sources outside the battlefield remain activatable; chosen-name restrictions cover every nonmana activation, while the permanent-facing prohibition also covers battlefield mana abilities.",
+            )),
+        ]),
 );
 
 // MBS 123 — Pierce Strider
@@ -1637,13 +2823,46 @@ pub(in crate::card::sets) static PIERCE_STRIDER: CardRecord = CardRecord::new(
 );
 
 // MBS 124 — Piston Sledge
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PISTON_SLEDGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cf6a88da-0b51-42d1-aa63-8c4b5e5c03c3"),
     "Piston Sledge",
     crate::card::CardArt::new("cf6a88da-0b51-42d1-aa63-8c4b5e5c03c3", "Pete Venters"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            abilities::enters_trigger_with_targets(
+                "When this Equipment enters, attach it to target creature you control.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                )],
+                EffectDef::Attach {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+            AbilityDef::static_ability(
+                "Equipped creature gets +3/+1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(3),
+                        ValueDef::Constant(1),
+                    ),
+                },
+            ),
+            abilities::equip(
+                &[AbilityCostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    controller: PlayerRelation::You,
+                }],
+                "Equip—Sacrifice an artifact.",
+            ),
+        ]),
 );
 
 // MBS 125 — Plague Myr
@@ -1664,37 +2883,80 @@ pub(in crate::card::sets) static PLAGUE_MYR: CardRecord = CardRecord::new(
 );
 
 // MBS 126 — Psychosis Crawler
-// Audit: metadata-only — Card rules have not been implemented.
+static CARDS_IN_YOUR_HAND: ValueDef = ValueDef::CardsInHandAbove {
+    player: PlayerRelation::You,
+    threshold: 0,
+};
+
 pub(in crate::card::sets) static PSYCHOSIS_CRAWLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4dd84701-857e-4948-8cb8-39b8a321a177"),
     "Psychosis Crawler",
     crate::card::CardArt::new("4dd84701-857e-4948-8cb8-39b8a321a177", "Stephan Martiniere"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{5}"), &["Phyrexian", "Horror"], 0, 0)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "This creature's power and toughness are each equal to the number of cards in your hand.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::set_base_power_toughness(
+                        CARDS_IN_YOUR_HAND,
+                        CARDS_IN_YOUR_HAND,
+                    ),
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever you draw a card, each opponent loses 1 life.",
+                TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::You)),
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Opponent,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // MBS 127 — Razorfield Rhino
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static RAZORFIELD_RHINO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2019a1b4-7f88-4c8a-9ef4-bdfbd2f9e9cc"),
     "Razorfield Rhino",
     crate::card::CardArt::new("2019a1b4-7f88-4c8a-9ef4-bdfbd2f9e9cc", "Kekai Kotaki"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{6}"), &["Rhino"], 4, 4).with_ability(
+        AbilityDef::static_ability(
+            "Metalcraft — This creature gets +2/+2 as long as you control three or more artifacts.",
+            EffectDef::IfCondition {
+                condition: &METALCRAFT,
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                },
+            },
+        ),
+    ),
 );
 
 // MBS 128 — Rusted Slasher
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static RUSTED_SLASHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f2228ee5-507a-46ba-82ae-72ba3088a568"),
     "Rusted Slasher",
     crate::card::CardArt::new("f2228ee5-507a-46ba-82ae-72ba3088a568", "Adrian Smith"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{4}"), &["Horror"], 4, 1).with_ability(
+        abilities::regenerate_self(
+            "Sacrifice an artifact: Regenerate this creature.",
+            &[AbilityCostDef::SacrificePermanent {
+                object: ObjectPredicateDef::HasType(CardType::Artifact),
+                controller: PlayerRelation::You,
+            }],
+        ),
+    ),
 );
 
 // MBS 129 — Shimmer Myr
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIMMER_MYR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("478c1a5b-237b-4ecb-be73-3c6dafd5ae53"),
     "Shimmer Myr",
@@ -1703,51 +2965,135 @@ pub(in crate::card::sets) static SHIMMER_MYR: CardRecord = CardRecord::new(
         "Jana Schirmer & Johannes Voss",
     ),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Myr"], 2, 2).with_abilities(&[
+        abilities::flash(),
+        AbilityDef::static_ability(
+            "You may cast artifact spells as though they had flash.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Controller,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayCastAsThoughItHadFlash(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                )),
+            },
+        ),
+    ]),
 );
 
 // MBS 130 — Shriekhorn
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SHRIEKHORN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bb41269f-007d-43ba-a682-d3929cc69696"),
     "Shriekhorn",
     crate::card::CardArt::new("bb41269f-007d-43ba-a682-d3929cc69696", "Erica Yang"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "This artifact enters with three charge counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::named("charge"),
+                    amount: 3,
+                },
+            ),
+        ),
+        AbilityDef::activated_with_targets(
+            "{T}, Remove a charge counter from this artifact: Target player mills two cards.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("charge"),
+                    amount: 1,
+                },
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::Mill {
+                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+                binding: None,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // MBS 131 — Signal Pest
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SIGNAL_PEST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("be065962-f2ed-4ab9-be6b-bfc66d63ff4e"),
     "Signal Pest",
     crate::card::CardArt::new("be065962-f2ed-4ab9-be6b-bfc66d63ff4e", "Mark Zug"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{1}"), &["Pest"], 0, 1).with_abilities(&[
+        battle_cry(),
+        AbilityDef::static_ability(
+            "This creature can't be blocked except by creatures with flying or reach.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasKeyword(crate::card::KeywordAbility::Flying),
+                        ObjectPredicateDef::HasKeyword(crate::card::KeywordAbility::Reach),
+                    ])),
+                )),
+            },
+        ),
+    ]),
 );
 
 // MBS 132 — Silverskin Armor
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SILVERSKIN_ARMOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d1dba839-bd1e-4ce8-ab90-005eb1f0102e"),
     "Silverskin Armor",
     crate::card::CardArt::new("d1dba839-bd1e-4ce8-ab90-005eb1f0102e", "Terese Nielsen"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +1/+1 and is an artifact in addition to its other types.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Artifact)),
+                    ]),
+                },
+            ),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
+        ]),
 );
 
 // MBS 133 — Skinwing
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SKINWING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d11bc5d8-378a-441f-b92a-a60005745f25"),
     "Skinwing",
     crate::card::CardArt::new("d11bc5d8-378a-441f-b92a-a60005745f25", "Igor Kieryluk"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{4}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            abilities::living_weapon(),
+            AbilityDef::static_ability(
+                "Equipped creature gets +2/+2 and has flying.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::flying()),
+                    ]),
+                },
+            ),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{6}"))], "Equip {6}"),
+        ]),
 );
 
 // MBS 134 — Sphere of the Suns
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SPHERE_OF_THE_SUNS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7a2c0735-1816-489b-9793-89d1060d78f7"),
     "Sphere of the Suns",
@@ -1756,47 +3102,167 @@ pub(in crate::card::sets) static SPHERE_OF_THE_SUNS: CardRecord = CardRecord::ne
         "Jana Schirmer & Johannes Voss",
     ),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "This artifact enters tapped and with three charge counters on it.",
+            ReplacementEffectDef::Sequence(&[
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::Tapped,
+                ),
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::AddCounters {
+                        kind: CounterKind::named("charge"),
+                        amount: 3,
+                    },
+                ),
+            ]),
+        ),
+        AbilityDef::activated_mana(
+            "{T}, Remove a charge counter from this artifact: Add one mana of any color.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("charge"),
+                    amount: 1,
+                },
+            ],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+    ]),
 );
 
 // MBS 135 — Spin Engine
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIN_ENGINE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fc820134-ae9a-4c99-a869-cee7f1f6d79b"),
     "Spin Engine",
     crate::card::CardArt::new("fc820134-ae9a-4c99-a869-cee7f1f6d79b", "Pete Venters"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Assembly-Worker"], 3, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{R}: Target creature can't block this turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MBS 136 — Spine of Ish Sah
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SPINE_OF_ISH_SAH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("59313b00-ac75-484a-ad74-db9d8960c0f8"),
     "Spine of Ish Sah",
     crate::card::CardArt::new("59313b00-ac75-484a-ad74-db9d8960c0f8", "Daniel Ljunggren"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{7}")).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this artifact enters, destroy target permanent.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Any,
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                can_regenerate: true,
+                then: None,
+            },
+        ),
+        abilities::dies_trigger(
+            "When this artifact is put into a graveyard from the battlefield, return it to its owner's hand.",
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Source,
+                from: Some(ZoneKind::Graveyard),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                counters: None,
+                controller: None,
+                arrival_effect: None,
+                attachment: None,
+                tapped: false,
+            },
+        ),
+    ]),
 );
 
 // MBS 137 — Strandwalker
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static STRANDWALKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d0d7ff8f-7733-4323-8575-c50b3e730dbc"),
     "Strandwalker",
     crate::card::CardArt::new("d0d7ff8f-7733-4323-8575-c50b3e730dbc", "Igor Kieryluk"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{5}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            abilities::living_weapon(),
+            AbilityDef::static_ability(
+                "Equipped creature gets +2/+4 and has reach.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(4),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::reach()),
+                    ]),
+                },
+            ),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{4}"))], "Equip {4}"),
+        ]),
 );
 
 // MBS 138 — Sword of Feast and Famine
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SWORD_OF_FEAST_AND_FAMINE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("580b4818-2a01-46ad-b4d9-7d895a625bb3"),
     "Sword of Feast and Famine",
     crate::card::CardArt::new("580b4818-2a01-46ad-b4d9-7d895a625bb3", "Chris Rahn"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +2/+2 and has protection from black and from green.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::protection_from_color(
+                            ManaColor::Black,
+                        )),
+                        AppliedEffectDef::add_ability(&abilities::protection_from_color(
+                            ManaColor::Green,
+                        )),
+                        AppliedEffectDef::add_ability(&AbilityDef::triggered(
+                            "Whenever this creature deals combat damage to a player, that player discards a card and you untap all lands you control.",
+                            TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+                            EffectDef::Sequence(&[
+                                EffectDef::Discard {
+                                    recipient: EffectRecipientDef::EventPlayer,
+                                    amount: ValueDef::Constant(1),
+                                    selection: DiscardSelectionDef::RecipientChooses,
+                                    then: None,
+                                },
+                                EffectDef::Untap {
+                                    object: EffectRecipientDef::matching_objects(
+                                        ObjectPredicateDef::HasType(CardType::Land),
+                                        &[ZoneKind::Battlefield],
+                                        PlayerRelation::You,
+                                    ),
+                                },
+                            ]),
+                        )),
+                    ]),
+                },
+            ),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
+        ]),
 );
 
 // MBS 139 — Tangle Hulk
@@ -1813,33 +3279,127 @@ pub(in crate::card::sets) static TANGLE_HULK: CardRecord = CardRecord::new(
 );
 
 // MBS 140 — Thopter Assembly
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static THOPTER_ASSEMBLY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f1abeca7-0a9c-49ae-9042-9899829e74a3"),
     "Thopter Assembly",
     crate::card::CardArt::new("644ab412-0603-447d-b8ef-dfd79f78e2a5", "Volkan Baǵa"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{6}"), &["Thopter"], 5, 5)
+        .with_abilities(&[
+            abilities::flying(),
+            AbilityDef::triggered_if(
+                "At the beginning of your upkeep, if you control no Thopters other than this creature, return it to its owner's hand and create five 1/1 colorless Thopter artifact creature tokens with flying.",
+                TriggerEventDef::StepBegins {
+                    step: crate::card::TurnStepDef::Upkeep,
+                    player: PlayerRelation::You,
+                },
+                &TriggerConditionDef::ObjectCount {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Subtype("Thopter"),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::Equal,
+                    amount: 0,
+                },
+                EffectDef::Sequence(&[
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Source,
+                        from: Some(ZoneKind::Battlefield),
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                        counters: None,
+                        controller: None,
+                        arrival_effect: None,
+                        attachment: None,
+                        tapped: false,
+                    },
+                    EffectDef::create_artifact_creature_token(&["Thopter"], &[], 1, 1)
+                        .with_abilities(&[abilities::flying()])
+                        .with_amount(5),
+                ]),
+            ),
+        ]),
 );
 
 // MBS 141 — Titan Forge
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static TITAN_FORGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7a3bb4ab-6fe7-4926-a929-3e37691f287a"),
     "Titan Forge",
     crate::card::CardArt::new("7a3bb4ab-6fe7-4926-a929-3e37691f287a", "Svetlin Velinov"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+        AbilityDef::activated(
+            "{3}, {T}: Put a charge counter on this artifact.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{3}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::named("charge"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated(
+            "{T}, Remove three charge counters from this artifact: Create a 9/9 colorless Golem artifact creature token.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("charge"),
+                    amount: 3,
+                },
+            ],
+            EffectDef::create_artifact_creature_token(&["Golem"], &[], 9, 9),
+        ),
+    ]),
 );
 
 // MBS 142 — Training Drone
-// Audit: metadata-only — Card rules have not been implemented.
+static EQUIPMENT_ATTACHED_TO_TRAINING_DRONE: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::All(&[
+        ObjectPredicateDef::HasType(CardType::Artifact),
+        ObjectPredicateDef::Subtype("Equipment"),
+        ObjectPredicateDef::AttachedToSource,
+    ]),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::Any,
+);
+
+static TRAINING_DRONE_IS_EQUIPPED: TriggerConditionDef = TriggerConditionDef::ObjectCount {
+    query: EQUIPMENT_ATTACHED_TO_TRAINING_DRONE,
+    comparison: ComparisonDef::GreaterOrEqual,
+    amount: 1,
+};
+
+static TRAINING_DRONE_IS_NOT_EQUIPPED: TriggerConditionDef =
+    TriggerConditionDef::Not(&TRAINING_DRONE_IS_EQUIPPED);
+
+static TRAINING_DRONE_CANNOT_ATTACK_OR_BLOCK: EffectDef = EffectDef::StaticApply {
+    recipient: EffectRecipientDef::Source,
+    effect: AppliedEffectDef::Composite(&[
+        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
+        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+    ]),
+};
+
 pub(in crate::card::sets) static TRAINING_DRONE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8b7e986f-5b28-46d2-8ec2-ee719b07dbfd"),
     "Training Drone",
     crate::card::CardArt::new("8b7e986f-5b28-46d2-8ec2-ee719b07dbfd", "Matt Cavotta"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Drone"], 4, 4).with_ability(
+        AbilityDef::static_ability(
+            "This creature can't attack or block unless it's equipped.",
+            EffectDef::IfCondition {
+                condition: &TRAINING_DRONE_IS_NOT_EQUIPPED,
+                then: &TRAINING_DRONE_CANNOT_ATTACK_OR_BLOCK,
+            },
+        ),
+    ),
 );
 
 // MBS 143 — Viridian Claw
@@ -1869,23 +3429,88 @@ pub(in crate::card::sets) static VIRIDIAN_CLAW: CardRecord = CardRecord::new(
 );
 
 // MBS 144 — Contested War Zone
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CONTESTED_WAR_ZONE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bee9b696-5203-4235-9bdd-f2a389d69813"),
     "Contested War Zone",
     crate::card::CardArt::new("bee9b696-5203-4235-9bdd-f2a389d69813", "Scott Chou"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever a creature deals combat damage to you, that creature's controller gains control of this land.",
+            TriggerEventDef::DamageDealt(DamageEventMatcherDef::combat_to(
+                EffectRecipientDef::Controller,
+            )),
+            EffectDef::GainControl {
+                object: EffectRecipientDef::Source,
+                controller: PlayerRefDef::ControllerOf(ObjectRefDef::TriggeringObject),
+                duration: ControlDurationDef::Indefinitely,
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {C}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+        ),
+        AbilityDef::activated(
+            "{1}, {T}: Attacking creatures you control get +1/+0 until end of turn.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Attacking,
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MBS 145 — Inkmoth Nexus
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static INKMOTH_NEXUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ec50c1c3-885e-47d3-ada7-cc0edbf09df1"),
     "Inkmoth Nexus",
     crate::card::CardArt::new("ec50c1c3-885e-47d3-ada7-cc0edbf09df1", "Jung Park"),
     crate::card::CardSet::MirrodinBesieged,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::activated_mana(
+            "{T}: Add {C}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+        ),
+        AbilityDef::activated(
+            "{1}: Until end of turn, this land becomes a 1/1 Blinkmoth artifact creature with flying and infect. It's still a land.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_card_types(
+                        CardTypeSet::single(CardType::Creature).with(CardType::Artifact),
+                    ),
+                    AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&[
+                        "Blinkmoth",
+                    ])),
+                    AppliedEffectDef::set_base_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::flying()),
+                    AppliedEffectDef::add_ability(&abilities::infect()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MBS 146 — Plains (reprint)

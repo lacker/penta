@@ -174,6 +174,7 @@ static CAULDRON_GROWS_A_CREATURE: EffectDef = EffectDef::AddCounters {
 static CAULDRON_EXILES_THEN_GROWS: [EffectDef; 2] = [
     EffectDef::ExileLinkedToSource {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        then: None,
     },
     EffectDef::IfCondition {
         condition: &A_CREATURE_CARD_WAS_EXILED,

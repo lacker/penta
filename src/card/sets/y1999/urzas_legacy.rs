@@ -1276,7 +1276,7 @@ pub(in crate::card::sets) static RANCOR: CardRecord = CardRecord::new_with_legac
     CardRules::new_enchantment(mana_cost!("{G}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets +2/+0 and has trample.",
                 EffectDef::StaticApply {

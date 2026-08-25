@@ -271,73 +271,38 @@ impl Game {
         &mut self,
         recipient: crate::card::EffectRecipientDef,
         binding: crate::ObjectSetBindingIndex,
-        grant: Option<crate::card::KeywordAbility>,
+        counters: Option<crate::card::TokenCountersDef>,
+        arrival_effect: Option<&'static crate::card::AppliedEffectDef>,
         then: &'static EffectDef,
         object: &StackObject,
         context: EffectResolutionContext,
         scoped: ScopedEffect,
     ) {
         let controller = object.controller;
+        let counters = counters.map(|counters| {
+            (
+                counters.kind,
+                u16::try_from(
+                    self.effect_value(counters.amount, object, &context, scoped)
+                        .max(0),
+                )
+                .unwrap_or(u16::MAX),
+            )
+        });
         let mut arrivals = Vec::new();
         for target in self.effect_recipients(recipient, object, &context, scoped) {
             if let Some(arrived) = self.move_target_to_zone(
                 target,
                 crate::card::ZoneKind::Battlefield,
                 super::super::ZoneMoveCause::Effect { controller },
-                Some(super::super::BattlefieldArrival::under(controller)),
+                Some(super::super::BattlefieldArrival::under(controller).with_counters(counters)),
                 crate::card::ZonePlacement::Top,
             ) {
-                // "That creature gains haste": part of the arrival, so the
-                // permanent has it before anything else looks at it.
-                if let Some(keyword) = grant
-                    && let Some(permanent) = self
-                        .battlefield
-                        .iter_mut()
-                        .find(|permanent| permanent.card.id == arrived)
-                {
-                    permanent.temporary_keywords.push(keyword);
+                if let Some(effect) = arrival_effect {
+                    self.apply_arrival_effect(arrived, *effect, object, &context, scoped);
                 }
                 arrivals.push(Target::Permanent(arrived));
             }
-        }
-        let mut context = context;
-        context.bind_object_group(binding, arrivals);
-        self.resolve_effect_def(scoped.with_effect(*then), object, context);
-    }
-
-    pub(super) fn return_with_haste_and_finality(
-        &mut self,
-        recipient: crate::card::EffectRecipientDef,
-        binding: crate::ObjectSetBindingIndex,
-        then: &'static EffectDef,
-        object: &StackObject,
-        context: EffectResolutionContext,
-        scoped: ScopedEffect,
-    ) {
-        let controller = object.controller;
-        let mut arrivals = Vec::new();
-        for target in self.effect_recipients(recipient, object, &context, scoped) {
-            let Some(arrived) = self.move_target_to_zone(
-                target,
-                crate::card::ZoneKind::Battlefield,
-                super::super::ZoneMoveCause::Effect { controller },
-                Some(super::super::BattlefieldArrival::under(controller)),
-                crate::card::ZonePlacement::Top,
-            ) else {
-                continue;
-            };
-            if let Some(permanent) = self
-                .battlefield
-                .iter_mut()
-                .find(|permanent| permanent.card.id == arrived)
-            {
-                permanent.add_counters(crate::card::CounterKind::Finality, 1);
-                permanent
-                    .temporary_keywords
-                    .push(crate::card::KeywordAbility::Haste);
-            }
-            self.capture_counters_placed(&[arrived], crate::card::CounterKind::Finality, 1);
-            arrivals.push(Target::Permanent(arrived));
         }
         let mut context = context;
         context.bind_object_group(binding, arrivals);

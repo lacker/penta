@@ -218,6 +218,7 @@ static BAT_RETURNS_IT: AbilityDef = AbilityDef::triggered(
 static BAT_EXILE: [EffectDef; 2] = [
     EffectDef::ExileLinkedToSource {
         object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+        then: None,
     },
     EffectDef::InstallTrigger(InstalledTriggerDef::once(&BAT_RETURNS_IT)),
 ];

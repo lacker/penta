@@ -155,10 +155,10 @@ pub enum CostModificationDef {
 /// What a clause does to an attachment: which object moves onto which host,
 /// or comes off one.
 ///
-/// The six spellings live together because every consumer takes them
+/// The five spellings live together because every consumer takes them
 /// together. The attachment rules walk all of them to decide what is legally
 /// attached to what, and each exhaustive match that is not about attachment
-/// listed all six only to pass them over.
+/// listed all five only to pass them over.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum AttachmentDef {
     /// An Aura spell attaching itself to what it enchants. The permanent the
@@ -168,14 +168,6 @@ pub enum AttachmentDef {
     /// The mirror of [`Self::Attach`]: the named permanent moves onto this
     /// ability's own source, which is what "attach it to this creature" says.
     AttachToSource { object: EffectRecipientDef },
-    /// Put an Aura onto the battlefield from another zone, already attached
-    /// to a host. One effect rather than a move followed by an attach: the
-    /// card that arrives is a new object, so nothing an ordinary attach
-    /// could name still points at it.
-    ReturnAttached {
-        object: EffectRecipientDef,
-        attach_to: EffectRecipientDef,
-    },
     /// Soulbond's pairing. The chosen creature and the ability's source
     /// record each other; the pair is symmetric and survives until one of
     /// them stops being a creature its controller controls.

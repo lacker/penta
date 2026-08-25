@@ -5,8 +5,7 @@
 //! here rather than as six arms in the effect walk next door.
 
 use super::super::{
-    AttachmentDef, BattlefieldArrival, EffectResolutionContext, Game, ScopedEffect, StackObject,
-    Target, ZoneKind, ZoneMoveCause,
+    AttachmentDef, EffectResolutionContext, Game, ScopedEffect, StackObject, Target,
 };
 
 impl Game {
@@ -36,40 +35,6 @@ impl Game {
                     };
                     if attached && !onto_source {
                         break;
-                    }
-                }
-            }
-            AttachmentDef::ReturnAttached {
-                object: recipient,
-                attach_to,
-            } => {
-                let host = self
-                    .effect_recipients(attach_to, object, context, scoped)
-                    .into_iter()
-                    .find_map(|target| match target {
-                        Target::Permanent(id) => Some(id),
-                        _ => None,
-                    });
-                // An Aura with nothing to enchant never enters (CR 303.4f),
-                // so a missing host leaves the card where it is.
-                let Some(host) = host else {
-                    return;
-                };
-                for target in self.effect_recipients(recipient, object, context, scoped) {
-                    let arrived = self.move_target_to_zone(
-                        target,
-                        ZoneKind::Battlefield,
-                        ZoneMoveCause::Effect {
-                            controller: object.controller,
-                        },
-                        Some(BattlefieldArrival::under(object.controller)),
-                        crate::card::ZonePlacement::Top,
-                    );
-                    // The card that arrives is a new object, which is the
-                    // whole reason this is one effect: an attach written
-                    // afterwards would still be naming the old one.
-                    if let Some(arrived) = arrived {
-                        self.try_attach(arrived, host);
                     }
                 }
             }

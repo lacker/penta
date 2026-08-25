@@ -388,7 +388,12 @@ impl HandcraftedPolicy {
             }
             // Returning a spell is not a counter, but it answers one the
             // same way, so the policy weighs it as one.
-            EffectDef::ReturnSpellToHand { object }
+            EffectDef::MoveToZone {
+                object,
+                from: Some(ZoneKind::Stack),
+                zone: ZoneKind::Hand,
+                ..
+            }
             | EffectDef::PutSpellIntoOwnersLibrary { object }
             | EffectDef::Counter { object, .. } => {
                 profile.mark(DeclarativeSpellProfile::COUNTERS);
@@ -488,7 +493,6 @@ impl HandcraftedPolicy {
             | EffectDef::CreateEmblem { .. }
             | EffectDef::CreateOngoingEffect(_)
             | EffectDef::PutOntoBattlefieldThen { .. }
-            | EffectDef::ReturnWithHasteAndFinality { .. }
             | EffectDef::Transform { .. }
             | EffectDef::ScheduleTurnPhases(_)
             | EffectDef::TakeExtraTurn { .. }
@@ -498,7 +502,6 @@ impl HandcraftedPolicy {
             | EffectDef::DamageCannotBePreventedThisTurn
             | EffectDef::GrantFlashToNextSorcery
             | EffectDef::ExileLinkedToSource { .. }
-            | EffectDef::ExileUntilNextEndStep { .. }
             | EffectDef::MayPlayWithoutPaying { .. }
             | EffectDef::ExileGrantingOwnerPlay { .. }
             | EffectDef::ExileGrantingControllerPlayThisTurn { .. }
@@ -518,7 +521,6 @@ impl HandcraftedPolicy {
             | EffectDef::Attachment(
                 AttachmentDef::Attach { .. }
                 | AttachmentDef::AttachToSource { .. }
-                | AttachmentDef::ReturnAttached { .. }
                 | AttachmentDef::Reconfigure { .. }
                 | AttachmentDef::Unattach { .. }
                 | AttachmentDef::PairWithSource { .. },
@@ -526,7 +528,6 @@ impl HandcraftedPolicy {
             | EffectDef::PhaseOut { .. }
             | EffectDef::CreateToken { .. }
             | EffectDef::CreateAttachedToken { .. }
-            | EffectDef::ExileAndReturnTransformed { .. }
             | EffectDef::CreateTokenCopyOf { .. }
             | EffectDef::Endure { .. }
             | EffectDef::CreateMyriadTokens

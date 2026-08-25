@@ -9,7 +9,7 @@ use crate::card::{
     DrawEventMatcherDef, EffectDef, EffectRecipientDef, ManaColor, ManaRestrictionDef,
     ManaSpendEffectDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities, tokens,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::mana_cost;
 use crate::{ObjectSetBindingIndex, TargetIndex};
@@ -111,8 +111,16 @@ static REPRIEVE_TARGET: [AbilityTargetDef; 1] =
 /// countered is answered all the same -- and its controller keeps the card,
 /// which is the price. Drawing pays for the tempo either way.
 static REPRIEVE_EFFECTS: [EffectDef; 2] = [
-    EffectDef::ReturnSpellToHand {
+    EffectDef::MoveToZone {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        from: Some(ZoneKind::Stack),
+        zone: ZoneKind::Hand,
+        controller: None,
+        placement: ZonePlacement::Top,
+        arrival_effect: None,
+        attachment: None,
+        counters: None,
+        tapped: false,
     },
     EffectDef::DrawCards {
         recipient: EffectRecipientDef::Controller,

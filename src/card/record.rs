@@ -15,6 +15,10 @@ enum CompositionSource {
         faces: &'static [(&'static str, CardRules); 2],
         kind: DoubleFacedKind,
     },
+    Split {
+        halves: &'static [(&'static str, CardRules); 2],
+        fuse_cost: Option<super::ManaCost>,
+    },
 }
 
 /// Immutable exact first-printing anchor from which a new definition ID is derived.
@@ -220,6 +224,46 @@ impl CardRecord {
         )
     }
 
+    /// Defines a split card directly from its two printed halves.
+    pub(super) const fn new_split(
+        identity_anchor: PrintingAnchor,
+        name: &'static str,
+        art: CardArt,
+        debut_set: CardSet,
+        halves: &'static [(&'static str, CardRules); 2],
+    ) -> Self {
+        Self {
+            legacy_id: None,
+            identity_anchor,
+            name,
+            art,
+            debut_set,
+            rules: halves[0].1,
+            composition: Some(CompositionSource::Split {
+                halves,
+                fuse_cost: None,
+            }),
+            ability_bindings: &[],
+        }
+    }
+
+    /// Defines a fuse card directly from its two printed halves and combined cost.
+    pub(super) const fn new_fuse(
+        identity_anchor: PrintingAnchor,
+        name: &'static str,
+        art: CardArt,
+        debut_set: CardSet,
+        halves: &'static [(&'static str, CardRules); 2],
+        fuse_cost: super::ManaCost,
+    ) -> Self {
+        let mut record = Self::new_split(identity_anchor, name, art, debut_set, halves);
+        record.composition = Some(CompositionSource::Split {
+            halves,
+            fuse_cost: Some(fuse_cost),
+        });
+        record
+    }
+
     /// Preserves an existing numeric ID for a double-faced card.
     pub(super) const fn new_dfc_with_legacy_id(
         legacy_id: u64,
@@ -237,6 +281,46 @@ impl CardRecord {
             faces,
             DoubleFacedKind::Transforming,
         )
+    }
+
+    /// Preserves an existing numeric ID for a split card.
+    pub(super) const fn new_split_with_legacy_id(
+        legacy_id: u64,
+        name: &'static str,
+        art: CardArt,
+        debut_set: CardSet,
+        halves: &'static [(&'static str, CardRules); 2],
+    ) -> Self {
+        let mut record = Self::new_split(
+            PrintingAnchor::scryfall(art.scryfall_id),
+            name,
+            art,
+            debut_set,
+            halves,
+        );
+        record.legacy_id = Some(CardDefinitionId::new(legacy_id));
+        record
+    }
+
+    /// Preserves an existing numeric ID for a fuse card.
+    pub(super) const fn new_fuse_with_legacy_id(
+        legacy_id: u64,
+        name: &'static str,
+        art: CardArt,
+        debut_set: CardSet,
+        halves: &'static [(&'static str, CardRules); 2],
+        fuse_cost: super::ManaCost,
+    ) -> Self {
+        let mut record = Self::new_fuse(
+            PrintingAnchor::scryfall(art.scryfall_id),
+            name,
+            art,
+            debut_set,
+            halves,
+            fuse_cost,
+        );
+        record.legacy_id = Some(CardDefinitionId::new(legacy_id));
+        record
     }
 
     /// Uses an identity printing distinct from the chosen presentation art.
@@ -294,6 +378,9 @@ impl CardRecord {
             Some(CompositionSource::Builder(builder)) => builder(),
             Some(CompositionSource::DoubleFaced { faces, kind }) => {
                 CardComposition::double_faced(faces, kind)
+            }
+            Some(CompositionSource::Split { halves, fuse_cost }) => {
+                CardComposition::split(halves, fuse_cost)
             }
         };
         CardDefinition {

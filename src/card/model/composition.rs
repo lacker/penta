@@ -286,6 +286,57 @@ impl CardComposition {
         .with_derived_spell_targets()
     }
 
+    /// Materializes the parts and cast options of a split card. A fused cost
+    /// adds the combined hand-only option; without one, either half remains
+    /// independently castable.
+    #[must_use]
+    pub fn split(
+        halves: &'static [(&'static str, CardRules); 2],
+        fuse_cost: Option<ManaCost>,
+    ) -> Self {
+        let [(first_name, first_rules), (second_name, second_rules)] = *halves;
+        let parts = vec![CardPartId::PRIMARY, CardPartId(1)];
+        let mut play_options = vec![
+            Self::face_play_option(
+                PlayOptionId::DEFAULT,
+                CardPartId::PRIMARY,
+                first_name,
+                &first_rules,
+            ),
+            Self::face_play_option(PlayOptionId(1), CardPartId(1), second_name, &second_rules),
+        ];
+        let fused = fuse_cost.map(|cost| {
+            let id = PlayOptionId(2);
+            let status = if Self::effect_status(&first_rules) == CardEffectStatus::Implemented
+                && Self::effect_status(&second_rules) == CardEffectStatus::Implemented
+            {
+                CardEffectStatus::Implemented
+            } else {
+                CardEffectStatus::MetadataOnly
+            };
+            play_options.push(
+                PlayOptionDef::cast(
+                    id,
+                    format!("{first_name} // {second_name}"),
+                    SpellForm::Combined(parts.clone()),
+                    cost,
+                    status,
+                )
+                .restricted_to_hand(),
+            );
+            id
+        });
+        Self {
+            parts: vec![
+                CardPart::new(CardPartId::PRIMARY, first_name, first_rules),
+                CardPart::new(CardPartId(1), second_name, second_rules),
+            ],
+            structure: CardStructure::Split { parts, fused },
+            play_options,
+        }
+        .with_derived_spell_targets()
+    }
+
     /// A Room (CR 714): two doors, the pair of them, and neither of them.
     ///
     /// `combined` is what the permanent is once both doors are open -- the

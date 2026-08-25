@@ -55,6 +55,12 @@ impl Game {
         arriving_controller: Option<BattlefieldArrival>,
         placement: ZonePlacement,
     ) -> Option<GameObjectId> {
+        if let Target::Spell(id) = target {
+            if zone == ZoneKind::Hand {
+                self.return_spell_to_hand(id);
+            }
+            return None;
+        }
         if let Target::Permanent(id) = target {
             // Leaving the battlefield has its own procedure: last-known
             // information, exit events, and the triggers watching for them.

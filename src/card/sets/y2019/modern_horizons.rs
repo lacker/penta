@@ -26,6 +26,7 @@ static NOT_YOUR_TURN: TriggerConditionDef =
 static EPHEMERATE_BLINKS: [EffectDef; 3] = [
     EffectDef::ExileLinkedToSource {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        then: None,
     },
     EffectDef::ReturnLinkedExiles {
         object: ObjectPredicateDef::Any,

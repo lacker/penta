@@ -51,7 +51,7 @@ EffectDef::LookAtTopAndSelect { .. } | EffectDef::LookAtTopAndDistribute { ..
 EffectDef::RevealAtRandomFromHand { .. } | EffectDef::RevealHand { .. } |
 EffectDef::SearchZone { .. } | EffectDef::ChooseCards { .. } |
 EffectDef::ReplaceNextDrawThisTurn { .. } | EffectDef::IfFormat { .. } |
-EffectDef::Counter { .. } | EffectDef::ReturnSpellToHand { .. } |
+EffectDef::Counter { .. } |
 EffectDef::PutSpellIntoOwnersLibrary { .. } | EffectDef::CopyResolvingSpell {
 .. } | EffectDef::AddCounters { .. } | EffectDef::RemoveCounters { .. } |
 EffectDef::ChangeTextBasicLandType { .. } | EffectDef::ChooseColor { .. } |
@@ -60,15 +60,13 @@ EffectDef::CannotBeForcedToSacrifice | EffectDef::CannotBeForcedToDiscard |
 EffectDef::GainClassLevel { .. } |
 EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. } |
 EffectDef::CreateEmblem { .. } | EffectDef::CreateOngoingEffect(_) |
-EffectDef::PutOntoBattlefieldThen { .. } |
-EffectDef::ReturnWithHasteAndFinality { .. } | EffectDef::Transform { .. } |
+EffectDef::PutOntoBattlefieldThen { .. } | EffectDef::Transform { .. } |
 EffectDef::ScheduleTurnPhases(_) | EffectDef::TakeExtraTurn { .. } |
 EffectDef::PutSourceOntoBattlefieldAttacking | EffectDef::BecomeMonarch { .. }
 | EffectDef::VoteForPermanentToExile { .. } |
 EffectDef::DamageCannotBePreventedThisTurn |
 EffectDef::GrantFlashToNextSorcery | EffectDef::ExileLinkedToSource { .. } |
-EffectDef::ExileUntilNextEndStep { .. } | EffectDef::MayPlayWithoutPaying { ..
-} | EffectDef::ExileGrantingOwnerPlay { .. } |
+EffectDef::MayPlayWithoutPaying { .. } | EffectDef::ExileGrantingOwnerPlay { .. } |
 EffectDef::ExileGrantingControllerPlayThisTurn { .. } |
 EffectDef::ReturnLinkedExiles { .. } | EffectDef::Detain { .. } |
 EffectDef::GainControl { .. } | EffectDef::ExchangeControl { .. } |
@@ -79,8 +77,8 @@ EffectDef::CannotAttackIf(_) | EffectDef::PutIntoLibraryBeneathTop { .. } |
 EffectDef::MoveToZone { .. } |
 EffectDef::Attachment(_) | EffectDef::PhaseOut { .. } |
 EffectDef::CreateToken { .. } | EffectDef::CreateAttachedToken { .. } |
-EffectDef::ExileAndReturnTransformed { .. } | EffectDef::CreateTokenCopyOf {
-.. } | EffectDef::Endure { .. } | EffectDef::CreateMyriadTokens |
+EffectDef::CreateTokenCopyOf { .. } | EffectDef::Endure { .. } |
+EffectDef::CreateMyriadTokens |
 EffectDef::StaticApply { .. } | EffectDef::Apply { .. } |
 EffectDef::Special(_) => {
                 // Choice-bearing and non-mana primitives need a dedicated

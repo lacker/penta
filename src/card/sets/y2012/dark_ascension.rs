@@ -213,7 +213,7 @@ pub(in crate::card::sets) static CURSE_OF_EXHAUSTION: CardRecord = CardRecord::n
     CardRules::new_enchantment(mana_cost!("{2}{W}{W}"))
         .with_subtypes(&["Aura", "Curse"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant player", &abilities::ENCHANT_PLAYER_TARGET),
+            abilities::enchant_player(),
             AbilityDef::static_ability(
                 "Enchanted player can't cast more than one spell each turn.",
                 EffectDef::StaticApply {
@@ -796,7 +796,7 @@ pub(in crate::card::sets) static CURSE_OF_ECHOES: CardRecord = CardRecord::new(
     CardRules::new_enchantment(mana_cost!("{4}{U}"))
         .with_subtypes(&["Aura", "Curse"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant player", &abilities::ENCHANT_PLAYER_TARGET),
+            abilities::enchant_player(),
             AbilityDef::not_implemented(
                 "Whenever enchanted player casts an instant or sorcery spell, each other player may copy that spell and may choose new targets for the copy they control.",
                 "Copying another spell once for each other player with independently reselectable targets is not implemented.",
@@ -1250,7 +1250,7 @@ pub(in crate::card::sets) static CURSE_OF_MISFORTUNES: CardRecord = CardRecord::
     CardRules::new_enchantment(mana_cost!("{4}{B}"))
         .with_subtypes(&["Aura", "Curse"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant player", &abilities::ENCHANT_PLAYER_TARGET),
+            abilities::enchant_player(),
             AbilityDef::not_implemented(
                 "At the beginning of your upkeep, you may search your library for a Curse card that doesn't have the same name as a Curse attached to enchanted player, put it onto the battlefield attached to that player, then shuffle.",
                 "Searching by names absent from the enchanted player's attached Curses and attaching the battlefield arrival are not implemented.",
@@ -1274,7 +1274,7 @@ pub(in crate::card::sets) static CURSE_OF_THIRST: CardRecord = CardRecord::new(
     CardRules::new_enchantment(mana_cost!("{4}{B}"))
         .with_subtypes(&["Aura", "Curse"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant player", &abilities::ENCHANT_PLAYER_TARGET),
+            abilities::enchant_player(),
             abilities::enchanted_player_upkeep(
                 "At the beginning of enchanted player's upkeep, this Aura deals damage to that player equal to the number of Curses attached to them.",
                 EffectDef::DealDamage {
@@ -1837,7 +1837,7 @@ pub(in crate::card::sets) static CURSE_OF_BLOODLETTING: CardRecord = CardRecord:
     CardRules::new_enchantment(mana_cost!("{3}{R}{R}"))
         .with_subtypes(&["Aura", "Curse"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant player", &abilities::ENCHANT_PLAYER_TARGET),
+            abilities::enchant_player(),
             AbilityDef::not_implemented(
                 "If a source would deal damage to enchanted player, it deals double that damage to that player instead.",
                 "Damage-event multiplication and replacement-order choices are not implemented.",
@@ -3374,7 +3374,8 @@ pub(in crate::card::sets) static HELVAULT: CardRecord = CardRecord::new_with_leg
                 })],
                 EffectDef::ExileLinkedToSource {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                },
+then: None,
+},
             ),
             AbilityDef::activated_with_targets(
                 "{7}, {T}: Exile target creature you don't control.",
@@ -3390,7 +3391,8 @@ pub(in crate::card::sets) static HELVAULT: CardRecord = CardRecord::new_with_leg
                 })],
                 EffectDef::ExileLinkedToSource {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                },
+then: None,
+},
             ),
             abilities::dies_trigger("When Helvault is put into a graveyard from the battlefield, return all cards exiled with it to the battlefield under their owners' control.", EffectDef::ReturnLinkedExiles {
                     object: ObjectPredicateDef::Any,

@@ -251,7 +251,7 @@ pub(in crate::card::sets) static FISHLIVER_OIL: CardRecord = CardRecord::new_wit
     CardRules::new_enchantment(mana_cost!("{1}{U}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature has islandwalk.",
                 EffectDef::StaticApply {
@@ -445,7 +445,7 @@ pub(in crate::card::sets) static UNSTABLE_MUTATION: CardRecord = CardRecord::new
     CardRules::new_enchantment(mana_cost!("{U}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets +3/+3.",
                 EffectDef::StaticApply {

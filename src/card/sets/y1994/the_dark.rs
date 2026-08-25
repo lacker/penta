@@ -742,7 +742,7 @@ pub(in crate::card::sets) static TANGLE_KELP: CardRecord = CardRecord::new_with_
     CardRules::new_enchantment(mana_cost!("{U}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             abilities::enters_trigger(
                 "When this Aura enters, tap enchanted creature.",
                 EffectDef::Tap {
@@ -891,7 +891,7 @@ pub(in crate::card::sets) static CURSE_ARTIFACT: CardRecord = CardRecord::new_wi
     CardRules::new_enchantment(mana_cost!("{2}{B}{B}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant artifact", &abilities::ENCHANT_ARTIFACT_TARGET),
+            abilities::enchant_artifact(),
             abilities::enchanted_controller_upkeep(
                 "At the beginning of the upkeep of enchanted artifact's controller, this Aura \
                  deals 2 damage to that player unless they sacrifice that artifact.",
@@ -1386,7 +1386,7 @@ pub(in crate::card::sets) static GOBLIN_CAVES: CardRecord = CardRecord::new_with
     CardRules::new_enchantment(mana_cost!("{1}{R}{R}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant land", &abilities::ENCHANT_LAND_TARGET),
+            abilities::enchant_land(),
             AbilityDef::static_ability(
                 "As long as enchanted land is a basic Mountain, Goblin creatures get +0/+2.",
                 EffectDef::IfCondition {
@@ -1486,7 +1486,7 @@ pub(in crate::card::sets) static GOBLIN_SHRINE: CardRecord = CardRecord::new_wit
     CardRules::new_enchantment(mana_cost!("{1}{R}{R}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant land", &abilities::ENCHANT_LAND_TARGET),
+            abilities::enchant_land(),
             AbilityDef::static_ability(
                 "As long as enchanted land is a basic Mountain, Goblin creatures get +1/+0.",
                 EffectDef::IfCondition {
@@ -2074,7 +2074,7 @@ pub(in crate::card::sets) static VENOM: CardRecord = CardRecord::new_with_legacy
     CardRules::new_enchantment(mana_cost!("{1}{G}{G}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Whenever enchanted creature blocks or becomes blocked by a non-Wall creature, \
                  destroy the other creature at end of combat.",
@@ -2631,7 +2631,8 @@ pub(in crate::card::sets) static SAFE_HAVEN: CardRecord = CardRecord::new_with_l
             )],
             EffectDef::ExileLinkedToSource {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            },
+then: None,
+},
         ),
         AbilityDef::triggered(
             "At the beginning of your upkeep, you may sacrifice this land. If you do, return each card exiled with this land to the battlefield under its owner's control.",

@@ -30,8 +30,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::SelectAtRandomFromZone { then: effect, .. }
         | EffectDef::ChooseCardName { then: effect, .. }
         | EffectDef::RevealAtRandomFromHand { then: effect, .. }
-        | EffectDef::PutOntoBattlefieldThen { then: effect, .. }
-        | EffectDef::ReturnWithHasteAndFinality { then: effect, .. } => vec![*effect],
+        | EffectDef::PutOntoBattlefieldThen { then: effect, .. } => vec![*effect],
         EffectDef::Destroy {
             then: Some(follow_up),
             ..
@@ -59,6 +58,9 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
             .map(|follow_up| *follow_up.effect)
             .collect(),
         EffectDef::ExchangeControl { otherwise, .. } => otherwise.into_iter().copied().collect(),
+        EffectDef::ExileLinkedToSource {
+            then: Some(effect), ..
+        } => vec![*effect],
 
         // A distributed look runs nothing after a card lands, so like every
         // other leaf below it has no child effect to walk.
@@ -72,7 +74,6 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::Attachment(
             AttachmentDef::Attach { .. }
             | AttachmentDef::AttachToSource { .. }
-            | AttachmentDef::ReturnAttached { .. }
             | AttachmentDef::PairWithSource { .. }
             | AttachmentDef::Reconfigure { .. }
             | AttachmentDef::Unattach { .. },
@@ -88,13 +89,11 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
         | EffectDef::ChooseCards { .. }
         | EffectDef::PutSpellIntoOwnersLibrary { .. }
-        | EffectDef::ReturnSpellToHand { .. }
         | EffectDef::Counter { .. }
         | EffectDef::CopyResolvingSpell { .. }
         | EffectDef::CreateEmblem { .. }
         | EffectDef::CreateOngoingEffect(_)
         | EffectDef::CreateAttachedToken { .. }
-        | EffectDef::ExileAndReturnTransformed { .. }
         | EffectDef::CreateTokenCopyOf { .. }
         | EffectDef::Endure { .. }
         | EffectDef::CreateMyriadTokens
@@ -107,8 +106,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::DrainLife { .. }
         | EffectDef::DrawCards { .. }
         | EffectDef::EmptyManaPool { .. }
-        | EffectDef::ExileLinkedToSource { .. }
-        | EffectDef::ExileUntilNextEndStep { .. }
+        | EffectDef::ExileLinkedToSource { then: None, .. }
         | EffectDef::MayPlayWithoutPaying { .. }
         | EffectDef::ExileGrantingOwnerPlay { .. }
         | EffectDef::ExileGrantingControllerPlayThisTurn { .. }

@@ -77,6 +77,7 @@ static SKYCLAVE_APPARITION_ABILITIES: [AbilityDef; 2] = [
         &A_CHEAP_NONLAND_NONTOKEN,
         EffectDef::ExileLinkedToSource {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            then: None,
         },
     ),
     // Leaves, not dies: the card stays in exile whatever happened to the

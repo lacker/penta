@@ -13,8 +13,9 @@ use crate::card::{
     ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
     PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, RoundingDef,
     SimultaneousChooseDef, SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef,
-    TargetConditionDef, TokenCopyExceptionsDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    TargetConditionDef, TokenCopyExceptionsDef, TokenCountersDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    tokens,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
 use crate::{TargetIndex, mana_cost};
@@ -215,6 +216,7 @@ static ANOTHER_NONLAND_PERMANENT: [AbilityTargetDef; 1] = [AbilityTargetDef::up_
 static PHELIA_EXILE: [EffectDef; 2] = [
     EffectDef::ExileLinkedToSource {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        then: None,
     },
     EffectDef::InstallTrigger(InstalledTriggerDef::once(&PHELIA_END_STEP)),
 ];
@@ -273,6 +275,7 @@ static PRISON_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 static PRISON_ENTERS: [EffectDef; 3] = [
     EffectDef::ExileLinkedToSource {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        then: None,
     },
     EffectDef::InstallTrigger(InstalledTriggerDef::once(&PRISON_RETURNS_IT)),
     // The energy arrives with the exile rather than paying for it: the first
@@ -433,9 +436,17 @@ static EMPEROR_SACRIFICES_IT: AbilityDef = AbilityDef::triggered(
 
 const EMPEROR_ARRIVAL: ObjectSetBindingIndex = ObjectSetBindingIndex::PRIMARY;
 
-static EMPEROR_REANIMATES: EffectDef = EffectDef::ReturnWithHasteAndFinality {
+static EMPEROR_HASTE: AbilityDef = abilities::haste();
+static EMPEROR_ARRIVAL_EFFECT: AppliedEffectDef = AppliedEffectDef::add_ability(&EMPEROR_HASTE);
+
+static EMPEROR_REANIMATES: EffectDef = EffectDef::PutOntoBattlefieldThen {
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
     binding: EMPEROR_ARRIVAL,
+    counters: Some(TokenCountersDef {
+        kind: CounterKind::Finality,
+        amount: ValueDef::Constant(1),
+    }),
+    arrival_effect: Some(&EMPEROR_ARRIVAL_EFFECT),
     then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(&EMPEROR_SACRIFICES_IT)),
 };
 
@@ -461,6 +472,7 @@ static EMPEROR_OF_BONES_ABILITIES: [AbilityDef; 3] = [
         &EMPEROR_TARGET,
         EffectDef::ExileLinkedToSource {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            then: None,
         },
     ),
     AbilityDef::activated(
@@ -1628,6 +1640,7 @@ static ANOTHER_CAT_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
 static AJANI_TURNS_OVER: [EffectDef; 2] = [
     EffectDef::ExileLinkedToSource {
         object: EffectRecipientDef::Source,
+        then: None,
     },
     EffectDef::ReturnLinkedExiles {
         object: ObjectPredicateDef::Any,
@@ -1958,6 +1971,7 @@ pub(in crate::card::sets) static NADU_WINGED_WISDOM: CardRecord = CardRecord::ne
 static TAMIYO_TURNS_OVER: [EffectDef; 2] = [
     EffectDef::ExileLinkedToSource {
         object: EffectRecipientDef::Source,
+        then: None,
     },
     EffectDef::ReturnLinkedExiles {
         object: ObjectPredicateDef::Any,

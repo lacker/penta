@@ -249,7 +249,8 @@ pub(in crate::card::sets) static PARALLAX_WAVE: CardRecord = CardRecord::new_wit
             )],
             EffectDef::ExileLinkedToSource {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            },
+then: None,
+},
         ),
         AbilityDef::triggered(
             "When this enchantment leaves the battlefield, each player returns to the battlefield all cards they own exiled with it.",

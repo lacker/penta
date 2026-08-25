@@ -800,7 +800,7 @@ pub(in crate::card::sets) static SPIRIT_LINK: CardRecord = CardRecord::new_with_
     CardRules::new_enchantment(mana_cost!("{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::triggered(
                 "Whenever enchanted creature deals damage, you gain that much life.",
                 TriggerEventDef::damage_dealt_by(ObjectPredicateDef::AttachedToSource),
@@ -1234,7 +1234,7 @@ pub(in crate::card::sets) static GASEOUS_FORM: CardRecord = CardRecord::new_with
     CardRules::new_enchantment(mana_cost!("{2}{U}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Prevent all combat damage that would be dealt to and dealt by enchanted creature.",
                 EffectDef::StaticApply {
@@ -1593,7 +1593,7 @@ pub(in crate::card::sets) static SPECTRAL_CLOAK: CardRecord = CardRecord::new_wi
     CardRules::new_enchantment(mana_cost!("{U}{U}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature has shroud as long as it's untapped.",
                 EffectDef::StaticApply {
@@ -1729,7 +1729,7 @@ pub(in crate::card::sets) static VENARIAN_GOLD: CardRecord = CardRecord::new_wit
     CardRules::new_enchantment(mana_cost!("{X}{U}{U}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             abilities::enters_trigger(
                 "When this Aura enters, tap enchanted creature and put X sleep counters on it.",
                 EffectDef::Sequence(&VENARIAN_GOLD_SLEEP),
@@ -1857,7 +1857,7 @@ pub(in crate::card::sets) static BLIGHT: CardRecord = CardRecord::new_with_legac
     CardRules::new_enchantment(mana_cost!("{B}{B}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant land", &abilities::ENCHANT_LAND_TARGET),
+            abilities::enchant_land(),
             AbilityDef::triggered(
                 "When enchanted land becomes tapped, destroy it.",
                 TriggerEventDef::tapped(ObjectPredicateDef::AttachedToSource),
@@ -1963,7 +1963,7 @@ pub(in crate::card::sets) static DEMONIC_TORMENT: CardRecord = CardRecord::new_w
     CardRules::new_enchantment(mana_cost!("{2}{B}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature can't attack.",
                 EffectDef::StaticApply {
@@ -2391,7 +2391,7 @@ pub(in crate::card::sets) static SPIRIT_SHACKLE: CardRecord = CardRecord::new_wi
     CardRules::new_enchantment(mana_cost!("{B}{B}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::triggered(
                 "Whenever enchanted creature becomes tapped, put a -0/-2 counter on it.",
                 TriggerEventDef::tapped(ObjectPredicateDef::AttachedToSource),
@@ -3410,7 +3410,7 @@ pub(in crate::card::sets) static THE_BRUTE: CardRecord = CardRecord::new_with_le
     CardRules::new_enchantment(mana_cost!("{1}{R}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets +1/+0.",
                 EffectDef::StaticApply {
@@ -3557,16 +3557,6 @@ pub(in crate::card::sets) static CAT_WARRIORS: CardRecord = CardRecord::new_with
 );
 
 // LEG 178 — Cocoon
-/// "Enchant creature you control."
-static COCOON_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::You),
-        owner: None,
-    },
-)];
-
 static COCOON_WRAPPED: [EffectDef; 2] = [
     EffectDef::Tap {
         object: EffectRecipientDef::AttachedPermanent,
@@ -3644,7 +3634,7 @@ pub(in crate::card::sets) static COCOON: CardRecord = CardRecord::new_with_legac
     CardRules::new_enchantment(mana_cost!("{G}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature you control", &COCOON_TARGET),
+            abilities::enchant_creature_you_control(),
             abilities::enters_trigger(
                 "When this Aura enters, tap enchanted creature and put three pupa counters \
                  on this Aura.",

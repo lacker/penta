@@ -128,7 +128,7 @@ impl Game {
         };
         let preference = if matches!(
             target_effect,
-            EffectDef::ExileLinkedToSource { object }
+            EffectDef::ExileLinkedToSource { object, .. }
                 if object
                     .legal_target()
                     .is_some_and(|slot| slot.index() == trigger.targets.len())

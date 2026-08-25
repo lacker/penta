@@ -225,26 +225,6 @@ impl Game {
             | EffectDef::CreateTokenCopyOf { .. } => {
                 self.resolve_token_effect(scoped, object, &context);
             }
-            // Two steps that are one instruction: what comes back is a new
-            // object, so nothing between them could name it.
-            EffectDef::ExileAndReturnTransformed { object: recipient } => {
-                for target in self.effect_recipients(recipient, object, &context, scoped) {
-                    let Target::Permanent(permanent) = target else {
-                        continue;
-                    };
-                    let Some(exiled) = self.exile_permanent_returning_card(permanent) else {
-                        continue;
-                    };
-                    self.return_exiled_card(
-                        exiled,
-                        ZoneKind::Battlefield,
-                        None,
-                        Some(object.controller),
-                        true,
-                        None,
-                    );
-                }
-            }
             EffectDef::PreventDamage { .. } => {
                 self.resolve_prevention_effect(scoped, object, &context);
             }
@@ -395,20 +375,19 @@ impl Game {
             EffectDef::PutOntoBattlefieldThen {
                 object: recipient,
                 binding,
-                grant,
+                counters,
+                arrival_effect,
                 then,
             } => {
                 self.put_onto_battlefield_then(
-                    recipient, binding, grant, then, object, context, scoped,
-                );
-            }
-            EffectDef::ReturnWithHasteAndFinality {
-                object: recipient,
-                binding,
-                then,
-            } => {
-                self.return_with_haste_and_finality(
-                    recipient, binding, then, object, context, scoped,
+                    recipient,
+                    binding,
+                    counters,
+                    arrival_effect,
+                    then,
+                    object,
+                    context,
+                    scoped,
                 );
             }
             EffectDef::Transform { object: recipient } => {
@@ -535,9 +514,6 @@ impl Game {
                 {
                     self.offer_granted_cast(object.controller, card, ability);
                 }
-            }
-            EffectDef::ExileUntilNextEndStep { .. } => {
-                self.resolve_exile_until_next_end_step(scoped, object, context);
             }
             EffectDef::ExileLinkedToSource { .. }
             | EffectDef::ExileGrantingOwnerPlay { .. }
@@ -715,13 +691,6 @@ impl Game {
                     && copies > 0
                 {
                     self.queue_copy_decision_chain(player, spell, None, "the copy", copies);
-                }
-            }
-            EffectDef::ReturnSpellToHand { object: recipient } => {
-                for target in self.effect_recipients(recipient, object, &context, scoped) {
-                    if let Target::Spell(spell) = target {
-                        self.return_spell_to_hand(spell);
-                    }
                 }
             }
             EffectDef::PutSpellIntoOwnersLibrary { object: recipient } => {

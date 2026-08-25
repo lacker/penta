@@ -134,6 +134,7 @@ pub(in crate::card::sets) static BRANCHING_BOLT: CardRecord = CardRecord::new(
 /// bargain: the card is gone only for as long as the body survives.
 static SCULLER_EXILE: EffectDef = EffectDef::ExileLinkedToSource {
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+    then: None,
 };
 
 static SCULLER_TAKES_A_CARD: [EffectDef; 2] = [

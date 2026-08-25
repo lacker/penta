@@ -1203,7 +1203,7 @@ pub(in crate::card::sets) static THRULL_RETAINER: CardRecord = CardRecord::new_w
     CardRules::new_enchantment(mana_cost!("{B}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets +1/+1.",
                 EffectDef::StaticApply {

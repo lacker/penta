@@ -37,6 +37,7 @@ static HOLE_GIVES_IT_BACK: AbilityDef = AbilityDef::triggered(
 static HOLE_SWALLOWS_IT: [EffectDef; 2] = [
     EffectDef::ExileLinkedToSource {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        then: None,
     },
     EffectDef::InstallTrigger(InstalledTriggerDef::once(&HOLE_GIVES_IT_BACK)),
 ];

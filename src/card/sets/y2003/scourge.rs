@@ -7,10 +7,10 @@ use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AppliedEffectDef, AttachmentDef, BasicLandType, CardArt, CardRules, CardSet, CardType,
+    AppliedEffectDef, ArrivalAttachmentDef, BasicLandType, CardArt, CardRules, CardSet, CardType,
     ComparisonDef, CostModificationDef, CounterKind, EffectDef, EffectPaymentCostDef,
-    EffectPaymentDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, StackTargetKindDef,
+    EffectPaymentDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectRefDef, PayOrDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, StackTargetKindDef,
     TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
@@ -1088,7 +1088,7 @@ pub(in crate::card::sets) static DRAGON_BREATH: CardRecord = CardRecord::new_wit
     CardRules::new_enchantment(mana_cost!("{1}{R}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature has haste.",
                 EffectDef::StaticApply {
@@ -1117,10 +1117,19 @@ pub(in crate::card::sets) static DRAGON_BREATH: CardRecord = CardRecord::new_wit
                 ),
                 EffectDef::May {
                     player: EffectRecipientDef::Controller,
-                    effect: &EffectDef::Attachment(AttachmentDef::ReturnAttached{
+                    effect: &EffectDef::MoveToZone {
                         object: EffectRecipientDef::Source,
-                        attach_to: EffectRecipientDef::TriggeringObject,
-                    }),
+                        from: Some(ZoneKind::Graveyard),
+                        zone: ZoneKind::Battlefield,
+                        controller: Some(PlayerRelation::You),
+                        placement: ZonePlacement::Top,
+                        arrival_effect: None,
+                        attachment: Some(ArrivalAttachmentDef::ArrivalToHost(
+                            ObjectRefDef::TriggeringObject,
+                        )),
+                        counters: None,
+                        tapped: false,
+                    },
                 },
             )
             .with_source_zones(&[ZoneKind::Graveyard]),

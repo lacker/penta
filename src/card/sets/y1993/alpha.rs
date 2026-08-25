@@ -18,7 +18,7 @@ use crate::card::{
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
 
-use abilities::{ENCHANT_CREATURE_TARGET, ENCHANT_LAND_TARGET, aura_spell};
+use abilities::{ENCHANT_CREATURE_TARGET, aura_spell, enchant_creature, enchant_land};
 
 static DEFENDER_CONTROLS_AN_ISLAND: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
@@ -126,7 +126,7 @@ pub(in crate::card::sets) static BLACK_WARD: CardRecord = CardRecord::new_with_l
     CardRules::new_enchantment(mana_cost!("{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &ENCHANT_CREATURE_TARGET),
+            enchant_creature(),
             abilities::ward_aura_protection(
                 ManaColor::Black,
                 "Enchanted creature has protection from black. This effect doesn't remove \
@@ -180,7 +180,7 @@ pub(in crate::card::sets) static BLESSING: CardRecord = CardRecord::new_with_leg
     CardRules::new_enchantment(mana_cost!("{W}{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &ENCHANT_CREATURE_TARGET),
+            enchant_creature(),
             AbilityDef::activated(
                 "{W}: Enchanted creature gets +1/+1 until end of turn.",
                 &[AbilityCostDef::Mana(mana_cost!("{W}"))],
@@ -205,7 +205,7 @@ pub(in crate::card::sets) static BLUE_WARD: CardRecord = CardRecord::new_with_le
     CardRules::new_enchantment(mana_cost!("{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &ENCHANT_CREATURE_TARGET),
+            enchant_creature(),
             abilities::ward_aura_protection(
                 ManaColor::Blue,
                 "Enchanted creature has protection from blue. This effect doesn't remove \
@@ -439,7 +439,7 @@ pub(in crate::card::sets) static FARMSTEAD: CardRecord = CardRecord::new_with_le
     CardRules::new_enchantment(mana_cost!("{W}{W}{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant land", &ENCHANT_LAND_TARGET),
+            enchant_land(),
             AbilityDef::static_ability(
                 "Enchanted land has \"At the beginning of your upkeep, you may pay {W}{W}. If you do, you gain 1 life.\"",
                 EffectDef::StaticApply {
@@ -459,7 +459,7 @@ pub(in crate::card::sets) static GREEN_WARD: CardRecord = CardRecord::new_with_l
     CardRules::new_enchantment(mana_cost!("{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &ENCHANT_CREATURE_TARGET),
+            enchant_creature(),
             abilities::ward_aura_protection(
                 ManaColor::Green,
                 "Enchanted creature has protection from green. This effect doesn't remove \
@@ -556,7 +556,7 @@ pub(in crate::card::sets) static HOLY_ARMOR: CardRecord = CardRecord::new_with_l
     CardRules::new_enchantment(mana_cost!("{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &ENCHANT_CREATURE_TARGET),
+            enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets +0/+2.",
                 EffectDef::StaticApply {
@@ -591,7 +591,7 @@ pub(in crate::card::sets) static HOLY_STRENGTH: CardRecord = CardRecord::new_wit
     CardRules::new_enchantment(mana_cost!("{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &ENCHANT_CREATURE_TARGET),
+            enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets +1/+2.",
                 EffectDef::StaticApply {
@@ -688,7 +688,7 @@ pub(in crate::card::sets) static LANCE: CardRecord = CardRecord::new_with_legacy
     CardRules::new_enchantment(mana_cost!("{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &ENCHANT_CREATURE_TARGET),
+            enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature has first strike.",
                 EffectDef::StaticApply {
@@ -779,7 +779,7 @@ pub(in crate::card::sets) static RED_WARD: CardRecord = CardRecord::new_with_leg
     CardRules::new_enchantment(mana_cost!("{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &ENCHANT_CREATURE_TARGET),
+            enchant_creature(),
             abilities::ward_aura_protection(
                 ManaColor::Red,
                 "Enchanted creature has protection from red. This effect doesn't remove \
@@ -1010,7 +1010,7 @@ pub(in crate::card::sets) static WHITE_WARD: CardRecord = CardRecord::new_with_l
     CardRules::new_enchantment(mana_cost!("{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &ENCHANT_CREATURE_TARGET),
+            enchant_creature(),
             abilities::ward_aura_protection(
                 ManaColor::White,
                 "Enchanted creature has protection from white. This effect doesn't remove \
@@ -1096,7 +1096,7 @@ pub(in crate::card::sets) static ANIMATE_ARTIFACT: CardRecord = CardRecord::new(
     CardRules::new_enchantment(mana_cost!("{3}{U}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant artifact", &abilities::ENCHANT_ARTIFACT_TARGET),
+            abilities::enchant_artifact(),
             AbilityDef::static_ability(
                 "As long as enchanted artifact isn't a creature, it's an artifact creature with power and toughness each equal to its mana value.",
                 EffectDef::StaticApply {
@@ -1177,7 +1177,7 @@ pub(in crate::card::sets) static CONTROL_MAGIC: CardRecord = CardRecord::new_wit
     CardRules::new_enchantment(mana_cost!("{2}{U}{U}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "You control enchanted creature.",
                 EffectDef::GainControl {
@@ -1242,7 +1242,7 @@ pub(in crate::card::sets) static CREATURE_BOND: CardRecord = CardRecord::new_wit
     CardRules::new_enchantment(mana_cost!("{1}{U}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::triggered(
                 "When enchanted creature dies, this Aura deals damage equal to that \
                  creature's toughness to the creature's controller.",
@@ -1283,10 +1283,7 @@ pub(in crate::card::sets) static FEEDBACK: CardRecord = CardRecord::new_with_leg
     CardRules::new_enchantment(mana_cost!("{2}{U}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell(
-                "Enchant enchantment",
-                &abilities::ENCHANT_ENCHANTMENT_TARGET,
-            ),
+            abilities::enchant_enchantment(),
             abilities::enchanted_controller_upkeep(
                 "At the beginning of the upkeep of enchanted enchantment's controller, this Aura \
                  deals 1 damage to that player.",
@@ -1309,7 +1306,7 @@ pub(in crate::card::sets) static FLIGHT: CardRecord = CardRecord::new_with_legac
     CardRules::new_enchantment(mana_cost!("{U}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &ENCHANT_CREATURE_TARGET),
+            enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature has flying.",
                 EffectDef::StaticApply {
@@ -1329,7 +1326,7 @@ pub(in crate::card::sets) static INVISIBILITY: CardRecord = CardRecord::new_with
     CardRules::new_enchantment(mana_cost!("{U}{U}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &ENCHANT_CREATURE_TARGET),
+            enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature can't be blocked except by Walls.",
                 EffectDef::StaticApply {
@@ -1627,7 +1624,7 @@ pub(in crate::card::sets) static PSYCHIC_VENOM: CardRecord = CardRecord::new_wit
     CardRules::new_enchantment(mana_cost!("{1}{U}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant land", &abilities::ENCHANT_LAND_TARGET),
+            abilities::enchant_land(),
             AbilityDef::triggered(
                 "Whenever enchanted land becomes tapped, this Aura deals 2 damage to that \
                  land's controller.",
@@ -1747,7 +1744,7 @@ pub(in crate::card::sets) static STEAL_ARTIFACT: CardRecord = CardRecord::new_wi
     CardRules::new_enchantment(mana_cost!("{2}{U}{U}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant artifact", &abilities::ENCHANT_ARTIFACT_TARGET),
+            abilities::enchant_artifact(),
             AbilityDef::static_ability(
                 "You control enchanted artifact.",
                 EffectDef::GainControl {
@@ -2091,7 +2088,7 @@ pub(in crate::card::sets) static CURSED_LAND: CardRecord = CardRecord::new_with_
     CardRules::new_enchantment(mana_cost!("{2}{B}{B}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant land", &abilities::ENCHANT_LAND_TARGET),
+            abilities::enchant_land(),
             abilities::enchanted_controller_upkeep(
                 "At the beginning of the upkeep of enchanted land's controller, this Aura \
                  deals 1 damage to that player.",
@@ -2262,7 +2259,7 @@ pub(in crate::card::sets) static EVIL_PRESENCE: CardRecord = CardRecord::new_wit
     CardRules::new_enchantment(mana_cost!("{B}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant land", &ENCHANT_LAND_TARGET),
+            enchant_land(),
             AbilityDef::static_ability(
                 "Enchanted land is a Swamp.",
                 EffectDef::StaticApply {
@@ -2283,7 +2280,7 @@ pub(in crate::card::sets) static FEAR: CardRecord = CardRecord::new_with_legacy_
     CardRules::new_enchantment(mana_cost!("{B}{B}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &ENCHANT_CREATURE_TARGET),
+            enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature has fear. (It can't be blocked except by artifact creatures and/or black creatures.)",
                 EffectDef::StaticApply {
@@ -2528,7 +2525,7 @@ pub(in crate::card::sets) static PARALYZE: CardRecord = CardRecord::new_with_leg
     CardRules::new_enchantment(mana_cost!("{B}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             abilities::enters_trigger(
                 "When this Aura enters, tap enchanted creature.",
                 EffectDef::Tap {
@@ -2883,7 +2880,7 @@ pub(in crate::card::sets) static UNHOLY_STRENGTH: CardRecord = CardRecord::new_w
     CardRules::new_enchantment(mana_cost!("{B}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &ENCHANT_CREATURE_TARGET),
+            enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets +2/+1.",
                 EffectDef::StaticApply {
@@ -2921,7 +2918,7 @@ pub(in crate::card::sets) static WARP_ARTIFACT: CardRecord = CardRecord::new_wit
     CardRules::new_enchantment(mana_cost!("{B}{B}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant artifact", &abilities::ENCHANT_ARTIFACT_TARGET),
+            abilities::enchant_artifact(),
             abilities::enchanted_controller_upkeep(
                 "At the beginning of the upkeep of enchanted artifact's controller, this Aura \
                  deals 1 damage to that player.",
@@ -2944,7 +2941,7 @@ pub(in crate::card::sets) static WEAKNESS: CardRecord = CardRecord::new_with_leg
     CardRules::new_enchantment(mana_cost!("{B}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &ENCHANT_CREATURE_TARGET),
+            enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets -2/-1.",
                 EffectDef::StaticApply {
@@ -3037,7 +3034,7 @@ pub(in crate::card::sets) static BURROWING: CardRecord = CardRecord::new_with_le
     CardRules::new_enchantment(mana_cost!("{R}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &ENCHANT_CREATURE_TARGET),
+            enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature has mountainwalk. (It can't be blocked as long as defending player controls a Mountain.)",
                 EffectDef::StaticApply {
@@ -3271,7 +3268,7 @@ pub(in crate::card::sets) static FIREBREATHING: CardRecord = CardRecord::new_wit
     CardRules::new_enchantment(mana_cost!("{R}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &ENCHANT_CREATURE_TARGET),
+            enchant_creature(),
             AbilityDef::activated(
                 "{R}: Enchanted creature gets +1/+0 until end of turn.",
                 &[AbilityCostDef::Mana(mana_cost!("{R}"))],
@@ -3958,7 +3955,7 @@ pub(in crate::card::sets) static ASPECT_OF_WOLF: CardRecord = CardRecord::new_wi
     CardRules::new_enchantment(mana_cost!("{1}{G}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets +X/+Y, where X is half the number of Forests you \
                  control, rounded down, and Y is half the number of Forests you control, \
@@ -4303,7 +4300,7 @@ pub(in crate::card::sets) static INSTILL_ENERGY: CardRecord = CardRecord::new_wi
     CardRules::new_enchantment(mana_cost!("{G}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature can attack as though it had haste.",
                 EffectDef::StaticApply {
@@ -4442,7 +4439,7 @@ pub(in crate::card::sets) static LIVING_ARTIFACT: CardRecord = CardRecord::new_w
     CardRules::new_enchantment(mana_cost!("{G}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant artifact", &abilities::ENCHANT_ARTIFACT_TARGET),
+            abilities::enchant_artifact(),
             AbilityDef::triggered(
                 "Whenever you're dealt damage, put that many vitality counters on this Aura.",
                 TriggerEventDef::damage_to_player(ObjectPredicateDef::Any, PlayerRelation::You),
@@ -4512,7 +4509,7 @@ pub(in crate::card::sets) static LURE: CardRecord = CardRecord::new_with_legacy_
     CardRules::new_enchantment(mana_cost!("{1}{G}{G}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &ENCHANT_CREATURE_TARGET),
+            enchant_creature(),
             AbilityDef::static_ability(
                 "All creatures able to block enchanted creature do so.",
                 EffectDef::StaticApply {
@@ -4544,7 +4541,7 @@ pub(in crate::card::sets) static REGENERATION: CardRecord = CardRecord::new_with
     CardRules::new_enchantment(mana_cost!("{1}{G}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &ENCHANT_CREATURE_TARGET),
+            enchant_creature(),
             AbilityDef::activated(
                 "{G}: Regenerate enchanted creature.",
                 &[AbilityCostDef::Mana(mana_cost!("{G}"))],
@@ -4764,7 +4761,7 @@ pub(in crate::card::sets) static WANDERLUST: CardRecord = CardRecord::new_with_l
     CardRules::new_enchantment(mana_cost!("{2}{G}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             abilities::enchanted_controller_upkeep(
                 "At the beginning of the upkeep of enchanted creature's controller, this Aura \
                  deals 1 damage to that player.",
@@ -4797,7 +4794,7 @@ pub(in crate::card::sets) static WEB: CardRecord = CardRecord::new_with_legacy_i
     CardRules::new_enchantment(mana_cost!("{G}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant creature", &ENCHANT_CREATURE_TARGET),
+            enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets +0/+2 and has reach. (It can block creatures with flying.)",
                 EffectDef::StaticApply {
@@ -4820,7 +4817,7 @@ pub(in crate::card::sets) static WILD_GROWTH: CardRecord = CardRecord::new_with_
     CardRules::new_enchantment(mana_cost!("{G}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            aura_spell("Enchant land", &abilities::ENCHANT_LAND_TARGET),
+            abilities::enchant_land(),
             AbilityDef::triggered_mana(
                 "Whenever enchanted land is tapped for mana, its controller adds an \
                  additional {G}.",

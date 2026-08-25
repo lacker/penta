@@ -192,6 +192,7 @@ static UP_TO_ONE_NONLAND_PERMANENT_YOU_CONTROL: [AbilityTargetDef; 1] = [Ability
 static KITTEN_BLINKS: [EffectDef; 2] = [
     EffectDef::ExileLinkedToSource {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        then: None,
     },
     EffectDef::ReturnLinkedExiles {
         object: ObjectPredicateDef::Any,

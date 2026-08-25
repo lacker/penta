@@ -39,14 +39,22 @@ static RETURN_EXILE_AT_NEXT_END_STEP_UNDER_YOUR_CONTROL: AbilityDef = AbilityDef
     },
 );
 
+static INSTALL_RETURN_EXILE_AT_NEXT_END_STEP: EffectDef =
+    EffectDef::InstallTrigger(InstalledTriggerDef::once(&RETURN_EXILE_AT_NEXT_END_STEP));
+static INSTALL_RETURN_EXILE_AT_NEXT_END_STEP_UNDER_YOUR_CONTROL: EffectDef =
+    EffectDef::InstallTrigger(InstalledTriggerDef::once(
+        &RETURN_EXILE_AT_NEXT_END_STEP_UNDER_YOUR_CONTROL,
+    ));
+
 /// Exile one object and install the delayed trigger that returns it under its
 /// owner's control at the next end step. Linking, exile, and trigger
-/// installation are deliberately hidden from the caller.
+/// installation are deliberately hidden from the caller while remaining
+/// ordinary component effects in the resulting program.
 #[must_use]
 pub const fn exile_until_next_end_step(object: EffectRecipientDef) -> EffectDef {
-    EffectDef::ExileUntilNextEndStep {
+    EffectDef::ExileLinkedToSource {
         object,
-        return_ability: &RETURN_EXILE_AT_NEXT_END_STEP,
+        then: Some(&INSTALL_RETURN_EXILE_AT_NEXT_END_STEP),
     }
 }
 
@@ -56,9 +64,30 @@ pub const fn exile_until_next_end_step(object: EffectRecipientDef) -> EffectDef 
 pub const fn exile_until_next_end_step_under_your_control(
     object: EffectRecipientDef,
 ) -> EffectDef {
-    EffectDef::ExileUntilNextEndStep {
+    EffectDef::ExileLinkedToSource {
         object,
-        return_ability: &RETURN_EXILE_AT_NEXT_END_STEP_UNDER_YOUR_CONTROL,
+        then: Some(&INSTALL_RETURN_EXILE_AT_NEXT_END_STEP_UNDER_YOUR_CONTROL),
+    }
+}
+
+static RETURN_LINKED_EXILES_TRANSFORMED: EffectDef = EffectDef::ReturnLinkedExiles {
+    object: ObjectPredicateDef::Any,
+    counters: None,
+    arrival_effect: None,
+    zone: ZoneKind::Battlefield,
+    grant: None,
+    controller: Some(PlayerRelation::You),
+    transformed: true,
+};
+
+/// Exile an object and immediately return its linked card transformed under
+/// this effect's controller. The linked exile preserves the new card identity
+/// across the zone changes.
+#[must_use]
+pub const fn exile_and_return_transformed(object: EffectRecipientDef) -> EffectDef {
+    EffectDef::ExileLinkedToSource {
+        object,
+        then: Some(&RETURN_LINKED_EXILES_TRANSFORMED),
     }
 }
 

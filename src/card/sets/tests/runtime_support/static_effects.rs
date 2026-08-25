@@ -246,7 +246,6 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::Apply { .. }
         | EffectDef::May { .. }
         | EffectDef::ExileLinkedToSource { .. }
-        | EffectDef::ExileUntilNextEndStep { .. }
         | EffectDef::MayPlayWithoutPaying { .. }
         | EffectDef::ExileGrantingOwnerPlay { .. }
         | EffectDef::ExileGrantingControllerPlayThisTurn { .. }
@@ -283,7 +282,6 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::Attachment(
             AttachmentDef::Attach { .. }
             | AttachmentDef::AttachToSource { .. }
-            | AttachmentDef::ReturnAttached { .. }
             | AttachmentDef::Reconfigure { .. }
             | AttachmentDef::Unattach { .. }
             | AttachmentDef::PairWithSource { .. },
@@ -291,7 +289,6 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::PhaseOut { .. }
         | EffectDef::CreateToken { .. }
         | EffectDef::CreateAttachedToken { .. }
-        | EffectDef::ExileAndReturnTransformed { .. }
         | EffectDef::CreateTokenCopyOf { .. }
         | EffectDef::Endure { .. }
         | EffectDef::Destroy { .. }
@@ -319,7 +316,6 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::ReplaceNextDrawThisTurn { .. }
         | EffectDef::IfFormat { .. }
         | EffectDef::Counter { .. }
-        | EffectDef::ReturnSpellToHand { .. }
         | EffectDef::PutSpellIntoOwnersLibrary { .. }
         | EffectDef::CopyResolvingSpell { .. }
         | EffectDef::AddCounters { .. }
@@ -332,7 +328,6 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::CreateEmblem { .. }
         | EffectDef::CreateOngoingEffect(_)
         | EffectDef::PutOntoBattlefieldThen { .. }
-        | EffectDef::ReturnWithHasteAndFinality { .. }
         | EffectDef::Transform { .. }
         | EffectDef::ScheduleTurnPhases(_)
         | EffectDef::TakeExtraTurn { .. }

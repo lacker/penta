@@ -75,7 +75,7 @@ pub(in crate::card::sets) static ARREST: CardRecord = CardRecord::new_with_legac
     CardRules::new_enchantment(mana_cost!("{2}{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature can't attack or block, and its activated abilities can't be \
                  activated.",

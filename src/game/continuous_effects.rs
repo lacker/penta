@@ -602,7 +602,6 @@ impl Game {
                     AttachmentDef::Unattach { .. } | AttachmentDef::Attach { .. }
                 )
                 | EffectDef::Counter { .. }
-                | EffectDef::ReturnSpellToHand { .. }
                 | EffectDef::CopyResolvingSpell { .. }
                 | EffectDef::AddCounters { .. }
                 | EffectDef::RemoveCounters { .. }
@@ -618,7 +617,6 @@ impl Game {
                 | EffectDef::DamageCannotBePreventedThisTurn
                 | EffectDef::GrantFlashToNextSorcery
                 | EffectDef::ExileLinkedToSource { .. }
-                | EffectDef::ExileUntilNextEndStep { .. }
                 | EffectDef::ExileGrantingControllerPlayThisTurn { .. }
                 | EffectDef::MayPlayWithoutPaying { .. }
                 | EffectDef::ReturnLinkedExiles { .. }

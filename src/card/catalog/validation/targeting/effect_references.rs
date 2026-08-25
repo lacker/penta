@@ -196,33 +196,54 @@ fn validate_effect_references(
                 None => Ok(()),
             }
         }
-        EffectDef::MayCastTargetWithoutPaying { object, .. } | EffectDef::Explore {
-object } | EffectDef::LoseTheGame { player: object } | EffectDef::WinTheGame {
-player: object } | EffectDef::ShuffleLibrary { player: object } |
-EffectDef::BuryGraveyard { player: object } | EffectDef::EmptyManaPool {
-player: object } | EffectDef::Regenerate { object } |
-EffectDef::ExileAndReturnTransformed { object } | EffectDef::Tap { object } |
-EffectDef::RemoveFromCombat { object } | EffectDef::SkipNextUntapSteps {
-object, .. } | EffectDef::DoubleCounters { object, .. } |
-EffectDef::RemoveAllCounters { object, .. } | EffectDef::Untap { object } |
-EffectDef::Saddle { object } |
-EffectDef::Attachment(AttachmentDef::Attach { object } |
-AttachmentDef::AttachToSource { object } | AttachmentDef::ReturnAttached {
-object, .. } | AttachmentDef::Reconfigure { object } |
-AttachmentDef::Unattach { object } | AttachmentDef::PairWithSource { object })
-| EffectDef::PhaseOut { object } | EffectDef::Destroy { object, then: None, ..
-} | EffectDef::Sacrifice { object } | EffectDef::DiscardCards { object } |
-EffectDef::ChangeTextBasicLandType { object } | EffectDef::ChooseColor {
-object, .. } | EffectDef::BecomeCopyOf { object, .. } |
-EffectDef::ExileLinkedToSource { object } | EffectDef::ExileUntilNextEndStep {
-object, .. } | EffectDef::ExileGrantingOwnerPlay { object, .. } |
-EffectDef::ExileGrantingControllerPlayThisTurn { object } |
-EffectDef::Detain { object } | EffectDef::GainControl { object, .. } |
-EffectDef::Transform { object } | EffectDef::PutIntoLibraryBeneathTop {
-object, .. } | EffectDef::Counter { object, .. } |
-EffectDef::ReturnSpellToHand { object } |
-EffectDef::PutSpellIntoOwnersLibrary { object } |
-EffectDef::CreateTokenCopyOf { object, .. } | EffectDef::Endure { object, .. } => {
+        EffectDef::ExileLinkedToSource { object, then } => {
+            validate_recipient_target_references(object, target_count, scope)?;
+            match then {
+                Some(then) => validate_effect_references(*then, target_count, scope),
+                None => Ok(()),
+            }
+        }
+        EffectDef::MayCastTargetWithoutPaying { object, .. }
+        | EffectDef::Explore { object }
+        | EffectDef::LoseTheGame { player: object }
+        | EffectDef::WinTheGame { player: object }
+        | EffectDef::ShuffleLibrary { player: object }
+        | EffectDef::BuryGraveyard { player: object }
+        | EffectDef::EmptyManaPool { player: object }
+        | EffectDef::Regenerate { object }
+        | EffectDef::Tap { object }
+        | EffectDef::RemoveFromCombat { object }
+        | EffectDef::SkipNextUntapSteps { object, .. }
+        | EffectDef::DoubleCounters { object, .. }
+        | EffectDef::RemoveAllCounters { object, .. }
+        | EffectDef::Untap { object }
+        | EffectDef::Saddle { object }
+        | EffectDef::Attachment(
+            AttachmentDef::Attach { object }
+            | AttachmentDef::AttachToSource { object }
+            | AttachmentDef::Reconfigure { object }
+            | AttachmentDef::Unattach { object }
+            | AttachmentDef::PairWithSource { object },
+        )
+        | EffectDef::PhaseOut { object }
+        | EffectDef::Destroy {
+            object, then: None, ..
+        }
+        | EffectDef::Sacrifice { object }
+        | EffectDef::DiscardCards { object }
+        | EffectDef::ChangeTextBasicLandType { object }
+        | EffectDef::ChooseColor { object, .. }
+        | EffectDef::BecomeCopyOf { object, .. }
+        | EffectDef::ExileGrantingOwnerPlay { object, .. }
+        | EffectDef::ExileGrantingControllerPlayThisTurn { object }
+        | EffectDef::Detain { object }
+        | EffectDef::GainControl { object, .. }
+        | EffectDef::Transform { object }
+        | EffectDef::PutIntoLibraryBeneathTop { object, .. }
+        | EffectDef::Counter { object, .. }
+        | EffectDef::PutSpellIntoOwnersLibrary { object }
+        | EffectDef::CreateTokenCopyOf { object, .. }
+        | EffectDef::Endure { object, .. } => {
             validate_recipient_target_references(object, target_count, scope)
         }
         EffectDef::MoveToZone {
@@ -289,11 +310,7 @@ EffectDef::CreateTokenCopyOf { object, .. } | EffectDef::Endure { object, .. } =
             object,
             binding,
             then,
-        }
-        | EffectDef::ReturnWithHasteAndFinality {
-            object,
-            binding,
-            then,
+            ..
         } => {
             validate_recipient_target_references(object, target_count, scope)?;
             validate_effect_references(*then, target_count, scope.with_object_set(binding)?)

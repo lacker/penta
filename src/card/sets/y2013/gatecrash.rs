@@ -29,16 +29,6 @@ static MILL_UNTIL_1: MillUntilDef = MillUntilDef {
     then: None,
 };
 
-/// "Enchant creature you control."
-static ENCHANT_YOUR_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::You),
-        owner: None,
-    },
-)];
-
 /// "When enchanted creature dies ..." -- the attached permanent moving from
 /// the battlefield to a graveyard, whatever caused it.
 static ENCHANTED_CREATURE_DIES: TriggerEventDef = TriggerEventDef::zone_changed(
@@ -355,7 +345,7 @@ pub(in crate::card::sets) static GUILDSCORN_WARD: CardRecord = CardRecord::new_w
     CardRules::new_enchantment(mana_cost!("{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature has protection from multicolored.",
                 EffectDef::StaticApply {
@@ -418,7 +408,7 @@ pub(in crate::card::sets) static HOLY_MANTLE: CardRecord = CardRecord::new_with_
     CardRules::new_enchantment(mana_cost!("{2}{W}{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets +2/+2 and has protection from creatures.",
                 EffectDef::StaticApply {
@@ -505,7 +495,7 @@ pub(in crate::card::sets) static MURDER_INVESTIGATION: CardRecord = CardRecord::
     CardRules::new_enchantment(mana_cost!("{1}{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature you control", &ENCHANT_YOUR_CREATURE),
+            abilities::enchant_creature_you_control(),
             AbilityDef::triggered(
                 "When enchanted creature dies, create X 1/1 white Soldier creature tokens, \
                  where X is its power.",
@@ -1107,7 +1097,7 @@ pub(in crate::card::sets) static SKYGAMES: CardRecord = CardRecord::new_with_leg
     CardRules::new_enchantment(mana_cost!("{1}{U}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant land", &abilities::ENCHANT_LAND_TARGET),
+            abilities::enchant_land(),
             AbilityDef::static_ability(
                 "Enchanted land has \"{T}: Target creature gains flying until end of turn. \
                  Activate only as a sorcery.\"",
@@ -1221,7 +1211,7 @@ pub(in crate::card::sets) static WAY_OF_THE_THIEF: CardRecord = CardRecord::new_
     CardRules::new_enchantment(mana_cost!("{3}{U}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets +2/+2.",
                 EffectDef::StaticApply {
@@ -1417,7 +1407,7 @@ pub(in crate::card::sets) static DYING_WISH: CardRecord = CardRecord::new_with_l
     CardRules::new_enchantment(mana_cost!("{1}{B}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature you control", &ENCHANT_YOUR_CREATURE),
+            abilities::enchant_creature_you_control(),
             AbilityDef::triggered_with_targets(
                 "When enchanted creature dies, target player loses X life and you gain X life, \
                  where X is its power.",
@@ -2098,7 +2088,7 @@ pub(in crate::card::sets) static MADCAP_SKILLS: CardRecord = CardRecord::new_wit
     CardRules::new_enchantment(mana_cost!("{1}{R}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets +3/+0 and has menace.",
                 EffectDef::StaticApply {
@@ -2311,7 +2301,7 @@ pub(in crate::card::sets) static TIN_STREET_MARKET: CardRecord = CardRecord::new
     CardRules::new_enchantment(mana_cost!("{4}{R}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant land", &abilities::ENCHANT_LAND_TARGET),
+            abilities::enchant_land(),
             AbilityDef::static_ability(
                 "Enchanted land has \"{T}, Discard a card: Draw a card.\"",
                 EffectDef::StaticApply {
@@ -3939,7 +3929,8 @@ pub(in crate::card::sets) static OBZEDAT_GHOST_COUNCIL: CardRecord = CardRecord:
                 effect: &EffectDef::Sequence(&[
                 EffectDef::ExileLinkedToSource {
                     object: EffectRecipientDef::Source,
-                },
+then: None,
+},
                 // Queued before the exile takes effect would be the same:
                 // both read the source from the resolving ability, which the
                 // exile does not disturb.
@@ -3982,7 +3973,7 @@ pub(in crate::card::sets) static ONE_THOUSAND_LASHES: CardRecord = CardRecord::n
     CardRules::new_enchantment(mana_cost!("{2}{W}{B}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature can't attack or block, and its activated abilities can't be \
                  activated.",

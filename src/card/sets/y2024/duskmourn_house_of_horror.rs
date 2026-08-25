@@ -639,6 +639,7 @@ static GHOST_VACUUM_ABILITIES: [AbilityDef; 2] = [
         // apart from anything else in exile.
         EffectDef::ExileLinkedToSource {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            then: None,
         },
     ),
     AbilityDef::activated(

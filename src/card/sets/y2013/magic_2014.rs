@@ -3105,7 +3105,7 @@ pub(in crate::card::sets) static TROLLHIDE: CardRecord = CardRecord::new_with_le
     CardRules::new_enchantment(mana_cost!("{2}{G}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets +2/+2 and has \"{1}{G}: Regenerate this creature.\"",
                 EffectDef::StaticApply {

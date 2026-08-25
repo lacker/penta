@@ -674,7 +674,8 @@ static FLASH_UNLESS_PAID: EffectDef = EffectDef::PayOr(PayOrDef {
 static FLASH_PUTS_IT_IN: EffectDef = EffectDef::PutOntoBattlefieldThen {
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
     binding: FLASH_ARRIVAL,
-    grant: None,
+    counters: None,
+    arrival_effect: None,
     then: &FLASH_UNLESS_PAID,
 };
 

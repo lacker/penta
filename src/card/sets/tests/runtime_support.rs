@@ -648,7 +648,6 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::Attachment(
                         AttachmentDef::Attach { .. }
                         | AttachmentDef::AttachToSource { .. }
-                        | AttachmentDef::ReturnAttached { .. }
                         | AttachmentDef::Reconfigure { .. }
                         | AttachmentDef::Unattach { .. }
                         | AttachmentDef::PairWithSource { .. },
@@ -656,7 +655,6 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::PhaseOut { .. }
                     | EffectDef::CreateToken { .. }
                     | EffectDef::CreateAttachedToken { .. }
-                    | EffectDef::ExileAndReturnTransformed { .. }
                     | EffectDef::CreateTokenCopyOf { .. }
                     | EffectDef::Endure { .. }
                     | EffectDef::CreateMyriadTokens
@@ -672,7 +670,6 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::ExileFromTopUntil { .. }
                     | EffectDef::ManifestDread { .. }
                     | EffectDef::PutOntoBattlefieldThen { .. }
-                    | EffectDef::ReturnWithHasteAndFinality { .. }
                     | EffectDef::Cascade
                     | EffectDef::Proliferate
                     | EffectDef::Explore { .. }
@@ -687,7 +684,6 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::ReplaceNextDrawThisTurn { .. }
                     | EffectDef::IfFormat { .. }
                     | EffectDef::Counter { .. }
-                    | EffectDef::ReturnSpellToHand { .. }
                     | EffectDef::PutSpellIntoOwnersLibrary { .. }
                     | EffectDef::CopyResolvingSpell { .. }
                     | EffectDef::AddCounters { .. }
@@ -710,7 +706,6 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::DamageCannotBePreventedThisTurn
                     | EffectDef::GrantFlashToNextSorcery
                     | EffectDef::ExileLinkedToSource { .. }
-                    | EffectDef::ExileUntilNextEndStep { .. }
                     | EffectDef::MayPlayWithoutPaying { .. }
                     | EffectDef::ExileGrantingOwnerPlay { .. }
                     | EffectDef::ExileGrantingControllerPlayThisTurn { .. }

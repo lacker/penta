@@ -155,6 +155,7 @@ static ONE_ARTIFACT_OR_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exac
 static TOUCH_EXILES_IT: [EffectDef; 2] = [
     EffectDef::ExileLinkedToSource {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        then: None,
     },
     EffectDef::InstallTrigger(InstalledTriggerDef::once(&TOUCH_RETURNS_IT)),
 ];
@@ -630,9 +631,7 @@ static FABLE_CHAPTERS: [AbilityDef; 3] = [
     abilities::saga_chapter(
         3,
         "III — Exile this Saga, then return it to the battlefield transformed under your control.",
-        EffectDef::ExileAndReturnTransformed {
-            object: EffectRecipientDef::Source,
-        },
+        abilities::exile_and_return_transformed(EffectRecipientDef::Source),
     ),
 ];
 

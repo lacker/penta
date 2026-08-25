@@ -5,14 +5,13 @@ use crate::card::sets::y2011::mirrodin_besieged as catalog_mbs;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::sets::y2016::eternal_masters as catalog_ema;
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt,
-    CardComposition, CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardType,
-    DiscardFollowUpDef, DiscardSelectionDef, DividedTotal, EffectDef, EffectRecipientDef,
-    ManaColor, ObjectPredicateDef, PlayOptionDef, PlayerRelation, ResolvedEffectDurationDef,
-    ScaledValueDef, SpellForm, TopCardSelectionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
+    CardSet, CardType, DiscardFollowUpDef, DiscardSelectionDef, DividedTotal, EffectDef,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation, ResolvedEffectDurationDef,
+    ScaledValueDef, TopCardSelectionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
-use crate::{CardPartId, PlayOptionId, TargetIndex, mana_cost};
+use crate::{TargetIndex, mana_cost};
 
 // APC 1 — Angelfire Crusader
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1413,39 +1412,9 @@ const fn ice_rules() -> CardRules {
     ))
 }
 
-fn fire_ice_composition() -> CardComposition {
-    let fire = fire_rules();
-    let ice = ice_rules();
-    CardComposition {
-        parts: vec![
-            CardPart::new(CardPartId::PRIMARY, "Fire", fire),
-            CardPart::new(CardPartId(1), "Ice", ice),
-        ],
-        structure: CardStructure::Split {
-            parts: vec![CardPartId::PRIMARY, CardPartId(1)],
-            fused: None,
-        },
-        play_options: vec![
-            PlayOptionDef::cast(
-                PlayOptionId::DEFAULT,
-                "Fire",
-                SpellForm::Part(CardPartId::PRIMARY),
-                fire.mana_cost().expect("Fire has a printed mana cost"),
-                CardEffectStatus::Implemented,
-            ),
-            PlayOptionDef::cast(
-                PlayOptionId(1),
-                "Ice",
-                SpellForm::Part(CardPartId(1)),
-                ice.mana_cost().expect("Ice has a printed mana cost"),
-                CardEffectStatus::Implemented,
-            ),
-        ],
-    }
-    .with_derived_spell_targets()
-}
+static FIRE_ICE_HALVES: [(&str, CardRules); 2] = [("Fire", fire_rules()), ("Ice", ice_rules())];
 
-pub(in crate::card::sets) static FIRE_ICE: CardRecord = CardRecord::new_with_legacy_id(
+pub(in crate::card::sets) static FIRE_ICE: CardRecord = CardRecord::new_split_with_legacy_id(
     306,
     "Fire // Ice",
     CardArt::new(
@@ -1453,9 +1422,8 @@ pub(in crate::card::sets) static FIRE_ICE: CardRecord = CardRecord::new_with_leg
         "David Martin & Franz Vohwinkel",
     ),
     CardSet::Apocalypse,
-    fire_rules(),
-)
-.with_composition(fire_ice_composition);
+    &FIRE_ICE_HALVES,
+);
 
 // APC 129 — Illusion // Reality
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1530,39 +1498,10 @@ const fn death_rules() -> CardRules {
     ))
 }
 
-fn life_death_composition() -> CardComposition {
-    let life = life_rules();
-    let death = death_rules();
-    CardComposition {
-        parts: vec![
-            CardPart::new(CardPartId::PRIMARY, "Life", life),
-            CardPart::new(CardPartId(1), "Death", death),
-        ],
-        structure: CardStructure::Split {
-            parts: vec![CardPartId::PRIMARY, CardPartId(1)],
-            fused: None,
-        },
-        play_options: vec![
-            PlayOptionDef::cast(
-                PlayOptionId::DEFAULT,
-                "Life",
-                SpellForm::Part(CardPartId::PRIMARY),
-                life.mana_cost().expect("Life has a printed mana cost"),
-                CardEffectStatus::Implemented,
-            ),
-            PlayOptionDef::cast(
-                PlayOptionId(1),
-                "Death",
-                SpellForm::Part(CardPartId(1)),
-                death.mana_cost().expect("Death has a printed mana cost"),
-                CardEffectStatus::Implemented,
-            ),
-        ],
-    }
-    .with_derived_spell_targets()
-}
+static LIFE_DEATH_HALVES: [(&str, CardRules); 2] =
+    [("Life", life_rules()), ("Death", death_rules())];
 
-pub(in crate::card::sets) static LIFE_DEATH: CardRecord = CardRecord::new_with_legacy_id(
+pub(in crate::card::sets) static LIFE_DEATH: CardRecord = CardRecord::new_split_with_legacy_id(
     2123,
     "Life // Death",
     CardArt::new(
@@ -1570,9 +1509,8 @@ pub(in crate::card::sets) static LIFE_DEATH: CardRecord = CardRecord::new_with_l
         "Anthony S. Waters & Edward P. Beard, Jr.",
     ),
     CardSet::Apocalypse,
-    life_rules(),
-)
-.with_composition(life_death_composition);
+    &LIFE_DEATH_HALVES,
+);
 
 // APC 131 — Night // Day
 // Audit: metadata-only — Card rules have not been implemented.

@@ -136,9 +136,6 @@ pub enum EffectDef {
     PutSpellIntoOwnersLibrary {
         object: EffectRecipientDef,
     },
-    ReturnSpellToHand {
-        object: EffectRecipientDef,
-    },
     /// Counter a spell and put its card into `zone`: a graveyard ordinarily,
     /// exile for Dissipate, a library's top for Memory Lapse.
     Counter {
@@ -248,11 +245,6 @@ pub enum EffectDef {
         /// What to do with the copy this made, for a clause naming exactly it.
         created: Option<CreatedTokensDef>,
     },
-    /// Exiles a permanent and returns it transformed under the resolving
-    /// controller, as a new object: no counters, and no history to attack on.
-    ExileAndReturnTransformed {
-        object: EffectRecipientDef,
-    },
     CreateMyriadTokens, // Exact no-op in two-player games: there is no other opponent.
     /// Endure N (CR 702.183a): put N +1/+1 counters on the object, or create
     /// an N/N white Spirit creature token. Its controller chooses, as the
@@ -347,17 +339,12 @@ pub enum EffectDef {
         player: EffectRecipientDef,
     },
     /// Exiles, remembering which object sent it there so a later clause can
-    /// bring it back. This is the Oblivion Ring shape.
+    /// bring it back. This is the Oblivion Ring shape. A continuation can
+    /// immediately consume that link for blink effects while still naming
+    /// the new exiled object rather than the one that left its prior zone.
     ExileLinkedToSource {
         object: EffectRecipientDef,
-    },
-    /// Exile the recipient, link the new card to this effect's source, and
-    /// install the one-shot delayed trigger that returns it at the next end
-    /// step. The return ability is carried inside the abstraction so callers
-    /// name only the object being blinked.
-    ExileUntilNextEndStep {
-        object: EffectRecipientDef,
-        return_ability: &'static AbilityDef,
+        then: Option<&'static EffectDef>,
     },
     /// Exiles, and leaves the card's own owner able to play it from there
     /// for as long as it stays exiled -- for a surcharge, which is what
@@ -953,17 +940,8 @@ pub enum EffectDef {
     PutOntoBattlefieldThen {
         object: EffectRecipientDef,
         binding: ObjectSetBindingIndex,
-        /// "That creature gains haste." Part of the arrival rather than an
-        /// effect applied to what arrived: the permanent is a new object,
-        /// and this is the same grant a returning permanent carries.
-        grant: Option<KeywordAbility>,
-        then: &'static EffectDef,
-    },
-    /// The same move with the riders Ajani's reanimation prints: a finality
-    /// counter and haste on what arrived, and a delayed sacrifice in `then`.
-    ReturnWithHasteAndFinality {
-        object: EffectRecipientDef,
-        binding: ObjectSetBindingIndex,
+        counters: Option<TokenCountersDef>,
+        arrival_effect: Option<&'static AppliedEffectDef>,
         then: &'static EffectDef,
     },
     /// Turns a double-faced permanent over to its other face.

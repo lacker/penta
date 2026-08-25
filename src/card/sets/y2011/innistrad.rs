@@ -269,7 +269,7 @@ pub(in crate::card::sets) static BONDS_OF_FAITH: CardRecord = CardRecord::new(
     CardRules::new_enchantment(mana_cost!("{1}{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets +2/+2 as long as it's a Human. Otherwise, it can't attack or block.",
                 EffectDef::Sequence(&BONDS_OF_FAITH_STATIC_EFFECTS),
@@ -541,7 +541,8 @@ pub(in crate::card::sets) static FIEND_HUNTER: CardRecord = CardRecord::new_with
                     1,
                 )], EffectDef::ExileLinkedToSource {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }),
+then: None,
+}),
             AbilityDef::triggered(
                 "When this creature leaves the battlefield, return the exiled card to the battlefield under its owner's control.",
                 TriggerEventDef::zone_changed(ObjectPredicateDef::Source, Some(ZoneKind::Battlefield), None),
@@ -629,7 +630,7 @@ pub(in crate::card::sets) static GHOSTLY_POSSESSION: CardRecord = CardRecord::ne
     CardRules::new_enchantment(mana_cost!("{2}{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature has flying. Prevent all combat damage that would be dealt to \
                  and dealt by enchanted creature.",
@@ -1423,7 +1424,7 @@ pub(in crate::card::sets) static CURSE_OF_THE_BLOODY_TOME: CardRecord = CardReco
     CardRules::new_enchantment(mana_cost!("{2}{U}"))
         .with_subtypes(&["Aura", "Curse"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant player", &abilities::ENCHANT_PLAYER_TARGET),
+            abilities::enchant_player(),
             abilities::enchanted_player_upkeep(
                 "At the beginning of enchanted player's upkeep, that player mills two cards.",
                 EffectDef::Mill {
@@ -2719,7 +2720,7 @@ pub(in crate::card::sets) static CURSE_OF_DEATH_S_HOLD: CardRecord = CardRecord:
     CardRules::new_enchantment(mana_cost!("{3}{B}{B}"))
         .with_subtypes(&["Aura", "Curse"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant player", &abilities::ENCHANT_PLAYER_TARGET),
+            abilities::enchant_player(),
             AbilityDef::static_ability(
                 "Creatures enchanted player controls get -1/-1.",
                 EffectDef::StaticApply {
@@ -2749,7 +2750,7 @@ pub(in crate::card::sets) static CURSE_OF_OBLIVION: CardRecord = CardRecord::new
     CardRules::new_enchantment(mana_cost!("{3}{B}"))
         .with_subtypes(&["Aura", "Curse"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant player", &abilities::ENCHANT_PLAYER_TARGET),
+            abilities::enchant_player(),
             abilities::enchanted_player_upkeep(
                 "At the beginning of enchanted player's upkeep, that player exiles two cards from their graveyard.",
                 EffectDef::ChooseCards {
@@ -3375,7 +3376,7 @@ pub(in crate::card::sets) static SKELETAL_GRIMACE: CardRecord = CardRecord::new_
     CardRules::new_enchantment(mana_cost!("{1}{B}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets +1/+1 and has \"{B}: Regenerate this creature.\"",
                 EffectDef::Sequence(&[
@@ -3805,7 +3806,7 @@ pub(in crate::card::sets) static CURSE_OF_STALKED_PREY: CardRecord = CardRecord:
     CardRules::new_enchantment(mana_cost!("{1}{R}"))
         .with_subtypes(&["Aura", "Curse"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant player", &abilities::ENCHANT_PLAYER_TARGET),
+            abilities::enchant_player(),
             AbilityDef::triggered(
                 "Whenever a creature deals combat damage to enchanted player, put a +1/+1 counter on that creature.",
                 TriggerEventDef::combat_damage_to_related_player(
@@ -3839,7 +3840,7 @@ pub(in crate::card::sets) static CURSE_OF_THE_NIGHTLY_HUNT: CardRecord = CardRec
     CardRules::new_enchantment(mana_cost!("{2}{R}"))
         .with_subtypes(&["Aura", "Curse"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant player", &abilities::ENCHANT_PLAYER_TARGET),
+            abilities::enchant_player(),
             AbilityDef::static_ability(
                 "Creatures enchanted player controls attack each combat if able.",
                 EffectDef::StaticApply {
@@ -3861,7 +3862,7 @@ pub(in crate::card::sets) static CURSE_OF_THE_PIERCED_HEART: CardRecord = CardRe
     CardRules::new_enchantment(mana_cost!("{1}{R}"))
         .with_subtypes(&["Aura", "Curse"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant player", &abilities::ENCHANT_PLAYER_TARGET),
+            abilities::enchant_player(),
             AbilityDef::triggered_with_targets(
                 "At the beginning of enchanted player's upkeep, this Aura deals 1 damage to that player or a planeswalker that player controls.",
                 TriggerEventDef::StepBegins {

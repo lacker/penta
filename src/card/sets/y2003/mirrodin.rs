@@ -97,6 +97,7 @@ static A_NONARTIFACT_NONLAND_CARD_IN_YOUR_HAND: ObjectQueryDef = ObjectQueryDef:
 /// able to read the card's colours later.
 static MOX_EXILES_THE_CHOSEN_CARD: EffectDef = EffectDef::ExileLinkedToSource {
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+    then: None,
 };
 
 /// "You may": a minimum of none, so a hand with nothing worth paying leaves

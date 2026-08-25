@@ -67,6 +67,7 @@ static A_NONLAND_PERMANENT_THEY_CONTROL: [AbilityTargetDef; 1] = [AbilityTargetD
 static BINDING_EXILES_IT: [EffectDef; 2] = [
     EffectDef::ExileLinkedToSource {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        then: None,
     },
     EffectDef::InstallTrigger(InstalledTriggerDef::once(&BINDING_RETURNS_IT)),
 ];

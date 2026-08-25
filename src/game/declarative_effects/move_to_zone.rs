@@ -74,20 +74,32 @@ impl Game {
             counters,
             tapped,
         } = clause;
-        let attachment = attachment.and_then(|attachment| match attachment {
-            ArrivalAttachmentDef::SourceToArrival => {
-                object.source.map(ArrivalAttachment::SourceToArrival)
+        let attachment = match attachment {
+            None => None,
+            Some(attachment) => {
+                let resolved = match attachment {
+                    ArrivalAttachmentDef::SourceToArrival => {
+                        object.source.map(ArrivalAttachment::SourceToArrival)
+                    }
+                    ArrivalAttachmentDef::ArrivalToHost(reference) => self
+                        .object_reference_target(reference, object, context, scoped)
+                        .and_then(|target| match target {
+                            Target::Permanent(host) => Some(ArrivalAttachment::ArrivalToHost(host)),
+                            _ => None,
+                        }),
+                    ArrivalAttachmentDef::ArrivalToPlayer(reference) => self
+                        .player_reference(reference, object, context, scoped)
+                        .map(ArrivalAttachment::ArrivalToPlayer),
+                };
+                // Attachment is part of the arrival, not an optional rider.
+                // If its required host or player no longer exists, an Aura
+                // cannot enter unattached (CR 303.4f).
+                let Some(resolved) = resolved else {
+                    return;
+                };
+                Some(resolved)
             }
-            ArrivalAttachmentDef::ArrivalToHost(reference) => self
-                .object_reference_target(reference, object, context, scoped)
-                .and_then(|target| match target {
-                    Target::Permanent(host) => Some(ArrivalAttachment::ArrivalToHost(host)),
-                    _ => None,
-                }),
-            ArrivalAttachmentDef::ArrivalToPlayer(reference) => self
-                .player_reference(reference, object, context, scoped)
-                .map(ArrivalAttachment::ArrivalToPlayer),
-        });
+        };
         let arriving_controller = controller.map(|relation| {
             if self.player_relation_matches(
                 object.controller,

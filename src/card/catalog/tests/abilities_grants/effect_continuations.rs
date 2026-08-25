@@ -35,9 +35,11 @@ fn continuation_effects(child: &'static EffectDef) -> [EffectDef; 5] {
             otherwise: Some(child),
             optional: true,
         },
-        EffectDef::ReturnWithHasteAndFinality {
+        EffectDef::PutOntoBattlefieldThen {
             object: EffectRecipientDef::Source,
             binding: ObjectSetBindingIndex::PRIMARY,
+            counters: None,
+            arrival_effect: None,
             then: child,
         },
     ]

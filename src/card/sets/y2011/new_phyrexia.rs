@@ -163,7 +163,7 @@ pub(in crate::card::sets) static FORCED_WORSHIP: CardRecord = CardRecord::new(
     CardRules::new_enchantment(mana_cost!("{1}{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature can't attack.",
                 EffectDef::StaticApply {
@@ -516,7 +516,7 @@ pub(in crate::card::sets) static DEFENSIVE_STANCE: CardRecord = CardRecord::new(
     CardRules::new_enchantment(mana_cost!("{U}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets -1/+1.",
                 EffectDef::StaticApply {

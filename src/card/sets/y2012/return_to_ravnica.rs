@@ -113,7 +113,8 @@ pub(in crate::card::sets) static ANGEL_OF_SERENITY: CardRecord = CardRecord::new
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::ExileLinkedToSource {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                },
+then: None,
+},
             }),
         AbilityDef::triggered(
             "When this creature leaves the battlefield, return the exiled cards to their owners' hands.",
@@ -289,7 +290,7 @@ pub(in crate::card::sets) static ETHEREAL_ARMOR: CardRecord = CardRecord::new_wi
     CardRules::new_enchantment(mana_cost!("{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets +1/+1 for each enchantment you control and has first \
                  strike.",
@@ -1835,7 +1836,7 @@ pub(in crate::card::sets) static STAB_WOUND: CardRecord = CardRecord::new_with_l
     CardRules::new_enchantment(mana_cost!("{2}{B}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets -2/-2.",
                 EffectDef::StaticApply {
@@ -3599,7 +3600,8 @@ pub(in crate::card::sets) static DETENTION_SPHERE: CardRecord = CardRecord::new_
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::ExileLinkedToSource {
                 object: EffectRecipientDef::ObjectsSharingNameWithTarget(TargetIndex::PRIMARY),
-                },
+then: None,
+},
             }),
         AbilityDef::triggered(
             "When this enchantment leaves the battlefield, return the exiled cards to the battlefield under their owner's control.",
@@ -4316,7 +4318,7 @@ pub(in crate::card::sets) static RIGHTEOUS_AUTHORITY: CardRecord = CardRecord::n
     CardRules::new_enchantment(mana_cost!("{3}{W}{U}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets +1/+1 for each card in its controller's hand.",
                 EffectDef::StaticApply {

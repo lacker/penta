@@ -54,11 +54,13 @@ static SACRIFICE_THEN_AND_OTHERWISE: EffectDef = EffectDef::SacrificeOfChoice {
     otherwise: Some(&CREATE_TOKEN),
     optional: true,
 };
-static RETURN_THEN: EffectDef = EffectDef::ReturnWithHasteAndFinality {
+static RETURN_THEN: EffectDef = EffectDef::PutOntoBattlefieldThen {
     object: EffectRecipientDef::object(crate::card::ObjectRefDef::Binding(
         ObjectBindingIndex::PRIMARY,
     )),
     binding: ObjectSetBindingIndex::PRIMARY,
+    counters: None,
+    arrival_effect: None,
     then: &CREATE_TOKEN,
 };
 

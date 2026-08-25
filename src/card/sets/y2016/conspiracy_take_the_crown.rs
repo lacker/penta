@@ -38,6 +38,7 @@ static JAILER_RELEASE: AbilityDef = AbilityDef::triggered(
 static JAILER_JAILS: [EffectDef; 2] = [
     EffectDef::ExileLinkedToSource {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        then: None,
     },
     EffectDef::InstallTrigger(InstalledTriggerDef::once(&JAILER_RELEASE)),
 ];

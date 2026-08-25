@@ -319,11 +319,8 @@ impl HandcraftedPolicy {
             EffectDef::SplitIntoPiles(partition) => Self::effect_is_a_wash(*partition.then),
             EffectDef::ExileLinkedToSource {
                 object: EffectRecipientDef::Source,
-            }
-            | EffectDef::ExileUntilNextEndStep {
-                object: EffectRecipientDef::Source,
-                ..
-            } => true,
+                then,
+            } => then.is_none_or(|then| matches!(*then, EffectDef::InstallTrigger(_))),
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect:

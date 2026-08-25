@@ -490,7 +490,8 @@ pub(in crate::card::sets) static OBLIVION_RING: CardRecord = CardRecord::new_wit
             },
         )], EffectDef::ExileLinkedToSource {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            }),
+then: None,
+}),
         AbilityDef::triggered(
             "When this enchantment leaves the battlefield, return the exiled card to the battlefield under its owner's control.",
             TriggerEventDef::zone_changed(ObjectPredicateDef::Source, Some(ZoneKind::Battlefield), None),
@@ -534,7 +535,7 @@ pub(in crate::card::sets) static PACIFISM: CardRecord = CardRecord::new_with_leg
     CardRules::new_enchantment(mana_cost!("{1}{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature can't attack or block.",
                 EffectDef::StaticApply {
@@ -1663,7 +1664,7 @@ pub(in crate::card::sets) static CRIPPLING_BLIGHT: CardRecord = CardRecord::new_
     CardRules::new_enchantment(mana_cost!("{B}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets -1/-1 and can't block.",
                 EffectDef::StaticApply {

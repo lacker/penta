@@ -323,28 +323,49 @@ fn validate_effect_target_shapes(
                 None => Ok(()),
             }
         }
-        EffectDef::DiscardCards { object } | EffectDef::Explore { object } |
-EffectDef::Regenerate { object } | EffectDef::ExileAndReturnTransformed {
-object } | EffectDef::Tap { object } | EffectDef::RemoveFromCombat { object }
-| EffectDef::Untap { object } | EffectDef::Saddle { object } |
-EffectDef::Attachment(AttachmentDef::AttachToSource { object } |
-AttachmentDef::ReturnAttached { object, .. } | AttachmentDef::Reconfigure {
-object } | AttachmentDef::Unattach { object } |
-AttachmentDef::PairWithSource { object }) | EffectDef::PhaseOut { object } |
-EffectDef::Destroy { object, then: None, .. } | EffectDef::Detain { object } |
-EffectDef::DoubleCounters { object, .. } | EffectDef::RemoveAllCounters {
-object, .. } | EffectDef::SkipNextUntapSteps { object, .. } |
-EffectDef::Sacrifice { object } | EffectDef::ChangeTextBasicLandType { object
-} | EffectDef::ChooseColor { object, .. } | EffectDef::BecomeCopyOf { object,
-.. } | EffectDef::ExileLinkedToSource { object } |
-EffectDef::ExileUntilNextEndStep { object, .. } |
-EffectDef::ExileGrantingOwnerPlay { object, .. } |
-EffectDef::ExileGrantingControllerPlayThisTurn { object } |
-EffectDef::GainControl { object, .. } | EffectDef::Transform { object } |
-EffectDef::PutIntoLibraryBeneathTop { object, .. } | EffectDef::Counter {
-object, .. } | EffectDef::ReturnSpellToHand { object } |
-EffectDef::PutSpellIntoOwnersLibrary { object } |
-EffectDef::CreateTokenCopyOf { object, .. } | EffectDef::Endure { object, .. } => {
+        EffectDef::ExileLinkedToSource { object, then } => {
+            validate_recipient_shape(object, targets, RecipientExpectation::Object)?;
+            match then {
+                Some(then) => {
+                    validate_effect_target_shapes(*then, targets, triggering_object_zone)
+                }
+                None => Ok(()),
+            }
+        }
+        EffectDef::DiscardCards { object }
+        | EffectDef::Explore { object }
+        | EffectDef::Regenerate { object }
+        | EffectDef::Tap { object }
+        | EffectDef::RemoveFromCombat { object }
+        | EffectDef::Untap { object }
+        | EffectDef::Saddle { object }
+        | EffectDef::Attachment(
+            AttachmentDef::AttachToSource { object }
+            | AttachmentDef::Reconfigure { object }
+            | AttachmentDef::Unattach { object }
+            | AttachmentDef::PairWithSource { object },
+        )
+        | EffectDef::PhaseOut { object }
+        | EffectDef::Destroy {
+            object, then: None, ..
+        }
+        | EffectDef::Detain { object }
+        | EffectDef::DoubleCounters { object, .. }
+        | EffectDef::RemoveAllCounters { object, .. }
+        | EffectDef::SkipNextUntapSteps { object, .. }
+        | EffectDef::Sacrifice { object }
+        | EffectDef::ChangeTextBasicLandType { object }
+        | EffectDef::ChooseColor { object, .. }
+        | EffectDef::BecomeCopyOf { object, .. }
+        | EffectDef::ExileGrantingOwnerPlay { object, .. }
+        | EffectDef::ExileGrantingControllerPlayThisTurn { object }
+        | EffectDef::GainControl { object, .. }
+        | EffectDef::Transform { object }
+        | EffectDef::PutIntoLibraryBeneathTop { object, .. }
+        | EffectDef::Counter { object, .. }
+        | EffectDef::PutSpellIntoOwnersLibrary { object }
+        | EffectDef::CreateTokenCopyOf { object, .. }
+        | EffectDef::Endure { object, .. } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Object)
         }
         EffectDef::MoveToZone {
@@ -373,8 +394,7 @@ EffectDef::CreateTokenCopyOf { object, .. } | EffectDef::Endure { object, .. } =
         | EffectDef::MayCastTargetWithoutPaying { object, .. } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Any)
         }
-        EffectDef::PutOntoBattlefieldThen { object, then, .. }
-        | EffectDef::ReturnWithHasteAndFinality { object, then, .. } => {
+        EffectDef::PutOntoBattlefieldThen { object, then, .. } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Object)?;
             validate_effect_target_shapes(*then, targets, triggering_object_zone)
         }

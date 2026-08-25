@@ -326,7 +326,7 @@ pub(in crate::card::sets) static LIFELINK: CardRecord = CardRecord::new(
     CardRules::new_enchantment(mana_cost!("{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature has lifelink.",
                 EffectDef::StaticApply {

@@ -2,18 +2,25 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y1993::alpha as catalog_lea;
+use crate::card::sets::y2010::scars_of_mirrodin::METALCRAFT;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, CardTypeSet, CounterKind, DiscardSelectionDef, EffectDef,
-    EffectRecipientDef, ManaColor, ManaRestrictionDef, ObjectPredicateDef, ObjectRefDef,
-    PlayerRefDef, PlayerRelation, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
+    ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef,
+    AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, BasicLandType,
+    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    CardTypeSet, ChoiceVisibilityDef, ChooseDef, ControlDurationDef, CounterKind,
+    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor,
+    ManaRestrictionDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef, SpellAdditionalCostDef,
+    SumValueDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
+use crate::ids::ObjectBindingIndex;
 use crate::{TargetIndex, mana_cost};
 
 // NPH 1 — Karn Liberated
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a restart-game procedure that preserves the non-Aura permanent cards linked in exile and puts them onto the restarted battlefield.
 pub(in crate::card::sets) static KARN_LIBERATED: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f9287151-95df-4f5a-b32a-4b0aea825452"),
     "Karn Liberated",
@@ -23,7 +30,7 @@ pub(in crate::card::sets) static KARN_LIBERATED: CardRecord = CardRecord::new(
 );
 
 // NPH 2 — Apostle's Blessing
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs one resolution choice whose alternatives are protection from artifacts or protection from a dynamically chosen color; the color-choice effect cannot express the artifact branch.
 pub(in crate::card::sets) static APOSTLE_S_BLESSING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9f7c3571-925d-486e-80dd-bac47aa48283"),
     "Apostle's Blessing",
@@ -33,7 +40,7 @@ pub(in crate::card::sets) static APOSTLE_S_BLESSING: CardRecord = CardRecord::ne
 );
 
 // NPH 3 — Auriok Survivors
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — MoveToZone can force an arriving Equipment to attach, but it cannot bind that successor into a second, independently optional attach choice after the optional return succeeds.
 pub(in crate::card::sets) static AURIOK_SURVIVORS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("deffb601-6a53-4d88-a6af-686ce97eb4f0"),
     "Auriok Survivors",
@@ -61,7 +68,7 @@ pub(in crate::card::sets) static BLADE_SPLICER: CardRecord = CardRecord::new(
 );
 
 // NPH 5 — Cathedral Membrane
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a dies-during-combat event plus last-known access to every creature the source blocked; the blocker relation alone cannot gate the death trigger.
 pub(in crate::card::sets) static CATHEDRAL_MEMBRANE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("07592731-68be-4218-bb2c-c2523c5a27f1"),
     "Cathedral Membrane",
@@ -71,27 +78,74 @@ pub(in crate::card::sets) static CATHEDRAL_MEMBRANE: CardRecord = CardRecord::ne
 );
 
 // NPH 6 — Chancellor of the Annex
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: partial — Needs an opening-hand reveal hook that installs a one-shot tax for each opponent's first spell of the game.
 pub(in crate::card::sets) static CHANCELLOR_OF_THE_ANNEX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("be1b482a-badb-4b9a-ab63-2e7944826aa0"),
     "Chancellor of the Annex",
     crate::card::CardArt::new("be1b482a-badb-4b9a-ab63-2e7944826aa0", "Min Yum"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{W}{W}{W}"), &["Phyrexian", "Angel"], 5, 6)
+        .with_abilities(&[
+            AbilityDef::not_implemented(
+                "You may reveal this card from your opening hand. If you do, when each opponent casts their first spell of the game, counter that spell unless that player pays {1}.",
+                "Needs an opening-hand reveal hook plus per-opponent first-spell tracking.",
+            ),
+            abilities::flying(),
+            AbilityDef::triggered(
+                "Whenever an opponent casts a spell, counter it unless that player pays {1}.",
+                TriggerEventDef::SpellCast(ObjectPredicateDef::ControlledBy(
+                    PlayerRelation::Opponent,
+                )),
+                EffectDef::PayOr(PayOrDef::unless(
+                    EffectPaymentDef::mana(
+                        PlayerSetDef::One(PlayerRefDef::EventPlayer),
+                        mana_cost!("{1}"),
+                    ),
+                    &EffectDef::Counter {
+                        object: EffectRecipientDef::TriggeringObject,
+                        zone: ZoneKind::Graveyard,
+                        placement: ZonePlacement::Top,
+                    },
+                )),
+            ),
+        ]),
 );
 
 // NPH 7 — Dispatch
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static DISPATCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("496634f9-1271-4be7-bad5-364bb87a6962"),
     "Dispatch",
     crate::card::CardArt::new("496634f9-1271-4be7-bad5-364bb87a6962", "Erica Yang"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Tap target creature.\nMetalcraft — If you control three or more artifacts, exile that creature.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Tap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+            EffectDef::IfCondition {
+                condition: &METALCRAFT,
+                then: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    from: Some(ZoneKind::Battlefield),
+                    zone: ZoneKind::Exile,
+                    placement: ZonePlacement::Top,
+                    counters: None,
+                    controller: None,
+                    arrival_effect: None,
+                    attachment: None,
+                    tapped: false,
+                },
+            },
+        ]),
+    )),
 );
 
 // NPH 8 — Due Respect
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a turn-scoped global battlefield-entry replacement that makes every permanent enter tapped; temporary effects cannot currently install entry replacements.
 pub(in crate::card::sets) static DUE_RESPECT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a7159850-964b-4f12-957f-614eb0570544"),
     "Due Respect",
@@ -145,7 +199,7 @@ pub(in crate::card::sets) static ELESH_NORN_GRAND_CENOBITE: CardRecord = CardRec
 );
 
 // NPH 10 — Exclusion Ritual
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a cast prohibition whose name predicate is read from the permanent card linked in exile rather than from a chosen name or the source's own name.
 pub(in crate::card::sets) static EXCLUSION_RITUAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9e3b826a-7349-45ae-89bf-675fea7ce8e3"),
     "Exclusion Ritual",
@@ -293,17 +347,30 @@ pub(in crate::card::sets) static MASTER_SPLICER: CardRecord = CardRecord::new(
 );
 
 // NPH 17 — Norn's Annex
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static NORN_S_ANNEX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a64073f2-99f5-4dc7-9403-e7cb94ce0e60"),
     "Norn's Annex",
     crate::card::CardArt::new("a64073f2-99f5-4dc7-9403-e7cb94ce0e60", "James Paick"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}{W/P}{W/P}")).with_ability(
+        AbilityDef::static_ability(
+            "Creatures can't attack you or planeswalkers you control unless their controller pays {W/P} for each of those creatures.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Controller,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::AttackRestriction(
+                    AttackRestrictionDef::unless_paid(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        AttackDefenderScopeDef::AffectedPlayerOrPlaneswalker,
+                        mana_cost!("{W/P}"),
+                    ),
+                )),
+            },
+        ),
+    ),
 );
 
 // NPH 18 — Phyrexian Unlife
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs suppression of the state-based loss at 0 life plus a conditional damage replacement that gives damage infect only while that player's life is nonpositive.
 pub(in crate::card::sets) static PHYREXIAN_UNLIFE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b4a1e16a-39f0-47ab-aba8-73e82ba9ab18"),
     "Phyrexian Unlife",
@@ -323,23 +390,114 @@ pub(in crate::card::sets) static PORCELAIN_LEGIONNAIRE: CardRecord = CardRecord:
 );
 
 // NPH 20 — Puresteel Paladin
-// Audit: metadata-only — Card rules have not been implemented.
+static PURESTEEL_EQUIP_ZERO: AbilityDef = abilities::equip(
+    &[],
+    "Equip {0} ({0}: Attach to target creature you control. Equip only as a sorcery.)",
+);
+
+static PURESTEEL_METALCRAFT: EffectDef = EffectDef::StaticApply {
+    recipient: EffectRecipientDef::matching_objects(
+        ObjectPredicateDef::Subtype("Equipment"),
+        &[ZoneKind::Battlefield],
+        PlayerRelation::You,
+    ),
+    effect: AppliedEffectDef::add_ability(&PURESTEEL_EQUIP_ZERO),
+};
+
 pub(in crate::card::sets) static PURESTEEL_PALADIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ca100248-fcd6-41ed-8d75-bcb473845edd"),
     "Puresteel Paladin",
     crate::card::CardArt::new("ca100248-fcd6-41ed-8d75-bcb473845edd", "Jason Chan"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{W}{W}"), &["Human", "Knight"], 2, 2).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever an Equipment you control enters, you may draw a card.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Subtype("Equipment"),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            },
+        ),
+        AbilityDef::static_ability(
+            "Metalcraft — Equipment you control have equip {0} as long as you control three or more artifacts.",
+            EffectDef::IfCondition {
+                condition: &METALCRAFT,
+                then: &PURESTEEL_METALCRAFT,
+            },
+        ),
+    ]),
 );
 
 // NPH 21 — Remember the Fallen
-// Audit: metadata-only — Card rules have not been implemented.
+static REMEMBER_THE_FALLEN_MODES: [AbilityDef; 2] = [
+    AbilityDef::spell_with_targets(
+        "Return target creature card from your graveyard to your hand.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: Some(PlayerRelation::You),
+            },
+        )],
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            from: Some(ZoneKind::Graveyard),
+            zone: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            counters: None,
+            controller: None,
+            arrival_effect: None,
+            attachment: None,
+            tapped: false,
+        },
+    ),
+    AbilityDef::spell_with_targets(
+        "Return target artifact card from your graveyard to your hand.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Artifact),
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: Some(PlayerRelation::You),
+            },
+        )],
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            from: Some(ZoneKind::Graveyard),
+            zone: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            counters: None,
+            controller: None,
+            arrival_effect: None,
+            attachment: None,
+            tapped: false,
+        },
+    ),
+];
+
 pub(in crate::card::sets) static REMEMBER_THE_FALLEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6d9b8325-2a28-4312-b778-40087f8ea778"),
     "Remember the Fallen",
     crate::card::CardArt::new("6d9b8325-2a28-4312-b778-40087f8ea778", "Eric Deschamps"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{W}")).with_ability(AbilityDef::modal_spell(
+        "Choose one or both —\n• Return target creature card from your graveyard to your hand.\n• Return target artifact card from your graveyard to your hand.",
+        &REMEMBER_THE_FALLEN_MODES,
+        1,
+        2,
+        false,
+    )),
 );
 
 // NPH 22 — Sensor Splicer
@@ -422,17 +580,34 @@ pub(in crate::card::sets) static SUTURE_PRIEST: CardRecord = CardRecord::new(
 );
 
 // NPH 26 — War Report
-// Audit: metadata-only — Card rules have not been implemented.
+static WAR_REPORT_CREATURES: ObjectQueryDef = ObjectQueryDef::new(
+    ObjectPredicateDef::HasType(CardType::Creature),
+    &[ZoneKind::Battlefield],
+);
+static WAR_REPORT_ARTIFACTS: ObjectQueryDef = ObjectQueryDef::new(
+    ObjectPredicateDef::HasType(CardType::Artifact),
+    &[ZoneKind::Battlefield],
+);
+static WAR_REPORT_TOTAL: SumValueDef = SumValueDef::new(
+    ValueDef::CountMatchingObjects(&WAR_REPORT_CREATURES),
+    ValueDef::CountMatchingObjects(&WAR_REPORT_ARTIFACTS),
+);
+
 pub(in crate::card::sets) static WAR_REPORT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6d837262-cd5d-4fc9-96dd-39ed04166883"),
     "War Report",
     crate::card::CardArt::new("6d837262-cd5d-4fc9-96dd-39ed04166883", "Mike Bierek"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{3}{W}")).with_ability(AbilityDef::spell(
+        "You gain life equal to the number of creatures on the battlefield plus the number of artifacts on the battlefield.",
+        EffectDef::GainLife {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Sum(&WAR_REPORT_TOTAL),
+        },
+    )),
 );
 
 // NPH 27 — Argent Mutation
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ARGENT_MUTATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("507fa5fd-2aa5-4721-a059-2c8c3056a4ca"),
     "Argent Mutation",
@@ -441,17 +616,68 @@ pub(in crate::card::sets) static ARGENT_MUTATION: CardRecord = CardRecord::new(
         "Jana Schirmer & Johannes Voss",
     ),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Target permanent becomes an artifact in addition to its other types until end of turn.\nDraw a card.",
+        &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any)],
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Artifact)),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
+    )),
 );
 
 // NPH 28 — Arm with Aether
-// Audit: metadata-only — Card rules have not been implemented.
+static ARM_WITH_AETHER_BOUNCE: AbilityDef = AbilityDef::triggered_with_targets(
+    "Whenever this creature deals damage to an opponent, you may return target creature that player controls to its owner's hand.",
+    TriggerEventDef::damage_to_player(ObjectPredicateDef::Source, PlayerRelation::Opponent),
+    &[AbilityTargetDef::exactly_one(
+        AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::HasType(CardType::Creature),
+            zones: &[ZoneKind::Battlefield],
+            controller: Some(PlayerRelation::EventPlayer),
+            owner: None,
+        },
+    )],
+    EffectDef::May {
+        player: EffectRecipientDef::Controller,
+        effect: &EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            from: Some(ZoneKind::Battlefield),
+            zone: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            counters: None,
+            controller: None,
+            arrival_effect: None,
+            attachment: None,
+            tapped: false,
+        },
+    },
+);
+
 pub(in crate::card::sets) static ARM_WITH_AETHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a0878b20-315d-49fa-a4d7-232ba1ed6b0d"),
     "Arm with Aether",
     crate::card::CardArt::new("a0878b20-315d-49fa-a4d7-232ba1ed6b0d", "Austin Hsu"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell(
+        "Until end of turn, creatures you control gain \"Whenever this creature deals damage to an opponent, you may return target creature that player controls to its owner's hand.\"",
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            effect: AppliedEffectDef::add_ability(&ARM_WITH_AETHER_BOUNCE),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // NPH 29 — Blighted Agent
@@ -468,7 +694,7 @@ pub(in crate::card::sets) static BLIGHTED_AGENT: CardRecord = CardRecord::new(
 );
 
 // NPH 30 — Chained Throatseeker
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs an attack restriction that reads poison counters on each prospective defending player; attack predicates cannot currently inspect player counters.
 pub(in crate::card::sets) static CHAINED_THROATSEEKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3a7bb447-c2b0-429e-bf82-02d6a966fe73"),
     "Chained Throatseeker",
@@ -478,17 +704,49 @@ pub(in crate::card::sets) static CHAINED_THROATSEEKER: CardRecord = CardRecord::
 );
 
 // NPH 31 — Chancellor of the Spires
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: partial — Needs an opening-hand reveal hook that installs the pregame seven-card mill trigger before the first upkeep.
+static CHANCELLOR_OF_THE_SPIRES_FREE_CAST: AbilityDef = AbilityDef::alternative_cast(
+    mana_cost!("{0}"),
+    AlternativeCastKindDef::WithoutPayingManaCost,
+    Some("Cast without paying its mana cost."),
+    EffectDef::None,
+);
+
 pub(in crate::card::sets) static CHANCELLOR_OF_THE_SPIRES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b1e06e16-96fa-4611-b4a9-512eeeeddd3c"),
     "Chancellor of the Spires",
     crate::card::CardArt::new("b1e06e16-96fa-4611-b4a9-512eeeeddd3c", "Nils Hamm"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{U}{U}{U}"), &["Phyrexian", "Sphinx"], 5, 7)
+        .with_abilities(&[
+            AbilityDef::not_implemented(
+                "You may reveal this card from your opening hand. If you do, at the beginning of the first upkeep, each opponent mills seven cards.",
+                "Needs an opening-hand reveal hook that installs a trigger before the first upkeep.",
+            ),
+            abilities::flying(),
+            abilities::enters_trigger_with_targets(
+                "When this creature enters, you may cast target instant or sorcery card from an opponent's graveyard without paying its mana cost.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Instant),
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ]),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::Opponent),
+                    },
+                )],
+                EffectDef::MayCastTargetWithoutPaying {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ability: &CHANCELLOR_OF_THE_SPIRES_FREE_CAST,
+                },
+            ),
+        ]),
 );
 
 // NPH 32 — Corrupted Resolve
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a counterspell condition that reads poison counters on the targeted spell's controller; spell predicates cannot currently inspect controller counters.
 pub(in crate::card::sets) static CORRUPTED_RESOLVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("28432161-023b-4a98-b92a-55dc6d936cd1"),
     "Corrupted Resolve",
@@ -498,13 +756,55 @@ pub(in crate::card::sets) static CORRUPTED_RESOLVE: CardRecord = CardRecord::new
 );
 
 // NPH 33 — Deceiver Exarch
-// Audit: metadata-only — Card rules have not been implemented.
+static DECEIVER_EXARCH_MODES: [AbilityDef; 2] = [
+    AbilityDef::spell_with_targets(
+        "Untap target permanent you control.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Any,
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            },
+        )],
+        EffectDef::Untap {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        },
+    ),
+    AbilityDef::spell_with_targets(
+        "Tap target permanent an opponent controls.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Any,
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::Opponent),
+                owner: None,
+            },
+        )],
+        EffectDef::Tap {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        },
+    ),
+];
+
 pub(in crate::card::sets) static DECEIVER_EXARCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1f123ad6-fe84-4fed-9c0f-6b41921e9c26"),
     "Deceiver Exarch",
     crate::card::CardArt::new("1f123ad6-fe84-4fed-9c0f-6b41921e9c26", "Izzy"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Phyrexian", "Cleric"], 1, 4)
+        .with_abilities(&[
+            abilities::flash(),
+            AbilityDef::modal_triggered(
+                "When this creature enters, choose one —\n• Untap target permanent you control.\n• Tap target permanent an opponent controls.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                &DECEIVER_EXARCH_MODES,
+            ),
+        ]),
 );
 
 // NPH 34 — Defensive Stance
@@ -563,23 +863,60 @@ pub(in crate::card::sets) static GITAXIAN_PROBE: CardRecord = CardRecord::new(
 );
 
 // NPH 36 — Impaler Shrike
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static IMPALER_SHRIKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("91e1f8b5-4792-457d-b3de-1d4874ddf72e"),
     "Impaler Shrike",
     crate::card::CardArt::new("91e1f8b5-4792-457d-b3de-1d4874ddf72e", "Nils Hamm"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Phyrexian", "Bird"], 3, 1)
+        .with_abilities(&[
+            abilities::flying(),
+            AbilityDef::triggered(
+                "Whenever this creature deals combat damage to a player, you may sacrifice it. If you do, draw three cards.",
+                TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+                EffectDef::SacrificeOfChoice {
+                    player: EffectRecipientDef::Controller,
+                    object: ObjectPredicateDef::Source,
+                    count: ValueDef::Constant(1),
+                    then: Some(&EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(3),
+                    }),
+                    amount: SacrificedAmountDef::Power,
+                    otherwise: None,
+                    optional: true,
+                },
+            ),
+        ]),
 );
 
 // NPH 37 — Jin-Gitaxias, Core Augur
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: partial — Needs a numeric maximum-hand-size modifier; the player-rule vocabulary only supports removing the maximum entirely.
 pub(in crate::card::sets) static JIN_GITAXIAS_CORE_AUGUR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bd46fc9f-5b92-44d7-8940-2f39b0962b8f"),
     "Jin-Gitaxias, Core Augur",
     crate::card::CardArt::new("bd46fc9f-5b92-44d7-8940-2f39b0962b8f", "Eric Deschamps"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{8}{U}{U}"), &["Phyrexian", "Praetor"], 5, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flash(),
+            AbilityDef::triggered(
+                "At the beginning of your end step, draw seven cards.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::End,
+                    player: PlayerRelation::You,
+                },
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(7),
+                },
+            ),
+            AbilityDef::not_implemented(
+                "Each opponent's maximum hand size is reduced by seven.",
+                "Needs a numeric maximum-hand-size modifier.",
+            ),
+        ]),
 );
 
 // NPH 38 — Mental Misstep
@@ -628,23 +965,83 @@ pub(in crate::card::sets) static MINDCULLING: CardRecord = CardRecord::new(
 );
 
 // NPH 40 — Numbing Dose
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static NUMBING_DOSE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8f28a0f4-43e1-46df-8b6a-d588c5cceb88"),
     "Numbing Dose",
     crate::card::CardArt::new("8f28a0f4-43e1-46df-8b6a-d588c5cceb88", "Brad Rigney"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{3}{U}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::aura_spell(
+                "Enchant artifact or creature",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    ]),
+                )],
+            ),
+            AbilityDef::static_ability(
+                "Enchanted permanent doesn't untap during its controller's untap step.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Rule(
+                        AppliedRuleDef::DoesNotUntapDuringUntapStep,
+                    ),
+                },
+            ),
+            abilities::enchanted_controller_upkeep(
+                "At the beginning of the upkeep of enchanted permanent's controller, that player loses 1 life.",
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                        ObjectRefDef::AttachedToSource,
+                    )),
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // NPH 41 — Phyrexian Ingester
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PHYREXIAN_INGESTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("376e9829-23eb-4b43-9ec7-246cb3156e95"),
     "Phyrexian Ingester",
     crate::card::CardArt::new("376e9829-23eb-4b43-9ec7-246cb3156e95", "Chris Rahn"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{6}{U}"), &["Phyrexian", "Beast"], 3, 3)
+        .with_abilities(&[
+            abilities::enters_trigger_with_targets(
+                "Imprint — When this creature enters, you may exile target nontoken creature.",
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                    1,
+                )],
+                EffectDef::ExileLinkedToSource {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    face_down: false,
+                    then: None,
+                },
+            ),
+            AbilityDef::static_ability(
+                "This creature gets +X/+Y, where X is the exiled creature card's power and Y is its toughness.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::TotalPowerOfLinkedExiles,
+                        ValueDef::TotalToughnessOfLinkedExiles,
+                    ),
+                },
+            ),
+        ]),
 );
 
 // NPH 42 — Phyrexian Metamorph
@@ -708,7 +1105,7 @@ pub(in crate::card::sets) static PSYCHIC_BARRIER: CardRecord = CardRecord::new(
 );
 
 // NPH 44 — Psychic Surgery
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a library-shuffled trigger event; LookAtTopAndDistribute also cannot make the exile optional or let the looker reorder the unchosen cards on that opponent's library.
 pub(in crate::card::sets) static PSYCHIC_SURGERY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("51ea9a6d-d6ca-48cb-adac-958ad0e7440c"),
     "Psychic Surgery",
@@ -738,13 +1135,21 @@ pub(in crate::card::sets) static SPIRE_MONITOR: CardRecord = CardRecord::new(
 );
 
 // NPH 47 — Tezzeret's Gambit
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static TEZZERET_S_GAMBIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fff5a09e-9276-44b8-b374-4b84aebd47cc"),
     "Tezzeret's Gambit",
     crate::card::CardArt::new("fff5a09e-9276-44b8-b374-4b84aebd47cc", "Karl Kopinski"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{U/P}")).with_ability(AbilityDef::spell(
+        "Draw two cards, then proliferate.",
+        EffectDef::Sequence(&[
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+            EffectDef::Proliferate,
+        ]),
+    )),
 );
 
 // NPH 48 — Vapor Snag
@@ -781,13 +1186,20 @@ pub(in crate::card::sets) static VAPOR_SNAG: CardRecord = CardRecord::new(
 );
 
 // NPH 49 — Viral Drake
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static VIRAL_DRAKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d89b312b-cc90-4f08-ae2e-043a79e51156"),
     "Viral Drake",
     crate::card::CardArt::new("d89b312b-cc90-4f08-ae2e-043a79e51156", "Lars Grant-West"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Phyrexian", "Drake"], 1, 4).with_abilities(&[
+        abilities::flying(),
+        abilities::infect(),
+        AbilityDef::activated(
+            "{3}{U}: Proliferate.",
+            &[AbilityCostDef::Mana(mana_cost!("{3}{U}"))],
+            EffectDef::Proliferate,
+        ),
+    ]),
 );
 
 // NPH 50 — Wing Splicer
@@ -809,7 +1221,7 @@ pub(in crate::card::sets) static WING_SPLICER: CardRecord = CardRecord::new(
 );
 
 // NPH 51 — Xenograft
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a persistent creature-type choice made as this enters and a continuous type effect that consumes that stored choice.
 pub(in crate::card::sets) static XENOGRAFT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f52f08e1-b234-42e4-8f1f-485a4f6edb3b"),
     "Xenograft",
@@ -819,7 +1231,6 @@ pub(in crate::card::sets) static XENOGRAFT: CardRecord = CardRecord::new(
 );
 
 // NPH 52 — Blind Zealot
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static BLIND_ZEALOT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9bd04df1-5131-455d-b497-fcce4f9af552"),
     "Blind Zealot",
@@ -828,7 +1239,35 @@ pub(in crate::card::sets) static BLIND_ZEALOT: CardRecord = CardRecord::new(
         "Jana Schirmer & Johannes Voss",
     ),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Phyrexian", "Human", "Cleric"], 2, 2)
+        .with_abilities(&[
+            abilities::intimidate(),
+            AbilityDef::triggered_with_targets(
+                "Whenever this creature deals combat damage to a player, you may sacrifice it. If you do, destroy target creature that player controls.",
+                TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::EventPlayer),
+                        owner: None,
+                    },
+                )],
+                EffectDef::SacrificeOfChoice {
+                    player: EffectRecipientDef::Controller,
+                    object: ObjectPredicateDef::Source,
+                    count: ValueDef::Constant(1),
+                    then: Some(&EffectDef::Destroy {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            can_regenerate: true,
+                            then: None,
+                        }),
+                    amount: SacrificedAmountDef::Power,
+                    otherwise: None,
+                    optional: true,
+                },
+            ),
+        ]),
 );
 
 // NPH 53 — Caress of Phyrexia
@@ -861,13 +1300,21 @@ pub(in crate::card::sets) static CARESS_OF_PHYREXIA: CardRecord = CardRecord::ne
 );
 
 // NPH 54 — Chancellor of the Dross
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: partial — Needs an opening-hand reveal hook that installs the pregame drain trigger before the first upkeep.
 pub(in crate::card::sets) static CHANCELLOR_OF_THE_DROSS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eec6d85e-6263-44b4-a91f-d51585c561c2"),
     "Chancellor of the Dross",
     crate::card::CardArt::new("eec6d85e-6263-44b4-a91f-d51585c561c2", "Stephan Martiniere"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{B}{B}{B}"), &["Phyrexian", "Vampire"], 6, 6)
+        .with_abilities(&[
+            AbilityDef::not_implemented(
+                "You may reveal this card from your opening hand. If you do, at the beginning of the first upkeep, each opponent loses 3 life, then you gain life equal to the life lost this way.",
+                "Needs an opening-hand reveal hook that installs a trigger before the first upkeep.",
+            ),
+            abilities::flying(),
+            abilities::lifelink(),
+        ]),
 );
 
 // NPH 55 — Dementia Bat
@@ -898,13 +1345,44 @@ pub(in crate::card::sets) static DEMENTIA_BAT: CardRecord = CardRecord::new(
 );
 
 // NPH 56 — Despise
-// Audit: metadata-only — Card rules have not been implemented.
+static DESPISE_DISCARD: EffectDef = EffectDef::DiscardCards {
+    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+};
+
 pub(in crate::card::sets) static DESPISE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ee7bfcd3-9f2b-41f5-93b4-8c1ee6ba4d88"),
     "Despise",
     crate::card::CardArt::new("ee7bfcd3-9f2b-41f5-93b4-8c1ee6ba4d88", "Terese Nielsen"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Target opponent reveals their hand. You choose a creature or planeswalker card from it. That player discards that card.",
+        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+            PlayerRelation::Opponent,
+        ))],
+        EffectDef::Sequence(&[
+            EffectDef::RevealHand {
+                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+            EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasType(CardType::Planeswalker),
+                    ]),
+                    &[ZoneKind::Hand],
+                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                )),
+                exclude: None,
+                minimum: 1,
+                maximum: 1,
+                visibility: ChoiceVisibilityDef::Public,
+                then: &DESPISE_DISCARD,
+            }),
+        ]),
+    )),
 );
 
 // NPH 57 — Dismember
@@ -932,59 +1410,216 @@ pub(in crate::card::sets) static DISMEMBER: CardRecord = CardRecord::new(
 );
 
 // NPH 58 — Enslave
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ENSLAVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6c6283e1-e4f1-4ff6-be01-b66ab623e0ac"),
     "Enslave",
     crate::card::CardArt::new("17c2f5f0-1f37-4f51-9c10-c02e2ef7d4ee", "Chris Rahn"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{4}{B}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            AbilityDef::static_ability(
+                "You control enchanted creature.",
+                EffectDef::GainControl {
+                    object: EffectRecipientDef::AttachedPermanent,
+                    controller: PlayerRefDef::EffectController,
+                    duration: ControlDurationDef::WhileSourceRemains {
+                        while_tapped: false,
+                    },
+                },
+            ),
+            AbilityDef::triggered(
+                "At the beginning of your upkeep, enchanted creature deals 1 damage to its owner.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::Upkeep,
+                    player: PlayerRelation::You,
+                },
+                EffectDef::DealDamageFrom {
+                    source: ObjectRefDef::AttachedToSource,
+                    recipient: EffectRecipientDef::player(PlayerRefDef::OwnerOf(
+                        ObjectRefDef::AttachedToSource,
+                    )),
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // NPH 59 — Entomber Exarch
-// Audit: metadata-only — Card rules have not been implemented.
+static ENTOMBER_EXARCH_DISCARD: EffectDef = EffectDef::DiscardCards {
+    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+};
+
+static ENTOMBER_EXARCH_MODES: [AbilityDef; 2] = [
+    AbilityDef::spell_with_targets(
+        "Return target creature card from your graveyard to your hand.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: Some(PlayerRelation::You),
+            },
+        )],
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            from: Some(ZoneKind::Graveyard),
+            zone: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            counters: None,
+            controller: None,
+            arrival_effect: None,
+            attachment: None,
+            tapped: false,
+        },
+    ),
+    AbilityDef::spell_with_targets(
+        "Target opponent reveals their hand. You choose a noncreature card from it. That player discards that card.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::RevealHand {
+                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+            EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+                    &[ZoneKind::Hand],
+                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                )),
+                exclude: None,
+                minimum: 1,
+                maximum: 1,
+                visibility: ChoiceVisibilityDef::Public,
+                then: &ENTOMBER_EXARCH_DISCARD,
+            }),
+        ]),
+    ),
+];
+
 pub(in crate::card::sets) static ENTOMBER_EXARCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7f58020e-6d4d-474d-8d4b-cfb7d5a5e9a8"),
     "Entomber Exarch",
     crate::card::CardArt::new("7f58020e-6d4d-474d-8d4b-cfb7d5a5e9a8", "Svetlin Velinov"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Phyrexian", "Cleric"], 2, 2)
+        .with_ability(AbilityDef::modal_triggered(
+            "When this creature enters, choose one —\n• Return target creature card from your graveyard to your hand.\n• Target opponent reveals their hand. You choose a noncreature card from it. That player discards that card.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &ENTOMBER_EXARCH_MODES,
+        )),
 );
 
 // NPH 60 — Evil Presence (reprint)
 
 // NPH 61 — Geth's Verdict
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static GETH_S_VERDICT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7a20b5a2-8613-49ed-b5cc-7cae9d0e0850"),
     "Geth's Verdict",
     crate::card::CardArt::new("7a20b5a2-8613-49ed-b5cc-7cae9d0e0850", "Whit Brachna"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{B}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Target player sacrifices a creature and loses 1 life.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::SacrificeOfChoice {
+                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                count: ValueDef::Constant(1),
+                then: None,
+                amount: SacrificedAmountDef::Power,
+                otherwise: None,
+                optional: false,
+            },
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+            },
+        ]),
+    )),
 );
 
 // NPH 62 — Glistening Oil
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static GLISTENING_OIL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("483e99fd-7e48-400d-9817-451089089e0c"),
     "Glistening Oil",
     crate::card::CardArt::new("483e99fd-7e48-400d-9817-451089089e0c", "Steven Belledin"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{B}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            AbilityDef::static_ability(
+                "Enchanted creature has infect.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&abilities::infect()),
+                },
+            ),
+            AbilityDef::triggered(
+                "At the beginning of your upkeep, put a -1/-1 counter on enchanted creature.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::Upkeep,
+                    player: PlayerRelation::You,
+                },
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::AttachedPermanent,
+                    kind: CounterKind::MinusOneMinusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+            abilities::dies_trigger(
+                "When this Aura is put into a graveyard from the battlefield, return it to its owner's hand.",
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Source,
+                    from: Some(ZoneKind::Graveyard),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    counters: None,
+                    controller: None,
+                    arrival_effect: None,
+                    attachment: None,
+                    tapped: false,
+                },
+            ),
+        ]),
 );
 
 // NPH 63 — Grim Affliction
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static GRIM_AFFLICTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9d5c8ba8-d9f4-440c-8e0b-93699df6343e"),
     "Grim Affliction",
     crate::card::CardArt::new("9d5c8ba8-d9f4-440c-8e0b-93699df6343e", "Erica Yang"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Put a -1/-1 counter on target creature, then proliferate.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::MinusOneMinusOne,
+                amount: ValueDef::Constant(1),
+            },
+            EffectDef::Proliferate,
+        ]),
+    )),
 );
 
 // NPH 64 — Ichor Explosion
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs the sacrificed additional-cost creature's last-known power as a spell-resolution value; additional costs currently expose mana value only.
 pub(in crate::card::sets) static ICHOR_EXPLOSION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0b207e2f-4604-43c5-bb35-a877e35ddd81"),
     "Ichor Explosion",
@@ -994,43 +1629,133 @@ pub(in crate::card::sets) static ICHOR_EXPLOSION: CardRecord = CardRecord::new(
 );
 
 // NPH 65 — Life's Finale
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static LIFE_S_FINALE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ffd3fbd2-87c7-4f08-baaa-91d61c1114da"),
     "Life's Finale",
     crate::card::CardArt::new("ffd3fbd2-87c7-4f08-baaa-91d61c1114da", "Svetlin Velinov"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{4}{B}{B}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Destroy all creatures, then search target opponent's library for up to three creature cards and put them into their graveyard. Then that player shuffles.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+                PlayerRelation::Opponent,
+            ))],
+            EffectDef::Sequence(&[
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    can_regenerate: true,
+                    then: None,
+                },
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(3),
+                    reveal: false,
+                    destination: ZoneKind::Graveyard,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            ]),
+        ),
+    ),
 );
 
 // NPH 66 — Mortis Dogs
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static MORTIS_DOGS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3cae1f40-0e43-41d8-bc5c-aa9873f7d7d5"),
     "Mortis Dogs",
     crate::card::CardArt::new("3cae1f40-0e43-41d8-bc5c-aa9873f7d7d5", "Chippy"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Phyrexian", "Dog"], 2, 2).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever this creature attacks, it gets +2/+0 until end of turn.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::dies_trigger_with_targets(
+            "When this creature dies, target player loses life equal to its power.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::SourcePower,
+            },
+        ),
+    ]),
 );
 
 // NPH 67 — Parasitic Implant
-// Audit: metadata-only — Card rules have not been implemented.
+static PARASITIC_IMPLANT_TOKEN: EffectDef =
+    EffectDef::create_artifact_creature_token(&["Phyrexian", "Myr"], &[], 1, 1);
+
 pub(in crate::card::sets) static PARASITIC_IMPLANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e34f1bf3-9f3a-47f0-9761-8b2356328a39"),
     "Parasitic Implant",
     crate::card::CardArt::new("e34f1bf3-9f3a-47f0-9761-8b2356328a39", "Jason Felix"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{3}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
+            AbilityDef::triggered(
+                "At the beginning of your upkeep, enchanted creature's controller sacrifices it and you create a 1/1 colorless Phyrexian Myr artifact creature token.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::Upkeep,
+                    player: PlayerRelation::You,
+                },
+                EffectDef::SacrificeOfChoice {
+                    player: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                        ObjectRefDef::AttachedToSource,
+                    )),
+                    object: ObjectPredicateDef::AttachedToSource,
+                    count: ValueDef::Constant(1),
+                    then: Some(&PARASITIC_IMPLANT_TOKEN),
+                    amount: SacrificedAmountDef::Power,
+                    otherwise: None,
+                    optional: false,
+                },
+            ),
+        ]),
 );
 
 // NPH 68 — Phyrexian Obliterator
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PHYREXIAN_OBLITERATOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("44c4476d-58f9-420d-9545-f5d580c589de"),
     "Phyrexian Obliterator",
     crate::card::CardArt::new("44c4476d-58f9-420d-9545-f5d580c589de", "Todd Lockwood"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{B}{B}{B}{B}"), &["Phyrexian", "Horror"], 5, 5)
+        .with_ability(AbilityDef::triggered(
+            "Whenever a source deals damage to this creature, that source's controller sacrifices that many permanents.",
+            TriggerEventDef::damage_to_source(),
+            EffectDef::SacrificeOfChoice {
+                player: EffectRecipientDef::ControllerOfTriggeringObject,
+                object: ObjectPredicateDef::Any,
+                count: ValueDef::TriggerEventAmount,
+                then: None,
+                amount: SacrificedAmountDef::Power,
+                otherwise: None,
+                optional: false,
+            },
+        )),
 );
 
 // NPH 69 — Pith Driller
@@ -1054,7 +1779,7 @@ pub(in crate::card::sets) static PITH_DRILLER: CardRecord = CardRecord::new(
 );
 
 // NPH 70 — Postmortem Lunge
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Chosen-X targeting and an arrival haste effect are supported, but MoveToZone cannot bind the returned successor into a one-shot delayed exile at the beginning of the next end step.
 pub(in crate::card::sets) static POSTMORTEM_LUNGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d5f8b46e-1ad3-4c6e-aa63-376f2d222d46"),
     "Postmortem Lunge",
@@ -1064,7 +1789,7 @@ pub(in crate::card::sets) static POSTMORTEM_LUNGE: CardRecord = CardRecord::new(
 );
 
 // NPH 71 — Praetor's Grasp
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — SearchZone cannot compose its hidden-library choice with face-down exile; the face-down linked-exile and durable exile-play permissions are separate operations and cannot grant this spell's controller private access to the searched successor.
 pub(in crate::card::sets) static PRAETOR_S_GRASP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9588be49-d9b5-4491-a5a0-10bcadc9f8b3"),
     "Praetor's Grasp",
@@ -1074,17 +1799,27 @@ pub(in crate::card::sets) static PRAETOR_S_GRASP: CardRecord = CardRecord::new(
 );
 
 // NPH 72 — Reaper of Sheoldred
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static REAPER_OF_SHEOLDRED: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a300a645-aec6-4cda-8c11-1e8a6af056ff"),
     "Reaper of Sheoldred",
     crate::card::CardArt::new("a300a645-aec6-4cda-8c11-1e8a6af056ff", "Stephan Martiniere"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{B}"), &["Phyrexian", "Horror"], 2, 5)
+        .with_abilities(&[
+            abilities::infect(),
+            AbilityDef::triggered(
+                "Whenever a source deals damage to this creature, that source's controller gets a poison counter.",
+                TriggerEventDef::damage_to_source(),
+                EffectDef::AddPlayerCounters {
+                    recipient: EffectRecipientDef::ControllerOfTriggeringObject,
+                    kind: CounterKind::Poison,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // NPH 73 — Sheoldred, Whispering One
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SHEOLDRED_WHISPERING_ONE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("72ddbbac-9914-44ff-b4d4-60989031744e"),
     "Sheoldred, Whispering One",
@@ -1093,11 +1828,55 @@ pub(in crate::card::sets) static SHEOLDRED_WHISPERING_ONE: CardRecord = CardReco
         "Jana Schirmer & Johannes Voss",
     ),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{B}{B}"), &["Phyrexian", "Praetor"], 6, 6)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::landwalk(BasicLandType::Swamp),
+            AbilityDef::triggered_with_targets(
+                "At the beginning of your upkeep, return target creature card from your graveyard to the battlefield.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::Upkeep,
+                    player: PlayerRelation::You,
+                },
+                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                })],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    from: Some(ZoneKind::Graveyard),
+                    zone: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    counters: None,
+                    controller: None,
+                    arrival_effect: None,
+                    attachment: None,
+                    tapped: false,
+                },
+            ),
+            AbilityDef::triggered(
+                "At the beginning of each opponent's upkeep, that player sacrifices a creature.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::Upkeep,
+                    player: PlayerRelation::Opponent,
+                },
+                EffectDef::SacrificeOfChoice {
+                    player: EffectRecipientDef::EventPlayer,
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    count: ValueDef::Constant(1),
+                    then: None,
+                    amount: SacrificedAmountDef::Power,
+                    otherwise: None,
+                    optional: false,
+                },
+            ),
+        ]),
 );
 
 // NPH 74 — Surgical Extraction
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — SharingNameWithBinding can find every copy, but this needs the spell's controller to choose any number across the target owner's public graveyard and private hand/library before the final shuffle; SearchZone gives the hidden-zone decision to that zone's owner.
 pub(in crate::card::sets) static SURGICAL_EXTRACTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("114834d8-4da5-48b9-9ac7-5e3e4b7ddf2d"),
     "Surgical Extraction",
@@ -1133,37 +1912,103 @@ pub(in crate::card::sets) static VAULT_SKIRGE: CardRecord = CardRecord::new(
 );
 
 // NPH 77 — Whispering Specter
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static WHISPERING_SPECTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bcb1b486-e336-4e88-b635-b6ff18cb4841"),
     "Whispering Specter",
     crate::card::CardArt::new("bcb1b486-e336-4e88-b635-b6ff18cb4841", "Jason Felix"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Phyrexian", "Specter"], 1, 1)
+        .with_abilities(&[
+            abilities::flying(),
+            abilities::infect(),
+            AbilityDef::triggered(
+                "Whenever this creature deals combat damage to a player, you may sacrifice it. If you do, that player discards a card for each poison counter they have.",
+                TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+                EffectDef::SacrificeOfChoice {
+                    player: EffectRecipientDef::Controller,
+                    object: ObjectPredicateDef::Source,
+                    count: ValueDef::Constant(1),
+                    then: Some(&EffectDef::Discard {
+                            recipient: EffectRecipientDef::EventPlayer,
+                            amount: ValueDef::PlayerCounters {
+                                player: PlayerRelation::EventPlayer,
+                                kind: CounterKind::Poison,
+                            },
+                            selection: DiscardSelectionDef::RecipientChooses,
+                            then: None,
+                        }),
+                    amount: SacrificedAmountDef::Power,
+                    otherwise: None,
+                    optional: true,
+                },
+            ),
+        ]),
 );
 
 // NPH 78 — Act of Aggression
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ACT_OF_AGGRESSION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("61a9f30b-d154-49a4-ad6b-f05601992de3"),
     "Act of Aggression",
     crate::card::CardArt::new("61a9f30b-d154-49a4-ad6b-f05601992de3", "Whit Brachna"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{3}{R/P}{R/P}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Gain control of target creature an opponent controls until end of turn. Untap that creature. It gains haste until end of turn.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::Opponent),
+                owner: None,
+            })],
+            EffectDef::Sequence(&[
+                EffectDef::GainControl {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    controller: PlayerRefDef::EffectController,
+                    duration: ControlDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::Untap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ]),
+        ),
+    ),
 );
 
 // NPH 79 — Artillerize
-// Audit: metadata-only — Card rules have not been implemented.
+static ARTILLERIZE_ADDITIONAL_COST: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
+    ObjectPredicateDef::AnyOf(&[
+        ObjectPredicateDef::HasType(CardType::Artifact),
+        ObjectPredicateDef::HasType(CardType::Creature),
+    ]),
+    ZoneKind::Battlefield,
+    1,
+);
+
 pub(in crate::card::sets) static ARTILLERIZE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("034522ae-f531-44d9-b186-ada046ce0abc"),
     "Artillerize",
     crate::card::CardArt::new("034522ae-f531-44d9-b186-ada046ce0abc", "Johann Bodin"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{3}{R}")).with_ability(
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, sacrifice an artifact or creature.\nThis spell deals 5 damage to any target.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
+            ARTILLERIZE_ADDITIONAL_COST,
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(5),
+            },
+        ),
+    ),
 );
 
 // NPH 80 — Bludgeon Brawl
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs per-object dynamic equip abilities whose equip cost and granted power bonus both read each affected artifact's mana value.
 pub(in crate::card::sets) static BLUDGEON_BRAWL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a30fa96d-64d1-423e-a62e-d43453ea838d"),
     "Bludgeon Brawl",
@@ -1173,13 +2018,38 @@ pub(in crate::card::sets) static BLUDGEON_BRAWL: CardRecord = CardRecord::new(
 );
 
 // NPH 81 — Chancellor of the Forge
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: partial — Needs an opening-hand reveal hook that creates the pregame Goblin token before the first turn.
+static CHANCELLOR_OF_THE_FORGE_CREATURES: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::HasType(CardType::Creature),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::You,
+);
+
 pub(in crate::card::sets) static CHANCELLOR_OF_THE_FORGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dd3520a7-a55f-4c00-b4f1-c1c154adfc8f"),
     "Chancellor of the Forge",
     crate::card::CardArt::new("dd3520a7-a55f-4c00-b4f1-c1c154adfc8f", "Chippy"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{R}{R}{R}"), &["Phyrexian", "Giant"], 5, 5)
+        .with_abilities(&[
+            AbilityDef::not_implemented(
+                "You may reveal this card from your opening hand. If you do, at the beginning of the first upkeep, create a 1/1 red Phyrexian Goblin creature token with haste.",
+                "Needs an opening-hand reveal hook that installs a trigger before the first upkeep.",
+            ),
+            abilities::enters_trigger(
+                "When this creature enters, create X 1/1 red Phyrexian Goblin creature tokens with haste, where X is the number of creatures you control.",
+                EffectDef::create_creature_token(
+                    &["Phyrexian", "Goblin"],
+                    &[ManaColor::Red],
+                    1,
+                    1,
+                )
+                .with_abilities(&[abilities::haste()])
+                .with_count(ValueDef::CountMatchingObjects(
+                    &CHANCELLOR_OF_THE_FORGE_CREATURES,
+                )),
+            ),
+        ]),
 );
 
 // NPH 82 — Fallen Ferromancer
@@ -1223,13 +2093,30 @@ pub(in crate::card::sets) static FLAMEBORN_VIRON: CardRecord = CardRecord::new(
 );
 
 // NPH 84 — Furnace Scamp
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static FURNACE_SCAMP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("97538294-058c-47d4-b7a8-4db3753a6628"),
     "Furnace Scamp",
     crate::card::CardArt::new("97538294-058c-47d4-b7a8-4db3753a6628", "Karl Kopinski"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{R}"), &["Phyrexian", "Beast"], 1, 1).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature deals combat damage to a player, you may sacrifice it. If you do, it deals 3 damage to that player.",
+            TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+            EffectDef::SacrificeOfChoice {
+                player: EffectRecipientDef::Controller,
+                object: ObjectPredicateDef::Source,
+                count: ValueDef::Constant(1),
+                then: Some(&EffectDef::DealDamageFrom {
+                        source: ObjectRefDef::Source,
+                        recipient: EffectRecipientDef::EventPlayer,
+                        amount: ValueDef::Constant(3),
+                    }),
+                amount: SacrificedAmountDef::Power,
+                otherwise: None,
+                optional: true,
+            },
+        ),
+    ),
 );
 
 // NPH 85 — Geosurge
@@ -1275,7 +2162,7 @@ pub(in crate::card::sets) static GUT_SHOT: CardRecord = CardRecord::new(
 );
 
 // NPH 87 — Invader Parasite
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a later land-entry trigger to compare the entering land's name with the land card linked in exile by the enters ability.
 pub(in crate::card::sets) static INVADER_PARASITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("89a8c53f-2cb0-41ea-8391-c32667f17c30"),
     "Invader Parasite",
@@ -1285,13 +2172,27 @@ pub(in crate::card::sets) static INVADER_PARASITE: CardRecord = CardRecord::new(
 );
 
 // NPH 88 — Moltensteel Dragon
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static MOLTENSTEEL_DRAGON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("13b78018-bfbe-43fa-809f-9b52a155e11c"),
     "Moltensteel Dragon",
     crate::card::CardArt::new("13b78018-bfbe-43fa-809f-9b52a155e11c", "James Ryman"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{4}{R/P}{R/P}"), &["Phyrexian", "Dragon"], 4, 4)
+        .with_abilities(&[
+            abilities::flying(),
+            AbilityDef::activated(
+                "{R/P}: This creature gets +1/+0 until end of turn.",
+                &[AbilityCostDef::Mana(mana_cost!("{R/P}"))],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(0),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // NPH 89 — Ogre Menial
@@ -1336,7 +2237,7 @@ pub(in crate::card::sets) static PRIEST_OF_URABRASK: CardRecord = CardRecord::ne
 );
 
 // NPH 91 — Rage Extractor
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a spell predicate that detects Phyrexian mana symbols in the triggering spell's printed mana cost.
 pub(in crate::card::sets) static RAGE_EXTRACTOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d8cebc2c-a46b-4459-b62b-7fce1a744b11"),
     "Rage Extractor",
@@ -1379,23 +2280,53 @@ pub(in crate::card::sets) static RUTHLESS_INVASION: CardRecord = CardRecord::new
 );
 
 // NPH 94 — Scrapyard Salvo
-// Audit: metadata-only — Card rules have not been implemented.
+static ARTIFACT_CARDS_IN_YOUR_GRAVEYARD: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::HasType(CardType::Artifact),
+    &[ZoneKind::Graveyard],
+    PlayerRelation::You,
+);
+
 pub(in crate::card::sets) static SCRAPYARD_SALVO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3a4874eb-635b-47f0-bbee-6bd8b26e2f10"),
     "Scrapyard Salvo",
     crate::card::CardArt::new("3a4874eb-635b-47f0-bbee-6bd8b26e2f10", "Austin Hsu"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{R}{R}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "This spell deals damage to target player or planeswalker equal to the number of artifact cards in your graveyard.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::CountMatchingObjects(&ARTIFACT_CARDS_IN_YOUR_GRAVEYARD),
+            },
+        ),
+    ),
 );
 
 // NPH 95 — Slag Fiend
-// Audit: metadata-only — Card rules have not been implemented.
+static ARTIFACT_CARDS_IN_ALL_GRAVEYARDS: ObjectQueryDef = ObjectQueryDef::new(
+    ObjectPredicateDef::HasType(CardType::Artifact),
+    &[ZoneKind::Graveyard],
+);
+
 pub(in crate::card::sets) static SLAG_FIEND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c0d1ee33-e247-4ada-bb01-518611cd7d00"),
     "Slag Fiend",
     crate::card::CardArt::new("c0d1ee33-e247-4ada-bb01-518611cd7d00", "Mike Bierek"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{R}"), &["Phyrexian", "Construct"], 0, 0)
+        .with_ability(AbilityDef::static_ability(
+            "This creature's power and toughness are each equal to the number of artifact cards in all graveyards.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::set_base_power_toughness(
+                    ValueDef::CountMatchingObjects(&ARTIFACT_CARDS_IN_ALL_GRAVEYARDS),
+                    ValueDef::CountMatchingObjects(&ARTIFACT_CARDS_IN_ALL_GRAVEYARDS),
+                ),
+            },
+        )),
 );
 
 // NPH 96 — Slash Panther
@@ -1409,13 +2340,53 @@ pub(in crate::card::sets) static SLASH_PANTHER: CardRecord = CardRecord::new(
 );
 
 // NPH 97 — Tormentor Exarch
-// Audit: metadata-only — Card rules have not been implemented.
+static TORMENTOR_EXARCH_MODES: [AbilityDef; 2] = [
+    AbilityDef::spell_with_targets(
+        "Target creature gets +2/+0 until end of turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(2),
+                ValueDef::Constant(0),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    ),
+    AbilityDef::spell_with_targets(
+        "Target creature gets -0/-2 until end of turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(0),
+                ValueDef::Constant(-2),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    ),
+];
+
 pub(in crate::card::sets) static TORMENTOR_EXARCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4886eb6a-0f6a-4ea7-8e85-4a27d1a6f03b"),
     "Tormentor Exarch",
     crate::card::CardArt::new("4886eb6a-0f6a-4ea7-8e85-4a27d1a6f03b", "Brad Rigney"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Phyrexian", "Cleric"], 2, 2).with_ability(
+        AbilityDef::modal_triggered(
+            "When this creature enters, choose one —\n• Target creature gets +2/+0 until end of turn.\n• Target creature gets -0/-2 until end of turn.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &TORMENTOR_EXARCH_MODES,
+        ),
+    ),
 );
 
 // NPH 98 — Urabrask the Hidden
@@ -1483,7 +2454,6 @@ pub(in crate::card::sets) static VICTORIOUS_DESTRUCTION: CardRecord = CardRecord
 );
 
 // NPH 100 — Volt Charge
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static VOLT_CHARGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("aa88011c-a19d-4faa-8da6-86b9980cd571"),
     "Volt Charge",
@@ -1492,7 +2462,19 @@ pub(in crate::card::sets) static VOLT_CHARGE: CardRecord = CardRecord::new(
         "Jana Schirmer & Johannes Voss",
     ),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "This spell deals 3 damage to any target. Proliferate.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::AnyTarget,
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(3),
+            },
+            EffectDef::Proliferate,
+        ]),
+    )),
 );
 
 // NPH 101 — Vulshok Refugee
@@ -1553,33 +2535,121 @@ pub(in crate::card::sets) static BEAST_WITHIN: CardRecord = CardRecord::new(
 );
 
 // NPH 104 — Birthing Pod
-// Audit: metadata-only — Card rules have not been implemented.
+static BIRTHING_POD_MANA_VALUE: SumValueDef =
+    SumValueDef::new(ValueDef::SacrificedManaValue, ValueDef::Constant(1));
+
 pub(in crate::card::sets) static BIRTHING_POD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b768efa2-e56b-4a7e-ace8-d673f10e0714"),
     "Birthing Pod",
     crate::card::CardArt::new("b768efa2-e56b-4a7e-ace8-d673f10e0714", "Daarken"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}{G/P}")).with_ability(
+        AbilityDef::activated(
+            "{1}{G/P}, {T}, Sacrifice a creature: Search your library for a creature card with mana value equal to 1 plus the sacrificed creature's mana value, put that card onto the battlefield, then shuffle. Activate only as a sorcery.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}{G/P}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ManaValueEqualTo(ValueDef::Sum(&BIRTHING_POD_MANA_VALUE)),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: false,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+    ),
 );
 
 // NPH 105 — Brutalizer Exarch
-// Audit: metadata-only — Card rules have not been implemented.
+static BRUTALIZER_EXARCH_MODES: [AbilityDef; 2] = [
+    AbilityDef::spell(
+        "Search your library for a creature card, reveal it, then shuffle and put that card on top.",
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::HasType(CardType::Creature),
+            minimum: 0,
+            maximum: ValueDef::Constant(1),
+            reveal: true,
+            destination: ZoneKind::Library,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: false,
+            attachment: None,
+            binding: None,
+            then: None,
+        },
+    ),
+    AbilityDef::spell_with_targets(
+        "Put target noncreature permanent on the bottom of its owner's library.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+        )],
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            from: Some(ZoneKind::Battlefield),
+            zone: ZoneKind::Library,
+            placement: ZonePlacement::Bottom,
+            counters: None,
+            controller: None,
+            arrival_effect: None,
+            attachment: None,
+            tapped: false,
+        },
+    ),
+];
+
 pub(in crate::card::sets) static BRUTALIZER_EXARCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9ddfa4ed-70fb-4e25-875d-df0f973f7294"),
     "Brutalizer Exarch",
     crate::card::CardArt::new("9ddfa4ed-70fb-4e25-875d-df0f973f7294", "Mark Zug"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{G}"), &["Phyrexian", "Cleric"], 3, 3).with_ability(
+        AbilityDef::modal_triggered(
+            "When this creature enters, choose one —\n• Search your library for a creature card, reveal it, then shuffle and put that card on top.\n• Put target noncreature permanent on the bottom of its owner's library.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &BRUTALIZER_EXARCH_MODES,
+        ),
+    ),
 );
 
 // NPH 106 — Chancellor of the Tangle
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: partial — Needs an opening-hand reveal hook that installs a one-shot mana trigger for the first precombat main phase.
 pub(in crate::card::sets) static CHANCELLOR_OF_THE_TANGLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6d129aa8-b637-451e-8123-5221e08cc2cc"),
     "Chancellor of the Tangle",
     crate::card::CardArt::new("6d129aa8-b637-451e-8123-5221e08cc2cc", "Steve Prescott"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{6}{G}"), &["Phyrexian", "Beast"], 6, 7)
+        .with_abilities(&[
+            AbilityDef::not_implemented(
+                "You may reveal this card from your opening hand. If you do, at the beginning of your first precombat main phase, add {G}.",
+                "Needs an opening-hand reveal hook that installs a one-shot first-main-phase trigger.",
+            ),
+            abilities::vigilance(),
+            abilities::reach(),
+        ]),
 );
 
 // NPH 107 — Corrosive Gale
@@ -1633,7 +2703,7 @@ pub(in crate::card::sets) static DEATH_HOOD_COBRA: CardRecord = CardRecord::new(
 );
 
 // NPH 109 — Fresh Meat
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs controller-scoped creature-death history; CreaturesDiedThisTurn is global and would count creatures put into other players' graveyards.
 pub(in crate::card::sets) static FRESH_MEAT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("000ce65b-5347-4a88-81af-be9053e4d3f3"),
     "Fresh Meat",
@@ -1680,23 +2750,70 @@ pub(in crate::card::sets) static GLISTENER_ELF: CardRecord = CardRecord::new(
 );
 
 // NPH 112 — Greenhilt Trainee
-// Audit: metadata-only — Card rules have not been implemented.
+static GREENHILT_TRAINEE_POWER: TriggerConditionDef = TriggerConditionDef::SourceMatches {
+    object: ObjectPredicateDef::PowerAtLeast(4),
+};
+
 pub(in crate::card::sets) static GREENHILT_TRAINEE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("370f8ef5-c809-43cc-903a-077fad33cd30"),
     "Greenhilt Trainee",
     crate::card::CardArt::new("370f8ef5-c809-43cc-903a-077fad33cd30", "Chris Rahn"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Elf", "Warrior"], 2, 3).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Target creature gets +4/+4 until end of turn. Activate only if this creature's power is 4 or greater.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(4),
+                    ValueDef::Constant(4),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .with_activation_condition(&GREENHILT_TRAINEE_POWER),
+    ),
 );
 
 // NPH 113 — Leeching Bite
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static LEECHING_BITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1c3bdbeb-c376-42bd-af2a-251cd7ac704c"),
     "Leeching Bite",
     crate::card::CardArt::new("1c3bdbeb-c376-42bd-af2a-251cd7ac704c", "Cos Koniotis"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature gets +1/+1 until end of turn. Another target creature gets -1/-1 until end of turn.",
+        &[
+            AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                CardType::Creature,
+            )),
+            AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                CardType::Creature,
+            )),
+        ],
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex(1)),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(-1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ]),
+    )),
 );
 
 // NPH 114 — Maul Splicer
@@ -1718,7 +2835,7 @@ pub(in crate::card::sets) static MAUL_SPLICER: CardRecord = CardRecord::new(
 );
 
 // NPH 115 — Melira, Sylvok Outcast
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs player poison-counter placement prevention, creature -1/-1-counter placement prevention, and a continuous removal of infect from creatures opponents control.
 pub(in crate::card::sets) static MELIRA_SYLVOK_OUTCAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e83851a1-e4e8-49ec-af5c-4efe86fa51ad"),
     "Melira, Sylvok Outcast",
@@ -1750,7 +2867,7 @@ pub(in crate::card::sets) static MUTAGENIC_GROWTH: CardRecord = CardRecord::new(
 );
 
 // NPH 117 — Mycosynth Fiend
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a continuous power/toughness value that reads poison counters across opponents; player-counter values are not supported in static effects.
 pub(in crate::card::sets) static MYCOSYNTH_FIEND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bdcd1b8e-9f1f-48a3-b7a1-43a32cc03bb1"),
     "Mycosynth Fiend",
@@ -1790,13 +2907,38 @@ pub(in crate::card::sets) static NOXIOUS_REVIVAL: CardRecord = CardRecord::new(
 );
 
 // NPH 119 — Phyrexian Swarmlord
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PHYREXIAN_SWARMLORD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8a91dea7-9792-4714-82b0-ba2c06cef304"),
     "Phyrexian Swarmlord",
     crate::card::CardArt::new("8a91dea7-9792-4714-82b0-ba2c06cef304", "Svetlin Velinov"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{4}{G}{G}"),
+        &["Phyrexian", "Insect", "Horror"],
+        4,
+        4,
+    )
+    .with_abilities(&[
+        abilities::infect(),
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, create a 1/1 green Phyrexian Insect creature token with infect for each poison counter your opponents have.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::create_creature_token(
+                &["Phyrexian", "Insect"],
+                &[ManaColor::Green],
+                1,
+                1,
+            )
+            .with_abilities(&[abilities::infect()])
+            .with_count(ValueDef::PlayerCounters {
+                player: PlayerRelation::Opponent,
+                kind: CounterKind::Poison,
+            }),
+        ),
+    ]),
 );
 
 // NPH 120 — Rotted Hystrix
@@ -1809,7 +2951,7 @@ pub(in crate::card::sets) static ROTTED_HYSTRIX: CardRecord = CardRecord::new(
 );
 
 // NPH 121 — Spinebiter
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a combat-damage assignment option that lets the attacker assign damage as though it were unblocked without actually becoming unblocked.
 pub(in crate::card::sets) static SPINEBITER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cfc79ac6-ffc6-4506-9dea-e20176f960ea"),
     "Spinebiter",
@@ -1856,7 +2998,7 @@ pub(in crate::card::sets) static TRIUMPH_OF_THE_HORDES: CardRecord = CardRecord:
 );
 
 // NPH 124 — Viridian Betrayers
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Player-counter comparisons work for resolving and intervening-if conditions, but the static-condition runtime rejects PlayerCounters because its live layer walk has no supported player-counter value path.
 pub(in crate::card::sets) static VIRIDIAN_BETRAYERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cc6ea52f-4b24-45ff-99e1-4d0e1bd42875"),
     "Viridian Betrayers",
@@ -1866,27 +3008,65 @@ pub(in crate::card::sets) static VIRIDIAN_BETRAYERS: CardRecord = CardRecord::ne
 );
 
 // NPH 125 — Viridian Harvest
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static VIRIDIAN_HARVEST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("666eb9a5-b105-45c1-be3e-7ac5cc650338"),
     "Viridian Harvest",
     crate::card::CardArt::new("666eb9a5-b105-45c1-be3e-7ac5cc650338", "Johann Bodin"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::aura_spell("Enchant artifact", &abilities::ENCHANT_ARTIFACT_TARGET),
+            AbilityDef::triggered(
+                "When enchanted artifact is put into a graveyard, you gain 6 life.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::AttachedToSource,
+                    Some(ZoneKind::Battlefield),
+                    Some(ZoneKind::Graveyard),
+                ),
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(6),
+                },
+            ),
+        ]),
 );
 
 // NPH 126 — Vital Splicer
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static VITAL_SPLICER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("273b982d-bca2-4418-8618-c711d28fc901"),
     "Vital Splicer",
     crate::card::CardArt::new("273b982d-bca2-4418-8618-c711d28fc901", "Daarken"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Phyrexian", "Human", "Artificer"], 1, 1)
+        .with_abilities(&[
+            abilities::enters_trigger(
+                "When this creature enters, create a 3/3 colorless Phyrexian Golem artifact creature token.",
+                EffectDef::create_artifact_creature_token(
+                    &["Phyrexian", "Golem"],
+                    &[],
+                    3,
+                    3,
+                ),
+            ),
+            AbilityDef::activated_with_targets(
+                "{1}: Regenerate target Golem you control.",
+                &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Subtype("Golem"),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                })],
+                EffectDef::Regenerate {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+        ]),
 );
 
 // NPH 127 — Vorinclex, Voice of Hunger
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a mana trigger that reproduces the exact type of mana the triggering land produced plus a turn-based rule that skips that land's controller's next untap of it.
 pub(in crate::card::sets) static VORINCLEX_VOICE_OF_HUNGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0806adab-6a08-411b-b249-e1c58ade354b"),
     "Vorinclex, Voice of Hunger",
@@ -1896,13 +3076,32 @@ pub(in crate::card::sets) static VORINCLEX_VOICE_OF_HUNGER: CardRecord = CardRec
 );
 
 // NPH 128 — Jor Kadeen, the Prevailer
-// Audit: metadata-only — Card rules have not been implemented.
+static JOR_KADEEN_BONUS: EffectDef = EffectDef::StaticApply {
+    recipient: EffectRecipientDef::matching_objects(
+        ObjectPredicateDef::HasType(CardType::Creature),
+        &[ZoneKind::Battlefield],
+        PlayerRelation::You,
+    ),
+    effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(3), ValueDef::Constant(0)),
+};
+
 pub(in crate::card::sets) static JOR_KADEEN_THE_PREVAILER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bfd8d7de-a2e1-4f83-85f9-7057eebf0c37"),
     "Jor Kadeen, the Prevailer",
     crate::card::CardArt::new("bfd8d7de-a2e1-4f83-85f9-7057eebf0c37", "Austin Hsu"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}{W}"), &["Human", "Warrior"], 5, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::first_strike(),
+            AbilityDef::static_ability(
+                "Metalcraft — Creatures you control get +3/+0 as long as you control three or more artifacts.",
+                EffectDef::IfCondition {
+                    condition: &METALCRAFT,
+                    then: &JOR_KADEEN_BONUS,
+                },
+            ),
+        ]),
 );
 
 // NPH 129 — Alloy Myr
@@ -1921,13 +3120,46 @@ pub(in crate::card::sets) static ALLOY_MYR: CardRecord = CardRecord::new(
 );
 
 // NPH 130 — Batterskull
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static BATTERSKULL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cd114ec3-d286-4c70-a122-3043bc53cc88"),
     "Batterskull",
     crate::card::CardArt::new("cd114ec3-d286-4c70-a122-3043bc53cc88", "Mark Zug"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{5}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            abilities::living_weapon(),
+            AbilityDef::static_ability(
+                "Equipped creature gets +4/+4 and has vigilance and lifelink.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(4),
+                            ValueDef::Constant(4),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::vigilance()),
+                        AppliedEffectDef::add_ability(&abilities::lifelink()),
+                    ]),
+                },
+            ),
+            AbilityDef::activated(
+                "{3}: Return this Equipment to its owner's hand.",
+                &[AbilityCostDef::Mana(mana_cost!("{3}"))],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Source,
+                    from: Some(ZoneKind::Battlefield),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    counters: None,
+                    controller: None,
+                    arrival_effect: None,
+                    attachment: None,
+                    tapped: false,
+                },
+            ),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{5}"))], "Equip {5}"),
+        ]),
 );
 
 // NPH 131 — Blinding Souleater
@@ -1953,7 +3185,7 @@ pub(in crate::card::sets) static BLINDING_SOULEATER: CardRecord = CardRecord::ne
 );
 
 // NPH 132 — Caged Sun
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs one persistent color choice consumed by both a creature-color continuous effect and a land-mana trigger that reproduces the chosen color.
 pub(in crate::card::sets) static CAGED_SUN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("506597cc-48f9-4098-a229-2b3b3c0de944"),
     "Caged Sun",
@@ -1963,13 +3195,56 @@ pub(in crate::card::sets) static CAGED_SUN: CardRecord = CardRecord::new(
 );
 
 // NPH 133 — Conversion Chamber
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CONVERSION_CHAMBER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("14d5a8f3-05b6-4bb7-bbe1-e753e22cbb50"),
     "Conversion Chamber",
     crate::card::CardArt::new("14d5a8f3-05b6-4bb7-bbe1-e753e22cbb50", "Anthony Francisco"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "{2}, {T}: Exile target artifact card from a graveyard. Put a charge counter on this artifact.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}")),
+                AbilityCostDef::TapSource,
+            ],
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Artifact),
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: None,
+            })],
+            EffectDef::Sequence(&[
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    from: Some(ZoneKind::Graveyard),
+                    zone: ZoneKind::Exile,
+                    placement: ZonePlacement::Top,
+                    counters: None,
+                    controller: None,
+                    arrival_effect: None,
+                    attachment: None,
+                    tapped: false,
+                },
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::named("charge"),
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
+        ),
+        AbilityDef::activated(
+            "{2}, {T}, Remove a charge counter from this artifact: Create a 3/3 colorless Phyrexian Golem artifact creature token.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("charge"),
+                    amount: 1,
+                },
+            ],
+            EffectDef::create_artifact_creature_token(&["Phyrexian", "Golem"], &[], 3, 3),
+        ),
+    ]),
 );
 
 // NPH 134 — Darksteel Relic
@@ -1982,27 +3257,92 @@ pub(in crate::card::sets) static DARKSTEEL_RELIC: CardRecord = CardRecord::new(
 );
 
 // NPH 135 — Etched Monstrosity
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ETCHED_MONSTROSITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ff9c4451-dd17-4859-a31d-62ed2430c63c"),
     "Etched Monstrosity",
     crate::card::CardArt::new("ff9c4451-dd17-4859-a31d-62ed2430c63c", "Steven Belledin"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{5}"), &["Phyrexian", "Golem"], 10, 10)
+        .with_abilities(&[
+            AbilityDef::as_enters(
+                "This creature enters with five -1/-1 counters on it.",
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::AddCounters {
+                        kind: CounterKind::MinusOneMinusOne,
+                        amount: 5,
+                    },
+                ),
+            ),
+            AbilityDef::activated_with_targets(
+                "{W}{U}{B}{R}{G}, Remove five -1/-1 counters from this creature: Target player draws three cards.",
+                &[
+                    AbilityCostDef::Mana(mana_cost!("{W}{U}{B}{R}{G}")),
+                    AbilityCostDef::RemoveCountersFromSource {
+                        kind: CounterKind::MinusOneMinusOne,
+                        amount: 5,
+                    },
+                ],
+                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+                    PlayerRelation::Any,
+                ))],
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(3),
+                },
+            ),
+        ]),
 );
 
 // NPH 136 — Gremlin Mine
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static GREMLIN_MINE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ccde7ebb-90de-4174-a1c5-75fc9384deaa"),
     "Gremlin Mine",
     crate::card::CardArt::new("ccde7ebb-90de-4174-a1c5-75fc9384deaa", "Matt Stewart"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "{1}, {T}, Sacrifice this artifact: It deals 4 damage to target artifact creature.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::SacrificeSource,
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                ]),
+            )],
+            EffectDef::DealDamageFrom {
+                source: ObjectRefDef::Source,
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(4),
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "{1}, {T}, Sacrifice this artifact: Remove up to four charge counters from target noncreature artifact.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::SacrificeSource,
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+                ]),
+            )],
+            EffectDef::RemoveCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::named("charge"),
+                amount: ValueDef::Constant(4),
+            },
+        ),
+    ]),
 );
 
 // NPH 137 — Hex Parasite
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Counter-count predicates and fixed-kind removal exist, but this needs a variable payment tied to an independently chosen number, a choice across arbitrary counter kinds, and a pump based on the number actually removed.
 pub(in crate::card::sets) static HEX_PARASITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("43502078-5349-4e29-8e7d-277654a9a71e"),
     "Hex Parasite",
@@ -2062,13 +3402,28 @@ pub(in crate::card::sets) static INSATIABLE_SOULEATER: CardRecord = CardRecord::
 );
 
 // NPH 141 — Isolation Cell
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ISOLATION_CELL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c5e72c64-cb0e-4a04-97d0-3537bb0420cd"),
     "Isolation Cell",
     crate::card::CardArt::new("c5e72c64-cb0e-4a04-97d0-3537bb0420cd", "Adrian Smith"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{4}")).with_ability(AbilityDef::triggered(
+        "Whenever an opponent casts a creature spell, that player loses 2 life unless they pay {2}.",
+        TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+        ])),
+        EffectDef::PayOr(PayOrDef::unless(
+            EffectPaymentDef::mana(
+                PlayerSetDef::One(PlayerRefDef::EventPlayer),
+                mana_cost!("{2}"),
+            ),
+            &EffectDef::LoseLife {
+                recipient: EffectRecipientDef::EventPlayer,
+                amount: ValueDef::Constant(2),
+            },
+        )),
+    )),
 );
 
 // NPH 142 — Kiln Walker
@@ -2093,17 +3448,37 @@ pub(in crate::card::sets) static KILN_WALKER: CardRecord = CardRecord::new(
 );
 
 // NPH 143 — Lashwrithe
-// Audit: metadata-only — Card rules have not been implemented.
+static SWAMPS_YOU_CONTROL: ObjectQueryDef =
+    ObjectQueryDef::controlled_basic_land_type(PlayerRelation::You, BasicLandType::Swamp);
+
 pub(in crate::card::sets) static LASHWRITHE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8c418159-b5d1-48e9-9a31-707f49d6733b"),
     "Lashwrithe",
     crate::card::CardArt::new("8c418159-b5d1-48e9-9a31-707f49d6733b", "Jason Felix"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{4}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            abilities::living_weapon(),
+            AbilityDef::static_ability(
+                "Equipped creature gets +1/+1 for each Swamp you control.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::CountMatchingObjects(&SWAMPS_YOU_CONTROL),
+                        ValueDef::CountMatchingObjects(&SWAMPS_YOU_CONTROL),
+                    ),
+                },
+            ),
+            abilities::equip(
+                &[AbilityCostDef::Mana(mana_cost!("{B/P}{B/P}"))],
+                "Equip {B/P}{B/P}",
+            ),
+        ]),
 );
 
 // NPH 144 — Mindcrank
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a life-loss trigger event carrying the exact amount lost for both damage and non-damage life loss.
 pub(in crate::card::sets) static MINDCRANK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d13a5ae0-d76a-4430-98c1-47a19e615e2c"),
     "Mindcrank",
@@ -2134,7 +3509,7 @@ pub(in crate::card::sets) static MYCOSYNTH_WELLSPRING: CardRecord = CardRecord::
 );
 
 // NPH 146 — Myr Superion
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs casting-payment legality that restricts accepted mana by the producing permanent's creature type; mana restrictions currently constrain spend purpose instead.
 pub(in crate::card::sets) static MYR_SUPERION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("290c6036-02a3-43fa-b0d4-af3818794c3c"),
     "Myr Superion",
@@ -2147,17 +3522,34 @@ pub(in crate::card::sets) static MYR_SUPERION: CardRecord = CardRecord::new(
 );
 
 // NPH 147 — Necropouncer
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static NECROPOUNCER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4ed51dbc-bbec-4c78-a71e-26322a8d2439"),
     "Necropouncer",
     crate::card::CardArt::new("4ed51dbc-bbec-4c78-a71e-26322a8d2439", "Cos Koniotis"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{6}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            abilities::living_weapon(),
+            AbilityDef::static_ability(
+                "Equipped creature gets +3/+1 and has haste.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(3),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::haste()),
+                    ]),
+                },
+            ),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
+        ]),
 );
 
 // NPH 148 — Omen Machine
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a draw prohibition plus a draw-step replacement that branches on the exiled top card's type and grants a resolution-time free-cast permission.
 pub(in crate::card::sets) static OMEN_MACHINE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0ff4e35f-2a82-4d3c-86c5-ae05a5abc4d7"),
     "Omen Machine",
@@ -2197,47 +3589,199 @@ pub(in crate::card::sets) static PRISTINE_TALISMAN: CardRecord = CardRecord::new
 );
 
 // NPH 152 — Shrine of Boundless Growth
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SHRINE_OF_BOUNDLESS_GROWTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b2ec7b95-667f-43ed-b310-b657befd55a2"),
     "Shrine of Boundless Growth",
     crate::card::CardArt::new("b2ec7b95-667f-43ed-b310-b657befd55a2", "Karl Kopinski"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+        AbilityDef::triggered(
+            "At the beginning of your upkeep and whenever you cast a green spell, put a charge counter on this artifact.",
+            TriggerEventDef::AnyOf(&[
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::Upkeep,
+                    player: PlayerRelation::You,
+                },
+                TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Color(ManaColor::Green),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+            ]),
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::named("charge"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}, Sacrifice this artifact: Add {C} for each charge counter on this artifact.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::SacrificeSource,
+            ],
+            EffectDef::AddManaEqualTo {
+                color: ManaColor::Colorless,
+                amount: ValueDef::CountersOnSource(CounterKind::named("charge")),
+            },
+        ),
+    ]),
 );
 
 // NPH 153 — Shrine of Burning Rage
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SHRINE_OF_BURNING_RAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d1a8afef-fa50-4aeb-94de-a4d90b1e5631"),
     "Shrine of Burning Rage",
     crate::card::CardArt::new("d1a8afef-fa50-4aeb-94de-a4d90b1e5631", "Dave Kendall"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        AbilityDef::triggered(
+            "At the beginning of your upkeep and whenever you cast a red spell, put a charge counter on this artifact.",
+            TriggerEventDef::AnyOf(&[
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::Upkeep,
+                    player: PlayerRelation::You,
+                },
+                TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Color(ManaColor::Red),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+            ]),
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::named("charge"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "{3}, {T}, Sacrifice this artifact: It deals damage equal to the number of charge counters on it to any target.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{3}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::SacrificeSource,
+            ],
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
+            EffectDef::DealDamageFrom {
+                source: ObjectRefDef::Source,
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::CountersOnSource(CounterKind::named("charge")),
+            },
+        ),
+    ]),
 );
 
 // NPH 154 — Shrine of Limitless Power
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SHRINE_OF_LIMITLESS_POWER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("61873223-f378-4478-9cf3-f1326eb76834"),
     "Shrine of Limitless Power",
     crate::card::CardArt::new("61873223-f378-4478-9cf3-f1326eb76834", "Min Yum"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+        AbilityDef::triggered(
+            "At the beginning of your upkeep and whenever you cast a black spell, put a charge counter on this artifact.",
+            TriggerEventDef::AnyOf(&[
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::Upkeep,
+                    player: PlayerRelation::You,
+                },
+                TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Color(ManaColor::Black),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+            ]),
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::named("charge"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "{4}, {T}, Sacrifice this artifact: Target player discards a card for each charge counter on this artifact.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{4}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::SacrificeSource,
+            ],
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+                PlayerRelation::Any,
+            ))],
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::CountersOnSource(CounterKind::named("charge")),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // NPH 155 — Shrine of Loyal Legions
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SHRINE_OF_LOYAL_LEGIONS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d13563c7-abe0-4760-9b4c-841de47dbc46"),
     "Shrine of Loyal Legions",
     crate::card::CardArt::new("d13563c7-abe0-4760-9b4c-841de47dbc46", "Igor Kieryluk"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        AbilityDef::triggered(
+            "At the beginning of your upkeep and whenever you cast a white spell, put a charge counter on this artifact.",
+            TriggerEventDef::AnyOf(&[
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::Upkeep,
+                    player: PlayerRelation::You,
+                },
+                TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Color(ManaColor::White),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+            ]),
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::named("charge"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated(
+            "{3}, {T}, Sacrifice this artifact: Create a 1/1 colorless Phyrexian Myr artifact creature token for each charge counter on this artifact.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{3}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::SacrificeSource,
+            ],
+            EffectDef::create_artifact_creature_token(
+                &["Phyrexian", "Myr"],
+                &[],
+                1,
+                1,
+            )
+            .with_count(ValueDef::CountersOnSource(CounterKind::named("charge"))),
+        ),
+    ]),
 );
 
 // NPH 156 — Shrine of Piercing Vision
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: partial — The shared top-card selection moves the unchosen cards in their existing order; it cannot let the player arrange those cards on the bottom in any order.
+static SHRINE_OF_PIERCING_VISION_SELECTION: TopCardSelectionDef = TopCardSelectionDef {
+    count: ValueDef::CountersOnSource(CounterKind::named("charge")),
+    object: None,
+    minimum: 1,
+    maximum: 1,
+    select_all_matching: false,
+    select_one_of_each_type: false,
+    reveal_inspected: false,
+    reveal_selected: false,
+    counted: None,
+    selected_zone: ZoneKind::Hand,
+    selected_placement: ZonePlacement::Top,
+    selected_hidden: false,
+    selected_linked_to_source: false,
+    selected_face_down: None,
+    rest_zone: ZoneKind::Library,
+    rest_placement: ZonePlacement::Bottom,
+    rest_random_order: false,
+    rest_counters: None,
+    selected_order_follows_choice: false,
+    then: None,
+};
+
 pub(in crate::card::sets) static SHRINE_OF_PIERCING_VISION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9b150924-f83c-410e-aaab-ff2d06c9d356"),
     "Shrine of Piercing Vision",
@@ -2246,21 +3790,69 @@ pub(in crate::card::sets) static SHRINE_OF_PIERCING_VISION: CardRecord = CardRec
         "Jana Schirmer & Johannes Voss",
     ),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        AbilityDef::triggered(
+            "At the beginning of your upkeep and whenever you cast a blue spell, put a charge counter on this artifact.",
+            TriggerEventDef::AnyOf(&[
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::Upkeep,
+                    player: PlayerRelation::You,
+                },
+                TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Color(ManaColor::Blue),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+            ]),
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::named("charge"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated(
+            "{T}, Sacrifice this artifact: Look at the top X cards of your library, where X is the number of charge counters on this artifact. Put one of those cards into your hand and the rest on the bottom of your library in any order.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::SacrificeSource,
+            ],
+            EffectDef::LookAtTopAndSelect {
+                player: EffectRecipientDef::Controller,
+                looker: EffectRecipientDef::Controller,
+                selection: &SHRINE_OF_PIERCING_VISION_SELECTION,
+            },
+        )
+        .with_coverage(AbilityCoverageDef::partial(
+            "The selected card is put into hand and the rest go to the bottom, but the shared selection procedure preserves their existing order instead of asking the player to arrange them.",
+        )),
+    ]),
 );
 
 // NPH 157 — Sickleslicer
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SICKLESLICER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d44746d5-3d34-4480-b4cd-c66de72f0622"),
     "Sickleslicer",
     crate::card::CardArt::new("d44746d5-3d34-4480-b4cd-c66de72f0622", "Jason Felix"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            abilities::living_weapon(),
+            AbilityDef::static_ability(
+                "Equipped creature gets +2/+2.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                },
+            ),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{4}"))], "Equip {4}"),
+        ]),
 );
 
 // NPH 158 — Soul Conduit
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a simultaneous exchange operation that sets two targeted players' life totals to each other's captured values.
 pub(in crate::card::sets) static SOUL_CONDUIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("aa7e4989-cba7-4e0c-bb9d-140af6c006c3"),
     "Soul Conduit",
@@ -2270,7 +3862,7 @@ pub(in crate::card::sets) static SOUL_CONDUIT: CardRecord = CardRecord::new(
 );
 
 // NPH 159 — Spellskite
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a retarget operation that revalidates this permanent as a legal replacement target for the chosen spell or ability.
 pub(in crate::card::sets) static SPELLSKITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1a84bada-ed6a-4e97-8a0c-05b7cb32d66f"),
     "Spellskite",
@@ -2280,27 +3872,96 @@ pub(in crate::card::sets) static SPELLSKITE: CardRecord = CardRecord::new(
 );
 
 // NPH 160 — Surge Node
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SURGE_NODE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("12414fc0-bb24-4244-baf4-adad0125376e"),
     "Surge Node",
     crate::card::CardArt::new("12414fc0-bb24-4244-baf4-adad0125376e", "Lars Grant-West"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "This artifact enters with six charge counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::named("charge"),
+                    amount: 6,
+                },
+            ),
+        ),
+        AbilityDef::activated_with_targets(
+            "{1}, {T}, Remove a charge counter from this artifact: Put a charge counter on target artifact.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("charge"),
+                    amount: 1,
+                },
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+            )],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::named("charge"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // NPH 161 — Sword of War and Peace
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SWORD_OF_WAR_AND_PEACE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fab5bc6c-8943-4078-866a-5d02f9be0eef"),
     "Sword of War and Peace",
     crate::card::CardArt::new("fab5bc6c-8943-4078-866a-5d02f9be0eef", "Chris Rahn"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +2/+2 and has protection from red and from white.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::protection_from_color(
+                            ManaColor::Red,
+                        )),
+                        AppliedEffectDef::add_ability(&abilities::protection_from_color(
+                            ManaColor::White,
+                        )),
+                    ]),
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever equipped creature deals combat damage to a player, this Equipment deals damage to that player equal to the number of cards in their hand and you gain 1 life for each card in your hand.",
+                TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::AttachedToSource),
+                EffectDef::Sequence(&[
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::EventPlayer,
+                        amount: ValueDef::CardsInHandAbove {
+                            player: PlayerRelation::EventPlayer,
+                            threshold: 0,
+                        },
+                    },
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::CardsInHandAbove {
+                            player: PlayerRelation::You,
+                            threshold: 0,
+                        },
+                    },
+                ]),
+            ),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
+        ]),
 );
 
 // NPH 162 — Torpor Orb
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a player rule that suppresses triggered abilities caused by creatures entering the battlefield without suppressing other entry events.
 pub(in crate::card::sets) static TORPOR_ORB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("953610f6-ea96-4e71-969f-50ecac09c091"),
     "Torpor Orb",
@@ -2328,7 +3989,7 @@ pub(in crate::card::sets) static TRESPASSING_SOULEATER: CardRecord = CardRecord:
 );
 
 // NPH 164 — Unwinding Clock
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Needs a turn-based untap rule that untaps the controller's artifacts during each other player's untap step.
 pub(in crate::card::sets) static UNWINDING_CLOCK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("495d520b-7560-4ecb-ae62-143eeec5682f"),
     "Unwinding Clock",

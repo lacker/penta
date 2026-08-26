@@ -442,6 +442,7 @@ impl Game {
                 ObjectSetDef::One(
                     ObjectRefDef::Binding(_)
                     | ObjectRefDef::ResolvingObject
+                    | ObjectRefDef::AdditionalCostObject(_)
                     | ObjectRefDef::AbilityGrantSource
                     | ObjectRefDef::Target(_)
                     | ObjectRefDef::SourceOfTargetedStackObject(_)

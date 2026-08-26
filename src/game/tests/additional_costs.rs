@@ -7,7 +7,7 @@
 //! option.
 
 use super::*;
-use crate::ImplementationStatus;
+use crate::{AdditionalCostObjectIndex, ImplementationStatus};
 
 /// Makeshift Mauler in hand, mana to cast it, and `fodder` creature cards in
 /// the graveyard.
@@ -215,6 +215,31 @@ fn corpse_lunge_uses_the_exiled_cards_last_known_power() {
     );
     assert!(game.legal_actions(PlayerId::One).contains(&cast));
     game.apply(PlayerId::One, cast).expect("the cast is legal");
+
+    let reference = ObjectRefDef::AdditionalCostObject(AdditionalCostObjectIndex::PRIMARY);
+    let resolving = game.stack.last().expect("Corpse Lunge is on the stack");
+    let context = EffectResolutionContext::empty();
+    let scoped = ScopedEffect::primary(EffectDef::None);
+    assert_eq!(
+        game.effect_value(
+            ValueDef::ObjectPower(reference),
+            resolving,
+            &context,
+            scoped
+        ),
+        4,
+    );
+    assert_eq!(
+        game.effect_value(
+            ValueDef::ObjectManaValue(reference),
+            resolving,
+            &context,
+            scoped,
+        ),
+        5,
+        "the same paid-object reference is reusable across characteristic reads",
+    );
+
     pass_priority_pair(&mut game);
 
     assert!(

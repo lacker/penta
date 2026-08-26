@@ -24,7 +24,10 @@ use crate::game::{
     CardAbilityResolver, CardRuntime, PileChoice, PileChosen, PileSplit, PilesSeparated,
     ResolvedAbility,
 };
-use crate::ids::{AbilityId, CardPartId, ObjectSetBindingIndex, TargetIndex, TargetSlotId};
+use crate::ids::{
+    AbilityId, AdditionalCostObjectIndex, CardPartId, ObjectSetBindingIndex, TargetIndex,
+    TargetSlotId,
+};
 use crate::mana_cost;
 
 static CREATURES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
@@ -2710,7 +2713,9 @@ pub(in crate::card::sets) static CORPSE_LUNGE: CardRecord = CardRecord::new(
             EXILE_A_CREATURE_CARD,
             EffectDef::DealDamage {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::PowerOfSingleAdditionalCostObject,
+                amount: ValueDef::ObjectPower(ObjectRefDef::AdditionalCostObject(
+                    AdditionalCostObjectIndex::PRIMARY,
+                )),
             },
         ),
     ),

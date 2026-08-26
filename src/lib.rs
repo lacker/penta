@@ -82,8 +82,9 @@ pub use game::{
     StackObjectKind, Step, WinReason, ZoneCard, ZoneChangeOutcome, ZoneError,
 };
 pub use ids::{
-    AbilityId, AdditionalCostId, AlternativeCostId, CardDefinitionId, CardInstanceId, CardPartId,
-    GameObjectId, GrantId, MeldRecipeId, ModeId, ObjectBindingIndex, ObjectSetBindingIndex,
-    PhysicalCardId, PlayOptionId, PlayerId, StackObjectId, TargetIndex, TargetSlotId,
+    AbilityId, AdditionalCostId, AdditionalCostObjectIndex, AlternativeCostId, CardDefinitionId,
+    CardInstanceId, CardPartId, GameObjectId, GrantId, MeldRecipeId, ModeId, ObjectBindingIndex,
+    ObjectSetBindingIndex, PhysicalCardId, PlayOptionId, PlayerId, StackObjectId, TargetIndex,
+    TargetSlotId,
 };
 pub use policy::{HandcraftedPolicy, PlayError, Policy, RandomPolicy, play_game};

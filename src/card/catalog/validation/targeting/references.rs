@@ -163,6 +163,7 @@ fn validate_object_reference(
         ObjectRefDef::Source
         | ObjectRefDef::AbilityGrantSource
         | ObjectRefDef::ResolvingObject
+        | ObjectRefDef::AdditionalCostObject(_)
         | ObjectRefDef::AttachedToSource
         | ObjectRefDef::TriggeringObject
         | ObjectRefDef::DamagedObject => Ok(()),
@@ -467,7 +468,7 @@ fn validate_value_target_references(
         | ValueDef::TargetManaValue(target) => validate_target_index(target, target_count),
         // Whatever the amount reads has to be nameable where it is read, the
         // same as any other object reference in the program.
-        ValueDef::ObjectManaValue(reference) => {
+        ValueDef::ObjectPower(reference) | ValueDef::ObjectManaValue(reference) => {
             validate_object_reference(reference, target_count, scope)
         }
         ValueDef::CountSpellsCastThisTurn(_)
@@ -475,7 +476,6 @@ fn validate_value_target_references(
         | ValueDef::ChosenX
         | ValueDef::PlayerCounters { .. }
         | ValueDef::SacrificedManaValue
-        | ValueDef::PowerOfSingleAdditionalCostObject
         | ValueDef::SourceCastX
         | ValueDef::SourcePower
         | ValueDef::AffectedManaValue

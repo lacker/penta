@@ -104,6 +104,7 @@ pub(in super::super) fn shared_activated_costs(
             AbilityCostDef::SacrificeObject(
                 ObjectRefDef::ResolvingObject
                 | ObjectRefDef::Binding(_)
+                | ObjectRefDef::AdditionalCostObject(_)
                 | ObjectRefDef::AttachedToSource
                 | ObjectRefDef::Target(_)
                 | ObjectRefDef::TriggeringObject

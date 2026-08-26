@@ -22,7 +22,9 @@ pub use values::*;
 
 use super::payments::{EffectPaymentDef, PayOrDef};
 use crate::Format;
-use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
+use crate::ids::{
+    AdditionalCostObjectIndex, ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex,
+};
 
 use super::{
     AbilityDef, AddManaEffectDef, AlternativeCastKindDef, BasicLandType, CardTypeSet, ColorSet,

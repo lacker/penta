@@ -15,6 +15,10 @@ pub enum ObjectRefDef {
     ResolvingObject,
     /// One object saved by an earlier choice in this resolution.
     Binding(ObjectBindingIndex),
+    /// One object paid for the resolving spell's additional costs, by payment
+    /// order. This names that exact object incarnation so characteristic
+    /// reads can use last-known information after the payment moves it.
+    AdditionalCostObject(AdditionalCostObjectIndex),
     AttachedToSource,
     Target(TargetIndex),
     TriggeringObject,
@@ -258,6 +262,7 @@ impl EffectRecipientDef {
                 ObjectRefDef::Source
                 | ObjectRefDef::AbilityGrantSource
                 | ObjectRefDef::ResolvingObject
+                | ObjectRefDef::AdditionalCostObject(_)
                 | ObjectRefDef::AttachedToSource
                 | ObjectRefDef::Target(_)
                 | ObjectRefDef::SourceOfTargetedStackObject(_)

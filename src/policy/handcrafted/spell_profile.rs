@@ -546,6 +546,7 @@ impl HandcraftedPolicy {
             | ValueDef::AffectedColorCount
             | ValueDef::TotalPowerOfLinkedExiles
             | ValueDef::TotalToughnessOfLinkedExiles
+            | ValueDef::ObjectPower(_)
             | ValueDef::ObjectManaValue(_)
             | ValueDef::TriggeringObjectPower
             | ValueDef::TriggeringObjectToughness
@@ -575,7 +576,6 @@ impl HandcraftedPolicy {
             | ValueDef::SpellsCastBeforeThisTurn
             | ValueDef::PlayerCounters { .. }
             | ValueDef::SacrificedManaValue
-            | ValueDef::PowerOfSingleAdditionalCostObject
             | ValueDef::TimesAdditionalCostPaid
             | ValueDef::DividedAmongTargets
             | ValueDef::TargetPower(_)

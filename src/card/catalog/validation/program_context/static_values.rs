@@ -79,7 +79,6 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         | ValueDef::SpellsCastBeforeThisTurn
         | ValueDef::PlayerCounters { .. }
         | ValueDef::SacrificedManaValue
-        | ValueDef::PowerOfSingleAdditionalCostObject
         | ValueDef::TimesAdditionalCostPaid
         | ValueDef::SpellsCastThisGame(_)
         | ValueDef::TargetPower(_)
@@ -87,6 +86,7 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         | ValueDef::TargetLibrarySize(_)
         | ValueDef::LifeTotal(_)
         | ValueDef::TargetManaValue(_)
+        | ValueDef::ObjectPower(_)
         | ValueDef::ObjectManaValue(_)
         | ValueDef::DividedAmongTargets => false,
     }
@@ -145,7 +145,6 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
         | ValueDef::SpellsCastBeforeThisTurn
         | ValueDef::PlayerCounters { .. }
         | ValueDef::SacrificedManaValue
-        | ValueDef::PowerOfSingleAdditionalCostObject
         | ValueDef::TimesAdditionalCostPaid
         | ValueDef::SpellsCastThisGame(_)
         | ValueDef::CountSpellsCastThisTurn(_)
@@ -154,6 +153,7 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
         | ValueDef::TargetLibrarySize(_)
         | ValueDef::LifeTotal(_)
         | ValueDef::TargetManaValue(_)
+        | ValueDef::ObjectPower(_)
         | ValueDef::ObjectManaValue(_)
         | ValueDef::DividedAmongTargets => false,
     }

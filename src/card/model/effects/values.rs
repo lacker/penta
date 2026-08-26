@@ -317,10 +317,6 @@ pub enum ValueDef {
     /// put it on the stack. A cost that sacrifices exactly one permanent --
     /// every printed one so far -- reads that permanent's mana value.
     SacrificedManaValue,
-    /// The power of the one object spent for a spell's nonmana additional
-    /// cost, read from last-known information after that payment changes
-    /// zones. Zero unless the cast spent exactly one object.
-    PowerOfSingleAdditionalCostObject,
     /// How many objects the step before this one matched: the land cards a
     /// discard actually took. Zero without such a step behind it.
     MatchedCount,
@@ -440,6 +436,9 @@ pub enum ValueDef {
     /// The mana value of what a target slot points at, read from last-known
     /// information after a permanent or spell has left its zone.
     TargetManaValue(TargetIndex),
+    /// The power of one named object, wherever it is, using last-known
+    /// information after it leaves its zone.
+    ObjectPower(ObjectRefDef),
     /// The mana value of one named object, wherever it is. Distinct from
     /// [`Self::TargetManaValue`], which can only name a target slot: this
     /// reads a card an earlier step in the same resolution bound, which is

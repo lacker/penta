@@ -42,6 +42,7 @@ impl Game {
             },
             ObjectRefDef::ResolvingObject
             | ObjectRefDef::Binding(_)
+            | ObjectRefDef::AdditionalCostObject(_)
             | ObjectRefDef::AttachedToSource
             | ObjectRefDef::Target(_)
             | ObjectRefDef::TriggeringObject

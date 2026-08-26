@@ -68,6 +68,21 @@ impl Game {
                 })
             }
             ObjectRefDef::ResolvingObject => self.live_object_target(object.id),
+            ObjectRefDef::AdditionalCostObject(index) => object
+                .signature
+                .as_ref()
+                .and_then(|_| object.chosen_permanents.get(index.index()).copied())
+                .and_then(|paid| {
+                    self.live_object_target(paid).or_else(|| {
+                        self.retired_objects.get(&paid).map(|retired| match retired {
+                            crate::game::RetiredObject::Card(_) => Target::Card(paid),
+                            crate::game::RetiredObject::Permanent { .. } => {
+                                Target::Permanent(paid)
+                            }
+                            crate::game::RetiredObject::Stack(_) => Target::Spell(paid),
+                        })
+                    })
+                }),
             ObjectRefDef::SourceOfTargetedStackObject(target) => self
                 .targeted_stack_object_source(target, object, scoped)
                 .map(Target::Permanent),
@@ -193,6 +208,10 @@ impl Game {
                 })
             }
             ObjectRefDef::ResolvingObject => Some(object.id),
+            ObjectRefDef::AdditionalCostObject(index) => object
+                .signature
+                .as_ref()
+                .and_then(|_| object.chosen_permanents.get(index.index()).copied()),
             ObjectRefDef::Binding(binding) => {
                 context
                     .single_object(binding)

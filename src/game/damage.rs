@@ -370,6 +370,7 @@ impl Game {
             }
             ObjectRefDef::AbilityGrantSource
             | ObjectRefDef::Binding(_)
+            | ObjectRefDef::AdditionalCostObject(_)
             | ObjectRefDef::Target(_)
             | ObjectRefDef::SourceOfTargetedStackObject(_)
             | ObjectRefDef::TriggeringObject

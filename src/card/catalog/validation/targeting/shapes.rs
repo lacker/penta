@@ -353,7 +353,7 @@ fn validate_value_shape(
         | ValueDef::TargetManaValue(target) => {
             validate_target_shape(target, targets, RecipientExpectation::Object, true)
         }
-        ValueDef::ObjectManaValue(reference) => {
+        ValueDef::ObjectPower(reference) | ValueDef::ObjectManaValue(reference) => {
             validate_object_reference_shape(reference, targets)
         }
         ValueDef::CountSpellsCastThisTurn(_)
@@ -392,7 +392,6 @@ fn validate_value_shape(
         | ValueDef::SpellsCastBeforeThisTurn
         | ValueDef::PlayerCounters { .. }
         | ValueDef::SacrificedManaValue
-        | ValueDef::PowerOfSingleAdditionalCostObject
         | ValueDef::TimesAdditionalCostPaid
         | ValueDef::DividedAmongTargets => Ok(()),
     }
@@ -599,7 +598,9 @@ fn recipient_may_name_nonbattlefield_object(
             .iter()
             .any(|zone| *zone != ZoneKind::Battlefield),
         EffectRecipientSetDef::Objects(
-            ObjectSetDef::One(ObjectRefDef::Binding(_))
+            ObjectSetDef::One(
+                ObjectRefDef::Binding(_) | ObjectRefDef::AdditionalCostObject(_),
+            )
             | ObjectSetDef::Binding(_)
             | ObjectSetDef::MatchingBinding { .. }
             // A graveyard is not the battlefield, which is the whole point of
@@ -666,7 +667,9 @@ fn recipient_nonbattlefield_zones_support_flashback(
             )
         }
         EffectRecipientSetDef::Objects(
-            ObjectSetDef::One(ObjectRefDef::Binding(_))
+            ObjectSetDef::One(
+                ObjectRefDef::Binding(_) | ObjectRefDef::AdditionalCostObject(_),
+            )
             | ObjectSetDef::Binding(_)
             | ObjectSetDef::MatchingBinding { .. }
             | ObjectSetDef::LinkedExiles(_)

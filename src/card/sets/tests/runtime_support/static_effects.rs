@@ -185,6 +185,7 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
                     ObjectSetDef::One(
                         ObjectRefDef::ResolvingObject
                         | ObjectRefDef::Binding(_)
+                        | ObjectRefDef::AdditionalCostObject(_)
                         | ObjectRefDef::AbilityGrantSource
                         | ObjectRefDef::Target(_)
                         | ObjectRefDef::SourceOfTargetedStackObject(_)

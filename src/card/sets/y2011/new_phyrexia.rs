@@ -16,7 +16,7 @@ use crate::card::{
     SumValueDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
     ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::ObjectBindingIndex;
+use crate::ids::{AdditionalCostObjectIndex, ObjectBindingIndex};
 use crate::{TargetIndex, mana_cost};
 
 // NPH 1 — Karn Liberated
@@ -1624,8 +1624,9 @@ static ICHOR_EXPLOSION_COST: SpellAdditionalCostDef = SpellAdditionalCostDef::ne
     ZoneKind::Battlefield,
     1,
 );
-static NEGATIVE_ADDITIONAL_COST_POWER: ValueDef =
-    ValueDef::Negate(&ValueDef::PowerOfSingleAdditionalCostObject);
+static NEGATIVE_ADDITIONAL_COST_POWER: ValueDef = ValueDef::Negate(&ValueDef::ObjectPower(
+    ObjectRefDef::AdditionalCostObject(AdditionalCostObjectIndex::PRIMARY),
+));
 
 pub(in crate::card::sets) static ICHOR_EXPLOSION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0b207e2f-4604-43c5-bb35-a877e35ddd81"),

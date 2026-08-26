@@ -242,15 +242,6 @@ impl Game {
                 .ability
                 .as_ref()
                 .map_or(0, |ability| i32::from(ability.sacrificed_mana_value)),
-            ValueDef::PowerOfSingleAdditionalCostObject => {
-                let [spent] = object.chosen_permanents.as_slice() else {
-                    return 0;
-                };
-                object.signature.as_ref().map_or(0, |_| {
-                    self.current_or_last_known_power(*spent)
-                        .map_or(0, i32::from)
-                })
-            }
             // Resolved per target by the divided-damage path; anything else
             // reading it has no target in hand and so no share.
             // Neither has an answer while an effect resolves: nothing is
@@ -326,17 +317,15 @@ impl Game {
                     })
                     .map_or(0, i32::from)
             }
-            // "Where X is the mana value of the exiled card": read from
-            // wherever the named object is now, or from last-known
-            // information once it is gone.
+            // Characteristic reads resolve a general object reference, then
+            // consult the live object or its last-known information.
+            ValueDef::ObjectPower(reference) => self
+                .effect_object_reference_id(reference, object, context, scoped)
+                .and_then(|referenced| self.current_or_last_known_power(referenced))
+                .map_or(0, i32::from),
             ValueDef::ObjectManaValue(reference) => self
-                .object_reference_target(reference, object, context, scoped)
-                .and_then(|target| match target {
-                    Target::Permanent(id) | Target::Card(id) | Target::Spell(id) => {
-                        self.current_or_last_known_mana_value(id)
-                    }
-                    Target::Player(_) => None,
-                })
+                .effect_object_reference_id(reference, object, context, scoped)
+                .and_then(|referenced| self.current_or_last_known_mana_value(referenced))
                 .map_or(0, i32::from),
             // Zero without a payment behind it: a branch that reads this
             // outside a chosen-amount payment does nothing rather than

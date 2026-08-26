@@ -192,6 +192,28 @@ impl TargetIndex {
     }
 }
 
+/// Positional reference to an object paid for a spell's additional cost.
+///
+/// The order is the order in which the cast's object costs were paid. Unlike
+/// a target, this names the paid object itself and therefore remains useful
+/// through last-known information after payment moves it to another zone.
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct AdditionalCostObjectIndex(pub u8);
+
+impl AdditionalCostObjectIndex {
+    pub const PRIMARY: Self = Self(0);
+
+    #[must_use]
+    pub const fn index(self) -> usize {
+        self.0 as usize
+    }
+
+    #[must_use]
+    pub fn from_index(index: usize) -> Option<Self> {
+        u8::try_from(index).ok().map(Self)
+    }
+}
+
 /// Positional identity of one object binding retained while an effect
 /// resolves.
 ///

@@ -97,6 +97,7 @@ impl Game {
             ObjectRefDef::AbilityGrantSource
             | ObjectRefDef::ResolvingObject
             | ObjectRefDef::Binding(_)
+            | ObjectRefDef::AdditionalCostObject(_)
             | ObjectRefDef::Target(_)
             | ObjectRefDef::SourceOfTargetedStackObject(_) => None,
         }

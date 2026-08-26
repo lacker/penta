@@ -105,6 +105,7 @@ impl Game {
                 return;
             }
             self.apply_legend_rule();
+            self.apply_world_rule();
             self.apply_role_rule();
             self.sacrifice_completed_sagas();
             if self.battlefield.len() == battlefield_len {
@@ -315,6 +316,44 @@ impl Game {
     fn is_role_token(&self, permanent: &Permanent) -> bool {
         permanent.card.definition == ObjectKind::Token
             && self.effective_subtypes(permanent).contains(&"Role")
+    }
+
+    /// CR 704.5k: of two or more World permanents, only the one that has had
+    /// the supertype for the shortest time stays. Authored World permanents
+    /// have it for their entire battlefield lifetime, whose timestamp is
+    /// already recorded independently from object identity. Equal timestamps
+    /// mean equal durations, so the tie clause puts every World permanent into
+    /// its owner's graveyard in one simultaneous zone-change batch.
+    fn apply_world_rule(&mut self) {
+        let worlds = self
+            .battlefield
+            .iter()
+            .filter(|permanent| {
+                self.effective_rules(permanent)
+                    .is_some_and(|rules| rules.has_supertype(CardSupertype::World))
+            })
+            .map(|permanent| (permanent.card.id, permanent.timestamp))
+            .collect::<Vec<_>>();
+        if worlds.len() < 2 {
+            return;
+        }
+
+        let newest = worlds
+            .iter()
+            .map(|(_, timestamp)| *timestamp)
+            .max()
+            .expect("two World permanents have a newest timestamp");
+        let newest_count = worlds
+            .iter()
+            .filter(|(_, timestamp)| *timestamp == newest)
+            .count();
+        let doomed = worlds
+            .into_iter()
+            .filter_map(|(object, timestamp)| {
+                (newest_count > 1 || timestamp != newest).then_some(object)
+            })
+            .collect::<Vec<_>>();
+        self.move_permanents_to_graveyard(&doomed);
     }
 
     /// The legend rule as a state-based action: a player controlling two or

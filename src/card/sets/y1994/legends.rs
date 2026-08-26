@@ -2285,7 +2285,6 @@ pub(in crate::card::sets) static MOLD_DEMON: CardRecord = CardRecord::new(
 );
 
 // LEG 113 — Nether Void
-// Audit: partial — Its counter-unless-payment trigger is executable, but the world-rule state-based action is not implemented.
 pub(in crate::card::sets) static NETHER_VOID: CardRecord = CardRecord::new_with_legacy_id(
     426,
     "Nether Void",
@@ -2297,10 +2296,7 @@ pub(in crate::card::sets) static NETHER_VOID: CardRecord = CardRecord::new_with_
             "Whenever a player casts a spell, counter it unless that player pays {3}.",
             TriggerEventDef::SpellCast(ObjectPredicateDef::Any),
             abilities::counter_triggering_spell_unless_paid(ValueDef::Constant(3)),
-        )
-        .with_coverage(AbilityCoverageDef::partial(
-            "The counter trigger is executable, but the world-rule state-based action is not implemented.",
-        ))),
+        )),
 );
 
 // LEG 114 — Pit Scorpion
@@ -2408,7 +2404,6 @@ pub(in crate::card::sets) static TAKKLEMAGGOT: CardRecord = CardRecord::new(
 );
 
 // LEG 120 — The Abyss
-// Audit: partial — Its upkeep destruction is executable, but the world-rule state-based action is not implemented.
 static THE_ABYSS_DESTROY_CHOICE: EffectDef = EffectDef::Destroy {
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
     can_regenerate: false,
@@ -2422,7 +2417,7 @@ pub(in crate::card::sets) static THE_ABYSS: CardRecord = CardRecord::new_with_le
     CardSet::Legends,
     CardRules::new_enchantment(mana_cost!("{3}{B}"))
         .with_supertype(CardSupertype::World)
-        .with_abilities(&[AbilityDef::triggered(
+        .with_ability(AbilityDef::triggered(
             "At the beginning of each player's upkeep, destroy target nonartifact creature that player controls of their choice. It can't be regenerated.",
             TriggerEventDef::StepBegins {
                 step: TurnStepDef::Upkeep,
@@ -2446,10 +2441,7 @@ pub(in crate::card::sets) static THE_ABYSS: CardRecord = CardRecord::new_with_le
                 visibility: ChoiceVisibilityDef::Public,
                 then: &THE_ABYSS_DESTROY_CHOICE,
             }),
-        )
-        .with_coverage(AbilityCoverageDef::partial(
-            "The upkeep destruction is executable, but the world-rule state-based action is not implemented.",
-        ))]),
+        )),
 );
 
 // LEG 121 — The Wretched
@@ -3041,7 +3033,6 @@ pub(in crate::card::sets) static GLYPH_OF_DESTRUCTION: CardRecord = CardRecord::
 );
 
 // LEG 151 — Gravity Sphere
-// Audit: partial — Its flying-removal effect is executable, but the world-rule state-based action is not implemented.
 pub(in crate::card::sets) static GRAVITY_SPHERE: CardRecord = CardRecord::new_with_legacy_id(
     433,
     "Gravity Sphere",
@@ -3052,15 +3043,16 @@ pub(in crate::card::sets) static GRAVITY_SPHERE: CardRecord = CardRecord::new_wi
         .with_ability(AbilityDef::static_ability(
             "All creatures lose flying.",
             EffectDef::StaticApply {
-                recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::Any),
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
                 effect: AppliedEffectDef::remove_abilities(AbilityPredicateDef::Keyword(
                     KeywordAbility::Flying,
                 )),
             },
-        )
-        .with_coverage(AbilityCoverageDef::partial(
-            "Flying removal is executable, but the world-rule state-based action is not implemented.",
-        ))),
+        )),
 );
 
 // LEG 152 — Hyperion Blacksmith
@@ -3621,7 +3613,6 @@ pub(in crate::card::sets) static COCOON: CardRecord = CardRecord::new_with_legac
 );
 
 // LEG 179 — Concordant Crossroads
-// Audit: partial — Its global haste effect is executable, but the world-rule state-based action is not implemented.
 pub(in crate::card::sets) static CONCORDANT_CROSSROADS: CardRecord = CardRecord::new_with_legacy_id(
     448,
     "Concordant Crossroads",
@@ -3632,13 +3623,14 @@ pub(in crate::card::sets) static CONCORDANT_CROSSROADS: CardRecord = CardRecord:
         .with_ability(AbilityDef::static_ability(
             "All creatures have haste.",
             EffectDef::StaticApply {
-                recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::Any),
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
                 effect: AppliedEffectDef::add_ability(&abilities::haste()),
             },
-        )
-        .with_coverage(AbilityCoverageDef::partial(
-            "Haste granting is executable, but the world-rule state-based action is not implemented.",
-        ))),
+        )),
 );
 
 // LEG 180 — Craw Giant

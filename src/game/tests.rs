@@ -314,6 +314,7 @@ mod untap_source_costs;
 mod until_end_of_combat;
 mod urza_lands;
 mod venarian_gold;
+mod world_enchantments;
 
 mod vintage_cube_abhorrent_oculus;
 mod vintage_cube_abrade;

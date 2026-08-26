@@ -183,8 +183,8 @@ use continuous_state::{
 use decision_state::{
     ApplicableBeginTurnReplacement, BalanceAction, BalancePhase, BalanceTask, CounteredSpellZone,
     DecisionContinuation, DeferredBeginTurnEffect, DiscardFollowUp, DistributedSelectionProgress,
-    FORK_COPY_COLOR, PendingDecision, Pregame, PregameAbilityAction, ResolvedEffectPayment,
-    SacrificeDeclined, SacrificeFollowup, SearchFollowUp, TypedSelectionProgress, ZoneMoveCause,
+    PendingDecision, Pregame, PregameAbilityAction, ResolvedEffectPayment, SacrificeDeclined,
+    SacrificeFollowup, SearchFollowUp, TypedSelectionProgress, ZoneMoveCause,
 };
 use exile_permission::{ExilePlayCost, ExilePlayPermission};
 use mana_state::{

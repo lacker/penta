@@ -547,7 +547,14 @@ fn fork_copies_a_targetless_spell_immediately_and_preserves_its_signature() {
     let original = spell(77, cards::DARK_RITUAL, PlayerId::Two, 0);
     let signature = original.signature.clone().unwrap();
 
-    game.queue_fork_decision(PlayerId::One, original);
+    game.queue_copy_decision_chain(
+        PlayerId::One,
+        original,
+        Some(ColorSet::from_colors(&[ManaColor::Red])),
+        true,
+        "the copy",
+        1,
+    );
 
     assert!(game.pending_decisions.is_empty());
     let copied = game.stack.last().expect("the targetless copy is immediate");
@@ -561,9 +568,13 @@ fn fork_copies_a_targetless_spell_immediately_and_preserves_its_signature() {
 fn fork_can_keep_an_original_target_that_has_become_illegal() {
     let mut game = ready_game();
     let stale_target = Target::Permanent(CardInstanceId(99_999));
-    game.queue_fork_decision(
+    game.queue_copy_decision_chain(
         PlayerId::One,
         spell_with_targets(77, cards::SHATTER, PlayerId::Two, vec![stale_target], 0),
+        Some(ColorSet::from_colors(&[ManaColor::Red])),
+        true,
+        "the copy",
+        1,
     );
     let decision = game.observe(PlayerId::One).decision.unwrap();
     assert!(

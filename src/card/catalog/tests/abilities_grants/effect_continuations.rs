@@ -65,6 +65,7 @@ fn catalog_validation_follows_nested_token_and_grant_continuations() {
     .with_name("Broken Land");
     static CREATE: EffectDef = EffectDef::CreateToken {
         token: INCOHERENT_TOKEN,
+        copy: None,
         controller: None,
         count: ValueDef::Constant(1),
         tapped: false,

@@ -352,7 +352,7 @@ fn continuation_snapshot(
             spell: detached_stack_snapshot_allowing(game, viewer, spell, visible_rebindings)?,
             targets: targets.iter().copied().map(target_snapshot).collect(),
         },
-        DecisionContinuation::Fork {
+        DecisionContinuation::CopyStackObject {
             colors,
             remaining,
             player,
@@ -591,11 +591,22 @@ fn continuation_snapshot(
             choices,
             added_types,
             retain_printed_subtypes,
+            base_power_toughness,
+            colors,
+            added_creature_types,
+            no_mana_cost,
             added_abilities,
         } => DecisionContinuationSnapshot::BattlefieldEntryCopy {
             choices: ids(choices),
             added_types: CardType::ALL.map(|card_type| added_types.contains(card_type)),
             retain_printed_subtypes: *retain_printed_subtypes,
+            base_power_toughness: base_power_toughness.map(|(power, toughness)| [power, toughness]),
+            colors: colors.map(crate::card::ColorSet::to_flags),
+            added_creature_types: added_creature_types
+                .iter()
+                .map(ToString::to_string)
+                .collect(),
+            no_mana_cost: *no_mana_cost,
             added_abilities: added_abilities
                 .iter()
                 .map(|ability| copiable_ability_snapshot(&game.catalog, ability))

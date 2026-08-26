@@ -472,6 +472,7 @@ static PYROMANCER_ELEMENTAL: TokenCharacteristics =
 
 static PYROMANCER_MAKES_TOKENS: EffectDef = EffectDef::CreateToken {
     token: PYROMANCER_ELEMENTAL,
+    copy: None,
     controller: None,
     count: ValueDef::MatchedCount,
     tapped: false,
@@ -501,6 +502,7 @@ static PYROMANCER_GRAVEYARD_COST: [AbilityCostDef; 2] = [
 
 static PYROMANCER_MAKES_TWO: EffectDef = EffectDef::CreateToken {
     token: PYROMANCER_ELEMENTAL,
+    copy: None,
     controller: None,
     count: ValueDef::Constant(2),
     tapped: false,

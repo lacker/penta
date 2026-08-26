@@ -450,6 +450,53 @@ fn an_entering_copy_reconstructs_while_choosing_and_after_it_has_copied() {
     assert_reconstructs(&game, "a permanent that entered as a copy");
 }
 
+/// Copy exceptions belong to the entry decision as well as the finished
+/// permanent. A checkpoint taken before the choice must preserve the color
+/// replacement and the nested ability that will become copiable values.
+#[test]
+fn an_entering_copy_with_added_characteristics_reconstructs() {
+    let mut game = staged_game();
+    game.battlefield.push(creature(
+        12_010,
+        crate::card::cards::SERRA_ANGEL,
+        PlayerId::Two,
+    ));
+    let copy = card(
+        11_010,
+        crate::card::cards::VESUVAN_DOPPELGANGER,
+        PlayerId::One,
+    );
+    let copy_id = copy.id;
+    game.players[PlayerId::One.index()].hand.push(copy);
+    fill_mana(&mut game, PlayerId::One, 6);
+
+    game.apply(
+        PlayerId::One,
+        Action::CastSpell {
+            card: copy_id,
+            choices: crate::CastChoices::default(),
+            sacrifices: Vec::new(),
+        },
+    )
+    .expect("Vesuvan Doppelganger is castable");
+    resolve_top_of_stack(&mut game);
+    assert_reconstructs(&game, "a copy choice carrying arbitrary additions");
+
+    answer_with_option_naming(&mut game, GameObjectId(12_010));
+    let copied = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.definition == crate::card::cards::VESUVAN_DOPPELGANGER)
+        .expect("the Doppelganger entered");
+    let values = copied.copy_effect.as_ref().expect("it copied the Angel");
+    assert_eq!(
+        values.colors,
+        Some(crate::card::ColorSet::from_colors(&[ManaColor::Blue]))
+    );
+    assert_eq!(values.added_abilities.len(), 1);
+    assert_reconstructs(&game, "a copied permanent carrying arbitrary additions");
+}
+
 /// A permanent that named a card as it entered carries that name for the rest
 /// of the game. The name is free text rather than a catalog id, so it is the
 /// one piece of permanent state a locator cannot address.

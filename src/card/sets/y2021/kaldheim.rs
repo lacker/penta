@@ -3,9 +3,9 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef, CardArt,
-    CardRules, CardSet, CardSupertype, CardType, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRelation, TokenCopyExceptionsDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    CardRules, CardSet, CardSupertype, CardType, CopyExceptionsDef, EffectDef, EffectRecipientDef,
+    ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRelation, TriggerEventDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -217,12 +217,11 @@ static A_TOKEN_YOU_CONTROL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_o
     ]),
 )];
 
-static CHARIOT_COPIES_A_TOKEN: EffectDef = EffectDef::CreateTokenCopyOf {
-    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    exceptions: TokenCopyExceptionsDef::NONE,
-    controller: None,
-    created: None,
-};
+static CHARIOT_COPIES_A_TOKEN: EffectDef =
+    EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
+        object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        exceptions: CopyExceptionsDef::NONE,
+    });
 
 static ESIKA_S_CHARIOT_ABILITIES: [AbilityDef; 3] = [
     abilities::enters_trigger(

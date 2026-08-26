@@ -1126,10 +1126,12 @@ pub(in crate::card::sets) static GRIM_LAVAMANCER: CardRecord = CardRecord::new_w
             &[
                 AbilityCostDef::Mana(mana_cost!("{R}")),
                 AbilityCostDef::TapSource,
-                AbilityCostDef::ExileCardsFromGraveyard {
-                    object: ObjectPredicateDef::Any,
-                    count: 2,
-                },
+                AbilityCostDef::MoveToZone(crate::card::MoveToZoneCostDef::new(
+                    ObjectPredicateDef::Any,
+                    ZoneKind::Graveyard,
+                    ZoneKind::Exile,
+                    2,
+                )),
             ],
             &ANY_TARGET,
             EffectDef::DealDamage {

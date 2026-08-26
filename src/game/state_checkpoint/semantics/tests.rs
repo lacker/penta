@@ -28,6 +28,7 @@ static NESTED_TOKEN: TokenCharacteristics =
     TokenCharacteristics::creature(&["Test"], &[], 1, 1).with_name("Nested Walker Test");
 static CREATE_TOKEN: EffectDef = EffectDef::CreateToken {
     token: NESTED_TOKEN,
+    copy: None,
     controller: None,
     count: ValueDef::Constant(1),
     tapped: false,

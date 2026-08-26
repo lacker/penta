@@ -1,5 +1,5 @@
 use super::*;
-use crate::card::TopCardSelectionDef;
+use crate::card::{CopyAbilityDef, TopCardSelectionDef};
 
 fn trigger_predicate_requires_live_battlefield(predicate: ObjectPredicateDef) -> bool {
     match predicate {
@@ -234,13 +234,16 @@ pub(super) fn shared_entry_replacement_effect(effect: ReplacementEffectDef) -> b
         ReplacementEffectDef::ModifyBattlefieldEntry(_)
         | ReplacementEffectDef::Choose(_)
         | ReplacementEffectDef::LookAtHand(_)
-        | ReplacementEffectDef::CopyEntering { .. }
         // The entering card goes somewhere else instead. Only the zones a
         // card can actually be sent to are inside the boundary; a redirect
         // back onto the battlefield would be the entry it replaced.
         | ReplacementEffectDef::MoveToZone(
             ZoneKind::Graveyard | ZoneKind::Exile | ZoneKind::Hand | ZoneKind::Library,
         ) => true,
+        ReplacementEffectDef::CopyEntering { exceptions, .. } => exceptions
+            .added_abilities
+            .iter()
+            .all(|addition| matches!(addition, CopyAbilityDef::Ability(_))),
         ReplacementEffectDef::Sequence(effects) => {
             !effects.is_empty() && effects.iter().copied().all(shared_entry_replacement_effect)
         }
@@ -455,6 +458,22 @@ pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effe
         EffectDef::LookAtTopAndSelect { selection, .. } => {
             assert_nested_selection_abilities(card_name, *selection);
         }
+        EffectDef::BecomeCopyOf { exceptions, .. } => {
+            for addition in exceptions.added_abilities {
+                if let CopyAbilityDef::Ability(ability) = addition {
+                    assert_nested_installed_ability(card_name, ability);
+                }
+            }
+        }
+        EffectDef::CreateToken {
+            copy: Some(copy), ..
+        } => {
+            for addition in copy.exceptions.added_abilities {
+                if let CopyAbilityDef::Ability(ability) = addition {
+                    assert_nested_installed_ability(card_name, ability);
+                }
+            }
+        }
         _ => {}
     }
     for child in crate::card::child_effects(effect) {
@@ -504,8 +523,14 @@ pub(in super::super) fn assert_nested_replacement_definition_abilities(
         | ReplacementEffectDef::MultiplyEventAmount(_)
         | ReplacementEffectDef::AddToEventAmount(_)
         | ReplacementEffectDef::Choose(_)
-        | ReplacementEffectDef::LookAtHand(_)
-        | ReplacementEffectDef::CopyEntering { .. } => {}
+        | ReplacementEffectDef::LookAtHand(_) => {}
+        ReplacementEffectDef::CopyEntering { exceptions, .. } => {
+            for addition in exceptions.added_abilities {
+                if let CopyAbilityDef::Ability(ability) = addition {
+                    assert_nested_installed_ability(card_name, ability);
+                }
+            }
+        }
     }
 }
 

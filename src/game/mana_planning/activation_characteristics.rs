@@ -106,4 +106,41 @@ impl Game {
         }
         has_mana_cost.then_some(cost)
     }
+
+    /// The complete mana portion of an activation after its object cost has
+    /// been chosen. Ordinary printed mana is static; a linked card cost is
+    /// deliberately priced only now, so each graveyard choice can expose a
+    /// different legal activation.
+    pub(super) fn activated_ability_mana_cost_for(
+        &self,
+        definition: &ActivatedAbilityDef,
+        cost_objects: &[GameObjectId],
+    ) -> Option<ManaCost> {
+        let mut cost = ManaCost::default();
+        let mut has_mana_cost = false;
+        for ability_cost in definition.costs.as_slice() {
+            match ability_cost {
+                AbilityCostDef::Mana(mana) => {
+                    cost = add_mana_cost(cost, *mana);
+                    has_mana_cost = true;
+                }
+                AbilityCostDef::ManaCostOf(ObjectRefDef::Binding(binding)) => {
+                    let _movement = definition.costs.iter().find_map(|cost| {
+                        let AbilityCostDef::MoveToZone(movement) = cost else {
+                            return None;
+                        };
+                        (movement.binding == Some(*binding)).then_some(movement)
+                    })?;
+                    let chosen = *cost_objects.first()?;
+                    let (_, card) = self.card_in_nonbattlefield_zone(chosen)?;
+                    let mana = self.catalog.get(card.definition)?.rules.mana_cost()?;
+                    cost = add_mana_cost(cost, mana);
+                    has_mana_cost = true;
+                }
+                AbilityCostDef::ManaCostOf(_) => return None,
+                _ => {}
+            }
+        }
+        has_mana_cost.then_some(cost)
+    }
 }

@@ -799,6 +799,7 @@ pub(super) fn child_abilities(ability: &AbilityDef) -> Vec<&AbilityDef> {
             for child in replacement_child_effects(effect) {
                 collect_effect_abilities(child, &mut children);
             }
+            collect_replacement_copy_abilities(effect, &mut children);
         }
     }
     children
@@ -834,10 +835,73 @@ fn collect_effect_abilities(effect: EffectDef, abilities: &mut Vec<&'static Abil
         EffectDef::InstallTrigger(installed) => abilities.push(installed.ability),
         EffectDef::CreateOngoingEffect(ongoing) => abilities.push(ongoing.ability),
         EffectDef::MayCastTargetWithoutPaying { ability, .. } => abilities.push(ability),
+        EffectDef::BecomeCopyOf { exceptions, .. } => {
+            abilities.extend(exceptions.added_abilities.iter().filter_map(
+                |addition| match addition {
+                    crate::card::CopyAbilityDef::This => None,
+                    crate::card::CopyAbilityDef::Ability(ability) => Some(*ability),
+                },
+            ));
+        }
+        EffectDef::CreateToken {
+            copy: Some(copy), ..
+        } => {
+            abilities.extend(
+                copy.exceptions
+                    .added_abilities
+                    .iter()
+                    .filter_map(|addition| match addition {
+                        crate::card::CopyAbilityDef::This => None,
+                        crate::card::CopyAbilityDef::Ability(ability) => Some(*ability),
+                    }),
+            );
+        }
         _ => {}
     }
     for child in child_effects(effect) {
         collect_effect_abilities(child, abilities);
+    }
+}
+
+fn collect_replacement_copy_abilities(
+    effect: ReplacementEffectDef,
+    abilities: &mut Vec<&'static AbilityDef>,
+) {
+    match effect {
+        ReplacementEffectDef::Sequence(effects) => {
+            for effect in effects {
+                collect_replacement_copy_abilities(*effect, abilities);
+            }
+        }
+        ReplacementEffectDef::Conditional {
+            if_true, if_false, ..
+        }
+        | ReplacementEffectDef::PayOr {
+            if_paid: if_true,
+            if_declined: if_false,
+            ..
+        } => {
+            for effect in if_true.iter().chain(if_false.iter()) {
+                collect_replacement_copy_abilities(*effect, abilities);
+            }
+        }
+        ReplacementEffectDef::CopyEntering { exceptions, .. } => {
+            abilities.extend(exceptions.added_abilities.iter().filter_map(
+                |addition| match addition {
+                    crate::card::CopyAbilityDef::This => None,
+                    crate::card::CopyAbilityDef::Ability(ability) => Some(*ability),
+                },
+            ));
+        }
+        ReplacementEffectDef::Perform(_)
+        | ReplacementEffectDef::ReplaceEventWithNothing
+        | ReplacementEffectDef::MoveToZone(_)
+        | ReplacementEffectDef::ModifyBattlefieldEntry(_)
+        | ReplacementEffectDef::PlaceCountersOnMovedObject { .. }
+        | ReplacementEffectDef::MultiplyEventAmount(_)
+        | ReplacementEffectDef::AddToEventAmount(_)
+        | ReplacementEffectDef::Choose(_)
+        | ReplacementEffectDef::LookAtHand(_) => {}
     }
 }
 fn collect_applied_abilities(effect: AppliedEffectDef, abilities: &mut Vec<&'static AbilityDef>) {

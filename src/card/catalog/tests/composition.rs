@@ -70,6 +70,7 @@ fn creator_owned_token_rules_receive_catalog_composition_validation() {
         &[],
         EffectDef::CreateToken {
             token: INCOHERENT_TOKEN,
+            copy: None,
             controller: None,
             count: ValueDef::Constant(1),
             tapped: false,

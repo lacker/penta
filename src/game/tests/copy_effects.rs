@@ -245,7 +245,7 @@ fn stage_keeps_a_resolved_factory_animation_after_copying_another_land() {
     game.players[0].mana_pool.colorless = 1;
     assert!(
         game.legal_actions(PlayerId::One).contains(&animate),
-        "the copied Factory animation coexists with Stage's retained ability",
+        "the copied Factory animation coexists with Stage's added copy ability",
     );
     game.apply(PlayerId::One, animate).unwrap();
     drain_pending(&mut game);
@@ -261,13 +261,13 @@ fn stage_keeps_a_resolved_factory_animation_after_copying_another_land() {
         "the animation is represented by resolved characteristic leaves"
     );
 
-    let retained_copy_ability = activated_ability_for(&game, stage_id, 2);
+    let added_copy_ability = activated_ability_for(&game, stage_id, 2);
     game.players[0].mana_pool.colorless = 2;
     game.apply(
         PlayerId::One,
         Action::ActivateAbility {
             source: stage_id,
-            ability: retained_copy_ability,
+            ability: added_copy_ability,
             targets: activated_targets(Target::Permanent(mountain_id)),
             cost_objects: Vec::new(),
             x: 0,

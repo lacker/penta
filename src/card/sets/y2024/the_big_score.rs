@@ -3,9 +3,9 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, PlayerRefDef, PlayerRelation,
-    ResolvedEffectDurationDef, TokenCopyExceptionsDef, TriggerConditionDef, TriggerEventDef,
+    AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet,
+    CopyExceptionsDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef,
+    PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
     TurnStepDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
@@ -284,12 +284,12 @@ static TYRANT_IS_NOT_A_TOKEN: TriggerConditionDef = TriggerConditionDef::SourceM
 /// The copy is of the creature as it last existed on the battlefield
 /// (CR 608.2h), which is why a Tyrant that grew before it died comes back
 /// the size it was.
-static TYRANT_COPIES_ITSELF: EffectDef = EffectDef::CreateTokenCopyOf {
-    object: EffectRecipientDef::Source,
-    exceptions: TokenCopyExceptionsDef::with_added_types(CardTypeSet::single(CardType::Artifact)),
-    controller: None,
-    created: None,
-};
+static TYRANT_COPIES_ITSELF: EffectDef =
+    EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
+        object: &EffectRecipientDef::Source,
+        exceptions: CopyExceptionsDef::NONE
+            .with_added_types(CardTypeSet::single(CardType::Artifact)),
+    });
 
 static VAULTBORN_TYRANT_ABILITIES: [AbilityDef; 3] = [
     abilities::trample(),

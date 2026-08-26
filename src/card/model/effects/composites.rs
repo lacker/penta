@@ -214,6 +214,30 @@ pub struct CreatedTokensDef {
     pub then: &'static EffectDef,
 }
 
+/// Copiable values used as the base of a token creation instruction.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct TokenCopyDef {
+    /// The source is static catalog data like the effect itself; keeping the
+    /// recipient behind a reference prevents optional copy initialization
+    /// from enlarging every ordinary authored-token instruction.
+    pub object: &'static EffectRecipientDef,
+    pub exceptions: CopyExceptionsDef,
+}
+
+/// One stack-copy operation. Kept behind a static reference in [`EffectDef`]
+/// so the rich recipient and copy-process options do not enlarge every effect
+/// value in the catalog and runtime.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct CopyStackObjectDef {
+    pub object: EffectRecipientDef,
+    pub controller: PlayerRefDef,
+    pub count: ValueDef,
+    /// Whether each copy's controller may choose new targets.
+    pub retarget: bool,
+    /// A copy-process color override. Fork is the canonical case.
+    pub colors: Option<ColorSet>,
+}
+
 /// What follows a destruction, with the permanents actually put into graveyards saved for it.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct DestroyFollowUpDef {
@@ -379,14 +403,27 @@ pub enum ExilePlayDurationDef {
     WhileExiled,
 }
 
-/// What a token copy is created "except" for.
+/// What a copy is created or becomes "except" for.
 ///
-/// Offspring names one of these and embalm and eternalize name four, but
-/// they are the same kind of thing: copy exceptions, which CR 707.9a makes
-/// copiable values in their own right. A later copy of the token copies
-/// them along with everything else.
+/// Thespian's Stage adds an ability, Quicksilver Gargantuan replaces power
+/// and toughness, and embalm and eternalize name several exceptions at once.
+/// They are the same kind of thing: copy-process exceptions, which CR 707.9a
+/// makes copiable values in their own right. A later copy copies them along
+/// with everything else.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct TokenCopyExceptionsDef {
+pub enum CopyAbilityDef {
+    /// The resolving activated or triggered ability whose effect is currently
+    /// making the copy. This is a reference rather than a recursive
+    /// definition, so "except it has this ability" does not build an infinite
+    /// declarative tree. Entry replacements use [`Self::Ability`] because
+    /// they do not resolve on the stack.
+    This,
+    /// A separately authored ability the copy gains.
+    Ability(&'static AbilityDef),
+}
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct CopyExceptionsDef {
     /// "Except it's a 1/1", or a 4/4.
     pub base_power_toughness: Option<(i16, i16)>,
     /// "Except it's black": the colours it has instead of the ones it
@@ -403,14 +440,13 @@ pub struct TokenCopyExceptionsDef {
     /// "With no mana cost", which is what makes an eternalized card's mana
     /// value zero.
     pub no_mana_cost: bool,
-    /// "Except it has haste": an ability the copy has on top of the ones it
-    /// copied. It is part of what the token copies rather than something
-    /// granted to it afterwards (CR 707.9a), so a copy of the copy has it
-    /// too.
-    pub added_ability: Option<&'static AbilityDef>,
+    /// Abilities the copy has in addition to the copied ones. References let
+    /// an ability add itself -- the exact shape of Thespian's Stage's "except
+    /// it has this ability" -- as well as name arbitrary nested abilities.
+    pub added_abilities: &'static [CopyAbilityDef],
 }
 
-impl TokenCopyExceptionsDef {
+impl CopyExceptionsDef {
     /// A plain copy, with nothing said after "except".
     pub const NONE: Self = Self {
         base_power_toughness: None,
@@ -418,25 +454,39 @@ impl TokenCopyExceptionsDef {
         added_creature_types: CreatureTypeSetDef::named(&[]),
         added_types: CardTypeSet::empty(),
         no_mana_cost: false,
-        added_ability: None,
+        added_abilities: &[],
     };
 
     /// "Except it's an artifact in addition to its other types."
     #[must_use]
-    pub const fn with_added_types(added_types: CardTypeSet) -> Self {
-        Self {
-            added_types,
-            ..Self::NONE
-        }
+    pub const fn with_added_types(mut self, added_types: CardTypeSet) -> Self {
+        self.added_types = added_types;
+        self
     }
 
-    /// "Except it has haste", and its relatives.
+    /// "Except it's blue", and its relatives.
     #[must_use]
-    pub const fn with_ability(ability: &'static AbilityDef) -> Self {
-        Self {
-            added_ability: Some(ability),
-            ..Self::NONE
-        }
+    pub const fn with_colors(mut self, colors: ColorSet) -> Self {
+        self.colors = Some(colors);
+        self
+    }
+
+    /// "Except it's a Spirit in addition to its other types."
+    #[must_use]
+    pub const fn with_added_creature_types(
+        mut self,
+        added_creature_types: &'static [&'static str],
+    ) -> Self {
+        self.added_creature_types = CreatureTypeSetDef::named(added_creature_types);
+        self
+    }
+
+    /// "Except it has haste", "except it has this ability", and their
+    /// multi-ability relatives.
+    #[must_use]
+    pub const fn with_abilities(mut self, added_abilities: &'static [CopyAbilityDef]) -> Self {
+        self.added_abilities = added_abilities;
+        self
     }
 
     #[must_use]
@@ -462,7 +512,7 @@ impl TokenCopyExceptionsDef {
             added_creature_types: CreatureTypeSetDef::named(added_creature_types),
             added_types: CardTypeSet::empty(),
             no_mana_cost: true,
-            added_ability: None,
+            added_abilities: &[],
         }
     }
 }

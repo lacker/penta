@@ -180,11 +180,34 @@ fn parse_battlefield_entry_continuation(
             choices,
             added_types,
             retain_printed_subtypes,
+            base_power_toughness,
+            colors,
+            added_creature_types,
+            no_mana_cost,
             added_abilities,
         } => DecisionContinuation::BattlefieldEntryCopy {
             choices: game_ids(choices),
             added_types: parse_card_type_set(*added_types),
             retain_printed_subtypes: *retain_printed_subtypes,
+            base_power_toughness: base_power_toughness.map(|stats| (stats[0], stats[1])),
+            colors: colors.map(|flags| {
+                let mut colors = crate::card::ColorSet::empty();
+                for (color, present) in crate::card::ManaColor::COLORS.into_iter().zip(flags) {
+                    if present {
+                        colors = colors.with(color);
+                    }
+                }
+                colors
+            }),
+            added_creature_types: added_creature_types
+                .iter()
+                .map(|name| {
+                    crate::card::creature_type_name(name).ok_or_else(|| {
+                        "checkpoint entry copy names an unknown creature type".to_owned()
+                    })
+                })
+                .collect::<Result<Vec<_>, String>>()?,
+            no_mana_cost: *no_mana_cost,
             added_abilities: added_abilities
                 .iter()
                 .map(|ability| parse_copiable_ability(ability, &game.catalog))

@@ -5,11 +5,11 @@ use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CardTypeSet, DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    ObjectRefDef, PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef, TriggerEventDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    CopyAbilityDef, CopyExceptionsDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
+    ManaColor, ObjectPredicateDef, ObjectRefDef, PlayerRelation, ReplacementEffectDef,
+    ResolvedEffectDurationDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::{AbilityId, TargetIndex};
+use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 // M12 1 — Aegis Angel
@@ -820,10 +820,17 @@ pub(in crate::card::sets) static PHANTASMAL_DRAGON: CardRecord = CardRecord::new
 );
 
 // M12 72 — Phantasmal Image
-/// The copy keeps the Image's own subtype line and its own second ability:
-/// the card is printed as an Illusion and prints the sacrifice clause, so
-/// "except it's an Illusion in addition to its other types and it has ..."
-/// names nothing the card does not already say.
+static PHANTASMAL_IMAGE_SACRIFICE: AbilityDef = AbilityDef::triggered(
+    "When this creature becomes the target of a spell or ability, sacrifice it.",
+    TriggerEventDef::BecomesTargetOfSpellOrAbility(ObjectPredicateDef::Any),
+    EffectDef::Sacrifice {
+        object: EffectRecipientDef::Source,
+    },
+);
+
+static PHANTASMAL_IMAGE_COPY_ABILITIES: [CopyAbilityDef; 1] =
+    [CopyAbilityDef::Ability(&PHANTASMAL_IMAGE_SACRIFICE)];
+
 static PHANTASMAL_IMAGE_ABILITIES: [AbilityDef; 2] = [
     AbilityDef::replacement(
         "You may have this creature enter as a copy of any creature on the battlefield, except \
@@ -831,23 +838,12 @@ static PHANTASMAL_IMAGE_ABILITIES: [AbilityDef; 2] = [
          the target of a spell or ability, sacrifice it.\"",
         ReplacementEffectDef::CopyEntering {
             object: ObjectPredicateDef::HasType(CardType::Creature),
-            added_types: CardTypeSet::empty(),
-            retain_printed_subtypes: true,
-            retained_abilities: &[AbilityId(1)],
+            exceptions: CopyExceptionsDef::NONE
+                .with_added_creature_types(&["Illusion"])
+                .with_abilities(&PHANTASMAL_IMAGE_COPY_ABILITIES),
         },
     ),
-    // Printed on the Image rather than granted by the copy, which is what
-    // lets the copy hand it back: an Image that enters as itself is a 0/0
-    // and dies before this matters.
-    AbilityDef::triggered(
-        "When this creature becomes the target of a spell or ability, sacrifice it.",
-        // The predicate reads the spell or ability doing the pointing, not
-        // the permanent being pointed at: anything at all sets this off.
-        TriggerEventDef::BecomesTargetOfSpellOrAbility(ObjectPredicateDef::Any),
-        EffectDef::Sacrifice {
-            object: EffectRecipientDef::Source,
-        },
-    ),
+    PHANTASMAL_IMAGE_SACRIFICE,
 ];
 
 pub(in crate::card::sets) static PHANTASMAL_IMAGE: CardRecord = CardRecord::new_with_legacy_id(

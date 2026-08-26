@@ -60,6 +60,20 @@ impl Game {
         targets: Vec<TargetSelection>,
         chosen_permanents: Vec<GameObjectId>,
     ) -> GameObjectId {
+        let mut context: super::EffectResolutionContext = TriggerContext::empty().into();
+        if let Some((binding, chosen)) = frozen.definition.as_ref().and_then(|ability| {
+            let DeclarativeAbilityDef::Activated(definition) = ability.definition else {
+                return None;
+            };
+            definition.costs.iter().find_map(|cost| {
+                let AbilityCostDef::MoveToZone(movement) = cost else {
+                    return None;
+                };
+                Some((movement.binding?, *chosen_permanents.last()?))
+            })
+        }) {
+            context.bind_single_object(binding, self.live_object_target(chosen));
+        }
         self.push_activated_ability_with_context(
             source,
             source_card.owner,
@@ -67,7 +81,7 @@ impl Game {
             frozen,
             targets,
             chosen_permanents,
-            TriggerContext::empty().into(),
+            context,
         )
     }
 
@@ -223,7 +237,7 @@ impl Game {
                 if only_open_abilities && !definition.any_player_may_activate {
                     return;
                 }
-                // Copy-process exceptions can retain an activated ability
+                // Copy-process exceptions can add an activated ability
                 // whose structural origin is already present in the copied
                 // values. Actions identify an ability by that origin, so a
                 // consecutive repeat is externally indistinguishable and
@@ -359,6 +373,7 @@ impl Game {
                         // Always payable: a hand of nothing discards nothing,
                         // which is a legal way to pay it.
                         | AbilityCostDef::DiscardHand
+                        | AbilityCostDef::ManaCostOf(_)
                         | AbilityCostDef::TapSource
                         // Always payable: what it spends is a future untap
                         // step, and the permanent has one whatever state it
@@ -375,7 +390,7 @@ impl Game {
                 | AbilityCostDef::TapPermanent { .. }
                         // Payability is decided by whether any card qualifies,
                         // which the choice list below answers.
-                        | AbilityCostDef::ExileCardsFromGraveyard { .. }
+                        | AbilityCostDef::MoveToZone(_)
                         | AbilityCostDef::DiscardCardMatching(_)
                         | AbilityCostDef::ExileCardFromHand(_) => false,
                         AbilityCostDef::DiscardSource
@@ -410,7 +425,7 @@ impl Game {
                             | AbilityCostDef::SacrificePermanents { .. }
                             | AbilityCostDef::ReturnUnblockedAttackerToHand
                             | AbilityCostDef::TapPermanent { .. }
-                            | AbilityCostDef::ExileCardsFromGraveyard { .. }
+                            | AbilityCostDef::MoveToZone(_)
                             | AbilityCostDef::DiscardCardMatching(_)
                             | AbilityCostDef::ExileCardFromHand(_)
                     )
@@ -421,8 +436,6 @@ impl Game {
                 }
                 let taps_chosen_permanent =
                     matches!(object_cost, Some(AbilityCostDef::TapPermanent { .. }));
-                let payable_mana_cost = Self::activated_ability_mana_cost(&definition)
-                    .map(|cost| self.activation_mana_cost(&definition, permanent.card.id, cost));
                 let cost_object_choices = match object_cost {
                     None => vec![Vec::new()],
                     Some(AbilityCostDef::SacrificePermanent { object, controller }) => self
@@ -471,13 +484,13 @@ impl Game {
                         .collect(),
                     // The one cost that can name more than one card, so every
                     // combination of that many is its own activation.
-                    Some(AbilityCostDef::ExileCardsFromGraveyard { object, count }) => {
+                    Some(AbilityCostDef::MoveToZone(movement)) => {
                         let candidates: Vec<GameObjectId> = self.players[player.index()]
                             .graveyard
                             .iter()
                             .filter(|card| {
                                 self.card_object_matches(
-                                    *object,
+                                    movement.object,
                                     card,
                                     ZoneKind::Graveyard,
                                     permanent.card.id,
@@ -485,7 +498,7 @@ impl Game {
                             })
                             .map(|card| card.id)
                             .collect();
-                        Self::object_combinations(&candidates, usize::from(*count))
+                        Self::object_combinations(&candidates, usize::from(movement.count))
                     }
                     Some(AbilityCostDef::DiscardCardMatching(object)) => self.players
                         [player.index()]
@@ -594,6 +607,23 @@ impl Game {
                                 continue;
                             }
                             for cost_objects in &cost_object_choices {
+                                let payable_mana_cost = self
+                                    .activated_ability_mana_cost_for(&definition, cost_objects)
+                                    .map(|cost| {
+                                        self.activation_mana_cost(
+                                            &definition,
+                                            permanent.card.id,
+                                            cost,
+                                        )
+                                    });
+                                if definition
+                                    .costs
+                                    .iter()
+                                    .any(|cost| matches!(cost, AbilityCostDef::ManaCostOf(_)))
+                                    && payable_mana_cost.is_none()
+                                {
+                                    continue;
+                                }
                                 // A permanent tapped as part of this cost cannot
                                 // also activate its tap-for-mana ability. Other
                                 // object costs deliberately remain available as

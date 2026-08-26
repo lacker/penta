@@ -1,4 +1,6 @@
-use crate::card::{AbilityDef, CardArt, ManaColor, TokenCharacteristics, TokenStatsDef};
+use crate::card::{
+    AbilityDef, CardArt, CardTypeSet, ManaColor, TokenCharacteristics, TokenCopyDef, TokenStatsDef,
+};
 
 use super::{CreatedTokensDef, EffectDef, PlayerRefDef, TokenCountersDef, ValueDef};
 
@@ -46,6 +48,23 @@ impl EffectDef {
     pub const fn create_token(token: TokenCharacteristics) -> Self {
         Self::CreateToken {
             token,
+            copy: None,
+            controller: None,
+            count: ValueDef::Constant(1),
+            tapped: false,
+            attacking: false,
+            counters: None,
+            created: None,
+        }
+    }
+
+    /// Creates one token whose base characteristics are copied from the
+    /// named object before the token enters the battlefield.
+    #[must_use]
+    pub const fn create_token_from_copy(copy: &'static TokenCopyDef) -> Self {
+        Self::CreateToken {
+            token: TokenCharacteristics::new(CardTypeSet::EMPTY, &[], &[], None),
+            copy: Some(copy),
             controller: None,
             count: ValueDef::Constant(1),
             tapped: false,
@@ -209,7 +228,10 @@ impl EffectDef {
 
     const fn authored_token_mut(&mut self) -> &mut TokenCharacteristics {
         match self {
-            Self::CreateToken { token, .. } | Self::CreateAttachedToken { token, .. } => token,
+            Self::CreateToken {
+                token, copy: None, ..
+            }
+            | Self::CreateAttachedToken { token, .. } => token,
             _ => panic!("token modifier requires authored token characteristics"),
         }
     }
@@ -240,6 +262,7 @@ mod tests {
             attacking,
             counters,
             created,
+            copy: _,
         } = KRENKOS_COMMAND
         else {
             panic!("the creature-token factory should create a token effect");

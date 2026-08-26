@@ -8,15 +8,15 @@ use crate::card::{
     ActivationTimingDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
     BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorChoiceOperationDef, ColorSet, ComparisonDef,
-    ControlDurationDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef,
-    DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef,
-    DividedTotal, EffectDef, EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor,
-    MillUntilDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
-    QuantifierDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    SacrificedAmountDef, SumValueDef, TargetChooserDef, TokenCopyExceptionsDef,
-    TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnPhaseDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    ControlDurationDef, CopyAbilityDef, CopyExceptionsDef, CounterKind, CreatureTypeSetDef,
+    DamageEventMatcherDef, DamageKindDef, DamagePreventionDef, DamageRecipientMatcherDef,
+    DamageSourceMatcherDef, DiscardSelectionDef, DividedTotal, EffectDef, EffectRecipientDef,
+    InstalledTriggerDef, KeywordAbility, ManaColor, MillUntilDef, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayActionMatcherDef,
+    PlayRestrictionDef, PlayerRefDef, PlayerRelation, QuantifierDef, ReplacementEffectDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef, SumValueDef,
+    TargetChooserDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnPhaseDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -2576,12 +2576,10 @@ pub(in crate::card::sets) static GIANT_ADEPHAGE: CardRecord = CardRecord::new_wi
         AbilityDef::triggered(
             "Whenever this creature deals combat damage to a player, create a token that's a copy of this creature.",
             TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
-            EffectDef::CreateTokenCopyOf {
-                object: EffectRecipientDef::Source,
-                exceptions: TokenCopyExceptionsDef::NONE,
-                controller: None,
-                created: None,
-            },
+            EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
+                object: &EffectRecipientDef::Source,
+                exceptions: CopyExceptionsDef::NONE,
+            }),
         ),
     ]),
 );
@@ -3076,7 +3074,7 @@ pub(in crate::card::sets) static BANE_ALLEY_BROKER: CardRecord = CardRecord::new
 // GTC 146 — Biovisionary
 static FOUR_BIOVISIONARIES: TriggerConditionDef = TriggerConditionDef::ObjectCount {
     query: ObjectQueryDef::matching(
-        ObjectPredicateDef::SharesNameWithSource,
+        ObjectPredicateDef::HasName(ObjectRefDef::Source),
         &[ZoneKind::Battlefield],
         PlayerRelation::You,
     ),
@@ -5239,6 +5237,28 @@ pub(in crate::card::sets) static STOMPING_GROUND: CardRecord = CardRecord::new_w
 );
 
 // GTC 248 — Thespian's Stage
+static THESPIANS_STAGE_COPY: AbilityDef = AbilityDef::activated_with_targets(
+    "{2}, {T}: This land becomes a copy of target land, except it has this ability.",
+    &[
+        AbilityCostDef::Mana(mana_cost!("{2}")),
+        AbilityCostDef::TapSource,
+    ],
+    &[AbilityTargetDef::exactly_one(
+        AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::HasType(CardType::Land),
+            zones: &[ZoneKind::Battlefield],
+            controller: None,
+            owner: None,
+        },
+    )],
+    EffectDef::BecomeCopyOf {
+        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        copier: None,
+        exceptions: CopyExceptionsDef::NONE.with_abilities(&[CopyAbilityDef::This]),
+        duration: None,
+    },
+);
+
 pub(in crate::card::sets) static THESPIANS_STAGE: CardRecord = CardRecord::new_with_legacy_id(
     251,
     "Thespian's Stage",
@@ -5246,28 +5266,7 @@ pub(in crate::card::sets) static THESPIANS_STAGE: CardRecord = CardRecord::new_w
     CardSet::Gatecrash,
     CardRules::new_land(&[]).with_abilities(&[
         abilities::tap_for(ManaColor::Colorless),
-        AbilityDef::activated_with_targets(
-            "{2}, {T}: This land becomes a copy of target land, except it has this ability.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{2}")),
-                AbilityCostDef::TapSource,
-            ],
-            &[AbilityTargetDef::exactly_one(
-                AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::HasType(CardType::Land),
-                    zones: &[ZoneKind::Battlefield],
-                    controller: None,
-                    owner: None,
-                },
-            )],
-            EffectDef::BecomeCopyOf {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                copier: None,
-                retain_source_ability: true,
-                added_types: CardTypeSet::EMPTY,
-                duration: None,
-            },
-        ),
+        THESPIANS_STAGE_COPY,
     ]),
 );
 

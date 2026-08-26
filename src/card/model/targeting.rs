@@ -2,8 +2,8 @@ use crate::ids::TargetIndex;
 
 use super::{
     AbilityPredicateDef, BasicLandType, BattlefieldEntryChoiceDestinationDef, CardSet,
-    CardSupertype, CardType, ComparisonDef, CounterKind, KeywordAbility, ManaColor, PlayerRelation,
-    ValueDef, ZoneKind,
+    CardSupertype, CardType, ComparisonDef, CounterKind, KeywordAbility, ManaColor, ObjectRefDef,
+    PlayerRelation, ValueDef, ZoneKind,
 };
 
 /// A composable predicate over a card or game object.
@@ -106,9 +106,9 @@ pub enum ObjectPredicateDef {
     /// the card's debut set rather than the printing in front of you. Tokens
     /// were printed in no expansion, so they never match.
     DebutSet(CardSet),
-    /// Has the same printed name as the ability's source. Negate it for
-    /// "not named <this card>".
-    SharesNameWithSource,
+    /// Has the same name as the referenced object. The common printed "with
+    /// the same name as this" form uses [`ObjectRefDef::Source`].
+    HasName(ObjectRefDef),
     /// A spell or ability on the stack whose chosen targets include an object
     /// matching this. "That targets a land you control" reads the targets it
     /// already has rather than what it could have taken.

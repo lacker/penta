@@ -492,7 +492,7 @@ impl Game {
                 .object_debut_set(object.id)
                 .is_some_and(|debut| debut == set),
             ObjectPredicateDef::AttackingOrBlocking => object.attacking_or_blocking,
-            ObjectPredicateDef::SharesNameWithSource => {
+            ObjectPredicateDef::HasName(ObjectRefDef::Source) => {
                 let name = self.object_card_name(object.id);
                 name.is_some() && name == self.object_card_name(source)
             }
@@ -574,7 +574,7 @@ impl Game {
             | ObjectPredicateDef::Not(_) => {
                 self.composite_matches(predicate, object, source, is_spell, controller)
             }
-            ObjectPredicateDef::Special(_) => false,
+            ObjectPredicateDef::HasName(_) | ObjectPredicateDef::Special(_) => false,
         }
     }
 

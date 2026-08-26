@@ -441,6 +441,9 @@ fn validate_object_predicate_shape(
         | ObjectPredicateDef::PowerGreaterThan(value)
         | ObjectPredicateDef::ToughnessGreaterThan(value)
         | ObjectPredicateDef::PowerLessThan(value) => validate_value_shape(value, targets),
+        ObjectPredicateDef::HasName(reference) => {
+            validate_object_reference_shape(reference, targets)
+        }
         _ => Ok(()),
     }
 }

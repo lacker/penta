@@ -21,6 +21,30 @@ fn pick(actions: &[Action], step: u64) -> Action {
     choices[index].clone()
 }
 
+/// A bounded decision is advertised as one placeholder action plus its
+/// selection schema. Materialize the deterministic minimum-size selection a
+/// search would submit before asking either validation path to apply it.
+fn materialize_bounded_selection(game: &Game, action: Action) -> Action {
+    let Action::ChooseDecision { decision, .. } = action else {
+        return action;
+    };
+    let observation = &game
+        .pending_decisions
+        .first()
+        .expect("the decision placeholder names a pending decision")
+        .observation;
+    assert_eq!(observation.id, decision);
+    Action::ChooseDecision {
+        decision,
+        options: observation
+            .options
+            .iter()
+            .take(observation.minimum)
+            .map(|option| option.id)
+            .collect(),
+    }
+}
+
 /// The whole point, over a whole game: enumerating through the engine and
 /// applying reaches exactly the position that enumerating separately and
 /// applying does, ply for ply.
@@ -44,7 +68,9 @@ fn enumerating_through_the_engine_reaches_the_same_position() {
         );
 
         let through_kept = pick(kept.enumerate_legal_actions(player), step);
+        let through_kept = materialize_bounded_selection(&kept, through_kept);
         let through_derived = pick(&derived.legal_actions(player), step);
+        let through_derived = materialize_bounded_selection(&derived, through_derived);
         assert_eq!(
             through_kept, through_derived,
             "the kept enumeration differed from a fresh one at ply {step}",

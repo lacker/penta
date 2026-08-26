@@ -331,7 +331,7 @@ impl Game {
                     self.push_copy(spell, player, replacements);
                 }
             }
-            DecisionContinuation::Fork {
+            DecisionContinuation::CopyStackObject {
                 colors,
                 remaining,
                 player,
@@ -344,7 +344,9 @@ impl Game {
                     self.push_copy_with_colors(spell.clone(), player, targets.clone(), colors);
                 }
                 if remaining > 0 {
-                    self.queue_copy_decision_chain(player, spell, colors, "the copy", remaining);
+                    self.queue_copy_decision_chain(
+                        player, spell, colors, true, "the copy", remaining,
+                    );
                 }
             }
             DecisionContinuation::GrislySalvage { player, revealed } => {

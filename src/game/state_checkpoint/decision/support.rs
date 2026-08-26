@@ -85,7 +85,7 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
             );
         }
         DecisionContinuation::ChainLightning { spell, .. }
-        | DecisionContinuation::Fork { spell, .. } => {
+        | DecisionContinuation::CopyStackObject { spell, .. } => {
             ids.extend(referenced_object_ids(spell));
         }
         DecisionContinuation::SacrificeOfChoice {

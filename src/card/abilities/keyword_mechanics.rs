@@ -463,17 +463,7 @@ pub const fn eternalize(text: &'static str, cost: ManaCost) -> AbilityDef {
         text,
         AbilityCostList::two(AbilityCostDef::Mana(cost), AbilityCostDef::ExileSource),
         &[],
-        EffectDef::CreateTokenCopyOf {
-            object: EffectRecipientDef::Source,
-            exceptions: TokenCopyExceptionsDef::undead(
-                4,
-                4,
-                ColorSet::from_colors(&[ManaColor::Black]),
-                &ETERNALIZE_ADDED_TYPES,
-            ),
-            controller: None,
-            created: None,
-        },
+        EffectDef::create_token_from_copy(&ETERNALIZE_COPY),
     )
     .with_source_zones(&[ZoneKind::Graveyard])
     .with_activation_timing(ActivationTimingDef::SorcerySpeed)
@@ -481,6 +471,16 @@ pub const fn eternalize(text: &'static str, cost: ManaCost) -> AbilityDef {
 
 /// The one type every eternalized token gains, whatever it was before.
 static ETERNALIZE_ADDED_TYPES: [&str; 1] = ["Zombie"];
+
+static ETERNALIZE_COPY: crate::card::TokenCopyDef = crate::card::TokenCopyDef {
+    object: &EffectRecipientDef::Source,
+    exceptions: CopyExceptionsDef::undead(
+        4,
+        4,
+        ColorSet::from_colors(&[ManaColor::Black]),
+        &ETERNALIZE_ADDED_TYPES,
+    ),
+};
 
 /// The one type crewing adds. A Vehicle is already an artifact, so what
 /// crewing gives it is the creature half of "artifact creature".

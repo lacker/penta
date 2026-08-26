@@ -1,9 +1,9 @@
 use super::{
-    BattlefieldExitCompletion, CardBehavior, CardPartId, CardRuntime, CardType, CounterKind,
-    DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
-    EntryCompletion, Game, GameEvent, GameObjectId, PendingBattlefieldEntry, PendingProcedure,
-    Permanent, PlayerId, ResolvedAbility, StackAbilityResolver, StackObject, StackObjectKind,
-    Target, ZoneKind,
+    BattlefieldExitCompletion, CardBehavior, CardPartId, CardRuntime, CardType,
+    CopiableCharacteristics, CounterKind, DecisionContinuation, DecisionOption, DecisionPreference,
+    DecisionVisibility, DecisionZone, DoubleFacedCopiableCharacteristics, EntryCompletion, Game,
+    GameEvent, GameObjectId, PendingBattlefieldEntry, PendingProcedure, Permanent, PlayerId,
+    ResolvedAbility, StackAbilityResolver, StackObject, StackObjectKind, Target, ZoneKind,
 };
 use crate::SpellResolutionDestinationDef;
 use crate::card::{
@@ -91,6 +91,79 @@ impl Game {
                     crate::card::SpellForm::Combined(parts) => parts.first().copied(),
                 })
                 .unwrap_or(CardPartId::PRIMARY);
+            if object.is_copy {
+                let cast_x = object.x();
+                let cast_kicks = self.repeatable_additional_cost_payments(object.id);
+                let cast_alternative = object.signature.as_ref().and_then(|signature| {
+                    let card = self.catalog.get(definition)?;
+                    let option = card.play_option(signature.play_option())?;
+                    self.selected_alternative_kind(card, option, object.id, signature.costs())
+                });
+                let copied_face = |part| CopiableCharacteristics {
+                    base: crate::ObjectCharacteristics::card(definition, part),
+                    added_types: crate::card::CardTypeSet::empty(),
+                    added_abilities: Vec::new(),
+                    retain_printed_subtypes: false,
+                    base_power_toughness: None,
+                    colors: object.colors,
+                    added_creature_types: Vec::new(),
+                    no_mana_cost: false,
+                };
+                let base = object.face_down.map_or_else(
+                    || crate::ObjectCharacteristics::card(definition, presented),
+                    crate::ObjectCharacteristics::face_down,
+                );
+                let double_faced = object
+                    .face_down
+                    .is_none()
+                    .then(|| {
+                        let definition = self.catalog.get(definition)?;
+                        let crate::card::CardStructure::DoubleFaced { front, back, kind } =
+                            definition.structure
+                        else {
+                            return None;
+                        };
+                        Some(DoubleFacedCopiableCharacteristics {
+                            kind,
+                            front_part: front,
+                            back_part: back,
+                            front: copied_face(front),
+                            back: copied_face(back),
+                        })
+                    })
+                    .flatten();
+                self.create_token_copy_with_completion(
+                    object.controller,
+                    CopiableCharacteristics {
+                        base,
+                        added_types: crate::card::CardTypeSet::empty(),
+                        added_abilities: Vec::new(),
+                        retain_printed_subtypes: false,
+                        base_power_toughness: None,
+                        colors: object.colors,
+                        added_creature_types: Vec::new(),
+                        no_mana_cost: false,
+                    },
+                    double_faced,
+                    presented,
+                    EntryCompletion::SpellResolved {
+                        card: object.id,
+                        definition,
+                    },
+                    |permanent| {
+                        permanent.chosen_player = chosen_player;
+                        permanent.cast_x = cast_x;
+                        permanent.cast_kicks = cast_kicks;
+                        permanent.cast_colors = 0;
+                        permanent.cast_alternative = cast_alternative;
+                        permanent.cast_at_instant_speed = false;
+                        permanent.cast_from_zone = None;
+                        permanent.attached_to = aura_host;
+                        permanent.attached_player = aura_player;
+                    },
+                );
+                return;
+            }
             // Read before the card moves into the permanent below, which
             // takes the spell apart.
             let colors_spent = u16::from(object.colors_spent_count());
@@ -667,21 +740,10 @@ impl Game {
         }
     }
 
-    pub(super) fn resolve_custom_spell_followup(
-        &mut self,
-        object: &StackObject,
-        behavior: CardBehavior,
-    ) {
-        if behavior == CardBehavior::ChainLightning {
-            let deciding = match object.first_target() {
-                Some(Target::Player(player)) => Some(player),
-                Some(Target::Permanent(id)) => self.permanent_controller(id),
-                Some(Target::Card(_) | Target::Spell(_)) | None => None,
-            };
-            if let Some(player) = deciding {
-                self.queue_chain_lightning_decision(player, object.clone());
-            }
-        }
+    pub(super) fn resolve_custom_spell_followup(_object: &StackObject, _behavior: CardBehavior) {
+        // No cataloged spell currently needs the legacy declarative-plus-custom
+        // bridge. The procedure shape remains checkpoint-readable until the
+        // next checkpoint-format migration removes it.
     }
 
     pub(super) fn stack_ability_fizzles(&self, object: &StackObject) -> bool {

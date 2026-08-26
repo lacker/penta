@@ -55,8 +55,7 @@ EffectDef::RevealAtRandomFromHand { .. } | EffectDef::RevealHand { .. } |
 EffectDef::SearchZone { .. } | EffectDef::ChooseCards { .. } |
 EffectDef::ReplaceNextDrawThisTurn { .. } | EffectDef::IfFormat { .. } |
 EffectDef::Counter { .. } |
-EffectDef::PutSpellIntoOwnersLibrary { .. } | EffectDef::CopyResolvingSpell {
-.. } | EffectDef::CopyTargetSpell { .. } | EffectDef::AddCounters { .. } | EffectDef::RemoveCounters { .. } |
+EffectDef::PutSpellIntoOwnersLibrary { .. } | EffectDef::CopyStackObject(_) | EffectDef::AddCounters { .. } | EffectDef::RemoveCounters { .. } |
 EffectDef::ChangeTextBasicLandType { .. } | EffectDef::ChooseColor { .. } |
 EffectDef::BecomeCopyOf { .. } | EffectDef::May { .. } |
 EffectDef::CannotBeForcedToSacrifice | EffectDef::CannotBeForcedToDiscard |
@@ -84,7 +83,7 @@ EffectDef::Attach { .. } | EffectDef::AttachToSource { .. } |
 EffectDef::PairWithSource { .. } | EffectDef::Reconfigure { .. } |
 EffectDef::Unattach { .. } | EffectDef::PhaseOut { .. } |
 EffectDef::CreateToken { .. } | EffectDef::CreateAttachedToken { .. } |
-EffectDef::CreateTokenCopyOf { .. } | EffectDef::Endure { .. } |
+EffectDef::Endure { .. } |
 EffectDef::CreateMyriadTokens |
 EffectDef::StaticApply { .. } | EffectDef::Apply { .. } |
 EffectDef::Special(_) => {

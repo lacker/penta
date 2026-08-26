@@ -9,9 +9,7 @@ pub(in crate::card) const fn rules(behavior: CardBehavior) -> &'static CardRules
     match behavior {
         CardBehavior::AugurOfBolas => &y2012::magic_2013::AUGUR_OF_BOLAS.rules,
         CardBehavior::BloodBaronOfVizkopa => &y2013::dragons_maze::BLOOD_BARON_OF_VIZKOPA.rules,
-        CardBehavior::ChainLightning => &y1994::legends::CHAIN_LIGHTNING.rules,
         CardBehavior::Fireball => &y1993::alpha::FIREBALL.rules,
-        CardBehavior::Fork => &y1993::alpha::FORK.rules,
         CardBehavior::GoblinGrenade => &y1994::fallen_empires::GOBLIN_GRENADE.rules,
         CardBehavior::FellwarStone => &y1994::the_dark::FELLWAR_STONE.rules,
         CardBehavior::ReflectingPool => &y1997::tempest::REFLECTING_POOL.rules,

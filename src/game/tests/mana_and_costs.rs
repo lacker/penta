@@ -419,6 +419,36 @@ fn nested_choice_payment_preserves_its_binding_and_outer_sequence_tail() {
     );
 }
 
+fn pay_for_chain_and_copy_to(game: &mut Game, player: PlayerId, target: Target) {
+    choose_decision_by_label(game, player, "Pay the cost");
+    choose_decision_by_label(game, player, "Do it");
+    let decision = game
+        .observe(player)
+        .decision
+        .expect("copying the chain offers new targets");
+    let option = match &game
+        .pending_decisions
+        .first()
+        .expect("the retarget decision is pending")
+        .continuation
+    {
+        DecisionContinuation::CopyStackObject { target_lists, .. } => target_lists
+            .iter()
+            .position(|targets| flatten_target_selections(targets) == [target])
+            .and_then(|index| u32::try_from(index).ok())
+            .expect("the requested chain target is offered"),
+        continuation => panic!("unexpected chain continuation: {continuation:?}"),
+    };
+    game.apply(
+        player,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options: vec![option],
+        },
+    )
+    .unwrap();
+}
+
 #[test]
 fn chain_lightning_copy_payment_can_use_untapped_mountains() {
     let mut game = ready_game();
@@ -427,31 +457,17 @@ fn chain_lightning_copy_payment_can_use_untapped_mountains() {
     let first_id = first.card.id;
     let second_id = second.card.id;
     game.battlefield = vec![first, second];
-    game.queue_chain_lightning_decision(
-        PlayerId::Two,
-        spell_with_targets(
-            77,
-            cards::CHAIN_LIGHTNING,
-            PlayerId::One,
-            vec![Target::Player(PlayerId::Two)],
-            0,
-        ),
-    );
-    let decision = game.observe(PlayerId::Two).decision.unwrap();
-    let copy = decision
-        .options
-        .iter()
-        .find(|option| option.label.contains("your opponent"))
-        .map(|option| option.id)
-        .unwrap();
+    let chain = card(10_002, cards::CHAIN_LIGHTNING, PlayerId::One);
+    let chain_id = chain.id;
+    game.players[0].hand.push(chain);
+    game.players[0].mana_pool.red = 1;
     game.apply(
-        PlayerId::Two,
-        Action::ChooseDecision {
-            decision: decision.id,
-            options: vec![copy],
-        },
+        PlayerId::One,
+        cast_action(chain_id, vec![Target::Player(PlayerId::Two)], Vec::new(), 0),
     )
     .unwrap();
+    pass_priority_pair(&mut game);
+    pay_for_chain_and_copy_to(&mut game, PlayerId::Two, Target::Player(PlayerId::One));
 
     assert_eq!(game.players[1].mana_pool, ManaPool::default());
     assert!(
@@ -493,21 +509,7 @@ fn chain_lightning_copy_payment_can_use_a_creature_dealt_lethal_damage() {
             .is_some_and(|permanent| permanent.damage == 3),
         "state-based actions wait while Chain Lightning asks whether to pay",
     );
-    let decision = game.observe(PlayerId::Two).decision.unwrap();
-    let copy = decision
-        .options
-        .iter()
-        .find(|option| option.label.contains("your opponent"))
-        .map(|option| option.id)
-        .unwrap();
-    game.apply(
-        PlayerId::Two,
-        Action::ChooseDecision {
-            decision: decision.id,
-            options: vec![copy],
-        },
-    )
-    .unwrap();
+    pay_for_chain_and_copy_to(&mut game, PlayerId::Two, Target::Player(PlayerId::One));
 
     assert!(
         game.battlefield

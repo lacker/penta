@@ -380,10 +380,11 @@ fn validate_effect_target_shapes(
         | EffectDef::PutIntoLibraryBeneathTop { object, .. }
         | EffectDef::Counter { object, .. }
         | EffectDef::PutSpellIntoOwnersLibrary { object }
-        | EffectDef::CopyTargetSpell { object, .. }
-        | EffectDef::CreateTokenCopyOf { object, .. }
         | EffectDef::Endure { object, .. } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Object)
+        }
+        EffectDef::CopyStackObject(copy) => {
+            validate_recipient_shape(copy.object, targets, RecipientExpectation::Object)
         }
         EffectDef::MoveToZone {
             object, attachment, ..
@@ -425,8 +426,16 @@ fn validate_effect_target_shapes(
             validate_recipient_shape(object, targets, RecipientExpectation::Object)?;
             validate_value_shape(amount, targets)
         }
-        EffectDef::CreateToken { count, created, .. } => {
+        EffectDef::CreateToken {
+            count,
+            copy,
+            created,
+            ..
+        } => {
             validate_value_shape(count, targets)?;
+            if let Some(copy) = copy {
+                validate_recipient_shape(*copy.object, targets, RecipientExpectation::Object)?;
+            }
             match created {
                 Some(created) => {
                     validate_effect_target_shapes(*created.then, targets, triggering_object_zone)
@@ -525,12 +534,9 @@ fn validate_effect_target_shapes(
             }
             Ok(())
         }
-        // The copy names nobody: it reuses whatever the spell already
-        // targeted unless its chooser retargets it as it is made.
         // The ballot is a predicate, not a target: nothing is pointed at.
         EffectDef::PutSourceOntoBattlefieldAttacking
         | EffectDef::VoteForPermanentToExile { .. }
-        | EffectDef::CopyResolvingSpell { .. }
         | EffectDef::ModifyCost(_)
         | EffectDef::None
         | EffectDef::AddMana(_)

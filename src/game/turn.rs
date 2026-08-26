@@ -842,7 +842,7 @@ impl Game {
             }
         }
         if let Some(behavior) = custom_followup {
-            self.resolve_custom_spell_followup(object, behavior);
+            Self::resolve_custom_spell_followup(object, behavior);
         }
         self.pending_procedures.append(&mut later_procedures);
     }

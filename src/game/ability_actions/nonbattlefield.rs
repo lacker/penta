@@ -18,6 +18,7 @@ impl Game {
                 // same hand: the card doing the paying would be discarding
                 // itself along with everything else.
                 AbilityCostDef::DiscardHand
+                | AbilityCostDef::ManaCostOf(_)
                 | AbilityCostDef::TapSource
                 | AbilityCostDef::ExertSource
                 | AbilityCostDef::UntapSource
@@ -38,7 +39,7 @@ impl Game {
                 | AbilityCostDef::TapCreaturesWithTotalPower { .. }
                 | AbilityCostDef::ExileSource
                 | AbilityCostDef::Loyalty(_)
-                | AbilityCostDef::ExileCardsFromGraveyard { .. }
+                | AbilityCostDef::MoveToZone(_)
                 | AbilityCostDef::Special(_) => return None,
             }
         }

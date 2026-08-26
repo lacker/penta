@@ -158,10 +158,14 @@ pub(in crate::card::sets) static HARD_EVIDENCE: CardRecord = CardRecord::new(
 /// The copies are a cast trigger rather than part of the spell's own clause,
 /// exactly as storm is: what differs is only where the count comes from, and
 /// replicate counts what was paid rather than what was cast.
-static LOSE_FOCUS_REPLICATES: EffectDef = EffectDef::CopyResolvingSpell {
-    chooser: PlayerRefDef::EffectController,
-    count: ValueDef::TimesAdditionalCostPaid,
-};
+static LOSE_FOCUS_REPLICATES: EffectDef =
+    EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
+        object: EffectRecipientDef::Source,
+        controller: PlayerRefDef::EffectController,
+        count: ValueDef::TimesAdditionalCostPaid,
+        retarget: true,
+        colors: None,
+    });
 
 static A_SPELL: [AbilityTargetDef; 1] =
     [AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)];

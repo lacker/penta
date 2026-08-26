@@ -7,11 +7,11 @@ use crate::card::catalog::{
     MismatchedAlternativeCost,
 };
 use crate::card::{
-    AbilityDef, AbilityOperationDef, AbilityProcedureDef, AbilityProgramDef, AppliedEffectDef,
-    CardDefinition, CharacteristicOperationDef, DeclarativeAbilityDef, EffectDef,
-    EffectExecutionDef, EffectRecipientDef, EmblemCharacteristics, ImplementationStatus,
-    ReplacementEffectDef, ReplacementEventDef, SpellForm, TokenCharacteristics, ZoneKind,
-    ZoneMoveCauseDef,
+    AbilityCostDef, AbilityDef, AbilityOperationDef, AbilityProcedureDef, AbilityProgramDef,
+    AppliedEffectDef, CardDefinition, CharacteristicOperationDef, CopyAbilityDef,
+    DeclarativeAbilityDef, EffectDef, EffectExecutionDef, EffectRecipientDef,
+    EmblemCharacteristics, ImplementationStatus, ReplacementEffectDef, ReplacementEventDef,
+    SpellForm, TokenCharacteristics, ZoneKind, ZoneMoveCauseDef,
 };
 use crate::{AbilityId, AdditionalCostId, AlternativeCostId, CardPartId, GrantId, ModeId};
 
@@ -612,7 +612,21 @@ fn validate_ability_definition(ability: &AbilityDef) -> Result<(), GrantedAbilit
         | DeclarativeAbilityDef::DeckConstruction(_)
         | DeclarativeAbilityDef::Legacy => None,
     };
-    validate_ability_program_targets(targets, ability.effect.definition, trigger_event)?;
+    let binds_chosen_cost_card = matches!(
+        ability.definition,
+        DeclarativeAbilityDef::Activated(definition)
+            if definition.costs.iter().any(|cost| matches!(
+                cost,
+                AbilityCostDef::MoveToZone(movement)
+                    if movement.binding == Some(crate::ObjectBindingIndex::PRIMARY)
+            ))
+    );
+    validate_ability_program_targets(
+        targets,
+        ability.effect.definition,
+        trigger_event,
+        binds_chosen_cost_card,
+    )?;
     Ok(())
 }
 

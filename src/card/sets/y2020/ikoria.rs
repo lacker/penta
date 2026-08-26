@@ -248,10 +248,13 @@ static LUTRI_ABILITIES: [AbilityDef; 3] = [
         ),
         &LUTRI_WAS_CAST,
         &YOUR_INSTANT_OR_SORCERY_SPELL,
-        EffectDef::CopyTargetSpell {
+        EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            chooser: PlayerRefDef::EffectController,
-        },
+            controller: PlayerRefDef::EffectController,
+            count: ValueDef::Constant(1),
+            retarget: true,
+            colors: None,
+        }),
     ),
 ];
 

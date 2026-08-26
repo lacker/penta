@@ -210,6 +210,29 @@ impl Game {
         double_faced: Option<DoubleFacedCopiableCharacteristics>,
         presented: CardPartId,
     ) -> GameObjectId {
+        self.create_token_copy_with_completion(
+            controller,
+            copy,
+            double_faced,
+            presented,
+            EntryCompletion::None,
+            |_| {},
+        )
+    }
+
+    /// Creates a token copy through the normal battlefield-entry pipeline,
+    /// with an optional completion for the effect that is moving it there.
+    /// A copied permanent spell uses this path because it becomes a token as
+    /// it resolves rather than becoming an unbacked physical card.
+    pub(super) fn create_token_copy_with_completion(
+        &mut self,
+        controller: PlayerId,
+        copy: CopiableCharacteristics,
+        double_faced: Option<DoubleFacedCopiableCharacteristics>,
+        presented: CardPartId,
+        completion: EntryCompletion,
+        configure: impl FnOnce(&mut Permanent),
+    ) -> GameObjectId {
         let source = match copy.base {
             ObjectCharacteristics::Card { definition, .. } => {
                 CharacteristicSource::Copy(definition)
@@ -239,11 +262,12 @@ impl Game {
         } else {
             permanent.copy_effect = Some(copy);
         }
+        configure(&mut permanent);
         let prospective = permanent.card.id;
         self.enqueue_battlefield_entry(PendingBattlefieldEntry {
             permanent,
             from: ZoneKind::Stack,
-            completion: EntryCompletion::None,
+            completion,
             redirected_to: None,
         });
         // The same fresh identity every arrival takes, for the same reason:

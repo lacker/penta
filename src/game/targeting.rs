@@ -1,5 +1,5 @@
 use super::{
-    CardBehavior, CardDefinition, CardDefinitionId, CardSupertype, CardType, CardTypeSet,
+    CardBehavior, CardDefinition, CardDefinitionId, CardSupertype, CardTypeSet,
     CharacteristicContext, Cow, DeclarativeAbilityDef, Game, GameObjectId, ManaCost, ModeId,
     ObjectCharacteristics, PlayRestriction, PlayerId, RetiredObject, StackObject, StackObjectKind,
     Step, Target, TargetPredicate, TargetSelection, TriggerEventObject, applicable_part_ids,
@@ -308,9 +308,7 @@ impl Game {
         exact_count: Option<usize>,
     ) -> Vec<Vec<Target>> {
         match behavior {
-            CardBehavior::ChainLightning
-            | CardBehavior::PillarOfFlame
-            | CardBehavior::GoblinGrenade => self
+            CardBehavior::PillarOfFlame | CardBehavior::GoblinGrenade => self
                 .damage_targets()
                 .into_iter()
                 .map(|target| vec![target])
@@ -334,17 +332,6 @@ impl Game {
                     .collect();
                 target_combinations(&artifacts, 2)
             }
-            CardBehavior::Fork => self
-                .stack
-                .iter()
-                .filter(|object| {
-                    object.kind == StackObjectKind::Spell
-                        && self.stack_spell_types(object).is_some_and(|types| {
-                            types.contains(CardType::Instant) || types.contains(CardType::Sorcery)
-                        })
-                })
-                .map(|object| vec![Target::Spell(object.id)])
-                .collect(),
             // Both read the spell's kind off its chosen play option, so a
             // split or modal card counts as whatever it was actually cast as.
             CardBehavior::Negate | CardBehavior::EssenceScatter => self

@@ -58,6 +58,7 @@ static ELSPETH_ABILITIES: [AbilityDef; 3] = [
         &[AbilityCostDef::Loyalty(1)],
         EffectDef::CreateToken {
             token: tokens::creature(&["Soldier"], &[ManaColor::White], 1, 1),
+            copy: None,
             controller: None,
             count: ValueDef::Constant(1),
             tapped: false,

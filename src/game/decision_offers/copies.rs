@@ -1,80 +1,11 @@
-// Copying a spell: the decisions Fork and its relatives ask, the chain that
-// makes more than one copy, and the retarget offer each copy carries.
+// Copying a stack object: the retarget decisions Fork, storm, and their
+// relatives ask, and the chain that makes more than one copy.
 //
 // Split out of `decision_offers.rs` only to keep one file readable; these are
 // ordinary members of the same `impl Game`. The paths and imports are the
 // parent module's.
 
 impl Game {
-    pub(super) fn queue_chain_lightning_decision(&mut self, player: PlayerId, spell: StackObject) {
-        // Without RR to spend there is nothing to decide, and a prompt whose
-        // only answer is "no" is worse than no prompt at all.
-        if !self.can_pay_cost(player, ManaCost::new(0, 2), 0) {
-            return;
-        }
-        let mut targets = self.damage_targets();
-        if let Some(target) = spell.first_target()
-            && !targets.contains(&target)
-        {
-            targets.push(target);
-        }
-        let mut options = vec![DecisionOption {
-            id: 0,
-            label: "Don't copy Chain Lightning".into(),
-            card: None,
-            members: Vec::new(),
-            ability_text: None,
-            zone: DecisionZone::None,
-        }];
-        options.extend(
-            targets
-                .iter()
-                .enumerate()
-                .map(|(index, target)| DecisionOption {
-                    id: u32::try_from(index + 1).unwrap_or(u32::MAX),
-                    label: format!(
-                        "Copy Chain Lightning → {}",
-                        self.target_label(player, *target)
-                    ),
-                    card: None,
-                    members: Vec::new(),
-                    ability_text: None,
-                    zone: DecisionZone::None,
-                }),
-        );
-        self.queue_decision(
-            player,
-            "Copy Chain Lightning?",
-            DecisionVisibility::Private,
-            DecisionPreference::Neutral,
-            1..=1,
-            false,
-            options,
-            DecisionContinuation::ChainLightning {
-                player,
-                spell,
-                targets,
-            },
-        );
-    }
-
-    pub(super) fn queue_fork_decision(&mut self, player: PlayerId, spell: StackObject) {
-        self.queue_copy_decision(player, spell, Some(FORK_COPY_COLOR), "Fork's copy");
-    }
-
-    /// Offers a copy of `spell` under `player`, letting them retarget it. Fork
-    /// repaints what it copies and a card copying itself does not, so the
-    /// colours are the caller's to decide.
-    pub(super) fn queue_copy_decision(
-        &mut self,
-        player: PlayerId,
-        spell: StackObject,
-        colors: Option<ColorSet>,
-        described: &str,
-    ) {
-        self.queue_copy_decision_chain(player, spell, colors, described, 1);
-    }
-
     /// The same, several times over. Each copy is targeted before the next is
     /// offered, which is what storm's "you may choose new targets for the
     /// copies" means: the copies are separate objects with separate choices.
@@ -83,6 +14,7 @@ impl Game {
         player: PlayerId,
         spell: StackObject,
         colors: Option<ColorSet>,
+        retarget: bool,
         described: &str,
         copies: u16,
     ) {
@@ -90,12 +22,29 @@ impl Game {
             return;
         }
         let remaining = copies - 1;
+        let original_selections = spell.signature.as_ref().map_or_else(
+            || {
+                spell
+                    .ability
+                    .as_ref()
+                    .map(|ability| ability.targets.clone())
+                    .unwrap_or_default()
+            },
+            |signature| signature.targets().to_vec(),
+        );
+        if !retarget {
+            for _ in 0..copies {
+                self.push_copy_with_colors(
+                    spell.clone(),
+                    player,
+                    original_selections.clone(),
+                    colors,
+                );
+            }
+            return;
+        }
         let target_lists = self.copy_target_choices(&spell, player);
-        if spell
-            .signature
-            .as_ref()
-            .is_some_and(|signature| signature.targets().is_empty())
-        {
+        if original_selections.is_empty() {
             for _ in 0..copies {
                 self.push_copy_with_colors(spell.clone(), player, Vec::new(), colors);
             }
@@ -131,7 +80,7 @@ impl Game {
             1..=1,
             false,
             options,
-            DecisionContinuation::Fork {
+            DecisionContinuation::CopyStackObject {
                 colors,
                 remaining,
                 player,
@@ -147,17 +96,27 @@ impl Game {
         spell: &StackObject,
         player: PlayerId,
     ) -> Vec<Vec<TargetSelection>> {
-        let Some(signature) = &spell.signature else {
-            return Vec::new();
-        };
-        if signature.targets().is_empty() {
+        let original_selections = spell.signature.as_ref().map_or_else(
+            || {
+                spell
+                    .ability
+                    .as_ref()
+                    .map(|ability| ability.targets.as_slice())
+                    .unwrap_or_default()
+            },
+            |signature| signature.targets(),
+        );
+        if original_selections.is_empty() {
             return vec![Vec::new()];
         }
         let Some(card_definition) = spell.card.definition.card_definition() else {
-            return vec![signature.targets().to_vec()];
+            return self.copy_ability_target_choices(spell, player, original_selections);
         };
         let Some(definition) = self.catalog.get(card_definition) else {
-            return vec![signature.targets().to_vec()];
+            return vec![original_selections.to_vec()];
+        };
+        let Some(signature) = &spell.signature else {
+            return self.copy_ability_target_choices(spell, player, original_selections);
         };
         let Some(option) = definition.play_option(signature.play_option()) else {
             return vec![signature.targets().to_vec()];
@@ -281,6 +240,55 @@ impl Game {
         choices
     }
 
+    fn copy_ability_target_choices(
+        &self,
+        object: &StackObject,
+        player: PlayerId,
+        original: &[TargetSelection],
+    ) -> Vec<Vec<TargetSelection>> {
+        let Some(payload) = object.ability.as_ref() else {
+            return vec![original.to_vec()];
+        };
+        let mut choices = vec![Vec::new()];
+        for selection in original {
+            let Some(slot) = payload.target_defs.get(selection.slot().index()) else {
+                return vec![original.to_vec()];
+            };
+            let mut combined = Vec::new();
+            for prefix in &choices {
+                let source = object.source.unwrap_or(object.id);
+                let candidates = Self::without_excluded_source(
+                    slot,
+                    source,
+                    self.targets_owned_by_target_player(slot.predicate, prefix, source)
+                        .unwrap_or_else(|| {
+                            self.ability_targets_matching(
+                                slot.predicate,
+                                player,
+                                source,
+                                payload.context.trigger,
+                            )
+                        }),
+                );
+                let mut replacements =
+                    target_combinations(&candidates, selection.targets().len())
+                        .into_iter()
+                        .map(|targets| TargetSelection::new(selection.slot(), targets))
+                        .collect::<Vec<_>>();
+                replacements.push(selection.clone());
+                replacements.sort_unstable_by_key(|replacement| replacement.targets().to_vec());
+                replacements.dedup();
+                for replacement in &replacements {
+                    let mut selected = prefix.clone();
+                    selected.push(replacement.clone());
+                    combined.push(selected);
+                }
+            }
+            choices = combined;
+        }
+        choices
+    }
+
     pub(super) fn push_copy(
         &mut self,
         spell: StackObject,
@@ -300,15 +308,28 @@ impl Game {
         colors: Option<ColorSet>,
     ) {
         spell.colors = colors;
-        let definition = spell
-            .card
-            .definition
-            .card_definition()
-            .expect("a spell copy keeps its printed card definition");
-        let card = self.unbacked_object(definition, player, CharacteristicSource::Copy(definition));
-        spell.id = card.id;
-        spell.card = card.into();
-        spell.source = None;
+        let copied_source = spell.source;
+        match spell.kind {
+            crate::game::StackObjectKind::Spell => {
+                let definition = spell
+                    .card
+                    .definition
+                    .card_definition()
+                    .expect("a spell copy keeps its printed card definition");
+                let card =
+                    self.unbacked_object(definition, player, CharacteristicSource::Copy(definition));
+                spell.id = card.id;
+                spell.card = card.into();
+                spell.source = None;
+            }
+            crate::game::StackObjectKind::ActivatedAbility
+            | crate::game::StackObjectKind::TriggeredAbility => {
+                let card = self.unbacked_ability_object(spell.presentation(), player);
+                spell.id = card.id;
+                spell.card = card;
+                spell.source = copied_source;
+            }
+        }
         spell.controller = player;
         if let Some(ability) = &mut spell.ability {
             ability.targets.clone_from(&targets);
@@ -324,11 +345,20 @@ impl Game {
         spell.applied_effects.clear();
         // Text-changing effects are not copiable values.
         spell.text_changes.clear();
+        // A copy was not cast and no mana paid for it. Choices made for the
+        // original spell remain in its copied signature, but these cast facts
+        // do not.
+        spell.cast_via_flashback = false;
+        spell.cast_at_instant_speed = false;
+        spell.cast_from_zone = None;
+        spell.colors_of_mana_spent = ColorSet::empty();
         spell.phyrexian_symbols_paid_with_life = 0;
         spell.is_copy = true;
         // Published where the copy actually lands, so a clause reading "or
         // copy" sees the same object anything else on the stack would.
-        let copied = self.stack_trigger_event_object(&spell);
+        let copied = (spell.kind == crate::game::StackObjectKind::Spell)
+            .then(|| self.stack_trigger_event_object(&spell))
+            .flatten();
         self.stack.push(spell);
         if let Some(object) = copied {
             self.capture_battlefield_triggers(&crate::game::CommittedTriggerEvent::SpellCopied {

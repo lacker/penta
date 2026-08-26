@@ -271,11 +271,41 @@ distinguishes snapshots of the covered source and build inputs.
   to spread generic mana across colours for converge, and sunburst wants
   exactly that. The checkpoint carries the count additively.
 
-- **Copying a spell a clause names.** Copying the spell an effect belongs to
-  was already a declarative effect -- storm and replicate use it -- but
-  copying a spell the clause points at was only reachable through Fork's
-  legacy behaviour. It is an ordinary effect now, over a recipient naming the
-  spell, and it reuses the same copy-and-retarget window the other one does.
+- **Copying stack objects.** One declarative instruction now copies a named
+  spell or activated or triggered ability, chooses the copy's controller,
+  optionally repaints it, and either preserves or reselects its targets. Storm
+  and replicate use the same operation as Fork and all three Lithoform Engine
+  abilities. A copied permanent spell resolves through battlefield entry as a
+  token -- including attachments, double-faced topology, and copied cast
+  choices -- without counting as a token-creation instruction.
+
+- **Resolving-spell copies and the Chain cycle.** A resolving spell can now
+  name itself as the source of a generic stack copy, while cast triggers such
+  as Storm continue to name the spell that caused them. Chain Lightning,
+  Chain of Silence, and Chain of Acid now compose damage, prevention or
+  destruction with target-controller payments and optional retargetable
+  copies. Chain of Vapor and Chain of Smog use the same resolving-object path,
+  and every implemented Storm card uses the shared `abilities::storm()`
+  constructor.
+
+- **Copy-process exceptions that compose.** A permanent or token copy can now
+  replace power and toughness or colour, add card and creature types, remove
+  its mana cost, and add any number of authored abilities as one reusable set
+  of copiable values. An added ability may explicitly refer to the resolving
+  ability itself, so Thespian's Stage becomes a copy and gains its copy ability
+  instead of retaining selected printed characteristics through a special
+  flag. Token copies are now one `CreateToken` instruction with a pre-entry
+  copy source rather than their own effect variant; applying the copy after an
+  empty token entered would expose the wrong characteristics to replacement
+  effects and enters triggers. This completes Back from the Brink, Cackling
+  Counterpart, Vesuvan Doppelganger, Quicksilver Gargantuan, Evil Twin, and
+  Progenitor Mimic. Back
+  from the Brink also composes a generic move-to-zone activation cost with
+  `ManaCostOf` over their shared object binding, exposing the exiled successor
+  to resolution. Same-name predicates likewise name an object reference
+  instead of hard-coding the source. Entry-copy
+  decisions carry their exceptions in additive checkpoint members;
+  checkpoint format 9, replay version 2, and protocol 29 are unchanged.
 
 - **Counting names rather than objects.** "Seven or more lands with different
   names" had nothing to read: a query could say how many objects it matched

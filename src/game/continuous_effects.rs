@@ -601,7 +601,7 @@ impl Game {
                 | EffectDef::Unattach { .. }
                 | EffectDef::Attach { .. }
                 | EffectDef::Counter { .. }
-                | EffectDef::CopyResolvingSpell { .. }
+                | EffectDef::CopyStackObject(_)
                 | EffectDef::AddCounters { .. }
                 | EffectDef::RemoveCounters { .. }
                 | EffectDef::ChangeTextBasicLandType { .. }
@@ -635,7 +635,6 @@ impl Game {
                 | EffectDef::PhaseOut { .. }
                 | EffectDef::CreateToken { .. }
                 | EffectDef::CreateAttachedToken { .. }
-                | EffectDef::CreateTokenCopyOf { .. }
                 | EffectDef::StaticApply { .. }
                 | EffectDef::Apply { .. }
                 | EffectDef::Special(_)

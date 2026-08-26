@@ -4,16 +4,16 @@ use crate::card::{
     ActivationTimingDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, ArrivalAttachmentDef,
     AttackDefenderScopeDef, AttackRestrictionDef, BasicLandType, CardArt, CardBehavior, CardRules,
     CardSet, CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorSet,
-    ComparisonDef, ControlDurationDef, CostModificationDef, CounterKind, CreatureTypeSetDef,
-    DamageEventMatcherDef, DamagePreventionDef, DamagePreventionFollowUpDef,
-    DamageRecipientMatcherDef, DamageSourceGroupDef, DiscardSelectionDef, EffectDef,
-    EffectPaymentDef, EffectRecipientDef, HalvedValueDef, InstalledTriggerDef, KeywordAbility,
-    LikelihoodDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, OngoingEffectDef, PayOrDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ReplacementAbilityDef, ReplacementChoiceDef, ReplacementConditionDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, RoundingDef,
-    TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnStepDef, ValueComparisonDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    ComparisonDef, ControlDurationDef, CopyAbilityDef, CopyExceptionsDef, CostModificationDef,
+    CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamagePreventionDef,
+    DamagePreventionFollowUpDef, DamageRecipientMatcherDef, DamageSourceGroupDef,
+    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, HalvedValueDef,
+    InstalledTriggerDef, KeywordAbility, LikelihoodDef, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, OngoingEffectDef, PayOrDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementAbilityDef, ReplacementChoiceDef,
+    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    RoundingDef, TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnStepDef,
+    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -1161,9 +1161,7 @@ pub(in crate::card::sets) static CLONE: CardRecord = CardRecord::new_with_legacy
             "You may have this creature enter as a copy of any creature on the battlefield.",
             ReplacementEffectDef::CopyEntering {
                 object: ObjectPredicateDef::HasType(CardType::Creature),
-                added_types: CardTypeSet::empty(),
-                retain_printed_subtypes: false,
-                retained_abilities: &[],
+                exceptions: CopyExceptionsDef::NONE,
             },
         ),
     ]),
@@ -1203,9 +1201,8 @@ pub(in crate::card::sets) static COPY_ARTIFACT: CardRecord = CardRecord::new_wit
         "You may have this enchantment enter as a copy of any artifact on the battlefield, except it's an enchantment in addition to its other types.",
         ReplacementEffectDef::CopyEntering {
             object: ObjectPredicateDef::HasType(CardType::Artifact),
-            added_types: CardTypeSet::single(CardType::Enchantment),
-            retain_printed_subtypes: false,
-            retained_abilities: &[],
+            exceptions: CopyExceptionsDef::NONE
+                .with_added_types(CardTypeSet::single(CardType::Enchantment)),
         },
     )]),
 );
@@ -1868,13 +1865,46 @@ pub(in crate::card::sets) static UNSUMMON: CardRecord = CardRecord::new_with_leg
 );
 
 // LEA 87 — Vesuvan Doppelganger
-// Audit: metadata-only — Needs copiable-value or rules-text mutation support for “You may have this creature enter as a copy of any creature on the battlefield, except it doesn't copy that creature's color and it has "At the beginning of your upkeep, you may have this…”.
+static VESUVAN_DOPPELGANGER_UPKEEP: AbilityDef = AbilityDef::triggered_with_targets(
+    "At the beginning of your upkeep, you may have this creature become a copy of target creature, except it doesn't copy that creature's color and it has this ability.",
+    TriggerEventDef::StepBegins {
+        step: TurnStepDef::Upkeep,
+        player: PlayerRelation::You,
+    },
+    &[AbilityTargetDef::exactly_one_permanent(
+        ObjectPredicateDef::HasType(CardType::Creature),
+    )],
+    EffectDef::May {
+        player: EffectRecipientDef::Controller,
+        effect: &EffectDef::BecomeCopyOf {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            copier: None,
+            exceptions: CopyExceptionsDef::NONE
+                .with_colors(ColorSet::from_colors(&[ManaColor::Blue]))
+                .with_abilities(&[CopyAbilityDef::This]),
+            duration: None,
+        },
+    },
+);
+
 pub(in crate::card::sets) static VESUVAN_DOPPELGANGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("768f3a05-bd06-4a23-b9f2-94f6e618fd9f"),
     "Vesuvan Doppelganger",
     crate::card::CardArt::new("768f3a05-bd06-4a23-b9f2-94f6e618fd9f", "Quinton Hoover"),
     crate::card::CardSet::Alpha,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}{U}"), &["Shapeshifter"], 0, 0).with_ability(
+        AbilityDef::replacement(
+            "You may have this creature enter as a copy of any creature on the battlefield, except it doesn't copy that creature's color and it has \"At the beginning of your upkeep, you may have this creature become a copy of target creature, except it doesn't copy that creature's color and it has this ability.\"",
+            ReplacementEffectDef::CopyEntering {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                exceptions: CopyExceptionsDef::NONE
+                    .with_colors(ColorSet::from_colors(&[ManaColor::Blue]))
+                    .with_abilities(&[CopyAbilityDef::Ability(
+                        &VESUVAN_DOPPELGANGER_UPKEEP,
+                    )]),
+            },
+        ),
+    ),
 );
 
 // LEA 88 — Volcanic Eruption
@@ -2608,7 +2638,7 @@ pub(in crate::card::sets) static PESTILENCE: CardRecord = CardRecord::new_with_l
 static CREATURES_NAMED_LIKE_THE_SOURCE: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::All(&[
         ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::SharesNameWithSource,
+        ObjectPredicateDef::HasName(ObjectRefDef::Source),
     ]),
     &[ZoneKind::Battlefield],
     PlayerRelation::Any,
@@ -3293,17 +3323,25 @@ pub(in crate::card::sets) static FLASHFIRES: CardRecord = CardRecord::new_with_l
 );
 
 // LEA 152 — Fork
-// Audit: partial — Copy retargeting is offered as one ordered decision instead of independent choices for each target slot.
 pub(in crate::card::sets) static FORK: CardRecord = CardRecord::new_with_legacy_id(
     10,
     "Fork",
     CardArt::new("e6b43916-fe2d-417a-a550-d7c795023297", "Amy Weber"),
     CardSet::Alpha,
     CardRules::new_instant(mana_cost!("{R}{R}")).with_abilities(&[
-        AbilityDef::custom_partial(
+        AbilityDef::spell_with_targets(
             "Copy target instant or sorcery spell, except that the copy is red. You may choose new targets for the copy.",
-            CardBehavior::Fork,
-            "Choosing new targets for the copy is offered as a single ordered decision rather than slot by slot.",
+            &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Instant),
+                ObjectPredicateDef::HasType(CardType::Sorcery),
+            ]))],
+            EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                controller: PlayerRefDef::EffectController,
+                count: ValueDef::Constant(1),
+                retarget: true,
+                colors: Some(ColorSet::from_colors(&[ManaColor::Red])),
+            }),
         ),
     ]),
 );

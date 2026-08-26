@@ -60,9 +60,7 @@ pub enum EffectDef {
     PhaseOut {
         object: EffectRecipientDef,
     },
-    /// Replaces the source permanent's copiable values with the target's.
-    /// Some copy effects, such as Thespian's Stage, retain the resolving
-    /// ability as an exception to the copied values.
+    /// Replaces one permanent's copiable values with another object's.
     BecomeCopyOf {
         /// What is copied.
         object: EffectRecipientDef,
@@ -70,10 +68,10 @@ pub enum EffectDef {
         /// "this land becomes a copy of target land" means; a clause that
         /// points at something else names it here.
         copier: Option<EffectRecipientDef>,
-        retain_source_ability: bool,
-        /// Types the copy has on top of what it copied, for "except it's an
-        /// artifact in addition to its other types".
-        added_types: CardTypeSet,
+        /// Everything the copy has or replaces as part of the copy process.
+        /// An empty definition is a plain copy; additions may include a
+        /// reference to this very ability.
+        exceptions: CopyExceptionsDef,
         /// How long the copy lasts. A copy with no stated duration is
         /// indefinite, which is what almost every printed one is.
         duration: Option<ResolvedEffectDurationDef>,
@@ -195,24 +193,8 @@ pub enum EffectDef {
         binding: ObjectSetBindingIndex,
         then: &'static EffectDef,
     },
-    /// Copies the spell this effect belongs to, letting `chooser` retarget the
-    /// copy. Fork copies something else and repaints it; this is the shape a
-    /// card uses to copy itself, so the copy keeps its own colours.
-    CopyResolvingSpell {
-        chooser: PlayerRefDef,
-        /// How many copies. Each is offered its own retarget choice, which is
-        /// what "you may choose new targets for the copies" asks for.
-        count: ValueDef,
-    },
-    /// Copies a spell this effect names rather than the one it belongs to.
-    /// The copy keeps what it copied, colours included -- a card that
-    /// repaints its copy says so, and none of the ones written this way do.
-    CopyTargetSpell {
-        object: EffectRecipientDef,
-        /// Who retargets the copy, which is its controller: "you may choose
-        /// new targets for the copy" is addressed to whoever made it.
-        chooser: PlayerRefDef,
-    },
+    /// Copies one or more named spells or abilities on the stack.
+    CopyStackObject(&'static CopyStackObjectDef),
     /// Gives its controller an emblem, an object that sits outside every
     /// zone and does nothing but carry its abilities.
     CreateEmblem {
@@ -226,6 +208,9 @@ pub enum EffectDef {
     /// the resolving object's controller.
     CreateToken {
         token: TokenCharacteristics,
+        /// When present, the authored token shell is replaced by the named
+        /// object's copiable values before it enters the battlefield.
+        copy: Option<&'static TokenCopyDef>,
         /// Who the tokens arrive under. `None` is the resolving object's own
         /// controller, which is what "create a token" means; a clause that
         /// hands them to somebody else -- "its controller creates two Map
@@ -256,21 +241,6 @@ pub enum EffectDef {
     CreateAttachedToken {
         token: TokenCharacteristics,
         host: Option<EffectRecipientDef>,
-    },
-    /// Creates a token copying the recipient's copiable values. Populate uses
-    /// this after its generic choice has selected a creature token.
-    CreateTokenCopyOf {
-        object: EffectRecipientDef,
-        /// What the token is "except" for. Every one of them is itself a
-        /// copiable value (CR 707.9a), so a later copy of the token copies
-        /// them too.
-        exceptions: TokenCopyExceptionsDef,
-        /// Who gets the copy. `None` is the effect's own controller, which
-        /// is what almost every printed clause means; "each player other
-        /// than its controller" names somebody else.
-        controller: Option<PlayerRefDef>,
-        /// What to do with the copy this made, for a clause naming exactly it.
-        created: Option<CreatedTokensDef>,
     },
     CreateMyriadTokens, // Exact no-op in two-player games: there is no other opponent.
     /// Endure N (CR 702.183a): put N +1/+1 counters on the object, or create

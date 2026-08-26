@@ -5,8 +5,8 @@ use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef,
     AttackEventMatcherDef, BasicLandType, BattlefieldEntryModificationDef, CardArt,
-    CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, CardTypeSet,
-    CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef, ComparisonDef, ControlDurationDef,
+    CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, CharacteristicOperationDef,
+    ChoiceVisibilityDef, ChooseDef, ComparisonDef, ControlDurationDef, CopyExceptionsDef,
     CounterKind, CreatureTypeSetDef, DrawEventMatcherDef, EffectDef, EffectPaymentCostDef,
     EffectPaymentDef, EffectRecipientDef, EmblemCharacteristics, ExiledCastPermissionDef,
     HalvedValueDef, InstalledTriggerDef, InstalledTriggerLifetimeDef, ManaColor, ManaCost,
@@ -14,9 +14,9 @@ use crate::card::{
     ObjectSetDef, PayOrDef, PileExileDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ReplacementEffectDef, ResolvedEffectDurationDef, RoundingDef, SetOperationDef,
     SimultaneousChooseDef, SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef,
-    SumValueDef, TargetConditionDef, TokenCopyExceptionsDef, TokenCountersDef, TopCardSelectionDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
-    ZonePickDef, ZonePlacement, abilities, tokens,
+    SumValueDef, TargetConditionDef, TokenCountersDef, TopCardSelectionDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePickDef,
+    ZonePlacement, abilities, tokens,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
 use crate::{TargetIndex, mana_cost};
@@ -156,12 +156,11 @@ static YOUR_NEW_TOKENS: ObjectQueryDef = ObjectQueryDef::controlled_by(
     PlayerSetDef::Related(PlayerRelation::You),
 );
 
-static OCELOT_DOUBLES_THEM: EffectDef = EffectDef::CreateTokenCopyOf {
-    object: EffectRecipientDef::objects(ObjectSetDef::Query(YOUR_NEW_TOKENS)),
-    exceptions: TokenCopyExceptionsDef::NONE,
-    controller: None,
-    created: None,
-};
+static OCELOT_DOUBLES_THEM: EffectDef =
+    EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
+        object: &EffectRecipientDef::objects(ObjectSetDef::Query(YOUR_NEW_TOKENS)),
+        exceptions: CopyExceptionsDef::NONE,
+    });
 
 static OCELOT_END_STEP: [EffectDef; 2] = [
     EffectDef::create_creature_token(&["Cat"], &[ManaColor::White], 1, 1).with_art(CardArt::new(
@@ -1240,12 +1239,11 @@ static NANTUKO_IS_WEARING_A_CREATURE: TriggerConditionDef =
 
 /// The whole point of bestowing it: every land is another copy of whatever
 /// it is wearing.
-static NANTUKO_COPIES_ITS_HOST: EffectDef = EffectDef::CreateTokenCopyOf {
-    object: EffectRecipientDef::AttachedPermanent,
-    exceptions: TokenCopyExceptionsDef::NONE,
-    controller: None,
-    created: None,
-};
+static NANTUKO_COPIES_ITS_HOST: EffectDef =
+    EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
+        object: &EffectRecipientDef::AttachedPermanent,
+        exceptions: CopyExceptionsDef::NONE,
+    });
 
 /// "If you didn't create a token this way": declining, being unable to pay,
 /// and not being attached at all are the same answer, and each leaves an
@@ -1462,10 +1460,14 @@ static PSYCHIC_FROG_ABILITIES: [AbilityDef; 3] = [
     ),
     AbilityDef::activated(
         "Exile three cards from your graveyard: This creature gains flying until end of turn.",
-        &[AbilityCostDef::ExileCardsFromGraveyard {
-            object: ObjectPredicateDef::Any,
-            count: 3,
-        }],
+        &[AbilityCostDef::MoveToZone(
+            crate::card::MoveToZoneCostDef::new(
+                ObjectPredicateDef::Any,
+                ZoneKind::Graveyard,
+                ZoneKind::Exile,
+                3,
+            ),
+        )],
         EffectDef::Apply {
             recipient: EffectRecipientDef::Source,
             effect: AppliedEffectDef::add_ability(&abilities::flying()),
@@ -1724,8 +1726,7 @@ static SHIFTING_WOODLAND_ABILITIES: [AbilityDef; 3] = [
         EffectDef::BecomeCopyOf {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             copier: None,
-            retain_source_ability: false,
-            added_types: CardTypeSet::EMPTY,
+            exceptions: CopyExceptionsDef::NONE,
             duration: Some(ResolvedEffectDurationDef::UntilEndOfTurn),
         },
     )

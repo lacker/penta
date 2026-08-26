@@ -7,13 +7,13 @@ use crate::card::{
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
     BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorSet, ComparisonDef, ControlDurationDef,
-    CountConditionDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamagePreventionDef,
-    DestroyFollowUpDef, DiscardFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentCostDef,
-    EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
-    SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostDef, TargetChooserDef,
-    TokenCopyExceptionsDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef,
+    CopyExceptionsDef, CountConditionDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef,
+    DamagePreventionDef, DestroyFollowUpDef, DiscardFollowUpDef, DiscardSelectionDef, EffectDef,
+    EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostDef,
+    TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef,
     ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
@@ -886,13 +886,20 @@ pub(in crate::card::sets) static PLATED_SEASTRIDER: CardRecord = CardRecord::new
 );
 
 // SOM 39 — Quicksilver Gargantuan
-// Audit: metadata-only — Copy-as-enters needs a copiable exception that replaces the copied creature's base power and toughness with 7/7.
 pub(in crate::card::sets) static QUICKSILVER_GARGANTUAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b83f5aea-80f2-4f3d-8508-9619413e0087"),
     "Quicksilver Gargantuan",
     crate::card::CardArt::new("b83f5aea-80f2-4f3d-8508-9619413e0087", "Steven Belledin"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Shapeshifter"], 7, 7).with_ability(
+        AbilityDef::replacement(
+            "You may have this creature enter as a copy of any creature on the battlefield, except it's 7/7.",
+            ReplacementEffectDef::CopyEntering {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                exceptions: CopyExceptionsDef::power_toughness(7, 7),
+            },
+        ),
+    ),
 );
 
 // SOM 40 — Riddlesmith
@@ -4205,10 +4212,12 @@ pub(in crate::card::sets) static MOLTEN_TAIL_MASTICORE: CardRecord = CardRecord:
             "{4}, Exile a creature card from your graveyard: This creature deals 4 damage to any target.",
             &[
                 AbilityCostDef::Mana(mana_cost!("{4}")),
-                AbilityCostDef::ExileCardsFromGraveyard {
-                    object: ObjectPredicateDef::HasType(CardType::Creature),
-                    count: 1,
-                },
+                AbilityCostDef::MoveToZone(crate::card::MoveToZoneCostDef::new(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ZoneKind::Graveyard,
+                    ZoneKind::Exile,
+                    1,
+                )),
             ],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
@@ -4412,12 +4421,10 @@ pub(in crate::card::sets) static MYR_PROPAGATOR: CardRecord = CardRecord::new(
                 AbilityCostDef::Mana(mana_cost!("{3}")),
                 AbilityCostDef::TapSource,
             ],
-            EffectDef::CreateTokenCopyOf {
-                object: EffectRecipientDef::Source,
-                exceptions: TokenCopyExceptionsDef::NONE,
-                controller: None,
-                created: None,
-            },
+            EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
+                object: &EffectRecipientDef::Source,
+                exceptions: CopyExceptionsDef::NONE,
+            }),
         ),
     ),
 );

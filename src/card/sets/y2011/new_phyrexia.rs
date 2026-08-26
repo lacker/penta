@@ -8,13 +8,14 @@ use crate::card::{
     ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef,
     AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, BasicLandType,
     BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CardTypeSet, ChoiceVisibilityDef, ChooseDef, ControlDurationDef, CounterKind,
-    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef,
-    ManaColor, ManaRestrictionDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    SpellAdditionalCostDef, SumValueDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    CardTypeSet, ChoiceVisibilityDef, ChooseDef, ControlDurationDef, CopyExceptionsDef,
+    CounterKind, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
+    InstalledTriggerDef, ManaColor, ManaRestrictionDef, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    SacrificedAmountDef, SpellAdditionalCostDef, SumValueDef, TopCardSelectionDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::{AdditionalCostObjectIndex, ObjectBindingIndex};
 use crate::{TargetIndex, mana_cost};
@@ -1098,9 +1099,8 @@ pub(in crate::card::sets) static PHYREXIAN_METAMORPH: CardRecord = CardRecord::n
          battlefield, except it's an artifact in addition to its other types.",
             ReplacementEffectDef::CopyEntering {
                 object: AN_ARTIFACT_OR_CREATURE,
-                added_types: CardTypeSet::single(CardType::Artifact),
-                retain_printed_subtypes: false,
-                retained_abilities: &[],
+                exceptions: CopyExceptionsDef::NONE
+                    .with_added_types(CardTypeSet::single(CardType::Artifact)),
             },
         )),
 );

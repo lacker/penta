@@ -67,6 +67,25 @@ pub const fn replicate(mana_cost: ManaCost) -> AbilityDef {
     )
 }
 
+static STORM_COPY: CopyStackObjectDef = CopyStackObjectDef {
+    object: EffectRecipientDef::Source,
+    controller: PlayerRefDef::EffectController,
+    count: ValueDef::SpellsCastBeforeThisTurn,
+    retarget: true,
+    colors: None,
+};
+
+/// Storm (CR 702.40): casting the spell triggers one copy for every spell
+/// cast before it this turn. Each copy gets its own target choice.
+#[must_use]
+pub const fn storm() -> AbilityDef {
+    AbilityDef::triggered(
+        "Storm (When you cast this spell, copy it for each spell cast before it this turn. You may choose new targets for the copies.)",
+        TriggerEventDef::SpellCast(ObjectPredicateDef::Source),
+        EffectDef::CopyStackObject(&STORM_COPY),
+    )
+}
+
 /// Multikicker: an additional cost the caster may pay any number of times,
 /// with nothing else attached. What it buys is printed separately, as a
 /// clause that reads how many times it was paid.

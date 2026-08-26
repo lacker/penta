@@ -89,12 +89,10 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::ChooseCards { .. }
         | EffectDef::PutSpellIntoOwnersLibrary { .. }
         | EffectDef::Counter { .. }
-        | EffectDef::CopyResolvingSpell { .. }
-        | EffectDef::CopyTargetSpell { .. }
+        | EffectDef::CopyStackObject(_)
         | EffectDef::CreateEmblem { .. }
         | EffectDef::CreateOngoingEffect(_)
         | EffectDef::CreateAttachedToken { .. }
-        | EffectDef::CreateTokenCopyOf { .. }
         | EffectDef::Endure { .. }
         | EffectDef::CreateMyriadTokens
         | EffectDef::DealDamage { .. }
@@ -182,6 +180,7 @@ mod tests {
     fn created_token_continuation_is_a_child() {
         let create = |created| EffectDef::CreateToken {
             token: TOKEN,
+            copy: None,
             controller: None,
             count: ValueDef::Constant(1),
             tapped: false,

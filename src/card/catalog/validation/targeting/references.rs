@@ -37,9 +37,15 @@ pub(super) fn validate_ability_program_targets(
     targets: &[AbilityTargetDef],
     program: AbilityProgramDef,
     trigger_event: Option<TriggerEventDef>,
+    binds_chosen_cost_card: bool,
 ) -> Result<(), GrantedAbilityValidationError> {
     validate_target_definitions(targets)?;
-    validate_program_references(program, targets.len(), BindingScope::EMPTY)?;
+    let scope = if binds_chosen_cost_card {
+        BindingScope::EMPTY.with_object(ObjectBindingIndex::PRIMARY)?
+    } else {
+        BindingScope::EMPTY
+    };
+    validate_program_references(program, targets.len(), scope)?;
     validate_program_target_shapes(program, targets, trigger_event)
 }
 
@@ -598,6 +604,9 @@ fn validate_object_predicate_references(
         | ObjectPredicateDef::ToughnessGreaterThan(value)
         | ObjectPredicateDef::PowerLessThan(value) => {
             validate_value_target_references(value, target_count, scope)
+        }
+        ObjectPredicateDef::HasName(reference) => {
+            validate_object_reference(reference, target_count, scope)
         }
         _ => Ok(()),
     }

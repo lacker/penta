@@ -48,7 +48,7 @@ pub(in crate::card::sets) static AKRON_LEGIONNAIRE: CardRecord = CardRecord::new
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::SharesNameWithSource,
+                            ObjectPredicateDef::HasName(ObjectRefDef::Source),
                             ObjectPredicateDef::HasType(CardType::Artifact),
                         ])),
                     ]),
@@ -512,7 +512,7 @@ static IVORY_GUARDIANS_ANTHEM: EffectDef = EffectDef::StaticApply {
     recipient: EffectRecipientDef::matching_objects(
         ObjectPredicateDef::All(&[
             ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::SharesNameWithSource,
+            ObjectPredicateDef::HasName(ObjectRefDef::Source),
         ]),
         &[ZoneKind::Battlefield],
         PlayerRelation::Any,
@@ -2749,25 +2749,45 @@ pub(in crate::card::sets) static CAVERNS_OF_DESPAIR: CardRecord = CardRecord::ne
 );
 
 // LEG 137 — Chain Lightning
-// Audit: custom — Needs declarative opponent payment followed by optional spell copying and retargeting for the copy.
+static CHAIN_LIGHTNING_COPY: EffectDef = EffectDef::May {
+    player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+    effect: &EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
+        object: EffectRecipientDef::object(ObjectRefDef::ResolvingObject),
+        controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+        count: ValueDef::Constant(1),
+        retarget: true,
+        colors: None,
+    }),
+};
+
+static CHAIN_LIGHTNING_EFFECTS: [EffectDef; 2] = [
+    EffectDef::DealDamage {
+        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        amount: ValueDef::Constant(3),
+    },
+    EffectDef::PayOr(PayOrDef::optional(
+        EffectPaymentDef::mana(
+            PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+                TargetIndex::PRIMARY,
+            ))),
+            mana_cost!("{R}{R}"),
+        ),
+        &CHAIN_LIGHTNING_COPY,
+    )),
+];
+
 pub(in crate::card::sets) static CHAIN_LIGHTNING: CardRecord = CardRecord::new_with_legacy_id(
     6,
     "Chain Lightning",
     CardArt::new("b5883762-ca0a-4932-8d2a-41a45796a5f8", "Sandra Everingham"),
     CardSet::Legends,
-    CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[
-        AbilityDef::spell_with_targets("Chain Lightning deals 3 damage to any target.", &[AbilityTargetDef::exactly_one(
+    CardRules::new_sorcery(mana_cost!("{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Chain Lightning deals 3 damage to any target. Then that player or that permanent's controller may pay {R}{R}. If the player does, they may copy this spell and may choose a new target for that copy.",
+        &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::AnyTarget,
-        )], EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(3),
-            }),
-        AbilityDef::custom_full(
-            "Then that player or that permanent's controller may pay {R}{R}. If the player does, they may copy this spell and may choose a new target for that copy.",
-            CardBehavior::ChainLightning,
-            "The optional payment and spell-copy procedure are implemented by the card-local follow-up resolver.",
-        ),
-    ]),
+        )],
+        EffectDef::Sequence(&CHAIN_LIGHTNING_EFFECTS),
+    )),
 );
 
 // LEG 138 — Crevasse

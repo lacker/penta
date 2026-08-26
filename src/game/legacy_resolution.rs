@@ -38,17 +38,6 @@ impl Game {
             CardBehavior::GoblinGrenade => {
                 self.damage_target(object.first_target(), 5);
             }
-            CardBehavior::ChainLightning => {
-                let deciding = match object.first_target() {
-                    Some(Target::Player(player)) => Some(player),
-                    Some(Target::Permanent(id)) => self.permanent_controller(id),
-                    Some(Target::Card(_) | Target::Spell(_)) | None => None,
-                };
-                self.damage_target(object.first_target(), 3);
-                if let Some(player) = deciding {
-                    self.queue_chain_lightning_decision(player, object.clone());
-                }
-            }
             CardBehavior::Fireball => {
                 let divisor = u16::try_from(object.target_count()).unwrap_or(u16::MAX);
                 let amount = object.x().checked_div(divisor).unwrap_or(0);
@@ -67,14 +56,6 @@ impl Game {
             CardBehavior::Negate | CardBehavior::EssenceScatter => {
                 if let Some(Target::Spell(target)) = object.first_target() {
                     self.counter_spell(target);
-                }
-            }
-            CardBehavior::Fork => {
-                if let Some(Target::Spell(target)) = object.first_target()
-                    && let Some(original) =
-                        self.stack.iter().find(|item| item.id == target).cloned()
-                {
-                    self.queue_fork_decision(object.controller, original);
                 }
             }
             CardBehavior::Mulch => {

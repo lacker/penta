@@ -25,6 +25,7 @@ static BALOTH_ARRIVES_STUNNED: [ReplacementEffectDef; 2] = [
 static BALOTH_PAYS_A_LAND_OFF: [EffectDef; 2] = [
     EffectDef::CreateToken {
         token: tokens::creature(&["Beast"], &[ManaColor::Green], 4, 4),
+        copy: None,
         controller: None,
         count: ValueDef::Constant(1),
         tapped: true,

@@ -55,7 +55,7 @@ impl Game {
             | ObjectPredicateDef::OwnedBy(_)
             | ObjectPredicateDef::Supertype(_)
             | ObjectPredicateDef::DebutSet(_)
-            | ObjectPredicateDef::SharesNameWithSource
+            | ObjectPredicateDef::HasName(_)
             | ObjectPredicateDef::AttackingOrBlocking
             | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::WasDealtDamageThisTurn

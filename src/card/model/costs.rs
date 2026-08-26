@@ -1,13 +1,53 @@
 use super::{
     AppliedEffectDef, ConditionDef, CounterKind, ManaColor, ManaCost, ObjectPredicateDef,
-    ObjectRefDef, PlayerRefDef, PlayerRelation, ValueDef,
+    ObjectRefDef, PlayerRefDef, PlayerRelation, ValueDef, ZoneKind,
 };
+use crate::ids::ObjectBindingIndex;
+
+/// A chosen-object cost whose payment is a zone change.
+///
+/// The destination is explicit rather than inferred from the source zone, so
+/// the same shape covers exiling from a graveyard, discarding from a hand,
+/// returning a permanent, and future forced moves without another enum case.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct MoveToZoneCostDef {
+    pub object: ObjectPredicateDef,
+    pub from: ZoneKind,
+    pub to: ZoneKind,
+    pub count: u8,
+    /// Saves the paid objects' successor identities for another cost or the
+    /// resolving effect. A single-object binding requires `count == 1`.
+    pub binding: Option<ObjectBindingIndex>,
+}
+
+impl MoveToZoneCostDef {
+    #[must_use]
+    pub const fn new(object: ObjectPredicateDef, from: ZoneKind, to: ZoneKind, count: u8) -> Self {
+        Self {
+            object,
+            from,
+            to,
+            count,
+            binding: None,
+        }
+    }
+
+    #[must_use]
+    pub const fn binding(mut self, binding: ObjectBindingIndex) -> Self {
+        self.binding = Some(binding);
+        self
+    }
+}
 
 /// One atomic cost. The surrounding rules procedure determines who pays it
 /// and what object, if any, is the source.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum CostDef {
     Mana(ManaCost),
+    /// Pay the printed mana cost of the referenced object. A binding may be
+    /// supplied by another cost in this same activation, which is Back from
+    /// the Brink's "exile ... and pay its mana cost" shape.
+    ManaCostOf(ObjectRefDef),
     TapSource,
     UntapSource,
     SacrificeSource,
@@ -100,16 +140,8 @@ pub enum CostDef {
     /// the card never enters a graveyard; Cadaverous Bloom is the canonical
     /// mana-ability use.
     ExileCardFromHand(ObjectPredicateDef),
-    /// Exile a matching card from the controller's own graveyard. The card is
-    /// chosen when the cost is paid, so it travels with the action rather
-    /// than being a target.
-    /// Exile `count` matching cards from the activating player's graveyard.
-    /// Most printed forms take one; Grim Lavamancer takes two, and the player
-    /// chooses which, so every combination is its own offered activation.
-    ExileCardsFromGraveyard {
-        object: ObjectPredicateDef,
-        count: u8,
-    },
+    /// Choose matching objects and move them as the cost is paid.
+    MoveToZone(MoveToZoneCostDef),
     /// Crew's and saddle's cost: tap any number of other untapped creatures
     /// you control whose power adds up to at least this much (CR 702.122a,
     /// CR 702.166a). Which creatures pay is chosen one at a time as the

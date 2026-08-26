@@ -902,10 +902,12 @@ pub(in crate::card::sets) static HAVENGUL_RUNEBINDER: CardRecord = CardRecord::n
             &[
                 AbilityCostDef::Mana(mana_cost!("{2}{U}")),
                 AbilityCostDef::TapSource,
-                AbilityCostDef::ExileCardsFromGraveyard {
-                    object: ObjectPredicateDef::HasType(CardType::Creature),
-                    count: 1,
-                },
+                AbilityCostDef::MoveToZone(crate::card::MoveToZoneCostDef::new(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ZoneKind::Graveyard,
+                    ZoneKind::Exile,
+                    1,
+                )),
             ],
             EffectDef::Sequence(&[
                 EffectDef::create_creature_token(&["Zombie"], &[ManaColor::Black], 2, 2).with_art(CardArt::new("b877c19d-6022-4377-92e7-4511e24eb98e", "Lucas Graciano")),

@@ -42,6 +42,7 @@ impl Game {
                 | AbilityCostDef::RemoveAnyNumberOfCountersFromSource(_)
                 // A hand of nothing discards nothing, which pays it.
                 | AbilityCostDef::DiscardHand
+                | AbilityCostDef::ManaCostOf(_)
                 | AbilityCostDef::TapSource
                 | AbilityCostDef::ExertSource
                 | AbilityCostDef::UntapSource
@@ -59,7 +60,7 @@ impl Game {
                 | AbilityCostDef::TapPermanent { .. }
                 | AbilityCostDef::TapCreaturesWithTotalPower { .. }
                 | AbilityCostDef::ExileSource
-                | AbilityCostDef::ExileCardsFromGraveyard { .. }
+                | AbilityCostDef::MoveToZone(_)
                 | AbilityCostDef::Special(_) => true,
                 // Sorcery speed, once a turn, and never past zero: a mana
                 // ability that costs loyalty is still a loyalty ability
@@ -144,6 +145,7 @@ impl Game {
                 !mana.variable_x && mana.hybrid_total() == 0 && bounded
             }
             AbilityCostDef::UntapSource
+            | AbilityCostDef::ManaCostOf(_)
             | AbilityCostDef::SacrificeObject(_)
             | AbilityCostDef::DiscardSource
             | AbilityCostDef::DiscardCards(_)
@@ -153,7 +155,7 @@ impl Game {
             | AbilityCostDef::ReturnUnblockedAttackerToHand
                 | AbilityCostDef::TapPermanent { .. }
             | AbilityCostDef::TapCreaturesWithTotalPower { .. }
-            | AbilityCostDef::ExileCardsFromGraveyard { .. }
+            | AbilityCostDef::MoveToZone(_)
             | AbilityCostDef::Special(_) => false,
         }
     }

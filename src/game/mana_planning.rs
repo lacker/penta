@@ -13,9 +13,9 @@ use super::{
     EffectRecipientDef, FlexibleManaSource, Game, GameObjectId, HybridPair, KeywordAbility,
     ManaAbilityActivation, ManaActivationChoices, ManaColor, ManaContributionKind, ManaCost,
     ManaPaymentPurpose, ManaPlanOptions, ManaPool, ManaSourceOutput, ManaSourceOutputs,
-    PaymentCapacity, Permanent, PlannedManaActivation, PlannedPaymentKind, PlayActionKind,
-    PlayOptionDef, PlayerId, SetOperationDef, Target, TargetSelection, TriggerContext, ValueDef,
-    ZoneKind, extra_target_cost,
+    ObjectRefDef, PaymentCapacity, Permanent, PlannedManaActivation, PlannedPaymentKind,
+    PlayActionKind, PlayOptionDef, PlayerId, SetOperationDef, Target, TargetSelection,
+    TriggerContext, ValueDef, ZoneKind, extra_target_cost,
 };
 
 impl Game {
@@ -281,17 +281,19 @@ impl Game {
                 cost_objects,
                 animates_source,
             );
-            return Self::activated_ability_mana_cost(&definition).map(|cost| {
-                (
-                    Self::announced_mana_cost(
-                        self.activation_mana_cost(&definition, source, cost),
-                        mana_payment,
-                    ),
-                    x,
-                    options,
-                    purpose,
-                )
-            });
+            return self
+                .activated_ability_mana_cost_for(&definition, cost_objects)
+                .map(|cost| {
+                    (
+                        Self::announced_mana_cost(
+                            self.activation_mana_cost(&definition, source, cost),
+                            mana_payment,
+                        ),
+                        x,
+                        options,
+                        purpose,
+                    )
+                });
         }
 
         None

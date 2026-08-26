@@ -189,18 +189,9 @@ impl Game {
                 self.queue_entry_scalar_choice(player, context, choice);
                 None
             }
-            ReplacementEffectDef::CopyEntering {
-                object,
-                added_types,
-                retain_printed_subtypes,
-                retained_abilities,
-            } => self.offer_entry_copy(
-                pending,
-                object,
-                added_types,
-                retain_printed_subtypes,
-                retained_abilities,
-            ),
+            ReplacementEffectDef::CopyEntering { object, exceptions } => {
+                self.offer_entry_copy(pending, object, exceptions, context.source.ability)
+            }
             // Any number of cards, so this one has to be asked rather than
             // recorded: the entry waits behind the choice and resumes with
             // the pile linked to the permanent that is arriving.

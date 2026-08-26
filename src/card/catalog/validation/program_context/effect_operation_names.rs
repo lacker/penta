@@ -41,7 +41,6 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::Saddle { .. } => "Saddle",
         EffectDef::CreateToken { .. } => "CreateToken",
         EffectDef::CreateAttachedToken { .. } => "CreateAttachedToken",
-        EffectDef::CreateTokenCopyOf { .. } => "CreateTokenCopyOf",
         EffectDef::Endure { .. } => "Endure",
         EffectDef::CreateMyriadTokens => "CreateMyriadTokens",
         EffectDef::Attach { .. }
@@ -81,9 +80,8 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::ChooseCards { .. } => "ChooseCards",
         EffectDef::ReplaceNextDrawThisTurn { .. } => "ReplaceNextDrawThisTurn",
         EffectDef::IfFormat { .. } => "IfFormat",
-        EffectDef::Counter { .. }
-        | EffectDef::CopyResolvingSpell { .. }
-        | EffectDef::CopyTargetSpell { .. } => "Counter",
+        EffectDef::Counter { .. } => "Counter",
+        EffectDef::CopyStackObject(_) => "CopyStackObject",
         EffectDef::PutSpellIntoOwnersLibrary { .. } => "PutSpellIntoOwnersLibrary",
         EffectDef::DrainLife { .. } => "DrainLife",
         EffectDef::AddManaEqualTo { .. } => "AddManaEqualTo",

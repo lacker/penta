@@ -188,11 +188,12 @@ fn a_copied_and_recolored_spell_reconstructs_on_the_stack() {
         Target::Spell(spell_on_stack),
     );
     resolve_top_of_stack(&mut game);
-    while game
-        .pending_decisions
-        .first()
-        .is_some_and(|pending| matches!(pending.continuation, DecisionContinuation::Fork { .. }))
-    {
+    while game.pending_decisions.first().is_some_and(|pending| {
+        matches!(
+            pending.continuation,
+            DecisionContinuation::CopyStackObject { .. }
+        )
+    }) {
         answer_with_first_option(&mut game);
     }
 

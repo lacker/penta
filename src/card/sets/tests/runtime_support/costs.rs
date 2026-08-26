@@ -7,6 +7,47 @@
 use super::*;
 use crate::card::SpellAdditionalCostDef;
 
+fn linked_card_mana_costs_supported(battlefield: bool, costs: &[AbilityCostDef]) -> bool {
+    let priced_bindings = costs
+        .iter()
+        .filter_map(|cost| match cost {
+            AbilityCostDef::ManaCostOf(ObjectRefDef::Binding(binding)) => Some(*binding),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    let moved_bindings = costs
+        .iter()
+        .filter_map(|cost| match cost {
+            AbilityCostDef::MoveToZone(movement)
+                if movement.from == ZoneKind::Graveyard
+                    && movement.to == ZoneKind::Exile
+                    && movement.count == 1 =>
+            {
+                movement.binding
+            }
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    let chosen_object_costs = costs
+        .iter()
+        .filter(|cost| {
+            matches!(
+                cost,
+                AbilityCostDef::SacrificePermanent { .. }
+                    | AbilityCostDef::SacrificePermanents { .. }
+                    | AbilityCostDef::ReturnUnblockedAttackerToHand
+                    | AbilityCostDef::TapPermanent { .. }
+                    | AbilityCostDef::MoveToZone(_)
+                    | AbilityCostDef::DiscardCardMatching(_)
+                    | AbilityCostDef::ExileCardFromHand(_)
+            )
+        })
+        .count();
+    priced_bindings.len() <= 1
+        && (priced_bindings.is_empty()
+            || (battlefield && moved_bindings == priced_bindings && chosen_object_costs == 1))
+}
+
 pub(in super::super) fn shared_activated_costs(
     source_zones: &[ZoneKind],
     costs: &[AbilityCostDef],
@@ -36,6 +77,7 @@ pub(in super::super) fn shared_activated_costs(
     sacrifice_choices <= 1
         && fixed_sacrifices <= 1
         && source_exit_costs <= 1
+        && linked_card_mana_costs_supported(battlefield, costs)
         && costs.iter().all(|cost| match cost {
             // A variable X is offered one activation per affordable
             // value. More than one X in the same cost is not: nothing
@@ -51,10 +93,17 @@ pub(in super::super) fn shared_activated_costs(
             // enumeration, which asks the same question of the same walk.
             AbilityCostDef::SacrificePermanent { object, .. }
             | AbilityCostDef::SacrificePermanents { object, .. }
-            | AbilityCostDef::ExileCardsFromGraveyard { object, .. }
             | AbilityCostDef::DiscardCardMatching(object)
             | AbilityCostDef::ExileCardFromHand(object) => {
                 battlefield && shared_object_predicate(*object)
+            }
+            AbilityCostDef::MoveToZone(movement) => {
+                battlefield
+                    && movement.from == ZoneKind::Graveyard
+                    && movement.to == ZoneKind::Exile
+                    && movement.count > 0
+                    && movement.binding.is_none_or(|_| movement.count == 1)
+                    && shared_object_predicate(movement.object)
             }
             // What pays the tap is out on the battlefield wherever the
             // ability is activated from, so a card in a graveyard can name
@@ -67,7 +116,8 @@ pub(in super::super) fn shared_activated_costs(
             AbilityCostDef::ExileSource => battlefield || graveyard,
             // A fixed object sacrifice is supported only when it names the
             // source whose activation is being checked.
-            AbilityCostDef::SacrificeObject(
+            AbilityCostDef::ManaCostOf(ObjectRefDef::Binding(_))
+            | AbilityCostDef::SacrificeObject(
                 ObjectRefDef::Source | ObjectRefDef::AbilityGrantSource,
             )
             | AbilityCostDef::TapSource
@@ -112,6 +162,17 @@ pub(in super::super) fn shared_activated_costs(
                 | ObjectRefDef::SourceOfTargetedStackObject(_),
             )
             | AbilityCostDef::DiscardCards(_)
+            | AbilityCostDef::ManaCostOf(
+                ObjectRefDef::Source
+                | ObjectRefDef::AbilityGrantSource
+                | ObjectRefDef::ResolvingObject
+                | ObjectRefDef::AttachedToSource
+                | ObjectRefDef::Target(_)
+                | ObjectRefDef::TriggeringObject
+                | ObjectRefDef::DamagedObject
+                | ObjectRefDef::AdditionalCostObject(_)
+                | ObjectRefDef::SourceOfTargetedStackObject(_),
+            )
             | AbilityCostDef::Special(_) => false,
         })
 }

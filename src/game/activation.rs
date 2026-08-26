@@ -397,6 +397,9 @@ impl Game {
                         );
                         let _ = self.pay_player_cost_for(player, cost, x, &payment_purpose);
                     }
+                    AbilityCostDef::ManaCostOf(_) => {
+                        unreachable!("hand abilities cannot price another chosen card")
+                    }
                     AbilityCostDef::DiscardSource => {
                         let discarded = remove_card(&mut self.players[player.index()].hand, source)
                             .expect("a legal hand activation still has its source");
@@ -464,7 +467,7 @@ impl Game {
                     | AbilityCostDef::TapCreaturesWithTotalPower { .. }
                     | AbilityCostDef::ExileSource
                     | AbilityCostDef::Loyalty(_)
-                    | AbilityCostDef::ExileCardsFromGraveyard { .. }
+                    | AbilityCostDef::MoveToZone(_)
                     | AbilityCostDef::Special(_) => {
                         unreachable!("unsupported hand-zone costs are not offered")
                     }
@@ -615,8 +618,13 @@ impl Game {
                     .expect("a legal activation chose the one to tap");
                 let _ = self.tap_permanent(chosen);
             }
+            let has_linked_card_mana = definition
+                .costs
+                .iter()
+                .any(|cost| matches!(cost, AbilityCostDef::ManaCostOf(_)));
             for cost in definition.costs.as_slice() {
                 match cost {
+                    AbilityCostDef::Mana(_) if has_linked_card_mana => {}
                     AbilityCostDef::Mana(cost) => {
                         // Read through any increase on the battlefield and
                         // any discount, printed or granted, so what is paid
@@ -644,6 +652,28 @@ impl Game {
                         // The same purpose the mana was raised under. Paying
                         // under a different one would price the cost
                         // differently from the offer it came from.
+                        let _ = self.pay_player_cost_for(player, cost, x, &payment_purpose);
+                    }
+                    AbilityCostDef::ManaCostOf(_) => {
+                        let cost = self
+                            .activated_ability_mana_cost_for(&definition, cost_objects)
+                            .map(|cost| self.activation_mana_cost(&definition, source, cost))
+                            .expect("a legal linked card-mana activation has its chosen card");
+                        let payment_purpose = ManaPaymentPurpose::Ability {
+                            source,
+                            taps_source,
+                            leaves_source,
+                        };
+                        self.activate_mana_for_cost_with_options_for(
+                            player,
+                            cost,
+                            x,
+                            ManaPlanOptions {
+                                avoid: (taps_source || animates_source).then_some(source),
+                                tap_cost_payer,
+                            },
+                            &payment_purpose,
+                        );
                         let _ = self.pay_player_cost_for(player, cost, x, &payment_purpose);
                     }
                     AbilityCostDef::TapSource => {
@@ -723,7 +753,9 @@ impl Game {
                     }
                     // The cost names as many cards as it prints, and the
                     // activation carried every one of them.
-                    AbilityCostDef::ExileCardsFromGraveyard { .. } => {
+                    AbilityCostDef::MoveToZone(movement) => {
+                        debug_assert_eq!(movement.from, ZoneKind::Graveyard);
+                        debug_assert_eq!(movement.to, ZoneKind::Exile);
                         // One move for the whole cost, however many cards it
                         // spends, which is what "one or more" reads.
                         let mut moved = Vec::new();

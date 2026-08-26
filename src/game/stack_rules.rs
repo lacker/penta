@@ -150,8 +150,7 @@ impl Game {
             | EffectDef::ReplaceNextDrawThisTurn { .. }
             | EffectDef::Counter { .. }
             | EffectDef::PutSpellIntoOwnersLibrary { .. }
-            | EffectDef::CopyResolvingSpell { .. }
-            | EffectDef::CopyTargetSpell { .. }
+            | EffectDef::CopyStackObject(_)
             | EffectDef::AddCounters { .. }
             | EffectDef::RemoveCounters { .. }
             | EffectDef::ChangeTextBasicLandType { .. }
@@ -194,7 +193,6 @@ impl Game {
             | EffectDef::MoveToZone { .. }
             | EffectDef::CreateToken { .. }
             | EffectDef::CreateAttachedToken { .. }
-            | EffectDef::CreateTokenCopyOf { .. }
             | EffectDef::Endure { .. }
             | EffectDef::CreateMyriadTokens
             | EffectDef::StaticApply { .. }

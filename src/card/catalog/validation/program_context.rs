@@ -789,7 +789,19 @@ fn static_object_predicate_supported(predicate: ObjectPredicateDef) -> bool {
         | ObjectPredicateDef::PowerGreaterThan(value)
         | ObjectPredicateDef::ToughnessGreaterThan(value)
         | ObjectPredicateDef::PowerLessThan(value) => static_source_value_supported(value),
-        ObjectPredicateDef::HasAbility(_) | ObjectPredicateDef::Special(_) => false,
+        ObjectPredicateDef::HasAbility(_)
+        | ObjectPredicateDef::HasName(
+            ObjectRefDef::AbilityGrantSource
+            | ObjectRefDef::ResolvingObject
+            | ObjectRefDef::AttachedToSource
+            | ObjectRefDef::Target(_)
+            | ObjectRefDef::TriggeringObject
+            | ObjectRefDef::DamagedObject
+            | ObjectRefDef::Binding(_)
+            | ObjectRefDef::AdditionalCostObject(_)
+            | ObjectRefDef::SourceOfTargetedStackObject(_),
+        )
+        | ObjectPredicateDef::Special(_) => false,
         ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Token
@@ -814,7 +826,7 @@ fn static_object_predicate_supported(predicate: ObjectPredicateDef) -> bool {
             | ObjectPredicateDef::CounterCount { .. }
         | ObjectPredicateDef::Supertype(_)
         | ObjectPredicateDef::DebutSet(_)
-        | ObjectPredicateDef::SharesNameWithSource
+        | ObjectPredicateDef::HasName(ObjectRefDef::Source)
         | ObjectPredicateDef::HasSourcesChosenScalar(_)
         | ObjectPredicateDef::TargetsObjectMatching(_)
         | ObjectPredicateDef::AttackingOrBlocking

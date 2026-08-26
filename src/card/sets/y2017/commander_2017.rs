@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardType, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, ObjectRefDef, PlayerRefDef, TokenCopyExceptionsDef,
-    ZoneKind, ZonePlacement,
+    AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardType, CopyExceptionsDef,
+    EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectRefDef, PlayerRefDef, ZoneKind,
+    ZonePlacement,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -24,14 +24,13 @@ static A_NONLAND_PERMANENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_o
 /// read off the target rather than off the spell: a Fractured Identity
 /// pointed at your own permanent hands the copy to your opponent.
 static FRACTURED_IDENTITY_EFFECTS: [EffectDef; 2] = [
-    EffectDef::CreateTokenCopyOf {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        exceptions: TokenCopyExceptionsDef::NONE,
-        controller: Some(PlayerRefDef::OpponentOf(ObjectRefDef::Target(
-            TargetIndex::PRIMARY,
-        ))),
-        created: None,
-    },
+    EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
+        object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        exceptions: CopyExceptionsDef::NONE,
+    })
+    .with_controller(PlayerRefDef::OpponentOf(ObjectRefDef::Target(
+        TargetIndex::PRIMARY,
+    ))),
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),

@@ -66,9 +66,10 @@ impl Game {
                     self.pay_loyalty_cost(source, *change);
                 }
                 AbilityCostDef::DiscardSource
+                | AbilityCostDef::ManaCostOf(_)
                 | AbilityCostDef::UntapSource
                 | AbilityCostDef::SacrificeObject(_)
-                | AbilityCostDef::ExileCardsFromGraveyard { .. }
+                | AbilityCostDef::MoveToZone(_)
                 | AbilityCostDef::DiscardCards(_)
                 | AbilityCostDef::DiscardCardMatching(_)
                 | AbilityCostDef::DiscardCardsAtRandom(_)

@@ -524,7 +524,7 @@ impl Game {
             | ObjectPredicateDef::ControlledBy(_)
             | ObjectPredicateDef::OwnedBy(_)
             | ObjectPredicateDef::DebutSet(_)
-            | ObjectPredicateDef::SharesNameWithSource
+            | ObjectPredicateDef::HasName(_)
             | ObjectPredicateDef::HasSourcesChosenScalar(_)
             | ObjectPredicateDef::TargetsObjectMatching(_)
             | ObjectPredicateDef::AttackingOrBlocking

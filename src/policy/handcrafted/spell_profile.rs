@@ -446,8 +446,7 @@ impl HandcraftedPolicy {
             // Nothing outranks winning, so it needs no profile of its own.
             EffectDef::LoseTheGame { .. }
             | EffectDef::WinTheGame { .. }
-            | EffectDef::CopyResolvingSpell { .. }
-            | EffectDef::CopyTargetSpell { .. }
+            | EffectDef::CopyStackObject(_)
             | EffectDef::None
             | EffectDef::AddMana(_)
             | EffectDef::AddManaEqualTo { .. }
@@ -532,7 +531,6 @@ impl HandcraftedPolicy {
             | EffectDef::PhaseOut { .. }
             | EffectDef::CreateToken { .. }
             | EffectDef::CreateAttachedToken { .. }
-            | EffectDef::CreateTokenCopyOf { .. }
             | EffectDef::Endure { .. }
             | EffectDef::CreateMyriadTokens
             | EffectDef::Special(_) => {}

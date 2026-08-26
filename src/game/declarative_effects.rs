@@ -224,9 +224,7 @@ impl Game {
                     }
                 }
             }
-            EffectDef::CreateToken { .. }
-            | EffectDef::CreateAttachedToken { .. }
-            | EffectDef::CreateTokenCopyOf { .. } => {
+            EffectDef::CreateToken { .. } | EffectDef::CreateAttachedToken { .. } => {
                 self.resolve_token_effect(scoped, object, &context);
             }
             EffectDef::PreventDamage { .. } => {
@@ -688,38 +686,31 @@ impl Game {
                     );
                 }
             }
-            EffectDef::CopyResolvingSpell { chooser, count } => {
+            EffectDef::CopyStackObject(copy) => {
                 let copies = self
-                    .effect_value(count, object, &context, scoped)
+                    .effect_value(copy.count, object, &context, scoped)
                     .max(0)
                     .try_into()
                     .unwrap_or(u16::MAX);
-                // A triggered ability copies the spell it belongs to, which is
-                // still on the stack beneath it; a spell copying itself is its
-                // own object.
-                let original = object.source.unwrap_or(object.id);
-                if let Some(player) = self.player_reference(chooser, object, &context, scoped)
-                    && let Some(spell) = self.stack.iter().find(|item| item.id == original).cloned()
-                    && copies > 0
-                {
-                    self.queue_copy_decision_chain(player, spell, None, "the copy", copies);
-                }
-            }
-            // "Copy target instant or sorcery spell you control": the copy
-            // keeps what it copied and its controller is offered the
-            // retarget, exactly as a spell copying itself is.
-            EffectDef::CopyTargetSpell {
-                object: recipient,
-                chooser,
-            } => {
-                let Some(player) = self.player_reference(chooser, object, &context, scoped) else {
+                let Some(player) = self.player_reference(copy.controller, object, &context, scoped)
+                else {
                     return;
                 };
-                for target in self.effect_recipients(recipient, object, &context, scoped) {
+                for target in self.effect_recipients(copy.object, object, &context, scoped) {
                     if let Target::Spell(id) = target
-                        && let Some(spell) = self.stack.iter().find(|item| item.id == id).cloned()
+                        && let Some(stack_object) = (id == object.id)
+                            .then(|| object.clone())
+                            .or_else(|| self.stack.iter().find(|item| item.id == id).cloned())
+                        && copies > 0
                     {
-                        self.queue_copy_decision(player, spell, None, "the copy");
+                        self.queue_copy_decision_chain(
+                            player,
+                            stack_object,
+                            copy.colors,
+                            copy.retarget,
+                            "the copy",
+                            copies,
+                        );
                     }
                 }
             }
@@ -779,8 +770,7 @@ impl Game {
             EffectDef::BecomeCopyOf {
                 object: recipient,
                 copier,
-                retain_source_ability,
-                added_types,
+                exceptions,
                 duration,
             } => {
                 let Some(target) = self
@@ -806,15 +796,29 @@ impl Game {
                 let Some(mut copy) = self.copiable_values_of(target) else {
                     return;
                 };
-                copy.added_types = copy.added_types.union(added_types);
-                if retain_source_ability
-                    && let Some(payload) = &object.ability
-                    && let Some(definition) = payload.definition.as_deref()
-                {
-                    copy.added_abilities.push(CopiableAbility {
-                        origin: payload.origin,
-                        definition: *definition,
-                    });
+                if let Some(stats) = exceptions.base_power_toughness {
+                    copy.base_power_toughness = Some(stats);
+                }
+                if let Some(colors) = exceptions.colors {
+                    copy.colors = Some(colors);
+                }
+                copy.added_creature_types
+                    .extend(exceptions.added_creature_types.named);
+                copy.added_types = copy.added_types.union(exceptions.added_types);
+                copy.no_mana_cost |= exceptions.no_mana_cost;
+                if let Some(payload) = &object.ability {
+                    copy.added_abilities
+                        .extend(exceptions.added_abilities.iter().filter_map(|added| {
+                            Some(CopiableAbility {
+                                origin: payload.origin,
+                                definition: match added {
+                                    crate::card::CopyAbilityDef::This => {
+                                        *payload.definition.as_deref()?
+                                    }
+                                    crate::card::CopyAbilityDef::Ability(ability) => **ability,
+                                },
+                            })
+                        }));
                 }
                 let expiration = duration.map(|duration| {
                     Self::continuous_effect_expiration(

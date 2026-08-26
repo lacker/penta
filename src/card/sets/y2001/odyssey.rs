@@ -3114,10 +3114,14 @@ pub(in crate::card::sets) static PSYCHATOG: CardRecord = CardRecord::new_with_le
         ),
         AbilityDef::activated(
             "Exile two cards from your graveyard: This creature gets +1/+1 until end of turn.",
-            &[AbilityCostDef::ExileCardsFromGraveyard {
-                object: ObjectPredicateDef::Any,
-                count: 2,
-            }],
+            &[AbilityCostDef::MoveToZone(
+                crate::card::MoveToZoneCostDef::new(
+                    ObjectPredicateDef::Any,
+                    ZoneKind::Graveyard,
+                    ZoneKind::Exile,
+                    2,
+                ),
+            )],
             ATOG_PUMP,
         ),
     ]),

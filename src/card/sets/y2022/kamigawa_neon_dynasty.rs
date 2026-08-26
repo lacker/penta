@@ -5,11 +5,11 @@ use crate::card::{
     AbilityCostDef, AbilityCostList, AbilityCoverageDef, AbilityDef, AbilityTargetDef,
     AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
     CardArt, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef,
-    CostAdjustmentDef, CostAmountDef, CostModificationDef, CounterKind, CreatedTokensDef,
-    EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ResolvedEffectDurationDef, SpellCostConditionDef, TokenCharacteristics,
-    TokenCopyExceptionsDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    CopyAbilityDef, CopyExceptionsDef, CostAdjustmentDef, CostAmountDef, CostModificationDef,
+    CounterKind, CreatedTokensDef, EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SpellCostConditionDef,
+    TokenCharacteristics, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
     ZonePlacement, abilities, tokens,
 };
 use crate::ids::{ObjectSetBindingIndex, TargetIndex};
@@ -704,15 +704,15 @@ static KIKI_SACRIFICES_IT: AbilityDef = AbilityDef::triggered(
 
 const KIKI_COPY: ObjectSetBindingIndex = ObjectSetBindingIndex::PRIMARY;
 
-static KIKI_COPIES: EffectDef = EffectDef::CreateTokenCopyOf {
-    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    exceptions: TokenCopyExceptionsDef::with_ability(&KIKI_GRANTS_HASTE),
-    controller: None,
-    created: Some(CreatedTokensDef {
-        binding: KIKI_COPY,
-        then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(&KIKI_SACRIFICES_IT)),
-    }),
-};
+static KIKI_COPIES: EffectDef = EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
+    object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+    exceptions: CopyExceptionsDef::NONE
+        .with_abilities(&[CopyAbilityDef::Ability(&KIKI_GRANTS_HASTE)]),
+})
+.with_created_tokens(CreatedTokensDef {
+    binding: KIKI_COPY,
+    then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(&KIKI_SACRIFICES_IT)),
+});
 
 static KIKI_COST: [AbilityCostDef; 2] = [
     AbilityCostDef::Mana(mana_cost!("{1}")),

@@ -383,9 +383,12 @@ fn parse_continuation(
             target_lists,
             repainted,
             remaining,
-        } => DecisionContinuation::Fork {
-            // The only repaint in the corpus is Fork's own.
-            colors: repainted.then_some(super::super::FORK_COPY_COLOR),
+        } => DecisionContinuation::CopyStackObject {
+            // The v1 checkpoint recorded only whether the copy was repainted;
+            // its sole representable override was red.
+            colors: repainted.then_some(crate::card::ColorSet::from_colors(&[
+                crate::card::ManaColor::Red,
+            ])),
             remaining: *remaining,
             player: player(*owner)?,
             spell: parse_detached_stack(spell, game)?,

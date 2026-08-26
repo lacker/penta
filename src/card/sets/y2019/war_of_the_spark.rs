@@ -4,11 +4,11 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules,
-    CardSet, CardSupertype, CardType, CardTypeSet, ComparisonDef, CounterKind, CreatureTypeSetDef,
-    EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef,
-    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, TopCardSelectionDef, TopOfLibraryCostDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    CardSet, CardSupertype, CardType, CardTypeSet, ComparisonDef, CopyExceptionsDef, CounterKind,
+    CreatureTypeSetDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    ObjectQueryDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ResolvedEffectDurationDef, TopCardSelectionDef, TopOfLibraryCostDef,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -648,8 +648,8 @@ static SAHEELI_ABILITIES: [AbilityDef; 2] = [
         EffectDef::BecomeCopyOf {
             object: EffectRecipientDef::Target(TargetIndex(1)),
             copier: Some(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
-            retain_source_ability: false,
-            added_types: CardTypeSet::single(CardType::Artifact),
+            exceptions: CopyExceptionsDef::NONE
+                .with_added_types(CardTypeSet::single(CardType::Artifact)),
             duration: Some(ResolvedEffectDurationDef::UntilEndOfTurn),
         },
     ),

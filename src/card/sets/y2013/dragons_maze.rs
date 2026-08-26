@@ -6,13 +6,13 @@ use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AppliedEffectDef, AppliedRuleDef, CardArt, CardBehavior, CardRules, CardSet, CardSupertype,
     CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorSet, ComparisonDef,
-    ControlDurationDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef,
-    DamagePreventionDef, DamageRecipientMatcherDef, DiscardSelectionDef, EffectDef,
-    EffectPaymentDef, EffectRecipientDef, LikelihoodDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    ControlDurationDef, CopyAbilityDef, CopyExceptionsDef, CounterKind, CreatureTypeSetDef,
+    DamageEventMatcherDef, DamagePreventionDef, DamageRecipientMatcherDef, DiscardSelectionDef,
+    EffectDef, EffectPaymentDef, EffectRecipientDef, LikelihoodDef, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
+    SacrificedAmountDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -1802,13 +1802,37 @@ pub(in crate::card::sets) static PLASM_CAPTURE: CardRecord = CardRecord::new(
 );
 
 // DGM 92 — Progenitor Mimic
-// Audit: metadata-only — Needs an as-enters copy effect that adds a triggered ability to the copied values and later creates token copies of itself.
+static PROGENITOR_MIMIC_UPKEEP: AbilityDef = AbilityDef::triggered_if(
+    "At the beginning of your upkeep, if this creature isn't a token, create a token that's a copy of this creature.",
+    TriggerEventDef::StepBegins {
+        step: TurnStepDef::Upkeep,
+        player: PlayerRelation::You,
+    },
+    &TriggerConditionDef::SourceMatches {
+        object: ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+    },
+    EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
+        object: &EffectRecipientDef::Source,
+        exceptions: CopyExceptionsDef::NONE,
+    }),
+);
+
 pub(in crate::card::sets) static PROGENITOR_MIMIC: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3ad76314-b5d5-4353-86aa-e899e0d757a5"),
     "Progenitor Mimic",
     crate::card::CardArt::new("3ad76314-b5d5-4353-86aa-e899e0d757a5", "Daarken"),
     crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{G}{U}"), &["Shapeshifter"], 0, 0).with_ability(
+        AbilityDef::replacement(
+            "You may have this creature enter as a copy of any creature on the battlefield, except it has \"At the beginning of your upkeep, if this creature isn't a token, create a token that's a copy of this creature.\"",
+            crate::card::ReplacementEffectDef::CopyEntering {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                exceptions: CopyExceptionsDef::NONE.with_abilities(&[
+                    CopyAbilityDef::Ability(&PROGENITOR_MIMIC_UPKEEP),
+                ]),
+            },
+        ),
+    ),
 );
 
 // DGM 93 — Putrefy

@@ -27,7 +27,18 @@ pub(super) fn shared_object_predicate(predicate: ObjectPredicateDef) -> bool {
         ObjectPredicateDef::Not(predicate) | ObjectPredicateDef::AttachedTo(predicate) => {
             shared_object_predicate(*predicate)
         }
-        ObjectPredicateDef::Special(_) => false,
+        ObjectPredicateDef::HasName(
+            ObjectRefDef::AbilityGrantSource
+            | ObjectRefDef::ResolvingObject
+            | ObjectRefDef::AttachedToSource
+            | ObjectRefDef::Target(_)
+            | ObjectRefDef::TriggeringObject
+            | ObjectRefDef::DamagedObject
+            | ObjectRefDef::Binding(_)
+            | ObjectRefDef::AdditionalCostObject(_)
+            | ObjectRefDef::SourceOfTargetedStackObject(_),
+        )
+        | ObjectPredicateDef::Special(_) => false,
         ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Token
@@ -58,7 +69,7 @@ pub(super) fn shared_object_predicate(predicate: ObjectPredicateDef) -> bool {
         | ObjectPredicateDef::OwnedBy(_)
         | ObjectPredicateDef::Supertype(_)
         | ObjectPredicateDef::DebutSet(_)
-        | ObjectPredicateDef::SharesNameWithSource
+        | ObjectPredicateDef::HasName(ObjectRefDef::Source)
         | ObjectPredicateDef::HasSourcesChosenScalar(_)
         | ObjectPredicateDef::TargetsObjectMatching(_)
         | ObjectPredicateDef::AttackingOrBlocking
@@ -660,7 +671,6 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::PhaseOut { .. }
                     | EffectDef::CreateToken { .. }
                     | EffectDef::CreateAttachedToken { .. }
-                    | EffectDef::CreateTokenCopyOf { .. }
                     | EffectDef::Endure { .. }
                     | EffectDef::CreateMyriadTokens
                     | EffectDef::Destroy { .. }
@@ -692,8 +702,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::IfFormat { .. }
                     | EffectDef::Counter { .. }
                     | EffectDef::PutSpellIntoOwnersLibrary { .. }
-                    | EffectDef::CopyResolvingSpell { .. }
-                    | EffectDef::CopyTargetSpell { .. }
+                    | EffectDef::CopyStackObject(_)
                     | EffectDef::AddCounters { .. }
                     | EffectDef::RemoveCounters { .. }
                     | EffectDef::ChangeTextBasicLandType { .. }

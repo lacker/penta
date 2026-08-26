@@ -1,4 +1,4 @@
-use crate::action::{AbilityOrigin, ManaColor, Target};
+use crate::action::{AbilityOrigin, Target};
 use crate::card::{
     AbilityDef, BattlefieldEntryScalarChoiceDef, CardTypeSet, ColorChoiceOperationDef, ColorSet,
     EffectDef, ManaCost, ModalSpellDef, ObjectChoiceBindingDef, ObjectPredicateDef,
@@ -16,9 +16,6 @@ use super::{
     ReplacementEffectContext, ResolvedEffectDurationDef, SacrificeQuota, SacrificedAmountDef,
     ScopedEffect, StackObject, TriggerPlacementBatch,
 };
-
-/// Fork repaints its copy, so the copy is red and nothing else.
-pub(super) const FORK_COPY_COLOR: ColorSet = ColorSet::from_colors(&[ManaColor::Red]);
 
 /// What runs once a demanded sacrifice has been chosen and made. The
 /// sacrificed permanent's power travels as the trigger amount, so an effect
@@ -376,9 +373,9 @@ pub(super) enum DecisionContinuation {
         spell: StackObject,
         targets: Vec<Target>,
     },
-    Fork {
-        /// Fork repaints what it copies; a card copying itself does not. The
-        /// colours travel with the decision so one continuation serves both.
+    CopyStackObject {
+        /// A copy-process color exception, when the originating instruction
+        /// changes the copied object's colors.
         colors: Option<ColorSet>,
         /// Copies still to offer after this one, for storm.
         remaining: u16,
@@ -661,6 +658,10 @@ pub(super) enum DecisionContinuation {
         choices: Vec<GameObjectId>,
         added_types: CardTypeSet,
         retain_printed_subtypes: bool,
+        base_power_toughness: Option<(i16, i16)>,
+        colors: Option<crate::card::ColorSet>,
+        added_creature_types: Vec<&'static str>,
+        no_mana_cost: bool,
         added_abilities: Vec<super::CopiableAbility>,
     },
     TriggerOrder {

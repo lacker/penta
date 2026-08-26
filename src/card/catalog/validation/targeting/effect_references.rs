@@ -258,10 +258,11 @@ fn validate_effect_references(
         | EffectDef::PutIntoLibraryBeneathTop { object, .. }
         | EffectDef::Counter { object, .. }
         | EffectDef::PutSpellIntoOwnersLibrary { object }
-        | EffectDef::CopyTargetSpell { object, .. }
-        | EffectDef::CreateTokenCopyOf { object, .. }
         | EffectDef::Endure { object, .. } => {
             validate_recipient_target_references(object, target_count, scope)
+        }
+        EffectDef::CopyStackObject(copy) => {
+            validate_recipient_target_references(copy.object, target_count, scope)
         }
         EffectDef::MoveToZone {
             object, attachment, ..
@@ -294,8 +295,16 @@ fn validate_effect_references(
             }
             Ok(())
         }
-        EffectDef::CreateToken { count, created, .. } => {
+        EffectDef::CreateToken {
+            count,
+            copy,
+            created,
+            ..
+        } => {
             validate_value_target_references(count, target_count, scope)?;
+            if let Some(copy) = copy {
+                validate_recipient_target_references(*copy.object, target_count, scope)?;
+            }
             match created {
                 Some(created) => {
                     let nested = scope.with_object_set(created.binding)?;
@@ -516,10 +525,7 @@ fn validate_effect_references(
         // The chosen player is recorded on the permanent, not read from a
         // target slot.
         // A prohibition names a card shape, never a target.
-        // The copy names nobody: it reuses whatever the spell already
-        // targeted unless its chooser retargets it as it is made.
-        EffectDef::CopyResolvingSpell { .. }
-        | EffectDef::ModifyCost(_)
+        EffectDef::ModifyCost(_)
         | EffectDef::LandwalkCanBeBlocked(_)
         | EffectDef::CannotAttackUnless(_)
         | EffectDef::CannotAttackIf(_)

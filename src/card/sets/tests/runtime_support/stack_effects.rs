@@ -220,7 +220,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         // decision window like any other. Proliferate asks over permanents
         // and players at once, which is the same kind of window and reads
         // nothing off a recipient either.
-        EffectDef::CopyResolvingSpell { .. } | EffectDef::Proliferate => {
+        EffectDef::Proliferate => {
             deferred_decision_allowed
         }
 
@@ -476,7 +476,6 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         // value the shared walk already resolves, so only the recipient is
         // an open question.
         EffectDef::PutIntoLibraryBeneathTop { object, .. }
-        | EffectDef::CreateTokenCopyOf { object, .. }
         | EffectDef::Endure { object, .. }
         | EffectDef::Regenerate { object }
         | EffectDef::Tap { object }
@@ -512,11 +511,13 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         // "top of library or graveyard" a nonland explore ends in.
         | EffectDef::PutSpellIntoOwnersLibrary { object }
         | EffectDef::MayCastTargetWithoutPaying { object, .. }
-        // Copying a spell somebody else is casting asks the same question
-        // about the same kind of window, over a recipient naming the spell.
-        | EffectDef::CopyTargetSpell { object, .. }
         | EffectDef::Explore { object } => {
             deferred_decision_allowed && shared_effect_recipient(object)
+        }
+        // Copying a stack object asks the same kind of deferred question,
+        // over the recipient carried by its composite definition.
+        EffectDef::CopyStackObject(copy) => {
+            deferred_decision_allowed && shared_effect_recipient(copy.object)
         }
         EffectDef::Counter { object, zone, .. } => {
             // The four places a countered card can end up. A library is one
@@ -536,9 +537,12 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         // supplies the bound, the controller, and the library.
         // What a token clause does next runs in the same resolution with the
         // tokens bound, so it is checked here rather than trusted.
-        EffectDef::CreateToken { created, .. } => created.is_none_or(|created| {
-            shared_stack_effect_at_position(*created.then, deferred_decision_allowed)
-        }),
+        EffectDef::CreateToken { copy, created, .. } => {
+            copy.is_none_or(|copy| shared_effect_recipient(*copy.object))
+                && created.is_none_or(|created| {
+                    shared_stack_effect_at_position(*created.then, deferred_decision_allowed)
+                })
+        }
         EffectDef::Cascade
         | EffectDef::CreateMyriadTokens
         | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }

@@ -1,7 +1,7 @@
 use super::{
     AbilityCostDef, AbilityOrigin, AbilitySourceRef, AlternativeCastKindDef, AppliedEffectDef,
     AppliedStackEffect, BTreeMap, BattlefieldExitCompletion, CREATURE_TYPES, CardBehavior,
-    CardDefinition, CardInstance, CardType, CardTypeSet, CastChoices, CastOfferCost, CastSignature,
+    CardDefinition, CardInstance, CardType, CastChoices, CastOfferCost, CastSignature,
     CastSourceZone, CharacteristicContext, CommittedTriggerEvent, CostConfiguration,
     DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
     DeclarativeAbilityDef, EntryCompletion, Game, GameEvent, GameObjectId, Mana,
@@ -11,6 +11,7 @@ use super::{
 };
 mod signature_validation;
 include!("casting/life_costs.rs");
+include!("casting/entry_copy_choice.rs");
 include!("casting/mana_activation.rs");
 include!("casting/object_costs.rs");
 include!("casting/scalar_choices.rs");
@@ -142,59 +143,6 @@ impl Game {
                 .then_with(|| left_name.cmp(right_name))
         });
         choices.into_iter().map(|(name, _)| name).collect()
-    }
-
-    /// "You may have this enter as a copy of ...": the copy is picked as the
-    /// permanent enters, and entering as itself is always an option.
-    pub(super) fn queue_entry_copy_choice(
-        &mut self,
-        player: PlayerId,
-        choices: Vec<GameObjectId>,
-        added_types: CardTypeSet,
-        retain_printed_subtypes: bool,
-        added_abilities: Vec<super::CopiableAbility>,
-    ) {
-        let mut options = vec![DecisionOption {
-            id: 0,
-            label: "Enter as itself".into(),
-            card: None,
-            members: Vec::new(),
-            ability_text: None,
-            zone: DecisionZone::None,
-        }];
-        options.extend(choices.iter().enumerate().filter_map(|(index, id)| {
-            let permanent = self
-                .battlefield
-                .iter()
-                .find(|permanent| permanent.card.id == *id)?;
-            let presentation = Self::effective_rules_source(permanent);
-            Some(DecisionOption {
-                id: u32::try_from(index + 1).unwrap_or(u32::MAX),
-                label: self.presentation_name(presentation).map_or_else(
-                    || "Copy an unknown permanent".into(),
-                    |name| format!("Enter as a copy of {name}"),
-                ),
-                card: Some((*id, presentation)),
-                members: Vec::new(),
-                ability_text: None,
-                zone: DecisionZone::Battlefield,
-            })
-        }));
-        self.queue_decision(
-            player,
-            "Choose what this permanent enters as",
-            DecisionVisibility::Public,
-            DecisionPreference::Neutral,
-            1..=1,
-            false,
-            options,
-            DecisionContinuation::BattlefieldEntryCopy {
-                choices,
-                added_types,
-                retain_printed_subtypes,
-                added_abilities,
-            },
-        );
     }
 
     pub(super) fn queue_entry_scalar_choice(

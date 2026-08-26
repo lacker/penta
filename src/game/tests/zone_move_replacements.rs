@@ -310,7 +310,7 @@ fn activated_ability_resolves_only_after_ugins_nexus_replacement_choice() {
 }
 
 #[test]
-fn custom_spell_followup_waits_for_ugins_nexus_replacement_choice() {
+fn declarative_chain_followup_waits_for_ugins_nexus_replacement_choice() {
     const DESTROY_ARTIFACTS: EffectDef = EffectDef::Destroy {
         object: EffectRecipientDef::matching_objects(
             ObjectPredicateDef::HasType(CardType::Artifact),
@@ -320,6 +320,17 @@ fn custom_spell_followup_waits_for_ugins_nexus_replacement_choice() {
         can_regenerate: true,
         then: None,
     };
+    const OFFER_COPY: EffectDef = EffectDef::May {
+        player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+        effect: &EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
+            object: EffectRecipientDef::object(ObjectRefDef::ResolvingObject),
+            controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+            count: ValueDef::Constant(1),
+            retarget: true,
+            colors: None,
+        }),
+    };
+    const CHAIN_EFFECTS: [EffectDef; 2] = [DESTROY_ARTIFACTS, OFFER_COPY];
 
     let (mut game, nexus, rest) = setup_nexus_and_rest_in_peace();
     game.players[PlayerId::Two.index()].mana_pool.red = 2;
@@ -334,17 +345,16 @@ fn custom_spell_followup_waits_for_ugins_nexus_replacement_choice() {
         origin: primary_ability(cards::CHAIN_LIGHTNING),
         definition: None,
         presentation: ObjectCharacteristics::card(cards::CHAIN_LIGHTNING, CardPartId::PRIMARY),
-        text: Some("Test declarative effect with custom follow-up"),
+        text: Some("Test declarative chain follow-up"),
         target_defs: Vec::new(),
         targets: vec![TargetSelection::single(
             TargetSlotId(0),
             Target::Player(PlayerId::Two),
         )],
         context: TriggerContext::empty().into(),
-        resolver: StackAbilityResolver::DeclarativeWithCustomFollowup {
-            effect: ScopedEffect::primary(DESTROY_ARTIFACTS),
-            behavior: CardBehavior::ChainLightning,
-        },
+        resolver: StackAbilityResolver::Declarative(ScopedEffect::primary(EffectDef::Sequence(
+            &CHAIN_EFFECTS,
+        ))),
         condition: None,
         mode_effects: Vec::new(),
         resolution_destination: None,
@@ -366,9 +376,9 @@ fn custom_spell_followup_waits_for_ugins_nexus_replacement_choice() {
     assert_eq!(
         game.observe(PlayerId::Two)
             .decision
-            .expect("the custom follow-up resumes after the exit choice")
+            .expect("the declarative follow-up resumes after the exit choice")
             .prompt,
-        "Copy Chain Lightning?"
+        "Test declarative chain follow-up"
     );
     assert!(
         game.battlefield

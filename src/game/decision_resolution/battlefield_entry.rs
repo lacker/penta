@@ -86,6 +86,10 @@ impl Game {
                 choices,
                 added_types,
                 retain_printed_subtypes,
+                base_power_toughness,
+                colors,
+                added_creature_types,
+                no_mana_cost,
                 added_abilities,
             } => {
                 let copied = options
@@ -102,6 +106,14 @@ impl Game {
                         let mut copy = Self::copiable_characteristics(permanent);
                         copy.added_types = copy.added_types.union(added_types);
                         copy.retain_printed_subtypes = retain_printed_subtypes;
+                        if let Some(stats) = base_power_toughness {
+                            copy.base_power_toughness = Some(stats);
+                        }
+                        if let Some(colors) = colors {
+                            copy.colors = Some(colors);
+                        }
+                        copy.added_creature_types.extend(added_creature_types);
+                        copy.no_mana_cost |= no_mana_cost;
                         copy.added_abilities.extend(added_abilities);
                         copy
                     });

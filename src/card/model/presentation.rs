@@ -10,7 +10,7 @@ use super::presentation_predicates::{
 use super::{
     AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, CardEffectStatus,
     CardSupertype, CardType, ConditionalModeMaximumDef, DeclarativeAbilityDef, DividedTotal,
-    ManaColor, ObjectPredicateDef, PlayerRelation, TargetPredicate, ZoneKind,
+    ManaColor, ObjectPredicateDef, ObjectRefDef, PlayerRelation, TargetPredicate, ZoneKind,
 };
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -117,7 +117,7 @@ fn predicate_negates(predicate: ObjectPredicateDef, expected: ObjectPredicateDef
         | ObjectPredicateDef::OwnedBy(_)
         | ObjectPredicateDef::Supertype(_)
         | ObjectPredicateDef::DebutSet(_)
-        | ObjectPredicateDef::SharesNameWithSource
+        | ObjectPredicateDef::HasName(_)
         | ObjectPredicateDef::HasSourcesChosenScalar(_)
         | ObjectPredicateDef::TargetsObjectMatching(_)
         | ObjectPredicateDef::AttackingOrBlocking
@@ -490,7 +490,7 @@ impl AbilityTargetDef {
                 if predicate_negates(object, ObjectPredicateDef::Source) {
                     label.insert_str("target ".len(), "another ");
                 }
-                if predicate_negates(object, ObjectPredicateDef::SharesNameWithSource) {
+                if predicate_negates(object, ObjectPredicateDef::HasName(ObjectRefDef::Source)) {
                     label.push_str(" with a different name from this source");
                 }
                 let relation = controller.or_else(|| predicate_controller(object));

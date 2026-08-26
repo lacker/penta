@@ -9,7 +9,7 @@ use crate::card::{
     AppliedEffectDef, AppliedRuleDef, ArrivalAttachmentDef, BasicLandType,
     BattlefieldEntryModificationDef, CardAbilityBinding, CardArt, CardBehavior,
     CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, ComparisonDef,
-    ConditionalValueDef, ControlDurationDef, CostModificationDef, CounterKind,
+    ConditionalValueDef, ControlDurationDef, CopyExceptionsDef, CostModificationDef, CounterKind,
     DamageEventMatcherDef, DestroyFollowUpDef, DiscardSelectionDef, EffectDef, EffectExecutionDef,
     EffectPaymentDef, EffectRecipientDef, GraveyardPlayPermissionDef, HalvedValueDef,
     KeywordAbility, ManaColor, MillUntilDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
@@ -25,8 +25,8 @@ use crate::game::{
     ResolvedAbility,
 };
 use crate::ids::{
-    AbilityId, AdditionalCostObjectIndex, CardPartId, ObjectSetBindingIndex, TargetIndex,
-    TargetSlotId,
+    AbilityId, AdditionalCostObjectIndex, CardPartId, ObjectBindingIndex, ObjectSetBindingIndex,
+    TargetIndex, TargetSlotId,
 };
 use crate::mana_cost;
 
@@ -1315,13 +1315,35 @@ pub(in crate::card::sets) static ARMORED_SKAAB: CardRecord = CardRecord::new_wit
 );
 
 // ISD 44 — Back from the Brink
-// Audit: metadata-only — Needs a graveyard creature-card cost and a token-copy effect carrying the exiled card's copiable values.
 pub(in crate::card::sets) static BACK_FROM_THE_BRINK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b4bba140-5c06-4542-9ae0-b2517104ab7c"),
     "Back from the Brink",
     crate::card::CardArt::new("b4bba140-5c06-4542-9ae0-b2517104ab7c", "Anthony Palumbo"),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{4}{U}{U}")).with_ability(
+        AbilityDef::activated(
+            "Exile a creature card from your graveyard and pay its mana cost: Create a token that's a copy of that card. Activate only as a sorcery.",
+            &[
+                AbilityCostDef::ManaCostOf(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+                AbilityCostDef::MoveToZone(
+                    crate::card::MoveToZoneCostDef::new(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ZoneKind::Graveyard,
+                        ZoneKind::Exile,
+                        1,
+                    )
+                    .binding(ObjectBindingIndex::PRIMARY),
+                ),
+            ],
+            EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
+                object: &EffectRecipientDef::object(ObjectRefDef::Binding(
+                    ObjectBindingIndex::PRIMARY,
+                )),
+                exceptions: CopyExceptionsDef::NONE,
+            }),
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+    ),
 );
 
 // ISD 45 — Battleground Geist
@@ -1354,13 +1376,29 @@ pub(in crate::card::sets) static BATTLEGROUND_GEIST: CardRecord = CardRecord::ne
 );
 
 // ISD 46 — Cackling Counterpart
-// Audit: metadata-only — Needs creation of a token with the target creature's copiable values.
 pub(in crate::card::sets) static CACKLING_COUNTERPART: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8a2a2b93-94dc-4285-a6fd-455a796426bc"),
     "Cackling Counterpart",
     crate::card::CardArt::new("8a2a2b93-94dc-4285-a6fd-455a796426bc", "David Rapoza"),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{U}{U}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Create a token that's a copy of target creature you control.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
+                object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                exceptions: CopyExceptionsDef::NONE,
+            }),
+        ),
+        abilities::flashback(mana_cost!("{5}{U}{U}")),
+    ]),
 );
 
 // ISD 47 — Civilized Scholar // Homicidal Brute
@@ -5797,13 +5835,41 @@ pub(in crate::card::sets) static WREATH_OF_GEISTS: CardRecord = CardRecord::new_
 );
 
 // ISD 212 — Evil Twin
-// Audit: metadata-only — Needs a copy-as-enters choice plus a retained same-name destruction ability.
+static EVIL_TWIN_DESTROY: AbilityDef = AbilityDef::activated_with_targets(
+    "{U}{B}, {T}: Destroy target creature with the same name as this creature.",
+    &[
+        AbilityCostDef::Mana(mana_cost!("{U}{B}")),
+        AbilityCostDef::TapSource,
+    ],
+    &[AbilityTargetDef::exactly_one_permanent(
+        ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::HasName(ObjectRefDef::Source),
+        ]),
+    )],
+    EffectDef::Destroy {
+        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        can_regenerate: true,
+        then: None,
+    },
+);
+
 pub(in crate::card::sets) static EVIL_TWIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3a53487a-c00b-42da-904c-f022a0c5b1ed"),
     "Evil Twin",
     crate::card::CardArt::new("3a53487a-c00b-42da-904c-f022a0c5b1ed", "Greg Staples"),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}{B}"), &["Shapeshifter"], 0, 0).with_ability(
+        AbilityDef::replacement(
+            "You may have this creature enter as a copy of any creature on the battlefield, except it has \"{U}{B}, {T}: Destroy target creature with the same name as this creature.\"",
+            ReplacementEffectDef::CopyEntering {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                exceptions: CopyExceptionsDef::NONE.with_abilities(&[
+                    crate::card::CopyAbilityDef::Ability(&EVIL_TWIN_DESTROY),
+                ]),
+            },
+        ),
+    ),
 );
 
 // ISD 213 — Geist of Saint Traft
@@ -6542,10 +6608,12 @@ pub(in crate::card::sets) static MOORLAND_HAUNT: CardRecord = CardRecord::new_wi
             &[
                 AbilityCostDef::Mana(mana_cost!("{W}{U}")),
                 AbilityCostDef::TapSource,
-                AbilityCostDef::ExileCardsFromGraveyard {
-                    object: ObjectPredicateDef::HasType(CardType::Creature),
-                    count: 1,
-                },
+                AbilityCostDef::MoveToZone(crate::card::MoveToZoneCostDef::new(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ZoneKind::Graveyard,
+                    ZoneKind::Exile,
+                    1,
+                )),
             ],
             EffectDef::create_creature_token(&["Spirit"], &[ManaColor::White], 1, 1).with_abilities(&[abilities::flying()]).with_art(CardArt::new("59e79ba0-33c8-46c8-8694-8bf854345fe7", "Ryan Yee")),
         ),

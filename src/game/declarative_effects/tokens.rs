@@ -15,7 +15,7 @@ use crate::card::{EffectDef, TokenCharacteristics};
 #[derive(Clone, Copy)]
 struct TokenCopyRequest {
     recipient: crate::card::EffectRecipientDef,
-    exceptions: crate::card::TokenCopyExceptionsDef,
+    exceptions: crate::card::CopyExceptionsDef,
     controller: Option<crate::card::PlayerRefDef>,
     created: Option<crate::card::CreatedTokensDef>,
 }
@@ -87,23 +87,34 @@ impl Game {
                 // The exceptions ride on the copy rather than being
                 // applied to the token afterwards: each is itself a
                 // copiable value.
-                copy.base_power_toughness = exceptions.base_power_toughness;
-                copy.colors = exceptions.colors;
-                copy.added_creature_types = exceptions.added_creature_types.named.to_vec();
+                if let Some(stats) = exceptions.base_power_toughness {
+                    copy.base_power_toughness = Some(stats);
+                }
+                if let Some(colors) = exceptions.colors {
+                    copy.colors = Some(colors);
+                }
+                copy.added_creature_types
+                    .extend(exceptions.added_creature_types.named);
                 // "In addition to its other types", so the copied types stay
                 // and these join them.
                 copy.added_types = copy.added_types.union(exceptions.added_types);
-                copy.no_mana_cost = exceptions.no_mana_cost;
+                copy.no_mana_cost |= exceptions.no_mana_cost;
                 // "Except it has haste": part of what the token
                 // copies rather than a grant made to it afterwards,
                 // and attributed to the clause that said so.
-                if let Some(added) = exceptions.added_ability
-                    && let Some(payload) = object.ability.as_ref()
-                {
-                    copy.added_abilities.push(CopiableAbility {
-                        origin: payload.origin,
-                        definition: *added,
-                    });
+                if let Some(payload) = object.ability.as_ref() {
+                    copy.added_abilities
+                        .extend(exceptions.added_abilities.iter().filter_map(|added| {
+                            Some(CopiableAbility {
+                                origin: payload.origin,
+                                definition: match added {
+                                    crate::card::CopyAbilityDef::This => {
+                                        *payload.definition.as_deref()?
+                                    }
+                                    crate::card::CopyAbilityDef::Ability(ability) => **ability,
+                                },
+                            })
+                        }));
                 }
                 let permanent = match target {
                     Target::Permanent(id) => self
@@ -167,6 +178,7 @@ impl Game {
         match scoped.effect {
             EffectDef::CreateToken {
                 token,
+                copy,
                 controller,
                 count,
                 tapped,
@@ -174,6 +186,22 @@ impl Game {
                 counters,
                 created,
             } => {
+                if let Some(copy) = copy {
+                    debug_assert_eq!(count, crate::card::ValueDef::Constant(1));
+                    debug_assert!(!tapped && !attacking && counters.is_none());
+                    self.resolve_token_copies(
+                        TokenCopyRequest {
+                            recipient: *copy.object,
+                            exceptions: copy.exceptions,
+                            controller,
+                            created,
+                        },
+                        scoped,
+                        object,
+                        context,
+                    );
+                    return;
+                }
                 // "Its controller creates two Map tokens": the tokens are
                 // that player's, and everything else about them -- including
                 // who an arriving attacker attacks -- follows from that.
@@ -241,22 +269,6 @@ impl Game {
                     }
                 }
             },
-            EffectDef::CreateTokenCopyOf {
-                object: recipient,
-                exceptions,
-                controller,
-                created,
-            } => self.resolve_token_copies(
-                TokenCopyRequest {
-                    recipient,
-                    exceptions,
-                    controller,
-                    created,
-                },
-                scoped,
-                object,
-                context,
-            ),
             _ => unreachable!("the caller admits only token-making clauses"),
         }
     }

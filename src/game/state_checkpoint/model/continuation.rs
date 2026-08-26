@@ -239,6 +239,14 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         /// every copy did then.
         #[serde(default)]
         retain_printed_subtypes: bool,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        base_power_toughness: Option<[i16; 2]>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        colors: Option<[bool; 5]>,
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        added_creature_types: Vec<String>,
+        #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+        no_mana_cost: bool,
         #[serde(default, skip_serializing_if = "Vec::is_empty")]
         added_abilities: Vec<super::CopiableAbilitySnapshot>,
     },

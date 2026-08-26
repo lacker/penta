@@ -10,16 +10,16 @@ use crate::card::{
     AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef,
     BattlefieldEntryModificationDef, BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, CardTypeSet, CharacteristicOperationDef, ComparisonDef,
-    ControlDurationDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DestroyFollowUpDef,
-    DiscardSelectionDef, DividedTotal, DrawEventMatcherDef, EffectDef, EffectPaymentCostDef,
-    EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayActionMatcherDef, PlayRestrictionDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
-    ReplacementEventDef, ResolvedEffectDurationDef, ScaledValueDef, SpellAdditionalCostCountDef,
-    SpellAdditionalCostDef, SpellResolutionDestinationDef, SpendModeDef, TargetChooserDef,
-    TokenCopyExceptionsDef, TokenStatsDef, TopCardSelectionDef, TriggerConditionDef,
-    TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement,
-    abilities,
+    ControlDurationDef, CopyAbilityDef, CopyExceptionsDef, CounterKind, CreatureTypeSetDef,
+    DamageEventMatcherDef, DestroyFollowUpDef, DiscardSelectionDef, DividedTotal,
+    DrawEventMatcherDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
+    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PayOrDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    ScaledValueDef, SpellAdditionalCostCountDef, SpellAdditionalCostDef,
+    SpellResolutionDestinationDef, SpendModeDef, TargetChooserDef, TokenStatsDef,
+    TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef,
+    ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
 };
 use crate::{ObjectSetBindingIndex, TargetIndex, mana_cost};
 
@@ -464,36 +464,36 @@ pub(in crate::card::sets) static CORRUPTED_CONSCIENCE: CardRecord = CardRecord::
 );
 
 // MBS 23 — Cryptoplasm
+static CRYPTOPLASM_COPY: AbilityDef = AbilityDef::triggered_with_targets(
+    "At the beginning of your upkeep, you may have this creature become a copy of another target creature, except it has this ability.",
+    TriggerEventDef::StepBegins {
+        step: crate::card::TurnStepDef::Upkeep,
+        player: PlayerRelation::You,
+    },
+    &[AbilityTargetDef::exactly_one_permanent(
+        ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+        ]),
+    )],
+    EffectDef::May {
+        player: EffectRecipientDef::Controller,
+        effect: &EffectDef::BecomeCopyOf {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            copier: None,
+            exceptions: CopyExceptionsDef::NONE.with_abilities(&[CopyAbilityDef::This]),
+            duration: None,
+        },
+    },
+);
+
 pub(in crate::card::sets) static CRYPTOPLASM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("15a31710-c1d6-45e4-9dbe-a75453a74da0"),
     "Cryptoplasm",
     crate::card::CardArt::new("15a31710-c1d6-45e4-9dbe-a75453a74da0", "Eric Deschamps"),
     crate::card::CardSet::MirrodinBesieged,
-    CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Shapeshifter"], 2, 2).with_ability(
-        AbilityDef::triggered_with_targets(
-            "At the beginning of your upkeep, you may have this creature become a copy of another target creature, except it has this ability.",
-            TriggerEventDef::StepBegins {
-                step: crate::card::TurnStepDef::Upkeep,
-                player: PlayerRelation::You,
-            },
-            &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                ]),
-            )],
-            EffectDef::May {
-                player: EffectRecipientDef::Controller,
-                effect: &EffectDef::BecomeCopyOf {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    copier: None,
-                    retain_source_ability: true,
-                    added_types: CardTypeSet::EMPTY,
-                    duration: None,
-                },
-            },
-        ),
-    ),
+    CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Shapeshifter"], 2, 2)
+        .with_ability(CRYPTOPLASM_COPY),
 );
 
 // MBS 24 — Distant Memories
@@ -2613,12 +2613,10 @@ pub(in crate::card::sets) static MIRRORWORKS: CardRecord = CardRecord::new(
                 PlayerSetDef::Related(PlayerRelation::You),
                 mana_cost!("{2}"),
             ),
-            &EffectDef::CreateTokenCopyOf {
-                object: EffectRecipientDef::TriggeringObject,
-                exceptions: TokenCopyExceptionsDef::NONE,
-                controller: None,
-                created: None,
-            },
+            &EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
+                object: &EffectRecipientDef::TriggeringObject,
+                exceptions: CopyExceptionsDef::NONE,
+            }),
         )),
     )),
 );

@@ -3591,7 +3591,7 @@ pub(in crate::card::sets) static DETENTION_SPHERE: CardRecord = CardRecord::new_
                     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
                     // By name rather than by identity, so a second Sphere is
                     // no more a legal target than this one.
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::SharesNameWithSource),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasName(ObjectRefDef::Source)),
                 ]),
                 zones: &[ZoneKind::Battlefield],
                 controller: None,

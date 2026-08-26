@@ -8,18 +8,39 @@ mod tests {
         exile_until_next_end_step, exile_until_next_end_step_under_your_control,
         exile_until_source_leaves, first_strike, flashback,
         flashback_for_card_mana_cost, flying, intimidate, living_weapon, overload, pain_land,
-        shock_land_enters, tap_for, EQUIP_TARGET, equip,
+        shock_land_enters, storm, tap_for, EQUIP_TARGET, equip,
     };
     use crate::card::{
         AbilityCostDef, AbilityCostList, AbilityCoverageDef, AbilityDef, AbilityPredicateDef,
         AbilityTargetDef, ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef,
         AlternativeCastManaCostDef, BasicLandType, CardRules, CardType, ConditionDef,
         DeclarativeAbilityDef, EffectDef, EffectPaymentCostDef, EffectRecipientDef, KeywordAbility,
-        ManaColor, ManaCost, ObjectPredicateDef, PlayerRelation, PlayerSetDef,
-        ObjectRefDef, ReplacementEffectDef, TriggerEventDef, ZoneChangeEventMatcherDef, ZoneKind,
+        ManaColor, ManaCost, ObjectPredicateDef, ObjectRefDef, PlayerRefDef, PlayerRelation,
+        PlayerSetDef, ReplacementEffectDef, TriggerEventDef, ValueDef, ZoneChangeEventMatcherDef,
+        ZoneKind,
     };
     use crate::TargetIndex;
     use crate::mana_cost;
+
+    #[test]
+    fn storm_builds_the_shared_source_cast_copy_trigger() {
+        let ability = storm();
+        let DeclarativeAbilityDef::Triggered(trigger) = ability.definition else {
+            panic!("storm should be a cast trigger")
+        };
+        assert_eq!(
+            trigger.event,
+            TriggerEventDef::SpellCast(ObjectPredicateDef::Source),
+        );
+        let Some(EffectDef::CopyStackObject(copy)) = ability.declarative_effect() else {
+            panic!("storm should copy its source spell")
+        };
+        assert_eq!(copy.object, EffectRecipientDef::Source);
+        assert_eq!(copy.controller, PlayerRefDef::EffectController);
+        assert_eq!(copy.count, ValueDef::SpellsCastBeforeThisTurn);
+        assert!(copy.retarget);
+        assert_eq!(copy.colors, None);
+    }
 
     #[test]
     fn living_weapon_owns_its_rules_defined_germ() {

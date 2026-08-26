@@ -2,11 +2,12 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AlternativeCastKindDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, ComparisonDef, ControlDurationDef,
-    CounterKind, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, TokenStatsDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AlternativeCastKindDef, CardArt, CardRules, CardSet, CardSupertype, CardType, ComparisonDef,
+    ControlDurationDef, CounterKind, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, StackTargetKindDef,
+    TokenStatsDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    abilities,
 };
 use crate::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex, mana_cost};
 
@@ -349,6 +350,95 @@ pub(in crate::card::sets) static OMNATH_LOCUS_OF_CREATION: CardRecord =
             .with_abilities(&OMNATH_ABILITIES),
     );
 
+// ZNR 245 — Lithoform Engine
+static AN_ABILITY_YOU_CONTROL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::StackObject {
+        object: ObjectPredicateDef::Any,
+        controller: Some(PlayerRelation::You),
+        kind: StackTargetKindDef::AbilityOnly,
+    },
+)];
+
+static AN_INSTANT_OR_SORCERY_YOU_CONTROL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::AnyOf(&[
+            ObjectPredicateDef::HasType(CardType::Instant),
+            ObjectPredicateDef::HasType(CardType::Sorcery),
+        ]),
+        zones: &[ZoneKind::Stack],
+        controller: Some(PlayerRelation::You),
+        owner: None,
+    },
+)];
+
+static A_PERMANENT_SPELL_YOU_CONTROL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::AnyOf(&[
+            ObjectPredicateDef::HasType(CardType::Artifact),
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::HasType(CardType::Enchantment),
+            ObjectPredicateDef::HasType(CardType::Land),
+            ObjectPredicateDef::HasType(CardType::Planeswalker),
+        ]),
+        zones: &[ZoneKind::Stack],
+        controller: Some(PlayerRelation::You),
+        owner: None,
+    },
+)];
+
+static LITHOFORM_RETARGET_COPY: crate::card::CopyStackObjectDef = crate::card::CopyStackObjectDef {
+    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+    controller: PlayerRefDef::EffectController,
+    count: ValueDef::Constant(1),
+    retarget: true,
+    colors: None,
+};
+
+static LITHOFORM_FIXED_COPY: crate::card::CopyStackObjectDef = crate::card::CopyStackObjectDef {
+    retarget: false,
+    ..LITHOFORM_RETARGET_COPY
+};
+
+static LITHOFORM_ENGINE_ABILITIES: [AbilityDef; 3] = [
+    AbilityDef::activated_with_targets(
+        "{2}, {T}: Copy target activated or triggered ability you control. You may choose new targets for the copy.",
+        &[
+            AbilityCostDef::Mana(mana_cost!("{2}")),
+            AbilityCostDef::TapSource,
+        ],
+        &AN_ABILITY_YOU_CONTROL,
+        EffectDef::CopyStackObject(&LITHOFORM_RETARGET_COPY),
+    ),
+    AbilityDef::activated_with_targets(
+        "{3}, {T}: Copy target instant or sorcery spell you control. You may choose new targets for the copy.",
+        &[
+            AbilityCostDef::Mana(mana_cost!("{3}")),
+            AbilityCostDef::TapSource,
+        ],
+        &AN_INSTANT_OR_SORCERY_YOU_CONTROL,
+        EffectDef::CopyStackObject(&LITHOFORM_RETARGET_COPY),
+    ),
+    AbilityDef::activated_with_targets(
+        "{4}, {T}: Copy target permanent spell you control. (The copy becomes a token.)",
+        &[
+            AbilityCostDef::Mana(mana_cost!("{4}")),
+            AbilityCostDef::TapSource,
+        ],
+        &A_PERMANENT_SPELL_YOU_CONTROL,
+        EffectDef::CopyStackObject(&LITHOFORM_FIXED_COPY),
+    ),
+];
+
+pub(in crate::card::sets) static LITHOFORM_ENGINE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6683416a-5820-4cd0-b28a-60a53239e9ef"),
+    "Lithoform Engine",
+    CardArt::new("6683416a-5820-4cd0-b28a-60a53239e9ef", "Colin Boyer"),
+    CardSet::ZendikarRising,
+    CardRules::new_artifact(mana_cost!("{4}"))
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&LITHOFORM_ENGINE_ABILITIES),
+);
+
 // ZNR 319 — Luminarch Aspirant
 /// "Target creature you control" -- including herself, which is what makes
 /// an unanswered Aspirant a clock rather than a lord.
@@ -394,6 +484,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BLOODCHIEFS_THIRST,
     &GNARLID_COLONY,
     &OMNATH_LOCUS_OF_CREATION,
+    &LITHOFORM_ENGINE,
     &LUMINARCH_ASPIRANT,
 ];
 

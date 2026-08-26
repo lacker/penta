@@ -10,7 +10,7 @@ use crate::card::{
     AppliedEffectDef, ArrivalAttachmentDef, BasicLandType, CardArt, CardRules, CardSet, CardType,
     ComparisonDef, CostModificationDef, CounterKind, EffectDef, EffectPaymentCostDef,
     EffectPaymentDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectRefDef, PayOrDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, StackTargetKindDef,
+    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, StackTargetKindDef,
     TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
@@ -398,13 +398,6 @@ pub(in crate::card::sets) static APHETTO_RUNECASTER: CardRecord = CardRecord::ne
 );
 
 // SCG 29 — Brain Freeze
-/// Storm, as one clause: the copies are made when the spell is cast, and each
-/// is offered its own target because the printed reminder text says so.
-static BRAIN_FREEZE_STORM: EffectDef = EffectDef::CopyResolvingSpell {
-    chooser: PlayerRefDef::EffectController,
-    count: ValueDef::SpellsCastBeforeThisTurn,
-};
-
 pub(in crate::card::sets) static BRAIN_FREEZE: CardRecord = CardRecord::new_with_legacy_id(
     2063,
     "Brain Freeze",
@@ -423,11 +416,7 @@ pub(in crate::card::sets) static BRAIN_FREEZE: CardRecord = CardRecord::new_with
                 then: None,
             },
         ),
-        AbilityDef::triggered(
-            "Storm (When you cast this spell, copy it for each spell cast before it this turn. You may choose new targets for the copies.)",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::Source),
-            BRAIN_FREEZE_STORM,
-        ),
+        abilities::storm(),
     ]),
 );
 
@@ -959,11 +948,6 @@ static TENDRILS_DRAINS: EffectDef = EffectDef::Sequence(&[
     },
 ]);
 
-static TENDRILS_STORM: EffectDef = EffectDef::CopyResolvingSpell {
-    chooser: PlayerRefDef::EffectController,
-    count: ValueDef::SpellsCastBeforeThisTurn,
-};
-
 pub(in crate::card::sets) static TENDRILS_OF_AGONY: CardRecord = CardRecord::new_with_legacy_id(
     2223,
     "Tendrils of Agony",
@@ -977,12 +961,7 @@ pub(in crate::card::sets) static TENDRILS_OF_AGONY: CardRecord = CardRecord::new
             &A_PLAYER,
             TENDRILS_DRAINS,
         ),
-        AbilityDef::triggered(
-            "Storm (When you cast this spell, copy it for each spell cast before it this turn. \
-             You may choose new targets for the copies.)",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::Source),
-            TENDRILS_STORM,
-        ),
+        abilities::storm(),
     ]),
 );
 

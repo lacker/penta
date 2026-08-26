@@ -4,10 +4,10 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
     AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ComparisonDef, CounterKind, DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, PlayerRefDef, PlayerRelation, TokenCopyExceptionsDef, TopCardSelectionDef,
-    TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    ComparisonDef, CopyExceptionsDef, CopyStackObjectDef, CounterKind, DiscardSelectionDef,
+    EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRefDef, PlayerRelation,
+    TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -57,6 +57,14 @@ static KITSA_COPY_COST: [AbilityCostDef; 2] = [
     AbilityCostDef::TapSource,
 ];
 
+static KITSA_COPIES_A_SPELL: CopyStackObjectDef = CopyStackObjectDef {
+    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+    controller: PlayerRefDef::EffectController,
+    count: ValueDef::Constant(1),
+    retarget: true,
+    colors: None,
+};
+
 static KITSA_ABILITIES: [AbilityDef; 4] = [
     abilities::vigilance(),
     abilities::prowess(),
@@ -70,10 +78,7 @@ static KITSA_ABILITIES: [AbilityDef; 4] = [
          for the copy. Activate only if Kitsa's power is 3 or greater.",
         &KITSA_COPY_COST,
         &YOUR_INSTANT_OR_SORCERY_SPELL,
-        EffectDef::CopyTargetSpell {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            chooser: PlayerRefDef::EffectController,
-        },
+        EffectDef::CopyStackObject(&KITSA_COPIES_A_SPELL),
     )
     .with_activation_condition(&KITSA_IS_BIG_ENOUGH),
 ];
@@ -213,12 +218,11 @@ static TRAINER_HAD_OFFSPRING: TriggerConditionDef =
 
 /// A 1/1 copy of himself, which arrives with his own look at four attached
 /// to it -- the whole reason the extra four mana is worth paying.
-static TRAINER_OFFSPRING_TOKEN: EffectDef = EffectDef::CreateTokenCopyOf {
-    object: EffectRecipientDef::Source,
-    exceptions: TokenCopyExceptionsDef::power_toughness(1, 1),
-    controller: None,
-    created: None,
-};
+static TRAINER_OFFSPRING_TOKEN: EffectDef =
+    EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
+        object: &EffectRecipientDef::Source,
+        exceptions: CopyExceptionsDef::power_toughness(1, 1),
+    });
 
 /// A noncreature, nonland card among the four, which is what the deck
 /// playing him is digging for.

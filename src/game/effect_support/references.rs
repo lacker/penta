@@ -40,6 +40,12 @@ impl Game {
                 if self.card_in_nonbattlefield_zone(source).is_some() {
                     return Target::Card(source);
                 }
+                // A cast trigger's source is the spell still waiting beneath
+                // it. Copying storm or replicate therefore names a stack
+                // object, not last-known permanent information.
+                if self.stack.iter().any(|stack| stack.id == source) {
+                    return Target::Spell(source);
+                }
                 // A dies-trigger names the permanent that was standing there,
                 // and the card it became on the way out has a different
                 // identity. "Return it to the battlefield" means that card,
@@ -67,7 +73,10 @@ impl Game {
                     _ => None,
                 })
             }
-            ObjectRefDef::ResolvingObject => self.live_object_target(object.id),
+            // The resolver has already removed this object from the live
+            // stack, but effects such as the Chain cycle still name and copy
+            // the spell that is currently resolving.
+            ObjectRefDef::ResolvingObject => Some(Target::Spell(object.id)),
             ObjectRefDef::AdditionalCostObject(index) => object
                 .signature
                 .as_ref()

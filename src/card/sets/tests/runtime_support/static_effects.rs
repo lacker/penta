@@ -309,7 +309,6 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::PhaseOut { .. }
         | EffectDef::CreateToken { .. }
         | EffectDef::CreateAttachedToken { .. }
-        | EffectDef::CreateTokenCopyOf { .. }
         | EffectDef::Endure { .. }
         | EffectDef::Destroy { .. }
         | EffectDef::Sacrifice { .. }
@@ -339,8 +338,7 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::IfFormat { .. }
         | EffectDef::Counter { .. }
         | EffectDef::PutSpellIntoOwnersLibrary { .. }
-        | EffectDef::CopyResolvingSpell { .. }
-        | EffectDef::CopyTargetSpell { .. }
+        | EffectDef::CopyStackObject(_)
         | EffectDef::AddCounters { .. }
         | EffectDef::RemoveCounters { .. }
         | EffectDef::ChangeTextBasicLandType { .. }

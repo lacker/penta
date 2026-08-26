@@ -46,10 +46,31 @@ fn collect_ability_grants(
         } => {
             collect_applied_ability_grants(effect, grants);
         }
-        EffectDef::CreateToken { token, .. } | EffectDef::CreateAttachedToken { token, .. } => {
+        EffectDef::CreateToken { token, copy, .. } => match copy {
+            Some(copy) => grants.extend(
+                copy.exceptions
+                    .added_abilities
+                    .iter()
+                    .filter_map(|addition| match addition {
+                        CopyAbilityDef::This => None,
+                        CopyAbilityDef::Ability(ability) => Some(*ability),
+                    }),
+            ),
+            None => tokens.push(token),
+        },
+        EffectDef::CreateAttachedToken { token, .. } => {
             tokens.push(token);
         }
         EffectDef::CreateEmblem { emblem } => emblems.push(emblem),
+        EffectDef::BecomeCopyOf { exceptions, .. } => grants.extend(
+            exceptions
+                .added_abilities
+                .iter()
+                .filter_map(|addition| match addition {
+                    CopyAbilityDef::This => None,
+                    CopyAbilityDef::Ability(ability) => Some(*ability),
+                }),
+        ),
         _ => {}
     }
     for child in crate::card::child_effects(effect) {
@@ -95,8 +116,16 @@ fn collect_replacement_ability_grants(
         | ReplacementEffectDef::MultiplyEventAmount(_)
         | ReplacementEffectDef::AddToEventAmount(_)
         | ReplacementEffectDef::Choose(_)
-        | ReplacementEffectDef::LookAtHand(_)
-        | ReplacementEffectDef::CopyEntering { .. } => {}
+        | ReplacementEffectDef::LookAtHand(_) => {}
+        ReplacementEffectDef::CopyEntering { exceptions, .. } => grants.extend(
+            exceptions
+                .added_abilities
+                .iter()
+                .filter_map(|addition| match addition {
+                    CopyAbilityDef::This => None,
+                    CopyAbilityDef::Ability(ability) => Some(*ability),
+                }),
+        ),
     }
 }
 
@@ -137,6 +166,10 @@ fn ability_grant_sites(effect: EffectDef) -> usize {
         | EffectDef::DealDamageAndApply {
             applied: effect, ..
         } => applied_ability_grant_sites(effect),
+        EffectDef::BecomeCopyOf { exceptions, .. } => exceptions.added_abilities.len(),
+        EffectDef::CreateToken {
+            copy: Some(copy), ..
+        } => copy.exceptions.added_abilities.len(),
         _ => 0,
     };
     crate::card::child_effects(effect)
@@ -175,8 +208,10 @@ fn replacement_ability_grant_sites(effect: ReplacementEffectDef) -> usize {
         | ReplacementEffectDef::MultiplyEventAmount(_)
         | ReplacementEffectDef::AddToEventAmount(_)
         | ReplacementEffectDef::Choose(_)
-        | ReplacementEffectDef::LookAtHand(_)
-        | ReplacementEffectDef::CopyEntering { .. } => 0,
+        | ReplacementEffectDef::LookAtHand(_) => 0,
+        ReplacementEffectDef::CopyEntering { exceptions, .. } => {
+            exceptions.added_abilities.len()
+        }
     }
 }
 

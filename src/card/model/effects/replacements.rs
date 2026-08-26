@@ -287,19 +287,10 @@ pub enum ReplacementEffectDef {
     /// opponent relation identifies one player without another choice.
     LookAtHand(PlayerRelation),
     /// Optionally use another permanent's copiable values for the entering
-    /// object, retaining the named card types in addition to the copy.
+    /// object, applying the named copy-process exceptions.
     CopyEntering {
         object: ObjectPredicateDef,
-        added_types: super::CardTypeSet,
-        /// Whether the copy keeps the copying card's own printed subtypes on
-        /// top of the ones it copies. "Except it's an Illusion in addition to
-        /// its other types" names the subtype line the card already prints,
-        /// so nothing has to write it down twice.
-        retain_printed_subtypes: bool,
-        /// Printed abilities of the copying card the copy keeps, by position.
-        /// A copy takes the other permanent's abilities wholesale, so an
-        /// "except it has ..." clause has to hand its own back.
-        retained_abilities: &'static [crate::ids::AbilityId],
+        exceptions: super::CopyExceptionsDef,
     },
     Conditional {
         condition: ConditionDef,

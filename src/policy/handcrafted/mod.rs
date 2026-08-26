@@ -48,6 +48,9 @@ impl Policy for HandcraftedPolicy {
             if let Some(cast) = self.choose_offered_cast(observation) {
                 return Some(cast);
             }
+            if let Some(action) = self.choose_opening_hand_action(observation) {
+                return Some(action);
+            }
             return self.choose_decision(observation, decision);
         }
         let action = observation

@@ -1,3 +1,5 @@
+include!("pregame_continuation.rs");
+
 #[allow(clippy::too_many_lines)]
 fn parse_continuation(
     value: &DecisionContinuationSnapshot,
@@ -6,6 +8,11 @@ fn parse_continuation(
     game: &Game,
 ) -> Result<DecisionContinuation, String> {
     Ok(match value {
+        pregame @ (DecisionContinuationSnapshot::PregameActions { .. }
+        | DecisionContinuationSnapshot::ScryBottom { .. }
+        | DecisionContinuationSnapshot::ScryTop { .. }) => {
+            parse_pregame_continuation(pregame, game)?
+        }
         DecisionContinuationSnapshot::BeginTurn {
             player: prospective_player,
             turn_kind,

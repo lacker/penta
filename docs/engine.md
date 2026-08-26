@@ -11,13 +11,14 @@ philosophy, [implementing cards](implementing-cards.md) for extension guidance,
 A `CardDefinitionId` identifies one canonical card name and rules identity in
 the catalog. Existing numeric meanings remain fixed; new definitions derive a
 positive, JavaScript-safe 52-bit value from an explicitly frozen exact
-first-printing UUID. The values are opaque and sparse, while the catalog keeps
-definitions dense internally behind an ID-to-index map. Copy limits, banned and
-restricted lists, and executable behavior all use that canonical identity. A
-`CardPrintingId` identifies one exact set-and-variant printing of the
-definition. Multiple printing variants may therefore share a set and canonical
-definition, which can represent different basic-land art without duplicating
-gameplay rules.
+preferred-printing UUID: the first English-language paper printing when one
+exists, otherwise the first paper printing in any language. The values are
+opaque and sparse, while the catalog keeps definitions dense internally behind
+an ID-to-index map. Copy limits, banned and restricted lists, and executable
+behavior all use that canonical identity. A `CardPrintingId` identifies one
+exact set-and-variant printing of the definition. Multiple printing variants
+may therefore share a set and canonical definition, which can represent
+different basic-land art without duplicating gameplay rules.
 
 The runtime model deliberately separates physical-card lineage from rules
 object identity:
@@ -253,10 +254,12 @@ for debugging and UI use.
 ## Card model and behavior
 
 Each built-in canonical card is declared once in the `CARDS` registry of its
-representative or debut set module, under the set's release-year module. Its
-`CardRecord` keeps identity and its rules together: name, cost, types, creature
-stats, and ordered ability clauses can all be understood at the card's
-declaration. Double-faced records use `CardRecord::new_dfc` or
+preferred representative set module, under the set's release-year module. That
+is normally the first English-language paper set, falling back to the first
+paper set only when no English printing exists. Its `CardRecord` keeps identity
+and its rules together: name, cost, types, creature stats, and ordered ability
+clauses can all be understood at the card's declaration. Double-faced records
+use `CardRecord::new_dfc` or
 `CardRecord::new_mdfc` to declare both named faces together and derive their
 parts, topology, and play options. Other structured cards attach a
 `CardComposition`; an ordinary record receives an equivalent one-part

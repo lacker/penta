@@ -25,6 +25,19 @@ use super::{
     rename_all_fields = "camelCase"
 )]
 pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
+    PregameActions {
+        player: usize,
+        actions: Vec<PregameAbilityActionSnapshot>,
+    },
+    ScryBottom {
+        player: usize,
+        revealed: Vec<DetachedCardSnapshot>,
+    },
+    ScryTop {
+        player: usize,
+        top: Vec<DetachedCardSnapshot>,
+        bottom: Vec<DetachedCardSnapshot>,
+    },
     BeginTurn {
         player: usize,
         turn_kind: TurnKindSnapshot,
@@ -347,4 +360,12 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
     TetravusAssemble {
         source: u32,
     },
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(in crate::game::state_checkpoint) struct PregameAbilityActionSnapshot {
+    pub(in crate::game::state_checkpoint) source: u32,
+    pub(in crate::game::state_checkpoint) ability: AbilityOriginSnapshot,
+    pub(in crate::game::state_checkpoint) cost_objects: Vec<u32>,
 }

@@ -2,8 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AddManaEffectDef, CardArt, CardRules, CardSet, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, TriggerEventDef, ValueDef, ZoneKind,
+    AbilityCostDef, AbilityDef, AddManaEffectDef, CardArt, CardRules, CardSet, CardSupertype,
+    CounterKind, EffectDef, EffectRecipientDef, ObjectPredicateDef, PregameConditionDef,
+    TokenCountersDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
 };
 use crate::mana_cost;
 
@@ -111,6 +112,45 @@ pub(in crate::card::sets) static STUFFY_DOLL: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+static GEMSTONE_CAVERNS_OPENING_COST: [AbilityCostDef; 1] =
+    [AbilityCostDef::ExileCardFromHand(ObjectPredicateDef::Any)];
+
+// TSP 274 — Gemstone Caverns
+// Audit: partial — The opening-hand action is declarative; its conditional mana replacement needs a mana ability that branches on a luck counter.
+pub(in crate::card::sets) static GEMSTONE_CAVERNS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("94d74254-4750-4fb3-9e53-473a5f98b315"),
+    "Gemstone Caverns",
+    CardArt::new("94d74254-4750-4fb3-9e53-473a5f98b315", "Martina Pilcerova"),
+    CardSet::TimeSpiral,
+    CardRules::new_land(&[])
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::opening_hand_with(
+                "If this card is in your opening hand and you're not the starting player, you may begin the game with Gemstone Caverns on the battlefield with a luck counter on it. If you do, exile a card from your hand.",
+                PregameConditionDef::NotStartingPlayer,
+                &GEMSTONE_CAVERNS_OPENING_COST,
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Source,
+                    from: Some(ZoneKind::Hand),
+                    zone: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    controller: None,
+                    arrival_effect: None,
+                    attachment: None,
+                    counters: Some(TokenCountersDef {
+                        kind: CounterKind::Luck,
+                        amount: ValueDef::Constant(1),
+                    }),
+                    tapped: false,
+                },
+            ),
+            AbilityDef::not_implemented(
+                "{T}: Add {C}. If Gemstone Caverns has a luck counter on it, instead add one mana of any color.",
+                "Needs a conditional activated-mana result keyed to a counter on its source.",
+            ),
+        ]),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &MOMENTARY_BLINK,
     &SERRA_AVENGER,
@@ -119,6 +159,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SULFUROUS_BLAST,
     &CHROMATIC_STAR,
     &STUFFY_DOLL,
+    &GEMSTONE_CAVERNS,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -311,6 +311,21 @@ impl Game {
                     }
                 }
             }
+            EffectDef::Scry {
+                player: recipient,
+                count,
+            } => {
+                let count = self
+                    .effect_value(count, object, context, scoped)
+                    .max(0)
+                    .try_into()
+                    .unwrap_or(usize::MAX);
+                for target in self.effect_recipients(recipient, object, context, scoped) {
+                    if let Target::Player(player) = target {
+                        self.queue_scry(player, count);
+                    }
+                }
+            }
             EffectDef::DrawCards { recipient, amount } => {
                 let amount = self
                     .effect_value(amount, object, context, scoped)

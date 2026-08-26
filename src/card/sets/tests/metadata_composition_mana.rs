@@ -321,6 +321,10 @@ fn every_builtin_land_without_mana_is_named_explicitly() {
             // The same fetch, with the tapped land untapping again once you
             // are no longer the one behind on lands.
             "Fabled Passage",
+            // Its opening-hand action is executable, but the printed mana
+            // ability remains partial until a mana result can branch on the
+            // luck counter it places.
+            "Gemstone Caverns",
             // Counts ten counters down and trades itself for a 20/20; the
             // mana it costs to do that goes in rather than coming out.
             "Dark Depths",

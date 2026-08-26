@@ -14,11 +14,64 @@ use crate::card::{
     ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, RoundingDef, SetOperationDef, SimultaneousChooseDef,
     SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef, TargetConditionDef,
-    TokenCopyExceptionsDef, TokenCountersDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueComparisonDef, ValueDef, ZoneKind, ZonePickDef, ZonePlacement, abilities, tokens,
+    TokenCopyExceptionsDef, TokenCountersDef, TopCardSelectionDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePickDef,
+    ZonePlacement, abilities, tokens,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
 use crate::{TargetIndex, mana_cost};
+
+static DEVOURER_OPENING_LOOK: TopCardSelectionDef = TopCardSelectionDef {
+    count: ValueDef::Constant(4),
+    object: None,
+    minimum: 0,
+    maximum: 1,
+    select_all_matching: false,
+    select_one_of_each_type: false,
+    reveal_inspected: false,
+    reveal_selected: false,
+    counted: None,
+    selected_zone: ZoneKind::Library,
+    selected_placement: ZonePlacement::Top,
+    selected_hidden: false,
+    selected_linked_to_source: false,
+    selected_face_down: None,
+    rest_zone: ZoneKind::Exile,
+    rest_placement: ZonePlacement::Top,
+    rest_random_order: false,
+    rest_counters: None,
+    selected_order_follows_choice: false,
+    then: None,
+};
+
+static DEVOURER_OPENING_TRIGGER: AbilityDef = AbilityDef::triggered(
+    "At the beginning of your first upkeep, look at the top four cards of your library. You may put one of those cards back on top of your library. Exile the rest.",
+    TriggerEventDef::StepBegins {
+        step: TurnStepDef::Upkeep,
+        player: PlayerRelation::You,
+    },
+    EffectDef::LookAtTopAndSelect {
+        player: EffectRecipientDef::Controller,
+        looker: EffectRecipientDef::Controller,
+        selection: &DEVOURER_OPENING_LOOK,
+    },
+);
+
+// MH3 2 — Devourer of Destiny
+// Audit: partial — The opening-hand action is declarative; its cast trigger needs a predicate for permanents with one or more colors.
+pub(in crate::card::sets) static DEVOURER_OF_DESTINY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("560debcd-feb4-4534-991e-a7aa1cca2409"),
+    "Devourer of Destiny",
+    CardArt::new("560debcd-feb4-4534-991e-a7aa1cca2409", "Raph Lomotan"),
+    CardSet::ModernHorizons3,
+    CardRules::new_creature(mana_cost!("{5}{C}{C}"), &["Eldrazi"], 6, 6).with_abilities(&[
+        AbilityDef::opening_hand_reveal(
+            "You may reveal this card from your opening hand. If you do, at the beginning of your first upkeep, look at the top four cards of your library. You may put one of those cards back on top of your library. Exile the rest.",
+            EffectDef::InstallTrigger(InstalledTriggerDef::once(&DEVOURER_OPENING_TRIGGER)),
+        ),
+        AbilityDef::not_implemented("When you cast this spell, exile target permanent that's one or more colors.", "Needs a target predicate for a permanent whose color set is nonempty."),
+    ]),
+);
 
 static LANDSCAPE_FETCH_COST: [AbilityCostDef; 2] =
     [AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource];
@@ -2602,6 +2655,7 @@ pub(in crate::card::sets) static WIGHT_OF_THE_RELIQUARY: CardRecord = CardRecord
 // MH3 484 — Six (alternate printing)
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &DEVOURER_OF_DESTINY,
     &AERIE_AUXILIARY,
     &DOG_UMBRA,
     &MANDIBULAR_KITE,

@@ -214,6 +214,7 @@ mod old_school_upkeep;
 mod omniscience;
 mod one_sided_block_triggers;
 mod open_activation;
+mod opening_hands;
 mod osai_vultures;
 mod paralyze;
 mod part_water;

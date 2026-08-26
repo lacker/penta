@@ -258,8 +258,16 @@ fn detached_decision_cards(continuation: &DecisionContinuationSnapshot) -> BTree
             .map(|card| GameObjectId(card.object_id))
             .collect();
     }
+    if let DecisionContinuationSnapshot::ScryTop { top, bottom, .. } = continuation {
+        return top
+            .iter()
+            .chain(bottom)
+            .map(|card| GameObjectId(card.object_id))
+            .collect();
+    }
     let cards = match continuation {
-        DecisionContinuationSnapshot::GrislySalvage { revealed, .. }
+        DecisionContinuationSnapshot::ScryBottom { revealed, .. }
+        | DecisionContinuationSnapshot::GrislySalvage { revealed, .. }
         | DecisionContinuationSnapshot::AugurOfBolas { revealed, .. }
         | DecisionContinuationSnapshot::TopCardSelection { revealed, .. } => revealed.as_slice(),
         _ => &[],

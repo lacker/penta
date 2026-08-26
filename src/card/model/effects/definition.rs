@@ -419,6 +419,11 @@ pub enum EffectDef {
         recipient: EffectRecipientDef,
         amount: ValueDef,
     },
+    /// Sets life through one ordinary gain or loss event (CR 119.5).
+    SetLifeTotal {
+        recipient: EffectRecipientDef,
+        total: ValueDef,
+    },
     /// Lets the next sorcery its controller casts this turn be cast as
     /// though it had flash.
     GrantFlashToNextSorcery,
@@ -447,6 +452,10 @@ pub enum EffectDef {
         player: EffectRecipientDef,
         zones: &'static [ZoneKind],
         count: u8,
+    },
+    Scry {
+        player: EffectRecipientDef,
+        count: ValueDef,
     },
     /// "Put target nonland permanent into its owner's library just beneath
     /// the top N cards of that library." Neither top nor bottom: the depth
@@ -974,9 +983,7 @@ pub enum EffectDef {
     TakeExtraTurn {
         player: EffectRecipientDef,
     },
-    Tap {
-        object: EffectRecipientDef,
-    },
+    Tap { object: EffectRecipientDef },
     /// "Put it onto the battlefield, then <clause about it>." What enters is
     /// a new object, so the arrival is saved in `binding` for the clause that
     /// names it.
@@ -988,10 +995,6 @@ pub enum EffectDef {
         then: &'static EffectDef,
     },
     /// Turns a double-faced permanent over to its other face.
-    Transform {
-        object: EffectRecipientDef,
-    },
-    Untap {
-        object: EffectRecipientDef,
-    },
+    Transform { object: EffectRecipientDef },
+    Untap { object: EffectRecipientDef },
 }

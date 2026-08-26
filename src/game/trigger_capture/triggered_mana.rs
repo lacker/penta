@@ -59,6 +59,8 @@ EffectDef::ChangeTextBasicLandType { .. } | EffectDef::ChooseColor { .. } |
 EffectDef::BecomeCopyOf { .. } | EffectDef::May { .. } |
 EffectDef::CannotBeForcedToSacrifice | EffectDef::CannotBeForcedToDiscard |
 EffectDef::GainClassLevel { .. } |
+EffectDef::SetLifeTotal { .. } |
+EffectDef::Scry { .. } |
 EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. } |
 EffectDef::CreateEmblem { .. } | EffectDef::CreateOngoingEffect(_) |
 EffectDef::PutOntoBattlefieldThen { .. } | EffectDef::Transform { .. } |

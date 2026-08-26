@@ -81,7 +81,8 @@ fn countering_acceptance_cards_report_complete_shared_implementations() {
             .iter()
             .find_map(|ability| match ability.definition {
                 DeclarativeAbilityDef::Spell(spell) => spell.modal(),
-                DeclarativeAbilityDef::ActivatedMana(_)
+                DeclarativeAbilityDef::Pregame(_)
+                | DeclarativeAbilityDef::ActivatedMana(_)
                 | DeclarativeAbilityDef::TriggeredMana(_)
                 | DeclarativeAbilityDef::Activated(_)
                 | DeclarativeAbilityDef::Triggered(_)

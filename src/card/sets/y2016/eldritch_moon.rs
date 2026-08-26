@@ -4,9 +4,9 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
     CardSet, CardType, ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SpellAdditionalCostDef,
-    ValueDef, ZoneKind,
+    InstalledTriggerDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
+    SpellAdditionalCostDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
 };
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -19,6 +19,39 @@ pub(in crate::card::sets) static BORROWED_GRACE: CardRecord = CardRecord::new(
     crate::card::CardArt::new("f0067567-3434-4c12-9d4d-04ffc98d012c", "Volkan Baǵa"),
     crate::card::CardSet::EldritchMoon,
     crate::card::CardRules::unsupported(),
+);
+
+static PROVIDENCE_OPENING_TRIGGER: AbilityDef = AbilityDef::triggered(
+    "At the beginning of the first upkeep, your life total becomes 26.",
+    TriggerEventDef::StepBegins {
+        step: TurnStepDef::Upkeep,
+        player: PlayerRelation::Any,
+    },
+    EffectDef::SetLifeTotal {
+        recipient: EffectRecipientDef::Controller,
+        total: ValueDef::Constant(26),
+    },
+);
+
+// EMN 37 — Providence
+pub(in crate::card::sets) static PROVIDENCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2e5edd8d-8e10-4414-a326-95a672dfcff7"),
+    "Providence",
+    CardArt::new("2e5edd8d-8e10-4414-a326-95a672dfcff7", "Zack Stella"),
+    CardSet::EldritchMoon,
+    CardRules::new_sorcery(mana_cost!("{5}{W}{W}")).with_abilities(&[
+        AbilityDef::opening_hand_reveal(
+            "You may reveal this card from your opening hand. If you do, at the beginning of the first upkeep, your life total becomes 26.",
+            EffectDef::InstallTrigger(InstalledTriggerDef::once(&PROVIDENCE_OPENING_TRIGGER)),
+        ),
+        AbilityDef::spell(
+            "Your life total becomes 26.",
+            EffectDef::SetLifeTotal {
+                recipient: EffectRecipientDef::Controller,
+                total: ValueDef::Constant(26),
+            },
+        ),
+    ]),
 );
 
 // EMN 55 — Displace
@@ -149,6 +182,7 @@ pub(in crate::card::sets) static GRAPPLE_WITH_THE_PAST: CardRecord = CardRecord:
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BORROWED_GRACE,
+    &PROVIDENCE,
     &DISPLACE,
     &COLLECTIVE_BRUTALITY,
     &GRAPPLE_WITH_THE_PAST,

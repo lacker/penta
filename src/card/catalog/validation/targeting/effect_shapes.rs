@@ -139,6 +139,14 @@ fn validate_effect_target_shapes(
             validate_recipient_shape(recipient, targets, RecipientExpectation::Player)?;
             validate_value_shape(amount, targets)
         }
+        EffectDef::SetLifeTotal { recipient, total } => {
+            validate_recipient_shape(recipient, targets, RecipientExpectation::Player)?;
+            validate_value_shape(total, targets)
+        }
+        EffectDef::Scry { player, count } => {
+            validate_recipient_shape(player, targets, RecipientExpectation::Player)?;
+            validate_value_shape(count, targets)
+        }
         EffectDef::Discard {
             recipient,
             amount,
@@ -456,6 +464,7 @@ fn validate_effect_target_shapes(
                 | DeclarativeAbilityDef::AlternativeCast(_)
                 | DeclarativeAbilityDef::OptionalAdditionalCost(_)
                 | DeclarativeAbilityDef::SpecialAction(_)
+                | DeclarativeAbilityDef::Pregame(_)
                 | DeclarativeAbilityDef::Keyword(_)
                 | DeclarativeAbilityDef::Legacy => None,
             };

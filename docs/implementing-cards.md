@@ -7,9 +7,14 @@ preferences rather than purity requirements.
 ## Definition boundary
 
 Each built-in canonical card is declared once in the `CARDS` registry of its
-representative or debut set module. Its `CardRecord` keeps its identity and
-primary `CardRules` together: name, cost, types, creature stats, and ordered
-ability clauses can all be understood at the declaration.
+representative set module. Prefer the card's first paper printing in an
+English-language set when one exists; use its first paper printing in any
+language only when no English printing exists. In the local Scryfall index,
+this means selecting the earliest nondigital `printings` row with `lang = en`
+when possible rather than letting an earlier non-English-only product own the
+definition. Its `CardRecord` keeps its identity and primary `CardRules`
+together: name, cost, types, creature stats, and ordered ability clauses can
+all be understood at the declaration.
 
 Within a printed set module, keep declarations and the `CARDS` registry in
 natural collector-number order, with `CARDS` exactly mirroring declaration
@@ -47,9 +52,11 @@ other cards' blocks.
 Existing definitions use `CardRecord::new_with_legacy_id`, with their historic
 numeric value written beside the record. Never allocate another sequential
 legacy value. A new definition uses `CardRecord::new` with an explicitly frozen
-exact first-printing Scryfall UUID through `PrintingAnchor::scryfall`; the build
-derives a stable 52-bit ID and rejects collisions across the whole corpus. Do
-not recompute the earliest printing later: the committed anchor is the identity.
+exact preferred-printing Scryfall UUID through `PrintingAnchor::scryfall`: the
+first English-language paper printing when possible, otherwise the first paper
+printing in any language. The build derives a stable 52-bit ID and rejects
+collisions across the whole corpus. Do not recompute the preferred printing
+later: the committed anchor is the identity.
 If the
 vanishingly unlikely collision occurs, commit
 `PrintingAnchor::scryfall_with_nonce` for the newcomer rather than changing any
@@ -149,7 +156,8 @@ will be implemented later:
    list in its `CubeFormatDefinition` instead of inferring legality from sets.
 2. Query the local Scryfall index for every paper printing in each newly legal
    set. Work in natural collector-number order and keep alternate-art collector
-   numbers distinct. For a cube card, resolve its earliest paper printing and
+   numbers distinct. For a cube card, resolve its earliest English-language
+   paper printing when possible, otherwise its earliest paper printing, and
    freeze that exact UUID as its identity anchor.
 3. Leave an existing `CardRecord` unchanged. If the identity is already
    declared elsewhere, add a `PrintingRecord::reprint` (and `alternate` records
@@ -160,11 +168,12 @@ will be implemented later:
    `CardRules::unsupported()`. Preserve a useful existing capability-gap
    explanation. When there was no row, add the same metadata-only declaration
    with `Card rules have not been implemented.` as its honest initial audit.
-5. Put a new identity in its debut or otherwise representative printed-set
-   module and anchor it to the exact earliest paper printing. Add a `CardSet`,
-   set module, registry entry, source-code mapping, and catalog JSON code when
-   no modeled set can truthfully own the declaration. Append-only catalog
-   growth does not require a protocol-version bump.
+5. Put a new identity in the module for its first English-language paper set
+   when possible, otherwise its earliest paper set, and anchor it to that exact
+   preferred printing. Add a `CardSet`, set module, registry entry, source-code
+   mapping, and catalog JSON code when no modeled set can truthfully own the
+   declaration. Append-only catalog growth does not require a protocol-version
+   bump.
 6. Make `CARDS` exactly mirror declaration order and
    `ADDITIONAL_PRINTINGS` mirror the ordered reprint comments. Run the focused
    source-organization and format-coverage tests, then `make catalog-report`.

@@ -2,8 +2,8 @@
 //! game's result.
 
 use super::super::{
-    EffectDef, EffectResolutionContext, Game, GameResult, ManaPool, ScopedEffect, StackObject,
-    Target, WinReason,
+    EffectDef, EffectRecipientDef, EffectResolutionContext, Game, GameResult, ManaPool,
+    ScopedEffect, StackObject, Target, ValueDef, WinReason,
 };
 
 impl Game {
@@ -37,6 +37,9 @@ impl Game {
                         self.lose_life(player, amount);
                     }
                 }
+            }
+            EffectDef::SetLifeTotal { recipient, total } => {
+                self.resolve_set_life_total(recipient, total, object, context, scoped);
             }
             EffectDef::AddPlayerCounters {
                 recipient,
@@ -105,6 +108,34 @@ impl Game {
                 }
             }
             _ => unreachable!("player-state dispatcher received an unrelated effect"),
+        }
+    }
+
+    fn resolve_set_life_total(
+        &mut self,
+        recipient: EffectRecipientDef,
+        total: ValueDef,
+        object: &StackObject,
+        context: &EffectResolutionContext,
+        scoped: ScopedEffect,
+    ) {
+        // Pick the event once from the pre-event total. `gain_life` and
+        // `lose_life` apply replacements and capture their ordinary triggers;
+        // a replacement is allowed to leave the player somewhere other than
+        // the printed total.
+        let total = self
+            .effect_value(total, object, context, scoped)
+            .clamp(0, i32::from(i16::MAX));
+        let total = i16::try_from(total).unwrap_or(i16::MAX);
+        for target in self.effect_recipients(recipient, object, context, scoped) {
+            if let Target::Player(player) = target {
+                let current = self.players[player.index()].life;
+                if total > current {
+                    self.gain_life(player, u16::try_from(total - current).unwrap_or(u16::MAX));
+                } else if total < current {
+                    self.lose_life(player, u16::try_from(current - total).unwrap_or(u16::MAX));
+                }
+            }
         }
     }
 }

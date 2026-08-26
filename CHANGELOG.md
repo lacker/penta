@@ -51,7 +51,20 @@ distinguishes snapshots of the covered source and build inputs.
   so it is a rule read off the damage source in the same place. Protection
   prevents the damage it stops (CR 702.16e), so it is part of what this
   switches off, for that damage alone.
-
+- **Declarative opening-hand actions.** Printed abilities can now act during
+  mulligans or after both players have kept, in starting-player order and in
+  any order within each hand. The shared path covers beginning with a card on
+  the battlefield, revealing a Chancellor to install its delayed effect,
+  Serum Powder's hand replacement composed from the ordinary bind, zone-move,
+  and draw effects, Gemstone Caverns' conditional card exile, Providence's
+  life setting through the ordinary gain-or-loss event, and Sphinx of
+  Foresight's exact ordered scry.
+  The catalog includes all 28 official paper cards with such Oracle text;
+  digital-only, Un-set, playtest, event, and conspiracy cards remain outside
+  this card audit. Existing `ActivateAbility` and `ChooseDecision` actions
+  carry the interaction, while additive checkpoint continuations preserve an
+  in-progress opening-hand action or scry. Checkpoint format 8, replay version
+  2, and protocol 29 are unchanged.
 - **Crewing for more than you are worth.** A creature contributed its power
   to crew and nothing else, so "this token crews Vehicles as though its power
   were 2 greater" had nowhere to live. The bonus is a rule read off the

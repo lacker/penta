@@ -16,8 +16,9 @@ no card Scryfall knows and were left out; the module records which.
   cube, so it is not offered in the web client.
 - Drafting is deferred. The engine has no draft, and the plan is to reach a
   playable pool first and play fixed lists from it.
-- Every pool identity is cataloged. Cards from previously unmodeled debut sets
-  have printed-set modules, and unsupported rules remain metadata-only.
+- Every pool identity is cataloged. Cards from previously unmodeled preferred
+  representative sets have printed-set modules, and unsupported rules remain
+  metadata-only.
 
 ## Format profile
 

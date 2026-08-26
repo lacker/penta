@@ -579,6 +579,9 @@ impl Game {
                 Pregame::Bottom(player) => PregameSnapshot::Bottom {
                     seat: player.index(),
                 },
+                Pregame::OpeningHand(player) => PregameSnapshot::OpeningHand {
+                    seat: player.index(),
+                },
             }),
             combat_damage_stage: match &self.combat_damage_stage {
                 CombatDamageStage::NotStarted => CombatDamageStageSnapshot::NotStarted,

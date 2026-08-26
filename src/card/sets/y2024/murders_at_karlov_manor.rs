@@ -113,6 +113,19 @@ pub(in crate::card::sets) static DOG_WALKER: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// MKM 217 — Leyline of the Guildpact
+// Audit: partial — The opening-hand action is declarative; its global color and basic-land-type layers remain unsupported.
+pub(in crate::card::sets) static LEYLINE_OF_THE_GUILDPACT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("bf6e59be-f959-4f4a-8c2d-b7c441e88135"),
+    "Leyline of the Guildpact",
+    CardArt::new("bf6e59be-f959-4f4a-8c2d-b7c441e88135", "Daarken"),
+    CardSet::MurdersAtKarlovManor,
+    CardRules::new_enchantment(mana_cost!("{G/W}{G/U}{B/G}{R/G}")).with_abilities(&[
+        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+        AbilityDef::not_implemented("Each nonland permanent you control is all colors.\nLands you control are every basic land type in addition to their other types.", "Needs global characteristic layers that add all colors to nonlands and every basic land type to lands."),
+    ]),
+);
+
 // MKM 221 — No More Lies
 static A_SPELL: [AbilityTargetDef; 1] =
     [AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)];
@@ -331,6 +344,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SNARLING_GOREHOUND,
     &RUBBLEBELT_MAVERICK,
     &DOG_WALKER,
+    &LEYLINE_OF_THE_GUILDPACT,
     &NO_MORE_LIES,
     &COMMERCIAL_DISTRICT,
     &ESCAPE_TUNNEL,

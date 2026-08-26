@@ -22,6 +22,27 @@ use super::model::{
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
 
+/// "If this card is in your opening hand, you may begin the game with it on
+/// the battlefield." The pregame runtime supplies the source card; the move
+/// remains an ordinary declarative zone-change effect.
+#[must_use]
+pub const fn begin_game_on_battlefield(text: &'static str) -> AbilityDef {
+    AbilityDef::opening_hand(
+        text,
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::Source,
+            from: Some(ZoneKind::Hand),
+            zone: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+            controller: None,
+            arrival_effect: None,
+            attachment: None,
+            counters: None,
+            tapped: false,
+        },
+    )
+}
+
 /// A source permanent's own enters-the-battlefield trigger.
 #[must_use]
 pub const fn enters_trigger(text: &'static str, effect: EffectDef) -> AbilityDef {

@@ -386,6 +386,7 @@ pub(super) fn shared_resolving_applied_effect(effect: AppliedEffectDef) -> bool 
                     && ability.declarative_effect() == Some(EffectDef::None)
             }
             DeclarativeAbilityDef::Spell(_)
+            | DeclarativeAbilityDef::Pregame(_)
             | DeclarativeAbilityDef::Static(_)
             | DeclarativeAbilityDef::OptionalAdditionalCost(_)
             | DeclarativeAbilityDef::SpecialAction(_)
@@ -627,8 +628,10 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::DealDamageAndApply { .. }
                     | EffectDef::DrainLife { .. }
                     | EffectDef::GainLife { .. }
+                    | EffectDef::SetLifeTotal { .. }
                     | EffectDef::AddPlayerCounters { .. }
                     | EffectDef::DrawCards { .. }
+                    | EffectDef::Scry { .. }
                     | EffectDef::Discard { .. }
                     | EffectDef::DiscardCards { .. }
                     | EffectDef::ShuffleLibrary { .. }
@@ -823,6 +826,14 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                 // mode it prints, exactly as a modal activated ability does.
                 && (shared_stack_effect(effect)
                     || (definition.modes.is_some() && effect == EffectDef::None))
+        }
+        DeclarativeAbilityDef::Pregame(definition) => {
+            definition
+                .costs
+                .iter()
+                .all(|cost| matches!(cost, AbilityCostDef::ExileCardFromHand(_)))
+                && definition.costs.len() <= 1
+                && shared_stack_effect(effect)
         }
         DeclarativeAbilityDef::Static(definition) => {
             (effect == EffectDef::None

@@ -111,8 +111,10 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::ExileGrantingControllerPlayThisTurn { .. }
         | EffectDef::GainControl { .. }
         | EffectDef::GainLife { .. }
+        | EffectDef::SetLifeTotal { .. }
         | EffectDef::GrantFlashToNextSorcery
         | EffectDef::SearchZonesAndExileRest { .. }
+        | EffectDef::Scry { .. }
         | EffectDef::PutIntoLibraryBeneathTop { .. }
         | EffectDef::PutSourceOntoBattlefieldAttacking
         | EffectDef::VoteForPermanentToExile { .. }

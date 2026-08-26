@@ -93,6 +93,19 @@ pub(in crate::card::sets) static ENDURING_INNOCENCE: CardRecord = CardRecord::ne
         .with_abilities(&ENDURING_INNOCENCE_ABILITIES),
 );
 
+// DSK 18 — Leyline of Hope
+// Audit: partial — The opening-hand action is declarative; its life-gain replacement and starting-life-relative anthem need shared static effects.
+pub(in crate::card::sets) static LEYLINE_OF_HOPE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("40960e47-3065-485e-aede-29a62411034e"),
+    "Leyline of Hope",
+    CardArt::new("40960e47-3065-485e-aede-29a62411034e", "Sergey Glushakov"),
+    CardSet::DuskmournHouseOfHorror,
+    CardRules::new_enchantment(mana_cost!("{2}{W}{W}")).with_abilities(&[
+        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+        AbilityDef::not_implemented("If you would gain life, you gain that much life plus 1 instead.\nAs long as you have at least 7 life more than your starting life total, creatures you control get +2/+2.", "Needs a controller-scoped life-gain replacement and a static condition relative to the format's starting life."),
+    ]),
+);
+
 // DSK 36 — Trapped in the Screen
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static TRAPPED_IN_THE_SCREEN: CardRecord = CardRecord::new(
@@ -333,6 +346,19 @@ pub(in crate::card::sets) static FEAR_OF_MISSING_OUT: CardRecord = CardRecord::n
     ),
 );
 
+// DSK 143 — Leyline of Resonance
+// Audit: partial — The opening-hand action is declarative; its cast trigger needs an exact single-controlled-creature targeting shape.
+pub(in crate::card::sets) static LEYLINE_OF_RESONANCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("92c5f0e3-345a-40a8-9cda-565a62156692"),
+    "Leyline of Resonance",
+    CardArt::new("92c5f0e3-345a-40a8-9cda-565a62156692", "Sergey Glushakov"),
+    CardSet::DuskmournHouseOfHorror,
+    CardRules::new_enchantment(mana_cost!("{2}{R}{R}")).with_abilities(&[
+        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+        AbilityDef::not_implemented("Whenever you cast an instant or sorcery spell that targets only a single creature you control, copy that spell. You may choose new targets for the copy.", "Needs a spell-cast matcher that verifies the complete target set contains only one controlled creature."),
+    ]),
+);
+
 // DSK 178 — Flesh Burrower
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static FLESH_BURROWER: CardRecord = CardRecord::new(
@@ -341,6 +367,19 @@ pub(in crate::card::sets) static FLESH_BURROWER: CardRecord = CardRecord::new(
     crate::card::CardArt::new("60499c90-a512-4abb-98eb-0735a7138421", "Maxime Minard"),
     crate::card::CardSet::DuskmournHouseOfHorror,
     crate::card::CardRules::unsupported(),
+);
+
+// DSK 188 — Leyline of Mutation
+// Audit: partial — The opening-hand action is declarative; its five-color alternative cost must be offered for every spell.
+pub(in crate::card::sets) static LEYLINE_OF_MUTATION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2359b670-41f0-4ec7-8db9-3f87f7577bc3"),
+    "Leyline of Mutation",
+    CardArt::new("2359b670-41f0-4ec7-8db9-3f87f7577bc3", "Sergey Glushakov"),
+    CardSet::DuskmournHouseOfHorror,
+    CardRules::new_enchantment(mana_cost!("{2}{G}{G}")).with_abilities(&[
+        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+        AbilityDef::not_implemented("You may pay {W}{U}{B}{R}{G} rather than pay the mana cost for spells you cast.", "Needs a battlefield-granted alternative casting cost over every spell."),
+    ]),
 );
 
 // DSK 191 — Monstrous Emergence
@@ -879,6 +918,19 @@ pub(in crate::card::sets) static SCREAMING_NEMESIS: CardRecord = CardRecord::new
     ]),
 );
 
+// DSK 372 — Leyline of Transformation
+// Audit: partial — The opening-hand action is declarative; the as-enters creature-type choice and all-zone type layer remain unsupported.
+pub(in crate::card::sets) static LEYLINE_OF_TRANSFORMATION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fd545d86-9a3e-4e4f-b0fe-9363a85b9290"),
+    "Leyline of Transformation",
+    CardArt::new("fd545d86-9a3e-4e4f-b0fe-9363a85b9290", "Sergey Glushakov"),
+    CardSet::DuskmournHouseOfHorror,
+    CardRules::new_enchantment(mana_cost!("{2}{U}{U}")).with_abilities(&[
+        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+        AbilityDef::not_implemented("As this enchantment enters, choose a creature type.\nCreatures you control are the chosen type in addition to their other types. The same is true for creature spells you control and creature cards you own that aren't on the battlefield.", "Needs an as-enters creature-type choice whose result feeds type layers in every relevant zone."),
+    ]),
+);
+
 // DSK 387 — Overlord of the Mistmoors
 static MISTMOORS_INSECT_FLYING: [AbilityDef; 1] = [abilities::flying()];
 
@@ -955,12 +1007,15 @@ pub(in crate::card::sets) static OVERLORD_OF_THE_MISTMOORS: CardRecord = CardRec
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ENDURING_INNOCENCE,
+    &LEYLINE_OF_HOPE,
     &TRAPPED_IN_THE_SCREEN,
     &ABHORRENT_OCULUS,
     &UNABLE_TO_SCREAM,
     &OVERLORD_OF_THE_BALEMURK,
     &FEAR_OF_MISSING_OUT,
+    &LEYLINE_OF_RESONANCE,
     &FLESH_BURROWER,
+    &LEYLINE_OF_MUTATION,
     &MONSTROUS_EMERGENCE,
     &WALK_IN_CLOSET_FORGOTTEN_CELLAR,
     &KAITO_BANE_OF_NIGHTMARES,
@@ -971,6 +1026,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CLOCKWORK_PERCUSSIONIST,
     &CHAINSAW,
     &SCREAMING_NEMESIS,
+    &LEYLINE_OF_TRANSFORMATION,
     &OVERLORD_OF_THE_MISTMOORS,
 ];
 

@@ -261,6 +261,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::DealDamageAndApply { recipient, .. }
         | EffectDef::DrainLife { recipient, .. }
         | EffectDef::GainLife { recipient, .. }
+        | EffectDef::SetLifeTotal { recipient, .. }
         | EffectDef::AddPlayerCounters { recipient, .. }
         | EffectDef::DrawCards { recipient, .. }
         | EffectDef::ShuffleLibrary { player: recipient }
@@ -347,7 +348,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         }
         // Every destination but the last asks a question, so the whole
         // distribution needs a place a decision may be deferred to.
-        EffectDef::LookAtTopAndDistribute { player, .. } => {
+        EffectDef::Scry { player, .. } | EffectDef::LookAtTopAndDistribute { player, .. } => {
             deferred_decision_allowed && shared_effect_recipient(player)
         }
         EffectDef::SearchZone {

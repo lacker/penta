@@ -23,12 +23,13 @@ use crate::card::{
     ManaCost, ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef, ObjectCountConditionDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, OptionalAdditionalCostKindDef,
     PlayActionKind, PlayOptionDef, PlayRestriction, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    PowerToughnessOperationDef, QuantifierDef, ReplacementChoiceDef, ReplacementConditionDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    SelectionDestinationDef, SetOperationDef, SpellResolutionDestinationDef, StackTargetKindDef,
-    TapPurposeDef, TargetPredicate, TargetSlotDef, TokenCharacteristics, TopCardSelectionDef,
-    TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnPhaseDef, TurnStepDef, ValueDef,
-    ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities, applicable_part_ids,
+    PowerToughnessOperationDef, PregameConditionDef, PregameTimingDef, QuantifierDef,
+    ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, SelectionDestinationDef, SetOperationDef,
+    SpellResolutionDestinationDef, StackTargetKindDef, TapPurposeDef, TargetPredicate,
+    TargetSlotDef, TokenCharacteristics, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef,
+    TurnKindDef, TurnPhaseDef, TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement,
+    abilities, applicable_part_ids,
 };
 use crate::casting::{CastChoices, CastSignature, CostConfiguration, TargetSelection};
 use crate::deck::Deck;
@@ -106,6 +107,7 @@ mod observation;
 mod phasing;
 mod play_permissions;
 mod plot;
+mod pregame;
 mod prevention_state;
 mod procedure_state;
 mod proliferate;
@@ -114,6 +116,7 @@ mod replacement_state;
 mod rooms;
 mod sacrifice_to_total;
 mod sagas;
+mod scry;
 mod stack_resolution;
 mod stack_rules;
 mod state_based;
@@ -179,8 +182,8 @@ use continuous_state::{
 use decision_state::{
     ApplicableBeginTurnReplacement, BalanceAction, BalancePhase, BalanceTask, CounteredSpellZone,
     DecisionContinuation, DeferredBeginTurnEffect, DiscardFollowUp, DistributedSelectionProgress,
-    FORK_COPY_COLOR, PendingDecision, Pregame, ResolvedEffectPayment, SacrificeDeclined,
-    SacrificeFollowup, SearchFollowUp, TypedSelectionProgress, ZoneMoveCause,
+    FORK_COPY_COLOR, PendingDecision, Pregame, PregameAbilityAction, ResolvedEffectPayment,
+    SacrificeDeclined, SacrificeFollowup, SearchFollowUp, TypedSelectionProgress, ZoneMoveCause,
 };
 use exile_permission::{ExilePlayCost, ExilePlayPermission};
 use mana_state::{

@@ -156,6 +156,7 @@ impl Game {
             }
             EffectDef::GainLife { .. }
             | EffectDef::LoseLife { .. }
+            | EffectDef::SetLifeTotal { .. }
             | EffectDef::AddPlayerCounters { .. }
             | EffectDef::EmptyManaPool { .. }
             | EffectDef::WinTheGame { .. }
@@ -192,6 +193,7 @@ impl Game {
             | EffectDef::LookAtTopAndSelect { .. }
             | EffectDef::LookAtTopAndDistribute { .. }
             | EffectDef::SearchZone { .. }
+            | EffectDef::Scry { .. }
             | EffectDef::ChooseCards { .. }
             | EffectDef::ReplaceNextDrawThisTurn { .. } => {
                 self.resolve_hand_and_library_effect(scoped, object, &context);

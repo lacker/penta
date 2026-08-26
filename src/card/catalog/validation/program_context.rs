@@ -53,6 +53,7 @@ pub(super) fn validate_ability_effect_context(
         | DeclarativeAbilityDef::AlternativeCast(_)
         | DeclarativeAbilityDef::OptionalAdditionalCost(_)
         | DeclarativeAbilityDef::SpecialAction(_)
+        | DeclarativeAbilityDef::Pregame(_)
         | DeclarativeAbilityDef::Keyword(_)
         | DeclarativeAbilityDef::Legacy => {
             validate_resolving_effect(effect, resolving_source_zones(ability)).map_err(
@@ -72,6 +73,7 @@ fn resolving_source_zones(ability: &AbilityDef) -> &'static [ZoneKind] {
         DeclarativeAbilityDef::TriggeredMana(definition)
         | DeclarativeAbilityDef::Triggered(definition) => definition.source_zones,
         DeclarativeAbilityDef::SpecialAction(definition) => definition.source_zones,
+        DeclarativeAbilityDef::Pregame(_) => &[ZoneKind::Hand],
         DeclarativeAbilityDef::Spell(_)
         | DeclarativeAbilityDef::AlternativeCast(_)
         | DeclarativeAbilityDef::OptionalAdditionalCost(_)

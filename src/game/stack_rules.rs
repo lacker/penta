@@ -159,6 +159,8 @@ impl Game {
             | EffectDef::CannotBeForcedToSacrifice
             | EffectDef::CannotBeForcedToDiscard
             | EffectDef::GainClassLevel { .. }
+            | EffectDef::SetLifeTotal { .. }
+            | EffectDef::Scry { .. }
             | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
             | EffectDef::CreateEmblem { .. }
             | EffectDef::CreateOngoingEffect(_)

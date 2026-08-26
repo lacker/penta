@@ -9,9 +9,11 @@ use super::{
 
 mod alternative_casts;
 mod optional_additional_costs;
+mod pregame;
 
 pub use alternative_casts::*;
 pub use optional_additional_costs::*;
+pub use pregame::*;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum SpellAbilityDef {
@@ -848,6 +850,7 @@ pub enum DeclarativeAbilityDef {
     AlternativeCast(AlternativeCastAbilityDef),
     OptionalAdditionalCost(OptionalAdditionalCostAbilityDef),
     SpecialAction(SpecialActionDef),
+    Pregame(PregameAbilityDef),
     Keyword(KeywordAbility),
     /// Transitional structural marker for a clause still dispatched through
     /// the owning card's legacy custom behavior.

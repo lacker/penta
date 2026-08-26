@@ -131,6 +131,14 @@ impl Game {
             self.continue_pending_procedures();
         }
 
+        // Pregame actions are all completed before the first turn begins.
+        // Rule 103.6 explicitly delays state-based actions until then, and
+        // triggers that fire during this process wait until the first player
+        // would receive priority.
+        if self.pregame.is_some() {
+            return;
+        }
+
         self.check_state_based_actions();
         if self.result.is_none()
             && self.pending_decisions.is_empty()

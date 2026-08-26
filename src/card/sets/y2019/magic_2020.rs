@@ -43,6 +43,19 @@ pub(in crate::card::sets) static CLOUDKIN_SEER: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// M20 148 — Leyline of Combustion
+// Audit: partial — The opening-hand action is declarative; the grouped becomes-target trigger is not represented by the current trigger event.
+pub(in crate::card::sets) static LEYLINE_OF_COMBUSTION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("3a93c8e2-fb27-43af-83a7-2bd4d40e0eff"),
+    "Leyline of Combustion",
+    CardArt::new("3a93c8e2-fb27-43af-83a7-2bd4d40e0eff", "Noah Bradley"),
+    CardSet::Magic2020,
+    CardRules::new_enchantment(mana_cost!("{2}{R}{R}")).with_abilities(&[
+        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+        AbilityDef::not_implemented("Whenever you and/or at least one permanent you control becomes the target of a spell or ability an opponent controls, this enchantment deals 2 damage to that player.", "Needs one grouped trigger for a spell or ability targeting the player and/or any controlled permanents."),
+    ]),
+);
+
 // M20 169 — Elvish Reclaimer
 /// "Three or more land cards in your graveyard": the fetchlands that made
 /// him a 3/4 are the same ones his own ability puts there, which is why he
@@ -113,6 +126,19 @@ pub(in crate::card::sets) static ELVISH_RECLAIMER: CardRecord = CardRecord::new(
                 then: None,
             },
         ),
+    ]),
+);
+
+// M20 179 — Leyline of Abundance
+// Audit: partial — The opening-hand action is declarative; the mana-tap trigger and mass counter activation require additional shared predicates.
+pub(in crate::card::sets) static LEYLINE_OF_ABUNDANCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c68e8342-78d2-4826-a287-64c371b97d19"),
+    "Leyline of Abundance",
+    CardArt::new("c68e8342-78d2-4826-a287-64c371b97d19", "Noah Bradley"),
+    CardSet::Magic2020,
+    CardRules::new_enchantment(mana_cost!("{2}{G}{G}")).with_abilities(&[
+        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+        AbilityDef::not_implemented("Whenever you tap a creature for mana, add an additional {G}.\n{6}{G}{G}: Put a +1/+1 counter on each creature you control.", "Needs a creature-tapped-for-mana event plus a declarative all-creatures counter activation."),
     ]),
 );
 
@@ -229,7 +255,9 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ANCESTRAL_BLADE,
     &RAISE_THE_ALARM,
     &CLOUDKIN_SEER,
+    &LEYLINE_OF_COMBUSTION,
     &ELVISH_RECLAIMER,
+    &LEYLINE_OF_ABUNDANCE,
     &MANIFOLD_KEY,
     &FIELD_OF_THE_DEAD,
     &WILDFIRE_ELEMENTAL,

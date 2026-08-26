@@ -290,6 +290,7 @@ impl Game {
                     | DeclarativeAbilityDef::AlternativeCast(_)
                     | DeclarativeAbilityDef::OptionalAdditionalCost(_)
                     | DeclarativeAbilityDef::SpecialAction(_)
+                    | DeclarativeAbilityDef::Pregame(_)
                     | DeclarativeAbilityDef::Keyword(_)
                     | DeclarativeAbilityDef::Legacy => return,
                 };
@@ -562,6 +563,7 @@ impl Game {
                 | DeclarativeAbilityDef::AlternativeCast(_)
                 | DeclarativeAbilityDef::OptionalAdditionalCost(_)
                 | DeclarativeAbilityDef::SpecialAction(_)
+                | DeclarativeAbilityDef::Pregame(_)
                 | DeclarativeAbilityDef::Keyword(_)
                 | DeclarativeAbilityDef::Legacy => None,
             })

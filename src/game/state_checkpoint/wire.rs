@@ -409,6 +409,9 @@ pub(super) fn parse_pregame(value: Option<PregameSnapshot>) -> Result<Option<Pre
         .map(|value| match value {
             PregameSnapshot::Mulligan { seat } => player_from_index(seat).map(Pregame::Mulligan),
             PregameSnapshot::Bottom { seat } => player_from_index(seat).map(Pregame::Bottom),
+            PregameSnapshot::OpeningHand { seat } => {
+                player_from_index(seat).map(Pregame::OpeningHand)
+            }
         })
         .transpose()
 }

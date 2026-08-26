@@ -8,6 +8,19 @@ use crate::card::{
 };
 use crate::mana_cost;
 
+// M11 21 — Leyline of Sanctity
+// Audit: partial — The opening-hand action is declarative; player hexproof needs a static player-protection effect.
+pub(in crate::card::sets) static LEYLINE_OF_SANCTITY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("262de9ae-d641-4f0e-af6a-03ce0e1c91d3"),
+    "Leyline of Sanctity",
+    CardArt::new("262de9ae-d641-4f0e-af6a-03ce0e1c91d3", "Ryan Pancoast"),
+    CardSet::Magic2011,
+    CardRules::new_enchantment(mana_cost!("{2}{W}{W}")).with_abilities(&[
+        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+        AbilityDef::not_implemented("You have hexproof. (You can't be the target of spells or abilities your opponents control.)", "Needs a static player-protection effect that grants hexproof to the controller."),
+    ]),
+);
+
 // M11 30 — Silence
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SILENCE: CardRecord = CardRecord::new(
@@ -16,6 +29,19 @@ pub(in crate::card::sets) static SILENCE: CardRecord = CardRecord::new(
     crate::card::CardArt::new("37b70d17-e4ec-4731-8892-b444f82be7a2", "Wayne Reynolds"),
     crate::card::CardSet::Magic2011,
     crate::card::CardRules::unsupported(),
+);
+
+// M11 61 — Leyline of Anticipation
+// Audit: partial — The opening-hand action is declarative; the casting permission must grant flash to every spell its controller casts.
+pub(in crate::card::sets) static LEYLINE_OF_ANTICIPATION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d7dbb092-3bb0-445e-ab26-d939cac92a73"),
+    "Leyline of Anticipation",
+    CardArt::new("d7dbb092-3bb0-445e-ab26-d939cac92a73", "Charles Urbach"),
+    CardSet::Magic2011,
+    CardRules::new_enchantment(mana_cost!("{2}{U}{U}")).with_abilities(&[
+        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+        AbilityDef::not_implemented("You may cast spells as though they had flash.", "Needs a battlefield casting-timing permission over every spell the controller may cast."),
+    ]),
 );
 
 // M11 66 — Merfolk Spy
@@ -120,6 +146,19 @@ pub(in crate::card::sets) static PHYLACTERY_LICH: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// M11 148 — Leyline of Punishment
+// Audit: partial — The opening-hand action is declarative; the permanent global life-gain and damage-prevention prohibitions need static player rules.
+pub(in crate::card::sets) static LEYLINE_OF_PUNISHMENT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("51a2eec5-f892-4466-b6c6-960626ba5640"),
+    "Leyline of Punishment",
+    CardArt::new("51a2eec5-f892-4466-b6c6-960626ba5640", "Charles Urbach"),
+    CardSet::Magic2011,
+    CardRules::new_enchantment(mana_cost!("{2}{R}{R}")).with_abilities(&[
+        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+        AbilityDef::not_implemented("Players can't gain life.\nDamage can't be prevented.", "Needs permanent static rules applying both prohibitions to the whole game."),
+    ]),
+);
+
 // M11 177 — Garruk's Packleader
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static GARRUK_S_PACKLEADER: CardRecord = CardRecord::new(
@@ -128,6 +167,19 @@ pub(in crate::card::sets) static GARRUK_S_PACKLEADER: CardRecord = CardRecord::n
     crate::card::CardArt::new("dfaef299-7879-4f52-8ee4-701ed150b930", "Nils Hamm"),
     crate::card::CardSet::Magic2011,
     crate::card::CardRules::unsupported(),
+);
+
+// M11 183 — Leyline of Vitality
+// Audit: partial — The opening-hand action is declarative; its global toughness boost and optional creature-entry life trigger remain unsupported.
+pub(in crate::card::sets) static LEYLINE_OF_VITALITY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f5318113-9dfb-492c-9151-de90951d881e"),
+    "Leyline of Vitality",
+    CardArt::new("f5318113-9dfb-492c-9151-de90951d881e", "Jim Nelson"),
+    CardSet::Magic2011,
+    CardRules::new_enchantment(mana_cost!("{2}{G}{G}")).with_abilities(&[
+        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+        AbilityDef::not_implemented("Creatures you control get +0/+1.\nWhenever a creature you control enters, you may gain 1 life.", "Needs the global static boost plus an optional trigger over other creatures entering."),
+    ]),
 );
 
 // M11 192 — Primeval Titan
@@ -180,13 +232,17 @@ pub(in crate::card::sets) static PRIMEVAL_TITAN: CardRecord = CardRecord::new_wi
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &LEYLINE_OF_SANCTITY,
     &SILENCE,
+    &LEYLINE_OF_ANTICIPATION,
     &MERFOLK_SPY,
     &PREORDAIN,
     &STORMTIDE_LEVIATHAN,
     &LILIANA_S_SPECTER,
     &PHYLACTERY_LICH,
+    &LEYLINE_OF_PUNISHMENT,
     &GARRUK_S_PACKLEADER,
+    &LEYLINE_OF_VITALITY,
     &PRIMEVAL_TITAN,
 ];
 

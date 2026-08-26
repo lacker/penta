@@ -438,6 +438,7 @@ fn validate_ability_coverage(ability: &AbilityDef) -> Result<(), GrantedAbilityV
         | DeclarativeAbilityDef::AlternativeCast(_)
         | DeclarativeAbilityDef::OptionalAdditionalCost(_)
         | DeclarativeAbilityDef::SpecialAction(_)
+        | DeclarativeAbilityDef::Pregame(_)
         | DeclarativeAbilityDef::Keyword(_)
         | DeclarativeAbilityDef::Legacy => false,
     };
@@ -569,6 +570,7 @@ fn validate_ability_definition(ability: &AbilityDef) -> Result<(), GrantedAbilit
         DeclarativeAbilityDef::SpecialAction(special_action) => {
             (Some(special_action.source_zones), &[][..], false)
         }
+        DeclarativeAbilityDef::Pregame(_) => (Some(&[ZoneKind::Hand][..]), &[][..], false),
         DeclarativeAbilityDef::AlternativeCast(alternative) => (None, alternative.targets, false),
         DeclarativeAbilityDef::OptionalAdditionalCost(_)
         | DeclarativeAbilityDef::Keyword(_)
@@ -603,6 +605,7 @@ fn validate_ability_definition(ability: &AbilityDef) -> Result<(), GrantedAbilit
         | DeclarativeAbilityDef::AlternativeCast(_)
         | DeclarativeAbilityDef::OptionalAdditionalCost(_)
         | DeclarativeAbilityDef::SpecialAction(_)
+        | DeclarativeAbilityDef::Pregame(_)
         | DeclarativeAbilityDef::Keyword(_)
         | DeclarativeAbilityDef::Legacy => None,
     };

@@ -87,6 +87,7 @@ pub(in crate::game::state_checkpoint) use triggers::*;
 
 pub(super) use balance::{BalanceActionSnapshot, BalancePhaseSnapshot, BalanceTaskSnapshot};
 pub(super) use continuation::DecisionContinuationSnapshot;
+pub(super) use continuation::PregameAbilityActionSnapshot;
 pub(in crate::game::state_checkpoint) use continuous::*;
 pub(super) use objects::{
     AbilityLocator, EmblemCharacteristicsLocator, FaceDownCharacteristicsSnapshot,
@@ -367,6 +368,7 @@ pub(super) enum BasicLandTypeSnapshot {
 pub(super) enum PregameSnapshot {
     Mulligan { seat: usize },
     Bottom { seat: usize },
+    OpeningHand { seat: usize },
 }
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]

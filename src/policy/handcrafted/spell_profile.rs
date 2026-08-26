@@ -499,6 +499,8 @@ impl HandcraftedPolicy {
             | EffectDef::ScheduleTurnPhases(_)
             | EffectDef::TakeExtraTurn { .. }
             | EffectDef::PutSourceOntoBattlefieldAttacking
+            | EffectDef::SetLifeTotal { .. }
+            | EffectDef::Scry { .. }
             | EffectDef::BecomeMonarch { .. }
             | EffectDef::VoteForPermanentToExile { .. }
             | EffectDef::DamageCannotBePreventedThisTurn

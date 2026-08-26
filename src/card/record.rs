@@ -21,7 +21,9 @@ enum CompositionSource {
     },
 }
 
-/// Immutable exact first-printing anchor from which a new definition ID is derived.
+/// Immutable exact preferred-printing anchor from which a new definition ID
+/// is derived. New records prefer the first English-language paper printing,
+/// falling back to the first paper printing only when necessary.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub(super) struct PrintingAnchor {
     scryfall_id: &'static str,
@@ -114,7 +116,7 @@ pub(super) struct CardRecord {
 }
 
 impl CardRecord {
-    /// Defines a card whose ID is derived from its immutable first-printing anchor.
+    /// Defines a card whose ID is derived from its immutable preferred-printing anchor.
     #[allow(clippy::large_types_passed_by_value)]
     #[allow(dead_code)] // Existing records use the migration-only legacy constructor.
     pub(super) const fn new(
@@ -162,7 +164,7 @@ impl CardRecord {
     }
 
     /// Defines a double-faced card whose ID is derived from its immutable
-    /// first-printing anchor.
+    /// preferred-printing anchor.
     const fn new_double_faced(
         legacy_id: Option<CardDefinitionId>,
         identity_anchor: PrintingAnchor,
@@ -185,7 +187,7 @@ impl CardRecord {
     }
 
     /// Defines a transforming double-faced card whose ID is derived from its
-    /// immutable first-printing anchor.
+    /// immutable preferred-printing anchor.
     pub(super) const fn new_dfc(
         identity_anchor: PrintingAnchor,
         name: &'static str,
@@ -205,7 +207,7 @@ impl CardRecord {
     }
 
     /// Defines a modal double-faced card whose ID is derived from its
-    /// immutable first-printing anchor.
+    /// immutable preferred-printing anchor.
     pub(super) const fn new_mdfc(
         identity_anchor: PrintingAnchor,
         name: &'static str,

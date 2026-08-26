@@ -734,8 +734,7 @@ impl Game {
             self.pregame = Some(Pregame::Mulligan(PlayerId::Two));
             self.priority = PlayerId::Two;
         } else {
-            self.pregame = None;
-            self.priority = PlayerId::One;
+            self.begin_opening_hand_actions(PlayerId::One);
         }
     }
 }

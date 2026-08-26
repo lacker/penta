@@ -476,10 +476,10 @@ pub struct CardDefinition {
     pub id: CardDefinitionId,
     pub name: String,
     pub art: Option<CardArt>,
-    /// The canonical record's debut set within this catalog.
-    ///
-    /// Rules that care where a card debuted, such as City in a Bottle, use
-    /// this field. Format legality instead considers every known `printing`.
+    /// The canonical record's preferred representative set within this catalog.
+    /// The `debut_set` name is retained for compatibility; set-origin rules
+    /// such as City in a Bottle read this canonical choice. Format legality
+    /// instead considers every known `printing`.
     pub debut_set: CardSet,
     pub printings: Vec<CardPrinting>,
     /// Compatibility view of the primary/front part. Contextual rules should

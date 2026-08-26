@@ -446,6 +446,7 @@ fn set_source_for_file(path: &Path) -> SetSource {
         Some("teenage_mutant_ninja_turtles.rs") => {
             source(CardSet::TeenageMutantNinjaTurtles, "TLE")
         }
+        Some("marvel_super_heroes.rs") => source(CardSet::MarvelSuperHeroes, "MSH"),
         Some("portal_three_kingdoms.rs") => source(CardSet::PortalThreeKingdoms, "PTK"),
         Some("coldsnap.rs") => source(CardSet::Coldsnap, "CSP"),
         Some("born_of_the_gods.rs") => source(CardSet::BornOfTheGods, "BNG"),

@@ -5,7 +5,8 @@ use super::{
     CounterObservation, DecisionVisibility, DoubleFacedKind, EmblemObservation, Game, GameEvent,
     GameObjectId, GameResult, ManaActivationChoices, ObjectCharacteristics, ObjectKind, Permanent,
     PermanentObservation, PhysicalFaceObservation, PhysicalFaceSide, PlayerId, PlayerObservation,
-    Pregame, StackObservation, Step, WinReason, ZoneKind, combinations, public_cards,
+    Pregame, PregameAbilityAction, StackObservation, Step, WinReason, ZoneKind, combinations,
+    public_cards,
 };
 
 impl Game {
@@ -72,7 +73,9 @@ impl Game {
         }
         if let Some(pregame) = self.pregame {
             return Some(match pregame {
-                Pregame::Mulligan(player) | Pregame::Bottom(player) => player,
+                Pregame::Mulligan(player)
+                | Pregame::Bottom(player)
+                | Pregame::OpeningHand(player) => player,
             });
         }
         if self.cleanup_pending || self.untap_pending {
@@ -181,6 +184,9 @@ impl Game {
                 {
                     self.add_offered_cast_actions(offer, &mut actions);
                 }
+                if let Some(pregame) = decision.continuation.pregame_actions(player) {
+                    actions.extend(pregame.iter().map(PregameAbilityAction::action));
+                }
             }
             return actions;
         }
@@ -195,6 +201,7 @@ impl Game {
                 Pregame::Mulligan(deciding) if player == deciding => {
                     actions.push(Action::KeepHand);
                     actions.push(Action::TakeMulligan);
+                    actions.extend(self.mulligan_ability_actions(player));
                 }
                 Pregame::Bottom(deciding) if player == deciding => {
                     let count = usize::from(self.mulligans[player.index()])
@@ -212,7 +219,7 @@ impl Game {
                         .map(|cards| Action::BottomCards { cards }),
                     );
                 }
-                Pregame::Mulligan(_) | Pregame::Bottom(_) => {}
+                Pregame::Mulligan(_) | Pregame::Bottom(_) | Pregame::OpeningHand(_) => {}
             }
             return actions;
         }
@@ -460,17 +467,23 @@ impl Game {
                 cost_objects,
                 x,
                 modes,
-            } => self.activate_ability(
-                player,
-                source,
-                ability,
-                ActivationChoices {
-                    targets,
-                    cost_objects: &cost_objects,
-                    x,
-                    modes: &modes,
-                },
-            ),
+            } => {
+                if self.is_pregame_ability_action(player, source, ability, &cost_objects) {
+                    self.activate_pregame_ability(player, source, ability, &cost_objects);
+                } else {
+                    self.activate_ability(
+                        player,
+                        source,
+                        ability,
+                        ActivationChoices {
+                            targets,
+                            cost_objects: &cost_objects,
+                            x,
+                            modes: &modes,
+                        },
+                    );
+                }
+            }
             Action::DeclareAttacker { attacker, defender } => {
                 self.declare_attacker(attacker, defender);
             }

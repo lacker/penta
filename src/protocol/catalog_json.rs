@@ -204,6 +204,7 @@ const fn card_set_slug(set: CardSet) -> &'static str {
         CardSet::LorwynEclipsed => "lorwyn-eclipsed",
         CardSet::SecretsOfStrixhaven => "secrets-of-strixhaven",
         CardSet::TeenageMutantNinjaTurtles => "teenage-mutant-ninja-turtles",
+        CardSet::MarvelSuperHeroes => "marvel-super-heroes",
         CardSet::PortalThreeKingdoms => "portal-three-kingdoms",
         CardSet::Coldsnap => "coldsnap",
         CardSet::BornOfTheGods => "born-of-the-gods",

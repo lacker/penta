@@ -160,6 +160,7 @@ pub enum CardSet {
     LorwynEclipsed,
     SecretsOfStrixhaven,
     TeenageMutantNinjaTurtles,
+    MarvelSuperHeroes,
     PortalThreeKingdoms,
     Coldsnap,
     BornOfTheGods,

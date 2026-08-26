@@ -25,8 +25,8 @@ use super::model::{
     DecisionPreferenceSnapshot, DecisionStateSnapshot, DecisionZoneSnapshot,
     DeferredBeginTurnEffectSnapshot, DetachedCardSnapshot, DiscardChoiceSnapshot,
     EffectContinuationSnapshot, PendingTriggerSnapshot, PileSplitSnapshot,
-    ReplacementEffectContextSnapshot, ReplacementEffectLocator, TriggerPlacementBatchSnapshot,
-    TurnKindSnapshot, ZoneMoveCauseSnapshot, ZonePlacementSnapshot,
+    PregameAbilityActionSnapshot, ReplacementEffectContextSnapshot, ReplacementEffectLocator,
+    TriggerPlacementBatchSnapshot, TurnKindSnapshot, ZoneMoveCauseSnapshot, ZonePlacementSnapshot,
 };
 mod option;
 use option::parse_option;
@@ -103,61 +103,7 @@ pub(super) fn decision_snapshot(
     })
 }
 
-fn visible_decision_card_origins(
-    game: &Game,
-    viewer: PlayerId,
-    pending: &PendingDecision,
-) -> Vec<DecisionCardOriginSnapshot> {
-    if pending.observation.visibility != DecisionVisibility::Public
-        && pending.observation.player != viewer
-    {
-        return Vec::new();
-    }
-
-    let mut origins = Vec::new();
-    for object in pending
-        .observation
-        .options
-        .iter()
-        .flat_map(|option| option.card.iter().chain(option.members.iter()))
-        .map(|(object, _)| *object)
-    {
-        if origins
-            .iter()
-            .any(|origin: &DecisionCardOriginSnapshot| origin.object_id == object.0)
-        {
-            continue;
-        }
-        if let Some((seat, zone, index)) = hidden_card_origin(game, object) {
-            origins.push(DecisionCardOriginSnapshot {
-                object_id: object.0,
-                seat: seat.index(),
-                zone,
-                index,
-            });
-        }
-    }
-    origins
-}
-
-pub(super) fn hidden_card_origin(
-    game: &Game,
-    object: GameObjectId,
-) -> Option<(PlayerId, DecisionZoneSnapshot, usize)> {
-    for seat in [PlayerId::One, PlayerId::Two] {
-        let player = &game.players[seat.index()];
-        for (zone, cards) in [
-            (DecisionZoneSnapshot::Hand, &player.hand),
-            (DecisionZoneSnapshot::Library, &player.library),
-            (DecisionZoneSnapshot::OutsideGame, &player.outside_game),
-        ] {
-            if let Some(index) = cards.iter().position(|card| card.id == object) {
-                return Some((seat, zone, index));
-            }
-        }
-    }
-    None
-}
+include!("decision/card_origins.rs");
 
 #[allow(clippy::too_many_lines)]
 fn continuation_snapshot(
@@ -167,6 +113,34 @@ fn continuation_snapshot(
     visible_rebindings: &[GameObjectId],
 ) -> Option<DecisionContinuationSnapshot> {
     let value = match continuation {
+        DecisionContinuation::PregameActions { player, actions } => {
+            DecisionContinuationSnapshot::PregameActions {
+                player: player.index(),
+                actions: actions
+                    .iter()
+                    .map(|action| PregameAbilityActionSnapshot {
+                        source: action.source.0,
+                        ability: ability_origin_snapshot(action.ability),
+                        cost_objects: action.cost_objects.iter().map(|object| object.0).collect(),
+                    })
+                    .collect(),
+            }
+        }
+        DecisionContinuation::ScryBottom { player, revealed } => {
+            DecisionContinuationSnapshot::ScryBottom {
+                player: player.index(),
+                revealed: revealed.iter().map(detached_card_snapshot).collect(),
+            }
+        }
+        DecisionContinuation::ScryTop {
+            player,
+            top,
+            bottom,
+        } => DecisionContinuationSnapshot::ScryTop {
+            player: player.index(),
+            top: top.iter().map(detached_card_snapshot).collect(),
+            bottom: bottom.iter().map(detached_card_snapshot).collect(),
+        },
         DecisionContinuation::BeginTurn {
             player,
             kind,

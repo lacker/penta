@@ -87,6 +87,27 @@ pub(super) struct DiscardFollowUp {
 pub(super) enum Pregame {
     Mulligan(PlayerId),
     Bottom(PlayerId),
+    OpeningHand(PlayerId),
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub(super) struct PregameAbilityAction {
+    pub(super) source: GameObjectId,
+    pub(super) ability: crate::AbilityOrigin,
+    pub(super) cost_objects: Vec<GameObjectId>,
+}
+
+impl PregameAbilityAction {
+    pub(super) fn action(&self) -> crate::Action {
+        crate::Action::ActivateAbility {
+            source: self.source,
+            ability: self.ability,
+            targets: Vec::new(),
+            cost_objects: self.cost_objects.clone(),
+            x: 0,
+            modes: Vec::new(),
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -174,6 +195,21 @@ pub(super) enum CounteredSpellZone {
 
 #[derive(Clone, Debug)]
 pub(super) enum DecisionContinuation {
+    /// The chooser may take any remaining opening-hand action, in any order,
+    /// or answer this zero-option decision to finish their window.
+    PregameActions {
+        player: PlayerId,
+        actions: Vec<PregameAbilityAction>,
+    },
+    ScryBottom {
+        player: PlayerId,
+        revealed: Vec<CardInstance>,
+    },
+    ScryTop {
+        player: PlayerId,
+        top: Vec<CardInstance>,
+        bottom: Vec<CardInstance>,
+    },
     /// A prospective turn is suspended before any part of it is committed.
     /// When every replacement is optional, option zero begins it. Every other
     /// option applies one replacement; replacing the event asks the scheduler
@@ -655,6 +691,16 @@ pub(super) enum DecisionContinuation {
 }
 
 impl DecisionContinuation {
+    pub(super) fn pregame_actions(&self, player: PlayerId) -> Option<&[PregameAbilityAction]> {
+        match self {
+            Self::PregameActions {
+                player: chooser,
+                actions,
+            } if *chooser == player => Some(actions),
+            _ => None,
+        }
+    }
+
     pub(super) fn cast_offer(&self) -> Option<CastOffer> {
         match self {
             Self::MayCastExiled { player, card, .. } | Self::CascadeCast { player, card, .. } => {

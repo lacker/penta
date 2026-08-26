@@ -23,6 +23,13 @@ impl Game {
         // named.
         let pending_options = pending.observation.options.clone();
         match pending.continuation {
+            DecisionContinuation::PregameActions { player, .. } => {
+                self.finish_opening_hand_actions(player);
+            }
+            continuation @ (DecisionContinuation::ScryBottom { .. }
+            | DecisionContinuation::ScryTop { .. }) => {
+                self.resolve_scry_decision(continuation, &pending_options, options);
+            }
             DecisionContinuation::BeginTurn {
                 player,
                 kind,

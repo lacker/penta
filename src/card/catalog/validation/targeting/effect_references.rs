@@ -175,6 +175,15 @@ fn validate_effect_references(
             validate_recipient_target_references(recipient, target_count, scope)?;
             validate_value_target_references(amount, target_count, scope)
         }
+        EffectDef::SetLifeTotal { recipient, total } => {
+            validate_recipient_target_references(recipient, target_count, scope)?;
+            validate_value_target_references(total, target_count, scope)
+        }
+        EffectDef::Scry { player, count }
+        | EffectDef::LookAtTopAndDistribute { player, count, .. } => {
+            validate_recipient_target_references(player, target_count, scope)?;
+            validate_value_target_references(count, target_count, scope)
+        }
         EffectDef::DealDamageFrom {
             source,
             recipient,
@@ -367,10 +376,6 @@ fn validate_effect_references(
         | EffectDef::LookAtRandomCardInHand { player }
         | EffectDef::RevealHand { player } => {
             validate_recipient_target_references(player, target_count, scope)
-        }
-        EffectDef::LookAtTopAndDistribute { player, count, .. } => {
-            validate_recipient_target_references(player, target_count, scope)?;
-            validate_value_target_references(count, target_count, scope)
         }
         EffectDef::LookAtTopAndSelect {
             player,

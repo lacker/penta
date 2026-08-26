@@ -3,6 +3,40 @@ use super::{
 };
 
 impl HandcraftedPolicy {
+    /// Opening-hand actions stand beside a zero-option finish decision, just
+    /// as an offered cast stands beside its decline. Beginning with a free
+    /// permanent or installing a delayed reveal effect is ordinarily useful;
+    /// subtract any hand card the action consumes so Gemstone Caverns still
+    /// prefers the cheapest card available.
+    pub(super) fn choose_opening_hand_action(
+        &self,
+        observation: &PlayerObservation,
+    ) -> Option<Action> {
+        observation
+            .legal_actions
+            .iter()
+            .filter_map(|action| {
+                let Action::ActivateAbility {
+                    source,
+                    cost_objects,
+                    ..
+                } = action
+                else {
+                    return None;
+                };
+                let source_value = Self::hand_definition(observation, *source)
+                    .map_or(0, |definition| self.card_value(definition));
+                let cost = cost_objects
+                    .iter()
+                    .filter_map(|card| Self::hand_definition(observation, *card))
+                    .map(|definition| self.card_value(definition))
+                    .sum::<i32>();
+                Some((9_000 + source_value - cost, action))
+            })
+            .max_by_key(|(score, _)| *score)
+            .map(|(_, action)| action.clone())
+    }
+
     /// A standing cast offer is the one decision that deliberately exposes
     /// ordinary actions beside its answer: casting accepts it, while
     /// answering the decision declines it. Take the best useful cast and

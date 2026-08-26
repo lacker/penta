@@ -9,12 +9,12 @@ use crate::card::{
     AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, BasicLandType,
     BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     CardTypeSet, ChoiceVisibilityDef, ChooseDef, ControlDurationDef, CounterKind,
-    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor,
-    ManaRestrictionDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef, SpellAdditionalCostDef,
-    SumValueDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef,
+    ManaColor, ManaRestrictionDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
+    SpellAdditionalCostDef, SumValueDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{AdditionalCostObjectIndex, ObjectBindingIndex};
 use crate::{TargetIndex, mana_cost};
@@ -78,7 +78,22 @@ pub(in crate::card::sets) static CATHEDRAL_MEMBRANE: CardRecord = CardRecord::ne
 );
 
 // NPH 6 — Chancellor of the Annex
-// Audit: partial — Needs an opening-hand reveal hook that installs a one-shot tax for each opponent's first spell of the game.
+static CHANCELLOR_ANNEX_OPENING_TRIGGER: AbilityDef = AbilityDef::triggered(
+    "When each opponent casts their first spell of the game, counter that spell unless that player pays {1}.",
+    TriggerEventDef::SpellCast(ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)),
+    EffectDef::PayOr(PayOrDef::unless(
+        EffectPaymentDef::mana(
+            PlayerSetDef::One(PlayerRefDef::EventPlayer),
+            mana_cost!("{1}"),
+        ),
+        &EffectDef::Counter {
+            object: EffectRecipientDef::TriggeringObject,
+            zone: ZoneKind::Graveyard,
+            placement: ZonePlacement::Top,
+        },
+    )),
+);
+
 pub(in crate::card::sets) static CHANCELLOR_OF_THE_ANNEX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("be1b482a-badb-4b9a-ab63-2e7944826aa0"),
     "Chancellor of the Annex",
@@ -86,9 +101,9 @@ pub(in crate::card::sets) static CHANCELLOR_OF_THE_ANNEX: CardRecord = CardRecor
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_creature(mana_cost!("{4}{W}{W}{W}"), &["Phyrexian", "Angel"], 5, 6)
         .with_abilities(&[
-            AbilityDef::not_implemented(
+            AbilityDef::opening_hand_reveal(
                 "You may reveal this card from your opening hand. If you do, when each opponent casts their first spell of the game, counter that spell unless that player pays {1}.",
-                "Needs an opening-hand reveal hook plus per-opponent first-spell tracking.",
+                EffectDef::InstallTrigger(InstalledTriggerDef::once(&CHANCELLOR_ANNEX_OPENING_TRIGGER)),
             ),
             abilities::flying(),
             AbilityDef::triggered(
@@ -704,7 +719,20 @@ pub(in crate::card::sets) static CHAINED_THROATSEEKER: CardRecord = CardRecord::
 );
 
 // NPH 31 — Chancellor of the Spires
-// Audit: partial — Needs an opening-hand reveal hook that installs the pregame seven-card mill trigger before the first upkeep.
+static CHANCELLOR_SPIRES_OPENING_TRIGGER: AbilityDef = AbilityDef::triggered(
+    "At the beginning of the first upkeep, each opponent mills seven cards.",
+    TriggerEventDef::StepBegins {
+        step: TurnStepDef::Upkeep,
+        player: PlayerRelation::Any,
+    },
+    EffectDef::Mill {
+        player: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::Opponent)),
+        amount: ValueDef::Constant(7),
+        binding: None,
+        then: None,
+    },
+);
+
 static CHANCELLOR_OF_THE_SPIRES_FREE_CAST: AbilityDef = AbilityDef::alternative_cast(
     mana_cost!("{0}"),
     AlternativeCastKindDef::WithoutPayingManaCost,
@@ -719,9 +747,9 @@ pub(in crate::card::sets) static CHANCELLOR_OF_THE_SPIRES: CardRecord = CardReco
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_creature(mana_cost!("{4}{U}{U}{U}"), &["Phyrexian", "Sphinx"], 5, 7)
         .with_abilities(&[
-            AbilityDef::not_implemented(
+            AbilityDef::opening_hand_reveal(
                 "You may reveal this card from your opening hand. If you do, at the beginning of the first upkeep, each opponent mills seven cards.",
-                "Needs an opening-hand reveal hook that installs a trigger before the first upkeep.",
+                EffectDef::InstallTrigger(InstalledTriggerDef::once(&CHANCELLOR_SPIRES_OPENING_TRIGGER)),
             ),
             abilities::flying(),
             abilities::enters_trigger_with_targets(
@@ -1300,7 +1328,24 @@ pub(in crate::card::sets) static CARESS_OF_PHYREXIA: CardRecord = CardRecord::ne
 );
 
 // NPH 54 — Chancellor of the Dross
-// Audit: partial — Needs an opening-hand reveal hook that installs the pregame drain trigger before the first upkeep.
+static CHANCELLOR_DROSS_OPENING_TRIGGER: AbilityDef = AbilityDef::triggered(
+    "At the beginning of the first upkeep, each opponent loses 3 life, then you gain life equal to the life lost this way.",
+    TriggerEventDef::StepBegins {
+        step: TurnStepDef::Upkeep,
+        player: PlayerRelation::Any,
+    },
+    EffectDef::Sequence(&[
+        EffectDef::LoseLife {
+            recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::Opponent)),
+            amount: ValueDef::Constant(3),
+        },
+        EffectDef::GainLife {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(3),
+        },
+    ]),
+);
+
 pub(in crate::card::sets) static CHANCELLOR_OF_THE_DROSS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eec6d85e-6263-44b4-a91f-d51585c561c2"),
     "Chancellor of the Dross",
@@ -1308,9 +1353,9 @@ pub(in crate::card::sets) static CHANCELLOR_OF_THE_DROSS: CardRecord = CardRecor
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_creature(mana_cost!("{4}{B}{B}{B}"), &["Phyrexian", "Vampire"], 6, 6)
         .with_abilities(&[
-            AbilityDef::not_implemented(
+            AbilityDef::opening_hand_reveal(
                 "You may reveal this card from your opening hand. If you do, at the beginning of the first upkeep, each opponent loses 3 life, then you gain life equal to the life lost this way.",
-                "Needs an opening-hand reveal hook that installs a trigger before the first upkeep.",
+                EffectDef::InstallTrigger(InstalledTriggerDef::once(&CHANCELLOR_DROSS_OPENING_TRIGGER)),
             ),
             abilities::flying(),
             abilities::lifelink(),
@@ -2044,7 +2089,16 @@ pub(in crate::card::sets) static BLUDGEON_BRAWL: CardRecord = CardRecord::new(
 );
 
 // NPH 81 — Chancellor of the Forge
-// Audit: partial — Needs an opening-hand reveal hook that creates the pregame Goblin token before the first turn.
+static CHANCELLOR_FORGE_OPENING_TRIGGER: AbilityDef = AbilityDef::triggered(
+    "At the beginning of the first upkeep, create a 1/1 red Phyrexian Goblin creature token with haste.",
+    TriggerEventDef::StepBegins {
+        step: TurnStepDef::Upkeep,
+        player: PlayerRelation::Any,
+    },
+    EffectDef::create_creature_token(&["Phyrexian", "Goblin"], &[ManaColor::Red], 1, 1)
+        .with_abilities(&[abilities::haste()]),
+);
+
 static CHANCELLOR_OF_THE_FORGE_CREATURES: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasType(CardType::Creature),
     &[ZoneKind::Battlefield],
@@ -2058,9 +2112,9 @@ pub(in crate::card::sets) static CHANCELLOR_OF_THE_FORGE: CardRecord = CardRecor
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_creature(mana_cost!("{4}{R}{R}{R}"), &["Phyrexian", "Giant"], 5, 5)
         .with_abilities(&[
-            AbilityDef::not_implemented(
+            AbilityDef::opening_hand_reveal(
                 "You may reveal this card from your opening hand. If you do, at the beginning of the first upkeep, create a 1/1 red Phyrexian Goblin creature token with haste.",
-                "Needs an opening-hand reveal hook that installs a trigger before the first upkeep.",
+                EffectDef::InstallTrigger(InstalledTriggerDef::once(&CHANCELLOR_FORGE_OPENING_TRIGGER)),
             ),
             abilities::enters_trigger(
                 "When this creature enters, create X 1/1 red Phyrexian Goblin creature tokens with haste, where X is the number of creatures you control.",
@@ -2661,17 +2715,25 @@ pub(in crate::card::sets) static BRUTALIZER_EXARCH: CardRecord = CardRecord::new
 );
 
 // NPH 106 — Chancellor of the Tangle
-// Audit: partial — Needs an opening-hand reveal hook that installs a one-shot mana trigger for the first precombat main phase.
+static CHANCELLOR_TANGLE_OPENING_TRIGGER: AbilityDef = AbilityDef::triggered(
+    "At the beginning of your first precombat main phase, add {G}.",
+    TriggerEventDef::StepBegins {
+        step: TurnStepDef::PrecombatMain,
+        player: PlayerRelation::You,
+    },
+    EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
+);
+
 pub(in crate::card::sets) static CHANCELLOR_OF_THE_TANGLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6d129aa8-b637-451e-8123-5221e08cc2cc"),
     "Chancellor of the Tangle",
     crate::card::CardArt::new("6d129aa8-b637-451e-8123-5221e08cc2cc", "Steve Prescott"),
     crate::card::CardSet::NewPhyrexia,
-    CardRules::new_creature(mana_cost!("{6}{G}"), &["Phyrexian", "Beast"], 6, 7)
+    CardRules::new_creature(mana_cost!("{4}{G}{G}{G}"), &["Phyrexian", "Beast"], 6, 7)
         .with_abilities(&[
-            AbilityDef::not_implemented(
+            AbilityDef::opening_hand_reveal(
                 "You may reveal this card from your opening hand. If you do, at the beginning of your first precombat main phase, add {G}.",
-                "Needs an opening-hand reveal hook that installs a one-shot first-main-phase trigger.",
+                EffectDef::InstallTrigger(InstalledTriggerDef::once(&CHANCELLOR_TANGLE_OPENING_TRIGGER)),
             ),
             abilities::vigilance(),
             abilities::reach(),

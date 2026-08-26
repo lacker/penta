@@ -515,6 +515,7 @@ impl Game {
             | DeclarativeAbilityDef::AlternativeCast(_)
             | DeclarativeAbilityDef::OptionalAdditionalCost(_)
             | DeclarativeAbilityDef::SpecialAction(_)
+            | DeclarativeAbilityDef::Pregame(_)
             | DeclarativeAbilityDef::Keyword(_) => None,
         });
         if let Some(ability_def) = declarative {

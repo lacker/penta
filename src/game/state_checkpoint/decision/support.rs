@@ -13,6 +13,12 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
 ) -> Vec<GameObjectId> {
     let mut ids = Vec::new();
     match continuation {
+        DecisionContinuation::PregameActions { actions, .. } => {
+            for action in actions {
+                ids.push(action.source);
+                ids.extend(action.cost_objects.iter().copied());
+            }
+        }
         DecisionContinuation::BeginTurn {
             applied,
             replacements,
@@ -183,7 +189,9 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
             ids.extend(candidates.iter().copied());
             ids.extend(chosen.iter().copied());
         }
-        DecisionContinuation::ChosenColorMana { .. }
+        DecisionContinuation::ScryBottom { .. }
+        | DecisionContinuation::ScryTop { .. }
+        | DecisionContinuation::ChosenColorMana { .. }
         | DecisionContinuation::SearchZone { .. }
         // Nothing in a name choice is an object id.
         | DecisionContinuation::CardNameChoice { .. }

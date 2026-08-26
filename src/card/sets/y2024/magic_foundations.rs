@@ -30,6 +30,33 @@ pub(in crate::card::sets) static TREETOP_SNARESPINNER: CardRecord = CardRecord::
     crate::card::CardRules::unsupported(),
 );
 
+static LEYLINE_AXE_BONUS: [AppliedEffectDef; 3] = [
+    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
+    AppliedEffectDef::add_ability(&abilities::double_strike()),
+    AppliedEffectDef::add_ability(&abilities::trample()),
+];
+
+// FDN 129 — Leyline Axe
+pub(in crate::card::sets) static LEYLINE_AXE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b9c03336-a321-4c06-94d1-809f328fabd8"),
+    "Leyline Axe",
+    CardArt::new("b9c03336-a321-4c06-94d1-809f328fabd8", "Edgar Sánchez Hidalgo"),
+    CardSet::MagicFoundations,
+    CardRules::new_artifact(mana_cost!("{4}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+            AbilityDef::static_ability(
+                "Equipped creature gets +1/+1 and has double strike and trample.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&LEYLINE_AXE_BONUS),
+                },
+            ),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{3}"))], "Equip {3}"),
+        ]),
+);
+
 // FDN 195 — Fanatical Firebrand
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static FANATICAL_FIREBRAND: CardRecord = CardRecord::new(
@@ -176,6 +203,7 @@ pub(in crate::card::sets) static SHIPWRECK_DOWSER: CardRecord = CardRecord::new(
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &INSPIRING_PALADIN,
     &TREETOP_SNARESPINNER,
+    &LEYLINE_AXE,
     &FANATICAL_FIREBRAND,
     &GOBLIN_SURPRISE,
     &KELLAN_PLANAR_TRAILBLAZER,

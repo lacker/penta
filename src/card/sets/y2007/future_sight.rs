@@ -44,6 +44,42 @@ pub(in crate::card::sets) static REALITY_STROBE: CardRecord = CardRecord::new_wi
     ),
 );
 
+// FUT 54 — Narcomoeba
+static NARCOMOEBA_ENTERS: EffectDef = EffectDef::MoveToZone {
+    object: EffectRecipientDef::Source,
+    from: Some(ZoneKind::Graveyard),
+    zone: ZoneKind::Battlefield,
+    placement: ZonePlacement::Top,
+    controller: None,
+    arrival_effect: None,
+    attachment: None,
+    counters: None,
+    tapped: false,
+};
+
+pub(in crate::card::sets) static NARCOMOEBA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f76b3746-2e2c-4560-a2d2-e7b5b92833b2"),
+    "Narcomoeba",
+    CardArt::new("f76b3746-2e2c-4560-a2d2-e7b5b92833b2", "Matt Stewart"),
+    CardSet::FutureSight,
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Illusion"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered(
+            "When this card is put into your graveyard from your library, you may put it onto the battlefield.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                Some(ZoneKind::Library),
+                Some(ZoneKind::Graveyard),
+            ),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &NARCOMOEBA_ENTERS,
+            },
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]),
+    ]),
+);
+
 // FUT 76 — Shimian Specter
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIMIAN_SPECTER: CardRecord = CardRecord::new(
@@ -319,6 +355,7 @@ pub(in crate::card::sets) static HORIZON_CANOPY: CardRecord = CardRecord::new_wi
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &REALITY_STROBE,
+    &NARCOMOEBA,
     &SHIMIAN_SPECTER,
     &BRIDGE_FROM_BELOW,
     &SPROUT_SWARM,

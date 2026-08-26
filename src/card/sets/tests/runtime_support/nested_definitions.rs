@@ -26,12 +26,15 @@ pub(in super::super) fn shared_trigger_event(event: TriggerEventDef) -> bool {
             shared_trigger_event(*event) && shared_trigger_condition(*condition)
         }
         TriggerEventDef::ZoneChanged(matcher) => {
-            const COMMITTED_TRANSITIONS: [(ZoneKind, ZoneKind); 9] = [
+            const COMMITTED_TRANSITIONS: [(ZoneKind, ZoneKind); 12] = [
                 (ZoneKind::Library, ZoneKind::Battlefield),
                 (ZoneKind::Hand, ZoneKind::Battlefield),
                 (ZoneKind::Graveyard, ZoneKind::Battlefield),
                 (ZoneKind::Exile, ZoneKind::Battlefield),
                 (ZoneKind::Stack, ZoneKind::Battlefield),
+                (ZoneKind::Library, ZoneKind::Graveyard),
+                (ZoneKind::Hand, ZoneKind::Graveyard),
+                (ZoneKind::Exile, ZoneKind::Graveyard),
                 (ZoneKind::Battlefield, ZoneKind::Graveyard),
                 (ZoneKind::Battlefield, ZoneKind::Exile),
                 (ZoneKind::Battlefield, ZoneKind::Hand),

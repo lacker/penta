@@ -415,6 +415,24 @@ fn triggering_object_grants_use_the_declared_event_zone() {
 }
 
 #[test]
+fn catalog_accepts_nonbattlefield_graveyard_arrival_triggers() {
+    for from in [ZoneKind::Library, ZoneKind::Hand, ZoneKind::Exile] {
+        let ability = AbilityDef::triggered(
+            "When this card enters your graveyard, trigger.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                Some(from),
+                Some(ZoneKind::Graveyard),
+            ),
+            EffectDef::None,
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]);
+        CardCatalog::new([definition_with_ability(ability)])
+            .expect("the runtime publishes nonbattlefield graveyard arrivals");
+    }
+}
+
+#[test]
 fn payment_target_sets_must_resolve_to_one_player() {
     static PLAYER_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
         AbilityTargetPredicate::Player(PlayerRelation::Any),

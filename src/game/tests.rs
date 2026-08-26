@@ -205,6 +205,7 @@ mod morbid_entry;
 mod multi_block;
 mod must_block;
 mod named_card_mechanics;
+mod narcomoeba;
 mod new_phyrexia;
 mod old_school_interactions;
 mod old_school_permanents;

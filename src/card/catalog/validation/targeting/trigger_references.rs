@@ -298,12 +298,15 @@ const fn declaration_range_is_empty(range: crate::card::AttackDeclarationRangeDe
         }
 }
 
-const COMMITTED_ZONE_TRANSITIONS: [(ZoneKind, ZoneKind); 9] = [
+const COMMITTED_ZONE_TRANSITIONS: [(ZoneKind, ZoneKind); 12] = [
     (ZoneKind::Library, ZoneKind::Battlefield),
     (ZoneKind::Hand, ZoneKind::Battlefield),
     (ZoneKind::Graveyard, ZoneKind::Battlefield),
     (ZoneKind::Exile, ZoneKind::Battlefield),
     (ZoneKind::Stack, ZoneKind::Battlefield),
+    (ZoneKind::Library, ZoneKind::Graveyard),
+    (ZoneKind::Hand, ZoneKind::Graveyard),
+    (ZoneKind::Exile, ZoneKind::Graveyard),
     (ZoneKind::Battlefield, ZoneKind::Graveyard),
     (ZoneKind::Battlefield, ZoneKind::Exile),
     (ZoneKind::Battlefield, ZoneKind::Hand),

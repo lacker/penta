@@ -3,9 +3,8 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, CardType,
-    ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerEventDef, ZoneKind, abilities,
+    EffectDef, EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef, ObjectRefDef,
+    PlayerRefDef, PlayerRelation, TriggerEventDef, ZoneKind, abilities,
 };
 use crate::ids::ObjectBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -58,27 +57,6 @@ static A_NONCREATURE_NONLAND_CARD: ObjectPredicateDef = ObjectPredicateDef::All(
     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
 ]);
 
-static FREEBOOTER_TAKES_A_CARD: [EffectDef; 2] = [
-    EffectDef::LookAtHand {
-        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::Choose(ChooseDef {
-        binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
-        unchosen: None,
-        chooser: PlayerRefDef::EffectController,
-        candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-            A_NONCREATURE_NONLAND_CARD,
-            &[ZoneKind::Hand],
-            PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-        )),
-        exclude: None,
-        minimum: 1,
-        maximum: 1,
-        visibility: ChoiceVisibilityDef::Public,
-        then: &EffectDef::Sequence(&FREEBOOTER_EXILE),
-    }),
-];
-
 static FREEBOOTER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Player(PlayerRelation::Opponent),
 )];
@@ -88,7 +66,11 @@ static KITESAIL_FREEBOOTER_ABILITIES: [AbilityDef; 2] = [
     abilities::enters_trigger_with_targets(
         "When this creature enters, target opponent reveals their hand. You choose a noncreature, nonland card from it. Exile that card until this creature leaves the battlefield.",
         &FREEBOOTER_TARGET,
-        EffectDef::Sequence(&FREEBOOTER_TAKES_A_CARD),
+        EffectDef::Sequence(&abilities::reveal_hand_and_choose_card(
+            PlayerRefDef::Target(TargetIndex::PRIMARY),
+            A_NONCREATURE_NONLAND_CARD,
+            &EffectDef::Sequence(&FREEBOOTER_EXILE),
+        )),
     ),
 ];
 

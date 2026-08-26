@@ -21,16 +21,15 @@ use crate::card::sets::{
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt,
-    CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef,
-    ColorChoiceOperationDef, ColorSet, ComparisonDef, CounterKind, CreatureTypeSetDef,
-    DamageEventMatcherDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, HalvedValueDef,
-    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ReplacementEventDef, ResolvedEffectDurationDef, RoundingDef, SacrificedAmountDef,
-    ScaledValueDef, TargetConditionDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ColorChoiceOperationDef, ColorSet,
+    ComparisonDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DiscardSelectionDef,
+    EffectDef, EffectRecipientDef, HalvedValueDef, ManaColor, ObjectPredicateDef, ObjectQueryDef,
+    PlayerRefDef, PlayerRelation, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, RoundingDef, SacrificedAmountDef, ScaledValueDef,
+    TargetConditionDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
-use crate::ids::{ObjectBindingIndex, TargetIndex};
+use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 static TAPPED_ZOMBIE: EffectDef =
@@ -1443,45 +1442,6 @@ pub(in crate::card::sets) static GRIM_RETURN: CardRecord = CardRecord::new(
 );
 
 // M14 101 — Lifebane Zombie
-static LIFEBANE_EXILE: EffectDef = EffectDef::MoveToZone {
-    counters: None,
-    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-    from: None,
-    zone: ZoneKind::Exile,
-    placement: ZonePlacement::Top,
-    arrival_effect: None,
-    attachment: None,
-    controller: None,
-    tapped: false,
-};
-
-static LIFEBANE_EFFECTS: [EffectDef; 2] = [
-    EffectDef::LookAtHand {
-        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::Choose(ChooseDef {
-        binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
-        unchosen: None,
-        chooser: PlayerRefDef::EffectController,
-        candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-            ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::AnyOf(&[
-                    ObjectPredicateDef::Color(ManaColor::Green),
-                    ObjectPredicateDef::Color(ManaColor::White),
-                ]),
-            ]),
-            &[ZoneKind::Hand],
-            PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-        )),
-        exclude: None,
-        minimum: 1,
-        maximum: 1,
-        visibility: ChoiceVisibilityDef::Public,
-        then: &LIFEBANE_EXILE,
-    }),
-];
-
 pub(in crate::card::sets) static LIFEBANE_ZOMBIE: CardRecord = CardRecord::new_with_legacy_id(
     183,
     "Lifebane Zombie",
@@ -1497,7 +1457,16 @@ pub(in crate::card::sets) static LIFEBANE_ZOMBIE: CardRecord = CardRecord::new_w
         abilities::intimidate(),
         abilities::enters_trigger_with_targets("When this creature enters, target opponent reveals their hand. You choose a green or white creature card from it and exile that card.", &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-        )], EffectDef::Sequence(&LIFEBANE_EFFECTS)),
+        )], EffectDef::Sequence(&abilities::reveal_hand_and_exile_chosen_card(
+            PlayerRefDef::Target(TargetIndex::PRIMARY),
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::Color(ManaColor::Green),
+                    ObjectPredicateDef::Color(ManaColor::White),
+                ]),
+            ]),
+        ))),
     ]),
 );
 

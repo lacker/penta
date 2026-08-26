@@ -5,6 +5,74 @@
 // card to say it does not re-derive it. Included textually into
 // `abilities.rs`, so the imports here are the parent module's.
 
+static DISCARD_CHOSEN_HAND_CARD: EffectDef = EffectDef::DiscardCards {
+    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+};
+
+static EXILE_CHOSEN_HAND_CARD: EffectDef = EffectDef::MoveToZone {
+    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+    from: Some(ZoneKind::Hand),
+    zone: ZoneKind::Exile,
+    placement: ZonePlacement::Top,
+    controller: None,
+    arrival_effect: None,
+    attachment: None,
+    counters: None,
+    tapped: false,
+};
+
+/// Reveal one player's hand, let the effect controller choose exactly one
+/// matching card, and continue with that card in the primary object binding.
+///
+/// If no card matches, no choice is offered and `then` does not run. Put any
+/// unconditional later instruction outside this pair, as Thoughtseize does
+/// with its life loss.
+#[must_use]
+pub const fn reveal_hand_and_choose_card(
+    player: PlayerRefDef,
+    object: ObjectPredicateDef,
+    then: &'static EffectDef,
+) -> [EffectDef; 2] {
+    [
+        EffectDef::RevealHand {
+            player: EffectRecipientDef::player(player),
+        },
+        EffectDef::Choose(ChooseDef {
+            binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+            unchosen: None,
+            chooser: PlayerRefDef::EffectController,
+            candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                object,
+                &[ZoneKind::Hand],
+                PlayerSetDef::One(player),
+            )),
+            exclude: None,
+            minimum: 1,
+            maximum: 1,
+            visibility: ChoiceVisibilityDef::Public,
+            then,
+        }),
+    ]
+}
+
+/// The common "reveal, you choose, that player discards" clause.
+#[must_use]
+pub const fn reveal_hand_and_discard_chosen_card(
+    player: PlayerRefDef,
+    object: ObjectPredicateDef,
+) -> [EffectDef; 2] {
+    reveal_hand_and_choose_card(player, object, &DISCARD_CHOSEN_HAND_CARD)
+}
+
+/// The common "reveal, you choose, exile that card" clause.
+#[must_use]
+pub const fn reveal_hand_and_exile_chosen_card(
+    player: PlayerRefDef,
+    object: ObjectPredicateDef,
+) -> [EffectDef; 2] {
+    reveal_hand_and_choose_card(player, object, &EXILE_CHOSEN_HAND_CARD)
+}
+
 static RETURN_EXILE_WHEN_SOURCE_LEAVES: AbilityDef = AbilityDef::triggered(
     "When this permanent leaves the battlefield, return the exiled card to the battlefield under \
      its owner's control.",

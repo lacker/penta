@@ -8,7 +8,8 @@ mod tests {
         exile_until_next_end_step, exile_until_next_end_step_under_your_control,
         exile_until_source_leaves, first_strike, flashback,
         flashback_for_card_mana_cost, flying, intimidate, living_weapon, overload, pain_land,
-        shock_land_enters, storm, tap_for, EQUIP_TARGET, equip,
+        reveal_hand_and_choose_card, reveal_hand_and_discard_chosen_card,
+        reveal_hand_and_exile_chosen_card, shock_land_enters, storm, tap_for, EQUIP_TARGET, equip,
     };
     use crate::card::{
         AbilityCostDef, AbilityCostList, AbilityCoverageDef, AbilityDef, AbilityPredicateDef,
@@ -19,6 +20,7 @@ mod tests {
         PlayerSetDef, ReplacementEffectDef, TriggerEventDef, ValueDef, ZoneChangeEventMatcherDef,
         ZoneKind,
     };
+    use crate::ids::ObjectBindingIndex;
     use crate::TargetIndex;
     use crate::mana_cost;
 
@@ -40,6 +42,51 @@ mod tests {
         assert_eq!(copy.count, ValueDef::SpellsCastBeforeThisTurn);
         assert!(copy.retarget);
         assert_eq!(copy.colors, None);
+    }
+
+    #[test]
+    fn revealed_hand_choice_helpers_share_selection_and_destination_semantics() {
+        static CONTINUATION: EffectDef = EffectDef::Special("chosen hand card");
+        let player = PlayerRefDef::Target(TargetIndex::PRIMARY);
+        let object = ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land));
+
+        let [EffectDef::RevealHand { player: revealed }, EffectDef::Choose(choice)] =
+            reveal_hand_and_choose_card(player, object, &CONTINUATION)
+        else {
+            panic!("the helper should reveal, then choose")
+        };
+        assert_eq!(revealed, EffectRecipientDef::player(player));
+        assert_eq!(choice.chooser, PlayerRefDef::EffectController);
+        assert_eq!(choice.minimum, 1);
+        assert_eq!(choice.maximum, 1);
+        assert_eq!(choice.then, &CONTINUATION);
+
+        let [_, EffectDef::Choose(discard)] =
+            reveal_hand_and_discard_chosen_card(player, object)
+        else {
+            panic!("discard helper should use the common choice")
+        };
+        assert_eq!(
+            *discard.then,
+            EffectDef::DiscardCards {
+                object: EffectRecipientDef::object(crate::card::ObjectRefDef::Binding(
+                    ObjectBindingIndex::PRIMARY,
+                )),
+            }
+        );
+
+        let [_, EffectDef::Choose(exile)] = reveal_hand_and_exile_chosen_card(player, object)
+        else {
+            panic!("exile helper should use the common choice")
+        };
+        assert!(matches!(
+            *exile.then,
+            EffectDef::MoveToZone {
+                from: Some(ZoneKind::Hand),
+                zone: ZoneKind::Exile,
+                ..
+            }
+        ));
     }
 
     #[test]

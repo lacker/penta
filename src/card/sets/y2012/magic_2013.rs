@@ -18,18 +18,17 @@ use crate::card::sets::{
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardBehavior,
-    CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ColorSet,
-    ComparisonDef, ControlDurationDef, CostModificationDef, CounterKind, CreatureTypeSetDef,
-    DamageEventMatcherDef, DamageKindDef, DamagePreventionDef, DamageRecipientMatcherDef,
-    DamageSourceMatcherDef, DiscardFollowUpDef, DiscardSelectionDef, DividedTotal, EffectDef,
-    EffectExecutionDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    SacrificedAmountDef, SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef,
-    TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    CardRules, CardSet, CardSupertype, CardType, ColorSet, ComparisonDef, ControlDurationDef,
+    CostModificationDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef,
+    DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardFollowUpDef,
+    DiscardSelectionDef, DividedTotal, EffectDef, EffectExecutionDef, EffectRecipientDef,
+    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, SpellAdditionalCostCountDef,
+    SpellAdditionalCostDef, SpendModeDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::{ObjectBindingIndex, TargetIndex};
+use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 /// The largest power among your creatures, which is one creature's size
@@ -1817,10 +1816,6 @@ pub(in crate::card::sets) static DISENTOMB: CardRecord = CardRecord::new_with_le
 );
 
 // M13 90 — Duress
-static DURESS_DISCARD: EffectDef = EffectDef::DiscardCards {
-    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-};
-
 pub(in crate::card::sets) static DURESS: CardRecord = CardRecord::new_with_legacy_id(
     159,
     "Duress",
@@ -1831,29 +1826,13 @@ pub(in crate::card::sets) static DURESS: CardRecord = CardRecord::new_with_legac
         &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
             PlayerRelation::Opponent,
         ))],
-        EffectDef::Sequence(&[
-            EffectDef::LookAtHand {
-                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            },
-            EffectDef::Choose(ChooseDef {
-                binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
-                unchosen: None,
-                chooser: PlayerRefDef::EffectController,
-                candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-                    ]),
-                    &[ZoneKind::Hand],
-                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-                )),
-                exclude: None,
-                minimum: 1,
-                maximum: 1,
-                visibility: ChoiceVisibilityDef::Public,
-                then: &DURESS_DISCARD,
-            }),
-        ]),
+        EffectDef::Sequence(&abilities::reveal_hand_and_discard_chosen_card(
+            PlayerRefDef::Target(TargetIndex::PRIMARY),
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+            ]),
+        )),
     )),
 );
 

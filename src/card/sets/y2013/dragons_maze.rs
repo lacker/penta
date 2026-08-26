@@ -2058,42 +2058,6 @@ pub(in crate::card::sets) static SHOWSTOPPER: CardRecord = CardRecord::new_with_
 );
 
 // DGM 103 — Sin Collector
-static SIN_COLLECTOR_EXILE: EffectDef = EffectDef::MoveToZone {
-    counters: None,
-    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-    from: None,
-    zone: ZoneKind::Exile,
-    placement: ZonePlacement::Top,
-    arrival_effect: None,
-    attachment: None,
-    controller: None,
-    tapped: false,
-};
-
-static SIN_COLLECTOR_EFFECTS: [EffectDef; 2] = [
-    EffectDef::LookAtHand {
-        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::Choose(ChooseDef {
-        binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
-        unchosen: None,
-        chooser: PlayerRefDef::EffectController,
-        candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-            ObjectPredicateDef::AnyOf(&[
-                ObjectPredicateDef::HasType(CardType::Instant),
-                ObjectPredicateDef::HasType(CardType::Sorcery),
-            ]),
-            &[ZoneKind::Hand],
-            PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-        )),
-        exclude: None,
-        minimum: 1,
-        maximum: 1,
-        visibility: ChoiceVisibilityDef::Public,
-        then: &SIN_COLLECTOR_EXILE,
-    }),
-];
-
 pub(in crate::card::sets) static SIN_COLLECTOR: CardRecord = CardRecord::new_with_legacy_id(
     214,
     "Sin Collector",
@@ -2107,7 +2071,13 @@ pub(in crate::card::sets) static SIN_COLLECTOR: CardRecord = CardRecord::new_wit
     )
     .with_abilities(&[abilities::enters_trigger_with_targets("When this creature enters, target opponent reveals their hand. You choose an instant or sorcery card from it and exile that card.", &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-        )], EffectDef::Sequence(&SIN_COLLECTOR_EFFECTS)),
+        )], EffectDef::Sequence(&abilities::reveal_hand_and_exile_chosen_card(
+            PlayerRefDef::Target(TargetIndex::PRIMARY),
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Instant),
+                ObjectPredicateDef::HasType(CardType::Sorcery),
+            ]),
+        ))),
     ]),
 );
 

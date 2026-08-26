@@ -8,16 +8,15 @@ use crate::card::{
     ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef,
     AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, BasicLandType,
     BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CardTypeSet, ChoiceVisibilityDef, ChooseDef, ControlDurationDef, CopyExceptionsDef,
-    CounterKind, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    InstalledTriggerDef, ManaColor, ManaRestrictionDef, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    SacrificedAmountDef, SpellAdditionalCostDef, SumValueDef, TopCardSelectionDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    CardTypeSet, ControlDurationDef, CopyExceptionsDef, CounterKind, DiscardSelectionDef,
+    EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef, ManaColor,
+    ManaRestrictionDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, SpellAdditionalCostDef, SumValueDef,
+    TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
-use crate::ids::{AdditionalCostObjectIndex, ObjectBindingIndex};
+use crate::ids::AdditionalCostObjectIndex;
 use crate::{TargetIndex, mana_cost};
 
 // NPH 1 — Karn Liberated
@@ -1390,10 +1389,6 @@ pub(in crate::card::sets) static DEMENTIA_BAT: CardRecord = CardRecord::new(
 );
 
 // NPH 56 — Despise
-static DESPISE_DISCARD: EffectDef = EffectDef::DiscardCards {
-    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-};
-
 pub(in crate::card::sets) static DESPISE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ee7bfcd3-9f2b-41f5-93b4-8c1ee6ba4d88"),
     "Despise",
@@ -1404,29 +1399,13 @@ pub(in crate::card::sets) static DESPISE: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
             PlayerRelation::Opponent,
         ))],
-        EffectDef::Sequence(&[
-            EffectDef::RevealHand {
-                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            },
-            EffectDef::Choose(ChooseDef {
-                binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
-                unchosen: None,
-                chooser: PlayerRefDef::EffectController,
-                candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-                    ObjectPredicateDef::AnyOf(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::HasType(CardType::Planeswalker),
-                    ]),
-                    &[ZoneKind::Hand],
-                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-                )),
-                exclude: None,
-                minimum: 1,
-                maximum: 1,
-                visibility: ChoiceVisibilityDef::Public,
-                then: &DESPISE_DISCARD,
-            }),
-        ]),
+        EffectDef::Sequence(&abilities::reveal_hand_and_discard_chosen_card(
+            PlayerRefDef::Target(TargetIndex::PRIMARY),
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::HasType(CardType::Planeswalker),
+            ]),
+        )),
     )),
 );
 
@@ -1492,10 +1471,6 @@ pub(in crate::card::sets) static ENSLAVE: CardRecord = CardRecord::new(
 );
 
 // NPH 59 — Entomber Exarch
-static ENTOMBER_EXARCH_DISCARD: EffectDef = EffectDef::DiscardCards {
-    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-};
-
 static ENTOMBER_EXARCH_MODES: [AbilityDef; 2] = [
     AbilityDef::spell_with_targets(
         "Return target creature card from your graveyard to your hand.",
@@ -1524,26 +1499,10 @@ static ENTOMBER_EXARCH_MODES: [AbilityDef; 2] = [
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Player(PlayerRelation::Opponent),
         )],
-        EffectDef::Sequence(&[
-            EffectDef::RevealHand {
-                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            },
-            EffectDef::Choose(ChooseDef {
-                binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
-                unchosen: None,
-                chooser: PlayerRefDef::EffectController,
-                candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
-                    &[ZoneKind::Hand],
-                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-                )),
-                exclude: None,
-                minimum: 1,
-                maximum: 1,
-                visibility: ChoiceVisibilityDef::Public,
-                then: &ENTOMBER_EXARCH_DISCARD,
-            }),
-        ]),
+        EffectDef::Sequence(&abilities::reveal_hand_and_discard_chosen_card(
+            PlayerRefDef::Target(TargetIndex::PRIMARY),
+            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+        )),
     ),
 ];
 

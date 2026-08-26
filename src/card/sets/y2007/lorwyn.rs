@@ -3,13 +3,12 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef,
-    EffectDef, EffectRecipientDef, FreePlayDef, FreePlayDurationDef, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, TopCardSelectionDef, TriggerConditionDef,
-    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    CardArt, CardRules, CardSet, CardType, ComparisonDef, EffectDef, EffectRecipientDef,
+    FreePlayDef, FreePlayDurationDef, ManaColor, ObjectPredicateDef, ObjectSetDef, PlayerRefDef,
+    PlayerRelation, TopCardSelectionDef, TriggerConditionDef, ValueComparisonDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::{ObjectBindingIndex, TargetIndex};
+use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 // LRW 56 — Cryptic Command
@@ -155,31 +154,13 @@ static A_PLAYER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Player(PlayerRelation::Any),
 )];
 
-static SEIZE_IT: EffectDef = EffectDef::DiscardCards {
-    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-};
-
 /// The hand is revealed rather than looked at: everybody sees it, which is
 /// what makes the choice checkable and what the card prints.
-static THOUGHTSEIZE_EFFECT: [EffectDef; 3] = [
-    EffectDef::RevealHand {
-        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::Choose(ChooseDef {
-        binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
-        unchosen: None,
-        chooser: PlayerRefDef::EffectController,
-        candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-            &[ZoneKind::Hand],
-            PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-        )),
-        exclude: None,
-        minimum: 1,
-        maximum: 1,
-        visibility: ChoiceVisibilityDef::Public,
-        then: &SEIZE_IT,
-    }),
+static THOUGHTSEIZE_EFFECT: [EffectDef; 2] = [
+    EffectDef::Sequence(&abilities::reveal_hand_and_discard_chosen_card(
+        PlayerRefDef::Target(TargetIndex::PRIMARY),
+        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+    )),
     // Unconditional: a hand of nothing but lands still costs you two.
     EffectDef::LoseLife {
         recipient: EffectRecipientDef::Controller,

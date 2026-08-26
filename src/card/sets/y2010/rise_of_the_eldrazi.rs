@@ -3,12 +3,11 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef,
-    EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    CardArt, CardRules, CardSet, CardSupertype, CardType, EffectDef, EffectRecipientDef,
+    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
-use crate::ids::ObjectBindingIndex;
 use crate::{TargetIndex, mana_cost};
 
 // ROE 4 — Emrakul, the Aeons Torn
@@ -136,10 +135,6 @@ static A_PLAYER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Player(PlayerRelation::Any),
 )];
 
-static INQUISITION_TAKES_IT: EffectDef = EffectDef::DiscardCards {
-    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-};
-
 /// The bound is the whole difference from Thoughtseize: the expensive half
 /// of their hand is safe, and what it costs you instead of two life is that
 /// the card you wanted may not be a legal choice at all.
@@ -150,27 +145,6 @@ static A_CHEAP_NONLAND_CARD: ObjectPredicateDef = ObjectPredicateDef::All(&[
 
 /// A choice of one with nothing on offer simply does not ask: a hand with
 /// nothing cheap enough in it loses nothing.
-static INQUISITION_EFFECT: [EffectDef; 2] = [
-    EffectDef::RevealHand {
-        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::Choose(ChooseDef {
-        binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
-        unchosen: None,
-        chooser: PlayerRefDef::EffectController,
-        candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-            A_CHEAP_NONLAND_CARD,
-            &[ZoneKind::Hand],
-            PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-        )),
-        exclude: None,
-        minimum: 1,
-        maximum: 1,
-        visibility: ChoiceVisibilityDef::Public,
-        then: &INQUISITION_TAKES_IT,
-    }),
-];
-
 pub(in crate::card::sets) static INQUISITION_OF_KOZILEK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6a3ff5c3-0fdb-4d54-b4e5-ce7bad9953f0"),
     "Inquisition of Kozilek",
@@ -182,7 +156,10 @@ pub(in crate::card::sets) static INQUISITION_OF_KOZILEK: CardRecord = CardRecord
         "Target player reveals their hand. You choose a nonland card from it with mana value 3 \
          or less. That player discards that card.",
         &A_PLAYER,
-        EffectDef::Sequence(&INQUISITION_EFFECT),
+        EffectDef::Sequence(&abilities::reveal_hand_and_discard_chosen_card(
+            PlayerRefDef::Target(TargetIndex::PRIMARY),
+            A_CHEAP_NONLAND_CARD,
+        )),
     )),
 );
 

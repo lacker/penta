@@ -15,7 +15,6 @@ use crate::card::{
     TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef,
     ZoneKind, ZonePlacement, abilities, tokens,
 };
-use crate::ids::ObjectBindingIndex;
 use crate::{ObjectSetBindingIndex, TargetIndex, mana_cost};
 
 // MH2 25 — Prismatic Ending
@@ -427,41 +426,19 @@ static GRIEF_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Player(PlayerRelation::Opponent),
 )];
 
-static GRIEF_TAKES_IT: EffectDef = EffectDef::DiscardCards {
-    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-};
-
 /// Thoughtseize's clause without the life, and aimed at an opponent rather
 /// than any player: revealed rather than looked at, so the choice is one
 /// both players can check.
-static GRIEF_SEIZES: [EffectDef; 2] = [
-    EffectDef::RevealHand {
-        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::Choose(ChooseDef {
-        binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
-        unchosen: None,
-        chooser: PlayerRefDef::EffectController,
-        candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-            &[ZoneKind::Hand],
-            PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-        )),
-        exclude: None,
-        minimum: 1,
-        maximum: 1,
-        visibility: ChoiceVisibilityDef::Public,
-        then: &GRIEF_TAKES_IT,
-    }),
-];
-
 static GRIEF_ABILITIES: [AbilityDef; 4] = [
     abilities::menace(),
     abilities::enters_trigger_with_targets(
         "When this creature enters, target opponent reveals their hand. You choose a nonland \
          card from it. That player discards that card.",
         &GRIEF_TARGET,
-        EffectDef::Sequence(&GRIEF_SEIZES),
+        EffectDef::Sequence(&abilities::reveal_hand_and_discard_chosen_card(
+            PlayerRefDef::Target(TargetIndex::PRIMARY),
+            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+        )),
     ),
     AbilityDef::alternative_cast(
         mana_cost!("{0}"),

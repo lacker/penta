@@ -3,12 +3,11 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
-    CardSet, CardType, ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef,
-    InstalledTriggerDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
-    SpellAdditionalCostDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    CardSet, CardType, EffectDef, EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef,
+    PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, SpellAdditionalCostDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
 };
-use crate::ids::{ObjectBindingIndex, TargetIndex};
+use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 // EMN 14 — Borrowed Grace
@@ -79,35 +78,15 @@ static A_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_perman
     ObjectPredicateDef::HasType(CardType::Creature),
 )];
 
-static BRUTALITY_TAKE: EffectDef = EffectDef::DiscardCards {
-    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-};
-
 static AN_INSTANT_OR_SORCERY: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
     ObjectPredicateDef::HasType(CardType::Instant),
     ObjectPredicateDef::HasType(CardType::Sorcery),
 ]);
 
-static BRUTALITY_STRIP: [EffectDef; 2] = [
-    EffectDef::RevealHand {
-        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::Choose(ChooseDef {
-        binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
-        unchosen: None,
-        chooser: PlayerRefDef::EffectController,
-        candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-            AN_INSTANT_OR_SORCERY,
-            &[ZoneKind::Hand],
-            PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-        )),
-        exclude: None,
-        minimum: 1,
-        maximum: 1,
-        visibility: ChoiceVisibilityDef::Public,
-        then: &BRUTALITY_TAKE,
-    }),
-];
+static BRUTALITY_STRIP: [EffectDef; 2] = abilities::reveal_hand_and_discard_chosen_card(
+    PlayerRefDef::Target(TargetIndex::PRIMARY),
+    AN_INSTANT_OR_SORCERY,
+);
 
 static BRUTALITY_DRAIN: [EffectDef; 2] = [
     EffectDef::LoseLife {

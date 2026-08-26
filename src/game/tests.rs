@@ -160,6 +160,7 @@ mod greatest_power;
 mod guardian_angel;
 mod guardian_beast;
 mod gyre_sage;
+mod hand_attack_effects;
 mod held_tapped;
 mod howling_mine;
 mod identity_and_mana;

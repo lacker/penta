@@ -3,10 +3,9 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef,
-    EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, TriggerEventDef, ValueDef, ZoneKind, abilities, tokens,
+    CardArt, CardRules, CardSet, CardSupertype, CardType, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectPredicateDef, ObjectRefDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef,
+    TriggerEventDef, ValueDef, ZoneKind, abilities, tokens,
 };
 use crate::ids::ObjectBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -139,36 +138,17 @@ static SCULLER_EXILE: EffectDef = EffectDef::ExileLinkedToSource {
     then: None,
 };
 
-static SCULLER_TAKES_A_CARD: [EffectDef; 2] = [
-    EffectDef::LookAtHand {
-        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::Choose(ChooseDef {
-        binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
-        unchosen: None,
-        chooser: PlayerRefDef::EffectController,
-        candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-            &[ZoneKind::Hand],
-            PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-        )),
-        exclude: None,
-        minimum: 1,
-        maximum: 1,
-        visibility: ChoiceVisibilityDef::Public,
-        then: &SCULLER_EXILE,
-    }),
-];
-
-static SCULLER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-)];
-
 static TIDEHOLLOW_SCULLER_ABILITIES: [AbilityDef; 2] = [
     abilities::enters_trigger_with_targets(
         "When this creature enters, target opponent reveals their hand and you choose a nonland card from it. Exile that card.",
-        &SCULLER_TARGET,
-        EffectDef::Sequence(&SCULLER_TAKES_A_CARD),
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+        )],
+        EffectDef::Sequence(&abilities::reveal_hand_and_choose_card(
+            PlayerRefDef::Target(TargetIndex::PRIMARY),
+            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+            &SCULLER_EXILE,
+        )),
     ),
     // Leaves, not dies: bouncing or exiling the Sculler gives the card back
     // just as killing it does.

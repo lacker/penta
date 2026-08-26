@@ -3348,7 +3348,6 @@ pub(in crate::card::sets) static MORKRUT_BANSHEE: CardRecord = CardRecord::new_w
 );
 
 // ISD 111 — Night Terrors
-// Audit: metadata-only — Needs revealing another player's hand, choosing a nonland card from it, and exiling that choice.
 pub(in crate::card::sets) static NIGHT_TERRORS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5091658c-0314-42ee-87d8-95d3f457c4ab"),
     "Night Terrors",
@@ -3357,7 +3356,16 @@ pub(in crate::card::sets) static NIGHT_TERRORS: CardRecord = CardRecord::new(
         "Christopher Moeller",
     ),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Target player reveals their hand. You choose a nonland card from it. Exile that card.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        EffectDef::Sequence(&abilities::reveal_hand_and_exile_chosen_card(
+            PlayerRefDef::Target(TargetIndex::PRIMARY),
+            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+        )),
+    )),
 );
 
 // ISD 112 — Reaper from the Abyss

@@ -13,8 +13,10 @@ use super::rare_states::{
 };
 use crate::card::cards;
 use crate::game::DecisionContinuation;
-use crate::game::tests::{activated_ability_for, card, creature, mana_ability_for, ready_game};
-use crate::{Action, ManaColor};
+use crate::game::tests::{
+    activated_ability_for, card, cast_action, creature, mana_ability_for, ready_game,
+};
+use crate::{Action, ManaColor, Target};
 
 /// Mishra's Workshop pays for artifacts and nothing else. Unspent restricted
 /// mana is the case where the public pool and the engine's units disagree in
@@ -84,6 +86,38 @@ fn a_spell_cast_from_a_graveyard_reconstructs_while_it_is_on_the_stack() {
         "the spell must be marked as cast via flashback"
     );
     assert_reconstructs(&game, "a flashback spell on the stack");
+}
+
+#[test]
+fn a_spell_reconstructs_with_its_retired_additional_cost_object() {
+    let mut game = staged_modern_game();
+    let lunge = card(20_100, cards::CORPSE_LUNGE, PlayerId::One);
+    let lunge_id = lunge.id;
+    game.players[0].hand.push(lunge);
+    let fodder = card(20_101, cards::SERRA_ANGEL, PlayerId::One);
+    let fodder_id = fodder.id;
+    game.players[0].graveyard.push(fodder);
+    let victim = creature(20_102, cards::AIR_ELEMENTAL, PlayerId::Two);
+    let victim_id = victim.card.id;
+    game.battlefield.push(victim);
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Black, 1);
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Colorless, 2);
+
+    game.apply(
+        PlayerId::One,
+        cast_action(
+            lunge_id,
+            vec![Target::Permanent(victim_id)],
+            vec![fodder_id],
+            0,
+        ),
+    )
+    .expect("Corpse Lunge can spend the creature card");
+
+    assert_reconstructs(
+        &game,
+        "a spell retaining its additional cost object's last-known information",
+    );
 }
 
 #[test]

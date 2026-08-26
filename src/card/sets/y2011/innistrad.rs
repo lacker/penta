@@ -2693,7 +2693,6 @@ pub(in crate::card::sets) static BUMP_IN_THE_NIGHT: CardRecord = CardRecord::new
 );
 
 // ISD 93 — Corpse Lunge
-// Audit: metadata-only — Needs an exiled graveyard card as a casting cost and its linked power as the spell's damage amount.
 pub(in crate::card::sets) static CORPSE_LUNGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2a74b987-527a-4560-a018-19d6bdf7e8b7"),
     "Corpse Lunge",
@@ -2702,7 +2701,19 @@ pub(in crate::card::sets) static CORPSE_LUNGE: CardRecord = CardRecord::new(
         "Christopher Moeller",
     ),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{B}")).with_ability(
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, exile a creature card from your graveyard.\nThis spell deals damage equal to the exiled card's power to target creature.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EXILE_A_CREATURE_CARD,
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::PowerOfSingleAdditionalCostObject,
+            },
+        ),
+    ),
 );
 
 // ISD 94 — Curse of Death's Hold

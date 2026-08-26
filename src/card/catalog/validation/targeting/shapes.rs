@@ -392,6 +392,7 @@ fn validate_value_shape(
         | ValueDef::SpellsCastBeforeThisTurn
         | ValueDef::PlayerCounters { .. }
         | ValueDef::SacrificedManaValue
+        | ValueDef::PowerOfSingleAdditionalCostObject
         | ValueDef::TimesAdditionalCostPaid
         | ValueDef::DividedAmongTargets => Ok(()),
     }

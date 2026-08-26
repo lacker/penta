@@ -242,6 +242,15 @@ impl Game {
                 .ability
                 .as_ref()
                 .map_or(0, |ability| i32::from(ability.sacrificed_mana_value)),
+            ValueDef::PowerOfSingleAdditionalCostObject => {
+                let [spent] = object.chosen_permanents.as_slice() else {
+                    return 0;
+                };
+                object.signature.as_ref().map_or(0, |_| {
+                    self.current_or_last_known_power(*spent)
+                        .map_or(0, i32::from)
+                })
+            }
             // Resolved per target by the divided-damage path; anything else
             // reading it has no target in hand and so no share.
             // Neither has an answer while an effect resolves: nothing is

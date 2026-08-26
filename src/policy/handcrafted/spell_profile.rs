@@ -575,6 +575,7 @@ impl HandcraftedPolicy {
             | ValueDef::SpellsCastBeforeThisTurn
             | ValueDef::PlayerCounters { .. }
             | ValueDef::SacrificedManaValue
+            | ValueDef::PowerOfSingleAdditionalCostObject
             | ValueDef::TimesAdditionalCostPaid
             | ValueDef::DividedAmongTargets
             | ValueDef::TargetPower(_)

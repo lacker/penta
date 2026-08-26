@@ -1619,13 +1619,38 @@ pub(in crate::card::sets) static GRIM_AFFLICTION: CardRecord = CardRecord::new(
 );
 
 // NPH 64 — Ichor Explosion
-// Audit: metadata-only — Needs the sacrificed additional-cost creature's last-known power as a spell-resolution value; additional costs currently expose mana value only.
+static ICHOR_EXPLOSION_COST: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
+    ObjectPredicateDef::HasType(CardType::Creature),
+    ZoneKind::Battlefield,
+    1,
+);
+static NEGATIVE_ADDITIONAL_COST_POWER: ValueDef =
+    ValueDef::Negate(&ValueDef::PowerOfSingleAdditionalCostObject);
+
 pub(in crate::card::sets) static ICHOR_EXPLOSION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0b207e2f-4604-43c5-bb35-a877e35ddd81"),
     "Ichor Explosion",
     crate::card::CardArt::new("0b207e2f-4604-43c5-bb35-a877e35ddd81", "James Ryman"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{5}{B}{B}")).with_ability(
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, sacrifice a creature.\nAll creatures get -X/-X until end of turn, where X is the sacrificed creature's power.",
+            &[],
+            ICHOR_EXPLOSION_COST,
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    NEGATIVE_ADDITIONAL_COST_POWER,
+                    NEGATIVE_ADDITIONAL_COST_POWER,
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // NPH 65 — Life's Finale

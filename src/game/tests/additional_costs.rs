@@ -193,6 +193,75 @@ fn a_hand_cost_discards_something_other_than_the_spell() {
 }
 
 #[test]
+fn corpse_lunge_uses_the_exiled_cards_last_known_power() {
+    let mut game = ready_game();
+    let lunge = card(10_000, cards::CORPSE_LUNGE, PlayerId::One);
+    let lunge_id = lunge.id;
+    game.players[0].hand.push(lunge);
+    let fodder = card(10_001, cards::SERRA_ANGEL, PlayerId::One);
+    let fodder_id = fodder.id;
+    game.players[0].graveyard.push(fodder);
+    let victim = creature(10_002, cards::AIR_ELEMENTAL, PlayerId::Two);
+    let victim_id = victim.card.id;
+    game.battlefield.push(victim);
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Black, 1);
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Colorless, 2);
+
+    let cast = cast_action(
+        lunge_id,
+        vec![Target::Permanent(victim_id)],
+        vec![fodder_id],
+        0,
+    );
+    assert!(game.legal_actions(PlayerId::One).contains(&cast));
+    game.apply(PlayerId::One, cast).expect("the cast is legal");
+    pass_priority_pair(&mut game);
+
+    assert!(
+        game.players[0]
+            .exile
+            .iter()
+            .any(|card| card.definition == cards::SERRA_ANGEL)
+    );
+    assert!(
+        game.battlefield
+            .iter()
+            .all(|permanent| permanent.card.id != victim_id),
+        "the exiled 4-power card deals lethal damage to a 4/4",
+    );
+}
+
+#[test]
+fn ichor_explosion_uses_the_sacrificed_creatures_effective_power() {
+    let mut game = ready_game();
+    let explosion = card(10_000, cards::ICHOR_EXPLOSION, PlayerId::One);
+    let explosion_id = explosion.id;
+    game.players[0].hand.push(explosion);
+    let mut fodder = creature(10_001, cards::GRIZZLY_BEARS, PlayerId::One);
+    fodder.counters.set(CounterKind::PlusOnePlusOne, 1);
+    let fodder_id = fodder.card.id;
+    game.battlefield.push(fodder);
+    let survivor = creature(10_002, cards::AIR_ELEMENTAL, PlayerId::Two);
+    let survivor_id = survivor.card.id;
+    game.battlefield.push(survivor);
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Black, 2);
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Colorless, 5);
+
+    let cast = cast_action(explosion_id, Vec::new(), vec![fodder_id], 0);
+    assert!(game.legal_actions(PlayerId::One).contains(&cast));
+    game.apply(PlayerId::One, cast).expect("the cast is legal");
+    pass_priority_pair(&mut game);
+
+    let survivor = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.id == survivor_id)
+        .expect("a 4/4 survives -3/-3");
+    assert_eq!(game.power(survivor), Some(1));
+    assert_eq!(game.toughness(survivor), Some(1));
+}
+
+#[test]
 fn every_additional_cost_identity_reports_complete_coverage() {
     let catalog = poc::catalog().expect("catalog builds");
     for definition in [
@@ -202,6 +271,8 @@ fn every_additional_cost_identity_reports_complete_coverage() {
         cards::STITCHED_DRAKE,
         cards::HEADLESS_SKAAB,
         cards::RELENTLESS_SKAABS,
+        cards::CORPSE_LUNGE,
+        cards::ICHOR_EXPLOSION,
     ] {
         let card = catalog.get(definition).expect("the card is cataloged");
         assert_eq!(

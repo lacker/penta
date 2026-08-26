@@ -317,6 +317,10 @@ pub enum ValueDef {
     /// put it on the stack. A cost that sacrifices exactly one permanent --
     /// every printed one so far -- reads that permanent's mana value.
     SacrificedManaValue,
+    /// The power of the one object spent for a spell's nonmana additional
+    /// cost, read from last-known information after that payment changes
+    /// zones. Zero unless the cast spent exactly one object.
+    PowerOfSingleAdditionalCostObject,
     /// How many objects the step before this one matched: the land cards a
     /// discard actually took. Zero without such a step behind it.
     MatchedCount,

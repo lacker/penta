@@ -475,6 +475,7 @@ fn validate_value_target_references(
         | ValueDef::ChosenX
         | ValueDef::PlayerCounters { .. }
         | ValueDef::SacrificedManaValue
+        | ValueDef::PowerOfSingleAdditionalCostObject
         | ValueDef::SourceCastX
         | ValueDef::SourcePower
         | ValueDef::AffectedManaValue

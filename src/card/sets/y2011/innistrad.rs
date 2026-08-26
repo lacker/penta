@@ -17,8 +17,8 @@ use crate::card::{
     PlayerSetDef, QuantifierDef, ReplacementConditionDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, RoundingDef, SacrificedAmountDef, SimultaneousChooseDef,
     SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef, TargetConditionDef,
-    TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement, abilities,
+    TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::game::{
     CardAbilityResolver, CardRuntime, PileChoice, PileChosen, PileSplit, PilesSeparated,
@@ -66,6 +66,21 @@ static CREATURE_CARDS_IN_YOUR_GRAVEYARD: ObjectQueryDef = ObjectQueryDef::matchi
     PlayerRelation::You,
 );
 
+/// The common continuation after this set randomly selects a card from its
+/// controller's graveyard. The selection binds the old graveyard object; the
+/// move creates and follows its hand-zone successor.
+static RETURN_RANDOM_GRAVEYARD_CARD_TO_HAND: EffectDef = EffectDef::MoveToZone {
+    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+    from: Some(ZoneKind::Graveyard),
+    zone: ZoneKind::Hand,
+    controller: None,
+    placement: ZonePlacement::Top,
+    arrival_effect: None,
+    attachment: None,
+    counters: None,
+    tapped: false,
+};
+
 static NO_SPELLS_LAST_TURN: TriggerConditionDef = TriggerConditionDef::SpellsCastLastTurn {
     quantifier: QuantifierDef::Every,
     player: PlayerRelation::Any,
@@ -104,15 +119,28 @@ static WEREWOLF_BACK_TRANSFORM: AbilityDef = AbilityDef::triggered_if(
     },
 );
 
-/// Morbid's entry bonus. The condition is checked as the creature enters, so
-/// a creature dying in response to the spell still counts.
-static MORBID_TWO_COUNTERS: AbilityDef = AbilityDef::as_enters_if(
+/// Morbid's entry bonus, originating in Innistrad and reused by Dark
+/// Ascension. The condition is checked as the creature enters, so a creature
+/// dying in response to the spell still counts.
+pub(in crate::card::sets) const fn morbid_entry_counters(
+    text: &'static str,
+    amount: u16,
+) -> AbilityDef {
+    AbilityDef::as_enters_if(
+        text,
+        ReplacementConditionDef::CreatureDiedThisTurn,
+        ReplacementEffectDef::ModifyBattlefieldEntry(
+            BattlefieldEntryModificationDef::AddCounters {
+                kind: CounterKind::PlusOnePlusOne,
+                amount,
+            },
+        ),
+    )
+}
+
+static MORBID_TWO_COUNTERS: AbilityDef = morbid_entry_counters(
     "Morbid — This creature enters with two +1/+1 counters on it if a creature died this turn.",
-    ReplacementConditionDef::CreatureDiedThisTurn,
-    ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::AddCounters {
-        kind: CounterKind::PlusOnePlusOne,
-        amount: 2,
-    }),
+    2,
 );
 
 static ATTACHED_PERMANENT_IS_HUMAN: TriggerConditionDef =
@@ -2449,16 +2477,8 @@ pub(in crate::card::sets) static ABATTOIR_GHOUL: CardRecord = CardRecord::new_wi
     // before it can deal damage back.
     CardRules::new_creature(mana_cost!("{3}{B}"), &["Zombie"], 3, 2).with_abilities(&[
         abilities::first_strike(),
-        AbilityDef::triggered(
+        abilities::creature_damaged_by_source_dies_trigger(
             "Whenever a creature dealt damage by this creature this turn dies, you gain life equal to that creature's toughness.",
-            TriggerEventDef::ZoneChanged(
-                ZoneChangeEventMatcherDef::new(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    Some(ZoneKind::Battlefield),
-                    Some(ZoneKind::Graveyard),
-                )
-                .previously_damaged_by(ObjectRefDef::Source),
-            ),
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 // Last known: the creature is already in a graveyard by the
@@ -2994,17 +3014,6 @@ pub(in crate::card::sets) static GHOULCALLERS_CHANT: CardRecord = CardRecord::ne
 
 // ISD 102 — Ghoulraiser
 static GHOULRAISER_ZOMBIE_CARD: ObjectPredicateDef = ObjectPredicateDef::Subtype("Zombie");
-static GHOULRAISER_RETURN: EffectDef = EffectDef::MoveToZone {
-    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-    from: Some(ZoneKind::Graveyard),
-    zone: ZoneKind::Hand,
-    controller: None,
-    placement: ZonePlacement::Top,
-    arrival_effect: None,
-    attachment: None,
-    counters: None,
-    tapped: false,
-};
 
 pub(in crate::card::sets) static GHOULRAISER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("52c537d1-2d57-4a87-9dac-594d40d95633"),
@@ -3019,7 +3028,7 @@ pub(in crate::card::sets) static GHOULRAISER: CardRecord = CardRecord::new(
                 source: ZoneKind::Graveyard,
                 object: GHOULRAISER_ZOMBIE_CARD,
                 binding: ObjectSetBindingIndex::PRIMARY,
-                then: &GHOULRAISER_RETURN,
+                then: &RETURN_RANDOM_GRAVEYARD_CARD_TO_HAND,
             },
         ),
     ),
@@ -3293,13 +3302,33 @@ pub(in crate::card::sets) static NIGHT_TERRORS: CardRecord = CardRecord::new(
 );
 
 // ISD 112 — Reaper from the Abyss
-// Audit: metadata-only — Needs a morbid intervening-if check on each end step before choosing a non-Demon target.
 pub(in crate::card::sets) static REAPER_FROM_THE_ABYSS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f0d74c3e-8370-419b-808d-96b8d9306024"),
     "Reaper from the Abyss",
     crate::card::CardArt::new("f0d74c3e-8370-419b-808d-96b8d9306024", "Matt Stewart"),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}{B}{B}"), &["Demon"], 6, 6).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered_if_with_targets(
+            "Morbid — At the beginning of each end step, if a creature died this turn, destroy target non-Demon creature.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::End,
+                player: PlayerRelation::Any,
+            },
+            &ISD_MORBID_A_CREATURE_DIED,
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Demon")),
+                ]),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                can_regenerate: true,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // ISD 113 — Rotting Fensnake
@@ -3740,18 +3769,6 @@ static CHARMBREAKER_INSTANT_OR_SORCERY: ObjectPredicateDef = ObjectPredicateDef:
     ObjectPredicateDef::HasType(CardType::Instant),
     ObjectPredicateDef::HasType(CardType::Sorcery),
 ]);
-static CHARMBREAKER_RETURN: EffectDef = EffectDef::MoveToZone {
-    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-    from: Some(ZoneKind::Graveyard),
-    zone: ZoneKind::Hand,
-    controller: None,
-    placement: ZonePlacement::Top,
-    arrival_effect: None,
-    attachment: None,
-    counters: None,
-    tapped: false,
-};
-
 pub(in crate::card::sets) static CHARMBREAKER_DEVILS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a9197a67-6609-496c-9aae-825ede4f755b"),
     "Charmbreaker Devils",
@@ -3769,7 +3786,7 @@ pub(in crate::card::sets) static CHARMBREAKER_DEVILS: CardRecord = CardRecord::n
                 source: ZoneKind::Graveyard,
                 object: CHARMBREAKER_INSTANT_OR_SORCERY,
                 binding: ObjectSetBindingIndex::PRIMARY,
-                then: &CHARMBREAKER_RETURN,
+                then: &RETURN_RANDOM_GRAVEYARD_CARD_TO_HAND,
             },
         ),
         AbilityDef::triggered(
@@ -5703,13 +5720,31 @@ pub(in crate::card::sets) static VILLAGERS_OF_ESTWALD: CardRecord =
     );
 
 // ISD 210 — Woodland Sleuth
-// Audit: metadata-only — Needs deterministic random selection of a creature card from your graveyard under a morbid condition.
+static WOODLAND_SLEUTH_CREATURE_CARD: ObjectPredicateDef =
+    ObjectPredicateDef::HasType(CardType::Creature);
 pub(in crate::card::sets) static WOODLAND_SLEUTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3088a924-58c6-4ab7-baf0-842d6688fcec"),
     "Woodland Sleuth",
     crate::card::CardArt::new("3088a924-58c6-4ab7-baf0-842d6688fcec", "Tomasz Jedruszek"),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Human", "Scout"], 2, 3).with_ability(
+        AbilityDef::triggered_if(
+            "Morbid — When this creature enters, if a creature died this turn, return a creature card at random from your graveyard to your hand.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &ISD_MORBID_A_CREATURE_DIED,
+            EffectDef::SelectAtRandomFromZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Graveyard,
+                object: WOODLAND_SLEUTH_CREATURE_CARD,
+                binding: ObjectSetBindingIndex::PRIMARY,
+                then: &RETURN_RANDOM_GRAVEYARD_CARD_TO_HAND,
+            },
+        ),
+    ),
 );
 
 // ISD 211 — Wreath of Geists

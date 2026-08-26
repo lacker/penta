@@ -1,4 +1,4 @@
-//! Ghoulraiser and Charmbreaker Devils: replay-stable random graveyard returns.
+//! Replay-stable random graveyard returns from Innistrad.
 
 use super::*;
 use crate::{ImplementationStatus, ObjectSetBindingIndex};
@@ -30,6 +30,38 @@ fn ghoulraiser_result(seed: u64) -> CardDefinitionId {
     game.players[0].hand[0].definition
 }
 
+fn woodland_sleuth_result(seed: u64) -> CardDefinitionId {
+    let mut game = ready_game_with_seed(seed);
+    game.players[0].graveyard = vec![
+        card(90_011, cards::GRIZZLY_BEARS, PlayerId::One),
+        card(90_012, cards::SAVANNAH_LIONS, PlayerId::One),
+        card(90_013, cards::LIGHTNING_BOLT, PlayerId::One),
+    ];
+    let fodder = creature(90_014, cards::SEDGE_TROLL, PlayerId::Two);
+    let fodder_id = fodder.card.id;
+    game.battlefield.push(fodder);
+    game.destroy_permanent(fodder_id);
+    drain_pending(&mut game);
+
+    game.put_onto_battlefield(PlayerId::One, cards::WOODLAND_SLEUTH)
+        .expect("Woodland Sleuth is cataloged");
+    drain_pending(&mut game);
+
+    assert!(
+        game.pending_decisions.is_empty(),
+        "the RNG, not a player, chooses"
+    );
+    assert_eq!(game.players[0].hand.len(), 1, "one creature returned");
+    assert!(
+        game.players[0]
+            .graveyard
+            .iter()
+            .any(|card| card.definition == cards::LIGHTNING_BOLT),
+        "a noncreature card is not eligible",
+    );
+    game.players[0].hand[0].definition
+}
+
 #[test]
 fn ghoulraiser_returns_only_a_zombie_and_replays_the_same_seed() {
     let first = ghoulraiser_result(0x0047_584f_554c);
@@ -54,6 +86,33 @@ fn ghoulraiser_does_nothing_when_no_zombie_card_is_in_the_graveyard() {
 
     game.put_onto_battlefield(PlayerId::One, cards::GHOULRAISER)
         .expect("Ghoulraiser is cataloged");
+    drain_pending(&mut game);
+
+    assert!(game.players[0].hand.is_empty());
+    assert_eq!(game.players[0].graveyard.len(), 1);
+}
+
+#[test]
+fn woodland_sleuth_returns_only_a_creature_and_replays_the_same_seed() {
+    let first = woodland_sleuth_result(0x0053_4c45_5554);
+    let replay = woodland_sleuth_result(0x0053_4c45_5554);
+
+    assert_eq!(first, replay, "the recorded seed reproduces the return");
+    assert!(matches!(
+        first,
+        cards::GRIZZLY_BEARS | cards::SAVANNAH_LIONS
+    ));
+}
+
+#[test]
+fn woodland_sleuth_does_not_choose_on_a_quiet_turn() {
+    let mut game = ready_game();
+    game.players[0]
+        .graveyard
+        .push(card(90_015, cards::GRIZZLY_BEARS, PlayerId::One));
+
+    game.put_onto_battlefield(PlayerId::One, cards::WOODLAND_SLEUTH)
+        .expect("Woodland Sleuth is cataloged");
     drain_pending(&mut game);
 
     assert!(game.players[0].hand.is_empty());
@@ -148,9 +207,13 @@ fn charmbreaker_gets_four_power_per_instant_or_sorcery_cast_until_end_of_turn() 
 }
 
 #[test]
-fn both_cards_report_complete_declarative_coverage() {
+fn random_return_cards_report_complete_declarative_coverage() {
     let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::GHOULRAISER, cards::CHARMBREAKER_DEVILS] {
+    for definition in [
+        cards::GHOULRAISER,
+        cards::CHARMBREAKER_DEVILS,
+        cards::WOODLAND_SLEUTH,
+    ] {
         let card = catalog.get(definition).expect("the card is cataloged");
         assert_eq!(
             card.rules.implementation_status(),
@@ -168,9 +231,13 @@ fn both_cards_report_complete_declarative_coverage() {
 }
 
 #[test]
-fn both_random_returns_compose_selection_with_a_zone_move() {
+fn random_returns_compose_selection_with_a_zone_move() {
     let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::GHOULRAISER, cards::CHARMBREAKER_DEVILS] {
+    for definition in [
+        cards::GHOULRAISER,
+        cards::CHARMBREAKER_DEVILS,
+        cards::WOODLAND_SLEUTH,
+    ] {
         let card = catalog.get(definition).expect("the card is cataloged");
         let effect = card.rules.ability_clauses()[0]
             .declarative_effect()

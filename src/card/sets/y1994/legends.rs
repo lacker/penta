@@ -4501,16 +4501,8 @@ pub(in crate::card::sets) static AXELROD_GUNNARSON: CardRecord = CardRecord::new
     .with_supertype(CardSupertype::Legendary)
     .with_abilities(&[
         abilities::trample(),
-        AbilityDef::triggered_with_targets(
+        abilities::creature_damaged_by_source_dies_trigger_with_targets(
             "Whenever a creature dealt damage by Axelrod Gunnarson this turn dies, you gain 1 life and Axelrod Gunnarson deals 1 damage to any target.",
-            TriggerEventDef::ZoneChanged(
-                crate::ZoneChangeEventMatcherDef::new(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    Some(ZoneKind::Battlefield),
-                    Some(ZoneKind::Graveyard),
-                )
-                .previously_damaged_by(ObjectRefDef::Source),
-            ),
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
             )],

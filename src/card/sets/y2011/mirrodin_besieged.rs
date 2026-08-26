@@ -18,7 +18,7 @@ use crate::card::{
     ReplacementEventDef, ResolvedEffectDurationDef, ScaledValueDef, SpellAdditionalCostCountDef,
     SpellAdditionalCostDef, SpellResolutionDestinationDef, SpendModeDef, TokenCopyExceptionsDef,
     TokenStatsDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef,
-    ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
+    ValueDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
 };
 use crate::{ObjectSetBindingIndex, TargetIndex, mana_cost};
 
@@ -2003,16 +2003,8 @@ pub(in crate::card::sets) static ROT_WOLF: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Phyrexian", "Wolf"], 2, 2)
         .with_abilities(&[
             abilities::infect(),
-            AbilityDef::triggered(
+            abilities::creature_damaged_by_source_dies_trigger(
                 "Whenever a creature dealt damage by this creature this turn dies, you may draw a card.",
-                TriggerEventDef::ZoneChanged(
-                    ZoneChangeEventMatcherDef::new(
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        Some(ZoneKind::Battlefield),
-                        Some(ZoneKind::Graveyard),
-                    )
-                    .previously_damaged_by(ObjectRefDef::Source),
-                ),
                 EffectDef::May {
                     player: EffectRecipientDef::Controller,
                     effect: &EffectDef::DrawCards {

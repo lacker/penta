@@ -1,6 +1,7 @@
 //! Dark Ascension card records used by the built-in ISD–M14 Standard deck tranche.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::sets::y2011::innistrad::morbid_entry_counters;
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
@@ -2508,13 +2509,18 @@ pub(in crate::card::sets) static GHOULTREE: CardRecord = CardRecord::new_with_le
 );
 
 // DKA 116 — Gravetiller Wurm
-// Audit: metadata-only — Needs a battlefield-entry replacement condition keyed to whether a creature died this turn.
 pub(in crate::card::sets) static GRAVETILLER_WURM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("66d9fe36-2eac-49e3-8f89-810009ba8a4b"),
     "Gravetiller Wurm",
     crate::card::CardArt::new("66d9fe36-2eac-49e3-8f89-810009ba8a4b", "Slawomir Maniak"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{G}"), &["Wurm"], 4, 4).with_abilities(&[
+        abilities::trample(),
+        morbid_entry_counters(
+            "Morbid — This creature enters with four +1/+1 counters on it if a creature died this turn.",
+            4,
+        ),
+    ]),
 );
 
 // DKA 117 — Grim Flowering
@@ -2636,16 +2642,8 @@ pub(in crate::card::sets) static PREDATOR_OOZE: CardRecord = CardRecord::new_wit
                 amount: ValueDef::Constant(1),
             },
         ),
-        AbilityDef::triggered(
+        abilities::creature_damaged_by_source_dies_trigger(
             "Whenever a creature dealt damage by this creature this turn dies, put a +1/+1 counter on this creature.",
-            TriggerEventDef::ZoneChanged(
-                crate::ZoneChangeEventMatcherDef::new(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    Some(ZoneKind::Battlefield),
-                    Some(ZoneKind::Graveyard),
-                )
-                .previously_damaged_by(crate::ObjectRefDef::Source),
-            ),
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
                 kind: CounterKind::PlusOnePlusOne,

@@ -2761,16 +2761,8 @@ pub(in crate::card::sets) static SENGIR_VAMPIRE: CardRecord = CardRecord::new_wi
     )
     .with_abilities(&[
         abilities::flying(),
-        AbilityDef::triggered(
+        abilities::creature_damaged_by_source_dies_trigger(
             "Whenever a creature dealt damage by this creature this turn dies, put a +1/+1 counter on this creature.",
-            TriggerEventDef::ZoneChanged(
-                crate::ZoneChangeEventMatcherDef::new(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    Some(ZoneKind::Battlefield),
-                    Some(ZoneKind::Graveyard),
-                )
-                .previously_damaged_by(ObjectRefDef::Source),
-            ),
             EffectDef::AddCounters {
                 kind: CounterKind::PlusOnePlusOne,
                 object: EffectRecipientDef::Source,

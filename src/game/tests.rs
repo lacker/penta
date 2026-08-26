@@ -253,6 +253,7 @@ mod quota_and_aura_upkeep;
 mod rabid_wombat;
 mod rampage;
 mod random_discard;
+mod reaper_from_the_abyss;
 mod regeneration;
 mod relic_bind;
 mod reliquary_tower;

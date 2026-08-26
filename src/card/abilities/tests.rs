@@ -1,11 +1,12 @@
 #[cfg(test)]
 mod tests {
     use super::{
-        banding, bloodrush, check_land_enters, dies_trigger, dies_trigger_matching,
-        dies_trigger_with_targets, double_strike, enchant_creature, enters_trigger,
-        enters_trigger_with_targets, exile_and_return_transformed, exile_until_next_end_step,
-        exile_until_next_end_step_under_your_control, exile_until_source_leaves, first_strike,
-        flashback,
+        banding, bloodrush, check_land_enters, creature_damaged_by_source_dies_trigger,
+        creature_damaged_by_source_dies_trigger_with_targets, dies_trigger,
+        dies_trigger_matching, dies_trigger_with_targets, double_strike, enchant_creature,
+        enters_trigger, enters_trigger_with_targets, exile_and_return_transformed,
+        exile_until_next_end_step, exile_until_next_end_step_under_your_control,
+        exile_until_source_leaves, first_strike, flashback,
         flashback_for_card_mana_cost, flying, intimidate, living_weapon, overload, pain_land,
         shock_land_enters, tap_for, EQUIP_TARGET, equip,
     };
@@ -15,7 +16,7 @@ mod tests {
         AlternativeCastManaCostDef, BasicLandType, CardRules, CardType, ConditionDef,
         DeclarativeAbilityDef, EffectDef, EffectPaymentCostDef, EffectRecipientDef, KeywordAbility,
         ManaColor, ManaCost, ObjectPredicateDef, PlayerRelation, PlayerSetDef,
-        ReplacementEffectDef, TriggerEventDef, ZoneKind,
+        ObjectRefDef, ReplacementEffectDef, TriggerEventDef, ZoneChangeEventMatcherDef, ZoneKind,
     };
     use crate::TargetIndex;
     use crate::mana_cost;
@@ -127,6 +128,47 @@ mod tests {
                 Some(ZoneKind::Graveyard),
             )
         );
+
+    }
+
+    #[test]
+    fn damaged_creature_death_helpers_share_the_source_history_matcher() {
+        static TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::Any,
+        )];
+        let effect = EffectDef::Special("Test common damaged-creature trigger");
+        let abilities = [
+            creature_damaged_by_source_dies_trigger(
+                "Whenever a creature dealt damage by this creature this turn dies, test.",
+                effect,
+            ),
+            creature_damaged_by_source_dies_trigger_with_targets(
+                "Whenever a creature dealt damage by this creature this turn dies, test target.",
+                &TARGETS,
+                effect,
+            ),
+        ];
+
+        for ability in abilities {
+            let DeclarativeAbilityDef::Triggered(definition) = ability.definition else {
+                panic!("damaged-creature death helpers should build triggered abilities")
+            };
+            assert_eq!(
+                definition.event,
+                TriggerEventDef::ZoneChanged(
+                    ZoneChangeEventMatcherDef::new(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        Some(ZoneKind::Battlefield),
+                        Some(ZoneKind::Graveyard),
+                    )
+                    .previously_damaged_by(ObjectRefDef::Source),
+                )
+            );
+        }
+        let DeclarativeAbilityDef::Triggered(targeted) = abilities[1].definition else {
+            unreachable!()
+        };
+        assert_eq!(targeted.targets, TARGETS);
     }
 
     #[test]

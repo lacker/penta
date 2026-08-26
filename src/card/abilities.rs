@@ -18,7 +18,7 @@ use super::model::{
     ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
     ScaledValueDef, SpellAdditionalCostDef, SpellResolutionDestinationDef, SplitIntoPilesDef,
     TokenCopyExceptionsDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement,
+    ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
 
@@ -968,6 +968,7 @@ pub const fn cannot_be_blocked(text: &'static str) -> AbilityDef {
 include!("abilities/keyword_actions.rs");
 include!("abilities/sagas.rs");
 include!("abilities/lands.rs");
+include!("abilities/death_triggers.rs");
 include!("abilities/repeated_clauses.rs");
 include!("abilities/keyword_mechanics.rs");
 include!("abilities/convoke_buyback.rs");

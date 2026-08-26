@@ -15,7 +15,7 @@ use crate::card::{
     PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostCountDef,
     SpellAdditionalCostDef, SpendModeDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement, abilities,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -2096,16 +2096,8 @@ pub(in crate::card::sets) static DREAD_SLAVER: CardRecord = CardRecord::new_with
     CardSet::AvacynRestored,
     // It keeps whatever it kills, so blocking it is worse than taking five.
     CardRules::new_creature(mana_cost!("{3}{B}{B}"), &["Zombie", "Horror"], 3, 5).with_ability(
-        AbilityDef::triggered(
+        abilities::creature_damaged_by_source_dies_trigger(
             "Whenever a creature dealt damage by this creature this turn dies, return it to the battlefield under your control. That creature is a black Zombie in addition to its other colors and types.",
-            TriggerEventDef::ZoneChanged(
-                ZoneChangeEventMatcherDef::new(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    Some(ZoneKind::Battlefield),
-                    Some(ZoneKind::Graveyard),
-                )
-                .previously_damaged_by(ObjectRefDef::Source),
-            ),
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::TriggeringObject,

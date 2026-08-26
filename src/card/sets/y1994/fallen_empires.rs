@@ -954,11 +954,11 @@ pub(in crate::card::sets) static DERELOR: CardRecord = CardRecord::new_with_lega
     CardRules::new_creature(mana_cost!("{3}{B}"), &["Thrull"], 4, 4).with_ability(
         AbilityDef::static_ability(
             "Black spells you cast cost {B} more to cast.",
-            EffectDef::ModifyCost(CostModificationDef::SpellIncrease {
-                spell: ObjectPredicateDef::Color(ManaColor::Black),
-                caster: PlayerRelation::You,
-                amount: mana_cost!("{B}"),
-            }),
+            EffectDef::ModifyCost(CostModificationDef::increase_spell(
+                ObjectPredicateDef::Color(ManaColor::Black),
+                PlayerRelation::You,
+                mana_cost!("{B}"),
+            )),
         ),
     ),
 );

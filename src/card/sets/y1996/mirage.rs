@@ -10,9 +10,9 @@ use crate::card::sets::y2011::innistrad as catalog_isd;
 use crate::card::sets::y2011::magic_2012 as catalog_m12;
 use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef,
-    AppliedRuleDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
-    EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, ManaColor,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef,
+    ChooseDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, ManaColor,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
     PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerEventDef, TurnStepDef, ValueDef,
     ZoneKind, ZonePlacement, abilities,
@@ -1931,13 +1931,30 @@ pub(in crate::card::sets) static ILLICIT_AUCTION: CardRecord = CardRecord::new(
 // MIR 184 — Incinerate (reprint)
 
 // MIR 185 — Kaervek's Torch
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static KAERVEK_S_TORCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0a1624ab-e50e-48a3-acf7-457069914616"),
     "Kaervek's Torch",
     crate::card::CardArt::new("0a1624ab-e50e-48a3-acf7-457069914616", "John Coulthart"),
     crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{X}{R}")).with_abilities(&[
+        abilities::targeting_source_spell_cost_increase(
+            "As long as Kaervek's Torch is on the stack, spells that target it cost {2} more to cast.",
+            ObjectPredicateDef::Any,
+            PlayerRelation::Any,
+            mana_cost!("{2}"),
+        )
+        .with_source_zones(&[ZoneKind::Stack]),
+        AbilityDef::spell_with_targets(
+            "Kaervek's Torch deals X damage to any target.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::ChosenX,
+            },
+        ),
+    ]),
 );
 
 // MIR 186 — Lightning Reflexes

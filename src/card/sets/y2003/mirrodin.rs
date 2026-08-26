@@ -3,9 +3,10 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef, CardArt,
-    CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef,
-    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, ValueDef, ZoneKind, ZonePlacement, abilities,
+    CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, CostAdjustmentDef, CostAmountDef,
+    EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
+    SpellCostConditionDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ObjectBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -18,6 +19,31 @@ pub(in crate::card::sets) static BARTER_IN_BLOOD: CardRecord = CardRecord::new(
     crate::card::CardArt::new("beccbb2c-ca1d-4b72-9eca-a64a313fd830", "Paolo Parente"),
     crate::card::CardSet::Mirrodin,
     crate::card::CardRules::unsupported(),
+);
+
+// MRD 122 — Hum of the Radix
+static ARTIFACTS_THE_CASTER_CONTROLS: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::HasType(CardType::Artifact),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::You,
+);
+
+pub(in crate::card::sets) static HUM_OF_THE_RADIX: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("328f3afb-1a56-42a5-bd1e-3e704291972f"),
+    "Hum of the Radix",
+    CardArt::new("328f3afb-1a56-42a5-bd1e-3e704291972f", "John Avon"),
+    CardSet::Mirrodin,
+    CardRules::new_enchantment(mana_cost!("{2}{G}{G}")).with_ability(
+        abilities::spell_cost_adjustment(
+            "Each artifact spell costs {1} more to cast for each artifact its controller controls.",
+            ObjectPredicateDef::HasType(CardType::Artifact),
+            PlayerRelation::Any,
+            SpellCostConditionDef::Always,
+            CostAdjustmentDef::Add(CostAmountDef::Generic(ValueDef::CountMatchingObjects(
+                &ARTIFACTS_THE_CASTER_CONTROLS,
+            ))),
+        ),
+    ),
 );
 
 // MRD 141 — Aether Spellbomb
@@ -237,6 +263,7 @@ pub(in crate::card::sets) static TALISMAN_OF_PROGRESS: CardRecord = CardRecord::
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BARTER_IN_BLOOD,
+    &HUM_OF_THE_RADIX,
     &AETHER_SPELLBOMB,
     &BONESPLITTER,
     &CHROME_MOX,

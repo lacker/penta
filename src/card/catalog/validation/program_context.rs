@@ -1,12 +1,13 @@
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityOperationDef, AbilityProcedureDef, AppliedEffectDef,
     AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, BlockRestrictionDef,
-    BlockRestrictionMatchDef, CardType, CharacteristicOperationDef, CostModificationDef,
-    DamageEventMatcherDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
-    DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EffectRecipientSetDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, PowerToughnessOperationDef, ReplacementEffectDef, ReplacementEventDef,
-    SetOperationDef, TriggerConditionDef, ValueDef, ZoneKind,
+    BlockRestrictionMatchDef, CardType, CharacteristicOperationDef, CostAdjustmentDef,
+    CostAmountDef, CostModificationDef, DamageEventMatcherDef, DamageRecipientMatcherDef,
+    DamageSourceMatcherDef, DeclarativeAbilityDef, EffectDef, EffectRecipientDef,
+    EffectRecipientSetDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementEffectDef,
+    ReplacementEventDef, SetOperationDef, SpellCostConditionDef, TriggerConditionDef, ValueDef,
+    ZoneKind,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -183,8 +184,7 @@ fn validate_static_effect(
         }
         EffectDef::ModifyCost(modification)
             if position == StaticPosition::Root
-                && source_zones == [ZoneKind::Battlefield]
-                && static_spell_cost_modification_supported(modification) =>
+                && static_spell_cost_modification_supported(modification, source_zones) =>
         {
             Ok(())
         }

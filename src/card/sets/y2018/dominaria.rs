@@ -2,12 +2,13 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, CounterKind, DrawEventMatcherDef,
-    EffectDef, EffectRecipientDef, InstalledTriggerDef, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    TokenCharacteristics, TopCardSelectionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement,
+    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt,
+    CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, CostAdjustmentDef,
+    CostAmountDef, CounterKind, DrawEventMatcherDef, EffectDef, EffectRecipientDef,
+    InstalledTriggerDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, SpellCastQueryDef,
+    SpellCostConditionDef, TokenCharacteristics, TopCardSelectionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -251,7 +252,44 @@ pub(in crate::card::sets) static TEFERI_HERO_OF_DOMINARIA: CardRecord = CardReco
         .with_abilities(&TEFERI_ABILITIES),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&KARN_SCION_OF_URZA, &TEFERI_HERO_OF_DOMINARIA];
+// DOM 213 — Damping Sphere
+// Audit: partial — The spell tax is declarative. The mana-production clause needs a static replacement that changes a land ability producing two or more mana into exactly {C}.
+static DAMPING_SPHERE_CASTS: SpellCastQueryDef = SpellCastQueryDef {
+    player: PlayerRelation::You,
+    spell: ObjectPredicateDef::Any,
+};
+
+static DAMPING_SPHERE_ABILITIES: [AbilityDef; 2] = [
+    AbilityDef::static_ability(
+        "If a land is tapped for two or more mana, it produces {C} instead of any other type and amount.",
+        EffectDef::None,
+    )
+    .with_coverage(AbilityCoverageDef::metadata_only(
+        "Needs a static replacement that changes a land mana ability producing two or more mana into exactly one colorless mana.",
+    )),
+    abilities::spell_cost_adjustment(
+        "Each spell a player casts costs {1} more to cast for each other spell that player has cast this turn.",
+        ObjectPredicateDef::Any,
+        PlayerRelation::Any,
+        SpellCostConditionDef::Always,
+        CostAdjustmentDef::Add(CostAmountDef::Generic(ValueDef::CountSpellsCastThisTurn(
+            &DAMPING_SPHERE_CASTS,
+        ))),
+    ),
+];
+
+pub(in crate::card::sets) static DAMPING_SPHERE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a5c7d16b-8f4e-42b9-be24-3cb091932d7c"),
+    "Damping Sphere",
+    CardArt::new("a5c7d16b-8f4e-42b9-be24-3cb091932d7c", "Adam Paquette"),
+    CardSet::Dominaria,
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&DAMPING_SPHERE_ABILITIES),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &KARN_SCION_OF_URZA,
+    &TEFERI_HERO_OF_DOMINARIA,
+    &DAMPING_SPHERE,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

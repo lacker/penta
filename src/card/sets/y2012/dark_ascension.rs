@@ -572,13 +572,11 @@ pub(in crate::card::sets) static THALIA_GUARDIAN_OF_THRABEN: CardRecord =
                 abilities::first_strike(),
                 AbilityDef::static_ability(
                     "Noncreature spells cost {1} more to cast.",
-                    EffectDef::ModifyCost(CostModificationDef::SpellIncrease {
-                        spell: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
-                            CardType::Creature,
-                        )),
-                        caster: PlayerRelation::Any,
-                        amount: mana_cost!("{1}"),
-                    }),
+                    EffectDef::ModifyCost(CostModificationDef::increase_spell(
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+                        PlayerRelation::Any,
+                        mana_cost!("{1}"),
+                    )),
                 ),
             ]),
     );

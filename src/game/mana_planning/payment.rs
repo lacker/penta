@@ -192,6 +192,41 @@ pub(super) fn reduce_generic(mut cost: ManaCost, reduction: u16) -> ManaCost {
     cost
 }
 
+/// Removes explicit mana-symbol requirements from a total cost.
+///
+/// Fixed symbols consume matching reductions first. Any remainder may remove
+/// ordinary hybrid symbols by choosing a reducible half, using the same
+/// maximum-flow assignment as hybrid payment so one `{W}` reduction cannot
+/// erase both a `{W/U}` and a `{W/B}` symbol.
+pub(super) fn reduce_mana_symbols(mut cost: ManaCost, reduction: ManaCost) -> ManaCost {
+    let mut available = ManaPool::default();
+    for color in ManaColor::ALL {
+        let fixed = mana_cost_amount(cost, color);
+        let reduced = fixed.min(mana_cost_amount(reduction, color));
+        match color {
+            ManaColor::White => cost.white -= reduced,
+            ManaColor::Blue => cost.blue -= reduced,
+            ManaColor::Black => cost.black -= reduced,
+            ManaColor::Red => cost.red -= reduced,
+            ManaColor::Green => cost.green -= reduced,
+            ManaColor::Colorless => cost.colorless -= reduced,
+        }
+        if color != ManaColor::Colorless {
+            available.add_color(
+                color,
+                mana_cost_amount(reduction, color).saturating_sub(reduced),
+            );
+        }
+    }
+
+    let hybrid = maximum_hybrid_payment(available, cost, &|_| false);
+    for (pair, allocation) in HybridPair::ALL.into_iter().zip(hybrid.allocations) {
+        cost.hybrid[pair.index()] = cost.hybrid[pair.index()]
+            .saturating_sub(allocation[0].saturating_add(allocation[1]));
+    }
+    cost
+}
+
 pub(super) fn add_mana_cost(mut cost: ManaCost, additional: ManaCost) -> ManaCost {
     cost.generic = cost.generic.saturating_add(additional.generic);
     cost.white = cost.white.saturating_add(additional.white);

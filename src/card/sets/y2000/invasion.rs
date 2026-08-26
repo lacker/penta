@@ -807,13 +807,20 @@ pub(in crate::card::sets) static REPULSE: CardRecord = CardRecord::new(
 );
 
 // INV 71 — Sapphire Leech
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SAPPHIRE_LEECH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e6763ffd-9d89-4f26-871a-be24fbdef38d"),
     "Sapphire Leech",
     crate::card::CardArt::new("e6763ffd-9d89-4f26-871a-be24fbdef38d", "Ron Spencer"),
     crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Leech"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::spell_cost_increase(
+            "Blue spells you cast cost {U} more to cast.",
+            ObjectPredicateDef::Color(ManaColor::Blue),
+            PlayerRelation::You,
+            mana_cost!("{U}"),
+        ),
+    ]),
 );
 
 // INV 72 — Shimmering Wings (reprint)
@@ -1758,13 +1765,20 @@ pub(in crate::card::sets) static ROGUE_KAVU: CardRecord = CardRecord::new(
 );
 
 // INV 161 — Ruby Leech
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static RUBY_LEECH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("be621b12-4f4e-43a6-b65e-da4223e742b5"),
     "Ruby Leech",
     crate::card::CardArt::new("be621b12-4f4e-43a6-b65e-da4223e742b5", "Jacques Bredy"),
     crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Leech"], 2, 2).with_abilities(&[
+        abilities::first_strike(),
+        abilities::spell_cost_increase(
+            "Red spells you cast cost {R} more to cast.",
+            ObjectPredicateDef::Color(ManaColor::Red),
+            PlayerRelation::You,
+            mana_cost!("{R}"),
+        ),
+    ]),
 );
 
 // INV 162 — Savage Offensive
@@ -2036,13 +2050,19 @@ pub(in crate::card::sets) static EXPLOSIVE_GROWTH: CardRecord = CardRecord::new(
 // INV 189 — Harrow (reprint)
 
 // INV 190 — Jade Leech
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static JADE_LEECH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3392171d-ed25-46a1-91cc-a4f24537617d"),
     "Jade Leech",
     crate::card::CardArt::new("3392171d-ed25-46a1-91cc-a4f24537617d", "John Howe"),
     crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Leech"], 5, 5).with_ability(
+        abilities::spell_cost_increase(
+            "Green spells you cast cost {G} more to cast.",
+            ObjectPredicateDef::Color(ManaColor::Green),
+            PlayerRelation::You,
+            mana_cost!("{G}"),
+        ),
+    ),
 );
 
 // INV 191 — Kavu Chameleon

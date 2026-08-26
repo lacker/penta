@@ -208,7 +208,7 @@ use trigger_state::{
 use lifecycle::backing_cards;
 use mana_planning::{
     add_generic, add_mana_cost, configured_base_mana_cost, fold_restricted_x, mana_cost_value,
-    pay_cost_with_generic_strategy, reduce_generic,
+    pay_cost_with_generic_strategy,
 };
 #[cfg(test)]
 use mana_planning::{can_pay, pay_cost};

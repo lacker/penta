@@ -71,13 +71,40 @@ pub(in crate::card::sets) static DARU_SPIRITUALIST: CardRecord = CardRecord::new
 );
 
 // SCG 6 — Daru Warchief
-// Audit: metadata-only — Card rules have not been implemented.
+static SOLDIER_CREATURES: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::HasType(CardType::Creature),
+    ObjectPredicateDef::Subtype("Soldier"),
+]);
+
 pub(in crate::card::sets) static DARU_WARCHIEF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2630d3b5-8f3a-4aad-a45e-22a7979429f3"),
     "Daru Warchief",
     crate::card::CardArt::new("2630d3b5-8f3a-4aad-a45e-22a7979429f3", "Tim Hildebrandt"),
     crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Human", "Soldier"], 1, 1).with_abilities(
+        &[
+            abilities::spell_cost_reduction(
+                "Soldier spells you cast cost {1} less to cast.",
+                ObjectPredicateDef::Subtype("Soldier"),
+                PlayerRelation::You,
+                ValueDef::Constant(1),
+            ),
+            AbilityDef::static_ability(
+                "Soldier creatures you control get +1/+2.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        SOLDIER_CREATURES,
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(2),
+                    ),
+                },
+            ),
+        ],
+    ),
 );
 
 // SCG 7 — Dawn Elemental
@@ -1245,11 +1272,11 @@ pub(in crate::card::sets) static GOBLIN_WARCHIEF: CardRecord = CardRecord::new_w
         &[
             AbilityDef::static_ability(
                 "Goblin spells you cast cost {1} less to cast.",
-                EffectDef::ModifyCost(CostModificationDef::SpellReduction {
-                    spell: GOBLIN_SPELLS,
-                    caster: PlayerRelation::You,
-                    amount: ValueDef::Constant(1),
-                }),
+                EffectDef::ModifyCost(CostModificationDef::reduce_spell(
+                    GOBLIN_SPELLS,
+                    PlayerRelation::You,
+                    ValueDef::Constant(1),
+                )),
             ),
             AbilityDef::static_ability(
                 "Goblins you control have haste.",
@@ -1697,13 +1724,19 @@ pub(in crate::card::sets) static BLADEWING_THE_RISEN: CardRecord = CardRecord::n
 );
 
 // SCG 137 — Edgewalker
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static EDGEWALKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c8b477c2-2cd5-41f2-8754-d4d5000df58d"),
     "Edgewalker",
     crate::card::CardArt::new("c8b477c2-2cd5-41f2-8754-d4d5000df58d", "Ben Thompson"),
     crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}{B}"), &["Human", "Cleric"], 2, 2).with_ability(
+        abilities::spell_colored_cost_reduction(
+            "Cleric spells you cast cost {W}{B} less to cast. This effect reduces only the amount of colored mana you pay. (For example, if you cast a Cleric spell with mana cost {1}{W}, it costs {1} to cast.)",
+            ObjectPredicateDef::Subtype("Cleric"),
+            PlayerRelation::You,
+            mana_cost!("{W}{B}"),
+        ),
+    ),
 );
 
 // SCG 138 — Karona, False God

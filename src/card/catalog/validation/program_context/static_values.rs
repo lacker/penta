@@ -88,6 +88,7 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         | ValueDef::TargetManaValue(_)
         | ValueDef::ObjectPower(_)
         | ValueDef::ObjectManaValue(_)
+        | ValueDef::DistinctTargets
         | ValueDef::DividedAmongTargets => false,
     }
 }
@@ -155,14 +156,53 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
         | ValueDef::TargetManaValue(_)
         | ValueDef::ObjectPower(_)
         | ValueDef::ObjectManaValue(_)
+        | ValueDef::DistinctTargets
         | ValueDef::DividedAmongTargets => false,
     }
 }
 
-fn static_spell_cost_modification_supported(modification: CostModificationDef) -> bool {
+fn static_spell_cost_value_supported(value: ValueDef) -> bool {
+    match value {
+        ValueDef::DistinctTargets => true,
+        ValueDef::CountSpellsCastThisTurn(query) => {
+            static_player_relation_supported(query.player)
+                && static_object_predicate_supported(query.spell)
+        }
+        _ => static_cost_reduction_value_supported(value),
+    }
+}
+
+fn static_spell_cost_modification_supported(
+    modification: CostModificationDef,
+    source_zones: &[ZoneKind],
+) -> bool {
     match modification {
-        CostModificationDef::SpellIncrease { spell, caster, .. } => {
-            static_object_predicate_supported(spell) && static_player_relation_supported(caster)
+        CostModificationDef::Spell(modification) => {
+            let source_supported = match source_zones {
+                [ZoneKind::Battlefield] => true,
+                [ZoneKind::Stack] => {
+                    modification.condition == SpellCostConditionDef::TargetsSource
+                        && matches!(modification.adjustment, CostAdjustmentDef::Add(_))
+                }
+                _ => false,
+            };
+            let amount_supported = match modification.adjustment {
+                CostAdjustmentDef::Add(CostAmountDef::Mana(_)) => true,
+                CostAdjustmentDef::Add(CostAmountDef::Generic(value))
+                | CostAdjustmentDef::Subtract(CostAmountDef::Generic(value)) => {
+                    static_spell_cost_value_supported(value)
+                }
+                CostAdjustmentDef::Subtract(CostAmountDef::Mana(amount)) => {
+                    amount.hybrid.iter().all(|count| *count == 0)
+                        && amount.additional_flexible.iter().all(|count| *count == 0)
+                        && !amount.variable_x
+                        && amount.x_multiplier == 0
+                }
+            };
+            source_supported
+                && static_object_predicate_supported(modification.spell)
+                && static_player_relation_supported(modification.caster)
+                && amount_supported
         }
         CostModificationDef::SpellAlternative {
             spell,
@@ -179,15 +219,6 @@ fn static_spell_cost_modification_supported(modification: CostModificationDef) -
                 })
                 && static_object_predicate_supported(spell)
                 && static_player_relation_supported(caster)
-        }
-        CostModificationDef::SpellReduction {
-            spell,
-            caster,
-            amount,
-        } => {
-            static_object_predicate_supported(spell)
-                && static_player_relation_supported(caster)
-                && static_cost_reduction_value_supported(amount)
         }
         CostModificationDef::AbilityIncrease { .. }
         | CostModificationDef::SourceAbilityIncrease { .. }

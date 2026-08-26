@@ -598,7 +598,8 @@ impl HandcraftedPolicy {
             | ValueDef::CreaturesDiedThisTurn
             | ValueDef::OpponentsWhoLostLifeThisTurn
             | ValueDef::CardTypesAmongGraveyards(_)
-            | ValueDef::IfCardTypesAmongGraveyards(_) => None,
+            | ValueDef::IfCardTypesAmongGraveyards(_)
+            | ValueDef::DistinctTargets => None,
         }
     }
 }

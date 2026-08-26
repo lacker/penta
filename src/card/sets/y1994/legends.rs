@@ -5824,11 +5824,11 @@ pub(in crate::card::sets) static MANA_MATRIX: CardRecord = CardRecord::new_with_
     CardSet::Legends,
     CardRules::new_artifact(mana_cost!("{6}")).with_ability(AbilityDef::static_ability(
         "Instant and enchantment spells you cast cost {2} less to cast.",
-        EffectDef::ModifyCost(CostModificationDef::SpellReduction {
-            spell: INSTANT_OR_ENCHANTMENT,
-            caster: PlayerRelation::You,
-            amount: ValueDef::Constant(2),
-        }),
+        EffectDef::ModifyCost(CostModificationDef::reduce_spell(
+            INSTANT_OR_ENCHANTMENT,
+            PlayerRelation::You,
+            ValueDef::Constant(2),
+        )),
     )),
 );
 
@@ -5898,11 +5898,11 @@ pub(in crate::card::sets) static PLANAR_GATE: CardRecord = CardRecord::new_with_
     CardSet::Legends,
     CardRules::new_artifact(mana_cost!("{6}")).with_ability(AbilityDef::static_ability(
         "Creature spells you cast cost {2} less to cast.",
-        EffectDef::ModifyCost(CostModificationDef::SpellReduction {
-            spell: ObjectPredicateDef::HasType(CardType::Creature),
-            caster: PlayerRelation::You,
-            amount: ValueDef::Constant(2),
-        }),
+        EffectDef::ModifyCost(CostModificationDef::reduce_spell(
+            ObjectPredicateDef::HasType(CardType::Creature),
+            PlayerRelation::You,
+            ValueDef::Constant(2),
+        )),
     )),
 );
 

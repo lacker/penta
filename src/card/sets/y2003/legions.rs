@@ -154,13 +154,19 @@ pub(in crate::card::sets) static GEMPALM_AVENGER: CardRecord = CardRecord::new(
 );
 
 // LGN 15 — Glowrider
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static GLOWRIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9ad94e39-0aac-46bb-a7f2-bd88c537cb9c"),
     "Glowrider",
     crate::card::CardArt::new("9ad94e39-0aac-46bb-a7f2-bd88c537cb9c", "Scott M. Fischer"),
     crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 2, 1).with_ability(
+        abilities::spell_cost_increase(
+            "Noncreature spells cost {1} more to cast.",
+            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+            PlayerRelation::Any,
+            mana_cost!("{1}"),
+        ),
+    ),
 );
 
 // LGN 16 — Liege of the Axe

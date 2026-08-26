@@ -5,11 +5,12 @@ use crate::card::{
     AbilityCostDef, AbilityCostList, AbilityCoverageDef, AbilityDef, AbilityTargetDef,
     AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
     CardArt, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef,
-    CostModificationDef, CounterKind, CreatedTokensDef, EffectDef, EffectRecipientDef,
-    InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, TokenCharacteristics, TokenCopyExceptionsDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    CostAdjustmentDef, CostAmountDef, CostModificationDef, CounterKind, CreatedTokensDef,
+    EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ResolvedEffectDurationDef, SpellCostConditionDef, TokenCharacteristics,
+    TokenCopyExceptionsDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities, tokens,
 };
 use crate::ids::{ObjectSetBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -412,6 +413,36 @@ pub(in crate::card::sets) static TAMIYO_S_SAFEKEEPING: CardRecord = CardRecord::
     crate::card::CardRules::unsupported(),
 );
 
+// NEO 222 — Hinata, Dawn-Crowned
+static HINATA_ABILITIES: [AbilityDef; 4] = [
+    abilities::flying(),
+    abilities::trample(),
+    abilities::spell_cost_adjustment(
+        "Spells you cast cost {1} less to cast for each target.",
+        ObjectPredicateDef::Any,
+        PlayerRelation::You,
+        SpellCostConditionDef::Always,
+        CostAdjustmentDef::Subtract(CostAmountDef::Generic(ValueDef::DistinctTargets)),
+    ),
+    abilities::spell_cost_adjustment(
+        "Spells your opponents cast cost {1} more to cast for each target.",
+        ObjectPredicateDef::Any,
+        PlayerRelation::Opponent,
+        SpellCostConditionDef::Always,
+        CostAdjustmentDef::Add(CostAmountDef::Generic(ValueDef::DistinctTargets)),
+    ),
+];
+
+pub(in crate::card::sets) static HINATA_DAWN_CROWNED: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f25aff90-56fd-4f70-bb3b-cabf2900c391"),
+    "Hinata, Dawn-Crowned",
+    CardArt::new("f25aff90-56fd-4f70-bb3b-cabf2900c391", "Alexander Mokhov"),
+    CardSet::KamigawaNeonDynasty,
+    CardRules::new_creature(mana_cost!("{1}{U}{R}{W}"), &["Kirin", "Spirit"], 4, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&HINATA_ABILITIES),
+);
+
 // NEO 238 — Tamiyo, Compleated Sage
 // Audit: partial — Compleated and +1 are executable; −7 creates a Notebook whose cost reduction does not yet reduce announced X, and −X needs variable loyalty costs plus arbitrary graveyard-card copy tokens using last-known information.
 static TAMIYO_PLUS_ONE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
@@ -440,11 +471,11 @@ static TAMIYO_PLUS_ONE_EFFECTS: [EffectDef; 2] = [
 static TAMIYOS_NOTEBOOK_ABILITIES: [AbilityDef; 2] = [
     AbilityDef::static_ability(
         "Spells you cast cost {2} less to cast.",
-        EffectDef::ModifyCost(CostModificationDef::SpellReduction {
-            spell: ObjectPredicateDef::Any,
-            caster: PlayerRelation::You,
-            amount: ValueDef::Constant(2),
-        }),
+        EffectDef::ModifyCost(CostModificationDef::reduce_spell(
+            ObjectPredicateDef::Any,
+            PlayerRelation::You,
+            ValueDef::Constant(2),
+        )),
     )
     .with_coverage(AbilityCoverageDef::partial(
         "The generic reduction applies to printed generic mana but does not yet reduce a spell's announced X payment.",
@@ -832,6 +863,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &RABBIT_BATTERY,
     &GREATER_TANUKI,
     &TAMIYO_S_SAFEKEEPING,
+    &HINATA_DAWN_CROWNED,
     &TAMIYO_COMPLEATED_SAGE,
     &IRON_APPRENTICE,
     &OTAWARA_SOARING_CITY,

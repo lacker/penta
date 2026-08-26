@@ -1495,11 +1495,11 @@ pub(in crate::card::sets) static DEFENSE_GRID: CardRecord = CardRecord::new_with
     // lands on the instant held up and not on the sorcery cast on time.
     CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::static_ability(
         "Each spell costs {3} more to cast except during its controller's turn.",
-        EffectDef::ModifyCost(CostModificationDef::SpellIncrease {
-            spell: ObjectPredicateDef::Any,
-            caster: PlayerRelation::NonactivePlayer,
-            amount: mana_cost!("{3}"),
-        }),
+        EffectDef::ModifyCost(CostModificationDef::increase_spell(
+            ObjectPredicateDef::Any,
+            PlayerRelation::NonactivePlayer,
+            mana_cost!("{3}"),
+        )),
     )),
 );
 

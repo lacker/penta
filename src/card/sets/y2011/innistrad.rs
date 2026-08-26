@@ -3054,13 +3054,33 @@ pub(in crate::card::sets) static GRUESOME_DEFORMITY: CardRecord = CardRecord::ne
 );
 
 // ISD 104 — Heartless Summoning
-// Audit: metadata-only — Needs a battlefield-wide generic cost reduction for creature spells you cast.
 pub(in crate::card::sets) static HEARTLESS_SUMMONING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("14f8f638-b7fc-4e38-8623-ce7d2ebc82e6"),
     "Heartless Summoning",
     crate::card::CardArt::new("14f8f638-b7fc-4e38-8623-ce7d2ebc82e6", "Anthony Palumbo"),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{B}")).with_abilities(&[
+        abilities::spell_cost_reduction(
+            "Creature spells you cast cost {2} less to cast.",
+            ObjectPredicateDef::HasType(CardType::Creature),
+            PlayerRelation::You,
+            ValueDef::Constant(2),
+        ),
+        AbilityDef::static_ability(
+            "Creatures you control get -1/-1.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(-1),
+                ),
+            },
+        ),
+    ]),
 );
 
 // ISD 105 — Liliana of the Veil

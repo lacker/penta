@@ -393,6 +393,7 @@ fn validate_value_shape(
         | ValueDef::PlayerCounters { .. }
         | ValueDef::SacrificedManaValue
         | ValueDef::TimesAdditionalCostPaid
+        | ValueDef::DistinctTargets
         | ValueDef::DividedAmongTargets => Ok(()),
     }
 }

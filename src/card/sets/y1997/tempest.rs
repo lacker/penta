@@ -565,11 +565,11 @@ pub(in crate::card::sets) static CHILL: CardRecord = CardRecord::new_with_legacy
     // has to say.
     CardRules::new_enchantment(mana_cost!("{1}{U}")).with_ability(AbilityDef::static_ability(
         "Red spells cost {2} more to cast.",
-        EffectDef::ModifyCost(CostModificationDef::SpellIncrease {
-            spell: ObjectPredicateDef::Color(ManaColor::Red),
-            caster: PlayerRelation::Any,
-            amount: mana_cost!("{2}"),
-        }),
+        EffectDef::ModifyCost(CostModificationDef::increase_spell(
+            ObjectPredicateDef::Color(ManaColor::Red),
+            PlayerRelation::Any,
+            mana_cost!("{2}"),
+        )),
     )),
 );
 
@@ -2984,13 +2984,17 @@ pub(in crate::card::sets) static ECHO_CHAMBER: CardRecord = CardRecord::new(
 );
 
 // TMP 283 — Emerald Medallion
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static EMERALD_MEDALLION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("67e87f30-b27a-48e2-a133-192309dd5902"),
     "Emerald Medallion",
     crate::card::CardArt::new("67e87f30-b27a-48e2-a133-192309dd5902", "Sue Ellen Brown"),
     crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(abilities::spell_cost_reduction(
+        "Green spells you cast cost {1} less to cast.",
+        ObjectPredicateDef::Color(ManaColor::Green),
+        PlayerRelation::You,
+        ValueDef::Constant(1),
+    )),
 );
 
 // TMP 284 — Emmessi Tome
@@ -3074,13 +3078,17 @@ pub(in crate::card::sets) static HELM_OF_POSSESSION: CardRecord = CardRecord::ne
 );
 
 // TMP 292 — Jet Medallion
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static JET_MEDALLION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c0db458c-2ced-454c-8061-fff8bd363b33"),
     "Jet Medallion",
     crate::card::CardArt::new("c0db458c-2ced-454c-8061-fff8bd363b33", "Sue Ellen Brown"),
     crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(abilities::spell_cost_reduction(
+        "Black spells you cast cost {1} less to cast.",
+        ObjectPredicateDef::Color(ManaColor::Black),
+        PlayerRelation::You,
+        ValueDef::Constant(1),
+    )),
 );
 
 // TMP 293 — Jinxed Idol
@@ -3157,13 +3165,17 @@ pub(in crate::card::sets) static PATCHWORK_GNOMES: CardRecord = CardRecord::new(
 );
 
 // TMP 300 — Pearl Medallion
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PEARL_MEDALLION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("44588d53-7cce-406a-8e61-cd9866691966"),
     "Pearl Medallion",
     crate::card::CardArt::new("44588d53-7cce-406a-8e61-cd9866691966", "Sue Ellen Brown"),
     crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(abilities::spell_cost_reduction(
+        "White spells you cast cost {1} less to cast.",
+        ObjectPredicateDef::Color(ManaColor::White),
+        PlayerRelation::You,
+        ValueDef::Constant(1),
+    )),
 );
 
 // TMP 301 — Phyrexian Grimoire
@@ -3199,23 +3211,31 @@ pub(in crate::card::sets) static PUPPET_STRINGS: CardRecord = CardRecord::new(
 );
 
 // TMP 305 — Ruby Medallion
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static RUBY_MEDALLION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("24cdb28b-85f3-41ae-b1f5-fac766b2dcd2"),
     "Ruby Medallion",
     crate::card::CardArt::new("24cdb28b-85f3-41ae-b1f5-fac766b2dcd2", "Sue Ellen Brown"),
     crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(abilities::spell_cost_reduction(
+        "Red spells you cast cost {1} less to cast.",
+        ObjectPredicateDef::Color(ManaColor::Red),
+        PlayerRelation::You,
+        ValueDef::Constant(1),
+    )),
 );
 
 // TMP 306 — Sapphire Medallion
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SAPPHIRE_MEDALLION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3ab1e253-47cb-4089-87d5-0f998025d98c"),
     "Sapphire Medallion",
     crate::card::CardArt::new("3ab1e253-47cb-4089-87d5-0f998025d98c", "Sue Ellen Brown"),
     crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(abilities::spell_cost_reduction(
+        "Blue spells you cast cost {1} less to cast.",
+        ObjectPredicateDef::Color(ManaColor::Blue),
+        PlayerRelation::You,
+        ValueDef::Constant(1),
+    )),
 );
 
 // TMP 307 — Scalding Tongs

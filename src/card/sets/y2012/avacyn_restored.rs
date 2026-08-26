@@ -975,11 +975,11 @@ pub(in crate::card::sets) static ARCANE_MELEE: CardRecord = CardRecord::new_with
     CardSet::AvacynRestored,
     CardRules::new_enchantment(mana_cost!("{4}{U}")).with_ability(AbilityDef::static_ability(
         "Instant and sorcery spells cost {2} less to cast.",
-        EffectDef::ModifyCost(CostModificationDef::SpellReduction {
-            spell: ARCANE_MELEE_SPELLS,
-            caster: PlayerRelation::Any,
-            amount: ValueDef::Constant(2),
-        }),
+        EffectDef::ModifyCost(CostModificationDef::reduce_spell(
+            ARCANE_MELEE_SPELLS,
+            PlayerRelation::Any,
+            ValueDef::Constant(2),
+        )),
     )),
 );
 

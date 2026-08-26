@@ -9,10 +9,11 @@ use super::{
     PlayOptionId, PlayRestriction, PlayerId, ScopedEffect, SelectedSpellPlan, StackAbilityPayload,
     StackAbilityResolver, Target, TargetSelection, TargetSlotDef, TargetSlotId,
     TemporaryAbilityGrant, TriggerContext, add_generic, add_mana_cost, extra_target_cost,
-    mode_id_selections, positive_compositions, reduce_generic, target_combinations,
+    mode_id_selections, positive_compositions, target_combinations,
 };
 
 use crate::card::{AlternateSpellKind, CardStructure, ModeSetDef, SpellForm, ZoneKind};
+use crate::game::mana_planning::reduce_generic;
 
 mod cost_configurations;
 mod mana_payments;
@@ -315,8 +316,10 @@ impl Game {
                             // out first.
                             let life_cost = Self::spell_life_cost(definition, option);
                             let mana_x = if cost.variable_x {
-                                let increased =
-                                    add_mana_cost(cost, self.spell_cost_increase(player, card.id));
+                                let increased = add_mana_cost(
+                                    cost,
+                                    self.spell_cost_increase(player, card.id, &[]),
+                                );
                                 Some(
                                     Self::mana_payment_choices(increased)
                                         .into_iter()
@@ -343,12 +346,13 @@ impl Game {
                                             };
                                             let maximum = self.maximum_x_for(
                                                 player,
-                                                reduce_generic(
+                                                Self::apply_spell_cost_reduction(
                                                     locked,
                                                     self.spell_cost_reduction(
                                                         definition.id,
                                                         player,
                                                         card.id,
+                                                        &[],
                                                     ),
                                                 ),
                                                 &exact_purpose,
@@ -440,7 +444,7 @@ impl Game {
                                             cost,
                                             extra_target_cost(definition, target_count),
                                         ),
-                                        self.spell_cost_increase(player, card.id),
+                                        self.spell_cost_increase(player, card.id, targets),
                                     );
                                     for mana_payment in Self::mana_payment_choices(increased_cost) {
                                         let Some((locked_cost, phyrexian_life)) =
@@ -451,12 +455,13 @@ impl Game {
                                         else {
                                             continue;
                                         };
-                                        let payable_cost = reduce_generic(
+                                        let payable_cost = Self::apply_spell_cost_reduction(
                                             locked_cost,
                                             self.spell_cost_reduction(
                                                 definition.id,
                                                 player,
                                                 card.id,
+                                                targets,
                                             ),
                                         );
                                         let Some(life_available) = self

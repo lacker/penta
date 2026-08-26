@@ -7,12 +7,13 @@
 //! card actually prints.
 
 use super::super::ManaPaymentPurpose;
+use super::super::mana_planning::reduce_generic;
 use super::super::{
     AbilityTargetDef, AlternativeCastKindDef, CardBehavior, CardEffectStatus, CastChoices,
     CastCostContext, CastSignature, CastSourceZone, ControlFlow, DeclarativeAbilityDef, Game,
     GameObjectId, ManaCost, PlayActionKind, PlayOptionDef, PlayRestriction, PlayerId, Target,
     TargetPredicate, TargetSlotDef, TargetSlotId, TriggerContext, add_generic, add_mana_cost,
-    extra_target_cost, reduce_generic,
+    extra_target_cost,
 };
 
 impl Game {
@@ -331,12 +332,15 @@ impl Game {
         } else if !self.declared_slot_selection_is_valid(&declared_slots, choices) {
             return None;
         }
-        cost = add_mana_cost(cost, self.spell_cost_increase(player, card_id));
+        cost = add_mana_cost(
+            cost,
+            self.spell_cost_increase(player, card_id, choices.targets()),
+        );
         let (cost, phyrexian_life) = Self::locked_mana_payment(cost, choices.mana_payment())?;
         let cost = reduce_generic(
-            reduce_generic(
+            Self::apply_spell_cost_reduction(
                 cost,
-                self.spell_cost_reduction(definition.id, player, card_id),
+                self.spell_cost_reduction(definition.id, player, card_id, choices.targets()),
             ),
             self.emerge_generic_reduction(alternative_kind, sacrifices),
         );

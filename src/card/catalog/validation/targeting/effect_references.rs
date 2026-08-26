@@ -304,7 +304,12 @@ fn validate_effect_references(
             }
         }
         EffectDef::ReduceGenericCostBy(count)
-        | EffectDef::ModifyCost(CostModificationDef::SpellReduction { amount: count, .. }) => {
+        | EffectDef::ModifyCost(CostModificationDef::Spell(SpellCostModificationDef {
+            adjustment:
+                CostAdjustmentDef::Add(CostAmountDef::Generic(count))
+                | CostAdjustmentDef::Subtract(CostAmountDef::Generic(count)),
+            ..
+        })) => {
             validate_value_target_references(count, target_count, scope)
         }
         EffectDef::SacrificeOfChoice {

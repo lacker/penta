@@ -32,6 +32,81 @@ fn shared_spell_alternative(
         )
 }
 
+fn shared_cost_modification(source_zones: &[ZoneKind], modification: CostModificationDef) -> bool {
+    match modification {
+        CostModificationDef::AbilityIncrease { permanent, .. } => {
+            battlefield_only(source_zones) && shared_object_predicate(permanent)
+        }
+        CostModificationDef::SourceAbilityIncrease { source, .. } => {
+            battlefield_only(source_zones) && shared_object_predicate(source)
+        }
+        CostModificationDef::AbilityReduction {
+            permanent, amount, ..
+        } => {
+            battlefield_only(source_zones)
+                && shared_object_predicate(permanent)
+                && matches!(
+                    amount,
+                    crate::card::ValueDef::Constant(_)
+                        | crate::card::ValueDef::CountMatchingObjects(_)
+                )
+        }
+        CostModificationDef::Spell(modification) => {
+            let allow_nonactive = matches!(modification.adjustment, CostAdjustmentDef::Add(_));
+            let source_supported = match source_zones {
+                [ZoneKind::Battlefield] => true,
+                [ZoneKind::Stack] => {
+                    modification.condition == SpellCostConditionDef::TargetsSource
+                        && allow_nonactive
+                }
+                _ => false,
+            };
+            let amount_supported = match modification.adjustment {
+                CostAdjustmentDef::Add(CostAmountDef::Mana(_)) => true,
+                CostAdjustmentDef::Add(CostAmountDef::Generic(value))
+                | CostAdjustmentDef::Subtract(CostAmountDef::Generic(value)) => {
+                    shared_spell_cost_value(value)
+                }
+                CostAdjustmentDef::Subtract(CostAmountDef::Mana(amount)) => {
+                    amount.hybrid.iter().all(|count| *count == 0)
+                        && amount.additional_flexible.iter().all(|count| *count == 0)
+                        && !amount.variable_x
+                        && amount.x_multiplier == 0
+                }
+            };
+            source_supported
+                && shared_object_predicate(modification.spell)
+                && shared_cost_modifier_caster(modification.caster, allow_nonactive)
+                && amount_supported
+        }
+        CostModificationDef::SpellAlternative {
+            spell,
+            caster,
+            zones,
+            ..
+        } => shared_spell_alternative(source_zones, spell, caster, zones),
+    }
+}
+
+fn shared_spell_cost_value(value: ValueDef) -> bool {
+    match value {
+        ValueDef::Constant(_) | ValueDef::DistinctTargets => true,
+        ValueDef::CountMatchingObjects(query) => shared_static_query(*query),
+        ValueDef::CountSpellsCastThisTurn(query) => {
+            shared_object_predicate(query.spell) && shared_cost_modifier_caster(query.player, true)
+        }
+        ValueDef::BasicLandTypesControlled(relation) => shared_cost_modifier_caster(relation, true),
+        _ => false,
+    }
+}
+
+fn shared_cost_modifier_caster(caster: PlayerRelation, allow_nonactive: bool) -> bool {
+    matches!(
+        caster,
+        PlayerRelation::Any | PlayerRelation::You | PlayerRelation::Opponent
+    ) || (allow_nonactive && caster == PlayerRelation::NonactivePlayer)
+}
+
 /// The remaining static effects that are not an `Apply`.
 pub(in super::super) fn shared_static_non_apply_effect(
     source_zones: &[ZoneKind],
@@ -61,67 +136,7 @@ pub(in super::super) fn shared_static_non_apply_effect(
                 && shared_object_predicate(query.object)
                 && shared_static_query(*query)
         }
-        // Neither increase carries a value, so only the predicate -- and,
-        // for the spell one, the caster relation -- needs checking.
-        EffectDef::ModifyCost(CostModificationDef::AbilityIncrease { permanent, .. }) => {
-            battlefield_only(source_zones) && shared_object_predicate(permanent)
-        }
-        EffectDef::ModifyCost(CostModificationDef::SourceAbilityIncrease { source, .. }) => {
-            battlefield_only(source_zones) && shared_object_predicate(source)
-        }
-        // The discount beside it does carry a value, read off the board the
-        // same way a spell discount's is.
-        EffectDef::ModifyCost(CostModificationDef::AbilityReduction {
-            permanent, amount, ..
-        }) => {
-            battlefield_only(source_zones)
-                && shared_object_predicate(permanent)
-                && matches!(
-                    amount,
-                    crate::card::ValueDef::Constant(_)
-                        | crate::card::ValueDef::CountMatchingObjects(_)
-                )
-        }
-        EffectDef::ModifyCost(CostModificationDef::SpellIncrease { spell, caster, .. }) => {
-            battlefield_only(source_zones)
-                && shared_object_predicate(spell)
-                && matches!(
-                    caster,
-                    crate::card::PlayerRelation::Any
-                        | crate::card::PlayerRelation::You
-                        | crate::card::PlayerRelation::Opponent
-                        // "Except during its controller's turn", which the
-                        // relation matcher answers off the active player.
-                        | crate::card::PlayerRelation::NonactivePlayer
-                )
-        }
-        EffectDef::ModifyCost(CostModificationDef::SpellAlternative {
-            spell,
-            caster,
-            zones,
-            ..
-        }) => shared_spell_alternative(source_zones, spell, caster, zones),
-        // Read off a permanent rather than the card in hand, so the spell
-        // predicate and the caster relation are what have to be shared.
-        EffectDef::ModifyCost(CostModificationDef::SpellReduction {
-            spell,
-            caster,
-            amount,
-        }) => {
-            battlefield_only(source_zones)
-                && shared_object_predicate(spell)
-                && matches!(
-                    caster,
-                    crate::card::PlayerRelation::Any
-                        | crate::card::PlayerRelation::You
-                        | crate::card::PlayerRelation::Opponent
-                )
-                && matches!(
-                    amount,
-                    crate::card::ValueDef::Constant(_)
-                        | crate::card::ValueDef::CountMatchingObjects(_)
-                )
-        }
+        EffectDef::ModifyCost(modification) => shared_cost_modification(source_zones, modification),
         EffectDef::ReduceGenericCostBy(value) => {
             source_zones == [ZoneKind::Hand]
                 && matches!(

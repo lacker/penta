@@ -510,6 +510,7 @@ fn validate_value_target_references(
         | ValueDef::IfCardTypesAmongGraveyards(_)
         // This reads the share assigned to the target currently being
         // affected; the surrounding recipient carries the slot reference.
+        | ValueDef::DistinctTargets
         | ValueDef::DividedAmongTargets => Ok(()),
     }
 }

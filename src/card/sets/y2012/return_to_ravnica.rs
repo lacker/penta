@@ -3771,11 +3771,11 @@ pub(in crate::card::sets) static GOBLIN_ELECTROMANCER: CardRecord = CardRecord::
     CardRules::new_creature(mana_cost!("{U}{R}"), &["Goblin", "Wizard"], 2, 2).with_ability(
         AbilityDef::static_ability(
             "Instant and sorcery spells you cast cost {1} less to cast.",
-            EffectDef::ModifyCost(CostModificationDef::SpellReduction {
-                spell: INSTANT_OR_SORCERY,
-                caster: PlayerRelation::You,
-                amount: ValueDef::Constant(1),
-            }),
+            EffectDef::ModifyCost(CostModificationDef::reduce_spell(
+                INSTANT_OR_SORCERY,
+                PlayerRelation::You,
+                ValueDef::Constant(1),
+            )),
         ),
     ),
 );

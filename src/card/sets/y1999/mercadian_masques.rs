@@ -857,7 +857,14 @@ pub(in crate::card::sets) static GUSH: CardRecord = CardRecord::new_with_legacy_
 );
 
 // MMQ 83 — High Seas
-// Audit: metadata-only — Card rules have not been implemented.
+static RED_OR_GREEN_CREATURE_SPELLS: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::HasType(CardType::Creature),
+    ObjectPredicateDef::AnyOf(&[
+        ObjectPredicateDef::Color(ManaColor::Red),
+        ObjectPredicateDef::Color(ManaColor::Green),
+    ]),
+]);
+
 pub(in crate::card::sets) static HIGH_SEAS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f12eb6a6-14cc-4ad6-9684-ff33a39ba09f"),
     "High Seas",
@@ -866,7 +873,12 @@ pub(in crate::card::sets) static HIGH_SEAS: CardRecord = CardRecord::new(
         "Massimiliano Frezzato",
     ),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{U}")).with_ability(abilities::spell_cost_increase(
+        "Red creature spells and green creature spells cost {1} more to cast.",
+        RED_OR_GREEN_CREATURE_SPELLS,
+        PlayerRelation::Any,
+        mana_cost!("{1}"),
+    )),
 );
 
 // MMQ 84 — Hoodwink
@@ -1083,13 +1095,17 @@ pub(in crate::card::sets) static SOOTHSAYING: CardRecord = CardRecord::new(
 );
 
 // MMQ 105 — Squeeze
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SQUEEZE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bbe63220-992b-459c-81ca-d4e2de273ce1"),
     "Squeeze",
     crate::card::CardArt::new("bbe63220-992b-459c-81ca-d4e2de273ce1", "DiTerlizzi"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{3}{U}")).with_ability(abilities::spell_cost_increase(
+        "Sorcery spells cost {3} more to cast.",
+        ObjectPredicateDef::HasType(CardType::Sorcery),
+        PlayerRelation::Any,
+        mana_cost!("{3}"),
+    )),
 );
 
 // MMQ 106 — Statecraft

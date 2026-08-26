@@ -8,15 +8,16 @@ use super::model::{
     ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef,
     AppliedRuleDef, BandingQuality, BasicLandType, BattlefieldEntryModificationDef,
     CardChoiceSourceDef, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorSet,
-    ComparisonDef, ConditionDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef,
-    DamageRecipientMatcherDef, DiscardFollowUpDef, DiscardSelectionDef, EffectDef,
-    EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef, InstalledTriggerLifetimeDef,
-    KeywordAbility, ManaColor, ManaCost, ObjectChoiceBindingDef, ObjectCountConditionDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PartitionItemsDef, PayOrDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementAbilityDef, ReplacementConditionDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    ScaledValueDef, SpellAdditionalCostDef, SpellResolutionDestinationDef, SplitIntoPilesDef,
+    ComparisonDef, ConditionDef, CostAdjustmentDef, CostAmountDef, CostModificationDef,
+    CounterKind, DamageEventMatcherDef, DamagePreventionDef, DamageRecipientMatcherDef,
+    DiscardFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
+    InstalledTriggerDef, InstalledTriggerLifetimeDef, KeywordAbility, ManaColor, ManaCost,
+    ObjectChoiceBindingDef, ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef,
+    PartitionItemsDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementAbilityDef,
+    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostDef, SpellCostConditionDef,
+    SpellCostModificationDef, SpellResolutionDestinationDef, SplitIntoPilesDef,
     TokenCopyExceptionsDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
     ValueDef, ZoneKind, ZonePlacement,
 };
@@ -965,6 +966,7 @@ pub const fn cannot_be_blocked(text: &'static str) -> AbilityDef {
     )
 }
 
+include!("abilities/cost_modifications.rs");
 include!("abilities/keyword_actions.rs");
 include!("abilities/sagas.rs");
 include!("abilities/lands.rs");

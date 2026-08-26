@@ -250,7 +250,8 @@ impl Game {
             // None of these has an answer while an effect resolves: nothing
             // is being divided, and only the static power-and-toughness
             // layer has an affected object or a source pile to read.
-            ValueDef::DividedAmongTargets
+            ValueDef::DistinctTargets
+            | ValueDef::DividedAmongTargets
             | ValueDef::AffectedManaValue
             | ValueDef::AffectedColorCount
             | ValueDef::TotalPowerOfLinkedExiles

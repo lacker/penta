@@ -146,6 +146,7 @@ mod face_down;
 mod fateful_hour;
 mod fetch_tapped;
 mod filtered_player_prevention;
+mod filtered_spell_costs;
 mod gatecrash_keyrunes;
 mod gatecrash_stale_audits;
 mod ghouls;

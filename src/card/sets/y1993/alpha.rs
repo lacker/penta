@@ -2339,11 +2339,11 @@ pub(in crate::card::sets) static GLOOM: CardRecord = CardRecord::new_with_legacy
         // the Gloom player's own.
         AbilityDef::static_ability(
             "White spells cost {3} more to cast.",
-            EffectDef::ModifyCost(CostModificationDef::SpellIncrease {
-                spell: ObjectPredicateDef::Color(ManaColor::White),
-                caster: PlayerRelation::Any,
-                amount: mana_cost!("{3}"),
-            }),
+            EffectDef::ModifyCost(CostModificationDef::increase_spell(
+                ObjectPredicateDef::Color(ManaColor::White),
+                PlayerRelation::Any,
+                mana_cost!("{3}"),
+            )),
         ),
         AbilityDef::static_ability(
             "Activated abilities of white enchantments cost {3} more to activate.",

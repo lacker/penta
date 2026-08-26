@@ -1,6 +1,9 @@
 use std::{collections::HashMap, ops::ControlFlow};
 
-use crate::card::{CostModificationDef, FlexibleManaSymbol};
+use crate::card::{
+    CostAdjustmentDef, CostAmountDef, CostModificationDef, FlexibleManaSymbol,
+    SpellCostConditionDef,
+};
 
 use super::{
     AbilityCostDef, AbilityOrigin, AbilityProcedureDef, Action, ActivatedAbilityDef,
@@ -10,8 +13,8 @@ use super::{
     ManaAbilityActivation, ManaActivationChoices, ManaColor, ManaContributionKind, ManaCost,
     ManaPaymentPurpose, ManaPlanOptions, ManaPool, ManaSourceOutput, ManaSourceOutputs,
     PaymentCapacity, Permanent, PlannedManaActivation, PlannedPaymentKind, PlayActionKind,
-    PlayOptionDef, PlayerId, SetOperationDef, TriggerContext, ValueDef, ZoneKind,
-    extra_target_cost,
+    PlayOptionDef, PlayerId, SetOperationDef, Target, TargetSelection, TriggerContext, ValueDef,
+    ZoneKind, extra_target_cost,
 };
 
 impl Game {
@@ -77,7 +80,7 @@ impl Game {
                         cost,
                         extra_target_cost(definition, choices.iter_targets().count()),
                     ),
-                    self.spell_cost_increase(player, *card),
+                    self.spell_cost_increase(player, *card, choices.targets()),
                 );
                 let (locked, phyrexian_life) =
                     Self::locked_mana_payment(increased, choices.mana_payment())?;
@@ -113,9 +116,14 @@ impl Game {
                 );
                 Some((
                     reduce_generic(
-                        reduce_generic(
+                        Self::apply_spell_cost_reduction(
                             locked,
-                            self.spell_cost_reduction(definition.id, player, *card),
+                            self.spell_cost_reduction(
+                                definition.id,
+                                player,
+                                *card,
+                                choices.targets(),
+                            ),
                         ),
                         emerge,
                     ),

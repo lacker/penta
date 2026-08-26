@@ -408,6 +408,10 @@ pub enum ValueDef {
     /// One value when exactly that many objects match, another otherwise.
     /// This is how an intervening-if condition becomes an amount.
     IfMatchingObjectCount(&'static CountConditionDef),
+    /// The number of distinct players or objects chosen as targets while a
+    /// spell is being cast. Repeating the same target in two slots counts it
+    /// once, which is the quantity Hinata changes a spell's cost by.
+    DistinctTargets,
     /// How much of a divided total the target being affected takes. Only
     /// meaningful for an effect aimed at a slot the card divides.
     DividedAmongTargets,

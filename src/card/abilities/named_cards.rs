@@ -5,8 +5,8 @@
 // clause; every predicate below therefore resolves relative to that source.
 
 use super::model::{
-    BattlefieldEntryChoiceDestinationDef, BattlefieldEntryScalarChoiceDef, CostModificationDef,
-    PlayActionMatcherDef, PlayRestrictionDef, ReplacementChoiceDef,
+    BattlefieldEntryChoiceDestinationDef, BattlefieldEntryScalarChoiceDef, PlayActionMatcherDef,
+    PlayRestrictionDef, ReplacementChoiceDef,
 };
 
 /// A spell or permanent whose effective card-part name is the one this
@@ -89,11 +89,11 @@ pub const fn chosen_name_spell_cost_increase(
 ) -> AbilityDef {
     AbilityDef::static_ability(
         text,
-        EffectDef::ModifyCost(CostModificationDef::SpellIncrease {
-            spell: SOURCES_CHOSEN_CARD_NAME,
+        EffectDef::ModifyCost(CostModificationDef::increase_spell(
+            SOURCES_CHOSEN_CARD_NAME,
             caster,
             amount,
-        }),
+        )),
     )
 }
 

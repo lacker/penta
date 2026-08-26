@@ -241,6 +241,20 @@ pub(in crate::card::sets) static WILD_RICOCHET: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// LRW 262 — Thorn of Amethyst
+pub(in crate::card::sets) static THORN_OF_AMETHYST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("e472d4f5-add4-4de3-8718-31a47a35277c"),
+    "Thorn of Amethyst",
+    CardArt::new("e472d4f5-add4-4de3-8718-31a47a35277c", "Chuck Lukacs"),
+    CardSet::Lorwyn,
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(abilities::spell_cost_increase(
+        "Noncreature spells cost {1} more to cast.",
+        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+        PlayerRelation::Any,
+        mana_cost!("{1}"),
+    )),
+);
+
 // LRW 272 — Shelldock Isle
 /// Hideaway's look: four cards, one of them exiled face down and linked to
 /// the land that took it, and the rest back under the library in an order
@@ -349,6 +363,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &THOUGHTSEIZE,
     &TARFIRE,
     &WILD_RICOCHET,
+    &THORN_OF_AMETHYST,
     &SHELLDOCK_ISLE,
     &SHIMMERING_GROTTO,
 ];

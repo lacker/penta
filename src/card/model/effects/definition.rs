@@ -752,7 +752,7 @@ pub enum EffectDef {
     /// ability costs, which is the difference from
     /// [`Self::ReduceGenericCostBy`]: that one is a card in hand cutting its
     /// own cost and names nothing, while this has to say which spells and
-    /// cast by whom. The four spellings live together in
+    /// cast by whom. The related spellings live together in
     /// [`CostModificationDef`] because every consumer takes them together:
     /// the mana planner prices a spell against all of them at once, and
     /// every clause that is not about cost passes over the whole family.

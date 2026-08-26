@@ -8,7 +8,7 @@ use crate::card::{
     ActivationTimingDef, CardArt, CardRules, CardSet, CardType, ComparisonDef, EffectDef,
     EffectRecipientDef, MillUntilDef, ObjectPredicateDef, ObjectQueryDef, PlayerRelation,
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
-    ZonePlacement,
+    ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -1482,13 +1482,17 @@ pub(in crate::card::sets) static SPELLBOOK: CardRecord = CardRecord::new(
 );
 
 // EXO 139 — Sphere of Resistance
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SPHERE_OF_RESISTANCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("17f4d2a5-bb85-4662-b2dd-a363ec7eab9b"),
     "Sphere of Resistance",
     crate::card::CardArt::new("17f4d2a5-bb85-4662-b2dd-a363ec7eab9b", "Doug Chaffee"),
     crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(abilities::spell_cost_increase(
+        "Spells cost {1} more to cast.",
+        ObjectPredicateDef::Any,
+        PlayerRelation::Any,
+        mana_cost!("{1}"),
+    )),
 );
 
 // EXO 140 — Thopter Squadron

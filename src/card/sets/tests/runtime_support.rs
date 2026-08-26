@@ -13,8 +13,8 @@ pub(super) use stack_effects::shared_stack_effect;
 
 use crate::Game;
 use crate::card::{
-    ActivatedAbilityDef, AppliedRuleDef, BlockRestrictionMatchDef, CostModificationDef,
-    ReplacementConditionDef,
+    ActivatedAbilityDef, AppliedRuleDef, BlockRestrictionMatchDef, CostAdjustmentDef,
+    CostAmountDef, CostModificationDef, ReplacementConditionDef, SpellCostConditionDef,
 };
 
 use super::*;

@@ -2,8 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, EffectDef, EffectRecipientDef,
-    ObjectPredicateDef, ZoneKind, ZonePlacement,
+    AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardSupertype, CardType, EffectDef,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -582,13 +583,27 @@ pub(in crate::card::sets) static IHSAN_S_SHADE: CardRecord = CardRecord::new(
 );
 
 // HML 54 — Irini Sengir
-// Audit: metadata-only — Card rules have not been implemented.
+static IRINI_ENCHANTMENT_SPELLS: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::HasType(CardType::Enchantment),
+    ObjectPredicateDef::AnyOf(&[
+        ObjectPredicateDef::Color(ManaColor::Green),
+        ObjectPredicateDef::Color(ManaColor::White),
+    ]),
+]);
+
 pub(in crate::card::sets) static IRINI_SENGIR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("518e3b77-d482-4b90-94c0-0b8cdd949b9f"),
     "Irini Sengir",
     crate::card::CardArt::new("518e3b77-d482-4b90-94c0-0b8cdd949b9f", "Pete Venters"),
     crate::card::CardSet::Homelands,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Vampire", "Dwarf"], 2, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_ability(abilities::spell_cost_increase(
+            "Green enchantment spells and white enchantment spells cost {2} more to cast.",
+            IRINI_ENCHANTMENT_SPELLS,
+            PlayerRelation::Any,
+            mana_cost!("{2}"),
+        )),
 );
 
 // HML 55 — Koskun Falls
@@ -1151,13 +1166,17 @@ pub(in crate::card::sets) static EBONY_RHINO: CardRecord = CardRecord::new(
 );
 
 // HML 107 — Feroz's Ban
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static FEROZ_S_BAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("01ff4430-c8f7-408a-aad2-a098d747ea62"),
     "Feroz's Ban",
     crate::card::CardArt::new("01ff4430-c8f7-408a-aad2-a098d747ea62", "Heather Hudson"),
     crate::card::CardSet::Homelands,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{6}")).with_ability(abilities::spell_cost_increase(
+        "Creature spells cost {2} more to cast.",
+        ObjectPredicateDef::HasType(CardType::Creature),
+        PlayerRelation::Any,
+        mana_cost!("{2}"),
+    )),
 );
 
 // HML 108 — Joven's Tools

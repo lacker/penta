@@ -434,7 +434,12 @@ fn validate_effect_target_shapes(
             }
         }
         EffectDef::ReduceGenericCostBy(count)
-        | EffectDef::ModifyCost(CostModificationDef::SpellReduction { amount: count, .. })
+        | EffectDef::ModifyCost(CostModificationDef::Spell(SpellCostModificationDef {
+            adjustment:
+                CostAdjustmentDef::Add(CostAmountDef::Generic(count))
+                | CostAdjustmentDef::Subtract(CostAmountDef::Generic(count)),
+            ..
+        }))
         | EffectDef::AddManaEqualTo { amount: count, .. } => validate_value_shape(count, targets),
         EffectDef::IfCondition { condition, then } => {
             validate_trigger_condition_shape(*condition, targets)?;

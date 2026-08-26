@@ -85,12 +85,43 @@ pub enum ChoiceVisibilityDef {
     Private,
 }
 
+/// What a fixed or live cost adjustment adds or subtracts.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum CostAmountDef {
+    /// A fixed collection of generic, colored, colorless, or flexible mana
+    /// symbols. Subtraction removes each named requirement independently;
+    /// addition puts the same symbols into the total cost.
+    Mana(ManaCost),
+    /// A live amount of generic mana. The operation supplies the direction,
+    /// so the same value vocabulary serves both taxes and discounts.
+    Generic(ValueDef),
+}
+
+/// Whether a matching cost adjustment adds to or subtracts from the total.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum CostAdjustmentDef {
+    Add(CostAmountDef),
+    Subtract(CostAmountDef),
+}
+
+/// A relation between the spell being priced and the static ability's source.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum SpellCostConditionDef {
+    Always,
+    /// The spell being priced has chosen the ability's source as a target.
+    TargetsSource,
+}
+
+/// A filtered adjustment to a spell's total cost.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct SpellCostModificationDef {
+    pub spell: ObjectPredicateDef,
+    pub caster: PlayerRelation,
+    pub condition: SpellCostConditionDef,
+    pub adjustment: CostAdjustmentDef,
+}
+
 /// One static modification to what something costs.
-///
-/// Five spellings of a single idea, kept together because every consumer
-/// takes them together: the mana planner prices a spell against all of them
-/// at once, and every clause that is not about cost passes over the whole
-/// family in one arm.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum CostModificationDef {
     /// A permanent making the activated abilities of matching permanents
@@ -123,15 +154,10 @@ pub enum CostModificationDef {
         /// already holds no more than this is untouched.
         minimum: u16,
     },
-    /// A permanent making matching spells cost more. The mirror of
-    /// [`Self::SpellReduction`], but the amount is a whole mana cost rather
-    /// than a number: an increase can name a colour, which a discount never
-    /// does (CR 601.2f lets a reduction touch generic mana only).
-    SpellIncrease {
-        spell: ObjectPredicateDef,
-        caster: PlayerRelation,
-        amount: ManaCost,
-    },
+    /// A battlefield or stack source changing the total cost of matching
+    /// spells. Direction, amount, and source-relative conditions are data,
+    /// rather than separate execution-shaped variants.
+    Spell(SpellCostModificationDef),
     /// A permanent offering a different mana cost for matching spells. This
     /// replaces only the spell's mana cost: additional costs and the ordinary
     /// increase/reduction pass still apply afterwards (CR 118.9d, 601.2f).
@@ -143,11 +169,36 @@ pub enum CostModificationDef {
         zones: &'static [ZoneKind],
         cost: ManaCost,
     },
-    /// Matching spells cost that much less generic mana to cast, read off a
-    /// permanent rather than off the card being cast.
-    SpellReduction {
+}
+
+impl CostModificationDef {
+    /// A fixed spell tax with no source-relative condition.
+    #[must_use]
+    pub const fn increase_spell(
+        spell: ObjectPredicateDef,
+        caster: PlayerRelation,
+        amount: ManaCost,
+    ) -> Self {
+        Self::Spell(SpellCostModificationDef {
+            spell,
+            caster,
+            condition: SpellCostConditionDef::Always,
+            adjustment: CostAdjustmentDef::Add(CostAmountDef::Mana(amount)),
+        })
+    }
+
+    /// A live generic spell discount with no source-relative condition.
+    #[must_use]
+    pub const fn reduce_spell(
         spell: ObjectPredicateDef,
         caster: PlayerRelation,
         amount: ValueDef,
-    },
+    ) -> Self {
+        Self::Spell(SpellCostModificationDef {
+            spell,
+            caster,
+            condition: SpellCostConditionDef::Always,
+            adjustment: CostAdjustmentDef::Subtract(CostAmountDef::Generic(amount)),
+        })
+    }
 }

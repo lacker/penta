@@ -999,16 +999,14 @@ pub(in crate::card::sets) static ENCRUST: CardRecord = CardRecord::new_with_lega
 );
 
 // M13 50 — Essence Scatter
-// Audit: custom — Needs migration to a declarative counter effect targeting a creature spell.
 pub(in crate::card::sets) static ESSENCE_SCATTER: CardRecord = CardRecord::new_with_legacy_id(
     162,
     "Essence Scatter",
     CardArt::new("fcd965f9-bdaa-4434-a9c8-53fc57e997db", "Jon Foster"),
     CardSet::Magic2013,
-    CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::custom_full(
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::counter_target(
         "Counter target creature spell.",
-        CardBehavior::EssenceScatter,
-        "Implemented by the named card-local special behavior.",
+        &AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::HasType(CardType::Creature)),
     )),
 );
 
@@ -1230,16 +1228,16 @@ pub(in crate::card::sets) static MIND_SCULPT: CardRecord = CardRecord::new_with_
 );
 
 // M13 62 — Negate
-// Audit: custom — Needs migration to a declarative counter effect targeting a noncreature spell.
 pub(in crate::card::sets) static NEGATE: CardRecord = CardRecord::new_with_legacy_id(
     191,
     "Negate",
     CardArt::new("8da17a86-3666-46b8-932e-daafd6a0cd69", "Jeremy Jarvis"),
     CardSet::Magic2013,
-    CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::custom_full(
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::counter_target(
         "Counter target noncreature spell.",
-        CardBehavior::Negate,
-        "Implemented by the named card-local special behavior.",
+        &AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Not(
+            &ObjectPredicateDef::HasType(CardType::Creature),
+        )),
     )),
 );
 
@@ -3078,18 +3076,50 @@ pub(in crate::card::sets) static WILD_GUESS: CardRecord = CardRecord::new_with_l
 );
 
 // M13 158 — Worldfire
-// Audit: metadata-only — Needs simultaneous mass exile across zones plus a life-total setter.
 pub(in crate::card::sets) static WORLDFIRE: CardRecord = CardRecord::new_with_legacy_id(
     1696,
     "Worldfire",
     CardArt::new("2ef3d4b5-0453-4bf0-b018-23b0c3b9ae11", "Izzy"),
     CardSet::Magic2013,
-    CardRules::new_sorcery(mana_cost!("{6}{R}{R}{R}")).with_ability(
-        AbilityDef::unimplemented_spell(
-            "Exile all permanents. Exile all cards from all hands and graveyards. Each player's life total becomes 1.",
-            "Simultaneous mass exile across zones and setting every player's life total to a fixed value are not available declaratively.",
-        ),
-    ),
+    CardRules::new_sorcery(mana_cost!("{6}{R}{R}{R}")).with_ability(AbilityDef::spell(
+        "Exile all permanents. Exile all cards from all hands and graveyards. Each player's life total becomes 1.",
+        EffectDef::Sequence(&[
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                from: Some(ZoneKind::Battlefield),
+                zone: ZoneKind::Exile,
+                placement: ZonePlacement::Top,
+                controller: None,
+                arrival_effect: None,
+                attachment: None,
+                counters: None,
+                tapped: false,
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Hand, ZoneKind::Graveyard],
+                    PlayerRelation::Any,
+                ),
+                from: None,
+                zone: ZoneKind::Exile,
+                placement: ZonePlacement::Top,
+                controller: None,
+                arrival_effect: None,
+                attachment: None,
+                counters: None,
+                tapped: false,
+            },
+            EffectDef::SetLifeTotal {
+                recipient: EffectRecipientDef::players(PlayerSetDef::All),
+                total: ValueDef::Constant(1),
+            },
+        ]),
+    )),
 );
 
 // M13 159 — Acidic Slime

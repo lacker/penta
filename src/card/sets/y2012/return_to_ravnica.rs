@@ -4535,16 +4535,23 @@ pub(in crate::card::sets) static SPAWN_OF_RIX_MAADI: CardRecord = CardRecord::ne
 );
 
 // RTR 200 — Sphinx's Revelation
-// Audit: custom — Needs migration to declarative life gain and card draw that both use the spell's chosen X value.
 pub(in crate::card::sets) static SPHINXS_REVELATION: CardRecord = CardRecord::new_with_legacy_id(
     216,
     "Sphinx's Revelation",
     CardArt::new("404d9413-ef57-4b6e-8584-48a1dc7fe6f1", "Slawomir Maniak"),
     CardSet::ReturnToRavnica,
-    CardRules::new_instant(mana_cost!("{X}{W}{U}{U}")).with_ability(AbilityDef::custom_full(
+    CardRules::new_instant(mana_cost!("{X}{W}{U}{U}")).with_ability(AbilityDef::spell(
         "You gain X life and draw X cards.",
-        CardBehavior::SphinxsRevelation,
-        "Implemented by the named card-local special behavior.",
+        EffectDef::Sequence(&[
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::player(PlayerRefDef::EffectController),
+                amount: ValueDef::ChosenX,
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::player(PlayerRefDef::EffectController),
+                amount: ValueDef::ChosenX,
+            },
+        ]),
     )),
 );
 

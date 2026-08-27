@@ -2,13 +2,14 @@ use std::cell::Cell;
 
 use crate::ids::GrantId;
 
+#[cfg(test)]
+use super::CardBehavior;
 use super::continuous_effects::StaticEffectKind;
 use super::{
     AbilityDef, AbilityId, AbilityLayerOperation, AbilityLayerOperationKind, AbilityOperationDef,
-    AbilityOrigin, AppliedEffectDef, BasicLandType, CardBehavior, CardType,
-    CharacteristicOperationDef, ControlFlow, DeclarativeAbilityDef, EffectiveAbility, Game,
-    KeywordAbility, Permanent, ResolvedAbilityOperation, ResolvedContinuousEffectKind,
-    StaticAppliedEffect, abilities,
+    AbilityOrigin, AppliedEffectDef, BasicLandType, CardType, CharacteristicOperationDef,
+    ControlFlow, DeclarativeAbilityDef, EffectiveAbility, Game, KeywordAbility, Permanent,
+    ResolvedAbilityOperation, ResolvedContinuousEffectKind, StaticAppliedEffect, abilities,
 };
 
 thread_local! {
@@ -494,6 +495,7 @@ impl Game {
         mask
     }
 
+    #[cfg(test)]
     pub(super) fn effective_behavior(&self, permanent: &Permanent) -> Option<CardBehavior> {
         let mut abilities = self.collect_base_effective_abilities(permanent, None);
         for operation in self.resolved_ability_layer_operations(permanent) {

@@ -2,12 +2,11 @@ use std::cell::Cell;
 
 use super::continuous_effects::StaticEffectKind;
 use super::{
-    AppliedEffectDef, BasicLandType, CardBehavior, CardSupertype, CardType,
-    CharacteristicOperationDef, ContinuousEffectTimestamp, ControlFlow, CounterKind,
-    DeclarativeAbilityDef, EffectDef, Game, GameObjectId, KeywordAbility, ObjectPredicateDef,
-    ObjectQueryDef, Permanent, PlayerId, PlayerRelation, PowerToughnessOperationDef,
-    ResolvedContinuousEffectKind, ResolvedPowerToughnessOperation, RetiredObject, TriggerContext,
-    ValueDef,
+    AppliedEffectDef, BasicLandType, CardSupertype, CardType, CharacteristicOperationDef,
+    ContinuousEffectTimestamp, ControlFlow, CounterKind, DeclarativeAbilityDef, EffectDef, Game,
+    GameObjectId, KeywordAbility, ObjectPredicateDef, ObjectQueryDef, Permanent, PlayerId,
+    PlayerRelation, PowerToughnessOperationDef, ResolvedContinuousEffectKind,
+    ResolvedPowerToughnessOperation, RetiredObject, TriggerContext, ValueDef,
 };
 
 type BaseStatSetter = (ContinuousEffectTimestamp, u16, Option<i16>, Option<i16>);
@@ -524,24 +523,11 @@ impl Game {
         base: crate::CreatureStats,
         static_bonus: (i16, i16),
     ) -> crate::CreatureStats {
-        let behavior = self.effective_behavior(permanent);
-        let ascended = if behavior == Some(CardBehavior::BloodBaronOfVizkopa)
-            && self.players[permanent.controller.index()].life >= 30
-            && self.players[permanent.controller.opponent().index()].life <= 10
-        {
-            6
-        } else {
-            0
-        };
         let counter_bonus = Self::counter_stat_bonus(permanent);
         let resolved_bonus = self.resolved_power_toughness_bonus(permanent);
         let stats = crate::CreatureStats {
-            power: base.power + ascended + resolved_bonus.0 + static_bonus.0 + counter_bonus.0,
-            toughness: base.toughness
-                + ascended
-                + resolved_bonus.1
-                + static_bonus.1
-                + counter_bonus.1,
+            power: base.power + resolved_bonus.0 + static_bonus.0 + counter_bonus.0,
+            toughness: base.toughness + resolved_bonus.1 + static_bonus.1 + counter_bonus.1,
         };
         // CR 613.4e: the switch is applied after everything above, and two
         // switches in effect at once cancel -- so what matters is the parity
@@ -598,16 +584,6 @@ impl Game {
 
     pub(super) fn has_flying(&self, permanent: &Permanent) -> bool {
         self.permanent_has_executable_keyword(permanent, KeywordAbility::Flying)
-            || self.blood_baron_has_ascended(permanent)
-    }
-
-    /// Blood Baron of Vizkopa's condition: 30 or more life for its controller
-    /// and 10 or less for the opponent. While it holds the Baron is +6/+6 and
-    /// flies.
-    pub(super) fn blood_baron_has_ascended(&self, permanent: &Permanent) -> bool {
-        self.effective_behavior(permanent) == Some(CardBehavior::BloodBaronOfVizkopa)
-            && self.players[permanent.controller.index()].life >= 30
-            && self.players[permanent.controller.opponent().index()].life <= 10
     }
 
     pub(super) fn has_trample(&self, permanent: &Permanent) -> bool {

@@ -119,13 +119,28 @@ fn grisly_salvage_can_decline_and_bin_everything() {
 fn sphinxs_revelation_scales_life_and_cards_with_x() {
     let mut game = ready_game();
     let before_life = game.players[0].life;
-    let before_hand = game.players[0].hand.len();
+    game.players[0].library.clear();
+    game.players[0].library.extend([
+        card(10_100, cards::PLAINS, PlayerId::One),
+        card(10_101, cards::ISLAND, PlayerId::One),
+        card(10_102, cards::FOREST, PlayerId::One),
+    ]);
+    let revelation = card(10_000, cards::SPHINXS_REVELATION, PlayerId::One);
+    game.players[0].hand.push(revelation.clone());
+    game.players[0].mana_pool.white = 1;
+    game.players[0].mana_pool.blue = 2;
+    game.players[0].mana_pool.colorless = 3;
 
-    let cast = spell(10_000, cards::SPHINXS_REVELATION, PlayerId::One, 3);
-    game.resolve_spell_effect(&cast, CardBehavior::SphinxsRevelation);
+    game.apply(
+        PlayerId::One,
+        cast_action(revelation.id, Vec::new(), Vec::new(), 3),
+    )
+    .expect("Sphinx's Revelation can be cast for X equals three");
+    pass_priority_pair(&mut game);
 
     assert_eq!(game.players[0].life, before_life + 3);
-    assert_eq!(game.players[0].hand.len(), before_hand + 3);
+    assert_eq!(game.players[0].hand.len(), 3);
+    assert!(game.players[0].library.is_empty());
 }
 
 #[test]

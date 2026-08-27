@@ -162,9 +162,9 @@ struct Permanent {
     /// only for this attachment incarnation and therefore clears whenever
     /// the Equipment becomes unattached.
     reconfigured_timestamp: Option<ContinuousEffectTimestamp>,
-    /// Set by Pillar of Flame: if this creature would die this turn, it is
-    /// exiled instead. The replacement outlives the damage itself, so it
-    /// cannot be a property of the damage. Clears in cleanup.
+    /// Legacy checkpoint compatibility for the retired card-local
+    /// exile-instead-of-dying path. New effects store the shared applied rule;
+    /// this flag preserves already-written checkpoints until cleanup.
     exile_instead_of_dying: bool,
     combat_damage_assignment: Vec<CombatDamageAssignment>,
     /// Values established by the most recent copy effect. This is a frozen

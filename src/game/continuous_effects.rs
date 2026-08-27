@@ -563,6 +563,7 @@ impl Game {
                 | EffectDef::DealDamageAndApply { .. }
                 | EffectDef::DrainLife { .. }
                 | EffectDef::GainLife { .. }
+                | EffectDef::SetLifeTotal { .. }
                 | EffectDef::AddPlayerCounters { .. }
                 | EffectDef::DrawCards { .. }
                 | EffectDef::Discard { .. }

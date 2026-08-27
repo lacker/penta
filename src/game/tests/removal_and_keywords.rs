@@ -674,38 +674,55 @@ fn negate_and_essence_scatter_split_the_stack_by_card_kind() {
         .push(spell(10_001, cards::SAVANNAH_LIONS, PlayerId::Two, 0));
     game.stack
         .push(spell(10_002, cards::LIGHTNING_BOLT, PlayerId::Two, 0));
+    let scatter = card(10_003, cards::ESSENCE_SCATTER, PlayerId::One);
+    let negate = card(10_004, cards::NEGATE, PlayerId::One);
+    game.players[0]
+        .hand
+        .extend([scatter.clone(), negate.clone()]);
+    game.players[0].mana_pool.blue = 2;
+    game.players[0].mana_pool.colorless = 2;
 
-    let spells_hit = |game: &Game, behavior| -> Vec<StackObjectId> {
-        game.legal_target_lists(behavior, PlayerId::One, None, GameObjectId(0))
+    let spells_hit = |game: &Game, card| -> Vec<StackObjectId> {
+        game.legal_actions(PlayerId::One)
             .into_iter()
-            .filter_map(|choice| match choice.first() {
-                Some(Target::Spell(id)) => Some(*id),
+            .filter_map(|action| match action {
+                Action::CastSpell {
+                    card: offered,
+                    choices,
+                    ..
+                } if offered == card => choices.iter_targets().find_map(|target| match target {
+                    Target::Spell(id) => Some(*id),
+                    _ => None,
+                }),
                 _ => None,
             })
             .collect()
     };
 
-    let scatter = spells_hit(&game, CardBehavior::EssenceScatter);
+    let scatter_targets = spells_hit(&game, scatter.id);
     assert_eq!(
-        scatter,
+        scatter_targets,
         vec![StackObjectId(10_001)],
         "Essence Scatter sees only the creature spell"
     );
-    let negate = spells_hit(&game, CardBehavior::Negate);
+    let negate_targets = spells_hit(&game, negate.id);
     assert_eq!(
-        negate,
+        negate_targets,
         vec![StackObjectId(10_002)],
         "Negate sees only the noncreature spell"
     );
 
-    let counter = spell_with_targets(
-        10_003,
-        cards::NEGATE,
+    game.apply(
         PlayerId::One,
-        vec![Target::Spell(StackObjectId(10_002))],
-        0,
-    );
-    game.resolve_spell_effect(&counter, CardBehavior::Negate);
+        cast_action(
+            negate.id,
+            vec![Target::Spell(StackObjectId(10_002))],
+            Vec::new(),
+            0,
+        ),
+    )
+    .expect("Negate can target the noncreature spell");
+    pass_priority_pair(&mut game);
     assert!(
         !game
             .stack

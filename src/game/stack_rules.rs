@@ -269,6 +269,7 @@ impl Game {
         })
     }
 
+    #[cfg(test)]
     pub(super) fn counter_spell(&mut self, id: GameObjectId) {
         self.counter_spell_into(id, CounteredSpellZone::Graveyard);
     }

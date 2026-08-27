@@ -25,6 +25,33 @@ fn frightful_delusion_is_a_complete_declarative_sequence() {
     ));
 }
 
+#[test]
+fn migrated_deck_cards_are_complete_and_declarative() {
+    let game = isd_m14_game();
+    for id in [
+        cards::NEGATE,
+        cards::ESSENCE_SCATTER,
+        cards::WORLDFIRE,
+        cards::BLOOD_BARON_OF_VIZKOPA,
+        cards::PILLAR_OF_FLAME,
+        cards::SPHINXS_REVELATION,
+    ] {
+        let definition = game.catalog.get(id).unwrap();
+        assert_eq!(
+            definition.implementation_status(),
+            crate::ImplementationStatus::Complete,
+            "{} should be complete",
+            definition.name,
+        );
+        assert_eq!(
+            definition.rules.special_behavior(),
+            None,
+            "{} should have no card-local resolver",
+            definition.name,
+        );
+    }
+}
+
 fn frightful_delusion_payment_game() -> (Game, GameObjectId, GameObjectId) {
     let mut game = isd_m14_game();
     let bolt = card(19_100, cards::LIGHTNING_BOLT, PlayerId::Two);
@@ -594,7 +621,7 @@ fn temporal_mastery_schedules_an_extra_turn_and_exiles_itself() {
 }
 
 #[test]
-fn supported_searches_and_metadata_only_spells_have_the_right_cast_availability() {
+fn supported_searches_and_worldfire_have_the_right_cast_availability() {
     let mut game = isd_m14_game();
     game.players[0].hand.extend([
         card(24_000, cards::FOG, PlayerId::One),
@@ -624,7 +651,10 @@ fn supported_searches_and_metadata_only_spells_have_the_right_cast_availability(
         cast_cards.contains(&CardInstanceId(24_000)),
         "Fog is now executable"
     );
-    assert!(!cast_cards.contains(&CardInstanceId(24_001)));
+    assert!(
+        cast_cards.contains(&CardInstanceId(24_001)),
+        "Worldfire is now executable",
+    );
     assert!(
         cast_cards.contains(&CardInstanceId(24_002)),
         "Farseek uses the shared tapped search"
@@ -633,6 +663,72 @@ fn supported_searches_and_metadata_only_spells_have_the_right_cast_availability(
         cast_cards.contains(&CardInstanceId(24_003)),
         "Ranger's Path uses the shared multi-card tapped search"
     );
+}
+
+#[test]
+fn worldfire_exiles_the_named_zones_then_sets_both_life_totals() {
+    let mut game = isd_m14_game();
+    let worldfire = card(24_100, cards::WORLDFIRE, PlayerId::One);
+    game.players[0].hand.extend([
+        worldfire.clone(),
+        card(24_101, cards::FOREST, PlayerId::One),
+    ]);
+    game.players[1]
+        .hand
+        .push(card(24_102, cards::ISLAND, PlayerId::Two));
+    game.players[0]
+        .graveyard
+        .push(card(24_103, cards::PLAINS, PlayerId::One));
+    game.players[1]
+        .graveyard
+        .push(card(24_104, cards::MOUNTAIN, PlayerId::Two));
+    game.battlefield.extend([
+        creature(24_105, cards::SAVANNAH_LIONS, PlayerId::One),
+        creature(24_106, cards::GRIZZLY_BEARS, PlayerId::Two),
+    ]);
+    game.players[0].life = 37;
+    game.players[1].life = 4;
+    game.players[0].mana_pool.red = 3;
+    game.players[0].mana_pool.colorless = 6;
+
+    game.apply(
+        PlayerId::One,
+        cast_action(worldfire.id, Vec::new(), Vec::new(), 0),
+    )
+    .expect("Worldfire can be cast");
+    pass_priority_pair(&mut game);
+
+    assert!(game.battlefield.is_empty());
+    assert!(game.players.iter().all(|player| player.hand.is_empty()));
+    assert_eq!(game.players[0].life, 1);
+    assert_eq!(game.players[1].life, 1);
+    assert_eq!(
+        game.players[0]
+            .graveyard
+            .iter()
+            .map(|card| card.definition)
+            .collect::<Vec<_>>(),
+        vec![cards::WORLDFIRE],
+        "the resolving spell itself is not among the hand and graveyard cards exiled",
+    );
+    assert!(game.players[1].graveyard.is_empty());
+    for (player, expected) in [
+        (
+            PlayerId::One,
+            [cards::FOREST, cards::PLAINS, cards::SAVANNAH_LIONS],
+        ),
+        (
+            PlayerId::Two,
+            [cards::ISLAND, cards::MOUNTAIN, cards::GRIZZLY_BEARS],
+        ),
+    ] {
+        let exiled = game.players[player.index()]
+            .exile
+            .iter()
+            .map(|card| card.definition)
+            .collect::<Vec<_>>();
+        assert!(expected.into_iter().all(|card| exiled.contains(&card)));
+    }
 }
 
 #[test]

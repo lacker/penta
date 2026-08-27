@@ -56,6 +56,47 @@ pub(super) struct MoveToZoneClause {
 }
 
 impl Game {
+    fn resolved_arrival_counters(
+        &self,
+        counters: Option<TokenCountersDef>,
+        object: &StackObject,
+        context: &EffectResolutionContext,
+        scoped: ScopedEffect,
+    ) -> Option<(CounterKind, u16)> {
+        counters.map(|counters| {
+            (
+                counters.kind,
+                u16::try_from(
+                    self.effect_value(counters.amount, object, context, scoped)
+                        .max(0),
+                )
+                .unwrap_or(u16::MAX),
+            )
+        })
+    }
+
+    fn batch_exile_permanents(
+        &mut self,
+        recipients: &[Target],
+        from: Option<ZoneKind>,
+        zone: ZoneKind,
+    ) -> bool {
+        let batch =
+            zone == ZoneKind::Exile && from.is_none_or(|from| from == ZoneKind::Battlefield);
+        if !batch {
+            return false;
+        }
+        let permanents = recipients
+            .iter()
+            .filter_map(|target| match target {
+                Target::Permanent(id) => Some(*id),
+                Target::Card(_) | Target::Player(_) | Target::Spell(_) => None,
+            })
+            .collect::<Vec<_>>();
+        self.exile_permanents(&permanents);
+        true
+    }
+
     pub(super) fn resolve_move_to_zone(
         &mut self,
         clause: MoveToZoneClause,
@@ -96,17 +137,13 @@ impl Game {
         });
         // Resolved once rather than per target: "with a counter on it" reads
         // the same number for everything the clause moves.
-        let arriving_counters = counters.map(|counters| {
-            (
-                counters.kind,
-                u16::try_from(
-                    self.effect_value(counters.amount, object, context, scoped)
-                        .max(0),
-                )
-                .unwrap_or(u16::MAX),
-            )
-        });
-        for target in self.effect_recipients(recipient, object, context, scoped) {
+        let arriving_counters = self.resolved_arrival_counters(counters, object, context, scoped);
+        let recipients = self.effect_recipients(recipient, object, context, scoped);
+        let batch_exile = self.batch_exile_permanents(&recipients, from, zone);
+        for target in recipients {
+            if batch_exile && matches!(target, Target::Permanent(_)) {
+                continue;
+            }
             let (actual_zone, owner) = match target {
                 Target::Permanent(id) => self
                     .battlefield

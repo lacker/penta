@@ -403,7 +403,7 @@ impl Game {
         exact_count: Option<usize>,
     ) -> Vec<Vec<Target>> {
         match behavior {
-            CardBehavior::PillarOfFlame | CardBehavior::GoblinGrenade => self
+            CardBehavior::GoblinGrenade => self
                 .damage_targets()
                 .into_iter()
                 .map(|target| vec![target])
@@ -427,22 +427,6 @@ impl Game {
                     .collect();
                 target_combinations(&artifacts, 2)
             }
-            // Both read the spell's kind off its chosen play option, so a
-            // split or modal card counts as whatever it was actually cast as.
-            CardBehavior::Negate | CardBehavior::EssenceScatter => self
-                .stack
-                .iter()
-                .filter(|object| {
-                    object.kind == StackObjectKind::Spell
-                        && self
-                            .stack_spell_types(object)
-                            .is_some_and(|types| match behavior {
-                                CardBehavior::EssenceScatter => types.is_creature(),
-                                _ => !types.is_creature(),
-                            })
-                })
-                .map(|object| vec![Target::Spell(object.id)])
-                .collect(),
             _ => vec![Vec::new()],
         }
     }

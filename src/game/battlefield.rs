@@ -278,9 +278,25 @@ impl Game {
         self.move_permanents_to_graveyard_then(ids, None);
     }
 
+    /// Exiles every named permanent as one simultaneous battlefield-exit
+    /// event. A global exile must freeze all listeners before any source
+    /// leaves, just as a global destroy or sacrifice does.
+    pub(super) fn exile_permanents(&mut self, ids: &[GameObjectId]) {
+        self.move_permanents_to_zone_then(ids, ZoneKind::Exile, None);
+    }
+
     pub(super) fn move_permanents_to_graveyard_then(
         &mut self,
         ids: &[GameObjectId],
+        completion: Option<BattlefieldExitCompletion>,
+    ) {
+        self.move_permanents_to_zone_then(ids, ZoneKind::Graveyard, completion);
+    }
+
+    fn move_permanents_to_zone_then(
+        &mut self,
+        ids: &[GameObjectId],
+        destination: ZoneKind,
         completion: Option<BattlefieldExitCompletion>,
     ) {
         let mut seen = Vec::new();
@@ -300,16 +316,19 @@ impl Game {
                         // A finality counter says the same thing a
                         // turn-long exile-instead effect says (CR 122.1h),
                         // and outlasts it: the counter is on the permanent
-                        // rather than on the turn. The flag beside it is
-                        // Pillar of Flame's older card-local route to the
-                        // same replacement.
-                        destination: if permanent.exile_instead_of_dying
-                            || permanent.counters(CounterKind::Finality) > 0
-                            || self.has_applied_rule(permanent, AppliedRuleDef::ExileInsteadOfDying)
-                        {
+                        // rather than on the turn. The flag beside it only
+                        // restores the retired card-local representation from
+                        // older checkpoints.
+                        destination: if destination == ZoneKind::Graveyard
+                            && (permanent.exile_instead_of_dying
+                                || permanent.counters(CounterKind::Finality) > 0
+                                || self.has_applied_rule(
+                                    permanent,
+                                    AppliedRuleDef::ExileInsteadOfDying,
+                                )) {
                             ZoneKind::Exile
                         } else {
-                            ZoneKind::Graveyard
+                            destination
                         },
                         counters: None,
                         replaced_with_nothing: false,

@@ -19,22 +19,6 @@ impl Game {
     #[allow(clippy::too_many_lines)]
     pub(super) fn resolve_spell_effect(&mut self, object: &StackObject, behavior: CardBehavior) {
         match behavior {
-            CardBehavior::SphinxsRevelation => {
-                let player = object.controller;
-                self.gain_life(player, object.x());
-                self.draw_instruction(player, object.x());
-            }
-            CardBehavior::PillarOfFlame => {
-                self.damage_target(object.first_target(), 2);
-                if let Some(Target::Permanent(target)) = object.first_target()
-                    && let Some(permanent) = self
-                        .battlefield
-                        .iter_mut()
-                        .find(|permanent| permanent.card.id == target)
-                {
-                    permanent.exile_instead_of_dying = true;
-                }
-            }
             CardBehavior::GoblinGrenade => {
                 self.damage_target(object.first_target(), 5);
             }
@@ -51,11 +35,6 @@ impl Game {
                     Target::Player(_) | Target::Card(_) | Target::Spell(_) => None,
                 }) {
                     self.exile_permanent(target);
-                }
-            }
-            CardBehavior::Negate | CardBehavior::EssenceScatter => {
-                if let Some(Target::Spell(target)) = object.first_target() {
-                    self.counter_spell(target);
                 }
             }
             CardBehavior::Mulch => {

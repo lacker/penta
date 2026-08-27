@@ -4,14 +4,14 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord, gatecrash};
 use crate::card::sets::y2012::return_to_ravnica;
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AppliedEffectDef, AppliedRuleDef, CardArt, CardBehavior, CardRules, CardSet, CardSupertype,
-    CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorSet, ComparisonDef,
-    ControlDurationDef, CopyAbilityDef, CopyExceptionsDef, CounterKind, CreatureTypeSetDef,
-    DamageEventMatcherDef, DamagePreventionDef, DamageRecipientMatcherDef, DiscardSelectionDef,
-    EffectDef, EffectPaymentDef, EffectRecipientDef, LikelihoodDef, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
-    SacrificedAmountDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorSet, ComparisonDef, ControlDurationDef,
+    CopyAbilityDef, CopyExceptionsDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef,
+    DamagePreventionDef, DamageRecipientMatcherDef, DiscardSelectionDef, EffectDef,
+    EffectPaymentDef, EffectRecipientDef, LikelihoodDef, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
     ZonePlacement, abilities,
 };
 use crate::ids::{ObjectBindingIndex, TargetIndex};
@@ -1122,7 +1122,31 @@ pub(in crate::card::sets) static BLAZE_COMMANDO: CardRecord = CardRecord::new(
 );
 
 // DGM 57 — Blood Baron of Vizkopa
-// Audit: custom — Needs a declarative continuous effect conditioned on both its controller's and an opponent's life totals.
+static BLOOD_BARON_CONTROLLER_AT_THIRTY: ValueComparisonDef = ValueComparisonDef {
+    left: ValueDef::LifeTotal(PlayerRelation::You),
+    comparison: ComparisonDef::GreaterOrEqual,
+    right: ValueDef::Constant(30),
+};
+
+static BLOOD_BARON_OPPONENT_AT_TEN: ValueComparisonDef = ValueComparisonDef {
+    left: ValueDef::LifeTotal(PlayerRelation::Opponent),
+    comparison: ComparisonDef::LessOrEqual,
+    right: ValueDef::Constant(10),
+};
+
+static BLOOD_BARON_ASCENDED: [TriggerConditionDef; 2] = [
+    TriggerConditionDef::ValueComparison(&BLOOD_BARON_CONTROLLER_AT_THIRTY),
+    TriggerConditionDef::ValueComparison(&BLOOD_BARON_OPPONENT_AT_TEN),
+];
+
+static BLOOD_BARON_BONUS: EffectDef = EffectDef::StaticApply {
+    recipient: EffectRecipientDef::Source,
+    effect: AppliedEffectDef::Composite(&[
+        AppliedEffectDef::modify_power_toughness(ValueDef::Constant(6), ValueDef::Constant(6)),
+        AppliedEffectDef::add_ability(&abilities::flying()),
+    ]),
+};
+
 pub(in crate::card::sets) static BLOOD_BARON_OF_VIZKOPA: CardRecord = CardRecord::new_with_legacy_id(
     142,
     "Blood Baron of Vizkopa",
@@ -1138,10 +1162,12 @@ pub(in crate::card::sets) static BLOOD_BARON_OF_VIZKOPA: CardRecord = CardRecord
         abilities::lifelink(),
         abilities::protection_from_color(ManaColor::White),
         abilities::protection_from_color(ManaColor::Black),
-        AbilityDef::custom_full(
+        AbilityDef::static_ability(
             "As long as you have 30 or more life and an opponent has 10 or less life, this creature gets +6/+6 and has flying.",
-            CardBehavior::BloodBaronOfVizkopa,
-            "The conditional power, toughness, and flying effect is implemented by the card-local static-effect hook.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::All(&BLOOD_BARON_ASCENDED),
+                then: &BLOOD_BARON_BONUS,
+            },
         ),
     ]),
 );

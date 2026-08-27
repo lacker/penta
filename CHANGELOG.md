@@ -190,6 +190,16 @@ distinguishes snapshots of the covered source and build inputs.
   Preacher of the Schism stops making a Vampire off an attack that was
   pointed at a planeswalker rather than at the leading player. Every clause
   that already read "attacks you" keeps counting both, which is what it says.
+- **Six ISD-M14 deck cards now use shared declarative rules.** Negate and
+  Essence Scatter use the ordinary filtered counterspell effect; Pillar of
+  Flame uses the damage-linked exile-instead-of-dying rule; Sphinx's
+  Revelation composes chosen-X life gain and card draw; Blood Baron of Vizkopa
+  gates its +6/+6 and flying effect on live life-total comparisons; and
+  Worldfire exiles the named zones before setting both life totals to one.
+  Their five retired `CardBehavior` selectors and card-local execution paths
+  have been removed. Existing action and checkpoint vocabulary already
+  expresses all six cards, so protocol 29, replay version 2, and checkpoint
+  format 9 are unchanged.
 
 - **A target somebody else chooses.** "That player chooses target player who
   controls more creatures than they do" hands the choice to a player who

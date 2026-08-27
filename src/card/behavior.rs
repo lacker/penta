@@ -2,20 +2,15 @@
 pub enum CardBehavior {
     AugurOfBolas,
     Balance,
-    BloodBaronOfVizkopa,
     DustToDust,
-    EssenceScatter,
     Fireball,
     GoblinGrenade,
     GrislySalvage,
     LibraryOfAlexandria,
     Mulch,
-    Negate,
-    PillarOfFlame,
     Recall,
     FellwarStone,
     ReflectingPool,
-    SphinxsRevelation,
     /// Tetravus's first upkeep trigger: trade +1/+1 counters for Tetravites.
     TetravusDetach,
     /// Tetravus's second upkeep trigger: exile its own Tetravites to take the

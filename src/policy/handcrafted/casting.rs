@@ -116,7 +116,6 @@ impl HandcraftedPolicy {
             return -10_000;
         }
         let damage = match behavior {
-            Some(CardBehavior::PillarOfFlame) => Some(2),
             Some(CardBehavior::GoblinGrenade) => Some(5),
             Some(CardBehavior::Fireball) => fireball_damage,
             _ => declarative.and_then(|profile| profile.damage),
@@ -155,7 +154,6 @@ impl HandcraftedPolicy {
         .unwrap_or(i32::MAX);
         let base = match behavior {
             Some(CardBehavior::GoblinGrenade) => 8_500,
-            Some(CardBehavior::PillarOfFlame) => 7_800,
             Some(CardBehavior::Fireball) => 7_900 + i32::from(x) * 20,
             Some(behavior) if behavior.types().is_permanent() => 6_800,
             _ if extra_turn => 8_300,
